@@ -8,6 +8,7 @@ RUN apt-get update && \
     nano \
     ninja-build \
     libglib2.0-0 \
+    g++ \
     pip \
     libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev \
     libdbus-c++-dev \

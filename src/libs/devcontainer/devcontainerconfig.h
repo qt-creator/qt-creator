@@ -138,13 +138,14 @@ struct DEVCONTAINER_EXPORT BuildOptions
         const QJsonObject &json, const JsonStringToString &jsonStringToString);
 };
 
-struct FeatureDependency
+struct DEVCONTAINER_EXPORT FeatureDependency
 {
+    //! The reference to the feature as written, e.g. "ghcr.io/devcontainers/features/node:1".
     QString id;
-    QString version = "latest";
-    std::map<QString, QJsonValue> options;
+    QJsonObject options;
 
-    static Utils::Result<FeatureDependency> fromJson(const QString &key, const QJsonObject &obj);
+    static Utils::Result<FeatureDependency> fromJson(
+        const QString &key, const QJsonValue &value, const JsonStringToString &jsonStringToString);
 };
 
 // Non-compose base structure
@@ -260,6 +261,7 @@ struct DEVCONTAINER_EXPORT Config
 
 //! Returns a QJsonValue for the specified path. e.g.: customization(config, "qt-creator/device/mount-cmd-bridge")
 DEVCONTAINER_EXPORT QJsonValue customization(const Config &config, const QString &path);
+DEVCONTAINER_EXPORT QJsonValue customization(const QJsonObject &customizations, const QString &path);
 
 // QDebug stream operators for all DevContainer structures
 DEVCONTAINER_EXPORT QDebug operator<<(QDebug debug, const DevContainer::OnAutoForward &value);

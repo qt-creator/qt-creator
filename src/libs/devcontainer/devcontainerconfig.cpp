@@ -160,7 +160,12 @@ Result<DevContainer::Config> DevContainer::Config::fromJson(
 
 QJsonValue customization(const Config &config, const QString &path)
 {
-    QJsonObject current = config.common.customizations;
+    return customization(config.common.customizations, path);
+}
+
+QJsonValue customization(const QJsonObject &customizations, const QString &path)
+{
+    QJsonObject current = customizations;
     const QStringList parts = path.split(QLatin1Char('/'));
 
     for (auto it = parts.cbegin(); it != parts.cend(); ++it) {
@@ -195,7 +200,7 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
     if (json.contains("features") && json["features"].isObject()) {
         QJsonObject featuresObj = json["features"].toObject();
         for (auto it = featuresObj.begin(); it != featuresObj.end(); ++it) {
-            const auto dep = FeatureDependency::fromJson(it.key(), it.value().toObject());
+            const auto dep = FeatureDependency::fromJson(it.key(), it.value(), jsonStringToString);
             if (!dep)
                 return ResultError(dep.error());
             common.features.push_back(*dep);
@@ -1253,18 +1258,9 @@ QDebug operator<<(QDebug debug, const DevContainer::NonComposeBase &value)
 QDebug operator<<(QDebug debug, const DevContainer::FeatureDependency &value)
 {
     QDebugStateSaver saver(debug);
-    debug.nospace() << "FeatureDependency(id=" << value.id << ":" << value.version;
-    if (!value.options.empty()) {
-        debug << ", options={";
-        bool first = true;
-        for (const auto &[key, val] : value.options) {
-            if (!first)
-                debug << ", ";
-            debug << key << ": " << val;
-            first = false;
-        }
-        debug << "}";
-    }
+    debug.nospace() << "FeatureDependency(id=" << value.id;
+    if (!value.options.isEmpty())
+        debug << ", options=" << value.options;
     debug << ")";
     return debug;
 }
@@ -1314,23 +1310,31 @@ bool Config::isValidConfigPath(
 }
 
 Utils::Result<FeatureDependency> FeatureDependency::fromJson(
-    const QString &key, const QJsonObject &obj)
+    const QString &key, const QJsonValue &value, const JsonStringToString &jsonStringToString)
 {
-    FeatureDependency dep;
-
-    if (key.isEmpty())
+    if (key.trimmed().isEmpty())
         return ResultError(Tr::tr("Feature dependency key cannot be empty."));
 
-    auto [id, version] = Utils::splitAtFirst(key, ':');
-    if (id.isEmpty())
-        return ResultError(Tr::tr("Feature dependency key must contain an ID."));
+    FeatureDependency dep;
+    dep.id = key.trimmed();
 
-    dep.id = id.toString();
-    if (!version.isEmpty())
-        dep.version = version.toString();
-
-    for (auto it = obj.begin(); it != obj.end(); ++it)
-        dep.options[it.key()] = it.value();
+    // https://containers.dev/implementors/features/#devcontainer-json-properties
+    // A string is short for the "version" option, a boolean selects the defaults.
+    if (value.isString()) {
+        dep.options.insert("version", jsonStringToString(value));
+    } else if (value.isObject()) {
+        const QJsonObject obj = value.toObject();
+        for (auto it = obj.begin(); it != obj.end(); ++it) {
+            if (it.value().isString())
+                dep.options.insert(it.key(), jsonStringToString(it.value()));
+            else
+                dep.options.insert(it.key(), it.value());
+        }
+    } else if (!value.isBool() && !value.isNull() && !value.isUndefined()) {
+        return ResultError(
+            Tr::tr("The options of the feature \"%1\" must be an object, a string or a boolean.")
+                .arg(key));
+    }
 
     return dep;
 }

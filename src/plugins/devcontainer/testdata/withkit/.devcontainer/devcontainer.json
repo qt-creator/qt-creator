@@ -6,6 +6,9 @@
             "--platform=linux/amd64"
         ]
     },
+    "features": {
+        "ghcr.io/devcontainers/features/go:1": {},
+    },
     "customizations": {
         "qt-creator": {
             "auto-detect-kits": false,
@@ -14,8 +17,8 @@
                     "name": "DevKit1",
                     "QtSupport.QtInformation": "/6.7.0/gcc_64/bin/qmake6",
                     "PE.Profile.ToolChainsV3": {
-                        "Cxx": "/usr/bin/g++",
-                        "C": "/usr/bin/gcc"
+                        "Cxx": "/usr/bin/clang++",
+                        "C": "/usr/bin/clang"
                     },
                     "CMakeProjectManager.CMakeKitInformation": {
                         "binary": "/usr/bin/cmake",
@@ -27,8 +30,8 @@
                     "name": "DevKit2",
                     "qt": "/6.7.0/gcc_64/bin/qmake6",
                     "compiler": {
-                        "Cxx": "/usr/bin/g++",
-                        "C": "/usr/bin/gcc"
+                        "Cxx": "/usr/bin/clang++",
+                        "C": "/usr/bin/clang"
                     },
                     "cmake": {
                         "binary": "/usr/bin/cmake",

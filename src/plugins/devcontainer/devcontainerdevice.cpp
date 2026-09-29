@@ -454,9 +454,19 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
         return SetupResult::Continue;
     };
 
-    const auto onDeviceStarted = [this, instance](DoneWith doneWith) -> DoneResult {
+    const auto onDeviceStarted =
+        [this, instance, options, runningInstance](DoneWith doneWith) -> DoneResult {
         if (doneWith == DoneWith::Error)
             return DoneResult::Error;
+
+        // Features may add customizations, which are known only now.
+        const QJsonObject &customizations = runningInstance->customizations;
+        options->copyCmdBridge
+            = DevContainer::customization(customizations, "qt-creator/device/copy-cmd-bridge")
+                  .toBool(options->copyCmdBridge);
+        options->autoDetectKits
+            = DevContainer::customization(customizations, "qt-creator/auto-detect-kits")
+                  .toBool(options->autoDetectKits);
 
         auto downRecipe = (*instance)->downRecipe(false);
         auto forceDownRecipe = (*instance)->downRecipe(true);
@@ -474,8 +484,9 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
         return DoneResult::Success;
     };
 
-    const auto setupManualKits = [this, instance, instanceConfig](QTaskTree &tree) {
-        const QJsonArray kits = customization((*instance)->config(), "qt-creator/kits").toArray();
+    const auto setupManualKits = [this, runningInstance, instanceConfig](QTaskTree &tree) {
+        const QJsonArray kits
+            = customization(runningInstance->customizations, "qt-creator/kits").toArray();
 
         GroupItems steps;
 

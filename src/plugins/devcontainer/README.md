@@ -6,6 +6,51 @@ It allows you to easily configure and manage containers for your projects.
 
 You can find a full specification of and documentation about the configuration format at [https://containers.dev/](https://containers.dev/)
 
+## Features
+
+[Features](https://containers.dev/implementors/features/) listed in the `features` property
+are installed on top of the image, for `image`, `build` and `dockerComposeFile` configurations:
+
+```json
+{
+    "image": "ubuntu:24.04",
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": { "username": "automatic" },
+        "https://example.com/features/devcontainer-feature-mytool.tgz": {},
+        "./local-feature": {}
+    },
+    "overrideFeatureInstallOrder": [ "ghcr.io/devcontainers/features/common-utils" ],
+    "remoteUser": "dev"
+}
+```
+
+A feature can come from an OCI registry, from an HTTPS URL to a `devcontainer-feature-<id>.tgz` file,
+or from a folder next to the `devcontainer.json`. The features a feature `dependsOn` are
+installed as well, and the order respects `dependsOn`, `installsAfter` and
+`overrideFeatureInstallOrder`. What the features declare for the container (`containerEnv`,
+`mounts`, `capAdd`, `securityOpt`, `init`, `privileged`, `entrypoint`, `customizations` and the
+lifecycle commands) is merged with the configuration. The lifecycle commands of the features run
+before the ones of the configuration.
+
+For registries that require credentials, log in with `docker login <registry>`. The credentials
+are taken from the Docker configuration (`$DOCKER_CONFIG/config.json` or
+`~/.docker/config.json`), including credential helpers (`credHelpers` and `credsStore`).
+
+Downloaded features are cached, so they are not downloaded again while they are current, and a
+cached copy is used when the registry or server cannot be reached.
+
+## Lifecycle commands
+
+`onCreateCommand`, `updateContentCommand` and `postCreateCommand` run when the container is
+created, `postStartCommand` each time it is started, and `postAttachCommand` each time Qt Creator
+connects to it. `initializeCommand` runs on the host before the container is built.
+
+## User IDs
+
+On Linux hosts, the UID and GID of the `remoteUser` (or the `containerUser`) are changed to the
+ones of your user, so files in the mounted workspace have the right owner. Set
+`"updateRemoteUserUID": false` to keep the IDs of the image.
+
 ## Custom configuration support
 
 Example of a devcontainer.json with customizations for Qt Creator:

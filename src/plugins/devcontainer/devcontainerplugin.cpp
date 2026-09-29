@@ -462,6 +462,8 @@ void DevContainerPlugin::onEditorCreated(Core::IEditor *editor, const FilePath &
 void DevContainerPlugin::startDeviceForProject(
     Project *project, DevContainer::InstanceConfig instanceConfig)
 {
+    instanceConfig.featureCacheFolder = Core::ICore::cacheResourcePath("devcontainer-features");
+
     std::shared_ptr<QString> log = std::make_shared<QString>();
     instanceConfig.logFunction = [log](const QString &message) {
         *log += message + '\n';

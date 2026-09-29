@@ -18,6 +18,12 @@ namespace DevContainer {
 
 struct InstancePrivate;
 
+struct DEVCONTAINER_EXPORT LocalUser
+{
+    uint uid = 0;
+    uint gid = 0;
+};
+
 struct DEVCONTAINER_EXPORT InstanceConfig
 {
     Utils::FilePath dockerCli = Utils::FilePath("docker").searchInPath();
@@ -33,8 +39,17 @@ struct DEVCONTAINER_EXPORT InstanceConfig
     using LogFunction = std::function<void(const QString &)>;
     LogFunction logFunction = [](const QString &msg) { qDebug().noquote() << msg; };
 
+    //! Where downloaded features are kept. Without it, features are downloaded on every start.
+    Utils::FilePath featureCacheFolder;
+
+    //! The user the remote user's UID and GID are changed to ("updateRemoteUserUID").
+    //! Only set by default on Linux hosts, where the container shares the IDs of the host.
+    std::optional<LocalUser> localUser = defaultLocalUser();
+
     QString jsonToString(const QJsonValue &value) const;
     QString devContainerId() const;
+
+    static std::optional<LocalUser> defaultLocalUser();
 };
 
 struct DEVCONTAINER_EXPORT RunningInstanceData
@@ -43,6 +58,8 @@ struct DEVCONTAINER_EXPORT RunningInstanceData
     Utils::OsArch osArch;
     Utils::Environment remoteEnvironment;
     QString containerId;
+    //! The customizations of the features merged with the ones of the configuration.
+    QJsonObject customizations;
 };
 
 using RunningInstance = std::shared_ptr<RunningInstanceData>;
@@ -65,6 +82,9 @@ public:
     Utils::Result<QtTaskTree::Group> downRecipe(bool forceDown) const;
 
     const Config &config() const;
+
+    //! The names of all images the instance may create, e.g. to remove them.
+    QStringList imageNames() const;
 
 private:
     std::unique_ptr<InstancePrivate> d;

@@ -2,7 +2,7 @@ QtcLibrary {
     name: "DevContainer"
     Depends { name: "Utils" }
     Depends { name: "QtTaskTree" }
-    Depends { name: "Qt.core" }
+    Depends { name: "Qt"; submodules: ["core", "network"] }
 
     cpp.defines: base.concat([
         "DEVCONTAINER_LIBRARY"
@@ -17,6 +17,8 @@ QtcLibrary {
         "devcontainerfeature.cpp",
         "devcontainerfeature.h",
         "devcontainertr.h",
+        "featuredownloader.cpp",
+        "featuredownloader.h",
         "substitute.cpp",
         "substitute.h"
     ]

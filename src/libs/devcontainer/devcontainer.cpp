@@ -3,7 +3,9 @@
 
 #include "devcontainer.h"
 
+#include "devcontainerfeature.h"
 #include "devcontainertr.h"
+#include "featuredownloader.h"
 #include "substitute.h"
 
 #include <QtTaskTree/QBarrier>
@@ -13,10 +15,19 @@
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
+#include <utils/temporarydirectory.h>
+#include <utils/unarchiver.h>
 #include <utils/utility.h>
 
 #include <QCryptographicHash>
+#include <QDir>
 #include <QLoggingCategory>
+#include <QSet>
+#include <QTemporaryDir>
+
+#ifdef Q_OS_LINUX
+#include <unistd.h>
+#endif
 
 static Q_LOGGING_CATEGORY(devcontainerlog, "devcontainer", QtWarningMsg)
 
@@ -54,6 +65,15 @@ QString InstanceConfig::devContainerId() const
     QString id = QString::fromLatin1(
         QCryptographicHash::hash(combined, QCryptographicHash::Sha256).toHex());
     return id;
+}
+
+std::optional<LocalUser> InstanceConfig::defaultLocalUser()
+{
+#ifdef Q_OS_LINUX
+    return LocalUser{uint(::getuid()), uint(::getgid())};
+#else
+    return std::nullopt;
+#endif
 }
 
 QString InstanceConfig::jsonToString(const QJsonValue &value) const
@@ -634,8 +654,462 @@ static ProcessTask inspectImageTask(
     return ProcessTask{setupInspectImage, doneInspectImage};
 }
 
+// What this start did to the container, which decides the lifecycle hooks that run.
+struct ContainerLifecycle
+{
+    bool created = false;
+    bool started = false;
+    // The container and its state before "docker compose up".
+    QString previousId;
+    QString previousState;
+};
+
+struct FeaturesState
+{
+    struct Pending
+    {
+        FeatureReference reference;
+        QJsonObject options;
+    };
+
+    Result<FilePath> contextFolder();
+    // Kept apart from the build context, which is sent to the Docker daemon as a whole.
+    Result<FilePath> downloadFolder();
+
+    std::unique_ptr<QTemporaryDir> contextDir;
+    std::unique_ptr<QTemporaryDir> downloadDir;
+    std::vector<Pending> pending;
+    QSet<QString> requested;
+    std::vector<ResolvedFeature> features;
+    int fetchCount = 0;
+};
+
+static Result<FilePath> temporaryFolder(std::unique_ptr<QTemporaryDir> &dir)
+{
+    if (!dir) {
+        const QString base = TemporaryDirectory::masterTemporaryDirectory()
+                                 ? TemporaryDirectory::masterDirectoryPath()
+                                 : QDir::tempPath();
+        dir = std::make_unique<QTemporaryDir>(base + "/devcontainer-XXXXXX");
+        if (!dir->isValid()) {
+            const QString error = dir->errorString();
+            dir.reset();
+            return ResultError(
+                Tr::tr("Cannot create a temporary directory for the build: %1").arg(error));
+        }
+    }
+    return FilePath::fromString(dir->path());
+}
+
+Result<FilePath> FeaturesState::contextFolder()
+{
+    return temporaryFolder(contextDir);
+}
+
+Result<FilePath> FeaturesState::downloadFolder()
+{
+    return temporaryFolder(downloadDir);
+}
+
+static void addPendingFeature(
+    FeaturesState &state, const FeatureReference &reference, const QJsonObject &options)
+{
+    const QString key = featureKey(reference, options);
+    if (state.requested.contains(key))
+        return;
+    state.requested.insert(key);
+    state.pending.push_back({reference, options});
+}
+
+static QString featureFolderName(int index, const QString &id)
+{
+    static const QRegularExpression invalidChars("[^A-Za-z0-9_.-]");
+    return QString("%1_%2").arg(index).arg(QString(id).replace(invalidChars, "_"));
+}
+
+static DoneResult readFetchedFeature(
+    FeaturesState *state,
+    const FeaturesState::Pending &pending,
+    const FilePath &folder,
+    const InstanceConfig &instanceConfig)
+{
+    const Result<> result = [&]() -> Result<> {
+        const Result<QByteArray> contents = (folder / "devcontainer-feature.json").fileContents();
+        if (!contents) {
+            return ResultError(
+                Tr::tr("The feature \"%1\" has no devcontainer-feature.json: %2")
+                    .arg(pending.reference.userReference, contents.error()));
+        }
+
+        Result<Feature> feature
+            = Feature::fromJson(*contents, [&instanceConfig](const QJsonValue &value) {
+                  return instanceConfig.jsonToString(value);
+              });
+        if (!feature) {
+            return ResultError(
+                Tr::tr("Cannot read the feature \"%1\": %2")
+                    .arg(pending.reference.userReference, feature.error()));
+        }
+
+        if (feature->deprecated) {
+            instanceConfig.logFunction(
+                Tr::tr("The feature \"%1\" is deprecated.").arg(pending.reference.userReference));
+        }
+
+        for (const FeatureDependency &dependency : feature->dependsOn) {
+            const Result<FeatureReference> reference
+                = FeatureReference::parse(dependency.id, instanceConfig.configFilePath.parentDir());
+            if (!reference)
+                return ResultError(reference.error());
+            addPendingFeature(*state, *reference, dependency.options);
+        }
+
+        state->features.push_back(
+            ResolvedFeature{pending.reference, pending.options, *feature, folder});
+        instanceConfig.logFunction(
+            Tr::tr("Fetched the feature \"%1\" (%2 %3).")
+                .arg(
+                    pending.reference.userReference,
+                    feature->name.isEmpty() ? feature->id : feature->name,
+                    feature->version));
+        return ResultOk;
+    }();
+
+    if (!result) {
+        instanceConfig.logFunction(result.error());
+        return DoneResult::Error;
+    }
+    return DoneResult::Success;
+}
+
+static GroupItem fetchFeatureRecipe(
+    FeaturesState *state,
+    const FeaturesState::Pending &pending,
+    const FilePath &contextFolder,
+    const FilePath &downloadFolder,
+    const InstanceConfig &instanceConfig)
+{
+    const int index = state->fetchCount++;
+    const FilePath folder = contextFolder / "dev-container-features"
+                            / featureFolderName(index, pending.reference.id);
+    const FilePath archive = downloadFolder / QString("%1.tar").arg(index);
+
+    const auto readFeature = QSyncTask([state, pending, folder, instanceConfig] {
+        return readFetchedFeature(state, pending, folder, instanceConfig);
+    });
+
+    if (pending.reference.type == FeatureReference::Type::Local) {
+        const auto copyLocal = QSyncTask([pending, folder, instanceConfig] {
+            instanceConfig.logFunction(
+                Tr::tr("Copying the local feature \"%1\".")
+                    .arg(pending.reference.localPath.toUserOutput()));
+            if (!pending.reference.localPath.isDir()) {
+                instanceConfig.logFunction(
+                    Tr::tr("The local feature \"%1\" does not exist.")
+                        .arg(pending.reference.localPath.toUserOutput()));
+                return DoneResult::Error;
+            }
+            const Result<> result = pending.reference.localPath.copyRecursively(folder);
+            if (!result) {
+                instanceConfig.logFunction(
+                    Tr::tr("Cannot copy the feature \"%1\": %2")
+                        .arg(pending.reference.userReference, result.error()));
+                return DoneResult::Error;
+            }
+            return DoneResult::Success;
+        });
+        return Group{copyLocal, readFeature};
+    }
+
+    const RegistryCredentialSource credentialSource
+        = pending.reference.type == FeatureReference::Type::Oci
+              ? registryCredentialSource(pending.reference.registry, instanceConfig.localEnvironment)
+              : RegistryCredentialSource{};
+    const Storage<std::optional<RegistryCredentials>> credentials(credentialSource.credentials);
+    if (!credentialSource.error.isEmpty())
+        instanceConfig.logFunction(credentialSource.error);
+
+    const auto setupHelper = [credentialSource, instanceConfig](Process &process) {
+        const FilePath helper = instanceConfig.localEnvironment.searchInPath(
+            "docker-credential-" + credentialSource.helper);
+        if (helper.isEmpty()) {
+            instanceConfig.logFunction(
+                Tr::tr("The credential helper \"docker-credential-%1\" is not in the PATH.")
+                    .arg(credentialSource.helper));
+            return SetupResult::StopWithSuccess;
+        }
+        process.setCommand({helper, {"get"}});
+        process.setEnvironment(instanceConfig.localEnvironment);
+        process.setWriteData(credentialSource.serverUrl.toUtf8());
+        return SetupResult::Continue;
+    };
+
+    // Without credentials, the registry may still allow anonymous access.
+    const auto doneHelper = [credentials](const Process &process, DoneWith doneWith) {
+        if (doneWith != DoneWith::Success)
+            return DoneResult::Success;
+        const Result<RegistryCredentials> result = parseCredentialHelperOutput(process.rawStdOut());
+        if (result)
+            *credentials = *result;
+        return DoneResult::Success;
+    };
+
+    const auto setupDownload =
+        [pending, instanceConfig, credentials](Internal::FeatureDownloader &downloader) {
+            instanceConfig.logFunction(
+                Tr::tr("Downloading the feature \"%1\".").arg(pending.reference.userReference));
+            downloader.setReference(pending.reference);
+            downloader.setCredentials(*credentials);
+            downloader.setCacheFolder(instanceConfig.featureCacheFolder);
+            downloader.setLogFunction(instanceConfig.logFunction);
+        };
+
+    const auto doneDownload =
+        [archive, instanceConfig](const Internal::FeatureDownloader &downloader, DoneWith doneWith)
+        -> DoneResult {
+        if (doneWith != DoneWith::Success) {
+            instanceConfig.logFunction(downloader.errorString());
+            return DoneResult::Error;
+        }
+        const Result<> dir = archive.parentDir().ensureWritableDir();
+        const Result<qint64> written = dir ? archive.writeFileContents(downloader.archive())
+                                           : Result<qint64>(ResultError(dir.error()));
+        if (!written) {
+            instanceConfig.logFunction(written.error());
+            return DoneResult::Error;
+        }
+        return DoneResult::Success;
+    };
+
+    const auto setupUnarchive = [archive, folder](Unarchiver &unarchiver) {
+        unarchiver.setArchive(archive);
+        unarchiver.setDestination(folder);
+    };
+
+    const auto doneUnarchive = [pending, instanceConfig](const Unarchiver &unarchiver) {
+        const Result<> result = unarchiver.result();
+        if (!result) {
+            instanceConfig.logFunction(
+                Tr::tr("Cannot extract the feature \"%1\": %2")
+                    .arg(pending.reference.userReference, result.error()));
+            return DoneResult::Error;
+        }
+        return DoneResult::Success;
+    };
+
+    const bool hasHelper = !credentialSource.helper.isEmpty();
+
+    // clang-format off
+    return Group {
+        credentials,
+        If ([hasHelper] { return hasHelper; }) >> Then {
+            ProcessTask(setupHelper, doneHelper, CallDoneFlag::Always)
+        },
+        Internal::FeatureDownloaderTask(setupDownload, doneDownload),
+        UnarchiverTask(setupUnarchive, doneUnarchive),
+        readFeature
+    };
+    // clang-format on
+}
+
+// Fetches the features the config asks for, and the ones they depend on, and puts them in
+// the order they have to be installed in.
+static ExecutableItem fetchFeaturesRecipe(
+    Storage<FeaturesState> featuresState,
+    const DevContainerCommon &commonConfig,
+    const InstanceConfig &instanceConfig)
+{
+    const auto onSetup = [featuresState, commonConfig, instanceConfig] {
+        if (commonConfig.features.isEmpty())
+            return SetupResult::StopWithSuccess;
+
+        for (const FeatureDependency &dependency : commonConfig.features) {
+            const Result<FeatureReference> reference
+                = FeatureReference::parse(dependency.id, instanceConfig.configFilePath.parentDir());
+            if (!reference) {
+                instanceConfig.logFunction(reference.error());
+                return SetupResult::StopWithError;
+            }
+            addPendingFeature(*featuresState, *reference, dependency.options);
+        }
+
+        if (const Result<FilePath> folder = featuresState->contextFolder(); !folder) {
+            instanceConfig.logFunction(folder.error());
+            return SetupResult::StopWithError;
+        }
+        return SetupResult::Continue;
+    };
+
+    // The features a fetched feature depends on are only known once it is fetched, so the
+    // fetching goes in rounds until nothing new is asked for.
+    const auto setupRound = [featuresState, instanceConfig](QTaskTree &taskTree) {
+        FeaturesState *state = featuresState.activeStorage();
+        const Result<FilePath> contextFolder = state->contextFolder();
+        const Result<FilePath> downloadFolder = state->downloadFolder();
+        if (!contextFolder || !downloadFolder) {
+            instanceConfig.logFunction(
+                contextFolder ? downloadFolder.error() : contextFolder.error());
+            return SetupResult::StopWithError;
+        }
+        const std::vector<FeaturesState::Pending> pending = std::exchange(state->pending, {});
+
+        GroupItems fetches{parallelIdealThreadCountLimit};
+        for (const FeaturesState::Pending &p : pending) {
+            fetches.append(
+                fetchFeatureRecipe(state, p, *contextFolder, *downloadFolder, instanceConfig));
+        }
+        taskTree.setRecipe(Group(fetches));
+        return SetupResult::Continue;
+    };
+
+    const auto order = [featuresState, commonConfig, instanceConfig] {
+        Result<std::vector<ResolvedFeature>> ordered = featureInstallOrder(
+            std::move(featuresState->features), commonConfig.overrideFeatureInstallOrder);
+        if (!ordered) {
+            instanceConfig.logFunction(ordered.error());
+            return DoneResult::Error;
+        }
+        featuresState->features = std::move(*ordered);
+
+        const QStringList names
+            = Utils::transform<QStringList>(featuresState->features, [](const ResolvedFeature &f) {
+                  return f.reference.userReference;
+              });
+        instanceConfig.logFunction(
+            Tr::tr("Installing the features in this order: %1").arg(names.join(", ")));
+        return DoneResult::Success;
+    };
+
+    // clang-format off
+    return Group {
+        onGroupSetup(onSetup),
+        For (UntilIterator([featuresState](qsizetype) { return !featuresState->pending.empty(); })) >> Do {
+            QTaskTreeTask(setupRound)
+        },
+        QSyncTask(order)
+    };
+    // clang-format on
+}
+
+// An empty "remoteUser" is the same as none.
+static std::optional<QString> remoteUser(const DevContainerCommon &commonConfig)
+{
+    if (commonConfig.remoteUser && !commonConfig.remoteUser->isEmpty())
+        return commonConfig.remoteUser;
+    return std::nullopt;
+}
+
+static bool hasFeatures(const Storage<FeaturesState> &featuresState)
+{
+    return !featuresState->features.empty();
+}
+
+static QString userName(const QString &configUser)
+{
+    const QString name = configUser.section(':', 0, 0);
+    return name.isEmpty() ? QString("root") : name;
+}
+
+// Builds targetImage from baseImage with the features installed.
+static ExecutableItem buildFeaturesImageTask(
+    Storage<FeaturesState> featuresState,
+    Storage<ImageDetails> baseImageDetails,
+    const DynamicString &baseImage,
+    const DynamicString &targetImage,
+    const DevContainerCommon &commonConfig,
+    const InstanceConfig &instanceConfig)
+{
+    const auto setup = [=](Process &process) {
+        connectProcessToLog(process, instanceConfig, Tr::tr("Build Features"));
+
+        const QString imageUser = baseImageDetails->Config.User;
+        FeatureBuildContext context;
+        context.imageUser = imageUser;
+        context.containerUser = commonConfig.containerUser.value_or(userName(imageUser));
+        context.remoteUser = remoteUser(commonConfig).value_or(context.containerUser);
+
+        const Result<FilePath> contextFolder = featuresState->contextFolder();
+        const Result<FilePath> dockerfile
+            = contextFolder
+                  ? writeFeaturesBuildContext(featuresState->features, context, *contextFolder)
+                  : Result<FilePath>(ResultError(contextFolder.error()));
+        if (!dockerfile) {
+            instanceConfig.logFunction(
+                Tr::tr("Cannot prepare the build of the features: %1").arg(dockerfile.error()));
+            return SetupResult::StopWithError;
+        }
+
+        // Without the platform of the base image, BuildKit looks for the host's platform, does
+        // not accept the local image of another one, and tries to pull it from Docker Hub.
+        QString platform = baseImageDetails->Os + '/' + baseImageDetails->Architecture;
+        if (baseImageDetails->Variant && !baseImageDetails->Variant->isEmpty())
+            platform += '/' + *baseImageDetails->Variant;
+
+        CommandLine buildCmdLine{
+            instanceConfig.dockerCli,
+            {"build",
+             {"-f", dockerfile->nativePath()},
+             {"-t", dynamicStringToString(targetImage)},
+             {"--platform", platform},
+             {"--build-arg", "_DEV_CONTAINERS_BASE_IMAGE=" + dynamicStringToString(baseImage)},
+             contextFolder->nativePath()}};
+
+        process.setCommand(buildCmdLine);
+        process.setEnvironment(instanceConfig.localEnvironment);
+        process.setWorkingDirectory(*contextFolder);
+        if (instanceConfig.runProcessesInTerminal)
+            process.setTerminalMode(TerminalMode::Run);
+
+        instanceConfig.logFunction(
+            Tr::tr("Building the image with the features: %1")
+                .arg(process.commandLine().toUserOutput()));
+        return SetupResult::Continue;
+    };
+
+    return ProcessTask(setup);
+}
+
+struct ContainerProperties
+{
+    QStringList entrypoints;
+    std::vector<std::variant<Mount, QString>> mounts;
+    QStringList capAdd;
+    QStringList securityOpt;
+    bool init = false;
+    bool privileged = false;
+};
+
+// Merges what the features contribute to the container onto what the config asks for.
+static ContainerProperties containerProperties(
+    const DevContainerCommon &commonConfig, const std::vector<ResolvedFeature> &features)
+{
+    ContainerProperties properties;
+    properties.init = commonConfig.init;
+    properties.privileged = commonConfig.privileged;
+
+    for (const ResolvedFeature &f : features) {
+        if (!f.feature.entrypoint.isEmpty())
+            properties.entrypoints << f.feature.entrypoint;
+        properties.mounts
+            .insert(properties.mounts.end(), f.feature.mounts.begin(), f.feature.mounts.end());
+        properties.capAdd << f.feature.capAdd;
+        properties.securityOpt << f.feature.securityOpt;
+        properties.init |= f.feature.init;
+        properties.privileged |= f.feature.privileged;
+    }
+
+    properties.mounts
+        .insert(properties.mounts.end(), commonConfig.mounts.begin(), commonConfig.mounts.end());
+    properties.mounts = mergeMounts(properties.mounts);
+    properties.capAdd << commonConfig.capAdd;
+    properties.securityOpt << commonConfig.securityOpt;
+    properties.capAdd.removeDuplicates();
+    properties.securityOpt.removeDuplicates();
+    return properties;
+}
+
 static QStringList generateMountArgs(
-    const InstanceConfig &instanceConfig, const DevContainerCommon &commonConfig)
+    const InstanceConfig &instanceConfig, const std::vector<std::variant<Mount, QString>> &mounts)
 {
     auto mountToString = [](const std::variant<Mount, QString> &mount) -> QString {
         return std::visit(
@@ -650,8 +1124,9 @@ static QStringList generateMountArgs(
             mount);
     };
 
-    return Utils::transform<QStringList>(commonConfig.mounts, mountToString)
-           + Utils::transform<QStringList>(instanceConfig.mounts, mountToString);
+    std::vector<std::variant<Mount, QString>> allMounts = mounts;
+    allMounts.insert(allMounts.end(), instanceConfig.mounts.begin(), instanceConfig.mounts.end());
+    return Utils::transform<QStringList>(mergeMounts(allMounts), mountToString);
 }
 
 template<typename C>
@@ -660,9 +1135,12 @@ static void setupCreateContainerFromImage(
     const DevContainerCommon &commonConfig,
     const InstanceConfig &instanceConfig,
     const ImageDetails &imageDetails,
+    const std::vector<ResolvedFeature> &features,
     Process &process)
 {
     connectProcessToLog(process, instanceConfig, Tr::tr("Create Container"));
+
+    const ContainerProperties properties = containerProperties(commonConfig, features);
 
     QStringList containerEnvArgs;
 
@@ -674,8 +1152,6 @@ static void setupCreateContainerFromImage(
     if (containerConfig.appPort)
         appPortArgs = createAppPortArgs(*containerConfig.appPort);
 
-    QStringList customEntryPoints = {}; // TODO: Get entry points from features.
-
     QStringList cmd
         = {"-c",
            QString(R"(echo Container started.
@@ -684,7 +1160,7 @@ trap "exit 0" TERM
 exec "$@"
 while sleep 1 & wait $!; do :; done
 )")
-               .arg(customEntryPoints.join('\n')),
+               .arg(properties.entrypoints.join('\n')),
            "-"};
 
     if (!containerConfig.overrideCommand) {
@@ -710,16 +1186,15 @@ while sleep 1 & wait $!; do :; done
         return {};
     }();
 
-    const auto featureArgs = [&commonConfig]() -> QStringList {
+    const auto featureArgs = [&properties]() -> QStringList {
         QStringList args;
-        // TODO: Merge feature args from features
-        if (commonConfig.init)
+        if (properties.init)
             args << "--init";
-        if (commonConfig.privileged)
+        if (properties.privileged)
             args << "--privileged";
-        for (const QString &cap : commonConfig.capAdd)
+        for (const QString &cap : properties.capAdd)
             args << "--cap-add" << cap;
-        for (const QString &securityOpt : commonConfig.securityOpt)
+        for (const QString &securityOpt : properties.securityOpt)
             args << "--security-opt" << securityOpt;
         return args;
     }();
@@ -732,7 +1207,7 @@ while sleep 1 & wait $!; do :; done
          containerUserArgs,
          appPortArgs,
          workspaceMountArgs,
-         generateMountArgs(instanceConfig, commonConfig),
+         generateMountArgs(instanceConfig, properties.mounts),
          featureArgs,
          {"--entrypoint", "/bin/sh"},
          imageName(instanceConfig),
@@ -823,18 +1298,27 @@ static QString containerUser(const ContainerDetails &containerDetails)
     return match.captured(1);
 }
 
+static QStringList remoteUserArgs(const DevContainerCommon &commonConfig)
+{
+    if (const std::optional<QString> user = remoteUser(commonConfig))
+        return {"-u", *user};
+    return {};
+}
+
 static ExecutableItem execInContainerTask(
     const QString &logPrefix,
     const InstanceConfig &instanceConfig,
     const DynamicString &containerId,
+    const QStringList &execArgs,
     const std::variant<std::function<CommandLine()>, CommandLine, QString> &cmdLine,
     const ProcessTask::TaskDoneHandler &doneHandler)
 {
-    const auto setupExec = [instanceConfig, containerId, cmdLine, logPrefix](Process &process) {
+    const auto setupExec = [instanceConfig, containerId, execArgs, cmdLine, logPrefix](
+                               Process &process) {
         connectProcessToLog(process, instanceConfig, logPrefix);
 
-        CommandLine
-            execCmdLine{instanceConfig.dockerCli, {"exec", dynamicStringToString(containerId)}};
+        CommandLine execCmdLine{
+            instanceConfig.dockerCli, {"exec", execArgs, dynamicStringToString(containerId)}};
         if (std::holds_alternative<CommandLine>(cmdLine)) {
             execCmdLine.addCommandLineAsArgs(std::get<CommandLine>(cmdLine));
         } else if (std::holds_alternative<QString>(cmdLine)) {
@@ -884,6 +1368,7 @@ static ExecutableItem probeUserEnvTask(
         "Probe User Environment",
         instanceConfig,
         containerId,
+        remoteUserArgs(commonConfig),
         [containerDetails, shellArg]() -> CommandLine {
             return {FilePath::fromUserInput(containerDetails->userShell), {shellArg, "printenv"}};
         },
@@ -938,6 +1423,7 @@ static ExecutableItem runningContainerDetailsTask(
         "Get Running Container User",
         instanceConfig,
         containerId,
+        remoteUserArgs(commonConfig),
         CommandLine{"id", {"-un"}},
         [runningDetails](const Process &process, DoneWith doneWith) -> DoneResult {
             if (doneWith == DoneWith::Error) {
@@ -956,8 +1442,10 @@ static ExecutableItem runningContainerDetailsTask(
         "Get Running Container User Shell",
         instanceConfig,
         containerId,
-        [containerDetails, runningDetails]() -> CommandLine {
-            const QString userName = containerUser(*containerDetails);
+        {},
+        [containerDetails, commonConfig]() -> CommandLine {
+            const QString userName
+                = remoteUser(commonConfig).value_or(containerUser(*containerDetails));
             QString userEscapedForShell = userName;
             userEscapedForShell.replace(QRegularExpression("(['\\\\])"), "\\\\1");
             QString userEscapedForGrep = userName;
@@ -1105,15 +1593,15 @@ static ExecutableItem lifecycleHookRecipe(
     const QString &hookName,
     const InstanceConfig &instanceConfig,
     std::optional<Command> command,
-    std::optional<CommandLine> dockerExecCmd = std::nullopt)
+    std::optional<CommandLine> dockerExecCmd = std::nullopt,
+    const QString &source = {})
 {
     if (!command)
         return Group{};
 
-    auto logExecution = QSyncTask([instanceConfig, hookName] {
-        instanceConfig.logFunction(QString("Executing the %1 hook from %2")
-                                       .arg(hookName)
-                                       .arg(instanceConfig.configFilePath.fileName()));
+    const QString from = source.isEmpty() ? instanceConfig.configFilePath.fileName() : source;
+    auto logExecution = QSyncTask([instanceConfig, hookName, from] {
+        instanceConfig.logFunction(QString("Executing the %1 hook from %2").arg(hookName, from));
     });
 
     const QList<GroupItem> cmds = std::visit(
@@ -1137,32 +1625,100 @@ static ExecutableItem lifecycleHookRecipe(
     return Group{logExecution, Group{parallelIdealThreadCountLimit, cmds}};
 }
 
-static ExecutableItem runLifecycleHooksRecipe(
-    DevContainerCommon commonConfig, const InstanceConfig &instanceConfig)
+static ExecutableItem initializeCommandRecipe(
+    const DevContainerCommon &commonConfig, const InstanceConfig &instanceConfig)
 {
-    const CommandLine dockerExecPrefix
-        = CommandLine{instanceConfig.dockerCli, {"exec", containerName(instanceConfig)}};
+    return lifecycleHookRecipe("initializeCommand", instanceConfig, commonConfig.initializeCommand);
+}
 
-    struct Cmd
-    {
-        const QString name;
-        const std::optional<Command> command;
-    };
-    const QList<Cmd> lifecycleHooks
-        = {{"onCreateCommand", commonConfig.onCreateCommand},
-           {"updateContentCommand", commonConfig.updateContentCommand},
-           {"postCreateCommand", commonConfig.postCreateCommand},
-           {"postStartCommand", commonConfig.postStartCommand},
-           {"postAttachCommand", commonConfig.postAttachCommand}};
+// Runs the hooks inside the container. The hooks of the features run first, in the order the
+// features were installed in.
+static ExecutableItem runLifecycleHooksRecipe(
+    Storage<FeaturesState> featuresState,
+    Storage<ContainerLifecycle> lifecycle,
+    const DevContainerCommon &commonConfig,
+    const InstanceConfig &instanceConfig,
+    const DynamicString &containerId)
+{
+    const auto setupHooks =
+        [featuresState, lifecycle, commonConfig, instanceConfig, containerId](QTaskTree &taskTree) {
+            const CommandLine dockerExecPrefix{
+                instanceConfig.dockerCli,
+                {"exec", remoteUserArgs(commonConfig), dynamicStringToString(containerId)}};
 
-    GroupItems remoteItems = Utils::transform(lifecycleHooks, [&](const Cmd &hook) -> GroupItem {
-        return lifecycleHookRecipe(hook.name, instanceConfig, hook.command, dockerExecPrefix);
-    });
+            // The commands of the creation run once, postStartCommand on each start of the
+            // container, and postAttachCommand each time Qt Creator connects to it.
+            struct Hook
+            {
+                QString name;
+                std::optional<Command> Feature::*featureCommand;
+                std::optional<Command> DevContainerCommon::*command;
+                bool run;
+                QString skipMessage;
+            };
+            const bool created = lifecycle->created;
+            const bool started = lifecycle->started || created;
+            const QString existed = Tr::tr("Skipping %1, as the container existed already.");
+            const QString running = Tr::tr("Skipping %1, as the container was running already.");
+            const QList<Hook> hooks
+                = {{"onCreateCommand",
+                    &Feature::onCreateCommand,
+                    &DevContainerCommon::onCreateCommand,
+                    created,
+                    existed},
+                   {"updateContentCommand",
+                    &Feature::updateContentCommand,
+                    &DevContainerCommon::updateContentCommand,
+                    created,
+                    existed},
+                   {"postCreateCommand",
+                    &Feature::postCreateCommand,
+                    &DevContainerCommon::postCreateCommand,
+                    created,
+                    existed},
+                   {"postStartCommand",
+                    &Feature::postStartCommand,
+                    &DevContainerCommon::postStartCommand,
+                    started,
+                    running},
+                   {"postAttachCommand",
+                    &Feature::postAttachCommand,
+                    &DevContainerCommon::postAttachCommand,
+                    true,
+                    {}}};
 
-    GroupItems localItems = {
-        lifecycleHookRecipe("initializeCommand", instanceConfig, commonConfig.initializeCommand)};
+            GroupItems items;
+            for (const Hook &hook : hooks) {
+                bool hasCommand = bool(commonConfig.*hook.command);
+                if (!hasCommand) {
+                    for (const ResolvedFeature &feature : featuresState->features) {
+                        if (feature.feature.*hook.featureCommand) {
+                            hasCommand = true;
+                            break;
+                        }
+                    }
+                }
 
-    return Group(localItems + remoteItems);
+                if (!hook.run) {
+                    if (hasCommand)
+                        instanceConfig.logFunction(hook.skipMessage.arg(hook.name));
+                    continue;
+                }
+                for (const ResolvedFeature &feature : featuresState->features) {
+                    items.append(lifecycleHookRecipe(
+                        hook.name,
+                        instanceConfig,
+                        feature.feature.*hook.featureCommand,
+                        dockerExecPrefix,
+                        feature.reference.userReference));
+                }
+                items.append(lifecycleHookRecipe(
+                    hook.name, instanceConfig, commonConfig.*hook.command, dockerExecPrefix));
+            }
+            taskTree.setRecipe(Group(items));
+        };
+
+    return QTaskTreeTask(setupHooks);
 }
 
 static ExecutableItem containerDoesNotExistTask(const InstanceConfig &instanceConfig)
@@ -1238,55 +1794,73 @@ static ExecutableItem containerState(const InstanceConfig &instanceConfig, Stora
 template<typename C>
 static ExecutableItem createContainerRecipe(
     Storage<ImageDetails> imageDetails,
+    Storage<FeaturesState> featuresState,
+    Storage<ContainerLifecycle> lifecycle,
     const C &containerConfig,
     const DevContainerCommon &commonConfig,
     const InstanceConfig &instanceConfig)
 {
     auto createContainerSetup =
-        [imageDetails, containerConfig, commonConfig, instanceConfig](Process &process) {
+        [imageDetails, featuresState, containerConfig, commonConfig, instanceConfig](
+            Process &process) {
             setupCreateContainerFromImage(
-                containerConfig, commonConfig, instanceConfig, *imageDetails, process);
+                containerConfig,
+                commonConfig,
+                instanceConfig,
+                *imageDetails,
+                featuresState->features,
+                process);
         };
 
     // clang-format off
     return Group {
         If (containerDoesNotExistTask(instanceConfig)) >> Then {
-            ProcessTask(createContainerSetup)
+            ProcessTask(createContainerSetup, [lifecycle] { lifecycle->created = true; },
+                        CallDoneFlag::OnSuccess)
         }
     };
     // clang-format on
 }
 
-static ExecutableItem startContainerRecipe(const InstanceConfig &instanceConfig)
+static ExecutableItem startContainerRecipe(
+    const InstanceConfig &instanceConfig, Storage<ContainerLifecycle> lifecycle)
 {
-    const auto start = [instanceConfig] {
-        return ProcessTask([instanceConfig](Process &process) {
-            connectProcessToLog(process, instanceConfig, Tr::tr("Start Container"));
+    const auto onStarted = [lifecycle] { lifecycle->started = true; };
 
-            CommandLine
-                startCmdLine{instanceConfig.dockerCli, {"start", containerName(instanceConfig)}};
-            process.setCommand(startCmdLine);
-            process.setEnvironment(instanceConfig.localEnvironment);
-            process.setWorkingDirectory(instanceConfig.workspaceFolder);
+    const auto start = [instanceConfig, onStarted] {
+        return ProcessTask(
+            [instanceConfig](Process &process) {
+                connectProcessToLog(process, instanceConfig, Tr::tr("Start Container"));
 
-            instanceConfig.logFunction(
-                Tr::tr("Starting container: %1").arg(process.commandLine().toUserOutput()));
-        });
+                CommandLine
+                    startCmdLine{instanceConfig.dockerCli, {"start", containerName(instanceConfig)}};
+                process.setCommand(startCmdLine);
+                process.setEnvironment(instanceConfig.localEnvironment);
+                process.setWorkingDirectory(instanceConfig.workspaceFolder);
+
+                instanceConfig.logFunction(
+                    Tr::tr("Starting container: %1").arg(process.commandLine().toUserOutput()));
+            },
+            onStarted,
+            CallDoneFlag::OnSuccess);
     };
 
-    const auto unpause = [instanceConfig] {
-        return ProcessTask([instanceConfig](Process &process) {
-            connectProcessToLog(process, instanceConfig, Tr::tr("Resume Container"));
+    const auto unpause = [instanceConfig, onStarted] {
+        return ProcessTask(
+            [instanceConfig](Process &process) {
+                connectProcessToLog(process, instanceConfig, Tr::tr("Resume Container"));
 
-            CommandLine
-                startCmdLine{instanceConfig.dockerCli, {"unpause", containerName(instanceConfig)}};
-            process.setCommand(startCmdLine);
-            process.setEnvironment(instanceConfig.localEnvironment);
-            process.setWorkingDirectory(instanceConfig.workspaceFolder);
+                CommandLine startCmdLine{
+                    instanceConfig.dockerCli, {"unpause", containerName(instanceConfig)}};
+                process.setCommand(startCmdLine);
+                process.setEnvironment(instanceConfig.localEnvironment);
+                process.setWorkingDirectory(instanceConfig.workspaceFolder);
 
-            instanceConfig.logFunction(
-                Tr::tr("Resuming container: %1").arg(process.commandLine().toUserOutput()));
-        });
+                instanceConfig.logFunction(
+                    Tr::tr("Resuming container: %1").arg(process.commandLine().toUserOutput()));
+            },
+            onStarted,
+            CallDoneFlag::OnSuccess);
     };
 
     Storage<QString> containerStateStorage;
@@ -1324,10 +1898,15 @@ static QSyncTask fillRunningInstance(
     const RunningInstance &runningInstance,
     const Storage<RunningContainerDetails> &runningDetails,
     const Storage<ImageDetails> &imageDetails,
+    const Storage<FeaturesState> &featuresState,
+    const DevContainerCommon &commonConfig,
     const DynamicString &containerId)
 {
-    return QSyncTask([containerId, runningInstance, runningDetails, imageDetails]() {
+    const QJsonObject customizations = commonConfig.customizations;
+    return QSyncTask([=]() {
         runningInstance->remoteEnvironment = runningDetails->probedUserEnvironment;
+        runningInstance->customizations
+            = mergedCustomizations(featuresState->features, customizations);
 
         runningInstance->osType = osTypeFromString(imageDetails->Os).value_or(OsType::OsTypeOther);
         runningInstance->osArch
@@ -1336,21 +1915,201 @@ static QSyncTask fillRunningInstance(
     });
 }
 
+static QString baseImageName(const InstanceConfig &instanceConfig)
+{
+    return imageName(instanceConfig) + "-base";
+}
+
+static ProcessTask pullImageTask(const DynamicString &image, const InstanceConfig &instanceConfig)
+{
+    return ProcessTask([image, instanceConfig](Process &process) {
+        connectProcessToLog(process, instanceConfig, "Pull Image");
+
+        CommandLine pullCmdLine{instanceConfig.dockerCli, {"pull", dynamicStringToString(image)}};
+        process.setCommand(pullCmdLine);
+        process.setEnvironment(instanceConfig.localEnvironment);
+        process.setWorkingDirectory(instanceConfig.workspaceFolder);
+
+        instanceConfig.logFunction(
+            QString("Pulling Image: %1").arg(process.commandLine().toUserOutput()));
+    });
+}
+
+// Makes sure the image exists locally, and fills imageDetails with it.
+static ExecutableItem ensureImageRecipe(
+    Storage<ImageDetails> imageDetails,
+    const DynamicString &image,
+    const InstanceConfig &instanceConfig)
+{
+    return Group{
+        stopOnSuccess,
+        inspectImageTask(imageDetails, instanceConfig, image),
+        Group{
+            pullImageTask(image, instanceConfig),
+            inspectImageTask(imageDetails, instanceConfig, image)}};
+}
+
+static QString featuresImageName(const InstanceConfig &instanceConfig)
+{
+    return imageName(instanceConfig) + "-features";
+}
+
+// The user whose UID and GID are changed to the ones of the local user, if any.
+static std::optional<QString> uidUpdateUser(
+    const DevContainerCommon &commonConfig,
+    const InstanceConfig &instanceConfig,
+    const QString &imageUser)
+{
+    if (!instanceConfig.localUser || !commonConfig.updateRemoteUserUID.value_or(true))
+        return std::nullopt;
+
+    const QString user = remoteUser(commonConfig)
+                             .value_or(commonConfig.containerUser.value_or(userName(imageUser)));
+    static const QRegularExpression numeric("^[0-9]+$");
+    if (user.isEmpty() || user == "root" || numeric.match(user).hasMatch())
+        return std::nullopt;
+    return user;
+}
+
+static ProcessTask updateUidTask(
+    Storage<FeaturesState> featuresState,
+    Storage<ImageDetails> imageDetails,
+    Storage<std::optional<QString>> user,
+    const DynamicString &baseImage,
+    const InstanceConfig &instanceConfig)
+{
+    const auto setup = [=](Process &process) {
+        connectProcessToLog(process, instanceConfig, Tr::tr("Update UID"));
+
+        const Result<FilePath> contextFolder = featuresState->contextFolder();
+        const FilePath folder = contextFolder ? *contextFolder / "update-uid" : FilePath();
+        const Result<> dir = contextFolder ? folder.ensureWritableDir()
+                                           : Result<>(ResultError(contextFolder.error()));
+        const Result<qint64> written
+            = dir ? (folder / "Dockerfile").writeFileContents(updateUidDockerfile().toUtf8())
+                  : Result<qint64>(ResultError(dir.error()));
+        if (!written) {
+            instanceConfig.logFunction(
+                Tr::tr("Cannot prepare the update of the user ID: %1").arg(written.error()));
+            return SetupResult::StopWithError;
+        }
+
+        const QString imageUser = imageDetails->Config.User.isEmpty() ? QString("root")
+                                                                      : imageDetails->Config.User;
+        const LocalUser localUser = *instanceConfig.localUser;
+
+        CommandLine buildCmdLine{
+            instanceConfig.dockerCli,
+            {"build",
+             {"-f", (folder / "Dockerfile").nativePath()},
+             {"-t", imageName(instanceConfig)},
+             {"--build-arg", "_DEV_CONTAINERS_BASE_IMAGE=" + dynamicStringToString(baseImage)},
+             {"--build-arg", "REMOTE_USER=" + **user},
+             {"--build-arg", QString("NEW_UID=%1").arg(localUser.uid)},
+             {"--build-arg", QString("NEW_GID=%1").arg(localUser.gid)},
+             {"--build-arg", "IMAGE_USER=" + imageUser},
+             folder.nativePath()}};
+
+        process.setCommand(buildCmdLine);
+        process.setEnvironment(instanceConfig.localEnvironment);
+        process.setWorkingDirectory(folder);
+
+        instanceConfig.logFunction(
+            Tr::tr("Changing the user ID of \"%1\" to %2:%3: %4")
+                .arg(**user)
+                .arg(localUser.uid)
+                .arg(localUser.gid)
+                .arg(process.commandLine().toUserOutput()));
+        return SetupResult::Continue;
+    };
+
+    return ProcessTask(setup);
+}
+
+static ProcessTask tagImageTask(const DynamicString &image, const InstanceConfig &instanceConfig)
+{
+    return ProcessTask([image, instanceConfig](Process &process) {
+        connectProcessToLog(process, instanceConfig, "Tag Image");
+
+        CommandLine tagCmdLine{
+            instanceConfig.dockerCli,
+            {"tag", dynamicStringToString(image), imageName(instanceConfig)}};
+        process.setCommand(tagCmdLine);
+        process.setEnvironment(instanceConfig.localEnvironment);
+        process.setWorkingDirectory(instanceConfig.workspaceFolder);
+
+        instanceConfig.logFunction(
+            QString("Tagging Image: %1").arg(process.commandLine().toUserOutput()));
+    });
+}
+
+// Adds the features and the update of the user ID to baseImage, whose details imageDetails
+// holds, and leaves the result as imageName(), with its details in imageDetails.
+static ExecutableItem finalizeImageRecipe(
+    Storage<FeaturesState> featuresState,
+    Storage<ImageDetails> imageDetails,
+    const DynamicString &baseImage,
+    const DevContainerCommon &commonConfig,
+    const InstanceConfig &instanceConfig)
+{
+    const Storage<QString> currentImage;
+    const Storage<std::optional<QString>> uidUser;
+
+    const auto init = [=] {
+        *currentImage = dynamicStringToString(baseImage);
+        *uidUser = uidUpdateUser(commonConfig, instanceConfig, imageDetails->Config.User);
+    };
+
+    const DynamicString current = std::function<QString()>([currentImage] { return *currentImage; });
+    const DynamicString featuresTarget = std::function<QString()>([uidUser, instanceConfig] {
+        return *uidUser ? featuresImageName(instanceConfig) : imageName(instanceConfig);
+    });
+    const auto afterFeatures = [currentImage, featuresTarget] {
+        *currentImage = dynamicStringToString(featuresTarget);
+    };
+    const auto needsUidUpdate = [uidUser] { return bool(*uidUser); };
+    const auto needsTag = [currentImage, instanceConfig] {
+        return *currentImage != imageName(instanceConfig);
+    };
+
+    // clang-format off
+    return Group {
+        currentImage,
+        uidUser,
+        QSyncTask(init),
+        If ([featuresState] { return hasFeatures(featuresState); }) >> Then {
+            buildFeaturesImageTask(featuresState, imageDetails, current, featuresTarget,
+                                   commonConfig, instanceConfig),
+            QSyncTask(afterFeatures)
+        },
+        If (needsUidUpdate) >> Then {
+            updateUidTask(featuresState, imageDetails, uidUser, current, instanceConfig)
+        } >> ElseIf (needsTag) >> Then {
+            tagImageTask(current, instanceConfig)
+        },
+        inspectImageTask(imageDetails, instanceConfig, imageName(instanceConfig))
+    };
+    // clang-format on
+}
+
 static Result<Group> prepareContainerRecipe(
     const DockerfileContainer &containerConfig,
     const DevContainerCommon &commonConfig,
     const InstanceConfig &instanceConfig,
     const RunningInstance &runningInstance)
 {
+    Storage<FeaturesState> featuresState;
+
     const auto setupBuildImage = [containerConfig, instanceConfig](Process &process) {
         connectProcessToLog(process, instanceConfig, Tr::tr("Build Dockerfile"));
 
         const FilePath configFileDir = instanceConfig.configFilePath.parentDir();
         const FilePath contextPath = configFileDir.resolvePath(containerConfig.context);
         const FilePath dockerFile = configFileDir.resolvePath(containerConfig.dockerfile);
+        const BuildOptions buildOptions = containerConfig.buildOptions.value_or(BuildOptions{});
 
         const QStringList cacheFromArgs = [&] {
-            if (!containerConfig.buildOptions->cacheFrom)
+            if (!buildOptions.cacheFrom)
                 return QStringList{};
 
             return std::visit(
@@ -1361,31 +2120,36 @@ static Result<Group> prepareContainerRecipe(
                             return QString("--cache-from=%1").arg(cf);
                         });
                     }},
-                *containerConfig.buildOptions->cacheFrom);
+                *buildOptions.cacheFrom);
         }();
 
         const QStringList target = [&] {
-            if (!containerConfig.buildOptions->target)
+            if (!buildOptions.target)
                 return QStringList{};
-            return QStringList{"--target", *containerConfig.buildOptions->target};
+            return QStringList{"--target", *buildOptions.target};
         }();
 
         const QStringList extraBuildArgs = [&] {
             QStringList args;
-            for (const auto &[k, v] : containerConfig.buildOptions->args) {
+            for (const auto &[k, v] : buildOptions.args) {
                 if (v.isEmpty())
                     args << QStringList{"--build-arg", k};
-                args << QStringList{"--build-arg", QString("%1=%2").arg(k, v)};
+                else
+                    args << QStringList{"--build-arg", QString("%1=%2").arg(k, v)};
             }
             return args;
         }();
+
+        // The image of the Dockerfile is the base the features and the user ID update are
+        // added to.
+        const QString tag = baseImageName(instanceConfig);
 
         CommandLine buildCmdLine{
             instanceConfig.dockerCli,
             {"build",
              {"-f", dockerFile.nativePath()},
-             {"-t", imageName(instanceConfig)},
-             containerConfig.buildOptions->options,
+             {"-t", tag},
+             buildOptions.options,
              cacheFromArgs,
              target,
              extraBuildArgs,
@@ -1404,6 +2168,7 @@ static Result<Group> prepareContainerRecipe(
     Storage<ImageDetails> imageDetails;
     Storage<ContainerDetails> containerDetails;
     Storage<RunningContainerDetails> runningDetails;
+    Storage<ContainerLifecycle> lifecycle;
     Storage<bool> useBuildKit(false);
 
     // clang-format off
@@ -1412,59 +2177,25 @@ static Result<Group> prepareContainerRecipe(
         runningDetails,
         containerDetails,
         useBuildKit,
+        featuresState,
+        lifecycle,
         checkDocker(instanceConfig),
         testBuildKit(instanceConfig, useBuildKit),
+        initializeCommandRecipe(commonConfig, instanceConfig),
+        fetchFeaturesRecipe(featuresState, commonConfig, instanceConfig),
         ProcessTask(setupBuildImage),
-        inspectImageTask(imageDetails, instanceConfig, imageName(instanceConfig)),
+        inspectImageTask(imageDetails, instanceConfig, baseImageName(instanceConfig)),
+        finalizeImageRecipe(featuresState, imageDetails, baseImageName(instanceConfig),
+                            commonConfig, instanceConfig),
         createContainerRecipe(
-            imageDetails, containerConfig, commonConfig, instanceConfig),
+            imageDetails, featuresState, lifecycle, containerConfig, commonConfig, instanceConfig),
         inspectContainerTask(containerDetails, instanceConfig),
-        startContainerRecipe(instanceConfig),
+        startContainerRecipe(instanceConfig, lifecycle),
         runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig, containerName(instanceConfig)),
-        runLifecycleHooksRecipe(commonConfig, instanceConfig),
-        fillRunningInstance(runningInstance, runningDetails, imageDetails, containerName(instanceConfig))
+        runLifecycleHooksRecipe(featuresState, lifecycle, commonConfig, instanceConfig, containerName(instanceConfig)),
+        fillRunningInstance(runningInstance, runningDetails, imageDetails, featuresState, commonConfig, containerName(instanceConfig))
     };
     // clang-format on
-}
-
-static ExecutableItem prepareDockerImageRecipe(
-    Storage<ImageDetails> imageDetails,
-    const ImageContainer &imageConfig,
-    const InstanceConfig &instanceConfig)
-{
-    const auto setupPullImage = [imageConfig, instanceConfig](Process &process) {
-        connectProcessToLog(process, instanceConfig, "Pull Image");
-
-        CommandLine pullCmdLine{instanceConfig.dockerCli, {"pull", imageConfig.image}};
-        process.setCommand(pullCmdLine);
-        process.setEnvironment(instanceConfig.localEnvironment);
-        process.setWorkingDirectory(instanceConfig.workspaceFolder);
-
-        instanceConfig.logFunction(
-            QString("Pulling Image: %1").arg(process.commandLine().toUserOutput()));
-    };
-
-    const auto setupTagImage = [imageConfig, instanceConfig](Process &process) {
-        connectProcessToLog(process, instanceConfig, "Tag Image");
-
-        CommandLine tagCmdLine{
-            instanceConfig.dockerCli, {"tag", imageConfig.image, imageName(instanceConfig)}};
-        process.setCommand(tagCmdLine);
-        process.setEnvironment(instanceConfig.localEnvironment);
-        process.setWorkingDirectory(instanceConfig.workspaceFolder);
-
-        instanceConfig.logFunction(
-            QString("Tagging Image: %1").arg(process.commandLine().toUserOutput()));
-    };
-
-    return Group{
-        If(inspectImageTask(imageDetails, instanceConfig, imageConfig.image)) >> Then{
-            ProcessTask(setupTagImage),
-        } >> Else {
-            ProcessTask(setupPullImage),
-            ProcessTask(setupTagImage),
-            inspectImageTask(imageDetails, instanceConfig, imageName(instanceConfig)),
-        }};
 }
 
 static Result<Group> prepareContainerRecipe(
@@ -1476,6 +2207,8 @@ static Result<Group> prepareContainerRecipe(
     Storage<ImageDetails> imageDetails;
     Storage<ContainerDetails> containerDetails;
     Storage<RunningContainerDetails> runningDetails;
+    Storage<FeaturesState> featuresState;
+    Storage<ContainerLifecycle> lifecycle;
     Storage<bool> useBuildKit(false);
 
     // clang-format off
@@ -1483,18 +2216,303 @@ static Result<Group> prepareContainerRecipe(
         imageDetails,
         containerDetails,
         runningDetails,
+        featuresState,
+        lifecycle,
         useBuildKit,
         checkDocker(instanceConfig),
         testBuildKit(instanceConfig, useBuildKit),
-        prepareDockerImageRecipe(imageDetails, imageConfig, instanceConfig),
-        createContainerRecipe(imageDetails, imageConfig, commonConfig, instanceConfig),
+        initializeCommandRecipe(commonConfig, instanceConfig),
+        fetchFeaturesRecipe(featuresState, commonConfig, instanceConfig),
+        ensureImageRecipe(imageDetails, imageConfig.image, instanceConfig),
+        finalizeImageRecipe(featuresState, imageDetails, imageConfig.image, commonConfig, instanceConfig),
+        createContainerRecipe(imageDetails, featuresState, lifecycle, imageConfig, commonConfig, instanceConfig),
         inspectContainerTask(containerDetails, instanceConfig),
-        startContainerRecipe(instanceConfig),
+        startContainerRecipe(instanceConfig, lifecycle),
         runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig, containerName(instanceConfig)),
-        runLifecycleHooksRecipe(commonConfig, instanceConfig),
-        fillRunningInstance(runningInstance, runningDetails, imageDetails, containerName(instanceConfig)),
+        runLifecycleHooksRecipe(featuresState, lifecycle, commonConfig, instanceConfig, containerName(instanceConfig)),
+        fillRunningInstance(runningInstance, runningDetails, imageDetails, featuresState, commonConfig, containerName(instanceConfig)),
     };
     // clang-format on
+}
+
+static QStringList composeFileArgs(
+    const ComposeContainer &config, const InstanceConfig &instanceConfig)
+{
+    const FilePath configFileDir = instanceConfig.configFilePath.parentDir();
+    QStringList args;
+    for (const QString &file : config.dockerComposeFiles)
+        args << "-f" << configFileDir.resolvePath(file).nativePath();
+    return args;
+}
+
+struct ComposeServiceInfo
+{
+    // The image the service runs, before the features are added.
+    QString image;
+    QString user;
+    // The started services with a "build" section, including the ones they depend on.
+    QStringList servicesToBuild;
+    // Whether the service runs an image built for the dev container.
+    bool customImage = false;
+    std::optional<QStringList> entrypoint;
+    std::optional<QStringList> command;
+};
+
+static std::optional<QStringList> stringListFromJson(const QJsonValue &value)
+{
+    if (value.isArray())
+        return Utils::transform<QStringList>(value.toArray().toVariantList(), &QVariant::toString);
+    if (value.isString())
+        return QStringList{"/bin/sh", "-c", value.toString()};
+    return std::nullopt;
+}
+
+static ProcessTask composeServiceInfoTask(
+    Storage<ComposeServiceInfo> serviceInfo,
+    const ComposeContainer &config,
+    const InstanceConfig &instanceConfig)
+{
+    const auto setup = [config, instanceConfig](Process &process) {
+        CommandLine cmdLine{
+            instanceConfig.dockerCli,
+            {"compose",
+             composeFileArgs(config, instanceConfig),
+             {"--project-name", projectName(instanceConfig)},
+             "config",
+             {"--format", "json"}}};
+        process.setCommand(cmdLine);
+        process.setEnvironment(instanceConfig.localEnvironment);
+        process.setWorkingDirectory(instanceConfig.configFilePath.parentDir());
+
+        instanceConfig.logFunction(
+            QString("Compose Config: %1").arg(process.commandLine().toUserOutput()));
+    };
+
+    const auto done = [serviceInfo,
+                       config,
+                       instanceConfig](const Process &process, DoneWith doneWith) -> DoneResult {
+        if (doneWith != DoneWith::Success) {
+            instanceConfig.logFunction(process.verboseExitMessage());
+            instanceConfig.logFunction(process.cleanedStdErr());
+            return DoneResult::Error;
+        }
+
+        QJsonParseError parseError;
+        const QJsonDocument doc = QJsonDocument::fromJson(process.rawStdOut(), &parseError);
+        if (parseError.error != QJsonParseError::NoError || !doc.isObject()) {
+            instanceConfig.logFunction(
+                Tr::tr("Cannot read the configuration from \"docker compose config\": %1")
+                    .arg(
+                        parseError.error != QJsonParseError::NoError
+                            ? parseError.errorString()
+                            : Tr::tr("The configuration is not a JSON object.")));
+            return DoneResult::Error;
+        }
+
+        const QJsonObject services = doc.object().value("services").toObject();
+        const QJsonObject service = services.value(config.service).toObject();
+        if (service.isEmpty()) {
+            instanceConfig.logFunction(
+                Tr::tr("The compose files do not contain the service \"%1\".").arg(config.service));
+            return DoneResult::Error;
+        }
+
+        QStringList pending = QStringList{config.service}
+                              + config.runServices.value_or(QStringList());
+        QSet<QString> seen;
+        serviceInfo->servicesToBuild.clear();
+        while (!pending.isEmpty()) {
+            const QString name = pending.takeFirst();
+            if (seen.contains(name))
+                continue;
+            seen.insert(name);
+            const QJsonObject s = services.value(name).toObject();
+            if (s.contains("build"))
+                serviceInfo->servicesToBuild << name;
+            const QJsonValue dependsOn = s.value("depends_on");
+            if (dependsOn.isObject())
+                pending << dependsOn.toObject().keys();
+            else
+                pending << Utils::transform<QStringList>(
+                    dependsOn.toArray().toVariantList(), &QVariant::toString);
+        }
+        // Without an image name, compose names the built image after project and service.
+        serviceInfo->image = service.value("image").toString(
+            projectName(instanceConfig) + '-' + config.service);
+        serviceInfo->user = service.value("user").toString();
+        serviceInfo->entrypoint = stringListFromJson(service.value("entrypoint"));
+        serviceInfo->command = stringListFromJson(service.value("command"));
+        return DoneResult::Success;
+    };
+
+    return ProcessTask(setup, done);
+}
+
+// Builds without the override file, so the service keeps the name of its base image.
+static ProcessTask composeBuildTask(
+    Storage<ComposeServiceInfo> serviceInfo,
+    const ComposeContainer &config,
+    const InstanceConfig &instanceConfig)
+{
+    return ProcessTask([serviceInfo, config, instanceConfig](Process &process) {
+        connectProcessToLog(process, instanceConfig, "Compose Build");
+        CommandLine cmdLine{
+            instanceConfig.dockerCli,
+            {"compose",
+             composeFileArgs(config, instanceConfig),
+             {"--project-name", projectName(instanceConfig)},
+             "build",
+             serviceInfo->servicesToBuild}};
+        process.setCommand(cmdLine);
+        process.setEnvironment(instanceConfig.localEnvironment);
+        process.setWorkingDirectory(instanceConfig.configFilePath.parentDir());
+        if (instanceConfig.runProcessesInTerminal)
+            process.setTerminalMode(TerminalMode::Run);
+
+        instanceConfig.logFunction(
+            QString("Compose Build: %1").arg(process.commandLine().toUserOutput()));
+    });
+}
+
+// Turns a mount into the long syntax of a compose service volume.
+static QJsonObject composeVolume(const std::variant<Mount, QString> &mount)
+{
+    return std::visit(
+        overloaded{
+            [](const Mount &m) {
+                QJsonObject volume{
+                    {"type", m.type == MountType::Bind ? QString("bind") : QString("volume")},
+                    {"target", m.target}};
+                if (m.source)
+                    volume.insert("source", *m.source);
+                return volume;
+            },
+            [](const QString &m) {
+                QJsonObject volume{{"type", "volume"}};
+                for (const QString &part : m.split(',', Qt::SkipEmptyParts)) {
+                    const auto [key, value] = Utils::splitAtFirst(part, '=');
+                    const QString k = key.trimmed().toString();
+                    const QString v = value.trimmed().toString();
+                    if (k == "type")
+                        volume.insert("type", v);
+                    else if (k == "source" || k == "src")
+                        volume.insert("source", v);
+                    else if (k == "target" || k == "destination" || k == "dst")
+                        volume.insert("target", v);
+                    else if ((k == "readonly" || k == "ro") && v != "false")
+                        volume.insert("read_only", true);
+                }
+                return volume;
+            }},
+        mount);
+}
+
+static QJsonValue escapeComposeInterpolation(const QJsonValue &value)
+{
+    if (value.isString())
+        return QString(value.toString()).replace('$', "$$");
+    if (value.isArray()) {
+        QJsonArray array;
+        for (const QJsonValue &item : value.toArray())
+            array.append(escapeComposeInterpolation(item));
+        return array;
+    }
+    if (value.isObject()) {
+        QJsonObject object = value.toObject();
+        for (auto it = object.begin(); it != object.end(); ++it)
+            it.value() = escapeComposeInterpolation(it.value());
+        return object;
+    }
+    return value;
+}
+
+// Writes the compose file that adds what the config and the features ask for to the service.
+static Result<FilePath> writeComposeOverride(
+    FeaturesState &featuresState,
+    const ComposeServiceInfo &serviceInfo,
+    const ImageDetails &baseImage,
+    const ComposeContainer &config,
+    const DevContainerCommon &commonConfig,
+    const InstanceConfig &instanceConfig)
+{
+    const ContainerProperties properties = containerProperties(commonConfig, featuresState.features);
+
+    QJsonObject service;
+    QJsonObject volumes;
+
+    if (serviceInfo.customImage)
+        service.insert("image", imageName(instanceConfig));
+
+    if (!properties.entrypoints.isEmpty()) {
+        const QString script = QString(R"(echo Container started.
+trap "exit 0" TERM
+%1
+exec "$@"
+while sleep 1 & wait $!; do :; done
+)")
+                                   .arg(properties.entrypoints.join('\n'));
+        service.insert("entrypoint", QJsonArray{"/bin/sh", "-c", script, "-"});
+        // An entrypoint of the service replaces both the ENTRYPOINT and the CMD of the image.
+        const QStringList command = serviceInfo.entrypoint
+                                        ? *serviceInfo.entrypoint
+                                              + serviceInfo.command.value_or(QStringList())
+                                        : baseImage.Config.Entrypoint.value_or(QStringList())
+                                              + serviceInfo.command.value_or(
+                                                  baseImage.Config.Cmd.value_or(QStringList()));
+        service.insert("command", QJsonArray::fromStringList(command));
+    }
+
+    QJsonObject environment;
+    for (const auto &[key, value] : commonConfig.containerEnv)
+        environment.insert(key, value);
+    if (!environment.isEmpty())
+        service.insert("environment", environment);
+
+    if (properties.init)
+        service.insert("init", true);
+    if (properties.privileged)
+        service.insert("privileged", true);
+    if (!properties.capAdd.isEmpty())
+        service.insert("cap_add", QJsonArray::fromStringList(properties.capAdd));
+    if (!properties.securityOpt.isEmpty())
+        service.insert("security_opt", QJsonArray::fromStringList(properties.securityOpt));
+
+    std::vector<std::variant<Mount, QString>> mounts = properties.mounts;
+    mounts.insert(mounts.end(), instanceConfig.mounts.begin(), instanceConfig.mounts.end());
+    QJsonArray serviceVolumes;
+    for (const auto &mount : mergeMounts(mounts)) {
+        const QJsonObject volume = composeVolume(mount);
+        serviceVolumes.append(volume);
+        const QString source = volume.value("source").toString();
+        if (volume.value("type").toString() == "volume" && !source.isEmpty())
+            volumes.insert(source, QJsonObject{{"name", source}});
+    }
+    if (!serviceVolumes.isEmpty())
+        service.insert("volumes", serviceVolumes);
+
+    if (service.isEmpty())
+        return FilePath();
+
+    QJsonObject compose{{"services", QJsonObject{{config.service, service}}}};
+    if (!volumes.isEmpty())
+        compose.insert("volumes", volumes);
+
+    const Result<FilePath> folder = featuresState.contextFolder();
+    if (!folder)
+        return ResultError(folder.error());
+
+    // JSON is YAML, so compose reads it as it is. Compose fills in "$VAR" from the host
+    // environment in every file, so the values are escaped to arrive as they are written, as
+    // they do with "docker run".
+    compose = escapeComposeInterpolation(compose).toObject();
+    const FilePath file = *folder / "docker-compose.devcontainer.json";
+    if (const Result<qint64> res = file.writeFileContents(QJsonDocument(compose).toJson()); !res)
+        return ResultError(res.error());
+
+    instanceConfig.logFunction(
+        QString("Compose override: %1")
+            .arg(QString::fromUtf8(QJsonDocument(compose).toJson(QJsonDocument::Compact))));
+    return file;
 }
 
 static Result<Group> prepareContainerRecipe(
@@ -1503,37 +2521,40 @@ static Result<Group> prepareContainerRecipe(
     const InstanceConfig &instanceConfig,
     const RunningInstance &runningInstance)
 {
-    Q_UNUSED(commonConfig);
-    Q_UNUSED(runningInstance);
+    Storage<ContainerDetails> containerDetails;
+    Storage<RunningContainerDetails> runningDetails;
+    Storage<QString> containerId;
+    Storage<ImageDetails> imageDetails;
+    Storage<FeaturesState> featuresState;
+    Storage<ComposeServiceInfo> serviceInfo;
+    Storage<FilePath> overrideFile;
+    Storage<ContainerLifecycle> lifecycle;
+    Storage<bool> useBuildKit(false);
 
-    const auto setupComposeUp = [config, instanceConfig](Process &process) {
+    const auto setupComposeUp = [config, instanceConfig, serviceInfo, overrideFile](
+                                    Process &process) {
         connectProcessToLog(process, instanceConfig, "Compose Up");
 
-        const FilePath configFileDir = instanceConfig.configFilePath.parentDir();
-
-        QStringList composeFiles = config.dockerComposeFiles;
-        composeFiles
-            = Utils::transform(composeFiles, [&configFileDir](const QString &relativeComposeFile) {
-                  return configFileDir.resolvePath(relativeComposeFile).nativePath();
-              });
-
-        QStringList composeFilesWithFlag;
-        for (const QString &file : std::as_const(composeFiles)) {
-            composeFilesWithFlag.append("-f");
-            composeFilesWithFlag.append(file);
-        }
+        QStringList composeFiles = composeFileArgs(config, instanceConfig);
+        if (!overrideFile->isEmpty())
+            composeFiles << "-f" << overrideFile->nativePath();
 
         QStringList runServices = config.runServices.value_or(QStringList{});
         QSet<QString> services = {config.service};
         services.unite({runServices.begin(), runServices.end()});
 
+        // With a custom image, the started services are built already, and building the
+        // service again would replace the custom image.
+        const QStringList buildArgs = serviceInfo->customImage ? QStringList()
+                                                               : QStringList{"--build"};
+
         CommandLine composeCmdLine{
             instanceConfig.dockerCli,
             {"compose",
-             composeFilesWithFlag,
+             composeFiles,
              {"--project-name", projectName(instanceConfig)},
              "up",
-             "--build",
+             buildArgs,
              "--detach",
              services.values()}};
         process.setCommand(composeCmdLine);
@@ -1543,28 +2564,94 @@ static Result<Group> prepareContainerRecipe(
         instanceConfig.logFunction(
             QString("Compose Up: %1").arg(process.commandLine().toUserOutput()));
     };
-    Storage<ContainerDetails> containerDetails;
-    Storage<RunningContainerDetails> runningDetails;
-    Storage<QString> containerId;
-    Storage<ImageDetails> imageDetails;
-    Storage<bool> useBuildKit(false);
 
-    DynamicString getImage = (std::function<QString()>) [containerDetails]
-    {
+    const auto writeOverride = [featuresState,
+                                serviceInfo,
+                                imageDetails,
+                                overrideFile,
+                                config,
+                                commonConfig,
+                                instanceConfig] {
+        const Result<FilePath> file = writeComposeOverride(
+            *featuresState, *serviceInfo, *imageDetails, config, commonConfig, instanceConfig);
+        if (!file) {
+            instanceConfig.logFunction(
+                Tr::tr("Cannot write the compose override file: %1").arg(file.error()));
+            return DoneResult::Error;
+        }
+        *overrideFile = *file;
+        return DoneResult::Success;
+    };
+
+    const DynamicString getBaseImage = (std::function<QString()>) [serviceInfo] {
+        return serviceInfo->image;
+    };
+
+    const DynamicString getImage = (std::function<QString()>) [containerDetails] {
         return containerDetails->Image;
+    };
+
+    const auto needsCustomImage = [featuresState, commonConfig, instanceConfig] {
+        return hasFeatures(featuresState)
+               || (instanceConfig.localUser && commonConfig.updateRemoteUserUID.value_or(true));
+    };
+
+    // The user of the service is the one the container runs as.
+    const auto applyServiceUser = [serviceInfo, imageDetails] {
+        if (!serviceInfo->user.isEmpty())
+            imageDetails->Config.User = serviceInfo->user;
+        serviceInfo->customImage = true;
+    };
+
+    const auto setupState = [config, instanceConfig](Process &process) {
+        CommandLine cmdLine{
+            instanceConfig.dockerCli,
+            {"ps",
+             {"-a", "--no-trunc", "--format", "{{.ID}} {{.State}}"},
+             {"--filter", "label=com.docker.compose.project=" + projectName(instanceConfig)},
+             {"--filter", "label=com.docker.compose.service=" + config.service}}};
+        process.setCommand(cmdLine);
+        process.setEnvironment(instanceConfig.localEnvironment);
+    };
+    const auto doneState = [lifecycle](const Process &process) {
+        const QString line = process.cleanedStdOut().trimmed().section('\n', 0, 0);
+        lifecycle->previousId = line.section(' ', 0, 0);
+        lifecycle->previousState = line.section(' ', 1, 1);
+    };
+
+    // "docker compose up" recreates the container when its configuration or image changed.
+    const auto updateLifecycle = [lifecycle, containerId] {
+        lifecycle->created = lifecycle->previousId != *containerId;
+        lifecycle->started = lifecycle->created || lifecycle->previousState != "running";
     };
 
     // clang-format off
     return Group {
-        containerId, containerDetails, runningDetails, imageDetails, useBuildKit,
+        containerId, containerDetails, runningDetails, imageDetails, featuresState, serviceInfo,
+        overrideFile, lifecycle, useBuildKit,
         checkDocker(instanceConfig),
         testBuildKit(instanceConfig, useBuildKit),
+        initializeCommandRecipe(commonConfig, instanceConfig),
+        fetchFeaturesRecipe(featuresState, commonConfig, instanceConfig),
+        If (needsCustomImage) >> Then {
+            composeServiceInfoTask(serviceInfo, config, instanceConfig),
+            If ([serviceInfo] { return !serviceInfo->servicesToBuild.isEmpty(); }) >> Then {
+                composeBuildTask(serviceInfo, config, instanceConfig)
+            },
+            ensureImageRecipe(imageDetails, getBaseImage, instanceConfig),
+            QSyncTask(applyServiceUser),
+            finalizeImageRecipe(featuresState, imageDetails, getBaseImage, commonConfig, instanceConfig)
+        },
+        QSyncTask(writeOverride),
+        ProcessTask(setupState, doneState, CallDoneFlag::OnSuccess),
         ProcessTask(setupComposeUp),
         findContainerId(containerId, config, instanceConfig),
+        QSyncTask(updateLifecycle),
         inspectContainerTask(containerDetails, instanceConfig, containerId),
         inspectImageTask(imageDetails, instanceConfig, getImage),
         runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig, containerId),
-        fillRunningInstance(runningInstance, runningDetails, imageDetails, containerId)
+        runLifecycleHooksRecipe(featuresState, lifecycle, commonConfig, instanceConfig, containerId),
+        fillRunningInstance(runningInstance, runningDetails, imageDetails, featuresState, commonConfig, containerId)
     };
     // clang-format on
 }
@@ -1635,6 +2722,15 @@ static Result<Group> downContainerRecipe(
         setupRemoveContainer(instanceConfig, process);
     };
 
+    // Only exists if the user ID was updated on top of the features.
+    const auto setupRemoveFeaturesImage = [instanceConfig](Process &process) {
+        CommandLine
+            removeCmdLine{instanceConfig.dockerCli, {"rmi", featuresImageName(instanceConfig)}};
+        process.setCommand(removeCmdLine);
+        process.setEnvironment(instanceConfig.localEnvironment);
+        process.setWorkingDirectory(instanceConfig.workspaceFolder);
+    };
+
     const auto shouldShutdown = [imageConfig, forceDown]() {
         return forceDown || imageConfig.shutdownAction == ShutdownAction::StopContainer;
     };
@@ -1643,7 +2739,8 @@ static Result<Group> downContainerRecipe(
     return Group{
         If (shouldShutdown) >> Then {
             ProcessTask(setupRMContainer),
-            ProcessTask(setupRemoveImage)
+            ProcessTask(setupRemoveImage),
+            ProcessTask(setupRemoveFeaturesImage, DoneResult::Success)
         }
     };
     // clang-format on
@@ -1655,20 +2752,7 @@ static Result<Group> downContainerRecipe(
     const auto setupComposeDown = [config, instanceConfig](Process &process) {
         connectProcessToLog(process, instanceConfig, "Compose Down");
 
-        const FilePath configFileDir = instanceConfig.configFilePath.parentDir();
-
-        QStringList composeFiles = config.dockerComposeFiles;
-
-        composeFiles
-            = Utils::transform(composeFiles, [&configFileDir](const QString &relativeComposeFile) {
-                  return configFileDir.resolvePath(relativeComposeFile).nativePath();
-              });
-
-        QStringList composeFilesWithFlag;
-        for (const QString &file : std::as_const(composeFiles)) {
-            composeFilesWithFlag.append("-f");
-            composeFilesWithFlag.append(file);
-        }
+        const QStringList composeFilesWithFlag = composeFileArgs(config, instanceConfig);
 
         CommandLine composeCmdLine{
             instanceConfig.dockerCli,
@@ -1725,6 +2809,14 @@ const Config &Instance::config() const
     return d->config;
 }
 
+QStringList Instance::imageNames() const
+{
+    return {
+        imageName(d->instanceConfig),
+        baseImageName(d->instanceConfig),
+        featuresImageName(d->instanceConfig)};
+}
+
 static WrappedProcessInterface *makeProcessInterface(
     const Config &config,
     const InstanceConfig &instanceConfig,
@@ -1733,9 +2825,8 @@ static WrappedProcessInterface *makeProcessInterface(
 {
     const auto wrapCommandLine = [=](const ProcessSetupData &setupData,
                                      const QString &markerTemplate,
-                                     const QString & /*exitCodeTemplate*/)
-        -> Result<CommandLine> {
-        CommandLine dockerCmd{instanceConfig.dockerCli, {"exec"}};
+                                     const QString & /*exitCodeTemplate*/) -> Result<CommandLine> {
+        CommandLine dockerCmd{instanceConfig.dockerCli, {"exec", remoteUserArgs(config.common)}};
 
         const bool inTerminal = setupData.m_terminalMode != TerminalMode::Off
                                 || setupData.m_ptyData.has_value();
@@ -1820,19 +2911,23 @@ static WrappedProcessInterface *makeProcessInterface(
         return dockerCmd;
     };
 
-    const auto controlSignal = [instanceConfig](ControlSignal controlSignal, qint64 remotePid) {
-        const int signal = ProcessInterface::controlSignalToInt(controlSignal);
+    const auto controlSignal =
+        [config, instanceConfig, containerId](ControlSignal controlSignal, qint64 remotePid) {
+            const int signal = ProcessInterface::controlSignalToInt(controlSignal);
 
-        CommandLine dockerCmd{
-            instanceConfig.dockerCli,
-            {{"exec", containerName(instanceConfig)},
-             {"kill", QString("-%1").arg(signal), QString("%2").arg(remotePid)}}};
+            // The signal has to come from the user the process runs as.
+            CommandLine dockerCmd{
+                instanceConfig.dockerCli,
+                {"exec",
+                 remoteUserArgs(config.common),
+                 dynamicStringToString(containerId),
+                 {"kill", QString("-%1").arg(signal), QString::number(remotePid)}}};
 
-        Process p;
-        p.setCommand(dockerCmd);
-        p.setEnvironment(instanceConfig.localEnvironment);
-        p.runBlocking();
-    };
+            Process p;
+            p.setCommand(dockerCmd);
+            p.setEnvironment(instanceConfig.localEnvironment);
+            p.runBlocking();
+        };
 
     auto *processInterface = new WrappedProcessInterface(wrapCommandLine, controlSignal);
 
