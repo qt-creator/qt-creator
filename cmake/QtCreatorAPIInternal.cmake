@@ -310,6 +310,25 @@ function(set_public_includes target includes system)
   endforeach()
 endfunction()
 
+# Returns the PATH for running binaries from the build directory on Windows,
+# where the DLLs of Qt and other dependencies are not found otherwise.
+function(qtc_windows_runtime_path out_var)
+  set(env_path ${CMAKE_BINARY_DIR}/${_IDE_PLUGIN_PATH})
+  list(APPEND env_path ${CMAKE_BINARY_DIR}/${_IDE_BIN_PATH})
+  list(APPEND env_path $<TARGET_FILE_DIR:Qt6::Core>)
+  if (TARGET libclang)
+    list(APPEND env_path $<TARGET_FILE_DIR:libclang>)
+  endif()
+
+  if (TARGET elfutils::elf)
+    list(APPEND env_path $<TARGET_FILE_DIR:elfutils::elf>)
+  endif()
+
+  list(APPEND env_path $ENV{PATH})
+  string(REPLACE "/" "\\" env_path "${env_path}")
+  set(${out_var} "${env_path}" PARENT_SCOPE)
+endfunction()
+
 function(finalize_test_setup test_name)
   cmake_parse_arguments(_arg "" "TIMEOUT" "" ${ARGN})
   if (DEFINED _arg_TIMEOUT)
@@ -325,22 +344,8 @@ function(finalize_test_setup test_name)
   )
 
   if (WIN32)
-    list(APPEND env_path $ENV{PATH})
-    list(APPEND env_path ${CMAKE_BINARY_DIR}/${_IDE_PLUGIN_PATH})
-    list(APPEND env_path ${CMAKE_BINARY_DIR}/${_IDE_BIN_PATH})
-    # version-less target Qt::Test is an interface library that links to QtX::Test
-    list(APPEND env_path $<TARGET_FILE_DIR:$<TARGET_PROPERTY:Qt::Test,INTERFACE_LINK_LIBRARIES>>)
-    if (TARGET libclang)
-        list(APPEND env_path $<TARGET_FILE_DIR:libclang>)
-    endif()
-
-    if (TARGET elfutils::elf)
-        list(APPEND env_path $<TARGET_FILE_DIR:elfutils::elf>)
-    endif()
-
-    string(REPLACE "/" "\\" env_path "${env_path}")
+    qtc_windows_runtime_path(env_path)
     string(REPLACE ";" "\\;" env_path "${env_path}")
-
     set_tests_properties(${test_name} PROPERTIES ENVIRONMENT "PATH=${env_path}")
   endif()
 endfunction()

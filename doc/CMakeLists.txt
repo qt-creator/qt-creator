@@ -109,9 +109,15 @@ install(DIRECTORY config
 # disabled by default are captured too; the list is meant to be exhaustive.
 # That needs every plugin built first, not just the ones qtcreator links.
 if (TARGET qtcreator AND TARGET McpServer AND NOT CMAKE_CROSSCOMPILING)
+  set(_mcp_dump_env QT_QPA_PLATFORM=offscreen)
+  if (WIN32)
+    qtc_windows_runtime_path(_env_path)
+    string(REPLACE ";" "$<SEMICOLON>" _env_path "${_env_path}")
+    list(APPEND _mcp_dump_env "PATH=${_env_path}")
+  endif()
   add_custom_target(regenerate_mcp_tools_doc
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/generated_attributions
-    COMMAND ${CMAKE_COMMAND} -E env QT_QPA_PLATFORM=offscreen
+    COMMAND ${CMAKE_COMMAND} -E env ${_mcp_dump_env}
       $<TARGET_FILE:qtcreator> -load all
       -mcp-dump-tools ${CMAKE_CURRENT_BINARY_DIR}/generated_attributions/mcp-tools.qdocinc
       -settingspath ${CMAKE_CURRENT_BINARY_DIR}/mcp-dump-settings
