@@ -290,6 +290,8 @@ QTCREATOR_UTILS_EXPORT OklabColor oklab(const QColor &color);
 QTCREATOR_UTILS_EXPORT OklchColor oklch(const QColor &color);
 QTCREATOR_UTILS_EXPORT double oklchFittingChroma(const OklchColor &oklch);
 QTCREATOR_UTILS_EXPORT double oklchMostChromaticLightness(double hue);
+// interpolates from "from" (ratio = 0) to "to" (ratio = 1), taking the shorter way around the hue circle
+QTCREATOR_UTILS_EXPORT OklchColor oklchMix(const OklchColor &from, const OklchColor &to, double ratio);
 // modifies widget's palette QPalette::Base to color, leaves other colors of palette untouched
 QTCREATOR_UTILS_EXPORT void modifyPaletteBase(QWidget *widget, const QColor &color);
 // sets widget's background to colorRole from theme
