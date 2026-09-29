@@ -464,7 +464,7 @@ int TimelineModel::defaultRowHeight()
 
 QRgb TimelineModel::colorBySelectionId(int index) const
 {
-    return colorByHue(selectionId(index) * TimelineModelPrivate::SelectionIdHueMultiplier);
+    return colorByHue(selectionId(index) * kSelectionIdHueStep);
 }
 
 QRgb TimelineModel::colorByFraction(double fraction) const

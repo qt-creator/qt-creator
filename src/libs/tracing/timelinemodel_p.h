@@ -24,8 +24,9 @@ public:
     static const int DefaultRowHeight = 30;
 
     // BoxColorProperties
-    static const int SelectionIdHueMultiplier = 25;
+    // Scales the 0..1 fraction passed to colorByFraction() into a hue delta.
     static const int FractionHueMultiplier = 96;
+    // Shifts that hue so it starts away from red, instead of at hue 0.
     static const int FractionHueMininimum = 10;
 
     struct Range {
