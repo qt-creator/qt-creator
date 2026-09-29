@@ -6,6 +6,7 @@
 #include "timelinemodelaggregator.h"
 
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
 #include <list>
@@ -469,8 +470,8 @@ QRgb TimelineModel::colorBySelectionId(int index) const
 
 QRgb TimelineModel::colorByFraction(double fraction) const
 {
-    return colorByHue(fraction * TimelineModelPrivate::FractionHueMultiplier +
-                      TimelineModelPrivate::FractionHueMininimum);
+    static const QualityColorLookupTable table;
+    return table(fraction);
 }
 
 QRgb TimelineModel::colorByHue(int hue) const
@@ -707,6 +708,24 @@ HueLookupTable::HueLookupTable()
     const int lightness = defaultColorLightness();
     for (int hue = 0; hue < kHueRange; ++hue) {
         table[hue] = QColor::fromHsl(hue, kDefaultSaturation, lightness).rgb();
+    }
+}
+
+QualityColorLookupTable::QualityColorLookupTable()
+{
+    using namespace Utils::StyleHelper;
+    const OklchColor bad =
+        oklch(Utils::creatorColor(Utils::Theme::Token_Notification_Danger_Muted));
+    const OklchColor ok =
+        oklch(Utils::creatorColor(Utils::Theme::Token_Notification_Alert_Muted));
+    const OklchColor good =
+        oklch(Utils::creatorColor(Utils::Theme::Token_Notification_Success_Muted));
+
+    for (int i = 0; i < colorsCount; ++i) {
+        const double position = 2.0 * i / (colorsCount - 1);
+        const OklchColor color = position < 1.0 ? oklchMix(bad, ok, position)
+                                                : oklchMix(ok, good, position - 1.0);
+        table[i] = oklchColor(color).rgb();
     }
 }
 
