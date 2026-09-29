@@ -166,7 +166,7 @@
 :Qt Creator_Core::Internal::ProgressBar	{type='Core::Internal::ProgressBar' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Core::OutputWindow	{type='Core::OutputWindow' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_CppEditor::Internal::CPPEditorWidget	{type='CppEditor::CppEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator_DiffEditor::Internal::DescriptionEditorWidget	{type='DiffEditor::Internal::DescriptionEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_DiffEditor::Internal::DescriptionEditorWidget	{type='VcsBase::VcsBaseDescriptionEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_DiffEditor::SideDiffEditorWidgetChanged	{type='DiffEditor::Internal::SideDiffEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' x~='[1-9][0-9]*'}
 :Qt Creator_DiffEditor::SideDiffEditorWidgetOriginal	{type='DiffEditor::Internal::SideDiffEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' x='0'}
 :Qt Creator_FilenameQComboBox	{leftWidget=':Qt Creator.DragDoc_QToolButton' type='QComboBox' unnamed='1' visible='1'}
