@@ -1,0 +1,145 @@
+name: Qt Profiler WebAssembly
+
+# Builds the standalone qtprofiler for WebAssembly and packs it as the npm
+# package described in src/tools/qtprofiler/npm. Every push builds and packs;
+# a v* tag, or a manual run given a version, also stages the package on npm.
+# A staged version is only public once a maintainer approves it with 2FA, on
+# npmjs.com or with "npm stage approve".
+
+on:
+  push:
+    paths-ignore:
+      - 'dist/**'
+      - 'doc/**'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Package version to stage, e.g. 20.0.0-beta1. Leave empty to only build.'
+        required: false
+        default: ''
+      dist-tag:
+        description: 'npm dist-tag. Leave empty for "latest", or "next" for a prerelease version.'
+        required: false
+        default: ''
+
+jobs:
+  build:
+    name: Build and pack
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      dist-tag: ${{ steps.version.outputs.dist-tag }}
+      publish: ${{ steps.version.outputs.publish }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Determine package version
+      id: version
+      env:
+        INPUT_VERSION: ${{ inputs.version }}
+        INPUT_DIST_TAG: ${{ inputs.dist-tag }}
+      run: |
+        if [[ "$GITHUB_REF" =~ ^refs/tags/v(.+)$ ]]; then
+          version="${BASH_REMATCH[1]}"
+          publish=true
+        elif [ -n "$INPUT_VERSION" ]; then
+          version="$INPUT_VERSION"
+          publish=true
+        else
+          # Not published, only makes the packed file name say what it is.
+          version="0.0.0-ci.${GITHUB_SHA::12}"
+          publish=false
+        fi
+        dist_tag="$INPUT_DIST_TAG"
+        if [ -z "$dist_tag" ]; then
+          # npm would otherwise point "latest" at a beta.
+          if [[ "$version" == *-* ]]; then dist_tag=next; else dist_tag=latest; fi
+        fi
+        echo "version=$version" >> "$GITHUB_OUTPUT"
+        echo "dist-tag=$dist_tag" >> "$GITHUB_OUTPUT"
+        echo "publish=$publish" >> "$GITHUB_OUTPUT"
+        echo "Version $version, dist-tag $dist_tag, publish: $publish"
+
+    # The image is the Qt for WebAssembly qtprofiler is built against, and the
+    # tools to build it; see src/tools/qtprofiler/Dockerfile. Building its Qt
+    # takes long, so the layers are cached, and only rebuilt when the
+    # Dockerfile or the Qt patches change.
+    - uses: docker/setup-buildx-action@v3
+
+    - name: Build the build image
+      uses: docker/build-push-action@v6
+      with:
+        context: src/tools/qtprofiler
+        tags: qtprofiler-wasm
+        load: true
+        cache-from: type=gha,scope=qtprofiler-wasm
+        # "max" also caches the stage that builds Qt, which the final image only
+        # copies from.
+        cache-to: type=gha,scope=qtprofiler-wasm,mode=max
+
+    - name: Build qtprofiler
+      run: |
+        docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/src" qtprofiler-wasm
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "24"
+
+    - name: Pack npm package
+      env:
+        VERSION: ${{ steps.version.outputs.version }}
+      run: |
+        package="$RUNNER_TEMP/package"
+        cp -r src/tools/qtprofiler/npm "$package"
+        cp -r builds/wasm-docker/dist "$package/dist"
+        mkdir "$package/LICENSES"
+        cp LICENSES/LICENSE.GPL3-EXCEPT LICENSES/LicenseRef-Qt-Commercial.txt "$package/LICENSES/"
+        cd "$package"
+        # npm checks the provenance statement against the repository named here.
+        npm pkg set version="$VERSION" \
+          repository.type=git \
+          repository.url="git+$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" \
+          repository.directory=src/tools/qtprofiler/npm
+        node -e "const p = require('.'); for (const f of Object.values(p.files)) require('fs').accessSync(f)"
+        mkdir "$RUNNER_TEMP/npm"
+        npm pack --pack-destination "$RUNNER_TEMP/npm"
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: qtprofiler-wasm-npm
+        path: ${{ runner.temp }}/npm/*.tgz
+        if-no-files-found: error
+
+  publish:
+    name: Stage on npm
+    needs: build
+    if: needs.build.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    # Name this environment in the package's trusted publisher settings on
+    # npmjs.com, and give it required reviewers or branch rules as needed.
+    environment: npm
+    permissions:
+      contents: read
+      # npm trusted publishing: the OIDC token replaces an access token, and
+      # the provenance statement is signed with it too. The trusted publisher
+      # needs to allow staged publishing, and need not allow publishing.
+      id-token: write
+
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: qtprofiler-wasm-npm
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "24"
+        registry-url: "https://registry.npmjs.org"
+
+    - name: Stage
+      env:
+        DIST_TAG: ${{ needs.build.outputs.dist-tag }}
+      run: |
+        # Older npm versions have no staged publishing.
+        npm install --global npm@latest
+        npm stage publish ./*.tgz --access public --tag "$DIST_TAG" --provenance

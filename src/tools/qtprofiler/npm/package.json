@@ -1,0 +1,23 @@
+{
+  "name": "@qtproject/qtprofiler-wasm",
+  "version": "0.0.0",
+  "description": "The Qt Profiler trace viewer, built for WebAssembly",
+  "keywords": [
+    "qt",
+    "profiler",
+    "trace",
+    "webassembly",
+    "wasm"
+  ],
+  "homepage": "https://www.qt.io/product/development-tools",
+  "license": "LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0",
+  "author": "The Qt Company Ltd.",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "dist/",
+    "LICENSES/"
+  ]
+}
