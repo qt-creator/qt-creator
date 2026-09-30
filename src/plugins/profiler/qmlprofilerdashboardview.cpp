@@ -7,7 +7,6 @@
 #include "qmlprofilerdashboardstats.h"
 #include "qmlprofilerfindingsmodel.h"
 
-#include <utils/elidinglabel.h>
 #include <utils/icon.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
@@ -337,22 +336,6 @@ void Gauge::paintEvent(QPaintEvent *event)
     QWidget::paintEvent(event);
 }
 
-constexpr TextFormat findingTf {
-    .themeColor = Theme::Token_Text_Default,
-    .uiElement = UiElementBody2,
-};
-
-constexpr TextFormat findingDetailTf {
-    .themeColor = Theme::Token_Text_Muted,
-    .uiElement = findingTf.uiElement,
-};
-
-constexpr TextFormat findingMetricsTf {
-    .themeColor = findingDetailTf.themeColor,
-    .uiElement = UiElementCaption,
-    .drawTextFlags = Qt::AlignRight | Qt::TextDontClip,
-};
-
 constexpr int findingIconSize = 24;
 
 static InfoLabelType infoType(Finding::Severity severity)
@@ -381,13 +364,6 @@ static QString findingMetrics(const QModelIndex &index)
     if (occurrences > 0)
         metrics.append(Tr::tr("%n occurrence(s)", nullptr, occurrences));
     return metrics.join(", ");
-}
-
-// Selectable text swallows the clicks that activate a finding, so the header opts out.
-static void applyHeaderTf(QLabel *label, const TextFormat &tf)
-{
-    applyTf(label, tf, false);
-    label->setTextInteractionFlags(Qt::NoTextInteraction);
 }
 
 class FindingHeader : public QWidget
@@ -457,8 +433,6 @@ private:
     QPersistentModelIndex m_index;
     QLabel *m_icon = nullptr;
     QLabel *m_finding = nullptr;
-    ElidingLabel *m_location = nullptr;
-    QLabel *m_metrics = nullptr;
     QLabel *m_details = nullptr;
 };
 
@@ -469,19 +443,12 @@ FindingItemWidget::FindingItemWidget(QWidget *parent)
     m_icon->setFixedSize(findingIconSize, findingIconSize);
 
     m_finding = new QLabel;
-    applyHeaderTf(m_finding, findingTf);
+    m_finding->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+    m_finding->setTextInteractionFlags(Qt::NoTextInteraction);
     m_finding->setWordWrap(true);
-    m_finding->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-
-    m_location = new ElidingLabel;
-    m_location->setElideMode(Qt::ElideMiddle);
-    applyHeaderTf(m_location, findingDetailTf);
-
-    m_metrics = new QLabel;
-    applyHeaderTf(m_metrics, findingMetricsTf);
 
     m_details = new QLabel;
-    applyTf(m_details, findingDetailTf, false);
+    m_details->setTextInteractionFlags(Qt::TextBrowserInteraction);
     m_details->setWordWrap(true);
 
     auto header = new FindingHeader;
@@ -492,34 +459,24 @@ FindingItemWidget::FindingItemWidget(QWidget *parent)
 
     using namespace Layouting;
     Row {
-        customMargins(SpacingTokens::PaddingHM, SpacingTokens::PaddingVM,
-                      SpacingTokens::PaddingHM, SpacingTokens::PaddingVM),
-        spacing(SpacingTokens::GapVM),
+        customMargins(0, SpacingTokens::PaddingVS, 0, SpacingTokens::PaddingVS),
+        m_finding,
+    }.attachTo(header);
+
+    Row {
+        customMargins(0, 0,
+                      SpacingTokens::PaddingHS, SpacingTokens::PaddingVS),
+        spacing(0),
         Column {
-            customMargins(0, SpacingTokens::PaddingVXxs, 0, 0),
+            customMargins(SpacingTokens::PaddingHS, SpacingTokens::PaddingVS,
+                          SpacingTokens::PaddingHS, SpacingTokens::PaddingVS),
             m_icon,
             st,
         },
         Column {
-            noMargin,
-            spacing(SpacingTokens::GapVXs),
-            Row {
-                m_location,
-                m_metrics,
-            },
-            m_finding,
-        },
-    }.attachTo(header);
-
-    Column {
-        customMargins(0, SpacingTokens::PaddingVS, 0, SpacingTokens::PaddingVM),
-        spacing(0),
-        header,
-        Row {
-            customMargins(SpacingTokens::GapHM + findingIconSize + SpacingTokens::GapHM, 0,
-                          SpacingTokens::GapHM, 0),
+            header,
             m_details,
-        }
+        },
     }.attachTo(this);
 
     QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -537,22 +494,41 @@ void FindingItemWidget::setFinding(const QModelIndex &index)
     const QIcon icon = Utils::infoTypeIconLarge(infoType(severity)).icon();
     m_icon->setPixmap(icon.pixmap(QSize(findingIconSize, findingIconSize), devicePixelRatioF()));
 
-    m_finding->setText(
-        index.siblingAtColumn(QmlProfilerFindingsModel::ColumnFinding).data().toString());
-    m_location->setText(
-        index.siblingAtColumn(QmlProfilerFindingsModel::ColumnLocation).data().toString());
-    m_metrics->setText(findingMetrics(index));
+    const QString captionFontCss = fontToCssProperties(uiFont(UiElementCaption));
+    const QString captionStrongFontCss = fontToCssProperties(uiFont(UiElementCaptionStrong));
 
-    QStringList details;
+    auto styledSpanHtml = [](const QString &style, const QString &text) {
+        return QString("<span style=\"%1\">%2</span>").arg(style, text.toHtmlEscaped());
+    };
+
+    auto titleAndDescriptionHtml = [&](const QString &title, const QString &description) {
+        return styledSpanHtml(captionStrongFontCss, title) + " "
+               + styledSpanHtml(captionFontCss, description);
+    };
+
+    const QString location = index.siblingAtColumn(QmlProfilerFindingsModel::ColumnLocation)
+                                 .data().toString();
+    const QString finding = index.siblingAtColumn(QmlProfilerFindingsModel::ColumnFinding)
+                                .data().toString();
+    const QString findingHtml = QString("<table width=\"100%\">"
+                                        "<tr><td>%1</td><td align=\"right\">%2</td></tr>"
+                                        "</table>")
+                                    .arg(titleAndDescriptionHtml(finding, location),
+                                         styledSpanHtml(captionFontCss, findingMetrics(index)));;
+    m_finding->setText(findingHtml);
+
     const QString why = index.data(QmlProfilerFindingsModel::WhyRole).toString();
-    if (!why.isEmpty())
-        details.append(Tr::tr("Why: %1").arg(why));
     const QString suggestion = index.data(QmlProfilerFindingsModel::SuggestionRole).toString();
+    QStringList detailsHtml;
+    if (!why.isEmpty())
+        detailsHtml.append(titleAndDescriptionHtml(Tr::tr("Why:"), why));
     if (!suggestion.isEmpty())
-        details.append(Tr::tr("Suggestion: %1").arg(suggestion));
-    const bool hasDetails = !details.isEmpty();
+        detailsHtml.append(titleAndDescriptionHtml(Tr::tr("Suggestion:"), suggestion));
+    const bool hasDetails = !detailsHtml.isEmpty();
     if (hasDetails)
-        m_details->setText("<p>" + details.join("</p><p>") + "</p>");
+        m_details->setText("<table width=\"100%\"><tr><td>"
+                           + detailsHtml.join("<br/>")
+                           + "</td></tr></table>");
     m_details->setVisible(hasDetails);
 }
 
@@ -569,7 +545,7 @@ signals:
 private:
     void updateFindings();
 
-    const int m_maxVisibleFindings = 10;
+    const int m_maxVisibleFindings = 5;
     QmlProfilerFindingsModel *m_model = nullptr;
     QList<FindingItemWidget *> m_findingsWidgets;
 };
@@ -582,7 +558,7 @@ FindingsView::FindingsView(QmlProfilerFindingsModel *model, QWidget *parent)
 
     using namespace Layouting;
     Column column {
-        customMargins(0, 0, 0, 0),
+        noMargin,
         spacing(QtcSeparatedItemsWidget::separatorLineWidth()),
     };
     for (int i = 0; i < m_maxVisibleFindings; ++i) {
