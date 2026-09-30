@@ -67,7 +67,7 @@ public:
     ProfilerRecorder *q = nullptr;
 
     std::vector<std::unique_ptr<Sampler>> backends;
-    // Indices into `backends` that are usable here (see Sampler::isAvailable),
+    // Indices into `backends` that are offered here (see Sampler::isOffered),
     // in display order. This is what the frontend offers.
     std::vector<int> offered;
     // The environment to launch in. It comes from the frontend's target rather
@@ -112,7 +112,7 @@ ProfilerRecorderPrivate::ProfilerRecorderPrivate(ProfilerRecorder *recorder)
     }
 
     for (int i = 0; i < int(backends.size()); ++i) {
-        if (backends[i]->isAvailable())
+        if (backends[i]->isOffered())
             offered.push_back(i);
     }
     // Should not happen -- QmlProfilerSampler is available everywhere -- but an

@@ -6,6 +6,28 @@ else()
   set(PROFILER_APPLE_LIBS "")
 endif()
 
+# Optional: enables dwarf-mode call-graph unwinding in the Perf Sampler
+# backend (perfdwarfunwinder.cpp), via libdw's Dwfl_Thread_Callbacks API.
+# libdw/libelf are dual-licensed LGPL-3.0-or-later / GPL-2.0-or-later (see
+# /usr/share/doc/libdw-dev/copyright's "Files: lib*" section); the LGPL
+# election is what makes linking them into this dual-licensed plugin
+# possible, same as perfparser's own (unrelated) use of them under
+# CMAKE_MODULE_PATH's Findelfutils.cmake. No qt_attributions.json entry is
+# needed: that file covers vendored third-party source shipped in this repo,
+# not a dynamically-linked system library found via find_package() -- see
+# the ATTRIBUTION_IDS comment below.
+# Profiler still builds fine without elfutils: dwarf mode is simply rejected
+# with a clear error at PerfSamplerSettings::createSession(), the same
+# fail-closed pattern already used for every other unsupported feature in
+# perfrecordreader.cpp.
+find_package(elfutils)
+# PerfDwarfUnwinder handles x86-64 registers only, and the sampler is Linux-only.
+set(_profiler_with_libdw OFF)
+if(elfutils_FOUND AND CMAKE_SYSTEM_NAME STREQUAL "Linux"
+   AND CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86_64|AMD64|amd64)$")
+  set(_profiler_with_libdw ON)
+endif()
+
 if(WITH_TESTS)
   set(TEST_SOURCES
     tests/calltreeview_test.cpp tests/calltreeview_test.h
@@ -35,6 +57,9 @@ if(WITH_TESTS)
     tests/perfprofilertracefile_test.cpp tests/perfprofilertracefile_test.h
     tests/perfresourcecounter_test.cpp tests/perfresourcecounter_test.h
     tests/perfnativemixed_test.cpp tests/perfnativemixed_test.h
+    tests/perfrecordreader_test.cpp tests/perfrecordreader_test.h
+    tests/perfsampler_test.cpp tests/perfsampler_test.h
+    tests/dwarflinetable_test.cpp tests/dwarflinetable_test.h
     tests/perfprofilertests.qrc
   )
 else()
@@ -126,6 +151,7 @@ set(QMLPROFILER_CPP_SOURCES
 # profilers share one tool/perspective/trace clock. Kept in the PerfProfiler
 # namespace; see design-docs/native-mixed-profiler-design.md.
 set(PERFPROFILER_CPP_SOURCES
+  dwarflinetable.cpp dwarflinetable.h
   perfconfigeventsmodel.cpp perfconfigeventsmodel.h
   perfdatareader.cpp perfdatareader.h
   perfevent.h
@@ -145,6 +171,7 @@ set(PERFPROFILER_CPP_SOURCES
   perfprofilertracefile.cpp perfprofilertracefile.h
   perfprofilertracemanager.cpp perfprofilertracemanager.h
   perfprofilertr.h
+  perfrecordreader.cpp perfrecordreader.h
   perfresourcecounter.h
   perfrunconfigurationaspect.cpp perfrunconfigurationaspect.h
   perfsampler.cpp perfsampler.h
@@ -153,6 +180,15 @@ set(PERFPROFILER_CPP_SOURCES
   perftimelinemodelmanager.cpp perftimelinemodelmanager.h
   perftracepointdialog.cpp perftracepointdialog.h
 )
+
+# elfutils/libdw is a system library found via find_package(), not vendored
+# source shipped in this repo -- like perfparser's own (much longer-standing)
+# dependency on the very same library, it has no qt_attributions.json entry:
+# that file is for bundled third-party source with a LicenseFile this repo
+# actually ships, which doesn't apply to a dynamically-linked system library.
+if(_profiler_with_libdw)
+  list(APPEND PERFPROFILER_CPP_SOURCES perfdwarfunwinder.cpp perfdwarfunwinder.h)
+endif()
 
 # QtSupport is only used for the live-profiling launch integration (selecting a Qt
 # kit/version to run and profile an app), which is unavailable on WebAssembly. Drop it
@@ -164,7 +200,7 @@ endif()
 
 add_qtc_plugin(Profiler
   CONDITION TARGET Tracing
-  DEPENDS QmlDebug QmlJS Tracing CommonTraceFormat QtTaskTree ${PROFILER_APPLE_LIBS}
+  DEPENDS Qt::Network QmlDebug QmlJS Tracing CommonTraceFormat QtTaskTree ${PROFILER_APPLE_LIBS}
   INCLUDES ${PROJECT_SOURCE_DIR}/src
   PLUGIN_DEPENDS Core ProjectExplorer ${_profiler_qtsupport_dep} TextEditor
   SOURCES
@@ -197,12 +233,19 @@ extend_qtc_plugin(Profiler CONDITION WIN32
     winsymbolicator.cpp winsymbolicator.h
 )
 
-# The Perf Sampler backend shells out to perfparser at runtime (see
-# perfsampler.cpp); building Profiler (and anything that depends on it, e.g.
-# qtprofiler) should build it too. src/plugins is processed before src/tools,
-# so perfparser does not exist yet at this point; defer the check to the end
-# of the top-level directory, by which time src/tools/perfparser has run.
-# perfparser only exists when elfutils was found (see
+if(TARGET Profiler AND _profiler_with_libdw)
+  target_link_libraries(Profiler PRIVATE elfutils::dw elfutils::elf)
+  target_compile_definitions(Profiler PRIVATE WITH_LIBDW)
+endif()
+
+# PerfDataReader (perfdatareader.cpp, backing the CPU Usage analyzer) shells
+# out to perfparser at runtime; building Profiler (and anything that depends
+# on it, e.g. qtprofiler) should build it too. (The Perf Sampler backend in
+# perfsampler.cpp does not use perfparser -- it decodes "perf record"'s output
+# itself, see perfrecordreader.cpp.) src/plugins is processed before
+# src/tools, so perfparser does not exist yet at this point; defer the check
+# to the end of the top-level directory, by which time src/tools/perfparser
+# has run. perfparser only exists when elfutils was found (see
 # src/tools/perfparser/CMakeLists.txt), so this is a no-op, not an error, when
 # it is absent.
 function(qtc_profiler_add_perfparser_dependency)

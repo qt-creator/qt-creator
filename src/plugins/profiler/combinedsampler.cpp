@@ -129,6 +129,11 @@ bool CombinedSampler::isAvailable(QString *error) const
     return m_qml->isAvailable(error);
 }
 
+bool CombinedSampler::isOffered() const
+{
+    return m_native && m_native->isOffered() && m_qml->isOffered();
+}
+
 SamplerSettings *CombinedSampler::settings() const
 {
     return m_settings.get();

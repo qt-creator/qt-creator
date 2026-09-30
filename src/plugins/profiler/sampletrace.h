@@ -65,6 +65,16 @@ public:
         friend bool operator==(const Label &, const Label &) = default;
     };
 
+    // Samples a recording dropped: its backend could not keep up and lost
+    // them, as "perf record" does when its ring buffer overflows.
+    struct LostSamples
+    {
+        quint64 tsUs = 0; // about where, in microseconds since recording start
+        quint64 count = 0;
+
+        friend bool operator==(const LostSamples &, const LostSamples &) = default;
+    };
+
     quint64 pid = 0;
     QList<Label> labels;                 // index = label id
     QHash<quint64, QString> threadNames; // tid -> name (entries may be empty)
@@ -73,9 +83,19 @@ public:
     // the gap in `samples` reads as deliberate. Kept beside the stream rather
     // than in it, in a file of its own that is only there when there were any.
     QList<std::pair<quint64, quint64>> pausedRangesUs;
+    // Where the samples do not show everything that ran: stretches around a
+    // loss, and after the kernel throttled sampling because more samples were
+    // due than it would take, are underrepresented.
+    QList<LostSamples> lostSamples;      // ordered by tsUs
+    QList<quint64> throttledTsUs;        // when sampling was throttled, ordered
 
     friend bool operator==(const SampleTraceData &, const SampleTraceData &) = default;
 };
+
+// What a user should know about the samples `data` lacks (see
+// SampleTraceData::lostSamples and throttledTsUs), or an empty string when it
+// lacks none.
+QString incompleteTraceWarning(const SampleTraceData &data);
 
 // Writes `data` as a CTF2 trace ("metadata" + "stream0" files) into the
 // existing directory `dir`. `progress`, if set, is called with 0..100 while

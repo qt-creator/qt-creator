@@ -3,11 +3,8 @@
 
 #include "perfsampler.h"
 
-#include "perfdatareader.h"
-#include "perfevent.h"
-#include "perfeventtype.h"
 #include "perfprofilerconstants.h"
-#include "perfprofilertracemanager.h"
+#include "perfrecordreader.h"
 #include "processpickerdialog.h"
 #include "profilertr.h"
 #include "sampletrace.h"
@@ -19,10 +16,16 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtdesignwidgets.h>
 
-#include <QDataStream>
-#include <QPointer>
-#include <QtEndian>
+#include <QtTaskTree/QThreadFunction>
 
+#include <QDir>
+#include <QFile>
+#include <QHash>
+#include <QPromise>
+#include <QTimer>
+
+#include <limits>
+#include <mutex>
 #include <optional>
 
 using namespace QtTaskTree;
@@ -33,251 +36,6 @@ namespace Profiler::Internal {
 
 namespace {
 
-// How long elfutils may wait for a debuginfod server to start answering, and how
-// often it may try again, when downloading debug information is enabled. Both are
-// per build id; see onParserSetup().
-constexpr auto debugInfoUrlsVariable = "DEBUGINFOD_URLS"_L1;
-constexpr auto debugInfoTimeoutVariable = "DEBUGINFOD_TIMEOUT"_L1;
-constexpr auto debugInfoRetryVariable = "DEBUGINFOD_RETRY_LIMIT"_L1;
-constexpr int debugInfoTimeoutSeconds = 10;
-constexpr int debugInfoRetryLimit = 0;
-
-// Decodes perfparser's live wire protocol (the same one PerfProfilerTraceFile
-// reads, see perfprofilertracefile.cpp) directly into a SampleTraceData,
-// bypassing PerfProfilerTraceManager: that class exists to back a completely
-// different, disk-stash-backed timeline UI this tool does not use. The framing
-// (magic + version header, then length-prefixed messages) and the PerfEvent /
-// PerfEventType::Location / PerfProfilerTraceManager::Symbol / ::Thread wire
-// structures are reused as-is; only the message dispatch is new.
-class PerfMessageDecoder
-{
-public:
-    PerfMessageDecoder(SampleTraceData &data, const std::shared_ptr<RecordingSession> &session)
-        : m_data(data), m_session(session)
-    {}
-
-    void addData(const QByteArray &chunk)
-    {
-        m_buffer.append(chunk);
-        while (parseNextMessage()) { }
-    }
-
-    // Samples perfparser delivered, including those dropped for having no
-    // resolvable call stack. A recording that captured plenty but resolved none
-    // is a symbolication problem, not an empty one, and only this count tells
-    // the two apart.
-    int receivedSamples() const { return m_receivedSamples; }
-
-    // Puts the recording's pauses on the trace's own timeline.
-    void addPausedRanges()
-    {
-        if (m_firstTimestampNs >= 0) {
-            m_data.pausedRangesUs = pausedRangesUs(m_session->pausedIntervals(),
-                                                   m_firstTimestampNs, m_lastKeptUs);
-        }
-    }
-
-private:
-    bool parseNextMessage()
-    {
-        if (m_dataStreamVersion < 0) {
-            const int magicSize = int(sizeof(Constants::PerfStreamMagic));
-            if (m_buffer.size() < magicSize + int(sizeof(qint32)))
-                return false;
-            if (strncmp(m_buffer.constData(), Constants::PerfStreamMagic, magicSize) != 0) {
-                qWarning("PerfSampler: unrecognized perfparser stream header");
-                m_buffer.clear();
-                return false;
-            }
-            m_dataStreamVersion = qFromLittleEndian<qint32>(
-                reinterpret_cast<const uchar *>(m_buffer.constData() + magicSize));
-            m_buffer.remove(0, magicSize + int(sizeof(qint32)));
-        }
-
-        if (m_buffer.size() < int(sizeof(quint32)))
-            return false;
-        const quint32 messageSize = qFromLittleEndian<quint32>(
-            reinterpret_cast<const uchar *>(m_buffer.constData()));
-        if (m_buffer.size() < int(sizeof(quint32)) + int(messageSize))
-            return false;
-
-        const QByteArray message = m_buffer.mid(sizeof(quint32), messageSize);
-        m_buffer.remove(0, int(sizeof(quint32)) + int(messageSize));
-        handleMessage(message);
-        return true;
-    }
-
-    void handleMessage(const QByteArray &message)
-    {
-        QDataStream stream(message);
-        stream.setVersion(m_dataStreamVersion);
-
-        PerfEvent event;
-        stream >> event;
-
-        // perfparser is single-threaded, so any other message proves it got past
-        // the download it last reported. Clear the download state on it instead
-        // of trying to recognize the final progress report, which never arrives
-        // when a lookup gives up or fails.
-        if (event.feature() != PerfEventType::DebugInfoDownloadProgress)
-            m_session->clearDebugInfoDownload();
-
-        switch (event.feature()) {
-        case PerfEventType::StringDefinition: {
-            qint32 id;
-            QByteArray value;
-            stream >> id >> value;
-            m_strings.insert(id, value);
-            break;
-        }
-        case PerfEventType::LocationDefinition: {
-            qint32 id;
-            PerfEventType::Location location;
-            stream >> id >> location;
-            m_locations.insert(id, location);
-            break;
-        }
-        case PerfEventType::SymbolDefinition: {
-            qint32 id;
-            PerfProfilerTraceManager::Symbol symbol;
-            stream >> id >> symbol;
-            m_symbols.insert(id, symbol);
-            break;
-        }
-        case PerfEventType::Command: {
-            PerfProfilerTraceManager::Thread thread;
-            stream >> thread;
-            if (thread.name >= 0)
-                m_data.threadNames.insert(thread.tid, string(thread.name));
-            break;
-        }
-        case PerfEventType::Sample:
-        case PerfEventType::TracePointSample:
-            appendSample(event);
-            break;
-        case PerfEventType::Progress: {
-            float percent;
-            stream >> percent;
-            m_session->setProgress(int(percent * 100));
-            break;
-        }
-        case PerfEventType::DebugInfoDownloadProgress: {
-            qint32 url;
-            qint64 numerator;
-            qint64 denominator;
-            stream >> url >> numerator >> denominator;
-            // A server that has not answered yet announces no size, so there is
-            // no percentage to report; 0 stands for that, and the UI then only
-            // says a download is running. The URL is the request being made once
-            // one is in flight, and the configured server list before that.
-            const int percent = denominator > 0
-                ? int(qBound(qint64(0), numerator * 100 / denominator, qint64(100)))
-                : 0;
-            m_session->setDebugInfoDownload(percent, string(url));
-            break;
-        }
-        case PerfEventType::Error: {
-            qint32 errorCode;
-            QString message2;
-            stream >> errorCode >> message2;
-            qWarning().noquote() << "perfparser:" << message2;
-            break;
-        }
-        default:
-            break; // AttributesDefinition/FeaturesDefinition/TracePointFormat/thread
-                   // lifecycle events are not needed for the flat sample list.
-        }
-    }
-
-    QString string(qint32 id) const { return QString::fromUtf8(m_strings.value(id)); }
-
-    // Resolves one raw frame id to a SampleTraceData label id, memoized. Walks
-    // one hop up the inline-parent chain exactly like
-    // PerfProfilerTraceManager::symbolLocation() does, then repeats from the
-    // caller in appendSample() -- so an address that resolved to several
-    // inlined functions still produces one label per inline level, the same
-    // way the aggregated view of the IDE's own CPU Usage analyzer does.
-    int labelIdFor(qint32 locationId)
-    {
-        if (auto it = m_labelIds.constFind(locationId); it != m_labelIds.constEnd())
-            return it.value();
-
-        const PerfProfilerTraceManager::Symbol &symbol = m_symbols.value(locationId);
-        const PerfEventType::Location &location = m_locations.value(locationId);
-
-        SampleTraceData::Label label;
-        if (symbol.name != -1) {
-            label.name = string(symbol.name);
-            label.module = string(symbol.binary);
-            label.offset = symbol.relAddr;
-        } else {
-            label.offset = location.relAddr ? location.relAddr : location.address;
-            label.name = u"0x%1"_s.arg(label.offset, 0, 16);
-        }
-        if (location.file != -1) {
-            label.file = string(location.file);
-            label.line = location.line;
-        }
-
-        const int id = int(m_data.labels.size());
-        m_data.labels.append(label);
-        m_labelIds.insert(locationId, id);
-        return id;
-    }
-
-    void appendSample(const PerfEvent &event)
-    {
-        // perf keeps recording while paused, and what perfparser hands over has
-        // been waiting behind it for as long as it takes to unwind, so a sample
-        // is judged by when perf took it (the recording uses the steady clock).
-        if (m_session->wasPausedAt(event.timestamp()))
-            return;
-        m_data.pid = event.pid();
-        ++m_receivedSamples;
-
-        QList<int> reversedFrames; // built innermost-first, like origFrames()
-        for (qint32 frame : event.origFrames()) {
-            while (frame >= 0) {
-                const qint32 symbolLocationId = m_symbols.contains(frame)
-                                                    ? frame
-                                                    : m_locations.value(frame).parentLocationId;
-                const qint32 resolvedId = symbolLocationId >= 0 ? symbolLocationId : frame;
-                reversedFrames.append(labelIdFor(resolvedId));
-                frame = symbolLocationId >= 0
-                            ? m_locations.value(symbolLocationId).parentLocationId
-                            : -1;
-            }
-        }
-        if (reversedFrames.isEmpty())
-            return; // matches macsampler.cpp: samples with no resolved stack are dropped
-
-        SampleTraceData::ThreadSample sample;
-        sample.tid = event.tid();
-        sample.running = true; // a perf sample always fires while its thread is on-CPU
-        const qint64 timestampNs = event.timestamp();
-        if (m_firstTimestampNs < 0)
-            m_firstTimestampNs = timestampNs;
-        sample.tsUs = quint64(qMax<qint64>(0, timestampNs - m_firstTimestampNs) / 1000);
-        sample.frames.reserve(reversedFrames.size());
-        for (auto it = reversedFrames.crbegin(); it != reversedFrames.crend(); ++it)
-            sample.frames.append(*it);
-        m_lastKeptUs = sample.tsUs;
-        m_data.samples.append(std::move(sample));
-    }
-
-    SampleTraceData &m_data;
-    std::shared_ptr<RecordingSession> m_session;
-    QByteArray m_buffer;
-    qint32 m_dataStreamVersion = -1;
-    int m_receivedSamples = 0;
-    qint64 m_firstTimestampNs = -1;
-    quint64 m_lastKeptUs = 0;
-    QHash<qint32, QByteArray> m_strings;
-    QHash<qint32, PerfEventType::Location> m_locations;
-    QHash<qint32, PerfProfilerTraceManager::Symbol> m_symbols;
-    QHash<qint32, int> m_labelIds;
-};
-
 // perf_event_paranoid up to 2 still permits sampling a process the user owns;
 // 3 -- a Debian/Ubuntu addition -- and above deny unprivileged sampling outright.
 constexpr int lowestParanoidBlockingUserSampling = 3;
@@ -286,9 +44,8 @@ constexpr auto paranoidSettingName = "perf_event_paranoid"_L1;
 constexpr auto paranoidSysctlKey = "kernel.perf_event_paranoid"_L1;
 constexpr auto sysctlConfigFile = "/etc/sysctl.conf"_L1;
 
-// The programs driven here, named in messages but never translated.
+// The program driven here, named in messages but never translated.
 constexpr auto perfRecordName = "perf record"_L1;
-constexpr auto perfParserName = "perfparser"_L1;
 
 // "perf record" follows a failure with a screenful of advice; keep the message
 // box to the part that names the failure.
@@ -319,8 +76,8 @@ FilePath sysctlExecutable()
     return {};
 }
 
-// What "perf record" left behind, shared between its own done handler and
-// perfparser's, which is where a sample-less recording is diagnosed.
+// What "perf record" left behind, shared between its own done handler and the
+// parsing worker, which is where a sample-less recording is diagnosed.
 struct RecordOutcome
 {
     QString stdErr;
@@ -344,10 +101,19 @@ QString reportedFailure(const QString &recordStdErr)
     return lines.mid(start, maxReportedErrorLines).join(u'\n');
 }
 
-QString noSamplesError(const QString &recordStdErr, bool recordFailed, int receivedSamples)
+QString noSamplesError(const QString &recordStdErr, bool recordFailed, int receivedSamples,
+                       quint64 lostSamples)
 {
+    const QString reported = recordFailed ? reportedFailure(recordStdErr) : QString();
+
+    // perf names perf_event_paranoid when that is what refused it. Anything else
+    // it failed on -- no perf for the running kernel, an unknown event -- would
+    // still be in the way with the setting changed, so that is what to report.
     const std::optional<int> paranoid = perfEventParanoid();
-    if (paranoid && *paranoid >= lowestParanoidBlockingUserSampling) {
+    const bool paranoidNamed = reported.isEmpty() || recordStdErr.contains(paranoidSettingName);
+    const bool paranoidBlocks = paranoid && *paranoid >= lowestParanoidBlockingUserSampling
+                                && paranoidNamed;
+    if (paranoidBlocks) {
         QString message = Tr::tr("No samples were captured: \"%1\" is %2, which denies "
                                  "performance monitoring to unprivileged processes. Sampling "
                                  "processes you own needs it set to %3 or less.")
@@ -367,19 +133,27 @@ QString noSamplesError(const QString &recordStdErr, bool recordFailed, int recei
 
     // Any other failure to open events -- an unsupported event, a target already
     // gone -- is named by "perf record" itself, so quote it rather than guess.
-    if (recordFailed) {
-        const QString reported = reportedFailure(recordStdErr);
-        if (!reported.isEmpty())
-            return Tr::tr("No samples were captured. \"%1\" reported:\n%2")
-                .arg(perfRecordName).arg(reported);
+    if (!reported.isEmpty()) {
+        return Tr::tr("No samples were captured. \"%1\" reported:\n%2")
+            .arg(perfRecordName).arg(reported);
+    }
+
+    // perf sampled the target, but could not write out a single sample: it
+    // took more, or larger ones, than it had time or buffer for.
+    if (receivedSamples == 0 && lostSamples > 0) {
+        return Tr::tr("\"%1\" lost all %n sample(s) it took, because it could not write them "
+                      "out fast enough. Record with a lower sampling frequency, or with a smaller "
+                      "stack snapshot size for dwarf call graphs.",
+                      nullptr, int(qMin<quint64>(lostSamples, std::numeric_limits<int>::max())))
+            .arg(perfRecordName);
     }
 
     // perf sampled the target fine; every sample was dropped for want of a call
-    // stack, which is about debug information, not about the recording.
+    // stack, which is about how the target was built, not about the recording.
     if (receivedSamples > 0) {
         return Tr::tr("\"%1\" captured %n sample(s), but none of them could be resolved to a "
-                      "call stack. Install debug information for the profiled binary and its "
-                      "libraries, or build it with frame pointers, and record again.",
+                      "call stack. Build the profiled binary with frame pointers, and record "
+                      "again.",
                       nullptr, receivedSamples)
             .arg(perfRecordName);
     }
@@ -394,11 +168,107 @@ QString noSamplesError(const QString &recordStdErr, bool recordFailed, int recei
                   "run on the CPU while it was recorded.");
 }
 
+// Snapshots the target's thread names from /proc/<pid>/task/<tid>/comm while
+// it is still running, so they can be merged into the trace once decoding
+// finishes. This -- not the decoder -- is where thread-name capture belongs.
+// "perf record"'s own PERF_RECORD_COMM stream routinely misses a thread
+// renamed (QThread::setObjectName() -> pthread_setname_np/prctl(PR_SET_NAME))
+// shortly after it is created: a real, reproducible perf/kernel race, not a
+// decode bug, so a name that never reached the stream cannot be recovered
+// from it. Reading /proc has to happen here, against the known-live target on
+// the GUI thread where its Process lives, rather than in the decoder: by
+// post-processing time the target may already have exited (it stopped
+// recording by quitting, or crashed), and for a *replayed* saved recording
+// the sampled pid could belong to an entirely unrelated process, which would
+// mislabel every thread. Snapshotting repeatedly during recording (see
+// captureRecipe()) captures names as threads appear and guarantees a last-known
+// value even when the target dies before it can be stopped cleanly. Mirrors
+// PerfByteQueue's mutex pattern: written on the GUI thread, read once on the
+// parsing worker.
+class CapturedThreadNames
+{
+public:
+    void snapshot(qint64 pid)
+    {
+        if (pid <= 0)
+            return;
+        const QDir taskDir(u"/proc/%1/task"_s.arg(pid));
+        const QStringList tids = taskDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        std::lock_guard lock(m_mutex);
+        for (const QString &tid : tids) {
+            bool ok = false;
+            const quint64 tidNum = tid.toULongLong(&ok);
+            if (!ok)
+                continue;
+            QFile comm(taskDir.filePath(tid + u"/comm"_s));
+            if (!comm.open(QIODevice::ReadOnly | QIODevice::Text))
+                continue;
+            const QString name = QString::fromUtf8(comm.readLine()).trimmed();
+            if (!name.isEmpty())
+                m_names.insert(tidNum, name);
+        }
+    }
+
+    QHash<quint64, QString> names() const
+    {
+        std::lock_guard lock(m_mutex);
+        return m_names;
+    }
+
+private:
+    mutable std::mutex m_mutex;
+    QHash<quint64, QString> m_names;
+};
+
+// Whether this backend can decode a recording in the settings' call-graph
+// mode. Checked when a session is created, for early feedback, and again when
+// capture starts, which is the only check a recording of a run control -- or
+// of a composite backend -- goes through.
+Result<> checkCallgraphMode(const Profiler::PerfSettings &settings)
+{
+    // This backend decodes "perf record"'s output itself (see
+    // perfrecordreader.cpp) instead of shelling out to perfparser. "fp" and
+    // "lbr" both need no unwinding on the consumer side -- the kernel hands
+    // back an already-unwound frame chain (fp) or a hardware branch-history
+    // buffer usable as one directly (lbr). "dwarf" needs a full DWARF CFI
+    // unwinder, which is libdw's (elfutils, see perfdwarfunwinder.h), linked
+    // only into Linux x86-64 builds that found its development headers (see
+    // CMakeLists.txt/profiler.qbs) -- WITH_LIBDW mirrors that.
+    const QString callgraphMode = settings.callgraphMode.itemValue().toString();
+#ifdef WITH_LIBDW
+    if (callgraphMode != u"fp"_s && callgraphMode != u"lbr"_s
+        && callgraphMode != Constants::PerfCallgraphDwarf) {
+        return ResultError(Tr::tr(
+            "This backend only supports frame-pointer, last-branch-record, or dwarf call "
+            "graphs; set \"Call graph mode\" accordingly."));
+    }
+#else
+    if (callgraphMode != u"fp"_s && callgraphMode != u"lbr"_s) {
+        return ResultError(Tr::tr(
+            "This backend only supports frame-pointer or last-branch-record call graphs; "
+            "set \"Call graph mode\" to \"frame pointer\" or \"last branch record\". Dwarf "
+            "call graphs need this build to have been compiled with libdw (elfutils) "
+            "available."));
+    }
+#endif
+    return ResultOk;
+}
+
 } // namespace
 
 PerfSamplerSettings::PerfSamplerSettings()
 {
     setSettingsGroup("PerfSampler");
+
+    // PerfSettings defaults to auto-apply off: its other use, the IDE's CPU
+    // Usage analyzer, edits it through a modal options dialog with an
+    // explicit OK/Apply step. Embedded live in this tool's sidebar (see
+    // createPerfConfigWidget() below) there is no such step, so without this
+    // every control in it -- call graph mode included -- would only ever
+    // update its own volatileValue(), never the value() that createSession()
+    // and perfRecordArguments() actually read; the widget would look
+    // responsive while silently recording with stale settings.
+    perfSettings.setAutoApply(true);
 
     attach.setSettingsKey("Attach");
     attach.setLabel(Tr::tr("Attach to a running process"),
@@ -476,6 +346,9 @@ void PerfSamplerSettings::updateOptionsEnabled()
 
 Result<std::shared_ptr<RecordingSession>> PerfSamplerSettings::createSession() const
 {
+    if (Result<> mode = checkCallgraphMode(perfSettings); !mode)
+        return ResultError(mode.error());
+
     auto session = std::make_shared<RecordingSession>();
     if (attach()) {
         if (m_pickedPid == 0)
@@ -520,19 +393,21 @@ bool PerfSampler::isAvailable(QString *error) const
         return false;
     }
     if (Environment::systemEnvironment().searchInPath("perf").isEmpty()) {
-        if (error)
-            *error = Tr::tr("The \"perf\" command was not found in PATH.");
-        return false;
-    }
-    const FilePath parser = findPerfParser();
-    if (!parser.isExecutableFile()) {
         if (error) {
-            *error = Tr::tr("The %1 helper tool was not found at \"%2\".")
-                         .arg(perfParserName).arg(parser.toUserOutput());
+            *error = Tr::tr("The \"perf\" command was not found in PATH. Install the perf "
+                            "package of your distribution, which is named \"perf\" or "
+                            "\"linux-tools\" on most of them, and record again.");
         }
         return false;
     }
     return true;
+}
+
+// Offered wherever it can work at all, so that a missing "perf" is reported
+// when recording starts rather than hiding the backend.
+bool PerfSampler::isOffered() const
+{
+    return HostOsInfo::isLinuxHost();
 }
 
 SamplerSettings *PerfSampler::settings() const
@@ -570,21 +445,29 @@ std::optional<SamplerFix> PerfSampler::availableFix() const
 
 ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession> &session) const
 {
+    if (Result<> mode = checkCallgraphMode(m_settings->perfSettings); !mode) {
+        return Group {
+            onGroupSetup([session, error = mode.error()] {
+                session->result = ResultError(error);
+                return SetupResult::StopWithError;
+            }),
+        };
+    }
+
     const FilePath perfExe = Environment::systemEnvironment().searchInPath("perf");
-    const FilePath parserExe = findPerfParser();
     const QString recordArgs = m_settings->perfSettings.perfRecordArguments();
     const bool downloadDebugInfo = m_settings->downloadDebugInfo();
 
-    auto sampleData = std::make_shared<SampleTraceData>();
-    auto decoder = std::make_shared<PerfMessageDecoder>(*sampleData, session);
-    auto parserProcessPtr = std::make_shared<QPointer<Process>>();
+    // The only thing that crosses from "perf record"'s Process (GUI thread)
+    // to the parsing worker (below) is raw bytes, via this queue -- plus what
+    // "perf record" left behind (see RecordOutcome) and the target's thread
+    // names snapshotted while it runs (see CapturedThreadNames).
+    auto queue = std::make_shared<PerfByteQueue>();
     auto recordOutcome = std::make_shared<RecordOutcome>();
-    auto parserStdErr = std::make_shared<QString>();
+    auto threadNames = std::make_shared<CapturedThreadNames>();
 
-    const auto onRecordSetup = [session, perfExe, recordArgs, parserProcessPtr,
-                                recordOutcome](Process &process) {
-        // The steady clock, so that the recording's pauses can be placed among
-        // the samples by their timestamps (see RecordingSession::wasPausedAt).
+    const auto onRecordSetup = [session, perfExe, recordArgs, queue, recordOutcome,
+                                threadNames](Process &process) {
         CommandLine cmd(perfExe,
                         {"record", "--pid", QString::number(session->pid.load()),
                          "-k", "CLOCK_MONOTONIC", "-o", "-"});
@@ -593,7 +476,8 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
 
         // "perf record" states the actual reason for a permission failure (e.g.
         // the current perf_event_paranoid restriction) on stderr; kept around so
-        // onParserDone can quote it instead of guessing why no samples arrived.
+        // the parsing worker can quote it instead of guessing why no samples
+        // arrived.
         QObject::connect(&process, &Process::readyReadStandardError, &process,
                          [p = &process, recordOutcome] {
             recordOutcome->stdErr.append(QString::fromLocal8Bit(p->readAllRawStandardError()));
@@ -603,14 +487,29 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
         // recipe is event-driven on the GUI thread and has no loop of its own
         // to notice the flag in (unlike CallStackSampler's worker-thread loop),
         // so it hooks the request instead. The process is the context, so the
-        // handler goes away with the task.
-        session->onStopRequested(&process, [p = &process] { p->stop(); });
+        // handler goes away with the task. The snapshot here is the last one
+        // taken while the target is certainly alive, right before perf stops.
+        session->onStopRequested(&process, [session, threadNames, p = &process] {
+            threadNames->snapshot(session->pid.load());
+            p->stop();
+        });
+
+        // Periodically snapshot thread names while the target runs: names
+        // appear as its threads are created and renamed, and a target that
+        // exits on its own (rather than via a stop request) would
+        // otherwise be gone by post-processing time -- see CapturedThreadNames.
+        threadNames->snapshot(session->pid.load());
+        auto *namePoll = new QTimer(&process);
+        namePoll->setInterval(500);
+        QObject::connect(namePoll, &QTimer::timeout, &process, [session, threadNames] {
+            threadNames->snapshot(session->pid.load());
+        });
+        namePoll->start();
 
         QObject::connect(&process, &Process::readyReadStandardOutput, &process,
-                         [p = &process, parserProcessPtr] {
-            if (Process *parser = parserProcessPtr->data())
-                parser->writeRaw(p->readAllRawStandardOutput());
-        });
+                         [p = &process, queue] { queue->push(p->readAllRawStandardOutput()); });
+        // A task tree destroyed while running calls no done handler.
+        QObject::connect(&process, &QObject::destroyed, [queue] { queue->close(); });
 
         // perf is attached, so the duration clock can start -- unless the
         // recording begins paused, whose trace starts at the first resume.
@@ -624,13 +523,13 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
             });
         }
     };
-    const auto onRecordDone = [session, parserProcessPtr, recordOutcome](const Process &process,
-                                                                        DoneWith result) {
+    const auto onRecordDone = [session, queue, recordOutcome](const Process &process,
+                                                             DoneWith result) {
         // Stopping recording calls process.stop(), which itself is reported as
         // DoneWith::Error (see Process::stop()'s ProcessResult::Canceled) -- so
         // only a genuine failure to launch perf is treated as an error here;
         // otherwise, whether perf exited by request or the target died on its
-        // own, let perfparser finish and let onParserDone's sample count decide.
+        // own, let the parsing worker finish and let its sample count decide.
         if (result == DoneWith::Error && process.error() == ProcessError::FailedToStart
             && !session->result) {
             session->result = ResultError(
@@ -641,119 +540,111 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
         // up on its own, which is what makes its stderr worth quoting.
         recordOutcome->failed = result == DoneWith::Error
                                 && process.result() != ProcessResult::Canceled;
-        if (Process *parser = parserProcessPtr->data())
-            parser->closeWriteChannel();
+        // Last, because the parsing worker reads recordOutcome once the queue
+        // has run dry, and the queue's lock orders that after this.
+        queue->close();
     };
 
-    const auto onParserSetup = [parserExe, parserProcessPtr, decoder, parserStdErr,
-                                downloadDebugInfo](Process &process) {
-        *parserProcessPtr = &process;
-        process.setCommand(CommandLine(parserExe));
+    const auto onParseSetup = [session, queue, recordOutcome, threadNames,
+                               downloadDebugInfo](QThreadFunction<Result<FilePath>> &parsing) {
+        parsing.setThreadFunctionData([session, queue, recordOutcome, threadNames,
+                                       downloadDebugInfo](QPromise<Result<FilePath>> &promise) {
+            const auto parse = [&]() -> Result<FilePath> {
+                PerfRecordReader reader;
+                reader.setDownloadDebugInfo(downloadDebugInfo);
+                reader.setCancelCheck([&promise] { return promise.isCanceled(); });
+                reader.setSampleFilter([session](qint64 timestampNs) {
+                    return !session->wasPausedAt(timestampNs);
+                });
+                reader.setDebugInfoDownloadHandler([session](int percent, const QString &urls) {
+                    if (percent < 0)
+                        session->clearDebugInfoDownload();
+                    else
+                        session->setDebugInfoDownload(percent, urls);
+                });
+                // Symbolication (debuginfod fetches, then per-sample resolution)
+                // only starts once recording stops and can take a while for a
+                // large trace; without this it reports nothing and the progress
+                // bar sits at 0% for that whole stretch. Given half the budget,
+                // the rest going to writeSampleTrace() below.
+                const auto readProgress = [session](int percent) {
+                    session->setProgress(percent / 2);
+                };
+                Result<SampleTraceData> data = reader.read(*queue, readProgress);
+                if (!data) {
+                    // Nothing reads what "perf record" still writes, so end it --
+                    // on the GUI thread, which stop requests belong to -- and let
+                    // its output run dry rather than pile up in the queue.
+                    QMetaObject::invokeMethod(session->reporter(), [session] {
+                        session->requestStop();
+                    }, Qt::QueuedConnection);
+                    while (!queue->atEnd())
+                        queue->pop();
+                    return ResultError(data.error());
+                }
+                if (data->samples.isEmpty()) {
+                    if (!session->isStarted() && !recordOutcome->failed) {
+                        return ResultError(session->isStopRequested()
+                                               ? stoppedBeforeResumeMessage()
+                                               : exitedBeforeResumeMessage());
+                    }
+                    quint64 lost = 0;
+                    for (const SampleTraceData::LostSamples &gap : data->lostSamples)
+                        lost += gap.count;
+                    return ResultError(noSamplesError(recordOutcome->stdErr, recordOutcome->failed,
+                                                      reader.receivedSamples(), lost));
+                }
+                data->pausedRangesUs = pausedRangesUs(session->pausedIntervals(),
+                                                      reader.firstTimestampNs(),
+                                                      data->samples.last().tsUs);
 
-        // Symbol lookups that come up empty locally are answered from a debuginfod
-        // server, which perfparser does synchronously while it processes the
-        // samples. elfutils reads the server list from DEBUGINFOD_URLS, so the
-        // environment we hand the process is what decides, and setting it here
-        // also covers a value inherited from somewhere other than this one.
-        Environment environment = Environment::systemEnvironment();
-        if (downloadDebugInfo) {
-            // A server that accepts the connection and then stays silent costs
-            // elfutils DEBUGINFOD_TIMEOUT seconds per attempt, and it makes
-            // DEBUGINFOD_RETRY_LIMIT further attempts -- 90 seconds and two
-            // retries by default, so 4.5 minutes for one build id, and it pays
-            // that for every build id it cannot resolve locally. That is the wait
-            // that makes post-processing look hung. Allow a fraction of it and no
-            // retry: a healthy server answers in well under a second, and one
-            // that ignored the first request will ignore the second too. Values
-            // already in the environment are a deliberate choice, so leave those.
-            if (!environment.hasKey(debugInfoTimeoutVariable)) {
-                environment.set(debugInfoTimeoutVariable,
-                                QString::number(debugInfoTimeoutSeconds));
-            }
-            if (!environment.hasKey(debugInfoRetryVariable))
-                environment.set(debugInfoRetryVariable, QString::number(debugInfoRetryLimit));
-        } else {
-            // An empty list is how elfutils is told not to ask anyone.
-            environment.set(debugInfoUrlsVariable, {});
-        }
-        process.setEnvironment(environment);
-        process.setProcessMode(ProcessMode::Writer); // perf record's output is written to its stdin
-        QObject::connect(&process, &Process::readyReadStandardOutput, &process,
-                         [p = &process, decoder] { decoder->addData(p->readAllRawStandardOutput()); });
-        // perfparser rejecting an argument or giving up mid-stream leaves the
-        // recording empty; without its stderr that looks like a target that never
-        // ran, so keep it for onParserDone to quote.
-        QObject::connect(&process, &Process::readyReadStandardError, &process,
-                         [p = &process, parserStdErr] {
-            parserStdErr->append(QString::fromLocal8Bit(p->readAllRawStandardError()));
+                // Fill in any thread names PERF_RECORD_COMM missed from the live
+                // /proc snapshots taken during recording (see CapturedThreadNames);
+                // perf's own events win when both have a name for a tid.
+                const QHash<quint64, QString> liveNames = threadNames->names();
+                for (auto it = liveNames.cbegin(); it != liveNames.cend(); ++it) {
+                    if (!data->threadNames.contains(it.key()))
+                        data->threadNames.insert(it.key(), it.value());
+                }
+
+                if (promise.isCanceled())
+                    return ResultError(Tr::tr("The recording was canceled."));
+                const FilePath dir = uniqueTracePath("qtprofiler-sample"_L1);
+                if (!dir.createDir()) {
+                    return ResultError(Tr::tr("Cannot create temporary trace directory %1.")
+                                           .arg(dir.toUserOutput()));
+                }
+
+                const auto writeProgress = [session](int percent) {
+                    session->setProgress(50 + percent / 2);
+                };
+                if (Result<> r = writeSampleTrace(*data, dir, writeProgress); !r)
+                    return ResultError(r.error());
+                return dir;
+            };
+            promise.addResult(parse());
         });
     };
-    const auto onParserDone = [session, sampleData, decoder, parserProcessPtr, recordOutcome,
-                               parserStdErr](const Process &process, DoneWith result) {
-        // perfparser may still have unread, already-flushed output pending.
-        if (Process *parser = parserProcessPtr->data())
-            decoder->addData(parser->readAllRawStandardOutput());
-
-        // Nothing can be downloading any more, whether or not a final progress
-        // report made it out before perfparser exited.
-        session->clearDebugInfoDownload();
-
-        if (session->result)
-            return;
-        if (result == DoneWith::Error && process.error() == ProcessError::FailedToStart) {
-            session->result = ResultError(
-                Tr::tr("Failed to start %1: %2")
-                    .arg(perfParserName).arg(process.errorString()));
-            return;
-        }
-        // perfparser started but gave up, so it -- not the recording -- is what
-        // went wrong, and it has already said why.
-        if (result == DoneWith::Error) {
-            const QString reported = parserStdErr->trimmed();
-            session->result = ResultError(
-                reported.isEmpty()
-                    ? Tr::tr("%1 failed with exit code %2.")
-                          .arg(perfParserName).arg(process.exitCode())
-                    : Tr::tr("%1 failed: %2").arg(perfParserName).arg(reported));
-            return;
-        }
-        if (sampleData->samples.isEmpty()) {
-            // Capture only goes live at the first resume. perf giving up
-            // on its own says more than that it was never resumed.
-            if (!session->isStarted() && !recordOutcome->failed) {
-                session->result = ResultError(session->isStopRequested()
-                                                  ? stoppedBeforeResumeMessage()
-                                                  : exitedBeforeResumeMessage());
-                return;
-            }
-            session->result = ResultError(
-                noSamplesError(recordOutcome->stdErr, recordOutcome->failed,
-                               decoder->receivedSamples()));
-            return;
-        }
-
-        const FilePath dir = uniqueTracePath("qtprofiler-sample"_L1);
-        if (!dir.createDir()) {
-            session->result = ResultError(
-                Tr::tr("Cannot create temporary trace directory %1.").arg(dir.toUserOutput()));
-            return;
-        }
-
-        decoder->addPausedRanges();
-        const auto writeProgress = [session](int percent) {
-            session->setProgress(percent);
-        };
-        if (Result<> r = writeSampleTrace(*sampleData, dir, writeProgress); !r) {
-            session->result = ResultError(r.error());
-            return;
-        }
-        session->result = dir;
+    const auto onParseDone = [session](const QThreadFunction<Result<FilePath>> &parsing,
+                                       DoneWith result) {
+        // A "perf record" that failed to start has already said so, which is
+        // more to the point than the empty recording it left behind.
+        if (result != DoneWith::Cancel && !session->result)
+            session->result = parsing.result();
     };
 
+    // continueOnError: stopping "perf record" (a stop request, or the target
+    // exiting) is reported as an error (Process::stop() -> ProcessResult::
+    // Canceled), which is the *expected* end of a normal recording, not a
+    // failure. Without this, the default StopOnError policy would cancel the
+    // still-running parse worker right as it's about to finish, discarding a
+    // perfectly good result -- the parse worker's own onParseDone is what
+    // actually decides success/failure via session->result.
     return Group {
         parallel,
+        continueOnError,
         ProcessTask(onRecordSetup, onRecordDone),
-        ProcessTask(onParserSetup, onParserDone),
+        QThreadFunctionTask<Result<FilePath>>(onParseSetup, onParseDone),
     };
 }
 

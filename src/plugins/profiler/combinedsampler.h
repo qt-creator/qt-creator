@@ -66,6 +66,7 @@ public:
     Utils::Id id() const override { return SamplerIds::Combined; }
     QString displayName() const override;
     bool isAvailable(QString *error = nullptr) const override;
+    bool isOffered() const override;
 
     void prepareLaunch(const std::shared_ptr<RecordingSession> &session) const override;
     QtTaskTree::ExecutableItem captureRecipe(

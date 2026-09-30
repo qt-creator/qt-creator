@@ -399,6 +399,21 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
     callgraphMode.addOption({Tr::tr("frame pointer"), {}, QString("fp")});
     callgraphMode.addOption({Tr::tr("last branch record"), {}, QString("lbr")});
     callgraphMode.setDefaultValue(0);
+    callgraphMode.setToolTip(Tr::tr(
+        "How \"perf record\" captures the call stack for each sample:\n"
+        "\n"
+        "Frame pointer: cheapest. The kernel walks the frame-pointer chain at sample\n"
+        "time; needs no extra per-sample data. Requires the target to be built with\n"
+        "frame pointers preserved, which many optimized release builds omit by default.\n"
+        "\n"
+        "Dwarf: works on any binary, frame pointers or not. Each sample copies a\n"
+        "snapshot of the raw stack plus registers, unwound afterward using DWARF debug\n"
+        "info. Higher per-sample overhead; \"Stack snapshot size\" controls how much\n"
+        "stack memory is copied.\n"
+        "\n"
+        "Last branch record: uses a small hardware branch-history buffer (Intel, some\n"
+        "AMD CPUs). Near-zero overhead since nothing needs to be unwound in software,\n"
+        "but only a few stack frames deep, and requires hardware support."));
 
     events.setSettingsKey("Analyzer.Perf.Events");
     events.setDefaultValue({"cpu-cycles"});

@@ -1,4 +1,6 @@
 import qbs 1.0
+import qbs.File
+import qbs.FileInfo
 
 QtcPlugin {
     name: "Profiler"
@@ -18,9 +20,12 @@ QtcPlugin {
     Depends { name: "QtSupport" }
     Depends { name: "TextEditor" }
 
-    // The Perf Sampler backend shells out to perfparser at runtime (see
-    // perfsampler.cpp); building Profiler should build it too. Not required:
-    // the "Perf Parser" project is Linux-only (see perfparser.qbs).
+    // PerfDataReader (perfdatareader.cpp, backing the CPU Usage analyzer)
+    // shells out to perfparser at runtime; building Profiler should build it
+    // too. (The Perf Sampler backend in perfsampler.cpp does not use
+    // perfparser -- it decodes "perf record"'s output itself, see
+    // perfrecordreader.cpp.) Not required: the "Perf Parser" project is
+    // Linux-only (see perfparser.qbs).
     Depends { name: "perfparser"; required: false }
 
     condition: Tracing.present
@@ -48,6 +53,48 @@ QtcPlugin {
             "winsampler.cpp", "winsampler.h",
             "winsymbolicator.cpp", "winsymbolicator.h",
         ]
+    }
+
+    // Optional: enables dwarf-mode call-graph unwinding in the Perf Sampler
+    // backend (perfdwarfunwinder.cpp), via libdw's Dwfl_Thread_Callbacks API.
+    // Mirrors perfparser.qbs's own (unrelated) ELFUTILS_INSTALL_DIR lookup.
+    // libdw/libelf are dual-licensed LGPL-3.0-or-later / GPL-2.0-or-later;
+    // the LGPL election is what makes linking them into this dual-licensed
+    // plugin possible. No qt_attributions.json entry: that file covers
+    // vendored third-party source shipped in this repo, not a
+    // dynamically-linked system library. See CMakeLists.txt for the
+    // equivalent CMake-side comment.
+    Probe {
+        id: elfutilsProbe
+        property string installBase: qbs.getenv("ELFUTILS_INSTALL_DIR")
+        property string includeDir: installBase
+            ? FileInfo.joinPaths(installBase, "include")
+            : "/usr/include"
+        property string libDir: installBase ? FileInfo.joinPaths(installBase, "lib") : ""
+        property bool found
+        configure: {
+            found = File.exists(FileInfo.joinPaths(includeDir, "elfutils", "libdwfl.h"));
+        }
+    }
+
+    // PerfDwarfUnwinder handles x86-64 registers only, and the sampler is Linux-only.
+    property bool withLibdw: elfutilsProbe.found && qbs.targetOS.contains("linux")
+                             && qbs.architecture === "x86_64"
+
+    cpp.includePaths: withLibdw
+        ? base.concat([elfutilsProbe.includeDir,
+                       FileInfo.joinPaths(elfutilsProbe.includeDir, "elfutils")])
+        : base
+    cpp.libraryPaths: withLibdw && elfutilsProbe.libDir
+        ? base.concat([elfutilsProbe.libDir])
+        : base
+    cpp.dynamicLibraries: withLibdw ? base.concat(["dw", "elf"]) : base
+    cpp.defines: withLibdw ? base.concat(["WITH_LIBDW"]) : base
+
+    Group {
+        name: "DwarfUnwinder"
+        condition: withLibdw
+        files: ["perfdwarfunwinder.cpp", "perfdwarfunwinder.h"]
     }
 
     Group {
@@ -140,6 +187,7 @@ QtcPlugin {
     Group {
         name: "Perf"
         files: [
+            "dwarflinetable.cpp", "dwarflinetable.h",
             "perfconfigeventsmodel.cpp", "perfconfigeventsmodel.h",
             "perfdatareader.cpp", "perfdatareader.h",
             "perfevent.h",
@@ -157,6 +205,7 @@ QtcPlugin {
             "perfprofilertool.cpp", "perfprofilertool.h",
             "perfprofilertracefile.cpp", "perfprofilertracefile.h",
             "perfprofilertracemanager.cpp", "perfprofilertracemanager.h",
+            "perfrecordreader.cpp", "perfrecordreader.h",
             "perfresourcecounter.h",
             "perfrunconfigurationaspect.cpp", "perfrunconfigurationaspect.h",
             "perfsampler.cpp", "perfsampler.h",
@@ -172,9 +221,12 @@ QtcPlugin {
     QtcTestFiles {
         prefix: "tests/"
         files: [
+            "dwarflinetable_test.cpp", "dwarflinetable_test.h",
             "perfnativemixed_test.cpp", "perfnativemixed_test.h",
             "perfprofilertracefile_test.cpp", "perfprofilertracefile_test.h",
+            "perfrecordreader_test.cpp", "perfrecordreader_test.h",
             "perfresourcecounter_test.cpp", "perfresourcecounter_test.h",
+            "perfsampler_test.cpp", "perfsampler_test.h",
             "perfprofilertests.qrc",
 
             "calltreeview_test.cpp", "calltreeview_test.h",

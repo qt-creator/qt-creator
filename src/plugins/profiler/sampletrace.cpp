@@ -20,6 +20,7 @@
 #include <QStandardPaths>
 
 #include <algorithm>
+#include <limits>
 
 using namespace CommonTraceFormat;
 using namespace Utils;
@@ -28,7 +29,13 @@ using namespace Qt::StringLiterals;
 namespace Profiler::Internal {
 
 // Event class ids in the sampler stream.
-enum SamplerEventClass : quint64 { LabelEvent = 0, ThreadEvent = 1, SampleEvent = 2 };
+enum SamplerEventClass : quint64 {
+    LabelEvent = 0,
+    ThreadEvent = 1,
+    SampleEvent = 2,
+    LostEvent = 3,
+    ThrottleEvent = 4,
+};
 
 static std::shared_ptr<FixedLengthUIntFC> u64Field()
 {
@@ -130,11 +137,55 @@ static Schema buildSamplerSchema()
         dsc.eventRecordClasses.append(std::move(erc));
     }
 
+    // lost: { uint64 count } -- samples dropped around the event's timestamp.
+    {
+        EventRecordClass erc;
+        erc.id = LostEvent;
+        erc.name = u"lost"_s;
+        auto payload = std::make_shared<StructureFC>();
+        payload->members.append({u"count"_s, u64Field(), {}});
+        erc.payloadFieldClass = std::move(payload);
+        dsc.eventRecordClasses.append(std::move(erc));
+    }
+
+    // throttle: {} -- sampling was throttled at the event's timestamp.
+    {
+        EventRecordClass erc;
+        erc.id = ThrottleEvent;
+        erc.name = u"throttle"_s;
+        erc.payloadFieldClass = std::make_shared<StructureFC>();
+        dsc.eventRecordClasses.append(std::move(erc));
+    }
+
     schema.dataStreamClasses.append(std::move(dsc));
     return schema;
 }
 
 static const QString pausedRangesFileName = u"paused-ranges"_s;
+
+QString incompleteTraceWarning(const SampleTraceData &data)
+{
+    quint64 lost = 0;
+    for (const SampleTraceData::LostSamples &gap : data.lostSamples)
+        lost += gap.count;
+    const int throttled = int(data.throttledTsUs.size());
+    if (lost == 0 && throttled == 0)
+        return {};
+
+    QStringList reasons;
+    if (lost > 0) {
+        reasons << Tr::tr("%n sample(s) were lost because the profiler could not keep up.",
+                          nullptr, int(qMin<quint64>(lost, std::numeric_limits<int>::max())));
+    }
+    if (throttled > 0) {
+        reasons << Tr::tr("The system throttled sampling %n time(s) because samples were due "
+                          "faster than it takes them.", nullptr, throttled);
+    }
+    return Tr::tr("The trace does not show everything that ran: %1 Time spent around those "
+                  "points is underrepresented. Record with a lower sampling frequency to avoid "
+                  "this.")
+        .arg(reasons.join(u' '));
+}
 
 Result<> writeSampleTrace(const SampleTraceData &data, const FilePath &dir,
                           const std::function<void(int)> &progress)
@@ -181,9 +232,43 @@ Result<> writeSampleTrace(const SampleTraceData &data, const FilePath &dir,
             return ResultError(r.error());
     }
 
+    // Written in timestamp order along with the samples, as a stream's clock
+    // only moves forward: everything up to `tsUs` that is not a sample.
+    qsizetype nextLost = 0;
+    qsizetype nextThrottle = 0;
+    const auto writeGapsUpTo = [&](quint64 tsUs) -> Result<> {
+        for (;;) {
+            const bool haveLost = nextLost < data.lostSamples.size()
+                                  && data.lostSamples.at(nextLost).tsUs <= tsUs;
+            const bool haveThrottle = nextThrottle < data.throttledTsUs.size()
+                                      && data.throttledTsUs.at(nextThrottle) <= tsUs;
+            if (!haveLost && !haveThrottle)
+                return ResultOk;
+            // Whichever comes first, the two being in time order each.
+            if (haveLost && (!haveThrottle
+                             || data.lostSamples.at(nextLost).tsUs
+                                    <= data.throttledTsUs.at(nextThrottle))) {
+                const SampleTraceData::LostSamples &lost = data.lostSamples.at(nextLost++);
+                StructureValue payload;
+                payload.set(u"count"_s, lost.count);
+                if (auto r = writer->writeEvent(LostEvent, payload, {}, processCtx, lost.tsUs); !r)
+                    return r;
+            } else {
+                const quint64 throttledUs = data.throttledTsUs.at(nextThrottle++);
+                if (auto r = writer->writeEvent(ThrottleEvent, {}, {}, processCtx, throttledUs);
+                    !r) {
+                    return r;
+                }
+            }
+        }
+    };
+
     const int total = std::max<int>(1, int(data.samples.size()));
     int written = 0;
     for (const SampleTraceData::ThreadSample &sample : data.samples) {
+        if (Result<> r = writeGapsUpTo(sample.tsUs); !r)
+            return r;
+
         StructureValue payload;
         payload.set(u"running"_s, quint64(sample.running ? 1 : 0));
         payload.set(u"depth"_s, quint64(sample.frames.size()));
@@ -202,6 +287,8 @@ Result<> writeSampleTrace(const SampleTraceData &data, const FilePath &dir,
         if (progress && (++written & 0x3ff) == 0)
             progress(written * 100 / total);
     }
+    if (Result<> r = writeGapsUpTo(std::numeric_limits<quint64>::max()); !r)
+        return r;
 
     if (auto r = tw.close(); !r)
         return ResultError(r.error());
@@ -322,6 +409,12 @@ Result<SampleTraceData> readSampleTrace(const FilePath &dir, const std::function
             data.samples.append(std::move(sample));
             break;
         }
+        case LostEvent:
+            data.lostSamples.append({rec->timestamp, uintField(rec->payload, u"count"_s)});
+            break;
+        case ThrottleEvent:
+            data.throttledTsUs.append(rec->timestamp);
+            break;
         default:
             break; // unknown event classes: skip for forward compatibility
         }

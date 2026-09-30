@@ -17,8 +17,11 @@
 
 #ifdef WITH_TESTS
 
+#include "tests/dwarflinetable_test.h"
 #include "tests/perfnativemixed_test.h"
+#include "tests/perfrecordreader_test.h"
 #include "tests/perfresourcecounter_test.h"
+#include "tests/perfsampler_test.h"
 
 #include "tests/calltreeview_test.h"
 #include "tests/ctfloader_test.h"
@@ -99,6 +102,9 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<QtTraceSamplerTest>();
 
         addTestCreator(createPerfNativeMixedTest);
+        addTestCreator(createPerfRecordReaderTest);
+        addTestCreator(createDwarfLineTableTest);
+        addTestCreator(createPerfSamplerTest);
         addTestCreator(createPerfResourceCounterTest);
 #endif
     }

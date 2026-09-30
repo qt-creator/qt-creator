@@ -50,6 +50,8 @@ public:
 
 signals:
     void error(const QString &message);
+    // The trace loaded, but is less complete than it looks.
+    void warning(const QString &message);
     void loadFinished();
     void traceChanged();
     // A source location the user asked to jump to, already resolved to a local

@@ -75,6 +75,9 @@ ProfilerTraceDocument::ProfilerTraceDocument(Id editorId, TraceFormat format)
         connect(backend, &ProfilerTraceBackend::error, this, [](const QString &message) {
             QmlProfilerTool::showNonmodalWarning(message);
         });
+        connect(backend, &ProfilerTraceBackend::warning, this, [](const QString &message) {
+            QmlProfilerTool::showNonmodalWarning(message);
+        });
         connect(backend, &ProfilerTraceBackend::gotoSourceLocation,
                 this, &ProfilerTraceDocument::showSourceLocation);
     }

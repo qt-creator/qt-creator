@@ -42,6 +42,8 @@ public:
 
 signals:
     void error(const QString &error);
+    // A loaded trace is usable, but less complete than it looks.
+    void warning(const QString &warning);
     void loadFinished();
     void gotoSourceLocation(const QString &file, int line, int column,
                             const QString &module, quint64 offset);

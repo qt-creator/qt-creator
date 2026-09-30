@@ -48,6 +48,7 @@ SamplerTraceBackend::SamplerTraceBackend(Timeline::RangeDetailsWidget *details, 
     , d(new SamplerTraceBackendPrivate(details))
 {
     connect(&d->viewManager, &SamplerViewManager::error, this, &SamplerTraceBackend::error);
+    connect(&d->viewManager, &SamplerViewManager::warning, this, &SamplerTraceBackend::warning);
     connect(&d->viewManager, &SamplerViewManager::loadFinished, this, [this] {
         emit loadFinished();
         emit traceChanged();

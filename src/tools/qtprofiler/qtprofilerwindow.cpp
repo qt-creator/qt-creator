@@ -254,6 +254,10 @@ WindowPrivate::WindowPrivate(Window *window)
             });
 
     connect(samplerManager, &SamplerViewManager::error, this, &WindowPrivate::onError);
+    // Unlike an error, this leaves the trace loaded, and no exit-on-error.
+    connect(samplerManager, &SamplerViewManager::warning, this, [](const QString &warning) {
+        AsynchronousMessageBox::warning(Tr::tr("Incomplete Trace"), warning);
+    });
     connect(samplerManager, &SamplerViewManager::gotoSourceLocation,
             this, &WindowPrivate::onGotoSourceLocation);
 
