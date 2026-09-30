@@ -95,10 +95,6 @@ public:
 
     bool feedParser(const QByteArray &input);
 
-    // Trigger after delay has passed
-    void triggerRecordingStateChange(bool recording);
-
-    // Immediate forced change
     void setRecording(bool recording);
 
 signals:

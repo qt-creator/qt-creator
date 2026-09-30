@@ -2,13 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "perfdatareader.h"
-#include "perfprofilerconstants.h"
 #include "perfprofilertr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/futureprogress.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
@@ -175,42 +172,6 @@ qint64 PerfDataReader::delay(qint64 currentTime)
     return (currentTime - m_localProcessStart) -
             (m_lastRemoteTimestamp > m_remoteProcessStart ?
                  m_lastRemoteTimestamp - m_remoteProcessStart : 0);
-}
-
-void PerfDataReader::triggerRecordingStateChange(bool recording)
-{
-    if (recording != m_recording) {
-        if (m_input.state() != ProcessState::NotRunning) {
-            qint64 currentTime = QDateTime::currentMSecsSinceEpoch() * million;
-            if (recording) {
-                m_localRecordingStart = currentTime;
-                emit starting();
-            } else {
-                m_localRecordingEnd = currentTime;
-                emit finishing();
-            }
-            const int seconds = static_cast<int>(
-                        qMin(delay(currentTime) / (1000ll * million),
-                             static_cast<qint64>(std::numeric_limits<int>::max())));
-
-            Core::FutureProgress *fp
-                = Core::ProgressManager::addTimedTask(future(),
-                                                      Tr::tr("Skipping Processing Delay"),
-                                                      Constants::PerfProfilerTaskSkipDelay,
-                                                      std::chrono::seconds(seconds));
-            fp->setToolTip(recording ?
-                               Tr::tr("Cancel this to ignore the processing delay and immediately "
-                                      "start recording.") :
-                               Tr::tr("Cancel this to ignore the processing delay and immediately "
-                                      "stop recording."));
-            connect(fp, &Core::FutureProgress::canceled, this, [this, recording]() {
-                setRecording(recording);
-            });
-            future().reportStarted();
-        } else {
-            m_recording = recording;
-        }
-    }
 }
 
 void PerfDataReader::setRecording(bool recording)
