@@ -33,9 +33,9 @@ def get_arguments():
     parser.add_argument('--llvm-path', help='Path to LLVM installation for Clang code model',
                         default=os.environ.get('LLVM_INSTALL_DIR'))
 
-    # perfparser
+    # elfutils, for the Profiler plugin
     parser.add_argument('--elfutils-path',
-                        help='Path to elfutils installation for use by perfprofiler (Windows, Linux)')
+                        help='Path to elfutils installation for use by perfprofiler (Linux)')
 
     # signing
     parser.add_argument('--keychain-unlock-script',

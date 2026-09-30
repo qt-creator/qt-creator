@@ -20,12 +20,4 @@ Project {
         "iostool/iostool.qbs",
         "qtprofiler/qtprofiler.qbs",
     ].concat(project.additionalTools)
-
-    Project {
-        name: "PerfParser Tool"
-        references: [
-            "perfparser/perfparser.qbs"
-        ]
-        condition: File.exists(project.ide_source_tree + "/src/tools/perfparser/perfparser.qbs")
-    }
 }

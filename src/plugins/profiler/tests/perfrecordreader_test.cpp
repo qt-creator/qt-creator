@@ -4,6 +4,7 @@
 #include "perfrecordreader_test.h"
 
 #include <profiler/perfrecordreader.h>
+#include <profiler/perfregisters.h>
 #include <profiler/sampletrace.h>
 
 #include <utils/result.h>
@@ -49,6 +50,7 @@ constexpr quint32 RecordLost = 2;
 constexpr quint32 RecordThrottle = 5;
 constexpr quint32 RecordLostSamples = 13;
 constexpr quint32 RecordComm = 3;
+constexpr quint32 RecordFork = 7;
 constexpr quint32 RecordSample = 9;
 constexpr quint32 RecordHeaderAttr = 64;
 constexpr quint32 RecordHeaderTracingData = 66;
@@ -617,6 +619,7 @@ private slots:
     void testBuildsCallChainFromBranchStack();
     void testSkipsBranchStackHwIndex();
     void testPrefersBranchStackOverUserCallchain();
+    void testSymbolicatesForkedChild();
     void testLooksUpCallersAtTheCall();
     void testRejectsOverflowingCallchainCount();
     void testClampsUserStackToRequestedSize();
@@ -647,6 +650,7 @@ private slots:
         QCOMPARE(result->samples.at(0).tsUs, 0);
         QCOMPARE(result->samples.at(1).tsUs, 2);
     }
+    void testQueueReportsDrainingAndDropsAfterClose();
     void testRejectsUnsupportedSampleType();
     void testReportsNoSamplesCaptured();
     void testReportsEmptyStreamAsEmptyRecording();
@@ -859,10 +863,14 @@ void PerfRecordReaderTest::testOrdersAndClampsAcrossRounds()
         buildFlatSampleRecord(0, pid, pid, 3'000),
         buildFlatSampleRecord(0, pid, pid, 6'000),
         buildFinishedRoundRecord(),
-        // Next round's only sample claims an earlier time than the previous
-        // round's last (already-emitted) one -- must be clamped up, not let
-        // the timeline go backwards.
+        // Next round's sample is earlier than the previous round's: read late
+        // from another CPU's buffer, which is why a round is only complete up
+        // to where the one before reached. It still sorts in.
         buildFlatSampleRecord(0, pid, pid, 1'000),
+        buildFinishedRoundRecord(),
+        // Earlier than what is written already -- must be clamped up, not let
+        // the timeline go backwards.
+        buildFlatSampleRecord(0, pid, pid, 2'000),
         buildFinishedRoundRecord(),
     });
 
@@ -873,7 +881,28 @@ void PerfRecordReaderTest::testOrdersAndClampsAcrossRounds()
     QList<quint64> timestamps;
     for (const SampleTraceData::ThreadSample &sample : data.samples)
         timestamps.append(sample.tsUs);
-    QCOMPARE(timestamps, QList<quint64>({0, 3, 6, 9, 9}));
+    QCOMPARE(timestamps, QList<quint64>({0, 1, 3, 6, 9, 9}));
+}
+
+// Whoever holds back data while the queue is full hears once it has room
+// again; what arrives after the reading side is done goes nowhere.
+void PerfRecordReaderTest::testQueueReportsDrainingAndDropsAfterClose()
+{
+    PerfByteQueue queue;
+    int drained = 0;
+    queue.setDrainedCallback(10, [&drained] { ++drained; });
+    queue.push(QByteArray(6, 'a'));
+    queue.push(QByteArray(6, 'b'));
+    QCOMPARE(queue.size(), 12);
+    QCOMPARE(queue.pop(), QByteArray(6, 'a'));
+    QCOMPARE(drained, 1);
+    QCOMPARE(queue.pop(), QByteArray(6, 'b'));
+    QCOMPARE(drained, 1);
+
+    queue.close();
+    queue.push(QByteArray(6, 'c'));
+    QCOMPARE(queue.size(), 0);
+    QVERIFY(queue.atEnd());
 }
 
 // An unsupported sample_type bit (e.g. PERF_SAMPLE_WEIGHT, used for memory
@@ -1234,7 +1263,12 @@ void PerfRecordReaderTest::testKeepsDwarfSampleWithoutUserCallchain()
     constexpr quint32 pid = 321;
     constexpr quint64 userIp = 0x555555550000ull;
     constexpr quint64 kernelIp = 0xffffffff81000000ull;
-    constexpr quint64 regsMask = (1ull << 7) | (1ull << 8); // PERF_REG_X86_SP, _IP
+    // The registers are numbered as perf does for this machine, which the
+    // reader takes the recording to be from.
+    const PerfRegisterLayout layout = perfRegisterLayout(hostPerfArchitecture());
+    if (layout.ip < 0)
+        QSKIP("perf has no user registers for this architecture.");
+    const quint64 regsMask = (1ull << layout.sp) | (1ull << layout.ip); // sp sorts first
 
     const QByteArray stream = buildPipeStream({
         buildAttrRecordWithRegsMask(SampleIp | SampleTid | SampleTime | SampleCallchain
@@ -1353,6 +1387,41 @@ void PerfRecordReaderTest::testSkipsBranchStackHwIndex()
     QCOMPARE(result->labels.at(frames.at(0)).name, u"bar(int)"_s);
     QCOMPARE(result->labels.at(frames.at(0)).offset, quint64(4));
     QCOMPARE(result->labels.at(frames.at(1)).name, u"foo(int)"_s);
+}
+
+// A child forked without exec() runs in its parent's mappings, which the
+// kernel does not report again for it.
+void PerfRecordReaderTest::testSymbolicatesForkedChild()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString elfPath = dir.filePath("libtarget.so");
+    QVERIFY(writeFile(elfPath, buildMinimalElfWithSymbols()));
+
+    constexpr quint32 parent = 4321;
+    constexpr quint32 child = 4322;
+    constexpr quint64 mapAddr = 0x400000;
+    QByteArray fork;
+    appendU32(fork, child);
+    appendU32(fork, parent);
+    appendU32(fork, child);  // tid
+    appendU32(fork, parent); // ptid
+    appendU64(fork, 500'000);
+
+    const QByteArray stream = buildPipeStream({
+        buildAttrRecord(SampleIp | SampleTid | SampleTime),
+        buildMmap2Record(parent, mapAddr, 0x2000, 0, elfPath),
+        wrapRecord(RecordFork, fork),
+        buildFlatSampleRecord(mapAddr + 0x1004, child, child, 1'000'000),
+        buildFinishedRoundRecord(),
+    });
+
+    const Result<SampleTraceData> result = decode(stream);
+    QVERIFY_RESULT(result);
+    QCOMPARE(result->samples.size(), 1);
+    const QList<int> &frames = result->samples.first().frames;
+    QCOMPARE(frames.size(), 1);
+    QCOMPARE(result->labels.at(frames.at(0)).name, u"foo(int)"_s);
 }
 
 // In lbr mode the kernel's callchain still has a user part, walked by frame

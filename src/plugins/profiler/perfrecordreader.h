@@ -25,9 +25,17 @@ namespace Profiler::Internal {
 class PerfByteQueue
 {
 public:
+    // Data pushed after close() is dropped.
     void push(const QByteArray &data);
     // Marks that no more data will arrive; wakes up a blocked pop().
     void close();
+
+    // How many bytes are queued.
+    qint64 size() const;
+    // Calls `drained`, on the thread that pops, whenever a pop() takes the
+    // queue below `threshold` bytes: whoever holds back data for the queue
+    // being full can push again.
+    void setDrainedCallback(qint64 threshold, const std::function<void()> &drained);
 
     // Blocks until data is available or the queue is closed and drained.
     // Returns an empty QByteArray exactly at end-of-stream; check atEnd() to
@@ -40,7 +48,10 @@ private:
     mutable std::mutex m_mutex;
     std::condition_variable m_cv;
     std::deque<QByteArray> m_chunks;
+    qint64 m_size = 0;
     bool m_closed = false;
+    qint64 m_drainThreshold = 0;
+    std::function<void()> m_drained;
 };
 
 // Parses the raw byte stream produced by "perf record -o -" (perf.data's

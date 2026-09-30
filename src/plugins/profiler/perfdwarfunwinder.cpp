@@ -69,7 +69,7 @@ enum : int {
 // standard, not something specific to this reader). Returns -1 for a perf
 // register CFI programs never actually reference (segment selectors,
 // rflags): those are simply not passed to libdw at all.
-int dwarfRegisterFor(int perfReg)
+int x86_64DwarfRegisterFor(int perfReg)
 {
     switch (perfReg) {
     case PerfRegX86Ax: return 0;
@@ -90,6 +90,54 @@ int dwarfRegisterFor(int perfReg)
     case PerfRegX86R15: return 15;
     default: return -1;
     }
+}
+
+// i386's DWARF numbering: eax, ecx, edx, ebx, esp, ebp, esi, edi (the System V
+// i386 psABI); perf's: AX, BX, CX, DX, SI, DI, BP, SP, IP.
+int x86DwarfRegisterFor(int perfReg)
+{
+    switch (perfReg) {
+    case PerfRegX86Ax: return 0;
+    case PerfRegX86Cx: return 1;
+    case PerfRegX86Dx: return 2;
+    case PerfRegX86Bx: return 3;
+    case PerfRegX86Sp: return 4;
+    case PerfRegX86Bp: return 5;
+    case PerfRegX86Si: return 6;
+    case PerfRegX86Di: return 7;
+    default: return -1;
+    }
+}
+
+// The DWARF register a perf register of `arch` is; the PC is set apart.
+int dwarfRegisterFor(PerfArchitecture arch, int perfReg)
+{
+    switch (arch) {
+    case PerfArchitecture::X86_64:
+        return x86_64DwarfRegisterFor(perfReg);
+    case PerfArchitecture::X86:
+        return x86DwarfRegisterFor(perfReg);
+    case PerfArchitecture::Aarch64:
+        return perfReg <= 31 ? perfReg : -1; // x0..x30, sp: numbered alike
+    case PerfArchitecture::Arm:
+        return perfReg <= 15 ? perfReg : -1; // r0..r15: numbered alike
+    case PerfArchitecture::Unknown:
+        break;
+    }
+    return -1;
+}
+
+// How many DWARF registers, from 0, the ones mapped above make up.
+int dwarfRegisterCount(PerfArchitecture arch)
+{
+    switch (arch) {
+    case PerfArchitecture::X86_64: return 16;
+    case PerfArchitecture::X86: return 8;
+    case PerfArchitecture::Aarch64: return 32;
+    case PerfArchitecture::Arm: return 16;
+    case PerfArchitecture::Unknown: break;
+    }
+    return 0;
 }
 
 // Exactly one synthetic "thread" per PerfDwarfUnwinder::unwind() call --
@@ -117,27 +165,33 @@ bool setInitialRegisters(Dwfl_Thread *thread, void *arg)
 {
     auto *unwinder = static_cast<PerfDwarfUnwinderPrivate *>(arg);
     const UnwindInput *input = unwinder->current;
-    if (!input || input->regs.size() <= PerfRegX86Ip)
+    if (!input)
+        return false;
+    const PerfRegisterLayout layout = perfRegisterLayout(input->arch);
+    if (layout.ip < 0 || input->regs.size() <= layout.ip)
         return false;
 
     // dwfl_thread_state_registers() sets one *contiguous* DWARF-numbered
-    // block at a time; x86-64's DWARF GPR numbers happen to be contiguous
-    // 0..15, covering every perf GPR this reader maps, so one call suffices.
-    Dwarf_Word dwarfRegs[16] = {};
+    // block at a time; each architecture's general-purpose registers are
+    // contiguous from 0, covering every perf register mapped, so one call
+    // suffices.
+    const int count = dwarfRegisterCount(input->arch);
+    Dwarf_Word dwarfRegs[32] = {};
     bool haveAny = false;
     for (int perfReg = 0; perfReg < input->regs.size(); ++perfReg) {
-        const int dwarfReg = dwarfRegisterFor(perfReg);
-        if (dwarfReg < 0)
+        const int dwarfReg = dwarfRegisterFor(input->arch, perfReg);
+        if (dwarfReg < 0 || dwarfReg >= count)
             continue;
         dwarfRegs[dwarfReg] = input->regs.at(perfReg);
         haveAny = true;
     }
-    if (!haveAny || !dwfl_thread_state_registers(thread, 0, 16, dwarfRegs))
+    if (!haveAny || !dwfl_thread_state_registers(thread, 0, count, dwarfRegs))
         return false;
 
-    // x86-64's PC/RIP is not part of that contiguous GPR block; libdw wants
-    // it set separately (see libdwfl.h's dwfl_thread_state_register_pc doc).
-    dwfl_thread_state_register_pc(thread, input->regs.at(PerfRegX86Ip));
+    // The PC is not part of that block everywhere (x86-64's RIP is not);
+    // libdw wants it set separately (see libdwfl.h's
+    // dwfl_thread_state_register_pc doc).
+    dwfl_thread_state_register_pc(thread, input->regs.at(layout.ip));
     return true;
 }
 
@@ -148,10 +202,11 @@ bool memoryRead(Dwfl *, Dwarf_Addr addr, Dwarf_Word *result, void *arg)
     if (!input || addr < input->stackStartAddr)
         return false;
     const quint64 offset = quint64(addr) - input->stackStartAddr;
-    if (offset + 8 > quint64(input->stackBytes.size()))
+    const int wordSize = perfRegisterLayout(input->arch).wordSize;
+    if (offset + wordSize > quint64(input->stackBytes.size()))
         return false; // outside the captured window -- stop unwinding here
-    *result = qFromLittleEndian<quint64>(
-        reinterpret_cast<const uchar *>(input->stackBytes.constData() + offset));
+    const auto *word = reinterpret_cast<const uchar *>(input->stackBytes.constData() + offset);
+    *result = wordSize == 4 ? qFromLittleEndian<quint32>(word) : qFromLittleEndian<quint64>(word);
     return true;
 }
 

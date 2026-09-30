@@ -34,10 +34,10 @@ using namespace std::chrono;
 namespace Profiler::Internal {
 
 // The host names behind a whitespace-separated URL list, for the recording page's
-// status line. What perfparser reports is either one request URL, whose build-id
-// path says nothing a user needs, or the whole DEBUGINFOD_URLS list from before a
-// request was made -- in both cases the host is the part that identifies who is
-// being waited on, and the only part short enough for one line.
+// status line. What the Perf sampler reports is the DEBUGINFOD_URLS list it asks
+// (see PerfSymbolizer::fetchDebugFiles()); the host is the part that identifies
+// who is being waited on, and the only part short enough for one line. A request
+// URL, whose build-id path says nothing a user needs, would come out the same.
 static QString debugInfoServerNames(const QString &urls)
 {
     static const QRegularExpression whitespace("\\s+"_L1);
@@ -551,7 +551,7 @@ void ProfilerRecorder::stopAndWait()
 
     // Ours is, so end it. Cancelling runs the recipe's done handler, leaving
     // the recording finished once this returns, and it is what bounds the wait:
-    // a backend that would not come back on its own -- perfparser stalled on an
+    // a backend that would not come back on its own -- one stalled on an
     // unresponsive debuginfod server, say -- has its tasks cancelled rather
     // than waited for.
     d->runner.cancel();

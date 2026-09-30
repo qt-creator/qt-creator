@@ -30,8 +30,8 @@ namespace Profiler::Internal {
 // It deliberately feeds a synthetic trace and does NOT exercise perf capture:
 // whether perf/V4 can actually emit such merged stacks (jitdump for JIT'd JS,
 // engine-side reconstruction for interpreted JS) is the separate producer-side
-// work, in perfparser/qtdeclarative. This test pins down the data contract that
-// work must satisfy. See native-mixed-profiler-design.md.
+// work, in the perf conversion and qtdeclarative. This test pins down the data
+// contract that work must satisfy. See native-mixed-profiler-design.md.
 
 class PerfNativeMixedTest : public QObject
 {
@@ -254,7 +254,7 @@ void PerfNativeMixedTest::testMergedStacks()
 
 // Real perf traces of a QML app attribute JIT'd JS samples to QV4's executable
 // memfd region "JITCode:QtQml" (confirmed by spike: perf-map gives the name
-// "compute", perfparser reports binary "/memfd:JITCode:QtQml (deleted)"). This
+// "compute", perf reports binary "/memfd:JITCode:QtQml (deleted)"). This
 // checks the seam classifies such a frame as JS with no explicit marker.
 void PerfNativeMixedTest::testFrameKindRecognizesJitRegion()
 {

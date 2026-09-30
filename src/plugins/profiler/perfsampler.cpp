@@ -227,7 +227,7 @@ private:
 Result<> checkCallgraphMode(const Profiler::PerfSettings &settings)
 {
     // This backend decodes "perf record"'s output itself (see
-    // perfrecordreader.cpp) instead of shelling out to perfparser. "fp" and
+    // perfrecordreader.cpp). "fp" and
     // "lbr" both need no unwinding on the consumer side -- the kernel hands
     // back an already-unwound frame chain (fp) or a hardware branch-history
     // buffer usable as one directly (lbr). "dwarf" needs a full DWARF CFI

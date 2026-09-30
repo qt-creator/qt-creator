@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "perfregisters.h"
 #include "profiler_global.h"
 
 #include <QByteArray>
@@ -34,15 +35,15 @@ struct UnwindModule
     quint64 bias = 0;
 };
 
-// One sample's raw input: the x86-64 general-purpose register values the
-// kernel captured (PERF_SAMPLE_REGS_USER), indexed by the Linux perf
-// register-number scheme (arch/x86/include/uapi/asm/perf_regs.h's
-// PERF_REG_X86_* enum -- AX=0, BX=1, ..., R15=23; unused/unrequested
-// entries are 0), and a captured chunk of the userspace stack
+// One sample's raw input: the general-purpose register values the kernel
+// captured (PERF_SAMPLE_REGS_USER), indexed by perf's register numbers for
+// `arch` (arch/*/include/uapi/asm/perf_regs.h; unused/unrequested entries
+// are 0), and a captured chunk of the userspace stack
 // (PERF_SAMPLE_STACK_USER) starting at whatever the captured SP was.
 struct UnwindInput
 {
-    QList<quint64> regs; // sized PERF_REG_X86_64_MAX (24); see perf_regs.h
+    PerfArchitecture arch = PerfArchitecture::X86_64;
+    QList<quint64> regs; // sized perfRegisterLayout(arch).count
     quint64 stackStartAddr = 0; // virtual address stackBytes[0] corresponds to
     QByteArray stackBytes;
 
@@ -67,8 +68,9 @@ struct UnwindInput
 // PerfSamplerSettings::createSession(), which is where the resulting
 // absence is surfaced to the user.
 //
-// x86-64 only for now (the register mapping and PERF_SAMPLE_REGS_USER
-// layout are architecture-specific); modules are reported to libdw once and
+// x86-64, x86, AArch64 and 32-bit Arm, whose register numbering it maps
+// from perf's to DWARF's -- libdw tells the rest from the modules' own ELF,
+// whichever machine this runs on. Modules are reported to libdw once and
 // reused across every unwind() call, since parsing a module's CFI data is
 // the expensive part and a whole recording's module set is already fully
 // known by the time unwinding runs (see PerfRecordDecoder::symbolize()).

@@ -26,7 +26,7 @@
 #     export dwfl_get_debuginfod_client(). Note that elfutils downloads missing
 #     debug information from a debuginfod server whether or not this is found;
 #     what it buys is access to the client, and with it the ability to report
-#     the progress of those downloads (see perfparser's PerfSymbolTable).
+#     the progress of those downloads.
 #
 
 if (TARGET elfutils::dw AND TARGET elfutils::elf)

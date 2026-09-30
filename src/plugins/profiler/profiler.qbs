@@ -43,14 +43,6 @@ QtcPlugin {
         condition: !project.qtprofilerWasm
     }
 
-    // PerfDataReader (perfdatareader.cpp, backing the CPU Usage analyzer)
-    // shells out to perfparser at runtime; building Profiler should build it
-    // too. (The Perf Sampler backend in perfsampler.cpp does not use
-    // perfparser -- it decodes "perf record"'s output itself, see
-    // perfrecordreader.cpp.) Not required: the "Perf Parser" project is
-    // Linux-only (see perfparser.qbs).
-    Depends { name: "perfparser"; required: false }
-
     condition: Tracing.present
     // The Windows sampler backend is compiled on every Windows toolchain, so
     // the libraries it needs are linked for all of them.
@@ -111,9 +103,10 @@ QtcPlugin {
         ]
     }
 
-    // Optional: enables dwarf-mode call-graph unwinding in the Perf Sampler
-    // backend (perfdwarfunwinder.cpp), via libdw's Dwfl_Thread_Callbacks API.
-    // Mirrors perfparser.qbs's own (unrelated) ELFUTILS_INSTALL_DIR lookup.
+    // Optional: enables unwinding dwarf-mode call graphs of perf recordings
+    // (perfdwarfunwinder.cpp), via libdw's Dwfl_Thread_Callbacks API, and
+    // resolving the functions inlined at an address (perfsymbolizer.cpp).
+    // ELFUTILS_INSTALL_DIR points at an elfutils of its own.
     // libdw/libelf are dual-licensed LGPL-3.0-or-later / GPL-2.0-or-later;
     // the LGPL election is what makes linking them into this dual-licensed
     // plugin possible. No qt_attributions.json entry: that file covers
@@ -133,9 +126,8 @@ QtcPlugin {
         }
     }
 
-    // PerfDwarfUnwinder handles x86-64 registers only, and the sampler is Linux-only.
+    // Linux only: elsewhere, the plugin would need libdw deployed where it finds it.
     property bool withLibdw: elfutilsProbe.found && qbs.targetOS.contains("linux")
-                             && qbs.architecture === "x86_64"
 
     cpp.includePaths: withLibdw
         ? base.concat([elfutilsProbe.includeDir,
@@ -145,6 +137,9 @@ QtcPlugin {
         ? base.concat([elfutilsProbe.libDir])
         : base
     cpp.dynamicLibraries: withLibdw ? base.concat(["dw", "elf"]) : base
+    // An installation brings its own elfutils, in lib/elfutils (see
+    // scripts/deploy.py), for systems that have none.
+    cpp.rpaths: withLibdw ? base.concat(["$ORIGIN/../../elfutils"]) : base
     cpp.defines: withLibdw ? base.concat(["WITH_LIBDW"]) : base
 
     Group {
@@ -249,7 +244,13 @@ QtcPlugin {
             "perfprofilerstatisticsview.cpp", "perfprofilerstatisticsview.h",
             "perfprofilertracefile.cpp", "perfprofilertracefile.h",
             "perfprofilertracemanager.cpp", "perfprofilertracemanager.h",
+            "perfconversion.cpp", "perfconversion.h",
+            "perfdataparser.cpp", "perfdataparser.h",
             "perfrecordreader.cpp", "perfrecordreader.h",
+            "perfregisters.h",
+            "perfsymbolizer.cpp", "perfsymbolizer.h",
+            "perftraceconverter.cpp", "perftraceconverter.h",
+            "perftracepointformats.cpp", "perftracepointformats.h",
             "perfresourcecounter.h",
             "perfsampler.cpp", "perfsampler.h",
             "perfsettings.cpp", "perfsettings.h",
@@ -266,6 +267,8 @@ QtcPlugin {
             "dwarflinetable_test.cpp", "dwarflinetable_test.h",
             "perfnativemixed_test.cpp", "perfnativemixed_test.h",
             "perfprofilertracefile_test.cpp", "perfprofilertracefile_test.h",
+            "perfdataparser_test.cpp", "perfdataparser_test.h",
+            "perftraceconverter_test.cpp", "perftraceconverter_test.h",
             "perfrecordreader_test.cpp", "perfrecordreader_test.h",
             "perfresourcecounter_test.cpp", "perfresourcecounter_test.h",
             "perfsampler_test.cpp", "perfsampler_test.h",

@@ -14,9 +14,9 @@ class PerfEventType : public Timeline::TraceEventType
 public:
     static const qint32 staticClassId = 0x70726674; // 'prft'
 
-    // Keep in sync with PerfUnwind::EventType in perfparser: these are the
-    // message tags of its wire protocol, so a missing one shifts every tag
-    // after it and misreads the rest of the stream.
+    // The message tags of the stream PerfTraceConverter writes and saved
+    // traces hold; a missing one shifts every tag after it and misreads the
+    // rest of the stream.
     enum Feature {
         ThreadStart,
         ThreadEnd,

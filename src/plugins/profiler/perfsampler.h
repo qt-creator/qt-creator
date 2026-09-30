@@ -52,10 +52,9 @@ private:
 };
 
 // Records a trace by running "perf record --pid <pid> -o -" against the target
-// and decoding its output directly in-process (see perfrecordreader.cpp,
-// which -- unlike the IDE's CPU Usage analyzer -- does not shell out to
-// perfparser) into a SampleTraceData, so it can be shown by the same generic
-// SamplerViewManager as the macOS call-stack sampler (see macsampler.cpp).
+// and decoding its output directly in-process (see perfrecordreader.cpp) into
+// a SampleTraceData, so it can be shown by the same generic SamplerViewManager
+// as the macOS call-stack sampler (see macsampler.cpp).
 //
 // Linux only.
 class PROFILER_EXPORT PerfSampler : public Sampler

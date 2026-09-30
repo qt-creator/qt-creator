@@ -20,7 +20,7 @@ encoding = locale.getdefaultlocale()[1]
 def get_args():
     parser = argparse.ArgumentParser(description='Deploy Qt Creator dependencies for packaging')
     parser.add_argument('--elfutils-path',
-                        help='Path to elfutils installation for use by perfprofiler (Windows, Linux)')
+                        help='Path to elfutils installation for use by perfprofiler (Linux)')
     parser.add_argument('--llvm-path',
                         help='Path to LLVM installation')
     parser.add_argument('qtcreator_binary', help='Path to Qt Creator binary (or the app bundle on macOS)')
@@ -346,15 +346,15 @@ def deploy_clang(qtc_binary_path, llvm_install_dir, chrpath_bin):
     common.copytree(resourcesource, resourcetarget, symlinks=True)
 
 def deploy_elfutils(qtc_install_dir, chrpath_bin, args):
-    if common.is_mac_platform():
+    # Only the Linux build of the Profiler plugin uses libdw.
+    if not common.is_linux_platform():
         return
 
     libs = ['elf', 'dw']
     version = '1'
 
     def lib_name(name, version):
-        return ('lib' + name + '.so.' + version if common.is_linux_platform()
-                else name + '.dll')
+        return 'lib' + name + '.so.' + version
 
     def find_elfutils_lib_path(path):
         for root, _, files in os.walk(path):
@@ -363,30 +363,19 @@ def deploy_elfutils(qtc_install_dir, chrpath_bin, args):
         return path
 
     elfutils_lib_path = find_elfutils_lib_path(os.path.join(args.elfutils_path, 'lib'))
-    if common.is_linux_platform():
-        install_path = os.path.join(qtc_install_dir, 'lib', 'elfutils')
-        backends_install_path = install_path
-    elif common.is_windows_platform():
-        install_path = os.path.join(qtc_install_dir, 'bin')
-        backends_install_path = os.path.join(qtc_install_dir, 'lib', 'elfutils')
-        libs.append('eu_compat')
+    install_path = os.path.join(qtc_install_dir, 'lib', 'elfutils')
+    backends_install_path = install_path
     if not os.path.exists(install_path):
         os.makedirs(install_path)
-    if not os.path.exists(backends_install_path):
-        os.makedirs(backends_install_path)
-    # perfparser links libdebuginfod when this elfutils has it, see Findelfutils.cmake
-    if os.path.exists(os.path.join(elfutils_lib_path, lib_name('debuginfod', version))):
-        libs.append('debuginfod')
     # copy main libs
     libs = [os.path.join(elfutils_lib_path, lib_name(lib, version)) for lib in libs]
     for lib in libs:
         print(lib, '->', install_path)
         shutil.copy(lib, install_path)
     # fix rpath
-    if common.is_linux_platform():
-        relative_path = os.path.relpath(backends_install_path, install_path)
-        subprocess.check_call([chrpath_bin, '-r', os.path.join('$ORIGIN', relative_path),
-                               os.path.join(install_path, lib_name('dw', version))])
+    relative_path = os.path.relpath(backends_install_path, install_path)
+    subprocess.check_call([chrpath_bin, '-r', os.path.join('$ORIGIN', relative_path),
+                           os.path.join(install_path, lib_name('dw', version))])
     # copy backend files
     # only non-versioned, we never dlopen the versioned ones
     files = glob(os.path.join(elfutils_lib_path, 'elfutils', '*ebl_*.*'))

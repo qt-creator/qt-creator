@@ -52,6 +52,7 @@ private slots:
     void testRecordsCallGraph();
     void testRecordsDifferentlyLinkedBinaries_data();
     void testRecordsDifferentlyLinkedBinaries();
+    void testRecordsInlinedFunctions();
     void testCapturesThreadName();
     void testCapturesLaunchedThreadNames();
     void testCapturesThreadNamesWhenTargetExitsFirst();
@@ -699,6 +700,85 @@ void PerfSamplerTest::testRecordsDifferentlyLinkedBinaries()
     QVERIFY2(deepest >= depth,
              qPrintable(u"deepest stack held %1 of %2 levels"_s.arg(deepest).arg(depth + 1)));
     QVERIFY(hasLine);
+}
+
+// The functions inlined at an address are frames of their own, as they were
+// when the sampler resolved its stacks through an external parser: root first,
+// the function the code is in, and then what was inlined into it, level by
+// level.
+void PerfSamplerTest::testRecordsInlinedFunctions()
+{
+    const FilePath cc = Environment::systemEnvironment().searchInPath("cc");
+    if (cc.isEmpty())
+        QSKIP("no \"cc\" in PATH");
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile source(dir.filePath("inlined.c"));
+    QVERIFY(source.open(QIODevice::WriteOnly));
+    source.write("volatile unsigned long sink;\n"
+                 "static inline __attribute__((always_inline)) unsigned long\n"
+                 "inlinedLeaf(unsigned long acc)\n"
+                 "{\n"
+                 "    for (int i = 0; i < 2000; ++i)\n"
+                 "        acc = acc * 6364136223846793005ul + 1442695040888963407ul;\n"
+                 "    return acc;\n"
+                 "}\n"
+                 "static inline __attribute__((always_inline)) unsigned long\n"
+                 "inlinedMiddle(unsigned long acc)\n"
+                 "{\n"
+                 "    return inlinedLeaf(acc) ^ 0x55;\n"
+                 "}\n"
+                 "__attribute__((noinline)) unsigned long outerFunction(unsigned long acc)\n"
+                 "{\n"
+                 "    const unsigned long result = inlinedMiddle(acc);\n"
+                 "    sink = result;\n"
+                 "    return result;\n"
+                 "}\n"
+                 "int main(void)\n"
+                 "{\n"
+                 "    for (long i = 0; i < 400000; ++i)\n"
+                 "        outerFunction((unsigned long)i);\n"
+                 "    return 0;\n"
+                 "}\n");
+    source.close();
+    const QString exe = dir.filePath("inlined");
+    Process compile;
+    compile.setCommand({cc, {"-O2", "-g", "-fno-omit-frame-pointer", "-o", exe,
+                             source.fileName()}});
+    compile.runBlocking();
+    QVERIFY2(compile.result() == ProcessResult::FinishedWithSuccess,
+             qPrintable(compile.allOutput()));
+
+    Process target;
+    target.setCommand({FilePath::fromString(exe), {}});
+    target.start();
+    QVERIFY(target.waitForStarted());
+
+    PerfSampler sampler;
+    auto *settings = qobject_cast<PerfSamplerSettings *>(sampler.settings());
+    QVERIFY(settings);
+    settings->perfSettings.callgraphMode.setValue(1); // "fp"
+    auto session = std::make_shared<RecordingSession>();
+    session->pid.store(target.processId());
+    QTaskTree::runBlocking(Group{sampler.recordRecipe(session)});
+    target.waitForFinished();
+
+    QVERIFY(session->result.has_value());
+    SKIP_IF_PERF_CANNOT_SAMPLE(*session->result);
+    QVERIFY_RESULT(*session->result);
+    const Result<SampleTraceData> data = readSampleTrace(session->result->value());
+    QVERIFY_RESULT(data);
+
+    const QStringList expected{u"outerFunction"_s, u"inlinedMiddle"_s, u"inlinedLeaf"_s};
+    bool found = false;
+    for (const SampleTraceData::ThreadSample &sample : data->samples) {
+        QStringList names;
+        for (int labelId : sample.frames)
+            names.append(data->labels.at(labelId).name);
+        for (qsizetype i = 0; i + 3 <= names.size(); ++i)
+            found = found || names.mid(i, 3) == expected;
+    }
+    QVERIFY(found);
 }
 
 QObject *createPerfSamplerTest()
