@@ -6,6 +6,7 @@
 
 #include <tracing/timelineformatdata.h>
 #include <tracing/timelinemodel.h>
+#include <utils/stylehelper.h>
 
 #include <QTest>
 
@@ -43,11 +44,11 @@ void DebugMessagesModelTest::testTypeId()
 void DebugMessagesModelTest::testColor()
 {
     // TimelineModel::colorBySelectionId ...
-    const int lightness = Timeline::defaultColorLightness();
+    const double lightness = Timeline::defaultColorLightness();
     for (int i = 0; i < 10; ++i) {
+        const double hue = (i % (QtMsgType::QtInfoMsg + 1) * 25) % Timeline::kHueRange;
         QCOMPARE(model.color(i),
-                 QColor::fromHsl((i % (QtMsgType::QtInfoMsg + 1) * 25) % Timeline::kHueRange,
-                                 Timeline::kDefaultSaturation, lightness).rgb());
+                 Utils::StyleHelper::oklchColor({lightness, Timeline::kDefaultChroma, hue}).rgb());
     }
 }
 

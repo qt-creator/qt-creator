@@ -6,8 +6,14 @@
 #include <QTest>
 #include <tracing/timelinemodel_p.h>
 #include <tracing/timelinemodelaggregator.h>
+#include <utils/stylehelper.h>
 
 using namespace Timeline;
+
+static QRgb hueColor(double hue)
+{
+    return Utils::StyleHelper::oklchColor({defaultColorLightness(), kDefaultChroma, hue}).rgb();
+}
 
 static const int NumItems = 32;
 static const qint64 ItemDuration = 1 << 19;
@@ -366,24 +372,20 @@ void tst_TimelineModel::colorByHue()
 {
     TimelineModelAggregator aggregator;
     DummyModel dummy(&aggregator);
-    QCOMPARE(dummy.colorByHue(10), QColor::fromHsl(10, kDefaultSaturation,
-                                                   defaultColorLightness()).rgb());
-    QCOMPARE(dummy.colorByHue(500), QColor::fromHsl(140, kDefaultSaturation,
-                                                    defaultColorLightness()).rgb());
+    QCOMPARE(dummy.colorByHue(10), hueColor(10));
+    QCOMPARE(dummy.colorByHue(500), hueColor(140));
     // A caller deriving a hue from something that is not one -- a hash of the
     // process a lane belongs to, say -- can arrive at a negative number. It
     // wraps the same way the one above does, rather than reading a colour from
     // outside the table.
-    QCOMPARE(dummy.colorByHue(-220), QColor::fromHsl(140, kDefaultSaturation,
-                                                     defaultColorLightness()).rgb());
+    QCOMPARE(dummy.colorByHue(-220), hueColor(140));
 }
 
 void tst_TimelineModel::colorBySelectionId()
 {
     DummyModel dummy(&aggregator);
     dummy.loadData();
-    QCOMPARE(dummy.colorBySelectionId(5), QColor::fromHsl(6 * 25, kDefaultSaturation,
-                                                          defaultColorLightness()).rgb());
+    QCOMPARE(dummy.colorBySelectionId(5), hueColor(6 * 25));
 }
 
 void tst_TimelineModel::insertStartEnd()

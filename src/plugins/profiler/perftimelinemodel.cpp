@@ -26,40 +26,16 @@ PerfTimelineModel::PerfTimelineModel(quint32 pid, quint32 tid, qint64 startTime,
     setExpandedRowCount(MaximumSpecialRow);
 }
 
-struct ColorTable {
-    QRgb table[Timeline::kHueRange * Timeline::kSaturationSteps];
-    ColorTable() {
-        const int saturationIncrement = 12;
-        const int saturationRange = Timeline::kSaturationSteps * saturationIncrement;
-        const int saturationRangeStart = Timeline::kDefaultSaturation - saturationRange / 2;
-        const int lightness = Timeline::defaultColorLightness();
-        for (int hue = 0; hue < Timeline::kHueRange; ++hue) {
-            for (int i = 0; i < Timeline::kSaturationSteps; ++i) {
-                const int saturation = qBound(0, saturationRangeStart + i * saturationIncrement,
-                                              255);
-                table[hue * Timeline::kSaturationSteps + i]
-                        = QColor::fromHsl(hue, saturation, lightness).rgb();
-            }
-        }
-    }
-
-    QRgb get(int hue, int saturation) const
-    {
-        return table[hue * Timeline::kSaturationSteps + saturation];
-    }
-};
-
 QRgb PerfTimelineModel::color(int index) const
 {
-    static const ColorTable table;
     const qint64 avgSampleDuration = static_cast<qint64>(1e9) / m_samplingFrequency;
     const qint64 sampleDuration = qMin(
                 qMax(duration(index) / m_data[index].numExpectedParallelSamples,
                      avgSampleDuration / 2),
                 avgSampleDuration * 2);
-    const qint64 saturation = 10 * avgSampleDuration / sampleDuration - 5;
-    QTC_ASSERT(saturation < Timeline::kSaturationSteps, return QRgb(0));
-    QTC_ASSERT(saturation >= 0, return QRgb(0));
+    const qint64 chroma = 10 * avgSampleDuration / sampleDuration - 5;
+    QTC_ASSERT(chroma < Timeline::kChromaSteps, return QRgb(0));
+    QTC_ASSERT(chroma >= 0, return QRgb(0));
 
     const int id = selectionId(index);
     int hue = qAbs(id * 25) % Timeline::kHueRange;
@@ -70,7 +46,7 @@ QRgb PerfTimelineModel::color(int index) const
     if (frameKind(*traceManager(), id) == FrameKind::Js)
         hue = 100 + hue % 60;
 
-    return table.get(hue, static_cast<int>(saturation));
+    return colorByHueChroma(hue, static_cast<int>(chroma));
 }
 
 Timeline::RowLabels PerfTimelineModel::labels() const

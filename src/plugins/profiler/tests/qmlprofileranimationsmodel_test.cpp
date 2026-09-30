@@ -4,6 +4,8 @@
 #include "qmlprofileranimationsmodel_test.h"
 #include "../profilertr.h"
 #include <tracing/timelineformatdata.h>
+#include <utils/stylehelper.h>
+
 #include <QTest>
 
 using namespace QmlDebug;
@@ -57,11 +59,12 @@ void QmlProfilerAnimationsModelTest::testTypeId()
 
 void QmlProfilerAnimationsModelTest::testColor()
 {
-    QColor last = QColor::fromHsl(0, 0, 0);
+    // Hue should rise with frame rate; read it in Oklch, which doesn't wrap here like sRGB's does.
+    double last = -1;
     for (int i = 0; i < 10; ++i) {
-        QColor next = model.color(i);
-        QVERIFY(next.hue() > last.hue());
-        last = next;
+        const double hue = Utils::StyleHelper::oklch(model.color(i)).hue;
+        QVERIFY(hue > last);
+        last = hue;
     }
 }
 
