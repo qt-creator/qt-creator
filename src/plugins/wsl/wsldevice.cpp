@@ -11,6 +11,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <client/bridgedfileaccess.h>
@@ -23,6 +24,7 @@
 #include <utils/environment.h>
 #include <utils/fsengine/fsengine.h>
 #include <utils/futuresynchronizer.h>
+#include <utils/globaltasktree.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/osspecificaspects.h>
@@ -812,6 +814,23 @@ CommandLine WslDevice::createCommandLineForDisplay() const
 IDeviceWidget *WslDevice::createWidget()
 {
     return new WslDeviceWidget(shared_from_this());
+}
+
+void WslDevice::runAutoDetect(
+    const ToolDetectionLogger &logger, const std::function<void()> &onDone)
+{
+    const auto log = [logger](const QString &msg) {
+        if (logger)
+            logger.logTopLevel(msg);
+    };
+    // clang-format off
+    const Group recipe {
+        autoDetectDeviceToolsRecipe(logger),
+        removeDetectedKitsRecipe(shared_from_this(), log),
+        kitDetectionRecipe(shared_from_this(), DetectionSource::FromSystem, log)
+    };
+    // clang-format on
+    GlobalTaskTree::start(recipe, {}, onDone);
 }
 
 ProcessInterface *WslDevice::createProcessInterface() const

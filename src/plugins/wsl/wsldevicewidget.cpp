@@ -7,8 +7,6 @@
 #include "wsldevice.h"
 #include "wsltr.h"
 
-#include <projectexplorer/kitaspect.h>
-
 #include <utils/async.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/guiutils.h>
@@ -17,8 +15,6 @@
 #include <utils/qtcassert.h>
 
 #include <QLabel>
-#include <QPushButton>
-#include <QTextBrowser>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -79,51 +75,6 @@ WslDeviceWidget::WslDeviceWidget(const IDevice::Ptr &device)
     commandLineLabel->setWordWrap(true);
     commandLineLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
-    auto logView = new QTextBrowser;
-
-    auto autoDetectButton = new QPushButton(Tr::tr("Auto-detect Kit Items"));
-    auto undoAutoDetectButton = new QPushButton(Tr::tr("Remove Auto-Detected Kit Items"));
-    const QList<QWidget *> tempDisabledWidgets = {autoDetectButton, undoAutoDetectButton};
-
-    connect(
-        autoDetectButton,
-        &QPushButton::clicked,
-        this,
-        [this, logView, wslDevice, tempDisabledWidgets] {
-            logView->clear();
-
-            const auto log = [logView](const QString &msg) { logView->append(msg); };
-            // clang-format off
-            const QtTaskTree::Group recipe {
-                wslDevice->autoDetectDeviceToolsRecipe(),
-                ProjectExplorer::removeDetectedKitsRecipe(wslDevice, log),
-                ProjectExplorer::kitDetectionRecipe(wslDevice, DetectionSource::FromSystem, log)
-            };
-            // clang-format on
-
-            const auto onSetup = [logView, tempDisabledWidgets] {
-                for (QWidget *widget : tempDisabledWidgets)
-                    widget->setEnabled(false);
-                logView->append(Tr::tr("Starting auto-detection..."));
-            };
-
-            const auto onDone = [logView, tempDisabledWidgets] {
-                for (QWidget *widget : tempDisabledWidgets)
-                    widget->setEnabled(true);
-                logView->append(Tr::tr("Done."));
-            };
-
-            m_detectionRunner.start(recipe, onSetup, onDone);
-        });
-
-    connect(undoAutoDetectButton, &QPushButton::clicked, this, [this, logView, device] {
-        logView->clear();
-        m_detectionRunner.start(
-            ProjectExplorer::removeDetectedKitsRecipe(device, [logView](const QString &msg) {
-                logView->append(msg);
-            }));
-    });
-
     using namespace Layouting;
 
     // clang-format off
@@ -138,13 +89,8 @@ WslDeviceWidget::WslDeviceWidget(const IDevice::Ptr &device)
             wslDevice->appendWindowsPath, br,
             wslDevice->freePortsAspect, br,
             Tr::tr("Command line:"), commandLineLabel, br,
-            wslDevice->deviceToolsGui(), br,
-            Span(2, Row {
-                autoDetectButton,
-                undoAutoDetectButton,
-                st,
-            }), br,
-            Tr::tr("Detection log:"), logView
+            wslDevice->deviceToolsGui(),
+            wslDevice->autoDetectGui(),
         }, br,
     }.attachTo(this);
     // clang-format on
