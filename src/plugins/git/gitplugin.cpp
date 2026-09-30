@@ -2474,6 +2474,7 @@ private slots:
     void testFileLinkResolution();
     void testFileLinkContextMenu();
     void testRevisionFilenameCollision();
+    void testRebaseActionSelection();
     void testSubmitMessageSpellCheck();
     void testDiffDescriptionEditor();
 };
@@ -3261,6 +3262,44 @@ static QStringList underlinedTexts(const QTextDocument *document)
         }
     }
     return texts;
+}
+
+void GitTest::testRebaseActionSelection()
+{
+    GitEditorWidget widget;
+    widget.setTextDocument(
+        QSharedPointer<TextDocument>::create(Constants::GIT_REBASE_EDITOR_ID));
+
+    const auto selectText = [&widget](const QString &text, int start, int end) {
+        widget.setPlainText(text);
+        QTextCursor cursor(widget.document());
+        cursor.setPosition(start);
+        cursor.setPosition(end, QTextCursor::KeepAnchor);
+        widget.setMultiTextCursor(MultiTextCursor({cursor}));
+    };
+
+    const QString todo = "pick abc subject\n";
+    selectText(todo, todo.indexOf("subject"), todo.indexOf("subject") + 7);
+    QTest::keyClick(&widget, Qt::Key_P);
+    QCOMPARE(widget.toPlainText(), QString("pick abc p\n"));
+
+    selectText(todo, 0, todo.size() - 1);
+    QTest::keyClick(&widget, Qt::Key_Z);
+    QCOMPARE(widget.toPlainText(), QString("z\n"));
+
+    selectText(todo, 0, todo.size() - 1);
+    QTest::keyClick(&widget, Qt::Key_R);
+    QCOMPARE(widget.toPlainText(), QString("reword abc subject\n"));
+
+    const QString twoTodos = todo + "fixup def next\n";
+    selectText(twoTodos, 0, twoTodos.size() - 1);
+    QTest::keyClick(&widget, Qt::Key_R);
+    QCOMPARE(widget.toPlainText(), QString("reword abc subject\nreword def next\n"));
+
+    const QString withComment = todo + "# help\n";
+    selectText(withComment, todo.size(), withComment.size() - 1);
+    QTest::keyClick(&widget, Qt::Key_P);
+    QCOMPARE(widget.toPlainText(), QString("pick abc subject\np\n"));
 }
 
 void GitTest::testSubmitMessageSpellCheck()

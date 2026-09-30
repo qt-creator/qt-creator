@@ -270,16 +270,17 @@ void GitEditorWidget::keyPressEvent(QKeyEvent *e)
 }
 
 /*!
-    If the cursor is at the start of a rebase todo line, and the pressed key
-    is the shortcut of a rebase action, this replaces the action keyword or
-    shortcut that is already there with the one matching the pressed key.
+    If the cursor is at the start of a rebase todo line, or a selection covers
+    complete rebase todo lines, and the pressed key is the shortcut of a rebase
+    action, this replaces the action keyword or shortcut that is already there
+    with the one matching the pressed key.
 */
 bool GitEditorWidget::replaceRebaseAction(QKeyEvent *e)
 {
     if (textDocument()->id() != Git::Constants::GIT_REBASE_EDITOR_ID)
         return false;
-    MultiTextCursor cursor = multiTextCursor();
-    if (cursor.isNull() || cursor.hasSelection() || e->text().size() != 1)
+    const MultiTextCursor cursor = multiTextCursor();
+    if (cursor.isNull() || e->text().size() != 1)
         return false;
 
     const QChar key = e->text().at(0);
@@ -293,20 +294,47 @@ bool GitEditorWidget::replaceRebaseAction(QKeyEvent *e)
         return false;
 
     static const QRegularExpression firstTokenPattern("^\\S+");
-    for (const QTextCursor &c : std::as_const(cursor)) {
-        if (!c.atBlockStart())
-            return false;
-
-        const QRegularExpressionMatch firstTokenMatch = firstTokenPattern.match(c.block().text());
+    const auto isActionLine = [&actions](const QTextBlock &block) {
+        const QRegularExpressionMatch firstTokenMatch = firstTokenPattern.match(block.text());
         if (!firstTokenMatch.hasMatch())
             return false;
 
         const QString currentToken = firstTokenMatch.captured();
-        const bool currentTokenIsAction = Utils::anyOf(
+        return Utils::anyOf(
             actions, [&currentToken](const GitRebaseHighlighter::RebaseAction &action) {
                 return currentToken == action.action || currentToken == QString(action.shortcut);
             });
-        if (!currentTokenIsAction)
+    };
+
+    QList<QTextCursor> actionCursors;
+    for (const QTextCursor &c : cursor) {
+        if (!c.hasSelection()) {
+            if (!c.atBlockStart())
+                return false;
+            actionCursors.append(c);
+            continue;
+        }
+
+        const int selectionStart = c.selectionStart();
+        const int selectionEnd = c.selectionEnd();
+        QTextDocument *document = c.document();
+        const QTextBlock firstBlock = document->findBlock(selectionStart);
+        const QTextBlock lastBlock = document->findBlock(selectionEnd - 1);
+        if (!firstBlock.isValid() || !lastBlock.isValid())
+            return false;
+        if (firstBlock.position() != selectionStart)
+            return false;
+        if (selectionEnd < lastBlock.position() + lastBlock.text().size())
+            return false;
+
+        const QTextBlock afterLastBlock = lastBlock.next();
+        for (QTextBlock block = firstBlock; block != afterLastBlock; block = block.next())
+            actionCursors.append(QTextCursor(block));
+    }
+
+    MultiTextCursor actionCursor(actionCursors);
+    for (const QTextCursor &c : actionCursor) {
+        if (!isActionLine(c.block()))
             return false;
     }
 
@@ -314,8 +342,8 @@ bool GitEditorWidget::replaceRebaseAction(QKeyEvent *e)
     // other way round) so that undoing the replacement leaves each cursor at
     // the start of its line: undo replays the insert last, and undoing an
     // insert places the cursor at its insertion point.
-    cursor.beginEditBlock();
-    for (QTextCursor &c : cursor) {
+    actionCursor.beginEditBlock();
+    for (QTextCursor &c : actionCursor) {
         const QString currentToken = firstTokenPattern.match(c.block().text()).captured();
         const int blockPosition = c.block().position();
         c.insertText(pressedAction->action);
@@ -325,8 +353,8 @@ bool GitEditorWidget::replaceRebaseAction(QKeyEvent *e)
         c.removeSelectedText();
         c.setPosition(blockPosition);
     }
-    cursor.endEditBlock();
-    setMultiTextCursor(cursor);
+    actionCursor.endEditBlock();
+    setMultiTextCursor(actionCursor);
     return true;
 }
 
