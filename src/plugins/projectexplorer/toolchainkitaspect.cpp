@@ -16,6 +16,7 @@
 #include <utils/async.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <QAbstractListModel>
@@ -185,9 +186,6 @@ private:
         const LogCallback &logCallback) const override;
 
     std::optional<QtTaskTree::ExecutableItem> removeAutoDetected(
-        const QString &detectionSource, const LogCallback &logCallback) const override;
-
-    void listAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
 
     Utils::Result<QtTaskTree::ExecutableItem> createAspectFromJson(
@@ -494,6 +492,26 @@ void ToolchainKitAspectFactory::toolChainsDeregistered()
         fix(k);
 }
 
+// Detection reports every compiler on the device, so several bundles can serve the
+// same languages. A kit holds one per language, and taking the first bundle takes
+// whichever the hash yielded: that can be one where a language was synthesized from
+// a sibling compiler, a g++ beside a gcc that the device does not have at all.
+static void setBestBundles(Kit *kit, const QList<ToolchainBundle> &bundles)
+{
+    QHash<LanguageCategory, ToolchainBundle> best;
+    for (const ToolchainBundle &bundle : bundles) {
+        QTC_ASSERT(bundle.factory(), continue);
+        const LanguageCategory category = bundle.factory()->languageCategory();
+        const auto it = best.find(category);
+        if (it == best.end())
+            best.insert(category, bundle);
+        else if (ToolchainManager::isBetterToolchain(bundle, *it))
+            *it = bundle;
+    }
+    for (const ToolchainBundle &bundle : std::as_const(best))
+        ToolchainKitAspect::setBundle(kit, bundle);
+}
+
 std::optional<QtTaskTree::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
     Kit *kit,
     const FilePaths &searchPaths,
@@ -538,8 +556,7 @@ std::optional<QtTaskTree::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
             const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
                 toolchains, ToolchainBundle::HandleMissing::CreateAndRegister);
 
-            if (!bundles.isEmpty())
-                ToolchainKitAspect::setBundle(kit, bundles.first());
+            setBestBundles(kit, bundles);
         };
 
     return AsyncTask<Toolchain *>(searchToolchains, toolchainsDone);
@@ -559,15 +576,6 @@ std::optional<QtTaskTree::ExecutableItem> ToolchainKitAspectFactory::removeAutoD
 
         ToolchainManager::deregisterToolchains(toolchains);
     });
-}
-
-void ToolchainKitAspectFactory::listAutoDetected(
-    const QString &detectionSource, const LogCallback &logCallback) const
-{
-    for (const Toolchain *tc : ToolchainManager::toolchains()) {
-        if (tc->detectionSource().isAutoDetected() && tc->detectionSource().id == detectionSource)
-            logCallback(Tr::tr("Toolchain: %1.").arg(tc->displayName()));
-    }
 }
 
 Result<QtTaskTree::ExecutableItem> ToolchainKitAspectFactory::createAspectFromJson(
@@ -636,8 +644,7 @@ Result<QtTaskTree::ExecutableItem> ToolchainKitAspectFactory::createAspectFromJs
         const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
             allDetected, ToolchainBundle::HandleMissing::CreateAndRegister);
 
-        if (!bundles.isEmpty())
-            ToolchainKitAspect::setBundle(kit, bundles.first());
+        setBestBundles(kit, bundles);
     };
 
     return AsyncTask<Toolchains>(setup, bundle);

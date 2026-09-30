@@ -950,25 +950,52 @@ static bool inheritsAnyMimeType(const MimeType &mimeType, const QStringList &mim
     });
 }
 
-bool LanguageFilter::isSupported(const FilePath &filePath, const QString &mimeTypeName) const
+static bool matchesAnyMimeType(const MimeType &mimeType, const QStringList &mimeTypes)
 {
+    return Utils::anyOf(mimeTypes, [&mimeType](const QString &type) {
+        return mimeType.matchesName(type);
+    });
+}
+
+/*!
+    Returns how well \a filePath with the MIME type \a mimeTypeName matches
+    the filter. The enumerators of MatchPriority are ordered from the best
+    match to \c NoMatch, which is also returned if the MIME type is excluded.
+*/
+LanguageFilter::MatchPriority LanguageFilter::matchPriority(const FilePath &filePath,
+                                                            const QString &mimeTypeName) const
+{
+    bool parentMimeTypeMatches = false;
     if (!mimeTypeName.isEmpty() && (!excludeMimeTypes.isEmpty() || !mimeTypes.isEmpty())) {
         const MimeType mimeType = Utils::mimeTypeForName(mimeTypeName);
         if (inheritsAnyMimeType(mimeType, excludeMimeTypes))
-            return false;
-        if (inheritsAnyMimeType(mimeType, mimeTypes))
-            return true;
+            return NoMatch;
+        if (matchesAnyMimeType(mimeType, mimeTypes))
+            return MimeTypeMatch;
+        parentMimeTypeMatches = inheritsAnyMimeType(mimeType, mimeTypes);
     }
-    if (filePattern.isEmpty() && filePath.isEmpty())
-        return mimeTypes.isEmpty();
-    auto regexps = Utils::transform(filePattern, [](const QString &pattern){
-        return QRegularExpression(QRegularExpression::wildcardToRegularExpression(pattern),
-                                  QRegularExpression::CaseInsensitiveOption);
-    });
-    return Utils::anyOf(regexps, [filePath](const QRegularExpression &reg){
-        return reg.match(filePath.toUrlishString()).hasMatch()
-                || reg.match(filePath.fileName()).hasMatch();
-    });
+
+    const auto matchesFilePattern = [this, &filePath] {
+        if (filePattern.isEmpty() && filePath.isEmpty())
+            return mimeTypes.isEmpty();
+        auto regexps = Utils::transform(filePattern, [](const QString &pattern){
+            return QRegularExpression(QRegularExpression::wildcardToRegularExpression(pattern),
+                                      QRegularExpression::CaseInsensitiveOption);
+        });
+        return Utils::anyOf(regexps, [filePath](const QRegularExpression &reg){
+            return reg.match(filePath.toUrlishString()).hasMatch()
+                    || reg.match(filePath.fileName()).hasMatch();
+        });
+    };
+    if (matchesFilePattern())
+        return FilePatternMatch;
+
+    return parentMimeTypeMatches ? ParentMimeTypeMatch : NoMatch;
+}
+
+bool LanguageFilter::isSupported(const FilePath &filePath, const QString &mimeTypeName) const
+{
+    return matchPriority(filePath, mimeTypeName) != NoMatch;
 }
 
 bool LanguageFilter::isSupported(const Core::IDocument *document) const

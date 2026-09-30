@@ -72,10 +72,13 @@ def qdump__Utils__Id(d, value):
     val = value.extractPointer()
     if True:
         if d.isMsvcTarget():
-            name = d.nameForCoreId(val).address()
+            name = d.nameForCoreId(val)
         else:
             name = d.parseAndEvaluate("Utils::nameForId(0x%x)" % val).pointer()
-        d.putSimpleCharArray(name)
+        if name:
+            d.putSimpleCharArray(name)
+        else:
+            d.putValue('', 'latin1')
     else:
         d.putValue(val)
     d.putPlainChildren(value)

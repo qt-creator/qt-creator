@@ -5,6 +5,8 @@
 #include "perfprofilertr.h"
 #include "perfprofilertracefile.h"
 
+#include <utils/async.h>
+
 #include <QFile>
 #include <QGuiApplication>
 #include <QtEndian>
@@ -309,6 +311,7 @@ void PerfProfilerTraceFile::readFromDevice()
 
 bool PerfProfilerTraceFile::updateProgress(int progress)
 {
+    Utils::asyncYield();
     if (future().isCanceled())
         return false;
 

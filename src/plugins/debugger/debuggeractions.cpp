@@ -65,6 +65,7 @@ DebuggerSettings::DebuggerSettings() :
     gdbStartupCommands{gdbSettings().gdbStartupCommands},
     gdbPostAttachCommands{gdbSettings().gdbPostAttachCommands},
     targetAsync{gdbSettings().targetAsync},
+    targetNonStop{gdbSettings().targetNonStop},
     autoEnrichParameters{gdbSettings().autoEnrichParameters},
     breakOnThrow{gdbSettings().breakOnThrow},
     breakOnCatch{gdbSettings().breakOnCatch},
@@ -85,6 +86,7 @@ DebuggerSettings::DebuggerSettings() :
     showStdNamespace{localsAndExpressionSettings().showStdNamespace},
     showQtNamespace{localsAndExpressionSettings().showQtNamespace},
     showQObjectNames{localsAndExpressionSettings().showQObjectNames},
+    showVariablesFromAllScopes{localsAndExpressionSettings().showVariablesFromAllScopes},
     maximalStringLength{localsAndExpressionSettings().maximalStringLength},
     displayStringLimit{localsAndExpressionSettings().displayStringLimit},
     defaultArraySize{localsAndExpressionSettings().defaultArraySize}

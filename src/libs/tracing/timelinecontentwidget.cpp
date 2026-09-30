@@ -18,10 +18,12 @@
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
+#include <QApplication>
 #include <QEvent>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLoggingCategory>
+#include <QNativeGestureEvent>
 #include <QPainter>
 #include <QResizeEvent>
 #include <QScrollArea>
@@ -30,6 +32,7 @@
 #include <QSplitterHandle>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QWheelEvent>
 
 #include <cmath>
 
@@ -84,6 +87,7 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
     m_ruler = new TimeRuler;
 
     m_labels = new TrackLabels;
+    m_labels->installEventFilter(this);
 
     // The track container is an empty spacer: it is sized to the full content
     // height so the scroll area provides a correctly-ranged vertical scroll bar.
@@ -320,6 +324,15 @@ bool TimelineContentWidget::selectionRangeMode() const
     return m_overlay->isActive();
 }
 
+// How far a wheel event scrolls, in pixels. A wheel that reports only angles
+// scrolls by lines, as far as it would move a scroll bar.
+static QPoint wheelPixelDelta(const QWheelEvent *event, int lineHeight)
+{
+    if (!event->pixelDelta().isNull())
+        return event->pixelDelta();
+    return event->angleDelta() * QApplication::wheelScrollLines() * lineHeight / 120;
+}
+
 bool TimelineContentWidget::eventFilter(QObject *watched, QEvent *event)
 {
     if (watched == m_scrollArea->viewport() && event->type() == QEvent::Resize) {
@@ -329,7 +342,52 @@ bool TimelineContentWidget::eventFilter(QObject *watched, QEvent *event)
         updateContainerSize();
         positionFrameTimeLabel();
     }
+
+    // The track view and the selection overlay above it leave wheel and gesture
+    // events to the viewport. They are handled here, once for both and before
+    // the scroll area would scroll along one axis only, and alike over the
+    // labels next to them.
+    if (watched == m_scrollArea->viewport() || watched == m_labels) {
+        if (event->type() == QEvent::Wheel) {
+            handleWheel(static_cast<QWheelEvent *>(event));
+            return true;
+        }
+        if (event->type() == QEvent::NativeGesture)
+            return handleNativeGesture(static_cast<QNativeGestureEvent *>(event));
+    }
     return false;
+}
+
+void TimelineContentWidget::handleWheel(QWheelEvent *event)
+{
+    // A browser reports a pinch on a trackpad as a wheel event with Ctrl held,
+    // which Qt for WebAssembly passes on as Qt::MetaModifier on macOS.
+    if (event->modifiers() & (Qt::ControlModifier | Qt::MetaModifier)) {
+        const QPoint pixelDelta = event->pixelDelta();
+        const int dy = pixelDelta.y() != 0 ? pixelDelta.y() : event->angleDelta().y() / 8;
+        // dy > 0 = scroll up = zoom in (shrink range); dy < 0 = zoom out
+        if (dy != 0) {
+            applyZoom(m_tracksWidget->mapFromGlobal(event->globalPosition()).x(),
+                      std::pow(1.2, double(-dy) / 15.0));
+        }
+        return;
+    }
+
+    const QPoint delta = wheelPixelDelta(event, m_scrollArea->verticalScrollBar()->singleStep());
+    applyHorizontalPan(delta.x());
+    applyVerticalPan(delta.y());
+}
+
+bool TimelineContentWidget::handleNativeGesture(QNativeGestureEvent *event)
+{
+    if (event->gestureType() != Qt::ZoomNativeGesture)
+        return false;
+    // The fingers spread by a factor of 1 + value(), and so does what lies
+    // between them.
+    applyZoom(m_tracksWidget->mapFromGlobal(event->globalPosition()).x(),
+              1.0 / (1.0 + event->value()));
+    event->accept();
+    return true;
 }
 
 void TimelineContentWidget::onFramePainted(std::chrono::nanoseconds renderTime)
@@ -403,12 +461,7 @@ void TimelineContentWidget::wireTrackView(T *view)
     connect(view, &T::itemClicked, this, &TimelineContentWidget::selectItem);
     connect(view, &T::itemHovered, this, &TimelineContentWidget::onItemHovered);
     connect(view, &T::horizontalPan, this, [this](int dx) { applyHorizontalPan(dx); });
-    connect(view, &T::verticalPan, this, [this](int dy) {
-        QScrollBar *vbar = m_scrollArea->verticalScrollBar();
-        vbar->setValue(vbar->value() - dy);
-    });
-    connect(view, &T::zoomRequested,
-            this, [this](double cursorX, int dy) { applyZoom(cursorX, dy); });
+    connect(view, &T::verticalPan, this, [this](int dy) { applyVerticalPan(dy); });
 
     if (frameTimeLog().isDebugEnabled())
         connect(view, &T::painted, this, &TimelineContentWidget::onFramePainted);
@@ -682,6 +735,12 @@ void TimelineContentWidget::applyHorizontalPan(int dx)
     m_zoom->setRange(newStart, newEnd);
 }
 
+void TimelineContentWidget::applyVerticalPan(int dy)
+{
+    QScrollBar *vbar = m_scrollArea->verticalScrollBar();
+    vbar->setValue(vbar->value() - dy);
+}
+
 void TimelineContentWidget::recenterOnItem(int modelIndex, int itemIndex)
 {
     if (modelIndex < 0 || modelIndex >= m_trackModels.size() || itemIndex < 0)
@@ -711,7 +770,7 @@ void TimelineContentWidget::recenterOnItem(int modelIndex, int itemIndex)
                               vbar->maximum()));
 }
 
-void TimelineContentWidget::applyZoom(double cursorX, int dy)
+void TimelineContentWidget::applyZoom(double cursorX, double factor)
 {
     if (m_trackModels.isEmpty())
         return;
@@ -719,8 +778,6 @@ void TimelineContentWidget::applyZoom(double cursorX, int dy)
     if (viewW <= 0)
         return;
 
-    // dy > 0 = scroll up = zoom in (shrink range); dy < 0 = zoom out
-    const double factor = std::pow(1.2, double(-dy) / 15.0);
     const qint64 rangeDuration = m_zoom->rangeEnd() - m_zoom->rangeStart();
     const qint64 newDuration = qBound(m_zoom->minimumRangeLength(),
                                       qRound64(double(rangeDuration) * factor),

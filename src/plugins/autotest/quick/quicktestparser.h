@@ -20,35 +20,42 @@ public:
     TestTreeItem *createTestTreeItem() const override;
 };
 
+class QuickTestParseContext : public CppParseContext
+{
+public:
+    QmlJS::Snapshot qmlSnapshot;
+    QHash<Utils::FilePath, Utils::FilePath> proFilesForQmlFiles;
+    QSet<Utils::FilePath> prefilteredFiles;
+    bool checkForDerivedTests = false;
+};
+
 class QuickTestParser : public QObject, public CppParser
 {
     Q_OBJECT
 public:
     explicit QuickTestParser(ITestFramework *framework);
-    void init(const QSet<Utils::FilePath> &filesToParse, bool fullParse) override;
-    void release() override;
-    bool processDocument(QPromise<TestParseResultPtr> &promise,
-                         const Utils::FilePath &fileName) override;
+    DocumentProcessor init(const QSet<Utils::FilePath> &filesToParse, bool fullParse) override;
     Utils::FilePath projectFileForMainCppFile(const Utils::FilePath &fileName);
     QStringList supportedExtensions() const override { return {"qml"}; };
 
 private:
+    bool processDocument(QPromise<TestParseResultPtr> &promise,
+                         const QuickTestParseContext &context,
+                         const Utils::FilePath &fileName);
     bool handleQtQuickTest(QPromise<TestParseResultPtr> &promise,
+                           const QuickTestParseContext &context,
                            CPlusPlus::Document::Ptr document,
                            ITestFramework *framework);
     void handleDirectoryChanged(const Utils::FilePath &directory);
     void doUpdateWatchPaths(const Utils::FilePaths &directories);
-    QString quickTestName(const CPlusPlus::Document::Ptr &doc) const;
+    QString quickTestName(const QuickTestParseContext &context,
+                          const CPlusPlus::Document::Ptr &doc) const;
     QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const Utils::FilePath &srcDir);
 
-    QmlJS::Snapshot m_qmlSnapshot;
-    QHash<Utils::FilePath, Utils::FilePath> m_proFilesForQmlFiles;
     Utils::FileSystemWatcher m_directoryWatcher;
     QMap<Utils::FilePath, QMap<QString, QDateTime> > m_watchedFiles;
     QMap<Utils::FilePath, Utils::FilePath> m_mainCppFiles;
-    QSet<Utils::FilePath> m_prefilteredFiles;
     QReadWriteLock m_parseLock; // guard for m_mainCppFiles
-    bool m_checkForDerivedTests = false;
 };
 
 } // namespace Autotest::Internal

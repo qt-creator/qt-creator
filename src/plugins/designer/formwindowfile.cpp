@@ -106,6 +106,7 @@ Result<> FormWindowFile::saveImpl(const FilePath &filePath, SaveOption option)
 
     m_formWindow->setDirty(false);
     setFilePath(filePath);
+    syncXmlFromFormWindow();
     updateIsModified();
 
     return ResultOk;

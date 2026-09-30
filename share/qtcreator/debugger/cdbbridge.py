@@ -48,6 +48,14 @@ def native_msvc_type_name(typename):
     return name
 
 
+def enum_text_value(text):
+    # The number in what the engine prints for an enum: 'Invalid (0)' or
+    # '0n5 (No matching enumerant)', after enumValue() took the '0n' off the
+    # parenthesized form.
+    match = re.search(r'\((-?\d+)\)', text) or re.match(r'(?:0n)?(-?\d+)', text)
+    return None if match is None else int(match.group(1))
+
+
 class FakeVoidType(cdbext.Type):
     def __init__(self, name, dumper):
         cdbext.Type.__init__(self)
@@ -134,6 +142,27 @@ class Dumper(DumperBase):
         # asking that module, once the engine's own answer is a miss, is one
         # GetTypeId() where the search over all modules is one per module.
         self.lookupModuleHint = 0
+        # Types whose members note_struct_layout() cannot vouch for.
+        self.type_layout_rejected = set()
+        # Vtable address -> the class it belongs to and the subobject it
+        # serves, see vtable_owner(). Kept for one fetch: a module load may
+        # move the tables.
+        self.vtable_owners = {}
+        # (enum type name, value) -> the engine's text for it. Asking is a
+        # cast expression added to the symbol group; the answer holds for as
+        # long as the process lives. A cast the engine cannot evaluate is not
+        # asked again in the same fetch, but in the next one: the module that
+        # declares the type may have been loaded by then.
+        self.enum_displays = {}
+        self.enum_display_misses = set()
+        # Utils::Id -> the address of its string, and the Utils modules in
+        # the order to ask them, see nameForCoreId().
+        self.coreIdNames = {}
+        self.coreIdModules = ['Utilsd', 'Utils']
+
+    def resetStats(self):
+        DumperBase.resetStats(self)
+        cdbext.takeEngineStatistics()
 
     #FIXME
     def register_known_qt_types(self):
@@ -303,17 +332,107 @@ class Dumper(DumperBase):
                 fields.append(field)
         return fields
 
-    def listValueChildren(self, value: DumperBase.Value, include_bases=True):
-        nativeValue = value.nativeValue
-        if nativeValue is None:
-            nativeValue = cdbext.createValue(value.address(), self.lookupNativeType(value.type.name, 0))
-        return self.listNativeValueChildren(nativeValue, include_bases)
-
     def nativeListMembers(self, value: DumperBase.Value, native_type: cdbext.Type, include_bases: bool):
         nativeValue = value.nativeValue
         if nativeValue is None:
             nativeValue = cdbext.createValue(value.address(), native_type)
-        return self.listNativeValueChildren(nativeValue, include_bases)
+        members = self.listNativeValueChildren(nativeValue, include_bases)
+        if include_bases:
+            self.note_struct_layout(value, members)
+        return members
+
+    def note_struct_layout(self, value: DumperBase.Value, members):
+        # Where the members of the type sit, so that the next value of the type
+        # gets them out of its memory instead of a symbol group: no cast added to
+        # the group, no expansion, no walk over the children.
+        #
+        # Recorded only where memory shows what the symbol group shows. A bitfield
+        # is where it does not: the engine reports the value of the bits, but the
+        # address and the size of the whole storage unit. Members sharing storage
+        # give away all but a bitfield alone in its unit, and that one is caught
+        # by comparing what the engine printed with what the memory holds - as
+        # long as the bits around it are not all zero at that moment, which is the
+        # case this cannot see through. A member shown by the engine's text is
+        # left to the symbol group as well - the memory path has nothing to show
+        # for it - except an enum: its text carries the number the engine
+        # printed, which is checked the same way, and from memory its display is
+        # a cast expression per enumerator value, asked once. A static member
+        # lies outside the object at an address all values of the type share,
+        # which is what the layout records for it.
+        typeid = value.typeid
+        if typeid in self.type_fields_cache or typeid in self.type_layout_rejected:
+            return
+        address = value.laddress
+        size = self.type_size_cache.get(typeid, None)
+        if not address or not size or not members:
+            return
+        blob = None
+        occupied = []
+        fields = []
+        for member in members:
+            if member.laddress is None or member.size is None:
+                return
+            if member.name == '__vfptr':
+                # The engine hands the vfptr out as the table it points to - the
+                # table's address in the module, the size of the whole table -
+                # not as the slot in the object. Memory has the slot at offset 0
+                # where the class owns the table, which is where the pointer
+                # read from there is the table's address.
+                ptr_size = self.ptrSize()
+                if blob is None:
+                    blob = bytes(self.value_data(value, size))
+                if (int.from_bytes(blob[0:ptr_size], byteorder=self.byteorder) != member.laddress
+                        or any(0 < end and start < ptr_size for (start, end) in occupied)):
+                    self.type_layout_rejected.add(typeid)
+                    return
+                occupied.append((0, ptr_size))
+                fields.append(self.Field(name=member.name, typeid=self.vfptr_typeid(),
+                                         bitsize=ptr_size * 8, bitpos=0, is_base_class=False))
+                continue
+            offset = member.laddress - address
+            byte_size = (member.size + 7) // 8
+            if member.name.startswith('__vtcast_') or member.name.startswith('__vbptr'):
+                self.type_layout_rejected.add(typeid)
+                return
+            if offset < 0 or offset + byte_size > size:
+                # Outside the object: a static member, which every value of the
+                # type shares - or a virtual base, placed by the complete object,
+                # or a reference, whose symbol has the address of what it refers
+                # to; those two belong to the one value.
+                if (member.isBaseClass or self.type_code(member.typeid)
+                        in (TypeCode.Reference, TypeCode.RValueReference)):
+                    self.type_layout_rejected.add(typeid)
+                    return
+                fields.append(self.Field(name=member.name, typeid=member.typeid,
+                                         bitsize=member.size, address=member.laddress))
+                continue
+            if not member.isBaseClass:
+                if any(offset < end and start < offset + byte_size for (start, end) in occupied):
+                    self.type_layout_rejected.add(typeid)
+                    return
+                occupied.append((offset, offset + byte_size))
+            if member.ldata is not None:
+                if blob is None:
+                    blob = bytes(self.value_data(value, size))
+                if blob[offset:offset + byte_size] != bytes(member.ldata):
+                    self.type_layout_rejected.add(typeid)
+                    return
+            elif member.ldisplay is not None:
+                if self.type_code(member.typeid) != TypeCode.Enum:
+                    self.type_layout_rejected.add(typeid)
+                    return
+                if blob is None:
+                    blob = bytes(self.value_data(value, size))
+                stored = int.from_bytes(blob[offset:offset + byte_size], byteorder=self.byteorder)
+                if enum_text_value(member.ldisplay) not in (stored, stored - (1 << (8 * byte_size))):
+                    self.type_layout_rejected.add(typeid)
+                    return
+            fields.append(self.Field(name=member.name, typeid=member.typeid, bitsize=member.size,
+                                     bitpos=offset * 8, is_base_class=member.isBaseClass))
+        self.type_fields_cache[typeid] = fields
+
+    def vfptr_typeid(self):
+        return self.create_pointer_typeid(self.create_typeid('void'))
 
     def nativeStructAlignment(self, nativeType: cdbext.Type) -> int:
         #DumperBase.warn("NATIVE ALIGN FOR %s" % nativeType.name)
@@ -326,10 +445,18 @@ class Dumper(DumperBase):
         return align
 
     def nativeTypeEnumDisplay(self, nativeType: cdbext.Type, intval: int, form) -> str:
-        value = self.nativeParseAndEvaluate('(%s)%d' % (nativeType.name(), intval))
-        if value is None:
-            return ''
-        return self.enumValue(value)
+        key = (nativeType.name(), intval)
+        display = self.enum_displays.get(key, None)
+        if display is None:
+            if key in self.enum_display_misses:
+                return ''
+            value = self.nativeParseAndEvaluate('(%s)%d' % (nativeType.name(), intval))
+            if value is None:
+                self.enum_display_misses.add(key)
+                return ''
+            display = self.enumValue(value)
+            self.enum_displays[key] = display
+        return display
 
     def enumExpression(self, enumType: str, enumValue: str) -> str:
         ns = self.qtNamespace()
@@ -562,7 +689,9 @@ class Dumper(DumperBase):
             self.putAddress(address)
 
     def putVTableChildren(self, item: DumperBase.Value, itemCount: int) -> int:
-        p = item.address()
+        # From the symbol group the vfptr is the table itself, from memory it is
+        # the slot holding the table's address.
+        p = item.address() if item.nativeValue is not None else self.value_as_address(item)
         for i in range(itemCount):
             deref = self.extractPointer(p)
             if deref == 0:
@@ -600,6 +729,9 @@ class Dumper(DumperBase):
 
     def nativeTypeIsUsable(self, nativeType) -> bool:
         return not nativeType.unresolvable()
+
+    def native_type_dropped(self, typeid):
+        self.type_layout_rejected.discard(typeid)
 
     def native_type_name_candidates(self, typeid):
         return self.candidate_spellings(self.type_name(typeid),
@@ -676,6 +808,8 @@ class Dumper(DumperBase):
         self.setVariableFetchingOptions(args)
 
         self.output = []
+        self.vtable_owners = {}
+        self.enum_display_misses = set()
 
         self.currentIName = 'local'
         self.put('data=[')
@@ -696,6 +830,12 @@ class Dumper(DumperBase):
 
         self.put('],partial="%d"' % (len(self.partialVariable) > 0))
         self.put(',timings=%s' % self.timings)
+        # What this fetch cost in calls into the engine, by method, and in
+        # microseconds for the steps the extension times. Read off the debugger
+        # log; the GUI does not use it.
+        statistics = cdbext.takeEngineStatistics()
+        self.put(',enginecalls={%s}'
+                 % ','.join('%s="%d"' % item for item in sorted(statistics.items())))
 
         if self.forceQtNamespace:
             self.qtNamespaceToReport = self.qtNamespace()
@@ -732,30 +872,143 @@ class Dumper(DumperBase):
             return None
 
         nativeValue = value.nativeValue
-        if nativeValue is None:
-            if not self.isExpanded():
+        # Casting to the vtable's own type is what reports the dynamic type, so it
+        # is left undone when the request asked for the static one.
+        if self.useDynamicType:
+            if nativeValue is None and not self.isExpanded():
                 raise Exception("Casting not expanded values is to expensive")
-            nativeValue = self.nativeParseAndEvaluate('(%s)0x%x' % (value.type.name, value.pointer()))
-        castVal = nativeVtCastValue(nativeValue)
-        if castVal is not None:
-            val = self.fromNativeValue(castVal)
-        else:
-            val = self.Value(self)
-            val.laddress = value.pointer()
-            val.typeid = self.type_target(value.typeid)
-            val.nativeValue = value.nativeValue
+            val = self.value_from_vtable(value)
+            if val is not None:
+                return val
+            if nativeValue is None:
+                nativeValue = self.nativeParseAndEvaluate('(%s)0x%x' % (value.type.name, value.pointer()))
+            castVal = nativeVtCastValue(nativeValue)
+            if castVal is not None:
+                return self.fromNativeValue(castVal)
+        val = self.Value(self)
+        val.laddress = value.pointer()
+        val.typeid = self.type_target(value.typeid)
+        val.nativeValue = value.nativeValue
 
         return val
+
+    def value_from_vtable(self, value: DumperBase.Value):
+        # What a pointer points to, typed the way the __vtcast_ member of the
+        # symbol group would type it, but from memory: the class owning the
+        # vtable the object holds at offset 0 is the dynamic type, and the
+        # table's RTTI locator says where in that object the pointee sits.
+        # Where the pointee has no table or the table is the pointer's own
+        # type's, there is nothing to cast. This replaces an expansion of the
+        # pointer's symbol for the probe, and for a pointer a dumper made up
+        # the cast expression added to the group before it.
+        target = self.type_target(value.typeid)
+        if target is None or self.type_code(target) != TypeCode.Struct:
+            return None
+        address = value.pointer()
+        if not address:
+            return None
+        try:
+            vtable = self.extract_pointer_at_address(address)
+            if vtable in self.vtable_owners:
+                owner = self.vtable_owners[vtable]
+            else:
+                owner = self.vtable_owner(vtable)
+                self.vtable_owners[vtable] = owner
+        except Exception:
+            return None
+        if owner is None:
+            return None
+        klass, offset = owner
+        typeid = target
+        if klass and self.sanitize_type_name(klass) != self.type_name(target):
+            nativeType = self.lookupNativeType(klass)
+            if nativeType is None or not self.nativeTypeIsUsable(nativeType):
+                return None
+            typeid = self.from_native_type(nativeType)
+        elif offset:
+            return None
+        val = self.Value(self)
+        val.laddress = address - offset
+        val.typeid = typeid
+        return val
+
+    def vtable_owner(self, vtable: int):
+        # The class owning the vtable at the address and the offset of the
+        # subobject the table serves within the complete object; None where
+        # the table cannot be told, and ('', 0) where there is no vtable: what
+        # the object holds at offset 0 is no pointer, points to no symbol, or
+        # to one that is not a table, so the object's static type stands. A
+        # vbtable there means a class whose vfptr lies in a virtual base,
+        # which is for the symbol group to cast. The engine names the nearest
+        # symbol and undecorates the tables a class has for each of its bases
+        # to the same name, so the symbol has to sit at the address itself,
+        # and which subobject the table serves is read off its RTTI locator.
+        if not self.couldBePointer(vtable):
+            return ('', 0)
+        symbol = cdbext.getSymbolByAddress(vtable)
+        if symbol is None:
+            return ('', 0)
+        name, displacement = symbol
+        name = name[name.find('!') + 1:]
+        for marker in ("::`vftable'", "::`local vftable'"):
+            if name.endswith(marker):
+                if displacement != 0:
+                    return None
+                offset = self.vtable_subobject_offset(vtable)
+                return None if offset is None else (name[:-len(marker)], offset)
+        if name.endswith("::`vbtable'"):
+            return None
+        return ('', 0)
+
+    def vtable_subobject_offset(self, vtable: int):
+        # The RTTICompleteObjectLocator the slot before a table points to:
+        # signature, offset of the subobject in the complete object,
+        # constructor displacement, type and class descriptor, and on 64 bit
+        # the locator's own image-relative address. A table built without RTTI
+        # has none, so what the slot leads to is checked for the shape; the
+        # locator is DWORDs, aligned to 4 only. A constructor displacement
+        # means a virtual base, whose offset takes more than this to find.
+        ptr_size = self.ptrSize()
+        locator = self.extract_pointer_at_address(vtable - ptr_size)
+        if locator < 100000 or locator & 0x3:
+            return None
+        if ptr_size == 8:
+            (signature, offset, cd_offset, _, _, self_rva) = self.split('IIIIII', locator)
+            base = locator - self_rva
+            if signature != 1 or base & 0xffff or not base <= vtable < base + 0x100000000:
+                return None
+        else:
+            (signature, offset, cd_offset) = self.split('III', locator)
+            if signature != 0:
+                return None
+        if cd_offset != 0 or offset >= 0x100000:
+            return None
+        return offset
 
     def callHelper(self, rettype, value, function, args):
         raise Exception("cdb does not support calling functions")
 
-    def nameForCoreId(self, id: int) -> DumperBase.Value:
-        for dll in ['Utilsd', 'Utils']:
-            idName = cdbext.call('%s!Utils::nameForId(%d)' % (dll, id))
-            if idName is not None:
-                break
-        return self.fromNativeValue(idName)
+    def nameForCoreId(self, id: int) -> int:
+        # The address of the string behind a Utils::Id. Fetching it runs a
+        # function in the debuggee, so it is fetched once per id - the string
+        # lives as long as the process - from the module that answered the
+        # last time, and not at all for the null id. A miss is not kept: the
+        # Utils module may not be loaded yet, and it can still load later.
+        if id == 0:
+            return 0
+        address = self.coreIdNames.get(id, None)
+        if address is None:
+            for dll in self.coreIdModules:
+                idName = cdbext.call('%s!Utils::nameForId(%d)' % (dll, id))
+                if idName is not None:
+                    address = self.fromNativeValue(idName).address()
+                    self.coreIdModules = [dll] + [other for other in self.coreIdModules
+                                                  if other != dll]
+                    break
+            if not address:
+                return 0
+            self.coreIdNames[id] = address
+        return address
 
     def putCallItem(self, name, rettype, value, func, *args):
         return

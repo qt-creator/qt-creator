@@ -43,6 +43,7 @@ public:
 
 protected:
     void updateTargetEnabled() override;
+    void updateOptionsEnabled() override;
 
 private:
     // The process chosen by the picker; used when attach is enabled.

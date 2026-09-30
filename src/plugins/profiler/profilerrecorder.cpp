@@ -291,6 +291,14 @@ void ProfilerRecorder::setTargetChosenElsewhere(bool chosen)
     }
 }
 
+void ProfilerRecorder::setOptionsChosenElsewhere(bool chosen)
+{
+    for (const std::unique_ptr<Sampler> &backend : d->backends) {
+        if (SamplerSettings *settings = backend->settings())
+            settings->setOptionsChosenElsewhere(chosen);
+    }
+}
+
 Sampler *ProfilerRecorder::backendById(Id id) const
 {
     return d->backendById(id);

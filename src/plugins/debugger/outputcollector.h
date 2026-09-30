@@ -35,8 +35,10 @@ private:
     QLocalServer *m_server = nullptr;
     QLocalSocket *m_socket = nullptr;
 #else
+    void closeFileDescriptors();
     QString m_serverPath;
-    int m_serverFd;
+    int m_serverFd = -1;  // Master side of the pseudo terminal, read by us.
+    int m_slaveFd = -1;   // Kept open only to hold the pseudo terminal alive.
     QSocketNotifier *m_serverNotifier = nullptr;
     QString m_errorString;
 #endif

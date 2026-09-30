@@ -1,0 +1,42 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page qtprofiler-how-to-record-a-trace.html
+    \previouspage qtprofiler-getting-started.html
+    \nextpage qtprofiler-reference-command-line-options.html
+
+    \ingroup qtprofiler-how-to-record
+
+    \title Record a trace
+
+    {TODO: intro paragraph - one or two sentences on what recording
+    produces and when to use it}
+
+    \section1 Record from the UI
+
+    To record profiling data:
+
+    \list
+        \li Select \uicontrol {Start recording}.
+        \li Use the application to collect data.
+        \li Select \uicontrol {Stop recording} to view the results.
+    \endlist
+
+    \section1 Record a command from the command line
+
+    {TODO: procedure for the \c{--launch} option, which takes a full
+    command line such as \c{"/path/to/app --arg"}. See the launch option in
+    qtprofilermain.cpp and recordExecutable/recordArguments in
+    qtprofilersettings.h}
+
+    \section1 Record for a fixed duration
+
+    {TODO: procedure for \c{--record-for}, which takes a positive number of
+    seconds, starts recording on launch, stops after the duration, and then
+    shows the trace. It is meant to be combined with \c{--launch} and
+    optionally \c{--backend}. See startTimedRecording() in
+    qtprofilerwindow.h}
+
+    \sa {Getting started}, {Command-line options}
+*/

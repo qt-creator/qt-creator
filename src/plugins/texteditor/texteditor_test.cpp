@@ -23,6 +23,8 @@
 #include <utils/multitextcursor.h>
 #include <utils/temporarydirectory.h>
 
+#include <QClipboard>
+#include <QGuiApplication>
 #include <QScopeGuard>
 #include <QSignalSpy>
 #include <QTest>
@@ -106,6 +108,12 @@ private slots:
     void testIndentUnindent();
     void testMakefileForcesTabPolicy();
     void testTextDocumentChanged();
+    void testCutLine_data();
+    void testCutLine();
+    void testCopyLine_data();
+    void testCopyLine();
+    void testDeleteLine_data();
+    void testDeleteLine();
 };
 
 void TextEditorTest::testIndentationClean_data()
@@ -308,6 +316,125 @@ void TextEditorTest::testTextDocumentChanged()
 
     QCOMPARE(signalSpy.count(), 1);
     QCOMPARE(widget.textDocument(), document.data());
+}
+
+// A '|' in the marked text denotes a cursor without selection, a '[...]' a selected range.
+static QString textWithoutCursorMarkers(const QString &markedText, QList<QPair<int, int>> *ranges)
+{
+    QString text;
+    int anchor = 0;
+    for (const QChar &c : markedText) {
+        if (c == '|')
+            ranges->append({text.size(), text.size()});
+        else if (c == '[')
+            anchor = text.size();
+        else if (c == ']')
+            ranges->append({anchor, text.size()});
+        else
+            text += c;
+    }
+    return text;
+}
+
+static void setupLineEditingTest(TextEditorWidget &widget, const QString &markedText)
+{
+    QList<QPair<int, int>> ranges;
+    const QString text = textWithoutCursorMarkers(markedText, &ranges);
+
+    widget.setTextDocument(TextDocumentPtr(new TextDocument));
+    widget.setPlainText(text);
+
+    QList<QTextCursor> cursors;
+    for (const QPair<int, int> &range : std::as_const(ranges)) {
+        QTextCursor cursor(widget.document());
+        cursor.setPosition(range.first);
+        cursor.setPosition(range.second, QTextCursor::KeepAnchor);
+        cursors.append(cursor);
+    }
+    widget.setMultiTextCursor(Utils::MultiTextCursor(cursors));
+}
+
+static void addLineEditingTestRows()
+{
+    QTest::addColumn<QString>("markedText");
+    QTest::addColumn<QString>("lines");
+    QTest::addColumn<QString>("remainingText");
+
+    QTest::newRow("cursorWithoutSelection")
+        << QString("line1\n|line2\nline3\n") << QString("line2\n") << QString("line1\nline3\n");
+    QTest::newRow("selectionInsideLine")
+        << QString("line1\nl[in]e2\nline3\n") << QString("line2\n") << QString("line1\nline3\n");
+    QTest::newRow("selectionAcrossLines")
+        << QString("li[ne1\nlin]e2\nline3\n") << QString("line1\nline2\n") << QString("line3\n");
+    QTest::newRow("selectionEndingAtLineStart")
+        << QString("[line1\n]line2\nline3\n") << QString("line1\n") << QString("line2\nline3\n");
+    QTest::newRow("lastLineWithoutNewline")
+        << QString("line1\nline2\nli|ne3") << QString("\nline3") << QString("line1\nline2");
+    QTest::newRow("multipleCursors")
+        << QString("|line1\nline2\nli|ne3\n") << QString("line1\nline3\n") << QString("line2\n");
+    QTest::newRow("multipleSelections")
+        << QString("l[in]e1\nline2\nl[in]e3\n") << QString("line1\nline3\n") << QString("line2\n");
+    QTest::newRow("cursorsOnTheSameLine")
+        << QString("|li|ne1\nline2\n") << QString("line1\n") << QString("line2\n");
+}
+
+void TextEditorTest::testCutLine_data()
+{
+    addLineEditingTestRows();
+}
+
+void TextEditorTest::testCutLine()
+{
+    QFETCH(QString, markedText);
+    QFETCH(QString, lines);
+    QFETCH(QString, remainingText);
+
+    TextEditorWidget widget;
+    setupLineEditingTest(widget, markedText);
+
+    widget.cutLine();
+
+    QCOMPARE(QGuiApplication::clipboard()->text(), lines);
+    QCOMPARE(widget.toPlainText(), remainingText);
+}
+
+void TextEditorTest::testCopyLine_data()
+{
+    addLineEditingTestRows();
+}
+
+void TextEditorTest::testCopyLine()
+{
+    QFETCH(QString, markedText);
+    QFETCH(QString, lines);
+
+    TextEditorWidget widget;
+    setupLineEditingTest(widget, markedText);
+    const QString originalText = widget.toPlainText();
+
+    widget.copyLine();
+
+    QCOMPARE(QGuiApplication::clipboard()->text(), lines);
+    QCOMPARE(widget.toPlainText(), originalText);
+    QCOMPARE(TextDocument::convertToPlainText(widget.multiTextCursor().selectedText()), lines);
+}
+
+void TextEditorTest::testDeleteLine_data()
+{
+    addLineEditingTestRows();
+}
+
+void TextEditorTest::testDeleteLine()
+{
+    QFETCH(QString, markedText);
+    QFETCH(QString, remainingText);
+
+    TextEditorWidget widget;
+    setupLineEditingTest(widget, markedText);
+
+    widget.deleteLine();
+
+    QCOMPARE(widget.toPlainText(), remainingText);
 }
 
 QObject *createTextEditorTest()
@@ -558,6 +685,8 @@ class RewrapParagraphTest final : public QObject
 private slots:
     void testRewrapParagraph_data();
     void testRewrapParagraph();
+    void testRewrapSelection_data();
+    void testRewrapSelection();
 };
 
 void RewrapParagraphTest::testRewrapParagraph_data()
@@ -595,6 +724,34 @@ void RewrapParagraphTest::testRewrapParagraph_data()
            "aaaaaaaaa aaaaaaaaa\n" << 0
         << "// aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa "
            "aaaaaaaaa\n// aaaaaaaaa\n";
+
+    // In a "/** */" block the line following the paragraph is a bare "*" or
+    // the closing "*/", neither of which shares the space that separates the
+    // leader from the text. That space belongs to the leader nonetheless: a
+    // paragraph that needs no wrapping comes back unchanged.
+    QTest::newRow("doxygenBlockKeepsLeaderSpace")
+        << "/**\n * @brief alpha beta\n */\n" << 1
+        << "/**\n * @brief alpha beta\n */\n";
+
+    // The separator is taken from the line as it is, so a tab survives as one.
+    QTest::newRow("doxygenBlockKeepsLeaderTab")
+        << "/**\n *\t@brief alpha beta\n */\n" << 1
+        << "/**\n *\t@brief alpha beta\n */\n";
+
+    // And one that does need wrapping keeps the leader on the new line.
+    QTest::newRow("doxygenBlockWraps")
+        << "/**\n  * @brief function is a function that calculates some result "
+           "from the parameter d, but does not return the result\n  *\n"
+           "  * @param d is the parameter that is used in calculation.\n  */\n" << 1
+        << "/**\n  * @brief function is a function that calculates some result "
+           "from the\n  * parameter d, but does not return the result\n  *\n"
+           "  * @param d is the parameter that is used in calculation.\n  */\n";
+
+    // The recovered space is written out, but not required of the other lines:
+    // a continuation line without it must not leave its leader behind as text.
+    QTest::newRow("doxygenBlockMixedLeaderSpacing")
+        << "  * alpha beta\n  *gamma delta\n" << 0
+        << "  * alpha beta gamma delta\n";
 }
 
 void RewrapParagraphTest::testRewrapParagraph()
@@ -620,6 +777,87 @@ void RewrapParagraphTest::testRewrapParagraph()
     cursor.movePosition(QTextCursor::Start);
     for (int i = 0; i < cursorBlock; ++i)
         cursor.movePosition(QTextCursor::NextBlock);
+    editorWidget->setTextCursor(cursor);
+
+    editorWidget->rewrapParagraph();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), expected);
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+void RewrapParagraphTest::testRewrapSelection_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<int>("anchorBlock");
+    QTest::addColumn<int>("cursorBlock");
+    QTest::addColumn<QString>("expected");
+
+    // Selecting a whole comment reflows all of its paragraphs, whichever end
+    // of the selection the cursor is at, and leaves the blank comment line
+    // that separates them alone.
+    QTest::newRow("wholeCommentWithCursorAtTheEnd")
+        << "/**\n  * @brief function is a function that calculates some result "
+           "from the parameter d, but does not return the result\n  *\n"
+           "  * @param d is the parameter that is used in the calculation of "
+           "the result that is returned\n  */\n" << 0 << 4
+        << "/**\n  * @brief function is a function that calculates some result "
+           "from the\n  * parameter d, but does not return the result\n  *\n"
+           "  * @param d is the parameter that is used in the calculation of "
+           "the result\n  * that is returned\n  */\n";
+
+    // Plain-text paragraphs delimited by a blank line are reflowed one by one,
+    // and each of them as a whole even where the selection covers only part of
+    // it: the paragraph, not the selection, is the unit.
+    QTest::newRow("selectionOverSeveralPlainTextParagraphs")
+        << "one two\nthree four\n\nfive six\nseven eight\n" << 1 << 4
+        << "one two three four\n\nfive six seven eight\n";
+
+    // Code and a run of "//" comment lines are never one paragraph, so a
+    // selection covering both reflows the comment without absorbing the code.
+    QTest::newRow("selectionOverCodeAndComment")
+        << "int a = 1;\n// alpha beta\n// gamma delta\nint b = 2;\n" << 0 << 4
+        << "int a = 1;\n// alpha beta gamma delta\nint b = 2;\n";
+
+    // A run of plain statements carries no signal - no blank line, no comment
+    // leader - that tells it apart from a run of prose lines, so a selection
+    // over it reflows the same way a plain-text paragraph does: this is not a
+    // new consequence of acting on a selection, it already happened with a
+    // single cursor placed in the middle of such a run.
+    QTest::newRow("selectionOverPlainCodeStatements")
+        << "int a = 1;\nint b = 2;\n" << 0 << 2
+        << "int a = 1; int b = 2;\n";
+}
+
+void RewrapParagraphTest::testRewrapSelection()
+{
+    QFETCH(QString, input);
+    QFETCH(int, anchorBlock);
+    QFETCH(int, cursorBlock);
+    QFETCH(QString, expected);
+
+    QString title = "rewrap.txt";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, input.toUtf8());
+    QVERIFY(editor);
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *editorWidget = baseEditor->editorWidget();
+    QVERIFY(editorWidget);
+
+    MarginSettingsData margin = editorWidget->marginSettings();
+    margin.m_marginColumn = 80;
+    editorWidget->setMarginSettings(margin);
+
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.movePosition(QTextCursor::Start);
+    for (int i = 0; i < anchorBlock; ++i)
+        cursor.movePosition(QTextCursor::NextBlock);
+    for (int i = anchorBlock; i < cursorBlock; ++i)
+        cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+    if (anchorBlock == cursorBlock)
+        cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    QVERIFY(cursor.hasSelection());
     editorWidget->setTextCursor(cursor);
 
     editorWidget->rewrapParagraph();

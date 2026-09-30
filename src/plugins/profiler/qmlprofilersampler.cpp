@@ -23,6 +23,7 @@
 #include <QtTaskTree/QBarrier>
 
 #include <QDebug>
+#include <QGroupBox>
 
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
@@ -73,15 +74,20 @@ QmlProfilerSamplerSettings::QmlProfilerSamplerSettings()
         for (BoolAspect *aspect : std::as_const(featureAspects))
             features.addItem(*aspect);
 
-        return Column {
+        QGroupBox *record = nullptr;
+        Column column {
             connectToServer,
             Row { host, port, st },
             executable,
             arguments,
             workingDirectory,
-            Layouting::Group { title(Tr::tr("Record")), Column { features } },
+            Layouting::Group { bindTo(&record), title(Tr::tr("Record")), Column { features } },
             noMargin,
         };
+        const auto updateRecord = [this, record] { record->setEnabled(!optionsChosenElsewhere()); };
+        updateRecord();
+        connect(this, &SamplerSettings::optionsSelectionChanged, record, updateRecord);
+        return column;
     });
 }
 
@@ -190,8 +196,10 @@ void QmlProfilerSampler::prepareLaunch(const std::shared_ptr<RecordingSession> &
     // Launch: capture on a freshly allocated local port and tell the target to
     // open a matching QML debug server, blocking until we connect.
     session->serverUrl = urlFromLocalHostAndFreePort();
-    const QString args = ProcessArgs::quoteArg(qmlDebugCommandLineArguments(
-        QmlProfilerServices, u"port:%1"_s.arg(session->serverUrl.port()), /*block*/ true));
+    const QString args = ProcessArgs::quoteArg(
+        session->launchCommand->executable().isLocal()
+            ? qmlDebugDesktopTcpArguments(QmlProfilerServices, session->serverUrl, /*block*/ true)
+            : qmlDebugTcpArguments(QmlProfilerServices, session->serverUrl, /*block*/ true));
     session->launchCommand->prependArgs(args, CommandLine::Raw);
 }
 

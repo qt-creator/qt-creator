@@ -71,6 +71,7 @@ public:
     QString mainFunctionName = "main";
     GdbImplFlags flags;
     Utils::TriState useDebugInfoD;
+    Utils::TriState enableHeapDebugging;
     int qtVersion = 0;
     QString qtNamespace;
     QString runAsUser;
@@ -127,8 +128,10 @@ private:
 
     void insertBreakpointCommand(const BreakpointChangeRequest &request);
     void updateBreakpointCommand(const BreakpointChangeRequest &request);
+    void setBreakpointCommands(const QString &bpnr, const QString &command);
     void handleWatchInsert(quint64 requestId, const DebuggerResponse &response);
-    void handleInterpreterBreakpointInsert(quint64 requestId, const DebuggerResponse &response);
+    void handleInterpreterBreakpointChange(quint64 requestId, BreakpointOp op,
+                                           const DebuggerResponse &response);
     void handleLocalAttach(const DebuggerResponse &response);
     void handleTerminalStubAttach(const DebuggerResponse &response, qint64 mainThreadId);
     void handleTargetRemote(const DebuggerResponse &response);
@@ -136,7 +139,8 @@ private:
     void continueAfterAttach();
     void handleShowVersion(const DebuggerResponse &response);
 
-    void runRunRequestCommand(const QString &function, int flags = 0);
+    void runRunRequestCommand(const QString &function, int flags = 0,
+                              const QString &instructionWise = {});
 
     void fetchRegisterValues(quint64 requestId);
     void handleModulesList(quint64 requestId, const DebuggerResponse &response);
@@ -173,9 +177,11 @@ private:
     bool usesOutputCollector() const;
     void requestInferiorInterrupt();
     void interruptProcessAsUser(qint64 pid);
+    void reportInterruptFailed(const QString &errorMessage);
     void runCommandNow(const DebuggerCommand &command);
     void handleOutputLine(const QString &line);
     void handleResultRecord(DebuggerResponse *response);
+    void handleAbortedRun(const DebuggerResponse &response);
     void reportEngineSetupOk();
     void reportEngineSetupFailed();
 
@@ -187,6 +193,9 @@ private:
     QString m_inbuffer;
     QString m_resultVarName;
     bool m_debuginfodDownloadInProgress = false;
+    // Whether the debuggee said the C++ runtime was taking it down. An exit
+    // that follows has no location and no signal to explain itself by.
+    bool m_sawTerminateMessage = false;
     enum class AttachPhase { Idle, AwaitingConnect, Stopped, Continuing };
     AttachPhase m_attachPhase = AttachPhase::Idle;
     QString m_pendingConsoleStreamOutput;
@@ -197,6 +206,9 @@ private:
     QStringDecoder m_outputDecoder{"UTF-8"};
     QHash<int, DebuggerCommand> m_commandForToken;
     bool m_engineSetupReported = false;
+    // Whether the debugger process going away is the shutdown this was asked
+    // for rather than one of its own.
+    bool m_shuttingDown = false;
     bool m_interruptRequested = false;
     bool m_expectTerminalTrap = false;
     int m_gdbVersion = 0;
@@ -233,7 +245,18 @@ private:
     QHash<QString, GdbImplTracepointInfo> m_tracepointsByNumber;
 
     void registerInternalBreakpointNumber(const QString &number);
+    void runOwnBreakpointCommand(const QString &function, const DebuggerCommand::Callback &handler);
     QSet<QString> m_internalBreakpointNumbers;
+    // How many breakpoints of our own gdb is installing: what it announces
+    // while one is in flight is that one, whose number is not known yet.
+    int m_ownBreakpointsInFlight = 0;
+
+    void runCatchCommand(const QString &kind, const std::function<void(const GdbMi &)> &handler);
+    QStringList catchpointNumbers(const QString &number) const;
+    int m_catchpointsInFlight = 0;
+    GdbMi m_lastAnnouncedCatchpoint;
+    // The companion a fork catchpoint needs for vfork, by its own number.
+    QHash<QString, QString> m_catchpointCompanions;
 };
 } // namespace Debugger::Internal
 

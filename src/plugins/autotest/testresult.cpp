@@ -19,6 +19,8 @@ TestResult::TestResult(const QString &id, const QString &name, const ResultHooks
 {
 }
 
+TestResult::~TestResult() = default;
+
 bool TestResult::isValid() const
 {
     return m_id.has_value();

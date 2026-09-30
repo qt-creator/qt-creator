@@ -134,7 +134,7 @@ void ToolchainManager::restoreToolchains()
             for (Toolchain * const tc : f->autoDetect(detector)) {
                 if (!m_instance->toolchains().contains(tc)) {
                     toRegister << tc;
-                    tc->setDetectionSource(DetectionSource::Manual);
+                    tc->setDetectionSource({DetectionSource::Manual, devId.toString()});
                 }
             }
         }

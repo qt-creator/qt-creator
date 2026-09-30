@@ -82,9 +82,10 @@ static bool qtTestLibDefined(const FilePath &fileName)
     return false;
 }
 
-TestCases QtTestParser::testCases(const FilePath &filePath) const
+TestCases QtTestParser::testCases(const QtTestParseContext &context,
+                                  const FilePath &filePath) const
 {
-    const QByteArray &fileContent = getFileContent(filePath);
+    const QByteArray &fileContent = getFileContent(context, filePath);
     CPlusPlus::Document::Ptr document = CppEditor::CppModelManager::document(filePath);
     if (document.isNull())
         return {};
@@ -101,10 +102,10 @@ TestCases QtTestParser::testCases(const FilePath &filePath) const
         }
     }
     // check if one has used a self-defined macro or QTest::qExec() directly
-    document = m_cppSnapshot.preprocessedDocument(fileContent, filePath);
+    document = context.cppSnapshot.preprocessedDocument(fileContent, filePath);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
-    TestAstVisitor astVisitor(document, m_cppSnapshot);
+    TestAstVisitor astVisitor(document, context.cppSnapshot);
     astVisitor.accept(ast);
     if (!astVisitor.testCases().isEmpty())
         return astVisitor.testCases();
@@ -192,10 +193,11 @@ static QSet<FilePath> filesWithDataFunctionDefinitions(
 }
 
 QHash<QString, QtTestCodeLocationList> QtTestParser::checkForDataTags(
-        const FilePath &fileName) const
+        const QtTestParseContext &context, const FilePath &fileName) const
 {
-    const QByteArray fileContent = getFileContent(fileName);
-    CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, fileName);
+    const QByteArray fileContent = getFileContent(context, fileName);
+    CPlusPlus::Document::Ptr document
+        = context.cppSnapshot.preprocessedDocument(fileContent, fileName);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
     TestDataFunctionVisitor visitor(document);
@@ -291,21 +293,22 @@ static bool isQObject(const CPlusPlus::Document::Ptr &declaringDoc)
 }
 
 bool QtTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
+                                   const QtTestParseContext &context,
                                    const FilePath &fileName)
 {
-    if (!m_prefilteredFiles.contains(fileName))
+    if (!context.prefilteredFiles.contains(fileName))
         return false;
 
-    CPlusPlus::Document::Ptr doc = document(fileName);
+    CPlusPlus::Document::Ptr doc = document(context, fileName);
     if (doc.isNull())
         return false;
-    const TestCases &oldTestCases = m_testCases.value(fileName);
-    if ((!includesQtTest(doc, m_cppSnapshot) || !qtTestLibDefined(fileName))
+    const TestCases &oldTestCases = context.cachedTestCases.value(fileName);
+    if ((!includesQtTest(doc, context.cppSnapshot) || !qtTestLibDefined(fileName))
         && oldTestCases.isEmpty()) {
         return false;
     }
 
-    TestCases testCaseList(testCases(fileName));
+    TestCases testCaseList(testCases(context, fileName));
     bool reported = false;
     // we might be in a reparse without the original entry point with the QTest::qExec()
     if (testCaseList.isEmpty() && !oldTestCases.empty())
@@ -313,7 +316,8 @@ bool QtTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     for (const TestCase &testCase : std::as_const(testCaseList)) {
         if (!testCase.name.isEmpty()) {
             TestCaseData data;
-            std::optional<bool> earlyReturn = fillTestCaseData(testCase.name, doc, data);
+            std::optional<bool> earlyReturn
+                = fillTestCaseData(context, testCase.name, doc, data);
             if (earlyReturn.has_value() || !data.valid)
                 continue;
 
@@ -333,17 +337,17 @@ bool QtTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
 }
 
 std::optional<bool> QtTestParser::fillTestCaseData(
-        const QString &testCaseName, const CPlusPlus::Document::Ptr &doc,
-        TestCaseData &data) const
+        const QtTestParseContext &context, const QString &testCaseName,
+        const CPlusPlus::Document::Ptr &doc, TestCaseData &data) const
 {
-    const FilePaths &alternativeFiles = m_alternativeFiles.values(doc->filePath());
-    CPlusPlus::Document::Ptr declaringDoc = declaringDocument(doc, m_cppSnapshot, testCaseName,
-                                                              alternativeFiles,
+    const FilePaths &alternativeFiles = context.alternativeFiles.values(doc->filePath());
+    CPlusPlus::Document::Ptr declaringDoc = declaringDocument(doc, context.cppSnapshot,
+                                                              testCaseName, alternativeFiles,
                                                               &(data.line), &(data.column));
     if (declaringDoc.isNull())
         return false;
 
-    TestVisitor visitor(testCaseName, m_cppSnapshot);
+    TestVisitor visitor(testCaseName, context.cppSnapshot);
     visitor.accept(declaringDoc->globalNamespace());
     if (!visitor.resultValid())
         return false;
@@ -352,7 +356,7 @@ std::optional<bool> QtTestParser::fillTestCaseData(
     // gather appropriate information of base classes as well and merge into already found
     // functions - but only as far as QtTest can handle this appropriate
     fetchAndMergeBaseTestFunctions(
-                visitor.baseClasses(), data.testFunctions, declaringDoc, m_cppSnapshot);
+                visitor.baseClasses(), data.testFunctions, declaringDoc, context.cppSnapshot);
 
     // handle tests that are not runnable without more information (plugin unit test of QC)
     if (data.testFunctions.isEmpty() && testCaseName == "QObject" && isQObject(declaringDoc))
@@ -360,7 +364,7 @@ std::optional<bool> QtTestParser::fillTestCaseData(
 
     const QSet<FilePath> &files = filesWithDataFunctionDefinitions(data.testFunctions);
     for (const FilePath &file : files)
-        Utils::addToHash(&(data.dataTags), checkForDataTags(file));
+        Utils::addToHash(&(data.dataTags), checkForDataTags(context, file));
 
     data.fileName = declaringDoc->filePath();
     data.valid = true;
@@ -413,27 +417,24 @@ QtTestParseResult *QtTestParser::createParseResult(
     return parseResult;
 }
 
-void QtTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
+DocumentProcessor QtTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
 {
+    const auto context = std::make_shared<QtTestParseContext>();
     if (!fullParse) { // in a full parse cached information might lead to wrong results
-        m_testCases = QTestUtils::testCaseNamesForFiles(framework(), filesToParse);
-        m_alternativeFiles = QTestUtils::alternativeFiles(framework(), filesToParse);
+        context->cachedTestCases = QTestUtils::testCaseNamesForFiles(framework(), filesToParse);
+        context->alternativeFiles = QTestUtils::alternativeFiles(framework(), filesToParse);
     }
 
     if (std::optional<QSet<Utils::FilePath>> prefiltered = filesContainingMacro("QT_TESTLIB_LIB"))
-        m_prefilteredFiles = prefiltered->intersect(filesToParse);
+        context->prefilteredFiles = prefiltered->intersect(filesToParse);
     else
-        m_prefilteredFiles = filesToParse;
+        context->prefilteredFiles = filesToParse;
 
-    CppParser::init(filesToParse, fullParse);
-}
-
-void QtTestParser::release()
-{
-    m_testCases.clear();
-    m_alternativeFiles.clear();
-    m_prefilteredFiles.clear();
-    CppParser::release();
+    fillContext(*context);
+    return [this, context = std::shared_ptr<const QtTestParseContext>(context)](
+               QPromise<TestParseResultPtr> &promise, const FilePath &fileName) {
+        return processDocument(promise, *context, fileName);
+    };
 }
 
 } // namespace Autotest::Internal

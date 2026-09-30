@@ -26,7 +26,6 @@
 :Add to Version Control.No_QPushButton	{text='No' type='QPushButton' unnamed='1' visible='1' window=':Add to Version Control_QMessageBox'}
 :Add to Version Control_QMessageBox	{text~='Add the file\n.+\nto version control .+' type='QMessageBox' unnamed='1' visible='1'}
 :Analyzer Toolbar.AnalyzerManagerToolBox_QComboBox	{container=':ProfilerModeWidget.Toolbar_QDockWidget' name='PerspectiveChooser' type='QComboBox' visible='1'}
-:Analyzer Toolbar.Clear_QToolButton	{container=':ProfilerModeWidget.Toolbar_QDockWidget' toolTip='Discard data' type='QToolButton' unnamed='1' visible='1'}
 :Analyzer Toolbar.Elapsed:_QLabel	{container=':ProfilerModeWidget.Toolbar_QDockWidget' text~='Elapsed:    \\\\d+.\\\\d s' type='QLabel' unnamed='1' visible='1'}
 :Analyzer Toolbar.Start_QToolButton	{container=':ProfilerModeWidget.Toolbar_QDockWidget' text='Start' type='QToolButton' unnamed='1' visible='1'}
 :Behavior.Activate completion:_QLabel	{container=':CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox' text='Activate completion:' type='QLabel' unnamed='1' visible='1'}
@@ -105,7 +104,7 @@
 :Options.Cancel_QPushButton	{text='Cancel' type='Utils::QtcButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Options.qt_tabwidget_stackedwidget_QStackedWidget	{name='qt_tabwidget_stackedwidget' type='QStackedWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Options.qt_tabwidget_tabbar_QTabBar	{name='qc_settings_main_tabbar' type='QTabBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Options_QListView	{type='QListView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Options_QListView	{name='settingsCategoryList' type='QListView' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :PasteSelectDialog.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':PasteSelectDialog_CodePaster::PasteSelectDialog'}
 :PasteSelectDialog.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':PasteSelectDialog_CodePaster::PasteSelectDialog'}
 :PasteSelectDialog.listWidget_QListWidget	{name='listWidget' type='QListWidget' visible='1' window=':PasteSelectDialog_CodePaster::PasteSelectDialog'}
@@ -113,7 +112,17 @@
 :PasteSelectDialog.protocolBox_QComboBox	{name='protocolBox' type='QComboBox' visible='1' window=':PasteSelectDialog_CodePaster::PasteSelectDialog'}
 :PasteSelectDialog_CodePaster::PasteSelectDialog	{name='CodePaster.PasteSelectDialog' type='QDialog' visible='1'}
 :Path.Utils_BaseValidatingLineEdit	{container=':qt_tabwidget_stackedwidget_QWidget' name='LineEdit' type='Utils::FancyLineEdit' visible='1'}
+:ProfilerModeWidget	{name='ProfilerModeWidget' type='QSplitter' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :ProfilerModeWidget.Toolbar_QDockWidget	{container=':Qt Creator.ProfilerModeWidget_QSplitter' name='Toolbar' type='QDockWidget' visible='1'}
+:Profiler_AnalyzerBackendComboBox	{container=':ProfilerModeWidget' name='ProfilerBackendCombo' type='Utils::QtcComboBox' visible='1'}
+:Profiler_ClearToolButton	{container=':ProfilerModeWidget' leftWidget=':Profiler_StopToolButton' toolTip='Discard data' type='QToolButton' unnamed='1' visible='1'}
+:Profiler_ElapsedLabel	{container=':ProfilerModeWidget' text~='\\\\d+:\\\\d+\\\\.\\\\d+' type='Utils::QtcLabel' visible='1'}
+:Profiler_StartRecordingButton	{container=':ProfilerModeWidget' text='Start Recording' type='Utils::QtcButton' visible='1'}
+:Profiler_StopRecordingButton	{container=':ProfilerModeWidget' text='Stop Recording' type='Utils::QtcButton' visible='1'}
+:Profiler_StopToolButton	{container=':ProfilerModeWidget' text='Stop' type='QToolButton' visible='1'}
+:Profiler_TabBar	{container=':Profiler_TraceWidget' name='qt_tabwidget_tabbar' type='QTabBar' visible='1'}
+:Profiler_TargetComboBox	{container=':ProfilerModeWidget' name='ProfilerTargetCombo' type='Utils::QtcComboBox' visible='1'}
+:Profiler_TraceWidget	{container=':ProfilerModeWidget' name='ProfilerTraceWidget' type='QSplitter' visible='1'}
 :ProjectConfigurationTabBar	{name='ProjectConfigurationTabBar' type='QTabBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :ProjectSelectionComboBox	{container=':*Qt Creator.ProjectSelectorSplitter' name='ProjectSelection' type='QComboBox' visible='1'}
 :Projects.ProjectNavigationTreeView	{container=':*Qt Creator.ProjectSelectorSplitter' name='ProjectNavigation' type='QTreeView' visible='1'}
@@ -128,7 +137,7 @@
 :Qt Creator.Dashboard_QTabBar	{aboveWidget=':Qt Creator.Dashboard_QDockWidget' container=':Qt Creator.ProfilerModeWidget_QSplitter' type='QTabBar' unnamed='1' visible='1'}
 :Qt Creator.DebugModeWidget_QSplitter	{name='DebugModeWidget' type='QSplitter' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.DragDoc_QToolButton	{toolTip='Drag to open the document in another split.' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator.Events_QDockWidget	{name='QmlProfiler.Statistics.DockDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.Events_QDockWidget	{name='QmlProfiler.Statistics.Dock' type='Profiler::Internal::QmlProfilerStatisticsView' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Events_QTabBar	{aboveWidget=':Qt Creator.Events_QDockWidget' type='QTabBar' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Issues_QListView	{type='QTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Issues'}
 :Qt Creator.ProfilerModeWidget_QSplitter	{name='ProfilerModeWidget' type='QSplitter' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -157,7 +166,7 @@
 :Qt Creator_Core::Internal::ProgressBar	{type='Core::Internal::ProgressBar' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Core::OutputWindow	{type='Core::OutputWindow' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_CppEditor::Internal::CPPEditorWidget	{type='CppEditor::CppEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator_DiffEditor::Internal::DescriptionEditorWidget	{type='DiffEditor::Internal::DescriptionEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_DiffEditor::Internal::DescriptionEditorWidget	{type='VcsBase::VcsBaseDescriptionEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_DiffEditor::SideDiffEditorWidgetChanged	{type='DiffEditor::Internal::SideDiffEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' x~='[1-9][0-9]*'}
 :Qt Creator_DiffEditor::SideDiffEditorWidgetOriginal	{type='DiffEditor::Internal::SideDiffEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' x='0'}
 :Qt Creator_FilenameQComboBox	{leftWidget=':Qt Creator.DragDoc_QToolButton' type='QComboBox' unnamed='1' visible='1'}

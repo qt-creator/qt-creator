@@ -25,10 +25,12 @@
 #include <QtTaskTree/QConditional>
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
+#include <utils/async.h>
 #include <utils/devicefileaccess.h>
 #include <utils/fileutils.h>
 #include <utils/guard.h>
 #include <utils/guiutils.h>
+#include <utils/hostosinfo.h>
 #include <utils/globaltasktree.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
@@ -47,6 +49,10 @@
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QTimer>
+
+#ifdef WITH_TESTS
+#   include <QTest>
+#endif // WITH_TESTS
 
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
@@ -588,6 +594,11 @@ bool AndroidDevice::canSupportAbis(const QStringList &abis) const
         if (ourAbis.contains(abi))
             return true; // it's enough if only one abi match is found
 
+    // A physical device's list of runnable ABIs includes 32-bit ABIs in
+    // ro.product.cpu.abilist. An AVD's config.ini lists only the primary.
+    if (machineType() == IDevice::Hardware)
+        return false;
+
     // If no exact match is found, let's take ABI backward compatibility into account
     // https://developer.android.com/ndk/guides/abis#android-platform-abi-support
     // arm64 usually can run {arm, armv7}, x86 can support {arm, armv7}, and 64-bit devices
@@ -695,24 +706,23 @@ QString AndroidDevice::openGLStatus() const
     return openGL.isEmpty() ? Tr::tr("Unknown") : openGL;
 }
 
+static ExecutableItem startAvdAsyncRecipe(const QString &avdName);
+
 void AndroidDevice::startAvd()
 {
     const Storage<QString> serialNumberStorage;
 
-    const auto onDone = [this, serialNumberStorage] {
-        if (!serialNumberStorage->isEmpty()) {
-            DeviceManager::setDeviceState(id(), IDevice::DeviceReadyToUse);
-            updateDeviceFileAccess();
-        }
-    };
-
     const Group recipe {
         serialNumberStorage,
-        startAvdRecipe(avdName(), serialNumberStorage),
-        onGroupDone(onDone, CallDoneFlag::OnSuccess)
+        startAvdRecipe(avdName(), serialNumberStorage)
     };
 
     d->m_taskTreeRunner.start(recipe);
+}
+
+void AndroidDevice::startAvdAsync()
+{
+    d->m_taskTreeRunner.start(Group{startAvdAsyncRecipe(avdName())});
 }
 
 IDevice::DeviceInfo AndroidDevice::deviceInformation() const
@@ -913,6 +923,145 @@ static void routeEmulatorEvent(const QString &serial, const Id &avdId,
     }
     DeviceManager::setDeviceState(avdId, state);
     updateDeviceFileAccess(avdId);
+}
+
+static void startAvdDetached(QPromise<void> &promise, const CommandLine &avdCommand)
+{
+    qCDebug(androidDeviceLog).noquote() << "Running command (startAvdDetached):" << avdCommand.toUserOutput();
+    if (!Process::startDetached(avdCommand, {}, DetachedChannelMode::Discard))
+        promise.future().cancel();
+}
+
+static CommandLine avdCommand(const QString &avdName, bool is32BitUserSpace)
+{
+    CommandLine cmd(AndroidConfig::emulatorToolPath());
+    if (is32BitUserSpace)
+        cmd.addArg("-force-32bit");
+    cmd.addArgs(AndroidConfig::emulatorArgs(), CommandLine::Raw);
+    cmd.addArgs({"-avd", avdName});
+    return cmd;
+}
+
+static ExecutableItem startAvdAsyncRecipe(const QString &avdName)
+{
+    const Storage<bool> is32Storage;
+
+    const auto onSetup = [] {
+        const FilePath emulatorPath = AndroidConfig::emulatorToolPath();
+        if (emulatorPath.exists())
+            return SetupResult::Continue;
+
+        QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Emulator Tool Is Missing"),
+                              Tr::tr("Install the missing emulator tool (%1) to the "
+                                     "installed Android SDK.").arg(emulatorPath.displayName()));
+        return SetupResult::StopWithError;
+    };
+
+    const auto onGetConfSetup = [](Process &process) {
+        if (!HostOsInfo::isLinuxHost() || QSysInfo::WordSize != 32)
+            return SetupResult::StopWithSuccess; // is64
+
+        process.setCommand({"getconf", {"LONG_BIT"}});
+        return SetupResult::Continue;
+    };
+    const auto onGetConfDone = [is32Storage](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success)
+            *is32Storage = process.allOutput().trimmed() == "32";
+        else
+            *is32Storage = true;
+        return true;
+    };
+
+    const auto onAvdSetup = [avdName, is32Storage](Async<void> &async) {
+        async.setConcurrentCallData(startAvdDetached, avdCommand(avdName, *is32Storage));
+    };
+    const auto onAvdDone = [avdName] {
+        QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("AVD Start Error"),
+                              Tr::tr("Failed to start AVD emulator for \"%1\" device.").arg(avdName));
+    };
+
+    return Group {
+        is32Storage,
+        onGroupSetup(onSetup),
+        ProcessTask(onGetConfSetup, onGetConfDone),
+        AsyncTask<void>(onAvdSetup, onAvdDone, CallDoneFlag::OnError)
+    };
+}
+
+static ExecutableItem isAvdBootedRecipe(const Storage<QString> &serialNumberStorage)
+{
+    const auto onSetup = [serialNumberStorage](Process &process) {
+        const CommandLine cmd{AndroidConfig::adbToolPath(),
+                              {adbSelector(*serialNumberStorage),
+                               "shell", "getprop", "init.svc.bootanim"}};
+        qCDebug(androidDeviceLog).noquote() << "Running command (isAvdBooted):" << cmd.toUserOutput();
+        process.setCommand(cmd);
+    };
+    const auto onDone = [](const Process &process, DoneWith result) {
+        return result == DoneWith::Success && process.allOutput().trimmed() == "stopped";
+    };
+    return ProcessTask(onSetup, onDone);
+}
+
+static ExecutableItem waitForAvdRecipe(const QString &avdName, const Storage<QString> &serialNumberStorage)
+{
+    const Storage<QStringList> outputStorage;
+    const Storage<bool> stopStorage;
+
+    const auto onIsConnectedDone = [stopStorage, outputStorage, serialNumberStorage] {
+        const QString serialNumber = *serialNumberStorage;
+        for (const QString &line : std::as_const(*outputStorage)) {
+            // skip the daemon logs
+            if (!line.startsWith("* daemon") && line.left(line.indexOf('\t')).trimmed() == serialNumber)
+                return DoneResult::Error;
+        }
+        serialNumberStorage->clear();
+        *stopStorage = true;
+        return DoneResult::Success;
+    };
+
+    const auto onWaitForBootedDone = [stopStorage] { return !*stopStorage; };
+
+    return Group {
+        Forever {
+            stopOnSuccess,
+            serialNumberRecipe(avdName, serialNumberStorage),
+            timeoutTask(100ms)
+        }.withTimeout(30s),
+        Forever {
+            stopStorage,
+            stopOnSuccess,
+            isAvdBootedRecipe(serialNumberStorage),
+            timeoutTask(100ms),
+            Group {
+                outputStorage,
+                AndroidConfig::devicesCommandOutputRecipe(outputStorage),
+                onGroupDone(onIsConnectedDone, CallDoneFlag::OnSuccess)
+            },
+            onGroupDone(onWaitForBootedDone)
+        }.withTimeout(120s)
+    };
+}
+
+ExecutableItem startAvdRecipe(const QString &avdName, const Storage<QString> &serialNumberStorage)
+{
+    const auto onDone = [avdName, serialNumberStorage] {
+        if (serialNumberStorage->isEmpty())
+            return;
+        const Id avdId = androidDeviceId(avdName);
+        if (!DeviceManager::find(avdId))
+            return;
+        s_trackedAvdSerialIds.insert(*serialNumberStorage, avdId);
+        routeEmulatorEvent(*serialNumberStorage, avdId, IDevice::DeviceReadyToUse);
+    };
+    return Group {
+        If (serialNumberRecipe(avdName, serialNumberStorage) || startAvdAsyncRecipe(avdName)) >> Then {
+            waitForAvdRecipe(avdName, serialNumberStorage)
+        } >> Else {
+            errorItem
+        },
+        onGroupDone(onDone, CallDoneFlag::OnSuccess)
+    };
 }
 
 static void handleDevicesListChange(const QString &event)
@@ -1360,4 +1509,81 @@ void setupAndroidDeviceManager()
     static GuardedObject<AndroidDeviceManagerInstance> theAndroidDeviceManager;
 }
 
+#ifdef WITH_TESTS
+
+class AndroidDeviceTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testCanSupportAbis_data();
+    void testCanSupportAbis();
+};
+
+void AndroidDeviceTest::testCanSupportAbis_data()
+{
+    QTest::addColumn<bool>("isHardware");
+    QTest::addColumn<QStringList>("deviceAbis");
+    QTest::addColumn<QStringList>("kitAbis");
+    QTest::addColumn<bool>("supported");
+
+    using namespace ProjectExplorer::Constants;
+    const QString arm64 = ANDROID_ABI_ARM64_V8A;
+    const QString armv7 = ANDROID_ABI_ARMEABI_V7A;
+    const QString armeabi = ANDROID_ABI_ARMEABI;
+    const QString x86 = ANDROID_ABI_X86;
+    const QString x86_64 = ANDROID_ABI_X86_64;
+
+    QTest::newRow("hardware: exact match")
+        << true << QStringList{arm64, armv7, armeabi} << QStringList{arm64} << true;
+    QTest::newRow("hardware: one matching ABI is enough")
+        << true << QStringList{arm64} << QStringList{x86_64, arm64} << true;
+    QTest::newRow("hardware: 32-bit ABI listed by the device")
+        << true << QStringList{arm64, armv7, armeabi} << QStringList{armv7} << true;
+    QTest::newRow("hardware: 64-bit only device rejects armeabi-v7a")
+        << true << QStringList{arm64} << QStringList{armv7} << false;
+    QTest::newRow("hardware: 64-bit only device rejects armeabi")
+        << true << QStringList{arm64} << QStringList{armeabi} << false;
+    QTest::newRow("hardware: x86_64 only device rejects x86")
+        << true << QStringList{x86_64} << QStringList{x86} << false;
+    QTest::newRow("hardware: arm64 rejects x86_64")
+        << true << QStringList{arm64} << QStringList{x86_64} << false;
+
+    QTest::newRow("emulator: exact match")
+        << false << QStringList{x86_64} << QStringList{x86_64} << true;
+    QTest::newRow("emulator: arm64 assumed to run armeabi-v7a")
+        << false << QStringList{arm64} << QStringList{armv7} << true;
+    QTest::newRow("emulator: x86 assumed to run armeabi-v7a")
+        << false << QStringList{x86} << QStringList{armv7} << true;
+    QTest::newRow("emulator: x86_64 assumed to run x86")
+        << false << QStringList{x86_64} << QStringList{x86} << true;
+    QTest::newRow("emulator: arm64 rejects x86_64")
+        << false << QStringList{arm64} << QStringList{x86_64} << false;
+    QTest::newRow("emulator: x86_64 rejects armeabi-v7a")
+        << false << QStringList{x86_64} << QStringList{armv7} << false;
+}
+
+void AndroidDeviceTest::testCanSupportAbis()
+{
+    QFETCH(bool, isHardware);
+    QFETCH(QStringList, deviceAbis);
+    QFETCH(QStringList, kitAbis);
+    QFETCH(bool, supported);
+
+    AndroidDevice device;
+    device.setMachineType(isHardware ? IDevice::Hardware : IDevice::Emulator);
+    device.setExtraData(Constants::AndroidCpuAbi, deviceAbis);
+
+    QCOMPARE(device.canSupportAbis(kitAbis), supported);
+}
+
+QObject *createAndroidDeviceTest()
+{
+    return new AndroidDeviceTest;
+}
+
+#endif // WITH_TESTS
+
 } // Android::Internal
+
+#include "androiddevice.moc"

@@ -418,6 +418,7 @@ void SessionPickerWidget::setResolved(const QString &)
     m_resolved = true;
 
     setEnabled(false);
+    hide();
     deleteLater();
 }
 

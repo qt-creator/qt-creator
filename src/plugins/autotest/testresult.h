@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "autotest_global.h"
+
 #include <utils/filepath.h>
 
 #include <QColor>
@@ -77,12 +79,12 @@ struct ResultHooks
     CreateResultHook createResult = {};
 };
 
-class TestResult
+class AUTOTESTSHARED_EXPORT TestResult
 {
 public:
     TestResult() = default;
     TestResult(const QString &id, const QString &name, const ResultHooks &hooks = {});
-    virtual ~TestResult() {}
+    virtual ~TestResult();
 
     bool isValid() const;
     const QString outputString(bool selected) const;

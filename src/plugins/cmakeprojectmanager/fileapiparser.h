@@ -322,6 +322,7 @@ public:
     std::vector<DependencyInfo> objectDependencies;
     std::vector<DependencyInfo> orderDependencies;
     std::vector<SourceInfo> sources;
+    Utils::FilePaths interfaceSources;
     std::vector<QString> sourceGroups;
     std::vector<CompileInfo> compileGroups;
     BacktraceInfo backtraceGraph;

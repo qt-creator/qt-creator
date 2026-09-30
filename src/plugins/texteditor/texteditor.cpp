@@ -750,7 +750,7 @@ public:
     int printPageCount(QPrinter *printer) const;
     QTextDocument *createPrintDocument(bool selectionOnly) const;
 
-    void maybeSelectLine();
+    void selectLines();
     void duplicateSelection(bool comment);
     void updateCannotDecodeInfo();
     void collectToCircularClipboard();
@@ -797,6 +797,7 @@ public:
                             int cursorPosition) const;
     void paintAdditionalVisualWhitespaces(PaintEventData &data, QPainter &painter, qreal top) const;
     void paintIndentDepth(PaintEventData &data, QPainter &painter, const PaintEventBlockData &blockData);
+    QRectF replacementRect(const QTextBlock &block, const QRectF &lineRect) const;
     void paintReplacement(PaintEventData &data, QPainter &painter, qreal top) const;
     void paintWidgetBackground(const PaintEventData &data, QPainter &painter) const;
     void paintOverlays(const PaintEventData &data, QPainter &painter) const;
@@ -1736,12 +1737,6 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
                                      &TextDocument::syntaxHighlighterChanged,
                                      this,
                                      &TextEditorWidgetPrivate::updateSpellCheckRange);
-
-    m_documentConnections << connect(&globalFontSettings(), &FontSettings::changed,
-                                     m_document.data(),
-                                     [this] {
-                                         m_document->setFontSettings(globalFontSettings().data());
-                                     });
 
     slotUpdateExtraAreaWidth();
 
@@ -5762,6 +5757,14 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
     if (lineRect.isNull())
         return;
 
+    QRectF annotationLineRect = lineRect;
+    const QTextBlock nextBlock = data.block.next();
+    if (m_displaySettings.m_annotationAlignment != AnnotationAlignment::BetweenLines
+            && nextBlock.isValid() && !nextBlock.isVisible()
+            && q->replacementVisible(data.block.blockNumber())) {
+        annotationLineRect.setRight(replacementRect(data.block, lineRect).right());
+    }
+
     Utils::sort(marks, [](const TextMark* mark1, const TextMark* mark2){
         return mark1->priority() > mark2->priority();
     });
@@ -5780,15 +5783,16 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         return;
     QRectF boundingRect;
     if (m_displaySettings.m_annotationAlignment == AnnotationAlignment::BetweenLines) {
-        boundingRect = QRectF(lineRect.bottomLeft(), blockData.boundingRect.bottomRight());
+        boundingRect = QRectF(annotationLineRect.bottomLeft(), blockData.boundingRect.bottomRight());
     } else {
-        boundingRect = QRectF(lineRect.topLeft().x(), lineRect.topLeft().y(),
-                              q->viewport()->width() - lineRect.right(), lineRect.height());
-        x = lineRect.right();
+        boundingRect = QRectF(annotationLineRect.topLeft().x(), annotationLineRect.topLeft().y(),
+                              q->viewport()->width() - annotationLineRect.right(),
+                              annotationLineRect.height());
+        x = annotationLineRect.right();
         if (m_displaySettings.m_annotationAlignment == AnnotationAlignment::NextToMargin
-                && data.rightMargin > lineRect.right() + offset
+                && data.rightMargin > annotationLineRect.right() + offset
                 && q->viewport()->width() > data.rightMargin + minimalContentWidth) {
-            offset = data.rightMargin - lineRect.right();
+            offset = data.rightMargin - annotationLineRect.right();
         } else if (m_displaySettings.m_annotationAlignment != AnnotationAlignment::NextToContent) {
             marks = availableMarks(marks, boundingRect, q->fontMetrics(), itemOffset);
             if (boundingRect.width() > 0)
@@ -6284,6 +6288,17 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
     painter.restore();
 }
 
+QRectF TextEditorWidgetPrivate::replacementRect(const QTextBlock &block,
+                                                const QRectF &lineRect) const
+{
+    const QString replacement = QLatin1String(" {") + q->foldReplacementText(block)
+                                + QLatin1String("}; ");
+    return QRectF(lineRect.right() + 12,
+                  lineRect.top(),
+                  q->fontMetrics().horizontalAdvance(replacement),
+                  lineRect.height());
+}
+
 void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &painter,
                                                qreal top) const
 {
@@ -6315,12 +6330,7 @@ void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &p
         lineRect.adjust(0, 0, -1, -1);
 
         QString replacement = q->foldReplacementText(data.block);
-        QString rectReplacement = QLatin1String(" {") + replacement + QLatin1String("}; ");
-
-        QRectF collapseRect(lineRect.right() + 12,
-                            lineRect.top(),
-                            q->fontMetrics().horizontalAdvance(rectReplacement),
-                            lineRect.height());
+        const QRectF collapseRect = replacementRect(data.block, lineRect);
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.translate(.5, .5);
         painter.drawRoundedRect(collapseRect.adjusted(0, 0, 0, -1), 3, 3);
@@ -9396,14 +9406,17 @@ void TextEditorWidget::focusOutEvent(QFocusEvent *e)
         d->clearCurrentSuggestion();
 }
 
-void TextEditorWidgetPrivate::maybeSelectLine()
+void TextEditorWidgetPrivate::selectLines()
 {
     MultiTextCursor cursor = m_cursors;
-    if (cursor.hasSelection())
-        return;
+    QTextDocument *document = m_document->document();
     for (QTextCursor &c : cursor) {
-        const QTextBlock &block = m_document->document()->findBlock(c.selectionStart());
-        const QTextBlock &end = m_document->document()->findBlock(c.selectionEnd()).next();
+        const QTextBlock &block = document->findBlock(c.selectionStart());
+        QTextBlock end = document->findBlock(c.selectionEnd());
+        const bool endsAtLineStart = c.hasSelection() && end != block
+                                     && end.position() == c.selectionEnd();
+        if (!endsAtLineStart)
+            end = end.next();
         c.setPosition(block.position());
         if (!end.isValid()) {
             c.movePosition(QTextCursor::PreviousCharacter);
@@ -9419,14 +9432,14 @@ void TextEditorWidgetPrivate::maybeSelectLine()
 // shift+del
 void TextEditorWidget::cutLine()
 {
-    d->maybeSelectLine();
+    d->selectLines();
     cut();
 }
 
 // ctrl+ins
 void TextEditorWidget::copyLine()
 {
-    d->maybeSelectLine();
+    d->selectLines();
     copy();
 }
 
@@ -9572,8 +9585,10 @@ void TextEditorWidget::duplicateSelectionAndComment()
 
 void TextEditorWidget::deleteLine()
 {
-    d->maybeSelectLine();
-    textCursor().removeSelectedText();
+    d->selectLines();
+    MultiTextCursor cursor = multiTextCursor();
+    cursor.removeSelectedText();
+    setMultiTextCursor(cursor);
 }
 
 void TextEditorWidget::deleteEndOfLine()
@@ -9693,14 +9708,22 @@ void TextEditorWidget::autoIndent()
     setMultiTextCursor(cursor);
 }
 
-void TextEditorWidget::rewrapParagraph()
+// A line with no word character at all - a blank line, but also the "/**", the
+// bare "*" and the "*/" of a comment block - separates paragraphs and is part
+// of none of them.
+static bool carriesText(const QString &text)
 {
-    const int paragraphWidth = marginSettings().m_marginColumn;
     static const QRegularExpression anyLettersOrNumbers("\\w");
-    const TabSettingsData ts = d->m_document->tabSettings();
+    return text.contains(anyLettersOrNumbers);
+}
 
-    QTextCursor cursor = textCursor();
-    cursor.beginEditBlock();
+// Reflows the paragraph that holds the cursor's block and returns the number of
+// the block that paragraph starts at.
+static int rewrapParagraphAt(QTextCursor cursor, int paragraphWidth, const TabSettingsData &ts)
+{
+    // The leader of a "///", "/**", or "/*!" comment, or of a "*"-led
+    // continuation line inside one.
+    static const QString doxygenPrefix("^\\s*(?:///|/\\*\\*|/\\*\\!|\\*)?[ *]+");
 
     // A single-line ("//") comment forms a paragraph on its own: it must not
     // be merged with adjacent code lines, which are not part of the comment
@@ -9712,27 +9735,40 @@ void TextEditorWidget::rewrapParagraph()
     const bool inLineComment = !commentLeader(cursor.block().text()).isEmpty();
 
     // Blank lines end a plain-text paragraph; a comment paragraph also ends
-    // where the run of "//" comment lines does.
+    // where the run of "//" comment lines does, and a paragraph of code ends
+    // where such a run begins - the two are never one paragraph, whichever of
+    // them the reflow started in.
     const auto isParagraphBoundary = [&](const QString &text) {
         if (inLineComment)
             return commentLeader(text).isEmpty();
-        return !text.contains(anyLettersOrNumbers);
+        return !carriesText(text) || !commentLeader(text).isEmpty();
     };
 
-    // Find start of paragraph.
+    static const QRegularExpression immovableDoxygenCommand = [] {
+        QRegularExpression re(doxygenPrefix + "[@\\\\][a-zA-Z]{2,}");
+        QTC_CHECK(re.isValid());
+        return re;
+    }();
+    const auto startsParagraph = [](const QString &text) {
+        return immovableDoxygenCommand.match(text).hasMatch();
+    };
 
-    while (cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor)) {
-        QTextBlock block = cursor.block();
-        QString text = block.text();
+    // Find start of paragraph. A doxygen command begins one of its own, so it
+    // bounds this search as well: the paragraph of a "@param" line is that
+    // line, not the "@brief" one above it.
+    while (!startsParagraph(cursor.block().text())) {
+        if (!cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor))
+            break;
 
         // If this block ends the paragraph, move marker back and terminate.
-        if (isParagraphBoundary(text)) {
+        if (isParagraphBoundary(cursor.block().text())) {
             cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor);
             break;
         }
     }
 
     cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
+    const int firstBlockNumber = cursor.blockNumber();
 
     // Find indent level of current block.
     const QString text = cursor.block().text();
@@ -9743,7 +9779,6 @@ void TextEditorWidget::rewrapParagraph()
     QTextCursor nextBlock = cursor;
     QString commonPrefix;
 
-    const QString doxygenPrefix("^\\s*(?:///|/\\*\\*|/\\*\\!|\\*)?[ *]+");
     if (nextBlock.movePosition(QTextCursor::NextBlock))
     {
          QString nText = nextBlock.block().text();
@@ -9774,12 +9809,10 @@ void TextEditorWidget::rewrapParagraph()
     }
 
     // Find end of paragraph.
-    static const QRegularExpression immovableDoxygenCommand(doxygenPrefix + "[@\\\\][a-zA-Z]{2,}");
-    QTC_CHECK(immovableDoxygenCommand.isValid());
     while (cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor)) {
         QString text = cursor.block().text();
 
-        if (isParagraphBoundary(text) || immovableDoxygenCommand.match(text).hasMatch())
+        if (isParagraphBoundary(text) || startsParagraph(text))
             break;
     }
 
@@ -9793,6 +9826,15 @@ void TextEditorWidget::rewrapParagraph()
         spacing = ts.indentationString(0, indentLevel, 0);
     } else {
         spacing = commonPrefix;
+        // The prefix reaches only as far as the line it was compared against,
+        // and in a "/** */" block that is a bare "*" or the closing "*/". It
+        // can therefore stop right before the space that separates the leader
+        // from the text. That space is part of the leader, so write it out
+        // again - but leave it out of the prefix that gets stripped, which the
+        // remaining lines need not carry.
+        const QChar separator = text.size() > spacing.size() ? text.at(spacing.size()) : QChar();
+        if (!spacing.back().isSpace() && (separator == ' ' || separator == '\t'))
+            spacing.append(separator);
         indentLevel = ts.columnCountForText(spacing);
     }
 
@@ -9836,7 +9878,39 @@ void TextEditorWidget::rewrapParagraph()
     result.append(QChar::ParagraphSeparator);
 
     cursor.insertText(result);
-    cursor.endEditBlock();
+    return firstBlockNumber;
+}
+
+void TextEditorWidget::rewrapParagraph()
+{
+    const int paragraphWidth = marginSettings().m_marginColumn;
+    const TabSettingsData ts = d->m_document->tabSettings();
+    const QTextCursor selection = textCursor();
+
+    QTextCursor editBlock = selection;
+    editBlock.beginEditBlock();
+
+    if (selection.hasSelection()) {
+        // Reflow every paragraph the selection touches, starting with the last
+        // one, so that reflowing a paragraph does not move those still to come.
+        QTextDocument * const doc = document();
+        const int firstBlock = doc->findBlock(selection.selectionStart()).blockNumber();
+        QTextBlock last = doc->findBlock(selection.selectionEnd());
+
+        // A selection that ends where a line begins does not reach into it.
+        if (last.blockNumber() > firstBlock && last.position() == selection.selectionEnd())
+            last = last.previous();
+
+        for (int number = last.blockNumber(); number >= firstBlock; --number) {
+            const QTextBlock block = doc->findBlockByNumber(number);
+            if (block.isValid() && carriesText(block.text()))
+                number = rewrapParagraphAt(QTextCursor(block), paragraphWidth, ts);
+        }
+    } else {
+        rewrapParagraphAt(selection, paragraphWidth, ts);
+    }
+
+    editBlock.endEditBlock();
 }
 
 void TextEditorWidget::unCommentSelection()

@@ -158,7 +158,7 @@ public:
     // document synchronization
     void setSupportedLanguage(const LanguageFilter &filter);
     void setActivateDocumentAutomatically(bool enabled);
-    bool isSupportedDocument(const TextEditor::TextDocument *document) const;
+    virtual bool isSupportedDocument(const TextEditor::TextDocument *document) const;
     bool isSupportedFile(const Utils::FilePath &filePath, const QString &mimeType) const;
     bool isSupportedUri(const QString &uri) const;
     virtual void openDocument(TextEditor::TextDocument *document);

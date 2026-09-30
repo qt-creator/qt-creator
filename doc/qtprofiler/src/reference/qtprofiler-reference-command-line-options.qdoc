@@ -1,0 +1,63 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page qtprofiler-reference-command-line-options.html
+    \previouspage qtprofiler-how-to-record-a-trace.html
+
+    \ingroup qtprofiler-reference
+
+    \title Command-line options
+
+    \brief Profile applications from the command line.
+
+    {TODO: intro sentence - how to invoke \QP from a terminal, including
+    the macOS bundle path, which differs from the plain executable name.
+    See the bundle naming in src/tools/qtprofiler/CMakeLists.txt}
+
+    \section1 Synopsis
+
+    {TODO: code block with the usage line. The positional argument is a
+    trace file: a QML trace, a Chrome Trace Format file, or a Common Trace
+    Format trace directory or its metadata file}
+
+    \section1 Options
+
+    \table
+        \header
+            \li Option
+            \li Description
+        \row
+            \li \c{-e}, \c{--exit-on-error}
+            \li Exits on error.
+        \row
+            \li \c{-r}, \c{--rpc}
+            \li Activates JSON-RPC 2.0 over \c stdio.
+        \row
+            \li \c{--rpc-schema}
+            \li Prints the schema to \c stdout and exits.
+        \row
+            \li \c {-t, --title <title>}
+            \li Default is the trace file name.
+        \row
+            \li \c {-l, --launch <command>}
+            \li Starts profiling the selected application.
+                Takes a full command line, such as \c {/path/to/app --arg}.
+        \row
+            \li \c {-b, --backend <name>}
+            \li Starts profiling using the selected tool.
+                Matched by name using case-insensitive substring match.
+        \row
+            \li \c {--record-for <seconds>}
+            \li Sets the time to record trace for the launched application using
+                the selected tool.
+        \row
+            \li \c {--help}
+            \li Shows help for the command-line commands.
+        \row
+            \li \c {--version}
+            \li Shows the \QP version
+    \endtable
+
+    \sa {Getting started}, {Record a trace}
+*/

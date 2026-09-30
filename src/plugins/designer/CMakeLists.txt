@@ -60,7 +60,9 @@ add_qtc_plugin(Designer
 
 extend_qtc_plugin(Designer
   CONDITION WITH_TESTS
-  SOURCES gotoslot_test.cpp
+  SOURCES
+    formwindowfile_test.cpp
+    gotoslot_test.cpp
 )
 
 if (QTC_STATIC_BUILD AND TARGET Designer)

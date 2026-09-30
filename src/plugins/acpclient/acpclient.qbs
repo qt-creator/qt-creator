@@ -63,6 +63,8 @@ Project {
             "chatpanel.h",
             "collapsibleframe.cpp",
             "collapsibleframe.h",
+            "configselectpopup.cpp",
+            "configselectpopup.h",
             "sessionpickerwidget.cpp",
             "sessionpickerwidget.h",
             "toolcalldetailwidget.cpp",

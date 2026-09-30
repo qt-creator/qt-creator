@@ -102,9 +102,6 @@ PROJECTEXPLORER_EXPORT QtTaskTree::Group removeDetectedKitItemsRecipe(
 PROJECTEXPLORER_EXPORT QtTaskTree::Group removeDetectedKitsRecipe(
     const IDeviceConstPtr &device, const LogCallback &logCallback);
 
-PROJECTEXPLORER_EXPORT void listAutoDetected(
-    const IDeviceConstPtr &device, const LogCallback &logCallback);
-
 /**
  * @brief The KitAspectFactory class
  *
@@ -174,9 +171,6 @@ public:
         const LogCallback &logCallback) const;
 
     virtual std::optional<QtTaskTree::ExecutableItem> removeAutoDetected(
-        const QString &detectionSourceId, const LogCallback &logCallback) const;
-
-    virtual void listAutoDetected(
         const QString &detectionSourceId, const LogCallback &logCallback) const;
 
     virtual Utils::Result<QtTaskTree::ExecutableItem> createAspectFromJson(

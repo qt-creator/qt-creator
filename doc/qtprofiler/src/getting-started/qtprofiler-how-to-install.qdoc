@@ -1,0 +1,29 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page qtprofiler-how-to-install.html
+    \previouspage index.html
+    \nextpage qtprofiler-getting-started.html
+
+    \title Installation
+
+    TODO: Describe installation options.
+
+    You can install \QP in the following ways:
+
+    \list
+        \li As a part of a \QC or \QVSC installation.
+        \li As a stand-alone tool.
+    \endlist
+
+    \section1 Standalone \QP
+
+    You can download \QP installation packages from:
+
+    \list
+        \li Official releases
+        \li Snapshots of the current and upcoming release
+    \endlist
+
+*/

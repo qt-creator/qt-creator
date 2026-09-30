@@ -164,6 +164,8 @@ static QString constructOmittedVariablesDetailsString(const EnvironmentItems &di
 
 void TestRunner::cancelCurrent(TestRunner::CancelReason reason)
 {
+    if (m_externalRunning)
+        return;
     if (reason == KitChanged)
         reportResult(ResultType::MessageWarn, Tr::tr("Current kit has changed. Canceling test run."));
     else if (reason == Timeout)

@@ -469,7 +469,7 @@ void registerMcpTools()
                 "Returns the C++ symbols (classes, functions, enums, declarations) in a file "
                 "from Qt Creator's C++ code model, each with its kind, fully qualified scope, "
                 "type/signature and 1-based line and column. The file must be known to the "
-                "code model, i.e. a C++ source or header that belongs to an open project.")
+                "code model, that is, a C++ source or header that belongs to an open project.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -546,7 +546,7 @@ void registerMcpTools()
             .description(
                 "Returns the C++ code model diagnostics (parser and semantic warnings and "
                 "errors) for a file, each with its severity and 1-based line and column. The "
-                "file must be known to the code model, i.e. a C++ source or header that "
+                "file must be known to the code model, that is, a C++ source or header that "
                 "belongs to an open project.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -605,7 +605,7 @@ void registerMcpTools()
             .description(
                 "Finds all references (usages) of the C++ symbol at a position, using the "
                 "C++ code model. Give the file and a 1-based line and column pointing at an "
-                "identifier; returns each usage with its file, 1-based line and column, the "
+                "identifier. Returns each usage with its file, 1-based line and column, the "
                 "source line text, the containing function, and whether it is a read, write "
                 "or declaration. The file must belong to an open project.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -693,7 +693,7 @@ void registerMcpTools()
             .description(
                 "Resolves the C++ symbol at a position and returns its name, fully qualified "
                 "name, kind and type, plus its declaration and (for functions) definition "
-                "locations - i.e. go-to-definition. Give the file and a 1-based line and "
+                "locations - that is, go-to-definition. Give the file and a 1-based line and "
                 "column pointing at an identifier. The file must belong to an open project.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -781,7 +781,7 @@ void registerMcpTools()
             .description(
                 "Returns the base and derived class hierarchy of the C++ class or struct at "
                 "a position. Give the file and a 1-based line and column pointing at a class "
-                "name; returns the class with nested \"bases\" (up) and \"derived\" (down), "
+                "name. Returns the class with nested \"bases\" (up) and \"derived\" (down), "
                 "each with name and location. The file must belong to an open project.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -859,7 +859,7 @@ void registerMcpTools()
             .description(
                 "Finds the callers of the C++ function at a position - the incoming call "
                 "hierarchy - using the C++ code model. Give the file and a 1-based line and "
-                "column pointing at a function name; returns each call site with its file, "
+                "column pointing at a function name. Returns each call site with its file, "
                 "1-based line and column, the source line text, and the enclosing function "
                 "(with its own location) that makes the call. The file must belong to an "
                 "open project.")
@@ -967,10 +967,10 @@ void registerMcpTools()
             .description(
                 "Finds the functions called by the C++ function at a position - the "
                 "outgoing call hierarchy - using the C++ code model. Give the file and a "
-                "1-based line and column pointing at a function name; returns each called "
+                "1-based line and column pointing at a function name. Returns each called "
                 "function grouped with its call sites (file, 1-based line and column, and "
                 "source line text). It resolves the function's definition, so the body "
-                "must be available; the file must belong to an open project.")
+                "must be available. The file must belong to an open project.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -1111,14 +1111,14 @@ void registerMcpTools()
             .title("Search C++ symbols in the project")
             .description(
                 "Searches the project-wide C++ code model index by name - a fast "
-                "\"go to symbol\". The index holds classes, enums, function DEFINITIONS, "
-                "signals and type aliases; it does NOT contain plain declarations (data "
+                "\"go to symbol\". The index holds classes, enums, function definitions, "
+                "signals and type aliases. It does not contain plain declarations (data "
                 "members, globals, or member functions that are only declared), so an "
-                "empty result does NOT prove a name is unused - use cpp_get_file_symbols for "
+                "empty result does not prove a name is unused - use cpp_get_file_symbols for "
                 "the complete symbol list of a known file. Give a case-insensitive name "
-                "substring; optionally restrict by \"kind\" and cap the count with "
+                "substring. Optionally restrict by \"kind\" and cap the count with "
                 "\"limit\". Results are ranked (exact, then prefix, then substring) so the "
-                "most relevant survive the cap; \"total_matches\" and \"truncated\" report "
+                "most relevant survive the cap. \"total_matches\" and \"truncated\" report "
                 "when the cap dropped matches. Each match has its name, kind, fully "
                 "qualified scope, type/signature, and file with 1-based line and column.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -1138,7 +1138,7 @@ void registerMcpTools()
                             {"enum", QJsonArray{"class", "function", "enum", "declaration"}},
                             {"description",
                              "Optional: restrict to one kind. \"function\" is function "
-                             "definitions; \"declaration\" is type aliases and signals "
+                             "definitions. \"declaration\" is type aliases and signals "
                              "(the index holds no plain declarations)."}})
                     .addProperty(
                         "limit",
@@ -1281,14 +1281,14 @@ void registerMcpTools()
                 "RUN: it returns the edits it would make (each with file, 1-based line and "
                 "column, length, and the old and new text) and changes nothing. Set "
                 "\"apply\" to true to write the edits. Only files belonging to the open "
-                "projects are edited, never Qt or system headers; \"skipped_edits\" and "
+                "projects are edited, never Qt or system headers. \"skipped_edits\" and "
                 "\"skipped_files\" report the usages left untouched by that filter, so a "
                 "partial rename is visible rather than silent. Before anything is written "
                 "the new name is checked for clashes: a declaration of that name in the "
                 "same scope, a base-class member it would hide or start to override, an "
                 "outer declaration it would shadow, or a declaration that would capture one "
                 "of the renamed usages and make it mean something else. \"conflicts\" lists "
-                "them with a severity; \"apply\" is refused while a hard conflict exists "
+                "them with a severity. \"apply\" is refused while a hard conflict exists "
                 "unless \"force\" is true. \"other_declarations_with_name\" lists unrelated "
                 "indexed symbols that already have the new name, for information.")
             .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(true))
@@ -1370,7 +1370,7 @@ void registerMcpTools()
                             {"items", QJsonObject{{"type", "object"}}},
                             {"description",
                              "Indexed symbols elsewhere in the project that already carry "
-                             "the new name; informational."}})
+                             "the new name. Informational."}})
                     .addRequired("applied")
                     .addRequired("total_edits")
                     .addRequired("skipped_edits")
@@ -1724,7 +1724,7 @@ void registerMcpTools()
                 "Lists the C++ quick-fixes and refactoring actions the editor offers at a "
                 "position - what \"Alt+Enter\" would show - each with its description. Give "
                 "the file and a 1-based line and column. This only lists the available "
-                "actions; it does not apply them. The file is opened in an editor if it is "
+                "actions. It does not apply them. The file is opened in an editor if it is "
                 "not already, and must belong to an open project and be parsed (the actions "
                 "depend on the editor's semantic info being up to date).")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -1836,7 +1836,7 @@ void registerMcpTools()
                 "Finds the overriding implementations of the virtual C++ member function "
                 "at a position - go to implementation(s) - across the class hierarchy, "
                 "plus the base declaration(s) it overrides. Give the file and a 1-based "
-                "line and column on a function name; returns \"overrides\" (each with its "
+                "line and column on a function name. Returns \"overrides\" (each with its "
                 "fully qualified name, signature and location), \"base_declarations\", and "
                 "whether the function is virtual. The file must belong to an open project.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -1949,7 +1949,7 @@ void registerMcpTools()
                 "files that include it directly (each with the line of their #include), and "
                 "the #includes that could not be resolved to a file. Set \"transitive\" to "
                 "also get the flattened closures: every file it pulls in, and every file "
-                "that depends on it. The file must be known to the code model, i.e. a C++ "
+                "that depends on it. The file must be known to the code model, that is, a C++ "
                 "source or header that belongs to an open project or is included by one.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(

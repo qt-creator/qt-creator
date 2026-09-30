@@ -83,9 +83,7 @@ WslDeviceWidget::WslDeviceWidget(const IDevice::Ptr &device)
 
     auto autoDetectButton = new QPushButton(Tr::tr("Auto-detect Kit Items"));
     auto undoAutoDetectButton = new QPushButton(Tr::tr("Remove Auto-Detected Kit Items"));
-    auto listAutoDetectedButton = new QPushButton(Tr::tr("List Auto-Detected Kit Items"));
-    const QList<QWidget *> tempDisabledWidgets
-        = {autoDetectButton, undoAutoDetectButton, listAutoDetectedButton};
+    const QList<QWidget *> tempDisabledWidgets = {autoDetectButton, undoAutoDetectButton};
 
     connect(
         autoDetectButton,
@@ -126,11 +124,6 @@ WslDeviceWidget::WslDeviceWidget(const IDevice::Ptr &device)
             }));
     });
 
-    connect(listAutoDetectedButton, &QPushButton::clicked, this, [logView, device] {
-        logView->clear();
-        listAutoDetected(device, [logView](const QString &msg) { logView->append(msg); });
-    });
-
     using namespace Layouting;
 
     // clang-format off
@@ -149,7 +142,6 @@ WslDeviceWidget::WslDeviceWidget(const IDevice::Ptr &device)
             Span(2, Row {
                 autoDetectButton,
                 undoAutoDetectButton,
-                listAutoDetectedButton,
                 st,
             }), br,
             Tr::tr("Detection log:"), logView

@@ -74,6 +74,7 @@ inline constexpr char CMAKE_FEATURE_ID[] = "CMakeProjectManager.Wizard.FeatureCM
 
 // Tool
 inline constexpr char TOOL_ID[] = "CMakeProjectManager.CMakeKitInformation";
+inline constexpr char CMAKE_TOOL_ID[] = "CMakeExecutable";
 
 // Data
 inline constexpr char BUILD_FOLDER_ROLE[] = "CMakeProjectManager.data.buildFolder";

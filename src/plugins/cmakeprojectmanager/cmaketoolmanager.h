@@ -43,7 +43,9 @@ public:
     static bool registerCMakeTool(std::unique_ptr<CMakeTool> &&tool);
     static void deregisterCMakeTool(const Utils::Id &id);
     static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools(
-        const Utils::FilePaths &searchPaths, const Utils::FilePath &rootPath);
+        const Utils::FilePaths &searchPaths,
+        const Utils::FilePath &rootPath,
+        const QString &sourceId);
 
     static CMakeKeywords defaultProjectOrDefaultCMakeKeyWords();
 

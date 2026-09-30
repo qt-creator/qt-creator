@@ -56,6 +56,7 @@ const QLatin1String InstallFailedInconsistentCertificatesString("INSTALL_PARSE_F
 const QLatin1String InstallFailedUpdateIncompatible("INSTALL_FAILED_UPDATE_INCOMPATIBLE");
 const QLatin1String InstallFailedPermissionModelDowngrade("INSTALL_FAILED_PERMISSION_MODEL_DOWNGRADE");
 const QLatin1String InstallFailedVersionDowngrade("INSTALL_FAILED_VERSION_DOWNGRADE");
+const QLatin1String InstallFailedNoMatchingAbis("INSTALL_FAILED_NO_MATCHING_ABIS");
 
 enum DeployErrorFlag
 {
@@ -63,10 +64,15 @@ enum DeployErrorFlag
     InconsistentCertificates = 0x0001,
     UpdateIncompatible = 0x0002,
     PermissionModelDowngrade = 0x0004,
-    VersionDowngrade = 0x0008
+    VersionDowngrade = 0x0008,
+    NoMatchingAbis = 0x0010
 };
 
 Q_DECLARE_FLAGS(DeployErrorFlags, DeployErrorFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(DeployErrorFlags)
+
+constexpr DeployErrorFlags RecoverableInstallErrors = InconsistentCertificates
+    | UpdateIncompatible | PermissionModelDowngrade | VersionDowngrade;
 
 static DeployErrorFlags parseDeployErrors(const QString &deployOutputLine)
 {
@@ -80,6 +86,8 @@ static DeployErrorFlags parseDeployErrors(const QString &deployOutputLine)
         errorCode |= PermissionModelDowngrade;
     if (deployOutputLine.contains(InstallFailedVersionDowngrade))
         errorCode |= VersionDowngrade;
+    if (deployOutputLine.contains(InstallFailedNoMatchingAbis))
+        errorCode |= NoMatchingAbis;
 
     return errorCode;
 }
@@ -112,6 +120,8 @@ private:
     QString m_serialNumber;
     QString m_avdName;
     FilePath m_apkPath;
+    QStringList m_selectedAbis;
+    QStringList m_deviceAbis;
 
     BoolAspect m_uninstallPreviousPackage{this};
     bool m_uninstallPreviousPackageRun = false;
@@ -212,6 +222,8 @@ bool AndroidDeployQtStep::init()
             .arg(info.cpuAbi.first()));
     }
 
+    m_selectedAbis = selectedAbis;
+    m_deviceAbis = dev->supportedAbis();
     m_avdName = info.avdName;
     m_serialNumber = info.serialNumber;
     qCDebug(deployStepLog) << "Selected device info:" << info;
@@ -337,8 +349,11 @@ Group AndroidDeployQtStep::deployRecipe()
         process.setCommand(cmd);
         return SetupResult::Continue;
     };
+    // Uninstalling is best effort: adb fails with DELETE_FAILED_INTERNAL_ERROR when the
+    // package is not installed, which must not keep the install task from running.
     const auto onUninstallDone = [this](const Process &process) {
-        reportWarningOrError(process.exitMessage(), Task::Error);
+        reportWarningOrError(process.exitMessage(), Task::Warning);
+        return DoneResult::Success;
     };
 
     const auto onInstallSetup = [this, storage](Process &process) {
@@ -364,6 +379,7 @@ Group AndroidDeployQtStep::deployRecipe()
         process.setUseCtrlCStub(true);
 
         DeployErrorFlags *flagsPtr = storage.activeStorage();
+        *flagsPtr = NoError; // The flags describe the current attempt only.
         process.setStdOutLineCallback([this, flagsPtr](const QString &line) {
             *flagsPtr |= parseDeployErrors(line);
             stdOutput(line);
@@ -382,7 +398,10 @@ Group AndroidDeployQtStep::deployRecipe()
         if (exitStatus == QProcess::NormalExit && exitCode == 0) {
             emit addOutput(Tr::tr("The process \"%1\" exited normally.").arg(m_command.toUserOutput()),
                            OutputFormat::NormalMessage);
-        } else if (exitStatus == QProcess::NormalExit) {
+            return DoneResult::Success;
+        }
+
+        if (exitStatus == QProcess::NormalExit) {
             const QString error = Tr::tr("The process \"%1\" exited with code %2.")
             .arg(m_command.toUserOutput(), QString::number(exitCode));
             reportWarningOrError(error, Task::Error);
@@ -391,21 +410,21 @@ Group AndroidDeployQtStep::deployRecipe()
             reportWarningOrError(error, Task::Error);
         }
 
-        if (*storage != NoError) {
-            if (m_uninstallPreviousPackageRun) {
-                reportWarningOrError(
-                    Tr::tr("Installing the app failed even after uninstalling the previous one."),
-                    Task::Error);
-                *storage = NoError;
-                return false;
-            }
-        } else if (exitCode != 0 || exitStatus != QProcess::NormalExit) {
-            // Set the deployError to Failure when no deployError code was detected
-            // but the adb tool failed otherwise relay the detected deployError.
-            reportWarningOrError(Tr::tr("Installing the app failed with an unknown error."), Task::Error);
-            return false;
+        if (*storage & NoMatchingAbis) {
+            reportWarningOrError(
+                Tr::tr("Installing the app failed: none of the package's ABIs is supported "
+                       "by the device.\nThe kit supports \"%1\", but the device uses \"%2\".")
+                .arg(m_selectedAbis.join(", "), m_deviceAbis.join(", ")),
+                Task::Error);
+        } else if (*storage == NoError) {
+            reportWarningOrError(Tr::tr("Installing the app failed with an unknown error."),
+                                 Task::Error);
+        } else if (m_uninstallPreviousPackageRun) {
+            reportWarningOrError(
+                Tr::tr("Installing the app failed even after uninstalling the previous one."),
+                Task::Error);
         }
-        return true;
+        return DoneResult::Error;
     };
 
     const auto onAskForUninstallSetup = [storage](DialogWrapper<QMessageBox> &task) {
@@ -437,19 +456,26 @@ Group AndroidDeployQtStep::deployRecipe()
         m_uninstallPreviousPackageRun = true;
     };
 
+    const auto shouldRetryInstall = [this, storage] {
+        return storage->testAnyFlags(RecoverableInstallErrors) && !m_uninstallPreviousPackageRun;
+    };
+    // A recoverable error is not a failure yet, the branch below retries it.
+    const auto onFirstAttemptDone = [shouldRetryInstall](DoneWith result) {
+        return toDoneResult(result == DoneWith::Success || shouldRetryInstall());
+    };
+
     return Group {
         storage,
         Group {
             ProcessTask(onUninstallSetup, onUninstallDone, CallDoneFlag::OnError).withTimeout(2min),
             ProcessTask(onInstallSetup, onInstallDone),
-            onGroupDone(DoneResult::Success)
+            onGroupDone(onFirstAttemptDone)
         },
-        If ([storage] { return *storage != NoError; }) >> Then {
+        If (shouldRetryInstall) >> Then {
             DialogTask<QMessageBox>(onAskForUninstallSetup, onAskForUninstallDone,
                                     CallDoneFlag::OnSuccess),
             ProcessTask(onUninstallSetup, onUninstallDone, CallDoneFlag::OnError).withTimeout(2min),
-            ProcessTask(onInstallSetup, onInstallDone),
-            onGroupDone(DoneResult::Success)
+            ProcessTask(onInstallSetup, onInstallDone)
         }
     };
 }

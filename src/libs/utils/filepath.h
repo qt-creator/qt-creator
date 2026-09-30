@@ -445,6 +445,7 @@ public:
     [[nodiscard]] QStringList toFsPathStrings() const;
     [[nodiscard]] QString toUserOutput(const QString &separator) const;
     [[nodiscard]] FilePath commonPath() const;
+    [[nodiscard]] FilePaths uniqueExecutables() const;
     void sort();
     void mapToDevice(const FilePath &deviceRoot);
     void setSchemeAndHost(const QStringView scheme, const QStringView host);

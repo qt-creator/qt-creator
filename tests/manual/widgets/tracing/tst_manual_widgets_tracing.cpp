@@ -25,6 +25,58 @@ using namespace Timeline;
 
 static const qint64 oneMs = 1000 * 1000; // in nanoseconds
 
+class FractionTableModel : public Timeline::TimelineModel
+{
+public:
+    FractionTableModel(TimelineModelAggregator *parent, int steps)
+        : TimelineModel(parent)
+        , m_steps(steps)
+    {
+        setDisplayName("Fractions");
+        setCollapsedRowCount(1);
+        setExpandedRowCount(1);
+        setExpanded(false);
+    }
+
+    QRgb color(int index) const override
+    {
+        return colorByFraction(fraction(index));
+    }
+
+    double fraction(int index) const
+    {
+        return m_steps > 1 ? double(index) / (m_steps - 1) : 0.0;
+    }
+
+    ItemDetails details(int index) const override
+    {
+        Timeline::ItemDetails result;
+        const QColor rgbColor = QColor::fromRgb(color(index));
+        const Utils::StyleHelper::OklchColor oklch = Utils::StyleHelper::oklch(rgbColor);
+        result.insert(QLatin1String("OKLCH"), QString("L%1 C%2 H%3")
+                                                  .arg(oklch.lightness, 0, 'f', 2)
+                                                  .arg(oklch.chroma, 0, 'f', 2)
+                                                  .arg(oklch.hue, 0, 'f', 2));
+        result.insert(QLatin1String("RGB"), rgbColor.name());
+        result.insert(QLatin1String("Fraction"), QString::number(fraction(index), 'f', 2));
+        return result;
+    }
+
+    void populateData()
+    {
+        const qint64 cellWidth = oneMs * 8;
+        const qint64 cellGap = oneMs * 1;
+        for (int step = 0; step < m_steps; ++step) {
+            const qint64 cellStart = step * (cellWidth + cellGap);
+            insert(cellStart, cellWidth, step);
+        }
+        emit contentChanged();
+    }
+
+private:
+    const int m_steps;
+};
+
 class DummyModel : public Timeline::TimelineModel
 {
 public:
@@ -100,7 +152,9 @@ int main(int argc, char *argv[])
     auto modelAggregator = new TimelineModelAggregator;
     auto model = new DummyModel(modelAggregator);
     model->populateData();
-    modelAggregator->setModels({model});
+    auto fractionTableModel = new FractionTableModel(modelAggregator, 20);
+    fractionTableModel->populateData();
+    modelAggregator->setModels({model, fractionTableModel});
 
     auto notes = new Timeline::TimelineNotesModel;
     notes->addTimelineModel(model);

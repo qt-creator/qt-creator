@@ -187,10 +187,10 @@ INTERNAL void vterm_state_resetpen(VTermState *state)
 INTERNAL void vterm_state_savepen(VTermState *state, int save)
 {
   if(save) {
-    state->saved.pen = state->pen;
+    STATE_SAVED(state).pen = state->pen;
   }
   else {
-    state->pen = state->saved.pen;
+    state->pen = STATE_SAVED(state).pen;
 
     setpenattr_bool(state, VTERM_ATTR_BOLD,      state->pen.bold);
     setpenattr_int (state, VTERM_ATTR_UNDERLINE, state->pen.underline);

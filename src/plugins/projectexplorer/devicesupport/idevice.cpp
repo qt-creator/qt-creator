@@ -10,11 +10,14 @@
 #include "sshparameters.h"
 
 #include "../kit.h"
+#include "../kitaspect.h"
 #include "../kitmanager.h"
 #include "../projectexplorerconstants.h"
 #include "../projectexplorericons.h"
 #include "../projectexplorertr.h"
 #include "../target.h"
+
+#include <coreplugin/messagemanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -23,10 +26,12 @@
 #include <utils/environment.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
+#include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/shutdownguard.h>
 #include <utils/synchronizedvalue.h>
 #include <utils/url.h>
 #include <utils/fsengine/fsengine.h>
@@ -45,6 +50,8 @@
 #include <QStandardItem>
 #include <QString>
 #include <QVersionNumber>
+
+#include <utility>
 
 /*!
  * \class ProjectExplorer::IDevice::DeviceAction
@@ -238,6 +245,7 @@ public:
 
     quint64 toolDetectionToken = 0;
     int toolDetectionTaskCount = 0;
+    std::function<void()> toolDetectionDone;
 
     bool isTesting = false;
 
@@ -294,6 +302,31 @@ void DeviceToolAspect::addToLayoutImpl(Layouting::Layout &parent)
 QString DeviceToolAspect::toolDisplayName() const
 {
     return m_toolName;
+}
+
+/*!
+    Returns the path of the tool.
+
+    A value without scheme and host is a path on the device the base directory
+    is on, not on the host.
+*/
+FilePath DeviceToolAspect::toolPath() const
+{
+    const FilePath filePath = expandedValue();
+    if (filePath.isEmpty() || !filePath.isLocal())
+        return filePath;
+    return baseDirectory().withNewPath(filePath.path());
+}
+
+/*!
+    Sets the tool to \a toolPath, which is stored without scheme and host,
+    and with the separators of its device, if it is on the device of the
+    base directory.
+*/
+void DeviceToolAspect::setToolPath(const FilePath &toolPath)
+{
+    setValue(toolPath.isSameDevice(baseDirectory()) ? toolPath.nativePath()
+                                                    : toolPath.toUserOutput());
 }
 
 // DeviceToolFactory
@@ -378,10 +411,14 @@ void IDevice::registerToolDetectionTask(quint64 token)
 
 void IDevice::deregisterToolDetectionTask(quint64 token)
 {
-    if (token && token == d->toolDetectionToken) {
-        if (--d->toolDetectionTaskCount == 0)
-            KitManager::createKitsForBuildDevice(shared_from_this());
-    }
+    if (!token || token != d->toolDetectionToken)
+        return;
+    if (--d->toolDetectionTaskCount > 0)
+        return;
+    if (kitCreationEnabled())
+        KitManager::createKitsForBuildDevice(shared_from_this());
+    if (d->toolDetectionDone)
+        std::exchange(d->toolDetectionDone, {})();
 }
 
 bool IDevice::isUp() const
@@ -397,13 +434,24 @@ Result<Environment> IDevice::getUnixEnvironment(const FilePath &scriptToSource) 
     return Utils::getUnixEnvironment(filePath("env"), osType(), scriptToSource);
 }
 
-void IDevice::requestToolDetection(const FilePaths &searchPaths, const ToolDetectionLogger &logger)
+quint64 IDevice::startToolDetection(const FilePaths &searchPaths, const ToolDetectionLogger &logger)
 {
-    const quint64 token = kitCreationEnabled() ? ++d->toolDetectionToken : 0;
+    // A new detection supersedes a running one: its tasks stop being counted as
+    // soon as the token changes, so end it rather than leave its caller waiting.
+    if (d->toolDetectionDone)
+        std::exchange(d->toolDetectionDone, {})();
+    const quint64 token = ++d->toolDetectionToken;
     d->toolDetectionTaskCount = 0;
+    // The request itself is a task, so that a handler finishing before the next
+    // one is asked does not already end the detection. The caller closes it.
     registerToolDetectionTask(token);
     emit DeviceManager::instance()->toolDetectionRequested(id(), searchPaths, token, logger);
-    deregisterToolDetectionTask(token);
+    return token;
+}
+
+void IDevice::requestToolDetection(const FilePaths &searchPaths, const ToolDetectionLogger &logger)
+{
+    deregisterToolDetectionTask(startToolDetection(searchPaths, logger));
 }
 
 FilePaths IDevice::toolSearchPaths() const
@@ -432,7 +480,7 @@ Group IDevice::autoDetectDeviceToolsRecipe(ToolDetectionLogger logger)
         QTC_ASSERT(toolAspect, continue);
         QTC_CHECK(!toolAspect->toolDisplayName().isEmpty());
         datas << Data{
-            factory, patterns, toolAspect->expandedValue(), {}, toolAspect->toolDisplayName()};
+            factory, patterns, toolAspect->toolPath(), {}, toolAspect->toolDisplayName()};
     }
 
     const ListIterator iterator(datas);
@@ -453,11 +501,10 @@ Group IDevice::autoDetectDeviceToolsRecipe(ToolDetectionLogger logger)
         if (logger)
             logger.logTopLevel(Tr::tr("Searching for %1...").arg(iterator->label));
         const FilePaths detectionPaths = *searchPaths;
-        const FilePath deviceRootPath = device->rootPath();
-        const auto searchForTools = [deviceRootPath,
-                                     detectionPaths](Data data, IDeviceConstPtr device) -> Data {
+        const auto searchForTools = [detectionPaths](Data data, IDeviceConstPtr device) -> Data {
+            FilePaths candidates;
             for (const FilePath &pattern : std::as_const(data.patterns)) {
-                FilePaths candidates = Utils::filtered(
+                candidates += Utils::filtered(
                     pattern.searchAllInDirectories(detectionPaths), [&](const FilePath &toolPath) {
                         // We assume that check() is thread safe to call. check() is a
                         // predicate here: a failed result just means the candidate does
@@ -465,17 +512,10 @@ Group IDevice::autoDetectDeviceToolsRecipe(ToolDetectionLogger logger)
                         // the OS), so filter it out silently rather than asserting.
                         return bool(data.factory->check(device, toolPath));
                     });
-                candidates = Utils::transform(candidates, [deviceRootPath](const FilePath &path) {
-                    if (path.isChildOf(deviceRootPath))
-                        return FilePath::fromPathPart(path.path());
-                    return path;
-                });
-                data.candidates.append(candidates);
             }
-            if (!data.currentValue.isEmpty()) {
-                if (!data.currentValue.isExecutableFile())
-                    data.currentValue.clear();
-            }
+            data.candidates = candidates.uniqueExecutables();
+            if (!data.currentValue.isEmpty() && !data.currentValue.isExecutableFile())
+                data.currentValue.clear();
             return data;
         };
 
@@ -502,15 +542,19 @@ Group IDevice::autoDetectDeviceToolsRecipe(ToolDetectionLogger logger)
             return FilePath{};
         }();
 
-        toolAspect->setValue(newValue);
+        // A tool that is still there stays as written if that uses macros.
+        const QString written = toolAspect->value();
+        if (data.currentValue.isEmpty() || toolAspect->macroExpander()->expand(written) == written)
+            toolAspect->setToolPath(newValue);
 
         if (logger) {
-            if (newValue.isEmpty()) {
+            const QString storedValue = toolAspect->value();
+            if (storedValue.isEmpty()) {
                 //: %1 = tool name
                 logger.logItem(Tr::tr("%1: not found").arg(data.label));
             } else {
                 //: %1 = tool name, %2 = tool path
-                logger.logItem(Tr::tr("%1: %2").arg(data.label, newValue.toUserOutput()));
+                logger.logItem(Tr::tr("%1: %2").arg(data.label, storedValue));
             }
         }
     };
@@ -542,20 +586,25 @@ DeviceToolAspect *DeviceToolAspectFactory::createAspect(const DeviceConstRef &de
     toolAspect->setToolDisplayName(m_displayName);
     toolAspect->setPlaceHolderText(Tr::tr("Leave empty to look up executable in PATH"));
     toolAspect->setHistoryCompleter(m_toolId.name());
+    const FilePath rootPath = device.lock()->rootPath();
     toolAspect->setValidationFunction(
-        [device, checker = m_checker](const QString &newValue) -> FancyLineEdit::AsyncValidationFuture {
-            return asyncRun([device, checker, newValue]() -> Result<QString> {
+        [toolAspect, device, rootPath, checker = m_checker](
+            const QString &newValue) -> FancyLineEdit::AsyncValidationFuture {
+            const QString expanded = toolAspect->macroExpander()->expand(newValue);
+            return asyncRun([device, rootPath, checker, newValue, expanded]() -> Result<QString> {
                 if (!checker)
                     return newValue;
-                FilePath path = FilePath::fromUserInput(newValue);
+                FilePath path = FilePath::fromUserInput(expanded);
+                if (!path.isEmpty() && path.isLocal())
+                    path = rootPath.withNewPath(path.path());
                 Result<> result = checker(device, path);
-                return result ? newValue : result.error();
+                return result ? Result<QString>(newValue) : ResultError(result.error());
             });
         });
 
     toolAspect->setAllowPathFromDevice(true);
     toolAspect->setExpectedKind(PathChooserKind::ExistingCommand);
-    toolAspect->setBaseDirectory(device.lock()->rootPath());
+    toolAspect->setBaseDirectory(rootPath);
     toolAspect->setToolType(m_toolType);
     return toolAspect;
 }
@@ -1312,12 +1361,7 @@ FilePath IDevice::deviceToolPath(Id toolId) const
 {
     DeviceToolAspect *toolAspect = d->deviceToolAspects.value(toolId);
     QTC_ASSERT(toolAspect, return {});
-    FilePath filePath = (*toolAspect)();
-    if (filePath.isEmpty())
-        return {};
-    if (filePath.isLocal())
-        return rootPath().withNewMappedPath(filePath);
-    return filePath;
+    return toolAspect->toolPath();
 }
 
 FilePath IDevice::deviceToolPath(Id toolId, const FilePath &deviceHint)
@@ -1426,8 +1470,61 @@ void IDevice::runAutoDetect(
     const ToolDetectionLogger &logger,
     const std::function<void()> &onDone)
 {
-    requestToolDetection(toolSearchPaths(), logger);
-    GlobalTaskTree::start(autoDetectDeviceToolsRecipe(logger), {}, onDone);
+    // The tool handlers and the recipe below search independently of each
+    // other, and both belong to this detection: it is done when the last of
+    // them is, not when the faster half is.
+    const quint64 token = startToolDetection(toolSearchPaths(), logger);
+    registerToolDetectionTask(token);
+    d->toolDetectionDone = onDone;
+    const auto onRecipeDone = [self = shared_from_this(), token] {
+        self->deregisterToolDetectionTask(token);
+    };
+    GlobalTaskTree::start(autoDetectDeviceToolsRecipe(logger), {}, onRecipeDone);
+    deregisterToolDetectionTask(token);
+}
+
+// Only a device offering kit creation gets kits out of the detection itself, so
+// they are created here when the device has none.
+void IDevice::detectToolsAndKits(
+    const std::function<void(const Result<QList<Kit *>> &)> &callback)
+{
+    const IDevice::Ptr self = shared_from_this();
+
+    const auto reportKits = [self, callback] {
+        const QList<Kit *> buildKits = Utils::filtered(KitManager::kits(), [self](Kit *kit) {
+            return BuildDeviceKitAspect::deviceId(kit) == self->id();
+        });
+        if (buildKits.isEmpty()) {
+            KitManager::createKitsForBuildDevice(self);
+        } else {
+            // Kits set up before the device was reachable can miss tools that are
+            // only detectable then, a CMake on the device for example, so bind the
+            // newly detected ones into the aspects that are still unset.
+            for (Kit *kit : buildKits)
+                KitManager::completeKit(kit);
+        }
+        callback(Utils::filtered(KitManager::kits(), [self](Kit *kit) {
+            return BuildDeviceKitAspect::deviceId(kit) == self->id()
+                   || RunDeviceKitAspect::deviceId(kit) == self->id();
+        }));
+    };
+
+    const auto onConnected = [self, reportKits, callback](const Result<> &res) {
+        if (!res)
+            callback(ResultError(res.error()));
+        else
+            self->runAutoDetect({}, reportKits);
+    };
+
+    tryToConnect({Utils::shutdownGuard(), onConnected});
+}
+
+void IDevice::aboutToBeRemoved() const
+{
+    QTaskTree tree(removeDetectedKitsRecipe(shared_from_this(), [](const QString &msg) {
+        Core::MessageManager::writeSilently(msg);
+    }));
+    tree.runBlocking();
 }
 
 FilePath IDevice::rootPath() const

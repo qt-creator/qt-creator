@@ -167,11 +167,23 @@ public:
     bool isInAltScreen();
     bool isBracketedPasteEnabled() const;
 
+    // Whether the application is composing a frame it has asked to be shown
+    // all at once (DEC mode 2026). While it is, no invalidated() is emitted,
+    // and a view must not paint what it has: cursorChanged() and
+    // fullSizeChanged() still report, because they carry state a consumer has
+    // to keep, but the cells they describe are half of a frame.
+    bool isSynchronizedUpdateActive() const;
+
 signals:
+    // A synchronized update holds this back for the length of the frame, and
+    // reports all of it when the update ends. What is emitted then was merged
+    // over the whole frame, against a scrollback that scrolled in between, so
+    // repaint all of what is on screen rather than only the rows it names.
     void invalidated(QRect grid);
     void fullSizeChanged(QSize newSize);
     void cursorChanged(Cursor oldCursor, Cursor newCursor);
     void altscreenChanged(bool altScreen);
+    void synchronizedUpdateChanged(bool active);
     void unscroll();
     void cleared();
 

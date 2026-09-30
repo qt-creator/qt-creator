@@ -321,6 +321,20 @@ endfunction()
         mylib.cpp mylib.h
     )
 #]=]
+
+# Qt Creator's generated headers and unity-style translation units routinely
+# hold more sections than the object format takes by default, which MSVC and
+# MinGW's assembler both reject with a fatal error. Every library, plugin,
+# and test built through this file needs the higher limit, so it is set here
+# once instead of per target.
+function(qtc_enable_bigobj target)
+  if (MSVC)
+    target_compile_options(${target} PRIVATE /bigobj)
+  elseif (MINGW)
+    target_compile_options(${target} PRIVATE "-Wa,-mbig-obj")
+  endif()
+endfunction()
+
 function(add_qtc_library name)
   set(opt_args
     STATIC
@@ -393,10 +407,19 @@ function(add_qtc_library name)
     set(_library_enabled OFF)
   endif()
 
+  set(skip_translation OFF)
+  if (_arg_SKIP_TRANSLATION)
+    set(skip_translation ON)
+    set_property(GLOBAL PROPERTY "_qtc_${name}_skip_translation" ON)
+  endif()
+
   if(DEFINED _arg_FEATURE_INFO)
     add_feature_info("Library ${name}" _library_enabled "${_extra_text}")
   endif()
   if (NOT _library_enabled)
+    if (NOT skip_translation)
+      qtc_collect_translation_sources(SOURCES ${_arg_SOURCES} SOURCES_PREFIX "${_arg_SOURCES_PREFIX}")
+    endif()
     return()
   endif()
 
@@ -410,6 +433,7 @@ function(add_qtc_library name)
 
   add_library(${name} ${library_type})
   add_library(QtCreator::${name} ALIAS ${name})
+  qtc_enable_bigobj(${name})
 
   if (${name} MATCHES "^[^0-9-]+$")
     if (QTC_STATIC_BUILD)
@@ -469,11 +493,6 @@ function(add_qtc_library name)
         "$<BUILD_INTERFACE:${public_build_interface_dir}>"
         "$<INSTALL_INTERFACE:${IDE_DEVEL_HEADER_INSTALL_PATH}/${include_dir_relative_path}>"
     )
-  endif()
-
-  set(skip_translation OFF)
-  if (_arg_SKIP_TRANSLATION)
-    set(skip_translation ON)
   endif()
 
   set(_DESTINATION "${IDE_BIN_PATH}")
@@ -913,10 +932,19 @@ function(add_qtc_plugin target_name)
     set(_plugin_enabled OFF)
   endif()
 
+  set(skip_translation OFF)
+  if (_arg_SKIP_TRANSLATION)
+    set(skip_translation ON)
+    set_property(GLOBAL PROPERTY "_qtc_${target_name}_skip_translation" ON)
+  endif()
+
   if (NOT _arg_INTERNAL_ONLY)
     add_feature_info("Plugin ${name}" _plugin_enabled "${_extra_text}")
   endif()
   if (NOT _plugin_enabled)
+    if (NOT skip_translation)
+      qtc_collect_translation_sources(SOURCES ${_arg_SOURCES})
+    endif()
     return()
   endif()
 
@@ -1019,6 +1047,7 @@ function(add_qtc_plugin target_name)
 
   add_library(${target_name} ${library_type} ${_arg_SOURCES})
   add_library(QtCreator::${target_name} ALIAS ${target_name})
+  qtc_enable_bigobj(${target_name})
 
   set_public_headers(${target_name} "${_arg_SOURCES}")
   update_resource_files_list("${_arg_SOURCES}")
@@ -1085,11 +1114,6 @@ function(add_qtc_plugin target_name)
   set(plugin_dir "${IDE_PLUGIN_PATH}")
   if (_arg_PLUGIN_PATH)
     set(plugin_dir "${_arg_PLUGIN_PATH}")
-  endif()
-
-  set(skip_translation OFF)
-  if (_arg_SKIP_TRANSLATION)
-    set(skip_translation ON)
   endif()
 
   if(NOT _arg_PLUGIN_CLASS)
@@ -1216,9 +1240,6 @@ endfunction()
 #]=]
 function(extend_qtc_plugin target_name)
   qtc_plugin_enabled(_plugin_enabled ${target_name})
-  if (NOT _plugin_enabled)
-    return()
-  endif()
 
   check_library_dependencies(${_arg_DEPENDS})
   check_library_dependencies(${_arg_PUBLIC_DEPENDS})
@@ -1240,9 +1261,6 @@ endfunction()
 #]=]
 function(extend_qtc_library target_name)
   qtc_library_enabled(_library_enabled ${target_name})
-  if (NOT _library_enabled)
-    return()
-  endif()
 
   check_library_dependencies(${_arg_DEPENDS})
   check_library_dependencies(${_arg_PUBLIC_DEPENDS})
@@ -1876,6 +1894,7 @@ function(add_qtc_test name)
   file(RELATIVE_PATH _RPATH "/${IDE_BIN_PATH}" "/${IDE_LIBRARY_PATH}")
 
   add_executable(${name} ${_arg_SOURCES})
+  qtc_enable_bigobj(${name})
 
   extend_qtc_target(${name}
     DEPENDS ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}

@@ -110,5 +110,7 @@ private:
     QSet<ExpandData> m_toExpand;
 };
 
+QObject *createProjectModelTest();
+
 } // namespace Internal
 } // namespace ProjectExplorer

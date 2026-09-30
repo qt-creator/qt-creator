@@ -6,12 +6,16 @@
 #include "../resourceeditortr.h"
 #include "resourcefile_p.h"
 
+#include <coreplugin/fileutils.h>
 #include <coreplugin/find/itemviewfind.h>
 
 #include <utils/aggregate.h>
+#include <utils/algorithm.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
+#include <utils/widgets.h>
 
+#include <QCheckBox>
 #include <QDebug>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -25,6 +29,9 @@
 #include <QScopedPointer>
 #include <QString>
 #include <QUndoCommand>
+
+#include <algorithm>
+#include <utility>
 
 using namespace Utils;
 
@@ -56,6 +63,8 @@ public:
     bool resourceDragEnabled() const;
 
     void findSamePlacePostDeletionModelIndex(int &row, QModelIndex &parent) const;
+    QList<QModelIndex> selectedEntriesInViewOrder() const;
+    FilePaths existingFilesOf(const QList<QModelIndex> &indexes) const;
     EntryBackup *removeEntry(const QModelIndex &index);
     QStringList existingFilesSubtracted(int prefixIndex, const QStringList &fileNames) const;
     void addFiles(int prefixIndex, const QStringList &fileNames, int cursorFile,
@@ -318,6 +327,7 @@ ResourceView::ResourceView(RelativeResourceModel *model, QUndoStack *history, QW
     advanceMergeId();
     setModel(m_qrcModel);
     setContextMenuPolicy(Qt::CustomContextMenu);
+    setSelectionMode(ExtendedSelection);
     setEditTriggers(EditKeyPressed);
     setFrameStyle(QFrame::NoFrame);
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
@@ -398,6 +408,45 @@ void ResourceView::findSamePlacePostDeletionModelIndex(int &row, QModelIndex &pa
             }
         }
     }
+}
+
+// The selected entries from top to bottom, which is the order
+// RemoveMultipleEntryCommand expects. Files below a selected prefix are
+// dropped: removing the prefix removes them anyway.
+QList<QModelIndex> ResourceView::selectedEntriesInViewOrder() const
+{
+    const auto viewOrderKey = [this](const QModelIndex &index) {
+        if (isPrefix(index))
+            return std::make_pair(index.row(), -1);
+        return std::make_pair(index.parent().row(), index.row());
+    };
+
+    QList<QModelIndex> selected = selectionModel()->selectedRows();
+    std::sort(selected.begin(), selected.end(),
+              [&](const QModelIndex &a, const QModelIndex &b) {
+                  return viewOrderKey(a) < viewOrderKey(b);
+              });
+
+    QList<QModelIndex> result;
+    for (const QModelIndex &index : std::as_const(selected)) {
+        if (!isPrefix(index) && selected.contains(index.parent()))
+            continue;
+        result.append(index);
+    }
+    return result;
+}
+
+FilePaths ResourceView::existingFilesOf(const QList<QModelIndex> &indexes) const
+{
+    FilePaths result;
+    for (const QModelIndex &index : indexes) {
+        if (isPrefix(index))
+            continue;
+        const FilePath filePath = m_qrcModel->file(index);
+        if (filePath.exists())
+            result.append(filePath);
+    }
+    return result;
 }
 
 EntryBackup * ResourceView::removeEntry(const QModelIndex &index)
@@ -673,6 +722,8 @@ QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
     connect(m_treeview, &ResourceView::removeItem, this, &QrcEditor::onRemove);
     connect(m_treeview->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &QrcEditor::updateCurrent);
+    connect(m_treeview->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &QrcEditor::updateCurrent);
     connect(m_treeview, &ResourceView::itemActivated, this, &QrcEditor::itemActivated);
     connect(m_treeview, &ResourceView::contextMenuShown, this, &QrcEditor::showContextMenu);
     m_treeview->setFocus();
@@ -728,9 +779,12 @@ void QrcEditor::refresh()
 // to the alias/prefix/language edit controls
 void QrcEditor::updateCurrent()
 {
-    const bool isValid = m_treeview->currentIndex().isValid();
-    const bool isPrefix = m_treeview->isPrefix(m_treeview->currentIndex()) && isValid;
-    const bool isFile = !isPrefix && isValid;
+    // The property fields edit the current entry, so they are only offered
+    // while that entry is also the only selected one.
+    const QModelIndexList selected = m_treeview->selectionModel()->selectedRows();
+    const bool single = selected.size() == 1 && selected.first() == m_treeview->currentIndex();
+    const bool isPrefix = single && m_treeview->isPrefix(selected.first());
+    const bool isFile = !isPrefix && single;
 
     m_aliasLabel->setEnabled(isFile);
     m_aliasText->setEnabled(isFile);
@@ -747,8 +801,8 @@ void QrcEditor::updateCurrent()
     m_currentLanguage = m_treeview->currentLanguage();
     m_languageText->setText(m_currentLanguage);
 
-    m_addFilesButton->setEnabled(isValid);
-    m_removeButton->setEnabled(isValid);
+    m_addFilesButton->setEnabled(m_treeview->currentIndex().isValid());
+    m_removeButton->setEnabled(!selected.isEmpty());
 }
 
 void QrcEditor::updateHistoryControls()
@@ -957,19 +1011,59 @@ void QrcEditor::onLanguageChanged(const QString &language)
     updateHistoryControls();
 }
 
+static bool confirmRemoval(QWidget *parent, const FilePaths &files, bool *deleteFromDisk)
+{
+    if (files.size() == 1) {
+        RemoveFileDialog dialog(files.first());
+        if (dialog.exec() != QDialog::Accepted)
+            return false;
+        *deleteFromDisk = dialog.isDeleteFileChecked();
+        return true;
+    }
+
+    QMessageBox box(QMessageBox::Question,
+                    Tr::tr("Remove Files"),
+                    Tr::tr("Remove these %n files from the resource file?", nullptr, files.size()),
+                    QMessageBox::Yes | QMessageBox::No,
+                    parent);
+    box.setDetailedText(Utils::transform(files, &FilePath::toUserOutput).join('\n'));
+    auto deleteFileCheckBox = new QCheckBox(Tr::tr("&Delete files permanently"));
+    box.setCheckBox(deleteFileCheckBox);
+    if (box.exec() != QMessageBox::Yes)
+        return false;
+    *deleteFromDisk = deleteFileCheckBox->isChecked();
+    return true;
+}
+
 // Slot for 'Remove' button
 void QrcEditor::onRemove()
 {
-    // Find current item, push and execute command
-    const QModelIndex current = m_treeview->currentIndex();
-    int afterDeletionArrayIndex = current.row();
-    QModelIndex afterDeletionParent = current.parent();
-    m_treeview->findSamePlacePostDeletionModelIndex(afterDeletionArrayIndex, afterDeletionParent);
-    QUndoCommand * const removeCommand = new RemoveEntryCommand(m_treeview, current);
-    m_history.push(removeCommand);
-    const QModelIndex afterDeletionModelIndex
-            = m_treeview->model()->index(afterDeletionArrayIndex, 0, afterDeletionParent);
-    m_treeview->setCurrentIndex(afterDeletionModelIndex);
+    const QList<QModelIndex> selected = m_treeview->selectedEntriesInViewOrder();
+    if (selected.isEmpty())
+        return;
+
+    // Ask once for the whole selection, not once per entry.
+    const FilePaths files = m_treeview->existingFilesOf(selected);
+    bool deleteFromDisk = false;
+    if (!files.isEmpty() && !confirmRemoval(this, files, &deleteFromDisk))
+        return;
+
+    if (selected.size() == 1) {
+        // A single removal keeps the cursor on the next sensible item.
+        const QModelIndex current = selected.first();
+        int afterDeletionArrayIndex = current.row();
+        QModelIndex afterDeletionParent = current.parent();
+        m_treeview->findSamePlacePostDeletionModelIndex(afterDeletionArrayIndex,
+                                                        afterDeletionParent);
+        m_history.push(new RemoveEntryCommand(m_treeview, current));
+        const QModelIndex afterDeletionModelIndex
+                = m_treeview->model()->index(afterDeletionArrayIndex, 0, afterDeletionParent);
+        m_treeview->setCurrentIndex(afterDeletionModelIndex);
+    } else {
+        m_history.push(new RemoveMultipleEntryCommand(m_treeview, selected));
+    }
+    if (!files.isEmpty())
+        Core::FileUtils::removeFiles(files, deleteFromDisk);
     updateHistoryControls();
 }
 

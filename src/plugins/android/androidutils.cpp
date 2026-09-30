@@ -12,7 +12,6 @@
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
-#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/abi.h>
@@ -29,7 +28,6 @@
 #include <QtTaskTree/QConditional>
 #include <QtTaskTree/QTcpSocketWrapper>
 
-#include <utils/async.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
@@ -37,7 +35,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
-#include <QMessageBox>
+#include <QSettings>
 #include <QTcpSocket>
 #include <QVersionNumber>
 
@@ -567,69 +565,6 @@ QStringList adbSelector(const QString &serialNumber)
     return {"-s", serialNumber};
 }
 
-static void startAvdDetached(QPromise<void> &promise, const CommandLine &avdCommand)
-{
-    qCDebug(androidManagerLog).noquote() << "Running command (startAvdDetached):" << avdCommand.toUserOutput();
-    if (!Process::startDetached(avdCommand, {}, DetachedChannelMode::Discard))
-        promise.future().cancel();
-}
-
-static CommandLine avdCommand(const QString &avdName, bool is32BitUserSpace)
-{
-    CommandLine cmd(AndroidConfig::emulatorToolPath());
-    if (is32BitUserSpace)
-        cmd.addArg("-force-32bit");
-    cmd.addArgs(AndroidConfig::emulatorArgs(), CommandLine::Raw);
-    cmd.addArgs({"-avd", avdName});
-    return cmd;
-}
-
-static ExecutableItem startAvdAsyncRecipe(const QString &avdName)
-{
-    const Storage<bool> is32Storage;
-
-    const auto onSetup = [] {
-        const FilePath emulatorPath = AndroidConfig::emulatorToolPath();
-        if (emulatorPath.exists())
-            return SetupResult::Continue;
-
-        QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Emulator Tool Is Missing"),
-                              Tr::tr("Install the missing emulator tool (%1) to the "
-                                     "installed Android SDK.").arg(emulatorPath.displayName()));
-        return SetupResult::StopWithError;
-    };
-
-    const auto onGetConfSetup = [](Process &process) {
-        if (!HostOsInfo::isLinuxHost() || QSysInfo::WordSize != 32)
-            return SetupResult::StopWithSuccess; // is64
-
-        process.setCommand({"getconf", {"LONG_BIT"}});
-        return SetupResult::Continue;
-    };
-    const auto onGetConfDone = [is32Storage](const Process &process, DoneWith result) {
-        if (result == DoneWith::Success)
-            *is32Storage = process.allOutput().trimmed() == "32";
-        else
-            *is32Storage = true;
-        return true;
-    };
-
-    const auto onAvdSetup = [avdName, is32Storage](Async<void> &async) {
-        async.setConcurrentCallData(startAvdDetached, avdCommand(avdName, *is32Storage));
-    };
-    const auto onAvdDone = [avdName] {
-        QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("AVD Start Error"),
-                              Tr::tr("Failed to start AVD emulator for \"%1\" device.").arg(avdName));
-    };
-
-    return Group {
-        is32Storage,
-        onGroupSetup(onSetup),
-        ProcessTask(onGetConfSetup, onGetConfDone),
-        AsyncTask<void>(onAvdSetup, onAvdDone, CallDoneFlag::OnError)
-    };
-}
-
 ExecutableItem serialNumberRecipe(const QString &avdName, const Storage<QString> &serialNumberStorage)
 {
     const Storage<QStringList> outputStorage;
@@ -693,72 +628,5 @@ ExecutableItem serialNumberRecipe(const QString &avdName, const Storage<QString>
         }
     };
 }
-
-static ExecutableItem isAvdBootedRecipe(const Storage<QString> &serialNumberStorage)
-{
-    const auto onSetup = [serialNumberStorage](Process &process) {
-        const CommandLine cmd{AndroidConfig::adbToolPath(),
-                              {adbSelector(*serialNumberStorage),
-                               "shell", "getprop", "init.svc.bootanim"}};
-        qCDebug(androidManagerLog).noquote() << "Running command (isAvdBooted):" << cmd.toUserOutput();
-        process.setCommand(cmd);
-    };
-    const auto onDone = [](const Process &process, DoneWith result) {
-        return result == DoneWith::Success && process.allOutput().trimmed() == "stopped";
-    };
-    return ProcessTask(onSetup, onDone);
-}
-
-static ExecutableItem waitForAvdRecipe(const QString &avdName, const Storage<QString> &serialNumberStorage)
-{
-    const Storage<QStringList> outputStorage;
-    const Storage<bool> stopStorage;
-
-    const auto onIsConnectedDone = [stopStorage, outputStorage, serialNumberStorage] {
-        const QString serialNumber = *serialNumberStorage;
-        for (const QString &line : std::as_const(*outputStorage)) {
-            // skip the daemon logs
-            if (!line.startsWith("* daemon") && line.left(line.indexOf('\t')).trimmed() == serialNumber)
-                return DoneResult::Error;
-        }
-        serialNumberStorage->clear();
-        *stopStorage = true;
-        return DoneResult::Success;
-    };
-
-    const auto onWaitForBootedDone = [stopStorage] { return !*stopStorage; };
-
-    return Group {
-        Forever {
-            stopOnSuccess,
-            serialNumberRecipe(avdName, serialNumberStorage),
-            timeoutTask(100ms)
-        }.withTimeout(30s),
-        Forever {
-            stopStorage,
-            stopOnSuccess,
-            isAvdBootedRecipe(serialNumberStorage),
-            timeoutTask(100ms),
-            Group {
-                outputStorage,
-                AndroidConfig::devicesCommandOutputRecipe(outputStorage),
-                onGroupDone(onIsConnectedDone, CallDoneFlag::OnSuccess)
-            },
-            onGroupDone(onWaitForBootedDone)
-        }.withTimeout(120s)
-    };
-}
-
-ExecutableItem startAvdRecipe(const QString &avdName, const Storage<QString> &serialNumberStorage)
-{
-    return Group {
-        If (serialNumberRecipe(avdName, serialNumberStorage) || startAvdAsyncRecipe(avdName)) >> Then {
-            waitForAvdRecipe(avdName, serialNumberStorage)
-        } >> Else {
-            errorItem
-        }
-    };
-}
-
 
 } // namespace Android::Internal

@@ -10739,11 +10739,12 @@ void FakeVimHandler::Private::substituteConfirmedMatch()
     const int column = c.column;
     int matchLength = 0;
     const std::function<bool(int, int)> allowed
-        = [this, &c, &block, column, &matchLength](int start, int end) {
+        = [this, &block, column, &matchLength](int start, int end) {
               if (start != column)
                   return false;
-              if (c.wanted.isSet()
-                      && !positionAllowed(c.wanted, block.position() + start,
+              if (g.substituteConfirm.wanted.isSet()
+                      && !positionAllowed(g.substituteConfirm.wanted,
+                                          block.position() + start,
                                           block.position() + end)) {
                   return false;
               }

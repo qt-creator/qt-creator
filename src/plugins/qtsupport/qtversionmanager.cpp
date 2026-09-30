@@ -123,7 +123,7 @@ public:
     bool restoreQtVersions();
     void restoreVersionsWithUnknownType();
     void findSystemQt(const IDeviceConstPtr &device);
-    void addQtVersionsFromFilePaths(const FilePaths &filePaths);
+    void addQtVersionsFromFilePaths(const FilePaths &filePaths, const QString &sourceId);
     void handleDeviceToolDetectionRequest(
         Id deviceId, const FilePaths &searchPaths, quint64 token,
         const ToolDetectionLogger &logger);
@@ -537,10 +537,11 @@ void QtVersionManagerImpl::findSystemQt(const IDeviceConstPtr &device)
 
     FilePaths systemQMakes = findQtsInEnvironment(device->systemEnvironment(), device->rootPath());
     systemQMakes.append(gatherQmakePathsFromQtChooser());
-    addQtVersionsFromFilePaths(systemQMakes);
+    addQtVersionsFromFilePaths(systemQMakes, "PATH");
 }
 
-void QtVersionManagerImpl::addQtVersionsFromFilePaths(const FilePaths &filePaths)
+void QtVersionManagerImpl::addQtVersionsFromFilePaths(
+    const FilePaths &filePaths, const QString &sourceId)
 {
     for (const FilePath &qmakePath : filePaths) {
         if (isQtChooser(qmakePath))
@@ -551,7 +552,7 @@ void QtVersionManagerImpl::addQtVersionsFromFilePaths(const FilePaths &filePaths
         if (contains(m_versions, isSameQmake))
             continue;
         QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(
-            qmakePath, {DetectionSource::Manual, "PATH"});
+            qmakePath, {DetectionSource::Manual, sourceId});
         if (version)
             m_versions.insert(version->uniqueId(), version);
     }
@@ -566,13 +567,14 @@ void QtVersionManagerImpl::handleDeviceToolDetectionRequest(
     dev->registerToolDetectionTask(token);
     if (logger)
         logger.logTopLevel(Tr::tr("Searching for Qt versions..."));
+    const QString sourceId = dev->rootPath().isLocal() ? QString("PATH") : deviceId.toString();
     const QFuture<FilePaths> future = Utils::asyncRun(findQtsInPaths, searchPaths);
-    const auto cont = [this, deviceId, token, logger](const QFuture<FilePaths> &f) {
+    const auto cont = [this, deviceId, sourceId, token, logger](const QFuture<FilePaths> &f) {
         const IDevicePtr dev = DeviceManager::find(deviceId);
         if (!dev)
             return;
         const VersionMap qtVersions = m_versions;
-        addQtVersionsFromFilePaths(f.result());
+        addQtVersionsFromFilePaths(f.result(), sourceId);
         if (qtVersions != m_versions) {
             if (logger) {
                 for (auto it = m_versions.cbegin(); it != m_versions.cend(); ++it) {

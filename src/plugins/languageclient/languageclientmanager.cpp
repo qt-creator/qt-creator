@@ -615,43 +615,18 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
 
 static QList<BaseSettings *> sortedSettingsForDocument(Core::IDocument *document)
 {
-    const QList<BaseSettings *> prefilteredSettings
-        = Utils::filtered(LanguageClientManager::currentSettings(), [](BaseSettings *setting) {
-              return setting->isValid() && setting->enabled();
-          });
-
-    const Utils::MimeType mimeType = Utils::mimeTypeForName(document->mimeType());
-    if (mimeType.isValid()) {
-        // further prefilter to respect excludes
-        const QList<BaseSettings *> withoutExplictExcludes
-            = Utils::filtered(prefilteredSettings, [mimeType](BaseSettings *setting) {
-                return !setting->excludeMimeTypes().contains(mimeType.name());
-            });
-
-        QList<BaseSettings *> result;
-        // prefer exact mime type matches
-        result << Utils::filtered(withoutExplictExcludes, [mimeType](BaseSettings *setting) {
-            return setting->languageFilter().mimeTypes.contains(mimeType.name());
-        });
-
-        // add filePath matches next
-        result << Utils::filtered(withoutExplictExcludes, [document](BaseSettings *setting) {
-            return setting->languageFilter().isSupported(document->filePath(), {});
-        });
-
-        // add parent mime type matches last
-        Utils::visitMimeParents(mimeType, [&](const Utils::MimeType &mt) -> bool {
-            result << Utils::filtered(withoutExplictExcludes, [mt](BaseSettings *setting) {
-                return setting->languageFilter().mimeTypes.contains(mt.name());
-            });
-            return true; // continue
-        });
-        return Utils::filteredUnique(result);
+    using Match = std::pair<LanguageFilter::MatchPriority, BaseSettings *>;
+    QList<Match> matches;
+    for (BaseSettings *setting : LanguageClientManager::currentSettings()) {
+        if (!setting->isValid() || !setting->enabled())
+            continue;
+        const LanguageFilter::MatchPriority priority
+            = setting->languageFilter().matchPriority(document->filePath(), document->mimeType());
+        if (priority != LanguageFilter::NoMatch)
+            matches.append({priority, setting});
     }
-
-    return Utils::filtered(prefilteredSettings, [document](BaseSettings *setting) {
-        return setting->languageFilter().isSupported(document);
-    });
+    Utils::sort(matches, &Match::first);
+    return Utils::transform(matches, &Match::second);
 }
 
 void LanguageClientManager::documentOpenedForProject(

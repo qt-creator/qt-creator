@@ -14,8 +14,10 @@
 
 QT_BEGIN_NAMESPACE
 class QLabel;
+class QNativeGestureEvent;
 class QScrollArea;
 class QVBoxLayout;
+class QWheelEvent;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -97,7 +99,10 @@ private:
     void rebuildTracks();
     void updateNotes();
     void applyHorizontalPan(int dx);
-    void applyZoom(double cursorX, int dy);
+    void applyVerticalPan(int dy);
+    void applyZoom(double cursorX, double factor);
+    void handleWheel(QWheelEvent *event);
+    bool handleNativeGesture(QNativeGestureEvent *event);
     void recenterOnItem(int modelIndex, int itemIndex);
     void onItemHovered(int modelIndex, int itemIndex);
     void showItemDetails(int modelIndex, int itemIndex);

@@ -3,6 +3,7 @@
 
 #include "mcpcommands_test.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
@@ -25,6 +26,8 @@
 #include <QStandardItemModel>
 #include <QTest>
 #include <QTextCursor>
+
+#include <algorithm>
 
 using namespace Utils;
 
@@ -70,7 +73,10 @@ private slots:
     void testCursorPositionCutsALongLine();
     void testCursorPositionFollowsTheMainCursor();
     void testCursorPositionWithoutAnEditor();
+    void testGetTextLeavesTheSelectionAlone();
+    void testGetTextReadsAnEditorWithoutAFilePath();
     void testClickItemContextMenuKeepsAMultiSelection();
+    void testClickItemShiftExtendsTheSelection();
     void testActivateMenuItemGoesThroughTheMenu();
     void testActivateMenuItemRefusesADisabledItem();
 
@@ -330,6 +336,54 @@ void McpCommandsTest::testCursorPositionWithoutAnEditor()
     QVERIFY(!result.contains("line"));
 }
 
+void McpCommandsTest::testGetTextLeavesTheSelectionAlone()
+{
+    TemporaryDirectory dir("qtc-mcpcommands-XXXXXX");
+    QVERIFY(dir.isValid());
+    const QScopeGuard closeEditors([] { Core::EditorManager::closeAllEditors(false); });
+    TextEditor::TextEditorWidget *widget = openText(dir, "alpha one\nbeta two\ngamma three\n");
+    QVERIFY(widget);
+
+    QTextCursor cursor(widget->document());
+    cursor.setPosition(11);
+    cursor.setPosition(23, QTextCursor::KeepAnchor);
+    widget->setTextCursor(cursor);
+
+    QString error;
+    const QJsonObject whole = callTool("editor_get_text", {}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(whole.value("reason").toString(), QString("ok"));
+    QCOMPARE(whole.value("path").toString(), dir.filePath("selection.txt").toUserOutput());
+    QCOMPARE(whole.value("text").toString(), QString("alpha one\nbeta two\ngamma three\n"));
+
+    const QJsonObject range
+        = callTool("editor_get_text", {{"start_line", 2}, {"end_line", 3}}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(range.value("text").toString(), QString("beta two\ngamma three"));
+
+    QCOMPARE(widget->textCursor().anchor(), 11);
+    QCOMPARE(widget->textCursor().position(), 23);
+}
+
+void McpCommandsTest::testGetTextReadsAnEditorWithoutAFilePath()
+{
+    const QScopeGuard closeEditors([] { Core::EditorManager::closeAllEditors(false); });
+    QString title = "McpCommandsTest Scratch";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, "unsaved scratch\ncontent");
+    QVERIFY(editor);
+    QVERIFY(editor->document()->filePath().isEmpty());
+    QCOMPARE(Core::EditorManager::currentEditor(), editor);
+
+    QString error;
+    const QJsonObject result = callTool("editor_get_text", {}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(result.value("reason").toString(), QString("ok"));
+    QVERIFY(result.value("path").toString().isEmpty());
+    QCOMPARE(result.value("display_name").toString(), editor->document()->displayName());
+    QCOMPARE(result.value("text").toString(), QString("unsaved scratch\ncontent"));
+}
+
 void McpCommandsTest::testClickItemContextMenuKeepsAMultiSelection()
 {
     QStandardItemModel model;
@@ -361,6 +415,43 @@ void McpCommandsTest::testClickItemContextMenuKeepsAMultiSelection()
     // so asking that row for its context menu must not reduce it to the row.
     QCOMPARE(selection->selectedIndexes().size(), 3);
     QCOMPARE(view.currentIndex(), model.index(1, 0));
+}
+
+void McpCommandsTest::testClickItemShiftExtendsTheSelection()
+{
+    QStandardItemModel model;
+    for (const char *label : {"alpha", "beta", "gamma", "delta"})
+        model.appendRow(new QStandardItem(QLatin1String(label)));
+
+    QListView view;
+    view.setObjectName("mcpCommandsTestShiftList");
+    view.setModel(&model);
+    view.setSelectionMode(QAbstractItemView::ExtendedSelection);
+    view.resize(200, 200);
+    view.show();
+    const QScopeGuard hideView([&view] { view.hide(); });
+
+    QString error;
+    callTool("ui_click_item", {{"object_name", "mcpCommandsTestShiftList"}, {"item", "beta"}},
+             &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    callTool(
+        "ui_click_item",
+        {{"object_name", "mcpCommandsTestShiftList"}, {"item", "delta"}, {"modifiers", "shift"}},
+        &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+
+    // The view reads the modifier state from QGuiApplication, not from the
+    // mouse event, when it decides whether to keep the selection anchor. A
+    // click that leaves that state alone selects the clicked row only.
+    QList<int> rows;
+    for (const QModelIndex &index : view.selectionModel()->selectedRows())
+        rows.append(index.row());
+    std::sort(rows.begin(), rows.end());
+    QCOMPARE(rows, QList<int>({1, 2, 3}));
+
+    // And the keys must not stay down for whatever runs next.
+    QCOMPARE(QGuiApplication::keyboardModifiers(), Qt::NoModifier);
 }
 
 void McpCommandsTest::testActivateMenuItemGoesThroughTheMenu()

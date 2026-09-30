@@ -15,7 +15,6 @@
 #include <utils/stylehelper.h>
 
 QT_BEGIN_NAMESPACE
-class QWheelEvent;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -53,7 +52,7 @@ TRACING_EXPORT TrackBackend trackBackendOverride();
 TRACING_EXPORT TrackBackend resolvedTrackBackend();
 
 // Backend-independent core of the track area: track bookkeeping, the per-event
-// attribute cache, hit testing, mouse/wheel interaction and the range-dependent
+// attribute cache, hit testing, mouse interaction and the range-dependent
 // *neutral* geometry (plain rects/circles, no backend path type). The two
 // concrete widgets - TrackPainterGpu (QCanvasPainter/RHI) and TrackPainterRaster
 // (QPainter) - derive from this together with their respective QWidget base and
@@ -172,7 +171,6 @@ protected:
     void handleMousePress(int button, const QPoint &globalPos);
     void handleMouseMove(int buttons, const QPoint &localPos, const QPoint &globalPos);
     void handleMouseRelease(int button, const QPoint &localPos);
-    void handleWheel(QWheelEvent *event);
     void handleLeave();
 
     // --- Hooks the concrete backends implement -------------------------------
@@ -183,7 +181,6 @@ protected:
     virtual void notifyItemClicked(int trackIndex, int itemIndex) = 0;
     virtual void notifyHorizontalPan(int dx) = 0;
     virtual void notifyVerticalPan(int dy) = 0;
-    virtual void notifyZoomRequested(double cursorX, int dy) = 0;
 
     // Convenience accessors onto the concrete widget.
     int viewWidth() const;

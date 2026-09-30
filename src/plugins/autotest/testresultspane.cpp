@@ -14,6 +14,7 @@
 #include "testrunner.h"
 #include "testsettings.h"
 #include "testtreeitem.h"
+#include "testtreemodel.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -361,6 +362,9 @@ void TestResultsPane::clearContents()
     m_textOutput->reset();
     m_textOutput->clear();
     clearMarks();
+    auto treeModel = TestTreeModel::instance();
+    QTC_ASSERT(treeModel, return);
+    treeModel->hideFailedMarks();
 }
 
 void TestResultsPane::setFocus()
@@ -593,7 +597,7 @@ bool TestResultsPane::eventFilter(QObject *object, QEvent *event)
 void TestResultsPane::onTestRunStarted()
 {
     m_testRunning = true;
-    m_stopTestRun->setEnabled(true);
+    m_stopTestRun->setEnabled(TestRunner::instance()->isCancelable());
     updateMenuItemsEnabledState();
     m_summaryWidget->setVisible(false);
 }

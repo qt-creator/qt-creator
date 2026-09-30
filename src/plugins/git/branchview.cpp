@@ -281,7 +281,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
             contextMenu.addAction(Tr::tr("Re&name..."), this, &BranchView::rename);
         if (!currentSelected)
             contextMenu.addAction(Tr::tr("&Checkout"), this, &BranchView::checkout);
-        if (isLocal && !trackingName.isEmpty()) {
+        if (isLocal && currentSelected && !trackingName.isEmpty()) {
             contextMenu.addAction(Tr::tr("Stop tracking \"%1\"").arg(trackingName),
                                   this, [this] { m_model->setRemoteTracking({}); });
         }

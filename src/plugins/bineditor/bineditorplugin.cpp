@@ -59,7 +59,6 @@
 #include <QString>
 #include <QTextDocument>
 #include <QTextFormat>
-#include <QtMath>
 #include <QToolBar>
 #include <QToolTip>
 #include <QVariant>
@@ -3074,13 +3073,11 @@ private slots:
                 return std::abs(StyleHelper::oklab(color).lightness - backgroundLightness);
             };
             for (int nibble = 0; nibble < 16; ++nibble) {
-                const StyleHelper::OklabColor lab =
-                    StyleHelper::oklab(widget.byteColor(uchar(nibble * 16 + 1)));
-                const double hue = qRadiansToDegrees(std::atan2(lab.b, lab.a));
-                const double chroma = std::hypot(lab.a, lab.b);
+                const StyleHelper::OklchColor lch =
+                    StyleHelper::oklch(widget.byteColor(uchar(nibble * 16 + 1)));
                 QVERIFY(distance(widget.byteColor(uchar(nibble * 16 + 1))) > 0.25);
-                QVERIFY(chroma > StyleHelper::oklchFittingChroma(
-                                     {lab.lightness, StyleHelper::oklchFullChroma, hue})
+                QVERIFY(lch.chroma > StyleHelper::oklchFittingChroma(
+                                     {lch.lightness, StyleHelper::oklchFullChroma, lch.hue})
                                      - 0.01);
                 // The full byte stands out, so it reaches past every hue.
                 QVERIFY(distance(widget.byteColor(0xff)) > distance(widget.byteColor(

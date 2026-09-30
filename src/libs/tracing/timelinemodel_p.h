@@ -18,15 +18,22 @@ struct HueLookupTable {
     QRgb operator[](int hue) const { return table[((hue % kHueRange) + kHueRange) % kHueRange]; }
 };
 
+struct QualityColorLookupTable {
+    static constexpr int colorsCount = 64;
+    QRgb table[colorsCount];
+    QualityColorLookupTable();
+
+    QRgb operator()(double fraction) const
+    {
+        const int index = qBound(0, int(colorsCount * fraction), colorsCount - 1);
+        return table[index];
+    }
+};
+
 class TRACING_EXPORT TimelineModel::TimelineModelPrivate {
 public:
 
     static const int DefaultRowHeight = 30;
-
-    // BoxColorProperties
-    static const int SelectionIdHueMultiplier = 25;
-    static const int FractionHueMultiplier = 96;
-    static const int FractionHueMininimum = 10;
 
     struct Range {
         Range() : start(-1), duration(-1), selectionId(-1), parent(-1), endIndex(-1) {}

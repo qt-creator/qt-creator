@@ -40,7 +40,6 @@ signals:
     void itemClicked(int trackIndex, int itemIndex);
     void horizontalPan(int dx);
     void verticalPan(int dy);
-    void zoomRequested(double cursorX, int dy);
 
     // CPU time spent in this paintEvent(), for the frame-time overlay. This
     // single widget renders all tracks, so one paint is the full-frame time.
@@ -51,7 +50,6 @@ protected:
     void mouseMoveEvent(QMouseEvent *) override;
     void mousePressEvent(QMouseEvent *) override;
     void mouseReleaseEvent(QMouseEvent *) override;
-    void wheelEvent(QWheelEvent *) override;
     void leaveEvent(QEvent *) override;
 
     void invalidateBackendGeometry() override { m_geometryValid = false; }
@@ -61,8 +59,6 @@ protected:
     { emit itemClicked(trackIndex, itemIndex); }
     void notifyHorizontalPan(int dx) override { emit horizontalPan(dx); }
     void notifyVerticalPan(int dy) override { emit verticalPan(dy); }
-    void notifyZoomRequested(double cursorX, int dy) override
-    { emit zoomRequested(cursorX, dy); }
 
 private:
     // Cached, range-dependent fill geometry for one track, built once per rebuild

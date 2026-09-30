@@ -25,12 +25,17 @@ CppParser::CppParser(ITestFramework *framework)
 {
 }
 
-void CppParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
+void CppParser::fillContext(CppParseContext &context)
 {
-    Q_UNUSED(filesToParse)
-    Q_UNUSED(fullParse)
-    m_cppSnapshot = CppEditor::CppModelManager::snapshot();
-    m_workingCopy = CppEditor::CppModelManager::workingCopy();
+    context.cppSnapshot = CppEditor::CppModelManager::snapshot();
+    context.workingCopy = CppEditor::CppModelManager::workingCopy();
+}
+
+CppParseContextPtr CppParser::createContext()
+{
+    const auto context = std::make_shared<CppParseContext>();
+    fillContext(*context);
+    return context;
 }
 
 bool CppParser::selectedForBuilding(const FilePath &fileName)
@@ -41,10 +46,10 @@ bool CppParser::selectedForBuilding(const FilePath &fileName)
     return !projParts.isEmpty() && projParts.at(0)->selectedForBuilding;
 }
 
-QByteArray CppParser::getFileContent(const FilePath &filePath) const
+QByteArray CppParser::getFileContent(const CppParseContext &context, const FilePath &filePath)
 {
     QByteArray fileContent;
-    if (const auto source = m_workingCopy.source(filePath)) {
+    if (const auto source = context.workingCopy.source(filePath)) {
         fileContent = *source;
     } else {
         const TextEncoding fallbackEncoding = Core::EditorManager::defaultTextEncoding();
@@ -128,17 +133,16 @@ std::optional<QSet<FilePath>> CppParser::filesContainingMacro(const QByteArray &
     return std::make_optional(result);
 }
 
-void CppParser::release()
+void CppParser::clearCaches()
 {
-    m_cppSnapshot = CPlusPlus::Snapshot();
-    m_workingCopy = CppEditor::WorkingCopy();
     QMutexLocker l(s_cacheMutex());
     s_pchLookupCache.clear();
 }
 
-CPlusPlus::Document::Ptr CppParser::document(const FilePath &fileName)
+CPlusPlus::Document::Ptr CppParser::document(const CppParseContext &context,
+                                             const FilePath &fileName)
 {
-    return selectedForBuilding(fileName) ? m_cppSnapshot.document(fileName) : nullptr;
+    return selectedForBuilding(fileName) ? context.cppSnapshot.document(fileName) : nullptr;
 }
 
 } // namespace Autotest

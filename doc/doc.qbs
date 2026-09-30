@@ -50,6 +50,26 @@ Project {
         }
     }
 
+    QtcDocumentation {
+        name: "qtprofiler doc online"
+        isOnlineDoc: true
+        mainDocConfFile: "qtprofiler/qtprofiler-online.qdocconf"
+
+        files: [
+            "qtprofiler/src/**/*",
+        ]
+    }
+
+    QtcDocumentation {
+        name: "qtprofiler doc offline"
+        isOnlineDoc: false
+        mainDocConfFile: "qtprofiler/qtprofiler.qdocconf"
+
+        files: [
+            "qtprofiler/src/**/*",
+        ]
+    }
+
     property string qbsBaseDir: project.sharedSourcesDir + "/qbs"
     property bool qbsSubModuleExists: File.exists(qbsBaseDir + "/qbs.qbs")
     Properties {

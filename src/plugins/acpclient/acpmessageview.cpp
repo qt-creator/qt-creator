@@ -1696,7 +1696,10 @@ AcpMessageView::AcpMessageView(QWidget *parent)
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
         m_autoScroll = (value >= verticalScrollBar()->maximum() - 10);
     });
-    connect(verticalScrollBar(), &QScrollBar::rangeChanged, this, &AcpMessageView::scrollToBottom);
+    connect(verticalScrollBar(), &QScrollBar::rangeChanged, this, [this] {
+        if (!sessionPickerActive())
+            scrollToBottom();
+    });
 
     m_thoughtsVisible = Core::ICore::settings()->value(SETTINGS_THOUGHTS_VISIBLE, true).toBool();
 }
@@ -1807,6 +1810,7 @@ void AcpMessageView::clear()
     m_pendingElicitationRequests.clear();
     m_toolCallGroups.clear();
     m_terminalWidgets.clear();
+    m_sessionPicker = nullptr;
     m_autoScroll = true;
 }
 
@@ -2094,10 +2098,9 @@ SessionPickerWidget *AcpMessageView::addSessionPicker()
     finishAgentMessage();
     finishToolCallGroup();
 
-    m_autoScroll = false;
-    auto *picker = new SessionPickerWidget(m_container);
-    addWidget(picker);
-    return picker;
+    m_sessionPicker = new SessionPickerWidget(m_container);
+    addWidget(m_sessionPicker);
+    return m_sessionPicker;
 }
 
 void AcpMessageView::addErrorMessage(const QString &text)
@@ -2136,6 +2139,11 @@ void AcpMessageView::scrollToBottom()
 {
     if (m_autoScroll)
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+}
+
+bool AcpMessageView::sessionPickerActive() const
+{
+    return m_sessionPicker && m_sessionPicker->isVisibleTo(m_container);
 }
 
 QWidget *AcpMessageView::wrapWithSpacer(QWidget *widget, Qt::Alignment side)

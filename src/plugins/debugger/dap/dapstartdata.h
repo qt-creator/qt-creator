@@ -5,6 +5,7 @@
 
 #include "../debuggerengineinterface.h"
 
+#include <utils/aspects.h>
 #include <utils/commandline.h>
 #include <utils/filepath.h>
 #include <utils/processinterface.h>
@@ -47,6 +48,12 @@ public:
 
 DEBUGGER_EXPORT BridgeStartData dapHostRecipe(bool loadInitFile);
 
+// How a gdb is started as a debug adapter: the interpreter it is to speak, and
+// whether it reads the init file in the user's home before it starts speaking
+// it.
+DEBUGGER_EXPORT Utils::CommandLine gdbAdapterRecipe(const Utils::FilePath &gdb,
+                                                    bool loadInitFile);
+
 // What a backend speaking a DAP-shaped protocol is started with.
 // A way to the adapter for whoever asked for the session. The backend fills
 // this in as the session comes up and empties it when the session is over, so
@@ -67,6 +74,10 @@ public:
     // then is there a session to announce; an adapter told about it earlier
     // answers out of an empty state.
     std::function<void(bool running)> reportRunning;
+
+    // Where the program stopped, and in which frame, so a follower can ask
+    // the adapter about that frame. A frame below zero says it runs again.
+    std::function<void(int frameId, const Utils::FilePath &file, int line)> reportStopped;
 };
 
 class DEBUGGER_EXPORT DapStartData
@@ -96,8 +107,15 @@ public:
     QString runAsUser;
     QList<QPair<QString, QString>> sourcePathMap;
     Utils::FilePaths sourceDirectories;
+    // Where the separately built debug information is, and where the libraries
+    // a remote target reports are to be found on this machine.
+    Utils::FilePath debugInfoLocation;
+    Utils::FilePaths solibSearchPath;
     // Unset leaves whatever the debugger itself defaults to in place.
     std::optional<bool> useDebugInfoD;
+    // Whether the inferior keeps the Windows debug heap. Unset where there is
+    // no such heap to keep, which is anywhere but Windows.
+    Utils::TriState enableHeapDebugging;
     bool breakOnMain = false;
     // Which symbol main() is: a Windows Qt application without a terminal
     // enters through qMain(), the C runtime's main() being Qt's own.
@@ -111,6 +129,12 @@ public:
     // Shutting a debug monitor (gdbserver --multi) down with the session.
     bool exitMonitorAtClose = false;
     bool intelDisassembly = false;
+    // Whether the debugger's own dumpers are used beside the Qt ones, whether
+    // its symbol index cache is, and whether a fork is followed rather than
+    // detached from.
+    bool loadSystemDumpers = false;
+    bool useIndexCache = false;
+    bool multiInferior = false;
     // Whether every command's turnaround goes into the log.
     bool logTimeStamps = false;
     bool nativeMixedDebugging = false;

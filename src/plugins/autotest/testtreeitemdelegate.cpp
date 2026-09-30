@@ -4,8 +4,8 @@
 #include "testtreeitemdelegate.h"
 
 #include "testtreeitem.h"
+#include "testtreemodel.h"
 
-#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
 #include <QPainter>
@@ -46,15 +46,13 @@ void TestTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
         }
     }
 
-    if (index.data(FailedRole).toBool()) {
+    const bool showFailed = !TestTreeModel::instance()->failedMarksHidden();
+    if (showFailed && index.data(FailedRole).toBool()) {
         opt.palette.setColor(QPalette::Text,
                              Utils::creatorColor(Utils::Theme::Token_Notification_Danger_Default));
-    } else if (index.data(FailedChildRole).toBool()) {
-        QColor faded = Utils::creatorColor(Utils::Theme::Token_Notification_Danger_Default);
-        faded.setAlpha(160);
+    } else if (showFailed && index.data(FailedChildRole).toBool()) {
         opt.palette.setColor(QPalette::Text,
-                             Utils::StyleHelper::alphaBlendedColors(opt.palette.color(QPalette::Base),
-                                                                    faded));
+                             Utils::creatorColor(Utils::Theme::OutputPanes_TestFailTextColor));
     }
 
     // paint disabled items in gray

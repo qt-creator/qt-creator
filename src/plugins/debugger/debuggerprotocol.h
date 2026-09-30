@@ -236,6 +236,17 @@ public:
 void extractGdbVersion(const QString &msg,
     int *gdbVersion, int *gdbBuildVersion, bool *isMacGdb, bool *isQnxGdb);
 
+// The listing "maint info sections" writes, as the sections of one module.
+GdbMi parseGdbModuleSections(const QString &listing, const Utils::FilePath &modulePath,
+                             bool *moduleFound = nullptr);
+
+// Where the modules in a "maint info sections" listing are loaded, spelled the
+// way the module list does, in decimal.
+GdbMi parseGdbModuleRanges(const QString &listing);
+
+// The listing "maint print msymbols" writes, as the symbols of one module.
+GdbMi parseGdbModuleSymbols(const QString &listing, const Utils::FilePath &modulePath);
+
 
 class DebuggerEncoding
 {
@@ -322,6 +333,8 @@ enum DisplayFormat
     HexFloatFormat              = 29, // Frontend internal only
     NormalizedTwoFloatFormat    = 30, // Frontend internal only
 };
+
+QString gdbRegisterTypeName(const QString &typeName);
 
 int formatToIntegerBase(int format);
 

@@ -497,13 +497,6 @@ std::optional<QtTaskTree::ExecutableItem> KitAspectFactory::removeAutoDetected(
     return std::nullopt;
 }
 
-void KitAspectFactory::listAutoDetected(
-    const QString &detectionSourceId, const LogCallback &logCallback) const
-{
-    Q_UNUSED(detectionSourceId)
-    Q_UNUSED(logCallback)
-}
-
 Result<QtTaskTree::ExecutableItem> KitAspectFactory::createAspectFromJson(
     const DetectionSource &detectionSource,
     const FilePath &rootPath,
@@ -657,19 +650,6 @@ Group removeDetectedKitsRecipe(const IDeviceConstPtr &device, const LogCallback 
         removeDetectedKitItemsRecipe(device, logCallback)
     };
     // clang-format on
-}
-
-void listAutoDetected(const IDeviceConstPtr &device, const LogCallback &logCallback)
-{
-    const QString detectionSource = device->id().toString();
-
-    for (const auto kit : KitManager::kits()) {
-        if (kit->detectionSource().id == detectionSource)
-            logCallback(Tr::tr("Kit: %1.").arg(kit->displayName()));
-    }
-
-    for (const auto &factory : KitAspectFactory::kitAspectFactories())
-        factory->listAutoDetected(detectionSource, logCallback);
 }
 
 QDebug operator<<(QDebug dbg, const DetectionSource &source)

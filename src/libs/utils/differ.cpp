@@ -1510,6 +1510,60 @@ QList<Diff> Differ::merge(const QList<Diff> &diffList)
     return squashedDiffList;
 }
 
+static bool containsDeleteAndInsert(const QList<Diff> &diffList)
+{
+    bool hasDelete = false;
+    bool hasInsert = false;
+    for (const Diff &diff : diffList) {
+        hasDelete |= diff.command == Diff::Delete;
+        hasInsert |= diff.command == Diff::Insert;
+        if (hasDelete && hasInsert)
+            return true;
+    }
+    return false;
+}
+
+static void movePartialLinePrefix(QString &source, QString &target)
+{
+    const int lineStart = source.lastIndexOf('\n') + 1;
+    if (lineStart == source.size())
+        return;
+
+    target.prepend(source.mid(lineStart));
+    source.truncate(lineStart);
+}
+
+static QList<Diff> cleanupLineBoundaries(const QList<Diff> &diffList)
+{
+    QList<Diff> result = diffList;
+    for (int i = 1; i + 1 < result.size(); ++i) {
+        Diff &edit = result[i];
+        if (edit.command == Diff::Equal || !edit.text.contains('\n'))
+            continue;
+
+        Diff &before = result[i - 1];
+        Diff &after = result[i + 1];
+        if (before.command != Diff::Equal || after.command != Diff::Equal)
+            continue;
+
+        const int beforeLineStart = before.text.lastIndexOf('\n') + 1;
+        const int editLineStart = edit.text.lastIndexOf('\n') + 1;
+        if (before.text.mid(beforeLineStart) != edit.text.mid(editLineStart))
+            continue;
+
+        movePartialLinePrefix(before.text, edit.text);
+        movePartialLinePrefix(edit.text, after.text);
+    }
+    return result;
+}
+
+QList<Diff> Differ::cleanupLineDiffSemantics(const QList<Diff> &diffList)
+{
+    if (containsDeleteAndInsert(diffList))
+        return cleanupSemantics(diffList);
+    return cleanupLineBoundaries(diffList);
+}
+
 QList<Diff> Differ::cleanupSemantics(const QList<Diff> &diffList)
 {
     struct EqualityData

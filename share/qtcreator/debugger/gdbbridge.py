@@ -199,6 +199,7 @@ class Dumper(DumperBase):
         self.nativeCallHookBreakpoint = None
         self.nativeCallHookChecked = False
         self.nativeCallHookSymbol = None
+        self.qmlToCppStepInBreakpoint = None
 
     def warn(self, message):
         print('bridgemessage={msg="%s"},' % message.replace('"', '$').encode('latin1'))
@@ -745,7 +746,63 @@ class Dumper(DumperBase):
 
             block = block.superblock
 
+        if self.allScopes:
+            self.listLocalsInAllScopes(frame, partialVar, items)
+
         return items
+
+    # gdb only reports variables of the lexical blocks enclosing the current
+    # program counter. When the user opts in, also collect variables from the
+    # other blocks of the current function (e.g. an 'if' or 'for' body not yet
+    # entered), so they show up in the Locals view. Their value is undefined
+    # until execution reaches the declaration.
+    def listLocalsInAllScopes(self, frame, partialVar, items):
+        try:
+            functionBlock = frame.block()
+        except Exception:
+            return
+        while functionBlock is not None and functionBlock.function is None:
+            functionBlock = functionBlock.superblock
+        if functionBlock is None or functionBlock.function is None:
+            return
+        try:
+            linetable = functionBlock.function.symtab.linetable()
+        except Exception:
+            return
+
+        seenNames = set(value.name for value in items)
+        handledBlocks = set()
+        for entry in linetable:
+            pc = entry.pc
+            if pc < functionBlock.start or pc >= functionBlock.end:
+                continue
+            block = gdb.block_for_pc(pc)
+            while block is not None:
+                key = (block.start, block.end)
+                if key not in handledBlocks:
+                    handledBlocks.add(key)
+                    for symbol in block:
+                        if not (symbol.is_variable or symbol.is_argument):
+                            continue
+                        name = symbol.print_name
+                        if name in ('__in_chrg', '__PRETTY_FUNCTION__'):
+                            continue
+                        if partialVar is not None and partialVar != name:
+                            continue
+                        if name in seenNames:
+                            continue
+                        try:
+                            # symbol.value() works for variables of blocks that
+                            # are not in the current scope, unlike read_var().
+                            value = self.fromFrameValue(symbol.value(frame))
+                            value.name = name
+                            items.append(value)
+                            seenNames.add(name)
+                        except Exception:
+                            pass
+                if block.function is not None:
+                    break
+                block = block.superblock
 
     def reportToken(self, args):
         pass
@@ -1245,10 +1302,23 @@ class Dumper(DumperBase):
         ns = self.qtNamespace()
         lenns = len(ns)
         strns = ('%d%s' % (lenns - 2, ns[:lenns - 2])) if lenns else ''
-        sym = '_ZN%s12QApplication8widgetAtEii' % strns
-        expr = '%s(%s,%s)' % (sym, args['x'], args['y'])
-        res = self.parseAndEvaluate(expr)
-        p = 0 if res is None else res.pointer()
+        # The overload taking two ints is inline, so the one taking a QPoint
+        # is called, with the point in memory of the inferior's own.
+        point = 'NS_6QPointE' if lenns else '6QPoint'
+        sym = '_ZN%s12QApplication8widgetAtERK%s' % (strns, point)
+        p = 0
+        buf = self.parseAndEvaluateAllowingCalls('((void *(*)(unsigned long)) malloc)(8)')
+        b = 0 if buf is None else buf.pointer()
+        if b:
+            try:
+                gdb.parse_and_eval('*(int *) 0x%x = %d' % (b, int(args['x'])))
+                gdb.parse_and_eval('*(int *) 0x%x = %d' % (b + 4, int(args['y'])))
+                res = self.parseAndEvaluateAllowingCalls(
+                    '((void *(*)(void *)) %s)((void *) 0x%x)' % (sym, b))
+                p = 0 if res is None else res.pointer()
+            except RuntimeError as error:
+                self.warn('Cannot pass the point: %s' % error)
+            self.parseAndEvaluateAllowingCalls('((void (*)(void *)) free)((void *) 0x%x)' % b)
         n = ("'%sQWidget'" % ns) if lenns else 'QWidget'
         self.reportResult('selected="0x%x",expr="(%s*)0x%x"' % (p, n, p), args)
 
@@ -1544,6 +1614,14 @@ class Dumper(DumperBase):
         if self.ensureInterpreterAvailabilityHook():
             self.pendingInterpreterBreakpoints.append(args)
 
+    def setupNativeMixed(self, args):
+        # See enableInterpreterService(): the hook the service is enabled from
+        # has to be in place before the inferior compiles its QML, well before
+        # a QML breakpoint could be the one asking for it.
+        self.nativeMixed = 1
+        self.ensureInterpreterAvailabilityHook()
+        self.reportResult('', args)
+
     def ensureInterpreterMessageBreakpoint(self):
         # The interpreter signals events worth stopping for by calling
         # qt_qmlDebugMessageAvailable(). Make sure we break there.
@@ -1553,14 +1631,60 @@ class Dumper(DumperBase):
             except Exception as error:
                 self.warn('Cannot set interpreter message breakpoint: %s' % error)
 
-    def resolveInterpreterBreakpoints(self, args):
-        self.reportToken(args)
+    def resolveInterpreterBreakpointsAtStop(self):
+        # What the engine-driven command below does, for a driver that owns the
+        # resumption and thus does the resolving from its own stop handling.
         self.resolvePendingInterpreterBreakpoints()
         if not self.pendingInterpreterBreakpoints and self.objectAvailableBreakpoint is not None:
             hook = self.objectAvailableBreakpoint
             self.objectAvailableBreakpoint = None
             hook.delete()
+
+    def resolveInterpreterBreakpoints(self, args):
+        self.reportToken(args)
+        self.resolveInterpreterBreakpointsAtStop()
         self.reportResult('pending="%d"' % len(self.pendingInterpreterBreakpoints), args)
+
+    def stoppedAtInterpreterAvailabilityHook(self, event):
+        hook = self.objectAvailableBreakpoint
+        if hook is None:
+            return False
+        return any(bp is hook for bp in getattr(event, 'breakpoints', ()))
+
+    def handleStopForInterpreter(self, event):
+        # Performs the work for the interpreter breakpoint resolvers and
+        # InterpreterMessageBreakpoint. This runs with the inferior fully
+        # stopped, where inferior calls are safe, unlike in
+        # gdb.Breakpoint.stop(). Answers 'stop' for a stop of the interpreter's
+        # that is worth reporting, 'continue' for one that was machinery alone,
+        # and None for a stop that is none of ours.
+        if isinstance(event, gdb.BreakpointEvent):
+            # Several of our breakpoints can sit on the same location, e.g.
+            # one resolver per pending interpreter breakpoint. Run all
+            # handlers.
+            handled = False
+            stayStopped = False
+            for bp in event.breakpoints:
+                handler = getattr(bp, 'interpreterEventHandler', None)
+                if handler is None:
+                    continue
+                handled = True
+                try:
+                    if handler():
+                        stayStopped = True
+                except Exception as error:
+                    # A failing handler must not leave the inferior stopped in
+                    # machinery code; log and let the caller resume.
+                    self.warn('Interpreter event handler failed: %s' % error)
+            if handled:
+                if stayStopped:
+                    self.disarmInterpreterStep()
+                    return 'stop'
+                return 'continue'
+        # A stop somewhere else, e.g. a finished native step or an ordinary
+        # breakpoint. If interpreter stepping was armed, it lost the race.
+        self.disarmInterpreterStep()
+        return None
 
     def ensureInterpreterAvailabilityHook(self):
         if self.objectAvailableBreakpoint is None:
@@ -1609,6 +1733,7 @@ class Dumper(DumperBase):
         # Make the interpreter call qt_v4AboutToCallNativeMethodHook()
         # right before a JS-to-C++ method dispatch, and break there.
         if not self.nativeCallHookAvailable():
+            self.armQmlToCppStepIn()
             return
         if self.nativeCallHookBreakpoint is None:
             try:
@@ -1623,6 +1748,7 @@ class Dumper(DumperBase):
             self.warn('Cannot arm native call hook: %s' % error)
 
     def disarmNativeCallStepIn(self):
+        self.disarmQmlToCppStepIn()
         if not self.nativeCallHookAvailable():
             return
         try:
@@ -1647,6 +1773,60 @@ class Dumper(DumperBase):
             return True
         if address == 0:
             return True
+        self.stepIntoStaticMetacall(address)
+        return True
+
+    def armQmlToCppStepIn(self):
+        # A C++ method called from QML is reached through QV4::CallMethod,
+        # where the interpreter hands over to the metacall trampolines. The
+        # interpreter itself only ever offers the next JS statement, which is
+        # the one after the call, so stepping in has to be caught there.
+        self.disarmQmlToCppStepIn()
+        try:
+            bp = QmlToCppStepInBreakpoint()
+        except Exception as error:
+            self.warn('Cannot set QML to C++ step-in breakpoint: %s' % error)
+            return
+        if not bp.locations:
+            bp.delete()
+            return
+        thread = gdb.selected_thread()
+        if thread is not None:
+            bp.thread = thread.global_num
+        self.qmlToCppStepInBreakpoint = bp
+        self.setupMachinerySkips()
+
+    def disarmQmlToCppStepIn(self):
+        bp = self.qmlToCppStepInBreakpoint
+        if bp is None:
+            return
+        self.qmlToCppStepInBreakpoint = None
+        try:
+            bp.delete()
+        except RuntimeError:
+            pass
+
+    def handleQmlToCppStepIn(self):
+        # The hand-over carries the receiver's meta object, whose generated
+        # static_metacall is the way into the method. Qt's own QML types are
+        # called through here as well, and a step was not asked for those.
+        # Return True to stay stopped in the method.
+        try:
+            address = int(gdb.parse_and_eval(
+                '(unsigned long)object._m->d.static_metacall'))
+        except Exception as error:
+            self.warn('Cannot resolve native method target: %s' % error)
+            return False
+        if address == 0:
+            return False
+        module = os.path.basename(gdb.solib_name(address) or '')
+        if module.startswith('Qt') or module.startswith('libQt'):
+            return False
+        self.disarmInterpreterStep()
+        self.stepIntoStaticMetacall(address)
+        return True
+
+    def stepIntoStaticMetacall(self, address):
         # The descent below runs the inferior several times. Bracket it
         # so the engine ignores the intermediate run/stop cycles and only
         # surfaces the final landing reported after this returns.
@@ -1662,7 +1842,6 @@ class Dumper(DumperBase):
                     break
         finally:
             self.leaveInternalStepping()
-        return True
 
     def enterInternalStepping(self):
         print('nativemixedstep={state="entered"}')
@@ -1672,6 +1851,13 @@ class Dumper(DumperBase):
 
     def doFinish(self):
         gdb.execute('finish')
+
+    def doNext(self):
+        gdb.execute('next')
+
+    def atQmlCallMachineryFrame(self):
+        frame = gdb.newest_frame()
+        return frame is not None and self.isQmlCallMachineryFrame(frame)
 
     def isQmlCallMachineryFrame(self, frame):
         # A frame on the metacall path between a C++ method and the QML
@@ -1929,6 +2115,21 @@ class NativeMethodCallBreakpoint(gdb.Breakpoint):
         return theDumper.handleNativeCallHook()
 
 
+class QmlToCppStepInBreakpoint(gdb.Breakpoint):
+    def __init__(self):
+        super(QmlToCppStepInBreakpoint, self).\
+            __init__('QV4::CallMethod', gdb.BP_BREAKPOINT, internal=True)
+
+    def stop(self):
+        # See the interpreter breakpoint resolver: no inferior calls
+        # from within stop(). The work happens in
+        # interpreterStopHandler().
+        return True
+
+    def interpreterEventHandler(self):
+        return theDumper.handleQmlToCppStepIn()
+
+
 #######################################################################
 #
 # Shared objects
@@ -1942,38 +2143,70 @@ def new_objfile_handler(event):
 gdb.events.new_objfile.connect(new_objfile_handler)
 
 
+#######################################################################
+#
+# Breakpoints in one module
+#
+#######################################################################
+
+# gdb has no linespec for "this function in that shared object", so the
+# locations elsewhere are disabled, also the ones a library loaded later adds.
+breakpointModules = {}
+
+
+def objfileNameOfAddress(address):
+    progspace = gdb.current_progspace()
+    try:
+        objfile = progspace.objfile_for_address(address)
+        if objfile is not None:
+            return objfile.filename
+    except AttributeError:
+        pass
+    return gdb.solib_name(address) or progspace.filename or ''
+
+
+def isAddressInModule(address, module):
+    name = os.path.basename(objfileNameOfAddress(address)).lower()
+    module = module.lower()
+    return module in (name, name.split('.')[0]) or name.startswith('lib' + module + '.')
+
+
+def keepBreakpointInModule(bp):
+    module = breakpointModules.get(bp.number)
+    if not module:
+        return
+    for location in getattr(bp, 'locations', []):
+        if location.enabled and location.address is not None \
+                and not isAddressInModule(location.address, module):
+            location.enabled = False
+
+
+def restrictBreakpointToModule(number, module):
+    breakpointModules[number] = module
+    for bp in gdb.breakpoints():
+        if bp.number == number:
+            keepBreakpointInModule(bp)
+
+
+def lastBreakpointNumber():
+    number = gdb.convenience_variable('bpnum')
+    return None if number is None else int(number)
+
+
+# A failed insertion leaves $bpnum at the breakpoint before it.
+def restrictNewBreakpointToModule(numberBefore, module):
+    number = lastBreakpointNumber()
+    if number is not None and number != numberBefore:
+        restrictBreakpointToModule(number, module)
+
+
+gdb.events.breakpoint_modified.connect(keepBreakpointInModule)
+gdb.events.breakpoint_deleted.connect(lambda bp: breakpointModules.pop(bp.number, None))
+
+
 def interpreterStopHandler(event):
-    # Performs the work for the interpreter breakpoint resolvers and
-    # InterpreterMessageBreakpoint. This runs with the inferior fully
-    # stopped, where inferior calls are safe, unlike in
-    # gdb.Breakpoint.stop().
-    if isinstance(event, gdb.BreakpointEvent):
-        # Several of our breakpoints can sit on the same location, e.g.
-        # one resolver per pending interpreter breakpoint. Run all
-        # handlers.
-        handled = False
-        stay_stopped = False
-        for bp in event.breakpoints:
-            handler = getattr(bp, 'interpreterEventHandler', None)
-            if handler is None:
-                continue
-            handled = True
-            try:
-                if handler():
-                    stay_stopped = True
-            except Exception as error:
-                # A failing handler must not leave the inferior stopped in
-                # machinery code; log and let the continue below run.
-                theDumper.warn('Interpreter event handler failed: %s' % error)
-        if handled:
-            if stay_stopped:
-                theDumper.disarmInterpreterStep()
-            else:
-                gdb.execute('continue')
-            return
-    # A stop somewhere else, e.g. a finished native step or an ordinary
-    # breakpoint. If interpreter stepping was armed, it lost the race.
-    theDumper.disarmInterpreterStep()
+    if theDumper.handleStopForInterpreter(event) == 'continue':
+        gdb.execute('continue')
 
 
 gdb.events.stop.connect(interpreterStopHandler)

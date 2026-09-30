@@ -49,6 +49,11 @@ using namespace std::chrono_literals;
 // Minimum time between two refreshes. (30fps)
 static constexpr milliseconds minRefreshInterval = 33ms;
 
+// How long after a size change an application may still be redrawing for it.
+// It has to cover the time a SIGWINCH takes to reach it and its answer to come
+// back, which over ssh or docker exec is far more than the resize debounce.
+static constexpr milliseconds resizeRedrawWindow = 1s;
+
 // vterm reports a width of zero for the second half of a wide character whose
 // first half has been overwritten. Such a cell still occupies the column it
 // was read from, so both the rectangle it is painted into and the number of
@@ -75,6 +80,16 @@ public:
 
         m_scrollTimer.setSingleShot(false);
         m_scrollTimer.setInterval(500ms);
+    }
+
+    // Whether a size change may still be working its way through: one is
+    // applied to the surface after a debounce, and the application redraws for
+    // it after that, so the window system keeps asking for paints the whole way.
+    bool resizedRecently() const
+    {
+        return m_resizeDebounceTimer.isActive()
+               || (m_sinceSizeApplied.isValid()
+                   && m_sinceSizeApplied.durationElapsed() < resizeRedrawWindow);
     }
 
     std::optional<TerminalView::Selection> m_selection;
@@ -120,6 +135,10 @@ public:
     QTimer m_updateTimer;
     std::optional<QRegion> m_updateRegion;
     QDeadlineTimer m_sinceLastPaint;
+
+    // The last frame finished before a synchronized update began, held only
+    // for as long as that update lasts.
+    QPixmap m_heldFrame;
 
     QTimer m_scrollTimer;
     QTimer m_resizeDebounceTimer;
@@ -240,6 +259,11 @@ std::function<void()> TerminalView::surfaceUpdater() const
 
 void TerminalView::setupSurface()
 {
+    // The timeout that would end a synchronized update belongs to the surface
+    // being replaced, so a frame held for one it opened has nothing left to
+    // end it, and would be painted over the new surface for good.
+    d->m_heldFrame = QPixmap();
+
     d->m_surface = std::make_unique<TerminalSurface>(QSize{80, 60});
     d->m_surface->setCellSize(d->m_cellSize * devicePixelRatioF());
     connect(d->m_surface.get(), &TerminalSurface::cleared, this, [this] {
@@ -303,6 +327,43 @@ void TerminalView::setupSurface()
         if (!setSelection(std::nullopt))
             updateViewport();
     });
+    connect(d->m_surface.get(),
+            &TerminalSurface::synchronizedUpdateChanged,
+            this,
+            [this](bool active) {
+                if (active) {
+                    // Only a paint the window system forces can show half a
+                    // frame, and what forces one here is a size change: the
+                    // application redraws because of it, and the drag it came
+                    // from is still going. Keeping a frame for every update
+                    // instead would render the whole viewport once more per
+                    // frame, for an answer nothing ever asks for. The first
+                    // update of a drag that begins in the middle of one has
+                    // nothing kept, but the redraw the drag causes opens the
+                    // next one, and that keeps its frame.
+                    if (!viewport()->isVisible() || !d->resizedRecently())
+                        return;
+
+                    // Nothing of the update has been parsed yet - the mode is
+                    // set by the first thing in it - so this is the last whole
+                    // frame. Grabbing it paints the viewport, which would
+                    // otherwise start the interval the next repaint is spaced
+                    // from and hold the finished frame back for one it never
+                    // spent.
+                    const QDeadlineTimer sinceLastPaint = d->m_sinceLastPaint;
+                    d->m_heldFrame = viewport()->grab();
+                    d->m_sinceLastPaint = sinceLastPaint;
+                    return;
+                }
+
+                d->m_heldFrame = QPixmap();
+
+                // The damage the surface reports next was measured against a
+                // scrollback that has since moved underneath it, so repaint
+                // all of what is on screen rather than trust it - one paint,
+                // which is the point.
+                updateViewport();
+            });
     connect(d->m_surface.get(), &TerminalSurface::unscroll, this, [this] {
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
     });
@@ -1137,6 +1198,21 @@ void TerminalView::paintEvent(QPaintEvent *event)
     t.start();
     event->accept();
 
+    // A synchronized update suppresses the repaints the terminal asks for, but
+    // not the ones the window system asks for, and a resize asks for them
+    // while the application is still composing the frame it resized into. The
+    // frame finished before the update began is kept for exactly that, so what
+    // a reader sees stays whole. Any other forced paint - an expose, a tab
+    // brought to the front - gets it too while it is kept, and otherwise paints
+    // the cells as they are, which is what it would have shown without the
+    // mode.
+    if (!d->m_heldFrame.isNull()) {
+        QPainter p(viewport());
+        p.fillRect(event->rect(), d->m_currentColors[(size_t) WidgetColorIdx::Background]);
+        p.drawPixmap(0, 0, d->m_heldFrame);
+        return;
+    }
+
     // Taken here, not after, which would add the paint time to the interval.
     d->m_sinceLastPaint = QDeadlineTimer(minRefreshInterval);
 
@@ -1310,8 +1386,26 @@ QPoint TerminalView::toGridPos(QMouseEvent *event) const
     return globalToGrid(QPointF(event->pos()) + QPointF(0, -topMargin() + 0.5));
 }
 
+void TerminalView::scrollContentsBy(int dx, int dy)
+{
+    // Scrolling repaints the viewport, and every line an application scrolls
+    // off the screen moves the scrollbar. Left to itself that would paint the
+    // middle of a synchronized update several times over, which is the one
+    // thing the update asks not to happen.
+    if (d->m_surface && d->m_surface->isSynchronizedUpdateActive())
+        return;
+
+    QAbstractScrollArea::scrollContentsBy(dx, dy);
+}
+
 void TerminalView::scheduleViewportUpdate()
 {
+    // Everything that wants the viewport repainted arrives here, which makes
+    // it the one place a synchronized update has to be held at. What is on
+    // screen stays as it was until the application says the frame is done.
+    if (d->m_surface && d->m_surface->isSynchronizedUpdateActive())
+        return;
+
     if (!d->m_passwordModeActive && d->m_updateRegion)
         viewport()->update(*d->m_updateRegion);
     else
@@ -1327,6 +1421,12 @@ void TerminalView::updateViewport()
 
 void TerminalView::updateViewportRect(const QRect &rect)
 {
+    // The damage is already held back by the surface, but the cursor is not,
+    // and a repaint of it would show a frame that is still being composed.
+    // Nothing needs collecting: the end of the update repaints all of it.
+    if (d->m_surface && d->m_surface->isSynchronizedUpdateActive())
+        return;
+
     if (rect.isEmpty())
         d->m_updateRegion = QRegion{viewport()->rect()};
     else if (!d->m_updateRegion)

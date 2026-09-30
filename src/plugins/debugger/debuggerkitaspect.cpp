@@ -473,16 +473,6 @@ public:
         return Internal::removeAutoDetected(detectionSource, logCallback);
     }
 
-    void listAutoDetected(
-        const QString &detectionSource, const LogCallback &logCallback) const override
-    {
-        for (const auto &debugger : DebuggerItemManager::debuggers()) {
-            if (debugger.detectionSource().isAutoDetected()
-                && debugger.detectionSource().id == detectionSource)
-                logCallback(Tr::tr("Debugger: \"%1\".").arg(debugger.displayName()));
-        }
-    }
-
     Utils::Result<QtTaskTree::ExecutableItem> createAspectFromJson(
         const DetectionSource &detectionSource,
         const Utils::FilePath &rootPath,

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "projectexplorer_export.h"
+
 #include <coreplugin/ioutputpane.h>
 
 #include <utils/aspects.h>
@@ -23,6 +25,26 @@ namespace Core { class OutputWindow; }
 namespace ProjectExplorer {
 
 class RunControl;
+
+class PROJECTEXPLORER_EXPORT LogcatSettings : public Utils::AspectContainer
+{
+public:
+    LogcatSettings(Utils::AspectContainer *container, const Utils::IntegerAspect &maxCharCount);
+
+    enum ViewMode { CompactView, StandardView };
+    bool compactView() const { return viewMode() == CompactView; }
+    void readSettings() override;
+
+    Utils::SelectionAspect viewMode;
+    Utils::BoolAspect showTimestamp;
+    Utils::BoolAspect showPid;
+    Utils::BoolAspect showTag;
+    Utils::BoolAspect showPackage;
+    const Utils::IntegerAspect &maxCharCount;
+
+private:
+    void updateColumnToggles();
+};
 
 namespace Internal {
 
@@ -65,6 +87,8 @@ public:
     OutputMaxCharCountAspect maxCharCount{this};
     Utils::BoolAspect overwriteBackground{this};
     OutputColorAspect backgroundColor{this};
+
+    LogcatSettings logcat{this, maxCharCount};
 };
 
 class AppOutputPane final : public Core::IOutputPane
@@ -187,4 +211,7 @@ void setupAppOutputPane();
 void destroyAppOutputPane();
 
 } // namespace Internal
+
+PROJECTEXPLORER_EXPORT const LogcatSettings &logcatSettings();
+
 } // namespace ProjectExplorer

@@ -358,7 +358,7 @@ static void setFocusToEditorViewAndUnmaximizePanes(EditorView *view)
     IEditor *editor = view->currentEditor();
     QWidget *target = editor ? editor->widget() : view;
     QWidget *focus = target->focusWidget();
-    QWidget *w = focus ? focus : target;
+    QWidget *w = focus && focus->isVisible() ? focus : target;
 
     w->setFocus();
     ICore::raiseWindow(w);

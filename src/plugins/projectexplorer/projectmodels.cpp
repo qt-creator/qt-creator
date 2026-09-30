@@ -223,7 +223,7 @@ void WrapperNode::compress()
         appendChild(toMove);
         qCDebug(projectModelLog) << "  moving node" << toMove->displayName() << "here";
     }
-    m_displayName = QDir::toNativeSeparators(displayName() + "/" + subFolder->displayName());
+    m_displayName = QDir::toNativeSeparators(displayName() + "/" + childWrapper->displayName());
     m_node = subFolder;
     removeChildAt(0);
     qCDebug(projectModelLog) << "now have" << childCount() << "children";
@@ -1156,3 +1156,57 @@ const QLoggingCategory &FlatModel::logger()
 }
 
 } // namespace ProjectExplorer::Internal
+
+#ifdef WITH_TESTS
+
+#include <QTest>
+
+namespace ProjectExplorer::Internal {
+
+class ProjectModelTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testCompressFolderChain();
+};
+
+void ProjectModelTest::testCompressFolderChain()
+{
+    FolderNode a(FilePath::fromString("/a"));
+    FolderNode b(FilePath::fromString("/a/b"));
+    FolderNode c(FilePath::fromString("/a/b/c"));
+    FolderNode d(FilePath::fromString("/a/b/c/d"));
+    FileNode file(FilePath::fromString("/a/b/c/d/file.cpp"), FileType::Source);
+    a.setDisplayName("a");
+    b.setDisplayName("b");
+    c.setDisplayName("c");
+    d.setDisplayName("d");
+
+    WrapperNode wrapper(&a);
+    auto wrapperB = new WrapperNode(&b);
+    auto wrapperC = new WrapperNode(&c);
+    auto wrapperD = new WrapperNode(&d);
+    wrapper.appendChild(wrapperB);
+    wrapperB->appendChild(wrapperC);
+    wrapperC->appendChild(wrapperD);
+    wrapperD->appendChild(new WrapperNode(&file));
+
+    wrapper.compress();
+
+    QCOMPARE(wrapper.node(), &d);
+    QCOMPARE(wrapper.displayName(), QDir::toNativeSeparators("a/b/c/d"));
+    QCOMPARE(wrapper.childCount(), 1);
+    QCOMPARE(wrapper.childAt(0)->node(), &file);
+}
+
+QObject *createProjectModelTest()
+{
+    return new ProjectModelTest;
+}
+
+} // namespace ProjectExplorer::Internal
+
+#include "projectmodels.moc"
+
+#endif // WITH_TESTS

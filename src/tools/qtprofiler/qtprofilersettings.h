@@ -12,8 +12,12 @@ class QtProfilerSettings : public Utils::AspectContainer
 public:
     QtProfilerSettings();
 
+    void addRecentFile(const Utils::FilePath &filePath);
+    Utils::FilePaths sanitizedRecentFiles();
+
     Utils::FilePathAspect lastTraceFile{this};
     Utils::ByteArrayAspect windowGeometry{this};
+    Utils::FilePathListAspect recentFiles{this};
 
     // Not persisted. A command line passed via --launch; the window seeds the
     // active backend's launch settings from these. Backend-specific recording
@@ -23,6 +27,9 @@ public:
     Utils::StringAspect recordArguments{this};
     Utils::BoolAspect exitOnError{this};
     Utils::BoolAspect withRpc{this};
+    // Embedded in a host that supplies the trace itself (see --embedded). Hides
+    // everything that would open, switch or close a trace behind the host's back.
+    Utils::BoolAspect embedded{this};
 };
 
 QtProfilerSettings &settings();

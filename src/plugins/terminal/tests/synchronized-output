@@ -1,0 +1,81 @@
+#!/bin/sh
+
+# Synchronized output, DEC private mode 2026, see
+# https://gist.github.com/christianparpart/d8a62cc1ab659194337d73e399004036
+
+begin() { printf '\033[?2026h'; }
+end() { printf '\033[?2026l'; }
+
+banner() { printf '\n\033[1m== %s ==\033[0m\n' "$1"; }
+
+# CSI ? 2026 ; Ps $ y, with Ps 0 for "not recognised", 1 set, 2 reset. A
+# terminal that answers nothing at all does not implement DECRQM either, so
+# the read is bounded rather than waiting for a reply that is not coming.
+decrqm() {
+    stty -echo raw min 0 time 10 2>/dev/null
+    printf '\033[?2026$p'
+    reply=$(dd bs=32 count=1 2>/dev/null | cat -v)
+    stty sane 2>/dev/null
+    printf '%s\n' "${reply:-(no answer)}"
+}
+
+banner 'Does the terminal know the mode?'
+printf 'DECRQM reply (2026): '
+decrqm
+
+banner 'A frame written in pieces'
+echo 'Three rounds of eight lines, a second apart. Each round is written over'
+echo 'a third of a second: without the mode the lines crawl out one at a time,'
+echo 'with it each round lands whole.'
+round=0
+while [ $round -lt 3 ]; do
+    sleep 1
+    begin
+    i=0
+    while [ $i -lt 8 ]; do
+        printf 'round %d, line %d\n' "$round" "$i"
+        i=$((i + 1))
+        sleep 0.04
+    done
+    end
+    round=$((round + 1))
+done
+
+banner 'A frame that is never ended'
+echo 'A terminal holds a frame back only for as long as its own timeout, or an'
+echo 'application that sets the mode and then blocks would freeze it. Both'
+echo 'lines below are written inside an update that is never reset, and both'
+echo 'have to show up anyway. Once the terminal has given up on the frame it'
+echo 'is no longer honouring the mode, so DECRQM has to answer 2 while the'
+echo 'update is still open.'
+sleep 1
+begin
+printf 'written inside the update\n'
+sleep 2
+printf 'written two seconds later, still inside it\n'
+printf 'DECRQM reply from inside the abandoned update: '
+decrqm
+sleep 2
+end
+printf 'and this one after the reset\n'
+
+banner 'A repaint forced while a frame is held'
+echo 'Resize the terminal over the next ten seconds. A resize makes the window'
+echo 'system ask for a repaint, which cannot be refused - but what it paints'
+echo 'has to be a whole frame, never half of the one being composed here.'
+round=0
+while [ $round -lt 25 ]; do
+    begin
+    printf '\033[H\033[2J'
+    i=0
+    while [ $i -lt 20 ]; do
+        printf 'round %02d, row %02d of a frame that is still being composed\n' \
+            "$round" "$i"
+        i=$((i + 1))
+        sleep 0.01
+    done
+    end
+    round=$((round + 1))
+    sleep 0.1
+done
+printf 'done\n'

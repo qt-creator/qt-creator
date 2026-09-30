@@ -175,6 +175,7 @@ def build_qtcreator(args, paths):
                   '-DCMAKE_PREFIX_PATH=' + ';'.join(prefix_paths),
                   '-DSHOW_BUILD_DATE=' + cmake_option(not args.no_build_date),
                   '-DWITH_DOCS=' + cmake_option(not args.no_docs),
+                  '-DBUILD_MCP_TOOLS_DOC=' + cmake_option(not args.no_docs),
                   '-DQT_GENERATE_SBOM=' + cmake_option(not args.no_sbom),
                   '-DQT_SBOM_GENERATE_SPDX_V2_JSON=' + cmake_option(not args.no_sbom),
                   '-DQT_SBOM_REQUIRE_GENERATE_SPDX_V2_JSON=' + cmake_option(not args.no_sbom),

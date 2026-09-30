@@ -32,6 +32,10 @@
 #include <QMenu>
 #include <QTranslator>
 
+#ifdef WITH_TESTS
+#include "formwindowfile.h"
+#endif
+
 using namespace Core;
 using namespace Designer::Constants;
 using namespace Utils;
@@ -153,6 +157,7 @@ class DesignerPlugin final : public ExtensionSystem::IPlugin
 
 #ifdef WITH_TESTS
         addTestCreator(createGoToSlotTest);
+        addTestCreator(createFormWindowFileTest);
 #endif
 
         parseArguments(arguments);

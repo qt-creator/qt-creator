@@ -11,6 +11,7 @@
 #include <QJsonValue>
 #include <QList>
 #include <QPair>
+#include <QPointer>
 #include <QScrollArea>
 
 #include <optional>
@@ -103,6 +104,7 @@ private:
     TerminalDisplayWidget *ensureTerminalWidget(const QString &terminalId);
     void addWidget(QWidget *widget);
     int contentMaxWidth() const;
+    bool sessionPickerActive() const;
 
     QWidget *m_container = nullptr;
     QVBoxLayout *m_layout = nullptr;
@@ -127,6 +129,7 @@ private:
     AuthenticationWidget *m_currentAuthWidget = nullptr;
     QString m_agentIconUrl;
     bool m_autoScroll = true;
+    QPointer<SessionPickerWidget> m_sessionPicker;
 };
 
 } // namespace AcpClient::Internal

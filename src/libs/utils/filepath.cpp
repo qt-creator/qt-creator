@@ -3643,6 +3643,28 @@ FilePath FilePaths::commonPath() const
 }
 
 /*!
+    Returns the paths in this list, with each entry removed that refers to the
+    same executable as an earlier one.
+
+    A \c /bin symbolically linked to \c /usr/bin, the usual layout in a
+    container, otherwise yields every tool in a search path twice.
+
+    \sa FilePath::isSameExecutable()
+*/
+FilePaths FilePaths::uniqueExecutables() const
+{
+    FilePaths result;
+    for (const FilePath &candidate : *this) {
+        const bool known = anyOf(result, [&candidate](const FilePath &other) {
+            return other.isSameExecutable(candidate);
+        });
+        if (!known)
+            result.append(candidate);
+    }
+    return result;
+}
+
+/*!
     Sorts the paths in-place using the default less-than comparison.
 */
 void FilePaths::sort()

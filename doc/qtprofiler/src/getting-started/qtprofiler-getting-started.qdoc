@@ -1,0 +1,43 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page qtprofiler-getting-started.html
+    \previouspage index.html
+    \nextpage qtprofiler-how-to-record-a-trace.html
+
+    \title Getting started
+
+    To record and analyze profiling data:
+
+    \list
+        \li Start \QP from \QC or \QVSC, or install it as a stand-alone tool
+            on Linux, \macos, or Windows.
+        \li Select \uicontrol {Start recording}.
+        \li Use the application to collect data.
+        \li Select \uicontrol {Stop recording} to view the results.
+        \li Inspect the results in the \QP views.
+    \endlist
+
+    \section1 Supported trace formats
+
+    You can record and import trace files in the following formats:
+
+    \list
+        \li QML traces (\c {*.qtd}, \c {*.qzt})
+        \li Chrome Trace Format (\c {*.json})
+        \li Common Trace Format
+    \endlist
+
+    \section1 Supported analyzers
+
+    You can use the following tools:
+
+    \list
+        \li QML Profiler
+        \li Perf
+        \li Chrome Trace Format (CTF) visualizer
+    \endlist
+
+    \sa {Record a trace}, {Command-line options}
+*/

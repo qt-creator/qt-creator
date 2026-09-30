@@ -18,6 +18,9 @@ constexpr int kHueRange = 360;
 constexpr int kDefaultSaturation = 130;
 constexpr int kSaturationSteps = 16;
 
+// Spaces successive selection IDs around the hue wheel for visually distinct colors.
+constexpr int kSelectionIdHueStep = 25;
+
 TRACING_EXPORT int defaultColorLightness();
 
 class RowLabel

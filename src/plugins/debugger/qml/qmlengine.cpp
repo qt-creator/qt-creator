@@ -29,6 +29,7 @@
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmldebug/qmldebugconnection.h>
+#include <qmldebug/qmldebugconstants.h>
 #include <qmldebug/qpacketprotocol.h>
 
 #include <texteditor/textdocument.h>
@@ -246,11 +247,15 @@ QmlEngine::QmlEngine()
 
     connect(&d->process, &Process::readyReadStandardOutput, this, [this] {
         // FIXME: Redirect to RunControl
-        showMessage(d->process.readAllStandardOutput(), AppOutput);
+        const QString output = d->process.readAllStandardOutput();
+        showMessage(output, AppOutput);
+        handleApplicationOutput(output);
     });
     connect(&d->process, &Process::readyReadStandardError, this, [this] {
         // FIXME: Redirect to RunControl
-        showMessage(d->process.readAllStandardError(), AppOutput);
+        const QString output = d->process.readAllStandardError();
+        showMessage(output, AppOutput);
+        handleApplicationOutput(output);
     });
 
     connect(&d->process, &Process::done, this, &QmlEngine::disconnected);
@@ -336,6 +341,10 @@ void QmlEngine::tryToConnect()
 
 void QmlEngine::beginConnection()
 {
+    // A retry can still be pending when a stop has taken the engine down.
+    if (isDying())
+        return;
+
     if (state() != EngineRunRequested && d->retryOnConnectFail)
         return;
 
@@ -428,6 +437,40 @@ void QmlEngine::appStartupFailed(const QString &errorMessage)
     }
 
     notifyEngineRunFailed();
+}
+
+void QmlEngine::handleApplicationOutput(const QString &output)
+{
+    if (isDying() || state() != EngineRunRequested)
+        return;
+
+    const QStringList lines = output.split('\n');
+    for (const QString &line : lines) {
+        if (!line.contains(QLatin1String(QmlDebug::Constants::STR_UNABLE_TO_LISTEN))
+            && !line.contains(QLatin1String(QmlDebug::Constants::STR_IGNORING_DEBUGGER))) {
+            continue;
+        }
+        // The debuggee said that it has no debug server for us. Nothing will ever connect,
+        // so report it instead of retrying until the user gives up on a blocked application.
+        closeConnection();
+        appStartupFailed(line.trimmed());
+        return;
+    }
+}
+
+void QmlEngine::quitDebugger()
+{
+    // A stop request that arrives while the connection is still being attempted finds
+    // nothing to shut down: DebuggerEngine::quitDebugger() leaves the engine in
+    // EngineRunRequested and waits for a notifyEngineRun*() that a connection which never
+    // comes up cannot produce.
+    if (state() == EngineRunRequested && !isConnected()) {
+        startDying();
+        closeConnection();
+        notifyEngineRunFailed();
+        return;
+    }
+    DebuggerEngine::quitDebugger();
 }
 
 void QmlEngine::errorMessageBoxFinished(int result)
@@ -540,6 +583,13 @@ void QmlEngine::shutdownEngine()
 void QmlEngine::setupEngine()
 {
     notifyEngineSetupOk();
+
+    // In mixed debugging the companion runs the debuggee, so its output is where the QML
+    // debug server reports that it did not come up.
+    for (DebuggerEngine *companion : companionEngines()) {
+        connect(companion, &DebuggerEngine::postMessageRequested,
+                this, [this](const QString &msg) { handleApplicationOutput(msg); });
+    }
 
     // we won't get any debug output
     if (!usesTerminal()) {
