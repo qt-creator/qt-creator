@@ -22,15 +22,15 @@ public:
                     AssistReason reason);
     virtual ~AssistInterface();
 
-    virtual int position() const { return m_position; }
-    virtual QChar characterAt(int position) const;
-    virtual QString textAt(int position, int length) const;
+    int position() const { return m_position; }
+    QChar characterAt(int position) const;
+    QString textAt(int position, int length) const;
     QTextCursor cursor() const { return m_cursor; }
-    virtual Utils::FilePath filePath() const { return m_filePath; }
-    virtual QTextDocument *textDocument() const { return m_textDocument; }
-    virtual void prepareForAsyncUse();
-    virtual void recreateTextDocument();
-    virtual AssistReason reason() const;
+    Utils::FilePath filePath() const { return m_filePath; }
+    QTextDocument *textDocument() const { return m_textDocument; }
+    void prepareForAsyncUse();
+    void recreateTextDocument();
+    AssistReason reason() const;
     virtual bool isBaseObject() const { return true; }
 
 private:
