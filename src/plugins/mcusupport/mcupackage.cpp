@@ -429,7 +429,8 @@ Toolchain *McuToolchainPackage::gccToolchain(Id language)
 {
     Toolchain *toolChain = ToolchainManager::toolchain([language](const Toolchain *t) {
         const Abi abi = t->targetAbi();
-        return abi.os() != Abi::WindowsOS && abi.architecture() == Abi::X86Architecture
+        return t->typeId() == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
+               && abi.os() != Abi::WindowsOS && abi.architecture() == Abi::X86Architecture
                && abi.wordWidth() == 64 && t->language() == language;
     });
     return toolChain;
