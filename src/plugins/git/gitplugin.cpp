@@ -663,8 +663,12 @@ GitPluginPrivate::GitPluginPrivate()
         const FilePath gitDir = gitClient().findGitDirForRepository(repository);
         return gitDir.isEmpty() ? FilePath() : gitDir / "HEAD";
     });
-    setTopicRefresher([](const FilePath &repository) {
-        emitRepositoryChanged(repository);
+    setTopicRefresher([this](const FilePath &repository) {
+        // vcsTopic() is queried from ContainerNode::displayName() while the project tree
+        // paints, so the slots must not run right here: they may repaint, and a nested
+        // repaint of the same window flushes a backing store that has no buffer.
+        QMetaObject::invokeMethod(this, [repository] { emitRepositoryChanged(repository); },
+                                  Qt::QueuedConnection);
         return gitClient().synchronousTopic(repository);
     });
 

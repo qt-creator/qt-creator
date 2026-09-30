@@ -59,6 +59,7 @@ private:
     void setApplicationProgressVisible(bool visible);
     void disconnectApplicationTask();
     void updateSummaryProgressBar();
+    void updateSummaryProgressBarNow();
     void fadeAwaySummaryProgress();
     void summaryProgressFinishedFading();
     void progressDetailsToggled(bool checked);
@@ -99,6 +100,7 @@ private:
     QPointer<QPropertyAnimation> m_opacityAnimation;
     bool m_progressViewPinned = false;
     bool m_hovered = false;
+    bool m_summaryProgressBarUpdateScheduled = false;
     QTimer *m_appLabelUpdateTimer = nullptr;
     QString m_appLabelText;
 };

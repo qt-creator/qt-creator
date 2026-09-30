@@ -784,6 +784,21 @@ void ProgressManagerPrivate::disconnectApplicationTask()
 
 void ProgressManagerPrivate::updateSummaryProgressBar()
 {
+    // Deferred, because QProgressBar::setValue() repaints synchronously. Callers reach
+    // here from model data() and from paint events, where a nested repaint of the same
+    // window flushes a backing store that has no buffer. It also collapses the several
+    // updates that a single addTask() would otherwise trigger into one.
+    if (m_summaryProgressBarUpdateScheduled)
+        return;
+    m_summaryProgressBarUpdateScheduled = true;
+    QMetaObject::invokeMethod(this, [this] {
+        m_summaryProgressBarUpdateScheduled = false;
+        updateSummaryProgressBarNow();
+    }, Qt::QueuedConnection);
+}
+
+void ProgressManagerPrivate::updateSummaryProgressBarNow()
+{
     m_summaryProgressBar->setError(hasError());
     updateVisibility();
     if (m_runningTasks.isEmpty()) {
