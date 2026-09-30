@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include "qmlrecordingtimeline.h"
 #include "sampler.h"
 
 #include <memory>
+#include <optional>
 
 namespace Profiler::Internal {
 class QmlProfilerClientManager;
@@ -59,6 +61,7 @@ public:
     QtTaskTree::ExecutableItem captureRecipe(
         const std::shared_ptr<RecordingSession> &session) const override;
     bool needsQmlChannel() const override { return true; }
+    bool supportsPause() const override { return true; }
 
     SamplerSettings *settings() const override;
 
@@ -67,6 +70,9 @@ private:
     std::unique_ptr<Profiler::Internal::QmlProfilerModelManager> m_modelManager;
     std::unique_ptr<Profiler::Internal::QmlProfilerStateManager> m_stateManager;
     std::unique_ptr<Profiler::Internal::QmlProfilerClientManager> m_clientManager;
+
+    mutable QmlPauseTracker m_pauseTracker;
+    mutable bool m_initialized = false; // The model is set up for the recording.
 };
 
 } // namespace Profiler::Internal

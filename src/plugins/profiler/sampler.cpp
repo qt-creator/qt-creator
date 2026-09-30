@@ -14,6 +14,16 @@ using namespace Utils;
 
 namespace Profiler::Internal {
 
+QString stoppedBeforeResumeMessage()
+{
+    return Tr::tr("Nothing was recorded: the recording was stopped before it was resumed.");
+}
+
+QString exitedBeforeResumeMessage()
+{
+    return Tr::tr("Nothing was recorded: the target exited before the recording was resumed.");
+}
+
 void Sampler::prepareLaunch(const std::shared_ptr<RecordingSession> &) const
 {
     // Backends that must adjust the launch command before the process starts

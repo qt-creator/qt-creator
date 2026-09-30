@@ -71,6 +71,7 @@ public:
     QtTaskTree::ExecutableItem captureRecipe(
         const std::shared_ptr<RecordingSession> &session) const override;
     bool needsQmlChannel() const override { return true; }
+    bool supportsPause() const override { return m_native->supportsPause(); }
 
     SamplerSettings *settings() const override;
     std::optional<SamplerFix> availableFix() const override;

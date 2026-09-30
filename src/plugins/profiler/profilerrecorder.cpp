@@ -85,6 +85,8 @@ public:
     bool downloadNameable = false;
     bool recording = false;
     bool capturing = false;               // Set once the backend went live.
+    QString target;                       // What the running recording records.
+    bool pausedReported = false;          // What pausedChanged() last said.
     bool waitingForShutdown = false;      // Set while stopAndWait() runs.
     std::optional<milliseconds> duration; // Set by startTimed(); auto-stop span.
 };
@@ -139,6 +141,10 @@ void ProfilerRecorderPrivate::updateReports()
     // Report the switch to capturing exactly once. A startTimed() span is
     // measured from here too, so that launching the target, connecting to it or
     // elevating the capture is not counted against it.
+    if (session->isPaused() != pausedReported) {
+        pausedReported = session->isPaused();
+        emit q->pausedChanged(pausedReported);
+    }
     if (!capturing && session->isStarted()) {
         capturing = true;
         emit q->captureStarted();
@@ -204,6 +210,8 @@ void ProfilerRecorderPrivate::startRecording(const QString &target)
 {
     recording = true;
     capturing = false;
+    this->target = target;
+    pausedReported = false;
     downloadNameable = false;
     // The recipe (or the user) ends the capture; either way that is the switch
     // from recording to post-processing. Reported from the request itself, so
@@ -370,7 +378,42 @@ bool ProfilerRecorder::isRecording() const
     return d->recording;
 }
 
+bool ProfilerRecorder::isCapturing() const
+{
+    return d->recording && d->capturing;
+}
+
+bool ProfilerRecorder::isProcessing() const
+{
+    return d->recording && d->session && d->session->isStopRequested();
+}
+
+int ProfilerRecorder::processingProgress() const
+{
+    return d->session ? d->session->progressPercent() : 0;
+}
+
+QString ProfilerRecorder::currentTarget() const
+{
+    return d->recording ? d->target : QString();
+}
+
+milliseconds ProfilerRecorder::recordedTime() const
+{
+    return d->session ? duration_cast<milliseconds>(d->session->recordedTime()) : 0ms;
+}
+
 void ProfilerRecorder::start()
+{
+    startImpl(false);
+}
+
+void ProfilerRecorder::startPaused()
+{
+    startImpl(true);
+}
+
+void ProfilerRecorder::startImpl(bool paused)
 {
     if (d->recording)
         return;
@@ -398,6 +441,8 @@ void ProfilerRecorder::start()
     d->session = *created;
     d->session->launchEnvironment = d->seededEnvironment;
     d->active = backend;
+    if (paused && backend->supportsPause())
+        d->session->setPaused(true);
 
     // Name the recording for the frontend: the launched command, the attach
     // target, or the connect endpoint.
@@ -420,7 +465,7 @@ void ProfilerRecorder::startTimed(milliseconds duration)
 }
 
 Result<std::shared_ptr<RecordingSession>> ProfilerRecorder::beginRunControlRecording(
-    Id backendId, const QString &target)
+    Id backendId, const QString &target, bool paused)
 {
     if (d->recording)
         return ResultError(Tr::tr("A recording is already running."));
@@ -438,6 +483,8 @@ Result<std::shared_ptr<RecordingSession>> ProfilerRecorder::beginRunControlRecor
 
     d->active = backend;
     d->session = settings->createRunControlSession();
+    if (paused && backend->supportsPause())
+        d->session->setPaused(true);
     d->startRecording(target);
     return d->session;
 }
@@ -454,6 +501,34 @@ void ProfilerRecorder::stop()
 {
     if (d->session)
         d->session->requestStop();
+}
+
+bool ProfilerRecorder::currentBackendCanPause() const
+{
+    const Sampler *backend = d->backend();
+    return backend && backend->supportsPause();
+}
+
+bool ProfilerRecorder::canPause() const
+{
+    return d->session && d->active && d->active->supportsPause();
+}
+
+bool ProfilerRecorder::isPaused() const
+{
+    return d->session && d->session->isPaused();
+}
+
+void ProfilerRecorder::pause()
+{
+    if (canPause())
+        d->session->setPaused(true);
+}
+
+void ProfilerRecorder::resume()
+{
+    if (canPause())
+        d->session->setPaused(false);
 }
 
 void ProfilerRecorder::stopAndWait()

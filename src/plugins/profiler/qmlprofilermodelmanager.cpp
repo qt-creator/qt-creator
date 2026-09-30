@@ -196,8 +196,20 @@ void QmlProfilerModelManager::useInMemoryEventStorage()
     swapEventStorage(storage);
 }
 
+void QmlProfilerModelManager::addPausedRange(qint64 start, qint64 end)
+{
+    if (end > start)
+        m_pausedRanges.append({start, end});
+}
+
+void QmlProfilerModelManager::setPausedRanges(const QList<std::pair<qint64, qint64>> &ranges)
+{
+    m_pausedRanges = ranges;
+}
+
 void QmlProfilerModelManager::clearEventStorage()
 {
+    m_pausedRanges.clear();
     TimelineTraceManager::clearEventStorage();
     emit traceChanged();
 }

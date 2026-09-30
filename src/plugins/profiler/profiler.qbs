@@ -127,6 +127,7 @@ QtcPlugin {
             "qmlprofilertool.cpp", "qmlprofilertool.h",
             "qmlprofilertracefile.cpp", "qmlprofilertracefile.h",
             "qmlprofilertraceview.cpp", "qmlprofilertraceview.h",
+            "qmlrecordingtimeline.h",
             "quick3dmodel.cpp", "quick3dmodel.h",
             "quick3dframeview.cpp", "quick3dframeview.h",
             "quick3dframemodel.cpp", "quick3dframemodel.h",
@@ -193,7 +194,9 @@ QtcPlugin {
             "qmlprofilerclientmanager_test.cpp", "qmlprofilerclientmanager_test.h",
             "qmlprofilerdetailsrewriter_test.cpp", "qmlprofilerdetailsrewriter_test.h",
             "qmlprofilerfindingsmodel_test.cpp", "qmlprofilerfindingsmodel_test.h",
+            "qmlprofilersampler_test.cpp", "qmlprofilersampler_test.h",
             "qmlprofilertool_test.cpp", "qmlprofilertool_test.h",
+            "qmlprofilertracefile_test.cpp", "qmlprofilertracefile_test.h",
             "qmlprofilertraceview_test.cpp", "qmlprofilertraceview_test.h",
             "qttracesampler_test.cpp", "qttracesampler_test.h",
 

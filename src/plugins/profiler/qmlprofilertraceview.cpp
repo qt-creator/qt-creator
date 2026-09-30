@@ -97,7 +97,9 @@ QmlProfilerTraceView::QmlProfilerTraceView(QmlProfilerModelManager *modelManager
         d->m_zoomControl.setRange(start, start + (end - start) / 10);
         d->m_modelProxy.setModels(d->m_suspendedModels);
         d->m_suspendedModels.clear();
+        d->m_modelProxy.setPausedRanges(modelManager->pausedRanges());
     }, [this] {
+        d->m_modelProxy.setPausedRanges({});
         d->m_zoomControl.clear();
         if (!d->m_suspendedModels.isEmpty()) {
             d->m_modelProxy.setModels(d->m_suspendedModels);

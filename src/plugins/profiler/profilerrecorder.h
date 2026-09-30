@@ -74,17 +74,31 @@ public:
     Sampler *backendById(Utils::Id id) const;
 
     bool isRecording() const;
+    // Whether the running recording's backend is capturing yet (see
+    // captureStarted()), what it records, and for how long it has captured,
+    // leaving out its pauses. For a frontend that comes back to a recording.
+    bool isCapturing() const;
+    // Whether capture is over and the backend still processing what it got,
+    // and how far it has come.
+    bool isProcessing() const;
+    int processingProgress() const;
+    QString currentTarget() const;
+    std::chrono::milliseconds recordedTime() const;
 
     void start();
+    // Like start(), but the capture begins paused: nothing is recorded until
+    // resume(). Only meaningful when canPause() is true for the backend.
+    void startPaused();
 
     // Starts a recording whose target Qt Creator's run machinery launches (see
     // profilersamplerruncontrol.cpp): the recorder builds the session from the
     // backend's options, then watches and reports it exactly as one it runs
     // itself, while the caller supplies the process. The caller drives the
     // returned session's capture and must call endRunControlRecording() when
-    // that is over, however it ended.
+    // that is over, however it ended. With `paused`, the recording begins
+    // paused when the backend can pause.
     Utils::Result<std::shared_ptr<RecordingSession>> beginRunControlRecording(
-        Utils::Id backendId, const QString &target);
+        Utils::Id backendId, const QString &target, bool paused);
     // Ends the recording `session` belongs to. A no-op when another recording
     // has begun since, so a late caller cannot end its successor.
     void endRunControlRecording(const std::shared_ptr<RecordingSession> &session);
@@ -93,6 +107,15 @@ public:
     // so launch and connect time is not counted against the span.
     void startTimed(std::chrono::milliseconds duration);
     void stop();
+
+    // Whether the selected backend can start a recording paused, and pause it.
+    bool currentBackendCanPause() const;
+    // Whether the running recording's backend can pause.
+    bool canPause() const;
+    bool isPaused() const;
+    void pause();
+    void resume();
+
     // Stops and pumps events until the recording has wound down. Needed on
     // shutdown: a still-running worker would block the global thread pool at
     // exit and leave the launched process behind.
@@ -108,6 +131,9 @@ signals:
     // target, bringing up a debug connection, answering a consent prompt --
     // is over by now, and the recording's clock runs from here.
     void captureStarted();
+    // Capture was suspended or continued; also emitted for a recording that
+    // starts paused, before captureStarted().
+    void pausedChanged(bool paused);
     // Capture is over, but the backend is still symbolizing and writing.
     void processingStarted();
     void progressChanged(int percent);
@@ -121,6 +147,8 @@ signals:
     void error(const QString &message, const std::optional<SamplerFix> &fix = {});
 
 private:
+    void startImpl(bool paused);
+
     class ProfilerRecorderPrivate *d;
 };
 

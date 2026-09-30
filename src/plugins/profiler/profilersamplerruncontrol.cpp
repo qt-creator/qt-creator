@@ -36,6 +36,11 @@ Id samplerRunMode(Id backendId)
     return Id::fromString(QString(backendId.toString() + ".RunMode"_L1));
 }
 
+Id pausedSamplerRunMode(Id backendId)
+{
+    return Id::fromString(QString(backendId.toString() + ".PausedRunMode"_L1));
+}
+
 // Records the run control's target with `backendId`. The backend contributes
 // what it captures and how; everything about the target -- what to start, with
 // which arguments and environment, on which device, after which deployment --
@@ -54,7 +59,8 @@ static Group samplerRecipe(RunControl *runControl, Id backendId)
         runControl->requestQmlChannel();
 
     const Result<std::shared_ptr<RecordingSession>> session
-        = recorder->beginRunControlRecording(backendId, runControl->displayName());
+        = recorder->beginRunControlRecording(backendId, runControl->displayName(),
+                                             runControl->runMode() == pausedSamplerRunMode(backendId));
     if (!session)
         return runControl->errorTask(session.error());
 
@@ -165,7 +171,10 @@ public:
         setRecipeProducer([backendId](RunControl *runControl) {
             return samplerRecipe(runControl, backendId);
         });
+        // A backend that cannot pause records a paused start from the start
+        // (see ProfilerRecorder::beginRunControlRecording()).
         addSupportedRunMode(samplerRunMode(backendId));
+        addSupportedRunMode(pausedSamplerRunMode(backendId));
         // The samplers capture a process on this machine -- by its pid, or over a
         // debug connection to it -- so a target on a device needs a worker of the
         // device's own, as the live profilers have. Which run configuration

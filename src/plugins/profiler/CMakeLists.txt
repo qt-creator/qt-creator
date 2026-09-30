@@ -25,7 +25,9 @@ if(WITH_TESTS)
     tests/qmlprofilerclientmanager_test.cpp tests/qmlprofilerclientmanager_test.h
     tests/qmlprofilerdetailsrewriter_test.cpp tests/qmlprofilerdetailsrewriter_test.h
     tests/qmlprofilerfindingsmodel_test.cpp tests/qmlprofilerfindingsmodel_test.h
+    tests/qmlprofilersampler_test.cpp tests/qmlprofilersampler_test.h
     tests/qmlprofilertool_test.cpp tests/qmlprofilertool_test.h
+    tests/qmlprofilertracefile_test.cpp tests/qmlprofilertracefile_test.h
     tests/qmlprofilertraceview_test.cpp tests/qmlprofilertraceview_test.h
     tests/qttracesampler_test.cpp tests/qttracesampler_test.h
     tests/tests.qrc
@@ -112,6 +114,7 @@ set(QMLPROFILER_CPP_SOURCES
   qmlprofilertool.cpp qmlprofilertool.h
   qmlprofilertracefile.cpp qmlprofilertracefile.h
   qmlprofilertraceview.cpp qmlprofilertraceview.h
+  qmlrecordingtimeline.h
   scenegraphtimelinemodel.cpp scenegraphtimelinemodel.h
   quick3dmodel.cpp quick3dmodel.h
   quick3dframeview.cpp quick3dframeview.h

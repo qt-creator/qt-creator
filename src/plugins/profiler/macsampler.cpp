@@ -153,7 +153,8 @@ void walkThread(task_t task, thread_act_t thread, Sample &sample)
 // stay on the timeline the caller anchored, or a combined recording could not
 // line the two traces up (see RecordingSession::markStarted).
 bool capture(task_t task, const SamplerOptions &opts, const std::function<bool()> &isCanceled,
-             SampleTraceData &data, LiveLabeler &labeler, quint64 startNs)
+             SampleTraceData &data, LiveLabeler &labeler, quint64 &startNs, bool &live,
+             std::optional<quint64> &pausedSinceUs)
 {
     std::vector<Sample> tick; // raw stacks gathered during one suspend window
 
@@ -166,6 +167,32 @@ bool capture(task_t task, const SamplerOptions &opts, const std::function<bool()
     size_t sampleBytes = 0;
 
     while (!isCanceled()) {
+        if (opts.isPaused && opts.isPaused()) {
+            // The target quitting is noticed by task_threads() below, which a
+            // pause does not reach; this is the same signal for that time.
+            int pid = 0;
+            if (pid_for_task(task, &pid) != KERN_SUCCESS)
+                return true;
+            if (!pausedSinceUs)
+                pausedSinceUs = (nowNs() - startNs) / 1000;
+            timespec req{0, 10 * 1000 * 1000};
+            nanosleep(&req, nullptr);
+            continue;
+        }
+        if (!live) {
+            // The recording starts here, not where it was asked for: one that
+            // begins paused has no trace, and so no timeline, before it is
+            // resumed. The same goes for the moment the recording counts as
+            // live, which is what a combined recording aligns its sides by.
+            live = true;
+            if (pausedSinceUs)
+                startNs = nowNs();
+            if (opts.markStarted)
+                opts.markStarted();
+        } else if (pausedSinceUs) {
+            data.pausedRangesUs.append({*pausedSinceUs, (nowNs() - startNs) / 1000});
+        }
+        pausedSinceUs.reset();
         const quint64 elapsedNs = nowNs() - startNs;
 
         thread_act_array_t threads = nullptr;
@@ -307,7 +334,12 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts,
 
     SampleTraceData data;
     data.pid = quint64(pid);
-    const quint64 startNs = nowNs();
+    quint64 startNs = nowNs();
+    bool live = false; // Set once the first sample window has begun; see capture().
+    // Start of the pause in progress, in the trace's own microseconds. A pause
+    // that ends the recording leaves no range: the trace ends where it began.
+    // Kept here so that a re-attach after an exec() does not lose it.
+    std::optional<quint64> pausedSinceUs;
 
     // What Qt Creator runs is started through a helper that exec()s the real
     // target (see src/tools/disclaim), and an exec replaces the Mach task the
@@ -324,7 +356,8 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts,
         // capture ends.
         Symbolicator symbolicator(task);
         LiveLabeler labeler(task, symbolicator, data);
-        const bool taskGone = capture(task, opts, isCanceled, data, labeler, startNs);
+        const bool taskGone = capture(task, opts, isCanceled, data, labeler, startNs, live,
+                                       pausedSinceUs);
 
         mach_port_deallocate(mach_task_self(), task);
 
@@ -335,8 +368,12 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts,
             break; // The process went away while we were looking for its new task.
     }
 
-    if (data.samples.isEmpty())
-        return ResultError(Tr::tr("No samples were captured. The target may have exited."));
+    if (data.samples.isEmpty()) {
+        if (live)
+            return ResultError(Tr::tr("No samples were captured. The target may have exited."));
+        return ResultError(isCanceled() ? stoppedBeforeResumeMessage()
+                                        : exitedBeforeResumeMessage());
+    }
 
     const FilePath dir = uniqueTracePath("qtprofiler-sample"_L1);
     if (!dir.createDir()) {

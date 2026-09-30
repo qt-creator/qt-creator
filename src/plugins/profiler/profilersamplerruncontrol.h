@@ -13,6 +13,9 @@ namespace Profiler::Internal {
 // Creator's run machinery, rather than the backend, decides what can be
 // profiled where.
 Utils::Id samplerRunMode(Utils::Id backendId);
+// The run mode that does the same, with the recording beginning paused. The
+// request goes with the run, however long a build or deployment keeps it.
+Utils::Id pausedSamplerRunMode(Utils::Id backendId);
 
 void setupProfilerSamplerRunning();
 

@@ -194,12 +194,21 @@ WindowPrivate::WindowPrivate(Window *window)
             recorder, &ProfilerRecorder::setCurrentBackend);
     connect(recorder, &ProfilerRecorder::currentBackendChanged,
             this, &WindowPrivate::showBackendConfig);
+    connect(welcomePage, &WelcomePage::startPausedRequested,
+            recorder, &ProfilerRecorder::startPaused);
     connect(recordingPage, &RecordingPage::stopRequested,
             recorder, &ProfilerRecorder::stop);
+    connect(recordingPage, &RecordingPage::pauseRequested,
+            recorder, &ProfilerRecorder::pause);
+    connect(recordingPage, &RecordingPage::resumeRequested,
+            recorder, &ProfilerRecorder::resume);
+    connect(recorder, &ProfilerRecorder::pausedChanged,
+            recordingPage, &RecordingPage::setPaused);
 
     connect(recorder, &ProfilerRecorder::started,
             this, [this](const QString &target) {
         recordingPage->showWaiting(target);
+        recordingPage->setPauseSupported(recorder->canPause());
         rightPane->setCurrentWidget(recordingPage);
     });
     connect(recorder, &ProfilerRecorder::captureStarted,
@@ -319,6 +328,7 @@ void WindowPrivate::updateLoadMenu(QMenu *menu, const QList<QAction *> &fixedAct
 void WindowPrivate::showBackendConfig()
 {
     welcomePage->setActiveBackend(recorder->createConfigWidget());
+    welcomePage->setStartPausedAvailable(recorder->currentBackendCanPause());
 }
 
 void WindowPrivate::onError(const QString &error)

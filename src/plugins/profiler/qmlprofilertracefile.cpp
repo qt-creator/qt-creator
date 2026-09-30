@@ -169,6 +169,11 @@ void QmlProfilerTraceFile::loadQtd(QIODevice *device)
                 break;
             }
 
+            if (elementName == _("pausedRanges")) {
+                loadPausedRanges(stream);
+                break;
+            }
+
             break;
         }
         default: break;
@@ -621,6 +626,27 @@ void QmlProfilerTraceFile::loadNotes(QXmlStreamReader &stream)
     }
 }
 
+void QmlProfilerTraceFile::loadPausedRanges(QXmlStreamReader &stream)
+{
+    QList<std::pair<qint64, qint64>> ranges;
+    while (!stream.atEnd() && !stream.hasError()) {
+        const QXmlStreamReader::TokenType token = stream.readNext();
+        if (token == QXmlStreamReader::EndElement && stream.name() == _("pausedRanges"))
+            break;
+        if (token == QXmlStreamReader::StartElement && stream.name() == _("paused")) {
+            // Forgiving, as a missing range only costs the shading.
+            const QXmlStreamAttributes attributes = stream.attributes();
+            bool startOk = false;
+            bool endOk = false;
+            const qint64 start = attributes.value(_("start")).toLongLong(&startOk);
+            const qint64 end = attributes.value(_("end")).toLongLong(&endOk);
+            if (startOk && endOk && start < end)
+                ranges.append({start, end});
+        }
+    }
+    modelManager()->setPausedRanges(ranges);
+}
+
 void QmlProfilerTraceFile::saveQtd(QIODevice *device)
 {
     QXmlStreamWriter stream(device);
@@ -687,6 +713,17 @@ void QmlProfilerTraceFile::saveQtd(QIODevice *device)
     }
     addStageProgress(ProgressTypes);
     stream.writeEndElement(); // eventData
+
+    if (!manager->pausedRanges().isEmpty()) {
+        stream.writeStartElement(_("pausedRanges"));
+        for (const auto &[start, end] : manager->pausedRanges()) {
+            stream.writeStartElement(_("paused"));
+            stream.writeAttribute(_("start"), QString::number(start));
+            stream.writeAttribute(_("end"), QString::number(end));
+            stream.writeEndElement();
+        }
+        stream.writeEndElement(); // pausedRanges
+    }
 
     if (isCanceled())
         return;
@@ -807,6 +844,7 @@ void QmlProfilerTraceFile::saveQtd(QIODevice *device)
 
 void QmlProfilerTraceFile::saveQzt(QIODevice *device)
 {
+    // Unlike the .qtd format, this one carries no paused ranges.
     QDataStream stream(device);
     stream.setVersion(QDataStream::Qt_5_5);
     stream << QByteArray("QMLPROFILER");
