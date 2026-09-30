@@ -33,7 +33,6 @@ public:
 
     bool isCursorOn(unsigned tokenIndex) const;
     bool isCursorOn(const CPlusPlus::AST *ast) const;
-    bool isBaseObject() const override { return false; }
 
 private:
     QTextCursor adjustedCursor();

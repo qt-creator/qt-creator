@@ -79,9 +79,8 @@ using namespace TextEditor;
 
 namespace TextEditor {
 
-AssistInterface::AssistInterface(const QTextCursor &cursor,
-                                 const Utils::FilePath &filePath,
-                                 AssistReason reason)
+AssistInterface::AssistInterface(const QTextCursor &cursor, const Utils::FilePath &filePath,
+                                 AssistReason reason, bool isBaseObject)
     : m_textDocument(cursor.document())
     , m_cursor(cursor)
     , m_isAsync(false)
@@ -89,6 +88,7 @@ AssistInterface::AssistInterface(const QTextCursor &cursor,
     , m_anchor(cursor.anchor())
     , m_filePath(filePath)
     , m_reason(reason)
+    , m_isBaseObject(isBaseObject)
 {}
 
 AssistInterface::~AssistInterface()

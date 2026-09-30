@@ -150,7 +150,8 @@ public:
                                  const CPlusPlus::LanguageFeatures &languageFeatures,
                                  TextEditor::AssistReason reason,
                                  const WorkingCopy &workingCopy)
-        : TextEditor::AssistInterface(textEditorWidget->textCursor(), filePath, reason)
+        : TextEditor::AssistInterface(textEditorWidget->textCursor(), filePath, reason,
+                                      false /*isBaseObject*/)
         , m_parser(parser)
         , m_gotCppSpecifics(false)
         , m_workingCopy(workingCopy)
@@ -163,7 +164,8 @@ public:
                                  const CPlusPlus::Snapshot &snapshot,
                                  const ProjectExplorer::HeaderPaths &headerPaths,
                                  const CPlusPlus::LanguageFeatures &features)
-        : TextEditor::AssistInterface(textEditorWidget->textCursor(), filePath, reason)
+        : TextEditor::AssistInterface(textEditorWidget->textCursor(), filePath, reason,
+                                      false /*isBaseObject*/)
         , m_gotCppSpecifics(true)
         , m_snapshot(snapshot)
         , m_headerPaths(headerPaths)
@@ -175,7 +177,6 @@ public:
     { getCppSpecifics(); return m_headerPaths; }
     CPlusPlus::LanguageFeatures languageFeatures() const
     { getCppSpecifics(); return m_languageFeatures; }
-    bool isBaseObject() const override { return false; }
 
 private:
     void getCppSpecifics() const;

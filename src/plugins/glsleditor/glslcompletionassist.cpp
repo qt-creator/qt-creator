@@ -536,7 +536,7 @@ GlslCompletionAssistInterface::GlslCompletionAssistInterface(const QTextCursor &
                                                              AssistReason reason,
                                                              const QString &mimeType,
                                                              const Document::Ptr &glslDoc)
-    : AssistInterface(cursor, fileName, reason)
+    : AssistInterface(cursor, fileName, reason, false /*isBaseObject*/)
     , m_mimeType(mimeType)
     , m_glslDoc(glslDoc)
 {
