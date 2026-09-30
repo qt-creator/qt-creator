@@ -262,7 +262,14 @@ void Task::addLinkDetail(const QString &link, const QString &linkText, int linkP
     QTC_ASSERT(linkLength == -1 || linkLength > 0, addToDetails(text); return);
     const int length = linkLength < 1 ? text.size() - linkPos : linkLength;
     QTC_ASSERT(linkPos + linkLength <= text.size(), addToDetails(text); return);
-    const int offset = m_summary.size() + m_details.join('\n').size() + 1 + linkPos;
+
+    // Length of summary and detail lines plus their newline separators.
+    const int offset = std::accumulate(
+        m_details.cbegin(),
+        m_details.cend(),
+        m_summary.size() + 1 + linkPos,
+        [](int sum, const QString &d2) { return sum + d2.size() + 1; });
+
     m_details.append(text);
     QTextCharFormat format;
     format.setAnchor(true);
