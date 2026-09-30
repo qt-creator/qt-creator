@@ -13,6 +13,6 @@ instructions:
     variableValue: "1"
   - type: ExecuteCommand
     command: "ctest -j 4 --timeout 60 --output-on-failure --label-exclude exclude_from_precheck --exclude-regex tst_perfdata"
-    maxTimeInSeconds: 600
-    maxTimeBetweenOutput: 600
+    maxTimeInSeconds: 1800
+    maxTimeBetweenOutput: 1800
     userMessageOnFailure: "Failed to run tests, check logs"

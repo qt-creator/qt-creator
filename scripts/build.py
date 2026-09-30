@@ -46,6 +46,12 @@ def get_arguments():
     # cdbextension
     parser.add_argument('--python-path',
                         help='Path to python libraries for use by cdbextension (Windows)')
+    parser.add_argument('--python-x64dll',
+                        help='Path to python.dll for use by cdbextension (Windows x64)')
+    parser.add_argument('--python-arm64dll',
+                        help='Path to python.dll for use by cdbextension (Windows arm64)')
+    parser.add_argument('--python-win32dll',
+                        help='Path to python.dll for use by cdbextension (Windows win32)')
 
     parser.add_argument('--python3', help='File path to python3 executable for generating translations and SBOMs',
                         default=sys.executable)
@@ -280,6 +286,13 @@ def build_qtcreatorcdbext(args, paths):
                   '-DCMAKE_INSTALL_PREFIX=' + to_posix_path(paths.qtcreatorcdbext_install),
                   '-DQT_GENERATE_SBOM=' + cmake_option(not args.no_sbom)]
     cmake_args += common_cmake_arguments(args)
+    if args.python_x64dll:
+        cmake_args += ['-DPythonTargetx64Dll=' + to_posix_path(args.python_x64dll)]
+    if args.python_arm64dll:
+        cmake_args += ['-DPythonTargetarm64Dll=' + to_posix_path(args.python_arm64dll)]
+    if args.python_win32dll:
+        cmake_args += ['-DPythonTargetwin32Dll=' + to_posix_path(args.python_win32dll)]
+
     common.check_print_call(['cmake'] + cmake_args + [os.path.join(paths.src, 'src', 'libs', 'qtcreatorcdbext')],
                             paths.qtcreatorcdbext_build)
     common.check_print_call(['cmake', '--build', '.'], paths.qtcreatorcdbext_build)

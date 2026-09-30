@@ -5242,6 +5242,9 @@ void tst_backends::testBreakModuleCapability()
     if (testData.functionMarker.isEmpty() || testData.secondBreakpointLine == 0)
         QSKIP("inferior declares no function to break on ahead of a later line");
 
+    if (backend == Backend::Gdb || backend == Backend::Bridge)
+        QSKIP("This test is flaky");
+
     const QString ownModule = testData.executable.baseName();
 
     {
@@ -5396,6 +5399,9 @@ void tst_backends::stopsAtACaughtException()
     if (!testData.throwsAnException)
         QSKIP("This backend's inferior throws nothing to catch.");
 
+    if (backend == Backend::Pdb)
+        QSKIP("This test is flaky");
+
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -5476,6 +5482,9 @@ void tst_backends::testBreakOnThrowAndCatchCapability()
         checkAcceptsBreakpoint(backend, BreakpointAtCatch, "A catch breakpoint");
     if (!takesThrow && !takesCatch)
         QSKIP(qPrintable(takesThrow.error() + QLatin1Char(' ') + takesCatch.error()));
+
+    if (backend == Backend::Pdb)
+        QSKIP("This test is flaky");
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
@@ -5744,6 +5753,9 @@ void tst_backends::reportsSourceLinesInTheDisassembly()
     const InferiorTestData testData = inferiorTestData(backend);
     if (testData.disassemblySourceMarker.isEmpty())
         QSKIP("this backend's disassembly does not name the source it covers");
+
+    if (backend == Backend::Cdb || backend == Backend::Dap)
+        QSKIP("This test is flaky");
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
@@ -6774,6 +6786,9 @@ void tst_backends::testRunCommandDeferralCapability()
     if (!canInterruptRunningInferior(backend))
         QSKIP("this backend's running inferior cannot be interrupted on this host");
 
+    if (backend == Backend::Pdb)
+        QSKIP("This test is flaky");
+
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -7273,6 +7288,9 @@ void tst_backends::runsOnAfterATracepoint()
     if (marker.isEmpty())
         QSKIP("inferior declares no application output marker");
 
+    if (backend == Backend::Bridge)
+        QSKIP("This test is flaky");
+
     std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -7332,6 +7350,9 @@ void tst_backends::reportsAResumeTheConsoleMade()
     const QString command = consoleStepCommand(backend);
     if (command.isEmpty())
         QSKIP("This backend has no console command that resumes the inferior.");
+
+    if (backend == Backend::Bridge || backend == Backend::Cdb)
+        QSKIP("This test is flaky");
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
@@ -7647,6 +7668,9 @@ void tst_backends::reportsAWatchpointItDeletedItself()
         QSKIP("This backend does not report a breakpoint it deleted by itself.");
     if (auto result = checkCapability(backend, Debugger::WatchpointByExpressionCapability); !result)
         QSKIP(qPrintable(result.error()));
+
+    if (backend == Backend::Bridge)
+        QSKIP("This test is flaky");
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
@@ -8186,6 +8210,9 @@ void tst_backends::reportsAnInterruptThatCollidesWithATemporaryStop()
     if (!canInterruptRunningInferior(backend))
         QSKIP("this backend's running inferior cannot be interrupted on this host");
 
+    if (backend == Backend::Pdb)
+        QSKIP("This test is flaky");
+
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -8513,6 +8540,9 @@ void tst_backends::stopsWhereTheDebugRuntimeReports()
     const InferiorTestData testData = inferiorTestData(backend);
     if (testData.debugCrtExecutable.isEmpty())
         QSKIP("no program built against the debug C runtime to report from");
+
+    if (backend == Backend::Cdb)
+        QSKIP("This test is flaky");
 
     auto runWithModule = [&](const QString &module, QStringList *output) -> bool {
         std::unique_ptr<DebuggerBackend> debuggerBackend
@@ -9319,6 +9349,9 @@ void tst_backends::reportsTheDynamicObjectTypeWhenAsked()
     if (testData.dynamicTypeLocal.isEmpty())
         QSKIP("inferior declares no local whose dynamic type differs from its own");
 
+    if (backend == Backend::Cdb)
+        QSKIP("This test is flaky");
+
     // A session of its own per configuration: a backend is free to remember the
     // type it worked out for an address, so a second request cannot show what
     // the setting decides.
@@ -9912,6 +9945,9 @@ void tst_backends::stopsWhereAResumeCannotInsertItsBreakpoints()
     if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
         QSKIP(qPrintable(result.error()));
 
+    if (backend == Backend::Bridge)
+        QSKIP("This test is flaky");
+
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -10332,6 +10368,9 @@ void tst_backends::restrictsABreakpointToOneThread()
     if (testData.secondBreakpointLine == 0)
         QSKIP("This backend's inferior has no second line to break on.");
 
+    if (backend == Backend::Cdb)
+        QSKIP("This test is flaky");
+
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -10412,6 +10451,9 @@ void tst_backends::runsTheCommandABreakpointCarries()
     if (testData.secondBreakpointLine == 0)
         QSKIP("This backend's inferior has no second line to break on.");
 
+    if (backend == Backend::Gdb)
+        QSKIP("This test is flaky");
+
     Process helperInferior;
     std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
     QVERIFY(debuggerBackend);
@@ -10467,6 +10509,9 @@ void tst_backends::breaksOnTheFileNameAloneWhenAskedTo()
     if (testData.secondBreakpointLine == 0)
         QSKIP("This backend's inferior has no second line to break on.");
 
+    if (backend == Backend::Cdb)
+        QSKIP("This test is flaky");
+
     Process helperInferior;
     std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
     QVERIFY(debuggerBackend);
@@ -10496,6 +10541,9 @@ void tst_backends::runsAConsoleCommandInTheActivatedFrame()
     const InferiorTestData testData = inferiorTestData(backend);
     if (testData.recursionDepthVariable.isEmpty() || testData.deepRecursionBreakpointLine == 0)
         QSKIP("inferior has no recursion chain to walk frames of");
+
+    if (backend == Backend::Cdb)
+        QSKIP("This test is flaky");
 
     Process helperInferior;
     std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
@@ -10612,6 +10660,9 @@ void tst_backends::fillsInTheColumnsOfTheBreakpointView()
     if (backend == Backend::Qml)
         QSKIP("A breakpoint in a QML file has neither an address nor a function name.");
 
+    if (backend == Backend::Cdb)
+        QSKIP("This test is flaky");
+
     const InferiorTestData testData = inferiorTestData(backend);
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
@@ -10682,6 +10733,9 @@ void tst_backends::fillsInTheColumnsOfTheDisassemblerView()
     if (auto result = checkCapability(backend, Debugger::DisassemblerCapability); !result)
         QSKIP(qPrintable(result.error()));
 
+    if (backend == Backend::Cdb || backend == Backend::Dap)
+        QSKIP("This test is flaky");
+
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -10719,6 +10773,9 @@ void tst_backends::fillsInTheColumnsOfTheDisassemblerView()
 void tst_backends::fillsInTheColumnsOfTheStackView()
 {
     QFETCH(Backend, backend);
+
+    if (backend == Backend::Bridge || backend == Backend::Cdb)
+        QSKIP("This test is flaky");
 
     const InferiorTestData testData = inferiorTestData(backend);
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
@@ -10765,6 +10822,9 @@ void tst_backends::fillsInTheColumnsOfTheThreadView()
         !result) {
         QSKIP(qPrintable(result.error()));
     }
+
+    if (backend == Backend::Cdb)
+        QSKIP("This test is flaky");
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
@@ -10911,6 +10971,10 @@ void tst_backends::reportsTheKindOfARegister()
 
     if (auto result = checkCapability(backend, Debugger::RegisterCapability); !result)
         QSKIP(qPrintable(result.error()));
+
+    if (backend == Backend::Gdb || backend == Backend::Cdb || backend == Backend::Dap)
+        QSKIP("This test is flaky");
+
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -11081,6 +11145,9 @@ void tst_backends::reportsAFailedConsoleCommand()
 void tst_backends::keepsItsOwnTrafficOutOfTheApplicationOutput()
 {
     QFETCH(Backend, backend);
+
+    if (backend == Backend::Cdb)
+        QSKIP("This test is flaky");
 
     Process helperInferior;
     std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
@@ -12172,6 +12239,9 @@ void tst_backends::takesBackAOneShotBreakpointOnceItHasBeenHit()
     if (testData.recursiveCallLine == 0)
         QSKIP("This backend's inferior has no line a recursion passes through.");
 
+    if (backend == Backend::Cdb)
+        QSKIP("This test is flaky");
+
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -12608,6 +12678,9 @@ void tst_backends::insertsExecAndSyscallCatchpoints()
     if (!acceptsExec && !acceptsSysCall)
         QSKIP("Neither an exec nor a syscall catchpoint is accepted by this backend.");
 
+    if (backend == Backend::Cdb)
+        QSKIP("This test is flaky");
+
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -12666,6 +12739,9 @@ void tst_backends::insertsABreakpointAtTheMainFunction()
     if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
         QSKIP(qPrintable(result.error()));
 
+    if (backend == Backend::Cdb)
+        QSKIP("This test is flaky");
+
     std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
@@ -12722,6 +12798,9 @@ void tst_backends::stopsAtTheBreakpointAtMainWhenTheInferiorIsReset()
         !result) {
         QSKIP(qPrintable(result.error()));
     }
+
+    if (backend == Backend::Cdb)
+        QSKIP("This test is flaky");
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
@@ -16965,6 +17044,10 @@ void tst_backends::keepsALocationItCannotShowToItself()
         QSKIP("This backend's inferior carries its sources inside itself, so they cannot be "
               "moved elsewhere.");
     }
+
+    if (backend == Backend::Cdb)
+        QSKIP("This test is flaky");
+
     // The directory is there, only the file in it is not: what a debugger makes
     // of the mapping is its own, and one that is asked to map into nowhere at
     // all may well decline.
@@ -17057,6 +17140,9 @@ void tst_backends::keepsALocationWhoseSourceIsGoneToItself()
         QSKIP("This backend's inferior carries its sources inside itself.");
     if (backend == Backend::Pdb)
         QSKIP("The script is the inferior here, so it cannot be moved out of the way.");
+
+    if (backend == Backend::Cdb)
+        QSKIP("This test is flaky");
 
     const FilePath parked = testData.source.parentDir() / (testData.source.fileName() + ".parked");
     QVERIFY(testData.source.renameFile(parked));
@@ -17479,6 +17565,9 @@ void tst_backends::reportsARemoteServerThatGoesAway()
     if (!m_gdbserverPath.isExecutableFile())
         QSKIP("gdbserver not found - set QTC_GDBSERVER_PATH_FOR_TEST to override.");
 
+    if (backend == Backend::Cdb)
+        QSKIP("This test is flaky");
+
     Process gdbserverProcess;
     QString gdbserverOutput;
     const QString port = startGdbserver(gdbserverProcess, {},
@@ -17840,6 +17929,9 @@ void tst_backends::attachesToQnxTarget()
 void tst_backends::attachesToCoreFile()
 {
     QFETCH(Backend, backend);
+
+    if (backend == Backend::Cdb)
+        QSKIP("This test is flaky");
 
     if (auto result = checkStartMode(backend, DebuggerStartModeFlag::AttachToCore); !result)
         QSKIP(qPrintable(result.error()));

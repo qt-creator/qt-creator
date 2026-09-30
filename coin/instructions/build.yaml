@@ -91,10 +91,10 @@ instructions:
                 --build {{.AgentWorkingDir}}\qt-creator\qt-creator_build
                 --qt-path {{.AgentWorkingDir}}/build/qt_install_dir
                 --python-path {{.AgentWorkingDir}}\build\qt_temp\python
-                --add-config=-DPythonTargetx64Dll={{.AgentWorkingDir}}\build\qt_temp\python-amd64\python311.dll
-                --add-config=-DPythonTargetarm64Dll={{.AgentWorkingDir}}\build\qt_temp\python-arm64\python311.dll
-                --add-config=-DPythonTargetwin32Dll={{.AgentWorkingDir}}\build\qt_temp\python-win32\python311.dll
-                --elfutils-path {{.AgentWorkingDir}}/buid/qt_temp/elfutils
+                --python-x64dll {{.AgentWorkingDir}}\build\qt_temp\python-amd64\python311.dll
+                --python-arm64dll {{.AgentWorkingDir}}\build\qt_temp\python-arm64\python311.dll
+                --python-win32dll {{.AgentWorkingDir}}\build\qt_temp\python-win32\python311.dll
+                --elfutils-path {{.AgentWorkingDir}}/build/qt_temp/elfutils
                 --llvm-path {{.AgentWorkingDir}}/build/qt_temp/libclang
                 --no-zip
                 {{.Env.QTC_SBOM_OPTION}}
