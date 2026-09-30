@@ -39,4 +39,12 @@ Project {
         Depends { name: "Utils" }
         files: "tst_mcpprotocol.cpp"
     }
+
+    QtcAutotest {
+        name: "McpSse autotest"
+        Depends { name: "McpServerLib" }
+        Depends { name: "Utils" }
+        Depends { name: "Qt.network" }
+        files: "tst_mcpsse.cpp"
+    }
 }
