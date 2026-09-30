@@ -28,6 +28,7 @@ class TimelineModelAggregator;
 class TimelineNotesModel;
 class TimelineZoomControl;
 class TimelineScrollSync;
+class PausedRangesOverlay;
 class RangeDetailsWidget;
 class SelectionRangeOverlay;
 class TimeRuler;
@@ -125,6 +126,7 @@ private:
     QWidget *m_leftPanel = nullptr;
     QVBoxLayout *m_leftLayout = nullptr;
     QWidget *m_leftHeader = nullptr;
+    PausedRangesOverlay *m_pausedOverlay = nullptr;
     SelectionRangeOverlay *m_overlay = nullptr;
     RangeDetailsWidget *m_details; // Not owned; lives in a dockable view.
     TimelineNotesModel *m_notes = nullptr;

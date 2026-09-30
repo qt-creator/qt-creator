@@ -3,6 +3,7 @@
 
 #include "timelinecontentwidget.h"
 
+#include "pausedrangesoverlay.h"
 #include "rangedetailswidget.h"
 #include "selectionrangeoverlay.h"
 #include "timelinemodel.h"
@@ -103,6 +104,9 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
     m_scrollArea->setWidget(m_trackContainer);
 
     activateTrackView(resolvedTrackBackend());
+
+    m_pausedOverlay = new PausedRangesOverlay(aggregator, zoom, m_scrollArea->viewport());
+    m_pausedOverlay->resize(m_scrollArea->viewport()->size());
 
     m_overlay = new SelectionRangeOverlay(zoom, m_scrollArea->viewport());
     m_overlay->resize(m_scrollArea->viewport()->size());
@@ -339,6 +343,7 @@ bool TimelineContentWidget::eventFilter(QObject *watched, QEvent *event)
         auto *re = static_cast<QResizeEvent *>(event);
         m_tracksWidget->resize(re->size());
         m_overlay->resize(re->size());
+        m_pausedOverlay->resize(re->size());
         updateContainerSize();
         positionFrameTimeLabel();
     }
@@ -502,6 +507,8 @@ void TimelineContentWidget::activateTrackView(TrackBackend backend)
     if (previous && previous != m_tracksWidget)
         previous->hide();
     // Keep the selection-range overlay and frame-time label above the view.
+    if (m_pausedOverlay)
+        m_pausedOverlay->raise();
     if (m_overlay)
         m_overlay->raise();
     if (m_frameTimeLabel)

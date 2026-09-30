@@ -19,6 +19,7 @@ QtcLibrary {
         "tracklabels.cpp", "tracklabels.h",
         "timeruler.cpp", "timeruler.h",
         "rangedetailswidget.cpp", "rangedetailswidget.h",
+        "pausedrangesoverlay.cpp", "pausedrangesoverlay.h",
         "selectionrangeoverlay.cpp", "selectionrangeoverlay.h",
         "timelinescrollsync.cpp", "timelinescrollsync.h",
         "timelinecontentwidget.cpp", "timelinecontentwidget.h",

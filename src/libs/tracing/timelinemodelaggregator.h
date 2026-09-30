@@ -34,6 +34,12 @@ public:
     TimelineNotesModel *notes() const;
     void setNotes(TimelineNotesModel *notes);
 
+    // Stretches of the trace during which nothing was recorded, in trace time
+    // (nanoseconds), ordered by start.
+    using PausedRanges = QList<std::pair<qint64, qint64>>;
+    const PausedRanges &pausedRanges() const;
+    void setPausedRanges(const PausedRanges &ranges);
+
     void clear();
     int modelCount() const;
     int modelIndexById(int modelId) const;
@@ -49,6 +55,7 @@ signals:
     void modelsChanged();
     void heightChanged();
     void notesChanged();
+    void pausedRangesChanged();
     void updateCursorPosition();
 
 private:
