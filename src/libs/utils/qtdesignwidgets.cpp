@@ -197,7 +197,7 @@ QSize QtcButton::minimumSizeHint() const
     for (WidgetState state : {WidgetStateDefault, WidgetStateChecked, WidgetStateHovered} ) {
         const TextFormat &tf = buttonTF(m_role, state);
         const QFontMetrics fm(tf.font());
-        const QSize textS = fm.size(mnemonicTextFlag(this), text());
+        const QSize textS = fm.size(Qt::TextShowMnemonic, text());
         maxTextWidth = qMax(maxTextWidth, textS.width());
     }
     const TextFormat &tf = buttonTF(m_role, WidgetStateDefault);
@@ -361,7 +361,7 @@ void QtcButton::paintEvent(QPaintEvent *event)
     const QFont font = tf.font();
     const QFontMetrics fm(font);
     const QString elidedLabelText = fm.elidedText(text(), Qt::ElideRight, availableLabelWidth,
-                                                  mnemonicTextFlag(this));
+                                                  Qt::TextShowMnemonic);
     const QRect labelR(margins.left(), margins.top(), availableLabelWidth, tf.lineHeight());
     p.setFont(font);
     const QColor textColor = isEnabled() ? tf.color() : creatorColor(Theme::Token_Text_Subtle);
@@ -838,7 +838,7 @@ QtcSwitch::QtcSwitch(const QString &text, QWidget *parent)
 QSize QtcSwitch::sizeHint() const
 {
     const QFontMetrics fm(SwitchLabelTf.font());
-    const int textWidth = fm.size(mnemonicTextFlag(this), text()).width();
+    const int textWidth = fm.size(Qt::TextShowMnemonic, text()).width();
     const int width = switchTrackS.width() + GapHM + textWidth;
     return {width, PaddingVS + SwitchLabelTf.lineHeight() + PaddingVS};
 }
@@ -905,8 +905,7 @@ void QtcSwitch::paintEvent([[maybe_unused]] QPaintEvent *event)
         p.setFont(SwitchLabelTf.font());
         p.setPen(isEnabled() ? SwitchLabelTf.color() : creatorColor(Theme::Token_Text_Subtle));
         const QString elidedLabel =
-            p.fontMetrics().elidedText(text(), Qt::ElideRight, textR.width(),
-                                       mnemonicTextFlag(this));
+            p.fontMetrics().elidedText(text(), Qt::ElideRight, textR.width(), Qt::TextShowMnemonic);
         p.drawText(textR, textFlags(SwitchLabelTf, this), elidedLabel);
     }
 }
@@ -982,7 +981,7 @@ void QtcCheckBox::paintEvent([[maybe_unused]] QPaintEvent *event)
         p.setPen(isEnabled() ? SwitchLabelTf.color() : creatorColor(Theme::Token_Text_Subtle));
         const QString elidedLabel =
             p.fontMetrics().elidedText(text(), Qt::ElideRight, textR.width(), Qt::TextShowMnemonic);
-        p.drawText(textR, SwitchLabelTf.drawTextFlags, elidedLabel);
+        p.drawText(textR, textFlags(SwitchLabelTf, this), elidedLabel);
     }
 }
 
@@ -1058,7 +1057,7 @@ void QtcRadioButton::paintEvent([[maybe_unused]] QPaintEvent *event)
         p.setPen(isEnabled() ? SwitchLabelTf.color() : creatorColor(Theme::Token_Text_Subtle));
         const QString elidedLabel =
             p.fontMetrics().elidedText(text(), Qt::ElideRight, textR.width(), Qt::TextShowMnemonic);
-        p.drawText(textR, SwitchLabelTf.drawTextFlags, elidedLabel);
+        p.drawText(textR, textFlags(SwitchLabelTf, this), elidedLabel);
     }
 }
 

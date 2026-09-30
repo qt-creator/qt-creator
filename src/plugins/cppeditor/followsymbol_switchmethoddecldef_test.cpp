@@ -401,6 +401,11 @@ F2TestCase::F2TestCase(CppEditorAction action,
         QEXPECT_FAIL("matchFunctionSignatureFuzzy2Forward", "clangd returns decl loc", Abort);
         QEXPECT_FAIL("matchFunctionSignatureFuzzy1Backward", "clangd returns def loc", Abort);
         QEXPECT_FAIL("matchFunctionSignatureFuzzy2Backward", "clangd returns def loc", Abort);
+    } else {
+        QEXPECT_FAIL("classNameViaTypedef",
+                     "candidate definitions are pre-filtered by class name, and the "
+                     "definition spells the class as a typedef",
+                     Abort);
     }
     QCOMPARE(currentTextEditor->document()->filePath(), targetTestFile->filePath());
     int expectedLine, expectedColumn;
@@ -815,6 +820,13 @@ void FollowSymbolTest::testSwitchMethodDeclDef_data()
              "};\n")
         << _("#include \"file.h\"\n"
              "Foo::Foo() = @default;\n");
+    QTest::newRow("classNameViaTypedef")
+        << _("struct Foo {\n"
+             "    void @func();\n"
+             "};\n"
+             "typedef Foo Alias;\n")
+        << _("#include \"file.h\"\n"
+             "void Alias::$func() {}\n");
     QTest::newRow("defaultedDestructorDecl2Def")
         << _("struct Foo {\n"
              "    ~@Foo();\n"

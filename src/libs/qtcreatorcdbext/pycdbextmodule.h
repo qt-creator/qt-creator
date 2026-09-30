@@ -4,6 +4,7 @@
 #pragma once
 
 #include <Python.h>
+#include <chrono>
 #include <vector>
 #include <string>
 
@@ -15,6 +16,22 @@ std::string collectOutput();
 
 constexpr bool debugPyCdbextModule = false;
 using Bytes = std::vector<char>;
+
+// The calls the Python bridge makes into the debugger engine, counted by
+// engine method, and the time a few of its steps take. Python reads and
+// resets them with cdbext.takeEngineStatistics().
+void countEngineCall(const char *method);
+
+class EngineTimer
+{
+public:
+    explicit EngineTimer(const char *what);
+    ~EngineTimer();
+
+private:
+    const char *m_what;
+    std::chrono::steady_clock::time_point m_start;
+};
 
 class CurrentSymbolGroup
 {

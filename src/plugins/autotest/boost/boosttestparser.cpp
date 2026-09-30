@@ -96,11 +96,22 @@ static BoostTestParseResult *createParseResult(const QString &name, const FilePa
 
 }
 
+DocumentProcessor BoostTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
+{
+    Q_UNUSED(filesToParse)
+    Q_UNUSED(fullParse)
+    return [this, context = createContext()](QPromise<TestParseResultPtr> &promise,
+                                             const FilePath &fileName) {
+        return processDocument(promise, *context, fileName);
+    };
+}
+
 bool BoostTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
+                                      const CppParseContext &context,
                                       const FilePath &fileName)
 {
-    CPlusPlus::Document::Ptr doc = document(fileName);
-    if (doc.isNull() || !includesBoostTest(doc, m_cppSnapshot) || !hasBoostTestMacros(doc))
+    CPlusPlus::Document::Ptr doc = document(context, fileName);
+    if (doc.isNull() || !includesBoostTest(doc, context.cppSnapshot) || !hasBoostTestMacros(doc))
         return false;
 
     const QList<CppEditor::ProjectPart::ConstPtr> projectParts
@@ -109,9 +120,10 @@ bool BoostTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
         return false;
     const CppEditor::ProjectPart::ConstPtr projectPart = projectParts.first();
     const FilePath &projectFile = projectPart->projectFile;
-    const QByteArray &fileContent = getFileContent(fileName);
+    const QByteArray &fileContent = getFileContent(context, fileName);
 
-    BoostCodeParser codeParser(fileContent, projectPart->languageFeatures, doc, m_cppSnapshot);
+    BoostCodeParser codeParser(fileContent, projectPart->languageFeatures, doc,
+                               context.cppSnapshot);
     const BoostTestCodeLocationList foundTests = codeParser.findTests();
     if (foundTests.isEmpty())
         return false;

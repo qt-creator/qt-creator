@@ -81,6 +81,11 @@ int main(int argc, char *argv[])
     QCommandLineOption withRpc(QStringList({"r", "rpc"}),
                                "Activate JSON-RPC 2.0 through stdio.");
     parser.addOption(withRpc);
+    QCommandLineOption embedded(QStringList({"embedded"}),
+                                "Embedded in a host application that supplies the trace. "
+                                "Hides the actions and the trace list that would otherwise "
+                                "open, switch or close a trace.");
+    parser.addOption(embedded);
     QCommandLineOption printRpcSchema(QStringList({"rpc-schema"}),
                                       "Print JSON-RPC 2.0 schema to stdout and exit.");
     parser.addOption(printRpcSchema);
@@ -117,6 +122,13 @@ int main(int argc, char *argv[])
 
     QtProfiler::settings().exitOnError.setValue(parser.isSet(exitOnError));
     QtProfiler::settings().withRpc.setValue(parser.isSet(withRpc));
+    QtProfiler::settings().embedded.setValue(parser.isSet(embedded));
+
+    if (parser.isSet(embedded) && (parser.isSet(launch) || parser.isSet(recordFor))) {
+        std::cerr << "--embedded shows the trace the host supplies, so it cannot be combined "
+                     "with --launch or --record-for" << std::endl;
+        return -1;
+    }
 
     if (parser.isSet(launch)) {
         const CommandLine cmd = CommandLine::fromUserInput(parser.value(launch));

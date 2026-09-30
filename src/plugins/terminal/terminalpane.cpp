@@ -11,8 +11,11 @@
 #include "terminalwidget.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
@@ -135,13 +138,25 @@ TerminalPane::TerminalPane(QObject *parent)
 
 TerminalPane::~TerminalPane() {}
 
-static std::optional<FilePath> startupProjectDirectory()
+static FilePath defaultWorkingDirectory()
 {
     const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    if (!project)
-        return std::nullopt;
+    if (project)
+        return project->projectDirectory();
 
-    return project->projectDirectory();
+    // Without a project, follow the "Projects Directory" setting rather than the
+    // configured path alone: with "Current directory" chosen, that path is the
+    // one the settings page greys out.
+    if (DocumentManager::useProjectsDirectory())
+        return DocumentManager::projectsDirectory();
+
+    const IDocument *document = EditorManager::currentDocument();
+    if (document && !document->isTemporary() && !document->filePath().isEmpty())
+        return document->filePath().absolutePath();
+
+    // Nothing open either: leaving the directory unset is what "current" means
+    // here, since the shell then inherits the one Qt Creator runs in.
+    return {};
 }
 
 void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
@@ -149,13 +164,13 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
     OpenTerminalParameters parametersCopy{parameters};
 
     if (!parametersCopy.workingDirectory) {
-        const std::optional<FilePath> projectDir = startupProjectDirectory();
-        if (projectDir) {
+        const FilePath defaultDir = defaultWorkingDirectory();
+        if (!defaultDir.isEmpty()) {
             if (!parametersCopy.shellCommand) {
-                parametersCopy.workingDirectory = *projectDir;
-            } else if (parametersCopy.shellCommand->executable().ensureReachable(*projectDir)) {
+                parametersCopy.workingDirectory = defaultDir;
+            } else if (parametersCopy.shellCommand->executable().ensureReachable(defaultDir)) {
                 parametersCopy.workingDirectory
-                    = parametersCopy.shellCommand->executable().withNewMappedPath(*projectDir);
+                    = parametersCopy.shellCommand->executable().withNewMappedPath(defaultDir);
             }
         }
     }

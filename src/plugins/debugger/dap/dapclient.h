@@ -12,6 +12,10 @@
 
 namespace Debugger::Internal {
 
+// A frame or a loaded module names its module either by a number or by a
+// string, whichever the adapter picked.
+QString dapModuleName(const QJsonValue &moduleId);
+
 class IDataProvider : public QObject
 {
     Q_OBJECT
@@ -52,10 +56,14 @@ enum class DapResponseType
     StepIn,
     StepOut,
     StepOver,
+    StepBack,
+    ReverseContinue,
     Pause,
     Evaluate,
     SetBreakpoints,
     SetFunctionBreakpoints,
+    SetInstructionBreakpoints,
+    SetDataBreakpoints,
     Attach,
     Launch,
     Unknown
@@ -159,6 +167,7 @@ public:
 
     void emitSignals(const QJsonDocument &doc);
     void fillCapabilities(const QJsonObject &response);
+    void updateCapabilities(const QJsonObject &capabilities);
     Capabilities capabilities() const { return m_capabilities; }
 
 signals:
@@ -188,6 +197,7 @@ private:
 
     IDataProvider *m_dataProvider = nullptr;
     QByteArray m_inbuffer;
+    QJsonObject m_announcedCapabilities;
     Capabilities m_capabilities;
 };
 

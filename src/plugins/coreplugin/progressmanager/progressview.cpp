@@ -45,7 +45,7 @@ ProgressView::ProgressView(QWidget *parent)
     progressWidgetsContainer->setContentsMargins({});
     m_progressWidgetsLayout = new QVBoxLayout(progressWidgetsContainer);
     m_progressWidgetsLayout->setContentsMargins({});
-    m_progressWidgetsLayout->setSpacing(QtcSeparatedItemsWidget::separatorLineWidth());
+    m_progressWidgetsLayout->setSpacing(0); // Intentionally not separatorLineWidth()
 
     setWindowTitle(Tr::tr("Processes"));
 
@@ -85,6 +85,13 @@ void ProgressView::addExtraWidget(QWidget *widget)
 void ProgressView::removeProgressWidget(QWidget *widget)
 {
     m_progressWidgetsLayout->removeWidget(widget);
+    // Activate nested layouts now, to avoid painting stale geometry in between.
+    for (QWidget *w = m_progressWidgetsLayout->parentWidget(); w; w = w->parentWidget()) {
+        if (QLayout *layout = w->layout())
+            layout->activate();
+        if (w == this)
+            break;
+    }
 }
 
 bool ProgressView::isHovered() const

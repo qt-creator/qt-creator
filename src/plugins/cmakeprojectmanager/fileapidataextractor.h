@@ -58,6 +58,7 @@ FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input
 
 #ifdef WITH_TESTS
 QObject *createImportedLibraryDirectoriesTest();
+QObject *createLinkedInterfaceSourcesTest();
 #endif
 
 } // CMakeProjectManager::Internal

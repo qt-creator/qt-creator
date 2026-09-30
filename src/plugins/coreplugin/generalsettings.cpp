@@ -383,6 +383,8 @@ GeneralSettings::GeneralSettings()
 
     readSettings();
 
+    QCoreApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus,
+                                   !showShortcutsInContextMenus());
     StyleHelper::setToolbarStyle(StyleHelper::ToolbarStyle(toolbarStyle()));
 }
 

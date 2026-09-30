@@ -567,7 +567,11 @@ static int line_popcount(ScreenCell *buffer, int row, int rows, int cols)
   return col + 1;
 }
 
-static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new_cols, bool active, VTermStateFields *statefields)
+/* cursor is where the cursor of the buffer being resized is kept, or NULL if
+ * it has none to carry over. It is not statefields->pos for a buffer that is
+ * not shown: that one holds the cursor of whatever is on screen instead. */
+static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new_cols, bool active,
+    VTermPos *cursor, VTermStateFields *statefields)
 {
   int old_rows = screen->rows;
   int old_cols = screen->cols;
@@ -591,7 +595,7 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
   int old_row = old_rows - 1;
   int new_row = new_rows - 1;
 
-  VTermPos old_cursor = statefields->pos;
+  VTermPos old_cursor = cursor ? *cursor : (VTermPos){ .row = -1, .col = -1 };
   VTermPos new_cursor = { -1, -1 };
 
 #ifdef DEBUG_REFLOW
@@ -636,7 +640,7 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
 
     if(new_row_start < 0 && /* we'd fall off the top */
         spare_rows >= 0 && /* we actually have spare rows */
-        (!active || new_cursor.row == -1 || (new_cursor.row - new_row_start) < new_rows))
+        (!cursor || new_cursor.row == -1 || (new_cursor.row - new_row_start) < new_rows))
     {
       /* Attempt to scroll content down into the blank rows at the bottom to
        * make it fit
@@ -751,8 +755,8 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
         sb_pushline_from_row(screen, old_buffer + row * old_cols, old_cols,
             lineinfo->continuation);
       }
-    if(active)
-      statefields->pos.row -= (old_row + 1);
+    if(cursor)
+      cursor->row -= (old_row + 1);
   }
   if(new_row >= 0 && bufidx == BUFIDX_PRIMARY &&
       screen->callbacks && screen->callbacks->sb_popline) {
@@ -795,8 +799,8 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
         clearcell(&new_buffer[pos.row * new_cols + pos.col], &blank);
       new_row--;
 
-      if(active)
-        statefields->pos.row++;
+      if(cursor)
+        cursor->row++;
     }
   }
   if(new_row >= 0) {
@@ -820,8 +824,8 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
   vterm_allocator_free(screen->vt, old_lineinfo);
   statefields->lineinfos[bufidx] = new_lineinfo;
 
-  if(active)
-    statefields->pos = new_cursor;
+  if(cursor)
+    *cursor = new_cursor;
 
   return;
 }
@@ -843,9 +847,14 @@ static int resize(int new_rows, int new_cols, VTermStateFields *fields, void *us
     screen->sb_buffer = vterm_allocator_malloc(screen->vt, sizeof(VTermScreenCell) * new_cols);
   }
 
-  resize_buffer(screen, 0, new_rows, new_cols, !altscreen_active, fields);
+  /* The screen that is not shown keeps its cursor in its saved slot: DECSET
+   * 1049 put it there when it switched away and will take it back from there,
+   * so the primary has to be reflowed around it like any other cursor. */
+  resize_buffer(screen, 0, new_rows, new_cols, !altscreen_active,
+      altscreen_active ? &fields->savedpos : &fields->pos, fields);
   if(screen->buffers[BUFIDX_ALTSCREEN])
-    resize_buffer(screen, 1, new_rows, new_cols, altscreen_active, fields);
+    resize_buffer(screen, 1, new_rows, new_cols, altscreen_active,
+        altscreen_active ? &fields->pos : NULL, fields);
   else if(new_rows != old_rows) {
     /* We don't need a full resize of the altscreen because it isn't enabled
      * but we should at least keep the lineinfo the right size */

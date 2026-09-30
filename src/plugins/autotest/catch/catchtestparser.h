@@ -22,8 +22,12 @@ class CatchTestParser : public CppParser
 public:
     CatchTestParser(ITestFramework *framework)
         : CppParser(framework) {}
+    DocumentProcessor init(const QSet<Utils::FilePath> &filesToParse, bool fullParse) override;
+
+private:
     bool processDocument(QPromise<TestParseResultPtr> &promise,
-                         const Utils::FilePath &fileName) override;
+                         const CppParseContext &context,
+                         const Utils::FilePath &fileName);
 };
 
 } // namespace Autotest::Internal

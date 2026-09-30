@@ -8,18 +8,19 @@
 #include "localhelpmanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/mimeutils.h>
 #include <utils/theme/theme.h>
 
 #include <QClipboard>
+#include <QDebug>
 #include <QFile>
 #include <QGuiApplication>
+#include <QImageReader>
 #include <QScrollBar>
 #include <QTimer>
 #include <QToolTip>
 #include <QVBoxLayout>
 #include <QWheelEvent>
-
-#include <QDebug>
 
 using namespace Help;
 using namespace Help::Internal;
@@ -316,7 +317,12 @@ void LiteHtmlHelpViewer::setSourceInternal(const QUrl &url, std::optional<int> v
         // We do not expect the documentation to support dark themes, so start with light palette.
         // We override this if we find Qt's dark style
         setLight(this);
-        m_viewer->setHtml(QString::fromUtf8(getData(url, this)));
+        const Utils::MimeType mimeType = Utils::mimeTypeForFile(url.fileName(),
+                                                                Utils::MimeMatchMode::MatchExtension);
+        if (QImageReader::supportedMimeTypes().contains(mimeType.name().toUtf8()))
+            m_viewer->setHtml(QString("<img src=\"%1\"/>").arg(QString::fromUtf8(url.toEncoded())));
+        else
+            m_viewer->setHtml(QString::fromUtf8(getData(url, this)));
     }
     if (vscroll)
         m_viewer->verticalScrollBar()->setValue(*vscroll);

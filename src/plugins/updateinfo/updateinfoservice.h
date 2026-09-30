@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QObject>
 #include <QString>
 
@@ -17,6 +19,10 @@ public:
     virtual ~Service() = default;
 
     virtual bool installPackages(const QString &filterRegex) = 0;
+
+    // The directory the Qt installer manages, i.e. the one holding the
+    // maintenance tool and a subdirectory per installed Qt version.
+    virtual Utils::FilePath installationRoot() const = 0;
 };
 
 } // namespace UpdateInfo

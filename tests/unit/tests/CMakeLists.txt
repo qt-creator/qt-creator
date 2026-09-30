@@ -1,11 +1,5 @@
 find_package(Qt6 COMPONENTS QmlDomPrivate QmlCompilerPrivate QUIET)
 
-if (MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
-elseif (MINGW)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
-endif()
-
 set(QT_CREATOR_LIBS_DIRECTORY "${QtCreator_SOURCE_DIR}/src/libs")
 set(QT_CREATOR_PLUGINS_DIRECTORY "${QtCreator_SOURCE_DIR}/src/plugins")
 set(QtCreatorResourcesDir "${QtCreator_SOURCE_DIR}/share/qtcreator")

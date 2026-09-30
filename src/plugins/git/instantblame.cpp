@@ -132,12 +132,14 @@ static EditorLineDiff editorLineDiff(const DiffEditor::ChunkData &chunk, int edi
     return result;
 }
 
+#ifdef WITH_TESTS
 static EditorLineDiff editorLineDiffAgainstEditorText(const QString &baseText,
                                                        const QString &editorText,
                                                        int editorLine)
 {
     return editorLineDiff(diffChunkAgainstEditorText(baseText, editorText), editorLine);
 }
+#endif
 
 static void computeEditorLineDiff(QPromise<EditorLineDiff> &promise,
                                   const QString &baseText,

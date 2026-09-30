@@ -52,7 +52,6 @@ private slots:
     void row();
     void colorByHue();
     void colorBySelectionId();
-    void colorByFraction();
     void insertStartEnd();
     void rowCount();
     void prevNext();
@@ -385,13 +384,6 @@ void tst_TimelineModel::colorBySelectionId()
     dummy.loadData();
     QCOMPARE(dummy.colorBySelectionId(5), QColor::fromHsl(6 * 25, kDefaultSaturation,
                                                           defaultColorLightness()).rgb());
-}
-
-void tst_TimelineModel::colorByFraction()
-{
-    DummyModel dummy(&aggregator);
-    QCOMPARE(dummy.colorByFraction(0.5), QColor::fromHsl(0.5 * 96 + 10, kDefaultSaturation,
-                                                         defaultColorLightness()).rgb());
 }
 
 void tst_TimelineModel::insertStartEnd()

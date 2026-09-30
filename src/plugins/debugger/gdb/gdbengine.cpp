@@ -77,11 +77,6 @@ static int &currentToken()
     return token;
 }
 
-bool isTerminateMessage(const QStringView msg)
-{
-    return msg.contains(u"terminate called");
-}
-
 static bool isMostlyHarmlessMessage(const QStringView msg)
 {
     return msg == u"warning: GDB: Failed to set controlling terminal: "
@@ -4439,6 +4434,18 @@ void GdbEngine::setupInferior()
         if (usesTargetAsync())
             runCommand({"set " + asyncSetting() + " on", CB(handleSetTargetAsync)});
 
+        // In all-stop mode gdb steps over a breakpoint with all other threads
+        // stopped. If the stepped thread blocks, e.g. on a futex held by one of
+        // them, the step never finishes and the inferior cannot be interrupted.
+        // A non-stop target lets gdb use displaced stepping instead, while the
+        // MI keeps presenting all-stop.
+        // Servers behind a pipe, like vgdb, have no non-stop support.
+        m_targetNonStop = settings().targetNonStop() && m_gdbVersion >= 120000
+                          && rp.toolChainAbi().os() == Abi::LinuxOS
+                          && !rp.remoteChannel().startsWith('|');
+        if (m_targetNonStop)
+            runCommand({"maint set target-non-stop on"});
+
         if (symbolFile.isEmpty()) {
             showMessage(Tr::tr("No symbol file given."), StatusBar);
             callTargetRemote();
@@ -4633,7 +4640,7 @@ void GdbEngine::handleLocalAttach(const DebuggerResponse &response)
         break;
     }
     case ResultFail:
-        if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
+        if (response.data["msg"].data().contains("ptrace: Operation not permitted.")) {
             const QString msg = msgPtraceError(runParameters().startMode());
             showStatusMessage(Tr::tr("Failed to attach to application: %1").arg(msg));
             AsynchronousMessageBox::warning(Tr::tr("Debugger Error"), msg);
@@ -4664,7 +4671,7 @@ void GdbEngine::handleRemoteAttach(const DebuggerResponse &response)
         break;
     }
     case ResultFail:
-        if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
+        if (response.data["msg"].data().contains("ptrace: Operation not permitted.")) {
             notifyInferiorSetupFailedHelper(msgPtraceError(runParameters().startMode()));
             break;
         }
@@ -4825,6 +4832,31 @@ void GdbEngine::callTargetRemote()
         runCommand({"target remote " + channel, CB(handleTargetRemote)});
 }
 
+bool GdbEngine::retryWithoutTargetNonStop(const DebuggerResponse &response)
+{
+    if (!m_targetNonStop || !response.data["msg"].data().contains("does not support non-stop"))
+        return false;
+    m_targetNonStop = false;
+    m_retriedWithoutTargetNonStop = true;
+    showMessage("REMOTE DOES NOT SUPPORT NON-STOP, RETRYING IN ALL-STOP MODE");
+    runCommand({"maint set target-non-stop off"});
+    callTargetRemote();
+    return true;
+}
+
+// Some servers, like qemu-user, do not take a second connection.
+QString GdbEngine::msgConnectFailed(const DebuggerResponse &response) const
+{
+    QString msg = msgConnectRemoteServerFailed(response.data["msg"].data());
+    if (m_retriedWithoutTargetNonStop) {
+        msg += "\n\n" + Tr::tr("The server does not support non-stop mode and did not accept "
+                               "a second connection without it. Turn off \"%1\" in the GDB "
+                               "settings to connect in all-stop mode right away.")
+                              .arg(settings().targetNonStop.labelText());
+    }
+    return msg;
+}
+
 void GdbEngine::handleTargetRemote(const DebuggerResponse &response)
 {
     CHECK_STATE(EngineSetupRequested);
@@ -4836,9 +4868,9 @@ void GdbEngine::handleTargetRemote(const DebuggerResponse &response)
         if (!commands.isEmpty())
             runCommand({commands, NativeCommand});
         handleInferiorPrepared();
-    } else {
+    } else if (!retryWithoutTargetNonStop(response)) {
         // 16^error,msg="hd:5555: Connection timed out."
-        notifyInferiorSetupFailedHelper(msgConnectRemoteServerFailed(response.data["msg"].data()));
+        notifyInferiorSetupFailedHelper(msgConnectFailed(response));
     }
 }
 
@@ -4878,8 +4910,8 @@ void GdbEngine::handleTargetExtendedRemote(const DebuggerResponse &response)
                 handleInferiorPrepared(); // This will likely fail.
             }
         }
-    } else {
-        notifyInferiorSetupFailedHelper(msgConnectRemoteServerFailed(response.data["msg"].data()));
+    } else if (!retryWithoutTargetNonStop(response)) {
+        notifyInferiorSetupFailedHelper(msgConnectFailed(response));
     }
 }
 
@@ -4977,7 +5009,7 @@ void GdbEngine::handleStubAttached(const DebuggerResponse &response, qint64 main
         }
         break;
     case ResultFail:
-        if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
+        if (response.data["msg"].data().contains("ptrace: Operation not permitted.")) {
             notifyInferiorSetupFailedHelper(msgPtraceError(runParameters().startMode()));
             break;
         }
@@ -5104,6 +5136,7 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.arg("autoderef", s.autoDerefPointers());
     cmd.arg("dyntype", s.useDynamicType());
     cmd.arg("qobjectnames", s.showQObjectNames());
+    cmd.arg("allscopes", s.showVariablesFromAllScopes());
     cmd.arg("timestamps", s.logTimeStamps());
     cmd.arg("qtversion", runParameters().qtVersion());
     cmd.arg("qtnamespace", runParameters().configuredQtNamespace());
@@ -5204,6 +5237,13 @@ InferiorStartData inferiorStartData(const DebuggerRunParameters &rp)
     default:
         break;
     }
+    if (rp.useTerminal()) {
+        // The stub started the program suspended in the terminal it opened for it,
+        // so there is nothing left to launch, only something to attach to.
+        return AttachToTerminalStubData{ProcessHandle(rp.applicationPid()),
+                                        rp.applicationMainThreadId(),
+                                        rp.inferior().command.executable()};
+    }
     return rp.inferior();
 }
 
@@ -5264,6 +5304,13 @@ static DebuggerUserCommands gdbImplUserCommands(const DebuggerRunParameters &rp)
     };
 }
 
+static TriState gdbHeapDebugging(const DebuggerRunParameters &rp)
+{
+    if (rp.inferior().command.executable().osType() != OsTypeWindows)
+        return TriState::Default;
+    return settings().enableHeapDebugging() ? TriState::Enabled : TriState::Disabled;
+}
+
 static GdbImplStartData gdbImplStartData(const DebuggerRunParameters &rp)
 {
     const bool windowsMain = rp.toolChainAbi().os() == Abi::WindowsOS && !rp.useTerminal();
@@ -5277,6 +5324,7 @@ static GdbImplStartData gdbImplStartData(const DebuggerRunParameters &rp)
         .mainFunctionName = QLatin1String(windowsMain ? "qMain" : "main"),
         .flags = gdbImplFlags(rp),
         .useDebugInfoD = settings().useDebugInfoD(),
+        .enableHeapDebugging = gdbHeapDebugging(rp),
         .qtVersion = rp.qtVersion(),
         .qtNamespace = rp.configuredQtNamespace(),
         .runAsUser = rp.runAsUser(),

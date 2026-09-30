@@ -200,6 +200,8 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
 
+    void scrollContentsBy(int dx, int dy) override;
+
     bool event(QEvent *event) override;
 
 protected:

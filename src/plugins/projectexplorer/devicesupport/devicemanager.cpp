@@ -18,6 +18,9 @@
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
 #include <utils/fsengine/fsengine.h>
+#include <utils/layoutbuilder.h>
+#include <utils/macroexpander.h>
+#include <utils/pathchooser.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
@@ -27,7 +30,9 @@
 
 #include <QHash>
 #include <QMutex>
+#include <QMenu>
 #include <QMutexLocker>
+#include <QPushButton>
 #include <QVariantList>
 
 #include <memory>
@@ -644,6 +649,57 @@ public:
     }
 };
 
+// Knows one executable, which the host does not have.
+class DeviceOnlyToolFileAccess final : public DesktopDeviceFileAccess
+{
+public:
+    static QString toolPath() { return "/qtc-device-only/bin/qtc-test-tool"; }
+
+    Result<bool> isExecutableFile(const FilePath &filePath) const final
+    {
+        return filePath.path() == toolPath();
+    }
+};
+
+class DeviceOnlyToolDevice final : public IDevice
+{
+public:
+    explicit DeviceOnlyToolDevice(OsType osType)
+    {
+        setupId(AutoDetected, Id::generate());
+        setType(TestDevice::testTypeId());
+        setOsType(osType);
+        setFileAccess(std::make_shared<DeviceOnlyToolFileAccess>(), false);
+    }
+
+    void initToolAspects() { initDeviceToolAspects(); }
+
+private:
+    IDeviceWidget *createWidget() override { return nullptr; }
+};
+
+class TestToolFactory final : public DeviceToolAspectFactory
+{
+public:
+    static Id testToolId() { return "Test.DeviceOnlyTool"; }
+
+    explicit TestToolFactory(const Checker &checker = {})
+    {
+        setToolId(testToolId());
+        setDisplayName("Test Tool");
+        setFilePattern({"qtc-test-tool"});
+        setChecker(checker);
+    }
+};
+
+static DeviceToolAspect *findTestToolAspect(const IDevice::Ptr &dev)
+{
+    return Utils::findOrDefault(
+        dev->deviceToolAspects(DeviceToolAspect::AllTools), [](DeviceToolAspect *aspect) {
+            return aspect->toolId() == TestToolFactory::testToolId();
+        });
+}
+
 class DeviceManagerTest : public QObject
 {
     Q_OBJECT
@@ -744,6 +800,117 @@ private slots:
         // Reverting the edit clears the dirty state again.
         host.setVolatileValue(original);
         QVERIFY(!dev->isDirty());
+    }
+
+    void testDeviceLocalToolSurvivesDetection()
+    {
+        const TestToolFactory toolFactory;
+        const auto dev = std::make_shared<DeviceOnlyToolDevice>(HostOsInfo::hostOs());
+        dev->initToolAspects();
+        DeviceManager::addDevice(dev);
+
+        DeviceToolAspect *const toolAspect = findTestToolAspect(dev);
+        QVERIFY(toolAspect);
+        toolAspect->setValue(DeviceOnlyToolFileAccess::toolPath());
+
+        QtTaskTree::QTaskTree::runBlocking(dev->autoDetectDeviceToolsRecipe());
+
+        const FilePath toolPath = dev->deviceToolPath(TestToolFactory::testToolId());
+        DeviceManager::removeDevice(dev->id());
+        QCOMPARE(toolPath, dev->filePath(DeviceOnlyToolFileAccess::toolPath()));
+    }
+
+    void testDeviceToolSpelledTheDevicesWay()
+    {
+        const TestToolFactory toolFactory;
+        const auto dev = std::make_shared<DeviceOnlyToolDevice>(OsTypeWindows);
+        dev->initToolAspects();
+        DeviceManager::addDevice(dev);
+
+        DeviceToolAspect *const toolAspect = findTestToolAspect(dev);
+        QVERIFY(toolAspect);
+        const FilePath onDevice = dev->filePath("C:/tools/qtc-test-tool.exe");
+        toolAspect->setToolPath(onDevice);
+        const QString stored = toolAspect->value();
+        const FilePath readBack = toolAspect->toolPath();
+
+        DeviceManager::removeDevice(dev->id());
+        QCOMPARE(stored, QString("C:\\tools\\qtc-test-tool.exe"));
+        QCOMPARE(readBack, onDevice);
+    }
+
+    void testDeviceToolAlternativesSpelledTheDevicesWay()
+    {
+        const auto dev = std::make_shared<DeviceOnlyToolDevice>(OsTypeWindows);
+        DeviceManager::addDevice(dev);
+
+        PathChooser chooser;
+        chooser.setBaseDirectory(dev->rootPath());
+        chooser.setValueAlternatives(
+            {dev->filePath("C:/tools/qtc-test-tool.exe"), dev->filePath("D:/qtc-test-tool.exe")});
+        QStringList labels;
+        QString chosen;
+        const auto button = Utils::findOrDefault(
+            chooser.findChildren<QPushButton *>(), [](QPushButton *b) { return b->menu(); });
+        if (button) {
+            const QList<QAction *> actions = button->menu()->actions();
+            labels = Utils::transform(actions, &QAction::text);
+            actions.first()->trigger();
+            chosen = chooser.lineEdit()->text();
+        }
+
+        DeviceManager::removeDevice(dev->id());
+        QCOMPARE(labels, QStringList({"C:\\tools\\qtc-test-tool.exe", "D:\\qtc-test-tool.exe"}));
+        QCOMPARE(chosen, QString("C:\\tools\\qtc-test-tool.exe"));
+    }
+
+    void testDeviceToolValidatedOnTheDevice()
+    {
+        const TestToolFactory toolFactory([](const DeviceConstRef &, const FilePath &path) {
+            return Result<>(ResultError("checked " + path.toUrlishString()));
+        });
+        const auto dev = std::make_shared<DeviceOnlyToolDevice>(HostOsInfo::hostOs());
+        dev->initToolAspects();
+        DeviceManager::addDevice(dev);
+
+        DeviceToolAspect *const toolAspect = findTestToolAspect(dev);
+        QVERIFY(toolAspect);
+        Layouting::Column column;
+        toolAspect->addToLayout(column);
+        const std::unique_ptr<QWidget> widget(column.emerge());
+        toolAspect->macroExpander()->registerVariable(
+            "QtcTestToolDir", "Test tool directory", [] { return QString("/qtc-device-only/bin"); });
+        toolAspect->setValue(QString("%{QtcTestToolDir}/qtc-test-tool"));
+        PathChooser *const chooser = toolAspect->pathChooser();
+        QVERIFY(chooser);
+        const QString expected
+            = "checked " + dev->filePath(DeviceOnlyToolFileAccess::toolPath()).toUrlishString();
+        QTRY_VERIFY(chooser->errorMessage().contains(expected));
+
+        DeviceManager::removeDevice(dev->id());
+    }
+
+    void testDeviceToolKeepsMacros()
+    {
+        const TestToolFactory toolFactory;
+        const auto dev = std::make_shared<DeviceOnlyToolDevice>(HostOsInfo::hostOs());
+        dev->initToolAspects();
+        DeviceManager::addDevice(dev);
+
+        DeviceToolAspect *const toolAspect = findTestToolAspect(dev);
+        QVERIFY(toolAspect);
+        toolAspect->macroExpander()->registerVariable(
+            "QtcTestToolDir", "Test tool directory", [] { return QString("/qtc-device-only/bin"); });
+        const QString written = "%{QtcTestToolDir}/qtc-test-tool";
+        toolAspect->setValue(written);
+        const FilePath expanded = toolAspect->toolPath();
+
+        QtTaskTree::QTaskTree::runBlocking(dev->autoDetectDeviceToolsRecipe());
+
+        const QString stored = toolAspect->value();
+        DeviceManager::removeDevice(dev->id());
+        QCOMPARE(expanded, dev->filePath(DeviceOnlyToolFileAccess::toolPath()));
+        QCOMPARE(stored, written);
     }
 };
 

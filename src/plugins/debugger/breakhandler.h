@@ -208,6 +208,7 @@ class BreakHandler : public BreakHandlerModel
 {
 public:
     explicit BreakHandler(DebuggerEngine *engine);
+    ~BreakHandler() override;
 
     QAbstractItemModel *model() { return this; }
     const Breakpoints breakpoints() const;

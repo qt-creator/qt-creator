@@ -118,6 +118,7 @@ private slots:
     void testHidesFindToolBar();
     void testHidesOutputPane();
     void testMovesFocusToEditorViewInMode();
+    void testMovesFocusPastHiddenFocusWidget();
     void testActivatesEditModeFromModeWithoutEditorView();
     void testActivatesModeOfCurrentEditorArea();
     void testLeavesModeWithOwnEditorArea();
@@ -1176,6 +1177,37 @@ void EscapeKeyTest::testMovesFocusToEditorViewInMode()
 
     QVERIFY(viewHasFocus(view));
     QVERIFY(outputPane->isVisible());
+    QCOMPARE(ModeManager::currentModeId(), Id(MODE_WITH_AREA));
+}
+
+/*
+    The focus is in a mode that shows an editor view, but not in that view, and
+    the widget in the editor that had the focus last is hidden since: escape
+    moves the focus to the editor instead of losing it to the hidden widget.
+*/
+void EscapeKeyTest::testMovesFocusPastHiddenFocusWidget()
+{
+    TestFile a;
+    ModeManager::activateMode(MODE_WITH_AREA);
+    EditorView *view = areaModeWidget(m_areaMode)->view();
+    QVERIFY(view);
+    IEditor *editor = EMP::openEditor(view, a.filePath());
+    QVERIFY(editor);
+    auto editorChild = new QLineEdit(editor->widget());
+    editorChild->show();
+    editorChild->setFocus();
+    QTRY_COMPARE(QApplication::focusWidget(), editorChild);
+    QLineEdit *focusable = areaModeWidget(m_areaMode)->m_focusable;
+    focusable->setFocus();
+    QTRY_COMPARE(QApplication::focusWidget(), focusable);
+    editorChild->hide();
+    QCOMPARE(editor->widget()->focusWidget(), editorChild);
+
+    EMP::doEscapeKeyFocusMoveMagic();
+
+    QVERIFY(viewHasFocus(view));
+    QVERIFY(editor->widget()->isAncestorOf(QApplication::focusWidget()));
+    QVERIFY(QApplication::focusWidget()->isVisible());
     QCOMPARE(ModeManager::currentModeId(), Id(MODE_WITH_AREA));
 }
 

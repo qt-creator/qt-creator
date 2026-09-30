@@ -95,3 +95,57 @@ install(DIRECTORY config
   COMPONENT Devel
   ${EXCLUDE_DOCS_FROM_ALL}
 )
+
+# The full MCP tool list is generated from the running server; the committed
+# mcp-tools.qdocinc is only a placeholder. A committed snapshot goes stale
+# whenever a tool is added in another commit, so the real list is produced at
+# doc-build time: regenerate_mcp_tools_doc writes it from the built server
+# into the generated sources directory, which qtcreator-project.qdocconf lists
+# before ../src so that it wins over the placeholder. With
+# BUILD_MCP_TOOLS_DOC it is also made a prerequisite of the documentation
+# targets. That is off by default, because it makes a doc build build the
+# whole application, which a docs-only setup (such as the doc snapshot
+# server) cannot do. Otherwise, or in a cross build, which cannot run the
+# application, the placeholder is used unless regenerate_mcp_tools_doc is
+# built explicitly.
+#
+# "-load all" force-enables every plugin, so tools from plugins that are
+# disabled by default are captured too; the list is meant to be exhaustive.
+# That needs every plugin built first, not just the ones qtcreator links.
+option(BUILD_MCP_TOOLS_DOC "Generate the MCP tool list as part of the documentation build" OFF)
+add_feature_info("Generate the MCP tool list for the documentation" BUILD_MCP_TOOLS_DOC "")
+
+if (TARGET qtcreator AND TARGET McpServer AND NOT CMAKE_CROSSCOMPILING)
+  set(_mcp_dump_env QT_QPA_PLATFORM=offscreen)
+  if (WIN32)
+    qtc_windows_runtime_path(_env_path)
+    string(REPLACE ";" "$<SEMICOLON>" _env_path "${_env_path}")
+    list(APPEND _mcp_dump_env "PATH=${_env_path}")
+  endif()
+  add_custom_target(regenerate_mcp_tools_doc
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/generated_attributions
+    COMMAND ${CMAKE_COMMAND} -E env ${_mcp_dump_env}
+      $<TARGET_FILE:qtcreator> -load all
+      -mcp-dump-tools ${CMAKE_CURRENT_BINARY_DIR}/generated_attributions/mcp-tools.qdocinc
+      -settingspath ${CMAKE_CURRENT_BINARY_DIR}/mcp-dump-settings
+    USES_TERMINAL
+    VERBATIM
+    COMMENT "Regenerating the MCP tool list from the MCP server"
+  )
+  add_dependencies(regenerate_mcp_tools_doc qtcreator)
+  foreach(_plugin ${__QTC_PLUGINS})
+    if (TARGET ${_plugin})
+      add_dependencies(regenerate_mcp_tools_doc ${_plugin})
+    endif()
+  endforeach()
+  if (BUILD_MCP_TOOLS_DOC)
+    foreach(_doc_target html_docs_qtcreator qch_docs_qtcreator
+                        html_docs_qtcreator-online qch_docs_qtcreator-online)
+      if (TARGET ${_doc_target})
+        add_dependencies(${_doc_target} regenerate_mcp_tools_doc)
+      endif()
+    endforeach()
+  endif()
+endif()
+
+add_subdirectory(qtprofiler)

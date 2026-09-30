@@ -168,7 +168,6 @@ protected:
     void toMap(Utils::Store &map) const final;
 
 private:
-    void aboutToBeRemoved() const final;
     QtTaskTree::ExecutableItem signalOperationRecipeImpl(
         const ProjectExplorer::SignalOperationData &data,
         const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const final;

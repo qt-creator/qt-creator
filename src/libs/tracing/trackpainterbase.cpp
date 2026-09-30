@@ -13,7 +13,6 @@
 
 #include <QHash>
 #include <QVarLengthArray>
-#include <QWheelEvent>
 #include <QWidget>
 
 #include <cmath>
@@ -712,32 +711,6 @@ void TrackPainterBase::handleMouseRelease(int button, const QPoint &localPos)
             notifyItemClicked(track, item);
         }
         m_panning = false;
-    }
-}
-
-void TrackPainterBase::handleWheel(QWheelEvent *event)
-{
-    const QPoint pixelDelta = event->pixelDelta();
-    const QPoint angleDelta = event->angleDelta();
-
-    if (event->modifiers() & Qt::ControlModifier) {
-        const int dy = pixelDelta.y() != 0 ? pixelDelta.y() : angleDelta.y() / 8;
-        if (dy == 0) {
-            event->ignore();
-            return;
-        }
-        notifyZoomRequested(event->position().x(), dy);
-        event->accept();
-        return;
-    }
-
-    const int dx = pixelDelta.x() != 0 ? pixelDelta.x() : angleDelta.x() / 8;
-    if (dx != 0) {
-        notifyHorizontalPan(-dx);
-        event->accept();
-    } else {
-        // Vertical wheel falls through to the scroll area for vertical scrolling.
-        event->ignore();
     }
 }
 

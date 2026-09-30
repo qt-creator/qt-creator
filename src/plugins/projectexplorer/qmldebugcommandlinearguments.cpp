@@ -36,15 +36,29 @@ QString qmlDebugCommandLineArguments(QmlDebugServicesPreset services,
             .arg(QLatin1String(block ? ",block" : "")).arg(qmlDebugServices(services));
 }
 
-QString qmlDebugTcpArguments(QmlDebugServicesPreset services, const QUrl &server, bool block)
+static QString tcpArguments(QmlDebugServicesPreset services, const QUrl &server, bool block,
+                            bool nameLoopback)
 {
     const QString host = server.host();
-    const bool loopback = host.isEmpty()
-                          || host == QLatin1String("127.0.0.1")
-                          || host == QLatin1String("::1");
-    const QString mode = loopback ? QString("port:%1").arg(server.port())
-                                  : QString("host:%1,port:%2").arg(host).arg(server.port());
+    const bool bare = host.isEmpty()
+                      || (!nameLoopback
+                          && (host == QLatin1String("127.0.0.1") || host == QLatin1String("::1")));
+    const QString mode = bare ? QString("port:%1").arg(server.port())
+                              : QString("host:%1,port:%2").arg(host).arg(server.port());
     return qmlDebugCommandLineArguments(services, mode, block);
+}
+
+QString qmlDebugTcpArguments(QmlDebugServicesPreset services, const QUrl &server, bool block)
+{
+    return tcpArguments(services, server, block, false);
+}
+
+QString qmlDebugDesktopTcpArguments(QmlDebugServicesPreset services, const QUrl &server,
+                                    bool block)
+{
+    // Without a host the QML debug server binds all interfaces, so a port found free on the
+    // loopback interface alone is no proof that the server can have it.
+    return tcpArguments(services, server, block, true);
 }
 
 QString qmlDebugNativeArguments(QmlDebugServicesPreset services, bool block)

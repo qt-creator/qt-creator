@@ -176,26 +176,23 @@
 
     \section1 Auto-detect kit items
 
-    Select \uicontrol {Auto-detect Kit Items} to find kit items and create kits
-    for the Docker device. You can search for kit items in the device's PATH or
-    in the specified directories.
-
-    In \uicontrol {Search locations}, select:
+    In \uicontrol {Auto-Detection}, select where to search for kit items:
 
     \list
-        \li \uicontrol {Search in PATH} to find kit items in PATH.
-        \li \uicontrol {Search in Selected Directories} to find kit items in
-            the selected directories.
-        \li \uicontrol {Search in PATH and Additional Directories} to find kit
-            items in the PATH and in the selected directories.
+        \li \uicontrol {Search in PATH} to search in the device's PATH.
+        \li \uicontrol {Search in Qt installation} to search in a Qt
+            installation, and enter the path to it. Leave the path empty to
+            search in the default location.
+        \li \uicontrol {Search in directories} to search in the selected
+            directories.
     \endlist
 
     When searching in directories, enter a semicolon-separated list of directory
     paths in the Docker image to scan for kit entries.
 
-    To list the automatically detected kit items, select
-    \uicontrol {List Auto-Detected Kit Items}. To remove
-    them, select \uicontrol {Remove Auto-Detected Kit Items}.
+    Select \uicontrol {Run Auto-Detection Now} to find the kit items and create
+    kits for the Docker device. The view below the button lists them as it
+    creates them.
 
     \sa {Enable and disable plugins}, {Docker}{How to: Develop for Docker},
     {Manage kits}{How to: Manage kits}, {Developing for Docker}

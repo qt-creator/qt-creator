@@ -10,7 +10,6 @@
 #include "dockertr.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -1750,15 +1749,6 @@ void DockerDevice::runAutoDetect(
     };
     // clang-format on
     GlobalTaskTree::start(recipe, {}, onDone);
-}
-
-void DockerDevice::aboutToBeRemoved() const
-{
-    QTaskTree tree(
-        ProjectExplorer::removeDetectedKitsRecipe(shared_from_this(), [](const QString &msg) {
-            MessageManager::writeSilently(msg);
-        }));
-    tree.runBlocking();
 }
 
 bool DockerDevice::prepareForBuild(const Target *target)

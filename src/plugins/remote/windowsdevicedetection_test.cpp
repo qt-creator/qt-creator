@@ -443,11 +443,13 @@ static QString userSession(const FilePath &deviceRoot, const QString &user)
 // shows only on a machine that has one.
 void WindowsDeviceDetectionTest::testRunsInTheDeviceUsersSession()
 {
+    // The plain QTC_SSH_TEST_* set usually names a Linux host, so the WIN variant has to
+    // name the machine, no fallback accepted.
     const SshParameters params = SshTest::getParameters("WIN");
-    if (!SshTest::checkParameters(params)) {
+    if (!SshTest::hasVariantHost("WIN") || !SshTest::checkParameters(params)) {
         SshTest::printSetupHelp();
-        QSKIP("Set QTC_SSH_TEST_WIN_HOST/USER/... (or QTC_SSH_TEST_*) to a reachable "
-              "Windows-over-SSH host.");
+        QSKIP("Set QTC_SSH_TEST_WIN_HOST (and _USER/_PORT/_KEYFILE where they differ from the "
+              "plain QTC_SSH_TEST_* values) to a reachable Windows-over-SSH host.");
     }
 
     const Result<IDevicePtr> created = connectedWindowsDevice(params);
@@ -519,11 +521,13 @@ void WindowsDeviceDetectionTest::testRunsInTheDeviceUsersSession()
 // happen anyway, in whatever session is available.
 void WindowsDeviceDetectionTest::testRunsWithoutADesktopSession()
 {
+    // The plain QTC_SSH_TEST_* set usually names a Linux host, so the WIN variant has to
+    // name the machine, no fallback accepted.
     const SshParameters params = SshTest::getParameters("WIN");
-    if (!SshTest::checkParameters(params)) {
+    if (!SshTest::hasVariantHost("WIN") || !SshTest::checkParameters(params)) {
         SshTest::printSetupHelp();
-        QSKIP("Set QTC_SSH_TEST_WIN_HOST/USER/... (or QTC_SSH_TEST_*) to a reachable "
-              "Windows-over-SSH host.");
+        QSKIP("Set QTC_SSH_TEST_WIN_HOST (and _USER/_PORT/_KEYFILE where they differ from the "
+              "plain QTC_SSH_TEST_* values) to a reachable Windows-over-SSH host.");
     }
 
     const Result<IDevicePtr> created = connectedWindowsDevice(params);
@@ -584,11 +588,13 @@ void WindowsDeviceDetectionTest::testRunsWithoutADesktopSession()
 // another instance of a system binary, and killing it cannot disturb anything else.
 void WindowsDeviceDetectionTest::testStopKillsTheRemoteApplication()
 {
+    // The plain QTC_SSH_TEST_* set usually names a Linux host, so the WIN variant has to
+    // name the machine, no fallback accepted.
     const SshParameters params = SshTest::getParameters("WIN");
-    if (!SshTest::checkParameters(params)) {
+    if (!SshTest::hasVariantHost("WIN") || !SshTest::checkParameters(params)) {
         SshTest::printSetupHelp();
-        QSKIP("Set QTC_SSH_TEST_WIN_HOST/USER/... (or QTC_SSH_TEST_*) to a reachable "
-              "Windows-over-SSH host.");
+        QSKIP("Set QTC_SSH_TEST_WIN_HOST (and _USER/_PORT/_KEYFILE where they differ from the "
+              "plain QTC_SSH_TEST_* values) to a reachable Windows-over-SSH host.");
     }
 
     const Result<IDevicePtr> created = connectedWindowsDevice(params);

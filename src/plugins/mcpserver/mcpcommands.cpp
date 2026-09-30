@@ -108,6 +108,18 @@
 
 using namespace Utils;
 
+// QEvent::setSpontaneous() is reachable only for QSpontaneKeyEvent, the friend
+// Qt declares so that synthesized input can look like the window system's own.
+// QtWebEngine impersonates it for that reason, and the alternative here is a
+// QtTest dependency for a single inline call.
+QT_BEGIN_NAMESPACE
+class QSpontaneKeyEvent
+{
+public:
+    static void setSpontaneous(QEvent *event) { event->setSpontaneous(); }
+};
+QT_END_NAMESPACE
+
 static Q_LOGGING_CATEGORY(mcpCommands, "qtc.mcpserver.commands", QtWarningMsg)
 
 namespace Mcp::Internal {
@@ -1192,6 +1204,95 @@ static Utils::Result<QAbstractItemView *> resolveSingleView(const WidgetQuery &q
         QString("Widget is not an item view: %1.").arg(describeWidgetShort(*w)));
 }
 
+static Utils::Result<Qt::KeyboardModifiers> modifiersFromString(const QString &spec)
+{
+    static const QMap<QString, Qt::KeyboardModifier> known = {
+        {"ctrl", Qt::ControlModifier},
+        {"shift", Qt::ShiftModifier},
+        {"alt", Qt::AltModifier},
+        {"meta", Qt::MetaModifier},
+    };
+    Qt::KeyboardModifiers result = Qt::NoModifier;
+    for (const QString &part : spec.split('+', Qt::SkipEmptyParts)) {
+        const auto it = known.constFind(part.trimmed().toLower());
+        if (it == known.constEnd()) {
+            return ResultError(QString("Unknown modifier \"%1\". Known: [%2].")
+                                   .arg(part, QStringList(known.keys()).join(", ")));
+        }
+        result |= *it;
+    }
+    return result;
+}
+
+struct ModifierKey
+{
+    Qt::Key key;
+    Qt::KeyboardModifier modifier;
+};
+
+// The keys a modifier set stands for, in the order a user presses them.
+static QList<ModifierKey> modifierKeys(Qt::KeyboardModifiers modifiers)
+{
+    static const ModifierKey all[] = {
+        {Qt::Key_Control, Qt::ControlModifier},
+        {Qt::Key_Shift, Qt::ShiftModifier},
+        {Qt::Key_Alt, Qt::AltModifier},
+        {Qt::Key_Meta, Qt::MetaModifier},
+    };
+    QList<ModifierKey> keys;
+    for (const ModifierKey &candidate : all) {
+        if (modifiers & candidate.modifier)
+            keys.append(candidate);
+    }
+    return keys;
+}
+
+// Holds the modifier keys down for as long as it lives. Setting them on the
+// mouse event alone is not enough: an item view asks QGuiApplication for the
+// modifier state when currentChanged() decides whether to keep the selection
+// anchor, so without this a shift-click moves the anchor to the clicked row
+// and selects only that row. QGuiApplication picks that state up from events
+// the window system sent, hence notify() on a spontaneous event rather than
+// sendEvent(), which clears the flag.
+class HeldModifiers
+{
+public:
+    HeldModifiers(QWidget *target, Qt::KeyboardModifiers modifiers)
+        : m_target(target)
+        , m_modifiers(modifiers)
+    {
+        Qt::KeyboardModifiers held = Qt::NoModifier;
+        for (const ModifierKey &modifierKey : modifierKeys(m_modifiers)) {
+            held |= modifierKey.modifier;
+            send(QEvent::KeyPress, modifierKey.key, held);
+        }
+    }
+
+    ~HeldModifiers()
+    {
+        const QList<ModifierKey> keys = modifierKeys(m_modifiers);
+        Qt::KeyboardModifiers held = m_modifiers;
+        for (auto it = keys.crbegin(); it != keys.crend(); ++it) {
+            held &= ~it->modifier;
+            send(QEvent::KeyRelease, it->key, held);
+        }
+    }
+
+    HeldModifiers(const HeldModifiers &) = delete;
+    HeldModifiers &operator=(const HeldModifiers &) = delete;
+
+private:
+    void send(QEvent::Type type, Qt::Key key, Qt::KeyboardModifiers modifiers)
+    {
+        QKeyEvent event(type, key, modifiers);
+        QSpontaneKeyEvent::setSpontaneous(&event);
+        QApplication::instance()->notify(m_target, &event);
+    }
+
+    QWidget *m_target;
+    const Qt::KeyboardModifiers m_modifiers;
+};
+
 // An item is named by its full path ("Outgoing / Fix the thing") or, when that
 // is unambiguous, by its label alone. More than one match is an error, for the
 // same reason an ambiguous widget query is.
@@ -1555,7 +1656,7 @@ void McpCommands::registerCommands()
                 "Returns the QMessageBox popups (warnings, errors, questions, ...) shown since "
                 "startup, including transient or non-modal ones that never reach the log or "
                 "message panes. Each entry has the title, text, informative_text, icon, buttons, "
-                "whether it is modal, and whether it is still open. Pass open_only=true to get "
+                "modality, and openness. Pass open_only=true to get "
                 "only the currently-visible ones.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -1595,12 +1696,12 @@ void McpCommands::registerCommands()
             .name("ui_answer_message_box")
             .title("Answer a message box")
             .description(
-                "Clicks a button on the currently-open message box - the active modal one, or "
-                "the most recently shown box still visible - to dismiss it. The button is "
-                "matched by its text with the mnemonic '&' and case ignored, or by the "
-                "untranslated standard-button name, so \"Yes\", \"No\", \"Ok\", \"Cancel\" "
-                "work whatever the UI language; see ui_get_message_boxes for the available buttons. "
-                "Returns an error (with available_buttons) if there is no open box or no match.")
+                "Clicks a button on the currently-open message box - the active modal one, or the "
+                "most recently shown box still visible - to dismiss it. The button is matched by "
+                "its text with the mnemonic '&' and case ignored, or by the untranslated "
+                "standard-button name, so \"Yes\", \"No\", \"Ok\", \"Cancel\" work whatever the UI "
+                "language. See ui_get_message_boxes for the available buttons. Returns an error "
+                "(with available_buttons) if there is no open box or no match.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -1646,17 +1747,17 @@ void McpCommands::registerCommands()
             .title("Activate a mode")
             .description(
                 "Switches Qt Creator to a top-level mode (the left mode bar) and returns the "
-                "current mode id; omit \"mode\" to just query. A mode only activates when it is "
-                "available (e.g. \"Project\" needs an open project). Common ids: \"Welcome\", "
-                "\"Edit\", \"Design\", \"Project\" (the Projects/build-run-settings mode), "
-                "\"Mode.Debug\", \"Help\".")
+                "current mode ID. Omit \"mode\" to just query. A mode only activates when it is "
+                "available (for example, \"Project\" needs an open project). Common IDs: "
+                "\"Welcome\", \"Edit\", \"Design\", \"Project\" (the Projects/build-run-settings "
+                "mode), \"Mode.Debug\", \"Help\".")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}.addProperty(
                     "mode",
                     QJsonObject{
                         {"type", "string"},
-                        {"description", "Mode id to activate (optional; omit to just query)."}}))
+                        {"description", "Mode ID to activate (optional, omit to just query)."}}))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty("success", QJsonObject{{"type", "boolean"}})
@@ -1677,7 +1778,7 @@ void McpCommands::registerCommands()
         Tool{}
             .name("editor_open")
             .title("Open a file in Qt Creator")
-            .description("Open a file in Qt Creator, optionally jumping to a specific line and column.")
+            .description("Opens a file in Qt Creator, optionally jumping to a specific line and column.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -1686,17 +1787,17 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"format", "uri"},
-                            {"description", "Absolute path of the file to open"}})
+                            {"description", "Absolute path of the file to open."}})
                     .addProperty(
                         "line",
                         QJsonObject{
                             {"type", "integer"},
-                            {"description", "1-based line number to jump to (optional)"}})
+                            {"description", "1-based line number to jump to (optional)."}})
                     .addProperty(
                         "column",
                         QJsonObject{
                             {"type", "integer"},
-                            {"description", "1-based column number to jump to (optional, requires line)"}})
+                            {"description", "1-based column number to jump to (optional, requires line)."}})
                     .addRequired("path"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -1716,9 +1817,9 @@ void McpCommands::registerCommands()
             .title("file plain text")
             .description(
                 "Returns the content of the file as plain text. Optionally restrict to a line "
-                "range via start_line/end_line (1-based, inclusive). For binary content use "
-                "fs_read_bytes instead. Local and remote files are both supported via Qt "
-                "Creator urlish paths such as ssh://user@host/path or docker://id/path; remote "
+                "range with start_line/end_line (1-based, inclusive). For binary content use "
+                "fs_read_bytes instead. Local and remote files are both supported through Qt "
+                "Creator URL-like paths such as ssh://user@host/path or docker://id/path. Remote "
                 "access is transparent.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -1729,18 +1830,18 @@ void McpCommands::registerCommands()
                             {"type", "string"},
                             {"format", "uri"},
                             {"description",
-                             "Path of the file. May be a local path or a remote urlish path "
+                             "Path of the file. May be a local path or a remote URL-like path "
                              "(ssh://user@host/path, docker://id/path)."}})
                     .addProperty(
                         "start_line",
                         QJsonObject{
                             {"type", "integer"},
-                            {"description", "First line to return, 1-based inclusive (optional)"}})
+                            {"description", "First line to return, 1-based inclusive (optional)."}})
                     .addProperty(
                         "end_line",
                         QJsonObject{
                             {"type", "integer"},
-                            {"description", "Last line to return, 1-based inclusive (optional)"}})
+                            {"description", "Last line to return, 1-based inclusive (optional)."}})
                     .addRequired("path"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -1759,14 +1860,14 @@ void McpCommands::registerCommands()
             .name("fs_write_text")
             .title("Overwrite the contents of a text file")
             .description(
-                "Overwrite the file's text content with the provided string. "
+                "Overwrites the file's text content with the provided string. "
                 "Behavior depends on whether the file is currently open in a Qt "
                 "Creator editor:\n"
                 "  - Not open: writes directly to disk.\n"
                 "  - Open with an unchanged buffer: updates the editor's in-memory "
-                "    buffer (visible to the user immediately). The change is NOT "
+                "    buffer (visible to the user immediately). The change is not "
                 "    persisted to disk until editor_save is called.\n"
-                "  - Open with unsaved changes: REFUSED with reason "
+                "  - Open with unsaved changes: refused with reason "
                 "    'file_open_with_unsaved_changes' to avoid silently "
                 "    overwriting the user's edits. Caller should ask the user to "
                 "    save (or call editor_save) and retry.\n"
@@ -1780,7 +1881,7 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"format", "uri"},
-                            {"description", "Absolute path of the file"}})
+                            {"description", "Absolute path of the file."}})
                     .addProperty(
                         "plain_text",
                         QJsonObject{
@@ -1826,11 +1927,11 @@ void McpCommands::registerCommands()
             .title("Read raw bytes from a file")
             .description(
                 "Reads raw file contents and returns them base64-encoded - use this for binary "
-                "files; for text use fs_read_text. Optionally restrict to a byte range via "
-                "offset/length. Local and remote files are both supported via Qt Creator urlish "
-                "paths such as ssh://user@host/path or docker://id/path; remote access is "
-                "transparent. 'reason' distinguishes an empty directory from one that could "
-                "not be read: device_unavailable, not_found, not_a_directory.")
+                "files. For text use fs_read_text. Optionally restrict to a byte range with "
+                "offset/length. Local and remote files are both supported through Qt Creator "
+                "URL-like paths such as ssh://user@host/path or docker://id/path. Remote access is "
+                "transparent. 'reason' distinguishes an empty directory from one that could not be "
+                "read: device_unavailable, not_found, not_a_directory.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -1839,7 +1940,7 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"format", "uri"},
-                            {"description", "Path of the file (local or remote urlish path)."}})
+                            {"description", "Path of the file (local or remote URL-like path)."}})
                     .addProperty(
                         "offset",
                         QJsonObject{
@@ -1883,9 +1984,10 @@ void McpCommands::registerCommands()
             .title("Write raw bytes to a file")
             .description(
                 "Writes base64-decoded raw bytes to a file, creating or overwriting it - use this "
-                "for binary files; for text use fs_write_text. This writes directly to disk "
-                "and does not route through the editor. Local and remote files are both supported "
-                "via Qt Creator urlish paths such as ssh://user@host/path or docker://id/path.")
+                "for binary files. For text use fs_write_text. This writes directly to disk and "
+                "does not route through the editor. Local and remote files are both supported "
+                "through Qt Creator URL-like paths such as ssh://user@host/path or "
+                "docker://id/path.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -1894,7 +1996,7 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"format", "uri"},
-                            {"description", "Path of the file (local or remote urlish path)."}})
+                            {"description", "Path of the file (local or remote URL-like path)."}})
                     .addProperty(
                         "base64",
                         QJsonObject{
@@ -1927,10 +2029,10 @@ void McpCommands::registerCommands()
             .name("fs_list_directory")
             .title("List a directory")
             .description(
-                "Lists directory entries via Utils::FilePath, with name, path, type, size, "
+                "Lists directory entries using Utils::FilePath, with name, path, type, size, "
                 "modification time and executable bit. Optionally filter by glob name patterns and "
-                "recurse. Local and remote directories are both supported via Qt Creator urlish "
-                "paths such as ssh://user@host/path or docker://id/path; remote access is "
+                "recurse. Local and remote directories are both supported through Qt Creator "
+                "URL-like paths such as ssh://user@host/path or docker://id/path. Remote access is "
                 "transparent.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -1940,13 +2042,14 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"format", "uri"},
-                            {"description", "Path of the directory (local or remote urlish path)."}})
+                            {"description", "Path of the directory (local or remote URL-like path)."}})
                     .addProperty(
                         "name_filters",
                         QJsonObject{
                             {"type", "array"},
                             {"items", QJsonObject{{"type", "string"}}},
-                            {"description", "Glob patterns to match, e.g. ['*.txt'] (optional)."}})
+                            {"description",
+                             "Glob patterns to match, such as ['*.txt'] (optional)."}})
                     .addProperty(
                         "recursive",
                         QJsonObject{
@@ -2016,10 +2119,10 @@ void McpCommands::registerCommands()
             .name("fs_get_info")
             .title("Get metadata for a path")
             .description(
-                "Returns metadata for a path via Utils::FilePath: existence, type, size, "
+                "Returns metadata for a path using Utils::FilePath: existence, type, size, "
                 "modification time, executable bit and permissions. Local and remote paths are "
-                "both supported via Qt Creator urlish paths such as ssh://user@host/path or "
-                "docker://id/path; remote access is transparent.")
+                "both supported through Qt Creator URL-like paths such as ssh://user@host/path or "
+                "docker://id/path. Remote access is transparent.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -2028,7 +2131,7 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"format", "uri"},
-                            {"description", "Path to inspect (local or remote urlish path)."}})
+                            {"description", "Path to inspect (local or remote URL-like path)."}})
                     .addRequired("path"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2059,9 +2162,10 @@ void McpCommands::registerCommands()
             .name("fs_make_directory")
             .title("Create a directory")
             .description(
-                "Creates a directory and any missing parents via "
+                "Creates a directory and any missing parents with "
                 "Utils::FilePath::ensureWritableDir(). Local and remote paths are both supported "
-                "via Qt Creator urlish paths such as ssh://user@host/path or docker://id/path.")
+                "through Qt Creator URL-like paths such as ssh://user@host/path or "
+                "docker://id/path.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -2071,7 +2175,7 @@ void McpCommands::registerCommands()
                             {"type", "string"},
                             {"format", "uri"},
                             {"description",
-                             "Path of the directory to create (local or remote urlish path)."}})
+                             "Path of the directory to create (local or remote URL-like path)."}})
                     .addRequired("path"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2095,9 +2199,9 @@ void McpCommands::registerCommands()
             .name("fs_remove")
             .title("Remove a file or directory")
             .description(
-                "Removes a file, or a directory when 'recursive' is true, via "
+                "Removes a file, or a directory when 'recursive' is true, with "
                 "Utils::FilePath::removeFile() / removeRecursively(). Local and remote paths are "
-                "both supported via Qt Creator urlish paths such as ssh://user@host/path or "
+                "both supported through Qt Creator URL-like paths such as ssh://user@host/path or "
                 "docker://id/path.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
@@ -2107,7 +2211,7 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"format", "uri"},
-                            {"description", "Path to remove (local or remote urlish path)."}})
+                            {"description", "Path to remove (local or remote URL-like path)."}})
                     .addProperty(
                         "recursive",
                         QJsonObject{
@@ -2137,7 +2241,7 @@ void McpCommands::registerCommands()
         Tool{}
             .name("editor_save")
             .title("Save a file in Qt Creator")
-            .description("Save a file in Qt Creator")
+            .description("Saves a file in Qt Creator.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -2146,7 +2250,7 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"format", "uri"},
-                            {"description", "Absolute path of the file to save"}})
+                            {"description", "Absolute path of the file to save."}})
                     .addRequired("path"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2162,7 +2266,7 @@ void McpCommands::registerCommands()
         Tool{}
             .name("editor_close")
             .title("Close a file in Qt Creator")
-            .description("Close a file in Qt Creator")
+            .description("Closes a file in Qt Creator.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -2171,7 +2275,7 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"format", "uri"},
-                            {"description", "Absolute path of the file to close"}})
+                            {"description", "Absolute path of the file to close."}})
                     .addRequired("path"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2188,8 +2292,8 @@ void McpCommands::registerCommands()
             .name("search_file")
             .title("Search for pattern in a single file")
             .description(
-                "Search for a text pattern in a single file and return all matches with "
-                "line, column, and matched text")
+                "Searches for a text pattern in a single file and returns all matches with "
+                "line, column, and matched text.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -2198,20 +2302,20 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"format", "uri"},
-                            {"description", "Absolute path of the file to search"}})
+                            {"description", "Absolute path of the file to search."}})
                     .addProperty(
                         "pattern",
-                        QJsonObject{{"type", "string"}, {"description", "Text pattern to search for"}})
+                        QJsonObject{{"type", "string"}, {"description", "Text pattern to search for."}})
                     .addProperty(
                         "regex",
                         QJsonObject{
                             {"type", "boolean"},
-                            {"description", "Whether the pattern is a regular expression"}})
+                            {"description", "Whether the pattern is a regular expression."}})
                     .addProperty(
                         "case_sensitive",
                         QJsonObject{
                             {"type", "boolean"},
-                            {"description", "Whether the search should be case sensitive"}})
+                            {"description", "Whether the search should be case sensitive."}})
                     .addRequired("path")
                     .addRequired("pattern"))
             .outputSchema(McpCommands::searchResultsSchema()),
@@ -2228,8 +2332,8 @@ void McpCommands::registerCommands()
             .name("search_directory")
             .title("Search for pattern in a directory")
             .description(
-                "Search for a text pattern recursively in all files within a directory "
-                "and return all matches")
+                "Searches for a text pattern recursively in all files within a directory "
+                "and returns all matches.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -2238,20 +2342,20 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"format", "uri"},
-                            {"description", "Absolute path of the directory to search in"}})
+                            {"description", "Absolute path of the directory to search in."}})
                     .addProperty(
                         "pattern",
-                        QJsonObject{{"type", "string"}, {"description", "Text pattern to search for"}})
+                        QJsonObject{{"type", "string"}, {"description", "Text pattern to search for."}})
                     .addProperty(
                         "regex",
                         QJsonObject{
                             {"type", "boolean"},
-                            {"description", "Whether the pattern is a regular expression"}})
+                            {"description", "Whether the pattern is a regular expression."}})
                     .addProperty(
                         "case_sensitive",
                         QJsonObject{
                             {"type", "boolean"},
-                            {"description", "Whether the search should be case sensitive"}})
+                            {"description", "Whether the search should be case sensitive."}})
                     .addRequired("directory")
                     .addRequired("pattern"))
             .outputSchema(McpCommands::searchResultsSchema()),
@@ -2268,7 +2372,7 @@ void McpCommands::registerCommands()
             .name("fs_replace_in_file")
             .title("Replace pattern in a single file")
             .description(
-                "Replace all matches of a text pattern in a single file with replacement text")
+                "Replaces all matches of a text pattern in a single file with replacement text.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -2277,23 +2381,23 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"format", "uri"},
-                            {"description", "Absolute path of the file to modify"}})
+                            {"description", "Absolute path of the file to modify."}})
                     .addProperty(
                         "pattern",
-                        QJsonObject{{"type", "string"}, {"description", "Text pattern to search for"}})
+                        QJsonObject{{"type", "string"}, {"description", "Text pattern to search for."}})
                     .addProperty(
                         "replacement",
-                        QJsonObject{{"type", "string"}, {"description", "Replacement text"}})
+                        QJsonObject{{"type", "string"}, {"description", "Replacement text."}})
                     .addProperty(
                         "regex",
                         QJsonObject{
                             {"type", "boolean"},
-                            {"description", "Whether the pattern is a regular expression"}})
+                            {"description", "Whether the pattern is a regular expression."}})
                     .addProperty(
                         "case_sensitive",
                         QJsonObject{
                             {"type", "boolean"},
-                            {"description", "Whether the search should be case sensitive"}})
+                            {"description", "Whether the search should be case sensitive."}})
                     .addRequired("path")
                     .addRequired("pattern")
                     .addRequired("replacement"))
@@ -2315,8 +2419,8 @@ void McpCommands::registerCommands()
             .name("fs_replace_in_directory")
             .title("Replace pattern in a directory")
             .description(
-                "Replace all matches of a text pattern recursively in all files within "
-                "a directory with replacement text")
+                "Replaces all matches of a text pattern recursively in all files within "
+                "a directory with replacement text.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -2325,23 +2429,23 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"format", "uri"},
-                            {"description", "Absolute path of the directory to search in"}})
+                            {"description", "Absolute path of the directory to search in."}})
                     .addProperty(
                         "pattern",
-                        QJsonObject{{"type", "string"}, {"description", "Text pattern to search for"}})
+                        QJsonObject{{"type", "string"}, {"description", "Text pattern to search for."}})
                     .addProperty(
                         "replacement",
-                        QJsonObject{{"type", "string"}, {"description", "Replacement text"}})
+                        QJsonObject{{"type", "string"}, {"description", "Replacement text."}})
                     .addProperty(
                         "regex",
                         QJsonObject{
                             {"type", "boolean"},
-                            {"description", "Whether the pattern is a regular expression"}})
+                            {"description", "Whether the pattern is a regular expression."}})
                     .addProperty(
                         "case_sensitive",
                         QJsonObject{
                             {"type", "boolean"},
-                            {"description", "Whether the search should be case sensitive"}})
+                            {"description", "Whether the search should be case sensitive."}})
                     .addRequired("directory")
                     .addRequired("pattern")
                     .addRequired("replacement"))
@@ -2363,7 +2467,7 @@ void McpCommands::registerCommands()
         Tool{}
             .name("editor_list_open")
             .title("List currently open files")
-            .description("List currently open files")
+            .description("Lists currently open files.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2383,7 +2487,7 @@ void McpCommands::registerCommands()
         Tool{}
             .name("editor_list_visible")
             .title("List currently visible files")
-            .description("List all files that are currently visible to the user in an editor.")
+            .description("Lists all files that are currently visible to the user in an editor.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2403,7 +2507,7 @@ void McpCommands::registerCommands()
         Tool{}
             .name("session_list")
             .title("List available sessions")
-            .description("List available sessions")
+            .description("Lists available sessions.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2423,14 +2527,14 @@ void McpCommands::registerCommands()
         Tool{}
             .name("session_load")
             .title("Load a specific session")
-            .description("Load a specific session")
+            .description("Loads a specific session.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
                         "session_name",
                         QJsonObject{
-                            {"type", "string"}, {"description", "Name of the session to load"}})
+                            {"type", "string"}, {"description", "Name of the session to load."}})
                     .addRequired("session_name"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2446,7 +2550,7 @@ void McpCommands::registerCommands()
         Tool{}
             .name("app_quit")
             .title("Quit Qt Creator")
-            .description("Quit Qt Creator")
+            .description("Quits Qt Creator.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2461,7 +2565,7 @@ void McpCommands::registerCommands()
         Tool{}
             .name("session_get_current")
             .title("Get the currently active session")
-            .description("Get the currently active session")
+            .description("Gets the currently active session.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2476,7 +2580,7 @@ void McpCommands::registerCommands()
         Tool{}
             .name("session_save")
             .title("Save the current session")
-            .description("Save the current session")
+            .description("Saves the current session.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2490,45 +2594,45 @@ void McpCommands::registerCommands()
     ToolRegistry::registerTool(
         Tool()
             .name("process_run")
-            .title("executes the command")
+            .title("Execute a command")
             .description(
-                "executes the command and returns the exit code as well as standard output and "
-                "error")
+                "Executes the command and returns the exit code as well as standard output and "
+                "error.")
             .inputSchema(
                 Tool::InputSchema()
                     .addRequired("command")
                     .addProperty(
                         "command",
-                        QJsonObject{{"type", "string"}, {"description", "Command to execute"}})
+                        QJsonObject{{"type", "string"}, {"description", "Command to execute."}})
                     .addProperty(
                         "arguments",
                         QJsonObject{
-                            {"type", "string"}, {"description", "Arguments passed to the command"}})
+                            {"type", "string"}, {"description", "Arguments passed to the command."}})
                     .addProperty(
                         "working_dir",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Directory in which the command is executed"}}))
+                            {"description", "Directory in which the command is executed."}}))
             .outputSchema(
                 Tool::OutputSchema()
                     .addRequired("exit_code")
                     .addProperty(
                         "exit_code",
-                        QJsonObject{{"type", "integer"}, {"description", "Exit code of the command"}})
+                        QJsonObject{{"type", "integer"}, {"description", "Exit code of the command."}})
                     .addProperty(
                         "exit_message",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Verbose exit message of the command, useful for error reporting"}})
+                             "Verbose exit message of the command, useful for error reporting."}})
                     .addProperty(
                         "stdout",
                         QJsonObject{
-                            {"type", "string"}, {"description", "Standard output of the command"}})
+                            {"type", "string"}, {"description", "Standard output of the command."}})
                     .addProperty(
                         "stderr",
                         QJsonObject{
-                            {"type", "string"}, {"description", "Standard error of the command"}})),
+                            {"type", "string"}, {"description", "Standard error of the command."}})),
         wrapAsync([](const QJsonObject &p, const Callback &callback) {
             commands.executeCommand(
                 p["command"].toString(),
@@ -2541,13 +2645,13 @@ void McpCommands::registerCommands()
         Tool{}
             .name("ui_find_actions")
             .title("Find actions")
-            .description("Finds actions matching a query string")
+            .description("Finds actions matching a query string.")
             .inputSchema(
                 Tool::InputSchema{}.addProperty(
                     "query",
                     QJsonObject{
                         {"type", "string"},
-                        {"description", "String to search for in action names"}}))
+                        {"description", "String to search for in action names."}}))
             .outputSchema(
                 Tool::OutputSchema{}.addProperty(
                     "actions",
@@ -2567,7 +2671,7 @@ void McpCommands::registerCommands()
                                                             {"type", "string"}}}}},
                               }},
                              {"required", QJsonArray{"id", "text"}}}},
-                        {"description", "List of matching actions"}})),
+                        {"description", "List of matching actions."}})),
         [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QString query = params.argumentsAsObject().value("query").toString();
             QList<Core::Command *> matches;
@@ -2605,11 +2709,11 @@ void McpCommands::registerCommands()
         Tool{}
             .name("ui_call_action")
             .title("Call an action")
-            .description("Calls an action by its ID")
+            .description("Calls an action by its ID.")
             .inputSchema(
                 Tool::InputSchema{}.addProperty(
                     "id",
-                    QJsonObject{{"type", "string"}, {"description", "ID of the action to call"}})),
+                    QJsonObject{{"type", "string"}, {"description", "ID of the action to call."}})),
         [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject p = params.argumentsAsObject();
             const QString id = p.value("id").toString();
@@ -2639,12 +2743,12 @@ void McpCommands::registerCommands()
                         "path",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Absolute path where the file should be created"}})
+                            {"description", "Absolute path where the file should be created."}})
                     .addProperty(
                         "text",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Optional content to write into the new file"}})
+                            {"description", "Optional content to write into the new file."}})
                     .addRequired("path"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2668,7 +2772,7 @@ void McpCommands::registerCommands()
                 "with a/ and b/ prefixes (the default), 0 for diffs with plain paths. Paths are "
                 "resolved against \"working_directory\", which defaults to the startup project's "
                 "directory. Set \"revert\" to true to undo the diff instead. On failure nothing "
-                "is left half-applied only if the patch command rejects atomically; check "
+                "is left half-applied only if the patch command rejects atomically. Check "
                 "\"output\" for the tool's own messages (including rejected hunks).")
             .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(true))
             .inputSchema(
@@ -2729,7 +2833,7 @@ void McpCommands::registerCommands()
                         "path",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Absolute path to the file to reformat"}})
+                            {"description", "Absolute path to the file to reformat."}})
                     .addRequired("path"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2755,7 +2859,7 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "array"},
                             {"items", QJsonObject{{"type", "object"}}},
-                            {"description", "The installed plugins"}})
+                            {"description", "The installed plugins."}})
                     .addRequired("plugins")),
         wrap([](const QJsonObject &) {
             QJsonArray plugins;
@@ -2776,7 +2880,7 @@ void McpCommands::registerCommands()
             .title("Load a plugin at runtime")
             .description("Soft-loads a plugin, and its soft-loadable dependencies, into the running "
                          "Qt Creator without a restart. Only works for plugins marked as "
-                         "soft-loadable; there is no matching unload.")
+                         "soft-loadable. There is no matching unload.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -2785,7 +2889,7 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"description", "Name of the plugin to load, as reported by "
-                                            "plugin_list"}})
+                                            "plugin_list."}})
                     .addRequired("name"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2897,7 +3001,7 @@ void McpCommands::registerCommands()
                     .addProperty("page_id",
                                  QJsonObject{{"type", "string"},
                                              {"description",
-                                              "Page id, e.g. \"Alien.Settings\" (optional)."}}))
+                                              "Page ID, such as \"Alien.Settings\" (optional)."}}))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty("reason", QJsonObject{{"type", "string"}})
@@ -2967,7 +3071,7 @@ void McpCommands::registerCommands()
             .title("Read the settings of a settings page")
             .description(
                 "Returns the individual settings (aspects) of a preference page: key, "
-                "label, current value and default value. Use the page id from "
+                "label, current value and default value. Use the page ID from "
                 "settings_list_pages. Read-only.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -2976,7 +3080,7 @@ void McpCommands::registerCommands()
                         "page",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Settings page id (see settings_list_pages)."}})
+                            {"description", "Settings page ID (see settings_list_pages)."}})
                     .addRequired("page"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -3016,13 +3120,13 @@ void McpCommands::registerCommands()
                 "change takes effect immediately (the aspect emits its change signal), so "
                 "this is the programmatic equivalent of toggling the setting in the "
                 "Preferences dialog. Identify the setting by its 'key' (settingsKey from "
-                "settings_get); the value is coerced to the setting's current type.")
+                "settings_get). The value is coerced to the setting's current type.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
                         "page",
-                        QJsonObject{{"type", "string"}, {"description", "Settings page id."}})
+                        QJsonObject{{"type", "string"}, {"description", "Settings page ID."}})
                     .addProperty(
                         "key",
                         QJsonObject{
@@ -3106,7 +3210,7 @@ void McpCommands::registerCommands()
                 "class_name",
                 QJsonObject{
                     {"type", "string"},
-                    {"description", "Meta-object class name, e.g. \"QPushButton\". Matches the "
+                    {"description", "Meta-object class name, such as \"QPushButton\". Matches the "
                                     "exact class or any subclass (QAbstractButton matches "
                                     "QPushButton)."}})
             .addProperty(
@@ -3114,8 +3218,8 @@ void McpCommands::registerCommands()
                 QJsonObject{
                     {"type", "string"},
                     {"description", "Restrict to widgets whose top-level window title contains "
-                                    "this (case-insensitive), e.g. to disambiguate an OK button "
-                                    "by its dialog."}})
+                                    "this (case-insensitive), for example, to disambiguate an "
+                                    "OK button by its dialog."}})
             .addProperty(
                 "include_invisible",
                 QJsonObject{
@@ -3142,7 +3246,7 @@ void McpCommands::registerCommands()
                 "text_truncated set - enabled/visible state, checked state where "
                 "the widget has one - with the three-way check_state for a tristate check box, "
                 "whose \"checked\" is true for the partial state too - geometry in root "
-                "coordinates and top-level window id. This is the addressing layer for "
+                "coordinates and top-level window ID. This is the addressing layer for "
                 "ui_click_widget / ui_type_text / ui_select_combo_item: use it to discover selectors "
                 "and to check that a query is unambiguous before acting on it. Read-only.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -3178,10 +3282,10 @@ void McpCommands::registerCommands()
             .description(
                 "Clicks the single widget matching the query with a synthetic left press and "
                 "release, the events a real click produces - a widget is free to act on the "
-                "mouse itself, and some do. The click lands on the widget's centre, except on a "
+                "mouse itself, and some do. The click lands on the widget's center, except on a "
                 "check box or radio button, where only the indicator reacts to one. The query "
                 "must resolve to exactly one visible widget - zero or multiple matches are an "
-                "error, so ambiguity never silently picks a widget. The result describes the "
+                "error, so the tool never silently picks a widget. The result describes the "
                 "widget as ui_find_widgets does, so a toggle can be told from a miss.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(addWidgetQueryProps(Tool::InputSchema{})),
@@ -3203,9 +3307,9 @@ void McpCommands::registerCommands()
             .description(
                 "Delivers one mouse press, move or release to the widget matching the query at "
                 "widget-local coordinates (x, y). Because the three actions are separate calls, a "
-                "caller can press, do something else, then move and release - e.g. hold a drag on "
-                "a QMainWindow dock separator across a relayout. describeWidget in the result "
-                "gives the widget's screen geometry to compute coordinates from.")
+                "caller can press, do something else, then move and release - for example, hold a "
+                "drag on a QMainWindow dock separator across a relayout. describeWidget in the "
+                "result gives the widget's screen geometry to compute coordinates from.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 addWidgetQueryProps(Tool::InputSchema{})
@@ -3331,7 +3435,7 @@ void McpCommands::registerCommands()
             .title("Click an item in a view")
             .description(
                 "Clicks one item of the item view matching the widget query, by delivering a "
-                "left click at its centre, so the view reacts exactly as it would to the user - "
+                "left click at its center, so the view reacts exactly as it would to the user - "
                 "selection, activation and any command the item carries. Name the item by its "
                 "full path (\"Outgoing / Fix the thing\") or, when unambiguous, by its label. "
                 "Zero or multiple matches are an error.")
@@ -3357,6 +3461,15 @@ void McpCommands::registerCommands()
                             {"description",
                              "Double-click the row. Some views act only on that (opening what "
                              "the row stands for), and a single click then does nothing."}})
+                    .addProperty(
+                        "modifiers",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Keyboard modifiers held while clicking, \"+\"-separated out of "
+                             "\"ctrl\", \"shift\", \"alt\" and \"meta\". This is how a "
+                             "multi-selection is built: ctrl adds the row to the selection, "
+                             "shift extends it to the row."}})
                     .addRequired("item")),
         [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject p = params.argumentsAsObject();
@@ -3372,6 +3485,10 @@ void McpCommands::registerCommands()
                 return ResultError(
                     QString("Item is disabled: \"%1\".").arg(itemPath(*index)));
             }
+            const Utils::Result<Qt::KeyboardModifiers> modifiers
+                = modifiersFromString(p.value("modifiers").toString());
+            if (!modifiers)
+                return ResultError(modifiers.error());
             // Scroll it into view first: a click outside the viewport lands
             // nowhere, and visualRect() of an off-screen row is empty.
             (*view)->scrollTo(*index);
@@ -3397,10 +3514,11 @@ void McpCommands::registerCommands()
                     describeItem(*view, *index));
             }
             QMouseEvent press(QEvent::MouseButtonPress, center, global, Qt::LeftButton,
-                              Qt::LeftButton, Qt::NoModifier);
+                              Qt::LeftButton, *modifiers);
             QMouseEvent release(QEvent::MouseButtonRelease, center, global, Qt::LeftButton,
-                                Qt::NoButton, Qt::NoModifier);
+                                Qt::NoButton, *modifiers);
             glidePointerToGlobal(global.toPoint());
+            const HeldModifiers held((*view)->viewport(), *modifiers);
             QApplication::sendEvent((*view)->viewport(), &press);
             waitPainting(demoPace().clickHoldMs);
             QApplication::sendEvent((*view)->viewport(), &release);
@@ -3408,7 +3526,7 @@ void McpCommands::registerCommands()
                 // The second press of a double click arrives as its own event
                 // type; a view that only reacts to that ignores two singles.
                 QMouseEvent doubleClick(QEvent::MouseButtonDblClick, center, global,
-                                        Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+                                        Qt::LeftButton, Qt::LeftButton, *modifiers);
                 QApplication::sendEvent((*view)->viewport(), &doubleClick);
                 QApplication::sendEvent((*view)->viewport(), &release);
             }
@@ -3465,8 +3583,8 @@ void McpCommands::registerCommands()
                 "Types text by delivering key events, so widgets that react to typing (line "
                 "edits, text editors) update as if the user typed. If widget query fields are "
                 "given they select and focus the target (which must resolve to exactly one "
-                "widget); otherwise the current focus widget receives the input. "
-                "It types TEXT: a special key has no notation here, so a \"\\n\" in the input "
+                "widget). Otherwise the current focus widget receives the input. "
+                "It types text: a special key has no notation here, so a \"\\n\" in the input "
                 "is a newline character rather than a Return press - use press_keys for a key "
                 "sequence, or fakevim_send_keys for Vim notation such as \":w<CR>\".")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
@@ -3642,25 +3760,25 @@ void McpCommands::registerCommands()
                 "like someone using the IDE: the pointer travels to what ui_click_widget clicks "
                 "at a set speed, "
                 "buttons show as held down, and ui_type_text arrives character by character. All "
-                "delays are in milliseconds; zero everywhere (the default) restores the "
-                "immediate behaviour that tests want.")
+                "delays are in milliseconds. Zero everywhere (the default) restores the "
+                "immediate behavior that tests want.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty("key_delay_ms",
                                  QJsonObject{{"type", "integer"},
                                              {"description", "Pause after each typed character, "
-                                                             "e.g. 60."}})
+                                                             "for example, 60."}})
                     .addProperty("pointer_speed",
                                  QJsonObject{{"type", "integer"},
                                              {"description", "How fast the pointer travels to a "
-                                                             "target, in pixels per second, e.g. "
-                                                             "700, so that the time it takes "
-                                                             "follows the distance. Zero leaves "
-                                                             "the pointer alone."}})
+                                                             "target, in pixels per second, for "
+                                                             "example, 700, so that the time it "
+                                                             "takes follows the distance. Zero "
+                                                             "leaves the pointer alone."}})
                     .addProperty("click_hold_ms",
                                  QJsonObject{{"type", "integer"},
-                                             {"description", "How long a click is held, e.g. 120."}})),
+                                             {"description", "How long a click is held, for example, 120."}})),
         wrap([](const QJsonObject &p) -> QJsonObject {
             DemoPace &pace = demoPace();
             if (p.contains("key_delay_ms"))
@@ -3680,7 +3798,7 @@ void McpCommands::registerCommands()
             .name("ui_press_keys")
             .title("Press a key or keyboard shortcut")
             .description(
-                "Sends a key chord parsed with QKeySequence (e.g. \"Ctrl+K\", \"Escape\", "
+                "Sends a key chord parsed with QKeySequence (such as \"Ctrl+K\", \"Escape\", "
                 "\"Return\", \"Ctrl+Shift+P\", \"Down\") to the focused widget, or to the single "
                 "widget matching the query. Use it for keys a widget handles directly (Return, "
                 "Escape, Tab, arrows) and to demonstrate a shortcut being pressed. To reliably "
@@ -3693,7 +3811,7 @@ void McpCommands::registerCommands()
                         "keys",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Key sequence, e.g. \"Ctrl+K\" or \"Escape\"."}})
+                            {"description", "Key sequence, such as \"Ctrl+K\" or \"Escape\"."}})
                     .addRequired("keys")),
         [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject p = params.argumentsAsObject();
@@ -3740,8 +3858,8 @@ void McpCommands::registerCommands()
             .name("ui_find_menu_item")
             .title("Locate a menu bar entry or open-menu item")
             .description(
-                "Returns the geometry, in root coordinates, of a menu bar entry (e.g. "
-                "\"Help\") or of an item in a currently-open menu (e.g. \"About Qt Creator\"), "
+                "Returns the geometry, in root coordinates, of a menu bar entry (such as "
+                "\"Help\") or of an item in a currently-open menu (such as \"About Qt Creator\"), "
                 "matched by visible text ('&' and a trailing \"...\" are ignored). Menu items "
                 "are QActions, not addressable widgets, so this is how a scenario drives menus "
                 "with the cursor. Read-only.")
@@ -3810,8 +3928,8 @@ void McpCommands::registerCommands()
             .title("Check whether a widget exists")
             .description(
                 "Reports whether the widget query matches any live widget, and how many. Use it "
-                "as an assertion (e.g. \"the preview opened\") without failing on zero matches "
-                "the way ui_click_widget does. Read-only.")
+                "as an assertion (for example, \"the preview opened\") without failing on zero "
+                "matches the way ui_click_widget does. Read-only.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(addWidgetQueryProps(Tool::InputSchema{}))
             .outputSchema(
@@ -3845,7 +3963,7 @@ void McpCommands::registerCommands()
             .description(
                 "Lists the top-level windows of the running Qt Creator - the main window and any "
                 "open dialogs or popups - each with its class, objectName, title, geometry, "
-                "window id, and whether it is active or modal. Use it to see which dialog is up "
+                "window ID, and whether it is active or modal. Use it to see which dialog is up "
                 "before addressing widgets inside it. Read-only.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -3881,12 +3999,12 @@ void McpCommands::registerCommands()
             .name("ui_read_output_pane")
             .title("Read the text of an output pane")
             .description(
-                "Returns the plain text of an output pane (e.g. \"Application Output\", "
+                "Returns the plain text of an output pane (such as \"Application Output\", "
                 "\"General Messages\", \"Compile Output\"), identified by its display name. "
                 "This is the text the user sees in the pane, distinct from get_application_output "
                 "which returns Qt Creator's own log stream. Call without a name (or with an "
                 "unknown one) to get the list of available panes. Panes that are not plain-text "
-                "(e.g. Issues) report 'pane_has_no_text_output'. Read-only.")
+                "(such as Issues) report 'pane_has_no_text_output'. Read-only.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -4057,7 +4175,7 @@ void McpCommands::registerCommands()
             .title("Select a text range in the current editor")
             .description(
                 "Selects text in the current text editor, from \"start_line\"/\"start_column\" "
-                "to \"end_line\"/\"end_column\" (1-based; the columns default to the start of "
+                "to \"end_line\"/\"end_column\" (1-based, the columns default to the start of "
                 "the first and the end of the last line). Sets up the selection that behavior "
                 "like printing a selection, commenting or an external tool replacing the "
                 "selection depends on - typing cannot produce it, and the incremental find "
@@ -4068,20 +4186,20 @@ void McpCommands::registerCommands()
                     .addProperty(
                         "start_line",
                         QJsonObject{{"type", "integer"},
-                                    {"description", "1-based line the selection starts on"}})
+                                    {"description", "1-based line the selection starts on."}})
                     .addProperty(
                         "start_column",
                         QJsonObject{{"type", "integer"},
-                                    {"description", "1-based column, defaults to 1"}})
+                                    {"description", "1-based column, defaults to 1."}})
                     .addProperty(
                         "end_line",
                         QJsonObject{{"type", "integer"},
-                                    {"description", "1-based line the selection ends on"}})
+                                    {"description", "1-based line the selection ends on."}})
                     .addProperty(
                         "end_column",
                         QJsonObject{{"type", "integer"},
                                     {"description",
-                                     "1-based column, defaults to the end of the line"}})
+                                     "1-based column, defaults to the end of the line."}})
                     .addRequired("start_line")
                     .addRequired("end_line"))
             .outputSchema(Tool::OutputSchema{}
@@ -4119,19 +4237,64 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
+            .name("editor_get_text")
+            .title("Get the text of the current editor")
+            .description(
+                "Returns the text of the current text editor as the user sees it, including "
+                "unsaved changes. Optionally restrict to a line range via start_line/end_line "
+                "(1-based, inclusive). Also works for editors without a file path, such as diff "
+                "views or other temporary editors, which fs_read_text cannot read; \"path\" is "
+                "empty for those and \"display_name\" names the editor. Unlike editor_select_text "
+                "this leaves the cursor and selection alone. Read-only.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "start_line",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "First line to return, 1-based inclusive (optional)"}})
+                    .addProperty(
+                        "end_line",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "Last line to return, 1-based inclusive (optional)"}}))
+            .outputSchema(Tool::OutputSchema{}
+                              .addProperty("path", QJsonObject{{"type", "string"}})
+                              .addProperty("display_name", QJsonObject{{"type", "string"}})
+                              .addProperty("text", QJsonObject{{"type", "string"}})
+                              .addProperty("reason", QJsonObject{{"type", "string"}})
+                              .addRequired("reason")),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            auto currentDoc = qobject_cast<Core::BaseTextDocument *>(Core::EditorManager::currentDocument());
+            if (!currentDoc)
+                return {{"reason", "no_text_editor"}, {"message", "No text editor is current."}};
+
+            const QString text = sliceLines(currentDoc->plainText(),
+                                            p.value("start_line").toInt(0),
+                                            p.value("end_line").toInt(0));
+            return {
+                {"reason", "ok"},
+                {"path", currentDoc->filePath().toUserOutput()},
+                {"display_name", currentDoc->displayName()},
+                {"text", text}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
             .name("editor_get_completions")
             .title("Get code completions")
             .description(
                 "Returns the code-completion proposals at a position in a file, as the editor "
                 "would offer them, from the engine that editor uses there - the language server "
-                "when one serves the file, otherwise the editor's own model - so it works for "
-                "any kind of file that completes in the editor: C++, QML, CMake, Python and so "
-                "on. Useful before writing code. Give the file and a 1-based line and column "
-                "(the cursor point, e.g. just after a \".\" or \"::\"); returns the candidate "
+                "when one serves the file, otherwise the editor's own model - so it works for any "
+                "kind of file that completes in the editor: C++, QML, CMake, Python and so on. "
+                "Useful before writing code. Give the file and a 1-based line and column (the "
+                "cursor point, for example, just after a \".\" or \"::\"). Returns the candidate "
                 "completions, each with its text and any detail (signature/type), filtered and "
-                "ranked by the prefix already typed. The file is opened in an editor if it is "
-                "not already. An engine still loading the file proposes what it knows so far, "
-                "as it would to a user.")
+                "ranked by the prefix already typed. The file is opened in an editor if it is not "
+                "already. An engine still loading the file proposes what it knows so far, as it "
+                "would to a user.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -4296,13 +4459,13 @@ void McpCommands::registerCommands()
             .name("ui_screenshot")
             .title("Capture a window as a PNG")
             .description(
-                "Captures a window and returns it as a PNG. If widget query fields are given, "
-                "the target's top-level window is captured (e.g. window_title of a dialog); "
-                "otherwise the active window, falling back to the main window. Rendering is done "
-                "in-process via QWidget::grab(), so the image is deterministic and never blank - "
+                "Captures a window and returns it as a PNG. If widget query fields are given, the "
+                "target's top-level window is captured (for example, window_title of a dialog). "
+                "Otherwise the active window, falling back to the main window. Rendering is done "
+                "in-process with QWidget::grab(), so the image is deterministic and never blank - "
                 "no compositor or retry needed, unlike an external screen grab. Pass 'path' to "
-                "also save the PNG to disk; the base64 is embedded in the result only when no "
-                "path is given (or embed=true).")
+                "also save the PNG to disk. The base64 is embedded in the result only when no path "
+                "is given (or embed=true).")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 addWidgetQueryProps(Tool::InputSchema{})
@@ -4380,8 +4543,8 @@ void McpCommands::registerCommands()
             .name("editor_move_cursor")
             .title("Move the mouse cursor")
             .description(
-                "Warps the real mouse pointer to a root coordinate via QCursor::setPos, so a "
-                "screen recording shows the cursor. By default it glides over a few steps; pass "
+                "Warps the real mouse pointer to a root coordinate with QCursor::setPos, so a "
+                "screen recording shows the cursor. By default it glides over a few steps. Pass "
                 "steps=1 to jump. This only moves the pointer - it does not click.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
@@ -4413,10 +4576,10 @@ void McpCommands::registerCommands()
             .title("Open or trigger a menu item")
             .description(
                 "Finds a menu bar entry or an item in a currently-open menu by visible text and "
-                "activates it via the menu API: a submenu is shown (QMenu::popup) so a scenario "
-                "can navigate into it, and a leaf item is triggered. The trigger is posted "
+                "activates it through the menu API. Shows a submenu (QMenu::popup) so a scenario "
+                "can navigate into it, and triggers a leaf item. The trigger is posted "
                 "asynchronously, so this does not block even when it opens a modal dialog. Pair "
-                "with ui_find_menu_item + editor_move_cursor to drive a menu with the cursor.")
+                "with ui_find_menu_item and editor_move_cursor to drive a menu with the cursor.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}

@@ -1056,6 +1056,7 @@ void AppOutputPane::reRunRunControl()
     QTC_ASSERT(tab->runControl, return);
     QTC_ASSERT(!tab->runControl->isRunning(), return);
 
+    tab->window->flush();
     if (handleOldOutput(tab->window))
         tab->runControl->reportOutputCleared();
     tab->window->scrollToBottom();
@@ -1456,6 +1457,18 @@ AppOutputSettings::AppOutputSettings()
             },
             Row { parts.at(0).trimmed(), maxCharCount, parts.at(1).trimmed(), st },
             Row { overwriteBackground, backgroundColor, st },
+            If (ExtensionSystem::PluginManager::specExistsAndIsEnabled("android")) >> Then {
+                Group {
+                    title(Tr::tr("Android Logcat")),
+                    Column {
+                        Row { logcat.viewMode, st },
+                        logcat.showTimestamp,
+                        logcat.showPid,
+                        logcat.showTag,
+                        logcat.showPackage,
+                    },
+                },
+            },
             st,
         };
         // clang-format on
@@ -1490,5 +1503,66 @@ public:
 static const AppOutputSettingsPage settingsPage;
 
 } // namespace ProjectExplorer::Internal
+
+namespace ProjectExplorer {
+
+LogcatSettings::LogcatSettings(AspectContainer *container, const IntegerAspect &maxCharCount)
+    : AspectContainer(container)
+    , viewMode{this}
+    , showTimestamp{this}
+    , showPid{this}
+    , showTag{this}
+    , showPackage{this}
+    , maxCharCount(maxCharCount)
+{
+    viewMode.setSettingsKey("ProjectExplorer/Settings/LogcatViewMode");
+    viewMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    viewMode.setDefaultValue(CompactView);
+    viewMode.addOption(Tr::tr("Compact"));
+    viewMode.addOption(Tr::tr("Standard"));
+    viewMode.setLabelText(Tr::tr("View mode:"));
+
+    showTimestamp.setSettingsKey("ProjectExplorer/Settings/LogcatShowTimestamp");
+    showTimestamp.setDefaultValue(true);
+    showTimestamp.setLabelText(Tr::tr("Show date and time"));
+    showTimestamp.setToolTip(Tr::tr("When the line was logged, as yyyy-MM-dd hh:mm:ss.zzz."));
+
+    showPid.setSettingsKey("ProjectExplorer/Settings/LogcatShowPid");
+    showPid.setDefaultValue(false);
+    showPid.setLabelText(Tr::tr("Show process and thread IDs"));
+    showPid.setToolTip(Tr::tr("The emitting process and thread, like \"1483-1507\"."));
+
+    showTag.setSettingsKey("ProjectExplorer/Settings/LogcatShowTag");
+    showTag.setDefaultValue(true);
+    showTag.setLabelText(Tr::tr("Show tag"));
+    showTag.setToolTip(Tr::tr("The emitting log tag, like \"ActivityManager\"."));
+
+    showPackage.setSettingsKey("ProjectExplorer/Settings/LogcatShowPackage");
+    showPackage.setDefaultValue(true);
+    showPackage.setLabelText(Tr::tr("Show package name"));
+    showPackage.setToolTip(Tr::tr("The emitting app's package, like \"do.main.mypackage\"."));
+
+    viewMode.addOnVolatileValueChanged(this, [this] { updateColumnToggles(); });
+}
+
+void LogcatSettings::readSettings()
+{
+    AspectContainer::readSettings();
+    updateColumnToggles();
+}
+
+void LogcatSettings::updateColumnToggles()
+{
+    const bool standard = viewMode.volatileValue() == StandardView;
+    for (BoolAspect *column : {&showTimestamp, &showPid, &showTag, &showPackage})
+        column->setEnabled(standard);
+}
+
+const LogcatSettings &logcatSettings()
+{
+    return Internal::AppOutputPane::settings().logcat;
+}
+
+} // namespace ProjectExplorer
 
 #include "appoutputpane.moc"

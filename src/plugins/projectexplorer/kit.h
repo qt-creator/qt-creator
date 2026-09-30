@@ -60,6 +60,8 @@ public:
     void upgrade(); // Upgrade settings to new syntax (if appropriate).
 
     QString unexpandedDisplayName() const;
+    QString customUnexpandedDisplayName() const;
+    QString defaultUnexpandedDisplayName() const;
     QString displayName() const;
     void setUnexpandedDisplayName(const QString &name);
 

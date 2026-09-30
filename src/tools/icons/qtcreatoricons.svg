@@ -4288,6 +4288,25 @@
          sodipodi:nodetypes="ccccc"
          id="sparklebubble_sparkle" />
     </g>
+    <g
+       id="src/libs/utils/images/file"
+       style="display:inline"
+       transform="translate(17)">
+      <use
+         transform="translate(2615,132)"
+         height="100%"
+         width="100%"
+         id="use164-5"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0"
+         style="display:inline" />
+      <path
+         id="document_16"
+         style="fill:none;stroke:#000000;stroke-linejoin:round"
+         d="m 2603,569.5 h 5.5 l 3,3.5 v 8 c 0,0.8 -0.8,1.5 -1.5,1.5 h -7 c -0.8,0 -1.5,-0.8 -1.5,-1.5 v -10 c 0,-0.8 0.8,-1.5 1.5,-1.5 z"
+         sodipodi:nodetypes="ccccccccc" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
@@ -6226,15 +6245,15 @@
       <use
          x="0"
          y="0"
-         xlink:href="#backgroundRect"
-         id="use60"
-         transform="translate(1324,132)"
-         style="display:inline" />
+         xlink:href="#src/libs/utils/images/file"
+         id="use167"
+         style="display:inline"
+         transform="translate(-1308)" />
       <path
-         id="path67"
          style="fill:none;stroke:#000000;stroke-linejoin:round"
-         d="m 1315.5,574 v 5 m -2.5,-2.5 h 5 m -6,-7 h 5.5 l 3,3.5 v 8 c 0,0.8 -0.8,1.5 -1.5,1.5 h -7 c -0.8,0 -1.5,-0.8 -1.5,-1.5 v -10 c 0,-0.8 0.8,-1.5 1.5,-1.5 z"
-         sodipodi:nodetypes="ccccccccccccc" />
+         d="m 1315.5,574 v 5 m -2.5,-2.5 h 5"
+         sodipodi:nodetypes="cccc"
+         id="path7" />
     </g>
     <g
        transform="translate(96)"

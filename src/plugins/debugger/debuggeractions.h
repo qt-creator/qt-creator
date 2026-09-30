@@ -59,6 +59,7 @@ public:
     Utils::StringAspect &gdbPostAttachCommands;
 
     Utils::BoolAspect &targetAsync;
+    Utils::BoolAspect &targetNonStop;
     Utils::BoolAspect &autoEnrichParameters;
     Utils::BoolAspect &breakOnThrow;
     Utils::BoolAspect &breakOnCatch;
@@ -79,6 +80,7 @@ public:
     Utils::BoolAspect &showStdNamespace;
     Utils::BoolAspect &showQtNamespace;
     Utils::BoolAspect &showQObjectNames;
+    Utils::BoolAspect &showVariablesFromAllScopes;
 
     Utils::IntegerAspect &maximalStringLength;
     Utils::IntegerAspect &displayStringLimit;

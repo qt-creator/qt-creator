@@ -65,7 +65,7 @@ public:
     void updateCurrentBranchModifiedFiles();
 
 private:
-    void setCurrentBranch();
+    void setCurrentBranch(const QString &currentBranch);
     BranchNode *indexToNode(const QModelIndex &index) const;
     QModelIndex nodeToIndex(BranchNode *node, int column) const;
     void removeNode(const QModelIndex &idx);

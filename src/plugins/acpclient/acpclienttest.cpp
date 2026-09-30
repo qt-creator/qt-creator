@@ -18,6 +18,7 @@
 #include "chatfontscale.h"
 #include "chatinputedit.h"
 #include "chatpanel.h"
+#include "configselectpopup.h"
 
 #include <acp/acp.h>
 #include <acp/acpv2.h>
@@ -54,7 +55,10 @@
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QMouseEvent>
+#include <QPointer>
+#include <QSignalSpy>
 #include <QAbstractButton>
+#include <QAbstractItemView>
 #include <QCheckBox>
 #include <QScopeGuard>
 #include <QTest>
@@ -549,6 +553,14 @@ private slots:
     void testChatPanelCornerRadiusScale();
     void testChatPanelWheelZoom();
     void testChatPanelZoomCommands();
+    void testChatPanelModeSelector();
+    void testChatPanelModelSelector();
+    void testConfigSelectPopupFiltering();
+    void testConfigSelectPopupFavorites();
+    void testConfigSelectPopupKeepsFilterFocus();
+    void testConfigSelectPopupEmptyValue();
+    void testChatPanelSelectPopupFollowsOptions();
+    void testChatPanelSelectButtonElide();
 
     // Tier 5: terms and conditions, chat widget
     void testTermsWidget();
@@ -3266,6 +3278,295 @@ void AcpClientTest::testChatPanelWheelZoom()
                         Qt::NoScrollPhase, false);
     QVERIFY(QCoreApplication::sendEvent(viewport, &zoomOut));
     QCOMPARE(ChatFontScale::scale(), 1.0);
+}
+
+// The session mode is picked from the same button and popup as the model, so it
+// names the mode in use instead of listing all modes in a combo box.
+void AcpClientTest::testChatPanelModeSelector()
+{
+    ChatPanel panel;
+
+    Utils::QtcButton *button = panel.findChild<Utils::QtcButton *>("modeSelector");
+    QVERIFY(button);
+    QVERIFY(button->isHidden());
+
+    panel.setConfigOptions(
+        {V2::SessionConfigOption()
+             .configId("_v1_session_mode")
+             .name("Mode")
+             .category(V2::SessionConfigOptionCategory::mode)
+             .additionalProperties("type", "select")
+             .additionalProperties("currentValue", "code")
+             .additionalProperties("options",
+                                   QJsonArray{QJsonObject{{"value", "ask"}, {"name", "Ask"}},
+                                              QJsonObject{{"value", "code"}, {"name", "Code"}}})});
+
+    QVERIFY(!button->isHidden());
+    QCOMPARE(button->text(), "Code");
+    QVERIFY2(button->toolTip().contains("Code"), qPrintable(button->toolTip()));
+
+    panel.clearConfigOptions();
+    QVERIFY(button->isHidden());
+}
+
+// A model configuration option is presented next to the chat input, naming the
+// model in use, instead of hiding in the configuration menu.
+void AcpClientTest::testChatPanelModelSelector()
+{
+    ChatPanel panel;
+
+    Utils::QtcButton *button = panel.findChild<Utils::QtcButton *>("modelSelector");
+    QVERIFY(button);
+    QVERIFY(button->isHidden());
+
+    const V2::SessionConfigOption option
+        = V2::SessionConfigOption()
+              .configId("test.model")
+              .name("Model")
+              .category(V2::SessionConfigOptionCategory::model)
+              .additionalProperties("type", "select")
+              .additionalProperties("currentValue", "big")
+              .additionalProperties("options",
+                                    QJsonArray{QJsonObject{{"value", "small"}, {"name", "Small"}},
+                                               QJsonObject{{"value", "big"}, {"name", "Big"}}});
+    panel.setConfigOptions({option});
+
+    QVERIFY(!button->isHidden());
+    QCOMPARE(button->text(), "Big");
+    QVERIFY2(button->toolTip().contains("Big"), qPrintable(button->toolTip()));
+
+    panel.clearConfigOptions();
+    QVERIFY(button->isHidden());
+}
+
+static QList<ConfigSelectEntry> modelEntries()
+{
+    return {{"anthropic/claude-sonnet", "Claude Sonnet", "Balanced", "Anthropic"},
+            {"anthropic/claude-haiku", "Claude Haiku", "Fast", "Anthropic"},
+            {"google/gemini-pro", "Gemini Pro", {}, "Google"},
+            {"meta/llama-70b", "Llama 70B", {}, "Meta"}};
+}
+
+// The filter narrows the list down to the entries matching what was typed,
+// matching the displayed name as well as the value and the description.
+void AcpClientTest::testConfigSelectPopupFiltering()
+{
+    ConfigSelectPopup popup;
+    popup.setEntries(modelEntries(), "google/gemini-pro");
+
+    QCOMPARE_EQ(popup.visibleValues(),
+             QStringList({"anthropic/claude-sonnet", "anthropic/claude-haiku",
+                          "google/gemini-pro", "meta/llama-70b"}));
+
+    popup.setFilter("haiku");
+    QCOMPARE_EQ(popup.visibleValues(), QStringList({"anthropic/claude-haiku"}));
+
+    // Matching is case insensitive and also considers the value, which is what
+    // distinguishes the models of a router agent.
+    popup.setFilter("META");
+    QCOMPARE_EQ(popup.visibleValues(), QStringList({"meta/llama-70b"}));
+
+    // The description is searched as well.
+    popup.setFilter("Balanced");
+    QCOMPARE_EQ(popup.visibleValues(), QStringList({"anthropic/claude-sonnet"}));
+
+    popup.setFilter("notamodel");
+    QVERIFY(popup.visibleValues().isEmpty());
+
+    popup.setFilter({});
+    QCOMPARE(popup.visibleValues().size(), 4);
+}
+
+// Favorites are repeated in a section on top of the full list, and take part in
+// filtering like every other entry.
+void AcpClientTest::testConfigSelectPopupFavorites()
+{
+    ConfigSelectPopup popup;
+    popup.setEntries(modelEntries(), "google/gemini-pro");
+    popup.setFavorites({"meta/llama-70b", "anthropic/claude-haiku"});
+
+    // The favorites come first, in the order they were marked in, and the full
+    // list still holds them in its own order.
+    QCOMPARE_EQ(popup.visibleValues(),
+             QStringList({"meta/llama-70b", "anthropic/claude-haiku",
+                          "anthropic/claude-sonnet", "anthropic/claude-haiku",
+                          "google/gemini-pro", "meta/llama-70b"}));
+
+    popup.setFilter("gemini");
+    QCOMPARE_EQ(popup.visibleValues(), QStringList({"google/gemini-pro"}));
+
+    popup.setFilter("llama");
+    QCOMPARE_EQ(popup.visibleValues(), QStringList({"meta/llama-70b", "meta/llama-70b"}));
+}
+
+// The list does not take the focus a click gives it, so that typing after a
+// click in the list keeps filtering.
+void AcpClientTest::testConfigSelectPopupKeepsFilterFocus()
+{
+    ConfigSelectPopup popup;
+    popup.setEntries(modelEntries(), "google/gemini-pro");
+
+    const auto *view = popup.findChild<QAbstractItemView *>();
+    QVERIFY(view);
+    QCOMPARE(view->focusPolicy(), Qt::NoFocus);
+}
+
+// An empty string is a valid value, and is chosen like any other.
+void AcpClientTest::testConfigSelectPopupEmptyValue()
+{
+    ConfigSelectPopup popup;
+    popup.setEntries({{{}, "Default", {}, {}}, {"big", "Big", {}, {}}}, {});
+    QCOMPARE_EQ(popup.visibleValues(), QStringList({QString(), "big"}));
+
+    QSignalSpy selected(&popup, &ConfigSelectPopup::valueSelected);
+    auto *filter = popup.findChild<QLineEdit *>();
+    QVERIFY(filter);
+    QTest::keyClick(filter, Qt::Key_Return);
+    QCOMPARE(selected.size(), 1);
+    QCOMPARE(selected.at(0).at(0).toString(), QString());
+}
+
+// An open picker follows the agent's update of its option, and closes when the
+// option goes away, so that it cannot submit a value the agent no longer offers.
+void AcpClientTest::testChatPanelSelectPopupFollowsOptions()
+{
+    const auto modelOption = [](const QStringList &values) {
+        QJsonArray entries;
+        for (const QString &value : values)
+            entries.append(QJsonObject{{"value", value}, {"name", value}});
+        return V2::SessionConfigOption()
+            .configId("test.model")
+            .name("Model")
+            .category(V2::SessionConfigOptionCategory::model)
+            .additionalProperties("type", "select")
+            .additionalProperties("currentValue", values.first())
+            .additionalProperties("options", entries);
+    };
+
+    ChatPanel panel;
+    panel.show();
+    QVERIFY(QTest::qWaitForWindowExposed(&panel));
+    panel.setConfigOptions({modelOption({"small", "big"})});
+
+    Utils::QtcButton *button = panel.findChild<Utils::QtcButton *>("modelSelector");
+    QVERIFY(button);
+    button->click();
+    const QPointer<ConfigSelectPopup> popup = panel.findChild<ConfigSelectPopup *>();
+    QVERIFY(popup);
+    QVERIFY(popup->isVisible());
+    QCOMPARE_EQ(popup->visibleValues(), QStringList({"small", "big"}));
+
+    panel.setConfigOptions({modelOption({"small", "huge"})});
+    QCOMPARE_EQ(popup->visibleValues(), QStringList({"small", "huge"}));
+
+    panel.clearConfigOptions();
+    QVERIFY(!popup || popup->isHidden());
+    QTRY_VERIFY(!popup);
+}
+
+// A name is elided to the room the input row has left, so that it survives
+// whole where the row is wide enough for it whatever the width of the UI font.
+void AcpClientTest::testChatPanelSelectButtonElide()
+{
+    const QString name = "GPT-5 Codex High Reasoning Effort";
+    const auto modelOptions = [](const QString &modelName) {
+        return QList<V2::SessionConfigOption>{
+            V2::SessionConfigOption()
+                .configId("test.model")
+                .name("Model")
+                .category(V2::SessionConfigOptionCategory::model)
+                .additionalProperties("type", "select")
+                .additionalProperties("currentValue", "gpt-5-codex-high")
+                .additionalProperties(
+                    "options", QJsonArray{QJsonObject{{"value", "gpt-5-codex-high"},
+                                                      {"name", modelName}}})};
+    };
+
+    ChatPanel panel;
+    panel.resize(1000, 600);
+    panel.show();
+    QVERIFY(QTest::qWaitForWindowExposed(&panel));
+
+    panel.setConfigOptions(modelOptions(name));
+
+    Utils::QtcButton *button = panel.findChild<Utils::QtcButton *>("modelSelector");
+    QVERIFY(button);
+    QTRY_COMPARE(button->text(), name);
+
+    panel.resize(240, 600);
+    QTRY_VERIFY2(button->text() != name, qPrintable(button->text()));
+    QVERIFY2(button->text().contains(QChar(0x2026)), qPrintable(button->text()));
+    QVERIFY2(button->toolTip().contains(name), qPrintable(button->toolTip()));
+
+    QHBoxLayout *row = Utils::findOrDefault(panel.findChildren<QHBoxLayout *>(),
+                                            [button](QHBoxLayout *layout) {
+                                                return layout->indexOf(button) >= 0;
+                                            });
+    QVERIFY(row);
+    const auto preferredRowWidth = [row] {
+        int width = 0;
+        int items = 0;
+        for (int i = 0; i < row->count(); ++i) {
+            QLayoutItem *item = row->itemAt(i);
+            if (item->isEmpty())
+                continue;
+            width += item->sizeHint().width();
+            ++items;
+        }
+        return width + (items - 1) * row->spacing();
+    };
+    const auto rowWidth = [row] { return row->parentWidget()->contentsRect().width(); };
+
+    // Well above the panel's minimum width, so that showing a control in the
+    // row does not resize the panel, which would elide the name anew by itself.
+    const int panelWidth = 600;
+    const QString longName = QStringList(3, name).join(" / ");
+    panel.resize(panelWidth, 600);
+    panel.setConfigOptions(modelOptions(longName));
+    QTRY_VERIFY2(button->toolTip().contains(longName), qPrintable(button->toolTip()));
+    QVERIFY2(button->text() != longName, qPrintable(button->text()));
+    QVERIFY2(preferredRowWidth() <= rowWidth(),
+             qPrintable(QString("%1 > %2").arg(preferredRowWidth()).arg(rowWidth())));
+    // Elided to the room the row has, not to less.
+    const int slack = 2 * button->fontMetrics().maxWidth();
+    QVERIFY2(rowWidth() - preferredRowWidth() < slack,
+             qPrintable(QString("%1 - %2 >= %3")
+                            .arg(rowWidth())
+                            .arg(preferredRowWidth())
+                            .arg(slack)));
+
+    // A short mode name leaves the room it does not need to the model name.
+    const QString modeName = "Agent";
+    QList<V2::SessionConfigOption> options = modelOptions(longName);
+    options.prepend(V2::SessionConfigOption()
+                        .configId("test.mode")
+                        .name("Mode")
+                        .category(V2::SessionConfigOptionCategory::mode)
+                        .additionalProperties("type", "select")
+                        .additionalProperties("currentValue", "agent")
+                        .additionalProperties(
+                            "options",
+                            QJsonArray{QJsonObject{{"value", "agent"}, {"name", modeName}}}));
+    panel.setConfigOptions(options);
+    Utils::QtcButton *modeButton = panel.findChild<Utils::QtcButton *>("modeSelector");
+    QVERIFY(modeButton);
+    QTRY_COMPARE(modeButton->text(), modeName);
+    QVERIFY2(button->text() != longName, qPrintable(button->text()));
+    QVERIFY2(preferredRowWidth() <= rowWidth(),
+             qPrintable(QString("%1 > %2").arg(preferredRowWidth()).arg(rowWidth())));
+    QVERIFY2(rowWidth() - preferredRowWidth() < slack,
+             qPrintable(QString("%1 - %2 >= %3")
+                            .arg(rowWidth())
+                            .arg(preferredRowWidth())
+                            .arg(slack)));
+
+    // The commands button takes its room from the name.
+    const QString textBeforeCommands = button->text();
+    panel.updateAvailableCommands({V2::AvailableCommand().name("plan").description("Plan")});
+    QCOMPARE(panel.width(), panelWidth);
+    QVERIFY2(button->text() != textBeforeCommands, qPrintable(button->text()));
+    QVERIFY2(preferredRowWidth() <= rowWidth(),
+             qPrintable(QString("%1 > %2").arg(preferredRowWidth()).arg(rowWidth())));
 }
 
 // --- Tier 5 ------------------------------------------------------------------

@@ -95,6 +95,9 @@ public:
     ToolTypes toolType() const;
     QString toolDisplayName() const;
 
+    Utils::FilePath toolPath() const;
+    void setToolPath(const Utils::FilePath &toolPath);
+
     void setToolId(const Utils::Id toolId);
     void setToolType(ToolTypes toolType);
     void setToolDisplayName(const QString &displayName);
@@ -288,6 +291,8 @@ public:
     std::function<void(Layouting::Layout *)> autoDetectGui();
     virtual void runAutoDetect(const ToolDetectionLogger &logger,
                                const std::function<void()> &onDone);
+    void detectToolsAndKits(
+        const std::function<void(const Utils::Result<QList<Kit *>> &)> &callback);
 
     void setExtraData(Utils::Id kind, const QVariant &data);
     QVariant extraData(Utils::Id kind) const;
@@ -331,7 +336,7 @@ public:
     virtual Utils::Result<Utils::Environment> systemEnvironmentIfKnown() const;
     virtual Utils::Result<Utils::Environment> sourcedEnvironment(const Utils::FilePath &script) const;
 
-    virtual void aboutToBeRemoved() const {}
+    virtual void aboutToBeRemoved() const;
 
     virtual Utils::Result<> ensureReachable(const Utils::FilePath &other) const;
     virtual Utils::Result<Utils::FilePath> localSource(const Utils::FilePath &other) const;
@@ -409,6 +414,8 @@ private:
     int version() const;
     void setFromSdk();
     bool kitCreationEnabled() const;
+    quint64 startToolDetection(const Utils::FilePaths &searchPaths,
+                               const ToolDetectionLogger &logger);
 
     const std::unique_ptr<Internal::IDevicePrivate> d;
     friend class DeviceManager;

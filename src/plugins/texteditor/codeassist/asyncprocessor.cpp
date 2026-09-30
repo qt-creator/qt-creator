@@ -7,6 +7,7 @@
 #include "iassistproposal.h"
 
 #include <utils/async.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 
@@ -17,6 +18,14 @@ AsyncProcessor::AsyncProcessor()
     QObject::connect(&m_watcher, &QFutureWatcher<IAssistProposal *>::finished, &m_watcher, [this] {
         setAsyncProposalAvailable(m_watcher.result());
     });
+}
+
+// Destroying a processor whose future is still running leaves that future's
+// lambda operating on freed memory, which surfaces much later as a crash in
+// whatever reused it. Report it here, where the mistake is.
+AsyncProcessor::~AsyncProcessor()
+{
+    QTC_CHECK(!m_watcher.isRunning());
 }
 
 IAssistProposal *AsyncProcessor::perform()

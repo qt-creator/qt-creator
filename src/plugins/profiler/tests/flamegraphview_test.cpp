@@ -7,6 +7,7 @@
 #include <profiler/qmlprofilertool.h>
 
 #include <QMenu>
+#include <QPointer>
 #include <QSignalSpy>
 #include <QTest>
 #include <QTimer>
@@ -43,10 +44,14 @@ void FlameGraphViewTest::testSelection()
         QCOMPARE(selected, expectedType);
     });
 
+    // The toolbar above the canvas makes it shorter than the view, and its rows start at
+    // its own bottom edge.
+    QWidget *canvas = view.childAt(view.width() / 2, view.height() / 2);
+    QVERIFY(canvas);
+
     QSignalSpy spy(&view, SIGNAL(typeSelected(int)));
-    QTest::mouseClick(
-        view.childAt(view.width() / 2, view.height() / 2), Qt::LeftButton, Qt::NoModifier,
-        QPoint(15, view.height() - 15));
+    QTest::mouseClick(canvas, Qt::LeftButton, Qt::NoModifier,
+                      QPoint(15, canvas->height() - 15));
     if (spy.isEmpty())
         QVERIFY(spy.wait());
 
@@ -56,9 +61,8 @@ void FlameGraphViewTest::testSelection()
 
     // Click in empty area deselects
     expectedType = -1;
-    QTest::mouseClick(
-        view.childAt(view.width() / 2, view.height() / 2), Qt::LeftButton, Qt::NoModifier,
-        QPoint(view.width() - 15, 50));
+    QTest::mouseClick(canvas, Qt::LeftButton, Qt::NoModifier,
+                      QPoint(canvas->width() - 15, 50));
     QCOMPARE(spy.count(), 2);
 
     view.onVisibleFeaturesChanged(1 << ProfileBinding);
@@ -79,9 +83,8 @@ void FlameGraphViewTest::testSelection()
         QCOMPARE(selected, 2);
     });
 
-    QTest::mouseClick(
-        view.childAt(view.width() / 2, view.height() / 2), Qt::LeftButton, Qt::NoModifier,
-        QPoint(5, view.height() - 5));
+    QTest::mouseClick(canvas, Qt::LeftButton, Qt::NoModifier,
+                      QPoint(5, canvas->height() - 5));
     if (spy.count() == 1)
         QVERIFY(spy.wait());
 
@@ -122,12 +125,14 @@ void FlameGraphViewTest::testContextMenu()
             return;
         }
 
+        // Triggering an action closes the menu, which deletes itself on close.
+        const QPointer<QWidget> popup = activePopup;
         QTest::mouseMove(activePopup, QPoint(targetWidth, targetHeight));
         QTest::mouseClick(activePopup, Qt::LeftButton, Qt::NoModifier,
                           QPoint(targetWidth, targetHeight));
         ++menuClicks;
 
-        if (!manager.isRestrictedToRange()) {
+        if (popup && popup->isVisible() && !manager.isRestrictedToRange()) {
             // click somewhere else to remove the menu and return to outer function
             QTest::mouseMove(activePopup, QPoint(-10, -10));
             QTest::mouseClick(activePopup, Qt::LeftButton, Qt::NoModifier, QPoint(-10, -10));

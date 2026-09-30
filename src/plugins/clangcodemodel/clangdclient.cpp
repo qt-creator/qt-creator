@@ -1075,6 +1075,25 @@ void ClangdClient::findLocalUsages(CppEditor::CppEditorWidget *editorWidget,
     });
 }
 
+// Implicit nodes, such as the object argument of a member function call that is not
+// qualified with "this->", have the same range as their parent, so the ast path does not
+// end at the node that describes the symbol the cursor is on.
+static ClangdAstPath pathWithoutTrailingImplicitNodes(const ClangdAstPath &path)
+{
+    ClangdAstPath result = path;
+    while (result.size() > 1) {
+        const ClangdAstNode &node = result.last();
+        if (node.range() != result.at(result.size() - 2).range())
+            break;
+        if (!node.arcanaContains(" implicit ")
+            && !(node.role() == "expression" && node.kind() == "ImplicitCast")) {
+            break;
+        }
+        result.removeLast();
+    }
+    return result;
+}
+
 void ClangdClient::gatherHelpItemForTooltip(
     const MessageId &id, const Hover &hover, const Utils::FilePath &filePath)
 {
@@ -1139,7 +1158,7 @@ void ClangdClient::gatherHelpItemForTooltip(
         if (const std::optional<Range> &hoverRange = hover.range())
             range = Range(Position(hoverRange->start().line(), hoverRange->start().character()),
                           Position(hoverRange->end().line(), hoverRange->end().character()));
-        const ClangdAstPath path = getAstPath(ast, range);
+        const ClangdAstPath path = pathWithoutTrailingImplicitNodes(getAstPath(ast, range));
         if (path.isEmpty()) {
             d->setHelpItemForTooltip(id, filePath);
             return;

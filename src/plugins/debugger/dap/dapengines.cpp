@@ -5,6 +5,7 @@
 
 #include "dapclient.h"
 #include "dapdataproviders.h"
+#include "dapstartdata.h"
 #include "pydapengine.h"
 
 #include "../debuggeractions.h"
@@ -29,6 +30,15 @@ using namespace Core;
 using namespace Utils;
 
 namespace Debugger::Internal {
+
+CommandLine gdbAdapterRecipe(const FilePath &gdb, bool loadInitFile)
+{
+    CommandLine command{gdb, {"-i", "dap"}};
+    if (!loadInitFile)
+        command.addArg("-nx");
+    return command;
+}
+
 namespace {
 
 const QLoggingCategory &gdbLogCategory()
@@ -109,7 +119,8 @@ private:
         QTC_ASSERT(state() == EngineSetupRequested, qCDebug(logCategory()) << state());
 
         const DebuggerRunParameters &rp = runParameters();
-        CommandLine cmd{rp.debugger().command.executable(), {"-i", "dap"}};
+        CommandLine cmd = gdbAdapterRecipe(rp.debugger().command.executable(),
+                                          settings().loadGdbInit());
 
         if (rp.isLocalAttachEngine())
             cmd.addArgs({"-p", QString::number(rp.attachPid().pid())});

@@ -10,6 +10,7 @@
 #include <commontraceformat/stream/tracedirectory.h>
 #include <commontraceformat/stream/tracereader.h>
 
+#include <utils/async.h>
 #include <utils/filepath.h>
 
 #include <QByteArrayView>
@@ -53,6 +54,7 @@ public:
             return false;
         }
         if (m_isInTraceArray && event == json::parse_event_t::object_end && depth == m_traceArrayDepth + 1) {
+            Utils::asyncYield();
             m_promise.addResult(parsed);
             return false;
         }
@@ -489,6 +491,7 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath, const QString
             bool laneNamed = false;
 
             while (!stream->atEnd()) {
+                Utils::asyncYield();
                 if (promise.isCanceled())
                     return;
 
@@ -790,11 +793,13 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath, const QString
     // visible events lets the first real event establish the offset cleanly
     // (emitting them afterwards would reset the offset and blow up the range).
     for (json &ev : metadata) {
+        Utils::asyncYield();
         if (promise.isCanceled())
             return;
         promise.addResult(std::move(ev));
     }
     for (json &ev : events) {
+        Utils::asyncYield();
         if (promise.isCanceled())
             return;
         promise.addResult(std::move(ev));

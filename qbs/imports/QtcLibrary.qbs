@@ -31,6 +31,18 @@ QtcProduct {
             ? ["@loader_path/../Frameworks"]
             : ["$ORIGIN", "$ORIGIN/.."]
 
+    // Qt Creator's generated headers and unity-style translation units routinely
+    // hold more sections than the object format takes by default, which MSVC and
+    // MinGW's assembler both reject with a fatal error.
+    Properties {
+        condition: qbs.toolchain.contains("msvc")
+        cpp.cxxFlags: "/bigobj"
+    }
+    Properties {
+        condition: qbs.toolchain.contains("mingw")
+        cpp.cxxFlags: "-Wa,-mbig-obj"
+    }
+
     Export {
         Depends { name: "cpp" }
         cpp.includePaths: project.ide_source_tree + "/src/libs"

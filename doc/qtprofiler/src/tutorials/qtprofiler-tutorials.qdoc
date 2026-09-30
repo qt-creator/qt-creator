@@ -1,0 +1,12 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page qtprofiler-tutorials.html
+    \previouspage qtprofiler-getting-started.html
+    \nextpage qtprofiler-recording-profiling-data.html
+
+    \title Tutorials
+
+    Follow the tutorials to learn how to profile Qt applications.
+*/

@@ -1867,7 +1867,7 @@ void registerMcpTools()
             .description(
                 "Starts a build of the named project - the startup project when no name is "
                 "given - and returns at once with a build_id. The build runs in the "
-                "background; this call never waits for it."
+                "background. This call never waits for it."
                 "\n\n"
                 "Wait for the verdict with build_get_status, then read the diagnostics with "
                 "build_get_issues and the raw text with build_get_compile_output. None of "
@@ -1875,7 +1875,7 @@ void registerMcpTools()
                 "\n\n"
                 "One build runs at a time. When one is already going this starts nothing and "
                 "answers reason:\"build_in_progress\" with that build's build_id: wait on "
-                "that id, then call again.")
+                "that ID, then call again.")
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
@@ -1920,7 +1920,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "array"},
                             {"description",
-                             "The projects an ambiguous name matched; pass one of their "
+                             "The projects an ambiguous name matched. Pass one of their "
                              "paths as project_path."}})
                     .addRequired("started")
                     .addRequired("reason")
@@ -1951,7 +1951,7 @@ void registerMcpTools()
                 "\n\n"
                 "state:\"running\" means the wait budget ran out, not that anything went "
                 "wrong - call again to keep waiting, and repeat until state is something "
-                "else. Never sleep between calls; the waiting happens here."
+                "else. Never sleep between calls. The waiting happens here."
                 "\n\n"
                 "Counts only. Read the diagnostics with build_get_issues and the raw text "
                 "with build_get_compile_output.")
@@ -2172,7 +2172,7 @@ void registerMcpTools()
                             {"description",
                              "Append each issue's detail lines - the offending source "
                              "and the notes under it, which build_get_compile_output "
-                             "carries as well. Off by default; turn it on for a "
+                             "carries as well. Off by default. Turn it on for a "
                              "diagnostic whose summary alone does not say enough."}})
                     .addProperty(
                         "max",
@@ -2231,7 +2231,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "boolean"},
                             {"description",
-                             "Whether matches were left out; raise max or move offset on "
+                             "Whether matches were left out. Raise max or move offset on "
                              "to see them."}})
                     .addProperty(
                         "reason",
@@ -2259,10 +2259,10 @@ void registerMcpTools()
             .name("build_get_compile_output")
             .title("Get compile and deploy output")
             .description(
-                "The raw Compile Output text of a build - the head and the tail of it, "
+                "Returns the raw Compile Output text of a build - the head and the tail of it, "
                 "since the first error is the cause and a link or deploy failure has "
                 "nothing before it. Prefer build_get_issues for the structured "
-                "diagnostics; reach for this when a build or deployment failed without "
+                "diagnostics. Reach for this when a build or deployment failed without "
                 "producing any."
                 "\n\n"
                 "Defaults to the most recent build. scope:\"session\" returns the pane's "
@@ -2303,7 +2303,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "boolean"},
                             {"description",
-                             "Whether output left out any of the kept text; raising "
+                             "Whether output left out any of the kept text. Raising "
                              "max_chars returns the rest."}})
                     .addProperty(
                         "total_chars",
@@ -2367,8 +2367,8 @@ void registerMcpTools()
         QJsonObject issuesField{
             {"type", "object"},
             {"description",
-             "Build issues - present when the build failed; same shape as the Issues "
-             "pane's tasks"}};
+             "Build issues - present when the build failed. Same shape as the Issues "
+             "pane's tasks."}};
         if (issSchema._properties) {
             QJsonObject props;
             for (auto it = issSchema._properties->cbegin(); it != issSchema._properties->cend();
@@ -2386,7 +2386,7 @@ void registerMcpTools()
                     {"type", "string"},
                     {"description",
                      "Tail of the output the run produced (present on success), truncated "
-                     "to keep the reply small. The Application Output pane keeps the rest; "
+                     "to keep the reply small. The Application Output pane keeps the rest. "
                      "read_pane returns it."}})
             .addProperty(
                 "exitCode",
@@ -2394,7 +2394,7 @@ void registerMcpTools()
                     {"type", "integer"},
                     {"description",
                      "Process exit code, when the run produced one. Absent if it crashed or "
-                     "terminated abnormally (e.g. a failing terminal launch)."}})
+                     "terminated abnormally (for example, a failing terminal launch)."}})
             .addProperty(
                 "succeeded",
                 QJsonObject{
@@ -2566,7 +2566,7 @@ void registerMcpTools()
                 "code 0). "
                 "On build failure, returns isError=true with structured content in the same "
                 "shape as the Issues pane's tasks (issues array + summary). "
-                "By default this is a normal run; pass run_mode to run the project under a "
+                "By default this is a normal run. Pass run_mode to run the project under a "
                 "different, non-interactive run mode such as an analyzer (the run must finish "
                 "on its own). Interactive modes have dedicated tools: use debugger_start for "
                 "debugging and profiler_qml_start for the QML profiler. "
@@ -2578,11 +2578,11 @@ void registerMcpTools()
                     QJsonObject{
                         {"type", "string"},
                         {"description",
-                         "Run-mode id to run the startup project under. Defaults to the normal "
+                         "Run-mode ID to run the startup project under. Defaults to the normal "
                          "run mode (\"RunConfiguration.NormalRunMode\"). Examples: "
                          "\"PerfProfiler.RunMode\", \"RunConfiguration.QmlProfilerRunMode\". The "
                          "mode must have a run worker registered for the project's device and "
-                         "run to completion; interactive modes belong to debugger_start / "
+                         "run to completion. Interactive modes belong to debugger_start / "
                          "profiler_qml_start."}}))
             .execution(ToolExecution().taskSupport(ToolExecution::TaskSupport::optional))
             .outputSchema(runToolOutputSchema),
@@ -2595,7 +2595,7 @@ void registerMcpTools()
             .description(
                 "Lists every run mode that has a registered run worker, and whether the current "
                 "startup project can be run in each one right now (with the reason if not). Use a "
-                "runnable id as run_project's run_mode; interactive modes have dedicated tools "
+                "runnable ID as run_project's run_mode. Interactive modes have dedicated tools "
                 "(debugger_start, profiler_qml_start).")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
@@ -2621,7 +2621,7 @@ void registerMcpTools()
             .description(
                 "Switches to Projects mode and shows one of the active project's settings "
                 "panels. Pass panel = \"build\", \"deploy\" or \"run\" for the target's "
-                "Build/Deploy/Run Settings tabs, or a project-panel id (e.g. \"Editor\") for "
+                "Build/Deploy/Run Settings tabs, or a project-panel ID (such as \"Editor\") for "
                 "the left-hand project settings. Use this to reach settings only shown in "
                 "these panels, such as the run configuration's \"Executable on device\" "
                 "field. Returns an error when no project is open.")
@@ -2633,7 +2633,7 @@ void registerMcpTools()
                             {"type", "string"},
                             {"description",
                              "\"build\", \"deploy\" or \"run\" for the target settings tabs, "
-                             "or a project-panel id for the left-hand project settings."}})
+                             "or a project-panel ID for the left-hand project settings."}})
                     .addRequired("panel"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2661,8 +2661,8 @@ void registerMcpTools()
             .name("search_projects")
             .title("Search for pattern in project files")
             .description(
-                "Search for a text pattern in files matching a file pattern within a "
-                "project (or all projects) and return all matches")
+                "Searches for a text pattern in files matching a file pattern within a "
+                "project (or all projects) and returns all matches.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -2671,28 +2671,28 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "File pattern to filter which files to search (e.g., '*.cpp', "
-                             "'*.h')"}})
+                             "File pattern to filter which files to search (such as '*.cpp', "
+                             "'*.h')."}})
                     .addProperty(
                         "project_name",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
                              "Optional: name of the project to search in (searches all projects if "
-                             "not specified)"}})
+                             "not specified)."}})
                     .addProperty(
                         "pattern",
-                        QJsonObject{{"type", "string"}, {"description", "Text pattern to search for"}})
+                        QJsonObject{{"type", "string"}, {"description", "Text pattern to search for."}})
                     .addProperty(
                         "regex",
                         QJsonObject{
                             {"type", "boolean"},
-                            {"description", "Whether the pattern is a regular expression"}})
+                            {"description", "Whether the pattern is a regular expression."}})
                     .addProperty(
                         "case_sensitive",
                         QJsonObject{
                             {"type", "boolean"},
-                            {"description", "Whether the search should be case sensitive"}})
+                            {"description", "Whether the search should be case sensitive."}})
                     .addProperty(
                         "max_results",
                         QJsonObject{
@@ -2768,8 +2768,8 @@ void registerMcpTools()
             .name("fs_replace_in_projects")
             .title("Replace pattern in project files")
             .description(
-                "Replace all matches of a text pattern in files matching a file pattern "
-                "within a project (or all projects) with replacement text")
+                "Replaces all matches of a text pattern in files matching a file pattern "
+                "within a project (or all projects) with replacement text.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -2778,31 +2778,31 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "File pattern to filter which files to modify (e.g., '*.cpp', "
-                             "'*.h')"}})
+                             "File pattern to filter which files to modify (such as '*.cpp', "
+                             "'*.h')."}})
                     .addProperty(
                         "project_name",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
                              "Optional: name of the project to search in (searches all projects if "
-                             "not specified)"}})
+                             "not specified)."}})
                     .addProperty(
                         "pattern",
-                        QJsonObject{{"type", "string"}, {"description", "Text pattern to search for"}})
+                        QJsonObject{{"type", "string"}, {"description", "Text pattern to search for."}})
                     .addProperty(
                         "replacement",
-                        QJsonObject{{"type", "string"}, {"description", "Replacement text"}})
+                        QJsonObject{{"type", "string"}, {"description", "Replacement text."}})
                     .addProperty(
                         "regex",
                         QJsonObject{
                             {"type", "boolean"},
-                            {"description", "Whether the pattern is a regular expression"}})
+                            {"description", "Whether the pattern is a regular expression."}})
                     .addProperty(
                         "case_sensitive",
                         QJsonObject{
                             {"type", "boolean"},
-                            {"description", "Whether the search should be case sensitive"}})
+                            {"description", "Whether the search should be case sensitive."}})
                     .addRequired("file_pattern")
                     .addRequired("pattern")
                     .addRequired("replacement"))
@@ -2854,7 +2854,7 @@ void registerMcpTools()
         Tool{}
             .name("project_find_files")
             .title("Find files in project")
-            .description("Find all files matching the pattern in a given project")
+            .description("Finds all files matching the pattern in a given project.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -2863,18 +2863,18 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Name of the project to limit the search to (optional)"}})
+                             "Name of the project to limit the search to (optional)."}})
                     .addProperty(
                         "pattern",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Pattern for finding the file, either a glob pattern or a regex"}})
+                             "Pattern for finding the file, either a glob pattern or a regex."}})
                     .addProperty(
                         "regex",
                         QJsonObject{
                             {"type", "boolean"},
-                            {"description", "Whether the pattern is a regex (default is false)"}})
+                            {"description", "Whether the pattern is a regex (default is false)."}})
                     .addRequired("pattern"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2882,7 +2882,7 @@ void registerMcpTools()
                         "files",
                         QJsonObject{
                             {"type", "array"},
-                            {"description", "List of file paths matching the pattern"},
+                            {"description", "List of file paths matching the pattern."},
                             {"items", QJsonObject{{"type", "string"}}}})
                     .addRequired("files")),
         [](const Schema::CallToolRequestParams &params) -> Utils::Result<Schema::CallToolResult> {
@@ -2911,7 +2911,7 @@ void registerMcpTools()
             .name("project_list")
             .title("List all available projects")
             .description(
-                "List all loaded projects. Each entry includes the project name, its file "
+                "Lists all loaded projects. Each entry includes the project name, its file "
                 "path, the active version control branch, and whether it is the current startup "
                 "project (is_active). Use path or branch to disambiguate when multiple "
                 "projects share the same display name (common in multi-worktree setups).")
@@ -3001,8 +3001,8 @@ void registerMcpTools()
             .name("kit_list")
             .title("List all available kits")
             .description(
-                "List all kits configured in Qt Creator. Each entry includes the kit name, "
-                "its id, whether it is valid, whether it has warnings, whether it is the "
+                "Lists all kits configured in Qt Creator. Each entry includes the kit name, "
+                "its ID, whether it is valid, whether it has warnings, whether it is the "
                 "default kit, whether it was auto-detected (and SDK-provided), a "
                 "filesystem-friendly name, the kit's run and build device, and an issues array "
                 "with validation messages for invalid or warning kits.")
@@ -3044,16 +3044,16 @@ void registerMcpTools()
             .name("kit_get_aspects")
             .title("List the configurable aspects of a kit")
             .description(
-                "List the configurable aspects of a kit (debugger, toolchains, Qt version, "
-                "device, ...). Each entry has the aspect id, its display name, a human-readable "
-                "current value, and the raw stored value. Use the aspect id with "
+                "Lists the configurable aspects of a kit (debugger, toolchains, Qt version, "
+                "device, ...). Each entry has the aspect ID, its display name, a human-readable "
+                "current value, and the raw stored value. Use the aspect ID with "
                 "kit_get_aspect_options and kit_set_value.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty("kit_id",
                                  QJsonObject{{"type", "string"},
-                                             {"description", "Kit id (as reported by kit_list)"}})
+                                             {"description", "Kit ID (as reported by kit_list)."}})
                     .addRequired("kit_id"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -3081,7 +3081,7 @@ void registerMcpTools()
             .name("kit_get_aspect_options")
             .title("List the valid values for a kit aspect")
             .description(
-                "List the values a kit aspect can be set to (for item-backed aspects such as the "
+                "Lists the values a kit aspect can be set to (for item-backed aspects such as the "
                 "debugger, toolchain, Qt version or device). Each option has a value (to pass to "
                 "kit_set_value) and a display name. An empty list means the aspect is free-form.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -3090,7 +3090,7 @@ void registerMcpTools()
                     .addProperty("kit_id", QJsonObject{{"type", "string"}})
                     .addProperty("aspect_id",
                                  QJsonObject{{"type", "string"},
-                                             {"description", "Aspect id (from kit_get_aspects)"}})
+                                             {"description", "Aspect ID (from kit_get_aspects)."}})
                     .addRequired("kit_id")
                     .addRequired("aspect_id"))
             .outputSchema(
@@ -3116,8 +3116,8 @@ void registerMcpTools()
             .name("kit_set_value")
             .title("Set the value of a kit aspect")
             .description(
-                "Set a kit aspect to a value. Pass the value reported by kit_get_aspect_options "
-                "for item-backed aspects (the exact stored type is preserved); free-form aspects "
+                "Sets a kit aspect to a value. Pass the value reported by kit_get_aspect_options "
+                "for item-backed aspects (the exact stored type is preserved). Free-form aspects "
                 "take the value as-is. Aspects holding a list, such as the CMake configuration, "
                 "take an array of strings.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
@@ -3125,7 +3125,7 @@ void registerMcpTools()
                 Tool::InputSchema{}
                     .addProperty("kit_id", QJsonObject{{"type", "string"}})
                     .addProperty("aspect_id", QJsonObject{{"type", "string"}})
-                    .addProperty("value", QJsonObject{{"description", "Value to set"}})
+                    .addProperty("value", QJsonObject{{"description", "Value to set."}})
                     .addRequired("kit_id")
                     .addRequired("aspect_id")
                     .addRequired("value"))
@@ -3160,7 +3160,7 @@ void registerMcpTools()
             .name("kit_list_for_project")
             .title("List kits a project is configured for")
             .description(
-                "List the kits a project is configured for (one per build target). "
+                "Lists the kits a project is configured for (one per build target). "
                 "Defaults to the active startup project when neither project_name nor "
                 "project_path is given. Each kit entry has the same fields as kit_list "
                 "plus is_active, which marks the kit of the project's active target. When "
@@ -3174,7 +3174,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Display name of the project. Optional; defaults to the active "
+                             "Display name of the project. Optional. Defaults to the active "
                              "startup project."}})
                     .addProperty(
                         "project_path",
@@ -3203,10 +3203,10 @@ void registerMcpTools()
             .title("Add kits to a project")
             .description(
                 "Adds a build target for each of the given kits to a project. Kits may be "
-                "identified by kit id or display name (see kit_list). Defaults to the "
+                "identified by kit ID or display name (see kit_list). Defaults to the "
                 "active startup project when neither project_name nor project_path is given. "
                 "Returns a per-kit results array with status added/already_present/"
-                "not_found/failed; the call does not abort on the first error. When "
+                "not_found/failed. The call does not abort on the first error. When "
                 "multiple loaded projects share the same display name, pass project_path to "
                 "disambiguate.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
@@ -3218,13 +3218,13 @@ void registerMcpTools()
                             {"type", "array"},
                             {"items", QJsonObject{{"type", "string"}}},
                             {"description",
-                             "Kit ids or display names to add to the project."}})
+                             "Kit IDs or display names to add to the project."}})
                     .addProperty(
                         "project_name",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Display name of the project. Optional; defaults to the active "
+                             "Display name of the project. Optional. Defaults to the active "
                              "startup project."}})
                     .addProperty(
                         "project_path",
@@ -3261,8 +3261,8 @@ void registerMcpTools()
                 "is derived from the kit name, so two kits that share one name also share one "
                 "build directory and overwrite each other's configuration. Kits generated per "
                 "Qt version collide that way when the versions carry the same version number "
-                "and ABI. The kit may be given by id or display name (see kit_list); a name "
-                "several kits share has to be told apart by id, which is the case this is for.")
+                "and ABI. The kit may be given by ID or display name (see kit_list). A name "
+                "several kits share has to be told apart by ID, which is the case this is for.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -3270,7 +3270,7 @@ void registerMcpTools()
                         "kit",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Kit id or current display name."}})
+                            {"description", "Kit ID or current display name."}})
                     .addProperty(
                         "name",
                         QJsonObject{{"type", "string"}, {"description", "The new display name."}})
@@ -3297,10 +3297,10 @@ void registerMcpTools()
             .title("Set the active kit of a project")
             .description(
                 "Makes the project build and run with one of the kits it is configured for, "
-                "as choosing it in the kit selector does. The kit may be given by id or "
+                "as choosing it in the kit selector does. The kit may be given by ID or "
                 "display name (see kit_list, and kit_list_for_project for which are configured "
-                "and which is active); a display name that several kits share is refused, so "
-                "use the id to tell them apart. Defaults to the active startup project when "
+                "and which is active). A display name that several kits share is refused, so "
+                "use the ID to tell them apart. Defaults to the active startup project when "
                 "neither project_name nor project_path is given.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
@@ -3309,13 +3309,13 @@ void registerMcpTools()
                         "kit",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Kit id or display name to make active."}})
+                            {"description", "Kit ID or display name to make active."}})
                     .addProperty(
                         "project_name",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Display name of the project. Optional; defaults to the active "
+                             "Display name of the project. Optional. Defaults to the active "
                              "startup project."}})
                     .addProperty(
                         "project_path",
@@ -3347,11 +3347,11 @@ void registerMcpTools()
             .name("kit_remove")
             .title("Remove kits")
             .description(
-                "Removes kits from Qt Creator, identified by kit id or display name (see "
+                "Removes kits from Qt Creator, identified by kit ID or display name (see "
                 "kit_list). Use it to clean up after device_detect_tools, which creates a kit "
-                "per toolchain found on a device; kit_list reports each kit's run and build "
+                "per toolchain found on a device. kit_list reports each kit's run and build "
                 "device, so the kits belonging to a device can be picked out. Returns a per-kit "
-                "results array with status removed/not_found/sdk_provided/ambiguous_name; the "
+                "results array with status removed/not_found/sdk_provided/ambiguous_name. The "
                 "call does not abort on the first error. SDK-provided kits cannot be removed. "
                 "Removing a kit drops the corresponding build target from every project using "
                 "it, so its build and run settings are lost.")
@@ -3363,7 +3363,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "array"},
                             {"items", QJsonObject{{"type", "string"}}},
-                            {"description", "Kit ids or display names to remove."}})
+                            {"description", "Kit IDs or display names to remove."}})
                     .addRequired("kits"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -3383,7 +3383,7 @@ void registerMcpTools()
         Tool{}
             .name("build_list_configs")
             .title("List available build configurations")
-            .description("List available build configurations")
+            .description("Lists available build configurations.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -3403,7 +3403,7 @@ void registerMcpTools()
         Tool{}
             .name("build_switch_config")
             .title("Switch to a specific build configuration")
-            .description("Switch to a specific build configuration")
+            .description("Switches to a specific build configuration.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -3411,7 +3411,7 @@ void registerMcpTools()
                         "name",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Name of the build configuration to switch to"}})
+                            {"description", "Name of the build configuration to switch to."}})
                     .addRequired("name"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -3429,8 +3429,8 @@ void registerMcpTools()
             .description(
                 "Creates a new build configuration for the active project's kit and, unless "
                 "set_active is false, makes it active. build_type is matched against the build "
-                "types the kit offers (e.g. \"Debug\", \"Release\", \"RelWithDebInfo\", "
-                "\"MinSizeRel\"); on a mismatch the error lists the available types. Useful to "
+                "types the kit offers (such as \"Debug\", \"Release\", \"RelWithDebInfo\", "
+                "\"MinSizeRel\"). On a mismatch the error lists the available types. Useful to "
                 "run or build in a configuration the project does not have yet.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
@@ -3440,7 +3440,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Build type to add, e.g. \"Release\" (matched case-insensitively "
+                             "Build type to add, such as \"Release\" (matched case-insensitively "
                              "against the kit's available build types)."}})
                     .addProperty(
                         "set_active",
@@ -3465,7 +3465,7 @@ void registerMcpTools()
         Tool{}
             .name("project_get_current")
             .title("Get the currently active project")
-            .description("Get the currently active project")
+            .description("Gets the currently active project.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -3473,21 +3473,21 @@ void registerMcpTools()
                         "project_name",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Display name of the currently active project"},
+                            {"description", "Display name of the currently active project."},
                             })
                     .addProperty(
                         "project_file",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Path to the project's main file (e.g., .pro, .vcxproj, "
-                             "CMakeLists.txt)"},
+                             "Path to the project's main file (such as .pro, .vcxproj, "
+                             "CMakeLists.txt)."},
                             })
                     .addProperty(
                         "project_directory",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Path to the project's directory"},
+                            {"description", "Path to the project's directory."},
                             })
                     .addRequired("project_directory")),
         wrap([](const QJsonObject &) { return getCurrentProject(); }));
@@ -3499,9 +3499,9 @@ void registerMcpTools()
             .description(
                 "Changes the active startup project (the one Qt Creator builds, runs, and "
                 "debugs by default). Accepts project_name, project_path, or both. When "
-                "multiple loaded projects share the same display name (e.g. the same "
+                "multiple loaded projects share the same display name (for example, the same "
                 "project open in two Git worktrees), you must also supply project_path to "
-                "disambiguate; the tool returns reason:\"ambiguous_name\" with a "
+                "disambiguate. The tool returns reason:\"ambiguous_name\" with a "
                 "candidates array if project_path is omitted and the name matches more "
                 "than one project.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
@@ -3573,10 +3573,10 @@ void registerMcpTools()
             .name("project_open")
             .title("Open a project")
             .description(
-                "Opens a project in Qt Creator from a project file path (e.g., "
+                "Opens a project in Qt Creator from a project file path (such as "
                 "CMakeLists.txt, a .pro, .qbs, or .qmlproject file). If the project is "
                 "already open, returns success with already_open=true. The opened project "
-                "is added to the session; use project_set_active to make it the startup "
+                "is added to the session. Use project_set_active to make it the startup "
                 "project.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
@@ -3587,7 +3587,7 @@ void registerMcpTools()
                             {"type", "string"},
                             {"format", "uri"},
                             {"description",
-                             "Absolute path to the project file to open (e.g., "
+                             "Absolute path to the project file to open (such as "
                              "CMakeLists.txt, .pro, .qbs, .qmlproject)."}})
                     .addRequired("path"))
             .outputSchema(
@@ -3606,7 +3606,7 @@ void registerMcpTools()
         Tool{}
             .name("build_get_current_config")
             .title("Get the currently active build configuration")
-            .description("Get the currently active build configuration")
+            .description("Gets the currently active build configuration.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -3621,8 +3621,8 @@ void registerMcpTools()
             .name("project_list_repositories")
             .title("Get known version control repositories in all projects")
             .description(
-                "List all known version control repositories (e.g., Git, Subversion) that are "
-                "within the directories of all open projects")
+                "Lists all known version control repositories (such as Git and Subversion) that "
+                "are within the directories of all open projects.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema()
@@ -3630,7 +3630,7 @@ void registerMcpTools()
                         "name",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Name of the project to query repositories for"}})
+                            {"description", "Name of the project to query repositories for."}})
                     .addRequired("name"))
             .outputSchema(
                 Tool::OutputSchema()
@@ -3639,7 +3639,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "object"},
                             {"description",
-                             "Map of version control system names to lists of repository paths"}})
+                             "Map of version control system names to lists of repository paths."}})
                     .addRequired("repositories")),
         wrap([](const QJsonObject &p) {
             const QString projectName = p.value("name").toString();
@@ -3654,7 +3654,7 @@ void registerMcpTools()
         Tool()
             .name("project_get_dependencies")
             .title("List project dependencies for all projects")
-            .description("List project dependencies for all projects")
+            .description("Lists project dependencies for all projects.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -3662,7 +3662,7 @@ void registerMcpTools()
                         "name",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Name of the project to query dependencies for"}})
+                            {"description", "Name of the project to query dependencies for."}})
                     .addRequired("name"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -3684,7 +3684,7 @@ void registerMcpTools()
             .title("Get run configurations")
             .description(
                 "Returns the project's existing run configurations. Each entry includes the "
-                "display name, the run configuration type id, whether it is the active one, and "
+                "display name, the run configuration type ID, whether it is the active one, and "
                 "the resolved runnable: executable, arguments, working directory, and the full "
                 "run environment (key-value map, as the application would see it).")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -3707,7 +3707,7 @@ void registerMcpTools()
                                       {"workingDirectory", QJsonObject{{"type", "string"}}},
                                       {"environment", QJsonObject{{"type", "object"}}}}},
                                  {"required", QJsonArray{"name", "id", "active"}}}},
-                            {"description", "List of run configurations"}})
+                            {"description", "List of run configurations."}})
                     .addRequired("configurations")),
         wrap([](const QJsonObject &) {
             return QJsonObject{{"configurations", getRunConfigurations()}};
@@ -3718,13 +3718,13 @@ void registerMcpTools()
             .name("run_configure")
             .title("Configure a run configuration")
             .description(
-                "Selects an existing run configuration (by display name or type id, see "
+                "Selects an existing run configuration (by display name or type ID, see "
                 "run_list_configs) as the active one and/or sets its executable, the "
                 "arguments the application is started with, and its working directory. Setting "
                 "the executable only works for run configurations that have one, such as the "
                 "bare-metal \"Custom Executable\" configuration. Then debugger_start (with no "
-                "arguments) debugs it via its run configuration's own launch path. Several run "
-                "configurations share one type id, so an id matching more than one fails with "
+                "arguments) debugs it with its run configuration's own launch path. Several run "
+                "configurations share one type ID, so an ID matching more than one fails with "
                 "reason \"ambiguous\" and the matching display names in \"candidates\", rather "
                 "than picking one of them.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
@@ -3735,7 +3735,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Run configuration display name, or type id when it is unique."}})
+                             "Run configuration display name, or type ID when it is unique."}})
                     .addProperty(
                         "executable",
                         QJsonObject{
@@ -3748,13 +3748,13 @@ void registerMcpTools()
                             {"type", "string"},
                             {"description",
                              "Command-line arguments to start the application with, as one "
-                             "string; an empty one clears them."}})
+                             "string. An empty one clears them."}})
                     .addProperty(
                         "working_directory",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Directory to start the application in; an empty one restores the "
+                             "Directory to start the application in. An empty one restores the "
                              "run configuration's default."}})
                     .addProperty(
                         "set_active",
@@ -3798,7 +3798,7 @@ void registerMcpTools()
             .title("List configured devices")
             .description(
                 "Lists all devices known to Qt Creator (ProjectExplorer::DeviceManager), with "
-                "their id, type, display name, connection state, and SSH parameters.")
+                "their ID, type, display name, connection state, and SSH parameters.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(Tool::InputSchema{})
             .outputSchema(
@@ -3818,10 +3818,10 @@ void registerMcpTools()
             .name("device_add")
             .title("Add a device")
             .description(
-                "Creates a new device of the given device-type id (e.g. 'GenericLinuxOsType') and "
-                "adds it to the DeviceManager, without going through the GUI wizard. 'params' sets "
-                "the SSH parameters (host, port, userName, privateKeyFile, useKeyFile, timeout, "
-                "hostKeyCheckingMode). Returns the new device id.")
+                "Creates a new device of the given device-type ID (such as 'GenericLinuxOsType') "
+                "and adds it to the DeviceManager, without going through the GUI wizard. 'params' "
+                "sets the SSH parameters ('host', 'port', 'userName', 'privateKeyFile', "
+                "'useKeyFile', 'timeout', 'hostKeyCheckingMode'). Returns the new device ID.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -3830,7 +3830,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Device-type id, e.g. 'GenericLinuxOsType'. See the 'type' field of "
+                             "Device-type ID, such as 'GenericLinuxOsType'. See the 'type' field of "
                              "device_list, or use device_list_types."}})
                     .addProperty(
                         "displayName",
@@ -3885,13 +3885,13 @@ void registerMcpTools()
             .title("Update device parameters")
             .description(
                 "Updates the display name and/or SSH parameters of an existing device. Only the "
-                "fields present in 'params' are changed; others keep their current values.")
+                "fields present in 'params' are changed. Others keep their current values.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
                         "id",
-                        QJsonObject{{"type", "string"}, {"description", "Device id."}})
+                        QJsonObject{{"type", "string"}, {"description", "Device ID."}})
                     .addProperty(
                         "displayName",
                         QJsonObject{{"type", "string"}, {"description", "New display name (optional)."}})
@@ -3928,14 +3928,14 @@ void registerMcpTools()
             .name("device_remove")
             .title("Remove a device")
             .description(
-                "Removes the device with the given id from the DeviceManager. As in the Devices "
+                "Removes the device with the given ID from the DeviceManager. As in the Devices "
                 "preferences page, an auto-detected device can only be removed while it is "
-                "disconnected; the local desktop device can never be removed. Kits referring to "
+                "disconnected. The local desktop device can never be removed. Kits referring to "
                 "the device are left behind, so remove those with kit_remove.")
             .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(true))
             .inputSchema(
                 Tool::InputSchema{}
-                    .addProperty("id", QJsonObject{{"type", "string"}, {"description", "Device id."}})
+                    .addProperty("id", QJsonObject{{"type", "string"}, {"description", "Device ID."}})
                     .addRequired("id"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -3973,7 +3973,7 @@ void registerMcpTools()
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
-                    .addProperty("id", QJsonObject{{"type", "string"}, {"description", "Device id."}})
+                    .addProperty("id", QJsonObject{{"type", "string"}, {"description", "Device ID."}})
                     .addProperty(
                         "timeoutSeconds",
                         QJsonObject{
@@ -4065,7 +4065,7 @@ void registerMcpTools()
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
-                        "id", QJsonObject{{"type", "string"}, {"description", "Device id."}})
+                        "id", QJsonObject{{"type", "string"}, {"description", "Device ID."}})
                     .addRequired("id"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -4080,49 +4080,19 @@ void registerMcpTools()
                 return;
             }
 
-            const auto reportKits = [device, callback] {
-                // requestToolDetection() only creates kits when kit creation is enabled for
-                // the device; create them explicitly so this tool always produces kits.
-                // Skip if the device already has kits (from a prior run or the enabled
-                // auto-creation) to avoid duplicates.
-                const bool hasKits = Utils::anyOf(KitManager::kits(), [&](Kit *k) {
-                    return BuildDeviceKitAspect::deviceId(k) == device->id();
-                });
-                if (!hasKits) {
-                    KitManager::createKitsForBuildDevice(device);
-                } else {
-                    // Existing kits may predate the detection of some tools: a remote CMake
-                    // tool, for example, only becomes detectable once the device is reachable,
-                    // which is typically after the kits were first created. Re-complete the
-                    // device's kits so newly detected tools get bound into aspects that are
-                    // still unset (completeKit() runs setup() for those and fix() otherwise).
-                    for (Kit *k : KitManager::kits()) {
-                        if (BuildDeviceKitAspect::deviceId(k) == device->id())
-                            KitManager::completeKit(k);
-                    }
-                }
-
-                QJsonArray kits;
-                for (Kit *k : KitManager::kits()) {
-                    if (BuildDeviceKitAspect::deviceId(k) == device->id()
-                        || RunDeviceKitAspect::deviceId(k) == device->id()) {
-                        kits.append(QJsonObject{{"id", k->id().toString()},
-                                                {"name", k->displayName()},
-                                                {"valid", k->isValid()}});
-                    }
-                }
-                callback({{"success", true}, {"kits", kits}});
-            };
-
-            const auto onConnected = [device, reportKits, callback](const Utils::Result<> &res) {
+            device->detectToolsAndKits([callback](const Utils::Result<QList<Kit *>> &res) {
                 if (!res) {
                     callback({{"success", false}, {"error", res.error()}});
                     return;
                 }
-                device->runAutoDetect({}, reportKits);
-            };
-
-            device->tryToConnect({Utils::shutdownGuard(), onConnected});
+                QJsonArray kits;
+                for (Kit *k : *res) {
+                    kits.append(QJsonObject{{"id", k->id().toString()},
+                                            {"name", k->displayName()},
+                                            {"valid", k->isValid()}});
+                }
+                callback({{"success", true}, {"kits", kits}});
+            });
         }));
 
     ToolRegistry::registerTool(
@@ -4130,7 +4100,7 @@ void registerMcpTools()
             .name("device_list_types")
             .title("List available device types")
             .description(
-                "Lists the device-type ids that can be passed to device_add, with their display "
+                "Lists the device-type IDs that can be passed to device_add, with their display "
                 "names and whether they can be created programmatically.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(Tool::InputSchema{})

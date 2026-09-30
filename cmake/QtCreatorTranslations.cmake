@@ -1,5 +1,31 @@
 # Defines function add_translation_targets
 
+function(_filter_source_files outvar)
+  set(sources "${ARGN}")
+  if (NOT sources)
+    set("${outvar}" "" PARENT_SCOPE)
+    return()
+  endif()
+
+  # exclude various funny source files, and anything generated
+  # like *metatypes.json.gen, moc_*.cpp, qrc_*.cpp, */qmlcache/*.cpp,
+  # *qmltyperegistrations.cpp
+  string(REGEX REPLACE "(\\^|\\$|\\.|\\[|\\]|\\*|\\+|\\?|\\(|\\)|\\|)" "\\\\\\1" binary_dir_regex "${PROJECT_BINARY_DIR}")
+  set(_exclude_patterns
+    .*[.]json[.]in
+    .*[.]svg
+    .*[.]pro
+    .*[.]pri
+    .*[.]css
+    "(^|/)testcases/.*"
+    "${binary_dir_regex}/.*"
+  )
+  list(JOIN _exclude_patterns "|" _exclude_pattern)
+  list(FILTER sources EXCLUDE REGEX "${_exclude_pattern}")
+
+  set("${outvar}" "${sources}" PARENT_SCOPE)
+endfunction()
+
 function(_extract_ts_data_from_targets outprefix)
   set(_sources "")
   set(_includes "")
@@ -30,22 +56,8 @@ function(_extract_ts_data_from_targets outprefix)
 
         set(_target_sources "")
         if(_source_files)
-          # exclude various funny source files, and anything generated
-          # like *metatypes.json.gen, moc_*.cpp, qrc_*.cpp, */qmlcache/*.cpp,
-          # *qmltyperegistrations.cpp
-          string(REGEX REPLACE "(\\^|\\$|\\.|\\[|\\]|\\*|\\+|\\?|\\(|\\)|\\|)" "\\\\\\1" binary_dir_regex "${PROJECT_BINARY_DIR}")
-          set(_exclude_patterns
-            .*[.]json[.]in
-            .*[.]svg
-            .*[.]pro
-            .*[.]pri
-            .*[.]css
-            "(^|/)testcases/.*"
-            "${binary_dir_regex}/.*"
-          )
-          list(JOIN _exclude_patterns "|" _exclude_pattern)
-          list(FILTER _source_files EXCLUDE REGEX "${_exclude_pattern}")
-          list(APPEND _target_sources ${_source_files})
+          _filter_source_files(_filtered_files ${_source_files})
+          list(APPEND _target_sources ${_filtered_files})
         endif()
         if(_extra_translations)
           list(APPEND _target_sources ${_extra_translations})
@@ -176,6 +188,7 @@ function(add_translation_targets file_prefix)
     QM_LANGUAGES
     TARGETS
     SOURCES
+    GENERATED_SOURCES
     INCLUDES
   )
 
@@ -205,10 +218,11 @@ function(add_translation_targets file_prefix)
   endif()
 
   _extract_ts_data_from_targets(_to_process "${_arg_TARGETS}")
+  _filter_source_files(filtered_extra_sources ${_arg_SOURCES})
 
   set(lupdate_response_file "${CMAKE_CURRENT_BINARY_DIR}/lupdate-args.lst")
   _create_lupdate_response_file(${lupdate_response_file}
-    SOURCES ${_to_process_sources} ${_arg_SOURCES}
+    SOURCES ${_to_process_sources} ${filtered_extra_sources} ${_arg_GENERATED_SOURCES}
     INCLUDES ${_to_process_includes} ${_arg_INCLUDES}
   )
 
@@ -217,7 +231,7 @@ function(add_translation_targets file_prefix)
     _create_ts_custom_target(${language}
       FILE_PREFIX "${file_prefix}" TS_TARGET_PREFIX "${_arg_TS_TARGET_PREFIX}"
       LUPDATE_RESPONSE_FILE "${lupdate_response_file}"
-      DEPENDS ${_arg_SOURCES}
+      DEPENDS ${_arg_GENERATED_SOURCES}
     )
   endforeach()
 
@@ -227,7 +241,7 @@ function(add_translation_targets file_prefix)
     FILE_PREFIX "${file_prefix}"
     TS_TARGET_PREFIX "${_arg_TS_TARGET_PREFIX}"
     LUPDATE_RESPONSE_FILE "${lupdate_response_file}"
-    DEPENDS ${_arg_SOURCES}
+    DEPENDS ${_arg_GENERATED_SOURCES}
   )
 
   if (NOT TARGET "${_arg_ALL_QM_TARGET}")

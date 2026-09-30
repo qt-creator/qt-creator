@@ -20,7 +20,9 @@
 #      for whatever reason reports 1. In theory there can be allocators whose type is truly 1 byte,
 #      in which case we will have issues, but in practice they should be rather rare.
 
-from utils import DisplayFormat
+import re
+
+from utils import DisplayFormat, TypeCode
 from dumper import Children, SubItem, DumperBase
 
 
@@ -667,6 +669,16 @@ def qdump__std__stack(d, value):
 
 
 def qdump__std____debug__stack(d, value):
+    qdump__std__stack(d, value)
+
+
+def qdump__std__queue(d, value):
+    qdump__std__stack(d, value)
+
+
+# The elements are shown in the order of the underlying container, which
+# for a priority queue is heap order, with the top element first.
+def qdump__std__priority_queue(d, value):
     qdump__std__stack(d, value)
 
 
@@ -1319,3 +1331,126 @@ def qdump__std__optional(d, value):
 
 def qdump__std__experimental__optional(d, value):
     qdump__std__optional(d, value)
+
+
+def qform__std__span():
+    return [DisplayFormat.ArrayPlot]
+
+
+def qdump__std__span(d, value):
+    innerType = value.type[0]
+    # A span of dynamic extent stores its size after the pointer, one of
+    # static extent has the size only as its second template argument.
+    if value.type.size() > d.ptrSize():
+        data, size = value.split('pp')
+    else:
+        data = d.extractPointer(value)
+        size = value.type[1]
+    d.check(0 <= size and size <= 1000 * 1000 * 1000)
+    d.putItemCount(size)
+    if d.isExpanded():
+        d.putPlotData(data, size, innerType)
+
+
+def qdump__std__reference_wrapper(d, value):
+    d.putItem(d.createValue(d.extractPointer(value), value.type[0]))
+    d.putBetterType(value.type)
+
+
+def qdumpHelper__std__chrono__duration_text(d, value):
+    rep = value.split('{%s}' % value.type[0].name)[0]
+    match = re.search(r'ratio<\s*(-?\d+)[a-zA-Z]*\s*,\s*(-?\d+)', value.type[1].name)
+    num, den = (int(match.group(1)), int(match.group(2))) if match else (1, 1)
+    units = {
+        (1, 1000000000): 'ns', (1, 1000000): 'us', (1, 1000): 'ms', (1, 1): 's',
+        (60, 1): 'min', (3600, 1): 'h', (86400, 1): 'd'
+    }
+    unit = units.get((num, den), '[%s/%s]s' % (num, den))
+    return rep, num, den, '%s%s' % (rep.display(), unit)
+
+
+def qdump__std__chrono__duration(d, value):
+    d.putValue(qdumpHelper__std__chrono__duration_text(d, value)[3])
+    d.putPlainChildren(value)
+
+
+def qdump__std__chrono__time_point(d, value):
+    duration = value.split('{%s}' % value.type[1].name)[0]
+    rep, num, den, text = qdumpHelper__std__chrono__duration_text(d, duration)
+    # The epoch of the system clock is the Unix epoch in all implementations.
+    if value.type[0].name.endswith('system_clock') and rep.type.code != TypeCode.Float:
+        seconds, rest = divmod(rep.integer() * num, den)
+        try:
+            import datetime
+            epoch = datetime.datetime(1970, 1, 1)
+            moment = epoch + datetime.timedelta(seconds=seconds)
+        except (ImportError, OverflowError):
+            moment = None
+        if moment is not None:
+            text = '%04d-%02d-%02d %02d:%02d:%02d' % (moment.year, moment.month, moment.day,
+                                                      moment.hour, moment.minute, moment.second)
+            digits = len(str(den)) - 1
+            if rest and den == 10 ** digits:
+                text += '.' + ('%0*d' % (digits, rest)).rstrip('0')
+            text += ' UTC'
+    d.putValue(text)
+    d.putPlainChildren(value)
+
+
+def qdump__std__bitset(d, value):
+    n = value.type[0]
+    data = bytes(value.data())
+    d.check(0 <= n and n <= 8 * len(data))
+    bits = [(data[i >> 3] >> (i & 7)) & 1 for i in range(n)]
+    shown = min(n, d.displayStringLimit)
+    # As bitset::to_string() writes it: the highest bit first.
+    text = ''.join(str(bits[n - 1 - i]) for i in range(shown))
+    d.putValue(d.hexencode(text), 'latin1', length=n)
+    d.putNumChild(n)
+    if d.isExpanded():
+        with Children(d, n, maxNumChild=10000, childType=d.createType('bool')):
+            for i in d.childRange():
+                with SubItem(d, i):
+                    d.putValue('true' if bits[i] else 'false')
+                    d.putType('bool')
+
+
+def qdump__std__filesystem__path(d, value):
+    for name in ('_M_pathname', '_Text', '__pn_'):
+        if value.hasMember(name):
+            d.putItem(value[name])
+            d.putBetterType(value.type)
+            return
+    d.putPlainChildren(value)
+
+
+def qdump__std__filesystem____cxx11__path(d, value):
+    qdump__std__filesystem__path(d, value)
+
+
+def qdump__std__expected(d, value):
+    valueType, errorType = value.type[0], value.type[1]
+    isVoid = valueType.name == 'void'
+    # The value and the error share a union at the start of the object, the
+    # flag telling which of them it holds follows it.
+    size, align = errorType.size(), errorType.alignment()
+    if not isVoid:
+        size, align = max(size, valueType.size()), max(align, valueType.alignment())
+    unionSize = (size + align - 1) // align * align
+    hasValue = value.split('%dsb' % unionSize)[1]
+    if hasValue not in (0, 1):
+        d.putPlainChildren(value)
+        return
+    if hasValue:
+        if isVoid:
+            d.putEmptyValue()
+            d.putNumChild(0)
+        else:
+            d.putItem(value.split('{%s}' % valueType.name)[0])
+    else:
+        d.putValue('<unexpected>')
+        d.putExpandable()
+        if d.isExpanded():
+            with Children(d, 1):
+                d.putSubItem('error', value.split('{%s}' % errorType.name)[0])
+    d.putBetterType(value.type)

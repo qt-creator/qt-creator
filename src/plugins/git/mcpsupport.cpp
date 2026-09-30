@@ -111,7 +111,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "boolean"},
                             {"description",
-                             "True if HEAD is detached; \"branch\" is empty then."}})
+                             "True if HEAD is detached. \"branch\" is empty then."}})
                     .addProperty(
                         "changes",
                         QJsonObject{{"type", "array"},
@@ -180,7 +180,7 @@ void registerMcpTools()
             .description(
                 "Returns recent Git commits for the repository that contains a path, most "
                 "recent first, each with its hash, author, date and subject. Give any file "
-                "or directory inside the repository as \"path\"; optionally cap the count "
+                "or directory inside the repository as \"path\". Optionally cap the count "
                 "with \"max_count\" and restrict history to one \"file\".")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -258,9 +258,9 @@ void registerMcpTools()
             .description(
                 "Returns the unified diff of uncommitted changes in the repository that "
                 "contains a path. Give any file or directory inside the repository as "
-                "\"path\"; set \"staged\" to diff the index against HEAD, or restrict the "
+                "\"path\". Set \"staged\" to diff the index against HEAD, or restrict the "
                 "diff to one \"file\". The diff is cut at the last full line that fits "
-                "into \"limit\" characters; \"total_characters\" and \"truncated\" report "
+                "into \"limit\" characters. \"total_characters\" and \"truncated\" report "
                 "what was left out.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -355,10 +355,10 @@ void registerMcpTools()
                 "Returns line-by-line authorship (git blame) for a file: for each line, "
                 "the commit hash, author and commit subject. Give the \"file\" and "
                 "optionally a \"start_line\"/\"end_line\" range (1-based) to limit the "
-                "output; \"start_line\" alone blames from there to the end, "
+                "output. \"start_line\" alone blames from there to the end, "
                 "\"end_line\" alone from the beginning. An \"end_line\" past the end of "
                 "the file makes git fail, so omit it to blame to the end. At most "
-                "\"limit\" lines are returned; \"total_lines\" and \"truncated\" report "
+                "\"limit\" lines are returned. \"total_lines\" and \"truncated\" report "
                 "what was left out.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(

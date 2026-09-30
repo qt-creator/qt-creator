@@ -14,7 +14,6 @@
 #include <QFont>
 #include <QMouseEvent>
 #include <QScopeGuard>
-#include <QWheelEvent>
 
 namespace Timeline {
 
@@ -203,11 +202,6 @@ void TrackPainterGpu::mousePressEvent(QMouseEvent *event)
 void TrackPainterGpu::mouseReleaseEvent(QMouseEvent *event)
 {
     handleMouseRelease(event->button(), event->pos());
-}
-
-void TrackPainterGpu::wheelEvent(QWheelEvent *event)
-{
-    handleWheel(event);
 }
 
 void TrackPainterGpu::leaveEvent(QEvent *)

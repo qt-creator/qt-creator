@@ -800,7 +800,7 @@ void registerMcpTools()
         Tool{}
             .name("debugger_get_breakpoints")
             .title("Get current breakpoints")
-            .description("Returns all breakpoints currently set in Qt Creator's debugger")
+            .description("Returns all breakpoints currently set in Qt Creator's debugger.")
             .annotations(ToolAnnotations{}.readOnlyHint(true).destructiveHint(false))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -809,7 +809,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "array"},
                             {"items", QJsonObject{{"type", "object"}}},
-                            {"description", "List of breakpoints"}})
+                            {"description", "List of breakpoints."}})
                     .addRequired("breakpoints")),
         wrap([](const QJsonObject &) {
             return QJsonObject{{"breakpoints", getBreakpoints()}};
@@ -825,16 +825,16 @@ void registerMcpTools()
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema([] {
                 const QJsonObject threadProperties{
-                    {"id",       QJsonObject{{"type", "string"},  {"description", "Thread ID"}}},
-                    {"current",  QJsonObject{{"type", "boolean"}, {"description", "True for the currently selected thread"}}},
-                    {"name",     QJsonObject{{"type", "string"},  {"description", "Thread name"}}},
-                    {"state",    QJsonObject{{"type", "string"},  {"description", "Thread state, e.g. \"stopped\""}}},
-                    {"target_id", QJsonObject{{"type", "string"},  {"description", "Target-level thread identifier"}}},
-                    {"details",  QJsonObject{{"type", "string"},  {"description", "Additional details from the debugger"}}},
-                    {"function", QJsonObject{{"type", "string"},  {"description", "Current function name"}}},
-                    {"file",     QJsonObject{{"type", "string"},  {"description", "Current source file"}}},
-                    {"line",     QJsonObject{{"type", "integer"}, {"description", "Current line number"}}},
-                    {"address",  QJsonObject{{"type", "string"},  {"description", "Current instruction address"}}},
+                    {"id",       QJsonObject{{"type", "string"},  {"description", "Thread ID."}}},
+                    {"current",  QJsonObject{{"type", "boolean"}, {"description", "True for the currently selected thread."}}},
+                    {"name",     QJsonObject{{"type", "string"},  {"description", "Thread name."}}},
+                    {"state",    QJsonObject{{"type", "string"},  {"description", "Thread state, such as \"stopped\"."}}},
+                    {"target_id", QJsonObject{{"type", "string"},  {"description", "Target-level thread identifier."}}},
+                    {"details",  QJsonObject{{"type", "string"},  {"description", "Additional details from the debugger."}}},
+                    {"function", QJsonObject{{"type", "string"},  {"description", "Current function name."}}},
+                    {"file",     QJsonObject{{"type", "string"},  {"description", "Current source file."}}},
+                    {"line",     QJsonObject{{"type", "integer"}, {"description", "Current line number."}}},
+                    {"address",  QJsonObject{{"type", "string"},  {"description", "Current instruction address."}}},
                 };
                 const QJsonObject threadItem{
                     {"type", "object"},
@@ -846,7 +846,7 @@ void registerMcpTools()
                         "threads",
                         QJsonObject{
                             {"type", "array"},
-                            {"description", "List of threads"},
+                            {"description", "List of threads."},
                             {"items", threadItem}})
                     .addRequired("threads");
             }()),
@@ -872,7 +872,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Thread ID to select (as returned by debugger_get_threads)"}})
+                             "Thread ID to select (as returned by debugger_get_threads)."}})
                     .addRequired("id"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -890,14 +890,14 @@ void registerMcpTools()
             {"type", "object"},
             {"required", QJsonArray{"iname", "name", "value", "type", "value_editable", "has_children"}},
             {"properties", QJsonObject{
-                {"iname",          QJsonObject{{"type", "string"},  {"description", "Internal name, e.g. \"local.myVar\". Use as key for debugger_get_variable / debugger_set_variable."}}},
-                {"name",           QJsonObject{{"type", "string"},  {"description", "Display name"}}},
-                {"value",          QJsonObject{{"type", "string"},  {"description", "Raw value as reported by the debugger"}}},
-                {"display_value",  QJsonObject{{"type", "string"},  {"description", "Value as shown in the Locals view, honoring the display format set via debugger_set_display_format"}}},
-                {"type",           QJsonObject{{"type", "string"},  {"description", "Type name"}}},
-                {"address",        QJsonObject{{"type", "string"},  {"description", "Memory address, e.g. \"0x1234\""}}},
-                {"value_editable", QJsonObject{{"type", "boolean"}, {"description", "Whether the value can be changed via debugger_set_variable"}}},
-                {"has_children",   QJsonObject{{"type", "boolean"}, {"description", "Whether the variable has child members"}}},
+                {"iname",          QJsonObject{{"type", "string"},  {"description", "Internal name, such as \"local.myVar\". Use as key for debugger_get_variable / debugger_set_variable."}}},
+                {"name",           QJsonObject{{"type", "string"},  {"description", "Display name."}}},
+                {"value",          QJsonObject{{"type", "string"},  {"description", "Raw value as reported by the debugger."}}},
+                {"display_value",  QJsonObject{{"type", "string"},  {"description", "Value as shown in the Locals view, honoring the display format set with debugger_set_display_format."}}},
+                {"type",           QJsonObject{{"type", "string"},  {"description", "Type name."}}},
+                {"address",        QJsonObject{{"type", "string"},  {"description", "Memory address, such as \"0x1234\"."}}},
+                {"value_editable", QJsonObject{{"type", "boolean"}, {"description", "Whether the value can be changed with debugger_set_variable."}}},
+                {"has_children",   QJsonObject{{"type", "boolean"}, {"description", "Whether the variable has child members."}}},
             }},
         };
     };
@@ -910,7 +910,7 @@ void registerMcpTools()
                 "Returns local variables for the current stack frame. "
                 "Optionally includes watch expressions. "
                 "Variables with has_children=true may include a children array if already "
-                "expanded; otherwise call debugger_get_variable with the variable's iname to "
+                "expanded. Otherwise call debugger_get_variable with the variable's iname to "
                 "retrieve sub-fields. "
                 "Returns an error if no debug session is active or the debugger is not paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -920,7 +920,7 @@ void registerMcpTools()
                         "include_watchers",
                         QJsonObject{
                             {"type", "boolean"},
-                            {"description", "Also return watch expressions (default: false)"},
+                            {"description", "Also return watch expressions (default: false)."},
                             {"default", false}}))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -928,7 +928,7 @@ void registerMcpTools()
                         "variables",
                         QJsonObject{
                             {"type", "array"},
-                            {"description", "List of variables"},
+                            {"description", "List of variables."},
                             {"items", varItemSchema()}})
                     .addRequired("variables")),
         [](const Schema::CallToolRequestParams &params,
@@ -951,7 +951,7 @@ void registerMcpTools()
             .title("Get a variable")
             .description(
                 "Returns the details of a single variable by its iname, including its children "
-                "if it has any (e.g. struct members or array elements). "
+                "if it has any (such as struct members or array elements). "
                 "If a child also has has_children=true, call debugger_get_variable again with that child's iname "
                 "to retrieve its sub-fields. "
                 "Returns an error if no debug session is active or the debugger is not paused.")
@@ -962,7 +962,7 @@ void registerMcpTools()
                         "iname",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Internal name of the variable (e.g. \"local.myVar\")"}})
+                            {"description", "Internal name of the variable (such as \"local.myVar\")."}})
                     .addRequired("iname"))
             .outputSchema([] {
                 QJsonObject schema = [] {
@@ -979,7 +979,7 @@ void registerMcpTools()
                         {"value_editable", QJsonObject{{"type", "boolean"}}},
                         {"has_children",   QJsonObject{{"type", "boolean"}}},
                         {"children",       QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "object"}}},
-                                                      {"description", "Child members, present when has_children is true"}}},
+                                                      {"description", "Child members, present when has_children is true."}}},
                     };
                     return s;
                 }();
@@ -1015,12 +1015,12 @@ void registerMcpTools()
                         "iname",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Internal name of the variable (e.g. \"local.myVar\")"}})
+                            {"description", "Internal name of the variable (such as \"local.myVar\")."}})
                     .addProperty(
                         "value",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "New value to assign"}})
+                            {"description", "New value to assign."}})
                     .addRequired("iname")
                     .addRequired("value"))
             .outputSchema(
@@ -1051,7 +1051,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Internal name of the variable (e.g. \"local.myVar\")"}})
+                             "Internal name of the variable (such as \"local.myVar\")."}})
                     .addRequired("iname"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -1107,10 +1107,10 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"enum", QJsonArray{"error", "warning", "debug", "default"}},
-                            {"description", "Message type: error, warning, debug, or default"}})
+                            {"description", "Message type: error, warning, debug, or default."}})
                     .addProperty(
                         "text",
-                        QJsonObject{{"type", "string"}, {"description", "Message text"}})
+                        QJsonObject{{"type", "string"}, {"description", "Message text."}})
                     .addRequired("type"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -1143,12 +1143,12 @@ void registerMcpTools()
                         "iname",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Internal name of the variable (e.g. \"local.myVar\")"}})
+                            {"description", "Internal name of the variable (such as \"local.myVar\")."}})
                     .addProperty(
                         "format",
                         QJsonObject{
                             {"type", "integer"},
-                            {"description", "Display format code (0 = Automatic)"}})
+                            {"description", "Display format code (0 = Automatic)."}})
                     .addRequired("iname")
                     .addRequired("format"))
             .outputSchema(
@@ -1171,7 +1171,7 @@ void registerMcpTools()
             .description(
                 "Adds an expression to the watch list in the current debug session. "
                 "The expression is evaluated and its value updated as execution progresses. "
-                "Returns the iname of the new watch entry (e.g. \"watch.0\"), which can be used "
+                "Returns the iname of the new watch entry (such as \"watch.0\"), which can be used "
                 "with debugger_get_variable, debugger_set_variable, and "
                 "debugger_remove_watch_expression. "
                 "Returns an error if no debug session is active or the debugger is not paused.")
@@ -1182,19 +1182,19 @@ void registerMcpTools()
                         "expression",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Expression to watch (e.g. \"myVar\", \"ptr->field\")"}})
+                            {"description", "Expression to watch (such as \"myVar\", \"ptr->field\")."}})
                     .addProperty(
                         "name",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Optional display name; defaults to the expression"}})
+                            {"description", "Optional display name. Defaults to the expression."}})
                     .addRequired("expression"))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty(
                         "iname",
                         QJsonObject{{"type", "string"},
-                                    {"description", "Internal name of the watch entry (e.g. \"watch.0\")"}})
+                                    {"description", "Internal name of the watch entry (such as \"watch.0\")."}})
                     .addRequired("iname")),
         [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject p = params.argumentsAsObject();
@@ -1221,7 +1221,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Internal name of the watch entry to remove (e.g. \"watch.0\")"}})
+                             "Internal name of the watch entry to remove (such as \"watch.0\")."}})
                     .addRequired("iname"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -1245,13 +1245,13 @@ void registerMcpTools()
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema([] {
                 const QJsonObject frameProperties{
-                    {"level",    QJsonObject{{"type", "integer"}, {"description", "Frame index, 0 = innermost"}}},
-                    {"current",  QJsonObject{{"type", "boolean"}, {"description", "True for the currently active frame"}}},
-                    {"function", QJsonObject{{"type", "string"},  {"description", "Function or method name"}}},
-                    {"file",     QJsonObject{{"type", "string"},  {"description", "Absolute path to the source file"}}},
-                    {"line",     QJsonObject{{"type", "integer"}, {"description", "Line number in the source file"}}},
-                    {"address",  QJsonObject{{"type", "string"},  {"description", "Instruction address, e.g. \"0x1234abcd\""}}},
-                    {"module",   QJsonObject{{"type", "string"},  {"description", "Module or shared library name"}}},
+                    {"level",    QJsonObject{{"type", "integer"}, {"description", "Frame index, 0 = innermost."}}},
+                    {"current",  QJsonObject{{"type", "boolean"}, {"description", "True for the currently active frame."}}},
+                    {"function", QJsonObject{{"type", "string"},  {"description", "Function or method name."}}},
+                    {"file",     QJsonObject{{"type", "string"},  {"description", "Absolute path to the source file."}}},
+                    {"line",     QJsonObject{{"type", "integer"}, {"description", "Line number in the source file."}}},
+                    {"address",  QJsonObject{{"type", "string"},  {"description", "Instruction address, such as \"0x1234abcd\"."}}},
+                    {"module",   QJsonObject{{"type", "string"},  {"description", "Module or shared library name."}}},
                 };
                 const QJsonObject frameItem{
                     {"type", "object"},
@@ -1263,7 +1263,7 @@ void registerMcpTools()
                         "frames",
                         QJsonObject{
                             {"type", "array"},
-                            {"description", "Stack frames, innermost first"},
+                            {"description", "Stack frames, innermost first."},
                             {"items", frameItem}})
                     .addRequired("frames");
             }()),
@@ -1289,7 +1289,7 @@ void registerMcpTools()
                         "level",
                         QJsonObject{
                             {"type", "integer"},
-                            {"description", "Frame level to select (as returned by debugger_get_call_stack, 0 = innermost)"}})
+                            {"description", "Frame level to select (as returned by debugger_get_call_stack, 0 = innermost)."}})
                     .addRequired("level"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -1308,14 +1308,15 @@ void registerMcpTools()
             .title("Delete a breakpoint")
             .description(
                 "Deletes a breakpoint by its ID (as returned by debugger_get_breakpoints or "
-                "debugger_add_breakpoint)")
+                "debugger_add_breakpoint).")
             .annotations(ToolAnnotations().destructiveHint(true).idempotentHint(true))
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
                         "id",
                         QJsonObject{
-                            {"type", "integer"}, {"description", "ID of the breakpoint to delete"}})
+                            {"type", "integer"},
+                            {"description", "ID of the breakpoint to delete."}})
                     .addRequired("id"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -1355,32 +1356,32 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Absolute path to the source file (for fileAndLine type)"}})
+                             "Absolute path to the source file (for fileAndLine type)."}})
                     .addProperty(
                         "line",
                         QJsonObject{
                             {"type", "integer"},
                             {"description",
-                             "Line number in the source file (for fileAndLine type)"}})
+                             "Line number in the source file (for fileAndLine type)."}})
                     .addProperty(
                         "function",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Function name (for function type)"}})
+                            {"description", "Function name (for function type)."}})
                     .addProperty(
                         "address",
                         QJsonObject{
                             {"type", "integer"},
-                            {"description", "Memory address (for address or watchAddress type)"}})
+                            {"description", "Memory address (for address or watchAddress type)."}})
                     .addProperty(
                         "condition",
                         QJsonObject{
-                            {"type", "string"}, {"description", "Optional condition expression"}})
+                            {"type", "string"}, {"description", "Optional condition expression."}})
                     .addProperty(
                         "ignore_count",
                         QJsonObject{
                             {"type", "integer"},
-                            {"description", "Number of hits to ignore before breaking"}})
+                            {"description", "Number of hits to ignore before breaking."}})
                     .addProperty(
                         "enabled",
                         QJsonObject{
@@ -1392,7 +1393,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "boolean"},
                             {"description",
-                             "If true, the breakpoint is removed after the first hit"},
+                             "If true, the breakpoint is removed after the first hit."},
                             {"default", false}}))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -1400,7 +1401,7 @@ void registerMcpTools()
                     .addProperty(
                         "id",
                         QJsonObject{
-                            {"type", "integer"}, {"description", "ID of the created breakpoint"}})
+                            {"type", "integer"}, {"description", "ID of the created breakpoint."}})
                     .addProperty("error", QJsonObject{{"type", "string"}})
                     .addRequired("success")),
         wrap([](const QJsonObject &p) {
@@ -1564,7 +1565,7 @@ void registerMcpTools()
                             {"type", "boolean"},
                             {"description",
                              "Also return the raw debugger log (the commands exchanged with the "
-                             "backend, e.g. GDB/MI) in a \"log\" field. Default false."},
+                             "backend, such as GDB/MI) in a \"log\" field. Default false."},
                             {"default", false}}))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -1599,7 +1600,7 @@ void registerMcpTools()
                         "expression",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Expression to evaluate (e.g. \"myVar\", \"ptr->field\", \"a + b\")"}})
+                            {"description", "Expression to evaluate (such as \"myVar\", \"ptr->field\", \"a + b\")."}})
                     .addRequired("expression"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -1627,15 +1628,15 @@ void registerMcpTools()
             .name("debugger_start")
             .title("Start debugging")
             .description(
-                "Starts a debug session and returns once the launch has been requested; poll "
+                "Starts a debug session and returns once the launch has been requested. Poll "
                 "debugger_get_status for the session state. With no arguments, debugs the "
                 "current startup project using its active run configuration and kit (does not "
                 "build first - use the build_project tool beforehand if it may be out of date). If "
                 "\"executable\" is given, debugs that executable directly (no project or build "
                 "needed) with an optional kit, arguments, working directory and QML debugging. "
                 "If \"remote_channel\" is also given, attaches to an already-running gdbserver "
-                "or stub at that channel (e.g. a bare-metal target) instead of launching the "
-                "executable locally; the executable then only supplies symbols.")
+                "or stub at that channel (for example, a bare-metal target) instead of launching "
+                "the executable locally. The executable then only supplies symbols.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -1651,7 +1652,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Kit id to use (defaults to the default kit). Only used with "
+                             "Kit ID to use (defaults to the default kit). Only used with "
                              "\"executable\"."}})
                     .addProperty(
                         "arguments",
@@ -1688,8 +1689,8 @@ void registerMcpTools()
                             {"type", "string"},
                             {"description",
                              "Attach to an already-running gdbserver/stub at this channel "
-                             "(e.g. \"localhost:1234\" or \"tcp:localhost:1234\"; CDB kits need "
-                             "the cdb form, e.g. \"tcp:server=localhost,port=1234\") instead of "
+                             "(such as \"localhost:1234\" or \"tcp:localhost:1234\", CDB kits need "
+                             "the cdb form, such as \"tcp:server=localhost,port=1234\") instead of "
                              "launching the executable. Requires \"executable\" for symbols."}})
                     .addProperty(
                         "extended_remote",
@@ -1698,7 +1699,7 @@ void registerMcpTools()
                             {"default", false},
                             {"description",
                              "Use \"target extended-remote\" for \"remote_channel\" (a "
-                             "\"gdbserver --multi\" server): the program is launched via run, so "
+                             "\"gdbserver --multi\" server): the program is launched with run, so "
                              "\"arguments\" are passed to it, instead of continuing an "
                              "already-started process."}})
                     .addProperty(

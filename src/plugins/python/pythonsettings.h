@@ -56,14 +56,12 @@ public:
     static void removeKitsForInterpreter(const Interpreter &interpreter);
     static bool interpreterIsValid(const Interpreter &interpreter);
 
-    static std::optional<QtTaskTree::ExecutableItem> autoDetect(
+    static QtTaskTree::ExecutableItem autoDetect(
         ProjectExplorer::Kit *kit,
         const Utils::FilePaths &searchPaths,
         const ProjectExplorer::DetectionSource &detectionSource,
         const ProjectExplorer::LogCallback &logCallback);
     static void removeDetectedPython(
-        const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);
-    static void listDetectedPython(
         const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);
 
     static QString defaultInterpreterId();

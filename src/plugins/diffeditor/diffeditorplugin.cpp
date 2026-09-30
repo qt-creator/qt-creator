@@ -377,6 +377,7 @@ private slots:
     void testInlineDiffCollapseUnchangedFile();
     void testInlineDiffIgnoreWhitespace();
     void testInlineDiffContextLine();
+    void testInlineDiffCollapseContextDirection();
     void testInlineDiffFoldedRows();
     void testInlineDiffPatience();
     void testInlineDiffCopyAsPatch();
@@ -1952,6 +1953,22 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiff()
     QCOMPARE(baselineWidget->editorLayout()->documentPixelHeight(),
              diffWidget->editorLayout()->documentPixelHeight());
 
+    // the tool bar shows the cursor position and tab settings of the focused view
+    QWidget *toolBar = diffEditor->toolBar();
+    QVERIFY(diffWidget->toolBarWidget()->isVisibleTo(toolBar));
+    QVERIFY(!baselineWidget->toolBarWidget()->isVisibleTo(toolBar));
+    diffWidget->window()->activateWindow();
+    if (QTest::qWaitForWindowActive(diffWidget->window())) {
+        baselineWidget->setFocus();
+        QTRY_VERIFY(baselineWidget->toolBarWidget()->isVisibleTo(toolBar));
+        QVERIFY(!diffWidget->toolBarWidget()->isVisibleTo(toolBar));
+        diffWidget->setFocus();
+        QTRY_VERIFY(diffWidget->toolBarWidget()->isVisibleTo(toolBar));
+        QVERIFY(!baselineWidget->toolBarWidget()->isVisibleTo(toolBar));
+    } else {
+        qWarning("Window cannot be activated, not checking the tool bar's focus tracking.");
+    }
+
     const QString sideGrabPath
         = Utils::qtcEnvironmentVariable("QTC_INLINE_DIFF_SIDE_GRAB");
     if (!sideGrabPath.isEmpty()) {
@@ -2100,7 +2117,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapse()
     Utils::sort(placeholders, [](const QWidget *a, const QWidget *b) {
         return a->y() < b->y();
     });
-    QCOMPARE(placeholders.first()->accessibleDescription(), QString("line 16"));
+    QCOMPARE(placeholders.first()->accessibleDescription(), QString("line 17"));
 
     const QString grabPath = Utils::qtcEnvironmentVariable("QTC_INLINE_DIFF_COLLAPSE_GRAB");
     if (!grabPath.isEmpty()) {
@@ -2114,7 +2131,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapse()
     QVERIFY(sourceLayout->isBlockVisibleInEditor(
         sourceWidget->document()->findBlockByNumber(0)));
 
-    auto toolBar = qobject_cast<QToolBar *>(diffEditor->toolBar());
+    auto toolBar = diffEditor->toolBar()->findChild<QToolBar *>("InlineDiffToolBar");
     QVERIFY(toolBar);
 
     // the amount of context is configurable, like in the classic diff view: one
@@ -2350,7 +2367,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseUnchangedFile
                      ->findChildren<QWidget *>("InlineDiffCollapsedRow").size(), 0);
 
     // turning the toggle off and on again collapses the file once more
-    auto toolBar = qobject_cast<QToolBar *>(diffEditor->toolBar());
+    auto toolBar = diffEditor->toolBar()->findChild<QToolBar *>("InlineDiffToolBar");
     QVERIFY(toolBar);
     QAction *collapseAction = Utils::findOrDefault(toolBar->actions(),
                                                    [](QAction *a) { return a->isCheckable(); });
@@ -2444,7 +2461,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffIgnoreWhitespace()
         return count;
     };
 
-    auto toolBar = qobject_cast<QToolBar *>(diffEditor->toolBar());
+    auto toolBar = diffEditor->toolBar()->findChild<QToolBar *>("InlineDiffToolBar");
     QVERIFY(toolBar);
     QAction *whitespaceAction = Utils::findOrDefault(toolBar->actions(), [](QAction *action) {
         return action->objectName() == "InlineDiffIgnoreWhitespaceAction";
@@ -2514,6 +2531,69 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffContextLine()
     QCOMPARE(inlineDiffContextLine(&document, 0), QString());
     // a line past the end looks from the last line
     QCOMPARE(inlineDiffContextLine(&document, 1000), QString("void Class::method(int a)"));
+    QCOMPARE(inlineDiffContextLine(&document, 2, true), QString("static void helper()"));
+    QCOMPARE(inlineDiffContextLine(&document, 8, true), QString("void Class::method(int a)"));
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseContextDirection()
+{
+    using namespace TextEditor;
+
+    const InlineDiffViewGuard inlineDiffViewGuard;
+    const QStringList baselineLines{
+        "void A()", "{", "    a();", "    a();", "    a();", "    a();", "    a();",
+        "    a();", "    a();", "    a();", "    a();", "}", "", "void B()", "{",
+        "    b();", "    b();", "    b();", "    b();", "    b();", "    b();", "}",
+        "    tail();", "    tail();", "    tail();", "    tail();", "    tail();", "    tail();"};
+    QStringList editorLines = baselineLines;
+    editorLines[2] = "    changedA();";
+    editorLines[15] = "    changedB();";
+    const QString baselineText = baselineLines.join('\n') + '\n';
+    const QString editorText = editorLines.join('\n') + '\n';
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath sourceFile = FilePath::fromString(temporaryDir.path()) / "collapse.cpp";
+    QVERIFY(sourceFile.writeFileContents(editorText.toUtf8()));
+    IEditor *sourceEditor = EditorManager::openEditor(sourceFile);
+    QVERIFY(sourceEditor);
+    auto sourceTextEditor = qobject_cast<BaseTextEditor *>(sourceEditor);
+    QVERIFY(sourceTextEditor);
+    const TextDocumentPtr sourceDocument = sourceTextEditor->editorWidget()->textDocumentPtr();
+    QVERIFY(sourceDocument);
+
+    InlineDiffBaseline baseline;
+    baseline.id = "test";
+    baseline.displayName = "Test";
+    baseline.fetchText = [baselineText](const InlineDiffBaseline::TextCallback &callback) {
+        callback(baselineText);
+    };
+
+    IEditor *diffEditor = openInlineDiffEditor(sourceDocument, baseline, "collapse.cpp");
+    QVERIFY(diffEditor);
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::Inline);
+    TextEditorWidget *diffWidget
+        = Utils::findOrDefault(diffEditor->widget()->findChildren<TextEditorWidget *>(),
+                               [&sourceDocument](TextEditorWidget *widget) {
+        return widget->document() == sourceDocument->document();
+    });
+    QVERIFY(diffWidget);
+    diffEditor->widget()->resize(800, 600);
+    diffEditor->widget()->show();
+
+    QTRY_COMPARE(diffWidget->viewport()
+                     ->findChildren<QWidget *>("InlineDiffCollapsedRow").size(), 2);
+    QList<QWidget *> placeholders
+        = diffWidget->viewport()->findChildren<QWidget *>("InlineDiffCollapsedRow");
+    Utils::sort(placeholders, [](const QWidget *a, const QWidget *b) {
+        return a->y() < b->y();
+    });
+    QCOMPARE(placeholders.at(0)->accessibleDescription(), QString("void B()"));
+    QCOMPARE(placeholders.at(1)->accessibleDescription(), QString("void B()"));
+
+    const QPointer<QWidget> diffWidgetGuard = diffWidget;
+    QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
+    QTRY_VERIFY(diffWidgetGuard.isNull());
 }
 
 // Code folding is a document level flag, so the editor side of the side by side
@@ -2687,7 +2767,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffPatience()
         return lines;
     };
 
-    auto toolBar = qobject_cast<QToolBar *>(diffEditor->toolBar());
+    auto toolBar = diffEditor->toolBar()->findChild<QToolBar *>("InlineDiffToolBar");
     QVERIFY(toolBar);
     QAction *patienceAction = Utils::findOrDefault(toolBar->actions(), [](QAction *action) {
         return action->objectName() == "InlineDiffPatienceAction";
@@ -2843,7 +2923,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCopyAsPatch()
 
     // "Ignore Whitespace" takes the re-indented line out of the view, so a
     // selection holding nothing else has nothing to copy
-    auto toolBar = qobject_cast<QToolBar *>(diffEditor->toolBar());
+    auto toolBar = diffEditor->toolBar()->findChild<QToolBar *>("InlineDiffToolBar");
     QVERIFY(toolBar);
     QAction *whitespaceAction = Utils::findOrDefault(toolBar->actions(), [](QAction *action) {
         return action->objectName() == "InlineDiffIgnoreWhitespaceAction";
@@ -3046,7 +3126,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffChangeNavigation()
     setInlineDiffViewMode(diffEditor, InlineDiffViewMode::Inline);
     diffEditor->widget()->resize(800, 600);
 
-    auto toolBar = qobject_cast<QToolBar *>(diffEditor->toolBar());
+    auto toolBar = diffEditor->toolBar()->findChild<QToolBar *>("InlineDiffToolBar");
     QVERIFY(toolBar);
     const auto toolBarAction = [toolBar](const QString &objectName) {
         return Utils::findOrDefault(toolBar->actions(), [&objectName](QAction *action) {

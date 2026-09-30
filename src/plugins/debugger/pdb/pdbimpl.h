@@ -30,6 +30,9 @@ public:
     bool loadInitFile = false;
     // Where the sources are now, against where the script says they are.
     QList<QPair<QString, QString>> sourcePathMap;
+    // Whom the debugger runs as, empty for the current user. pdb hosts the
+    // script itself, so this is whom the script runs as as well.
+    QString runAsUser;
     // Run at the script's first line, before anything the engine sends. The
     // script's lines take the place of the commands when there is one.
     Utils::FilePath startScript;
@@ -38,6 +41,11 @@ public:
     QStringList forResetCommands;
     // Stay on the script's first line instead of running it.
     bool breakOnMain = false;
+    // Where to stop instead, when the entry point is not the first line.
+    QString mainFunctionName;
+    // Whether stepping carries on through frames outside the script, which for
+    // python is the standard library and the bridge itself.
+    bool skipKnownFrames = false;
     // Zero leaves the commands unwatched.
     std::chrono::seconds watchdogTimeout{0};
     bool logTimeStamps = false;
@@ -86,6 +94,13 @@ private:
         QTime postTime;
     };
 
+    class Tracepoint
+    {
+    public:
+        QString message;
+        QList<TracepointCapture> captures;
+    };
+
     class PendingStackReply
     {
     public:
@@ -120,18 +135,24 @@ private:
     void handlePdbOutput(const QString &output);
     void handleOutputLine(const QString &line);
     void handleStackReply(const GdbMi &item);
+    void handleTracepointHit(const GdbMi &item);
     void handleBreakpointReply(const QString &line);
     void handleBreakpointDeleted(const QString &line);
     void handleBreakpointFence(quint64 token);
     void handleResetFence(quint64 token);
 
     void startPdbProcess();
-    void reportInitialStop();
+    void reportInitialStop(const Utils::FilePath &file, int lineNumber);
     void resetTransientState();
     void runUserStartupCommands();
     void loadExtraDumpers();
     void requestInterrupt();
+    void interruptProcessAsUser(qint64 pid);
     void insertBreakpoint(const BreakpointChangeRequest &request, BreakpointReply kind);
+    // pdb's own "commands" reads its block from the prompt, so the commands a
+    // breakpoint carries go to the bridge instead. An empty number means the
+    // insertion that follows, which has none to be keyed by yet.
+    void setBreakpointCommands(const QString &pdbNumber, const QString &command);
     QString pdbNumberFor(const QString &responseId) const;
     QString responseIdFor(const QString &pdbNumber) const;
     QString localSourcePath(const QString &reported) const;
@@ -150,6 +171,21 @@ private:
     // it is still outstanding.
     void timeCommand(const QString &description);
     void handleTimeFence(quint64 token);
+    // Not a breakpoint pdb knows about: the bridge stops on its own exception
+    // events instead, so the insertion is a round trip of its own.
+    // A raise and a catch are one armed state each rather than a breakpoint
+    // pdb knows a number for, so both are kept by the name they answer to.
+    void setBreakOnException(const BreakpointChangeRequest &request, bool enabled,
+                             const QString &responseId);
+    void handleBreakOnException(const GdbMi &item, const QString &responseId);
+    void handleThreadEvent(const GdbMi &item);
+    void reportThreadGroupCreated();
+    void reportThreadGroupGone();
+    void reportThreadsStopped();
+    void reportThreadsRunning();
+    void requestDeferredStop();
+    void runDeferredRequests();
+    void failDeferredRequests();
 
     PdbImplStartData m_startData;
     Utils::Process m_pdbProc;
@@ -162,10 +198,12 @@ private:
     bool m_interruptPending = false;
     bool m_inferiorExited = false;
     bool m_expectLocationOnly = false;
+    bool m_deferredStopRequested = false;
 
     int m_currentFrame = 0;
 
     quint64 m_pendingLocalsRequestId = 0;
+    bool m_pendingLocalsArePartial = false;
     quint64 m_lastWatchdogToken = 0;
     QList<QPair<quint64, QString>> m_watchedCommands;
     QTimer m_watchdog;
@@ -173,6 +211,7 @@ private:
     QList<TimedCommand> m_timedCommands;
     quint64 m_pendingBacktraceRequestId = 0;
     quint64 m_pendingModulesRequestId = 0;
+    quint64 m_pendingThreadsRequestId = 0;
     quint64 m_pendingSourceFilesRequestId = 0;
     quint64 m_pendingModuleSymbolsRequestId = 0;
 
@@ -181,8 +220,16 @@ private:
     QList<PendingBreakpointReply> m_pendingBreakpointReplies;
     QList<PendingStackReply> m_pendingStackReplies;
     QList<ActiveBreakpoint> m_activeBreakpoints;
+    QHash<QString, Tracepoint> m_tracepointsByNumber;
+    QHash<QString, QString> m_functionByBreakpointNumber;
     quint64 m_lastFenceToken = 0;
     quint64 m_resetFenceToken = 0;
+    quint64 m_lastExceptionToken = 0;
+    QStringList m_knownThreadIds;
+    QString m_threadGroupId;
+    QList<BreakpointChangeRequest> m_deferredBreakpointChanges;
+    QStringList m_deferredCommands;
+    QHash<quint64, BreakpointChangeRequest> m_pendingExceptionChanges;
 
     bool m_isResetRestart = false;
     bool m_shuttingDown = false;

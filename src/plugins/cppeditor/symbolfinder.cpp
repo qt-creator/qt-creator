@@ -32,13 +32,54 @@ struct Hit {
     bool exact = false;
 };
 
+// The name of the scope a function is defined in: the innermost qualifier of an
+// out-of-line definition, or the surrounding class of an in-class one. Telling a
+// class from a namespace would require the binding, which is precisely what the
+// caller wants to avoid computing, so a namespace name can be returned here.
+const Identifier *definingScopeIdentifier(Symbol *symbol)
+{
+    if (const Name * const name = symbol->name()) {
+        if (const QualifiedNameId * const qualified = name->asQualifiedNameId()) {
+            const Name *qualifier = qualified->base();
+            if (!qualifier)
+                return nullptr; // Global scope, e.g. "::f".
+            if (const QualifiedNameId * const nested = qualifier->asQualifiedNameId())
+                qualifier = nested->name();
+            return qualifier ? qualifier->identifier() : nullptr;
+        }
+    }
+    if (const Class * const klass = symbol->enclosingClass())
+        return klass->name() ? klass->name()->identifier() : nullptr;
+    return nullptr;
+}
+
 class FindMatchingDefinition: public SymbolVisitor
 {
     Symbol *_declaration = nullptr;
     const OperatorNameId *_oper = nullptr;
     const ConversionNameId *_conv = nullptr;
+    const Identifier *_declaringClassId = nullptr;
     const bool _strict;
     QList<Hit> _result;
+
+    // A function declared as a member of a class can only be defined as a member
+    // of that same class, so a candidate whose defining scope has a different
+    // name cannot be the definition we are after. Comparing the names is a
+    // pointer comparison, while the exact check via LookupContext has to bind the
+    // candidate document's entire include closure first, which dominates the cost
+    // of searching a large snapshot.
+    // Being a name comparison, this keeps a candidate defined in a namespace that
+    // happens to be named like the class; the exact check then rejects it. It
+    // also misses a definition that qualifies the class via a typedef, which is
+    // legal but rare. Friends are declared inside a class without being members
+    // of it, so they are exempt altogether.
+    bool maybeDefinedInSameClass(Function *fun) const
+    {
+        if (!_declaringClassId)
+            return true;
+        const Identifier * const id = definingScopeIdentifier(fun);
+        return id && id->equalTo(_declaringClassId);
+    }
 
 public:
     explicit FindMatchingDefinition(Symbol *declaration, bool strict)
@@ -48,6 +89,12 @@ public:
             _oper = _declaration->name()->asOperatorNameId();
             _conv = _declaration->name()->asConversionNameId();
         }
+        if (!_declaration->isFriend()) {
+            if (const Class * const klass = _declaration->enclosingClass()) {
+                if (const Name * const name = klass->name())
+                    _declaringClassId = name->identifier();
+            }
+        }
     }
 
     const QList<Hit> result() const { return _result; }
@@ -56,6 +103,9 @@ public:
 
     bool visit(Function *fun) override
     {
+        if (!maybeDefinedInSameClass(fun))
+            return false;
+
         if (_oper || _conv) {
             if (const Name *name = fun->unqualifiedName()) {
                 if ((_oper && _oper->match(name)) || (_conv && _conv->match(name)))

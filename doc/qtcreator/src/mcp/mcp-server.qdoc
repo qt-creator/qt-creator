@@ -29,7 +29,7 @@
     \endlist
 
     The MCP client shows the tools that are currently available, along with a
-    description of each.
+    description of each. For the full list, see \l{MCP server tools}.
 
     To start the MCP server and use an MCP client, install a client and activate
     the MCP server extension.
@@ -218,4 +218,19 @@
     \endlist
 
     \sa {Activate extensions}, {Use AI}{How to: Use AI}
+*/
+
+/*!
+    \page creator-reference-mcp-server-tools.html
+    \previouspage creator-reference.html
+    \ingroup creator-reference
+
+    \title MCP server tools
+
+    The \QC MCP server exposes the following tools to MCP clients. Each entry
+    lists the tool's parameters, with the required ones marked.
+
+    \include mcp-tools.qdocinc tools
+
+    \sa {Set up \QC MCP server}, {Use AI}{How to: Use AI}
 */

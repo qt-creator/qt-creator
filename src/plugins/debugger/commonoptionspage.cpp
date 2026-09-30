@@ -378,6 +378,17 @@ LocalsAndExpressionsSettings::LocalsAndExpressionsSettings()
                  "Note that this can negatively impact debugger performance "
                  "even if no QObjects are present."));
 
+    showVariablesFromAllScopes.setSettingsKey(debugModeGroup, "ShowVariablesFromAllScopes");
+    showVariablesFromAllScopes.setDefaultValue(false);
+    showVariablesFromAllScopes.setDisplayName(Tr::tr("Show Variables From All Scopes"));
+    showVariablesFromAllScopes.setLabelText(Tr::tr("Show variables from all scopes"));
+    showVariablesFromAllScopes.setToolTip(
+        "<p>"
+        + Tr::tr("Also lists local variables from lexical scopes that execution has "
+                 "not entered yet, such as the body of an \"if\" or \"for\" statement "
+                 "below the current line. The value of such a variable is undefined "
+                 "until its declaration is reached. Currently only supported by GDB."));
+
     extraDumperCommands.setSettingsKey(debugModeGroup, "GdbCustomDumperCommands");
     extraDumperCommands.setDisplayStyle(StringAspect::TextEditDisplay);
     extraDumperCommands.setToolTip("<html><head/><body><p>"
@@ -465,6 +476,7 @@ LocalsAndExpressionsSettings::LocalsAndExpressionsSettings()
             showStdNamespace,
             showQtNamespace,
             showQObjectNames,
+            showVariablesFromAllScopes,
             Space(10),
             Row { limits, st },
             st

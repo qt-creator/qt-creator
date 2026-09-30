@@ -66,14 +66,6 @@ if(TARGET Lua)
         scripts/inspect.lua
     )
 
-    if (MSVC)
-        # Prevent fatal error C1128
-        target_compile_options(Lua PRIVATE /bigobj)
-    endif()
-    if (MINGW)
-        target_compile_options(Lua PRIVATE "-Wa,-mbig-obj")
-    endif()
-
     qtc_copy_to_builddir(copy_lua_meta_files
       DIRECTORIES meta
       DESTINATION ${IDE_DATA_PATH}/lua/meta

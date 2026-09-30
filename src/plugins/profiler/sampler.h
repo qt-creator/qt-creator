@@ -335,11 +335,19 @@ public:
     void setTargetChosenElsewhere(bool chosen);
     bool targetChosenElsewhere() const { return m_targetChosenElsewhere; }
 
+    // Set while the backend's own options come from elsewhere too -- a live
+    // profiler that records a target on a device with settings of its own.
+    // They then go read-only as well.
+    void setOptionsChosenElsewhere(bool chosen);
+    bool optionsChosenElsewhere() const { return m_optionsChosenElsewhere; }
+
 signals:
     // Emitted when setTargetChosenElsewhere() changes what may be picked, for
     // the controls that are not aspects (a "Select Process..." button, say) and
     // that updateTargetEnabled() therefore cannot reach.
     void targetSelectionChanged();
+    // Likewise for setOptionsChosenElsewhere() and updateOptionsEnabled().
+    void optionsSelectionChanged();
 
 protected:
     // Populates session->launchCommand/launchWorkingDir from executable+arguments;
@@ -356,8 +364,13 @@ protected:
     // alternative extends this.
     virtual void updateTargetEnabled();
 
+    // Applies optionsChosenElsewhere() to the backend's own options. The base
+    // has none.
+    virtual void updateOptionsEnabled();
+
 private:
     bool m_targetChosenElsewhere = false;
+    bool m_optionsChosenElsewhere = false;
 };
 
 // A repair for a system setting that stops a backend from recording, offered to

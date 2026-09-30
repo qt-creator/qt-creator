@@ -843,6 +843,7 @@ public:
     void setExpectedKind(const PathChooserKind &expectedKind);
     void setEnvironment(const Environment &env);
     void setBaseDirectory(const Lazy<FilePath> &baseDirectory);
+    FilePath baseDirectory() const;
     void setInitialBrowsePathBackup(const FilePath &initialBrowsePathBackup);
 
     void setPlaceHolderText(const QString &placeHolderText);

@@ -8,7 +8,8 @@ Item {
     function compute(value) {
         var doubled = value * 2
         function helper() { return doubled }
-        return backend.process(helper()) // MARKER: qml breakpoint line
+        var result = backend.process(helper()) // MARKER: qml breakpoint line
+        return result // MARKER: after the native call
     }
     function throwsError() {
         throw new Error("boom")

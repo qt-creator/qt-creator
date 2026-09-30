@@ -38,7 +38,11 @@ def main():
 
 def performTest(workingDir, projectName, availableConfigs):
     def __elapsedTime__(elapsedTimeLabelText):
-        return float(re.search("Elapsed:\s+(-?\d+\.\d+) s", elapsedTimeLabelText).group(1))
+        negative = elapsedTimeLabelText.startswith('-')
+        if negative:
+            elapsedTimeLabelText = elapsedTimeLabelText[1:]
+        result = datetime.strptime(elapsedTimeLabelText, '%M:%S.%f')
+        return (result.second + result.microsecond / 1000000) * (-1 if negative else 1)
 
     runButton = findObject(':*Qt Creator.Run_Core::Internal::FancyToolButton')
     for kit, config in availableConfigs:
@@ -56,18 +60,15 @@ def performTest(workingDir, projectName, availableConfigs):
             test.fatal("Compile had errors... Skipping current build config")
             continue
         switchViewTo(ViewConstants.PROFILER)
-        selectFromCombo(":Analyzer Toolbar.AnalyzerManagerToolBox_QComboBox", "QML Profiler")
-        recordButton = waitForObject("{container=':ProfilerModeWidget.Toolbar_QDockWidget' "
-                                     "type='QToolButton' unnamed='1' visible='1' "
-                                     "toolTip?='*able Profiling'}")
-        if not test.verify(recordButton.checked, "Verifying recording is enabled."):
-            test.log("Enabling recording for the test run")
-            clickButton(recordButton)
-        startButton = waitForObject(":Analyzer Toolbar.Start_QToolButton")
+        selectFromCombo(":Profiler_AnalyzerBackendComboBox", "QML Profiler")
+        targetCombo = waitForObject(":Profiler_TargetComboBox")
+        test.compare(targetCombo.currentText, "The startup project")
+
+        startButton = waitForObject(":Profiler_StartRecordingButton")
         clickButton(startButton)
-        stopButton = waitForObject(":Qt Creator.Stop_QToolButton")
-        elapsedLabel = waitForObject(":Analyzer Toolbar.Elapsed:_QLabel", 3000)
-        waitFor('"Elapsed:    8" in str(elapsedLabel.text)', 20000)
+        stopButton = waitForObject(":Profiler_StopRecordingButton")
+        elapsedLabel = waitForObject(":Profiler_ElapsedLabel", 3000)
+        waitFor('str(elapsedLabel.text).startswith("00:08.")', 20000)
         clickButton(stopButton)
         test.verify(waitFor("not stopButton.enabled", 5000), "stopButton should be disabled")
         test.verify(waitFor("startButton.enabled", 2000), "startButton should be enabled")
@@ -114,8 +115,7 @@ def performTest(workingDir, projectName, availableConfigs):
                                  str(model.index(row, colMean).data()),
                                  "For two calls, median and mean time must be the same.")
         progressBarWait(15000, False)   # wait for "Build" progressbar to disappear
-        clickButton(waitForObject(":Analyzer Toolbar.Clear_QToolButton"))
-        test.verify(waitFor("model.rowCount() == 0", 3000), "Analyzer results cleared.")
+        clickButton(waitForObject(":Qt Creator.CloseDoc_QToolButton"))
 
 def compareEventsTab(model, file):
     significantColumns = [0, 1, 6, 11]
@@ -148,7 +148,8 @@ def matches(expectedItems, items):
 
 
 def safeClickTab(tab):
-    for bar in [":Qt Creator.Dashboard_QTabBar",
+    for bar in [":Profiler_TabBar",
+                ":Qt Creator.Dashboard_QTabBar",
                 ":Qt Creator.Events_QTabBar",
                 ":Qt Creator.Timeline_QTabBar"]:
         try:

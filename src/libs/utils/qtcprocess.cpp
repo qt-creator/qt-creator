@@ -1479,17 +1479,11 @@ QByteArray Process::readAllRawStandardError()
 
 qint64 Process::write(const QString &input)
 {
-    // Non-windows is assumed to be UTF-8
-    if (commandLine().executable().osType() != OsTypeWindows)
-        return writeRaw(input.toUtf8());
-
-    if (HostOsInfo::hostOs() == OsTypeWindows)
-        return writeRaw(input.toLocal8Bit());
-
-    // "remote" Windows target on non-Windows host is unlikely,
-    // but the true encoding is not accessible. Use UTF8 as best guess.
-    QTC_CHECK(false);
-    return writeRaw(input.toUtf8());
+    // There is no encoding of its own for standard input: on Unix one locale governs both
+    // directions, and elsewhere the encoding the device states for standard output is the
+    // best guess available (see FilePath::processStdOutEncoding).
+    QTC_ASSERT(d->m_stdOutEncoding, return -1); // Process was not started
+    return writeRaw(d->m_stdOutEncoding->encode(input));
 }
 
 qint64 Process::writeRaw(const QByteArray &input)

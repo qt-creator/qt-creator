@@ -421,13 +421,19 @@ PerfSamplerSettings::PerfSamplerSettings()
             m_pickedName = FilePath::fromUserInput(info->executable).fileName();
             picked->setText(m_pickedName);
         });
+        QWidget *perfConfig = perfSettings.createPerfConfigWidget(nullptr);
+        const auto updatePerfConfig = [this, perfConfig] {
+            perfConfig->setEnabled(!optionsChosenElsewhere());
+        };
+        updatePerfConfig();
+        connect(this, &SamplerSettings::optionsSelectionChanged, perfConfig, updatePerfConfig);
         return Column {
             executable,
             arguments,
             workingDirectory,
             Row { attach, pick, picked, st },
             downloadDebugInfo,
-            perfSettings.createPerfConfigWidget(nullptr),
+            perfConfig,
             noMargin,
         };
     });
@@ -443,6 +449,11 @@ void PerfSamplerSettings::updateTargetEnabled()
     executable.setEnabled(launching);
     arguments.setEnabled(launching);
     workingDirectory.setEnabled(launching);
+}
+
+void PerfSamplerSettings::updateOptionsEnabled()
+{
+    downloadDebugInfo.setEnabled(!optionsChosenElsewhere());
 }
 
 Result<std::shared_ptr<RecordingSession>> PerfSamplerSettings::createSession() const

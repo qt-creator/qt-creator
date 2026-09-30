@@ -47,6 +47,8 @@ public:
 
 using StackFrames = QList<StackFrame>;
 
+QString msgMissingSource(const Utils::FilePath &file, const QString &function);
+
 } // Debugger::Internal
 
 Q_DECLARE_METATYPE(Debugger::Internal::StackFrame)

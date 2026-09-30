@@ -27,6 +27,8 @@ QtcPlugin {
         "autotestconstants.h",
         "autotestplugin.cpp",
         "autotestplugin.h",
+        "externaltestrun.cpp",
+        "externaltestrun.h",
         "itemdatacache.h",
         "mcptools.cpp",
         "mcptools.h",

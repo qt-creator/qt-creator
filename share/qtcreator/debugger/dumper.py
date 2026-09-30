@@ -181,6 +181,7 @@ class DumperBase():
         self.allowInferiorCalls = False
         self.interpreterStepArmed = False
         self.pendingInterpreterBreakpoints = []
+        self.interpreterServiceEnabled = False
         self.refusedInterpreterRequests = {}
         self.interpreterRequestAttempts = {}
         self.qtLoaded = False
@@ -194,6 +195,7 @@ class DumperBase():
         self.autoDerefPointers = False
         self.useTimeStamps = False
         self.forceQtNamespace = False
+        self.allScopes = False
 
         self.isBigEndian = False
         self.packCode = '<'
@@ -257,6 +259,7 @@ class DumperBase():
         self.nativeMixed = int(args.get('nativemixed', '0'))
         self.autoDerefPointers = int(args.get('autoderef', '0'))
         self.useTimeStamps = int(args.get('timestamps', '0'))
+        self.allScopes = int(args.get('allscopes', '0'))
         self.partialVariable = args.get('partialvar', '')
         self.uninitialized = args.get('uninitialized', [])
 
@@ -545,7 +548,14 @@ class DumperBase():
         self.type_alignment_cache.pop(typeid, None)
         self.type_code_cache.pop(typeid, None)
         self.type_qobject_based_cache.pop(typeid, None)
+        self.type_fields_cache.pop(typeid, None)
+        self.native_type_dropped(typeid)
         return None
+
+    # What a bridge derived from the answer for a type on its own, to go with
+    # it in cached_nativetype().
+    def native_type_dropped(self, typeid):
+        pass
 
     def lookupType(self, typename):
         if not isinstance(typename, str):
@@ -2921,7 +2931,17 @@ typename))
         # Only a backend that can retry a queued breakpoint may keep one.
         return False
 
+    def enableInterpreterService(self):
+        # The interpreter offers pause points only in code it compiled while the
+        # debug service was on, so this has to happen before the inferior gets
+        # to its QML, whether or not a breakpoint is waiting for the service.
+        if self.interpreterServiceEnabled:
+            return
+        self.interpreterServiceEnabled = True
+        self.callServiceFunction('qt_qmlDebugEnableService', ['NativeQmlDebugger'])
+
     def resolvePendingInterpreterBreakpoints(self):
+        self.enableInterpreterService()
         pending = self.pendingInterpreterBreakpoints
         self.pendingInterpreterBreakpoints = []
         for args in pending:
@@ -2964,7 +2984,7 @@ typename))
         self.reportInterpreterResult(resdict, args)
 
     def resolvePendingInterpreterBreakpoint(self, args):
-        self.callServiceFunction('qt_qmlDebugEnableService', ['NativeQmlDebugger'])
+        self.enableInterpreterService()
         response = self.sendInterpreterRequest('setbreakpoint', args)
         bp = None if response is None else response.get('breakpoint', None)
         resdict = args.copy()
@@ -3121,18 +3141,42 @@ typename))
         # the QML caller by pausing at the next JS statement; otherwise
         # step out normally in C++.
         if self.atNativeToQmlBoundary():
-            self.sendInterpreterRequest('stepin', args)
-            self.interpreterStepArmed = True
-            self.setupMachinerySkips()
-            self.doContinue()
+            self.stepBackIntoQml(args)
         else:
             self.doFinish()
+
+    def executeNativeMixedNext(self, args):
+        # Stepping over in a C++ frame of a native mixed session. Standing in
+        # the trampolines a C++ method was called from QML through, the method
+        # itself having returned, there is no C++ left to step over and the
+        # next line of the program is the QML one after the call.
+        if self.inQmlCallMachinery():
+            self.stepBackIntoQml(args)
+        else:
+            self.doNext()
+
+    def stepBackIntoQml(self, args):
+        self.sendInterpreterRequest('stepin', args)
+        self.interpreterStepArmed = True
+        self.setupMachinerySkips()
+        self.doContinue()
+
+    def inQmlCallMachinery(self):
+        return self.atQmlCallMachineryFrame() and self.atNativeToQmlBoundary()
+
+    def atQmlCallMachineryFrame(self):
+        # Overridden in the GDB bridge.
+        return False
 
     def atNativeToQmlBoundary(self):
         # Overridden in the GDB bridge.
         return False
 
     def doFinish(self):
+        # Overridden in the GDB bridge.
+        self.doContinue()
+
+    def doNext(self):
         # Overridden in the GDB bridge.
         self.doContinue()
 
@@ -3807,16 +3851,20 @@ typename))
             return False
 
     class Field:
-        __slots__ = ['name', 'typeid', 'bitsize', 'bitpos', 'is_struct', 'is_artificial', 'is_base_class']
+        __slots__ = ['name', 'typeid', 'bitsize', 'bitpos', 'is_struct', 'is_artificial',
+                     'is_base_class', 'address']
 
         def __init__(self, name=None, typeid=None, bitsize=None, bitpos=None,
-                    extractor=None, is_struct=False, is_artificial=False, is_base_class=False):
+                    extractor=None, is_struct=False, is_artificial=False, is_base_class=False,
+                    address=None):
             self.name = name
             self.typeid = typeid
             self.bitsize = bitsize
             self.bitpos = bitpos
             self.is_struct = is_struct
             self.is_base_class = is_base_class
+            # Where a static member lives, instead of an offset into the object.
+            self.address = address
 
 
     def ptrCode(self):
@@ -4351,9 +4399,20 @@ typename))
         #self.warn("LISTING MEMBERS OF TYPE %s %s" % (value.typeid, self.type_name(value.typeid)))
         typeid = value.typeid
 
-        members = self.type_fields_cache.get(typeid, None)
-        if members is not None:
-            return members
+        # A layout a bridge recorded for the type: the members come out of the
+        # value's memory, and the debugger is not asked.
+        fields = self.type_fields_cache.get(typeid, None)
+        if fields is not None and value.ldata is None:
+            try:
+                value.ldata = self.value_data_from_address(value.laddress,
+                                                           self.type_size(typeid))
+            except Exception:
+                # No address, no size, or memory the debugger cannot read
+                # either; it shows what it can.
+                fields = None
+        if fields is not None:
+            return [self.value_member_by_field(value, field)
+                    for field in fields if include_bases or not field.is_base_class]
 
         members = []
         native_type = self.type_nativetype(typeid)
@@ -4372,6 +4431,10 @@ typename))
         val.typeid = field.typeid
         val.name = field.name
         val.isBaseClass = field.is_base_class
+        val.size = field.bitsize
+        if field.address is not None:
+            val.laddress = field.address
+            return val
         #self.warn('CREATING %s WITH DATA %s' % (val.type.name, self.hexencode(data)))
         field_offset = field.bitpos // 8
         if value.laddress is not None:

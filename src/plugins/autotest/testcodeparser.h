@@ -81,7 +81,7 @@ private:
     void onFinished(bool success);
     void onPartialParsingFinished();
     void parsePostponedFiles();
-    void releaseParserInternals();
+    void clearParserCaches();
 
     // used internally to indicate a parse that failed due to having triggered a parse for a file that
     // is not (yet) part of the CppModelManager's snapshot

@@ -63,10 +63,12 @@ static void indexSymbols(CIDebugSymbolGroup *symbolGroup, SymbolIndex &index, UL
     for (ULONG i = from; i < to; ++i) {
         ULONG64 offset = 0;
         DEBUG_SYMBOL_PARAMETERS params;
-        if (SUCCEEDED(symbolGroup->GetSymbolOffset(i, &offset))
-                && SUCCEEDED(symbolGroup->GetSymbolParameters(i, 1, &params))) {
+        countEngineCall("GetSymbolOffset");
+        if (FAILED(symbolGroup->GetSymbolOffset(i, &offset)))
+            continue;
+        countEngineCall("GetSymbolParameters");
+        if (SUCCEEDED(symbolGroup->GetSymbolParameters(i, 1, &params)))
             index.indexByKey.emplace(SymbolKey{offset, params.TypeId, params.Module}, i);
-        }
     }
 }
 
@@ -76,6 +78,7 @@ void dumpSymbolGroup(CIDebugSymbolGroup *symbolGroup)
         return;
 
     ULONG count;
+    countEngineCall("GetNumberSymbols");
     if (FAILED(symbolGroup->GetNumberSymbols(&count)))
         return;
     DebugPrint() << "Symbol group " << symbolGroup << " has " << count << " symbols";
@@ -90,6 +93,7 @@ void PyValue::indicesMoved(CIDebugSymbolGroup *symbolGroup, ULONG start, ULONG d
     if (delta == 0)
         return;
     ULONG count;
+    countEngineCall("GetNumberSymbols");
     if (FAILED(symbolGroup->GetNumberSymbols(&count)))
         return;
     if (count <= start)
@@ -151,10 +155,12 @@ std::string PyValue::name() const
     if (!m_symbolGroup)
         return std::string();
     ULONG size = 0;
+    countEngineCall("GetSymbolName");
     m_symbolGroup->GetSymbolName(m_index, NULL, 0, &size);
     if (size == 0)
         return std::string();
     std::string name(size - 1, '\0');
+    countEngineCall("GetSymbolName");
     if (FAILED(m_symbolGroup->GetSymbolName(m_index, &name[0], size, &size)))
         name.clear();
     return name;
@@ -167,13 +173,16 @@ PyType PyValue::type()
     if (!m_symbolGroup)
         return PyType();
     DEBUG_SYMBOL_PARAMETERS params;
+    countEngineCall("GetSymbolParameters");
     if (FAILED(m_symbolGroup->GetSymbolParameters(m_index, 1, &params)))
         return PyType();
     ULONG size = 0;
+    countEngineCall("GetSymbolTypeName");
     m_symbolGroup->GetSymbolTypeName(m_index, NULL, 0, &size);
     std::string typeName;
     if (size != 0) {
         typeName = std::string(size - 1, '\0');
+        countEngineCall("GetSymbolTypeName");
         if (FAILED(m_symbolGroup->GetSymbolTypeName(m_index, &typeName[0], size, NULL)))
             typeName.clear();
     }
@@ -186,6 +195,7 @@ ULONG64 PyValue::bitsize()
     if (!m_symbolGroup)
         return 0;
     ULONG size;
+    countEngineCall("GetSymbolSize");
     if (FAILED(m_symbolGroup->GetSymbolSize(m_index, &size)))
         return 0;
     return size * 8;
@@ -196,15 +206,18 @@ Bytes PyValue::asBytes()
     if (!m_symbolGroup)
         return Bytes();
     ULONG64 address = 0;
+    countEngineCall("GetSymbolOffset");
     if (FAILED(m_symbolGroup->GetSymbolOffset(m_index, &address)))
         return Bytes();
     ULONG size;
+    countEngineCall("GetSymbolSize");
     if (FAILED(m_symbolGroup->GetSymbolSize(m_index, &size)))
         return Bytes();
 
     Bytes bytes(size);
     unsigned long received;
     auto data = ExtensionCommandContext::instance()->dataSpaces();
+    countEngineCall("ReadVirtual");
     if (FAILED(data->ReadVirtual(address, bytes.data(), size, &received)))
         return Bytes();
 
@@ -214,8 +227,11 @@ Bytes PyValue::asBytes()
 
 ULONG64 PyValue::address()
 {
+    if (!m_symbolGroup)
+        return 0;
     ULONG64 address = 0;
-    if (!m_symbolGroup || FAILED(m_symbolGroup->GetSymbolOffset(m_index, &address)))
+    countEngineCall("GetSymbolOffset");
+    if (FAILED(m_symbolGroup->GetSymbolOffset(m_index, &address)))
         return 0;
     if (debuggingValueEnabled())
         DebugPrint() << "Address of " << name() << ": " << std::hex << std::showbase << address;
@@ -227,6 +243,7 @@ int PyValue::childCount()
     if (!m_symbolGroup || !expand())
         return 0;
     DEBUG_SYMBOL_PARAMETERS params;
+    countEngineCall("GetSymbolParameters");
     HRESULT hr = m_symbolGroup->GetSymbolParameters(m_index, 1, &params);
     return SUCCEEDED(hr) ? params.SubElements : 0;
 }
@@ -241,13 +258,19 @@ bool PyValue::expand()
     if (!m_symbolGroup)
         return false;
     DEBUG_SYMBOL_PARAMETERS params;
+    countEngineCall("GetSymbolParameters");
     if (FAILED(m_symbolGroup->GetSymbolParameters(m_index, 1, &params)))
         return false;
     if (params.Flags & DEBUG_SYMBOL_EXPANDED)
         return true;
     dumpSymbolGroup(m_symbolGroup);
-    if (FAILED(m_symbolGroup->ExpandSymbol(m_index, TRUE)))
-        return false;
+    {
+        EngineTimer timer("ExpandSymbol");
+        countEngineCall("ExpandSymbol");
+        if (FAILED(m_symbolGroup->ExpandSymbol(m_index, TRUE)))
+            return false;
+    }
+    countEngineCall("GetSymbolParameters");
     if (FAILED(m_symbolGroup->GetSymbolParameters(m_index, 1, &params)))
         return false;
     if (params.Flags & DEBUG_SYMBOL_EXPANDED) {
@@ -265,8 +288,10 @@ std::string PyValue::nativeDebuggerValue()
         std::string();
     ULONG size = 0;
 
+    countEngineCall("GetSymbolValueText");
     m_symbolGroup->GetSymbolValueText(m_index, NULL, 0, &size);
     std::string text(size - 1, '\0');
+    countEngineCall("GetSymbolValueText");
     if (FAILED(m_symbolGroup->GetSymbolValueText(m_index, &text[0], size, &size)))
         return std::string();
     return text;
@@ -282,6 +307,7 @@ int PyValue::tag()
     if (!m_symbolGroup)
         return -1;
     DEBUG_SYMBOL_ENTRY info;
+    countEngineCall("GetSymbolEntryInformation");
     if (FAILED(m_symbolGroup->GetSymbolEntryInformation(m_index, &info)))
         return -1;
     return info.Tag;
@@ -321,6 +347,7 @@ PyValue PyValue::childFromField(const PyField &field)
         return PyValue();
     const std::string name = pointedToSymbolName(childAddress, childTypeName);
     ULONG index = DEBUG_ANY_ID;
+    countEngineCall("AddSymbol");
     if (FAILED(m_symbolGroup->AddSymbol(name.c_str(), &index)))
         return PyValue();
 
@@ -331,6 +358,7 @@ PyValue PyValue::childFromField(const PyField &field)
 ULONG currentNumberOfChildren(ULONG index, IDebugSymbolGroup2 *sg)
 {
     DEBUG_SYMBOL_PARAMETERS params;
+    countEngineCall("GetSymbolParameters");
     if (SUCCEEDED(sg->GetSymbolParameters(index, 1, &params))) {
         if (params.Flags & DEBUG_SYMBOL_EXPANDED)
             return params.SubElements;
@@ -400,6 +428,7 @@ PyValue PyValue::createValue(ULONG64 address, const PyType &type)
 
     SymbolIndex &index = symbolIndexForGroup()[symbolGroup];
     ULONG numberOfSymbols = 0;
+    countEngineCall("GetNumberSymbols");
     symbolGroup->GetNumberSymbols(&numberOfSymbols);
     if (index.indexed < numberOfSymbols) {
         indexSymbols(symbolGroup, index, index.indexed, numberOfSymbols);
@@ -414,8 +443,12 @@ PyValue PyValue::createValue(ULONG64 address, const PyType &type)
         DebugPrint() << "Create Value expression: " << name;
 
     ULONG symbolIndex = DEBUG_ANY_ID;
-    if (FAILED(symbolGroup->AddSymbol(name.c_str(), &symbolIndex)))
-        return PyValue();
+    {
+        EngineTimer timer("AddSymbol");
+        countEngineCall("AddSymbol");
+        if (FAILED(symbolGroup->AddSymbol(name.c_str(), &symbolIndex)))
+            return PyValue();
+    }
 
     return PyValue(symbolIndex, symbolGroup);
 }
@@ -424,12 +457,14 @@ int PyValue::tag(const std::string &typeName)
 {
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
     IDebugSymbolGroup2 *sg = 0;
+    countEngineCall("CreateSymbolGroup2");
     if (FAILED(symbols->CreateSymbolGroup2(&sg)))
         return -1;
 
     int tag = -1;
     const std::string name = SymbolGroupValue::pointedToSymbolName(0, typeName);
     ULONG index = DEBUG_ANY_ID;
+    countEngineCall("AddSymbol");
     if (SUCCEEDED(sg->AddSymbol(name.c_str(), &index)))
         tag = PyValue(index, sg).tag();
 

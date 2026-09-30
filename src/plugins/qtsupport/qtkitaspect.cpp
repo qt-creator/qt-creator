@@ -167,9 +167,6 @@ private:
     std::optional<ExecutableItem> removeAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
 
-    void listAutoDetected(
-        const QString &detectionSource, const LogCallback &logCallback) const override;
-
     Utils::Result<ExecutableItem> createAspectFromJson(
         const DetectionSource &detectionSource,
         const FilePath &rootPath,
@@ -538,15 +535,6 @@ std::optional<ExecutableItem> QtKitAspectFactory::removeAutoDetected(
             QtVersionManager::removeVersion(version);
         }
     });
-}
-
-void QtKitAspectFactory::listAutoDetected(
-    const QString &detectionSource, const LogCallback &logCallback) const
-{
-    for (const QtVersion *qt : QtVersionManager::versions()) {
-        if (qt->detectionSource().id == detectionSource)
-            logCallback(Tr::tr("Qt: %1.").arg(qt->displayName()));
-    }
 }
 
 Utils::Result<ExecutableItem> QtKitAspectFactory::createAspectFromJson(

@@ -376,9 +376,12 @@ Result<> DebuggerRunParameters::fixupParameters(RunControl *runControl)
             const QString bindHost = device ? device->qmlDebugServerBindHost() : QString{};
             if (!bindHost.isEmpty())
                 appQmlServer.setHost(bindHost);
+            const bool isDesktop =
+                device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
             const QString qmlarg = isNativeMixedDebugging()
                                  ? qmlDebugNativeArguments(service, false)
-                                 : qmlDebugTcpArguments(service, appQmlServer);
+                                 : isDesktop ? qmlDebugDesktopTcpArguments(service, appQmlServer)
+                                             : qmlDebugTcpArguments(service, appQmlServer);
             m_inferior.command.addArg(qmlarg);
         }
     }
@@ -936,6 +939,8 @@ public:
     MemoryAgentSet m_memoryAgents;
     QScopedPointer<LocationMark> m_locationMark;
     QTimer m_locationTimer;
+    // Reported once per stop, not again for every view that re-shows the location.
+    QString m_missingSourceMessage;
 
     QString m_qtNamespace;
 
@@ -1412,6 +1417,16 @@ void DebuggerEngine::showStatusMessage(const QString &msg, int timeout) const
     showMessage(msg, StatusBar, timeout);
 }
 
+void DebuggerEngine::showMissingSourceMessage(const QString &msg) const
+{
+    if (msg == d->m_missingSourceMessage)
+        return;
+    d->m_missingSourceMessage = msg;
+    // Timed, so that the state the stop reported stays the permanent message
+    // and the explanation does not outlive the frame it is about.
+    showStatusMessage(msg, 10000);
+}
+
 void DebuggerEngine::updateLocalsWindow(bool showReturn)
 {
     QTC_ASSERT(d->m_returnWindow, return);
@@ -1622,18 +1637,23 @@ void DebuggerEngine::gotoLocation(const Location &loc)
 {
      d->resetLocation();
 
-    if (loc.canBeDisassembled()
-            && ((hasCapability(OperateByInstructionCapability) && operatesByInstruction())
-                || !loc.hasDebugInfo()) )
-    {
-        if (loc.hasDebugInfo() && !loc.fileName().isEmpty()
-                && settings().showSourceBesideDisassembly()) {
-            if (!d->showSourceLocation(loc, d->m_disassemblerAgent.sourceViewId(loc.fileName())))
-                return;
-        }
-        d->m_disassemblerAgent.setLocation(loc);
-        return;
-    }
+     const bool byInstruction = hasCapability(OperateByInstructionCapability)
+                                && operatesByInstruction();
+
+     if (loc.canBeDisassembled() && (byInstruction || !loc.hasDebugInfo())) {
+         if (!byInstruction) {
+             showMissingSourceMessage(
+                 msgMissingSource(loc.fileName(), loc.functionName()) + ' '
+                 + Tr::tr("Showing disassembly."));
+         }
+         if (loc.hasDebugInfo() && !loc.fileName().isEmpty()
+             && settings().showSourceBesideDisassembly()) {
+             if (!d->showSourceLocation(loc, d->m_disassemblerAgent.sourceViewId(loc.fileName())))
+                 return;
+         }
+         d->m_disassemblerAgent.setLocation(loc);
+         return;
+     }
 
     if (loc.fileName().isEmpty()) {
         showMessage("CANNOT GO TO THIS LOCATION");
@@ -2419,6 +2439,9 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
         if (d->m_perspective)
             d->m_perspective->select();
     }
+
+    if (state == InferiorRunRequested)
+        d->m_missingSourceMessage.clear();
 
     showMessage(msg, LogDebug);
 

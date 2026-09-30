@@ -13,6 +13,7 @@
 #include "pythonwizardpage.h"
 
 #ifdef WITH_TESTS
+#include "tests/interpreterdetection_test.h"
 #include "tests/pylspprune_test.h"
 #include "tests/pyprojecttoml_test.h"
 #include "tests/pythonsettings_test.h"
@@ -81,6 +82,7 @@ class PythonPlugin final : public ExtensionSystem::IPlugin
     void initialize() final
     {
 #ifdef WITH_TESTS
+        addTestCreator(createInterpreterDetectionTest);
         addTestCreator(createPylspPruneTest);
         addTestCreator(createPyProjectTomlTest);
         addTestCreator(createPythonSettingsTest);

@@ -52,6 +52,7 @@ instructions:
                 --keychain-unlock-script /Users/qt/unlock-keychain.sh
                 {{.Env.QTC_TEST_OPTION}}
                 --no-zip
+                --no-dmg
                 {{.Env.QTC_SBOM_OPTION}}
                 {{.Env.QTC_SCCACHE_C_OPTION}}
                 {{.Env.QTC_SCCACHE_CXX_OPTION}}

@@ -95,7 +95,7 @@ PopupInfoBarDisplay::PopupInfoBarDisplay()
 {
     m_layout = new QVBoxLayout;
     m_layout->setContentsMargins({});
-    m_layout->setSpacing(QtcSeparatedItemsWidget::separatorLineWidth());
+    m_layout->setSpacing(0); // Intentionally not separatorLineWidth()
     setLayout(m_layout);
 }
 

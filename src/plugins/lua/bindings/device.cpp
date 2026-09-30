@@ -12,12 +12,10 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 
-#include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/id.h>
 #include <utils/qtcprocess.h>
 #include <utils/result.h>
-#include <utils/shutdownguard.h>
 
 #include <QTcpSocket>
 #include <QTimer>
@@ -123,43 +121,22 @@ void setupDeviceModule()
                 return;
             }
 
-            auto reportKits = [device, callback, thisState]() {
-                const bool hasKits = Utils::anyOf(KitManager::kits(), [&](Kit *k) {
-                    return BuildDeviceKitAspect::deviceId(k) == device->id();
-                });
-                if (!hasKits) {
-                    KitManager::createKitsForBuildDevice(device);
-                } else {
-                    for (Kit *k : KitManager::kits()) {
-                        if (BuildDeviceKitAspect::deviceId(k) == device->id())
-                            KitManager::completeKit(k);
-                    }
-                }
-
-                sol::state_view lua(thisState);
-                sol::table kits = lua.create_table();
-                for (Kit *k : KitManager::kits()) {
-                    if (BuildDeviceKitAspect::deviceId(k) == device->id()
-                        || RunDeviceKitAspect::deviceId(k) == device->id()) {
-                        sol::table t = lua.create_table();
-                        t["id"] = k->id().toString();
-                        t["name"] = k->displayName();
-                        t["valid"] = k->isValid();
-                        kits.add(t);
-                    }
-                }
-                callback(kits);
-            };
-
-            auto onConnected = [device, reportKits, callback](const Result<> &res) {
+            device->detectToolsAndKits([callback, thisState](const Result<QList<Kit *>> &res) {
                 if (!res) {
                     callback(res.error());
                     return;
                 }
-                device->runAutoDetect({}, reportKits);
-            };
-
-            device->tryToConnect({Utils::shutdownGuard(), onConnected});
+                sol::state_view lua(thisState);
+                sol::table kits = lua.create_table();
+                for (Kit *k : *res) {
+                    sol::table t = lua.create_table();
+                    t["id"] = k->id().toString();
+                    t["name"] = k->displayName();
+                    t["valid"] = k->isValid();
+                    kits.add(t);
+                }
+                callback(kits);
+            });
         };
         result["detectTools"] = wrap(result["detectTools_cb"]);
 

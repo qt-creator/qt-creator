@@ -125,7 +125,9 @@ CMakeToolSettingsAccessor::CMakeTools CMakeToolSettingsAccessor::restoreCMakeToo
     if (QTC_GUARD(desktopDevice)) {
         const FilePath root = desktopDevice->rootPath();
         autoDetectedTools = CMakeToolManager::autoDetectCMakeTools(
-            desktopDevice->systemEnvironment().mappedPath(root), root);
+            desktopDevice->systemEnvironment().mappedPath(root),
+            root,
+            desktopDevice->id().toString());
     }
 
     //filter out the tools that were stored in SDK

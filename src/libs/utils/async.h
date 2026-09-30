@@ -14,16 +14,98 @@
 #include <QtConcurrentRun>
 #include <QThread>
 
+#include <functional>
+
+#if defined(__EMSCRIPTEN__) && !QT_CONFIG(thread)
+#include <QCoreApplication>
+#include <QPromise>
+#include <QTimer>
+
+#include <memory>
+#include <type_traits>
+#endif
+
 namespace Utils {
 
 QTCREATOR_UTILS_EXPORT QThreadPool *asyncThreadPool(QThread::Priority priority);
+
+#if defined(__EMSCRIPTEN__) && !QT_CONFIG(thread)
+
+QTCREATOR_UTILS_EXPORT void asyncYield();
+
+namespace Internal {
+
+template <typename T> struct AsyncResult;
+template <typename T> struct AsyncResult<QFuture<T>> { using Type = T; };
+
+// A callable that reports through a QPromise takes it as its first parameter. For a
+// member function the object to call it on comes first instead, so there the promise
+// goes after the object rather than ahead of it.
+template <typename ResultType, typename Function, typename Object, typename ...Args>
+    requires std::is_member_pointer_v<std::decay_t<Function>>
+void invokeWithPromise(QPromise<ResultType> &promise, Function &&function, Object &&object,
+                       Args &&...args)
+{
+    std::invoke(std::forward<Function>(function), std::forward<Object>(object), promise,
+                std::forward<Args>(args)...);
+}
+
+template <typename ResultType, typename Function, typename ...Args>
+    requires (!std::is_member_pointer_v<std::decay_t<Function>>)
+void invokeWithPromise(QPromise<ResultType> &promise, Function &&function, Args &&...args)
+{
+    std::invoke(std::forward<Function>(function), promise, std::forward<Args>(args)...);
+}
+
+} // namespace Internal
+
+#else
+
+inline void asyncYield() {}
+
+#endif // defined(__EMSCRIPTEN__) && !QT_CONFIG(thread)
 
 template <typename Function, typename ...Args>
 auto asyncRun(QThreadPool *threadPool, QThread::Priority priority,
               Function &&function, Args &&...args)
 {
+#if defined(__EMSCRIPTEN__) && !QT_CONFIG(thread)
+    Q_UNUSED(threadPool)
+    Q_UNUSED(priority)
+    // Without thread support QThread::start() starts nothing, so a QRunnable given to a
+    // thread pool never runs and the future it reports to never finishes. Run the
+    // callable on this thread instead, from the event loop so that asyncRun() still
+    // returns before it starts. What the result type is stays QtConcurrent's answer,
+    // which covers the callables taking a QPromise as well.
+    // Nothing may wait for the future returned here: with no other thread to run the
+    // callable, it cannot finish while the waiter blocks.
+    using ResultType = typename Internal::AsyncResult<
+        decltype(QtConcurrent::run(std::declval<QThreadPool *>(), std::declval<Function>(),
+                                   std::declval<Args>()...))>::Type;
+
+    auto promise = std::make_shared<QPromise<ResultType>>();
+    promise->start();
+    QFuture<ResultType> future = promise->future();
+
+    QTimer::singleShot(0, qApp, [promise, function = std::forward<Function>(function),
+                                 ...args = std::forward<Args>(args)]() mutable {
+        if (!promise->isCanceled()) {
+            if constexpr (std::is_invocable_v<Function, Args...>) {
+                if constexpr (std::is_void_v<ResultType>)
+                    std::invoke(function, args...);
+                else
+                    promise->addResult(std::invoke(function, args...));
+            } else {
+                Internal::invokeWithPromise(*promise, function, args...);
+            }
+        }
+        promise->finish();
+    });
+    return future;
+#else
     QThreadPool *pool = threadPool ? threadPool : asyncThreadPool(priority);
     return QtConcurrent::run(pool, std::forward<Function>(function), std::forward<Args>(args)...);
+#endif
 }
 
 template <typename Function, typename ...Args>

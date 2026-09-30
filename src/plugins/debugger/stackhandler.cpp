@@ -337,6 +337,14 @@ void StackHandler::setFramesAndCurrentIndex(const GdbMi &frames, bool isFull)
     if (targetFrame == -1)
         targetFrame = 0;
 
+    const StackFrame &topFrame = stackFrames.at(0);
+    if (targetFrame > 0 && !topFrame.isUsable() && !topFrame.machinery
+            && !topFrame.machineryPlaceholder) {
+        m_engine->showMissingSourceMessage(
+            msgMissingSource(topFrame.file, topFrame.function) + ' '
+            + Tr::tr("Showing the nearest caller with sources instead."));
+    }
+
     setCurrentIndex(targetFrame);
 }
 

@@ -14,13 +14,4 @@ QtcLibrary {
         "acpv2.cpp",
         "acpv2.h",
     ]
-
-    Properties {
-        condition: qbs.toolchain.contains("msvc")
-        cpp.cxxFlags: "/bigobj"
-    }
-    Properties {
-        condition: qbs.toolchain.contains("mingw")
-        cpp.cxxFlags: "-Wa,-mbig-obj"
-    }
 }

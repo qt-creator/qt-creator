@@ -3472,6 +3472,7 @@ CdbImplStartData cdbImplStartData(const DebuggerRunParameters &rp)
         .qtVersion = rp.qtVersion(),
         .qtNamespace = rp.configuredQtNamespace(),
         .useCtrlCStub = true,
+        .watchdogTimeout = std::chrono::seconds(s.gdbWatchdogTimeout()),
         .moduleForSourceFile = &moduleForSourceFile,
     };
 }

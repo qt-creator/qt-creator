@@ -20,7 +20,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
-#include <utils/mimeutils.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -250,6 +249,27 @@ void AcpChatController::sendPrompt(const QString &text,
         const Core::IDocument *document = currentEditor->document();
         const QString mimeTypeName = document->mimeType();
         const FilePath filePath = document->filePath();
+        QString stateString;
+        if (auto *currentTextEditor = qobject_cast<BaseTextEditor *>(currentEditor)) {
+            TextEditorWidget *widget = currentTextEditor->editorWidget();
+            stateString = "This is the state of the current Text Editor in Qt Creator\n";
+            QTextCursor tc = currentTextEditor->textCursor();
+            const QString cursorString
+                = "Cursor %1: %2, Line(0-based): %3, Column(0-based): %4\n";
+            stateString += cursorString.arg("Position")
+                               .arg(tc.position())
+                               .arg(tc.blockNumber())
+                               .arg(tc.positionInBlock());
+            tc.setPosition(tc.anchor());
+            stateString += cursorString.arg("Anchor")
+                               .arg(tc.position())
+                               .arg(tc.blockNumber())
+                               .arg(tc.positionInBlock());
+            stateString += "First Visible Line: "
+                           + QString::number(widget->firstVisibleBlockNumber()) + "\n";
+            stateString += "Last Visible Line: "
+                           + QString::number(widget->lastVisibleBlockNumber()) + "\n";
+        }
         if (!filePath.isEmpty()) {
             const QString uri = filePath.toUrl().toString();
             content << V2::ResourceLink()
@@ -258,51 +278,18 @@ void AcpChatController::sendPrompt(const QString &text,
                            .mimeType(mimeTypeName)
                            .uri(uri);
 
-            if (embeddedContext) {
-                if (auto *currentTextEditor = qobject_cast<BaseTextEditor *>(currentEditor)) {
-                    TextEditorWidget *widget = currentTextEditor->editorWidget();
-                    QString stateString
-                        = "This is the state of the current Text Editor in Qt Creator\n";
-                    QTextCursor tc = currentTextEditor->textCursor();
-                    const QString cursorString
-                        = "Cursor %1: %2, Line(0-based): %3, Column(0-based): %4\n";
-                    stateString += cursorString.arg("Position")
-                                       .arg(tc.position())
-                                       .arg(tc.blockNumber())
-                                       .arg(tc.positionInBlock());
-                    tc.setPosition(tc.anchor());
-                    stateString += cursorString.arg("Anchor")
-                                       .arg(tc.position())
-                                       .arg(tc.blockNumber())
-                                       .arg(tc.positionInBlock());
-                    stateString += "First Visible Line: "
-                                   + QString::number(widget->firstVisibleBlockNumber()) + "\n";
-                    stateString += "Last Visible Line: "
-                                   + QString::number(widget->lastVisibleBlockNumber()) + "\n";
-                    content << V2::EmbeddedResource().resource(
-                        V2::TextResourceContents().text(stateString).uri(uri));
-                }
+            if (embeddedContext && !stateString.isEmpty()) {
+                content << V2::EmbeddedResource().resource(
+                    V2::TextResourceContents().text(stateString).uri(uri));
             }
-        } else if (embeddedContext) {
-            auto embeddedResourceResource = [&]() -> V2::EmbeddedResourceResource {
-                const MimeType mimeType = Utils::mimeTypeForName(mimeTypeName);
-                const QString uri = QStringLiteral("qt_creator://current_editor/%1")
-                        .arg(document->displayName());
-                if (mimeType.inherits("text/plain")) {
-                    V2::TextResourceContents contents;
-                    contents.uri(uri);
-                    contents.text(TextEncoding::encodingForLocale().decode(document->contents()));
-                    contents.mimeType(mimeTypeName);
-                    return contents;
-                }
-                V2::BlobResourceContents contents;
-                contents.uri(uri);
-                contents.blob(QString::fromLatin1(document->contents().toBase64()));
-                contents.mimeType(mimeTypeName);
-                return contents;
-            };
-
-            content << V2::EmbeddedResource().resource(embeddedResourceResource());
+        } else {
+            QString text = QString("The current editor in Qt Creator, \"%1\" (%2), is temporary "
+                                   "and has no file path, so its content is not attached. If "
+                                   "the Qt Creator MCP server is available, its editor_get_text "
+                                   "tool returns the content of the current editor.\n")
+                               .arg(document->displayName(), mimeTypeName);
+            text += stateString;
+            content << V2::TextContent().text(text);
         }
     }
 
@@ -312,16 +299,6 @@ void AcpChatController::sendPrompt(const QString &text,
                        .name(file.fileName())
                        .description("Manually added context file.")
                        .uri(uri);
-
-        if (embeddedContext) {
-            const auto fileContents = file.fileContents();
-            if (fileContents) {
-                content << V2::EmbeddedResource().resource(
-                    V2::TextResourceContents()
-                        .text(QString::fromUtf8(*fileContents))
-                        .uri(uri));
-            }
-        }
     }
 
     for (const TextContext &ctx : textContexts) {

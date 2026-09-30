@@ -15,7 +15,6 @@
 #include <QPainter>
 #include <QPen>
 #include <QScopeGuard>
-#include <QWheelEvent>
 
 namespace Timeline {
 
@@ -195,11 +194,6 @@ void TrackPainterRaster::mousePressEvent(QMouseEvent *event)
 void TrackPainterRaster::mouseReleaseEvent(QMouseEvent *event)
 {
     handleMouseRelease(event->button(), event->pos());
-}
-
-void TrackPainterRaster::wheelEvent(QWheelEvent *event)
-{
-    handleWheel(event);
 }
 
 void TrackPainterRaster::leaveEvent(QEvent *)

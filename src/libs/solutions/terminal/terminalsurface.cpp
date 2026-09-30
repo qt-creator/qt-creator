@@ -11,6 +11,8 @@
 #include <vterm.h>
 
 #include <algorithm>
+#include <chrono>
+#include <utility>
 
 #include <QHash>
 #include <QLoggingCategory>
@@ -19,6 +21,9 @@
 #include <QtMath>
 
 namespace TerminalSolution {
+
+using namespace std::chrono;
+using namespace std::chrono_literals;
 
 static Q_LOGGING_CATEGORY(log, "qtc.terminal.surface", QtWarningMsg);
 
@@ -38,6 +43,15 @@ constexpr qint64 maxImageBytes = 64 * 1024 * 1024;
 // The cell size in device pixels a surface without a view in front of it lays
 // images out for
 constexpr QSizeF defaultCellSize{8, 16};
+
+// How long a synchronized update (DEC mode 2026) may hold a frame back before
+// it is shown anyway. The mode has no timeout in its specification, which
+// leaves an application that sets it and then dies or blocks able to freeze
+// what the reader sees. Measured against the worst case it is meant to cover
+// here - a full-screen program repainting a 1100 line transcript, which takes
+// ~40ms of parsing - this is more than an order of magnitude of headroom,
+// while a stall of it is short enough to read as a hitch rather than a hang.
+constexpr milliseconds synchronizedUpdateTimeout = 500ms;
 
 struct TerminalSurfacePrivate
 {
@@ -105,6 +119,23 @@ struct TerminalSurfacePrivate
         QObject::connect(&m_delayWriteTimer, &QTimer::timeout, &m_delayWriteTimer, [this] {
             flush();
         });
+
+        m_synchronizedUpdateTimeout.setInterval(synchronizedUpdateTimeout);
+        m_synchronizedUpdateTimeout.setSingleShot(true);
+
+        QObject::connect(&m_synchronizedUpdateTimeout,
+                         &QTimer::timeout,
+                         &m_synchronizedUpdateTimeout,
+                         [this] {
+                             // Reset through the mode rather than by ending
+                             // the hold directly: an application that asks
+                             // whether the terminal is still honouring the
+                             // mode has to be told that it is not.
+                             VTermValue val{.boolean = false};
+                             vterm_state_set_termprop(vterm_obtain_state(m_vterm.get()),
+                                                      VTERM_PROP_SYNCHRONIZEDOUTPUT,
+                                                      &val);
+                         });
 
         vterm_set_utf8(m_vterm.get(), true);
 
@@ -325,6 +356,23 @@ struct TerminalSurfacePrivate
         return result;
     }
 
+    // Every invalidation the surface reports goes through here, which is what
+    // makes holding one possible. Damage still arrives during a synchronized
+    // update - libvterm flushes what it has merged when a scroll reaches it
+    // that it cannot merge into it, and an image that evicts the ones before
+    // it invalidates what showed them - and reporting it would be asking for
+    // half of a frame to be painted. It is collected and reported with the
+    // rest of the frame instead.
+    void emitInvalidated(const QRect &damage)
+    {
+        if (m_synchronizedUpdate) {
+            m_synchronizedUpdateDamage = m_synchronizedUpdateDamage.united(damage);
+            return;
+        }
+
+        emit q->invalidated(damage);
+    }
+
     // Callbacks from vterm
     void invalidate(VTermRect rect)
     {
@@ -335,7 +383,7 @@ struct TerminalSurfacePrivate
             rect.end_row += m_scrollback->size();
         }
 
-        emit q->invalidated(
+        emitInvalidated(
             QRect{QPoint{rect.start_col, rect.start_row}, QPoint{rect.end_col, rect.end_row - 1}});
     }
 
@@ -640,7 +688,7 @@ struct TerminalSurfacePrivate
 
         vterm_screen_flush_damage(m_vtermScreen);
         emit q->fullSizeChanged(q->fullSize());
-        emit q->invalidated(QRect{{0, 0}, q->fullSize()});
+        emitInvalidated(QRect{{0, 0}, q->fullSize()});
     }
 
     int uriIdAt(QPoint gridPos)
@@ -844,7 +892,7 @@ struct TerminalSurfacePrivate
         m_imageOrder.clear();
         m_imageBytes = 0;
 
-        emit q->invalidated(QRect{{0, 0}, q->fullSize()});
+        emitInvalidated(QRect{{0, 0}, q->fullSize()});
     }
 
     int addImage(const QImage &image)
@@ -966,9 +1014,48 @@ struct TerminalSurfacePrivate
             break;
         case VTERM_PROP_FOCUSREPORT:
             break;
+        case VTERM_PROP_SYNCHRONIZEDOUTPUT:
+            if (val->boolean)
+                beginSynchronizedUpdate();
+            else
+                endSynchronizedUpdate();
+            break;
         }
         return 1;
     }
+
+    // An application that composes a frame out of many writes brackets them in
+    // DEC mode 2026, so that what is half-drawn never reaches the screen. It is
+    // held by not emitting the damage: the cells are written as they arrive and
+    // the view is told about them in one go at the end.
+    void beginSynchronizedUpdate()
+    {
+        if (m_synchronizedUpdate)
+            return;
+        m_synchronizedUpdate = true;
+        m_synchronizedUpdateTimeout.start();
+        emit q->synchronizedUpdateChanged(true);
+    }
+
+    void endSynchronizedUpdate()
+    {
+        if (!m_synchronizedUpdate)
+            return;
+        m_synchronizedUpdate = false;
+        m_synchronizedUpdateTimeout.stop();
+
+        // Before the damage: a consumer showing the frame it kept for the
+        // length of the update has to drop it before it is asked to paint.
+        emit q->synchronizedUpdateChanged(false);
+
+        // Most of the frame is still pending in libvterm, because flush() held
+        // it there. Report it here, or an update ended by the timeout would
+        // reach no one until the next write.
+        vterm_screen_flush_damage(m_vtermScreen);
+        if (m_synchronizedUpdateDamage.isValid())
+            emitInvalidated(std::exchange(m_synchronizedUpdateDamage, QRect{}));
+    }
+
     int movecursor(VTermPos pos, VTermPos oldpos, int visible)
     {
         Q_UNUSED(oldpos)
@@ -1018,6 +1105,9 @@ struct TerminalSurfacePrivate
     QString m_currentCommand;
 
     bool m_altscreen{false};
+    bool m_synchronizedUpdate{false};
+    QTimer m_synchronizedUpdateTimeout;
+    QRect m_synchronizedUpdateDamage;
 
     std::unique_ptr<Scrollback> m_scrollback;
 
@@ -1242,7 +1332,18 @@ void TerminalSurface::dataFromPty(const QByteArray &data)
 
 void TerminalSurface::flush()
 {
+    // Holding the damage back is what makes a synchronized update atomic: the
+    // cells keep changing underneath, but nothing is told to repaint until the
+    // application ends the update.
+    if (d->m_synchronizedUpdate)
+        return;
+
     vterm_screen_flush_damage(d->m_vtermScreen);
+}
+
+bool TerminalSurface::isSynchronizedUpdateActive() const
+{
+    return d->m_synchronizedUpdate;
 }
 
 // The marker vterm_keyboard_end_paste writes is what tells the program the

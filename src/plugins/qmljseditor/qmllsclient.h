@@ -58,6 +58,7 @@ public:
 
     void activateDocument(TextEditor::TextDocument *document) override;
     void deactivateDocument(TextEditor::TextDocument *document) override;
+    bool isSupportedDocument(const TextEditor::TextDocument *document) const override;
 
     bool supportsDocumentSymbols(const TextEditor::TextDocument *doc) const override;
     LanguageClient::LanguageClientOutlineItem *createOutlineItem(

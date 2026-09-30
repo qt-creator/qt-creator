@@ -48,7 +48,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"description",
-                             "Keystrokes in Vim notation, e.g. \"ihello<Esc>\" or \"3j\"."}})
+                             "Keystrokes in Vim notation, such as \"ihello<Esc>\" or \"3j\"."}})
                     .addRequired("keys"))
             .outputSchema(
                 Tool::OutputSchema{}

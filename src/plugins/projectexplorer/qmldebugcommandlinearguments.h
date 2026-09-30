@@ -30,6 +30,10 @@ PROJECTEXPLORER_EXPORT QString qmlDebugTcpArguments(QmlDebugServicesPreset servi
                                                     const QUrl &server,
                                                     bool block = true);
 
+PROJECTEXPLORER_EXPORT QString qmlDebugDesktopTcpArguments(QmlDebugServicesPreset services,
+                                                           const QUrl &server,
+                                                           bool block = true);
+
 PROJECTEXPLORER_EXPORT QString qmlDebugNativeArguments(QmlDebugServicesPreset services,
                                                        bool block = true);
 

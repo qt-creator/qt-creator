@@ -62,7 +62,7 @@ void registerMcpTools()
                 "Starts the QML profiler on the current startup project (QML profiler run mode), "
                 "using its active run configuration and kit. Does not build first - use the "
                 "build_project tool beforehand if it may be out of date. Recording starts "
-                "automatically; poll profiler_qml_get_status for progress, and use "
+                "automatically. Poll profiler_qml_get_status for progress, and use "
                 "profiler_qml_stop (or let the application exit) to finalize the trace. Returns "
                 "as soon as the run is requested, unlike run_project, which waits for the run "
                 "to finish.")
@@ -163,7 +163,7 @@ void registerMcpTools()
                 "Starts the CPU (perf) profiler on the current startup project (perf profiler run "
                 "mode), using its active run configuration and kit. Does not build first - use the "
                 "build_project tool beforehand if it may be out of date. Recording starts "
-                "automatically; poll profiler_perf_get_status, and use profiler_perf_stop (or let "
+                "automatically. Poll profiler_perf_get_status, and use profiler_perf_stop (or let "
                 "the application exit) to finalize the trace. Returns as soon as the run is "
                 "requested, unlike run_project with run_mode \"PerfProfiler.RunMode\", which "
                 "waits for the run to finish and gives no access to the trace.")

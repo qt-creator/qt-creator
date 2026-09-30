@@ -91,7 +91,7 @@ QtcPlugin {
     }
 
     QtcTestFiles {
-        files: [ "gotoslot_test.cpp" ]
+        files: [ "formwindowfile_test.cpp", "gotoslot_test.cpp" ]
 
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
     }
