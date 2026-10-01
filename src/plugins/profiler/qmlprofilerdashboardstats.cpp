@@ -13,10 +13,11 @@ QmlProfilerDashboardStats::QmlProfilerDashboardStats(QmlProfilerModelManager *ma
                                                      QObject *parent)
     : QObject(parent)
 {
+    const quint64 features = 1ULL << ProfileAnimations;
     manager->qmlLoaders.append({
-        1ULL << ProfileAnimations,
+        features,
         [this](const QmlEvent &event, const QmlEventType &type) { loadEvent(event, type); }});
-    manager->registerFeatures(1ULL << ProfileAnimations,
+    manager->registerFeatures(features,
                               [this] { reset(); },
                               [this] { emit changed(); },
                               [this] { reset(); emit changed(); });
