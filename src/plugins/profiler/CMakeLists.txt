@@ -8,6 +8,7 @@ endif()
 
 if(WITH_TESTS)
   set(TEST_SOURCES
+    tests/calltreeview_test.cpp tests/calltreeview_test.h
     tests/ctfloader_test.cpp tests/ctfloader_test.h
     tests/ctftimelinemodel_test.cpp tests/ctftimelinemodel_test.h
     tests/debugmessagesmodel_test.cpp tests/debugmessagesmodel_test.h

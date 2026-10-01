@@ -25,6 +25,7 @@
 #include <QLibraryInfo>
 #include <QLineEdit>
 #include <QMenuBar>
+#include <QPaintEngine>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmap>
@@ -701,6 +702,34 @@ static void drawPrimitiveTweakedForDarkTheme(QStyle::PrimitiveElement element,
 void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option,
                                    QPainter *painter, const QWidget *widget) const
 {
+    if (element == PE_PanelItemViewRow) {
+        if constexpr (HostOsInfo::isMacHost()) {
+            if (baseStyle()->inherits("QMacStyle")) {
+                // QMacStyle creates a native graphics context before its QCommonStyle fallback.
+                QCommonStyle::drawPrimitive(element, option, painter, widget);
+                return;
+            }
+        }
+        QProxyStyle::drawPrimitive(element, option, painter, widget);
+        return;
+    }
+
+    if (element == PE_IndicatorBranch) {
+        if constexpr (HostOsInfo::isMacHost()) {
+            // QMacStyle creates a native graphics context before checking this no-op case.
+            if (!(option->state & State_Children) && baseStyle()->inherits("QMacStyle"))
+                return;
+        }
+        const QRegion clip = painter->paintEngine()->systemClip();
+        if (!clip.isEmpty()
+            && !clip.intersects(
+                painter->deviceTransform().mapRect(QRectF(option->rect)).toAlignedRect())) {
+            return;
+        }
+        QProxyStyle::drawPrimitive(element, option, painter, widget);
+        return;
+    }
+
     if (panelWidget(widget)) {
         drawPrimitiveForPanelWidget(element, option, painter, widget);
     } else if (

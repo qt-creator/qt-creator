@@ -20,6 +20,7 @@
 #include "tests/perfnativemixed_test.h"
 #include "tests/perfresourcecounter_test.h"
 
+#include "tests/calltreeview_test.h"
 #include "tests/ctfloader_test.h"
 #include "tests/ctftimelinemodel_test.h"
 #include "tests/debugmessagesmodel_test.h"
@@ -79,6 +80,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<DebugMessagesModelTest>();
         addTest<FlameGraphModelTest>();
         addTest<FlameGraphViewTest>();
+        addTest<CallTreeViewTest>();
         addTest<InputEventsModelTest>();
         addTest<LocalQmlProfilerRunnerTest>();
         addTest<MemoryUsageModelTest>();
