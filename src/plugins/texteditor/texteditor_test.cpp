@@ -1574,6 +1574,46 @@ void RewrapParagraphTest::testRewrapParagraph_data()
            "from the\n  *        parameter d, but does not return the result\n  *\n"
            "  * @param d is the parameter that is used in calculation.\n  */\n";
 
+    // A command still on one line takes the indent from the command above it,
+    // so reflowing it follows the alignment the block already uses.
+    QTest::newRow("hangingIndentReusedWithinBlock")
+        << "/**\n  * @brief alpha beta\n  *        gamma delta\n  *\n"
+           "  * @param d is the parameter that is used in calculation and here "
+           "is more text to force a wrap\n  */\n" << 4
+        << "/**\n  * @brief alpha beta\n  *        gamma delta\n  *\n"
+           "  * @param d is the parameter that is used in calculation and here "
+           "is more text\n  *        to force a wrap\n  */\n";
+
+    // An indent from a different comment block is none of this block's
+    // business, so it is not carried across.
+    QTest::newRow("hangingIndentNotReusedAcrossBlocks")
+        << "/**\n  * @brief alpha beta\n  *        gamma delta\n  */\nint x;\n"
+           "/**\n  * @param d is the parameter that is used in calculation and "
+           "here is more text to force a wrap\n  */\n" << 6
+        << "/**\n  * @brief alpha beta\n  *        gamma delta\n  */\nint x;\n"
+           "/**\n  * @param d is the parameter that is used in calculation and "
+           "here is more text\n  * to force a wrap\n  */\n";
+
+    // A paragraph whose continuation lines are flush with the leader is laid
+    // out that way deliberately, and keeps that layout even where the command
+    // above it is aligned.
+    QTest::newRow("hangingIndentNotReusedForFlushParagraph")
+        << "/**\n  * @brief alpha beta\n  *        gamma delta\n  *\n"
+           "  * @param d is the parameter that is used in calculation and here "
+           "is more text to force a wrap\n  * bar baz\n  */\n" << 4
+        << "/**\n  * @brief alpha beta\n  *        gamma delta\n  *\n"
+           "  * @param d is the parameter that is used in calculation and here "
+           "is more text\n  * to force a wrap bar baz\n  */\n";
+
+    // The same holds for a run of C++ style comment lines.
+    QTest::newRow("lineCommentHangingIndentReused")
+        << "/// @brief alpha beta\n///        gamma delta\n///\n"
+           "/// @param d is the parameter that is used in calculation and here "
+           "is more text to force a wrap\n" << 3
+        << "/// @brief alpha beta\n///        gamma delta\n///\n"
+           "/// @param d is the parameter that is used in calculation and here "
+           "is more text\n///        to force a wrap\n";
+
     // Outside a doxygen command an indented second line has no agreed meaning,
     // so it is left to be reflowed away as before.
     QTest::newRow("hangingIndentOnlyUnderDoxygenCommand")

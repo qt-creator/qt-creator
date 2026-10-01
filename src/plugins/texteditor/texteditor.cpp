@@ -10434,6 +10434,11 @@ static int rewrapParagraphAt(QTextCursor cursor, int paragraphWidth, const TabSe
     // than under the command itself.
     QString hangingIndent;
 
+    // Whether the paragraph extends past its first line with text of its own.
+    // A line carrying no text, such as the bare leader separating paragraphs,
+    // adds nothing and leaves the command alone on its line.
+    bool paragraphContinues = false;
+
     // The whitespace by which a line is indented past the common prefix; empty
     // if it is not indented, or carries nothing but whitespace.
     const auto indentPastPrefix = [&commonPrefix](const QString &line) {
@@ -10469,7 +10474,9 @@ static int rewrapParagraphAt(QTextCursor cursor, int paragraphWidth, const TabSe
          // has an unambiguous meaning; elsewhere an indented second line is
          // just as likely to be incidental. The line has to belong to the
          // paragraph for its indentation to say anything about it.
-         if (startsParagraph(text) && !isParagraphBoundary(nText) && !startsParagraph(nText))
+         paragraphContinues = !isParagraphBoundary(nText) && !startsParagraph(nText)
+                              && carriesText(nText);
+         if (startsParagraph(text) && paragraphContinues)
              hangingIndent = indentPastPrefix(nText);
     }
 
@@ -10479,6 +10486,38 @@ static int rewrapParagraphAt(QTextCursor cursor, int paragraphWidth, const TabSe
     if (commonPrefix.isEmpty() && inLineComment) {
         static const QRegularExpression leaderWithSpace("^\\s*//+[/!]*\\s?");
         commonPrefix = leaderWithSpace.match(cursor.block().text()).captured(0);
+    }
+
+    // A command whose own paragraph is still one line has nothing to take an
+    // indent from, so follow the style the comment block already shows and
+    // reuse the indent of the nearest command above it. A paragraph that does
+    // continue keeps its own layout, flush with the leader included. The
+    // block's lines share the comment leader, but not the whitespace
+    // separating it from the text: the line between two paragraphs carries
+    // the leader alone.
+    if (hangingIndent.isEmpty() && !paragraphContinues && startsParagraph(text)) {
+        QString blockLeader = commonPrefix;
+        while (!blockLeader.isEmpty() && blockLeader.back().isSpace())
+            blockLeader.chop(1);
+
+        // Without a leader there is nothing to delimit the block by, and an
+        // indent from an unrelated paragraph must not leak in.
+        if (!blockLeader.isEmpty()) {
+            QTextCursor scan = cursor;
+            QString below = text;
+            while (scan.movePosition(QTextCursor::PreviousBlock)) {
+                const QString line = scan.block().text();
+                if (!line.startsWith(blockLeader))
+                    break;
+                if (startsParagraph(line)) {
+                    // Two commands in a row say nothing about indentation.
+                    if (!startsParagraph(below))
+                        hangingIndent = indentPastPrefix(below);
+                    break;
+                }
+                below = line;
+            }
+        }
     }
 
     // Find end of paragraph.
