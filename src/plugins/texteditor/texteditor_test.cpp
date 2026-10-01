@@ -1302,6 +1302,35 @@ void RewrapParagraphTest::testRewrapParagraph_data()
     QTest::newRow("doxygenBlockMixedLeaderSpacing")
         << "  * alpha beta\n  *gamma delta\n" << 0
         << "  * alpha beta gamma delta\n";
+
+    // Continuation lines aligned under the text of a doxygen command keep that
+    // alignment; without this the indent is collapsed into a single space and
+    // the paragraph comes back flush with the leader.
+    QTest::newRow("doxygenBlockKeepsHangingIndent")
+        << "/**\n  * @brief function is a function that calculates some result\n"
+           "  *        from the parameter d, but does not return the result\n  *\n"
+           "  * @param d is the parameter that is used in calculation.\n  */\n" << 1
+        << "/**\n  * @brief function is a function that calculates some result "
+           "from the\n  *        parameter d, but does not return the result\n  *\n"
+           "  * @param d is the parameter that is used in calculation.\n  */\n";
+
+    // Trailing whitespace on the continuation line does not belong to the
+    // indent, and must not be mistaken for part of it.
+    QTest::newRow("doxygenBlockHangingIndentTrailingSpace")
+        << "/**\n  * @brief function is a function that calculates some result\n"
+           "  *        from the parameter d, but does not return the result   \n  *\n"
+           "  * @param d is the parameter that is used in calculation.\n  */\n" << 1
+        << "/**\n  * @brief function is a function that calculates some result "
+           "from the\n  *        parameter d, but does not return the result\n  *\n"
+           "  * @param d is the parameter that is used in calculation.\n  */\n";
+
+    // Outside a doxygen command an indented second line has no agreed meaning,
+    // so it is left to be reflowed away as before.
+    QTest::newRow("hangingIndentOnlyUnderDoxygenCommand")
+        << "  * aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa "
+           "aaaaaaaaa\n  *     bbbbbbbbb\n" << 0
+        << "  * aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa "
+           "aaaaaaaaa\n  * bbbbbbbbb\n";
 }
 
 void RewrapParagraphTest::testRewrapParagraph()

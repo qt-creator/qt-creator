@@ -10089,6 +10089,22 @@ static int rewrapParagraphAt(QTextCursor cursor, int paragraphWidth, const TabSe
     QTextCursor nextBlock = cursor;
     QString commonPrefix;
 
+    // Whitespace by which the paragraph's second line is indented past the
+    // common prefix, aligning it under the text of a doxygen command rather
+    // than under the command itself.
+    QString hangingIndent;
+
+    // The whitespace by which a line is indented past the common prefix; empty
+    // if it is not indented, or carries nothing but whitespace.
+    const auto indentPastPrefix = [&commonPrefix](const QString &line) {
+        qsizetype end = commonPrefix.size();
+        while (end < line.size() && line.at(end).isSpace())
+            ++end;
+        if (end == commonPrefix.size() || end == line.size())
+            return QString();
+        return line.mid(commonPrefix.size(), end - commonPrefix.size());
+    };
+
     if (nextBlock.movePosition(QTextCursor::NextBlock))
     {
          QString nText = nextBlock.block().text();
@@ -10108,6 +10124,13 @@ static int rewrapParagraphAt(QTextCursor cursor, int paragraphWidth, const TabSe
              }
              commonPrefix.append(ch);
          }
+
+         // Such an indent is only recognized under a doxygen command, where it
+         // has an unambiguous meaning; elsewhere an indented second line is
+         // just as likely to be incidental. The line has to belong to the
+         // paragraph for its indentation to say anything about it.
+         if (startsParagraph(text) && !isParagraphBoundary(nText) && !startsParagraph(nText))
+             hangingIndent = indentPastPrefix(nText);
     }
 
     // A lone "//" comment line has no following comment line to derive the
@@ -10148,6 +10171,17 @@ static int rewrapParagraphAt(QTextCursor cursor, int paragraphWidth, const TabSe
         indentLevel = ts.columnCountForText(spacing);
     }
 
+    // Continuation lines carry the hanging indent; the first one must not, as
+    // it is the line the command itself is on.
+    QString continuationSpacing = spacing;
+    int continuationIndentLevel = indentLevel;
+    if (!hangingIndent.isEmpty()) {
+        // Measured against the common prefix, so rebuild from that rather than
+        // from the possibly separator-extended spacing.
+        continuationSpacing = commonPrefix + hangingIndent;
+        continuationIndentLevel = ts.columnCountForText(continuationSpacing);
+    }
+
     int currentLength = indentLevel;
     QString result;
     result.append(spacing);
@@ -10168,10 +10202,10 @@ static int rewrapParagraphAt(QTextCursor cursor, int paragraphWidth, const TabSe
                 currentLength += currentWord.size() + 1;
 
                 if (currentLength > paragraphWidth) {
-                    currentLength = currentWord.size() + 1 + indentLevel;
+                    currentLength = currentWord.size() + 1 + continuationIndentLevel;
                     result.chop(1); // remove trailing space
                     result.append(QChar::ParagraphSeparator);
-                    result.append(spacing);
+                    result.append(continuationSpacing);
                 }
 
                 result.append(currentWord);
