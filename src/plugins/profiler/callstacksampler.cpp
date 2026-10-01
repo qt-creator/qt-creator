@@ -62,8 +62,10 @@ CallStackSamplerSettings::CallStackSamplerSettings()
         auto picked = new QtcLabel(m_pickedName.isEmpty() ? Tr::tr("No process selected")
                                                           : m_pickedName,
                                    QtcLabel::Secondary);
-        const auto updatePick = [this, pick] {
-            pick->setEnabled(!targetChosenElsewhere() && attach());
+        const auto updatePick = [this, pick, picked] {
+            const bool enabled = !targetChosenElsewhere() && attach();
+            pick->setEnabled(enabled);
+            picked->setEnabled(enabled);
         };
         updatePick();
         connect(&attach, &BoolAspect::changed, pick, updatePick);
