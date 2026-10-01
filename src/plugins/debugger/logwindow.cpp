@@ -67,7 +67,7 @@ QChar static charForChannel(int channel)
     }
 }
 
-static bool writeLogContents(const QPlainTextEdit *editor)
+static bool writeLogContents(const QString &contents)
 {
     bool success = false;
     while (!success) {
@@ -75,7 +75,7 @@ static bool writeLogContents(const QPlainTextEdit *editor)
         if (filePath.isEmpty())
             break;
         FileSaver saver(filePath, QIODevice::Text);
-        saver.write(editor->toPlainText().toUtf8());
+        saver.write(contents.toUtf8());
         if (saver.finalize())
             success = true;
     }
@@ -203,10 +203,7 @@ public:
         const int bc = blockCount();
         if (bc > N) {
             QTextDocument *doc = document();
-            QTextBlock block = doc->findBlockByLineNumber(bc * 9 / 10);
-            QTextCursor tc(block);
-            tc.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
-            tc.removeSelectedText();
+            dropAfterHead(bc * 9 / 10, 0);
             // Seems to be the only way to force shrinking of the
             // allocated data.
             QString contents = doc->toHtml();
@@ -214,6 +211,65 @@ public:
             doc->setHtml(contents);
         }
         appendPlainText(text);
+    }
+
+    // Laying out text nobody sees is expensive with chatty engines, so keep
+    // it until the pane is shown.
+    void appendOutput(const QString &text)
+    {
+        if (!isVisible()) {
+            QStringView rest = text;
+            if (m_pendingOutput.isEmpty() && headBlocks() == 0) {
+                // The head is small, it goes to the document right away.
+                const int needed = HeadSize + 1 - document()->characterCount();
+                const int pos = text.indexOf('\n', std::max(needed, 0));
+                if (pos == -1) {
+                    append(text);
+                    return;
+                }
+                append(text.left(pos));
+                rest = rest.mid(pos + 1);
+            }
+            m_pendingOutput.append(rest);
+            const int MaxPending = 4 * 1024 * 1024;
+            if (m_pendingOutput.size() > MaxPending) {
+                const int from = m_pendingOutput.size() - MaxPending / 2;
+                const int pos = m_pendingOutput.indexOf('\n', from);
+                const int cut = pos == -1 ? m_pendingOutput.size() : pos + 1;
+                const int droppedLines = QStringView(m_pendingOutput).left(cut).count('\n');
+                m_pendingOutput.remove(0, cut);
+                // The document after the head is older than what was just dropped.
+                dropAfterHead(blockCount(), droppedLines);
+            }
+            return;
+        }
+
+        QTextCursor cursor = textCursor();
+        const bool atEnd = cursor.atEnd();
+
+        append(text);
+
+        if (atEnd) {
+            cursor.movePosition(QTextCursor::End);
+            setTextCursor(cursor);
+            ensureCursorVisible();
+        }
+    }
+
+    QString contents() const
+    {
+        if (m_pendingOutput.isEmpty())
+            return toPlainText();
+        if (document()->isEmpty())
+            return m_pendingOutput;
+        return toPlainText() + '\n' + m_pendingOutput;
+    }
+
+    void clearContents()
+    {
+        m_pendingOutput.clear();
+        m_droppedLines = 0;
+        clear();
     }
 
     void clearUndoRedoStacks()
@@ -226,11 +282,63 @@ public:
 
     QAction *clearContentsAction() const { return m_clearContentsAction; }
 
-private:
-    void saveContents() { writeLogContents(this); }
+    // The marker of dropped lines starts with it, for the pane's highlighter.
+    void setMarkerPrefix(const QString &prefix) { m_markerPrefix = prefix; }
 
+protected:
+    void showEvent(QShowEvent *ev) override
+    {
+        QPlainTextEdit::showEvent(ev);
+        if (!m_pendingOutput.isEmpty())
+            appendOutput(std::exchange(m_pendingOutput, {}));
+    }
+
+private:
+    static constexpr int HeadSize = 64 * 1024;
+
+    // The start of a log shows how the session was set up, trimming keeps it.
+    int headBlocks() const
+    {
+        if (document()->characterCount() <= HeadSize)
+            return 0;
+        return document()->findBlock(HeadSize).blockNumber() + 1;
+    }
+
+    // Replaces the blocks from the end of the head up to toBlock with one
+    // line telling how many were dropped so far.
+    void dropAfterHead(int toBlock, int moreDroppedLines)
+    {
+        QTextDocument *doc = document();
+        const int fromBlock = headBlocks();
+        // The pane is editable, so the document may have lost its head.
+        if (fromBlock == 0 || fromBlock > toBlock)
+            return;
+
+        const auto markerLine = [this] {
+            return m_markerPrefix + Tr::tr("[... %n lines dropped ...]", nullptr, m_droppedLines);
+        };
+        const bool hasMarker = m_droppedLines > 0
+            && doc->findBlockByNumber(fromBlock).text() == markerLine();
+        if (!hasMarker)
+            m_droppedLines = 0;
+        m_droppedLines += toBlock - fromBlock - (hasMarker ? 1 : 0) + moreDroppedLines;
+
+        QTextCursor tc(doc->findBlockByNumber(fromBlock - 1));
+        tc.movePosition(QTextCursor::EndOfBlock);
+        if (toBlock < doc->blockCount())
+            tc.setPosition(doc->findBlockByNumber(toBlock).position() - 1, QTextCursor::KeepAnchor);
+        else
+            tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        tc.insertText('\n' + markerLine());
+    }
+
+    void saveContents() { writeLogContents(contents()); }
+
+    QString m_markerPrefix;
     QAction *m_clearContentsAction;
     QAction *m_saveContentsAction;
+    QString m_pendingOutput;
+    int m_droppedLines = 0;
 };
 
 
@@ -317,6 +425,7 @@ public:
     CombinedPane(LogWindow *logWindow)
     {
         (void) new OutputHighlighter(this);
+        setMarkerPrefix(QString(charForChannel(LogWarning)));
         connect(clearContentsAction(), &QAction::triggered,
                 logWindow, &LogWindow::clearContents);
     }
@@ -529,17 +638,7 @@ void LogWindow::doOutput()
     if (theGlobalLog)
         theGlobalLog->doOutput(m_queuedOutput);
 
-    QTextCursor cursor = m_combinedText->textCursor();
-    const bool atEnd = cursor.atEnd();
-
-    m_combinedText->append(m_queuedOutput);
-    m_queuedOutput.clear();
-
-    if (atEnd) {
-        cursor.movePosition(QTextCursor::End);
-        m_combinedText->setTextCursor(cursor);
-        m_combinedText->ensureCursorVisible();
-    }
+    m_combinedText->appendOutput(std::exchange(m_queuedOutput, {}));
 }
 
 void LogWindow::showInput(int channel, const QString &input)
@@ -566,8 +665,8 @@ void LogWindow::showInput(int channel, const QString &input)
 
 void LogWindow::clearContents()
 {
-    m_combinedText->clear();
-    m_inputText->clear();
+    m_combinedText->clearContents();
+    m_inputText->clearContents();
     theGlobalLog->clearContents();
 }
 
@@ -580,7 +679,7 @@ void LogWindow::setCursor(const QCursor &cursor)
 
 QString LogWindow::combinedContents() const
 {
-    return m_combinedText->toPlainText();
+    return m_combinedText->contents();
 }
 
 QString LogWindow::inputContents() const
@@ -667,16 +766,7 @@ GlobalLogWindow::~GlobalLogWindow()
 
 void GlobalLogWindow::doOutput(const QString &output)
 {
-    QTextCursor cursor = m_rightPane->textCursor();
-    const bool atEnd = cursor.atEnd();
-
-    m_rightPane->append(output);
-
-    if (atEnd) {
-        cursor.movePosition(QTextCursor::End);
-        m_rightPane->setTextCursor(cursor);
-        m_rightPane->ensureCursorVisible();
-    }
+    m_rightPane->appendOutput(output);
 }
 
 void GlobalLogWindow::doInput(const QString &input)
@@ -692,8 +782,8 @@ void GlobalLogWindow::doInput(const QString &input)
 
 void GlobalLogWindow::clearContents()
 {
-    m_rightPane->clear();
-    m_leftPane->clear();
+    m_rightPane->clearContents();
+    m_leftPane->clearContents();
 }
 
 void GlobalLogWindow::setCursor(const QCursor &cursor)

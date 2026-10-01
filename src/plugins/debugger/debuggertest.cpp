@@ -76,6 +76,8 @@
 #include <QEventLoop>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QPlainTextEdit>
+#include <QRegularExpression>
 #include <QTest>
 #include <QTimer>
 #include <QVersionNumber>
@@ -145,6 +147,8 @@ private slots:
     void testCdbImplRegistersTree();
     void testCdbImplSetParameterArguments();
     void testMapsAnEmptyFileNameToNothing();
+    void testHiddenLogKeepsHeadMarkerAndTail();
+    void testHiddenLogHeadEndingAtTheLimit();
     void testFindsASourceFileOnTheDebuggerDevice();
     void testCdbSourcePathMapping();
     void testCdbSourcePathMappingToHost();
@@ -1413,6 +1417,91 @@ void DebuggerUnitTests::testCdbImplSetParameterArguments()
     bool ok = false;
     QCOMPARE(depth.toInt(&ok), 25);
     QVERIFY(ok);
+}
+
+void DebuggerUnitTests::testHiddenLogKeepsHeadMarkerAndTail()
+{
+    LogWindow log(nullptr);
+    log.doOutput();
+    QVERIFY(log.combinedContents().contains("confidential"));
+
+    int fed = 0;
+    const auto feed = [&](int lines) {
+        QString chunk = "~";
+        for (int i = 0; i < lines; ++i)
+            chunk += QString("LW%1 ").arg(fed++) + QString(90, 'x') + '\n';
+        log.showOutput(LogOutput, chunk);
+        log.doOutput();
+    };
+    // 7 MB is past the 4 MB limit of the pending output.
+    for (int i = 0; i < 7; ++i)
+        feed(10000);
+
+    static const QRegularExpression lineRe("LW(\\d+) ");
+    static const QRegularExpression markerRe("\\[\\.\\.\\. (\\d+) lines dropped \\.\\.\\.\\]");
+    const auto check = [&](const QString &contents, int maxBlankBlocks = 0) {
+        QVERIFY(contents.left(200).contains("Note:"));
+        QCOMPARE(contents.count("lines dropped"), 1);
+        QVERIFY(contents.contains(QString("LW%1 ").arg(fed - 1)));
+        const QRegularExpressionMatch marker = markerRe.match(contents);
+        QVERIFY(marker.hasMatch());
+        qsizetype kept = 0;
+        for (const QRegularExpressionMatch &m : lineRe.globalMatch(contents))
+            kept += m.hasMatch();
+        const qsizetype total = kept + marker.captured(1).toInt();
+        QVERIFY(total >= fed);
+        QVERIFY(total <= fed + maxBlankBlocks);
+    };
+    check(log.combinedContents());
+    if (QTest::currentTestFailed())
+        return;
+
+    // A second trim adds to the count and leaves one marker.
+    for (int i = 0; i < 7; ++i)
+        feed(10000);
+    check(log.combinedContents());
+    if (QTest::currentTestFailed())
+        return;
+
+    // Showing the pane lays out what was held back and changes nothing.
+    const QString hidden = log.combinedContents();
+    log.show();
+    QCOMPARE(log.combinedContents(), hidden);
+    const QList<QPlainTextEdit *> panes = log.findChildren<QPlainTextEdit *>();
+    QVERIFY(Utils::anyOf(panes, [&](QPlainTextEdit *p) { return p->toPlainText() == hidden; }));
+
+    // A shown pane trims at 100000 blocks, which keeps the head and one marker as well.
+    // Each appended batch ends in a newline, which leaves a blank block behind.
+    for (int i = 0; i < 12; ++i)
+        feed(10000);
+    check(log.combinedContents(), 12);
+}
+
+void DebuggerUnitTests::testHiddenLogHeadEndingAtTheLimit()
+{
+    LogWindow log(nullptr);
+    log.doOutput();
+    log.clearContents();
+
+    // The first line break of the empty pane is at the 64 KB limit of the head.
+    // The output gets a channel character in front of every line, and lines are cut at 30000.
+    log.showOutput(LogOutput,
+                   "~" + QString(19999, 'h') + '\n' + QString(20000, 'h') + '\n'
+                       + QString(25530, 'h') + "\nrest\n");
+    log.doOutput();
+
+    int fed = 0;
+    for (int i = 0; i < 7; ++i) {
+        QString chunk = "~";
+        for (int j = 0; j < 10000; ++j)
+            chunk += QString("LW%1 ").arg(fed++) + QString(90, 'x') + '\n';
+        log.showOutput(LogOutput, chunk);
+        log.doOutput();
+    }
+
+    const QString contents = log.combinedContents();
+    QVERIFY(contents.contains("lines dropped"));
+    QVERIFY(contents.contains(QString("LW%1 ").arg(fed - 1)));
 }
 
 // A session without a build configuration - an attach, or a foreign debug
