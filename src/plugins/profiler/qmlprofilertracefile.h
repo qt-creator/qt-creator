@@ -35,6 +35,7 @@ private:
     void loadEventTypes(QXmlStreamReader &reader);
     void loadEvents(QXmlStreamReader &reader);
     void loadNotes(QXmlStreamReader &reader);
+    void loadPausedRanges(QXmlStreamReader &reader);
 
     enum ProgressValues {
         ProgressTypes  = 128,

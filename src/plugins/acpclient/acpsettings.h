@@ -10,6 +10,10 @@
 #include <QIcon>
 #include <QObject>
 
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
+
 namespace AcpClient::Internal {
 
 class AcpSettings : public QObject
@@ -44,7 +48,8 @@ public:
 
     static bool isRegistryAvailable();
     // Fetches the registry unless it is available already. Answered by
-    // registryFetched(), so a fetch that failed can be asked for again.
+    // registryFetched() or registryDenied(), so a fetch that failed can be
+    // asked for again.
     static void fetchRegistry();
     // Registry agents that are not configured as a server yet.
     static QList<RegistryAgent> unconfiguredRegistryAgents();
@@ -53,6 +58,7 @@ public:
 signals:
     void serversChanged();
     void registryFetched(bool success);
+    void registryDenied();
 
 private:
     AcpSettings();
@@ -66,6 +72,12 @@ bool acpTermsAccepted();
 void setAcpTermsAccepted(bool accepted);
 
 void setupAcpSettings();
-void prefetchAcpRegistry();
+void updateAcpRegistryIfAllowed();
+
+#ifdef WITH_TESTS
+void updateAcpRegistry();
+// The template selection of a server, as the ACP Servers page shows it.
+QWidget *createRegistryBrowserWidget();
+#endif
 
 } // namespace AcpClient::Internal

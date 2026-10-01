@@ -13,6 +13,7 @@
 
 #include <functional>
 #include <utility>
+#include <vector>
 
 namespace Profiler::Internal {
 
@@ -68,6 +69,10 @@ public:
     QList<Label> labels;                 // index = label id
     QHash<quint64, QString> threadNames; // tid -> name (entries may be empty)
     QList<ThreadSample> samples;         // ordered by tsUs
+    // Stretches (start, end in tsUs) during which the recording was paused, so
+    // the gap in `samples` reads as deliberate. Kept beside the stream rather
+    // than in it, in a file of its own that is only there when there were any.
+    QList<std::pair<quint64, quint64>> pausedRangesUs;
 
     friend bool operator==(const SampleTraceData &, const SampleTraceData &) = default;
 };
@@ -83,6 +88,15 @@ Utils::Result<> writeSampleTrace(const SampleTraceData &data, const Utils::FileP
 // hundreds of megabytes, so a caller on a worker thread wants to report it.
 Utils::Result<SampleTraceData> readSampleTrace(const Utils::FilePath &dir,
                                                const std::function<void(int)> &progress = {});
+
+// The recording's pauses `steadyIntervalsNs`, as (start, end) on the steady
+// clock with -1 for an end still to come, on the timeline of a trace whose
+// first sample was taken at `firstSampleNs` there and whose last is at
+// `lastSampleUs`. A pause still going on, or one that began before the first
+// sample, leaves no range: the trace starts and ends at the samples it holds.
+QList<std::pair<quint64, quint64>> pausedRangesUs(
+    const std::vector<std::pair<qint64, qint64>> &steadyIntervalsNs, qint64 firstSampleNs,
+    quint64 lastSampleUs);
 
 // True if `dir` holds a CTF2 trace whose schema contains a data stream class
 // named samplerStreamName. Reads only the metadata file.

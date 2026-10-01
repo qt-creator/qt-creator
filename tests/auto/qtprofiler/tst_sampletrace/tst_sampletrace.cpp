@@ -59,6 +59,81 @@ private slots:
         QCOMPARE(read->samples, data.samples);
     }
 
+    void pausedRangesRoundTrip()
+    {
+        SampleTraceData data = makeTestData();
+        data.pausedRangesUs = {{100, 150}, {300, 350}};
+
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath dirPath = FilePath::fromString(dir.path());
+
+        QVERIFY_RESULT(writeSampleTrace(data, dirPath));
+        const Result<SampleTraceData> read = readSampleTrace(dirPath);
+        QVERIFY_RESULT(read);
+        QCOMPARE(read->pausedRangesUs, data.pausedRangesUs);
+        QCOMPARE(read->samples, data.samples);
+    }
+
+    void noPausedRangesWritesNoFile()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath dirPath = FilePath::fromString(dir.path());
+
+        QVERIFY_RESULT(writeSampleTrace(makeTestData(), dirPath));
+        QVERIFY(!dirPath.pathAppended("paused-ranges").exists());
+        const Result<SampleTraceData> read = readSampleTrace(dirPath);
+        QVERIFY_RESULT(read);
+        QVERIFY(read->pausedRangesUs.isEmpty());
+    }
+
+    void malformedPausedRangesAreSkipped()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath dirPath = FilePath::fromString(dir.path());
+        QVERIFY_RESULT(writeSampleTrace(makeTestData(), dirPath));
+
+        QFile file(dirPath.pathAppended("paused-ranges").toFSPathString());
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write("100 150\n"
+                   "not numbers\n"
+                   "300\n"
+                   "400 350\n"   // Ends before it starts.
+                   "1 2 3\n"
+                   "\n"
+                   "500 600\n");
+        file.close();
+
+        const Result<SampleTraceData> read = readSampleTrace(dirPath);
+        QVERIFY_RESULT(read);
+        const QList<std::pair<quint64, quint64>> expected{{100, 150}, {500, 600}};
+        QCOMPARE(read->pausedRangesUs, expected);
+    }
+
+    void pausedRangesAreOnTheTraceTimeline()
+    {
+        // First sample at 1 s on the steady clock, last one 5 ms into the trace.
+        const qint64 first = 1'000'000'000;
+        const std::vector<std::pair<qint64, qint64>> intervals{
+            {first - 500'000, first + 100'000},   // Began before the first sample.
+            {first + 1'000'000, first + 2'000'000},
+            {first + 3'000'000, first + 9'000'000}, // Past the last sample.
+            {first + 4'500'000, -1},                // Still going on.
+        };
+        const QList<std::pair<quint64, quint64>> expected{{1000, 2000}, {3000, 5000}};
+        QCOMPARE(pausedRangesUs(intervals, first, 5000), expected);
+    }
+
+    void pausesAfterTheLastSampleLeaveNoRange()
+    {
+        const qint64 first = 1'000'000;
+        const std::vector<std::pair<qint64, qint64>> intervals{{first + 6'000'000,
+                                                                 first + 7'000'000}};
+        QVERIFY(pausedRangesUs(intervals, first, 5000).isEmpty());
+    }
+
     void emptyDirIsNotASamplerTrace()
     {
         QTemporaryDir dir;

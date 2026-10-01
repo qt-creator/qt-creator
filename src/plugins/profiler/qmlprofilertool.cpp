@@ -184,7 +184,6 @@ void QmlProfilerTool::finalizeRunControl(RunControl *runControl)
     QTC_ASSERT(backend, return);
     emit liveBackendChanged(backend);
 
-    connect(backend->stopAction(), &QAction::triggered, runControl, &RunControl::initiateStop);
     backend->prepareRun(runControl->buildConfiguration(), aggregateTraces, flushInterval);
     updateRunActions();
 }
@@ -194,7 +193,6 @@ void QmlProfilerTool::handleStop(QmlProfilerTraceBackend *backend)
     // The caller names the run's own backend: resolving liveBackend() here
     // would act on whatever run is live by now.
     if (backend) {
-        disconnect(backend->stopAction(), &QAction::triggered, nullptr, nullptr);
         backend->handleStop();
     }
     updateRunActions();

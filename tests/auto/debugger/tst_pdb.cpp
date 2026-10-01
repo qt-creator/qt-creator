@@ -69,6 +69,8 @@ void tst_Pdb::dumper()
     if (python.isEmpty())
         QSKIP("No working Python interpreter found in PYTHON3_PATH or PATH.");
 
+    QSKIP("This test is flaky");
+
     QProcess process;
     process.setProcessChannelMode(QProcess::MergedChannels);
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();

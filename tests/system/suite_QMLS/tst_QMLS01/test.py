@@ -89,6 +89,8 @@ def testSuggestionsManual(lineText, textToType, expectedText):
 def main():
     if not startQtCreatorWithNewAppAtQMLEditor(tempDir(), "SampleApp"):
         return
+    qmlLsEnabled = isQmlLSEnabled()
+    test.log("QML Language Server is %s" % ('enabled' if qmlLsEnabled else 'disabled'))
     # add basic TextEdit item to check it afterwards
     codelines = ['TextEdit {', 'text: "Enter something"', 'anchors.top: parent.top',
                  'anchors.horizontalCenter: parent.horizontalCenter', 'anchors.topMargin: 20']
@@ -96,24 +98,33 @@ def main():
     if not addTestableCodeAfterLine(editor, 'title: qsTr("Hello World")', codelines):
         saveAndExit()
         return
+
+    # for QmlLS we end up choosing ColorAnimation snippet
+    expected = "from: \"white\"" if qmlLsEnabled else "color:"
     # test "color: " suggestion usage with Enter key
-    if not testSuggestionsAuto("TextEdit {", "col", "color:", "<Return>"):
+    if not testSuggestionsAuto("TextEdit {", "col", expected, "<Return>"):
         saveAndExit()
         return
     # test "color: " suggestion usage with Tab key
-    if not testSuggestionsAuto("TextEdit {", "col", "color:", "<Tab>"):
+    if not testSuggestionsAuto("TextEdit {", "col", expected, "<Tab>"):
         saveAndExit()
         return
+
     # test automatic insertion (prerequisite: only one suggestion available)
     shortcutToSuggestions = "<Ctrl+Space>"
     if platform.system() == "Darwin":
         shortcutToSuggestions = "<Meta+Space>"
-    if not testSuggestionsAuto("TextEdit {", "online", "onLineCountChanged:", shortcutToSuggestions):
+    # builtin Qml model adds color, QmlLS does not
+    expected = "onLineCountChanged"
+    if not qmlLsEnabled:
+        expected += ":"
+    if not testSuggestionsAuto("TextEdit {", "online", expected, shortcutToSuggestions):
         saveAndExit()
         return
     # change settings to manual insertion of suggestions
     changeAutocompleteToManual()
     # test manual suggestions
-    testSuggestionsManual("TextEdit {", "col", "color:")
+    expected = "from: \"white\"" if qmlLsEnabled else "color:"
+    testSuggestionsManual("TextEdit {", "col", expected)
     # exit qt creator
     saveAndExit()

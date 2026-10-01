@@ -49,12 +49,13 @@ protected:
 
 private:
     enum ConfigPage { NoServers, Connect, Registry };
+    enum class RegistryFailure { Blocked, DownloadFailed };
 
     void populateServerButtons();
     void showRegistryPage();
     void clearRegistryButtons();
     void populateRegistryButtons();
-    void registryFetchFailed();
+    void registryFetchFailed(RegistryFailure failure);
     void showSessionPicker();
 
     // Config page

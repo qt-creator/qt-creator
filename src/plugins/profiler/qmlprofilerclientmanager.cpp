@@ -64,17 +64,26 @@ void QmlProfilerClientManager::createClients()
     // false by default (will be set to true when connected)
     m_profilerState->setServerRecording(false);
     m_profilerState->setRecordedFeatures(0);
+    m_rebaser.reset();
+    const auto rebased = [this](qint64 time) {
+        return m_rebasingTime ? m_rebaser.map(time) : time;
+    };
     m_clientPlugin = new QmlProfilerTraceClient(
         connection(),
         std::bind(&QmlProfilerModelManager::appendEventType, m_modelManager, std::placeholders::_1),
-        std::bind(&QmlProfilerModelManager::appendEvent, m_modelManager, std::placeholders::_1),
+        [this, rebased](QmlEvent &&event) {
+            event.setTimestamp(rebased(event.timestamp()));
+            m_modelManager->appendEvent(std::move(event));
+        },
         m_profilerState->requestedFeatures());
     QTC_ASSERT(m_clientPlugin, return);
 
     m_clientPlugin->setFlushInterval(m_flushInterval);
 
     QObject::connect(m_clientPlugin.data(), &QmlProfilerTraceClient::traceFinished,
-                     m_modelManager, &QmlProfilerModelManager::increaseTraceEnd);
+                     m_modelManager, [this, rebased](qint64 time) {
+        m_modelManager->increaseTraceEnd(rebased(time));
+    });
 
     QObject::connect(m_profilerState.data(), &QmlProfilerStateManager::requestedFeaturesChanged,
                      m_clientPlugin.data(), &QmlProfilerTraceClient::setRequestedFeatures);
@@ -82,13 +91,19 @@ void QmlProfilerClientManager::createClients()
                      m_profilerState.data(), &QmlProfilerStateManager::setRecordedFeatures);
 
     QObject::connect(m_clientPlugin.data(), &QmlProfilerTraceClient::traceStarted,
-                     this, [this](qint64 time) {
+                     this, [this, rebased](qint64 time) {
+        if (m_rebasingTime)
+            time = m_rebaser.traceStarted(time);
         m_profilerState->setServerRecording(true);
         m_modelManager->decreaseTraceStart(time);
+        emit traceStartedAt(time);
     });
 
-    QObject::connect(m_clientPlugin, &QmlProfilerTraceClient::complete, this, [this](qint64 time) {
+    QObject::connect(m_clientPlugin, &QmlProfilerTraceClient::complete,
+                     this, [this, rebased](qint64 time) {
+        time = rebased(time);
         m_modelManager->increaseTraceEnd(time);
+        emit traceFinishedAt(time);
         m_profilerState->setServerRecording(false);
     });
 

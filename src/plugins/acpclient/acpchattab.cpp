@@ -348,11 +348,18 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         if (m_configStack->currentIndex() == ConfigPage::Registry)
             populateRegistryButtons();
     });
-    // A registry that arrived re-applies the templates, so it comes in as
-    // serversChanged() as well, which fills the registry page.
+    // A registry fetched on demand leaves the templates alone, so it does not
+    // come in as serversChanged() and fills the registry page from here.
     connect(&AcpSettings::instance(), &AcpSettings::registryFetched, this, [this](bool success) {
-        if (!success)
-            registryFetchFailed();
+        if (!success) {
+            registryFetchFailed(RegistryFailure::DownloadFailed);
+            return;
+        }
+        if (m_configStack->currentIndex() == ConfigPage::Registry)
+            populateRegistryButtons();
+    });
+    connect(&AcpSettings::instance(), &AcpSettings::registryDenied, this, [this] {
+        registryFetchFailed(RegistryFailure::Blocked);
     });
 
     // --- Connections: ChatPanel -> Controller ---
@@ -813,16 +820,25 @@ void AcpChatTab::populateRegistryButtons()
     m_registryInfoLabel->setVisible(agents.isEmpty());
 }
 
-void AcpChatTab::registryFetchFailed()
+void AcpChatTab::registryFetchFailed(RegistryFailure failure)
 {
     if (m_configStack->currentIndex() != ConfigPage::Registry)
+        return;
+    // A manual update that did not go through leaves the loaded registry, and
+    // the list built from it, as they were.
+    if (AcpSettings::isRegistryAvailable())
         return;
 
     clearRegistryButtons();
     m_registryInfoLabel->setType(InfoLabelType::Error);
     m_registryInfoLabel->setText(
-        Tr::tr("The agent registry could not be fetched. Check the network connection and "
-               "try again, or configure an agent in the ACP server settings."));
+        failure == RegistryFailure::Blocked
+            ? Tr::tr("Downloading the agent registry is blocked. Use \"Update Agent "
+                     "Registry\" in the ACP server settings to allow it, or configure an "
+                     "agent there.")
+            : Tr::tr("The agent registry could not be fetched. Check the network "
+                     "connection and try again, or configure an agent in the ACP server "
+                     "settings."));
     m_registryInfoLabel->show();
 }
 

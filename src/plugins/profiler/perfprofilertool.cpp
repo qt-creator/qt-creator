@@ -184,7 +184,7 @@ PerfProfilerTraceBackend *PerfProfilerTool::currentBackend() const
 bool PerfProfilerTool::isRecording() const
 {
     PerfProfilerTraceBackend *backend = liveBackend();
-    return backend && backend->isRecording();
+    return backend && backend->isReaderRunning();
 }
 
 void PerfProfilerTool::onWorkerCreation(RunControl *runControl)
@@ -196,7 +196,6 @@ void PerfProfilerTool::onWorkerCreation(RunControl *runControl)
     PerfProfilerTraceBackend *backend = liveBackend();
     QTC_ASSERT(backend, return);
 
-    connect(backend->stopAction(), &QAction::triggered, runControl, &RunControl::initiateStop);
     emit liveBackendChanged(backend);
 
     backend->prepareRun(runControl->project(), runControl->kit());

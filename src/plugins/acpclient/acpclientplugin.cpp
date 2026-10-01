@@ -114,7 +114,7 @@ public:
 
     bool delayedInitialize() final
     {
-        prefetchAcpRegistry();
+        updateAcpRegistryIfAllowed();
         return true;
     }
 

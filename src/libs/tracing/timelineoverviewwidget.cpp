@@ -3,6 +3,7 @@
 
 #include "timelineoverviewwidget.h"
 
+#include "pausedrangesoverlay.h"
 #include "timelinecoordinates.h"
 #include "timelineformatdata.h"
 #include "timelinemodel.h"
@@ -44,6 +45,7 @@ TimelineOverviewWidget::TimelineOverviewWidget(TimelineModelAggregator *aggregat
         m_contentDirty = true;
         update();
     });
+    connect(aggregator, &TimelineModelAggregator::pausedRangesChanged, this, [this] { update(); });
     connect(aggregator, &TimelineModelAggregator::notesChanged, this, [this] {
         m_contentDirty = true;
         update();
@@ -250,6 +252,14 @@ void TimelineOverviewWidget::paintEvent(QPaintEvent *)
 
     if (m_zoom->traceDuration() <= 0)
         return;
+
+    for (const auto &[start, end] : m_aggregator->pausedRanges()) {
+        const double left = qBound(0.0, timeToPixel(start), double(width()));
+        const double right = qBound(0.0, timeToPixel(end), double(width()));
+        if (right > left)
+            PausedRangesOverlay::paintBand(p, QRectF(left, 0, qMax(1.0, right - left), height()),
+                                           PausedRangesOverlay::BandEdges::None);
+    }
 
     // Range mover overlay
     const double rangeLeft = timeToPixel(m_zoom->rangeStart());

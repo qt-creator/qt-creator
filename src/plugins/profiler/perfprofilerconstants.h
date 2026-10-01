@@ -18,8 +18,6 @@ inline constexpr char PerfProfilerTaskFullRange[]  =
 inline constexpr char PerfProfilerTaskTracePoints[]  =
         "Analyzer.Menu.StartAnalyzer.PerfProfilerOptions.CreateTracePoints";
 
-inline constexpr char PerfProfilerTaskSkipDelay[]  = "Analyzer.Perf.SkipDelay";
-
 inline constexpr char TraceFileExtension[]         = ".data";
 
 inline constexpr char PerfProfilerLocalActionId[]  = "PerfProfiler.Local";

@@ -139,7 +139,7 @@ private:
 
     struct State {
         unsigned char _tokenKind : 7;
-        unsigned char _newlineExpected : 1;
+        unsigned char _newlineExpected : 1; // Line-start flag while inside a block comment.
     };
 
     TranslationUnit *_translationUnit;
@@ -153,6 +153,7 @@ private:
 
     unsigned _currentCharUtf16;
     unsigned _tokenStartUtf16;
+    bool _newlineAfterComment = false;
 
     union {
         unsigned char _state;

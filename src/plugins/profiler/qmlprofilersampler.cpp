@@ -155,14 +155,16 @@ QmlProfilerSampler::QmlProfilerSampler()
     // The features to record are taken from the settings at record time (see
     // recordRecipe); without requested features the trace client records nothing.
 
-    // QmlProfilerTool drives the model's initialize()/finalize() from the state
-    // manager's recording transitions; replicate that here, ungated by app state.
+    // QmlProfilerTool drives the model's initialize() from the state manager's
+    // recording transitions; replicate that here, ungated by app state. Once
+    // per recording, however often a pause makes the server start another
+    // trace; the capture finalizes the model when the recording ends.
     QObject::connect(m_stateManager.get(), &QmlProfilerStateManager::serverRecordingChanged,
                      m_modelManager.get(), [this](bool recording) {
-        if (recording)
+        if (recording && !m_initialized) {
             m_modelManager->initialize();
-        else
-            m_modelManager->finalize();
+            m_initialized = true;
+        }
     });
 }
 
@@ -244,15 +246,33 @@ ExecutableItem QmlProfilerSampler::captureRecipe(const std::shared_ptr<Recording
             m_modelManager->save(out.toFSPathString());
         };
 
-        // Once the server stops recording (we asked it to, or the target finished
-        // the trace), the model has been finalized and can be written out.
-        QObject::connect(m_stateManager.get(), &QmlProfilerStateManager::serverRecordingChanged,
-                         b, [session, saveAndFinish](bool recording) {
-            if (recording) {
-                session->markStarted(); // capture is live; the duration clock can start
-                return;
-            }
+        const auto finishRecording = [this, saveAndFinish] {
+            m_modelManager->finalize();
+            m_initialized = false;
             saveAndFinish();
+        };
+
+        // The server's traces start and end with every resume and pause, so
+        // which of their ends is the recording's is for the tracker to say.
+        m_pauseTracker = {};
+        QObject::connect(m_clientManager.get(), &QmlProfilerClientManager::connectionOpened,
+                         b, [this] {
+            // The server has just been told whether to record.
+            if (m_stateManager->clientRecording())
+                m_pauseTracker.startRequested();
+        });
+        QObject::connect(m_clientManager.get(), &QmlProfilerClientManager::traceStartedAt,
+                         b, [this, session](qint64 time) {
+            if (const auto range = m_pauseTracker.traceStarted(time))
+                m_modelManager->addPausedRange(range->first, range->second);
+            session->markStarted(); // capture is live; the duration clock can start
+        });
+        QObject::connect(m_clientManager.get(), &QmlProfilerClientManager::traceFinishedAt,
+                         b, [this, session, finishRecording](qint64 time) {
+            if (m_pauseTracker.traceFinished(time, session->isPaused())
+                == QmlPauseTracker::TraceEnd::Recording) {
+                finishRecording();
+            }
         });
 
         // The target can also just go away, in which case the server will never
@@ -264,6 +284,7 @@ ExecutableItem QmlProfilerSampler::captureRecipe(const std::shared_ptr<Recording
             if (*saving || session->result.has_value())
                 return;
             m_modelManager->finalize();
+            m_initialized = false;
             if (m_modelManager->isEmpty()) {
                 session->result.emplace(ResultError(
                     Tr::tr("The application finished before it sent any profiling data.")));
@@ -282,14 +303,42 @@ ExecutableItem QmlProfilerSampler::captureRecipe(const std::shared_ptr<Recording
         m_stateManager->setRequestedFeatures(
             session->requestedFeatures ? session->requestedFeatures : m_settings->requestedFeatures());
 
+        m_clientManager->setRebasingTime(true);
         m_clientManager->setServer(session->serverUrl);
+        m_initialized = false;
         m_clientManager->connectToServer();
-        m_stateManager->setClientRecording(true);
+        m_stateManager->setClientRecording(!session->isPaused());
+
+        // Pausing turns the server's recording off and resuming turns it on
+        // again, all within the one connection and the one model.
+        session->onPausedChanged(b, [this](bool paused) {
+            // Until the connection is up, what is asked here only reaches the
+            // server once it is (see connectionOpened above).
+            if (!paused && m_clientManager->isConnected())
+                m_pauseTracker.startRequested();
+            m_stateManager->setClientRecording(!paused);
+        });
 
         // Translate a stop request into "stop recording", which makes the
         // server send its final trace. The barrier is the context, so the
         // handler lasts exactly as long as this capture.
-        session->onStopRequested(b, [this] {
+        session->onStopRequested(b, [this, b, session, finishRecording] {
+            m_pauseTracker.stopRequested();
+            if (session->isPaused() && m_pauseTracker.isSettled(m_stateManager->serverRecording())) {
+                // Paused, and the server has answered all it was asked: no
+                // further report is coming, so write what there is.
+                if (!session->isStarted()) {
+                    m_modelManager->finalize();
+                    m_initialized = false;
+                    session->result.emplace(ResultError(stoppedBeforeResumeMessage()));
+                    b->stopWithResult(DoneResult::Error);
+                    return;
+                }
+                finishRecording();
+                return;
+            }
+            // Otherwise the server ends the trace it is on, or the one it is
+            // about to start, and that end is the recording's.
             m_stateManager->setClientRecording(false);
             m_clientManager->stopRecording();
         });

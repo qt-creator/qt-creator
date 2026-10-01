@@ -59,13 +59,6 @@ static ExecutableItem perfParserRecipe(RunControl *runControl)
         PerfProfilerTraceManager *traceManager = backend->traceManager();
 
         reader.setTraceManager(traceManager);
-        reader.triggerRecordingStateChange(backend->isRecording());
-
-        // Scoped to the backend rather than relayed through the tool: a backend
-        // outlives its run in an open editor, and a tool-wide relay would let a
-        // finished run's still-enabled record button drive this run's reader.
-        QObject::connect(backend, &PerfProfilerTraceBackend::recordingChanged,
-                         &reader, &PerfDataReader::triggerRecordingStateChange);
 
         // The manager lives in the backend's document; the run does not own it.
         // If the trace editor closes mid-run, let go of the manager before it

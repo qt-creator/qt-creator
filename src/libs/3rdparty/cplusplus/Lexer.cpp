@@ -87,6 +87,7 @@ void Lexer::setSource(const char *firstChar, const char *lastChar)
     _currentCharUtf16 = ~0;
     _tokenStart = _currentChar;
     _yychar = '\n';
+    _newlineAfterComment = false;
 }
 
 void Lexer::setStartWithNewline(bool enabled)
@@ -150,11 +151,21 @@ static bool isMultiLineToken(unsigned char kind)
 
 void Lexer::scan_helper(Token *tok)
 {
+    // Retained comments are whitespace for detecting the start of a line.
+    const bool newlineAfterComment = _newlineAfterComment;
+    _newlineAfterComment = false;
+    const bool continuingComment = s._tokenKind == T_COMMENT || s._tokenKind == T_DOXY_COMMENT;
+    const bool commentStartedLine = continuingComment && s._newlineExpected;
+    if (continuingComment)
+        s._newlineExpected = false;
+
   again:
     while (_yychar && std::isspace(_yychar)) {
         if (_yychar == '\n') {
             tok->f.joined = s._newlineExpected;
-            tok->f.newline = !s._newlineExpected;
+            // A spliced newline does not erase a line start inherited from
+            // preceding whitespace (in particular, a retained comment).
+            tok->f.newline |= !s._newlineExpected;
 
             if (s._newlineExpected)
                 s._newlineExpected = false;
@@ -165,6 +176,8 @@ void Lexer::scan_helper(Token *tok)
         }
         yyinp();
     }
+
+    tok->f.newline |= newlineAfterComment;
 
     if (! _translationUnit)
         tok->lineno = _currentLine;
@@ -178,6 +191,8 @@ void Lexer::scan_helper(Token *tok)
     if (_yychar) {
         s._newlineExpected = false;
     } else if (s._tokenKind) {
+        if (continuingComment)
+            s._newlineExpected = commentStartedLine;
         tok->f.kind = T_EOF_SYMBOL;
         return;
     }
@@ -186,6 +201,9 @@ void Lexer::scan_helper(Token *tok)
         // skip
     } else if (s._tokenKind == T_COMMENT || s._tokenKind == T_DOXY_COMMENT) {
         const int originalKind = s._tokenKind;
+        // The synthetic newline at the start of a new chunk does not say
+        // where this comment began in the previous chunk.
+        tok->f.newline = commentStartedLine;
 
         while (_yychar) {
             if (_yychar != '*')
@@ -199,10 +217,13 @@ void Lexer::scan_helper(Token *tok)
                 }
             }
         }
+        if (s._tokenKind)
+            s._newlineExpected = commentStartedLine;
 
         if (! f._scanCommentTokens)
             goto again;
 
+        _newlineAfterComment = tok->f.newline;
         tok->f.kind = originalKind;
         return;
     } else if (s._tokenKind == T_CPP_COMMENT || s._tokenKind == T_CPP_DOXY_COMMENT) {
@@ -495,14 +516,19 @@ void Lexer::scan_helper(Token *tok)
             }
 
         done:
-            if (_yychar)
+            if (_yychar) {
                 yyinp();
-            else
+            } else {
                 s._tokenKind = commentKind;
+                // For unfinished comments, this state bit records whether
+                // the comment started its line, not a line continuation.
+                s._newlineExpected = tok->f.newline;
+            }
 
             if (! f._scanCommentTokens)
                 goto again;
 
+            _newlineAfterComment = tok->f.newline;
             tok->f.kind = commentKind;
 
         } else if (_yychar == '=') {

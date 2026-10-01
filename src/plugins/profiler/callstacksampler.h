@@ -48,6 +48,9 @@ public:
     bool isAvailable(QString *error = nullptr) const override;
     QtTaskTree::ExecutableItem captureRecipe(
         const std::shared_ptr<RecordingSession> &session) const override;
+#ifdef Q_OS_MACOS
+    bool supportsPause() const override { return true; }
+#endif
 
     SamplerSettings *settings() const override;
 

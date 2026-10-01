@@ -19,11 +19,19 @@
 #include <tracing/timelinecontentwidget.h>
 #include <tracing/rangedetailswidget.h>
 
+#include <utils/stylehelper.h>
+
+#include <QtCore/qmath.h>
+
+#include <cmath>
+
 #include "../common/themeselector.h"
 
 using namespace Timeline;
 
 static const qint64 oneMs = 1000 * 1000; // in nanoseconds
+static const qint64 cellWidth = oneMs * 8;
+static const qint64 cellGap = oneMs * 1;
 
 class FractionTableModel : public Timeline::TimelineModel
 {
@@ -64,8 +72,6 @@ public:
 
     void populateData()
     {
-        const qint64 cellWidth = oneMs * 8;
-        const qint64 cellGap = oneMs * 1;
         for (int step = 0; step < m_steps; ++step) {
             const qint64 cellStart = step * (cellWidth + cellGap);
             insert(cellStart, cellWidth, step);
@@ -75,6 +81,92 @@ public:
 
 private:
     const int m_steps;
+};
+
+class HueChromaTableModel : public Timeline::TimelineModel
+{
+public:
+    HueChromaTableModel(TimelineModelAggregator *parent, int hueSteps)
+        : TimelineModel(parent)
+        , m_hueSteps(hueSteps)
+    {
+        setDisplayName("Hue/Chroma");
+        setCollapsedRowCount(1);
+        setExpandedRowCount(kChromaSteps + 1); // row 0 is the title row; labels() fills 1..kChromaSteps
+        setExpanded(true);
+    }
+
+    int hue(int index) const
+    {
+        return (index / kChromaSteps) * (kHueRange / m_hueSteps);
+    }
+
+    int chroma(int index) const
+    {
+        return index % kChromaSteps;
+    }
+
+    QRgb color(int index) const override
+    {
+        return colorByHueChroma(hue(index), chroma(index));
+    }
+
+    int expandedRow(int index) const override
+    {
+        return selectionId(index) % kChromaSteps + 1;
+    }
+
+    RowLabels labels() const override
+    {
+        RowLabels result;
+        result.reserve(kChromaSteps);
+        forEachChroma([&result](int chroma) {
+            result.append({QString("Chroma %1").arg(chroma), chroma});
+        });
+        return result;
+    }
+
+    ItemDetails details(int index) const override
+    {
+        Timeline::ItemDetails result;
+        const QColor rgbColor = QColor::fromRgb(color(index));
+        const Utils::StyleHelper::OklchColor oklch = Utils::StyleHelper::oklch(rgbColor);
+        result.insert(QLatin1String("OKLCH"), QString("L%1 C%2 H%3")
+                                                  .arg(oklch.lightness, 0, 'f', 2)
+                                                  .arg(oklch.chroma, 0, 'f', 2)
+                                                  .arg(oklch.hue, 0, 'f', 2));
+        result.insert(QLatin1String("RGB"), rgbColor.name());
+        result.insert(QLatin1String("colorByHueChroma"),
+                      QString("hue %1, chroma %2").arg(hue(index)).arg(chroma(index)));
+        return result;
+    }
+
+    void populateData()
+    {
+        for (int hueStep = 0; hueStep < m_hueSteps; ++hueStep) {
+            const qint64 hueCellStart = hueStep * (cellWidth + cellGap);
+            forEachChroma([this, hueCellStart, hueStep](int chroma) {
+                const int hueChromaTableCellIndex = hueStep * kChromaSteps + chroma;
+                insert(hueCellStart, cellWidth, hueChromaTableCellIndex);
+            });
+        }
+        emit contentChanged();
+    }
+
+    float relativeHeight(int) const override
+    {
+        return 0.8f;
+    }
+
+private:
+    template<typename Function>
+    void forEachChroma(const Function &function) const
+    {
+        for (int chroma = 0; chroma < kChromaSteps; ++chroma)
+            function(chroma);
+    }
+
+    const int m_hueSteps = 1;
 };
 
 class DummyModel : public Timeline::TimelineModel
@@ -147,15 +239,17 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    ManualTest::ThemeSelector::setTheme(":/themes/flat.creatortheme");
+    ManualTest::ThemeSelector::setTheme(":/themes/light-2024.creatortheme");
 
     auto modelAggregator = new TimelineModelAggregator;
     auto model = new DummyModel(modelAggregator);
     model->populateData();
-    auto fractionTableModel = new FractionTableModel(modelAggregator, 20);
+    const int tableSteps = kHueRange / Timeline::kSelectionIdHueStep;
+    auto fractionTableModel = new FractionTableModel(modelAggregator, tableSteps);
     fractionTableModel->populateData();
-    modelAggregator->setModels({model, fractionTableModel});
-
+    auto stepHuesModel = new HueChromaTableModel(modelAggregator, tableSteps);
+    stepHuesModel->populateData();
+    modelAggregator->setModels({fractionTableModel, stepHuesModel, model});
     auto notes = new Timeline::TimelineNotesModel;
     notes->addTimelineModel(model);
     notes->add(model->modelId(), 0, "Note on item 0");

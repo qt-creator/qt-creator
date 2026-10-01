@@ -13,11 +13,11 @@
 
 namespace Timeline {
 
-int defaultColorLightness()
+double defaultColorLightness()
 {
     const Qt::ColorScheme scheme = Utils::creatorTheme() ? Utils::creatorTheme()->colorScheme()
                                                          : Utils::Theme::systemColorScheme();
-    return scheme == Qt::ColorScheme::Dark ? 115 : 175;
+    return scheme == Qt::ColorScheme::Dark ? 0.65 : 0.8;
 }
 
 /*!
@@ -476,8 +476,13 @@ QRgb TimelineModel::colorByFraction(double fraction) const
 
 QRgb TimelineModel::colorByHue(int hue) const
 {
-    static const HueLookupTable hueTable;
-    return hueTable[hue];
+    return colorByHueChroma(hue, kCentralChromaStep);
+}
+
+QRgb TimelineModel::colorByHueChroma(int hue, int chroma) const
+{
+    static const HueChromaLookupTable hueChromaTable;
+    return hueChromaTable(hue, chroma);
 }
 
 /*!
@@ -703,11 +708,18 @@ int TimelineModel::prevItemByTypeId(int requestedTypeId, qint64 time, int curren
     }, time, currentItem);
 }
 
-HueLookupTable::HueLookupTable()
+HueChromaLookupTable::HueChromaLookupTable()
 {
-    const int lightness = defaultColorLightness();
-    for (int hue = 0; hue < kHueRange; ++hue) {
-        table[hue] = QColor::fromHsl(hue, kDefaultSaturation, lightness).rgb();
+    const double chromaIncrement = kDefaultChroma / (kCentralChromaStep + 1);
+    const double chromaRangeStart = kDefaultChroma - kCentralChromaStep * chromaIncrement;
+    const double lightness = defaultColorLightness();
+    for (int chromeStep = 0; chromeStep < kChromaSteps; ++chromeStep) {
+        const double chroma = qBound(0.0, chromaRangeStart + chromeStep * chromaIncrement,
+                                     Utils::StyleHelper::oklchFullChroma);
+        for (int hue = 0; hue < kHueRange; ++hue) {
+            table[hue * kChromaSteps + chromeStep]
+                    = Utils::StyleHelper::oklchColor({lightness, chroma, double(hue)}).rgb();
+        }
     }
 }
 

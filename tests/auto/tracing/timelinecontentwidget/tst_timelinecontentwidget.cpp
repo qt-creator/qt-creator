@@ -1,6 +1,7 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <tracing/pausedrangesoverlay.h>
 #include <tracing/rangedetailswidget.h>
 #include <tracing/selectionrangeoverlay.h>
 #include <tracing/timelinecontentwidget.h>
@@ -9,6 +10,7 @@
 #include <tracing/timelinezoomcontrol.h>
 #include <tracing/tracklabels.h>
 #include <tracing/trackpainterbase.h>
+#include <tracing/trackpainterraster.h>
 
 #include <utils/theme/theme.h>
 #include <utils/theme/theme_p.h>
@@ -187,6 +189,7 @@ private slots:
     void aPinchOverTheLabelsKeepsTheStart();
     void aPinchInABrowserZooms_data();
     void aPinchInABrowserZooms();
+    void thePausedRangesLieBetweenTracksAndSelection();
 };
 
 void tst_TimelineContentWidget::initTestCase()
@@ -351,6 +354,36 @@ void tst_TimelineContentWidget::aPinchInABrowserZooms()
                  > ScrollableTimeline::rangeEnd - ScrollableTimeline::rangeStart,
              qPrintable(QString::number(timeline.zoom.rangeDuration())));
     QCOMPARE(timeline.verticalScrollBar()->value(), 0);
+}
+
+// The paused bands cover the tracks, and the selection range covers both, over
+// the whole viewport whatever size it takes.
+void tst_TimelineContentWidget::thePausedRangesLieBetweenTracksAndSelection()
+{
+    SelectableTimeline timeline(1, 2);
+    auto viewport = timeline.content->findChild<QScrollArea *>()->viewport();
+    auto paused = viewport->findChild<PausedRangesOverlay *>(Qt::FindDirectChildrenOnly);
+    auto selection = viewport->findChild<SelectionRangeOverlay *>(Qt::FindDirectChildrenOnly);
+    QVERIFY(paused);
+    QVERIFY(selection);
+    QVERIFY(paused->testAttribute(Qt::WA_TransparentForMouseEvents));
+
+    // The software painter, as initTestCase() selects it.
+    auto tracks = viewport->findChild<TrackPainterRaster *>(Qt::FindDirectChildrenOnly);
+    QVERIFY(tracks);
+    const QObjectList children = viewport->children();
+    QVERIFY(children.indexOf(tracks) < children.indexOf(paused));
+    QVERIFY(children.indexOf(paused) < children.indexOf(selection));
+
+    // Resize events only reach a widget that is shown.
+    timeline.content->resize(400, 200);
+    timeline.content->show();
+    QVERIFY(QTest::qWaitForWindowExposed(timeline.content));
+    const QSize before = viewport->size();
+    timeline.content->resize(640, 300);
+    QTRY_VERIFY(viewport->size() != before);
+    QCOMPARE(paused->size(), viewport->size());
+    QCOMPARE(selection->size(), viewport->size());
 }
 
 QTEST_MAIN(tst_TimelineContentWidget)

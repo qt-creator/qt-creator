@@ -9,6 +9,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -23,18 +24,25 @@
 #include <utils/environmentdialog.h>
 #include <utils/filestreamer.h>
 #include <utils/globaltasktree.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcsettings.h>
 #include <utils/temporarydirectory.h>
 #include <utils/temporaryfile.h>
 #include <utils/infolabel.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
 #include <QCryptographicHash>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QDir>
+#include <QLabel>
 #include <QPromise>
 #include <QPushButton>
+#include <QRadioButton>
 #include <QStandardItemModel>
 #include <QUuid>
 #include <QtTaskTree/QNetworkReplyWrapper>
@@ -101,7 +109,107 @@ static void fetchIconToPersistentCache(const QString &url, const std::shared_ptr
 }
 
 static std::optional<Acp::Registry::ACPAgentRegistry> s_registry;
-static bool s_fetchingRegistry = false;
+
+static const char kRegistryUrl[]
+    = "https://cdn.agentclientprotocol.com/registry/v1/latest/registry.json";
+static const char kRegistryAccessKey[] = "AcpClient/AllowRegistryDownload";
+
+enum class RegistryUpdate { Updated, Denied, Failed };
+
+// OnDemand makes do with a registry that is loaded already. Only ManualUpdate
+// asks again when a decision about the download is remembered.
+enum class RegistryRequest { OnDemand, AutomaticUpdate, ManualUpdate };
+
+static void refillRegistryBrowsers();
+static void applyRegistryToServers();
+static void emitRegistryResult(RegistryUpdate result);
+
+static QList<std::function<void(RegistryUpdate)>> s_pendingCallbacks;
+static bool s_fetching = false;
+// Lasts for the session, so that only an explicit request asks again.
+static bool s_registryDeclined = false;
+
+static std::optional<bool> rememberedRegistryAccess()
+{
+    const QVariant remembered = Core::ICore::settings()->value(kRegistryAccessKey);
+    if (!remembered.isValid())
+        return std::nullopt;
+    return remembered.toBool();
+}
+
+static void requestRegistryAccess(
+    const std::function<void(bool allowed)> &callback, RegistryRequest request)
+{
+    const std::optional<bool> remembered = rememberedRegistryAccess();
+    if (remembered && request != RegistryRequest::ManualUpdate) {
+        callback(*remembered);
+        return;
+    }
+
+    auto dialog = new QDialog(Utils::dialogParent());
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(Tr::tr("Download Agent Registry"));
+
+    auto description = new QLabel(
+        Tr::tr("To list the available agents, Qt Creator downloads the agent registry from "
+               "<a href=\"%1\">%1</a>.")
+            .arg(QString::fromLatin1(kRegistryUrl)));
+    description->setTextFormat(Qt::RichText);
+    description->setOpenExternalLinks(true);
+    description->setWordWrap(true);
+
+    auto alwaysAllow = new QRadioButton(
+        Tr::tr("Always allow, including automatic updates of the configured agents"));
+    auto allowOnce = new QRadioButton(Tr::tr("Allow once"));
+    auto blockOnce = new QRadioButton(Tr::tr("Block once"));
+    auto alwaysBlock = new QRadioButton(Tr::tr("Always block"));
+    if (!remembered)
+        allowOnce->setChecked(true);
+    else if (*remembered)
+        alwaysAllow->setChecked(true);
+    else
+        alwaysBlock->setChecked(true);
+
+    auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
+    QObject::connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+
+    using namespace Layouting;
+    // clang-format off
+    Column {
+        spacing(StyleHelper::SpacingTokens::GapVL),
+        description,
+        Column {
+            spacing(StyleHelper::SpacingTokens::GapVXs),
+            alwaysAllow,
+            allowOnce,
+            blockOnce,
+            alwaysBlock,
+        },
+        buttons,
+    }.attachTo(dialog);
+    // clang-format on
+
+    QObject::connect(
+        dialog,
+        &QDialog::finished,
+        dialog,
+        [alwaysAllow, allowOnce, alwaysBlock, callback](int result) {
+            if (result != QDialog::Accepted) {
+                callback(false);
+                return;
+            }
+            // A decision taken once replaces a remembered one, so the next
+            // download asks again.
+            if (alwaysAllow->isChecked() || alwaysBlock->isChecked())
+                Core::ICore::settings()->setValue(kRegistryAccessKey, alwaysAllow->isChecked());
+            else
+                Core::ICore::settings()->remove(kRegistryAccessKey);
+            callback(alwaysAllow->isChecked() || allowOnce->isChecked());
+        });
+
+    dialog->show();
+}
 
 class AcpRegistryBrowser : public StringSelectionAspect
 {
@@ -112,6 +220,15 @@ public:
         setComboBoxEditable(false);
 
         auto fillCallback = [this](ResultCallback resultCb) {
+            if (!s_registry && !s_registryDeclined) {
+                // The list is what the registry is needed for, so this is where
+                // the download is asked for.
+                ensureRegistry([](RegistryUpdate result) {
+                    if (result == RegistryUpdate::Failed)
+                        Core::MessageManager::writeFlashing(
+                            Tr::tr("Failed to download the agent registry."));
+                });
+            }
             QList<QStandardItem *> items = registryItems();
             // Until the registry is there, the selected template is kept as an
             // item of its own, or the combo box would fall back to the first
@@ -135,12 +252,7 @@ public:
 
     QList<QStandardItem *> registryItems()
     {
-        QList<QStandardItem *> items;
-        auto customItem = new QStandardItem(Tr::tr("<Custom>"));
-        customItem->setData(QString());
-        customItem->setToolTip(
-            Tr::tr("Manually specify an agent not listed in the registry."));
-        items.append(customItem);
+        QList<QStandardItem *> items{customItem()};
 
         if (s_registry) {
             for (const auto &agent : s_registry->agents()) {
@@ -160,38 +272,70 @@ public:
         return items;
     }
 
-    static void prefetch(std::function<void(bool success)> onDone = {})
+    static void ensureRegistry(const std::function<void(RegistryUpdate)> &onDone = {},
+                               RegistryRequest request = RegistryRequest::OnDemand)
     {
-        if (s_registry) {
+        if (s_registry && request == RegistryRequest::OnDemand) {
             if (onDone)
-                onDone(true);
+                onDone(RegistryUpdate::Updated);
             return;
         }
 
-        // A fetch on its way reports through the same signals; a second one would
-        // download the registry twice.
-        if (s_fetchingRegistry)
-            return;
-        s_fetchingRegistry = true;
+        // A fetch on its way answers every caller that joined it; a second one
+        // would download the registry twice.
+        if (onDone)
+            s_pendingCallbacks.append(onDone);
 
+        if (s_fetching)
+            return;
+        s_fetching = true;
+
+        requestRegistryAccess(
+            [](bool allowed) {
+                s_registryDeclined = !allowed;
+                if (!allowed) {
+                    s_fetching = false;
+                    notify(RegistryUpdate::Denied);
+                    return;
+                }
+                fetch();
+            },
+            request);
+    }
+
+private:
+    static QStandardItem *customItem()
+    {
+        auto item = new QStandardItem(Tr::tr("<Custom>"));
+        item->setData(QString());
+        item->setToolTip(Tr::tr("Manually specify an agent not listed in the registry."));
+        return item;
+    }
+
+    static void notify(RegistryUpdate result)
+    {
+        const QList<std::function<void(RegistryUpdate)>> callbacks = s_pendingCallbacks;
+        s_pendingCallbacks.clear();
+        for (const std::function<void(RegistryUpdate)> &callback : callbacks)
+            callback(result);
+    }
+
+    static void fetch()
+    {
         const auto setupFetch = [](QNetworkReplyWrapper &wrapper) {
             wrapper.setNetworkAccessManager(Utils::NetworkAccessManager::instance());
             wrapper.setOperation(QNetworkAccessManager::Operation::GetOperation);
-            QNetworkRequest request(
-                QUrl("https://cdn.agentclientprotocol.com/registry/v1/latest/registry.json"));
+            QNetworkRequest request(QUrl(QString::fromLatin1(kRegistryUrl)));
+            request.setTransferTimeout();
             wrapper.setRequest(request);
         };
         // Every way out answers, so that a fetch which did not arrive can be
         // told apart from one that is still on its way.
-        const auto fetchDone = [onDone](const QNetworkReplyWrapper &wrapper, DoneWith doneWith) {
-            const auto answer = [onDone](bool success) {
-                s_fetchingRegistry = false;
-                if (onDone)
-                    onDone(success);
-            };
+        const auto fetchDone = [](const QNetworkReplyWrapper &wrapper, DoneWith doneWith) {
+            s_fetching = false;
 
             if (doneWith != DoneWith::Success) {
-                answer(false);
+                notify(RegistryUpdate::Failed);
                 return;
             }
 
@@ -200,7 +344,7 @@ public:
             const QJsonDocument doc = QJsonDocument::fromJson(data, &error);
             if (error.error != QJsonParseError::NoError) {
                 qWarning() << "Failed to parse registry JSON:" << error.errorString();
-                answer(false);
+                notify(RegistryUpdate::Failed);
                 return;
             }
 
@@ -208,11 +352,13 @@ public:
                 doc.object());
             if (!registry) {
                 qWarning() << "Failed to parse registry:" << registry.error();
-                answer(false);
+                notify(RegistryUpdate::Failed);
                 return;
             }
             s_registry = std::move(*registry);
-            answer(true);
+            refillRegistryBrowsers();
+
+            notify(RegistryUpdate::Updated);
         };
 
         GlobalTaskTree::start({QNetworkReplyWrapperTask(setupFetch, fetchDone)});
@@ -490,6 +636,14 @@ public:
             using namespace Layouting;
             return Column{
                 &acpServers,
+                Row{
+                    st,
+                    PushButton{
+                        text(Tr::tr("Update Agent Registry")),
+                        Layouting::toolTip(Tr::tr("Download the list of available agents again.")),
+                        onClicked(this, [this] { updateRegistry(); }),
+                    },
+                },
             };
         });
 
@@ -500,6 +654,20 @@ public:
     {
         static AcpManagerSettings settings;
         return settings;
+    }
+
+    // Always asks, with the remembered decision preselected.
+    void updateRegistry()
+    {
+        AcpRegistryBrowser::ensureRegistry(
+            [](RegistryUpdate result) {
+                if (result == RegistryUpdate::Failed) {
+                    Core::MessageManager::writeDisrupting(
+                        Tr::tr("Failed to download the agent registry."));
+                }
+                emitRegistryResult(result);
+            },
+            RegistryRequest::ManualUpdate);
     }
 
     AspectList acpServers{this};
@@ -683,28 +851,71 @@ void setupAcpSettings()
     (void) AcpSettings::instance();
 }
 
-void prefetchAcpRegistry()
+static void emitRegistryResult(RegistryUpdate result)
 {
-    AcpRegistryBrowser::prefetch(
-        [](bool success) {
-            if (success) {
-                AcpManagerSettings::instance().acpServers.forEachItem(
-                    [](const std::shared_ptr<AcpServerAspect> &server) {
-                        // A settings page opened before the registry arrived
-                        // lists the registry now, too.
-                        server->registryBrowser.refill();
-                        server->applyRegistryTemplate();
-                    });
-                AcpManagerSettings::instance().writeSettings();
-                emit AcpSettings::instance().serversChanged();
-            }
-            emit AcpSettings::instance().registryFetched(success);
+    if (result == RegistryUpdate::Denied)
+        emit AcpSettings::instance().registryDenied();
+    else
+        emit AcpSettings::instance().registryFetched(result == RegistryUpdate::Updated);
+}
+
+#ifdef WITH_TESTS
+void updateAcpRegistry()
+{
+    AcpManagerSettings::instance().updateRegistry();
+}
+
+QWidget *createRegistryBrowserWidget()
+{
+    auto browser = new AcpRegistryBrowser;
+    QWidget *widget = Layouting::Column{*browser}.emerge();
+    browser->setParent(widget);
+    return widget;
+}
+#endif
+
+void updateAcpRegistryIfAllowed()
+{
+    if (!rememberedRegistryAccess().value_or(false))
+        return;
+
+    AcpRegistryBrowser::ensureRegistry(
+        [](RegistryUpdate result) {
+            if (result == RegistryUpdate::Updated)
+                applyRegistryToServers();
+            emitRegistryResult(result);
+        },
+        RegistryRequest::AutomaticUpdate);
+}
+
+// A settings page opened before the registry arrived lists the registry now,
+// too. Refilling keeps the selection, and unlike applying the templates it
+// leaves unapplied edits on the page alone.
+static void refillRegistryBrowsers()
+{
+    AcpManagerSettings::instance().acpServers.forEachItem(
+        [](const std::shared_ptr<AcpServerAspect> &server) {
+            server->registryBrowser.refill();
         });
+}
+
+static void applyRegistryToServers()
+{
+    AcpManagerSettings::instance().acpServers.forEachItem(
+        [](const std::shared_ptr<AcpServerAspect> &server) {
+            server->applyRegistryTemplate();
+        });
+    AcpManagerSettings::instance().writeSettings();
+    emit AcpSettings::instance().serversChanged();
 }
 
 void AcpSettings::fetchRegistry()
 {
-    prefetchAcpRegistry();
+    // On demand, so the templates are left alone: applying them writes the
+    // aspects, which would take unapplied edits on an open preferences page
+    // with it.
+    AcpRegistryBrowser::ensureRegistry(
+        [](RegistryUpdate result) { emitRegistryResult(result); });
 }
 
 } // namespace AcpClient::Internal

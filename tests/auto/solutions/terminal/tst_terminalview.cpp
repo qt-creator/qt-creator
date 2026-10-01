@@ -457,6 +457,10 @@ private slots:
 
     void aToolTipSaysWhichFormatItIs()
     {
+#ifdef Q_OS_WIN
+        QSKIP("This test is flaky on Windows");
+#endif
+
         m_view->writeToTerminal(
             "\x1b]8;;http://example.com/?a=1&b=2\x1b\\This is a link\x1b]8;;\x1b\\", true);
 

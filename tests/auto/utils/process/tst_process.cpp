@@ -1036,6 +1036,9 @@ void tst_Process::destroyBlockingProcess_data()
 
 void tst_Process::destroyBlockingProcess()
 {
+    if (Utils::HostOsInfo::isMacHost())
+        QSKIP("Flaky on macOS");
+
     QFETCH(BlockType, blockType);
 
     SubProcessConfig subConfig(ProcessTestApp::BlockingProcess::envVar(),

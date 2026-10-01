@@ -6,11 +6,26 @@
 #include <tracing/timelineoverviewwidget.h>
 #include <tracing/timelinezoomcontrol.h>
 
+#include <utils/theme/theme.h>
+#include <utils/theme/theme_p.h>
+
 #include <QApplication>
 #include <QPixmap>
+#include <QScopeGuard>
 #include <QTest>
 
 using namespace Timeline;
+
+// Gives the paused bands colours to be told from the background by.
+class BandTheme : public Utils::Theme
+{
+public:
+    BandTheme() : Utils::Theme(QLatin1String("band"))
+    {
+        d->colors[Token_Background_Muted].first = QColor(Qt::blue);
+        d->colors[Token_Stroke_Subtle].first = QColor(Qt::green);
+    }
+};
 
 class DummyModel : public TimelineModel
 {
@@ -51,6 +66,28 @@ public:
     }
 };
 
+static QImage rendered(QWidget &widget)
+{
+    QPixmap target(widget.size());
+    widget.render(&target);
+    return target.toImage();
+}
+
+// The pixel columns in which `a` and `b` differ.
+static QList<int> differingColumns(const QImage &a, const QImage &b)
+{
+    QList<int> columns;
+    for (int x = 0; x < a.width(); ++x) {
+        for (int y = 0; y < a.height(); ++y) {
+            if (a.pixel(x, y) != b.pixel(x, y)) {
+                columns.append(x);
+                break;
+            }
+        }
+    }
+    return columns;
+}
+
 static int redPixels(QWidget &widget)
 {
     QPixmap target(widget.size());
@@ -74,6 +111,7 @@ private slots:
     void noCrashEmpty();
     void noCrashWithData();
     void rowsBeyondRowCount();
+    void pausedRangesAreDrawnWhereTheyLie();
 };
 
 void tst_OverviewWidget::noCrashEmpty()
@@ -119,6 +157,43 @@ void tst_OverviewWidget::rowsBeyondRowCount()
 
     model.finalize();
     QVERIFY(redPixels(widget) > 0);
+}
+
+// 200 pixels over a trace from 100 to 1100: five time units a pixel.
+void tst_OverviewWidget::pausedRangesAreDrawnWhereTheyLie()
+{
+    Utils::setCreatorTheme(new BandTheme);
+    const QScopeGuard resetTheme([] { Utils::setCreatorTheme(nullptr); });
+
+    TimelineModelAggregator aggregator;
+    TimelineZoomControl zoom;
+    zoom.setTrace(100, 1100);
+    zoom.setRange(100, 1100);
+    TimelineOverviewWidget widget(&aggregator, &zoom);
+    widget.resize(200, 50);
+    const QImage before = rendered(widget);
+
+    aggregator.setPausedRanges({
+        {0, 300},     // Straddles the start: pixels 0 to 40.
+        {600, 700},   // Pixels 100 to 120.
+        {900, 901},   // Shorter than a pixel, and still one wide at 160.
+        {2000, 3000}, // Past the end.
+    });
+    const QList<int> columns = differingColumns(before, rendered(widget));
+
+    QVERIFY(!columns.isEmpty());
+    for (int x : columns) {
+        const bool inBand = (x >= 0 && x <= 40) || (x >= 100 && x <= 120) || (x >= 159 && x <= 161);
+        QVERIFY2(inBand, qPrintable(QString("column %1 changed").arg(x)));
+    }
+    QVERIFY(columns.contains(0));
+    QVERIFY(columns.contains(39));
+    QVERIFY(!columns.contains(41));
+    QVERIFY(columns.contains(110));
+    QVERIFY(std::any_of(columns.cbegin(), columns.cend(), [](int x) { return x >= 159 && x <= 161; }));
+
+    aggregator.setPausedRanges({});
+    QVERIFY(differingColumns(before, rendered(widget)).isEmpty());
 }
 
 QTEST_MAIN(tst_OverviewWidget)

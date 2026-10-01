@@ -15,13 +15,16 @@
 namespace Timeline {
 
 constexpr int kHueRange = 360;
-constexpr int kDefaultSaturation = 130;
-constexpr int kSaturationSteps = 16;
-
+// Number of chroma levels in the HueChromaTable; second parameter of colorByHueChroma().
+constexpr int kChromaSteps = 16;
+// Central chroma value in the HueChromaTable; what colorByHue() returns.
+constexpr double kDefaultChroma = 0.11;
+// Chroma step index in the table that holds kDefaultChroma.
+constexpr int kCentralChromaStep = kChromaSteps / 2;
 // Spaces successive selection IDs around the hue wheel for visually distinct colors.
 constexpr int kSelectionIdHueStep = 25;
 
-TRACING_EXPORT int defaultColorLightness();
+TRACING_EXPORT double defaultColorLightness();
 
 class RowLabel
 {
@@ -174,6 +177,7 @@ protected:
     QRgb colorBySelectionId(int index) const;
     QRgb colorByFraction(double fraction) const;
     QRgb colorByHue(int hue) const;
+    QRgb colorByHueChroma(int hue, int chroma) const;
 
     int insert(qint64 startTime, qint64 duration, int selectionId);
     int insertStart(qint64 startTime, int selectionId);

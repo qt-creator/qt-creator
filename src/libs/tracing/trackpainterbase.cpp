@@ -75,6 +75,7 @@ void TrackPainterBase::setTracks(const QList<TimelineModel *> &models)
         track.model = model;
         m_tracks.append(std::move(track));
     }
+    m_selectedTrack = m_selectedItem = m_hoveredTrack = m_hoveredItem = -1;
     refreshGeometry();
 }
 
@@ -492,7 +493,7 @@ QList<TrackPainterBase::OverlayStroke> TrackPainterBase::buildSelectionOverlay()
             return;
         const Track &track = m_tracks[trackIndex];
         const TimelineModel *model = track.model;
-        if (!model)
+        if (!model || idx >= model->count())
             return;
         const int topPx = track.yOffset - m_scrollOffset;
         const int row = model->row(idx);

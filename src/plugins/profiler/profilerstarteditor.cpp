@@ -103,20 +103,22 @@ public:
             showTarget();
         });
         connect(m_welcomePage, &WelcomePage::startRecordingRequested, this, [this] {
-            // The startup project goes through Qt Creator's run machinery, which
-            // is what brings the run configuration's arguments and environment,
-            // the kit's device and any deployment along. A target the user names
-            // here has none of that, and the backend launches it itself.
-            if (m_target == StartupProject)
-                ProjectExplorerPlugin::runStartupProject(currentRunMode());
-            else
-                profilerRecorder()->start();
+            startRecording(false);
         });
+        connect(m_welcomePage, &WelcomePage::startPausedRequested,
+                this, [this] { startRecording(true); });
         connect(m_recordingPage, &RecordingPage::stopRequested,
                 profilerRecorder(), &ProfilerRecorder::stop);
+        connect(m_recordingPage, &RecordingPage::pauseRequested,
+                profilerRecorder(), &ProfilerRecorder::pause);
+        connect(m_recordingPage, &RecordingPage::resumeRequested,
+                profilerRecorder(), &ProfilerRecorder::resume);
+        connect(profilerRecorder(), &ProfilerRecorder::pausedChanged,
+                m_recordingPage, &RecordingPage::setPaused);
 
         connect(profilerRecorder(), &ProfilerRecorder::started, this, [this](const QString &target) {
             m_recordingPage->showWaiting(target);
+            m_recordingPage->setPauseSupported(profilerRecorder()->canPause());
             setCurrentWidget(m_recordingPage);
         });
         connect(profilerRecorder(), &ProfilerRecorder::captureStarted,
@@ -142,8 +144,19 @@ public:
         // The page can be closed and reopened while a recording runs, and the
         // recorder outlives it; come back to the recording rather than to a
         // Start button that would do nothing.
-        if (profilerRecorder()->isRecording())
+        if (profilerRecorder()->isRecording()) {
+            m_recordingPage->showWaiting(profilerRecorder()->currentTarget());
+            m_recordingPage->setPauseSupported(profilerRecorder()->canPause());
+            if (profilerRecorder()->isProcessing()) {
+                m_recordingPage->setProcessing();
+                m_recordingPage->setProgress(profilerRecorder()->processingProgress());
+            } else {
+                if (profilerRecorder()->isCapturing())
+                    m_recordingPage->captureRunning(profilerRecorder()->recordedTime());
+                m_recordingPage->setPaused(profilerRecorder()->isPaused());
+            }
             setCurrentWidget(m_recordingPage);
+        }
 
         // What the run button would run may change while this page is open, and
         // with it what profiling the startup project would do.
@@ -181,6 +194,24 @@ private:
         return samplerMode;
     }
 
+    void startRecording(bool paused)
+    {
+        // The startup project goes through Qt Creator's run machinery, which
+        // is what brings the run configuration's arguments and environment,
+        // the kit's device and any deployment along. A target the user names
+        // here has none of that, and the backend launches it itself.
+        if (m_target == StartupProject) {
+            // Start Paused is only offered where the run is the sampler's own
+            // (see showTarget()), which has a paused counterpart.
+            ProjectExplorerPlugin::runStartupProject(
+                paused ? pausedSamplerRunMode(currentBackendId()) : currentRunMode());
+        } else if (paused) {
+            profilerRecorder()->startPaused();
+        } else {
+            profilerRecorder()->start();
+        }
+    }
+
     // Describes what the current backend and target would profile, and whether
     // it could run at all.
     void showTarget()
@@ -190,8 +221,10 @@ private:
         // interval, the features to record -- apply either way and stay, unless
         // a live profiler records the target instead (see below).
         profilerRecorder()->setTargetChosenElsewhere(m_target == StartupProject);
+        const bool canPause = profilerRecorder()->currentBackendCanPause();
 
         if (m_target == ChosenExecutable) {
+            m_welcomePage->setStartPausedAvailable(canPause);
             profilerRecorder()->setOptionsChosenElsewhere(false);
             m_welcomePage->setActiveBackend(profilerRecorder()->createConfigWidget());
             m_welcomePage->setStartEnabled(true);
@@ -224,6 +257,8 @@ private:
         // own and would ignore the backend's.
         const bool live = runMode.isValid() && runMode == liveRunModeFor(backendId);
         profilerRecorder()->setOptionsChosenElsewhere(live);
+        // A live profiler records from the start, whatever the button said.
+        m_welcomePage->setStartPausedAvailable(canPause && !live);
         QWidget *config = profilerRecorder()->createConfigWidget();
 
         auto description = new InfoLabel;

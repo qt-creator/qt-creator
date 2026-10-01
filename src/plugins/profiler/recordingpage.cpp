@@ -77,6 +77,18 @@ RecordingPage::RecordingPage(QWidget *parent)
                     Row {
                         st,
                         QtDesignWidgets::Button {
+                            bindTo(&m_pauseButton),
+                            role(QtcButton::LargeSecondary),
+                            text(Tr::tr("Pause")),
+                            Layouting::toolTip(Tr::tr("Pause recording without ending it.")),
+                            onClicked(this, [this] {
+                                if (m_paused)
+                                    emit resumeRequested();
+                                else
+                                    emit pauseRequested();
+                            }),
+                        },
+                        QtDesignWidgets::Button {
                             bindTo(&m_stopButton),
                             role(QtcButton::LargePrimary),
                             text(Tr::tr("Stop Recording")),
@@ -102,12 +114,19 @@ RecordingPage::RecordingPage(QWidget *parent)
     panel->setMinimumWidth(520);
 
     m_statusLabel->hide(); // Only shown once there is something to report.
+    m_pauseButton->hide();
 }
 
 void RecordingPage::showWaiting(const QString &processName)
 {
     m_processName = processName;
-    m_titleLabel->setText(Tr::tr("Waiting for capture of %1...").arg(processName));
+    m_capturing = false;
+    m_paused = false;
+    m_recordedMs = 0;
+    m_pauseButton->setEnabled(true);
+    m_pauseButton->setText(Tr::tr("Pause"));
+    m_pauseButton->setToolTip(Tr::tr("Pause recording without ending it."));
+    updateTitle();
     m_stopButton->setEnabled(true);
     m_stopButton->setText(Tr::tr("Stop Recording"));
     m_progressBar->hide();
@@ -118,12 +137,57 @@ void RecordingPage::showWaiting(const QString &processName)
     updateElapsed();
 }
 
+void RecordingPage::captureRunning(std::chrono::milliseconds recorded)
+{
+    captureStarted();
+    m_recordedMs = recorded.count();
+    updateElapsed();
+}
+
 void RecordingPage::captureStarted()
 {
-    m_titleLabel->setText(Tr::tr("Recording %1...").arg(m_processName));
+    m_capturing = true;
+    updateTitle();
     m_elapsed.restart();
     updateElapsed();
-    m_tick->start();
+    if (!m_paused)
+        m_tick->start();
+}
+
+void RecordingPage::setPauseSupported(bool supported)
+{
+    m_pauseButton->setVisible(supported);
+}
+
+void RecordingPage::setPaused(bool paused)
+{
+    if (m_paused == paused)
+        return;
+    m_paused = paused;
+    m_pauseButton->setText(paused ? Tr::tr("Resume") : Tr::tr("Pause"));
+    m_pauseButton->setToolTip(paused ? Tr::tr("Continue recording.")
+                                     : Tr::tr("Pause recording without ending it."));
+    if (paused) {
+        if (m_tick->isActive()) {
+            m_recordedMs += m_elapsed.elapsed();
+            m_tick->stop();
+        }
+    } else if (m_capturing) {
+        m_elapsed.restart();
+        m_tick->start();
+    }
+    updateTitle();
+    updateElapsed();
+}
+
+void RecordingPage::updateTitle()
+{
+    if (m_paused)
+        m_titleLabel->setText(Tr::tr("Paused %1").arg(m_processName));
+    else if (m_capturing)
+        m_titleLabel->setText(Tr::tr("Recording %1...").arg(m_processName));
+    else
+        m_titleLabel->setText(Tr::tr("Waiting for capture of %1...").arg(m_processName));
 }
 
 void RecordingPage::setProcessing()
@@ -131,6 +195,8 @@ void RecordingPage::setProcessing()
     // The worker is still symbolizing samples and writing the trace; freeze the
     // timer and disable the button so the click registers immediately.
     m_tick->stop();
+    m_paused = false;
+    m_pauseButton->setEnabled(false);
     m_titleLabel->setText(Tr::tr("Processing captured samples..."));
     m_stopButton->setEnabled(false);
     m_stopButton->setText(Tr::tr("Stopping..."));
@@ -163,7 +229,8 @@ void RecordingPage::stop()
 
 void RecordingPage::updateElapsed()
 {
-    m_timerLabel->setText(elapsedTimeFormatted(m_elapsed.elapsed()));
+    const qint64 current = m_tick->isActive() ? m_elapsed.elapsed() : 0;
+    m_timerLabel->setText(elapsedTimeFormatted(m_recordedMs + current));
 }
 
 } // namespace Profiler::Internal

@@ -61,6 +61,12 @@ public:
 
     QmlEventFilter rangeFilter(qint64 start, qint64 end) const;
 
+    // Stretches of the trace, in trace time, during which the recording was
+    // paused. Dropped with the events, since they describe the same trace.
+    const QList<std::pair<qint64, qint64>> &pausedRanges() const { return m_pausedRanges; }
+    void addPausedRange(qint64 start, qint64 end);
+    void setPausedRanges(const QList<std::pair<qint64, qint64>> &ranges);
+
 signals:
     void initialized();
     void typesCleared();
@@ -86,6 +92,7 @@ private:
 
     QmlProfilerDetailsRewriter *m_detailsRewriter = nullptr;
     bool m_isRestrictedToRange = false;
+    QList<std::pair<qint64, qint64>> m_pausedRanges;
 };
 
 } // namespace Profiler::Internal

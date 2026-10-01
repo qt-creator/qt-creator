@@ -61,6 +61,13 @@ WelcomePage::WelcomePage(QWidget *parent)
     connect(m_startButton, &QAbstractButton::clicked,
             this, [this] { emit startRecordingRequested(); });
 
+    m_startPausedButton = new QtcButton(Tr::tr("Start Paused"), QtcButton::LargeSecondary);
+    m_startPausedButton->setToolTip(
+        Tr::tr("Connect to the target, but record nothing until recording is resumed."));
+    m_startPausedButton->hide();
+    connect(m_startPausedButton, &QAbstractButton::clicked,
+            this, [this] { emit startPausedRequested(); });
+
     // clang-format off
     Row {
         customMargins(bigSpacing, bigSpacing, bigSpacing, bigSpacing),
@@ -87,6 +94,7 @@ WelcomePage::WelcomePage(QWidget *parent)
             },
             Row {
                 st,
+                m_startPausedButton,
                 m_startButton,
             },
             spacing(bigSpacing),
@@ -124,9 +132,15 @@ void WelcomePage::setCurrentBackend(int index)
 void WelcomePage::setStartEnabled(bool enabled, const QString &toolTip)
 {
     m_startButton->setEnabled(enabled);
+    m_startPausedButton->setEnabled(enabled);
     m_startButton->setToolTip(toolTip.isEmpty()
                                   ? Tr::tr("Start recording with the selected backend.")
                                   : toolTip);
+}
+
+void WelcomePage::setStartPausedAvailable(bool available)
+{
+    m_startPausedButton->setVisible(available);
 }
 
 void WelcomePage::setActiveBackend(QWidget *configWidget)

@@ -70,6 +70,7 @@ public:
     bool isAvailable(QString *error = nullptr) const override;
     QtTaskTree::ExecutableItem captureRecipe(
         const std::shared_ptr<RecordingSession> &session) const override;
+    bool supportsPause() const override { return true; }
 
     SamplerSettings *settings() const override;
     std::optional<SamplerFix> availableFix() const override;

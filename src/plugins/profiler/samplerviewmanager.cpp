@@ -122,6 +122,10 @@ void SamplerViewManager::load(const FilePath &dir)
             d->cpuModel.setTraceData(&d->data);
             d->callTreeModel.setTraceData(&d->data);
             d->modelAggregator.setModels({&d->cpuModel});
+            Timeline::TimelineModelAggregator::PausedRanges paused;
+            for (const auto &[start, end] : std::as_const(d->data.pausedRangesUs))
+                paused.append({qint64(start) * 1000, qint64(end) * 1000});
+            d->modelAggregator.setPausedRanges(paused);
             const qint64 end = d->cpuModel.traceEndNs();
             const qint64 padded = end + qMax<qint64>(end / 20, 1000);
             // Drop any selection left over from a previously loaded trace.
@@ -141,6 +145,7 @@ void SamplerViewManager::clear()
     d->cpuModel.setTraceData(nullptr);
     d->callTreeModel.setTraceData(nullptr);
     d->modelAggregator.setModels({});
+    d->modelAggregator.setPausedRanges({});
     d->zoomControl.clear();
     d->data = {};
     // The zoom control's clear() emits selectionChanged, which re-arms the

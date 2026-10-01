@@ -1,5 +1,7 @@
 add_subdirectory(tst_calltreemodel)
 add_subdirectory(tst_cpuusagemodel)
+add_subdirectory(tst_qmlrecordingtimeline)
+add_subdirectory(tst_recordingsession)
 add_subdirectory(tst_samplemerge)
 add_subdirectory(tst_sampletrace)
 add_subdirectory(tst_symbolicator)

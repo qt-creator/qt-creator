@@ -68,6 +68,15 @@ public:
     // the two apart.
     int receivedSamples() const { return m_receivedSamples; }
 
+    // Puts the recording's pauses on the trace's own timeline.
+    void addPausedRanges()
+    {
+        if (m_firstTimestampNs >= 0) {
+            m_data.pausedRangesUs = pausedRangesUs(m_session->pausedIntervals(),
+                                                   m_firstTimestampNs, m_lastKeptUs);
+        }
+    }
+
 private:
     bool parseNextMessage()
     {
@@ -218,6 +227,11 @@ private:
 
     void appendSample(const PerfEvent &event)
     {
+        // perf keeps recording while paused, and what perfparser hands over has
+        // been waiting behind it for as long as it takes to unwind, so a sample
+        // is judged by when perf took it (the recording uses the steady clock).
+        if (m_session->wasPausedAt(event.timestamp()))
+            return;
         m_data.pid = event.pid();
         ++m_receivedSamples;
 
@@ -247,6 +261,7 @@ private:
         sample.frames.reserve(reversedFrames.size());
         for (auto it = reversedFrames.crbegin(); it != reversedFrames.crend(); ++it)
             sample.frames.append(*it);
+        m_lastKeptUs = sample.tsUs;
         m_data.samples.append(std::move(sample));
     }
 
@@ -256,6 +271,7 @@ private:
     qint32 m_dataStreamVersion = -1;
     int m_receivedSamples = 0;
     qint64 m_firstTimestampNs = -1;
+    quint64 m_lastKeptUs = 0;
     QHash<qint32, QByteArray> m_strings;
     QHash<qint32, PerfEventType::Location> m_locations;
     QHash<qint32, PerfProfilerTraceManager::Symbol> m_symbols;
@@ -565,8 +581,11 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
 
     const auto onRecordSetup = [session, perfExe, recordArgs, parserProcessPtr,
                                 recordOutcome](Process &process) {
+        // The steady clock, so that the recording's pauses can be placed among
+        // the samples by their timestamps (see RecordingSession::wasPausedAt).
         CommandLine cmd(perfExe,
-                        {"record", "--pid", QString::number(session->pid.load()), "-o", "-"});
+                        {"record", "--pid", QString::number(session->pid.load()),
+                         "-k", "CLOCK_MONOTONIC", "-o", "-"});
         cmd.addArgs(recordArgs, CommandLine::Raw);
         process.setCommand(cmd);
 
@@ -591,7 +610,17 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
                 parser->writeRaw(p->readAllRawStandardOutput());
         });
 
-        session->markStarted(); // perf is attached; the duration clock can start
+        // perf is attached, so the duration clock can start -- unless the
+        // recording begins paused, whose trace starts at the first resume.
+        if (!session->isPaused()) {
+            session->markStarted();
+        } else {
+            // Weak: the session keeps its handlers.
+            session->onPausedChanged(&process, [weak = std::weak_ptr(session)](bool paused) {
+                if (const std::shared_ptr<RecordingSession> session = weak.lock(); session && !paused)
+                    session->markStarted();
+            });
+        }
     };
     const auto onRecordDone = [session, parserProcessPtr, recordOutcome](const Process &process,
                                                                         DoneWith result) {
@@ -687,6 +716,14 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
             return;
         }
         if (sampleData->samples.isEmpty()) {
+            // Capture only goes live at the first resume. perf giving up
+            // on its own says more than that it was never resumed.
+            if (!session->isStarted() && !recordOutcome->failed) {
+                session->result = ResultError(session->isStopRequested()
+                                                  ? stoppedBeforeResumeMessage()
+                                                  : exitedBeforeResumeMessage());
+                return;
+            }
             session->result = ResultError(
                 noSamplesError(recordOutcome->stdErr, recordOutcome->failed,
                                decoder->receivedSamples()));
@@ -700,6 +737,7 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
             return;
         }
 
+        decoder->addPausedRanges();
         const auto writeProgress = [session](int percent) {
             session->setProgress(percent);
         };

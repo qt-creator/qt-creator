@@ -59,6 +59,14 @@ private slots:
     void trigraph_data();
 
     void truncatedMultibyteIdentifier();
+    void lineStart_data();
+    void lineStart();
+    void lineStartAcrossChunks_data();
+    void lineStartAcrossChunks();
+    void continuedCommentNewline_data();
+    void continuedCommentNewline();
+    void newlineAfterComment_data();
+    void newlineAfterComment();
 
     void bytes_and_utf16chars();
     void bytes_and_utf16chars_data();
@@ -601,6 +609,155 @@ void tst_SimpleLexer::truncatedMultibyteIdentifier()
         QCOMPARE(kinds.size(), 2);
         QCOMPARE(kinds.first(), (unsigned) T_IDENTIFIER);
         QCOMPARE(kinds.last(),  (unsigned) T_EOF_SYMBOL);
+    }
+}
+
+void tst_SimpleLexer::continuedCommentNewline_data()
+{
+    QTest::addColumn<QStringList>("chunks");
+    QTest::addColumn<Kind>("lastKind");
+    QTest::addColumn<bool>("startsLine");
+
+    QTest::newRow("starts-line") << QStringList{"\n/*", " */#"} << T_POUND << true;
+    QTest::newRow("after-code") << QStringList{"int a; /*", " */#"} << T_POUND << false;
+    QTest::newRow("starts-line-three-chunks")
+        << QStringList{"\n/*", "still open", " */#"} << T_POUND << true;
+    QTest::newRow("after-code-three-chunks")
+        << QStringList{"int a; /*", "still open", " */#"} << T_POUND << false;
+    QTest::newRow("starts-line-whitespace-chunk")
+        << QStringList{"/*", " ", " */#"} << T_POUND << true;
+    QTest::newRow("after-code-whitespace-chunk")
+        << QStringList{"int a; /*", " ", " */#"} << T_POUND << false;
+    QTest::newRow("doxygen-comment")
+        << QStringList{"/**", " */#"} << T_POUND << true;
+    QTest::newRow("doxygen-comment-after-code")
+        << QStringList{"int a; /**", " */#"} << T_POUND << false;
+    QTest::newRow("chained-comments")
+        << QStringList{"\n/* x *//*", " */#"} << T_POUND << true;
+    QTest::newRow("macro-continuation")
+        << QStringList{"#define X 1 /*", " */ +"} << T_PLUS << false;
+    QTest::newRow("crlf-starts-line")
+        << QStringList{"\r\n/*", "\r\n*/#"} << T_POUND << true;
+    QTest::newRow("crlf-after-code")
+        << QStringList{"int a; /*", "\r\n*/#"} << T_POUND << false;
+    QTest::newRow("digraph-starts-line")
+        << QStringList{"/*", " */%:"} << T_POUND << true;
+    QTest::newRow("digraph-after-code")
+        << QStringList{"int a; /*", " */%:"} << T_POUND << false;
+}
+
+void tst_SimpleLexer::continuedCommentNewline()
+{
+    QFETCH(QStringList, chunks);
+    QFETCH(Kind, lastKind);
+    QFETCH(bool, startsLine);
+
+    for (bool skipComments : {false, true}) {
+        SimpleLexer lexer;
+        lexer.setSkipComments(skipComments);
+        Tokens tokens;
+        for (const QString &chunk : chunks)
+            tokens = lexer(chunk, lexer.state());
+        QVERIFY(!tokens.isEmpty());
+        QCOMPARE(tokens.last().kind(), lastKind);
+        QCOMPARE(tokens.last().newline(), startsLine);
+    }
+}
+
+void tst_SimpleLexer::newlineAfterComment_data()
+{
+    QTest::addColumn<QString>("source");
+    QTest::addColumn<Kind>("lastKind");
+    QTest::addColumn<bool>("startsLine");
+
+    QTest::newRow("multiline-comment-at-line-start") << QString("/*\n*/#") << T_POUND << true;
+    QTest::newRow("single-line-comment-at-line-start") << QString("\n/* x */#")
+                                                       << T_POUND << true;
+    QTest::newRow("chained-comments-at-line-start") << QString("\n/* x *//*\n*/#")
+                                                   << T_POUND << true;
+    QTest::newRow("empty-block-comment") << QString("/**/#") << T_POUND << true;
+    QTest::newRow("bang-doxygen-comment") << QString("/*! x */#") << T_POUND << true;
+    QTest::newRow("crlf-comment-at-line-start") << QString("\r\n/*\r\n*/#")
+                                                 << T_POUND << true;
+    QTest::newRow("digraph-at-line-start") << QString("/*\n*/%:") << T_POUND << true;
+    QTest::newRow("splice-after-comment-at-line-start") << QString("/* x */\\\n#")
+                                                         << T_POUND << true;
+    QTest::newRow("splice-after-multiline-comment") << QString("/*\n*/\\\n#")
+                                                    << T_POUND << true;
+}
+
+void tst_SimpleLexer::newlineAfterComment()
+{
+    QFETCH(QString, source);
+    QFETCH(Kind, lastKind);
+    QFETCH(bool, startsLine);
+
+    for (bool skipComments : {false, true}) {
+        SimpleLexer lexer;
+        lexer.setSkipComments(skipComments);
+        const Tokens tokens = lexer(source);
+        QVERIFY(!tokens.isEmpty());
+        QCOMPARE(tokens.last().kind(), lastKind);
+        QCOMPARE(tokens.last().newline(), startsLine);
+    }
+}
+
+void tst_SimpleLexer::lineStart_data()
+{
+    QTest::addColumn<QString>("source");
+    QTest::addColumn<Kind>("lastKind");
+    QTest::addColumn<bool>("startsLine");
+
+    QTest::newRow("splice-at-line-start") << QString("int a;\n\\\n#") << T_POUND << true;
+    QTest::newRow("splice-after-code") << QString("int a;\\\n#") << T_POUND << false;
+    QTest::newRow("multiline-comment-after-code") << QString("int a; /*\n*/#") << T_POUND << false;
+    QTest::newRow("splice-after-comment-after-code") << QString("int a; /* x */\\\n#")
+                                                      << T_POUND << false;
+    QTest::newRow("macro-body-after-multiline-comment") << QString("#define X 1 /*\n*/ +")
+                                                         << T_PLUS << false;
+}
+
+void tst_SimpleLexer::lineStart()
+{
+    QFETCH(QString, source);
+    QFETCH(Kind, lastKind);
+    QFETCH(bool, startsLine);
+
+    for (bool skipComments : {false, true}) {
+        SimpleLexer lexer;
+        lexer.setSkipComments(skipComments);
+        const Tokens tokens = lexer(source);
+        QVERIFY(!tokens.isEmpty());
+        QCOMPARE(tokens.last().kind(), lastKind);
+        QCOMPARE(tokens.last().newline(), startsLine);
+    }
+}
+
+void tst_SimpleLexer::lineStartAcrossChunks_data()
+{
+    QTest::addColumn<QStringList>("chunks");
+    QTest::addColumn<Kind>("lastKind");
+    QTest::addColumn<bool>("startsLine");
+
+    QTest::newRow("splice-before-comment")
+        << QStringList{"int a; \\", "/*", " */#"} << T_POUND << false;
+}
+
+void tst_SimpleLexer::lineStartAcrossChunks()
+{
+    QFETCH(QStringList, chunks);
+    QFETCH(Kind, lastKind);
+    QFETCH(bool, startsLine);
+
+    for (bool skipComments : {false, true}) {
+        SimpleLexer lexer;
+        lexer.setSkipComments(skipComments);
+        Tokens tokens;
+        for (const QString &chunk : chunks)
+            tokens = lexer(chunk, lexer.state());
+        QVERIFY(!tokens.isEmpty());
+        QCOMPARE(tokens.last().kind(), lastKind);
+        QCOMPARE(tokens.last().newline(), startsLine);
     }
 }
 

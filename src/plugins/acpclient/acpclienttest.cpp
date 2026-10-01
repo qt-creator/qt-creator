@@ -42,8 +42,10 @@
 #include <utils/hostosinfo.h>
 #include <utils/markdownbrowser.h>
 
+#include <QApplication>
 #include <QComboBox>
 #include <QCoreApplication>
+#include <QDialog>
 #include <QDir>
 #include <QDoubleSpinBox>
 #include <QJsonArray>
@@ -65,6 +67,8 @@
 #include <QTextBrowser>
 #include <QVBoxLayout>
 #include <QWheelEvent>
+
+#include <memory>
 
 using namespace Acp;
 using namespace Utils;
@@ -566,6 +570,15 @@ private slots:
     void testTermsWidget();
     void testChatWidgetTermsGate();
     void testChatWidgetTermsAccepted();
+
+    // Tier 6: agent registry
+    void testRegistryRememberedDenial();
+    void testRegistryNoAutomaticUpdateUndecided();
+    void testChatTabRegistryErrors();
+    void testRegistryDialogBlockOnce();
+    void testRegistryDialogAlwaysBlock();
+    void testRegistryDialogCancel();
+    void testRegistryBrowserAfterBlockOnce();
 };
 
 // --- Tier 1a -----------------------------------------------------------------
@@ -3690,6 +3703,258 @@ void AcpClientTest::testChatWidgetTermsAccepted()
     QAbstractButton *addButton = buttonWithText(&widget, Tr::tr("Add Chat"));
     QVERIFY(addButton);
     QVERIFY(addButton->isEnabled());
+}
+
+// --- Tier 6 ------------------------------------------------------------------
+
+static const char kRegistryAccessKey[] = "AcpClient/AllowRegistryDownload";
+
+static void setRegistryAccess(const QVariant &access)
+{
+    if (access.isValid())
+        Core::ICore::settings()->setValue(kRegistryAccessKey, access);
+    else
+        Core::ICore::settings()->remove(kRegistryAccessKey);
+}
+
+// A loaded registry answers without asking, and with the download always allowed
+// the automatic update from startup may still be on its way.
+static QString registryInUseReason()
+{
+    if (AcpSettings::isRegistryAvailable())
+        return "The agent registry is loaded already.";
+    if (Core::ICore::settings()->value(kRegistryAccessKey).toBool())
+        return "The agent registry download is always allowed.";
+    return {};
+}
+
+static QDialog *registryAccessDialog()
+{
+    for (QWidget *widget : QApplication::topLevelWidgets()) {
+        auto dialog = qobject_cast<QDialog *>(widget);
+        if (dialog && dialog->isVisible()
+            && dialog->windowTitle() == Tr::tr("Download Agent Registry")) {
+            return dialog;
+        }
+    }
+    return nullptr;
+}
+
+static QString visibleInfoText(const QWidget *parent)
+{
+    QStringList texts;
+    for (const QLabel *label : parent->findChildren<QLabel *>()) {
+        if (label->isVisibleTo(parent))
+            texts.append(label->text());
+    }
+    return texts.join('\n');
+}
+
+// A remembered denial answers at once, without asking.
+void AcpClientTest::testRegistryRememberedDenial()
+{
+    if (const QString reason = registryInUseReason(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    const QVariant access = Core::ICore::settings()->value(kRegistryAccessKey);
+    const QScopeGuard restoreAccess([access] {
+        if (QDialog *dialog = registryAccessDialog())
+            dialog->reject();
+        setRegistryAccess(access);
+    });
+    setRegistryAccess(false);
+
+    QSignalSpy denied(&AcpSettings::instance(), &AcpSettings::registryDenied);
+    QSignalSpy fetched(&AcpSettings::instance(), &AcpSettings::registryFetched);
+    AcpSettings::fetchRegistry();
+
+    QCOMPARE(denied.count(), 1);
+    QCOMPARE(fetched.count(), 0);
+    QVERIFY(!registryAccessDialog());
+}
+
+// Without a remembered decision there is no automatic update, and nothing asks.
+void AcpClientTest::testRegistryNoAutomaticUpdateUndecided()
+{
+    if (const QString reason = registryInUseReason(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    const QVariant access = Core::ICore::settings()->value(kRegistryAccessKey);
+    const QScopeGuard restoreAccess([access] {
+        if (QDialog *dialog = registryAccessDialog())
+            dialog->reject();
+        setRegistryAccess(access);
+    });
+    setRegistryAccess({});
+
+    updateAcpRegistryIfAllowed();
+    QVERIFY(!registryAccessDialog());
+
+    // A request started above would still be pending and take this one in, so
+    // an answer right away shows that none was started.
+    setRegistryAccess(false);
+    QSignalSpy denied(&AcpSettings::instance(), &AcpSettings::registryDenied);
+    AcpSettings::fetchRegistry();
+    QCOMPARE(denied.count(), 1);
+}
+
+// The registry page tells a blocked download apart from one that failed.
+void AcpClientTest::testChatTabRegistryErrors()
+{
+    if (const QString reason = registryInUseReason(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    const QVariant access = Core::ICore::settings()->value(kRegistryAccessKey);
+    const QScopeGuard restoreAccess([access] {
+        if (QDialog *dialog = registryAccessDialog())
+            dialog->reject();
+        setRegistryAccess(access);
+    });
+    setRegistryAccess(false);
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(true);
+
+    AcpChatWidget widget;
+    auto tab = widget.findChild<AcpChatTab *>();
+    QVERIFY(tab);
+    QAbstractButton *addAgent = buttonWithText(tab, Tr::tr("Add Agent"));
+    QVERIFY(addAgent);
+
+    addAgent->click();
+    QVERIFY(visibleInfoText(tab).contains("is blocked"));
+    QVERIFY(!visibleInfoText(tab).contains("could not be fetched"));
+
+    emit AcpSettings::instance().registryFetched(false);
+    QVERIFY(visibleInfoText(tab).contains("could not be fetched"));
+    QVERIFY(!visibleInfoText(tab).contains("is blocked"));
+}
+
+static QAbstractButton *checkedButton(const QWidget *parent)
+{
+    const QList<QAbstractButton *> buttons = parent->findChildren<QAbstractButton *>();
+    return Utils::findOrDefault(buttons, &QAbstractButton::isChecked);
+}
+
+// A decision taken once replaces a remembered one.
+void AcpClientTest::testRegistryDialogBlockOnce()
+{
+    if (const QString reason = registryInUseReason(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    const QVariant access = Core::ICore::settings()->value(kRegistryAccessKey);
+    const QScopeGuard restoreAccess([access] {
+        if (QDialog *dialog = registryAccessDialog())
+            dialog->reject();
+        setRegistryAccess(access);
+    });
+    setRegistryAccess(false);
+
+    QSignalSpy denied(&AcpSettings::instance(), &AcpSettings::registryDenied);
+    QSignalSpy fetched(&AcpSettings::instance(), &AcpSettings::registryFetched);
+    updateAcpRegistry();
+
+    QDialog *dialog = registryAccessDialog();
+    QVERIFY(dialog);
+    QCOMPARE(checkedButton(dialog), buttonWithText(dialog, Tr::tr("Always block")));
+    QAbstractButton *blockOnce = buttonWithText(dialog, Tr::tr("Block once"));
+    QVERIFY(blockOnce);
+    blockOnce->setChecked(true);
+    dialog->accept();
+
+    QVERIFY(!Core::ICore::settings()->contains(kRegistryAccessKey));
+    QCOMPARE(denied.count(), 1);
+    QCOMPARE(fetched.count(), 0);
+}
+
+void AcpClientTest::testRegistryDialogAlwaysBlock()
+{
+    if (const QString reason = registryInUseReason(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    const QVariant access = Core::ICore::settings()->value(kRegistryAccessKey);
+    const QScopeGuard restoreAccess([access] {
+        if (QDialog *dialog = registryAccessDialog())
+            dialog->reject();
+        setRegistryAccess(access);
+    });
+    setRegistryAccess({});
+
+    QSignalSpy denied(&AcpSettings::instance(), &AcpSettings::registryDenied);
+    QSignalSpy fetched(&AcpSettings::instance(), &AcpSettings::registryFetched);
+    updateAcpRegistry();
+
+    QDialog *dialog = registryAccessDialog();
+    QVERIFY(dialog);
+    QCOMPARE(checkedButton(dialog), buttonWithText(dialog, Tr::tr("Allow once")));
+    QAbstractButton *alwaysBlock = buttonWithText(dialog, Tr::tr("Always block"));
+    QVERIFY(alwaysBlock);
+    alwaysBlock->setChecked(true);
+    dialog->accept();
+
+    const QVariant remembered = Core::ICore::settings()->value(kRegistryAccessKey);
+    QVERIFY(remembered.isValid());
+    QCOMPARE(remembered.toBool(), false);
+    QCOMPARE(denied.count(), 1);
+    QCOMPARE(fetched.count(), 0);
+}
+
+// Cancel does not download and keeps the remembered decision.
+void AcpClientTest::testRegistryDialogCancel()
+{
+    if (const QString reason = registryInUseReason(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    const QVariant access = Core::ICore::settings()->value(kRegistryAccessKey);
+    const QScopeGuard restoreAccess([access] {
+        if (QDialog *dialog = registryAccessDialog())
+            dialog->reject();
+        setRegistryAccess(access);
+    });
+    setRegistryAccess(false);
+
+    QSignalSpy denied(&AcpSettings::instance(), &AcpSettings::registryDenied);
+    QSignalSpy fetched(&AcpSettings::instance(), &AcpSettings::registryFetched);
+    updateAcpRegistry();
+
+    QDialog *dialog = registryAccessDialog();
+    QVERIFY(dialog);
+    QAbstractButton *allowOnce = buttonWithText(dialog, Tr::tr("Allow once"));
+    QVERIFY(allowOnce);
+    allowOnce->setChecked(true);
+    dialog->reject();
+
+    const QVariant remembered = Core::ICore::settings()->value(kRegistryAccessKey);
+    QVERIFY(remembered.isValid());
+    QCOMPARE(remembered.toBool(), false);
+    QCOMPARE(denied.count(), 1);
+    QCOMPARE(fetched.count(), 0);
+}
+
+// The template selections on the ACP Servers page do not ask again once the
+// download was blocked.
+void AcpClientTest::testRegistryBrowserAfterBlockOnce()
+{
+    if (const QString reason = registryInUseReason(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    const QVariant access = Core::ICore::settings()->value(kRegistryAccessKey);
+    const QScopeGuard restoreAccess([access] {
+        if (QDialog *dialog = registryAccessDialog())
+            dialog->reject();
+        setRegistryAccess(access);
+    });
+    setRegistryAccess({});
+
+    QSignalSpy denied(&AcpSettings::instance(), &AcpSettings::registryDenied);
+    updateAcpRegistry();
+    QDialog *dialog = registryAccessDialog();
+    QVERIFY(dialog);
+    QAbstractButton *blockOnce = buttonWithText(dialog, Tr::tr("Block once"));
+    QVERIFY(blockOnce);
+    blockOnce->setChecked(true);
+    dialog->accept();
+    QCOMPARE(denied.count(), 1);
+
+    const std::unique_ptr<QWidget> first(createRegistryBrowserWidget());
+    QVERIFY(first->findChild<QComboBox *>());
+    QVERIFY(!registryAccessDialog());
+    const std::unique_ptr<QWidget> second(createRegistryBrowserWidget());
+    QVERIFY(!registryAccessDialog());
+    QCOMPARE(denied.count(), 1);
 }
 
 QObject *createAcpClientTest()

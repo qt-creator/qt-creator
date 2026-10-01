@@ -37,6 +37,12 @@ struct SamplerOptions
     qint64 pid = 0;       // Process id to attach to; 0 selects by processName instead.
     QString processName;  // Executable basename to attach to, e.g. "Qt Creator".
     int intervalUs = 200; // Target delay between samples; 0 = as fast as possible.
+    // Polled from the sampling thread; while it returns true, nothing is sampled
+    // and the target runs undisturbed. Unset means never paused.
+    std::function<bool()> isPaused;
+    // Called once, when sampling actually begins: at once, or at the first
+    // resume of a recording that starts paused.
+    std::function<void()> markStarted;
 };
 
 // Announces that what a frontend shows of a recording has changed. Its own
@@ -162,6 +168,9 @@ struct RecordingSession : std::enable_shared_from_this<RecordingSession>
         // owns the child, and a capture still running may outlive either.
         child->m_parent = weak_from_this();
         m_children.push_back(child);
+        // A recording that starts paused has its sides begin paused too.
+        if (m_paused)
+            child->setPaused(true);
     }
 
     // Ends the recording: the captures wind down and write what they have.
@@ -174,6 +183,8 @@ struct RecordingSession : std::enable_shared_from_this<RecordingSession>
         // handler may start something that registers another.
         const std::vector<std::pair<QPointer<QObject>, std::function<void()>>> handlers
             = std::exchange(m_stopHandlers, {});
+        // Pausing has no effect from now on (see setPaused()).
+        m_pauseHandlers.clear();
         for (const auto &[context, handler] : handlers) {
             if (context)
                 handler();
@@ -198,6 +209,96 @@ struct RecordingSession : std::enable_shared_from_this<RecordingSession>
             return;
         }
         m_stopHandlers.emplace_back(context, handler);
+    }
+
+    // Suspends or continues capturing without ending the recording. Cascades
+    // to sub-sessions like requestStop(). Has no effect once a stop has been
+    // requested. GUI thread only. Set before the capture runs, it makes the
+    // capture begin paused: a backend that supportsPause() reads isPaused()
+    // when it sets up, and records nothing until the first resume.
+    void setPaused(bool paused)
+    {
+        if (m_stopRequested || m_paused == paused)
+            return;
+        m_paused = paused;
+        {
+            QMutexLocker lock(&m_pauseIntervalsMutex);
+            const qint64 now = steadyNowNs();
+            if (paused)
+                m_pauseIntervals.push_back({now, -1});
+            else if (!m_pauseIntervals.empty())
+                m_pauseIntervals.back().second = now;
+        }
+        for (const auto &[context, handler] : std::vector(m_pauseHandlers)) {
+            if (context)
+                handler(paused);
+        }
+        for (const std::shared_ptr<RecordingSession> &child : m_children)
+            child->setPaused(paused);
+        notifyReports();
+    }
+
+    bool isPaused() const { return m_paused; }
+
+    bool isStopRequested() const { return m_stopRequested; }
+
+    // The pauses so far as (start, end) on the steady_clock timeline, in
+    // nanoseconds; the end is -1 for one still going on. Safe from any thread.
+    // A capture that cannot stop at the moment of a pause, because what it
+    // reads is delivered late, judges each sample by when it was taken with
+    // this, rather than by isPaused() at the time it gets to it.
+    std::vector<std::pair<qint64, qint64>> pausedIntervals() const
+    {
+        QMutexLocker lock(&m_pauseIntervalsMutex);
+        return m_pauseIntervals;
+    }
+
+    // Whether the recording was paused at `steadyNs` on the steady_clock
+    // timeline, whatever its state is now.
+    bool wasPausedAt(qint64 steadyNs) const
+    {
+        QMutexLocker lock(&m_pauseIntervalsMutex);
+        return std::any_of(m_pauseIntervals.cbegin(), m_pauseIntervals.cend(),
+                           [steadyNs](const std::pair<qint64, qint64> &interval) {
+                               return steadyNs >= interval.first
+                                      && (interval.second < 0 || steadyNs < interval.second);
+                           });
+    }
+
+    // How long capture has been live, not counting its pauses; zero while it
+    // is not live yet. A composite is live from when its last side went live.
+    std::chrono::nanoseconds recordedTime() const
+    {
+        qint64 liveSinceNs = startedMonotonicUs.load() * 1000;
+        for (const std::shared_ptr<RecordingSession> &child : m_children)
+            liveSinceNs = std::max(liveSinceNs, child->startedMonotonicUs.load() * 1000);
+        if (!isStarted() || liveSinceNs < 0)
+            return {};
+        const qint64 now = steadyNowNs();
+        qint64 recorded = now - liveSinceNs;
+        for (const auto &[start, end] : pausedIntervals()) {
+            const qint64 from = std::max(start, liveSinceNs);
+            const qint64 to = end < 0 ? now : end;
+            if (to > from)
+                recorded -= to - from;
+        }
+        return std::chrono::nanoseconds(std::max<qint64>(0, recorded));
+    }
+
+    static qint64 steadyNowNs()
+    {
+        return std::chrono::duration_cast<std::chrono::nanoseconds>(
+                   std::chrono::steady_clock::now().time_since_epoch()).count();
+    }
+
+    // Runs `handler` with the new state each time setPaused() changes it, for
+    // as long as `context` lives. A capture that supports pausing hooks this.
+    void onPausedChanged(QObject *context, const std::function<void(bool)> &handler)
+    {
+        // Unlike a stop, pausing is not a one-shot that clears them, so the
+        // handlers whose context has gone are dropped here.
+        std::erase_if(m_pauseHandlers, [](const auto &entry) { return !entry.first; });
+        m_pauseHandlers.emplace_back(context, handler);
     }
 
     // Whether capture is live. A composite is only live once both its sides
@@ -282,6 +383,11 @@ private:
     // stop any more: a capture with a loop of its own watches its task's
     // promise, everyone else is called (see requestStop()).
     bool m_stopRequested = false;
+    // Atomic because a sampling thread polls it (see SamplerOptions::isPaused).
+    std::atomic_bool m_paused = false;
+    mutable QMutex m_pauseIntervalsMutex;
+    std::vector<std::pair<qint64, qint64>> m_pauseIntervals;
+    std::vector<std::pair<QPointer<QObject>, std::function<void(bool)>>> m_pauseHandlers;
 
     std::vector<std::shared_ptr<RecordingSession>> m_children;
     std::weak_ptr<RecordingSession> m_parent;
@@ -292,6 +398,11 @@ private:
     std::shared_ptr<RecordingReporter> m_reporter{new RecordingReporter,
                                                   [](RecordingReporter *r) { r->deleteLater(); }};
 };
+
+// Why a recording that was stopped before its first resume has no trace.
+PROFILER_EXPORT QString stoppedBeforeResumeMessage();
+// Why one whose target went away before its first resume has none.
+PROFILER_EXPORT QString exitedBeforeResumeMessage();
 
 // Backend-specific recording settings. Besides holding the options, it renders its
 // own configuration controls via AspectContainer::setLayouter(), keeping them next
@@ -450,6 +561,10 @@ public:
     // backend composes itself; a frontend launching through Qt Creator's run
     // machinery has to arrange it on the run control instead, and asks this.
     virtual bool needsQmlChannel() const { return false; }
+
+    // Whether a recording can be paused and resumed. The backend then begins
+    // paused when its session is, and hooks RecordingSession::onPausedChanged().
+    virtual bool supportsPause() const { return false; }
 
     // Backend-specific recording settings, which also render the backend's own
     // configuration controls and attach/connect start buttons (see SamplerSettings).

@@ -65,16 +65,10 @@ public:
     QPointer<PerfProfilerStatisticsView> statisticsView;
     QPointer<PerfProfilerFlameGraphView> flameGraphView;
 
-    QToolButton recordButton;
-    QToolButton clearButton;
-    QToolButton filterButton;
-    QMenu filterMenu;
     QToolButton aggregateButton;
     QToolButton tracePointsButton;
     QLabel recordedLabel;
     QLabel delayLabel;
-    QAction stopAction;
-    QToolButton stopButton;
 
     QList<QAction *> loadSaveActions; // Owned by the tool; shown in context menus.
     QAction *limitToRange = nullptr;
@@ -262,8 +256,7 @@ QWidgetList PerfProfilerTraceBackend::views(QWidget *parent)
 
 QList<QWidget *> PerfProfilerTraceBackend::toolBarWidgets()
 {
-    return {&d->recordButton, &d->stopButton, &d->clearButton, &d->filterButton,
-            &d->aggregateButton, &d->recordedLabel, &d->delayLabel, &d->tracePointsButton};
+    return {&d->aggregateButton, &d->recordedLabel, &d->delayLabel, &d->tracePointsButton};
 }
 
 void PerfProfilerTraceBackend::load(const FilePath &path)
@@ -301,7 +294,6 @@ void PerfProfilerTraceBackend::clearUi()
     if (d->traceView)
         d->traceView->clear();
     updateTime(0, 0);
-    updateFilterMenu();
 }
 
 void PerfProfilerTraceBackend::clear()
@@ -316,19 +308,9 @@ bool PerfProfilerTraceBackend::isEmpty() const
     return d->traceManager.isEmpty();
 }
 
-bool PerfProfilerTraceBackend::isRecording() const
-{
-    return d->recordButton.isChecked();
-}
-
 bool PerfProfilerTraceBackend::isReaderRunning() const
 {
     return d->readerRunning;
-}
-
-QAction *PerfProfilerTraceBackend::stopAction() const
-{
-    return &d->stopAction;
 }
 
 void PerfProfilerTraceBackend::restrictToSelectedRange()
@@ -361,44 +343,10 @@ PerfTimelineModelManager *PerfProfilerTraceBackend::modelManager() const
 
 void PerfProfilerTraceBackend::setupToolBar()
 {
-    StyleHelper::setPanelWidget(&d->recordButton);
-    StyleHelper::setPanelWidget(&d->clearButton);
-    StyleHelper::setPanelWidget(&d->filterButton);
     StyleHelper::setPanelWidget(&d->aggregateButton);
     StyleHelper::setPanelWidget(&d->tracePointsButton);
     StyleHelper::setPanelWidget(&d->recordedLabel);
     StyleHelper::setPanelWidget(&d->delayLabel);
-
-    d->recordButton.setCheckable(true);
-    QMenu *recordMenu = new QMenu(&d->recordButton);
-    connect(recordMenu, &QMenu::aboutToShow, recordMenu, [recordMenu] {
-        recordMenu->hide();
-        PerfSettings *settings = nullptr;
-        ProjectExplorer::Target *target = ProjectExplorer::ProjectManager::startupTarget();
-        if (target) {
-            if (auto runConfig = ProjectExplorer::activeRunConfigForActiveProject())
-                settings = runConfig->currentSettings<PerfSettings>(Constants::PerfSettingsId);
-        }
-        QWidget *widget = settings ? settings->createPerfConfigWidget(target)
-                                   : globalSettings().createPerfConfigWidget(target);
-        widget->setWindowFlags(Qt::Dialog);
-        widget->setAttribute(Qt::WA_DeleteOnClose);
-        widget->show();
-    }, Qt::QueuedConnection);
-    d->recordButton.setPopupMode(QToolButton::MenuButtonPopup);
-    d->recordButton.setMenu(recordMenu);
-    connect(&d->recordButton, &QAbstractButton::clicked,
-            this, &PerfProfilerTraceBackend::setRecording);
-    setRecording(true);
-
-    d->clearButton.setIcon(Icons::CLEAN_TOOLBAR.icon());
-    d->clearButton.setToolTip(Tr::tr("Discard data."));
-    connect(&d->clearButton, &QAbstractButton::clicked, this, [this] { clear(); });
-
-    d->filterButton.setIcon(Icons::FILTER.icon());
-    d->filterButton.setPopupMode(QToolButton::InstantPopup);
-    d->filterButton.setProperty(StyleHelper::C_NO_ARROW, true);
-    d->filterButton.setMenu(&d->filterMenu);
 
     d->aggregateButton.setIcon(Icons::EXPAND_ALL_TOOLBAR.icon());
     d->aggregateButton.setCheckable(true);
@@ -408,11 +356,6 @@ void PerfProfilerTraceBackend::setupToolBar()
 
     d->recordedLabel.setIndent(StyleHelper::SpacingTokens::PaddingHL);
     d->delayLabel.setIndent(StyleHelper::SpacingTokens::PaddingHL);
-
-    d->stopAction.setText(Tr::tr("Stop"));
-    d->stopAction.setIcon(Icons::STOP_SMALL_TOOLBAR.icon());
-    d->stopAction.setEnabled(false);
-    d->stopButton.setDefaultAction(&d->stopAction);
 
     // Context-menu entries owned by the tool. Fetched here rather than injected
     // by the tool afterwards: views() builds its menus from them, and an editor
@@ -425,17 +368,6 @@ void PerfProfilerTraceBackend::setupToolBar()
     }
 }
 
-void PerfProfilerTraceBackend::setRecording(bool recording)
-{
-    const static QIcon recordOn = ProjectExplorer::Icons::RECORD_ON.icon();
-    const static QIcon recordOff = ProjectExplorer::Icons::RECORD_OFF.icon();
-    d->recordButton.setToolTip(recording ? Tr::tr("Stop collecting profile data.")
-                                         : Tr::tr("Collect profile data."));
-    d->recordButton.setIcon(recording ? recordOn : recordOff);
-    d->recordButton.setChecked(recording);
-    emit recordingChanged(recording);
-}
-
 void PerfProfilerTraceBackend::setAggregated(bool aggregated)
 {
     d->aggregateButton.setToolTip(aggregated ? Tr::tr("Show addresses of symbols.")
@@ -446,10 +378,7 @@ void PerfProfilerTraceBackend::setAggregated(bool aggregated)
 
 void PerfProfilerTraceBackend::setToolActionsEnabled(bool on)
 {
-    d->clearButton.setEnabled(on);
-    d->filterButton.setEnabled(on);
     d->aggregateButton.setEnabled(on);
-    d->filterMenu.setEnabled(on);
     if (d->traceView)
         d->traceView->setEnabled(on);
     if (d->statisticsView)
@@ -475,9 +404,7 @@ void PerfProfilerTraceBackend::finalize()
     d->zoomControl.setTrace(startTime, endTime);
     d->zoomControl.setRange(startTime, startTime + (endTime - startTime) / 10);
     updateTime(d->zoomControl.traceDuration(), -1);
-    updateFilterMenu();
     setToolActionsEnabled(true);
-    d->stopAction.setEnabled(false); // The run's data flow has ended.
     emit busyChanged(false);
     emit traceChanged();
 }
@@ -500,45 +427,6 @@ void PerfProfilerTraceBackend::updateTime(qint64 duration, qint64 delay)
     }
 }
 
-static bool operator<(const PerfProfilerTraceManager::Thread &a,
-                      const PerfProfilerTraceManager::Thread &b)
-{
-    return a.tid < b.tid;
-}
-
-void PerfProfilerTraceBackend::updateFilterMenu()
-{
-    d->filterMenu.clear();
-
-    QAction *enableAll = d->filterMenu.addAction(Tr::tr("Enable All"));
-    QAction *disableAll = d->filterMenu.addAction(Tr::tr("Disable All"));
-    d->filterMenu.addSeparator();
-
-    QList<PerfProfilerTraceManager::Thread> threads = d->traceManager.threads().values();
-    std::sort(threads.begin(), threads.end());
-
-    for (const PerfProfilerTraceManager::Thread &thread : std::as_const(threads)) {
-        QAction *action = d->filterMenu.addAction(
-            QString::fromLatin1("%1 (%2)")
-                .arg(QString::fromUtf8(d->traceManager.string(thread.name)))
-                .arg(thread.tid));
-        action->setCheckable(true);
-        action->setData(thread.tid);
-        action->setChecked(thread.enabled);
-        if (thread.tid == 0) {
-            action->setEnabled(false);
-        } else {
-            connect(action, &QAction::toggled, this, [this, action](bool checked) {
-                d->traceManager.setThreadEnabled(action->data().toUInt(), checked);
-            });
-            connect(enableAll, &QAction::triggered,
-                    action, [action] { action->setChecked(true); });
-            connect(disableAll, &QAction::triggered,
-                    action, [action] { action->setChecked(false); });
-        }
-    }
-}
-
 void PerfProfilerTraceBackend::populateFileFinder(const ProjectExplorer::Project *project,
                                                   const ProjectExplorer::Kit *kit)
 {
@@ -555,7 +443,6 @@ void PerfProfilerTraceBackend::prepareRun(const ProjectExplorer::Project *projec
                                           const ProjectExplorer::Kit *kit)
 {
     populateFileFinder(project, kit);
-    d->stopAction.setEnabled(true);
 }
 
 } // namespace Profiler::Internal

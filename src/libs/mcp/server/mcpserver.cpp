@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <cmath>
 #include <map>
+#include <memory>
+#include <vector>
 
 #ifdef MCP_SERVER_HAS_QT_HTTP_SERVER
 #include <QHttpServer>
@@ -614,20 +616,13 @@ public:
         m_heartbeatTimer.setInterval(std::chrono::seconds(30));
         m_heartbeatTimer.setSingleShot(false);
         QObject::connect(&m_heartbeatTimer, &QTimer::timeout, [this]() {
-            m_sseStreams.erase(
-                std::remove_if(
-                    m_sseStreams.begin(),
-                    m_sseStreams.end(),
-                    [](const std::unique_ptr<SseStream> &stream) {
-                        if (stream->sendPing())
-                            return false;
-                        qCDebug(mcpServerLog)
-                            << "Heartbeat pruned dead stream for session"
-                            << stream->sessionIdValue();
-                        return true;
-                    }),
-                m_sseStreams.end());
-
+            forSSEStream([this](const std::shared_ptr<SseStream> &stream) {
+                if (!stream->sendPing()) {
+                    qCDebug(mcpServerLog)
+                        << "Heartbeat pruned dead stream for session" << stream->sessionIdValue();
+                    removeSseStream(stream);
+                }
+            });
             std::erase_if(m_listeners, [](const Listener &listener) {
                 if (!listener.ping || listener.ping())
                     return false;
@@ -809,14 +804,31 @@ public:
         return m_sessions.size() >= kMaxSessions;
     }
 
+    template<typename F>
+    void forSSEStream(F func) const
+    {
+        // Func may remove this or other streams, so we work on a (weak) copy of the list.
+        std::vector<std::weak_ptr<SseStream>> targets;
+        targets.reserve(m_sseStreams.size());
+        std::copy(m_sseStreams.begin(), m_sseStreams.end(), std::back_inserter(targets));
+        for (const std::weak_ptr<SseStream> &target : targets) {
+            if (auto locked = target.lock())
+                func(locked);
+        }
+    }
+
     void sendDataTo(const QByteArray &data, const QString &sessionId)
     {
-        for (auto it = m_sseStreams.begin(); it != m_sseStreams.end();) {
-            if (!(*it)->sendData(data, sessionId))
-                it = m_sseStreams.erase(it);
-            else
-                ++it;
-        }
+        forSSEStream([&](const std::shared_ptr<SseStream> &stream) {
+            if (!stream->sendData(data, sessionId))
+                removeSseStream(stream);
+        });
+    }
+
+    // stream is taken by value so it can safely outlive the erase operation.
+    void removeSseStream(std::shared_ptr<SseStream> stream)
+    {
+        std::erase(m_sseStreams, stream);
     }
 
     void sendNotification(const Schema::ServerNotification &notification, const QString &sessionId)
@@ -833,12 +845,7 @@ public:
         // fan-out below, and receive only what their filter named.
         deliverTo2026Listeners(json, sessionId);
 
-        for (auto it = m_sseStreams.begin(); it != m_sseStreams.end();) {
-            if (!(*it)->sendData(data, sessionId))
-                it = m_sseStreams.erase(it);
-            else
-                ++it;
-        }
+        sendDataTo(data, sessionId);
     }
 
     void sendServerRequest(
@@ -857,12 +864,7 @@ public:
             m_ioOutputHandler(data);
         }
 
-        for (auto it = m_sseStreams.begin(); it != m_sseStreams.end();) {
-            if (!(*it)->sendData(data, sessionId))
-                it = m_sseStreams.erase(it);
-            else
-                ++it;
-        }
+        sendDataTo(data, sessionId);
     }
 
     // Returns true if the session is initialized (or was just auto-initialized) and
@@ -2516,7 +2518,7 @@ public:
     QMap<QString, Schema::ResourceTemplate> m_resourceTemplates;
 
     QHttpServer m_server;
-    std::vector<std::unique_ptr<SseStream>> m_sseStreams;
+    std::vector<std::shared_ptr<SseStream>> m_sseStreams;
     std::function<void(QByteArray)> m_ioOutputHandler;
 
     QTimer m_heartbeatTimer;
@@ -2688,7 +2690,7 @@ Server::Server(Schema::Implementation serverInfo)
             d->m_sessions.insert(sessionId, std::nullopt);
 
             auto stream
-                = std::make_unique<SseStream>(d->corsHeaders(sessionId), std::move(responder));
+                = std::make_shared<SseStream>(d->corsHeaders(sessionId), std::move(responder));
 
             QObject::connect(
                 stream.get(),
@@ -2828,7 +2830,7 @@ Server::Server(Schema::Implementation serverInfo)
                 }
 
                 d->m_sseStreams.emplace_back(
-                    std::make_unique<SseStream>(
+                    std::make_shared<SseStream>(
                         d->corsHeaders(QString::fromUtf8(req.headers().value("mcp-session-id"))),
                         std::move(responder)));
                 return;
@@ -3319,17 +3321,16 @@ void ServerPrivate::deleteSession(const QString &sessionId)
     qCDebug(mcpServerLog) << "Deleting session ID" << sessionId;
     m_sessions.remove(sessionId);
 
-    // Cancel and remove any pending tool interfaces for this session.
-    for (auto it = m_pendingToolInterfaces.begin(); it != m_pendingToolInterfaces.end();) {
-        if (it.key().sessionId == sessionId) {
-            auto tiPrivate = it.value().lock();
-            it = m_pendingToolInterfaces.erase(it);
-            if (tiPrivate)
-                tiPrivate->cancel();
-        } else {
-            ++it;
-        }
+    // Gather all running requests associated with this session before cancelling them.
+    QList<Schema::RequestId> cancelled;
+    for (auto it = m_pendingToolInterfaces.cbegin(); it != m_pendingToolInterfaces.cend(); ++it) {
+        if (it.key().sessionId == sessionId)
+            cancelled.append(it.key().requestId);
     }
+
+    // Cancel them in one block.
+    for (const Schema::RequestId &requestId : cancelled)
+        cancelPendingToolInterface(requestId, sessionId);
 
     // A subscription outlives the request that opened it, so reclaiming the
     // session has to end it too: nothing else would, and the deterministic

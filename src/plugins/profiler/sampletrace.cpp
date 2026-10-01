@@ -134,6 +134,8 @@ static Schema buildSamplerSchema()
     return schema;
 }
 
+static const QString pausedRangesFileName = u"paused-ranges"_s;
+
 Result<> writeSampleTrace(const SampleTraceData &data, const FilePath &dir,
                           const std::function<void(int)> &progress)
 {
@@ -203,6 +205,14 @@ Result<> writeSampleTrace(const SampleTraceData &data, const FilePath &dir,
 
     if (auto r = tw.close(); !r)
         return ResultError(r.error());
+
+    if (!data.pausedRangesUs.isEmpty()) {
+        QFile pausedFile(dir.pathAppended(pausedRangesFileName).toFSPathString());
+        if (!pausedFile.open(QIODevice::WriteOnly | QIODevice::Text))
+            return ResultError(Tr::tr("Cannot write %1.").arg(pausedFile.fileName()));
+        for (const auto &[start, end] : data.pausedRangesUs)
+            pausedFile.write(QByteArray::number(start) + ' ' + QByteArray::number(end) + '\n');
+    }
     return ResultOk;
 }
 
@@ -318,7 +328,39 @@ Result<SampleTraceData> readSampleTrace(const FilePath &dir, const std::function
     }
     if (stream->readError())
         return ResultError(*stream->readError());
+
+    // Optional, and forgiving: a missing or damaged file costs the shading only.
+    QFile pausedFile(dir.pathAppended(pausedRangesFileName).toFSPathString());
+    if (pausedFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        while (!pausedFile.atEnd()) {
+            const QList<QByteArray> fields = pausedFile.readLine().trimmed().split(' ');
+            bool startOk = false;
+            bool endOk = false;
+            if (fields.size() != 2)
+                continue;
+            const quint64 start = fields.at(0).toULongLong(&startOk);
+            const quint64 end = fields.at(1).toULongLong(&endOk);
+            if (startOk && endOk && start <= end)
+                data.pausedRangesUs.append({start, end});
+        }
+    }
     return data;
+}
+
+QList<std::pair<quint64, quint64>> pausedRangesUs(
+    const std::vector<std::pair<qint64, qint64>> &steadyIntervalsNs, qint64 firstSampleNs,
+    quint64 lastSampleUs)
+{
+    QList<std::pair<quint64, quint64>> ranges;
+    for (const auto &[start, end] : steadyIntervalsNs) {
+        if (end < 0 || start <= firstSampleNs)
+            continue;
+        const quint64 startUs = quint64(start - firstSampleNs) / 1000;
+        const quint64 endUs = std::min(quint64(end - firstSampleNs) / 1000, lastSampleUs);
+        if (startUs < endUs)
+            ranges.append({startUs, endUs});
+    }
+    return ranges;
 }
 
 bool isSamplerTrace(const FilePath &dir)

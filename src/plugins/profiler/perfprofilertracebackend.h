@@ -52,7 +52,6 @@ public:
 
     // Called when a run starts recording into this trace.
     void prepareRun(const ProjectExplorer::Project *project, const ProjectExplorer::Kit *kit);
-    bool isRecording() const;
     bool isReaderRunning() const;
     void updateTime(qint64 duration, qint64 delay);
 
@@ -60,14 +59,10 @@ public:
     void showFullRange();
     bool isEmpty() const;
 
-    // The Stop action shown in the editor's toolbar; the tool binds it to the run.
-    QAction *stopAction() const;
-
 signals:
     // The trace manager and the models are about to go; whoever still holds one
     // has to let go now.
     void aboutToBeDestroyed();
-    void recordingChanged(bool recording);
     void aggregatedChanged(bool aggregated);
     // The trace is being read or written; the tool disables its actions meanwhile.
     void busyChanged(bool busy);
@@ -78,11 +73,9 @@ private:
     void populateFileFinder(const ProjectExplorer::Project *project,
                             const ProjectExplorer::Kit *kit);
     void clearUi();
-    void updateFilterMenu();
     void setToolActionsEnabled(bool on);
     void initialize();
     void finalize();
-    void setRecording(bool recording);
     void setAggregated(bool aggregated);
 
     class PerfProfilerTraceBackendPrivate *d;

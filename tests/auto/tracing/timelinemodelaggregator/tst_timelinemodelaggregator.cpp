@@ -15,6 +15,7 @@ private slots:
     void height();
     void addRemoveModel();
     void prevNext();
+    void pausedRanges();
 };
 
 class HeightTestModel : public TimelineModel {
@@ -133,6 +134,28 @@ void tst_TimelineModelAggregator::prevNext()
         QCOMPARE(item.modelIndex, 2);
         QCOMPARE(item.itemIndex, 19);
     }
+}
+
+void tst_TimelineModelAggregator::pausedRanges()
+{
+    TimelineModelAggregator aggregator;
+    QSignalSpy spy(&aggregator, &TimelineModelAggregator::pausedRangesChanged);
+    QVERIFY(aggregator.pausedRanges().isEmpty());
+
+    const TimelineModelAggregator::PausedRanges ranges{{10, 20}, {30, 40}};
+    aggregator.setPausedRanges(ranges);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(aggregator.pausedRanges(), ranges);
+
+    aggregator.setPausedRanges(ranges);
+    QCOMPARE(spy.count(), 1);
+
+    aggregator.clear();
+    QVERIFY(aggregator.pausedRanges().isEmpty());
+    QCOMPARE(spy.count(), 2);
+
+    aggregator.clear();
+    QCOMPARE(spy.count(), 2);
 }
 
 QTEST_GUILESS_MAIN(tst_TimelineModelAggregator)

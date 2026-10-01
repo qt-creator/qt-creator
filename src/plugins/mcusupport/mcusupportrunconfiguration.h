@@ -19,4 +19,6 @@ public:
     FlashRunWorkerFactory();
 };
 
+void setupMcuDebugSupport();
+
 } // McuSupport::Internal

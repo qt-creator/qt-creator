@@ -29,8 +29,6 @@ private slots:
     void testTheShownRangeOutlivesAProviderChange();
     void testClearedViewsShowTheNextTraceWhole();
     void testRestrictionToASilentProviderSaysSo();
-    void testTheProviderMenuSaysWhatIsShown();
-    void testOneProviderIsNothingToChooseFrom();
 };
 
 } // namespace Profiler::Internal

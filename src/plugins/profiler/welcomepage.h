@@ -46,8 +46,13 @@ public:
     // Whether the selected backend can record at all; `toolTip` says why not.
     void setStartEnabled(bool enabled, const QString &toolTip = {});
 
+    // Whether "Start Paused" is offered: only when the selected backend can
+    // pause and the frontend can start a recording that way.
+    void setStartPausedAvailable(bool available);
+
 signals:
     void startRecordingRequested();
+    void startPausedRequested();
     void backendChanged(int index);
     void targetChanged(int index);
 
@@ -56,6 +61,7 @@ private:
     Utils::QtcComboBox *m_targetCombo = nullptr;
     QWidget *m_targetRow = nullptr;
     Utils::QtcButton *m_startButton = nullptr;
+    Utils::QtcButton *m_startPausedButton = nullptr;
     QVBoxLayout *m_configLayout = nullptr;
     QWidget *m_configWidget = nullptr;
 };

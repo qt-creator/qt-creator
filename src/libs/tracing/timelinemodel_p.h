@@ -8,14 +8,15 @@
 
 namespace Timeline {
 
-struct HueLookupTable {
-    QRgb table[kHueRange];
-    HueLookupTable();
+struct HueChromaLookupTable {
+    QRgb table[kHueRange * kChromaSteps];
+    HueChromaLookupTable();
 
-    // A hue is whatever a caller derived a colour from, so it may be negative,
-    // and so is the remainder of one: brought back into the range rather than
-    // used to index the table as it is.
-    QRgb operator[](int hue) const { return table[((hue % kHueRange) + kHueRange) % kHueRange]; }
+    QRgb operator()(int hue, int chroma) const
+    {
+        const int chromaStep = qBound(0, chroma, kChromaSteps - 1);
+        return table[(((hue % kHueRange) + kHueRange) % kHueRange) * kChromaSteps + chromaStep];
+    }
 };
 
 struct QualityColorLookupTable {

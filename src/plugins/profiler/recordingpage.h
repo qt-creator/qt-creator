@@ -8,6 +8,8 @@
 #include <QElapsedTimer>
 #include <QWidget>
 
+#include <chrono>
+
 QT_BEGIN_NAMESPACE
 class QProgressBar;
 class QTimer;
@@ -36,6 +38,15 @@ public:
     // Names the recording and starts counting, so that what the start took --
     // a launch, a debug connection, a consent prompt -- is not counted.
     void captureStarted();
+    // As captureStarted(), but counting on from `recorded`, for a page that
+    // comes back to a recording that has been capturing for that long.
+    void captureRunning(std::chrono::milliseconds recorded);
+    // Whether the recording can be paused; the Pause button is hidden otherwise.
+    void setPauseSupported(bool supported);
+    // Reflects that capture was suspended or continued: the clock stops and
+    // the button offers the opposite action. Independent of captureStarted(),
+    // since a recording may begin paused.
+    void setPaused(bool paused);
     // Switches to the "processing the captured samples" state: the elapsed timer
     // stops, the Stop button is disabled and a progress bar appears, giving
     // immediate feedback while the worker still converts and writes the trace.
@@ -52,17 +63,24 @@ public:
 
 signals:
     void stopRequested();
+    void pauseRequested();
+    void resumeRequested();
 
 private:
     void updateElapsed();
+    void updateTitle();
 
     Utils::QtcLabel *m_titleLabel = nullptr;
     Utils::QtcLabel *m_timerLabel = nullptr;
     Utils::QtcLabel *m_statusLabel = nullptr;
     Utils::QtcButton *m_stopButton = nullptr;
+    Utils::QtcButton *m_pauseButton = nullptr;
     QProgressBar *m_progressBar = nullptr;
     QTimer *m_tick = nullptr;
     QElapsedTimer m_elapsed;
+    qint64 m_recordedMs = 0; // Time recorded before the current stretch.
+    bool m_capturing = false;
+    bool m_paused = false;
     QString m_processName;
 };
 

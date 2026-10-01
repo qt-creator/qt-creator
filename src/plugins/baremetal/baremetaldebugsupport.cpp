@@ -7,6 +7,7 @@
 #include "baremetaldevice.h"
 #include "baremetaltr.h"
 
+#include "debugserverproviderchooser.h"
 #include "debugserverprovidermanager.h"
 #include "idebugserverprovider.h"
 
@@ -17,6 +18,7 @@
 
 #include <QtTaskTree/QBarrier>
 
+#include <utils/layoutbuilder.h>
 #include <utils/portlist.h>
 #include <utils/qtcprocess.h>
 
@@ -25,7 +27,48 @@ using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace BareMetal::Internal {
+namespace BareMetal {
+
+DebugServerProviderAspect::DebugServerProviderAspect(AspectContainer *container)
+    : StringAspect(container)
+{
+    setLabelText(Tr::tr("Debug server provider:"));
+}
+
+void DebugServerProviderAspect::addToLayoutImpl(Layouting::Layout &parent)
+{
+    auto chooser = createSubWidget<Internal::DebugServerProviderChooser>();
+    chooser->populate();
+    chooser->setCurrentProviderId(value());
+    connect(chooser, &Internal::DebugServerProviderChooser::providerChanged, this, [this, chooser] {
+        setValue(chooser->currentProviderId());
+    });
+    addLabeledItem(parent, chooser);
+}
+
+Group debugServerRecipe(RunControl *runControl, const QString &providerId)
+{
+    Internal::IDebugServerProvider *p = Internal::DebugServerProviderManager::findProvider(
+        providerId);
+    if (!p)
+        return runControl->errorTask(Tr::tr("No debug server provider found for %1").arg(providerId));
+
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+    if (Result<> res = p->setupDebuggerRunParameters(rp, runControl); !res)
+        return runControl->errorTask(res.error());
+
+    const std::optional<BarrierKickerGetter> serverRunner = p->serverRunner(runControl);
+    if (!serverRunner)
+        return debuggerRecipe(runControl, rp);
+
+    return {
+        When (*serverRunner, WorkflowPolicy::StopOnSuccessOrError) >> Do {
+            debuggerRecipe(runControl, rp)
+        }
+    };
+}
+
+namespace Internal {
 
 class BareMetalDebugSupportFactory final : public RunWorkerFactory
 {
@@ -37,25 +80,7 @@ public:
             const auto dev = std::static_pointer_cast<const BareMetalDevice>(runControl->device());
             if (!dev)
                 return runControl->errorTask(Tr::tr("Cannot debug: Kit has no device."));
-
-            const QString providerId = dev->debugServerProviderId();
-            IDebugServerProvider *p = DebugServerProviderManager::findProvider(providerId);
-            if (!p)
-                return runControl->errorTask(Tr::tr("No debug server provider found for %1").arg(providerId));
-
-            DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
-            if (Result<> res = p->setupDebuggerRunParameters(rp, runControl); !res)
-                return runControl->errorTask(res.error());
-
-            const std::optional<BarrierKickerGetter> serverRunner = p->serverRunner(runControl);
-            if (!serverRunner)
-                return debuggerRecipe(runControl, rp);
-
-            return {
-                When (*serverRunner, WorkflowPolicy::StopOnSuccessOrError) >> Do {
-                    debuggerRecipe(runControl, rp)
-                }
-            };
+            return debugServerRecipe(runControl, dev->debugServerProviderId());
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
@@ -69,4 +94,5 @@ void setupBareMetalDebugSupport()
     static BareMetalDebugSupportFactory theBareMetalDebugSupportFactory;
 }
 
-} // BareMetal::Internal
+} // Internal
+} // BareMetal

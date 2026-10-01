@@ -193,7 +193,6 @@ public:
                 m_heightUpdatePending = true;
                 QTimer::singleShot(0, this, [this] {
                     m_heightUpdatePending = false;
-                    m_cachedUnwrappedIdealWidth = -1;
                     updateBrowserHeight();
                     updateGeometry();
                 });

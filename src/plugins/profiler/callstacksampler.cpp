@@ -192,7 +192,10 @@ ExecutableItem CallStackSampler::captureRecipe(const std::shared_ptr<RecordingSe
             opts.pid = session->pid.load();
             opts.processName = session->processName;
             opts.intervalUs = intervalUs;
-            session->markStarted(); // capture is live; the duration clock can start
+            opts.isPaused = [session] { return session->isPaused(); };
+            // The capture is live once sampling begins, which is when the duration
+            // clock can start.
+            opts.markStarted = [session] { session->markStarted(); };
             // Progress is reported from this worker thread; the session queues
             // it onto the GUI thread, so the frontend hears it without watching.
             *captured = recordSampleTrace(opts,

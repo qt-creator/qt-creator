@@ -14,26 +14,16 @@
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/find/findplugin.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <projectexplorer/projectexplorericons.h>
-
 #include <tracing/timelinenotesmodel.h>
 
-#include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
-#include <utils/utilsicons.h>
 
-#include <QAction>
-#include <QApplication>
 #include <QElapsedTimer>
 #include <QLabel>
-#include <QMenu>
-#include <QMessageBox>
 #include <QTimer>
-#include <QToolButton>
 
 using namespace QmlDebug;
 using namespace Utils;
@@ -53,31 +43,13 @@ public:
     QmlProfilerStateManager stateManager;
     QmlProfilerClientManager clientManager;
 
-    QToolButton recordButton;
-    QMenu recordFeaturesMenu;
-    QToolButton clearButton;
-    QToolButton searchButton;
-    QToolButton displayFeaturesButton;
-    QMenu displayFeaturesMenu;
     QLabel timeLabel;
-    QAction stopAction;
 
     QTimer recordingTimer;
     QElapsedTimer recordingElapsedTime;
 
-    QToolButton stopButton;
-
-    QPointer<QWidget> traceView; // The view the timeline search acts on.
     QPointer<QmlProfilerStatisticsView> statisticsView; // Owns this trace's text marks.
 };
-
-static void addFeatureToMenu(QMenu *menu, ProfileFeature feature, quint64 enabledFeatures)
-{
-    QAction *action = menu->addAction(Tr::tr(QmlProfilerModelManager::featureName(feature)));
-    action->setCheckable(true);
-    action->setData(static_cast<uint>(feature));
-    action->setChecked(enabledFeatures & (1ULL << (feature)));
-}
 
 QmlProfilerTraceBackend::QmlProfilerTraceBackend(Timeline::RangeDetailsWidget *details,
                                                  QObject *parent)
@@ -114,44 +86,18 @@ QmlProfilerTraceBackend::QmlProfilerTraceBackend(Timeline::RangeDetailsWidget *d
             this, [this](quint64 features) {
         if (features != d->stateManager.requestedFeatures())
             d->stateManager.setRequestedFeatures(features); // By default, enable them all.
-        d->recordFeaturesMenu.clear();
-        d->displayFeaturesMenu.clear();
-        for (int feature = 0; feature < MaximumProfileFeature; ++feature) {
-            if (features & (1ULL << feature)) {
-                addFeatureToMenu(&d->recordFeaturesMenu, ProfileFeature(feature),
-                                 d->stateManager.requestedFeatures());
-                addFeatureToMenu(&d->displayFeaturesMenu, ProfileFeature(feature),
-                                 modelManager()->visibleFeatures());
-            }
-        }
-    });
-    connect(&d->stateManager, &QmlProfilerStateManager::recordedFeaturesChanged,
-            this, [this](quint64 features) {
-        const QList<QAction *> actions = d->displayFeaturesMenu.actions();
-        for (QAction *action : actions)
-            action->setEnabled(features & (1ULL << action->data().toUInt()));
     });
 
-    const auto setButtonsEnabled = [this](bool enable) {
-        d->clearButton.setEnabled(enable);
-        d->displayFeaturesButton.setEnabled(enable);
-        d->searchButton.setEnabled(enable);
-        d->recordFeaturesMenu.setEnabled(enable);
-    };
     models->registerFeatures(
         0,
-        [setButtonsEnabled] { setButtonsEnabled(false); },
-        [this, setButtonsEnabled] {
+        [] {},
+        [this] {
             updateTimeDisplay();
             createTextMarks();
-            setButtonsEnabled(true);
-            d->recordButton.setEnabled(true);
         },
-        [this, setButtonsEnabled] {
+        [this] {
             d->clientManager.clearBufferedData();
             updateTimeDisplay();
-            setButtonsEnabled(true);
-            d->recordButton.setEnabled(true);
         });
 
     d->clientManager.setModelManager(models);
@@ -181,9 +127,6 @@ QWidgetList QmlProfilerTraceBackend::views(QWidget *parent)
         if (auto statistics = qobject_cast<QmlProfilerStatisticsView *>(view))
             d->statisticsView = statistics;
     }
-    // The timeline is what the search button acts on; it is the second view
-    // (after the dashboard), see QmlProfilerPlainViewManager::views().
-    d->traceView = views.value(1);
 
     // Annotate the source with this trace's timings, in the editors that are
     // open now and in any opened later.
@@ -207,8 +150,7 @@ void QmlProfilerTraceBackend::createTextMarks()
 
 QList<QWidget *> QmlProfilerTraceBackend::toolBarWidgets()
 {
-    return {&d->recordButton, &d->stopButton, &d->clearButton, &d->searchButton,
-            &d->displayFeaturesButton, &d->timeLabel};
+    return {&d->timeLabel};
 }
 
 void QmlProfilerTraceBackend::load(const FilePath &path)
@@ -239,13 +181,6 @@ void QmlProfilerTraceBackend::clear()
     d->viewManager.clear();
 }
 
-void QmlProfilerTraceBackend::clearData()
-{
-    modelManager()->clearAll();
-    d->clientManager.clearBufferedData();
-    d->stateManager.setRecordedFeatures(0);
-}
-
 milliseconds QmlProfilerTraceBackend::traceDuration() const
 {
     return d->viewManager.traceDuration();
@@ -266,11 +201,6 @@ QmlProfilerClientManager *QmlProfilerTraceBackend::clientManager() const
     return &d->clientManager;
 }
 
-QAction *QmlProfilerTraceBackend::stopAction() const
-{
-    return &d->stopAction;
-}
-
 bool QmlProfilerTraceBackend::aggregatesTraces() const
 {
     return modelManager()->aggregateTraces();
@@ -279,50 +209,6 @@ bool QmlProfilerTraceBackend::aggregatesTraces() const
 
 void QmlProfilerTraceBackend::setupToolBar()
 {
-    d->recordButton.setCheckable(true);
-    d->recordButton.setChecked(true);
-    d->recordButton.setMenu(&d->recordFeaturesMenu);
-    d->recordButton.setPopupMode(QToolButton::MenuButtonPopup);
-    connect(&d->recordButton, &QAbstractButton::clicked,
-            this, &QmlProfilerTraceBackend::recordingButtonChanged);
-    connect(&d->recordFeaturesMenu, &QMenu::triggered, this, [this](QAction *action) {
-        const uint feature = action->data().toUInt();
-        const quint64 requested = d->stateManager.requestedFeatures();
-        d->stateManager.setRequestedFeatures(action->isChecked()
-                                                 ? requested | (1ULL << feature)
-                                                 : requested & ~(1ULL << feature));
-    });
-
-    d->clearButton.setIcon(Icons::CLEAN_TOOLBAR.icon());
-    d->clearButton.setToolTip(Tr::tr("Discard data"));
-    connect(&d->clearButton, &QAbstractButton::clicked, this, [this] {
-        if (checkForUnsavedNotes())
-            clearData();
-    });
-
-    d->searchButton.setIcon(Icons::ZOOM_TOOLBAR.icon());
-    d->searchButton.setToolTip(Tr::tr("Search timeline event notes."));
-    d->searchButton.setEnabled(false);
-    connect(&d->searchButton, &QToolButton::clicked,
-            this, &QmlProfilerTraceBackend::showTimelineSearch);
-
-    d->displayFeaturesButton.setIcon(Icons::FILTER.icon());
-    d->displayFeaturesButton.setToolTip(Tr::tr("Hide or show event categories."));
-    d->displayFeaturesButton.setPopupMode(QToolButton::InstantPopup);
-    d->displayFeaturesButton.setProperty(StyleHelper::C_NO_ARROW, true);
-    d->displayFeaturesButton.setMenu(&d->displayFeaturesMenu);
-    connect(&d->displayFeaturesMenu, &QMenu::triggered, this, [this](QAction *action) {
-        const uint feature = action->data().toUInt();
-        const quint64 visible = modelManager()->visibleFeatures();
-        modelManager()->setVisibleFeatures(action->isChecked() ? visible | (1ULL << feature)
-                                                              : visible & ~(1ULL << feature));
-    });
-
-    d->stopAction.setText(Tr::tr("Stop"));
-    d->stopAction.setIcon(Icons::STOP_SMALL_TOOLBAR.icon());
-    d->stopAction.setEnabled(false);
-    d->stopButton.setDefaultAction(&d->stopAction);
-
     StyleHelper::setPanelWidget(&d->timeLabel);
     d->timeLabel.setIndent(StyleHelper::SpacingTokens::PaddingHL);
 
@@ -330,25 +216,6 @@ void QmlProfilerTraceBackend::setupToolBar()
     connect(&d->recordingTimer, &QTimer::timeout,
             this, &QmlProfilerTraceBackend::updateTimeDisplay);
     updateTimeDisplay();
-
-    const auto updateRecordButton = [this] {
-        const bool recording = d->stateManager.currentState() != QmlProfilerStateManager::AppRunning
-                                   ? d->stateManager.clientRecording()
-                                   : d->stateManager.serverRecording();
-        const static QIcon recordOn = ProjectExplorer::Icons::RECORD_ON.icon();
-        const static QIcon recordOff = ProjectExplorer::Icons::RECORD_OFF.icon();
-        d->recordButton.setToolTip(recording ? Tr::tr("Disable Profiling")
-                                             : Tr::tr("Enable Profiling"));
-        d->recordButton.setIcon(recording ? recordOn : recordOff);
-        d->recordButton.setChecked(recording);
-    };
-    connect(&d->stateManager, &QmlProfilerStateManager::stateChanged,
-            &d->recordButton, updateRecordButton);
-    connect(&d->stateManager, &QmlProfilerStateManager::serverRecordingChanged,
-            &d->recordButton, updateRecordButton);
-    connect(&d->stateManager, &QmlProfilerStateManager::clientRecordingChanged,
-            &d->recordButton, updateRecordButton);
-    updateRecordButton();
 }
 
 void QmlProfilerTraceBackend::updateTimeDisplay()
@@ -373,48 +240,6 @@ void QmlProfilerTraceBackend::updateTimeDisplay()
     d->timeLabel.setText(Tr::tr("Elapsed: %1").arg(Tr::tr("%1 s").arg(timeString, 6)));
 }
 
-void QmlProfilerTraceBackend::showTimelineSearch()
-{
-    QTC_ASSERT(d->traceView, return);
-    d->traceView->setFocus();
-    Core::Find::openFindToolBar(Core::Find::FindForwardDirection);
-}
-
-void QmlProfilerTraceBackend::recordingButtonChanged(bool recording)
-{
-    // clientRecording is the intention for new sessions, which may differ from
-    // the state of the current one, as shown by the button. Toggle once to
-    // synchronize them.
-    if (recording && d->stateManager.currentState() == QmlProfilerStateManager::AppRunning) {
-        if (!modelManager()->aggregateTraces()) {
-            // The save offer in serverRecordingChanged() comes too late for
-            // this path: the clear below would already have wiped the notes it
-            // checks for.
-            if (isModified())
-                emit saveBeforeRecordingRequested();
-            clearEvents(); // Clear before recording starts, unless we aggregate.
-        }
-        if (d->stateManager.clientRecording())
-            d->stateManager.setClientRecording(false);
-        d->stateManager.setClientRecording(true);
-    } else {
-        if (d->stateManager.clientRecording() == recording)
-            d->stateManager.setClientRecording(!recording);
-        d->stateManager.setClientRecording(recording);
-    }
-}
-
-bool QmlProfilerTraceBackend::checkForUnsavedNotes()
-{
-    if (!isModified())
-        return true;
-    return QMessageBox::warning(QApplication::activeWindow(), Tr::tr("QML Profiler"),
-                                Tr::tr("You are about to discard the profiling data, including "
-                                       "unsaved notes. Do you want to continue?"),
-                                QMessageBox::Yes, QMessageBox::No)
-           == QMessageBox::Yes;
-}
-
 void QmlProfilerTraceBackend::clearEvents()
 {
     modelManager()->clear();
@@ -428,13 +253,11 @@ void QmlProfilerTraceBackend::prepareRun(const ProjectExplorer::BuildConfigurati
     d->clientManager.setFlushInterval(flushInterval);
     modelManager()->setAggregateTraces(aggregateTraces);
     modelManager()->populateFileFinder(bc);
-    d->stopAction.setEnabled(true);
     d->stateManager.setCurrentState(QmlProfilerStateManager::AppRunning);
 }
 
 void QmlProfilerTraceBackend::handleStop()
 {
-    d->stopAction.setEnabled(false);
     if (d->clientManager.isConnecting()) {
         emit error(Tr::tr("The application finished before a connection could be established. "
                           "No data was loaded."));

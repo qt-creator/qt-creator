@@ -17,6 +17,7 @@ public:
     QList <TimelineModel *> modelList;
     QPointer<TimelineNotesModel> notesModel;
     int currentModelId = 0;
+    TimelineModelAggregator::PausedRanges pausedRanges;
 };
 
 TimelineModelAggregator::TimelineModelAggregator(QObject *parent)
@@ -106,12 +107,26 @@ void TimelineModelAggregator::setNotes(TimelineNotesModel *notes)
     emit notesChanged();
 }
 
+const TimelineModelAggregator::PausedRanges &TimelineModelAggregator::pausedRanges() const
+{
+    return d->pausedRanges;
+}
+
+void TimelineModelAggregator::setPausedRanges(const PausedRanges &ranges)
+{
+    if (d->pausedRanges == ranges)
+        return;
+    d->pausedRanges = ranges;
+    emit pausedRangesChanged();
+}
+
 void TimelineModelAggregator::clear()
 {
     int prevHeight = height();
     d->modelList.clear();
     if (d->notesModel)
         d->notesModel->clear();
+    setPausedRanges({});
     emit modelsChanged();
     if (height() != prevHeight)
         emit heightChanged();
