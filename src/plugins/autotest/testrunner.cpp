@@ -417,9 +417,7 @@ void TestRunner::runTestsHelper()
         if (config->testBase()->type() == ITestBase::Framework) {
             TestConfiguration *current = static_cast<TestConfiguration *>(config);
             QStringList omitted;
-            // on Android: androidtestrunner options (ending in "--"); empty otherwise
-            command.addArgs(current->testRunnerArguments());
-            command.addArgs(current->argumentsForTestRunner(&omitted).join(' '), CommandLine::Raw);
+            command = current->commandLine(&omitted);
             if (!omitted.isEmpty()) {
                 const QString &details = constructOmittedDetailsString(omitted);
                 reportResult(ResultType::MessageWarn, details.arg(current->displayName()));
@@ -566,9 +564,8 @@ RunControl *TestRunner::createRunControl(const Id mode, TestConfiguration *confi
     runControl->setSuppressApplicationOutput(true);
 
     QStringList omitted;
-    CommandLine command{config->testExecutable()};
-    const QStringList args = config->argumentsForTestRunner(&omitted);
-    command.setArguments(ProcessArgs::joinArgs(args));
+    // quoted for the OS of the device the test executable runs on
+    const CommandLine command = config->commandLine(&omitted);
     if (!omitted.isEmpty()) {
         reportResult(ResultType::MessageWarn,
                      constructOmittedDetailsString(omitted).arg(config->displayName()));

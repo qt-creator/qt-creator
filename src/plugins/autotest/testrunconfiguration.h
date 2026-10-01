@@ -41,7 +41,8 @@ public:
         Utils::ProcessRunData r;
         QTC_ASSERT(m_testConfig, return r);
         r.command.setExecutable(m_testConfig->executableFilePath());
-        r.command.addArgs(m_testConfig->argumentsForTestRunner().join(' '), Utils::CommandLine::Raw);
+        // one argument per entry, quoted by CommandLine, as the test runner does
+        r.command.addArgs(m_testConfig->argumentsForTestRunner());
         r.workingDirectory = m_testConfig->workingDirectory();
         r.environment = m_testConfig->environment();
         return r;

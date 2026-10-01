@@ -100,17 +100,11 @@ QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted)
         arguments << "--detect_memory_leaks=0";
 
     // TODO improve the test case gathering and arguments building to avoid too long command lines
-    if (isDebugRunMode()) { // debugger has its own quoting
-        for (const QString &test : testCases())
-            arguments << "-t" << test;
-    } else {
-        for (const QString &test : testCases())
-            arguments << "-t" << "\"" + test + "\"";
-    }
+    for (const QString &test : testCases())
+        arguments << "-t" << test;
 
     if (testSettings().processArgs()) {
-        arguments << filterInterfering(runnable().command.arguments().split(
-                                           ' ', Qt::SkipEmptyParts), omitted);
+        arguments << filterInterfering(runConfigurationArguments(omitted), omitted);
     }
     return arguments;
 }

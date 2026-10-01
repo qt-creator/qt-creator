@@ -104,6 +104,13 @@ public:
     QStringList testRunnerArguments() const { return m_androidTestRunnerArgs; }
 
     virtual QStringList argumentsForTestRunner(QStringList *omitted = nullptr) const = 0;
+    // the command line the test runner executes, with all arguments quoted exactly once
+    Utils::CommandLine commandLine(QStringList *omitted = nullptr) const;
+
+protected:
+    // the run configuration's own arguments, one entry per argument; quoting is the user's and
+    // is undone here, so what the frameworks filter is arguments and not fragments of them
+    QStringList runConfigurationArguments(QStringList *omitted = nullptr) const;
 
 private:
     void setupAndroidRunner(ProjectExplorer::BuildConfiguration *buildConfig);

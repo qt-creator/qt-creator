@@ -30,9 +30,8 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
 {
     QStringList arguments;
     if (testSettings().processArgs()) {
-        arguments.append(QTestUtils::filterInterfering
-                         (runnable().command.arguments().split(' ', Qt::SkipEmptyParts),
-                          omitted, true));
+        arguments.append(QTestUtils::filterInterfering(runConfigurationArguments(omitted),
+                                                       omitted, true));
     }
 
     QtTestFramework &qtSettings = theQtTestFramework();
@@ -42,7 +41,7 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
         arguments << "-o" << "-,txt";
 
     if (!testCases().isEmpty())
-        arguments << QTestUtils::quoteIfNeeded(testCases(), isDebugRunMode());
+        arguments << testCases();
 
     const QString &metricsOption = QtTestFramework::metricsTypeToOption(MetricsType(qtSettings.metrics()));
     if (!metricsOption.isEmpty())

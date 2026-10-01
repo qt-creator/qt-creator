@@ -78,8 +78,7 @@ QStringList CatchConfiguration::argumentsForTestRunner(QStringList *omitted) con
     arguments << "--reporter" << "xml" << "--durations" << "yes";
 
     if (testSettings().processArgs()) {
-        arguments << filterInterfering(runnable().command.arguments().split(
-                                           ' ', Qt::SkipEmptyParts), omitted);
+        arguments << filterInterfering(runConfigurationArguments(omitted), omitted);
     }
 
     CatchFramework &settings = theCatchFramework();
