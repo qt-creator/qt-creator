@@ -12,6 +12,7 @@
 namespace Profiler::Internal {
 
 class QmlProfilerSampler;
+class PerfSamplerSettings;
 
 // Bundle layout written by CombinedSampler and read back by CombinedTraceLoader.
 inline constexpr QLatin1StringView combinedManifestName("manifest.json");
@@ -39,6 +40,9 @@ public:
     CombinedSamplerSettings();
 
     Utils::Result<std::shared_ptr<RecordingSession>> createSession() const override;
+    void setPerfSamplerSettings(PerfSamplerSettings *settings);
+    void readSettings() override;
+    void writeSettings() const override;
 
     Utils::IntegerAspect intervalUs{this}; // Native sampler cadence.
 
@@ -48,6 +52,10 @@ public:
 
 protected:
     void fillOptions(RecordingSession &session) const override;
+    void updateOptionsEnabled() override;
+
+private:
+    PerfSamplerSettings *m_perfSamplerSettings = nullptr;
 };
 
 // Records a target with a native call-stack sampler AND the QML profiler at the

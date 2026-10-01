@@ -29,6 +29,7 @@ public:
 
     void readSettings() override;
     void writeSettings() const override;
+    QWidget *createOptionsWidget();
 
     Profiler::PerfSettings perfSettings;
 

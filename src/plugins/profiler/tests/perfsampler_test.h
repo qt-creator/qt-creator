@@ -8,5 +8,6 @@
 namespace Profiler::Internal {
 
 QObject *createPerfSamplerTest();
+QObject *createPerfSamplerSettingsTest();
 
 } // namespace Profiler::Internal

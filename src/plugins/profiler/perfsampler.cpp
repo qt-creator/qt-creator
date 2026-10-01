@@ -309,22 +309,29 @@ PerfSamplerSettings::PerfSamplerSettings()
             m_pickedName = FilePath::fromUserInput(info->executable).fileName();
             picked->setText(m_pickedName);
         });
-        QWidget *perfConfig = perfSettings.createPerfConfigWidget(nullptr);
-        const auto updatePerfConfig = [this, perfConfig] {
-            perfConfig->setEnabled(!optionsChosenElsewhere());
-        };
-        updatePerfConfig();
-        connect(this, &SamplerSettings::optionsSelectionChanged, perfConfig, updatePerfConfig);
         return Column {
             executable,
             arguments,
             workingDirectory,
             Row { attach, pick, picked, st },
-            downloadDebugInfo,
-            perfConfig,
+            createOptionsWidget(),
             noMargin,
         };
     });
+}
+
+QWidget *PerfSamplerSettings::createOptionsWidget()
+{
+    using namespace Layouting;
+    QWidget *perfConfig = perfSettings.createPerfConfigWidget(nullptr);
+    const auto updatePerfConfig = [this, perfConfig] {
+        perfConfig->setEnabled(!optionsChosenElsewhere());
+    };
+    updatePerfConfig();
+    connect(this, &SamplerSettings::optionsSelectionChanged, perfConfig, updatePerfConfig);
+    auto widget = new QWidget;
+    Column { downloadDebugInfo, perfConfig, noMargin }.attachTo(widget);
+    return widget;
 }
 
 // The launch settings are irrelevant while attaching, and both are while the

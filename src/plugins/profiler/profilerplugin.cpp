@@ -109,6 +109,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createPerfRecordReaderTest);
         addTestCreator(createDwarfLineTableTest);
         addTestCreator(createPerfSamplerTest);
+        addTestCreator(createPerfSamplerSettingsTest);
         addTestCreator(createPerfResourceCounterTest);
 #endif
     }

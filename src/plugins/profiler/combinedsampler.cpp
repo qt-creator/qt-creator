@@ -53,15 +53,51 @@ CombinedSamplerSettings::CombinedSamplerSettings()
         for (BoolAspect *aspect : std::as_const(featureAspects))
             features.addItem(*aspect);
 
+        Column cpuOptions;
+        if (m_perfSamplerSettings)
+            cpuOptions.addItem(m_perfSamplerSettings->createOptionsWidget());
+        else
+            cpuOptions.addItem(Row { intervalUs, st });
+
         return Column {
             executable,
             arguments,
             workingDirectory,
-            Layouting::Group { title(Tr::tr("CPU Sampler")), Column { Row { intervalUs, st } } },
+            Layouting::Group { title(Tr::tr("CPU Sampler")), cpuOptions },
             Layouting::Group { title(Tr::tr("QML Profiler")), Column { features } },
             noMargin,
         };
     });
+}
+
+void CombinedSamplerSettings::setPerfSamplerSettings(PerfSamplerSettings *settings)
+{
+    m_perfSamplerSettings = settings;
+    if (m_perfSamplerSettings) {
+        m_perfSamplerSettings->setSettingsGroup("CombinedSamplerPerfSampler");
+        m_perfSamplerSettings->perfSettings.setSettingsGroup("CombinedSamplerPerfSettings");
+    }
+    updateOptionsEnabled();
+}
+
+void CombinedSamplerSettings::readSettings()
+{
+    SamplerSettings::readSettings();
+    if (m_perfSamplerSettings)
+        m_perfSamplerSettings->readSettings();
+}
+
+void CombinedSamplerSettings::writeSettings() const
+{
+    SamplerSettings::writeSettings();
+    if (m_perfSamplerSettings)
+        m_perfSamplerSettings->writeSettings();
+}
+
+void CombinedSamplerSettings::updateOptionsEnabled()
+{
+    if (m_perfSamplerSettings)
+        m_perfSamplerSettings->setOptionsChosenElsewhere(optionsChosenElsewhere());
 }
 
 quint64 CombinedSamplerSettings::requestedFeatures() const
@@ -100,14 +136,8 @@ CombinedSampler::CombinedSampler()
     else if (HostOsInfo::isLinuxHost())
         m_native = std::make_unique<PerfSampler>();
 
-    // Only the top-level backends' settings are loaded (see the qtprofiler
-    // window), so whatever a sub-capture reads from its own settings rather
-    // than from the session -- the perf record arguments, the debuginfod
-    // toggle -- would stay at its default here.
-    if (m_native) {
-        if (SamplerSettings *nativeSettings = m_native->settings())
-            nativeSettings->readSettings();
-    }
+    if (m_native)
+        m_settings->setPerfSamplerSettings(qobject_cast<PerfSamplerSettings *>(m_native->settings()));
 }
 
 CombinedSampler::~CombinedSampler() = default;
