@@ -589,11 +589,18 @@ static void handleIosToolStartedOnSimulator(
     barrier->advance();
 }
 
+// What ends the run after the application started
+enum class RunEnd {
+    ByIosTool,          // canceling the run control stops iostool
+    ByAfterStartRecipe, // iostool is canceled when the recipe after start ends
+    ByDebugger          // the debugger ends the run and reports it
+};
+
 static Group iosToolKicker(
     const QStoredBarrier &barrier,
     RunControl *runControl,
     const DebugInfo &debugInfo,
-    bool handleCancelAfterStart = true)
+    RunEnd runEnd = RunEnd::ByIosTool)
 {
     stopRunningRunControl(runControl);
     const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
@@ -613,10 +620,10 @@ static Group iosToolKicker(
     };
 
     const auto onIosToolSetup = [runControl, debugInfo, bundleDir, deviceType, device,
-                                 handleCancelAfterStart, barrier](IosToolRunner &runner) {
+                                 runEnd, barrier](IosToolRunner &runner) {
         runner.setDeviceType(deviceType);
         runner.setStartHandler([runControl, debugInfo, bundleDir, deviceType, device,
-                                handleCancelAfterStart,
+                                runEnd,
                                 barrier = barrier.activeStorage()](IosToolHandler *handler) {
             const auto messageHandler = [runControl](const QString &message) {
                 runControl->postMessage(message, StdOutFormat);
@@ -652,9 +659,9 @@ static Group iosToolKicker(
                 runControl,
                 &RunControl::canceled,
                 handler,
-                [handler, barrier = QPointer<QBarrier>(barrier), handleCancelAfterStart] {
+                [handler, barrier = QPointer<QBarrier>(barrier), runEnd] {
                     const bool isStarting = barrier && barrier->isRunning();
-                    if (isStarting || (handleCancelAfterStart && handler->isRunning()))
+                    if (isStarting || (runEnd == RunEnd::ByIosTool && handler->isRunning()))
                         handler->stop();
                 });
 
@@ -676,7 +683,7 @@ static Group iosToolKicker(
             handler->requestRunApp(bundleDir, args, runKind, deviceId);
         });
     };
-    const auto onIosToolDone = [runControl, handleCancelAfterStart, barrier](DoneWith result) {
+    const auto onIosToolDone = [runControl, runEnd, barrier](DoneWith result) {
         if (result == DoneWith::Success) {
             runControl->postMessage(Tr::tr("Run ended."), NormalMessageFormat);
         } else if (result == DoneWith::Error) {
@@ -684,7 +691,7 @@ static Group iosToolKicker(
         } else {
             // If we end up here when already started, it is just the debugger ending normally
             const bool isStarted = !barrier->isRunning();
-            if (handleCancelAfterStart || !isStarted)
+            if (runEnd != RunEnd::ByDebugger || !isStarted)
                 runControl->postMessage(Tr::tr("Run canceled."), ErrorMessageFormat);
         }
     };
@@ -698,11 +705,10 @@ static Group iosToolKicker(
 static Group iosToolRecipe(RunControl *runControl, const DebugInfo &debugInfo = {},
                            const std::optional<ExecutableItem> &afterStartedRecipe = {})
 {
-    const bool handleCancelAfterStart = !afterStartedRecipe;
-    const auto kicker =
-        [runControl, debugInfo, handleCancelAfterStart](const QStoredBarrier &barrier) {
-            return iosToolKicker(barrier, runControl, debugInfo, handleCancelAfterStart);
-        };
+    const RunEnd runEnd = afterStartedRecipe ? RunEnd::ByAfterStartRecipe : RunEnd::ByIosTool;
+    const auto kicker = [runControl, debugInfo, runEnd](const QStoredBarrier &barrier) {
+        return iosToolKicker(barrier, runControl, debugInfo, runEnd);
+    };
     const WorkflowPolicy policy = afterStartedRecipe ? WorkflowPolicy::StopOnSuccessOrError
                                                      : WorkflowPolicy::StopOnError;
     return When (kicker, policy) >> Do {
@@ -862,7 +868,7 @@ static Group debugRecipe(RunControl *runControl)
             };
             return Group {
                 continueOnError,
-                iosToolKicker(barrier, runControl, debugInfo, /*handleCancelAfterStart=*/false),
+                iosToolKicker(barrier, runControl, debugInfo, RunEnd::ByDebugger),
                 If (isStarted) >> Then {
                     QBarrierTask(onStopDebuggerSetup)
                 }
