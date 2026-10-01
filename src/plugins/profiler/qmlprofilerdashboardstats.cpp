@@ -77,6 +77,11 @@ int QmlProfilerDashboardStats::framesTotal() const
     return m_framesOnTarget + m_framesNearTarget + m_framesFailed;
 }
 
+bool QmlProfilerDashboardStats::hasData() const
+{
+    return framesTotal() > 0;
+}
+
 int QmlProfilerDashboardStats::onTargetPercent() const
 {
     const int total = framesTotal();

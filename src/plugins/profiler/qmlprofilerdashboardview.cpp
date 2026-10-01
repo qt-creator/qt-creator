@@ -618,6 +618,8 @@ class QmlProfilerDashboardViewPrivate : public QObject
 public:
     QmlProfilerDashboardViewPrivate(QObject *parent = nullptr);
 
+    void updateVisibility();
+
     QmlProfilerDashboardStats *stats = nullptr;
 
     Category *overallRating = nullptr;
@@ -645,12 +647,24 @@ public:
     QLabel *findingsTitle = nullptr;
     QmlProfilerFindingsModel *findingsModel = nullptr;
     FindingsView *findingsView = nullptr;
+    QWidget *statsSection = nullptr;
     QtcRectangleWidget *findingsSection = nullptr;
+    QWidget *noDataAvailableSection = nullptr;
 };
 
 QmlProfilerDashboardViewPrivate::QmlProfilerDashboardViewPrivate(QObject *parent)
     : QObject(parent)
 {
+}
+
+void QmlProfilerDashboardViewPrivate::updateVisibility()
+{
+    const bool hasStats = stats->hasData();
+    const bool hasFindings = findingsModel->rowCount() > 0;
+    const bool hasData = hasFindings || hasStats;
+    statsSection->setVisible(hasStats);
+    findingsSection->setVisible(hasFindings);
+    noDataAvailableSection->setVisible(!hasData);
 }
 
 QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *manager,
@@ -659,8 +673,10 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     , d(new QmlProfilerDashboardViewPrivate(this))
 {
     d->stats = new QmlProfilerDashboardStats(manager, d);
-    connect(d->stats, &QmlProfilerDashboardStats::changed,
-            this, &QmlProfilerDashboardView::updateValues);
+    connect(d->stats, &QmlProfilerDashboardStats::changed, this, [this] {
+        d->updateVisibility();
+        updateValues();
+    });
 
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::Base);
@@ -673,6 +689,14 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
         Tr::tr("Performance Rating"),
         Tr::tr("Overall technical rating for your application performance"),
         Large);
+
+
+    // No data
+    QLabel *noDataText = new QLabel(
+        Tr::tr("There is nothing to show.\n"
+               "Either no trace has been taken, or it contains no animation events or findings."));
+    applyTf(noDataText, textTf, false);
+    noDataText->setWordWrap(true);
 
 
     // FPS Rate
@@ -753,7 +777,7 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     // An empty findings card would read as a broken one, so the section only exists once
     // the trace has produced findings.
     connect(d->findingsModel, &QAbstractItemModel::modelReset, this, [this] {
-        d->findingsSection->setVisible(d->findingsModel->rowCount() > 0);
+        d->updateVisibility();
         d->findingsView->updateGeometry();
     });
 
@@ -794,59 +818,71 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
                 customMargins(SpacingTokens::GapVXxl, SpacingTokens::GapVXxl,
                               SpacingTokens::GapVXxl, SpacingTokens::GapVXxl),
                 spacing(SpacingTokens::GapVXxl),
-                Row {
-                    QtDesignWidgets::Rectangle {
-                        fillBrush(rectFillBrush),
-                        strokePen(rectStrokePen),
-                        Column {
-                            d->overallRating,
-                            st,
-                        },
-                    },
-                    QtDesignWidgets::Rectangle {
-                        fillBrush(rectFillBrush),
-                        strokePen(rectStrokePen),
-                        Column {
-                            spacing(0),
-                            d->gaugeTitle,
-                            Space(SpacingTokens::GapVL),
-                            Row { st, d->gauge, st },
-                            d->gaugeText,
-                        },
-                    },
-                    QtDesignWidgets::Rectangle {
-                        fillBrush(rectFillBrush),
-                        strokePen(rectStrokePen),
-                        Column {
-                            spacing(SpacingTokens::GapVL),
-                            d->framesTitle,
-                            Row { st, framesGrid, st },
-                            d->framesText,
-                            st,
-                        },
+                Widget {
+                    bindTo(&d->noDataAvailableSection),
+                    Column {
+                        noMargin,
+                        noDataText,
                     },
                 },
-                Row {
-                    QtDesignWidgets::Rectangle {
-                        fillBrush(rectFillBrush),
-                        strokePen(rectStrokePen),
-                        Column {
-                            spacing(SpacingTokens::GapVXl),
-                            d->categoriesTitle,
-                            QtDesignWidgets::SeparatedItems {
-                                separatorInset(0),
-                                Row {
-                                    noMargin,
-                                    spacing(2 * SpacingTokens::GapHXl
-                                            + QtcSeparatedItemsWidget::separatorLineWidth()),
-                                    d->uiResponsiveness,
-                                    d->frameConsistency,
-                                    d->stutterPrevention,
-                                    d->p99Quality,
-                                    d->startupSpeed,
+                Widget {
+                    bindTo(&d->statsSection),
+                    Column {
+                        noMargin,
+                        spacing(SpacingTokens::GapVXxl),
+                        Row {
+                            QtDesignWidgets::Rectangle {
+                                fillBrush(rectFillBrush),
+                                strokePen(rectStrokePen),
+                                Column {
+                                    d->overallRating,
+                                    st,
                                 },
                             },
-                        }
+                            QtDesignWidgets::Rectangle {
+                                fillBrush(rectFillBrush),
+                                strokePen(rectStrokePen),
+                                Column {
+                                    spacing(0),
+                                    d->gaugeTitle,
+                                    Space(SpacingTokens::GapVL),
+                                    Row { st, d->gauge, st },
+                                    d->gaugeText,
+                                },
+                            },
+                            QtDesignWidgets::Rectangle {
+                                fillBrush(rectFillBrush),
+                                strokePen(rectStrokePen),
+                                Column {
+                                    spacing(SpacingTokens::GapVL),
+                                    d->framesTitle,
+                                    Row { st, framesGrid, st },
+                                    d->framesText,
+                                    st,
+                                },
+                            },
+                        },
+                        QtDesignWidgets::Rectangle {
+                            fillBrush(rectFillBrush),
+                            strokePen(rectStrokePen),
+                            Column {
+                                spacing(SpacingTokens::GapVXl),
+                                d->categoriesTitle,
+                                QtDesignWidgets::SeparatedItems {
+                                    separatorInset(0),
+                                    Row {
+                                        noMargin,
+                                        spacing(2 * SpacingTokens::GapHXl
+                                                + QtcSeparatedItemsWidget::separatorLineWidth()),
+                                        d->uiResponsiveness,
+                                        d->frameConsistency,
+                                        d->stutterPrevention,
+                                        d->p99Quality,
+                                        d->startupSpeed,
+                                    },
+                                },
+                            }
+                        },
                     },
                 },
                 st,
@@ -867,8 +903,7 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
         },
     }.attachTo(this);
 
-    d->findingsSection->setVisible(d->findingsModel->rowCount() > 0);
-
+    d->updateVisibility();
     updateValues();
 }
 
