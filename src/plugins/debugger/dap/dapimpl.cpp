@@ -2908,9 +2908,12 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         // Work around gdb before 16 not always answering it while the launch
         // still starts the debuggee, which holds back every later request.
         // It does nothing there: the launch runs the debuggee by itself.
+        // Red Hat's gdb 14 is the exception: its launch waits for the request.
         const bool isOldGdb = m_gdbMajorVersion > 0 && m_gdbMajorVersion < 16;
-        if (m_client->capabilities().supportsConfigurationDoneRequest && !isOldGdb)
+        if (m_client->capabilities().supportsConfigurationDoneRequest
+                && (!isOldGdb || m_isRedHatGdb)) {
             m_client->sendConfigurationDone();
+        }
         return;
     }
     case DapEventType::Stopped:
@@ -2955,8 +2958,10 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         if (m_startData.adapterId == "gdb" && m_gdbMajorVersion == 0) {
             static const QRegularExpression banner("^GNU gdb .*\\s(\\d+)\\.\\d+");
             const QRegularExpressionMatch match = banner.match(output);
-            if (match.hasMatch())
+            if (match.hasMatch()) {
                 m_gdbMajorVersion = match.captured(1).toInt();
+                m_isRedHatGdb = output.contains("(Red Hat");
+            }
         }
         // gdb announces a debug info download with one line and then fetches
         // silently, which looks exactly like a debugger that stopped answering.

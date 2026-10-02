@@ -197,6 +197,9 @@ struct InferiorTestData
     // A line the recursion above passes through once per level, so a breakpoint
     // there is hit again unless it is taken back.
     int recursiveCallLine = 0;
+    // Where the recursion is started from, so a recording can begin right
+    // before it and not at an earlier line that has library code behind it.
+    int recursionCallLine = 0;
     // The recursion's own first line, which is where a breakpoint on its
     // address lands.
     int recursionEntryLine = 0;
@@ -4048,7 +4051,7 @@ void tst_backends::initTestCase()
         "    stepIntoKnownFrame();",
         "    multi(1);",
         "    multi(2.0);",
-        "    recurse(40);",
+        "    recurse(40); // recursion call line",
         "    if (const char *marker = getenv(\"QTC_BACKEND_ENV_MARKER\"))",
         "        printf(\"env=%s\\n\", marker);",
         "    if (const char *queried = getenv(\"QTC_BACKEND_ENV_QUERY\")) {",
@@ -4083,6 +4086,8 @@ void tst_backends::initTestCase()
             cppInferiorData.secondBreakpointLine = i + 1;
         if (inferiorLines.at(i).contains("recursive call line"))
             cppInferiorData.recursiveCallLine = i + 1;
+        if (inferiorLines.at(i).contains("recursion call line"))
+            cppInferiorData.recursionCallLine = i + 1;
         if (inferiorLines.at(i).contains("recursion entry line"))
             cppInferiorData.recursionEntryLine = i + 1;
         if (inferiorLines.at(i).contains("deep breakpoint line"))
@@ -6680,9 +6685,6 @@ void tst_backends::stepsBackOutOfAFunctionWhileRecording()
     if (auto result = checkCapability(backend, Debugger::ReverseSteppingCapability); !result)
         QSKIP(qPrintable(result.error()));
 
-    if (HostOsInfo::isLinuxHost())
-        QSKIP("This test fails on linux RHEL_9_6");
-
     const InferiorTestData testData = inferiorTestData(backend);
     if (testData.recursionDepthVariable.isEmpty() || testData.recursiveCallLine == 0
         || testData.deepRecursionBreakpointLine == 0) {
@@ -6690,7 +6692,8 @@ void tst_backends::stepsBackOutOfAFunctionWhileRecording()
     }
 
     std::unique_ptr<DebuggerBackend> debuggerBackend
-        = launchAndStopAtBreakpoint(backend, recordableRunData(testData.executable));
+        = launchAndStopAtBreakpoint(backend, recordableRunData(testData.executable),
+                                    testData.recursionCallLine);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
@@ -18677,9 +18680,6 @@ void tst_backends::stopsAtBreakpointThroughDapAdapter()
                              .arg(s_dapInterpreterVersion).arg(testData.versionLine)));
     }
 
-    if (HostOsInfo::isLinuxHost())
-        QSKIP("This test fails on linux RHEL_9_6");
-
     DapStartData startData;
     startData.adapter.kind = DapAdapterDescriptor::Kind::Executable;
     startData.adapter.command = CommandLine{gdb, {"-i", "dap"}};
@@ -20316,9 +20316,6 @@ void tst_backends::countsTheHitsADapAdapterReports()
     const InferiorTestData testData = inferiorTestData(Backend::Dap);
     if (testData.recursiveCallLine == 0)
         QSKIP("inferior has no line hit more than once");
-
-    if (HostOsInfo::isLinuxHost())
-        QSKIP("This test fails on linux RHEL_9_6");
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(Backend::Dap);
     QVERIFY(debuggerBackend);

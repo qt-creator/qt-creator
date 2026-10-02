@@ -219,6 +219,7 @@ protected:
     void loadCore();
     // The major version gdb names in its banner, 0 for another adapter.
     int m_gdbMajorVersion = 0;
+    bool m_isRedHatGdb = false;
     std::optional<InferiorResultData> m_pendingResult;
     bool m_inferiorDoneReported = false;
     std::optional<InferiorResultData> m_exitAwaitingSignal;
