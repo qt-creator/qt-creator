@@ -650,7 +650,7 @@ def getChildByClass(parent, classToSearchFor, occurrence=1):
 def getHelpViewer():
     return waitForObject("{type='QLiteHtmlWidget' unnamed='1' visible='1' "
                          "window=':Qt Creator_Core::Internal::MainWindow'}",
-                         1000)
+                         3000)
 
 def getHelpTitle():
     return str(getHelpViewer().title())
