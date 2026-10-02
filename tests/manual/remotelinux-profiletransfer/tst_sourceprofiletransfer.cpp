@@ -59,6 +59,7 @@ CMD ["/usr/sbin/sshd", "-D", "-e"]
 
 struct ToolResult { int exitCode = -1; QString out; QString err; };
 
+#ifndef Q_OS_WIN
 static ToolResult run(const FilePath &exe, const QStringList &args,
                       std::chrono::seconds timeout = 60s)
 {
@@ -75,6 +76,7 @@ static QByteArray makeBlob()
         data.append(char((i * 7 + 3) % 256));
     return data;
 }
+#endif // Q_OS_WIN
 
 class tst_SourceProfileTransfer : public QObject
 {
