@@ -30,7 +30,6 @@ def main():
         clickButton(waitForObject(":Go to slot.OK_QPushButton"))
         editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
         type(editor, "<Up>")
-        type(editor, "<Up>")
         test.verify(waitFor('str(lineUnderCursor(editor)).strip() == con[3]', 1000),
                     'Comparing line "%s" to expected "%s"' % (lineUnderCursor(editor), con[3]))
     saveAndExit()
