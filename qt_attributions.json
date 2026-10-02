@@ -536,9 +536,9 @@
         "QtUsage": "Used for the integrated terminal.",
         "Path": "@SOURCE_DIR@/src/plugins/terminal/shellintegrations",
         "Description": "A library of Lua scripts for use with Clink.",
-        "Homepage": "https://github.com/chrisant996/clink-gizmos",
+        "Homepage": "https://github.com/chrisant996/clink-gizmos/blob/24c14a3561/vscode_shell_integration.lua",
         "PURL": "pkg:github/chrisant996/clink-gizmos",
-        "Version" : "680716f3d9",
+        "Version" : "24c14a3561",
         "License": "MIT License",
         "LicenseFile": "@SOURCE_DIR@/src/plugins/terminal/shellintegrations/LICENSE.clink",
         "Copyright": "Copyright (c) 2022 Chris Antos"
