@@ -6,11 +6,11 @@
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilermodelmanager.h"
 
-#include <QFrame>
+#include <utils/qtdesignwidgets.h>
 
 namespace Profiler::Internal {
 
-class QmlProfilerStateWidget : public QFrame
+class QmlProfilerStateWidget : public Utils::QtcRectangleWidget
 {
     Q_OBJECT
 

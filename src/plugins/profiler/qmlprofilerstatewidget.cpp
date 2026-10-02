@@ -24,7 +24,7 @@ class QmlProfilerStateWidget::QmlProfilerStateWidgetPrivate
     public:
     QmlProfilerStateWidgetPrivate(QmlProfilerStateWidget *qq) : text(nullptr) { Q_UNUSED(qq) }
 
-    QLabel *text;
+    Utils::QtcLabel *text;
 
     QPointer<QmlProfilerStateManager> m_profilerState;
     QPointer<QmlProfilerModelManager> m_modelManager;
@@ -33,18 +33,25 @@ class QmlProfilerStateWidget::QmlProfilerStateWidgetPrivate
 
 QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateManager,
                                 QmlProfilerModelManager *modelManager, QWidget *parent)
-    : QFrame(parent), d(new QmlProfilerStateWidgetPrivate(this))
+    : Utils::QtcRectangleWidget(parent)
+    , d(new QmlProfilerStateWidgetPrivate(this))
 {
     setObjectName(QLatin1String("QML Profiler State Display"));
-    setFrameStyle(QFrame::StyledPanel);
+    setStrokePen(Utils::creatorColor(Utils::Theme::Token_Stroke_Subtle));
+    setFillBrush(Utils::creatorColor(Utils::Theme::Token_Background_Muted));
+
+    setMinimumHeight(120);
+    setMinimumWidth(440);
 
     // UI elements
     auto layout = new QVBoxLayout(this);
-    resize(200,70);
 
-    d->text = new QLabel(this);
+    d->text = new Utils::QtcLabel({}, Utils::QtcLabel::Primary, this);
     d->text->setAlignment(Qt::AlignCenter);
-    setAutoFillBackground(true);
+    d->text->setWordWrap(true);
+    d->text->setMinimumHeight(0); // Undo QtcLabel's fixed height
+    d->text->setMaximumHeight(QWIDGETSIZE_MAX);
+
     layout->addWidget(d->text);
 
     setLayout(layout);
@@ -89,7 +96,6 @@ void QmlProfilerStateWidget::showText(const QString &text)
 {
     setVisible(true);
     d->text->setText(text);
-    resize(300, 70);
     reposition();
 }
 
