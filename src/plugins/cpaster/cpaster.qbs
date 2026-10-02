@@ -16,7 +16,6 @@ QtcPlugin {
         "columnindicatortextedit.cpp",
         "columnindicatortextedit.h",
         "cpasterconstants.h",
-        "cpaster.qrc",
         "cpasterplugin.cpp",
         "cpastertr.h",
         "dpastedotcomprotocol.cpp",
@@ -47,6 +46,16 @@ QtcPlugin {
             "cgi.h",
             "splitter.cpp",
             "splitter.h",
+        ]
+    }
+
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        Qt.core.resourcePrefix: "/cpaster"
+        files: [
+            "images/settingscategory_cpaster.png",
+            "images/settingscategory_cpaster@2x.png",
         ]
     }
 }
