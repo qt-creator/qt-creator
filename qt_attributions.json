@@ -521,9 +521,9 @@
         "QtUsage": "Used for the integrated terminal.",
         "Path": "@SOURCE_DIR@/src/plugins/terminal/shellintegrations",
         "Description": "Scripts for integrating with various shells.",
-        "Homepage": "https://github.com/microsoft/vscode/tree/main/src/vs/workbench/contrib/terminal/browser/media",
+        "Homepage": "https://github.com/microsoft/vscode/tree/main/src/vs/workbench/contrib/terminal/common/scripts",
         "PURL": "pkg:github/microsoft/vscode",
-        "Version" : "463d9933a4",
+        "Version" : "fd396ed9a2",
         "License": "MIT License",
         "LicenseFile": "@SOURCE_DIR@/src/plugins/terminal/shellintegrations/LICENSE.vscode",
         "Copyright": "Copyright (c) 2015 - present Microsoft Corporation"

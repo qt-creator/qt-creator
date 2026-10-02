@@ -19,37 +19,84 @@ and ! set --query VSCODE_SHELL_INTEGRATION
 or exit
 
 set --global VSCODE_SHELL_INTEGRATION 1
+set --global __vscode_shell_env_reporting $VSCODE_SHELL_ENV_REPORTING
+set -e VSCODE_SHELL_ENV_REPORTING
+
+# Prevent AI-executed commands from polluting shell history
+if test "$VSCODE_PREVENT_SHELL_HISTORY" = "1"
+	set -g fish_private_mode 1
+	set -e VSCODE_PREVENT_SHELL_HISTORY
+end
+
+set -g envVarsToReport
+if test -n "$__vscode_shell_env_reporting"
+	set envVarsToReport (string split "," "$__vscode_shell_env_reporting")
+end
 
 # Apply any explicit path prefix (see #99878)
-if status --is-login; and set -q VSCODE_PATH_PREFIX
-	fish_add_path -p $VSCODE_PATH_PREFIX
+# On fish, '$fish_user_paths' is always prepended to the PATH, for both login and non-login shells, so we need
+# to apply the path prefix fix always, not only for login shells (see #232291)
+if set -q VSCODE_PATH_PREFIX
+	set -gx PATH "$VSCODE_PATH_PREFIX$PATH"
 end
 set -e VSCODE_PATH_PREFIX
 
-# Apply EnvironmentVariableCollections if needed
-if test -n "$VSCODE_ENV_REPLACE"
-	set ITEMS (string split : $VSCODE_ENV_REPLACE)
-	for B in $ITEMS
-		set split (string split = $B)
-		set -gx "$split[1]" (echo -e "$split[2]")
+set -g vsc_env_keys
+set -g vsc_env_values
+
+# Tracks if the shell has been initialized, this prevents
+set -g vsc_initialized 0
+
+set -g __vsc_applied_env_vars 0
+function __vsc_apply_env_vars
+	if test $__vsc_applied_env_vars -eq 1;
+		return
 	end
-	set -e VSCODE_ENV_REPLACE
+	set -l __vsc_applied_env_vars 1
+	# Apply EnvironmentVariableCollections if needed
+	if test -n "$VSCODE_ENV_REPLACE"
+		set ITEMS (string split : $VSCODE_ENV_REPLACE)
+		for B in $ITEMS
+			set split (string split -m1 = $B)
+			set -gx "$split[1]" (echo -e "$split[2]")
+		end
+		set -e VSCODE_ENV_REPLACE
+	end
+	if test -n "$VSCODE_ENV_PREPEND"
+		set ITEMS (string split : $VSCODE_ENV_PREPEND)
+		for B in $ITEMS
+			set split (string split -m1 = $B)
+			set -gx "$split[1]" (echo -e "$split[2]")"$$split[1]" # avoid -p as it adds a space
+		end
+		set -e VSCODE_ENV_PREPEND
+	end
+	if test -n "$VSCODE_ENV_APPEND"
+		set ITEMS (string split : $VSCODE_ENV_APPEND)
+		for B in $ITEMS
+			set split (string split -m1 = $B)
+			set -gx "$split[1]" "$$split[1]"(echo -e "$split[2]") # avoid -a as it adds a space
+		end
+		set -e VSCODE_ENV_APPEND
+	end
 end
-if test -n "$VSCODE_ENV_PREPEND"
-	set ITEMS (string split : $VSCODE_ENV_PREPEND)
-	for B in $ITEMS
-		set split (string split = $B)
-		set -gx "$split[1]" (echo -e "$split[2]")"$$split[1]" # avoid -p as it adds a space
+
+# Register Python shell activate hooks
+# Prevent multiple activation with guard
+if not set -q VSCODE_PYTHON_AUTOACTIVATE_GUARD
+	set -gx VSCODE_PYTHON_AUTOACTIVATE_GUARD 1
+	if test -n "$VSCODE_PYTHON_FISH_ACTIVATE"; and test "$TERM_PROGRAM" = "vscode"
+		# Fish does not crash on eval failure, so don't need negation.
+		eval $VSCODE_PYTHON_FISH_ACTIVATE
+		set __vsc_activation_status $status
+
+		if test $__vsc_activation_status -ne 0
+			builtin printf '\x1b[0m\x1b[7m * \x1b[0;103m VS Code Python fish activation failed with exit code %d \x1b[0m \n' "$__vsc_activation_status"
+		end
 	end
-	set -e VSCODE_ENV_PREPEND
-end
-if test -n "$VSCODE_ENV_APPEND"
-	set ITEMS (string split : $VSCODE_ENV_APPEND)
-	for B in $ITEMS
-		set split (string split = $B)
-		set -gx "$split[1]" "$$split[1]"(echo -e "$split[2]") # avoid -a as it adds a space
+	# Remove any leftover Python activation env vars.
+	for var in (set -n | string match -r '^VSCODE_PYTHON_.*_ACTIVATE$')
+		set -eg $var
 	end
-	set -e VSCODE_ENV_APPEND
 end
 
 # Handle the shell integration nonce
@@ -66,8 +113,8 @@ end
 # Sent right before executing an interactive command.
 # Marks the beginning of command output.
 function __vsc_cmd_executed --on-event fish_preexec
-	__vsc_esc C
 	__vsc_esc E (__vsc_escape_value "$argv") $__vsc_nonce
+	__vsc_esc C
 
 	# Creates a marker to indicate a command was run.
 	set --global _vsc_has_cmd
@@ -78,10 +125,7 @@ end
 # Backslashes are doubled and non-alphanumeric characters are hex encoded.
 function __vsc_escape_value
 	# Escape backslashes and semi-colons
-	echo $argv \
-	| string replace --all '\\' '\\\\' \
-	| string replace --all ';' '\\x3b' \
-	;
+	echo $argv | string replace --all '\\' '\\\\' | string replace --all ';' '\\x3b'
 end
 
 # Sent right after an interactive command has finished executing.
@@ -93,6 +137,11 @@ end
 # Sent when a command line is cleared or reset, but no command was run.
 # Marks the cleared line with neither success nor failure.
 function __vsc_cmd_clear --on-event fish_cancel
+	if test $vsc_initialized -eq 0;
+		return
+	end
+	__vsc_esc E "" $__vsc_nonce
+	__vsc_esc C
 	__vsc_esc D
 end
 
@@ -135,10 +184,31 @@ function __vsc_update_cwd --on-event fish_prompt
 	end
 end
 
+if test -n "$__vscode_shell_env_reporting"
+	function __vsc_update_env --on-event fish_prompt
+		if test (count $envVarsToReport) -gt 0
+			__vsc_esc EnvSingleStart 1
+
+			for key in $envVarsToReport
+				if set -q $key
+					set -l value $$key
+					__vsc_esc EnvSingleEntry $key (__vsc_escape_value "$value")
+				end
+			end
+
+			__vsc_esc EnvSingleEnd
+		end
+	end
+end
+
 # Sent at the start of the prompt.
 # Marks the beginning of the prompt (and, implicitly, a new line).
 function __vsc_fish_prompt_start
+	# Applying environment variables is deferred to after config.fish has been
+	# evaluated
+	__vsc_apply_env_vars
 	__vsc_esc A
+	set -g vsc_initialized 1
 end
 
 # Sent at the end of the prompt.
@@ -161,11 +231,11 @@ function __init_vscode_shell_integration
 		function fish_mode_prompt
 			__vsc_fish_prompt_start
 			__vsc_fish_mode_prompt
-			__vsc_fish_cmd_start
 		end
 
 		function fish_prompt
 			__vsc_fish_prompt
+			__vsc_fish_cmd_start
 		end
 	else
 		# No fish_mode_prompt, so put everything in fish_prompt.
@@ -187,5 +257,13 @@ if test -n "$QT_CREATOR_EXECUTABLE_PATH" -a -n "$QT_CREATOR_PID"
 		$QT_CREATOR_EXECUTABLE_PATH -client -pid $QT_CREATOR_PID $argv
 	end
 end
+
+# Report prompt type
+if set -q POSH_SESSION_ID
+	__vsc_esc P PromptType=oh-my-posh
+end
+
+# Report this shell supports rich command detection
+__vsc_esc P HasRichCommandDetection=True
 
 __preserve_fish_prompt

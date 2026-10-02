@@ -1,6 +1,5 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # SPDX-License-Identifier: MIT
-
 if [[ -f $USER_ZDOTDIR/.zshenv ]]; then
 	VSCODE_ZDOTDIR=$ZDOTDIR
 	ZDOTDIR=$USER_ZDOTDIR
