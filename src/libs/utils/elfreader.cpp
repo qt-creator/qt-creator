@@ -87,6 +87,9 @@ ElfMapper::ElfMapper(const ElfReader *reader)
 
 bool ElfMapper::map()
 {
+    if (!binary.isFile())
+        return false;
+
     if (!binary.isLocal()) {
         const Result<QByteArray> contents = binary.fileContents();
         QTC_CHECK(contents);
@@ -145,8 +148,11 @@ ElfReader::Result ElfReader::readIt()
     //     return Ok;
 
     ElfMapper mapper(this);
-    if (!mapper.map())
+    if (!mapper.map()) {
+        m_errorString = Tr::tr("\"%1\" cannot be read as an ELF object")
+                            .arg(m_binary.toUserOutput());
         return Corrupt;
+    }
 
     const quint64 fdlen = mapper.fdlen;
 
