@@ -29,7 +29,6 @@ QtcPlugin {
             "memcheckerrorview.cpp", "memcheckerrorview.h",
             "memchecktool.cpp", "memchecktool.h",
             "startremotedialog.cpp", "startremotedialog.h",
-            "valgrind.qrc",
             "valgrindplugin.cpp",
             "valgrindprocess.cpp", "valgrindprocess.h",
             "valgrindsettings.cpp", "valgrindsettings.h",
@@ -91,5 +90,16 @@ QtcPlugin {
             'TESTRUNNER_SRC_DIR="' + FileInfo.joinPaths(path, "../../../tests/auto/valgrind/memcheck/testapps") + '"',
             'TESTRUNNER_APP_DIR="' + FileInfo.joinPaths(project.buildDirectory, qtc.ide_bin_path, "testapps") + '"'
         ])
+    }
+
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "images/suppressoverlay.png",
+            "images/suppressoverlay@2x.png",
+            "images/kcachegrind.png",
+            "images/kcachegrind@2x.png",
+        ]
     }
 }

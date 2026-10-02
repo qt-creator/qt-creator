@@ -24,7 +24,6 @@ add_qtc_plugin(Valgrind
     memcheckerrorview.cpp memcheckerrorview.h
     memchecktool.cpp memchecktool.h
     startremotedialog.cpp startremotedialog.h
-    valgrind.qrc
     valgrindplugin.cpp
     valgrindprocess.cpp valgrindprocess.h
     valgrindsettings.cpp valgrindsettings.h
@@ -61,4 +60,14 @@ extend_qtc_plugin(Valgrind
     VALGRIND_FAKE_PATH="${PROJECT_BINARY_DIR}/src/tools/valgrindfake"
     TESTRUNNER_SRC_DIR="${PROJECT_SOURCE_DIR}/tests/auto/valgrind/memcheck/testapps"
     TESTRUNNER_APP_DIR="${PROJECT_BINARY_DIR}/tests/auto/valgrind/memcheck/testapps"
+)
+
+qtc_add_resources(Valgrind "images"
+  PREFIX "/valgrind"
+  BASE "."
+  FILES
+    images/suppressoverlay.png
+    images/suppressoverlay@2x.png
+    images/kcachegrind.png
+    images/kcachegrind@2x.png
 )
