@@ -308,6 +308,40 @@ private slots:
         QVERIFY(listsWorker);
     }
 
+    void itemLabelNamesTheSampledFunction()
+    {
+        SampleTraceData data;
+        data.pid = 1;
+        data.labels = {"start", "main", "work"}; // frames index into these (root-first)
+        data.threadNames = {{10, "worker"}};
+        data.samples = {{0, 10, true, {0, 1, 2}}}; // start>main>work; leaf = work
+        Timeline::TimelineModelAggregator aggregator;
+        CpuUsageModel model(&aggregator);
+        model.setTraceData(&data);
+        model.setExpanded(true);
+
+        int threadItem = -1, totalItem = -1;
+        for (int i = 0; i < model.count(); ++i) {
+            if (model.expandedRow(i) == 1 && totalItem < 0)
+                totalItem = i;
+            else if (model.expandedRow(i) >= 2 && threadItem < 0)
+                threadItem = i;
+        }
+        QVERIFY(threadItem >= 0);
+        QVERIFY(totalItem >= 0);
+
+        // The innermost frame of the stack, the one the thread was in, not the
+        // root it was entered from.
+        QCOMPARE(model.itemLabel(threadItem), QString("work"));
+        // The total row is a graph over all threads and has no stack to name.
+        QVERIFY(model.itemLabel(totalItem).isEmpty());
+
+        // Collapsed, the thread items are drawn over the total row, where a
+        // function name would label a bar that sums up several threads.
+        model.setExpanded(false);
+        QVERIFY(model.itemLabel(threadItem).isEmpty());
+    }
+
     void doubleClickFrameEmitsGotoSource()
     {
         SampleTraceData data;
@@ -384,6 +418,7 @@ private slots:
         QVERIFY(od.title.isEmpty());
         QVERIFY(od.content.isEmpty());
         QVERIFY(model.details(staleIndex).isEmpty());
+        QVERIFY(model.itemLabel(staleIndex).isEmpty());
     }
 
     void clearEmptiesModel()

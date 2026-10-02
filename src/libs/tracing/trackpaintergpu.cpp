@@ -83,6 +83,12 @@ void TrackPainterGpu::paint(QCanvasPainter *painter)
             p.setFillStyle(QColor::fromRgb(cp.color));
             p.fill(cp.path);
         }
+        if (!g.labels.isEmpty()) {
+            p.setFont(itemLabelFormat.font());
+            p.setFillStyle(itemLabelFormat.color());
+            for (const TextLabel &label : g.labels)
+                p.fillText(label.text, label.x, label.baselineY);
+        }
         if (g.hasMarkers) { p.setFillStyle(handle); p.fill(g.markers); }
         if (!g.noteIcons.isEmpty() && !m_noteIcon.isNull()) {
             for (const QPoint &c : g.noteIcons) {
@@ -152,6 +158,7 @@ void TrackPainterGpu::buildTrackGeometry(const Track &track, TrackGeometry &geom
         geom.markers.rect(r);
     geom.hasMarkers = !neutral.markers.isEmpty();
 
+    geom.labels = std::move(neutral.labels);
     geom.noteIcons = std::move(neutral.noteIcons);
 }
 
@@ -173,7 +180,7 @@ void TrackPainterGpu::paintScaleOverlay(QCanvasPainter &p, const Track &track) c
 
     p.setFont(OverlayScale::textFormat.font());
     p.setFillStyle(OverlayScale::textFormat.color());
-    for (const ScaleLabel &label : std::as_const(ov.labels))
+    for (const TextLabel &label : std::as_const(ov.labels))
         p.fillText(label.text, label.x, label.baselineY);
     p.restore();
 }

@@ -131,24 +131,30 @@ protected:
         QRgb color;
         QList<QRectF> rects;
     };
-    struct NeutralTrackGeometry {
-        QList<QRectF> background[2]; // [0] = bg1 rows, [1] = bg2 rows
-        QList<QRectF> grid;          // Timeline_DividerColor
-        QList<ColorRects> fills;     // event bars or density columns, grouped by colour
-        QRectF outlines[2];          // [0] = above, [1] = below the track
-        QList<QRectF> markers;       // Timeline_HandleColor
-        QList<QPoint> noteIcons;     // center point of each note icon
-    };
-
-    // Value-scale overlay primitives for one expanded track, in track-local
-    // coordinates. labels use Timeline_TextColor, lines use Timeline_DividerColor.
-    struct ScaleLabel {
+    struct TextLabel {
         QString text;
         float x;
         float baselineY;
     };
+    struct NeutralTrackGeometry {
+        QList<QRectF> background[2]; // [0] = bg1 rows, [1] = bg2 rows
+        QList<QRectF> grid;          // Timeline_DividerColor
+        QList<ColorRects> fills;     // event bars or density columns, grouped by colour
+        QList<TextLabel> labels;     // elided item labels, drawn in itemLabelFormat
+        QRectF outlines[2];          // [0] = above, [1] = below the track
+        QList<QRectF> markers;       // Timeline_HandleColor
+        QList<QPoint> noteIcons;     // center point of each note icon
+    };
+    // The bars are light in both color schemes, see defaultColorLightness().
+    constexpr static Utils::StyleHelper::TextFormat itemLabelFormat {
+        .themeColor = Utils::Theme::Token_Basic_Black,
+        .uiElement = Utils::StyleHelper::UiElementCaption,
+    };
+
+    // Value-scale overlay primitives for one expanded track, in track-local
+    // coordinates. labels use Timeline_TextColor, lines use Timeline_DividerColor.
     struct OverlayScale {
-        QList<ScaleLabel> labels;
+        QList<TextLabel> labels;
         QList<QRectF> lines; // 1px full-width divider rects
         constexpr static Utils::StyleHelper::TextFormat textFormat {
             .themeColor = Utils::Theme::Timeline_TextColor,

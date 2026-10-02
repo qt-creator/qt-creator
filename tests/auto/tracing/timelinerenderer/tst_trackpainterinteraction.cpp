@@ -6,6 +6,7 @@
 #include <tracing/trackpaintergpu.h>
 
 #include <QCoreApplication>
+#include <QFontMetricsF>
 #include <QMouseEvent>
 #include <QSignalSpy>
 #include <QTest>
@@ -95,6 +96,8 @@ public:
 class ProbePainter : public TrackPainterGpu
 {
 public:
+    using TrackPainterGpu::TextLabel;
+
     QList<QRectF> fillRects(int trackIndex)
     {
         NeutralTrackGeometry geom;
@@ -106,6 +109,92 @@ public:
             out += cr.rects;
         return out;
     }
+
+    QList<TextLabel> itemLabels(int trackIndex)
+    {
+        NeutralTrackGeometry geom;
+        Track &t = const_cast<Track &>(tracks()[trackIndex]);
+        ensureAttrCache(t);
+        buildNeutralGeometry(t, geom);
+        return geom.labels;
+    }
+
+    static QFontMetricsF labelMetrics() { return QFontMetricsF(itemLabelFormat.font()); }
+};
+
+// Events of different widths in one row, each with a label.
+class LabelModel : public TimelineModel
+{
+public:
+    LabelModel(TimelineModelAggregator *parent) : TimelineModel(parent) {}
+
+    void loadData()
+    {
+        insert(0, 4000, 0);    // x = 0..400
+        insert(5000, 50, 1);   // x = 500..505
+        insert(6000, 600, 2);  // x = 600..660
+        computeNesting();
+    }
+
+    QString itemLabel(int index) const override
+    {
+        static const QStringList labels = {"Wide", "Narrow",
+                                           "A label far too long for sixty pixels"};
+        return labels.value(index);
+    }
+};
+
+// A long range with nested children, collapsed onto the same row. The first
+// child is covered by the range drawn before it, the second one is drawn on top.
+class NestedLabelModel : public TimelineModel
+{
+public:
+    NestedLabelModel(TimelineModelAggregator *parent) : TimelineModel(parent) {}
+
+    void loadData()
+    {
+        insert(0, 10000, 0);   // x = 0..1000
+        insert(1000, 500, 1);  // x = 100..150
+        insert(2000, 1000, 2); // x = 200..300
+        computeNesting();
+    }
+
+    QString itemLabel(int index) const override
+    {
+        static const QStringList labels = {
+            "A parent range with a label wider than the gap before its child",
+            "Hidden", "Child"};
+        return labels.value(index);
+    }
+};
+
+// A density graph of short ticks, too narrow for a label each. Twenty ticks of
+// "Loop" are interrupted by one of "Other", followed by a gap and twenty more.
+class DensityLabelModel : public TimelineModel
+{
+public:
+    DensityLabelModel(TimelineModelAggregator *parent) : TimelineModel(parent) {}
+
+    void loadData()
+    {
+        int id = 0;
+        for (int i = 0; i < 20; ++i)
+            insert(i * 50, 50, id++); // x = 0..100
+        insert(1000, 50, id++);       // x = 100..105
+        for (int i = 0; i < 20; ++i)
+            insert(2000 + i * 50, 50, id++); // x = 200..300
+        computeNesting();
+    }
+
+    bool rendersAsDensity() const override { return true; }
+
+    bool fillDensityColumns(int, qint64, qint64, QList<float> &out) const override
+    {
+        out.fill(1.0f);
+        return true;
+    }
+
+    QString itemLabel(int index) const override { return index == 20 ? "Other" : "Loop"; }
 };
 
 // For every drawn fill rect, sample the pixels a user could click inside it and
@@ -150,6 +239,11 @@ private slots:
     void shortBarHitOverFullRow();
     void drawnPixelsAreHittable_data();
     void drawnPixelsAreHittable();
+    void itemLabels();
+    void itemLabelsOnWholePixels();
+    void itemLabelsEndAtNextEvent();
+    void noItemLabelsByDefault();
+    void densityItemLabels();
 };
 
 // A single event far narrower than one pixel. It is drawn as one pixel column,
@@ -263,6 +357,104 @@ void tst_TrackPainterInteraction::drawnPixelsAreHittable()
     if (misses != 0)
         qDebug().noquote() << misses << "unhittable drawn pixels:" << report;
     QCOMPARE(misses, 0);
+}
+
+void tst_TrackPainterInteraction::itemLabels()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    LabelModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 10000);
+    painter.resize(1000, painter.totalHeight());
+
+    const QList<ProbePainter::TextLabel> labels = painter.itemLabels(0);
+    QCOMPARE(labels.size(), 2); // "Narrow" does not fit into 5px
+
+    QCOMPARE(labels[0].text, "Wide");
+    QVERIFY(labels[0].x > 0 && labels[0].x < 400);
+
+    const QFontMetricsF fm = ProbePainter::labelMetrics();
+    QVERIFY(labels[1].text != model.itemLabel(2));
+    QVERIFY(labels[1].text.size() > 1);
+    QVERIFY(labels[1].x > 600);
+    QVERIFY(labels[1].x + fm.horizontalAdvance(labels[1].text) <= 660);
+}
+
+void tst_TrackPainterInteraction::itemLabelsOnWholePixels()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    LabelModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(3, 10003); // the last event starts at x = 599.7
+    painter.resize(1000, painter.totalHeight());
+
+    const QList<ProbePainter::TextLabel> labels = painter.itemLabels(0);
+    QCOMPARE(labels.size(), 2);
+    for (const ProbePainter::TextLabel &label : labels) {
+        QCOMPARE(label.x, std::round(label.x));
+        QCOMPARE(label.baselineY, std::round(label.baselineY));
+    }
+}
+
+void tst_TrackPainterInteraction::itemLabelsEndAtNextEvent()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    NestedLabelModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 10000);
+    painter.resize(1000, painter.totalHeight());
+    QVERIFY(!model.expanded());
+
+    const QList<ProbePainter::TextLabel> labels = painter.itemLabels(0);
+    QCOMPARE(labels.size(), 2);
+    const QFontMetricsF fm = ProbePainter::labelMetrics();
+    QVERIFY(fm.horizontalAdvance(model.itemLabel(0)) > 200);
+    QVERIFY(labels[0].text != model.itemLabel(0));
+    QVERIFY(labels[0].x + fm.horizontalAdvance(labels[0].text) <= 200);
+    QCOMPARE(labels[1].text, "Child");
+    QVERIFY(labels[1].x > 200);
+}
+
+void tst_TrackPainterInteraction::noItemLabelsByDefault()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    DummyModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 100);
+    painter.resize(1000, painter.totalHeight());
+
+    QVERIFY(painter.itemLabels(0).isEmpty());
+}
+
+void tst_TrackPainterInteraction::densityItemLabels()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    DensityLabelModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 10000);
+    painter.resize(1000, painter.totalHeight());
+
+    const QFontMetricsF fm = ProbePainter::labelMetrics();
+    QVERIFY(fm.horizontalAdvance(u'\x2026') > 5);
+
+    const QList<ProbePainter::TextLabel> labels = painter.itemLabels(0);
+    QCOMPARE(labels.size(), 2); // "Other" does not fit into 5px
+    QCOMPARE(labels[0].text, "Loop");
+    QVERIFY(labels[0].x > 0);
+    QVERIFY(labels[0].x + fm.horizontalAdvance(labels[0].text) <= 100);
+    QCOMPARE(labels[1].text, "Loop");
+    QVERIFY(labels[1].x > 200);
+    QVERIFY(labels[1].x + fm.horizontalAdvance(labels[1].text) <= 300);
 }
 
 void tst_TrackPainterInteraction::initialState()

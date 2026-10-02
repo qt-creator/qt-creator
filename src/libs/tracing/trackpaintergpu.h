@@ -81,6 +81,7 @@ private:
         QCanvasPath grid;
         bool hasGrid = false;
         QList<ColorPath> fills;         // event bars or density columns, grouped by color
+        QList<TextLabel> labels;        // elided item labels on top of the fills
         QCanvasPath outlines;           // Token_Stroke_Subtle, above and below the track
         bool hasOutlines = false;
         QCanvasPath markers;

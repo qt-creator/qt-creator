@@ -119,6 +119,7 @@ public:
     virtual RowLabels labels() const;
     virtual ItemDetails details(int index) const;
     virtual OrderedItemDetails orderedDetails(int index) const;
+    virtual QString itemLabel(int index) const;
     virtual int expandedRow(int index) const;
     virtual int collapsedRow(int index) const;
     int row(int index) const;

@@ -91,6 +91,18 @@ static const QByteArray &orUnknown(const QByteArray &string)
     return string.isEmpty() ? unknown : string;
 }
 
+QString PerfTimelineModel::itemLabel(int index) const
+{
+    const int typeId = selectionId(index);
+    if (typeId < 0) // samples and the special thread/context switch events
+        return {};
+    const PerfProfilerTraceManager *manager = traceManager();
+    const PerfProfilerTraceManager::Symbol &symbol
+            = manager->symbol(manager->aggregateAddresses() ? typeId
+                                                            : manager->symbolLocation(typeId));
+    return QString::fromUtf8(manager->string(symbol.name));
+}
+
 Timeline::ItemDetails PerfTimelineModel::details(int index) const
 {
     Timeline::ItemDetails result;

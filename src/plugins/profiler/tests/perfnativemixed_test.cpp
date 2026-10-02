@@ -212,12 +212,18 @@ void PerfNativeMixedTest::testMergedStacks()
     FrameKind deepestKind = FrameKind::Native;
     for (int i = 0; i < model->count(); ++i) {
         const int locationId = model->selectionId(i);
-        if (locationId < 0)
+        if (locationId < 0) {
+            // Thread and context switch events are no frames and name none.
+            QVERIFY(model->itemLabel(i).isEmpty());
             continue;
+        }
         const PerfProfilerTraceManager::Symbol &symbol = manager.symbol(locationId);
         if (symbol.binary < 0)
             continue;
         const QByteArray binary = manager.string(symbol.binary);
+        // A frame's bar is labeled with the function it was sampled in,
+        // whichever kind of frame it is.
+        QCOMPARE(model->itemLabel(i), QString::fromUtf8(manager.string(symbol.name)));
         const FrameKind kind = frameKind(manager, locationId);
         if (binary == qmlMarker()) {
             sawQml = true;

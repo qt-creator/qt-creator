@@ -36,6 +36,7 @@ public:
     Timeline::RowLabels labels() const override;
     Timeline::ItemDetails details(int index) const override;
     Timeline::OrderedItemDetails orderedDetails(int index) const override;
+    QString itemLabel(int index) const override;
     void navigateToDetail(int itemIndex, int detailRow) override;
 
     bool rendersAsDensity() const override;

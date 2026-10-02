@@ -83,6 +83,12 @@ void TrackPainterRaster::paintEvent(QPaintEvent *event)
             for (const QRectF &r : cr.rects)
                 p.fillRect(r, c);
         }
+        if (!g.labels.isEmpty()) {
+            p.setFont(itemLabelFormat.font());
+            p.setPen(itemLabelFormat.color());
+            for (const TextLabel &label : g.labels)
+                p.drawText(QPointF(label.x, label.baselineY), label.text);
+        }
         for (const QRectF &r : g.outlines) p.fillRect(r, outline);
         for (const QRectF &r : g.markers) p.fillRect(r, handle);
         if (!g.noteIcons.isEmpty()) {
@@ -138,6 +144,7 @@ void TrackPainterRaster::buildTrackGeometry(const Track &track, TrackGeometry &g
     geom.outlines[1] = neutral.outlines[1];
     geom.markers = std::move(neutral.markers);
     geom.fills = std::move(neutral.fills);
+    geom.labels = std::move(neutral.labels);
     geom.noteIcons = std::move(neutral.noteIcons);
 }
 
@@ -157,7 +164,7 @@ void TrackPainterRaster::paintScaleOverlay(QPainter &p, const Track &track) cons
     p.save();
     p.setFont(OverlayScale::textFormat.font());
     p.setPen(OverlayScale::textFormat.color());
-    for (const ScaleLabel &label : std::as_const(ov.labels))
+    for (const TextLabel &label : std::as_const(ov.labels))
         p.drawText(QPointF(label.x, label.baselineY), label.text);
     p.restore();
 }

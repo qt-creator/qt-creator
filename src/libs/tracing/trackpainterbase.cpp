@@ -11,12 +11,14 @@
 #include <utils/icon.h>
 #include <utils/infolabel.h>
 
+#include <QFontMetricsF>
 #include <QHash>
 #include <QVarLengthArray>
 #include <QWidget>
 
 #include <cmath>
 #include <limits>
+#include <utility>
 
 namespace Timeline {
 
@@ -265,6 +267,29 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
         [](qint64, double, double) {}, // no per-block start marker here
         [&](double x, bool) { geom.grid.append(QRectF(qRound(x), 0, 1, trackH)); });
 
+    // Item labels, elided to the bar they are drawn in.
+    const QFontMetricsF fm(itemLabelFormat.font());
+    const double labelPadding = Utils::StyleHelper::SpacingTokens::PaddingHXs;
+    // U+2026 HORIZONTAL ELLIPSIS, all that elidedText() leaves of a label that
+    // does not fit, so its width is the narrowest label worth drawing at all.
+    const double minLabelW = fm.horizontalAdvance(u'\x2026');
+    const double minLabelSpan = minLabelW + 2 * labelPadding;
+    const auto addLabel = [&](const QString &label, double x0, double x1, double y, double h) {
+        const double labelW = x1 - x0 - 2 * labelPadding;
+        if (labelW < minLabelW)
+            return;
+        const QString text = label.section(u'\n', 0, 0);
+        if (text.isEmpty())
+            return;
+        const QString elided = fm.elidedText(text, Qt::ElideRight, labelW);
+        // Hide labels that would show no more than the ellipsis.
+        if (elided != text && elided.size() < 2)
+            return;
+        // Whole pixels, as the canvas painter does not snap glyphs itself.
+        geom.labels.append({elided, float(std::ceil(x0 + labelPadding)),
+                            float(std::round(y + (h + fm.ascent() - fm.descent()) / 2))});
+    };
+
     // Density graphs: one rect list per row (all columns share the row color).
     if (model->rendersAsDensity()) {
         QList<float> columns;
@@ -284,6 +309,56 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
             }
             if (!rects.isEmpty())
                 geom.fills.append({model->rowColor(row), std::move(rects)});
+        }
+
+        // Density items are typically far narrower than a label, one per
+        // sampling tick for instance, so contiguous items with the same label
+        // in a row share one. Finding those queries itemLabel() for every item in
+        // the range, which is skipped while the items outnumber the pixels.
+        const int first = model->firstIndex(m_rangeStart);
+        const int last = model->lastIndex(m_rangeEnd);
+        if (first >= 0 && last >= first && qint64(last - first) < qint64(w) * rowCount) {
+            const double wf = double(w);
+            const double scale = wf / double(rangeDuration);
+            struct LabelRun { QString text; double x0; double x1; double h; };
+            QVarLengthArray<LabelRun, 64> runs(rowCount);
+            const auto flushRun = [&](int row) {
+                LabelRun &r = runs[row];
+                if (r.text.isEmpty())
+                    return;
+                if (r.h >= fm.height()) {
+                    const int rowBottom = model->rowOffset(row) + model->rowHeight(row);
+                    addLabel(r.text, r.x0, r.x1, rowBottom - r.h, r.h);
+                }
+                r.text.clear();
+            };
+
+            const int *rowCache = track.rowCache.constData();
+            const float *relHeightCache = track.relHeightCache.constData();
+            for (int i = first; i <= last; ++i) {
+                const int row = rowCache[i];
+                if (row < 0 || row >= rowCount)
+                    continue;
+                const double x0 = qMax(double(model->startTime(i) - m_rangeStart) * scale, 0.0);
+                const double x1 = qMin(double(model->endTime(i) - m_rangeStart) * scale, wf);
+                if (x1 <= x0)
+                    continue;
+                const QString text = model->itemLabel(i);
+                const double itemH = model->rowHeight(row) * relHeightCache[i];
+                LabelRun &r = runs[row];
+                if (!r.text.isEmpty() && x0 <= r.x1 && text == r.text) {
+                    r.x1 = qMax(r.x1, x1);
+                    r.h = qMin(r.h, itemH);
+                    continue;
+                }
+                if (!r.text.isEmpty())
+                    r.x1 = qMin(r.x1, x0);
+                flushRun(row);
+                if (!text.isEmpty())
+                    r = {text, x0, x1, itemH};
+            }
+            for (int row = 0; row < rowCount; ++row)
+                flushRun(row);
         }
     } else {
     // Events grouped by color so each distinct color fills in one draw call.
@@ -339,6 +414,20 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
             }
         };
 
+        // The label of the last drawn event per row. Collapsed rows overdraw
+        // nested events, so a label ends where the next event in its row
+        // starts. Only events tall and wide enough for some text are kept, so
+        // itemLabel() is queried for a handful of events per row at most.
+        struct PendingLabel { int index = -1; double x0; double x1; double y; double h; };
+        QVarLengthArray<PendingLabel, 64> labels(rowCount);
+        const auto flushLabel = [&](PendingLabel &l) {
+            if (l.index < 0)
+                return;
+            const int index = std::exchange(l.index, -1);
+            if (l.x1 - l.x0 >= minLabelSpan)
+                addLabel(model->itemLabel(index), l.x0, l.x1, l.y, l.h);
+        };
+
         const int *rowCache = track.rowCache.constData();
         const QRgb *colorCache = track.colorCache.constData();
         const float *relHeightCache = track.relHeightCache.constData();
@@ -380,6 +469,14 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
             const double itemH = rowH[row] * relHeightCache[i];
             const double itemY = rowY[row] + rowH[row] - itemH;
 
+            PendingLabel &l = labels[row];
+            if (l.index >= 0) {
+                l.x1 = qMin(l.x1, drawX1);
+                flushLabel(l);
+            }
+            if (itemH >= fm.height() && x2 - drawX1 >= minLabelSpan)
+                l = {i, drawX1, x2, itemY, itemH};
+
             const double drawW = x2 - drawX1;
             OpenRun &o = open[row];
             const bool contiguous = o.active && drawX1 <= o.x1;
@@ -402,6 +499,8 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
 
         for (OpenRun &o : open)
             flush(o);
+        for (PendingLabel &l : labels)
+            flushLabel(l);
 
         geom.fills.reserve(rectsByColor.size());
         for (auto it = rectsByColor.begin(); it != rectsByColor.end(); ++it)
