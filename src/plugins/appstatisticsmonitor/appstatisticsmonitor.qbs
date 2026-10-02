@@ -7,6 +7,7 @@ QtcPlugin {
 
     condition: Qt.charts.present
 
+    useGuiPchFile: false
     pluginjson.replacements: ({APPSTATISTICSMONITOR_DISABLEDBYDEFAULT: "true"})
 
     files: [
