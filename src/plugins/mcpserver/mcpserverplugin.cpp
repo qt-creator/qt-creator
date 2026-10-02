@@ -1113,7 +1113,7 @@ McpServerPluginSettings::McpServerPluginSettings(McpServerPlugin *plugin)
         };
 
         updateStatus();
-        connect(this, &AspectContainer::applied, this, [updateStatus]() { updateStatus(); });
+        connect(this, &AspectContainer::applied, statusLabel, [updateStatus]() { updateStatus(); });
 
         // clang-format off
         return Form {
