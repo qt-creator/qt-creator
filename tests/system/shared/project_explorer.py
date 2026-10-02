@@ -151,7 +151,7 @@ def invokeContextMenuOnProject(projectName, menuItem):
         return
     openItemContextMenu(waitForObject(":Qt Creator_Utils::NavigationTreeView"),
                         str(projItem.text).replace("_", "\\_").replace(".", "\\."), 5, 5, 0)
-    activateItem(waitForObjectItem("{name='Project.Menu.Project' type='QMenu' visible='1'}", menuItem))
+    activateItem(waitForObjectItem("{unnamed='1' type='QMenu' visible='1'}", menuItem))
     return projItem
 
 def addAndActivateKit(kit):

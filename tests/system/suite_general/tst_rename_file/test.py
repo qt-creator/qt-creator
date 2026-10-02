@@ -76,10 +76,7 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
         newItemText = addBranchWildcardToRoot(newItemText)
         waitForObjectItem(treeview, oldItemText, 10000)
         openItemContextMenu(treeview, oldItemText, 5, 5, 0)
-    if oldname.lower().endswith(".qrc"):
-        menu = ":Qt Creator.Project.Menu.Folder_QMenu"
-    else:
-        menu = ":Qt Creator.Project.Menu.File_QMenu"
+    menu = "{type='QMenu' unnamed='1' visible='1'}"
     try:
         activateItem(waitForObjectItem(menu, "Rename...", 5000))
     except:
