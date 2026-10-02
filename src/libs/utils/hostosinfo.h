@@ -21,7 +21,7 @@ namespace Utils { class FilePath; }
 
 namespace Utils::HostOsInfo {
 
-QTCREATOR_UTILS_EXPORT constexpr OsType hostOs()
+constexpr OsType hostOs()
 {
 #if defined(Q_OS_WIN)
     return OsTypeWindows;
@@ -42,10 +42,10 @@ QTCREATOR_UTILS_EXPORT OsArch hostArchitecture();
 //! Returns the architecture the running binary was compiled for.
 QTCREATOR_UTILS_EXPORT OsArch binaryArchitecture();
 
-QTCREATOR_UTILS_EXPORT constexpr bool isWindowsHost() { return hostOs() == OsTypeWindows; }
-QTCREATOR_UTILS_EXPORT constexpr bool isLinuxHost() { return hostOs() == OsTypeLinux; }
-QTCREATOR_UTILS_EXPORT constexpr bool isMacHost() { return hostOs() == OsTypeMac; }
-QTCREATOR_UTILS_EXPORT constexpr bool isAnyUnixHost()
+constexpr bool isWindowsHost() { return hostOs() == OsTypeWindows; }
+constexpr bool isLinuxHost() { return hostOs() == OsTypeLinux; }
+constexpr bool isMacHost() { return hostOs() == OsTypeMac; }
+constexpr bool isAnyUnixHost()
 {
 #ifdef Q_OS_UNIX
     return true;
@@ -56,12 +56,12 @@ QTCREATOR_UTILS_EXPORT constexpr bool isAnyUnixHost()
 
 QTCREATOR_UTILS_EXPORT QString withExecutableSuffix(const QString &executable);
 
-QTCREATOR_UTILS_EXPORT constexpr QChar pathListSeparator()
+constexpr QChar pathListSeparator()
 {
     return OsSpecificAspects::pathListSeparator(hostOs());
 }
 
-QTCREATOR_UTILS_EXPORT constexpr Qt::KeyboardModifier controlModifier()
+constexpr Qt::KeyboardModifier controlModifier()
 {
     return OsSpecificAspects::controlModifier(hostOs());
 }
