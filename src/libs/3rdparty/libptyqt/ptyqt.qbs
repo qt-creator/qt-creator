@@ -6,6 +6,8 @@ QtcLibrary {
     Depends { name: "Qt.network"; condition: qbs.targetOS.contains("windows") }
     Depends { name: "winpty"; condition: qbs.targetOS.contains("windows") }
 
+    cpp.warningLevel: "none"
+
     files: [
         "iptyprocess.h",
         "ptyqt.cpp",
