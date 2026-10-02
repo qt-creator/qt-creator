@@ -8,6 +8,7 @@
 #include "androiddevice.h"
 #include "androidlogcat.h"
 #include "androidrunner.h"
+#include "androidtr.h"
 #include "androidqtversion.h"
 #include "androidutils.h"
 
@@ -17,7 +18,6 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
-#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
@@ -131,8 +131,7 @@ static DebuggerRunParameters debuggerRunParameters(RunControl *runControl)
         const QString devicePreferredAbi = apkDevicePreferredAbi(bc);
         rp.setToolChainAbi(androidAbi2Abi(devicePreferredAbi));
 
-        const IDevice::ConstPtr device = RunDeviceKitAspect::device(kit);
-        const AndroidDevice *androidDevice = static_cast<const AndroidDevice *>(device.get());
+        const auto androidDevice = static_cast<const AndroidDevice *>(runControl->device().get());
         rp.modifyDebuggerEnvironment({{"ANDROID_SERIAL", androidDevice->serialNumber()}});
 
         auto qt = static_cast<AndroidQtVersion *>(qtVersion);
@@ -170,6 +169,8 @@ public:
         setRecipeProducer([](RunControl *runControl) -> Group {
             QObject::connect(runControl, &RunControl::aboutToStart, runControl,
                              [runControl] { adoptRunControlForLogcat(runControl); });
+            if (!runControl->device())
+                return runControl->errorTask(Tr::tr("No Android device is available."));
             const DebuggerRunParameters rp = debuggerRunParameters(runControl);
             // androidKicker() launches the application and asks it for a TCP QML connection.
             if (rp.isNativeMixedDebugging())
