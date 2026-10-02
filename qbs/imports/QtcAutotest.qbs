@@ -30,18 +30,6 @@ QtcProduct {
         project.buildDirectory + '/' + qtc.ide_plugin_path
     ]
 
-    // Qt Creator's generated headers and unity-style translation units routinely
-    // hold more sections than the object format takes by default, which MSVC and
-    // MinGW's assembler both reject with a fatal error.
-    Properties {
-        condition: qbs.toolchain.contains("msvc")
-        cpp.cxxFlags: "/bigobj"
-    }
-    Properties {
-        condition: qbs.toolchain.contains("mingw")
-        cpp.cxxFlags: "-Wa,-mbig-obj"
-    }
-
     // The following would be conceptually right, but does not work currently as some autotests
     // (e.g. extensionsystem) do not work when installed, because they want hardcoded
     // absolute paths to resources in the build directory.
