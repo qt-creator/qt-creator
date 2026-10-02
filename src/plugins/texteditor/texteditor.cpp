@@ -751,6 +751,7 @@ public:
     QTextDocument *createPrintDocument(bool selectionOnly) const;
 
     void maybeSelectLine();
+    void extendSelectionToLines();
     void duplicateSelection(bool comment);
     void updateCannotDecodeInfo();
     void collectToCircularClipboard();
@@ -4512,6 +4513,11 @@ void TextEditorWidgetPrivate::registerActions()
                               .addOnTriggered([this] { q->deleteLine(); })
                               .setScriptable(true)
                               .contextAction();
+    m_modifyingActions << ActionBuilder(this, DELETE_LINES)
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->deleteLines(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, DELETE_END_OF_LINE)
                               .setContext(m_editorContext)
                               .addOnTriggered([this] { q->deleteEndOfLine(); })
@@ -4729,9 +4735,18 @@ void TextEditorWidgetPrivate::registerActions()
                               .addOnTriggered([this] { q->cutLine(); })
                               .setScriptable(true)
                               .contextAction();
+    m_modifyingActions << ActionBuilder(this, CUT_LINES)
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->cutLines(); })
+                              .setScriptable(true)
+                              .contextAction();
     ActionBuilder(this, COPY_LINE)
         .setContext(m_editorContext)
         .addOnTriggered([this] { q->copyLine(); })
+        .setScriptable(true);
+    ActionBuilder(this, COPY_LINES)
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->copyLines(); })
         .setScriptable(true);
     m_copyHtmlAction = ActionBuilder(this, COPY_WITH_HTML)
                            .setContext(m_editorContext)
@@ -9406,9 +9421,20 @@ void TextEditorWidgetPrivate::maybeSelectLine()
     MultiTextCursor cursor = m_cursors;
     if (cursor.hasSelection())
         return;
+    extendSelectionToLines();
+}
+
+void TextEditorWidgetPrivate::extendSelectionToLines()
+{
+    MultiTextCursor cursor = m_cursors;
+    QTextDocument *document = m_document->document();
     for (QTextCursor &c : cursor) {
-        const QTextBlock &block = m_document->document()->findBlock(c.selectionStart());
-        const QTextBlock &end = m_document->document()->findBlock(c.selectionEnd()).next();
+        const QTextBlock &block = document->findBlock(c.selectionStart());
+        QTextBlock end = document->findBlock(c.selectionEnd());
+        const bool endsAtLineStart = c.hasSelection() && end != block
+                                     && end.position() == c.selectionEnd();
+        if (!endsAtLineStart)
+            end = end.next();
         c.setPosition(block.position());
         if (!end.isValid()) {
             c.movePosition(QTextCursor::PreviousCharacter);
@@ -9428,10 +9454,22 @@ void TextEditorWidget::cutLine()
     cut();
 }
 
+void TextEditorWidget::cutLines()
+{
+    d->extendSelectionToLines();
+    cut();
+}
+
 // ctrl+ins
 void TextEditorWidget::copyLine()
 {
     d->maybeSelectLine();
+    copy();
+}
+
+void TextEditorWidget::copyLines()
+{
+    d->extendSelectionToLines();
     copy();
 }
 
@@ -9578,6 +9616,14 @@ void TextEditorWidget::duplicateSelectionAndComment()
 void TextEditorWidget::deleteLine()
 {
     d->maybeSelectLine();
+    MultiTextCursor cursor = multiTextCursor();
+    cursor.removeSelectedText();
+    setMultiTextCursor(cursor);
+}
+
+void TextEditorWidget::deleteLines()
+{
+    d->extendSelectionToLines();
     MultiTextCursor cursor = multiTextCursor();
     cursor.removeSelectedText();
     setMultiTextCursor(cursor);

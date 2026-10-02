@@ -424,11 +424,14 @@ public:
     void zoomReset();
 
     void cutLine();
+    void cutLines();
     void copyLine();
+    void copyLines();
     void copyWithHtml();
     void duplicateSelection();
     void duplicateSelectionAndComment();
     void deleteLine();
+    void deleteLines();
     void deleteEndOfLine();
     void deleteEndOfWord();
     void deleteEndOfWordCamelCase();

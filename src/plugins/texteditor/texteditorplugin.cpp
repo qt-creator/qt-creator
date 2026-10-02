@@ -376,6 +376,7 @@ void TextEditorPlugin::createEditorCommands()
         .setText(Tr::tr("Show Context Menu"));
 
     TextActionBuilder(this, DELETE_LINE).setText(Tr::tr("Delete &Line"));
+    TextActionBuilder(this, DELETE_LINES).setText(Tr::tr("Delete Lines"));
     TextActionBuilder(this, DELETE_END_OF_LINE).setText(Tr::tr("Delete Line from Cursor On"));
     TextActionBuilder(this, DELETE_END_OF_WORD).setText(Tr::tr("Delete Word from Cursor On"));
     TextActionBuilder(this, DELETE_END_OF_WORD_CAMEL_CASE)
@@ -504,9 +505,15 @@ void TextEditorPlugin::createEditorCommands()
         .setText(Tr::tr("Cut &Line"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Shift+Del")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_TEXT);
+    TextActionBuilder(this, CUT_LINES)
+        .setText(Tr::tr("Cut Lines"))
+        .addToContainer(M_EDIT_ADVANCED, G_EDIT_TEXT);
     TextActionBuilder(this, COPY_LINE)
         .setText(Tr::tr("Copy &Line"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Ins")))
+        .addToContainer(M_EDIT_ADVANCED, G_EDIT_TEXT);
+    TextActionBuilder(this, COPY_LINES)
+        .setText(Tr::tr("Copy Lines"))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_TEXT);
     TextActionBuilder(this, COPY_WITH_HTML)
         .setText(Tr::tr("Copy With Highlighting"))
