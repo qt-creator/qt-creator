@@ -9578,7 +9578,9 @@ void TextEditorWidget::duplicateSelectionAndComment()
 void TextEditorWidget::deleteLine()
 {
     d->maybeSelectLine();
-    textCursor().removeSelectedText();
+    MultiTextCursor cursor = multiTextCursor();
+    cursor.removeSelectedText();
+    setMultiTextCursor(cursor);
 }
 
 void TextEditorWidget::deleteEndOfLine()
