@@ -13,6 +13,10 @@
 #include <QFuture>
 #endif
 
+#ifdef Q_OS_WIN
+#include <QNtfsPermissionCheckGuard>
+#endif
+
 #include <functional>
 #include <memory>
 
@@ -20,11 +24,6 @@ QT_BEGIN_NAMESPACE
 class QDataStream;
 class QTextStream;
 class QXmlStreamWriter;
-
-// for withNtfsPermissions
-#ifdef Q_OS_WIN
-extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
-#endif
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -157,9 +156,8 @@ QTCREATOR_UTILS_EXPORT QString fetchQrc(const QString &fileName); // Only for in
 template <typename T>
 T withNtfsPermissions(const std::function<T()> &task)
 {
-    qt_ntfs_permission_lookup++;
+    QNtfsPermissionCheckGuard guard;
     T result = task();
-    qt_ntfs_permission_lookup--;
     return result;
 }
 

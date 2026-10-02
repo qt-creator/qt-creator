@@ -857,9 +857,8 @@ void showError(const QString &errorMessage)
 template <>
 void withNtfsPermissions(const std::function<void()> &task)
 {
-    qt_ntfs_permission_lookup++;
+    QNtfsPermissionCheckGuard guard;
     task();
-    qt_ntfs_permission_lookup--;
 }
 #endif
 
