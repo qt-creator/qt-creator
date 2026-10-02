@@ -750,7 +750,7 @@ public:
     int printPageCount(QPrinter *printer) const;
     QTextDocument *createPrintDocument(bool selectionOnly) const;
 
-    void selectLines();
+    void maybeSelectLine();
     void duplicateSelection(bool comment);
     void updateCannotDecodeInfo();
     void collectToCircularClipboard();
@@ -9401,17 +9401,14 @@ void TextEditorWidget::focusOutEvent(QFocusEvent *e)
         d->clearCurrentSuggestion();
 }
 
-void TextEditorWidgetPrivate::selectLines()
+void TextEditorWidgetPrivate::maybeSelectLine()
 {
     MultiTextCursor cursor = m_cursors;
-    QTextDocument *document = m_document->document();
+    if (cursor.hasSelection())
+        return;
     for (QTextCursor &c : cursor) {
-        const QTextBlock &block = document->findBlock(c.selectionStart());
-        QTextBlock end = document->findBlock(c.selectionEnd());
-        const bool endsAtLineStart = c.hasSelection() && end != block
-                                     && end.position() == c.selectionEnd();
-        if (!endsAtLineStart)
-            end = end.next();
+        const QTextBlock &block = m_document->document()->findBlock(c.selectionStart());
+        const QTextBlock &end = m_document->document()->findBlock(c.selectionEnd()).next();
         c.setPosition(block.position());
         if (!end.isValid()) {
             c.movePosition(QTextCursor::PreviousCharacter);
@@ -9427,14 +9424,14 @@ void TextEditorWidgetPrivate::selectLines()
 // shift+del
 void TextEditorWidget::cutLine()
 {
-    d->selectLines();
+    d->maybeSelectLine();
     cut();
 }
 
 // ctrl+ins
 void TextEditorWidget::copyLine()
 {
-    d->selectLines();
+    d->maybeSelectLine();
     copy();
 }
 
@@ -9580,10 +9577,8 @@ void TextEditorWidget::duplicateSelectionAndComment()
 
 void TextEditorWidget::deleteLine()
 {
-    d->selectLines();
-    MultiTextCursor cursor = multiTextCursor();
-    cursor.removeSelectedText();
-    setMultiTextCursor(cursor);
+    d->maybeSelectLine();
+    textCursor().removeSelectedText();
 }
 
 void TextEditorWidget::deleteEndOfLine()
