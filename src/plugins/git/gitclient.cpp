@@ -3366,6 +3366,7 @@ void GitClient::tryLaunchingGitK(const Environment &env,
         process->setWorkingDirectory(workingDirectory);
         process->setEnvironment(env);
         process->setCommand({binary, arguments});
+        process->setEnvironmentExpansion(ProcessArgs::EnvExpansion::Literal);
         connect(process, &Process::done, this,
                 [this, process, env, workingDirectory, fileName, trial, gitBinDirectory] {
             if (process->result() == ProcessResult::StartFailed)
@@ -3417,6 +3418,7 @@ bool GitClient::launchGitGui(const FilePath &workingDirectory)
     auto process = new Process(const_cast<GitClient *>(this));
     process->setWorkingDirectory(workingDirectory);
     process->setCommand({gitBinary, {"gui"}});
+    process->setEnvironmentExpansion(ProcessArgs::EnvExpansion::Literal);
     connect(process, &Process::done, this, [process, cannotLaunchGitGui] {
         if (process->result() == ProcessResult::StartFailed) {
             const QString errorMessage = process->readAllStandardError();

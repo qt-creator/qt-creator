@@ -245,7 +245,8 @@ bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
     QString processArgs;
     const bool success = ProcessArgs::prepareCommand(commandLine, &commandString, &processArgs,
                                                      &m_setup.m_environment,
-                                                     m_setup.rawWorkingDirectory());
+                                                     m_setup.rawWorkingDirectory(),
+                                                     m_setup.m_envExpansion);
 
     if (osType == OsTypeWindows) {
         QString args;
@@ -1273,6 +1274,11 @@ void Process::setDisableUnixTerminal()
 void Process::setAbortOnMetaChars(bool abort)
 {
     d->m_setup.m_abortOnMetaChars = abort;
+}
+
+void Process::setEnvironmentExpansion(ProcessArgs::EnvExpansion expansion)
+{
+    d->m_setup.m_envExpansion = expansion;
 }
 
 void Process::setProcessInterfaceCreator(const ProcessInterfaceCreator &creator)

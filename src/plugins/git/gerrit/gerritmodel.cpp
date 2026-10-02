@@ -355,6 +355,7 @@ void GerritModel::refresh(const std::shared_ptr<GerritServer> &server, const QSt
     const auto onSetup = [binary, commandLine, data](Process &process) {
         process.setUseCtrlCStub(true);
         process.setCommand(commandLine);
+        process.setEnvironmentExpansion(ProcessArgs::EnvExpansion::Literal);
         process.setEnvironment(Git::Internal::gitClient().processEnvironment(binary));
         QObject::connect(&process, &Process::readyReadStandardError, &process, [data, &process] {
             const QString text = QString::fromLocal8Bit(process.readAllRawStandardError());

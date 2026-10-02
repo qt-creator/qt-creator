@@ -598,6 +598,7 @@ void SshProcessInterfacePrivate::doStart()
     m_process.setReaperTimeout(q->m_setup.m_reaperTimeout);
     m_process.setWriteData(q->m_setup.m_writeData);
     m_process.setCreateConsoleOnWindows(q->m_setup.m_createConsoleOnWindows);
+    m_process.setEnvironmentExpansion(q->m_setup.m_envExpansion);
 
     // TODO: what about other fields from m_setup?
     SshParameters::setupSshEnvironment(&m_process);

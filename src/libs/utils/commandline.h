@@ -30,6 +30,12 @@ public:
         FoundMeta //! Command contains complex shell constructs
     };
 
+    //! Windows only: whether %VAR% in arguments is substituted
+    enum class EnvExpansion : quint8 {
+        Expand, //! Substitute environment variables in the arguments
+        Literal //! Take the arguments literally
+    };
+
     //! Quote a single argument for usage in a unix shell command
     static QString quoteArgUnix(const QString &arg);
     //! Quote a single argument for usage in a shell command
@@ -40,10 +46,12 @@ public:
     static QString joinArgs(const QStringList &args, OsType osType = HostOsInfo::hostOs());
     //! Prepare argument of a shell command for feeding into QProcess.
     static QString prepareShellArgs(const QString &args, SplitError *err, OsType osType,
-                                    const Environment *env = nullptr, const FilePath &pwd = {});
-    //! Prepare a shell command for feeding into QProcess
+                                    const Environment *env = nullptr, const FilePath &pwd = {},
+                                    EnvExpansion expansion = EnvExpansion::Expand);
+    //! Prepare a shell command for feeding into QProcess.
     static bool prepareCommand(const CommandLine &cmdLine, QString *outCmd, QString *outArgs,
-                               const Environment *env = nullptr, const FilePath &pwd = {});
+                               const Environment *env = nullptr, const FilePath &pwd = {},
+                               EnvExpansion expansion = EnvExpansion::Expand);
     //! Quote and append each argument to a shell command
     static void addArgs(QString *args, const QStringList &inArgs);
     //! Quote and append each argument to a shell command
