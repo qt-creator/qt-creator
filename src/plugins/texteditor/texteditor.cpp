@@ -3203,6 +3203,60 @@ static inline bool isPrintableText(const QString &text)
     return !text.isEmpty() && (text.at(0).isPrint() || text.at(0) == QLatin1Char('\t'));
 }
 
+static void insertTextAtCursors(MultiTextCursor &cursors, const QString &text, bool overwrite)
+{
+    if (!overwrite) {
+        cursors.insertText(text);
+        return;
+    }
+    cursors.beginEditBlock();
+    for (QTextCursor &c : cursors) {
+        QTextBlock block = c.block();
+        int eolPos = block.position() + block.length() - 1;
+        int selEndPos = qMin(c.position() + text.size(), eolPos);
+        c.setPosition(selEndPos, QTextCursor::KeepAnchor);
+        c.insertText(text);
+    }
+    cursors.endEditBlock();
+}
+
+void TextEditorWidget::inputMethodEvent(QInputMethodEvent *e)
+{
+    MultiTextCursor cursor = multiTextCursor();
+    if (!isReadOnly() && cursor.hasMultipleCursors()) {
+        const bool preeditActive = !textCursor().block().layout()->preeditAreaText().isEmpty();
+        if (!e->commitString().isEmpty() && e->replacementLength() == 0
+            && e->replacementStart() == 0) {
+            if (preeditActive) {
+                QInputMethodEvent clearPreedit;
+                PlainTextEdit::inputMethodEvent(&clearPreedit);
+            }
+            insertTextAtCursors(cursor, e->commitString(), overwriteMode());
+            setMultiTextCursor(cursor);
+            d->clearBlockSelection();
+            if (!e->preeditString().isEmpty()) {
+                QInputMethodEvent preedit(e->preeditString(), e->attributes());
+                PlainTextEdit::inputMethodEvent(&preedit);
+            }
+            e->accept();
+            return;
+        }
+        // A dead key is a lone spacing accent below U+0300 (Symbol_Modifier or Spacing Modifier
+        // Letters). This excludes the fullwidth forms an IME composes.
+        const QString preedit = e->preeditString();
+        const QChar ch = preedit.isEmpty() ? QChar() : preedit.at(0);
+        const bool deadKeyAccent = ch.unicode() < 0x0300
+                                   && (ch.category() == QChar::Symbol_Modifier
+                                       || ch.unicode() >= 0x02B0);
+        if (!preeditActive && e->commitString().isEmpty() && preedit.size() == 1
+            && deadKeyAccent) {
+            e->accept();
+            return;
+        }
+    }
+    PlainTextEdit::inputMethodEvent(e);
+}
+
 void TextEditorWidget::keyPressEvent(QKeyEvent *e)
 {
     ICore::restartTrimmer();
@@ -3505,19 +3559,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             }
         }
     } else if (hasMultipleCursors) {
-        if (inOverwriteMode) {
-            cursor.beginEditBlock();
-            for (QTextCursor &c : cursor) {
-                QTextBlock block = c.block();
-                int eolPos = block.position() + block.length() - 1;
-                int selEndPos = qMin(c.position() + eventText.size(), eolPos);
-                c.setPosition(selEndPos, QTextCursor::KeepAnchor);
-                c.insertText(eventText);
-            }
-            cursor.endEditBlock();
-        } else {
-            cursor.insertText(eventText);
-        }
+        insertTextAtCursors(cursor, eventText, inOverwriteMode);
         setMultiTextCursor(cursor);
     } else if ((e->modifiers() & (Qt::ControlModifier|Qt::AltModifier)) != Qt::ControlModifier){
         // only go here if control is not pressed, except if also alt is pressed

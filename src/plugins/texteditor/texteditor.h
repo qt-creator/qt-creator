@@ -616,6 +616,7 @@ protected:
     bool event(QEvent *e) override;
     void contextMenuEvent(QContextMenuEvent *e) override;
     void keyPressEvent(QKeyEvent *e) override;
+    void inputMethodEvent(QInputMethodEvent *e) override;
     void wheelEvent(QWheelEvent *e) override;
     void changeEvent(QEvent *e) override;
     void focusInEvent(QFocusEvent *e) override;
