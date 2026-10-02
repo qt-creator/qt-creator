@@ -1,12 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(QTKEYCHAIN_VERSION 0.15.0)
+set(QTKEYCHAIN_VERSION 0.17.0)
 set(QTKEYCHAIN_SOVERSION 1)
 
 project(qtkeychain VERSION ${QTKEYCHAIN_VERSION} LANGUAGES CXX)
-
-# Enable C++11
-SET(CMAKE_CXX_STANDARD 11)
 
 include(FindPkgConfig)
 
@@ -25,17 +22,6 @@ include(ECMSetupVersion)
 include(ECMGeneratePriFile)
 include(CMakeDependentOption)
 
-option(BUILD_WITH_QT6 "Build qtkeychain with Qt 6" OFF)
-option(BUILD_TEST_APPLICATION "Build test application" OFF)
-option(BUILD_TRANSLATIONS "Build translations" ON)
-option(BUILD_SHARED_LIBS "Build dynamic library" ON)
-if(QTKEYCHAIN_STATIC)
-    set(BUILD_SHARED_LIBS OFF)
-    message(WARNING "QTKEYCHAIN_STATIC is deprecated. Use BUILD_SHARED_LIBS=OFF instead.")
-endif()
-CMAKE_DEPENDENT_OPTION(BUILD_TRANSLATIONS_AS_RESOURCES "Bundle translations with the library" OFF
-                       "BUILD_TRANSLATIONS" OFF)
-
 if(CMAKE_SYSTEM_NAME STREQUAL Android)
     set(ANDROID 1)
 endif()
@@ -44,21 +30,43 @@ if(CMAKE_SYSTEM_NAME STREQUAL Haiku)
     set(HAIKU 1)
 endif()
 
+option(BUILD_WITH_QT5 "Build qtkeychain with Qt 5 (default is Qt 6)" OFF)
+option(BUILD_TEST_APPLICATION "Build test application (CLI)" OFF)
+option(BUILD_QTQUICK_DEMO "Build QtQuick demo application" OFF)
+option(BUILD_TRANSLATIONS "Build translations" ON)
+CMAKE_DEPENDENT_OPTION(BUILD_SHARED_LIBS "Build dynamic library" ON "NOT IOS" OFF)
+if(QTKEYCHAIN_STATIC)
+    set(BUILD_SHARED_LIBS OFF)
+    message(WARNING "QTKEYCHAIN_STATIC is deprecated. Use BUILD_SHARED_LIBS=OFF instead.")
+endif()
+CMAKE_DEPENDENT_OPTION(BUILD_TRANSLATIONS_AS_RESOURCES "Bundle translations with the library" OFF
+                       "BUILD_TRANSLATIONS" OFF)
+
 if (WIN32)
     option(USE_CREDENTIAL_STORE "Build with windows CredentialStore support" ON)
 
     if (USE_CREDENTIAL_STORE)
         add_definitions(-DUSE_CREDENTIAL_STORE=1)
     endif()
+
+    option(USE_COMPAT_NAMING_SCHEME "store entries without the service name" OFF)
+    if (USE_COMPAT_NAMING_SCHEME)
+        add_definitions(-DUSE_COMPAT_NAMING_SCHEME=1)
+    endif()
 endif()
 
-if( NOT BUILD_WITH_QT6 )
-    find_package(Qt5 COMPONENTS Core REQUIRED)
+if(BUILD_WITH_QT5)
+    set(QT_MAJOR_VERSION 5)
+    set(CMAKE_CXX_STANDARD 11)
+else()
+    set(QT_MAJOR_VERSION 6)
+    set(CMAKE_CXX_STANDARD 17)
 endif()
 
-if (Qt5Core_FOUND AND NOT BUILD_WITH_QT6)
-  set(QTKEYCHAIN_VERSION_INFIX 5)
+find_package(Qt${QT_MAJOR_VERSION} COMPONENTS Core REQUIRED)
+set(QTKEYCHAIN_VERSION_INFIX ${QT_MAJOR_VERSION})
 
+if (QT_MAJOR_VERSION EQUAL 5)
   if(ANDROID)
     if(Qt5Core_VERSION VERSION_LESS 5.7)
         find_package(Qt5 COMPONENTS Core REQUIRED Private)
@@ -70,7 +78,7 @@ if (Qt5Core_FOUND AND NOT BUILD_WITH_QT6)
     set(QTANDROIDEXTRAS_LIBRARIES ${Qt5AndroidExtras_LIBRARIES})
   endif()
 
-  if(UNIX AND NOT APPLE AND NOT ANDROID AND NOT HAIKU)
+  if(UNIX AND NOT APPLE AND NOT ANDROID AND NOT HAIKU AND NOT EMSCRIPTEN)
     find_package(Qt5 COMPONENTS DBus REQUIRED)
     include_directories(${Qt5DBus_INCLUDE_DIRS})
     set(QTDBUS_LIBRARIES ${Qt5DBus_LIBRARIES})
@@ -96,14 +104,9 @@ if (Qt5Core_FOUND AND NOT BUILD_WITH_QT6)
   set(QTCORE_LIBRARIES ${Qt5Core_LIBRARIES})
   include_directories(${Qt5Core_INCLUDE_DIRS})
 else()
-  find_package(Qt6 COMPONENTS Core REQUIRED)
-  set(QTKEYCHAIN_VERSION_INFIX 6)
-
-
-  if(UNIX AND NOT APPLE AND NOT ANDROID AND NOT HAIKU)
+  if(UNIX AND NOT APPLE AND NOT ANDROID AND NOT HAIKU AND NOT EMSCRIPTEN)
     find_package(Qt6 COMPONENTS DBus REQUIRED)
-    include_directories(${Qt6DBus_INCLUDE_DIRS})
-    set(QTDBUS_LIBRARIES ${Qt6DBus_LIBRARIES})
+    set(QTDBUS_LIBRARIES Qt6::DBus)
     macro(qt_add_dbus_interface)
       qt6_add_dbus_interface(${ARGN})
     endmacro()
@@ -123,7 +126,7 @@ else()
     qt6_wrap_cpp(${ARGN})
   endmacro()
 
-  set(QTCORE_LIBRARIES ${Qt6Core_LIBRARIES})
+  set(QTCORE_LIBRARIES Qt6::Core)
 endif()
 
 set(QTKEYCHAIN_TARGET_NAME qt${QTKEYCHAIN_VERSION_INFIX}keychain)
@@ -137,8 +140,10 @@ add_subdirectory(qtkeychain)
 set(qtkeychain_TR_FILES
       translations/qtkeychain_de.ts
       translations/qtkeychain_fr.ts
+      translations/qtkeychain_ka.ts
       translations/qtkeychain_ro.ts
       translations/qtkeychain_ru.ts
+      translations/qtkeychain_sv.ts
       translations/qtkeychain_zh.ts
 )
 
@@ -177,7 +182,7 @@ endif( BUILD_TRANSLATIONS )
 
 
 ###
-### Test application ("testclient")
+### Test applications
 ###
 
 if(BUILD_TEST_APPLICATION)
@@ -186,21 +191,20 @@ if(BUILD_TEST_APPLICATION)
     if(APPLE)
         list(APPEND testclient_LIBRARIES "-framework Cocoa")
 
-        if (BUILD_WITH_QT6)
-            find_package(Qt6 COMPONENTS Gui REQUIRED)
-            list(APPEND testclient_LIBRARIES Qt6::Gui)
-        else()
-            find_package(Qt5 COMPONENTS Gui REQUIRED)
-            list(APPEND testclient_LIBRARIES Qt5::Gui)
-        endif()
+        find_package(Qt${QT_MAJOR_VERSION} COMPONENTS Gui REQUIRED)
+        list(APPEND testclient_LIBRARIES Qt${QT_MAJOR_VERSION}::Gui)
 
     endif()
     add_executable( testclient testclient.cpp )
     target_link_libraries( testclient ${testclient_LIBRARIES})
 endif()
 
+if(BUILD_QTQUICK_DEMO)
+    add_subdirectory(TestAppExample)
+endif()
+
 include(CTest)
-if(BUILD_TESTING)
+if(BUILD_TESTING AND NOT ANDROID AND NOT IOS)
     add_subdirectory(autotest)
 endif()
 

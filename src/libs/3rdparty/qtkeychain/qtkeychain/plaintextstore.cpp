@@ -14,18 +14,26 @@ using namespace QKeychain;
 
 namespace {
 #ifdef Q_OS_WIN
-inline QString dataKey(const QString &key) { return key; }
-#else // Q_OS_WIN
-inline QString dataKey(const QString &key) { return key + QLatin1String("/data"); }
-inline QString typeKey(const QString &key) { return key + QLatin1String("/type"); }
-#endif // Q_OS_WIN
+inline QString dataKey(const QString &key)
+{
+    return key;
 }
-
+#else // Q_OS_WIN
+inline QString dataKey(const QString &key)
+{
+    return key + QLatin1String("/data");
+}
+inline QString typeKey(const QString &key)
+{
+    return key + QLatin1String("/type");
+}
+#endif // Q_OS_WIN
+} // namespace
 
 PlainTextStore::PlainTextStore(const QString &service, QSettings *settings)
-    : m_localSettings(settings ? nullptr : new QSettings(service))
-    , m_actualSettings(settings ? settings : m_localSettings.data())
-    , m_error(NoError)
+    : m_localSettings(settings ? nullptr : new QSettings(service)),
+      m_actualSettings(settings ? settings : m_localSettings.data()),
+      m_error(NoError)
 {
 }
 

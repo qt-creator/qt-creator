@@ -556,8 +556,8 @@
         "License": "BSD 3-Clause \"New\" or \"Revised\" License",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/qtkeychain/COPYING",
         "Copyright": "Copyright (C) 2011-2015 Frank Osterfeld, Copyright (C) 2016 Mathias Hasselmann",
-        "Version": "0.15.0",
-        "DownloadLocation": "https://github.com/frankosterfeld/qtkeychain/tree/0.15.0",
+        "Version": "0.17.0",
+        "DownloadLocation": "https://github.com/frankosterfeld/qtkeychain/tree/0.17.0",
         "SecurityCritical": true
     },
     {

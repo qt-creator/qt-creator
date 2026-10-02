@@ -78,7 +78,7 @@ win32 {
     DEFINES += USE_CREDENTIAL_STORE
     contains(DEFINES, USE_CREDENTIAL_STORE) {
         !build_pass:message("Windows Credential Store support: on")
-        LIBS += -ladvapi32
+        LIBS += -ladvapi32 -lcrypt32
     } else {
         !build_pass:message("Windows Credential Store support: off")
         LIBS += -lcrypt32
