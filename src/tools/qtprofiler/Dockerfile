@@ -18,8 +18,8 @@
 # Arguments after the image name go to scripts/build-wasm-profiler.py. On Linux,
 # add --user "$(id -u):$(id -g)" so that the build is not owned by root.
 
-ARG QT_VERSION=6.11.2
-ARG EMSDK_VERSION=4.0.7
+ARG QT_VERSION=6.12.0
+ARG EMSDK_VERSION=5.0.5
 
 # binaryen's tools, wasm-opt among them, need libatomic. A compiler brings it in,
 # but the image the application is built in has no compiler of its own.
@@ -34,8 +34,8 @@ ARG QT_VERSION
 ARG EMSDK_VERSION
 # Checksums of the release tarballs, from download.qt.io. Pass new ones together
 # with a new QT_VERSION.
-ARG QTBASE_SHA256=5b2e00eccaf5a4d8c14134ffa0ea8dfd0a35ae1ffc7f8d87fa4305a1ed23cf22
-ARG QTSVG_SHA256=d594337feca84c26fb67fe87b85e6a5c12fda404b611d905f9d138210c311876
+ARG QTBASE_SHA256=a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307
+ARG QTSVG_SHA256=e4ab39534ec97987b1b9b60ef7f4d3253d5912a69f8c713a01753174a4029331
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update \
