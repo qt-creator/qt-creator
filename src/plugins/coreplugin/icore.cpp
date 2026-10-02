@@ -2469,13 +2469,6 @@ void ICorePrivate::saveWindowSettings()
 {
     QtcSettings *settings = &userSettings();
     settings->beginGroup(settingsGroup);
-
-    // On OS X applications usually do not restore their full screen state.
-    // To be able to restore the correct non-full screen geometry, we have to put
-    // the window out of full screen before saving the geometry.
-    // Works around QTBUG-45241
-    if (Utils::HostOsInfo::isMacHost() && m_mainwindow->isFullScreen())
-        m_mainwindow->setWindowState(m_mainwindow->windowState() & ~Qt::WindowFullScreen);
     settings->setValue(windowGeometryKey, m_mainwindow->saveGeometry());
     settings->setValue(windowStateKey, m_mainwindow->saveState());
     settings->setValue(modeSelectorLayoutKey, int(ModeManager::modeStyle()));
@@ -2693,6 +2686,10 @@ void ICorePrivate::restoreWindowState()
     settings->beginGroup(settingsGroup);
     if (!m_mainwindow->restoreGeometry(settings->value(windowGeometryKey).toByteArray()))
         m_mainwindow->resize(1260, 700); // size without window decoration
+    // On macOS applications usually do not restore their full screen state.
+    // Works around QTBUG-45241
+    if (Utils::HostOsInfo::isMacHost() && m_mainwindow->isFullScreen())
+        m_mainwindow->setWindowState(m_mainwindow->windowState() & ~Qt::WindowFullScreen);
     m_mainwindow->restoreState(settings->value(windowStateKey).toByteArray());
     settings->endGroup();
 
