@@ -563,6 +563,7 @@ private slots:
     void testConfigSelectPopupFavorites();
     void testConfigSelectPopupKeepsFilterFocus();
     void testConfigSelectPopupEmptyValue();
+    void testConfigSelectPopupOverridesEscapeShortcut();
     void testChatPanelSelectPopupFollowsOptions();
     void testChatPanelSelectButtonElide();
 
@@ -3437,6 +3438,20 @@ void AcpClientTest::testConfigSelectPopupEmptyValue()
     QTest::keyClick(filter, Qt::Key_Return);
     QCOMPARE(selected.size(), 1);
     QCOMPARE(selected.at(0).at(0).toString(), QString());
+}
+
+// Escape closes the popup, even though a global shortcut is bound to it.
+void AcpClientTest::testConfigSelectPopupOverridesEscapeShortcut()
+{
+    ConfigSelectPopup popup;
+    popup.setEntries(modelEntries(), "google/gemini-pro");
+
+    auto *filter = popup.findChild<QLineEdit *>();
+    QVERIFY(filter);
+    QKeyEvent override(QEvent::ShortcutOverride, Qt::Key_Escape, Qt::NoModifier);
+    override.ignore();
+    QCoreApplication::sendEvent(filter, &override);
+    QVERIFY(override.isAccepted());
 }
 
 // An open picker follows the agent's update of its option, and closes when the

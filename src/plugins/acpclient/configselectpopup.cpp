@@ -425,7 +425,19 @@ void ConfigSelectPopup::toggleFavorite(const QModelIndex &index)
 
 bool ConfigSelectPopup::eventFilter(QObject *watched, QEvent *event)
 {
-    if (watched != m_filterEdit || event->type() != QEvent::KeyPress)
+    if (watched != m_filterEdit)
+        return QWidget::eventFilter(watched, event);
+
+    if (event->type() == QEvent::ShortcutOverride) {
+        auto *keyEvent = static_cast<QKeyEvent *>(event);
+        if (keyEvent->key() == Qt::Key_Escape && keyEvent->modifiers() == Qt::NoModifier) {
+            event->accept();
+            return true;
+        }
+        return QWidget::eventFilter(watched, event);
+    }
+
+    if (event->type() != QEvent::KeyPress)
         return QWidget::eventFilter(watched, event);
 
     const int pageRows = qMax(1, m_view->height() / qMax(1, nameTf.lineHeight() + 2 * PaddingVXs));
