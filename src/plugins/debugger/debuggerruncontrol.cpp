@@ -14,6 +14,7 @@
 #include "debuggertr.h"
 #include "enginemanager.h"
 #include "gdb/gdbengine.h"
+#include "jdwp/jdwpengine.h"
 #include "lldb/lldbengine.h"
 #include "pdb/pdbengine.h"
 #include "qml/qmlengine.h"
@@ -55,14 +56,6 @@ enum { debug = 0 };
 namespace Debugger {
 namespace Internal {
 
-DebuggerEngine *createCdbEngine(const DebuggerRunParameters &rp);
-DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp);
-DebuggerEngine *createPdbEngine(const DebuggerRunParameters &rp);
-DebuggerEngine *createJdwpEngine(const DebuggerRunParameters &rp);
-DebuggerEngine *createQmlEngine();
-DebuggerEngine *createLldbEngine(const DebuggerRunParameters &rp);
-DebuggerEngine *createUvscEngine();
-DebuggerEngine *createDapEngine(Id runMode = ProjectExplorer::Constants::NO_RUN_MODE);
 DebuggerEngine *createDapAdapterEngine(const DapStartData &data);
 
 static QString noEngineMessage()

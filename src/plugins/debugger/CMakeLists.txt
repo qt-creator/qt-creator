@@ -59,7 +59,7 @@ add_qtc_plugin(Debugger
     imageviewer.cpp imageviewer.h
     enginemanager.cpp enginemanager.h
     jdwp/jdwpclient.cpp jdwp/jdwpclient.h
-    jdwp/jdwpengine.cpp
+    jdwp/jdwpengine.cpp jdwp/jdwpengine.h
     jdwp/jdwpexpression.cpp jdwp/jdwpexpression.h
     jdwp/jdwpimpl.cpp jdwp/jdwpimpl.h
     lldb/lldbengine.cpp lldb/lldbengine.h
