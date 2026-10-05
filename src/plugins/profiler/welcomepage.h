@@ -53,6 +53,7 @@ public:
 signals:
     void startRecordingRequested();
     void startPausedRequested();
+    void loadTraceRequested();
     void backendChanged(int index);
     void targetChanged(int index);
 

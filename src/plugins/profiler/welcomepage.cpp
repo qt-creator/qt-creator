@@ -3,12 +3,14 @@
 
 #include "welcomepage.h"
 
+#include "profilerrecorder.h"
 #include "profilertr.h"
 
 #include <utils/layoutbuilder.h>
 #include <utils/qtdesignwidgets.h>
 
 #include <QScrollArea>
+#include <QStackedWidget>
 #include <QVBoxLayout>
 
 using namespace Layouting;
@@ -43,6 +45,8 @@ WelcomePage::WelcomePage(QWidget *parent)
     const int rectRadius = SpacingTokens::RadiusL;
     const int innerMargin = qMax(0, rectRadius - SpacingTokens::PrimitiveM);
 
+    QStackedWidget *stack = nullptr;
+
     auto configHost = new QWidget;
     configHost->setContentsMargins({});
     StyleHelper::setBackgroundColor(configHost, Theme::Token_Background_Muted);
@@ -68,41 +72,55 @@ WelcomePage::WelcomePage(QWidget *parent)
     connect(m_startPausedButton, &QAbstractButton::clicked,
             this, [this] { emit startPausedRequested(); });
 
+    auto loadTraceButton = new QtcButton(Tr::tr("Load Trace File"), QtcButton::LargePrimary);
+    connect(loadTraceButton, &QAbstractButton::clicked,
+            this, [this] { emit loadTraceRequested(); });
+
     // clang-format off
     Row {
         customMargins(bigSpacing, bigSpacing, bigSpacing, bigSpacing),
         st,
-        Column {
+        Stack {
+            bindTo(&stack),
             Row {
-                Row {
-                    Tr::tr("Backend:"),
-                    m_backendCombo,
-                    spacing(SpacingTokens::GapHM),
-                },
-                m_targetRow,
                 st,
+                loadTraceButton,
+                st,
+            },
+            Column {
+                Row {
+                    Row {
+                        Tr::tr("Backend:"),
+                        m_backendCombo,
+                        spacing(SpacingTokens::GapHM),
+                    },
+                    m_targetRow,
+                    st,
+                    spacing(bigSpacing),
+                },
+                QtDesignWidgets::Rectangle {
+                    fillBrush(creatorColor(Theme::Token_Background_Muted)),
+                    strokePen(creatorColor(Theme::Token_Stroke_Subtle)),
+                    radius(rectRadius),
+                    Row {
+                        configScrollArea,
+                        noMargin,
+                    },
+                },
+                Row {
+                    st,
+                    m_startPausedButton,
+                    m_startButton,
+                },
                 spacing(bigSpacing),
+                noMargin,
             },
-            QtDesignWidgets::Rectangle {
-                fillBrush(creatorColor(Theme::Token_Background_Muted)),
-                strokePen(creatorColor(Theme::Token_Stroke_Subtle)),
-                radius(rectRadius),
-                Row {
-                    configScrollArea,
-                    noMargin,
-                },
-            },
-            Row {
-                st,
-                m_startPausedButton,
-                m_startButton,
-            },
-            spacing(bigSpacing),
-            noMargin,
         },
         st,
     }.attachTo(this);
     // clang-format on
+
+    stack->setCurrentIndex(ProfilerRecorder::isTraceViewerOnly() ? 0 : 1);
 }
 
 void WelcomePage::setBackends(const QStringList &names, int current)

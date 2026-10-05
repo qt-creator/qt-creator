@@ -3,6 +3,7 @@
 
 #include "qtprofilersidebar.h"
 
+#include <profiler/profilerrecorder.h>
 #include <profiler/profilertr.h>
 
 #include <tracing/timelineformatdata.h>
@@ -139,9 +140,8 @@ MainSidebar::MainSidebar(QWidget *parent)
     auto titleBar = new Utils::StyledBar;
 
     auto newRecording = new QtcButton(Tr::tr("New Recording"), QtcButton::MediumPrimary);
-#ifdef Q_OS_WASM
-    newRecording->hide(); // Nothing to record in the browser; see the record action.
-#endif
+    if (ProfilerRecorder::isTraceViewerOnly())
+        newRecording->hide();
 
     auto prevRecordingsLabel = new QLabel(Tr::tr("Previous Recordings"));
     applyTf(prevRecordingsLabel,

@@ -734,20 +734,20 @@ Window::Window(QWidget *parent)
     const bool embedded = settings().embedded();
 
     QAction *recordAction = nullptr;
-#ifndef Q_OS_WASM
-    if (!embedded) {
+    if (!embedded && !ProfilerRecorder::isTraceViewerOnly()) {
         recordAction = new QAction(Icons::PLUS.icon(), Tr::tr("New Recording"), this);
         recordAction->setToolTip(Tr::tr("Set up and start a new recording."));
         recordAction->setShortcut(QKeySequence::New);
         connect(recordAction, &QAction::triggered, d, &WindowPrivate::showWelcomePage);
         connect(d->sidebar, &MainSidebar::newRecordingRequested, recordAction, &QAction::trigger);
     }
-#endif
 
     QAction *loadTraceFileAction = nullptr;
     if (!embedded) {
         loadTraceFileAction = new QAction(Icons::FILE.icon(), Tr::tr("Load Trace File"), this);
         connect(loadTraceFileAction, &QAction::triggered, d, &WindowPrivate::showOpenFileDialog);
+        connect(d->welcomePage, &WelcomePage::loadTraceRequested,
+                loadTraceFileAction, &QAction::trigger);
     }
 
     // Loading a Common Trace Format *directory* needs a directory picker, which blocks in a

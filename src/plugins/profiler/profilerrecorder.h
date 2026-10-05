@@ -38,6 +38,16 @@ public:
     explicit ProfilerRecorder(QObject *parent = nullptr);
     ~ProfilerRecorder() override;
 
+    // Whether this build can only view traces, not record them (e.g. WASM build in browser).
+    static constexpr bool isTraceViewerOnly()
+    {
+#ifdef Q_OS_WASM
+        return true;
+#else
+        return false;
+#endif
+    }
+
     // The backends offered here, in display order. Backends that cannot run in
     // this environment are left out (see Sampler::isAvailable).
     QStringList backendNames() const;
