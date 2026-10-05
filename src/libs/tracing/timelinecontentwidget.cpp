@@ -336,7 +336,8 @@ static QPoint wheelPixelDelta(const QWheelEvent *event, int lineHeight)
 {
     if (!event->pixelDelta().isNull())
         return event->pixelDelta();
-    return event->angleDelta() * QApplication::wheelScrollLines() * lineHeight / 120;
+    return event->angleDelta() * QApplication::wheelScrollLines() * lineHeight
+           / double(QWheelEvent::DefaultDeltasPerStep);
 }
 
 bool TimelineContentWidget::eventFilter(QObject *watched, QEvent *event)
@@ -371,11 +372,17 @@ void TimelineContentWidget::handleWheel(QWheelEvent *event)
     // which Qt for WebAssembly passes on as Qt::MetaModifier on macOS.
     if (event->modifiers() & (Qt::ControlModifier | Qt::MetaModifier)) {
         const QPoint pixelDelta = event->pixelDelta();
-        const int dy = pixelDelta.y() != 0 ? pixelDelta.y() : event->angleDelta().y() / 8;
+        const int angleDeltaUnitsPerDegree = 8;
+        const int dy = pixelDelta.y() != 0 ? pixelDelta.y()
+                                           : event->angleDelta().y() / angleDeltaUnitsPerDegree;
         // dy > 0 = scroll up = zoom in (shrink range); dy < 0 = zoom out
         if (dy != 0) {
+            // The factor compounds per step, so a large dy zooms by a large factor in one event.
+            const double zoomFactorPerWheelStep = 1.2;
+            const double wheelDeltaPerStep = double(QWheelEvent::DefaultDeltasPerStep)
+                                             / angleDeltaUnitsPerDegree;
             applyZoom(m_tracksWidget->mapFromGlobal(event->globalPosition()).x(),
-                      std::pow(1.2, double(-dy) / 15.0));
+                      std::pow(zoomFactorPerWheelStep, double(-dy) / wheelDeltaPerStep));
         }
         return;
     }
