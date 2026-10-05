@@ -12,7 +12,6 @@ add_qtc_plugin(QmlJSTools
     qmljsqtstylecodeformatter.cpp qmljsqtstylecodeformatter.h
     qmljsrefactoringchanges.cpp qmljsrefactoringchanges.h
     qmljssemanticinfo.cpp qmljssemanticinfo.h
-    qmljstools.qrc
     qmljstools_global.h
     qmljstoolstr.h
     qmljstoolsconstants.h
@@ -25,4 +24,12 @@ extend_qtc_plugin(QmlJSTools
   SOURCES
     qmljstools_test.cpp
     qmljstools_test.h
+)
+
+qtc_add_resources(QmlJSTools "images"
+  PREFIX "/qmljstools"
+  BASE "."
+  FILES
+  images/settingscategory_qml.png
+  images/settingscategory_qml@2x.png
 )

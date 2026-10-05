@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/qmljstools">
-        <file>images/settingscategory_qml.png</file>
-        <file>images/settingscategory_qml@2x.png</file>
-    </qresource>
-</RCC>

@@ -38,13 +38,21 @@ QtcPlugin {
         "qmljstoolsconstants.h",
         "qmljstoolsinternalconstants.h",
         "qmljstoolsplugin.cpp",
-        "qmljstools.qrc",
     ]
 
     QtcTestFiles {
         files: [
             "qmljstools_test.cpp",
             "qmljstools_test.h",
+        ]
+    }
+
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "images/settingscategory_qml.png",
+            "images/settingscategory_qml@2x.png",
         ]
     }
 
