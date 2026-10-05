@@ -17,7 +17,6 @@ QtcPlugin {
         "commiteditor.cpp", "commiteditor.h",
         "configuredialog.cpp", "configuredialog.h",
         "constants.h",
-        "fossil.qrc",
         "fossilclient.cpp", "fossilclient.h",
         "fossilcommitwidget.cpp", "fossilcommitwidget.h",
         "fossileditor.cpp", "fossileditor.h",
@@ -33,6 +32,16 @@ QtcPlugin {
         prefix: "wizard/"
         files: [
             "fossiljsextension.h", "fossiljsextension.cpp",
+        ]
+    }
+
+    Group {
+        name: "Wizard resources"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "wizard/projects/vcs/icon.png",
+            "wizard/projects/vcs/icon@2x.png",
+            "wizard/projects/vcs/wizard.json",
         ]
     }
 }

@@ -7,7 +7,6 @@ add_qtc_plugin(Fossil
     commiteditor.cpp commiteditor.h
     configuredialog.cpp configuredialog.h
     constants.h
-    fossil.qrc
     fossilclient.cpp fossilclient.h
     fossilcommitwidget.cpp fossilcommitwidget.h
     fossileditor.cpp fossileditor.h
@@ -17,4 +16,13 @@ add_qtc_plugin(Fossil
     pullorpushdialog.cpp pullorpushdialog.h
     revisioninfo.h
     wizard/fossiljsextension.cpp wizard/fossiljsextension.h
+)
+
+qtc_add_resources(Fossil "wizard_resources"
+  PREFIX "/fossil"
+  BASE "."
+  FILES
+    wizard/projects/vcs/icon.png
+    wizard/projects/vcs/icon@2x.png
+    wizard/projects/vcs/wizard.json
 )
