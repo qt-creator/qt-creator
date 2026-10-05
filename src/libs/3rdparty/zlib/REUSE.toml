@@ -1,0 +1,7 @@
+version = 1
+
+[[annotations]]
+path = ["**"]
+precedence = "closest"
+SPDX-FileCopyrightText = ["(C) 1995-2024 Jean-loup Gailly and Mark Adler"]
+SPDX-License-Identifier = "Zlib"
