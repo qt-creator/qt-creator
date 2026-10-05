@@ -12,7 +12,6 @@ add_qtc_plugin(Squish
     propertyitemdelegate.cpp propertyitemdelegate.h
     propertytreeitem.cpp propertytreeitem.h
     scripthelper.cpp scripthelper.h
-    squish.qrc
     squishfilehandler.cpp squishfilehandler.h
     squishmessages.cpp squishmessages.h
     squishnavigationwidget.cpp squishnavigationwidget.h
@@ -33,4 +32,21 @@ add_qtc_plugin(Squish
     suiteconf.cpp suiteconf.h
     symbolnameitemdelegate.cpp symbolnameitemdelegate.h
     testresult.cpp testresult.h
+)
+
+qtc_add_resources(Squish "runtime resources"
+  PREFIX "/squish"
+  BASE "."
+  FILES
+    images/data.png
+    images/data@2x.png
+    images/jumpTo.png
+    images/jumpTo@2x.png
+    images/objectsmap.png
+    images/objectsmap@2x.png
+    images/picker.png
+    images/picker@2x.png
+    images/settingscategory_squish.png
+    images/settingscategory_squish@2x.png
+    wizard/suite/wizard.json
 )

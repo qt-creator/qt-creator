@@ -30,7 +30,6 @@ QtcPlugin {
         "propertytreeitem.h",
         "scripthelper.cpp",
         "scripthelper.h",
-        "squish.qrc",
         "squishconstants.h",
         "squishfilehandler.cpp",
         "squishfilehandler.h",
@@ -72,4 +71,22 @@ QtcPlugin {
         "testresult.cpp",
         "testresult.h",
     ]
+
+    Group {
+        name: "runtime resources"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "images/data.png",
+            "images/data@2x.png",
+            "images/jumpTo.png",
+            "images/jumpTo@2x.png",
+            "images/objectsmap.png",
+            "images/objectsmap@2x.png",
+            "images/picker.png",
+            "images/picker@2x.png",
+            "images/settingscategory_squish.png",
+            "images/settingscategory_squish@2x.png",
+            "wizard/suite/wizard.json",
+        ]
+    }
 }
