@@ -584,10 +584,11 @@
         "Path": "@SOURCE_DIR@/src/libs/3rdparty/quickjs",
         "Description": "QuickJS-ng is a small and embeddable JavaScript engine supporting the ES2023 specification.",
         "Homepage": "https://quickjs-ng.github.io/quickjs/",
+        "PURL": "pkg:github/quickjs-ng/quickjs@v$<VERSION>",
         "License": "MIT License",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/quickjs/LICENSE",
-        "Copyright": "Copyright (c) 2017-2024 Fabrice Bellard, Charlie Gordon and QuickJS-ng authors",
-        "Version": "0.16.2"
+        "Copyright": "Copyright (c) 2017-2026 Fabrice Bellard, Charlie Gordon and QuickJS-ng authors",
+        "Version": "0.17.0"
     },
     {
         "Id": "lua",
