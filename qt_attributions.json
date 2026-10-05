@@ -685,11 +685,11 @@
         "Path": "@SOURCE_DIR@/src/libs/3rdparty/xz",
         "Description": "XZ is a lossless data-compression library.",
         "Homepage": "https://tukaani.org/xz/",
-        "Version": "5.8.3",
+        "Version": "5.8.4",
         "License": "BSD Zero Clause License (0BSD)",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/xz/COPYING",
         "Copyright": "Copyright (C) The XZ Utils authors and contributors",
-        "DownloadLocation": "https://github.com/tukaani-project/xz/tree/v5.8.3",
+        "DownloadLocation": "https://github.com/tukaani-project/xz/tree/v5.8.4",
         "SecurityCritical": true
     },
     {
