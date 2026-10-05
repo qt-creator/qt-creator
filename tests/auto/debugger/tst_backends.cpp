@@ -10107,9 +10107,6 @@ void tst_backends::reportsARecordingThatCannotGoOn()
     if (testData.secondBreakpointLine == 0)
         QSKIP("inferior has no later line to bound the recording by");
 
-    if (HostOsInfo::isLinuxHost() && backend == Backend::Bridge)
-        QSKIP("This test fails on linux");
-
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
