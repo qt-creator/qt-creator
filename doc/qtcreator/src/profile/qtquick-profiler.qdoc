@@ -12,6 +12,7 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-profile
+    \ingroup profiler-collect-data
 
     \title Profile QML applications
 
@@ -22,12 +23,15 @@
     To collect data about a QML application:
 
     \list 1
+        \if defined(qtcreator)
         \li Set up QML debugging for the project. For more information, see
             \l{Setting up QML debugging}.
         \li In the \uicontrol Projects mode, select a \l{Managing kits}
             {kit} with Qt version 4.7.4 or later.
             \note To profile applications on \l{glossary-device}{devices}, you
             must install Qt libraries on them.
+
+            \endif
         \li Go to \uicontrol Analyze > \uicontrol {QML Profiler} to profile the
             current application.
             \image {qtcreator-qml-profiler-toolbar.webp} {QML Profiler}
@@ -115,10 +119,13 @@
 
     \section1 Attach to a running Qt Quick application
 
+    \if defined(qtcreator)
     You can profile a Qt Quick application that you do not run from \QC.
     However, you must enable QML debugging and profiling for the application
     in the project build settings. For more information, see
     \l{Setting up QML debugging}.
+
+    \endif
 
     To attach to a waiting application:
 
@@ -131,13 +138,15 @@
          \li Select \uicontrol OK.
     \endlist
 
+    \if defined(qtcreator)
     \sa {Profile}{How to: Profile}, {Profiling applications}, {QML Profiler}
+
+    \endif
 */
 
 /*!
     \page creator-qml-performance-monitor.html
     \previouspage creator-cpu-usage-analyzer.html
-    \nextpage creator-reference-qt-quick-ui-design.html
 
     \ingroup profiling-tools
 
@@ -172,8 +181,13 @@
 
     If frames get dropped even though JavaScript is not being run, and there are
     large, unexplained gaps in the timeline, check your custom QQuickItem
-    implementations. You can use \l{Profile function execution}
+    implementations.
+
+    \if defined(qtcreator)
+    You can use \l{Profile function execution}
     {Valgrind Callgrind} or other general purpose profilers to analyze C++ code.
+
+    \endif
 
     You can use \e {full stack tracing} to trace from the top level QML or
     JavaScript down to the C++ and all the way to the kernel space. You can
@@ -614,5 +628,8 @@
     suitable for analyzing per frame execution times. However, it is very easy
     to see the total impact of the various QML and JavaScript events there.
 
+    \if defined(qtcreator)
     \sa {Profile}{How to: Profile}, {Profilers}, {Profiling applications}
+
+    \endif
 */

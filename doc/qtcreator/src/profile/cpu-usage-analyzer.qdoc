@@ -12,6 +12,7 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-profile
+    \ingroup profiler-collect-data
 
     \title Analyze CPU usage
 
@@ -103,8 +104,11 @@
         \li Select \uicontrol Yes to recompile the project.
     \endlist
 
+    \if defined(qtcreator)
     \sa {Profile}{How to: Profile}, {Profilers}, {Profiling applications},
     {Performance Analyzer}
+
+    \endif
 */
 
 /*!
@@ -521,6 +525,7 @@
             \endlist
     \endlist
 
+    \if defined(qtcreator)
     The \uicontrol {General Messages} view shows \l{View output}{output} from the
     helper program that processes the data.
 
@@ -529,4 +534,6 @@
 
     \sa {Profile}{How to: Profile}, {Profilers}, {Profiling applications},
     {Managing kits}
+
+    \endif
 */

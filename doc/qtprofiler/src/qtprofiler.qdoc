@@ -64,10 +64,11 @@
             \li \inlineimage {icons/build-32x32.png} {Build icon.}
             \li \inlineimage {icons/settings-32x32.png} {Settings icon.}
         \row
-            \li Recording profiling data
-                \generatelist qtprofiler-how-to-record
-            \li Analyzing profiling data
+            \li Record profiling data
+                \generatelist profiler-collect-data
+            \li Analyze profiling data
             \li \l{Reference}
+                \generatelist profiling-tools
     \endtable
     \enddiv
 */

@@ -16,10 +16,10 @@
         \li \l{Installation}
         \li \l{Getting started}
         \li \l{Tutorials}
-        \li Recording profiling data
-            \generatelist qtprofiler-how-to-record
-        \li Analyzing profiling data
+        \li Record profiling data
+            \generatelist profiler-collect-data
+        \li Analyze profiling data
         \li \l{Reference}
-            \generatelist qtprofiler-reference
+            \generatelist profiling-tools
     \endlist
 */

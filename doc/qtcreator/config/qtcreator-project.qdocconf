@@ -17,6 +17,7 @@ sourcedirs = $$GENERATED_ATTRIBUTIONS_DIR \
     ../src
 
 imagedirs = ../images \
+            ../images/profiler \
 ../../../src/libs/qmleditorwidgets/images \
 ../../../src/plugins/qmldesigner/components/componentcore/images \
 ../../../src/plugins/qmldesigner/componentsplugin/images \
