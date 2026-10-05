@@ -1537,6 +1537,7 @@ public:
         QByteArray path;
         QByteArray headers;
         QByteArray body;
+        quint16 port = 0;
     };
     struct Response
     {
@@ -1571,7 +1572,8 @@ public:
                         requestLine.value(0),
                         requestLine.value(1),
                         head.mid(lineEnd + 1),
-                        buffer->mid(end + 4, bodySize)};
+                        buffer->mid(end + 4, bodySize),
+                        socket->localPort()};
                     requests.append(request);
                     const Response response = handler(request);
                     socket->write(
@@ -1665,7 +1667,7 @@ void tst_DevContainer::blobRedirectsWithoutCredentials()
             return FakeHttpServer::Response{
                 "401 Unauthorized",
                 "WWW-Authenticate: Bearer realm=\"http://127.0.0.1:"
-                    + QByteArray::number(registry.serverPort()) + "/token\",service=\"fake\"\r\n",
+                    + QByteArray::number(request.port) + "/token\",service=\"fake\"\r\n",
                 {}};
         }
         if (request.path.contains("/manifests/")) {
@@ -1899,7 +1901,7 @@ void tst_DevContainer::identityTokenRefresh()
             return FakeHttpServer::Response{
                 "401 Unauthorized",
                 "WWW-Authenticate: Bearer realm=\"http://127.0.0.1:"
-                    + QByteArray::number(registry.serverPort()) + "/token\",service=\"fake\"\r\n",
+                    + QByteArray::number(request.port) + "/token\",service=\"fake\"\r\n",
                 {}};
         }
         if (request.path.contains("/manifests/")) {
