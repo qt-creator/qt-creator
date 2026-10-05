@@ -600,8 +600,8 @@
         "Homepage": "https://www.lua.org/",
         "License": "MIT License",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/lua/LICENSE",
-        "Copyright": "Copyright © 1994-2023 Lua.org, PUC-Rio.",
-        "Version": "5.4.6"
+        "Copyright": "Copyright © 1994-2026 Lua.org, PUC-Rio.",
+        "Version": "5.4.9"
     },
     {
         "Id": "sol2",
