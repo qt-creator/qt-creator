@@ -389,7 +389,7 @@ typedef uint64_t uintmax_t;
 /* #undef HAVE_ATTR_XATTR_H */
 
 /* Define to 1 if you have the <bcrypt.h> header file. */
-/* #undef HAVE_BCRYPT_H */
+#define HAVE_BCRYPT_H 1
 
 /* Define to 1 if you have the <bsdxml.h> header file. */
 /* #undef HAVE_BSDXML_H */
@@ -664,6 +664,9 @@ typedef uint64_t uintmax_t;
 /* Define to 1 if you have the `getpwuid_r' function. */
 /* #undef HAVE_GETPWUID_R */
 
+/* Define to 1 if you have the `gettimeofday' function. */
+/* #undef HAVE_GETTIMEOFDAY */
+
 /* Define to 1 if you have the `getvfsbyname' function. */
 /* #undef HAVE_GETVFSBYNAME */
 
@@ -681,6 +684,9 @@ typedef uint64_t uintmax_t;
 
 /* Define to 1 if you have the <iconv.h> header file. */
 /* #undef HAVE_ICONV_H */
+
+/* Define to 1 if you have the <intsafe.h> header file. */
+#define HAVE_INTSAFE_H 1
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
@@ -1023,6 +1029,9 @@ typedef uint64_t uintmax_t;
 /* Define to 1 if you have the <stdarg.h> header file. */
 #define HAVE_STDARG_H 1
 
+/* Define to 1 if you have the <stdckdint.h> header file. */
+/* #undef HAVE_STDCKDINT_H */
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
 
@@ -1260,7 +1269,7 @@ typedef uint64_t uintmax_t;
 #define HAVE_WCTYPE_H 1
 
 /* Define to 1 if you have the <wincrypt.h> header file. */
-#define HAVE_WINCRYPT_H 1
+/* #undef HAVE_WINCRYPT_H */
 
 /* Define to 1 if you have the <windows.h> header file. */
 #define HAVE_WINDOWS_H 1

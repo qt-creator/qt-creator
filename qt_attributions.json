@@ -701,11 +701,11 @@
         "Path": "@SOURCE_DIR@/src/libs/3rdparty/libarchive",
         "Description": "Libarchive is a programming library that can create and read several different streaming archive formats, including most popular tar variants, several cpio formats, and both BSD and GNU ar variants.",
         "Homepage": "https://www.libarchive.org",
-        "Version": "3.8.7",
+        "Version": "3.8.9",
         "License": "BSD 2-Clause \"Simplified\" License",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/libarchive/COPYING",
         "Copyright": "Copyright (c) 2003-2018 <author(s)>",
-        "DownloadLocation": "https://github.com/libarchive/libarchive/tree/v3.8.7",
+        "DownloadLocation": "https://github.com/libarchive/libarchive/tree/v3.8.9",
         "SecurityCritical": true
     },
     {
