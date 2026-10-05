@@ -15,7 +15,6 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
-            "baremetal.qrc",
             "baremetalconstants.h",
             "baremetaldebugsupport.cpp", "baremetaldebugsupport.h",
             "baremetaldevice.cpp", "baremetaldevice.h",
@@ -69,6 +68,17 @@ QtcPlugin {
             "xmlprojectwriter.cpp", "xmlprojectwriter.h",
             "xmlproperty.cpp", "xmlproperty.h",
             "xmlpropertygroup.cpp", "xmlpropertygroup.h",
+        ]
+    }
+
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "images/baremetaldevice.png",
+            "images/baremetaldevice@2x.png",
+            "images/baremetaldevicesmall.png",
+            "images/baremetaldevicesmall@2x.png",
         ]
     }
 }

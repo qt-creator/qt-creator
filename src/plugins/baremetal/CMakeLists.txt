@@ -1,7 +1,6 @@
 add_qtc_plugin(BareMetal
   PLUGIN_DEPENDS Core Debugger ProjectExplorer
   SOURCES
-    baremetal.qrc
     baremetalconstants.h
     baremetaldebugsupport.cpp baremetaldebugsupport.h
     baremetaldevice.cpp baremetaldevice.h
@@ -41,4 +40,14 @@ add_qtc_plugin(BareMetal
     keiltoolchain.cpp keiltoolchain.h
     sdccparser.cpp sdccparser.h
     sdcctoolchain.cpp sdcctoolchain.h
+)
+
+qtc_add_resources(BareMetal "images"
+  PREFIX "/baremetal"
+  BASE "."
+  FILES
+  images/baremetaldevice.png
+  images/baremetaldevice@2x.png
+  images/baremetaldevicesmall.png
+  images/baremetaldevicesmall@2x.png
 )
