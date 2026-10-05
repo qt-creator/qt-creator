@@ -18,22 +18,27 @@ add_qtc_plugin(Coco
     cocolanguageclient.cpp
     cocolanguageclient.h
     cocoplugin.cpp
-    cocoplugin.qrc
     cocoplugin_global.h
     cocopluginconstants.h
     cocoprojectwidget.cpp
     cocoprojectwidget.h
     cocotr.h
+    globalsettings.cpp
+    globalsettings.h
+    modificationfile.cpp
+    modificationfile.h
+    qmakefeaturefile.cpp
+    qmakefeaturefile.h
+)
+
+qtc_add_resources(Coco "runtime resources"
+  PREFIX "/cocoplugin"
+  BASE "."
+  FILES
     files/cocoplugin-clang.cmake
     files/cocoplugin-gcc.cmake
     files/cocoplugin-visualstudio.cmake
     files/cocoplugin.cmake
     files/cocoplugin.prf
-    globalsettings.cpp
-    globalsettings.h
     images/SquishCoco_48x48.png
-    modificationfile.cpp
-    modificationfile.h
-    qmakefeaturefile.cpp
-    qmakefeaturefile.h
 )

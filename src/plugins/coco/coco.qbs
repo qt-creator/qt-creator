@@ -24,24 +24,31 @@ QtcPlugin {
         "cocolanguageclient.cpp",
         "cocolanguageclient.h",
         "cocoplugin.cpp",
-        "cocoplugin.qrc",
         "cocoplugin_global.h",
         "cocopluginconstants.h",
         "cocoprojectwidget.cpp",
         "cocoprojectwidget.h",
         "cocotr.h",
-        "files/cocoplugin-clang.cmake",
-        "files/cocoplugin-gcc.cmake",
-        "files/cocoplugin-visualstudio.cmake",
-        "files/cocoplugin.cmake",
-        "files/cocoplugin.prf",
         "globalsettings.cpp",
         "globalsettings.h",
-        "images/SquishCoco_48x48.png",
         "modificationfile.cpp",
         "modificationfile.h",
         "qmakefeaturefile.cpp",
         "qmakefeaturefile.h",
     ]
+
+    Group {
+        name: "runtime resources"
+        fileTags: "qt.core.resource_data"
+        Qt.core.resourcePrefix: "/cocoplugin"
+        files: [
+            "files/cocoplugin-clang.cmake",
+            "files/cocoplugin-gcc.cmake",
+            "files/cocoplugin-visualstudio.cmake",
+            "files/cocoplugin.cmake",
+            "files/cocoplugin.prf",
+            "images/SquishCoco_48x48.png",
+        ]
+    }
 }
 
