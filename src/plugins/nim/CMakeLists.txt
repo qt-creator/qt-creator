@@ -6,7 +6,6 @@ add_qtc_plugin(Nim
     editor/nimhighlighter.cpp editor/nimhighlighter.h
     editor/nimindenter.cpp editor/nimindenter.h
     editor/nimtexteditorwidget.cpp editor/nimtexteditorwidget.h
-    nim.qrc
     nimconstants.h
     nimplugin.cpp
     nimtr.h
@@ -30,4 +29,12 @@ add_qtc_plugin(Nim
     suggest/sexprlexer.h suggest/sexprparser.h
     tools/nimlexer.cpp tools/nimlexer.h
     tools/sourcecodestream.h
+)
+
+qtc_add_resources(Nim "images"
+  PREFIX "/nim"
+  BASE "."
+  FILES
+    images/settingscategory_nim.png
+    images/settingscategory_nim@2x.png
 )

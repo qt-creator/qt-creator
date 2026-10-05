@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/nim">
-        <file>images/settingscategory_nim.png</file>
-        <file>images/settingscategory_nim@2x.png</file>
-    </qresource>
-</RCC>

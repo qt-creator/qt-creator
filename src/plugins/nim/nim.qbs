@@ -15,7 +15,6 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
-            "nim.qrc",
             "nimconstants.h",
             "nimplugin.cpp",
             "nimtr.h",
@@ -80,6 +79,15 @@ QtcPlugin {
             "server.h", "server.cpp",
             "sexprlexer.h",
             "sexprparser.h",
+        ]
+    }
+
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "images/settingscategory_nim.png",
+            "images/settingscategory_nim@2x.png",
         ]
     }
 }
