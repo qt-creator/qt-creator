@@ -8,6 +8,13 @@ QtcPlugin {
 
     files: [
         "saferenderer.h",
-        "saferenderer.qrc",
     ]
+
+    Group {
+        name: "wizards"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "wizards/**/*",
+        ]
+    }
 }
