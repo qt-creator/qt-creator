@@ -250,6 +250,16 @@ jobs:
       run: |
         set(qt_version "$ENV{QT_VERSION}")
 
+        # The Qt modules are maintained in the coin instructions
+        file(STRINGS "$ENV{GITHUB_WORKSPACE}/coin/instructions/qtmodules.yaml"
+             qt_modules_line REGEX "variableValue:")
+        if (NOT qt_modules_line MATCHES "variableValue: *\"([^\"]*)\"")
+          message(FATAL_ERROR "Could not read Qt modules from coin/instructions/qtmodules.yaml")
+        endif()
+        separate_arguments(qt_modules UNIX_COMMAND "${CMAKE_MATCH_1}")
+        list(APPEND qt_modules qtwayland)
+        message("Qt modules: ${qt_modules}")
+
         string(REPLACE "." "" qt_version_dotless "${qt_version}")
         if ("${{ runner.os }}" STREQUAL "Windows")
           set(url_os "windows_x86")
@@ -344,7 +354,7 @@ jobs:
             execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "$ENV{GITHUB_WORKSPACE}/${archive}" WORKING_DIRECTORY "${qt_dir}/${subdir}")
           endfunction()
 
-          foreach(package qtbase qtdeclarative qttasktree qttools qtsvg qttranslations qtimageformats qtserialport qtquicktimeline qtquick3d qtshadertools)
+          foreach(package ${qt_modules})
             downloadAndExtract(${package} "")
           endforeach()
 

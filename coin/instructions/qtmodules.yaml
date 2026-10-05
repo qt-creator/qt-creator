@@ -1,0 +1,7 @@
+# List of Qt modules to build against, shared with GitHub and packaging build
+# Keep list in a single line, otherwise cmake regex will fail to pick it up.
+type: Group
+instructions:
+  - type: EnvironmentVariable
+    variableName: QTC_QT_MODULES
+    variableValue: "qt5compat qtbase qtcanvaspainter qtdeclarative qtimageformats qtquick3d qtquicktimeline qtserialport qtshadertools qtsvg qttasktree qttools qttranslations"
