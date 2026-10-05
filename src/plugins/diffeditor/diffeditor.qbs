@@ -16,7 +16,6 @@ QtcPlugin {
     files: [
         "diffeditor.cpp",
         "diffeditor.h",
-        "diffeditor.qrc",
         "diffeditor_global.h", "diffeditortr.h",
         "diffeditorconstants.h",
         "diffeditoricons.h",
@@ -40,5 +39,17 @@ QtcPlugin {
         "unifieddiffeditorwidget.cpp",
         "unifieddiffeditorwidget.h",
     ]
-}
 
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "images/sidebysidediff.png",
+            "images/sidebysidediff@2x.png",
+            "images/unifieddiff.png",
+            "images/unifieddiff@2x.png",
+            "images/topbar.png",
+            "images/topbar@2x.png",
+        ]
+    }
+}

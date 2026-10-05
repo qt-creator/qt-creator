@@ -2,7 +2,6 @@ add_qtc_plugin(DiffEditor
   PLUGIN_DEPENDS Core TextEditor
   SOURCES
     diffeditor.cpp diffeditor.h
-    diffeditor.qrc
     diffeditor_global.h
     diffeditortr.h
     diffeditorconstants.h
@@ -18,4 +17,16 @@ add_qtc_plugin(DiffEditor
     selectabletexteditorwidget.cpp selectabletexteditorwidget.h
     sidebysidediffeditorwidget.cpp sidebysidediffeditorwidget.h
     unifieddiffeditorwidget.cpp unifieddiffeditorwidget.h
+)
+
+qtc_add_resources(DiffEditor "images"
+  PREFIX "/diffeditor"
+  BASE "."
+  FILES
+    images/sidebysidediff.png
+    images/sidebysidediff@2x.png
+    images/unifieddiff.png
+    images/unifieddiff@2x.png
+    images/topbar.png
+    images/topbar@2x.png
 )
