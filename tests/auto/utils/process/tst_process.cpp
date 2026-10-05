@@ -110,6 +110,8 @@ private slots:
     void multiRead();
     void splitArgs_data();
     void splitArgs();
+    void splitArgsAbortOnMeta_data();
+    void splitArgsAbortOnMeta();
     void prepareArgs_data();
     void prepareArgs();
     void prepareArgsEnv_data();
@@ -349,6 +351,46 @@ void tst_Process::splitArgs()
     QCOMPARE(outerr, err);
     if (err == ProcessArgs::SplitOk)
         QCOMPARE(outstr, out);
+}
+
+void tst_Process::splitArgsAbortOnMeta_data()
+{
+    QTest::addColumn<QString>("in");
+    QTest::addColumn<QStringList>("out");
+    QTest::addColumn<ProcessArgs::SplitError>("err");
+    QTest::addColumn<OsType>("os");
+
+    QTest::newRow("win plain") << "a b" << QStringList{"a", "b"} << ProcessArgs::SplitOk
+                               << OsTypeWindows;
+    QTest::newRow("win meta") << "a & b" << QStringList() << ProcessArgs::FoundMeta
+                              << OsTypeWindows;
+    QTest::newRow("win escaped meta") << "a ^& b" << QStringList{"a", "&", "b"}
+                                      << ProcessArgs::SplitOk << OsTypeWindows;
+    QTest::newRow("win quoted meta") << "\"a & b\"" << QStringList{"a & b"}
+                                     << ProcessArgs::SplitOk << OsTypeWindows;
+    QTest::newRow("win escaped meta in path") << "C:\\a^&b\\log,txt"
+                                              << QStringList{"C:\\a&b\\log,txt"}
+                                              << ProcessArgs::SplitOk << OsTypeWindows;
+    QTest::newRow("win quoted quote") << ProcessArgs::quoteArg("a\"b", OsTypeWindows)
+                                      << QStringList{"a\"b"} << ProcessArgs::SplitOk
+                                      << OsTypeWindows;
+    QTest::newRow("unix meta") << "a | b" << QStringList() << ProcessArgs::FoundMeta
+                               << OsTypeLinux;
+    QTest::newRow("unix quoted meta") << "'a | b'" << QStringList{"a | b"}
+                                      << ProcessArgs::SplitOk << OsTypeLinux;
+}
+
+void tst_Process::splitArgsAbortOnMeta()
+{
+    QFETCH(QString, in);
+    QFETCH(QStringList, out);
+    QFETCH(ProcessArgs::SplitError, err);
+    QFETCH(OsType, os);
+
+    ProcessArgs::SplitError outerr = ProcessArgs::SplitOk;
+    const QStringList outlist = ProcessArgs::splitArgs(in, os, true, &outerr);
+    QCOMPARE(outerr, err);
+    QCOMPARE(outlist, out);
 }
 
 void tst_Process::prepareArgs_data()
