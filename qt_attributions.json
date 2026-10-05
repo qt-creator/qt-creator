@@ -737,7 +737,7 @@
         "Description": "Header-only TOML config file parser and serializer for C++.",
         "Homepage": "https://github.com/ToruNiina/toml11",
         "PURL": "pkg:github/ToruNiina/toml11",
-        "Version": "4.3.0",
+        "Version": "4.4.0",
         "License": "MIT License",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/toml11/LICENSE",
         "Copyright": "Copyright (c) 2017-2024 Toru Niina."
