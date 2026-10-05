@@ -29,7 +29,6 @@ QtcPlugin {
         "changeselectiondialog.h",
         "commitdata.cpp",
         "commitdata.h",
-        "git.qrc",
         "git_global.h", "gittr.h",
         "gitclient.cpp",
         "gitclient.h",
@@ -96,6 +95,14 @@ QtcPlugin {
             "gerritserver.h",
             "gerritpushdialog.cpp",
             "gerritpushdialog.h",
+        ]
+    }
+
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "images/arrowup.png",
         ]
     }
 }

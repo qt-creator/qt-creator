@@ -19,7 +19,6 @@ add_qtc_plugin(Git
     gerrit/gerritpushdialog.cpp gerrit/gerritpushdialog.h
     gerrit/gerritremotechooser.cpp gerrit/gerritremotechooser.h
     gerrit/gerritserver.cpp gerrit/gerritserver.h
-    git.qrc
     git_global.h
     gittr.h
     gitclient.cpp gitclient.h
@@ -42,4 +41,11 @@ add_qtc_plugin(Git
     remotemodel.cpp remotemodel.h
     stashdialog.cpp stashdialog.h
     temporarypatchfile.cpp temporarypatchfile.h
+)
+
+qtc_add_resources(Git "images"
+  PREFIX "/git"
+  BASE "."
+  FILES
+  images/arrowup.png
 )
