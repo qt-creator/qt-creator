@@ -12,7 +12,6 @@ QtcPlugin {
     files: [
         "authwidget.cpp",
         "authwidget.h",
-        "copilot.qrc",
         "copilotclient.cpp",
         "copilotclient.h",
         "copilotconstants.h",
@@ -27,5 +26,14 @@ QtcPlugin {
         name: "long description"
         files: "Description.md"
         fileTags: "pluginjson.longDescription"
+    }
+
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "images/copilot.png",
+            "images/copilot@2x.png",
+        ]
     }
 }
