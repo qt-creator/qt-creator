@@ -37,6 +37,8 @@
 
 #include <QApplication>
 #include <QHeaderView>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPainter>
@@ -715,6 +717,29 @@ public:
             settings.enabledTools.enableGroupsForThisRun(groups);
         }
 
+        // "-mcp-info-file <path>" tells a caller that started this instance where
+        // the server listens, which matters with "-mcp-port 0". The file only
+        // appears once the tools are registered, so its existence is the signal
+        // that the server can be used. "-" prints the same line to stdout instead.
+        const int infoIndex = arguments.indexOf("-mcp-info-file");
+        if (infoIndex >= 0) {
+            if (infoIndex + 1 >= arguments.size())
+                return ResultError(Tr::tr("-mcp-info-file requires a file argument."));
+            const QString info = arguments.at(infoIndex + 1);
+            if (info == "-") {
+                if (arguments.contains("-mcp-stdio"))
+                    return ResultError(Tr::tr("-mcp-info-file - cannot be used with -mcp-stdio."));
+                m_infoToStdout = true;
+            } else {
+                m_infoFile = FilePath::fromUserInput(info);
+                m_infoFile.removeFile();
+            }
+            connect(ICore::instance(), &ICore::coreOpened, this, [this] {
+                m_coreOpened = true;
+                writeInfoFile();
+            });
+        }
+
         // Dump the registered tools to a qdoc fragment and quit, for the doc
         // build to keep the tool list current. Hooked to coreOpened so every
         // plugin has registered its tools first; the server is not needed.
@@ -758,6 +783,8 @@ public:
     ShutdownFlag aboutToShutdown() final
     {
         qDeleteAll(m_server.boundTcpServers());
+        if (!m_infoFile.isEmpty())
+            m_infoFile.removeFile();
         if (m_stdinReader && m_stdinReader->isRunning()) {
             m_stdinReader->terminate(); // The thread is blocked in getline() on stdin.
             m_stdinReader->wait(200);
@@ -779,6 +806,8 @@ public:
 
         if (!settings.enabled()) {
             qCInfo(mcpPlugin) << "MCP server is disabled in settings, not starting.";
+            m_info = {{"error", "The MCP server is disabled."}};
+            writeInfoFile();
             return;
         }
 
@@ -788,10 +817,12 @@ public:
         if (!tcpServer->listen(settings.listenAddress.hostAddress(), settings.port())
             || !m_server.bind(tcpServer)) {
             delete tcpServer;
-            MessageManager::writeFlashing(
-                Tr::tr("Failed to start MCP server on \"%1:%2\".")
-                    .arg(settings.listenAddress.hostAddress().toString())
-                    .arg(settings.port()));
+            const QString error = Tr::tr("Failed to start MCP server on \"%1:%2\".")
+                                      .arg(settings.listenAddress.hostAddress().toString())
+                                      .arg(settings.port());
+            MessageManager::writeFlashing(error);
+            m_info = {{"error", error}};
+            writeInfoFile();
         } else {
             qCInfo(mcpPlugin).noquote()
                 << "MCP server started successfully on"
@@ -822,7 +853,41 @@ public:
                 {}};
 
             QTC_CHECK(McpManager::registerMcpServer(serverInfo));
+
+            m_info = {{"url", url.toString()},
+                      {"port", tcpServer->serverPort()},
+                      {"pid", QCoreApplication::applicationPid()}};
+            if (!token.isEmpty())
+                m_info.insert("token", QString::fromUtf8(token));
+            writeInfoFile();
         }
+    }
+
+    // Written under a temporary name and renamed, so that a caller polling for
+    // the file never reads half of it. Owner-only: it carries the token.
+    void writeInfoFile()
+    {
+        if (!m_coreOpened)
+            return;
+        const QByteArray contents = QJsonDocument(m_info).toJson(QJsonDocument::Compact) + '\n';
+        if (m_infoToStdout) {
+            std::fwrite(contents.constData(), 1, size_t(contents.size()), stdout);
+            std::fflush(stdout);
+            return;
+        }
+        if (m_infoFile.isEmpty())
+            return;
+        const FilePath temp = m_infoFile.stringAppended(".tmp");
+        temp.removeFile();
+        if (!temp.writeFileContents({})
+            || !temp.setPermissions(QFile::ReadOwner | QFile::WriteOwner)
+            || !temp.writeFileContents(contents)) {
+            qCWarning(mcpPlugin) << "Cannot write" << temp.toUserOutput();
+            return;
+        }
+        m_infoFile.removeFile();
+        if (const Result<> res = temp.renameFile(m_infoFile); !res)
+            qCWarning(mcpPlugin) << res.error();
     }
 
     // Write a qdoc \table of every registered tool (name + description),
@@ -1024,6 +1089,11 @@ private:
 
     std::unique_ptr<StdinReader> m_stdinReader;
     std::function<void(QByteArray)> m_stdioInput;
+
+    FilePath m_infoFile;
+    bool m_infoToStdout = false;
+    QJsonObject m_info;
+    bool m_coreOpened = false;
 
     McpServerPluginSettings settings{this};
     McpServerSettingsPage settingsPage{&settings};
