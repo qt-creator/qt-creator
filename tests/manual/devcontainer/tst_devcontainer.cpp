@@ -5,6 +5,7 @@
 #include <devcontainer/devcontainer.h>
 #include <devcontainer/devcontainerconfig.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
@@ -1091,8 +1092,9 @@ static FilePath writeDockerConfig(const FilePath &dir, QJsonObject config)
         config.insert("currentContext", currentContext);
         const FilePath contexts = FilePath::fromUserInput(QDir::homePath()) / ".docker"
                                   / "contexts";
-        if (!(dir / "contexts").exists())
-            QFile::link(contexts.path(), (dir / "contexts").path());
+        const FilePath ownContexts = dir / "contexts";
+        if (!ownContexts.removeRecursively() || !contexts.copyRecursively(ownContexts))
+            return {};
     }
     if (!(dir / "config.json").writeFileContents(QJsonDocument(config).toJson()))
         return {};
@@ -1273,13 +1275,22 @@ echo from-registry > /usr/local/share/regfeat.txt
         logMessages.clear();
         const FilePath binDir = registryDir / "bin";
         QVERIFY_RESULT(binDir.ensureWritableDir());
-        const FilePath helper = binDir / "docker-credential-qtctest";
-        QVERIFY_RESULT(helper.writeFileContents(QString(R"(#!/bin/sh
+        const FilePath helperInput = registryDir / "helper-input";
+        const FilePath helper = binDir
+                                / (HostOsInfo::isWindowsHost() ? "docker-credential-qtctest.bat"
+                                                             : "docker-credential-qtctest");
+        QVERIFY_RESULT(helper.writeFileContents(
+            (HostOsInfo::isWindowsHost() ? QString(R"(@echo off
+findstr "^" > "%1"
+echo {"Username": "tester", "Secret": "secret"}
+)")
+                                             .arg(helperInput.nativePath())
+                                       : QString(R"(#!/bin/sh
 cat > "%1"
 echo '{"Username": "tester", "Secret": "secret"}'
 )")
-                                                    .arg((registryDir / "helper-input").path())
-                                                    .toUtf8()));
+                                             .arg(helperInput.path()))
+                .toUtf8()));
         QVERIFY_RESULT(
             helper.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
 
@@ -1293,7 +1304,7 @@ echo '{"Username": "tester", "Secret": "secret"}'
         QCOMPARE(result.doneWith, DoneWith::Success);
         QCOMPARE(runInContainer(result, {"cat", {"/usr/local/share/regfeat.txt"}}), "from-registry");
         QCOMPARE(
-            (registryDir / "helper-input").fileContents().value_or(QByteArray()).trimmed(),
+            helperInput.fileContents().value_or(QByteArray()).trimmed(),
             registry.toUtf8());
     }
 
