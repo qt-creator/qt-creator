@@ -1446,28 +1446,20 @@ static ExecutableItem runningContainerDetailsTask(
         [containerDetails, commonConfig]() -> CommandLine {
             const QString userName
                 = remoteUser(commonConfig).value_or(containerUser(*containerDetails));
-            QString userEscapedForShell = userName;
-            userEscapedForShell.replace(QRegularExpression("(['\\\\])"), "\\\\1");
             QString userEscapedForGrep = userName;
-            userEscapedForGrep.replace(QRegularExpression("([.*+?^${}()|[\\]\\\\])"), "\\\\1")
-                .replace('\'', "\\'");
+            userEscapedForGrep.replace(QRegularExpression("([.*+?^${}()|[\\]\\\\])"), "\\\\1");
 
-            CommandLine testGetEnt{
-                "command",
-                {"-v", "getent", {">/dev/null", CommandLine::Raw}, {"2>&1", CommandLine::Raw}}};
-            const CommandLine getPasswdViaGetent{"getent", {"passwd", userName}};
-            const CommandLine getPasswdViaGrep{
-                "grep",
-                {"-E", QString("^(%1|^[^:]*:[^:]*:%1:)").arg(userEscapedForGrep), "/etc/passwd"}};
-            const CommandLine trueCmd{"true"};
-
-            testGetEnt.addCommandLineWithAnd(getPasswdViaGetent);
-            testGetEnt.addCommandLineWithOr(getPasswdViaGrep);
-            testGetEnt.addCommandLineWithOr(trueCmd);
-
-            CommandLine getShellCmd{"/bin/sh", {"-c"}};
-            getShellCmd.addCommandLineAsSingleArg(testGetEnt);
-            return getShellCmd;
+            // The script runs in the shell of the container, so it is quoted for Linux whatever
+            // the host is.
+            const QString script
+                = QString("command -v getent >/dev/null 2>&1 && getent passwd %1"
+                          " || grep -E %2 /etc/passwd || true")
+                      .arg(
+                          ProcessArgs::quoteArg(userName, OsTypeLinux),
+                          ProcessArgs::quoteArg(
+                              QString("^(%1:|[^:]*:[^:]*:%1:)").arg(userEscapedForGrep),
+                              OsTypeLinux));
+            return CommandLine{"/bin/sh", {"-c", script}};
         },
         [instanceConfig,
          containerDetails,
@@ -1894,6 +1886,21 @@ static ExecutableItem startContainerRecipe(
     // clang-format on
 }
 
+// The container is set up and used with the shell and tools of Linux.
+static QSyncTask requireLinuxImage(
+    const Storage<ImageDetails> &imageDetails, const InstanceConfig &instanceConfig)
+{
+    return QSyncTask([imageDetails, instanceConfig] {
+        const Result<OsType> osType = osTypeFromString(imageDetails->Os);
+        if (osType && *osType == OsTypeLinux)
+            return DoneResult::Success;
+        instanceConfig.logFunction(
+            Tr::tr("The image is for \"%1\", but dev containers need a Linux image.")
+                .arg(imageDetails->Os));
+        return DoneResult::Error;
+    });
+}
+
 static QSyncTask fillRunningInstance(
     const RunningInstance &runningInstance,
     const Storage<RunningContainerDetails> &runningDetails,
@@ -2185,6 +2192,7 @@ static Result<Group> prepareContainerRecipe(
         fetchFeaturesRecipe(featuresState, commonConfig, instanceConfig),
         ProcessTask(setupBuildImage),
         inspectImageTask(imageDetails, instanceConfig, baseImageName(instanceConfig)),
+        requireLinuxImage(imageDetails, instanceConfig),
         finalizeImageRecipe(featuresState, imageDetails, baseImageName(instanceConfig),
                             commonConfig, instanceConfig),
         createContainerRecipe(
@@ -2224,6 +2232,7 @@ static Result<Group> prepareContainerRecipe(
         initializeCommandRecipe(commonConfig, instanceConfig),
         fetchFeaturesRecipe(featuresState, commonConfig, instanceConfig),
         ensureImageRecipe(imageDetails, imageConfig.image, instanceConfig),
+        requireLinuxImage(imageDetails, instanceConfig),
         finalizeImageRecipe(featuresState, imageDetails, imageConfig.image, commonConfig, instanceConfig),
         createContainerRecipe(imageDetails, featuresState, lifecycle, imageConfig, commonConfig, instanceConfig),
         inspectContainerTask(containerDetails, instanceConfig),
@@ -2639,6 +2648,7 @@ static Result<Group> prepareContainerRecipe(
                 composeBuildTask(serviceInfo, config, instanceConfig)
             },
             ensureImageRecipe(imageDetails, getBaseImage, instanceConfig),
+            requireLinuxImage(imageDetails, instanceConfig),
             QSyncTask(applyServiceUser),
             finalizeImageRecipe(featuresState, imageDetails, getBaseImage, commonConfig, instanceConfig)
         },
@@ -2649,6 +2659,7 @@ static Result<Group> prepareContainerRecipe(
         QSyncTask(updateLifecycle),
         inspectContainerTask(containerDetails, instanceConfig, containerId),
         inspectImageTask(imageDetails, instanceConfig, getImage),
+        requireLinuxImage(imageDetails, instanceConfig),
         runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig, containerId),
         runLifecycleHooksRecipe(featuresState, lifecycle, commonConfig, instanceConfig, containerId),
         fillRunningInstance(runningInstance, runningDetails, imageDetails, featuresState, commonConfig, containerId)
@@ -2881,7 +2892,14 @@ static WrappedProcessInterface *makeProcessInterface(
         dockerCmd.addArgs({"/bin/sh", "-c"});
 
         CommandLine exec("exec");
-        exec.addCommandLineAsArgs(setupData.m_commandLine, CommandLine::Raw);
+        const CommandLine &cmdLine = setupData.m_commandLine;
+        if (cmdLine.executable().osType() == OsTypeWindows) {
+            // The arguments are quoted for Windows, but the shell in the container is a Linux one.
+            exec.addArg(cmdLine.executable().path(), OsTypeLinux);
+            exec.addArgs(cmdLine.splitArguments(), OsTypeLinux);
+        } else {
+            exec.addCommandLineAsArgs(cmdLine, CommandLine::Raw);
+        }
 
         if (!setupData.m_ptyData) {
             //            auto osAndArch = osTypeAndArch();
