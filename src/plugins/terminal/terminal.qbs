@@ -16,7 +16,6 @@ QtcPlugin {
         "shellintegration.h",
         "shortcutmap.cpp",
         "shortcutmap.h",
-        "terminal.qrc",
         "terminalconstants.h",
         "terminalicons.h",
         "terminalpane.cpp",
@@ -30,5 +29,25 @@ QtcPlugin {
         "terminalwidget.cpp",
         "terminalwidget.h",
     ]
-}
 
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "images/keyboardlock.png",
+            "images/keyboardlock@2x.png",
+            "images/settingscategory_terminal.png",
+            "images/settingscategory_terminal@2x.png",
+            "images/terminal.png",
+            "images/terminal@2x.png",
+            "shellintegrations/shellintegration-bash.sh",
+            "shellintegrations/shellintegration-env.zsh",
+            "shellintegrations/shellintegration-login.zsh",
+            "shellintegrations/shellintegration-profile.zsh",
+            "shellintegrations/shellintegration-rc.zsh",
+            "shellintegrations/shellintegration.fish",
+            "shellintegrations/shellintegration.ps1",
+            "shellintegrations/shellintegration-clink.lua",
+        ]
+    }
+}

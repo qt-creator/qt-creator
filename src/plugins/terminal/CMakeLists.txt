@@ -7,7 +7,6 @@ add_qtc_plugin(Terminal
     shellintegration.cpp shellintegration.h
     shellmodel.cpp shellmodel.h
     shortcutmap.cpp shortcutmap.h
-    terminal.qrc
     terminalconstants.h
     terminalicons.h
     terminalpane.cpp terminalpane.h
@@ -24,4 +23,24 @@ add_qtc_plugin(Terminal
     ATTRIBUTION_IDS
       terminal-shellintegrations
       terminal-shellintegrations-clink
+)
+
+qtc_add_resources(Terminal "images"
+  PREFIX "/terminal"
+  BASE "."
+  FILES
+    images/keyboardlock.png
+    images/keyboardlock@2x.png
+    images/settingscategory_terminal.png
+    images/settingscategory_terminal@2x.png
+    images/terminal.png
+    images/terminal@2x.png
+    shellintegrations/shellintegration-bash.sh
+    shellintegrations/shellintegration-env.zsh
+    shellintegrations/shellintegration-login.zsh
+    shellintegrations/shellintegration-profile.zsh
+    shellintegrations/shellintegration-rc.zsh
+    shellintegrations/shellintegration.fish
+    shellintegrations/shellintegration.ps1
+    shellintegrations/shellintegration-clink.lua
 )
