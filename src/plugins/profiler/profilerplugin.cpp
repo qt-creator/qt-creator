@@ -24,6 +24,7 @@
 #include "tests/perfrecordreader_test.h"
 #include "tests/perfresourcecounter_test.h"
 #include "tests/perfsampler_test.h"
+#include "tests/perfsamplersettings_test.h"
 
 #include "tests/calltreeview_test.h"
 #include "tests/ctfloader_test.h"
@@ -108,7 +109,9 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createPerfTraceConverterTest);
         addTestCreator(createPerfRecordReaderTest);
         addTestCreator(createDwarfLineTableTest);
+#ifdef Q_OS_LINUX
         addTestCreator(createPerfSamplerTest);
+#endif
         addTestCreator(createPerfSamplerSettingsTest);
         addTestCreator(createPerfResourceCounterTest);
 #endif

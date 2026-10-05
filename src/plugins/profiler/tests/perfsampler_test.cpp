@@ -3,28 +3,22 @@
 
 #include "perfsampler_test.h"
 
-#include <profiler/combinedsampler.h>
 #include <profiler/perfsampler.h>
 #include <profiler/sampler.h>
 #include <profiler/sampletrace.h>
 
 #include <utils/environment.h>
 #include <utils/filepath.h>
-#include <utils/hostosinfo.h>
-#include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>
 
 #include <QtTaskTree/QTaskTree>
 
-#include <QAbstractButton>
-#include <QComboBox>
 #include <QCoreApplication>
 #include <QDeadlineTimer>
 #include <QDir>
 #include <QElapsedTimer>
 #include <QFile>
 #include <QTemporaryDir>
-#include <QTableView>
 #include <QTest>
 #include <QTimer>
 
@@ -40,65 +34,6 @@ using namespace Qt::StringLiterals;
 using namespace std::chrono_literals;
 
 namespace Profiler::Internal {
-
-class PerfSamplerSettingsTest final : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void testOptionsWidget_data()
-    {
-        QTest::addColumn<bool>("combined");
-        QTest::newRow("standalone") << false;
-        QTest::newRow("combined") << true;
-    }
-
-    void testOptionsWidget()
-    {
-        QFETCH(bool, combined);
-        PerfSamplerSettings perfSettings;
-        perfSettings.perfSettings.callgraphMode.setValue(0);
-        perfSettings.downloadDebugInfo.setValue(false);
-        CombinedSamplerSettings combinedSettings;
-        combinedSettings.setPerfSamplerSettings(&perfSettings);
-        SamplerSettings *settings = combined ? static_cast<SamplerSettings *>(&combinedSettings)
-                                            : &perfSettings;
-        QWidget widget;
-        settings->layouter()().attachTo(&widget);
-
-        QTableView *events = widget.findChild<QTableView *>();
-        QVERIFY(events);
-        QVERIFY(events->isVisibleTo(&widget));
-
-        QComboBox *callgraph = nullptr;
-        for (QComboBox *combo : widget.findChildren<QComboBox *>()) {
-            if (combo->findText("frame pointer") >= 0)
-                callgraph = combo;
-        }
-        QVERIFY(callgraph);
-        QVERIFY(callgraph->isVisibleTo(&widget));
-        callgraph->setCurrentIndex(callgraph->findText("frame pointer"));
-        QCOMPARE(perfSettings.perfSettings.callgraphMode.itemValue().toString(), "fp");
-        QVERIFY(perfSettings.perfSettings.perfRecordArguments().contains("--call-graph fp"));
-
-        QAbstractButton *download = nullptr;
-        for (QAbstractButton *button : widget.findChildren<QAbstractButton *>()) {
-            if (button->text() == "Download missing debug information")
-                download = button;
-        }
-        QVERIFY(download);
-        QVERIFY(download->isVisibleTo(&widget));
-        download->click();
-        QVERIFY(perfSettings.downloadDebugInfo());
-
-        settings->setOptionsChosenElsewhere(true);
-        QVERIFY(!callgraph->isEnabled());
-        QVERIFY(!download->isEnabled());
-        settings->setOptionsChosenElsewhere(false);
-        QVERIFY(callgraph->isEnabled());
-        QVERIFY(download->isEnabled());
-    }
-};
 
 class PerfSamplerTest final : public QObject
 {
@@ -203,8 +138,6 @@ static QString failedRecordingError(const PerfSampler &sampler, const QString &p
 
 void PerfSamplerTest::initTestCase()
 {
-    if (!HostOsInfo::isLinuxHost())
-        QSKIP("The Perf sampler is Linux-only");
     if (Environment::systemEnvironment().searchInPath("perf").isEmpty())
         QSKIP("no \"perf\" in PATH");
 }
@@ -848,11 +781,6 @@ void PerfSamplerTest::testRecordsInlinedFunctions()
 QObject *createPerfSamplerTest()
 {
     return new PerfSamplerTest;
-}
-
-QObject *createPerfSamplerSettingsTest()
-{
-    return new PerfSamplerSettingsTest;
 }
 
 } // namespace Profiler::Internal

@@ -262,6 +262,13 @@ QtcPlugin {
     }
 
     QtcTestFiles {
+        name: "Perf sampler tests"
+        condition: qtc.withPluginTests && qbs.targetOS.contains("linux")
+        prefix: "tests/"
+        files: ["perfsampler_test.cpp", "perfsampler_test.h"]
+    }
+
+    QtcTestFiles {
         prefix: "tests/"
         files: [
             "dwarflinetable_test.cpp", "dwarflinetable_test.h",
@@ -270,8 +277,8 @@ QtcPlugin {
             "perfdataparser_test.cpp", "perfdataparser_test.h",
             "perftraceconverter_test.cpp", "perftraceconverter_test.h",
             "perfrecordreader_test.cpp", "perfrecordreader_test.h",
+            "perfsamplersettings_test.cpp", "perfsamplersettings_test.h",
             "perfresourcecounter_test.cpp", "perfresourcecounter_test.h",
-            "perfsampler_test.cpp", "perfsampler_test.h",
             "perfprofilertests.qrc",
 
             "calltreeview_test.cpp", "calltreeview_test.h",

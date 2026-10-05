@@ -59,7 +59,7 @@ if(WITH_TESTS)
     tests/perfdataparser_test.cpp tests/perfdataparser_test.h
     tests/perftraceconverter_test.cpp tests/perftraceconverter_test.h
     tests/perfrecordreader_test.cpp tests/perfrecordreader_test.h
-    tests/perfsampler_test.cpp tests/perfsampler_test.h
+    tests/perfsamplersettings_test.cpp tests/perfsamplersettings_test.h
     tests/dwarflinetable_test.cpp tests/dwarflinetable_test.h
     tests/perfprofilertests.qrc
   )
@@ -258,6 +258,11 @@ extend_qtc_plugin(Profiler
 extend_qtc_plugin(Profiler
   CONDITION NOT QTPROFILER_WASM
   SOURCES qmlprofilerdetailsrewriter.cpp
+)
+
+extend_qtc_plugin(Profiler
+  CONDITION WITH_TESTS AND CMAKE_SYSTEM_NAME STREQUAL "Linux"
+  SOURCES tests/perfsampler_test.cpp tests/perfsampler_test.h
 )
 
 extend_qtc_plugin(Profiler
