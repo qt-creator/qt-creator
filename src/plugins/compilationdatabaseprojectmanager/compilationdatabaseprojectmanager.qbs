@@ -25,14 +25,11 @@ QtcPlugin {
         files: [
             "compilationdatabasetests.cpp",
             "compilationdatabasetests.h",
-            "compilationdatabasetests.qrc",
         ]
     }
 
-    Group {
-        name: "Test resources"
-        prefix: "database_samples/"
-        fileTags: []
-        files: ["**/*"]
+    QtcTestResources {
+        Qt.core.resourcePrefix: "/"
+        files: ["database_samples/**/*"]
     }
 }

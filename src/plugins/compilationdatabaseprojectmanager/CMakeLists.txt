@@ -18,5 +18,12 @@ extend_qtc_plugin(CompilationDatabaseProjectManager
   SOURCES
     compilationdatabasetests.cpp
     compilationdatabasetests.h
-    compilationdatabasetests.qrc
+)
+
+file(GLOB_RECURSE test_resources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} database_samples/*)
+qtc_add_resources(CompilationDatabaseProjectManager "test_resouces"
+  CONDITION WITH_TESTS
+  PREFIX "/"
+  BASE "."
+  FILES ${test_resources}
 )
