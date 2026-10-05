@@ -352,7 +352,16 @@ public:
     {
         AspectContainer::apply();
         for (auto it = m_toolAspects.cbegin(); it != m_toolAspects.cend(); ++it)
-            ToolRegistry::enableTool(it.key(), it.value()->value());
+            ToolRegistry::enableTool(it.key(), isToolEnabled(it.key(), it.value()->value()));
+    }
+
+    // Enables the tools of the given groups for this run only, without
+    // changing what is stored.
+    void enableGroupsForThisRun(const QStringList &groups)
+    {
+        m_groupsForThisRun = groups;
+        for (auto it = m_toolAspects.cbegin(); it != m_toolAspects.cend(); ++it)
+            ToolRegistry::enableTool(it.key(), isToolEnabled(it.key(), it.value()->value()));
     }
 
 private:
@@ -368,10 +377,16 @@ private:
             aspect->setDefaultValue(toolEnabledByDefault(name));
             const SettingsGroupNester nester({"McpServer", "EnabledTools"});
             aspect->readSettings();
-            ToolRegistry::enableTool(name, aspect->value());
+            ToolRegistry::enableTool(name, isToolEnabled(name, aspect->value()));
             m_toolAspects[name] = aspect;
             m_toolMetadata[name] = tool;
         }
+    }
+
+    bool isToolEnabled(const QString &toolName, bool stored) const
+    {
+        return stored || m_groupsForThisRun.contains("all")
+               || m_groupsForThisRun.contains(toolGroup(toolName));
     }
 
     Layouting::Column buildLayout()
@@ -541,6 +556,7 @@ private:
 
     QMap<QString, BoolAspect *> m_toolAspects;
     QMap<QString, Schema::Tool> m_toolMetadata;
+    QStringList m_groupsForThisRun;
 };
 
 // 128 bits from the system generator, hex encoded so it survives a command line
@@ -648,7 +664,10 @@ public:
             "Qt Creator's urlish form (e.g. ssh://user@host/path, docker://id/path); remote "
             "access is handled transparently, so there is no need for device-specific file "
             "tools. Use file_plain_text/set_file_plain_text for text and "
-            "read_file_bytes/write_file_bytes for binary content.");
+            "read_file_bytes/write_file_bytes for binary content. The ui_* tools, which "
+            "drive Qt Creator's own widgets, are off by default and not listed until "
+            "enabled: start Qt Creator with \"-mcp-enable-tools ui\" or turn them on in "
+            "the MCP tool selection.");
         settings.readSettings();
 
         // Allow overriding the listen port from the command line, e.g. for
@@ -682,6 +701,18 @@ public:
             if (token.isEmpty())
                 return ResultError(Tr::tr("-mcp-token requires a non-empty token."));
             settings.setAuthTokenOverride(token);
+        }
+
+        // "-mcp-enable-tools ui,debugger" turns on tool groups that are off by
+        // default or by stored settings, "all" every tool, for a scripted
+        // instance that should not depend on what is stored.
+        for (int i = 0; i + 1 < arguments.size(); ++i) {
+            if (arguments.at(i) != "-mcp-enable-tools")
+                continue;
+            const QStringList groups = arguments.at(i + 1).split(',', Qt::SkipEmptyParts);
+            if (groups.isEmpty())
+                return ResultError(Tr::tr("-mcp-enable-tools requires a tool group."));
+            settings.enabledTools.enableGroupsForThisRun(groups);
         }
 
         // Dump the registered tools to a qdoc fragment and quit, for the doc

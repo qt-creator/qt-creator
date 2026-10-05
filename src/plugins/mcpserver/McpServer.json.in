@@ -32,6 +32,11 @@
             "Description" : "Require the given bearer token for this run instead of the stored one (visible to anyone who can read this command line)"
         },
         {
+            "Name" : "-mcp-enable-tools",
+            "Parameter" : "groups",
+            "Description" : "Enable the tools of the given comma-separated groups for this run, e.g. \"ui\" for the widget tools that are off by default, or \"all\""
+        },
+        {
             "Name" : "-mcp-stdio",
             "Description" : "Serve the MCP protocol over stdin/stdout (newline-delimited JSON-RPC), for MCP clients that spawn the server as a subprocess"
         },
