@@ -73,18 +73,12 @@ QtcPlugin {
             "clangtoolspreconfiguredsessiontests.h",
             "clangtoolsunittests.cpp",
             "clangtoolsunittests.h",
-            "clangtoolsunittests.qrc",
             "readexporteddiagnosticstest.cpp",
             "readexporteddiagnosticstest.h",
         ]
     }
 
-    Group {
-        name: "Unit test resources"
-        prefix: "unit-tests/"
-        fileTags: []
-        files: ["**/*"]
-    }
+    QtcTestResources { files: ["unit-tests/**/*"] }
 
     Group {
         name: "Other files"
