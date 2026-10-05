@@ -19,7 +19,6 @@ QtcPlugin {
         "devicectlutils.h",
         "deviceinfo.cpp",
         "deviceinfo.h",
-        "ios.qrc",
         "iosbuildconfiguration.cpp",
         "iosbuildconfiguration.h",
         "iosbuildstep.cpp",
@@ -52,4 +51,15 @@ QtcPlugin {
         "simulatorcontrol.cpp",
         "simulatorcontrol.h",
     ]
+
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "images/iosdevice.png",
+            "images/iosdevice@2x.png",
+            "images/iosdevicesmall.png",
+            "images/iosdevicesmall@2x.png",
+        ]
+    }
 }

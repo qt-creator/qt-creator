@@ -5,7 +5,6 @@ add_qtc_plugin(Ios
     devicectlutils.cpp
     devicectlutils.h
     deviceinfo.cpp deviceinfo.h
-    ios.qrc
     iosbuildconfiguration.cpp iosbuildconfiguration.h
     iosbuildstep.cpp iosbuildstep.h
     iosconfigurations.cpp iosconfigurations.h
@@ -28,4 +27,14 @@ add_qtc_plugin(Ios
 extend_qtc_plugin(Ios
   CONDITION APPLE
   DEPENDS ${FWCoreFoundation} ${FWIOKit}
+)
+
+qtc_add_resources(Ios "images"
+  PREFIX "/ios"
+  BASE "."
+  FILES
+    images/iosdevice.png
+    images/iosdevice@2x.png
+    images/iosdevicesmall.png
+    images/iosdevicesmall@2x.png
 )
