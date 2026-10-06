@@ -3,7 +3,6 @@ add_qtc_plugin(Beautifier
   PLUGIN_DEPENDS Core ProjectExplorer TextEditor
   SOURCES
     artisticstyle/artisticstyle.cpp artisticstyle/artisticstyle.h
-    beautifier.qrc
     beautifierconstants.h
     beautifierplugin.cpp
     beautifiertool.cpp beautifiertool.h
@@ -14,4 +13,12 @@ add_qtc_plugin(Beautifier
     configurationpanel.cpp configurationpanel.h
     generalsettings.cpp generalsettings.h
     uncrustify/uncrustify.cpp uncrustify/uncrustify.h
+)
+
+qtc_add_resources(Beautifier "images"
+  PREFIX "/beautifier"
+  BASE "."
+  FILES
+    images/settingscategory_beautifier.png
+    images/settingscategory_beautifier@2x.png
 )

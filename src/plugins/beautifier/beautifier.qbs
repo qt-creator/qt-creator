@@ -11,7 +11,6 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
 
     files: [
-        "beautifier.qrc",
         "beautifierconstants.h",
         "beautifierplugin.cpp",
         "beautifiertool.h",
@@ -51,6 +50,15 @@ QtcPlugin {
         files: [
             "uncrustify.cpp",
             "uncrustify.h",
+        ]
+    }
+
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "images/settingscategory_beautifier.png",
+            "images/settingscategory_beautifier@2x.png",
         ]
     }
 }
