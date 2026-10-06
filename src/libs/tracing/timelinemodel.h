@@ -124,6 +124,12 @@ public:
     virtual int collapsedRow(int index) const;
     int row(int index) const;
 
+    // Whether the rows are the selection ids: every row holds exactly one of
+    // them and every one of them has a row of its own, as most models lay
+    // their expanded rows out. Models whose rows mean something else - a
+    // nesting level, a thread, a group of ids - leave this false.
+    virtual bool rowsAreSelectionIds() const;
+
     // Invoked when a details-panel row is double-clicked (row = index into the
     // orderedDetails content). Default: no-op. Models that map detail rows to a
     // source location override this and emit gotoSourceLocation().

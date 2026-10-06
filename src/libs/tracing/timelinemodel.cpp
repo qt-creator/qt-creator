@@ -668,6 +668,16 @@ int TimelineModel::collapsedRow(int index) const
 }
 
 /*!
+    Returns whether the rows of this model are its selection ids: whether every
+    row holds exactly one of them and every one of them has a row of its own.
+    The default is false, for the models whose rows mean something else.
+*/
+bool TimelineModel::rowsAreSelectionIds() const
+{
+    return false;
+}
+
+/*!
     Returns the ID of the selection group the event with event ID \a index belongs to. Selection
     groups are local to the model and the model can arbitrarily assign events to selection groups
     when inserting them.

@@ -78,6 +78,7 @@ public:
 
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;
+    bool rowsAreSelectionIds() const override { return true; }
     int typeId(int index) const override;
     QRgb color(int index) const override;
     float relativeHeight(int index) const override;

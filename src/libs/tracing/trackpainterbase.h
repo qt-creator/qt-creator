@@ -14,6 +14,8 @@
 
 #include <utils/stylehelper.h>
 
+#include <optional>
+
 QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
@@ -120,6 +122,11 @@ protected:
         QList<int> rowCache;
         QList<QRgb> colorCache;
         QList<float> relHeightCache;
+        // Which rows hold more than one selection id, and whether the model's
+        // rows are its selection ids, as the expanded tracks mostly lay them
+        // out. Both are read by selectionIdOutlines().
+        QList<bool> mixedRowCache;
+        bool rowsSplitBySelectionId = false;
     };
 
     // Range-dependent fill geometry for one track, expressed as plain
@@ -205,8 +212,24 @@ private:
     void rebuildGeometry();          // recompute offsets/total height
     int trackAt(int contentY) const; // index of the track containing content-Y, or -1
     int indexInModel(const TimelineModel *model, const QPoint &local) const;
+    std::optional<QRectF> itemRect(const TimelineModel *model, int index, int rowY, int rowH,
+                                   double relativeHeight) const;
+    const QList<QRectF> &selectionIdOutlines() const;
+
+    // Outlines of the items carrying the selected item's selection id, in
+    // track-local coordinates, and the state they were built for.
+    struct SelectionIdOutlines {
+        QList<QRectF> rects;
+        int track = -1;
+        int selectionId = -1;
+        qint64 rangeStart = 0;
+        qint64 rangeEnd = 0;
+        int width = 0;
+        bool valid = false;
+    };
 
     QList<Track> m_tracks;
+    mutable SelectionIdOutlines m_selectionIdOutlines;
     const TimelineNotesModel *m_notes = nullptr;
     QMetaObject::Connection m_notesConnection;
     QList<qint64> m_markers;

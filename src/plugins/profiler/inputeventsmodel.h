@@ -32,6 +32,7 @@ public:
     Timeline::ItemDetails details(int index) const override;
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;
+    bool rowsAreSelectionIds() const override { return true; }
 
 private:
     static QMetaEnum metaEnum(const char *name);

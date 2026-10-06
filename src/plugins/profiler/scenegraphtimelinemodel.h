@@ -63,6 +63,7 @@ public:
 
     int expandedRow(int index) const final;
     int collapsedRow(int index) const final;
+    bool rowsAreSelectionIds() const final { return true; }
     int typeId(int index) const final;
     QRgb color(int index) const final;
 

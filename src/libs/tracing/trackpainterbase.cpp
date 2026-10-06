@@ -18,6 +18,7 @@
 
 #include <cmath>
 #include <limits>
+#include <optional>
 #include <utility>
 
 namespace Timeline {
@@ -108,6 +109,7 @@ void TrackPainterBase::rebuildGeometry()
 void TrackPainterBase::refreshGeometry()
 {
     rebuildGeometry();
+    m_selectionIdOutlines.valid = false;
     invalidateBackendGeometry();
     requestUpdate();
 }
@@ -221,11 +223,31 @@ void TrackPainterBase::ensureAttrCache(Track &track) const
     track.rowCache.resize(n);
     track.colorCache.resize(n);
     track.relHeightCache.resize(n);
+    const int rowCount = model->rowCount();
+    track.mixedRowCache.assign(rowCount, false);
+    QList<int> rowSelectionIds(rowCount, -1);
+    QList<bool> rowUsed(rowCount, false);
+    bool anyMixedRow = false;
     for (int i = 0; i < n; ++i) {
-        track.rowCache[i] = model->row(i);
+        const int row = model->row(i);
+        track.rowCache[i] = row;
         track.colorCache[i] = model->color(i);
         track.relHeightCache[i] = model->relativeHeight(i);
+        if (row < 0 || row >= rowCount)
+            continue;
+        const int selectionId = model->selectionId(i);
+        if (!rowUsed[row]) {
+            rowUsed[row] = true;
+            rowSelectionIds[row] = selectionId;
+        } else if (rowSelectionIds[row] != selectionId) {
+            track.mixedRowCache[row] = true;
+            anyMixedRow = true;
+        }
     }
+    // A model only lays its rows out as its selection ids while it says so and
+    // its events agree: a mixed row means the rows are something else, as they
+    // are in the collapsed state of most of those models.
+    track.rowsSplitBySelectionId = model->rowsAreSelectionIds() && !anyMixedRow;
 }
 
 // Builds the range-dependent fill geometry for one track in track-local
@@ -586,6 +608,108 @@ void TrackPainterBase::buildScaleOverlay(const Track &track, OverlayScale &out) 
     }
 }
 
+// The rect of an item in track-local coordinates, clipped to the view, or
+// nothing if it is outside. The row offset and height are passed in, as the
+// callers that walk many items hoist them out of their loop.
+std::optional<QRectF> TrackPainterBase::itemRect(const TimelineModel *model, int index, int rowY,
+                                                 int rowH, double relativeHeight) const
+{
+    const int w = viewWidth();
+    const double itemH = rowH * relativeHeight;
+    const double itemY = rowY + rowH - itemH;
+    const qint64 start = model->startTime(index);
+    const qint64 end = model->endTime(index);
+    const double x1raw = timeToPixel(start, m_rangeStart, m_rangeEnd, double(w));
+    double x2raw = timeToPixel(end, m_rangeStart, m_rangeEnd, double(w));
+    x2raw = qMax(x2raw, x1raw + 1.0);
+    if (x2raw < 0.0 || x1raw > double(w))
+        return std::nullopt;
+    double x1 = qMax(x1raw, 0.0);
+    double x2 = qMin(x2raw, double(w));
+    return QRectF(x1, itemY, x2 - x1, itemH);
+}
+
+// The outlines of the visible items carrying the selected item's selection id,
+// the selected item among them, leaving out the rows the id says nothing
+// about, in track-local coordinates. Touching outlines of equal height within
+// a row are merged, so that a dense stretch does not turn into one stroke per
+// item. The overlay is built on every paint, including the ones hovering
+// triggers, and hovering moves the selection while it is not locked, so the
+// outlines are cached for the selection id - not the item, as every item of
+// one id yields the same outlines - range and width they were built for.
+const QList<QRectF> &TrackPainterBase::selectionIdOutlines() const
+{
+    SelectionIdOutlines &cache = m_selectionIdOutlines;
+    const int w = viewWidth();
+    Track *track = (m_selectedTrack >= 0 && m_selectedTrack < m_tracks.size())
+                       ? const_cast<Track *>(&m_tracks[m_selectedTrack])
+                       : nullptr;
+    const TimelineModel *model = track ? track->model : nullptr;
+    const bool outlined = model && !model->hidden() && !model->rendersAsDensity()
+                          && m_selectedItem >= 0 && m_selectedItem < model->count();
+    const int selectionId = outlined ? model->selectionId(m_selectedItem) : -1;
+    if (cache.valid && cache.track == m_selectedTrack && cache.selectionId == selectionId
+        && cache.rangeStart == m_rangeStart && cache.rangeEnd == m_rangeEnd
+        && cache.width == w) {
+        return cache.rects;
+    }
+    cache = {{}, m_selectedTrack, selectionId, m_rangeStart, m_rangeEnd, w, true};
+    if (!outlined)
+        return cache.rects;
+
+    const int first = model->firstIndex(m_rangeStart);
+    const int last = model->lastIndex(m_rangeEnd);
+    if (first < 0 || last < first)
+        return cache.rects;
+
+    ensureAttrCache(*track);
+    const int *rowCache = track->rowCache.constData();
+    const float *relHeightCache = track->relHeightCache.constData();
+    const int rowCount = model->rowCount();
+
+    // Cache per-row geometry once instead of calling the (range-independent)
+    // rowHeight/rowOffset accessors for every outlined event.
+    QVarLengthArray<int, 64> rowH(rowCount), rowY(rowCount);
+    for (int r = 0; r < rowCount; ++r) {
+        rowH[r] = model->rowHeight(r);
+        rowY[r] = model->rowOffset(r);
+    }
+
+    QVarLengthArray<std::optional<QRectF>, 64> runs(rowCount);
+    for (int i = first; i <= last; ++i) {
+        if (model->selectionId(i) != selectionId)
+            continue;
+        const int row = rowCache[i];
+        if (row < 0 || row >= rowCount)
+            continue;
+        // A row holding one selection id is outlined as a whole, which says
+        // nothing about the selected item, so it is left out. Models whose
+        // rows are their selection ids are the exception: there the outlines
+        // are the only thing marking the id.
+        if (!track->rowsSplitBySelectionId && !track->mixedRowCache.value(row))
+            continue;
+        const std::optional<QRectF> rect = itemRect(model, i, rowY[row], rowH[row],
+                                                    relHeightCache[i]);
+        if (!rect)
+            continue;
+        std::optional<QRectF> &run = runs[row];
+        // Merging items of different heights would enclose the empty space
+        // above the shorter one, so only equally tall ones are merged.
+        if (run && rect->left() <= run->right() && qFuzzyCompare(rect->top(), run->top())) {
+            run = run->united(*rect);
+            continue;
+        }
+        if (run)
+            cache.rects.append(*run);
+        run = rect;
+    }
+    for (const std::optional<QRectF> &run : std::as_const(runs)) {
+        if (run)
+            cache.rects.append(*run);
+    }
+    return cache.rects;
+}
+
 // Selection and hover borders, in widget(content) space (the track's
 // scroll-adjusted top is added).
 QList<TrackPainterBase::OverlayStroke> TrackPainterBase::buildSelectionOverlay() const
@@ -599,42 +723,38 @@ QList<TrackPainterBase::OverlayStroke> TrackPainterBase::buildSelectionOverlay()
                           : Utils::Theme::Token_Notification_Neutral_Muted);
     const QColor hoverColor = Utils::creatorColor(Utils::Theme::Token_Notification_Neutral_Muted);
 
-    const int w = viewWidth();
-    const auto appendOverlay = [&](int trackIndex, int idx) {
+    const auto appendStroke = [&](const QRectF &rect, const QColor &color, double lineWidth) {
+        const double adj = lineWidth / 2.0;
+        // Expand outward horizontally so the border does not cut into the
+        // item; keep it inset vertically, as before.
+        strokes.append({rect.adjusted(-adj, adj, adj, -adj).normalized(), color.rgb(), lineWidth});
+    };
+    const auto appendOverlay = [&](int trackIndex, int idx, const QColor &color,
+                                   double lineWidth) {
         if (trackIndex < 0 || trackIndex >= m_tracks.size() || idx < 0)
             return;
         const Track &track = m_tracks[trackIndex];
         const TimelineModel *model = track.model;
-        if (!model || idx >= model->count())
+        if (!model || model->hidden() || idx >= model->count())
             return;
-        const int topPx = track.yOffset - m_scrollOffset;
         const int row = model->row(idx);
-        const int rowH = model->rowHeight(row);
-        const int rowY = model->rowOffset(row);
-        const double relH = model->relativeHeight(idx);
-        const double itemH = rowH * relH;
-        const double itemY = topPx + rowY + rowH - itemH;
-        const qint64 start = model->startTime(idx);
-        const qint64 end = model->endTime(idx);
-        const double x1raw = timeToPixel(start, m_rangeStart, m_rangeEnd, double(w));
-        double x2raw = timeToPixel(end, m_rangeStart, m_rangeEnd, double(w));
-        x2raw = qMax(x2raw, x1raw + 1.0);
-        if (x2raw < 0.0 || x1raw > double(w))
-            return;
-        const bool isSelection = trackIndex == m_selectedTrack && idx == m_selectedItem;
-        const double lineWidth = isSelection ? 4 : 2;
-        double x1 = qMax(x1raw, 0.0);
-        double x2 = qMin(x2raw, double(w));
-        const QRectF itemRect(x1, itemY, x2 - x1, itemH);
-        const double adj = lineWidth / 2.0;
-        const QRgb color = (isSelection ? selectionColor : hoverColor).rgb();
-        // Expand outward horizontally so the border does not cut into the
-        // item; keep it inset vertically, as before.
-        strokes.append({itemRect.adjusted(-adj, adj, adj, -adj).normalized(), color, lineWidth});
+        const std::optional<QRectF> rect = itemRect(model, idx, model->rowOffset(row),
+                                                    model->rowHeight(row),
+                                                    model->relativeHeight(idx));
+        if (rect)
+            appendStroke(rect->translated(0, track.yOffset - m_scrollOffset), color, lineWidth);
     };
 
-    appendOverlay(m_hoveredTrack, m_hoveredItem);
-    appendOverlay(m_selectedTrack, m_selectedItem);
+    // Thinner than the hover border, which has the same colour while the
+    // selection is not locked.
+    if (m_selectedTrack >= 0 && m_selectedTrack < m_tracks.size()) {
+        const int topPx = m_tracks[m_selectedTrack].yOffset - m_scrollOffset;
+        for (const QRectF &rect : selectionIdOutlines())
+            appendStroke(rect.translated(0, topPx), selectionColor, 1);
+    }
+
+    appendOverlay(m_hoveredTrack, m_hoveredItem, hoverColor, 2);
+    appendOverlay(m_selectedTrack, m_selectedItem, selectionColor, 4);
     return strokes;
 }
 
