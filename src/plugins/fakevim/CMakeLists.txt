@@ -3,7 +3,6 @@ add_qtc_plugin(FakeVim
   PLUGIN_DEPENDS Core TextEditor
   PLUGIN_TEST_DEPENDS CppEditor
   SOURCES ${TEST_SOURCES}
-    fakevim.qrc
     fakevimactions.cpp fakevimactions.h
     fakevimhandler.cpp fakevimhandler.h
     fakevimplugin.cpp
@@ -14,4 +13,11 @@ add_qtc_plugin(FakeVim
 extend_qtc_plugin(FakeVim
   CONDITION WITH_TESTS
   SOURCES fakevim_test.cpp fakevim_test.h
+)
+
+qtc_add_resources(FakeVim "images"
+  PREFIX "/fakevim"
+  FILES
+    images/settingscategory_fakevim.png
+    images/settingscategory_fakevim@2x.png
 )
