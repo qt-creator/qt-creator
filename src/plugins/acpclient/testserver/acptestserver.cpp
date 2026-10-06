@@ -583,7 +583,9 @@ void Server::handleSetConfigOption(const QJsonValue &id, const QJsonObject &para
 
 void Server::handleInitializeV2(const QJsonValue &id, const QJsonObject &params)
 {
-    const auto request = V2::fromJson<V2::InitializeRequest>(QJsonValue(params));
+    // The client only offers protocol version 1, so check the request as one.
+    // Answering with version 2 anyway exercises the v2 adapter.
+    const auto request = fromJson<InitializeRequest>(QJsonValue(params));
     if (!request) {
         sendError(id, ErrorCode::Invalid_params, request.error());
         return;
