@@ -18,6 +18,7 @@
 
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
@@ -1660,6 +1661,8 @@ public:
         if (readOnlySource) {
             m_diffWidget->setReadOnly(true);
             m_diffWidget->setupGenericHighlighter();
+            if (!source->syntaxHighlighter())
+                source->resetSyntaxHighlighter([] { return new SyntaxHighlighter; });
         } else {
             m_hunkControls = new HunkControls(m_diffWidget);
         }
@@ -2192,6 +2195,7 @@ private:
         m_baselineWidget->setTextDocument(m_baselineDocument);
         m_baselineWidget->setReadOnly(true);
         m_baselineWidget->setupGenericHighlighter();
+        m_baselineDocument->resetSyntaxHighlighter([] { return new SyntaxHighlighter; });
         m_baselineDecorator = new InlineDiffDecorator(m_baselineWidget,
                                                       InlineDiffDecorator::DiffSide::Baseline);
         setupContextMenu(m_baselineWidget);
