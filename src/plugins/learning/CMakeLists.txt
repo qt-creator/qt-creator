@@ -9,10 +9,11 @@ add_qtc_plugin(Learning
     qtacademywelcomepage.h qtacademywelcomepage.cpp
 )
 
-extend_qtc_plugin(Learning
+qtc_add_resources(Learning "testcases"
   CONDITION WITH_TESTS
-  SOURCES
-     learning_test.qrc
+  PREFIX "/learning"
+  BASE "."
+  FILES testdata/courses.json
 )
 
 file(GLOB images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} overview/*.webp overview/*.json)

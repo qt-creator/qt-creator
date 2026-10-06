@@ -26,11 +26,7 @@ QtcPlugin {
         "qtacademywelcomepage.h",
     ]
 
-    QtcTestFiles {
-        files: [
-            "learning_test.qrc",
-        ]
-    }
+    QtcTestResources { files: "testdata/courses.json" }
 
     Group {
         name: "recommendations"
