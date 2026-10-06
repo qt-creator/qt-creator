@@ -711,7 +711,7 @@ def waitForFileSaved(msg):
 
 
 def waitForClosedAll():
-    label = "{type='QLabel' text~='%s' window=':Qt Creator_Core::Internal::MainWindow'}"
+    label = "{type='QLabel' text~='%s' visible='1' unnamed='1' window=':Qt Creator_Core::Internal::MainWindow'}"
     label = label % 'Open a document.*Drag and drop files here'
     try:
         waitForObject(label, 3000)
