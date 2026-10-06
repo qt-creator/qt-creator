@@ -16,7 +16,6 @@ add_qtc_plugin(Remote
     makeinstallstep.cpp makeinstallstep.h
     powershellutils.h
     publickeydeploymentdialog.cpp publickeydeploymentdialog.h
-    remotelinux.qrc
     remotelinux_constants.h
     remotelinux_export.h
     remotelinuxcustomrunconfiguration.cpp remotelinuxcustomrunconfiguration.h
@@ -45,4 +44,22 @@ extend_qtc_plugin(Remote
     remoterun_test.h
     windowsdevicedetection_test.cpp
     windowsdevicedetection_test.h
+)
+
+qtc_add_resources(Remote "images"
+  PREFIX "/remotelinux"
+  FILES
+    images/embeddedtarget.png
+    images/macosdevice.png
+    images/macosdevice@2x.png
+    images/macosdevicesmall.png
+    images/macosdevicesmall@2x.png
+    images/windowsdevice.png
+    images/windowsdevice@2x.png
+    images/windowsdevicesmall.png
+    images/windowsdevicesmall@2x.png
+    images/linuxdevice.png
+    images/linuxdevice@2x.png
+    images/linuxdevicesmall.png
+    images/linuxdevicesmall@2x.png
 )

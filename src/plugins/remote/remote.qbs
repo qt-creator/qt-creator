@@ -38,7 +38,6 @@ QtcPlugin {
         "powershellutils.h",
         "publickeydeploymentdialog.cpp",
         "publickeydeploymentdialog.h",
-        "remotelinux.qrc",
         "remotelinux_constants.h",
         "remotelinux_export.h",
         "remotelinuxcustomrunconfiguration.cpp",
@@ -69,7 +68,6 @@ QtcPlugin {
         "windowsdevice.h",
         "windowsdevicetester.cpp",
         "windowsdevicetester.h",
-        "images/embeddedtarget.png",
     ]
 
     QtcTestFiles {
@@ -80,6 +78,27 @@ QtcPlugin {
             "remoterun_test.h",
             "windowsdevicedetection_test.cpp",
             "windowsdevicedetection_test.h",
+        ]
+    }
+
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        Qt.core.resourcePrefix: "/remotelinux"
+        files: [
+            "images/embeddedtarget.png",
+            "images/macosdevice.png",
+            "images/macosdevice@2x.png",
+            "images/macosdevicesmall.png",
+            "images/macosdevicesmall@2x.png",
+            "images/windowsdevice.png",
+            "images/windowsdevice@2x.png",
+            "images/windowsdevicesmall.png",
+            "images/windowsdevicesmall@2x.png",
+            "images/linuxdevice.png",
+            "images/linuxdevice@2x.png",
+            "images/linuxdevicesmall.png",
+            "images/linuxdevicesmall@2x.png",
         ]
     }
 
