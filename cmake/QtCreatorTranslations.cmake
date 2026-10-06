@@ -18,6 +18,7 @@ function(_filter_source_files outvar)
     .*[.]pri
     .*[.]css
     "(^|/)testcases/.*"
+    "(^|/)unit_testdata/.*"
     "${binary_dir_regex}/.*"
   )
   list(JOIN _exclude_patterns "|" _exclude_pattern)
