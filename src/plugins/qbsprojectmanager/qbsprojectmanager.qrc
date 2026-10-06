@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/qbsprojectmanager">
-        <file>images/settingscategory_qbsprojectmanager.png</file>
-        <file>images/settingscategory_qbsprojectmanager@2x.png</file>
-    </qresource>
-</RCC>

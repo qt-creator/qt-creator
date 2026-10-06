@@ -21,7 +21,6 @@ add_qtc_plugin(QbsProjectManager
     qbsprofilessettingspage.cpp qbsprofilessettingspage.h
     qbsproject.cpp qbsproject.h
     qbsprojectimporter.cpp qbsprojectimporter.h
-    qbsprojectmanager.qrc
     qbsprojectmanager_global.h
     qbsprojectmanagertr.h
     qbsprojectmanagerconstants.h
@@ -30,4 +29,12 @@ add_qtc_plugin(QbsProjectManager
     qbsrequest.cpp qbsrequest.h
     qbssession.cpp qbssession.h
     qbssettings.cpp qbssettings.h
+)
+
+qtc_add_resources(QbsProjectManager "images"
+  PREFIX "/qbsprojectmanager"
+  BASE "."
+  FILES
+    images/settingscategory_qbsprojectmanager.png
+    images/settingscategory_qbsprojectmanager@2x.png
 )

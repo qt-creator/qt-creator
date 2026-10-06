@@ -54,7 +54,6 @@ QtcPlugin {
         "qbsproject.h",
         "qbsprojectimporter.cpp",
         "qbsprojectimporter.h",
-        "qbsprojectmanager.qrc",
         "qbsprojectmanager_global.h",
         "qbsprojectmanagertr.h",
         "qbsprojectmanagerconstants.h",
@@ -69,6 +68,15 @@ QtcPlugin {
         "qbssettings.cpp",
         "qbssettings.h",
     ]
+
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "images/settingscategory_qbsprojectmanager.png",
+            "images/settingscategory_qbsprojectmanager@2x.png",
+        ]
+    }
 
     // QML typeinfo stuff
     Group {
