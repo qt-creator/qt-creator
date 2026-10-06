@@ -102,16 +102,13 @@ QtcPlugin {
             "clangdtests.h",
             "clangfixittest.cpp",
             "clangfixittest.h",
-            "data/clangtestdata.qrc",
         ]
     }
 
-    Group {
-        name: "Test resources"
-        prefix: "test/data/"
-        fileTags: []
-        files: [ "*" ]
-        excludeFiles: "clangtestdata.qrc"
+    QtcTestResources {
+        Qt.core.resourcePrefix: "/unittests/ClangCodeModel"
+        Qt.core.resourceSourceBase: sourceDirectory + "/test/data"
+        files: ["test/data/*", "test/data/**/*"]
     }
 
     Group {
