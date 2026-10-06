@@ -48,7 +48,7 @@ using namespace Utils;
 
 namespace Profiler::Internal {
 
-const char MODE_PROFILER[]  = "Mode.Profiler";
+const char MODE_PROFILER[] = "Profiler";
 const char C_PROFILERMODE[] = "Profiler.ProfilerMode";
 const int P_MODE_PROFILER   = 84; // Between Debug (85) and Projects (83).
 
