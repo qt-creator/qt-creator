@@ -26,14 +26,22 @@ def main():
     if not appendToLine(waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget"), "Image {", "SyntaxError"):
         invokeMenuItem("File", "Exit")
         return
+
+    qmlLsEnabled = isQmlLSEnabled()
+    test.log("QML Language Server is %s" % ('enabled' if qmlLsEnabled else 'disabled'))
+
     # save all to invoke qml parsing
     invokeMenuItem("File", "Save All")
     # open issues list view
     ensureChecked(waitForObject(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton"))
     issuesView = waitForObject(":Qt Creator.Issues_QListView")
     # verify that error is properly reported
-    test.verify(checkSyntaxError(issuesView, ["Expected token `:'"], True),
-                "Verifying QML syntax error while parsing complex qt quick application.")
+    if qmlLsEnabled:
+        test.verify(checkSyntaxError(issuesView, ["Incomplete binding, expected token `:` or `{` [syntax]"], True, True),
+            "Verifying QML syntax error while parsing simple qt quick application")
+    else:
+        test.verify(checkSyntaxError(issuesView, ["Expected token `:'"], True),
+                    "Verifying QML syntax error while parsing complex qt quick application.")
     # exit qt creator
     invokeMenuItem("File", "Exit")
 # no cleanup needed, as whole testing directory gets properly removed after test finished
