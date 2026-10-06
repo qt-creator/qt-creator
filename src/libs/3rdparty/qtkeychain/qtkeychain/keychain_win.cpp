@@ -184,20 +184,8 @@ void ReadPasswordJobPrivate::scheduledStart()
         err = credRead(key, cred);
     }
     if (err != NoError) {
-        Error err;
-        QString msg;
-        switch (GetLastError()) {
-        case ERROR_NOT_FOUND:
-            err = EntryNotFound;
-            msg = tr("Password entry not found");
-            break;
-        default:
-            err = OtherError;
-            msg = tr("Could not decrypt data");
-            break;
-        }
-
-        q->emitFinishedWithError(err, msg);
+        q->emitFinishedWithError(err, err == EntryNotFound ? tr("Password entry not found")
+                                                           : tr("Could not decrypt data"));
         return;
     }
 
