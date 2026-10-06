@@ -100,13 +100,13 @@ def performMacroRenaming(newMacroName):
         type(cppEditorStr, "<Left>")
     invokeContextMenuItem(waitForObject(cppEditorStr), "Rename Symbol Under Cursor")
     waitForSearchResults()
-    validateSearchResult(2)
     replaceLineEdit = waitForObject("{leftWidget={text='Replace with:' type='QLabel' "
                                     "unnamed='1' visible='1'} "
                                     "type='Core::Internal::WideEnoughLineEdit' unnamed='1' "
                                     "visible='1' "
                                     "window=':Qt Creator_Core::Internal::MainWindow'}")
     replaceEditorContent(replaceLineEdit, newMacroName)
+    validateSearchResult(2)
     clickButton(waitForObject("{text='Replace' type='QToolButton' unnamed='1' visible='1' "
                               "window=':Qt Creator_Core::Internal::MainWindow'}"))
 
