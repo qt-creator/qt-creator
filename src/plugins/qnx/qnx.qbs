@@ -18,7 +18,6 @@ QtcPlugin {
         "qnxdeployqtlibrariesdialog.h",
         "qnxtoolchain.cpp",
         "qnxtoolchain.h",
-        "qnx.qrc",
         "qnxconstants.h",
         "qnxanalyzesupport.cpp",
         "qnxanalyzesupport.h",
@@ -39,4 +38,15 @@ QtcPlugin {
         "slog2inforunner.cpp",
         "slog2inforunner.h",
     ]
+
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "images/qnxdevice.png",
+            "images/qnxdevice@2x.png",
+            "images/qnxdevicesmall.png",
+            "images/qnxdevicesmall@2x.png",
+        ]
+    }
 }

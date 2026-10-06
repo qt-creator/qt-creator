@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/qnx">
-        <file>images/qnxdevice.png</file>
-        <file>images/qnxdevice@2x.png</file>
-        <file>images/qnxdevicesmall.png</file>
-        <file>images/qnxdevicesmall@2x.png</file>
-    </qresource>
-</RCC>
