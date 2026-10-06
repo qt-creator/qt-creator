@@ -140,14 +140,14 @@ std::pair<QByteArray, QString> protectData(const QByteArray &data)
 
 struct CredentialDeleter
 {
-    explicit CredentialDeleter(PCREDENTIALW cred) : m_cred(cred) { }
+    explicit CredentialDeleter(PCREDENTIALW &cred) : m_cred(cred) { }
     ~CredentialDeleter() {
         if (m_cred) {
             CredFree(m_cred);
         }
     }
 
-    PCREDENTIALW m_cred;
+    PCREDENTIALW &m_cred;
 };
 
 static Error credRead(const QString& target, PCREDENTIALW &cred) {
