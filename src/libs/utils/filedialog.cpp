@@ -94,6 +94,20 @@ constexpr int kHoverAlpha = 50;         // alpha of the (unselected) hover highl
 constexpr int kEditorDocMargin = 2;     // rename editor document margin
 constexpr int kMaxExtensionLen = 6;     // keep extension visible when eliding if shorter
 
+static QString moveToTrashText()
+{
+    if (HostOsInfo::isWindowsHost())
+        return Tr::tr("Move to Recycle Bin");
+    return Tr::tr("Move to Trash");
+}
+
+static QString moveToTrashError(const QStringList &failed)
+{
+    if (HostOsInfo::isWindowsHost())
+        return Tr::tr("Cannot move the following to the Recycle Bin:\n%1").arg(failed.join(u'\n'));
+    return Tr::tr("Cannot move the following to the Trash:\n%1").arg(failed.join(u'\n'));
+}
+
 // ===== Layout preference =====
 
 // Default follows the host: classic everywhere but macOS.
@@ -1639,7 +1653,7 @@ public:
     {
         const bool saveMode = m_acceptMode == QFileDialog::AcceptSave;
         m_gotoButton->setVisible(!m_classicLayout);
-        m_fileNameLabel->setText(saveMode ? Tr::tr("Save As:") : Tr::tr("File name:"));
+        m_fileNameLabel->setText(saveMode ? Tr::tr("Save as:") : Tr::tr("File name:"));
         m_fileNameLabel->setVisible(m_classicLayout);
         m_fileNameEdit->setVisible(m_classicLayout);
         const bool compactSave = !m_classicLayout && saveMode;
@@ -1917,7 +1931,7 @@ FileDialog::FileDialog(QWidget *parent)
         }
         if (!newDir.createDir()) {
             AsynchronousMessageBox::warning(
-                Tr::tr("New Folder"), Tr::tr("Could not create folder \"%1\".").arg(name));
+                Tr::tr("New Folder"), Tr::tr("Cannot create folder \"%1\".").arg(name));
             return;
         }
 
@@ -1969,9 +1983,7 @@ FileDialog::FileDialog(QWidget *parent)
                 failed << fp.toUserOutput();
         }
         if (!failed.isEmpty()) {
-            AsynchronousMessageBox::warning(
-                Tr::tr("Move to Bin"),
-                Tr::tr("Could not move the following to the bin:\n%1").arg(failed.join(u'\n')));
+            AsynchronousMessageBox::warning(moveToTrashText(), moveToTrashError(failed));
         }
 
         // Refresh so the trashed entries disappear from the listing.
@@ -2067,7 +2079,7 @@ FileDialog::FileDialog(QWidget *parent)
         if (!failed.isEmpty()) {
             AsynchronousMessageBox::warning(
                 Tr::tr("Paste"),
-                Tr::tr("Could not paste the following:\n%1").arg(failed.join(u'\n')));
+                Tr::tr("Cannot paste the following:\n%1").arg(failed.join(u'\n')));
         }
         setDirectory(d->m_currentDir);
     };
@@ -2095,8 +2107,8 @@ FileDialog::FileDialog(QWidget *parent)
     };
 
     QActionGroup *viewModeGroup = new QActionGroup(this);
-    QAction *iconViewAction = viewModeGroup->addAction(Icons::DOWNLOAD.icon(), Tr::tr("Icons view"));
-    QAction *listViewAction = viewModeGroup->addAction(Icons::MAGNIFIER.icon(), Tr::tr("List view"));
+    QAction *iconViewAction = viewModeGroup->addAction(Icons::DOWNLOAD.icon(), Tr::tr("Icon View"));
+    QAction *listViewAction = viewModeGroup->addAction(Icons::MAGNIFIER.icon(), Tr::tr("List View"));
 
     iconViewAction->setCheckable(true);
     iconViewAction->setIconVisibleInMenu(true);
@@ -2107,7 +2119,7 @@ FileDialog::FileDialog(QWidget *parent)
     connect(iconViewAction, &QAction::triggered, this, [this] { setViewMode(ViewMode::Icons); });
     connect(listViewAction, &QAction::triggered, this, [this] { setViewMode(ViewMode::List); });
 
-    QAction *showHiddenAction = new QAction(Tr::tr("Show hidden files"), this);
+    QAction *showHiddenAction = new QAction(Tr::tr("Show Hidden Files"), this);
     showHiddenAction->setIcon(Icons::EYE_OPEN_TOOLBAR.icon());
     showHiddenAction->setCheckable(true);
     showHiddenAction->setChecked(false);
@@ -2117,7 +2129,7 @@ FileDialog::FileDialog(QWidget *parent)
         d->m_proxy->setShowHidden(checked);
     });
 
-    QAction *hideFilteredAction = new QAction(Tr::tr("Hide filtered files"), this);
+    QAction *hideFilteredAction = new QAction(Tr::tr("Hide Filtered Files"), this);
     hideFilteredAction->setCheckable(true);
     hideFilteredAction->setChecked(HostOsInfo::isMacHost() ? false : true);
 
@@ -2125,7 +2137,7 @@ FileDialog::FileDialog(QWidget *parent)
         d->m_proxy->setHideFiltered(checked);
     });
 
-    QAction *showFullPathsAction = new QAction(Tr::tr("Show full paths in ComboBox"), this);
+    QAction *showFullPathsAction = new QAction(Tr::tr("Show Full Paths in Folder Selector"), this);
     showFullPathsAction->setCheckable(true);
     showFullPathsAction->setChecked(d->m_showFullPaths);
 
@@ -2134,7 +2146,7 @@ FileDialog::FileDialog(QWidget *parent)
         d->rebuildPathCombo();
     });
 
-    QAction *classicLayoutAction = new QAction(Tr::tr("Use classic layout"), this);
+    QAction *classicLayoutAction = new QAction(Tr::tr("Use Classic Layout"), this);
     classicLayoutAction->setCheckable(true);
     classicLayoutAction->setChecked(d->m_classicLayout);
     connect(classicLayoutAction, &QAction::toggled, this, [this](bool checked) {
@@ -2167,18 +2179,18 @@ FileDialog::FileDialog(QWidget *parent)
                 bindTo(&upButton),
                 icon(Icons::ARROW_UP),
                 Layouting::toolTip(
-                    withShortcut(Tr::tr("Go to parent directory"), parentShortcut)),
+                    withShortcut(Tr::tr("Go to Parent Folder"), parentShortcut)),
                 onClicked(this, goToParent),
             },
             QtDesignWidgets::IconButton {
                 bindTo(&d->m_gotoButton),
                 icon(Icons::SLASH),
-                Layouting::toolTip(withShortcut(Tr::tr("Go to folder"), gotoShortcut)),
+                Layouting::toolTip(withShortcut(Tr::tr("Go to Folder"), gotoShortcut)),
                 onClicked(this, [this] { d->m_gotoOverlay->popup(d->m_currentDir); }),
             },
             QtDesignWidgets::IconButton {
                 icon(Icons::SETTINGS),
-                Layouting::toolTip(Tr::tr("View options")),
+                Layouting::toolTip(Tr::tr("View Options")),
                 onClicked(this, [=] {
                     QMenu menu;
                     menu.addAction(iconViewAction);
@@ -2211,7 +2223,7 @@ FileDialog::FileDialog(QWidget *parent)
 
                 Row {
                     st,
-                    Label { bindTo(&d->m_saveAsLabel), text(Tr::tr("Save As:")) },
+                    Label { bindTo(&d->m_saveAsLabel), text(Tr::tr("Save as:")) },
                     LineEdit {
                         bindTo(&d->m_saveAsEdit),
                         Layouting::objectName("saveAsEdit"),
@@ -2439,7 +2451,7 @@ FileDialog::FileDialog(QWidget *parent)
     connect(pasteAction, &QAction::triggered, this, pasteFiles);
 
     // Move the selection to the bin: Cmd+Backspace on macOS, Delete elsewhere.
-    auto *trashAction = new QAction(Icons::CLEAN.icon(), Tr::tr("Move to Bin"), this);
+    auto *trashAction = new QAction(Icons::CLEAN.icon(), moveToTrashText(), this);
     trashAction->setIconVisibleInMenu(true);
     trashAction->setShortcut(HostOsInfo::isMacHost() ? QKeySequence(Qt::CTRL | Qt::Key_Backspace)
                                                      : QKeySequence(QKeySequence::Delete));

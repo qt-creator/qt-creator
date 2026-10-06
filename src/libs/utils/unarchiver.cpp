@@ -6,6 +6,7 @@
 #include "async.h"
 #include "utilstr.h"
 
+#include <QLocale>
 #include <QSettings>
 
 #ifdef QTC_UTILS_WITH_LIBARCHIVE
@@ -50,7 +51,8 @@ static Result<qint64> copy_data(
         written = qMax(written, qint64(offset) + qint64(size));
         if (written > maxBytes) {
             return ResultError(
-                Tr::tr("Archive expands to more than %1 bytes.").arg(kMaxTotalBytes));
+                Tr::tr("Archive expands to more than %1.")
+                    .arg(QLocale().formattedDataSize(kMaxTotalBytes)));
         }
     }
     return written;
@@ -228,7 +230,7 @@ static Result<> unarchive(
         }
 
         if (++fileNumber > kMaxEntries)
-            return ResultError(Tr::tr("Archive contains more than %1 entries.").arg(kMaxEntries));
+            return ResultError(Tr::tr("Archive contains more than %n entries.", nullptr, kMaxEntries));
 
         const char *pathname = archive_entry_pathname_utf8(entry);
         if (!pathname)
@@ -274,7 +276,8 @@ static Result<> unarchive(
                                      : 0;
         if (entrySize > kMaxTotalBytes - totalBytes) {
             return ResultError(
-                Tr::tr("Archive expands to more than %1 bytes.").arg(kMaxTotalBytes));
+                Tr::tr("Archive expands to more than %1.")
+                    .arg(QLocale().formattedDataSize(kMaxTotalBytes)));
         }
 
         r = archive_write_header(ext.get(), entry);
@@ -395,7 +398,7 @@ Result<QByteArray> gzipDecompress(const QByteArray &compressed)
         return ResultError(QString::fromUtf8(archive_error_string(a.get())));
 
     if (archive_filter_code(a.get(), 0) == ARCHIVE_FILTER_NONE)
-        return ResultError(Tr::tr("Not compressed data."));
+        return ResultError(Tr::tr("The data is not compressed."));
 
     QByteArray out;
     char buf[64 * 1024];
@@ -406,8 +409,8 @@ Result<QByteArray> gzipDecompress(const QByteArray &compressed)
         if (n == 0)
             break;
         if (out.size() + qint64(n) > kMaxDecompressedBytes) {
-            return ResultError(Tr::tr("Compressed data expands to more than %1 bytes.")
-                                   .arg(kMaxDecompressedBytes));
+            return ResultError(Tr::tr("Compressed data expands to more than %1.")
+                                   .arg(QLocale().formattedDataSize(kMaxDecompressedBytes)));
         }
         out.append(buf, int(n));
     }

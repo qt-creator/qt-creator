@@ -131,7 +131,7 @@ ElfData ElfReader::readHeaders()
 
 static QString msgInvalidElfObject(const FilePath &binary, const QString &why)
 {
-    return Tr::tr("\"%1\" is an invalid ELF object (%2)")
+    return Tr::tr("\"%1\" is an invalid ELF object (%2).")
            .arg(binary.toUserOutput(), why);
 }
 
@@ -149,7 +149,7 @@ ElfReader::Result ElfReader::readIt()
 
     ElfMapper mapper(this);
     if (!mapper.map()) {
-        m_errorString = Tr::tr("\"%1\" cannot be read as an ELF object")
+        m_errorString = Tr::tr("Cannot read \"%1\" as an ELF object.")
                             .arg(m_binary.toUserOutput());
         return Corrupt;
     }
@@ -157,12 +157,12 @@ ElfReader::Result ElfReader::readIt()
     const quint64 fdlen = mapper.fdlen;
 
     if (fdlen < 64) {
-        m_errorString = Tr::tr("\"%1\" is not an ELF object (file too small)").arg(m_binary.toUserOutput());
+        m_errorString = Tr::tr("\"%1\" is not an ELF object (file too small).").arg(m_binary.toUserOutput());
         return NotElf;
     }
 
     if (strncmp(mapper.start, "\177ELF", 4) != 0) {
-        m_errorString = Tr::tr("\"%1\" is not an ELF object").arg(m_binary.toUserOutput());
+        m_errorString = Tr::tr("\"%1\" is not an ELF object.").arg(m_binary.toUserOutput());
         return NotElf;
     }
 
@@ -181,7 +181,7 @@ ElfReader::Result ElfReader::readIt()
     // if ((sizeof(void*) == 4 && bits != 32)
     //     || (sizeof(void*) == 8 && bits != 64)) {
     //     if (errorString)
-    //         *errorString = QLibrary::Tr::tr("\"%1\" is an invalid ELF object (%2)")
+    //         *errorString = QLibrary::Tr::tr("\"%1\" is an invalid ELF object (%2).")
     //         .arg(m_binary).arg(QLatin1String("wrong cpu architecture"));
     //     return Corrupt;
     // }
@@ -334,7 +334,7 @@ static Result<> uncompressSection(ElfMapper *mapper, const ElfData &elfData,
     // qUncompress() grows its buffer past the announced size, so a mismatch
     // here means the stream and ch_size disagree.
     if (quint64(uncompressed.size()) != size) {
-        return ResultError(Tr::tr("Could not uncompress section \"%1\".")
+        return ResultError(Tr::tr("Cannot uncompress section \"%1\".")
                                .arg(QString::fromUtf8(name)));
     }
 
