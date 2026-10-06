@@ -9,10 +9,15 @@ add_qtc_plugin(Macros
     macrolocatorfilter.cpp macrolocatorfilter.h
     macromanager.cpp macromanager.h
     macrooptionspage.cpp macrooptionspage.h
-    macros.qrc
     macrosconstants.h
     macrosplugin.cpp
     macrotextfind.cpp macrotextfind.h
     macrostr.h
     texteditormacrohandler.cpp texteditormacrohandler.h
+)
+
+qtc_add_resources(Macros "images"
+  PREFIX "/macros"
+  BASE "."
+  FILES images/macro.png
 )

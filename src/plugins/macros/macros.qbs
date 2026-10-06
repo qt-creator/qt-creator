@@ -26,7 +26,6 @@ QtcPlugin {
         "macromanager.h",
         "macrooptionspage.cpp",
         "macrooptionspage.h",
-        "macros.qrc",
         "macrosconstants.h",
         "macrosplugin.cpp",
         "macrostr.h",
@@ -35,4 +34,10 @@ QtcPlugin {
         "texteditormacrohandler.cpp",
         "texteditormacrohandler.h",
     ]
+
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        files: "images/macro.png"
+    }
 }
