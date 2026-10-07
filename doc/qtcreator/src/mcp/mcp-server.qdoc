@@ -29,7 +29,9 @@
     \endlist
 
     The MCP client shows the tools that are currently available, along with a
-    description of each. For the full list, see \l{MCP server tools}.
+    description of each. For the full list, see \l{MCP server tools}. For the
+    debugging operations that work with each kind of target, and which of them
+    have been validated, see \l{MCP debugging support}.
 
     To start the MCP server and use an MCP client, install a client and activate
     the MCP server extension.

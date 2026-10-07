@@ -1,0 +1,333 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-reference-mcp-debugging.html
+    \previouspage creator-reference.html
+    \ingroup creator-reference
+
+    \title MCP debugging support
+
+    MCP clients, such as AI agents, can use the debugger tools of the \QC MCP
+    server to start a debug session, control execution, and inspect call
+    stacks, variables, registers, and memory. This page tells which of these
+    operations work with which debugger and target, and which of them have
+    actually been tested.
+
+    That you can debug a target manually in \QC does not mean that the same
+    workflow has been validated over MCP. Consider the following:
+
+    \list
+        \li Is the tool \e exposed? The MCP server offers it, and it is turned
+            on in the MCP server settings.
+        \li Is the operation \e supported? The debugger of the session can do it
+            and the session is in a state for it. The \c debugger_get_capabilities
+            tool answers this for the current session, together with the
+            debugger, target architecture, and connection type that \QC knows of.
+        \li Has the operation been \e validated? Has someone tested it with that
+            host, target, and debugger, as listed below.
+    \endlist
+
+    \section1 Operations
+
+    \table
+    \header
+        \li Operation
+        \li Tools
+        \li Needs
+    \row
+        \li Start and stop a session
+        \li \c debugger_start, \c debugger_stop
+        \li A kit with a debugger
+    \row
+        \li Control execution
+        \li \c debugger_step_over, \c debugger_step_in, \c debugger_step_out,
+            \c debugger_continue, \c debugger_interrupt, \c debugger_run_to_line,
+            \c debugger_wait_for_operation
+        \li A paused session, or a running one to interrupt
+    \row
+        \li Call stack
+        \li \c debugger_get_call_stack, \c debugger_select_frame
+        \li A paused session
+    \row
+        \li Threads
+        \li \c debugger_get_threads, \c debugger_select_thread,
+            \c debugger_get_thread_stacks
+        \li A paused session
+    \row
+        \li Variables and expressions
+        \li \c debugger_get_variables, \c debugger_get_variable,
+            \c debugger_set_variable, \c debugger_evaluate_expression,
+            \c debugger_add_watch_expression
+        \li A paused session
+    \row
+        \li Registers
+        \li \c debugger_get_registers
+        \li A paused session and a debugger with register access
+    \row
+        \li Memory
+        \li \c debugger_read_memory
+        \li A paused session, a debugger that can read memory, and permission
+            (see \l{Memory access})
+    \row
+        \li Breakpoints
+        \li \c debugger_get_breakpoints, \c debugger_add_breakpoint,
+            \c debugger_delete_breakpoint
+        \li None
+    \endtable
+
+    The execution tools return an operation ID and a status: \c accepted,
+    \c in_progress, \c completed, \c failed, or \c timed_out. With
+    \c wait_for_completion, they wait until the target has stopped and its call
+    stack and local variables have been refreshed. A \c timed_out status means
+    that the wait ended first. The operation is not cancelled and can still
+    complete. The tools that return data wait for the data of the current stop
+    and report it as not ready instead of returning data of an earlier stop.
+    Their results carry a \c context object with the session ID, stop ID,
+    thread ID, and frame level that the data belongs to.
+
+    \section1 Memory access
+
+    Reading memory can have side effects on some targets: on a bare metal
+    device, an address may belong to memory-mapped I/O, where reading a register
+    can change the state of a peripheral. Therefore, go to
+    \preferences > \uicontrol Debugger > \uicontrol General >
+    \uicontrol {MCP Server} to set which memory MCP clients may read:
+
+    \list
+        \li \uicontrol None does not allow reading memory.
+        \li \uicontrol {Process memory}, the default, allows reading the memory of
+            applications that run on an operating system. On bare metal targets
+            and targets of unknown kind, it allows reading only the address
+            ranges that you list in \uicontrol {Readable ranges on other targets},
+            such as \c {0x20000000-0x2001ffff}.
+        \li \uicontrol {Any memory} allows reading any address, including
+            memory-mapped I/O.
+    \endlist
+
+    \uicontrol {Maximum bytes per read} limits how much one call reads. A
+    longer read returns the first part and the address to continue from.
+    Unreadable bytes are reported as unreadable ranges with a reason, never as
+    zeros.
+
+    These settings apply to reading memory only. MCP clients cannot write
+    memory or registers directly, but \c debugger_set_variable writes the
+    memory or the register that holds the variable it changes, wherever that
+    is. Evaluating an expression with \c debugger_evaluate_expression can call
+    functions in the target if \uicontrol {Allow inferior calls in debugging
+    helper} is selected, and those functions can change the target's state.
+
+    \section1 Validation matrix
+
+    The following configurations are described here:
+
+    \table
+    \header
+        \li Configuration
+        \li Host
+        \li Target OS and CPU
+        \li Debugger
+        \li Connection
+        \li \QC version
+    \row
+        \li A
+        \li \macos 27 on Apple silicon
+        \li \macos, arm64
+        \li LLDB (lldb-2103), \QC's own LLDB engine
+        \li Local process, started by \QC
+        \li 21.0
+    \row
+        \li B
+        \li \macos 27 on Apple silicon
+        \li \macos, arm64
+        \li LLDB (lldb-2103), \uicontrol {Use the new debugger backends}
+        \li Local process, started by \QC
+        \li 21.0
+    \row
+        \li C
+        \li Linux
+        \li Embedded Linux, for example on ARM
+        \li GDB
+        \li \c gdbserver on the device, over TCP/IP
+        \li 21.0
+    \row
+        \li D
+        \li Linux, \macos, or Windows
+        \li Bare metal, for example Arm Cortex-M
+        \li GDB
+        \li A GDB server, such as OpenOCD or SEGGER J-Link, and a debug probe
+        \li 21.0
+    \row
+        \li E
+        \li Windows
+        \li Bare metal, Arm Cortex-M
+        \li uVision (UVSC)
+        \li A debug probe through uVision
+        \li 21.0
+    \endtable
+
+    Each operation is classified as \e validated (tested over MCP with that
+    configuration), \e {not validated} (expected to work, but not tested over
+    MCP with that configuration), \e {supported with limitations} (works within
+    the stated limits), or \e unsupported.
+
+    \table
+    \header
+        \li Operation
+        \li A
+        \li B
+        \li C
+        \li D
+        \li E
+    \row
+        \li Step over, waiting for completion
+        \li Validated
+        \li Validated
+        \li Not validated
+        \li Not validated
+        \li Not validated
+    \row
+        \li Step in, step out, interrupt, run to line
+        \li Not validated
+        \li Not validated
+        \li Not validated
+        \li Not validated
+        \li Not validated
+    \row
+        \li Continue to the end of the program
+        \li Validated
+        \li Validated
+        \li Not validated
+        \li Not validated
+        \li Not validated
+    \row
+        \li Call stack of the current thread
+        \li Validated
+        \li Validated
+        \li Not validated
+        \li Not validated
+        \li Not validated
+    \row
+        \li Select a frame, waiting for its variables
+        \li Validated
+        \li Validated
+        \li Not validated
+        \li Not validated
+        \li Not validated
+    \row
+        \li Call stacks of all threads
+        \li Validated
+        \li Validated
+        \li Not validated
+        \li Supported with limitations: only the threads that the GDB server
+            reports, which are RTOS tasks only if the server is RTOS aware
+        \li Not validated
+    \row
+        \li Local variables
+        \li Validated
+        \li Validated
+        \li Not validated
+        \li Not validated
+        \li Not validated
+    \row
+        \li Evaluate an expression
+        \li Not validated
+        \li Not validated
+        \li Not validated
+        \li Not validated
+        \li Not validated
+    \row
+        \li Registers, including those of an outer frame
+        \li Validated
+        \li Validated
+        \li Not validated
+        \li Not validated
+        \li Not validated
+    \row
+        \li Read memory, including unreadable addresses
+        \li Validated
+        \li Validated
+        \li Not validated
+        \li Supported with limitations: only the configured readable ranges
+            or with \uicontrol {Any memory}
+        \li Supported with limitations: as D
+    \row
+        \li Report capabilities
+        \li Validated
+        \li Validated
+        \li Not validated
+        \li Not validated
+        \li Not validated
+    \endtable
+
+    The validated operations are covered by the \c Debugger plugin tests whose
+    names start with \c testMcp. Run them with
+    \c {qtcreator -test "Debugger,testMcp*"}. They build a small program
+    with the compiler of the kit, debug it, and call the MCP tools.
+
+    \section1 Set up and verify an embedded Linux target
+
+    This procedure has not been validated over MCP (configuration C).
+
+    \list 1
+        \li Build the application with a kit for the device, with debug
+            information.
+        \li Start \c gdbserver on the device, for example
+            \c {gdbserver :10000 ./app}.
+        \li Call \c debugger_start with \c executable set to the host copy of
+            the application and \c remote_channel set to the address of the
+            device, such as \c {192.168.1.10:10000}. Set \c kit to the ID of the
+            device kit.
+        \li Call \c debugger_get_capabilities. Check that \c environment names
+            the target architecture and Linux, and that \c connection_type is
+            \c remote_server.
+        \li Call \c debugger_interrupt with \c wait_for_completion, or set a
+            breakpoint with \c debugger_add_breakpoint and call
+            \c debugger_continue with \c wait_for_completion.
+        \li Call \c debugger_get_thread_stacks and \c debugger_get_variables, and
+            compare the result with the \uicontrol Stack and
+            \uicontrol {Locals} views of \QC.
+    \endlist
+
+    \section1 Set up and verify a bare metal target
+
+    This procedure has not been validated over MCP (configuration D).
+
+    \list 1
+        \li Set up the device and its GDB server as described in
+            \l{Developing for Bare Metal devices}.
+        \li In \preferences > \uicontrol Debugger > \uicontrol General >
+            \uicontrol {MCP Server}, list the RAM ranges of the device in
+            \uicontrol {Readable ranges on other targets}, such as
+            \c {0x20000000-0x2001ffff}. Do not list peripheral ranges.
+        \li Start the GDB server, then call \c debugger_start with
+            \c executable set to the ELF file and \c remote_channel set to the
+            server, such as \c {localhost:3333}.
+        \li Call \c debugger_get_capabilities. Check that \c memory_read reports
+            \c restricted with your ranges.
+        \li Stop the target with \c debugger_interrupt and
+            \c wait_for_completion.
+        \li Call \c debugger_get_registers with \c names set to
+            \c {["pc", "sp"]}, then \c debugger_read_memory at the stack pointer.
+    \endlist
+
+    \section1 Boundaries
+
+    Over MCP, \QC offers what its debugger front end offers, not everything that
+    a target-specific debugger can do. In particular, MCP clients cannot:
+
+    \list
+        \li Write memory or registers, other than those that hold a variable
+            that \c debugger_set_variable changes.
+        \li Read peripheral registers from SVD descriptions.
+        \li Use trace data, such as ETM or SWO, or debug several cores at once.
+        \li Flash the device or reset it.
+        \li Rely on RTOS awareness: threads are what the debugger and its server
+            report.
+        \li Get an atomic snapshot of all threads: \c debugger_get_thread_stacks
+            reads them one after another while the target stays stopped.
+    \endlist
+
+    \sa {Set up \QC MCP server}, {MCP server tools},
+        {Debug remotely with GDB}, {Developing for Bare Metal devices}
+*/
