@@ -119,7 +119,9 @@
 
     \section1 Validation matrix
 
-    The following configurations are described here:
+    The following configurations are described here. Configurations A, B,
+    and C were tested with both \QC's own debugger engines and
+    \uicontrol {Use the new debugger backends}.
 
     \table
     \header
@@ -133,32 +135,39 @@
         \li A
         \li \macos 27 on Apple silicon
         \li \macos, arm64
-        \li LLDB (lldb-2103), \QC's own LLDB engine
+        \li LLDB (lldb-2103)
         \li Local process, started by \QC
         \li 21.0
     \row
         \li B
-        \li \macos 27 on Apple silicon
-        \li \macos, arm64
-        \li LLDB (lldb-2103), \uicontrol {Use the new debugger backends}
+        \li Windows 11 on x86-64
+        \li Windows, x86-64, built with MSVC 2022
+        \li CDB (10.0.26100)
         \li Local process, started by \QC
         \li 21.0
     \row
         \li C
+        \li Ubuntu Linux on x86-64
+        \li Linux, x86-64, built with GCC 15
+        \li GDB 17.1
+        \li Local process, started by \QC
+        \li 21.0
+    \row
+        \li D
         \li Linux
         \li Embedded Linux, for example on ARM
         \li GDB
         \li \c gdbserver on the device, over TCP/IP
         \li 21.0
     \row
-        \li D
+        \li E
         \li Linux, \macos, or Windows
         \li Bare metal, for example Arm Cortex-M
         \li GDB
         \li A GDB server, such as OpenOCD or SEGGER J-Link, and a debug probe
         \li 21.0
     \row
-        \li E
+        \li F
         \li Windows
         \li Bare metal, Arm Cortex-M
         \li uVision (UVSC)
@@ -179,8 +188,10 @@
         \li C
         \li D
         \li E
+        \li F
     \row
         \li Step over, waiting for completion
+        \li Validated
         \li Validated
         \li Validated
         \li Not validated
@@ -193,8 +204,10 @@
         \li Not validated
         \li Not validated
         \li Not validated
+        \li Not validated
     \row
         \li Continue to the end of the program
+        \li Validated
         \li Validated
         \li Validated
         \li Not validated
@@ -204,6 +217,7 @@
         \li Call stack of the current thread
         \li Validated
         \li Validated
+        \li Validated
         \li Not validated
         \li Not validated
         \li Not validated
@@ -211,11 +225,13 @@
         \li Select a frame, waiting for its variables
         \li Validated
         \li Validated
+        \li Validated
         \li Not validated
         \li Not validated
         \li Not validated
     \row
         \li Call stacks of all threads
+        \li Validated
         \li Validated
         \li Validated
         \li Not validated
@@ -226,11 +242,13 @@
         \li Local variables
         \li Validated
         \li Validated
+        \li Validated
         \li Not validated
         \li Not validated
         \li Not validated
     \row
         \li Evaluate an expression
+        \li Validated
         \li Validated
         \li Validated
         \li Not validated
@@ -239,6 +257,8 @@
     \row
         \li Registers, including those of an outer frame
         \li Validated
+        \li Supported with limitations: for an outer frame, CDB reports the
+            registers of the innermost frame, and the answer says so
         \li Validated
         \li Not validated
         \li Not validated
@@ -247,12 +267,14 @@
         \li Read memory, including unreadable addresses
         \li Validated
         \li Validated
+        \li Validated
         \li Not validated
         \li Supported with limitations: only the configured readable ranges
             or with \uicontrol {Any memory}
-        \li Supported with limitations: as D
+        \li Supported with limitations: as E
     \row
         \li Report capabilities
+        \li Validated
         \li Validated
         \li Validated
         \li Not validated
@@ -267,7 +289,7 @@
 
     \section1 Set up and verify an embedded Linux target
 
-    This procedure has not been validated over MCP (configuration C).
+    This procedure has not been validated over MCP (configuration D).
 
     \list 1
         \li Build the application with a kit for the device, with debug
@@ -291,7 +313,7 @@
 
     \section1 Set up and verify a bare metal target
 
-    This procedure has not been validated over MCP (configuration D).
+    This procedure has not been validated over MCP (configuration E).
 
     \list 1
         \li Set up the device and its GDB server as described in
