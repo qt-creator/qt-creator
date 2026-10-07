@@ -578,8 +578,15 @@ jobs:
             HTTPHEADER "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
             HTTPHEADER "X-GitHub-Api-Version: 2022-11-28"
             SHOW_PROGRESS
+            STATUS download_status
             artifacts.json)
+          list(GET download_status 0 download_status_code)
+          if(NOT download_status_code EQUAL 0)
+            list(GET download_status 1 download_status_message)
+            message(STATUS "Downloading artifacts.json (page ${page_id}) failed: ${download_status_code} ${download_status_message}")
+          endif()
           file(READ artifacts.json artifacts_json)
+          message(STATUS "artifacts.json (page ${page_id}):\n${artifacts_json}")
 
           string(JSON artifacts_length LENGTH "${artifacts_json}" "artifacts")
           math(EXPR artifacts_length "${artifacts_length} - 1")
