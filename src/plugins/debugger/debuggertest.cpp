@@ -1643,6 +1643,27 @@ void DebuggerUnitTests::testBreakpointUpdateAnnouncesItIsProceeding()
     QCOMPARE(bp->state(), BreakpointUpdateProceeding);
 }
 
+static QString preCheckStepTests(Kit **kit = nullptr, Toolchain **toolchain = nullptr)
+{
+    const auto buildsForThisMachine = [](Kit *candidate) {
+        if (!candidate->isValid())
+            return false;
+        Toolchain *toolchain = ToolchainKitAspect::cxxToolchain(candidate);
+        return toolchain && toolchain->targetAbi() == Abi::hostAbi();
+    };
+    Kit *usableKit = Utils::findOr(KitManager::kits(), nullptr, buildsForThisMachine);
+    if (!usableKit)
+        return "no kit of this machine's own architecture to build with";
+    Toolchain *usedToolchain = ToolchainKitAspect::cxxToolchain(usableKit);
+    if (usedToolchain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        return "building the inferior is only wired up for gcc-style compilers";
+    if (kit)
+        *kit = usableKit;
+    if (toolchain)
+        *toolchain = usedToolchain;
+    return {};
+}
+
 // A program small enough to say exactly where a step should land in it.
 static const char s_steppingSource[] = R"CPP(
 int addOne(int value)
@@ -1692,18 +1713,11 @@ public:
         if (!m_dir.isValid())
             return "no temporary directory to build in";
 
-        const auto buildsForThisMachine = [](Kit *candidate) {
-            if (!candidate->isValid())
-                return false;
-            Toolchain *toolchain = ToolchainKitAspect::cxxToolchain(candidate);
-            return toolchain && toolchain->targetAbi() == Abi::hostAbi();
-        };
-        Kit *kit = Utils::findOr(KitManager::kits(), nullptr, buildsForThisMachine);
-        if (!kit)
-            return "no kit of this machine's own architecture to build with";
-        Toolchain *toolchain = ToolchainKitAspect::cxxToolchain(kit);
-        if (toolchain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
-            return "building the inferior is only wired up for gcc-style compilers";
+        Kit *kit = nullptr;
+        Toolchain *toolchain = nullptr;
+        if (QString reason = preCheckStepTests(&kit, &toolchain); !reason.isEmpty())
+            return reason;
+        QTC_ASSERT(kit && toolchain, return "kit or toolchain invalid");
 
         const FilePath dir = FilePath::fromString(m_dir.path());
         m_source = dir / "stepping.cpp";
@@ -1814,6 +1828,9 @@ void DebuggerUnitTests::testStepsIntoACalledFunction()
 {
     if (const QString reason = reasonTheGenericBackendsAreNotUnderTest(); !reason.isEmpty())
         QSKIP(qPrintable(reason));
+    if (const QString reason = preCheckStepTests(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
     const bool wasOn = commonSettings().useGenericDebugger();
     commonSettings().useGenericDebugger.setValue(true);
     const QScopeGuard restore([wasOn] { commonSettings().useGenericDebugger.setValue(wasOn); });
@@ -1837,6 +1854,9 @@ void DebuggerUnitTests::testStepsOverACallWithoutEnteringIt()
 {
     if (const QString reason = reasonTheGenericBackendsAreNotUnderTest(); !reason.isEmpty())
         QSKIP(qPrintable(reason));
+    if (const QString reason = preCheckStepTests(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
     const bool wasOn = commonSettings().useGenericDebugger();
     commonSettings().useGenericDebugger.setValue(true);
     const QScopeGuard restore([wasOn] { commonSettings().useGenericDebugger.setValue(wasOn); });
@@ -1859,6 +1879,9 @@ void DebuggerUnitTests::testStepsOutOfACalledFunction()
 {
     if (const QString reason = reasonTheGenericBackendsAreNotUnderTest(); !reason.isEmpty())
         QSKIP(qPrintable(reason));
+    if (const QString reason = preCheckStepTests(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
     const bool wasOn = commonSettings().useGenericDebugger();
     commonSettings().useGenericDebugger.setValue(true);
     const QScopeGuard restore([wasOn] { commonSettings().useGenericDebugger.setValue(wasOn); });
