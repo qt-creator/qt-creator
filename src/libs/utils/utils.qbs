@@ -509,6 +509,7 @@ QtcLibrary {
         ]
     }
 
+    Qt.core.resourceFileBaseName: "mimedb"
     Group {
         name: "MIME database"
         prefix: "../3rdparty/tika/"
