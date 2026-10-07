@@ -708,39 +708,72 @@ static Result<QJsonObject> debuggerGetStatus(bool includeLog)
     return result;
 }
 
-static void evaluateExpression(
-    const QString &expression, std::function<void(Result<QJsonObject>)> callback)
+static QHash<QString, int> &evaluationsOnTemporaryWatchers()
+{
+    static QHash<QString, int> evaluations;
+    return evaluations;
+}
+
+static void evaluateExpression(const QString &expression, int timeoutMs, const McpReply &reply)
 {
     const Result<WatchHandler *> handler = getWatchHandler();
     if (!handler) {
-        callback(ResultError(handler.error()));
+        reply(ResultError(handler.error()));
+        return;
+    }
+    if (expression.isEmpty()) {
+        reply(ResultError("Expression must not be empty"));
         return;
     }
 
-    (*handler)->watchExpression(expression, expression);
+    // An expression the user watches already is refreshed with the locals of
+    // each stop. Otherwise it is added for the evaluations that ask for it at
+    // the same time, and removed again after the last of them, unless the user
+    // has started to watch it meanwhile.
+    QHash<QString, int> &users = evaluationsOnTemporaryWatchers();
+    const bool temporary = users.contains(expression) || !WatchHandler::isWatched(expression);
+    if (temporary) {
+        if (!WatchHandler::isWatched(expression))
+            (*handler)->watchExpression(expression, expression, true);
+        ++users[expression];
+    }
     const QString iname = (*handler)->watcherName(expression);
 
-    WatchModelBase *model = (*handler)->model();
-    QObject::connect(
-        model,
-        &WatchModelBase::updateFinished,
-        model,
-        [handler, iname, expression, callback]() {
-            WatchItem *item = (*handler)->findItem(iname);
-            if (!item) {
-                callback(ResultError("Expression evaluation failed: " + expression));
+    const QPointer<McpSessionState> session = McpSessionState::forEngine(
+        EngineManager::currentEngine());
+    const auto evaluated = [handler, iname] {
+        const WatchItem *item = (*handler)->findItem(iname);
+        return item && !item->outdated && (!item->type.isEmpty() || !item->value.isEmpty());
+    };
+    waitUntil(session, timeoutMs,
+              [session, evaluated] { return session && session->isLocalsReady() && evaluated(); },
+              [session, handler, iname, expression, temporary, reply](WaitOutcome outcome) {
+        const auto removeTemporaryWatcher = [&] {
+            if (!temporary)
                 return;
-            }
-            QJsonObject result;
-            result["expression"] = expression;
-            result["value"] = item->value;
-            result["type"] = item->type;
-            if (item->address != 0)
-                result["address"] = QString("0x%1").arg(item->address, 0, 16);
-            callback(result);
-            (*handler)->removeItemByIName(iname);
-        },
-        Qt::SingleShotConnection);
+            QHash<QString, int> &users = evaluationsOnTemporaryWatchers();
+            if (--users[expression] > 0)
+                return;
+            users.remove(expression);
+            if (session && WatchHandler::isTemporaryWatcher(expression))
+                (*handler)->removeItemByIName(iname);
+        };
+        if (outcome != WaitOutcome::Ready) {
+            removeTemporaryWatcher();
+            reply(ResultError(notReadyMessage("value of \"" + expression + "\"", session,
+                                              outcome == WaitOutcome::SessionEnded)));
+            return;
+        }
+        const WatchItem *item = (*handler)->findItem(iname);
+        QJsonObject result{{"expression", expression},
+                           {"value", item->value},
+                           {"type", item->type},
+                           {"context", session->context()}};
+        if (item->address != 0)
+            result["address"] = QString("0x%1").arg(item->address, 0, 16);
+        removeTemporaryWatcher();
+        reply(result);
+    });
 }
 
 static void getVariables(bool includeWatchers, int timeoutMs, const McpReply &reply)
@@ -1599,7 +1632,7 @@ void registerMcpTools()
             return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"success", true}});
         });
 
-    ToolRegistry::registerTool(
+    registerAsyncMcpTool(
         Tool{}
             .name("debugger_add_watch_expression")
             .title("Add a watch expression")
@@ -1631,16 +1664,16 @@ void registerMcpTools()
                         QJsonObject{{"type", "string"},
                                     {"description", "Internal name of the watch entry (such as \"watch.0\")."}})
                     .addRequired("iname")),
-        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
-            const QJsonObject p = params.argumentsAsObject();
+        [](const QJsonObject &p, const McpReply &reply) {
             const Utils::Result<QString> iname = addWatchExpression(
                 p.value("expression").toString(), p.value("name").toString());
             if (!iname)
-                return CallToolResult{}.isError(true).addContent(TextContent{}.text(iname.error()));
-            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"iname", *iname}});
+                reply(ResultError(iname.error()));
+            else
+                reply(QJsonObject{{"iname", *iname}});
         });
 
-    ToolRegistry::registerTool(
+    registerAsyncMcpTool(
         Tool{}
             .name("debugger_remove_watch_expression")
             .title("Remove a watch expression")
@@ -1662,12 +1695,12 @@ void registerMcpTools()
                 Tool::OutputSchema{}
                     .addProperty("success", QJsonObject{{"type", "boolean"}})
                     .addRequired("success")),
-        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
-            const Utils::Result<bool> ok = removeWatchExpression(
-                params.argumentsAsObject().value("iname").toString());
+        [](const QJsonObject &p, const McpReply &reply) {
+            const Utils::Result<bool> ok = removeWatchExpression(p.value("iname").toString());
             if (!ok)
-                return CallToolResult{}.isError(true).addContent(TextContent{}.text(ok.error()));
-            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"success", true}});
+                reply(ResultError(ok.error()));
+            else
+                reply(QJsonObject{{"success", true}});
         });
 
     registerAsyncMcpTool(
@@ -2046,8 +2079,9 @@ void registerMcpTools()
             .name("debugger_evaluate_expression")
             .title("Evaluate expression in debugger")
             .description(
-                "Evaluates an expression in the context of the current debug session. "
-                "Returns the expression's value and type. "
+                "Evaluates an expression in the selected frame of the current debug session. "
+                "Returns the expression's value and type once the debugger has evaluated it "
+                "for the current stop, or an error if that does not happen in time. "
                 "Requires an active debug session that is paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -2057,16 +2091,21 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"description", "Expression to evaluate (such as \"myVar\", \"ptr->field\", \"a + b\")."}})
+                    .addProperty("timeout_ms", timeoutSchema(defaultDataTimeoutMs))
                     .addRequired("expression"))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty("expression", QJsonObject{{"type", "string"}})
                     .addProperty("value", QJsonObject{{"type", "string"}})
                     .addProperty("type", QJsonObject{{"type", "string"}})
+                    .addProperty("address", QJsonObject{{"type", "string"}})
+                    .addProperty("context", contextSchema())
                     .addRequired("expression")
-                    .addRequired("value")),
+                    .addRequired("value")
+                    .addRequired("context")),
         [](const QJsonObject &args, const McpReply &reply) {
-            evaluateExpression(args.value("expression").toString(), reply);
+            evaluateExpression(args.value("expression").toString(),
+                               timeoutArgument(args, defaultDataTimeoutMs), reply);
         });
 
     ToolRegistry::registerTool(

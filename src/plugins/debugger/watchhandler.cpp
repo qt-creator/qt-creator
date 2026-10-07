@@ -2494,10 +2494,22 @@ void WatchModel::removeWatchItem(WatchItem *item)
     QTC_ASSERT(item, return);
     if (item->isWatcher()) {
         theWatcherNames.remove(item->exp);
+        // Or cleanup() takes the next watcher of the same expression for it.
+        theTemporaryWatchers.remove(item->exp);
         saveWatchers();
     }
     destroyItem(item);
     m_handler->updateLocalsWindow();
+}
+
+bool WatchHandler::isWatched(const QString &exp)
+{
+    return theWatcherNames.contains(exp);
+}
+
+bool WatchHandler::isTemporaryWatcher(const QString &exp)
+{
+    return theTemporaryWatchers.contains(exp);
 }
 
 QString WatchHandler::watcherName(const QString &exp)
@@ -2508,9 +2520,15 @@ QString WatchHandler::watcherName(const QString &exp)
 // If \a name is empty, \a exp will be used as name.
 void WatchHandler::watchExpression(const QString &exp, const QString &name, bool temporary)
 {
-    // Do not insert the same entry more then once.
-    if (exp.isEmpty() || theWatcherNames.contains(exp))
+    if (exp.isEmpty())
         return;
+    // Do not insert the same entry more then once. A temporary watcher that is
+    // asked for again for good stays.
+    if (theWatcherNames.contains(exp)) {
+        if (!temporary)
+            theTemporaryWatchers.remove(exp);
+        return;
+    }
 
     theWatcherNames[exp] = theWatcherCount++;
     if (temporary)

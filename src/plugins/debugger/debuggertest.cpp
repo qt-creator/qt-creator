@@ -32,6 +32,7 @@
 #include "stackframe.h"
 #include "commonoptionspage.h"
 #include "stackhandler.h"
+#include "watchhandler.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
@@ -191,6 +192,12 @@ private slots:
     void testMcpReadsMemory();
     void testMcpReadsMemoryUpToAnUnmappedPage_data();
     void testMcpReadsMemoryUpToAnUnmappedPage();
+    void testMcpEvaluatesAnExpressionOfTheCurrentStop_data();
+    void testMcpEvaluatesAnExpressionOfTheCurrentStop();
+    void testMcpEvaluationKeepsTheUsersWatch_data();
+    void testMcpEvaluationKeepsTheUsersWatch();
+    void testMcpEvaluationsShareATemporaryWatch_data();
+    void testMcpEvaluationsShareATemporaryWatch();
     void testMcpReportsCapabilities_data();
     void testMcpReportsCapabilities();
     void testDisassemblyThatMissesTheAddressMarksNoLine();
@@ -3410,6 +3417,164 @@ void DebuggerUnitTests::testMcpReadsMemoryUpToAnUnmappedPage()
         unreadable += segment.value("length").toInt();
     }
     QCOMPARE(unreadable, 8);
+}
+
+void DebuggerUnitTests::testMcpEvaluatesAnExpressionOfTheCurrentStop_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpEvaluatesAnExpressionOfTheCurrentStop()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: after-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const auto evaluate = [](const QString &expression) {
+        return callDebuggerTool("debugger_evaluate_expression", {{"expression", expression}});
+    };
+
+    const Result<QJsonObject> second = evaluate("second");
+    QVERIFY2(second, qPrintable(errorOf(second)));
+    QCOMPARE(second->value("value").toString(), QString("2"));
+    QCOMPARE(second->value("type").toString(), QString("int"));
+    QVERIFY(stopIdOf(*second) > 0);
+
+    const Result<QJsonObject> sum = evaluate("first + second");
+    QVERIFY2(sum, qPrintable(errorOf(sum)));
+    QCOMPARE(sum->value("value").toString(), QString("3"));
+
+    // An expression the user watches already is answered, and stays watched.
+    const Result<QJsonObject> watched
+        = callDebuggerTool("debugger_add_watch_expression", {{"expression", "first"}});
+    QVERIFY2(watched, qPrintable(errorOf(watched)));
+    const QString watchIname = watched->value("iname").toString();
+    const QScopeGuard unwatch([watchIname] {
+        callDebuggerTool("debugger_remove_watch_expression", {{"iname", watchIname}});
+    });
+    const Result<QJsonObject> first = evaluate("first");
+    QVERIFY2(first, qPrintable(errorOf(first)));
+    QCOMPARE(first->value("value").toString(), QString("1"));
+    const Result<QJsonObject> variables
+        = callDebuggerTool("debugger_get_variables", {{"include_watchers", true}});
+    QVERIFY2(variables, qPrintable(errorOf(variables)));
+    bool stillWatched = false;
+    for (const QJsonValue &v : variables->value("variables").toArray())
+        stillWatched |= v.toObject().value("iname").toString() == watchIname;
+    QVERIFY(stillWatched);
+}
+
+void DebuggerUnitTests::testMcpEvaluationKeepsTheUsersWatch_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpEvaluationKeepsTheUsersWatch()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    const QString expression = "second";
+    QVERIFY2(!WatchHandler::isWatched(expression),
+             "a watch of \"second\" is left from an earlier run; remove it in the session");
+    {
+        SteppingSession session;
+        const QString problem = session.start("MARKER: after-call");
+        QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+        // Evaluating adds and removes a watcher of its own.
+        const Result<QJsonObject> evaluated
+            = callDebuggerTool("debugger_evaluate_expression", {{"expression", expression}});
+        QVERIFY2(evaluated, qPrintable(errorOf(evaluated)));
+
+        const Result<QJsonObject> watched
+            = callDebuggerTool("debugger_add_watch_expression", {{"expression", expression}});
+        QVERIFY2(watched, qPrintable(errorOf(watched)));
+    }
+
+    // The session has ended; the user's watch outlives it.
+    QVERIFY(WatchHandler::watchedExpressions().contains(expression));
+
+    // It is there in the next session, which is also where it can be removed.
+    SteppingSession next;
+    const QString problem = next.start("MARKER: after-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+    const Result<QJsonObject> variables
+        = callDebuggerTool("debugger_get_variables", {{"include_watchers", true}});
+    QVERIFY2(variables, qPrintable(errorOf(variables)));
+    QString iname;
+    for (const QJsonValue &v : variables->value("variables").toArray()) {
+        const QJsonObject variable = v.toObject();
+        if (variable.value("iname").toString().startsWith("watch.")
+            && variable.value("name").toString() == expression) {
+            iname = variable.value("iname").toString();
+        }
+    }
+    QVERIFY2(!iname.isEmpty(), "the watch is not there in the next session");
+    const Result<QJsonObject> removed
+        = callDebuggerTool("debugger_remove_watch_expression", {{"iname", iname}});
+    QVERIFY2(removed, qPrintable(errorOf(removed)));
+    QVERIFY(!WatchHandler::isWatched(expression));
+}
+
+void DebuggerUnitTests::testMcpEvaluationsShareATemporaryWatch_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpEvaluationsShareATemporaryWatch()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: after-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    // Two evaluations of the same expression at once wait on one watcher, and
+    // the first to answer must not take it from the other.
+    const QString shared = "second + 1";
+    QVERIFY(!WatchHandler::isWatched(shared));
+    std::optional<Result<QJsonObject>> first;
+    std::optional<Result<QJsonObject>> other;
+    callMcpToolForTests("debugger_evaluate_expression", {{"expression", shared}},
+                        [&first](Result<QJsonObject> result) { first = result; });
+    callMcpToolForTests("debugger_evaluate_expression", {{"expression", shared}},
+                        [&other](Result<QJsonObject> result) { other = result; });
+    QVERIFY(QTest::qWaitFor([&] { return first && other; }, 60000));
+    QVERIFY2(*first, qPrintable(errorOf(*first)));
+    QVERIFY2(*other, qPrintable(errorOf(*other)));
+    QCOMPARE((*other)->value("value").toString(), (*first)->value("value").toString());
+    QVERIFY(!WatchHandler::isWatched(shared));
+
+    // A watch the user adds while an evaluation waits is the user's.
+    const QString kept = "second + 2";
+    QVERIFY(!WatchHandler::isWatched(kept));
+    std::optional<Result<QJsonObject>> evaluated;
+    std::optional<Result<QJsonObject>> watched;
+    callMcpToolForTests("debugger_evaluate_expression", {{"expression", kept}},
+                        [&evaluated](Result<QJsonObject> result) { evaluated = result; });
+    callMcpToolForTests("debugger_add_watch_expression", {{"expression", kept}},
+                        [&watched](Result<QJsonObject> result) { watched = result; });
+    QVERIFY(QTest::qWaitFor([&] { return evaluated && watched; }, 60000));
+    QVERIFY2(*evaluated, qPrintable(errorOf(*evaluated)));
+    QVERIFY2(*watched, qPrintable(errorOf(*watched)));
+    QVERIFY(WatchHandler::isWatched(kept));
+    const QString iname = session.engine()->watchHandler()->watcherName(kept);
+    QVERIFY(session.engine()->watchHandler()->findItem(iname));
+    const Result<QJsonObject> removed
+        = callDebuggerTool("debugger_remove_watch_expression", {{"iname", iname}});
+    QVERIFY2(removed, qPrintable(errorOf(removed)));
+    QVERIFY(!WatchHandler::isWatched(kept));
 }
 
 static QJsonObject capabilityNamed(const QJsonObject &answer, const QString &name)

@@ -79,6 +79,8 @@ public:
     void addTypeFormats(const QString &type, const DisplayFormats &formats);
 
     QString watcherName(const QString &exp);
+    static bool isWatched(const QString &exp);
+    static bool isTemporaryWatcher(const QString &exp);
 
     void scheduleResetLocation();
     void cancelResetLocation();
