@@ -14,6 +14,7 @@
 namespace Debugger::Internal {
 
 class McpSessionState;
+class Register;
 
 using McpReply = std::function<void(Utils::Result<QJsonObject>)>;
 using McpHandler = std::function<void(const QJsonObject &args, const McpReply &reply)>;
@@ -29,5 +30,7 @@ QJsonObject contextSchema();
 QString notReadyMessage(const QString &what, McpSessionState *state, bool sessionEnded);
 
 void registerIntrospectionMcpTools();
+
+QJsonObject mcpRegisterToJson(const Register &reg, bool reportedAtThisStop);
 
 } // namespace Debugger::Internal

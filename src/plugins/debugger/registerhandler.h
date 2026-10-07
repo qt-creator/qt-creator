@@ -141,7 +141,7 @@ class RegisterValue
 {
 public:
     RegisterValue() { known = false; v.u128[1] = v.u128[0] = 0; }
-    bool operator==(const RegisterValue &other);
+    bool operator==(const RegisterValue &other) const;
 
     void fromString(const QString &str, RegisterFormat format);
     QString toString(RegisterKind kind, int size, RegisterFormat format,
@@ -198,8 +198,11 @@ public:
     QAbstractItemModel *model() { return this; }
 
     void updateRegister(const Register &reg);
-    void commitUpdates() { emit layoutChanged(); }
+    void commitUpdates();
     RegisterMap registerMap() const;
+
+    QList<Register> registers() const;
+    bool wasUpdatedByLastCommit(const QString &name) const;
 
 signals:
     void registerChanged(const QString &name, quint64 value); // For memory views
@@ -211,6 +214,8 @@ private:
     bool contextMenuEvent(const Utils::ItemViewEvent &ev);
     RegisterGroup *allRegisters() const;
     QHash<QString, RegisterGroup *> m_registerGroups;
+    QHash<QString, int> m_commitOfLastUpdate;
+    int m_commits = 0;
     DebuggerEngine * const m_engine;
 };
 

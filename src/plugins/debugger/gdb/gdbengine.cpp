@@ -3489,7 +3489,8 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
         if (data.startsWith("0x")) {
             reg->value.fromString(data, HexadecimalFormat);
         } else if (data == "<error reading variable>") {
-            // Nothing. See QTCREATORBUG-14029.
+            // See QTCREATORBUG-14029. The value of the last stop is not this one's.
+            reg->value = RegisterValue();
         } else {
             // This is what GDB considers machine readable output:
             // value="{v4_float = {0x00000000, 0x00000000, 0x00000000, 0x00000000},

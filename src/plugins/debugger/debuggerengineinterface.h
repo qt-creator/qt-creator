@@ -16,6 +16,7 @@
 
 #include <chrono>
 #include <functional>
+#include <optional>
 #include <variant>
 
 #include <QByteArray>
@@ -382,6 +383,9 @@ private:
     virtual void execute(const ExecutionRequest &request) = 0;
 
     virtual void refresh(const RefreshRequest &request) = 0;
+    // Whether the registers it reports are those of the selected frame, as
+    // the debugger reconstructs them, rather than the current CPU state.
+    virtual std::optional<bool> registersFollowSelectedFrame() const { return {}; }
 
     virtual void changeBreakpoint(const BreakpointChangeRequest &request) = 0;
 

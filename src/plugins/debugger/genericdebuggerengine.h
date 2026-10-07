@@ -49,6 +49,10 @@ private:
     void setPeripheralRegisterValue(quint64 address, quint64 value) final;
     void assignValueInDebugger(WatchItem *item, const QString &expression,
                                const QVariant &value) final;
+    std::optional<bool> registersFollowSelectedFrame() const final
+    {
+        return m_backend->registersFollowSelectedFrame();
+    }
     void fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length) final;
     void changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray &data) final;
     void fetchDisassembler(DisassemblerAgent *agent) final;

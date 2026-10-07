@@ -24,6 +24,7 @@
 #include "logwindow.h"
 #include "mcpsessionstate.h"
 #include "mcpsupport.h"
+#include "mcpsupport_p.h"
 #include "gdb/gdbengine.h"
 #include "genericdebuggerengine.h"
 #include "registerhandler.h"
@@ -178,6 +179,10 @@ private slots:
     void testMcpStackOfAStopInAnotherThread();
     void testMcpSelectThreadWaitsForItsStack_data();
     void testMcpSelectThreadWaitsForItsStack();
+    void testMcpReadsTheRegistersOfTheCurrentStop_data();
+    void testMcpReadsTheRegistersOfTheCurrentStop();
+    void testMcpRegistersOfAnOuterFrame_data();
+    void testMcpRegistersOfAnOuterFrame();
     void testDisassemblyThatMissesTheAddressMarksNoLine();
     void testOnlyMachineCodeIsOfferedADisassembly();
     void testAnEmptyDisassemblyLeavesTheViewAlone();
@@ -498,6 +503,28 @@ void DebuggerUnitTests::testRegisterValue()
     twoPow64.fromString("0x10000000000000000", HexadecimalFormat);
     QCOMPARE(twoPow64.toString(IntegerRegister, 16, DecimalFormat).trimmed(),
              QString("18446744073709551616"));
+
+    // A register wider than a value can hold is not reported with half its bits.
+    Register zmm;
+    zmm.name = "zmm0";
+    zmm.size = 64;
+    zmm.value.fromString("0x" + QString(128, 'f'), HexadecimalFormat);
+    const QJsonObject wide = mcpRegisterToJson(zmm, true);
+    QVERIFY(!wide.value("available").toBool());
+    QVERIFY(!wide.contains("value"));
+    QCOMPARE(wide.value("bit_width").toInt(), 512);
+    Register ymm = zmm;
+    ymm.size = 32;
+    QCOMPARE(mcpRegisterToJson(ymm, true).value("value").toString(), "0x" + QString(64, 'f'));
+
+    // What a debugger says instead of a value is not a value of zero.
+    RegisterValue unavailable;
+    unavailable.fromString("<unavailable>", HexadecimalFormat);
+    QVERIFY(!unavailable.known);
+    RegisterValue zero;
+    zero.fromString("0x0", HexadecimalFormat);
+    QVERIFY(zero.known);
+    QVERIFY(!(unavailable == zero));
 }
 
 void DebuggerUnitTests::testInferiorStartData()
@@ -2966,6 +2993,127 @@ void DebuggerUnitTests::testMcpThreadStacksAreBounded()
     QVERIFY2(one, qPrintable(errorOf(one)));
     QCOMPARE(one->value("threads").toArray().size(), 1);
     QVERIFY(one->value("omitted_threads").toArray().size() >= 2);
+}
+
+static QString programCounterName()
+{
+    return Abi::hostAbi().architecture() == Abi::ArmArchitecture ? QString("pc") : QString("rip");
+}
+
+static QString stackPointerName()
+{
+    return Abi::hostAbi().architecture() == Abi::ArmArchitecture ? QString("sp") : QString("rsp");
+}
+
+static QJsonObject registerNamed(const QJsonObject &registers, const QString &name)
+{
+    for (const QJsonValue &r : registers.value("registers").toArray()) {
+        if (r.toObject().value("name").toString() == name)
+            return r.toObject();
+    }
+    return {};
+}
+
+static quint64 hexValue(const QJsonValue &value)
+{
+    return value.toString().toULongLong(nullptr, 16);
+}
+
+void DebuggerUnitTests::testMcpReadsTheRegistersOfTheCurrentStop_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpReadsTheRegistersOfTheCurrentStop()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: at-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const QString pc = programCounterName();
+    for (int step = 0; step < 2; ++step) {
+        if (step == 1) {
+            const Result<QJsonObject> stepped
+                = callDebuggerTool("debugger_step_over", {{"wait_for_completion", true}});
+            QVERIFY2(stepped, qPrintable(errorOf(stepped)));
+            QCOMPARE(stepped->value("status").toString(), QString("completed"));
+        }
+        const Result<QJsonObject> stack = callDebuggerTool("debugger_get_call_stack");
+        QVERIFY2(stack, qPrintable(errorOf(stack)));
+        const quint64 topAddress = hexValue(
+            stack->value("frames").toArray().first().toObject().value("address"));
+        QVERIFY(topAddress != 0);
+
+        const Result<QJsonObject> registers = callDebuggerTool("debugger_get_registers");
+        QVERIFY2(registers, qPrintable(errorOf(registers)));
+        QCOMPARE(stopIdOf(*registers), stopIdOf(*stack));
+        QVERIFY(registers->value("live_cpu_values").toBool());
+
+        const QJsonObject programCounter = registerNamed(*registers, pc);
+        QVERIFY2(programCounter.value("available").toBool(),
+                 qPrintable(programCounter.value("reason").toString()));
+        QCOMPARE(hexValue(programCounter.value("value")), topAddress);
+
+        const QJsonObject stackPointer = registerNamed(*registers, stackPointerName());
+        QVERIFY(stackPointer.value("available").toBool());
+        QCOMPARE(stackPointer.value("bit_width").toInt(), 64);
+        // All 64 bits, padded: "0x" and 16 digits.
+        QCOMPARE(stackPointer.value("value").toString().size(), 18);
+    }
+
+    const Result<QJsonObject> selected = callDebuggerTool(
+        "debugger_get_registers", {{"names", QJsonArray{pc, "no_such_register"}}});
+    QVERIFY2(selected, qPrintable(errorOf(selected)));
+    QCOMPARE(selected->value("registers").toArray().size(), 1);
+    QCOMPARE(selected->value("unknown_names").toArray(), QJsonArray{"no_such_register"});
+}
+
+void DebuggerUnitTests::testMcpRegistersOfAnOuterFrame_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpRegistersOfAnOuterFrame()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: in-callee");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> inner = callDebuggerTool("debugger_get_registers");
+    QVERIFY2(inner, qPrintable(errorOf(inner)));
+    const quint64 innerPc = hexValue(registerNamed(*inner, programCounterName()).value("value"));
+
+    const Result<QJsonObject> select
+        = callDebuggerTool("debugger_select_frame", {{"level", 1}, {"wait_for_completion", true}});
+    QVERIFY2(select, qPrintable(errorOf(select)));
+
+    const Result<QJsonObject> outer = callDebuggerTool("debugger_get_registers");
+    QVERIFY2(outer, qPrintable(errorOf(outer)));
+    QCOMPARE(outer->value("frame_level").toInt(), 1);
+    QVERIFY(outer->contains("note"));
+    const quint64 outerPc = hexValue(registerNamed(*outer, programCounterName()).value("value"));
+    QVERIFY(outerPc != 0);
+    // Whichever frame the debugger reports the values for, it has to say so.
+    QVERIFY2(outer->contains("values_for_frame_level"),
+             "the debuggers under test are known to say which frame they report");
+    if (outer->value("values_for_frame_level").toInt() == 1) {
+        QVERIFY(!outer->value("live_cpu_values").toBool());
+        QVERIFY(outerPc != innerPc);
+    } else {
+        QCOMPARE(outer->value("values_for_frame_level").toInt(), 0);
+        QVERIFY(outer->value("live_cpu_values").toBool());
+        QCOMPARE(outerPc, innerPc);
+    }
 }
 
 static QStringList s_capturedMessages;

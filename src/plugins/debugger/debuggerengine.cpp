@@ -956,6 +956,7 @@ public:
     QPointer<QWidget> m_watchersWindow;
     QPointer<QWidget> m_inspectorWindow;
     QPointer<QWidget> m_registerWindow;
+    bool m_registersWantedWhileHidden = false;
     QPointer<QWidget> m_peripheralRegisterWindow;
     QPointer<QWidget> m_modulesWindow;
     QPointer<QWidget> m_sourceFilesWindow;
@@ -1430,8 +1431,21 @@ void DebuggerEngine::updateLocalsWindow(bool showReturn)
 
 bool DebuggerEngine::isRegistersWindowVisible() const
 {
+    if (d->m_registersWantedWhileHidden)
+        return true;
     QTC_ASSERT(d->m_registerWindow, return false);
     return d->m_registerWindow->isVisible();
+}
+
+/*!
+    Fetches the registers like reloadRegisters(), for a client other than the
+    Registers view, which may not be shown.
+*/
+void DebuggerEngine::reloadRegistersEvenIfHidden()
+{
+    d->m_registersWantedWhileHidden = true;
+    reloadRegisters();
+    d->m_registersWantedWhileHidden = false;
 }
 
 bool DebuggerEngine::isPeripheralRegistersWindowVisible() const

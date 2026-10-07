@@ -192,7 +192,7 @@ static uint decodeHexChar(unsigned char c)
 
 void RegisterValue::fromString(const QString &str, RegisterFormat format)
 {
-    known = !str.isEmpty();
+    known = false;
     v.u128[1] = v.u128[0] = 0;
 
     const int n = str.size();
@@ -212,6 +212,7 @@ void RegisterValue::fromString(const QString &str, RegisterFormat format)
                 break;
         }
         shiftOneDigit(c, format);
+        known = true;
         ++pos;
     }
 
@@ -224,9 +225,9 @@ void RegisterValue::fromString(const QString &str, RegisterFormat format)
     }
 }
 
-bool RegisterValue::operator==(const RegisterValue &other)
+bool RegisterValue::operator==(const RegisterValue &other) const
 {
-    return v.u128[0] == other.v.u128[0] && v.u128[1] == other.v.u128[1];
+    return known == other.known && v.u128[0] == other.v.u128[0] && v.u128[1] == other.v.u128[1];
 }
 
 static QString toDec(Quint128 v)
@@ -717,6 +718,7 @@ RegisterHandler::RegisterHandler(DebuggerEngine *engine)
 
 void RegisterHandler::updateRegister(const Register &r)
 {
+    m_commitOfLastUpdate.insert(r.name, m_commits + 1);
     bool sort = false;
     bool changed = false;
     const QStringList groups = r.groups.isEmpty() ? QStringList{"all"} : r.groups;
@@ -736,6 +738,48 @@ void RegisterHandler::updateRegister(const Register &r)
     }
     if (changed)
         emit registerChanged(r.name, r.value.v.u64[0]); // Notify attached memory views.
+}
+
+void RegisterHandler::commitUpdates()
+{
+    ++m_commits;
+    emit layoutChanged();
+}
+
+/*!
+    Returns whether the engine reported \a name in the batch of updates that
+    was committed last. A register it did not report keeps the value it had
+    before, which may be from an earlier stop.
+*/
+bool RegisterHandler::wasUpdatedByLastCommit(const QString &name) const
+{
+    return m_commits > 0 && m_commitOfLastUpdate.value(name) == m_commits;
+}
+
+/*!
+    Returns every register once, in the order the engine first reported
+    them, with the groups it belongs to.
+*/
+QList<Register> RegisterHandler::registers() const
+{
+    QList<Register> result;
+    QHash<QString, int> indexByName;
+    for (int i = 0, n = rootItem()->childCount(); i != n; ++i) {
+        const RegisterGroup *group = rootItem()->childAt(i);
+        for (int j = 0, m = group->childCount(); j != m; ++j) {
+            const Register &reg = group->childAt(j)->m_reg;
+            const auto it = indexByName.constFind(reg.name);
+            if (it == indexByName.constEnd()) {
+                indexByName.insert(reg.name, int(result.size()));
+                result.append(reg);
+                if (result.last().groups.isEmpty())
+                    result.last().groups.append(group->m_group);
+            } else if (!result[*it].groups.contains(group->m_group)) {
+                result[*it].groups.append(group->m_group);
+            }
+        }
+    }
+    return result;
 }
 
 RegisterMap RegisterHandler::registerMap() const

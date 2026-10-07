@@ -61,6 +61,7 @@ public:
     void enableSubBreakpoint(const SubBreakpoint &sbp, bool on) override;
 
     void fetchDisassembler(DisassemblerAgent *agent) override;
+    std::optional<bool> registersFollowSelectedFrame() const override { return false; }
     void fetchMemory(MemoryAgent *, quint64 addr, quint64 length) override;
     void changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data) override;
 

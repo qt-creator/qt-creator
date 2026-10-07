@@ -35,6 +35,9 @@ public:
     bool isStackReady() const;
     bool isLocalsReady() const;
     int localsUpdates() const { return m_localsUpdates; }
+    bool isRegistersReady() const;
+
+    void expectRegisters();
 
     QJsonObject context() const;
     QJsonObject readiness() const;
@@ -80,6 +83,11 @@ private:
     QList<LocalsRequest> m_localsRequests; // Started, but not finished yet.
     QString m_localsThreadId;
     bool m_localsBeforeThreads = false;
+
+    int m_registersEpoch = -1;
+    int m_registersStackGeneration = -1;
+    int m_registersFrameLevel = -1;
+    bool m_registersExpected = false;
 };
 
 enum class WaitOutcome { Ready, TimedOut, SessionEnded };

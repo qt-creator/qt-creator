@@ -5,6 +5,7 @@
 
 #include "debuggerengine.h"
 #include "enginemanager.h"
+#include "registerhandler.h"
 #include "stackhandler.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
@@ -20,9 +21,9 @@ namespace Debugger::Internal {
     \internal
 
     Tracks one debug session on behalf of the MCP tools: which stop the
-    inferior is at, and whether the stack and the locals that the engine
-    holds belong to that stop, to the current thread and to the current
-    frame.
+    inferior is at, and whether the stack, the locals and the registers that
+    the engine holds belong to that stop, to the current thread and to the
+    current frame.
 
     Every resumption of the inferior starts a new epoch. Data is current when
     it arrived in the current epoch, for the thread and frame that are
@@ -85,6 +86,16 @@ McpSessionState::McpSessionState(DebuggerEngine *engine)
     });
     connect(watch, &WatchModelBase::updateAborted, this, [this] { m_localsAborted = true; });
     connect(watch, &WatchModelBase::updateFinished, this, &McpSessionState::handleLocalsFinished);
+
+    connect(engine->registerHandler(), &QAbstractItemModel::layoutChanged, this, [this] {
+        if (!m_registersExpected)
+            return;
+        m_registersExpected = false;
+        m_registersEpoch = m_epoch;
+        m_registersStackGeneration = m_stackGeneration;
+        m_registersFrameLevel = currentFrameLevel();
+        emit changed();
+    });
 }
 
 void McpSessionState::handleStateChange()
@@ -232,6 +243,18 @@ bool McpSessionState::isLocalsReady() const
            && m_localsStackGeneration == m_stackGeneration
            && m_localsFrame == currentFrameKey()
            && m_localsThreadId == currentThreadId();
+}
+
+bool McpSessionState::isRegistersReady() const
+{
+    return isStackReady() && m_registersEpoch == m_epoch
+           && m_registersStackGeneration == m_stackGeneration
+           && m_registersFrameLevel == currentFrameLevel();
+}
+
+void McpSessionState::expectRegisters()
+{
+    m_registersExpected = true;
 }
 
 QJsonObject McpSessionState::context() const

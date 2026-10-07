@@ -17,6 +17,8 @@
 
 #include <texteditor/textmark.h>
 
+#include <optional>
+
 #include <utils/fileinprojectfinder.h>
 #include <utils/filepath.h>
 #include <utils/outputformat.h>
@@ -539,12 +541,14 @@ public:
     virtual void requestModuleSections(const Utils::FilePath &moduleName);
 
     virtual void reloadRegisters();
+    void reloadRegistersEvenIfHidden();
     virtual void reloadPeripheralRegisters();
     virtual void reloadSourceFiles();
     virtual void reloadFullStack();
     virtual void loadAdditionalQmlStack();
 
     virtual void setRegisterValue(const QString &name, const QString &value);
+    virtual std::optional<bool> registersFollowSelectedFrame() const { return {}; }
     virtual void setPeripheralRegisterValue(quint64 address, quint64 value);
     virtual bool hasCapability(unsigned cap) const = 0;
     virtual void debugLastCommand() {}

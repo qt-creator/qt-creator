@@ -4,6 +4,7 @@
 #include "debuggerengine.h"
 #include "mcpsessionstate.h"
 #include "mcpsupport_p.h"
+#include "registerhandler.h"
 #include "stackhandler.h"
 #include "threadshandler.h"
 
@@ -22,6 +23,7 @@ using namespace Utils;
 namespace Debugger::Internal {
 
 enum {
+    defaultRegisterTimeoutMs = 5000,
     defaultThreadTimeoutMs = 5000,
     defaultMaxFrames = 10,
     maximalMaxFrames = 200,
@@ -333,6 +335,164 @@ static void collectThreadStacks(const QJsonObject &args, const McpReply &reply)
     (new ThreadStackCollector(*state, options, reply))->start();
 }
 
+// Registers
+
+static QString registerKindName(RegisterKind kind)
+{
+    switch (kind) {
+    case IntegerRegister: return "integer";
+    case FloatRegister:   return "float";
+    case VectorRegister:  return "vector";
+    case FlagRegister:    return "flags";
+    case OtherRegister:   return "other";
+    default:              return "unknown";
+    }
+}
+
+// All bits of the value in hex, as wide as the register, most significant
+// digit first. Without a known size, all significant digits.
+static QString losslessHex(const RegisterValue &value, int size)
+{
+    const quint64 words[4] = {value.v.u128[0].lo, value.v.u128[0].hi,
+                              value.v.u128[1].lo, value.v.u128[1].hi};
+    const int bytes = size > 0 ? std::min(size, 32) : 32;
+    QString hex;
+    for (int i = bytes - 1; i >= 0; --i) {
+        const uint byte = (words[i / 8] >> (8 * (i % 8))) & 0xff;
+        hex += QString("%1").arg(byte, 2, 16, QLatin1Char('0'));
+    }
+    if (size <= 0) {
+        while (hex.size() > 1 && hex.startsWith('0'))
+            hex.remove(0, 1);
+    }
+    return "0x" + hex;
+}
+
+/*!
+    \internal
+
+    Describes \a reg for debugger_get_registers. \a reportedAtThisStop says
+    whether the engine reported it with the last update.
+*/
+QJsonObject mcpRegisterToJson(const Register &reg, bool reportedAtThisStop)
+{
+    QJsonObject obj{{"name", reg.name},
+                    {"kind", registerKindName(reg.kind)},
+                    {"groups", QJsonArray::fromStringList(reg.groups)}};
+    if (reg.size > 0)
+        obj["bit_width"] = reg.size * 8;
+    if (!reg.reportedType.isEmpty())
+        obj["type"] = reg.reportedType;
+    if (!reportedAtThisStop) {
+        obj["available"] = false;
+        obj["reason"] = "The debugger did not report this register at this stop.";
+    } else if (!reg.value.known) {
+        obj["available"] = false;
+        obj["reason"] = "The debugger reported no value for this register.";
+    } else if (reg.size > int(sizeof(reg.value.v))) {
+        obj["available"] = false;
+        obj["reason"] = QString("The register is %1 bits wide, and Qt Creator holds at most %2 "
+                                "bits of a register value.")
+                            .arg(reg.size * 8).arg(sizeof(reg.value.v) * 8);
+    } else {
+        obj["available"] = true;
+        obj["value"] = losslessHex(reg.value, reg.size);
+    }
+    return obj;
+}
+
+static void getRegisters(const QJsonObject &args, const McpReply &reply)
+{
+    const Result<McpSessionState *> state = pausedSessionState();
+    if (!state) {
+        reply(ResultError(state.error()));
+        return;
+    }
+    DebuggerEngine *engine = (*state)->engine();
+    if (!engine->hasCapability(RegisterCapability)) {
+        reply(ResultError(QString("The %1 debugger of this session does not provide access to "
+                                  "registers.").arg(engine->debuggerName())));
+        return;
+    }
+
+    QStringList names;
+    for (const QJsonValue &name : args.value("names").toArray())
+        names.append(name.toString());
+    const QString group = args.value("group").toString();
+
+    const QPointer<McpSessionState> session = *state;
+    session->expectRegisters();
+    engine->reloadRegistersEvenIfHidden();
+    waitUntil(session, timeoutArgument(args, defaultRegisterTimeoutMs),
+              [session] { return session && session->isRegistersReady(); },
+              [session, names, group, reply](WaitOutcome outcome) {
+        if (outcome != WaitOutcome::Ready) {
+            reply(ResultError(notReadyMessage("registers", session,
+                                              outcome == WaitOutcome::SessionEnded)));
+            return;
+        }
+        const RegisterHandler *handler = session->engine()->registerHandler();
+        const QList<Register> all = handler->registers();
+
+        QStringList groups;
+        for (const Register &reg : all) {
+            for (const QString &g : reg.groups) {
+                if (!groups.contains(g))
+                    groups.append(g);
+            }
+        }
+        if (!group.isEmpty() && !groups.contains(group)) {
+            reply(ResultError(QString("The debugger reports no register group \"%1\". Its "
+                                      "groups are: %2.").arg(group, groups.join(", "))));
+            return;
+        }
+
+        QJsonArray registers;
+        QStringList found;
+        for (const Register &reg : all) {
+            if (!names.isEmpty() && !names.contains(reg.name))
+                continue;
+            if (!group.isEmpty() && !reg.groups.contains(group))
+                continue;
+            found.append(reg.name);
+            registers.append(mcpRegisterToJson(reg, handler->wasUpdatedByLastCommit(reg.name)));
+        }
+
+        const int frameLevel = session->currentFrameLevel();
+        QJsonObject result{{"registers", registers},
+                           {"groups", QJsonArray::fromStringList(groups)},
+                           {"frame_level", frameLevel},
+                           {"context", session->context()}};
+        const std::optional<bool> followsFrame
+            = session->engine()->registersFollowSelectedFrame();
+        if (frameLevel <= 0 || followsFrame == false) {
+            result["values_for_frame_level"] = 0;
+            result["live_cpu_values"] = true;
+            if (frameLevel > 0) {
+                result["note"] = "This debugger reports the registers of the innermost frame, "
+                                 "whichever frame is selected.";
+            }
+        } else if (followsFrame == true) {
+            result["values_for_frame_level"] = frameLevel;
+            result["live_cpu_values"] = false;
+            result["note"] = "The values are those the debugger reconstructs for the selected "
+                             "frame. Registers it cannot reconstruct for an outer frame may hold "
+                             "the current CPU value.";
+        } else {
+            result["note"] = "Whether this debugger reports the registers of the selected frame "
+                             "or of the innermost one is not known.";
+        }
+        QStringList missing;
+        for (const QString &name : std::as_const(names)) {
+            if (!found.contains(name))
+                missing.append(name);
+        }
+        if (!missing.isEmpty())
+            result["unknown_names"] = QJsonArray::fromStringList(missing);
+        reply(result);
+    });
+}
+
 void registerIntrospectionMcpTools()
 {
     using namespace Mcp::Schema;
@@ -427,6 +587,70 @@ void registerIntrospectionMcpTools()
                     .addRequired("same_stop")
                     .addRequired("target_resumed")),
         collectThreadStacks);
+
+    const QJsonObject registerSchema{
+        {"type", "object"},
+        {"required", QJsonArray{"name", "available"}},
+        {"properties", QJsonObject{
+            {"name",      QJsonObject{{"type", "string"}}},
+            {"value",     QJsonObject{{"type", "string"},
+                                      {"description", "All bits in hex, zero-padded to the register "
+                                                      "width, such as \"0x000000016fdff2a0\". Absent "
+                                                      "when the value is not available."}}},
+            {"available", QJsonObject{{"type", "boolean"}}},
+            {"reason",    QJsonObject{{"type", "string"}, {"description", "Why no value is available."}}},
+            {"bit_width", QJsonObject{{"type", "integer"}}},
+            {"kind",      QJsonObject{{"type", "string"},
+                                      {"enum", QJsonArray{"integer", "float", "vector", "flags", "other", "unknown"}}}},
+            {"type",      QJsonObject{{"type", "string"}, {"description", "The type the debugger reports."}}},
+            {"groups",    QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}}},
+        }}};
+
+    registerAsyncMcpTool(
+        Tool{}
+            .name("debugger_get_registers")
+            .title("Get CPU registers")
+            .description(
+                "Returns the CPU registers of the selected thread and frame of the paused debug "
+                "session, read freshly from the debugger. Read-only. Values are given in hex with "
+                "all bits; a register without a value is reported as not available rather than "
+                "as zero. For a frame other than the innermost, values_for_frame_level says whether "
+                "the debugger reconstructed the values for that frame or reports the innermost "
+                "frame's. Returns an error if the debugger cannot access "
+                "registers, if no session is active or if it is not paused.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty("names",
+                                 QJsonObject{{"type", "array"},
+                                             {"items", QJsonObject{{"type", "string"}}},
+                                             {"description", "Registers to return, such as "
+                                                             "[\"pc\", \"sp\"]. Default: all."}})
+                    .addProperty("group",
+                                 QJsonObject{{"type", "string"},
+                                             {"description", "Only registers in this group, as "
+                                                             "listed in \"groups\" of an earlier "
+                                                             "answer."}})
+                    .addProperty("timeout_ms", timeoutSchema(defaultRegisterTimeoutMs)))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("registers", QJsonObject{{"type", "array"}, {"items", registerSchema}})
+                    .addProperty("groups", QJsonObject{{"type", "array"},
+                                                       {"items", QJsonObject{{"type", "string"}}},
+                                                       {"description", "All register groups the debugger reports."}})
+                    .addProperty("frame_level", QJsonObject{{"type", "integer"}})
+                    .addProperty("live_cpu_values", QJsonObject{{"type", "boolean"},
+                                                                {"description", "The values are the current CPU state, not reconstructed for an outer frame. Absent when that is not known."}})
+                    .addProperty("values_for_frame_level", QJsonObject{{"type", "integer"},
+                                                                       {"description", "The frame the values belong to, which can differ from frame_level. Absent when that is not known."}})
+                    .addProperty("unknown_names", QJsonObject{{"type", "array"},
+                                                              {"items", QJsonObject{{"type", "string"}}},
+                                                              {"description", "Requested names the debugger does not report."}})
+                    .addProperty("note", QJsonObject{{"type", "string"}})
+                    .addProperty("context", contextSchema())
+                    .addRequired("registers")
+                    .addRequired("context")),
+        getRegisters);
 }
 
 } // namespace Debugger::Internal

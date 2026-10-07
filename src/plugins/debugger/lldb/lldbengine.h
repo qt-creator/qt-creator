@@ -80,6 +80,7 @@ private:
 
     void setRegisterValue(const QString &name, const QString &value) override;
 
+    std::optional<bool> registersFollowSelectedFrame() const override { return true; }
     void fetchMemory(MemoryAgent *, quint64 addr, quint64 length) override;
     void changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data) override;
 
