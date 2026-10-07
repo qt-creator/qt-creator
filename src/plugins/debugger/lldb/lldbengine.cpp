@@ -76,6 +76,7 @@ LldbEngine::LldbEngine()
             this, &LldbEngine::fetchFullBacktrace);
     connect(&ds.useDebuggingHelpers, &BaseAspect::changed, this, &LldbEngine::updateLocals);
     connect(&ds.useDynamicType, &BaseAspect::changed, this, &LldbEngine::updateLocals);
+    connect(&ds.allowInferiorCalls, &BaseAspect::changed, this, &LldbEngine::updateLocals);
     connect(&ds.intelFlavor, &BaseAspect::changed, this, &LldbEngine::updateAll);
 
     connect(&m_lldbProc, &Process::started, this, &LldbEngine::handleLldbStarted);
@@ -851,6 +852,7 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     const DebuggerSettings &s = settings();
     cmd.arg("passexceptions", alwaysVerbose);
     cmd.arg("fancy", s.useDebuggingHelpers());
+    cmd.arg("allowinferiorcalls", s.allowInferiorCalls());
     cmd.arg("autoderef", s.autoDerefPointers());
     cmd.arg("dyntype", s.useDynamicType());
     cmd.arg("partialvar", params.partialVariable);
