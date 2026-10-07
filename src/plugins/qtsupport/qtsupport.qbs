@@ -73,7 +73,6 @@ QtcPlugin {
         "qtcppkitinfo.h",
         "qtprojectimporter.cpp",
         "qtprojectimporter.h",
-        "qtsupport.qrc",
         "exampleslistmodel.cpp",
         "exampleslistmodel.h",
         "examplesparser.cpp",
@@ -121,5 +120,11 @@ QtcPlugin {
             "gettingstartedwelcomepage.cpp",
             "gettingstartedwelcomepage.h"
         ]
+    }
+
+    Group {
+        name: "images"
+        files: ["images/*", "images/**/*"]
+        fileTags: "qt.core.resource_data"
     }
 }

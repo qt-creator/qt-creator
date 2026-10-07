@@ -23,7 +23,6 @@ add_qtc_plugin(QtSupport
     qtoutputformatter.cpp qtoutputformatter.h
     qtparser.cpp qtparser.h
     qtprojectimporter.cpp qtprojectimporter.h
-    qtsupport.qrc
     qtsupport_global.h
     qtsupporttr.h
     qtsupportconstants.h
@@ -35,4 +34,11 @@ add_qtc_plugin(QtSupport
     qtversions.cpp qtversions.h
     translationwizardpage.cpp translationwizardpage.h
     uicgenerator.cpp uicgenerator.h
+)
+
+file(GLOB_RECURSE images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} images/*)
+qtc_add_resources(QtSupport "images"
+  PREFIX "/qtsupport"
+  BASE "."
+  FILES ${images}
 )
