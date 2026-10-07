@@ -28,4 +28,6 @@ QJsonObject timeoutSchema(int defaultMs);
 QJsonObject contextSchema();
 QString notReadyMessage(const QString &what, McpSessionState *state, bool sessionEnded);
 
+void registerIntrospectionMcpTools();
+
 } // namespace Debugger::Internal

@@ -86,6 +86,7 @@ public:
     StackFrame currentFrame() const;
     StackFrame frameAt(int index) const;
     int stackSize() const;
+    bool canExpand() const { return m_canExpand; }
     quint64 topAddress() const;
 
     // Called from StackHandler after a new stack list has been received

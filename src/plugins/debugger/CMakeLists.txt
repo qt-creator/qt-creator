@@ -117,6 +117,7 @@ extend_qtc_plugin(Debugger
 
 extend_qtc_plugin(Debugger
   SOURCES
+    mcpintrospection.cpp
     mcpsessionstate.cpp mcpsessionstate.h
     mcpsupport.cpp mcpsupport.h mcpsupport_p.h
   DEPENDS McpServerLib

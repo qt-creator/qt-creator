@@ -2202,6 +2202,8 @@ void registerMcpTools()
         wrap([](const QJsonObject &) {
             return QJsonObject{{"message", stopDebug()}};
         }));
+
+    registerIntrospectionMcpTools();
 }
 
 } // namespace Debugger::Internal

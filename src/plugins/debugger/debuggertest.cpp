@@ -170,6 +170,14 @@ private slots:
     void testMcpSelectFrameBeforeTheStopsLocals();
     void testMcpVariableFetchesItsChildren_data();
     void testMcpVariableFetchesItsChildren();
+    void testMcpCollectsTheStacksOfAllThreads_data();
+    void testMcpCollectsTheStacksOfAllThreads();
+    void testMcpThreadStacksAreBounded_data();
+    void testMcpThreadStacksAreBounded();
+    void testMcpStackOfAStopInAnotherThread_data();
+    void testMcpStackOfAStopInAnotherThread();
+    void testMcpSelectThreadWaitsForItsStack_data();
+    void testMcpSelectThreadWaitsForItsStack();
     void testDisassemblyThatMissesTheAddressMarksNoLine();
     void testOnlyMachineCodeIsOfferedADisassembly();
     void testAnEmptyDisassemblyLeavesTheViewAlone();
@@ -2068,6 +2076,16 @@ public:
         if (QString reason = preCheckStepTests(&kit, &toolchain); !reason.isEmpty())
             return reason;
         QTC_ASSERT(kit && toolchain, return "kit or toolchain invalid");
+        if (m_gdbDap) {
+            // gdb only grew its DAP mode along the way.
+            if (DebuggerKitAspect::engineType(kit) != GdbEngineType)
+                m_skipReason = "The debugger of the kit is not gdb.";
+            else if (QVersionNumber::fromString(DebuggerKitAspect::version(kit))
+                     < QVersionNumber(14, 0, 50))
+                m_skipReason = "The gdb of the kit is too old for its DAP mode.";
+            if (!m_skipReason.isEmpty())
+                return m_skipReason;
+        }
 
         const FilePath dir = FilePath::fromString(m_dir.path());
         m_source = dir / "stepping.cpp";
@@ -2100,6 +2118,8 @@ public:
         m_runControl->setKit(kit);
         DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(m_runControl);
         rp.setInferior(ProcessRunData{CommandLine{m_executable}, dir});
+        if (m_gdbDap)
+            rp.setCppEngineType(GdbDapEngineType);
         QObject::connect(m_runControl, &RunControl::stopped,
                          &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
         m_stoppedConnection = QObject::connect(m_runControl, &RunControl::stopped,
@@ -2138,6 +2158,12 @@ public:
     DebuggerEngine *engine() const { return m_engine; }
     FilePath source() const { return m_source; }
     int line() const { return m_line; }
+    FilePath sourceFile() const { return FilePath::fromString(m_dir.path()) / "stepping.cpp"; }
+
+    // Runs the session with gdb's DAP mode instead of its machine interface.
+    void useGdbDap() { m_gdbDap = true; }
+    // Why start() did not get to a session that it could test.
+    QString skipReason() const { return m_skipReason; }
 
     int markerLine(const QString &marker) const
     {
@@ -2161,6 +2187,8 @@ private:
     QPointer<DebuggerEngine> m_engine;
     GlobalBreakpoint m_breakpoint;
     bool m_warnedAboutBreakpoints = false;
+    bool m_gdbDap = false;
+    QString m_skipReason;
     int m_line = 0;
 };
 
@@ -2332,6 +2360,16 @@ static void addBackendRows()
     QTest::addColumn<bool>("generic");
     QTest::newRow("engine") << false;
     QTest::newRow("generic") << true;
+}
+
+// The engines that report the threads of a stop one by one, after its stack.
+static void addBackendRowsWithGdbDap()
+{
+    QTest::addColumn<bool>("generic");
+    QTest::addColumn<bool>("gdbDap");
+    QTest::newRow("engine") << false << false;
+    QTest::newRow("generic") << true << false;
+    QTest::newRow("gdb-dap") << false << true;
 }
 
 void DebuggerUnitTests::testMcpStepWaitsForTheNewStop_data()
@@ -2672,6 +2710,262 @@ void DebuggerUnitTests::testMcpVariableFetchesItsChildren()
     const QJsonArray children = fetched->value("variable").toObject().value("children").toArray();
     QCOMPARE(children.size(), 2);
     QCOMPARE(children.at(1).toObject().value("value").toString(), QString("2"));
+}
+
+// Two threads that wait in a function of their own name while main stops.
+static const char s_threadsSource[] = R"CPP(
+#include <atomic>
+#include <chrono>
+#include <thread>
+
+std::atomic<int> started{0};
+
+void parkedWorker()
+{
+    ++started;
+    for (;;)
+        std::this_thread::sleep_for(std::chrono::milliseconds(50)); // MARKER: parked
+}
+
+int main()
+{
+    std::thread first(parkedWorker);
+    std::thread second(parkedWorker);
+    while (started < 2)
+        std::this_thread::yield();
+    int both = started; // MARKER: all-started
+    // Long enough for a worker to run into a breakpoint set at this stop.
+    std::this_thread::sleep_for(std::chrono::seconds(30));
+    first.detach();
+    second.detach();
+    return both - 2;
+}
+)CPP";
+
+static bool hasFrameIn(const QJsonObject &thread, const QString &function)
+{
+    for (const QJsonValue &frame : thread.value("frames").toArray()) {
+        if (frame.toObject().value("function").toString().startsWith(function))
+            return true;
+    }
+    return false;
+}
+
+void DebuggerUnitTests::testMcpCollectsTheStacksOfAllThreads_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpCollectsTheStacksOfAllThreads()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session(s_threadsSource, {"-std=c++17", "-pthread"});
+    const QString problem = session.start("MARKER: all-started");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> before = callDebuggerTool("debugger_get_call_stack");
+    QVERIFY2(before, qPrintable(errorOf(before)));
+    const QString originalThread = before->value("context").toObject().value("thread_id").toString();
+    QVERIFY(!originalThread.isEmpty());
+
+    const Result<QJsonObject> stacks
+        = callDebuggerTool("debugger_get_thread_stacks", {{"max_frames", 10}});
+    QVERIFY2(stacks, qPrintable(errorOf(stacks)));
+    QVERIFY(stacks->value("same_stop").toBool());
+    QVERIFY(!stacks->value("target_resumed").toBool());
+    QVERIFY(stacks->value("selection_restored").toBool());
+    QCOMPARE(stacks->value("stop_id").toInt(), stopIdOf(*before));
+
+    int workers = 0;
+    int mains = 0;
+    const QJsonArray threads = stacks->value("threads").toArray();
+    for (const QJsonValue &value : threads) {
+        const QJsonObject thread = value.toObject();
+        QVERIFY2(!thread.contains("error"),
+                 qPrintable(thread.value("id").toString() + ": "
+                            + thread.value("error").toString()));
+        if (hasFrameIn(thread, "parkedWorker"))
+            ++workers;
+        const QJsonObject top = thread.value("frames").toArray().first().toObject();
+        if (top.value("function").toString().startsWith("main")) {
+            ++mains;
+            QCOMPARE(top.value("line").toInt(), session.line());
+            QCOMPARE(thread.value("id").toString(), originalThread);
+        }
+    }
+    QVERIFY2(threads.size() >= 3, qPrintable(QString::number(threads.size())));
+    QCOMPARE(workers, 2);
+    QCOMPARE(mains, 1);
+
+    const Result<QJsonObject> after = callDebuggerTool("debugger_get_call_stack");
+    QVERIFY2(after, qPrintable(errorOf(after)));
+    QCOMPARE(after->value("context").toObject().value("thread_id").toString(), originalThread);
+    QCOMPARE(stopIdOf(*after), stopIdOf(*before));
+    QCOMPARE(after->value("frames").toArray().first().toObject().value("line").toInt(),
+             session.line());
+}
+
+void DebuggerUnitTests::testMcpStackOfAStopInAnotherThread_data()
+{
+    addBackendRowsWithGdbDap();
+}
+
+void DebuggerUnitTests::testMcpStackOfAStopInAnotherThread()
+{
+    QFETCH(bool, generic);
+    QFETCH(bool, gdbDap);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session(s_threadsSource, {"-std=c++17", "-pthread"});
+    if (gdbDap)
+        session.useGdbDap();
+    const QString problem = session.start("MARKER: all-started");
+    if (!session.skipReason().isEmpty())
+        QSKIP(qPrintable(session.skipReason()));
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+    const Result<QJsonObject> inMain = callDebuggerTool("debugger_get_call_stack");
+    QVERIFY2(inMain, qPrintable(errorOf(inMain)));
+    const QString mainThread = inMain->value("context").toObject().value("thread_id").toString();
+
+    // The next stop is in a worker, so the thread that stops is not the one
+    // that was selected.
+    BreakpointParameters params;
+    params.type = BreakpointByFileAndLine;
+    params.fileName = session.sourceFile();
+    params.textPosition = {session.markerLine("MARKER: parked"), -1};
+    params.enabled = true;
+    const GlobalBreakpoint parked = BreakpointManager::createBreakpoint(params);
+    QVERIFY(parked);
+    const QScopeGuard remove([parked] {
+        if (parked)
+            parked->deleteBreakpoint();
+    });
+
+    const Result<QJsonObject> resumed
+        = callDebuggerTool("debugger_continue", {{"wait_for_completion", true}});
+    QVERIFY2(resumed, qPrintable(errorOf(resumed)));
+    QCOMPARE(resumed->value("status").toString(), QString("completed"));
+
+    const Result<QJsonObject> inWorker = callDebuggerTool("debugger_get_call_stack");
+    QVERIFY2(inWorker, qPrintable(errorOf(inWorker)));
+    QVERIFY(inWorker->value("context").toObject().value("thread_id").toString() != mainThread);
+    QVERIFY2(hasFrameIn(*inWorker, "parkedWorker"),
+             QJsonDocument(*inWorker).toJson(QJsonDocument::Compact).constData());
+}
+
+// A worker that stays in this file, so that its innermost frame has a source.
+static const char s_spinningThreadSource[] = R"CPP(
+#include <atomic>
+#include <thread>
+
+std::atomic<bool> done{false};
+std::atomic<int> started{0};
+
+void spinningWorker()
+{
+    ++started;
+    while (!done) {
+    } // MARKER: spinning
+}
+
+int main()
+{
+    std::thread worker(spinningWorker);
+    while (started < 1)
+        std::this_thread::yield();
+    int one = started; // MARKER: worker-started
+    done = true;
+    worker.join();
+    return one - 1;
+}
+)CPP";
+
+void DebuggerUnitTests::testMcpSelectThreadWaitsForItsStack_data()
+{
+    addBackendRowsWithGdbDap();
+}
+
+void DebuggerUnitTests::testMcpSelectThreadWaitsForItsStack()
+{
+    QFETCH(bool, generic);
+    QFETCH(bool, gdbDap);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session(s_spinningThreadSource, {"-std=c++17", "-pthread"});
+    if (gdbDap)
+        session.useGdbDap();
+    const QString problem = session.start("MARKER: worker-started");
+    if (!session.skipReason().isEmpty())
+        QSKIP(qPrintable(session.skipReason()));
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> inMain = callDebuggerTool("debugger_get_call_stack");
+    QVERIFY2(inMain, qPrintable(errorOf(inMain)));
+    const QString current = inMain->value("context").toObject().value("thread_id").toString();
+    QString worker;
+    session.engine()->threadsHandler()->forItemsAtLevel<1>([&](ThreadItem *thread) {
+        if (thread->id() != current)
+            worker = thread->id();
+    });
+    QVERIFY(!worker.isEmpty());
+
+    const Result<QJsonObject> selected = callDebuggerTool(
+        "debugger_select_thread", {{"id", worker}, {"wait_for_completion", true}});
+    QVERIFY2(selected, qPrintable(errorOf(selected)));
+    QCOMPARE(selected->value("status").toString(), QString("completed"));
+
+    const Result<QJsonObject> inWorker
+        = callDebuggerTool("debugger_get_call_stack", {{"timeout_ms", 0}});
+    QVERIFY2(inWorker, qPrintable(errorOf(inWorker)));
+    QCOMPARE(inWorker->value("context").toObject().value("thread_id").toString(), worker);
+    QVERIFY2(hasFrameIn(*inWorker, "spinningWorker"),
+             QJsonDocument(*inWorker).toJson(QJsonDocument::Compact).constData());
+}
+
+void DebuggerUnitTests::testMcpThreadStacksAreBounded_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpThreadStacksAreBounded()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session(s_threadsSource, {"-std=c++17", "-pthread"});
+    const QString problem = session.start("MARKER: all-started");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> shallow = callDebuggerTool(
+        "debugger_get_thread_stacks", {{"max_frames", 1}, {"fields", QJsonArray{"function"}}});
+    QVERIFY2(shallow, qPrintable(errorOf(shallow)));
+    for (const QJsonValue &value : shallow->value("threads").toArray()) {
+        const QJsonObject thread = value.toObject();
+        const QJsonArray frames = thread.value("frames").toArray();
+        QCOMPARE(frames.size(), 1);
+        const QJsonObject frame = frames.first().toObject();
+        QVERIFY(frame.contains("function"));
+        QVERIFY(!frame.contains("line"));
+        QVERIFY(!frame.contains("address"));
+        if (thread.value("frames_loaded").toInt() > 1)
+            QVERIFY(thread.value("truncated").toBool());
+    }
+
+    const Result<QJsonObject> one
+        = callDebuggerTool("debugger_get_thread_stacks", {{"max_threads", 1}});
+    QVERIFY2(one, qPrintable(errorOf(one)));
+    QCOMPARE(one->value("threads").toArray().size(), 1);
+    QVERIFY(one->value("omitted_threads").toArray().size() >= 2);
 }
 
 static QStringList s_capturedMessages;
