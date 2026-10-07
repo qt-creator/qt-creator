@@ -56,7 +56,6 @@ Project {
             "cmakeoutputparser.h",
             "cmakeproject.cpp",
             "cmakeproject.h",
-            "cmakeproject.qrc",
             "cmakeprojectimporter.cpp",
             "cmakeprojectimporter.h",
             "cmakeprojectconstants.h",
@@ -123,6 +122,19 @@ Project {
         ]
 
         QtcTestResources { files: "testcases/**/*" }
+
+        Group {
+            name: "runtime resources"
+            fileTags: "qt.core.resource_data"
+            Qt.core.resourcePrefix: "/cmakeproject"
+            files: [
+                "images/fileoverlay_cmake.png",
+                "images/fileoverlay_cmake@2x.png",
+                "images/settingscategory_cmakeprojectmanager.png",
+                "images/settingscategory_cmakeprojectmanager@2x.png",
+                "cmake/QtTracing.cmake",
+            ]
+        }
     }
 
     QtcAutotest {

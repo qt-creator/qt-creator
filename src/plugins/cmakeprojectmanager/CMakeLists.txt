@@ -26,7 +26,6 @@ add_qtc_plugin(CMakeProjectManager
     cmakeoutline.cpp cmakeoutline.h
     cmakeoutputparser.cpp cmakeoutputparser.h
     cmakeproject.cpp cmakeproject.h
-    cmakeproject.qrc
     cmakeprojectconstants.h
     cmakeprojectimporter.cpp cmakeprojectimporter.h
     cmakeprojectmanager.cpp cmakeprojectmanager.h
@@ -58,6 +57,17 @@ add_qtc_plugin(CMakeProjectManager
     qtinstallerpackages.cpp qtinstallerpackages.h
     targethelper.cpp targethelper.h
     testpresetshelper.cpp testpresetshelper.h
+)
+
+qtc_add_resources(CMakeProjectManager "resources"
+  PREFIX "/cmakeproject"
+  BASE "."
+  FILES
+    images/fileoverlay_cmake.png
+    images/fileoverlay_cmake@2x.png
+    images/settingscategory_cmakeprojectmanager.png
+    images/settingscategory_cmakeprojectmanager@2x.png
+    cmake/QtTracing.cmake
 )
 
 add_qtc_test(tst_cmake_install_rules
