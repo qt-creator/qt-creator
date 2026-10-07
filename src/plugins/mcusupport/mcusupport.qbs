@@ -31,7 +31,6 @@ QtcPlugin {
         "mcutargetfactory.h",
         "mcutargetfactorylegacy.cpp",
         "mcutargetfactorylegacy.h",
-        "mcusupport.qrc",
         "mcusupport_global.h", "mcusupporttr.h",
         "mcusupportconstants.h",
         "mcusupportdevice.cpp",
@@ -65,12 +64,6 @@ QtcPlugin {
         "mcusupportimportprovider.cpp",
     ]
 
-    Group {
-        name: "wizards"
-        files: "wizards/**/*"
-        fileTags: []
-    }
-
     QtcTestFiles {
         condition: qtc.withPluginTests && (qtc_gtest_gmock.hasRepo || qtc_gtest_gmock.externalLibsPresent)
         prefix: "test/"
@@ -85,5 +78,11 @@ QtcPlugin {
         condition: qtc.withPluginTests && (qtc_gtest_gmock.hasRepo || qtc_gtest_gmock.externalLibsPresent)
         cpp.defines: base.concat(["GOOGLE_TEST_IS_FOUND"])
         cpp.includePaths: base.concat([ "." ])
+    }
+
+    Group {
+        name: "runtime resources"
+        files: ["images/*", "images/**/*", "wizards/*", "wizards/**/*"]
+        fileTags: "qt.core.resource_data"
     }
 }

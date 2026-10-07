@@ -3,7 +3,6 @@ add_qtc_plugin(McuSupport
   PLUGIN_DEPENDS Core BareMetal ProjectExplorer Debugger CMakeProjectManager QmlJSTools QtSupport
   SOURCES
     mcukitaspect.cpp mcukitaspect.h
-    mcusupport.qrc
     mcusupport_global.h
     mcusupporttr.h
     mcusupportconstants.h
@@ -26,6 +25,20 @@ add_qtc_plugin(McuSupport
     mcubuildstep.cpp mcubuildstep.h
     dialogs/mcukitcreationdialog.cpp dialogs/mcukitcreationdialog.h
     mcusupportimportprovider.cpp mcusupportimportprovider.h
+)
+
+file(GLOB_RECURSE images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} images/*)
+qtc_add_resources(McuSupport "images"
+  PREFIX "/mcusupport"
+  BASE "."
+  FILES ${images}
+)
+
+file(GLOB_RECURSE wizards RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} wizards/*)
+qtc_add_resources(McuSupport "wizards"
+  PREFIX "/mcusupport"
+  BASE "."
+  FILES ${wizards}
 )
 
 add_subdirectory(test)
