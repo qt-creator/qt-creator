@@ -25,6 +25,7 @@ Project {
 
         cpp.defines: base.concat(["YAML_CPP_DLL", "yaml_cpp_EXPORTS"])
         cpp.includePaths: [product.sourceDirectory + "/include/"]
+        cpp.warningLevel: "none"
 
         files: [
             "include/yaml-cpp/anchor.h",

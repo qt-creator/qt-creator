@@ -252,6 +252,7 @@ Project {
         }
 
         cpp.includePaths: "."
+        cpp.warningLevel: "none"
 
         Export {
             Depends { name: "cpp" }

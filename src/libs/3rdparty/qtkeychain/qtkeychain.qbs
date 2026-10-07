@@ -16,6 +16,7 @@ QtcLibrary {
     enforceInternalLinkage: false
 
     Properties { cpp.defines: base.concat(["QTKEYCHAIN_LIBRARY"]) }
+    cpp.warningLevel: "none"
 
     Properties {
         condition: useWinCredentialsStore
