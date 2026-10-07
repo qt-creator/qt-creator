@@ -314,7 +314,7 @@ void reloadCMakePresets(CMakeProject *project)
 
     QMessageBox::StandardButton clickedButton = CheckableMessageBox::question(
         Tr::tr("Reload CMake Presets"),
-        Tr::tr("Re-generates the kits that were created for the CMake presets of \"%1\". All "
+        Tr::tr("Regenerates the kits that were created for the CMake presets of \"%1\". All "
                "manual modifications to the CMake project settings will be lost.")
             .arg(project->displayName()),
         cmakeSettingsForProject(project).askBeforePresetsReload.askAgainCheckableDecider(),

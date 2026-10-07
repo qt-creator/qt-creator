@@ -243,8 +243,11 @@ private:
     {
         QMessageBox msgBox;
         msgBox.setWindowTitle(Tr::tr("Kill Previous Process?"));
-        msgBox.setText(Tr::tr("Previous %1 command is still running.\n"
-                              "Do you want to kill it?").arg(toolName()));
+        msgBox.setText(
+            Tr::tr(
+                "The previous %1 command is still running.\n"
+                "Kill it?")
+                .arg(toolName()));
         auto *killButton = msgBox.addButton(Tr::tr("Kill"), QMessageBox::YesRole);
         msgBox.addButton(Tr::tr("Queue"), QMessageBox::NoRole);
         msgBox.addButton(QMessageBox::Cancel);
@@ -576,7 +579,7 @@ public:
         setId("Run CTest Test");
         setDisplayName(Tr::tr("Run CTest Test"));
         setDescription(
-            Tr::tr("Runs a CTest test of the current active CMake project or runs ctest "
+            Tr::tr("Runs a CTest test of the active CMake project or runs ctest "
                    "commands."));
         setDefaultShortcutString("ct");
         setPriority(Medium);
