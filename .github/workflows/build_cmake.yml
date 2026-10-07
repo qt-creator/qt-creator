@@ -571,54 +571,77 @@ jobs:
     - name: Download ccache archive
       shell: cmake -P {0}
       run: |
-        foreach(page_id RANGE 1 10)
-          file(
-            DOWNLOAD "https://api.github.com/repos/${{ github.repository }}/actions/artifacts?per_page=100&page=${page_id}"
+        set(archive_name "${{ steps.ccache.outputs.archive_name }}")
+
+        # Listing every artifact of the repository and filtering client side
+        # makes the API fail once enough artifacts have accumulated, so let
+        # the server filter by name. The result is sorted newest first.
+        file(
+          DOWNLOAD "https://api.github.com/repos/${{ github.repository }}/actions/artifacts?name=${archive_name}&per_page=10"
+          HTTPHEADER "Accept: application/vnd.github+json"
+          HTTPHEADER "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
+          HTTPHEADER "X-GitHub-Api-Version: 2022-11-28"
+          SHOW_PROGRESS
+          STATUS download_status
+          artifacts.json)
+        list(GET download_status 0 download_status_code)
+        if(NOT download_status_code EQUAL 0)
+          list(GET download_status 1 download_status_message)
+          message(STATUS "Downloading artifacts.json failed: ${download_status_code} ${download_status_message}")
+          return()
+        endif()
+
+        file(READ artifacts.json artifacts_json)
+        string(JSON artifacts_length ERROR_VARIABLE json_error LENGTH "${artifacts_json}" "artifacts")
+        if(json_error)
+          message(STATUS "Parsing artifacts.json failed: ${json_error}")
+          message(STATUS "artifacts.json:\n${artifacts_json}")
+          return()
+        endif()
+
+        set(download_url "")
+        if(artifacts_length GREATER 0)
+          math(EXPR last_idx "${artifacts_length} - 1")
+          foreach(idx RANGE 0 ${last_idx})
+            string(JSON artifact_js GET "${artifacts_json}" "artifacts" ${idx})
+            string(JSON expired GET "${artifact_js}" "expired")
+            if(NOT expired)
+              string(JSON download_url GET "${artifact_js}" "archive_download_url")
+              break()
+            endif()
+          endforeach()
+        endif()
+
+        if("${download_url}" STREQUAL "")
+          message(STATUS "No ${archive_name} artifact available, building without a ccache archive")
+          return()
+        endif()
+
+        set(downloaded FALSE)
+        foreach(retry RANGE 10)
+          file(DOWNLOAD "${download_url}"
+            "${archive_name}.zip"
             HTTPHEADER "Accept: application/vnd.github+json"
             HTTPHEADER "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
             HTTPHEADER "X-GitHub-Api-Version: 2022-11-28"
             SHOW_PROGRESS
-            STATUS download_status
-            artifacts.json)
+            STATUS download_status)
           list(GET download_status 0 download_status_code)
-          if(NOT download_status_code EQUAL 0)
-            list(GET download_status 1 download_status_message)
-            message(STATUS "Downloading artifacts.json (page ${page_id}) failed: ${download_status_code} ${download_status_message}")
-          endif()
-          file(READ artifacts.json artifacts_json)
-          message(STATUS "artifacts.json (page ${page_id}):\n${artifacts_json}")
-
-          string(JSON artifacts_length LENGTH "${artifacts_json}" "artifacts")
-          math(EXPR artifacts_length "${artifacts_length} - 1")
-          if(${artifacts_length} GREATER_EQUAL 0)
-            foreach(idx RANGE 0 ${artifacts_length})
-              string(JSON artifact_js GET "${artifacts_json}" "artifacts" ${idx})
-              string(JSON name GET "${artifact_js}" "name")
-              if ("${name}" STREQUAL "${{ steps.ccache.outputs.archive_name }}")
-                string(JSON download_url GET "${artifact_js}" "archive_download_url")
-
-                foreach(retry RANGE 10)
-                  file(DOWNLOAD "${download_url}"
-                    "${{ steps.ccache.outputs.archive_name }}.zip"
-                    HTTPHEADER "Accept: application/vnd.github+json"
-                    HTTPHEADER "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
-                    HTTPHEADER "X-GitHub-Api-Version: 2022-11-28"
-                    SHOW_PROGRESS)
-                  file(SIZE "${{ steps.ccache.outputs.archive_name }}.zip" fileSize)
-                  if (fileSize GREATER 0)
-                    break()
-                  endif()
-                endforeach()
-
-                execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${{ steps.ccache.outputs.archive_name }}.zip")
-                file(MAKE_DIRECTORY .ccache)
-                execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf "../${{ steps.ccache.outputs.archive_name }}.tar" WORKING_DIRECTORY .ccache)
-
-                return()
-              endif()
-            endforeach()
+          file(SIZE "${archive_name}.zip" fileSize)
+          if (download_status_code EQUAL 0 AND fileSize GREATER 0)
+            set(downloaded TRUE)
+            break()
           endif()
         endforeach()
+
+        if(NOT downloaded)
+          message(STATUS "Downloading ${archive_name} failed, building without a ccache archive")
+          return()
+        endif()
+
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${archive_name}.zip")
+        file(MAKE_DIRECTORY .ccache)
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf "../${archive_name}.tar" WORKING_DIRECTORY .ccache)
     - name: Build
       shell: cmake -P {0}
       run: |
