@@ -710,7 +710,6 @@ public:
         m_debuggerName = Tr::tr("Debugger");
 
         m_logWindow = new LogWindow(m_engine); // Needed before start()
-        m_logWindow->setObjectName("Debugger.Dock.Output");
 
         connect(&settings().enableReverseDebugging, &BaseAspect::changed, this, [this] {
             updateState();
@@ -1010,8 +1009,8 @@ void DebuggerEnginePrivate::setupViews()
 
     Perspective *currentPerspective = PerspectivesView::instance()->currentPerspective();
 
-    const QString perspectiveId = "Debugger.Perspective." + m_runId + '.' + m_debuggerName;
-    const QString settingsId = "Debugger.Perspective." + m_debuggerName;
+    const QString perspectiveId = "Debugger.Perspective." + m_runId + '.' + engineId;
+    const QString settingsId = "Debugger.Perspective.v2." + engineId;
     const QString parentPerspectiveId = currentPerspective ? currentPerspective->id()
                                                            : Constants::PRESET_PERSPECTIVE_ID;
 
@@ -1063,6 +1062,8 @@ void DebuggerEnginePrivate::setupViews()
             this, &DebuggerEnginePrivate::resetLocation);
 
     QtcSettings *settings = ICore::settings();
+
+    m_logWindow->setObjectName("Debugger.Dock.Output." + engineId);
 
     m_modulesView = new BaseTreeView;
     m_modulesView->setModel(m_modulesHandler.model());
