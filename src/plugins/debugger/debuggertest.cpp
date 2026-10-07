@@ -200,6 +200,8 @@ private slots:
     void testMcpEvaluationsShareATemporaryWatch();
     void testMcpReportsCapabilities_data();
     void testMcpReportsCapabilities();
+    void testDisabledBreakpointDoesNotStop_data();
+    void testDisabledBreakpointDoesNotStop();
     void testDisassemblyThatMissesTheAddressMarksNoLine();
     void testOnlyMachineCodeIsOfferedADisassembly();
     void testAnEmptyDisassemblyLeavesTheViewAlone();
@@ -2168,7 +2170,7 @@ public:
         // The session the tests run in may hold breakpoints of its own, and
         // CDB takes one on a file of the same name elsewhere for this one.
         for (const GlobalBreakpoint &other : BreakpointManager::globalBreakpoints()) {
-            if (other && other->isEnabled()) {
+            if (other && other->isEnabled() && !m_keptBreakpoints.contains(other)) {
                 other->setEnabled(false);
                 m_disabledBreakpoints.append(other);
             }
@@ -2227,6 +2229,8 @@ public:
     FilePath source() const { return m_source; }
     int line() const { return m_line; }
     FilePath sourceFile() const { return FilePath::fromString(m_dir.path()) / "stepping.cpp"; }
+    // A breakpoint of the test's own, which start() leaves as it is.
+    void keepBreakpoint(const GlobalBreakpoint &breakpoint) { m_keptBreakpoints.append(breakpoint); }
 
     // Runs the session with gdb's DAP mode instead of its machine interface.
     void useGdbDap() { m_gdbDap = true; }
@@ -2255,6 +2259,7 @@ private:
     QPointer<DebuggerEngine> m_engine;
     GlobalBreakpoint m_breakpoint;
     GlobalBreakpoints m_disabledBreakpoints;
+    GlobalBreakpoints m_keptBreakpoints;
     bool m_warnedAboutBreakpoints = false;
     bool m_gdbDap = false;
     QString m_skipReason;
@@ -3679,6 +3684,50 @@ void DebuggerUnitTests::testMcpReportsCapabilities()
     QVERIFY2(ended, qPrintable(errorOf(ended)));
     QCOMPARE(capabilityNamed(*ended, "call_stack").value("status").toString(),
              QString("invalid_state"));
+}
+
+void DebuggerUnitTests::testDisabledBreakpointDoesNotStop_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testDisabledBreakpointDoesNotStop()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    // A disabled breakpoint on a line that runs before the marker: if it
+    // stops the program, the session never gets to the marker.
+    BreakpointParameters params;
+    params.type = BreakpointByFileAndLine;
+    params.fileName = session.sourceFile();
+    params.textPosition = {session.markerLine("MARKER: at-call") - 1, -1};
+    params.enabled = false;
+    const GlobalBreakpoint disabled = BreakpointManager::createBreakpoint(params);
+    QVERIFY(disabled);
+    session.keepBreakpoint(disabled);
+    // cdb takes a breakpoint on a file of the same name in another directory
+    // for one on this file, and the two end up on the same address. Disabling
+    // that one must not disable the session's own.
+    QTemporaryDir otherDir;
+    QVERIFY(otherDir.isValid());
+    params.fileName = FilePath::fromString(otherDir.path()) / "stepping.cpp";
+    params.textPosition = {session.markerLine("MARKER: at-call"), -1};
+    const GlobalBreakpoint elsewhere = BreakpointManager::createBreakpoint(params);
+    QVERIFY(elsewhere);
+    session.keepBreakpoint(elsewhere);
+    const QScopeGuard remove([disabled, elsewhere] {
+        if (disabled)
+            disabled->deleteBreakpoint();
+        if (elsewhere)
+            elsewhere->deleteBreakpoint();
+    });
+
+    const QString problem = session.start("MARKER: at-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
 }
 
 static QStringList s_capturedMessages;

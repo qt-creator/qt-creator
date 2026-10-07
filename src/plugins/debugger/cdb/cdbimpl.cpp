@@ -1046,6 +1046,8 @@ void CdbImpl::insertBreakpoint(quint64 requestId, const QString &id, int modelId
                 m_parentForSubBreakpointId.insert(subResponseId, id);
                 runCommand({breakpointInsertCommand(fixed, subResponseId, sourcePathMap(),
                                                     target), NoFlags});
+                if (!enabled)
+                    runCommand({"bd" + subResponseId, NoFlags});
                 GdbMi location;
                 location.m_type = GdbMi::Tuple;
                 location.addChild(constMi("number", subResponseId));
@@ -1062,6 +1064,12 @@ void CdbImpl::insertBreakpoint(quint64 requestId, const QString &id, int modelId
         reportBreakpointInserted(requestId, id, enabled, file, line, function,
                                  locations, report);
     }});
+    // cdb inserts a breakpoint enabled. Disabling it right away keeps the
+    // order of the commands, which matters when a later breakpoint lands on
+    // the same address. With the insert's flags it is deferred along with the
+    // insert while the inferior runs, rather than overtaking it.
+    if (!enabled)
+        runCommand({"bd" + id, BuiltinCommand});
 }
 
 void CdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
@@ -1275,6 +1283,8 @@ void CdbImpl::setResolvedFunctionBreakpoints(quint64 requestId, const QString &i
         const ResolvedFunction &function = resolved.constFirst();
         runCommand({breakpointInsertCommand(params, id, sourcePathMap(),
                                             hexAddress(function.address)), NoFlags});
+        if (!enabled)
+            runCommand({"bd" + id, NoFlags});
         reportBreakpointInserted(requestId, id, enabled, function.file, function.line,
                                  function.name, {}, report);
         return;
@@ -1288,6 +1298,8 @@ void CdbImpl::setResolvedFunctionBreakpoints(quint64 requestId, const QString &i
         m_parentForSubBreakpointId.insert(subResponseId, id);
         runCommand({breakpointInsertCommand(params, subResponseId, sourcePathMap(),
                                             hexAddress(function.address)), NoFlags});
+        if (!enabled)
+            runCommand({"bd" + subResponseId, NoFlags});
         GdbMi location;
         location.m_type = GdbMi::Tuple;
         location.addChild(constMi("number", subResponseId));
