@@ -1848,6 +1848,7 @@ public:
 
     ~SteppingSession()
     {
+        QObject::disconnect(m_stoppedConnection);
         settings().showUnsupportedBreakpointWarning.setValue(m_warnedAboutBreakpoints);
         if (m_runControl) {
             m_runControl->initiateStop();
@@ -1901,23 +1902,36 @@ public:
         rp.setInferior(ProcessRunData{CommandLine{m_executable}, dir});
         QObject::connect(m_runControl, &RunControl::stopped,
                          &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
+        m_stoppedConnection = QObject::connect(m_runControl, &RunControl::stopped,
+                                               m_runControl, [this] { m_stopped = true; });
         m_runControl->setRunRecipe(debuggerRecipe(m_runControl, rp));
         m_runControl->start();
 
         // EngineManager holds every engine the application ever made, and other
         // tests leave theirs behind, so take the one that was not there before.
+        // A session that has already ended will not stop anywhere any more.
         const bool arrived = QTest::qWaitFor([this, &before] {
             for (const QPointer<DebuggerEngine> &candidate : EngineManager::engines()) {
                 if (candidate && !before.contains(candidate))
                     m_engine = candidate;
             }
+            if (m_stopped)
+                return true;
             // Stopped is not yet arrived: the stack the test reads about comes
             // in after the state does.
             return m_engine && m_engine->state() == InferiorStopOk
                    && m_engine->stackHandler()->currentFrame().line == m_line;
         }, 90000);
-        if (!arrived)
-            return "the session never stopped at " + marker;
+        if (!arrived || m_stopped) {
+            QString why = "the session never stopped at " + marker;
+            if (m_stopped)
+                why += ", it ended first";
+            if (m_engine) {
+                why += ". The end of the log:\n"
+                       + m_engine->logWindow()->combinedContents().right(3000);
+            }
+            return why;
+        }
         return {};
     }
 
@@ -1939,6 +1953,8 @@ private:
     FilePath m_source;
     FilePath m_executable;
     RunControl *m_runControl = nullptr;
+    QMetaObject::Connection m_stoppedConnection;
+    bool m_stopped = false;
     QPointer<DebuggerEngine> m_engine;
     GlobalBreakpoint m_breakpoint;
     bool m_warnedAboutBreakpoints = false;
