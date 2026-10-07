@@ -717,8 +717,8 @@ public:
         setDisplayName(Tr::tr("Build HarmonyOS package (.hap)"));
         setSummaryUpdater([this] {
             const QString target = makeHapTarget();
-            return Tr::tr("<b>Build HarmonyOS package:</b> %1")
-                .arg(target.isEmpty() ? Tr::tr("(no target)") : target);
+            return QString("<b>" + Tr::tr("Build HarmonyOS package:") + "</b> "
+                           + (target.isEmpty() ? Tr::tr("(no target)") : target));
         });
     }
 
@@ -801,7 +801,8 @@ public:
         : AbstractProcessStep(bsl, id)
     {
         setDisplayName(Tr::tr("Package HarmonyOS application with hvigor"));
-        setSummaryUpdater([] { return Tr::tr("<b>Package application with hvigor</b>"); });
+        setSummaryUpdater(
+            [] { return QString("<b>" + Tr::tr("Package application with hvigor") + "</b>"); });
 
     }
 
@@ -1146,8 +1147,8 @@ private:
     {
         const FilePath hnpcli = Sdk::hnpcliCommand(settings().sdkLocation());
         if (hnpcli.isEmpty()) {
-            emit addOutput(Tr::tr("No \"hnpcli\" in the HarmonyOS SDK to pack a native "
-                                  "package with."), OutputFormat::ErrorMessage);
+            emit addOutput(Tr::tr("Cannot find \"hnpcli\" in the HarmonyOS SDK to pack the "
+                                  "native package."), OutputFormat::ErrorMessage);
             return {};
         }
         const FilePath target = stagingDir().pathAppended("package").pathAppended(hnpDirectory());
@@ -1182,9 +1183,12 @@ private:
         QTC_ASSERT(bc, return false);
         const FilePath jar = bc->environment().searchInPath("jar");
         if (jar.isEmpty()) {
-            emit addOutput(Tr::tr("No \"jar\" to put the native package into the package "
-                                  "with; nothing the application has to execute will be "
-                                  "there."), OutputFormat::ErrorMessage);
+            emit addOutput(
+                Tr::tr(
+                    "Cannot find \"jar\" to add the native package to the "
+                    "application package. The package will not contain the "
+                    "files required for the application to execute."),
+                OutputFormat::ErrorMessage);
             return false;
         }
 
@@ -1193,7 +1197,7 @@ private:
         add.setWorkingDirectory(stagingDir().pathAppended("package"));
         add.runBlocking();
         if (add.exitCode() != 0) {
-            emit addOutput(Tr::tr("Putting the native package into the package failed: %1")
+            emit addOutput(Tr::tr("Adding the native package to the application package failed: %1")
                                .arg(add.allOutput()), OutputFormat::ErrorMessage);
             return false;
         }
@@ -1415,7 +1419,8 @@ public:
         : AbstractProcessStep(bsl, id)
     {
         setDisplayName(Tr::tr("Sign HarmonyOS package"));
-        setSummaryUpdater([] { return Tr::tr("<b>Sign package with hap-sign-tool</b>"); });
+        setSummaryUpdater(
+            [] { return QString("<b>" + Tr::tr("Sign package with hap-sign-tool") + "</b>"); });
     }
 
 private:
@@ -1618,7 +1623,8 @@ public:
         : AbstractProcessStep(bsl, id)
     {
         setDisplayName(Tr::tr("Install HarmonyOS package with hdc"));
-        setSummaryUpdater([] { return Tr::tr("<b>Install .hap on device with hdc</b>"); });
+        setSummaryUpdater(
+            [] { return QString("<b>" + Tr::tr("Install .hap on device with hdc") + "</b>"); });
 
         m_force.setSettingsKey("HarmonyOs.InstallHapStep.AlwaysInstall");
         m_force.setLabel(forceInstallLabel(), BoolAspect::LabelPlacement::AtCheckBox);

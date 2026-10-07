@@ -168,7 +168,7 @@ static void serveRunner(QTcpSocket *socket, const FilePath &library,
     const quint32 size = quint32(contents->size());
     announce(socket, size);
     socket->write(*contents);
-    runControl->postMessage(Tr::tr("Handed %1 to the runner (%2 bytes).")
+    runControl->postMessage(Tr::tr("Handed \"%1\" to the runner (%2 bytes).")
                                 .arg(library.fileName()).arg(size), NormalMessageFormat);
 }
 
