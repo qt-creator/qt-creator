@@ -265,14 +265,17 @@ jobs:
           set(url_os "windows_x86")
           set(url_postfix "_msvc2022_64")
           set(compiler_id "win64_msvc2022_64")
+          set(archive_os "[Ww]indows")
         elseif ("${{ runner.os }}" STREQUAL "Linux")
           set(url_os "linux_x64")
           set(url_postfix "")
           set(compiler_id "linux_gcc_64")
+          set(archive_os "[Ll]inux")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(url_os "mac_x64")
           set(url_postfix "")
           set(compiler_id "clang_64")
+          set(archive_os "[Mm]ac[Oo][Ss]")
         endif()
 
         set(qt_base_url "https://\${qt_mirror}/online/qtsdkrepository/${url_os}/desktop/qt6_${qt_version_dotless}/qt6_${qt_version_dotless}${url_postfix}")
@@ -306,9 +309,14 @@ jobs:
           file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/qt/" qt_dir)
           file(APPEND "$ENV{GITHUB_OUTPUT}" "qt_dir=${qt_dir}")
 
+          # Archives are named "<module>-<os>-<...>.7z". Matching the operating
+          # system as well keeps a module from picking up the archive of another
+          # one that merely starts with the same name, such as
+          # qtwayland-compositor for qtwayland.
           function(get_sub_url outvar module)
+            set(archive_regex "${module}-${archive_os}[^,]*")
             set(filtered ${sections})
-            list(FILTER filtered INCLUDE REGEX "<DownloadableArchives>.*${module}.*</DownloadableArchives>")
+            list(FILTER filtered INCLUDE REGEX "<DownloadableArchives>.*${archive_regex}.*</DownloadableArchives>")
             list(LENGTH filtered count)
             if (count LESS 1)
               set(${outvar} "<notfound>" PARENT_SCOPE)
@@ -319,7 +327,7 @@ jobs:
             set(name ${CMAKE_MATCH_1})
             string(REGEX MATCH "<Version>(.*)</Version>" match "${section}")
             set(version ${CMAKE_MATCH_1})
-            string(REGEX MATCH "<DownloadableArchives>.*(${module}[^,]+).*</DownloadableArchives>" match "${section}")
+            string(REGEX MATCH "<DownloadableArchives>.*(${archive_regex}).*</DownloadableArchives>" match "${section}")
             set(archive ${CMAKE_MATCH_1})
             set(${outvar} "${name}/${version}${archive}" PARENT_SCOPE)
           endfunction()
