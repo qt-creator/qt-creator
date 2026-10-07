@@ -220,7 +220,7 @@ GdbSettings::GdbSettings()
         auto labelDangerous = new QLabel("<html><head/><body><i>" +
             QLatin1String("%1<p>%2")
                 .arg(Tr::tr("The options below give access to advanced or experimental functions of GDB."),
-                     Tr::tr("Enabling them may negatively impact your debugging experience."))
+                     Tr::tr("Enabling them may negatively affect debugging."))
             + "</i></body></html>");
         labelDangerous->setWordWrap(true);
 

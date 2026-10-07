@@ -20297,11 +20297,11 @@ void tst_backends::refusesWhatADapAdapterAnnouncesNothingAbout()
                  qPrintable("\"" + command + "\" went out to an adapter announcing nothing"));
     }
 
-    const QStringList refused{"logging a message", "breakpoints by function name",
-                              "breakpoints by address", "breakpoints on data access",
-                              "the list of modules", "the list of source files",
-                              "reading memory", "writing memory", "disassembly",
-                              "setting a register", "Restarting the debuggee"};
+    const QStringList refused{"Logging a message", "Breakpoints by function name",
+                              "Breakpoints by address", "Breakpoints on data access",
+                              "Listing modules", "Listing source files",
+                              "Reading memory", "Writing memory", "Disassembling",
+                              "Setting registers", "Restarting the program"};
     for (const QString &what : refused) {
         QVERIFY2(!warnings.filter(what).isEmpty(),
                  qPrintable("nothing was said about \"" + what + "\""));
@@ -20870,7 +20870,7 @@ void tst_backends::assignsAValueThroughADapAdapterTheWayItAnnounces()
         if (session.expected.isEmpty()) {
             // The refusal goes out before anything could have been sent, so a
             // request that was coming would be there by now.
-            QTRY_VERIFY2_WITH_TIMEOUT(!warnings.filter("assigning a value").isEmpty(),
+            QTRY_VERIFY2_WITH_TIMEOUT(!warnings.filter("Assigning values").isEmpty(),
                                       "an assignment the adapter cannot take was not refused",
                                       s_timeout);
             QVERIFY(!adapter.commands().contains("setExpression"));
@@ -20885,7 +20885,7 @@ void tst_backends::assignsAValueThroughADapAdapterTheWayItAnnounces()
                          AssigningDapAdapter::localScopeReference);
                 QCOMPARE(arguments.value("name").toString(), QString("counter"));
             }
-            QVERIFY(warnings.filter("assigning a value").isEmpty());
+            QVERIFY(warnings.filter("Assigning values").isEmpty());
         }
 
         engine->shutdownEngine();
@@ -21067,7 +21067,7 @@ void tst_backends::sendsTheProtocolsStepRequestsThroughADapAdapter()
     debuggerBackend.clearEvents();
     step(ExecutionCommand::Return, false);
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::StopOk), s_timeout);
-    QVERIFY2(warnings.filter("returning").isEmpty(),
+    QVERIFY2(warnings.filter("Returning").isEmpty(),
              "the return was refused rather than taken to the console");
     QCOMPARE(adapter.commands().mid(stepsTaken), QStringList({"evaluate", "evaluate"}));
     QCOMPARE(adapter.argumentsOf("evaluate", consoleCommands).value("expression").toString(),
@@ -21817,12 +21817,13 @@ void tst_backends::disconnectsFromADapAdapterTheWayItAnnounces()
             QVERIFY2(arguments.contains("terminateDebuggee"),
                      "the flag the adapter announced was left out");
             QCOMPARE(arguments.value("terminateDebuggee").toBool(), !detaching);
-            QVERIFY(warnings.filter("inferior").isEmpty());
+            QVERIFY(warnings.filter("on disconnect").isEmpty()
+                    && warnings.filter("on detach").isEmpty());
         } else {
             QVERIFY2(!arguments.contains("terminateDebuggee"),
                      "a flag the adapter announced nothing about went out anyway");
-            const QString refused = detaching ? QString("running on a detach")
-                                              : QString("down on a disconnect");
+            const QString refused = detaching ? QString("running on detach")
+                                              : QString("on disconnect");
             QCOMPARE(warnings.filter(refused).size(), 1);
         }
 

@@ -360,7 +360,7 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
     connect(m_backend.get(), &DebuggerEngineInterface::watchPointResolved, this,
             [this](quint64, quint64 address, const QString &expr) {
         if (address == 0)
-            showMessage(Tr::tr("Could not find a widget."), StatusBar);
+            showMessage(Tr::tr("Cannot find a widget at this position."), StatusBar);
         watchHandler()->watchExpression(expr, QString(), true);
     });
     connect(m_backend.get(), &DebuggerEngineInterface::snapshotCreated, this,

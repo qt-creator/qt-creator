@@ -346,8 +346,8 @@ HostWidget::HostWidget(QWidget *parent)
     : QWidget(parent)
 {
     m_hostLineEdit = new QLineEdit(this);
-    m_hostLineEdit->setToolTip(Tr::tr("Enter TCP/IP hostname of the debug server, "
-                                      "like \"localhost\" or \"192.0.2.1\".\n\n"
+    m_hostLineEdit->setToolTip(Tr::tr("The TCP/IP host name of the debug server, "
+                                      "such as \"localhost\" or \"192.0.2.1\".\n\n"
                                       "The debugger connects to this address itself, so it must "
                                       "be valid where the debugger runs. That is not necessarily "
                                       "the computer that starts the debug server."));

@@ -2641,7 +2641,7 @@ DebuggerCommand DebuggerEngine::watchPointCommand(const QPoint &pnt)
     cmd.callback = [this](const DebuggerResponse &response) {
         qulonglong addr = response.data["selected"].toAddress();
         if (addr == 0)
-            showMessage(Tr::tr("Could not find a widget."), StatusBar);
+            showMessage(Tr::tr("Cannot find a widget at this position."), StatusBar);
         // Add the watcher entry nevertheless, as that's the place where
         // the user expects visual feedback.
         watchHandler()->watchExpression(response.data["expr"].data(), QString(), true);

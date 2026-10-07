@@ -30,14 +30,18 @@ SymbolPathsDialog::SymbolPathsDialog(QWidget *parent) :
     const QIcon icon = style()->standardIcon(QStyle::SP_MessageBoxQuestion);
     m_pixmapLabel->setPixmap(icon.pixmap(QSize(iconSize, iconSize), devicePixelRatio()));
 
-    m_msgLabel = new QLabel(Tr::tr("<p>The debugger is not configured to use the "
-        "public Microsoft Symbol Server.<br/>This is recommended for retrieval of the symbols "
-        "of the operating system libraries.</p>"
-        "<p><span style=\" font-style:italic;\">Note:</span> It is recommended, that if you use "
-        "the Microsoft Symbol Server, to also use a local symbol cache.<br/>"
-        "A fast internet connection is required for this to work smoothly,<br/>"
-        "and a delay might occur when connecting for the first time and caching the symbols.</p>"
-        "<p>What would you like to set up?</p>"));
+    m_msgLabel = new QLabel(
+        "<html><head/><body><p>"
+        + Tr::tr("The debugger is not configured to use the public Microsoft Symbol Server. "
+                 "This is recommended for retrieving the symbols of the operating system "
+                 "libraries.")
+        + "</p><p>"
+        + Tr::tr("Note: If you use the Microsoft Symbol Server, using a local symbol cache "
+                 "is also recommended. A fast internet connection is required for this to "
+                 "work smoothly, and a delay might occur when connecting for the first time "
+                 "and caching the symbols.")
+        + "</p><p>" + Tr::tr("Select what to set up:") + "</p></body></html>");
+    m_msgLabel->setWordWrap(true);
     m_msgLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_msgLabel->setTextFormat(Qt::RichText);
     m_msgLabel->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);

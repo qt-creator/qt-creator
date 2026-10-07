@@ -599,8 +599,8 @@ static Result<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
         case DapAdapterEngineType: {
             const std::optional<DapStartData> adapter = rp.dapAdapter();
             if (!adapter) {
-                return make_unexpected(Tr::tr("No debug adapter was named for the session "
-                                              "to speak to."));
+                return make_unexpected(Tr::tr("No debug adapter is configured for the "
+                                              "session."));
             }
             engines << createDapAdapterEngine(*adapter);
             break;
@@ -611,7 +611,8 @@ static Result<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
         default:
             if (!rp.isQmlDebugging()) {
                 return make_unexpected(noEngineMessage() + '\n' +
-                                       Tr::tr("Specify Debugger settings in Projects > Run."));
+                                       Tr::tr("Specify debugger settings in Projects > Run > "
+                                              "Debugger Settings."));
             }
             break; // Can happen for pure Qml.
         }
@@ -894,8 +895,8 @@ QString msgAttachToProcess()
 QString msgCombinedEngineUnsupported(const QString &platform)
 {
     return Tr::tr("%1 does not support debugging C++ and QML with a combined engine. "
-                  "Select \"C++ and QML (separate engines)\" in Projects > Run > "
-                  "Debugger Settings.").arg(platform);
+                  "In Projects > Run > Debugger Settings, set \"Debug\" to "
+                  "\"C++ and QML (separate engines)\".").arg(platform);
 }
 
 } // Debugger

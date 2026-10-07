@@ -396,7 +396,7 @@ void GdbEngine::handleResponse(const QString &buff)
                         Tr::tr("GDB Without XML Support"),
                         Tr::tr("The GDB used for debugging was built without XML support, so it "
                                "cannot read the target description (register and memory layout) "
-                               "sent by the remote. Debugging will not work correctly. Please use "
+                               "sent by the remote. Debugging will not work correctly. Use "
                                "a GDB build that has XML support enabled."));
                 }
             } else if (data.startsWith("Error while mapping")) {

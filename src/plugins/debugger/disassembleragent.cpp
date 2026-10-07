@@ -286,11 +286,13 @@ static DisassemblerLines cappedDisassembly(const DisassemblerLines &all, quint64
 
     DisassemblerLines capped;
     if (from > 0)
-        capped.appendComment(Tr::tr("<%1 preceding lines not shown, disassembly truncated>").arg(from));
+        capped.appendComment(Tr::tr("<%n preceding line(s) not shown, disassembly truncated>",
+                                    nullptr, from));
     for (int i = from; i < to; ++i)
         capped.appendLine(all.at(i));
     if (to < total)
-        capped.appendComment(Tr::tr("<%1 following lines not shown, disassembly truncated>").arg(total - to));
+        capped.appendComment(Tr::tr("<%n following line(s) not shown, disassembly truncated>",
+                                    nullptr, total - to));
     return capped;
 }
 

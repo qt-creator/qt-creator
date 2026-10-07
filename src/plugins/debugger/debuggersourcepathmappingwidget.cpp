@@ -291,17 +291,19 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget() :
             this, &DebuggerSourcePathMappingWidget::slotEditTargetFieldChanged);
     auto editLayout = new QFormLayout;
     const QString sourceToolTip = "<p>" + Tr::tr("The source path contained in the "
-        "debug information of the executable as reported by the debugger");
+        "debug information of the executable as reported by the debugger.");
     auto editSourceLabel = new QLabel(Tr::tr("&Source path:"));
     editSourceLabel->setToolTip(sourceToolTip);
     m_sourceLineEdit->setToolTip(sourceToolTip);
     editSourceLabel->setBuddy(m_sourceLineEdit);
     editLayout->addRow(editSourceLabel, m_sourceLineEdit);
 
+    //: %1 is an example path
     const QString targetToolTip = "<p>" + Tr::tr("The location of the source tree as seen by "
         "the debugger. This is either a path on the local machine, or, if the debugger runs "
         "on a device, a path on that device, given either the way the debugger sees it or "
-        "with the device scheme in front, such as <b>docker://&lt;image&gt;/&lt;path&gt;</b>.");
+        "with the device scheme in front, such as %1.")
+            .arg("<b>docker://&lt;image&gt;/&lt;path&gt;</b>");
     auto editTargetLabel = new QLabel(Tr::tr("&Target path:"));
     editTargetLabel->setToolTip(targetToolTip);
     editTargetLabel->setBuddy(m_targetChooser);
