@@ -65,6 +65,9 @@ static constexpr std::chrono::seconds s_qmlStartupTimeout{15};
 // while the rest of it runs beside this row.
 static constexpr std::chrono::seconds s_qmlStackTimeout{15};
 static constexpr std::chrono::seconds s_compileTimeout{120};
+// Recording single-steps the inferior, so running to the next breakpoint
+// takes far longer than a plain continue.
+static constexpr std::chrono::seconds s_recordingTimeout{30};
 
 // The gdb version from which "gdb -i dap" speaks the protocol well enough
 // to be tested against.
@@ -10137,7 +10140,7 @@ void tst_backends::reportsARecordingThatCannotGoOn()
     debuggerBackend->clearEvents();
     debuggerBackend->clearStoppedLocation();
     debuggerBackend->execute({ExecutionCommand::Continue});
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop), s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop), s_recordingTimeout);
     if (failures == 0 && debuggerBackend->stoppedLine() == testData.secondBreakpointLine)
         QSKIP("gdb recorded all the way to the next breakpoint on this machine");
     QCOMPARE(failures, 1);
