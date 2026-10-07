@@ -742,7 +742,7 @@ Result<> validateMount(const MountPair &mi)
 
     if (mi.containerPath.isRootPath()) {
         return make_unexpected(
-            Tr::tr("The path \"%1\" is root.").arg(mi.containerPath.toUserOutput()));
+            Tr::tr("The path \"%1\" is the root directory.").arg(mi.containerPath.toUserOutput()));
     }
 
     if (!mi.path.exists()) {
@@ -928,9 +928,11 @@ Result<QString> DockerDevicePrivate::updateContainerAccess()
 {
     if (m_isShutdown)
         return make_unexpected(Tr::tr("Device is shut down."));
-    if (DockerApi::isDockerDaemonAvailable(q->type(), false).value_or(false) == false)
-        return make_unexpected(Tr::tr("%1 system is not reachable.")
-                                   .arg(m_containerSettings->displayType()));
+    if (DockerApi::isDockerDaemonAvailable(q->type(), false).value_or(false) == false) {
+        return make_unexpected(
+            //: %1 = Docker / Podman
+            Tr::tr("The %1 system is not reachable.").arg(m_containerSettings->displayType()));
+    }
     if (!DockerApi::instance(q->type())->imageExists(q->repoAndTag()))
         return make_unexpected(
             Tr::tr("%1 image \"%2\" not found.")
@@ -1135,8 +1137,8 @@ public:
         const DockerImageItem *item = selectedItem();
         m_buttons->button(QDialogButtonBox::Ok)->setEnabled(item);
         const QString user = deviceUsingImage(item);
-        m_inUseLabel->setText(Tr::tr("%1 already uses this image. Another device for it "
-                                     "detects the same tools a second time.").arg(user));
+        m_inUseLabel->setText(Tr::tr("Device \"%1\" already uses this image. Adding "
+                                     "another device for it detects the same tools again.").arg(user));
         m_inUseLabel->setVisible(!user.isEmpty());
     }
 
@@ -1774,9 +1776,11 @@ QString DockerDevice::deviceStateToString() const
     switch (deviceState()) {
     case IDevice::DeviceDisconnected: {
         DockerApi *api = DockerApi::instance(type());
-        if (api && api->dockerDaemonAvailable(false).value_or(false) == false)
-            return Tr::tr("%1 system is not reachable.")
+        if (api && api->dockerDaemonAvailable(false).value_or(false) == false) {
+            //: %1 = Docker / Podman
+            return Tr::tr("The %1 system is not reachable.")
                 .arg(d->m_containerSettings->displayType());
+        }
         return Tr::tr("Ready (waiting for access to container...)");
     }
     default:

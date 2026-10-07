@@ -103,7 +103,8 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     auto refreshNetworksButton = new QToolButton();
     setIgnoreForDirtyHook(refreshNetworksButton);
     refreshNetworksButton->setIcon(Icons::RELOAD_TOOLBAR.icon());
-    refreshNetworksButton->setToolTip(Tr::tr("Refresh %1 networks").arg(m_api->displayType()));
+    //: %1 = Docker / Podman
+    refreshNetworksButton->setToolTip(Tr::tr("Refresh %1 Networks").arg(m_api->displayType()));
     connect(refreshNetworksButton, &QPushButton::clicked, this, [this] {
         m_api->refreshNetworks();
     });

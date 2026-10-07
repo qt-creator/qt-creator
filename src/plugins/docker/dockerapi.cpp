@@ -136,7 +136,8 @@ void DockerApi::checkCanConnect(bool async)
 
         Core::ProgressManager::addTask(
             future,
-            Tr::tr("Checking %1 daemon").arg(m_settings->displayType()),
+            //: %1 = Docker / Podman
+            Tr::tr("Checking %1 Daemon").arg(m_settings->displayType()),
             "DockerPlugin");
         return;
     }
@@ -218,7 +219,7 @@ void DockerApi::refreshNetworks()
     FilePath dockerExe = dockerClient();
     if (dockerExe.isEmpty() || !dockerExe.isExecutableFile()) {
         qCDebug(dockerApiLog)
-            << Tr::tr("%1 executable not found").arg(m_settings->displayType());
+            << m_settings->displayType() << "executable not found";
         return;
     }
 
