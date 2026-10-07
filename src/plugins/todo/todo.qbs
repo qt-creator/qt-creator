@@ -44,9 +44,24 @@ QtcPlugin {
         "todooutputtreeviewdelegate.cpp",
         "todooutputtreeviewdelegate.h",
         "todoplugin.cpp",
-        "todoplugin.qrc",
         "todoprojectpanel.cpp",
         "todoprojectpanel.h",
         "todotr.h",
     ]
+
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        Qt.core.resourcePrefix: "/todoplugin"
+        files: [
+            "images/settingscategory_todo.png",
+            "images/settingscategory_todo@2x.png",
+            "images/tasklist@2x.png",
+            "images/tasklist.png",
+            "images/bug@2x.png",
+            "images/bug.png",
+            "images/bugfill.png",
+            "images/bugfill@2x.png",
+        ]
+    }
 }
