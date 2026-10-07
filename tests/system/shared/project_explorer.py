@@ -21,7 +21,7 @@ def switchViewTo(view):
     mouseClick(tabBar, 20, 20 + tabHeight * view, 0, Qt.LeftButton)
 
 def __kitIsActivated__(kit):
-    return not ("<h3>Double-click to enable target, double-click again to make active</h3>"
+    return not ("<h3>Double-click to enable the kit, double-click again to make it active</h3>"
                 in str(kit.toolTip) or "<h3>Kit is unsuited for project</h3>" in str(kit.toolTip))
 
 
@@ -156,8 +156,8 @@ def invokeContextMenuOnProject(projectName, menuItem):
 
 def addAndActivateKit(kit):
     kitString = Targets.getStringForTarget(kit)
-    clickToActivate = ("<html><body><h3>%s</h3><p><h3>Double-click to enable target, double-click "
-                       "again to make active</h3>" % kitString)
+    clickToActivate = ("<html><body><h3>%s</h3><p><h3>Double-click to enable the kit, "
+                       "double-click again to make it active</h3>" % kitString)
     switchViewTo(ViewConstants.PROJECTS)
     try:
         waitForObject(":Projects.ProjectNavigationTreeView")

@@ -1170,7 +1170,7 @@ Result<qint64> WindowsDeviceAccess::writeFileContents(const FilePath &filePath,
     if (!res)
         return ResultError(res.error());
     if (res->exitCode != 0) {
-        return ResultError(Tr::tr("Failed writing file \"%1\": %2")
+        return ResultError(Tr::tr("Cannot write file \"%1\": %2")
                                .arg(filePath.toUserOutput(), QString::fromUtf8(res->stdErr)));
     }
     return data.size();
@@ -1231,7 +1231,7 @@ static Result<BridgeDeployment> deployCmdBridge(const SshParameters &ssh,
     const auto upload = [&ssh](const FilePath &from, const FilePath &to) -> Result<> {
         const FilePath sftpBinary = sshSettings().sftpFilePath();
         if (sftpBinary.isEmpty())
-            return ResultError(Tr::tr("No sftp client is configured."));
+            return ResultError(Tr::tr("No SFTP client is configured."));
 
         CommandLine sftpCmd{sftpBinary};
         sftpCmd.addArgs(ssh.connectionOptions(sftpBinary));

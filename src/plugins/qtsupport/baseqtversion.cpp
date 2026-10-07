@@ -883,7 +883,7 @@ QString QtVersion::invalidReason() const
     if (qtFilePath().isEmpty())
         return Tr::tr("No qtpaths or qmake path set");
     if (!d->m_qtIsExecutable)
-        return Tr::tr("%1 does not exist or is not executable").arg(qtFilePath().fileName());
+        return Tr::tr("\"%1\" does not exist or is not executable").arg(qtFilePath().fileName());
     if (!d->data().installed)
         return Tr::tr("Qt version is not properly installed");
     if (binPath().isEmpty())

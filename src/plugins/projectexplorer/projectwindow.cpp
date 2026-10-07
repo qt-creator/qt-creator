@@ -894,7 +894,7 @@ public:
                     return QString("<h3>" + Tr::tr("Kit is unsuited for project") + "</h3>");
                 if (!isEnabled())
                     return QString("<h3>"
-                        + Tr::tr("Double-click to enable target, double-click again to make active")
+                        + Tr::tr("Double-click to enable the kit, double-click again to make it active")
                         + "</h3>");
                 if (!isActive())
                     return QString("<h3>" + Tr::tr("Double-click to make active") + "</h3>");
@@ -1008,7 +1008,7 @@ public:
                 QPushButton *cancelClose = box.addButton(Tr::tr("Do Not Remove"), QMessageBox::RejectRole);
                 box.setDefaultButton(cancelClose);
                 box.setWindowTitle(Tr::tr("Disable Kit \"%1\" in This Project?").arg(kitName));
-                box.setText(Tr::tr("The kit %1 is currently being built.").arg("<b>" + kitName + "</b>"));
+                box.setText(Tr::tr("The kit \"%1\" is currently being built.").arg(kitName));
                 box.setInformativeText(Tr::tr("Do you want to cancel the build process and remove the kit anyway?"));
                 box.exec();
                 if (box.clickedButton() != closeAnyway)

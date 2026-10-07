@@ -275,8 +275,8 @@ void BuildSettingsWidget::renameConfiguration()
     QTC_ASSERT(m_buildConfiguration, return);
     bool ok;
     QString name = QInputDialog::getText(this, Tr::tr("Rename..."),
-                                         Tr::tr("New name for build configuration %1:").
-                                            arg("<b>" + m_buildConfiguration->displayName() + "</b>"),
+                                         Tr::tr("New name for build configuration \"%1\":").
+                                            arg(m_buildConfiguration->displayName()),
                                          QLineEdit::Normal,
                                          m_buildConfiguration->displayName(), &ok);
     if (!ok)
@@ -348,16 +348,16 @@ void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfigur
         QPushButton *closeAnyway = box.addButton(Tr::tr("Cancel Build && Remove Build Configuration"), QMessageBox::AcceptRole);
         QPushButton *cancelClose = box.addButton(Tr::tr("Do Not Remove"), QMessageBox::RejectRole);
         box.setDefaultButton(cancelClose);
-        box.setWindowTitle(Tr::tr("Remove Build Configuration %1?").arg(deleteConfiguration->displayName()));
-        box.setText(Tr::tr("The build configuration %1 is currently being built.").arg("<b>" + deleteConfiguration->displayName() + "</b>"));
-        box.setInformativeText(Tr::tr("Do you want to cancel the build process and remove the Build Configuration anyway?"));
+        box.setWindowTitle(Tr::tr("Remove Build Configuration \"%1\"?").arg(deleteConfiguration->displayName()));
+        box.setText(Tr::tr("The build configuration \"%1\" is currently being built.").arg(deleteConfiguration->displayName()));
+        box.setInformativeText(Tr::tr("Do you want to cancel the build process and remove the build configuration anyway?"));
         box.exec();
         if (box.clickedButton() != closeAnyway)
             return;
         BuildManager::cancel();
     } else {
         QMessageBox msgBox(QMessageBox::Question, Tr::tr("Remove Build Configuration?"),
-                           Tr::tr("Do you really want to delete build configuration %1?").arg("<b>" + deleteConfiguration->displayName() + "</b>"),
+                           Tr::tr("Do you really want to delete the build configuration \"%1\"?").arg(deleteConfiguration->displayName()),
                            QMessageBox::Yes|QMessageBox::No, this);
         msgBox.setDefaultButton(QMessageBox::No);
         msgBox.setEscapeButton(QMessageBox::No);

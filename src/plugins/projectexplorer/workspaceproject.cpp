@@ -399,8 +399,7 @@ public:
         enabled.setVisible(false);
         environment.setSupportForBuildEnvironment(bc);
 
-        hint.setText(Tr::tr("Clone the configuration to change it. Or, make the changes in "
-                            "the %1 file.")
+        hint.setText(Tr::tr("Clone the configuration to change it, or edit the \"%1\" file.")
                          .arg(QString(ProjectExplorer::Constants::PROJECT_QTC_DIR)
                               + "/project.json"));
 

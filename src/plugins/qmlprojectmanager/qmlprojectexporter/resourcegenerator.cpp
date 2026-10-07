@@ -145,7 +145,7 @@ void ResourceGenerator::generateMenuEntry(QObject *parent)
             return;
 
         QProgressDialog progress;
-        progress.setLabelText(Tr::tr("Generating deployable package. Please wait..."));
+        progress.setLabelText(Tr::tr("Generating deployable package..."));
         progress.setRange(0, 0);
         progress.setWindowModality(Qt::WindowModal);
         progress.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
@@ -171,8 +171,8 @@ void ResourceGenerator::generateMenuEntry(QObject *parent)
             Core::MessageManager::writeDisrupting(Tr::tr("Failed to generate deployable package."));
             QMessageBox msgBox;
             msgBox.setWindowTitle(Tr::tr("Error"));
-            msgBox.setText(Tr::tr("Failed to generate deployable package.\n\nPlease check "
-                                  "the output pane for more information."));
+            msgBox.setText(Tr::tr("Failed to generate deployable package.\n\nFor more "
+                                  "information, see General Messages."));
             msgBox.exec();
             return;
         }

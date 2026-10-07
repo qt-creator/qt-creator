@@ -1545,22 +1545,22 @@ LogcatSettings::LogcatSettings(AspectContainer *container, const IntegerAspect &
     showTimestamp.setSettingsKey("ProjectExplorer/Settings/LogcatShowTimestamp");
     showTimestamp.setDefaultValue(true);
     showTimestamp.setLabelText(Tr::tr("Show date and time"));
-    showTimestamp.setToolTip(Tr::tr("When the line was logged, as yyyy-MM-dd hh:mm:ss.zzz."));
+    showTimestamp.setToolTip(Tr::tr("Shows when the line was logged, in the format yyyy-MM-dd hh:mm:ss.zzz."));
 
     showPid.setSettingsKey("ProjectExplorer/Settings/LogcatShowPid");
     showPid.setDefaultValue(false);
     showPid.setLabelText(Tr::tr("Show process and thread IDs"));
-    showPid.setToolTip(Tr::tr("The emitting process and thread, like \"1483-1507\"."));
+    showPid.setToolTip(Tr::tr("Shows the IDs of the emitting process and thread, for example \"1483-1507\"."));
 
     showTag.setSettingsKey("ProjectExplorer/Settings/LogcatShowTag");
     showTag.setDefaultValue(true);
     showTag.setLabelText(Tr::tr("Show tag"));
-    showTag.setToolTip(Tr::tr("The emitting log tag, like \"ActivityManager\"."));
+    showTag.setToolTip(Tr::tr("Shows the log tag of the emitter, for example \"ActivityManager\"."));
 
     showPackage.setSettingsKey("ProjectExplorer/Settings/LogcatShowPackage");
     showPackage.setDefaultValue(true);
     showPackage.setLabelText(Tr::tr("Show package name"));
-    showPackage.setToolTip(Tr::tr("The emitting app's package, like \"do.main.mypackage\"."));
+    showPackage.setToolTip(Tr::tr("Shows the package name of the emitting application, for example \"do.main.mypackage\"."));
 
     viewMode.addOnVolatileValueChanged(this, [this] { updateColumnToggles(); });
 }

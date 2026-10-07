@@ -1393,7 +1393,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
 
     dd->m_buildSubProjectAction = new Action(
                 Tr::tr("Build Subproject"),
-                Tr::tr("Build SubProject \"%1\""),
+                Tr::tr("Build Subproject \"%1\""),
                 Utils::Action::AlwaysEnabled,
                 this);
     cmd = ActionManager::registerAction(dd->m_buildSubProjectAction, Constants::BUILD_SUBPROJECT);
@@ -3276,7 +3276,7 @@ void ProjectExplorerPluginPrivate::editorOpened(IEditor *editor)
         Tr::tr("Set up executable file \"%1\" as a project?").arg(filePath.toUserOutput()),
         InfoBarEntry::GlobalSuppression::Enabled);
 
-    info.addCustomButton("Set Up", [doc, filePath]() {
+    info.addCustomButton(Tr::tr("Set Up"), [doc, filePath]() {
         doc->infoBar()->removeInfo(setupExecutableWorkspaceId);
 
         const OpenProjectResult result

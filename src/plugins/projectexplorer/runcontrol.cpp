@@ -911,9 +911,9 @@ bool RunControl::promptToStop(bool *optionalPrompt) const
 
     const QString msg = "<center>"
                         + Tr::tr(
-                              "%1 is still running.<br/>"
+                              "\"%1\" is still running.<br/>"
                               "Force it to quit?")
-                              .arg("<i>" + displayName() + "</i>")
+                              .arg(displayName())
                         + "</center>";
 
     return showPromptToStopDialog(Tr::tr("Application Still Running"), msg,

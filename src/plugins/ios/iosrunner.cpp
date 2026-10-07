@@ -507,12 +507,16 @@ static void handleIosToolErrorMessage(
     } else if (message.contains("SBMainWorkspace") && simulatorSupportsX86_64(deviceType)) {
         TaskHub::addTask<DeploymentTask>(
             Task::Error,
+            // keep important information in the first line which is shown by default
             Tr::tr(
-                "The request was denied by service delegate (SBMainWorkspace). Maybe Rosetta 2 is "
-                "not installed?\n"
-                "This can happen if Rosetta 2 is not installed, which is needed to run "
-                "x86_64 binaries on the Simulator on Apple Silicon Macs.\n"
-                "Install it by running \"softwareupdate --install-rosetta\" in Terminal."));
+                "The request was denied by the service delegate (SBMainWorkspace). Maybe Rosetta 2 "
+                "is "
+                "not installed?")
+                + "\n"
+                + Tr::tr(
+                    "This can happen if Rosetta 2, which is needed to run "
+                    "x86_64 binaries on the Simulator on Apple Silicon Macs, is not installed.\n"
+                    "Install it by running \"softwareupdate --install-rosetta\" in Terminal."));
     }
     runControl->postMessage(res, StdErrFormat);
 }

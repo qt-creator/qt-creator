@@ -371,7 +371,7 @@ static void addLogcatMenu(Core::ActionContainer *parent)
             });
         });
         if (menu->isEmpty()) {
-            QAction *placeholder = menu->addAction(Android::Tr::tr("No connected Android devices"));
+            QAction *placeholder = menu->addAction(Android::Tr::tr("No Connected Android Devices"));
             placeholder->setEnabled(false);
         }
     });

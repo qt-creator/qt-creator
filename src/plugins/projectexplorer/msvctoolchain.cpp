@@ -551,8 +551,10 @@ static QString generateDisplayName(
     if (!displayName.isEmpty())
         vcName = QString::fromLatin1("%1 ").arg(displayName);
     vcName += name;
-    if (device && device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
-        vcName += Tr::tr(" on %1").arg(device->displayName());
+    if (device && device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID) {
+        //: %1 is the compiler name, %2 is the device name.
+        vcName = Tr::tr("%1 on %2").arg(vcName, device->displayName());
+    }
     vcName += QString::fromLatin1(" (%1)").arg(platformName(p));
     return vcName;
 }
@@ -893,7 +895,7 @@ static void environmentModifications(QPromise<MsvcToolchain::GenerateEnvResult> 
 
     const FilePath cmdPath = batchFile.findCmdExe(inEnv);
     if (!cmdPath.isExecutableFile()) {
-        promise.addResult(ResultError(Tr::tr("Failed to find cmd.exe")));
+        promise.addResult(ResultError(Tr::tr("Cannot find \"cmd.exe\".")));
         return;
     }
 
