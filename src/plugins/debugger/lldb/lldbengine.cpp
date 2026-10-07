@@ -1331,7 +1331,8 @@ static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
         .sourcePathMap = lldbImplSourcePathMap(rp),
         .solibSearchPath = rp.solibSearchPath(),
         .debugInfoLocation = rp.debugInfoLocation(),
-        .useIndexCache = settings().useIndexCache(),
+        // Not settings().useIndexCache(): that one is gdb's, and with a warm
+        // index cache Apple's lldb (lldb-2103) crashes before main() is reached.
         .useDebugInfoD = settings().useDebugInfoD(),
         .qtVersion = rp.qtVersion(),
         .qtNamespace = rp.configuredQtNamespace(),
