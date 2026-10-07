@@ -20,6 +20,7 @@
 
 #include <array>
 #include <cstdio>
+#include <algorithm>
 #include <cstring>
 
 namespace Debugger::Internal {
@@ -1262,6 +1263,70 @@ QString reformatCharacterWithFormat(int code, int size, bool isSigned, int forma
     if (format == AutomaticFormat)
         return reformatCharacter(code, size, isSigned);
     return reformatInteger(quint64(code), format, size, isSigned);
+}
+
+MemoryReadResult::MemoryReadResult(quint64 address, quint64 length)
+    : address(address)
+    , data(qsizetype(length), char(0))
+{}
+
+/*!
+    Records that \a length bytes from \a offset could not be read, for
+    \a reason, and zeroes them in data.
+*/
+void MemoryReadResult::setUnreadable(quint64 offset, quint64 length, const QString &reason)
+{
+    if (offset >= quint64(data.size()) || length == 0)
+        return;
+    length = std::min(length, quint64(data.size()) - offset);
+    memset(data.data() + offset, 0, length);
+    unreadable.append({offset, length, reason.isEmpty() ? QString("unknown reason") : reason});
+}
+
+/*!
+    Sorts the unreadable ranges and joins neighbours with the same reason, as
+    a read split into parts reports them in pieces and in any order.
+*/
+void MemoryReadResult::normalize()
+{
+    std::sort(unreadable.begin(), unreadable.end(), [](const Unreadable &a, const Unreadable &b) {
+        return a.offset < b.offset;
+    });
+    QList<Unreadable> joined;
+    for (const Unreadable &range : std::as_const(unreadable)) {
+        if (!joined.isEmpty() && joined.last().offset + joined.last().length >= range.offset
+            && joined.last().reason == range.reason) {
+            joined.last().length = std::max(joined.last().offset + joined.last().length,
+                                             range.offset + range.length)
+                                   - joined.last().offset;
+        } else {
+            joined.append(range);
+        }
+    }
+    unreadable = joined;
+}
+
+QList<QPair<quint64, quint64>> memoryRetryParts(quint64 base, quint64 offset, quint64 length)
+{
+    const quint64 pageSize = 4096;
+    QList<QPair<quint64, quint64>> parts;
+    quint64 start = offset;
+    const quint64 end = offset + length;
+    while (start < end) {
+        const quint64 pageEnd = ((base + start) / pageSize + 1) * pageSize - base;
+        const quint64 partEnd = std::min(end, pageEnd);
+        parts.append({start, partEnd - start});
+        start = partEnd;
+    }
+    if (parts.size() < 2)
+        return {};
+    return parts;
+}
+
+QString memoryErrorWithoutAddress(const QString &message)
+{
+    static const QRegularExpression address(" *(at )?(address )?0x[0-9a-fA-F]+");
+    return QString(message).remove(address).trimmed();
 }
 
 } // Debugger::Internal

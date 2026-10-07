@@ -44,7 +44,8 @@ public:
     void fetchDisassembler(DisassemblerAgent *agent) final;
 
     void changeMemory(MemoryAgent *agent, quint64 address, const QByteArray &data) final;
-    void fetchMemory(MemoryAgent *agent, quint64 address, quint64 length) final;
+    bool canReadMemory() const final { return true; }
+    void readMemory(quint64 address, quint64 length, const MemoryReadCallback &callback) final;
 
     void reloadPeripheralRegisters() final;
 
@@ -74,7 +75,6 @@ private:
     void handleExecutionFailure(const QString &errorMessage);
     void handleStoppingFailure(const QString &errorMessage);
 
-    void handleFetchMemory(MemoryAgent *agent, quint64 address, const QByteArray &data);
     void handleChangeMemory(MemoryAgent *agent, quint64 address, const QByteArray &data);
 
     void doUpdateLocals(const UpdateParameters &params) final;

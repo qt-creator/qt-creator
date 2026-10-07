@@ -323,10 +323,10 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             break;
         }
     });
-    connect(m_backend.get(), &DebuggerEngineInterface::memoryDataReceived, this,
-            [this](quint64 requestId, quint64 address, const QByteArray &data) {
-        if (MemoryAgent *agent = m_pendingMemoryRequests.take(requestId))
-            agent->addData(address, data);
+    connect(m_backend.get(), &DebuggerEngineInterface::memoryRead, this,
+            [this](quint64 requestId, const MemoryReadResult &result) {
+        if (const MemoryReadCallback callback = m_pendingMemoryReads.take(requestId))
+            callback(result);
     });
     connect(m_backend.get(), &DebuggerEngineInterface::disassemblyReceived, this,
             [this](quint64 requestId, const DisassemblerLines &lines) {
@@ -1097,10 +1097,16 @@ void GenericDebuggerEngine::assignValueInDebugger(WatchItem *item, const QString
     updateLocals();
 }
 
-void GenericDebuggerEngine::fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length)
+bool GenericDebuggerEngine::canReadMemory() const
+{
+    return hasCapability(ShowMemoryCapability);
+}
+
+void GenericDebuggerEngine::readMemory(quint64 addr, quint64 length,
+                                       const MemoryReadCallback &callback)
 {
     const quint64 requestId = m_nextMemoryRequestId++;
-    m_pendingMemoryRequests[requestId] = agent;
+    m_pendingMemoryReads.insert(requestId, callback);
     m_backend->accessMemory(MemoryOp::Fetch, requestId, addr, length);
 }
 

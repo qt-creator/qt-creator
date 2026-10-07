@@ -1,6 +1,7 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "commonoptionspage.h"
 #include "debuggerengine.h"
 #include "mcpsessionstate.h"
 #include "mcpsupport_p.h"
@@ -15,14 +16,17 @@
 #include <QJsonArray>
 #include <QPointer>
 #include <QSet>
+#include <QTimer>
 
 #include <algorithm>
+#include <limits>
 
 using namespace Utils;
 
 namespace Debugger::Internal {
 
 enum {
+    defaultMemoryTimeoutMs = 10000,
     defaultRegisterTimeoutMs = 5000,
     defaultThreadTimeoutMs = 5000,
     defaultMaxFrames = 10,
@@ -493,6 +497,215 @@ static void getRegisters(const QJsonObject &args, const McpReply &reply)
     });
 }
 
+// Memory
+
+class AddressRange
+{
+public:
+    quint64 first = 0;
+    quint64 last = 0;
+};
+
+static Result<quint64> parseAddress(const QString &text)
+{
+    bool ok = false;
+    const quint64 value = text.trimmed().toULongLong(&ok, 0);
+    if (!ok)
+        return ResultError(QString("\"%1\" is not an address.").arg(text.trimmed()));
+    return value;
+}
+
+static Result<QList<AddressRange>> parseAddressRanges(const QString &text)
+{
+    QList<AddressRange> ranges;
+    for (const QString &part : text.split(',', Qt::SkipEmptyParts)) {
+        const QStringList bounds = part.split('-');
+        if (bounds.size() != 2)
+            return ResultError(QString("\"%1\" is not a range of the form first-last.").arg(part.trimmed()));
+        const Result<quint64> first = parseAddress(bounds.at(0));
+        if (!first)
+            return ResultError(first.error());
+        const Result<quint64> last = parseAddress(bounds.at(1));
+        if (!last)
+            return ResultError(last.error());
+        if (*last < *first)
+            return ResultError(QString("The range \"%1\" ends before it starts.").arg(part.trimmed()));
+        ranges.append({*first, *last});
+    }
+    return ranges;
+}
+
+// Whether the session debugs an application on an operating system, whose
+// memory is ordinary process memory. A bare metal target, or one of unknown
+// kind, may have memory-mapped I/O behind any address.
+static bool debugsProcessMemory(const DebuggerRunParameters &rp)
+{
+    const ProjectExplorer::Abi::OS os = rp.toolChainAbi().os();
+    if (os == ProjectExplorer::Abi::BareMetalOS)
+        return false;
+    switch (rp.startMode()) {
+    case StartInternal:
+    case StartExternal:
+    case AttachToLocalProcess:
+    case AttachToCrashedProcess:
+    case AttachToCore:
+    case AttachToRemoteProcess:
+    case StartRemoteProcess:
+    case AttachToIosDevice:
+        return true;
+    case AttachToRemoteServer:
+        return os != ProjectExplorer::Abi::UnknownOS;
+    default:
+        return false;
+    }
+}
+
+/*!
+    \internal
+
+    Says why reading \a length bytes from \a address in a session started
+    with \a rp is not allowed, or on what grounds it is.
+*/
+Result<QString> mcpMemoryAccessGrant(const DebuggerRunParameters &rp, quint64 address,
+                                     quint64 length)
+{
+    const CommonSettings &s = commonSettings();
+    switch (s.mcpMemoryAccess()) {
+    case CommonSettings::McpMemoryNever:
+        return ResultError("Reading memory over MCP is turned off in Preferences > Debugger > "
+                           "General > MCP Server.");
+    case CommonSettings::McpMemoryAnywhere:
+        return QString("any_memory");
+    default:
+        break;
+    }
+    if (debugsProcessMemory(rp))
+        return QString("process_memory");
+
+    const Result<QList<AddressRange>> ranges = parseAddressRanges(s.mcpMemoryRanges());
+    if (!ranges) {
+        return ResultError("The readable ranges in Preferences > Debugger > General > MCP Server "
+                           "cannot be read: " + ranges.error());
+    }
+    const quint64 last = address + length - 1;
+    for (const AddressRange &range : *ranges) {
+        if (address >= range.first && last <= range.last)
+            return QString("allowed_range");
+    }
+    return ResultError(QString("This session debugs a bare metal target, or one of unknown kind, "
+                               "where an address may be memory-mapped I/O. Reading 0x%1-0x%2 "
+                               "needs a readable range that covers it in Preferences > Debugger > "
+                               "General > MCP Server, or \"Any memory\" there.")
+                           .arg(address, 0, 16).arg(last, 0, 16));
+}
+
+static QJsonObject memorySegment(const MemoryReadResult &result, quint64 offset, quint64 length,
+                                 const QString &encoding, const QString &reason)
+{
+    QJsonObject segment{{"address", QString("0x%1").arg(result.address + offset, 0, 16)},
+                        {"offset", qint64(offset)},
+                        {"length", qint64(length)},
+                        {"readable", reason.isNull()}};
+    if (reason.isNull()) {
+        const QByteArray bytes = result.data.mid(qsizetype(offset), qsizetype(length));
+        segment["data"] = QString::fromLatin1(encoding == "base64" ? bytes.toBase64()
+                                                                   : bytes.toHex());
+    } else {
+        segment["reason"] = reason;
+    }
+    return segment;
+}
+
+static void readMemory(const QJsonObject &args, const McpReply &reply)
+{
+    const Result<McpSessionState *> state = pausedSessionState();
+    if (!state) {
+        reply(ResultError(state.error()));
+        return;
+    }
+    DebuggerEngine *engine = (*state)->engine();
+    if (!engine->canReadMemory()) {
+        reply(ResultError(QString("The %1 debugger of this session cannot read memory.")
+                              .arg(engine->debuggerName())));
+        return;
+    }
+
+    const QJsonValue addressValue = args.value("address");
+    const Result<quint64> address = addressValue.isString()
+                                        ? parseAddress(addressValue.toString())
+                                        : Result<quint64>(quint64(addressValue.toInteger(-1)));
+    if (!address || (!addressValue.isString() && addressValue.toInteger(-1) < 0)) {
+        reply(ResultError(address ? QString("\"address\" must not be negative.") : address.error()));
+        return;
+    }
+    const qint64 requested = args.value("length").toInteger(0);
+    if (requested <= 0) {
+        reply(ResultError("\"length\" must be at least 1."));
+        return;
+    }
+    const quint64 limit = quint64(commonSettings().mcpMemoryReadLimit());
+    const quint64 length = std::min(quint64(requested), limit);
+    if (*address > std::numeric_limits<quint64>::max() - (length - 1)) {
+        reply(ResultError("The range runs past the end of the address space."));
+        return;
+    }
+
+    const Result<QString> grant = mcpMemoryAccessGrant(engine->runParameters(), *address, length);
+    if (!grant) {
+        reply(ResultError(grant.error()));
+        return;
+    }
+
+    const QString encoding = args.value("encoding").toString("hex");
+    const QPointer<McpSessionState> session = *state;
+    const int stopId = session->stopId();
+    auto answered = std::make_shared<bool>(false);
+    QTimer::singleShot(timeoutArgument(args, defaultMemoryTimeoutMs), [answered, reply] {
+        if (std::exchange(*answered, true))
+            return;
+        reply(ResultError("The debugger did not answer the memory read in time."));
+    });
+    engine->readMemory(*address, length,
+                       [=](const MemoryReadResult &result) {
+        if (std::exchange(*answered, true))
+            return;
+        if (!session || session->stopId() != stopId || !session->isStopped()) {
+            reply(ResultError("The target resumed before the memory read completed."));
+            return;
+        }
+        QJsonArray segments;
+        quint64 offset = 0;
+        quint64 unreadableBytes = 0;
+        for (const MemoryReadResult::Unreadable &range : result.unreadable) {
+            if (range.offset > offset)
+                segments.append(memorySegment(result, offset, range.offset - offset, encoding, {}));
+            segments.append(memorySegment(result, range.offset, range.length, encoding,
+                                          range.reason));
+            unreadableBytes += range.length;
+            offset = range.offset + range.length;
+        }
+        if (offset < length)
+            segments.append(memorySegment(result, offset, length - offset, encoding, {}));
+
+        QJsonObject answer{{"address", QString("0x%1").arg(*address, 0, 16)},
+                           {"requested_length", requested},
+                           {"length", qint64(length)},
+                           {"bytes_read", qint64(length - unreadableBytes)},
+                           {"truncated", quint64(requested) > length},
+                           {"encoding", encoding},
+                           {"access", *grant},
+                           {"segments", segments},
+                           {"context", session->context()}};
+        if (quint64(requested) > length) {
+            answer["next_address"] = QString("0x%1").arg(*address + length, 0, 16);
+            answer["note"] = QString("At most %1 bytes are read at once (Preferences > Debugger "
+                                     "> General > MCP Server). Read the rest from "
+                                     "next_address.").arg(limit);
+        }
+        reply(answer);
+    });
+}
+
 void registerIntrospectionMcpTools()
 {
     using namespace Mcp::Schema;
@@ -651,6 +864,71 @@ void registerIntrospectionMcpTools()
                     .addRequired("registers")
                     .addRequired("context")),
         getRegisters);
+
+    const QJsonObject segmentSchema{
+        {"type", "object"},
+        {"required", QJsonArray{"address", "offset", "length", "readable"}},
+        {"properties", QJsonObject{
+            {"address",  QJsonObject{{"type", "string"}}},
+            {"offset",   QJsonObject{{"type", "integer"}, {"description", "From the start of the read."}}},
+            {"length",   QJsonObject{{"type", "integer"}}},
+            {"readable", QJsonObject{{"type", "boolean"}}},
+            {"data",     QJsonObject{{"type", "string"}, {"description", "The bytes, when readable."}}},
+            {"reason",   QJsonObject{{"type", "string"}, {"description", "Why the bytes could not be read."}}},
+        }}};
+
+    registerAsyncMcpTool(
+        Tool{}
+            .name("debugger_read_memory")
+            .title("Read target memory")
+            .description(
+                "Reads bytes of target memory from an address in the paused debug session. "
+                "Read-only. Returns the range as segments, each either readable with its bytes "
+                "or not readable with a reason; unreadable bytes are never returned as zeros. "
+                "Reads at most the number of bytes configured in Preferences > Debugger > "
+                "General > MCP Server and says so when it read less than asked. On bare metal "
+                "targets and targets of unknown kind, where an address may be memory-mapped I/O, "
+                "only ranges allowed there can be read.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty("address",
+                                 QJsonObject{{"type", QJsonArray{"string", "integer"}},
+                                             {"description", "Start address, such as \"0x16fdff2a0\" "
+                                                             "or a decimal number."}})
+                    .addProperty("length",
+                                 QJsonObject{{"type", "integer"},
+                                             {"minimum", 1},
+                                             {"description", "Number of bytes to read."}})
+                    .addProperty("encoding",
+                                 QJsonObject{{"type", "string"},
+                                             {"enum", QJsonArray{"hex", "base64"}},
+                                             {"default", "hex"}})
+                    .addProperty("timeout_ms", timeoutSchema(defaultMemoryTimeoutMs))
+                    .addRequired("address")
+                    .addRequired("length"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("address", QJsonObject{{"type", "string"}})
+                    .addProperty("requested_length", QJsonObject{{"type", "integer"}})
+                    .addProperty("length", QJsonObject{{"type", "integer"},
+                                                       {"description", "Bytes covered by the segments."}})
+                    .addProperty("bytes_read", QJsonObject{{"type", "integer"}})
+                    .addProperty("truncated", QJsonObject{{"type", "boolean"},
+                                                          {"description", "Fewer bytes were read than asked for, because of the size limit."}})
+                    .addProperty("next_address", QJsonObject{{"type", "string"}})
+                    .addProperty("encoding", QJsonObject{{"type", "string"}})
+                    .addProperty("access", QJsonObject{{"type", "string"},
+                                                       {"enum", QJsonArray{"process_memory", "allowed_range", "any_memory"}},
+                                                       {"description", "Why the read was allowed."}})
+                    .addProperty("segments", QJsonObject{{"type", "array"}, {"items", segmentSchema}})
+                    .addProperty("note", QJsonObject{{"type", "string"}})
+                    .addProperty("context", contextSchema())
+                    .addRequired("address")
+                    .addRequired("length")
+                    .addRequired("segments")
+                    .addRequired("truncated")),
+        readMemory);
 }
 
 } // namespace Debugger::Internal

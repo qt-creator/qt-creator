@@ -322,7 +322,7 @@ signals:
 
     void engineProcessFinished(const Utils::ProcessResultData &resultData);
 
-    void memoryDataReceived(quint64 requestId, quint64 address, const QByteArray &data);
+    void memoryRead(quint64 requestId, const MemoryReadResult &result);
 
     void disassemblyReceived(quint64 requestId, const DisassemblerLines &lines);
 

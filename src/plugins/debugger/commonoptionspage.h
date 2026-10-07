@@ -68,6 +68,11 @@ public:
 
     SourcePathMapAspect sourcePathMap{this};
 
+    enum McpMemoryAccess { McpMemoryNever, McpMemoryOfProcesses, McpMemoryAnywhere };
+    Utils::SelectionAspect mcpMemoryAccess{this};
+    Utils::StringAspect mcpMemoryRanges{this};
+    Utils::IntegerAspect mcpMemoryReadLimit{this};
+
     Utils::BoolAspect *registerForPostMortem = nullptr;
 };
 

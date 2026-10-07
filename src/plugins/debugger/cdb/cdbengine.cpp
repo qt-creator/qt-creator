@@ -1510,26 +1510,29 @@ void CdbEngine::handleResolveSymbolHelper(const QList<quint64> &addresses, Disas
     }
 }
 
-void CdbEngine::fetchMemory(MemoryAgent *agent, quint64 address, quint64 length)
+void CdbEngine::readMemory(quint64 address, quint64 length, const MemoryReadCallback &callback)
 {
     if (debug)
-        qDebug("CdbEngine::fetchMemory %llu bytes from 0x%llx", length, address);
+        qDebug("CdbEngine::readMemory %llu bytes from 0x%llx", length, address);
     DebuggerCommand cmd("memory", ExtensionCommand);
     QString args;
     StringInputStream str(args);
     str << address << ' ' << length;
     cmd.args = args;
-    cmd.callback = [this, agent, length, address](const DebuggerResponse &response) {
-        if (!agent)
-            return;
+    cmd.callback = [this, callback, length, address](const DebuggerResponse &response) {
+        MemoryReadResult result(address, length);
         if (response.resultClass == ResultDone) {
             const QByteArray data = QByteArray::fromHex(response.data.data().toUtf8());
-            if (unsigned(data.size()) == length)
-                agent->addData(address, data);
+            const quint64 read = std::min(quint64(data.size()), length);
+            memcpy(result.data.data(), data.constData(), read);
+            if (read < length)
+                result.setUnreadable(read, length - read, "CDB returned fewer bytes.");
         } else {
-            showMessage(response.data["msg"].data(), LogWarning);
-            agent->addData(address, QByteArray(int(length), char()));
+            const QString reason = response.data["msg"].data();
+            showMessage(reason, LogWarning);
+            result.setUnreadable(0, length, reason);
         }
+        callback(result);
     };
     runCommand(cmd);
 }

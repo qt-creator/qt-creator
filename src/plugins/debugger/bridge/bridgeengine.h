@@ -80,7 +80,8 @@ private:
     void doUpdateLocals(const UpdateParameters &params) override;
     void updateAll() override;
 
-    void fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length) override;
+    bool canReadMemory() const override { return true; }
+    void readMemory(quint64 addr, quint64 length, const MemoryReadCallback &callback) override;
     void changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray &data) override;
     void fetchDisassembler(DisassemblerAgent *agent) override;
 
@@ -131,8 +132,15 @@ private:
     int m_currentThreadId = -1;
     int m_currentStackFrameId = -1;
 
-    // Correlates async qtc/readMemory responses back to the requesting agent.
-    QHash<int, QPointer<MemoryAgent>> m_memoryAgents;
+    // Correlates async qtc/readMemory responses back to the request.
+    class MemoryRead
+    {
+    public:
+        quint64 address = 0;
+        quint64 length = 0;
+        MemoryReadCallback callback;
+    };
+    QHash<int, MemoryRead> m_memoryReads;
     int m_nextMemoryToken = 0;
 
     // Correlates async qtc/disassemble responses back to the requesting agent.

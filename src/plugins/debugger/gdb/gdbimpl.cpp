@@ -1653,7 +1653,7 @@ void GdbImpl::accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64
     }
 
     MemoryRequestCookie cookie;
-    cookie.accumulator = std::make_shared<QByteArray>(lengthOrSize, char());
+    cookie.result = std::make_shared<MemoryReadResult>(addr, lengthOrSize);
     cookie.pendingRequests = std::make_shared<int>(1);
     cookie.requestId = requestId;
     cookie.base = addr;
@@ -1679,23 +1679,37 @@ void GdbImpl::handleFetchMemory(const DebuggerResponse &response, const MemoryRe
         const GdbMi memory = response.data["memory"];
         if (memory.childCount() != 0) {
             int i = 0;
-            for (const GdbMi &byte : memory.childAt(0)["data"])
-                (*cookie.accumulator)[cookie.offset + i++] = char(byte.data().toUInt(nullptr, 0));
+            for (const GdbMi &byte : memory.childAt(0)["data"]) {
+                // GDB answers N/A for the bytes after the first it cannot read.
+                bool ok = false;
+                const uint value = byte.data().toUInt(&ok, 0);
+                if (ok)
+                    cookie.result->data[cookie.offset + i] = char(value);
+                else
+                    cookie.result->setUnreadable(cookie.offset + i, 1, "GDB returned " + byte.data());
+                ++i;
+            }
+        } else {
+            cookie.result->setUnreadable(cookie.offset, cookie.length, "GDB returned no data.");
         }
-    } else if (cookie.length > 1) {
-        *cookie.pendingRequests += 2;
-        const quint64 hunk = cookie.length / 2;
-        MemoryRequestCookie first = cookie;
-        first.length = hunk;
-        MemoryRequestCookie second = cookie;
-        second.length = cookie.length - hunk;
-        second.offset = cookie.offset + hunk;
-        fetchMemoryHelper(first);
-        fetchMemoryHelper(second);
+    } else if (const auto parts = memoryRetryParts(cookie.base, cookie.offset, cookie.length);
+               !parts.isEmpty()) {
+        *cookie.pendingRequests += int(parts.size());
+        for (const auto &[offset, length] : parts) {
+            MemoryRequestCookie part = cookie;
+            part.offset = offset;
+            part.length = length;
+            fetchMemoryHelper(part);
+        }
+    } else {
+        cookie.result->setUnreadable(cookie.offset, cookie.length,
+                                     memoryErrorWithoutAddress(response.data["msg"].data()));
     }
 
-    if (*cookie.pendingRequests <= 0)
-        emit memoryDataReceived(cookie.requestId, cookie.base, *cookie.accumulator);
+    if (*cookie.pendingRequests <= 0) {
+        cookie.result->normalize();
+        emit memoryRead(cookie.requestId, *cookie.result);
+    }
 }
 
 QChar GdbImpl::mixedDisasmFlag() const

@@ -1179,15 +1179,33 @@ void LldbEngine::fetchFullBacktrace()
     runCommand(cmd);
 }
 
-void LldbEngine::fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length)
+// LLDB's process.ReadMemory() stops at the first byte it cannot read, and
+// says why in its error.
+static MemoryReadResult lldbMemoryReadResult(const DebuggerResponse &response, quint64 addr,
+                                             quint64 length)
+{
+    MemoryReadResult result(addr, length);
+    const QByteArray contents = QByteArray::fromHex(response.data["contents"].data().toUtf8());
+    const quint64 read = std::min(quint64(contents.size()), length);
+    memcpy(result.data.data(), contents.constData(), read);
+    if (read < length) {
+        QString reason = response.data["error"]["status"].data();
+        if (reason.isEmpty())
+            reason = response.data["error"]["desc"].data();
+        if (reason.isEmpty() && response.resultClass != ResultDone)
+            reason = response.data["msg"].data();
+        result.setUnreadable(read, length - read, reason);
+    }
+    return result;
+}
+
+void LldbEngine::readMemory(quint64 addr, quint64 length, const MemoryReadCallback &callback)
 {
     DebuggerCommand cmd("fetchMemory");
     cmd.arg("address", addr);
     cmd.arg("length", length);
-    cmd.callback = [agent](const DebuggerResponse &response) {
-        qulonglong addr = response.data["address"].toAddress();
-        QByteArray ba = QByteArray::fromHex(response.data["contents"].data().toUtf8());
-        agent->addData(addr, ba);
+    cmd.callback = [callback, addr, length](const DebuggerResponse &response) {
+        callback(lldbMemoryReadResult(response, addr, length));
     };
     runCommand(cmd);
 }

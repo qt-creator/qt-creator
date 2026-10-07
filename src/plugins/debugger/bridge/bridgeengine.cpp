@@ -884,9 +884,19 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
             // entry, or the map grows for every failure.
             const QJsonObject body = response.value("body").toObject();
             if (body.contains("token")) {
+                // Memory reads and disassembly requests count their tokens
+                // separately, so only the command says whose token it is.
                 const int token = body.value("token").toInt();
-                m_memoryAgents.remove(token);
-                m_disassemblerAgents.remove(token);
+                if (command == "qtc/readMemory") {
+                    if (const MemoryRead read = m_memoryReads.take(token); read.callback) {
+                        MemoryReadResult result(read.address, read.length);
+                        result.setUnreadable(0, read.length,
+                                             response.value("message").toString());
+                        read.callback(result);
+                    }
+                } else if (command == "qtc/disassemble") {
+                    m_disassemblerAgents.remove(token);
+                }
             }
             // And the locals view has to be released, or it stays in its
             // updating state - with stale, unexpandable items - until the next
@@ -1031,11 +1041,11 @@ void BridgeEngine::handleFetchRegistersResponse(const QJsonObject &response)
     handler->commitUpdates();
 }
 
-void BridgeEngine::fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length)
+void BridgeEngine::readMemory(quint64 addr, quint64 length, const MemoryReadCallback &callback)
 {
-    // Async read; the response is correlated back to the agent via the token.
+    // Async read; the response is correlated back to the request via the token.
     const int token = m_nextMemoryToken++;
-    m_memoryAgents.insert(token, agent);
+    m_memoryReads.insert(token, {addr, length, callback});
 
     QJsonObject args;
     args.insert("token", token);
@@ -1056,12 +1066,16 @@ void BridgeEngine::changeMemory(MemoryAgent *agent, quint64 addr, const QByteArr
 void BridgeEngine::handleReadMemoryResponse(const QJsonObject &response)
 {
     const QJsonObject body = response.value("body").toObject();
-    const QPointer<MemoryAgent> agent = m_memoryAgents.take(body.value("token").toInt());
-    if (!agent)
+    const MemoryRead read = m_memoryReads.take(body.value("token").toInt());
+    if (!read.callback)
         return;
-    const quint64 address = body.value("address").toString().toULongLong(nullptr, 0);
     const QByteArray data = QByteArray::fromBase64(body.value("data").toString().toLatin1());
-    agent->addData(address, data);
+    MemoryReadResult result(read.address, read.length);
+    const quint64 copied = std::min(quint64(data.size()), read.length);
+    memcpy(result.data.data(), data.constData(), copied);
+    if (copied < read.length)
+        result.setUnreadable(copied, read.length - copied, "The bridge returned fewer bytes.");
+    read.callback(result);
 }
 
 void BridgeEngine::handleWriteMemoryResponse(const QJsonObject &response)

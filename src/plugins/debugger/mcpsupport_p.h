@@ -11,6 +11,8 @@
 
 #include <functional>
 
+namespace Debugger { class DebuggerRunParameters; }
+
 namespace Debugger::Internal {
 
 class McpSessionState;
@@ -32,5 +34,8 @@ QString notReadyMessage(const QString &what, McpSessionState *state, bool sessio
 void registerIntrospectionMcpTools();
 
 QJsonObject mcpRegisterToJson(const Register &reg, bool reportedAtThisStop);
+
+Utils::Result<QString> mcpMemoryAccessGrant(const DebuggerRunParameters &rp, quint64 address,
+                                            quint64 length);
 
 } // namespace Debugger::Internal

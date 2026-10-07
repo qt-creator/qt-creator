@@ -3600,12 +3600,13 @@ class MemoryAgentCookie
 public:
     MemoryAgentCookie() = default;
 
-    QByteArray *accumulator = nullptr; // Shared between split request. Last one cleans up.
-    uint *pendingRequests = nullptr; // Shared between split request. Last one cleans up.
+    // Shared between the parts of a split request. The last one reports.
+    std::shared_ptr<MemoryReadResult> result;
+    std::shared_ptr<uint> pendingRequests;
+    GdbEngine::MemoryReadCallback callback;
 
-    QPointer<MemoryAgent> agent;
     quint64 base = 0; // base address.
-    uint offset = 0; // offset to base, and in accumulator
+    uint offset = 0; // offset to base, and in result
     uint length = 0; //
 };
 
@@ -3623,12 +3624,12 @@ void GdbEngine::changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray 
     }
 }
 
-void GdbEngine::fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length)
+void GdbEngine::readMemory(quint64 addr, quint64 length, const MemoryReadCallback &callback)
 {
     MemoryAgentCookie ac;
-    ac.accumulator = new QByteArray(length, char());
-    ac.pendingRequests = new uint(1);
-    ac.agent = agent;
+    ac.result = std::make_shared<MemoryReadResult>(addr, length);
+    ac.pendingRequests = std::make_shared<uint>(1);
+    ac.callback = callback;
     ac.base = addr;
     ac.length = length;
     fetchMemoryHelper(ac);
@@ -3652,43 +3653,43 @@ void GdbEngine::handleFetchMemory(const DebuggerResponse &response, MemoryAgentC
     // data=["1","0","0","0","5","0","0","0","0","0","0","0","0","0","0","0"]}]
     --*ac.pendingRequests;
     showMessage(QString("PENDING: %1").arg(*ac.pendingRequests));
-    QTC_ASSERT(ac.agent, return);
     if (response.resultClass == ResultDone) {
         GdbMi memory = response.data["memory"];
-        QTC_ASSERT(memory.childCount() <= 1, return);
-        if (memory.childCount() == 0)
-            return;
-        GdbMi memory0 = memory.childAt(0); // we asked for only one 'row'
-        GdbMi data = memory0["data"];
-        int i = 0;
-        for (const GdbMi &child : data) {
-            bool ok = true;
-            unsigned char c = '?';
-            c = child.data().toUInt(&ok, 0);
-            QTC_ASSERT(ok, return);
-            (*ac.accumulator)[ac.offset + i++] = c;
+        QTC_CHECK(memory.childCount() <= 1);
+        if (memory.childCount() == 0) {
+            ac.result->setUnreadable(ac.offset, ac.length, "GDB returned no data.");
+        } else {
+            GdbMi memory0 = memory.childAt(0); // we asked for only one 'row'
+            GdbMi data = memory0["data"];
+            int i = 0;
+            for (const GdbMi &child : data) {
+                bool ok = true;
+                const unsigned char c = child.data().toUInt(&ok, 0);
+                if (ok)
+                    ac.result->data[ac.offset + i] = char(c);
+                else
+                    ac.result->setUnreadable(ac.offset + i, 1, "GDB returned " + child.data());
+                ++i;
+            }
+        }
+    } else if (const auto parts = memoryRetryParts(ac.base, ac.offset, ac.length);
+               !parts.isEmpty()) {
+        // An error, but the pages of the range may be readable one by one.
+        *ac.pendingRequests += uint(parts.size());
+        for (const auto &[offset, length] : parts) {
+            MemoryAgentCookie part = ac;
+            part.offset = uint(offset);
+            part.length = uint(length);
+            fetchMemoryHelper(part);
         }
     } else {
-        // We have an error
-        if (ac.length > 1) {
-            // ... and size > 1, split the load and re-try.
-            *ac.pendingRequests += 2;
-            uint hunk = ac.length / 2;
-            MemoryAgentCookie ac1 = ac;
-            ac1.length = hunk;
-            ac1.offset = ac.offset;
-            MemoryAgentCookie ac2 = ac;
-            ac2.length = ac.length - hunk;
-            ac2.offset = ac.offset + hunk;
-            fetchMemoryHelper(ac1);
-            fetchMemoryHelper(ac2);
-        }
+        ac.result->setUnreadable(ac.offset, ac.length,
+                                 memoryErrorWithoutAddress(response.data["msg"].data()));
     }
 
     if (*ac.pendingRequests <= 0) {
-        ac.agent->addData(ac.base, *ac.accumulator);
-        delete ac.pendingRequests;
-        delete ac.accumulator;
+        ac.result->normalize();
+        ac.callback(*ac.result);
     }
 }
 

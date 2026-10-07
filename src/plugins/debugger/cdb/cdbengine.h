@@ -62,7 +62,8 @@ public:
 
     void fetchDisassembler(DisassemblerAgent *agent) override;
     std::optional<bool> registersFollowSelectedFrame() const override { return false; }
-    void fetchMemory(MemoryAgent *, quint64 addr, quint64 length) override;
+    bool canReadMemory() const override { return true; }
+    void readMemory(quint64 addr, quint64 length, const MemoryReadCallback &callback) override;
     void changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data) override;
 
     void reloadModules() override;

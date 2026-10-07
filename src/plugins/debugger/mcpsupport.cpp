@@ -2041,7 +2041,7 @@ void registerMcpTools()
             return CallToolResult{}.isError(false).structuredContent(*result);
         });
 
-    ToolRegistry::registerTool(
+    registerAsyncMcpTool(
         Tool{}
             .name("debugger_evaluate_expression")
             .title("Evaluate expression in debugger")
@@ -2065,18 +2065,8 @@ void registerMcpTools()
                     .addProperty("type", QJsonObject{{"type", "string"}})
                     .addRequired("expression")
                     .addRequired("value")),
-        [](const Schema::CallToolRequestParams &params,
-           const ToolInterface &toolInterface) -> Utils::Result<> {
-            const QString expr = params.argumentsAsObject().value("expression").toString();
-            evaluateExpression(expr, [toolInterface](Utils::Result<QJsonObject> result) {
-                if (!result)
-                    toolInterface.finish(CallToolResult{}.isError(true).addContent(
-                        TextContent{}.text(result.error())));
-                else
-                    toolInterface.finish(
-                        CallToolResult{}.isError(false).structuredContent(*result));
-            });
-            return ResultOk;
+        [](const QJsonObject &args, const McpReply &reply) {
+            evaluateExpression(args.value("expression").toString(), reply);
         });
 
     ToolRegistry::registerTool(

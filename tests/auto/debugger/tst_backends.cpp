@@ -5688,10 +5688,10 @@ void tst_backends::testDetachCapability()
         QVERIFY2(keepSpinningAddress != 0, "could not find keepSpinning's address via nm");
 
         QList<QByteArray> memoryChunks;
-        connect(engine, &DebuggerEngineInterface::memoryDataReceived, this,
-                [&memoryChunks, keepSpinningAddress](quint64, quint64 address, const QByteArray &data) {
-            if (address == keepSpinningAddress)
-                memoryChunks.append(data);
+        connect(engine, &DebuggerEngineInterface::memoryRead, this,
+                [&memoryChunks, keepSpinningAddress](quint64, const MemoryReadResult &result) {
+            if (result.address == keepSpinningAddress)
+                memoryChunks.append(result.data);
         });
         auto readKeepSpinning = [&]() -> int {
             memoryChunks.clear();
@@ -6448,10 +6448,10 @@ void tst_backends::testReturnFromFunctionCapability()
     const quint64 globalValueAddress = symbolAddress(backend, engine, "globalValue");
     QVERIFY2(globalValueAddress != 0, "could not find globalValue's address via nm");
     QList<QByteArray> memoryChunks;
-    connect(engine, &DebuggerEngineInterface::memoryDataReceived, this,
-            [&memoryChunks, globalValueAddress](quint64, quint64 address, const QByteArray &data) {
-        if (address == globalValueAddress)
-            memoryChunks.append(data);
+    connect(engine, &DebuggerEngineInterface::memoryRead, this,
+            [&memoryChunks, globalValueAddress](quint64, const MemoryReadResult &result) {
+        if (result.address == globalValueAddress)
+            memoryChunks.append(result.data);
     });
     GdbMi stackData;
     bool stackReceived = false;
@@ -6937,10 +6937,10 @@ void tst_backends::testShowMemoryCapability()
     QVERIFY2(globalValueAddress != 0, "could not find globalValue's address via nm");
 
     QList<QByteArray> memoryChunks;
-    connect(engine, &DebuggerEngineInterface::memoryDataReceived, this,
-            [&memoryChunks, globalValueAddress](quint64, quint64 address, const QByteArray &data) {
-        if (address == globalValueAddress)
-            memoryChunks.append(data);
+    connect(engine, &DebuggerEngineInterface::memoryRead, this,
+            [&memoryChunks, globalValueAddress](quint64, const MemoryReadResult &result) {
+        if (result.address == globalValueAddress)
+            memoryChunks.append(result.data);
     });
 
     engine->accessMemory(MemoryOp::Fetch, 83, globalValueAddress, sizeof(int));
@@ -7541,7 +7541,7 @@ void tst_backends::testWatchpointByAddressCapability()
         results[requestId] = ok;
     });
 
-    QSignalSpy memorySpy(engine, &DebuggerEngineInterface::memoryDataReceived);
+    QSignalSpy memorySpy(engine, &DebuggerEngineInterface::memoryRead);
     engine->accessMemory(MemoryOp::Fetch, 87, globalValueAddress, sizeof(int));
     QTRY_VERIFY_WITH_TIMEOUT(!memorySpy.isEmpty(), s_timeout);
 
@@ -7577,7 +7577,7 @@ void tst_backends::testWatchpointByExpressionCapability()
         results[requestId] = ok;
     });
 
-    QSignalSpy memorySpy(engine, &DebuggerEngineInterface::memoryDataReceived);
+    QSignalSpy memorySpy(engine, &DebuggerEngineInterface::memoryRead);
     engine->accessMemory(MemoryOp::Fetch, 72, symbolAddress(backend, engine, "globalValue"), sizeof(int));
     QTRY_VERIFY_WITH_TIMEOUT(!memorySpy.isEmpty(), s_timeout);
 
@@ -8104,10 +8104,10 @@ void tst_backends::hitsBreakpointAndReadsMemory()
     QVERIFY2(globalValueAddress != 0, "could not find globalValue's address via nm");
 
     QList<QByteArray> memoryChunks;
-    connect(engine, &DebuggerEngineInterface::memoryDataReceived, this,
-            [&memoryChunks, globalValueAddress](quint64, quint64 address, const QByteArray &data) {
-        if (address == globalValueAddress)
-            memoryChunks.append(data);
+    connect(engine, &DebuggerEngineInterface::memoryRead, this,
+            [&memoryChunks, globalValueAddress](quint64, const MemoryReadResult &result) {
+        if (result.address == globalValueAddress)
+            memoryChunks.append(result.data);
     });
 
     engine->accessMemory(MemoryOp::Fetch, 42, globalValueAddress, sizeof(int));
@@ -11716,10 +11716,10 @@ void tst_backends::writesMemoryAndPeripheralRegister()
     QVERIFY2(address != 0, "could not find globalValue's address via nm");
 
     QList<QByteArray> memoryChunks;
-    connect(engine, &DebuggerEngineInterface::memoryDataReceived, this,
-            [&memoryChunks, address](quint64, quint64 receivedAddress, const QByteArray &data) {
-        if (receivedAddress == address)
-            memoryChunks.append(data);
+    connect(engine, &DebuggerEngineInterface::memoryRead, this,
+            [&memoryChunks, address](quint64, const MemoryReadResult &result) {
+        if (result.address == address)
+            memoryChunks.append(result.data);
     });
     auto readGlobalValue = [&]() -> int {
         memoryChunks.clear();
@@ -11862,10 +11862,10 @@ void tst_backends::executesRawCommandAndAssignsValue()
     engine->assignValueInDebugger(item, "globalValue", "777");
 
     QList<QByteArray> memoryChunks;
-    connect(engine, &DebuggerEngineInterface::memoryDataReceived, this,
-            [&memoryChunks, globalValueAddress](quint64, quint64 address, const QByteArray &data) {
-        if (address == globalValueAddress)
-            memoryChunks.append(data);
+    connect(engine, &DebuggerEngineInterface::memoryRead, this,
+            [&memoryChunks, globalValueAddress](quint64, const MemoryReadResult &result) {
+        if (result.address == globalValueAddress)
+            memoryChunks.append(result.data);
     });
     auto readGlobalValue = [&]() -> int {
         memoryChunks.clear();
@@ -12785,7 +12785,7 @@ void tst_backends::insertsWatchpointAndCatchpoint()
         results[requestId] = ok;
     });
 
-    QSignalSpy memorySpy(engine, &DebuggerEngineInterface::memoryDataReceived);
+    QSignalSpy memorySpy(engine, &DebuggerEngineInterface::memoryRead);
     engine->accessMemory(MemoryOp::Fetch, 69, globalValueAddress, sizeof(int));
     QTRY_VERIFY_WITH_TIMEOUT(!memorySpy.isEmpty(), s_timeout);
 
@@ -13216,19 +13216,25 @@ void tst_backends::fetchesMemoryFromInvalidAddress()
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
-    QList<QByteArray> memoryChunks;
-    connect(engine, &DebuggerEngineInterface::memoryDataReceived, this,
-            [&memoryChunks](quint64, quint64, const QByteArray &data) {
-        memoryChunks.append(data);
-    });
+    QList<MemoryReadResult> reads;
+    connect(engine, &DebuggerEngineInterface::memoryRead, this,
+            [&reads](quint64, const MemoryReadResult &result) { reads.append(result); });
 
     engine->accessMemory(MemoryOp::Fetch, 80, 0, 16);
-    QTRY_VERIFY2_WITH_TIMEOUT(!memoryChunks.isEmpty(),
+    QTRY_VERIFY2_WITH_TIMEOUT(!reads.isEmpty(),
                               "accessMemory() on an invalid address never completed - "
                               "retry logic may be stuck", s_timeout);
 
-    QCOMPARE(memoryChunks.constFirst().size(), 16);
-    QCOMPARE(memoryChunks.constFirst(), QByteArray(16, char(0)));
+    const MemoryReadResult &read = reads.constFirst();
+    QCOMPARE(read.data.size(), 16);
+    QCOMPARE(read.data, QByteArray(16, char(0)));
+    // Zero is what the bytes are filled with, not what the target holds.
+    quint64 unreadable = 0;
+    for (const MemoryReadResult::Unreadable &range : read.unreadable) {
+        QVERIFY(!range.reason.isEmpty());
+        unreadable += range.length;
+    }
+    QCOMPARE(unreadable, quint64(16));
 }
 
 void tst_backends::reportsSetupFailureWhenTheDebuggerQuitsAtOnce()
@@ -14304,7 +14310,7 @@ void tst_backends::refreshesPeripherals()
     const quint64 globalValueAddress = symbolAddress(backend, engine, "globalValue");
     QVERIFY2(globalValueAddress != 0, "could not find globalValue's address via nm");
 
-    QSignalSpy memorySpy(engine, &DebuggerEngineInterface::memoryDataReceived);
+    QSignalSpy memorySpy(engine, &DebuggerEngineInterface::memoryRead);
     engine->accessMemory(MemoryOp::Fetch, 103, globalValueAddress, sizeof(int));
     QTRY_VERIFY_WITH_TIMEOUT(!memorySpy.isEmpty(), s_timeout);
 

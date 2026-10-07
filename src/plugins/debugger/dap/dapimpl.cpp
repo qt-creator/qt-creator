@@ -4077,13 +4077,23 @@ void DapImpl::handleReadMemory(const QJsonObject &response)
     const MemoryRequest request = m_memoryRequests.take(seq);
     if (request.length == 0)
         return;
-    QByteArray data = QByteArray::fromBase64(
-        response.value("body").toObject().value("data").toString().toUtf8());
-    // A read the adapter refused, or answered only in part, is still an answer:
-    // what could not be read reads as zero, as it does in the other backends.
-    data.truncate(qsizetype(request.length));
-    data.append(QByteArray(qsizetype(request.length) - data.size(), char(0)));
-    emit memoryDataReceived(request.requestId, request.address, data);
+    // A read the adapter refused, or answered only in part, is still an answer,
+    // and says which part could not be read.
+    const QJsonObject body = response.value("body").toObject();
+    const QByteArray data = QByteArray::fromBase64(body.value("data").toString().toUtf8());
+    MemoryReadResult result(request.address, request.length);
+    const quint64 read = std::min(quint64(data.size()), request.length);
+    memcpy(result.data.data(), data.constData(), read);
+    if (!response.value("success").toBool(true)) {
+        result.setUnreadable(0, request.length, response.value("message").toString());
+    } else if (read < request.length) {
+        const qint64 unreadable = body.value("unreadableBytes").toInteger(0);
+        result.setUnreadable(read, request.length - read,
+                             unreadable > 0 ? QString("The adapter reports %1 unreadable bytes.")
+                                                  .arg(unreadable)
+                                            : QString("The adapter returned fewer bytes."));
+    }
+    emit memoryRead(request.requestId, result);
 }
 
 // What an adapter evaluates a function name to names the function's address,

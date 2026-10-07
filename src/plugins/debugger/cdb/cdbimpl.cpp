@@ -2876,17 +2876,20 @@ void CdbImpl::accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64
     DebuggerCommand cmd("memory", ExtensionCommand);
     cmd.args = QString("%1 %2").arg(addr).arg(length);
     cmd.callback = [this, requestId, addr, length](const DebuggerResponse &response) {
-        QByteArray bytes;
+        MemoryReadResult result(addr, length);
         if (response.resultClass == ResultDone) {
-            bytes = QByteArray::fromHex(response.data.data().toUtf8());
+            const QByteArray bytes = QByteArray::fromHex(response.data.data().toUtf8());
+            const quint64 read = qMin(quint64(bytes.size()), length);
+            memcpy(result.data.data(), bytes.constData(), read);
+            if (read < length)
+                result.setUnreadable(read, length - read, "CDB returned fewer bytes.");
         } else {
+            const QString reason = response.data["msg"].data();
             emit message(QString("CdbImpl: failed to read %1 bytes at 0x%2: %3")
-                             .arg(length).arg(addr, 0, 16)
-                             .arg(response.data["msg"].data()), LogWarning);
+                             .arg(length).arg(addr, 0, 16).arg(reason), LogWarning);
+            result.setUnreadable(0, length, reason);
         }
-        if (quint64(bytes.size()) != length)
-            bytes = QByteArray(int(length), char(0));
-        emit memoryDataReceived(requestId, addr, bytes);
+        emit memoryRead(requestId, result);
     };
     runCommand(cmd);
 }

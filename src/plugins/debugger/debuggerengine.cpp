@@ -1531,10 +1531,32 @@ DisassemblerAgent *DebuggerEngine::disassemblerAgent() const
     return &d->m_disassemblerAgent;
 }
 
-void DebuggerEngine::fetchMemory(MemoryAgent *, quint64 addr, quint64 length)
+void DebuggerEngine::fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length)
 {
-    Q_UNUSED(addr)
-    Q_UNUSED(length)
+    if (!canReadMemory())
+        return;
+    const QPointer<MemoryAgent> guard(agent);
+    readMemory(addr, length, [guard](const MemoryReadResult &result) {
+        if (guard)
+            guard->addData(result.address, result.data);
+    });
+}
+
+bool DebuggerEngine::canReadMemory() const
+{
+    return false;
+}
+
+/*!
+    Reads \a length bytes of target memory from \a addr and passes them to
+    \a callback, saying which of them could not be read and why. Engines that
+    can read memory override this and canReadMemory().
+*/
+void DebuggerEngine::readMemory(quint64 addr, quint64 length, const MemoryReadCallback &callback)
+{
+    MemoryReadResult result(addr, length);
+    result.setUnreadable(0, length, "The debugger of this session cannot read memory.");
+    callback(result);
 }
 
 void DebuggerEngine::changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data)

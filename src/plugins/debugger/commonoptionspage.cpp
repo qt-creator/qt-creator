@@ -212,6 +212,37 @@ CommonSettings::CommonSettings()
                  "as it does not use scope information."));
     useToolTipsInMainEditor.setDefaultValue(true);
 
+    mcpMemoryAccess.setSettingsKey(debugModeGroup, "McpMemoryAccess");
+    mcpMemoryAccess.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    mcpMemoryAccess.setLabelText(Tr::tr("Memory that MCP clients may read:"));
+    mcpMemoryAccess.addOption(Tr::tr("None"));
+    mcpMemoryAccess.addOption(
+        Tr::tr("Process memory"),
+        Tr::tr("The memory of applications that run on an operating system. On bare metal "
+               "targets and targets of unknown kind, only the address ranges listed below."));
+    mcpMemoryAccess.addOption(
+        Tr::tr("Any memory"),
+        Tr::tr("Any address, including memory-mapped I/O, where reading a register can "
+               "change the state of the device."));
+    mcpMemoryAccess.setDefaultValue(McpMemoryOfProcesses);
+    mcpMemoryAccess.setToolTip(
+        "<p>" + Tr::tr("Which target memory the debugger_read_memory tool of the MCP server "
+                       "may read."));
+
+    mcpMemoryRanges.setSettingsKey(debugModeGroup, "McpMemoryRanges");
+    mcpMemoryRanges.setDisplayStyle(StringAspect::LineEditDisplay);
+    mcpMemoryRanges.setLabelText(Tr::tr("Readable ranges on other targets:"));
+    mcpMemoryRanges.setPlaceHolderText("0x20000000-0x2001ffff, 0x08000000-0x080fffff");
+    mcpMemoryRanges.setToolTip(
+        "<p>" + Tr::tr("Address ranges that MCP clients may read on bare metal targets and "
+                       "targets of unknown kind, as first-last, separated by commas."));
+
+    mcpMemoryReadLimit.setSettingsKey(debugModeGroup, "McpMemoryReadLimit");
+    mcpMemoryReadLimit.setDefaultValue(4096);
+    mcpMemoryReadLimit.setRange(1, 1024 * 1024);
+    mcpMemoryReadLimit.setSuffix(Tr::tr(" bytes"));
+    mcpMemoryReadLimit.setLabelText(Tr::tr("Maximum bytes per read:"));
+
     setLayouter([this] {
         using namespace Layouting;
 
@@ -254,10 +285,19 @@ CommonSettings::CommonSettings()
             }
         };
 
+        Group mcp {
+            title(Tr::tr("MCP Server")),
+            Form {
+                mcpMemoryAccess, br,
+                mcpMemoryRanges, br,
+                mcpMemoryReadLimit, br,
+            }
+        };
+
         return Column {
             Grid {
                 Column { behavior, afterLife },
-                Column { userInterface, st },
+                Column { userInterface, mcp, st },
                 columnStretch(0, 1),
                 columnStretch(1, 1)
             },

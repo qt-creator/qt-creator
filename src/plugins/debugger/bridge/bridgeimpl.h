@@ -191,7 +191,7 @@ private:
         quint64 base = 0;
         quint64 offset = 0;
         quint64 length = 0;
-        std::shared_ptr<QByteArray> accumulator;
+        std::shared_ptr<MemoryReadResult> result;
         std::shared_ptr<int> pending;
     };
     void fetchMemoryChunk(const MemoryRequest &request, quint64 offset, quint64 length);

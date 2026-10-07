@@ -1197,12 +1197,18 @@ void LldbImpl::accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint6
     cmd.arg("address", addr);
     cmd.arg("length", lengthOrSize);
     cmd.callback = [this, requestId, addr, lengthOrSize](const DebuggerResponse &response) {
-        QByteArray contents;
-        if (response.data["success"].toInt())
-            contents = QByteArray::fromHex(response.data["contents"].data().toUtf8());
-        if (contents.size() != int(lengthOrSize))
-            contents = QByteArray(int(lengthOrSize), char());
-        emit memoryDataReceived(requestId, addr, contents);
+        // process.ReadMemory() stops at the first byte it cannot read.
+        MemoryReadResult result(addr, lengthOrSize);
+        const QByteArray contents = QByteArray::fromHex(response.data["contents"].data().toUtf8());
+        const quint64 read = std::min(quint64(contents.size()), lengthOrSize);
+        memcpy(result.data.data(), contents.constData(), read);
+        if (read < lengthOrSize) {
+            QString reason = response.data["error"]["status"].data();
+            if (reason.isEmpty())
+                reason = response.data["error"]["desc"].data();
+            result.setUnreadable(read, lengthOrSize - read, reason);
+        }
+        emit memoryRead(requestId, result);
     };
     runCommand(cmd);
 }

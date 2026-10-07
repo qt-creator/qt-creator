@@ -525,7 +525,10 @@ public:
 
     virtual void watchPoint(const QPoint &pnt);
     void openMemoryView(const MemoryViewSetupData &data);
-    virtual void fetchMemory(MemoryAgent *, quint64 addr, quint64 length);
+    void fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length);
+    using MemoryReadCallback = std::function<void(const MemoryReadResult &)>;
+    virtual bool canReadMemory() const;
+    virtual void readMemory(quint64 addr, quint64 length, const MemoryReadCallback &callback);
     virtual void changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data);
     void updateMemoryViews();
     void openDisassemblerView(const Internal::Location &location);

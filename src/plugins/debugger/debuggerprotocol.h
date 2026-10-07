@@ -376,6 +376,40 @@ public:
     quint64 address = 0;
 };
 
+// What a read of target memory brought back. data always has the length
+// that was asked for. The bytes of a range in unreadable are zero there,
+// which is not what the target holds: they could not be read.
+class MemoryReadResult
+{
+public:
+    class Unreadable
+    {
+    public:
+        quint64 offset = 0;
+        quint64 length = 0;
+        QString reason;
+    };
+
+    MemoryReadResult() = default;
+    MemoryReadResult(quint64 address, quint64 length);
+
+    void setUnreadable(quint64 offset, quint64 length, const QString &reason);
+    void normalize();
+
+    quint64 address = 0;
+    QByteArray data;
+    QList<Unreadable> unreadable;
+};
+
+// The parts of a failed read worth retrying: [offset, offset + length) of a
+// read from base, cut at page boundaries. Memory is unreadable in whole
+// pages, so a read within one page that failed is not split further.
+QList<QPair<quint64, quint64>> memoryRetryParts(quint64 base, quint64 offset, quint64 length);
+
+// A debugger's message about memory it could not read, without the address
+// it names, so that the reasons of neighbouring ranges are the same.
+QString memoryErrorWithoutAddress(const QString &message);
+
 } // Debugger::Internal
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Debugger::Internal::DebuggerCommand::CommandFlags)
