@@ -46,8 +46,8 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent, const QList<IDocument *> &item
     if (anyConflicted) {
         m_warningLabel->setText(
             Tr::tr(
-                "Some files are externally modified, saving "
-                "them will discard the external changes!"));
+                "Some files were modified externally. Saving "
+                "them will discard the external changes."));
     } else {
         m_warningLabel->setVisible(false);
     }

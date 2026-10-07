@@ -51,7 +51,7 @@ IVersionControl::~IVersionControl()
 
 QString IVersionControl::vcsOpenText() const
 {
-    return Tr::tr("Open with version control (%1)").arg(displayName());
+    return Tr::tr("Open with Version Control (%1)").arg(displayName());
 }
 
 QString IVersionControl::vcsMakeWritableText() const

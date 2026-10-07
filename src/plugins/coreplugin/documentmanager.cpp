@@ -1313,9 +1313,9 @@ void DocumentManager::checkForReload()
                     continue;
 
                 document->setConflicted(true);
-                const QString msg = Tr::tr("The file <i>%1</i> has been removed from disk. "
-                                           "Do you want to save it under a different name, "
-                                           "or close the editor?").arg(document->displayName());
+                const QString msg = Tr::tr("The file \"%1\" has been removed from disk. "
+                                           "Save it under a different name or close the "
+                                           "editor?").arg(document->displayName());
 
                 InfoBarEntry info(reloadId, msg);
                 info.addCustomButton(Tr::tr("Save As..."), saveDocumentAs,

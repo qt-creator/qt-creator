@@ -139,7 +139,7 @@ Layouting::Layout settingsTransferButtons(const SettingsTransfer &transfer)
             QMessageBox::critical(
                 ICore::dialogParent(),
                 Tr::tr("Export Failed"),
-                Tr::tr("Cannot export to %1: %2")
+                Tr::tr("Cannot export to \"%1\": %2")
                     .arg(filePath.toUserOutput())
                     .arg(result.error()));
         }
@@ -158,14 +158,14 @@ Layouting::Layout settingsTransferButtons(const SettingsTransfer &transfer)
             QMessageBox::critical(
                 ICore::dialogParent(),
                 Tr::tr("Import Failed"),
-                Tr::tr("Cannot import %1: %2")
+                Tr::tr("Cannot import \"%1\": %2")
                     .arg(filePath.toUserOutput())
                     .arg(imported.error()));
         } else if (imported->applied == 0 && imported->ignored > 0) {
             QMessageBox::warning(
                 ICore::dialogParent(),
                 Tr::tr("Nothing Imported"),
-                Tr::tr("None of the settings in %1 exist here, so everything was reset to its "
+                Tr::tr("None of the settings in \"%1\" exist here, so everything was reset to its "
                        "default. The file may have been written by a different version of %2.")
                     .arg(filePath.toUserOutput())
                     .arg(QGuiApplication::applicationDisplayName()));

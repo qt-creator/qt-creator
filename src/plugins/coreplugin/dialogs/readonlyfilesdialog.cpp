@@ -213,14 +213,15 @@ void ReadOnlyFilesDialogPrivate::writeFailWarning(const FilePaths &files, ReadOn
         case ReadOnlyFilesDialog::RO_OpenVCS: {
             if (IVersionControl *vc = versionControls[file]) {
                 const QString openText = Utils::stripAccelerator(vc->vcsOpenText());
-                message = Tr::tr("%1 file %2 from version control system %3 failed.")
+                //: %1 = VCS name, %2 = operation name, %3 = file path
+                message = Tr::tr("The %1 operation \"%2\" failed for file \"%3\".")
+                        .arg(vc->displayName())
                         .arg(openText)
                         .arg(file.toUserOutput())
-                        .arg(vc->displayName())
                     + '\n'
                     + failWarning;
             } else {
-                message = Tr::tr("Cannot open file %1 from version control system.\n"
+                message = Tr::tr("Cannot open file \"%1\" with version control.\n"
                              "No version control system found.")
                         .arg(file.toUserOutput())
                     + '\n'
@@ -229,13 +230,13 @@ void ReadOnlyFilesDialogPrivate::writeFailWarning(const FilePaths &files, ReadOn
             break;
         }
         case ReadOnlyFilesDialog::RO_MakeWritable:
-            message = Tr::tr("Cannot set permissions for %1 to writable.")
+            message = Tr::tr("Cannot make file \"%1\" writable.")
                     .arg(file.toUserOutput())
                 + '\n'
                 + failWarning;
             break;
         case ReadOnlyFilesDialog::RO_SaveAs:
-            message = Tr::tr("Cannot save file %1").arg(file.toUserOutput())
+            message = Tr::tr("Cannot save file \"%1\".").arg(file.toUserOutput())
                 + '\n'
                 + failWarning;
             break;
