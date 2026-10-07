@@ -172,8 +172,8 @@ static void applySamplerFix(const SamplerFix &fix)
     if (pkexec.isEmpty()) {
         QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Cannot Elevate Privileges"),
                              Tr::tr("\"pkexec\" was not found, so the change cannot be applied "
-                                    "from here. Run this as root instead:\n\n    sudo %1")
-                                 .arg(fix.command.toUserOutput()));
+                                    "from here. Run this as root instead:")
+                                 + "\n\n    sudo " + fix.command.toUserOutput());
         return;
     }
 

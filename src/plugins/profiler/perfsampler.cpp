@@ -116,7 +116,8 @@ QString noSamplesError(const QString &recordStdErr, bool recordFailed, int recei
     if (paranoidBlocks) {
         QString message = Tr::tr("No samples were captured: \"%1\" is %2, which denies "
                                  "performance monitoring to unprivileged processes. Sampling "
-                                 "processes you own needs it set to %3 or less.")
+                                 "processes of the same user requires a value of %3 or "
+                                 "less.")
                               .arg(paranoidSettingName)
                               .arg(*paranoid)
                               .arg(paranoidAllowingUserSampling);
@@ -160,8 +161,8 @@ QString noSamplesError(const QString &recordStdErr, bool recordFailed, int recei
 
     if (paranoid) {
         return Tr::tr("No samples were captured, although \"%1\" is %2, which permits sampling "
-                      "your own processes. The target may have exited before \"%3\" attached, or "
-                      "never run on the CPU while it was recorded.")
+                      "processes of the same user. The target may have exited before \"%3\" "
+                      "attached, or never run on the CPU while it was recorded.")
             .arg(paranoidSettingName).arg(*paranoid).arg(perfRecordName);
     }
     return Tr::tr("No samples were captured. The target may have exited immediately, or never "
@@ -279,7 +280,7 @@ PerfSamplerSettings::PerfSamplerSettings()
     downloadDebugInfo.setLabel(Tr::tr("Download missing debug information"),
                                BoolAspect::LabelPlacement::AtCheckBox);
     downloadDebugInfo.setToolTip(
-        Tr::tr("Let the profiler fetch debug information it does not find locally from the "
+        Tr::tr("Fetches debug information that is not found locally from the "
                "debuginfod servers listed in the DEBUGINFOD_URLS environment variable. This "
                "resolves symbols in system libraries that have no debug package installed, but "
                "it happens while the captured samples are processed, so a slow or unreachable "
@@ -289,7 +290,7 @@ PerfSamplerSettings::PerfSamplerSettings()
 
     setLayouter([this] {
         using namespace Layouting;
-        auto pick = new QtcButton(Tr::tr("Select Process…"), QtcButton::SmallSecondary);
+        auto pick = new QtcButton(Tr::tr("Select Process..."), QtcButton::SmallSecondary);
         auto picked = new QtcLabel(m_pickedName.isEmpty() ? Tr::tr("No process selected")
                                                           : m_pickedName,
                                    QtcLabel::Secondary);
@@ -439,8 +440,9 @@ std::optional<SamplerFix> PerfSampler::availableFix() const
     const QString buttonText = Tr::tr("Allow Sampling");
     return SamplerFix{
         buttonText,
-        Tr::tr("\"%1\" sets \"%2\" to %3 for you, asking for your password, and then records "
-               "again. The setting reverts on reboot; to keep it, add \"%4\" to %5.")
+        Tr::tr("\"%1\" sets \"%2\" to %3 (administrator password required) and then "
+               "records again. The setting reverts on reboot. To keep it, add \"%4\" to "
+               "\"%5\".")
             .arg(buttonText)
             .arg(paranoidSysctlKey)
             .arg(paranoidAllowingUserSampling)
@@ -618,7 +620,7 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
                     return ResultError(Tr::tr("The recording was canceled."));
                 const FilePath dir = uniqueTracePath("qtprofiler-sample"_L1);
                 if (!dir.createDir()) {
-                    return ResultError(Tr::tr("Cannot create temporary trace directory %1.")
+                    return ResultError(Tr::tr("Cannot create the temporary trace directory \"%1\".")
                                            .arg(dir.toUserOutput()));
                 }
 

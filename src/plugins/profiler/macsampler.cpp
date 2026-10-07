@@ -11,6 +11,7 @@
 #include "symbolicator.h"
 
 #include <QFileInfo>
+#include <QGuiApplication>
 #include <QScopeGuard>
 #include <QVarLengthArray>
 
@@ -89,10 +90,11 @@ Result<task_t> attachToPid(pid_t pid)
     const kern_return_t kr = task_for_pid(mach_task_self(), pid, &task);
     if (kr != KERN_SUCCESS) {
         return ResultError(
-            Tr::tr("task_for_pid(%1) failed: %2. Run the viewer as root or sign it with the "
+            Tr::tr("task_for_pid(%1) failed: %2. Run %3 as root or sign it with the "
                    "com.apple.security.cs.debugger entitlement.")
                 .arg(pid)
-                .arg(QString::fromUtf8(mach_error_string(kr))));
+                .arg(QString::fromUtf8(mach_error_string(kr)))
+                .arg(QGuiApplication::applicationDisplayName()));
     }
     return task;
 }
@@ -378,7 +380,7 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts,
     const FilePath dir = uniqueTracePath("qtprofiler-sample"_L1);
     if (!dir.createDir()) {
         return ResultError(
-            Tr::tr("Cannot create temporary trace directory %1.").arg(dir.toUserOutput()));
+            Tr::tr("Cannot create the temporary trace directory \"%1\".").arg(dir.toUserOutput()));
     }
 
     // Symbolication already happened during capture, so the post-stop work is

@@ -59,7 +59,7 @@ PerfDataReader::PerfDataReader(QObject *parent) :
             Core::MessageManager::writeDisrupting(warning);
         if (m_input.result() == PerfConversion::Result::Failed) {
             Core::MessageManager::writeDisrupting(
-                Tr::tr("The Perf data could not be processed completely. Your trace is "
+                Tr::tr("The Perf data could not be processed completely. The trace is "
                        "incomplete. %1").arg(m_input.errorString()));
         }
         emit processFinished();
@@ -314,7 +314,7 @@ void PerfDataReader::writeChunk()
             QMessageBox::warning(Core::ICore::dialogParent(),
                                  Tr::tr("Cannot Process Perf Data"),
                                  Tr::tr("The Perf data processing does not accept further "
-                                        "input. Your trace is incomplete."));
+                                        "input. The trace is incomplete."));
             return;
         }
     }

@@ -46,7 +46,8 @@ CallStackSamplerSettings::CallStackSamplerSettings()
     setSettingsGroup("CallStackSampler");
 
     intervalUs.setSettingsKey("IntervalUs");
-    intervalUs.setLabelText(Tr::tr("Sample interval (µs):"));
+    //: micro seconds
+    intervalUs.setLabelText(Tr::tr("Sample interval (\xc2\xb5s):"));
     intervalUs.setRange(0, 1000000); // 0 = as fast as possible.
     intervalUs.setDefaultValue(200);
 
@@ -58,7 +59,7 @@ CallStackSamplerSettings::CallStackSamplerSettings()
 
     setLayouter([this] {
         using namespace Layouting;
-        auto pick = new QtcButton(Tr::tr("Select Process…"), QtcButton::SmallSecondary);
+        auto pick = new QtcButton(Tr::tr("Select Process..."), QtcButton::SmallSecondary);
         auto picked = new QtcLabel(m_pickedName.isEmpty() ? Tr::tr("No process selected")
                                                           : m_pickedName,
                                    QtcLabel::Secondary);

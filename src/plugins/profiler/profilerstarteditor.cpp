@@ -90,8 +90,8 @@ public:
         m_welcomePage->setBackends(profilerRecorder()->backendNames(),
                                    profilerRecorder()->currentBackend());
         // Profiling the project that is open is the common case, so it leads.
-        m_welcomePage->setTargets({Tr::tr("The startup project"),
-                                   Tr::tr("An executable I choose")}, StartupProject);
+        m_welcomePage->setTargets({Tr::tr("Startup Project"),
+                                   Tr::tr("Custom Executable")}, StartupProject);
         showTarget();
 
         connect(m_welcomePage, &WelcomePage::backendChanged,
@@ -381,7 +381,7 @@ void setupProfilerStartEditor()
     // open, and the mode button says nothing once the mode is already current.
     // This is what reaches the page in either case.
     s_openAction = new QAction(Utils::Icons::PLUS_TOOLBAR.icon(), Tr::tr("New Recording"));
-    s_openAction->setToolTip(Tr::tr("Open the page that starts a profiling run."));
+    s_openAction->setToolTip(Tr::tr("Opens the page that starts a profiling run."));
     QObject::connect(s_openAction, &QAction::triggered, &openProfilerStartPage);
     ActionManager::actionContainer(Core::Constants::M_DEBUG_ANALYZER)
         ->addAction(ActionManager::registerAction(s_openAction, Constants::START_EDITOR_ID),

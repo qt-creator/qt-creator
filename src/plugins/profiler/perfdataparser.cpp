@@ -766,17 +766,17 @@ Result<> PerfDataParser::parseFile(const FilePath &path, PerfDataHandler &handle
 {
     QFile file(path.toFSPathString());
     if (!file.open(QIODevice::ReadOnly))
-        return ResultError(Tr::tr("Cannot read %1.").arg(path.toUserOutput()));
+        return ResultError(Tr::tr("Cannot read \"%1\".").arg(path.toUserOutput()));
 
     const QByteArray header = file.read(FileHeaderSize);
     if (header.size() < PipeHeaderSize)
-        return ResultError(Tr::tr("%1 is not a perf recording.").arg(path.toUserOutput()));
+        return ResultError(Tr::tr("\"%1\" is not a perf recording.").arg(path.toUserOutput()));
     if (header.startsWith("2ELIFREP")) {
-        return ResultError(Tr::tr("%1 is a big-endian perf recording, which cannot be decoded.")
+        return ResultError(Tr::tr("\"%1\" is a big-endian perf recording, which cannot be decoded.")
                                .arg(path.toUserOutput()));
     }
     if (!header.startsWith("PERFILE2"))
-        return ResultError(Tr::tr("%1 is not a perf recording.").arg(path.toUserOutput()));
+        return ResultError(Tr::tr("\"%1\" is not a perf recording.").arg(path.toUserOutput()));
 
     const qint64 fileSize = file.size();
     int lastPercent = -1;
@@ -791,7 +791,7 @@ Result<> PerfDataParser::parseFile(const FilePath &path, PerfDataHandler &handle
     // A stream "perf record -o -" wrote to a file has the stream's framing.
     if (readU64(header.constData() + 8) == PipeHeaderSize) {
         if (!file.seek(0))
-            return ResultError(Tr::tr("Cannot read %1.").arg(path.toUserOutput()));
+            return ResultError(Tr::tr("Cannot read \"%1\".").arg(path.toUserOutput()));
         const Result<> result = parsePipe([&file](qsizetype need, QByteArray &buffer) {
             while (buffer.size() < need) {
                 const QByteArray chunk = file.read(1 << 20);
@@ -811,7 +811,7 @@ Result<> PerfDataParser::parseFile(const FilePath &path, PerfDataHandler &handle
     // perf_file_header: magic; size; attr_size; attrs {offset, size}; data
     // {offset, size}; event_types {offset, size}; adds_features[4].
     if (header.size() < FileHeaderSize)
-        return ResultError(Tr::tr("%1 is truncated.").arg(path.toUserOutput()));
+        return ResultError(Tr::tr("\"%1\" is truncated.").arg(path.toUserOutput()));
     const char *h = header.constData();
     const quint64 attrEntrySize = readU64(h + 16);
     const quint64 attrsOffset = readU64(h + 24);
@@ -838,10 +838,10 @@ Result<> PerfDataParser::parseFile(const FilePath &path, PerfDataHandler &handle
 
     // Attrs: { attr (attr_size - 16 bytes); ids {offset, size} }[].
     if (attrEntrySize < 16 + 40)
-        return ResultError(Tr::tr("%1 is corrupt.").arg(path.toUserOutput()));
+        return ResultError(Tr::tr("\"%1\" is corrupt.").arg(path.toUserOutput()));
     const std::optional<QByteArray> attrs = readSection(attrsOffset, attrsSize);
     if (!attrs)
-        return ResultError(Tr::tr("%1 is truncated.").arg(path.toUserOutput()));
+        return ResultError(Tr::tr("\"%1\" is truncated.").arg(path.toUserOutput()));
     for (quint64 at = 0; at + attrEntrySize <= quint64(attrs->size()); at += attrEntrySize) {
         const char *attr = attrs->constData() + at;
         const quint32 attrSize = quint32(attrEntrySize - 16);
@@ -849,7 +849,7 @@ Result<> PerfDataParser::parseFile(const FilePath &path, PerfDataHandler &handle
         const std::optional<QByteArray> idBytes = readSection(readU64(idsSection),
                                                               readU64(idsSection + 8));
         if (!idBytes)
-            return ResultError(Tr::tr("%1 is truncated.").arg(path.toUserOutput()));
+            return ResultError(Tr::tr("\"%1\" is truncated.").arg(path.toUserOutput()));
         QList<quint64> ids;
         for (qsizetype i = 0; i + 8 <= idBytes->size(); i += 8)
             ids.append(readU64(idBytes->constData() + i));
@@ -879,7 +879,7 @@ Result<> PerfDataParser::parseFile(const FilePath &path, PerfDataHandler &handle
     }
 
     if (!file.seek(qint64(dataOffset)))
-        return ResultError(Tr::tr("%1 is truncated.").arg(path.toUserOutput()));
+        return ResultError(Tr::tr("\"%1\" is truncated.").arg(path.toUserOutput()));
     qint64 remaining = qint64(dataSize);
     const auto fill = [&file, &remaining](qsizetype need, QByteArray &buffer) {
         while (buffer.size() < need) {

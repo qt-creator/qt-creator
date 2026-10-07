@@ -178,25 +178,27 @@ QString incompleteTraceWarning(const SampleTraceData &data)
                           nullptr, int(qMin<quint64>(lost, std::numeric_limits<int>::max())));
     }
     if (throttled > 0) {
-        reasons << Tr::tr("The system throttled sampling %n time(s) because samples were due "
-                          "faster than it takes them.", nullptr, throttled);
+        reasons << Tr::tr("The system throttled sampling %n time(s) because samples were "
+                          "requested faster than it could take them.", nullptr, throttled);
     }
-    return Tr::tr("The trace does not show everything that ran: %1 Time spent around those "
-                  "points is underrepresented. Record with a lower sampling frequency to avoid "
-                  "this.")
+    return Tr::tr("The trace does not show everything that ran: %1 Time spent where samples "
+                  "are missing is underrepresented. Record with a lower sampling frequency to "
+                  "avoid this.")
         .arg(reasons.join(u' '));
 }
 
 Result<> writeSampleTrace(const SampleTraceData &data, const FilePath &dir,
                           const std::function<void(int)> &progress)
 {
-    QFile metaFile(dir.pathAppended(u"metadata"_s).toFSPathString());
+    const FilePath metaPath = dir.pathAppended(u"metadata"_s);
+    QFile metaFile(metaPath.toFSPathString());
     if (!metaFile.open(QIODevice::WriteOnly))
-        return ResultError(Tr::tr("Cannot write %1.").arg(metaFile.fileName()));
+        return ResultError(Tr::tr("Cannot write \"%1\".").arg(metaPath.toUserOutput()));
 
-    QFile dataFile(dir.pathAppended(u"stream0"_s).toFSPathString());
+    const FilePath dataPath = dir.pathAppended(u"stream0"_s);
+    QFile dataFile(dataPath.toFSPathString());
     if (!dataFile.open(QIODevice::WriteOnly))
-        return ResultError(Tr::tr("Cannot write %1.").arg(dataFile.fileName()));
+        return ResultError(Tr::tr("Cannot write \"%1\".").arg(dataPath.toUserOutput()));
 
     auto twResult = TraceWriter::create(buildSamplerSchema(), &metaFile);
     if (!twResult)
@@ -294,9 +296,10 @@ Result<> writeSampleTrace(const SampleTraceData &data, const FilePath &dir,
         return ResultError(r.error());
 
     if (!data.pausedRangesUs.isEmpty()) {
-        QFile pausedFile(dir.pathAppended(pausedRangesFileName).toFSPathString());
+        const FilePath pausedPath = dir.pathAppended(pausedRangesFileName);
+        QFile pausedFile(pausedPath.toFSPathString());
         if (!pausedFile.open(QIODevice::WriteOnly | QIODevice::Text))
-            return ResultError(Tr::tr("Cannot write %1.").arg(pausedFile.fileName()));
+            return ResultError(Tr::tr("Cannot write \"%1\".").arg(pausedPath.toUserOutput()));
         for (const auto &[start, end] : data.pausedRangesUs)
             pausedFile.write(QByteArray::number(start) + ' ' + QByteArray::number(end) + '\n');
     }
@@ -327,9 +330,10 @@ static QString stringField(const StructureValue &sv, const QString &name)
 
 Result<SampleTraceData> readSampleTrace(const FilePath &dir, const std::function<void(int)> &progress)
 {
-    QFile metaFile(dir.pathAppended(u"metadata"_s).toFSPathString());
+    const FilePath metaPath = dir.pathAppended(u"metadata"_s);
+    QFile metaFile(metaPath.toFSPathString());
     if (!metaFile.open(QIODevice::ReadOnly))
-        return ResultError(Tr::tr("Cannot read %1.").arg(metaFile.fileName()));
+        return ResultError(Tr::tr("Cannot read \"%1\".").arg(metaPath.toUserOutput()));
 
     auto readerResult = TraceReader::open(&metaFile);
     if (!readerResult)
@@ -342,11 +346,12 @@ Result<SampleTraceData> readSampleTrace(const FilePath &dir, const std::function
             dsc = &cls;
     }
     if (!dsc)
-        return ResultError(Tr::tr("%1 is not a sampler trace.").arg(dir.toUserOutput()));
+        return ResultError(Tr::tr("\"%1\" is not a sampler trace.").arg(dir.toUserOutput()));
 
-    QFile dataFile(dir.pathAppended(u"stream0"_s).toFSPathString());
+    const FilePath dataPath = dir.pathAppended(u"stream0"_s);
+    QFile dataFile(dataPath.toFSPathString());
     if (!dataFile.open(QIODevice::ReadOnly))
-        return ResultError(Tr::tr("Cannot read %1.").arg(dataFile.fileName()));
+        return ResultError(Tr::tr("Cannot read \"%1\".").arg(dataPath.toUserOutput()));
 
     DataStreamReader *stream = reader.openStream(*dsc, &dataFile);
     if (!stream)

@@ -87,7 +87,7 @@ Result<> QtTraceSamplerSettings::checkTraceDirectory() const
     if (chosen.isEmpty())
         return ResultOk;
     if (!chosen.ensureWritableDir())
-        return ResultError(Tr::tr("Cannot create the trace directory %1.")
+        return ResultError(Tr::tr("Cannot create the trace directory \"%1\".")
                                .arg(chosen.toUserOutput()));
     return ResultOk;
 }
@@ -111,7 +111,7 @@ Result<> writeTraceSession(const FilePath &location, const QString &target,
                            const QStringList &providers)
 {
     if (!location.ensureWritableDir()) {
-        return ResultError(Tr::tr("Cannot create the trace directory %1.")
+        return ResultError(Tr::tr("Cannot create the trace directory \"%1\".")
                                .arg(location.toUserOutput()));
     }
 
@@ -142,7 +142,7 @@ Result<FilePath> collectTrace(const FilePath &location)
     // plugin, so its absence means nothing traced at all -- which for a Qt
     // application means a Qt that was not configured for it.
     if (!(traceDirectory / "metadata").exists()) {
-        return ResultError(Tr::tr("No trace was written to %1. Applications record Qt "
+        return ResultError(Tr::tr("No trace was written to \"%1\". Applications record Qt "
                                   "tracepoints only when their Qt was configured with "
                                   "\"-trace ctf\".")
                                .arg(location.toUserOutput()));

@@ -31,7 +31,8 @@ CombinedSamplerSettings::CombinedSamplerSettings()
     setSettingsGroup("CombinedSampler");
 
     intervalUs.setSettingsKey("IntervalUs");
-    intervalUs.setLabelText(Tr::tr("Sample interval (µs):"));
+    //: micro seconds
+    intervalUs.setLabelText(Tr::tr("Sample interval (\xc2\xb5s):"));
     intervalUs.setRange(0, 1000000); // 0 = as fast as possible.
     intervalUs.setDefaultValue(200);
 
@@ -211,7 +212,7 @@ static void assembleBundle(const std::shared_ptr<RecordingSession> &parent,
 
     const FilePath bundlePath = uniqueTracePath("qtprofiler-combined"_L1);
     if (!bundlePath.createDir()) {
-        fail(Tr::tr("Cannot create the combined trace directory %1.")
+        fail(Tr::tr("Cannot create the combined trace directory \"%1\".")
                  .arg(bundlePath.toUserOutput()));
         return;
     }

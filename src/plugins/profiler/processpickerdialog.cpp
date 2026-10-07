@@ -32,7 +32,7 @@ ProcessPickerDialog::ProcessPickerDialog(QWidget *parent)
 
     m_filter = new FancyLineEdit(this);
     m_filter->setFiltering(true);
-    m_filter->setPlaceholderText(Tr::tr("Filter by name, command line or process id"));
+    m_filter->setPlaceholderText(Tr::tr("Filter by name, command line or process ID"));
 
     m_model = new QStandardItemModel(this);
     m_model->setHorizontalHeaderLabels(

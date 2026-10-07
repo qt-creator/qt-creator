@@ -210,9 +210,7 @@ public:
             finding.location = type.location();
             finding.typeIndex = typeIndex;
             finding.occurrences = it.value();
-            finding.what = it.value() == 1
-                               ? Tr::tr("Image failed to load.")
-                               : Tr::tr("Image failed to load %1 times.").arg(it.value());
+            finding.what = Tr::tr("Image failed to load %n time(s).", nullptr, it.value());
             finding.why = Tr::tr("The engine could not load this source, so nothing is painted for "
                                  "it. Repeated attempts mean the failure is retried rather than "
                                  "cached, so each one costs another request.");
@@ -293,8 +291,9 @@ public:
             finding.typeIndex = typeIndex;
             finding.costNs = it->totalNs;
             finding.occurrences = it->count;
-            finding.what = Tr::tr("Building items inside this handler costs %1 ms over %2 calls.")
-                               .arg(it->totalNs / 1000000).arg(it->count);
+            finding.what = Tr::tr("Building items inside this handler costs %1 ms over %n call(s).",
+                                  nullptr, it->count)
+                               .arg(it->totalNs / 1000000);
             finding.why = Tr::tr("The items are created while the handler runs, so the interface "
                                  "cannot repaint until the whole component is built. The longer "
                                  "the component, the longer the interface stands still.");
@@ -378,8 +377,8 @@ public:
             finding.location = manager->eventType(typeIndex).location();
             finding.typeIndex = typeIndex;
             finding.occurrences = it->count;
-            finding.what = Tr::tr("Runs %1 times, about every %2 ms.")
-                               .arg(it->count).arg(qRound(mean / 1000000.0));
+            finding.what = Tr::tr("Runs %n time(s), about every %1 ms.", nullptr, it->count)
+                               .arg(qRound(mean / 1000000.0));
             finding.why = Tr::tr("A handler driven by a timer keeps running at that interval for "
                                  "as long as the timer does, whether or not anything comes of it.");
             finding.suggestion = Tr::tr("Check what this does when its target is not visible or "
@@ -532,9 +531,10 @@ public:
             finding.typeIndex = typeIndex;
             finding.costNs = it.value();
             finding.occurrences = m_frames;
-            finding.what = Tr::tr("Costs %1 ms per rendered frame (%2 ms over %3 frames).")
+            finding.what = Tr::tr("Costs %1 ms per rendered frame (%2 ms over %n frame(s)).",
+                                  nullptr, m_frames)
                                .arg(perFrame / 1000000.0, 0, 'f', 2)
-                               .arg(it.value() / 1000000).arg(m_frames);
+                               .arg(it.value() / 1000000);
             finding.why = Tr::tr("Work of this size, repeated for every frame, leaves less of the "
                                  "frame for everything else that has to happen in it.");
             finding.suggestion = Tr::tr("Look for a value that is recomputed although it did not "
@@ -624,8 +624,8 @@ public:
             finding.what = it->count == 1
                                ? Tr::tr("Blocks for %1 ms in one call.")
                                      .arg(it->longestNs / 1000000)
-                               : Tr::tr("Blocks for up to %1 ms, in %2 calls.")
-                                     .arg(it->longestNs / 1000000).arg(it->count);
+                               : Tr::tr("Blocks for up to %1 ms in %n call(s).", nullptr, it->count)
+                                     .arg(it->longestNs / 1000000);
             finding.why = Tr::tr("Nothing else runs on this thread while the call does, so no "
                                  "input is answered and no frame is drawn until it returns.");
             finding.suggestion = Tr::tr("Split the work so that each part fits in a frame, move "
@@ -718,9 +718,9 @@ public:
             finding.typeIndex = typeIndex;
             finding.costNs = it->costNs;
             finding.occurrences = it->frames;
-            finding.what = Tr::tr("Runs for %1 ms inside %2 of the %3 frames that took longer "
-                                  "than %4 ms.")
-                               .arg(it->costNs / 1000000).arg(it->frames).arg(m_jankyFrames)
+            finding.what = Tr::tr("Runs for %1 ms inside %2 of the %n frame(s) that took longer "
+                                  "than %3 ms.", nullptr, m_jankyFrames)
+                               .arg(it->costNs / 1000000).arg(it->frames)
                                .arg(m_budgetNs / 1000000);
             finding.why = Tr::tr("The frame could not be finished while this was running, so it "
                                  "stayed on screen for as long as the work took. Work that lands "
@@ -846,8 +846,9 @@ public:
             finding.location = manager->eventType(typeIndex).location();
             finding.typeIndex = typeIndex;
             finding.occurrences = it->count;
-            finding.what = Tr::tr("Takes %1 from the JavaScript heap in %2 allocations.")
-                               .arg(Timeline::formatDataSize(it->bytes)).arg(it->count);
+            finding.what = Tr::tr("Takes %1 from the JavaScript heap in %n allocation(s).", nullptr,
+                                  it->count)
+                               .arg(Timeline::formatDataSize(it->bytes));
             finding.why = Tr::tr("Every object taken from the heap has to be collected again. "
                                  "The collection does not happen here, but in whichever frame the "
                                  "heap happens to fill up, which is why it is hard to place.");
@@ -908,8 +909,8 @@ public:
             finding.typeIndex = typeIndex;
             finding.costNs = it->totalNs;
             finding.occurrences = it->count;
-            finding.what = Tr::tr("Built %1 times, %2 ms in total.")
-                               .arg(it->count).arg(it->totalNs / 1000000);
+            finding.what = Tr::tr("Built %n time(s), %1 ms in total.", nullptr, it->count)
+                               .arg(it->totalNs / 1000000);
             finding.why = Tr::tr("Whatever one instance costs to build is paid once per "
                                  "instance, and a view builds one per item it shows.");
             finding.suggestion = Tr::tr("Let the view reuse its delegates by setting reuseItems, "
@@ -961,8 +962,8 @@ public:
             finding.typeIndex = typeIndex;
             finding.costNs = it->totalNs;
             finding.occurrences = it->count;
-            finding.what = Tr::tr("Re-evaluated %1 times, %2 ms in total.")
-                               .arg(it->count).arg(it->totalNs / 1000000);
+            finding.what = Tr::tr("Re-evaluated %n time(s), %1 ms in total.", nullptr, it->count)
+                               .arg(it->totalNs / 1000000);
             finding.why = Tr::tr("A binding runs again whenever anything it reads changes. At "
                                  "this rate it is reading something that changes continuously, "
                                  "and each run can invalidate the bindings that read its result.");
@@ -1042,7 +1043,7 @@ public:
             finding.typeIndex = typeIndex;
             finding.costNs = it->totalNs;
             finding.occurrences = it->count;
-            finding.what = Tr::tr("Image is loaded %1 times.").arg(it->count);
+            finding.what = Tr::tr("Image is loaded %n time(s).", nullptr, it->count);
             finding.why = Tr::tr("The decoded image is kept only while something refers to it. "
                                  "Loading the same source again means it was dropped in between, "
                                  "so reading and decoding it is paid for once more.");

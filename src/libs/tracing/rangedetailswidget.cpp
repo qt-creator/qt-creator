@@ -111,7 +111,7 @@ void RangeDetailsWidget::setSelectionRange(qint64 start, qint64 end, qint64 refe
 
     const QString startText = formatTime(start, referenceDuration);
     m_selectionRangeLabel->setText(
-        Tr::tr("Range Start: %1  End: %2  Duration: %3")
+        Tr::tr("Range start: %1, end: %2, duration: %3")
             .arg(startText, formatTime(end, referenceDuration),
                  formatTime(end - start, referenceDuration)));
 }

@@ -112,24 +112,25 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
         {{":/tracing/images/selectionmode.png",
           Utils::Theme::IconsBaseColor}}).icon();
 
-    auto prevAction = toolbar->addAction(prevIcon, tr("Jump to previous event"));
-    auto nextAction = toolbar->addAction(nextIcon, tr("Jump to next event"));
+    auto prevAction = toolbar->addAction(prevIcon, tr("Jump to Previous Event"));
+    auto nextAction = toolbar->addAction(nextIcon, tr("Jump to Next Event"));
     toolbar->addSeparator();
-    auto zoomAction = toolbar->addAction(zoomIcon, tr("Show zoom slider"));
+    auto zoomAction = toolbar->addAction(zoomIcon, tr("Show Zoom Slider"));
     zoomAction->setCheckable(true);
     toolbar->addSeparator();
-    auto rangeAction = toolbar->addAction(rangeSelIcon, tr("Select range"));
+    auto rangeAction = toolbar->addAction(rangeSelIcon, tr("Select Range"));
     rangeAction->setCheckable(true);
-    auto lockAction = toolbar->addAction(lockIcon, tr("View event information on mouseover"));
+    auto lockAction = toolbar->addAction(lockIcon, tr("View Event Information on Mouseover"));
     lockAction->setCheckable(true);
     toolbar->addSeparator();
+    //: Short for "software", shown on a narrow toolbar button.
     auto softwareAction = toolbar->addAction(tr("SW"));
     softwareAction->setCheckable(true);
     // Nothing to choose between when only the software backend was built.
     softwareAction->setVisible(hasGpuTrackBackend());
     softwareAction->setToolTip(
-        tr("Render the timeline with the software (QPainter) backend instead of "
-           "the hardware-accelerated (QCanvasPainter) one"));
+        tr("Renders the timeline with the software (QPainter) backend instead of "
+           "the hardware-accelerated (QCanvasPainter) one."));
 
     d->m_content->setLeftHeaderWidget(toolbar);
 

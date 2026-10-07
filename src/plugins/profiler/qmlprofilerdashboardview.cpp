@@ -687,7 +687,7 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     // Performance Rating
     d->overallRating = new Category(
         Tr::tr("Performance Rating"),
-        Tr::tr("Overall technical rating for your application performance"),
+        Tr::tr("Overall technical rating of the application performance"),
         Large);
 
 
@@ -699,14 +699,14 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     noDataText->setWordWrap(true);
 
 
-    // FPS Rate
-    d->gaugeTitle = new QLabel(Tr::tr("FPS Rate"));
+    // Frame Rate
+    d->gaugeTitle = new QLabel(Tr::tr("Frame Rate"));
     applyTf(d->gaugeTitle, titleTf);
     d->gauge = new Gauge;
     d->gauge->setFixedSize(110, 110);
     d->gauge->setUnit("%");
     d->gaugeText = new QLabel(
-        Tr::tr("%1+ FPS Rate (Steady-State)").arg(qRound(kDisplayRefreshRate)));
+        Tr::tr("%1+ FPS (Steady State)").arg(qRound(kDisplayRefreshRate)));
     applyTf(d->gaugeText, textTf);
 
 
@@ -717,7 +717,7 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     d->framesOnTargetBadge = new QtcBadge;
     d->framesOnTargetBadge->setInfoType(Utils::InfoLabelType::Ok);
     d->framesOnTargetLabel = new QLabel(
-        Tr::tr("On target (%1+ FPS (<=%2ms))")
+        Tr::tr("On Target (%1+ FPS, <= %2 ms)")
             .arg(qRound(kDisplayRefreshRate))
             .arg(kOnTargetFrameTimeMs, 0, 'f', 1));
     applyTf(d->framesOnTargetLabel, textFrameAnalysisTf);
@@ -725,7 +725,7 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     d->framesNearTargetBadge = new QtcBadge;
     d->framesNearTargetBadge->setInfoType(Utils::InfoLabelType::Warning);
     d->framesNearTargetLabel = new QLabel(
-        Tr::tr("Near Target (%1-%2ms)")
+        Tr::tr("Near Target (%1-%2 ms)")
             .arg(kOnTargetFrameTimeMs, 0, 'f', 1)
             .arg(kNearTargetFrameTimeMs, 0, 'f', 1));
     applyTf(d->framesNearTargetLabel, textFrameAnalysisTf);
@@ -733,34 +733,34 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     d->framesFailedBadge = new QtcBadge;
     d->framesFailedBadge->setInfoType(Utils::InfoLabelType::NotOk);
     d->framesFailedLabel = new QLabel(
-        Tr::tr("Failed (<%1 FPS (>%2ms))")
+        Tr::tr("Failed (< %1 FPS, > %2 ms)")
             .arg(qRound(1000.0 / kNearTargetFrameTimeMs))
             .arg(kNearTargetFrameTimeMs, 0, 'f', 1));
     applyTf(d->framesFailedLabel, textFrameAnalysisTf);
 
     d->framesText = new QLabel(
-        Tr::tr("%1+ FPS Rate (Steady-State)").arg(qRound(kDisplayRefreshRate)));
+        Tr::tr("%1+ FPS (Steady State)").arg(qRound(kDisplayRefreshRate)));
     applyTf(d->framesText, textTf);
 
 
-    // Multifactor performance analysis
-    d->categoriesTitle = new QLabel(Tr::tr("Multifactor performance analysis"));
+    // Multi-factor Performance Analysis
+    d->categoriesTitle = new QLabel(Tr::tr("Multifactor Performance Analysis"));
     applyTf(d->categoriesTitle, titleTf);
 
     d->uiResponsiveness = new Category(
         Tr::tr("UI Responsiveness"),
-        Tr::tr("Percentage of frames within P95 threshold for smooth UI interactions"));
+        Tr::tr("Percentage of frames within the P95 threshold for smooth UI interactions"));
     d->frameConsistency = new Category(
         Tr::tr("Frame Consistency"),
         Tr::tr("Frame time variation (lower is better for smooth animations)"));
     d->stutterPrevention = new Category(
         Tr::tr("Stutter Prevention"),
-        Tr::tr("Frames slower than %1 FPS (%2ms) cause noticeable UI freezes")
+        Tr::tr("Frames slower than %1 FPS (%2 ms) cause noticeable UI freezes")
             .arg(qRound(kStutterFps))
             .arg(kStutterFrameTimeMs, 0, 'f', 1));
     d->p99Quality = new Category(
         Tr::tr("P99 Quality"),
-        Tr::tr("99th percentile frame time ensures consistent experience"));
+        Tr::tr("99th percentile frame time ensures a consistent experience"));
     d->startupSpeed = new Category(
         Tr::tr("Startup Speed"),
         Tr::tr("Frames until reaching steady-state performance"));
