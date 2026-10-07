@@ -157,6 +157,7 @@ private:
     QString updateSelectButton(Utils::QtcButton *button,
                                Acp::V2::SessionConfigOptionCategory category,
                                const QString &tooltipTemplate,
+                               const QString &changeHint,
                                QString *name);
     // Width the mode and model names may take together before they are elided.
     int selectButtonNamesWidth() const;

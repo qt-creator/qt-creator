@@ -91,7 +91,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             noServerLayout->addStretch();
 
             m_noServerLabel = new InfoLabel(
-                Tr::tr("No ACP servers configured. Add an agent to get started."),
+                Tr::tr("No agents configured. Add an agent to get started."),
                 InfoLabelType::Information);
             m_noServerLabel->setElideMode(Qt::ElideNone);
             m_noServerLabel->setWordWrap(true);
@@ -349,7 +349,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
 
         // Nothing here is a pty, so the server cannot ask for its prompt to be
         // unechoed the way it would for a password; the user has to.
-        auto *hideInput = new QtcCheckBox(Tr::tr("Hide Input"));
+        auto *hideInput = new QtcCheckBox(Tr::tr("Hide input"));
         hideInput->setToolTip(Tr::tr("Do not show what is typed, for a password or a token."));
         connect(hideInput, &QAbstractButton::toggled,
                 m_serverConsole, &AcpServerConsole::setInputMasked);

@@ -1892,11 +1892,11 @@ QString formatTokenCount(int tokens)
 {
     if (tokens >= 1000000) {
         //: %1 is a token count in millions, e.g. "1.2M"
-        return Tr::tr("%1M").arg(tokens / 1000000.0, 0, 'f', 1);
+        return Tr::tr("%L1M").arg(tokens / 1000000.0, 0, 'f', 1);
     }
     if (tokens >= 1000) {
         //: %1 is a token count in thousands, e.g. "12.5k"
-        return Tr::tr("%1k").arg(tokens / 1000.0, 0, 'f', 1);
+        return Tr::tr("%L1k").arg(tokens / 1000.0, 0, 'f', 1);
     }
     return QString::number(tokens);
 }

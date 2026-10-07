@@ -311,7 +311,7 @@ void ConfigSelectPopup::rebuild()
     }
 
     if (!anyEntry) {
-        auto *item = new QStandardItem(Tr::tr("No matching entries"));
+        auto *item = new QStandardItem(Tr::tr("No Matching Entries"));
         item->setFlags({});
         item->setData(true, HeaderRole);
         m_model->appendRow(item);

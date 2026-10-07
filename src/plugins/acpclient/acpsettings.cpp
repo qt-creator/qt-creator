@@ -39,6 +39,7 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QDir>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QPromise>
 #include <QPushButton>
@@ -151,9 +152,11 @@ static void requestRegistryAccess(
     dialog->setWindowTitle(Tr::tr("Download Agent Registry"));
 
     auto description = new QLabel(
-        Tr::tr("To list the available agents, Qt Creator downloads the agent registry from "
-               "<a href=\"%1\">%1</a>.")
-            .arg(QString::fromLatin1(kRegistryUrl)));
+        //: %1 = Qt Creator, %2 = a URL
+        Tr::tr("To list the available agents, %1 downloads the agent registry from %2.")
+            .arg(
+                QGuiApplication::applicationDisplayName(),
+                QString("<a href=\"%1\">%1</a>").arg(QString::fromLatin1(kRegistryUrl))));
     description->setTextFormat(Qt::RichText);
     description->setOpenExternalLinks(true);
     description->setWordWrap(true);

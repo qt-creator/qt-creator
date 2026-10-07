@@ -94,7 +94,7 @@ AcpTermsWidget::AcpTermsWidget(QWidget *parent)
         = Tr::tr("I confirm that I have reviewed and accept the terms and conditions of this "
                  "extension. I confirm that I have the authority and ability to accept the "
                  "terms and conditions of this extension for the customer. I acknowledge that "
-                 "if the customer and the Qt Company already have a valid agreement in place, "
+                 "if the customer and The Qt Company already have a valid agreement in place, "
                  "that agreement shall apply, but these terms shall govern the use of this "
                  "extension.");
 

@@ -2618,9 +2618,12 @@ void AcpClientTest::testChatPanelTurnStats()
 
     // The cumulative figure stays visible next to the input.
     const QList<QLabel *> labels = panel.findChildren<QLabel *>();
-    QVERIFY(Utils::anyOf(labels, [](const QLabel *label) {
-        return label->text() == "350/1.0k";
-    }));
+    const QString expected =
+        QString("%1/%2").arg(formatTokenCount(350), formatTokenCount(1000));
+    QVERIFY2(
+        Utils::anyOf(labels,
+                     [expected](const QLabel *label) { return label->text() == expected; }),
+        QString("\"%1\"").arg(Utils::transform(labels, &QLabel::text).join("\",\"")).toUtf8());
 }
 
 // The context figure of a turn as it is shown, which carries the locale's own

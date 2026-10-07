@@ -1145,7 +1145,8 @@ int ChatPanel::usedAtPromptStart() const
 // or hides it when the agent offers no such option. Reports the un-elided name
 // through name, and returns the option's id.
 QString ChatPanel::updateSelectButton(QtcButton *button, SessionConfigOptionCategory category,
-                                      const QString &tooltipTemplate, QString *selectedName)
+                                      const QString &tooltipTemplate,
+                                      const QString &changeHint, QString *selectedName)
 {
     selectedName->clear();
     const std::optional<SessionConfigOption> option
@@ -1169,7 +1170,7 @@ QString ChatPanel::updateSelectButton(QtcButton *button, SessionConfigOptionCate
     QStringList tooltip{tooltipTemplate.arg(name)};
     if (it != entries.cend() && !it->description.isEmpty() && it->description != name)
         tooltip.append(it->description);
-    tooltip.append(Tr::tr("Click to choose a different one."));
+    tooltip.append(changeHint);
     button->setToolTip(tooltip.join('\n'));
     button->show();
     return option->configId();
@@ -1243,14 +1244,17 @@ void ChatPanel::updateSelectButtonTexts()
 void ChatPanel::updateModeButton()
 {
     m_modeConfigId = updateSelectButton(m_modeButton, SessionConfigOptionCategory::mode,
-                                        Tr::tr("Mode: %1"), &m_modeName);
+                                        Tr::tr("Mode: %1"),
+                                        Tr::tr("Click to select a different mode."), &m_modeName);
     updateSelectButtonTexts();
 }
 
 void ChatPanel::updateModelButton()
 {
     m_modelConfigId = updateSelectButton(m_modelButton, SessionConfigOptionCategory::model,
-                                         Tr::tr("Model: %1"), &m_modelName);
+                                         Tr::tr("Model: %1"),
+                                         Tr::tr("Click to select a different model."),
+                                         &m_modelName);
     updateSelectButtonTexts();
 }
 
