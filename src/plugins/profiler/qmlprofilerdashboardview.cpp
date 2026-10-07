@@ -6,6 +6,7 @@
 #include "profilertr.h"
 #include "qmlprofilerdashboardstats.h"
 #include "qmlprofilerfindingsmodel.h"
+#include "qmlprofilermodelmanager.h"
 
 #include <utils/icon.h>
 #include <utils/infolabel.h>
@@ -594,7 +595,10 @@ class QmlProfilerDashboardViewPrivate : public QObject
 public:
     QmlProfilerDashboardViewPrivate(QObject *parent = nullptr);
 
+    bool hasData() const;
     void updateVisibility();
+
+    bool isFirstFinalize = true;
 
     QmlProfilerDashboardStats *stats = nullptr;
 
@@ -633,14 +637,16 @@ QmlProfilerDashboardViewPrivate::QmlProfilerDashboardViewPrivate(QObject *parent
 {
 }
 
+bool QmlProfilerDashboardViewPrivate::hasData() const
+{
+    return stats->hasData() || findingsModel->rowCount() > 0;
+}
+
 void QmlProfilerDashboardViewPrivate::updateVisibility()
 {
-    const bool hasStats = stats->hasData();
-    const bool hasFindings = findingsModel->rowCount() > 0;
-    const bool hasData = hasFindings || hasStats;
-    statsSection->setVisible(hasStats);
-    findingsSection->setVisible(hasFindings);
-    noDataAvailableSection->setVisible(!hasData);
+    statsSection->setVisible(stats->hasData());
+    findingsSection->setVisible(findingsModel->rowCount() > 0);
+    noDataAvailableSection->setVisible(!hasData());
 }
 
 QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *manager,
@@ -755,6 +761,19 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     connect(d->findingsModel, &QAbstractItemModel::modelReset, this, [this] {
         d->updateVisibility();
         d->findingsView->updateGeometry();
+    });
+
+    // Registered after the stats and the findings, so that both have settled.
+    manager->registerFeatures(0, {}, [this] {
+        if (!d->isFirstFinalize)
+            return;
+        d->isFirstFinalize = false;
+        if (!d->hasData())
+            emit noDataShown();
+    }, {});
+    // Not in the clearer: restrictByFilter() runs it, too, without starting a new trace.
+    connect(manager, &QmlProfilerModelManager::eventsCleared, this, [this] {
+        d->isFirstFinalize = true;
     });
 
     connect(d->findingsView, &FindingsView::activated,

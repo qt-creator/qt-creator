@@ -90,6 +90,8 @@ QmlProfilerTraceBackend::QmlProfilerTraceBackend(Timeline::RangeDetailsWidget *d
         emit busyChanged(false);
         emit loadFinished();
     });
+    connect(&d->viewManager, &QmlProfilerPlainViewManager::viewSwitchRequested,
+            this, &QmlProfilerTraceBackend::viewSwitchRequested);
     connect(&d->viewManager, &QmlProfilerPlainViewManager::gotoSourceLocation,
             this, [this](const QString &fileUrl, int line, int column) {
         if (line < 0 || fileUrl.isEmpty())

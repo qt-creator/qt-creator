@@ -103,6 +103,11 @@ QWidgetList QmlProfilerPlainViewManager::views(QWidget *parent)
     connect(flameGraphView, &Internal::FlameGraphView::detailsCleared, d->rangeDetails,
             [this, flameGraphView] { d->rangeDetails->clear(flameGraphView); });
 
+    connect(dashboardView, &Internal::QmlProfilerDashboardView::noDataShown,
+            this, [this, dashboardView, traceView] {
+        emit viewSwitchRequested(traceView, dashboardView);
+    });
+
     return { dashboardView, traceView, flameGraphView, statisticsView, quick3DView,
              findingsView };
 }

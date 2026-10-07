@@ -57,6 +57,8 @@ signals:
     // A source location the user asked to jump to, already resolved to a local
     // file: only the backend knows how to map a recorded path onto this machine.
     void gotoSourceLocation(const Utils::Link &link);
+    // Show view `to`, but only if view `from` is the current one.
+    void viewSwitchRequested(QWidget *to, QWidget *from);
 };
 
 } // namespace Profiler::Internal

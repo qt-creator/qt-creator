@@ -6,6 +6,8 @@
 #include <profiler/profilertracebackend.h>
 #include <profiler/profilertracedocument.h>
 #include <profiler/profilertraceeditor.h>
+#include <profiler/qmlprofilermodelmanager.h>
+#include <profiler/qmlprofilertracebackend.h>
 #include <profiler/traceformat.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -19,9 +21,12 @@
 #include <utils/temporaryfile.h>
 
 #include <QAction>
+#include <QSignalSpy>
+#include <QTabWidget>
 #include <QTest>
 
 using namespace Core;
+using namespace QmlDebug;
 using namespace Utils;
 
 namespace Profiler::Internal {
@@ -52,6 +57,40 @@ static void resetEditorArea()
     EditorManager::closeAllEditors(false);
     if (Command *removeSplits = ActionManager::command(Core::Constants::REMOVE_ALL_SPLITS))
         removeSplits->action()->trigger();
+}
+
+enum { DashboardTab = 0, TimelineTab = 1, FlameGraphTab = 2 };
+
+static QTabWidget *tabsOf(IEditor *editor)
+{
+    return editor->widget()->findChild<QTabWidget *>();
+}
+
+// Records a trace like a live recording does, ending in finalize(). It has a few
+// debug messages, which give the dashboard nothing to show, and animation frames
+// on the GUI thread if `withFrames` is set.
+static void record(QmlProfilerModelManager *manager, bool withFrames)
+{
+    manager->initialize();
+    QmlEvent event;
+    event.setTimestamp(100);
+    event.setString("message");
+    event.setTypeIndex(manager->appendEventType(QmlEventType(
+        DebugMessage, UndefinedRangeType, QtDebugMsg, QmlEventLocation("main.qml", 1, 1))));
+    manager->appendEvent(std::move(event));
+    if (withFrames) {
+        QmlEvent frame;
+        frame.setTypeIndex(manager->appendEventType(
+            QmlEventType(Event, UndefinedRangeType, AnimationFrame)));
+        for (int i = 0; i < 5; ++i) {
+            frame.setTimestamp(200 + i);
+            frame.setNumbers<int>({60, 1, GuiThread});
+            manager->appendEvent(QmlEvent(frame));
+        }
+    }
+    manager->decreaseTraceStart(0);
+    manager->increaseTraceEnd(1000);
+    manager->finalize();
 }
 
 void ProfilerTraceDocumentTest::init()
@@ -239,6 +278,80 @@ void ProfilerTraceDocumentTest::testTraceMovedIntoTheSourceSplitGetsANewOne()
     QVERIFY(secondEditor);
     QVERIFY(EditorManager::viewIdForEditor(secondEditor) != sourceViewId);
     QCOMPARE(EditorManager::viewIdForEditor(editorForDocument(m_document)), sourceViewId);
+}
+
+void ProfilerTraceDocumentTest::testEmptyTraceShowsTimeline()
+{
+    auto backend = qobject_cast<QmlProfilerTraceBackend *>(m_document->backends().first());
+    QVERIFY(backend);
+    QTabWidget *tabs = tabsOf(editorForDocument(m_document));
+    QVERIFY(tabs);
+    QCOMPARE(tabs->currentIndex(), int(DashboardTab));
+
+    QSignalSpy switchSpy(backend, &ProfilerTraceBackend::viewSwitchRequested);
+    record(backend->modelManager(), false);
+    QCOMPARE(switchSpy.count(), 1);
+    QCOMPARE(tabs->currentIndex(), int(TimelineTab));
+}
+
+void ProfilerTraceDocumentTest::testTraceWithFramesStaysOnDashboard()
+{
+    auto backend = qobject_cast<QmlProfilerTraceBackend *>(m_document->backends().first());
+    QVERIFY(backend);
+    QTabWidget *tabs = tabsOf(editorForDocument(m_document));
+    QVERIFY(tabs);
+
+    QSignalSpy switchSpy(backend, &ProfilerTraceBackend::viewSwitchRequested);
+    record(backend->modelManager(), true);
+    QCOMPARE(switchSpy.count(), 0);
+    QCOMPARE(tabs->currentIndex(), int(DashboardTab));
+}
+
+// The dashboard asks for the switch, but the editor leaves a tab alone that the
+// user has chosen meanwhile.
+void ProfilerTraceDocumentTest::testOtherTabIsKept()
+{
+    auto backend = qobject_cast<QmlProfilerTraceBackend *>(m_document->backends().first());
+    QVERIFY(backend);
+    QTabWidget *tabs = tabsOf(editorForDocument(m_document));
+    QVERIFY(tabs);
+    tabs->setCurrentIndex(FlameGraphTab);
+
+    QSignalSpy switchSpy(backend, &ProfilerTraceBackend::viewSwitchRequested);
+    record(backend->modelManager(), false);
+    QCOMPARE(switchSpy.count(), 1);
+    QCOMPARE(tabs->currentIndex(), int(FlameGraphTab));
+}
+
+void ProfilerTraceDocumentTest::testOnlyFirstFinalizeSwitches()
+{
+    auto backend = qobject_cast<QmlProfilerTraceBackend *>(m_document->backends().first());
+    QVERIFY(backend);
+
+    QSignalSpy switchSpy(backend, &ProfilerTraceBackend::viewSwitchRequested);
+    record(backend->modelManager(), false);
+    QCOMPARE(switchSpy.count(), 1);
+
+    backend->modelManager()->finalize();
+    QCOMPARE(switchSpy.count(), 1);
+}
+
+void ProfilerTraceDocumentTest::testNewRecordingSwitchesAgain()
+{
+    auto backend = qobject_cast<QmlProfilerTraceBackend *>(m_document->backends().first());
+    QVERIFY(backend);
+    QTabWidget *tabs = tabsOf(editorForDocument(m_document));
+    QVERIFY(tabs);
+
+    QSignalSpy switchSpy(backend, &ProfilerTraceBackend::viewSwitchRequested);
+    record(backend->modelManager(), false);
+    QCOMPARE(switchSpy.count(), 1);
+
+    tabs->setCurrentIndex(DashboardTab);
+    backend->modelManager()->clear();
+    record(backend->modelManager(), false);
+    QCOMPARE(switchSpy.count(), 2);
+    QCOMPARE(tabs->currentIndex(), int(TimelineTab));
 }
 
 } // namespace Profiler::Internal
