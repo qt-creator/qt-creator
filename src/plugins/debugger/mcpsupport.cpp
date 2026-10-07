@@ -7,7 +7,9 @@
 #include "debuggerengine.h"
 #include "debuggerruncontrol.h"
 #include "enginemanager.h"
+#include "mcpsessionstate.h"
 #include "mcpsupport.h"
+#include "mcpsupport_p.h"
 #include "stackhandler.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
@@ -29,6 +31,8 @@
 #include <utils/processinterface.h>
 #include <utils/result.h>
 
+#include <QDeadlineTimer>
+#include <QHash>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
@@ -36,9 +40,351 @@
 #include <QString>
 #include <QStringList>
 
+#include <algorithm>
+#include <optional>
+
 using namespace Utils;
 
 namespace Debugger::Internal {
+
+enum {
+    defaultDataTimeoutMs = 5000,
+    defaultOperationTimeoutMs = 10000,
+    maximalTimeoutMs = 120000
+};
+
+class AsyncMcpTool
+{
+public:
+    Mcp::Schema::Tool tool;
+    McpHandler handler;
+};
+
+static QHash<QString, AsyncMcpTool> &asyncMcpTools()
+{
+    static QHash<QString, AsyncMcpTool> tools;
+    return tools;
+}
+
+static Mcp::Schema::CallToolResult toolResult(const Result<QJsonObject> &result)
+{
+    using namespace Mcp::Schema;
+    if (!result)
+        return CallToolResult{}.isError(true).addContent(TextContent{}.text(result.error()));
+    return CallToolResult{}.isError(false).structuredContent(*result);
+}
+
+/*!
+    \internal
+
+    Registers \a tool to be answered by \a handler, which may reply right away
+    or later, once the debugger has delivered what the tool reports.
+*/
+void registerAsyncMcpTool(const Mcp::Schema::Tool &tool, const McpHandler &handler)
+{
+    asyncMcpTools().insert(tool.name(), {tool, handler});
+    Mcp::ToolRegistry::registerTool(
+        tool,
+        [handler](const Mcp::Schema::CallToolRequestParams &params,
+                  const Mcp::ToolInterface &toolInterface) -> Result<> {
+            handler(params.argumentsAsObject(), [toolInterface](const Result<QJsonObject> &result) {
+                toolInterface.finish(toolResult(result));
+            });
+            return ResultOk;
+        });
+}
+
+void callMcpToolForTests(const QString &name,
+                         const QJsonObject &args,
+                         const std::function<void(Result<QJsonObject>)> &done)
+{
+    const auto it = asyncMcpTools().constFind(name);
+    if (it == asyncMcpTools().constEnd()) {
+        done(ResultError(QString("No asynchronous debugger tool named \"%1\".").arg(name)));
+        return;
+    }
+    const Result<> valid = Mcp::validateToolArguments(
+        it->tool, Mcp::Schema::CallToolRequestParams{}.arguments(args));
+    if (!valid) {
+        done(ResultError(valid.error()));
+        return;
+    }
+    it->handler(args, done);
+}
+
+Result<McpSessionState *> activeSessionState()
+{
+    const QPointer<DebuggerEngine> engine = EngineManager::currentEngine();
+    if (!engine)
+        return ResultError("No active debug session");
+    return McpSessionState::forEngine(engine);
+}
+
+Result<McpSessionState *> pausedSessionState()
+{
+    const Result<McpSessionState *> state = activeSessionState();
+    if (!state)
+        return state;
+    const DebuggerState engineState = (*state)->engine()->state();
+    if (engineState != InferiorStopOk)
+        return ResultError("Debugger is not paused (current state: "
+                           + DebuggerEngine::stateName(engineState) + ")");
+    return state;
+}
+
+int timeoutArgument(const QJsonObject &args, int defaultMs)
+{
+    return std::clamp(args.value("timeout_ms").toInt(defaultMs), 0, int(maximalTimeoutMs));
+}
+
+QJsonObject timeoutSchema(int defaultMs)
+{
+    return QJsonObject{
+        {"type", "integer"},
+        {"minimum", 0},
+        {"maximum", maximalTimeoutMs},
+        {"default", defaultMs},
+        {"description",
+         QString("How long to wait, in milliseconds, before reporting that the result is not "
+                 "ready (default %1, at most %2).").arg(defaultMs).arg(maximalTimeoutMs)}};
+}
+
+QJsonObject contextSchema()
+{
+    return QJsonObject{
+        {"type", "object"},
+        {"description",
+         "The debugger state the data belongs to. stop_id grows by one each time the target "
+         "stops, so data with different stop_id values comes from different stops."},
+        {"required", QJsonArray{"session_id", "stop_id"}},
+        {"properties", QJsonObject{
+            {"session_id",  QJsonObject{{"type", "string"},  {"description", "Identifies the debug session."}}},
+            {"stop_id",     QJsonObject{{"type", "integer"}, {"description", "Identifies the stop within the session."}}},
+            {"thread_id",   QJsonObject{{"type", "string"},  {"description", "The selected thread."}}},
+            {"frame_level", QJsonObject{{"type", "integer"}, {"description", "The selected stack frame, 0 = innermost."}}},
+        }}};
+}
+
+QString notReadyMessage(const QString &what, McpSessionState *state, bool sessionEnded)
+{
+    if (sessionEnded || !state || !state->engine())
+        return QString("The debug session ended before the %1 arrived.").arg(what);
+    if (!state->isStopped()) {
+        return QString("The target resumed before the %1 arrived (current state: %2).")
+            .arg(what, DebuggerEngine::stateName(state->engine()->state()));
+    }
+    return QString("The %1 of stop %2 did not arrive in time. Call again, or pass a larger "
+                   "\"timeout_ms\".").arg(what).arg(state->stopId());
+}
+
+// Operations
+
+enum class OperationKind { Resume, SelectThread, SelectFrame };
+enum class OperationState { Accepted, InProgress, Completed, Failed };
+
+static QString toString(OperationState state)
+{
+    switch (state) {
+    case OperationState::Accepted:   return "accepted";
+    case OperationState::InProgress: return "in_progress";
+    case OperationState::Completed:  return "completed";
+    case OperationState::Failed:     return "failed";
+    }
+    return {};
+}
+
+class OperationStatus
+{
+public:
+    OperationState state;
+    QString reason;
+
+    bool isFinal() const
+    {
+        return state == OperationState::Completed || state == OperationState::Failed;
+    }
+};
+
+class Operation
+{
+public:
+    int id = 0;
+    QString name;
+    OperationKind kind = OperationKind::Resume;
+    QPointer<McpSessionState> state;
+    QString sessionId;
+    int baseStopId = 0;
+    int baseRunFailures = 0;
+    QString threadId;
+    int frameLevel = -1;
+    QString message;
+    std::optional<OperationStatus> finalStatus;
+};
+
+static QMap<int, Operation> &operations()
+{
+    static QMap<int, Operation> theOperations;
+    return theOperations;
+}
+
+static int s_nextOperationId = 1;
+
+static OperationStatus evaluateOperation(const Operation &op)
+{
+    if (op.finalStatus)
+        return *op.finalStatus;
+
+    McpSessionState *state = op.state;
+    if (!state || !state->engine())
+        return {OperationState::Failed, "The debug session ended."};
+    if (state->hasEnded()) {
+        return {OperationState::Failed, "The debug session ended (state: "
+                              + DebuggerEngine::stateName(state->engine()->state()) + ")."};
+    }
+
+    if (op.kind == OperationKind::Resume) {
+        // A debugger can retry a run it reported as failed, so the run failed
+        // only if the target is still at the stop it was at.
+        if (state->stopId() == op.baseStopId && state->runFailures() != op.baseRunFailures
+            && state->isStopped()) {
+            return {OperationState::Failed, "The target did not resume."};
+        }
+        if (state->stopId() == op.baseStopId) {
+            if (state->isStopped())
+                return {OperationState::Accepted, "The target has not started running yet."};
+            return {OperationState::InProgress, "The target is running."};
+        }
+        if (!state->isStopped())
+            return {OperationState::InProgress, "The target is running."};
+        if (!state->isStackReady())
+            return {OperationState::InProgress, "The call stack of the new stop has not arrived yet."};
+        if (!state->isLocalsReady())
+            return {OperationState::InProgress, "The local variables of the new stop have not arrived yet."};
+        return {OperationState::Completed, {}};
+    }
+
+    if (state->stopId() != op.baseStopId || !state->isStopped())
+        return {OperationState::Failed, "The target resumed before the selection completed."};
+    if (op.kind == OperationKind::SelectThread && state->currentThreadId() != op.threadId) {
+        return {OperationState::Failed,
+                QString("Thread %1 was selected in the meantime.").arg(state->currentThreadId())};
+    }
+    // Engines select a frame right away, so another one being current once
+    // the stack is there means the selection did not take or was replaced.
+    if (op.kind == OperationKind::SelectFrame && state->isStackReady()
+        && state->currentFrameLevel() != op.frameLevel) {
+        return {OperationState::Failed, QString("Frame %1 is selected instead of frame %2.")
+                                            .arg(state->currentFrameLevel())
+                                            .arg(op.frameLevel)};
+    }
+    if (!state->isStackReady())
+        return {OperationState::InProgress, "The call stack has not arrived yet."};
+    if (!state->isLocalsReady())
+        return {OperationState::InProgress, "The local variables have not arrived yet."};
+    return {OperationState::Completed, {}};
+}
+
+static OperationStatus updateOperation(Operation &op)
+{
+    const OperationStatus status = evaluateOperation(op);
+    if (status.isFinal() && !op.finalStatus)
+        op.finalStatus = status;
+    return status;
+}
+
+static QJsonObject operationReport(Operation &op, bool timedOut)
+{
+    const OperationStatus status = updateOperation(op);
+    QJsonObject report{{"operation_id", op.id},
+                       {"operation", op.name},
+                       {"session_id", op.sessionId},
+                       {"status", timedOut && !status.isFinal() ? QString("timed_out")
+                                                                : toString(status.state)},
+                       {"message", op.message}};
+    if (!status.reason.isEmpty())
+        report["reason"] = status.reason;
+    if (timedOut && !status.isFinal()) {
+        report["operation_status"] = toString(status.state);
+        report["reason"] = QString("The wait ended before the operation completed. The "
+                                   "operation was not cancelled. %1").arg(status.reason);
+    }
+    if (op.state) {
+        report["context"] = op.state->context();
+        report["data_ready"] = op.state->readiness();
+    }
+    return report;
+}
+
+static void waitForOperation(int id, int timeoutMs, const McpReply &reply)
+{
+    auto it = operations().find(id);
+    if (it == operations().end()) {
+        reply(ResultError(QString("No operation with id %1. Only the most recent operations "
+                                  "are kept.").arg(id)));
+        return;
+    }
+    if (updateOperation(*it).isFinal() || !it->state || timeoutMs == 0) {
+        reply(operationReport(*it, false));
+        return;
+    }
+    waitUntil(it->state, timeoutMs,
+              [id] {
+                  auto it = operations().find(id);
+                  return it == operations().end() || updateOperation(*it).isFinal();
+              },
+              [id, reply](WaitOutcome outcome) {
+                  auto it = operations().find(id);
+                  if (it == operations().end()) {
+                      reply(ResultError(QString("Operation %1 was discarded.").arg(id)));
+                      return;
+                  }
+                  reply(operationReport(*it, outcome == WaitOutcome::TimedOut));
+              });
+}
+
+static void startOperation(const QString &name,
+                           OperationKind kind,
+                           const std::function<Result<QString>()> &request,
+                           const QJsonObject &args,
+                           const McpReply &reply,
+                           const QString &threadId = {},
+                           int frameLevel = -1)
+{
+    const Result<McpSessionState *> state = activeSessionState();
+    if (!state) {
+        reply(ResultError(state.error()));
+        return;
+    }
+    const int baseStopId = (*state)->stopId();
+    const int baseRunFailures = (*state)->runFailures();
+    const Result<QString> message = request();
+    if (!message) {
+        reply(ResultError(message.error()));
+        return;
+    }
+
+    Operation op;
+    op.id = s_nextOperationId++;
+    op.name = name;
+    op.kind = kind;
+    op.state = *state;
+    op.sessionId = (*state)->sessionId();
+    op.baseStopId = baseStopId;
+    op.baseRunFailures = baseRunFailures;
+    op.threadId = threadId;
+    op.frameLevel = frameLevel;
+    op.message = *message;
+    operations().insert(op.id, op);
+    while (operations().size() > 100)
+        operations().erase(operations().begin());
+
+    if (!args.value("wait_for_completion").toBool(false)) {
+        reply(operationReport(operations()[op.id], false));
+        return;
+    }
+    waitForOperation(op.id, timeoutArgument(args, defaultOperationTimeoutMs), reply);
+}
+
 
 static Result<DebuggerEngine *> getActiveEngine()
 {
@@ -333,6 +679,9 @@ static Result<QJsonObject> debuggerGetStatus(bool includeLog)
 
     result["has_session"] = true;
     result["state"] = DebuggerEngine::stateName(engine->state());
+    const McpSessionState *session = McpSessionState::forEngine(engine);
+    result["context"] = session->context();
+    result["data_ready"] = session->readiness();
     if (includeLog)
         result["log"] = engine->logContents();
 
@@ -394,11 +743,11 @@ static void evaluateExpression(
         Qt::SingleShotConnection);
 }
 
-static void getVariables(bool includeWatchers, std::function<void(Result<QJsonArray>)> callback)
+static void getVariables(bool includeWatchers, int timeoutMs, const McpReply &reply)
 {
     const Result<WatchHandler *> handler = getWatchHandler();
     if (!handler) {
-        callback(ResultError(handler.error()));
+        reply(ResultError(handler.error()));
         return;
     }
 
@@ -406,7 +755,9 @@ static void getVariables(bool includeWatchers, std::function<void(Result<QJsonAr
     if (includeWatchers)
         rootInames.append("watch");
 
-    const auto buildResult = [handler, rootInames]() -> Result<QJsonArray> {
+    const QPointer<McpSessionState> session = McpSessionState::forEngine(
+        EngineManager::currentEngine());
+    const auto buildResult = [handler, rootInames, session]() -> QJsonObject {
         QJsonArray result;
         for (const QString &rootIname : rootInames) {
             WatchItem *root = (*handler)->findItem(rootIname);
@@ -424,41 +775,32 @@ static void getVariables(bool includeWatchers, std::function<void(Result<QJsonAr
                 result.append(obj);
             });
         }
-        return result;
+        return QJsonObject{{"variables", result}, {"context", session->context()}};
     };
 
-    const bool anyLoaded = std::any_of(rootInames.begin(), rootInames.end(),
-                                       [&handler](const QString &rootIname) {
-                                           const WatchItem *root = (*handler)->findItem(rootIname);
-                                           return root && root->childCount() > 0;
-                                       });
-    if (anyLoaded) {
-        callback(buildResult());
-        return;
-    }
-
-    WatchModelBase *model = (*handler)->model();
-    QObject::connect(model, &WatchModelBase::updateFinished,
-                     model, [callback, buildResult]() { callback(buildResult()); },
-                     Qt::SingleShotConnection);
-    (*handler)->updateLocalsWindow();
+    waitUntil(session, timeoutMs,
+              [session] { return session && session->isLocalsReady(); },
+              [session, reply, buildResult](WaitOutcome outcome) {
+                  if (outcome != WaitOutcome::Ready) {
+                      reply(ResultError(notReadyMessage("local variables", session,
+                                                        outcome == WaitOutcome::SessionEnded)));
+                      return;
+                  }
+                  reply(buildResult());
+              });
 }
 
-static void getVariable(const QString &iname, std::function<void(Result<QJsonObject>)> callback)
+static void getVariable(const QString &iname, int timeoutMs, const McpReply &reply)
 {
     const Result<WatchHandler *> handler = getWatchHandler();
     if (!handler) {
-        callback(ResultError(handler.error()));
+        reply(ResultError(handler.error()));
         return;
     }
 
-    WatchItem *item = (*handler)->findItem(iname);
-    if (!item) {
-        callback(ResultError("No variable with iname: " + iname));
-        return;
-    }
-
-    const auto buildResult = [handler, iname]() -> Result<QJsonObject> {
+    const QPointer<McpSessionState> session = McpSessionState::forEngine(
+        EngineManager::currentEngine());
+    const auto buildResult = [handler, iname, session]() -> Result<QJsonObject> {
         WatchItem *item = (*handler)->findItem(iname);
         if (!item)
             return ResultError("Variable no longer available: " + iname);
@@ -470,19 +812,49 @@ static void getVariable(const QString &iname, std::function<void(Result<QJsonObj
             });
             obj["children"] = children;
         }
-        return obj;
+        if (!session)
+            return ResultError("The debug session ended.");
+        return QJsonObject{{"variable", obj}, {"context", session->context()}};
     };
 
-    if (item->childCount() > 0 || !item->wantsChildren) {
-        callback(buildResult());
-        return;
-    }
+    const QDeadlineTimer deadline(timeoutMs);
+    const auto fetch = [handler, iname, reply, buildResult, session, deadline] {
+        WatchItem *item = (*handler)->findItem(iname);
+        if (!item) {
+            reply(ResultError("No variable with iname: " + iname));
+            return;
+        }
+        if (item->childCount() > 0 || !item->wantsChildren) {
+            reply(buildResult());
+            return;
+        }
+        const int updatesBefore = session->localsUpdates();
+        (*handler)->fetchMore(iname);
+        waitUntil(session, int(deadline.remainingTime()),
+                  [session, updatesBefore] {
+                      return session && session->isLocalsReady()
+                             && session->localsUpdates() > updatesBefore;
+                  },
+                  [session, reply, buildResult, iname](WaitOutcome outcome) {
+                      if (outcome != WaitOutcome::Ready) {
+                          reply(ResultError(notReadyMessage("children of " + iname, session,
+                                                            outcome == WaitOutcome::SessionEnded)));
+                          return;
+                      }
+                      reply(buildResult());
+                  });
+    };
 
-    (*handler)->fetchMore(iname);
-    WatchModelBase *model = (*handler)->model();
-    QObject::connect(model, &WatchModelBase::updateFinished,
-                     model, [callback, buildResult]() { callback(buildResult()); },
-                     Qt::SingleShotConnection);
+    waitUntil(session, timeoutMs,
+              [session] { return session && session->isLocalsReady(); },
+              [session, reply, fetch](WaitOutcome outcome) {
+                  if (outcome != WaitOutcome::Ready) {
+                      reply(ResultError(notReadyMessage("local variables", session,
+                                                        outcome == WaitOutcome::SessionEnded)));
+                      return;
+                  }
+                  fetch();
+              });
 }
 
 static Result<bool> setVariable(const QString &iname, const QString &value)
@@ -611,7 +983,7 @@ static Result<QJsonArray> getThreads()
     return result;
 }
 
-static Result<bool> selectThread(const QString &id)
+static Result<QString> selectThread(const QString &id)
 {
     const Result<ThreadsHandler *> handler = getThreadsHandler();
     if (!handler)
@@ -626,25 +998,14 @@ static Result<bool> selectThread(const QString &id)
     if (!engine)
         return ResultError("Debug session ended before thread could be selected");
     engine->selectThread(thread);
-    return true;
+    return QString("Thread %1 selection requested").arg(id);
 }
 
-static Result<QJsonArray> getCallStack()
+static QJsonArray callStackFrames(const StackHandler *handler, int maxFrames = -1)
 {
-    const QPointer<DebuggerEngine> engine = EngineManager::currentEngine();
-    if (!engine)
-        return ResultError("No active debug session");
-
-    if (engine->state() != InferiorStopOk)
-        return ResultError("Debugger is not paused (current state: "
-                           + DebuggerEngine::stateName(engine->state()) + ")");
-
-    const StackHandler *handler = engine->stackHandler();
-    if (!handler || !handler->isContentsValid())
-        return ResultError("Call stack is not available");
-
     QJsonArray frames;
-    const int count = handler->stackSize();
+    const int count = maxFrames < 0 ? handler->stackSize()
+                                    : std::min(handler->stackSize(), maxFrames);
     const int currentIndex = handler->currentIndex();
     for (int i = 0; i < count; ++i) {
         const StackFrame frame = handler->frameAt(i);
@@ -666,7 +1027,28 @@ static Result<QJsonArray> getCallStack()
     return frames;
 }
 
-static Result<bool> selectFrame(int level)
+static void getCallStack(const QJsonObject &args, const McpReply &reply)
+{
+    const Result<McpSessionState *> state = pausedSessionState();
+    if (!state) {
+        reply(ResultError(state.error()));
+        return;
+    }
+    const QPointer<McpSessionState> session = *state;
+    waitUntil(session, timeoutArgument(args, defaultDataTimeoutMs),
+              [session] { return session && session->isStackReady(); },
+              [session, reply](WaitOutcome outcome) {
+                  if (outcome != WaitOutcome::Ready) {
+                      reply(ResultError(notReadyMessage("call stack", session,
+                                                        outcome == WaitOutcome::SessionEnded)));
+                      return;
+                  }
+                  reply(QJsonObject{{"frames", callStackFrames(session->engine()->stackHandler())},
+                                    {"context", session->context()}});
+              });
+}
+
+static Result<QString> selectFrame(int level)
 {
     const QPointer<DebuggerEngine> engine = EngineManager::currentEngine();
     if (!engine)
@@ -684,7 +1066,7 @@ static Result<bool> selectFrame(int level)
         return ResultError("Invalid frame level: " + QString::number(level));
 
     engine->activateFrame(level);
-    return true;
+    return QString("Frame %1 selection requested").arg(level);
 }
 
 static bool deleteBreakpoint(int id)
@@ -784,6 +1166,8 @@ static QJsonObject addBreakpoint(
 
 void registerMcpTools()
 {
+    McpSessionState::startTracking();
+
     using namespace Mcp::Schema;
     namespace Schema = Mcp::Schema;
     using Mcp::ToolInterface;
@@ -794,6 +1178,52 @@ void registerMcpTools()
         return [cb](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             return CallToolResult{}.structuredContent(cb(params.argumentsAsObject())).isError(false);
         };
+    };
+
+    const auto operationInputs = [](Tool::InputSchema schema) {
+        return schema
+            .addProperty(
+                "wait_for_completion",
+                QJsonObject{
+                    {"type", "boolean"},
+                    {"default", false},
+                    {"description",
+                     "Wait until the operation has completed and the data it changes (call "
+                     "stack, local variables) has been refreshed, instead of returning once "
+                     "the request was accepted. Default false."}})
+            .addProperty("timeout_ms", timeoutSchema(defaultOperationTimeoutMs));
+    };
+    const auto operationOutputs = [] {
+        return Tool::OutputSchema{}
+            .addProperty("operation_id", QJsonObject{{"type", "integer"},
+                                                     {"description", "Pass to debugger_wait_for_operation."}})
+            .addProperty("operation", QJsonObject{{"type", "string"}})
+            .addProperty("session_id", QJsonObject{{"type", "string"}})
+            .addProperty(
+                "status",
+                QJsonObject{
+                    {"type", "string"},
+                    {"enum", QJsonArray{toString(OperationState::Accepted),
+                                        toString(OperationState::InProgress),
+                                        toString(OperationState::Completed),
+                                        toString(OperationState::Failed), "timed_out"}},
+                    {"description",
+                     "accepted: requested, nothing observed yet. in_progress: the target runs "
+                     "or its data is still loading. completed: done, and the data reflects it. "
+                     "failed: see reason. timed_out: the wait ended first; the operation was not "
+                     "cancelled and may still complete."}})
+            .addProperty("operation_status",
+                         QJsonObject{{"type", "string"},
+                                     {"description", "With status timed_out, the status the operation had then."}})
+            .addProperty("message", QJsonObject{{"type", "string"}})
+            .addProperty("reason", QJsonObject{{"type", "string"}})
+            .addProperty("context", contextSchema())
+            .addProperty("data_ready",
+                         QJsonObject{{"type", "object"},
+                                     {"description", "Whether the call stack and the local variables belong to the current stop, thread and frame."}})
+            .addRequired("operation_id")
+            .addRequired("status")
+            .addRequired("message");
     };
 
     ToolRegistry::registerTool(
@@ -842,6 +1272,7 @@ void registerMcpTools()
                     {"properties", threadProperties},
                 };
                 return Tool::OutputSchema{}
+                    .addProperty("context", contextSchema())
                     .addProperty(
                         "threads",
                         QJsonObject{
@@ -854,19 +1285,24 @@ void registerMcpTools()
             const Utils::Result<QJsonArray> threads = getThreads();
             if (!threads)
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(threads.error()));
-            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"threads", *threads}});
+            QJsonObject result{{"threads", *threads}};
+            if (const Utils::Result<McpSessionState *> state = activeSessionState())
+                result["context"] = (*state)->context();
+            return CallToolResult{}.isError(false).structuredContent(result);
         });
 
-    ToolRegistry::registerTool(
+    registerAsyncMcpTool(
         Tool{}
             .name("debugger_select_thread")
             .title("Select a thread")
             .description(
-                "Switches the current thread in the active debug session. "
+                "Switches the current thread in the active debug session. The call stack and "
+                "variables of the new thread arrive asynchronously: pass wait_for_completion to "
+                "wait for them, or use debugger_wait_for_operation. "
                 "Returns an error if no debug session is active or the debugger is not paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(false).idempotentHint(true))
             .inputSchema(
-                Tool::InputSchema{}
+                operationInputs(Tool::InputSchema{})
                     .addProperty(
                         "id",
                         QJsonObject{
@@ -874,15 +1310,22 @@ void registerMcpTools()
                             {"description",
                              "Thread ID to select (as returned by debugger_get_threads)."}})
                     .addRequired("id"))
-            .outputSchema(
-                Tool::OutputSchema{}
-                    .addProperty("success", QJsonObject{{"type", "boolean"}})
-                    .addRequired("success")),
-        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
-            const Utils::Result<bool> ok = selectThread(params.argumentsAsObject().value("id").toString());
-            if (!ok)
-                return CallToolResult{}.isError(true).addContent(TextContent{}.text(ok.error()));
-            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"success", true}});
+            .outputSchema(operationOutputs().addProperty("success", QJsonObject{{"type", "boolean"}})),
+        [](const QJsonObject &args, const McpReply &reply) {
+            const QString id = args.value("id").toString();
+            startOperation("select_thread", OperationKind::SelectThread,
+                           [id] { return selectThread(id); }, args,
+                           [reply](const Utils::Result<QJsonObject> &result) {
+                               if (!result) {
+                                   reply(result);
+                                   return;
+                               }
+                               QJsonObject report = *result;
+                               report["success"] = report.value("status").toString()
+                                                   != toString(OperationState::Failed);
+                               reply(report);
+                           },
+                           id);
         });
 
     const auto varItemSchema = [] {
@@ -902,7 +1345,7 @@ void registerMcpTools()
         };
     };
 
-    ToolRegistry::registerTool(
+    registerAsyncMcpTool(
         Tool{}
             .name("debugger_get_variables")
             .title("List local variables")
@@ -911,7 +1354,9 @@ void registerMcpTools()
                 "Optionally includes watch expressions. "
                 "Variables with has_children=true may include a children array if already "
                 "expanded. Otherwise call debugger_get_variable with the variable's iname to "
-                "retrieve sub-fields. "
+                "retrieve sub-fields. Waits until the variables of the current stop, thread and "
+                "frame have arrived, and reports an error instead of older values if they do not "
+                "arrive in time. "
                 "Returns an error if no debug session is active or the debugger is not paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -921,7 +1366,8 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "boolean"},
                             {"description", "Also return watch expressions (default: false)."},
-                            {"default", false}}))
+                            {"default", false}})
+                    .addProperty("timeout_ms", timeoutSchema(defaultDataTimeoutMs)))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty(
@@ -930,22 +1376,15 @@ void registerMcpTools()
                             {"type", "array"},
                             {"description", "List of variables."},
                             {"items", varItemSchema()}})
-                    .addRequired("variables")),
-        [](const Schema::CallToolRequestParams &params,
-           const ToolInterface &toolInterface) -> Utils::Result<> {
-            const bool includeWatchers = params.argumentsAsObject().value("include_watchers").toBool(false);
-            getVariables(includeWatchers, [toolInterface](Utils::Result<QJsonArray> vars) {
-                if (!vars)
-                    toolInterface.finish(CallToolResult{}.isError(true).addContent(
-                        TextContent{}.text(vars.error())));
-                else
-                    toolInterface.finish(CallToolResult{}.isError(false).structuredContent(
-                        QJsonObject{{"variables", *vars}}));
-            });
-            return ResultOk;
+                    .addProperty("context", contextSchema())
+                    .addRequired("variables")
+                    .addRequired("context")),
+        [](const QJsonObject &args, const McpReply &reply) {
+            getVariables(args.value("include_watchers").toBool(false),
+                         timeoutArgument(args, defaultDataTimeoutMs), reply);
         });
 
-    ToolRegistry::registerTool(
+    registerAsyncMcpTool(
         Tool{}
             .name("debugger_get_variable")
             .title("Get a variable")
@@ -953,7 +1392,8 @@ void registerMcpTools()
                 "Returns the details of a single variable by its iname, including its children "
                 "if it has any (such as struct members or array elements). "
                 "If a child also has has_children=true, call debugger_get_variable again with that child's iname "
-                "to retrieve its sub-fields. "
+                "to retrieve its sub-fields. Waits until the variables of the current stop have "
+                "arrived. "
                 "Returns an error if no debug session is active or the debugger is not paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -963,6 +1403,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"description", "Internal name of the variable (such as \"local.myVar\")."}})
+                    .addProperty("timeout_ms", timeoutSchema(defaultDataTimeoutMs))
                     .addRequired("iname"))
             .outputSchema([] {
                 QJsonObject schema = [] {
@@ -983,21 +1424,15 @@ void registerMcpTools()
                     };
                     return s;
                 }();
-                return Tool::OutputSchema{}.addProperty("variable", schema).addRequired("variable");
+                return Tool::OutputSchema{}
+                    .addProperty("variable", schema)
+                    .addProperty("context", contextSchema())
+                    .addRequired("variable")
+                    .addRequired("context");
             }()),
-        [](const Schema::CallToolRequestParams &params,
-           const ToolInterface &toolInterface) -> Utils::Result<> {
-            getVariable(
-                params.argumentsAsObject().value("iname").toString(),
-                [toolInterface](Utils::Result<QJsonObject> var) {
-                    if (!var)
-                        toolInterface.finish(CallToolResult{}.isError(true).addContent(
-                            TextContent{}.text(var.error())));
-                    else
-                        toolInterface.finish(CallToolResult{}.isError(false).structuredContent(
-                            QJsonObject{{"variable", *var}}));
-                });
-            return ResultOk;
+        [](const QJsonObject &args, const McpReply &reply) {
+            getVariable(args.value("iname").toString(),
+                        timeoutArgument(args, defaultDataTimeoutMs), reply);
         });
 
     ToolRegistry::registerTool(
@@ -1235,14 +1670,18 @@ void registerMcpTools()
             return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"success", true}});
         });
 
-    ToolRegistry::registerTool(
+    registerAsyncMcpTool(
         Tool{}
             .name("debugger_get_call_stack")
             .title("Get current call stack")
             .description(
-                "Returns the call stack (stack frames) of the current debug session. "
+                "Returns the call stack (stack frames) of the selected thread. Waits until the "
+                "stack of the current stop and thread has arrived, and reports an error instead "
+                "of an older stack if it does not arrive in time. "
                 "Returns an error if no debug session is active or the debugger is not paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}.addProperty("timeout_ms", timeoutSchema(defaultDataTimeoutMs)))
             .outputSchema([] {
                 const QJsonObject frameProperties{
                     {"level",    QJsonObject{{"type", "integer"}, {"description", "Frame index, 0 = innermost."}}},
@@ -1265,41 +1704,47 @@ void registerMcpTools()
                             {"type", "array"},
                             {"description", "Stack frames, innermost first."},
                             {"items", frameItem}})
-                    .addRequired("frames");
+                    .addProperty("context", contextSchema())
+                    .addRequired("frames")
+                    .addRequired("context");
             }()),
-        [](const Schema::CallToolRequestParams &) -> Utils::Result<CallToolResult> {
-            const Utils::Result<QJsonArray> frames = getCallStack();
-            if (!frames)
-                return CallToolResult{}.isError(true).addContent(TextContent{}.text(frames.error()));
-            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"frames", *frames}});
-        });
+        [](const QJsonObject &args, const McpReply &reply) { getCallStack(args, reply); });
 
-    ToolRegistry::registerTool(
+    registerAsyncMcpTool(
         Tool{}
             .name("debugger_select_frame")
             .title("Select a stack frame")
             .description(
                 "Switches the current stack frame in the active debug session. "
-                "Subsequent debugger_get_variables / debugger_evaluate_expression calls operate on the selected frame. "
+                "Subsequent debugger_get_variables / debugger_evaluate_expression calls operate on "
+                "the selected frame. The variables of the frame arrive asynchronously: pass "
+                "wait_for_completion to wait for them, or use debugger_wait_for_operation. "
                 "Returns an error if no debug session is active or the debugger is not paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(false).idempotentHint(true))
             .inputSchema(
-                Tool::InputSchema{}
+                operationInputs(Tool::InputSchema{})
                     .addProperty(
                         "level",
                         QJsonObject{
                             {"type", "integer"},
                             {"description", "Frame level to select (as returned by debugger_get_call_stack, 0 = innermost)."}})
                     .addRequired("level"))
-            .outputSchema(
-                Tool::OutputSchema{}
-                    .addProperty("success", QJsonObject{{"type", "boolean"}})
-                    .addRequired("success")),
-        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
-            const Utils::Result<bool> ok = selectFrame(params.argumentsAsObject().value("level").toInt());
-            if (!ok)
-                return CallToolResult{}.isError(true).addContent(TextContent{}.text(ok.error()));
-            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"success", true}});
+            .outputSchema(operationOutputs().addProperty("success", QJsonObject{{"type", "boolean"}})),
+        [](const QJsonObject &args, const McpReply &reply) {
+            const int level = args.value("level").toInt();
+            startOperation("select_frame", OperationKind::SelectFrame,
+                           [level] { return selectFrame(level); }, args,
+                           [reply](const Utils::Result<QJsonObject> &result) {
+                               if (!result) {
+                                   reply(result);
+                                   return;
+                               }
+                               QJsonObject report = *result;
+                               report["success"] = report.value("status").toString()
+                                                   != toString(OperationState::Failed);
+                               reply(report);
+                           },
+                           {}, level);
         });
 
     ToolRegistry::registerTool(
@@ -1418,135 +1863,144 @@ void registerMcpTools()
         }));
 
     // Debugger stepping tools
-    ToolRegistry::registerTool(
+    registerAsyncMcpTool(
         Tool{}
             .name("debugger_step_over")
             .title("Step over")
             .description(
                 "Steps over the current line in the debugger. "
+                "Pass wait_for_completion to wait until the target has stopped and its call stack and "
+                "local variables have been refreshed. "
                 "Requires an active debug session that is paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
-            .outputSchema(
-                Tool::OutputSchema{}
-                    .addProperty("message", QJsonObject{{"type", "string"}})
-                    .addRequired("message")),
-        [](const Schema::CallToolRequestParams &) -> Utils::Result<CallToolResult> {
-            const auto result = debuggerStepOver();
-            if (!result)
-                return CallToolResult{}.isError(true).addContent(TextContent{}.text(result.error()));
-            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"message", *result}});
+            .inputSchema(operationInputs(Tool::InputSchema{}))
+            .outputSchema(operationOutputs()),
+        [](const QJsonObject &args, const McpReply &reply) {
+            startOperation("step_over", OperationKind::Resume,
+                           [] { return debuggerStepOver(); }, args, reply);
         });
 
-    ToolRegistry::registerTool(
+    registerAsyncMcpTool(
         Tool{}
             .name("debugger_step_in")
             .title("Step into")
             .description(
                 "Steps into the next function call in the debugger. "
+                "Pass wait_for_completion to wait until the target has stopped and its call stack and "
+                "local variables have been refreshed. "
                 "Requires an active debug session that is paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
-            .outputSchema(
-                Tool::OutputSchema{}
-                    .addProperty("message", QJsonObject{{"type", "string"}})
-                    .addRequired("message")),
-        [](const Schema::CallToolRequestParams &) -> Utils::Result<CallToolResult> {
-            const auto result = debuggerStepIn();
-            if (!result)
-                return CallToolResult{}.isError(true).addContent(TextContent{}.text(result.error()));
-            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"message", *result}});
+            .inputSchema(operationInputs(Tool::InputSchema{}))
+            .outputSchema(operationOutputs()),
+        [](const QJsonObject &args, const McpReply &reply) {
+            startOperation("step_in", OperationKind::Resume,
+                           [] { return debuggerStepIn(); }, args, reply);
         });
 
-    ToolRegistry::registerTool(
+    registerAsyncMcpTool(
         Tool{}
             .name("debugger_step_out")
             .title("Step out")
             .description(
                 "Steps out of the current function in the debugger. "
+                "Pass wait_for_completion to wait until the target has stopped and its call stack and "
+                "local variables have been refreshed. "
                 "Requires an active debug session that is paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
-            .outputSchema(
-                Tool::OutputSchema{}
-                    .addProperty("message", QJsonObject{{"type", "string"}})
-                    .addRequired("message")),
-        [](const Schema::CallToolRequestParams &) -> Utils::Result<CallToolResult> {
-            const auto result = debuggerStepOut();
-            if (!result)
-                return CallToolResult{}.isError(true).addContent(TextContent{}.text(result.error()));
-            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"message", *result}});
+            .inputSchema(operationInputs(Tool::InputSchema{}))
+            .outputSchema(operationOutputs()),
+        [](const QJsonObject &args, const McpReply &reply) {
+            startOperation("step_out", OperationKind::Resume,
+                           [] { return debuggerStepOut(); }, args, reply);
         });
 
-    ToolRegistry::registerTool(
+    registerAsyncMcpTool(
         Tool{}
             .name("debugger_continue")
             .title("Continue execution")
             .description(
                 "Resumes program execution in the debugger until the next breakpoint. "
+                "Pass wait_for_completion to wait until the target stops again. "
                 "Requires an active debug session that is paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
-            .outputSchema(
-                Tool::OutputSchema{}
-                    .addProperty("message", QJsonObject{{"type", "string"}})
-                    .addRequired("message")),
-        [](const Schema::CallToolRequestParams &) -> Utils::Result<CallToolResult> {
-            const auto result = debuggerContinue();
-            if (!result)
-                return CallToolResult{}.isError(true).addContent(TextContent{}.text(result.error()));
-            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"message", *result}});
+            .inputSchema(operationInputs(Tool::InputSchema{}))
+            .outputSchema(operationOutputs()),
+        [](const QJsonObject &args, const McpReply &reply) {
+            startOperation("continue", OperationKind::Resume,
+                           [] { return debuggerContinue(); }, args, reply);
         });
 
-    ToolRegistry::registerTool(
+    registerAsyncMcpTool(
         Tool{}
             .name("debugger_interrupt")
             .title("Pause execution")
             .description(
                 "Pauses the currently running debuggee. "
+                "Pass wait_for_completion to wait until the target has stopped and its call stack and "
+                "local variables have been refreshed. "
                 "Requires an active debug session that is running.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
-            .outputSchema(
-                Tool::OutputSchema{}
-                    .addProperty("message", QJsonObject{{"type", "string"}})
-                    .addRequired("message")),
-        [](const Schema::CallToolRequestParams &) -> Utils::Result<CallToolResult> {
-            const auto result = debuggerInterrupt();
-            if (!result)
-                return CallToolResult{}.isError(true).addContent(TextContent{}.text(result.error()));
-            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"message", *result}});
+            .inputSchema(operationInputs(Tool::InputSchema{}))
+            .outputSchema(operationOutputs()),
+        [](const QJsonObject &args, const McpReply &reply) {
+            startOperation("interrupt", OperationKind::Resume,
+                           [] { return debuggerInterrupt(); }, args, reply);
         });
 
-    ToolRegistry::registerTool(
+    registerAsyncMcpTool(
         Tool{}
             .name("debugger_run_to_line")
             .title("Run to line")
             .description(
                 "Resumes execution until it reaches the given 1-based line in the given file, "
-                "then stops (like the debugger's \"Run to Line\"). Requires an active debug "
+                "then stops (like the debugger's \"Run to Line\"). "
+                "Pass wait_for_completion to wait until the target has stopped. Requires an active debug "
                 "session that is paused and an engine that supports running to a line.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(operationInputs(Tool::InputSchema{})
+                             .addProperty(
+                                 "file",
+                                 QJsonObject{
+                                     {"type", "string"},
+                                     {"description", "Absolute path of the source file."}})
+                             .addProperty(
+                                 "line",
+                                 QJsonObject{
+                                     {"type", "integer"},
+                                     {"description", "1-based line to run to."}})
+                             .addRequired("file")
+                             .addRequired("line"))
+            .outputSchema(operationOutputs()),
+        [](const QJsonObject &args, const McpReply &reply) {
+            startOperation("run_to_line", OperationKind::Resume,
+                           [args] {
+                               return debuggerRunToLine(args.value("file").toString(),
+                                                        args.value("line").toInt());
+                           },
+                           args, reply);
+        });
+
+    registerAsyncMcpTool(
+        Tool{}
+            .name("debugger_wait_for_operation")
+            .title("Wait for a debugger operation")
+            .description(
+                "Reports the status of an operation started by a stepping, continue, interrupt, "
+                "run-to-line, thread selection or frame selection tool, waiting up to timeout_ms "
+                "for it to complete. With timeout_ms 0, reports the status without waiting. A "
+                "status of timed_out means the wait ended first: the operation is not cancelled.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
-                    .addProperty(
-                        "file",
-                        QJsonObject{
-                            {"type", "string"},
-                            {"description", "Absolute path of the source file."}})
-                    .addProperty(
-                        "line",
-                        QJsonObject{
-                            {"type", "integer"},
-                            {"description", "1-based line to run to."}})
-                    .addRequired("file")
-                    .addRequired("line"))
-            .outputSchema(
-                Tool::OutputSchema{}
-                    .addProperty("message", QJsonObject{{"type", "string"}})
-                    .addRequired("message")),
-        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
-            const QJsonObject args = params.argumentsAsObject();
-            const auto result = debuggerRunToLine(
-                args.value("file").toString(), args.value("line").toInt());
-            if (!result)
-                return CallToolResult{}.isError(true).addContent(TextContent{}.text(result.error()));
-            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"message", *result}});
+                    .addProperty("operation_id",
+                                 QJsonObject{{"type", "integer"},
+                                             {"description", "The operation_id an operation tool returned."}})
+                    .addProperty("timeout_ms", timeoutSchema(defaultOperationTimeoutMs))
+                    .addRequired("operation_id"))
+            .outputSchema(operationOutputs()),
+        [](const QJsonObject &args, const McpReply &reply) {
+            waitForOperation(args.value("operation_id").toInt(),
+                             timeoutArgument(args, defaultOperationTimeoutMs), reply);
         });
 
     ToolRegistry::registerTool(
@@ -1574,6 +2028,8 @@ void registerMcpTools()
                     .addProperty("is_paused", QJsonObject{{"type", "boolean"}})
                     .addProperty("is_running", QJsonObject{{"type", "boolean"}})
                     .addProperty("current_position", QJsonObject{{"type", "object"}})
+                    .addProperty("context", contextSchema())
+                    .addProperty("data_ready", QJsonObject{{"type", "object"}})
                     .addProperty("log", QJsonObject{{"type", "string"}})
                     .addRequired("has_session")
                     .addRequired("state")),

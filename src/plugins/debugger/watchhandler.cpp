@@ -69,6 +69,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <optional>
 #include <sstream>
 
 using namespace CPlusPlus;
@@ -597,6 +598,8 @@ public:
     QPointer<DebuggerEngine> m_engine; // Not owned.
 
     bool m_contentsValid;
+    // Set while a reset is pending, so that a run that fails can undo it.
+    std::optional<bool> m_contentsValidBeforeReset;
 
     WatchItem *m_localsRoot; // Not owned.
     WatchItem *m_inspectorRoot; // Not owned.
@@ -2420,6 +2423,7 @@ void WatchHandler::notifyUpdateStarted(const UpdateParameters &updateParameters)
 
     emit m_model->updateStarted();
     m_model->m_contentsValid = false;
+    m_model->m_contentsValidBeforeReset.reset();
     updateLocalsWindow();
 }
 
@@ -2456,6 +2460,7 @@ void WatchHandler::notifyUpdateFinished()
     m_model->setValueAnnotations(values);
 
     m_model->m_contentsValid = true;
+    m_model->m_contentsValidBeforeReset.reset();
     updateLocalsWindow();
     m_model->reexpandItems();
     emit m_model->updateFinished();
@@ -2473,7 +2478,9 @@ void WatchHandler::notifyUpdateAborted()
     // out with the spinner running forever. (QTCREATORBUG-33035)
     m_model->forAllItems([](WatchItem *item) { item->outdated = false; });
     m_model->m_contentsValid = true;
+    m_model->m_contentsValidBeforeReset.reset();
     updateLocalsWindow();
+    emit m_model->updateAborted();
     emit m_model->updateFinished();
 }
 
@@ -3017,7 +3024,21 @@ QString WatchModel::editorContents(const QModelIndexList &list)
 
 void WatchHandler::scheduleResetLocation()
 {
+    if (!m_model->m_contentsValidBeforeReset)
+        m_model->m_contentsValidBeforeReset = m_model->m_contentsValid;
     m_model->m_contentsValid = false;
+}
+
+void WatchHandler::cancelResetLocation()
+{
+    if (m_model->m_contentsValidBeforeReset)
+        m_model->m_contentsValid = *m_model->m_contentsValidBeforeReset;
+    m_model->m_contentsValidBeforeReset.reset();
+}
+
+void WatchHandler::commitResetLocation()
+{
+    m_model->m_contentsValidBeforeReset.reset();
 }
 
 void WatchHandler::setCurrentItem(const QString &iname)

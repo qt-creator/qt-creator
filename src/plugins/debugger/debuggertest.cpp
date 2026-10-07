@@ -22,6 +22,8 @@
 #include "debuggersourcepathmappingwidget.h"
 #include "enginemanager.h"
 #include "logwindow.h"
+#include "mcpsessionstate.h"
+#include "mcpsupport.h"
 #include "gdb/gdbengine.h"
 #include "genericdebuggerengine.h"
 #include "registerhandler.h"
@@ -65,6 +67,7 @@
 
 #include <QElapsedTimer>
 #include <QEventLoop>
+#include <QJsonArray>
 #include <QTest>
 #include <QTimer>
 #include <QVersionNumber>
@@ -151,12 +154,29 @@ private slots:
     void testStepsIntoACalledFunction();
     void testStepsOverACallWithoutEnteringIt();
     void testStepsOutOfACalledFunction();
+    void testMcpStepWaitsForTheNewStop_data();
+    void testMcpStepWaitsForTheNewStop();
+    void testMcpOperationIsNotCompleteBeforeTheStop_data();
+    void testMcpOperationIsNotCompleteBeforeTheStop();
+    void testMcpResumeThatFailsKeepsTheStop_data();
+    void testMcpResumeThatFailsKeepsTheStop();
+    void testMcpSelectFrameWaitsForItsLocals_data();
+    void testMcpSelectFrameWaitsForItsLocals();
+    void testMcpStackFollowsTheThreadThatStopped_data();
+    void testMcpStackFollowsTheThreadThatStopped();
+    void testMcpLocalsOutlastFramesAddedToTheStack_data();
+    void testMcpLocalsOutlastFramesAddedToTheStack();
+    void testMcpSelectFrameBeforeTheStopsLocals_data();
+    void testMcpSelectFrameBeforeTheStopsLocals();
+    void testMcpVariableFetchesItsChildren_data();
+    void testMcpVariableFetchesItsChildren();
     void testDisassemblyThatMissesTheAddressMarksNoLine();
     void testOnlyMachineCodeIsOfferedADisassembly();
     void testAnEmptyDisassemblyLeavesTheViewAlone();
     void testMissingSourceMessage();
     void testASkippedTopFrameNamesItsMissingSource();
     void testSkippedMachineryFramesStaySilent();
+    void testAFailedRunRestoresOnlyAPendingReset();
     void testTheDisassemblyMessageIsSaidOncePerStop();
 
     void testScratchEditorAdoptsSavedName();
@@ -2013,7 +2033,10 @@ int main()
 class SteppingSession
 {
 public:
-    SteppingSession()
+    explicit SteppingSession(const char *source = s_steppingSource,
+                             const QStringList &extraFlags = {})
+        : m_sourceText(source)
+        , m_extraFlags(extraFlags)
     {
         // Nothing here can answer a dialog, and the engine puts one up for a
         // breakpoint it cannot place. A breakpoint that does not take shows
@@ -2049,7 +2072,7 @@ public:
         const FilePath dir = FilePath::fromString(m_dir.path());
         m_source = dir / "stepping.cpp";
         m_executable = (dir / "stepping").withExecutableSuffix();
-        if (!m_source.writeFileContents(QByteArray(s_steppingSource)))
+        if (!m_source.writeFileContents(m_sourceText))
             return "could not write " + m_source.toUserOutput();
 
         m_line = markerLine(marker);
@@ -2058,8 +2081,9 @@ public:
 
         Process compiler;
         compiler.setCommand({toolchain->compilerCommand(),
-                             {"-g", "-O0", m_source.nativePath(),
-                              "-o", m_executable.nativePath()}});
+                             QStringList{"-g", "-O0", m_source.nativePath(),
+                                         "-o", m_executable.nativePath()}
+                                 + m_extraFlags});
         compiler.runBlocking(std::chrono::seconds(60));
         if (compiler.exitCode() != 0 || !m_executable.isExecutableFile())
             return "the inferior would not build: " + compiler.allOutput().left(300);
@@ -2112,11 +2136,12 @@ public:
     }
 
     DebuggerEngine *engine() const { return m_engine; }
+    FilePath source() const { return m_source; }
     int line() const { return m_line; }
 
     int markerLine(const QString &marker) const
     {
-        const QStringList lines = QString::fromUtf8(s_steppingSource).split('\n');
+        const QStringList lines = QString::fromUtf8(m_sourceText).split('\n');
         for (int i = 0; i < lines.size(); ++i) {
             if (lines.at(i).contains(marker))
                 return i + 1;
@@ -2125,6 +2150,8 @@ public:
     }
 
 private:
+    QByteArray m_sourceText;
+    QStringList m_extraFlags;
     QTemporaryDir m_dir;
     FilePath m_source;
     FilePath m_executable;
@@ -2241,6 +2268,410 @@ void DebuggerUnitTests::testStepsOutOfACalledFunction()
     QVERIFY2(frame.function.startsWith("main"),
              qPrintable(QString("stepping out of addOne landed in %1:%2")
                             .arg(frame.function).arg(frame.line)));
+}
+
+// Calls a debugger MCP tool and waits for its answer. Some tools wait for the
+// debugger themselves, so the answer can take as long as a step does.
+static Result<QJsonObject> callDebuggerTool(const QString &name, const QJsonObject &args = {})
+{
+    auto answer = std::make_shared<std::optional<Result<QJsonObject>>>();
+    callMcpToolForTests(name, args, [answer](Result<QJsonObject> result) { *answer = result; });
+    if (!QTest::qWaitFor([answer] { return answer->has_value(); }, 60000))
+        return ResultError(QString("The tool \"%1\" never answered.").arg(name));
+    return **answer;
+}
+
+// QVERIFY2 evaluates its message on success too.
+static QString errorOf(const Result<QJsonObject> &result)
+{
+    return result ? QString() : result.error();
+}
+
+static int stopIdOf(const QJsonObject &result)
+{
+    return result.value("context").toObject().value("stop_id").toInt(-1);
+}
+
+static QString threadIdOf(const QJsonObject &result)
+{
+    return result.value("context").toObject().value("thread_id").toString();
+}
+
+static QJsonObject variableNamed(const QJsonObject &variables, const QString &name)
+{
+    for (const QJsonValue &v : variables.value("variables").toArray()) {
+        if (v.toObject().value("name").toString() == name)
+            return v.toObject();
+    }
+    return {};
+}
+
+// Puts either the engine's own implementation or the generic front end under
+// test, and says why not if the environment has decided that already.
+class BackendUnderTest
+{
+public:
+    explicit BackendUnderTest(bool generic)
+        : m_wasOn(commonSettings().useGenericDebugger())
+    {
+        if (isUseGenericDebuggerOverride() && useGenericDebuggerEnabled() != generic)
+            m_reason = "QTC_USE_GENERIC_DEBUGGER decides which backends run.";
+        commonSettings().useGenericDebugger.setValue(generic);
+    }
+    ~BackendUnderTest() { commonSettings().useGenericDebugger.setValue(m_wasOn); }
+
+    QString reasonItIsNotUnderTest() const { return m_reason; }
+
+private:
+    bool m_wasOn = false;
+    QString m_reason;
+};
+
+static void addBackendRows()
+{
+    QTest::addColumn<bool>("generic");
+    QTest::newRow("engine") << false;
+    QTest::newRow("generic") << true;
+}
+
+void DebuggerUnitTests::testMcpStepWaitsForTheNewStop_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpStepWaitsForTheNewStop()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: at-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> before = callDebuggerTool("debugger_get_call_stack");
+    QVERIFY2(before, qPrintable(errorOf(before)));
+    const int stopBefore = stopIdOf(*before);
+    QVERIFY(stopBefore > 0);
+
+    const Result<QJsonObject> step
+        = callDebuggerTool("debugger_step_over", {{"wait_for_completion", true}});
+    QVERIFY2(step, qPrintable(errorOf(step)));
+    QCOMPARE(step->value("status").toString(), QString("completed"));
+    QCOMPARE(stopIdOf(*step), stopBefore + 1);
+
+    // Completed means the data is there: nothing more to wait for.
+    const Result<QJsonObject> stack
+        = callDebuggerTool("debugger_get_call_stack", {{"timeout_ms", 0}});
+    QVERIFY2(stack, qPrintable(errorOf(stack)));
+    QCOMPARE(stopIdOf(*stack), stopBefore + 1);
+    const QJsonObject top = stack->value("frames").toArray().first().toObject();
+    QCOMPARE(top.value("line").toInt(), session.markerLine("MARKER: after-call"));
+
+    const Result<QJsonObject> variables
+        = callDebuggerTool("debugger_get_variables", {{"timeout_ms", 0}});
+    QVERIFY2(variables, qPrintable(errorOf(variables)));
+    QCOMPARE(stopIdOf(*variables), stopBefore + 1);
+    QCOMPARE(variableNamed(*variables, "second").value("value").toString(), QString("2"));
+}
+
+void DebuggerUnitTests::testMcpOperationIsNotCompleteBeforeTheStop_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpOperationIsNotCompleteBeforeTheStop()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: at-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    // These answer without returning to the event loop, so the step cannot
+    // have finished in between. Should one not answer right away, its answer
+    // comes after this function has returned.
+    const auto step = std::make_shared<std::optional<Result<QJsonObject>>>();
+    callMcpToolForTests("debugger_step_over", {},
+                        [step](Result<QJsonObject> result) { *step = result; });
+    QVERIFY(step->has_value() && **step);
+    const QString status = (**step)->value("status").toString();
+    QVERIFY2(status == "accepted" || status == "in_progress", qPrintable(status));
+
+    const auto early = std::make_shared<std::optional<Result<QJsonObject>>>();
+    callMcpToolForTests("debugger_get_call_stack", {{"timeout_ms", 0}},
+                        [early](Result<QJsonObject> result) { *early = result; });
+    QVERIFY(early->has_value());
+    QVERIFY2(!**early, "the stack of the stop before the step was presented as current");
+
+    const int id = (**step)->value("operation_id").toInt();
+    const Result<QJsonObject> waited
+        = callDebuggerTool("debugger_wait_for_operation", {{"operation_id", id}});
+    QVERIFY2(waited, qPrintable(errorOf(waited)));
+    QCOMPARE(waited->value("status").toString(), QString("completed"));
+    QCOMPARE(waited->value("operation_id").toInt(), id);
+}
+
+void DebuggerUnitTests::testMcpResumeThatFailsKeepsTheStop_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpResumeThatFailsKeepsTheStop()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: at-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+    // gdb has no frame above main to finish into, the others step out into
+    // the runtime that called it.
+    if (!session.engine()->debuggerName().startsWith("GDB"))
+        QSKIP("Only gdb refuses to step out of main.");
+
+    const Result<QJsonObject> before = callDebuggerTool("debugger_get_call_stack");
+    QVERIFY2(before, qPrintable(errorOf(before)));
+
+    const Result<QJsonObject> step
+        = callDebuggerTool("debugger_step_out", {{"wait_for_completion", true}});
+    QVERIFY2(step, qPrintable(errorOf(step)));
+    QCOMPARE(step->value("status").toString(), QString("failed"));
+
+    const Result<QJsonObject> after
+        = callDebuggerTool("debugger_get_call_stack", {{"timeout_ms", 0}});
+    QVERIFY2(after, qPrintable(errorOf(after)));
+    QCOMPARE(stopIdOf(*after), stopIdOf(*before));
+}
+
+void DebuggerUnitTests::testMcpSelectFrameWaitsForItsLocals_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpSelectFrameWaitsForItsLocals()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: in-callee");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> inCallee = callDebuggerTool("debugger_get_variables");
+    QVERIFY2(inCallee, qPrintable(errorOf(inCallee)));
+    QVERIFY(!variableNamed(*inCallee, "value").isEmpty());
+
+    const Result<QJsonObject> select
+        = callDebuggerTool("debugger_select_frame", {{"level", 1}, {"wait_for_completion", true}});
+    QVERIFY2(select, qPrintable(errorOf(select)));
+    QCOMPARE(select->value("status").toString(), QString("completed"));
+    QCOMPARE(select->value("context").toObject().value("frame_level").toInt(), 1);
+
+    const Result<QJsonObject> inCaller
+        = callDebuggerTool("debugger_get_variables", {{"timeout_ms", 0}});
+    QVERIFY2(inCaller, qPrintable(errorOf(inCaller)));
+    QCOMPARE(inCaller->value("context").toObject().value("frame_level").toInt(), 1);
+    QVERIFY(!variableNamed(*inCaller, "first").isEmpty());
+    QVERIFY(variableNamed(*inCaller, "value").isEmpty());
+}
+
+void DebuggerUnitTests::testMcpSelectFrameBeforeTheStopsLocals_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpSelectFrameBeforeTheStopsLocals()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: in-callee");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    // The locals of frame 0 can still be on their way, and when they arrive,
+    // frame 1 is current. They must not pass for the locals of frame 1.
+    McpSessionState *state = McpSessionState::forEngine(session.engine());
+    WatchHandler *watch = session.engine()->watchHandler();
+    QStringList passedForCurrent;
+    QObject receiver;
+    QObject::connect(watch->model(), &WatchModelBase::updateFinished, &receiver, [&] {
+        if (state->isLocalsReady() && !watch->findItem("local.first"))
+            passedForCurrent.append(state->context().value("frame_level").toVariant().toString());
+    });
+
+    const Result<QJsonObject> select
+        = callDebuggerTool("debugger_select_frame", {{"level", 1}, {"wait_for_completion", true}});
+    QVERIFY2(select, qPrintable(errorOf(select)));
+    QCOMPARE(select->value("status").toString(), QString("completed"));
+    QVERIFY2(passedForCurrent.isEmpty(),
+             qPrintable("locals without \"first\" passed for frame "
+                        + passedForCurrent.join(", ")));
+
+    const Result<QJsonObject> inCaller
+        = callDebuggerTool("debugger_get_variables", {{"timeout_ms", 0}});
+    QVERIFY2(inCaller, qPrintable(errorOf(inCaller)));
+    QCOMPARE(inCaller->value("context").toObject().value("frame_level").toInt(), 1);
+    QVERIFY(!variableNamed(*inCaller, "first").isEmpty());
+}
+
+void DebuggerUnitTests::testMcpLocalsOutlastFramesAddedToTheStack_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpLocalsOutlastFramesAddedToTheStack()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: in-callee");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> before = callDebuggerTool("debugger_get_variables");
+    QVERIFY2(before, qPrintable(errorOf(before)));
+
+    // As "Load QML Stack" does: the same stop and the same frame, in another row.
+    StackFrame qmlFrame;
+    qmlFrame.function = "onClicked";
+    session.engine()->stackHandler()->prependFrames({qmlFrame});
+
+    const Result<QJsonObject> after
+        = callDebuggerTool("debugger_get_variables", {{"timeout_ms", 0}});
+    QVERIFY2(after, qPrintable(errorOf(after)));
+    QCOMPARE(stopIdOf(*after), stopIdOf(*before));
+    QVERIFY(!variableNamed(*after, "value").isEmpty());
+}
+
+// A second thread that stops while the first one waits for it.
+static const char s_threadSource[] = R"CPP(
+#include <thread>
+
+static int twice(int value)
+{
+    int doubled = value * 2; // MARKER: in-thread
+    return doubled;
+}
+
+int main()
+{
+    int result = 0;
+    int start = 1; // MARKER: before-thread
+    std::thread worker([&result, start] { result = twice(start); });
+    worker.join();
+    return result - 2;
+}
+)CPP";
+
+void DebuggerUnitTests::testMcpStackFollowsTheThreadThatStopped_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpStackFollowsTheThreadThatStopped()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session(s_threadSource, {"-pthread"});
+    const QString problem = session.start("MARKER: before-thread");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> inMain = callDebuggerTool("debugger_get_call_stack");
+    QVERIFY2(inMain, qPrintable(errorOf(inMain)));
+    const QString mainThread = threadIdOf(*inMain);
+    QVERIFY(!mainThread.isEmpty());
+
+    // The stop is in a thread other than the one of the stop before.
+    const int workerLine = session.markerLine("MARKER: in-thread");
+    const Result<QJsonObject> run
+        = callDebuggerTool("debugger_run_to_line", {{"file", session.source().path()},
+                                                    {"line", workerLine},
+                                                    {"wait_for_completion", true}});
+    QVERIFY2(run, qPrintable(errorOf(run)));
+    QCOMPARE(run->value("status").toString(), QString("completed"));
+    const QString workerThread = threadIdOf(*run);
+    QVERIFY(!workerThread.isEmpty());
+    QVERIFY(workerThread != mainThread);
+
+    const Result<QJsonObject> inWorker
+        = callDebuggerTool("debugger_get_call_stack", {{"timeout_ms", 0}});
+    QVERIFY2(inWorker, qPrintable(errorOf(inWorker)));
+    QCOMPARE(threadIdOf(*inWorker), workerThread);
+    const QJsonObject top = inWorker->value("frames").toArray().first().toObject();
+    QCOMPARE(top.value("line").toInt(), workerLine);
+
+    const Result<QJsonObject> select
+        = callDebuggerTool("debugger_select_thread",
+                           {{"id", mainThread}, {"wait_for_completion", true}});
+    QVERIFY2(select, qPrintable(errorOf(select)));
+    QCOMPARE(select->value("status").toString(), QString("completed"));
+    QCOMPARE(threadIdOf(*select), mainThread);
+
+    const Result<QJsonObject> backInMain
+        = callDebuggerTool("debugger_get_call_stack", {{"timeout_ms", 0}});
+    QVERIFY2(backInMain, qPrintable(errorOf(backInMain)));
+    QCOMPARE(threadIdOf(*backInMain), mainThread);
+    for (const QJsonValue &frame : backInMain->value("frames").toArray())
+        QVERIFY(!frame.toObject().value("function").toString().startsWith("twice"));
+}
+
+// A local whose members are fetched only when asked for.
+static const char s_structSource[] = R"CPP(
+struct Pair { int first; int second; };
+
+int main()
+{
+    Pair pair{1, 2};
+    int sum = pair.first + pair.second; // MARKER: struct
+    return sum;
+}
+)CPP";
+
+void DebuggerUnitTests::testMcpVariableFetchesItsChildren_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpVariableFetchesItsChildren()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session(s_structSource);
+    const QString problem = session.start("MARKER: struct");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> locals = callDebuggerTool("debugger_get_variables");
+    QVERIFY2(locals, qPrintable(errorOf(locals)));
+    const QJsonObject pair = variableNamed(*locals, "pair");
+    QVERIFY2(pair.value("has_children").toBool() && !pair.contains("children"),
+             QJsonDocument(pair).toJson(QJsonDocument::Compact).constData());
+
+    const Result<QJsonObject> fetched = callDebuggerTool(
+        "debugger_get_variable", {{"iname", pair.value("iname")}});
+    QVERIFY2(fetched, qPrintable(errorOf(fetched)));
+    const QJsonArray children = fetched->value("variable").toObject().value("children").toArray();
+    QCOMPARE(children.size(), 2);
+    QCOMPARE(children.at(1).toObject().value("value").toString(), QString("2"));
 }
 
 static QStringList s_capturedMessages;
@@ -2404,6 +2835,37 @@ void DebuggerUnitTests::testSkippedMachineryFramesStaySilent()
                                        .arg(engine->logWindow()->inputContents()
                                                 .mid(before.size()))));
     }
+}
+
+void DebuggerUnitTests::testAFailedRunRestoresOnlyAPendingReset()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard cleanup([engine] { delete engine; });
+    engine->setRunParameters({});
+    StackHandler *stack = engine->stackHandler();
+
+    // The frames of the stop the run reached complete the reset.
+    stack->scheduleResetLocation();
+    stack->setFramesAndCurrentIndex(
+        stackReply({R"({level="0",function="main",file="/src/main.cpp",usable="1"})"}), true);
+    QVERIFY(stack->isContentsValid());
+
+    // A run that did not reset anything has nothing to restore.
+    stack->cancelResetLocation();
+    QVERIFY(stack->isContentsValid());
+
+    stack->scheduleResetLocation();
+    QVERIFY(!stack->isContentsValid());
+    stack->cancelResetLocation();
+    QVERIFY(stack->isContentsValid());
+
+    // Once the target ran, a later failed run does not bring back the stack
+    // of the stop before.
+    stack->scheduleResetLocation();
+    stack->commitResetLocation();
+    stack->cancelResetLocation();
+    QVERIFY(!stack->isContentsValid());
 }
 
 void DebuggerUnitTests::testTheDisassemblyMessageIsSaidOncePerStop()

@@ -972,10 +972,6 @@ void BridgeEngine::handleStackTraceResponse(const QJsonObject &response)
 void BridgeEngine::handleThreadsResponse(const QJsonObject &response)
 {
     const QJsonArray threads = response.value("body").toObject().value("threads").toArray();
-
-    if (threads.isEmpty())
-        return;
-
     ThreadsHandler *handler = threadsHandler();
     for (const QJsonValueConstRef &thread : threads) {
         ThreadData threadData;
@@ -989,6 +985,7 @@ void BridgeEngine::handleThreadsResponse(const QJsonObject &response)
         if (thread && thread != threadsHandler()->currentThread())
             handler->setCurrentThread(thread);
     }
+    handler->notifyThreadsReported();
 }
 
 void BridgeEngine::handleFetchVariablesResponse(const QJsonObject &response)

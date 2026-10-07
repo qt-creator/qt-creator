@@ -224,12 +224,19 @@ bool StackHandler::operatesByInstruction() const
 
 void StackHandler::setFrames(const StackFrames &frames, bool canExpand)
 {
+    replaceFrames(frames, canExpand);
+    emit framesReported();
+}
+
+void StackHandler::replaceFrames(const StackFrames &frames, bool canExpand)
+{
     auto threadItem = dummyThreadItem();
     QTC_ASSERT(threadItem, return);
 
     threadItem->removeChildren();
 
     m_contentsValid = true;
+    m_contentsValidBeforeReset.reset();
     m_canExpand = canExpand;
 
     int row = 0;
@@ -394,7 +401,7 @@ void StackHandler::rebuildStackFrames()
     if (settings().collapseMachineryFrames())
         frames = collapseMachinery(frames, m_expandedMachineryRuns);
 
-    setFrames(frames, m_canExpand);
+    replaceFrames(frames, m_canExpand);
 
     if (currentAddress) {
         for (int i = 0, n = stackSize(); i != n; ++i) {
@@ -419,7 +426,21 @@ int StackHandler::firstUsableIndex() const
 
 void StackHandler::scheduleResetLocation()
 {
+    if (!m_contentsValidBeforeReset)
+        m_contentsValidBeforeReset = m_contentsValid;
     m_contentsValid = false;
+}
+
+void StackHandler::cancelResetLocation()
+{
+    if (m_contentsValidBeforeReset)
+        m_contentsValid = *m_contentsValidBeforeReset;
+    m_contentsValidBeforeReset.reset();
+}
+
+void StackHandler::commitResetLocation()
+{
+    m_contentsValidBeforeReset.reset();
 }
 
 void StackHandler::resetLocation()

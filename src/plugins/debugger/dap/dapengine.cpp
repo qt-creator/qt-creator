@@ -733,10 +733,6 @@ void DapEngine::handleScopesResponse(const QJsonObject &response)
 void DapEngine::handleThreadsResponse(const QJsonObject &response)
 {
     const QJsonArray threads = response.value("body").toObject().value("threads").toArray();
-
-    if (threads.isEmpty())
-        return;
-
     ThreadsHandler *handler = threadsHandler();
     for (const QJsonValueConstRef &thread : threads) {
         ThreadData threadData;
@@ -750,6 +746,7 @@ void DapEngine::handleThreadsResponse(const QJsonObject &response)
         if (thread && thread != threadsHandler()->currentThread())
             handler->setCurrentThread(thread);
     }
+    handler->notifyThreadsReported();
 }
 
 void DapEngine::handleEvaluateResponse(const QJsonObject &response)
