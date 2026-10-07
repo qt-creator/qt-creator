@@ -2053,8 +2053,6 @@ static QString preCheckStepTests(Kit **kit = nullptr, Toolchain **toolchain = nu
     if (!usableKit)
         return "no kit of this machine's own architecture to build with";
     Toolchain *usedToolchain = ToolchainKitAspect::cxxToolchain(usableKit);
-    if (usedToolchain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
-        return "building the inferior is only wired up for gcc-style compilers";
     if (kit)
         *kit = usableKit;
     if (toolchain)
@@ -2107,6 +2105,10 @@ public:
         }
         if (m_breakpoint)
             m_breakpoint->deleteBreakpoint();
+        for (const GlobalBreakpoint &other : std::as_const(m_disabledBreakpoints)) {
+            if (other)
+                other->setEnabled(true);
+        }
     }
 
     // Empty when the session is up, otherwise why it is not.
@@ -2142,13 +2144,35 @@ public:
             return "no line marked " + marker;
 
         Process compiler;
-        compiler.setCommand({toolchain->compilerCommand(),
-                             QStringList{"-g", "-O0", m_source.nativePath(),
-                                         "-o", m_executable.nativePath()}
-                                 + m_extraFlags});
+        if (toolchain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
+            // cl needs the environment of its Visual Studio installation, and
+            // its own spelling of what the gcc-style flags say.
+            Environment env = Environment::systemEnvironment();
+            toolchain->addToEnvironment(env);
+            compiler.setEnvironment(env);
+            compiler.setWorkingDirectory(dir);
+            compiler.setCommand({toolchain->compilerCommand(),
+                                 {"/nologo", "/Zi", "/Od", "/EHsc", "/std:c++17",
+                                  m_source.nativePath(), "/Fe" + m_executable.nativePath(),
+                                  "/link", "/DEBUG"}});
+        } else {
+            compiler.setCommand({toolchain->compilerCommand(),
+                                 QStringList{"-g", "-O0", m_source.nativePath(),
+                                             "-o", m_executable.nativePath()}
+                                     + m_extraFlags});
+        }
         compiler.runBlocking(std::chrono::seconds(60));
         if (compiler.exitCode() != 0 || !m_executable.isExecutableFile())
             return "the inferior would not build: " + compiler.allOutput().left(300);
+
+        // The session the tests run in may hold breakpoints of its own, and
+        // CDB takes one on a file of the same name elsewhere for this one.
+        for (const GlobalBreakpoint &other : BreakpointManager::globalBreakpoints()) {
+            if (other && other->isEnabled()) {
+                other->setEnabled(false);
+                m_disabledBreakpoints.append(other);
+            }
+        }
 
         BreakpointParameters params;
         params.type = BreakpointByFileAndLine;
@@ -2230,6 +2254,7 @@ private:
     bool m_stopped = false;
     QPointer<DebuggerEngine> m_engine;
     GlobalBreakpoint m_breakpoint;
+    GlobalBreakpoints m_disabledBreakpoints;
     bool m_warnedAboutBreakpoints = false;
     bool m_gdbDap = false;
     QString m_skipReason;
@@ -2269,8 +2294,12 @@ void DebuggerUnitTests::testStepsIntoACalledFunction()
 {
     if (const QString reason = reasonTheGenericBackendsAreNotUnderTest(); !reason.isEmpty())
         QSKIP(qPrintable(reason));
-    if (const QString reason = preCheckStepTests(); !reason.isEmpty())
+    Toolchain *toolchain = nullptr;
+    if (const QString reason = preCheckStepTests(nullptr, &toolchain); !reason.isEmpty())
         QSKIP(qPrintable(reason));
+    if (toolchain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        QSKIP("MSVC puts the start of a function on its opening brace, which is where "
+              "stepping in stops, not on the line after it.");
 
     const bool wasOn = commonSettings().useGenericDebugger();
     commonSettings().useGenericDebugger.setValue(true);
