@@ -69,8 +69,21 @@ QtcPlugin {
         "pxnodecontroller.h",
         "pxnodeutilities.cpp",
         "pxnodeutilities.h",
-        "resources/modeleditor.qrc",
         "uicontroller.cpp",
         "uicontroller.h",
     ]
+
+    Group {
+        name: "runtime resources"
+        prefix: "resources/"
+        fileTags: "qt.core.resource_data"
+        Qt.core.resourceSourceBase: sourceDirectory + "/resources"
+        files: [
+            "up.png",
+            "wizards/modeling/model/file.qmodel",
+            "wizards/modeling/model/wizard.json",
+            "wizards/modeling/scratch/file.qmodel",
+            "wizards/modeling/scratch/wizard.json",
+        ]
+    }
 }

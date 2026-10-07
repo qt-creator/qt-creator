@@ -26,9 +26,19 @@ add_qtc_plugin(ModelEditor
     packageviewcontroller.cpp packageviewcontroller.h
     pxnodecontroller.cpp pxnodecontroller.h
     pxnodeutilities.cpp pxnodeutilities.h
-    resources/modeleditor.qrc
     uicontroller.cpp uicontroller.h
   EXPLICIT_MOC
     actionhandler.h
     modeleditor.h
+)
+
+qtc_add_resources(ModelEditor "resources"
+  PREFIX "/modeleditor"
+  BASE "./resources"
+  FILES
+    up.png
+    wizards/modeling/model/file.qmodel
+    wizards/modeling/model/wizard.json
+    wizards/modeling/scratch/file.qmodel
+    wizards/modeling/scratch/wizard.json
 )
