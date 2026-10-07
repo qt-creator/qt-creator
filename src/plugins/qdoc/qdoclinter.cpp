@@ -30,14 +30,14 @@ const QList<Rule> &ruleTable()
         {"deprecated-command", RuleLevel::Info,
          Tr::tr("A command QDoc still accepts but advises replacing, such as \\bold")},
         {"unterminated-block", RuleLevel::Error,
-         Tr::tr("A missing '}', \\endcode, \\endlist or other terminator")},
+         Tr::tr("A missing \"}\", \\endcode, \\endlist or other terminator")},
         {"misplaced-command", RuleLevel::Warning,
          Tr::tr("\\li outside a list or table, a stray \\end..., \\target outside a cell")},
         {"invalid-argument", RuleLevel::Warning,
          Tr::tr("A command argument QDoc cannot use, or a required one that is missing")},
         {"list-style", RuleLevel::Warning, Tr::tr("An unrecognized \\list style hint")},
         {"sa-missing-comma", RuleLevel::Warning,
-         Tr::tr("\\sa entries must be separated by commas")},
+         Tr::tr("\\sa entries not separated by commas")},
         {"sa-trailing-punctuation", RuleLevel::Hint,
          Tr::tr("A full stop closing a \\sa list, which QDoc drops and then reports as a "
                 "missing comma")},
@@ -109,9 +109,9 @@ QDocSettings::QDocSettings()
     suppressedByConfig.setSettingsKey("SuppressedByConfig");
     suppressedByConfig.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     suppressedByConfig.setLabelText(Tr::tr("Warnings the .qdocconf silences:"));
-    suppressedByConfig.addOption(Tr::tr("Report one level quieter"));
-    suppressedByConfig.addOption(Tr::tr("Report as usual"));
-    suppressedByConfig.addOption(Tr::tr("Do not report"));
+    suppressedByConfig.addOption(Tr::tr("Report One Level Quieter"));
+    suppressedByConfig.addOption(Tr::tr("Report as Usual"));
+    suppressedByConfig.addOption(Tr::tr("Do Not Report"));
     suppressedByConfig.setDefaultValue(0);
 
     for (const Rule &rule : ruleTable()) {
@@ -254,7 +254,7 @@ void updateDiagnostics(const FilePath &file,
         if (synthetic)
             notes.append(Tr::tr("in text pulled in by a macro or \\include"));
         if (suppressed)
-            notes.append(Tr::tr("silenced by spurious in the .qdocconf"));
+            notes.append(Tr::tr("silenced by \"spurious\" in the .qdocconf"));
         const QString text = notes.isEmpty()
                                  ? message
                                  : QString("%1 (%2)").arg(message, notes.join("; "));
@@ -497,16 +497,16 @@ private slots:
                           context);
         QCOMPARE(ownTasks().size(), 1);
         QCOMPARE(ownTasks().first().type(), ProjectExplorer::Task::Unknown);
-        QVERIFY(ownTasks().first().description().contains("silenced by spurious"));
+        QVERIFY(ownTasks().first().description().contains("silenced by \"spurious\""));
 
-        settings().suppressedByConfig.setValue(2); // Do not report
+        settings().suppressedByConfig.setValue(2); // Do Not Report
         m_added.clear();
         updateDiagnostics(file(),
                           {problem("Missing comma in '\\sa'", "sa-missing-comma", 4)},
                           context);
         QCOMPARE(ownTasks().size(), 0);
 
-        settings().suppressedByConfig.setValue(1); // Report as usual
+        settings().suppressedByConfig.setValue(1); // Report as Usual
         m_added.clear();
         updateDiagnostics(file(),
                           {problem("Missing comma in '\\sa'", "sa-missing-comma", 4)},

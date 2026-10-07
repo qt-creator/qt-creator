@@ -39,14 +39,15 @@ TypingSettings::TypingSettings()
     smartBackspaceBehavior.addOption(Tr::tr("Unindents"));
     smartBackspaceBehavior.setDefaultValue(TypingSettingsData::BackspaceUnindents);
     smartBackspaceBehavior.setLabelText(Tr::tr("Backspace indentation:"));
-    smartBackspaceBehavior.setToolTip(Tr::tr(
-        "<p>Specifies how backspace interacts with indentation.</p>\n"
-        "<ul>\n"
-        "<li>None: No interaction at all. Regular plain backspace behavior.</li>\n"
-        "<li>Follows Previous Indents: In leading white space it will take the cursor back "
-        "to the nearest indentation level used in previous lines.</li>\n"
-        "<li>Unindents: If the character behind the cursor is a space it behaves as a backtab.</li>\n"
-        "</ul>"));
+    smartBackspaceBehavior.setToolTip(
+        "<p>" + Tr::tr("Specifies how backspace interacts with indentation.") + "</p><ul><li>"
+        + Tr::tr("None: No interaction at all. Regular plain backspace behavior.") + "</li><li>"
+        + Tr::tr("Follows Previous Indents: In leading whitespace, moves the cursor back to "
+                 "the nearest indentation level used in previous lines.")
+        + "</li><li>"
+        + Tr::tr("Unindents: If the character behind the cursor is a space, works like "
+                 "Backtab.")
+        + "</li></ul>");
 
     preferSingleLineComments.setSettingsKey("PreferSingleLineComments");
     preferSingleLineComments.setDefaultValue(false);
