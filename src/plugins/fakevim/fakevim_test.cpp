@@ -29615,7 +29615,7 @@ void FakeVimTester::test_vim_function_undotree_branches()
     message.clear();
     data.doCommand("undo 3");
     QCOMPARE(message,
-             QLatin1String("Undo number 3 is on a branch this editor does not keep"));
+             QLatin1String("Undo number 3 is on a branch that is not kept"));
     QCOMPARE(value("undotree().seq_cur"), QLatin1String("6"));
     message.clear();
     data.doCommand("undo 7");

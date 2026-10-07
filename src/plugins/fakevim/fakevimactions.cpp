@@ -228,7 +228,7 @@ FakeVimSettings::FakeVimSettings()
         "mapped key sequence (Vim timeoutlen option)."));
     cursorFlashTime.setRange(0, 5000);
     cursorFlashTime.setToolTip(Tr::tr("Blink period of the text cursor in milliseconds. "
-        "0 uses the system default. Only used while the cursor is blinking."));
+        "A value of 0 uses the system default. Only used while the cursor is blinking."));
     backspace.setDisplayStyle(FvStringAspect::LineEditDisplay);
     isKeyword.setDisplayStyle(FvStringAspect::LineEditDisplay);
     tabOut.setDisplayStyle(FvStringAspect::LineEditDisplay);

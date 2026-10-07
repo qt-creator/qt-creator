@@ -8209,31 +8209,44 @@ void FakeVimHandler::Private::reportLineChange(LineChange what, int lines, int t
     if (lines <= s.report())
         return;
 
+    // Vim words the count of one differently, so it gets a string of its own.
     const bool one = lines == 1;
     QString msg;
     switch (what) {
     case LinesDeleted:
-        msg = one ? Tr::tr("1 line less") : Tr::tr("%1 fewer lines").arg(lines);
+        msg = one ? Tr::tr("1 line less") : Tr::tr("%n fewer lines", nullptr, lines);
         break;
     case LinesYanked:
-        msg = one ? Tr::tr("1 line yanked") : Tr::tr("%1 lines yanked").arg(lines);
+        msg = one ? Tr::tr("1 line yanked") : Tr::tr("%n lines yanked", nullptr, lines);
         break;
     case LinesAdded:
-        msg = one ? Tr::tr("1 more line") : Tr::tr("%1 more lines").arg(lines);
+        msg = one ? Tr::tr("1 more line") : Tr::tr("%n more lines", nullptr, lines);
         break;
     case LinesMoved:
-        msg = one ? Tr::tr("1 line moved") : Tr::tr("%1 lines moved").arg(lines);
+        msg = one ? Tr::tr("1 line moved") : Tr::tr("%n lines moved", nullptr, lines);
         break;
     case LinesFiltered:
-        msg = one ? Tr::tr("1 line filtered") : Tr::tr("%1 lines filtered").arg(lines);
+        msg = one ? Tr::tr("1 line filtered") : Tr::tr("%n lines filtered", nullptr, lines);
         break;
     case LinesShiftedRight:
-    case LinesShiftedLeft:
-        msg = Tr::tr("%1 %2ed %3")
-                  .arg(one ? Tr::tr("1 line") : Tr::tr("%1 lines").arg(lines),
-                       what == LinesShiftedRight ? QLatin1String(">") : QLatin1String("<"),
-                       times == 1 ? Tr::tr("1 time") : Tr::tr("%1 times").arg(times));
+    case LinesShiftedLeft: {
+        const QString timesText = times == 1 ? Tr::tr("1 time")
+                                             : Tr::tr("%n times", nullptr, times);
+        if (what == LinesShiftedRight) {
+            msg = one
+                ? //: Vim's report of a ">" shift. %1 is "1 time" or "%n times".
+                  Tr::tr("1 line >ed %1").arg(timesText)
+                : //: Vim's report of a ">" shift. %1 is "1 time" or "%n times".
+                  Tr::tr("%n lines >ed %1", nullptr, lines).arg(timesText);
+        } else {
+            msg = one
+                ? //: Vim's report of a "<" shift. %1 is "1 time" or "%n times".
+                  Tr::tr("1 line <ed %1").arg(timesText)
+                : //: Vim's report of a "<" shift. %1 is "1 time" or "%n times".
+                  Tr::tr("%n lines <ed %1", nullptr, lines).arg(timesText);
+        }
         break;
+    }
     }
     g.statusMessage = msg;
     showMessage(MessageInfo, msg);
@@ -8258,7 +8271,7 @@ void FakeVimHandler::Private::showFileInfo()
     if (!flags.isEmpty())
         msg += ' ' + flags;
     if (s.ruler()) {
-        msg += lines == 1 ? Tr::tr(" 1 line") : Tr::tr(" %1 lines").arg(lines);
+        msg += ' ' + (lines == 1 ? Tr::tr("1 line") : Tr::tr("%n lines", nullptr, lines));
         msg += QString(" --%1%--").arg(lines > 0 ? line * 100 / lines : 0);
     } else {
         const int physCol = physicalCursorColumn() + 1;
@@ -8266,8 +8279,9 @@ void FakeVimHandler::Private::showFileInfo()
         const QString col = physCol == logCol
             ? Tr::tr("col %1").arg(physCol)
             : Tr::tr("col %1-%2").arg(physCol).arg(logCol);
-        msg += Tr::tr(" line %1 of %2 --%3%-- %4")
-                   .arg(line).arg(lines).arg(lines > 0 ? line * 100 / lines : 0).arg(col);
+        //: %4 is "col %1" or "col %1-%2".
+        msg += ' ' + Tr::tr("line %1 of %2 --%3%-- %4")
+                         .arg(line).arg(lines).arg(lines > 0 ? line * 100 / lines : 0).arg(col);
     }
     showMessage(MessageInfo, msg);
 }
@@ -13236,11 +13250,15 @@ void FakeVimHandler::Private::showSubstituteReport(int substitutions, int lines,
     if (substitutions == 1)
         what = countOnly ? Tr::tr("1 match") : Tr::tr("1 substitution");
     else if (countOnly)
-        what = Tr::tr("%1 matches").arg(substitutions);
+        what = Tr::tr("%n matches", nullptr, substitutions);
     else
-        what = Tr::tr("%1 substitutions").arg(substitutions);
-    const QString where = lines == 1 ? Tr::tr("1 line") : Tr::tr("%1 lines").arg(lines);
-    showMessage(MessageInfo, Tr::tr("%1 on %2").arg(what, where));
+        what = Tr::tr("%n substitutions", nullptr, substitutions);
+    const QString msg = lines == 1
+        ? //: %1 is "1 match", "%n matches", "1 substitution" or "%n substitutions".
+          Tr::tr("%1 on 1 line").arg(what)
+        : //: %1 is "1 match", "%n matches", "1 substitution" or "%n substitutions".
+          Tr::tr("%1 on %n lines", nullptr, lines).arg(what);
+    showMessage(MessageInfo, msg);
 }
 
 // Move the scan of a confirming ":s" to the next match it would ask about.
@@ -13306,6 +13324,8 @@ void FakeVimHandler::Private::askSubstituteConfirm()
     while (nextSubstituteConfirmMatch()) {
         setCursorPosition(CursorPosition(c.line, c.column));
         if (!c.all) {
+            //: Vim's confirmation prompt of ":s///c". The keys in parentheses
+            //: are the ones to press and must not be translated.
             showMessage(MessageInfo, Tr::tr("replace with %1 (y/n/a/q/l/^E/^Y)?")
                         .arg(c.replacement));
             return;
@@ -15564,7 +15584,8 @@ void FakeVimHandler::Private::applySetOption(const QString &arg)
             part.toInt(&ok);
             if (!ok) {
                 showMessage(MessageError,
-                            Tr::tr("E474: Invalid argument:") + " colorcolumn=" + value);
+                            Tr::tr("E474: Invalid argument: %1")
+                                .arg(QString("colorcolumn=") + value));
                 return;
             }
         }
@@ -15588,7 +15609,8 @@ void FakeVimHandler::Private::applySetOption(const QString &arg)
         const QString value = arg.section('=', 1);
         if (!setEventIgnoreWin(value)) {
             showMessage(MessageError,
-                        Tr::tr("E474: Invalid argument:") + " eventignorewin=" + value);
+                        Tr::tr("E474: Invalid argument: %1")
+                            .arg(QString("eventignorewin=") + value));
         }
         return;
     }
@@ -15597,7 +15619,8 @@ void FakeVimHandler::Private::applySetOption(const QString &arg)
         const QString value = arg.section('=', 1);
         if (!setEventIgnore(value)) {
             showMessage(MessageError,
-                        Tr::tr("E474: Invalid argument:") + " eventignore=" + value);
+                        Tr::tr("E474: Invalid argument: %1")
+                            .arg(QString("eventignore=") + value));
         }
         return;
     }
@@ -15620,7 +15643,8 @@ void FakeVimHandler::Private::applySetOption(const QString &arg)
         const int width = value.toInt(&ok);
         if (!ok || width < 0 || width > 12) {
             showMessage(MessageError,
-                        Tr::tr("E474: Invalid argument:") + " foldcolumn=" + value);
+                        Tr::tr("E474: Invalid argument: %1")
+                            .arg(QString("foldcolumn=") + value));
             return;
         }
         setFoldColumn(width);
@@ -15636,9 +15660,9 @@ void FakeVimHandler::Private::applySetOption(const QString &arg)
         const QString what = unescapedSetValue(add.captured(3));
         VimValue current;
         if (!optionValue(optionName, &current)) {
-            showMessage(MessageError, Tr::tr("E518: Unknown option:") + ' ' + optionName);
+            showMessage(MessageError, Tr::tr("E518: Unknown option: %1").arg(optionName));
         } else if (isNumberOption(optionName) && !isSetNumber(what)) {
-            showMessage(MessageError, Tr::tr("E521: Number required after =:") + ' ' + arg);
+            showMessage(MessageError, Tr::tr("E521: Number required after =: %1").arg(arg));
         } else {
             QString value = current.toString();
             const QChar how = add.captured(2).at(0);
@@ -15676,13 +15700,13 @@ void FakeVimHandler::Private::applySetOption(const QString &arg)
         else if (bare.startsWith("no"))
             bare.remove(0, 2);
         if (isBooleanOption(optionName) || isBooleanOption(bare)) {
-            showMessage(MessageError, Tr::tr("E474: Invalid argument:") + ' ' + arg);
+            showMessage(MessageError, Tr::tr("E474: Invalid argument: %1").arg(arg));
             return;
         }
         OptionKind kind = OptionKind::Boolean;
         if (!s.item(Utils::keyFromString(optionName))) {
             if (!unimplementedOption(optionName, &kind))
-                showMessage(MessageError, Tr::tr("E518: Unknown option:") + ' ' + arg);
+                showMessage(MessageError, Tr::tr("E518: Unknown option: %1").arg(arg));
             return;
         }
         // 'scroll' reaches at most over the window, and zero asks for half of
@@ -15692,7 +15716,7 @@ void FakeVimHandler::Private::applySetOption(const QString &arg)
             bool isNumber = false;
             const int number = value.toInt(&isNumber);
             if (isNumber && (number < 0 || number > linesOnScreen())) {
-                showMessage(MessageError, Tr::tr("E49: Invalid scroll size:") + ' ' + arg);
+                showMessage(MessageError, Tr::tr("E49: Invalid scroll size: %1").arg(arg));
                 return;
             }
         }
@@ -15713,7 +15737,7 @@ void FakeVimHandler::Private::applySetOption(const QString &arg)
         if (FvBaseAspect *act = s.item(Utils::keyFromString(optionName)))
             act->setVariantValue(act->defaultVariantValue());
         else if (!unimplementedOption(optionName, &kind))
-            showMessage(MessageError, Tr::tr("E518: Unknown option:") + ' ' + arg);
+            showMessage(MessageError, Tr::tr("E518: Unknown option: %1").arg(arg));
     } else {
         QString optionName = arg;
 
@@ -15780,7 +15804,7 @@ void FakeVimHandler::Private::applySetOption(const QString &arg)
                 showMessage(MessageInfo, shown);
             }
         } else if (!act) {
-            showMessage(MessageError, Tr::tr("E518: Unknown option:") + ' ' + arg);
+            showMessage(MessageError, Tr::tr("E518: Unknown option: %1").arg(arg));
         } else if (act->defaultVariantValue().typeId() == QMetaType::Bool) {
             bool oldValue = act->variantValue().toBool();
             if (printOption) {
@@ -15790,9 +15814,9 @@ void FakeVimHandler::Private::applySetOption(const QString &arg)
                 act->setVariantValue(!oldValue);
             }
         } else if ((negateOption && !printOption) || invertOption) {
-            showMessage(MessageError, Tr::tr("E474: Invalid argument:") + ' ' + arg);
+            showMessage(MessageError, Tr::tr("E474: Invalid argument: %1").arg(arg));
         } else if (toggleOption) {
-            showMessage(MessageError, Tr::tr("E488: Trailing characters:") + ' ' + arg);
+            showMessage(MessageError, Tr::tr("E488: Trailing characters: %1").arg(arg));
         } else {
             showMessage(MessageInfo, printedOptionName(act) + "="
                         + act->variantValue().toString());
@@ -20040,7 +20064,7 @@ static QString undoListTime(qint64 msecs)
     const qint64 seconds = qMax(qint64(0), when.secsTo(QDateTime::currentDateTime()));
     if (seconds >= 100)
         return when.toString("HH:mm:ss");
-    return seconds == 1 ? Tr::tr("1 second ago") : Tr::tr("%1 seconds ago").arg(seconds);
+    return seconds == 1 ? Tr::tr("1 second ago") : Tr::tr("%n seconds ago", nullptr, seconds);
 }
 
 bool FakeVimHandler::Private::handleExSweptCommands(const ExCommand &cmd)
@@ -20099,7 +20123,7 @@ bool FakeVimHandler::Private::handleExSweptCommands(const ExCommand &cmd)
         }
         const QChar c = characterAt(position());
         if (c.isNull()) {
-            showMessage(MessageInfo, Tr::tr("NUL"));
+            showMessage(MessageInfo, QString("NUL"));
             return true;
         }
         const ushort code = c.unicode();
@@ -21152,7 +21176,7 @@ void FakeVimHandler::Private::undoToRevision(int wanted)
         // The text of a state a later change left behind is gone: the document
         // undoes along one line where Vim keeps the whole tree.
         showMessage(MessageError,
-                    Tr::tr("Undo number %1 is on a branch this editor does not keep")
+                    Tr::tr("Undo number %1 is on a branch that is not kept")
                         .arg(wanted));
         return;
     }
@@ -21459,7 +21483,8 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
     // A script that (directly or through an import) sources itself would
     // recurse until the stack is gone, so refuse a file already in flight.
     if (m_sourcesInFlight.contains(canonicalPath)) {
-        showMessage(MessageError, Tr::tr("Recursive :source of %1").arg(fileName));
+        //: do not translate ":source"
+        showMessage(MessageError, Tr::tr("Recursive :source of \"%1\"").arg(fileName));
         return true;
     }
 
@@ -21690,7 +21715,7 @@ bool FakeVimHandler::Private::handleExImportCommand(const ExCommand &cmd)
         }
     }
     if (canonicalPath.isEmpty()) {
-        showMessage(MessageError, Tr::tr("Cannot open file %1").arg(path));
+        showMessage(MessageError, Tr::tr("E1053: Could not import \"%1\"").arg(path));
         return true;
     }
 
@@ -22513,7 +22538,7 @@ private:
             return d->value(key);
         }
         const QString refused = cannotIndexError(v, false);
-        setError(refused.isEmpty() ? Tr::tr("Can only index a list, dictionary or string")
+        setError(refused.isEmpty() ? Tr::tr("Can only index a List, Dictionary or String")
                                    : refused);
         return {};
     }
@@ -27061,8 +27086,9 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             *result = VimValue(qlonglong(0));
             return true;
         }
-        reportAssertFailure(wanted ? Tr::tr("command did not beep: %1").arg(command)
-                                   : Tr::tr("command did beep: %1").arg(command));
+        // Untranslated like Vim's: scripts compare v:errors against the text.
+        reportAssertFailure(wanted ? QString("command did not beep: %1").arg(command)
+                                   : QString("command did beep: %1").arg(command));
         *result = VimValue(qlonglong(1));
         return true;
     }
@@ -29082,10 +29108,11 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         if (equal != wantEqual) {
             const QString prefix = args.size() > 2 && !arg(2).toString().isEmpty()
                     ? arg(2).toString() + ": " : QString();
+            // Untranslated like Vim's: scripts compare v:errors against the text.
             reportAssertFailure(prefix
-                    + (wantEqual ? Tr::tr("Expected %1 but got %2")
+                    + (wantEqual ? QString("Expected %1 but got %2")
                                        .arg(arg(0).reprString(), arg(1).reprString())
-                                : Tr::tr("Expected not equal to %1").arg(arg(0).reprString())));
+                                : QString("Expected not equal to %1").arg(arg(0).reprString())));
         }
         *result = VimValue(qlonglong(equal != wantEqual ? 1 : 0));
         return true;
@@ -29101,8 +29128,9 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         if (!pass) {
             const QString prefix = args.size() > 1 && !arg(1).toString().isEmpty()
                     ? arg(1).toString() + ": " : QString();
+            // Untranslated like Vim's: scripts compare v:errors against the text.
             reportAssertFailure(prefix
-                    + Tr::tr("Expected %1 but got %2")
+                    + QString("Expected %1 but got %2")
                           .arg(QLatin1String(wantTrue ? "True" : "False"), value.reprString()));
         }
         *result = VimValue(qlonglong(pass ? 0 : 1));
@@ -29118,10 +29146,11 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         if (matches != wantMatch) {
             const QString prefix = args.size() > 2 && !arg(2).toString().isEmpty()
                     ? arg(2).toString() + ": " : QString();
+            // Untranslated like Vim's: scripts compare v:errors against the text.
             reportAssertFailure(prefix
-                    + Tr::tr("Pattern %1 does %2match %3")
-                          .arg(arg(0).reprString(), wantMatch ? QString("not ") : QString(),
-                               arg(1).reprString()));
+                    + (wantMatch ? QString("Pattern %1 does not match %2")
+                                 : QString("Pattern %1 does match %2"))
+                          .arg(arg(0).reprString(), arg(1).reprString()));
         }
         *result = VimValue(qlonglong(matches != wantMatch ? 1 : 0));
         return true;
@@ -29134,8 +29163,9 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         if (!pass) {
             const QString prefix = args.size() > 3 && !arg(3).toString().isEmpty()
                     ? arg(3).toString() + ": " : QString();
+            // Untranslated like Vim's: scripts compare v:errors against the text.
             reportAssertFailure(prefix
-                    + Tr::tr("Expected range %1 - %2, but got %3")
+                    + QString("Expected range %1 - %2, but got %3")
                           .arg(lo).arg(hi).arg(value));
         }
         *result = VimValue(qlonglong(pass ? 0 : 1));
@@ -29157,10 +29187,11 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         if (!pass) {
             const QString prefix = args.size() > 1 && !arg(1).toString().isEmpty()
                     ? arg(1).toString() + ": " : QString();
+            // Untranslated like Vim's: scripts compare v:errors against the text.
             reportAssertFailure(prefix
-                    + (inCatch ? Tr::tr("Expected %1 but got %2")
+                    + (inCatch ? QString("Expected %1 but got %2")
                                      .arg(arg(0).reprString(), exception.reprString())
-                              : Tr::tr("v:exception is not set")));
+                              : QString("v:exception is not set")));
         }
         *result = VimValue(qlonglong(pass ? 0 : 1));
         return true;
@@ -29173,11 +29204,12 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         const bool openedB = fileB.open(QIODevice::ReadOnly);
         const bool pass = openedA && openedB && fileA.readAll() == fileB.readAll();
         if (!pass) {
+            // Untranslated like Vim's: scripts compare v:errors against the text.
             reportAssertFailure(!openedA
-                    ? Tr::tr("First file %1 does not exist").arg(arg(0).reprString())
+                    ? QString("First file %1 does not exist").arg(arg(0).reprString())
                     : !openedB
-                          ? Tr::tr("Second file %1 does not exist").arg(arg(1).reprString())
-                          : Tr::tr("Files %1 and %2 differ")
+                          ? QString("Second file %1 does not exist").arg(arg(1).reprString())
+                          : QString("Files %1 and %2 differ")
                                 .arg(arg(0).reprString(), arg(1).reprString()));
         }
         *result = VimValue(qlonglong(pass ? 0 : 1));
@@ -29217,8 +29249,10 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         // is why they are worth having: a script testing its own error
         // handling needs one it can always reach.
         *error = args.size() > 0 && arg(0).toBool()
-                ? Tr::tr("E503: Coffee is currently not available")
-                : Tr::tr("E418: I'm a teapot");
+                ? //: Easter egg error message of Vim's err_teapot() function.
+                  Tr::tr("E503: Coffee is currently not available")
+                : //: Easter egg error message of Vim's err_teapot() function.
+                  Tr::tr("E418: I'm a teapot");
         return false;
     }
     if (name == "pumvisible" || name == "wildmenumode"
@@ -31525,7 +31559,7 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         QFile file(fileName);
         if (!file.open(QIODevice::ReadOnly)) {
             // Vim reports this and hands back an empty list.
-            showMessage(MessageError, Tr::tr("Cannot open file %1").arg(fileName));
+            showMessage(MessageError, Tr::tr("E484: Can't open file %1").arg(fileName));
             *result = VimValue::list();
             return true;
         }
@@ -31575,7 +31609,7 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             const QIODevice::OpenMode mode = QIODevice::WriteOnly
                 | (flags.contains('a') ? QIODevice::Append : QIODevice::Truncate);
             if (!file.open(mode)) {
-                showMessage(MessageError, Tr::tr("Cannot open file %1").arg(fileName));
+                showMessage(MessageError, Tr::tr("E482: Can't create file %1").arg(fileName));
                 *result = VimValue(qlonglong(-1));
                 return true;
             }
@@ -31596,7 +31630,7 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         const QIODevice::OpenMode mode = QIODevice::WriteOnly
             | (flags.contains('a') ? QIODevice::Append : QIODevice::Truncate);
         if (!file.open(mode)) {
-            showMessage(MessageError, Tr::tr("Cannot open file %1").arg(fileName));
+            showMessage(MessageError, Tr::tr("E482: Can't create file %1").arg(fileName));
             *result = VimValue(qlonglong(-1));
             return true;
         }
@@ -31834,9 +31868,10 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         const bool rightOne = !wantedSpecific || thrown.contains(arg(1).toString());
         const bool pass = threw && rightOne;
         if (!pass) {
+            // Untranslated like Vim's: scripts compare v:errors against the text.
             reportAssertFailure(!threw
-                    ? Tr::tr("command did not fail: %1").arg(arg(0).toString())
-                    : Tr::tr("Expected %1 but got %2")
+                    ? QString("command did not fail: %1").arg(arg(0).toString())
+                    : QString("Expected %1 but got %2")
                           .arg(arg(1).reprString(), VimValue(thrown).reprString()));
         }
         *result = VimValue(qlonglong(pass ? 0 : 1));
