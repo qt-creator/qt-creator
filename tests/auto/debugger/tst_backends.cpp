@@ -294,9 +294,11 @@ struct InferiorTestData
     QString expandableChild;
     // A line the inferior reaches while a library it loads at runtime is
     // loaded, plus a global whose target type only that library's debug
-    // info describes, and a member of that type.
+    // info describes, and a member of that type. The local points to the same
+    // type, read from a frame whose module only declares it.
     int libraryLoadedLine = 0;
     QString libraryTypeSymbol;
+    QString libraryTypeLocal;
     QString libraryTypeChild;
     QString inspectorObject;
     QString inspectorProperty;
@@ -2211,6 +2213,8 @@ private slots:
     void reportsAnObjectLocalAsExpandable();
     void resolvesATypeArrivingWithALaterLibrary_data() { addBackendRows(); }
     void resolvesATypeArrivingWithALaterLibrary();
+    void readsALocalOfATypeOnlyALibraryDefines_data() { addBackendRows(); }
+    void readsALocalOfATypeOnlyALibraryDefines();
     void honorsDumperOptionsFromTheRequest_data() { addBackendRows(); }
     void honorsDumperOptionsFromTheRequest();
     void refreshesOnlyTheVariableTheRequestNames_data() { addBackendRows(); }
@@ -4034,6 +4038,7 @@ void tst_backends::initTestCase()
         "        survivableCrash();",
         "#endif",
         "    bump();",
+        "    LibProbe *localProbe = libProbe;",
         "#ifdef _WIN32",
         "    HMODULE handle = LoadLibraryW(L\"@INFERIORLIB_WINDOWS@\");",
         "#else",
@@ -4126,6 +4131,7 @@ void tst_backends::initTestCase()
     cppInferiorData.disassemblySourceMarker = "globalValue = localValue";
     cppInferiorData.expectedExitCode = 7;
     cppInferiorData.libraryTypeSymbol = "libProbe";
+    cppInferiorData.libraryTypeLocal = "localProbe";
     cppInferiorData.libraryTypeChild = "probeValue";
     QVERIFY(cppInferiorData.secondBreakpointLine > 0);
     QVERIFY(cppInferiorData.recursiveCallLine > 0);
@@ -4346,6 +4352,7 @@ void tst_backends::initTestCase()
         // inferiorlib_msvc!LibProbe" answers - but nothing that reaches the
         // dumper does, whether the type was looked up before the load or not.
         msvcInferiorData.libraryTypeSymbol.clear();
+        msvcInferiorData.libraryTypeLocal.clear();
 
         const FilePath pdbPath = FilePath::fromString(m_tempDir.path()) / "inferior_msvc.pdb";
         const QStringList cdbCompileArgs = {
@@ -9148,6 +9155,44 @@ void tst_backends::resolvesATypeArrivingWithALaterLibrary()
              qPrintable("the type the library brought along did not resolve, so "
                         + data.libraryTypeSymbol + " has no " + data.libraryTypeChild
                         + " member: " + afterLoad));
+}
+
+void tst_backends::readsALocalOfATypeOnlyALibraryDefines()
+{
+    QFETCH(Backend, backend);
+
+    const InferiorTestData data = inferiorTestData(backend);
+    if (data.libraryTypeLocal.isEmpty() || data.libraryLoadedLine == 0)
+        QSKIP("inferior declares no local of a type only a library defines");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend
+        = launchAndStopAtBreakpoint(backend, {}, data.libraryLoadedLine);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, GdbMi> locals;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&locals](quint64 requestId, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::Locals)
+            locals[requestId] = data;
+    });
+
+    RefreshRequest request;
+    request.kind = RefreshKind::Locals;
+    request.requestId = 140;
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(locals.contains(140), s_timeout);
+    const QString iname = findItemByName(locals.value(140), data.libraryTypeLocal)["iname"].data();
+    QVERIFY2(!iname.isEmpty(), qPrintable("no " + data.libraryTypeLocal + " in locals: "
+                                          + locals.value(140).toString()));
+
+    request.requestId = 141;
+    request.expandedINames = {iname};
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(locals.contains(141), s_timeout);
+    QVERIFY2(containsChildNamed(locals.value(141), iname, data.libraryTypeChild),
+             qPrintable(data.libraryTypeLocal + " has no " + data.libraryTypeChild
+                        + " member: " + locals.value(141).toString()));
 }
 
 void tst_backends::reportsAnObjectLocalAsExpandable()
