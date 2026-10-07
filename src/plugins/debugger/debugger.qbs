@@ -24,6 +24,12 @@ QtcPlugin {
     cpp.enableExceptions: true
 
     Group {
+        name: "long description"
+        files: "DebuggerDescription.md"
+        fileTags: "pluginjson.longDescription"
+    }
+
+    Group {
         name: "General"
         files: [
             "breakhandler.cpp", "breakhandler.h",

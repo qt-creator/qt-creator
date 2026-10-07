@@ -7,6 +7,12 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TerminalLib" }
 
+    Group {
+        name: "long description"
+        files: "TerminalDescription.md"
+        fileTags: "pluginjson.longDescription"
+    }
+
     files: [
         "shellmodel.cpp",
         "shellmodel.h",

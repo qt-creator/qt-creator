@@ -2,6 +2,7 @@ add_qtc_plugin(CMakeProjectManager
   PLUGIN_CLASS CMakeProjectPlugin
   PLUGIN_DEPENDS Core CppEditor Debugger ProjectExplorer TextEditor QtSupport
   DEPENDS CMakeLang RstLang McpServerLib
+  LONG_DESCRIPTION_MD CMakeDescription.md
   SOURCES
     builddirparameters.cpp builddirparameters.h
     cmake_global.h

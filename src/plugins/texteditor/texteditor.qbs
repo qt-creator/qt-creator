@@ -20,6 +20,12 @@ Project {
 
         cpp.enableExceptions: true
 
+        Group {
+            name: "long description"
+            files: "TextEditorDescription.md"
+            fileTags: "pluginjson.longDescription"
+        }
+
         files: [
             "autocompleter.cpp",
             "autocompleter.h",

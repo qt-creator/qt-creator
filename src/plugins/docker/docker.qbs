@@ -10,6 +10,12 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
 
+    Group {
+        name: "long description"
+        files: "DockerDescription.md"
+        fileTags: "pluginjson.longDescription"
+    }
+
     files: [
         "docker_global.h", "dockertr.h",
         "dockerapi.cpp",

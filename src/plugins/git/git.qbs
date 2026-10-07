@@ -14,6 +14,12 @@ QtcPlugin {
 
     cpp.defines: base.concat(["QT_NO_FOREACH"])
 
+    Group {
+        name: "long description"
+        files: "GitDescription.md"
+        fileTags: "pluginjson.longDescription"
+    }
+
     files: [
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",

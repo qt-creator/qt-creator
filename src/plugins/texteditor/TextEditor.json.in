@@ -17,6 +17,7 @@
     ],
     "Category" : "Core",
     "Description" : "Text editor framework and the implementation of the basic text editor.",
+    "LongDescription" : ${LONG_DESCRIPTION},
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-coding-navigating.html",
     ${IDE_PLUGIN_DEPENDENCIES},

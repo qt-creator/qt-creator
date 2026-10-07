@@ -5,6 +5,7 @@ add_qtc_plugin(Debugger
   PLUGIN_TEST_DEPENDS QmakeProjectManager
   DEFINES
     CLANG_BINDIR="${LLVM_TOOLS_BINARY_DIR}"
+  LONG_DESCRIPTION_MD DebuggerDescription.md
   SOURCES
     breakhandler.cpp breakhandler.h
     breakpoint.cpp breakpoint.h

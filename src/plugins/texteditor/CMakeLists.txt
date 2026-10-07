@@ -15,6 +15,7 @@ add_qtc_plugin(TextEditor
   DEPENDS Qt::Concurrent Qt::Network Qt::PrintSupport Qt::Xml
   PUBLIC_DEPENDS ${KSYNTAXHIGHLIGHTING_TARGET}
   PLUGIN_DEPENDS Core
+  LONG_DESCRIPTION_MD TextEditorDescription.md
   SOURCES
     autocompleter.cpp autocompleter.h
     basefilefind.cpp basefilefind.h

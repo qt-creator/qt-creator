@@ -1,6 +1,7 @@
 add_qtc_plugin(Git
   DEPENDS McpServerLib
   PLUGIN_DEPENDS Core DiffEditor TextEditor VcsBase
+  LONG_DESCRIPTION_MD GitDescription.md
   SOURCES
     annotationhighlighter.cpp annotationhighlighter.h
     branchadddialog.cpp branchadddialog.h
