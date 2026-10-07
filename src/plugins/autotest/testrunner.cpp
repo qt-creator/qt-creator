@@ -401,7 +401,7 @@ void TestRunner::runTestsHelper()
             return SetupResult::StopWithSuccess;
         if (config->testExecutable().isEmpty()) {
             reportResult(ResultType::MessageFatal,
-                         Tr::tr("Executable path is empty. (%1)").arg(config->displayName()));
+                         Tr::tr("The executable path is empty for test \"%1\".").arg(config->displayName()));
             return SetupResult::StopWithSuccess;
         }
         TestStorage *testStorage = storage.activeStorage();
@@ -574,7 +574,7 @@ RunControl *TestRunner::createRunControl(const Id mode, TestConfiguration *confi
     finalizeRunControl(runControl, config, command);
     if (!runControl->createMainRecipe()) {
         reportResult(ResultType::MessageFatal,
-                     Tr::tr("Failed to create recipe for running. (%1)").arg(config->displayName()));
+                     Tr::tr("Cannot create a recipe for running test \"%1\".").arg(config->displayName()));
         delete runControl;
         return nullptr;
     }
@@ -638,11 +638,11 @@ RunControl *TestRunner::runControlFor(ITestConfiguration *itc)
         auto *config = static_cast<TestConfiguration *>(itc);
         QString fatalMessage;
         if (!config->runConfiguration())
-            fatalMessage = Tr::tr("Failed to get run configuration. (%1)").arg(name);
+            fatalMessage = Tr::tr("Cannot get the run configuration for test \"%1\".").arg(name);
         else if (!config->originalRunConfiguration())
-            fatalMessage = Tr::tr("Failed to get original run configuration. (%1)").arg(name);
+            fatalMessage = Tr::tr("Cannot get the original run configuration for test \"%1\".").arg(name);
         else if (config->testExecutable().isEmpty())
-            fatalMessage = Tr::tr("Executable path is empty. (%1)").arg(name);
+            fatalMessage = Tr::tr("The executable path is empty for test \"%1\".").arg(name);
 
         if (!fatalMessage.isEmpty()) {
             reportResult(ResultType::MessageFatal, fatalMessage);
@@ -655,7 +655,7 @@ RunControl *TestRunner::runControlFor(ITestConfiguration *itc)
     case ITestBase::Tool: {
         if (isDebugMode()) {
             reportResult(ResultType::MessageWarn,
-                         Tr::tr("Debugging is not supported for this test. (%1)").arg(name));
+                         Tr::tr("Debugging is not supported for test \"%1\".").arg(name));
             return nullptr;
         }
         auto *toolConfig = static_cast<TestToolConfiguration *>(itc);
@@ -665,19 +665,19 @@ RunControl *TestRunner::runControlFor(ITestConfiguration *itc)
         }
         if (toolConfig->testExecutable().isEmpty()) {
             reportResult(ResultType::MessageFatal,
-                         Tr::tr("Executable path is empty. (%1)").arg(name));
+                         Tr::tr("The executable path is empty for test \"%1\".").arg(name));
             return nullptr;
         }
         RunControl *runControl = createRunControl(toolConfig);
         if (!runControl) {
             reportResult(ResultType::MessageFatal,
-                         Tr::tr("Failed to create run configuration. (%1)").arg(name));
+                         Tr::tr("Cannot create a run configuration for test \"%1\".").arg(name));
         }
         return runControl;
     }
     default:
         reportResult(ResultType::MessageFatal,
-                     Tr::tr("Unexpected test configuration. (%1)")
+                     Tr::tr("Unexpected test configuration type: %1.")
                      .arg(QString::number(itc->testBase()->type())));
         return nullptr;
     }

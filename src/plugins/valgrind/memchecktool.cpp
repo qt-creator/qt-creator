@@ -991,18 +991,18 @@ void MemcheckTool::engineFinished()
     updateRunActions();
 
     const int issuesFound = updateUiAfterFinishedHelper();
-    QString msg = Tr::tr("Memory Analyzer Tool finished. %n issues were found.", nullptr, issuesFound);
+    QString msg = Tr::tr("Memory Analyzer Tool finished. %n issue(s) found.", nullptr, issuesFound);
     if (const int hidden = issuesFound - m_errorProxyModel.rowCount(); hidden > 0)
-        msg += ' ' + Tr::tr("%n issues are hidden by the current filter.", nullptr, hidden);
+        msg += ' ' + Tr::tr("%n issue(s) hidden by the current filter.", nullptr, hidden);
     PerspectivesView::instance()->showPermanentStatusMessage(msg);
 }
 
 void MemcheckTool::loadingExternalXmlLogFileFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
-    QString statusMessage = Tr::tr("Log file processed. %n issues were found.", nullptr, issuesFound);
+    QString statusMessage = Tr::tr("Log file processed. %n issue(s) found.", nullptr, issuesFound);
     if (const int hidden = issuesFound - m_errorProxyModel.rowCount(); hidden > 0)
-        statusMessage += ' ' + Tr::tr("%n issues are hidden by the current filter.", nullptr, hidden);
+        statusMessage += ' ' + Tr::tr("%n issue(s) hidden by the current filter.", nullptr, hidden);
     if (!m_exitMsg.isEmpty())
         statusMessage += ' ' + m_exitMsg;
     PerspectivesView::instance()->showPermanentStatusMessage(statusMessage);
