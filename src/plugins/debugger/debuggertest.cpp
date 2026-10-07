@@ -191,6 +191,8 @@ private slots:
     void testMcpReadsMemory();
     void testMcpReadsMemoryUpToAnUnmappedPage_data();
     void testMcpReadsMemoryUpToAnUnmappedPage();
+    void testMcpReportsCapabilities_data();
+    void testMcpReportsCapabilities();
     void testDisassemblyThatMissesTheAddressMarksNoLine();
     void testOnlyMachineCodeIsOfferedADisassembly();
     void testAnEmptyDisassemblyLeavesTheViewAlone();
@@ -3408,6 +3410,81 @@ void DebuggerUnitTests::testMcpReadsMemoryUpToAnUnmappedPage()
         unreadable += segment.value("length").toInt();
     }
     QCOMPARE(unreadable, 8);
+}
+
+static QJsonObject capabilityNamed(const QJsonObject &answer, const QString &name)
+{
+    for (const QJsonValue &c : answer.value("capabilities").toArray()) {
+        if (c.toObject().value("name").toString() == name)
+            return c.toObject();
+    }
+    return {};
+}
+
+void DebuggerUnitTests::testMcpReportsCapabilities_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpReportsCapabilities()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    CommonSettings &s = commonSettings();
+    const int oldAccess = s.mcpMemoryAccess();
+    const QScopeGuard restore([&] { s.mcpMemoryAccess.setValue(oldAccess); });
+    s.mcpMemoryAccess.setValue(CommonSettings::McpMemoryOfProcesses);
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: at-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> paused = callDebuggerTool("debugger_get_capabilities");
+    QVERIFY2(paused, qPrintable(errorOf(paused)));
+    QVERIFY(paused->value("has_session").toBool());
+
+    const QJsonObject env = paused->value("environment").toObject();
+    QVERIFY2(env.value("debugger").toString().contains("LLDB", Qt::CaseInsensitive)
+                 || !HostOsInfo::isMacHost(),
+             qPrintable(env.value("debugger").toString()));
+    QCOMPARE(env.value("target_architecture").toString(),
+             Abi::toString(Abi::hostAbi().architecture()));
+    QCOMPARE(env.value("target_os").toString(), Abi::toString(Abi::hostAbi().os()));
+    QCOMPARE(env.value("connection_type").toString(), QString("local"));
+    QCOMPARE(env.value("session_type").toString(), QString("launch"));
+
+    const QStringList availableWhilePaused{"execution_control", "call_stack", "variables",
+                                           "registers", "memory_read", "threads"};
+    for (const QString &name : availableWhilePaused) {
+        const QJsonObject c = capabilityNamed(*paused, name);
+        QCOMPARE(c.value("status").toString() + ' ' + name, "available " + name);
+        QVERIFY(c.value("exposed").toBool());
+    }
+    QCOMPARE(capabilityNamed(*paused, "memory_read").value("permission").toString(),
+             QString("granted"));
+    QCOMPARE(capabilityNamed(*paused, "reverse_stepping").value("status").toString(),
+             QString("not_exposed"));
+
+    s.mcpMemoryAccess.setValue(CommonSettings::McpMemoryNever);
+    const Result<QJsonObject> denied = callDebuggerTool("debugger_get_capabilities");
+    QVERIFY2(denied, qPrintable(errorOf(denied)));
+    const QJsonObject memory = capabilityNamed(*denied, "memory_read");
+    QCOMPARE(memory.value("status").toString(), QString("permission_denied"));
+    QCOMPARE(memory.value("backend_support").toString(), QString("supported"));
+    QVERIFY(!memory.value("reason").toString().isEmpty());
+
+    // Once the program has run to its end, nothing that needs a stop is available.
+    const Result<QJsonObject> ran
+        = callDebuggerTool("debugger_continue", {{"wait_for_completion", true}});
+    QVERIFY2(ran, qPrintable(errorOf(ran)));
+    QCOMPARE(ran->value("status").toString(), QString("failed"));
+    const Result<QJsonObject> ended = callDebuggerTool("debugger_get_capabilities");
+    QVERIFY2(ended, qPrintable(errorOf(ended)));
+    QCOMPARE(capabilityNamed(*ended, "call_stack").value("status").toString(),
+             QString("invalid_state"));
 }
 
 static QStringList s_capturedMessages;

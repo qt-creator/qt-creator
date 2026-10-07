@@ -3,6 +3,7 @@
 
 #include "commonoptionspage.h"
 #include "debuggerengine.h"
+#include "enginemanager.h"
 #include "mcpsessionstate.h"
 #include "mcpsupport_p.h"
 #include "registerhandler.h"
@@ -15,11 +16,13 @@
 
 #include <QJsonArray>
 #include <QPointer>
+#include <QRegularExpression>
 #include <QSet>
 #include <QTimer>
 
 #include <algorithm>
 #include <limits>
+#include <optional>
 
 using namespace Utils;
 
@@ -706,6 +709,295 @@ static void readMemory(const QJsonObject &args, const McpReply &reply)
     });
 }
 
+// Capabilities
+
+static QString startModeName(DebuggerStartMode mode)
+{
+    switch (mode) {
+    case StartInternal:          return "start_project";
+    case StartExternal:          return "start_executable";
+    case AttachToLocalProcess:   return "attach_to_local_process";
+    case AttachToCrashedProcess: return "attach_to_crashed_process";
+    case AttachToCore:           return "core_file";
+    case AttachToRemoteServer:   return "attach_to_remote_server";
+    case AttachToRemoteProcess:  return "attach_to_remote_process";
+    case AttachToQmlServer:      return "attach_to_qml_server";
+    case StartRemoteProcess:     return "start_remote_process";
+    case AttachToIosDevice:      return "attach_to_ios_device";
+    default:                     return "unknown";
+    }
+}
+
+static QString connectionType(const DebuggerRunParameters &rp)
+{
+    switch (rp.startMode()) {
+    case StartInternal:
+    case StartExternal:
+        return rp.remoteChannel().isEmpty() ? QString("local") : QString("remote_server");
+    case AttachToLocalProcess:
+    case AttachToCrashedProcess:
+        return "local";
+    case AttachToCore:
+        return "core_file";
+    case AttachToRemoteServer:
+        return "remote_server";
+    case AttachToRemoteProcess:
+    case StartRemoteProcess:
+        return "remote_device";
+    case AttachToQmlServer:
+        return "qml_debug_server";
+    case AttachToIosDevice:
+        return "ios_device";
+    default:
+        return "unknown";
+    }
+}
+
+static QString sessionType(DebuggerStartMode mode)
+{
+    switch (mode) {
+    case StartInternal:
+    case StartExternal:
+    case StartRemoteProcess:
+        return "launch";
+    case AttachToLocalProcess:
+    case AttachToRemoteServer:
+    case AttachToRemoteProcess:
+    case AttachToQmlServer:
+    case AttachToIosDevice:
+        return "attach";
+    case AttachToCrashedProcess:
+    case AttachToCore:
+        return "post_mortem";
+    default:
+        return "unknown";
+    }
+}
+
+static QJsonObject sessionEnvironment(const DebuggerEngine *engine)
+{
+    const DebuggerRunParameters &rp = engine->runParameters();
+    const ProjectExplorer::Abi abi = rp.toolChainAbi();
+    const auto orUnknown = [](const QString &value) {
+        return value.isEmpty() ? QString("unknown") : value;
+    };
+    QJsonObject env{
+        {"debugger", orUnknown(engine->debuggerName())},
+        {"engine", orUnknown(engine->objectName())},
+        {"debugger_executable", orUnknown(rp.debugger().command.executable().toUserOutput())},
+        {"target_architecture",
+         abi.architecture() == ProjectExplorer::Abi::UnknownArchitecture
+             ? QString("unknown") : ProjectExplorer::Abi::toString(abi.architecture())},
+        {"target_os", abi.os() == ProjectExplorer::Abi::UnknownOS
+                          ? QString("unknown") : ProjectExplorer::Abi::toString(abi.os())},
+        {"target_word_width", abi.wordWidth() == 0 ? QJsonValue("unknown")
+                                                    : QJsonValue(int(abi.wordWidth()))},
+        {"start_mode", startModeName(rp.startMode())},
+        {"connection_type", connectionType(rp)},
+        {"session_type", sessionType(rp.startMode())},
+        {"languages", QJsonArray::fromStringList(
+             QStringList{rp.isCppDebugging() ? QString("cpp") : QString(),
+                         rp.isQmlDebugging() ? QString("qml") : QString()}
+                 .filter(QRegularExpression(".")))},
+    };
+    if (!rp.remoteChannel().isEmpty())
+        env["remote_channel"] = rp.remoteChannel();
+    return env;
+}
+
+enum class BackendSupport { Supported, Unsupported, Unknown };
+enum class Permission { Granted, Restricted, Denied };
+
+static QString toString(BackendSupport support)
+{
+    switch (support) {
+    case BackendSupport::Supported:   return "supported";
+    case BackendSupport::Unsupported: return "unsupported";
+    case BackendSupport::Unknown:     return "unknown";
+    }
+    return {};
+}
+
+static QString toString(Permission permission)
+{
+    switch (permission) {
+    case Permission::Granted:    return "granted";
+    case Permission::Restricted: return "restricted";
+    case Permission::Denied:     return "denied";
+    }
+    return {};
+}
+
+class CapabilityCheck
+{
+public:
+    QString name;
+    QStringList tools;
+    BackendSupport backendSupport;
+    QString neededState; // The session state the tools need.
+    bool stateOk = true;
+    std::optional<Permission> permission; // Where one applies.
+    QString permissionReason;
+    QString note;
+};
+
+static QJsonObject capabilityToJson(const CapabilityCheck &c, bool hasSession,
+                                    const QString &stateName)
+{
+    bool exposed = !c.tools.isEmpty();
+    for (const QString &tool : c.tools)
+        exposed = exposed && Mcp::ToolRegistry::isToolEnabled(tool);
+
+    QString status;
+    QString reason;
+    if (!exposed) {
+        status = "not_exposed";
+        reason = "A tool for this is not offered by the MCP server, or turned off in its settings.";
+    } else if (!hasSession) {
+        status = "invalid_state";
+        reason = "No debug session is active.";
+    } else if (c.backendSupport == BackendSupport::Unsupported) {
+        status = "unsupported";
+        reason = "The debugger of this session does not support this.";
+    } else if (c.permission == Permission::Denied) {
+        status = "permission_denied";
+        reason = c.permissionReason;
+    } else if (!c.stateOk) {
+        status = "invalid_state";
+        reason = QString("Needs a %1 session; the session is %2.").arg(c.neededState, stateName);
+    } else if (c.backendSupport == BackendSupport::Unknown) {
+        status = "unknown";
+        reason = "Whether the debugger of this session supports this is not known until it "
+                 "is tried.";
+    } else {
+        status = "available";
+    }
+
+    QJsonObject obj{{"name", c.name},
+                    {"tools", QJsonArray::fromStringList(c.tools)},
+                    {"exposed", exposed},
+                    {"backend_support", toString(c.backendSupport)},
+                    {"requires", c.neededState},
+                    {"status", status}};
+    if (!reason.isEmpty())
+        obj["reason"] = reason;
+    if (c.permission) {
+        obj["permission"] = toString(*c.permission);
+        if (!c.permissionReason.isEmpty())
+            obj["permission_reason"] = c.permissionReason;
+    }
+    if (!c.note.isEmpty())
+        obj["note"] = c.note;
+    return obj;
+}
+
+static void getCapabilities(const QJsonObject &, const McpReply &reply)
+{
+    const QPointer<DebuggerEngine> engine = EngineManager::currentEngine();
+    const bool hasSession = !engine.isNull();
+    const DebuggerState state = hasSession ? engine->state() : DebuggerNotReady;
+    const bool paused = state == InferiorStopOk;
+    const bool running = state == InferiorRunOk;
+    const auto support = [&](unsigned cap) {
+        if (!hasSession)
+            return BackendSupport::Unknown;
+        return engine->hasCapability(cap) ? BackendSupport::Supported
+                                          : BackendSupport::Unsupported;
+    };
+
+    QList<CapabilityCheck> checks;
+    checks.append({"execution_control",
+                   {"debugger_step_over", "debugger_step_in", "debugger_step_out",
+                    "debugger_continue", "debugger_interrupt", "debugger_wait_for_operation"},
+                   BackendSupport::Supported, "paused or running", paused || running, {}, {},
+                   "Stepping and continuing need a paused session, interrupting a running one."});
+    checks.append({"run_to_line", {"debugger_run_to_line"}, support(RunToLineCapability),
+                   "paused", paused});
+    checks.append({"call_stack", {"debugger_get_call_stack", "debugger_select_frame"},
+                   BackendSupport::Supported, "paused", paused});
+
+    BackendSupport threadSupport = BackendSupport::Unknown;
+    QString threadNote = "Lists the threads the debugger reports. Whether those include RTOS "
+                         "tasks depends on the debugger and its server, not on Qt Creator.";
+    if (hasSession && engine->threadsHandler()->rootItem()->childCount() > 0) {
+        threadSupport = BackendSupport::Supported;
+    } else if (hasSession) {
+        threadNote += " The debugger has not reported any thread in this session yet.";
+    }
+    checks.append({"threads", {"debugger_get_threads", "debugger_select_thread"},
+                   threadSupport, "paused", paused, {}, {}, threadNote});
+    checks.append({"thread_stacks", {"debugger_get_thread_stacks"}, threadSupport, "paused",
+                   paused, {}, {},
+                   "Reads the threads one after another while the target stays stopped, not "
+                   "as an atomic snapshot."});
+    checks.append({"variables",
+                   {"debugger_get_variables", "debugger_get_variable", "debugger_set_variable"},
+                   BackendSupport::Supported, "paused", paused});
+    checks.append({"expressions",
+                   {"debugger_evaluate_expression", "debugger_add_watch_expression",
+                    "debugger_remove_watch_expression"},
+                   support(AddWatcherCapability), "paused", paused});
+    checks.append({"registers", {"debugger_get_registers"}, support(RegisterCapability),
+                   "paused", paused});
+
+    CapabilityCheck memory{"memory_read", {"debugger_read_memory"},
+                           hasSession ? (engine->canReadMemory() ? BackendSupport::Supported
+                                                                 : BackendSupport::Unsupported)
+                                      : BackendSupport::Unknown,
+                           "paused", paused};
+    const CommonSettings &s = commonSettings();
+    if (s.mcpMemoryAccess() == CommonSettings::McpMemoryNever) {
+        memory.permission = Permission::Denied;
+        memory.permissionReason = "Reading memory over MCP is turned off in Preferences > "
+                                  "Debugger > General > MCP Server.";
+    } else if (s.mcpMemoryAccess() == CommonSettings::McpMemoryAnywhere) {
+        memory.permission = Permission::Granted;
+        memory.permissionReason = "Any address may be read, including memory-mapped I/O.";
+    } else if (!hasSession || debugsProcessMemory(engine->runParameters())) {
+        memory.permission = Permission::Granted;
+        memory.permissionReason = "Process memory may be read.";
+    } else if (s.mcpMemoryRanges().trimmed().isEmpty()) {
+        memory.permission = Permission::Denied;
+        memory.permissionReason = "This session debugs a bare metal target, or one of unknown "
+                                  "kind, and no readable ranges are configured in Preferences "
+                                  "> Debugger > General > MCP Server.";
+    } else {
+        memory.permission = Permission::Restricted;
+        memory.permissionReason = "Only these ranges may be read: " + s.mcpMemoryRanges();
+    }
+    memory.note = QString("At most %1 bytes per read.").arg(s.mcpMemoryReadLimit());
+    checks.append(memory);
+
+    checks.append({"breakpoints",
+                   {"debugger_get_breakpoints", "debugger_add_breakpoint",
+                    "debugger_delete_breakpoint"},
+                   BackendSupport::Supported, "any", true});
+    checks.append({"conditional_breakpoints", {"debugger_add_breakpoint"},
+                   support(BreakConditionCapability), "any", true});
+    checks.append({"watchpoints_by_address", {"debugger_add_breakpoint"},
+                   support(WatchpointByAddressCapability), "any", true});
+    checks.append({"watchpoints_by_expression", {"debugger_add_breakpoint"},
+                   support(WatchpointByExpressionCapability), "any", true});
+    checks.append({"reverse_stepping", {}, support(ReverseSteppingCapability), "paused",
+                   paused, {}, {}, "Available in Qt Creator, not over MCP."});
+    checks.append({"jump_to_line", {}, support(JumpToLineCapability), "paused", paused, {}, {},
+                   "Available in Qt Creator, not over MCP."});
+
+    const QString stateName = hasSession ? DebuggerEngine::stateName(state) : QString("none");
+    QJsonArray capabilities;
+    for (const CapabilityCheck &check : std::as_const(checks))
+        capabilities.append(capabilityToJson(check, hasSession, stateName));
+
+    QJsonObject result{{"has_session", hasSession},
+                       {"state", stateName},
+                       {"capabilities", capabilities}};
+    if (hasSession) {
+        result["environment"] = sessionEnvironment(engine);
+        result["context"] = McpSessionState::forEngine(engine)->context();
+    }
+    reply(result);
+}
+
 void registerIntrospectionMcpTools()
 {
     using namespace Mcp::Schema;
@@ -929,6 +1221,52 @@ void registerIntrospectionMcpTools()
                     .addRequired("segments")
                     .addRequired("truncated")),
         readMemory);
+
+    const QJsonObject capabilitySchema{
+        {"type", "object"},
+        {"required", QJsonArray{"name", "tools", "exposed", "backend_support", "status"}},
+        {"properties", QJsonObject{
+            {"name",              QJsonObject{{"type", "string"}}},
+            {"tools",             QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}}},
+            {"exposed",           QJsonObject{{"type", "boolean"}, {"description", "The tools are offered and turned on in the MCP server."}}},
+            {"backend_support",   QJsonObject{{"type", "string"},
+                                              {"enum", QJsonArray{toString(BackendSupport::Supported),
+                                                                  toString(BackendSupport::Unsupported),
+                                                                  toString(BackendSupport::Unknown)}}}},
+            {"requires",          QJsonObject{{"type", "string"}, {"description", "The session state the tools need."}}},
+            {"status",            QJsonObject{{"type", "string"},
+                                              {"enum", QJsonArray{"available", "unsupported", "invalid_state",
+                                                                  "permission_denied", "not_exposed", "unknown"}}}},
+            {"reason",            QJsonObject{{"type", "string"}}},
+            {"permission",        QJsonObject{{"type", "string"},
+                                              {"enum", QJsonArray{toString(Permission::Granted),
+                                                                  toString(Permission::Restricted),
+                                                                  toString(Permission::Denied)}}}},
+            {"permission_reason", QJsonObject{{"type", "string"}}},
+            {"note",              QJsonObject{{"type", "string"}}},
+        }}};
+
+    registerAsyncMcpTool(
+        Tool{}
+            .name("debugger_get_capabilities")
+            .title("Get debugger capabilities")
+            .description(
+                "Reports the debug session's environment (debugger, target architecture and "
+                "OS, connection and session type; \"unknown\" where Qt Creator does not know) "
+                "and, for each kind of operation, whether its tools are offered, whether the "
+                "session's debugger supports it, whether the session is in a state for it, and "
+                "whether it is permitted. Call this before choosing how to investigate.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("has_session", QJsonObject{{"type", "boolean"}})
+                    .addProperty("state", QJsonObject{{"type", "string"}})
+                    .addProperty("environment", QJsonObject{{"type", "object"}})
+                    .addProperty("capabilities", QJsonObject{{"type", "array"}, {"items", capabilitySchema}})
+                    .addProperty("context", contextSchema())
+                    .addRequired("has_session")
+                    .addRequired("capabilities")),
+        getCapabilities);
 }
 
 } // namespace Debugger::Internal
