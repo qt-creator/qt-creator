@@ -33,6 +33,7 @@
 
 #include <QApplication>
 #include <QDir>
+#include <QHelpEvent>
 #include <QItemDelegate>
 #include <QLabel>
 #include <QLayout>
@@ -43,6 +44,7 @@
 #include <QPainterPath>
 #include <QStyle>
 #include <QTemporaryFile>
+#include <QToolTip>
 
 using namespace Core;
 using namespace ExtensionSystem;
@@ -187,29 +189,33 @@ public:
     ExtensionItemWidget(QWidget *parent = nullptr)
         : QWidget(parent)
     {
-        // +-----------+-------+-------+--------------------------------------------------------------------------------+-----------+---------+
-        // |           |       |       |                                   (PaddingVL)                                  |           |         |
-        // |           |       |       +----------+--------+---------------+--------+--------------+--------+-----------+           |         |
-        // |           |       |       |<itemName>|(GapHXs)|<releaseStatus>|(GapHXs)|<installState>|(GapHXs)|<checkmark>|           |         |
-        // |           |       |       +----------+--------+---------------+--------+--------------+--------+-----------+           |         |
-        // |           |       |       |                                    (GapVXs)                                    |           |         |
-        // |           |       |       +---------------------+-------+--------------+-------+--------+--------+---------+           |         |
-        // |(PaddingHL)|<icon> |(GapHL)|       <vendor>      |(GapHM)|<divider>(h16)|(GapHM)|<dlIcon>|(GapHXs)|<dlCount>|(PaddingHL)|(gapSize)|
-        // |           |(h: 50)|       +---------------------+-------+--------------+-------+--------+--------+---------+           |         |
-        // |           |       |       |                                    (GapVXs)                                    |           |         |
-        // |           |       |       +--------------------------------------------------------------------------------+           |         |
-        // |           |       |       |                               <shortDescription>                               |           |         |
-        // |           |       |       +--------------------------------------------------------------------------------+           |         |
-        // |           |       |       |                                   (PaddingVL)                                  |           |         |
-        // +-----------+-------+-------+--------------------------------------------------------------------------------+-----------+---------+
-        // |                                                             (gapSize)                                                            |
-        // +----------------------------------------------------------------------------------------------------------------------------------+
+        // +-----------+-------+-------+--------------------------------------------------------------------------------------------------------+-----------+---------+
+        // |           |       |       |                                               (PaddingVL)                                              |           |         |
+        // |           |       |       +----------+--------+--------------+--------+---------------+--------+--------------+--------+-----------+           |         |
+        // |           |       |       |<itemName>|(GapHXs)|<experimental>|(GapHXs)|<releaseStatus>|(GapHXs)|<installState>|(GapHXs)|<checkmark>|           |         |
+        // |           |       |       +----------+--------+--------------+--------+---------------+--------+--------------+--------+-----------+           |         |
+        // |           |       |       |                                                (GapVXs)                                                |           |         |
+        // |           |       |       +---------------------------------------------+-------+--------------+-------+--------+--------+---------+           |         |
+        // |(PaddingHL)|<icon> |(GapHL)|                   <vendor>                  |(GapHM)|<divider>(h16)|(GapHM)|<dlIcon>|(GapHXs)|<dlCount>|(PaddingHL)|(gapSize)|
+        // |           |(h: 50)|       +---------------------------------------------+-------+--------------+-------+--------+--------+---------+           |         |
+        // |           |       |       |                                                (GapVXs)                                                |           |         |
+        // |           |       |       +--------------------------------------------------------------------------------------------------------+           |         |
+        // |           |       |       |                                           <shortDescription>                                           |           |         |
+        // |           |       |       +--------------------------------------------------------------------------------------------------------+           |         |
+        // |           |       |       |                                               (PaddingVL)                                              |           |         |
+        // +-----------+-------+-------+--------------------------------------------------------------------------------------------------------+-----------+---------+
+        // |                                                                         (gapSize)                                                                        |
+        // +----------------------------------------------------------------------------------------------------------------------------------------------------------+
 
         m_iconLabel = new QLabel;
         m_iconLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
         m_itemNameLabel = new ElidingLabel;
         applyTf(m_itemNameLabel, itemNameTF);
         m_itemNameLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+        m_experimentalIcon = new QLabel;
+        m_experimentalIcon->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+        m_experimentalIcon->setPixmap(Icon({{":/extensionmanager/images/experimental.png",
+                                             Theme::Token_Text_Muted}}, Icon::Tint).pixmap());
         m_releaseStatus = new QLabel;
         applyTf(m_releaseStatus, releaseStatusTF, false);
         m_releaseStatus->setAlignment(Qt::AlignLeft);
@@ -234,6 +240,7 @@ public:
             Column {
                 Row {
                     m_itemNameLabel,
+                    m_experimentalIcon,
                     m_releaseStatus,
                     st,
                     Widget {
@@ -279,6 +286,7 @@ public:
     {
         m_iconLabel->setPixmap(itemIcon(index, SizeSmall));
         m_itemNameLabel->setText(index.data(RoleName).toString());
+        m_experimentalIcon->setVisible(index.data(RoleExperimental).toBool());
 
         const QString statusString = statusDisplayString(index);
         m_releaseStatus->setText(statusString);
@@ -305,6 +313,13 @@ public:
 
         m_vendorLabel->setText(index.data(RoleVendor).toString());
         m_shortDescriptionLabel->setText(index.data(RoleDescriptionShort).toString());
+    }
+
+    QRect experimentalIconRect(const QModelIndex &index)
+    {
+        setData(index);
+        layout()->activate();
+        return m_experimentalIcon->isHidden() ? QRect() : m_experimentalIcon->geometry();
     }
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
@@ -363,6 +378,7 @@ public:
 private:
     QLabel *m_iconLabel;
     QLabel *m_itemNameLabel;
+    QLabel *m_experimentalIcon;
     QLabel *m_releaseStatus;
     QWidget *m_installState;
     QLabel *m_installStateLabel;
@@ -393,6 +409,21 @@ public:
     {
         m_itemWidget.setData(index);
         return {cellWidth, m_itemWidget.minimumSizeHint().height() + gapSize};
+    }
+
+    bool helpEvent(QHelpEvent *event, QAbstractItemView *view,
+                   const QStyleOptionViewItem &option, const QModelIndex &index) override
+    {
+        if (event->type() == QEvent::ToolTip) {
+            const QRect iconRect = m_itemWidget.experimentalIconRect(index)
+                                       .translated(option.rect.topLeft());
+            if (iconRect.contains(event->pos())) {
+                QToolTip::showText(event->globalPos(), Tr::tr("Experimental"), view->viewport(),
+                                   iconRect);
+                return true;
+            }
+        }
+        return QItemDelegate::helpEvent(event, view, option, index);
     }
 
 private:
