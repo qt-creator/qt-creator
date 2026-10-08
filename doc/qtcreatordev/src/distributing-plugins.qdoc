@@ -40,7 +40,7 @@
         \li \macos
     \endlist
 
-    See the toplevel \l{README.md} file in \QC's sources for a more
+    See the toplevel \l{BUILDING.md} file in \QC's sources for a more
     detailed list.
 
     The \uicontrol {\QC Plugin} wizard already creates a template for

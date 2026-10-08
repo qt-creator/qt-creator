@@ -29,7 +29,9 @@ Project {
     Product {
         name: "Other Files"
         files: [
+            "BUILDING.md",
             "CLAUDE.md",
+            "CONTRIBUTING.md",
             "HACKING",
             "README.md",
             "TESTING.md",
