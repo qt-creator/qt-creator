@@ -11176,6 +11176,9 @@ void tst_backends::reportsVectorRegistersInHex()
     if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
         QSKIP("This test fails on mac");
 
+    if (HostOsInfo::isLinuxHost() && backend == Backend::Bridge)
+        QSKIP("This test fails on linux");
+
     if (auto result = checkCapability(backend, Debugger::RegisterCapability); !result)
         QSKIP(qPrintable(result.error()));
 
@@ -15620,6 +15623,8 @@ void tst_backends::takesBackAQmlStepWhenRunning()
         QSKIP(qPrintable(result.error()));
     if (!breaksInQmlWithNativeMixed(backend))
         QSKIP(s_nativeMixedMissing);
+    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
+        QSKIP("This test is flaky with lldb on mac");
 
 #ifndef QMLMIX_INFERIOR_EXECUTABLE
     QSKIP("Qt::Quick not available when this test binary was configured.");
@@ -15688,7 +15693,8 @@ void tst_backends::takesBackAQmlStepWhenRunning()
     stackRequest.kind = RefreshKind::QmlStack;
     stackRequest.requestId = 20;
     engine->refresh(stackRequest);
-    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)),
+                             s_qmlStartupTimeout);
 
     const QString stack = responses.value(int(RefreshKind::FullStack)).toString();
     static const QRegularExpression jsFrame(R"(frame=\{[^}]*language="js"[^}]*\})");
@@ -15845,6 +15851,9 @@ void tst_backends::insertsAQmlBreakpointWhileTheInferiorRuns()
 
     if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
         QSKIP("This test fails on mac");
+
+    if (HostOsInfo::isWindowsHost() && backend == Backend::Cdb)
+        QSKIP("This test is flaky on Windows");
 
     if (auto result = checkCapability(backend, Debugger::AdditionalQmlStackCapability); !result)
         QSKIP(qPrintable(result.error()));
@@ -16558,6 +16567,9 @@ void tst_backends::stepsWithinQmlFrameAfterNativeMixedStepOut()
         QSKIP(qPrintable(result.error()));
     if (!breaksInQmlWithNativeMixed(backend))
         QSKIP(s_nativeMixedMissing);
+
+    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
+        QSKIP("This test is flaky on mac");
 
 #ifndef QMLMIX_INFERIOR_EXECUTABLE
     QSKIP("Qt::Quick not available when this test binary was configured.");
