@@ -1135,6 +1135,8 @@ public:
         int anchorColumn = -1;
     };
     QList<BlockSelection> m_blockSelections;
+    int visualColumnAt(const QString &text, int position) const;
+    int positionAtVisualColumn(const QString &text, int column) const;
     QList<QTextCursor> generateCursorsForBlockSelection(const BlockSelection &blockSelection);
     void initBlockSelection();
     void clearBlockSelection();
@@ -1654,6 +1656,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     m_redoCursors.clear();
     m_cursorsBeforeEdit.clear();
     rememberDocumentState();
+    q->editorLayout()->setTabStopOffset(m_visualIndentOffset);
     m_tabSettingsButton->setDocument(q->textDocument());
     previousDocument.clear();
     q->setCursorWidth(2); // Applies to the document layout
@@ -2151,16 +2154,30 @@ void TextEditorWidgetPrivate::updateAutoCompleteHighlight()
     q->setExtraSelections(TextEditorWidget::AutoCompleteSelection, {sel});
 }
 
+int TextEditorWidgetPrivate::visualColumnAt(const QString &text, int position) const
+{
+    const int offset = qMin(q->editorLayout()->tabStopOffset(text), int(text.size()));
+    if (position <= offset)
+        return position;
+    return offset + m_document->tabSettings().columnAt(text.mid(offset), position - offset);
+}
+
+int TextEditorWidgetPrivate::positionAtVisualColumn(const QString &text, int column) const
+{
+    const int offset = qMin(q->editorLayout()->tabStopOffset(text), int(text.size()));
+    if (column <= offset)
+        return qMax(0, column);
+    return offset + m_document->tabSettings().positionAtColumn(text.mid(offset), column - offset);
+}
+
 QList<QTextCursor> TextEditorWidgetPrivate::generateCursorsForBlockSelection(
     const BlockSelection &blockSelection)
 {
-    const TabSettingsData tabSettings = m_document->tabSettings();
-
     QList<QTextCursor> result;
     QTextBlock block = m_document->document()->findBlockByNumber(blockSelection.anchorBlockNumber);
     QTextCursor cursor(block);
     cursor.setPosition(block.position()
-                       + tabSettings.positionAtColumn(block.text(), blockSelection.anchorColumn));
+                       + positionAtVisualColumn(block.text(), blockSelection.anchorColumn));
 
     const bool forward = blockSelection.blockNumber > blockSelection.anchorBlockNumber
                          || (blockSelection.blockNumber == blockSelection.anchorBlockNumber
@@ -2168,10 +2185,10 @@ QList<QTextCursor> TextEditorWidgetPrivate::generateCursorsForBlockSelection(
 
     while (block.isValid()) {
         const QString &blockText = block.text();
-        const int columnCount = tabSettings.columnCountForText(blockText);
+        const int columnCount = visualColumnAt(blockText, blockText.size());
         if (blockSelection.anchorColumn <= columnCount || blockSelection.column <= columnCount) {
-            const int anchor = tabSettings.positionAtColumn(blockText, blockSelection.anchorColumn);
-            const int position = tabSettings.positionAtColumn(blockText, blockSelection.column);
+            const int anchor = positionAtVisualColumn(blockText, blockSelection.anchorColumn);
+            const int position = positionAtVisualColumn(blockText, blockSelection.column);
             cursor.setPosition(block.position() + anchor);
             cursor.setPosition(block.position() + position, QTextCursor::KeepAnchor);
             result.append(cursor);
@@ -2185,12 +2202,11 @@ QList<QTextCursor> TextEditorWidgetPrivate::generateCursorsForBlockSelection(
 
 void TextEditorWidgetPrivate::initBlockSelection()
 {
-    const TabSettingsData tabSettings = m_document->tabSettings();
     for (const QTextCursor &cursor : m_cursors) {
-        const int column = tabSettings.columnAtCursorPosition(cursor);
+        const int column = visualColumnAt(cursor.block().text(), cursor.positionInBlock());
         QTextCursor anchor = cursor;
         anchor.setPosition(anchor.anchor());
-        const int anchorColumn = tabSettings.columnAtCursorPosition(anchor);
+        const int anchorColumn = visualColumnAt(anchor.block().text(), anchor.positionInBlock());
         m_blockSelections.append({cursor.blockNumber(), column, anchor.blockNumber(), anchorColumn});
     }
 }
@@ -2352,6 +2368,7 @@ QString TextEditorWidget::selectedText() const
 void TextEditorWidget::setVisualIndentOffset(int offset)
 {
     d->m_visualIndentOffset = qMax(0, offset);
+    editorLayout()->setTabStopOffset(d->m_visualIndentOffset);
 }
 
 void TextEditorWidget::updateUndoRedoActions()
@@ -8050,16 +8067,15 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
         const QTextCursor anchorCursor = cursor.takeMainCursor();
         const QTextCursor eventCursor = cursorForPosition(e->pos());
 
-        const TabSettingsData tabSettings = d->m_document->tabSettings();
-        int eventColumn = tabSettings.columnAt(eventCursor.block().text(),
-                                               eventCursor.positionInBlock());
+        int eventColumn = d->visualColumnAt(eventCursor.block().text(),
+                                            eventCursor.positionInBlock());
         if (eventCursor.positionInBlock() == eventCursor.block().length() - 1) {
             eventColumn += int((e->pos().x() - cursorRect(eventCursor).center().x())
                                / d->charWidth());
         }
 
-        int anchorColumn = tabSettings.columnAt(anchorCursor.block().text(),
-                                                anchorCursor.positionInBlock());
+        int anchorColumn = d->visualColumnAt(anchorCursor.block().text(),
+                                             anchorCursor.positionInBlock());
         const TextEditorWidgetPrivate::BlockSelection blockSelection = {eventCursor.blockNumber(),
                                                                         eventColumn,
                                                                         anchorCursor.blockNumber(),
@@ -8136,16 +8152,15 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
             if (e->modifiers() & Qt::ShiftModifier) {
                 const QTextCursor anchor = multiCursor.takeMainCursor();
 
-                const TabSettingsData tabSettings = d->m_document->tabSettings();
                 int eventColumn
-                    = tabSettings.columnAt(cursor.block().text(), cursor.positionInBlock());
+                    = d->visualColumnAt(cursor.block().text(), cursor.positionInBlock());
                 if (cursor.positionInBlock() == cursor.block().length() - 1) {
                     eventColumn += int(
                         (e->pos().x() - cursorRect(cursor).center().x()) / d->charWidth());
                 }
 
                 const int anchorColumn
-                    = tabSettings.columnAt(anchor.block().text(), anchor.positionInBlock());
+                    = d->visualColumnAt(anchor.block().text(), anchor.positionInBlock());
                 const TextEditorWidgetPrivate::BlockSelection blockSelection
                     = {cursor.blockNumber(), eventColumn, anchor.blockNumber(), anchorColumn};
 

@@ -211,6 +211,7 @@ public:
     bool blockDocumentSizeChanged;
     int cursorWidth;
     int textLayoutFlags;
+    int tabStopOffset = 0;
     // cache for lineSpacing(): recomputing the font metrics on every call is
     // costly and shows up when many blocks are measured (e.g. the inline diff
     // aligner sizing rows while scrolling)
@@ -536,6 +537,54 @@ qreal PlainTextDocumentLayout::textWidth() const
     return d->width;
 }
 
+// Start tab stops after this many leading characters.
+void PlainTextDocumentLayout::setTabStopOffset(int characters)
+{
+    characters = qMax(0, characters);
+    if (d->tabStopOffset == characters)
+        return;
+    d->tabStopOffset = characters;
+    d->relayout();
+}
+
+static QList<qreal> shiftedTabStops(const QTextDocument *document, const QString &text,
+                                  int characters)
+{
+    constexpr int maxTabStops = 20;
+    const qreal distance = document->defaultTextOption().tabStopDistance();
+    if (characters <= 0 || distance <= 0)
+        return {};
+    const int lastTab = text.lastIndexOf('\t');
+    if (lastTab < 0)
+        return {};
+    const qsizetype tabCount = QStringView(text).left(lastTab).count('\t') + 1;
+    if (tabCount > maxTabStops)
+        return {};
+
+    const QFontMetricsF fm(document->defaultFont());
+    const qreal offset = fm.horizontalAdvance(text.left(characters));
+    QString beforeLastTab = text.left(lastTab);
+    const qreal maximumWidth = fm.horizontalAdvance(beforeLastTab.remove('\t'))
+                               + tabCount * distance;
+    if (maximumWidth > offset + maxTabStops * distance)
+        return {};
+
+    QList<qreal> tabs;
+    tabs.reserve(maxTabStops);
+    for (int stop = 1; stop <= maxTabStops; ++stop) {
+        const qreal position = offset + stop * distance;
+        if (position > maximumWidth + distance)
+            break;
+        tabs.append(position);
+    }
+    return tabs;
+}
+
+int PlainTextDocumentLayout::tabStopOffset(const QString &text) const
+{
+    return shiftedTabStops(document(), text, d->tabStopOffset).isEmpty() ? 0 : d->tabStopOffset;
+}
+
 void PlainTextDocumentLayout::setBreakIndent(bool enabled, int minColumns, int shift)
 {
     if (d->breakIndentEnabled == enabled && d->breakIndentMinColumns == minColumns
@@ -653,6 +702,8 @@ void PlainTextDocumentLayout::layoutBlock(const QTextBlock &block)
     qreal height = 0;
     QTextLayout *tl = blockLayout(block);
     QTextOption option = doc->defaultTextOption();
+    if (d->tabStopOffset > 0 && option.tabStopDistance() > 0)
+        option.setTabArray(shiftedTabStops(doc, block.text(), d->tabStopOffset));
     tl->setTextOption(option);
 
     int extraMargin = 0;

@@ -24,6 +24,7 @@
 
 #include <utils/filepath.h>
 #include <utils/multitextcursor.h>
+#include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/temporarydirectory.h>
 
 #include <QDropEvent>
@@ -105,6 +106,8 @@ class TextEditorTest final : public QObject
 {
     Q_OBJECT
 
+    enum BlockSelectionMethod { Keyboard, MouseClick, MouseDrag };
+
 private slots:
     void testIndentationClean_data();
     void testIndentationClean();
@@ -114,6 +117,13 @@ private slots:
     void testTextDocumentChanged();
     void testIndentationGuides_data();
     void testIndentationGuides();
+    void testTabStopOffset_data();
+    void testTabStopOffset();
+    void testBlockSelectionWithTabOffset_data();
+    void testBlockSelectionWithTabOffset();
+    void testTabStopArrayLimit();
+    void testTabStopArrayBound_data();
+    void testTabStopArrayBound();
     void testMoveLinesEndingInEmptyLine();
 };
 
@@ -398,6 +408,233 @@ void TextEditorTest::testIndentationGuides()
             foundGuide |= changedPixels >= targetRect.height() * scale / 2;
         }
         QVERIFY2(foundGuide, qPrintable(QString("Missing guide at column %1").arg(column)));
+    }
+}
+
+void TextEditorTest::testTabStopOffset_data()
+{
+    QTest::addColumn<QString>("prefix");
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<int>("tabSize");
+    QTest::addColumn<bool>("replaceDocument");
+
+    for (const QString &prefix : {QString(), QString("+"), QString("-"), QString(" ")}) {
+        const QList<QString> texts = {"\ttext", " \t \ttext", "    \ttext",
+                                      QString(32, '\t') + " \ttext"};
+        for (const QString &text : texts) {
+            for (int tabSize : {1, 4, 8}) {
+                for (bool replaceDocument : {false, true}) {
+                    const QString name = QString("%1-%2-%3-%4")
+                                             .arg(prefix, text).arg(tabSize).arg(replaceDocument);
+                    QTest::newRow(qPrintable(name))
+                        << prefix << text << tabSize << replaceDocument;
+                }
+            }
+        }
+    }
+}
+
+void TextEditorTest::testTabStopOffset()
+{
+    QFETCH(QString, prefix);
+    QFETCH(QString, text);
+    QFETCH(int, tabSize);
+    QFETCH(bool, replaceDocument);
+
+    class OffsetEditorWidget : public TextEditorWidget
+    {
+    public:
+        using TextEditorWidget::setVisualIndentOffset;
+        using TextEditorWidget::triggerPendingUpdates;
+    } widget;
+    widget.setTextDocument(TextDocumentPtr(new TextDocument));
+    if (replaceDocument) {
+        widget.setVisualIndentOffset(prefix.size());
+        widget.setTextDocument(TextDocumentPtr(new TextDocument));
+    }
+    widget.triggerPendingUpdates();
+    widget.setLineWrapMode(Utils::PlainTextEdit::NoWrap);
+    TabSettingsData settings = widget.textDocument()->tabSettings();
+    settings.m_autoDetect = false;
+    settings.m_tabSize = tabSize;
+    widget.textDocument()->setTabSettings(settings);
+
+    const int columns = settings.columnAt(text, text.size());
+    widget.setPlainText(prefix + text + '\n' + prefix + QString(columns, ' '));
+    if (!replaceDocument)
+        widget.setVisualIndentOffset(prefix.size());
+
+    const QTextBlock actualBlock = widget.document()->firstBlock();
+    const QTextBlock expectedBlock = actualBlock.next();
+    widget.editorLayout()->ensureBlockLayout(actualBlock);
+    widget.editorLayout()->ensureBlockLayout(expectedBlock);
+    const QTextLine actual = widget.editorLayout()->blockLayout(actualBlock)->lineAt(0);
+    const QTextLine expected = widget.editorLayout()->blockLayout(expectedBlock)->lineAt(0);
+    for (int position = 0; position <= text.size(); ++position) {
+        const int column = text.count('\t') > 20
+            ? settings.columnAt(prefix + text, prefix.size() + position) - prefix.size()
+            : settings.columnAt(text, position);
+        const qreal actualX = actual.cursorToX(prefix.size() + position);
+        const qreal expectedX = expected.cursorToX(prefix.size() + column);
+        QVERIFY2(qAbs(actualX - expectedX) < 0.1,
+                 qPrintable(QString("Position %1: %2 != %3")
+                                .arg(position).arg(actualX).arg(expectedX)));
+    }
+}
+
+void TextEditorTest::testBlockSelectionWithTabOffset_data()
+{
+    QTest::addColumn<QString>("prefix");
+    QTest::addColumn<int>("tabSize");
+    QTest::addColumn<int>("tabCount");
+    QTest::addColumn<int>("method");
+    QTest::addColumn<bool>("reverse");
+    for (const QString &prefix : QStringList{"", "+", "-", " ", "++"}) {
+        for (int tabSize : {4, 8}) {
+            for (int tabCount : {1, 20, 21}) {
+                for (int method : {Keyboard, MouseClick, MouseDrag}) {
+                    for (bool reverse : {false, true}) {
+                        QTest::addRow("%s-%d-%d-%d-%d", qPrintable(prefix), tabSize,
+                                      tabCount, method, reverse)
+                            << prefix << tabSize << tabCount << method << reverse;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void TextEditorTest::testBlockSelectionWithTabOffset()
+{
+    QFETCH(QString, prefix);
+    QFETCH(int, tabSize);
+    QFETCH(int, tabCount);
+    QFETCH(int, method);
+    QFETCH(bool, reverse);
+
+    class OffsetEditorWidget : public TextEditorWidget
+    {
+    public:
+        using TextEditorWidget::setVisualIndentOffset;
+        using TextEditorWidget::triggerPendingUpdates;
+    } widget;
+    widget.setTextDocument(TextDocumentPtr(new TextDocument));
+    widget.triggerPendingUpdates();
+    widget.setLineWrapMode(Utils::PlainTextEdit::NoWrap);
+    TabSettingsData settings = widget.textDocument()->tabSettings();
+    settings.m_autoDetect = false;
+    settings.m_tabSize = tabSize;
+    widget.textDocument()->setTabSettings(settings);
+    const QString tabs(tabCount, '\t');
+    const int spaces = tabCount <= 20 ? tabCount * tabSize
+        : settings.columnAt(prefix + tabs, prefix.size() + tabCount) - prefix.size();
+    widget.setPlainText(prefix + tabs + "x\n" + prefix + QString(spaces, ' ') + 'x');
+    widget.setVisualIndentOffset(prefix.size());
+    widget.setReadOnly(true);
+    widget.resize(640, 240);
+    widget.show();
+
+    const QTextBlock first = widget.document()->firstBlock();
+    const QTextBlock second = first.next();
+    const int firstX = first.position() + prefix.size() + tabCount;
+    const int secondX = second.position() + prefix.size() + spaces;
+    const int anchor = reverse ? secondX : firstX;
+    const int target = reverse ? firstX : secondX;
+    QTextCursor cursor(widget.document());
+    cursor.setPosition(anchor);
+    if (method == Keyboard)
+        cursor.setPosition(anchor + 1, QTextCursor::KeepAnchor);
+    widget.setTextCursor(cursor);
+
+    if (method == Keyboard) {
+        QTest::keyClick(&widget, reverse ? Qt::Key_Up : Qt::Key_Down,
+                        Qt::AltModifier | Qt::ShiftModifier);
+    } else {
+        cursor.setPosition(target + 1);
+        const QPoint point = widget.cursorRect(cursor).center();
+        if (method == MouseClick) {
+            QTest::mouseClick(widget.viewport(), Qt::LeftButton,
+                              Qt::AltModifier | Qt::ShiftModifier, point);
+        } else {
+            QMouseEvent event(QEvent::MouseMove, point, widget.viewport()->mapToGlobal(point),
+                              Qt::NoButton, Qt::LeftButton, Qt::AltModifier);
+            QCoreApplication::sendEvent(widget.viewport(), &event);
+            QMouseEvent endDrag(QEvent::MouseMove, point, widget.viewport()->mapToGlobal(point),
+                                Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+            QCoreApplication::sendEvent(widget.viewport(), &endDrag);
+        }
+    }
+    const QList<QTextCursor> cursors = widget.multiTextCursor().cursors();
+    QCOMPARE(cursors.size(), 2);
+    for (const QTextCursor &selection : cursors)
+        QCOMPARE(selection.selectedText(), QString("x"));
+}
+
+void TextEditorTest::testTabStopArrayLimit()
+{
+    QTextDocument document;
+    auto layout = new Utils::PlainTextDocumentLayout(&document);
+    document.setDocumentLayout(layout);
+    layout->setTabStopOffset(1);
+    document.setPlainText('+' + QString(21, '\t'));
+    layout->ensureBlockLayout(document.firstBlock());
+    QVERIFY(layout->blockLayout(document.firstBlock())->textOption().tabArray().isEmpty());
+}
+
+void TextEditorTest::testTabStopArrayBound_data()
+{
+    QTest::addColumn<QString>("beforeTail");
+    QTest::addColumn<int>("tabSize");
+    QTest::addColumn<bool>("shifted");
+    const QList<QString> texts = {"\t", QString(1000, ' ') + '\t', QString(20, '\t'),
+                                  QString(21, '\t'), QString(128, '\t'), QString(100000, '\t')};
+    for (int i = 0; i < texts.size(); ++i) {
+        for (int tabSize : {1, 4, 8}) {
+            const QString name = QString("text%1-tab%2").arg(i).arg(tabSize);
+            QTest::newRow(qPrintable(name)) << texts.at(i) << tabSize << (i == 0 || i == 2);
+        }
+    }
+}
+
+void TextEditorTest::testTabStopArrayBound()
+{
+    QFETCH(QString, beforeTail);
+    QFETCH(int, tabSize);
+    QFETCH(bool, shifted);
+
+    class OffsetEditorWidget : public TextEditorWidget
+    {
+    public:
+        using TextEditorWidget::setVisualIndentOffset;
+        using TextEditorWidget::triggerPendingUpdates;
+    } widget;
+    widget.setTextDocument(TextDocumentPtr(new TextDocument));
+    widget.triggerPendingUpdates();
+    widget.setVisualIndentOffset(1);
+    widget.setLineWrapMode(Utils::PlainTextEdit::NoWrap);
+    TabSettingsData settings = widget.textDocument()->tabSettings();
+    settings.m_autoDetect = false;
+    settings.m_tabSize = tabSize;
+    widget.textDocument()->setTabSettings(settings);
+
+    const int columns = settings.columnAt(beforeTail, beforeTail.size());
+    widget.setPlainText('+' + beforeTail + QString(100000, 'x') + '\n'
+                        + '+' + QString(columns, ' '));
+    const QTextBlock actualBlock = widget.document()->firstBlock();
+    const QTextBlock expectedBlock = actualBlock.next();
+    widget.editorLayout()->ensureBlockLayout(actualBlock);
+    widget.editorLayout()->ensureBlockLayout(expectedBlock);
+    const QTextLayout *actualLayout = widget.editorLayout()->blockLayout(actualBlock);
+    const QList<qreal> stops = actualLayout->textOption().tabArray();
+    QVERIFY(stops.size() <= 20);
+    QCOMPARE(stops.isEmpty(), !shifted);
+
+    const QTextLine actual = actualLayout->lineAt(0);
+    const QTextLine expected = widget.editorLayout()->blockLayout(expectedBlock)->lineAt(0);
+    for (int position : {beforeTail.indexOf('\t'), beforeTail.lastIndexOf('\t')}) {
+        const int column = shifted ? settings.columnAt(beforeTail, position + 1)
+            : settings.columnAt('+' + beforeTail, position + 2) - 1;
+        QVERIFY(qAbs(actual.cursorToX(position + 2) - expected.cursorToX(column + 1)) < 0.1);
     }
 }
 

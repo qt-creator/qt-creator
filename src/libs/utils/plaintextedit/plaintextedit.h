@@ -280,6 +280,9 @@ public:
 
     void requestUpdate();
 
+    void setTabStopOffset(int characters);
+    int tabStopOffset(const QString &text) const;
+
     // Indent wrapped display lines to the leading whitespace of their block
     // (vim's 'breakindent'). minColumns keeps at least that many columns of
     // text after the indent; shift adds that many columns on top.
