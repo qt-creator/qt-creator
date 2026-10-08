@@ -401,7 +401,7 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
     callgraphMode.addOption({Tr::tr("dwarf"), {}, QString(Constants::PerfCallgraphDwarf)});
     callgraphMode.addOption({Tr::tr("frame pointer"), {}, QString("fp")});
     callgraphMode.addOption({Tr::tr("last branch record"), {}, QString("lbr")});
-    callgraphMode.setDefaultValue(0);
+    callgraphMode.setDefaultValue(1);
     callgraphMode.setToolTip(Tr::tr(
         "How \"perf record\" captures the call stack for each sample:\n"
         "\n"
@@ -426,12 +426,16 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
     extraArguments.setLabelText(Tr::tr("Additional arguments:"));
     extraArguments.setSpan(4);
 
-    connect(&callgraphMode, &SelectionAspect::volatileValueChanged, this, [this] {
+    const auto updateStackSizeEnabled = [this] {
         stackSize.setEnabled(callgraphMode.volatileValue() == 0);
-    });
+    };
+    connect(&callgraphMode, &SelectionAspect::volatileValueChanged, this, updateStackSizeEnabled);
+    // Loading settings changes the mode quietly.
+    connect(this, &AspectContainer::fromMapFinished, this, updateStackSizeEnabled);
 
-    setLayouter([this, target] {
+    setLayouter([this, target, updateStackSizeEnabled] {
         using namespace Layouting;
+        updateStackSizeEnabled();
         auto widget = new PerfConfigWidget(this, target);
         return Column { widget };
     });
