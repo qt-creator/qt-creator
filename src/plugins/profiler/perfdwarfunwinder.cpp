@@ -161,47 +161,6 @@ int dwarfRegisterCount(PerfArchitecture arch)
     return 0;
 }
 
-// With pointer authentication, aarch64 return addresses carry a signature in
-// the bits above the address, up to bit 54. Where it starts depends on the
-// virtual address size the kernel was built for, so for a recording taken
-// here it is taken from what the CPU strips as signature off an address with
-// all bits up to 54 set. For one taken elsewhere, which this CPU says nothing
-// about, and where it cannot be asked or signs nothing, 48-bit virtual
-// addresses are assumed. No user space pointer has these bits set.
-quint64 aarch64UserPacMask(bool recordedHere)
-{
-    constexpr quint64 assumedMask = 0x007f000000000000ull;
-#ifdef Q_PROCESSOR_ARM_64
-    static const quint64 hostMask = [] {
-        constexpr quint64 allAddressBits = (1ull << 55) - 1;
-        quint64 stripped = 0;
-        // xpaclri, a NOP without pointer authentication, where nothing is signed.
-        asm("mov x30, %1\n\t"
-            "hint #7\n\t"
-            "mov %0, x30"
-            : "=r"(stripped)
-            : "r"(allAddressBits)
-            : "x30");
-        return allAddressBits & ~stripped;
-    }();
-    if (recordedHere && hostMask != 0)
-        return hostMask;
-#else
-    Q_UNUSED(recordedHere)
-#endif
-    return assumedMask;
-}
-
-// libdw strips a pointer authentication signature only where the CFI says a
-// return address was signed, not where it falls back to the frame pointer
-// chain, so it is stripped from everything it reads instead.
-quint64 withoutSignature(const UnwindInput &input, quint64 value)
-{
-    return input.arch == PerfArchitecture::Aarch64
-               ? value & ~aarch64UserPacMask(input.useHostPointerAuthentication)
-               : value;
-}
-
 // Exactly one synthetic "thread" per PerfDwarfUnwinder::unwind() call --
 // there is no real process or thread here, just a captured register+stack
 // snapshot -- identified by this arbitrary, fixed id.
@@ -255,8 +214,13 @@ bool readStackWord(const UnwindInput &input, quint64 addr, quint64 *result)
     if (offset + wordSize > quint64(input.stackBytes.size()))
         return false; // outside the captured window -- stop unwinding here
     const auto *word = reinterpret_cast<const uchar *>(input.stackBytes.constData() + offset);
-    *result = withoutSignature(input, wordSize == 4 ? qFromLittleEndian<quint32>(word)
-                                                    : qFromLittleEndian<quint64>(word));
+    // libdw strips a pointer authentication signature only where the CFI says
+    // a return address was signed, not where it falls back to the frame
+    // pointer chain, so it is stripped from everything it reads instead.
+    *result = withoutPointerAuthentication(input.arch,
+                                           wordSize == 4 ? qFromLittleEndian<quint32>(word)
+                                                         : qFromLittleEndian<quint64>(word),
+                                           input.useHostPointerAuthentication);
     return true;
 }
 
@@ -573,6 +537,30 @@ bool PerfDwarfUnwinder::isValid() const
     return d->dwfl != nullptr;
 }
 
+bool PerfDwarfUnwinder::isReturnAddressInRegister(quint64 pc) const
+{
+    if (!d->dwfl)
+        return false;
+    Dwarf_Frame *frame = cfiFrameAt(d->dwfl, pc);
+    if (!frame)
+        return false;
+    Dwarf_Addr start = 0;
+    Dwarf_Addr end = 0;
+    bool isSignalFrame = false;
+    const int returnAddressRegister = dwarf_frame_info(frame, &start, &end, &isSignalFrame);
+    // No operations and no array for them is libdw's "same value": the
+    // register still holds what the call put there.
+    Dwarf_Op opsMem[3];
+    Dwarf_Op *ops = opsMem;
+    size_t opCount = 0;
+    const bool inRegister = returnAddressRegister >= 0
+                            && dwarf_frame_register(frame, returnAddressRegister, opsMem, &ops,
+                                                    &opCount) == 0
+                            && opCount == 0 && ops == nullptr;
+    std::free(frame);
+    return inRegister;
+}
+
 QList<quint64> PerfDwarfUnwinder::unwind(const UnwindInput &input)
 {
     if (!d->dwfl || !input.isValid())
@@ -585,7 +573,9 @@ QList<quint64> PerfDwarfUnwinder::unwind(const UnwindInput &input)
     for (int perfReg = 0; perfReg < input.regs.size(); ++perfReg) {
         const int dwarfReg = dwarfRegisterFor(input.arch, perfReg);
         if (dwarfReg >= 0 && dwarfReg < count)
-            d->startRegs[dwarfReg] = withoutSignature(input, input.regs.at(perfReg));
+            d->startRegs[dwarfReg] = withoutPointerAuthentication(input.arch,
+                                                                   input.regs.at(perfReg),
+                                                                   input.useHostPointerAuthentication);
     }
     d->startPc = input.regs.at(layout.ip);
     d->startsAtReturnAddress = false;

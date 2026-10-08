@@ -150,6 +150,10 @@ public:
     // default.
     void setUseHostPointerAuthentication(bool use);
 
+    // Whether, at `pc` in `pid`, the CFI says the return address is still in
+    // the link register. False where that cannot be told, as without libdw.
+    bool isReturnAddressInRegister(quint32 pid, quint64 pc);
+
 private:
     std::unique_ptr<PerfSymbolizerPrivate> d;
 };

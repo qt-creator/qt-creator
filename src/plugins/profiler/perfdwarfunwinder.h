@@ -93,6 +93,11 @@ public:
     // unwinding could be attempted at all.
     bool isValid() const;
 
+    // Whether, at `pc`, the CFI says the return address is still in the
+    // register the call put it in, as in a function that has not saved it,
+    // or not yet. False where there is no CFI for `pc`.
+    bool isReturnAddressInRegister(quint64 pc) const;
+
     // Replaces the modules the unwinder knows, e.g. once more were mapped.
     void setModules(const QList<UnwindModule> &modules);
 

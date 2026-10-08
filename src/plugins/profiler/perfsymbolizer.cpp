@@ -1098,6 +1098,17 @@ bool PerfSymbolizer::canUnwind()
 #endif
 }
 
+bool PerfSymbolizer::isReturnAddressInRegister(quint32 pid, quint64 pc)
+{
+#ifdef WITH_LIBDW
+    return d->dwarfUnwinderFor(pid)->isReturnAddressInRegister(pc);
+#else
+    Q_UNUSED(pid)
+    Q_UNUSED(pc)
+    return false;
+#endif
+}
+
 QList<quint64> PerfSymbolizer::unwind(quint32 pid, PerfArchitecture arch,
                                       const QList<quint64> &regs, const QByteArray &stack)
 {
