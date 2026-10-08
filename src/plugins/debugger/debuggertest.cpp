@@ -1417,7 +1417,10 @@ void DebuggerUnitTests::testCdbSourceFileNameOnDevice()
     QVERIFY(onDevice.exists);
 
     // A mapping may point to the device, too.
-    const Result<FilePath> dir = device->rootPath().createTempDir();
+    const Result<FilePath> tmp = device->rootPath().tmpDir();
+    if (!tmp)
+        QFAIL(qPrintable(tmp.error()));
+    const Result<FilePath> dir = tmp->pathAppended("debuggertest-XXXXXX").createTempDir();
     if (!dir)
         QFAIL(qPrintable(dir.error()));
     const QScopeGuard removeDir([dir] { dir->removeRecursively(); });
