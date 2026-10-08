@@ -141,6 +141,10 @@ public:
     static bool canUnwind();
     QList<quint64> unwind(quint32 pid, PerfArchitecture arch, const QList<quint64> &regs,
                           const QByteArray &stack);
+    // Whether unwinding takes from this machine's CPU how return addresses
+    // are signed, which is only right for a recording taken here. On by
+    // default.
+    void setUseHostPointerAuthentication(bool use);
 
 private:
     std::unique_ptr<PerfSymbolizerPrivate> d;

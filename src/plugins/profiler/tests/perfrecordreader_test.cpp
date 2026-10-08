@@ -31,6 +31,7 @@
 
 #include <dlfcn.h>
 #include <fcntl.h>
+#include <pthread.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
@@ -509,7 +510,7 @@ QByteArray buildStrippedElfWithBuildId(const QByteArray &buildId)
     return elf;
 }
 
-#if defined(WITH_LIBDW) && defined(Q_PROCESSOR_X86_64)
+#if defined(WITH_LIBDW) && (defined(Q_PROCESSOR_X86_64) || defined(Q_PROCESSOR_ARM_64))
 // Real DWARF CFI (.eh_frame) data cannot be convincingly hand-built the way
 // buildMinimalElfWithSymbols()'s plain .symtab can -- so testUnwindsRealDwarfCallChain()
 // below instead captures a *real* register+stack snapshot of this very test
@@ -517,11 +518,64 @@ QByteArray buildStrippedElfWithBuildId(const QByteArray &buildId)
 // PerfDwarfUnwinder pointed at this binary's own shared object (found via
 // dladdr()). volatile/noinline throughout so the compiler can't fold the
 // recursion away or reorder the register capture.
+// On aarch64 they sign their return addresses, as distributions build their
+// libraries to, so the unwind has to strip the signatures to get past them.
+#ifdef Q_PROCESSOR_ARM_64
+#define DWARF_TEST_FUNCTION Q_NEVER_INLINE __attribute__((target("branch-protection=pac-ret")))
+#else
+#define DWARF_TEST_FUNCTION Q_NEVER_INLINE
+#endif
+
 volatile int g_dwarfTestSink = 0;
 
-Q_NEVER_INLINE void dwarfTestLeaf(UnwindInput *out)
+// A generous window above `sp`: return addresses the unwinder needs live at
+// increasing addresses from there (the stack grows down), well within a
+// default thread's multi-MB stack at only a few frames deep. It ends where
+// the stack does, which a shallow call can be closer to.
+QByteArray dwarfTestStackFrom(quint64 sp)
 {
-    quint64 regs[24] = {};
+    qsizetype size = 16384;
+    pthread_attr_t attr;
+    if (pthread_getattr_np(pthread_self(), &attr) == 0) {
+        void *stackAddr = nullptr;
+        size_t stackSize = 0;
+        if (pthread_attr_getstack(&attr, &stackAddr, &stackSize) == 0) {
+            const quint64 stackEnd = quint64(reinterpret_cast<quintptr>(stackAddr)) + stackSize;
+            size = qsizetype(qMin<quint64>(size, stackEnd - sp));
+        }
+        pthread_attr_destroy(&attr);
+    }
+    return QByteArray(reinterpret_cast<const char *>(quintptr(sp)), size);
+}
+
+DWARF_TEST_FUNCTION void dwarfTestLeaf(UnwindInput *out)
+{
+    const PerfRegisterLayout layout = perfRegisterLayout(hostPerfArchitecture());
+    quint64 regs[33] = {};
+#ifdef Q_PROCESSOR_ARM_64
+    // x0..x30 and sp, in perf's PERF_REG_ARM64_* order.
+    asm volatile("stp x0, x1, [%0, #0]\n\t"
+                 "stp x2, x3, [%0, #16]\n\t"
+                 "stp x4, x5, [%0, #32]\n\t"
+                 "stp x6, x7, [%0, #48]\n\t"
+                 "stp x8, x9, [%0, #64]\n\t"
+                 "stp x10, x11, [%0, #80]\n\t"
+                 "stp x12, x13, [%0, #96]\n\t"
+                 "stp x14, x15, [%0, #112]\n\t"
+                 "stp x16, x17, [%0, #128]\n\t"
+                 "stp x18, x19, [%0, #144]\n\t"
+                 "stp x20, x21, [%0, #160]\n\t"
+                 "stp x22, x23, [%0, #176]\n\t"
+                 "stp x24, x25, [%0, #192]\n\t"
+                 "stp x26, x27, [%0, #208]\n\t"
+                 "stp x28, x29, [%0, #224]\n\t"
+                 "str x30, [%0, #240]\n\t"
+                 "mov x9, sp\n\t"
+                 "str x9, [%0, #248]\n\t"
+                 :
+                 : "r"(regs)
+                 : "x9", "memory");
+#else
     // Captures the x86-64 GPRs in perf's own PERF_REG_X86_* order (see
     // perfdwarfunwinder.cpp's dwarfRegisterFor()) -- simpler and more direct
     // than translating glibc's own, differently-ordered ucontext_t layout.
@@ -547,6 +601,7 @@ Q_NEVER_INLINE void dwarfTestLeaf(UnwindInput *out)
                    "=m"(regs[23])
                  :
                  : "memory");
+#endif
     // A label's address (a GNU/Clang extension, "labels as values") is a real
     // program counter value inside *this* function, unlike
     // __builtin_return_address(0) (which would give a PC in the caller) --
@@ -554,18 +609,15 @@ Q_NEVER_INLINE void dwarfTestLeaf(UnwindInput *out)
     // *for*.
     void *pc = &&hereLabel;
 hereLabel:
-    regs[8] = quint64(reinterpret_cast<quintptr>(pc)); // PERF_REG_X86_IP
-    out->regs = QList<quint64>(regs, regs + 24);
-    out->stackStartAddr = regs[7]; // PERF_REG_X86_SP
-    // A generous window above the current SP: return addresses this unwinder
-    // needs live at increasing addresses from here (the stack grows down),
-    // well within a default thread's multi-MB stack at only a few frames deep.
-    constexpr qsizetype captureSize = 16384;
-    out->stackBytes = QByteArray(reinterpret_cast<const char *>(quintptr(regs[7])), captureSize);
+    regs[layout.ip] = quint64(reinterpret_cast<quintptr>(pc));
+    out->arch = hostPerfArchitecture();
+    out->regs = QList<quint64>(regs, regs + layout.count);
+    out->stackStartAddr = regs[layout.sp];
+    out->stackBytes = dwarfTestStackFrom(regs[layout.sp]);
     g_dwarfTestSink = 1; // keeps the capture above from being optimized away
 }
 
-Q_NEVER_INLINE int dwarfTestMiddle(int depth, UnwindInput *out)
+DWARF_TEST_FUNCTION int dwarfTestMiddle(int depth, UnwindInput *out)
 {
     if (depth <= 0) {
         dwarfTestLeaf(out);
@@ -591,13 +643,13 @@ Q_NEVER_INLINE int dwarfTestMiddle(int depth, UnwindInput *out)
 // way the rest of this recursion does.
 UnwindInput *g_dwarfQsortCaptureTarget = nullptr;
 
-int dwarfTestQsortCompare(const void *, const void *)
+DWARF_TEST_FUNCTION int dwarfTestQsortCompare(const void *, const void *)
 {
     dwarfTestMiddle(2, g_dwarfQsortCaptureTarget);
     return 0;
 }
 
-Q_NEVER_INLINE int dwarfTestOuter(UnwindInput *out)
+DWARF_TEST_FUNCTION int dwarfTestOuter(UnwindInput *out)
 {
     g_dwarfQsortCaptureTarget = out;
     int items[2] = {1, 2};
@@ -605,7 +657,187 @@ Q_NEVER_INLINE int dwarfTestOuter(UnwindInput *out)
     g_dwarfQsortCaptureTarget = nullptr;
     return g_dwarfTestSink;
 }
-#endif // WITH_LIBDW && Q_PROCESSOR_X86_64
+
+#ifdef Q_PROCESSOR_ARM_64
+// Code without CFI, as JIT-compiled code and the vdso are: pushes a frame
+// record and calls `callee` with `out`.
+asm(".text\n"
+    ".p2align 2\n"
+    ".type dwarfTestNoCfiTrampoline, %function\n"
+    "dwarfTestNoCfiTrampoline:\n"
+    "    hint #34\n" // bti c
+    "    stp x29, x30, [sp, #-16]!\n"
+    "    mov x29, sp\n"
+    "    blr x1\n"
+    "    ldp x29, x30, [sp], #16\n"
+    "    ret\n"
+    ".size dwarfTestNoCfiTrampoline, .-dwarfTestNoCfiTrampoline\n");
+extern "C" void dwarfTestNoCfiTrampoline(UnwindInput *out, void (*callee)(UnwindInput *));
+
+// Code without CFI that is sampled after it called something, so that the
+// link register points back into it: pushes a frame record, calls a function
+// that returns at once, and calls `capture` with its registers, in perf's
+// PERF_REG_ARM64_* order, and `out`.
+asm(".text\n"
+    ".p2align 2\n"
+    ".type dwarfTestNoCfiReturns, %function\n"
+    "dwarfTestNoCfiReturns:\n"
+    "    hint #34\n" // bti c
+    "    ret\n"
+    ".size dwarfTestNoCfiReturns, .-dwarfTestNoCfiReturns\n"
+    ".p2align 2\n"
+    ".type dwarfTestNoCfiSampled, %function\n"
+    "dwarfTestNoCfiSampled:\n"
+    "    hint #34\n" // bti c
+    "    stp x29, x30, [sp, #-16]!\n"
+    "    mov x29, sp\n"
+    "    sub sp, sp, #272\n"
+    "    bl dwarfTestNoCfiReturns\n"
+    "    nop\n"
+    "1:  stp x0, x1, [sp, #0]\n"
+    "    stp x2, x3, [sp, #16]\n"
+    "    stp x4, x5, [sp, #32]\n"
+    "    stp x6, x7, [sp, #48]\n"
+    "    stp x8, x9, [sp, #64]\n"
+    "    stp x10, x11, [sp, #80]\n"
+    "    stp x12, x13, [sp, #96]\n"
+    "    stp x14, x15, [sp, #112]\n"
+    "    stp x16, x17, [sp, #128]\n"
+    "    stp x18, x19, [sp, #144]\n"
+    "    stp x20, x21, [sp, #160]\n"
+    "    stp x22, x23, [sp, #176]\n"
+    "    stp x24, x25, [sp, #192]\n"
+    "    stp x26, x27, [sp, #208]\n"
+    "    stp x28, x29, [sp, #224]\n"
+    "    str x30, [sp, #240]\n"
+    "    mov x9, sp\n"
+    "    str x9, [sp, #248]\n"
+    "    adr x9, 1b\n"
+    "    str x9, [sp, #256]\n"
+    "    mov x9, x1\n"
+    "    mov x1, x0\n"
+    "    mov x0, sp\n"
+    "    blr x9\n"
+    "    add sp, sp, #272\n"
+    "    ldp x29, x30, [sp], #16\n"
+    "    ret\n"
+    ".size dwarfTestNoCfiSampled, .-dwarfTestNoCfiSampled\n");
+extern "C" void dwarfTestNoCfiSampled(UnwindInput *out,
+                                      void (*capture)(const quint64 *regs, UnwindInput *out));
+
+quint64 g_dwarfTestNoCfiCaller = 0;
+
+DWARF_TEST_FUNCTION void dwarfTestBelowNoCfi(UnwindInput *out)
+{
+    dwarfTestMiddle(2, out);
+}
+
+DWARF_TEST_FUNCTION void dwarfTestAboveNoCfi(UnwindInput *out)
+{
+    g_dwarfTestNoCfiCaller = quint64(reinterpret_cast<quintptr>(__builtin_return_address(0)));
+    dwarfTestNoCfiTrampoline(out, dwarfTestBelowNoCfi);
+}
+
+DWARF_TEST_FUNCTION void dwarfTestCaptureNoCfi(const quint64 *regs, UnwindInput *out)
+{
+    const PerfRegisterLayout layout = perfRegisterLayout(hostPerfArchitecture());
+    out->arch = hostPerfArchitecture();
+    out->regs = QList<quint64>(regs, regs + layout.count);
+    out->stackStartAddr = regs[layout.sp];
+    out->stackBytes = dwarfTestStackFrom(regs[layout.sp]);
+}
+
+DWARF_TEST_FUNCTION void dwarfTestAboveNoCfiSampled(UnwindInput *out)
+{
+    g_dwarfTestNoCfiCaller = quint64(reinterpret_cast<quintptr>(__builtin_return_address(0)));
+    dwarfTestNoCfiSampled(out, dwarfTestCaptureNoCfi);
+}
+
+// Code without CFI in GCC's layout, which saves registers above its frame
+// record, so that its caller's stack pointer is not right above the record:
+// pushes a frame record, saves x19 and x20 and calls `callee` with `out`.
+asm(".text\n"
+    ".p2align 2\n"
+    ".type dwarfTestNoCfiGccTrampoline, %function\n"
+    "dwarfTestNoCfiGccTrampoline:\n"
+    "    hint #34\n" // bti c
+    "    stp x29, x30, [sp, #-32]!\n"
+    "    mov x29, sp\n"
+    "    stp x19, x20, [sp, #16]\n"
+    "    blr x1\n"
+    "    ldp x19, x20, [sp, #16]\n"
+    "    ldp x29, x30, [sp], #32\n"
+    "    ret\n"
+    ".size dwarfTestNoCfiGccTrampoline, .-dwarfTestNoCfiGccTrampoline\n");
+
+// Calls dwarfTestNoCfiGccTrampoline with `out` and `callee`, with CFI that
+// takes the CFA from the stack pointer, as GCC's does.
+asm(".text\n"
+    ".p2align 2\n"
+    ".type dwarfTestSpBasedCfa, %function\n"
+    "dwarfTestSpBasedCfa:\n"
+    "    .cfi_startproc\n"
+    "    hint #34\n" // bti c
+    "    stp x29, x30, [sp, #-16]!\n"
+    "    .cfi_def_cfa_offset 16\n"
+    "    .cfi_offset 29, -16\n"
+    "    .cfi_offset 30, -8\n"
+    "    mov x29, sp\n"
+    "    bl dwarfTestNoCfiGccTrampoline\n"
+    "    ldp x29, x30, [sp], #16\n"
+    "    .cfi_restore 30\n"
+    "    .cfi_restore 29\n"
+    "    .cfi_def_cfa_offset 0\n"
+    "    ret\n"
+    "    .cfi_endproc\n"
+    ".size dwarfTestSpBasedCfa, .-dwarfTestSpBasedCfa\n");
+extern "C" void dwarfTestSpBasedCfa(UnwindInput *out, void (*callee)(UnwindInput *));
+
+DWARF_TEST_FUNCTION void dwarfTestAboveNoCfiInGccLayout(UnwindInput *out)
+{
+    g_dwarfTestNoCfiCaller = quint64(reinterpret_cast<quintptr>(__builtin_return_address(0)));
+    dwarfTestSpBasedCfa(out, dwarfTestBelowNoCfi);
+}
+
+// Signs the return address in the frame record dwarfTestNoCfiTrampoline
+// pushed in `input`, with `signature`, as a CPU with pointer authentication
+// would have. Returns whether it found the record.
+bool signNoCfiTrampolineReturnAddress(UnwindInput *input, quint64 signature)
+{
+    constexpr quint64 addressMask = (1ull << 48) - 1;
+    const auto wordAt = [input](quint64 addr) -> char * {
+        if (addr < input->stackStartAddr
+            || addr - input->stackStartAddr + 8 > quint64(input->stackBytes.size())) {
+            return nullptr;
+        }
+        return input->stackBytes.data() + (addr - input->stackStartAddr);
+    };
+    // Up the frame records from the sampled frame pointer, to the one of the
+    // frame the trampoline called, which returns into it.
+    const quint64 trampoline = quint64(reinterpret_cast<quintptr>(&dwarfTestNoCfiTrampoline));
+    quint64 fp = input->regs.at(29);
+    while (char *record = wordAt(fp)) {
+        const char *returnAddress = wordAt(fp + 8);
+        if (!returnAddress)
+            return false;
+        const quint64 pc = qFromLittleEndian<quint64>(returnAddress) & addressMask;
+        const quint64 callerFp = qFromLittleEndian<quint64>(record);
+        if (callerFp <= fp)
+            return false;
+        fp = callerFp;
+        if (pc > trampoline && pc < trampoline + 32) {
+            char *trampolineReturnAddress = wordAt(fp + 8);
+            if (!trampolineReturnAddress)
+                return false;
+            qToLittleEndian<quint64>(qFromLittleEndian<quint64>(trampolineReturnAddress) | signature,
+                                     trampolineReturnAddress);
+            return true;
+        }
+    }
+    return false;
+}
+#endif // Q_PROCESSOR_ARM_64
+#endif // WITH_LIBDW && (Q_PROCESSOR_X86_64 || Q_PROCESSOR_ARM_64)
 
 } // namespace
 
@@ -663,9 +895,15 @@ private slots:
 #ifdef WITH_LIBDW
     void testSkipsModulesThatAreNoFiles();
 #endif
-#if defined(WITH_LIBDW) && defined(Q_PROCESSOR_X86_64)
+#if defined(WITH_LIBDW) && (defined(Q_PROCESSOR_X86_64) || defined(Q_PROCESSOR_ARM_64))
     void testUnwindsRealDwarfCallChain();
     void testUnwindsDwarfSampleThroughReader();
+#endif
+#if defined(WITH_LIBDW) && defined(Q_PROCESSOR_ARM_64)
+    void testUnwindsThroughCodeWithoutCfi();
+    void testUnwindsThroughCodeWithoutCfiInGccLayout();
+    void testUnwindsSampledCodeWithoutCfiOnce();
+    void testStripsSignaturesOfRecordingsTakenElsewhere();
 #endif
 };
 
@@ -1092,7 +1330,7 @@ void PerfRecordReaderTest::testSkipsModulesThatAreNoFiles()
 }
 #endif // WITH_LIBDW
 
-#if defined(WITH_LIBDW) && defined(Q_PROCESSOR_X86_64)
+#if defined(WITH_LIBDW) && (defined(Q_PROCESSOR_X86_64) || defined(Q_PROCESSOR_ARM_64))
 // The one test in this file that exercises PerfDwarfUnwinder against *real*
 // DWARF CFI data rather than hand-built bytes (see the dwarfTest* helpers
 // above): captures a genuine register+stack snapshot several real recursive
@@ -1108,7 +1346,7 @@ void PerfRecordReaderTest::testUnwindsRealDwarfCallChain()
     UnwindInput input;
     dwarfTestOuter(&input);
     QVERIFY(input.isValid());
-    const quint64 capturedIp = input.regs.at(8); // PERF_REG_X86_IP; see dwarfTestLeaf()
+    const quint64 capturedIp = input.regs.at(perfRegisterLayout(input.arch).ip);
 
     Dl_info info = {};
     QVERIFY(dladdr(reinterpret_cast<void *>(&dwarfTestLeaf), &info) != 0);
@@ -1223,14 +1461,15 @@ static QByteArray buildDwarfRecording(quint32 pid)
     if (mappings.isEmpty())
         return {};
 
-    constexpr quint64 allRegs = (1ull << 24) - 1; // PERF_REG_X86_AX..R15
+    const quint64 allRegs = (1ull << perfRegisterLayout(input.arch).count) - 1;
     QList<QByteArray> records{buildAttrRecordWithRegsMask(
         SampleIp | SampleTid | SampleTime | SampleRegsUser | SampleStackUser, allRegs)};
     for (const SelfMapping &mapping : mappings) {
         records.append(
             buildMmap2Record(pid, mapping.addr, mapping.len, mapping.pgoff, mapping.path));
     }
-    records.append(buildDwarfSampleRecord(input.regs.at(8), pid, pid, 1000, input.regs,
+
+    records.append(buildDwarfSampleRecord(input.regs.at(perfRegisterLayout(input.arch).ip), pid, pid, 1000, input.regs,
                                           input.stackBytes));
     records.append(buildFinishedRoundRecord());
     return buildPipeStream(records);
@@ -1250,7 +1489,118 @@ void PerfRecordReaderTest::testUnwindsDwarfSampleThroughReader()
     const qsizetype frames = result->samples.first().frames.size();
     QVERIFY2(frames >= 5, qPrintable(u"only %1 frame(s)"_s.arg(frames)));
 }
-#endif // WITH_LIBDW && Q_PROCESSOR_X86_64
+#endif // WITH_LIBDW && (Q_PROCESSOR_X86_64 || Q_PROCESSOR_ARM_64)
+
+#if defined(WITH_LIBDW) && defined(Q_PROCESSOR_ARM_64)
+// Out of a frame libdw has no CFI for, the unwind follows the frame records,
+// and starts over at the first caller that has CFI, from where that caller
+// really left the stack: here, the test function that called the frames
+// around the trampoline.
+void PerfRecordReaderTest::testUnwindsThroughCodeWithoutCfi()
+{
+    UnwindInput input;
+    dwarfTestAboveNoCfi(&input);
+    QVERIFY(input.isValid());
+
+    Dl_info info = {};
+    QVERIFY(dladdr(reinterpret_cast<void *>(&dwarfTestLeaf), &info) != 0);
+    QVERIFY(info.dli_fname != nullptr);
+    PerfDwarfUnwinder unwinder({{QString::fromLocal8Bit(info.dli_fname),
+                                 quint64(reinterpret_cast<quintptr>(info.dli_fbase))}});
+    QVERIFY(unwinder.isValid());
+
+    const QList<quint64> pcs = unwinder.unwind(input); // innermost-first
+    constexpr quint64 addressMask = (1ull << 48) - 1;
+    const quint64 callerPc = (g_dwarfTestNoCfiCaller & addressMask) - 1;
+    QVERIFY2(pcs.contains(callerPc),
+             qPrintable(u"the unwind did not get to 0x%1 past the code without CFI"_s
+                            .arg(callerPc, 0, 16)));
+}
+
+// GCC saves registers above the frame record, so the caller's stack pointer
+// is not right above it. Where the caller's CFA is taken from its stack
+// pointer, as with GCC, starting over there from right above the record
+// reads the caller's frame record from the registers saved above it.
+void PerfRecordReaderTest::testUnwindsThroughCodeWithoutCfiInGccLayout()
+{
+    UnwindInput input;
+    dwarfTestAboveNoCfiInGccLayout(&input);
+    QVERIFY(input.isValid());
+
+    Dl_info info = {};
+    QVERIFY(dladdr(reinterpret_cast<void *>(&dwarfTestLeaf), &info) != 0);
+    QVERIFY(info.dli_fname != nullptr);
+    PerfDwarfUnwinder unwinder({{QString::fromLocal8Bit(info.dli_fname),
+                                 quint64(reinterpret_cast<quintptr>(info.dli_fbase))}});
+    QVERIFY(unwinder.isValid());
+
+    const QList<quint64> pcs = unwinder.unwind(input); // innermost-first
+    constexpr quint64 addressMask = (1ull << 48) - 1;
+    const quint64 callerPc = (g_dwarfTestNoCfiCaller & addressMask) - 1;
+    QVERIFY2(pcs.contains(callerPc),
+             qPrintable(u"the unwind did not get to 0x%1 past the code without CFI"_s
+                            .arg(callerPc, 0, 16)));
+}
+
+// Sampled in code without CFI after it called something, the link register
+// points back into the sampled function, and its caller is in its frame
+// record.
+void PerfRecordReaderTest::testUnwindsSampledCodeWithoutCfiOnce()
+{
+    UnwindInput input;
+    dwarfTestAboveNoCfiSampled(&input);
+    QVERIFY(input.isValid());
+
+    Dl_info info = {};
+    QVERIFY(dladdr(reinterpret_cast<void *>(&dwarfTestLeaf), &info) != 0);
+    QVERIFY(info.dli_fname != nullptr);
+    PerfDwarfUnwinder unwinder({{QString::fromLocal8Bit(info.dli_fname),
+                                 quint64(reinterpret_cast<quintptr>(info.dli_fbase))}});
+    QVERIFY(unwinder.isValid());
+
+    const QList<quint64> pcs = unwinder.unwind(input); // innermost-first
+    // The link register points back into the sampled function, below where
+    // it was sampled.
+    const quint64 start = quint64(reinterpret_cast<quintptr>(&dwarfTestNoCfiSampled));
+    const quint64 sampledPc = input.regs.at(perfRegisterLayout(input.arch).ip);
+    const qsizetype inSampled = std::count_if(pcs.cbegin(), pcs.cend(),
+                                              [start, sampledPc](quint64 pc) {
+                                                  return pc >= start && pc <= sampledPc;
+                                              });
+    QCOMPARE(inSampled, 1);
+    constexpr quint64 addressMask = (1ull << 48) - 1;
+    const quint64 callerPc = (g_dwarfTestNoCfiCaller & addressMask) - 1;
+    QVERIFY2(pcs.contains(callerPc),
+             qPrintable(u"the unwind did not get to 0x%1 past the code without CFI"_s
+                            .arg(callerPc, 0, 16)));
+}
+
+// What this machine's CPU strips as signature says nothing about a recording
+// taken on another machine, not even whether that one signed, so there the
+// signature is taken to be above 48-bit virtual addresses.
+void PerfRecordReaderTest::testStripsSignaturesOfRecordingsTakenElsewhere()
+{
+    UnwindInput input;
+    dwarfTestAboveNoCfi(&input);
+    QVERIFY(input.isValid());
+    input.useHostPointerAuthentication = false;
+    QVERIFY(signNoCfiTrampolineReturnAddress(&input, 0x002a000000000000ull));
+
+    Dl_info info = {};
+    QVERIFY(dladdr(reinterpret_cast<void *>(&dwarfTestLeaf), &info) != 0);
+    QVERIFY(info.dli_fname != nullptr);
+    PerfDwarfUnwinder unwinder({{QString::fromLocal8Bit(info.dli_fname),
+                                 quint64(reinterpret_cast<quintptr>(info.dli_fbase))}});
+    QVERIFY(unwinder.isValid());
+
+    const QList<quint64> pcs = unwinder.unwind(input); // innermost-first
+    constexpr quint64 addressMask = (1ull << 48) - 1;
+    const quint64 callerPc = (g_dwarfTestNoCfiCaller & addressMask) - 1;
+    QVERIFY2(pcs.contains(callerPc),
+             qPrintable(u"the unwind did not get to 0x%1 past the signed return address"_s
+                            .arg(callerPc, 0, 16)));
+}
+#endif // WITH_LIBDW && Q_PROCESSOR_ARM_64
 
 // A dwarf-mode sample's callchain holds no user frames (see
 // buildDwarfSampleRecordWithCallchain()). The sample must not be dropped as

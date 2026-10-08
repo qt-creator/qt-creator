@@ -276,6 +276,7 @@ public:
     };
     QHash<quint32, JitMap> m_jitMaps;
     bool m_useJitMaps = true;
+    bool m_useHostPointerAuthentication = true;
     QHash<QString, ModuleSymbols> m_moduleCache;
     QHash<QString, QList<ElfSectionHeader>> m_loadSections;
 
@@ -1064,6 +1065,7 @@ QList<quint64> PerfSymbolizer::unwind(quint32 pid, PerfArchitecture arch,
     input.regs = regs;
     input.stackStartAddr = regs.at(layout.sp);
     input.stackBytes = stack;
+    input.useHostPointerAuthentication = d->m_useHostPointerAuthentication;
     return unwinder->unwind(input);
 #else
     Q_UNUSED(pid)
@@ -1072,6 +1074,11 @@ QList<quint64> PerfSymbolizer::unwind(quint32 pid, PerfArchitecture arch,
     Q_UNUSED(stack)
     return {};
 #endif
+}
+
+void PerfSymbolizer::setUseHostPointerAuthentication(bool use)
+{
+    d->m_useHostPointerAuthentication = use;
 }
 
 } // namespace Profiler::Internal

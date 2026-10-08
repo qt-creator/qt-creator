@@ -42,10 +42,12 @@ public:
     // Kernel addresses never resolve against this machine's symbols, as for
     // a recording taken on another machine.
     // Nor do JIT symbol maps, which are where the recorded process left them.
+    // Nor does this machine's CPU tell how return addresses are signed.
     void setForeignRecording(bool foreign)
     {
         m_foreignRecording = foreign;
         m_symbolizer.setUseJitMaps(!foreign);
+        m_symbolizer.setUseHostPointerAuthentication(!foreign);
     }
     // Once set, the conversion stops with an error at the next sample.
     void setCancelFlag(const std::atomic_bool *canceled) { m_canceled = canceled; }

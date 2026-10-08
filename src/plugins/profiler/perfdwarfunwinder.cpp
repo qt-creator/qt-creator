@@ -7,9 +7,16 @@
 
 #include <QtEndian>
 
+#include <dwarf.h>
+#include <elfutils/version.h>
 #include <libdw.h>
 #include <libdwfl.h>
 #include <libelf.h>
+
+#include <algorithm>
+#include <cstdlib>
+#include <iterator>
+#include <utility>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -25,6 +32,20 @@ struct PerfDwarfUnwinderPrivate
     Elf *archElf = nullptr;
     const UnwindInput *current = nullptr; // the sample currently being unwound
     QList<quint64> pcs; // accumulated by frameCallback(), innermost-first
+
+    // Where libdw starts, by DWARF register numbers: at the sampled PC, or
+    // at a return address where it starts again below a frame it had no CFI
+    // for (see stepByFrameRecords()).
+    Dwarf_Word startRegs[32] = {};
+    Dwarf_Addr startPc = 0;
+    bool startsAtReturnAddress = false;
+    bool atStart = false; // the next frame is the one libdw starts at
+
+    // The frame libdw stopped at for having no CFI, and whether it is the
+    // sampled one.
+    bool stoppedWithoutCfi = false;
+    Dwarf_Word stopRegs[32] = {};
+    bool stoppedAtLeaf = false;
 
     ~PerfDwarfUnwinderPrivate()
     {
@@ -140,6 +161,47 @@ int dwarfRegisterCount(PerfArchitecture arch)
     return 0;
 }
 
+// With pointer authentication, aarch64 return addresses carry a signature in
+// the bits above the address, up to bit 54. Where it starts depends on the
+// virtual address size the kernel was built for, so for a recording taken
+// here it is taken from what the CPU strips as signature off an address with
+// all bits up to 54 set. For one taken elsewhere, which this CPU says nothing
+// about, and where it cannot be asked or signs nothing, 48-bit virtual
+// addresses are assumed. No user space pointer has these bits set.
+quint64 aarch64UserPacMask(bool recordedHere)
+{
+    constexpr quint64 assumedMask = 0x007f000000000000ull;
+#ifdef Q_PROCESSOR_ARM_64
+    static const quint64 hostMask = [] {
+        constexpr quint64 allAddressBits = (1ull << 55) - 1;
+        quint64 stripped = 0;
+        // xpaclri, a NOP without pointer authentication, where nothing is signed.
+        asm("mov x30, %1\n\t"
+            "hint #7\n\t"
+            "mov %0, x30"
+            : "=r"(stripped)
+            : "r"(allAddressBits)
+            : "x30");
+        return allAddressBits & ~stripped;
+    }();
+    if (recordedHere && hostMask != 0)
+        return hostMask;
+#else
+    Q_UNUSED(recordedHere)
+#endif
+    return assumedMask;
+}
+
+// libdw strips a pointer authentication signature only where the CFI says a
+// return address was signed, not where it falls back to the frame pointer
+// chain, so it is stripped from everything it reads instead.
+quint64 withoutSignature(const UnwindInput &input, quint64 value)
+{
+    return input.arch == PerfArchitecture::Aarch64
+               ? value & ~aarch64UserPacMask(input.useHostPointerAuthentication)
+               : value;
+}
+
 // Exactly one synthetic "thread" per PerfDwarfUnwinder::unwind() call --
 // there is no real process or thread here, just a captured register+stack
 // snapshot -- identified by this arbitrary, fixed id.
@@ -167,48 +229,76 @@ bool setInitialRegisters(Dwfl_Thread *thread, void *arg)
     const UnwindInput *input = unwinder->current;
     if (!input)
         return false;
-    const PerfRegisterLayout layout = perfRegisterLayout(input->arch);
-    if (layout.ip < 0 || input->regs.size() <= layout.ip)
-        return false;
 
     // dwfl_thread_state_registers() sets one *contiguous* DWARF-numbered
     // block at a time; each architecture's general-purpose registers are
     // contiguous from 0, covering every perf register mapped, so one call
     // suffices.
-    const int count = dwarfRegisterCount(input->arch);
-    Dwarf_Word dwarfRegs[32] = {};
-    bool haveAny = false;
-    for (int perfReg = 0; perfReg < input->regs.size(); ++perfReg) {
-        const int dwarfReg = dwarfRegisterFor(input->arch, perfReg);
-        if (dwarfReg < 0 || dwarfReg >= count)
-            continue;
-        dwarfRegs[dwarfReg] = input->regs.at(perfReg);
-        haveAny = true;
-    }
-    if (!haveAny || !dwfl_thread_state_registers(thread, 0, count, dwarfRegs))
+    if (!dwfl_thread_state_registers(thread, 0, dwarfRegisterCount(input->arch),
+                                     unwinder->startRegs)) {
         return false;
+    }
 
     // The PC is not part of that block everywhere (x86-64's RIP is not);
     // libdw wants it set separately (see libdwfl.h's
     // dwfl_thread_state_register_pc doc).
-    dwfl_thread_state_register_pc(thread, input->regs.at(layout.ip));
+    dwfl_thread_state_register_pc(thread, unwinder->startPc);
+    return true;
+}
+
+bool readStackWord(const UnwindInput &input, quint64 addr, quint64 *result)
+{
+    if (addr < input.stackStartAddr)
+        return false;
+    const quint64 offset = addr - input.stackStartAddr;
+    const int wordSize = perfRegisterLayout(input.arch).wordSize;
+    if (offset + wordSize > quint64(input.stackBytes.size()))
+        return false; // outside the captured window -- stop unwinding here
+    const auto *word = reinterpret_cast<const uchar *>(input.stackBytes.constData() + offset);
+    *result = withoutSignature(input, wordSize == 4 ? qFromLittleEndian<quint32>(word)
+                                                    : qFromLittleEndian<quint64>(word));
     return true;
 }
 
 bool memoryRead(Dwfl *, Dwarf_Addr addr, Dwarf_Word *result, void *arg)
 {
     auto *unwinder = static_cast<PerfDwarfUnwinderPrivate *>(arg);
-    const UnwindInput *input = unwinder->current;
-    if (!input || addr < input->stackStartAddr)
+    quint64 value = 0;
+    if (!unwinder->current || !readStackWord(*unwinder->current, addr, &value))
         return false;
-    const quint64 offset = quint64(addr) - input->stackStartAddr;
-    const int wordSize = perfRegisterLayout(input->arch).wordSize;
-    if (offset + wordSize > quint64(input->stackBytes.size()))
-        return false; // outside the captured window -- stop unwinding here
-    const auto *word = reinterpret_cast<const uchar *>(input->stackBytes.constData() + offset);
-    *result = wordSize == 4 ? qFromLittleEndian<quint32>(word) : qFromLittleEndian<quint64>(word);
+    *result = value;
     return true;
 }
+
+// What the CFI says about the frame at `pc`, to be freed with std::free(),
+// or null where libdw has no CFI for it.
+Dwarf_Frame *cfiFrameAt(Dwfl *dwfl, Dwarf_Addr pc)
+{
+    Dwfl_Module *module = dwfl_addrmodule(dwfl, pc);
+    if (!module)
+        return nullptr;
+    for (const auto cfiOf : {dwfl_module_eh_cfi, dwfl_module_dwarf_cfi}) {
+        Dwarf_Addr bias = 0;
+        Dwarf_CFI *cfi = cfiOf(module, &bias);
+        Dwarf_Frame *frame = nullptr;
+        if (cfi && dwarf_cfi_addrframe(cfi, pc - bias, &frame) == 0)
+            return frame;
+    }
+    return nullptr;
+}
+
+// Whether libdw has CFI for `pc`, which is in the call for a return address.
+bool hasCfi(Dwfl *dwfl, Dwarf_Addr pc)
+{
+    Dwarf_Frame *frame = cfiFrameAt(dwfl, pc);
+    std::free(frame);
+    return frame != nullptr;
+}
+
+constexpr int maxFrames = 256;
+constexpr int aarch64Fp = 29;
+constexpr int aarch64Lr = 30;
+constexpr int aarch64Sp = 31;
 
 int frameCallback(Dwfl_Frame *state, void *arg)
 {
@@ -230,13 +320,142 @@ int frameCallback(Dwfl_Frame *state, void *arg)
     // *after* the call); stepping back into the call instruction itself
     // keeps symbol lookup from landing on an unrelated function that
     // happens to start right after a tail call. See dwfl_frame_pc()'s doc.
+    // Where libdw starts again, it takes the return address for the PC of
+    // an activation.
+    const bool isStart = std::exchange(unwinder->atStart, false);
+    if (isStart && unwinder->startsAtReturnAddress)
+        isActivation = false;
     if (!isActivation)
         --pc;
     unwinder->pcs.append(quint64(pc));
     // A generous but finite cap: a correct unwind terminates on its own (no
     // more CFI, or an unwindable root like _start); this only guards
     // against turning an actual bug into an unbounded loop.
-    return unwinder->pcs.size() < 256 ? DWARF_CB_OK : DWARF_CB_ABORT;
+    if (unwinder->pcs.size() >= maxFrames)
+        return DWARF_CB_ABORT;
+
+    // Without CFI, libdw steps out of an aarch64 frame by taking the PC from
+    // the link register and popping the frame record at the frame pointer.
+    // That is one record too many for a frame that has not called anything,
+    // and one too few for one that has, so the next frame with CFI starts
+    // from the wrong stack and everything beyond it is garbage. Such frames
+    // -- in the vdso, JIT-compiled code, hand-written assembly -- are stepped
+    // out of by frame records instead (see stepByFrameRecords()).
+    if (unwinder->current->arch != PerfArchitecture::Aarch64
+        || hasCfi(dwfl_thread_dwfl(dwfl_frame_thread(state)), pc)) {
+        return DWARF_CB_OK;
+    }
+    if (isStart) {
+        std::copy(std::begin(unwinder->startRegs), std::end(unwinder->startRegs),
+                  std::begin(unwinder->stopRegs));
+    } else {
+#if _ELFUTILS_PREREQ(0, 188)
+        for (unsigned regno = 0; regno < std::size(unwinder->stopRegs); ++regno) {
+            if (dwfl_frame_reg(state, regno, &unwinder->stopRegs[regno]) != 0)
+                unwinder->stopRegs[regno] = 0;
+        }
+#else
+        return DWARF_CB_OK; // no access to the frame's registers
+#endif
+    }
+    unwinder->stoppedAtLeaf = isStart && !unwinder->startsAtReturnAddress;
+    unwinder->stoppedWithoutCfi = true;
+    return DWARF_CB_ABORT;
+}
+
+// The stack pointer of the caller that `pc` returns to and whose frame
+// pointer is `fp`, by its CFI: its frame pointer points at its own frame
+// record, where the CFI says it saved its caller's frame pointer from the
+// CFA, and the CFA is its stack pointer plus what the CFI says. `sp`, the
+// lowest it can be, where the CFI does not say, as where the CFA is taken
+// from the frame pointer and the stack pointer does not matter.
+quint64 callerStackPointer(Dwfl *dwfl, quint64 pc, quint64 fp, quint64 sp)
+{
+    Dwarf_Frame *frame = cfiFrameAt(dwfl, pc - 1);
+    if (!frame)
+        return sp;
+    Dwarf_Op *cfaOps = nullptr;
+    size_t cfaOpCount = 0;
+    Dwarf_Op fpOpsMem[3];
+    Dwarf_Op *fpOps = nullptr;
+    size_t fpOpCount = 0;
+    quint64 callerSp = sp;
+    // libdw's "register plus offset" CFA, and "saved at CFA plus offset".
+    if (dwarf_frame_cfa(frame, &cfaOps, &cfaOpCount) == 0 && cfaOpCount == 1
+        && cfaOps[0].atom == DW_OP_bregx && cfaOps[0].number == aarch64Sp
+        && dwarf_frame_register(frame, aarch64Fp, fpOpsMem, &fpOps, &fpOpCount) == 0
+        && fpOpCount == 2 && fpOps[0].atom == DW_OP_call_frame_cfa
+        && fpOps[1].atom == DW_OP_plus_uconst) {
+        // The offsets are signed, kept in unsigned words.
+        const quint64 cfa = fp - fpOps[1].number;
+        const quint64 fromCfi = cfa - cfaOps[0].number2;
+        // A caller's stack pointer is below its frame record.
+        if (fromCfi >= sp && fromCfi <= fp)
+            callerSp = fromCfi;
+    }
+    std::free(frame);
+    return callerSp;
+}
+
+// Steps out of the frame libdw stopped at for having no CFI, and out of
+// every further one without, by the frame records an aarch64 frame pointer
+// chains: the caller's frame pointer, then the return address. Every frame
+// that has called something has its record at its frame pointer. A sampled
+// frame need not have a record of its own: then the return address is still
+// in the link register. Sets up where libdw starts again, at the first caller
+// it has CFI for. Its stack pointer is right above the last record only where
+// that frame pushed its record first, as Clang and JIT-compiled code do, not
+// where it saved registers above it, as GCC does, so it is taken from the
+// caller's CFI.
+//
+// Once a sampled frame has called something, the link register points back
+// into it, not to its caller. Without CFI that cannot be told from a frame
+// without a record of its own, unless the link register is the return address
+// the record holds, or points into a caller that has CFI, which the sampled
+// frame does not.
+bool stepByFrameRecords(PerfDwarfUnwinderPrivate *d)
+{
+    const UnwindInput &input = *d->current;
+    Dwarf_Word fp = d->stopRegs[aarch64Fp];
+    Dwarf_Word sp = d->stopRegs[aarch64Sp];
+    quint64 pc = 0;
+    const auto popRecord = [&input, &fp, &sp, &pc] {
+        quint64 callerFp = 0;
+        if (!readStackWord(input, fp + 8, &pc) || !readStackWord(input, fp, &callerFp))
+            return false;
+        // The stack grows down, so a caller's record is above its callee's.
+        if (callerFp != 0 && callerFp <= fp)
+            return false;
+        sp = fp + 16;
+        fp = callerFp;
+        return true;
+    };
+
+    if (d->stoppedAtLeaf) {
+        pc = d->stopRegs[aarch64Lr];
+        quint64 recordedLr = 0;
+        const bool lrIsRecorded = readStackWord(input, fp + 8, &recordedLr) && recordedLr == pc;
+        const bool lrIsCaller = !lrIsRecorded && pc != 0 && hasCfi(d->dwfl, pc - 1);
+        if (!lrIsCaller && !popRecord())
+            return false;
+    } else if (!popRecord()) {
+        return false;
+    }
+    while (pc != 0 && !hasCfi(d->dwfl, pc - 1)) {
+        d->pcs.append(pc - 1);
+        if (d->pcs.size() >= maxFrames || fp == 0 || !popRecord())
+            return false;
+    }
+    if (pc == 0)
+        return false;
+
+    std::copy(std::begin(d->stopRegs), std::end(d->stopRegs), std::begin(d->startRegs));
+    d->startRegs[aarch64Fp] = fp;
+    d->startRegs[aarch64Sp] = callerStackPointer(d->dwfl, pc, fp, sp);
+    d->startRegs[aarch64Lr] = 0;
+    d->startPc = pc;
+    d->startsAtReturnAddress = true;
+    return true;
 }
 
 // dwfl_frame_pc() -- called from frameCallback() above -- internally calls
@@ -358,9 +577,26 @@ QList<quint64> PerfDwarfUnwinder::unwind(const UnwindInput &input)
 {
     if (!d->dwfl || !input.isValid())
         return {};
+    const PerfRegisterLayout layout = perfRegisterLayout(input.arch);
+    const int count = dwarfRegisterCount(input.arch);
+    if (layout.ip < 0 || input.regs.size() <= layout.ip || count == 0)
+        return {};
+    std::fill(std::begin(d->startRegs), std::end(d->startRegs), 0);
+    for (int perfReg = 0; perfReg < input.regs.size(); ++perfReg) {
+        const int dwarfReg = dwarfRegisterFor(input.arch, perfReg);
+        if (dwarfReg >= 0 && dwarfReg < count)
+            d->startRegs[dwarfReg] = withoutSignature(input, input.regs.at(perfReg));
+    }
+    d->startPc = input.regs.at(layout.ip);
+    d->startsAtReturnAddress = false;
+
     d->current = &input;
     d->pcs.clear();
-    dwfl_getthread_frames(d->dwfl, SyntheticTid, frameCallback, d.get());
+    do {
+        d->atStart = true;
+        d->stoppedWithoutCfi = false;
+        dwfl_getthread_frames(d->dwfl, SyntheticTid, frameCallback, d.get());
+    } while (d->stoppedWithoutCfi && stepByFrameRecords(d.get()));
     d->current = nullptr;
     return d->pcs;
 }
