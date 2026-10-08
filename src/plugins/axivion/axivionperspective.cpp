@@ -1885,12 +1885,11 @@ AxivionPerspective::AxivionPerspective()
     connect(action, &QAction::triggered, this, &AxivionPerspective::onSingleFileAnalysisTriggered);
     menu->addSeparator();
 
-    ActionContainer *contextMenu = ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT);
+    ActionContainer *contextMenu
+        = ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT_ANALYZE);
     if (!contextMenu) // CppEditor plugin not loaded
         return;
-    contextMenu->addSeparator();
     contextMenu->addAction(cmd);
-    contextMenu->addSeparator();
 }
 
 void AxivionPerspective::handleShowIssues(const QString &kind)

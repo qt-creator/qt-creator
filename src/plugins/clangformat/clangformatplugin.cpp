@@ -35,13 +35,11 @@ class ClangFormatPlugin final : public ExtensionSystem::IPlugin
         // This overrides the default, see implementation.
         setupCodeStyleFactory();
 
-        ActionContainer *contextMenu = ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT);
-        if (contextMenu) {
-            contextMenu->addSeparator();
-
+        if (ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT)) {
             ActionBuilder openConfig(this,  Constants::OPEN_CURRENT_CONFIG_ID);
             openConfig.setText(Tr::tr("Open Used .clang-format Configuration File"));
-            openConfig.addToContainer(CppEditor::Constants::M_CONTEXT);
+            openConfig.addToContainer(CppEditor::Constants::M_CONTEXT,
+                                      CppEditor::Constants::G_FILE);
             openConfig.addOnTriggered(this, [] {
                 if (const IDocument *doc = EditorManager::currentDocument()) {
                     const FilePath filePath = doc->filePath();

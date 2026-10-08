@@ -201,6 +201,7 @@ private:
     void addPerSymbolActions();
     void addActionsForSelections();
     void addPerFileActions();
+    void addContextSubMenusForSymbols();
     void addGlobalActions();
     void registerVariables();
     void registerTests();
@@ -347,6 +348,12 @@ static void addActionToMenus(const QList<Id> &menuIds, Id actionId, Id groupId)
     }
 }
 
+static void addSubMenuToContextMenu(Id subMenuId, Id groupId)
+{
+    ActionManager::actionContainer(Constants::M_CONTEXT)
+        ->addMenu(ActionManager::actionContainer(subMenuId), groupId);
+}
+
 void CppEditorPlugin::setupMenus()
 {
     ActionContainer * const cppToolsMenu = ActionManager::createMenu(Constants::M_TOOLS_CPP);
@@ -365,9 +372,21 @@ void CppEditorPlugin::setupMenus()
         menu->addSeparator(Constants::G_GLOBAL);
     });
 
+    const QList<std::pair<Id, QString>> contextSubMenus{
+        {Constants::M_CONTEXT_NAVIGATE, Tr::tr("Navigate")},
+        {Constants::M_CONTEXT_NEXT_SPLIT, Tr::tr("Open in Next Split")},
+        {Constants::M_CONTEXT_FOLDING, Tr::tr("Folding")},
+        {Constants::M_CONTEXT_PREPROCESSOR, Tr::tr("Preprocessor")},
+        {Constants::M_CONTEXT_ANALYZE, Tr::tr("Analyze")},
+        {Constants::M_CONTEXT_CODE_MODEL, Tr::tr("Code Model")}};
+    for (const auto &[menuId, title] : contextSubMenus)
+        ActionManager::createMenu(menuId)->menu()->setTitle(title);
+
     addPerSymbolActions();
     addActionsForSelections();
     addPerFileActions();
+    // After the per-file actions, so that Open Include Hierarchy precedes these.
+    addContextSubMenusForSymbols();
     addGlobalActions();
 
     ActionBuilder inspectCppCodeModel(this, Constants::INSPECT_CPP_CODEMODEL);
@@ -383,6 +402,10 @@ void CppEditorPlugin::addPerSymbolActions()
     const auto addSymbolActionToMenus = [&menus](Id id) {
         addActionToMenus(menus, id, Constants::G_SYMBOL);
     };
+    const auto addSymbolActionToNextSplitMenu = [](Id id) {
+        addActionToMenus({Constants::M_TOOLS_CPP}, id, Constants::G_SYMBOL);
+        addActionToMenus({Constants::M_CONTEXT_NEXT_SPLIT}, id, {});
+    };
     const Context context(Constants::CPPEDITOR_ID);
 
     addSymbolActionToMenus(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
@@ -391,15 +414,16 @@ void CppEditorPlugin::addPerSymbolActions()
     ActionContainer * const touchBar = ActionManager::actionContainer(Core::Constants::TOUCH_BAR);
     touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_NAVIGATION);
 
-    addSymbolActionToMenus(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT);
+    addSymbolActionToNextSplitMenu(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT);
     addSymbolActionToMenus(TextEditor::Constants::FOLLOW_SYMBOL_TO_TYPE);
-    addSymbolActionToMenus(TextEditor::Constants::FOLLOW_SYMBOL_TO_TYPE_IN_NEXT_SPLIT);
+    addSymbolActionToNextSplitMenu(TextEditor::Constants::FOLLOW_SYMBOL_TO_TYPE_IN_NEXT_SPLIT);
 
     ActionBuilder followToParentImpl(this, "CppEditor.FollowToParentImpl");
     followToParentImpl.setText(Tr::tr("Follow Virtual Function to Base Class Implementation"));
     followToParentImpl.setContext(context);
     followToParentImpl.setScriptable(true);
-    followToParentImpl.addToContainers(menus, Constants::G_SYMBOL);
+    followToParentImpl.addToContainer(Constants::M_TOOLS_CPP, Constants::G_SYMBOL);
+    followToParentImpl.addToContainer(Constants::M_CONTEXT_NAVIGATE);
     followToParentImpl.addOnTriggered(this, [] {
         if (CppEditorWidget *editorWidget = currentCppEditorWidget())
             editorWidget->goToParentImpl(/*inNextSplit*/ false);
@@ -410,7 +434,8 @@ void CppEditorPlugin::addPerSymbolActions()
         Tr::tr("Follow Virtual Function to Base Class Implementation in Next Split"));
     followToParentImplSplit.setContext(context);
     followToParentImplSplit.setScriptable(true);
-    followToParentImplSplit.addToContainers(menus, Constants::G_SYMBOL);
+    followToParentImplSplit.addToContainer(Constants::M_TOOLS_CPP, Constants::G_SYMBOL);
+    followToParentImplSplit.addToContainer(Constants::M_CONTEXT_NEXT_SPLIT);
     followToParentImplSplit.addOnTriggered(this, [] {
         if (CppEditorWidget *editorWidget = currentCppEditorWidget())
             editorWidget->goToParentImpl(/*inNextSplit*/ true);
@@ -434,7 +459,8 @@ void CppEditorPlugin::addPerSymbolActions()
     openDeclDefSplit.setContext(context);
     openDeclDefSplit.setScriptable(true);
     openDeclDefSplit.setDefaultKeySequence(Tr::tr("Meta+E, Shift+F2"), Tr::tr("Ctrl+E, Shift+F2"));
-    openDeclDefSplit.addToContainers(menus, Constants::G_SYMBOL);
+    openDeclDefSplit.addToContainer(Constants::M_TOOLS_CPP, Constants::G_SYMBOL);
+    openDeclDefSplit.addToContainer(Constants::M_CONTEXT_NEXT_SPLIT);
     openDeclDefSplit.addOnTriggered(this, [] {
         if (CppEditorWidget *editorWidget = currentCppEditorWidget())
             editorWidget->switchDeclarationDefinition(/*inNextSplit*/ true);
@@ -446,7 +472,8 @@ void CppEditorPlugin::addPerSymbolActions()
     findRefsCategorized.setText(Tr::tr("Find References With Access Type"));
     findRefsCategorized.setContext(context);
     findRefsCategorized.bindContextAction(&d->m_findRefsCategorizedAction);
-    findRefsCategorized.addToContainers(menus, Constants::G_SYMBOL);
+    findRefsCategorized.addToContainer(Constants::M_TOOLS_CPP, Constants::G_SYMBOL);
+    findRefsCategorized.addToContainer(Constants::M_CONTEXT_NAVIGATE);
     findRefsCategorized.addOnTriggered(this, [] {
         if (const auto w = currentCppEditorWidget()) {
             CppCodeModelSettings::setCategorizeFindReferences(true);
@@ -461,11 +488,17 @@ void CppEditorPlugin::addPerSymbolActions()
 
     addSymbolActionToMenus(TextEditor::Constants::OPEN_TYPE_HIERARCHY);
     addSymbolActionToMenus(TextEditor::Constants::OPEN_CALL_HIERARCHY);
+}
 
+void CppEditorPlugin::addContextSubMenusForSymbols()
+{
     // Refactoring sub-menu
     Command *sep = ActionManager::actionContainer(Constants::M_CONTEXT)
         ->addSeparator(Constants::G_SYMBOL);
     sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));
+
+    addSubMenuToContextMenu(Constants::M_CONTEXT_NAVIGATE, Constants::G_SYMBOL);
+    addSubMenuToContextMenu(Constants::M_CONTEXT_NEXT_SPLIT, Constants::G_SYMBOL);
 }
 
 void CppEditorPlugin::addActionsForSelections()
@@ -496,14 +529,16 @@ void CppEditorPlugin::addPerFileActions()
     switchInNextSplit.setContext(context);
     switchInNextSplit.setScriptable(true);
     switchInNextSplit.setDefaultKeySequence(Tr::tr("Meta+E, F4"), Tr::tr("Ctrl+E, F4"));
-    switchInNextSplit.addToContainers(menus, Constants::G_FILE);
+    switchInNextSplit.addToContainer(Constants::M_TOOLS_CPP, Constants::G_FILE);
+    switchInNextSplit.addToContainer(Constants::M_CONTEXT_NEXT_SPLIT);
     switchInNextSplit.addOnTriggered([] { CppModelManager::switchHeaderSource(true); });
 
     ActionBuilder openPreprocessor(this, Constants::OPEN_PREPROCESSOR_DIALOG);
     openPreprocessor.setText(Tr::tr("Additional Preprocessor Directives..."));
     openPreprocessor.setContext(context);
     openPreprocessor.setDefaultKeySequence({});
-    openPreprocessor.addToContainers(menus, Constants::G_FILE);
+    openPreprocessor.addToContainer(Constants::M_TOOLS_CPP, Constants::G_FILE);
+    openPreprocessor.addToContainer(Constants::M_CONTEXT_PREPROCESSOR);
     openPreprocessor.addOnTriggered(this, [] {
         if (CppEditorWidget *editorWidget = currentCppEditorWidget())
             editorWidget->showPreProcessorWidget();
@@ -512,31 +547,36 @@ void CppEditorPlugin::addPerFileActions()
     ActionBuilder showPreprocessed(this, Constants::SHOW_PREPROCESSED_FILE);
     showPreprocessed.setText(Tr::tr("Show Preprocessed Source"));
     showPreprocessed.setContext(context);
-    showPreprocessed.addToContainers(menus, Constants::G_FILE);
+    showPreprocessed.addToContainer(Constants::M_TOOLS_CPP, Constants::G_FILE);
+    showPreprocessed.addToContainer(Constants::M_CONTEXT_PREPROCESSOR);
     showPreprocessed.addOnTriggered(this, [] { CppModelManager::showPreprocessedFile(false); });
 
     ActionBuilder showPreprocessedInSplit(this, Constants::SHOW_PREPROCESSED_FILE_SPLIT);
     showPreprocessedInSplit.setText(Tr::tr("Show Preprocessed Source in Next Split"));
     showPreprocessedInSplit.setContext(context);
-    showPreprocessedInSplit.addToContainers(menus, Constants::G_FILE);
+    showPreprocessedInSplit.addToContainer(Constants::M_TOOLS_CPP, Constants::G_FILE);
+    showPreprocessedInSplit.addToContainer(Constants::M_CONTEXT_NEXT_SPLIT);
     showPreprocessedInSplit.addOnTriggered([] { CppModelManager::showPreprocessedFile(true); });
 
     ActionBuilder foldComments(this, "CppTools.FoldCommentBlocks");
     foldComments.setText(Tr::tr("Fold All Comment Blocks"));
     foldComments.setContext(context);
-    foldComments.addToContainers(menus, Constants::G_FILE);
+    foldComments.addToContainer(Constants::M_TOOLS_CPP, Constants::G_FILE);
+    foldComments.addToContainer(Constants::M_CONTEXT_FOLDING);
     foldComments.addOnTriggered(this, [] { CppModelManager::foldComments(); });
 
     ActionBuilder unfoldComments(this, "CppTools.UnfoldCommentBlocks");
     unfoldComments.setText(Tr::tr("Unfold All Comment Blocks"));
     unfoldComments.setContext(context);
-    unfoldComments.addToContainers(menus, Constants::G_FILE);
+    unfoldComments.addToContainer(Constants::M_TOOLS_CPP, Constants::G_FILE);
+    unfoldComments.addToContainer(Constants::M_CONTEXT_FOLDING);
     unfoldComments.addOnTriggered(this, [] { CppModelManager::unfoldComments(); });
 
     ActionBuilder foldInactiveRegions(this, "CppTools.FoldInactiveRegions");
     foldInactiveRegions.setText(Tr::tr("Fold All Inactive Code"));
     foldInactiveRegions.setContext(context);
-    foldInactiveRegions.addToContainers(menus, Constants::G_FILE);
+    foldInactiveRegions.addToContainer(Constants::M_TOOLS_CPP, Constants::G_FILE);
+    foldInactiveRegions.addToContainer(Constants::M_CONTEXT_FOLDING);
     foldInactiveRegions.addOnTriggered(this, [] {
         CppModelManager::foldOrUnfoldInactiveRegions(true);
     });
@@ -544,21 +584,24 @@ void CppEditorPlugin::addPerFileActions()
     ActionBuilder unfoldInactiveRegions(this, "CppTools.UnfoldInactiveRegions");
     unfoldInactiveRegions.setText(Tr::tr("Unfold All Inactive Code"));
     unfoldInactiveRegions.setContext(context);
-    unfoldInactiveRegions.addToContainers(menus, Constants::G_FILE);
+    unfoldInactiveRegions.addToContainer(Constants::M_TOOLS_CPP, Constants::G_FILE);
+    unfoldInactiveRegions.addToContainer(Constants::M_CONTEXT_FOLDING);
     unfoldInactiveRegions.addOnTriggered(this, [] {
         CppModelManager::foldOrUnfoldInactiveRegions(false);
     });
+
+    addSubMenuToContextMenu(Constants::M_CONTEXT_FOLDING, Constants::G_FILE);
+    addSubMenuToContextMenu(Constants::M_CONTEXT_PREPROCESSOR, Constants::G_FILE);
 
     setupCppIncludeHierarchy();
 }
 
 void CppEditorPlugin::addGlobalActions()
 {
-    const QList<Id> menus{Constants::M_TOOLS_CPP, Constants::M_CONTEXT};
-
     ActionBuilder findUnusedFunctions(this, "CppTools.FindUnusedFunctions");
     findUnusedFunctions.setText(Tr::tr("Find Unused Functions"));
-    findUnusedFunctions.addToContainers(menus, Constants::G_GLOBAL);
+    findUnusedFunctions.addToContainer(Constants::M_TOOLS_CPP, Constants::G_GLOBAL);
+    findUnusedFunctions.addToContainer(Constants::M_CONTEXT_ANALYZE, Core::Constants::G_DEFAULT_THREE);
     findUnusedFunctions.addOnTriggered(this, [] { CppModelManager::findUnusedFunctions({}); });
 
     ActionBuilder findUnusedFunctionsSubProject(this, "CppTools.FindUnusedFunctionsInSubProject");
@@ -578,9 +621,13 @@ void CppEditorPlugin::addGlobalActions()
     ActionBuilder reparseChangedFiles(this,  Constants::UPDATE_CODEMODEL);
     reparseChangedFiles.setText(Tr::tr("Reparse Externally Changed Files"));
     reparseChangedFiles.bindContextAction(&d->m_reparseExternallyChangedFiles);
-    reparseChangedFiles.addToContainers(menus, Constants::G_GLOBAL);
+    reparseChangedFiles.addToContainer(Constants::M_TOOLS_CPP, Constants::G_GLOBAL);
+    reparseChangedFiles.addToContainer(Constants::M_CONTEXT_CODE_MODEL);
     reparseChangedFiles.addOnTriggered(CppModelManager::instance(),
                                        &CppModelManager::updateModifiedSourceFiles);
+
+    addSubMenuToContextMenu(Constants::M_CONTEXT_ANALYZE, Constants::G_GLOBAL);
+    addSubMenuToContextMenu(Constants::M_CONTEXT_CODE_MODEL, Constants::G_GLOBAL);
 }
 
 void CppEditorPlugin::registerVariables()

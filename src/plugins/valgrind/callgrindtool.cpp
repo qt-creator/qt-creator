@@ -348,9 +348,8 @@ CallgrindTool::CallgrindTool(QObject *parent)
 
     // If there is a CppEditor context menu add our own context menu actions.
     if (ActionContainer *editorContextMenu =
-            ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT)) {
+            ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT_ANALYZE)) {
         Context analyzerContext = Context(Debugger::Constants::C_DEBUGMODE);
-        editorContextMenu->addSeparator(analyzerContext);
 
         auto action = new QAction(Tr::tr("Profile Costs of This Function and Its Callees"), this);
         action->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL.icon());

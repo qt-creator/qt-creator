@@ -8,6 +8,12 @@
 namespace CppEditor::Constants {
 
 inline constexpr char M_CONTEXT[] = "CppEditor.ContextMenu";
+inline constexpr char M_CONTEXT_NAVIGATE[] = "CppEditor.ContextMenu.Navigate";
+inline constexpr char M_CONTEXT_NEXT_SPLIT[] = "CppEditor.ContextMenu.NextSplit";
+inline constexpr char M_CONTEXT_FOLDING[] = "CppEditor.ContextMenu.Folding";
+inline constexpr char M_CONTEXT_PREPROCESSOR[] = "CppEditor.ContextMenu.Preprocessor";
+inline constexpr char M_CONTEXT_ANALYZE[] = "CppEditor.ContextMenu.Analyze";
+inline constexpr char M_CONTEXT_CODE_MODEL[] = "CppEditor.ContextMenu.CodeModel";
 inline constexpr char G_SYMBOL[] = "CppEditor.GSymbol";
 inline constexpr char G_SELECTION[] = "CppEditor.GSelection";
 inline constexpr char G_FILE[] = "CppEditor.GFile";

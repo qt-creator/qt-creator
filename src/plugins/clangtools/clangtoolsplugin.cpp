@@ -234,11 +234,7 @@ void ClangToolsPlugin::registerAnalyzeActions()
         mtoolscpp->addSeparator(menuGroupId);
     }
     Core::ActionContainer * const mcontext = Core::ActionManager::actionContainer(
-        CppEditor::Constants::M_CONTEXT);
-    if (mcontext) {
-        mcontext->insertGroup(CppEditor::Constants::G_GLOBAL, menuGroupId);
-        mcontext->addSeparator(menuGroupId);
-    }
+        CppEditor::Constants::M_CONTEXT_ANALYZE);
 
     for (const auto &toolInfo : {std::make_tuple(clangTidyTool(),
                                                  Id(Constants::RUN_CLANGTIDY_ON_PROJECT),
@@ -253,7 +249,7 @@ void ClangToolsPlugin::registerAnalyzeActions()
         if (mtoolscpp)
             mtoolscpp->addAction(cmd, menuGroupId);
         if (mcontext)
-            mcontext->addAction(cmd, menuGroupId);
+            mcontext->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
     }
 
     // add button to tool bar of C++ source files

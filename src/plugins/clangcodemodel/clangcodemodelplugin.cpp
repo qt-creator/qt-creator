@@ -78,7 +78,7 @@ void ClangCodeModelPlugin::initialize()
     updateStaleIndexEntries.setText(Tr::tr("Update Potentially Stale Clangd Index Entries"));
     updateStaleIndexEntries.addOnTriggered(this, &ClangModelManagerSupport::updateStaleIndexEntries);
     updateStaleIndexEntries.addToContainer(CppEditor::Constants::M_TOOLS_CPP);
-    updateStaleIndexEntries.addToContainer(CppEditor::Constants::M_CONTEXT);
+    updateStaleIndexEntries.addToContainer(CppEditor::Constants::M_CONTEXT_CODE_MODEL);
 
 #ifdef WITH_TESTS
     addTestCreator(createActivationSequenceProcessorTest);

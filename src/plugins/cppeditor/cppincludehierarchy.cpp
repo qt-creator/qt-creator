@@ -533,8 +533,8 @@ public:
         openIncludeHierarchy.bindContextAction(&m_openIncludeHierarchyAction);
         openIncludeHierarchy.setContext(Context(Constants::CPPEDITOR_ID));
         openIncludeHierarchy.setDefaultKeySequence(Tr::tr("Meta+Shift+I"), Tr::tr("Ctrl+Shift+I"));
-        openIncludeHierarchy.addToContainers({Constants::M_TOOLS_CPP, Constants::M_CONTEXT},
-                                             Constants::G_FILE);
+        openIncludeHierarchy.addToContainer(Constants::M_TOOLS_CPP, Constants::G_FILE);
+        openIncludeHierarchy.addToContainer(Constants::M_CONTEXT, Constants::G_SYMBOL);
 
         connect(m_openIncludeHierarchyAction, &QAction::triggered, this, [] {
             NavigationWidget::activateSubWidget(Constants::INCLUDE_HIERARCHY_ID, Side::Left);
