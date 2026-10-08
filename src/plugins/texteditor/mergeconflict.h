@@ -50,9 +50,11 @@ constexpr char MERGE_CONFLICT_CHOICES_OBJECT_NAME[] = "TextEditor.MergeConflict.
 // Attaches to a text editor and, whenever its document contains merge conflict
 // markers, shows a row of "Choose Current Change | Choose Incoming Change |
 // Choose Both" links on a reserved line directly above each conflict's
-// "<<<<<<<" marker, so conflicts can be resolved without a diff view. A
-// read-only view gets the side highlighting but no links. Owned by the widget
-// it decorates.
+// "<<<<<<<" marker, so conflicts can be resolved without a diff view. While a
+// link is hovered, the editor previews the resolution as the display settings'
+// MergeConflictPreviewMode says.
+// A read-only view gets the side highlighting but no links. Owned by the
+// widget it decorates.
 class MergeConflictController : public QObject
 {
     Q_OBJECT

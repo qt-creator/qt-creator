@@ -6673,10 +6673,18 @@ void TextEditorWidgetPrivate::setupBlockLayout(const PaintEventData &data,
     blockData.layout = q->editorLayout()->blockLayout(data.block);
 
     QTextOption option = blockData.layout->textOption();
+    const QList<QTextLayout::FormatRange> formats = blockData.layout->formats();
+    const auto suppressing = std::find_if(formats.cbegin(), formats.cend(),
+                                          [](const QTextLayout::FormatRange &range) {
+        return range.format.hasProperty(SUPPRESS_COLORS_FORMAT_PROPERTY_ID);
+    });
     if (data.suppressSyntaxInIfdefedOutBlock
             && TextBlockUserData::ifdefedOut(data.block)) {
         option.setFlags(option.flags() | QTextOption::SuppressColors);
         painter.setPen(data.ifdefedOutFormat.foreground().color());
+    } else if (suppressing != formats.cend()) {
+        option.setFlags(option.flags() | QTextOption::SuppressColors);
+        painter.setPen(suppressing->format.colorProperty(SUPPRESS_COLORS_FORMAT_PROPERTY_ID));
     } else {
         option.setFlags(option.flags() & ~QTextOption::SuppressColors);
         painter.setPen(data.context.palette.text().color());

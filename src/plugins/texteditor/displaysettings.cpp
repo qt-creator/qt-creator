@@ -177,6 +177,17 @@ DisplaySettings::DisplaySettings()
     displayMinimap.setDefaultValue(false);
     displayMinimap.setLabelText(Tr::tr("Enable minimap"));
 
+    mergeConflictPreviewMode.setSettingsKey("MergeConflictPreviewMode");
+    mergeConflictPreviewMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    mergeConflictPreviewMode.setLabelText(Tr::tr("Preview of a hovered resolution:"));
+    mergeConflictPreviewMode.setToolTip(
+        Tr::tr("How the editor shows a merge conflict while one of the links resolving "
+               "it is hovered."));
+    mergeConflictPreviewMode.addOption(Tr::tr("Disable markers and dropped lines"));
+    mergeConflictPreviewMode.addOption(Tr::tr("Hide markers, disable dropped lines"));
+    mergeConflictPreviewMode.addOption(Tr::tr("Show only the result"));
+    mergeConflictPreviewMode.setDefaultValue(MergeConflictPreviewMode::HighlightOnly);
+
     readSettings();
 
     breakindentMin.setEnabler(&breakindent);
@@ -283,6 +294,10 @@ public:
                     Column {
                         s.annotationAlignment
                     }
+                },
+                Group {
+                    title(Tr::tr("Merge Conflicts")),
+                    Row { s.mergeConflictPreviewMode, st }
                 }
             };
 

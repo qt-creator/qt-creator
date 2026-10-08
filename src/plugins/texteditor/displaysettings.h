@@ -17,6 +17,14 @@ enum class AnnotationAlignment
     BetweenLines
 };
 
+// How hovering a merge conflict resolution link previews the resolution.
+enum class MergeConflictPreviewMode
+{
+    HighlightOnly, // hide nothing, show markers and dropped lines as disabled code
+    HideMarkers,   // hide the markers, show the dropped lines as disabled code
+    ResultOnly,    // hide the markers and the lines the resolution drops
+};
+
 class TEXTEDITOR_EXPORT DisplaySettingsData
 {
 public:
@@ -93,6 +101,7 @@ public:
     Utils::TypedSelectionAspect<AnnotationAlignment> annotationAlignment{this};
     Utils::IntegerAspect minimalAnnotationContent{this};
     Utils::BoolAspect displayMinimap{this};
+    Utils::TypedSelectionAspect<MergeConflictPreviewMode> mergeConflictPreviewMode{this};
 
     void apply() override;
 
@@ -106,3 +115,4 @@ namespace Internal { void setupDisplaySettings(); }
 } // namespace TextEditor
 
 Q_DECLARE_METATYPE(TextEditor::AnnotationAlignment)
+Q_DECLARE_METATYPE(TextEditor::MergeConflictPreviewMode)

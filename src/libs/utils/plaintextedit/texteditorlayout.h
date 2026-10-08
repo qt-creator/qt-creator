@@ -12,6 +12,10 @@ inline constexpr int FULL_LINE_HIGHLIGHT_FORMAT_PROPERTY_ID = QTextFormat::UserP
 inline constexpr int INLINE_DIFF_FORMAT_PROPERTY_ID = QTextFormat::UserProperty + 44;
 inline constexpr int MERGE_CONFLICT_SECTION_PROPERTY_ID = QTextFormat::UserProperty + 45;
 inline constexpr int INLINE_DIFF_SIGN_PROPERTY_ID = QTextFormat::UserProperty + 46;
+// A block that has a format range carrying this property is drawn without the
+// colors of its formats - its syntax highlighting - and with its text in the
+// QColor that is the property's value, like code disabled by the preprocessor.
+inline constexpr int SUPPRESS_COLORS_FORMAT_PROPERTY_ID = QTextFormat::UserProperty + 47;
 
 using FormatRanges = QList<QTextLayout::FormatRange>;
 

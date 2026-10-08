@@ -3,6 +3,7 @@
 
 #include "mergeconflict.h"
 
+#include "displaysettings.h"
 #include "fontsettings.h"
 #include "textdocument.h"
 #include "texteditor.h"
@@ -12,20 +13,24 @@
 #include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
 #include <QFont>
 #include <QLabel>
+#include <QMouseEvent>
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocument>
 #include <QTimer>
 
 #include <algorithm>
+#include <optional>
 
 using namespace Utils;
 
 namespace TextEditor {
 
 const Id MERGE_CONFLICT_SPACER_CATEGORY("TextEditor.MergeConflict.Spacer");
+const Id MERGE_CONFLICT_PREVIEW_CATEGORY("TextEditor.MergeConflict.Preview");
 
 // Seven is the shortest run Git writes; the conflict-marker-size gitattribute
 // makes it write longer ones, and that attribute is set on exactly the files
@@ -131,6 +136,41 @@ static void replaceLines(QTextDocument *doc, int firstLine, int lastLine, const 
     cursor.endEditBlock();
 }
 
+// Whether the line (1-based) remains when the conflict is resolved with the
+// given choice.
+static bool keepsLine(const MergeConflict &conflict, MergeConflictChoice choice, int line)
+{
+    const int currentEnd = (conflict.baseLine > 0 ? conflict.baseLine : conflict.separatorLine) - 1;
+    const bool current = choice != MergeConflictChoice::Incoming
+                         && line > conflict.startLine && line <= currentEnd;
+    const bool incoming = choice != MergeConflictChoice::Current
+                          && line > conflict.separatorLine && line < conflict.endLine;
+    return current || incoming;
+}
+
+// The lines (1-based) of the conflict that remain when it is resolved with the
+// given choice, in document order.
+static QList<int> chosenLines(const MergeConflict &conflict, MergeConflictChoice choice)
+{
+    QList<int> lines;
+    for (int line = conflict.startLine + 1; line < conflict.endLine; ++line) {
+        if (keepsLine(conflict, choice, line))
+            lines.append(line);
+    }
+    return lines;
+}
+
+static std::optional<MergeConflictChoice> choiceForLink(const QString &link)
+{
+    if (link == "current")
+        return MergeConflictChoice::Current;
+    if (link == "incoming")
+        return MergeConflictChoice::Incoming;
+    if (link == "both")
+        return MergeConflictChoice::Both;
+    return {};
+}
+
 void resolveMergeConflict(QTextDocument *doc, const MergeConflict &conflict,
                           MergeConflictChoice choice)
 {
@@ -145,26 +185,30 @@ void resolveMergeConflict(QTextDocument *doc, const MergeConflict &conflict,
                    && isIncomingSideMarker(lineText(conflict.endLine)),
                return);
     QStringList lines;
-    if (choice == MergeConflictChoice::Current || choice == MergeConflictChoice::Both) {
-        const int currentEnd
-            = (conflict.baseLine > 0 ? conflict.baseLine : conflict.separatorLine) - 1;
-        for (int line = conflict.startLine + 1; line <= currentEnd; ++line)
-            lines.append(lineText(line));
-    }
-    if (choice == MergeConflictChoice::Incoming || choice == MergeConflictChoice::Both) {
-        for (int line = conflict.separatorLine + 1; line <= conflict.endLine - 1; ++line)
-            lines.append(lineText(line));
-    }
+    for (const int line : chosenLines(conflict, choice))
+        lines.append(lineText(line));
     replaceLines(doc, conflict.startLine, conflict.endLine, lines);
 }
+
+// A resolution shown ahead of time: the conflict starting on startLine, as
+// it would look resolved with choice.
+class PreviewedResolution
+{
+public:
+    int startLine = -1;
+    MergeConflictChoice choice = MergeConflictChoice::Both;
+};
 
 // Paints distinct full-width backgrounds behind the "current" (<<<<<<< to
 // =======) and "incoming" (======= to >>>>>>>) side of each conflict on the
 // widget's editor layout, so the two sides can be told apart, and marks the
-// sides on the scroll bar in the same colors. Replaces any previously applied
-// conflict backgrounds; an empty list clears them.
+// sides on the scroll bar in the same colors. The lines a previewed
+// resolution would drop, its markers included, are shown as disabled code
+// instead, without their syntax highlighting. Replaces any previously applied conflict backgrounds; an empty
+// list clears them.
 static void highlightMergeConflictSections(TextEditorWidget *widget,
-                                           const QList<MergeConflict> &conflicts)
+                                           const QList<MergeConflict> &conflicts,
+                                           const std::optional<PreviewedResolution> &preview = {})
 {
     if (!widget)
         return;
@@ -201,8 +245,22 @@ static void highlightMergeConflictSections(TextEditorWidget *widget,
     QTextCharFormat separatorFormat;
     separatorFormat.setFontWeight(QFont::Bold);
     separatorFormat.setProperty(MERGE_CONFLICT_SECTION_PROPERTY_ID, true);
+    QTextCharFormat disabledFormat = fontSettings.toTextCharFormat(C_DISABLED_CODE);
+    if (disabledFormat.hasProperty(QTextFormat::BackgroundBrush))
+        disabledFormat.setProperty(FULL_LINE_HIGHLIGHT_FORMAT_PROPERTY_ID, true);
+    // a scheme that gives disabled code no color of its own still drops the
+    // syntax colors, as it would not for code disabled by the preprocessor
+    disabledFormat.setProperty(SUPPRESS_COLORS_FORMAT_PROPERTY_ID,
+                               disabledFormat.hasProperty(QTextFormat::ForegroundBrush)
+                                   ? disabledFormat.foreground().color()
+                                   : fontSettings.toTextCharFormat(C_TEXT).foreground().color());
+    disabledFormat.setProperty(MERGE_CONFLICT_SECTION_PROPERTY_ID, true);
 
     QTextDocument *doc = widget->document();
+    // the previewed choice, while the conflict being highlighted is the one
+    // previewed; all of its lines are kept otherwise
+    std::optional<MergeConflictChoice> previewedChoice;
+    const MergeConflict *highlighted = nullptr;
     const auto highlight = [&](int firstLine, int lastLine, const QTextCharFormat &format) {
         for (int line = firstLine; line <= lastLine; ++line) {
             const QTextBlock block = doc->findBlockByNumber(line - 1);
@@ -211,7 +269,9 @@ static void highlightMergeConflictSections(TextEditorWidget *widget,
             QTextLayout::FormatRange range;
             range.start = 0;
             range.length = qMax(1, block.length());
-            range.format = format;
+            range.format = !previewedChoice || keepsLine(*highlighted, *previewedChoice, line)
+                               ? format
+                               : disabledFormat;
             layout->addBlockEditorFormats(block, {range});
         }
     };
@@ -224,6 +284,10 @@ static void highlightMergeConflictSections(TextEditorWidget *widget,
             scrollBarHighlights.append({firstLine, lastLine, color});
     };
     for (const MergeConflict &conflict : conflicts) {
+        highlighted = &conflict;
+        previewedChoice.reset();
+        if (preview && preview->startLine == conflict.startLine)
+            previewedChoice = preview->choice;
         // current side: "<<<<<<<" (bold) through the line before "|||||||"/"======="
         const int currentEnd = (conflict.baseLine > 0 ? conflict.baseLine : conflict.separatorLine) - 1;
         highlight(conflict.startLine, conflict.startLine, boldMarker(currentFormat));
@@ -271,6 +335,16 @@ public:
     // ">>>>>>>" line, so an edit can be told to fall inside a conflict without
     // consulting the line numbers of the last scan
     QList<QTextCursor> conflictRegions;
+    std::optional<PreviewedResolution> preview;
+    // The lines of the previewed conflict hidden in this view only. The row
+    // of links moves from the hidden "<<<<<<<" marker onto previewAnchor, the
+    // first line below it that stays visible; a null anchor means there is
+    // none and the marker stays to carry the row.
+    QList<int> hiddenLines;
+    int hiddenLinesRevision = -1;
+    QTextCursor previewAnchor;
+    // height of the line reserved for a row of links
+    int rowHeight = 0;
 
     QTimer rescanTimer;
     bool repositionScheduled = false;
@@ -279,6 +353,9 @@ public:
 
     void clearRows()
     {
+        // the links that showed it go away
+        showHiddenLines();
+        preview.reset();
         for (const Row &row : std::as_const(rows)) {
             if (row.label) {
                 row.label->hide();
@@ -327,7 +404,7 @@ public:
             rebuildRows();
         // the highlights are swept and reapplied in one go, so they can be
         // refreshed unconditionally without the sections flickering
-        highlightMergeConflictSections(widget, conflicts);
+        highlightMergeConflictSections(widget, conflicts, preview);
         reposition();
     }
 
@@ -372,6 +449,13 @@ public:
         return false;
     }
 
+    bool isRowLabel(const QObject *object) const
+    {
+        return std::any_of(rows.cbegin(), rows.cend(), [object](const Row &row) {
+            return row.label == object;
+        });
+    }
+
     void rebuildRows()
     {
         clearRows();
@@ -381,6 +465,7 @@ public:
             return;
         QTextDocument *doc = widget->document();
         const int lineHeight = widget->fontMetrics().lineSpacing();
+        rowHeight = lineHeight;
         for (const MergeConflict &conflict : std::as_const(conflicts)) {
             const QTextBlock block = doc->findBlockByNumber(conflict.startLine - 1);
             if (!block.isValid())
@@ -399,15 +484,19 @@ public:
                                     Tr::tr("Choose Both").toHtmlEscaped()));
             const QTextCursor anchor(block);
             QObject::connect(label, &QLabel::linkActivated, q, [this, anchor](const QString &link) {
-                MergeConflictChoice choice = MergeConflictChoice::Both;
-                if (link == "current")
-                    choice = MergeConflictChoice::Current;
-                else if (link == "incoming")
-                    choice = MergeConflictChoice::Incoming;
-                else
-                    QTC_ASSERT(link == "both", return);
-                resolveAt(anchor.blockNumber() + 1, choice);
+                const std::optional<MergeConflictChoice> choice = choiceForLink(link);
+                QTC_ASSERT(choice, return);
+                endPreview();
+                resolveAt(anchor.blockNumber() + 1, *choice);
             });
+            QObject::connect(label, &QLabel::linkHovered, q, [this, anchor](const QString &link) {
+                if (const std::optional<MergeConflictChoice> choice = choiceForLink(link))
+                    startPreview(anchor.blockNumber() + 1, *choice);
+                else
+                    endPreview();
+            });
+            // the pointer leaving the row does not unhover a link by itself
+            label->installEventFilter(q);
             label->adjustSize();
             label->setFixedHeight(lineHeight);
             rows.append({label, anchor});
@@ -434,25 +523,162 @@ public:
         resolveMergeConflict(doc, *it, choice);
     }
 
+    // Shows the conflict starting on the given line as the choice would
+    // resolve it, until endPreview(): its markers and the lines the choice
+    // drops are hidden or shown as disabled code, as the preview mode says.
+    // The row of links keeps its place, so the link under the mouse stays
+    // there.
+    void startPreview(int startLine, MergeConflictChoice choice)
+    {
+        showHiddenLines();
+        if (!widget)
+            return;
+        // the last scan may predate edits that moved the conflicts without
+        // touching one, which start no rescan. The rows are anchored by
+        // cursors, so they stay valid.
+        conflicts = findMergeConflicts(widget->document());
+        trackConflictRegions();
+        const auto conflict = std::find_if(conflicts.cbegin(), conflicts.cend(),
+                                           [startLine](const MergeConflict &candidate) {
+                                               return candidate.startLine == startLine;
+                                           });
+        if (conflict == conflicts.cend()) // the conflict was edited away under the links
+            return;
+        preview = PreviewedResolution{startLine, choice};
+        QList<int> markerLines{conflict->startLine, conflict->separatorLine, conflict->endLine};
+        if (conflict->baseLine > 0)
+            markerLines.append(conflict->baseLine);
+        switch (displaySettings().mergeConflictPreviewMode()) {
+        case MergeConflictPreviewMode::ResultOnly: {
+            QList<int> dropped;
+            for (int line = conflict->startLine; line <= conflict->endLine; ++line) {
+                if (!keepsLine(*conflict, choice, line))
+                    dropped.append(line);
+            }
+            hideLines(*conflict, dropped);
+            break;
+        }
+        case MergeConflictPreviewMode::HideMarkers:
+            hideLines(*conflict, markerLines);
+            break;
+        case MergeConflictPreviewMode::HighlightOnly:
+            break;
+        }
+        highlightMergeConflictSections(widget, conflicts, preview);
+        reposition();
+    }
+
+    void endPreview()
+    {
+        if (!preview)
+            return;
+        showHiddenLines();
+        preview.reset();
+        highlightMergeConflictSections(widget, conflicts);
+        scheduleReposition();
+    }
+
+    // Hides the given lines of the conflict, which include its "<<<<<<<"
+    // marker, in this view.
+    void hideLines(const MergeConflict &conflict, const QList<int> &lines)
+    {
+        TextEditorLayout *l = layout();
+        if (!l)
+            return;
+        QTextDocument *doc = widget->document();
+        const int heightBefore = l->documentPixelHeight();
+        const QSet<int> hidden(lines.cbegin(), lines.cend());
+        QTextBlock anchor = doc->findBlockByNumber(conflict.startLine);
+        while (anchor.isValid() && hidden.contains(anchor.blockNumber() + 1))
+            anchor = anchor.next();
+        if (anchor.isValid() && !anchor.isVisible())
+            anchor = {};
+        for (const int line : lines) {
+            if (line == conflict.startLine && !anchor.isValid())
+                continue;
+            l->setBlockVisibleInEditor(doc->findBlockByNumber(line - 1), false);
+            hiddenLines.append(line);
+        }
+        if (anchor.isValid()) {
+            l->ensureBlockLayout(anchor);
+            l->prependLayoutItem(anchor,
+                                 std::make_unique<EmptyLayoutItem>(rowHeight,
+                                                                   MERGE_CONFLICT_PREVIEW_CATEGORY));
+            previewAnchor = QTextCursor(anchor);
+        }
+        // A shorter document lowers the scroll bar's maximum, which scrolls a
+        // view showing the end of the document, and with it the row of links
+        // under the mouse. Fill the room of the hidden lines below the last
+        // visible line, where it is out of the way.
+        const int lost = heightBefore - l->documentPixelHeight();
+        QTextBlock last = doc->lastBlock();
+        while (last.isValid() && (!last.isVisible() || !l->isBlockVisibleInEditor(last)))
+            last = last.previous();
+        if (lost > 0 && last.isValid()) {
+            l->ensureBlockLayout(last);
+            l->appendLayoutItem(last,
+                                std::make_unique<EmptyLayoutItem>(lost,
+                                                                  MERGE_CONFLICT_PREVIEW_CATEGORY));
+        }
+        hiddenLinesRevision = doc->revision();
+        l->emitDocumentSizeChanged();
+        l->requestUpdate();
+    }
+
+    void showHiddenLines()
+    {
+        if (hiddenLines.isEmpty() && previewAnchor.isNull())
+            return;
+        if (TextEditorLayout *l = layout()) {
+            QTextDocument *doc = widget->document();
+            if (doc->revision() == hiddenLinesRevision) {
+                for (const int line : std::as_const(hiddenLines))
+                    l->setBlockVisibleInEditor(doc->findBlockByNumber(line - 1), true);
+            } else {
+                // an edit may have removed hidden blocks, and their hidden
+                // state would pass on to the blocks that reuse their storage
+                l->clearEditorHiddenBlocks();
+            }
+            l->removeAllLayoutItems(MERGE_CONFLICT_PREVIEW_CATEGORY);
+            l->emitDocumentSizeChanged();
+            l->requestUpdate();
+        }
+        hiddenLines.clear();
+        previewAnchor = {};
+    }
+
     void reposition()
     {
         TextEditorLayout *l = layout();
         if (!l)
             return;
         QTextDocument *doc = widget->document();
+        const QTextBlock previewBlock = previewAnchor.isNull() ? QTextBlock()
+                                                               : previewAnchor.block();
+        bool previewedRowHidden = false;
         for (const Row &row : std::as_const(rows)) {
             if (!row.label)
                 continue;
-            const QTextBlock block = row.anchor.block();
+            const bool previewed = previewBlock.isValid() && preview
+                                   && row.anchorLine() == preview->startLine;
+            const QTextBlock block = previewed ? previewBlock : row.anchor.block();
             if (!block.isValid() || !block.isVisible()) {
                 row.label->hide();
+                previewedRowHidden |= previewed;
                 continue;
             }
-            // float on the spacer line reserved above the marker
-            const int top = widget->cursorRect(QTextCursor(block)).top() - l->mainLayoutOffset(block);
+            // float on the spacer line reserved above the marker. The line
+            // reserved for a previewed row is the topmost above its block, and
+            // pushes down the row of a conflict starting right there.
+            int top = widget->cursorRect(QTextCursor(block)).top() - l->mainLayoutOffset(block);
+            if (!previewed && block == previewBlock)
+                top += rowHeight;
             row.label->move(int(doc->documentMargin()), top);
             row.label->show();
         }
+        // a hidden row cannot be hovered, so nothing would end the preview
+        if (previewedRowHidden)
+            endPreview();
     }
 
     // updateRequest fires on every repaint, scroll and incremental rehighlight;
@@ -483,8 +709,15 @@ MergeConflictController::MergeConflictController(TextEditorWidget *widget)
     // until the debounced rescan refreshes the conflicts' line numbers
     connect(widget->document(), &QTextDocument::contentsChange, this,
             [this](int position, int /*charsRemoved*/, int charsAdded) {
-        if (d->changeMayAffectConflicts(position, charsAdded))
+        // the rescan shows the conflicts without the preview; the line numbers
+        // it would be shown on are stale now
+        if (d->preview) {
+            d->showHiddenLines();
+            d->preview.reset();
             d->rescanTimer.start();
+        } else if (d->changeMayAffectConflicts(position, charsAdded)) {
+            d->rescanTimer.start();
+        }
     });
     // updateRequest also fires on scrolling
     connect(widget, &PlainTextEdit::updateRequest, this, [this] { d->scheduleReposition(); });
@@ -511,8 +744,20 @@ MergeConflictController::~MergeConflictController()
 
 bool MergeConflictController::eventFilter(QObject *watched, QEvent *event)
 {
-    if (event->type() == QEvent::ReadOnlyChange)
+    if (event->type() == QEvent::ReadOnlyChange) {
         d->rescan();
+    } else if (event->type() == QEvent::Leave && d->isRowLabel(watched)) {
+        // Work around QTBUG-143965: QLabel keeps the link it reported as
+        // hovered last when the pointer leaves, and does not report it again
+        // when the pointer comes back onto it. A move onto no link makes it
+        // forget the link.
+        auto label = static_cast<QWidget *>(watched);
+        const QPointF outside(-1, -1);
+        QMouseEvent move(QEvent::MouseMove, outside, label->mapToGlobal(outside), Qt::NoButton,
+                         Qt::NoButton, Qt::NoModifier);
+        QCoreApplication::sendEvent(label, &move);
+        d->endPreview();
+    }
     return QObject::eventFilter(watched, event);
 }
 
