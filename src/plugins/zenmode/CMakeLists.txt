@@ -16,7 +16,6 @@ add_qtc_plugin(ZenMode
 
 qtc_add_resources(ZenMode "images"
   PREFIX "/zenmode"
-  BASE "."
   FILES
     images/settingscategory_zenmode.png
     images/settingscategory_zenmode@2x.png

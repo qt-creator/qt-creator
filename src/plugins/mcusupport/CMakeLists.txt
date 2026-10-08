@@ -30,14 +30,12 @@ add_qtc_plugin(McuSupport
 file(GLOB_RECURSE images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} images/*)
 qtc_add_resources(McuSupport "images"
   PREFIX "/mcusupport"
-  BASE "."
   FILES ${images}
 )
 
 file(GLOB_RECURSE wizards RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} wizards/*)
 qtc_add_resources(McuSupport "wizards"
   PREFIX "/mcusupport"
-  BASE "."
   FILES ${wizards}
 )
 

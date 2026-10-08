@@ -9,6 +9,5 @@ add_qtc_plugin(SafeRenderer
 file(GLOB_RECURSE wizards RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} wizards/*)
 qtc_add_resources(SafeRenderer "wizards"
   PREFIX "/saferenderer"
-  BASE "."
   FILES ${wizards}
 )

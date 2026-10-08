@@ -13,7 +13,6 @@ add_qtc_plugin(Copilot
 
 qtc_add_resources(Copilot "images"
   PREFIX "/copilot"
-  BASE "."
   FILES
     images/copilot.png
     images/copilot@2x.png

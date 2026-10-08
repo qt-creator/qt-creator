@@ -31,7 +31,6 @@ extend_qtc_plugin(Ios
 
 qtc_add_resources(Ios "images"
   PREFIX "/ios"
-  BASE "."
   FILES
     images/iosdevice.png
     images/iosdevice@2x.png

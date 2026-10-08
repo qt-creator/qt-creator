@@ -133,7 +133,6 @@ extend_qtc_plugin(TextEditor
 
 qtc_add_resources(TextEditor "images"
   PREFIX "/texteditor"
-  BASE "."
   FILES
     images/finddocuments.png
     images/settingscategory_texteditor.png

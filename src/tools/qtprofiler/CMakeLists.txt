@@ -76,7 +76,6 @@ endif()
 
 qtc_add_resources(qtprofiler "schema"
   PREFIX "/qtprofiler"
-  BASE "."
   FILES
     schema/qtprofilerapi.json.schema
 )

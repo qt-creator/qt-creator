@@ -40,7 +40,6 @@ extend_qtc_plugin(Python
 
 qtc_add_resources(Python "images"
   PREFIX "/python"
-  BASE "."
   FILES
     images/qtforpython_neon.png
     images/settingscategory_python.png

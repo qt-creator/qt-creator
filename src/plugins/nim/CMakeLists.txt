@@ -33,7 +33,6 @@ add_qtc_plugin(Nim
 
 qtc_add_resources(Nim "images"
   PREFIX "/nim"
-  BASE "."
   FILES
     images/settingscategory_nim.png
     images/settingscategory_nim@2x.png

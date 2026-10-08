@@ -64,7 +64,6 @@ extend_qtc_plugin(Valgrind
 
 qtc_add_resources(Valgrind "images"
   PREFIX "/valgrind"
-  BASE "."
   FILES
     images/suppressoverlay.png
     images/suppressoverlay@2x.png

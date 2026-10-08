@@ -17,7 +17,6 @@ add_qtc_plugin(Beautifier
 
 qtc_add_resources(Beautifier "images"
   PREFIX "/beautifier"
-  BASE "."
   FILES
     images/settingscategory_beautifier.png
     images/settingscategory_beautifier@2x.png

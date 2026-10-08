@@ -35,7 +35,6 @@ add_qtc_library(Tracing
 if(TARGET Tracing)
   qt_add_resources(Tracing "images"
     PREFIX "/tracing"
-    BASE "."
     FILES
       images/edit.png
       images/edit@2x.png

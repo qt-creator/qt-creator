@@ -45,7 +45,6 @@ add_qtc_plugin(Git
 
 qtc_add_resources(Git "images"
   PREFIX "/git"
-  BASE "."
   FILES
   images/arrowup.png
 )

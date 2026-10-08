@@ -28,7 +28,6 @@ extend_qtc_plugin(Boot2Qt
 
 qtc_add_resources(Boot2Qt "images"
   PREFIX "/qdb"
-  BASE "."
   FILES
     images/qdbdevice.png
     images/qdbdevice@2x.png

@@ -61,7 +61,6 @@ add_qtc_plugin(CMakeProjectManager
 
 qtc_add_resources(CMakeProjectManager "resources"
   PREFIX "/cmakeproject"
-  BASE "."
   FILES
     images/fileoverlay_cmake.png
     images/fileoverlay_cmake@2x.png
@@ -119,6 +118,5 @@ file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} testcases/*)
 qtc_add_resources(CMakeProjectManager "testcases"
   CONDITION WITH_TESTS
   PREFIX "/cmakeprojectmanager"
-  BASE "."
   FILES ${test_cases}
 )

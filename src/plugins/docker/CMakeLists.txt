@@ -27,7 +27,6 @@ extend_qtc_plugin(Docker
 
 qtc_add_resources(Docker "images"
   PREFIX "/docker"
-  BASE "."
   FILES
     images/dockerdevice.png
     images/dockerdevice@2x.png

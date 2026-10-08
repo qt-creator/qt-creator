@@ -29,7 +29,6 @@ add_qtc_plugin(CodePaster
 
 qtc_add_resources(CodePaster "images"
   PREFIX "/cpaster"
-  BASE "."
   FILES
   images/settingscategory_cpaster.png
   images/settingscategory_cpaster@2x.png

@@ -34,7 +34,6 @@ extend_qtc_plugin(McpServer
 
 qtc_add_resources(McpServer "images"
   PREFIX "/mcpserver"
-  BASE "."
   FILES
     images/mcpicon.png
     images/mcpicon@2x.png
@@ -42,7 +41,6 @@ qtc_add_resources(McpServer "images"
 
 qtc_add_resources(McpServer "schemas"
   PREFIX "/mcpserver"
-  BASE "."
   FILES
     schemas/search-results-schema.json
 )

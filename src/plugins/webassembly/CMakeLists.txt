@@ -23,7 +23,6 @@ extend_qtc_plugin(WebAssembly
 
 qtc_add_resources(WebAssembly "images"
   PREFIX "/webassembly"
-  BASE "."
   FILES
     images/webassemblydevice.png
     images/webassemblydevice@2x.png

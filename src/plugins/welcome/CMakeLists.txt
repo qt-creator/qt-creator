@@ -9,7 +9,6 @@ add_qtc_plugin(Welcome
 
 qtc_add_resources(Welcome "images"
   PREFIX "/welcome"
-  BASE "."
   FILES
     images/border.png
     images/mode_welcome.png

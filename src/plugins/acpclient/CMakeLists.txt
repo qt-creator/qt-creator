@@ -44,7 +44,6 @@ add_qtc_plugin(AcpClient
 
 qtc_add_resources(AcpClient "images"
   PREFIX "/acpclient"
-  BASE "."
   FILES
     images/sparklebubble.png
     images/sparklebubble@2x.png
@@ -52,7 +51,6 @@ qtc_add_resources(AcpClient "images"
 
 qtc_add_resources(AcpClient "terms"
   PREFIX "/acpclient"
-  BASE "."
   FILES
     terms/terms-and-conditions.md
 )

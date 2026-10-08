@@ -18,6 +18,5 @@ add_qtc_plugin(Macros
 
 qtc_add_resources(Macros "images"
   PREFIX "/macros"
-  BASE "."
   FILES images/macro.png
 )

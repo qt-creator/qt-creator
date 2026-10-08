@@ -33,7 +33,6 @@ add_qtc_plugin(Coco
 
 qtc_add_resources(Coco "runtime resources"
   PREFIX "/cocoplugin"
-  BASE "."
   FILES
     files/cocoplugin-clang.cmake
     files/cocoplugin-gcc.cmake

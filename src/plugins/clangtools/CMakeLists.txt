@@ -54,6 +54,5 @@ file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} unit-tests/*)
 qtc_add_resources(ClangTools "testcases"
   CONDITION WITH_TESTS
   PREFIX "/clangtools"
-  BASE "."
   FILES ${test_cases}
 )

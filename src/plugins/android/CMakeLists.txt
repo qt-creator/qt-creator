@@ -55,7 +55,6 @@ extend_qtc_plugin(Android
 
 qtc_add_resources(Android "images"
   PREFIX "/android"
-  BASE "."
   FILES
     images/androiddevice.png
     images/androiddevice@2x.png

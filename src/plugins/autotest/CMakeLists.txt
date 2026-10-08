@@ -91,12 +91,10 @@ extend_qtc_plugin(AutoTest
 file(GLOB_RECURSE images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} images/*)
 qtc_add_resources(AutoTest "images"
   PREFIX "/autotest"
-  BASE "."
   FILES ${images}
 )
 file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} unit_test/*)
 qtc_add_resources(AutoTest "testcases"
   CONDITION WITH_TESTS
-  BASE "."
   FILES ${test_cases}
 )

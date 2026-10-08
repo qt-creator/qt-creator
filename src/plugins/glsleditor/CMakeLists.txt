@@ -16,6 +16,5 @@ add_qtc_plugin(GLSLEditor
 file(GLOB_RECURSE images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} images/*)
 qtc_add_resources(GLSLEditor "images"
   PREFIX "/glsleditor"
-  BASE "."
   FILES ${images}
 )

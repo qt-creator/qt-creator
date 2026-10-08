@@ -27,7 +27,6 @@ add_qtc_plugin(Terminal
 
 qtc_add_resources(Terminal "images"
   PREFIX "/terminal"
-  BASE "."
   FILES
     images/keyboardlock.png
     images/keyboardlock@2x.png

@@ -33,7 +33,6 @@ add_qtc_plugin(QbsProjectManager
 
 qtc_add_resources(QbsProjectManager "images"
   PREFIX "/qbsprojectmanager"
-  BASE "."
   FILES
     images/settingscategory_qbsprojectmanager.png
     images/settingscategory_qbsprojectmanager@2x.png

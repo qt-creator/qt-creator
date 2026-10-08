@@ -12,14 +12,12 @@ add_qtc_plugin(Learning
 qtc_add_resources(Learning "testcases"
   CONDITION WITH_TESTS
   PREFIX "/learning"
-  BASE "."
   FILES testdata/courses.json
 )
 
 file(GLOB images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} overview/*.webp overview/*.json)
 qtc_add_resources(Learning "overview"
   PREFIX "/learning"
-  BASE "."
   FILES
     ${images}
 )

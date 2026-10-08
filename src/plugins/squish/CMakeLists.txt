@@ -36,7 +36,6 @@ add_qtc_plugin(Squish
 
 qtc_add_resources(Squish "runtime resources"
   PREFIX "/squish"
-  BASE "."
   FILES
     images/data.png
     images/data@2x.png

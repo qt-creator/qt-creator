@@ -39,6 +39,5 @@ add_qtc_plugin(QtSupport
 file(GLOB_RECURSE images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} images/*)
 qtc_add_resources(QtSupport "images"
   PREFIX "/qtsupport"
-  BASE "."
   FILES ${images}
 )

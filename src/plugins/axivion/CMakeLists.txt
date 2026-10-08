@@ -24,6 +24,5 @@ add_qtc_plugin(Axivion
 file(GLOB_RECURSE images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} images/*)
 qtc_add_resources(Axivion "images"
   PREFIX "/axivion"
-  BASE "."
   FILES ${images}
 )

@@ -50,7 +50,6 @@ add_qtc_plugin(MesonProjectManager
 
 qtc_add_resources(MesonProjectManager "images"
   PREFIX "/mesonproject"
-  BASE "."
   FILES
     icons/meson_logo.png
     icons/meson_bw_logo.png

@@ -44,7 +44,6 @@ add_qtc_plugin(BareMetal
 
 qtc_add_resources(BareMetal "images"
   PREFIX "/baremetal"
-  BASE "."
   FILES
   images/baremetaldevice.png
   images/baremetaldevice@2x.png

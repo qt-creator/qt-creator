@@ -25,7 +25,6 @@ add_qtc_plugin(Todo
 
 qtc_add_resources(Todo "images"
   PREFIX "/todoplugin"
-  BASE "."
   FILES
     images/settingscategory_todo.png
     images/settingscategory_todo@2x.png

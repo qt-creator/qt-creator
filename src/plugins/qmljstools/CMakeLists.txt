@@ -28,7 +28,6 @@ extend_qtc_plugin(QmlJSTools
 
 qtc_add_resources(QmlJSTools "images"
   PREFIX "/qmljstools"
-  BASE "."
   FILES
   images/settingscategory_qml.png
   images/settingscategory_qml@2x.png

@@ -77,7 +77,6 @@ extend_qtc_plugin(Help
 
 qtc_add_resources(Help "resources"
   PREFIX "/help"
-  BASE "."
   FILES
     images/macos_touchbar_help.png
     images/macos_touchbar_help@2x.png

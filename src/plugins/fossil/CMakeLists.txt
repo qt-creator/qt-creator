@@ -20,7 +20,6 @@ add_qtc_plugin(Fossil
 
 qtc_add_resources(Fossil "wizard_resources"
   PREFIX "/fossil"
-  BASE "."
   FILES
     wizard/projects/vcs/icon.png
     wizard/projects/vcs/icon@2x.png

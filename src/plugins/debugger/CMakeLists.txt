@@ -126,14 +126,12 @@ extend_qtc_plugin(Debugger
 file(GLOB_RECURSE images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} images/*)
 qtc_add_resources(Debugger "images"
   PREFIX "/debugger"
-  BASE "."
   FILES ${images}
 )
 file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} unit-tests/*)
 qtc_add_resources(Debugger "testcases"
   CONDITION WITH_TESTS
   PREFIX "/debugger"
-  BASE "."
   FILES ${test_cases}
 )
 

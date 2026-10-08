@@ -21,7 +21,6 @@ add_qtc_plugin(DiffEditor
 
 qtc_add_resources(DiffEditor "images"
   PREFIX "/diffeditor"
-  BASE "."
   FILES
     images/sidebysidediff.png
     images/sidebysidediff@2x.png
