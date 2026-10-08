@@ -20,6 +20,9 @@
 #include <QMenu>
 #include <QPainter>
 
+#include <algorithm>
+#include <iterator>
+
 using namespace Utils;
 
 namespace Debugger::Internal {
@@ -190,10 +193,28 @@ static uint decodeHexChar(unsigned char c)
     return uint(-1);
 }
 
-void RegisterValue::fromString(const QString &str, RegisterFormat format)
+void RegisterValue::clear()
 {
     known = false;
-    v.u128[1] = v.u128[0] = 0;
+    for (Quint128 &lane : v.u128)
+        lane = 0;
+}
+
+// Adds summand to the given lane, carrying into the ones above it.
+void RegisterValue::addWithCarry(int lane, Quint128 summand)
+{
+    for (; lane < Lanes; ++lane) {
+        const Quint128 before = v.u128[lane];
+        v.u128[lane] += summand;
+        if (!(v.u128[lane] < before))
+            return;
+        summand = 1;
+    }
+}
+
+void RegisterValue::fromString(const QString &str, RegisterFormat format)
+{
+    clear();
 
     const int n = str.size();
     int pos = 0;
@@ -217,17 +238,16 @@ void RegisterValue::fromString(const QString &str, RegisterFormat format)
     }
 
     if (negative) {
-        v.u128[1] = ~v.u128[1];
-        v.u128[0] = ~v.u128[0];
-        ++v.u128[0];
-        if (v.u128[0] == 0)
-            ++v.u128[1];
+        for (Quint128 &lane : v.u128)
+            lane = ~lane;
+        addWithCarry(0, 1);
     }
 }
 
 bool RegisterValue::operator==(const RegisterValue &other) const
 {
-    return known == other.known && v.u128[0] == other.v.u128[0] && v.u128[1] == other.v.u128[1];
+    return known == other.known && std::equal(std::begin(v.u128), std::end(v.u128),
+                                              std::begin(other.v.u128));
 }
 
 static QString toDec(Quint128 v)
@@ -317,14 +337,15 @@ QString RegisterValue::toString(RegisterKind kind, int size, RegisterFormat form
             return QString::number(v.d[0]);
     }
 
+    // A register wider than 128 bits is shown 128 bits at a time, the most
+    // significant part first.
     QString result;
-    if (size > 16) {
-        result += formatRegister(v.u128[1], size - 16, format, forEdit);
-        size = 16;
+    for (int lane = std::min((size - 1) / 16, int(Lanes) - 1); lane > 0; --lane) {
+        result += formatRegister(v.u128[lane], std::min(size - 16 * lane, 16), format, forEdit);
         if (format != HexadecimalFormat)
             result += ',';
     }
-    return result + formatRegister(v.u128[0], size, format, forEdit);
+    return result + formatRegister(v.u128[0], std::min(size, 16), format, forEdit);
 }
 
 RegisterValue RegisterValue::subValue(int size, int index) const
@@ -374,8 +395,10 @@ void RegisterValue::setSubValue(int size, int index, RegisterValue subValue)
 
 static inline void shiftBitsLeft(RegisterValue *val, int amount)
 {
-    val->v.u128[1] <<= amount;
-    val->v.u128[1] |= val->v.u128[0] >> (128 - amount);
+    for (int lane = RegisterValue::Lanes - 1; lane > 0; --lane) {
+        val->v.u128[lane] <<= amount;
+        val->v.u128[lane] |= val->v.u128[lane - 1] >> (128 - amount);
+    }
     val->v.u128[0] <<= amount;
 }
 
@@ -396,17 +419,13 @@ void RegisterValue::shiftOneDigit(uint digit, RegisterFormat format)
         break;
     case DecimalFormat:
     case SignedDecimalFormat: {
+        // value * 10 + digit, as value * 8 + value * 2 + digit.
         shiftBitsLeft(this, 1);
-        Quint128 tmp0 = v.u128[0];
-        Quint128 tmp1 = v.u128[1];
+        RegisterValue twice = *this;
         shiftBitsLeft(this, 2);
-        v.u128[1] += tmp1;
-        v.u128[0] += tmp0;
-        if (v.u128[0] < tmp0)
-            ++v.u128[1];
-        v.u128[0] += digit;
-        if (v.u128[0] < digit)
-            ++v.u128[1];
+        for (int lane = Lanes - 1; lane >= 0; --lane)
+            addWithCarry(lane, twice.v.u128[lane]);
+        addWithCarry(0, digit);
         break;
     }
     case CharacterFormat:

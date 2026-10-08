@@ -360,12 +360,13 @@ static QString registerKindName(RegisterKind kind)
 // digit first. Without a known size, all significant digits.
 static QString losslessHex(const RegisterValue &value, int size)
 {
-    const quint64 words[4] = {value.v.u128[0].lo, value.v.u128[0].hi,
-                              value.v.u128[1].lo, value.v.u128[1].hi};
-    const int bytes = size > 0 ? std::min(size, 32) : 32;
+    const int capacity = 16 * RegisterValue::Lanes;
+    const int bytes = size > 0 ? std::min(size, capacity) : capacity;
     QString hex;
     for (int i = bytes - 1; i >= 0; --i) {
-        const uint byte = (words[i / 8] >> (8 * (i % 8))) & 0xff;
+        const Quint128 &lane = value.v.u128[i / 16];
+        const quint64 word = (i % 16) < 8 ? lane.lo : lane.hi;
+        const uint byte = (word >> (8 * (i % 8))) & 0xff;
         hex += QString("%1").arg(byte, 2, 16, QLatin1Char('0'));
     }
     if (size <= 0) {

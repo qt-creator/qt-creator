@@ -120,6 +120,7 @@ private slots:
 
     void testRegisterValue_data();
     void testRegisterValue();
+    void testWideRegisterValues();
 
     void testInferiorStartData();
     void testCdbImplStartData();
@@ -503,6 +504,12 @@ void DebuggerUnitTests::testRegisterValue_data()
     QTest::newRow("256bit-high-only")
         << "abcdef01234567899876543210fedcba00000000000000000000000000000000";
     QTest::newRow("256bit-all-f") << QString(64, 'f');
+    // 512-bit (AVX-512 ZMM): used to be cut to its lower 256 bits.
+    QTest::newRow("512bit")
+        << "0f1e2d3c4b5a69788796a5b4c3d2e1f0" "112233445566778899aabbccddeeff00"
+           "99aabbccddeeff001122334455667788" "fedcba98765432100123456789abcdef";
+    QTest::newRow("512bit-high-only") << "deadbeef" + QString(120, '0');
+    QTest::newRow("512bit-all-f") << QString(128, 'f');
 }
 
 void DebuggerUnitTests::testRegisterValue()
@@ -523,19 +530,6 @@ void DebuggerUnitTests::testRegisterValue()
     QCOMPARE(twoPow64.toString(IntegerRegister, 16, DecimalFormat).trimmed(),
              QString("18446744073709551616"));
 
-    // A register wider than a value can hold is not reported with half its bits.
-    Register zmm;
-    zmm.name = "zmm0";
-    zmm.size = 64;
-    zmm.value.fromString("0x" + QString(128, 'f'), HexadecimalFormat);
-    const QJsonObject wide = mcpRegisterToJson(zmm, true);
-    QVERIFY(!wide.value("available").toBool());
-    QVERIFY(!wide.contains("value"));
-    QCOMPARE(wide.value("bit_width").toInt(), 512);
-    Register ymm = zmm;
-    ymm.size = 32;
-    QCOMPARE(mcpRegisterToJson(ymm, true).value("value").toString(), "0x" + QString(64, 'f'));
-
     // What a debugger says instead of a value is not a value of zero.
     RegisterValue unavailable;
     unavailable.fromString("<unavailable>", HexadecimalFormat);
@@ -544,6 +538,38 @@ void DebuggerUnitTests::testRegisterValue()
     zero.fromString("0x0", HexadecimalFormat);
     QVERIFY(zero.known);
     QVERIFY(!(unavailable == zero));
+}
+
+void DebuggerUnitTests::testWideRegisterValues()
+{
+    // A negative value carries through all four lanes.
+    RegisterValue minusOne;
+    minusOne.fromString("0x-1", HexadecimalFormat);
+    QCOMPARE(minusOne.toString(IntegerRegister, 64, HexadecimalFormat), QString(128, 'f'));
+
+    // Decimal input carries into the upper lanes too.
+    RegisterValue twoPow256;
+    twoPow256.fromString("115792089237316195423570985008687907853269984665640564039457584007913129639936",
+                         DecimalFormat);
+    QCOMPARE(twoPow256.toString(IntegerRegister, 64, HexadecimalFormat),
+             QString(63, '0') + '1' + QString(64, '0'));
+    QCOMPARE(twoPow256.subValue(16, 2).v.u128[0], Quint128(1));
+    QCOMPARE(twoPow256.subValue(16, 3).v.u128[0], Quint128(0));
+
+    // A 512-bit register is reported with all its bits, a wider one not at all.
+    Register zmm;
+    zmm.name = "zmm0";
+    zmm.size = 64;
+    zmm.value.fromString("0xdeadbeef" + QString(120, '0'), HexadecimalFormat);
+    const QJsonObject wide = mcpRegisterToJson(zmm, true);
+    QVERIFY(wide.value("available").toBool());
+    QCOMPARE(wide.value("bit_width").toInt(), 512);
+    QCOMPARE(wide.value("value").toString(), "0xdeadbeef" + QString(120, '0'));
+    Register wider = zmm;
+    wider.size = 128;
+    const QJsonObject tooWide = mcpRegisterToJson(wider, true);
+    QVERIFY(!tooWide.value("available").toBool());
+    QVERIFY(!tooWide.contains("value"));
 }
 
 void DebuggerUnitTests::testInferiorStartData()
