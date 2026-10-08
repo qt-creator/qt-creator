@@ -2070,12 +2070,12 @@ endfunction()
                       [PREFIX <prefix>]
                       [LANG <language>]
                       [BASE <path>]
-                      [FILES_PREFIX <path>]
                       [FILES <file>...]
                       [OPTIONS <option>...]
                       [CONDITION <condition>...])
 
-  Where the target is not being built, the call does nothing.
+  Every argument but ``CONDITION`` goes to ``qt_add_resources()``, whose
+  documentation describes them in full.
 
   ``<name>``
     The name of the resource, which the build turns into one a C
@@ -2089,123 +2089,48 @@ endfunction()
     own for several.
 
   ``BASE <path>``
-    The directory the files are named relative to, and which is left
-    off the path they are reached under.
-
-  ``FILES_PREFIX <path>``
-    What to put in front of the name of every file on disk, leaving
-    the path they are reached under alone.
+    The leading part of each file's path to leave off the path it is
+    reached under.
 
   ``FILES <file>...``
-    The files to add.
+    The files to add, named relative to the current source directory.
 
   ``OPTIONS <option>...``
     Options for the resource compiler.
 
   ``CONDITION <condition>...``
-    The files are added only where the condition holds.
+    The files are added only where the condition holds. Where the
+    condition does not hold, or the target is not being built, the
+    call does nothing.
 #]=]
 function(qtc_add_resources target resourceName)
-  cmake_parse_arguments(rcc "" "PREFIX;LANG;BASE;FILES_PREFIX" "FILES;OPTIONS;CONDITION" ${ARGN})
+  cmake_parse_arguments(rcc "" "PREFIX;LANG;BASE" "FILES;OPTIONS;CONDITION" ${ARGN})
   if (rcc_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "qtc_add_resources had unparsed arguments!")
   endif()
 
-  if (NOT rcc_CONDITION)
+  if (NOT DEFINED rcc_CONDITION)
     set(rcc_CONDITION ON)
   endif()
   if (NOT (${rcc_CONDITION}))
     return()
   endif()
 
-  if(NOT TARGET ${target})
+  if (NOT TARGET ${target})
     return()
   endif()
 
-  string(REPLACE "/" "_" resourceName ${resourceName})
-  string(REPLACE "." "_" resourceName ${resourceName})
-
-  set(newResourceName ${resourceName})
-  set(resources ${rcc_FILES})
-
-  set(generatedResourceFile "${CMAKE_CURRENT_BINARY_DIR}/.rcc/generated_${newResourceName}.qrc")
-  set(generatedSourceCode "${CMAKE_CURRENT_BINARY_DIR}/.rcc/qrc_${newResourceName}.cpp")
-
-  # Generate .qrc file:
-
-  # <RCC><qresource ...>
-  set(qrcContents "<RCC>\n  <qresource")
-  if (rcc_PREFIX)
-      string(APPEND qrcContents " prefix=\"${rcc_PREFIX}\"")
-  endif()
-  if (rcc_LANG)
-      string(APPEND qrcContents " lang=\"${rcc_LANG}\"")
-  endif()
-  string(APPEND qrcContents ">\n")
-
-  set(resource_dependencies)
-  foreach(file IN LISTS resources)
-    set(file_resource_path ${file})
-
-    if (rcc_BASE)
-      set(file "${rcc_BASE}/${file}")
-      file(TO_CMAKE_PATH "${file}" file)
+  set(args)
+  foreach(key PREFIX LANG BASE)
+    if (rcc_${key})
+      list(APPEND args ${key} "${rcc_${key}}")
     endif()
-
-    if (NOT IS_ABSOLUTE ${file})
-      if (rcc_FILES_PREFIX)
-        set(file "${CMAKE_CURRENT_SOURCE_DIR}/${rcc_FILES_PREFIX}/${file}")
-      else()
-        set(file "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
-      endif()
-    endif()
-
-    ### FIXME: escape file paths to be XML conform
-    # <file ...>...</file>
-    string(APPEND qrcContents "    <file alias=\"${file_resource_path}\">")
-    string(APPEND qrcContents "${file}</file>\n")
-    list(APPEND files "${file}")
-    list(APPEND resource_dependencies ${file})
-    target_sources(${target} PRIVATE "${file}")
-    set_property(SOURCE "${file}" PROPERTY HEADER_FILE_ONLY ON)
-    set_property(SOURCE "${file}" PROPERTY SKIP_AUTOGEN ON)
   endforeach()
-
-  source_group("Resources" FILES ${files})
-
-  # </qresource></RCC>
-  string(APPEND qrcContents "  </qresource>\n</RCC>\n")
-
-  file(WRITE "${generatedResourceFile}.in" "${qrcContents}")
-  configure_file("${generatedResourceFile}.in" "${generatedResourceFile}")
-
-  set_property(TARGET ${target} APPEND PROPERTY _qt_generated_qrc_files "${generatedResourceFile}")
-
-  set(rccArgs --name "${newResourceName}"
-      --output "${generatedSourceCode}" "${generatedResourceFile}")
-  # rcc compresses with zstd by default, and the generated code then needs zstd
-  # support in the Qt it is linked against, which a cross-built Qt may lack.
-  # qt_add_resources() guards this the same way.
-  if(NOT QT_FEATURE_zstd)
-      list(APPEND rccArgs --no-zstd)
-  endif()
-  if(rcc_OPTIONS)
-      list(APPEND rccArgs ${rcc_OPTIONS})
+  if (rcc_OPTIONS)
+    list(APPEND args OPTIONS ${rcc_OPTIONS})
   endif()
 
-  # Process .qrc file:
-  add_custom_command(OUTPUT "${generatedSourceCode}"
-                     COMMAND Qt::rcc ${rccArgs}
-                     DEPENDS
-                      ${resource_dependencies}
-                      ${generatedResourceFile}
-                      "Qt::rcc"
-                     COMMENT "RCC ${newResourceName}"
-                     VERBATIM)
-
-  target_sources(${target} PRIVATE "${generatedSourceCode}")
-  set_property(SOURCE "${generatedSourceCode}" PROPERTY SKIP_AUTOGEN ON)
-  set_property(SOURCE "${generatedResourceFile}.in" PROPERTY SKIP_AUTOGEN ON)
+  qt_add_resources(${target} "${resourceName}" ${args} FILES ${rcc_FILES})
 endfunction()
 
 #[=[.rst:

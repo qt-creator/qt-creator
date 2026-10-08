@@ -54,10 +54,10 @@ extend_qtc_plugin(ClangCodeModel
     test/clangfixittest.cpp test/clangfixittest.h
 )
 
-file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/test/data test/data/*)
+file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test/data/*)
 qtc_add_resources(ClangCodeModel "testcases"
   CONDITION WITH_TESTS
   PREFIX "/unittests/ClangCodeModel"
-  FILES_PREFIX "test/data"
+  BASE "test/data"
   FILES ${test_cases}
 )

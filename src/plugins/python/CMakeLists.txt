@@ -45,10 +45,10 @@ qtc_add_resources(Python "images"
     images/settingscategory_python.png
     images/settingscategory_python@2x.png
 )
-file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/tests/testfiles tests/testfiles/*)
+file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} tests/testfiles/*)
 qtc_add_resources(Python "testcases"
   PREFIX "unittests/Python"
   CONDITION WITH_TESTS
-  FILES_PREFIX "tests/testfiles"
+  BASE "tests/testfiles"
   FILES ${test_cases}
 )
