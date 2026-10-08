@@ -84,13 +84,13 @@ void setupFetchModule()
 
             pluginsAllowedToFetch.setSettingsKey("pluginsAllowedToFetch");
             pluginsAllowedToFetch.setToolTip(
-                Tr::tr("List of plugins that are allowed to fetch data from the internet"));
+                Tr::tr("Plugins that are allowed to fetch data from the internet."));
             pluginsAllowedToFetch.setUiAllowAdding(false);
             pluginsAllowedToFetch.setUiAllowEditing(false);
 
             pluginsNotAllowedToFetch.setSettingsKey("pluginsNotAllowedToFetch");
             pluginsNotAllowedToFetch.setToolTip(
-                Tr::tr("List of plugins that are not allowed to fetch data from the internet"));
+                Tr::tr("Plugins that are not allowed to fetch data from the internet."));
             pluginsNotAllowedToFetch.setUiAllowAdding(false);
             pluginsNotAllowedToFetch.setUiAllowEditing(false);
 
@@ -99,11 +99,11 @@ void setupFetchModule()
                 // clang-format off
                 return Column {
                     Group {
-                        title(Tr::tr("Plugins allowed to fetch data from the internet")),
+                        title(Tr::tr("Plugins Allowed to Fetch Data from the Internet")),
                         Row { pluginsAllowedToFetch },
                     },
                     Group {
-                        title(Tr::tr("Plugins not allowed to fetch data from the internet")),
+                        title(Tr::tr("Plugins Not Allowed to Fetch Data from the Internet")),
                         Row { pluginsNotAllowedToFetch },
                     },
                 };

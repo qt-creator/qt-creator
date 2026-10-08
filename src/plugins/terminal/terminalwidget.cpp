@@ -553,17 +553,16 @@ void TerminalWidget::confirmUnsafePaste(const QString &text,
 
     CheckableMessageBox::question_async(
         Tr::tr("Unsafe Paste"),
-        Tr::tr("The text to paste contains control characters, and the program running "
-               "in the terminal did not announce that it handles a paste as one. Pasting "
-               "it can run commands that the text only appears to contain."
-               "<br><br><code>%1</code><br><br>"
-               "Paste anyway?")
-            .arg(asVisiblePasteText(text)),
+        Tr::tr(
+            "The text to paste contains control characters, and the program running "
+            "in the terminal did not announce that it handles a paste as one. Pasting "
+            "it can run commands that the text only appears to contain.\n"
+            "%1\n"
+            "Paste anyway?")
+            .arg("<br><br><code>" + asVisiblePasteText(text) + "</code><br><br>"),
         decider,
         guard,
-        [onDecided](QMessageBox::StandardButton button) {
-            onDecided(button == QMessageBox::Yes);
-        },
+        [onDecided](QMessageBox::StandardButton button) { onDecided(button == QMessageBox::Yes); },
         QMessageBox::Yes | QMessageBox::No,
         QMessageBox::No,
         QMessageBox::Yes);

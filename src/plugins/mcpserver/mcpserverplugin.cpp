@@ -511,7 +511,7 @@ private:
         proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
         auto *filterEdit = new QLineEdit;
-        filterEdit->setPlaceholderText(Tr::tr("Filter by name or description..."));
+        filterEdit->setPlaceholderText(Tr::tr("Filter by name or description"));
         filterEdit->setMinimumWidth(250);
         filterEdit->setClearButtonEnabled(true);
 
@@ -728,7 +728,7 @@ public:
             const QString info = arguments.at(infoIndex + 1);
             if (info == "-") {
                 if (arguments.contains("-mcp-stdio"))
-                    return ResultError(Tr::tr("-mcp-info-file - cannot be used with -mcp-stdio."));
+                    return ResultError(Tr::tr("\"-mcp-info-file -\" cannot be used with -mcp-stdio."));
                 m_infoToStdout = true;
             } else {
                 m_infoFile = FilePath::fromUserInput(info);
@@ -1154,7 +1154,7 @@ McpServerPluginSettings::McpServerPluginSettings(McpServerPlugin *plugin)
             "that hold the previous one."));
 
     enabledTools.setSettingsGroup("EnabledTools");
-    enabledTools.setToolTip(Tr::tr("Select which tools to enable or disable"));
+    enabledTools.setToolTip(Tr::tr("The tools that are available to MCP clients."));
 
     connect(&enabled, &BaseAspect::changed, plugin, &McpServerPlugin::restartServer);
     connect(&listenAddress, &BaseAspect::changed, plugin, &McpServerPlugin::restartServer);

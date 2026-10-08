@@ -552,8 +552,8 @@ TerminalSettings::TerminalSettings()
     consoleHostDirectory.setExpectedKind(PathChooserKind::ExistingDirectory);
     consoleHostDirectory.setToolTip(
         Tr::tr("A directory holding conpty.dll and OpenConsole.exe to run the terminals "
-               "through. Leave it empty to take the downloaded one, or the console host "
-               "that comes with Windows when there is none."));
+               "through. If empty, the downloaded console host is used, or the one that "
+               "comes with Windows if none was downloaded."));
 
     connect(&consoleHostDirectory, &BaseAspect::changed, this, [] {
         Internal::ConsoleHost::apply();
