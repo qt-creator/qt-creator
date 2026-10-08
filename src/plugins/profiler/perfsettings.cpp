@@ -383,9 +383,10 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
     period.setLabelText(Tr::tr("Sample period:"));
 
     stackSize.setSettingsKey("Analyzer.Perf.StackSize");
-    stackSize.setRange(4096, 65536);
-    stackSize.setDefaultValue(4096);
-    stackSize.setLabelText(Tr::tr("Stack snapshot size (kB):"));
+    // perf takes at most 65528 bytes.
+    stackSize.setRange(4096, 65528);
+    stackSize.setDefaultValue(16384);
+    stackSize.setLabelText(Tr::tr("Stack snapshot size (bytes):"));
 
     sampleMode.setSettingsKey("Analyzer.Perf.SampleMode");
     sampleMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
