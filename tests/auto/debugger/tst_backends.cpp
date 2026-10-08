@@ -48,6 +48,7 @@
 #include <QScopeGuard>
 #include <QSettings>
 #include <QSignalSpy>
+#include <QSysInfo>
 #include <QHostAddress>
 #include <QTcpServer>
 #include <QTemporaryDir>
@@ -2016,6 +2017,8 @@ private slots:
     void reportsTheSourceFilesItRead();
     void reportsTheKindOfARegister_data() { addBackendRows(); }
     void reportsTheKindOfARegister();
+    void reportsVectorRegistersInHex_data();
+    void reportsVectorRegistersInHex();
     void fillsInTheColumnsOfTheSymbolView_data() { addBackendRows(); }
     void fillsInTheColumnsOfTheSymbolView();
     void fillsInTheColumnsOfTheSectionView_data() { addBackendRows(); }
@@ -11150,6 +11153,62 @@ void tst_backends::reportsTheKindOfARegister()
     QVERIFY2(unclassified.isEmpty(),
              qPrintable("the view cannot tell what these are: "
                         + unclassified.join(", ").left(400)));
+}
+
+void tst_backends::reportsVectorRegistersInHex_data()
+{
+    addBackendRows();
+    if (m_backendData.contains(Backend::Bridge))
+        QTest::newRow(qPrintable(backendName(Backend::Bridge))) << Backend::Bridge;
+}
+
+// The register view reads every value as hex. gdb shows a vector register as
+// the union of its lanes in several types, which has to be turned into hex on
+// the way.
+void tst_backends::reportsVectorRegistersInHex()
+{
+    QFETCH(Backend, backend);
+
+    if (QSysInfo::currentCpuArchitecture() != "x86_64")
+        QSKIP("The test looks at the xmm and ymm registers of x86-64.");
+
+    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
+        QSKIP("This test fails on mac");
+
+    if (auto result = checkCapability(backend, Debugger::RegisterCapability); !result)
+        QSKIP(qPrintable(result.error()));
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<int, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        responses[int(kind)] = data;
+    });
+
+    RefreshRequest registersRequest;
+    registersRequest.kind = RefreshKind::Registers;
+    registersRequest.requestId = 342;
+    engine->refresh(registersRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Registers)), s_timeout);
+
+    static const QRegularExpression vectorName("^[xy]mm\\d+$");
+    static const QRegularExpression hex("^0x[0-9a-fA-F]+$");
+    int seen = 0;
+    QStringList notHex;
+    for (const GdbMi &item : responses.value(int(RefreshKind::Registers))) {
+        const QString name = item["name"].data();
+        if (!vectorName.match(name).hasMatch())
+            continue;
+        ++seen;
+        const QString value = item["value"].data();
+        if (!hex.match(value).hasMatch() || value.size() > 2 + 2 * item["size"].toInt())
+            notHex.append(name + " = " + value.left(60));
+    }
+    QVERIFY2(seen > 0, "no xmm or ymm register came back");
+    QVERIFY2(notHex.isEmpty(), qPrintable(notHex.join(", ").left(400)));
 }
 
 void tst_backends::reportsWhereAModuleIsLoaded()

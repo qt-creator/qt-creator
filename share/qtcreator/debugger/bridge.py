@@ -122,6 +122,27 @@ def parseSectionLines(lines, module):
     return sections
 
 
+def registerBytes(value):
+    # gdb.Value.bytes arrived in gdb 14. Before, a vector register is read
+    # through the lane of its union that holds it as single bytes.
+    try:
+        return bytes(value.bytes)
+    except AttributeError:
+        pass
+    valueType = value.type.strip_typedefs()
+    if valueType.code == gdb.TYPE_CODE_ARRAY:
+        if valueType.target().strip_typedefs().sizeof != 1:
+            return None
+        return bytes(int(value[i]) & 0xff for i in range(valueType.sizeof))
+    if valueType.code == gdb.TYPE_CODE_UNION:
+        for field in valueType.fields():
+            if field.name and field.type.strip_typedefs().sizeof == valueType.sizeof:
+                data = registerBytes(value[field.name])
+                if data is not None:
+                    return data
+    return None
+
+
 def warn(message):
     # Diagnostics must not go to stdout: that is the protocol stream. The C++
     # side reads stderr separately and shows it in the debugger log.
@@ -2327,6 +2348,15 @@ class DapServer():
         except Exception:
             pass
 
+        # A vector or floating point register has no integer value, and what
+        # str() gives for it is not hex, so it is sent as its bytes.
+        integerCodes = (gdb.TYPE_CODE_INT, gdb.TYPE_CODE_PTR, gdb.TYPE_CODE_FLAGS,
+                        gdb.TYPE_CODE_ENUM, gdb.TYPE_CODE_BOOL, gdb.TYPE_CODE_CHAR)
+        try:
+            littleEndian = 'little endian' in gdb.execute('show endian', to_string=True)
+        except gdb.error:
+            littleEndian = sys.byteorder == 'little'
+
         for desc in descriptors:
             try:
                 value = frame.read_register(desc)
@@ -2337,13 +2367,22 @@ class DapServer():
                 size = int(value.type.sizeof)
             except Exception:
                 pass
+            text = ''
             try:
-                text = '0x%x' % (int(value) & ((1 << (size * 8)) - 1) if size else int(value))
+                if value.type.strip_typedefs().code not in integerCodes:
+                    data = registerBytes(value)
+                    if data is not None:
+                        text = '0x' + (data[::-1] if littleEndian else data).hex()
             except Exception:
+                pass
+            if not text:
                 try:
-                    text = str(value)
+                    text = '0x%x' % (int(value) & ((1 << (size * 8)) - 1) if size else int(value))
                 except Exception:
-                    text = ''
+                    try:
+                        text = str(value)
+                    except Exception:
+                        text = ''
             regType = ''
             try:
                 regType = str(value.type)
