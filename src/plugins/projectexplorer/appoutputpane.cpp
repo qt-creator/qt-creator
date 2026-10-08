@@ -754,9 +754,14 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         delete tab->runControl;
 
         tab->runControl = rc;
-        tab->sourceFilterText = rc->outputFilterText();
-        if (currentRunControl() == rc)
-            setFilterFieldText(tab->sourceFilterText);
+        // Keep the tab's filter unless the new run control brings its own.
+        if (const QString text = rc->outputFilterText(); !text.isEmpty()) {
+            tab->sourceFilterText = text;
+            if (currentRunControl() == rc)
+                setFilterFieldText(text);
+        } else if (!tab->sourceFilterText.isEmpty()) {
+            rc->reportOutputFilterChanged(tab->sourceFilterText);
+        }
         tab->window->reset();
         rc->setupFormatter(tab->window->outputFormatter());
 
