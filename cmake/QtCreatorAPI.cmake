@@ -2093,7 +2093,8 @@ endfunction()
     off the path they are reached under.
 
   ``FILES_PREFIX <path>``
-    What to put in front of the name of every file.
+    What to put in front of the name of every file on disk, leaving
+    the path they are reached under alone.
 
   ``FILES <file>...``
     The files to add.
@@ -2124,19 +2125,8 @@ function(qtc_add_resources target resourceName)
   string(REPLACE "/" "_" resourceName ${resourceName})
   string(REPLACE "." "_" resourceName ${resourceName})
 
-  # Apply base to all files
-  if (rcc_BASE)
-    foreach(file IN LISTS rcc_FILES)
-      set(resource_file "${rcc_BASE}/${file}")
-      file(TO_CMAKE_PATH ${resource_file} resource_file)
-      list(APPEND resource_files ${resource_file})
-    endforeach()
-  else()
-      set(resource_files ${rcc_FILES})
-  endif()
-
   set(newResourceName ${resourceName})
-  set(resources ${resource_files})
+  set(resources ${rcc_FILES})
 
   set(generatedResourceFile "${CMAKE_CURRENT_BINARY_DIR}/.rcc/generated_${newResourceName}.qrc")
   set(generatedSourceCode "${CMAKE_CURRENT_BINARY_DIR}/.rcc/qrc_${newResourceName}.cpp")
@@ -2156,6 +2146,11 @@ function(qtc_add_resources target resourceName)
   set(resource_dependencies)
   foreach(file IN LISTS resources)
     set(file_resource_path ${file})
+
+    if (rcc_BASE)
+      set(file "${rcc_BASE}/${file}")
+      file(TO_CMAKE_PATH "${file}" file)
+    endif()
 
     if (NOT IS_ABSOLUTE ${file})
       if (rcc_FILES_PREFIX)
