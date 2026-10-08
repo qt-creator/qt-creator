@@ -9534,8 +9534,11 @@ void TextEditorWidget::copyLines()
 
 void TextEditorWidget::copyWithHtml()
 {
-    if (!multiTextCursor().hasSelection())
+    // subclasses can have copyable text that is not in the document
+    if (!multiTextCursor().hasSelection()) {
+        copy();
         return;
+    }
     QGuiApplication::clipboard()->setMimeData(createMimeDataFromSelection(true));
 }
 

@@ -10,6 +10,9 @@
 #include "diffeditortr.h"
 #include "diffutils.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -40,6 +43,8 @@
 
 #include <QApplication>
 #include <QBrush>
+#include <QClipboard>
+#include <QElapsedTimer>
 #include <QEnterEvent>
 #include <QEvent>
 #include <QLabel>
@@ -1596,10 +1601,74 @@ private:
 // at the top of their context menu. The editor fills them in, as it knows the
 // diff they act on; the cursor is the clicked position, for the entries that
 // act on a line rather than on the selection.
+//
+// The removed lines shown as ghost rows are no document text, so the text
+// cursor cannot select them. They get a mouse selection of their own, which
+// is limited to one ghost row block and is copied instead of the document
+// selection while it exists. Like in the document, a double or triple click
+// selects a word or line, and dragging on from there extends the selection by
+// whole words or lines.
 class InlineDiffTextEditorWidget final : public TextEditorWidget
 {
 public:
     using MenuProvider = std::function<void(QMenu *, const QTextCursor &)>;
+
+    InlineDiffTextEditorWidget()
+    {
+        connect(this, &PlainTextEdit::selectionChanged, this, [this] {
+            if (multiTextCursor().hasSelection())
+                clearGhostSelection();
+        });
+        connect(this, &PlainTextEdit::cursorPositionChanged,
+                this, &InlineDiffTextEditorWidget::clearGhostSelection);
+    }
+
+    void clearGhostSelection()
+    {
+        m_ghostDragging = false;
+        if (!m_ghostItem)
+            return;
+        if (ghostSelectionValid())
+            m_ghostItem->setSelections({});
+        m_ghostItem = nullptr;
+        m_ghostText.clear();
+        m_ghostAnchor = m_ghostPosition = 0;
+        m_ghostGranularity = GhostGranularity::Character;
+        viewport()->update();
+        emit copyAvailable(multiTextCursor().hasSelection());
+    }
+
+    QString ghostSelectedText() const
+    {
+        if (!ghostSelectionValid())
+            return {};
+        const int start = qMin(m_ghostAnchor, m_ghostPosition);
+        const int end = qMax(m_ghostAnchor, m_ghostPosition);
+        QString text = m_ghostText.mid(start, end - start);
+        text.replace(QChar::LineSeparator, u'\n');
+        // the last line has no separator, but whole lines come with a line break
+        if (m_ghostGranularity == GhostGranularity::Line && end == m_ghostText.size())
+            text.append(u'\n');
+        return text;
+    }
+
+    void copy() override
+    {
+        const QString text = ghostSelectedText();
+        if (!text.isEmpty())
+            Utils::setClipboardAndSelection(text);
+        // without a document selection this only adds the clipboard to its history
+        TextEditorWidget::copy();
+    }
+
+    void cut() override
+    {
+        // the ghost rows cannot be removed, so they are only copied
+        if (ghostSelectedText().isEmpty())
+            TextEditorWidget::cut();
+        else
+            copy();
+    }
 
     void setContextMenuProvider(const MenuProvider &filler) { m_menuProvider = filler; }
     void setFocusInHandler(const std::function<void()> &handler) { m_focusInHandler = handler; }
@@ -1619,6 +1688,8 @@ protected:
         if (!menu.isEmpty())
             menu.addSeparator();
         appendStandardContextMenuActions(&menu);
+        if (ghostAt(event->pos()).item)
+            disablePasteActions(&menu);
         menu.exec(event->globalPos());
     }
 
@@ -1629,9 +1700,344 @@ protected:
             m_focusInHandler();
     }
 
+    void mousePressEvent(QMouseEvent *event) override
+    {
+        if (event->button() != Qt::LeftButton) {
+            // moving the cursor would clear the ghost selection before the context menu
+            // could copy it
+            if (event->button() == Qt::RightButton && ghostAt(event->pos()).item) {
+                event->accept();
+                return;
+            }
+            TextEditorWidget::mousePressEvent(event);
+            return;
+        }
+        const GhostHit hit = ghostAt(event->pos());
+        if (!hit.item) {
+            clearGhostSelection();
+            TextEditorWidget::mousePressEvent(event);
+            return;
+        }
+        setFocus(Qt::MouseFocusReason);
+        const bool sameItem = hit.item == m_ghostItem && ghostSelectionValid();
+        const bool tripleClick = sameItem && m_doubleClickTimer.isValid()
+                                 && !m_doubleClickTimer.hasExpired(
+                                     QApplication::doubleClickInterval())
+                                 && (event->pos() - m_doubleClickPoint).manhattanLength()
+                                        < QApplication::startDragDistance();
+        m_doubleClickTimer.invalidate();
+        if (tripleClick) {
+            const QPair<int, int> line = lineAt(m_ghostText, hit.position);
+            setGhostSelection(hit, line.first, line.second, GhostGranularity::Line);
+        } else if (event->modifiers() & Qt::ShiftModifier && sameItem) {
+            extendGhostSelection(hit.position);
+        } else {
+            setGhostSelection(hit, hit.position, hit.position, GhostGranularity::Character);
+        }
+        m_ghostDragging = true;
+        event->accept();
+    }
+
+    void mouseMoveEvent(QMouseEvent *event) override
+    {
+        if (!m_ghostDragging || !(event->buttons() & Qt::LeftButton)) {
+            TextEditorWidget::mouseMoveEvent(event);
+            return;
+        }
+        if (!ghostSelectionValid()) {
+            clearGhostSelection();
+            return;
+        }
+        const std::optional<QPointF> origin = ghostItemOrigin(m_ghostBlock.block(), m_ghostItem);
+        if (!origin)
+            return;
+        extendGhostSelection(ghostPositionAt(m_ghostItem, event->position() - *origin));
+        event->accept();
+    }
+
+    void mouseReleaseEvent(QMouseEvent *event) override
+    {
+        if (!m_ghostDragging || event->button() != Qt::LeftButton) {
+            TextEditorWidget::mouseReleaseEvent(event);
+            return;
+        }
+        m_ghostDragging = false;
+        setGhostClipboardSelection();
+        event->accept();
+    }
+
+    void mouseDoubleClickEvent(QMouseEvent *event) override
+    {
+        const GhostHit hit = ghostAt(event->pos(), QTextLine::CursorOnCharacter);
+        if (!hit.item || event->button() != Qt::LeftButton) {
+            TextEditorWidget::mouseDoubleClickEvent(event);
+            return;
+        }
+        const QPair<int, int> word = wordAt(hit.item->layout()->text(), hit.position);
+        setGhostSelection(hit, word.first, word.second, GhostGranularity::Word);
+        // the button is still down, dragging on extends by whole words
+        m_ghostDragging = true;
+        m_doubleClickTimer.start();
+        m_doubleClickPoint = event->pos();
+        event->accept();
+    }
+
 private:
+    enum class GhostGranularity { Character, Word, Line };
+
+    // Pasting would insert at the text cursor, not at the clicked ghost row.
+    // The actions are shared by all editors, so the menu gets disabled
+    // copies of them instead.
+    static void disablePasteActions(QMenu *menu)
+    {
+        for (const Id id : {Id(Core::Constants::PASTE), Id(TextEditor::Constants::CIRCULAR_PASTE)}) {
+            Core::Command *command = Core::ActionManager::command(id);
+            if (!command || !menu->actions().contains(command->action()))
+                continue;
+            QAction *action = command->action();
+            auto disabled = new QAction(action->icon(), action->text(), menu);
+            disabled->setShortcuts(action->shortcuts());
+            disabled->setEnabled(false);
+            menu->insertAction(action, disabled);
+            menu->removeAction(action);
+        }
+    }
+
+    class GhostHit
+    {
+    public:
+        QTextBlock block;
+        TextLayoutItem *item = nullptr;
+        int position = 0;
+    };
+
+    // The viewport position of the item's top left corner, if it still is one
+    // of the block's items.
+    std::optional<QPointF> ghostItemOrigin(const QTextBlock &block, LayoutItem *item) const
+    {
+        const QRectF rect = blockBoundingGeometry(block).translated(contentOffset());
+        qreal top = rect.top();
+        for (LayoutItem *blockItem : editorLayout()->layoutItems(block)) {
+            if (blockItem == item)
+                return QPointF(rect.left(), top);
+            top += blockItem->height();
+        }
+        return {};
+    }
+
+    // The character position in the ghost text at the item relative point,
+    // clamped to the text.
+    static int ghostPositionAt(TextLayoutItem *item, const QPointF &point,
+                               QTextLine::CursorPosition cursorPosition
+                               = QTextLine::CursorBetweenCharacters)
+    {
+        QTextLayout *layout = item->layout();
+        if (point.y() < 0)
+            return 0;
+        for (int i = 0; i < layout->lineCount(); ++i) {
+            const QTextLine line = layout->lineAt(i);
+            if (point.y() < line.y() + line.height())
+                return line.xToCursor(point.x(), cursorPosition);
+        }
+        return int(layout->text().size());
+    }
+
+    GhostHit ghostAt(const QPoint &pos, QTextLine::CursorPosition cursorPosition
+                                        = QTextLine::CursorBetweenCharacters) const
+    {
+        TextEditorLayout *layout = editorLayout();
+        if (!layout)
+            return {};
+        // blockBoundingGeometry() walks from the top block, which is costly per block
+        // when many blocks below the top are hidden
+        QTextBlock block = firstVisibleBlock();
+        qreal blockTop = blockBoundingGeometry(block).translated(contentOffset()).top();
+        for (; block.isValid(); block = block.next()) {
+            if (!block.isVisible() || !layout->isBlockVisibleInEditor(block))
+                continue;
+            const QRectF rect = blockBoundingRect(block).translated(contentOffset().x(), blockTop);
+            blockTop = rect.bottom();
+            if (pos.y() < rect.top())
+                return {};
+            if (pos.y() >= rect.bottom())
+                continue;
+            qreal top = rect.top();
+            for (LayoutItem *item : layout->layoutItems(block)) {
+                const qreal height = item->height();
+                if (pos.y() < top + height) {
+                    if (item->category() != inlineDiffGhostCategory())
+                        return {};
+                    // the spacers of the side by side view share the category
+                    auto textItem = dynamic_cast<TextLayoutItem *>(item);
+                    if (!textItem || !textItem->layout())
+                        return {};
+                    const QPointF point = QPointF(pos) - QPointF(rect.left(), top);
+                    return {block, textItem, ghostPositionAt(textItem, point, cursorPosition)};
+                }
+                top += height;
+            }
+            return {};
+        }
+        return {};
+    }
+
+    // The ghost rows are recreated whenever the decorations are applied again,
+    // which leaves the selection with an item that is gone, or with a new item
+    // at the same address that does not show the selection.
+    bool ghostSelectionValid() const
+    {
+        if (!m_ghostItem || !editorLayout())
+            return false;
+        if (!editorLayout()->layoutItems(m_ghostBlock.block()).contains(m_ghostItem))
+            return false;
+        if (!m_ghostItem->layout() || m_ghostItem->layout()->text() != m_ghostText)
+            return false;
+        const FormatRanges selections = m_ghostItem->selections();
+        const int start = qMin(m_ghostAnchor, m_ghostPosition);
+        const int end = qMax(m_ghostAnchor, m_ghostPosition);
+        if (end == start)
+            return selections.isEmpty();
+        return selections.size() == 1 && selections.first().start == start
+               && selections.first().length == end - start;
+    }
+
+    // Selects from anchor to position, which in word or line granularity is
+    // also the unit any extension of the selection keeps covering.
+    void setGhostSelection(const GhostHit &hit, int anchor, int position,
+                           GhostGranularity granularity)
+    {
+        if (hit.item != m_ghostItem)
+            clearGhostSelection();
+        MultiTextCursor cursor = multiTextCursor();
+        if (cursor.hasSelection()) {
+            // setting the cursor scrolls to it, but the mouse is on the ghost rows
+            const int vertical = verticalScrollBar()->value();
+            const int horizontal = horizontalScrollBar()->value();
+            cursor.clearSelection();
+            setMultiTextCursor(cursor);
+            verticalScrollBar()->setValue(vertical);
+            horizontalScrollBar()->setValue(horizontal);
+        }
+        m_ghostBlock = QTextCursor(hit.block);
+        m_ghostItem = hit.item;
+        m_ghostText = hit.item->layout()->text();
+        m_ghostAnchor = m_ghostUnitStart = anchor;
+        m_ghostPosition = m_ghostUnitEnd = position;
+        m_ghostGranularity = granularity;
+        updateGhostSelection();
+    }
+
+    // Moves the selection's end to the position, rounded to whole words or
+    // lines when those were selected first.
+    void extendGhostSelection(int position)
+    {
+        if (m_ghostGranularity == GhostGranularity::Character) {
+            m_ghostPosition = position;
+        } else {
+            const auto unitAt = [this](int pos) {
+                return m_ghostGranularity == GhostGranularity::Word ? wordAt(m_ghostText, pos)
+                                                                    : lineAt(m_ghostText, pos);
+            };
+            if (position < m_ghostUnitStart) {
+                m_ghostAnchor = m_ghostUnitEnd;
+                m_ghostPosition = unitAt(position).first;
+            } else if (position > m_ghostUnitEnd) {
+                // the unit the character before the position belongs to, so
+                // reaching the start of the next one does not select it yet
+                m_ghostAnchor = m_ghostUnitStart;
+                m_ghostPosition = qMax(unitAt(position - 1).second, m_ghostUnitEnd);
+            } else {
+                m_ghostAnchor = m_ghostUnitStart;
+                m_ghostPosition = m_ghostUnitEnd;
+            }
+        }
+        updateGhostSelection();
+    }
+
+    void updateGhostSelection()
+    {
+        const int start = qMin(m_ghostAnchor, m_ghostPosition);
+        const int end = qMax(m_ghostAnchor, m_ghostPosition);
+        FormatRanges selections;
+        if (end > start) {
+            const QTextCharFormat selectionFormat
+                = textDocument()->fontSettings().toTextCharFormat(C_SELECTION);
+            QTextLayout::FormatRange range;
+            range.start = start;
+            range.length = end - start;
+            range.format.setBackground(selectionFormat.background().style() != Qt::NoBrush
+                                           ? selectionFormat.background()
+                                           : palette().brush(QPalette::Highlight));
+            range.format.setForeground(selectionFormat.foreground().style() != Qt::NoBrush
+                                           ? selectionFormat.foreground()
+                                           : palette().brush(QPalette::HighlightedText));
+            selections << range;
+        }
+        m_ghostItem->setSelections(selections);
+        viewport()->update();
+        emit copyAvailable(end > start || multiTextCursor().hasSelection());
+    }
+
+    void setGhostClipboardSelection()
+    {
+        QClipboard *clipboard = QGuiApplication::clipboard();
+        const QString text = ghostSelectedText();
+        if (!text.isEmpty() && clipboard->supportsSelection())
+            clipboard->setText(text, QClipboard::Selection);
+    }
+
+    // The word, whitespace run or single other character at the position,
+    // within its line.
+    static QPair<int, int> wordAt(const QString &text, int position)
+    {
+        if (position >= text.size() || text.at(position) == QChar::LineSeparator) {
+            if (position == 0 || text.at(position - 1) == QChar::LineSeparator)
+                return {position, position};
+            --position;
+        }
+        const auto kind = [](QChar c) {
+            if (c.isLetterOrNumber() || c == u'_')
+                return 0;
+            if (c.isSpace() && c != QChar::LineSeparator)
+                return 1;
+            return 2;
+        };
+        const int clickedKind = kind(text.at(position));
+        if (clickedKind == 2)
+            return {position, position + 1};
+        int start = position;
+        while (start > 0 && kind(text.at(start - 1)) == clickedKind)
+            --start;
+        int end = position + 1;
+        while (end < text.size() && kind(text.at(end)) == clickedKind)
+            ++end;
+        return {start, end};
+    }
+
+    // The line at the position, including its line separator.
+    static QPair<int, int> lineAt(const QString &text, int position)
+    {
+        const int start = position > 0 ? text.lastIndexOf(QChar::LineSeparator, position - 1) + 1
+                                       : 0;
+        const int separator = text.indexOf(QChar::LineSeparator, position);
+        return {start, separator < 0 ? int(text.size()) : separator + 1};
+    }
+
     MenuProvider m_menuProvider;
     std::function<void()> m_focusInHandler;
+    // the ghost row selection: the item is only dereferenced once it is
+    // found among the items of the tracked block again
+    QTextCursor m_ghostBlock;
+    TextLayoutItem *m_ghostItem = nullptr;
+    QString m_ghostText;
+    int m_ghostAnchor = 0;
+    int m_ghostPosition = 0;
+    int m_ghostUnitStart = 0;
+    int m_ghostUnitEnd = 0;
+    GhostGranularity m_ghostGranularity = GhostGranularity::Character;
+    bool m_ghostDragging = false;
+    QElapsedTimer m_doubleClickTimer; // for detecting a triple click
+    QPoint m_doubleClickPoint;
 };
 
 class InlineDiffEditor final : public Core::IEditor

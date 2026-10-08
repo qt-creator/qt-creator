@@ -10,6 +10,7 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/diffservice.h>
 #include <coreplugin/editormanager/documentmodel.h>
@@ -385,6 +386,7 @@ private slots:
     void testInlineDiffChangeNavigation();
     void testInlineDiffScrollBarMarkers();
     void testInlineDiffGoToSource();
+    void testInlineDiffGhostSelection();
 #endif // WITH_TESTS
 };
 
@@ -542,9 +544,14 @@ void DiffEditorPlugin::diffExternalFiles()
 
 #ifdef WITH_TESTS
 
+#include <QApplication>
 #include <QClipboard>
+#include <QContextMenuEvent>
+#include <QMouseEvent>
+#include <QScrollBar>
 #include <QSpinBox>
 #include <QTest>
+#include <QTimer>
 #include <QToolBar>
 
 #include "diffutils.h"
@@ -3414,6 +3421,200 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffGoToSource()
     const QPointer<QWidget> snapshotWidgetGuard = snapshotWidget;
     QVERIFY(EditorManager::closeEditors({snapshotEditor}, false));
     QTRY_VERIFY(snapshotWidgetGuard.isNull());
+
+    const QPointer<QWidget> diffWidgetGuard = diffWidget;
+    QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
+    QTRY_VERIFY(diffWidgetGuard.isNull());
+}
+
+// The removed lines shown as ghost rows are no document text, but can still be
+// selected with the mouse and copied.
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffGhostSelection()
+{
+    using namespace TextEditor;
+
+    const InlineDiffViewGuard inlineDiffViewGuard(/*hideUnchangedLines=*/false);
+
+    QStringList baselineLines;
+    for (int i = 1; i <= 100; ++i)
+        baselineLines << QString("line %1").arg(i);
+    baselineLines[4] = "alpha beta gamma";
+    baselineLines[5] = "delta epsilon";
+    QStringList editorLines = baselineLines;
+    editorLines.remove(4, 2); // the ghost rows hang above editor line 5
+    const QString baselineText = baselineLines.join('\n') + '\n';
+    const QString editorText = editorLines.join('\n') + '\n';
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath sourceFile = FilePath::fromString(temporaryDir.path())
+                                / "testInlineDiffGhostSelection.txt";
+    QVERIFY(sourceFile.writeFileContents(editorText.toUtf8()));
+    IEditor *sourceEditor = EditorManager::openEditor(sourceFile);
+    QVERIFY(sourceEditor);
+    auto sourceTextEditor = qobject_cast<BaseTextEditor *>(sourceEditor);
+    QVERIFY(sourceTextEditor);
+    const TextDocumentPtr sourceDocument = sourceTextEditor->editorWidget()->textDocumentPtr();
+    QVERIFY(sourceDocument);
+
+    InlineDiffBaseline baseline;
+    baseline.id = "test";
+    baseline.displayName = "Test";
+    baseline.fetchText = [baselineText](const InlineDiffBaseline::TextCallback &callback) {
+        callback(baselineText);
+    };
+
+    IEditor *diffEditor
+        = openInlineDiffEditor(sourceDocument, baseline, "testInlineDiffGhostSelection.txt");
+    QVERIFY(diffEditor);
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::Inline);
+    TextEditorWidget *diffWidget = inlineDiffEditorWidget(diffEditor);
+    QVERIFY(diffWidget);
+    diffEditor->widget()->resize(800, 600);
+    diffEditor->widget()->show();
+
+    TextEditorLayout *layout = diffWidget->editorLayout();
+    QVERIFY(layout);
+    const QTextBlock anchorBlock = diffWidget->document()->findBlockByNumber(4);
+    QTRY_VERIFY(!layout->layoutItemsForCategory(anchorBlock, inlineDiffGhostCategory()).isEmpty());
+
+    // the viewport position of a character of a ghost row, from the position
+    // of the anchor line the rows are stacked above
+    const auto ghostPoint = [diffWidget, layout, anchorBlock](int row, int column) {
+        const QRect mainRect = diffWidget->cursorRect(QTextCursor(anchorBlock));
+        const QTextLine mainLine = layout->blockLayout(anchorBlock)->lineAt(0);
+        qreal top = mainRect.top() - layout->mainLayoutOffset(anchorBlock);
+        for (LayoutItem *item : layout->layoutItems(anchorBlock)) {
+            if (item->category() == inlineDiffGhostCategory()) {
+                const QTextLine line = static_cast<TextLayoutItem *>(item)->layout()->lineAt(row);
+                const qreal x = mainRect.left() - mainLine.cursorToX(0)
+                                + line.cursorToX(line.textStart() + column);
+                return QPointF(x + 1, top + line.y() + line.height() / 2).toPoint();
+            }
+            top += item->height();
+        }
+        return QPoint();
+    };
+    const auto sendMouse = [diffWidget](QEvent::Type type, const QPoint &pos,
+                                        Qt::MouseButtons buttons) {
+        QMouseEvent event(type, pos, diffWidget->viewport()->mapToGlobal(pos), Qt::LeftButton,
+                          buttons, Qt::NoModifier);
+        QCoreApplication::sendEvent(diffWidget->viewport(), &event);
+    };
+    const auto copied = [diffWidget] {
+        QGuiApplication::clipboard()->clear();
+        diffWidget->copy();
+        return QGuiApplication::clipboard()->text();
+    };
+
+    // a document selection gives way to the one in the ghost rows, without
+    // scrolling to the document cursor
+    QTextCursor cursor = diffWidget->textCursor();
+    cursor.setPosition(diffWidget->document()->findBlockByNumber(editorLines.size() - 1).position());
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    diffWidget->setTextCursor(cursor);
+    QCOMPARE(copied(), QString("line 100"));
+    QScrollBar *verticalScrollBar = diffWidget->verticalScrollBar();
+    QVERIFY(verticalScrollBar->value() > 0);
+    verticalScrollBar->setValue(0);
+
+    // dragging across the two rows selects from the first into the second
+    sendMouse(QEvent::MouseButtonPress, ghostPoint(0, 6), Qt::LeftButton);
+    QCOMPARE(verticalScrollBar->value(), 0);
+    sendMouse(QEvent::MouseMove, ghostPoint(1, 5), Qt::LeftButton);
+    sendMouse(QEvent::MouseButtonRelease, ghostPoint(1, 5), Qt::NoButton);
+    QVERIFY(!diffWidget->textCursor().hasSelection());
+    QCOMPARE(copied(), QString("beta gamma\ndelta"));
+
+    // the ghost rows cannot be removed, cutting only copies them
+    QGuiApplication::clipboard()->setText("clipboard");
+    diffWidget->cut();
+    QCOMPARE(QGuiApplication::clipboard()->text(), QString("beta gamma\ndelta"));
+    QCOMPARE(sourceDocument->plainText(), editorText);
+    QCOMPARE(copied(), QString("beta gamma\ndelta"));
+
+    // copying with HTML copies them as plain text
+    QGuiApplication::clipboard()->setText("clipboard");
+    diffWidget->copyWithHtml();
+    QCOMPARE(QGuiApplication::clipboard()->text(), QString("beta gamma\ndelta"));
+
+    // a right click for the context menu keeps the selection
+    const QPoint rightClick = ghostPoint(0, 8);
+    QMouseEvent rightPress(QEvent::MouseButtonPress, rightClick,
+                           diffWidget->viewport()->mapToGlobal(rightClick), Qt::RightButton,
+                           Qt::RightButton, Qt::NoModifier);
+    QCoreApplication::sendEvent(diffWidget->viewport(), &rightPress);
+    QCOMPARE(copied(), QString("beta gamma\ndelta"));
+
+    // its context menu cannot paste, which would insert at the text cursor,
+    // but leaves the shared action alone
+    enum MenuPaste { NoPaste, SharedPaste, DisabledPaste, EnabledPaste };
+    const auto menuPaste = [diffWidget](const QPoint &pos) {
+        const QAction *paste = ActionManager::command(Core::Constants::PASTE)->action();
+        MenuPaste result = NoPaste;
+        QTimer::singleShot(0, diffWidget, [&result, paste] {
+            auto menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+            if (!menu)
+                return;
+            for (QAction *action : menu->actions()) {
+                if (action == paste)
+                    result = SharedPaste;
+                else if (action->text() == paste->text())
+                    result = action->isEnabled() ? EnabledPaste : DisabledPaste;
+            }
+            menu->close();
+        });
+        QContextMenuEvent event(QContextMenuEvent::Mouse, pos,
+                                diffWidget->viewport()->mapToGlobal(pos));
+        QCoreApplication::sendEvent(diffWidget->viewport(), &event);
+        return result;
+    };
+    QCOMPARE(menuPaste(rightClick), DisabledPaste);
+    QCOMPARE(menuPaste(diffWidget->cursorRect(QTextCursor(anchorBlock)).center()), SharedPaste);
+
+    // a double click selects the word under the mouse
+    const QPoint word = ghostPoint(1, 8);
+    sendMouse(QEvent::MouseButtonPress, word, Qt::LeftButton);
+    sendMouse(QEvent::MouseButtonRelease, word, Qt::NoButton);
+    sendMouse(QEvent::MouseButtonDblClick, word, Qt::LeftButton);
+    sendMouse(QEvent::MouseButtonRelease, word, Qt::NoButton);
+    QCOMPARE(copied(), QString("epsilon"));
+
+    // dragging on after a double click extends by whole words, in both
+    // directions, and keeps the word clicked first
+    const auto doubleClickAt = [&sendMouse](const QPoint &pos) {
+        sendMouse(QEvent::MouseButtonPress, pos, Qt::LeftButton);
+        sendMouse(QEvent::MouseButtonRelease, pos, Qt::NoButton);
+        sendMouse(QEvent::MouseButtonDblClick, pos, Qt::LeftButton);
+    };
+    doubleClickAt(ghostPoint(0, 7)); // "beta"
+    sendMouse(QEvent::MouseMove, ghostPoint(1, 2), Qt::LeftButton);
+    sendMouse(QEvent::MouseButtonRelease, ghostPoint(1, 2), Qt::NoButton);
+    QCOMPARE(copied(), QString("beta gamma\ndelta"));
+    doubleClickAt(ghostPoint(0, 12)); // "gamma"
+    sendMouse(QEvent::MouseMove, ghostPoint(0, 1), Qt::LeftButton);
+    sendMouse(QEvent::MouseButtonRelease, ghostPoint(0, 1), Qt::NoButton);
+    QCOMPARE(copied(), QString("alpha beta gamma"));
+
+    // a triple click selects the whole line, the last one included, and
+    // dragging on from there extends by whole lines
+    doubleClickAt(ghostPoint(1, 2));
+    sendMouse(QEvent::MouseButtonRelease, ghostPoint(1, 2), Qt::NoButton);
+    sendMouse(QEvent::MouseButtonPress, ghostPoint(1, 2), Qt::LeftButton);
+    sendMouse(QEvent::MouseButtonRelease, ghostPoint(1, 2), Qt::NoButton);
+    QCOMPARE(copied(), QString("delta epsilon\n"));
+    doubleClickAt(ghostPoint(1, 2));
+    sendMouse(QEvent::MouseButtonRelease, ghostPoint(1, 2), Qt::NoButton);
+    sendMouse(QEvent::MouseButtonPress, ghostPoint(1, 2), Qt::LeftButton);
+    sendMouse(QEvent::MouseMove, ghostPoint(0, 3), Qt::LeftButton);
+    sendMouse(QEvent::MouseButtonRelease, ghostPoint(0, 3), Qt::NoButton);
+    QCOMPARE(copied(), QString("alpha beta gamma\ndelta epsilon\n"));
+
+    // selecting document text again takes over
+    cursor.setPosition(anchorBlock.position());
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    diffWidget->setTextCursor(cursor);
+    QCOMPARE(copied(), QString("line 7"));
 
     const QPointer<QWidget> diffWidgetGuard = diffWidget;
     QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));

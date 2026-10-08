@@ -57,8 +57,12 @@ public:
 
     QTextLayout* layout();
 
+    void setSelections(const FormatRanges &selections);
+    FormatRanges selections() const;
+
 private:
     std::unique_ptr<QTextLayout> m_textLayout;
+    FormatRanges m_selections;
 };
 
 class QTCREATOR_UTILS_EXPORT EmptyLayoutItem : public LayoutItem
