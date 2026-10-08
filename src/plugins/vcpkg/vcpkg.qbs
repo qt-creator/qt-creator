@@ -12,7 +12,6 @@ QtcPlugin {
     Depends { name: "TextEditor" }
 
     files: [
-        "vcpkg.qrc",
         "vcpkgconstants.h",
         "vcpkgmanifesteditor.cpp",
         "vcpkgmanifesteditor.h",
@@ -28,6 +27,17 @@ QtcPlugin {
         files: [
             "vcpkg_test.h",
             "vcpkg_test.cpp",
+        ]
+    }
+
+    Group {
+        name: "runtime resources"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "images/vcpkgicon.png",
+            "images/vcpkgicon@2x.png",
+            "wizards/manifest/vcpkg.json.tpl",
+            "wizards/manifest/wizard.json",
         ]
     }
 }

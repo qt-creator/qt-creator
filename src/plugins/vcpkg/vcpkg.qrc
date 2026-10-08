@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/vcpkg">
-        <file>wizards/manifest/vcpkg.json.tpl</file>
-        <file>wizards/manifest/wizard.json</file>
-        <file>images/vcpkgicon.png</file>
-        <file>images/vcpkgicon@2x.png</file>
-    </qresource>
-</RCC>
