@@ -448,7 +448,7 @@ Result<> parseConfigurationContent(const std::string &fileContent,
     };
 
     QString errorMessage;
-    style.Language = clang::format::FormatStyle::LK_Cpp;
+    style = getLLVMStyle(); // Use the same fallback values as the clang-format command-line tool.
     const std::error_code error = parseConfiguration(
         llvm::MemoryBufferRef(fileContent, "YAML"),
         &style,
