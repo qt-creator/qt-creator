@@ -14,6 +14,7 @@
 #include <utils/commandline.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
@@ -32,6 +33,8 @@ using namespace Qt::StringLiterals;
 using namespace std::chrono;
 
 namespace Profiler::Internal {
+
+static const Key selectedBackendKey("Profiler/SelectedBackend");
 
 // The host names behind a whitespace-separated URL list, for the recording page's
 // status line. What the Perf sampler reports is the DEBUGINFOD_URLS list it asks
@@ -120,6 +123,14 @@ ProfilerRecorderPrivate::ProfilerRecorderPrivate(ProfilerRecorder *recorder)
     if (offered.empty()) {
         for (int i = 0; i < int(backends.size()); ++i)
             offered.push_back(i);
+    }
+
+    const Id selectedBackend = Id::fromSetting(Utils::userSettings().value(selectedBackendKey));
+    for (int index = 0; index < int(offered.size()); ++index) {
+        if (backends[offered[index]]->id() == selectedBackend) {
+            current = index;
+            break;
+        }
     }
 
     // A query answered from this machine passes through the download state in
@@ -560,6 +571,8 @@ void ProfilerRecorder::stopAndWait()
 
 void ProfilerRecorder::writeSettings() const
 {
+    if (Sampler *backend = d->backend())
+        Utils::userSettings().setValue(selectedBackendKey, backend->id().toSetting());
     for (const std::unique_ptr<Sampler> &backend : d->backends) {
         if (SamplerSettings *settings = backend->settings())
             settings->writeSettings();
