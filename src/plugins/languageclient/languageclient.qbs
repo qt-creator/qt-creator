@@ -84,6 +84,12 @@ QtcPlugin {
             "settingscategory_languageclient@2x.png",
         ]
     }
+    QtcTestFiles {
+    files: [
+        "languageclientmanager_test.cpp",
+        "languageclientmanager_test.h",
+    ]
+}
 
     Export { Depends { name: "LanguageServerProtocol" } }
 }

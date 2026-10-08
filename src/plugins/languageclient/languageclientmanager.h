@@ -106,15 +106,19 @@ private:
 
     friend void setupLanguageClientManager();
 
+    static Client *liveClientForBuildConfiguration(
+        const BaseSettings *setting, const ProjectExplorer::BuildConfiguration *bc);
+    static Client *ensureClientForProject(
+        const BaseSettings *setting, ProjectExplorer::Project *project);
     void updateProject(ProjectExplorer::BuildConfiguration *bc);
+    void restartClientsForNewBuildConfiguration(
+        ProjectExplorer::Project *project, ProjectExplorer::BuildConfiguration *bc);
+    void projectAdded(ProjectExplorer::Project *project);
     void buildConfigurationAdded(ProjectExplorer::BuildConfiguration *bc);
 
     void trackClientDeletion(Client *client);
 
-    void documentOpenedForProject(
-        TextEditor::TextDocument *textDocument,
-        BaseSettings *setting,
-        const QList<Client *> &clients);
+    void documentOpenedForProject(TextEditor::TextDocument *textDocument, BaseSettings *setting);
 
     static void applySettingsForRequiresProject(BaseSettings *setting);
 

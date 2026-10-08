@@ -43,4 +43,10 @@ qt_add_resources(LanguageClient lc_images_rcc
     images/settingscategory_languageclient@2x.png
 )
 
+extend_qtc_plugin(LanguageClient
+  CONDITION WITH_TESTS
+  SOURCES
+    languageclientmanager_test.cpp languageclientmanager_test.h
+)
+
 add_subdirectory(lualanguageclient)

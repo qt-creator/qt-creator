@@ -3,6 +3,7 @@
 
 #include "callandtypehierarchy.h"
 #include "languageclientmanager.h"
+#include "languageclientmanager_test.h"
 #include "languageclientoutline.h"
 #include "languageclientsettings.h"
 #include "languageclienttr.h"
@@ -57,6 +58,7 @@ void LanguageClientPlugin::initialize()
 
 #ifdef WITH_TESTS
     addTestCreator(&createSnippetParsingTest);
+    addTestCreator(&createLanguageClientManagerTest);
 #endif
 
     LanguageClientSettings::registerClientType({Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID,
