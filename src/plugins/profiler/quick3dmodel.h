@@ -5,6 +5,8 @@
 
 #include "qmlprofilertimelinemodel.h"
 
+#include <optional>
+
 namespace Profiler::Internal {
 
 class Quick3DModel : public QmlProfilerTimelineModel
@@ -63,6 +65,7 @@ private:
     static QString messageType(uint i);
     static QString unloadMessageType(uint i);
     static bool resolveType(const QString &object, int detailType, QString &type);
+    std::optional<int> validTypeIndex(int eventDataId) const;
     Timeline::ItemLocation locationFromEvent(int index) const;
     void calculateRenderPassNesting();
 

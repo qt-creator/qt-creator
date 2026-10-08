@@ -178,8 +178,8 @@ Timeline::ItemDetails Quick3DModel::details(int index) const
     }
     if (!m_data[index].eventData.isEmpty()) {
         for (const int p : std::as_const(m_data[index].eventData)) {
-            if (m_eventData.contains(p)) {
-                const QmlEventType &et = modelManager()->eventType(m_eventData[p]);
+            if (const std::optional<int> typeIndex = validTypeIndex(p)) {
+                const QmlEventType &et = modelManager()->eventType(*typeIndex);
                 QString type;
                 if (resolveType(et.data(), detailType, type))
                     result.insert(type, et.data());
@@ -336,6 +336,7 @@ void Quick3DModel::clear()
     m_data.clear();
     m_types.clear();
     m_sortedTypes.clear();
+    m_eventData.clear();
     m_prevTexStartTime = -1;
     m_prevMeshStartTime = -1;
     m_maxMeshSize = 0;
@@ -343,12 +344,19 @@ void Quick3DModel::clear()
     QmlProfilerTimelineModel::clear();
 }
 
+std::optional<int> Quick3DModel::validTypeIndex(int eventDataId) const
+{
+    const auto it = m_eventData.constFind(eventDataId);
+    if (it == m_eventData.cend() || *it < 0 || *it >= modelManager()->numEventTypes())
+        return std::nullopt;
+    return *it;
+}
+
 Timeline::ItemLocation Quick3DModel::locationFromEvent(int index) const
 {
     for (auto e : m_data[index].eventData) {
-        if (m_eventData.contains(e)) {
-            const QmlEventType &et = modelManager()->eventType(m_eventData[e]);
-            const QString data = et.data();
+        if (const std::optional<int> typeIndex = validTypeIndex(e)) {
+            const QString data = modelManager()->eventType(*typeIndex).data();
             int lineIdx = data.lastIndexOf(QStringLiteral(".qml:"));
             int nameIdx = data.lastIndexOf(QStringLiteral(" "));
             if (lineIdx < 0)
@@ -375,8 +383,8 @@ Timeline::ItemLocation Quick3DModel::location(int index) const
 int Quick3DModel::typeId(int index) const
 {
     for (auto ed : m_data[index].eventData) {
-        if (m_eventData.contains(ed))
-            return m_eventData[ed];
+        if (const std::optional<int> typeIndex = validTypeIndex(ed))
+            return *typeIndex;
     }
     return QmlProfilerTimelineModel::typeId(index);
 }
