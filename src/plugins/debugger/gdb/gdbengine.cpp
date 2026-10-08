@@ -3485,45 +3485,7 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
         auto reg = m_registers.find(number);
         if (reg == m_registers.end())
             continue;
-        QString data = item["value"].data();
-        if (data.startsWith("0x")) {
-            reg->value.fromString(data, HexadecimalFormat);
-        } else if (data == "<error reading variable>") {
-            // See QTCREATORBUG-14029. The value of the last stop is not this one's.
-            reg->value = RegisterValue();
-        } else {
-            // This is what GDB considers machine readable output:
-            // value="{v4_float = {0x00000000, 0x00000000, 0x00000000, 0x00000000},
-            // v2_double = {0x0000000000000000, 0x0000000000000000},
-            // v16_int8 = {0x00 <repeats 16 times>},
-            // v8_int16 = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000},
-            // v4_int32 = {0x00000000, 0x00000000, 0x00000000, 0x00000000},
-            // v2_int64 = {0x0000000000000000, 0x0000000000000000},
-            // uint128 = <error reading variable>}"}
-            // Try to make sense of it using the int32 chunks.
-            // Android gdb 7.10 has u32 = {0x00000000, 0x40340000}.
-            // Use that if available.
-            QString result;
-            int pos1 = data.indexOf("_int32");
-            if (pos1 == -1)
-                pos1 = data.indexOf("u32");
-            const int pos2 = data.indexOf('{', pos1) + 1;
-            const int pos3 = data.indexOf('}', pos2);
-            QString inner = data.mid(pos2, pos3 - pos2);
-            QStringList list = inner.split(',');
-            for (int i = list.size(); --i >= 0; ) {
-                QString chunk = list.at(i);
-                if (chunk.startsWith(' '))
-                    chunk.remove(0, 1);
-                if (chunk.startsWith('<') || chunk.startsWith('{')) // <unavailable>, {v4_float=...
-                    continue;
-                if (chunk.startsWith("0x"))
-                    chunk.remove(0, 2);
-                QTC_ASSERT(chunk.size() == 8, continue);
-                result.append(chunk);
-            }
-            reg->value.fromString(result, HexadecimalFormat);
-        }
+        reg->value.fromString(gdbRegisterValueAsHex(item["value"].data()), HexadecimalFormat);
         handler->updateRegister(*reg);
     }
     handler->commitUpdates();

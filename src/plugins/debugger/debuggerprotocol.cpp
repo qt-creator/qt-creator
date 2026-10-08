@@ -1329,4 +1329,51 @@ QString memoryErrorWithoutAddress(const QString &message)
     return QString(message).remove(address).trimmed();
 }
 
+QString gdbRegisterValueAsHex(const QString &value)
+{
+    if (value.startsWith("0x"))
+        return value;
+    // See QTCREATORBUG-14029. The value of the last stop is not this one's.
+    if (value == "<error reading variable>")
+        return {};
+    // This is what GDB considers machine readable output:
+    // value="{v4_float = {0x00000000, 0x00000000, 0x00000000, 0x00000000},
+    // v2_double = {0x0000000000000000, 0x0000000000000000},
+    // v16_int8 = {0x00 <repeats 16 times>},
+    // v8_int16 = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000},
+    // v4_int32 = {0x00000000, 0x00000000, 0x00000000, 0x00000000},
+    // v2_int64 = {0x0000000000000000, 0x0000000000000000},
+    // uint128 = <error reading variable>}"}
+    // Try to make sense of it using the int32 chunks.
+    // Android gdb 7.10 has u32 = {0x00000000, 0x40340000}.
+    // Use that if available.
+    QString result;
+    int pos1 = value.indexOf("_int32");
+    if (pos1 == -1)
+        pos1 = value.indexOf("u32");
+    const int pos2 = value.indexOf('{', pos1) + 1;
+    const int pos3 = value.indexOf('}', pos2);
+    QString inner = value.mid(pos2, pos3 - pos2);
+    QStringList list = inner.split(',');
+    for (int i = list.size(); --i >= 0; ) {
+        QString chunk = list.at(i);
+        if (chunk.startsWith(' '))
+            chunk.remove(0, 1);
+        if (chunk.startsWith('<') || chunk.startsWith('{')) // <unavailable>, {v4_float=...
+            continue;
+        // GDB writes a run of equal lanes once, as "0x00000000 <repeats 16 times>".
+        static const QRegularExpression repeated(R"(^(\S+) <repeats (\d+) times>$)");
+        int times = 1;
+        if (const QRegularExpressionMatch match = repeated.match(chunk); match.hasMatch()) {
+            chunk = match.captured(1);
+            times = match.captured(2).toInt();
+        }
+        if (chunk.startsWith("0x"))
+            chunk.remove(0, 2);
+        QTC_ASSERT(chunk.size() == 8, continue);
+        result.append(chunk.repeated(times));
+    }
+    return result.isEmpty() ? result : "0x" + result;
+}
+
 } // Debugger::Internal

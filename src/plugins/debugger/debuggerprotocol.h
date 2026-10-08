@@ -410,6 +410,10 @@ QList<QPair<quint64, quint64>> memoryRetryParts(quint64 base, quint64 offset, qu
 // it names, so that the reasons of neighbouring ranges are the same.
 QString memoryErrorWithoutAddress(const QString &message);
 
+// The hexadecimal digits of a register value as reported by GDB's
+// -data-list-register-values, empty if GDB could not read it.
+QString gdbRegisterValueAsHex(const QString &value);
+
 } // Debugger::Internal
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Debugger::Internal::DebuggerCommand::CommandFlags)

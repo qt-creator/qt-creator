@@ -1110,7 +1110,7 @@ void GdbImpl::fetchRegisterValues(quint64 requestId)
                 reg.addChild(constMi("type", it->reportedType));
                 reg.addChild(constMi("groups", it->groups.join(',')));
 
-                reg.addChild(constMi("value", item["value"].data()));
+                reg.addChild(constMi("value", gdbRegisterValueAsHex(item["value"].data())));
                 result.addChild(reg);
             }
         }

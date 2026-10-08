@@ -186,7 +186,11 @@ private slots:
     void testMcpReadsTheRegistersOfTheCurrentStop();
     void testMcpRegistersOfAnOuterFrame_data();
     void testMcpRegistersOfAnOuterFrame();
+    void testMcpReadsAVectorRegister_data();
+    void testMcpReadsAVectorRegister();
     void testMemoryRetryParts();
+    void testGdbRegisterValueAsHex_data();
+    void testGdbRegisterValueAsHex();
     void testMcpMemoryAccessPolicy_data();
     void testMcpMemoryAccessPolicy();
     void testMcpReadsMemory_data();
@@ -3193,6 +3197,47 @@ void DebuggerUnitTests::testMcpRegistersOfAnOuterFrame()
     }
 }
 
+void DebuggerUnitTests::testGdbRegisterValueAsHex_data()
+{
+    QTest::addColumn<QString>("value");
+    QTest::addColumn<QString>("hex");
+
+    QTest::newRow("integer") << "0x7fffffffe0b0" << "0x7fffffffe0b0";
+    QTest::newRow("unreadable") << "<error reading variable>" << "";
+    QTest::newRow("xmm")
+        << "{v8_bfloat16 = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, "
+           "v4_float = {0x1, 0x2, 0x3, 0x4}, v16_int8 = {0x0 <repeats 16 times>}, "
+           "v4_int32 = {0x03020100, 0x07060504, 0x0b0a0908, 0x0f0e0d0c}, "
+           "v2_int64 = {0x0706050403020100, 0x0f0e0d0c0b0a0908}, "
+           "uint128 = 0x0f0e0d0c0b0a09080706050403020100}"
+        << "0x0f0e0d0c0b0a09080706050403020100";
+    QTest::newRow("ymm")
+        << "{v16_bfloat16 = {0x0 <repeats 16 times>}, v8_float = {0x0, 0x0, 0x0, 0x0, "
+           "0x0, 0x0, 0x0, 0x0}, v32_int8 = {0x0 <repeats 32 times>}, "
+           "v8_int32 = {0x03020100, 0x07060504, 0x0b0a0908, 0x0f0e0d0c, 0x13121110, "
+           "0x17161514, 0x1b1a1918, 0x1f1e1d1c}, v2_int128 = {0x0, 0x0}}"
+        << "0x1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100";
+    QTest::newRow("zmm-zero")
+        << "{v32_bfloat16 = {0x0 <repeats 32 times>}, v16_float = {0x0 <repeats 16 times>}, "
+           "v64_int8 = {0x0 <repeats 64 times>}, v16_int32 = {0x00000000 <repeats 16 times>}, "
+           "v8_int64 = {0x0 <repeats 8 times>}, v4_int128 = {0x0, 0x0, 0x0, 0x0}}"
+        << "0x" + QString(128, '0');
+    QTest::newRow("zmm-run-in-low-lanes")
+        << "{v16_float = {0x0 <repeats 16 times>}, "
+           "v16_int32 = {0x00000000 <repeats 12 times>, 0x11111111, 0x22222222, 0x33333333, "
+           "0x44444444}, v8_int64 = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2222222211111111, "
+           "0x4444444433333333}}"
+        << "0x44444444333333332222222211111111" + QString(96, '0');
+}
+
+void DebuggerUnitTests::testGdbRegisterValueAsHex()
+{
+    QFETCH(QString, value);
+    QFETCH(QString, hex);
+
+    QCOMPARE(gdbRegisterValueAsHex(value), hex);
+}
+
 void DebuggerUnitTests::testMemoryRetryParts()
 {
     // Within one page there is nothing to retry.
@@ -3211,6 +3256,57 @@ void DebuggerUnitTests::testMemoryRetryParts()
              QString("Cannot access memory"));
     QCOMPARE(memoryErrorWithoutAddress("Cannot access memory at address 0x7ffe0a1b"),
              memoryErrorWithoutAddress("Cannot access memory at address 0x7ffe0a1c"));
+}
+
+// Puts a pattern into ymm0 whose bytes say which byte they are.
+static const char s_vectorSource[] = R"CPP(
+alignas(32) static const unsigned char pattern[32] = {
+     0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
+    16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
+
+int main()
+{
+    asm volatile("vmovdqu %0, %%ymm0" : : "m"(pattern) : "xmm0");
+    int done = 1; // MARKER: loaded
+    return done - 1;
+}
+)CPP";
+
+void DebuggerUnitTests::testMcpReadsAVectorRegister_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpReadsAVectorRegister()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    if (Abi::hostAbi().architecture() != Abi::X86Architecture || Abi::hostAbi().wordWidth() != 64)
+        QSKIP("ymm0 is a register of x86-64.");
+    Toolchain *toolchain = nullptr;
+    if (const QString reason = preCheckStepTests(nullptr, &toolchain); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    if (toolchain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        QSKIP("The program loads ymm0 with inline assembly, which MSVC has none of on x64.");
+
+    SteppingSession session(s_vectorSource);
+    const QString problem = session.start("MARKER: loaded");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> registers
+        = callDebuggerTool("debugger_get_registers", {{"names", QJsonArray{"ymm0"}}});
+    QVERIFY2(registers, qPrintable(errorOf(registers)));
+    const QJsonObject ymm0 = registerNamed(*registers, "ymm0");
+    QVERIFY2(ymm0.value("available").toBool(),
+             QJsonDocument(ymm0).toJson(QJsonDocument::Compact).constData());
+    QCOMPARE(ymm0.value("bit_width").toInt(), 256);
+    // Byte 31 is the most significant one.
+    QString expected = "0x";
+    for (int i = 31; i >= 0; --i)
+        expected += QString("%1").arg(i, 2, 16, QLatin1Char('0'));
+    QCOMPARE(ymm0.value("value").toString(), expected);
 }
 
 void DebuggerUnitTests::testMcpMemoryAccessPolicy_data()
