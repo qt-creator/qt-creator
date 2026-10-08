@@ -2940,7 +2940,7 @@ void GitTest::testInlineDiffFile()
     cursor.insertText("four\n");
     gitClient().inlineDiffFileAgainst(repo, "file.txt", "HEAD");
     QTRY_COMPARE(EditorManager::currentEditor()->document()->displayName(),
-                 QString("file.txt (Unstaged vs HEAD)"));
+                 QString("file.txt (Unstaged vs. HEAD)"));
     // two hunks, but only the unstaged "four" gets buttons; the already
     // staged "two changed" offers no actions
     QTRY_VERIFY((buttons = diffWidget->findChildren<QAbstractButton *>(),
