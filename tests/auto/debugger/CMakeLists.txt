@@ -169,6 +169,7 @@ if (TARGET Qt::Quick)
 endif()
 
 add_qtc_test(tst_debugger_backends
+  EXCLUDE_FROM_PRECHECK
   TIMEOUT 0
   DEPENDS Qt::Network Utils Debugger
   DEFINES ${BACKENDS_TEST_DEFINES}
