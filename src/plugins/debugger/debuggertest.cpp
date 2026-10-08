@@ -58,6 +58,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
+#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
@@ -66,6 +67,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/store.h>
+#include <utils/url.h>
 
 #include <QElapsedTimer>
 #include <QEventLoop>
@@ -76,6 +78,7 @@
 #include <QVersionNumber>
 #include <QScopeGuard>
 #include <QSignalSpy>
+#include <QTcpServer>
 #include <QTemporaryDir>
 #include <QTestEventLoop>
 #include <QtEndian>
@@ -225,6 +228,7 @@ private slots:
     void testLegacyQmlAndPythonKeepsBothLanguages();
     void testNativeMixedEnvironmentVariableWins();
     void testCombinedEngineNeedsNoQmlChannel();
+    void testQmlInspectorLeavesParentlessObjectsCollapsed();
     void testNamespaceFromQObjectRtti_data();
     void testNamespaceFromQObjectRtti();
 
@@ -4287,6 +4291,109 @@ void DebuggerUnitTests::testCombinedEngineNeedsNoQmlChannel()
 
     QVERIFY(usesQmlChannel(false));
     QVERIFY(!usesQmlChannel(true));
+}
+
+static const char s_parentlessObjectSource[] = R"(import QtQuick
+
+Item {
+    id: root
+    property QtObject host: null
+    property Component hostComponent: Component {
+        QtObject {
+            id: host
+            property QtObject orphan: null
+            property Component orphanComponent: Component {
+                QtObject {
+                    id: orphanObject
+                    property int orphanValue: 7
+                }
+            }
+            Component.onCompleted: host.orphan = orphanComponent.createObject(null)
+        }
+    }
+    Component.onCompleted: root.host = hostComponent.createObject(null)
+}
+)";
+
+// Parentless objects are fetched again whenever the object tree is rebuilt,
+// which happens after each burst of object creations. Their properties must
+// wait for the expansion, or the application keeps dumping them.
+void DebuggerUnitTests::testQmlInspectorLeavesParentlessObjectsCollapsed()
+{
+    Kit *kit = kitWithAQt();
+    if (!kit)
+        QSKIP("This test needs a kit with a Qt to run qml from.");
+    const FilePath qml = (QtSupport::QtKitAspect::qtVersion(kit)->binPath() / "qml")
+                             .withExecutableSuffix();
+    if (!qml.isExecutableFile())
+        QSKIP("The Qt of this kit has no qml tool.");
+    if (!settings().showQmlObjectTree())
+        QSKIP("The QML object tree is switched off.");
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath source = FilePath::fromString(dir.path()) / "main.qml";
+    QVERIFY(source.writeFileContents(QByteArray(s_parentlessObjectSource)));
+
+    quint16 port = 0;
+    {
+        QTcpServer probe;
+        QVERIFY(probe.listen(QHostAddress::LocalHost));
+        port = probe.serverPort();
+    }
+    Process inferior;
+    inferior.setCommand({qml, {QString("-qmljsdebugger=port:%1,block").arg(port),
+                               source.nativePath()}});
+    inferior.start();
+    QVERIFY(inferior.waitForStarted());
+
+    const QList<QPointer<DebuggerEngine>> before = EngineManager::engines();
+    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl->setKit(kit);
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+    QUrl server;
+    server.setScheme(Utils::urlTcpScheme());
+    server.setHost("127.0.0.1");
+    server.setPort(port);
+    rp.setQmlServer(server);
+    rp.setStartMode(AttachToQmlServer);
+    connect(runControl, &RunControl::stopped,
+            &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
+    runControl->setRunRecipe(debuggerRecipe(runControl, rp));
+    runControl->start();
+
+    const QScopeGuard stop([runControl, &inferior] {
+        runControl->initiateStop();
+        QTestEventLoop::instance().enterLoop(30);
+        inferior.kill();
+        inferior.waitForFinished();
+    });
+
+    QPointer<DebuggerEngine> engine;
+    const auto findOrphan = [&engine, &before]() -> WatchItem * {
+        for (const QPointer<DebuggerEngine> &candidate : EngineManager::engines()) {
+            if (candidate && !before.contains(candidate))
+                engine = candidate;
+        }
+        if (!engine)
+            return nullptr;
+        WatchItem *inspect = engine->watchHandler()->findItem("inspect");
+        if (!inspect)
+            return nullptr;
+        return inspect->findAnyChild([](TreeItem *item) {
+            return static_cast<WatchItem *>(item)->name == "orphanObject";
+        });
+    };
+    QTRY_VERIFY_WITH_TIMEOUT(findOrphan(), 30000);
+    const QString orphanIName = findOrphan()->iname;
+    const QString propertiesIName = orphanIName + ".[properties]";
+
+    WatchHandler *watchHandler = engine->watchHandler();
+    QVERIFY2(!watchHandler->findItem(propertiesIName),
+             "a collapsed parentless object reported its properties anyway");
+
+    watchHandler->fetchMore(orphanIName);
+    QTRY_VERIFY_WITH_TIMEOUT(watchHandler->findItem(propertiesIName + ".orphanValue"), 30000);
 }
 
 QObject *createDebuggerTest()

@@ -1424,11 +1424,18 @@ void QmlImpl::refreshInspectorTree(const RefreshRequest &request)
                      it != end; ++it) {
                     if (it.value() != engineId || pending->seenDebugIds.contains(it.key()))
                         continue;
-                    runInspectorLeg(m_engineClient->queryObject(it.key()), pending, finishLeg,
-                                    [this, pending, finishLeg, iname, engineId]
+                    // Only the header: this runs after every burst of object
+                    // creations. Properties come on expansion.
+                    const int debugId = it.key();
+                    runInspectorLeg(m_engineClient->queryObjectHeader(debugId), pending, finishLeg,
+                                    [this, pending, finishLeg, iname, engineId, debugId]
                                     (const QVariant &objectValue, const QByteArray &) {
-                        appendObjectItems(qvariant_cast<QmlDebug::ObjectReference>(objectValue),
-                                          iname, engineId, pending, finishLeg);
+                        const auto object = qvariant_cast<QmlDebug::ObjectReference>(objectValue);
+                        // The application answers with nothing for a destroyed object.
+                        if (object.isValid())
+                            appendObjectItems(object, iname, engineId, pending, finishLeg);
+                        else
+                            m_knownDelegateIds.remove(debugId);
                         finishLeg();
                     });
                 }

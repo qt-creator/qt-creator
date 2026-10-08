@@ -308,6 +308,7 @@ struct InferiorTestData
     QString inspectorProperty;
     QString inspectorPropertyExpression;
     QString inspectorOrphanObject;
+    QString inspectorOrphanProperty;
     QString versionLine;
     QString moduleListMarker;
     // Set only where the debugger is configured to print a value this long in
@@ -3788,6 +3789,7 @@ void tst_backends::initTestCase()
         qmlInferiorData.stackFetchWireMarker = "backtrace";
         qmlInferiorData.answersRedundantContinue = true;
         qmlInferiorData.inspectorOrphanObject = "orphanObject";
+        qmlInferiorData.inspectorOrphanProperty = "orphanValue";
         m_backendData[Backend::Qml].inferiorData = qmlInferiorData;
         // No debugger of its own: the runtime is the process this backend runs.
         m_backendData[Backend::Qml].path = qmlInferior;
@@ -18751,8 +18753,19 @@ void tst_backends::reportsInspectorObjectTree()
     engine->refresh(request);
     QTRY_VERIFY2_WITH_TIMEOUT(!inameFor(302, testData.inspectorOrphanObject).isEmpty(),
                               "a parentless object never reached the tree", s_timeout);
-    QCOMPARE(inameFor(302, testData.inspectorOrphanObject).count('.'),
-             engineIName.count('.') + 1);
+    const QString orphanIName = inameFor(302, testData.inspectorOrphanObject);
+    QCOMPARE(orphanIName.count('.'), engineIName.count('.') + 1);
+
+    // Parentless objects are fetched again on every rebuild, so their
+    // properties must wait for the expansion like everyone else's.
+    QVERIFY2(inameFor(302, testData.inspectorOrphanProperty).isEmpty(),
+             "a collapsed parentless object reported its properties anyway");
+    request.requestId = 303;
+    request.expandedINames = {objectIName, orphanIName};
+    engine->refresh(request);
+    QTRY_VERIFY2_WITH_TIMEOUT(!inameFor(303, testData.inspectorOrphanProperty).isEmpty(),
+                              "expanding a parentless object never reported its properties",
+                              s_timeout);
 
     inferiorProcess.kill();
     inferiorProcess.waitForFinished();

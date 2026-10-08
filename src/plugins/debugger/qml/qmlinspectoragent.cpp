@@ -221,7 +221,16 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
         log(LogReceive, QLatin1String(type));
     }
 
-    if (m_objectTreeQueryIds.contains(queryId)) {
+    if (const auto it = m_delegateQueryIds.constFind(queryId); it != m_delegateQueryIds.cend()) {
+        const int debugId = *it;
+        m_delegateQueryIds.erase(it);
+        const ObjectReference object = qvariant_cast<ObjectReference>(value);
+        // The application answers with nothing for an object it has destroyed.
+        if (object.isValid())
+            verifyAndInsertObjectInTree(object);
+        else
+            m_knownDelegateIds.remove(debugId);
+    } else if (m_objectTreeQueryIds.contains(queryId)) {
         m_objectTreeQueryIds.removeOne(queryId);
         if (value.typeId() == QMetaType::QVariantList) {
             const QVariantList objList = value.toList();
@@ -272,10 +281,11 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
                 // m_knownDelegateIds as they arrive via OBJECT_CREATED. Re-fetch
                 // them now so they become visible in the Locals tree. Do this
                 // after clearObjectTree() so the FETCH_OBJECT responses are not
-                // discarded.
+                // discarded. Fetch only the headers, as this runs after every
+                // burst of object creations. Properties come on expansion.
                 for (int id : std::as_const(m_knownDelegateIds)) {
                     if (!m_debugIdToIname.contains(id))
-                        fetchObject(id);
+                        fetchObjectHeader(id);
                 }
                 m_rootContextQueryIds.clear();
             }
@@ -438,6 +448,16 @@ void QmlInspectorAgent::fetchObject(int debugId)
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << debugId << ')'
                              << " - query id" << queryId;
     m_objectTreeQueryIds << queryId;
+}
+
+void QmlInspectorAgent::fetchObjectHeader(int debugId)
+{
+    if (!isConnected() || !settings().showQmlObjectTree())
+        return;
+
+    log(LogSend, "FETCH_OBJECT " + QString::number(debugId));
+    if (const quint32 queryId = m_engineClient->queryObjectHeader(debugId))
+        m_delegateQueryIds.insert(queryId, debugId);
 }
 
 void QmlInspectorAgent::updateObjectTree(const ContextReference &context, int engineId)
@@ -796,6 +816,7 @@ void QmlInspectorAgent::clearObjectTree()
     if (m_qmlEngine)
         m_qmlEngine->watchHandler()->removeAllData(true);
     m_objectTreeQueryIds.clear();
+    m_delegateQueryIds.clear();
     m_fetchDataIds.clear();
     m_debugIdToIname.clear();
     m_debugIdToIname.insert(WatchItem::InvalidId, "inspect");

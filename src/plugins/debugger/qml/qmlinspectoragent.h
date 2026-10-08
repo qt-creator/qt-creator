@@ -42,6 +42,7 @@ private:
 
     void reloadEngines();
     void fetchObject(int debugId);
+    void fetchObjectHeader(int debugId);
 
     void updateState();
     void onResult(quint32 queryId, const QVariant &value, const QByteArray &type);
@@ -98,6 +99,7 @@ private:
     QList<int> m_objectWatches;
     QList<int> m_fetchDataIds;
     QSet<int> m_knownDelegateIds;
+    QHash<quint32, int> m_delegateQueryIds;
     QTimer m_delayQueryTimer;
 
     // toolbar

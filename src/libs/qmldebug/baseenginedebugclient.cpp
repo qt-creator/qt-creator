@@ -269,9 +269,10 @@ void BaseEngineDebugClient::messageReceived(const QByteArray &data)
             decode(ds, rootContext);
         emit result(queryId, QVariant::fromValue(rootContext), type);
     } else if (type == "FETCH_OBJECT_R") {
+        const bool headerOnly = m_headerQueryIds.remove(queryId);
         ObjectReference object;
         if (!ds.atEnd())
-            decode(ds, object, false);
+            decode(ds, object, headerOnly);
         emit result(queryId, QVariant::fromValue(object), type);
     } else if (type == "FETCH_OBJECTS_FOR_LOCATION_R") {
         QVariantList objects;
@@ -401,6 +402,22 @@ quint32 BaseEngineDebugClient::queryObject(int objectId)
         ds << QByteArray("FETCH_OBJECT") << id << objectId << false <<
               true;
         sendMessage(ds.data());
+    }
+    return id;
+}
+
+// Fetches only the object itself, leaving its children and properties to a
+// later queryObject(). This spares the application the property dump.
+quint32 BaseEngineDebugClient::queryObjectHeader(int objectId)
+{
+    quint32 id = 0;
+    if (state() == Enabled && objectId != -1) {
+        id = getId();
+        QPacket ds(dataStreamVersion());
+        ds << QByteArray("FETCH_OBJECT") << id << objectId << false <<
+              false;
+        sendMessage(ds.data());
+        m_headerQueryIds.insert(id);
     }
     return id;
 }
