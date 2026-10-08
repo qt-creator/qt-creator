@@ -29,6 +29,7 @@
 #include <QNetworkRequest>
 #include <QRegularExpression>
 #include <QSaveFile>
+#include <QTemporaryDir>
 #include <QTimer>
 #include <QUrl>
 #include <QtEndian>
@@ -191,6 +192,41 @@ bool loadElfFunctionSymbols(const FilePath &path, QList<ElfSymbol> &out, QByteAr
         return table == 0; // table 0 == ".symtab", the full (non-stripped) table
     }
     return false;
+}
+
+// A copy of this process's vdso, where the recording has "[vdso]": the vdso
+// is the kernel's, so a target on this machine has the same one mapped. It is
+// no file in the target, but the unwinder needs its CFI to get out of it.
+QString ownVdsoPath()
+{
+    static const QString path = [] {
+        static QTemporaryDir dir;
+        if (!dir.isValid())
+            return QString();
+        QFile maps("/proc/self/maps");
+        if (!maps.open(QIODevice::ReadOnly | QIODevice::Text))
+            return QString();
+        for (const QByteArray &line : maps.readAll().split('\n')) {
+            if (!line.endsWith("[vdso]"))
+                continue;
+            const QList<QByteArray> range = line.left(line.indexOf(' ')).split('-');
+            if (range.size() != 2)
+                return QString();
+            const quint64 begin = range.at(0).toULongLong(nullptr, 16);
+            const quint64 end = range.at(1).toULongLong(nullptr, 16);
+            if (end <= begin)
+                return QString();
+            QFile file(dir.filePath("[vdso]"));
+            if (!file.open(QIODevice::WriteOnly)
+                || file.write(reinterpret_cast<const char *>(quintptr(begin)), qint64(end - begin))
+                       != qint64(end - begin)) {
+                return QString();
+            }
+            return file.fileName();
+        }
+        return QString();
+    }();
+    return path;
 }
 
 } // namespace
@@ -739,8 +775,13 @@ QString PerfSymbolizerPrivate::hostPathFor(const QString &recordedPath)
         return it.value();
 
     // A recording taken here names its binaries where they are.
-    if (m_sysroot.isEmpty() && m_searchPaths.isEmpty())
+    if (m_sysroot.isEmpty() && m_searchPaths.isEmpty()) {
+        if (recordedPath == u"[vdso]") {
+            const QString vdso = ownVdsoPath();
+            return m_hostPaths.insert(recordedPath, vdso.isEmpty() ? recordedPath : vdso).value();
+        }
         return m_hostPaths.insert(recordedPath, recordedPath).value();
+    }
 
     const QByteArray buildId = m_buildIds.value(recordedPath);
     const auto matches = [&buildId](const FilePath &candidate) {

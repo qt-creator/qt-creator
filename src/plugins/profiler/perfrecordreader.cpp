@@ -245,8 +245,10 @@ quint64 PerfRecordDecoder::relativeUs(quint64 timeNs) const
 
 void PerfRecordDecoder::mmap(const PerfData::Mmap &mmap)
 {
-    if (mmap.path.isEmpty() || mmap.path.startsWith('['))
-        return; // anonymous/special mapping (e.g. "[heap]", "[stack]"): nothing to symbolize
+    // Anonymous and special mappings ("[heap]", "[stack]") have nothing to
+    // symbolize, except the vdso, which the symbolizer finds elsewhere.
+    if (mmap.path.isEmpty() || (mmap.path.startsWith('[') && mmap.path != u"[vdso]"))
+        return;
     m_symbolizer.addMapping(mmap.pid, mmap.addr, mmap.len, mmap.pgoff, mmap.path);
 }
 

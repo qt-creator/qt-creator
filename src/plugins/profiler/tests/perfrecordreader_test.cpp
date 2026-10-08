@@ -30,8 +30,10 @@
 #include <profiler/perfdwarfunwinder.h>
 
 #include <dlfcn.h>
+#include <elf.h>
 #include <fcntl.h>
 #include <pthread.h>
+#include <sys/auxv.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
@@ -898,6 +900,7 @@ private slots:
 #if defined(WITH_LIBDW) && (defined(Q_PROCESSOR_X86_64) || defined(Q_PROCESSOR_ARM_64))
     void testUnwindsRealDwarfCallChain();
     void testUnwindsDwarfSampleThroughReader();
+    void testSymbolicatesTheVdso();
 #endif
 #if defined(WITH_LIBDW) && defined(Q_PROCESSOR_ARM_64)
     void testUnwindsThroughCodeWithoutCfi();
@@ -1488,6 +1491,78 @@ void PerfRecordReaderTest::testUnwindsDwarfSampleThroughReader()
     QCOMPARE(result->samples.size(), 1);
     const qsizetype frames = result->samples.first().frames.size();
     QVERIFY2(frames >= 5, qPrintable(u"only %1 frame(s)"_s.arg(frames)));
+}
+
+// A function of this process's vdso, by the names its .dynsym gives it.
+struct VdsoFunction
+{
+    quint64 address = 0;
+    QStringList names;
+};
+
+static VdsoFunction ownVdsoFunction()
+{
+    VdsoFunction function;
+    const quint64 base = getauxval(AT_SYSINFO_EHDR);
+    if (base == 0)
+        return function;
+    const auto at = [base](quint64 offset) { return reinterpret_cast<const char *>(base + offset); };
+    const auto *ehdr = reinterpret_cast<const Elf64_Ehdr *>(at(0));
+    const auto *phdrs = reinterpret_cast<const Elf64_Phdr *>(at(ehdr->e_phoff));
+    const auto *shdrs = reinterpret_cast<const Elf64_Shdr *>(at(ehdr->e_shoff));
+    const auto load = std::find_if(phdrs, phdrs + ehdr->e_phnum,
+                                   [](const Elf64_Phdr &phdr) { return phdr.p_type == PT_LOAD; });
+    if (load == phdrs + ehdr->e_phnum)
+        return function;
+    const quint64 bias = base - (load->p_vaddr - load->p_offset);
+    for (const Elf64_Shdr *shdr = shdrs; shdr != shdrs + ehdr->e_shnum; ++shdr) {
+        if (shdr->sh_type != SHT_DYNSYM)
+            continue;
+        const auto *syms = reinterpret_cast<const Elf64_Sym *>(at(shdr->sh_offset));
+        const char *strtab = at(shdrs[shdr->sh_link].sh_offset);
+        quint64 value = 0;
+        for (const Elf64_Sym *sym = syms; sym != syms + shdr->sh_size / sizeof(Elf64_Sym); ++sym) {
+            if (ELF64_ST_TYPE(sym->st_info) != STT_FUNC || sym->st_size == 0)
+                continue;
+            if (value == 0)
+                value = sym->st_value;
+            if (sym->st_value == value)
+                function.names.append(QString::fromLatin1(strtab + sym->st_name));
+        }
+        if (value != 0)
+            function.address = bias + value;
+    }
+    return function;
+}
+
+// The vdso is no file. A sample in it is symbolized from a copy of Qt
+// Creator's own, which the same kernel provides.
+void PerfRecordReaderTest::testSymbolicatesTheVdso()
+{
+    const VdsoFunction function = ownVdsoFunction();
+    if (function.address == 0)
+        QSKIP("This process has no vdso with function symbols.");
+    const QList<SelfMapping> mappings = selfMappingsOf({u"[vdso]"_s});
+    QCOMPARE(mappings.size(), 1);
+
+    constexpr quint32 pid = 4242;
+    const SelfMapping &vdso = mappings.first();
+    const QByteArray stream = buildPipeStream({
+        buildAttrRecord(SampleIp | SampleTid | SampleTime | SampleCallchain),
+        buildMmap2Record(pid, vdso.addr, vdso.len, vdso.pgoff, vdso.path),
+        buildCallchainSampleRecord(pid, pid, 1'000'000, {function.address}),
+        buildFinishedRoundRecord(),
+    });
+
+    const Result<SampleTraceData> result = decode(stream);
+    QVERIFY_RESULT(result);
+    QCOMPARE(result->samples.size(), 1);
+    const QList<int> &frames = result->samples.first().frames;
+    QCOMPARE(frames.size(), 1);
+    const SampleTraceData::Label &leaf = result->labels.at(frames.first());
+    QCOMPARE(leaf.module, u"[vdso]"_s);
+    QVERIFY2(function.names.contains(leaf.name),
+             qPrintable(u"%1 is none of %2"_s.arg(leaf.name, function.names.join(", "))));
 }
 #endif // WITH_LIBDW && (Q_PROCESSOR_X86_64 || Q_PROCESSOR_ARM_64)
 
