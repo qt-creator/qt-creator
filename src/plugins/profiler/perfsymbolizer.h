@@ -103,7 +103,7 @@ public:
     // [addr, addr + len) of `pid`'s address space maps `path` from file
     // offset `pgoff`. A later mapping over an earlier one replaces it.
     void addMapping(quint32 pid, quint64 addr, quint64 len, quint64 pgoff, const QString &path,
-                    const QByteArray &buildId = {});
+                    const QByteArray &buildId = {}, bool executable = true);
 
     // `childPid` was forked from `parentPid`, whose mappings it inherits:
     // the kernel reports none of them for the child.
@@ -112,6 +112,10 @@ public:
     // The module `addr` in `pid` is mapped from, and where in it; nullopt
     // where no mapping covers it. Cheap: a key to memoize resolve() by.
     std::optional<ModuleAddress> moduleAddress(quint32 pid, quint64 addr);
+
+    // Whether `addr` in `pid` is in an executable mapping; false where no
+    // mapping covers it.
+    bool isExecutable(quint32 pid, quint64 addr) const;
 
     ResolvedAddress resolve(const ModuleAddress &address);
     ResolvedAddress resolveKernel(quint64 addr);

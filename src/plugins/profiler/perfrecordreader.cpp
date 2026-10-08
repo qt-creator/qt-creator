@@ -249,7 +249,8 @@ void PerfRecordDecoder::mmap(const PerfData::Mmap &mmap)
     // symbolize, except the vdso, which the symbolizer finds elsewhere.
     if (mmap.path.isEmpty() || (mmap.path.startsWith('[') && mmap.path != u"[vdso]"))
         return;
-    m_symbolizer.addMapping(mmap.pid, mmap.addr, mmap.len, mmap.pgoff, mmap.path);
+    m_symbolizer.addMapping(mmap.pid, mmap.addr, mmap.len, mmap.pgoff, mmap.path, {},
+                            mmap.executable);
 }
 
 // A child forked without exec() keeps its parent's mappings, which the
@@ -540,8 +541,16 @@ void PerfRecordDecoder::unwindDwarfSample(RawSample &sample)
         return;
     // Falls back to the kernel-reported chain (just the leaf PC in dwarf
     // mode -- see sample()) when the unwind comes back empty.
-    const QList<quint64> pcs = m_symbolizer.unwind(sample.pid, hostPerfArchitecture(),
-                                                   sample.dwarfRegs, sample.dwarfStack);
+    QList<quint64> pcs = m_symbolizer.unwind(sample.pid, hostPerfArchitecture(),
+                                             sample.dwarfRegs, sample.dwarfStack);
+    // Where the captured stack ends, or a frame is described by neither CFI
+    // nor a frame record, the unwind can take any word for a return address,
+    // which then points at data: the heap, the stack. Return addresses are in
+    // code, so the call chain ends before the first one that is not.
+    qsizetype inCode = qMin<qsizetype>(1, pcs.size()); // the sampled PC
+    while (inCode < pcs.size() && m_symbolizer.isExecutable(sample.pid, pcs.at(inCode)))
+        ++inCode;
+    pcs.resize(inCode);
     if (!pcs.isEmpty()) {
         QList<RawFrame> frames;
         frames.reserve(pcs.size() + sample.frames.size());

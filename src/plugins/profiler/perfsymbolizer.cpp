@@ -103,6 +103,7 @@ struct MappedRegion
     quint64 pgoff = 0;
     QString path;         // on this machine
     QString recordedPath; // as the recording has it
+    bool executable = true;
 };
 
 quint64 readU64(const char *p) { return qFromLittleEndian<quint64>(reinterpret_cast<const uchar *>(p)); }
@@ -937,10 +938,16 @@ void PerfSymbolizer::addBuildId(const QString &path, const QByteArray &buildId)
 }
 
 void PerfSymbolizer::addMapping(quint32 pid, quint64 addr, quint64 len, quint64 pgoff,
-                                const QString &path, const QByteArray &buildId)
+                                const QString &path, const QByteArray &buildId, bool executable)
 {
     addBuildId(path, buildId);
-    d->m_regionsByPid[pid].append({addr, len, pgoff, d->hostPathFor(path), path});
+    d->m_regionsByPid[pid].append({addr, len, pgoff, d->hostPathFor(path), path, executable});
+}
+
+bool PerfSymbolizer::isExecutable(quint32 pid, quint64 addr) const
+{
+    const MappedRegion *region = d->findRegion(pid, addr);
+    return region && region->executable;
 }
 
 void PerfSymbolizer::addFork(quint32 parentPid, quint32 childPid)

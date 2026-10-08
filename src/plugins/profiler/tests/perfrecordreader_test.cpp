@@ -23,6 +23,7 @@
 #include <atomic>
 #include <cstdlib>
 #include <cstring>
+#include <functional>
 #include <memory>
 #include <optional>
 
@@ -147,8 +148,11 @@ QByteArray buildAttrRecordWithRegsMask(quint64 sampleType, quint64 sampleRegsUse
     return wrapRecord(RecordHeaderAttr, payload);
 }
 
+constexpr quint32 ProtRead = 1;
+constexpr quint32 ProtExec = 4;
+
 QByteArray buildMmap2Record(quint32 pid, quint64 addr, quint64 len, quint64 pgoff,
-                            const QString &path)
+                            const QString &path, quint32 prot = ProtRead | ProtExec)
 {
     QByteArray payload;
     appendU32(payload, pid);
@@ -160,7 +164,7 @@ QByteArray buildMmap2Record(quint32 pid, quint64 addr, quint64 len, quint64 pgof
     appendU32(payload, 0); // min
     appendU64(payload, 0); // ino
     appendU64(payload, 0); // ino_generation
-    appendU32(payload, 0); // prot
+    appendU32(payload, prot);
     appendU32(payload, 0); // flags
     appendCString(payload, path);
     return wrapRecord(RecordMmap2, payload);
@@ -901,6 +905,7 @@ private slots:
     void testUnwindsRealDwarfCallChain();
     void testUnwindsDwarfSampleThroughReader();
     void testSymbolicatesTheVdso();
+    void testEndsDwarfCallChainBeforeData();
 #endif
 #if defined(WITH_LIBDW) && defined(Q_PROCESSOR_ARM_64)
     void testUnwindsThroughCodeWithoutCfi();
@@ -1445,12 +1450,15 @@ static QList<SelfMapping> selfMappingsOf(const QStringList &paths)
 // sample carrying the register+stack snapshot dwarfTestOuter() captures.
 // The kernel reports only the leaf PC in dwarf mode, so a sample
 // that comes back with more frames than that was unwound by the reader.
-static QByteArray buildDwarfRecording(quint32 pid)
+static QByteArray buildDwarfRecording(quint32 pid,
+                                      const std::function<void(UnwindInput &)> &tamper = {})
 {
     UnwindInput input;
     dwarfTestOuter(&input);
     if (!input.isValid())
         return {};
+    if (tamper)
+        tamper(input);
 
     Dl_info info = {};
     Dl_info libcInfo = {};
@@ -1563,6 +1571,50 @@ void PerfRecordReaderTest::testSymbolicatesTheVdso()
     QCOMPARE(leaf.module, u"[vdso]"_s);
     QVERIFY2(function.names.contains(leaf.name),
              qPrintable(u"%1 is none of %2"_s.arg(leaf.name, function.names.join(", "))));
+}
+
+// A return address that points at data is no return address: where the
+// captured stack ends, an unwind can come up with any word for one. Here one
+// return address in the captured stack is overwritten with a heap address.
+void PerfRecordReaderTest::testEndsDwarfCallChainBeforeData()
+{
+    const auto heapObject = std::make_unique<quint64>(0);
+    const quint64 heapAddress = quint64(reinterpret_cast<quintptr>(heapObject.get()));
+    bool overwritten = false;
+    const QByteArray stream = buildDwarfRecording(4242, [&](UnwindInput &input) {
+        Dl_info info = {};
+        if (!dladdr(reinterpret_cast<void *>(&dwarfTestLeaf), &info))
+            return;
+        PerfDwarfUnwinder unwinder({{QString::fromLocal8Bit(info.dli_fname),
+                                     quint64(reinterpret_cast<quintptr>(info.dli_fbase))}});
+        const QList<quint64> pcs = unwinder.unwind(input);
+        if (pcs.size() < 3)
+            return;
+        // Where the stack holds the return address of the third frame, which
+        // may carry a pointer authentication signature above the address.
+        constexpr quint64 addressMask = (1ull << 48) - 1;
+        const quint64 returnAddress = pcs.at(2) + 1;
+        for (qsizetype offset = 0; offset + 8 <= input.stackBytes.size(); offset += 8) {
+            char *word = input.stackBytes.data() + offset;
+            if ((qFromLittleEndian<quint64>(word) & addressMask) == returnAddress) {
+                qToLittleEndian(heapAddress, word);
+                overwritten = true;
+                return;
+            }
+        }
+    });
+    QVERIFY(!stream.isEmpty());
+    QVERIFY(overwritten);
+
+    const Result<SampleTraceData> result = decode(stream);
+    QVERIFY_RESULT(result);
+    QCOMPARE(result->samples.size(), 1);
+    const QList<int> &frames = result->samples.first().frames;
+    QVERIFY(frames.size() >= 2);
+    for (int frame : frames) {
+        const SampleTraceData::Label &label = result->labels.at(frame);
+        QVERIFY2(!label.module.isEmpty(), qPrintable(label.name + " is in no module"_L1));
+    }
 }
 #endif // WITH_LIBDW && (Q_PROCESSOR_X86_64 || Q_PROCESSOR_ARM_64)
 
