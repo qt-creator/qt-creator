@@ -26,7 +26,7 @@ local function escape_command_line(line)
     if line:find("[\x01-\x1f;]") then
         line = line:gsub(";", "\\x3b")
         for i = 0x01, 0x1f, 1 do
-            line = line:gsub(string.char(i), "\\x" .. i)
+            line = line:gsub(string.char(i), string.format("\\x%02x", i))
         end
     end
     return line
