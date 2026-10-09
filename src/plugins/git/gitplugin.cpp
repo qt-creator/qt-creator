@@ -3,6 +3,7 @@
 
 #include "gitplugin.h"
 
+#include "branchmodel.h"
 #include "branchview.h"
 #include "changeselectiondialog.h"
 #include "commitdata.h"
@@ -2480,6 +2481,8 @@ private slots:
     void testInlineDiffConflictedFile();
     void testConflictedFileInTextEditor();
     void testGraphModelRepositorySwitch();
+    void testBranchModelDetachedHead_data();
+    void testBranchModelDetachedHead();
     void testWorkingDirectoryForShow();
     void testFileLinkResolution();
     void testFileLinkContextMenu();
@@ -3126,6 +3129,97 @@ void GitTest::testGraphModelRepositorySwitch()
     model.refresh(second);
     QCOMPARE(resetSpy.count(), 1);
     QCOMPARE(model.rowCount(), 2);
+}
+
+void GitTest::testBranchModelDetachedHead_data()
+{
+    QTest::addColumn<QString>("remoteBranch");
+    QTest::addColumn<int>("tagType");
+    QTest::addColumn<bool>("showTags");
+    QTest::newRow("origin") << QString("origin/21.0") << 0 << false;
+    QTest::newRow("gerrit") << QString("gerrit/21.0") << 0 << false;
+    QTest::newRow("lightweight-tag") << QString() << 1 << true;
+    QTest::newRow("annotated-tag") << QString() << 2 << true;
+    QTest::newRow("lightweight-tag-at-remote-tip") << QString("origin/21.0") << 1 << true;
+    QTest::newRow("annotated-tag-at-remote-tip") << QString("gerrit/21.0") << 2 << true;
+    QTest::newRow("hidden-tag-at-remote-tip") << QString("origin/21.0") << 1 << false;
+    QTest::newRow("hidden-tag") << QString() << 2 << false;
+}
+
+void GitTest::testBranchModelDetachedHead()
+{
+    QFETCH(QString, remoteBranch);
+    QFETCH(int, tagType);
+    QFETCH(bool, showTags);
+    const bool previousShowTags = settings().showTags();
+    const QScopeGuard restoreShowTags([previousShowTags] {
+        settings().showTags.setValue(previousShowTags);
+    });
+    settings().showTags.setValue(showTags);
+    const QString remoteRef = "refs/remotes/" + remoteBranch;
+    const QString tagName = "v21.0.0";
+    const QString tagRef = "refs/tags/" + tagName;
+    const bool tagSelected = tagType && showTags;
+    const QString expectedName = tagSelected ? tagName
+                                            : remoteBranch.isEmpty() ? QString("HEAD") : remoteBranch;
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repo = FilePath::fromString(temporaryDir.path());
+    const auto runGit = [repo](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repo, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(runGit({"init", "-b", "main"}));
+    QVERIFY(runGit({"config", "user.email", "test@test"}));
+    QVERIFY(runGit({"config", "user.name", "test"}));
+    QVERIFY(runGit({"config", "commit.gpgsign", "false"}));
+    QVERIFY(runGit({"config", "tag.gpgsign", "false"}));
+    QVERIFY(runGit({"commit", "--allow-empty", "-m", "initial"}));
+    if (!remoteBranch.isEmpty())
+        QVERIFY(runGit({"update-ref", remoteRef, "HEAD"}));
+    if (tagType == 1)
+        QVERIFY(runGit({"tag", tagName}));
+    else if (tagType == 2)
+        QVERIFY(runGit({"tag", "-a", tagName, "-m", "release"}));
+
+    BranchModel model;
+    QSignalSpy resetSpy(&model, &QAbstractItemModel::modelReset);
+    const auto refresh = [&] {
+        resetSpy.clear();
+        model.refresh(repo);
+        QTRY_VERIFY(!resetSpy.isEmpty() && model.currentBranch().isValid());
+    };
+
+    refresh();
+    QCOMPARE(model.fullName(model.currentBranch()), QString("main"));
+    QVERIFY(model.isLocal(model.currentBranch()));
+
+    QVERIFY(runGit({"checkout", remoteBranch.isEmpty() ? tagRef : remoteRef}));
+    refresh();
+    QCOMPARE(model.fullName(model.currentBranch()), expectedName);
+    QCOMPARE(model.isHead(model.currentBranch()), expectedName == "HEAD");
+    QCOMPARE(model.isTag(model.currentBranch()), tagSelected);
+    QVERIFY(!model.isLocal(model.currentBranch()));
+
+    QVERIFY((repo / "untracked.txt").writeFileContents("untracked\n"));
+    refresh();
+    QCOMPARE(model.fullName(model.currentBranch()), expectedName);
+    QCOMPARE(model.isTag(model.currentBranch()), tagSelected);
+
+    QVERIFY(runGit({"commit", "--allow-empty", "-m", "detached commit"}));
+    refresh();
+    QVERIFY(model.isHead(model.currentBranch()));
+    QCOMPARE(model.fullName(model.currentBranch()), QString("HEAD"));
+
+    QVERIFY(runGit({"checkout", "main"}));
+    if (!remoteBranch.isEmpty())
+        QVERIFY(runGit({"update-ref", "-d", remoteRef}));
+    if (tagType)
+        QVERIFY(runGit({"tag", "-d", tagName}));
+    QVERIFY(runGit({"checkout", "--detach", "main"}));
+    refresh();
+    QVERIFY(model.isHead(model.currentBranch()));
 }
 
 void GitTest::testWorkingDirectoryForShow()
