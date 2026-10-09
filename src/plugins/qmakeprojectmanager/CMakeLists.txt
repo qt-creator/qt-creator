@@ -27,7 +27,6 @@ add_qtc_plugin(QmakeProjectManager
     qmakeparsernodes.cpp qmakeparsernodes.h
     qmakeproject.cpp qmakeproject.h
     qmakeprojectimporter.cpp qmakeprojectimporter.h
-    qmakeprojectmanager.qrc
     qmakeprojectmanager_global.h
     qmakeprojectmanagertr.h
     qmakeprojectmanagerconstants.h
@@ -38,5 +37,20 @@ add_qtc_plugin(QmakeProjectManager
     wizards/qtwizard.cpp wizards/qtwizard.h
     wizards/subdirsprojectwizard.cpp wizards/subdirsprojectwizard.h
     wizards/subdirsprojectwizarddialog.cpp wizards/subdirsprojectwizarddialog.h
-    wizards/wizards.qrc
+)
+
+qtc_add_resources(QmakeProjectManager "images"
+  PREFIX "/qmakeprojectmanager"
+  FILES
+    images/dark_headers.png
+    images/dark_sources.png
+    images/dark_unknown.png
+)
+
+qtc_add_resources(QmakeProjectManager "wizard_images"
+  PREFIX "/wizards"
+  BASE "wizards"
+  FILES
+    wizards/images/gui.png
+    wizards/images/gui@2x.png
 )

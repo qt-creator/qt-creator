@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/wizards">
-        <file>images/gui.png</file>
-        <file>images/gui@2x.png</file>
-    </qresource>
-</RCC>

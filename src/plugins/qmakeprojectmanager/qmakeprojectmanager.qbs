@@ -33,7 +33,6 @@ QtcPlugin {
             "qmakenodes.cpp", "qmakenodes.h",
             "qmakenodetreebuilder.cpp", "qmakenodetreebuilder.h",
             "qmakeproject.cpp", "qmakeproject.h",
-            "qmakeprojectmanager.qrc",
             "qmakeprojectmanager_global.h", "qmakeprojectmanagertr.h",
             "qmakeprojectmanagerconstants.h",
             "qmakeprojectmanagerplugin.cpp",
@@ -64,14 +63,31 @@ QtcPlugin {
             "qtwizard.cpp", "qtwizard.h",
             "subdirsprojectwizard.cpp", "subdirsprojectwizard.h",
             "subdirsprojectwizarddialog.cpp", "subdirsprojectwizarddialog.h",
-            "wizards.qrc"
+        ]
+    }
+
+    Group {
+        name: "Images"
+        prefix: "images/"
+        Qt.core.resourcePrefix: "/qmakeprojectmanager"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "dark_headers.png",
+            "dark_sources.png",
+            "dark_unknown.png",
         ]
     }
 
     Group {
         name: "Wizard Images"
         prefix: "wizards/images/"
-        files: ["*.png"]
+        Qt.core.resourcePrefix: "/wizards"
+        Qt.core.resourceSourceBase: sourceDirectory + "/wizards"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "gui.png",
+            "gui@2x.png",
+        ]
     }
 
     Export {

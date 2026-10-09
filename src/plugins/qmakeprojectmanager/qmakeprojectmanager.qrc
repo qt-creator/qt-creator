@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/qmakeprojectmanager">
-        <file>images/dark_headers.png</file>
-        <file>images/dark_sources.png</file>
-        <file>images/dark_unknown.png</file>
-    </qresource>
-</RCC>
