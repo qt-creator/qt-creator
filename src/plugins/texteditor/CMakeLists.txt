@@ -15,6 +15,7 @@ add_qtc_plugin(TextEditor
   DEPENDS Qt::Concurrent Qt::Network Qt::PrintSupport Qt::Xml
   PUBLIC_DEPENDS ${KSYNTAXHIGHLIGHTING_TARGET}
   PLUGIN_DEPENDS Core
+  LONG_DESCRIPTION_MD TextEditorDescription.md
   SOURCES
     autocompleter.cpp autocompleter.h
     basefilefind.cpp basefilefind.h
@@ -139,6 +140,10 @@ qtc_add_resources(TextEditor "images"
     images/settingscategory_texteditor@2x.png
     images/snippet.png
 )
+
+if(NOT TARGET TextEditor)
+  return()
+endif()
 
 # from cmake 3.24 $<LINK_LIBRARY:WHOLE_ARCHIVE,TextEditorSupport> is supported which can be added to DEPENDS
 if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0" AND NOT CMAKE_GENERATOR STREQUAL "FASTBuild")

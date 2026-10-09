@@ -18,7 +18,7 @@
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
-#ifndef __EMSCRIPTEN__ // QtSupport is excluded from the WebAssembly build
+#ifndef QTPROFILER_WASM // QtSupport is excluded from the standalone viewer
 #include <qtsupport/qtkitaspect.h>
 #endif
 
@@ -34,6 +34,7 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace Qt::StringLiterals;
 
 namespace Profiler::Internal {
 
@@ -47,60 +48,40 @@ PerfDataReader::PerfDataReader(QObject *parent) :
     m_remoteProcessStart(std::numeric_limits<qint64>::max()),
     m_lastRemoteTimestamp(0)
 {
-    connect(&m_input, &Process::done, this, [this] {
-        if (m_input.result() == ProcessResult::StartFailed) {
-            // The process never ran: there is no output to drain, and emitting finished()
-            // here would finalize a trace that was never initialized. Report the failure
-            // only.
-            emit processFailed(Tr::tr("perfparser failed to start."));
-            Core::MessageManager::writeDisrupting(
-                Tr::tr("Could not start the perfparser utility program. "
-                       "Make sure a working Perf parser is available at the "
-                       "location given by the PERFPROFILER_PARSER_FILEPATH "
-                       "environment variable."));
-            return;
-        }
-
+    connect(&m_input, &PerfConversion::done, this, [this] {
         // process any remaining input before signaling finished()
-        readFromProcess();
+        readFromConversion();
         if (m_recording || future().isRunning()) {
             m_localRecordingEnd = 0;
             emit finished();
         }
-        if (m_input.result() == ProcessResult::TerminatedAbnormally) {
-            Core::MessageManager::writeDisrupting(Tr::tr("Perf Data Parser Crashed"));
-        } else if (const int exitCode = m_input.exitCode();
-                   exitCode != 0 && m_input.result() != ProcessResult::Canceled) {
+        for (const QString &warning : m_input.warnings())
+            Core::MessageManager::writeDisrupting(warning);
+        if (m_input.result() == PerfConversion::Result::Failed) {
             Core::MessageManager::writeDisrupting(
-                Tr::tr("The Perf data parser failed to process all the samples. "
-                       "Your trace is incomplete. The exit code was %1.")
-                    .arg(exitCode));
+                Tr::tr("The Perf data could not be processed completely. The trace is "
+                       "incomplete. %1").arg(m_input.errorString()));
         }
         emit processFinished();
     });
 
-    connect(&m_input, &Process::started, this, [this] {
+    connect(&m_input, &PerfConversion::started, this, [this] {
         emit processStarted();
-        if (m_input.processMode() == ProcessMode::Writer) {
-            // Flush whatever was buffered before the process started running.
+        // Flush whatever was buffered before the conversion started.
+        if (m_input.isFed())
             writeChunk();
 
-            // The delay/timestamp bookkeeping only applies while we feed live data. In
-            // Reader mode we're loading from a file, where these calculations make no sense,
-            // so the timer stays off.
+        // The delay/timestamp bookkeeping only applies to live data. When loading
+        // from a file these calculations make no sense, so the timer stays off.
+        if (m_input.isLive())
             startTimer(100);
-        }
         if (m_recording) {
             emit starting();
             emit started();
         }
     });
 
-    connect(&m_input, &Process::readyReadStandardOutput,
-            this, &PerfDataReader::readFromProcess);
-    connect(&m_input, &Process::readyReadStandardError, this, [this] {
-        Core::MessageManager::writeSilently(m_input.readAllStandardError());
-    });
+    connect(&m_input, &PerfConversion::readyRead, this, &PerfDataReader::readFromConversion);
 
     m_output.open(QIODevice::ReadOnly | QIODevice::Unbuffered);
     setDevice(&m_output);
@@ -109,7 +90,7 @@ PerfDataReader::PerfDataReader(QObject *parent) :
 PerfDataReader::~PerfDataReader()
 {
     QObject::disconnect(this, &PerfDataReader::processFinished, nullptr, nullptr);
-    QObject::disconnect(this, &PerfDataReader::processFailed, nullptr, nullptr);
+    m_input.disconnect();
     m_input.kill();
     m_input.waitForFinished();
     qDeleteAll(m_buffer);
@@ -118,30 +99,24 @@ PerfDataReader::~PerfDataReader()
 void PerfDataReader::loadFromFile(const FilePath &filePath, const QString &executableDirPath,
                                   Kit *kit)
 {
-    CommandLine cmd{findPerfParser()};
-    collectArguments(&cmd, executableDirPath, kit);
-    cmd.addArg("--input");
-    cmd.addArg(filePath.nativePath());
-    createParser(cmd);
+    createParser(collectOptions(executableDirPath, kit));
+    m_input.setInputFile(filePath);
 
     m_remoteProcessStart = 0; // Don't try to guess the timestamps
-    // Reader mode: perfparser reads the input file itself; we only read its stdout.
-    m_input.setProcessMode(ProcessMode::Reader);
     m_input.start();
 }
 
-void PerfDataReader::createParser(const CommandLine &cmd)
+void PerfDataReader::createParser(const PerfConversionOptions &options, const QUrl &inputUrl)
 {
     clear();
-    m_input.setCommand(cmd);
-    m_input.setWorkingDirectory(cmd.executable().parentDir());
+    m_input.setOptions(options);
+    m_input.setInputFile({});
+    m_input.setInputUrl(inputUrl);
 }
 
 void PerfDataReader::startParser()
 {
     traceManager()->clearAll();
-    // Writer mode: we stream perf data into perfparser's stdin and read its stdout.
-    m_input.setProcessMode(ProcessMode::Writer);
     m_input.start();
 }
 
@@ -155,7 +130,7 @@ void PerfDataReader::detachTraceManager()
 void PerfDataReader::stopParser()
 {
     m_dataFinished = true;
-    if (m_input.state() != ProcessState::NotRunning) {
+    if (m_input.isRunning()) {
         if (m_recording || future().isRunning()) {
             m_localRecordingEnd = QDateTime::currentMSecsSinceEpoch() * million;
             emit finishing();
@@ -193,14 +168,15 @@ void PerfDataReader::setRecording(bool recording)
 void PerfDataReader::timerEvent(QTimerEvent *event)
 {
     qint64 currentTime = QDateTime::currentMSecsSinceEpoch() * million;
-    if (m_input.state() != ProcessState::NotRunning) {
+    if (m_input.isRunning()) {
         // Heartbeat for the disk-spill drain, for the case where the backlog was spilled
-        // while the parser was idle: readFromProcess() only pumps us when output arrives.
+        // while the conversion was idle: readFromConversion() only pumps us when output
+        // arrives.
         if (!m_buffer.isEmpty())
             writeChunk();
 
         bool waitingForEndDelay = (m_localRecordingEnd != 0 && !m_dataFinished &&
-                m_input.processMode() == ProcessMode::Writer);
+                m_input.isLive());
         bool waitingForStartDelay = m_localRecordingStart != 0;
         qint64 endTime = (m_localRecordingEnd == 0 || waitingForEndDelay) ?
                     currentTime : m_localRecordingEnd;
@@ -245,41 +221,33 @@ bool PerfDataReader::acceptsSamples() const
     return m_recording;
 }
 
-void PerfDataReader::collectArguments(CommandLine *cmd, const QString &exe, const Kit *kit) const
+PerfConversionOptions PerfDataReader::collectOptions(const QString &exe, const Kit *kit)
 {
-    if (!exe.isEmpty()) {
-        cmd->addArg("--app");
-        cmd->addArg(exe);
-    }
+    PerfConversionOptions options;
+    if (!exe.isEmpty())
+        options.searchPaths.append(FilePath::fromUserInput(exe));
 
-#ifndef __EMSCRIPTEN__
+#ifndef QTPROFILER_WASM
     if (QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit)) {
-        cmd->addArg("--extra");
-        cmd->addArg(QString("%1%5%2%5%3%5%4")
-                     .arg(qt->libraryPath().nativePath())
-                     .arg(qt->pluginPath().nativePath())
-                     .arg(qt->hostBinPath().nativePath())
-                     .arg(qt->qmlPath().nativePath())
-                     .arg(cmd->executable().pathListSeparator()));
+        options.searchPaths << qt->libraryPath() << qt->pluginPath() << qt->hostBinPath()
+                            << qt->qmlPath();
     }
 #endif
 
     if (auto toolChain = ToolchainKitAspect::cxxToolchain(kit)) {
-        Abi::Architecture architecture = toolChain->targetAbi().architecture();
-        if (architecture == Abi::ArmArchitecture && toolChain->targetAbi().wordWidth() == 64) {
-            cmd->addArg("--arch");
-            cmd->addArg("aarch64");
-        } else if (architecture != Abi::UnknownArchitecture) {
-            cmd->addArg("--arch");
-            cmd->addArg(Abi::toString(architecture));
-        }
+        // By the names perfArchitectureFromName() knows.
+        const Abi abi = toolChain->targetAbi();
+        const bool is64Bit = abi.wordWidth() == 64;
+        if (abi.architecture() == Abi::ArmArchitecture)
+            options.architecture = is64Bit ? u"aarch64"_s : u"arm"_s;
+        else if (abi.architecture() == Abi::X86Architecture)
+            options.architecture = is64Bit ? u"x86_64"_s : u"i386"_s;
+        else if (abi.architecture() != Abi::UnknownArchitecture)
+            options.architecture = Abi::toString(abi.architecture());
     }
 
-    const FilePath sysroot = SysRootKitAspect::sysRoot(kit);
-    if (!sysroot.isEmpty()) {
-        cmd->addArg("--sysroot");
-        cmd->addArg(sysroot.nativePath());
-    }
+    options.sysroot = SysRootKitAspect::sysRoot(kit);
+    return options;
 }
 
 static bool checkedWrite(QIODevice *device, const QByteArray &input)
@@ -296,16 +264,15 @@ static bool checkedWrite(QIODevice *device, const QByteArray &input)
     return true;
 }
 
-void PerfDataReader::readFromProcess()
+void PerfDataReader::readFromConversion()
 {
-    // Utils::Process is not a QIODevice, so funnel its stdout into m_output, which the
-    // streaming reader in PerfProfilerTraceFile consumes via the QIODevice interface.
-    // ProcessOutputBuffer reclaims its memory as the reader drains it.
-    m_output.append(m_input.readAllRawStandardOutput());
+    // Funnel the converted stream into m_output, which the streaming reader in
+    // PerfProfilerTraceFile consumes via the QIODevice interface. ProcessOutputBuffer
+    // reclaims its memory as the reader drains it.
+    m_output.append(m_input.readAllOutput());
 
-    // Output means perfparser digested what we fed it, so its write queue has drained:
-    // clear the stall counter and push whatever is still spilled on disk. This also takes
-    // over the role QIODevice::bytesWritten() had in pumping the drain.
+    // Output means the conversion digested what we fed it, so its input queue has
+    // drained: clear the stall counter and push whatever is still spilled on disk.
     m_bytesSinceParserOutput = 0;
     readFromDevice();
     if (!m_buffer.isEmpty())
@@ -314,16 +281,16 @@ void PerfDataReader::readFromProcess()
 
 bool PerfDataReader::parserKeepsUp() const
 {
-    // perfparser emits trace data as it consumes its stdin, so a count that keeps growing
-    // without any output coming back means it stalled and everything we wrote since is
-    // still sitting in the process's write queue. Feed it only while it stays under the
+    // The conversion emits trace data as it consumes its input, so a count that keeps
+    // growing without any output coming back means it stalled and everything we wrote
+    // since is still sitting in its queue. Feed it only while it stays under the
     // threshold; the rest waits on disk, keeping Creator's memory bounded.
     return m_bytesSinceParserOutput < s_maxBufferSize;
 }
 
 bool PerfDataReader::writeToParser(const QByteArray &data)
 {
-    if (m_input.writeRaw(data) != data.size())
+    if (m_input.write(data) != data.size())
         return false;
 
     m_bytesSinceParserOutput += data.size();
@@ -332,11 +299,11 @@ bool PerfDataReader::writeToParser(const QByteArray &data)
 
 void PerfDataReader::writeChunk()
 {
-    // Both writeRaw() below and the write channel only exist while we feed live data.
-    if (!m_input.isRunning() || m_input.processMode() != ProcessMode::Writer)
+    // Both write() below and the write channel only exist while we feed live data.
+    if (!m_input.isRunning() || !m_input.isFed())
         return;
 
-    // Drain the spilled backlog into perfparser's stdin, but only while it keeps up.
+    // Drain the spilled backlog into the conversion, but only while it keeps up.
     while (!m_buffer.isEmpty() && parserKeepsUp()) {
         std::unique_ptr<Utils::TemporaryFile> file(m_buffer.takeFirst());
         file->reset();
@@ -345,36 +312,32 @@ void PerfDataReader::writeChunk()
             m_input.kill();
             emit finished();
             QMessageBox::warning(Core::ICore::dialogParent(),
-                                 Tr::tr("Cannot Send Data to Perf Data Parser"),
-                                 Tr::tr("The Perf data parser does not accept further input. "
-                                        "Your trace is incomplete."));
+                                 Tr::tr("Cannot Process Perf Data"),
+                                 Tr::tr("The Perf data processing does not accept further "
+                                        "input. The trace is incomplete."));
             return;
         }
     }
 
     if (!m_buffer.isEmpty()) {
-        // perfparser is not keeping up. The backlog stays on disk until it reports progress
-        // again, which pumps the drain from readFromProcess().
+        // The conversion is not keeping up. The backlog stays on disk until it reports
+        // progress again, which pumps the drain from readFromConversion().
         return;
     }
 
-    if (m_dataFinished && m_input.processMode() == ProcessMode::Writer) {
-        // Delay closing of the write channel. Closing the channel from within a write
-        // handler is dangerous on Windows.
-        QTimer::singleShot(0, &m_input, &Process::closeWriteChannel);
-    }
+    if (m_dataFinished && m_input.isFed())
+        QTimer::singleShot(0, &m_input, &PerfConversion::closeWriteChannel);
 }
 
 void PerfDataReader::clear()
 {
     // not closing the buffer here as input may arrive before createParser()
     m_input.kill();
-    // Drop parser output that arrived but was never consumed: PerfProfilerTraceFile::clear()
+    // Drop converted output that arrived but was never consumed: PerfProfilerTraceFile::clear()
     // below resets the stream version, so a stale prefix would fail the magic-header check
-    // and abort the next run with a spurious "Invalid data format". The kill() above is
-    // asynchronous, so this does not cover a tail still to be delivered via done() - both
-    // createParser() call sites start from a freshly constructed reader, which is what keeps
-    // a dying run from feeding the next one.
+    // and abort the next run with a spurious "Invalid data format". Both createParser() call
+    // sites start from a freshly constructed reader, which is what keeps a dying run from
+    // feeding the next one.
     m_output.clearData();
     m_bytesSinceParserOutput = 0;
     qDeleteAll(m_buffer);
@@ -390,9 +353,9 @@ void PerfDataReader::clear()
 
 bool PerfDataReader::feedParser(const QByteArray &input)
 {
-    // While there is no backlog and perfparser keeps up, hand data straight to its stdin.
-    // Otherwise spill to a temporary file and let writeChunk() drain it once the parser
-    // catches up, instead of piling the data up in the process's in-memory write queue.
+    // While there is no backlog and the conversion keeps up, hand data straight to it.
+    // Otherwise spill to a temporary file and let writeChunk() drain it once it catches
+    // up, instead of piling the data up in memory.
     if (m_buffer.isEmpty() && m_input.isRunning() && parserKeepsUp())
         return writeToParser(input);
 
@@ -408,26 +371,18 @@ bool PerfDataReader::feedParser(const QByteArray &input)
 
     m_buffer.append(file.release());
 
-    // Kick the drain so the freshly spilled data is flushed once the process catches up.
+    // Kick the drain so the freshly spilled data is flushed once the conversion catches up.
     writeChunk();
     return true;
 }
 
-void PerfDataReader::addTargetArguments(CommandLine *cmd, const RunControl *runControl) const
+PerfConversionOptions PerfDataReader::targetOptions(const RunControl *runControl) const
 {
     ProjectExplorer::Kit *kit = runControl->kit();
-    QTC_ASSERT(kit, return);
+    QTC_ASSERT(kit, return {});
     ProjectExplorer::BuildConfiguration *buildConfig = runControl->buildConfiguration();
     QString buildDir = buildConfig ? buildConfig->buildDirectory().toUrlishString() : QString();
-    collectArguments(cmd, buildDir, kit);
-}
-
-FilePath findPerfParser()
-{
-    FilePath filePath = FilePath::fromUserInput(qtcEnvironmentVariable("PERFPROFILER_PARSER_FILEPATH"));
-    if (filePath.isEmpty())
-        filePath = Core::ICore::libexecPath("perfparser" QTC_HOST_EXE_SUFFIX);
-    return filePath;
+    return collectOptions(buildDir, kit);
 }
 
 } // namespace Profiler::Internal

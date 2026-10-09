@@ -650,7 +650,7 @@ def getChildByClass(parent, classToSearchFor, occurrence=1):
 def getHelpViewer():
     return waitForObject("{type='QLiteHtmlWidget' unnamed='1' visible='1' "
                          "window=':Qt Creator_Core::Internal::MainWindow'}",
-                         1000)
+                         3000)
 
 def getHelpTitle():
     return str(getHelpViewer().title())
@@ -711,7 +711,7 @@ def waitForFileSaved(msg):
 
 
 def waitForClosedAll():
-    label = "{type='QLabel' text~='%s' window=':Qt Creator_Core::Internal::MainWindow'}"
+    label = "{type='QLabel' text~='%s' visible='1' unnamed='1' window=':Qt Creator_Core::Internal::MainWindow'}"
     label = label % 'Open a document.*Drag and drop files here'
     try:
         waitForObject(label, 3000)

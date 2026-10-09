@@ -145,12 +145,15 @@ QmlJsEditingSettings::QmlJsEditingSettings()
                 Column {
                     Label {
                         wordWrap(true),
+                        //: %1 is a link labeled "Link with Qt".
                         text(Tr::tr("Set the path to the Qt Design Studio application to enable "
-                                    "the \"Open in Qt Design Studio\" feature. If you have Qt "
-                                    "Design Studio installed alongside Qt Creator with the Qt "
-                                    "Online Installer, it is used as the default. Use "
-                                    "<a href=\"linkwithqt\">\"Link with Qt\"</a> to link an "
-                                    "offline installation of Qt Creator to a Qt Online Installer.")),
+                                    "the \"Open in Qt Design Studio\" feature. If Qt Design "
+                                    "Studio was installed alongside Qt Creator with the Qt "
+                                    "Online Installer, it is used by default. If Qt Creator was "
+                                    "installed separately, select %1 to link it with a Qt "
+                                    "installation from the Qt Online Installer.")
+                                 .arg("<a href=\"linkwithqt\">" + Tr::tr("Link with Qt")
+                                      + "</a>")),
                         onLinkActivated(this, [](const QString &) { openQtVersionsOptions(); })
                     },
                     Form {

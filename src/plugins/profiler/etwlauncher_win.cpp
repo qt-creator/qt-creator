@@ -66,7 +66,7 @@ Result<FilePath> recordSampleTraceElevated(const std::shared_ptr<RecordingSessio
     const FilePath outputDir = FilePath::fromString(
         tempDir.filePath("qtprofiler-sample-" + unique));
     if (!outputDir.createDir())
-        return ResultError(Tr::tr("Cannot create the trace directory %1.")
+        return ResultError(Tr::tr("Cannot create the trace directory \"%1\".")
                                .arg(outputDir.toUserOutput()));
 
     const FilePath readyFile = FilePath::fromString(
@@ -119,9 +119,10 @@ Result<FilePath> recordSampleTraceElevated(const std::shared_ptr<RecordingSessio
     if (!ShellExecuteExW(&execInfo)) {
         const DWORD error = GetLastError();
         if (error == ERROR_CANCELLED)
-            return ResultError(Tr::tr("Sampling with ETW was not allowed to run as "
-                                      "administrator."));
-        return ResultError(Tr::tr("Cannot start etwcapture-launcher.exe: error %1.").arg(error));
+            return ResultError(Tr::tr("Running ETW sampling as administrator was "
+                                      "declined."));
+        return ResultError(
+            Tr::tr("Cannot start \"etwcapture-launcher.exe\": error %1.").arg(error));
     }
 
     const HANDLE launcherProcess = execInfo.hProcess;

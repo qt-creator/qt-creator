@@ -18,6 +18,7 @@
 
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
@@ -790,7 +791,7 @@ public:
     {
         setObjectName("InlineDiffCollapsedRow"); // found by the autotest
         setCursor(Qt::PointingHandCursor);
-        setToolTip(Tr::tr("Show the hidden unchanged lines"));
+        setToolTip(Tr::tr("Shows the hidden unchanged lines."));
         // the context is painted, so make it available to screen readers and
         // to the autotest
         setAccessibleDescription(context);
@@ -1660,6 +1661,8 @@ public:
         if (readOnlySource) {
             m_diffWidget->setReadOnly(true);
             m_diffWidget->setupGenericHighlighter();
+            if (!source->syntaxHighlighter())
+                source->resetSyntaxHighlighter([] { return new SyntaxHighlighter; });
         } else {
             m_hunkControls = new HunkControls(m_diffWidget);
         }
@@ -1702,14 +1705,14 @@ public:
         m_previousChangeAction = m_toolBar->addAction(Utils::Icons::ARROW_UP_TOOLBAR.icon(),
                                                       Tr::tr("Go to Previous Change"));
         m_previousChangeAction->setObjectName("InlineDiffPreviousChangeAction"); // autotest
-        m_previousChangeAction->setToolTip(Tr::tr("Go to the closest change above the "
+        m_previousChangeAction->setToolTip(Tr::tr("Goes to the closest change above the "
                                                   "cursor."));
         connect(m_previousChangeAction, &QAction::triggered,
                 this, [this] { goToChange(/*forward=*/false); });
         m_nextChangeAction = m_toolBar->addAction(Utils::Icons::ARROW_DOWN_TOOLBAR.icon(),
                                                   Tr::tr("Go to Next Change"));
         m_nextChangeAction->setObjectName("InlineDiffNextChangeAction"); // autotest
-        m_nextChangeAction->setToolTip(Tr::tr("Go to the closest change below the cursor."));
+        m_nextChangeAction->setToolTip(Tr::tr("Goes to the closest change below the cursor."));
         connect(m_nextChangeAction, &QAction::triggered,
                 this, [this] { goToChange(/*forward=*/true); });
         connect(m_diffWidget, &PlainTextEdit::cursorPositionChanged, this, [this] {
@@ -1724,7 +1727,7 @@ public:
         m_collapseAction->setObjectName("InlineDiffCollapseAction"); // found by the autotest
         m_collapseAction->setCheckable(true);
         m_collapseAction->setChecked(collapse);
-        m_collapseAction->setToolTip(Tr::tr("Hide unchanged lines, keeping some context "
+        m_collapseAction->setToolTip(Tr::tr("Hides unchanged lines, keeping some context "
                                             "around each change."));
         m_collapseController->setEnabled(collapse);
 
@@ -1773,7 +1776,7 @@ public:
         m_whitespaceAction->setObjectName("InlineDiffIgnoreWhitespaceAction"); // autotest
         m_whitespaceAction->setCheckable(true);
         m_whitespaceAction->setChecked(m_ignoreWhitespace);
-        m_whitespaceAction->setToolTip(Tr::tr("Hide differences that consist of "
+        m_whitespaceAction->setToolTip(Tr::tr("Hides differences that consist of "
                                               "whitespace changes only."));
         connect(m_whitespaceAction, &QAction::toggled, this, [this](bool on) {
             Core::ICore::settings()->setValue(Constants::INLINE_DIFF_IGNORE_WHITESPACE_KEY, on);
@@ -1787,9 +1790,9 @@ public:
         m_patienceAction->setObjectName("InlineDiffPatienceAction"); // autotest
         m_patienceAction->setCheckable(true);
         m_patienceAction->setChecked(m_patience);
-        m_patienceAction->setToolTip(Tr::tr("Line the lines that occur only once on each "
-                                            "side up first, which keeps unrelated lines, "
-                                            "like a lone brace, from being paired up."));
+        m_patienceAction->setToolTip(Tr::tr("Aligns lines that occur only once on each side "
+                                            "first, so that unrelated lines, such as a lone "
+                                            "brace, are not paired."));
         connect(m_patienceAction, &QAction::toggled, this, [this](bool on) {
             Core::ICore::settings()->setValue(Constants::PATIENCE_KEY, on);
             m_patience = on;
@@ -1966,7 +1969,7 @@ private:
         view->setContextMenuProvider([this, view](QMenu *menu, const QTextCursor &cursor) {
             auto goToSource = new QAction(Tr::tr("Go to Source"), menu);
             goToSource->setObjectName("InlineDiffGoToSourceAction"); // autotest
-            goToSource->setToolTip(Tr::tr("Open the source file at this location."));
+            goToSource->setToolTip(Tr::tr("Opens the source file at this location."));
             goToSource->setEnabled(!sourceFilePath().isEmpty());
             connect(goToSource, &QAction::triggered, this, [this, view, cursor] {
                 openSource(view, cursor);
@@ -1975,7 +1978,7 @@ private:
 
             auto copyAsPatchAction = new QAction(Tr::tr("Copy as Patch"), menu);
             copyAsPatchAction->setObjectName("InlineDiffCopyAsPatchAction"); // autotest
-            copyAsPatchAction->setToolTip(Tr::tr("Copy the selected changes, or all of them, as "
+            copyAsPatchAction->setToolTip(Tr::tr("Copies the selected changes, or all of them, as "
                                                  "a unified diff."));
             copyAsPatchAction->setEnabled(hasChangeInLines(selectedEditorLines(view)));
             connect(copyAsPatchAction, &QAction::triggered, this, [this, view] {
@@ -2192,6 +2195,7 @@ private:
         m_baselineWidget->setTextDocument(m_baselineDocument);
         m_baselineWidget->setReadOnly(true);
         m_baselineWidget->setupGenericHighlighter();
+        m_baselineDocument->resetSyntaxHighlighter([] { return new SyntaxHighlighter; });
         m_baselineDecorator = new InlineDiffDecorator(m_baselineWidget,
                                                       InlineDiffDecorator::DiffSide::Baseline);
         setupContextMenu(m_baselineWidget);

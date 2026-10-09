@@ -26,6 +26,12 @@ private slots:
     void testClosedSourceSplitIsForgotten();
     void testTraceMovedIntoTheSourceSplitGetsANewOne();
 
+    void testEmptyTraceShowsTimeline();
+    void testTraceWithFramesStaysOnDashboard();
+    void testOtherTabIsKept();
+    void testOnlyFirstFinalizeSwitches();
+    void testNewRecordingSwitchesAgain();
+
 private:
     void selectEvent(const Utils::FilePath &source);
 

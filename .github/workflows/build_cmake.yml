@@ -250,19 +250,32 @@ jobs:
       run: |
         set(qt_version "$ENV{QT_VERSION}")
 
+        # The Qt modules are maintained in the coin instructions
+        file(STRINGS "$ENV{GITHUB_WORKSPACE}/coin/instructions/qtmodules.yaml"
+             qt_modules_line REGEX "variableValue:")
+        if (NOT qt_modules_line MATCHES "variableValue: *\"([^\"]*)\"")
+          message(FATAL_ERROR "Could not read Qt modules from coin/instructions/qtmodules.yaml")
+        endif()
+        separate_arguments(qt_modules UNIX_COMMAND "${CMAKE_MATCH_1}")
+        list(APPEND qt_modules qtwayland)
+        message("Qt modules: ${qt_modules}")
+
         string(REPLACE "." "" qt_version_dotless "${qt_version}")
         if ("${{ runner.os }}" STREQUAL "Windows")
           set(url_os "windows_x86")
           set(url_postfix "_msvc2022_64")
           set(compiler_id "win64_msvc2022_64")
+          set(archive_os "[Ww]indows")
         elseif ("${{ runner.os }}" STREQUAL "Linux")
           set(url_os "linux_x64")
           set(url_postfix "")
           set(compiler_id "linux_gcc_64")
+          set(archive_os "[Ll]inux")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(url_os "mac_x64")
           set(url_postfix "")
           set(compiler_id "clang_64")
+          set(archive_os "[Mm]ac[Oo][Ss]")
         endif()
 
         set(qt_base_url "https://\${qt_mirror}/online/qtsdkrepository/${url_os}/desktop/qt6_${qt_version_dotless}/qt6_${qt_version_dotless}${url_postfix}")
@@ -296,9 +309,14 @@ jobs:
           file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/qt/" qt_dir)
           file(APPEND "$ENV{GITHUB_OUTPUT}" "qt_dir=${qt_dir}")
 
+          # Archives are named "<module>-<os>-<...>.7z". Matching the operating
+          # system as well keeps a module from picking up the archive of another
+          # one that merely starts with the same name, such as
+          # qtwayland-compositor for qtwayland.
           function(get_sub_url outvar module)
+            set(archive_regex "${module}-${archive_os}[^,]*")
             set(filtered ${sections})
-            list(FILTER filtered INCLUDE REGEX "<DownloadableArchives>.*${module}.*</DownloadableArchives>")
+            list(FILTER filtered INCLUDE REGEX "<DownloadableArchives>.*${archive_regex}.*</DownloadableArchives>")
             list(LENGTH filtered count)
             if (count LESS 1)
               set(${outvar} "<notfound>" PARENT_SCOPE)
@@ -309,7 +327,7 @@ jobs:
             set(name ${CMAKE_MATCH_1})
             string(REGEX MATCH "<Version>(.*)</Version>" match "${section}")
             set(version ${CMAKE_MATCH_1})
-            string(REGEX MATCH "<DownloadableArchives>.*(${module}[^,]+).*</DownloadableArchives>" match "${section}")
+            string(REGEX MATCH "<DownloadableArchives>.*(${archive_regex}).*</DownloadableArchives>" match "${section}")
             set(archive ${CMAKE_MATCH_1})
             set(${outvar} "${name}/${version}${archive}" PARENT_SCOPE)
           endfunction()
@@ -344,7 +362,7 @@ jobs:
             execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "$ENV{GITHUB_WORKSPACE}/${archive}" WORKING_DIRECTORY "${qt_dir}/${subdir}")
           endfunction()
 
-          foreach(package qtbase qtdeclarative qttasktree qttools qtsvg qttranslations qtimageformats qtserialport qtquicktimeline qtquick3d qtshadertools)
+          foreach(package ${qt_modules})
             downloadAndExtract(${package} "")
           endforeach()
 
@@ -561,47 +579,77 @@ jobs:
     - name: Download ccache archive
       shell: cmake -P {0}
       run: |
-        foreach(page_id RANGE 1 10)
-          file(
-            DOWNLOAD "https://api.github.com/repos/${{ github.repository }}/actions/artifacts?per_page=100&page=${page_id}"
+        set(archive_name "${{ steps.ccache.outputs.archive_name }}")
+
+        # Listing every artifact of the repository and filtering client side
+        # makes the API fail once enough artifacts have accumulated, so let
+        # the server filter by name. The result is sorted newest first.
+        file(
+          DOWNLOAD "https://api.github.com/repos/${{ github.repository }}/actions/artifacts?name=${archive_name}&per_page=10"
+          HTTPHEADER "Accept: application/vnd.github+json"
+          HTTPHEADER "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
+          HTTPHEADER "X-GitHub-Api-Version: 2022-11-28"
+          SHOW_PROGRESS
+          STATUS download_status
+          artifacts.json)
+        list(GET download_status 0 download_status_code)
+        if(NOT download_status_code EQUAL 0)
+          list(GET download_status 1 download_status_message)
+          message(STATUS "Downloading artifacts.json failed: ${download_status_code} ${download_status_message}")
+          return()
+        endif()
+
+        file(READ artifacts.json artifacts_json)
+        string(JSON artifacts_length ERROR_VARIABLE json_error LENGTH "${artifacts_json}" "artifacts")
+        if(json_error)
+          message(STATUS "Parsing artifacts.json failed: ${json_error}")
+          message(STATUS "artifacts.json:\n${artifacts_json}")
+          return()
+        endif()
+
+        set(download_url "")
+        if(artifacts_length GREATER 0)
+          math(EXPR last_idx "${artifacts_length} - 1")
+          foreach(idx RANGE 0 ${last_idx})
+            string(JSON artifact_js GET "${artifacts_json}" "artifacts" ${idx})
+            string(JSON expired GET "${artifact_js}" "expired")
+            if(NOT expired)
+              string(JSON download_url GET "${artifact_js}" "archive_download_url")
+              break()
+            endif()
+          endforeach()
+        endif()
+
+        if("${download_url}" STREQUAL "")
+          message(STATUS "No ${archive_name} artifact available, building without a ccache archive")
+          return()
+        endif()
+
+        set(downloaded FALSE)
+        foreach(retry RANGE 10)
+          file(DOWNLOAD "${download_url}"
+            "${archive_name}.zip"
             HTTPHEADER "Accept: application/vnd.github+json"
             HTTPHEADER "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
             HTTPHEADER "X-GitHub-Api-Version: 2022-11-28"
             SHOW_PROGRESS
-            artifacts.json)
-          file(READ artifacts.json artifacts_json)
-
-          string(JSON artifacts_length LENGTH "${artifacts_json}" "artifacts")
-          math(EXPR artifacts_length "${artifacts_length} - 1")
-          if(${artifacts_length} GREATER_EQUAL 0)
-            foreach(idx RANGE 0 ${artifacts_length})
-              string(JSON artifact_js GET "${artifacts_json}" "artifacts" ${idx})
-              string(JSON name GET "${artifact_js}" "name")
-              if ("${name}" STREQUAL "${{ steps.ccache.outputs.archive_name }}")
-                string(JSON download_url GET "${artifact_js}" "archive_download_url")
-
-                foreach(retry RANGE 10)
-                  file(DOWNLOAD "${download_url}"
-                    "${{ steps.ccache.outputs.archive_name }}.zip"
-                    HTTPHEADER "Accept: application/vnd.github+json"
-                    HTTPHEADER "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
-                    HTTPHEADER "X-GitHub-Api-Version: 2022-11-28"
-                    SHOW_PROGRESS)
-                  file(SIZE "${{ steps.ccache.outputs.archive_name }}.zip" fileSize)
-                  if (fileSize GREATER 0)
-                    break()
-                  endif()
-                endforeach()
-
-                execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${{ steps.ccache.outputs.archive_name }}.zip")
-                file(MAKE_DIRECTORY .ccache)
-                execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf "../${{ steps.ccache.outputs.archive_name }}.tar" WORKING_DIRECTORY .ccache)
-
-                return()
-              endif()
-            endforeach()
+            STATUS download_status)
+          list(GET download_status 0 download_status_code)
+          file(SIZE "${archive_name}.zip" fileSize)
+          if (download_status_code EQUAL 0 AND fileSize GREATER 0)
+            set(downloaded TRUE)
+            break()
           endif()
         endforeach()
+
+        if(NOT downloaded)
+          message(STATUS "Downloading ${archive_name} failed, building without a ccache archive")
+          return()
+        endif()
+
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${archive_name}.zip")
+        file(MAKE_DIRECTORY .ccache)
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf "../${archive_name}.tar" WORKING_DIRECTORY .ccache)
     - name: Build
       shell: cmake -P {0}
       run: |

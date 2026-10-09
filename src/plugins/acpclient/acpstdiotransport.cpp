@@ -10,6 +10,8 @@
 
 #include <QLoggingCategory>
 
+#include <algorithm>
+
 static Q_LOGGING_CATEGORY(logStdio, "qtc.acpclient.stdio", QtWarningMsg);
 
 using namespace Utils;
@@ -52,7 +54,9 @@ void AcpStdioTransport::start()
         m_process->deleteLater(); // avoid crash if this get's called from a slot handling a process signal
     }
 
-    m_stderrBuffer.clear();
+    m_stderrTail.clear();
+    m_stderrDecoder.resetState();
+    resetProtocolState();
 
     FilePath executable = m_cmd.executable();
     if (executable.isEmpty()) {
@@ -84,15 +88,22 @@ void AcpStdioTransport::start()
 
     connect(m_process, &Process::readyReadStandardOutput, this, &AcpStdioTransport::readOutput);
     connect(m_process, &Process::readyReadStandardError, this, &AcpStdioTransport::readError);
-    connect(m_process, &Process::started, this, &AcpTransport::started);
+    connect(m_process, &Process::started, this, [this] {
+        setAcceptsConsoleInput(true);
+        emit started();
+    });
     connect(m_process, &Process::done, this, [this] {
-        if (!m_expectStop && m_process->result() != ProcessResult::FinishedWithSuccess) {
+        setAcceptsConsoleInput(false);
+        // Once the input was closed the connection has been reported as failed
+        // already, and a server usually exits on the end of its input.
+        const bool reportExit = !m_expectStop && !isInputClosed();
+        if (reportExit && m_process->result() != ProcessResult::FinishedWithSuccess) {
             qCWarning(logStdio) << "Process finished with error:" << m_cmd.toUserOutput();
-            QString msg = m_process->exitMessage();
-            const QString stderrText = m_stderrBuffer.trimmed();
-            if (!stderrText.isEmpty())
-                msg += QStringLiteral("\n\n%1").arg(stderrText);
-            emit errorOccurred(msg);
+            emit errorOccurred(exitMessageWithStderr(m_process->exitMessage()));
+        } else if (reportExit && !hasReceivedMessage()) {
+            // A clean exit is still a failure when the server never answered.
+            emit errorOccurred(exitMessageWithStderr(
+                Tr::tr("The server exited before it answered.")));
         }
         m_expectStop = false;
         emit finished();
@@ -119,6 +130,19 @@ void AcpStdioTransport::stop()
     }
     delete m_process;
     m_process = nullptr;
+    setAcceptsConsoleInput(false);
+}
+
+void AcpStdioTransport::sendConsoleInput(const QByteArray &data)
+{
+    if (m_process && m_process->state() == ProcessState::Running)
+        m_process->writeRaw(data);
+}
+
+void AcpStdioTransport::endConsoleInput()
+{
+    if (m_process && m_process->state() == ProcessState::Running)
+        m_process->closeWriteChannel();
 }
 
 void AcpStdioTransport::sendData(const QByteArray &data)
@@ -132,10 +156,7 @@ void AcpStdioTransport::sendData(const QByteArray &data)
         QString msg = Tr::tr("Cannot send data: process \"%1\" is not running (exit code %2).")
                           .arg(m_cmd.toUserOutput())
                           .arg(m_process->exitCode());
-        const QString stderrText = m_stderrBuffer.trimmed();
-        if (!stderrText.isEmpty())
-            msg += QStringLiteral("\n\n%1").arg(stderrText);
-        emit errorOccurred(msg);
+        emit errorOccurred(exitMessageWithStderr(msg));
         return;
     }
     m_process->writeRaw(data);
@@ -153,14 +174,54 @@ void AcpStdioTransport::readError()
     if (!m_process)
         return;
     const QByteArray data = m_process->readAllRawStandardError();
-    const QString text = QString::fromUtf8(data);
+    const QString text = m_stderrDecoder.decode(data);
     qCDebug(logStdio) << "stderr:" << data;
 
-    // Keep a bounded buffer of recent stderr for inclusion in error messages
-    m_stderrBuffer += text;
-    static constexpr int kMaxStderrBuffer = 4096;
-    if (m_stderrBuffer.size() > kMaxStderrBuffer)
-        m_stderrBuffer = m_stderrBuffer.right(kMaxStderrBuffer);
+    emit consoleOutput(data);
+
+    m_stderrTail.append(text);
+}
+
+QString AcpStdioTransport::exitMessageWithStderr(const QString &message) const
+{
+    const QString stderrText = m_stderrTail.text().trimmed();
+    if (stderrText.isEmpty())
+        return message;
+    return QStringLiteral("%1\n\n%2").arg(message, stderrText);
+}
+
+void StderrTail::append(const QString &text)
+{
+    enum { MaxSize = 4096 };
+
+    for (const QChar c : text) {
+        if (m_pendingCarriageReturn) {
+            m_pendingCarriageReturn = false;
+            if (c != '\n')
+                m_text.truncate(m_lineStart);
+        }
+        if (c == '\r') {
+            m_pendingCarriageReturn = true;
+        } else if (c == '\n') {
+            m_text += c;
+            m_lineStart = m_text.size();
+        } else {
+            m_text += c;
+        }
+    }
+
+    if (m_text.size() > MaxSize) {
+        const int dropped = m_text.size() - MaxSize;
+        m_text = m_text.right(MaxSize);
+        m_lineStart = std::max(0, m_lineStart - dropped);
+    }
+}
+
+void StderrTail::clear()
+{
+    m_text.clear();
+    m_lineStart = 0;
+    m_pendingCarriageReturn = false;
 }
 
 } // namespace AcpClient::Internal

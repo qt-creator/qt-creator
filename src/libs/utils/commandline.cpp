@@ -260,11 +260,12 @@ static QStringList splitArgsWin(const QString &_args, bool abortOnMeta,
 {
     if (abortOnMeta) {
         ProcessArgs::SplitError perr;
-        if (!err)
-            err = &perr;
         QString args = prepareArgsWin(_args, &perr, env, pwd);
-        if (*err != ProcessArgs::SplitOk)
+        if (perr != ProcessArgs::SplitOk) {
+            if (err)
+                *err = perr;
             return {};
+        }
         return doSplitArgsWin(args, err);
     } else {
         QString args = _args;

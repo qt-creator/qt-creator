@@ -1,0 +1,3 @@
+convertToStackVariable() only unwraps a "new Foo(...)" initializer; any
+other shape (here "&local") is left untouched while the declarator's "*" is
+still removed, producing "Foo f = &local;", which does not compile.

@@ -13,7 +13,9 @@
 #include "timelinezoomcontrol.h"
 #include "timeruler.h"
 #include "tracklabels.h"
+#ifndef Q_OS_WASM
 #include "trackpaintergpu.h"
+#endif
 #include "trackpainterraster.h"
 
 #include <utils/stylehelper.h>
@@ -334,7 +336,8 @@ static QPoint wheelPixelDelta(const QWheelEvent *event, int lineHeight)
 {
     if (!event->pixelDelta().isNull())
         return event->pixelDelta();
-    return event->angleDelta() * QApplication::wheelScrollLines() * lineHeight / 120;
+    return event->angleDelta() * QApplication::wheelScrollLines() * lineHeight
+           / double(QWheelEvent::DefaultDeltasPerStep);
 }
 
 bool TimelineContentWidget::eventFilter(QObject *watched, QEvent *event)
@@ -369,11 +372,17 @@ void TimelineContentWidget::handleWheel(QWheelEvent *event)
     // which Qt for WebAssembly passes on as Qt::MetaModifier on macOS.
     if (event->modifiers() & (Qt::ControlModifier | Qt::MetaModifier)) {
         const QPoint pixelDelta = event->pixelDelta();
-        const int dy = pixelDelta.y() != 0 ? pixelDelta.y() : event->angleDelta().y() / 8;
+        const int angleDeltaUnitsPerDegree = 8;
+        const int dy = pixelDelta.y() != 0 ? pixelDelta.y()
+                                           : event->angleDelta().y() / angleDeltaUnitsPerDegree;
         // dy > 0 = scroll up = zoom in (shrink range); dy < 0 = zoom out
         if (dy != 0) {
+            // The factor compounds per step, so a large dy zooms by a large factor in one event.
+            const double zoomFactorPerWheelStep = 1.2;
+            const double wheelDeltaPerStep = double(QWheelEvent::DefaultDeltasPerStep)
+                                             / angleDeltaUnitsPerDegree;
             applyZoom(m_tracksWidget->mapFromGlobal(event->globalPosition()).x(),
-                      std::pow(1.2, double(-dy) / 15.0));
+                      std::pow(zoomFactorPerWheelStep, double(-dy) / wheelDeltaPerStep));
         }
         return;
     }
@@ -486,14 +495,17 @@ void TimelineContentWidget::activateTrackView(TrackBackend backend)
     QWidget *viewport = m_scrollArea->viewport();
     QWidget *previous = m_tracksWidget;
 
-    if (backend == TrackBackend::Software) {
+    // Without a GPU backend the software one is all there is, whatever is asked for.
+    if (backend == TrackBackend::Software || !hasGpuTrackBackend()) {
         if (!m_rasterView) {
             m_rasterView = new TrackPainterRaster(viewport);
             wireTrackView(m_rasterView);
         }
         m_tracksView = m_rasterView;
         m_tracksWidget = m_rasterView;
-    } else {
+    }
+#ifndef Q_OS_WASM
+    else {
         if (!m_gpuView) {
             m_gpuView = new TrackPainterGpu(viewport);
             wireTrackView(m_gpuView);
@@ -501,6 +513,7 @@ void TimelineContentWidget::activateTrackView(TrackBackend backend)
         m_tracksView = m_gpuView;
         m_tracksWidget = m_gpuView;
     }
+#endif
 
     m_tracksWidget->resize(viewport->size());
     m_tracksWidget->show();

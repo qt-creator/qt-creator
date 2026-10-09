@@ -31,7 +31,8 @@ CombinedSamplerSettings::CombinedSamplerSettings()
     setSettingsGroup("CombinedSampler");
 
     intervalUs.setSettingsKey("IntervalUs");
-    intervalUs.setLabelText(Tr::tr("Sample interval (µs):"));
+    //: micro seconds
+    intervalUs.setLabelText(Tr::tr("Sample interval (\xc2\xb5s):"));
     intervalUs.setRange(0, 1000000); // 0 = as fast as possible.
     intervalUs.setDefaultValue(200);
 
@@ -53,15 +54,51 @@ CombinedSamplerSettings::CombinedSamplerSettings()
         for (BoolAspect *aspect : std::as_const(featureAspects))
             features.addItem(*aspect);
 
+        Column cpuOptions;
+        if (m_perfSamplerSettings)
+            cpuOptions.addItem(m_perfSamplerSettings->createOptionsWidget());
+        else
+            cpuOptions.addItem(Row { intervalUs, st });
+
         return Column {
             executable,
             arguments,
             workingDirectory,
-            Layouting::Group { title(Tr::tr("CPU Sampler")), Column { Row { intervalUs, st } } },
+            Layouting::Group { title(Tr::tr("CPU Sampler")), cpuOptions },
             Layouting::Group { title(Tr::tr("QML Profiler")), Column { features } },
             noMargin,
         };
     });
+}
+
+void CombinedSamplerSettings::setPerfSamplerSettings(PerfSamplerSettings *settings)
+{
+    m_perfSamplerSettings = settings;
+    if (m_perfSamplerSettings) {
+        m_perfSamplerSettings->setSettingsGroup("CombinedSamplerPerfSampler");
+        m_perfSamplerSettings->perfSettings.setSettingsGroup("CombinedSamplerPerfSettings");
+    }
+    updateOptionsEnabled();
+}
+
+void CombinedSamplerSettings::readSettings()
+{
+    SamplerSettings::readSettings();
+    if (m_perfSamplerSettings)
+        m_perfSamplerSettings->readSettings();
+}
+
+void CombinedSamplerSettings::writeSettings() const
+{
+    SamplerSettings::writeSettings();
+    if (m_perfSamplerSettings)
+        m_perfSamplerSettings->writeSettings();
+}
+
+void CombinedSamplerSettings::updateOptionsEnabled()
+{
+    if (m_perfSamplerSettings)
+        m_perfSamplerSettings->setOptionsChosenElsewhere(optionsChosenElsewhere());
 }
 
 quint64 CombinedSamplerSettings::requestedFeatures() const
@@ -100,14 +137,8 @@ CombinedSampler::CombinedSampler()
     else if (HostOsInfo::isLinuxHost())
         m_native = std::make_unique<PerfSampler>();
 
-    // Only the top-level backends' settings are loaded (see the qtprofiler
-    // window), so whatever a sub-capture reads from its own settings rather
-    // than from the session -- the perf record arguments, the debuginfod
-    // toggle -- would stay at its default here.
-    if (m_native) {
-        if (SamplerSettings *nativeSettings = m_native->settings())
-            nativeSettings->readSettings();
-    }
+    if (m_native)
+        m_settings->setPerfSamplerSettings(qobject_cast<PerfSamplerSettings *>(m_native->settings()));
 }
 
 CombinedSampler::~CombinedSampler() = default;
@@ -127,6 +158,11 @@ bool CombinedSampler::isAvailable(QString *error) const
     if (!m_native->isAvailable(error))
         return false;
     return m_qml->isAvailable(error);
+}
+
+bool CombinedSampler::isOffered() const
+{
+    return m_native && m_native->isOffered() && m_qml->isOffered();
 }
 
 SamplerSettings *CombinedSampler::settings() const
@@ -176,7 +212,7 @@ static void assembleBundle(const std::shared_ptr<RecordingSession> &parent,
 
     const FilePath bundlePath = uniqueTracePath("qtprofiler-combined"_L1);
     if (!bundlePath.createDir()) {
-        fail(Tr::tr("Cannot create the combined trace directory %1.")
+        fail(Tr::tr("Cannot create the combined trace directory \"%1\".")
                  .arg(bundlePath.toUserOutput()));
         return;
     }

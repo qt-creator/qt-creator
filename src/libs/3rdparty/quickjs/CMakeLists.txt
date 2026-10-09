@@ -31,3 +31,6 @@ add_qtc_library(quickjsng
 )
 
 extend_qtc_library(quickjsng CONDITION WIN32 DEFINES WIN32_LEAN_AND_MEAN)
+# Qt for WebAssembly passes its flags, like -pthread for a multithreaded Qt,
+# only to what links Qt::Platform.
+extend_qtc_library(quickjsng CONDITION EMSCRIPTEN DEPENDS Qt::Platform)

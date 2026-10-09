@@ -637,6 +637,18 @@ OrderedItemDetails TimelineModel::orderedDetails(int index) const
     return result;
 }
 
+/*!
+    Returns the text shown inside the bar of the item with the ID \a index when
+    it is wide enough. It is queried while painting, so it should be cheap to
+    compute. The default implementation returns an empty string, which shows no
+    label.
+*/
+QString TimelineModel::itemLabel(int index) const
+{
+    Q_UNUSED(index)
+    return {};
+}
+
 void TimelineModel::navigateToDetail(int itemIndex, int detailRow)
 {
     Q_UNUSED(itemIndex)
@@ -653,6 +665,16 @@ int TimelineModel::collapsedRow(int index) const
 {
     Q_UNUSED(index)
     return 0;
+}
+
+/*!
+    Returns whether the rows of this model are its selection ids: whether every
+    row holds exactly one of them and every one of them has a row of its own.
+    The default is false, for the models whose rows mean something else.
+*/
+bool TimelineModel::rowsAreSelectionIds() const
+{
+    return false;
 }
 
 /*!

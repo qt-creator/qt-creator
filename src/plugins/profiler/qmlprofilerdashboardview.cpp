@@ -6,8 +6,8 @@
 #include "profilertr.h"
 #include "qmlprofilerdashboardstats.h"
 #include "qmlprofilerfindingsmodel.h"
+#include "qmlprofilermodelmanager.h"
 
-#include <utils/elidinglabel.h>
 #include <utils/icon.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
@@ -337,22 +337,6 @@ void Gauge::paintEvent(QPaintEvent *event)
     QWidget::paintEvent(event);
 }
 
-constexpr TextFormat findingTf {
-    .themeColor = Theme::Token_Text_Default,
-    .uiElement = UiElementBody2,
-};
-
-constexpr TextFormat findingDetailTf {
-    .themeColor = Theme::Token_Text_Muted,
-    .uiElement = findingTf.uiElement,
-};
-
-constexpr TextFormat findingMetricsTf {
-    .themeColor = findingDetailTf.themeColor,
-    .uiElement = UiElementCaption,
-    .drawTextFlags = Qt::AlignRight | Qt::TextDontClip,
-};
-
 constexpr int findingIconSize = 24;
 
 static InfoLabelType infoType(Finding::Severity severity)
@@ -381,13 +365,6 @@ static QString findingMetrics(const QModelIndex &index)
     if (occurrences > 0)
         metrics.append(Tr::tr("%n occurrence(s)", nullptr, occurrences));
     return metrics.join(", ");
-}
-
-// Selectable text swallows the clicks that activate a finding, so the header opts out.
-static void applyHeaderTf(QLabel *label, const TextFormat &tf)
-{
-    applyTf(label, tf, false);
-    label->setTextInteractionFlags(Qt::NoTextInteraction);
 }
 
 class FindingHeader : public QWidget
@@ -457,8 +434,6 @@ private:
     QPersistentModelIndex m_index;
     QLabel *m_icon = nullptr;
     QLabel *m_finding = nullptr;
-    ElidingLabel *m_location = nullptr;
-    QLabel *m_metrics = nullptr;
     QLabel *m_details = nullptr;
 };
 
@@ -469,19 +444,12 @@ FindingItemWidget::FindingItemWidget(QWidget *parent)
     m_icon->setFixedSize(findingIconSize, findingIconSize);
 
     m_finding = new QLabel;
-    applyHeaderTf(m_finding, findingTf);
+    m_finding->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+    m_finding->setTextInteractionFlags(Qt::NoTextInteraction);
     m_finding->setWordWrap(true);
-    m_finding->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-
-    m_location = new ElidingLabel;
-    m_location->setElideMode(Qt::ElideMiddle);
-    applyHeaderTf(m_location, findingDetailTf);
-
-    m_metrics = new QLabel;
-    applyHeaderTf(m_metrics, findingMetricsTf);
 
     m_details = new QLabel;
-    applyTf(m_details, findingDetailTf, false);
+    m_details->setTextInteractionFlags(Qt::TextBrowserInteraction);
     m_details->setWordWrap(true);
 
     auto header = new FindingHeader;
@@ -492,34 +460,24 @@ FindingItemWidget::FindingItemWidget(QWidget *parent)
 
     using namespace Layouting;
     Row {
-        customMargins(SpacingTokens::PaddingHM, SpacingTokens::PaddingVM,
-                      SpacingTokens::PaddingHM, SpacingTokens::PaddingVM),
-        spacing(SpacingTokens::GapVM),
+        customMargins(0, SpacingTokens::PaddingVS, 0, SpacingTokens::PaddingVS),
+        m_finding,
+    }.attachTo(header);
+
+    Row {
+        customMargins(0, 0,
+                      SpacingTokens::PaddingHS, SpacingTokens::PaddingVS),
+        spacing(0),
         Column {
-            customMargins(0, SpacingTokens::PaddingVXxs, 0, 0),
+            customMargins(SpacingTokens::PaddingHS, SpacingTokens::PaddingVS,
+                          SpacingTokens::PaddingHS, SpacingTokens::PaddingVS),
             m_icon,
             st,
         },
         Column {
-            noMargin,
-            spacing(SpacingTokens::GapVXs),
-            Row {
-                m_location,
-                m_metrics,
-            },
-            m_finding,
-        },
-    }.attachTo(header);
-
-    Column {
-        customMargins(0, SpacingTokens::PaddingVS, 0, SpacingTokens::PaddingVM),
-        spacing(0),
-        header,
-        Row {
-            customMargins(SpacingTokens::GapHM + findingIconSize + SpacingTokens::GapHM, 0,
-                          SpacingTokens::GapHM, 0),
+            header,
             m_details,
-        }
+        },
     }.attachTo(this);
 
     QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -537,22 +495,41 @@ void FindingItemWidget::setFinding(const QModelIndex &index)
     const QIcon icon = Utils::infoTypeIconLarge(infoType(severity)).icon();
     m_icon->setPixmap(icon.pixmap(QSize(findingIconSize, findingIconSize), devicePixelRatioF()));
 
-    m_finding->setText(
-        index.siblingAtColumn(QmlProfilerFindingsModel::ColumnFinding).data().toString());
-    m_location->setText(
-        index.siblingAtColumn(QmlProfilerFindingsModel::ColumnLocation).data().toString());
-    m_metrics->setText(findingMetrics(index));
+    const QString captionFontCss = fontToCssProperties(uiFont(UiElementCaption));
+    const QString captionStrongFontCss = fontToCssProperties(uiFont(UiElementCaptionStrong));
 
-    QStringList details;
+    auto styledSpanHtml = [](const QString &style, const QString &text) {
+        return QString("<span style=\"%1\">%2</span>").arg(style, text.toHtmlEscaped());
+    };
+
+    auto titleAndDescriptionHtml = [&](const QString &title, const QString &description) {
+        return styledSpanHtml(captionStrongFontCss, title) + " "
+               + styledSpanHtml(captionFontCss, description);
+    };
+
+    const QString location = index.siblingAtColumn(QmlProfilerFindingsModel::ColumnLocation)
+                                 .data().toString();
+    const QString finding = index.siblingAtColumn(QmlProfilerFindingsModel::ColumnFinding)
+                                .data().toString();
+    const QString findingHtml = QString("<table width=\"100%\">"
+                                        "<tr><td>%1</td><td align=\"right\">%2</td></tr>"
+                                        "</table>")
+                                    .arg(titleAndDescriptionHtml(finding, location),
+                                         styledSpanHtml(captionFontCss, findingMetrics(index)));;
+    m_finding->setText(findingHtml);
+
     const QString why = index.data(QmlProfilerFindingsModel::WhyRole).toString();
-    if (!why.isEmpty())
-        details.append(Tr::tr("Why: %1").arg(why));
     const QString suggestion = index.data(QmlProfilerFindingsModel::SuggestionRole).toString();
+    QStringList detailsHtml;
+    if (!why.isEmpty())
+        detailsHtml.append(titleAndDescriptionHtml(Tr::tr("Why:"), why));
     if (!suggestion.isEmpty())
-        details.append(Tr::tr("Suggestion: %1").arg(suggestion));
-    const bool hasDetails = !details.isEmpty();
+        detailsHtml.append(titleAndDescriptionHtml(Tr::tr("Suggestion:"), suggestion));
+    const bool hasDetails = !detailsHtml.isEmpty();
     if (hasDetails)
-        m_details->setText("<p>" + details.join("</p><p>") + "</p>");
+        m_details->setText("<table width=\"100%\"><tr><td>"
+                           + detailsHtml.join("<br/>")
+                           + "</td></tr></table>");
     m_details->setVisible(hasDetails);
 }
 
@@ -569,7 +546,7 @@ signals:
 private:
     void updateFindings();
 
-    const int m_maxVisibleFindings = 10;
+    const int m_maxVisibleFindings = 5;
     QmlProfilerFindingsModel *m_model = nullptr;
     QList<FindingItemWidget *> m_findingsWidgets;
 };
@@ -582,7 +559,7 @@ FindingsView::FindingsView(QmlProfilerFindingsModel *model, QWidget *parent)
 
     using namespace Layouting;
     Column column {
-        customMargins(0, 0, 0, 0),
+        noMargin,
         spacing(QtcSeparatedItemsWidget::separatorLineWidth()),
     };
     for (int i = 0; i < m_maxVisibleFindings; ++i) {
@@ -618,6 +595,11 @@ class QmlProfilerDashboardViewPrivate : public QObject
 public:
     QmlProfilerDashboardViewPrivate(QObject *parent = nullptr);
 
+    bool hasData() const;
+    void updateVisibility();
+
+    bool isFirstFinalize = true;
+
     QmlProfilerDashboardStats *stats = nullptr;
 
     Category *overallRating = nullptr;
@@ -645,12 +627,26 @@ public:
     QLabel *findingsTitle = nullptr;
     QmlProfilerFindingsModel *findingsModel = nullptr;
     FindingsView *findingsView = nullptr;
+    QWidget *statsSection = nullptr;
     QtcRectangleWidget *findingsSection = nullptr;
+    QWidget *noDataAvailableSection = nullptr;
 };
 
 QmlProfilerDashboardViewPrivate::QmlProfilerDashboardViewPrivate(QObject *parent)
     : QObject(parent)
 {
+}
+
+bool QmlProfilerDashboardViewPrivate::hasData() const
+{
+    return stats->hasData() || findingsModel->rowCount() > 0;
+}
+
+void QmlProfilerDashboardViewPrivate::updateVisibility()
+{
+    statsSection->setVisible(stats->hasData());
+    findingsSection->setVisible(findingsModel->rowCount() > 0);
+    noDataAvailableSection->setVisible(!hasData());
 }
 
 QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *manager,
@@ -659,8 +655,10 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     , d(new QmlProfilerDashboardViewPrivate(this))
 {
     d->stats = new QmlProfilerDashboardStats(manager, d);
-    connect(d->stats, &QmlProfilerDashboardStats::changed,
-            this, &QmlProfilerDashboardView::updateValues);
+    connect(d->stats, &QmlProfilerDashboardStats::changed, this, [this] {
+        d->updateVisibility();
+        updateValues();
+    });
 
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::Base);
@@ -671,18 +669,26 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     // Performance Rating
     d->overallRating = new Category(
         Tr::tr("Performance Rating"),
-        Tr::tr("Overall technical rating for your application performance"),
+        Tr::tr("Overall technical rating of the application performance"),
         Large);
 
 
-    // FPS Rate
-    d->gaugeTitle = new QLabel(Tr::tr("FPS Rate"));
+    // No data
+    QLabel *noDataText = new QLabel(
+        Tr::tr("There is nothing to show.\n"
+               "Either no trace has been taken, or it contains no animation events or findings."));
+    applyTf(noDataText, textTf, false);
+    noDataText->setWordWrap(true);
+
+
+    // Frame Rate
+    d->gaugeTitle = new QLabel(Tr::tr("Frame Rate"));
     applyTf(d->gaugeTitle, titleTf);
     d->gauge = new Gauge;
     d->gauge->setFixedSize(110, 110);
     d->gauge->setUnit("%");
     d->gaugeText = new QLabel(
-        Tr::tr("%1+ FPS Rate (Steady-State)").arg(qRound(kDisplayRefreshRate)));
+        Tr::tr("%1+ FPS (Steady State)").arg(qRound(kDisplayRefreshRate)));
     applyTf(d->gaugeText, textTf);
 
 
@@ -693,7 +699,7 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     d->framesOnTargetBadge = new QtcBadge;
     d->framesOnTargetBadge->setInfoType(Utils::InfoLabelType::Ok);
     d->framesOnTargetLabel = new QLabel(
-        Tr::tr("On target (%1+ FPS (<=%2ms))")
+        Tr::tr("On Target (%1+ FPS, <= %2 ms)")
             .arg(qRound(kDisplayRefreshRate))
             .arg(kOnTargetFrameTimeMs, 0, 'f', 1));
     applyTf(d->framesOnTargetLabel, textFrameAnalysisTf);
@@ -701,7 +707,7 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     d->framesNearTargetBadge = new QtcBadge;
     d->framesNearTargetBadge->setInfoType(Utils::InfoLabelType::Warning);
     d->framesNearTargetLabel = new QLabel(
-        Tr::tr("Near Target (%1-%2ms)")
+        Tr::tr("Near Target (%1-%2 ms)")
             .arg(kOnTargetFrameTimeMs, 0, 'f', 1)
             .arg(kNearTargetFrameTimeMs, 0, 'f', 1));
     applyTf(d->framesNearTargetLabel, textFrameAnalysisTf);
@@ -709,34 +715,34 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     d->framesFailedBadge = new QtcBadge;
     d->framesFailedBadge->setInfoType(Utils::InfoLabelType::NotOk);
     d->framesFailedLabel = new QLabel(
-        Tr::tr("Failed (<%1 FPS (>%2ms))")
+        Tr::tr("Failed (< %1 FPS, > %2 ms)")
             .arg(qRound(1000.0 / kNearTargetFrameTimeMs))
             .arg(kNearTargetFrameTimeMs, 0, 'f', 1));
     applyTf(d->framesFailedLabel, textFrameAnalysisTf);
 
     d->framesText = new QLabel(
-        Tr::tr("%1+ FPS Rate (Steady-State)").arg(qRound(kDisplayRefreshRate)));
+        Tr::tr("%1+ FPS (Steady State)").arg(qRound(kDisplayRefreshRate)));
     applyTf(d->framesText, textTf);
 
 
-    // Multifactor performance analysis
-    d->categoriesTitle = new QLabel(Tr::tr("Multifactor performance analysis"));
+    // Multi-factor Performance Analysis
+    d->categoriesTitle = new QLabel(Tr::tr("Multifactor Performance Analysis"));
     applyTf(d->categoriesTitle, titleTf);
 
     d->uiResponsiveness = new Category(
         Tr::tr("UI Responsiveness"),
-        Tr::tr("Percentage of frames within P95 threshold for smooth UI interactions"));
+        Tr::tr("Percentage of frames within the P95 threshold for smooth UI interactions"));
     d->frameConsistency = new Category(
         Tr::tr("Frame Consistency"),
         Tr::tr("Frame time variation (lower is better for smooth animations)"));
     d->stutterPrevention = new Category(
         Tr::tr("Stutter Prevention"),
-        Tr::tr("Frames slower than %1 FPS (%2ms) cause noticeable UI freezes")
+        Tr::tr("Frames slower than %1 FPS (%2 ms) cause noticeable UI freezes")
             .arg(qRound(kStutterFps))
             .arg(kStutterFrameTimeMs, 0, 'f', 1));
     d->p99Quality = new Category(
         Tr::tr("P99 Quality"),
-        Tr::tr("99th percentile frame time ensures consistent experience"));
+        Tr::tr("99th percentile frame time ensures a consistent experience"));
     d->startupSpeed = new Category(
         Tr::tr("Startup Speed"),
         Tr::tr("Frames until reaching steady-state performance"));
@@ -753,8 +759,21 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     // An empty findings card would read as a broken one, so the section only exists once
     // the trace has produced findings.
     connect(d->findingsModel, &QAbstractItemModel::modelReset, this, [this] {
-        d->findingsSection->setVisible(d->findingsModel->rowCount() > 0);
+        d->updateVisibility();
         d->findingsView->updateGeometry();
+    });
+
+    // Registered after the stats and the findings, so that both have settled.
+    manager->registerFeatures(0, {}, [this] {
+        if (!d->isFirstFinalize)
+            return;
+        d->isFirstFinalize = false;
+        if (!d->hasData())
+            emit noDataShown();
+    }, {});
+    // Not in the clearer: restrictByFilter() runs it, too, without starting a new trace.
+    connect(manager, &QmlProfilerModelManager::eventsCleared, this, [this] {
+        d->isFirstFinalize = true;
     });
 
     connect(d->findingsView, &FindingsView::activated,
@@ -794,59 +813,71 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
                 customMargins(SpacingTokens::GapVXxl, SpacingTokens::GapVXxl,
                               SpacingTokens::GapVXxl, SpacingTokens::GapVXxl),
                 spacing(SpacingTokens::GapVXxl),
-                Row {
-                    QtDesignWidgets::Rectangle {
-                        fillBrush(rectFillBrush),
-                        strokePen(rectStrokePen),
-                        Column {
-                            d->overallRating,
-                            st,
-                        },
-                    },
-                    QtDesignWidgets::Rectangle {
-                        fillBrush(rectFillBrush),
-                        strokePen(rectStrokePen),
-                        Column {
-                            spacing(0),
-                            d->gaugeTitle,
-                            Space(SpacingTokens::GapVL),
-                            Row { st, d->gauge, st },
-                            d->gaugeText,
-                        },
-                    },
-                    QtDesignWidgets::Rectangle {
-                        fillBrush(rectFillBrush),
-                        strokePen(rectStrokePen),
-                        Column {
-                            spacing(SpacingTokens::GapVL),
-                            d->framesTitle,
-                            Row { st, framesGrid, st },
-                            d->framesText,
-                            st,
-                        },
+                Widget {
+                    bindTo(&d->noDataAvailableSection),
+                    Column {
+                        noMargin,
+                        noDataText,
                     },
                 },
-                Row {
-                    QtDesignWidgets::Rectangle {
-                        fillBrush(rectFillBrush),
-                        strokePen(rectStrokePen),
-                        Column {
-                            spacing(SpacingTokens::GapVXl),
-                            d->categoriesTitle,
-                            QtDesignWidgets::SeparatedItems {
-                                separatorInset(0),
-                                Row {
-                                    noMargin,
-                                    spacing(2 * SpacingTokens::GapHXl
-                                            + QtcSeparatedItemsWidget::separatorLineWidth()),
-                                    d->uiResponsiveness,
-                                    d->frameConsistency,
-                                    d->stutterPrevention,
-                                    d->p99Quality,
-                                    d->startupSpeed,
+                Widget {
+                    bindTo(&d->statsSection),
+                    Column {
+                        noMargin,
+                        spacing(SpacingTokens::GapVXxl),
+                        Row {
+                            QtDesignWidgets::Rectangle {
+                                fillBrush(rectFillBrush),
+                                strokePen(rectStrokePen),
+                                Column {
+                                    d->overallRating,
+                                    st,
                                 },
                             },
-                        }
+                            QtDesignWidgets::Rectangle {
+                                fillBrush(rectFillBrush),
+                                strokePen(rectStrokePen),
+                                Column {
+                                    spacing(0),
+                                    d->gaugeTitle,
+                                    Space(SpacingTokens::GapVL),
+                                    Row { st, d->gauge, st },
+                                    d->gaugeText,
+                                },
+                            },
+                            QtDesignWidgets::Rectangle {
+                                fillBrush(rectFillBrush),
+                                strokePen(rectStrokePen),
+                                Column {
+                                    spacing(SpacingTokens::GapVL),
+                                    d->framesTitle,
+                                    Row { st, framesGrid, st },
+                                    d->framesText,
+                                    st,
+                                },
+                            },
+                        },
+                        QtDesignWidgets::Rectangle {
+                            fillBrush(rectFillBrush),
+                            strokePen(rectStrokePen),
+                            Column {
+                                spacing(SpacingTokens::GapVXl),
+                                d->categoriesTitle,
+                                QtDesignWidgets::SeparatedItems {
+                                    separatorInset(0),
+                                    Row {
+                                        noMargin,
+                                        spacing(2 * SpacingTokens::GapHXl
+                                                + QtcSeparatedItemsWidget::separatorLineWidth()),
+                                        d->uiResponsiveness,
+                                        d->frameConsistency,
+                                        d->stutterPrevention,
+                                        d->p99Quality,
+                                        d->startupSpeed,
+                                    },
+                                },
+                            }
+                        },
                     },
                 },
                 st,
@@ -867,8 +898,7 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
         },
     }.attachTo(this);
 
-    d->findingsSection->setVisible(d->findingsModel->rowCount() > 0);
-
+    d->updateVisibility();
     updateValues();
 }
 

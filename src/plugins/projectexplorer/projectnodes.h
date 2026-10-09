@@ -344,6 +344,12 @@ public:
     void setShowWhenEmpty(bool showWhenEmpty);
 
     void addNode(std::unique_ptr<Node> &&node);
+    std::unique_ptr<Node> takeNode(Node *node);
+
+    // replaceSubtree() reports every node it touches on its own, and each report walks
+    // and sorts the whole project. A caller that changes several children with
+    // addNode() and takeNode() reports them as one change with this instead.
+    void notifySubtreeChanged();
 
     bool isEmpty() const;
 
@@ -357,7 +363,6 @@ protected:
     QList<LocationInfo> m_locations;
 
 private:
-    std::unique_ptr<Node> takeNode(Node *node);
 
     QString m_displayName;
     QString m_addFileFilter;

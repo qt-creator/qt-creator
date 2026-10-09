@@ -171,6 +171,8 @@ private slots:
     void readSection_data();
     void readSection();
     void unmappableFile();
+    void nonRegularFile_data();
+    void nonRegularFile();
     void shentSizeTooSmall();
     void debugLinkBeyondEndOfFile();
     void buildIdBeyondEndOfFile();
@@ -285,6 +287,30 @@ void tst_ElfReader::unmappableFile()
     QCOMPARE(reader.readHeaders().sectionHeaders.size(), qsizetype(3));
     QVERIFY(path.removeFile());
     QVERIFY(!reader.readSection(".debug_str"));
+}
+
+void tst_ElfReader::nonRegularFile_data()
+{
+    QTest::addColumn<QString>("path");
+    QTest::addRow("directory") << m_dir.path();
+#ifdef Q_OS_UNIX
+    QTest::addRow("device") << QString("/dev/null");
+#endif
+}
+
+void tst_ElfReader::nonRegularFile()
+{
+    QFETCH(QString, path);
+    const FilePath filePath = FilePath::fromString(path);
+    QVERIFY(filePath.exists());
+    QVERIFY(!filePath.isFile());
+
+    ElfReader reader(filePath);
+    ElfMapper mapper(&reader);
+    QVERIFY(!mapper.map());
+    QVERIFY(!mapper.file.isOpen());
+    QVERIFY(reader.readHeaders().sectionHeaders.isEmpty());
+    QVERIFY(!reader.errorString().isEmpty());
 }
 
 void tst_ElfReader::shentSizeTooSmall()

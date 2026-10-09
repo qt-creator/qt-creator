@@ -41,7 +41,7 @@ ZephyrSettings::ZephyrSettings()
     qmlProjectExporterFilePath.setSettingsKey("QmlProjectExporterFilePath");
     qmlProjectExporterFilePath.setLabelText(Tr::tr("qmlprojectexporter:"));
     qmlProjectExporterFilePath.setExpectedKind(PathChooserKind::ExistingCommand);
-    qmlProjectExporterFilePath.setPlaceHolderText(Tr::tr("optional, for Qt for MCUs projects"));
+    qmlProjectExporterFilePath.setPlaceHolderText(Tr::tr("Optional, for Qt for MCUs projects"));
 
     setLayouter([this] {
         using namespace Layouting;

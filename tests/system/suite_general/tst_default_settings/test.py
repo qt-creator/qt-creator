@@ -316,7 +316,7 @@ def __getExpectedDebuggers__():
         except:
             test.warning('Failed to handled internally provided lldb.')
         exeSuffix = ".exe"
-    for debugger in ["gdb", "lldb"]:
+    for debugger in ["gdb", "gdb-multiarch", "lldb"]:
         result.extend(findAllFilesInPATH(debugger + exeSuffix))
     if platform.system() == 'Linux':
         explicitlyOmitted = ("lldb-platform", "lldb-gdbserver", "lldb-instr", "lldb-argdumper",
@@ -327,7 +327,15 @@ def __getExpectedDebuggers__():
         xcodeLLDB = getOutputFromCmdline(["xcrun", "--find", "lldb"]).strip("\n")
         if xcodeLLDB and os.path.exists(xcodeLLDB) and xcodeLLDB not in result:
             result.append(xcodeLLDB)
-    return result
+
+    differentExecutables = set()
+    cleanedResult = []
+    for it in result:
+        exe = os.path.realpath(it)
+        if exe not in differentExecutables:
+            differentExecutables.add(exe)
+            cleanedResult.append(it)
+    return cleanedResult
 
 def __getCDB__():
     result = []

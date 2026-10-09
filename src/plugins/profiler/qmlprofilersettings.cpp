@@ -62,7 +62,7 @@ QmlProfilerSettings::QmlProfilerSettings()
     findingsPeriodicMinCount.setSettingsKey("Analyzer.QmlProfiler.Findings.PeriodicMinCount");
     findingsPeriodicMinCount.setRange(2, 1000000);
     findingsPeriodicMinCount.setDefaultValue(50);
-    findingsPeriodicMinCount.setLabelText(Tr::tr("Report handlers running at least:"));
+    findingsPeriodicMinCount.setLabelText(Tr::tr("Report handlers running at least (times):"));
     findingsPeriodicMinCount.setToolTip(Tr::tr(
         "How often a signal handler has to run before the regularity of its interval is\n"
         "reported. Raise this on applications with many legitimate timers."));
@@ -81,7 +81,8 @@ QmlProfilerSettings::QmlProfilerSettings()
     findingsPerFrameBudgetUs.setSettingsKey("Analyzer.QmlProfiler.Findings.PerFrameBudgetUs");
     findingsPerFrameBudgetUs.setRange(1, 1000000);
     findingsPerFrameBudgetUs.setDefaultValue(500);
-    findingsPerFrameBudgetUs.setLabelText(Tr::tr("Report per-frame cost above (us):"));
+    //: micro seconds
+    findingsPerFrameBudgetUs.setLabelText(Tr::tr("Report per-frame cost above (\xc2\xb5s):"));
 
     findingsBlockingCallThresholdMs.setSettingsKey(
         "Analyzer.QmlProfiler.Findings.BlockingCallThresholdMs");
@@ -106,18 +107,18 @@ QmlProfilerSettings::QmlProfilerSettings()
     findingsCreationMinCount.setSettingsKey("Analyzer.QmlProfiler.Findings.CreationMinCount");
     findingsCreationMinCount.setRange(2, 1000000);
     findingsCreationMinCount.setDefaultValue(200);
-    findingsCreationMinCount.setLabelText(Tr::tr("Report components built at least:"));
+    findingsCreationMinCount.setLabelText(Tr::tr("Report components built at least (times):"));
 
     findingsBindingMinCount.setSettingsKey("Analyzer.QmlProfiler.Findings.BindingMinCount");
     findingsBindingMinCount.setRange(2, 10000000);
     findingsBindingMinCount.setDefaultValue(1000);
-    findingsBindingMinCount.setLabelText(Tr::tr("Report bindings evaluated at least:"));
+    findingsBindingMinCount.setLabelText(Tr::tr("Report bindings evaluated at least (times):"));
 
     findingsPixmapReloadMinCount.setSettingsKey(
         "Analyzer.QmlProfiler.Findings.PixmapReloadMinCount");
     findingsPixmapReloadMinCount.setRange(2, 100000);
     findingsPixmapReloadMinCount.setDefaultValue(3);
-    findingsPixmapReloadMinCount.setLabelText(Tr::tr("Report images loaded at least:"));
+    findingsPixmapReloadMinCount.setLabelText(Tr::tr("Report images loaded at least (times):"));
 
     setLayouter([this] {
         using namespace Layouting;

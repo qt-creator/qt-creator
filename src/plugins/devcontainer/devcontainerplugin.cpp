@@ -223,8 +223,9 @@ void DevContainerPlugin::onProjectAdded(Project *project)
         if (instanceConfigs.size() == 1) {
             InfoBarEntry entry(
                 infoBarId,
-                Tr::tr("Found a development container in the project %1. Starting it builds the "
-                       "container and runs the commands its configuration defines. Start it?")
+                Tr::tr("Found a development container in the project \"%1\". Starting it "
+                       "builds the container and runs the commands its configuration defines. "
+                       "Start it?")
                     .arg(project->displayName()),
                 InfoBarEntry::GlobalSuppression::Enabled);
 
@@ -244,8 +245,9 @@ void DevContainerPlugin::onProjectAdded(Project *project)
 
         InfoBarEntry entry(
             infoBarId,
-            Tr::tr("Found development containers in the project %1. Starting one builds the "
-                   "container and runs the commands its configuration defines. Start any of them?")
+            Tr::tr("Found development containers in the project \"%1\". Starting one builds "
+                   "the container and runs the commands its configuration defines. Start any of "
+                   "them?")
                 .arg(project->displayName()),
             InfoBarEntry::GlobalSuppression::Enabled);
 
@@ -345,7 +347,7 @@ void DevContainerPlugin::onProjectTreeChanged(FolderNode *fn)
             Core::MessageManager::writeSilently(
                 Tr::tr(
                     "Failed to watch the configuration files for the development container for "
-                    "project %1: %2")
+                    "project \"%1\": %2")
                     .arg(project->displayName(), watchResult.error()));
             continue;
         }

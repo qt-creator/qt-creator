@@ -5,7 +5,7 @@
     \page lua-extensions.html
     \title Creating Lua-Based Extensions
 
-    \QC can be extended with Lua scripts. The included Lua engine is based on Lua 5.4.6.
+    \QC can be extended with Lua scripts. The included Lua engine is based on Lua 5.4.9.
 
     \section1 Writing Lua Extensions
 

@@ -810,6 +810,9 @@ void VcsManager::handleConfigurationChanges(IVersionControl *vc)
 
 #ifdef WITH_TESTS
 
+#include <QFile>
+#include <QScopeGuard>
+#include <QTemporaryDir>
 #include <QTest>
 
 #include <extensionsystem/pluginmanager.h>
@@ -924,6 +927,21 @@ bool TestVersionControl::managesFile(const FilePath &workingDirectory, const QSt
     return m_managedFiles.contains(full.absoluteFilePath());
 }
 
+static FilePath createRepository(const FilePath &root, const QString &name)
+{
+    const FilePath repository = root / name;
+    QTC_ASSERT(repository.ensureWritableDir(), return {});
+    QTC_ASSERT((repository / "HEAD").writeFileContents("ref: refs/heads/main"), return {});
+    return repository;
+}
+
+static bool setModificationTime(const FilePath &file, const QDateTime &time)
+{
+    QFile handle(file.toFSPathString());
+    return handle.open(QIODevice::ReadWrite)
+           && handle.setFileTime(time, QFileDevice::FileModificationTime);
+}
+
 class VcsManagerTest final : public QObject
 {
     Q_OBJECT
@@ -931,6 +949,8 @@ class VcsManagerTest final : public QObject
 private slots:
     void testVcsManager_data();
     void testVcsManager();
+    void testTopicCacheSurvivesReentrantRefresher();
+    void testTopicCacheKeepsNewerTopicFromReentrantRefresher();
 };
 
 void VcsManagerTest::testVcsManager_data()
@@ -1038,6 +1058,96 @@ void VcsManagerTest::testVcsManager()
     // teardown:
     qDeleteAll(Core::d->m_versionControlList);
     Core::d->m_versionControlList = orig;
+}
+
+void VcsManagerTest::testTopicCacheSurvivesReentrantRefresher()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+    const FilePath root = FilePath::fromString(tempDir.path());
+
+    const QList<IVersionControl *> orig = Core::d->m_versionControlList;
+    const auto restore = qScopeGuard([orig] { Core::d->m_versionControlList = orig; });
+    TestVersionControl vcs(ID_VCS_A, "A");
+
+    const FilePath repository = createRepository(root, "main");
+    QVERIFY(!repository.isEmpty());
+    FilePaths others;
+    for (int i = 0; i < 64; ++i) {
+        const FilePath other = createRepository(root, QString::number(i));
+        QVERIFY(!other.isEmpty());
+        others.append(other);
+    }
+
+    vcs.setTopicFileTracker([](const FilePath &repo) { return repo / "HEAD"; });
+
+    int mainRefreshes = 0;
+    bool reentered = false;
+    QString reentrantTopic;
+    vcs.setTopicRefresher([&](const FilePath &repo) {
+        if (repo != repository)
+            return QString("topic-%1").arg(repo.fileName());
+        // Bounded so that a refresher that does recurse fails the count below instead of
+        // overflowing the stack.
+        if (++mainRefreshes < 8) {
+            // Enough entries for QHash to rehash, which invalidates whatever the
+            // outer call may still hold into it.
+            for (const FilePath &other : std::as_const(others))
+                vcs.vcsTopic(other);
+            reentrantTopic = vcs.vcsTopic(repo);
+            reentered = true;
+        }
+        return QString("topic-%1").arg(repo.fileName());
+    });
+
+    QCOMPARE(vcs.vcsTopic(repository), "topic-main");
+    QVERIFY(reentered);
+    // The entry is stamped before the refresher runs, so asking for the same topic from
+    // inside it does not recurse: it sees the stamp, and the topic that is not there yet.
+    QCOMPARE(mainRefreshes, 1);
+    QCOMPARE(reentrantTopic, QString());
+
+    QCOMPARE(vcs.vcsTopic(repository), "topic-main");
+    QCOMPARE(mainRefreshes, 1);
+}
+
+void VcsManagerTest::testTopicCacheKeepsNewerTopicFromReentrantRefresher()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+    const FilePath root = FilePath::fromString(tempDir.path());
+
+    const QList<IVersionControl *> orig = Core::d->m_versionControlList;
+    const auto restore = qScopeGuard([orig] { Core::d->m_versionControlList = orig; });
+    TestVersionControl vcs(ID_VCS_A, "A");
+
+    const FilePath repository = createRepository(root, "main");
+    QVERIFY(!repository.isEmpty());
+    const FilePath trackedFile = repository / "HEAD";
+
+    vcs.setTopicFileTracker([](const FilePath &repo) { return repo / "HEAD"; });
+
+    int refreshCount = 0;
+    bool touched = false;
+    QString reentrantTopic;
+    vcs.setTopicRefresher([&](const FilePath &repo) {
+        const int refresh = ++refreshCount;
+        if (refresh == 1) {
+            touched = setModificationTime(trackedFile, trackedFile.lastModified().addSecs(60));
+            reentrantTopic = vcs.vcsTopic(repo);
+        }
+        return QString("topic-%1").arg(refresh);
+    });
+
+    QCOMPARE(vcs.vcsTopic(repository), "topic-1");
+    QVERIFY(touched);
+    QCOMPARE(reentrantTopic, "topic-2");
+    QCOMPARE(refreshCount, 2);
+    // The outer call started from the older stamp, so its answer must not replace the
+    // one the re-entrant call stored: that would pair a stale topic with a fresh stamp,
+    // which never expires.
+    QCOMPARE(vcs.vcsTopic(repository), "topic-2");
+    QCOMPARE(refreshCount, 2);
 }
 
 QObject *createVcsManagerTest()

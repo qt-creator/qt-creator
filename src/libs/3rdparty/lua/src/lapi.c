@@ -417,9 +417,9 @@ LUA_API const char *lua_tolstring (lua_State *L, int idx, size_t *len) {
     o = index2value(L, idx);  /* previous call may reallocate the stack */
   }
   if (len != NULL)
-    *len = vslen(o);
+    *len = tsslen(tsvalue(o));
   lua_unlock(L);
-  return svalue(o);
+  return getstr(tsvalue(o));
 }
 
 
@@ -1089,6 +1089,7 @@ LUA_API int lua_load (lua_State *L, lua_Reader reader, void *data,
   ZIO z;
   int status;
   lua_lock(L);
+  luaC_checkGC(L);
   if (!chunkname) chunkname = "?";
   luaZ_init(L, &z, reader, data);
   status = luaD_protectedparser(L, &z, chunkname, mode);
@@ -1343,7 +1344,7 @@ void lua_warning (lua_State *L, const char *msg, int tocont) {
 LUA_API void *lua_newuserdatauv (lua_State *L, size_t size, int nuvalue) {
   Udata *u;
   lua_lock(L);
-  api_check(L, 0 <= nuvalue && nuvalue < USHRT_MAX, "invalid value");
+  api_check(L, 0 <= nuvalue && nuvalue < SHRT_MAX, "invalid value");
   u = luaS_newudata(L, size, nuvalue);
   setuvalue(L, s2v(L->top.p), u);
   api_incr_top(L);

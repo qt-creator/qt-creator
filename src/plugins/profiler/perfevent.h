@@ -108,7 +108,7 @@ inline QDataStream &operator>>(QDataStream &stream, PerfEvent &event)
     switch (event.m_feature) {
     case PerfEventType::ThreadStart: {
         event.setTypeIndex(PerfEvent::ThreadStartTypeId);
-        // perfparser sends the parent pid here. We don't use it, but must read
+        // The stream has the parent pid here. We don't use it, but must read
         // it to stay aligned; stash it in m_value (unused for this event type).
         qint32 parentPid;
         stream >> parentPid;

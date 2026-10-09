@@ -98,6 +98,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&numberWidth,  4,               "NumberWidth",   "nuw",   {});
     setup(&wrapMargin,   0,               "WrapMargin",    "wm",    {});
     setup(&sideScrollOff, 0,               "SideScrollOff", "siso",  {});
+    setup(&sideScroll,   0,               "SideScroll",    "ss",    {});
     setup(&shortMess,    "filnxtToOS",    "ShortMess",     "shm",   {});
     setup(&complete,     ".,w,b,u,t,i",   "Complete",      "cpt",   {});
     setup(&completeOpt,  "menu,preview",  "CompleteOpt",   "cot",   {});
@@ -127,6 +128,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&commandLineInEditor, false, "CommandLineInEditor", {},
           Tr::tr("Command line in the editor"));
     setup(&scrollOff,      0,     "ScrollOff",      "so",  Tr::tr("Scroll offset:"));
+    setup(&scroll,         0,     "Scroll",         "scr", {});
     setup(&textWidth,      0,     "TextWidth",      "tw",  Tr::tr("Text width:"));
     setup(&timeout,        true,  "Timeout",        "to",  Tr::tr("Use timeout for mappings"));
     setup(&timeoutlen,     1000,  "TimeoutLen",     "tm",  Tr::tr("Mapping timeout:"));
@@ -141,11 +143,15 @@ FakeVimSettings::FakeVimSettings()
     setup(&formatOptions,  {},    "formatoptions",  "fo",  "");
     setup(&operatorFunc,   {},    "OperatorFunc",   "opfunc", "");
     setup(&indentExpr,     {},    "IndentExpr",     "inde", "");
+    setup(&formatExpr,     {},    "FormatExpr",     "fex", "");
+    setup(&formatPrg,      {},    "FormatPrg",      "fp", "");
+    setup(&equalPrg,       {},    "EqualPrg",       "ep", "");
     setup(&nrFormats,      "bin,octal,hex",
                                   "NrFormats",      "nf",  {});
     setup(&formatListPat,  R"(^\s*\d\+[\]:.)}\t ]\s*)",
                                   "FormatListPat",  "flp", {});
     setup(&whichWrap,      "b,s", "WhichWrap",      "ww",  {});
+    setup(&virtualEdit,    {},    "VirtualEdit",    "ve",  {});
     setup(&joinSpaces,     true,  "JoinSpaces",     "js",  {});
     setup(&ruler,          false, "Ruler",          "ru",  {});
     setup(&gDefault,       false, "GDefault",       "gd",  {});
@@ -156,6 +162,27 @@ FakeVimSettings::FakeVimSettings()
                                   "IsFName",        "isf",  {});
     setup(&suffixesAdd,    QString(), "SuffixesAdd",   "sua",  {});
     setup(&path,           ".,/usr/include,,", "Path",   "pa",   {});
+    setup(&grepPrg,        "grep -n $* /dev/null", "GrepPrg", "gp", {});
+    setup(&grepFormat,     "%f:%l:%m,%f:%l%m,%f  %l%m",
+                                  "GrepFormat",     "gfm", {});
+    setup(&errorFormat,
+        "%*[^\"]\"%f\"%*\\D%l: %m,\"%f\"%*\\D%l: %m,"
+        "%-Gg%\\?make[%*\\d]: *** [%f:%l:%m,%-Gg%\\?make: *** [%f:%l:%m,"
+        "%-G%f:%l: (Each undeclared identifier is reported only once,"
+        "%-G%f:%l: for each function it appears in.),"
+        "%-GIn file included from %f:%l:%c:,"
+        "%-GIn file included from %f:%l:%c\\,,"
+        "%-GIn file included from %f:%l:%c,"
+        "%-GIn file included from %f:%l,%-G%*[ ]from %f:%l:%c,"
+        "%-G%*[ ]from %f:%l:,%-G%*[ ]from %f:%l\\,,%-G%*[ ]from %f:%l,"
+        "%f:%l:%c:%m,%f(%l):%m,%f:%l:%m,\"%f\"\\, line %l%*\\D%c%*[^ ] %m,"
+        "%D%*\\a[%*\\d]: Entering directory %*[`']%f',"
+        "%X%*\\a[%*\\d]: Leaving directory %*[`']%f',"
+        "%D%*\\a: Entering directory %*[`']%f',"
+        "%X%*\\a: Leaving directory %*[`']%f',%DMaking %*\\a in %f,"
+        "%f|%l| %m",
+                                  "ErrorFormat",    "efm", {});
+    setup(&errorFile,      "errors.err", "ErrorFile", "ef",  {});
     setup(&langRemap,      false, "LangRemap",      "lrm",  {});
     setup(&commentString,  "// %s", "CommentString", "cms", "");
     setup(&modifiable,     true,  "Modifiable",     "ma",  "");
@@ -201,7 +228,7 @@ FakeVimSettings::FakeVimSettings()
         "mapped key sequence (Vim timeoutlen option)."));
     cursorFlashTime.setRange(0, 5000);
     cursorFlashTime.setToolTip(Tr::tr("Blink period of the text cursor in milliseconds. "
-        "0 uses the system default. Only used while the cursor is blinking."));
+        "A value of 0 uses the system default. Only used while the cursor is blinking."));
     backspace.setDisplayStyle(FvStringAspect::LineEditDisplay);
     isKeyword.setDisplayStyle(FvStringAspect::LineEditDisplay);
     tabOut.setDisplayStyle(FvStringAspect::LineEditDisplay);

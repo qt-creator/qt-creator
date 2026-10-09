@@ -1,7 +1,17 @@
 find_package(Qt6 COMPONENTS DBus QUIET)
 
+# The JavaScript macro expander and the Locator's JavaScript filter are the only
+# things here that need a JavaScript engine. Neither has a role in the
+# standalone WebAssembly viewer, and leaving them out there drops Qt Qml and the
+# engine behind it - together the largest remaining dependency of that build.
+if (QTPROFILER_WASM)
+  set(CORE_QML_DEPENDENCY "")
+else()
+  set(CORE_QML_DEPENDENCY Qt::Qml)
+endif()
+
 add_qtc_plugin(Core
-  DEPENDS Qt::PrintSupport Qt::Qml Qt::Gui TerminalLib qtkeychain
+  DEPENDS Qt::PrintSupport ${CORE_QML_DEPENDENCY} Qt::Gui TerminalLib qtkeychain
   PLUGIN_TEST_DEPENDS BinEditor TextEditor
   PUBLIC_DEPENDS ExtensionSystem Utils
   SOURCES
@@ -180,8 +190,6 @@ add_qtc_plugin(Core
     iwelcomepage.h
     iwizardfactory.cpp
     iwizardfactory.h
-    jsexpander.cpp
-    jsexpander.h
     locator/commandlocator.cpp
     locator/commandlocator.h
     locator/directoryfilter.cpp
@@ -194,8 +202,6 @@ add_qtc_plugin(Core
     locator/filesystemfilter.h
     locator/ilocatorfilter.cpp
     locator/ilocatorfilter.h
-    locator/javascriptfilter.cpp
-    locator/javascriptfilter.h
     locator/locator.cpp
     locator/locator.h
     locator/locatorconstants.h
@@ -302,6 +308,13 @@ add_qtc_plugin(Core
     welcomepagehelper.h
     windowsupport.cpp
     windowsupport.h
+)
+
+extend_qtc_plugin(Core
+  CONDITION NOT QTPROFILER_WASM
+  SOURCES
+    jsexpander.cpp jsexpander.h
+    locator/javascriptfilter.cpp locator/javascriptfilter.h
 )
 
 extend_qtc_plugin(Core

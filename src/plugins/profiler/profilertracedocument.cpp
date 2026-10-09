@@ -75,6 +75,9 @@ ProfilerTraceDocument::ProfilerTraceDocument(Id editorId, TraceFormat format)
         connect(backend, &ProfilerTraceBackend::error, this, [](const QString &message) {
             QmlProfilerTool::showNonmodalWarning(message);
         });
+        connect(backend, &ProfilerTraceBackend::warning, this, [](const QString &message) {
+            QmlProfilerTool::showNonmodalWarning(message);
+        });
         connect(backend, &ProfilerTraceBackend::gotoSourceLocation,
                 this, &ProfilerTraceDocument::showSourceLocation);
     }
@@ -168,7 +171,7 @@ void ProfilerTraceDocument::showSourceLocation(const Link &link)
 Result<> ProfilerTraceDocument::setContents(const QByteArray &contents)
 {
     if (!contents.isEmpty())
-        return ResultError(Tr::tr("A trace cannot be filled from memory."));
+        return ResultError(Tr::tr("Cannot load a trace from in-memory contents."));
     return ResultOk;
 }
 

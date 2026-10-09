@@ -62,7 +62,7 @@ def performTest(workingDir, projectName, availableConfigs):
         switchViewTo(ViewConstants.PROFILER)
         selectFromCombo(":Profiler_AnalyzerBackendComboBox", "QML Profiler")
         targetCombo = waitForObject(":Profiler_TargetComboBox")
-        test.compare(targetCombo.currentText, "The startup project")
+        test.compare(targetCombo.currentText, "Startup Project")
 
         startButton = waitForObject(":Profiler_StartRecordingButton")
         clickButton(startButton)

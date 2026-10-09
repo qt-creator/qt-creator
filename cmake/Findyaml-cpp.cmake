@@ -51,6 +51,7 @@ else()
       ${YAML_SOURCE_DIR}/include/yaml-cpp/emitterstyle.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/eventhandler.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/exceptions.h
+      ${YAML_SOURCE_DIR}/include/yaml-cpp/fptostring.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/mark.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/noexcept.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/node
@@ -79,6 +80,7 @@ else()
       ${YAML_SOURCE_DIR}/include/yaml-cpp/yaml.h
       ${YAML_SOURCE_DIR}/src/binary.cpp
       ${YAML_SOURCE_DIR}/src/collectionstack.h
+      ${YAML_SOURCE_DIR}/src/contrib/dragonbox.h
       ${YAML_SOURCE_DIR}/src/convert.cpp
       ${YAML_SOURCE_DIR}/src/depthguard.cpp
       ${YAML_SOURCE_DIR}/src/directives.cpp
@@ -93,6 +95,7 @@ else()
       ${YAML_SOURCE_DIR}/src/exceptions.cpp
       ${YAML_SOURCE_DIR}/src/exp.cpp
       ${YAML_SOURCE_DIR}/src/exp.h
+      ${YAML_SOURCE_DIR}/src/fptostring.cpp
       ${YAML_SOURCE_DIR}/src/indentation.h
       ${YAML_SOURCE_DIR}/src/memory.cpp
       ${YAML_SOURCE_DIR}/src/node.cpp

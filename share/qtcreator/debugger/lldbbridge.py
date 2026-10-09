@@ -485,6 +485,8 @@ class Dumper(DumperBase):
 
         else:
             nativeType = nativeType.GetUnqualifiedType()
+            if code in (lldb.eTypeClassClass, lldb.eTypeClassStruct, lldb.eTypeClassUnion):
+                nativeType = self.completeNativeType(nativeType)
             type_name = nativeType.GetName()
 
             typeid = self.typeid_for_string(typeid_str)
@@ -531,6 +533,19 @@ class Dumper(DumperBase):
 
         # self.warn('REUSE TYPE: %s' % typeid)
         return typeid
+
+    def completeNativeType(self, nativeType):
+        # LLDB takes a class from the module of the frame, and that one may
+        # only declare it, like a plugin using another library's private
+        # class. Unlike GDB, LLDB does not look for the definition elsewhere.
+        if nativeType.IsTypeComplete():
+            return nativeType
+        # FindTypes also returns classes in other scopes ending in the same name.
+        name = nativeType.GetName()
+        for candidate in self.target.FindTypes(name):
+            if candidate.GetName() == name and candidate.IsTypeComplete():
+                return candidate
+        return nativeType
 
     def nativeTemplateParameter(self, typeid, index, nativeType):
         #n = nativeType.GetNumberOfTemplateArguments()

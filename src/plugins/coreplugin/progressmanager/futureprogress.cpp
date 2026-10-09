@@ -11,7 +11,6 @@
 
 #include <QCoreApplication>
 #include <QFutureWatcher>
-#include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
 #include <QProgressBar>
 #include <QTimer>
@@ -388,6 +387,7 @@ void FutureProgressPrivate::fadeAway()
 {
     m_isFading = true;
 
+#if QT_CONFIG(graphicseffect)
     auto opacityEffect = new QGraphicsOpacityEffect;
     opacityEffect->setOpacity(1.0);
     m_q->setGraphicsEffect(opacityEffect);
@@ -398,6 +398,9 @@ void FutureProgressPrivate::fadeAway()
 
     connect(animation, &QAbstractAnimation::finished, m_q, &FutureProgress::removeMe);
     animation->start(QAbstractAnimation::DeleteWhenStopped);
+#else
+    emit m_q->removeMe();
+#endif
     emit m_q->fadeStarted();
 }
 

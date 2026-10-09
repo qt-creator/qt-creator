@@ -8,23 +8,23 @@ Subject: [PATCH] Apply custom changes
 - Windows specific hacks
 - Use GetTempPath2 where possible
 ---
- .../libarchive/libarchive/CMakeLists.txt      | 25 ++++++----------
- .../3rdparty/libarchive/libarchive/archive.h  |  7 ++---
- .../libarchive/libarchive/archive_entry.c     | 18 -----------
- .../libarchive/archive_entry_link_resolver.c  |  3 --
- .../libarchive/archive_read_set_format.c      |  3 --
- .../archive_read_support_format_all.c         |  8 ++---
+ .../libarchive/libarchive/CMakeLists.txt      | 25 +++++++------------
+ .../3rdparty/libarchive/libarchive/archive.h  |  7 +++---
+ .../libarchive/libarchive/archive_entry.c     | 18 -------------
+ .../libarchive/archive_entry_link_resolver.c  |  3 ---
+ .../libarchive/archive_read_set_format.c      |  3 ---
+ .../archive_read_support_format_all.c         |  8 +++---
  .../archive_read_support_format_by_code.c     |  2 --
- .../libarchive/libarchive/archive_util.c      | 30 +++++++++++++------
+ .../libarchive/libarchive/archive_util.c      | 16 ++++++++++--
  .../libarchive/archive_write_set_format.c     |  1 -
  .../archive_write_set_format_by_name.c        |  1 -
- 10 files changed, 37 insertions(+), 61 deletions(-)
+ 10 files changed, 30 insertions(+), 54 deletions(-)
 
 diff --git a/src/libs/3rdparty/libarchive/libarchive/CMakeLists.txt b/src/libs/3rdparty/libarchive/libarchive/CMakeLists.txt
-index 4fb917132ca..2781fa5a119 100644
+index b29663742fd..1f585c3860a 100644
 --- a/src/libs/3rdparty/libarchive/libarchive/CMakeLists.txt
 +++ b/src/libs/3rdparty/libarchive/libarchive/CMakeLists.txt
-@@ -106,12 +106,12 @@ SET(libarchive_SOURCES
+@@ -107,12 +107,12 @@ SET(libarchive_SOURCES
    archive_read_support_format_iso9660.c
    archive_read_support_format_lha.c
    archive_read_support_format_mtree.c
@@ -39,7 +39,7 @@ index 4fb917132ca..2781fa5a119 100644
    archive_read_support_format_zip.c
    archive_string.c
    archive_string.h
-@@ -165,7 +165,6 @@ SET(libarchive_SOURCES
+@@ -166,7 +166,6 @@ SET(libarchive_SOURCES
    archive_write_set_format_ustar.c
    archive_write_set_format_v7tar.c
    archive_write_set_format_warc.c
@@ -47,7 +47,7 @@ index 4fb917132ca..2781fa5a119 100644
    archive_write_set_format_zip.c
    archive_write_set_options.c
    archive_write_set_passphrase.c
-@@ -254,20 +253,13 @@ IF(BUILD_SHARED_LIBS)
+@@ -255,20 +254,13 @@ IF(BUILD_SHARED_LIBS)
                          SOVERSION ${SOVERSION}
                          MACHO_COMPATIBILITY_VERSION ${MACHO_COMPATIBILITY_VERSION}
                          MACHO_CURRENT_VERSION ${MACHO_CURRENT_VERSION})
@@ -69,7 +69,7 @@ index 4fb917132ca..2781fa5a119 100644
  # On Posix systems, libarchive.so and libarchive.a can co-exist.
  IF(NOT WIN32 OR CYGWIN OR NOT BUILD_SHARED_LIBS)
    SET_TARGET_PROPERTIES(archive_static PROPERTIES OUTPUT_NAME archive)
-@@ -278,15 +270,16 @@ IF(ENABLE_INSTALL)
+@@ -279,15 +271,16 @@ IF(ENABLE_INSTALL)
    IF(BUILD_SHARED_LIBS)
      INSTALL(TARGETS archive
              RUNTIME DESTINATION bin
@@ -92,10 +92,10 @@ index 4fb917132ca..2781fa5a119 100644
 +
 +set_property(TARGET archive_static PROPERTY POSITION_INDEPENDENT_CODE ON)
 diff --git a/src/libs/3rdparty/libarchive/libarchive/archive.h b/src/libs/3rdparty/libarchive/libarchive/archive.h
-index a9d34beb4f5..31a76e53323 100644
+index a7de6f6dd85..7bb8757de8c 100644
 --- a/src/libs/3rdparty/libarchive/libarchive/archive.h
 +++ b/src/libs/3rdparty/libarchive/libarchive/archive.h
-@@ -376,8 +376,9 @@ typedef const char *archive_passphrase_callback(struct archive *,
+@@ -378,8 +378,9 @@ typedef const char *archive_passphrase_callback(struct archive *,
  #define	ARCHIVE_FORMAT_AR_BSD			(ARCHIVE_FORMAT_AR | 2)
  #define	ARCHIVE_FORMAT_MTREE			0x80000
  #define	ARCHIVE_FORMAT_RAW			0x90000
@@ -107,7 +107,7 @@ index a9d34beb4f5..31a76e53323 100644
  #define	ARCHIVE_FORMAT_CAB			0xC0000
  #define	ARCHIVE_FORMAT_RAR			0xD0000
  #define	ARCHIVE_FORMAT_7ZIP			0xE0000
-@@ -499,7 +500,6 @@ __LA_DECL int archive_read_support_format_rar5(struct archive *);
+@@ -501,7 +502,6 @@ __LA_DECL int archive_read_support_format_rar5(struct archive *);
  __LA_DECL int archive_read_support_format_raw(struct archive *);
  __LA_DECL int archive_read_support_format_tar(struct archive *);
  __LA_DECL int archive_read_support_format_warc(struct archive *);
@@ -115,7 +115,7 @@ index a9d34beb4f5..31a76e53323 100644
  /* archive_read_support_format_zip() enables both streamable and seekable
   * zip readers. */
  __LA_DECL int archive_read_support_format_zip(struct archive *);
-@@ -863,7 +863,6 @@ __LA_DECL int archive_write_set_format_shar_dump(struct archive *);
+@@ -864,7 +864,6 @@ __LA_DECL int archive_write_set_format_shar_dump(struct archive *);
  __LA_DECL int archive_write_set_format_ustar(struct archive *);
  __LA_DECL int archive_write_set_format_v7tar(struct archive *);
  __LA_DECL int archive_write_set_format_warc(struct archive *);
@@ -124,7 +124,7 @@ index a9d34beb4f5..31a76e53323 100644
  __LA_DECL int archive_write_set_format_filter_by_ext(struct archive *a, const char *filename);
  __LA_DECL int archive_write_set_format_filter_by_ext_def(struct archive *a, const char *filename, const char * def_ext);
 diff --git a/src/libs/3rdparty/libarchive/libarchive/archive_entry.c b/src/libs/3rdparty/libarchive/libarchive/archive_entry.c
-index dc74430f80a..61af7cf787f 100644
+index 5b8351b4a19..5a267a6893f 100644
 --- a/src/libs/3rdparty/libarchive/libarchive/archive_entry.c
 +++ b/src/libs/3rdparty/libarchive/libarchive/archive_entry.c
 @@ -121,24 +121,6 @@ static const wchar_t	*ae_wcstofflags(const wchar_t *stringp,
@@ -153,10 +153,10 @@ index dc74430f80a..61af7cf787f 100644
  /* Good enough for simple equality testing, but not for sorting. */
  #define wmemcmp(a,b,i)  memcmp((a), (b), (i) * sizeof(wchar_t))
 diff --git a/src/libs/3rdparty/libarchive/libarchive/archive_entry_link_resolver.c b/src/libs/3rdparty/libarchive/libarchive/archive_entry_link_resolver.c
-index 77fcad61fde..acb491b293d 100644
+index 947c65fca5f..c026534c256 100644
 --- a/src/libs/3rdparty/libarchive/libarchive/archive_entry_link_resolver.c
 +++ b/src/libs/3rdparty/libarchive/libarchive/archive_entry_link_resolver.c
-@@ -146,9 +146,6 @@ archive_entry_linkresolver_set_strategy(struct archive_entry_linkresolver *res,
+@@ -147,9 +147,6 @@ archive_entry_linkresolver_set_strategy(struct archive_entry_linkresolver *res,
  	case ARCHIVE_FORMAT_ISO9660:
  	case ARCHIVE_FORMAT_SHAR:
  	case ARCHIVE_FORMAT_TAR:
@@ -181,7 +181,7 @@ index 552ab12d2f9..bf33619c360 100644
        str = "zip";
        break;
 diff --git a/src/libs/3rdparty/libarchive/libarchive/archive_read_support_format_all.c b/src/libs/3rdparty/libarchive/libarchive/archive_read_support_format_all.c
-index 3b53c9ad5f5..0ed7c00cf19 100644
+index a2c5a4c6f54..8da47d006c1 100644
 --- a/src/libs/3rdparty/libarchive/libarchive/archive_read_support_format_all.c
 +++ b/src/libs/3rdparty/libarchive/libarchive/archive_read_support_format_all.c
 @@ -59,7 +59,6 @@ archive_read_support_format_all(struct archive *a)
@@ -220,70 +220,46 @@ index 982e2db70f9..c2299cc399f 100644
  		return archive_read_support_format_zip(a);
  	}
 diff --git a/src/libs/3rdparty/libarchive/libarchive/archive_util.c b/src/libs/3rdparty/libarchive/libarchive/archive_util.c
-index 0d1de1ef209..f165c7d7354 100644
+index 5e0b916de43..3103f12449f 100644
 --- a/src/libs/3rdparty/libarchive/libarchive/archive_util.c
 +++ b/src/libs/3rdparty/libarchive/libarchive/archive_util.c
-@@ -259,14 +259,26 @@ __archive_mktempx(const char *tmpdir, wchar_t *template)
+@@ -248,6 +248,18 @@ __archive_mktempx(const char *tmpdir, wchar_t *template)
  	ws = NULL;
  	archive_string_init(&temp_name);
  
--	if (template == NULL) {
--		/* Get a temporary directory. */
-+    typedef DWORD(WINAPI * GetTempPathFuncPtr)(DWORD, LPWSTR);
++	typedef DWORD(WINAPI * GetTempPathFuncPtr)(DWORD, LPWSTR);
 +
-+    // We try to resolve GetTempPath2 and use that, otherwise fall back to GetTempPath:
-+    static GetTempPathFuncPtr getTempPathW = 0;
-+    if (!getTempPathW) {
-+        const HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
-+        getTempPathW = (GetTempPathFuncPtr) GetProcAddress(kernel32, "GetTempPath2W");
-+        if (!getTempPathW) {
-+            getTempPathW = GetTempPathW;
-+        }
-+    }
++	// We try to resolve GetTempPath2 and use that, otherwise fall back to GetTempPath:
++	static GetTempPathFuncPtr getTempPathW = 0;
++	if (!getTempPathW) {
++		const HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
++		getTempPathW = (GetTempPathFuncPtr) GetProcAddress(kernel32, "GetTempPath2W");
++		if (!getTempPathW) {
++			getTempPathW = GetTempPathW;
++		}
++	}
 +
-+    if (template == NULL) {
-+        /* Get a temporary directory. */
+ 	if (template == NULL) {
+ 		/* Get a temporary directory. */
  		if (tmpdir == NULL) {
- 			size_t l;
- 			wchar_t *tmp;
+@@ -256,7 +268,7 @@ __archive_mktempx(const char *tmpdir, wchar_t *template)
+ 			size_t l, s;
  
--			l = GetTempPathW(0, NULL);
--			if (l == 0) {
-+            l = getTempPathW(0, NULL);
-+            if (l == 0) {
+ 			s = MAX_PATH + 1;
+-			l = GetTempPathW((DWORD)s, buf);
++			l = getTempPathW((DWORD)s, buf);
+ 			if (l == 0) {
  				la_dosmaperr(GetLastError());
  				goto exit_tmpfile;
- 			}
-@@ -275,8 +287,8 @@ __archive_mktempx(const char *tmpdir, wchar_t *template)
- 				errno = ENOMEM;
- 				goto exit_tmpfile;
- 			}
--			GetTempPathW((DWORD)l, tmp);
--			archive_wstrcpy(&temp_name, tmp);
-+            getTempPathW((DWORD) l, tmp);
-+            archive_wstrcpy(&temp_name, tmp);
- 			free(tmp);
- 		} else {
- 			if (archive_wstring_append_from_mbs(&temp_name, tmpdir,
-@@ -318,15 +330,15 @@ __archive_mktempx(const char *tmpdir, wchar_t *template)
- 		ep = temp_name.s + archive_strlen(&temp_name);
- 		xp = ep - wcslen(suffix);
- 		template = temp_name.s;
--	} else {
--		xp = wcschr(template, L'X');
-+    } else {
-+        xp = wcschr(template, L'X');
- 		if (xp == NULL)	/* No X, programming error */
- 			abort();
- 		for (ep = xp; *ep == L'X'; ep++)
- 			continue;
- 		if (*ep)	/* X followed by non X, programming error */
- 			abort();
--	}
-+    }
- 
- #if defined(HAVE_BCRYPT_H) && _WIN32_WINNT >= _WIN32_WINNT_VISTA
- 	if (!BCRYPT_SUCCESS(BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_RNG_ALGORITHM,
+@@ -272,7 +284,7 @@ __archive_mktempx(const char *tmpdir, wchar_t *template)
+ 					goto exit_tmpfile;
+ 				}
+ 				p = buf2 = tmp;
+-				l = GetTempPathW((DWORD)s, buf2);
++				l = getTempPathW((DWORD)s, buf2);
+ 				if (l == 0) {
+ 					free(buf2);
+ 					la_dosmaperr(GetLastError());
 diff --git a/src/libs/3rdparty/libarchive/libarchive/archive_write_set_format.c b/src/libs/3rdparty/libarchive/libarchive/archive_write_set_format.c
 index f636cff7471..1651db0d9b4 100644
 --- a/src/libs/3rdparty/libarchive/libarchive/archive_write_set_format.c

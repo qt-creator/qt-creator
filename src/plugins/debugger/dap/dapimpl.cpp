@@ -387,8 +387,7 @@ void DapImpl::handleStandardError()
 
 void DapImpl::reportUnsupported(const QString &what)
 {
-    emit message(Tr::tr("\"%1\" is not part of the Debug Adapter Protocol, so the adapter "
-                        "cannot be asked for it.").arg(what), LogWarning);
+    emit message(Tr::tr("The debug adapter does not support this feature: %1.").arg(what), LogWarning);
 }
 
 int DapImpl::postRequest(const QString &command, const QJsonObject &arguments)
@@ -582,7 +581,8 @@ void DapImpl::loadCore()
 {
     const auto &core = std::get<AttachToCoreData>(m_startData.inferiorStartData);
     if (m_startData.adapterId != "gdb") {
-        reportUnsupported(Tr::tr("loading a core file"));
+        //: Name of a feature the debug adapter does not support
+        reportUnsupported(Tr::tr("Loading core files"));
         emit inferiorEvent(InferiorEvent::EngineRunFailed);
         return;
     }
@@ -703,7 +703,8 @@ void DapImpl::execute(const ExecutionRequest &request)
             if (m_client->capabilities().supportsSteppingGranularity)
                 args.insert("granularity", "instruction");
             else
-                reportUnsupported(Tr::tr("stepping by instruction"));
+                //: Name of a feature the debug adapter does not support
+                reportUnsupported(Tr::tr("Stepping by instruction"));
         }
         return args;
     };
@@ -720,7 +721,8 @@ void DapImpl::execute(const ExecutionRequest &request)
         if (request.reverse && !m_client->capabilities().supportsStepBack) {
             m_stopRequested = false;
             m_stepRequested = false;
-            runConsoleCommand("reverse-continue", Tr::tr("running the debuggee backwards"));
+            //: Name of a feature the debug adapter does not support
+            runConsoleCommand("reverse-continue", Tr::tr("Running backwards"));
             return;
         }
         m_stopRequested = false;
@@ -758,7 +760,8 @@ void DapImpl::execute(const ExecutionRequest &request)
             // steps into one.
             m_stopRequested = false;
             m_stepRequested = false;
-            runConsoleCommand("reverse-step", Tr::tr("stepping back into a function"));
+            //: Name of a feature the debug adapter does not support
+            runConsoleCommand("reverse-step", Tr::tr("Stepping into a function backwards"));
             return;
         }
         m_stepRequested = true;
@@ -772,7 +775,8 @@ void DapImpl::execute(const ExecutionRequest &request)
         if (request.reverse && !m_client->capabilities().supportsStepBack) {
             m_stopRequested = false;
             m_stepRequested = false;
-            runConsoleCommand("reverse-next", Tr::tr("stepping the debuggee backwards"));
+            //: Name of a feature the debug adapter does not support
+            runConsoleCommand("reverse-next", Tr::tr("Stepping over backwards"));
             return;
         }
         m_stepRequested = true;
@@ -787,7 +791,8 @@ void DapImpl::execute(const ExecutionRequest &request)
         if (request.reverse) {
             m_stopRequested = false;
             m_stepRequested = false;
-            runConsoleCommand("reverse-finish", Tr::tr("stepping back out of a function"));
+            //: Name of a feature the debug adapter does not support
+            runConsoleCommand("reverse-finish", Tr::tr("Stepping out of a function backwards"));
             return;
         }
         m_stepRequested = true;
@@ -845,7 +850,8 @@ void DapImpl::execute(const ExecutionRequest &request)
                 || m_startData.adapter.kind != DapAdapterDescriptor::Kind::Executable) {
             // Nothing here to put back: the debuggee was somebody else's, or
             // the adapter holding it is not ours to start.
-            reportUnsupported(Tr::tr("Restarting the debuggee"));
+            //: Name of a feature the debug adapter does not support
+            reportUnsupported(Tr::tr("Restarting the program"));
             return;
         }
         // The debuggee that comes back has nothing to do with what the runtime
@@ -868,13 +874,15 @@ void DapImpl::execute(const ExecutionRequest &request)
     case ExecutionCommand::RecordReverse:
         if (m_client->capabilities().supportsStepBack) {
             // An adapter that walks the debuggee backwards records by itself.
-            reportUnsupported(Tr::tr("recording the execution to walk it backwards"));
+            //: Name of a feature the debug adapter does not support
+            reportUnsupported(Tr::tr("Recording the execution for running backwards"));
             return;
         }
         m_recordingActive = request.flag;
         runConsoleCommand(request.flag ? QLatin1String("record full")
                                        : QLatin1String("record stop"),
-                          Tr::tr("recording the execution to walk it backwards"));
+                          //: Name of a feature the debug adapter does not support
+                          Tr::tr("Recording the execution for running backwards"));
         return;
     }
 }
@@ -892,11 +900,13 @@ void DapImpl::sendDisconnect(bool terminateDebuggee)
     if (m_client->capabilities().supportTerminateDebuggee) {
         arguments.insert("terminateDebuggee", terminateDebuggee);
     } else if (terminateDebuggee) {
-        reportUnsupported(Tr::tr("taking the inferior down on a disconnect"));
+        //: Name of a feature the debug adapter does not support
+        reportUnsupported(Tr::tr("Terminating the program on disconnect"));
     } else {
         // An adapter that does not take the flag does what it thinks best, and
         // what it thinks best for a debuggee it launched is to end it.
-        reportUnsupported(Tr::tr("leaving the inferior running on a detach"));
+        //: Name of a feature the debug adapter does not support
+        reportUnsupported(Tr::tr("Keeping the program running on detach"));
     }
     postRequest("disconnect", arguments);
 }
@@ -908,13 +918,15 @@ void DapImpl::addBreakpointConditions(QJsonObject &item, const BreakpointParamet
         if (m_client->capabilities().supportsConditionalBreakpoints)
             item.insert("condition", params.condition);
         else
-            reportUnsupported(Tr::tr("a condition on a breakpoint"));
+            //: Name of a feature the debug adapter does not support
+            reportUnsupported(Tr::tr("Breakpoint conditions"));
     }
     if (params.ignoreCount > 0) {
         if (m_client->capabilities().supportsHitConditionalBreakpoints)
             item.insert("hitCondition", QString::number(params.ignoreCount));
         else
-            reportUnsupported(Tr::tr("a hit count on a breakpoint"));
+            //: Name of a feature the debug adapter does not support
+            reportUnsupported(Tr::tr("Breakpoint hit counts"));
     }
 }
 
@@ -932,7 +944,8 @@ void DapImpl::setBreakpointCommands(const QString &adapterId, const QString &com
                       QJsonObject{{"expression", expression}, {"context", "repl"}},
                       [this](const Utils::Result<QJsonObject> &answer) {
         if (!answer)
-            reportUnsupported(Tr::tr("a command on a breakpoint"));
+            //: Name of a feature the debug adapter does not support
+            reportUnsupported(Tr::tr("Breakpoint commands"));
     });
 }
 
@@ -951,7 +964,8 @@ void DapImpl::sendBreakpointModules()
         if (it == modules.cend()) {
             modules.insert(function, breakpoint.params.module);
         } else if (*it != breakpoint.params.module) {
-            reportUnsupported(Tr::tr("breakpoints on one function restricted to different "
+            //: Name of a feature the debug adapter does not support
+            reportUnsupported(Tr::tr("Breakpoints on one function restricted to different "
                                      "modules"));
             modules[function].clear();
         }
@@ -966,7 +980,8 @@ void DapImpl::sendBreakpointModules()
     if (entries.isEmpty() && !m_breakpointModulesSent)
         return;
     if (m_startData.adapterId != "gdb") {
-        reportUnsupported(Tr::tr("breakpoints restricted to a module"));
+        //: Name of a feature the debug adapter does not support
+        reportUnsupported(Tr::tr("Breakpoints restricted to a module"));
         return;
     }
     m_breakpointModulesSent = true;
@@ -1010,7 +1025,8 @@ if 'qtcBreakpointModules' not in globals():
                       QJsonObject{{"expression", expression}, {"context", "repl"}},
                       [this](const Utils::Result<QJsonObject> &answer) {
         if (!answer)
-            reportUnsupported(Tr::tr("breakpoints restricted to a module"));
+            //: Name of a feature the debug adapter does not support
+            reportUnsupported(Tr::tr("Breakpoints restricted to a module"));
     });
 }
 
@@ -1030,7 +1046,8 @@ int DapImpl::sendBreakpointsFor(const FilePath &file)
             if (m_client->capabilities().supportsLogPoints)
                 item.insert("logMessage", params.message);
             else
-                reportUnsupported(Tr::tr("logging a message instead of stopping"));
+                //: Name of a feature the debug adapter does not support
+                reportUnsupported(Tr::tr("Logging a message instead of stopping"));
         }
         breakpoints.append(item);
     }
@@ -1071,9 +1088,13 @@ void DapImpl::sendExceptionBreakpoints()
         const QString filter = exceptionFilter(offered, breakpoint.params.type);
         if (filter.isEmpty()) {
             // Nothing the adapter offered means what this breakpoint is.
-            reportUnsupported(breakpoint.params.type == BreakpointAtThrow
-                                  ? Tr::tr("breaking on a thrown exception")
-                                  : Tr::tr("breaking on a caught exception"));
+            if (breakpoint.params.type == BreakpointAtThrow) {
+                //: Name of a feature the debug adapter does not support
+                reportUnsupported(Tr::tr("Breaking on thrown exceptions"));
+            } else {
+                //: Name of a feature the debug adapter does not support
+                reportUnsupported(Tr::tr("Breaking on caught exceptions"));
+            }
             emit breakpointEvent(breakpoint.requestId, breakpoint.op, false);
             continue;
         }
@@ -1084,7 +1105,8 @@ void DapImpl::sendExceptionBreakpoints()
             filterOptions.append(option);
         } else {
             if (!breakpoint.params.condition.isEmpty())
-                reportUnsupported(Tr::tr("a condition on an exception breakpoint"));
+                //: Name of a feature the debug adapter does not support
+                reportUnsupported(Tr::tr("Exception breakpoint conditions"));
             filters.append(filter);
         }
     }
@@ -1158,15 +1180,20 @@ void DapImpl::checkAttached()
 // Loading symbols is nothing the protocol asks for, while the debugger behind
 // the adapter does it over its console, taking the modules by a pattern their
 // names match.
-void DapImpl::loadSymbols(const QString &pattern, const QString &what)
+void DapImpl::loadSymbols(const QString &pattern, const QString &module)
 {
     const QString command = "sharedlibrary " + pattern;
     sendCustomRequest("evaluate",
                       QJsonObject{{"expression", command}, {"context", "repl"}},
-                      [this, what](const Utils::Result<QJsonObject> &answer) {
+                      [this, module](const Utils::Result<QJsonObject> &answer) {
         if (!answer) {
-            emit message(Tr::tr("Loading the symbols of %1 was refused: %2")
-                             .arg(what, answer.error()), LogError);
+            if (module.isEmpty()) {
+                emit message(Tr::tr("Loading the symbols of all modules was refused: %1")
+                                 .arg(answer.error()), LogError);
+            } else {
+                emit message(Tr::tr("Loading the symbols of \"%1\" was refused: %2")
+                                 .arg(module, answer.error()), LogError);
+            }
         }
     });
 }
@@ -1280,11 +1307,12 @@ void DapImpl::jumpOverTheConsole(const ContextData &context)
                       QJsonObject{{"expression", expression}, {"context", "repl"}},
                       [this, context, location](const Utils::Result<QJsonObject> &answer) {
         if (!answer) {
-            reportUnsupported(Tr::tr("Jump to Line"));
+            //: Name of a feature the debug adapter does not support
+            reportUnsupported(Tr::tr("Jumping to a line"));
             return;
         }
         if (answer->value("result").toString().trimmed() != "1") {
-            emit message(Tr::tr("Cannot jump to %1, the line stands for several addresses.")
+            emit message(Tr::tr("Cannot jump to %1: the line maps to several addresses.")
                              .arg(location), LogError);
             return;
         }
@@ -1314,7 +1342,8 @@ void DapImpl::jumpOverTheConsole(const ContextData &context)
 // afterwards.
 void DapImpl::returnOverTheConsole()
 {
-    const QString what = Tr::tr("returning from a function without finishing it");
+    //: Name of a feature the debug adapter does not support
+    const QString what = Tr::tr("Returning from a function without finishing it");
     emit inferiorEvent(InferiorEvent::RunRequested);
     sendCustomRequest("evaluate",
                       QJsonObject{{"expression", "return"}, {"context", "repl"}},
@@ -1333,8 +1362,8 @@ void DapImpl::returnOverTheConsole()
                           QJsonObject{{"expression", expression}, {"context", "repl"}},
                           [this](const Utils::Result<QJsonObject> &frames) {
             if (!frames) {
-                emit message(Tr::tr("The adapter kept the frames from before the return, so "
-                                    "the stack stays unreadable until the debuggee runs: %1")
+                emit message(Tr::tr("The adapter did not update the stack after the return. "
+                                    "The stack is invalid until the program continues: %1")
                                  .arg(frames.error()), LogError);
             }
             m_inferiorRunning = false;
@@ -1394,7 +1423,8 @@ int DapImpl::sendFunctionBreakpoints()
 {
     QTC_ASSERT(m_client, return -1);
     if (!m_client->capabilities().supportsFunctionBreakpoints) {
-        reportUnsupported(Tr::tr("breakpoints by function name"));
+        //: Name of a feature the debug adapter does not support
+        reportUnsupported(Tr::tr("Breakpoints by function name"));
         return -1;
     }
     sendBreakpointModules();
@@ -1417,7 +1447,8 @@ int DapImpl::sendInstructionBreakpoints()
 {
     QTC_ASSERT(m_client, return -1);
     if (!m_client->capabilities().supportsInstructionBreakpoints) {
-        reportUnsupported(Tr::tr("breakpoints by address"));
+        //: Name of a feature the debug adapter does not support
+        reportUnsupported(Tr::tr("Breakpoints by address"));
         return -1;
     }
     QJsonArray breakpoints;
@@ -1759,7 +1790,8 @@ void DapImpl::insertWatchpointOverConsole(const Breakpoint &breakpoint)
             // A console that took the command and named no watchpoint is one of
             // a debugger that does not have them.
             if (answer)
-                reportUnsupported(Tr::tr("breakpoints on data access"));
+                //: Name of a feature the debug adapter does not support
+                reportUnsupported(Tr::tr("Breakpoints on data access"));
             else
                 emit message(answer.error(), LogError);
             emit breakpointEvent(requestId, BreakpointOp::Insert, false);
@@ -1971,8 +2003,8 @@ void DapImpl::stopForBreakpoints()
                       [this](const Utils::Result<QJsonObject> &answer) {
         if (answer)
             return;
-        emit message(Tr::tr("The adapter took no breakpoint while the program was running, "
-                            "and refused to stop it: %1").arg(answer.error()), LogError);
+        emit message(Tr::tr("The adapter did not accept the breakpoint while the program was "
+                            "running and refused to stop it: %1").arg(answer.error()), LogError);
         m_resumeAfterBreakpointStop = false;
         const QList<RefusedBreakpointArray> refused = std::exchange(m_breakpointsNeedingAStop, {});
         for (const RefusedBreakpointArray &array : refused)
@@ -2007,7 +2039,7 @@ void DapImpl::resumeAfterBreakpointStop()
         // The session was never told about the stop, so it still believes the
         // debuggee runs: the stop is what it has to hear now.
         m_inferiorRunning = false;
-        emit message(Tr::tr("The program was stopped to take a breakpoint and could not be "
+        emit message(Tr::tr("The program was stopped to set a breakpoint and could not be "
                             "resumed: %1").arg(answer.error()), LogError);
         emit inferiorEvent(InferiorEvent::SpontaneousStop);
     });
@@ -2440,7 +2472,8 @@ void DapImpl::refresh(const RefreshRequest &request)
         return;
     case RefreshKind::Modules:
         if (!m_client->capabilities().supportsModulesRequest) {
-            reportUnsupported(Tr::tr("the list of modules"));
+            //: Name of a feature the debug adapter does not support
+            reportUnsupported(Tr::tr("Listing modules"));
             emit refreshDataReceived(request.requestId, request.kind, {});
             return;
         }
@@ -2451,21 +2484,22 @@ void DapImpl::refresh(const RefreshRequest &request)
         if (request.path.isEmpty()) {
             // The listing the console answers with names every module the
             // debugger knows of, and picking one out of it needs a name.
-            emit message(Tr::tr("Cannot fetch the sections of no module."), LogError);
+            emit message(Tr::tr("Cannot fetch sections: no module specified."), LogError);
             return;
         }
         fetchModuleSections(request.requestId, request.path);
         return;
     case RefreshKind::ModuleSymbols:
         if (request.path.isEmpty()) {
-            emit message(Tr::tr("Cannot fetch the symbols of no module."), LogError);
+            emit message(Tr::tr("Cannot fetch symbols: no module specified."), LogError);
             return;
         }
         fetchModuleSymbols(request.requestId, request.path);
         return;
     case RefreshKind::SourceFiles:
         if (!m_client->capabilities().supportsLoadedSourcesRequest) {
-            reportUnsupported(Tr::tr("the list of source files"));
+            //: Name of a feature the debug adapter does not support
+            reportUnsupported(Tr::tr("Listing source files"));
             emit refreshDataReceived(request.requestId, request.kind, {});
             return;
         }
@@ -2476,14 +2510,14 @@ void DapImpl::refresh(const RefreshRequest &request)
         // Nothing loads symbols over the protocol, while the debugger behind
         // the adapter does it over its console. What the caller is after is
         // what reads them, so the answers they feed come next.
-        loadSymbols(".*", Tr::tr("all modules"));
+        loadSymbols(".*", {});
         refresh({request.requestId, RefreshKind::Modules});
         refresh({request.requestId, RefreshKind::FullStack});
         refresh({request.requestId, RefreshKind::Locals});
         return;
     case RefreshKind::StackSymbols:
         if (request.path.isEmpty()) {
-            emit message(Tr::tr("Cannot load the symbols of no module."), LogError);
+            emit message(Tr::tr("Cannot load symbols: no module specified."), LogError);
             return;
         }
         // What the debugger matches the module by is a pattern, so a path goes
@@ -2499,7 +2533,8 @@ void DapImpl::refresh(const RefreshRequest &request)
         // A peripheral register is not a register of the machine but a word at
         // a known address, so each one is a memory read of its own.
         if (!m_client->capabilities().supportsReadMemoryRequest) {
-            reportUnsupported(Tr::tr("reading memory"));
+            //: Name of a feature the debug adapter does not support
+            reportUnsupported(Tr::tr("Reading memory"));
             emit refreshDataReceived(request.requestId, request.kind, {});
             return;
         }
@@ -2832,7 +2867,7 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
         if (targets.isEmpty()) {
             // The adapter took the question and has nowhere in that line to go
             // to, which is as much of an answer as a target would have been.
-            emit message(Tr::tr("The adapter names no place to jump to in line %1.")
+            emit message(Tr::tr("The adapter reports no jump target in line %1.")
                              .arg(m_jumpLine), LogError);
             return;
         }
@@ -2908,9 +2943,12 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         // Work around gdb before 16 not always answering it while the launch
         // still starts the debuggee, which holds back every later request.
         // It does nothing there: the launch runs the debuggee by itself.
+        // Red Hat's gdb 14 is the exception: its launch waits for the request.
         const bool isOldGdb = m_gdbMajorVersion > 0 && m_gdbMajorVersion < 16;
-        if (m_client->capabilities().supportsConfigurationDoneRequest && !isOldGdb)
+        if (m_client->capabilities().supportsConfigurationDoneRequest
+                && (!isOldGdb || m_isRedHatGdb)) {
             m_client->sendConfigurationDone();
+        }
         return;
     }
     case DapEventType::Stopped:
@@ -2955,8 +2993,10 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         if (m_startData.adapterId == "gdb" && m_gdbMajorVersion == 0) {
             static const QRegularExpression banner("^GNU gdb .*\\s(\\d+)\\.\\d+");
             const QRegularExpressionMatch match = banner.match(output);
-            if (match.hasMatch())
+            if (match.hasMatch()) {
                 m_gdbMajorVersion = match.captured(1).toInt();
+                m_isRedHatGdb = output.contains("(Red Hat");
+            }
         }
         // gdb announces a debug info download with one line and then fetches
         // silently, which looks exactly like a debugger that stopped answering.
@@ -3035,7 +3075,7 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         // Reading the symbols of a module is the other one, and a module is
         // announced once they have been read.
         if (!removed)
-            emit progressMessage(Tr::tr("Read the symbols of %1").arg(path));
+            emit progressMessage(Tr::tr("Symbols of \"%1\" loaded.").arg(path));
     } else if (name == "progressStart" || name == "progressUpdate"
                || name == "progressEnd") {
         reportProgress(name, event.value("body").toObject());
@@ -3997,7 +4037,8 @@ void DapImpl::accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64
 
     if (op == MemoryOp::Fetch) {
         if (!m_client->capabilities().supportsReadMemoryRequest) {
-            reportUnsupported(Tr::tr("reading memory"));
+            //: Name of a feature the debug adapter does not support
+            reportUnsupported(Tr::tr("Reading memory"));
             return;
         }
         const int seq = m_client->postRequest("readMemory",
@@ -4008,7 +4049,8 @@ void DapImpl::accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64
         return;
     }
     if (!m_client->capabilities().supportsWriteMemoryRequest) {
-        reportUnsupported(Tr::tr("writing memory"));
+        //: Name of a feature the debug adapter does not support
+        reportUnsupported(Tr::tr("Writing memory"));
         return;
     }
     postRequest("writeMemory",
@@ -4076,7 +4118,8 @@ void DapImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString
 {
     QTC_ASSERT(m_client, return);
     if (!m_client->capabilities().supportsDisassembleRequest) {
-        reportUnsupported(Tr::tr("disassembly"));
+        //: Name of a feature the debug adapter does not support
+        reportUnsupported(Tr::tr("Disassembling"));
         return;
     }
     if (address == 0) {
@@ -4095,8 +4138,8 @@ void DapImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString
                           (const Utils::Result<QJsonObject> &answer) {
             const quint64 found = answer ? addressOfEvaluated(*answer) : 0;
             if (found == 0) {
-                emit message(Tr::tr("Disassembling \"%1\" needs its address, which the adapter "
-                                    "did not give away.").arg(functionName), LogWarning);
+                emit message(Tr::tr("Cannot disassemble \"%1\": the adapter did not provide its "
+                                    "address.").arg(functionName), LogWarning);
                 return;
             }
             fetchDisassembly(requestId, found, functionName);
@@ -4176,12 +4219,12 @@ void DapImpl::handleDisassemble(const QJsonObject &response)
                      LogOutput);
     } else if (!unreadableFile.isEmpty()) {
         if (unreadableIsUnknownToTheAdapter) {
-            emit message(Tr::tr("The disassembly names line %1 of \"%2\", which neither the "
-                                "adapter nor this side can find.")
+            emit message(Tr::tr("Cannot find line %1 of \"%2\" that the disassembly refers "
+                                "to.")
                              .arg(unreadableLine).arg(unreadableFile), LogOutput);
         } else {
-            emit message(Tr::tr("The disassembly names line %1 of \"%2\", which cannot be "
-                                "read here.").arg(unreadableLine).arg(unreadableFile), LogOutput);
+            emit message(Tr::tr("Cannot read line %1 of \"%2\" that the disassembly refers "
+                                "to.").arg(unreadableLine).arg(unreadableFile), LogOutput);
         }
     }
     lines.setBytesLength(bytesLength);
@@ -4207,7 +4250,8 @@ void DapImpl::assignValueInDebugger(const WatchItemData &item, const QString &ex
                                                {"value", value}});
         return;
     }
-    reportUnsupported(Tr::tr("assigning a value"));
+    //: Name of a feature the debug adapter does not support
+    reportUnsupported(Tr::tr("Assigning values"));
 }
 
 void DapImpl::executeDebuggerCommand(const QString &command, const WatchItemData &inspectorItem)
@@ -4253,7 +4297,8 @@ void DapImpl::setRegisterValue(const QString &name, const QString &value)
 {
     QTC_ASSERT(m_client, return);
     if (!m_client->capabilities().supportsSetVariable) {
-        reportUnsupported(Tr::tr("setting a register"));
+        //: Name of a feature the debug adapter does not support
+        reportUnsupported(Tr::tr("Setting registers"));
         return;
     }
     if (m_registerNamesFetched) {
@@ -4263,7 +4308,8 @@ void DapImpl::setRegisterValue(const QString &name, const QString &value)
         return;
     }
     if (m_currentFrameId < 0) {
-        reportUnsupported(Tr::tr("setting a register"));
+        //: Name of a feature the debug adapter does not support
+        reportUnsupported(Tr::tr("Setting registers"));
         return;
     }
     // A register is addressed by the name it has inside the scope that holds
@@ -4282,14 +4328,16 @@ void DapImpl::setRegisterValue(const QString &name, const QString &value)
             }
         }
         if (reference == 0) {
-            reportUnsupported(Tr::tr("setting a register"));
+            //: Name of a feature the debug adapter does not support
+            reportUnsupported(Tr::tr("Setting registers"));
             return;
         }
         m_registerScopeReference = reference;
         sendCustomRequest("variables", QJsonObject{{"variablesReference", reference}},
                           [this, name, value](const Utils::Result<QJsonObject> &listed) {
             if (!listed) {
-                reportUnsupported(Tr::tr("setting a register"));
+                //: Name of a feature the debug adapter does not support
+                reportUnsupported(Tr::tr("Setting registers"));
                 return;
             }
             m_registerNamesFetched = true;

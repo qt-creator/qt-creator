@@ -658,15 +658,19 @@ void QbsBuildSystem::updateProjectNodes(const std::function<void ()> &continuati
     const auto onDone = [this, continuation](const Async<BuildTreeResult> &task) {
         OpTimer opTimer("updateProjectNodes continuation");
         if (project()->activeBuildSystem() != this)
-            return;
+            return false;
 
         BuildTreeResult rootNode(task.takeResult());
         project()->setDisplayName(rootNode->displayName());
         setRootProjectNode(std::move(rootNode));
+        return true;
+    };
+    const auto onTaskTreeDone = [continuation] {
         if (continuation)
             continuation();
     };
-    m_taskTreeRunner.start({AsyncTask<BuildTreeResult>(onSetup, onDone)});
+    m_taskTreeRunner.start({AsyncTask<BuildTreeResult>(onSetup, onDone)}, {},
+                           onTaskTreeDone, QtTaskTree::CallDoneFlag::OnSuccess);
 }
 
 QbsBuildConfiguration *QbsBuildSystem::qbsBuildConfig() const

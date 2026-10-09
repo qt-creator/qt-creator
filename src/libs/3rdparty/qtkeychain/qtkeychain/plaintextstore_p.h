@@ -15,7 +15,8 @@
 
 namespace QKeychain {
 
-class PlainTextStore {
+class PlainTextStore
+{
     Q_DECLARE_TR_FUNCTIONS(QKeychain::PlainTextStore)
 
 public:
@@ -42,6 +43,6 @@ private:
     Error m_error;
 };
 
-}
+} // namespace QKeychain
 
 #endif // QTKEYCHAIN_PLAINTEXTSTORE_P_H

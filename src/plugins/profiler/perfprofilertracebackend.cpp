@@ -23,7 +23,7 @@
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 
-#ifndef __EMSCRIPTEN__
+#ifndef QTPROFILER_WASM
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 #endif
@@ -79,7 +79,7 @@ public:
 
 static FilePaths collectQtIncludePaths(const ProjectExplorer::Kit *kit)
 {
-#ifdef __EMSCRIPTEN__
+#ifdef QTPROFILER_WASM
     // QtSupport is not part of the WebAssembly build.
     Q_UNUSED(kit)
     return {};

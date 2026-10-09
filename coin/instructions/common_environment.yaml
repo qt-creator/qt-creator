@@ -11,9 +11,11 @@ instructions:
           - type: EnvironmentVariable
             variableName: MACOSX_DEPLOYMENT_TARGET
             variableValue: 13.0
-          - type: EnvironmentVariable
+          - !include "{{qt-creator/qt-creator}}/qtmodules.yaml"
+          # Add qtwebengine for test coverage even though it is not part of packaging
+          - type: AppendToEnvironmentVariable
             variableName: QTC_QT_MODULES
-            variableValue: "qt5compat qtbase qtcanvaspainter qtdeclarative qtimageformats qtquick3d qtquicktimeline qtserialport qtshadertools qtsvg qttasktree qttools qttranslations qtwebengine"
+            variableValue: " qtwebengine"
         enable_if:
           condition: property
           property: features

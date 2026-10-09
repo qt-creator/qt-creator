@@ -17,6 +17,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QMessageBox>
+#include <QPushButton>
 
 using namespace QtTaskTree;
 using namespace Utils;
@@ -94,19 +95,45 @@ void ExecuteFilter::acceptCommand(const QString &cmd)
     const ExecuteData data{CommandLine::fromUserInput(displayName, globalMacroExpander()),
                            FilePath::fromString(workingDirectory)};
     if (m_process) {
-        const QString info(Tr::tr("Previous command is still running (\"%1\").\n"
-                                  "Do you want to kill it?").arg(headCommand()));
-        const auto result = QMessageBox::question(ICore::dialogParent(),
-                                                  Tr::tr("Kill Previous Process?"), info,
-                                                  QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
-                                                  QMessageBox::Yes);
-        if (result == QMessageBox::Cancel)
-            return;
-        if (result == QMessageBox::No) {
+        const QString info
+            = m_taskQueue.size() > 1
+                  ? Tr::tr(
+                        "Previous command is still running (\"%1\") and %n more queued.\n"
+                        "Do you want to kill the running command and clear the queue, or queue the "
+                        "new command?",
+                        nullptr,
+                        m_taskQueue.size() - 1)
+                        .arg(headCommand())
+                  : Tr::tr(
+                        "Previous command is still running (\"%1\").\n"
+                        "Do you want to kill it or queue the new command?")
+                        .arg(headCommand());
+        QMessageBox
+            box(QMessageBox::Question,
+                Tr::tr("Command Still Running"),
+                info,
+                QMessageBox::Cancel,
+                ICore::dialogParent());
+        //: kill the running command
+        QPushButton *killButton = box.addButton(Tr::tr("Kill"), QMessageBox::DestructiveRole);
+        //: queue the new command
+        QPushButton *queueButton = box.addButton(Tr::tr("Queue"), QMessageBox::AcceptRole);
+        box.setDefaultButton(queueButton);
+        box.exec();
+        if (box.clickedButton() == queueButton) {
             m_taskQueue.append(data);
+            if (!m_process && m_taskQueue.size() == 1) {
+                // previous command(s) have finished in the meantime
+                runHeadCommand();
+            }
             return;
         }
+        if (box.clickedButton() != killButton)
+            return;
+        if (!m_taskQueue.isEmpty())
+            MessageManager::writeFlashing(Tr::tr("Killing command \"%1\".").arg(headCommand()));
         removeProcess();
+        m_taskQueue.clear();
     }
     m_taskQueue.append(data);
     runHeadCommand();
@@ -172,6 +199,7 @@ void ExecuteFilter::removeProcess()
         return;
 
     m_taskQueue.removeFirst();
+    m_process->disconnect(this);
     m_process->deleteLater();
     m_process = nullptr;
 }

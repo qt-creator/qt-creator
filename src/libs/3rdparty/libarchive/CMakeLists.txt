@@ -27,6 +27,10 @@ endif()
 target_compile_definitions(archive_static PRIVATE
   "PLATFORM_CONFIG_H=\"${CMAKE_CURRENT_SOURCE_DIR}/${PLATFORM_CONFIG_H}\"")
 
+if (WIN32)
+  target_link_libraries(archive_static PRIVATE bcrypt)
+endif()
+
 if (MSVC)
   target_compile_options(archive_static PUBLIC /wd4996)
 elseif (NOT WIN32)

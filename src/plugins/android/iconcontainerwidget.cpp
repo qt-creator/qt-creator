@@ -7,6 +7,7 @@
 #include "androidmanifestutils.h"
 
 #include <QDir>
+#include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QLabel>
@@ -34,7 +35,7 @@ public:
 
     IconWidget(QWidget *parent, const QSize &displaySize, const QSize &pixmapSize, const QString &title,
                const QString &tooltip, TextEditor::TextEditorWidget *textEditorWidget,
-               const QString &pathPrefix = QString(), const QString &targetFileName = QString());
+               const QString &density = QString(), const QString &targetFileName = QString());
 
     void setIcon(const QIcon &icon);
     void setTargetIconFileName(const QString &name) { m_targetFileName = name; }
@@ -42,6 +43,7 @@ public:
     void loadIcon(const FilePath &manifestDir);
     void clearDisplay();
     bool hasIcon() const { return m_hasIcon; }
+    void setFolder(const QString &folder) { m_folder = folder; }
 
 signals:
     void iconSelected();
@@ -62,7 +64,8 @@ private:
     QString m_title;
     QString m_tooltip;
     QPointer<TextEditor::TextEditorWidget> m_textEditor = nullptr;
-    QString m_pathPrefix;
+    QString m_density;
+    QString m_folder;
     QString m_targetFileName;
     QPixmap m_pixmap;
     bool m_hasIcon = false;
@@ -97,20 +100,15 @@ void IconWidget::mousePressEvent(QMouseEvent *ev)
     m_hasIcon = true;
 
     emit iconSelected();
-};
+}
 
 IconWidget::IconWidget(QWidget *parent, const QSize &displaySize, const QSize &pixmapSize, const QString &title,
                        const QString &tooltip, TextEditor::TextEditorWidget *textEditorWidget,
-                       const QString &pathPrefix, const QString &targetFileName): QLabel(parent),
+                       const QString &density, const QString &targetFileName): QLabel(parent),
                         m_displaySize(displaySize), m_pixmapSize(pixmapSize), m_title(title),
-                        m_tooltip(tooltip), m_textEditor(textEditorWidget), m_targetFileName(targetFileName)
+                        m_tooltip(tooltip), m_textEditor(textEditorWidget), m_density(density),
+                        m_targetFileName(targetFileName)
 {
-    if (pathPrefix.isEmpty()) {
-        m_pathPrefix = QString();
-    } else {
-        m_pathPrefix = pathPrefix;
-    }
-
     initDefaults();
     setToolTip(m_tooltip);
 }
@@ -147,7 +145,7 @@ void IconWidget::setIconFromPath()
 
 Utils::FilePath IconWidget::getTargetPath(const FilePath &manifestDir) const
 {
-    if (m_pathPrefix.isEmpty() || m_targetFileName.isEmpty() || !m_textEditor) {
+    if (m_density.isEmpty() || m_folder.isEmpty() || m_targetFileName.isEmpty() || !m_textEditor) {
         qWarning() << "Cannot determine target path - missing required parameters";
         return {};
     }
@@ -157,7 +155,7 @@ Utils::FilePath IconWidget::getTargetPath(const FilePath &manifestDir) const
         return {};
     }
 
-    return manifestDir / m_pathPrefix / m_targetFileName;
+    return manifestDir / "res" / (m_folder + '-' + m_density) / m_targetFileName;
 }
 
 void IconWidget::setIcon(const QIcon &icon)
@@ -188,7 +186,7 @@ void IconWidget::clearDisplay()
 
 void IconWidget::loadIcon(const FilePath &manifestDir)
 {
-    if (m_pathPrefix.isEmpty() || m_targetFileName.isEmpty() || !m_textEditor)
+    if (m_density.isEmpty() || m_folder.isEmpty() || m_targetFileName.isEmpty() || !m_textEditor)
         return;
 
     const Utils::FilePath targetPath = getTargetPath(manifestDir);
@@ -235,13 +233,6 @@ Result<void> IconWidget::saveIcon(const FilePath &manifestDir)
             .arg(targetPath.toUserOutput(), file.errorString()));
 }
 
-
-const char extraExtraExtraHighDpiIconPath[] = "/res/drawable-xxxhdpi/";
-const char extraExtraHighDpiIconPath[] = "/res/drawable-xxhdpi/";
-const char extraHighDpiIconPath[] = "/res/drawable-xhdpi/";
-const char highDpiIconPath[] = "/res/drawable-hdpi/";
-const char mediumDpiIconPath[] = "/res/drawable-mdpi/";
-const char lowDpiIconPath[] = "/res/drawable-ldpi/";
 const char imageSuffix[] = ".png";
 const QSize lowDpiIconSize{32, 32};
 const QSize mediumDpiIconSize{48, 48};
@@ -301,7 +292,7 @@ struct IconConfig {
     QSize size;
     QString title;
     QString tooltip;
-    const QString path;
+    const QString density;
 };
 
 static QList<IconConfig> iconConfigs()
@@ -311,32 +302,32 @@ static QList<IconConfig> iconConfigs()
          lowDpiIconSize,
          "LDPI",
          Tr::tr("Select an icon suitable for low-density (ldpi) screens (~120dpi)."),
-         lowDpiIconPath},
+         "ldpi"},
         {mediumDpiIconDisplaySize,
          mediumDpiIconSize,
          "MDPI",
          Tr::tr("Select an icon for medium-density (mdpi) screens (~160dpi)."),
-         mediumDpiIconPath},
+         "mdpi"},
         {highDpiIconDisplaySize,
          highDpiIconSize,
          "HDPI",
          Tr::tr("Select an icon for high-density (hdpi) screens (~240dpi)."),
-         highDpiIconPath},
+         "hdpi"},
         {extraHighDpiIconDisplaySize,
          extraHighDpiIconSize,
          "XHDPI",
          Tr::tr("Select an icon for extra-high-density (xhdpi) screens (~320dpi)."),
-         extraHighDpiIconPath},
+         "xhdpi"},
         {extraExtraHighDpiIconDisplaySize,
          extraExtraHighDpiIconSize,
          "XXHDPI",
          Tr::tr("Select an icon for extra-extra-high-density (xxhdpi) screens (~480dpi)."),
-         extraExtraHighDpiIconPath},
+         "xxhdpi"},
         {extraExtraExtraHighDpiIconDisplaySize,
          extraExtraExtraHighDpiIconSize,
          "XXXHDPI",
          Tr::tr("Select an icon for extra-extra-extra-high-density (xxxhdpi) screens (~640dpi)."),
-         extraExtraExtraHighDpiIconPath},
+         "xxxhdpi"},
     };
 }
 
@@ -371,7 +362,7 @@ bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWi
             config.title,
             config.tooltip,
             textEditorWidget,
-            config.path,
+            config.density,
             iconFileName);
         m_iconLayout->addWidget(iconButton, 0, column, Qt::AlignBottom);
         m_iconButtons.push_back(iconButton);
@@ -408,7 +399,11 @@ bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWi
             if (currentManifestDir.isEmpty() || !currentManifestDir.exists())
                 return;
 
-            const auto iconFile = IconContainerWidget::iconFile(lowDpiIconPath);
+            const FilePath iconFile = FileUtils::getOpenFilePath(
+                Tr::tr("Select Master Icon"),
+                FileUtils::homePath(),
+                //: %1 expands to wildcard list for file dialog, do not change order
+                Tr::tr("Images %1").arg("(*.png *.jpg *.jpeg *.webp *.svg)")); // TODO: See SplashContainterWidget
             if (iconFile.isEmpty())
                 return;
 
@@ -441,16 +436,6 @@ bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWi
     return true;
 }
 
-Utils::FilePath IconContainerWidget::iconFile(const Utils::FilePath &path)
-{
-    return FileUtils::getOpenFilePath(
-        path.toUrlishString(),
-        FileUtils::homePath(),
-        //: %1 expands to wildcard list for file dialog, do not change order
-        Tr::tr("Images %1")
-            .arg("(*.png *.jpg *.jpeg *.webp *.svg)")); // TODO: See SplashContainterWidget
-}
-
 void IconContainerWidget::refresh()
 {
     for (auto &&iconButton : m_iconButtons)
@@ -461,18 +446,27 @@ void IconContainerWidget::refresh()
 void IconContainerWidget::loadIcons()
 {
     const FilePath currentManifestDir = manifestDirectory();
-
-    Utils::FilePath manifestPath = currentManifestDir / "AndroidManifest.xml";
-    Result<AndroidManifestParser::ManifestData> manifestResult = AndroidManifestParser::readManifest(manifestPath);
-    if (!manifestResult || !manifestResult->hasIcon) {
+    const Result<AndroidManifestParser::ManifestData> manifest
+        = AndroidManifestParser::readManifest(currentManifestDir / "AndroidManifest.xml");
+    if (!manifest) {
         m_hasIcons = false;
         return;
     }
 
-    if (!manifestResult->iconName.isEmpty())
-        m_iconFileName = manifestResult->iconName;
+    const QString &iconValue = manifest->iconValue;
+    const qsizetype slash = iconValue.indexOf(u'/');
+    if (iconValue.startsWith(u'@') && slash > 1) {
+        const QString folder = iconValue.sliced(1, slash - 1);
+        const QString name = iconValue.sliced(slash + 1);
+        const bool known = folder == QLatin1String("mipmap") || folder == QLatin1String("drawable");
+        if (known && !name.isEmpty()) {
+            m_iconFolder = folder;
+            m_iconFileName = name;
+        }
+    }
 
-    for (auto &&iconButton : m_iconButtons) {
+    for (IconWidget *iconButton : std::as_const(m_iconButtons)) {
+        iconButton->setFolder(m_iconFolder);
         iconButton->setTargetIconFileName(m_iconFileName + imageSuffix);
         iconButton->loadIcon(currentManifestDir);
     }
@@ -555,7 +549,7 @@ void IconContainerWidget::updateManifestIcon()
     if (!manifestPath.exists())
         return;
 
-    const QString iconValue = hasIcons() ? (QLatin1String("@drawable/") + m_iconFileName)
+    const QString iconValue = hasIcons() ? QString("@%1/%2").arg(m_iconFolder, m_iconFileName)
                                          : QString();
     Android::Internal::updateManifestApplicationAttribute(manifestPath,
                                                           QLatin1String("android:icon"),

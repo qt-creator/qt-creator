@@ -17,6 +17,6 @@ add_qtc_library(McpServerLib
 
 extend_qtc_library(McpServerLib
   CONDITION TARGET Qt::HttpServer
-  PUBLIC_DEPENDS Qt::HttpServer
+  DEPENDS Qt::HttpServer
   DEFINES MCP_SERVER_HAS_QT_HTTP_SERVER
 )

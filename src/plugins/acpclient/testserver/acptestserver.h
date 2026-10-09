@@ -29,6 +29,9 @@ public:
     bool allUpdateKinds = false;   // --updates-all
     bool stderrNoise = false;      // --stderr-noise
     bool invalidResponse = false;  // --invalid-response-on-prompt
+    bool stdoutBanner = false;     // --stdout-banner
+    bool promptOnInitialize = false; // --prompt-on-initialize
+    bool logOnInitialize = false;  // --log-on-initialize
     int chunks = 3;                // --chunks <N>
     int protocolVersion = -1;      // --protocol-version <N>, -1 negotiates
     bool omitProtocolVersion = false; // --omit-protocol-version
@@ -49,6 +52,7 @@ private:
     void dispatch(const QJsonObject &message);
     void handleRequest(const QJsonValue &id, const QString &method, const QJsonObject &params);
     void handleNotification(const QString &method, const QJsonObject &params);
+    void beforeInitialize();
 
     void handleInitialize(const QJsonValue &id, const QJsonObject &params);
     void handleAuthenticate(const QJsonValue &id, const QJsonObject &params);

@@ -139,7 +139,7 @@ Result<> FileAccess::init(
         while (!future.isFinished() && !deadline.hasExpired())
             QThread::msleep(10);
         if (!future.isFinished())
-            return logError(Tr::tr("The bridge did not answer within %n seconds.", nullptr,
+            return logError(Tr::tr("The bridge did not answer within %n second(s).", nullptr,
                                    int(timeout.count())));
         future.waitForFinished();
         if (future.isCanceled() || future.resultCount() == 0)

@@ -1,0 +1,48 @@
+From 7df78b81f2100dc198bfe00c55e740f45865d10d Mon Sep 17 00:00:00 2001
+From: Marcus Tillmanns <marcus.tillmanns@qt.io>
+Date: Fri, 25 Sep 2026 20:24:19 +0200
+Subject: [PATCH] QCommandLinkButton: Build without style sheet support
+
+qcommandlinkbutton.cpp included qstylesheetstyle_p.h and cast to
+QStyleSheetStyle unconditionally, so Qt Widgets did not compile with
+-no-feature-style-stylesheet. Guard both, the include as the other
+widgets already do. Without style sheet support no style is a
+QStyleSheetStyle, so a style change resets the command link's icon,
+as it does for every other style.
+
+Amends 839d569dc27cfa5188db477893899d849ac26ea5.
+
+Pick-to: 6.12 6.11 6.10
+Change-Id: I97b6f3e3ce3276dedfc6c1250f00a5be2aa2f994
+---
+ src/widgets/widgets/qcommandlinkbutton.cpp | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/src/widgets/widgets/qcommandlinkbutton.cpp b/src/widgets/widgets/qcommandlinkbutton.cpp
+index eac88aeb175..a1c648f0ebb 100644
+--- a/src/widgets/widgets/qcommandlinkbutton.cpp
++++ b/src/widgets/widgets/qcommandlinkbutton.cpp
+@@ -12,7 +12,9 @@
+ #include <qmath.h>
+ 
+ #include "private/qpushbutton_p.h"
++#if QT_CONFIG(style_stylesheet)
+ #include "private/qstylesheetstyle_p.h"
++#endif
+ 
+ QT_BEGIN_NAMESPACE
+ 
+@@ -286,7 +288,12 @@ bool QCommandLinkButton::event(QEvent *e)
+         // - or it has been set in the style sheet, in which case we don't want to override it here.
+         // When a style sheet with an icon is replaced by one without an icon, the old icon
+         // will be reset, when baseStyle()->repolish() is called.
+-        if (!qobject_cast<QStyleSheetStyle *>(style())) {
++#if QT_CONFIG(style_stylesheet)
++        const bool isStyleSheetStyle = qobject_cast<QStyleSheetStyle *>(style());
++#else
++        const bool isStyleSheetStyle = false;
++#endif
++        if (!isStyleSheetStyle) {
+             QStyleOptionButton opt;
+             initStyleOption(&opt);
+             setIcon(style()->standardIcon(QStyle::SP_CommandLink, &opt, this));

@@ -379,13 +379,13 @@ void LanguageClientManager::applySettingsForRequiresProject(BaseSettings *settin
         for (Project *project : ProjectManager::projects()) {
             if (!setting->isEnabledOnProject(project))
                 continue;
+            if (!LanguageClient::fileBelongsToProject(project, filePath))
+                continue;
 
             for (Target *target : project->targets()) {
                 const bool targetIsActive = project->activeTarget() == target;
                 for (BuildConfiguration *bc : target->buildConfigurations()) {
                     if (!setting->isValidOnBuildConfiguration(bc))
-                        continue;
-                    if (!project->isKnownFile(filePath))
                         continue;
                     // Note: we might already have started the client in a previous iteration of
                     // the openedDocuments-loop. In that case, use the existing one.
@@ -635,7 +635,7 @@ void LanguageClientManager::documentOpenedForProject(
     const Utils::FilePath &filePath = textDocument->filePath();
     for (Project *project : ProjectManager::projects()) {
         // check whether file is part of this project
-        if (!project->isKnownFile(filePath) && !filePath.isChildOf(project->projectDirectory()))
+        if (!LanguageClient::fileBelongsToProject(project, filePath))
             continue;
         for (Target *target : project->targets()) {
             const bool activateDocument = project->activeTarget() == target;
@@ -724,7 +724,7 @@ void LanguageClientManager::updateProject(BuildConfiguration *bc)
                 const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
                 for (Core::IDocument *doc : openedDocuments) {
                     if (setting->languageFilter().isSupported(doc)
-                            && bc->project()->isKnownFile(doc->filePath())) {
+                        && LanguageClient::fileBelongsToProject(bc->project(), doc->filePath())) {
                         if (auto textDoc = qobject_cast<TextEditor::TextDocument *>(doc)) {
                             if (!newClient)
                                 newClient = startClient(setting, bc);

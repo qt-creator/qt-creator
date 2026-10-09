@@ -217,8 +217,10 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
     QMenu *menu = new QMenu(this);
     menu->setAttribute(Qt::WA_DeleteOnClose);
 
+#ifndef Q_OS_WASM
     menu->addActions(QmlProfilerTool::profilerContextMenuActions());
     menu->addSeparator();
+#endif
 
     QAction *getLocalStatsAction = menu->addAction(Tr::tr("Analyze Current Range"));
     if (!hasValidSelection())

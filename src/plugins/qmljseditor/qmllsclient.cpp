@@ -139,7 +139,7 @@ bool QmllsClient::isSupportedDocument(const TextEditor::TextDocument *document) 
 {
     if (!Client::isSupportedDocument(document))
         return false;
-    return fileBelongsToProject(document->filePath());
+    return LanguageClient::fileBelongsToProject(project(), document->filePath());
 }
 
 QmllsClient::QmllsClient(StdIOClientInterface *interface)

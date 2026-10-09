@@ -120,6 +120,7 @@ add_qtc_plugin(CppEditor
     quickfixes/logicaloperationquickfixes.cpp quickfixes/logicaloperationquickfixes.h
     quickfixes/moveclasstoownfile.cpp quickfixes/moveclasstoownfile.h
     quickfixes/movefunctiondefinition.cpp quickfixes/movefunctiondefinition.h
+    quickfixes/movelambdatofunction.cpp quickfixes/movelambdatofunction.h
     quickfixes/rearrangeparamdeclarationlist.cpp quickfixes/rearrangeparamdeclarationlist.h
     quickfixes/reformatpointerdeclaration.cpp quickfixes/reformatpointerdeclaration.h
     quickfixes/removeusingnamespace.cpp quickfixes/removeusingnamespace.h

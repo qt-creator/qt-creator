@@ -15,7 +15,9 @@ namespace Profiler::Internal {
 
 class QmlProfilerStatisticsMainView;
 class QmlProfilerStatisticsRelativesView;
+#ifndef Q_OS_WASM
 class QmlProfilerTextMarkModel;
+#endif
 
 class QmlProfilerStatisticsView final : public QmlProfilerEventsView
 {
@@ -28,7 +30,9 @@ public:
     QString summary(const QList<int> &typeIds) const;
     QStringList details(int typeId) const;
 
+#ifndef Q_OS_WASM
     void createMarks(const QString &fileName);
+#endif
 
     void selectByTypeId(int typeIndex) final;
     void onVisibleFeaturesChanged(quint64 features) final;
@@ -45,7 +49,9 @@ private:
     std::unique_ptr<QmlProfilerStatisticsMainView> m_mainView;
     std::unique_ptr<QmlProfilerStatisticsRelativesView> m_calleesView;
     std::unique_ptr<QmlProfilerStatisticsRelativesView> m_callersView;
+#ifndef Q_OS_WASM
     QmlProfilerTextMarkModel *m_textMarkModel = nullptr;
+#endif
 };
 
 class QmlProfilerStatisticsMainView final : public Utils::TreeView

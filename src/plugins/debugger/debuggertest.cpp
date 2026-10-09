@@ -44,6 +44,10 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
+#include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -57,20 +61,25 @@
 
 #include <texteditor/texteditor.h>
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/store.h>
 
+#include <QElapsedTimer>
+#include <QEventLoop>
 #include <QMouseEvent>
-#include <QTest>
-#include <QTextBlock>
-#include <QVersionNumber>
 #include <QScopeGuard>
 #include <QSignalSpy>
 #include <QTemporaryDir>
+#include <QTest>
 #include <QTestEventLoop>
+#include <QTextBlock>
+#include <QTimer>
+#include <QVersionNumber>
+#include <QtEndian>
 
 #include <memory>
 
@@ -131,10 +140,14 @@ private slots:
     void testMapsAnEmptyFileNameToNothing();
     void testFindsASourceFileOnTheDebuggerDevice();
     void testCdbSourcePathMapping();
+    void testCdbSourcePathMappingToHost();
+    void testCdbSourceFileNameOnDevice();
     void testCdbBreakpointFileName();
 
     void testQtBuildSourceRoots_data();
     void testQtBuildSourceRoots();
+    void testPdbSourceFileNames();
+    void testPdbSourceFileNamesOnDevice();
 
     void testDebugInfoDirectory();
     void testDebugInfoFile();
@@ -1310,6 +1323,120 @@ void DebuggerUnitTests::testCdbSourcePathMapping()
              QString("C:/src/foo.cpp"));
 }
 
+// A remote cdb names the files of its device. A mapped name the host has stays
+// on the host, one it misses is looked up on the device and stays local when
+// the device lacks it, too. The mapped name keeps cdb's separators after the
+// mapped part, which only a Windows host would accept as they are.
+void DebuggerUnitTests::testCdbSourcePathMappingToHost()
+{
+    QTemporaryDir hostDir;
+    QVERIFY(hostDir.isValid());
+    const FilePath hostFile = FilePath::fromString(hostDir.path()) / "main.cpp";
+    QVERIFY(hostFile.writeFileContents("int main() {}\n"));
+
+    CdbEngine engine;
+    DebuggerRunParameters rp;
+    ProcessRunData cdb;
+    cdb.command = CommandLine(FilePath::fromString("ssh://windows/C:/Debuggers/x64/cdb.exe"));
+    rp.setDebugger(cdb);
+    engine.setRunParameters(rp);
+    engine.m_sourcePathMappings.push_back({"C:/build/src", hostDir.path()});
+
+    const bool wasOn = commonSettings().lookUpSourcesOnDebuggerDevice();
+    const QScopeGuard restore(
+        [wasOn] { commonSettings().lookUpSourcesOnDebuggerDevice.setValue(wasOn); });
+    commonSettings().lookUpSourcesOnDebuggerDevice.setValue(true);
+
+    const auto mapped = engine.sourceMapNormalizeFileNameFromDebugger("C:\\build\\src\\main.cpp");
+    QVERIFY(mapped.fileName.isLocal());
+    QVERIFY(mapped.fileName.isSameFile(hostFile));
+    QVERIFY(mapped.exists);
+
+    const auto missing = engine.sourceMapNormalizeFileNameFromDebugger("C:\\build\\src\\gone.cpp");
+    QVERIFY(missing.fileName.isLocal());
+    QCOMPARE(missing.fileName.fileName(), QString("gone.cpp"));
+    QVERIFY(!missing.exists);
+
+    commonSettings().lookUpSourcesOnDebuggerDevice.setValue(false);
+
+    const auto unmapped = engine.sourceMapNormalizeFileNameFromDebugger("c:\\other\\x\\..\\a.cpp");
+    QVERIFY(unmapped.fileName.isLocal());
+    QCOMPARE(unmapped.fileName.path(), QString("C:/other/a.cpp"));
+    QVERIFY(!unmapped.exists);
+}
+
+static const char noWindowsTestDevice[]
+    = "Set QTC_SSH_TEST_WIN_HOST (and _USER/_PORT/_KEYFILE) to a Windows-over-SSH host, "
+      "and load the Remote plugin.";
+
+// Registers a device for the Windows-over-SSH test host, if there is one.
+static IDevicePtr addWindowsTestDevice()
+{
+    const SshParameters params = SshTest::getParameters("WIN");
+    if (!SshTest::hasVariantHost("WIN") || !SshTest::checkParameters(params))
+        return {};
+    IDeviceFactory *factory
+        = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(), [](IDeviceFactory *f) {
+              return f->deviceType() == Id("GenericWindowsOsType");
+          });
+    if (!factory)
+        return {};
+
+    const IDevicePtr device = factory->construct();
+    QTC_ASSERT(device, return {});
+    device->sshParametersAspectContainer().setSshParameters(params);
+    DeviceManager::addDevice(device);
+    return device;
+}
+
+static bool connectToDevice(const IDevicePtr &device)
+{
+    QEventLoop loop;
+    QTimer::singleShot(60 * 1000, &loop, [&loop] { loop.exit(1); });
+    device->tryToConnect(Continuation<>(&loop, [&loop](const Result<> &res) {
+        loop.exit(res ? 0 : 1);
+    }));
+    return loop.exec() == 0;
+}
+
+// A file that only the device of a remote cdb has is found there.
+void DebuggerUnitTests::testCdbSourceFileNameOnDevice()
+{
+    const IDevicePtr device = addWindowsTestDevice();
+    if (!device)
+        QSKIP(noWindowsTestDevice);
+    const QScopeGuard cleanup([id = device->id()] { DeviceManager::removeDevice(id); });
+    QVERIFY2(connectToDevice(device), "Cannot connect to the device.");
+
+    const bool wasOn = commonSettings().lookUpSourcesOnDebuggerDevice();
+    commonSettings().lookUpSourcesOnDebuggerDevice.setValue(true);
+    const QScopeGuard restore(
+        [wasOn] { commonSettings().lookUpSourcesOnDebuggerDevice.setValue(wasOn); });
+
+    CdbEngine engine;
+    DebuggerRunParameters rp;
+    ProcessRunData cdb;
+    cdb.command = CommandLine(device->rootPath().withNewPath("C:/Debuggers/x64/cdb.exe"));
+    rp.setDebugger(cdb);
+    engine.setRunParameters(rp);
+
+    const auto onDevice
+        = engine.sourceMapNormalizeFileNameFromDebugger("c:\\windows\\system32\\..\\win.ini");
+    QCOMPARE(onDevice.fileName, device->rootPath().withNewPath("C:/windows/win.ini"));
+    QVERIFY(onDevice.exists);
+
+    // A mapping may point to the device, too.
+    const Result<FilePath> dir = device->rootPath().createTempDir();
+    if (!dir)
+        QFAIL(qPrintable(dir.error()));
+    const QScopeGuard removeDir([dir] { dir->removeRecursively(); });
+    QVERIFY(dir->pathAppended("main.cpp").writeFileContents("int main() {}\n"));
+    engine.m_sourcePathMappings.push_back({"C:/build", dir->path()});
+    const auto mapped = engine.sourceMapNormalizeFileNameFromDebugger("C:\\build\\main.cpp");
+    QCOMPARE(mapped.fileName, dir->pathAppended("main.cpp"));
+    QVERIFY(mapped.exists);
+}
+
 void DebuggerUnitTests::testCdbBreakpointFileName()
 {
     BreakpointParameters params(BreakpointByFileAndLine);
@@ -1379,6 +1506,18 @@ void DebuggerUnitTests::testQtBuildSourceRoots_data()
 
     QTest::newRow("marker in a neighbor string")
         << debugStrings({"/build/a", "/qtbase/src/corelib"}) << QStringList();
+
+    QTest::newRow("drive letter")
+        << debugStrings({"C:/Users/qt/work/qt/qtbase/src/corelib/global/qglobal.cpp"})
+        << QStringList{"C:/Users/qt/work/qt"};
+
+    QTest::newRow("drive root")
+        << debugStrings({"c:/qtbase/src/corelib/global/qglobal.cpp"}) << QStringList();
+
+    QTest::newRow("no drive letter")
+        << debugStrings({"1:/qt/qtbase/src/corelib/global/qglobal.cpp",
+                         "C:qt/qtbase/src/corelib/global/qglobal.cpp"})
+        << QStringList();
 }
 
 void DebuggerUnitTests::testQtBuildSourceRoots()
@@ -1387,6 +1526,116 @@ void DebuggerUnitTests::testQtBuildSourceRoots()
     QFETCH(QStringList, roots);
 
     QCOMPARE(qtBuildSourceRoots(blob), roots);
+}
+
+static QByteArray le32(quint32 value)
+{
+    QByteArray result(4, '\0');
+    qToLittleEndian(value, result.data());
+    return result;
+}
+
+// A PDB with just an info stream and a string table, whose blocks are out of
+// order so that they have to be gathered, and partly consecutive.
+static QByteArray fakePdb(const QByteArray &strings)
+{
+    const int blockSize = 512;
+    const QByteArray streamNames("/LinkInfo\0/names\0", 17);
+    QByteArray info(28, '\0'); // Version, signature, age, GUID.
+    info += le32(streamNames.size()) + streamNames;
+    info += le32(2) + le32(4);          // Entries, capacity.
+    info += le32(1) + le32(0b11);       // Present buckets.
+    info += le32(0);                    // Deleted buckets.
+    info += le32(0) + le32(0);          // "/LinkInfo" is stream 0.
+    info += le32(10) + le32(2);         // "/names" is stream 2.
+
+    const QByteArray names = le32(0xeffeeffe) + le32(1) + le32(strings.size()) + strings
+                             + le32(0);
+    const QList<quint32> namesBlocks = {7, 5, 6};
+
+    QByteArray directory = le32(3) + le32(0) + le32(info.size()) + le32(names.size());
+    directory += le32(4);
+    for (const quint32 block : namesBlocks)
+        directory += le32(block);
+
+    QList<QByteArray> blocks(8, QByteArray(blockSize, '\0'));
+    const auto put = [&blocks](int block, const QByteArray &data) {
+        blocks[block].replace(0, data.size(), data);
+    };
+    QByteArray super("Microsoft C/C++ MSF 7.00\r\n\x1a" "DS\0\0\0", 32);
+    super += le32(blockSize) + le32(1) + le32(blocks.size()) + le32(directory.size());
+    super += le32(0) + le32(2);
+    put(0, super);
+    put(2, le32(3));
+    put(3, directory);
+    put(4, info);
+    for (int i = 0; i < namesBlocks.size(); ++i)
+        put(namesBlocks.at(i), names.mid(i * blockSize, blockSize));
+    return blocks.join();
+}
+
+void DebuggerUnitTests::testPdbSourceFileNames()
+{
+    QStringList files{"", "C:\\Users\\qt\\work\\qt\\qtbase\\src\\corelib\\global\\qglobal.cpp"};
+    for (int i = 0; i < 25; ++i)
+        files << QString("C:\\Users\\qt\\work\\qt\\qtbase_build\\gen\\file%1.h").arg(i);
+    const QByteArray strings = debugStrings(files);
+    // The string table has to take all three of its blocks.
+    QVERIFY(strings.size() + 16 > 2 * 512 && strings.size() + 16 <= 3 * 512);
+
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath pdb = FilePath::fromString(tmp.path()) / "Qt6Core.pdb";
+    const QByteArray contents = fakePdb(strings);
+
+    QVERIFY(pdb.writeFileContents(contents));
+    QCOMPARE(pdbSourceFileNames(pdb), strings);
+    QCOMPARE(qtBuildSourceRoots(pdbSourceFileNames(pdb).replace('\\', '/')),
+             QStringList{"C:/Users/qt/work/qt"});
+
+    // Anything but an intact PDB yields nothing.
+    QVERIFY(pdb.writeFileContents(contents.first(4 * 512)));
+    QCOMPARE(pdbSourceFileNames(pdb), QByteArray());
+
+    QByteArray noMagic = contents;
+    noMagic[0] = 'm';
+    QVERIFY(pdb.writeFileContents(noMagic));
+    QCOMPARE(pdbSourceFileNames(pdb), QByteArray());
+
+    QByteArray badBlock = contents;
+    qToLittleEndian<quint32>(100, badBlock.data() + 3 * 512 + 20);
+    QVERIFY(pdb.writeFileContents(badBlock));
+    QCOMPARE(pdbSourceFileNames(pdb), QByteArray());
+}
+
+// The PDB of a Qt on a Windows device is read through the device's file access,
+// piecewise at the offsets of its blocks.
+void DebuggerUnitTests::testPdbSourceFileNamesOnDevice()
+{
+    const IDevicePtr device = addWindowsTestDevice();
+    if (!device)
+        QSKIP(noWindowsTestDevice);
+    const QScopeGuard cleanup([id = device->id()] { DeviceManager::removeDevice(id); });
+    QVERIFY2(connectToDevice(device), "Cannot connect to the device.");
+
+    FilePath pdb;
+    const FilePath qtRoot = device->rootPath().withNewPath("C:/Qt");
+    const DirFilterFlags dirs = DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot;
+    for (const FilePath &version : qtRoot.dirEntries(dirs)) {
+        for (const FilePath &qt : version.dirEntries(FileFilter({"msvc*"}, dirs))) {
+            if ((qt / "bin/Qt6Core.pdb").isReadableFile())
+                pdb = qt / "bin/Qt6Core.pdb";
+        }
+    }
+    if (pdb.isEmpty())
+        QSKIP("The device has no MSVC Qt with a Qt6Core.pdb below C:/Qt.");
+
+    QElapsedTimer timer;
+    timer.start();
+    const QByteArray names = pdbSourceFileNames(pdb);
+    qDebug() << "Read the string table of" << pdb.toUserOutput() << "in" << timer.elapsed()
+             << "ms:" << names.size() << "bytes";
+    QVERIFY(!qtBuildSourceRoots(QByteArray(names).replace('\\', '/')).isEmpty());
 }
 
 void DebuggerUnitTests::testDebugInfoDirectory()
@@ -1653,6 +1902,27 @@ void DebuggerUnitTests::testBreakpointUpdateAnnouncesItIsProceeding()
     QCOMPARE(bp->state(), BreakpointUpdateProceeding);
 }
 
+static QString preCheckStepTests(Kit **kit = nullptr, Toolchain **toolchain = nullptr)
+{
+    const auto buildsForThisMachine = [](Kit *candidate) {
+        if (!candidate->isValid())
+            return false;
+        Toolchain *toolchain = ToolchainKitAspect::cxxToolchain(candidate);
+        return toolchain && toolchain->targetAbi() == Abi::hostAbi();
+    };
+    Kit *usableKit = Utils::findOr(KitManager::kits(), nullptr, buildsForThisMachine);
+    if (!usableKit)
+        return "no kit of this machine's own architecture to build with";
+    Toolchain *usedToolchain = ToolchainKitAspect::cxxToolchain(usableKit);
+    if (usedToolchain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        return "building the inferior is only wired up for gcc-style compilers";
+    if (kit)
+        *kit = usableKit;
+    if (toolchain)
+        *toolchain = usedToolchain;
+    return {};
+}
+
 // A program small enough to say exactly where a step should land in it.
 static const char s_steppingSource[] = R"CPP(
 int addOne(int value)
@@ -1687,6 +1957,7 @@ public:
 
     ~SteppingSession()
     {
+        QObject::disconnect(m_stoppedConnection);
         settings().showUnsupportedBreakpointWarning.setValue(m_warnedAboutBreakpoints);
         if (m_runControl) {
             m_runControl->initiateStop();
@@ -1702,18 +1973,11 @@ public:
         if (!m_dir.isValid())
             return "no temporary directory to build in";
 
-        const auto buildsForThisMachine = [](Kit *candidate) {
-            if (!candidate->isValid())
-                return false;
-            Toolchain *toolchain = ToolchainKitAspect::cxxToolchain(candidate);
-            return toolchain && toolchain->targetAbi() == Abi::hostAbi();
-        };
-        Kit *kit = Utils::findOr(KitManager::kits(), nullptr, buildsForThisMachine);
-        if (!kit)
-            return "no kit of this machine's own architecture to build with";
-        Toolchain *toolchain = ToolchainKitAspect::cxxToolchain(kit);
-        if (toolchain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
-            return "building the inferior is only wired up for gcc-style compilers";
+        Kit *kit = nullptr;
+        Toolchain *toolchain = nullptr;
+        if (QString reason = preCheckStepTests(&kit, &toolchain); !reason.isEmpty())
+            return reason;
+        QTC_ASSERT(kit && toolchain, return "kit or toolchain invalid");
 
         const FilePath dir = FilePath::fromString(m_dir.path());
         m_source = dir / "stepping.cpp";
@@ -1747,23 +2011,36 @@ public:
         rp.setInferior(ProcessRunData{CommandLine{m_executable}, dir});
         QObject::connect(m_runControl, &RunControl::stopped,
                          &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
+        m_stoppedConnection = QObject::connect(m_runControl, &RunControl::stopped,
+                                               m_runControl, [this] { m_stopped = true; });
         m_runControl->setRunRecipe(debuggerRecipe(m_runControl, rp));
         m_runControl->start();
 
         // EngineManager holds every engine the application ever made, and other
         // tests leave theirs behind, so take the one that was not there before.
+        // A session that has already ended will not stop anywhere any more.
         const bool arrived = QTest::qWaitFor([this, &before] {
             for (const QPointer<DebuggerEngine> &candidate : EngineManager::engines()) {
                 if (candidate && !before.contains(candidate))
                     m_engine = candidate;
             }
+            if (m_stopped)
+                return true;
             // Stopped is not yet arrived: the stack the test reads about comes
             // in after the state does.
             return m_engine && m_engine->state() == InferiorStopOk
                    && m_engine->stackHandler()->currentFrame().line == m_line;
         }, 90000);
-        if (!arrived)
-            return "the session never stopped at " + marker;
+        if (!arrived || m_stopped) {
+            QString why = "the session never stopped at " + marker;
+            if (m_stopped)
+                why += ", it ended first";
+            if (m_engine) {
+                why += ". The end of the log:\n"
+                       + m_engine->logWindow()->combinedContents().right(3000);
+            }
+            return why;
+        }
         return {};
     }
 
@@ -1785,6 +2062,8 @@ private:
     FilePath m_source;
     FilePath m_executable;
     RunControl *m_runControl = nullptr;
+    QMetaObject::Connection m_stoppedConnection;
+    bool m_stopped = false;
     QPointer<DebuggerEngine> m_engine;
     GlobalBreakpoint m_breakpoint;
     bool m_warnedAboutBreakpoints = false;
@@ -1824,6 +2103,9 @@ void DebuggerUnitTests::testStepsIntoACalledFunction()
 {
     if (const QString reason = reasonTheGenericBackendsAreNotUnderTest(); !reason.isEmpty())
         QSKIP(qPrintable(reason));
+    if (const QString reason = preCheckStepTests(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
     const bool wasOn = commonSettings().useGenericDebugger();
     commonSettings().useGenericDebugger.setValue(true);
     const QScopeGuard restore([wasOn] { commonSettings().useGenericDebugger.setValue(wasOn); });
@@ -1847,6 +2129,9 @@ void DebuggerUnitTests::testStepsOverACallWithoutEnteringIt()
 {
     if (const QString reason = reasonTheGenericBackendsAreNotUnderTest(); !reason.isEmpty())
         QSKIP(qPrintable(reason));
+    if (const QString reason = preCheckStepTests(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
     const bool wasOn = commonSettings().useGenericDebugger();
     commonSettings().useGenericDebugger.setValue(true);
     const QScopeGuard restore([wasOn] { commonSettings().useGenericDebugger.setValue(wasOn); });
@@ -1869,6 +2154,9 @@ void DebuggerUnitTests::testStepsOutOfACalledFunction()
 {
     if (const QString reason = reasonTheGenericBackendsAreNotUnderTest(); !reason.isEmpty())
         QSKIP(qPrintable(reason));
+    if (const QString reason = preCheckStepTests(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
     const bool wasOn = commonSettings().useGenericDebugger();
     commonSettings().useGenericDebugger.setValue(true);
     const QScopeGuard restore([wasOn] { commonSettings().useGenericDebugger.setValue(wasOn); });

@@ -39,6 +39,8 @@ signals:
     void loadFinished();
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber);
     void typeSelected(int typeId);
+    // Show `to`, but only if `from` is the view currently shown.
+    void viewSwitchRequested(QWidget *to, QWidget *from);
 
 private:
     class QmlProfilerPlainViewManagerPrivate *d;

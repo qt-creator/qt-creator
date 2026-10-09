@@ -37,6 +37,7 @@ enum Role {
     RoleDocumentationUrl,
     RoleDownloadCount,
     RoleDownloadUrl,
+    RoleExperimental,
     RoleExtensionState,
     RoleId,
     RoleItemType,

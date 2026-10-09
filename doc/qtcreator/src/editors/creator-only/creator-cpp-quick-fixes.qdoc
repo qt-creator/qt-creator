@@ -918,9 +918,33 @@
                 up the results.
             \li Code comment
         \row
-            \li Convert to Pointer
-            \li Converts the selected stack variable to a pointer. For example,
-                rewrites
+            \li Convert to QScopedPointer
+            \li Converts the selected raw pointer to a \c QScopedPointer.
+                For example, rewrites
+
+    \code
+    QByteArray *foo = new QByteArray("foo");
+    foo->append("bar");
+    \endcode
+
+                as
+
+    \code
+    QScopedPointer<QByteArray> foo(new QByteArray("foo"));
+    foo->append("bar");
+    \endcode
+
+                Only offered when the current project's active kit has an
+                associated Qt version. This operation is limited to work
+                only within function scope, and only where every use of the
+                variable can be rewritten unambiguously (for example, not
+                for \c release() or \c swap() calls).
+            \li Raw Pointer
+        \row
+            \li Convert to Raw Pointer
+            \li Converts the selected stack variable, reference, or smart
+                pointer (\c std::unique_ptr or \c QScopedPointer) to a raw
+                pointer. For example, rewrites
 
     \code
     QByteArray foo = "foo";
@@ -937,7 +961,7 @@
                 This operation is limited to work only within function scope.
                 Also, the coding style for pointers and references is not
                 respected yet.
-            \li Stack Variable
+            \li Stack Variable, Reference, or Smart Pointer
         \row
             \li Convert to Stack Variable
             \li Converts the selected pointer to a stack variable. For example,
@@ -959,6 +983,46 @@
                 Also, the coding style for pointers and references is not
                 respected yet.
             \li Pointer Variable
+        \row
+          \li Convert to std::unique_ptr
+          \li Converts the selected raw pointer to a \c std::unique_ptr.
+              For example, rewrites
+
+\code
+QByteArray *foo = new QByteArray("foo");
+foo->append("bar");
+\endcode
+
+            as
+
+\code
+std::unique_ptr<QByteArray> foo(new QByteArray("foo"));
+foo->append("bar");
+\endcode
+
+            This operation is limited to work only within function scope,
+            and only where every use of the variable can be rewritten
+            unambiguously (for example, not for \c release() or
+            \c swap() calls).
+          \li Raw Pointer
+        \row
+            \li Move to Function
+            \li Moves a lambda passed to \c connect() into a new free
+                function and replaces the lambda with a reference to it.
+            \li Lambda passed to \c connect(), in a free function
+        \row
+            \li Move to Member Function
+            \li Moves a lambda passed to \c connect() into a new private
+                member function of the enclosing class and replaces the
+                lambda with a pointer to the new member function.
+            \li Lambda passed to \c connect(), in a member function
+        \row
+            \li Move to Slot
+            \li Moves a lambda passed to \c connect() into a new private slot
+                of the enclosing class and replaces the lambda with a
+                pointer to the new slot.
+            \li Lambda passed to \c connect(), in a member function of a
+                class that inherits \c QObject
         \row
             \li Reformat Pointers or References
             \li Reformats declarations with pointers or references according

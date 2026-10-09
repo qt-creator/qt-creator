@@ -278,19 +278,13 @@ testing for specific Qt versions. If that can not be provided we suggest to disa
 
 ### Perf Profiler Support
 
-Support for the [perf](https://perf.wiki.kernel.org/index.php/Main_Page) profiler
-requires the `perfparser` tool that is part of the Qt Creator source package, and also
-part of the Qt Creator Git repository in form of a submodule in `src/tools/perfparser`.
-
-Compilation of `perfparser` requires ELF and DWARF development packages.
+Qt Creator decodes recordings of the [perf](https://perf.wiki.kernel.org/index.php/Main_Page)
+profiler itself. On Linux, unwinding recordings with DWARF call graphs and showing
+inlined functions requires the ELF and DWARF development packages of elfutils.
 You can either download and extract a prebuilt package from
 https://download.qt.io/development_releases/prebuilt/elfutils/ and add the
 directory to the `CMAKE_PREFIX_PATH` when configuring Qt Creator,
 or install the `libdw-dev` package on Debian-style Linux systems.
-
-You can also point Qt Creator to a separate installation of `perfparser` by
-setting the `PERFPROFILER_PARSER_FILEPATH` environment variable to the full
-path to the executable.
 
 ### Build with AddressSanitizer
 

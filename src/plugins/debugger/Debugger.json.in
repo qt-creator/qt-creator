@@ -17,12 +17,7 @@
     ],
     "Category" : "Qt Creator",
     "Description" : "Debug applications with native debuggers.",
-    "LongDescription" : [
-        "Debug an application to see what happens inside it while it runs or when it crashes.",
-        "The debugger extension acts as an interface between the Qt Creator core and native debuggers.",
-        "You also need:",
-            "- A debugger"
-    ],
+    "LongDescription" : ${LONG_DESCRIPTION},
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-debugging.html",
     "Arguments" : [

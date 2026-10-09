@@ -81,6 +81,8 @@ QVariant ExtensionsModelPrivate::dataFromRemoteExtension(int index, int role) co
         return remoteSpec->vendorId();
     case RoleCopyright:
         return remoteSpec->copyright();
+    case RoleExperimental:
+        return remoteSpec->isExperimental();
     case RoleDownloadUrl: {
         for (const auto &source : remoteSpec->sources()) {
             if (!source.platform)
@@ -144,6 +146,8 @@ QVariant ExtensionsModelPrivate::dataFromLocalPlugin(int index, int role) const
         return pluginSpec->displayName();
     case RoleCopyright:
         return pluginSpec->copyright();
+    case RoleExperimental:
+        return pluginSpec->isExperimental();
     case RoleDependencies: {
         const QStringList dependencies
             = transform(pluginSpec->dependencies(), &PluginDependency::id);

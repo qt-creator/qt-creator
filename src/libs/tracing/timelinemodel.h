@@ -119,9 +119,16 @@ public:
     virtual RowLabels labels() const;
     virtual ItemDetails details(int index) const;
     virtual OrderedItemDetails orderedDetails(int index) const;
+    virtual QString itemLabel(int index) const;
     virtual int expandedRow(int index) const;
     virtual int collapsedRow(int index) const;
     int row(int index) const;
+
+    // Whether the rows are the selection ids: every row holds exactly one of
+    // them and every one of them has a row of its own, as most models lay
+    // their expanded rows out. Models whose rows mean something else - a
+    // nesting level, a thread, a group of ids - leave this false.
+    virtual bool rowsAreSelectionIds() const;
 
     // Invoked when a details-panel row is double-clicked (row = index into the
     // orderedDetails content). Default: no-op. Models that map detail rows to a

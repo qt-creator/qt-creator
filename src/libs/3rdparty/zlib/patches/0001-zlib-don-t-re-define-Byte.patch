@@ -1,0 +1,37 @@
+From a89dbb57cec3dd81b3425ae3f3079b9d1962996c Mon Sep 17 00:00:00 2001
+From: Tim Blechmann <tim.blechmann@qt.io>
+Date: Fri, 12 Sep 2025 10:37:44 +0800
+Subject: [PATCH] zlib: don't re-define Byte
+
+The preprocessor is evil: by re-defining Byte, we cause a clash with the
+MacTypes.h typedef, causing build errors with unity builds.
+We do not need to re-define any of the typedefs, as they won't affect
+globally visible symbols
+---
+ src/3rdparty/zlib/src/zconf.h | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/3rdparty/zlib/src/zconf.h b/src/3rdparty/zlib/src/zconf.h
+index 4e14507a22d..4fa7b649120 100644
+--- a/src/3rdparty/zlib/src/zconf.h
++++ b/src/3rdparty/zlib/src/zconf.h
+@@ -145,6 +145,8 @@
+ #  define z_errmsg              z_z_errmsg
+ 
+ /* all zlib typedefs in zlib.h and zconf.h */
++# if 0 // Byte clashes with MacTypes.h
++       // we do not need to redefine any typedefs, as they don't affect globally visible symbols
+ #  define Byte                  z_Byte
+ #  define Bytef                 z_Bytef
+ #  define alloc_func            z_alloc_func
+@@ -169,6 +171,7 @@
+ /* all zlib structs in zlib.h and zconf.h */
+ #  define gz_header_s           z_gz_header_s
+ #  define internal_state        z_internal_state
++# endif
+ 
+ #endif
+ 
+-- 
+2.51.0
+

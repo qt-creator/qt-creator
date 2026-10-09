@@ -33,6 +33,7 @@ public:
 
     Timeline::RowLabels labels() const final;
     Timeline::ItemDetails details(int index) const final;
+    QString itemLabel(int index) const final;
     Timeline::ItemLocation location(int index) const final;
 
     int typeId(int index) const final;

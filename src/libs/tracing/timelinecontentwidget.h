@@ -33,7 +33,9 @@ class RangeDetailsWidget;
 class SelectionRangeOverlay;
 class TimeRuler;
 class TrackLabels;
+#ifndef Q_OS_WASM
 class TrackPainterGpu;
+#endif
 class TrackPainterRaster;
 
 class TRACING_EXPORT TimelineContentWidget : public QWidget
@@ -136,7 +138,9 @@ private:
     TrackPainterBase *m_tracksView = nullptr;
     QWidget *m_tracksWidget = nullptr;
     // Both backends are kept alive once created; only visibility is toggled.
+#ifndef Q_OS_WASM
     TrackPainterGpu *m_gpuView = nullptr;
+#endif
     TrackPainterRaster *m_rasterView = nullptr;
     QList<qint64> m_markers; // last ruler markers, re-applied when the view changes
     QList<TimelineModel *> m_trackModels; // visible models, parallel to track index

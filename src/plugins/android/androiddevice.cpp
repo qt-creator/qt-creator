@@ -1131,13 +1131,15 @@ static void handleDevicesListChange(const QString &event)
         if (ipRegex.match(serial).hasMatch())
             displayName += QLatin1String(" (WiFi)");
 
-        if (IDevice::Ptr dev = DeviceManager::find(id)) {
-            // DeviceManager doens't seem to have a way to directly update the name, if the name
-            // of the device has changed, remove it and register it again with the new name.
-            if (dev->displayName() == displayName)
-                dev->setDeviceState(state);
-            else
-                DeviceManager::removeDevice(id);
+        IDevice::Ptr dev = DeviceManager::find(id);
+        // DeviceManager doesn't seem to have a way to directly update the name, if the name
+        // of the device has changed, remove it and register it again with the new name.
+        if (dev && dev->displayName() != displayName) {
+            DeviceManager::removeDevice(id);
+            dev = nullptr;
+        }
+        if (dev) {
+            dev->setDeviceState(state);
         } else {
             AndroidDevice *newDev = new AndroidDevice();
             newDev->setupId(IDevice::AutoDetected, id);

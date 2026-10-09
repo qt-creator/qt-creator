@@ -11,9 +11,14 @@ ignorewords += \
     WebAssembly
 
 headerdirs =
-sourcedirs = ../src
+sourcedirs += ../src \
+             ../../qtcreator/src/profile \
+             ../../qtcreator/src/external-resources
 
-imagedirs = ../images
+imagedirs += ../images \
+            ../../qtcreator/images/profiler
+
+excludedirs = ../../qtcreator/src/profile/creator-only
 
 # exampledirs = ../examples
 # examples.fileextensions += *.qml *.svg

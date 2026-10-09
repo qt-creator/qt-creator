@@ -31,6 +31,9 @@
 #include <QPushButton>
 #include <QStandardItemModel>
 #include <QTreeView>
+#include <QtEndian>
+
+#include <optional>
 
 using namespace Utils;
 
@@ -288,17 +291,19 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget() :
             this, &DebuggerSourcePathMappingWidget::slotEditTargetFieldChanged);
     auto editLayout = new QFormLayout;
     const QString sourceToolTip = "<p>" + Tr::tr("The source path contained in the "
-        "debug information of the executable as reported by the debugger");
+        "debug information of the executable as reported by the debugger.");
     auto editSourceLabel = new QLabel(Tr::tr("&Source path:"));
     editSourceLabel->setToolTip(sourceToolTip);
     m_sourceLineEdit->setToolTip(sourceToolTip);
     editSourceLabel->setBuddy(m_sourceLineEdit);
     editLayout->addRow(editSourceLabel, m_sourceLineEdit);
 
+    //: %1 is an example path
     const QString targetToolTip = "<p>" + Tr::tr("The location of the source tree as seen by "
         "the debugger. This is either a path on the local machine, or, if the debugger runs "
         "on a device, a path on that device, given either the way the debugger sees it or "
-        "with the device scheme in front, such as <b>docker://&lt;image&gt;/&lt;path&gt;</b>.");
+        "with the device scheme in front, such as %1.")
+            .arg("<b>docker://&lt;image&gt;/&lt;path&gt;</b>");
     auto editTargetLabel = new QLabel(Tr::tr("&Target path:"));
     editTargetLabel->setToolTip(targetToolTip);
     editTargetLabel->setBuddy(m_targetChooser);
@@ -467,6 +472,17 @@ static bool hasQtSources(const FilePath &qtSourceLocation)
     return (qtSourceLocation / qglobal).exists();
 }
 
+// A root on a Unix build machine, or one with a drive letter on a Windows one.
+static bool isAbsoluteBuildRoot(QByteArrayView root)
+{
+    if (root.startsWith('/'))
+        return true;
+    if (root.size() < 3 || root.at(1) != ':' || root.at(2) != '/')
+        return false;
+    const char drive = root.at(0);
+    return (drive >= 'a' && drive <= 'z') || (drive >= 'A' && drive <= 'Z');
+}
+
 QStringList qtBuildSourceRoots(const QByteArray &debugStrings)
 {
     static const QByteArray marker = "/qtbase/src/";
@@ -476,9 +492,10 @@ QStringList qtBuildSourceRoots(const QByteArray &debugStrings)
         // The recorded path is the NUL terminated string around the marker, its
         // root everything before the marker. Only absolute roots can be mapped.
         const qsizetype start = debugStrings.lastIndexOf('\0', hit) + 1;
-        if (hit <= start || debugStrings.at(start) != '/')
+        const QByteArrayView recorded(debugStrings.constData() + start, hit - start);
+        if (!isAbsoluteBuildRoot(recorded))
             continue;
-        const QString root = QString::fromUtf8(debugStrings.constData() + start, hit - start);
+        const QString root = QString::fromUtf8(recorded);
         if (!roots.contains(root))
             roots.append(root);
     }
@@ -559,11 +576,182 @@ FilePath debugInfoDirectory(const DebuggerRunParameters &sp)
     return location.isEmpty() ? sp.sysRoot() / "/usr/lib/debug" : location;
 }
 
+static std::optional<quint32> readUInt32(QByteArrayView data, qsizetype offset)
+{
+    if (offset < 0 || offset > data.size() - 4)
+        return {};
+    return qFromLittleEndian<quint32>(data.data() + offset);
+}
+
+// A PDB is an MSF container: its streams are scattered over fixed size blocks,
+// and a directory lists the blocks of each. The layout is the one described in
+// LLVM's "The PDB File Format".
+class MsfReader
+{
+public:
+    explicit MsfReader(const FilePath &pdb) : m_pdb(pdb) {}
+
+    bool readDirectory();
+    QByteArray stream(quint32 index) const;
+
+private:
+    QByteArray readBlocks(QByteArrayView blockList, quint32 size) const;
+
+    const FilePath m_pdb;
+    quint32 m_blockSize = 0;
+    quint32 m_blockCount = 0;
+    QList<quint32> m_streamSizes;
+    QList<QByteArray> m_streamBlocks;
+};
+
+QByteArray MsfReader::readBlocks(QByteArrayView blockList, quint32 size) const
+{
+    const quint32 count = (quint64(size) + m_blockSize - 1) / m_blockSize;
+    if (quint64(count) * 4 > quint64(blockList.size()))
+        return {};
+    QByteArray result;
+    result.reserve(size);
+    // Linkers mostly write a stream in consecutive blocks. Reading those in one go
+    // saves the round trips on a remote device.
+    for (quint32 first = 0, next = 0; first < count; first = next) {
+        const quint32 block = *readUInt32(blockList, first * 4);
+        for (next = first + 1; next < count; ++next) {
+            if (*readUInt32(blockList, next * 4) != block + (next - first))
+                break;
+        }
+        if (quint64(block) + (next - first) > m_blockCount)
+            return {};
+        const qint64 wanted = qMin(qint64(next - first) * m_blockSize,
+                                   qint64(size) - result.size());
+        const Result<QByteArray> data = m_pdb.fileContents(wanted, qint64(block) * m_blockSize);
+        if (!data || data->size() != wanted)
+            return {};
+        result += *data;
+    }
+    return result;
+}
+
+bool MsfReader::readDirectory()
+{
+    static const QByteArray magic("Microsoft C/C++ MSF 7.00\r\n\x1a" "DS\0\0\0", 32);
+    const Result<QByteArray> super = m_pdb.fileContents(56);
+    if (!super || super->size() != 56 || !super->startsWith(magic))
+        return false;
+    m_blockSize = *readUInt32(*super, 32);
+    m_blockCount = *readUInt32(*super, 40);
+    const quint32 directorySize = *readUInt32(*super, 44);
+    if (m_blockSize < 512 || (m_blockSize & (m_blockSize - 1))
+        || quint64(m_blockCount) * m_blockSize > quint64(m_pdb.fileSize())
+        || directorySize > quint64(m_blockCount) * m_blockSize) {
+        return false;
+    }
+
+    // The superblock ends with the index of the one block that lists the blocks
+    // of the directory.
+    const QByteArray blockMap = readBlocks(QByteArrayView(*super).sliced(52), m_blockSize);
+    const QByteArray directory = readBlocks(blockMap, directorySize);
+    const std::optional<quint32> streamCount = readUInt32(directory, 0);
+    if (!streamCount || *streamCount > (directorySize - 4) / 4)
+        return false;
+
+    qsizetype offset = 4 + qsizetype(*streamCount) * 4;
+    for (quint32 i = 0; i < *streamCount; ++i) {
+        quint32 size = *readUInt32(directory, 4 + i * 4);
+        if (size == 0xffffffff) // A deleted stream.
+            size = 0;
+        const qsizetype listSize = ((quint64(size) + m_blockSize - 1) / m_blockSize) * 4;
+        if (offset + listSize > directory.size())
+            return false;
+        m_streamSizes.append(size);
+        m_streamBlocks.append(directory.mid(offset, listSize));
+        offset += listSize;
+    }
+    return true;
+}
+
+QByteArray MsfReader::stream(quint32 index) const
+{
+    if (index >= quint32(m_streamSizes.size()))
+        return {};
+    return readBlocks(m_streamBlocks.at(index), m_streamSizes.at(index));
+}
+
+// The index of a stream by its name, looked up in the named stream map at the end
+// of the PDB info stream.
+static std::optional<quint32> pdbNamedStream(const QByteArray &info, QByteArrayView name)
+{
+    // Version, signature, age and GUID come first.
+    const std::optional<quint32> namesSize = readUInt32(info, 28);
+    if (!namesSize || *namesSize > quint64(info.size() - 32))
+        return {};
+    const QByteArrayView names = QByteArrayView(info).sliced(32, *namesSize);
+
+    // A hash table follows: the number of entries, the capacity, and the bit
+    // vectors of present and deleted buckets, then the entries themselves as
+    // pairs of name offset and stream index.
+    qsizetype offset = 32 + names.size();
+    const std::optional<quint32> entryCount = readUInt32(info, offset);
+    if (!entryCount)
+        return {};
+    offset += 8;
+    for (int bitVector = 0; bitVector < 2; ++bitVector) {
+        const std::optional<quint32> words = readUInt32(info, offset);
+        if (!words || *words > quint64(info.size()))
+            return {};
+        offset += 4 + qsizetype(*words) * 4;
+    }
+    for (quint32 i = 0; i < *entryCount; ++i, offset += 8) {
+        const std::optional<quint32> nameOffset = readUInt32(info, offset);
+        const std::optional<quint32> index = readUInt32(info, offset + 4);
+        if (!nameOffset || !index || *nameOffset >= quint64(names.size()))
+            return {};
+        const QByteArrayView entry = names.sliced(*nameOffset);
+        if (entry.startsWith(name) && entry.size() > name.size() && entry.at(name.size()) == '\0')
+            return index;
+    }
+    return {};
+}
+
+QByteArray pdbSourceFileNames(const FilePath &pdb)
+{
+    MsfReader reader(pdb);
+    if (!reader.readDirectory())
+        return {};
+
+    // Stream 1 is the PDB info stream.
+    const std::optional<quint32> namesStream = pdbNamedStream(reader.stream(1), "/names");
+    if (!namesStream)
+        return {};
+
+    // A signature, a hash version and the size of the strings that follow.
+    const QByteArray names = reader.stream(*namesStream);
+    const std::optional<quint32> signature = readUInt32(names, 0);
+    const std::optional<quint32> size = readUInt32(names, 8);
+    if (signature != 0xeffeeffe || !size || *size > quint64(names.size() - 12))
+        return {};
+    return names.mid(12, *size);
+}
+
+// The Qt installers put the PDBs next to the DLLs. Release and debug build share
+// the sources, so either will do.
+static QStringList pdbQtBuildSourceRoots(const QtSupport::QtVersion *qt)
+{
+    const QString core = QString("Qt%1Core").arg(qt->qtVersion().majorVersion());
+    for (const char *suffix : {".pdb", "d.pdb"}) {
+        const FilePath pdb = qt->binPath() / QString(core + suffix);
+        if (pdb.isReadableFile())
+            return qtBuildSourceRoots(pdbSourceFileNames(pdb).replace('\\', '/'));
+    }
+    return {};
+}
+
 QStringList qtBuildSourceRoots(const DebuggerRunParameters &sp, const QtSupport::QtVersion *qt)
 {
-    if (!qt || sp.toolChainAbi().binaryFormat() != ProjectExplorer::Abi::ElfFormat)
+    if (!qt || !hasQtSources(sp.qtSourceLocation()))
         return {};
-    if (!hasQtSources(sp.qtSourceLocation()))
+    if (sp.toolChainAbi().binaryFormat() == ProjectExplorer::Abi::PEFormat)
+        return pdbQtBuildSourceRoots(qt);
+    if (sp.toolChainAbi().binaryFormat() != ProjectExplorer::Abi::ElfFormat)
         return {};
 
     const FilePath library = qt->libraryPath()

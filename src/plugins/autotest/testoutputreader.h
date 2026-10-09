@@ -33,6 +33,11 @@ public:
     virtual void onDone(int exitCode) { Q_UNUSED(exitCode) }
 
     void resetCommandlineColor();
+
+    static QString removeCommandlineColors(const QString &original);
+    // appends line to accumulated, separated by newline if accumulated is not empty and separate
+    // is true; stops at a fixed budget with a visible elision and appends nothing once reached
+    static void appendBounded(QString &accumulated, const QString &line, bool separate = true);
 signals:
     void newResult(const TestResult &result);
     void newOutputLineAvailable(const QByteArray &outputLine, OutputChannel channel);
@@ -40,7 +45,6 @@ protected:
     static Utils::FilePath constructSourceFilePath(const Utils::FilePath &base,
                                                    const QString &file);
 
-    QString removeCommandlineColors(const QString &original);
     virtual void processOutputLine(const QByteArray &outputLine) = 0;
     virtual TestResult createDefaultResult() const = 0;
     void checkForSanitizerOutput(const QByteArray &line);
@@ -55,8 +59,11 @@ protected:
 
 private:
     enum class SanitizerOutputMode { None, Asan, Ubsan};
+    void appendSanitizerLine(const QString &line);
+
     TestResult m_sanitizerResult;
     QStringList m_sanitizerLines;
+    qsizetype m_sanitizerChars = 0;
     SanitizerOutputMode m_sanitizerOutputMode = SanitizerOutputMode::None;
     bool m_hadValidOutput = false;
 };

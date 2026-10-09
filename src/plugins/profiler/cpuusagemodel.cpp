@@ -256,6 +256,24 @@ Timeline::OrderedItemDetails CpuUsageModel::orderedDetails(int index) const
     return result;
 }
 
+QString CpuUsageModel::itemLabel(int index) const
+{
+    // See details(): the index can be stale during teardown.
+    if (!m_data || index < 0 || index >= m_items.size())
+        return {};
+    // Collapsed, the thread items fold onto the total row, whose graph sums up
+    // all threads.
+    const Item &item = m_items.at(index);
+    if (!expanded() || item.threadRow < 0 || item.sampleIndex < 0
+            || item.sampleIndex >= m_data->samples.size())
+        return {};
+    const QList<int> &frames = m_data->samples.at(item.sampleIndex).frames; // root-first
+    if (frames.isEmpty())
+        return {};
+    const int id = frames.last();
+    return id >= 0 && id < m_data->labels.size() ? m_data->labels.at(id).name : QString();
+}
+
 void CpuUsageModel::navigateToDetail(int itemIndex, int detailRow)
 {
     if (itemIndex < 0 || itemIndex >= m_items.size())

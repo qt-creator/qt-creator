@@ -425,11 +425,14 @@ public:
     void zoomReset();
 
     void cutLine();
+    void cutLines();
     void copyLine();
+    void copyLines();
     void copyWithHtml();
     void duplicateSelection();
     void duplicateSelectionAndComment();
     void deleteLine();
+    void deleteLines();
     void deleteEndOfLine();
     void deleteEndOfWord();
     void deleteEndOfWordCamelCase();
@@ -614,6 +617,7 @@ protected:
     bool event(QEvent *e) override;
     void contextMenuEvent(QContextMenuEvent *e) override;
     void keyPressEvent(QKeyEvent *e) override;
+    void inputMethodEvent(QInputMethodEvent *e) override;
     void wheelEvent(QWheelEvent *e) override;
     void changeEvent(QEvent *e) override;
     void focusInEvent(QFocusEvent *e) override;

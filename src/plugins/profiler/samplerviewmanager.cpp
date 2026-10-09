@@ -132,6 +132,8 @@ void SamplerViewManager::load(const FilePath &dir)
             d->zoomControl.setSelection(-1, -1);
             d->zoomControl.setTrace(0, padded);
             d->zoomControl.setRange(0, padded);
+            if (const QString incomplete = incompleteTraceWarning(d->data); !incomplete.isEmpty())
+                emit warning(incomplete);
         } else {
             emit error(read.error());
         }

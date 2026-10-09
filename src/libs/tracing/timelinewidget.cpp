@@ -24,6 +24,11 @@
 
 namespace Timeline {
 
+// The slider position maps to the visible fraction of the window by a cubic curve.
+static constexpr int zoomSliderMinimum = 1;
+static constexpr int zoomSliderMaximum = 10000;
+static constexpr double zoomSliderExponent = 3.0;
+
 class TimelineWidget::TimelineWidgetPrivate
 {
 public:
@@ -45,9 +50,9 @@ public:
         if (windowDuration <= 0 || rangeDuration <= 0)
             return;
         const int value = qRound(std::pow(double(rangeDuration) / double(windowDuration),
-                                          1.0 / 3.0) * 10000.0);
+                                          1.0 / zoomSliderExponent) * zoomSliderMaximum);
         m_zoomSliderUpdating = true;
-        m_zoomSlider->setValue(qBound(1, value, 10000));
+        m_zoomSlider->setValue(qBound(zoomSliderMinimum, value, zoomSliderMaximum));
         m_zoomSliderUpdating = false;
     }
 
@@ -58,7 +63,7 @@ public:
         const qint64 windowDuration = m_zoomControl->windowDuration();
         if (windowDuration <= 0)
             return;
-        const double factor = std::pow(double(value) / 10000.0, 3.0);
+        const double factor = std::pow(double(value) / zoomSliderMaximum, zoomSliderExponent);
         const qint64 newRange = qMax(qint64(1), qRound64(factor * windowDuration));
         const qint64 center = (m_zoomControl->rangeStart() + m_zoomControl->rangeEnd()) / 2;
         const qint64 newStart = qMax(m_zoomControl->windowStart(), center - newRange / 2);
@@ -112,22 +117,25 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
         {{":/tracing/images/selectionmode.png",
           Utils::Theme::IconsBaseColor}}).icon();
 
-    auto prevAction = toolbar->addAction(prevIcon, tr("Jump to previous event"));
-    auto nextAction = toolbar->addAction(nextIcon, tr("Jump to next event"));
+    auto prevAction = toolbar->addAction(prevIcon, tr("Jump to Previous Event"));
+    auto nextAction = toolbar->addAction(nextIcon, tr("Jump to Next Event"));
     toolbar->addSeparator();
-    auto zoomAction = toolbar->addAction(zoomIcon, tr("Show zoom slider"));
+    auto zoomAction = toolbar->addAction(zoomIcon, tr("Show Zoom Slider"));
     zoomAction->setCheckable(true);
     toolbar->addSeparator();
-    auto rangeAction = toolbar->addAction(rangeSelIcon, tr("Select range"));
+    auto rangeAction = toolbar->addAction(rangeSelIcon, tr("Select Range"));
     rangeAction->setCheckable(true);
-    auto lockAction = toolbar->addAction(lockIcon, tr("View event information on mouseover"));
+    auto lockAction = toolbar->addAction(lockIcon, tr("View Event Information on Mouseover"));
     lockAction->setCheckable(true);
     toolbar->addSeparator();
+    //: Short for "software", shown on a narrow toolbar button.
     auto softwareAction = toolbar->addAction(tr("SW"));
     softwareAction->setCheckable(true);
+    // Nothing to choose between when only the software backend was built.
+    softwareAction->setVisible(hasGpuTrackBackend());
     softwareAction->setToolTip(
-        tr("Render the timeline with the software (QPainter) backend instead of "
-           "the hardware-accelerated (QCanvasPainter) one"));
+        tr("Renders the timeline with the software (QPainter) backend instead of "
+           "the hardware-accelerated (QCanvasPainter) one."));
 
     d->m_content->setLeftHeaderWidget(toolbar);
 
@@ -137,8 +145,8 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
     auto sliderLayout = new QHBoxLayout(d->m_zoomSliderRow);
     sliderLayout->setContentsMargins(4, 0, 4, 0);
     d->m_zoomSlider = new QSlider(Qt::Horizontal, d->m_zoomSliderRow);
-    d->m_zoomSlider->setRange(1, 10000);
-    d->m_zoomSlider->setValue(10000);
+    d->m_zoomSlider->setRange(zoomSliderMinimum, zoomSliderMaximum);
+    d->m_zoomSlider->setValue(zoomSliderMaximum);
     sliderLayout->addWidget(d->m_zoomSlider);
     d->m_content->addLeftPanelWidget(d->m_zoomSliderRow);
 

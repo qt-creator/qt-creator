@@ -29,13 +29,14 @@ public:
 
     void readSettings() override;
     void writeSettings() const override;
+    QWidget *createOptionsWidget();
 
     Profiler::PerfSettings perfSettings;
 
     Utils::BoolAspect attach{this}; // Attach to a running process instead of launching.
 
-    // Whether perfparser may download debug information it is missing from the
-    // debuginfod servers in DEBUGINFOD_URLS. Off by default: the download runs
+    // Whether PerfRecordReader may download debug information it is missing from
+    // the debuginfod servers in DEBUGINFOD_URLS. Off by default: the download runs
     // inside post-processing, once per unknown build id, so an unreachable
     // server turns the end of every recording into a long wait -- while the
     // symbols one actually profiles come from the binaries on disk anyway.
@@ -52,11 +53,9 @@ private:
 };
 
 // Records a trace by running "perf record --pid <pid> -o -" against the target
-// and piping its output through perfparser -- the same unwinding and
-// symbolication engine the IDE's CPU Usage analyzer uses (see
-// perfprofilerruncontrol.cpp) -- decoding the result directly into a
-// SampleTraceData so it can be shown by the same generic SamplerViewManager as
-// the macOS call-stack sampler (see macsampler.cpp).
+// and decoding its output directly in-process (see perfrecordreader.cpp) into
+// a SampleTraceData, so it can be shown by the same generic SamplerViewManager
+// as the macOS call-stack sampler (see macsampler.cpp).
 //
 // Linux only.
 class PROFILER_EXPORT PerfSampler : public Sampler
@@ -68,6 +67,7 @@ public:
     Utils::Id id() const override { return SamplerIds::Perf; }
     QString displayName() const override;
     bool isAvailable(QString *error = nullptr) const override;
+    bool isOffered() const override;
     QtTaskTree::ExecutableItem captureRecipe(
         const std::shared_ptr<RecordingSession> &session) const override;
     bool supportsPause() const override { return true; }

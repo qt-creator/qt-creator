@@ -85,18 +85,77 @@ void TestOutputReader::resetCommandlineColor()
     emit newOutputLineAvailable("\u001B[m", OutputChannel::StdErr);
 }
 
+// Everything the accumulators below are allowed to hold. The child process controls how much it
+// writes, so the budget is in characters, not lines: a few very long lines cost the same as many
+// short ones.
+constexpr qsizetype MaxAccumulatedChars = 512 * 1024;
+constexpr qsizetype MaxOutputLineLength = 64 * 1024;
+
+// Removes escape sequences matching "\u001B\\[.*?m". Repeatedly matching and removing from the
+// front of the string instead is quadratic, and the length is attacker-controlled. Removing a
+// sequence can put a leftover escape next to a following bracket and so create a sequence that was
+// not in the input; the old code caught those by restarting, this catches them by testing the
+// bracket against the end of the result.
 QString TestOutputReader::removeCommandlineColors(const QString &original)
 {
-    static const QRegularExpression pattern("\u001B\\[.*?m");
-    QString result = original;
-    while (!result.isEmpty()) {
-        QRegularExpressionMatch match = pattern.match(result);
-        if (match.hasMatch())
-            result.remove(match.capturedStart(), match.captured().size());
-        else
-            break;
+    static const QChar escape(0x1B);
+    if (!original.contains(escape))
+        return original;
+
+    const QStringView input(original);
+    QString result;
+    result.reserve(input.size());
+    qsizetype pos = 0;
+    while (pos < input.size()) {
+        const QChar current = input.at(pos);
+        if (current != '[' || result.isEmpty() || result.back() != escape) {
+            result.append(current);
+            ++pos;
+            continue;
+        }
+        qsizetype end = pos + 1;
+        while (end < input.size() && input.at(end) != 'm' && input.at(end) != '\n')
+            ++end;
+        if (end < input.size() && input.at(end) == 'm') {
+            result.chop(1); // the escape this bracket belongs to
+            pos = end + 1;
+            continue;
+        }
+        // No terminator before the end of the line, so nothing starting on it can match either.
+        const qsizetype lineEnd = qMin(end + 1, input.size());
+        result.append(input.mid(pos, lineEnd - pos));
+        pos = lineEnd;
     }
     return result;
+}
+
+void TestOutputReader::appendBounded(QString &accumulated, const QString &line, bool separate)
+{
+    if (accumulated.size() >= MaxAccumulatedChars)
+        return;
+    if (separate && !accumulated.isEmpty())
+        accumulated.append('\n');
+    if (accumulated.size() + line.size() >= MaxAccumulatedChars) {
+        accumulated.append(QStringView(line).left(MaxAccumulatedChars - accumulated.size()));
+        accumulated.append(Tr::tr("... (output truncated)"));
+        return;
+    }
+    accumulated.append(line);
+}
+
+// Truncates in place. Deliberately not sendAndResetSanitizerResult(): flushing here would reset
+// m_sanitizerOutputMode, and every later line of the report would take the generic path and be
+// dropped without a trace.
+void TestOutputReader::appendSanitizerLine(const QString &line)
+{
+    if (m_sanitizerChars >= MaxAccumulatedChars)
+        return;
+    m_sanitizerChars += line.size() + 1;
+    if (m_sanitizerChars >= MaxAccumulatedChars) {
+        m_sanitizerLines.append(Tr::tr("... (output truncated)"));
+        return;
+    }
+    m_sanitizerLines.append(line);
 }
 
 void TestOutputReader::reportResult(const TestResult &result)
@@ -109,10 +168,13 @@ void TestOutputReader::reportResult(const TestResult &result)
 
 void TestOutputReader::checkForSanitizerOutput(const QByteArray &line)
 {
-    const QString lineStr = removeCommandlineColors(QString::fromUtf8(line));
+    QString truncated = QString::fromUtf8(line);
+    if (truncated.size() > MaxOutputLineLength)
+        truncated.truncate(MaxOutputLineLength);
+    const QString lineStr = removeCommandlineColors(truncated);
     if (m_sanitizerOutputMode == SanitizerOutputMode::Asan) {
         // append the new line and check for end
-        m_sanitizerLines.append(lineStr);
+        appendSanitizerLine(lineStr);
         static const QRegularExpression regex("^==\\d+==\\s*ABORTING.*");
         if (regex.match(lineStr).hasMatch())
             sendAndResetSanitizerResult();
@@ -128,7 +190,7 @@ void TestOutputReader::checkForSanitizerOutput(const QByteArray &line)
     } else {
         match = ubsanRegex.match(lineStr);
         if (m_sanitizerOutputMode == SanitizerOutputMode::Ubsan && !match.hasMatch()) {
-            m_sanitizerLines.append(lineStr);
+            appendSanitizerLine(lineStr);
             return;
         }
         if (match.hasMatch())
@@ -140,8 +202,8 @@ void TestOutputReader::checkForSanitizerOutput(const QByteArray &line)
 
         m_sanitizerOutputMode = mode;
         m_sanitizerResult = createDefaultResult();
-        m_sanitizerLines.append("Sanitizer Issue");
-        m_sanitizerLines.append(lineStr);
+        appendSanitizerLine("Sanitizer Issue");
+        appendSanitizerLine(lineStr);
         if (m_sanitizerOutputMode == SanitizerOutputMode::Ubsan) {
             const FilePath path = constructSourceFilePath(m_buildDir, match.captured(1));
             // path may be empty if not existing - so, provide at least what we have
@@ -170,6 +232,7 @@ void TestOutputReader::sendAndResetSanitizerResult()
     emit newResult(m_sanitizerResult);
     m_hadValidOutput = true;
     m_sanitizerLines.clear();
+    m_sanitizerChars = 0;
     m_sanitizerResult = {};
     m_sanitizerOutputMode = SanitizerOutputMode::None;
 }

@@ -7,7 +7,7 @@
     "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
     "Copyright" : "${IDE_COPYRIGHT}",
-    "Experimental" : true,
+    "DisabledByDefault" : true,
     "SoftLoadable" : true,
     "License" : [ "Commercial Usage",
                   "",

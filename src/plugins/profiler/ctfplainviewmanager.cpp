@@ -147,7 +147,7 @@ static void finishLoad(CtfPlainViewManager *q, CtfPlainViewManagerPrivate *d, Do
         traceManager.updateStatistics();
         if (traceManager.isEmpty()) {
             emit q->error(emptyError.isEmpty()
-                              ? Tr::tr("The trace does not contain any trace data.")
+                              ? Tr::tr("The trace does not contain any data.")
                               : emptyError);
         } else if (!traceManager.errorString().isEmpty()) {
             emit q->error(traceManager.errorString());

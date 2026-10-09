@@ -2,18 +2,17 @@ import qbs.FileInfo
 
 Project {
     name: "EtwCapture"
-    condition: qbs.targetOS.contains("windows")
 
     // Records the NT Kernel Logger, which needs administrator rights.
     QtcTool {
         name: "etwcapture"
+        condition: qbs.targetOS.contains("windows") && Tracing.present
+
         windowsFileDescription: qtc.ide_display_name + " ETW Capture"
 
         Depends { name: "Profiler" }
         Depends { name: "Utils" }
         Depends { name: "Tracing"; required: false }
-
-        condition: Tracing.present
 
         files: "etwcapture.cpp"
     }
@@ -22,6 +21,8 @@ Project {
     // requireAdministrator manifest, which is what makes ShellExecuteEx elevate it.
     QtcTool {
         name: "etwcapture-launcher"
+        condition: qbs.targetOS.contains("windows")
+
         windowsFileDescription: qtc.ide_display_name + " ETW Capture Launcher"
         useQt: false
         consoleApplication: false

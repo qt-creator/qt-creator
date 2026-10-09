@@ -51,7 +51,7 @@ IVersionControl::~IVersionControl()
 
 QString IVersionControl::vcsOpenText() const
 {
-    return Tr::tr("Open with version control (%1)").arg(displayName());
+    return Tr::tr("Open with Version Control (%1)").arg(displayName());
 }
 
 QString IVersionControl::vcsMakeWritableText() const
@@ -151,17 +151,26 @@ FilePath IVersionControl::trackFile(const FilePath &repository)
 QString IVersionControl::vcsTopic(const FilePath &topLevel)
 {
     QTC_ASSERT(!topLevel.isEmpty(), return QString());
-    Internal::TopicData &data = d->m_topicCache[topLevel];
     const FilePath file = trackFile(topLevel);
 
     if (file.isEmpty())
         return QString();
     const QDateTime lastModified = file.lastModified();
-    if (lastModified == data.timeStamp)
-        return data.topic;
+    const auto cached = d->m_topicCache.constFind(topLevel);
+    if (cached != d->m_topicCache.constEnd() && cached->timeStamp == lastModified)
+        return cached->topic;
     QTC_ASSERT(d->m_topicRefresher, return {});
-    data.timeStamp = lastModified;
-    return data.topic = d->m_topicRefresher(topLevel);
+    // Stamp before refreshing: the refresher may end up asking for this topic again,
+    // and the fresh stamp is what stops that from recursing.
+    d->m_topicCache[topLevel].timeStamp = lastModified;
+    const QString topic = d->m_topicRefresher(topLevel);
+    // The refresher may have inserted into m_topicCache, so look the entry up again. Keep the
+    // result only while it still belongs to the stamp this call started from: a re-entrant call
+    // that saw a newer one has already stored a newer topic.
+    const auto it = d->m_topicCache.find(topLevel);
+    if (it != d->m_topicCache.end() && it->timeStamp == lastModified)
+        it->topic = topic;
+    return topic;
 }
 
 void IVersionControl::fillDefaultFileActionMenu(QMenu *menu,

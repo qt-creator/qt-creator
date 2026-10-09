@@ -358,9 +358,7 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
     }
 
     // some plain output...
-    if (!m_description.isEmpty())
-        m_description.append('\n');
-    m_description.append(line);
+    appendBounded(m_description, line);
 }
 
 void BoostTestOutputReader::processStdError(const QByteArray &outputLine)

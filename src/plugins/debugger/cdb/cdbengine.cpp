@@ -2825,22 +2825,34 @@ CdbEngine::NormalizedSourceFileName CdbEngine::sourceMapNormalizeFileNameFromDeb
     if (debugSourceMapping)
         qDebug(">sourceMapNormalizeFileNameFromDebugger %s", qPrintable(f));
     // Do we have source path mappings? ->Apply.
-    const QString fileName = cdbSourcePathMapping(f, m_sourcePathMappings, DebuggerToSource);
+    QString fileName = cdbSourcePathMapping(f, m_sourcePathMappings, DebuggerToSource);
+    const bool mapped = fileName != f;
+    // The mapping keeps the debugger's separators after the mapped part.
+    fileName.replace('\\', '/');
+    // At least upper case drive letter.
+    if (fileName.size() > 2 && fileName.at(1) == ':')
+        fileName[0] = fileName.at(0).toUpper();
     // Up/lower case normalization according to Windows.
     const QString normalized = FileUtils::normalizedPathName(fileName);
     if (debugSourceMapping)
         qDebug(" sourceMapNormalizeFileNameFromDebugger %s->%s", qPrintable(fileName), qPrintable(normalized));
     // Check if it really exists, that is normalize worked and QFileInfo confirms it.
     const bool exists = !normalized.isEmpty() && QFileInfo(normalized).isFile();
-    NormalizedSourceFileName result(QDir::cleanPath(normalized.isEmpty() ? fileName : normalized), exists);
-    if (!exists) {
-        // At least upper case drive letter if failed.
-        if (result.fileName.size() > 2 && result.fileName.at(1) == ':')
-            result.fileName[0] = result.fileName.at(0).toUpper();
+    const QString cleaned = QDir::cleanPath(normalized.isEmpty() ? fileName : normalized);
+    // A remote cdb reports the file names of its device, so a host file of the same
+    // name is a different one. A mapping may point to either side, the host first.
+    if ((!mapped || !exists) && !runParameters().debugger().command.executable().isLocal()) {
+        const FilePath onDevice = runParameters().findOnDebuggerDevice(fileName);
+        if (!onDevice.isEmpty()) {
+            const NormalizedSourceFileName result(onDevice, true);
+            m_normalizedFileCache.insert(f, result);
+            return result;
+        }
     }
+    const NormalizedSourceFileName result(FilePath::fromUserInput(cleaned), exists);
     m_normalizedFileCache.insert(f, result);
     if (debugSourceMapping)
-        qDebug("<sourceMapNormalizeFileNameFromDebugger %s %d", qPrintable(result.fileName), result.exists);
+        qDebug("<sourceMapNormalizeFileNameFromDebugger %s %d", qPrintable(cleaned), result.exists);
     return result;
 }
 
@@ -2915,7 +2927,7 @@ unsigned CdbEngine::parseStackTrace(const GdbMi &data, bool sourceStepInto)
                 showMessage("Step into: Hit frame with no source, step out...", LogMisc);
                 return ParseStackStepOut;
             }
-            frames[i].file = FilePath::fromString(fileName.fileName);
+            frames[i].file = fileName.fileName;
             frames[i].usable = fileName.exists;
             if (current == -1 && frames[i].usable)
                 current = i;
@@ -3253,7 +3265,7 @@ BreakpointParameters CdbEngine::parseBreakPoint(const GdbMi &gdbmi)
     if (sourceFileName.isValid()) {
         NormalizedSourceFileName mappedFile = sourceMapNormalizeFileNameFromDebugger(
             sourceFileName.data());
-        result.fileName = Utils::FilePath::fromUserInput(mappedFile.fileName);
+        result.fileName = mappedFile.fileName;
         const GdbMi lineNumber = gdbmi["srcline"];
         if (lineNumber.isValid())
             result.textPosition.line = lineNumber.data().toULongLong(nullptr, 0);

@@ -163,6 +163,11 @@ Timeline::ItemDetails QmlProfilerRangeModel::details(int index) const
     return result;
 }
 
+QString QmlProfilerRangeModel::itemLabel(int index) const
+{
+    return modelManager()->eventType(selectionId(index)).data();
+}
+
 Timeline::ItemLocation QmlProfilerRangeModel::location(int index) const
 {
     return locationFromTypeId(index);

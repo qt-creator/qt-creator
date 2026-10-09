@@ -1746,6 +1746,12 @@ bool BinEditorWidget::event(QEvent *e)
     return QAbstractScrollArea::event(e);
 }
 
+static QString nonBreaking(const QString &text)
+{
+    QString result = text;
+    return result.replace(' ', "&nbsp;");
+}
+
 QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
 {
     qint64 selStart = selectionStart();
@@ -1840,15 +1846,15 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
             break;
         }
     }
-    const QString msgDecimalUnsigned = Tr::tr("Decimal&nbsp;unsigned&nbsp;value:");
-    const QString msgDecimalSigned = Tr::tr("Decimal&nbsp;signed&nbsp;value:");
-    const QString msgOldDecimalUnsigned = Tr::tr("Previous&nbsp;decimal&nbsp;unsigned&nbsp;value:");
-    const QString msgOldDecimalSigned = Tr::tr("Previous&nbsp;decimal&nbsp;signed&nbsp;value:");
+    const QString msgDecimalUnsigned = nonBreaking(Tr::tr("Decimal unsigned value:"));
+    const QString msgDecimalSigned = nonBreaking(Tr::tr("Decimal signed value:"));
+    const QString msgOldDecimalUnsigned = nonBreaking(Tr::tr("Previous decimal unsigned value:"));
+    const QString msgOldDecimalSigned = nonBreaking(Tr::tr("Previous decimal signed value:"));
 
     // Table showing little vs. big endian integers for multi-byte
     if (intSize > 1) {
         str << "<table><tr><th>"
-            << Tr::tr("%1-bit&nbsp;Integer&nbsp;Type").arg(8 * intSize) << "</th><th>"
+            << nonBreaking(Tr::tr("%1-bit Integer Type")).arg(8 * intSize) << "</th><th>"
             << Tr::tr("Little Endian") << "</th><th>" << Tr::tr("Big Endian") << "</th></tr>";
         str << tableRowStartC << msgDecimalUnsigned
             << numericTableRowSepC << littleEndianValue << numericTableRowSepC
@@ -1875,14 +1881,14 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
             str << tableRowStartC << msgDecimalSigned << numericTableRowSepC
                 << littleEndianSigned << tableRowEndC;
         }
-        str << tableRowStartC << Tr::tr("Binary&nbsp;value:") << numericTableRowSepC;
+        str << tableRowStartC << nonBreaking(Tr::tr("Binary value:")) << numericTableRowSepC;
         str.setIntegerBase(2);
         str.setFieldWidth(8);
         str.setPadChar(QLatin1Char('0'));
         str << littleEndianValue;
         str.setFieldWidth(0);
         str << tableRowEndC << tableRowStartC
-            << Tr::tr("Octal&nbsp;value:") << numericTableRowSepC;
+            << nonBreaking(Tr::tr("Octal value:")) << numericTableRowSepC;
         str.setIntegerBase(8);
         str.setFieldWidth(3);
         str << littleEndianValue << tableRowEndC;
@@ -1895,13 +1901,13 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
                 str << tableRowStartC << msgOldDecimalSigned << numericTableRowSepC
                     << littleEndianSignedOld << tableRowEndC;
             }
-            str << tableRowStartC << Tr::tr("Previous&nbsp;binary&nbsp;value:")
+            str << tableRowStartC << nonBreaking(Tr::tr("Previous binary value:"))
                 << numericTableRowSepC;
             str.setIntegerBase(2);
             str.setFieldWidth(8);
             str << littleEndianValueOld;
             str.setFieldWidth(0);
-            str << tableRowEndC << tableRowStartC << Tr::tr("Previous&nbsp;octal&nbsp;value:")
+            str << tableRowEndC << tableRowStartC << nonBreaking(Tr::tr("Previous octal value:"))
                 << numericTableRowSepC;
             str.setIntegerBase(8);
             str.setFieldWidth(3);
@@ -1918,11 +1924,11 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
         asDouble(selStart, doubleValue, false);
         asDouble(selStart, doubleValueOld, true);
         //: %1 - double
-        str << tableRowStartC << Tr::tr("%1&nbsp;value:").arg("<i>double</i>") << numericTableRowSepC
+        str << tableRowStartC << nonBreaking(Tr::tr("%1 value:")).arg("<i>double</i>") << numericTableRowSepC
             << doubleValue << tableRowEndC;
         if (doubleValue != doubleValueOld)
             //: %1 - double
-            str << tableRowStartC << Tr::tr("Previous %1&nbsp;value:").arg("<i>double</i>") << numericTableRowSepC
+            str << tableRowStartC << nonBreaking(Tr::tr("Previous %1 value:")).arg("<i>double</i>") << numericTableRowSepC
                 << doubleValueOld << tableRowEndC;
         str << "</table>";
     }
@@ -1934,11 +1940,11 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
         asFloat(selStart, floatValue, false);
         asFloat(selStart, floatValueOld, true);
         //: %1 - float
-        str << tableRowStartC << Tr::tr("%1&nbsp;value:").arg("<i>float</i>") << numericTableRowSepC
+        str << tableRowStartC << nonBreaking(Tr::tr("%1 value:")).arg("<i>float</i>") << numericTableRowSepC
             << floatValue << tableRowEndC;
         if (floatValue != floatValueOld)
             //: %1 - float
-            str << tableRowStartC << Tr::tr("Previous %1&nbsp;value:").arg("<i>float</i>") << numericTableRowSepC
+            str << tableRowStartC << nonBreaking(Tr::tr("Previous %1 value:")).arg("<i>float</i>") << numericTableRowSepC
                 << floatValueOld << tableRowEndC;
 
         str << "</table>";
@@ -2213,7 +2219,7 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
     for (const int groupSize : {1, 2, 4, 8}) {
         QAction *groupAction = groupMenu->addAction(groupSize == 1
                                                         ? Tr::tr("Single Bytes")
-                                                        : Tr::tr("%1 Bytes").arg(groupSize));
+                                                        : Tr::tr("%n Bytes", nullptr, groupSize));
         groupAction->setCheckable(true);
         groupAction->setData(groupSize);
         groupActions->addAction(groupAction);

@@ -24,14 +24,14 @@ jobs:
             os: windows-latest,
             platform: windows_x64,
             cc: "cl", cxx: "cl",
-            environment_script: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+            environment_script: "vcvars64.bat",
           }
         - {
             name: "Windows Latest MSVC Arm64", artifact: "Windows-arm64",
             os: windows-11-arm,
             platform: windows_arm64,
             cc: "cl", cxx: "cl",
-            environment_script: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvarsarm64.bat",
+            environment_script: "vcvarsarm64.bat",
           }
         - {
             name: "Ubuntu Latest GCC", artifact: "Linux-x64",
@@ -111,10 +111,16 @@ jobs:
             set(compiler_id "clang_64")
           endif()
 
-          set(qt_base_url "https://download.qt.io/online/qtsdkrepository/${url_os}/desktop/qt6_${qt_version_dotless}/qt6_${qt_version_dotless}")
+          set(qt_repo "qt6_${qt_version_dotless}")
+          if (platform STREQUAL "windows_x64")
+            set(qt_repo "qt6_${qt_version_dotless}_msvc2022_64")
+          endif()
+          set(qt_base_url "https://download.qt.io/online/qtsdkrepository/${url_os}/desktop/qt6_${qt_version_dotless}/${qt_repo}")
           file(DOWNLOAD "${qt_base_url}/Updates.xml" ./Updates.xml SHOW_PROGRESS)
 
           file(READ ./Updates.xml updates_xml)
+          # XML entities such as &lt; contain semicolons, which would split the list below
+          string(REPLACE ";" "," updates_xml "${updates_xml}")
           # get the package sections, only for given compiler, without the "debug info" ones
           string(REGEX REPLACE "<PackageUpdate>" ";<PackageUpdate>" sections "${updates_xml}")
           list(FILTER sections EXCLUDE REGEX "<Name>.*debug.*</Name>")
@@ -156,7 +162,7 @@ jobs:
             execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "$ENV{GITHUB_WORKSPACE}/${archive}" WORKING_DIRECTORY "${qt_dir}/${subdir}")
           endfunction()
 
-          foreach(package qtbase qtdeclarative qtshadertools)
+          foreach(package qtbase qtdeclarative qtshadertools qttasktree)
             downloadAndExtract(${package} "")
           endforeach()
 
@@ -196,8 +202,20 @@ jobs:
         set(ENV{MACOSX_DEPLOYMENT_TARGET} "${{ env.MACOS_DEPLOYMENT_TARGET }}")
 
         if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
+          find_program(vswhere vswhere
+            PATHS
+              "C:/Program Files (x86)/Microsoft Visual Studio/Installer"
+              "C:/Program Files/Microsoft Visual Studio/Installer"
+            REQUIRED
+          )
           execute_process(
-            COMMAND "${{ matrix.config.environment_script }}" && set
+            COMMAND "${vswhere}" -latest -products * -property installationPath
+            OUTPUT_VARIABLE vs_path
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+          )
+          file(TO_CMAKE_PATH "${vs_path}" vs_path)
+          execute_process(
+            COMMAND "${vs_path}/VC/Auxiliary/Build/${{ matrix.config.environment_script }}" && set
             OUTPUT_FILE environment_script_output.txt
           )
           file(STRINGS environment_script_output.txt output_lines)
@@ -213,9 +231,15 @@ jobs:
             set(ENV{CMAKE_OSX_ARCHITECTURES} "x86_64;arm64")
         endif()
 
+        set(qtc_path "${{ steps.qt_creator.outputs.path }}")
+        # macOS packages unpack into "Qt Creator.sdk"
+        if (EXISTS "${qtc_path}/Qt Creator.sdk")
+          set(qtc_path "${qtc_path}/Qt Creator.sdk")
+        endif()
+
         set(build_plugin_py "scripts/build_plugin.py")
         foreach(dir "share/qtcreator/scripts" "Qt Creator.app/Contents/Resources/scripts" "Contents/Resources/scripts")
-          if(EXISTS "${{ steps.qt_creator.outputs.path }}/${dir}/build_plugin.py")
+          if(EXISTS "${qtc_path}/${dir}/build_plugin.py")
             set(build_plugin_py "${dir}/build_plugin.py")
             break()
           endif()
@@ -224,12 +248,12 @@ jobs:
         execute_process(
           COMMAND python
             -u
-            "${{ steps.qt_creator.outputs.path }}/${build_plugin_py}"
+            "${qtc_path}/${build_plugin_py}"
             --name "$ENV{PLUGIN_NAME}-$ENV{QT_CREATOR_VERSION}-${{ matrix.config.artifact }}"
             --src .
             --build build
             --qt-path "${{ steps.qt.outputs.qt_dir }}"
-            --qtc-path "${{ steps.qt_creator.outputs.path }}"
+            --qtc-path "${qtc_path}"
             --output-path "$ENV{GITHUB_WORKSPACE}"
             ${additional_config}
           RESULT_VARIABLE result

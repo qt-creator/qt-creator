@@ -113,7 +113,7 @@ const wchar_t *skipArgument(const wchar_t *argument, bool isProgramName)
 
 } // namespace
 
-int WINAPI wWinMain(HINSTANCE, HINSTANCE, wchar_t *, int)
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
     int argumentCount = 0;
     wchar_t **arguments = CommandLineToArgvW(GetCommandLineW(), &argumentCount);

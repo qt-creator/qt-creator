@@ -14,8 +14,10 @@
 #include <coreplugin/outputpane.h>
 
 #include <projectexplorer/appoutputpane.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runcontrol.h>
 
 #include <utils/algorithm.h>
@@ -51,6 +53,26 @@ static QString banner(const QString &label, const QString &state)
     return QString("**** %1 - %2 ****\n").arg(label, state);
 }
 
+enum class LogcatLevel { Unknown, Verbose, Debug, Info, Warning, Error, Fatal };
+
+static LogcatLevel logcatLevel(QStringView text)
+{
+    static const std::pair<QLatin1String, LogcatLevel> levels[] = {
+        {QLatin1String("verbose"), LogcatLevel::Verbose},
+        {QLatin1String("debug"), LogcatLevel::Debug},
+        {QLatin1String("info"), LogcatLevel::Info},
+        {QLatin1String("warning"), LogcatLevel::Warning},
+        {QLatin1String("error"), LogcatLevel::Error},
+        {QLatin1String("fatal"), LogcatLevel::Fatal},
+        {QLatin1String("assert"), LogcatLevel::Fatal},
+    };
+    for (const auto &[name, level] : levels) {
+        if (name.startsWith(text, Qt::CaseInsensitive))
+            return level;
+    }
+    return LogcatLevel::Unknown;
+}
+
 struct LogcatEntry
 {
     QString line;
@@ -61,13 +83,14 @@ struct LogcatEntry
     qsizetype timestampLength = 0;
     qint32 pid = -1;
     qint32 tid = -1;
+    LogcatLevel level = LogcatLevel::Unknown;
     Utils::OutputFormat format = Utils::StdOutFormat;
     QChar levelLetter;
     bool bypassFilter = false;
     bool parsed = false;
 
     static LogcatEntry fromLine(const QString &raw);
-    QString displayText() const;
+    QString displayText(const LogcatEntry &previous) const;
 };
 
 // Matches adb's '-v threadtime -v year' line layout.
@@ -79,15 +102,33 @@ static const QRegularExpression regExpLogcat(
     "(?<level>[VDIWEF]) "
     "(?<tag>.*?) *: ");
 
+enum ColumnWidth {
+    TimestampWidth = 23,
+    PidWidth = 5,
+    TagWidth = 23,
+    PackageWidth = 35
+};
+
+static QString cell(const QString &text, int width)
+{
+    if (text.size() <= width)
+        return text.leftJustified(width);
+    const QLatin1String ellipsis("...");
+    const int head = (width - ellipsis.size()) / 2;
+    return text.left(head) + ellipsis + text.right(width - ellipsis.size() - head);
+}
+
 LogcatEntry LogcatEntry::fromLine(const QString &raw)
 {
     LogcatEntry entry{.line = raw};
     const QRegularExpressionMatch match = regExpLogcat.match(raw);
     entry.parsed = match.hasMatch();
     if (entry.parsed) {
+        const QStringView levelText = match.capturedView("level");
         entry.pid = match.capturedView("pid").toInt();
         entry.tid = match.capturedView("tid").toInt();
-        entry.levelLetter = match.capturedView("level").at(0);
+        entry.level = logcatLevel(levelText);
+        entry.levelLetter = levelText.at(0);
         entry.tag = match.captured("tag");
         entry.headerLength = match.capturedEnd();
         entry.colorLength = match.capturedStart("timestamp");
@@ -96,30 +137,33 @@ LogcatEntry LogcatEntry::fromLine(const QString &raw)
     return entry;
 }
 
-QString LogcatEntry::displayText() const
+QString LogcatEntry::displayText(const LogcatEntry &previous) const
 {
     if (bypassFilter || !parsed)
         return line;
     const auto &settings = logcatSettings();
-    QString result = line.left(colorLength);
+    QString prefix;
     if (settings.compactView()) {
-        result += levelLetter;
-        result += QLatin1Char('/') + tag.leftJustified(8) + QLatin1Char('(')
+        prefix += levelLetter;
+        prefix += QLatin1Char('/') + tag.leftJustified(8) + QLatin1Char('(')
                   + QString::number(pid).rightJustified(5) + QLatin1String("): ");
-        result += line.mid(headerLength);
-        return result;
+    } else {
+        if (settings.showTimestamp())
+            prefix += line.mid(colorLength, timestampLength).leftJustified(TimestampWidth)
+                      + QLatin1Char(' ');
+        if (settings.showPid())
+            prefix += QString("%1-%2 ").arg(pid, PidWidth).arg(tid, -PidWidth);
+        if (settings.showTag())
+            prefix += cell(tag, TagWidth) + QLatin1Char(' ');
+        if (settings.showPackage())
+            prefix += cell(packageName, PackageWidth) + QLatin1Char(' ');
+        prefix += QLatin1Char(' ') + levelLetter + QLatin1String("  ");
     }
-    if (settings.showTimestamp())
-        result += line.mid(colorLength, timestampLength) + QLatin1Char(' ');
-    if (settings.showPid()) {
-        result += QString::number(pid) + QLatin1Char('-') + QString::number(tid)
-                  + QLatin1Char(' ');
-    }
-    if (settings.showTag())
-        result += tag + QLatin1Char(' ');
-    if (settings.showPackage() && !packageName.isEmpty())
-        result += packageName + QLatin1Char(' ');
-    result += levelLetter + QLatin1String("  ");
+    const bool sameRecord = headerLength == previous.headerLength
+                            && QStringView(line).left(headerLength)
+                                   == QStringView(previous.line).left(headerLength);
+    QString result = line.left(colorLength);
+    result += sameRecord ? QString(prefix.size(), QLatin1Char(' ')) : prefix;
     result += line.mid(headerLength);
     return result;
 }
@@ -130,7 +174,16 @@ static bool matchesFreeText(const LogcatEntry &entry, const QString &term)
            || entry.packageName.contains(term, Qt::CaseInsensitive);
 }
 
+static QString activeProjectPackage()
+{
+    const BuildConfiguration *bc = activeBuildConfigForActiveProject();
+    return bc ? packageName(bc) : QString();
+}
+
 static constexpr QLatin1StringView packageKey("package");
+static constexpr QLatin1StringView levelKey("level");
+static constexpr QLatin1StringView tagKey("tag");
+static constexpr QLatin1StringView mineValue("mine");
 
 class LogcatFilter
 {
@@ -158,26 +211,61 @@ static LogcatFilter::FilterPredicate minePredicate(const QString &packageName)
     };
 }
 
+static LogcatFilter::FilterPredicate levelPredicate(LogcatLevel min)
+{
+    return [min](const LogcatEntry &e) { return e.level >= min; };
+}
+
+static LogcatFilter::FilterPredicate tagPredicate(const QString &tag)
+{
+    return [tag](const LogcatEntry &e) { return e.tag.contains(tag, Qt::CaseInsensitive); };
+}
+
+static LogcatFilter::FilterPredicate negate(LogcatFilter::FilterPredicate predicate)
+{
+    return [predicate = std::move(predicate)](const LogcatEntry &e) { return !predicate(e); };
+}
+
 void LogcatFilter::setFromText(const QString &text)
 {
     m_filterText = text;
     m_predicates.clear();
     const QStringList tokens = text.simplified().split(QChar::Space, Qt::SkipEmptyParts);
     for (const QString &token : tokens) {
-        const int colon = token.indexOf(u':');
-        const QString key = colon > 0 ? token.left(colon).toLower() : QString();
-        const QString value = colon > 0 ? token.mid(colon + 1) : QString();
-        const bool queryKey = key == packageKey;
+        const bool negated = token.startsWith(u'-');
+        const QString bare = negated ? token.mid(1) : token;
+        const int colon = bare.indexOf(u':');
+        const QString key = colon > 0 ? bare.left(colon).toLower() : QString();
+        const QString value = colon > 0 ? bare.mid(colon + 1) : QString();
+        const bool queryKey = key == packageKey || key == levelKey || key == tagKey;
         if (queryKey && value.isEmpty())
             continue;
-        if (queryKey
-            && value.compare(QLatin1String("mine"), Qt::CaseInsensitive) == 0
-            && !m_boundPackage.isEmpty()) {
-            m_predicates.append(minePredicate(m_boundPackage));
-        } else {
-            m_predicates.append([token](const LogcatEntry &e) {
-                return matchesFreeText(e, token);
-            });
+        const auto append = [this, negated](FilterPredicate predicate) {
+            m_predicates.append(negated ? negate(std::move(predicate)) : std::move(predicate));
+        };
+        if (key == packageKey) {
+            if (value.compare(mineValue, Qt::CaseInsensitive) == 0) {
+                const QString package = m_boundPackage.isEmpty() ? activeProjectPackage()
+                                                                 : m_boundPackage;
+                if (!package.isEmpty())
+                    append(minePredicate(package));
+                else
+                    append([](const LogcatEntry &) { return false; });
+            } else {
+                append([value](const LogcatEntry &e) {
+                    return e.packageName.contains(value, Qt::CaseInsensitive);
+                });
+            }
+        } else if (key == levelKey) {
+            const LogcatLevel level = logcatLevel(value);
+            if (level != LogcatLevel::Unknown)
+                append(levelPredicate(level));
+            else
+                append([](const LogcatEntry &) { return false; });
+        } else if (key == tagKey) {
+            append(tagPredicate(value));
+        } else if (!bare.isEmpty()) {
+            append([bare](const LogcatEntry &e) { return matchesFreeText(e, bare); });
         }
     }
 }
@@ -207,14 +295,20 @@ public:
     LogcatStream(AndroidDevice::ConstPtr device);
     ~LogcatStream() override;
 
+    Id deviceId() const { return m_device->id(); }
     RunControl *tab() const { return m_tabContext.tab; }
     void attachTab(RunControl *tab);
+    void adoptAppRunControl(RunControl *appRunControl);
 
     void bindToApp(qint64 pid, const QString &packageName);
 
     void addLineReader(RunControl *owner, LogcatLineHandler callback);
 
 private:
+    void setAppControllable(bool controllable);
+    void onAppCanceled();
+    void onAppStopped();
+
     void removeLineReader(RunControl *owner);
 
     void start();
@@ -239,11 +333,13 @@ private:
         qsizetype bufferedChars = 0;
         QHash<qint32, QString> processNames;
         QSet<qint32> askedPids;
+        LogcatEntry lastPosted;
         LogcatFilter filter;
 
         void appendEntry(const LogcatEntry &entry);
         void enforceBudget();
-        void backfillPackageNames();
+        bool backfillPackageNames();
+        void postEntry(const LogcatEntry &entry);
         void renderFromBuffer();
     };
 
@@ -271,7 +367,11 @@ private:
     bool m_adbFailedBannered = false;
     bool m_pausedWhileHidden = false;
     QString m_resumeTimestamp;
+    QString m_projectPackage;
     QList<LineReader> m_lineReaders;
+    QPointer<RunControl> m_boundRunner;
+    bool m_appStopRequested = false;
+    bool m_appControllable = false;
 
     CommandLine adbCommand(const QStringList &args) const
     {
@@ -302,6 +402,19 @@ LogcatStream::LogcatStream(AndroidDevice::ConstPtr device)
     QObject::connect(&m_filterDebounce, &QTimer::timeout,
                      this, [this] { m_tabContext.renderFromBuffer(); });
 
+    const auto resolveProjectPackage = [this] {
+        const QString package = activeProjectPackage();
+        if (package == m_projectPackage)
+            return;
+        m_projectPackage = package;
+        m_tabContext.filter.setFromText(m_tabContext.filter.filterText());
+        m_filterDebounce.start();
+    };
+    QObject::connect(ProjectManager::instance(), &ProjectManager::activeBuildConfigurationChanged,
+                     this, resolveProjectPackage);
+    QObject::connect(ProjectManager::instance(), &ProjectManager::parsingFinishedActive,
+                     this, resolveProjectPackage);
+
     DeviceManager *dm = DeviceManager::instance();
     QObject::connect(dm, &DeviceManager::deviceRemoved, this, &LogcatStream::onDeviceRemoved);
     QObject::connect(dm, &DeviceManager::deviceUpdated, this, &LogcatStream::onDeviceUpdated);
@@ -315,12 +428,24 @@ LogcatStream::~LogcatStream()
         reg.remove(m_device->id());
 }
 
+static QString deviceToolTip(const AndroidDevice::ConstPtr &device)
+{
+    QStringList lines;
+    lines << QString("<b>%1</b>").arg(device->displayName().toHtmlEscaped());
+    if (device->sdkLevel() > 0)
+        lines << Tr::tr("SDK level: %1").arg(device->sdkLevel());
+    if (!device->serialNumber().isEmpty())
+        lines << Tr::tr("Serial number: %1").arg(device->serialNumber().toHtmlEscaped());
+    return lines.join(QLatin1String("<br/>"));
+}
+
 void LogcatStream::attachTab(RunControl *tab)
 {
     QTC_ASSERT(tab, return);
     m_tabContext = {};
     m_tabContext.tab = tab;
     tab->setDisplayName(m_device->displayName());
+    tab->setToolTip(deviceToolTip(m_device));
     QObject::connect(tab, &RunControl::outputVisibilityChanged,
                      this, &LogcatStream::setStreaming);
     QObject::connect(tab, &RunControl::outputFilterChanged,
@@ -328,13 +453,71 @@ void LogcatStream::attachTab(RunControl *tab)
     QObject::connect(tab, &RunControl::outputCleared, this, [this] {
         m_tabContext.buffer.clear();
         m_tabContext.bufferedChars = 0;
+        m_tabContext.lastPosted = {};
     });
     QObject::connect(tab, &QObject::destroyed, this, [this] { onTabDestroyed(); });
     setStreaming(tab->isOutputVisible());
 }
 
+static void stopAndDelete(RunControl *runner)
+{
+    if (runner->isStopped()) {
+        runner->deleteLater();
+        return;
+    }
+    QObject::disconnect(runner, &RunControl::stopped, runner, &RunControl::initiateStart);
+    QObject::connect(runner, &RunControl::stopped, runner, &QObject::deleteLater);
+    runner->initiateStop();
+}
+
+void LogcatStream::adoptAppRunControl(RunControl *appRunControl)
+{
+    RunControl *tab = m_tabContext.tab;
+    QTC_ASSERT(tab && appRunControl, return);
+    if (m_boundRunner == appRunControl)
+        return;
+    m_appStopRequested = false;
+    RunControl *previous = m_boundRunner.get();
+    m_boundRunner = appRunControl;
+    if (previous) {
+        QObject::disconnect(tab, nullptr, previous, nullptr);
+        QObject::disconnect(previous, nullptr, this, nullptr);
+        if (!previous->isStopped()) {
+            postMessage(banner(previous->displayName(),
+                               QLatin1String("stopped for a new run")),
+                        Utils::NormalMessageFormat);
+        }
+        stopAndDelete(previous);
+    }
+    if (tab->isStopped())
+        tab->initiateStart();
+    QObject::connect(appRunControl, &RunControl::appendMessage, this,
+                     [this](const QString &msg, Utils::OutputFormat format) {
+                         postMessage(msg, format);
+                     });
+    QObject::connect(tab, &RunControl::canceled, this,
+                     &LogcatStream::onAppCanceled, Qt::UniqueConnection);
+    QObject::connect(tab, &RunControl::canceled, appRunControl, &RunControl::initiateStop);
+    QObject::connect(tab, &RunControl::aboutToStart, appRunControl, [appRunControl] {
+        if (appRunControl->isStopped()) {
+            appRunControl->initiateStart();
+            return;
+        }
+        QObject::connect(appRunControl, &RunControl::stopped, appRunControl,
+                         &RunControl::initiateStart,
+                         static_cast<Qt::ConnectionType>(Qt::SingleShotConnection
+                                                         | Qt::UniqueConnection));
+    });
+    QObject::connect(appRunControl, &RunControl::stopped, this, &LogcatStream::onAppStopped);
+    setAppControllable(true);
+}
+
 void LogcatStream::onTabDestroyed()
 {
+    if (RunControl *runner = m_boundRunner.get()) {
+        stopAndDelete(runner);
+        m_boundRunner = nullptr;
+    }
     m_tabContext = {};
     disposeIfIdle();
 }
@@ -406,7 +589,27 @@ void LogcatStream::removeLineReader(RunControl *owner)
 
 bool LogcatStream::shouldKeepRunning() const
 {
-    return m_tabContext.streaming || hasLineReaders();
+    return m_tabContext.streaming || hasLineReaders()
+           || (m_boundRunner && !m_boundRunner->isStopped());
+}
+
+void LogcatStream::onAppCanceled()
+{
+    m_appStopRequested = true;
+}
+
+void LogcatStream::onAppStopped()
+{
+    if (!m_appStopRequested)
+        setAppControllable(false);
+    m_appStopRequested = false;
+}
+
+void LogcatStream::setAppControllable(bool controllable)
+{
+    m_appControllable = controllable;
+    if (m_tabContext.tab)
+        m_tabContext.tab->setOutputPaneActionsEnabled(controllable);
 }
 
 void LogcatStream::populateProcesses()
@@ -430,7 +633,8 @@ void LogcatStream::populateProcesses()
             if (ok)
                 m_tabContext.processNames.insert(pid, fields.last());
         }
-        m_tabContext.backfillPackageNames();
+        if (m_tabContext.backfillPackageNames())
+            m_filterDebounce.start();
     };
     // The timer paces ps to one per 5s; withTimeout cancels a ps hanging past it.
     m_psRunner.start({parallel,
@@ -530,6 +734,8 @@ void LogcatStream::onDeviceUpdated(Id id)
         return;
     if (const auto current = findDevice(id))
         m_device = current;
+    if (m_tabContext.tab)
+        m_tabContext.tab->setToolTip(deviceToolTip(m_device));
     if (m_device->deviceState() == IDevice::DeviceReadyToUse)
         onConnected();
     else
@@ -554,6 +760,8 @@ void LogcatStream::onDisconnected()
     m_disconnected = true;
     postMessage(banner(m_device->displayNameWithSerial(), QLatin1String("disconnected")),
                 Utils::NormalMessageFormat);
+    if (m_tabContext.tab)
+        m_tabContext.tab->setOutputPaneActionsEnabled(false);
 }
 
 void LogcatStream::onConnected()
@@ -562,8 +770,11 @@ void LogcatStream::onConnected()
         postMessage(banner(m_device->displayNameWithSerial(), QLatin1String("connected")),
                     Utils::NormalMessageFormat);
     m_disconnected = false;
-    if (shouldKeepRunning())
-        start();
+    if (m_tabContext.tab)
+        m_tabContext.tab->setOutputPaneActionsEnabled(m_appControllable);
+    if (!shouldKeepRunning())
+        return;
+    start();
 }
 
 void LogcatStream::postMessage(const QString &msg, Utils::OutputFormat format)
@@ -577,11 +788,17 @@ void LogcatStream::TabContext::appendEntry(const LogcatEntry &entry)
         return;
     LogcatEntry stamped = entry;
     stamped.packageName = processNames.value(stamped.pid);
-    buffer.append(stamped);
-    bufferedChars += stamped.line.size();
-    enforceBudget();
     if (filter.accepts(stamped))
-        tab->postMessage(stamped.displayText(), stamped.format, false);
+        postEntry(stamped);
+    bufferedChars += stamped.line.size();
+    buffer.append(std::move(stamped));
+    enforceBudget();
+}
+
+void LogcatStream::TabContext::postEntry(const LogcatEntry &entry)
+{
+    tab->postMessage(entry.displayText(lastPosted), entry.format, true);
+    lastPosted = entry;
 }
 
 void LogcatStream::TabContext::enforceBudget()
@@ -593,13 +810,18 @@ void LogcatStream::TabContext::enforceBudget()
     }
 }
 
-void LogcatStream::TabContext::backfillPackageNames()
+bool LogcatStream::TabContext::backfillPackageNames()
 {
+    bool filled = false;
     for (LogcatEntry &entry : buffer) {
         if (!entry.packageName.isEmpty())
             continue;
         entry.packageName = processNames.value(entry.pid);
+        if (entry.packageName.isEmpty())
+            continue;
+        filled = true;
     }
+    return filled;
 }
 
 void LogcatStream::TabContext::renderFromBuffer()
@@ -607,9 +829,10 @@ void LogcatStream::TabContext::renderFromBuffer()
     if (!tab)
         return;
     tab->clearOutput();
+    lastPosted = {};
     for (const LogcatEntry &entry : buffer) {
         if (filter.accepts(entry))
-            tab->postMessage(entry.displayText(), entry.format, false);
+            postEntry(entry);
     }
 }
 
@@ -646,27 +869,55 @@ static RunControl *openLogcatTabForStream(LogcatStream *logcatStream)
     if (RunControl *existing = logcatStream->tab())
         return existing;
     auto *runControl = new RunControl(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    // Keeps the pane from reusing this tab for another run.
+    runControl->setCommandLine(
+        {FilePath::fromString("android-logcat"), {logcatStream->deviceId().toString()}});
     runControl->setPromptToStop([](bool *) { return true; });
     runControl->setOutputPaneActionsEnabled(false);
     runControl->setFiltersOutputAtSource(true);
     logcatStream->attachTab(runControl);
 
-    runControl->setRunRecipe(QBarrierTask([](QBarrier &) {}).withCancel([runControl] {
+    const auto reportStarted = QSyncTask([runControl] { runControl->reportStarted(); });
+    const auto waitForStop = QBarrierTask([](QBarrier &) {}).withCancel([runControl] {
         return makeObjectSignal(runControl, &RunControl::canceled);
-    }));
+    });
+    runControl->setRunRecipe(Group{reportStarted, waitForStop});
     runControl->start();
     return runControl;
+}
+
+static LogcatStream *adoptRunControlAsTab(RunControl *runControl)
+{
+    if (!runControl)
+        return nullptr;
+    LogcatStream *stream = ensureStream(deviceForRun(runControl));
+    if (!stream)
+        return nullptr;
+    // A closing tab is unlisted before it dies; adopting onto it loses the run.
+    if (stream->tab() && !stream->tab()->hasOutputPaneTab())
+        return nullptr;
+    if (!stream->tab())
+        openLogcatTabForStream(stream);
+    RunControl *tab = stream->tab();
+    if (!tab || tab == runControl)
+        return stream;
+    runControl->detachOutputPaneTab();
+    stream->adoptAppRunControl(runControl);
+    return stream;
+}
+
+void adoptRunControlForLogcat(RunControl *runControl)
+{
+    if (!runControl || runControl->suppressApplicationOutput())
+        return;
+    adoptRunControlAsTab(runControl);
 }
 
 void bindRunningAppToLogcat(RunControl *runControl, qint64 pid, const QString &packageName)
 {
     if (!runControl || pid <= 0 || runControl->suppressApplicationOutput())
         return;
-    const auto device = AndroidDevice::asReady(deviceForRun(runControl));
-    if (!device)
-        return;
-    showLogcatTab(device);
-    LogcatStream *stream = streamRegistry().value(device->id());
+    LogcatStream *stream = adoptRunControlAsTab(runControl);
     if (!stream)
         return;
     stream->bindToApp(pid, packageName);

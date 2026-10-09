@@ -299,6 +299,7 @@ void Spinner::setVisible(bool visible)
         m_widget->setVisible(visible);
 }
 
+#if QT_CONFIG(style_stylesheet)
 static QString colorButtonStyleSheet(const QColor &bgColor)
 {
     QString rc("border-width: 1px; border-radius: 1px; border-color: black; ");
@@ -315,6 +316,7 @@ static QColor stateToColor(SpinnerState state)
     }
     return {};
 }
+#endif
 
 class SpinnerWidgetPrivate : public QLabel
 {
@@ -347,7 +349,9 @@ private:
     {
         const int size = m_decorated ? 26 : 24;
         setFixedSize(size, size);
+#if QT_CONFIG(style_stylesheet)
         setStyleSheet(m_decorated ? colorButtonStyleSheet(stateToColor(m_state)) : QString());
+#endif
         if (m_state == SpinnerState::Running)
             m_spinner->show();
         else

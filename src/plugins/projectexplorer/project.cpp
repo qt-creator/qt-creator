@@ -2398,6 +2398,64 @@ private slots:
         QCOMPARE(testProject.sourceFile.exists(), false);
         QVERIFY(result.isEmpty());
     }
+
+    // Every subtree change walks and sorts the whole project, so a caller that
+    // touches several children wants one of them, not one per child.
+    void testBatchedSubtreeChangeIsReportedOnce()
+    {
+        constexpr int fileCount = 8;
+
+        TemporaryDirectory tempDir("testProject_batchedSubtreeChange");
+        RenameTestProject project(tempDir);
+        project.initialize<TestBuildSystem>();
+
+        ProjectNode *const root = project.rootProjectNode();
+        QVERIFY(root);
+
+        const auto addFolderWithFiles = [root, &tempDir](const QString &name) {
+            const FilePath dir = tempDir.path() / name;
+            auto folder = std::make_unique<FolderNode>(dir);
+            FolderNode *const folderNode = folder.get();
+            for (int i = 0; i < fileCount; ++i) {
+                folderNode->addNode(std::make_unique<FileNode>(
+                    dir / QString("file%1.cpp").arg(i), FileType::Source));
+            }
+            root->addNode(std::move(folder));
+            return folderNode;
+        };
+
+        const auto children = [](FolderNode *folder) {
+            QList<Node *> nodes;
+            folder->forEachNode([&nodes](FileNode *n) { nodes << n; });
+            return nodes;
+        };
+
+        FolderNode *const oneByOne = addFolderWithFiles("one-by-one");
+        FolderNode *const batched = addFolderWithFiles("batched");
+
+        QSignalSpy spy(&project, &Project::fileListChanged);
+
+        // What replaceSubtree() does: it reports each node it takes out.
+        const QList<Node *> first = children(oneByOne);
+        QCOMPARE(first.size(), fileCount);
+        for (Node *node : first)
+            oneByOne->replaceSubtree(node, nullptr);
+        QCOMPARE(spy.count(), fileCount);
+
+        spy.clear();
+
+        // Taking them out and reporting once covers the same ground.
+        const QList<Node *> second = children(batched);
+        QCOMPARE(second.size(), fileCount);
+        std::vector<std::unique_ptr<Node>> removed;
+        for (Node *node : second)
+            removed.push_back(batched->takeNode(node));
+        batched->notifySubtreeChanged();
+        QCOMPARE(spy.count(), 1);
+
+        QVERIFY(oneByOne->isEmpty());
+        QVERIFY(batched->isEmpty());
+    }
 };
 
 static TestBuildConfigurationFactory testBuildConfigFactory;

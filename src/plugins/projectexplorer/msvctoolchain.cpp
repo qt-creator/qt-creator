@@ -36,11 +36,13 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFormLayout>
+#include <QHash>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>
 #include <QLoggingCategory>
+#include <QMutex>
 #include <QRegularExpression>
 #include <QSet>
 #include <QSettings>
@@ -549,8 +551,10 @@ static QString generateDisplayName(
     if (!displayName.isEmpty())
         vcName = QString::fromLatin1("%1 ").arg(displayName);
     vcName += name;
-    if (device && device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
-        vcName += Tr::tr(" on %1").arg(device->displayName());
+    if (device && device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID) {
+        //: %1 is the compiler name, %2 is the device name.
+        vcName = Tr::tr("%1 on %2").arg(vcName, device->displayName());
+    }
     vcName += QString::fromLatin1(" (%1)").arg(platformName(p));
     return vcName;
 }
@@ -891,7 +895,7 @@ static void environmentModifications(QPromise<MsvcToolchain::GenerateEnvResult> 
 
     const FilePath cmdPath = batchFile.findCmdExe(inEnv);
     if (!cmdPath.isExecutableFile()) {
-        promise.addResult(ResultError(Tr::tr("Failed to find cmd.exe")));
+        promise.addResult(ResultError(Tr::tr("Cannot find \"cmd.exe\".")));
         return;
     }
 
@@ -980,6 +984,22 @@ static void environmentModifications(QPromise<MsvcToolchain::GenerateEnvResult> 
     promise.addResult(diff);
 }
 
+// The C and the C++ toolchain of one setup run the same script. They share a capture that has
+// not finished yet instead of queueing it twice on the single thread the captures get.
+static QFuture<MsvcToolchain::GenerateEnvResult> captureEnvironment(const FilePath &vcvarsBat,
+                                                                    const QString &varsBatArg)
+{
+    static QMutex mutex;
+    static QHash<std::pair<FilePath, QString>, QFuture<MsvcToolchain::GenerateEnvResult>> captures;
+    const QMutexLocker locker(&mutex);
+    QFuture<MsvcToolchain::GenerateEnvResult> &capture = captures[{vcvarsBat, varsBatArg}];
+    if (!capture.isValid() || capture.isFinished()) {
+        capture = Utils::asyncRun(envModThreadPool(), &environmentModifications, vcvarsBat,
+                                  varsBatArg);
+    }
+    return capture;
+}
+
 void MsvcToolchain::initEnvModWatcher(const QFuture<GenerateEnvResult> &future)
 {
     m_envModWatcher.setFuture(future);
@@ -995,12 +1015,12 @@ void MsvcToolchain::holdToolDetection(const IDevicePtr &device, quint64 token)
     device->registerToolDetectionTask(token);
     m_detectionDeviceId = device->id();
     m_detectionToken = token;
-    connect(&m_envModWatcher, &QFutureWatcherBase::finished,
-            this, &MsvcToolchain::releaseToolDetection, Qt::SingleShotConnection);
 }
 
 void MsvcToolchain::releaseToolDetection()
 {
+    if (!m_detectionToken)
+        return;
     if (const IDevice::Ptr device = DeviceManager::find(m_detectionDeviceId))
         device->deregisterToolDetectionTask(m_detectionToken);
     m_detectionDeviceId = {};
@@ -1051,8 +1071,7 @@ void MsvcToolchain::rescanWhenDeviceReady()
             if (m_environmentModifications.isEmpty()) {
                 // The environment capture failed while the device was offline. Re-run it;
                 // on success updateEnvironmentModifications() re-probes the compiler.
-                initEnvModWatcher(Utils::asyncRun(envModThreadPool(), &environmentModifications,
-                                                  m_vcvarsBat, m_varsBatArg));
+                initEnvModWatcher(captureEnvironment(m_vcvarsBat, m_varsBatArg));
             } else if (compilerCommand().isEmpty()) {
                 rescanForCompiler();
                 toolChainUpdated();
@@ -1124,6 +1143,8 @@ MsvcToolchain::MsvcToolchain(Utils::Id typeId)
     setTypeDisplayName(Tr::tr("MSVC"));
     connect(&m_envModWatcher, &QFutureWatcher<GenerateEnvResult>::resultReadyAt,
             this, &MsvcToolchain::handleEnvModResult);
+    connect(&m_envModWatcher, &QFutureWatcherBase::finished,
+            this, &MsvcToolchain::releaseToolDetection);
     addToAvailableMsvcToolchains(this);
     setTargetAbiKey(KEY_ROOT "SupportedAbi");
     setVersionFlagsAndParser({}, [](const QString &, const QString &stdErr) -> QVersionNumber {
@@ -1294,8 +1315,7 @@ void MsvcToolchain::fromMap(const Store &data)
         data.value(environModsKeyC).toList());
     if (m_vcvarsBat.hasFileAccess()) {
         rescanForCompiler();
-        initEnvModWatcher(Utils::asyncRun(envModThreadPool(), &environmentModifications,
-                                          m_vcvarsBat, m_varsBatArg));
+        initEnvModWatcher(captureEnvironment(m_vcvarsBat, m_varsBatArg));
     } else {
         // Device offline at startup: retry the probe once it is connected.
         rescanWhenDeviceReady();
@@ -1584,8 +1604,7 @@ void MsvcToolchain::setupVarsBat(const Abi &abi, const FilePath &varsBat, const 
     m_varsBatArg = varsBatArg;
 
     if (!varsBat.isEmpty()) {
-        initEnvModWatcher(Utils::asyncRun(envModThreadPool(),
-                          &environmentModifications, varsBat, varsBatArg));
+        initEnvModWatcher(captureEnvironment(varsBat, varsBatArg));
     }
 }
 

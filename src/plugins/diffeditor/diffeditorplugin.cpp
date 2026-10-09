@@ -500,7 +500,7 @@ void DiffEditorPlugin::diffCurrentFile()
                     Tr::tr("Cannot read \"%1\".").arg(filePath.toUserOutput())));
         };
         inlineEditor = openInlineDiffEditor(
-            document, baseline, Tr::tr("%1 (Modified vs Saved)").arg(filePath.fileName()));
+            document, baseline, Tr::tr("%1 (Modified vs. Saved)").arg(filePath.fileName()));
     }
     if (!inlineEditor) {
         const QString documentId = Constants::DIFF_EDITOR_PLUGIN + QLatin1String(".Diff.")

@@ -185,7 +185,8 @@ public:
                                                    const FilePath &qmakeCommand);
     static FilePath mkspecFromVersionInfo(const QHash<ProKey,ProString> &versionInfo,
                                           const FilePath &qmakeCommand);
-    static FilePath sourcePath(const QHash<ProKey,ProString> &versionInfo);
+    static FilePath sourcePath(const QHash<ProKey,ProString> &versionInfo,
+                               const FilePath &qtCommand);
     void setId(int id); // used by the qtversionmanager for legacy restore
                         // and by the qtoptionspage to replace Qt versions
 
@@ -883,7 +884,7 @@ QString QtVersion::invalidReason() const
     if (qtFilePath().isEmpty())
         return Tr::tr("No qtpaths or qmake path set");
     if (!d->m_qtIsExecutable)
-        return Tr::tr("%1 does not exist or is not executable").arg(qtFilePath().fileName());
+        return Tr::tr("\"%1\" does not exist or is not executable").arg(qtFilePath().fileName());
     if (!d->data().installed)
         return Tr::tr("Qt version is not properly installed");
     if (binPath().isEmpty())
@@ -1117,7 +1118,8 @@ QString QtVersion::toHtml(bool verbose) const
 FilePath QtVersion::sourcePath() const
 {
     if (d->data().sourcePath.isEmpty())
-        d->data().sourcePath = QtVersionPrivate::sourcePath(d->data().versionInfo);
+        d->data().sourcePath = QtVersionPrivate::sourcePath(d->data().versionInfo,
+                                                            d->m_qtCommand);
     return d->data().sourcePath;
 }
 
@@ -2058,18 +2060,24 @@ FilePath QtVersionPrivate::mkspecFromVersionInfo(const QHash<ProKey, ProString> 
     return mkspecFullPath;
 }
 
-FilePath QtVersionPrivate::sourcePath(const QHash<ProKey, ProString> &versionInfo)
+FilePath QtVersionPrivate::sourcePath(const QHash<ProKey, ProString> &versionInfo,
+                                      const FilePath &qtCommand)
 {
+    const auto canonical = [&qtCommand](const QString &path) {
+        if (!qtCommand.isLocal())
+            return qtCommand.withNewPath(path).cleanPath();
+        return FilePath::fromUserInput(QFileInfo(path).canonicalFilePath());
+    };
+
     const QString qt5Source = qmakeProperty(versionInfo, "QT_INSTALL_PREFIX/src");
     if (!qt5Source.isEmpty()) {
         // Can be wrong for the Qt installers :/
         // Check if we actually find sources, otherwise try what the online installer does.
-        const auto source = FilePath::fromString(QFileInfo(qt5Source).canonicalFilePath());
+        const FilePath source = canonical(qt5Source);
         static const QString qglobal = "qtbase/src/corelib/global/qglobal.h";
         if (!(source / qglobal).exists()) {
-            const auto install = FilePath::fromString(
-                                     qmakeProperty(versionInfo, "QT_INSTALL_PREFIX"))
-                                     .canonicalPath();
+            const QString prefix = qmakeProperty(versionInfo, "QT_INSTALL_PREFIX");
+            const FilePath install = qtCommand.withNewPath(prefix).canonicalPath();
             const FilePath otherSource = install / ".." / "Src";
             if ((otherSource / qglobal).exists())
                 return otherSource.cleanPath();
@@ -2095,7 +2103,7 @@ FilePath QtVersionPrivate::sourcePath(const QHash<ProKey, ProString> &versionInf
             }
         }
     }
-    return FilePath::fromUserInput(QFileInfo(sourcePath).canonicalFilePath());
+    return canonical(sourcePath);
 }
 
 bool QtVersion::isInQtSourceDirectory(const FilePath &filePath) const

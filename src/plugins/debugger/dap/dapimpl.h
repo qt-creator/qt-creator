@@ -119,7 +119,7 @@ protected:
     void runConsoleCommand(const QString &command, const QString &what);
     void checkLineStep(const QString &command, const QJsonObject &arguments);
     void checkAttached();
-    void loadSymbols(const QString &pattern, const QString &what);
+    void loadSymbols(const QString &pattern, const QString &module);
     void fetchModuleSections(quint64 requestId, const Utils::FilePath &modulePath);
     void reportRegisters(quint64 requestId, const GdbMi &registers);
     void reportBreakpointInsert(quint64 requestId, bool taken, bool verified, const GdbMi &data,
@@ -219,6 +219,7 @@ protected:
     void loadCore();
     // The major version gdb names in its banner, 0 for another adapter.
     int m_gdbMajorVersion = 0;
+    bool m_isRedHatGdb = false;
     std::optional<InferiorResultData> m_pendingResult;
     bool m_inferiorDoneReported = false;
     std::optional<InferiorResultData> m_exitAwaitingSignal;

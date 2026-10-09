@@ -17,6 +17,9 @@
 
 #include <languageserverprotocol/lsputils.h>
 
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+
 #include <texteditor/refactoringchanges.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -663,6 +666,46 @@ void autoSetupLanguageServer(TextDocument *document)
             {DOCKERFILE_MIME_TYPE},
             "docker-langserver");
     }
+}
+
+using namespace ProjectExplorer;
+/*!
+\internal
+Compares all projects to candidate and returns true if filePath belongs most to candidate.
+*/
+bool fileBelongsToProject(Project *candidate, const Utils::FilePath &filePath)
+{
+    if (!candidate)
+        return false;
+
+    const bool isKnownByCandidate = candidate->isKnownFile(filePath);
+    if (!isKnownByCandidate && !ProjectManager::isInProjectSourceDir(filePath, *candidate))
+        return false;
+
+    const int longestPathLength = candidate->projectDirectory().canonicalPath().path().size();
+    const QList<Project *> projects = ProjectManager::projects();
+    for (const Project *project : projects) {
+        if (project == candidate)
+            continue;
+
+        // Prefer projects with isKnownFile
+        const bool isKnownByCurrentProject = project->isKnownFile(filePath);
+        if (isKnownByCandidate && !isKnownByCurrentProject)
+            continue;
+        if (!isKnownByCandidate && isKnownByCurrentProject)
+            return false;
+
+        // Ignore projects that don't know and don't contain filepath
+        if (!isKnownByCurrentProject && !ProjectManager::isInProjectSourceDir(filePath, *project))
+            continue;
+
+        // Break ties by project source folder path length
+        const qsizetype currentPathLength
+            = project->projectDirectory().canonicalPath().path().size();
+        if (currentPathLength > longestPathLength)
+            return false;
+    }
+    return true;
 }
 
 } // namespace LanguageClient

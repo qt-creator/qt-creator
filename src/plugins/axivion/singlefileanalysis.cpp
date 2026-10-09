@@ -77,8 +77,8 @@ public:
                 "or some shell/batch script holding cafeCC / axivion_analysis commands"
                 " to execute.")
                     .append("\n\n")
-                    .append(Tr::tr("Leave empty to derive from active project. File to analyze "
-                                   "must be part of the active project.")));
+                    .append(Tr::tr("Leave empty to derive from the active project. The file to "
+                                   "analyze must be part of the active project.")));
         // for now only build_compile_commands...
         // Makefile alternative..
         // ActiveProject may be empty if no project is opened or different from current Axivion's
@@ -424,8 +424,8 @@ static void startSingleFileAnalysisDerived(const FilePath &file)
             }
         }
         QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Single File Analysis"),
-                              Tr::tr("Could not derive the commands for single file analysis "
-                                     "automatically.\nYou need to specify the commands on your own."));
+                              Tr::tr("Cannot derive the commands for single file analysis "
+                                     "automatically.\nSpecify the commands manually."));
     }
 }
 

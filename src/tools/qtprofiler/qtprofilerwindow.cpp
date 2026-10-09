@@ -246,6 +246,14 @@ WindowPrivate::WindowPrivate(Window *window)
             [this](const QString &file, int line, int column) {
                 onGotoSourceLocation(file, line, column);
             });
+    connect(qmlManager, &QmlProfilerPlainViewManager::viewSwitchRequested, this,
+            [](QWidget *to, QWidget *from) {
+                auto toDock = qobject_cast<QDockWidget *>(to->parentWidget());
+                auto fromDock = qobject_cast<QDockWidget *>(from->parentWidget());
+                // A tabbed dock that is not current is moved out of sight, not hidden.
+                if (toDock && fromDock && !fromDock->visibleRegion().isEmpty())
+                    toDock->raise();
+            });
 
     connect(ctfManager, &CtfPlainViewManager::error, this, &WindowPrivate::onError);
     connect(ctfManager, &CtfPlainViewManager::gotoSourceLocation, this,
@@ -254,6 +262,10 @@ WindowPrivate::WindowPrivate(Window *window)
             });
 
     connect(samplerManager, &SamplerViewManager::error, this, &WindowPrivate::onError);
+    // Unlike an error, this leaves the trace loaded, and no exit-on-error.
+    connect(samplerManager, &SamplerViewManager::warning, this, [](const QString &warning) {
+        AsynchronousMessageBox::warning(Tr::tr("Incomplete Trace"), warning);
+    });
     connect(samplerManager, &SamplerViewManager::gotoSourceLocation,
             this, &WindowPrivate::onGotoSourceLocation);
 

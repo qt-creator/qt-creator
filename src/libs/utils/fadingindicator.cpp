@@ -5,7 +5,6 @@
 
 #include "stylehelper.h"
 
-#include <QGraphicsOpacityEffect>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPainter>
@@ -13,6 +12,10 @@
 #include <QPointer>
 #include <QPropertyAnimation>
 #include <QTimer>
+
+#if QT_CONFIG(graphicseffect)
+#include <QGraphicsOpacityEffect>
+#endif
 
 namespace Utils {
 namespace Internal {
@@ -26,9 +29,11 @@ public:
         : QWidget(parent)
     {
         setAttribute(Qt::WA_TransparentForMouseEvents, true);
+#if QT_CONFIG(graphicseffect)
         m_effect = new QGraphicsOpacityEffect(this);
         setGraphicsEffect(m_effect);
         m_effect->setOpacity(1.0);
+#endif
 
         m_label = new QLabel;
         QFont font = m_label->font();
@@ -46,7 +51,9 @@ public:
     {
         m_pixmap = QPixmap();
         m_label->setText(text);
+#if QT_CONFIG(graphicseffect)
         m_effect->setOpacity(.6); // because of the fat opaque background color
+#endif
         layout()->setSizeConstraint(QLayout::SetFixedSize);
         adjustSize();
         QWidget *parent = parentWidget();
@@ -96,14 +103,20 @@ protected:
 private:
     void runInternal()
     {
+#if QT_CONFIG(graphicseffect)
         QPropertyAnimation *anim = new QPropertyAnimation(m_effect, "opacity", this);
         anim->setDuration(200);
         anim->setEndValue(0.);
         connect(anim, &QAbstractAnimation::finished, this, &QObject::deleteLater);
         anim->start(QAbstractAnimation::DeleteWhenStopped);
+#else
+        deleteLater();
+#endif
     }
 
+#if QT_CONFIG(graphicseffect)
     QGraphicsOpacityEffect *m_effect;
+#endif
     QLabel *m_label;
     QPixmap m_pixmap;
 };

@@ -211,6 +211,7 @@ void QmlProfilerModelManager::clearEventStorage()
 {
     m_pausedRanges.clear();
     TimelineTraceManager::clearEventStorage();
+    emit eventsCleared();
     emit traceChanged();
 }
 

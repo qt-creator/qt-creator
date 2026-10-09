@@ -269,6 +269,8 @@ QtcPlugin {
             "moveclasstoownfile.h",
             "movefunctiondefinition.cpp",
             "movefunctiondefinition.h",
+            "movelambdatofunction.cpp",
+            "movelambdatofunction.h",
             "rearrangeparamdeclarationlist.cpp",
             "rearrangeparamdeclarationlist.h",
             "reformatpointerdeclaration.cpp",

@@ -53,7 +53,8 @@ IAssistProvider &cppQuickFixAssistProvider()
 // CppQuickFixAssistInterface
 
 CppQuickFixInterface::CppQuickFixInterface(CppEditorWidget *editor, AssistReason reason)
-    : AssistInterface(editor->textCursor(), editor->textDocument()->filePath(), reason)
+    : AssistInterface(editor->textCursor(), editor->textDocument()->filePath(), reason,
+                      false /*isBaseObject*/)
     , m_editor(editor)
     , m_semanticInfo(editor->semanticInfo())
     , m_snapshot(CppModelManager::snapshot())

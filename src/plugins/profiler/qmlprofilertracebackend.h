@@ -5,6 +5,10 @@
 
 #include "profilertracebackend.h"
 
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer { class BuildConfiguration; }
 namespace Timeline { class RangeDetailsWidget; }
 
@@ -50,6 +54,12 @@ public:
     void handleStop();
     bool aggregatesTraces() const;
 
+    // Discards the recorded data, as the toolbar's Clear button does.
+    void clearData();
+
+    // The Stop action for the editor's toolbar; the tool binds it to the run.
+    QAction *stopAction() const;
+
 signals:
     // A load or save is running; the editor disables its views meanwhile.
     void busyChanged(bool busy);
@@ -59,9 +69,16 @@ signals:
 
 private:
     void setupToolBar();
+    // Whether the trace may be discarded: nothing is unsaved, or the user
+    // confirmed losing it.
+    bool checkForUnsavedNotes();
+#ifndef QTPROFILER_WASM
     void createTextMarks();
+#endif
     void clearEvents();
     void updateTimeDisplay();
+    void showTimelineSearch();
+    void recordingButtonChanged(bool recording);
     void profilerStateChanged();
     void serverRecordingChanged();
     void clientsDisconnected();

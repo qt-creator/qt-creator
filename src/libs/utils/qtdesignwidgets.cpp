@@ -231,6 +231,46 @@ static int iconLabelGap(QtcButton::Role role)
     Q_UNREACHABLE_RETURN(-1);
 }
 
+static constexpr int focusRectWidth = 1;
+static constexpr int secondaryButtonFocusRectWidth = 2;
+
+static bool isPrimaryRole(QtcButton::Role role)
+{
+    return role == QtcButton::LargePrimary
+           || role == QtcButton::MediumPrimary
+           || role == QtcButton::SmallPrimary;
+}
+
+static bool isSecondaryRole(QtcButton::Role role)
+{
+    return role == QtcButton::LargeSecondary
+           || role == QtcButton::MediumSecondary
+           || role == QtcButton::SmallSecondary;
+}
+
+enum FocusStyleFlag {
+    FocusDefault = 0,   // Thin, accent color on macOS
+    FocusStrong = 1,    // Thick
+    FocusThemeColor = 2 // Theme color on macOS too
+};
+Q_DECLARE_FLAGS(FocusStyle, FocusStyleFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(FocusStyle)
+
+static void drawFocusRect(QPainter *p, const QRect &rect, FocusStyle style = FocusDefault)
+{
+    const bool useAccent = Utils::HostOsInfo::isMacHost() && !(style & FocusThemeColor);
+    const QBrush color = useAccent ? creatorTheme()->palette().accent()
+                                   : QBrush(creatorColor(Theme::Token_Stroke_Strong));
+    const int width = style & FocusStrong ? secondaryButtonFocusRectWidth : focusRectWidth;
+    QPen pen(color, width);
+    StyleHelper::drawCardBg(p, rect, Qt::NoBrush, pen);
+}
+
+static void drawFocusRect(QPainter *p, const QWidget *w, FocusStyle style = FocusDefault)
+{
+    if (w->hasFocus())
+        drawFocusRect(p, w->rect(), style);
+}
 
 static void paintCommonBackground(QPainter *p, const QRectF &rect, const QWidget *w)
 {
@@ -239,12 +279,11 @@ static void paintCommonBackground(QPainter *p, const QRectF &rect, const QWidget
     const QBrush fill(creatorColor(hover && enabled ? Theme::Token_Foreground_Subtle
                                                     : Theme::Token_Background_Muted));
     const Theme::Color c =
-        enabled ? (w->hasFocus() ? Theme::Token_Stroke_Strong
-                                 : (hover ? Theme::Token_Stroke_Muted
-                                          : Theme::Token_Stroke_Subtle))
+        enabled ? (hover ? Theme::Token_Stroke_Muted : Theme::Token_Stroke_Subtle)
                 : Theme::Token_Foreground_Subtle;
     const QPen pen(creatorColor(c));
     StyleHelper::drawCardBg(p, rect, fill, pen);
+    drawFocusRect(p, w);
 }
 
 void QtcButton::paintEvent(QPaintEvent *event)
@@ -278,6 +317,7 @@ void QtcButton::paintEvent(QPaintEvent *event)
 
     Q_UNUSED(event)
     const bool hovered = underMouse();
+    const bool focused = hasFocus();
     const WidgetState state = isChecked() ? WidgetStateChecked : hovered ? WidgetStateHovered
                                                                          : WidgetStateDefault;
     const TextFormat &tf = buttonTF(m_role, state);
@@ -367,6 +407,13 @@ void QtcButton::paintEvent(QPaintEvent *event)
     const QColor textColor = isEnabled() ? tf.color() : creatorColor(Theme::Token_Text_Subtle);
     p.setPen(textColor);
     p.drawText(labelR, textFlags(tf, this), elidedLabelText);
+
+    if (focused) {
+        FocusStyle style = isSecondaryRole(m_role) ? FocusStrong : FocusDefault;
+        if (isPrimaryRole(m_role))
+            style |= FocusThemeColor;
+        drawFocusRect(&p, bgR, style);
+    }
 }
 
 void QtcButton::setPixmap(const QPixmap &pixmap)
@@ -858,6 +905,8 @@ void QtcSwitch::paintEvent([[maybe_unused]] QPaintEvent *event)
     const bool checkedEnabled = isChecked() && isEnabled();
     QPainter p(this);
 
+
+    drawFocusRect(&p, this); // Drawn first to not overdraw the element
     { // track
         const bool hovered = underMouse();
         const QBrush fill = creatorColor(checkedEnabled ? (hovered ? Theme::Token_Accent_Subtle
@@ -946,6 +995,7 @@ void QtcCheckBox::paintEvent([[maybe_unused]] QPaintEvent *event)
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
 
+    drawFocusRect(&p, this); // Drawn first to not overdraw the element
     { // box
         const QBrush fill = creatorColor(
             checkedEnabled ? (isDown()  ? Theme::Token_Accent_Subtle
@@ -1024,6 +1074,7 @@ void QtcRadioButton::paintEvent([[maybe_unused]] QPaintEvent *event)
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
 
+    drawFocusRect(&p, this); // Drawn first to not overdraw the element
     { // circle
         const QBrush fill = creatorColor(
             checkedEnabled ? (isDown()  ? Theme::Token_Accent_Subtle
@@ -1155,6 +1206,8 @@ void QtcIconButton::paintEvent(QPaintEvent *e)
     if (!isEnabled())
         p.setOpacity(disabledIconOpacity);
     icon().paint(&p, r, Qt::AlignCenter);
+
+    drawFocusRect(&p, this);
 }
 
 QSize QtcIconButton::sizeHint() const
@@ -2095,6 +2148,8 @@ void QtDesignSystemStyle::drawControl(ControlElement element, const QStyleOption
         const int paddingL = tabOpt->position == QStyleOptionTab::Beginning ? 0 : PaddingHXxs;
         const int paddingR = tabOpt->position == QStyleOptionTab::End ? 0 : PaddingHXxs;
         const QRect shapeR = opt->rect.adjusted(paddingL, 0, -paddingR, 0);
+        if (opt->state & QStyle::State_HasFocus) // Drawn first to not overdraw the element
+            drawFocusRect(painter, shapeR);
         if (selected || (hovered && enabled)) {
             const bool isMoving = tabOpt->position == QStyleOptionTab::Moving;
             if (hovered || isMoving) {
@@ -2188,6 +2243,10 @@ void QtDesignSystemStyle::drawPrimitive(PrimitiveElement element, const QStyleOp
         const QColor color = creatorColor(enabled ? Theme::Token_Stroke_Subtle
                                                   : Theme::Token_Foreground_Subtle);
         painter->fillRect(borderR, color);
+        break;
+    }
+    case PE_FrameFocusRect: {
+        drawFocusRect(painter, opt->rect);
         break;
     }
     default:

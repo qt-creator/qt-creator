@@ -17,9 +17,8 @@ namespace TextEditor {
 class TEXTEDITOR_EXPORT AssistInterface
 {
 public:
-    AssistInterface(const QTextCursor &cursor,
-                    const Utils::FilePath &filePath,
-                    AssistReason reason);
+    AssistInterface(const QTextCursor &cursor, const Utils::FilePath &filePath,
+                    AssistReason reason, bool isBaseObject = true);
     virtual ~AssistInterface();
 
     int position() const { return m_position; }
@@ -31,7 +30,7 @@ public:
     void prepareForAsyncUse();
     void recreateTextDocument();
     AssistReason reason() const;
-    virtual bool isBaseObject() const { return true; }
+    bool isBaseObject() const { return m_isBaseObject; }
 
 private:
     QTextDocument *m_textDocument;
@@ -43,6 +42,7 @@ private:
     AssistReason m_reason;
     QString m_text;
     QList<int> m_userStates;
+    bool m_isBaseObject = true;
 };
 
 } // namespace TextEditor

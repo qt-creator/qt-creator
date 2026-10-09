@@ -5,6 +5,10 @@
 
 #include "../utils_global.h"
 
+#include <QtGui/qtguiglobal.h>
+
+#if QT_CONFIG(accessibility)
+
 #include <QAccessibleWidget>
 
 QT_BEGIN_NAMESPACE
@@ -98,3 +102,5 @@ protected:
 QTCREATOR_UTILS_EXPORT QAccessibleInterface *accessiblePlainTextEditFactory(const QString &classname, QObject *object);
 
 } // namespace Utils
+
+#endif // QT_CONFIG(accessibility)

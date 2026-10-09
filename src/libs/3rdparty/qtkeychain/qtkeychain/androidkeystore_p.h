@@ -13,10 +13,10 @@
 #include <QtGlobal>
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-#include <QAndroidJniObject>
+#  include <QAndroidJniObject>
 #else
-#include <QJniObject>
-#include <QJniEnvironment>
+#  include <QJniObject>
+#  include <QJniEnvironment>
 
 typedef QJniObject QAndroidJniObject;
 typedef QJniEnvironment QAndroidJniEnvironment;
@@ -27,12 +27,11 @@ namespace QKeychain {
 
 namespace javax {
 namespace security {
-
-namespace auth { namespace x500 { class X500Principal; } }
-namespace cert { class Certificate; }
-
+namespace cert {
+class Certificate;
 }
-}
+} // namespace security
+} // namespace javax
 
 namespace java {
 namespace lang {
@@ -40,8 +39,8 @@ namespace lang {
 class Object : protected QAndroidJniObject
 {
 public:
-    inline Object(jobject object) : QAndroidJniObject(object) {}
-    inline Object(const QAndroidJniObject &object) : QAndroidJniObject(object) {}
+    inline Object(jobject object) : QAndroidJniObject(object) { }
+    inline Object(const QAndroidJniObject &object) : QAndroidJniObject(object) { }
     inline operator bool() const { return isValid(); }
 
     using QAndroidJniObject::object;
@@ -50,11 +49,11 @@ public:
 protected:
     static bool handleExceptions();
 
-    template<typename T>
+    template <typename T>
     static T handleExceptions(const T &result, const T &resultOnError = T());
 };
 
-template<typename T>
+template <typename T>
 inline T Object::handleExceptions(const T &result, const T &resultOnError)
 {
     if (!handleExceptions())
@@ -73,6 +72,7 @@ public:
     using Object::Object;
 
     int read() const;
+    bool readAll(QByteArray &out, QString *errorString = nullptr) const;
 };
 
 class ByteArrayInputStream : public InputStream
@@ -117,49 +117,6 @@ public:
 
 } // namespace io
 
-namespace math {
-
-class BigInteger : public java::lang::Object
-{
-public:
-    using Object::Object;
-
-    static const BigInteger ZERO;
-    static const BigInteger ONE;
-    static const BigInteger TEN;
-};
-
-} // namespace math
-
-namespace util {
-
-class Date : public java::lang::Object
-{
-public:
-    using Object::Object;
-};
-
-class Calendar : public java::lang::Object
-{
-public:
-    using Object::Object;
-
-    static const int YEAR;
-    static const int MONTH;
-    static const int DAY;
-    static const int HOUR;
-    static const int MINUTE;
-    static const int SECOND;
-    static const int MILLISECOND;
-
-    static Calendar getInstance();
-
-    bool add(int field, int amount) const;
-    Date getTime() const;
-};
-
-} // namespace util
-
 namespace security {
 namespace spec {
 
@@ -182,7 +139,7 @@ class PrivateKey : public Key
 public:
     using Key::Key;
 
-    PrivateKey(const Key &init): Key(init) {}
+    PrivateKey(const Key &init) : Key(init) { }
 };
 
 class PublicKey : public Key
@@ -190,7 +147,14 @@ class PublicKey : public Key
 public:
     using Key::Key;
 
-    PublicKey(const Key &init): Key(init) {}
+    PublicKey(const Key &init) : Key(init) { }
+};
+
+class SecureRandom : public java::lang::Object
+{
+public:
+    SecureRandom();
+    bool nextBytes(QByteArray &bytes) const;
 };
 
 class KeyPair : public java::lang::Object
@@ -207,7 +171,6 @@ public:
     static KeyPairGenerator getInstance(const QString &algorithm, const QString &provider);
     KeyPair generateKeyPair() const;
     bool initialize(const spec::AlgorithmParameterSpec &spec) const;
-
 };
 
 class KeyStore : public java::lang::Object
@@ -224,7 +187,7 @@ public:
     public:
         using Entry::Entry;
 
-        inline PrivateKeyEntry(const Entry &init): Entry(init) {}
+        inline PrivateKeyEntry(const Entry &init) : Entry(init) { }
 
         javax::security::cert::Certificate getCertificate() const;
         java::security::PrivateKey getPrivateKey() const;
@@ -258,7 +221,7 @@ class RSAPrivateKey : public PrivateKey
 public:
     using PrivateKey::PrivateKey;
 
-    RSAPrivateKey(const PrivateKey &init): PrivateKey(init) {}
+    RSAPrivateKey(const PrivateKey &init) : PrivateKey(init) { }
 };
 
 class RSAPublicKey : public PublicKey
@@ -266,7 +229,7 @@ class RSAPublicKey : public PublicKey
 public:
     using PublicKey::PublicKey;
 
-    RSAPublicKey(const PublicKey &init): PublicKey(init) {}
+    RSAPublicKey(const PublicKey &init) : PublicKey(init) { }
 };
 
 } // namespace interfaces
@@ -275,19 +238,15 @@ public:
 } // namespace java
 
 namespace android {
-namespace content {
-
-class Context : public java::lang::Object
-{
-public:
-    using Object::Object;
-};
-
-} // namespace content
-
 namespace security {
+namespace keystore {
 
-class KeyPairGeneratorSpec : public java::security::spec::AlgorithmParameterSpec
+namespace KeyProperties {
+static const int PURPOSE_ENCRYPT = 1;
+static const int PURPOSE_DECRYPT = 2;
+} // namespace KeyProperties
+
+class KeyGenParameterSpec : public java::security::spec::AlgorithmParameterSpec
 {
 public:
     class Builder : public java::lang::Object
@@ -295,25 +254,38 @@ public:
     public:
         using Object::Object;
 
-        explicit Builder(const android::content::Context &context);
+        explicit Builder(const QString &keystoreAlias, int purposes);
 
-        Builder setAlias(const QString &alias) const;
-        Builder setSubject(const javax::security::auth::x500::X500Principal &subject) const;
-        Builder setSerialNumber(const java::math::BigInteger &serial) const;
-        Builder setStartDate(const java::util::Date &date) const;
-        Builder setEndDate(const java::util::Date &date) const;
-        KeyPairGeneratorSpec build() const;
-
+        Builder setEncryptionPadding(const QString &padding) const;
+        Builder setKeySize(int keySize) const;
+        KeyGenParameterSpec build() const;
     };
 
     using AlgorithmParameterSpec::AlgorithmParameterSpec;
 };
 
+} // namespace keystore
 } // namespace security
 } // namespace android
 
 namespace javax {
 namespace crypto {
+
+class SecretKeySpec : public java::security::Key
+{
+public:
+    using Key::Key;
+
+    explicit SecretKeySpec(const QByteArray &key, const QString &algorithm);
+};
+
+class GCMParameterSpec : public java::security::spec::AlgorithmParameterSpec
+{
+public:
+    using AlgorithmParameterSpec::AlgorithmParameterSpec;
+
+    explicit GCMParameterSpec(int tLen, const QByteArray &iv);
+};
 
 class Cipher : public java::lang::Object
 {
@@ -325,6 +297,10 @@ public:
 
     static Cipher getInstance(const QString &transformation);
     bool init(int opMode, const java::security::Key &key) const;
+    bool init(int opMode, const java::security::Key &key,
+              const java::security::spec::AlgorithmParameterSpec &params) const;
+    bool doFinal(const QByteArray &input, QByteArray &output,
+                 QString *errorString = nullptr) const;
 };
 
 class CipherInputStream : public java::io::FilterInputStream
@@ -343,25 +319,9 @@ public:
     explicit CipherOutputStream(const OutputStream &stream, const Cipher &cipher);
 };
 
-}
+} // namespace crypto
 
 namespace security {
-namespace auth {
-namespace x500 {
-
-class X500Principal;
-
-class X500Principal : public java::lang::Object
-{
-public:
-    using Object::Object;
-
-    explicit X500Principal(const QString &name);
-};
-
-} // namespace x500
-} // namespace auth
-
 namespace cert {
 
 class Certificate : public java::lang::Object

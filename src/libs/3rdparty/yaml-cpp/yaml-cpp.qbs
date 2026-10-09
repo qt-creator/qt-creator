@@ -25,6 +25,7 @@ Project {
 
         cpp.defines: base.concat(["YAML_CPP_DLL", "yaml_cpp_EXPORTS"])
         cpp.includePaths: [product.sourceDirectory + "/include/"]
+        cpp.warningLevel: "none"
 
         files: [
             "include/yaml-cpp/anchor.h",
@@ -38,6 +39,7 @@ Project {
             "include/yaml-cpp/emitterstyle.h",
             "include/yaml-cpp/eventhandler.h",
             "include/yaml-cpp/exceptions.h",
+            "include/yaml-cpp/fptostring.h",
             "include/yaml-cpp/mark.h",
             "include/yaml-cpp/noexcept.h",
             "include/yaml-cpp/node/convert.h",
@@ -64,6 +66,7 @@ Project {
             "include/yaml-cpp/yaml.h",
             "src/binary.cpp",
             "src/collectionstack.h",
+            "src/contrib/dragonbox.h",
             "src/convert.cpp",
             "src/depthguard.cpp",
             "src/directives.cpp",
@@ -78,6 +81,7 @@ Project {
             "src/exceptions.cpp",
             "src/exp.cpp",
             "src/exp.h",
+            "src/fptostring.cpp",
             "src/indentation.h",
             "src/memory.cpp",
             "src/node.cpp",

@@ -15,6 +15,12 @@ Project {
         Depends { name: "TextEditor" }
         Depends { name: "QtSupport" }
 
+        Group {
+            name: "long description"
+            files: "CMakeDescription.md"
+            fileTags: "pluginjson.longDescription"
+        }
+
         files: [
             "builddirparameters.cpp",
             "builddirparameters.h",

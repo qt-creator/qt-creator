@@ -53,17 +53,12 @@ QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) con
 {
     QStringList arguments;
     if (testSettings().processArgs()) {
-        arguments << filterInterfering(runnable().command.arguments().split(
-                                           ' ', Qt::SkipEmptyParts), omitted);
+        arguments << filterInterfering(runConfigurationArguments(omitted), omitted);
     }
 
     const QStringList &testSets = testCases();
-    if (!testSets.isEmpty()) {
-        if (isDebugRunMode()) // debugger does its own special quoting
-            arguments << "--gtest_filter=" + testSets.join(':');
-        else
-            arguments << "--gtest_filter=\"" + testSets.join(':') + '"';
-    }
+    if (!testSets.isEmpty())
+        arguments << "--gtest_filter=" + testSets.join(':');
 
     GTestFramework &gSettings = theGTestFramework();
 

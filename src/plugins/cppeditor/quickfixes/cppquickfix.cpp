@@ -30,6 +30,7 @@
 #include "logicaloperationquickfixes.h"
 #include "moveclasstoownfile.h"
 #include "movefunctiondefinition.h"
+#include "movelambdatofunction.h"
 #include "rearrangeparamdeclarationlist.h"
 #include "reformatpointerdeclaration.h"
 #include "removeusingnamespace.h"
@@ -135,6 +136,7 @@ void createCppQuickFixFactories()
     registerLogicalOperationQuickfixes();
     registerMoveClassToOwnFileQuickfix();
     registerMoveFunctionDefinitionQuickfixes();
+    registerMoveLambdaQuickfixes();
     registerRearrangeParamDeclarationListQuickfix();
     registerReformatPointerDeclarationQuickfix();
     registerRemoveUsingNamespaceQuickfix();

@@ -17,10 +17,7 @@
     ],
     "DisabledByDefault" : true,
     "Description" : "Create Docker devices from Docker images.",
-    "LongDescription" : [
-        "You also need:",
-            "- Docker CLI"
-    ],
+    "LongDescription" : ${LONG_DESCRIPTION},
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-adding-docker-devices.html",
     ${IDE_PLUGIN_DEPENDENCIES}

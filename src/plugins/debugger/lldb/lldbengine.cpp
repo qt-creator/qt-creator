@@ -76,6 +76,7 @@ LldbEngine::LldbEngine()
             this, &LldbEngine::fetchFullBacktrace);
     connect(&ds.useDebuggingHelpers, &BaseAspect::changed, this, &LldbEngine::updateLocals);
     connect(&ds.useDynamicType, &BaseAspect::changed, this, &LldbEngine::updateLocals);
+    connect(&ds.allowInferiorCalls, &BaseAspect::changed, this, &LldbEngine::updateLocals);
     connect(&ds.intelFlavor, &BaseAspect::changed, this, &LldbEngine::updateAll);
 
     connect(&m_lldbProc, &Process::started, this, &LldbEngine::handleLldbStarted);
@@ -870,6 +871,7 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     const DebuggerSettings &s = settings();
     cmd.arg("passexceptions", alwaysVerbose);
     cmd.arg("fancy", s.useDebuggingHelpers());
+    cmd.arg("allowinferiorcalls", s.allowInferiorCalls());
     cmd.arg("autoderef", s.autoDerefPointers());
     cmd.arg("dyntype", s.useDynamicType());
     cmd.arg("partialvar", params.partialVariable);
@@ -1348,7 +1350,8 @@ static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
         .sourcePathMap = lldbImplSourcePathMap(rp),
         .solibSearchPath = rp.solibSearchPath(),
         .debugInfoLocation = rp.debugInfoLocation(),
-        .useIndexCache = settings().useIndexCache(),
+        // Not settings().useIndexCache(): that one is gdb's, and with a warm
+        // index cache Apple's lldb (lldb-2103) crashes before main() is reached.
         .useDebugInfoD = settings().useDebugInfoD(),
         .qtVersion = rp.qtVersion(),
         .qtNamespace = rp.configuredQtNamespace(),

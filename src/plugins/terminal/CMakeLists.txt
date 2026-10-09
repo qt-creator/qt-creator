@@ -2,6 +2,7 @@
 add_qtc_plugin(Terminal
   PLUGIN_DEPENDS Core ProjectExplorer
   DEPENDS TerminalLib
+  LONG_DESCRIPTION_MD TerminalDescription.md
   SOURCES
     consolehost.cpp consolehost.h
     shellintegration.cpp shellintegration.h

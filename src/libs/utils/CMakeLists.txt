@@ -1,5 +1,15 @@
+# The settings database is the only thing here that uses Qt::Sql, and on
+# the standalone WebAssembly viewer it is replaced by an in-memory implementation: nothing survives a
+# reload there, so there is nothing for SQLite to keep. That drops the SQLite
+# driver plugin, which is otherwise the largest single dependency of that build.
+if (QTPROFILER_WASM)
+  set(UTILS_SQL_DEPENDENCY "")
+else()
+  set(UTILS_SQL_DEPENDENCY Qt::Sql)
+endif()
+
 add_qtc_library(Utils
-  DEPENDS Qt::Sql Qt::Xml Spinner QtCLibArchive quickjsng
+  DEPENDS ${UTILS_SQL_DEPENDENCY} Qt::Xml Spinner QtCLibArchive quickjsng
   PUBLIC_DEPENDS
     Qt::Concurrent
     Qt::Core
@@ -141,7 +151,7 @@ add_qtc_library(Utils
     searchresultitem.cpp searchresultitem.h
     set_algorithm.h
     settingsaccessor.cpp settingsaccessor.h
-    settingsdatabase.cpp settingsdatabase.h
+    settingsdatabase.h
     shutdownguard.cpp shutdownguard.h
     sizedarray.h
     smallstring.h
@@ -227,6 +237,21 @@ extend_qtc_library(Utils
     mimeutils.cpp
 )
 
+# The MIME database MimeDatabase starts from. The WebAssembly build is qtprofiler
+# alone, which looks up no MIME type of its own; it gets a few basic types rather
+# than all of Apache Tika's.
+if (QTPROFILER_WASM)
+  set(utils_mime_database "${CMAKE_CURRENT_SOURCE_DIR}/mimetypes2/basic-mimetypes.xml")
+else()
+  set(utils_mime_database "${PROJECT_SOURCE_DIR}/src/libs/3rdparty/tika/tika-mimetypes.xml")
+endif()
+set_source_files_properties("${utils_mime_database}"
+  PROPERTIES QT_RESOURCE_ALIAS tika-mimetypes.xml)
+qt_add_resources(Utils utils_mimetypes
+  PREFIX "/utils/mimetypes"
+  FILES "${utils_mime_database}"
+)
+
 extend_qtc_library(Utils
   SOURCES_PREFIX plaintextedit
   PUBLIC_INCLUDES plaintextedit
@@ -286,6 +311,16 @@ extend_qtc_library(Utils CONDITION UNIX AND NOT APPLE
   SOURCES
     spellchecker_unix.cpp
     touchbar/touchbar.cpp
+)
+
+extend_qtc_library(Utils
+  CONDITION QTPROFILER_WASM
+  SOURCES settingsdatabase_wasm.cpp
+)
+
+extend_qtc_library(Utils
+  CONDITION NOT QTPROFILER_WASM
+  SOURCES settingsdatabase.cpp
 )
 
 # Process reaping/helper machinery wraps QProcess directly, which is compiled out on

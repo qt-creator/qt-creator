@@ -791,6 +791,7 @@ struct ForceC {};
 struct EigenProfile {};
 struct UseDebugImage {};
 struct DwarfProfile { explicit DwarfProfile(int v) : version(v) {} int version; };
+struct SharedLibrary { explicit SharedLibrary(const QString &s) : source(s) {} QString source; };
 struct CoreFoundationProfile {};
 struct GNUstepProfile {};
 
@@ -950,6 +951,12 @@ public:
         profileExtra +=
             "QMAKE_CXXFLAGS -= -g\n"
             "QMAKE_CXXFLAGS += -gdwarf-" + QString::number(p.version) + "\n";
+        return *this;
+    }
+
+    const Data &operator+(const SharedLibrary &lib) const
+    {
+        librarySource = lib.source;
         return *this;
     }
 
@@ -1202,6 +1209,7 @@ public:
     mutable QString dumperOptions;
     mutable QString profileExtra;
     mutable QString cmakelistsExtra;
+    mutable QString librarySource;   // Built into a shared library doit links to.
     mutable QString preamble;
     mutable QString code;
     mutable QString unused;
@@ -1622,6 +1630,11 @@ void tst_Dumpers::dumper()
             projectFile.write("    " + mainFile.toUtf8() + "\n");
             projectFile.write(")\n\n");
 
+            if (!data.librarySource.isEmpty()) {
+                projectFile.write("add_library(doitlib SHARED lib.cpp)\n");
+                projectFile.write("target_link_libraries(doit PRIVATE doitlib)\n\n");
+            }
+
             //projectFile.write("target_link_libraries(doit PRIVATE Qt5::Widgets)\n");
 
             //projectFile.write("\nmacos: CONFIG += sdk_no_version_check\n");
@@ -1660,6 +1673,16 @@ void tst_Dumpers::dumper()
                 projectFile.write("QMAKE_CXXFLAGS += -gdwarf-3\n");
             if (m_debuggerEngine == CdbEngine)
                 projectFile.write("CONFIG += utf8_source\n");
+            if (!data.librarySource.isEmpty()) {
+                // Linked by absolute path, so the executable finds it without an rpath.
+                projectFile.write("doitlib.target = $$OUT_PWD/libdoitlib.so\n"
+                                  "doitlib.depends = $$PWD/lib.cpp\n"
+                                  "doitlib.commands = $$QMAKE_CXX -g -fPIC -shared"
+                                  " $$PWD/lib.cpp -o $$OUT_PWD/libdoitlib.so\n"
+                                  "QMAKE_EXTRA_TARGETS += doitlib\n"
+                                  "PRE_TARGETDEPS += $$OUT_PWD/libdoitlib.so\n"
+                                  "LIBS += $$OUT_PWD/libdoitlib.so\n");
+            }
             projectFile.write(data.profileExtra.toUtf8());
         } else {
             projectFile.write(data.allProfile.toUtf8());
@@ -1668,6 +1691,12 @@ void tst_Dumpers::dumper()
         projectFile.write("TARGET = ../doit\n"); // avoid handling debug / release folder
 #endif
         projectFile.close();
+    }
+
+    if (!data.librarySource.isEmpty()) {
+        QFile librarySource(t->buildPath + "/lib.cpp");
+        QVERIFY(librarySource.open(QIODevice::WriteOnly));
+        librarySource.write(data.librarySource.toUtf8());
     }
 
     QFile source(t->buildPath + '/' + mainFile);
@@ -8102,6 +8131,44 @@ void tst_Dumpers::dumper_data()
                 + Check("dr.d", "4", "int")
 
                 + Check("array.0.val", "44", "int");
+
+
+#ifndef Q_OS_WIN
+    // The library defines what the executable only declares. That is Pub with
+    // vtable homing, Priv otherwise. LLDB lists definitions in source order,
+    // so the decoys in M come first and are picked unless names are compared.
+    const QString crossLibraryDecl =
+            "namespace N {\n"
+            "struct Priv;\n"
+            "struct Pub { Pub(); virtual ~Pub(); int tag = 42; Priv *d; };\n"
+            "}\n";
+
+    QTest::newRow("CrossLibraryType")
+            << Data(crossLibraryDecl,
+
+                    "N::Pub p;\n"
+                    "N::Pub *pp = &p;",
+
+                    "&p, &pp")
+
+               + SharedLibrary(crossLibraryDecl +
+                    "namespace M { namespace N {\n"
+                    "struct Pub { char c = 'c'; };\n"
+                    "struct Priv { char c = 'c'; };\n"
+                    "} }\n"
+                    "M::N::Pub decoyPub;\n"
+                    "M::N::Priv decoyPriv;\n"
+                    "namespace N {\n"
+                    "struct Priv { int x = 1; double y = 2.5; };\n"
+                    "Pub::Pub() : d(new Priv) {}\n"
+                    "Pub::~Pub() { delete d; }\n"
+                    "}\n")
+
+               + Check("p.tag", "42", "int")
+               + Check("p.d.x", "1", "int")
+               + Check("p.d.y", FloatValue("2.5"), "double")
+               + Check("pp.d.x", "1", "int");
+#endif
 
 
     QTest::newRow("Gdb13393")

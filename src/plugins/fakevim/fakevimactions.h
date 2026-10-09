@@ -69,6 +69,7 @@ public:
 
     ValueType value() const { return m_value; }
     ValueType operator()() const { return m_value; }
+    void setValue(const ValueType &value) { m_value = value; }
 
     ValueType m_value;
     ValueType m_defaultValue;
@@ -157,11 +158,16 @@ public:
     FvStringAspect nrFormats;
     FvStringAspect formatListPat;
     FvStringAspect whichWrap;
+    FvStringAspect virtualEdit;
     FvBoolAspect joinSpaces;
     FvBoolAspect ruler;
     FvBoolAspect gDefault;
     FvStringAspect suffixesAdd;
     FvStringAspect path;
+    FvStringAspect grepPrg;
+    FvStringAspect grepFormat;
+    FvStringAspect errorFormat;
+    FvStringAspect errorFile;
 
     // Characters that TAB jumps over in insert mode instead of indenting.
     FvStringAspect tabOut;
@@ -174,6 +180,9 @@ public:
     FvStringAspect clipboard;
     FvBoolAspect showCmd;
     FvIntegerAspect scrollOff;
+    // How far CTRL-D and CTRL-U move. Zero says half the window height,
+    // which is what Vim puts there itself.
+    FvIntegerAspect scroll;
     FvBoolAspect relativeNumber;
     FvStringAspect formatOptions;
     FvIntegerAspect textWidth;
@@ -183,6 +192,15 @@ public:
     // The expression whose value is the indent of a line, as Vim's 'indentexpr'
     // says. Empty leaves the indenting to the editor.
     FvStringAspect indentExpr;
+    // The expression that formats the lines "gq" is given, as Vim's
+    // 'formatexpr' says. Empty, or a non-zero answer, reflows them here.
+    FvStringAspect formatExpr;
+    // The program the lines "gq" is given are filtered through, as Vim's
+    // 'formatprg' says. An empty one, or a 'formatexpr', leaves it unused.
+    FvStringAspect formatPrg;
+    // The program the lines "=" is given are filtered through, as Vim's
+    // 'equalprg' says. An empty one indents them here.
+    FvStringAspect equalPrg;
     FvStringAspect langMap;
     FvBoolAspect langRemap;
 
@@ -273,6 +291,7 @@ public:
     FvIntegerAspect numberWidth;
     FvIntegerAspect wrapMargin;
     FvIntegerAspect sideScrollOff;
+    FvIntegerAspect sideScroll;
     FvStringAspect shortMess;
     FvStringAspect complete;
     FvStringAspect completeOpt;

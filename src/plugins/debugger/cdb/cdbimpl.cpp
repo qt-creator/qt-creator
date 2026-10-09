@@ -3555,7 +3555,7 @@ void CdbImpl::reportStop(const GdbMi &stopData)
         }
         m_sourceStepInto = false;
         if (landing == StepIntoLanding::WithoutSource) {
-            emit message(Tr::tr("Step into: Hit frame with no source, step out..."), LogMisc);
+            emit message(Tr::tr("Step into: Reached frame without source, stepping out..."), LogMisc);
             m_inferiorRunning = true;
             runCommand({"gu", NoFlags});
             return;

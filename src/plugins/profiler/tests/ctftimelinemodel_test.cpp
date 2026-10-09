@@ -71,6 +71,14 @@ static const char unnamedTrace[] = R"([
 {"ph":"E","pid":7,"tid":8,"ts":2500}
 ])";
 
+// A trace that records a counter next to a slice: the counter samples are items
+// of the same lane, drawn as a value graph on a row of their own.
+static const char counterTrace[] = R"([
+{"name":"work","ph":"B","pid":7,"tid":7,"ts":1000},
+{"name":"memory","ph":"C","pid":7,"tid":7,"ts":1500,"args":{"value":42}},
+{"ph":"E","pid":7,"tid":7,"ts":2000}
+])";
+
 // The same thread, recorded twice -- two traces loaded at once, whose lanes the
 // loader qualifies per trace to keep them apart. The ids the traces themselves
 // stated come with them, since the qualified ones are keys and no names: both
@@ -193,6 +201,43 @@ void CtfTimelineModelTest::testEventsWithoutLocation()
     // name no place. Neither has a source to go to.
     QVERIFY(m_model->location(ConfigureItem).file.isEmpty());
     QVERIFY(m_model->location(MessageItem).file.isEmpty());
+}
+
+void CtfTimelineModelTest::testItemLabels()
+{
+    // A slice is labeled with the event's name, the same text its details are
+    // titled with -- the two "if" calls read as what they are without hovering.
+    QCOMPARE(m_model->itemLabel(ConfigureItem), QString("configure"));
+    QCOMPARE(m_model->itemLabel(FirstIfItem), QString("if"));
+    QCOMPARE(m_model->itemLabel(SecondIfItem), QString("if"));
+    QCOMPARE(m_model->itemLabel(MessageItem), QString("message"));
+
+    Timeline::TimelineModelAggregator aggregator;
+    CtfStatisticsModel statistics(nullptr);
+    CtfTraceManager manager(nullptr, &aggregator, &statistics);
+    for (const json &event : json::parse(counterTrace))
+        manager.addEvent(event);
+    manager.finalize();
+    const QList<CtfTimelineModel *> threads = manager.getSortedThreads();
+    QCOMPARE(threads.size(), 1);
+    const CtfTimelineModel *model = threads.constFirst();
+
+    // A counter is a graph whose value is its height and whose name is on the
+    // row label, so labeling its samples would repeat that name across the row.
+    // The single counter row comes before the slices, which start at row 2.
+    int counterItems = 0;
+    int sliceItems = 0;
+    for (int i = 0; i < model->count(); ++i) {
+        if (model->expandedRow(i) == 1) {
+            ++counterItems;
+            QVERIFY(model->itemLabel(i).isEmpty());
+        } else {
+            ++sliceItems;
+            QCOMPARE(model->itemLabel(i), QString("work"));
+        }
+    }
+    QCOMPARE(counterItems, 1);
+    QCOMPARE(sliceItems, 1);
 }
 
 } // namespace Profiler::Internal

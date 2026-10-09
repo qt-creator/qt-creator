@@ -54,6 +54,7 @@ public:
     int framesFailed() const;
     int framesStuttering() const;
     int framesTotal() const;
+    bool hasData() const;
     int onTargetPercent() const;
     int stutterFreePercent() const;
 

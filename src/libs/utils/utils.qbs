@@ -40,7 +40,13 @@ QtcLibrary {
         cpp.frameworks: ["Foundation", "AppKit"]
     }
 
-    Depends { name: "Qt"; submodules: ["concurrent", "core-private", "network", "printsupport", "widgets", "xml", "sql"] }
+    Depends { name: "Qt"; submodules: ["concurrent", "core-private", "network", "printsupport", "widgets", "xml"] }
+    // Only the settings database uses Qt Sql, and WebAssembly builds an
+    // in-memory one instead (see the CMakeLists.txt).
+    Depends {
+        name: "Qt.sql"
+        condition: !project.qtprofilerWasm
+    }
     // QPlatformTheme::standardButtonText, replaced by public API in Qt 6.12
     Depends {
         name: "Qt.gui-private"
@@ -286,7 +292,6 @@ QtcLibrary {
         "set_algorithm.h",
         "settingsaccessor.cpp",
         "settingsaccessor.h",
-        "settingsdatabase.cpp",
         "settingsdatabase.h",
         "sizedarray.h",
         "smallstring.h",
@@ -357,6 +362,18 @@ QtcLibrary {
         "wizard.h",
         "images/*.png",
     ]
+
+    Group {
+        name: "settings database"
+        condition: !project.qtprofilerWasm
+        files: ["settingsdatabase.cpp"]
+    }
+
+    Group {
+        name: "settings database (WebAssembly)"
+        condition: project.qtprofilerWasm
+        files: ["settingsdatabase_wasm.cpp"]
+    }
 
     Group {
         name: "FSEngine"
@@ -490,6 +507,16 @@ QtcLibrary {
             "mimetypeparser_p.h",
             "mimeutils.cpp"
         ]
+    }
+
+    Qt.core.resourceFileBaseName: "mimedb"
+    Group {
+        name: "MIME database"
+        prefix: "../3rdparty/tika/"
+        files: "tika-mimetypes.xml"
+        fileTags: "qt.core.resource_data"
+        Qt.core.resourcePrefix: "/utils/mimetypes"
+        Qt.core.resourceSourceBase: sourceDirectory + "/../3rdparty/tika"
     }
 
     Group {

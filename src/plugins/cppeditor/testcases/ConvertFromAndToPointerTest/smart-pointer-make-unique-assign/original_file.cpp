@@ -1,0 +1,13 @@
+class Foo
+{
+public:
+    Foo(int, int) {}
+    void bar();
+};
+
+void func()
+{
+    std::unique_ptr<Foo> @f(new Foo(1, 2));
+    f->bar();
+    f = std::make_unique<Foo>(3, 4);
+}

@@ -522,6 +522,12 @@ public:
     // fills *error with a human-readable reason.
     virtual bool isAvailable(QString *error = nullptr) const = 0;
 
+    // Whether this backend is offered for selection. A backend that belongs on
+    // this platform but cannot record yet -- a tool it drives is not installed,
+    // say -- stays on offer, so that starting it reports what is missing instead
+    // of the backend silently not being there. By default, what is available.
+    virtual bool isOffered() const { return isAvailable(); }
+
     // The complete recipe that records the target described by `session`: it
     // prepares and launches session->launchCommand (when set) and captures the
     // target until a stop is requested, storing its Result into session->result

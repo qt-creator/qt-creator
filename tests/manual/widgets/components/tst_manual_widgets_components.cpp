@@ -82,6 +82,7 @@ static QWidget *widgets()
 
     auto tabBar = new QtcTabBar;
     tabBar->setExpanding(false);
+    tabBar->setFocusPolicy(Qt::TabFocus);
     tabBar->setMovable(true);
     tabBar->setTabsClosable(true);
     tabBar->addTab("Tab 1");

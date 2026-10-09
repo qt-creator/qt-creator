@@ -20,16 +20,15 @@
 
 using namespace QKeychain;
 
-class AutoApp {
+class AutoApp
+{
 public:
     AutoApp();
     ~AutoApp();
     BApplication *app;
 };
 
-
-AutoApp::AutoApp()
-    : app(nullptr)
+AutoApp::AutoApp() : app(nullptr)
 {
     if (be_app)
         return;
@@ -56,8 +55,8 @@ AutoApp::AutoApp()
     if (signature[0] != '\0')
         appSignature = QLatin1String(signature);
     else
-        appSignature = QLatin1String("application/x-vnd.qtkeychain-") +
-            QCoreApplication::applicationName().remove("_x86");
+        appSignature = QLatin1String("application/x-vnd.qtkeychain-")
+                + QCoreApplication::applicationName().remove("_x86");
 
     app = new BApplication(appSignature.toUtf8().constData());
 }
@@ -67,10 +66,10 @@ AutoApp::~AutoApp()
     delete app;
 }
 
-static QString strForStatus( status_t os ) {
-    const char * const buf = strerror(os) ;
-    return QObject::tr( "error 0x%1: %2" )
-            .arg( os, 8, 16 ).arg( QString::fromUtf8( buf, strlen( buf ) ) );
+static QString strForStatus(status_t os)
+{
+    const char *const buf = strerror(os);
+    return QObject::tr("error 0x%1: %2").arg(os, 8, 16).arg(QString::fromUtf8(buf, strlen(buf)));
 }
 
 void ReadPasswordJobPrivate::scheduledStart()
@@ -81,14 +80,12 @@ void ReadPasswordJobPrivate::scheduledStart()
     BKeyStore keyStore;
     BPasswordKey password;
 
-    status_t result = keyStore.GetKey(B_KEY_TYPE_PASSWORD,
-                                      q->service().toUtf8().constData(),
-                                      q->key().toUtf8().constData(),
-                                      false, password);
+    status_t result = keyStore.GetKey(B_KEY_TYPE_PASSWORD, q->service().toUtf8().constData(),
+                                      q->key().toUtf8().constData(), false, password);
 
-    data = QByteArray(reinterpret_cast<const char*>(password.Data()));
+    data = QByteArray(reinterpret_cast<const char *>(password.Data()));
 
-    switch ( result ) {
+    switch (result) {
     case B_OK:
         q->emitFinished();
         return;
@@ -97,12 +94,12 @@ void ReadPasswordJobPrivate::scheduledStart()
         error = EntryNotFound;
         break;
     default:
-        errorString = strForStatus( result );
+        errorString = strForStatus(result);
         error = OtherError;
         break;
     }
 
-    q->emitFinishedWithError( error, errorString );
+    q->emitFinishedWithError(error, errorString);
 }
 
 void WritePasswordJobPrivate::scheduledStart()
@@ -111,32 +108,28 @@ void WritePasswordJobPrivate::scheduledStart()
     QString errorString;
     Error error = NoError;
     BKeyStore keyStore;
-    BPasswordKey password(data.constData(),
-        B_KEY_PURPOSE_GENERIC,
-        q->service().toUtf8().constData(),
-        q->key().toUtf8().constData());
+    BPasswordKey password(data.constData(), B_KEY_PURPOSE_GENERIC,
+                          q->service().toUtf8().constData(), q->key().toUtf8().constData());
     status_t result = B_OK;
 
     // re-add as binary if it's not text
     if (mode == Binary)
-        result = password.SetData(reinterpret_cast<const uint8*>(data.constData()), data.size());
+        result = password.SetData(reinterpret_cast<const uint8 *>(data.constData()), data.size());
 
     if (result == B_OK)
         result = keyStore.AddKey(password);
 
     if (result == B_NAME_IN_USE) {
         BPasswordKey old_password;
-        result = keyStore.GetKey(B_KEY_TYPE_PASSWORD,
-                                 q->service().toUtf8().constData(),
-                                 q->key().toUtf8().constData(),
-                                 false, old_password);
+        result = keyStore.GetKey(B_KEY_TYPE_PASSWORD, q->service().toUtf8().constData(),
+                                 q->key().toUtf8().constData(), false, old_password);
         if (result == B_OK)
             result = keyStore.RemoveKey(old_password);
         if (result == B_OK)
             result = keyStore.AddKey(password);
     }
 
-    switch ( result ) {
+    switch (result) {
     case B_OK:
         q->emitFinished();
         return;
@@ -145,12 +138,12 @@ void WritePasswordJobPrivate::scheduledStart()
         error = EntryNotFound;
         break;
     default:
-        errorString = strForStatus( result );
+        errorString = strForStatus(result);
         error = OtherError;
         break;
     }
 
-    q->emitFinishedWithError( error, errorString );
+    q->emitFinishedWithError(error, errorString);
 }
 
 void DeletePasswordJobPrivate::scheduledStart()
@@ -161,15 +154,13 @@ void DeletePasswordJobPrivate::scheduledStart()
     BKeyStore keyStore;
     BPasswordKey password;
 
-    status_t result = keyStore.GetKey(B_KEY_TYPE_PASSWORD,
-                                      q->service().toUtf8().constData(),
-                                      q->key().toUtf8().constData(),
-                                      false, password);
+    status_t result = keyStore.GetKey(B_KEY_TYPE_PASSWORD, q->service().toUtf8().constData(),
+                                      q->key().toUtf8().constData(), false, password);
 
     if (result == B_OK)
         result = keyStore.RemoveKey(password);
 
-    switch ( result ) {
+    switch (result) {
     case B_OK:
         q->emitFinished();
         return;
@@ -178,12 +169,12 @@ void DeletePasswordJobPrivate::scheduledStart()
         error = EntryNotFound;
         break;
     default:
-        errorString = strForStatus( result );
+        errorString = strForStatus(result);
         error = CouldNotDeleteEntry;
         break;
     }
 
-    q->emitFinishedWithError( error, errorString );
+    q->emitFinishedWithError(error, errorString);
 }
 
 bool QKeychain::isAvailable()

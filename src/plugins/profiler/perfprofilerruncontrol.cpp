@@ -42,15 +42,13 @@ public:
     {
         QObject::connect(task, &PerfDataReader::processFinished, iface,
                          [iface] { iface->reportDone(DoneResult::Success); });
-        QObject::connect(task, &PerfDataReader::processFailed, iface,
-                         [iface] { iface->reportDone(DoneResult::Error); });
         task->startParser();
     }
 };
 
 using PerfDataReaderTask = QCustomTask<PerfDataReader, PerfDataReaderTaskAdapter>;
 
-static ExecutableItem perfParserRecipe(RunControl *runControl)
+static ExecutableItem perfConversionRecipe(RunControl *runControl)
 {
     const auto onSetup = [runControl](PerfDataReader &reader) {
         auto tool = PerfProfilerTool::instance();
@@ -77,26 +75,32 @@ static ExecutableItem perfParserRecipe(RunControl *runControl)
                          &PerfProfilerTraceManager::finalize);
         QObject::connect(&reader, &PerfDataReader::processStarted, runControl, &RunControl::reportStarted);
 
+        // The channel is only used with qdb currently: the device sends the
+        // recording over it rather than on the run's stdout, which is then
+        // just the output of the run.
+        QUrl inputUrl;
+        if (runControl->usesPerfChannel()) {
+            inputUrl = runControl->perfChannel();
+            QTC_CHECK(inputUrl.isValid());
+        }
+
         QObject::connect(runControl, &RunControl::stdOutData, &reader,
-                         [readerPtr = &reader, runControl](const QByteArray &data) {
+                         [readerPtr = &reader, runControl,
+                          viaChannel = !inputUrl.isEmpty()](const QByteArray &data) {
+            if (viaChannel) {
+                runControl->postMessage(QString::fromLocal8Bit(data), StdOutFormat, false);
+                return;
+            }
             if (readerPtr->feedParser(data))
                 return;
-            runControl->postMessage(Tr::tr("Failed to transfer Perf data to perfparser."),
+            runControl->postMessage(Tr::tr("Failed to process the Perf data."),
                                     ErrorMessageFormat);
             readerPtr->stopParser();
         });
 
         QObject::connect(runControl, &RunControl::canceled, &reader, &PerfDataReader::stopParser);
 
-        CommandLine cmd{findPerfParser()};
-        reader.addTargetArguments(&cmd, runControl);
-        if (runControl->usesPerfChannel()) { // The channel is only used with qdb currently.
-            const QUrl url = runControl->perfChannel();
-            QTC_CHECK(url.isValid());
-            cmd.addArgs({"--host", url.host(), "--port", QString::number(url.port())});
-        }
-        runControl->postMessage("PerfParser args: " + cmd.arguments(), NormalMessageFormat);
-        reader.createParser(cmd);
+        reader.createParser(reader.targetOptions(runControl), inputUrl);
     };
 
     return PerfDataReaderTask(onSetup);
@@ -160,7 +164,7 @@ public:
                     runControl->createRecipe(ProjectExplorer::Constants::PERFPROFILER_RUNNER),
                     onGroupDone([runControl] { runControl->initiateStop(); })
                 },
-                perfParserRecipe(runControl)
+                perfConversionRecipe(runControl)
             };
         });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);

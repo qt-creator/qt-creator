@@ -194,6 +194,7 @@ private:
     QList<TextContext> m_textContexts;
     QList<ImageContext> m_imageContexts;
 
+    void setIncludeCurrentEditorContext(bool include);
     void updateContextBar();
     void addContextFiles(const QList<Utils::FilePath> &files);
     void addImageContext(const QImage &image);

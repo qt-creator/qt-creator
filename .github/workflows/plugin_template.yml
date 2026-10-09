@@ -1,0 +1,86 @@
+name: Plugin Template
+
+# Instantiates the "Qt Creator C++ Plugin" wizard template and builds the result with the
+# GitHub workflow that the template generates, to find out when the template stops working,
+# for example because of changes to the runner images or download.qt.io.
+
+on:
+  push:
+    paths:
+      - 'share/qtcreator/templates/wizards/qtcreatorplugin/**'
+      - 'scripts/plugin_template_ci.py'
+      - '.github/workflows/plugin_template.yml'
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+env:
+  CMAKE_VERSION: 3.29.6
+  NINJA_VERSION: 1.12.1
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - { name: "Windows Latest MSVC", os: windows-latest, platform: windows_x64 }
+        - { name: "Windows Latest MSVC Arm64", os: windows-11-arm, platform: windows_arm64 }
+        - { name: "Ubuntu Latest GCC", os: ubuntu-latest, platform: linux_x64 }
+        - { name: "Ubuntu Latest GCC Arm64", os: ubuntu-24.04-arm, platform: linux_arm64 }
+        - { name: "macOS Latest Clang", os: macos-latest, platform: mac_x64 }
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download Ninja and CMake
+      uses: lukka/get-cmake@latest
+      with:
+        cmakeVersion: ${{ env.CMAKE_VERSION }}
+        ninjaVersion: ${{ env.NINJA_VERSION }}
+
+    - name: Install PyYAML
+      run: python -m pip install pyyaml
+
+    - name: Get versions
+      id: versions
+      shell: cmake -P {0}
+      run: |
+        file(READ "cmake/QtCreatorIDEBranding.cmake" branding)
+        string(REGEX MATCH "set\\(IDE_VERSION_DISPLAY \"([^\"]+)\"" match "${branding}")
+        file(APPEND "$ENV{GITHUB_OUTPUT}" "qtc_version=${CMAKE_MATCH_1}\n")
+
+    - name: Instantiate template
+      run: >
+        python scripts/plugin_template_ci.py expand
+        --output plugin
+        --qt-version 6.11.1
+        --qtc-version ${{ steps.versions.outputs.qtc_version }}
+
+    - name: Install system libs and download Qt
+      working-directory: plugin
+      run: >
+        python ../scripts/plugin_template_ci.py run-steps
+        --workflow .github/workflows/build_cmake.yml
+        --platform ${{ matrix.config.platform }}
+        --step "Install system libs"
+        --step "Download Qt"
+
+    - name: Download Qt Creator
+      id: qt_creator
+      uses: qt-creator/install-dev-package@v2.1
+      with:
+        version: ${{ steps.versions.outputs.qtc_version }}
+        unzip-to: 'plugin/qtcreator'
+        platform: ${{ matrix.config.platform }}
+
+    - name: Build plugin
+      working-directory: plugin
+      run: >
+        python ../scripts/plugin_template_ci.py run-steps
+        --workflow .github/workflows/build_cmake.yml
+        --platform ${{ matrix.config.platform }}
+        --step "Build"
+        --output-value steps.qt_creator.outputs.path=qtcreator

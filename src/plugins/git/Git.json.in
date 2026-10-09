@@ -17,10 +17,7 @@
     ],
     "Category" : "Version Control",
     "Description" : "Access the Git version control system.",
-    "LongDescription" : [
-        "You also need:",
-            "- Git"
-    ],
+    "LongDescription" : ${LONG_DESCRIPTION},
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-vcs-git.html",
     "Arguments" : [

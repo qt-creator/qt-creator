@@ -66,7 +66,7 @@ ZenModeSettings::ZenModeSettings()
             //: %1=Qt Creator
             Tr::tr(
                 "Determines the style to use for the global mode selector in %1 (see View > Modes) "
-                "when Zen mode or Distraction Free mode is enabled.")
+                "when Zen mode or distraction free mode is active.")
                 .arg(QGuiApplication::applicationDisplayName()));
         QObject::connect(modeSelectorLabel, &QLabel::linkActivated, [](const QString &link) {
             HelpManager::showHelpUrl(link, HelpManager::ExternalHelpAlways);

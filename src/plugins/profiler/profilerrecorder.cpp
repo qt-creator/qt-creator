@@ -14,6 +14,7 @@
 #include <utils/commandline.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
@@ -33,11 +34,13 @@ using namespace std::chrono;
 
 namespace Profiler::Internal {
 
+static const Key selectedBackendKey("Profiler/SelectedBackend");
+
 // The host names behind a whitespace-separated URL list, for the recording page's
-// status line. What perfparser reports is either one request URL, whose build-id
-// path says nothing a user needs, or the whole DEBUGINFOD_URLS list from before a
-// request was made -- in both cases the host is the part that identifies who is
-// being waited on, and the only part short enough for one line.
+// status line. What the Perf sampler reports is the DEBUGINFOD_URLS list it asks
+// (see PerfSymbolizer::fetchDebugFiles()); the host is the part that identifies
+// who is being waited on, and the only part short enough for one line. A request
+// URL, whose build-id path says nothing a user needs, would come out the same.
 static QString debugInfoServerNames(const QString &urls)
 {
     static const QRegularExpression whitespace("\\s+"_L1);
@@ -67,7 +70,7 @@ public:
     ProfilerRecorder *q = nullptr;
 
     std::vector<std::unique_ptr<Sampler>> backends;
-    // Indices into `backends` that are usable here (see Sampler::isAvailable),
+    // Indices into `backends` that are offered here (see Sampler::isOffered),
     // in display order. This is what the frontend offers.
     std::vector<int> offered;
     // The environment to launch in. It comes from the frontend's target rather
@@ -112,7 +115,7 @@ ProfilerRecorderPrivate::ProfilerRecorderPrivate(ProfilerRecorder *recorder)
     }
 
     for (int i = 0; i < int(backends.size()); ++i) {
-        if (backends[i]->isAvailable())
+        if (backends[i]->isOffered())
             offered.push_back(i);
     }
     // Should not happen -- QmlProfilerSampler is available everywhere -- but an
@@ -120,6 +123,14 @@ ProfilerRecorderPrivate::ProfilerRecorderPrivate(ProfilerRecorder *recorder)
     if (offered.empty()) {
         for (int i = 0; i < int(backends.size()); ++i)
             offered.push_back(i);
+    }
+
+    const Id selectedBackend = Id::fromSetting(Utils::userSettings().value(selectedBackendKey));
+    for (int index = 0; index < int(offered.size()); ++index) {
+        if (backends[offered[index]]->id() == selectedBackend) {
+            current = index;
+            break;
+        }
     }
 
     // A query answered from this machine passes through the download state in
@@ -551,7 +562,7 @@ void ProfilerRecorder::stopAndWait()
 
     // Ours is, so end it. Cancelling runs the recipe's done handler, leaving
     // the recording finished once this returns, and it is what bounds the wait:
-    // a backend that would not come back on its own -- perfparser stalled on an
+    // a backend that would not come back on its own -- one stalled on an
     // unresponsive debuginfod server, say -- has its tasks cancelled rather
     // than waited for.
     d->runner.cancel();
@@ -560,6 +571,8 @@ void ProfilerRecorder::stopAndWait()
 
 void ProfilerRecorder::writeSettings() const
 {
+    if (Sampler *backend = d->backend())
+        Utils::userSettings().setValue(selectedBackendKey, backend->id().toSetting());
     for (const std::unique_ptr<Sampler> &backend : d->backends) {
         if (SamplerSettings *settings = backend->settings())
             settings->writeSettings();

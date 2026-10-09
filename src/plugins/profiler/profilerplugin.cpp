@@ -17,9 +17,16 @@
 
 #ifdef WITH_TESTS
 
+#include "tests/dwarflinetable_test.h"
 #include "tests/perfnativemixed_test.h"
+#include "tests/perfdataparser_test.h"
+#include "tests/perftraceconverter_test.h"
+#include "tests/perfrecordreader_test.h"
 #include "tests/perfresourcecounter_test.h"
+#include "tests/perfsampler_test.h"
+#include "tests/perfsamplersettings_test.h"
 
+#include "tests/calltreeview_test.h"
 #include "tests/ctfloader_test.h"
 #include "tests/ctftimelinemodel_test.h"
 #include "tests/debugmessagesmodel_test.h"
@@ -79,6 +86,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<DebugMessagesModelTest>();
         addTest<FlameGraphModelTest>();
         addTest<FlameGraphViewTest>();
+        addTest<CallTreeViewTest>();
         addTest<InputEventsModelTest>();
         addTest<LocalQmlProfilerRunnerTest>();
         addTest<MemoryUsageModelTest>();
@@ -97,6 +105,14 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<QtTraceSamplerTest>();
 
         addTestCreator(createPerfNativeMixedTest);
+        addTestCreator(createPerfDataParserTest);
+        addTestCreator(createPerfTraceConverterTest);
+        addTestCreator(createPerfRecordReaderTest);
+        addTestCreator(createDwarfLineTableTest);
+#ifdef Q_OS_LINUX
+        addTestCreator(createPerfSamplerTest);
+#endif
+        addTestCreator(createPerfSamplerSettingsTest);
         addTestCreator(createPerfResourceCounterTest);
 #endif
     }

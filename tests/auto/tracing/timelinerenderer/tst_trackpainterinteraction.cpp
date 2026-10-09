@@ -6,9 +6,12 @@
 #include <tracing/trackpaintergpu.h>
 
 #include <QCoreApplication>
+#include <QFontMetricsF>
 #include <QMouseEvent>
 #include <QSignalSpy>
 #include <QTest>
+
+#include <algorithm>
 
 using namespace Timeline;
 
@@ -95,6 +98,8 @@ public:
 class ProbePainter : public TrackPainterGpu
 {
 public:
+    using TrackPainterGpu::TextLabel;
+
     QList<QRectF> fillRects(int trackIndex)
     {
         NeutralTrackGeometry geom;
@@ -106,6 +111,102 @@ public:
             out += cr.rects;
         return out;
     }
+
+    QList<TextLabel> itemLabels(int trackIndex)
+    {
+        NeutralTrackGeometry geom;
+        Track &t = const_cast<Track &>(tracks()[trackIndex]);
+        ensureAttrCache(t);
+        buildNeutralGeometry(t, geom);
+        return geom.labels;
+    }
+
+    static QFontMetricsF labelMetrics() { return QFontMetricsF(itemLabelFormat.font()); }
+
+    QList<QRectF> selectionOutlines(qreal lineWidth)
+    {
+        QList<QRectF> out;
+        for (const OverlayStroke &s : buildSelectionOverlay()) {
+            if (s.lineWidth == lineWidth)
+                out.append(s.rect);
+        }
+        return out;
+    }
+};
+
+// Events of different widths in one row, each with a label.
+class LabelModel : public TimelineModel
+{
+public:
+    LabelModel(TimelineModelAggregator *parent) : TimelineModel(parent) {}
+
+    void loadData()
+    {
+        insert(0, 4000, 0);    // x = 0..400
+        insert(5000, 50, 1);   // x = 500..505
+        insert(6000, 600, 2);  // x = 600..660
+        computeNesting();
+    }
+
+    QString itemLabel(int index) const override
+    {
+        static const QStringList labels = {"Wide", "Narrow",
+                                           "A label far too long for sixty pixels"};
+        return labels.value(index);
+    }
+};
+
+// A long range with nested children, collapsed onto the same row. The first
+// child is covered by the range drawn before it, the second one is drawn on top.
+class NestedLabelModel : public TimelineModel
+{
+public:
+    NestedLabelModel(TimelineModelAggregator *parent) : TimelineModel(parent) {}
+
+    void loadData()
+    {
+        insert(0, 10000, 0);   // x = 0..1000
+        insert(1000, 500, 1);  // x = 100..150
+        insert(2000, 1000, 2); // x = 200..300
+        computeNesting();
+    }
+
+    QString itemLabel(int index) const override
+    {
+        static const QStringList labels = {
+            "A parent range with a label wider than the gap before its child",
+            "Hidden", "Child"};
+        return labels.value(index);
+    }
+};
+
+// A density graph of short ticks, too narrow for a label each. Twenty ticks of
+// "Loop" are interrupted by one of "Other", followed by a gap and twenty more.
+class DensityLabelModel : public TimelineModel
+{
+public:
+    DensityLabelModel(TimelineModelAggregator *parent) : TimelineModel(parent) {}
+
+    void loadData()
+    {
+        int id = 0;
+        for (int i = 0; i < 20; ++i)
+            insert(i * 50, 50, id++); // x = 0..100
+        insert(1000, 50, id++);       // x = 100..105
+        for (int i = 0; i < 20; ++i)
+            insert(2000 + i * 50, 50, id++); // x = 200..300
+        computeNesting();
+    }
+
+    bool rendersAsDensity() const override { return true; }
+
+    bool fillDensityColumns(int, qint64, qint64, QList<float> &out) const override
+    {
+        out.fill(1.0f);
+        return true;
+    }
+
+    QString itemLabel(int index) const override { return index == 20 ? "Other" : "Loop"; }
 };
 
 // For every drawn fill rect, sample the pixels a user could click inside it and
@@ -150,7 +251,231 @@ private slots:
     void shortBarHitOverFullRow();
     void drawnPixelsAreHittable_data();
     void drawnPixelsAreHittable();
+    void itemLabels();
+    void itemLabelsOnWholePixels();
+    void itemLabelsEndAtNextEvent();
+    void noItemLabelsByDefault();
+    void densityItemLabels();
+    void selectionOutlinesSameSelectionId();
+    void selectionOutlinesKeepVaryingHeightsApart();
+    void selectionOutlinesSkipUniformRow();
+    void selectionOutlinesSkipUniformRowsWithoutMixedRow();
+    void selectionOutlinesRowsSplitBySelectionId();
 };
+
+// Alternating selection ids with gaps between the events, followed by a
+// contiguous stretch of one id.
+class AlternatingModel : public TimelineModel
+{
+public:
+    AlternatingModel(TimelineModelAggregator *parent) : TimelineModel(parent) {}
+
+    void loadData()
+    {
+        for (int i = 0; i < 6; ++i)
+            insert(i * 10, 5, i % 2);
+        for (int i = 0; i < 4; ++i)
+            insert(60 + i * 10, 10, 0);
+        computeNesting();
+    }
+};
+
+void tst_TrackPainterInteraction::selectionOutlinesSameSelectionId()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    AlternatingModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 100);
+    painter.resize(100, painter.totalHeight());
+
+    painter.setSelectedItem(0, 2);
+
+    // Items 0, 2 and 4 separately and the contiguous stretch as one thin
+    // outline, the selected item 2 in a thick one on top of its thin one.
+    const auto spans = [](const QList<QRectF> &rects, double x0, double x1) {
+        return std::any_of(rects.begin(), rects.end(), [x0, x1](const QRectF &r) {
+            return r.left() <= x0 && r.right() >= x1;
+        });
+    };
+    const QList<QRectF> outlines = painter.selectionOutlines(1);
+    QCOMPARE(outlines.size(), 4);
+    QVERIFY(spans(outlines, 0, 5));
+    QVERIFY(spans(outlines, 20, 25));
+    QVERIFY(spans(outlines, 40, 45));
+    QVERIFY(spans(outlines, 60, 100));
+    const QList<QRectF> selected = painter.selectionOutlines(4);
+    QCOMPARE(selected.size(), 1);
+    QVERIFY(spans(selected, 20, 25));
+    QVERIFY(selected.first().right() < 30);
+
+    // Every item of one selection id yields the same outlines, so moving the
+    // selection within the id, as hovering does, reuses them.
+    painter.setSelectedItem(0, 4);
+    QCOMPARE(painter.selectionOutlines(1), outlines);
+
+    // The contiguous stretch is out of range now.
+    painter.setRange(0, 50);
+    QCOMPARE(painter.selectionOutlines(1).size(), 3);
+    painter.setRange(0, 100);
+
+    painter.setSelectedItem(0, 1);
+    QCOMPARE(painter.selectionOutlines(1).size(), 3);
+
+    painter.setSelectedItem(-1, -1);
+    QVERIFY(painter.selectionOutlines(1).isEmpty());
+    QVERIFY(painter.selectionOutlines(4).isEmpty());
+}
+
+// One event of its own selection id, followed by a contiguous stretch of
+// events of another one with alternating heights.
+class SteppedModel : public TimelineModel
+{
+public:
+    SteppedModel(TimelineModelAggregator *parent) : TimelineModel(parent) {}
+
+    void loadData()
+    {
+        insert(0, 5, 1);
+        for (int i = 0; i < 5; ++i)
+            insert(10 + i * 10, 10, 0);
+        computeNesting();
+    }
+
+    float relativeHeight(int index) const override { return index % 2 ? 0.5f : 1.0f; }
+};
+
+void tst_TrackPainterInteraction::selectionOutlinesKeepVaryingHeightsApart()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    SteppedModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 100);
+    painter.resize(100, painter.totalHeight());
+
+    painter.setSelectedItem(0, 1);
+    const QList<QRectF> outlines = painter.selectionOutlines(1);
+
+    // The five events of the stretch outlined one by one: merging them would
+    // enclose the empty space above the shorter ones. Each keeps its own
+    // height, inset by half the 1px line width.
+    QCOMPARE(outlines.size(), 5);
+    QVERIFY(outlines.first().left() <= 10 && outlines.last().right() >= 60);
+    const double rowH = model.rowHeight(model.row(1));
+    for (int i = 0; i < outlines.size(); ++i)
+        QCOMPARE(outlines[i].height(), rowH * (i % 2 ? 1.0 : 0.5) - 1.0);
+}
+
+// Two rows, one mixing selection ids and one where they are all the same, as
+// in the profiler's memory usage track.
+class MemoryLikeModel : public TimelineModel
+{
+public:
+    MemoryLikeModel(TimelineModelAggregator *parent) : TimelineModel(parent)
+    {
+        setCollapsedRowCount(2);
+        setExpandedRowCount(2);
+    }
+
+    void loadData(bool withSecondId = true)
+    {
+        for (int i = 0; i < 4; ++i)
+            insert(i * 10, 5, withSecondId ? i % 2 : 0);
+        for (int i = 0; i < 4; ++i)
+            insert(50 + i * 10, 5, 2);
+        computeNesting();
+    }
+
+    int collapsedRow(int index) const override { return selectionId(index) == 2 ? 1 : 0; }
+    int expandedRow(int index) const override { return collapsedRow(index); }
+};
+
+void tst_TrackPainterInteraction::selectionOutlinesSkipUniformRow()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    MemoryLikeModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 100);
+    painter.resize(100, painter.totalHeight());
+
+    // In the mixed row the selection id picks the item out: item 2 shares it.
+    painter.setSelectedItem(0, 0);
+    QCOMPARE(painter.selectionOutlines(1).size(), 2);
+
+    // In the uniform row it sets nothing apart, so only the selected item is
+    // outlined, and outlining the whole row is skipped.
+    painter.setSelectedItem(0, 4);
+    QVERIFY(painter.selectionOutlines(1).isEmpty());
+    QCOMPARE(painter.selectionOutlines(4).size(), 1);
+}
+
+void tst_TrackPainterInteraction::selectionOutlinesSkipUniformRowsWithoutMixedRow()
+{
+    // A trace missing one of the ids the first row can hold leaves every row
+    // uniform, which does not turn the model into one whose rows are its
+    // selection ids: it does not say so.
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    MemoryLikeModel model(&aggregator);
+    model.loadData(false);
+    painter.setTracks({&model});
+    painter.setRange(0, 100);
+    painter.resize(100, painter.totalHeight());
+
+    painter.setSelectedItem(0, 0);
+    QVERIFY(painter.selectionOutlines(1).isEmpty());
+    QCOMPARE(painter.selectionOutlines(4).size(), 1);
+
+    painter.setSelectedItem(0, 4);
+    QVERIFY(painter.selectionOutlines(1).isEmpty());
+    QCOMPARE(painter.selectionOutlines(4).size(), 1);
+}
+
+// A row per selection id, as most models lay their expanded rows out.
+class SplitModel : public TimelineModel
+{
+public:
+    SplitModel(TimelineModelAggregator *parent) : TimelineModel(parent)
+    {
+        setCollapsedRowCount(3);
+        setExpandedRowCount(3);
+    }
+
+    void loadData()
+    {
+        for (int i = 0; i < 6; ++i)
+            insert(i * 10, 5, i % 2);
+        computeNesting();
+    }
+
+    int collapsedRow(int index) const override { return selectionId(index) + 1; }
+    int expandedRow(int index) const override { return collapsedRow(index); }
+    bool rowsAreSelectionIds() const override { return true; }
+};
+
+void tst_TrackPainterInteraction::selectionOutlinesRowsSplitBySelectionId()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    SplitModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 100);
+    painter.resize(100, painter.totalHeight());
+
+    // Every row holds one selection id, so the row tells the id apart as much
+    // as the outlines do. The model says the rows are its selection ids, where
+    // the outlines are the only thing marking one, so all three items of the
+    // selected item's row are outlined.
+    painter.setSelectedItem(0, 0);
+    QCOMPARE(painter.selectionOutlines(1).size(), 3);
+    QCOMPARE(painter.selectionOutlines(4).size(), 1);
+}
 
 // A single event far narrower than one pixel. It is drawn as one pixel column,
 // so requiring a pixel-exact click makes it practically unselectable.
@@ -263,6 +588,104 @@ void tst_TrackPainterInteraction::drawnPixelsAreHittable()
     if (misses != 0)
         qDebug().noquote() << misses << "unhittable drawn pixels:" << report;
     QCOMPARE(misses, 0);
+}
+
+void tst_TrackPainterInteraction::itemLabels()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    LabelModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 10000);
+    painter.resize(1000, painter.totalHeight());
+
+    const QList<ProbePainter::TextLabel> labels = painter.itemLabels(0);
+    QCOMPARE(labels.size(), 2); // "Narrow" does not fit into 5px
+
+    QCOMPARE(labels[0].text, "Wide");
+    QVERIFY(labels[0].x > 0 && labels[0].x < 400);
+
+    const QFontMetricsF fm = ProbePainter::labelMetrics();
+    QVERIFY(labels[1].text != model.itemLabel(2));
+    QVERIFY(labels[1].text.size() > 1);
+    QVERIFY(labels[1].x > 600);
+    QVERIFY(labels[1].x + fm.horizontalAdvance(labels[1].text) <= 660);
+}
+
+void tst_TrackPainterInteraction::itemLabelsOnWholePixels()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    LabelModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(3, 10003); // the last event starts at x = 599.7
+    painter.resize(1000, painter.totalHeight());
+
+    const QList<ProbePainter::TextLabel> labels = painter.itemLabels(0);
+    QCOMPARE(labels.size(), 2);
+    for (const ProbePainter::TextLabel &label : labels) {
+        QCOMPARE(label.x, std::round(label.x));
+        QCOMPARE(label.baselineY, std::round(label.baselineY));
+    }
+}
+
+void tst_TrackPainterInteraction::itemLabelsEndAtNextEvent()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    NestedLabelModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 10000);
+    painter.resize(1000, painter.totalHeight());
+    QVERIFY(!model.expanded());
+
+    const QList<ProbePainter::TextLabel> labels = painter.itemLabels(0);
+    QCOMPARE(labels.size(), 2);
+    const QFontMetricsF fm = ProbePainter::labelMetrics();
+    QVERIFY(fm.horizontalAdvance(model.itemLabel(0)) > 200);
+    QVERIFY(labels[0].text != model.itemLabel(0));
+    QVERIFY(labels[0].x + fm.horizontalAdvance(labels[0].text) <= 200);
+    QCOMPARE(labels[1].text, "Child");
+    QVERIFY(labels[1].x > 200);
+}
+
+void tst_TrackPainterInteraction::noItemLabelsByDefault()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    DummyModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 100);
+    painter.resize(1000, painter.totalHeight());
+
+    QVERIFY(painter.itemLabels(0).isEmpty());
+}
+
+void tst_TrackPainterInteraction::densityItemLabels()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    DensityLabelModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 10000);
+    painter.resize(1000, painter.totalHeight());
+
+    const QFontMetricsF fm = ProbePainter::labelMetrics();
+    QVERIFY(fm.horizontalAdvance(u'\x2026') > 5);
+
+    const QList<ProbePainter::TextLabel> labels = painter.itemLabels(0);
+    QCOMPARE(labels.size(), 2); // "Other" does not fit into 5px
+    QCOMPARE(labels[0].text, "Loop");
+    QVERIFY(labels[0].x > 0);
+    QVERIFY(labels[0].x + fm.horizontalAdvance(labels[0].text) <= 100);
+    QCOMPARE(labels[1].text, "Loop");
+    QVERIFY(labels[1].x > 200);
+    QVERIFY(labels[1].x + fm.horizontalAdvance(labels[1].text) <= 300);
 }
 
 void tst_TrackPainterInteraction::initialState()

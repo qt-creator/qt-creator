@@ -38,6 +38,8 @@ Server::Server(const ServerScenario &scenario)
 int Server::run()
 {
     noise("startup");
+    if (m_scenario.stdoutBanner)
+        std::cout << "acptestserver banner: visit https://example.com/login" << std::endl;
     std::string line;
     while (!m_quitRequested && std::getline(std::cin, line)) {
         QJsonParseError parseError;
@@ -69,6 +71,9 @@ void Server::dispatch(const QJsonObject &message)
 
 void Server::handleRequest(const QJsonValue &id, const QString &method, const QJsonObject &params)
 {
+    if (method == "initialize")
+        beforeInitialize();
+
     if (m_scenario.protocolVersion == 2) {
         if (method == "initialize")
             handleInitializeV2(id, params);
@@ -130,6 +135,24 @@ void Server::handleNotification(const QString &method, const QJsonObject &params
     Q_UNUSED(method)
     Q_UNUSED(params)
     // session/cancel outside of a prompt and unknown notifications are ignored.
+}
+
+void Server::beforeInitialize()
+{
+    if (m_scenario.promptOnInitialize) {
+        // The way Python's input() asks: no newline, so the answer is typed
+        // on the prompt's line, and the response follows on the same line.
+        std::cout << "acptestserver token: " << std::flush;
+        std::string token;
+        std::getline(std::cin, token);
+        fprintf(stderr, "acptestserver: got token %s\n", token.c_str());
+        fflush(stderr);
+    }
+    if (m_scenario.logOnInitialize) {
+        // A protocol message the client handles quietly, then a log line.
+        sendNotification("$/cancel_request", QJsonObject{{"requestId", 999}});
+        writeRawLine("acptestserver log: initializing");
+    }
 }
 
 void Server::handleInitialize(const QJsonValue &id, const QJsonObject &params)

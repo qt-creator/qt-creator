@@ -120,6 +120,41 @@ if (EMSCRIPTEN AND TARGET qtprofiler)
   if (NOT QT_FEATURE_wasm_jspi AND NOT QT_FEATURE_thread)
     target_link_options(qtprofiler PRIVATE -sASYNCIFY -sASYNCIFY_STACK_SIZE=1048576)
   endif()
+  # Qt's platform plugin bundles DejaVu Sans and DejaVu Sans Mono in full, about
+  # 1 MB of the module, most of it scripts a trace viewer never shows. A resource
+  # defined here under the plugin's own name and paths satisfies the plugin's
+  # reference to it, so the linker never pulls Qt's copy out of the plugin archive.
+  # The subset keeps Latin, Greek and Cyrillic, which can turn up in a trace's
+  # strings, and the punctuation and symbol blocks. Hinting stays, so every glyph
+  # that is kept renders as before.
+  set(QTPROFILER_WASM_FONT_SOURCE "" CACHE PATH
+      "Directory with the DejaVuSans.ttf and DejaVuSansMono.ttf to subset, e.g. qtbase/src/3rdparty/wasm")
+  if (QTPROFILER_WASM_FONT_SOURCE)
+    find_program(PYFTSUBSET_EXECUTABLE pyftsubset)
+    if (NOT PYFTSUBSET_EXECUTABLE)
+      message(WARNING "pyftsubset (fonttools) not found: qtprofiler keeps Qt's full fonts.")
+    else()
+      set(unicodes "U+0000-036F,U+0370-03FF,U+0400-052F,U+1E00-1EFF,U+2000-209F,U+20A0-20CF,U+2100-218F,U+2190-23FF,U+2500-27BF,U+FFFD")
+      set(subset_dir "${CMAKE_CURRENT_BINARY_DIR}/wasmfonts")
+      file(MAKE_DIRECTORY "${subset_dir}")
+      set(subset_files "")
+      foreach(font DejaVuSans DejaVuSansMono)
+        add_custom_command(OUTPUT "${subset_dir}/${font}.ttf"
+          COMMAND "${PYFTSUBSET_EXECUTABLE}" "${QTPROFILER_WASM_FONT_SOURCE}/${font}.ttf"
+                  "--unicodes=${unicodes}" "--layout-features=*" "--name-IDs=*"
+                  "--name-languages=*" --notdef-outline
+                  "--output-file=${subset_dir}/${font}.ttf"
+          DEPENDS "${QTPROFILER_WASM_FONT_SOURCE}/${font}.ttf"
+          VERBATIM)
+        list(APPEND subset_files "${subset_dir}/${font}.ttf")
+      endforeach()
+      qt_add_resources(qtprofiler wasmfonts
+        PREFIX "/fonts"
+        BASE "${subset_dir}"
+        FILES ${subset_files}
+      )
+    endif()
+  endif()
   qt_finalize_target(qtprofiler)
 endif()
 

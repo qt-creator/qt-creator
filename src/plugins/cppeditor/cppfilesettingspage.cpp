@@ -202,7 +202,7 @@ CppFileSettings::CppFileSettings()
     headerPragmaOnce.setSettingsKey("HeaderPragmaOnce");
     headerPragmaOnce.setDefaultValue(false);
     //: %1=#pragma once
-    headerPragmaOnce.setLabelText(Tr::tr("Use \"%1\" instead").arg("#pragma once"));
+    headerPragmaOnce.setLabelText(Tr::tr("Use \"%1\" instead of include guards").arg("#pragma once"));
     headerPragmaOnce.setToolTip(
         //: %1=#pragma once, %2=#ifndef
         Tr::tr("Uses \"%1\" instead of \"%2\" include guards.").arg("#pragma once", "#ifndef"));

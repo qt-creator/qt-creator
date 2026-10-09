@@ -808,6 +808,10 @@ QMimeData *OutputWindow::createMimeDataFromSelection() const
 
 void OutputWindow::clear()
 {
+    // Forget the last filtered block before clearing the document. Clearing emits
+    // blockCountChanged(), so with a filter set, filterNewContent() would otherwise
+    // start from a block that no longer exists in the document's block map.
+    d->lastFilteredBlock = {};
     d->formatter.clear();
     d->scrollToBottom = true;
     d->taskPositions.clear();

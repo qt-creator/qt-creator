@@ -383,7 +383,7 @@ void EnvironmentWidget::updateSummaryText()
     QString text;
     for (const Utils::EnvironmentItem &item : std::as_const(list)) {
         if (item.name != ::Utils::Tr::tr("<VARIABLE>")) {
-            if (!d->m_baseEnvironmentText.isEmpty() || !text.isEmpty())
+            if (!text.isEmpty())
                 text.append(QLatin1String("<br>"));
             switch (item.operation) {
             case Utils::EnvironmentItem::Unset:
@@ -413,11 +413,11 @@ void EnvironmentWidget::updateSummaryText()
             text.prepend(Tr::tr("Use %1").arg("<b>" + d->m_baseEnvironmentText + "</b>"));
         else
             text.prepend("<b>" + Tr::tr("No environment changes") + "</b>");
-    } else {
-        //: Yup, word puzzle. The Set/Unset phrases above are appended to this.
+    } else if (!d->m_baseEnvironmentText.isEmpty()) {
         //: %1 is "System Environment" or some such.
-        if (!d->m_baseEnvironmentText.isEmpty())
-            text.prepend(Tr::tr("Use %1 and").arg("<b>" + d->m_baseEnvironmentText + "</b>"));
+        //: %2 is the list of the Set/Unset phrases above, starting on a new line.
+        text = Tr::tr("Use %1 and %2")
+                   .arg("<b>" + d->m_baseEnvironmentText + "</b>", "<br>" + text);
     }
 
     d->m_detailsContainer->setSummaryText(text);

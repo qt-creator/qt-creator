@@ -321,7 +321,9 @@ static void setupInstallSettings(QString &installSettingspath, bool redirect = t
 
 static void setupAccessibility()
 {
+#if QT_CONFIG(accessibility)
     QAccessible::installFactory(&accessiblePlainTextEditFactory);
+#endif
 }
 
 static QtcSettings *createUserSettings()

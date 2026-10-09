@@ -70,6 +70,7 @@
 using namespace Utils;
 
 static Q_LOGGING_CATEGORY(mcpDevices, "qtc.projectexplorer.mcp", QtWarningMsg)
+static Q_LOGGING_CATEGORY(mcpBuilds, "qtc.projectexplorer.mcp.builds", QtWarningMsg)
 
 namespace ProjectExplorer::Internal {
 
@@ -458,6 +459,10 @@ static BuildRecord *runningBuild()
 
 static BuildRecord &beginBuildRecord(Project *project)
 {
+    if (const BuildRecord *previous = runningBuild()) {
+        qCWarning(mcpBuilds) << "Starting a build record while build" << previous->id
+                             << "is still marked as running";
+    }
     QList<BuildRecord> &records = buildRecords();
     while (records.size() >= keptBuilds)
         records.removeFirst();

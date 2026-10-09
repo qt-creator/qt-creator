@@ -47,7 +47,7 @@ CtfVisualizerTool::CtfVisualizerTool()
 
     const Context globalContext(Core::Constants::C_GLOBAL);
 
-    m_loadJson.setText(Tr::tr("Load JSON File"));
+    m_loadJson.setText(Tr::tr("Load JSON File..."));
     options->addAction(
         ActionManager::registerAction(&m_loadJson, Constants::CtfVisualizerTaskLoadJson,
                                       globalContext));
@@ -63,7 +63,7 @@ CtfVisualizerTool::CtfVisualizerTool()
             openTraceFile(FilePath::fromUserInput(fileName));
     });
 
-    m_loadCtf2.setText(Tr::tr("Load CTF2 Trace"));
+    m_loadCtf2.setText(Tr::tr("Load CTF2 Trace..."));
     options->addAction(
         ActionManager::registerAction(&m_loadCtf2, Constants::CtfVisualizerTaskLoadCtf2,
                                       globalContext));

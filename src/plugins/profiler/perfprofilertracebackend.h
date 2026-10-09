@@ -37,7 +37,7 @@ public:
     QList<QWidget *> toolBarWidgets() override;
 
     void load(const Utils::FilePath &path) override;
-    // A perf.data file, as recorded by perf itself, converted through perfparser.
+    // A perf.data file, as recorded by perf itself (see PerfConversion).
     void loadPerfData(const Utils::FilePath &path, const Utils::FilePath &executableDir,
                       ProjectExplorer::Kit *kit);
     bool isSaveable() const override { return true; }

@@ -23,7 +23,8 @@ using namespace Internal;
 // -----------------------
 QmlJSQuickFixAssistInterface::QmlJSQuickFixAssistInterface(QmlJSEditorWidget *editor,
                                                            AssistReason reason)
-    : AssistInterface(editor->textCursor(), editor->textDocument()->filePath(), reason)
+    : AssistInterface(editor->textCursor(), editor->textDocument()->filePath(), reason,
+                      false /*isBaseObject*/)
     , m_semanticInfo(editor->qmlJsEditorDocument()->semanticInfo())
     , m_currentFile(QmlJSRefactoringChanges::file(editor, m_semanticInfo.document))
 {}

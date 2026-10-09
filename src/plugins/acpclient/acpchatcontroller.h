@@ -58,6 +58,8 @@ public:
     void sendElicitationCancelled(const QJsonValue &id);
     void deleteSession(const QString &sessionId);
     void closeSession();
+    void writeServerConsoleInput(const QByteArray &data);
+    void closeServerConsoleInput();
 
     bool isInitialized() const { return m_initialized; }
     bool supportsSessionList() const;
@@ -72,6 +74,8 @@ public:
 
 signals:
     void connectionStateChanged(AcpClientObject::State state);
+    void serverConsoleOutput(const QByteArray &data);
+    void serverConsoleInputAcceptedChanged(bool accepted);
     void agentInfoReceived(const QString &name, const QString &version, const QString &iconUrl);
     void sessionSelectionRequired();
     void sessionCreated(const QString &sessionId);

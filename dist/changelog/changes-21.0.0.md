@@ -59,8 +59,6 @@ Fixed
   ([QTCREATORBUG-5179](https://bugreports.qt.io/browse/QTCREATORBUG-5179))
 * That icons were scaled wrongly with large UI scaling
   ([QTCREATORBUG-17829](https://bugreports.qt.io/browse/QTCREATORBUG-17829))
-* That `file://` links in the application output were not opened
-  ([QTCREATORBUG-34870](https://bugreports.qt.io/browse/QTCREATORBUG-34870))
 * That nested macros could recurse endlessly
 * That the `Show keyboard shortcuts in context menus` setting was not applied
   at startup
@@ -122,14 +120,12 @@ Added
   `Preferences > AI > Qt Creator MCP Server`
   ([QTCREATORBUG-34617](https://bugreports.qt.io/browse/QTCREATORBUG-34617))
 * The `-mcp-port` command line option
-* Lots of new tools for tests, CMake, projects, devices, kits, plugins,
-  debugging, the code model, and more
 * The option to provide a line and column to the `open_file` tool
 * The option to provide a starting line and ending line to the `file_plain_text`
   tool
 * Tools for the tests, CMake, projects, devices, plugins,
   language server protocol, C++, the Qt Creator documentation, profiling, kits,
-  Qt versions, and the debugger console
+  Qt versions, and debugging
   ([QTCREATORBUG-34629](https://bugreports.qt.io/browse/QTCREATORBUG-34629))
 * The `-mcp-dump-tools` command line option
 
@@ -621,6 +617,9 @@ Fixed
 * That removing a device left the tools that were detected on it behind
 * That tools that are reachable through symbolic links were detected multiple
   times
+* That `file://` links in the application output were not opened
+  ([QTCREATORBUG-34870](https://bugreports.qt.io/browse/QTCREATORBUG-34870))
+
 
 ### CMake
 

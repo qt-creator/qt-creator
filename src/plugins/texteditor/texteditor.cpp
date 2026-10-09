@@ -750,7 +750,8 @@ public:
     int printPageCount(QPrinter *printer) const;
     QTextDocument *createPrintDocument(bool selectionOnly) const;
 
-    void selectLines();
+    void maybeSelectLine();
+    void extendSelectionToLines();
     void duplicateSelection(bool comment);
     void updateCannotDecodeInfo();
     void collectToCircularClipboard();
@@ -797,6 +798,7 @@ public:
                             int cursorPosition) const;
     void paintAdditionalVisualWhitespaces(PaintEventData &data, QPainter &painter, qreal top) const;
     void paintIndentDepth(PaintEventData &data, QPainter &painter, const PaintEventBlockData &blockData);
+    bool hasFoldedReplacement(const QTextBlock &block) const;
     QRectF replacementRect(const QTextBlock &block, const QRectF &lineRect) const;
     void paintReplacement(PaintEventData &data, QPainter &painter, qreal top) const;
     void paintWidgetBackground(const PaintEventData &data, QPainter &painter) const;
@@ -3045,12 +3047,14 @@ void TextEditorWidgetPrivate::moveLineUpDown(bool up)
         move.beginEditBlock();
 
     bool hasSelection = cursor.hasSelection();
+    bool selectsWholeLines = false;
 
     if (hasSelection) {
         move.setPosition(cursor.selectionStart());
         move.movePosition(QTextCursor::StartOfBlock);
         move.setPosition(cursor.selectionEnd(), QTextCursor::KeepAnchor);
-        move.movePosition(move.atBlockStart() ? QTextCursor::PreviousCharacter: QTextCursor::EndOfBlock,
+        selectsWholeLines = move.atBlockStart();
+        move.movePosition(selectsWholeLines ? QTextCursor::PreviousCharacter : QTextCursor::EndOfBlock,
                           QTextCursor::KeepAnchor);
     } else {
         move.movePosition(QTextCursor::StartOfBlock);
@@ -3139,6 +3143,17 @@ void TextEditorWidgetPrivate::moveLineUpDown(bool up)
     }
     move.endEditBlock();
 
+    if (selectsWholeLines) {
+        // Keep ending the selection at the start of the next line. Ending it at the end of
+        // the last moved line would leave that line out of the next move if it is empty.
+        const QTextBlock next = q->document()->findBlock(move.selectionEnd()).next();
+        if (next.isValid()) {
+            const int start = move.selectionStart();
+            move.setPosition(next.position());
+            move.setPosition(start, QTextCursor::KeepAnchor);
+        }
+    }
+
     q->setTextCursor(move);
     m_moveLineUndoHack = true;
 }
@@ -3199,6 +3214,60 @@ static inline bool isModifier(QKeyEvent *e)
 static inline bool isPrintableText(const QString &text)
 {
     return !text.isEmpty() && (text.at(0).isPrint() || text.at(0) == QLatin1Char('\t'));
+}
+
+static void insertTextAtCursors(MultiTextCursor &cursors, const QString &text, bool overwrite)
+{
+    if (!overwrite) {
+        cursors.insertText(text);
+        return;
+    }
+    cursors.beginEditBlock();
+    for (QTextCursor &c : cursors) {
+        QTextBlock block = c.block();
+        int eolPos = block.position() + block.length() - 1;
+        int selEndPos = qMin(c.position() + text.size(), eolPos);
+        c.setPosition(selEndPos, QTextCursor::KeepAnchor);
+        c.insertText(text);
+    }
+    cursors.endEditBlock();
+}
+
+void TextEditorWidget::inputMethodEvent(QInputMethodEvent *e)
+{
+    MultiTextCursor cursor = multiTextCursor();
+    if (!isReadOnly() && cursor.hasMultipleCursors()) {
+        const bool preeditActive = !textCursor().block().layout()->preeditAreaText().isEmpty();
+        if (!e->commitString().isEmpty() && e->replacementLength() == 0
+            && e->replacementStart() == 0) {
+            if (preeditActive) {
+                QInputMethodEvent clearPreedit;
+                PlainTextEdit::inputMethodEvent(&clearPreedit);
+            }
+            insertTextAtCursors(cursor, e->commitString(), overwriteMode());
+            setMultiTextCursor(cursor);
+            d->clearBlockSelection();
+            if (!e->preeditString().isEmpty()) {
+                QInputMethodEvent preedit(e->preeditString(), e->attributes());
+                PlainTextEdit::inputMethodEvent(&preedit);
+            }
+            e->accept();
+            return;
+        }
+        // A dead key is a lone spacing accent below U+0300 (Symbol_Modifier or Spacing Modifier
+        // Letters). This excludes the fullwidth forms an IME composes.
+        const QString preedit = e->preeditString();
+        const QChar ch = preedit.isEmpty() ? QChar() : preedit.at(0);
+        const bool deadKeyAccent = ch.unicode() < 0x0300
+                                   && (ch.category() == QChar::Symbol_Modifier
+                                       || ch.unicode() >= 0x02B0);
+        if (!preeditActive && e->commitString().isEmpty() && preedit.size() == 1
+            && deadKeyAccent) {
+            e->accept();
+            return;
+        }
+    }
+    PlainTextEdit::inputMethodEvent(e);
 }
 
 void TextEditorWidget::keyPressEvent(QKeyEvent *e)
@@ -3503,19 +3572,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             }
         }
     } else if (hasMultipleCursors) {
-        if (inOverwriteMode) {
-            cursor.beginEditBlock();
-            for (QTextCursor &c : cursor) {
-                QTextBlock block = c.block();
-                int eolPos = block.position() + block.length() - 1;
-                int selEndPos = qMin(c.position() + eventText.size(), eolPos);
-                c.setPosition(selEndPos, QTextCursor::KeepAnchor);
-                c.insertText(eventText);
-            }
-            cursor.endEditBlock();
-        } else {
-            cursor.insertText(eventText);
-        }
+        insertTextAtCursors(cursor, eventText, inOverwriteMode);
         setMultiTextCursor(cursor);
     } else if ((e->modifiers() & (Qt::ControlModifier|Qt::AltModifier)) != Qt::ControlModifier){
         // only go here if control is not pressed, except if also alt is pressed
@@ -4517,6 +4574,11 @@ void TextEditorWidgetPrivate::registerActions()
                               .addOnTriggered([this] { q->deleteLine(); })
                               .setScriptable(true)
                               .contextAction();
+    m_modifyingActions << ActionBuilder(this, DELETE_LINES)
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->deleteLines(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, DELETE_END_OF_LINE)
                               .setContext(m_editorContext)
                               .addOnTriggered([this] { q->deleteEndOfLine(); })
@@ -4734,9 +4796,18 @@ void TextEditorWidgetPrivate::registerActions()
                               .addOnTriggered([this] { q->cutLine(); })
                               .setScriptable(true)
                               .contextAction();
+    m_modifyingActions << ActionBuilder(this, CUT_LINES)
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->cutLines(); })
+                              .setScriptable(true)
+                              .contextAction();
     ActionBuilder(this, COPY_LINE)
         .setContext(m_editorContext)
         .addOnTriggered([this] { q->copyLine(); })
+        .setScriptable(true);
+    ActionBuilder(this, COPY_LINES)
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->copyLines(); })
         .setScriptable(true);
     m_copyHtmlAction = ActionBuilder(this, COPY_WITH_HTML)
                            .setContext(m_editorContext)
@@ -5352,7 +5423,7 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
     QTextCursor cursor = q->textCursor();
     QString text = block.text();
     text.replace(QChar::Nbsp, QLatin1Char(' '));
-    int idx = -1;
+    int idx = 0;
     int l = 0;
 
     const int left = data.viewportRect.left() - int(data.mainLayoutOffset.x());
@@ -5363,7 +5434,7 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
             .toTextCharFormat(C_SEARCH_RESULT).background().color().darker(120);
 
     while (idx < text.size()) {
-        const QRegularExpressionMatch match = m_searchExpr.match(text, idx + l + 1);
+        const QRegularExpressionMatch match = m_searchExpr.match(text, idx + l);
         if (!match.hasMatch())
             break;
         idx = match.capturedStart();
@@ -5758,12 +5829,9 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         return;
 
     QRectF annotationLineRect = lineRect;
-    const QTextBlock nextBlock = data.block.next();
     if (m_displaySettings.m_annotationAlignment != AnnotationAlignment::BetweenLines
-            && nextBlock.isValid() && !nextBlock.isVisible()
-            && q->replacementVisible(data.block.blockNumber())) {
+            && hasFoldedReplacement(data.block))
         annotationLineRect.setRight(replacementRect(data.block, lineRect).right());
-    }
 
     Utils::sort(marks, [](const TextMark* mark1, const TextMark* mark2){
         return mark1->priority() > mark2->priority();
@@ -6288,6 +6356,13 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
     painter.restore();
 }
 
+bool TextEditorWidgetPrivate::hasFoldedReplacement(const QTextBlock &block) const
+{
+    const QTextBlock nextBlock = block.next();
+    return nextBlock.isValid() && !nextBlock.isVisible()
+           && q->replacementVisible(block.blockNumber());
+}
+
 QRectF TextEditorWidgetPrivate::replacementRect(const QTextBlock &block,
                                                 const QRectF &lineRect) const
 {
@@ -6302,9 +6377,8 @@ QRectF TextEditorWidgetPrivate::replacementRect(const QTextBlock &block,
 void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &painter,
                                                qreal top) const
 {
-    QTextBlock nextBlock = data.block.next();
-
-    if (nextBlock.isValid() && !nextBlock.isVisible() && q->replacementVisible(data.block.blockNumber())) {
+    if (hasFoldedReplacement(data.block)) {
+        const QTextBlock nextBlock = data.block.next();
         const bool selectThis = (data.textCursor.hasSelection()
                                  && nextBlock.position() >= data.textCursor.selectionStart()
                                  && nextBlock.position() < data.textCursor.selectionEnd());
@@ -9406,7 +9480,15 @@ void TextEditorWidget::focusOutEvent(QFocusEvent *e)
         d->clearCurrentSuggestion();
 }
 
-void TextEditorWidgetPrivate::selectLines()
+void TextEditorWidgetPrivate::maybeSelectLine()
+{
+    MultiTextCursor cursor = m_cursors;
+    if (cursor.hasSelection())
+        return;
+    extendSelectionToLines();
+}
+
+void TextEditorWidgetPrivate::extendSelectionToLines()
 {
     MultiTextCursor cursor = m_cursors;
     QTextDocument *document = m_document->document();
@@ -9432,14 +9514,26 @@ void TextEditorWidgetPrivate::selectLines()
 // shift+del
 void TextEditorWidget::cutLine()
 {
-    d->selectLines();
+    d->maybeSelectLine();
+    cut();
+}
+
+void TextEditorWidget::cutLines()
+{
+    d->extendSelectionToLines();
     cut();
 }
 
 // ctrl+ins
 void TextEditorWidget::copyLine()
 {
-    d->selectLines();
+    d->maybeSelectLine();
+    copy();
+}
+
+void TextEditorWidget::copyLines()
+{
+    d->extendSelectionToLines();
     copy();
 }
 
@@ -9585,7 +9679,15 @@ void TextEditorWidget::duplicateSelectionAndComment()
 
 void TextEditorWidget::deleteLine()
 {
-    d->selectLines();
+    d->maybeSelectLine();
+    MultiTextCursor cursor = multiTextCursor();
+    cursor.removeSelectedText();
+    setMultiTextCursor(cursor);
+}
+
+void TextEditorWidget::deleteLines()
+{
+    d->extendSelectionToLines();
     MultiTextCursor cursor = multiTextCursor();
     cursor.removeSelectedText();
     setMultiTextCursor(cursor);

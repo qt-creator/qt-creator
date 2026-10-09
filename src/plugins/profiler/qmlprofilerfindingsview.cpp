@@ -55,7 +55,11 @@ QmlProfilerFindingsView::~QmlProfilerFindingsView() = default;
 void QmlProfilerFindingsView::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
+#ifdef Q_OS_WASM
+    const QList<QAction *> commonActions;
+#else
     const QList<QAction *> commonActions = QmlProfilerTool::profilerContextMenuActions();
+#endif
     for (QAction *action : commonActions)
         menu.addAction(action);
 
@@ -79,8 +83,13 @@ void QmlProfilerFindingsView::exportFindings() const
                                             m_modelManager->traceEnd());
     const Utils::Result<qint64> result
         = filePath.writeFileContents(QJsonDocument(json).toJson(QJsonDocument::Indented));
-    if (!result)
+    if (!result) {
+#ifdef Q_OS_WASM
+        qWarning("%s", qPrintable(result.error()));
+#else
         QmlProfilerTool::showNonmodalWarning(result.error());
+#endif
+    }
 }
 
 void QmlProfilerFindingsView::selectByTypeId(int typeIndex)

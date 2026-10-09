@@ -41,6 +41,11 @@ public:
             const QWidgetList views = backend->views(m_tabs);
             for (QWidget *view : views)
                 m_tabs->addTab(view, view->windowTitle());
+            connect(backend, &ProfilerTraceBackend::viewSwitchRequested,
+                    this, [this](QWidget *to, QWidget *from) {
+                if (m_tabs->currentWidget() == from)
+                    m_tabs->setCurrentWidget(to);
+            });
         }
 
         addWidget(m_tabs);

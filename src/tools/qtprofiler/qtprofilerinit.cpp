@@ -53,7 +53,7 @@ static void initAppInfo()
     info.revision = Constants::IDE_REVISION_STR;
     info.revisionUrl = Constants::IDE_REVISION_URL;
     info.resources = resourcePath();
-    // qtprofiler and libexec tools (e.g. perfparser) are installed side by side
+    // qtprofiler and libexec tools are installed side by side
     // (see IDE_LIBEXEC_PATH in src/tools/qtprofiler/CMakeLists.txt), so
     // ICore::libexecPath() can just resolve relative to our own binary.
     info.libexec = FilePath::fromUserInput(QApplication::applicationDirPath());

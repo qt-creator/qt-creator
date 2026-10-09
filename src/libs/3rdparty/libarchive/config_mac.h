@@ -664,6 +664,9 @@ typedef uint64_t uintmax_t;
 /* Define to 1 if you have the `getpwuid_r' function. */
 #define HAVE_GETPWUID_R 1
 
+/* Define to 1 if you have the `gettimeofday' function. */
+#define HAVE_GETTIMEOFDAY 1
+
 /* Define to 1 if you have the `getvfsbyname' function. */
 #define HAVE_GETVFSBYNAME 1
 
@@ -681,6 +684,9 @@ typedef uint64_t uintmax_t;
 
 /* Define to 1 if you have the <iconv.h> header file. */
 #define HAVE_ICONV_H 1
+
+/* Define to 1 if you have the <intsafe.h> header file. */
+/* #undef HAVE_INTSAFE_H */
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
@@ -1022,6 +1028,9 @@ typedef uint64_t uintmax_t;
 
 /* Define to 1 if you have the <stdarg.h> header file. */
 #define HAVE_STDARG_H 1
+
+/* Define to 1 if you have the <stdckdint.h> header file. */
+/* #undef HAVE_STDCKDINT_H */
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1

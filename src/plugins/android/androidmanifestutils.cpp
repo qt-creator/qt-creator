@@ -11,6 +11,11 @@
 #include <QFile>
 #include <QDomDocument>
 
+#ifdef WITH_TESTS
+#include <utils/temporarydirectory.h>
+#include <QTest>
+#endif
+
 namespace Android::Internal {
 
 using namespace Utils;
@@ -76,16 +81,11 @@ static void extractPermissions(const QDomElement &manifest, AndroidManifestParse
     }
 }
 
-static void extractIconInfo(const QDomElement &manifest, AndroidManifestParser::ManifestData &data)
+static void extractIconValue(const QDomElement &manifest, AndroidManifestParser::ManifestData &data)
 {
-    QDomElement applicationElement = manifest.firstChildElement(keyApplication);
-    if (!applicationElement.isNull() && applicationElement.hasAttribute(keyAndroidIcon)) {
-        QString appIconValue = applicationElement.attribute(keyAndroidIcon);
-        if (appIconValue.startsWith(QLatin1String("@drawable/"))) {
-            data.iconName = appIconValue.mid(10); // Skip "@drawable/" prefix
-            data.hasIcon = true;
-        }
-    }
+    const QDomElement application = manifest.firstChildElement(keyApplication);
+    if (!application.isNull())
+        data.iconValue = application.attribute(keyAndroidIcon);
 }
 
 Result<AndroidManifestParser::ManifestData> AndroidManifestParser::readManifest(const FilePath &manifestPath)
@@ -102,7 +102,7 @@ Result<AndroidManifestParser::ManifestData> AndroidManifestParser::readManifest(
 
     extractPlaceholderTags(manifest, data);
     extractPermissions(manifest, data);
-    extractIconInfo(manifest, data);
+    extractIconValue(manifest, data);
 
     return data;
 }
@@ -377,3 +377,50 @@ Result<void> updateManifestPermissionAttributes(const FilePath &manifestPath,
 }
 
 } // namespace Android::Internal
+
+#ifdef WITH_TESTS
+
+namespace Android::Internal {
+
+class AndroidManifestUtilsTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testIconValueRoundTrip()
+    {
+        TemporaryDirectory dir("androidmanifest-XXXXXX");
+        const FilePath manifest = dir.filePath("AndroidManifest.xml");
+        QVERIFY(manifest.writeFileContents(
+            "<?xml version=\"1.0\"?>\n"
+            "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">\n"
+            "  <application android:icon=\"@mipmap/icon\"/>\n"
+            "</manifest>\n"));
+
+        Result<AndroidManifestParser::ManifestData> data
+            = AndroidManifestParser::readManifest(manifest);
+        QVERIFY(data);
+        QCOMPARE(data->iconValue, QString("@mipmap/icon"));
+
+        QVERIFY(updateManifestApplicationAttribute(manifest, "android:icon", "@drawable/other"));
+        data = AndroidManifestParser::readManifest(manifest);
+        QVERIFY(data);
+        QCOMPARE(data->iconValue, QString("@drawable/other"));
+
+        QVERIFY(updateManifestApplicationAttribute(manifest, "android:icon", {}));
+        data = AndroidManifestParser::readManifest(manifest);
+        QVERIFY(data);
+        QVERIFY(data->iconValue.isEmpty());
+    }
+};
+
+QObject *createAndroidManifestUtilsTest()
+{
+    return new AndroidManifestUtilsTest;
+}
+
+} // namespace Android::Internal
+
+#include "androidmanifestutils.moc"
+
+#endif // WITH_TESTS

@@ -32,6 +32,7 @@ public:
     QRgb color(int index) const override;
     Timeline::RowLabels labels() const override;
     Timeline::OrderedItemDetails orderedDetails(int index) const override;
+    QString itemLabel(int index) const override;
     Timeline::ItemLocation location(int index) const override;
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;

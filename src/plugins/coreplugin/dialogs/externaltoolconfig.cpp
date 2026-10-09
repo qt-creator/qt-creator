@@ -460,6 +460,16 @@ private:
     QComboBox *m_baseEnvironment;
 };
 
+static QString outputBehaviorToolTip(const QString &question)
+{
+    const QStringList items = {
+        Tr::tr("Ignore: Do nothing with it."),
+        Tr::tr("Show in General Messages: Show it in the General Messages view."),
+        Tr::tr("Replace Selection: Replace the current selection in the current document "
+               "with it.")};
+    return "<p>" + question + "</p><ul><li>" + items.join("</li><li>") + "</li></ul>";
+}
+
 ExternalToolConfig::ExternalToolConfig()
 {
     m_toolTree = new QTreeView(this);
@@ -510,13 +520,8 @@ ExternalToolConfig::ExternalToolConfig()
     m_workingDirectory = new PathChooser(m_infoWidget);
 
     auto outputLabel = new QLabel(Tr::tr("Output:"));
-    outputLabel->setToolTip(Tr::tr(
-        "<p>What to do with the executable's standard output?</p>\n"
-        "<ul>\n"
-        "<li>Ignore: Do nothing with it.</li>\n"
-        "<li>Show in General Messages.</li>\n"
-        "<li>Replace selection: Replace the current selection in the current document with it.</li>\n"
-        "</ul>"));
+    outputLabel->setToolTip(
+        outputBehaviorToolTip(Tr::tr("What to do with the executable's standard output?")));
 
     m_outputBehavior = new QComboBox(m_infoWidget);
     m_outputBehavior->addItem(Tr::tr("Ignore"));
@@ -524,13 +529,8 @@ ExternalToolConfig::ExternalToolConfig()
     m_outputBehavior->addItem(Tr::tr("Replace Selection"));
 
     auto errorOutputLabel = new QLabel(Tr::tr("Error output:"));
-    errorOutputLabel->setToolTip(Tr::tr(
-        "<p>What to do with the executable's standard error output?</p>\n"
-        "<ul>\n"
-        "<li>Ignore: Do nothing with it.</li>\n"
-        "<li>Show in General Messages.</li>\n"
-        "<li>Replace selection: Replace the current selection in the current document with it.</li>\n"
-        "</ul>"));
+    errorOutputLabel->setToolTip(
+        outputBehaviorToolTip(Tr::tr("What to do with the executable's standard error output?")));
 
     m_errorOutputBehavior = new QComboBox(m_infoWidget);
     m_errorOutputBehavior->addItem(Tr::tr("Ignore"));

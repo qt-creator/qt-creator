@@ -75,6 +75,28 @@ private slots:
         QCOMPARE(read->samples, data.samples);
     }
 
+    // Losses and throttling are written among the samples, in time order, and
+    // come back as they went in -- including those before the first sample
+    // and after the last one.
+    void gapsRoundTrip()
+    {
+        SampleTraceData data = makeTestData();
+        // Between the samples at 200 and 400, a throttle comes before a loss.
+        data.lostSamples = {{0, 3}, {300, 7}, {900, 1}};
+        data.throttledTsUs = {100, 200, 250, 1000};
+
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath dirPath = FilePath::fromString(dir.path());
+
+        QVERIFY_RESULT(writeSampleTrace(data, dirPath));
+        const Result<SampleTraceData> read = readSampleTrace(dirPath);
+        QVERIFY_RESULT(read);
+        QCOMPARE(read->samples, data.samples);
+    QCOMPARE(read->lostSamples, data.lostSamples);
+    QCOMPARE(read->throttledTsUs, data.throttledTsUs);
+    }
+
     void noPausedRangesWritesNoFile()
     {
         QTemporaryDir dir;
@@ -132,6 +154,23 @@ private slots:
         const std::vector<std::pair<qint64, qint64>> intervals{{first + 6'000'000,
                                                                  first + 7'000'000}};
         QVERIFY(pausedRangesUs(intervals, first, 5000).isEmpty());
+    }
+
+    void incompleteTraceIsReported()
+    {
+        SampleTraceData data = makeTestData();
+        QVERIFY(incompleteTraceWarning(data).isEmpty());
+
+        data.lostSamples = {{0, 3}, {300, 7}};
+        const QString lost = incompleteTraceWarning(data);
+        QVERIFY2(lost.contains("10 sample"_L1), qPrintable(lost));
+        QVERIFY2(!lost.contains("throttled"_L1), qPrintable(lost));
+
+        data.lostSamples.clear();
+        data.throttledTsUs = {100, 200};
+        const QString throttled = incompleteTraceWarning(data);
+        QVERIFY2(throttled.contains("throttled"_L1), qPrintable(throttled));
+        QVERIFY2(throttled.contains("2 time"_L1), qPrintable(throttled));
     }
 
     void emptyDirIsNotASamplerTrace()

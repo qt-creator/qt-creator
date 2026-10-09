@@ -7,6 +7,7 @@ Project {
     property pathList additionalTools: []
     property pathList additionalAutotests: []
     property string sharedSourcesDir: path + "/src/shared"
+    property bool qtprofilerWasm: qbs.toolchain.contains("emscripten")
     qbsSearchPaths: "qbs"
 
     references: [

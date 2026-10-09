@@ -1,61 +1,72 @@
+// fix for https://github.com/frankosterfeld/qtkeychain/issues/288
+
 #include <QDebug>
 
 #include "keychainclass.h"
 
-KeyChainClass::KeyChainClass(QObject* parent) :
-    QObject(parent),
-    m_readCredentialJob(QLatin1String("keychain.example.project.app")),
-    m_writeCredentialJob(QLatin1String("keychain.example.project.app")),
-    m_deleteCredentialJob(QLatin1String("keychain.example.project.app"))
+static const QString service = "keychain.example.project.app";
+
+KeyChainClass::KeyChainClass(QObject *parent)
+    : QObject(parent)
 {
-    m_readCredentialJob.setAutoDelete(false);
-    m_writeCredentialJob.setAutoDelete(false);
-    m_deleteCredentialJob.setAutoDelete(false);
+    
 }
 
 void KeyChainClass::readKey(const QString &key)
 {
-    m_readCredentialJob.setKey(key);
+    auto readCredentialJob = new QKeychain::ReadPasswordJob(service);
+    readCredentialJob->setAutoDelete(true);
+    readCredentialJob->setKey(key);
 
-    QObject::connect(&m_readCredentialJob, &QKeychain::ReadPasswordJob::finished, [=](){
-        if (m_readCredentialJob.error()) {
-            emit error(tr("Read key failed: %1").arg(qPrintable(m_readCredentialJob.errorString())));
-            return;
-        }
-        emit keyRestored(key, m_readCredentialJob.textData());
-    });
+    QObject::connect(readCredentialJob, &QKeychain::ReadPasswordJob::finished, this,
+                     [this, key](QKeychain::Job *job) {
+                         auto j = static_cast<QKeychain::ReadPasswordJob*>(job);
+                         if (j->error() == QKeychain::NoError) {
+                             emit keyRestored(key, j->textData());
+                         } else {
+                             emit error(tr("Read key failed: %1").arg(qPrintable(j->errorString())));
+                         }
+                         // no delete needed, autoDelete takes care of it
+                     });
 
-    m_readCredentialJob.start();
+    readCredentialJob->start();
 }
 
 void KeyChainClass::writeKey(const QString &key, const QString &value)
 {
-    m_writeCredentialJob.setKey(key);
+    auto writeCredentialJob = new QKeychain::WritePasswordJob(service);
+    writeCredentialJob->setAutoDelete(true);
+    writeCredentialJob->setKey(key);
+    writeCredentialJob->setTextData(value);
 
-    QObject::connect(&m_writeCredentialJob, &QKeychain::WritePasswordJob::finished, [=](){
-        if (m_writeCredentialJob.error()) {
-            emit error(tr("Write key failed: %1").arg(qPrintable(m_writeCredentialJob.errorString())));
-            return;
-        }
+    QObject::connect(writeCredentialJob, &QKeychain::WritePasswordJob::finished, this,
+                     [this, key](QKeychain::Job *job) {
+                         auto j = static_cast<QKeychain::WritePasswordJob*>(job);
+                         if (j->error() == QKeychain::NoError) {
+                             emit keyStored(key);
+                         } else {
+                             emit error(tr("Write key failed: %1").arg(qPrintable(j->errorString())));
+                         }
+                     });
 
-        emit keyStored(key);
-    });
-
-    m_writeCredentialJob.setTextData(value);
-    m_writeCredentialJob.start();
+    writeCredentialJob->start();
 }
 
 void KeyChainClass::deleteKey(const QString &key)
 {
-    m_deleteCredentialJob.setKey(key);
+    auto deleteCredentialJob = new QKeychain::DeletePasswordJob(service);
+    deleteCredentialJob->setAutoDelete(true);
+    deleteCredentialJob->setKey(key);
 
-    QObject::connect(&m_deleteCredentialJob, &QKeychain::DeletePasswordJob::finished, [=](){
-        if (m_deleteCredentialJob.error()) {
-            emit error(tr("Delete key failed: %1").arg(qPrintable(m_deleteCredentialJob.errorString())));
-            return;
-        }
-        emit keyDeleted(key);
-    });
+    QObject::connect(deleteCredentialJob, &QKeychain::DeletePasswordJob::finished, this,
+                     [this, key](QKeychain::Job *job) {
+                         auto j = static_cast<QKeychain::DeletePasswordJob*>(job);
+                         if (j->error() == QKeychain::NoError) {
+                             emit keyDeleted(key);
+                         } else {
+                             emit error(tr("Delete key failed: %1").arg(qPrintable(j->errorString())));
+                         }
+                     });
 
-    m_deleteCredentialJob.start();
+    deleteCredentialJob->start();
 }

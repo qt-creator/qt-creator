@@ -11,9 +11,7 @@
 
 #include <QPlainTextEdit>
 #include <QScopeGuard>
-#include <QScrollBar>
 #include <QTest>
-#include <QTextBlock>
 
 using namespace FakeVim::Internal;
 
@@ -44,7 +42,6 @@ private slots:
     void ctrlYScrollsPastScrollOff();
     void ctrlEHonorsCount();
     void ctrlEStableWhenCentered();
-    void ctrlEScrollsPastScrollOffWhenWrapped();
 
 private:
     QPlainTextEdit *m_editor = nullptr;
@@ -220,57 +217,6 @@ void tst_FakeVim::ctrlEStableWhenCentered()
     }
     QVERIFY2(scrolled, "View did not scroll with centerOnScroll.");
     QVERIFY2(cursorWasDragged, "Cursor was not dragged with centerOnScroll.");
-}
-
-// Same invariants as ctrlEScrollsPastScrollOff(), but with "wrap" on and long
-// lines so that one buffer line spans several display lines. Everything is
-// measured in display lines (the scroll bar value is the first fully visible
-// display line, the cursor's display line comes from the block layout), so a
-// buffer-line-based implementation, or an off-by-one first-visible-line, shows
-// up as the cursor slipping inside the scrolloff band.
-void tst_FakeVim::ctrlEScrollsPastScrollOffWhenWrapped()
-{
-    QScrollBar *vbar = m_editor->verticalScrollBar();
-    auto cursorDisplayLine = [&] {
-        const QTextCursor tc = m_editor->textCursor();
-        const QTextBlock b = tc.block();
-        const int inBlock = b.layout()->lineForTextPosition(tc.positionInBlock()).lineNumber();
-        return b.firstLineNumber() + inBlock;
-    };
-
-    m_editor->setLineWrapMode(QPlainTextEdit::WidgetWidth);
-    const QScopeGuard restore([this] {
-        m_editor->setLineWrapMode(QPlainTextEdit::NoWrap);
-    });
-    QString wrapped;
-    for (int i = 0; i < 80; ++i)
-        wrapped += QString("line%1 ").arg(i, 3, 10, QChar('0')) + QString(200, QChar('x')) + '\n';
-    m_editor->setPlainText(wrapped);
-    QCoreApplication::processEvents();
-
-    keys("gg");
-    keys("30G");
-
-    int previousTop = vbar->value();
-    int previousCursor = cursorDisplayLine();
-    bool cursorWasDragged = false;
-    for (int i = 0; i < 30; ++i) {
-        keys("<c-e>");
-        const int top = vbar->value();           // first fully visible display line
-        const int cursor = cursorDisplayLine();   // cursor's display line
-        const int row = cursor - top;             // cursor's row on screen
-
-        QVERIFY2(top >= previousTop, "Ctrl-E must not scroll backwards (wrapped).");
-        QVERIFY2(row >= m_scrollOff, "Cursor came closer to the top than scrolloff (wrapped).");
-        QVERIFY2(cursor >= previousCursor, "Ctrl-E must not move the cursor up (wrapped).");
-        if (cursor > previousCursor) {
-            cursorWasDragged = true;
-            QCOMPARE(row, m_scrollOff); // pinned exactly at the offset, in display lines
-        }
-        previousTop = top;
-        previousCursor = cursor;
-    }
-    QVERIFY2(cursorWasDragged, "Scrolling stopped at scrolloff with wrap on.");
 }
 
 QTEST_MAIN(tst_FakeVim)

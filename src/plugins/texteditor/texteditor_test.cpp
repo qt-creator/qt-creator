@@ -23,8 +23,6 @@
 #include <utils/multitextcursor.h>
 #include <utils/temporarydirectory.h>
 
-#include <QClipboard>
-#include <QGuiApplication>
 #include <QScopeGuard>
 #include <QSignalSpy>
 #include <QTest>
@@ -108,12 +106,7 @@ private slots:
     void testIndentUnindent();
     void testMakefileForcesTabPolicy();
     void testTextDocumentChanged();
-    void testCutLine_data();
-    void testCutLine();
-    void testCopyLine_data();
-    void testCopyLine();
-    void testDeleteLine_data();
-    void testDeleteLine();
+    void testMoveLinesEndingInEmptyLine();
 };
 
 void TextEditorTest::testIndentationClean_data()
@@ -318,123 +311,33 @@ void TextEditorTest::testTextDocumentChanged()
     QCOMPARE(widget.textDocument(), document.data());
 }
 
-// A '|' in the marked text denotes a cursor without selection, a '[...]' a selected range.
-static QString textWithoutCursorMarkers(const QString &markedText, QList<QPair<int, int>> *ranges)
+// Regression test for QTCREATORBUG-34933.
+void TextEditorTest::testMoveLinesEndingInEmptyLine()
 {
-    QString text;
-    int anchor = 0;
-    for (const QChar &c : markedText) {
-        if (c == '|')
-            ranges->append({text.size(), text.size()});
-        else if (c == '[')
-            anchor = text.size();
-        else if (c == ']')
-            ranges->append({anchor, text.size()});
-        else
-            text += c;
-    }
-    return text;
-}
+    const QString input = "a\nb\n\nc\nd\ne";
+    QString title = "move_lines.txt";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, input.toUtf8());
+    QVERIFY(editor);
+    const QScopeGuard cleanup([&] { Core::EditorManager::closeEditors({editor}, false); });
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *editorWidget = baseEditor->editorWidget();
+    QVERIFY(editorWidget);
 
-static void setupLineEditingTest(TextEditorWidget &widget, const QString &markedText)
-{
-    QList<QPair<int, int>> ranges;
-    const QString text = textWithoutCursorMarkers(markedText, &ranges);
+    // The lines "b" and "", selected from the start of "b" to the start of "c".
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.setPosition(2);
+    cursor.setPosition(5, QTextCursor::KeepAnchor);
+    editorWidget->setTextCursor(cursor);
 
-    widget.setTextDocument(TextDocumentPtr(new TextDocument));
-    widget.setPlainText(text);
-
-    QList<QTextCursor> cursors;
-    for (const QPair<int, int> &range : std::as_const(ranges)) {
-        QTextCursor cursor(widget.document());
-        cursor.setPosition(range.first);
-        cursor.setPosition(range.second, QTextCursor::KeepAnchor);
-        cursors.append(cursor);
-    }
-    widget.setMultiTextCursor(Utils::MultiTextCursor(cursors));
-}
-
-static void addLineEditingTestRows()
-{
-    QTest::addColumn<QString>("markedText");
-    QTest::addColumn<QString>("lines");
-    QTest::addColumn<QString>("remainingText");
-
-    QTest::newRow("cursorWithoutSelection")
-        << QString("line1\n|line2\nline3\n") << QString("line2\n") << QString("line1\nline3\n");
-    QTest::newRow("selectionInsideLine")
-        << QString("line1\nl[in]e2\nline3\n") << QString("line2\n") << QString("line1\nline3\n");
-    QTest::newRow("selectionAcrossLines")
-        << QString("li[ne1\nlin]e2\nline3\n") << QString("line1\nline2\n") << QString("line3\n");
-    QTest::newRow("selectionEndingAtLineStart")
-        << QString("[line1\n]line2\nline3\n") << QString("line1\n") << QString("line2\nline3\n");
-    QTest::newRow("lastLineWithoutNewline")
-        << QString("line1\nline2\nli|ne3") << QString("\nline3") << QString("line1\nline2");
-    QTest::newRow("multipleCursors")
-        << QString("|line1\nline2\nli|ne3\n") << QString("line1\nline3\n") << QString("line2\n");
-    QTest::newRow("multipleSelections")
-        << QString("l[in]e1\nline2\nl[in]e3\n") << QString("line1\nline3\n") << QString("line2\n");
-    QTest::newRow("cursorsOnTheSameLine")
-        << QString("|li|ne1\nline2\n") << QString("line1\n") << QString("line2\n");
-}
-
-void TextEditorTest::testCutLine_data()
-{
-    addLineEditingTestRows();
-}
-
-void TextEditorTest::testCutLine()
-{
-    QFETCH(QString, markedText);
-    QFETCH(QString, lines);
-    QFETCH(QString, remainingText);
-
-    TextEditorWidget widget;
-    setupLineEditingTest(widget, markedText);
-
-    widget.cutLine();
-
-    QCOMPARE(QGuiApplication::clipboard()->text(), lines);
-    QCOMPARE(widget.toPlainText(), remainingText);
-}
-
-void TextEditorTest::testCopyLine_data()
-{
-    addLineEditingTestRows();
-}
-
-void TextEditorTest::testCopyLine()
-{
-    QFETCH(QString, markedText);
-    QFETCH(QString, lines);
-
-    TextEditorWidget widget;
-    setupLineEditingTest(widget, markedText);
-    const QString originalText = widget.toPlainText();
-
-    widget.copyLine();
-
-    QCOMPARE(QGuiApplication::clipboard()->text(), lines);
-    QCOMPARE(widget.toPlainText(), originalText);
-    QCOMPARE(TextDocument::convertToPlainText(widget.multiTextCursor().selectedText()), lines);
-}
-
-void TextEditorTest::testDeleteLine_data()
-{
-    addLineEditingTestRows();
-}
-
-void TextEditorTest::testDeleteLine()
-{
-    QFETCH(QString, markedText);
-    QFETCH(QString, remainingText);
-
-    TextEditorWidget widget;
-    setupLineEditingTest(widget, markedText);
-
-    widget.deleteLine();
-
-    QCOMPARE(widget.toPlainText(), remainingText);
+    editorWidget->moveLineDown();
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("a\nc\nb\n\nd\ne"));
+    editorWidget->moveLineDown();
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("a\nc\nd\nb\n\ne"));
+    editorWidget->moveLineUp();
+    editorWidget->moveLineUp();
+    QCOMPARE(editorWidget->textDocument()->plainText(), input);
 }
 
 QObject *createTextEditorTest()

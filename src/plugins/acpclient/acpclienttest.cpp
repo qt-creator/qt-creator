@@ -11,6 +11,7 @@
 #include "acpclientobject.h"
 #include "acpmessageview.h"
 #include "acppermissionhandler.h"
+#include "acpserverconsole.h"
 #include "acpsettings.h"
 #include "acpstdiotransport.h"
 #include "acptermswidget.h"
@@ -63,6 +64,7 @@
 #include <QAbstractItemView>
 #include <QCheckBox>
 #include <QScopeGuard>
+#include <QStackedWidget>
 #include <QTest>
 #include <QTextBrowser>
 #include <QVBoxLayout>
@@ -204,6 +206,8 @@ public:
                          [this](const QString &error) { transportErrors << error; });
         QObject::connect(&transport, &AcpTransport::finished, &client,
                          [this] { ++finishedCount; });
+        QObject::connect(&transport, &AcpTransport::consoleOutput, &client,
+                         [this](const QByteArray &data) { consoleOutput.append(data); });
         QObject::connect(&client, &AcpClientObject::sessionUpdate, &client,
                          [this](const QString &sessionId, const SessionUpdate &update) {
                              updates.append({sessionId, update});
@@ -220,6 +224,16 @@ public:
     // out with QTest::currentTestFailed() afterwards.
     void start(const QStringList &arguments)
     {
+        startProcess(arguments);
+        if (QTest::currentTestFailed())
+            return;
+        handshake();
+    }
+
+    // The server process alone, before a single protocol message has crossed
+    // in either direction.
+    void startProcess(const QStringList &arguments)
+    {
         const Utils::FilePath binary = testServerBinary();
         QVERIFY2(binary.isExecutableFile(),
                  qPrintable(QString("acptestserver not found: %1").arg(binary.toUserOutput())));
@@ -233,7 +247,10 @@ public:
                                      || !transportErrors.isEmpty(),
                                  15000);
         QVERIFY2(transportErrors.isEmpty(), qPrintable(transportErrors.join("; ")));
+    }
 
+    void handshake()
+    {
         bool initialized = false;
         std::optional<Error> initializeError;
         client.initialize(testInitializeRequest(),
@@ -269,6 +286,7 @@ public:
     AcpStdioTransport transport;
     AcpClientObject client;
     QStringList transportErrors;
+    QByteArray consoleOutput;
     int finishedCount = 0;
     QList<std::pair<QString, SessionUpdate>> updates;
     std::optional<InitializeResponse> initializeResponse;
@@ -383,7 +401,7 @@ public:
         QTRY_VERIFY_WITH_TIMEOUT(!errors.isEmpty() || controller.isInitialized(), 15000);
     }
 
-    AcpSettings::ServerInfo serverInfo(const QStringList &arguments)
+    static AcpSettings::ServerInfo serverInfo(const QStringList &arguments)
     {
         AcpSettings::ServerInfo info;
         const Utils::FilePath binary = testServerBinary();
@@ -491,6 +509,16 @@ private slots:
     void testStdioMissingExecutable();
     void testStdioCleanServerExit();
     void testStdioStderrNoise();
+    void testStdioConsoleChannel();
+    void testStdioConsoleEndOfInput();
+    void testStdioConsoleStdoutBanner();
+    void testStdioConsoleStdoutPrompt();
+    void testStderrTail();
+    void testConnectingPageShowsServerConsole();
+    void testConnectingPageErrorEndsWithStartup();
+    void testServerConsoleMasksInput();
+    void testServerConsoleDropsEscapeSequences();
+    void testServerConsoleKeepsInputBelowOutput();
 
     // Tier 2: protocol workflows against acptestserver (AcpClientObject)
     void testE2ePromptStreaming();
@@ -563,6 +591,7 @@ private slots:
     void testConfigSelectPopupFavorites();
     void testConfigSelectPopupKeepsFilterFocus();
     void testConfigSelectPopupEmptyValue();
+    void testConfigSelectPopupOverridesEscapeShortcut();
     void testChatPanelSelectPopupFollowsOptions();
     void testChatPanelSelectButtonElide();
 
@@ -653,10 +682,12 @@ void AcpClientTest::testFramingMalformedJson()
     connect(&transport, &AcpTransport::errorOccurred, this,
             [&](const QString &error) { errors.append(error); });
 
-    transport.injectData("{oops\n{\"a\":1}\n");
+    // A first message makes this the message stream; before it a line that
+    // is not JSON is console output (testStdioConsoleStdoutBanner).
+    transport.injectData("{\"a\":0}\n{oops\n{\"a\":1}\n");
     QCOMPARE(errors.size(), 1);
-    QCOMPARE(received.size(), 1);
-    QCOMPARE(received.first().value("a").toInt(), 1);
+    QCOMPARE(received.size(), 2);
+    QCOMPARE(received.last().value("a").toInt(), 1);
 }
 
 // A valid JSON line that is not an object is reported as an error and dropped.
@@ -670,14 +701,17 @@ void AcpClientTest::testFramingNonObject()
     connect(&transport, &AcpTransport::errorOccurred, this,
             [&](const QString &error) { errors.append(error); });
 
+    transport.injectData("{\"a\":0}\n");
+    QCOMPARE(received.size(), 1);
+
     transport.injectData("42\n");
     QCOMPARE(errors.size(), 1);
-    QCOMPARE(received.size(), 0);
+    QCOMPARE(received.size(), 1);
 
     // Batch arrays are valid, but their entries must be objects.
     transport.injectData("[1,2]\n");
     QCOMPARE(errors.size(), 3);
-    QCOMPARE(received.size(), 0);
+    QCOMPARE(received.size(), 1);
 }
 
 // A JSON-RPC 2.0 batch array on a single line delivers each entry as its own
@@ -1133,6 +1167,137 @@ void AcpClientTest::testStdioStderrNoise()
     QVERIFY(!sessionId.isEmpty());
     QVERIFY2(fixture.transportErrors.isEmpty(),
              qPrintable(fixture.transportErrors.join("; ")));
+}
+
+// The console channel carries the server's stderr out and raw input back to
+// its stdin, both bypassing the protocol, and the server's first protocol
+// message closes it.
+void AcpClientTest::testStdioConsoleChannel()
+{
+    ServerFixture fixture;
+    // Not START_SERVER: the channel only exists before the handshake.
+    fixture.startProcess({});
+    if (QTest::currentTestFailed())
+        return;
+
+    QVERIFY(fixture.transport.acceptsConsoleInput());
+    fixture.transport.writeConsoleInput("not a protocol message\n");
+
+    // The server reports a line it cannot parse on stderr, so its arrival
+    // proves both directions of the channel.
+    QTRY_VERIFY(fixture.consoleOutput.contains("ignoring malformed input line"));
+
+    // The server survived the garbage: the handshake still works.
+    fixture.handshake();
+    if (QTest::currentTestFailed())
+        return;
+
+    // Answering it closed the channel, so the same write reaches nothing. The
+    // session round-trip is what gives the server the chance to complain: it
+    // is answered after anything the write could have produced.
+    QVERIFY(!fixture.transport.acceptsConsoleInput());
+    fixture.consoleOutput.clear();
+    fixture.transport.writeConsoleInput("not a protocol message\n");
+    QVERIFY(!fixture.newSession().isEmpty());
+    QVERIFY(!fixture.consoleOutput.contains("ignoring malformed input line"));
+    QVERIFY2(fixture.transportErrors.isEmpty(),
+             qPrintable(fixture.transportErrors.join("; ")));
+}
+
+// Ctrl+D closes the server's stdin, which the protocol needs too, so the
+// connection is given up rather than left waiting. A server that then exits
+// cleanly, without having answered, is a failure as well.
+void AcpClientTest::testStdioConsoleEndOfInput()
+{
+    ServerFixture fixture;
+    fixture.startProcess({});
+    if (QTest::currentTestFailed())
+        return;
+
+    QVERIFY(fixture.transport.acceptsConsoleInput());
+    fixture.transport.closeConsoleInput();
+    QVERIFY(!fixture.transport.acceptsConsoleInput());
+
+    // The test server exits with 0 on end of input. That exit is not a second
+    // failure: the connection was given up when the input closed.
+    QTRY_VERIFY(fixture.finishedCount > 0);
+    QVERIFY2(fixture.transportErrors.size() == 1, qPrintable(fixture.transportErrors.join("; ")));
+    QVERIFY2(fixture.transportErrors.at(0).contains("input was closed"),
+             qPrintable(fixture.transportErrors.at(0)));
+    QVERIFY(!fixture.transport.acceptsConsoleInput());
+}
+
+// A line on stdout that is not JSON, before the server's first message, is a
+// banner or a login URL for the user: it goes to the console, and it neither
+// closes the console input nor counts as a malformed message.
+void AcpClientTest::testStdioConsoleStdoutBanner()
+{
+    ServerFixture fixture;
+    fixture.startProcess({"--stdout-banner"});
+    if (QTest::currentTestFailed())
+        return;
+
+    QTRY_VERIFY(fixture.consoleOutput.contains("acptestserver banner"));
+    QVERIFY(fixture.transport.acceptsConsoleInput());
+    QVERIFY2(fixture.transportErrors.isEmpty(),
+             qPrintable(fixture.transportErrors.join("; ")));
+
+    fixture.handshake();
+    if (QTest::currentTestFailed())
+        return;
+    QVERIFY(!fixture.transport.acceptsConsoleInput());
+}
+
+// What stderr leaves for an error message is what a terminal would show.
+void AcpClientTest::testStdioConsoleStdoutPrompt()
+{
+    ServerFixture fixture;
+    fixture.startProcess({"--prompt-on-initialize"});
+    if (QTest::currentTestFailed())
+        return;
+
+    bool initialized = false;
+    std::optional<Error> initializeError;
+    fixture.client.initialize(testInitializeRequest(),
+                              [&](const QJsonObject &, const std::optional<Error> &error) {
+                                  initialized = true;
+                                  initializeError = error;
+                              });
+
+    // The prompt has no newline after it, and the user has to see it to
+    // answer it.
+    QTRY_VERIFY2(fixture.consoleOutput.contains("acptestserver token: "),
+                 fixture.consoleOutput.constData());
+    QVERIFY(!initialized);
+
+    // The response follows the answer on the prompt's line, and is still
+    // taken for the response.
+    fixture.transport.writeConsoleInput("hunter2\n");
+    QTRY_VERIFY2(initialized, fixture.consoleOutput.constData());
+    QVERIFY(!initializeError);
+    QVERIFY(fixture.consoleOutput.contains("got token hunter2"));
+    QVERIFY2(!fixture.consoleOutput.contains("jsonrpc"), fixture.consoleOutput.constData());
+    QVERIFY2(fixture.transportErrors.isEmpty(),
+             qPrintable(fixture.transportErrors.join("; ")));
+}
+
+void AcpClientTest::testStderrTail()
+{
+    const auto tail = [](const QStringList &chunks) {
+        StderrTail stderrTail;
+        for (const QString &chunk : chunks)
+            stderrTail.append(chunk);
+        return stderrTail.text();
+    };
+
+    // A progress line keeps its last state.
+    QCOMPARE(tail({"10%\r50%\r100%\n"}), QString("100%\n"));
+    // A line ending in CRLF - what a Windows program writes to stderr - is
+    // kept, also when the line feed comes in the next read.
+    QCOMPARE(tail({"fatal: no login\r\n"}), QString("fatal: no login\n"));
+    QCOMPARE(tail({"fatal: no login\r", "\nnext\r\n"}), QString("fatal: no login\nnext\n"));
+    // A carriage return at the end of a read still rewrites what follows.
+    QCOMPARE(tail({"working\r", "done\n"}), QString("done\n"));
 }
 
 // --- Tier 2 ------------------------------------------------------------------
@@ -3439,6 +3604,20 @@ void AcpClientTest::testConfigSelectPopupEmptyValue()
     QCOMPARE(selected.at(0).at(0).toString(), QString());
 }
 
+// Escape closes the popup, even though a global shortcut is bound to it.
+void AcpClientTest::testConfigSelectPopupOverridesEscapeShortcut()
+{
+    ConfigSelectPopup popup;
+    popup.setEntries(modelEntries(), "google/gemini-pro");
+
+    auto *filter = popup.findChild<QLineEdit *>();
+    QVERIFY(filter);
+    QKeyEvent override(QEvent::ShortcutOverride, Qt::Key_Escape, Qt::NoModifier);
+    override.ignore();
+    QCoreApplication::sendEvent(filter, &override);
+    QVERIFY(override.isAccepted());
+}
+
 // An open picker follows the agent's update of its option, and closes when the
 // option goes away, so that it cannot submit a value the agent no longer offers.
 void AcpClientTest::testChatPanelSelectPopupFollowsOptions()
@@ -3686,6 +3865,183 @@ void AcpClientTest::testChatWidgetTermsGate()
     QCOMPARE(widget.findChildren<AcpChatTab *>().size(), 1);
     QVERIFY(!termsWidget->isVisibleTo(&widget));
     QVERIFY(addButton->isEnabled());
+}
+
+// The console on the connecting page is part of that page, not something that
+// appears only once the server has written to stderr: a server that starts
+// silently must still offer somewhere to type.
+void AcpClientTest::testConnectingPageShowsServerConsole()
+{
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(true);
+
+    AcpChatWidget widget;
+    const QList<AcpChatTab *> tabs = widget.findChildren<AcpChatTab *>();
+    QCOMPARE(tabs.size(), 1);
+
+    auto *console = tabs.first()->findChild<AcpServerConsole *>();
+    QVERIFY(console);
+
+    // Walk up to the stacked page holding the console. The page itself is
+    // hidden while another one is current, so the check stops below it.
+    for (QWidget *w = console; w->parentWidget(); w = w->parentWidget()) {
+        if (qobject_cast<QStackedWidget *>(w->parentWidget()))
+            break;
+        QVERIFY2(!w->isHidden(),
+                 qPrintable(QString("hidden above the console: %1")
+                                .arg(QLatin1String(w->metaObject()->className()))));
+    }
+    QVERIFY(!console->isHidden());
+}
+
+// What the console has drawn on one of its rows.
+static QString consoleRow(const AcpServerConsole &console, int row)
+{
+    QString text;
+    for (int x = 0, columns = console.surface()->liveSize().width(); x < columns; ++x) {
+        const char32_t c = console.surface()->fetchCharAt(x, row);
+        if (c != 0)
+            text += QString::fromUcs4(&c, 1);
+    }
+    return text.trimmed();
+}
+
+// Masked input is not echoed. There is no pty here, so the console is the
+// only thing that could put a typed password on the screen and leave it in
+// the scrollback.
+void AcpClientTest::testConnectingPageErrorEndsWithStartup()
+{
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(true);
+
+    const AcpSettings::ServerInfo info = ControllerFixture::serverInfo(
+        {"--log-on-initialize", "--crash-on-prompt"});
+    if (QTest::currentTestFailed())
+        return;
+
+    AcpChatWidget widget;
+    const QList<AcpChatTab *> tabs = widget.findChildren<AcpChatTab *>();
+    QCOMPARE(tabs.size(), 1);
+    auto *controller = tabs.first()->findChild<AcpChatController *>();
+    QVERIFY(controller);
+    const QList<QStackedWidget *> stacks
+        = tabs.first()->findChildren<QStackedWidget *>(QString(), Qt::FindDirectChildrenOnly);
+    QCOMPARE(stacks.size(), 1);
+    QStackedWidget *stack = stacks.first();
+    QCOMPARE(stack->count(), 4);
+
+    // Each error with the page that was up when it arrived.
+    QList<std::pair<QString, int>> errors;
+    connect(controller, &AcpChatController::errorOccurred, this, [&](const QString &error) {
+        errors.append({error, stack->currentIndex()});
+    });
+    QStringList createdSessions;
+    connect(controller, &AcpChatController::sessionCreated, this,
+            [&](const QString &sessionId) { createdSessions.append(sessionId); });
+    bool disconnected = false;
+    connect(controller, &AcpChatController::connectionStateChanged, this,
+            [&](AcpClientObject::State state) {
+                disconnected = disconnected || state == AcpClientObject::State::Disconnected;
+            });
+
+    // What a server button does: the connecting page, then the connection.
+    stack->setCurrentIndex(3);
+    controller->connectToServer(info);
+
+    // The log line follows a protocol message, so it is a parse error, and it
+    // arrives while the connecting page is up. The startup goes on regardless.
+    QTRY_COMPARE_WITH_TIMEOUT(stack->currentIndex(), 2, 15000);
+    QCOMPARE(errors.size(), 1);
+    QVERIFY2(errors.first().first.contains("JSON parse error"), qPrintable(errors.first().first));
+    QCOMPARE(errors.first().second, 3);
+
+    controller->createNewSession();
+    QTRY_COMPARE(createdSessions.size(), 1);
+    QCOMPARE(stack->currentIndex(), 2);
+
+    // The server dies in the middle of the chat, long after the startup, and
+    // the tab goes back to its server buttons.
+    controller->sendPrompt("boom");
+    QTRY_VERIFY(disconnected);
+    QCOMPARE(stack->currentIndex(), 0);
+
+    controller->disconnectFromServer();
+    QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+}
+
+void AcpClientTest::testServerConsoleMasksInput()
+{
+    AcpServerConsole console;
+    console.resize(600, 400);
+    console.setInputEnabled(true);
+
+    QByteArray entered;
+    QObject::connect(&console, &AcpServerConsole::inputEntered, &console,
+                     [&entered](const QByteArray &data) { entered = data; });
+
+    console.setInputMasked(true);
+    QTest::keyClicks(&console, "hunter2");
+    QTest::keyClick(&console, Qt::Key_Return);
+
+    // The console echoes while it collects the line, so the line arriving is
+    // also the moment after which nothing more can have been drawn.
+    QTRY_COMPARE(entered, QByteArray("hunter2\n"));
+    QCOMPARE(consoleRow(console, 0), QString());
+
+    // Unmasked the same typing does show, so the check above can fail.
+    console.setInputMasked(false);
+    QTest::keyClicks(&console, "visible");
+    QTest::keyClick(&console, Qt::Key_Return);
+    QTRY_COMPARE(entered, QByteArray("visible\n"));
+    QCOMPARE(consoleRow(console, 1), QString("visible"));
+}
+
+// The keys that type nothing arrive as escape sequences, and none of their
+// bytes may end up in the line: with the input masked, a corrupted password
+// could not even be seen.
+void AcpClientTest::testServerConsoleDropsEscapeSequences()
+{
+    AcpServerConsole console;
+    console.resize(600, 400);
+    console.setInputEnabled(true);
+
+    QByteArray entered;
+    QObject::connect(&console, &AcpServerConsole::inputEntered, &console,
+                     [&entered](const QByteArray &data) { entered = data; });
+
+    QTest::keyClicks(&console, "ab");
+    for (const Qt::Key key : {Qt::Key_Left, Qt::Key_Up, Qt::Key_Home, Qt::Key_End, Qt::Key_F5})
+        QTest::keyClick(&console, key);
+    QTest::keyClicks(&console, "c");
+    QTest::keyClick(&console, Qt::Key_Return);
+
+    QTRY_COMPARE(entered, QByteArray("abc\n"));
+    QCOMPARE(consoleRow(console, 0), QString("abc"));
+}
+
+// Output arriving while a line is being typed goes above that line, and the
+// line is put back below it whole, also when it has wrapped.
+void AcpClientTest::testServerConsoleKeepsInputBelowOutput()
+{
+    AcpServerConsole console;
+    console.resize(600, 400);
+    console.setInputEnabled(true);
+
+    const int columns = console.surface()->liveSize().width();
+    QVERIFY(columns > 10);
+    const QString typed = QString(columns, 'x') + "tail";
+
+    QTest::keyClicks(&console, typed);
+    QTRY_COMPARE(consoleRow(console, 1), QString("tail"));
+
+    console.appendOutput("Password:\n");
+
+    QCOMPARE(consoleRow(console, 0), QString("Password:"));
+    QCOMPARE(consoleRow(console, 1), QString(columns, 'x'));
+    QCOMPARE(consoleRow(console, 2), QString("tail"));
+    QCOMPARE(consoleRow(console, 3), QString());
 }
 
 // Without a licensechecker plugin, and with the terms accepted, the chat comes up directly.

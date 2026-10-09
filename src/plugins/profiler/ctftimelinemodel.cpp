@@ -122,6 +122,14 @@ Timeline::OrderedItemDetails CtfTimelineModel::orderedDetails(int index) const
     return result;
 }
 
+QString CtfTimelineModel::itemLabel(int index) const
+{
+    // Counters are drawn as value graphs; their name is the row label.
+    if (m_itemToCounterIdx.value(index, 0) > 0)
+        return {};
+    return m_details.value(index).value(0).second;
+}
+
 Timeline::ItemLocation CtfTimelineModel::location(int index) const
 {
     return m_locations.value(index);

@@ -1,20 +1,25 @@
-From 484b421d0004ce37d7abd63bd0043819ad3a9d9f Mon Sep 17 00:00:00 2001
+From 905f272dfc3374202f175f3345c913ac1b0b62fb Mon Sep 17 00:00:00 2001
 From: Eike Ziller <eike.ziller@qt.io>
-Date: Fri, 25 Aug 2023 13:00:39 +0200
+Date: Fri, 2 Oct 2026 14:50:51 +0200
 Subject: [PATCH] yaml-cpp: Strip unneeded sources
 
 ---
+ .bazelignore                                  |    1 -
+ .clang-format                                 |   47 -
  .codedocs                                     |   50 -
- .github/workflows/build.yml                   |   72 -
+ .github/dependabot.yml                        |   11 -
+ .github/workflows/build.yml                   |  141 -
+ .github/workflows/bzlmod-archive.yml          |   19 -
  .gitignore                                    |    3 -
- BUILD.bazel                                   |   21 -
- CMakeLists.txt                                |  207 -
+ BUILD.bazel                                   |   23 -
+ CMakeLists.txt                                |  213 -
  CONTRIBUTING.md                               |   26 -
+ MODULE.bazel                                  |   14 -
+ MODULE.bazel.lock                             |  282 -
  SECURITY.md                                   |   13 -
- WORKSPACE                                     |   10 -
  cmake_uninstall.cmake.in                      |   21 -
  docs/Breaking-Changes.md                      |   52 -
- docs/How-To-Emit-YAML.md                      |  230 -
+ docs/How-To-Emit-YAML.md                      |  226 -
  docs/How-To-Parse-A-Document-(Old-API).md     |  265 -
  docs/Strings.md                               |   18 -
  docs/Tutorial.md                              |  201 -
@@ -28,280 +33,270 @@ Subject: [PATCH] yaml-cpp: Strip unneeded sources
  src/contrib/graphbuilderadapter.h             |   86 -
  src/contrib/yaml-cpp.natvis                   |   32 -
  src/contrib/yaml-cpp.natvis.md                |    9 -
- test/BUILD.bazel                              |   14 -
- test/CMakeLists.txt                           |   56 -
+ test/BUILD.bazel                              |   30 -
+ test/CMakeLists.txt                           |   63 -
  test/binary_test.cpp                          |   14 -
+ test/cmake/CMakeLists.txt                     |   21 -
+ test/cmake/main.cpp                           |    3 -
  test/create-emitter-tests.py                  |  223 -
- test/gtest-1.11.0/.clang-format               |    4 -
- .../.github/ISSUE_TEMPLATE/00-bug_report.md   |   43 -
- .../ISSUE_TEMPLATE/10-feature_request.md      |   24 -
- .../.github/ISSUE_TEMPLATE/config.yml         |    1 -
- test/gtest-1.11.0/.gitignore                  |   84 -
- test/gtest-1.11.0/BUILD.bazel                 |  190 -
- test/gtest-1.11.0/CMakeLists.txt              |   32 -
- test/gtest-1.11.0/CONTRIBUTING.md             |  130 -
- test/gtest-1.11.0/CONTRIBUTORS                |   63 -
- test/gtest-1.11.0/LICENSE                     |   28 -
- test/gtest-1.11.0/README.md                   |  140 -
- test/gtest-1.11.0/WORKSPACE                   |   24 -
- test/gtest-1.11.0/ci/linux-presubmit.sh       |  126 -
- test/gtest-1.11.0/ci/macos-presubmit.sh       |   73 -
- test/gtest-1.11.0/docs/_config.yml            |    1 -
- test/gtest-1.11.0/docs/_data/navigation.yml   |   43 -
- test/gtest-1.11.0/docs/_layouts/default.html  |   58 -
- test/gtest-1.11.0/docs/_sass/main.scss        |  200 -
- test/gtest-1.11.0/docs/advanced.md            | 2318 ----
- test/gtest-1.11.0/docs/assets/css/style.scss  |    5 -
+ test/fptostring_test.cpp                      |  249 -
+ test/googletest-1.13.0/.clang-format          |    4 -
+ .../.github/ISSUE_TEMPLATE/00-bug_report.yml  |   53 -
+ .../ISSUE_TEMPLATE/10-feature_request.yml     |   33 -
+ .../.github/ISSUE_TEMPLATE/config.yml         |    5 -
+ .../.github/workflows/gtest-ci.yml            |   43 -
+ test/googletest-1.13.0/.gitignore             |   84 -
+ test/googletest-1.13.0/BUILD.bazel            |  218 -
+ test/googletest-1.13.0/CMakeLists.txt         |   39 -
+ test/googletest-1.13.0/CONTRIBUTING.md        |  131 -
+ test/googletest-1.13.0/CONTRIBUTORS           |   65 -
+ test/googletest-1.13.0/LICENSE                |   28 -
+ test/googletest-1.13.0/README.md              |  117 -
+ test/googletest-1.13.0/WORKSPACE              |   40 -
+ test/googletest-1.13.0/ci/linux-presubmit.sh  |  134 -
+ test/googletest-1.13.0/ci/macos-presubmit.sh  |   75 -
+ .../ci/windows-presubmit.bat                  |   56 -
+ test/googletest-1.13.0/docs/_config.yml       |    1 -
+ .../docs/_data/navigation.yml                 |   43 -
+ .../docs/_layouts/default.html                |   58 -
+ test/googletest-1.13.0/docs/_sass/main.scss   |  200 -
+ test/googletest-1.13.0/docs/advanced.md       | 2407 ----
+ .../docs/assets/css/style.scss                |    5 -
  .../docs/community_created_documentation.md   |    7 -
- test/gtest-1.11.0/docs/faq.md                 |  693 --
- test/gtest-1.11.0/docs/gmock_cheat_sheet.md   |  241 -
- test/gtest-1.11.0/docs/gmock_cook_book.md     | 4301 -------
- test/gtest-1.11.0/docs/gmock_faq.md           |  390 -
- test/gtest-1.11.0/docs/gmock_for_dummies.md   |  700 --
- test/gtest-1.11.0/docs/index.md               |   22 -
- test/gtest-1.11.0/docs/pkgconfig.md           |  148 -
- test/gtest-1.11.0/docs/platforms.md           |   35 -
- test/gtest-1.11.0/docs/primer.md              |  482 -
- test/gtest-1.11.0/docs/quickstart-bazel.md    |  161 -
- test/gtest-1.11.0/docs/quickstart-cmake.md    |  156 -
- test/gtest-1.11.0/docs/reference/actions.md   |  115 -
- .../gtest-1.11.0/docs/reference/assertions.md |  633 --
- test/gtest-1.11.0/docs/reference/matchers.md  |  283 -
- test/gtest-1.11.0/docs/reference/mocking.md   |  587 -
- test/gtest-1.11.0/docs/reference/testing.md   | 1431 ---
- test/gtest-1.11.0/docs/samples.md             |   22 -
- test/gtest-1.11.0/googlemock/CMakeLists.txt   |  218 -
- test/gtest-1.11.0/googlemock/README.md        |   44 -
- .../gtest-1.11.0/googlemock/cmake/gmock.pc.in |   10 -
+ test/googletest-1.13.0/docs/faq.md            |  692 --
+ .../docs/gmock_cheat_sheet.md                 |  241 -
+ .../googletest-1.13.0/docs/gmock_cook_book.md | 4343 -------
+ test/googletest-1.13.0/docs/gmock_faq.md      |  390 -
+ .../docs/gmock_for_dummies.md                 |  700 --
+ test/googletest-1.13.0/docs/index.md          |   22 -
+ test/googletest-1.13.0/docs/pkgconfig.md      |  148 -
+ test/googletest-1.13.0/docs/platforms.md      |   35 -
+ test/googletest-1.13.0/docs/primer.md         |  483 -
+ .../docs/quickstart-bazel.md                  |  146 -
+ .../docs/quickstart-cmake.md                  |  156 -
+ .../docs/reference/actions.md                 |  115 -
+ .../docs/reference/assertions.md              |  633 --
+ .../docs/reference/matchers.md                |  290 -
+ .../docs/reference/mocking.md                 |  589 -
+ .../docs/reference/testing.md                 | 1431 ---
+ test/googletest-1.13.0/docs/samples.md        |   22 -
+ .../googlemock/CMakeLists.txt                 |  218 -
+ test/googletest-1.13.0/googlemock/README.md   |   40 -
+ .../googlemock/cmake/gmock.pc.in              |   10 -
  .../googlemock/cmake/gmock_main.pc.in         |   10 -
- test/gtest-1.11.0/googlemock/docs/README.md   |    4 -
- .../googlemock/include/gmock/gmock-actions.h  | 1687 ---
- .../include/gmock/gmock-cardinalities.h       |  157 -
- .../include/gmock/gmock-function-mocker.h     |  479 -
- .../googlemock/include/gmock/gmock-matchers.h | 5392 ---------
- .../include/gmock/gmock-more-actions.h        |  573 -
- .../include/gmock/gmock-more-matchers.h       |   92 -
- .../include/gmock/gmock-nice-strict.h         |  261 -
- .../include/gmock/gmock-spec-builders.h       | 2038 ----
- .../googlemock/include/gmock/gmock.h          |   98 -
- .../include/gmock/internal/custom/README.md   |   16 -
- .../internal/custom/gmock-generated-actions.h |    6 -
- .../gmock/internal/custom/gmock-matchers.h    |   36 -
- .../gmock/internal/custom/gmock-port.h        |   39 -
- .../gmock/internal/gmock-internal-utils.h     |  459 -
- .../include/gmock/internal/gmock-port.h       |   87 -
+ .../googlemock/docs/README.md                 |    4 -
+ .../googlemock/include/gmock/gmock-actions.h  | 2302 ----
+ .../include/gmock/gmock-cardinalities.h       |  159 -
+ .../include/gmock/gmock-function-mocker.h     |  517 -
+ .../googlemock/include/gmock/gmock-matchers.h | 5620 ----------
+ .../include/gmock/gmock-more-actions.h        |  662 --
+ .../include/gmock/gmock-more-matchers.h       |  122 -
+ .../include/gmock/gmock-nice-strict.h         |  277 -
+ .../include/gmock/gmock-spec-builders.h       | 2111 ----
+ .../googlemock/include/gmock/gmock.h          |   96 -
+ .../include/gmock/internal/custom/README.md   |   18 -
+ .../internal/custom/gmock-generated-actions.h |    7 -
+ .../gmock/internal/custom/gmock-matchers.h    |   37 -
+ .../gmock/internal/custom/gmock-port.h        |   40 -
+ .../gmock/internal/gmock-internal-utils.h     |  490 -
+ .../include/gmock/internal/gmock-port.h       |  139 -
  .../include/gmock/internal/gmock-pp.h         |  279 -
- .../gtest-1.11.0/googlemock/scripts/README.md |    5 -
- .../googlemock/scripts/fuse_gmock_files.py    |  256 -
- .../googlemock/scripts/generator/LICENSE      |  203 -
- .../googlemock/scripts/generator/README       |   34 -
- .../scripts/generator/README.cppclean         |  115 -
- .../scripts/generator/cpp/__init__.py         |    0
- .../googlemock/scripts/generator/cpp/ast.py   | 1773 ---
- .../scripts/generator/cpp/gmock_class.py      |  247 -
- .../scripts/generator/cpp/gmock_class_test.py |  570 -
- .../scripts/generator/cpp/keywords.py         |   56 -
- .../scripts/generator/cpp/tokenize.py         |  284 -
- .../googlemock/scripts/generator/cpp/utils.py |   37 -
- .../googlemock/scripts/generator/gmock_gen.py |   30 -
- test/gtest-1.11.0/googlemock/src/gmock-all.cc |   46 -
+ .../googlemock/src/gmock-all.cc               |   46 -
  .../googlemock/src/gmock-cardinalities.cc     |  155 -
- .../googlemock/src/gmock-internal-utils.cc    |  200 -
- .../googlemock/src/gmock-matchers.cc          |  459 -
- .../googlemock/src/gmock-spec-builders.cc     |  908 --
- test/gtest-1.11.0/googlemock/src/gmock.cc     |  213 -
- .../gtest-1.11.0/googlemock/src/gmock_main.cc |   72 -
- test/gtest-1.11.0/googlemock/test/BUILD.bazel |  118 -
- .../googlemock/test/gmock-actions_test.cc     | 1583 ---
- .../test/gmock-cardinalities_test.cc          |  429 -
- .../test/gmock-function-mocker_test.cc        |  986 --
- .../test/gmock-internal-utils_test.cc         |  720 --
- .../googlemock/test/gmock-matchers_test.cc    | 8562 --------------
- .../test/gmock-more-actions_test.cc           | 1547 ---
- .../googlemock/test/gmock-nice-strict_test.cc |  539 -
+ .../googlemock/src/gmock-internal-utils.cc    |  251 -
+ .../googlemock/src/gmock-matchers.cc          |  479 -
+ .../googlemock/src/gmock-spec-builders.cc     |  795 --
+ .../googletest-1.13.0/googlemock/src/gmock.cc |  223 -
+ .../googlemock/src/gmock_main.cc              |   72 -
+ .../googlemock/test/BUILD.bazel               |  119 -
+ .../googlemock/test/gmock-actions_test.cc     | 2167 ----
+ .../test/gmock-cardinalities_test.cc          |  422 -
+ .../test/gmock-function-mocker_test.cc        | 1004 --
+ .../test/gmock-internal-utils_test.cc         |  765 --
+ .../test/gmock-matchers-arithmetic_test.cc    | 1517 ---
+ .../test/gmock-matchers-comparisons_test.cc   | 2359 ----
+ .../test/gmock-matchers-containers_test.cc    | 3129 ------
+ .../test/gmock-matchers-misc_test.cc          | 1819 ---
+ .../googlemock/test/gmock-matchers_test.h     |  192 -
+ .../test/gmock-more-actions_test.cc           | 1550 ---
+ .../googlemock/test/gmock-nice-strict_test.cc |  541 -
  .../googlemock/test/gmock-port_test.cc        |   42 -
- .../googlemock/test/gmock-pp-string_test.cc   |  206 -
+ .../googlemock/test/gmock-pp-string_test.cc   |  205 -
  .../googlemock/test/gmock-pp_test.cc          |   83 -
- .../test/gmock-spec-builders_test.cc          | 2775 -----
- .../googlemock/test/gmock_all_test.cc         |   46 -
- .../googlemock/test/gmock_ex_test.cc          |   80 -
+ .../test/gmock-spec-builders_test.cc          | 2620 -----
+ .../googlemock/test/gmock_all_test.cc         |   49 -
+ .../googlemock/test/gmock_ex_test.cc          |   78 -
  .../googlemock/test/gmock_leak_test.py        |  104 -
  .../googlemock/test/gmock_leak_test_.cc       |   99 -
- .../googlemock/test/gmock_link2_test.cc       |   39 -
- .../googlemock/test/gmock_link_test.cc        |   39 -
- .../googlemock/test/gmock_link_test.h         |  690 --
- .../googlemock/test/gmock_output_test.py      |  183 -
- .../googlemock/test/gmock_output_test_.cc     |  309 -
+ .../googlemock/test/gmock_link2_test.cc       |   38 -
+ .../googlemock/test/gmock_link_test.cc        |   38 -
+ .../googlemock/test/gmock_link_test.h         |  689 --
+ .../googlemock/test/gmock_output_test.py      |  186 -
+ .../googlemock/test/gmock_output_test_.cc     |  291 -
  .../test/gmock_output_test_golden.txt         |  317 -
- .../googlemock/test/gmock_stress_test.cc      |  240 -
- .../googlemock/test/gmock_test.cc             |  181 -
- .../googlemock/test/gmock_test_utils.py       |  108 -
- test/gtest-1.11.0/googletest/CMakeLists.txt   |  323 -
- test/gtest-1.11.0/googletest/README.md        |  215 -
+ .../googlemock/test/gmock_stress_test.cc      |  227 -
+ .../googlemock/test/gmock_test.cc             |  179 -
+ .../googlemock/test/gmock_test_utils.py       |   96 -
+ .../googletest/CMakeLists.txt                 |  338 -
+ test/googletest-1.13.0/googletest/README.md   |  217 -
  .../googletest/cmake/Config.cmake.in          |    9 -
- .../gtest-1.11.0/googletest/cmake/gtest.pc.in |    9 -
+ .../googletest/cmake/gtest.pc.in              |    9 -
  .../googletest/cmake/gtest_main.pc.in         |   10 -
- .../googletest/cmake/internal_utils.cmake     |  344 -
+ .../googletest/cmake/internal_utils.cmake     |  356 -
  .../googletest/cmake/libgtest.la.in           |   21 -
- test/gtest-1.11.0/googletest/docs/README.md   |    4 -
- .../include/gtest/gtest-death-test.h          |  346 -
- .../googletest/include/gtest/gtest-matchers.h |  930 --
- .../googletest/include/gtest/gtest-message.h  |  219 -
- .../include/gtest/gtest-param-test.h          |  507 -
- .../googletest/include/gtest/gtest-printers.h | 1029 --
- .../googletest/include/gtest/gtest-spi.h      |  238 -
- .../include/gtest/gtest-test-part.h           |  184 -
- .../include/gtest/gtest-typed-test.h          |  329 -
- .../googletest/include/gtest/gtest.h          | 2495 -----
- .../include/gtest/gtest_pred_impl.h           |  359 -
- .../googletest/include/gtest/gtest_prod.h     |   61 -
- .../include/gtest/internal/custom/README.md   |   56 -
+ .../googletest/docs/README.md                 |    4 -
+ .../include/gtest/gtest-assertion-result.h    |  237 -
+ .../include/gtest/gtest-death-test.h          |  345 -
+ .../googletest/include/gtest/gtest-matchers.h |  956 --
+ .../googletest/include/gtest/gtest-message.h  |  220 -
+ .../include/gtest/gtest-param-test.h          |  545 -
+ .../googletest/include/gtest/gtest-printers.h | 1131 --
+ .../googletest/include/gtest/gtest-spi.h      |  250 -
+ .../include/gtest/gtest-test-part.h           |  192 -
+ .../include/gtest/gtest-typed-test.h          |  331 -
+ .../googletest/include/gtest/gtest.h          | 2318 ----
+ .../include/gtest/gtest_pred_impl.h           |  279 -
+ .../googletest/include/gtest/gtest_prod.h     |   60 -
+ .../include/gtest/internal/custom/README.md   |   44 -
  .../gtest/internal/custom/gtest-port.h        |   37 -
  .../gtest/internal/custom/gtest-printers.h    |   42 -
  .../include/gtest/internal/custom/gtest.h     |   37 -
- .../internal/gtest-death-test-internal.h      |  304 -
- .../include/gtest/internal/gtest-filepath.h   |  211 -
- .../include/gtest/internal/gtest-internal.h   | 1560 ---
- .../include/gtest/internal/gtest-param-util.h |  947 --
- .../include/gtest/internal/gtest-port-arch.h  |  114 -
- .../include/gtest/internal/gtest-port.h       | 2389 ----
- .../include/gtest/internal/gtest-string.h     |  175 -
- .../include/gtest/internal/gtest-type-util.h  |  183 -
- .../googletest/samples/prime_tables.h         |  126 -
+ .../internal/gtest-death-test-internal.h      |  307 -
+ .../include/gtest/internal/gtest-filepath.h   |  227 -
+ .../include/gtest/internal/gtest-internal.h   | 1571 ---
+ .../include/gtest/internal/gtest-param-util.h | 1031 --
+ .../include/gtest/internal/gtest-port-arch.h  |  118 -
+ .../include/gtest/internal/gtest-port.h       | 2460 ----
+ .../include/gtest/internal/gtest-string.h     |  178 -
+ .../include/gtest/internal/gtest-type-util.h  |  190 -
+ .../googletest/samples/prime_tables.h         |  124 -
  .../googletest/samples/sample1.cc             |   66 -
- .../gtest-1.11.0/googletest/samples/sample1.h |   41 -
+ .../googletest/samples/sample1.h              |   41 -
  .../googletest/samples/sample10_unittest.cc   |  139 -
- .../googletest/samples/sample1_unittest.cc    |  151 -
+ .../googletest/samples/sample1_unittest.cc    |  148 -
  .../googletest/samples/sample2.cc             |   54 -
- .../gtest-1.11.0/googletest/samples/sample2.h |   80 -
+ .../googletest/samples/sample2.h              |   79 -
  .../googletest/samples/sample2_unittest.cc    |  107 -
- .../googletest/samples/sample3-inl.h          |  172 -
- .../googletest/samples/sample3_unittest.cc    |  149 -
- .../googletest/samples/sample4.cc             |   54 -
- .../gtest-1.11.0/googletest/samples/sample4.h |   53 -
+ .../googletest/samples/sample3-inl.h          |  171 -
+ .../googletest/samples/sample3_unittest.cc    |  146 -
+ .../googletest/samples/sample4.cc             |   50 -
+ .../googletest/samples/sample4.h              |   53 -
  .../googletest/samples/sample4_unittest.cc    |   53 -
- .../googletest/samples/sample5_unittest.cc    |  196 -
- .../googletest/samples/sample6_unittest.cc    |  217 -
- .../googletest/samples/sample7_unittest.cc    |  117 -
- .../googletest/samples/sample8_unittest.cc    |  154 -
- .../googletest/samples/sample9_unittest.cc    |  156 -
- .../gtest-1.11.0/googletest/scripts/README.md |    5 -
- .../gtest-1.11.0/googletest/scripts/common.py |   83 -
- .../googletest/scripts/fuse_gtest_files.py    |  253 -
- .../googletest/scripts/gen_gtest_pred_impl.py |  733 --
- .../googletest/scripts/gtest-config.in        |  274 -
- .../googletest/scripts/release_docs.py        |  158 -
- .../googletest/scripts/run_with_path.py       |   32 -
- .../gtest-1.11.0/googletest/scripts/upload.py | 1402 ---
- .../googletest/scripts/upload_gtest.py        |   78 -
- test/gtest-1.11.0/googletest/src/gtest-all.cc |   48 -
- .../googletest/src/gtest-death-test.cc        | 1644 ---
- .../googletest/src/gtest-filepath.cc          |  369 -
- .../googletest/src/gtest-internal-inl.h       | 1221 --
- .../googletest/src/gtest-matchers.cc          |   97 -
- .../gtest-1.11.0/googletest/src/gtest-port.cc | 1433 ---
- .../googletest/src/gtest-printers.cc          |  533 -
- .../googletest/src/gtest-test-part.cc         |  108 -
- .../googletest/src/gtest-typed-test.cc        |  107 -
- test/gtest-1.11.0/googletest/src/gtest.cc     | 6746 -----------
- .../gtest-1.11.0/googletest/src/gtest_main.cc |   54 -
- test/gtest-1.11.0/googletest/test/BUILD.bazel |  590 -
+ .../googletest/samples/sample5_unittest.cc    |  189 -
+ .../googletest/samples/sample6_unittest.cc    |  214 -
+ .../googletest/samples/sample7_unittest.cc    |  113 -
+ .../googletest/samples/sample8_unittest.cc    |  152 -
+ .../googletest/samples/sample9_unittest.cc    |  149 -
+ .../googletest/src/gtest-all.cc               |   49 -
+ .../googletest/src/gtest-assertion-result.cc  |   77 -
+ .../googletest/src/gtest-death-test.cc        | 1620 ---
+ .../googletest/src/gtest-filepath.cc          |  410 -
+ .../googletest/src/gtest-internal-inl.h       | 1217 --
+ .../googletest/src/gtest-matchers.cc          |   98 -
+ .../googletest/src/gtest-port.cc              | 1394 ---
+ .../googletest/src/gtest-printers.cc          |  553 -
+ .../googletest/src/gtest-test-part.cc         |  105 -
+ .../googletest/src/gtest-typed-test.cc        |  104 -
+ .../googletest-1.13.0/googletest/src/gtest.cc | 6844 ------------
+ .../googletest/src/gtest_main.cc              |   65 -
+ .../googletest/test/BUILD.bazel               |  595 -
  .../googletest-break-on-failure-unittest.py   |  208 -
- .../googletest-break-on-failure-unittest_.cc  |   86 -
+ .../googletest-break-on-failure-unittest_.cc  |   83 -
  .../test/googletest-catch-exceptions-test.py  |  236 -
- .../test/googletest-catch-exceptions-test_.cc |  293 -
- .../googletest/test/googletest-color-test.py  |  127 -
- .../googletest/test/googletest-color-test_.cc |   62 -
- .../test/googletest-death-test-test.cc        | 1542 ---
- .../test/googletest-death-test_ex_test.cc     |   92 -
+ .../test/googletest-catch-exceptions-test_.cc |  289 -
+ .../googletest/test/googletest-color-test.py  |  128 -
+ .../googletest/test/googletest-color-test_.cc |   60 -
+ .../test/googletest-death-test-test.cc        | 1526 ---
+ .../test/googletest-death-test_ex_test.cc     |   91 -
  .../test/googletest-env-var-test.py           |  120 -
- .../test/googletest-env-var-test_.cc          |  132 -
+ .../test/googletest-env-var-test_.cc          |  130 -
  .../test/googletest-failfast-unittest.py      |  410 -
- .../test/googletest-failfast-unittest_.cc     |  167 -
- .../test/googletest-filepath-test.cc          |  649 --
- .../test/googletest-filter-unittest.py        |  639 --
- .../test/googletest-filter-unittest_.cc       |  137 -
- .../googletest-global-environment-unittest.py |   72 -
+ .../test/googletest-failfast-unittest_.cc     |  166 -
+ .../test/googletest-filepath-test.cc          |  671 --
+ .../test/googletest-filter-unittest.py        |  670 --
+ .../test/googletest-filter-unittest_.cc       |  106 -
+ .../googletest-global-environment-unittest.py |  130 -
  ...googletest-global-environment-unittest_.cc |   58 -
- .../test/googletest-json-outfiles-test.py     |  191 -
- .../test/googletest-json-output-unittest.py   |  848 --
+ .../test/googletest-json-outfiles-test.py     |  195 -
+ .../test/googletest-json-output-unittest.py   |  912 --
  .../test/googletest-list-tests-unittest.py    |  205 -
- .../test/googletest-list-tests-unittest_.cc   |  156 -
- .../test/googletest-listener-test.cc          |  518 -
- .../test/googletest-message-test.cc           |  158 -
- .../test/googletest-options-test.cc           |  219 -
- .../googletest-output-test-golden-lin.txt     | 1180 --
+ .../test/googletest-list-tests-unittest_.cc   |  140 -
+ .../test/googletest-listener-test.cc          |  514 -
+ .../test/googletest-message-test.cc           |  161 -
+ .../test/googletest-options-test.cc           |  222 -
+ .../googletest-output-test-golden-lin.txt     | 1196 --
  .../googletest/test/googletest-output-test.py |  346 -
- .../test/googletest-output-test_.cc           | 1108 --
+ .../test/googletest-output-test_.cc           | 1053 --
  ...oogletest-param-test-invalid-name1-test.py |   63 -
- ...ogletest-param-test-invalid-name1-test_.cc |   50 -
+ ...ogletest-param-test-invalid-name1-test_.cc |   46 -
  ...oogletest-param-test-invalid-name2-test.py |   62 -
- ...ogletest-param-test-invalid-name2-test_.cc |   55 -
- .../test/googletest-param-test-test.cc        | 1119 --
- .../test/googletest-param-test-test.h         |   51 -
- .../test/googletest-param-test2-test.cc       |   61 -
- .../googletest/test/googletest-port-test.cc   | 1276 ---
- .../test/googletest-printers-test.cc          | 1962 ----
+ ...ogletest-param-test-invalid-name2-test_.cc |   50 -
+ .../test/googletest-param-test-test.cc        | 1173 --
+ .../test/googletest-param-test-test.h         |   49 -
+ .../test/googletest-param-test2-test.cc       |   58 -
+ .../googletest/test/googletest-port-test.cc   | 1299 ---
+ .../test/googletest-printers-test.cc          | 1987 ----
  .../test/googletest-setuptestsuite-test.py    |   54 -
- .../test/googletest-setuptestsuite-test_.cc   |   49 -
+ .../test/googletest-setuptestsuite-test_.cc   |   44 -
  .../test/googletest-shuffle-test.py           |  323 -
- .../test/googletest-shuffle-test_.cc          |  101 -
- .../test/googletest-test-part-test.cc         |  230 -
+ .../test/googletest-shuffle-test_.cc          |  100 -
+ .../test/googletest-test-part-test.cc         |  220 -
  .../test/googletest-throw-on-failure-test.py  |  168 -
  .../test/googletest-throw-on-failure-test_.cc |   71 -
  .../test/googletest-uninitialized-test.py     |   67 -
- .../test/googletest-uninitialized-test_.cc    |   42 -
- .../googletest/test/gtest-typed-test2_test.cc |   40 -
- .../googletest/test/gtest-typed-test_test.cc  |  437 -
- .../googletest/test/gtest-typed-test_test.h   |   60 -
+ .../test/googletest-uninitialized-test_.cc    |   39 -
+ .../googletest/test/gtest-typed-test2_test.cc |   39 -
+ .../googletest/test/gtest-typed-test_test.cc  |  423 -
+ .../googletest/test/gtest-typed-test_test.h   |   57 -
  .../test/gtest-unittest-api_test.cc           |  328 -
  .../googletest/test/gtest_all_test.cc         |   46 -
- .../test/gtest_assert_by_exception_test.cc    |  116 -
- .../googletest/test/gtest_environment_test.cc |  188 -
- .../googletest/test/gtest_help_test.py        |  172 -
- .../googletest/test/gtest_help_test_.cc       |   45 -
- .../googletest/test/gtest_json_test_utils.py  |   60 -
+ .../test/gtest_assert_by_exception_test.cc    |  112 -
+ .../googletest/test/gtest_dirs_test.cc        |   97 -
+ .../googletest/test/gtest_environment_test.cc |  179 -
+ .../googletest/test/gtest_help_test.py        |  189 -
+ .../googletest/test/gtest_help_test_.cc       |   44 -
+ .../googletest/test/gtest_json_test_utils.py  |   62 -
  .../test/gtest_list_output_unittest.py        |  286 -
  .../test/gtest_list_output_unittest_.cc       |   77 -
- .../googletest/test/gtest_main_unittest.cc    |   44 -
+ .../googletest/test/gtest_main_unittest.cc    |   42 -
  .../googletest/test/gtest_no_test_unittest.cc |   54 -
- .../test/gtest_pred_impl_unittest.cc          | 2422 ----
- .../test/gtest_premature_exit_test.cc         |  126 -
+ .../test/gtest_pred_impl_unittest.cc          | 2070 ----
+ .../test/gtest_premature_exit_test.cc         |  128 -
  .../googletest/test/gtest_prod_test.cc        |   56 -
- .../googletest/test/gtest_repeat_test.cc      |  233 -
+ .../googletest/test/gtest_repeat_test.cc      |  222 -
  .../test/gtest_skip_check_output_test.py      |   59 -
  ...test_skip_environment_check_output_test.py |   54 -
- .../gtest_skip_in_environment_setup_test.cc   |   49 -
- .../googletest/test/gtest_skip_test.cc        |   55 -
- .../googletest/test/gtest_sole_header_test.cc |   56 -
- .../googletest/test/gtest_stress_test.cc      |  248 -
+ .../gtest_skip_in_environment_setup_test.cc   |   50 -
+ .../googletest/test/gtest_skip_test.cc        |   51 -
+ .../googletest/test/gtest_sole_header_test.cc |   54 -
+ .../googletest/test/gtest_stress_test.cc      |  242 -
  .../gtest_test_macro_stack_footprint_test.cc  |   89 -
- .../googletest/test/gtest_test_utils.py       |  312 -
+ .../googletest/test/gtest_test_utils.py       |  255 -
  .../googletest/test/gtest_testbridge_test.py  |   63 -
- .../googletest/test/gtest_testbridge_test_.cc |   43 -
+ .../googletest/test/gtest_testbridge_test_.cc |   42 -
  .../test/gtest_throw_on_failure_ex_test.cc    |   90 -
- .../googletest/test/gtest_unittest.cc         | 7784 -------------
+ .../googletest/test/gtest_unittest.cc         | 7756 -------------
  .../test/gtest_xml_outfile1_test_.cc          |   43 -
- .../test/gtest_xml_outfile2_test_.cc          |   43 -
+ .../test/gtest_xml_outfile2_test_.cc          |   45 -
  .../test/gtest_xml_outfiles_test.py           |  135 -
  .../test/gtest_xml_output_unittest.py         |  415 -
- .../test/gtest_xml_output_unittest_.cc        |  193 -
- .../googletest/test/gtest_xml_test_utils.py   |  197 -
+ .../test/gtest_xml_output_unittest_.cc        |  195 -
+ .../googletest/test/gtest_xml_test_utils.py   |  201 -
  .../googletest/test/production.cc             |   35 -
- .../gtest-1.11.0/googletest/test/production.h |   54 -
- test/gtest-1.11.0/library.json                |   62 -
- test/handler_test.h                           |   32 -
- test/integration/emitter_test.cpp             | 1740 ---
+ .../googletest/test/production.h              |   55 -
+ test/integration/BUILD.bazel                  |   16 -
+ test/integration/emitter_test.cpp             | 1784 ---
  test/integration/encoding_test.cpp            |  182 -
  test/integration/error_messages_test.cpp      |   61 -
  test/integration/gen_emitter_test.cpp         | 9936 -----------------
  test/integration/handler_spec_test.cpp        | 1686 ---
  test/integration/handler_test.cpp             |   76 -
- test/integration/load_node_test.cpp           |  364 -
+ test/integration/handler_test.h               |   32 -
+ test/integration/load_node_test.cpp           |  451 -
  test/integration/node_spec_test.cpp           | 1136 --
  test/main.cpp                                 |    6 -
  test/mock_event_handler.h                     |   30 -
- test/node/node_test.cpp                       |  853 --
+ test/node/node_test.cpp                       |  880 --
  test/ostream_wrapper_test.cpp                 |   66 -
  test/parser_test.cpp                          |   64 -
  test/regex_test.cpp                           |  177 -
@@ -311,17 +306,22 @@ Subject: [PATCH] yaml-cpp: Strip unneeded sources
  util/parse.cpp                                |   46 -
  util/read.cpp                                 |  103 -
  util/sandbox.cpp                              |   36 -
- yaml-cpp-config.cmake.in                      |   22 -
+ yaml-cpp-config.cmake.in                      |   33 -
  yaml-cpp.pc.in                                |   11 -
- 309 files changed, 133651 deletions(-)
+ 304 files changed, 130504 deletions(-)
+ delete mode 100644 .bazelignore
+ delete mode 100644 .clang-format
  delete mode 100644 .codedocs
+ delete mode 100644 .github/dependabot.yml
  delete mode 100644 .github/workflows/build.yml
+ delete mode 100644 .github/workflows/bzlmod-archive.yml
  delete mode 100644 .gitignore
  delete mode 100644 BUILD.bazel
  delete mode 100644 CMakeLists.txt
  delete mode 100644 CONTRIBUTING.md
+ delete mode 100644 MODULE.bazel
+ delete mode 100644 MODULE.bazel.lock
  delete mode 100644 SECURITY.md
- delete mode 100644 WORKSPACE
  delete mode 100644 cmake_uninstall.cmake.in
  delete mode 100644 docs/Breaking-Changes.md
  delete mode 100644 docs/How-To-Emit-YAML.md
@@ -341,272 +341,262 @@ Subject: [PATCH] yaml-cpp: Strip unneeded sources
  delete mode 100644 test/BUILD.bazel
  delete mode 100644 test/CMakeLists.txt
  delete mode 100644 test/binary_test.cpp
+ delete mode 100644 test/cmake/CMakeLists.txt
+ delete mode 100644 test/cmake/main.cpp
  delete mode 100644 test/create-emitter-tests.py
- delete mode 100644 test/gtest-1.11.0/.clang-format
- delete mode 100644 test/gtest-1.11.0/.github/ISSUE_TEMPLATE/00-bug_report.md
- delete mode 100644 test/gtest-1.11.0/.github/ISSUE_TEMPLATE/10-feature_request.md
- delete mode 100644 test/gtest-1.11.0/.github/ISSUE_TEMPLATE/config.yml
- delete mode 100644 test/gtest-1.11.0/.gitignore
- delete mode 100644 test/gtest-1.11.0/BUILD.bazel
- delete mode 100644 test/gtest-1.11.0/CMakeLists.txt
- delete mode 100644 test/gtest-1.11.0/CONTRIBUTING.md
- delete mode 100644 test/gtest-1.11.0/CONTRIBUTORS
- delete mode 100644 test/gtest-1.11.0/LICENSE
- delete mode 100644 test/gtest-1.11.0/README.md
- delete mode 100644 test/gtest-1.11.0/WORKSPACE
- delete mode 100644 test/gtest-1.11.0/ci/linux-presubmit.sh
- delete mode 100644 test/gtest-1.11.0/ci/macos-presubmit.sh
- delete mode 100644 test/gtest-1.11.0/docs/_config.yml
- delete mode 100644 test/gtest-1.11.0/docs/_data/navigation.yml
- delete mode 100644 test/gtest-1.11.0/docs/_layouts/default.html
- delete mode 100644 test/gtest-1.11.0/docs/_sass/main.scss
- delete mode 100644 test/gtest-1.11.0/docs/advanced.md
- delete mode 100644 test/gtest-1.11.0/docs/assets/css/style.scss
- delete mode 100644 test/gtest-1.11.0/docs/community_created_documentation.md
- delete mode 100644 test/gtest-1.11.0/docs/faq.md
- delete mode 100644 test/gtest-1.11.0/docs/gmock_cheat_sheet.md
- delete mode 100644 test/gtest-1.11.0/docs/gmock_cook_book.md
- delete mode 100644 test/gtest-1.11.0/docs/gmock_faq.md
- delete mode 100644 test/gtest-1.11.0/docs/gmock_for_dummies.md
- delete mode 100644 test/gtest-1.11.0/docs/index.md
- delete mode 100644 test/gtest-1.11.0/docs/pkgconfig.md
- delete mode 100644 test/gtest-1.11.0/docs/platforms.md
- delete mode 100644 test/gtest-1.11.0/docs/primer.md
- delete mode 100644 test/gtest-1.11.0/docs/quickstart-bazel.md
- delete mode 100644 test/gtest-1.11.0/docs/quickstart-cmake.md
- delete mode 100644 test/gtest-1.11.0/docs/reference/actions.md
- delete mode 100644 test/gtest-1.11.0/docs/reference/assertions.md
- delete mode 100644 test/gtest-1.11.0/docs/reference/matchers.md
- delete mode 100644 test/gtest-1.11.0/docs/reference/mocking.md
- delete mode 100644 test/gtest-1.11.0/docs/reference/testing.md
- delete mode 100644 test/gtest-1.11.0/docs/samples.md
- delete mode 100644 test/gtest-1.11.0/googlemock/CMakeLists.txt
- delete mode 100644 test/gtest-1.11.0/googlemock/README.md
- delete mode 100644 test/gtest-1.11.0/googlemock/cmake/gmock.pc.in
- delete mode 100644 test/gtest-1.11.0/googlemock/cmake/gmock_main.pc.in
- delete mode 100644 test/gtest-1.11.0/googlemock/docs/README.md
- delete mode 100644 test/gtest-1.11.0/googlemock/include/gmock/gmock-actions.h
- delete mode 100644 test/gtest-1.11.0/googlemock/include/gmock/gmock-cardinalities.h
- delete mode 100644 test/gtest-1.11.0/googlemock/include/gmock/gmock-function-mocker.h
- delete mode 100644 test/gtest-1.11.0/googlemock/include/gmock/gmock-matchers.h
- delete mode 100644 test/gtest-1.11.0/googlemock/include/gmock/gmock-more-actions.h
- delete mode 100644 test/gtest-1.11.0/googlemock/include/gmock/gmock-more-matchers.h
- delete mode 100644 test/gtest-1.11.0/googlemock/include/gmock/gmock-nice-strict.h
- delete mode 100644 test/gtest-1.11.0/googlemock/include/gmock/gmock-spec-builders.h
- delete mode 100644 test/gtest-1.11.0/googlemock/include/gmock/gmock.h
- delete mode 100644 test/gtest-1.11.0/googlemock/include/gmock/internal/custom/README.md
- delete mode 100644 test/gtest-1.11.0/googlemock/include/gmock/internal/custom/gmock-generated-actions.h
- delete mode 100644 test/gtest-1.11.0/googlemock/include/gmock/internal/custom/gmock-matchers.h
- delete mode 100644 test/gtest-1.11.0/googlemock/include/gmock/internal/custom/gmock-port.h
- delete mode 100644 test/gtest-1.11.0/googlemock/include/gmock/internal/gmock-internal-utils.h
- delete mode 100644 test/gtest-1.11.0/googlemock/include/gmock/internal/gmock-port.h
- delete mode 100644 test/gtest-1.11.0/googlemock/include/gmock/internal/gmock-pp.h
- delete mode 100644 test/gtest-1.11.0/googlemock/scripts/README.md
- delete mode 100755 test/gtest-1.11.0/googlemock/scripts/fuse_gmock_files.py
- delete mode 100644 test/gtest-1.11.0/googlemock/scripts/generator/LICENSE
- delete mode 100644 test/gtest-1.11.0/googlemock/scripts/generator/README
- delete mode 100644 test/gtest-1.11.0/googlemock/scripts/generator/README.cppclean
- delete mode 100755 test/gtest-1.11.0/googlemock/scripts/generator/cpp/__init__.py
- delete mode 100755 test/gtest-1.11.0/googlemock/scripts/generator/cpp/ast.py
- delete mode 100755 test/gtest-1.11.0/googlemock/scripts/generator/cpp/gmock_class.py
- delete mode 100755 test/gtest-1.11.0/googlemock/scripts/generator/cpp/gmock_class_test.py
- delete mode 100755 test/gtest-1.11.0/googlemock/scripts/generator/cpp/keywords.py
- delete mode 100755 test/gtest-1.11.0/googlemock/scripts/generator/cpp/tokenize.py
- delete mode 100755 test/gtest-1.11.0/googlemock/scripts/generator/cpp/utils.py
- delete mode 100755 test/gtest-1.11.0/googlemock/scripts/generator/gmock_gen.py
- delete mode 100644 test/gtest-1.11.0/googlemock/src/gmock-all.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/src/gmock-cardinalities.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/src/gmock-internal-utils.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/src/gmock-matchers.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/src/gmock-spec-builders.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/src/gmock.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/src/gmock_main.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/BUILD.bazel
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock-actions_test.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock-cardinalities_test.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock-function-mocker_test.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock-internal-utils_test.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock-matchers_test.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock-more-actions_test.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock-nice-strict_test.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock-port_test.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock-pp-string_test.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock-pp_test.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock-spec-builders_test.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock_all_test.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock_ex_test.cc
- delete mode 100755 test/gtest-1.11.0/googlemock/test/gmock_leak_test.py
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock_leak_test_.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock_link2_test.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock_link_test.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock_link_test.h
- delete mode 100755 test/gtest-1.11.0/googlemock/test/gmock_output_test.py
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock_output_test_.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock_output_test_golden.txt
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock_stress_test.cc
- delete mode 100644 test/gtest-1.11.0/googlemock/test/gmock_test.cc
- delete mode 100755 test/gtest-1.11.0/googlemock/test/gmock_test_utils.py
- delete mode 100644 test/gtest-1.11.0/googletest/CMakeLists.txt
- delete mode 100644 test/gtest-1.11.0/googletest/README.md
- delete mode 100644 test/gtest-1.11.0/googletest/cmake/Config.cmake.in
- delete mode 100644 test/gtest-1.11.0/googletest/cmake/gtest.pc.in
- delete mode 100644 test/gtest-1.11.0/googletest/cmake/gtest_main.pc.in
- delete mode 100644 test/gtest-1.11.0/googletest/cmake/internal_utils.cmake
- delete mode 100644 test/gtest-1.11.0/googletest/cmake/libgtest.la.in
- delete mode 100644 test/gtest-1.11.0/googletest/docs/README.md
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/gtest-death-test.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/gtest-matchers.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/gtest-message.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/gtest-param-test.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/gtest-printers.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/gtest-spi.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/gtest-test-part.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/gtest-typed-test.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/gtest.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/gtest_pred_impl.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/gtest_prod.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/internal/custom/README.md
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/internal/custom/gtest-port.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/internal/custom/gtest-printers.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/internal/custom/gtest.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/internal/gtest-death-test-internal.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/internal/gtest-filepath.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/internal/gtest-internal.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/internal/gtest-param-util.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/internal/gtest-port-arch.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/internal/gtest-port.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/internal/gtest-string.h
- delete mode 100644 test/gtest-1.11.0/googletest/include/gtest/internal/gtest-type-util.h
- delete mode 100644 test/gtest-1.11.0/googletest/samples/prime_tables.h
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample1.cc
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample1.h
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample10_unittest.cc
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample1_unittest.cc
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample2.cc
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample2.h
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample2_unittest.cc
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample3-inl.h
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample3_unittest.cc
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample4.cc
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample4.h
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample4_unittest.cc
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample5_unittest.cc
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample6_unittest.cc
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample7_unittest.cc
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample8_unittest.cc
- delete mode 100644 test/gtest-1.11.0/googletest/samples/sample9_unittest.cc
- delete mode 100644 test/gtest-1.11.0/googletest/scripts/README.md
- delete mode 100644 test/gtest-1.11.0/googletest/scripts/common.py
- delete mode 100755 test/gtest-1.11.0/googletest/scripts/fuse_gtest_files.py
- delete mode 100755 test/gtest-1.11.0/googletest/scripts/gen_gtest_pred_impl.py
- delete mode 100755 test/gtest-1.11.0/googletest/scripts/gtest-config.in
- delete mode 100755 test/gtest-1.11.0/googletest/scripts/release_docs.py
- delete mode 100755 test/gtest-1.11.0/googletest/scripts/run_with_path.py
- delete mode 100755 test/gtest-1.11.0/googletest/scripts/upload.py
- delete mode 100755 test/gtest-1.11.0/googletest/scripts/upload_gtest.py
- delete mode 100644 test/gtest-1.11.0/googletest/src/gtest-all.cc
- delete mode 100644 test/gtest-1.11.0/googletest/src/gtest-death-test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/src/gtest-filepath.cc
- delete mode 100644 test/gtest-1.11.0/googletest/src/gtest-internal-inl.h
- delete mode 100644 test/gtest-1.11.0/googletest/src/gtest-matchers.cc
- delete mode 100644 test/gtest-1.11.0/googletest/src/gtest-port.cc
- delete mode 100644 test/gtest-1.11.0/googletest/src/gtest-printers.cc
- delete mode 100644 test/gtest-1.11.0/googletest/src/gtest-test-part.cc
- delete mode 100644 test/gtest-1.11.0/googletest/src/gtest-typed-test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/src/gtest.cc
- delete mode 100644 test/gtest-1.11.0/googletest/src/gtest_main.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/BUILD.bazel
- delete mode 100755 test/gtest-1.11.0/googletest/test/googletest-break-on-failure-unittest.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-break-on-failure-unittest_.cc
- delete mode 100755 test/gtest-1.11.0/googletest/test/googletest-catch-exceptions-test.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-catch-exceptions-test_.cc
- delete mode 100755 test/gtest-1.11.0/googletest/test/googletest-color-test.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-color-test_.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-death-test-test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-death-test_ex_test.cc
- delete mode 100755 test/gtest-1.11.0/googletest/test/googletest-env-var-test.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-env-var-test_.cc
- delete mode 100755 test/gtest-1.11.0/googletest/test/googletest-failfast-unittest.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-failfast-unittest_.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-filepath-test.cc
- delete mode 100755 test/gtest-1.11.0/googletest/test/googletest-filter-unittest.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-filter-unittest_.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-global-environment-unittest.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-global-environment-unittest_.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-json-outfiles-test.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-json-output-unittest.py
- delete mode 100755 test/gtest-1.11.0/googletest/test/googletest-list-tests-unittest.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-list-tests-unittest_.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-listener-test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-message-test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-options-test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-output-test-golden-lin.txt
- delete mode 100755 test/gtest-1.11.0/googletest/test/googletest-output-test.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-output-test_.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-param-test-invalid-name1-test.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-param-test-invalid-name1-test_.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-param-test-invalid-name2-test.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-param-test-invalid-name2-test_.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-param-test-test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-param-test-test.h
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-param-test2-test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-port-test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-printers-test.cc
- delete mode 100755 test/gtest-1.11.0/googletest/test/googletest-setuptestsuite-test.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-setuptestsuite-test_.cc
- delete mode 100755 test/gtest-1.11.0/googletest/test/googletest-shuffle-test.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-shuffle-test_.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-test-part-test.cc
- delete mode 100755 test/gtest-1.11.0/googletest/test/googletest-throw-on-failure-test.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-throw-on-failure-test_.cc
- delete mode 100755 test/gtest-1.11.0/googletest/test/googletest-uninitialized-test.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/googletest-uninitialized-test_.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest-typed-test2_test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest-typed-test_test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest-typed-test_test.h
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest-unittest-api_test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_all_test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_assert_by_exception_test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_environment_test.cc
- delete mode 100755 test/gtest-1.11.0/googletest/test/gtest_help_test.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_help_test_.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_json_test_utils.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_list_output_unittest.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_list_output_unittest_.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_main_unittest.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_no_test_unittest.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_pred_impl_unittest.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_premature_exit_test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_prod_test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_repeat_test.cc
- delete mode 100755 test/gtest-1.11.0/googletest/test/gtest_skip_check_output_test.py
- delete mode 100755 test/gtest-1.11.0/googletest/test/gtest_skip_environment_check_output_test.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_skip_in_environment_setup_test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_skip_test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_sole_header_test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_stress_test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_test_macro_stack_footprint_test.cc
- delete mode 100755 test/gtest-1.11.0/googletest/test/gtest_test_utils.py
- delete mode 100755 test/gtest-1.11.0/googletest/test/gtest_testbridge_test.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_testbridge_test_.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_throw_on_failure_ex_test.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_unittest.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_xml_outfile1_test_.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_xml_outfile2_test_.cc
- delete mode 100755 test/gtest-1.11.0/googletest/test/gtest_xml_outfiles_test.py
- delete mode 100755 test/gtest-1.11.0/googletest/test/gtest_xml_output_unittest.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/gtest_xml_output_unittest_.cc
- delete mode 100755 test/gtest-1.11.0/googletest/test/gtest_xml_test_utils.py
- delete mode 100644 test/gtest-1.11.0/googletest/test/production.cc
- delete mode 100644 test/gtest-1.11.0/googletest/test/production.h
- delete mode 100644 test/gtest-1.11.0/library.json
- delete mode 100644 test/handler_test.h
+ delete mode 100644 test/fptostring_test.cpp
+ delete mode 100644 test/googletest-1.13.0/.clang-format
+ delete mode 100644 test/googletest-1.13.0/.github/ISSUE_TEMPLATE/00-bug_report.yml
+ delete mode 100644 test/googletest-1.13.0/.github/ISSUE_TEMPLATE/10-feature_request.yml
+ delete mode 100644 test/googletest-1.13.0/.github/ISSUE_TEMPLATE/config.yml
+ delete mode 100644 test/googletest-1.13.0/.github/workflows/gtest-ci.yml
+ delete mode 100644 test/googletest-1.13.0/.gitignore
+ delete mode 100644 test/googletest-1.13.0/BUILD.bazel
+ delete mode 100644 test/googletest-1.13.0/CMakeLists.txt
+ delete mode 100644 test/googletest-1.13.0/CONTRIBUTING.md
+ delete mode 100644 test/googletest-1.13.0/CONTRIBUTORS
+ delete mode 100644 test/googletest-1.13.0/LICENSE
+ delete mode 100644 test/googletest-1.13.0/README.md
+ delete mode 100644 test/googletest-1.13.0/WORKSPACE
+ delete mode 100644 test/googletest-1.13.0/ci/linux-presubmit.sh
+ delete mode 100644 test/googletest-1.13.0/ci/macos-presubmit.sh
+ delete mode 100644 test/googletest-1.13.0/ci/windows-presubmit.bat
+ delete mode 100644 test/googletest-1.13.0/docs/_config.yml
+ delete mode 100644 test/googletest-1.13.0/docs/_data/navigation.yml
+ delete mode 100644 test/googletest-1.13.0/docs/_layouts/default.html
+ delete mode 100644 test/googletest-1.13.0/docs/_sass/main.scss
+ delete mode 100644 test/googletest-1.13.0/docs/advanced.md
+ delete mode 100644 test/googletest-1.13.0/docs/assets/css/style.scss
+ delete mode 100644 test/googletest-1.13.0/docs/community_created_documentation.md
+ delete mode 100644 test/googletest-1.13.0/docs/faq.md
+ delete mode 100644 test/googletest-1.13.0/docs/gmock_cheat_sheet.md
+ delete mode 100644 test/googletest-1.13.0/docs/gmock_cook_book.md
+ delete mode 100644 test/googletest-1.13.0/docs/gmock_faq.md
+ delete mode 100644 test/googletest-1.13.0/docs/gmock_for_dummies.md
+ delete mode 100644 test/googletest-1.13.0/docs/index.md
+ delete mode 100644 test/googletest-1.13.0/docs/pkgconfig.md
+ delete mode 100644 test/googletest-1.13.0/docs/platforms.md
+ delete mode 100644 test/googletest-1.13.0/docs/primer.md
+ delete mode 100644 test/googletest-1.13.0/docs/quickstart-bazel.md
+ delete mode 100644 test/googletest-1.13.0/docs/quickstart-cmake.md
+ delete mode 100644 test/googletest-1.13.0/docs/reference/actions.md
+ delete mode 100644 test/googletest-1.13.0/docs/reference/assertions.md
+ delete mode 100644 test/googletest-1.13.0/docs/reference/matchers.md
+ delete mode 100644 test/googletest-1.13.0/docs/reference/mocking.md
+ delete mode 100644 test/googletest-1.13.0/docs/reference/testing.md
+ delete mode 100644 test/googletest-1.13.0/docs/samples.md
+ delete mode 100644 test/googletest-1.13.0/googlemock/CMakeLists.txt
+ delete mode 100644 test/googletest-1.13.0/googlemock/README.md
+ delete mode 100644 test/googletest-1.13.0/googlemock/cmake/gmock.pc.in
+ delete mode 100644 test/googletest-1.13.0/googlemock/cmake/gmock_main.pc.in
+ delete mode 100644 test/googletest-1.13.0/googlemock/docs/README.md
+ delete mode 100644 test/googletest-1.13.0/googlemock/include/gmock/gmock-actions.h
+ delete mode 100644 test/googletest-1.13.0/googlemock/include/gmock/gmock-cardinalities.h
+ delete mode 100644 test/googletest-1.13.0/googlemock/include/gmock/gmock-function-mocker.h
+ delete mode 100644 test/googletest-1.13.0/googlemock/include/gmock/gmock-matchers.h
+ delete mode 100644 test/googletest-1.13.0/googlemock/include/gmock/gmock-more-actions.h
+ delete mode 100644 test/googletest-1.13.0/googlemock/include/gmock/gmock-more-matchers.h
+ delete mode 100644 test/googletest-1.13.0/googlemock/include/gmock/gmock-nice-strict.h
+ delete mode 100644 test/googletest-1.13.0/googlemock/include/gmock/gmock-spec-builders.h
+ delete mode 100644 test/googletest-1.13.0/googlemock/include/gmock/gmock.h
+ delete mode 100644 test/googletest-1.13.0/googlemock/include/gmock/internal/custom/README.md
+ delete mode 100644 test/googletest-1.13.0/googlemock/include/gmock/internal/custom/gmock-generated-actions.h
+ delete mode 100644 test/googletest-1.13.0/googlemock/include/gmock/internal/custom/gmock-matchers.h
+ delete mode 100644 test/googletest-1.13.0/googlemock/include/gmock/internal/custom/gmock-port.h
+ delete mode 100644 test/googletest-1.13.0/googlemock/include/gmock/internal/gmock-internal-utils.h
+ delete mode 100644 test/googletest-1.13.0/googlemock/include/gmock/internal/gmock-port.h
+ delete mode 100644 test/googletest-1.13.0/googlemock/include/gmock/internal/gmock-pp.h
+ delete mode 100644 test/googletest-1.13.0/googlemock/src/gmock-all.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/src/gmock-cardinalities.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/src/gmock-internal-utils.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/src/gmock-matchers.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/src/gmock-spec-builders.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/src/gmock.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/src/gmock_main.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/BUILD.bazel
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock-actions_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock-cardinalities_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock-function-mocker_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock-internal-utils_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock-matchers-arithmetic_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock-matchers-comparisons_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock-matchers-containers_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock-matchers-misc_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock-matchers_test.h
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock-more-actions_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock-nice-strict_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock-port_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock-pp-string_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock-pp_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock-spec-builders_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock_all_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock_ex_test.cc
+ delete mode 100755 test/googletest-1.13.0/googlemock/test/gmock_leak_test.py
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock_leak_test_.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock_link2_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock_link_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock_link_test.h
+ delete mode 100755 test/googletest-1.13.0/googlemock/test/gmock_output_test.py
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock_output_test_.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock_output_test_golden.txt
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock_stress_test.cc
+ delete mode 100644 test/googletest-1.13.0/googlemock/test/gmock_test.cc
+ delete mode 100755 test/googletest-1.13.0/googlemock/test/gmock_test_utils.py
+ delete mode 100644 test/googletest-1.13.0/googletest/CMakeLists.txt
+ delete mode 100644 test/googletest-1.13.0/googletest/README.md
+ delete mode 100644 test/googletest-1.13.0/googletest/cmake/Config.cmake.in
+ delete mode 100644 test/googletest-1.13.0/googletest/cmake/gtest.pc.in
+ delete mode 100644 test/googletest-1.13.0/googletest/cmake/gtest_main.pc.in
+ delete mode 100644 test/googletest-1.13.0/googletest/cmake/internal_utils.cmake
+ delete mode 100644 test/googletest-1.13.0/googletest/cmake/libgtest.la.in
+ delete mode 100644 test/googletest-1.13.0/googletest/docs/README.md
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/gtest-assertion-result.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/gtest-death-test.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/gtest-matchers.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/gtest-message.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/gtest-param-test.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/gtest-printers.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/gtest-spi.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/gtest-test-part.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/gtest-typed-test.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/gtest.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/gtest_pred_impl.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/gtest_prod.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/internal/custom/README.md
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/internal/custom/gtest-port.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/internal/custom/gtest-printers.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/internal/custom/gtest.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/internal/gtest-death-test-internal.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/internal/gtest-filepath.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/internal/gtest-internal.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/internal/gtest-param-util.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/internal/gtest-port-arch.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/internal/gtest-port.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/internal/gtest-string.h
+ delete mode 100644 test/googletest-1.13.0/googletest/include/gtest/internal/gtest-type-util.h
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/prime_tables.h
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample1.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample1.h
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample10_unittest.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample1_unittest.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample2.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample2.h
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample2_unittest.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample3-inl.h
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample3_unittest.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample4.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample4.h
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample4_unittest.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample5_unittest.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample6_unittest.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample7_unittest.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample8_unittest.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/samples/sample9_unittest.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/src/gtest-all.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/src/gtest-assertion-result.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/src/gtest-death-test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/src/gtest-filepath.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/src/gtest-internal-inl.h
+ delete mode 100644 test/googletest-1.13.0/googletest/src/gtest-matchers.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/src/gtest-port.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/src/gtest-printers.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/src/gtest-test-part.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/src/gtest-typed-test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/src/gtest.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/src/gtest_main.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/BUILD.bazel
+ delete mode 100755 test/googletest-1.13.0/googletest/test/googletest-break-on-failure-unittest.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-break-on-failure-unittest_.cc
+ delete mode 100755 test/googletest-1.13.0/googletest/test/googletest-catch-exceptions-test.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-catch-exceptions-test_.cc
+ delete mode 100755 test/googletest-1.13.0/googletest/test/googletest-color-test.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-color-test_.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-death-test-test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-death-test_ex_test.cc
+ delete mode 100755 test/googletest-1.13.0/googletest/test/googletest-env-var-test.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-env-var-test_.cc
+ delete mode 100755 test/googletest-1.13.0/googletest/test/googletest-failfast-unittest.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-failfast-unittest_.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-filepath-test.cc
+ delete mode 100755 test/googletest-1.13.0/googletest/test/googletest-filter-unittest.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-filter-unittest_.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-global-environment-unittest.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-global-environment-unittest_.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-json-outfiles-test.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-json-output-unittest.py
+ delete mode 100755 test/googletest-1.13.0/googletest/test/googletest-list-tests-unittest.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-list-tests-unittest_.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-listener-test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-message-test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-options-test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-output-test-golden-lin.txt
+ delete mode 100755 test/googletest-1.13.0/googletest/test/googletest-output-test.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-output-test_.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-param-test-invalid-name1-test.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-param-test-invalid-name1-test_.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-param-test-invalid-name2-test.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-param-test-invalid-name2-test_.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-param-test-test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-param-test-test.h
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-param-test2-test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-port-test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-printers-test.cc
+ delete mode 100755 test/googletest-1.13.0/googletest/test/googletest-setuptestsuite-test.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-setuptestsuite-test_.cc
+ delete mode 100755 test/googletest-1.13.0/googletest/test/googletest-shuffle-test.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-shuffle-test_.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-test-part-test.cc
+ delete mode 100755 test/googletest-1.13.0/googletest/test/googletest-throw-on-failure-test.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-throw-on-failure-test_.cc
+ delete mode 100755 test/googletest-1.13.0/googletest/test/googletest-uninitialized-test.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/googletest-uninitialized-test_.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest-typed-test2_test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest-typed-test_test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest-typed-test_test.h
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest-unittest-api_test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_all_test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_assert_by_exception_test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_dirs_test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_environment_test.cc
+ delete mode 100755 test/googletest-1.13.0/googletest/test/gtest_help_test.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_help_test_.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_json_test_utils.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_list_output_unittest.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_list_output_unittest_.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_main_unittest.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_no_test_unittest.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_pred_impl_unittest.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_premature_exit_test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_prod_test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_repeat_test.cc
+ delete mode 100755 test/googletest-1.13.0/googletest/test/gtest_skip_check_output_test.py
+ delete mode 100755 test/googletest-1.13.0/googletest/test/gtest_skip_environment_check_output_test.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_skip_in_environment_setup_test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_skip_test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_sole_header_test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_stress_test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_test_macro_stack_footprint_test.cc
+ delete mode 100755 test/googletest-1.13.0/googletest/test/gtest_test_utils.py
+ delete mode 100755 test/googletest-1.13.0/googletest/test/gtest_testbridge_test.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_testbridge_test_.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_throw_on_failure_ex_test.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_unittest.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_xml_outfile1_test_.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_xml_outfile2_test_.cc
+ delete mode 100755 test/googletest-1.13.0/googletest/test/gtest_xml_outfiles_test.py
+ delete mode 100755 test/googletest-1.13.0/googletest/test/gtest_xml_output_unittest.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/gtest_xml_output_unittest_.cc
+ delete mode 100755 test/googletest-1.13.0/googletest/test/gtest_xml_test_utils.py
+ delete mode 100644 test/googletest-1.13.0/googletest/test/production.cc
+ delete mode 100644 test/googletest-1.13.0/googletest/test/production.h
+ delete mode 100644 test/integration/BUILD.bazel
  delete mode 100644 test/integration/emitter_test.cpp
  delete mode 100644 test/integration/encoding_test.cpp
  delete mode 100644 test/integration/error_messages_test.cpp
  delete mode 100644 test/integration/gen_emitter_test.cpp
  delete mode 100644 test/integration/handler_spec_test.cpp
  delete mode 100644 test/integration/handler_test.cpp
+ delete mode 100644 test/integration/handler_test.h
  delete mode 100644 test/integration/load_node_test.cpp
  delete mode 100644 test/integration/node_spec_test.cpp
  delete mode 100644 test/main.cpp
@@ -624,30 +614,45 @@ Subject: [PATCH] yaml-cpp: Strip unneeded sources
  delete mode 100644 yaml-cpp-config.cmake.in
  delete mode 100644 yaml-cpp.pc.in
 
+diff --git a/.bazelignore b/.bazelignore
+deleted file mode 100644
+index 446ebd0..0000000
+diff --git a/.clang-format b/.clang-format
+deleted file mode 100644
+index d6d46fb..0000000
 diff --git a/.codedocs b/.codedocs
 deleted file mode 100644
-index 02e4382..0000000
+index ae63822..0000000
+diff --git a/.github/dependabot.yml b/.github/dependabot.yml
+deleted file mode 100644
+index dc23806..0000000
 diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
 deleted file mode 100644
-index a408a9d..0000000
+index 5c7614b..0000000
+diff --git a/.github/workflows/bzlmod-archive.yml b/.github/workflows/bzlmod-archive.yml
+deleted file mode 100644
+index 1b07d82..0000000
 diff --git a/.gitignore b/.gitignore
 deleted file mode 100644
 index 2f9d10f..0000000
 diff --git a/BUILD.bazel b/BUILD.bazel
 deleted file mode 100644
-index 23e847e..0000000
+index 45ae375..0000000
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 deleted file mode 100644
-index 46dc180..0000000
+index 631bfa3..0000000
 diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
 deleted file mode 100644
-index 5705fe2..0000000
+index e4ca076..0000000
+diff --git a/MODULE.bazel b/MODULE.bazel
+deleted file mode 100644
+index 132cde1..0000000
+diff --git a/MODULE.bazel.lock b/MODULE.bazel.lock
+deleted file mode 100644
+index d06bb14..0000000
 diff --git a/SECURITY.md b/SECURITY.md
 deleted file mode 100644
 index 06a1751..0000000
-diff --git a/WORKSPACE b/WORKSPACE
-deleted file mode 100644
-index d5ecc0b..0000000
 diff --git a/cmake_uninstall.cmake.in b/cmake_uninstall.cmake.in
 deleted file mode 100644
 index c2d34d4..0000000
@@ -656,7 +661,7 @@ deleted file mode 100644
 index 959adea..0000000
 diff --git a/docs/How-To-Emit-YAML.md b/docs/How-To-Emit-YAML.md
 deleted file mode 100644
-index 9340701..0000000
+index 6e6f9f5..0000000
 diff --git a/docs/How-To-Parse-A-Document-(Old-API).md b/docs/How-To-Parse-A-Document-(Old-API).md
 deleted file mode 100644
 index 82fac71..0000000
@@ -698,796 +703,763 @@ deleted file mode 100644
 index f1d68a8..0000000
 diff --git a/test/BUILD.bazel b/test/BUILD.bazel
 deleted file mode 100644
-index d30fa73..0000000
+index dfc3764..0000000
 diff --git a/test/CMakeLists.txt b/test/CMakeLists.txt
 deleted file mode 100644
-index 351b03f..0000000
+index 693139f..0000000
 diff --git a/test/binary_test.cpp b/test/binary_test.cpp
 deleted file mode 100644
 index 7b17823..0000000
+diff --git a/test/cmake/CMakeLists.txt b/test/cmake/CMakeLists.txt
+deleted file mode 100644
+index a2b8e78..0000000
+diff --git a/test/cmake/main.cpp b/test/cmake/main.cpp
+deleted file mode 100644
+index bce9ea6..0000000
 diff --git a/test/create-emitter-tests.py b/test/create-emitter-tests.py
 deleted file mode 100644
 index 7295544..0000000
-diff --git a/test/gtest-1.11.0/.clang-format b/test/gtest-1.11.0/.clang-format
+diff --git a/test/fptostring_test.cpp b/test/fptostring_test.cpp
+deleted file mode 100644
+index 818b78a..0000000
+diff --git a/test/googletest-1.13.0/.clang-format b/test/googletest-1.13.0/.clang-format
 deleted file mode 100644
 index 5b9bfe6..0000000
-diff --git a/test/gtest-1.11.0/.github/ISSUE_TEMPLATE/00-bug_report.md b/test/gtest-1.11.0/.github/ISSUE_TEMPLATE/00-bug_report.md
+diff --git a/test/googletest-1.13.0/.github/ISSUE_TEMPLATE/00-bug_report.yml b/test/googletest-1.13.0/.github/ISSUE_TEMPLATE/00-bug_report.yml
 deleted file mode 100644
-index 0f7e8b5..0000000
-diff --git a/test/gtest-1.11.0/.github/ISSUE_TEMPLATE/10-feature_request.md b/test/gtest-1.11.0/.github/ISSUE_TEMPLATE/10-feature_request.md
+index 586779a..0000000
+diff --git a/test/googletest-1.13.0/.github/ISSUE_TEMPLATE/10-feature_request.yml b/test/googletest-1.13.0/.github/ISSUE_TEMPLATE/10-feature_request.yml
 deleted file mode 100644
-index 70a3a20..0000000
-diff --git a/test/gtest-1.11.0/.github/ISSUE_TEMPLATE/config.yml b/test/gtest-1.11.0/.github/ISSUE_TEMPLATE/config.yml
+index 91ad041..0000000
+diff --git a/test/googletest-1.13.0/.github/ISSUE_TEMPLATE/config.yml b/test/googletest-1.13.0/.github/ISSUE_TEMPLATE/config.yml
 deleted file mode 100644
-index 3ba13e0..0000000
-diff --git a/test/gtest-1.11.0/.gitignore b/test/gtest-1.11.0/.gitignore
+index 65170d1..0000000
+diff --git a/test/googletest-1.13.0/.github/workflows/gtest-ci.yml b/test/googletest-1.13.0/.github/workflows/gtest-ci.yml
+deleted file mode 100644
+index 03a8cc5..0000000
+diff --git a/test/googletest-1.13.0/.gitignore b/test/googletest-1.13.0/.gitignore
 deleted file mode 100644
 index f08cb72..0000000
-diff --git a/test/gtest-1.11.0/BUILD.bazel b/test/gtest-1.11.0/BUILD.bazel
+diff --git a/test/googletest-1.13.0/BUILD.bazel b/test/googletest-1.13.0/BUILD.bazel
 deleted file mode 100644
-index 965c518..0000000
-diff --git a/test/gtest-1.11.0/CMakeLists.txt b/test/gtest-1.11.0/CMakeLists.txt
+index ac62251..0000000
+diff --git a/test/googletest-1.13.0/CMakeLists.txt b/test/googletest-1.13.0/CMakeLists.txt
 deleted file mode 100644
-index ea81ab1..0000000
-diff --git a/test/gtest-1.11.0/CONTRIBUTING.md b/test/gtest-1.11.0/CONTRIBUTING.md
+index 6af4143..0000000
+diff --git a/test/googletest-1.13.0/CONTRIBUTING.md b/test/googletest-1.13.0/CONTRIBUTING.md
 deleted file mode 100644
-index da45e44..0000000
-diff --git a/test/gtest-1.11.0/CONTRIBUTORS b/test/gtest-1.11.0/CONTRIBUTORS
+index de14c81..0000000
+diff --git a/test/googletest-1.13.0/CONTRIBUTORS b/test/googletest-1.13.0/CONTRIBUTORS
 deleted file mode 100644
-index 76db0b4..0000000
-diff --git a/test/gtest-1.11.0/LICENSE b/test/gtest-1.11.0/LICENSE
+index 77397a5..0000000
+diff --git a/test/googletest-1.13.0/LICENSE b/test/googletest-1.13.0/LICENSE
 deleted file mode 100644
 index 1941a11..0000000
-diff --git a/test/gtest-1.11.0/README.md b/test/gtest-1.11.0/README.md
+diff --git a/test/googletest-1.13.0/README.md b/test/googletest-1.13.0/README.md
 deleted file mode 100644
-index 7d872a5..0000000
-diff --git a/test/gtest-1.11.0/WORKSPACE b/test/gtest-1.11.0/WORKSPACE
+index cd89abb..0000000
+diff --git a/test/googletest-1.13.0/WORKSPACE b/test/googletest-1.13.0/WORKSPACE
 deleted file mode 100644
-index 614f557..0000000
-diff --git a/test/gtest-1.11.0/ci/linux-presubmit.sh b/test/gtest-1.11.0/ci/linux-presubmit.sh
+index 0f10a6a..0000000
+diff --git a/test/googletest-1.13.0/ci/linux-presubmit.sh b/test/googletest-1.13.0/ci/linux-presubmit.sh
 deleted file mode 100644
-index 6bea1cd..0000000
-diff --git a/test/gtest-1.11.0/ci/macos-presubmit.sh b/test/gtest-1.11.0/ci/macos-presubmit.sh
+index 4eb5bbe..0000000
+diff --git a/test/googletest-1.13.0/ci/macos-presubmit.sh b/test/googletest-1.13.0/ci/macos-presubmit.sh
 deleted file mode 100644
-index d6423fa..0000000
-diff --git a/test/gtest-1.11.0/docs/_config.yml b/test/gtest-1.11.0/docs/_config.yml
+index 8f35df5..0000000
+diff --git a/test/googletest-1.13.0/ci/windows-presubmit.bat b/test/googletest-1.13.0/ci/windows-presubmit.bat
+deleted file mode 100644
+index 8668ff3..0000000
+diff --git a/test/googletest-1.13.0/docs/_config.yml b/test/googletest-1.13.0/docs/_config.yml
 deleted file mode 100644
 index d12867e..0000000
-diff --git a/test/gtest-1.11.0/docs/_data/navigation.yml b/test/gtest-1.11.0/docs/_data/navigation.yml
+diff --git a/test/googletest-1.13.0/docs/_data/navigation.yml b/test/googletest-1.13.0/docs/_data/navigation.yml
 deleted file mode 100644
 index 9f33327..0000000
-diff --git a/test/gtest-1.11.0/docs/_layouts/default.html b/test/gtest-1.11.0/docs/_layouts/default.html
+diff --git a/test/googletest-1.13.0/docs/_layouts/default.html b/test/googletest-1.13.0/docs/_layouts/default.html
 deleted file mode 100644
-index dcb42d9..0000000
-diff --git a/test/gtest-1.11.0/docs/_sass/main.scss b/test/gtest-1.11.0/docs/_sass/main.scss
+index c7f331b..0000000
+diff --git a/test/googletest-1.13.0/docs/_sass/main.scss b/test/googletest-1.13.0/docs/_sass/main.scss
 deleted file mode 100644
 index 92edc87..0000000
-diff --git a/test/gtest-1.11.0/docs/advanced.md b/test/gtest-1.11.0/docs/advanced.md
+diff --git a/test/googletest-1.13.0/docs/advanced.md b/test/googletest-1.13.0/docs/advanced.md
 deleted file mode 100644
-index 8dff5ba..0000000
-diff --git a/test/gtest-1.11.0/docs/assets/css/style.scss b/test/gtest-1.11.0/docs/assets/css/style.scss
+index f16382f..0000000
+diff --git a/test/googletest-1.13.0/docs/assets/css/style.scss b/test/googletest-1.13.0/docs/assets/css/style.scss
 deleted file mode 100644
 index bb30f41..0000000
-diff --git a/test/gtest-1.11.0/docs/community_created_documentation.md b/test/gtest-1.11.0/docs/community_created_documentation.md
+diff --git a/test/googletest-1.13.0/docs/community_created_documentation.md b/test/googletest-1.13.0/docs/community_created_documentation.md
 deleted file mode 100644
 index 4569075..0000000
-diff --git a/test/gtest-1.11.0/docs/faq.md b/test/gtest-1.11.0/docs/faq.md
+diff --git a/test/googletest-1.13.0/docs/faq.md b/test/googletest-1.13.0/docs/faq.md
 deleted file mode 100644
-index 9042da1..0000000
-diff --git a/test/gtest-1.11.0/docs/gmock_cheat_sheet.md b/test/gtest-1.11.0/docs/gmock_cheat_sheet.md
+index 1928097..0000000
+diff --git a/test/googletest-1.13.0/docs/gmock_cheat_sheet.md b/test/googletest-1.13.0/docs/gmock_cheat_sheet.md
 deleted file mode 100644
-index 17ed7a5..0000000
-diff --git a/test/gtest-1.11.0/docs/gmock_cook_book.md b/test/gtest-1.11.0/docs/gmock_cook_book.md
+index 2fb0403..0000000
+diff --git a/test/googletest-1.13.0/docs/gmock_cook_book.md b/test/googletest-1.13.0/docs/gmock_cook_book.md
 deleted file mode 100644
-index c08958e..0000000
-diff --git a/test/gtest-1.11.0/docs/gmock_faq.md b/test/gtest-1.11.0/docs/gmock_faq.md
+index fc7db35..0000000
+diff --git a/test/googletest-1.13.0/docs/gmock_faq.md b/test/googletest-1.13.0/docs/gmock_faq.md
 deleted file mode 100644
-index 2cd9b3f..0000000
-diff --git a/test/gtest-1.11.0/docs/gmock_for_dummies.md b/test/gtest-1.11.0/docs/gmock_for_dummies.md
+index 8f220bf..0000000
+diff --git a/test/googletest-1.13.0/docs/gmock_for_dummies.md b/test/googletest-1.13.0/docs/gmock_for_dummies.md
 deleted file mode 100644
-index 1f4cc24..0000000
-diff --git a/test/gtest-1.11.0/docs/index.md b/test/gtest-1.11.0/docs/index.md
+index b7264d3..0000000
+diff --git a/test/googletest-1.13.0/docs/index.md b/test/googletest-1.13.0/docs/index.md
 deleted file mode 100644
 index b162c74..0000000
-diff --git a/test/gtest-1.11.0/docs/pkgconfig.md b/test/gtest-1.11.0/docs/pkgconfig.md
+diff --git a/test/googletest-1.13.0/docs/pkgconfig.md b/test/googletest-1.13.0/docs/pkgconfig.md
 deleted file mode 100644
-index 768e9b4..0000000
-diff --git a/test/gtest-1.11.0/docs/platforms.md b/test/gtest-1.11.0/docs/platforms.md
+index 18a2546..0000000
+diff --git a/test/googletest-1.13.0/docs/platforms.md b/test/googletest-1.13.0/docs/platforms.md
 deleted file mode 100644
 index eba6ef8..0000000
-diff --git a/test/gtest-1.11.0/docs/primer.md b/test/gtest-1.11.0/docs/primer.md
+diff --git a/test/googletest-1.13.0/docs/primer.md b/test/googletest-1.13.0/docs/primer.md
 deleted file mode 100644
-index 6d8fdf4..0000000
-diff --git a/test/gtest-1.11.0/docs/quickstart-bazel.md b/test/gtest-1.11.0/docs/quickstart-bazel.md
+index 2ffbf53..0000000
+diff --git a/test/googletest-1.13.0/docs/quickstart-bazel.md b/test/googletest-1.13.0/docs/quickstart-bazel.md
 deleted file mode 100644
-index 362ee6d..0000000
-diff --git a/test/gtest-1.11.0/docs/quickstart-cmake.md b/test/gtest-1.11.0/docs/quickstart-cmake.md
+index 15c27a2..0000000
+diff --git a/test/googletest-1.13.0/docs/quickstart-cmake.md b/test/googletest-1.13.0/docs/quickstart-cmake.md
 deleted file mode 100644
-index 420f1d3..0000000
-diff --git a/test/gtest-1.11.0/docs/reference/actions.md b/test/gtest-1.11.0/docs/reference/actions.md
+index 5abe504..0000000
+diff --git a/test/googletest-1.13.0/docs/reference/actions.md b/test/googletest-1.13.0/docs/reference/actions.md
 deleted file mode 100644
-index 166d2a8..0000000
-diff --git a/test/gtest-1.11.0/docs/reference/assertions.md b/test/gtest-1.11.0/docs/reference/assertions.md
+index ab81a12..0000000
+diff --git a/test/googletest-1.13.0/docs/reference/assertions.md b/test/googletest-1.13.0/docs/reference/assertions.md
 deleted file mode 100644
 index 7bf03a3..0000000
-diff --git a/test/gtest-1.11.0/docs/reference/matchers.md b/test/gtest-1.11.0/docs/reference/matchers.md
+diff --git a/test/googletest-1.13.0/docs/reference/matchers.md b/test/googletest-1.13.0/docs/reference/matchers.md
 deleted file mode 100644
-index 9e40cab..0000000
-diff --git a/test/gtest-1.11.0/docs/reference/mocking.md b/test/gtest-1.11.0/docs/reference/mocking.md
+index 9fb1592..0000000
+diff --git a/test/googletest-1.13.0/docs/reference/mocking.md b/test/googletest-1.13.0/docs/reference/mocking.md
 deleted file mode 100644
-index c29f716..0000000
-diff --git a/test/gtest-1.11.0/docs/reference/testing.md b/test/gtest-1.11.0/docs/reference/testing.md
+index e414ffb..0000000
+diff --git a/test/googletest-1.13.0/docs/reference/testing.md b/test/googletest-1.13.0/docs/reference/testing.md
 deleted file mode 100644
-index 554d6c9..0000000
-diff --git a/test/gtest-1.11.0/docs/samples.md b/test/gtest-1.11.0/docs/samples.md
+index 62cdcc1..0000000
+diff --git a/test/googletest-1.13.0/docs/samples.md b/test/googletest-1.13.0/docs/samples.md
 deleted file mode 100644
-index 2d97ca5..0000000
-diff --git a/test/gtest-1.11.0/googlemock/CMakeLists.txt b/test/gtest-1.11.0/googlemock/CMakeLists.txt
+index dedc590..0000000
+diff --git a/test/googletest-1.13.0/googlemock/CMakeLists.txt b/test/googletest-1.13.0/googlemock/CMakeLists.txt
 deleted file mode 100644
-index e7df8ec..0000000
-diff --git a/test/gtest-1.11.0/googlemock/README.md b/test/gtest-1.11.0/googlemock/README.md
+index 5c1f0da..0000000
+diff --git a/test/googletest-1.13.0/googlemock/README.md b/test/googletest-1.13.0/googlemock/README.md
 deleted file mode 100644
-index ead6883..0000000
-diff --git a/test/gtest-1.11.0/googlemock/cmake/gmock.pc.in b/test/gtest-1.11.0/googlemock/cmake/gmock.pc.in
+index 7da6065..0000000
+diff --git a/test/googletest-1.13.0/googlemock/cmake/gmock.pc.in b/test/googletest-1.13.0/googlemock/cmake/gmock.pc.in
 deleted file mode 100644
 index 23c67b5..0000000
-diff --git a/test/gtest-1.11.0/googlemock/cmake/gmock_main.pc.in b/test/gtest-1.11.0/googlemock/cmake/gmock_main.pc.in
+diff --git a/test/googletest-1.13.0/googlemock/cmake/gmock_main.pc.in b/test/googletest-1.13.0/googlemock/cmake/gmock_main.pc.in
 deleted file mode 100644
 index 66ffea7..0000000
-diff --git a/test/gtest-1.11.0/googlemock/docs/README.md b/test/gtest-1.11.0/googlemock/docs/README.md
+diff --git a/test/googletest-1.13.0/googlemock/docs/README.md b/test/googletest-1.13.0/googlemock/docs/README.md
 deleted file mode 100644
 index 1bc57b7..0000000
-diff --git a/test/gtest-1.11.0/googlemock/include/gmock/gmock-actions.h b/test/gtest-1.11.0/googlemock/include/gmock/gmock-actions.h
+diff --git a/test/googletest-1.13.0/googlemock/include/gmock/gmock-actions.h b/test/googletest-1.13.0/googlemock/include/gmock/gmock-actions.h
 deleted file mode 100644
-index f2393bd..0000000
-diff --git a/test/gtest-1.11.0/googlemock/include/gmock/gmock-cardinalities.h b/test/gtest-1.11.0/googlemock/include/gmock/gmock-cardinalities.h
+index aad07d5..0000000
+diff --git a/test/googletest-1.13.0/googlemock/include/gmock/gmock-cardinalities.h b/test/googletest-1.13.0/googlemock/include/gmock/gmock-cardinalities.h
 deleted file mode 100644
-index fc7f803..0000000
-diff --git a/test/gtest-1.11.0/googlemock/include/gmock/gmock-function-mocker.h b/test/gtest-1.11.0/googlemock/include/gmock/gmock-function-mocker.h
+index b6ab648..0000000
+diff --git a/test/googletest-1.13.0/googlemock/include/gmock/gmock-function-mocker.h b/test/googletest-1.13.0/googlemock/include/gmock/gmock-function-mocker.h
 deleted file mode 100644
-index 0fc6f6f..0000000
-diff --git a/test/gtest-1.11.0/googlemock/include/gmock/gmock-matchers.h b/test/gtest-1.11.0/googlemock/include/gmock/gmock-matchers.h
+index 7306549..0000000
+diff --git a/test/googletest-1.13.0/googlemock/include/gmock/gmock-matchers.h b/test/googletest-1.13.0/googlemock/include/gmock/gmock-matchers.h
 deleted file mode 100644
-index 86be9c1..0000000
-diff --git a/test/gtest-1.11.0/googlemock/include/gmock/gmock-more-actions.h b/test/gtest-1.11.0/googlemock/include/gmock/gmock-more-actions.h
+index 9e634f7..0000000
+diff --git a/test/googletest-1.13.0/googlemock/include/gmock/gmock-more-actions.h b/test/googletest-1.13.0/googlemock/include/gmock/gmock-more-actions.h
 deleted file mode 100644
-index fd29335..0000000
-diff --git a/test/gtest-1.11.0/googlemock/include/gmock/gmock-more-matchers.h b/test/gtest-1.11.0/googlemock/include/gmock/gmock-more-matchers.h
+index 148ac01..0000000
+diff --git a/test/googletest-1.13.0/googlemock/include/gmock/gmock-more-matchers.h b/test/googletest-1.13.0/googlemock/include/gmock/gmock-more-matchers.h
 deleted file mode 100644
-index dfc77e3..0000000
-diff --git a/test/gtest-1.11.0/googlemock/include/gmock/gmock-nice-strict.h b/test/gtest-1.11.0/googlemock/include/gmock/gmock-nice-strict.h
+index d9a9210..0000000
+diff --git a/test/googletest-1.13.0/googlemock/include/gmock/gmock-nice-strict.h b/test/googletest-1.13.0/googlemock/include/gmock/gmock-nice-strict.h
 deleted file mode 100644
-index b03b770..0000000
-diff --git a/test/gtest-1.11.0/googlemock/include/gmock/gmock-spec-builders.h b/test/gtest-1.11.0/googlemock/include/gmock/gmock-spec-builders.h
+index 4f0eb35..0000000
+diff --git a/test/googletest-1.13.0/googlemock/include/gmock/gmock-spec-builders.h b/test/googletest-1.13.0/googlemock/include/gmock/gmock-spec-builders.h
 deleted file mode 100644
-index 41323c1..0000000
-diff --git a/test/gtest-1.11.0/googlemock/include/gmock/gmock.h b/test/gtest-1.11.0/googlemock/include/gmock/gmock.h
+index 4e498d8..0000000
+diff --git a/test/googletest-1.13.0/googlemock/include/gmock/gmock.h b/test/googletest-1.13.0/googlemock/include/gmock/gmock.h
 deleted file mode 100644
-index 12469bc..0000000
-diff --git a/test/gtest-1.11.0/googlemock/include/gmock/internal/custom/README.md b/test/gtest-1.11.0/googlemock/include/gmock/internal/custom/README.md
+index 568c8c7..0000000
+diff --git a/test/googletest-1.13.0/googlemock/include/gmock/internal/custom/README.md b/test/googletest-1.13.0/googlemock/include/gmock/internal/custom/README.md
 deleted file mode 100644
-index f6c93f6..0000000
-diff --git a/test/gtest-1.11.0/googlemock/include/gmock/internal/custom/gmock-generated-actions.h b/test/gtest-1.11.0/googlemock/include/gmock/internal/custom/gmock-generated-actions.h
+index 9c4874f..0000000
+diff --git a/test/googletest-1.13.0/googlemock/include/gmock/internal/custom/gmock-generated-actions.h b/test/googletest-1.13.0/googlemock/include/gmock/internal/custom/gmock-generated-actions.h
 deleted file mode 100644
-index 63f8999..0000000
-diff --git a/test/gtest-1.11.0/googlemock/include/gmock/internal/custom/gmock-matchers.h b/test/gtest-1.11.0/googlemock/include/gmock/internal/custom/gmock-matchers.h
+index bbcad31..0000000
+diff --git a/test/googletest-1.13.0/googlemock/include/gmock/internal/custom/gmock-matchers.h b/test/googletest-1.13.0/googlemock/include/gmock/internal/custom/gmock-matchers.h
 deleted file mode 100644
-index 6384294..0000000
-diff --git a/test/gtest-1.11.0/googlemock/include/gmock/internal/custom/gmock-port.h b/test/gtest-1.11.0/googlemock/include/gmock/internal/custom/gmock-port.h
+index bb7dcba..0000000
+diff --git a/test/googletest-1.13.0/googlemock/include/gmock/internal/custom/gmock-port.h b/test/googletest-1.13.0/googlemock/include/gmock/internal/custom/gmock-port.h
 deleted file mode 100644
-index 1437869..0000000
-diff --git a/test/gtest-1.11.0/googlemock/include/gmock/internal/gmock-internal-utils.h b/test/gtest-1.11.0/googlemock/include/gmock/internal/gmock-internal-utils.h
+index f055f75..0000000
+diff --git a/test/googletest-1.13.0/googlemock/include/gmock/internal/gmock-internal-utils.h b/test/googletest-1.13.0/googlemock/include/gmock/internal/gmock-internal-utils.h
 deleted file mode 100644
-index 317544a..0000000
-diff --git a/test/gtest-1.11.0/googlemock/include/gmock/internal/gmock-port.h b/test/gtest-1.11.0/googlemock/include/gmock/internal/gmock-port.h
+index 36ab8e2..0000000
+diff --git a/test/googletest-1.13.0/googlemock/include/gmock/internal/gmock-port.h b/test/googletest-1.13.0/googlemock/include/gmock/internal/gmock-port.h
 deleted file mode 100644
-index 367a44d..0000000
-diff --git a/test/gtest-1.11.0/googlemock/include/gmock/internal/gmock-pp.h b/test/gtest-1.11.0/googlemock/include/gmock/internal/gmock-pp.h
+index bc18a25..0000000
+diff --git a/test/googletest-1.13.0/googlemock/include/gmock/internal/gmock-pp.h b/test/googletest-1.13.0/googlemock/include/gmock/internal/gmock-pp.h
 deleted file mode 100644
 index 94d61c0..0000000
-diff --git a/test/gtest-1.11.0/googlemock/scripts/README.md b/test/gtest-1.11.0/googlemock/scripts/README.md
-deleted file mode 100644
-index a3301e5..0000000
-diff --git a/test/gtest-1.11.0/googlemock/scripts/fuse_gmock_files.py b/test/gtest-1.11.0/googlemock/scripts/fuse_gmock_files.py
-deleted file mode 100755
-index 7fa9b3a..0000000
-diff --git a/test/gtest-1.11.0/googlemock/scripts/generator/LICENSE b/test/gtest-1.11.0/googlemock/scripts/generator/LICENSE
-deleted file mode 100644
-index 87ea063..0000000
-diff --git a/test/gtest-1.11.0/googlemock/scripts/generator/README b/test/gtest-1.11.0/googlemock/scripts/generator/README
-deleted file mode 100644
-index 01fd463..0000000
-diff --git a/test/gtest-1.11.0/googlemock/scripts/generator/README.cppclean b/test/gtest-1.11.0/googlemock/scripts/generator/README.cppclean
-deleted file mode 100644
-index 65431b6..0000000
-diff --git a/test/gtest-1.11.0/googlemock/scripts/generator/cpp/__init__.py b/test/gtest-1.11.0/googlemock/scripts/generator/cpp/__init__.py
-deleted file mode 100755
-index e69de29..0000000
-diff --git a/test/gtest-1.11.0/googlemock/scripts/generator/cpp/ast.py b/test/gtest-1.11.0/googlemock/scripts/generator/cpp/ast.py
-deleted file mode 100755
-index 0e77016..0000000
-diff --git a/test/gtest-1.11.0/googlemock/scripts/generator/cpp/gmock_class.py b/test/gtest-1.11.0/googlemock/scripts/generator/cpp/gmock_class.py
-deleted file mode 100755
-index 3e21022..0000000
-diff --git a/test/gtest-1.11.0/googlemock/scripts/generator/cpp/gmock_class_test.py b/test/gtest-1.11.0/googlemock/scripts/generator/cpp/gmock_class_test.py
-deleted file mode 100755
-index eff475f..0000000
-diff --git a/test/gtest-1.11.0/googlemock/scripts/generator/cpp/keywords.py b/test/gtest-1.11.0/googlemock/scripts/generator/cpp/keywords.py
-deleted file mode 100755
-index e428271..0000000
-diff --git a/test/gtest-1.11.0/googlemock/scripts/generator/cpp/tokenize.py b/test/gtest-1.11.0/googlemock/scripts/generator/cpp/tokenize.py
-deleted file mode 100755
-index a75edcb..0000000
-diff --git a/test/gtest-1.11.0/googlemock/scripts/generator/cpp/utils.py b/test/gtest-1.11.0/googlemock/scripts/generator/cpp/utils.py
-deleted file mode 100755
-index 6f5fc09..0000000
-diff --git a/test/gtest-1.11.0/googlemock/scripts/generator/gmock_gen.py b/test/gtest-1.11.0/googlemock/scripts/generator/gmock_gen.py
-deleted file mode 100755
-index 9d528a5..0000000
-diff --git a/test/gtest-1.11.0/googlemock/src/gmock-all.cc b/test/gtest-1.11.0/googlemock/src/gmock-all.cc
+diff --git a/test/googletest-1.13.0/googlemock/src/gmock-all.cc b/test/googletest-1.13.0/googlemock/src/gmock-all.cc
 deleted file mode 100644
 index e43c9b7..0000000
-diff --git a/test/gtest-1.11.0/googlemock/src/gmock-cardinalities.cc b/test/gtest-1.11.0/googlemock/src/gmock-cardinalities.cc
+diff --git a/test/googletest-1.13.0/googlemock/src/gmock-cardinalities.cc b/test/googletest-1.13.0/googlemock/src/gmock-cardinalities.cc
 deleted file mode 100644
-index 7463f43..0000000
-diff --git a/test/gtest-1.11.0/googlemock/src/gmock-internal-utils.cc b/test/gtest-1.11.0/googlemock/src/gmock-internal-utils.cc
+index 92cde34..0000000
+diff --git a/test/googletest-1.13.0/googlemock/src/gmock-internal-utils.cc b/test/googletest-1.13.0/googlemock/src/gmock-internal-utils.cc
 deleted file mode 100644
-index e5b5479..0000000
-diff --git a/test/gtest-1.11.0/googlemock/src/gmock-matchers.cc b/test/gtest-1.11.0/googlemock/src/gmock-matchers.cc
+index 7bfff02..0000000
+diff --git a/test/googletest-1.13.0/googlemock/src/gmock-matchers.cc b/test/googletest-1.13.0/googlemock/src/gmock-matchers.cc
 deleted file mode 100644
-index dded437..0000000
-diff --git a/test/gtest-1.11.0/googlemock/src/gmock-spec-builders.cc b/test/gtest-1.11.0/googlemock/src/gmock-spec-builders.cc
+index 5810b6a..0000000
+diff --git a/test/googletest-1.13.0/googlemock/src/gmock-spec-builders.cc b/test/googletest-1.13.0/googlemock/src/gmock-spec-builders.cc
 deleted file mode 100644
-index c7266a3..0000000
-diff --git a/test/gtest-1.11.0/googlemock/src/gmock.cc b/test/gtest-1.11.0/googlemock/src/gmock.cc
+index ea821f8..0000000
+diff --git a/test/googletest-1.13.0/googlemock/src/gmock.cc b/test/googletest-1.13.0/googlemock/src/gmock.cc
 deleted file mode 100644
-index 7bcdb0b..0000000
-diff --git a/test/gtest-1.11.0/googlemock/src/gmock_main.cc b/test/gtest-1.11.0/googlemock/src/gmock_main.cc
+index 5025656..0000000
+diff --git a/test/googletest-1.13.0/googlemock/src/gmock_main.cc b/test/googletest-1.13.0/googlemock/src/gmock_main.cc
 deleted file mode 100644
-index 18c500f..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/BUILD.bazel b/test/gtest-1.11.0/googlemock/test/BUILD.bazel
+index b411c5e..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/BUILD.bazel b/test/googletest-1.13.0/googlemock/test/BUILD.bazel
 deleted file mode 100644
-index efb7306..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock-actions_test.cc b/test/gtest-1.11.0/googlemock/test/gmock-actions_test.cc
+index 27eb535..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock-actions_test.cc b/test/googletest-1.13.0/googlemock/test/gmock-actions_test.cc
 deleted file mode 100644
-index e1ca7fe..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock-cardinalities_test.cc b/test/gtest-1.11.0/googlemock/test/gmock-cardinalities_test.cc
+index 510d15c..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock-cardinalities_test.cc b/test/googletest-1.13.0/googlemock/test/gmock-cardinalities_test.cc
 deleted file mode 100644
-index ca97cae..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock-function-mocker_test.cc b/test/gtest-1.11.0/googlemock/test/gmock-function-mocker_test.cc
+index cdd9956..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock-function-mocker_test.cc b/test/googletest-1.13.0/googlemock/test/gmock-function-mocker_test.cc
 deleted file mode 100644
-index cf76fa9..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock-internal-utils_test.cc b/test/gtest-1.11.0/googlemock/test/gmock-internal-utils_test.cc
+index 1d15a29..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock-internal-utils_test.cc b/test/googletest-1.13.0/googlemock/test/gmock-internal-utils_test.cc
 deleted file mode 100644
-index 0d15e8f..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock-matchers_test.cc b/test/gtest-1.11.0/googlemock/test/gmock-matchers_test.cc
+index 932bece..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock-matchers-arithmetic_test.cc b/test/googletest-1.13.0/googlemock/test/gmock-matchers-arithmetic_test.cc
 deleted file mode 100644
-index 1f48a76..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock-more-actions_test.cc b/test/gtest-1.11.0/googlemock/test/gmock-more-actions_test.cc
+index a4c1def..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock-matchers-comparisons_test.cc b/test/googletest-1.13.0/googlemock/test/gmock-matchers-comparisons_test.cc
 deleted file mode 100644
-index 53bb029..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock-nice-strict_test.cc b/test/gtest-1.11.0/googlemock/test/gmock-nice-strict_test.cc
+index 0cf731f..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock-matchers-containers_test.cc b/test/googletest-1.13.0/googlemock/test/gmock-matchers-containers_test.cc
 deleted file mode 100644
-index 25558eb..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock-port_test.cc b/test/gtest-1.11.0/googlemock/test/gmock-port_test.cc
+index 98787f2..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock-matchers-misc_test.cc b/test/googletest-1.13.0/googlemock/test/gmock-matchers-misc_test.cc
 deleted file mode 100644
-index a2c2be2..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock-pp-string_test.cc b/test/gtest-1.11.0/googlemock/test/gmock-pp-string_test.cc
+index 42a0e44..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock-matchers_test.h b/test/googletest-1.13.0/googlemock/test/gmock-matchers_test.h
 deleted file mode 100644
-index 6f66cf1..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock-pp_test.cc b/test/gtest-1.11.0/googlemock/test/gmock-pp_test.cc
+index 6c986e9..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock-more-actions_test.cc b/test/googletest-1.13.0/googlemock/test/gmock-more-actions_test.cc
+deleted file mode 100644
+index b9b66bf..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock-nice-strict_test.cc b/test/googletest-1.13.0/googlemock/test/gmock-nice-strict_test.cc
+deleted file mode 100644
+index 08254e1..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock-port_test.cc b/test/googletest-1.13.0/googlemock/test/gmock-port_test.cc
+deleted file mode 100644
+index c31af82..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock-pp-string_test.cc b/test/googletest-1.13.0/googlemock/test/gmock-pp-string_test.cc
+deleted file mode 100644
+index 53c80f4..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock-pp_test.cc b/test/googletest-1.13.0/googlemock/test/gmock-pp_test.cc
 deleted file mode 100644
 index 5d1566e..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock-spec-builders_test.cc b/test/gtest-1.11.0/googlemock/test/gmock-spec-builders_test.cc
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock-spec-builders_test.cc b/test/googletest-1.13.0/googlemock/test/gmock-spec-builders_test.cc
 deleted file mode 100644
-index fa97411..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock_all_test.cc b/test/gtest-1.11.0/googlemock/test/gmock_all_test.cc
+index 165944e..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock_all_test.cc b/test/googletest-1.13.0/googlemock/test/gmock_all_test.cc
 deleted file mode 100644
-index fffbb8b..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock_ex_test.cc b/test/gtest-1.11.0/googlemock/test/gmock_ex_test.cc
+index 6db0086..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock_ex_test.cc b/test/googletest-1.13.0/googlemock/test/gmock_ex_test.cc
 deleted file mode 100644
-index 72eb43f..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock_leak_test.py b/test/gtest-1.11.0/googlemock/test/gmock_leak_test.py
+index 44e5e35..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock_leak_test.py b/test/googletest-1.13.0/googlemock/test/gmock_leak_test.py
 deleted file mode 100755
-index 7e4b1ee..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock_leak_test_.cc b/test/gtest-1.11.0/googlemock/test/gmock_leak_test_.cc
+index 4f41c7b..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock_leak_test_.cc b/test/googletest-1.13.0/googlemock/test/gmock_leak_test_.cc
 deleted file mode 100644
-index 2e095ab..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock_link2_test.cc b/test/gtest-1.11.0/googlemock/test/gmock_link2_test.cc
+index fa64591..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock_link2_test.cc b/test/googletest-1.13.0/googlemock/test/gmock_link2_test.cc
 deleted file mode 100644
-index d27ce17..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock_link_test.cc b/test/gtest-1.11.0/googlemock/test/gmock_link_test.cc
+index cd3d690..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock_link_test.cc b/test/googletest-1.13.0/googlemock/test/gmock_link_test.cc
 deleted file mode 100644
-index e7c54cc..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock_link_test.h b/test/gtest-1.11.0/googlemock/test/gmock_link_test.h
+index f51e398..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock_link_test.h b/test/googletest-1.13.0/googlemock/test/gmock_link_test.h
 deleted file mode 100644
-index 5734b2e..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock_output_test.py b/test/gtest-1.11.0/googlemock/test/gmock_output_test.py
+index eaf18e9..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock_output_test.py b/test/googletest-1.13.0/googlemock/test/gmock_output_test.py
 deleted file mode 100755
-index 25f99f2..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock_output_test_.cc b/test/gtest-1.11.0/googlemock/test/gmock_output_test_.cc
+index d7c3f27..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock_output_test_.cc b/test/googletest-1.13.0/googlemock/test/gmock_output_test_.cc
 deleted file mode 100644
-index 3955c73..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock_output_test_golden.txt b/test/gtest-1.11.0/googlemock/test/gmock_output_test_golden.txt
+index a178691..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock_output_test_golden.txt b/test/googletest-1.13.0/googlemock/test/gmock_output_test_golden.txt
 deleted file mode 100644
-index 4846c12..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock_stress_test.cc b/test/gtest-1.11.0/googlemock/test/gmock_stress_test.cc
+index 467fa20..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock_stress_test.cc b/test/googletest-1.13.0/googlemock/test/gmock_stress_test.cc
 deleted file mode 100644
-index 20725d6..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock_test.cc b/test/gtest-1.11.0/googlemock/test/gmock_test.cc
+index 9e42cd9..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock_test.cc b/test/googletest-1.13.0/googlemock/test/gmock_test.cc
 deleted file mode 100644
-index e9840a3..0000000
-diff --git a/test/gtest-1.11.0/googlemock/test/gmock_test_utils.py b/test/gtest-1.11.0/googlemock/test/gmock_test_utils.py
+index 8f1bd5d..0000000
+diff --git a/test/googletest-1.13.0/googlemock/test/gmock_test_utils.py b/test/googletest-1.13.0/googlemock/test/gmock_test_utils.py
 deleted file mode 100755
-index 7dc4e11..0000000
-diff --git a/test/gtest-1.11.0/googletest/CMakeLists.txt b/test/gtest-1.11.0/googletest/CMakeLists.txt
+index d7bc097..0000000
+diff --git a/test/googletest-1.13.0/googletest/CMakeLists.txt b/test/googletest-1.13.0/googletest/CMakeLists.txt
 deleted file mode 100644
-index abdd98b..0000000
-diff --git a/test/gtest-1.11.0/googletest/README.md b/test/gtest-1.11.0/googletest/README.md
+index 95bfa44..0000000
+diff --git a/test/googletest-1.13.0/googletest/README.md b/test/googletest-1.13.0/googletest/README.md
 deleted file mode 100644
-index 1f8b349..0000000
-diff --git a/test/gtest-1.11.0/googletest/cmake/Config.cmake.in b/test/gtest-1.11.0/googletest/cmake/Config.cmake.in
+index 9bdbcec..0000000
+diff --git a/test/googletest-1.13.0/googletest/cmake/Config.cmake.in b/test/googletest-1.13.0/googletest/cmake/Config.cmake.in
 deleted file mode 100644
 index 12be449..0000000
-diff --git a/test/gtest-1.11.0/googletest/cmake/gtest.pc.in b/test/gtest-1.11.0/googletest/cmake/gtest.pc.in
+diff --git a/test/googletest-1.13.0/googletest/cmake/gtest.pc.in b/test/googletest-1.13.0/googletest/cmake/gtest.pc.in
 deleted file mode 100644
 index b4148fa..0000000
-diff --git a/test/gtest-1.11.0/googletest/cmake/gtest_main.pc.in b/test/gtest-1.11.0/googletest/cmake/gtest_main.pc.in
+diff --git a/test/googletest-1.13.0/googletest/cmake/gtest_main.pc.in b/test/googletest-1.13.0/googletest/cmake/gtest_main.pc.in
 deleted file mode 100644
 index 38c88c5..0000000
-diff --git a/test/gtest-1.11.0/googletest/cmake/internal_utils.cmake b/test/gtest-1.11.0/googletest/cmake/internal_utils.cmake
+diff --git a/test/googletest-1.13.0/googletest/cmake/internal_utils.cmake b/test/googletest-1.13.0/googletest/cmake/internal_utils.cmake
 deleted file mode 100644
-index 8d8d60a..0000000
-diff --git a/test/gtest-1.11.0/googletest/cmake/libgtest.la.in b/test/gtest-1.11.0/googletest/cmake/libgtest.la.in
+index 4140558..0000000
+diff --git a/test/googletest-1.13.0/googletest/cmake/libgtest.la.in b/test/googletest-1.13.0/googletest/cmake/libgtest.la.in
 deleted file mode 100644
 index 840c838..0000000
-diff --git a/test/gtest-1.11.0/googletest/docs/README.md b/test/gtest-1.11.0/googletest/docs/README.md
+diff --git a/test/googletest-1.13.0/googletest/docs/README.md b/test/googletest-1.13.0/googletest/docs/README.md
 deleted file mode 100644
 index 1bc57b7..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/gtest-death-test.h b/test/gtest-1.11.0/googletest/include/gtest/gtest-death-test.h
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/gtest-assertion-result.h b/test/googletest-1.13.0/googletest/include/gtest/gtest-assertion-result.h
 deleted file mode 100644
-index 9b4d4d1..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/gtest-matchers.h b/test/gtest-1.11.0/googletest/include/gtest/gtest-matchers.h
+index addbb59..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/gtest-death-test.h b/test/googletest-1.13.0/googletest/include/gtest/gtest-death-test.h
 deleted file mode 100644
-index 9fa34a0..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/gtest-message.h b/test/gtest-1.11.0/googletest/include/gtest/gtest-message.h
+index 84e5a5b..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/gtest-matchers.h b/test/googletest-1.13.0/googletest/include/gtest/gtest-matchers.h
 deleted file mode 100644
-index becfd49..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/gtest-param-test.h b/test/gtest-1.11.0/googletest/include/gtest/gtest-param-test.h
+index 4a60b0d..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/gtest-message.h b/test/googletest-1.13.0/googletest/include/gtest/gtest-message.h
 deleted file mode 100644
-index 804e702..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/gtest-printers.h b/test/gtest-1.11.0/googletest/include/gtest/gtest-printers.h
+index 4d4b152..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/gtest-param-test.h b/test/googletest-1.13.0/googletest/include/gtest/gtest-param-test.h
 deleted file mode 100644
-index 076c9de..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/gtest-spi.h b/test/gtest-1.11.0/googletest/include/gtest/gtest-spi.h
+index 1adb9a7..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/gtest-printers.h b/test/googletest-1.13.0/googletest/include/gtest/gtest-printers.h
 deleted file mode 100644
-index eacef44..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/gtest-test-part.h b/test/gtest-1.11.0/googletest/include/gtest/gtest-test-part.h
+index 0055e37..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/gtest-spi.h b/test/googletest-1.13.0/googletest/include/gtest/gtest-spi.h
 deleted file mode 100644
-index 203fdf9..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/gtest-typed-test.h b/test/gtest-1.11.0/googletest/include/gtest/gtest-typed-test.h
+index c0613b6..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/gtest-test-part.h b/test/googletest-1.13.0/googletest/include/gtest/gtest-test-part.h
 deleted file mode 100644
-index 9fdc6be..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/gtest.h b/test/gtest-1.11.0/googletest/include/gtest/gtest.h
+index 8290b4d..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/gtest-typed-test.h b/test/googletest-1.13.0/googletest/include/gtest/gtest-typed-test.h
 deleted file mode 100644
-index 7a5d057..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/gtest_pred_impl.h b/test/gtest-1.11.0/googletest/include/gtest/gtest_pred_impl.h
+index bd35a32..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/gtest.h b/test/googletest-1.13.0/googletest/include/gtest/gtest.h
 deleted file mode 100644
-index 5029a9b..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/gtest_prod.h b/test/gtest-1.11.0/googletest/include/gtest/gtest_prod.h
+index 3e452a5..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/gtest_pred_impl.h b/test/googletest-1.13.0/googletest/include/gtest/gtest_pred_impl.h
 deleted file mode 100644
-index 38b9d85..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/internal/custom/README.md b/test/gtest-1.11.0/googletest/include/gtest/internal/custom/README.md
+index 47a24aa..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/gtest_prod.h b/test/googletest-1.13.0/googletest/include/gtest/gtest_prod.h
 deleted file mode 100644
-index ff391fb..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/internal/custom/gtest-port.h b/test/gtest-1.11.0/googletest/include/gtest/internal/custom/gtest-port.h
+index 1f37dc3..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/internal/custom/README.md b/test/googletest-1.13.0/googletest/include/gtest/internal/custom/README.md
+deleted file mode 100644
+index cb49e2c..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/internal/custom/gtest-port.h b/test/googletest-1.13.0/googletest/include/gtest/internal/custom/gtest-port.h
 deleted file mode 100644
 index db02881..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/internal/custom/gtest-printers.h b/test/gtest-1.11.0/googletest/include/gtest/internal/custom/gtest-printers.h
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/internal/custom/gtest-printers.h b/test/googletest-1.13.0/googletest/include/gtest/internal/custom/gtest-printers.h
 deleted file mode 100644
 index b9495d8..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/internal/custom/gtest.h b/test/gtest-1.11.0/googletest/include/gtest/internal/custom/gtest.h
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/internal/custom/gtest.h b/test/googletest-1.13.0/googletest/include/gtest/internal/custom/gtest.h
 deleted file mode 100644
 index afaaf17..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/internal/gtest-death-test-internal.h b/test/gtest-1.11.0/googletest/include/gtest/internal/gtest-death-test-internal.h
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/internal/gtest-death-test-internal.h b/test/googletest-1.13.0/googletest/include/gtest/internal/gtest-death-test-internal.h
 deleted file mode 100644
-index 490296d..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/internal/gtest-filepath.h b/test/gtest-1.11.0/googletest/include/gtest/internal/gtest-filepath.h
+index 4687dae..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/internal/gtest-filepath.h b/test/googletest-1.13.0/googletest/include/gtest/internal/gtest-filepath.h
 deleted file mode 100644
-index 0c033ab..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/internal/gtest-internal.h b/test/gtest-1.11.0/googletest/include/gtest/internal/gtest-internal.h
+index 5189c81..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/internal/gtest-internal.h b/test/googletest-1.13.0/googletest/include/gtest/internal/gtest-internal.h
 deleted file mode 100644
-index f8cbdbd..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/internal/gtest-param-util.h b/test/gtest-1.11.0/googletest/include/gtest/internal/gtest-param-util.h
+index 3121d42..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/internal/gtest-param-util.h b/test/googletest-1.13.0/googletest/include/gtest/internal/gtest-param-util.h
 deleted file mode 100644
-index c2ef6e3..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/internal/gtest-port-arch.h b/test/gtest-1.11.0/googletest/include/gtest/internal/gtest-port-arch.h
+index 7092d10..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/internal/gtest-port-arch.h b/test/googletest-1.13.0/googletest/include/gtest/internal/gtest-port-arch.h
 deleted file mode 100644
-index dd84591..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/internal/gtest-port.h b/test/gtest-1.11.0/googletest/include/gtest/internal/gtest-port.h
+index 0406460..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/internal/gtest-port.h b/test/googletest-1.13.0/googletest/include/gtest/internal/gtest-port.h
 deleted file mode 100644
-index 0953a78..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/internal/gtest-string.h b/test/gtest-1.11.0/googletest/include/gtest/internal/gtest-string.h
+index 6db191b..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/internal/gtest-string.h b/test/googletest-1.13.0/googletest/include/gtest/internal/gtest-string.h
 deleted file mode 100644
-index 10f774f..0000000
-diff --git a/test/gtest-1.11.0/googletest/include/gtest/internal/gtest-type-util.h b/test/gtest-1.11.0/googletest/include/gtest/internal/gtest-type-util.h
+index cc0dd75..0000000
+diff --git a/test/googletest-1.13.0/googletest/include/gtest/internal/gtest-type-util.h b/test/googletest-1.13.0/googletest/include/gtest/internal/gtest-type-util.h
 deleted file mode 100644
-index b87a2e2..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/prime_tables.h b/test/gtest-1.11.0/googletest/samples/prime_tables.h
+index 17a470b..0000000
+diff --git a/test/googletest-1.13.0/googletest/samples/prime_tables.h b/test/googletest-1.13.0/googletest/samples/prime_tables.h
 deleted file mode 100644
-index 3a10352..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample1.cc b/test/gtest-1.11.0/googletest/samples/sample1.cc
+index 7c0286e..0000000
+diff --git a/test/googletest-1.13.0/googletest/samples/sample1.cc b/test/googletest-1.13.0/googletest/samples/sample1.cc
 deleted file mode 100644
-index 1d42759..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample1.h b/test/gtest-1.11.0/googletest/samples/sample1.h
+index 80b69f4..0000000
+diff --git a/test/googletest-1.13.0/googletest/samples/sample1.h b/test/googletest-1.13.0/googletest/samples/sample1.h
 deleted file mode 100644
 index ba392cf..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample10_unittest.cc b/test/gtest-1.11.0/googletest/samples/sample10_unittest.cc
+diff --git a/test/googletest-1.13.0/googletest/samples/sample10_unittest.cc b/test/googletest-1.13.0/googletest/samples/sample10_unittest.cc
 deleted file mode 100644
-index 36cdac2..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample1_unittest.cc b/test/gtest-1.11.0/googletest/samples/sample1_unittest.cc
+index 95b4811..0000000
+diff --git a/test/googletest-1.13.0/googletest/samples/sample1_unittest.cc b/test/googletest-1.13.0/googletest/samples/sample1_unittest.cc
 deleted file mode 100644
-index cb08b61..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample2.cc b/test/gtest-1.11.0/googletest/samples/sample2.cc
+index 60f2770..0000000
+diff --git a/test/googletest-1.13.0/googletest/samples/sample2.cc b/test/googletest-1.13.0/googletest/samples/sample2.cc
 deleted file mode 100644
-index d8e8723..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample2.h b/test/gtest-1.11.0/googletest/samples/sample2.h
+index be7c4c9..0000000
+diff --git a/test/googletest-1.13.0/googletest/samples/sample2.h b/test/googletest-1.13.0/googletest/samples/sample2.h
 deleted file mode 100644
-index 0f98689..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample2_unittest.cc b/test/gtest-1.11.0/googletest/samples/sample2_unittest.cc
+index 15a1ce7..0000000
+diff --git a/test/googletest-1.13.0/googletest/samples/sample2_unittest.cc b/test/googletest-1.13.0/googletest/samples/sample2_unittest.cc
 deleted file mode 100644
-index 41e31c1..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample3-inl.h b/test/gtest-1.11.0/googletest/samples/sample3-inl.h
+index cd734f9..0000000
+diff --git a/test/googletest-1.13.0/googletest/samples/sample3-inl.h b/test/googletest-1.13.0/googletest/samples/sample3-inl.h
 deleted file mode 100644
-index 659e0f0..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample3_unittest.cc b/test/gtest-1.11.0/googletest/samples/sample3_unittest.cc
+index bc3ffb9..0000000
+diff --git a/test/googletest-1.13.0/googletest/samples/sample3_unittest.cc b/test/googletest-1.13.0/googletest/samples/sample3_unittest.cc
 deleted file mode 100644
-index b19416d..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample4.cc b/test/gtest-1.11.0/googletest/samples/sample4.cc
+index 71609c6..0000000
+diff --git a/test/googletest-1.13.0/googletest/samples/sample4.cc b/test/googletest-1.13.0/googletest/samples/sample4.cc
 deleted file mode 100644
-index b0ee609..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample4.h b/test/gtest-1.11.0/googletest/samples/sample4.h
+index 489c89b..0000000
+diff --git a/test/googletest-1.13.0/googletest/samples/sample4.h b/test/googletest-1.13.0/googletest/samples/sample4.h
 deleted file mode 100644
 index 0c4ed92..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample4_unittest.cc b/test/gtest-1.11.0/googletest/samples/sample4_unittest.cc
+diff --git a/test/googletest-1.13.0/googletest/samples/sample4_unittest.cc b/test/googletest-1.13.0/googletest/samples/sample4_unittest.cc
 deleted file mode 100644
-index d5144c0..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample5_unittest.cc b/test/gtest-1.11.0/googletest/samples/sample5_unittest.cc
+index fb9973f..0000000
+diff --git a/test/googletest-1.13.0/googletest/samples/sample5_unittest.cc b/test/googletest-1.13.0/googletest/samples/sample5_unittest.cc
 deleted file mode 100644
-index 0a21dd2..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample6_unittest.cc b/test/gtest-1.11.0/googletest/samples/sample6_unittest.cc
+index cc8c0f0..0000000
+diff --git a/test/googletest-1.13.0/googletest/samples/sample6_unittest.cc b/test/googletest-1.13.0/googletest/samples/sample6_unittest.cc
 deleted file mode 100644
-index da317ee..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample7_unittest.cc b/test/gtest-1.11.0/googletest/samples/sample7_unittest.cc
+index cf576f0..0000000
+diff --git a/test/googletest-1.13.0/googletest/samples/sample7_unittest.cc b/test/googletest-1.13.0/googletest/samples/sample7_unittest.cc
 deleted file mode 100644
-index e0efc29..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample8_unittest.cc b/test/gtest-1.11.0/googletest/samples/sample8_unittest.cc
+index 3ad22ca..0000000
+diff --git a/test/googletest-1.13.0/googletest/samples/sample8_unittest.cc b/test/googletest-1.13.0/googletest/samples/sample8_unittest.cc
 deleted file mode 100644
-index 10488b0..0000000
-diff --git a/test/gtest-1.11.0/googletest/samples/sample9_unittest.cc b/test/gtest-1.11.0/googletest/samples/sample9_unittest.cc
+index 9717e28..0000000
+diff --git a/test/googletest-1.13.0/googletest/samples/sample9_unittest.cc b/test/googletest-1.13.0/googletest/samples/sample9_unittest.cc
 deleted file mode 100644
-index e502d08..0000000
-diff --git a/test/gtest-1.11.0/googletest/scripts/README.md b/test/gtest-1.11.0/googletest/scripts/README.md
+index d627ea7..0000000
+diff --git a/test/googletest-1.13.0/googletest/src/gtest-all.cc b/test/googletest-1.13.0/googletest/src/gtest-all.cc
 deleted file mode 100644
-index fa359fe..0000000
-diff --git a/test/gtest-1.11.0/googletest/scripts/common.py b/test/gtest-1.11.0/googletest/scripts/common.py
+index 2a70ed8..0000000
+diff --git a/test/googletest-1.13.0/googletest/src/gtest-assertion-result.cc b/test/googletest-1.13.0/googletest/src/gtest-assertion-result.cc
 deleted file mode 100644
-index 3c0347a..0000000
-diff --git a/test/gtest-1.11.0/googletest/scripts/fuse_gtest_files.py b/test/gtest-1.11.0/googletest/scripts/fuse_gtest_files.py
+index f1c0b10..0000000
+diff --git a/test/googletest-1.13.0/googletest/src/gtest-death-test.cc b/test/googletest-1.13.0/googletest/src/gtest-death-test.cc
+deleted file mode 100644
+index b6968a9..0000000
+diff --git a/test/googletest-1.13.0/googletest/src/gtest-filepath.cc b/test/googletest-1.13.0/googletest/src/gtest-filepath.cc
+deleted file mode 100644
+index 9d79ea4..0000000
+diff --git a/test/googletest-1.13.0/googletest/src/gtest-internal-inl.h b/test/googletest-1.13.0/googletest/src/gtest-internal-inl.h
+deleted file mode 100644
+index 2c9db4f..0000000
+diff --git a/test/googletest-1.13.0/googletest/src/gtest-matchers.cc b/test/googletest-1.13.0/googletest/src/gtest-matchers.cc
+deleted file mode 100644
+index 7e3bcc0..0000000
+diff --git a/test/googletest-1.13.0/googletest/src/gtest-port.cc b/test/googletest-1.13.0/googletest/src/gtest-port.cc
+deleted file mode 100644
+index d797fe4..0000000
+diff --git a/test/googletest-1.13.0/googletest/src/gtest-printers.cc b/test/googletest-1.13.0/googletest/src/gtest-printers.cc
+deleted file mode 100644
+index d475ad3..0000000
+diff --git a/test/googletest-1.13.0/googletest/src/gtest-test-part.cc b/test/googletest-1.13.0/googletest/src/gtest-test-part.cc
+deleted file mode 100644
+index eb7c8d1..0000000
+diff --git a/test/googletest-1.13.0/googletest/src/gtest-typed-test.cc b/test/googletest-1.13.0/googletest/src/gtest-typed-test.cc
+deleted file mode 100644
+index a2828b8..0000000
+diff --git a/test/googletest-1.13.0/googletest/src/gtest.cc b/test/googletest-1.13.0/googletest/src/gtest.cc
+deleted file mode 100644
+index a64e887..0000000
+diff --git a/test/googletest-1.13.0/googletest/src/gtest_main.cc b/test/googletest-1.13.0/googletest/src/gtest_main.cc
+deleted file mode 100644
+index 5abaa29..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/BUILD.bazel b/test/googletest-1.13.0/googletest/test/BUILD.bazel
+deleted file mode 100644
+index 3324264..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-break-on-failure-unittest.py b/test/googletest-1.13.0/googletest/test/googletest-break-on-failure-unittest.py
 deleted file mode 100755
-index d0dd464..0000000
-diff --git a/test/gtest-1.11.0/googletest/scripts/gen_gtest_pred_impl.py b/test/gtest-1.11.0/googletest/scripts/gen_gtest_pred_impl.py
+index 4eafba3..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-break-on-failure-unittest_.cc b/test/googletest-1.13.0/googletest/test/googletest-break-on-failure-unittest_.cc
+deleted file mode 100644
+index 324294f..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-catch-exceptions-test.py b/test/googletest-1.13.0/googletest/test/googletest-catch-exceptions-test.py
 deleted file mode 100755
-index e09a6e0..0000000
-diff --git a/test/gtest-1.11.0/googletest/scripts/gtest-config.in b/test/gtest-1.11.0/googletest/scripts/gtest-config.in
+index d38d91a..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-catch-exceptions-test_.cc b/test/googletest-1.13.0/googletest/test/googletest-catch-exceptions-test_.cc
+deleted file mode 100644
+index 3c8f4f4..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-color-test.py b/test/googletest-1.13.0/googletest/test/googletest-color-test.py
 deleted file mode 100755
-index 780f843..0000000
-diff --git a/test/gtest-1.11.0/googletest/scripts/release_docs.py b/test/gtest-1.11.0/googletest/scripts/release_docs.py
+index f08edf7..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-color-test_.cc b/test/googletest-1.13.0/googletest/test/googletest-color-test_.cc
+deleted file mode 100644
+index 55657b7..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-death-test-test.cc b/test/googletest-1.13.0/googletest/test/googletest-death-test-test.cc
+deleted file mode 100644
+index 4737ff9..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-death-test_ex_test.cc b/test/googletest-1.13.0/googletest/test/googletest-death-test_ex_test.cc
+deleted file mode 100644
+index f2515e3..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-env-var-test.py b/test/googletest-1.13.0/googletest/test/googletest-env-var-test.py
 deleted file mode 100755
-index 8d24f28..0000000
-diff --git a/test/gtest-1.11.0/googletest/scripts/run_with_path.py b/test/gtest-1.11.0/googletest/scripts/run_with_path.py
+index bc4d87d..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-env-var-test_.cc b/test/googletest-1.13.0/googletest/test/googletest-env-var-test_.cc
+deleted file mode 100644
+index 3653375..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-failfast-unittest.py b/test/googletest-1.13.0/googletest/test/googletest-failfast-unittest.py
 deleted file mode 100755
-index d46ab4d..0000000
-diff --git a/test/gtest-1.11.0/googletest/scripts/upload.py b/test/gtest-1.11.0/googletest/scripts/upload.py
+index 1356d4f..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-failfast-unittest_.cc b/test/googletest-1.13.0/googletest/test/googletest-failfast-unittest_.cc
+deleted file mode 100644
+index 3bd05a8..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-filepath-test.cc b/test/googletest-1.13.0/googletest/test/googletest-filepath-test.cc
+deleted file mode 100644
+index 5f0c9c2..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-filter-unittest.py b/test/googletest-1.13.0/googletest/test/googletest-filter-unittest.py
 deleted file mode 100755
-index eba5711..0000000
-diff --git a/test/gtest-1.11.0/googletest/scripts/upload_gtest.py b/test/gtest-1.11.0/googletest/scripts/upload_gtest.py
-deleted file mode 100755
-index be19ae8..0000000
-diff --git a/test/gtest-1.11.0/googletest/src/gtest-all.cc b/test/gtest-1.11.0/googletest/src/gtest-all.cc
+index 2c4a1b1..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-filter-unittest_.cc b/test/googletest-1.13.0/googletest/test/googletest-filter-unittest_.cc
 deleted file mode 100644
-index ad29290..0000000
-diff --git a/test/gtest-1.11.0/googletest/src/gtest-death-test.cc b/test/gtest-1.11.0/googletest/src/gtest-death-test.cc
+index bc7aa59..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-global-environment-unittest.py b/test/googletest-1.13.0/googletest/test/googletest-global-environment-unittest.py
 deleted file mode 100644
-index bf4f633..0000000
-diff --git a/test/gtest-1.11.0/googletest/src/gtest-filepath.cc b/test/gtest-1.11.0/googletest/src/gtest-filepath.cc
-deleted file mode 100644
-index 0b56294..0000000
-diff --git a/test/gtest-1.11.0/googletest/src/gtest-internal-inl.h b/test/gtest-1.11.0/googletest/src/gtest-internal-inl.h
-deleted file mode 100644
-index 6d8cecb..0000000
-diff --git a/test/gtest-1.11.0/googletest/src/gtest-matchers.cc b/test/gtest-1.11.0/googletest/src/gtest-matchers.cc
-deleted file mode 100644
-index 65104eb..0000000
-diff --git a/test/gtest-1.11.0/googletest/src/gtest-port.cc b/test/gtest-1.11.0/googletest/src/gtest-port.cc
-deleted file mode 100644
-index 53a4d37..0000000
-diff --git a/test/gtest-1.11.0/googletest/src/gtest-printers.cc b/test/gtest-1.11.0/googletest/src/gtest-printers.cc
-deleted file mode 100644
-index 1b68fcb..0000000
-diff --git a/test/gtest-1.11.0/googletest/src/gtest-test-part.cc b/test/gtest-1.11.0/googletest/src/gtest-test-part.cc
-deleted file mode 100644
-index a938683..0000000
-diff --git a/test/gtest-1.11.0/googletest/src/gtest-typed-test.cc b/test/gtest-1.11.0/googletest/src/gtest-typed-test.cc
-deleted file mode 100644
-index c02c3df..0000000
-diff --git a/test/gtest-1.11.0/googletest/src/gtest.cc b/test/gtest-1.11.0/googletest/src/gtest.cc
-deleted file mode 100644
-index 21c611a..0000000
-diff --git a/test/gtest-1.11.0/googletest/src/gtest_main.cc b/test/gtest-1.11.0/googletest/src/gtest_main.cc
-deleted file mode 100644
-index 46b27c3..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/BUILD.bazel b/test/gtest-1.11.0/googletest/test/BUILD.bazel
-deleted file mode 100644
-index b06a00a..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-break-on-failure-unittest.py b/test/gtest-1.11.0/googletest/test/googletest-break-on-failure-unittest.py
-deleted file mode 100755
-index a5dfbc6..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-break-on-failure-unittest_.cc b/test/gtest-1.11.0/googletest/test/googletest-break-on-failure-unittest_.cc
-deleted file mode 100644
-index f84957a..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-catch-exceptions-test.py b/test/gtest-1.11.0/googletest/test/googletest-catch-exceptions-test.py
-deleted file mode 100755
-index 94a5b33..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-catch-exceptions-test_.cc b/test/gtest-1.11.0/googletest/test/googletest-catch-exceptions-test_.cc
-deleted file mode 100644
-index 8c127d4..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-color-test.py b/test/gtest-1.11.0/googletest/test/googletest-color-test.py
-deleted file mode 100755
-index f3b7c99..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-color-test_.cc b/test/gtest-1.11.0/googletest/test/googletest-color-test_.cc
-deleted file mode 100644
-index 220a3a0..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-death-test-test.cc b/test/gtest-1.11.0/googletest/test/googletest-death-test-test.cc
-deleted file mode 100644
-index c0b3d1f..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-death-test_ex_test.cc b/test/gtest-1.11.0/googletest/test/googletest-death-test_ex_test.cc
-deleted file mode 100644
-index 7219680..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-env-var-test.py b/test/gtest-1.11.0/googletest/test/googletest-env-var-test.py
-deleted file mode 100755
-index 02c3655..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-env-var-test_.cc b/test/gtest-1.11.0/googletest/test/googletest-env-var-test_.cc
-deleted file mode 100644
-index 52f9586..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-failfast-unittest.py b/test/gtest-1.11.0/googletest/test/googletest-failfast-unittest.py
-deleted file mode 100755
-index 3aeb2df..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-failfast-unittest_.cc b/test/gtest-1.11.0/googletest/test/googletest-failfast-unittest_.cc
-deleted file mode 100644
-index 0b2c951..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-filepath-test.cc b/test/gtest-1.11.0/googletest/test/googletest-filepath-test.cc
-deleted file mode 100644
-index aafad36..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-filter-unittest.py b/test/gtest-1.11.0/googletest/test/googletest-filter-unittest.py
-deleted file mode 100755
-index 6b32f2d..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-filter-unittest_.cc b/test/gtest-1.11.0/googletest/test/googletest-filter-unittest_.cc
-deleted file mode 100644
-index d30ec9c..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-global-environment-unittest.py b/test/gtest-1.11.0/googletest/test/googletest-global-environment-unittest.py
-deleted file mode 100644
-index 32ba628..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-global-environment-unittest_.cc b/test/gtest-1.11.0/googletest/test/googletest-global-environment-unittest_.cc
+index 2657934..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-global-environment-unittest_.cc b/test/googletest-1.13.0/googletest/test/googletest-global-environment-unittest_.cc
 deleted file mode 100644
 index f401b2f..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-json-outfiles-test.py b/test/gtest-1.11.0/googletest/test/googletest-json-outfiles-test.py
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-json-outfiles-test.py b/test/googletest-1.13.0/googletest/test/googletest-json-outfiles-test.py
 deleted file mode 100644
-index 8ef47b8..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-json-output-unittest.py b/test/gtest-1.11.0/googletest/test/googletest-json-output-unittest.py
+index 179283b..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-json-output-unittest.py b/test/googletest-1.13.0/googletest/test/googletest-json-output-unittest.py
 deleted file mode 100644
-index 41c8565..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-list-tests-unittest.py b/test/gtest-1.11.0/googletest/test/googletest-list-tests-unittest.py
+index e0fbe46..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-list-tests-unittest.py b/test/googletest-1.13.0/googletest/test/googletest-list-tests-unittest.py
 deleted file mode 100755
-index 81423a3..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-list-tests-unittest_.cc b/test/gtest-1.11.0/googletest/test/googletest-list-tests-unittest_.cc
+index 9d56883..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-list-tests-unittest_.cc b/test/googletest-1.13.0/googletest/test/googletest-list-tests-unittest_.cc
 deleted file mode 100644
-index 493c6f0..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-listener-test.cc b/test/gtest-1.11.0/googletest/test/googletest-listener-test.cc
+index 5577e89..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-listener-test.cc b/test/googletest-1.13.0/googletest/test/googletest-listener-test.cc
 deleted file mode 100644
-index 10457af..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-message-test.cc b/test/gtest-1.11.0/googletest/test/googletest-message-test.cc
+index 89d01b3..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-message-test.cc b/test/googletest-1.13.0/googletest/test/googletest-message-test.cc
 deleted file mode 100644
-index 962d519..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-options-test.cc b/test/gtest-1.11.0/googletest/test/googletest-options-test.cc
+index 54e9d43..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-options-test.cc b/test/googletest-1.13.0/googletest/test/googletest-options-test.cc
 deleted file mode 100644
-index 11fb1f2..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-output-test-golden-lin.txt b/test/gtest-1.11.0/googletest/test/googletest-output-test-golden-lin.txt
+index 8746320..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-output-test-golden-lin.txt b/test/googletest-1.13.0/googletest/test/googletest-output-test-golden-lin.txt
 deleted file mode 100644
-index 3fab3b9..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-output-test.py b/test/gtest-1.11.0/googletest/test/googletest-output-test.py
+index 1f24fb7..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-output-test.py b/test/googletest-1.13.0/googletest/test/googletest-output-test.py
 deleted file mode 100755
-index 09028f6..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-output-test_.cc b/test/gtest-1.11.0/googletest/test/googletest-output-test_.cc
+index ff44483..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-output-test_.cc b/test/googletest-1.13.0/googletest/test/googletest-output-test_.cc
 deleted file mode 100644
-index 074f64e..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-param-test-invalid-name1-test.py b/test/gtest-1.11.0/googletest/test/googletest-param-test-invalid-name1-test.py
+index c2f96d9..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-param-test-invalid-name1-test.py b/test/googletest-1.13.0/googletest/test/googletest-param-test-invalid-name1-test.py
 deleted file mode 100644
-index 2a08477..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-param-test-invalid-name1-test_.cc b/test/gtest-1.11.0/googletest/test/googletest-param-test-invalid-name1-test_.cc
+index b8d609a..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-param-test-invalid-name1-test_.cc b/test/googletest-1.13.0/googletest/test/googletest-param-test-invalid-name1-test_.cc
 deleted file mode 100644
-index 955d699..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-param-test-invalid-name2-test.py b/test/gtest-1.11.0/googletest/test/googletest-param-test-invalid-name2-test.py
+index 004733a..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-param-test-invalid-name2-test.py b/test/googletest-1.13.0/googletest/test/googletest-param-test-invalid-name2-test.py
 deleted file mode 100644
-index ab838f4..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-param-test-invalid-name2-test_.cc b/test/gtest-1.11.0/googletest/test/googletest-param-test-invalid-name2-test_.cc
+index d92fa06..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-param-test-invalid-name2-test_.cc b/test/googletest-1.13.0/googletest/test/googletest-param-test-invalid-name2-test_.cc
 deleted file mode 100644
-index 76371df..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-param-test-test.cc b/test/gtest-1.11.0/googletest/test/googletest-param-test-test.cc
+index d0c44da..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-param-test-test.cc b/test/googletest-1.13.0/googletest/test/googletest-param-test-test.cc
 deleted file mode 100644
-index 023aa46..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-param-test-test.h b/test/gtest-1.11.0/googletest/test/googletest-param-test-test.h
+index 63db286..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-param-test-test.h b/test/googletest-1.13.0/googletest/test/googletest-param-test-test.h
 deleted file mode 100644
-index 8919375..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-param-test2-test.cc b/test/gtest-1.11.0/googletest/test/googletest-param-test2-test.cc
+index 6d77e10..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-param-test2-test.cc b/test/googletest-1.13.0/googletest/test/googletest-param-test2-test.cc
 deleted file mode 100644
-index 2a29fb1..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-port-test.cc b/test/gtest-1.11.0/googletest/test/googletest-port-test.cc
+index 71727a6..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-port-test.cc b/test/googletest-1.13.0/googletest/test/googletest-port-test.cc
 deleted file mode 100644
-index 1e0c861..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-printers-test.cc b/test/gtest-1.11.0/googletest/test/googletest-printers-test.cc
+index bb536ac..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-printers-test.cc b/test/googletest-1.13.0/googletest/test/googletest-printers-test.cc
 deleted file mode 100644
-index e1e8e1c..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-setuptestsuite-test.py b/test/gtest-1.11.0/googletest/test/googletest-setuptestsuite-test.py
+index 8a7db25..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-setuptestsuite-test.py b/test/googletest-1.13.0/googletest/test/googletest-setuptestsuite-test.py
 deleted file mode 100755
-index c82162f..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-setuptestsuite-test_.cc b/test/gtest-1.11.0/googletest/test/googletest-setuptestsuite-test_.cc
+index 9d1fd02..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-setuptestsuite-test_.cc b/test/googletest-1.13.0/googletest/test/googletest-setuptestsuite-test_.cc
 deleted file mode 100644
-index a4bc4ef..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-shuffle-test.py b/test/gtest-1.11.0/googletest/test/googletest-shuffle-test.py
+index d20899f..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-shuffle-test.py b/test/googletest-1.13.0/googletest/test/googletest-shuffle-test.py
 deleted file mode 100755
-index 573cc5e..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-shuffle-test_.cc b/test/gtest-1.11.0/googletest/test/googletest-shuffle-test_.cc
+index 9d2adc1..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-shuffle-test_.cc b/test/googletest-1.13.0/googletest/test/googletest-shuffle-test_.cc
 deleted file mode 100644
-index 4505663..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-test-part-test.cc b/test/gtest-1.11.0/googletest/test/googletest-test-part-test.cc
+index a14e22f..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-test-part-test.cc b/test/googletest-1.13.0/googletest/test/googletest-test-part-test.cc
 deleted file mode 100644
-index 44cf7ca..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-throw-on-failure-test.py b/test/gtest-1.11.0/googletest/test/googletest-throw-on-failure-test.py
+index 076e5be..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-throw-on-failure-test.py b/test/googletest-1.13.0/googletest/test/googletest-throw-on-failure-test.py
 deleted file mode 100755
-index ea627c4..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-throw-on-failure-test_.cc b/test/gtest-1.11.0/googletest/test/googletest-throw-on-failure-test_.cc
+index 772bbc5..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-throw-on-failure-test_.cc b/test/googletest-1.13.0/googletest/test/googletest-throw-on-failure-test_.cc
 deleted file mode 100644
-index 83bb914..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-uninitialized-test.py b/test/gtest-1.11.0/googletest/test/googletest-uninitialized-test.py
+index 3b81a5a..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-uninitialized-test.py b/test/googletest-1.13.0/googletest/test/googletest-uninitialized-test.py
 deleted file mode 100755
-index 69595a0..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/googletest-uninitialized-test_.cc b/test/gtest-1.11.0/googletest/test/googletest-uninitialized-test_.cc
+index 73c9176..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/googletest-uninitialized-test_.cc b/test/googletest-1.13.0/googletest/test/googletest-uninitialized-test_.cc
 deleted file mode 100644
-index b4434d5..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest-typed-test2_test.cc b/test/gtest-1.11.0/googletest/test/gtest-typed-test2_test.cc
+index 88b61fc..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest-typed-test2_test.cc b/test/googletest-1.13.0/googletest/test/gtest-typed-test2_test.cc
 deleted file mode 100644
-index e83ca2e..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest-typed-test_test.cc b/test/gtest-1.11.0/googletest/test/gtest-typed-test_test.cc
+index f2eae12..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest-typed-test_test.cc b/test/googletest-1.13.0/googletest/test/gtest-typed-test_test.cc
 deleted file mode 100644
-index 5fc678c..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest-typed-test_test.h b/test/gtest-1.11.0/googletest/test/gtest-typed-test_test.h
+index 4b1c23d..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest-typed-test_test.h b/test/googletest-1.13.0/googletest/test/gtest-typed-test_test.h
 deleted file mode 100644
-index 8ce559c..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest-unittest-api_test.cc b/test/gtest-1.11.0/googletest/test/gtest-unittest-api_test.cc
+index f3ef0a5..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest-unittest-api_test.cc b/test/googletest-1.13.0/googletest/test/gtest-unittest-api_test.cc
 deleted file mode 100644
-index 8ef5058..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_all_test.cc b/test/gtest-1.11.0/googletest/test/gtest_all_test.cc
+index 2ea6927..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_all_test.cc b/test/googletest-1.13.0/googletest/test/gtest_all_test.cc
 deleted file mode 100644
 index 615b29b..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_assert_by_exception_test.cc b/test/gtest-1.11.0/googletest/test/gtest_assert_by_exception_test.cc
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_assert_by_exception_test.cc b/test/googletest-1.13.0/googletest/test/gtest_assert_by_exception_test.cc
 deleted file mode 100644
-index ada4cb3..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_environment_test.cc b/test/gtest-1.11.0/googletest/test/gtest_environment_test.cc
+index f507eac..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_dirs_test.cc b/test/googletest-1.13.0/googletest/test/gtest_dirs_test.cc
 deleted file mode 100644
-index 064bfc5..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_help_test.py b/test/gtest-1.11.0/googletest/test/gtest_help_test.py
+index c0da9ac..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_environment_test.cc b/test/googletest-1.13.0/googletest/test/gtest_environment_test.cc
+deleted file mode 100644
+index 122eaf3..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_help_test.py b/test/googletest-1.13.0/googletest/test/gtest_help_test.py
 deleted file mode 100755
-index 8d953bb..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_help_test_.cc b/test/gtest-1.11.0/googletest/test/gtest_help_test_.cc
+index 642ab86..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_help_test_.cc b/test/googletest-1.13.0/googletest/test/gtest_help_test_.cc
 deleted file mode 100644
-index 750ae6c..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_json_test_utils.py b/test/gtest-1.11.0/googletest/test/gtest_json_test_utils.py
+index da289f0..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_json_test_utils.py b/test/googletest-1.13.0/googletest/test/gtest_json_test_utils.py
 deleted file mode 100644
-index 62bbfc2..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_list_output_unittest.py b/test/gtest-1.11.0/googletest/test/gtest_list_output_unittest.py
+index f62896c..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_list_output_unittest.py b/test/googletest-1.13.0/googletest/test/gtest_list_output_unittest.py
 deleted file mode 100644
-index a442fc1..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_list_output_unittest_.cc b/test/gtest-1.11.0/googletest/test/gtest_list_output_unittest_.cc
+index faacf10..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_list_output_unittest_.cc b/test/googletest-1.13.0/googletest/test/gtest_list_output_unittest_.cc
 deleted file mode 100644
 index 92b9d4f..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_main_unittest.cc b/test/gtest-1.11.0/googletest/test/gtest_main_unittest.cc
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_main_unittest.cc b/test/googletest-1.13.0/googletest/test/gtest_main_unittest.cc
 deleted file mode 100644
-index eddedea..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_no_test_unittest.cc b/test/gtest-1.11.0/googletest/test/gtest_no_test_unittest.cc
+index 29cd551..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_no_test_unittest.cc b/test/googletest-1.13.0/googletest/test/gtest_no_test_unittest.cc
 deleted file mode 100644
 index d4f88db..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_pred_impl_unittest.cc b/test/gtest-1.11.0/googletest/test/gtest_pred_impl_unittest.cc
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_pred_impl_unittest.cc b/test/googletest-1.13.0/googletest/test/gtest_pred_impl_unittest.cc
 deleted file mode 100644
-index bbef994..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_premature_exit_test.cc b/test/gtest-1.11.0/googletest/test/gtest_premature_exit_test.cc
+index 033e2d9..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_premature_exit_test.cc b/test/googletest-1.13.0/googletest/test/gtest_premature_exit_test.cc
 deleted file mode 100644
-index 1d1187e..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_prod_test.cc b/test/gtest-1.11.0/googletest/test/gtest_prod_test.cc
+index 1a0c5ea..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_prod_test.cc b/test/googletest-1.13.0/googletest/test/gtest_prod_test.cc
 deleted file mode 100644
 index ede81a0..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_repeat_test.cc b/test/gtest-1.11.0/googletest/test/gtest_repeat_test.cc
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_repeat_test.cc b/test/googletest-1.13.0/googletest/test/gtest_repeat_test.cc
 deleted file mode 100644
-index 7da4a15..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_skip_check_output_test.py b/test/gtest-1.11.0/googletest/test/gtest_skip_check_output_test.py
+index 73fb8dc..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_skip_check_output_test.py b/test/googletest-1.13.0/googletest/test/gtest_skip_check_output_test.py
 deleted file mode 100755
-index 14e63ab..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_skip_environment_check_output_test.py b/test/gtest-1.11.0/googletest/test/gtest_skip_environment_check_output_test.py
+index 1c87b44..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_skip_environment_check_output_test.py b/test/googletest-1.13.0/googletest/test/gtest_skip_environment_check_output_test.py
 deleted file mode 100755
-index 6e79155..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_skip_in_environment_setup_test.cc b/test/gtest-1.11.0/googletest/test/gtest_skip_in_environment_setup_test.cc
+index 6960b11..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_skip_in_environment_setup_test.cc b/test/googletest-1.13.0/googletest/test/gtest_skip_in_environment_setup_test.cc
 deleted file mode 100644
-index 9372310..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_skip_test.cc b/test/gtest-1.11.0/googletest/test/gtest_skip_test.cc
+index 5f21c27..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_skip_test.cc b/test/googletest-1.13.0/googletest/test/gtest_skip_test.cc
 deleted file mode 100644
-index 4a23004..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_sole_header_test.cc b/test/gtest-1.11.0/googletest/test/gtest_sole_header_test.cc
+index e1b8d65..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_sole_header_test.cc b/test/googletest-1.13.0/googletest/test/gtest_sole_header_test.cc
 deleted file mode 100644
-index 1d94ac6..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_stress_test.cc b/test/gtest-1.11.0/googletest/test/gtest_stress_test.cc
+index e8e22a8..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_stress_test.cc b/test/googletest-1.13.0/googletest/test/gtest_stress_test.cc
 deleted file mode 100644
-index 8434819..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_test_macro_stack_footprint_test.cc b/test/gtest-1.11.0/googletest/test/gtest_test_macro_stack_footprint_test.cc
+index 24b173f..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_test_macro_stack_footprint_test.cc b/test/googletest-1.13.0/googletest/test/gtest_test_macro_stack_footprint_test.cc
 deleted file mode 100644
-index a48db05..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_test_utils.py b/test/gtest-1.11.0/googletest/test/gtest_test_utils.py
+index 45f368b..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_test_utils.py b/test/googletest-1.13.0/googletest/test/gtest_test_utils.py
 deleted file mode 100755
-index d0c2446..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_testbridge_test.py b/test/gtest-1.11.0/googletest/test/gtest_testbridge_test.py
+index eecc533..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_testbridge_test.py b/test/googletest-1.13.0/googletest/test/gtest_testbridge_test.py
 deleted file mode 100755
-index 87ffad7..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_testbridge_test_.cc b/test/gtest-1.11.0/googletest/test/gtest_testbridge_test_.cc
+index 1c2a303..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_testbridge_test_.cc b/test/googletest-1.13.0/googletest/test/gtest_testbridge_test_.cc
 deleted file mode 100644
-index 24617b2..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_throw_on_failure_ex_test.cc b/test/gtest-1.11.0/googletest/test/gtest_throw_on_failure_ex_test.cc
+index c2c000d..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_throw_on_failure_ex_test.cc b/test/googletest-1.13.0/googletest/test/gtest_throw_on_failure_ex_test.cc
 deleted file mode 100644
-index 1d95adb..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_unittest.cc b/test/gtest-1.11.0/googletest/test/gtest_unittest.cc
+index 25d7c79..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_unittest.cc b/test/googletest-1.13.0/googletest/test/gtest_unittest.cc
 deleted file mode 100644
-index 1730e8b..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_xml_outfile1_test_.cc b/test/gtest-1.11.0/googletest/test/gtest_xml_outfile1_test_.cc
+index e66e66b..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_xml_outfile1_test_.cc b/test/googletest-1.13.0/googletest/test/gtest_xml_outfile1_test_.cc
 deleted file mode 100644
 index 19aa252..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_xml_outfile2_test_.cc b/test/gtest-1.11.0/googletest/test/gtest_xml_outfile2_test_.cc
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_xml_outfile2_test_.cc b/test/googletest-1.13.0/googletest/test/gtest_xml_outfile2_test_.cc
 deleted file mode 100644
-index f9a2a6e..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_xml_outfiles_test.py b/test/gtest-1.11.0/googletest/test/gtest_xml_outfiles_test.py
+index f743b31..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_xml_outfiles_test.py b/test/googletest-1.13.0/googletest/test/gtest_xml_outfiles_test.py
 deleted file mode 100755
-index ac66feb..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_xml_output_unittest.py b/test/gtest-1.11.0/googletest/test/gtest_xml_output_unittest.py
+index c129e64..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_xml_output_unittest.py b/test/googletest-1.13.0/googletest/test/gtest_xml_output_unittest.py
 deleted file mode 100755
-index eade7aa..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_xml_output_unittest_.cc b/test/gtest-1.11.0/googletest/test/gtest_xml_output_unittest_.cc
+index e1b7f1f..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_xml_output_unittest_.cc b/test/googletest-1.13.0/googletest/test/gtest_xml_output_unittest_.cc
 deleted file mode 100644
-index c0036aa..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/gtest_xml_test_utils.py b/test/gtest-1.11.0/googletest/test/gtest_xml_test_utils.py
+index 4bdb0c7..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/gtest_xml_test_utils.py b/test/googletest-1.13.0/googletest/test/gtest_xml_test_utils.py
 deleted file mode 100755
-index ec42c62..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/production.cc b/test/gtest-1.11.0/googletest/test/production.cc
+index c6fb9f4..0000000
+diff --git a/test/googletest-1.13.0/googletest/test/production.cc b/test/googletest-1.13.0/googletest/test/production.cc
 deleted file mode 100644
 index 0f69f6d..0000000
-diff --git a/test/gtest-1.11.0/googletest/test/production.h b/test/gtest-1.11.0/googletest/test/production.h
+diff --git a/test/googletest-1.13.0/googletest/test/production.h b/test/googletest-1.13.0/googletest/test/production.h
 deleted file mode 100644
-index 41a5472..0000000
-diff --git a/test/gtest-1.11.0/library.json b/test/gtest-1.11.0/library.json
+index 4dec8d4..0000000
+diff --git a/test/integration/BUILD.bazel b/test/integration/BUILD.bazel
 deleted file mode 100644
-index f61bf00..0000000
-diff --git a/test/handler_test.h b/test/handler_test.h
-deleted file mode 100644
-index 668a58d..0000000
+index 8417f40..0000000
 diff --git a/test/integration/emitter_test.cpp b/test/integration/emitter_test.cpp
 deleted file mode 100644
-index b277d57..0000000
+index 4bfc136..0000000
 diff --git a/test/integration/encoding_test.cpp b/test/integration/encoding_test.cpp
 deleted file mode 100644
 index 9bd6586..0000000
@@ -1503,9 +1475,12 @@ index 8cba902..0000000
 diff --git a/test/integration/handler_test.cpp b/test/integration/handler_test.cpp
 deleted file mode 100644
 index 6011460..0000000
+diff --git a/test/integration/handler_test.h b/test/integration/handler_test.h
+deleted file mode 100644
+index 668a58d..0000000
 diff --git a/test/integration/load_node_test.cpp b/test/integration/load_node_test.cpp
 deleted file mode 100644
-index 9d0c790..0000000
+index 49f2b61..0000000
 diff --git a/test/integration/node_spec_test.cpp b/test/integration/node_spec_test.cpp
 deleted file mode 100644
 index bfc8578..0000000
@@ -1517,7 +1492,7 @@ deleted file mode 100644
 index 0b7e7da..0000000
 diff --git a/test/node/node_test.cpp b/test/node/node_test.cpp
 deleted file mode 100644
-index 5f41ef2..0000000
+index f889059..0000000
 diff --git a/test/ostream_wrapper_test.cpp b/test/ostream_wrapper_test.cpp
 deleted file mode 100644
 index ff4f635..0000000
@@ -1541,16 +1516,16 @@ deleted file mode 100644
 index ea4295a..0000000
 diff --git a/util/read.cpp b/util/read.cpp
 deleted file mode 100644
-index 3455ea3..0000000
+index 65e8de9..0000000
 diff --git a/util/sandbox.cpp b/util/sandbox.cpp
 deleted file mode 100644
-index f21490e..0000000
+index cb39dba..0000000
 diff --git a/yaml-cpp-config.cmake.in b/yaml-cpp-config.cmake.in
 deleted file mode 100644
-index 799b9b4..0000000
+index 260ae00..0000000
 diff --git a/yaml-cpp.pc.in b/yaml-cpp.pc.in
 deleted file mode 100644
 index d02dc9e..0000000
 -- 
-2.42.0
+2.55.0
 

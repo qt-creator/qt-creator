@@ -396,7 +396,7 @@ void GdbEngine::handleResponse(const QString &buff)
                         Tr::tr("GDB Without XML Support"),
                         Tr::tr("The GDB used for debugging was built without XML support, so it "
                                "cannot read the target description (register and memory layout) "
-                               "sent by the remote. Debugging will not work correctly. Please use "
+                               "sent by the remote. Debugging will not work correctly. Use "
                                "a GDB build that has XML support enabled."));
                 }
             } else if (data.startsWith("Error while mapping")) {
@@ -1577,9 +1577,9 @@ void GdbEngine::handleShowVersion(const DebuggerResponse &response)
         }
 
         if (settings().useIndexCache()) {
-            // gdb 13 made "index-cache" a prefix command, and the plain form an
+            // gdb 12 made "index-cache" a prefix command, and the plain form an
             // alias that warns.
-            runCommand({m_gdbVersion >= 130000 ? QString("set index-cache enabled on")
+            runCommand({m_gdbVersion >= 120000 ? QString("set index-cache enabled on")
                                                : QString("set index-cache on")});
         }
     }

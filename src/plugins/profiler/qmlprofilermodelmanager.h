@@ -72,6 +72,7 @@ signals:
     void typesCleared();
     void typeLocationAdded(int typeId, const QmlDebug::QmlEventLocation &location);
     void traceChanged();
+    void eventsCleared();
     void typeDetailsChanged(int typeId);
     void typeDetailsFinished();
 

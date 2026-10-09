@@ -162,6 +162,9 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &displayName);
 
+    QString toolTip() const;
+    void setToolTip(const QString &toolTip);
+
     bool isRunning() const;
     bool isStopped() const;
 
@@ -247,7 +250,7 @@ public:
     void clearOutput();
     // Kept per tab and shown while this tab is current.
     void setOutputFilterText(const QString &text);
-    std::optional<QString> outputFilterText() const;
+    QString outputFilterText() const;
     void setFiltersOutputAtSource(bool enabled);
     bool filtersOutputAtSource() const;
 
@@ -274,6 +277,10 @@ public:
     Utils::ProcessHandle attachPid() const;
 
     void showOutputPane();
+    // Removes and deletes this run control's pane tab; later output is dropped.
+    void detachOutputPaneTab();
+    // Whether the pane still lists a tab; a closing tab is unlisted before it stops.
+    bool hasOutputPaneTab();
 
     Canceler canceler();
     void handleProcessCancellation(Utils::Process *process);
@@ -300,8 +307,10 @@ signals:
     void stopped();
     void applicationProcessHandleChanged(QPrivateSignal);
     void acceptsStandardInputChanged(QPrivateSignal);
+    void outputPaneActionsEnabledChanged();
     void stdOutData(const QByteArray &data);
     void outputVisibilityChanged(bool visible);
+    void toolTipChanged();
 
 private:
     friend class Internal::AppOutputPane;

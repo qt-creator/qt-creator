@@ -19,7 +19,6 @@
 #include <QCompleter>
 #include <QDialogButtonBox>
 #include <qdrawutil.h>
-#include <QGraphicsOpacityEffect>
 #include <QHeaderView>
 #include <QHideEvent>
 #include <QKeyEvent>
@@ -37,6 +36,10 @@
 #include <QStyleOptionButton>
 #include <QStylePainter>
 #include <QTimer>
+
+#if QT_CONFIG(graphicseffect)
+#include <QGraphicsOpacityEffect>
+#endif
 
 /*!
     \class Utils::DocumentTabBar
@@ -115,6 +118,8 @@
 
 namespace Utils {
 
+#if QT_CONFIG(graphicseffect)
+
 FadingWidget::FadingWidget(QWidget *parent) :
     FadingPanel(parent),
     m_opacityEffect(new QGraphicsOpacityEffect)
@@ -147,6 +152,37 @@ qreal FadingWidget::opacity()
 {
     return m_opacityEffect->opacity();
 }
+
+#else
+
+// Without graphics effects there is no opacity to fade: the widget is shown
+// as soon as it is not fully transparent, and keeps its space while hidden.
+FadingWidget::FadingWidget(QWidget *parent) :
+    FadingPanel(parent)
+{
+    QSizePolicy policy = sizePolicy();
+    policy.setRetainSizeWhenHidden(true);
+    setSizePolicy(policy);
+    setVisible(false);
+}
+
+void FadingWidget::setOpacity(qreal value)
+{
+    m_opacity = value;
+    setVisible(value > 0);
+}
+
+void FadingWidget::fadeTo(qreal value)
+{
+    setOpacity(value);
+}
+
+qreal FadingWidget::opacity()
+{
+    return m_opacity;
+}
+
+#endif // QT_CONFIG(graphicseffect)
 
 ExpandButton::ExpandButton(QWidget *parent)
     : QToolButton(parent)

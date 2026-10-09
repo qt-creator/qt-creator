@@ -522,10 +522,12 @@ public:
 };
 
 ProgressManagerPrivate::ProgressManagerPrivate()
-    : m_opacityEffect(new QGraphicsOpacityEffect(this))
-    , m_appLabelUpdateTimer(new QTimer(this))
+    : m_appLabelUpdateTimer(new QTimer(this))
 {
+#if QT_CONFIG(graphicseffect)
+    m_opacityEffect = new QGraphicsOpacityEffect(this);
     m_opacityEffect->setOpacity(1.0);
+#endif
     m_instance = this;
 
     m_progressView = new ProgressView;
@@ -576,7 +578,9 @@ void ProgressManagerPrivate::init()
     m_statusBarWidget->setLayout(layout);
     m_summaryProgressWidget = new QWidget(m_statusBarWidget);
     m_summaryProgressWidget->setVisible(!m_progressViewPinned);
+#if QT_CONFIG(graphicseffect)
     m_summaryProgressWidget->setGraphicsEffect(m_opacityEffect);
+#endif
     auto summaryProgressLayout = new QHBoxLayout(m_summaryProgressWidget);
     summaryProgressLayout->setContentsMargins({});
     summaryProgressLayout->setSpacing(0);
@@ -784,6 +788,21 @@ void ProgressManagerPrivate::disconnectApplicationTask()
 
 void ProgressManagerPrivate::updateSummaryProgressBar()
 {
+    // Deferred, because QProgressBar::setValue() repaints synchronously. Callers reach
+    // here from model data() and from paint events, where a nested repaint of the same
+    // window flushes a backing store that has no buffer. It also collapses the several
+    // updates that a single addTask() would otherwise trigger into one.
+    if (m_summaryProgressBarUpdateScheduled)
+        return;
+    m_summaryProgressBarUpdateScheduled = true;
+    QMetaObject::invokeMethod(this, [this] {
+        m_summaryProgressBarUpdateScheduled = false;
+        updateSummaryProgressBarNow();
+    }, Qt::QueuedConnection);
+}
+
+void ProgressManagerPrivate::updateSummaryProgressBarNow()
+{
     m_summaryProgressBar->setError(hasError());
     updateVisibility();
     if (m_runningTasks.isEmpty()) {
@@ -811,21 +830,27 @@ void ProgressManagerPrivate::updateSummaryProgressBar()
 
 void ProgressManagerPrivate::fadeAwaySummaryProgress()
 {
+#if QT_CONFIG(graphicseffect)
     stopFadeOfSummaryProgress();
     m_opacityAnimation = new QPropertyAnimation(m_opacityEffect, "opacity");
     m_opacityAnimation->setDuration(StyleHelper::progressFadeAnimationDuration);
     m_opacityAnimation->setEndValue(0.);
     connect(m_opacityAnimation.data(), &QAbstractAnimation::finished, this, &ProgressManagerPrivate::summaryProgressFinishedFading);
     m_opacityAnimation->start(QAbstractAnimation::DeleteWhenStopped);
+#else
+    summaryProgressFinishedFading();
+#endif
 }
 
 void ProgressManagerPrivate::stopFadeOfSummaryProgress()
 {
+#if QT_CONFIG(graphicseffect)
     if (m_opacityAnimation) {
         m_opacityAnimation->stop();
         m_opacityEffect->setOpacity(1.0);
         delete m_opacityAnimation;
     }
+#endif
 }
 
 bool ProgressManagerPrivate::hasError() const
@@ -978,7 +1003,9 @@ void ProgressManagerPrivate::updateNotificationSummaryIcon()
 void ProgressManagerPrivate::summaryProgressFinishedFading()
 {
     m_summaryProgressWidget->setVisible(false);
+#if QT_CONFIG(graphicseffect)
     m_opacityEffect->setOpacity(1.0);
+#endif
 }
 
 void ProgressManagerPrivate::progressDetailsToggled(bool checked)

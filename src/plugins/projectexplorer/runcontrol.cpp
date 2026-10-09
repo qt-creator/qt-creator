@@ -198,12 +198,13 @@ public:
     { return useDebugChannel || useQmlChannel || usePerfChannel || useWorkerChannel; }
 
     QString displayName;
+    QString toolTip;
     ProcessRunData runnable;
     QVariantHash extraData;
     std::optional<int> exitCode;
     IDevice::ConstPtr device;
     Icon icon;
-    std::optional<QString> outputFilterText;
+    QString outputFilterText;
     bool filtersOutputAtSource = false;
     const MacroExpander *macroExpander = nullptr;
     AspectContainerData aspectData;
@@ -497,7 +498,7 @@ void RunControl::setOutputFilterText(const QString &text)
     appOutputPane().setFilterTextForRunControl(this, text);
 }
 
-std::optional<QString> RunControl::outputFilterText() const
+QString RunControl::outputFilterText() const
 {
     return d->data.outputFilterText;
 }
@@ -666,6 +667,16 @@ void RunControl::showOutputPane()
     appOutputPane().showOutputPaneForRunControl(this);
 }
 
+void RunControl::detachOutputPaneTab()
+{
+    appOutputPane().detachTabForRunControl(this);
+}
+
+bool RunControl::hasOutputPaneTab()
+{
+    return appOutputPane().allRunControls().contains(this);
+}
+
 void RunControl::setupFormatter(OutputFormatter *formatter) const
 {
     QList<OutputLineParser *> parsers = createOutputParsers(buildConfiguration());
@@ -766,6 +777,19 @@ void RunControl::setDisplayName(const QString &displayName)
     d->data.displayName = displayName;
 }
 
+QString RunControl::toolTip() const
+{
+    return d->data.toolTip;
+}
+
+void RunControl::setToolTip(const QString &toolTip)
+{
+    if (d->data.toolTip == toolTip)
+        return;
+    d->data.toolTip = toolTip;
+    emit toolTipChanged();
+}
+
 void RunControl::setIcon(const Icon &icon)
 {
     d->data.icon = icon;
@@ -778,7 +802,10 @@ Icon RunControl::icon() const
 
 void RunControl::setOutputPaneActionsEnabled(bool enabled)
 {
+    if (d->data.outputPaneActionsEnabled == enabled)
+        return;
     d->data.outputPaneActionsEnabled = enabled;
+    emit outputPaneActionsEnabledChanged();
 }
 
 bool RunControl::outputPaneActionsEnabled() const
@@ -888,9 +915,9 @@ bool RunControl::promptToStop(bool *optionalPrompt) const
 
     const QString msg = "<center>"
                         + Tr::tr(
-                              "%1 is still running.<br/>"
+                              "\"%1\" is still running.<br/>"
                               "Force it to quit?")
-                              .arg("<i>" + displayName() + "</i>")
+                              .arg(displayName())
                         + "</center>";
 
     return showPromptToStopDialog(Tr::tr("Application Still Running"), msg,

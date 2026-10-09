@@ -237,7 +237,7 @@ ValgrindSettings::ValgrindSettings(bool global)
     selfModifyingCodeDetection.addOption(Tr::tr("No", "Detect self-modifying code?"));
     selfModifyingCodeDetection.addOption(Tr::tr("Only on Stack"));
     selfModifyingCodeDetection.addOption(Tr::tr("Everywhere"));
-    selfModifyingCodeDetection.addOption(Tr::tr("Everywhere Except in File-backend Mappings"));
+    selfModifyingCodeDetection.addOption(Tr::tr("Everywhere Except in File-Backed Mappings"));
     selfModifyingCodeDetection.setLabelText(Tr::tr("Detect self-modifying code:"));
 
     // Memcheck

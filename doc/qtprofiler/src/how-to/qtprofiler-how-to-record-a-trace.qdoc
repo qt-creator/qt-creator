@@ -6,7 +6,7 @@
     \previouspage qtprofiler-getting-started.html
     \nextpage qtprofiler-reference-command-line-options.html
 
-    \ingroup qtprofiler-how-to-record
+    \ingroup profiler-collect-data
 
     \title Record a trace
 

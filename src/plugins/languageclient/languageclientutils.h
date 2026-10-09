@@ -21,6 +21,9 @@ class TextDocument;
 class TextDocumentManipulator;
 } // namespace TextEditor
 
+namespace ProjectExplorer {
+class Project;
+} // namespace ProjectExplorer
 
 namespace LanguageClient {
 
@@ -59,5 +62,7 @@ void updateEditorToolBar(Core::IEditor *editor);
 LANGUAGECLIENT_EXPORT const QIcon symbolIcon(int type, const QList<int> &tags);
 
 void autoSetupLanguageServer(TextEditor::TextDocument *document);
+bool LANGUAGECLIENT_EXPORT
+fileBelongsToProject(ProjectExplorer::Project *project, const Utils::FilePath &filePath);
 
 } // namespace LanguageClient

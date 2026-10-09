@@ -34,8 +34,8 @@ void PausedRangesOverlay::paintBand(QPainter &painter, const QRectF &band, BandE
 {
     using namespace Utils;
     QColor fillColor = creatorColor(Theme::Token_Background_Muted);
-    fillColor.setAlphaF(0.6);
-    QColor hatchColor = creatorColor(Theme::Token_Stroke_Subtle);
+    fillColor.setAlphaF(1.0);
+    QColor hatchColor = creatorColor(Theme::Token_Stroke_Strong);
     hatchColor.setAlphaF(0.5);
 
     painter.fillRect(band, fillColor);
@@ -54,14 +54,16 @@ void PausedRangesOverlay::paintEvent(QPaintEvent *)
         return;
 
     const QColor textColor = Utils::creatorColor(Utils::Theme::Token_Text_Muted);
+    const QColor labelBackgroundColor = Utils::creatorColor(Utils::Theme::Token_Background_Default);
 
     QPainter p(this);
     p.setFont(Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementCaptionStrong));
     const double w = width();
     const QString label = Tr::tr("Paused");
-    const int labelWidth = p.fontMetrics().horizontalAdvance(label);
     const int labelInsetH = Utils::StyleHelper::SpacingTokens::PaddingHS;
     const int labelInsetV = Utils::StyleHelper::SpacingTokens::PaddingVXs;
+    const QSizeF labelSize(p.fontMetrics().horizontalAdvance(label) + 2 * labelInsetH,
+                           p.fontMetrics().height() + 2 * labelInsetV);
 
     for (const auto &[start, end] : ranges) {
         const double x1 = timeToPixel(start, m_zoom->rangeStart(), m_zoom->rangeEnd(), w);
@@ -70,11 +72,14 @@ void PausedRangesOverlay::paintEvent(QPaintEvent *)
             continue;
         const QRectF band(qMax(0.0, x1), 0, qMax(1.0, qMin(w, x2) - qMax(0.0, x1)), height());
         paintBand(p, band, BandEdges::Draw);
-        if (band.width() > labelWidth + 2 * labelInsetH) {
-            p.setPen(textColor);
-            p.drawText(band.adjusted(labelInsetH, labelInsetV, -labelInsetH, 0),
-                       Qt::AlignLeft | Qt::AlignTop, label);
-        }
+        const double top = qMin<double>(labelInsetV, (band.height() - labelSize.height()) / 2);
+        const QRectF labelRect(band.topLeft() + QPointF(labelInsetH, top), labelSize);
+        p.save();
+        p.setClipRect(band);
+        Utils::StyleHelper::drawCardBg(&p, labelRect, labelBackgroundColor);
+        p.setPen(textColor);
+        p.drawText(labelRect, Qt::AlignCenter, label);
+        p.restore();
     }
 }
 

@@ -8,13 +8,13 @@
         "Path": "@SOURCE_DIR@/src/libs/3rdparty/yaml-cpp",
         "Description": "yaml-cpp is a YAML parser and emitter in C++ matching the YAML 1.2 spec.",
         "Homepage": "https://github.com/jbeder/yaml-cpp",
-        "Version": "0.8.0",
-        "PURL": "pkg:github/jbeder/yaml-cpp@$<VERSION>",
+        "Version": "0.9.0",
+        "PURL": "pkg:github/jbeder/yaml-cpp@yaml-cpp-$<VERSION>",
         "CPE": "cpe:2.3:a:yaml-cpp_project:yaml-cpp:$<VERSION>:*:*:*:*:*:*:*",
         "LicenseId": "MIT",
         "License": "MIT License",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/yaml-cpp/LICENSE",
-        "Copyright": "Copyright (c) 2008-2015 Jesse Beder."
+        "Copyright": "Copyright (c) 2008-2015 Jesse Beder.\nCopyright (c) 2020-2024 Junekey Jeon (src/contrib/dragonbox.h)."
     },
     {
         "Id": "ksyntaxhighlighting",
@@ -521,9 +521,9 @@
         "QtUsage": "Used for the integrated terminal.",
         "Path": "@SOURCE_DIR@/src/plugins/terminal/shellintegrations",
         "Description": "Scripts for integrating with various shells.",
-        "Homepage": "https://github.com/microsoft/vscode/tree/main/src/vs/workbench/contrib/terminal/browser/media",
+        "Homepage": "https://github.com/microsoft/vscode/tree/main/src/vs/workbench/contrib/terminal/common/scripts",
         "PURL": "pkg:github/microsoft/vscode",
-        "Version" : "463d9933a4",
+        "Version" : "fd396ed9a2",
         "License": "MIT License",
         "LicenseFile": "@SOURCE_DIR@/src/plugins/terminal/shellintegrations/LICENSE.vscode",
         "Copyright": "Copyright (c) 2015 - present Microsoft Corporation"
@@ -536,9 +536,9 @@
         "QtUsage": "Used for the integrated terminal.",
         "Path": "@SOURCE_DIR@/src/plugins/terminal/shellintegrations",
         "Description": "A library of Lua scripts for use with Clink.",
-        "Homepage": "https://github.com/chrisant996/clink-gizmos",
+        "Homepage": "https://github.com/chrisant996/clink-gizmos/blob/24c14a3561/vscode_shell_integration.lua",
         "PURL": "pkg:github/chrisant996/clink-gizmos",
-        "Version" : "680716f3d9",
+        "Version" : "24c14a3561",
         "License": "MIT License",
         "LicenseFile": "@SOURCE_DIR@/src/plugins/terminal/shellintegrations/LICENSE.clink",
         "Copyright": "Copyright (c) 2022 Chris Antos"
@@ -556,8 +556,8 @@
         "License": "BSD 3-Clause \"New\" or \"Revised\" License",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/qtkeychain/COPYING",
         "Copyright": "Copyright (C) 2011-2015 Frank Osterfeld, Copyright (C) 2016 Mathias Hasselmann",
-        "Version": "0.15.0",
-        "DownloadLocation": "https://github.com/frankosterfeld/qtkeychain/tree/0.15.0",
+        "Version": "0.17.0",
+        "DownloadLocation": "https://github.com/frankosterfeld/qtkeychain/tree/0.17.0",
         "SecurityCritical": true
     },
     {
@@ -584,10 +584,11 @@
         "Path": "@SOURCE_DIR@/src/libs/3rdparty/quickjs",
         "Description": "QuickJS-ng is a small and embeddable JavaScript engine supporting the ES2023 specification.",
         "Homepage": "https://quickjs-ng.github.io/quickjs/",
+        "PURL": "pkg:github/quickjs-ng/quickjs@v$<VERSION>",
         "License": "MIT License",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/quickjs/LICENSE",
-        "Copyright": "Copyright (c) 2017-2024 Fabrice Bellard, Charlie Gordon and QuickJS-ng authors",
-        "Version": "0.16.2"
+        "Copyright": "Copyright (c) 2017-2026 Fabrice Bellard, Charlie Gordon and QuickJS-ng authors",
+        "Version": "0.17.0"
     },
     {
         "Id": "lua",
@@ -600,8 +601,8 @@
         "Homepage": "https://www.lua.org/",
         "License": "MIT License",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/lua/LICENSE",
-        "Copyright": "Copyright © 1994-2023 Lua.org, PUC-Rio.",
-        "Version": "5.4.6"
+        "Copyright": "Copyright © 1994-2026 Lua.org, PUC-Rio.",
+        "Version": "5.4.9"
     },
     {
         "Id": "sol2",
@@ -655,10 +656,12 @@
         "Path": "@SOURCE_DIR@/src/libs/3rdparty/zlib",
         "Description": "Zlib is a lossless data-compression library.",
         "Homepage": "https://www.zlib.net",
-        "Version": "1.3.1",
+        "PURL": "pkg:github/madler/zlib@v$<VERSION>",
+        "CPE": "cpe:2.3:a:zlib:zlib:$<VERSION>:*:*:*:*:*:*:*",
+        "Version": "1.3.2",
         "License": "BSD 3-Clause \"New\" or \"Revised\" License",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/zlib/LICENSE",
-        "Copyright": "Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler"
+        "Copyright": "Copyright (C) 1995-2026 Jean-loup Gailly and Mark Adler"
     },
     {
         "Id": "bzip2",
@@ -685,11 +688,11 @@
         "Path": "@SOURCE_DIR@/src/libs/3rdparty/xz",
         "Description": "XZ is a lossless data-compression library.",
         "Homepage": "https://tukaani.org/xz/",
-        "Version": "5.8.3",
+        "Version": "5.8.4",
         "License": "BSD Zero Clause License (0BSD)",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/xz/COPYING",
         "Copyright": "Copyright (C) The XZ Utils authors and contributors",
-        "DownloadLocation": "https://github.com/tukaani-project/xz/tree/v5.8.3",
+        "DownloadLocation": "https://github.com/tukaani-project/xz/tree/v5.8.4",
         "SecurityCritical": true
     },
     {
@@ -701,11 +704,11 @@
         "Path": "@SOURCE_DIR@/src/libs/3rdparty/libarchive",
         "Description": "Libarchive is a programming library that can create and read several different streaming archive formats, including most popular tar variants, several cpio formats, and both BSD and GNU ar variants.",
         "Homepage": "https://www.libarchive.org",
-        "Version": "3.8.7",
+        "Version": "3.8.9",
         "License": "BSD 2-Clause \"Simplified\" License",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/libarchive/COPYING",
         "Copyright": "Copyright (c) 2003-2018 <author(s)>",
-        "DownloadLocation": "https://github.com/libarchive/libarchive/tree/v3.8.7",
+        "DownloadLocation": "https://github.com/libarchive/libarchive/tree/v3.8.9",
         "SecurityCritical": true
     },
     {
@@ -734,7 +737,7 @@
         "Description": "Header-only TOML config file parser and serializer for C++.",
         "Homepage": "https://github.com/ToruNiina/toml11",
         "PURL": "pkg:github/ToruNiina/toml11",
-        "Version": "4.3.0",
+        "Version": "4.4.0",
         "License": "MIT License",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/toml11/LICENSE",
         "Copyright": "Copyright (c) 2017-2024 Toru Niina."

@@ -86,7 +86,7 @@ private:
                 Tr::tr("Zephyr SDK (toolchain) not installed."));
             const QString url = QString(SDK_INSTALL_SCHEME) + ":install";
             task.addLinkDetail(url,
-                Tr::tr("Click here to run \"west sdk install\" in: %1")
+                Tr::tr("Run \"west sdk install\" in \"%1\"")
                     .arg(m_workspaceDir.toUserOutput()));
             scheduleTask(task, 1, 0);
             return Status::Done;
@@ -120,7 +120,7 @@ public:
         m_board.setSettingsKey("Zephyr.WestBuildStep.Board");
         m_board.setLabelText(Tr::tr("Board:"));
         m_board.setDisplayStyle(StringAspect::LineEditDisplay);
-        m_board.setPlaceHolderText(Tr::tr("e.g. qemu_x86"));
+        m_board.setPlaceHolderText(Tr::tr("For example, qemu_x86"));
         m_board.setDefaultValue(boardFromWestConfig(settings().workspaceDir()));
 
         m_extraArgs.setSettingsKey("Zephyr.WestBuildStep.ExtraArgs");

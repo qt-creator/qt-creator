@@ -22,6 +22,7 @@
 
 #include <QDir>
 #include <QLoggingCategory>
+#include <QRegularExpression>
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.testconfiguration", QtWarningMsg)
 
@@ -323,6 +324,84 @@ FilePath TestConfiguration::testExecutable() const
     if (!m_androidTestRunner.isEmpty())
         return m_androidTestRunner;
     return ITestConfiguration::testExecutable();
+}
+
+QStringList TestConfiguration::runConfigurationArguments(QStringList *omitted) const
+{
+    const ProcessRunData runData = runnable();
+    const QString arguments = runData.command.arguments();
+    if (arguments.isEmpty())
+        return {};
+
+    // Split as Process does before it falls back to a shell. Whatever needs the shell - pipes,
+    // redirections, substitutions - cannot be judged, so report the whole string as dropped
+    // rather than pass a guess on to the test executable. The same goes for a string that does
+    // not parse as a command line at all.
+    // Splitting expands on the host. For an executable on a device that would put the host's
+    // values in, so a variable or a leading ~ is reported instead, like other shell syntax.
+    const FilePath executable = runData.command.executable();
+    const OsType osType = executable.osType();
+    const bool isLocal = executable.isLocal();
+    const Environment *env = isLocal ? &runData.environment : nullptr;
+    const QString pwd = isLocal ? workingDirectory().path() : QString();
+    static const QRegularExpression leadingTilde("(^|\\s)~(/|\\s|$)");
+    ProcessArgs::SplitError error = ProcessArgs::SplitOk;
+    QStringList split = ProcessArgs::splitArgs(arguments, osType, true, &error, env, pwd);
+
+    // A glob that matches nothing stays literal in a shell, and none is run here, so glob
+    // characters pass on literally where they are the only shell syntax. So do a ~ that does not
+    // start a home directory and a # inside a word. Swapped for placeholders they show whether
+    // anything else needs the shell, and put back they give the arguments.
+    if (error == ProcessArgs::FoundMeta && osType != OsTypeWindows) {
+        static const QRegularExpression literalTilde("(^|\\s)~(?=[^/\\s])(?!\\S*/)");
+        static const QRegularExpression literalHash("(?<=\\S)#");
+        static constexpr QStringView literals = u"*?[]~#";
+        static constexpr char16_t firstPlaceholder = 0xE000; // private use area
+        QString withPlaceholders = arguments;
+        const auto swap = [&withPlaceholders](qsizetype at) {
+            const qsizetype index = literals.indexOf(withPlaceholders.at(at));
+            withPlaceholders[at] = QChar(char16_t(firstPlaceholder + index));
+        };
+        for (const QRegularExpression *literal : {&literalTilde, &literalHash}) {
+            for (const QRegularExpressionMatch &match : literal->globalMatch(arguments))
+                swap(match.capturedEnd() - 1);
+        }
+        for (qsizetype at = 0; at < withPlaceholders.size(); ++at) {
+            if (QStringView(u"*?[]").contains(withPlaceholders.at(at)))
+                swap(at);
+        }
+        ProcessArgs::SplitError placeholderError = ProcessArgs::SplitOk;
+        QStringList placeholderSplit = ProcessArgs::splitArgs(withPlaceholders, osType, true,
+                                                              &placeholderError, env, pwd);
+        if (placeholderError == ProcessArgs::SplitOk) {
+            for (QString &argument : placeholderSplit) {
+                for (QChar &c : argument) {
+                    const int index = c.unicode() - firstPlaceholder;
+                    if (index >= 0 && index < literals.size())
+                        c = literals.at(index);
+                }
+            }
+            split = placeholderSplit;
+            error = ProcessArgs::SplitOk;
+        }
+    }
+    if (error == ProcessArgs::SplitOk && (isLocal || !arguments.contains(leadingTilde)))
+        return split;
+
+    if (omitted)
+        omitted->append(arguments);
+    return {};
+}
+
+// Quoting happens here, once, for all frameworks - the frameworks hand out raw, unquoted
+// arguments except for Catch2 - tests get quoted there if explicitly listed (run selected/run this)
+CommandLine TestConfiguration::commandLine(QStringList *omitted) const
+{
+    CommandLine command{testExecutable()};
+    // on Android: androidtestrunner options (ending in "--"); empty otherwise
+    command.addArgs(testRunnerArguments());
+    command.addArgs(argumentsForTestRunner(omitted));
+    return command;
 }
 
 /**

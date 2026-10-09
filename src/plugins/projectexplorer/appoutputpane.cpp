@@ -623,18 +623,17 @@ void AppOutputPane::setFocus()
 
 void AppOutputPane::updateFilter()
 {
-    const QString filter = filterText();
-    if (RunControlTab * const tab = currentTab()) {
-        QTC_ASSERT(tab->window, return);
-        tab->sourceFilterText = filter;
-        tab->window->updateCategoriesProperties(tab->window->registry()->categories());
-        applyFilter(*tab);
-    }
-    if (filter == m_lastReportedFilterText)
+    RunControlTab *const tab = currentTab();
+    if (!tab)
         return;
-    m_lastReportedFilterText = filter;
-    if (RunControl * const runControl = currentRunControl())
-        runControl->reportOutputFilterChanged(filter);
+    const QString filter = filterText();
+    const bool changed = tab->sourceFilterText != filter;
+    QTC_ASSERT(tab->window, return);
+    tab->sourceFilterText = filter;
+    tab->window->updateCategoriesProperties(tab->window->registry()->categories());
+    applyFilter(*tab);
+    if (changed && tab->runControl)
+        tab->runControl->reportOutputFilterChanged(filter);
 }
 
 void AppOutputPane::applyFilter(const RunControlTab &tab)
@@ -686,7 +685,6 @@ void AppOutputPane::setFilterFieldText(const QString &text)
     QTC_ASSERT(edit, return);
     if (edit->text() == text)
         return;
-    m_lastReportedFilterText = text;
     edit->setText(text);
 }
 
@@ -723,6 +721,14 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     });
     connect(rc, &RunControl::applicationProcessHandleChanged,
             this, &AppOutputPane::enableDefaultButtons);
+    connect(rc, &RunControl::toolTipChanged, this, [this, rc] {
+        const RunControlTab * const tab = tabFor(rc);
+        if (!tab || !tab->window)
+            return;
+        m_tabWidget->setTabToolTip(m_tabWidget->indexOf(tab->window), rc->toolTip());
+    });
+    connect(rc, &RunControl::outputPaneActionsEnabledChanged,
+            this, &AppOutputPane::enableDefaultButtons);
     connect(rc, &RunControl::appendMessage,
             this, [this, rc](const QString &out, OutputFormat format) {
                 appendMessage(rc, out, format);
@@ -756,9 +762,14 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         delete tab->runControl;
 
         tab->runControl = rc;
-        tab->sourceFilterText = rc->outputFilterText();
-        if (currentRunControl() == rc)
-            setFilterFieldText(tab->sourceFilterText.value_or(QString()));
+        // Keep the tab's filter unless the new run control brings its own.
+        if (const QString text = rc->outputFilterText(); !text.isEmpty()) {
+            tab->sourceFilterText = text;
+            if (currentRunControl() == rc)
+                setFilterFieldText(text);
+        } else if (!tab->sourceFilterText.isEmpty()) {
+            rc->reportOutputFilterChanged(tab->sourceFilterText);
+        }
         tab->window->reset();
         rc->setupFormatter(tab->window->outputFormatter());
 
@@ -768,6 +779,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         const int tabIndex = m_tabWidget->indexOf(tab->window);
         QTC_ASSERT(tabIndex != -1, return);
         m_tabWidget->setTabText(tabIndex, rc->displayName());
+        m_tabWidget->setTabToolTip(tabIndex, rc->toolTip());
         updateOutputFileName(tabIndex, rc);
         updateOutputFiltersWidget(tabIndex, rc);
 
@@ -992,6 +1004,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     m_runControlTabs.push_back(RunControlTab(rc, ow));
     m_runControlTabs.last().inputWidget = inputWidget;
     m_tabWidget->addTab(outputWidget, cv, rc->displayName());
+    m_tabWidget->setTabToolTip(m_tabWidget->count() - 1, rc->toolTip());
     updateOutputFileName(m_tabWidget->count() - 1, rc);
     updateOutputFiltersWidget(m_tabWidget->count() - 1, rc);
     qCDebug(appOutputLog) << "AppOutputPane::createNewOutputWindow: Adding tab for" << rc;
@@ -1088,6 +1101,16 @@ void AppOutputPane::showOutputPaneForRunControl(RunControl *runControl)
 void AppOutputPane::closeTabsWithoutPrompt()
 {
     closeTabs(CloseTabNoPrompt);
+}
+
+void AppOutputPane::detachTabForRunControl(RunControl *runControl)
+{
+    RunControlTab * const tab = tabFor(runControl);
+    if (!tab)
+        return;
+    tab->runControl = nullptr;
+    closeTab(m_tabWidget->indexOf(tab->window), CloseTabNoPrompt);
+    runControl->setOutputVisible(false);
 }
 
 void AppOutputPane::showTabFor(RunControl *rc)
@@ -1292,7 +1315,7 @@ void AppOutputPane::tabChanged(int i)
     RunControlTab * const controlTab = tabFor(m_tabWidget->widget(i));
     setFilterOptionsVisible(!filtersAtSource(currentRunControl()));
     if (i != -1 && controlTab && QTC_GUARD(controlTab->window)) {
-        const QString text = controlTab->sourceFilterText.value_or(QString());
+        const QString text = controlTab->sourceFilterText;
         if (filterText() == text)
             updateFilter();
         else
@@ -1586,22 +1609,22 @@ LogcatSettings::LogcatSettings(AspectContainer *container, const IntegerAspect &
     showTimestamp.setSettingsKey("ProjectExplorer/Settings/LogcatShowTimestamp");
     showTimestamp.setDefaultValue(true);
     showTimestamp.setLabelText(Tr::tr("Show date and time"));
-    showTimestamp.setToolTip(Tr::tr("When the line was logged, as yyyy-MM-dd hh:mm:ss.zzz."));
+    showTimestamp.setToolTip(Tr::tr("Shows when the line was logged, in the format yyyy-MM-dd hh:mm:ss.zzz."));
 
     showPid.setSettingsKey("ProjectExplorer/Settings/LogcatShowPid");
     showPid.setDefaultValue(false);
     showPid.setLabelText(Tr::tr("Show process and thread IDs"));
-    showPid.setToolTip(Tr::tr("The emitting process and thread, like \"1483-1507\"."));
+    showPid.setToolTip(Tr::tr("Shows the IDs of the emitting process and thread, for example \"1483-1507\"."));
 
     showTag.setSettingsKey("ProjectExplorer/Settings/LogcatShowTag");
     showTag.setDefaultValue(true);
     showTag.setLabelText(Tr::tr("Show tag"));
-    showTag.setToolTip(Tr::tr("The emitting log tag, like \"ActivityManager\"."));
+    showTag.setToolTip(Tr::tr("Shows the log tag of the emitter, for example \"ActivityManager\"."));
 
     showPackage.setSettingsKey("ProjectExplorer/Settings/LogcatShowPackage");
     showPackage.setDefaultValue(true);
     showPackage.setLabelText(Tr::tr("Show package name"));
-    showPackage.setToolTip(Tr::tr("The emitting app's package, like \"do.main.mypackage\"."));
+    showPackage.setToolTip(Tr::tr("Shows the package name of the emitting application, for example \"do.main.mypackage\"."));
 
     viewMode.addOnVolatileValueChanged(this, [this] { updateColumnToggles(); });
 }

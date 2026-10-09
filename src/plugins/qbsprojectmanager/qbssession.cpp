@@ -719,11 +719,36 @@ QString ErrorInfo::toString() const
 
 void ErrorInfo::generateTasks(ProjectExplorer::Task::TaskType type) const
 {
-    for (const ErrorInfoItem &item : items) {
-        BuildSystemTask t(type, item.description, item.filePath, item.line);
-        t.setOrigin("qbs");
-        TaskHub::addTask(t);
+    if (items.isEmpty())
+        return;
+
+    if (items.size() == 1) {
+        BuildSystemTask
+            task(type, items.first().description, items.first().filePath, items.first().line);
+        task.setOrigin("qbs");
+        TaskHub::addTask(task);
+        return;
     }
+
+    const ErrorInfoItem mainItem = Utils::findOr(items, items.first(), [](const ErrorInfoItem &item) {
+        return !item.filePath.isEmpty();
+    });
+    BuildSystemTask task(type, mainItem.description, mainItem.filePath, mainItem.line);
+    task.setOrigin("qbs");
+    task.clearDetails();
+    for (const ErrorInfoItem &item : items) {
+        if (item.filePath.isEmpty() || !item.filePath.isLocal()) {
+            task.addToDetails(item.toString());
+            continue;
+        }
+        QString link = "file:///" + item.filePath.toUrlishString();
+        if (item.line > 0)
+            link.append(':').append(QString::number(item.line));
+        const QString fileName = item.filePath.fileName();
+        const QString text = fileName + ": " + item.description.trimmed();
+        task.addLinkDetail(link, text, 0, fileName.size());
+    }
+    TaskHub::addTask(task);
 }
 
 void forAllProducts(const QJsonObject &project, const WorkerFunction &productFunction)

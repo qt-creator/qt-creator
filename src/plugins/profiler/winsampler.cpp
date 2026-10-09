@@ -579,15 +579,17 @@ Result<> startEtwSession(EtwCaptureContext &ctx)
         // and per-CPU — "as fast as possible" (0) must not arm a ~1 MHz
         // interrupt rate on every core.
         const int clampedInterval = qMax(ctx.intervalUs, 123);
-        profileInterval.Interval = clampedInterval * 10; // µs → 100-ns units
+        profileInterval.Interval = clampedInterval * 10; // us -> 100-ns units
         const ULONG st = TraceSetInformation(0, TraceSampledProfileIntervalInfo, &profileInterval,
                                              sizeof(profileInterval));
         if (st != ERROR_SUCCESS) {
-            return ResultError(Tr::tr("Cannot set the sampling interval to %1 µs (error 0x%2).")
+            //: micro seconds
+            return ResultError(Tr::tr("Cannot set the sampling interval to %1 \xc2\xb5s "
+                                      "(error 0x%2).")
                                    .arg(clampedInterval)
                                    .arg(st, 0, 16));
         }
-        qCDebug(etwLog, "Sampling interval set to %d µs.", clampedInterval);
+        qCDebug(etwLog, "Sampling interval set to %d \xc2\xb5s.", clampedInterval);
     }
 
     // --- Start NT Kernel Logger (without flags yet; consumer attaches first) ---
@@ -710,7 +712,7 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts,
         OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, targetPid);
     if (!targetProcess)
         return ResultError(Tr::tr("Cannot open target process (PID %1). "
-                                  "Make sure the process is running and you have access.")
+                                  "Make sure that the process is running and accessible.")
                                .arg(targetPid));
 
     const QScopeGuard closeTarget([&] { CloseHandle(targetProcess); });
@@ -820,7 +822,7 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts,
     const FilePath dir = uniqueTracePath("qtprofiler-sample"_L1);
     if (!dir.createDir()) {
         return ResultError(
-            Tr::tr("Cannot create temporary trace directory %1.").arg(dir.toUserOutput()));
+            Tr::tr("Cannot create the temporary trace directory \"%1\".").arg(dir.toUserOutput()));
     }
 
     // Transfer data ownership and write trace. The process handle is closed by

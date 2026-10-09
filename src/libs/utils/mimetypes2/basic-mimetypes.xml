@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2026 The Qt Company Ltd.
+SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
+The MIME types MimeDatabase starts from in the WebAssembly build, which is
+qtprofiler alone; see src/libs/utils/CMakeLists.txt. They are the types
+MimeDatabase falls back to, and the ones that the types it defines itself
+and those of the Profiler plugin derive from.
+-->
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/octet-stream"/>
+  <mime-type type="application/x-zerosize"/>
+  <mime-type type="inode/directory"/>
+  <mime-type type="text/plain">
+    <glob pattern="*.txt"/>
+  </mime-type>
+  <mime-type type="application/json">
+    <sub-class-of type="text/plain"/>
+    <glob pattern="*.json"/>
+  </mime-type>
+  <mime-type type="application/xml">
+    <sub-class-of type="text/plain"/>
+    <glob pattern="*.xml"/>
+  </mime-type>
+  <mime-type type="application/gzip">
+    <glob pattern="*.gz"/>
+  </mime-type>
+  <mime-type type="application/x-xz">
+    <glob pattern="*.xz"/>
+  </mime-type>
+  <mime-type type="application/x-bzip">
+    <glob pattern="*.bz2"/>
+  </mime-type>
+</mime-info>

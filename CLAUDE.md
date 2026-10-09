@@ -39,6 +39,34 @@ server is connected, or when the user's own instructions call for it, and say
 which one you used. Never drive a shell build and an MCP build of the same build
 directory in parallel; they fight over the same files.
 
+## Driving a live instance on Linux
+
+To check behavior in a running Qt Creator built from this checkout, start
+your own instance, never one that is already running:
+
+    QT_QPA_PLATFORM=offscreen ./bin/qtcreator -tcs -settingspath <scratch>/settings \
+        -mcp-port 0 -mcp-info-file <scratch>/mcp.json -mcp-enable-tools all -no-banners &
+
+No X server is needed: `ui_screenshot` grabs widgets, it does not read the
+screen. `-tcs` gives fresh settings. `-mcp-port 0` lets the system pick a
+free port, and `mcp.json` reports it (as `url`, `port`, `token`, `pid`)
+once the tools can be called, or reports `error` if the server did not
+start. Wait for the file to exist, then call tools without a session:
+
+    curl -s -H "Authorization: Bearer $token" -H "Content-Type: application/json" \
+        -H "Accept: application/json, text/event-stream" \
+        -H "MCP-Protocol-Version: 2026-07-28" \
+        -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{
+              "name":"ui_list_windows","arguments":{},"_meta":{
+              "io.modelcontextprotocol/protocolVersion":"2026-07-28",
+              "io.modelcontextprotocol/clientCapabilities":{},
+              "io.modelcontextprotocol/clientInfo":{"name":"curl","version":"1"}}}}' $url/
+
+`"method":"tools/list"` with only `_meta` in `params` lists the tools with
+their schemas. End the run with
+the `app_quit` tool. If that fails, `kill` the PID you started, never by
+pattern: other instances on the machine are not yours.
+
 ## Commit message rules
 
 - Lines must not exceed 72 characters.

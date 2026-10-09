@@ -1457,7 +1457,7 @@ std::function<void(Layouting::Layout *)> IDevice::autoDetectGui()
                 if (!lv)
                     return;
                 if (added.isEmpty())
-                    lv->appendPlainText(Tr::tr("No new kits."));
+                    lv->appendPlainText(Tr::tr("No new kits created."));
                 for (const Kit *kit : added)
                     lv->appendPlainText(Tr::tr("Created kit \"%1\".").arg(kit->displayName()));
             });

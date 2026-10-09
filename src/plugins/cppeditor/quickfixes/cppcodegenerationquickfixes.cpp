@@ -11,6 +11,7 @@
 #include "cppquickfixhelpers.h"
 #include "cppquickfixsettings.h"
 
+#include <cplusplus/ASTPath.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/CppRewriter.h>
 #include <projectexplorer/projecttree.h>
@@ -55,6 +56,11 @@ enum GenerateFlag {
     GenerateConstantProperty = 1 << 6,
     HaveExistingQProperty = 1 << 7,
     GenerateBindable = 1 << 8,
+
+    // The member already exists with a plain type and needs converting to bindable storage,
+    // as opposed to GenerateMemberVariable, which inserts a brand-new declaration.
+    RewriteMemberVariable = 1 << 9,
+
     Invalid = -1,
 };
 
@@ -175,6 +181,10 @@ struct ExistingGetterSetterData
     QString memberVariableName;
     Document::Ptr doc;
 
+    // Only used for the "upgrade an existing MEMBER-based Q_PROPERTY to bindable" flow.
+    QtPropertyDeclarationAST *qtPropertyDeclarationAst = nullptr;
+    Symbol *existingMemberSymbol = nullptr;
+
     int computePossibleFlags() const;
 };
 
@@ -233,6 +243,22 @@ static void extractNames(const CppRefactoringFilePtr &file,
             data.bindableName = file->textOf(it->value->expression);
         }
     }
+}
+
+// Maps a class member's Symbol back to its declaration AST, for rewriting its type in place.
+static SimpleDeclarationAST *declarationAstForMember(Symbol *symbol, const CppRefactoringFilePtr &file)
+{
+    const QList<AST *> path = ASTPath(file->cppDocument())(symbol->line(), symbol->column());
+    for (auto it = path.rbegin(); it != path.rend(); ++it) {
+        if (SimpleDeclarationAST * const decl = (*it)->asSimpleDeclaration()) {
+            for (List<Symbol *> *symIt = decl->symbols; symIt; symIt = symIt->next) {
+                if (symIt->value == symbol)
+                    return decl;
+            }
+            return nullptr;
+        }
+    }
+    return nullptr;
 }
 
 class GetterSetterRefactoringHelper
@@ -311,12 +337,18 @@ private:
         bool generateReset() const { return m_generateFlags & GenerateFlag::GenerateReset; }
         bool generateSignal() const { return m_generateFlags & GenerateFlag::GenerateSignal; }
         bool generateBindable() const { return m_generateFlags & GenerateFlag::GenerateBindable; }
+        bool rewriteMemberVar() const { return m_generateFlags & GenerateFlag::RewriteMemberVariable; }
         bool generateMemberVar() const;
         bool generateConstQProperty() const;
         bool generateQProperty() const;
 
         Declaration *decl() const { return m_data.declarationSymbol; }
         Class *theClass() const { return m_data.clazz; }
+        Symbol *existingMemberSymbol() const { return m_data.existingMemberSymbol; }
+        QtPropertyDeclarationAST *qtPropertyDeclarationAst() const
+        {
+            return m_data.qtPropertyDeclarationAst;
+        }
 
         FullySpecifiedType memberVarType() const;
         FullySpecifiedType parameterType() const;
@@ -343,6 +375,10 @@ private:
     void generateMemberVariable();
     void generateQProperty();
     void generateBindable();
+    void rewriteMemberVariable();
+    void insertBindableClause();
+    QString bindableStorageDeclaration(const QString &initialValue) const;
+    QString initialValueText(const DeclaratorAST *declaratorAst) const;
     bool isQObjectSubclass() const;
     QString setterBodyWithSignal();
     CppRefactoringFilePtr determineSourceFile();
@@ -1296,7 +1332,17 @@ public:
         // of the enum 'GenerateFlag'
         int p = 0;
         if (possibleFlags & HaveExistingQProperty) {
-            const QString desc = Tr::tr("Generate Missing Q_PROPERTY Members");
+            const bool addingBindable = possibleFlags & GenerateFlag::RewriteMemberVariable;
+            const bool generatingOtherMembers = possibleFlags
+                & (GenerateGetter | GenerateSetter | GenerateReset | GenerateSignal
+                   | GenerateMemberVariable);
+            QString desc;
+            if (addingBindable && generatingOtherMembers)
+                desc = Tr::tr("Generate Missing Q_PROPERTY Members and Add BINDABLE Support");
+            else if (addingBindable)
+                desc = Tr::tr("Add BINDABLE Support to Q_PROPERTY");
+            else
+                desc = Tr::tr("Generate Missing Q_PROPERTY Members");
             results << new GenerateGetterSetterOp(interface, data, possibleFlags, ++p, desc);
         } else {
             if (possibleFlags & GenerateSetter) {
@@ -1714,6 +1760,8 @@ void GetterSetterRefactoringHelper::performGeneration(
     generateMemberVariable();
     generateQProperty();
     generateBindable();
+    rewriteMemberVariable();
+    insertBindableClause();
 }
 
 void GetterSetterRefactoringHelper::applyChanges()
@@ -2245,6 +2293,86 @@ CppRefactoringFilePtr GetterSetterRefactoringHelper::determineSourceFile()
     return m_changes.cppFile(cppFilePath);
 }
 
+QString GetterSetterRefactoringHelper::bindableStorageDeclaration(const QString &initialValue) const
+{
+    const QString typeName = m_overview.prettyType(m_data.memberVarType());
+    if (!isQObjectSubclass()) {
+        QString declaration = "QProperty<" + typeName + "> " + m_data.memberVarName();
+        if (!initialValue.isEmpty())
+            declaration += "(" + initialValue + ")";
+        return declaration;
+    }
+    const QString className = m_overview.prettyName(m_data.theClass()->name());
+    const QString macroName = initialValue.isEmpty()
+                                   ? QLatin1String("Q_OBJECT_BINDABLE_PROPERTY")
+                                   : QLatin1String("Q_OBJECT_BINDABLE_PROPERTY_WITH_ARGS");
+    QString declaration = macroName + "(" + className + ", " + typeName + ", "
+                         + m_data.memberVarName();
+    if (!initialValue.isEmpty())
+        declaration += ", (" + initialValue + ")";
+    if (!m_data.signalName().isEmpty())
+        declaration += ", &" + className + "::" + m_data.signalName();
+    declaration += ")";
+    return declaration;
+}
+
+// The existing member's initializer, reconstructed as a self-contained value expression for use
+// as Q_OBJECT_BINDABLE_PROPERTY_WITH_ARGS's initialvalue argument or as QProperty<T>'s
+// direct-initialization argument, or an empty string if there is none.
+//
+// A direct-list-init initializer ("T x{args};") has its type name prefixed and its braces (and
+// everything between them, verbatim) reproduced, rather than being decomposed into its bare
+// argument(s): the bare arguments, even a single one, are not reliably interchangeable with the
+// braced form - an aggregate has no converting constructor to call instead, and any type with
+// both an initializer_list constructor and another one matching the same argument count (e.g.
+// any standard container) picks a different constructor outside of brace-init. Reproducing the
+// type name and braces verbatim keeps exactly the original initialization semantics, whatever
+// they are, and works at any C++ standard version (unlike rewriting to a parenthesized
+// constructor call, which for a plain aggregate needs C++20).
+//
+// The returned text is not itself wrapped in a protecting pair of parens, even though it may
+// contain a top-level comma nested in braces that only an enclosing pair of parens protects
+// from a macro's own argument-splitting (which tracks parenthesis nesting, not braces): callers
+// add exactly the parens their own syntax already needs (a macro argument, or a direct-init
+// argument list), so adding another pair here would be redundant, not incorrect, but still
+// pointless duplication.
+QString GetterSetterRefactoringHelper::initialValueText(const DeclaratorAST *declaratorAst) const
+{
+    if (!declaratorAst || !declaratorAst->initializer)
+        return {};
+    if (BracedInitializerAST * const bracedInit = declaratorAst->initializer->asBracedInitializer()) {
+        if (!bracedInit->expression_list)
+            return {}; // "{}" has nothing to preserve.
+        return m_overview.prettyType(m_data.memberVarType()) + m_headerFile->textOf(bracedInit);
+    }
+    return m_headerFile->textOf(declaratorAst->initializer);
+}
+
+void GetterSetterRefactoringHelper::rewriteMemberVariable()
+{
+    if (!m_data.rewriteMemberVar())
+        return;
+    Symbol * const member = m_data.existingMemberSymbol();
+    QTC_ASSERT(member, return);
+    SimpleDeclarationAST * const declAst = declarationAstForMember(member, m_headerFile);
+    QTC_ASSERT(declAst, return);
+    QTC_ASSERT(declAst->declarator_list && !declAst->declarator_list->next, return);
+    const DeclaratorAST * const declaratorAst = declAst->declarator_list->value;
+    m_headerFileChangeSet.replace(
+        m_headerFile->range(declAst),
+        bindableStorageDeclaration(initialValueText(declaratorAst)) + ";");
+}
+
+void GetterSetterRefactoringHelper::insertBindableClause()
+{
+    if (!m_data.rewriteMemberVar())
+        return;
+    QtPropertyDeclarationAST * const propertyAst = m_data.qtPropertyDeclarationAst();
+    QTC_ASSERT(propertyAst, return);
+    const int pos = m_headerFile->startOf(propertyAst->rparen_token);
+    m_headerFileChangeSet.insert(pos, " BINDABLE " + m_data.bindableName());
+}
+
 void GetterSetterRefactoringHelper::generateMemberVariable()
 {
     if (!m_data.generateMemberVar())
@@ -2252,17 +2380,7 @@ void GetterSetterRefactoringHelper::generateMemberVariable()
 
     QString storageDeclaration;
     if (m_data.generateBindable()) {
-        const QString className = m_overview.prettyName(m_data.theClass()->name());
-        const QString typeName = m_overview.prettyType(m_data.memberVarType());
-        if (isQObjectSubclass()) {
-            storageDeclaration = "Q_OBJECT_BINDABLE_PROPERTY(" + className + ", " + typeName
-                                 + ", " + m_data.memberVarName();
-            if (!m_data.signalName().isEmpty())
-                storageDeclaration += ", &" + className + "::" + m_data.signalName();
-            storageDeclaration += ");\n";
-        } else {
-            storageDeclaration = "QProperty<" + typeName + "> " + m_data.memberVarName() + ";\n";
-        }
+        storageDeclaration = bindableStorageDeclaration({}) + ";\n";
     } else {
         storageDeclaration = m_overview.prettyType(m_data.memberVarType(), m_data.memberVarName());
         if (m_data.memberVarType()->asPointerType()
@@ -2298,6 +2416,15 @@ void GetterSetterRefactoringHelper::Data::setup(
         m_data.signalName = q->m_settings->getSignalName(qPropertyName(), memberVarName());
     if (generateReset() && resetName().isEmpty())
         m_data.resetName = q->m_settings->getResetName(qPropertyName(), memberVarName());
+    if (generateBindable() && bindableName().isEmpty()) {
+        // Deliberately not a CppQuickFixSettings template like the other names above: unlike
+        // getter/setter/signal/reset names, which vary a lot by project style (a bare property
+        // name vs. a "get" prefix, "on...Changed" vs. a bare "...Changed", and so on), Qt's own
+        // documentation and examples for bindable properties consistently use "bindableName" -
+        // there is no established alternative convention to make configurable here.
+        const QString name = qPropertyName();
+        m_data.bindableName = "bindable" + name.left(1).toUpper() + name.mid(1);
+    }
 
     QString baseName = CppQuickFixSettings::memberBaseName(memberVarName());
     if (baseName.isEmpty())
@@ -2707,12 +2834,14 @@ class InsertQtPropertyMembers : public CppQuickFixFactory
                 if (haveFixMemberVariableName) {
                     if (name == existing.memberVariableName) {
                         generateFlags &= ~GenerateFlag::GenerateMemberVariable;
+                        existing.existingMemberSymbol = member;
                     }
                 } else {
                     const QString baseName = CppQuickFixSettings::memberBaseName(name);
                     if (existing.qPropertyName == baseName) {
                         existing.memberVariableName = name;
                         generateFlags &= ~GenerateFlag::GenerateMemberVariable;
+                        existing.existingMemberSymbol = member;
                     }
                 }
             }
@@ -2721,6 +2850,41 @@ class InsertQtPropertyMembers : public CppQuickFixFactory
             CppQuickFixSettings *settings = cppQuickFixSettingsForProject(
                 ProjectExplorer::ProjectTree::currentProject());
             existing.memberVariableName = settings->getMemberVariableName(existing.qPropertyName);
+        } else if (haveFixMemberVariableName && existing.bindableName.isEmpty()
+                   && existing.existingMemberSymbol) {
+            // A MEMBER-based Q_PROPERTY (haveFixMemberVariableName: the macro itself has an
+            // explicit MEMBER clause, as opposed to memberVariableName merely being guessed by
+            // name below for READ/WRITE-based properties) with no BINDABLE clause yet, whose
+            // storage member already exists as a plain-typed declaration: offer to upgrade it to
+            // Q_OBJECT_BINDABLE_PROPERTY/QProperty<T> in place. Restricted to MEMBER-based
+            // properties - a READ/WRITE-based property may have hand-written accessor bodies
+            // that would need rewriting too (e.g. dropping a now-redundant manual "emit" of the
+            // NOTIFY signal, since bindable storage emits it automatically), which is too risky
+            // to attempt here.
+            const QString typeText = overview.prettyType(existing.existingMemberSymbol->type());
+            // rewriteMemberVariable() replaces the member's whole declaration statement with the
+            // new Q_OBJECT_BINDABLE_PROPERTY(_WITH_ARGS)/QProperty<T> line, so that statement
+            // needs to be exactly one declarator: a second declarator sharing it would be deleted
+            // outright. An existing initializer is carried over via
+            // Q_OBJECT_BINDABLE_PROPERTY_WITH_ARGS (see initialValueText()).
+            SimpleDeclarationAST * const memberDeclAst
+                = declarationAstForMember(existing.existingMemberSymbol, file);
+            const DeclaratorAST * const memberDeclaratorAst
+                = memberDeclAst && memberDeclAst->declarator_list
+                          && !memberDeclAst->declarator_list->next
+                      ? memberDeclAst->declarator_list->value
+                      : nullptr;
+            // A plain substring test on the pretty-printed type, not a proper symbolic check:
+            // an already-bindable member reached only through a typedef prints as the typedef's
+            // own name and is missed here, so it would be needlessly rewritten as if it were a
+            // plain-typed member; a type that merely contains "QProperty" as a substring without
+            // being one (e.g. MyQPropertyWrapper) is skipped, missing an opportunity. Neither
+            // case is common enough to justify resolving the type symbolically here instead.
+            if (memberDeclaratorAst
+                && !typeText.contains("QProperty") && !typeText.contains("QObjectBindableProperty")) {
+                existing.qtPropertyDeclarationAst = qtPropertyDeclaration;
+                generateFlags |= GenerateFlag::GenerateBindable | GenerateFlag::RewriteMemberVariable;
+            }
         }
         if (generateFlags == 0) {
             // everything is already there

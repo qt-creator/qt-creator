@@ -3,9 +3,9 @@
 
 #pragma once
 
+#include "perfconversion.h"
 #include "perfprofilertracefile.h"
 
-#include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
 
 #include <QIODevice>
@@ -13,7 +13,6 @@
 
 #include <cstring>
 
-namespace Utils { class CommandLine; }
 
 namespace ProjectExplorer {
 class Kit;
@@ -22,10 +21,8 @@ class RunControl;
 
 namespace Profiler::Internal {
 
-Utils::FilePath findPerfParser();
-
-// Minimal append-only, sequential QIODevice bridging the parser's stdout (Utils::Process is
-// not a QIODevice) to the QIODevice-based streaming reader in PerfProfilerTraceFile. Being
+// Minimal append-only, sequential QIODevice bridging the converted stream (see
+// PerfConversion) to the QIODevice-based streaming reader in PerfProfilerTraceFile. Being
 // sequential keeps the reader on its incremental progress path; a random-access device would
 // make it derive progress from pos()/size(), which is meaningless for a stream we grow and
 // drain in place.
@@ -83,14 +80,15 @@ public:
     void loadFromFile(const Utils::FilePath &filePath, const QString &executableDirPath,
                       ProjectExplorer::Kit *kit);
 
-    void createParser(const Utils::CommandLine &arguments);
+    // `inputUrl`, if set, is where the recording comes from instead of feedParser().
+    void createParser(const PerfConversionOptions &options, const QUrl &inputUrl = {});
     void startParser();
     void stopParser();
     // Lets go of the trace manager and kills the parser: for when the document
     // owning the manager goes away while the run is still feeding it.
     void detachTraceManager();
 
-    void addTargetArguments(Utils::CommandLine *cmd, const ProjectExplorer::RunControl *runControl) const;
+    PerfConversionOptions targetOptions(const ProjectExplorer::RunControl *runControl) const;
     void clear();
 
     bool feedParser(const QByteArray &input);
@@ -106,7 +104,6 @@ signals:
 
     void processStarted();
     void processFinished();
-    void processFailed(const QString &msg);
 
 protected:
     void timerEvent(QTimerEvent *) override;
@@ -116,22 +113,21 @@ protected:
 private:
     static const int s_maxBufferSize = 1 << 29;
 
-    void collectArguments(Utils::CommandLine *cmd,
-                          const QString &executableDirPath,
-                          const ProjectExplorer::Kit *kit) const;
+    static PerfConversionOptions collectOptions(const QString &executableDirPath,
+                                                const ProjectExplorer::Kit *kit);
     void writeChunk();
     bool parserKeepsUp() const;
     bool writeToParser(const QByteArray &data);
-    void readFromProcess();
+    void readFromConversion();
 
     bool m_recording;
     bool m_dataFinished;
-    Utils::Process m_input;
-    // Bridges the process's stdout (Utils::Process is not a QIODevice) to the
-    // QIODevice-based streaming reader in PerfProfilerTraceFile.
+    PerfConversion m_input;
+    // Bridges the converted stream to the QIODevice-based streaming reader in
+    // PerfProfilerTraceFile.
     ProcessOutputBuffer m_output;
-    // Bytes handed to perfparser's stdin since it last produced output, used to keep the
-    // process's write queue bounded. See writeToParser().
+    // Bytes handed to the conversion since it last produced output, used to keep its
+    // input queue bounded. See writeToParser().
     qint64 m_bytesSinceParserOutput = 0;
     QQueue<Utils::TemporaryFile *> m_buffer;
     qint64 m_localProcessStart;

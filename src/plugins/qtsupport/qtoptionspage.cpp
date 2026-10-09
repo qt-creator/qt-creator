@@ -803,7 +803,7 @@ void QtSettingsPageWidget::addQtDir()
         QMessageBox::warning(
             this,
             Tr::tr("%1 Not Executable").arg(qtFileName),
-            Tr::tr("The %1 executable %2 could not be added: %3")
+            Tr::tr("The %1 executable \"%2\" could not be added: %3")
                 .arg(qtFileName)
                 .arg(qtVersion.toUserOutput())
                 .arg(error));

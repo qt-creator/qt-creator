@@ -12,7 +12,9 @@
 #include <QBuffer>
 #include <QDesktopServices>
 #include <QDrag>
+#if QT_CONFIG(graphicsview)
 #include <QGraphicsSceneEvent>
+#endif
 #include <QLineEdit>
 #include <QMenu>
 #include <QMetaMethod>
