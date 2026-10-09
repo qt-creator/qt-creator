@@ -3,6 +3,7 @@ import qbs 1.0
 QtcTool {
     name: "QtProfiler"
     windowsFileDescription: "Qt Profiler"
+    windowsResourceFile: sourceDirectory + "/qtprofiler.rc"
 
     Depends { name: "codesign" }
 

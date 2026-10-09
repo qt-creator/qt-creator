@@ -36,7 +36,7 @@ add_qtc_executable(qtprofiler
     schema/api.h
 )
 
-qtc_add_version_resource(qtprofiler "Qt Profiler")
+qtc_add_version_resource(qtprofiler "Qt Profiler" RESOURCE_FILE qtprofiler.rc)
 
 # Turn it into a proper macOS application bundle: attach the Info.plist and the
 # app icon, and make sure both end up in the build tree and in the install tree.
