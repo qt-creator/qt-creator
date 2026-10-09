@@ -31,7 +31,6 @@ QtcPlugin {
         "luaqttypes.cpp",
         "luaqttypes.h",
         "luatr.h",
-        "wizards/wizards.qrc",
     ]
 
     Group {
@@ -92,6 +91,14 @@ QtcPlugin {
         name: "Lua images rcc"
         fileTags: "qt.core.resource_data"
         files: "images/**"
+    }
+
+    Group {
+        name: "Lua wizards rcc"
+        fileTags: "qt.core.resource_data"
+        Qt.core.resourcePrefix: "/lua/wizards"
+        Qt.core.resourceSourceBase: sourceDirectory + "/wizards"
+        files: "wizards/**"
     }
 
     Export {

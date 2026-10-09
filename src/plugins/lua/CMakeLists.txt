@@ -36,7 +36,6 @@ add_qtc_plugin(Lua
     luaqttypes.cpp
     luaqttypes.h
     luatr.h
-    wizards/wizards.qrc
     # generateqtbindings.cpp # Use this if you need to generate some code.
   SBOM_ARGS
     USE_ATTRIBUTION_FILES
@@ -64,6 +63,23 @@ if(TARGET Lua)
         scripts/async.lua
         scripts/ilua.lua
         scripts/inspect.lua
+    )
+
+    qt_add_resources(Lua lua_wizards_rcc
+      PREFIX "/lua/wizards"
+      BASE "wizards"
+      FILES
+        wizards/luafile/wizard.json
+        wizards/luafile/script.lua
+        wizards/plugin/init.lua.tpl
+        wizards/plugin/plugin.lua.tpl
+        wizards/plugin/project.json
+        wizards/plugin/wizard.json
+        wizards/plugin/.luarc.json
+        wizards/plugin/icon.png
+        wizards/plugin/icon@2x.png
+        wizards/qcscript/script.lua
+        wizards/qcscript/wizard.json
     )
 
     qtc_copy_to_builddir(copy_lua_meta_files
