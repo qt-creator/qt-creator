@@ -252,7 +252,7 @@ void PerfRecordDecoder::mmap(const PerfData::Mmap &mmap)
 {
     // Anonymous and special mappings ("[heap]", "[stack]") have nothing to
     // symbolize, except the vdso, which the symbolizer finds elsewhere.
-    if (mmap.path.isEmpty() || (mmap.path.startsWith('[') && mmap.path != u"[vdso]"))
+    if (mmap.path.isEmpty() || (mmap.path.startsWith('[') && mmap.path != QLatin1StringView(vdsoName)))
         return;
     m_symbolizer.addMapping(mmap.pid, mmap.addr, mmap.len, mmap.pgoff, mmap.path, {},
                             mmap.executable);

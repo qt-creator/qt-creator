@@ -20,6 +20,9 @@ namespace Profiler::Internal {
 
 class PerfSymbolizerPrivate;
 
+// What a recording names the kernel's vdso mapping.
+const char vdsoName[] = "[vdso]";
+
 // An address in a mapped module: the module, and where in it, as a link-time
 // address -- the one its symbols, line rows and CFI are at.
 struct ModuleAddress

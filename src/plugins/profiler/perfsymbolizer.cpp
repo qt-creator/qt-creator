@@ -208,7 +208,7 @@ QString ownVdsoPath()
         if (!maps.open(QIODevice::ReadOnly | QIODevice::Text))
             return QString();
         for (const QByteArray &line : maps.readAll().split('\n')) {
-            if (!line.endsWith("[vdso]"))
+            if (!line.endsWith(vdsoName))
                 continue;
             const QList<QByteArray> range = line.left(line.indexOf(' ')).split('-');
             if (range.size() != 2)
@@ -217,7 +217,7 @@ QString ownVdsoPath()
             const quint64 end = range.at(1).toULongLong(nullptr, 16);
             if (end <= begin)
                 return QString();
-            QFile file(dir.filePath("[vdso]"));
+            QFile file(dir.filePath(vdsoName));
             if (!file.open(QIODevice::WriteOnly)
                 || file.write(reinterpret_cast<const char *>(quintptr(begin)), qint64(end - begin))
                        != qint64(end - begin)) {
@@ -777,7 +777,7 @@ QString PerfSymbolizerPrivate::hostPathFor(const QString &recordedPath)
 
     // A recording taken here names its binaries where they are.
     if (m_sysroot.isEmpty() && m_searchPaths.isEmpty()) {
-        if (recordedPath == u"[vdso]") {
+        if (recordedPath == QLatin1StringView(vdsoName)) {
             const QString vdso = ownVdsoPath();
             return m_hostPaths.insert(recordedPath, vdso.isEmpty() ? recordedPath : vdso).value();
         }
