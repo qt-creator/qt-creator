@@ -172,6 +172,8 @@ private slots:
     void testMcpLocalsOutlastFramesAddedToTheStack();
     void testMcpSelectFrameBeforeTheStopsLocals_data();
     void testMcpSelectFrameBeforeTheStopsLocals();
+    void testLocalsOfAFrameSelectedEarlyKeepNothingOfTheOtherFrame_data();
+    void testLocalsOfAFrameSelectedEarlyKeepNothingOfTheOtherFrame();
     void testMcpVariableFetchesItsChildren_data();
     void testMcpVariableFetchesItsChildren();
     void testMcpCollectsTheStacksOfAllThreads_data();
@@ -2670,6 +2672,42 @@ void DebuggerUnitTests::testMcpSelectFrameBeforeTheStopsLocals()
     QVERIFY2(inCaller, qPrintable(errorOf(inCaller)));
     QCOMPARE(inCaller->value("context").toObject().value("frame_level").toInt(), 1);
     QVERIFY(!variableNamed(*inCaller, "first").isEmpty());
+}
+
+void DebuggerUnitTests::testLocalsOfAFrameSelectedEarlyKeepNothingOfTheOtherFrame_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testLocalsOfAFrameSelectedEarlyKeepNothingOfTheOtherFrame()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: in-callee");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    WatchHandler *watch = session.engine()->watchHandler();
+    int started = 0;
+    int finished = 0;
+    QObject receiver;
+    QObject::connect(watch->model(), &WatchModelBase::updateStarted, &receiver, [&started] {
+        ++started;
+    });
+    QObject::connect(watch->model(), &WatchModelBase::updateFinished, &receiver, [&finished] {
+        ++finished;
+    });
+
+    // The locals of frame 0 can still be on their way, and arrive after
+    // frame 1 has asked for its own.
+    session.engine()->activateFrame(1);
+    QVERIFY(QTest::qWaitFor([&] {
+        return started > 0 && finished >= started && watch->findItem("local.first");
+    }, 30000));
+    QVERIFY2(!watch->findItem("local.value"), "a local of frame 0 is shown for frame 1");
 }
 
 void DebuggerUnitTests::testMcpLocalsOutlastFramesAddedToTheStack_data()
