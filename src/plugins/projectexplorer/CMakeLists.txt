@@ -120,7 +120,6 @@ add_qtc_plugin(ProjectExplorer
     projectconfigurationmodel.cpp projectconfigurationmodel.h
     detailederrorview.cpp detailederrorview.h
     projectexplorer.cpp projectexplorer.h
-    projectexplorer.qrc
     projectexplorer_export.h
     projectexplorerconstants.cpp
     projectexplorerconstants.h
@@ -216,4 +215,10 @@ qtc_add_resources(ProjectExplorer "testdata"
   CONDITION WITH_TESTS
   PREFIX "/projectexplorer"
   FILES ${test_resources}
+)
+
+file(GLOB_RECURSE images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} images/*)
+qtc_add_resources(ProjectExplorer "images"
+  PREFIX "/projectexplorer"
+  FILES ${images}
 )

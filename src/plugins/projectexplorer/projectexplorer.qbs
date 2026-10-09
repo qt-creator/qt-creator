@@ -98,7 +98,6 @@ QtcPlugin {
             "projectconfiguration.cpp", "projectconfiguration.h",
             "projectconfigurationmodel.cpp", "projectconfigurationmodel.h",
             "projectexplorer.cpp", "projectexplorer.h",
-            "projectexplorer.qrc",
             "projectexplorer_export.h",
             "projectexplorerconstants.cpp",
             "projectexplorerconstants.h",
@@ -224,12 +223,6 @@ QtcPlugin {
         ]
     }
 
-    Group {
-        name: "Images"
-        prefix: "images/"
-        files: ["*.png"]
-    }
-
     QtcTestFiles {
         files: [
             "jsonwizard/jsonwizard_test.cpp",
@@ -242,6 +235,12 @@ QtcPlugin {
     }
 
     QtcTestResources { files: ["testdata/**"] }
+
+    Group {
+        name: "Images"
+        files: ["images/*", "images/**/*"]
+        fileTags: "qt.core.resource_data"
+    }
 
     Export {
         Depends { name: "QtTaskTree" }
