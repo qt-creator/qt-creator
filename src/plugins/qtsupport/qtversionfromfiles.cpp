@@ -97,12 +97,20 @@ Result<QMap<QString, QString>> qtPropertiesFromPrefix(const FilePath &prefix)
     const FilePath hostPrefix = conf.contains("HostPrefix")
                                     ? resolve(confDir, conf.value("HostPrefix")) : targetPrefix;
 
-    // As qmake does, prepend the sysroot to the target paths, not to the host paths.
+    // As qmake does, prepend the sysroot to the target paths, not to the host paths,
+    // replacing the drive of a Windows path. Unlike qmake, which leaves the /get variants
+    // of absolute paths without the sysroot, prepend it there, too: QtVersion reads its
+    // paths from the /get variants, and they have to point into the sysroot on the host.
     const QString sysroot = conf.value("Sysroot").isEmpty()
                                 ? QString() : resolve(confDir, conf.value("Sysroot")).path();
     const bool sysrootify = !sysroot.isEmpty() && QVariant(conf.value("SysrootifyPrefix")).toBool();
-    const auto targetPath = [&](const FilePath &path) {
-        return sysrootify ? sysroot + path.path() : path.path();
+    const auto targetPath = [&](const FilePath &path) -> QString {
+        const QString target = path.path();
+        if (!sysrootify)
+            return target;
+        if (path.startsWithDriveLetter() && target.size() > 2 && target.at(2) == '/')
+            return sysroot + target.mid(2);
+        return sysroot + target;
     };
 
     QMap<QString, QString> result;
@@ -325,13 +333,16 @@ void QtVersionFromFilesTest::testPlainPrefix()
 void QtVersionFromFilesTest::testSysrootifiedPrefix_data()
 {
     QTest::addColumn<bool>("relative");
-    QTest::newRow("absolute") << false;
-    QTest::newRow("relative") << true;
+    QTest::addColumn<QString>("prefixInConf");
+    QTest::newRow("absolute") << false << QString("/opt/qt");
+    QTest::newRow("relative") << true << QString("/opt/qt");
+    QTest::newRow("drive") << false << QString("C:/opt/qt");
 }
 
 void QtVersionFromFilesTest::testSysrootifiedPrefix()
 {
     QFETCH(bool, relative);
+    QFETCH(QString, prefixInConf);
     QTemporaryDir temp;
     QVERIFY(temp.isValid());
     const FilePath sysroot = FilePath::fromString(temp.path()) / "sysroot";
@@ -342,7 +353,7 @@ void QtVersionFromFilesTest::testSysrootifiedPrefix()
     QVERIFY((prefix / "modules").ensureWritableDir());
     QVERIFY((prefix / "bin/qt.conf")
                 .writeFileContents(("[Paths]\n"
-                                    "Prefix=/opt/qt\n"
+                                    "Prefix=" + prefixInConf + "\n"
                                     "HostPrefix=/usr\n"
                                     "Sysroot=" + sysrootInConf + "\n"
                                     "SysrootifyPrefix=true\n").toUtf8()));
@@ -353,10 +364,10 @@ void QtVersionFromFilesTest::testSysrootifiedPrefix()
     QVERIFY_RESULT(properties);
 
     QCOMPARE(properties->value("QT_INSTALL_PREFIX"), prefix.path());
-    QCOMPARE(properties->value("QT_INSTALL_PREFIX/raw"), QString("/opt/qt"));
+    QCOMPARE(properties->value("QT_INSTALL_PREFIX/raw"), prefixInConf);
     QCOMPARE(properties->value("QT_INSTALL_LIBS"), (prefix / "lib").path());
-    QCOMPARE(properties->value("QT_INSTALL_LIBS/raw"), QString("/opt/qt/lib"));
-    QCOMPARE(properties->value("QT_INSTALL_LIBS/dev"), QString("/opt/qt/lib"));
+    QCOMPARE(properties->value("QT_INSTALL_LIBS/raw"), prefixInConf + "/lib");
+    QCOMPARE(properties->value("QT_INSTALL_LIBS/dev"), prefixInConf + "/lib");
     QCOMPARE(properties->value("QT_INSTALL_LIBS/get"), (prefix / "lib").path());
     QCOMPARE(properties->value("QT_HOST_PREFIX"), QString("/usr"));
     QCOMPARE(properties->value("QT_HOST_BINS"), QString("/usr/bin"));
