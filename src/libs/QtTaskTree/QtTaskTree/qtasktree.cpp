@@ -2109,6 +2109,12 @@ class LocalThreadStorage
 {
 public:
     T &data() {
+        if (QThread::isMainThread()) {
+            // Complete lock-free path for the main thread only.
+            if (!m_mainThreadData)
+                return m_mainThreadData.emplace();
+            return *m_mainThreadData;
+        }
         QThread *currentThread = QThread::currentThread();
         // 1. FAST PATH: lock-free
         {
@@ -2125,7 +2131,9 @@ private:
     QReadWriteLock m_threadDataLock;
     // Use std::map on purpose, so that it doesn't invalidate references on modifications.
     // Don't optimize it by using std::unordered_map.
+    // The main thread is excluded and kept on m_mainThreadData.
     std::map<QThread *, T> m_threadDataMap = {};
+    std::optional<T> m_mainThreadData = std::nullopt;
 };
 
 class IteratorThreadData
