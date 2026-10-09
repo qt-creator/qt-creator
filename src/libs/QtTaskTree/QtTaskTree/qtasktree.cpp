@@ -2119,20 +2119,24 @@ public:
         // 1. FAST PATH: lock-free
         {
             QReadLocker locker(&m_threadDataLock);
-            auto it = m_threadDataMap.find(currentThread);
-            if (it != m_threadDataMap.end())
-                return it->second; // Lock-free read.
+            if (m_threadDataMap) {
+                auto it = m_threadDataMap->find(currentThread);
+                if (it != m_threadDataMap->end())
+                    return it->second; // Lock-free read.
+            }
         }
         // 2. SLOW PATH: synchronized
         QWriteLocker locker(&m_threadDataLock);
-        return m_threadDataMap.try_emplace(currentThread).first->second;
+        if (!m_threadDataMap)
+            m_threadDataMap.emplace();
+        return m_threadDataMap->try_emplace(currentThread).first->second;
     }
 private:
     QReadWriteLock m_threadDataLock;
     // Use std::map on purpose, so that it doesn't invalidate references on modifications.
     // Don't optimize it by using std::unordered_map.
     // The main thread is excluded and kept on m_mainThreadData.
-    std::map<QThread *, T> m_threadDataMap = {};
+    std::optional<std::map<QThread *, T>> m_threadDataMap = std::nullopt;
     std::optional<T> m_mainThreadData = std::nullopt;
 };
 
