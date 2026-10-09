@@ -37,7 +37,6 @@ QtcPlugin {
         "submitfieldwidget.h",
         "submitfilemodel.cpp",
         "submitfilemodel.h",
-        "vcsbase.qrc",
         "vcsbase_global.h", "vcsbasetr.h",
         "vcsbaseclient.cpp",
         "vcsbaseclient.h",
@@ -73,6 +72,23 @@ QtcPlugin {
         "wizard/vcsjsextension.cpp",
         "wizard/vcsjsextension.h",
     ]
+
+    Group {
+        name: "images"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "images/diff_arrows.png",
+            "images/diff_arrows@2x.png",
+            "images/diff_documents.png",
+            "images/diff_documents@2x.png",
+            "images/settingscategory_vcs.png",
+            "images/settingscategory_vcs@2x.png",
+            "images/submit_arrow.png",
+            "images/submit_arrow@2x.png",
+            "images/submit_db.png",
+            "images/submit_db@2x.png",
+        ]
+    }
 
     cpp.defines: base.concat(qtc.withPluginTests ? ['SRC_DIR="' + project.ide_source_tree + '"'] : [])
 }

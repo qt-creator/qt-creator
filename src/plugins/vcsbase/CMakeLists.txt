@@ -12,7 +12,6 @@ add_qtc_plugin(VcsBase
     submiteditorwidget.cpp submiteditorwidget.h
     submitfieldwidget.cpp submitfieldwidget.h
     submitfilemodel.cpp submitfilemodel.h
-    vcsbase.qrc
     vcsbase_global.h
     vcsbasetr.h
     vcsbaseclient.cpp vcsbaseclient.h
@@ -38,4 +37,19 @@ add_qtc_plugin(VcsBase
 extend_qtc_plugin(VcsBase
   CONDITION WITH_TESTS
   DEFINES SRC_DIR="${PROJECT_SOURCE_DIR}"
+)
+
+qtc_add_resources(VcsBase "images"
+  PREFIX "/vcsbase"
+  FILES
+    images/diff_arrows.png
+    images/diff_arrows@2x.png
+    images/diff_documents.png
+    images/diff_documents@2x.png
+    images/settingscategory_vcs.png
+    images/settingscategory_vcs@2x.png
+    images/submit_arrow.png
+    images/submit_arrow@2x.png
+    images/submit_db.png
+    images/submit_db@2x.png
 )
