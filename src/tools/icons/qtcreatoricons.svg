@@ -7117,7 +7117,7 @@
          id="path60" />
     </g>
     <g
-       id="src/libs/utils/images/member"
+       id="src/libs/utils/images/codemodel/member"
        transform="translate(-28)">
       <rect
          style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-opacity:1"
@@ -7134,7 +7134,7 @@
          style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
     <g
-       id="src/libs/utils/images/signal">
+       id="src/libs/utils/images/codemodel/signal">
       <rect
          style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-opacity:1"
          id="rect4853-8-7"
@@ -7200,7 +7200,7 @@
     </g>
     <g
        transform="translate(4)"
-       id="src/libs/utils/images/slot">
+       id="src/libs/utils/images/codemodel/slot">
       <rect
          style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-opacity:1"
          id="rect4853-8-0"
@@ -7232,7 +7232,7 @@
          height="100%" />
     </g>
     <g
-       id="src/libs/utils/images/protected"
+       id="src/libs/utils/images/codemodel/protected"
        transform="translate(36)">
       <rect
          y="552"
@@ -7265,7 +7265,7 @@
       </g>
     </g>
     <g
-       id="src/libs/utils/images/protectedbackground"
+       id="src/libs/utils/images/codemodel/protectedbackground"
        transform="translate(52)">
       <rect
          y="552"
@@ -7298,7 +7298,7 @@
       </g>
     </g>
     <g
-       id="src/libs/utils/images/private">
+       id="src/libs/utils/images/codemodel/private">
       <use
          x="0"
          y="0"
@@ -7327,7 +7327,7 @@
          r="0.5" />
     </g>
     <g
-       id="src/libs/utils/images/privatebackground">
+       id="src/libs/utils/images/codemodel/privatebackground">
       <use
          x="0"
          y="0"
@@ -7351,7 +7351,7 @@
          r="3" />
     </g>
     <g
-       id="src/libs/utils/images/static"
+       id="src/libs/utils/images/codemodel/static"
        transform="translate(68)">
       <rect
          y="552"
@@ -7368,7 +7368,7 @@
          sodipodi:nodetypes="cczczcc" />
     </g>
     <g
-       id="src/libs/utils/images/staticbackground"
+       id="src/libs/utils/images/codemodel/staticbackground"
        transform="translate(84)">
       <rect
          y="552"
@@ -7385,7 +7385,7 @@
          sodipodi:nodetypes="cczczcc" />
     </g>
     <g
-       id="src/libs/utils/images/classparent"
+       id="src/libs/utils/images/codemodel/classparent"
        transform="translate(84)">
       <rect
          y="552"
@@ -7402,7 +7402,7 @@
          sodipodi:nodetypes="ccccc" />
     </g>
     <g
-       id="src/libs/utils/images/classmemberfunction"
+       id="src/libs/utils/images/codemodel/classmemberfunction"
        transform="translate(100)">
       <rect
          y="552"
@@ -7420,7 +7420,7 @@
          inkscape:label="#path4895-4" />
     </g>
     <g
-       id="src/libs/utils/images/classmembervariable"
+       id="src/libs/utils/images/codemodel/classmembervariable"
        transform="translate(116)">
       <rect
          y="552"
@@ -7439,7 +7439,7 @@
          height="100%" />
     </g>
     <g
-       id="src/libs/utils/images/classrelation"
+       id="src/libs/utils/images/codemodel/classrelation"
        transform="translate(148)">
       <rect
          y="552"
@@ -7462,7 +7462,7 @@
          sodipodi:nodetypes="cc" />
     </g>
     <g
-       id="src/libs/utils/images/classrelationbackground"
+       id="src/libs/utils/images/codemodel/classrelationbackground"
        transform="translate(164)">
       <rect
          y="552"
@@ -7485,7 +7485,7 @@
          sodipodi:nodetypes="cc" />
     </g>
     <g
-       id="src/libs/utils/images/keyword">
+       id="src/libs/utils/images/codemodel/keyword">
       <rect
          style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-opacity:1"
          id="rect4853-8-9-8-3-7-5-1-9"
@@ -7543,7 +7543,7 @@
          x="0" />
     </g>
     <g
-       id="src/libs/utils/images/macro">
+       id="src/libs/utils/images/codemodel/macro">
       <rect
          style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-opacity:1"
          id="rect4853-8-9-8-3-7-5-1-9-9-5"
@@ -7601,7 +7601,7 @@
       </g>
     </g>
     <g
-       id="src/libs/utils/images/enum"
+       id="src/libs/utils/images/codemodel/enum"
        transform="translate(16)">
       <rect
          y="552"
@@ -7638,7 +7638,7 @@
       </g>
     </g>
     <g
-       id="src/libs/utils/images/enumerator"
+       id="src/libs/utils/images/codemodel/enumerator"
        transform="translate(32)">
       <rect
          y="552"
@@ -7671,7 +7671,7 @@
          style="opacity:1;fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     </g>
     <g
-       id="src/libs/utils/images/property"
+       id="src/libs/utils/images/codemodel/property"
        transform="translate(292)">
       <rect
          y="552"
@@ -7696,7 +7696,7 @@
          rx="1" />
     </g>
     <g
-       id="src/libs/utils/images/propertybackground">
+       id="src/libs/utils/images/codemodel/propertybackground">
       <rect
          y="552"
          x="441"

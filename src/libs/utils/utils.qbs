@@ -347,7 +347,6 @@ QtcLibrary {
         "uniqueobjectptr.h",
         "url.cpp",
         "url.h",
-        "utils.qrc",
         "utils_global.h",
         "utilsicons.h",
         "utilsicons.cpp",
@@ -360,7 +359,6 @@ QtcLibrary {
         "winutils.h",
         "wizard.cpp",
         "wizard.h",
-        "images/*.png",
     ]
 
     Group {
@@ -509,7 +507,6 @@ QtcLibrary {
         ]
     }
 
-    Qt.core.resourceFileBaseName: "mimedb"
     Group {
         name: "MIME database"
         prefix: "../3rdparty/tika/"
@@ -517,6 +514,28 @@ QtcLibrary {
         fileTags: "qt.core.resource_data"
         Qt.core.resourcePrefix: "/utils/mimetypes"
         Qt.core.resourceSourceBase: sourceDirectory + "/../3rdparty/tika"
+    }
+
+    Group {
+        name: "images"
+        files: "images/*"
+        Qt.core.resourcePrefix: "/utils/images"
+        fileTags: "qt.core.resource_data"
+    }
+
+    Group {
+        name: "tooltip images"
+        files: "tooltip/images/*.png"
+        Qt.core.resourcePrefix: "/utils/tooltip/images"
+        fileTags: "qt.core.resource_data"
+    }
+
+    Group {
+        name: "code model images"
+        Qt.core.resourcePrefix: "/codemodel/images"
+        Qt.core.resourceSourceBase: sourceDirectory + "/images/codemodel"
+        files: "images/codemodel/*"
+        fileTags: "qt.core.resource_data"
     }
 
     Group {

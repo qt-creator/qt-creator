@@ -193,7 +193,6 @@ add_qtc_library(Utils
     uncommentselection.cpp uncommentselection.h
     uniqueobjectptr.h
     url.cpp url.h
-    utils.qrc
     utils_global.h
     utilstr.h
     utilsicons.cpp utilsicons.h
@@ -250,6 +249,20 @@ set_source_files_properties("${utils_mime_database}"
 qt_add_resources(Utils utils_mimetypes
   PREFIX "/utils/mimetypes"
   FILES "${utils_mime_database}"
+)
+
+file(GLOB images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} images/*.png)
+file(GLOB tooltip_images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} tooltip/images/*.png)
+qtc_add_resources(Utils "images"
+  PREFIX "/utils"
+  FILES ${images} ${tooltip_images}
+)
+
+file(GLOB codemodel_images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} images/codemodel/*.png)
+qtc_add_resources(Utils "codemodel_images"
+  PREFIX "/codemodel/images"
+  BASE "images/codemodel"
+  FILES ${codemodel_images}
 )
 
 extend_qtc_library(Utils
