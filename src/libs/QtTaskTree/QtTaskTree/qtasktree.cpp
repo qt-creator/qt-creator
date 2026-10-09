@@ -19,8 +19,8 @@
 #include <QtCore/QHash>
 #include <QtCore/QMap>
 #include <QtCore/QMetaEnum>
-#include <QtCore/QMutex>
 #include <QtCore/QPointer>
+#include <QtCore/QReadWriteLock>
 #include <QtCore/QSet>
 #include <QtCore/QThread>
 #include <QtCore/QTime>
@@ -2109,11 +2109,20 @@ class LocalThreadStorage
 {
 public:
     T &data() {
-        QMutexLocker lock(&m_threadDataMutex);
-        return m_threadDataMap.try_emplace(QThread::currentThread()).first->second;
+        QThread *currentThread = QThread::currentThread();
+        // 1. FAST PATH: lock-free
+        {
+            QReadLocker locker(&m_threadDataLock);
+            auto it = m_threadDataMap.find(currentThread);
+            if (it != m_threadDataMap.end())
+                return it->second; // Lock-free read.
+        }
+        // 2. SLOW PATH: synchronized
+        QWriteLocker locker(&m_threadDataLock);
+        return m_threadDataMap.try_emplace(currentThread).first->second;
     }
 private:
-    QMutex m_threadDataMutex = {};
+    QReadWriteLock m_threadDataLock;
     // Use std::map on purpose, so that it doesn't invalidate references on modifications.
     // Don't optimize it by using std::unordered_map.
     std::map<QThread *, T> m_threadDataMap = {};
