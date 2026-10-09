@@ -58,6 +58,7 @@ add_qtc_plugin(TextEditor
     commentssettings.cpp commentssettings.h
     completionsettings.cpp completionsettings.h
     displaysettings.cpp displaysettings.h
+    editorconfig.cpp editorconfig.h
     extraencodingsettings.cpp extraencodingsettings.h
     findincurrentfile.cpp findincurrentfile.h
     findinfiles.cpp findinfiles.h
@@ -122,6 +123,8 @@ extend_qtc_plugin(TextEditor
     codeassist/codeassist_test.h
     codestyleaspect_test.cpp
     codestyleaspect_test.h
+    editorconfig_test.cpp
+    editorconfig_test.h
     highlighter_test.cpp
     highlighter_test.h
     mergeconflict_test.cpp

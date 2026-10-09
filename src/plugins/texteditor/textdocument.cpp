@@ -3,6 +3,7 @@
 
 #include "textdocument.h"
 
+#include "editorconfig.h"
 #include "extraencodingsettings.h"
 #include "fontsettings.h"
 #include "icodestylepreferences.h"
@@ -22,6 +23,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <utils/guard.h>
@@ -34,6 +36,8 @@
 #include <QFutureInterface>
 #include <QScrollBar>
 #include <QStringList>
+
+#include <tuple>
 
 using namespace Core;
 using namespace Utils;
@@ -66,15 +70,20 @@ public:
     MultiTextCursor indentOrUnindent(const MultiTextCursor &cursor, bool doIndent, const TabSettingsData &tabSettings);
     void resetRevisions();
     void updateRevisions();
+    void applyEditorConfig();
 
 public:
     FilePath m_defaultPath;
     QString m_suggestedFileName;
     TypingSettingsData m_typingSettings;
     StorageSettingsData m_storageSettings;
+    StorageSettingsData m_configuredStorageSettings;
     ICodeStylePreferences *m_codeStylePreferences = nullptr;
     TabSettingsData m_tabSettings;
     ExtraEncodingSettingsData m_extraEncodingSettings;
+    ExtraEncodingSettingsData m_configuredExtraEncodingSettings;
+    EditorConfigProperties m_editorConfig;
+    bool m_opening = false;
     FontSettingsData m_fontSettings;
     bool m_fontSettingsNeedsApply = false; // for applying font settings delayed till an editor becomes visible
     QTextDocument m_document;
@@ -207,6 +216,14 @@ void TextDocumentPrivate::resetRevisions()
 
     for (QTextBlock block = m_document.begin(); block.isValid(); block = block.next())
         block.setRevision(documentLayout->lastSaveRevision);
+}
+
+void TextDocumentPrivate::applyEditorConfig()
+{
+    m_storageSettings = m_configuredStorageSettings;
+    m_editorConfig.applyTo(m_storageSettings);
+    m_extraEncodingSettings = m_configuredExtraEncodingSettings;
+    m_editorConfig.applyTo(m_extraEncodingSettings);
 }
 
 void TextDocumentPrivate::updateRevisions()
@@ -362,7 +379,9 @@ void TextDocument::setTypingSettings(const TypingSettingsData &typingSettings)
 
 void TextDocument::setStorageSettings(const StorageSettingsData &storageSettings)
 {
+    d->m_configuredStorageSettings = storageSettings;
     d->m_storageSettings = storageSettings;
+    d->m_editorConfig.applyTo(d->m_storageSettings);
 }
 
 const TypingSettingsData &TextDocument::typingSettings() const
@@ -373,6 +392,18 @@ const TypingSettingsData &TextDocument::typingSettings() const
 const StorageSettingsData &TextDocument::storageSettings() const
 {
     return d->m_storageSettings;
+}
+
+/*!
+    Returns the storage settings as last set with setStorageSettings(), without
+    the settings from \c .editorconfig files applied.
+
+    Use this rather than storageSettings() to restore the settings after a
+    temporary change.
+*/
+const StorageSettingsData &TextDocument::configuredStorageSettings() const
+{
+    return d->m_configuredStorageSettings;
 }
 
 void TextDocument::setTabSettings(const TabSettingsData &tabSettings)
@@ -398,6 +429,13 @@ void TextDocument::setTabSettings(const TabSettingsData &tabSettings)
 TabSettingsData TextDocument::tabSettings() const
 {
     return d->m_tabSettings;
+}
+
+void TextDocument::setCodeStyleTabSettings(const TabSettingsData &tabSettings)
+{
+    TabSettingsData candidate = tabSettings;
+    d->m_editorConfig.applyTo(candidate);
+    setTabSettings(candidate);
 }
 
 void TextDocument::setFontSettings(const FontSettingsData &fontSettings)
@@ -476,17 +514,17 @@ void TextDocument::setCodeStyle(ICodeStylePreferences *preferences)
     indenter()->setCodeStylePreferences(preferences);
     if (d->m_codeStylePreferences) {
         disconnect(d->m_codeStylePreferences, &ICodeStylePreferences::currentTabSettingsChanged,
-                   this, &TextDocument::setTabSettings);
+                   this, &TextDocument::setCodeStyleTabSettings);
         disconnect(d->m_codeStylePreferences, &ICodeStylePreferences::currentValueChanged,
                    this, &TextDocument::slotCodeStyleSettingsChanged);
     }
     d->m_codeStylePreferences = preferences;
     if (d->m_codeStylePreferences) {
         connect(d->m_codeStylePreferences, &ICodeStylePreferences::currentTabSettingsChanged,
-                this, &TextDocument::setTabSettings);
+                this, &TextDocument::setCodeStyleTabSettings);
         connect(d->m_codeStylePreferences, &ICodeStylePreferences::currentValueChanged,
                 this, &TextDocument::slotCodeStyleSettingsChanged);
-        setTabSettings(d->m_codeStylePreferences->currentTabSettings());
+        setCodeStyleTabSettings(d->m_codeStylePreferences->currentTabSettings());
         slotCodeStyleSettingsChanged();
     }
 }
@@ -520,7 +558,9 @@ const FontSettingsData &TextDocument::fontSettings() const
 
 void TextDocument::setExtraEncodingSettings(const ExtraEncodingSettingsData &extraEncodingSettings)
 {
+    d->m_configuredExtraEncodingSettings = extraEncodingSettings;
     d->m_extraEncodingSettings = extraEncodingSettings;
+    d->m_editorConfig.applyTo(d->m_extraEncodingSettings);
 }
 
 void TextDocument::autoIndent(const QTextCursor &cursor, QChar typedChar, int currentCursorPosition)
@@ -584,6 +624,16 @@ bool TextDocument::applyChangeSet(const ChangeSet &changeSet)
 const ExtraEncodingSettingsData &TextDocument::extraEncodingSettings() const
 {
     return d->m_extraEncodingSettings;
+}
+
+/*!
+    Returns the settings from \c .editorconfig files that apply to the file of
+    the document. They take precedence over the storage, tab and encoding
+    settings set on the document.
+*/
+const EditorConfigProperties &TextDocument::editorConfig() const
+{
+    return d->m_editorConfig;
 }
 
 void TextDocument::setIndenter(Indenter *indenter)
@@ -661,6 +711,15 @@ Result<> TextDocument::saveImpl(const FilePath &filePath, SaveOption option)
         }
     }
 
+    // Save As cleans up and encodes according to the .editorconfig settings of the new location.
+    const FilePath target = filePath.absoluteFilePath().cleanPath();
+    const bool savesAs = option != SaveOption::AutoSave && target != this->filePath();
+    const EditorConfigProperties previousEditorConfig = d->m_editorConfig;
+    const TabSettingsData previousTabSettings = d->m_tabSettings;
+    const TextFileFormat previousFormat = format();
+    if (savesAs)
+        applyEditorConfigForSaveAs(target);
+
     if (option != SaveOption::AutoSave) {
         cursor.beginEditBlock();
         cursor.movePosition(QTextCursor::Start);
@@ -693,7 +752,8 @@ Result<> TextDocument::saveImpl(const FilePath &filePath, SaveOption option)
     const Result<> res = write(filePath, saveFormat, plainText());
 
     // restore text cursor and scroll bar positions
-    if (option == SaveOption::AutoSave && undos < d->m_document.availableUndoSteps()) {
+    if ((option == SaveOption::AutoSave || (savesAs && !res))
+        && undos < d->m_document.availableUndoSteps()) {
         d->m_document.undo();
         if (editorWidget) {
             QTextCursor cur = editorWidget->textCursor();
@@ -705,8 +765,19 @@ Result<> TextDocument::saveImpl(const FilePath &filePath, SaveOption option)
         }
     }
 
-    if (!res)
+    if (!res) {
+        if (savesAs) {
+            setEncoding(previousFormat.encoding());
+            setLineTerminationMode(previousFormat.lineTerminationMode);
+            d->m_editorConfig = previousEditorConfig;
+            d->applyEditorConfig();
+            if (previousTabSettings != d->m_tabSettings) {
+                d->m_tabSettings = previousTabSettings;
+                emit tabSettingsChanged();
+            }
+        }
         return res;
+    }
 
     d->m_autoSaveRevision = d->m_document.revision();
     if (option == SaveOption::AutoSave)
@@ -745,8 +816,62 @@ void TextDocument::setFilePath(const Utils::FilePath &newName)
     if (const FilePath newPath = newName.absoluteFilePath().cleanPath(); newPath != filePath()) {
         if (d->m_indenter)
             d->m_indenter->setFileName(newPath);
+        // open() has looked up the .editorconfig settings for the path already.
+        if (!d->m_opening)
+            updateEditorConfig(newPath);
         IDocument::setFilePath(newPath);
     }
+}
+
+// For a rename. The content is decoded already and keeps its line endings, so an
+// encoding taken from .editorconfig still applies.
+void TextDocument::updateEditorConfig(const FilePath &filePath)
+{
+    EditorConfigProperties properties = EditorConfigProperties::forFile(filePath);
+    properties.encoding = d->m_editorConfig.encoding;
+    properties.lineTerminationMode.reset();
+    setEditorConfig(properties);
+}
+
+// For Save As. The content is encoded again, so the encoding and line endings of the new
+// location apply.
+void TextDocument::applyEditorConfigForSaveAs(const FilePath &filePath)
+{
+    EditorConfigProperties properties = EditorConfigProperties::forFile(filePath);
+    if (properties.encoding && *properties.encoding != encoding()) {
+        const TextEncoding &target = *properties.encoding;
+        const QString text = plainText();
+        if (supportsEncoding(target) && target.decode(target.encode(text)) == text) {
+            setEncoding(target);
+        } else {
+            MessageManager::writeFlashing(
+                Tr::tr("\"%1\" cannot be saved with the encoding %2 that .editorconfig "
+                       "specifies. Saving it with %3 instead.")
+                    .arg(filePath.toUserOutput(),
+                         target.displayName(),
+                         encoding().displayName()));
+            properties.encoding.reset();
+        }
+    }
+    if (properties.lineTerminationMode)
+        setLineTerminationMode(*properties.lineTerminationMode);
+    setEditorConfig(properties);
+}
+
+void TextDocument::setEditorConfig(const EditorConfigProperties &properties)
+{
+    const auto indentation = [](const EditorConfigProperties &properties) {
+        return std::tuple(properties.indentWithTabs,
+                          properties.indentSize,
+                          properties.indentSizeIsTabWidth,
+                          properties.tabWidth);
+    };
+    const EditorConfigProperties previous = d->m_editorConfig;
+    d->m_editorConfig = properties;
+    d->applyEditorConfig();
+    // Keep tab settings chosen for this document unless .editorconfig changes them.
+    if (d->m_codeStylePreferences && indentation(previous) != indentation(d->m_editorConfig))
+        setCodeStyleTabSettings(d->m_codeStylePreferences->currentTabSettings());
 }
 
 IDocument::ReloadBehavior TextDocument::reloadBehavior(ChangeTrigger state, ChangeType type) const
@@ -763,11 +888,26 @@ bool TextDocument::isModified() const
 
 Result<> TextDocument::open(const FilePath &filePath, const FilePath &realFilePath)
 {
+    d->m_editorConfig = EditorConfigProperties::forFile(filePath);
+    if (d->m_editorConfig.encoding) {
+        if (supportsEncoding(*d->m_editorConfig.encoding))
+            setEncoding(*d->m_editorConfig.encoding);
+        else
+            d->m_editorConfig.encoding.reset();
+    }
     emit aboutToOpen(filePath, realFilePath);
+    // An editor that picks the encoding itself, like the one for git commit messages, wins.
+    if (d->m_editorConfig.encoding && encoding() != *d->m_editorConfig.encoding)
+        d->m_editorConfig.encoding.reset();
+    d->m_opening = true;
     const Result<> result = openImpl(filePath, realFilePath, /*reload =*/ false);
+    d->m_opening = false;
     if (result) {
         setMimeType(Utils::mimeTypeForFile(filePath, MimeMatchMode::MatchDefaultAndRemote).name());
-        setTabSettings(d->m_tabSettings);
+        d->applyEditorConfig();
+        TabSettingsData tabSettings = d->m_tabSettings;
+        d->m_editorConfig.applyTo(tabSettings);
+        setTabSettings(tabSettings);
         emit openFinishedSuccessfully();
     }
     return result;
@@ -781,6 +921,8 @@ Result<> TextDocument::openImpl(const FilePath &filePath,
 
     if (!filePath.isEmpty()) {
         readResult = read(realFilePath);
+        if (d->m_editorConfig.lineTerminationMode)
+            setLineTerminationMode(*d->m_editorConfig.lineTerminationMode);
 
         // Don't call setUndoRedoEnabled(true) when reload is true and filenames are different,
         // since it will reset the undo's clear index

@@ -57,11 +57,16 @@
 
 #ifdef WITH_TESTS
 #include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/icodestylepreferences.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 #include <utils/hostosinfo.h>
 #include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
 #include <QEventLoop>
+#include <QScopeGuard>
 #include <QSignalSpy>
 #include <QTest>
 #include <QTimer>
@@ -2455,6 +2460,75 @@ private slots:
 
         QVERIFY(oneByOne->isEmpty());
         QVERIFY(batched->isEmpty());
+    }
+
+    void testEditorConfigOverridesProjectSettings()
+    {
+        using TextEditor::TabSettingsData;
+
+        TemporaryDirectory td("qtc-editorconfig-project");
+        QVERIFY(td.isValid());
+        QVERIFY(td.path()
+                    .pathAppended(".editorconfig")
+                    .writeFileContents("root = true\n"
+                                       "[*.txt]\n"
+                                       "indent_style = tab\n"
+                                       "tab_width = 3\n"
+                                       "charset = latin1\n"));
+        const FilePath file = td.path().pathAppended("a.txt");
+        QVERIFY(file.writeFileContents("\xe4\n"));
+
+        auto newProject = std::make_unique<RenameTestProject>(td);
+        auto root = std::make_unique<ProjectNode>(newProject->projectFilePath());
+        root->addNode(std::make_unique<FileNode>(file, FileType::Source));
+        newProject->setRootProjectNode(std::move(root));
+
+        EditorConfiguration *config = newProject->editorConfiguration();
+        config->useGlobalSettings.setValue(false);
+        config->setTextEncoding(TextEncoding(TextEncoding::Utf8));
+        config->codeStyle()->setTabSettings(
+            TabSettingsData(TabSettingsData::SpacesOnlyTabPolicy,
+                            8,
+                            4,
+                            TabSettingsData::ContinuationAlignWithSpaces));
+
+        Core::IEditor *editor = Core::EditorManager::openEditor(file);
+        QVERIFY(editor);
+        const auto closeEditor = qScopeGuard([editor] {
+            Core::EditorManager::closeEditors({editor}, false);
+        });
+        TextEditor::TextEditorWidget *widget = TextEditor::TextEditorWidget::fromEditor(editor);
+        QVERIFY(widget);
+        TextEditor::TextDocument *document = widget->textDocument();
+
+        // As on session restore, the project is loaded with the file already open.
+        Project *project = newProject.release();
+        ProjectManager::addProject(project);
+        const auto removeProject = qScopeGuard([project] {
+            ProjectManager::removeProject(project);
+        });
+        QCOMPARE(ProjectManager::projectForFile(file), project);
+
+        // The project settings were applied to the editor ...
+        QCOMPARE(document->codeStyle(), config->codeStyle(widget->languageSettingsId()));
+        // ... but the .editorconfig settings take precedence.
+        QCOMPARE(document->encoding().name(), TextEncoding(TextEncoding::Latin1).name());
+        QCOMPARE(document->plainText(), QString(QChar(0xe4)) + '\n');
+        QCOMPARE(document->tabSettings().m_tabPolicy, TabSettingsData::TabsOnlyTabPolicy);
+        QCOMPARE(document->tabSettings().m_indentSize, 3);
+
+        const TabSettingsData unopened
+            = actualTabSettings(td.path().pathAppended("b.txt"), nullptr);
+        QCOMPARE(unopened.m_tabPolicy, TabSettingsData::TabsOnlyTabPolicy);
+        QCOMPARE(unopened.m_indentSize, 3);
+
+        // A renamed document is still decoded with the .editorconfig encoding.
+        const FilePath renamed = td.path().pathAppended("c.txt");
+        QVERIFY(file.renameFile(renamed));
+        Core::DocumentManager::renamedFile(file, renamed);
+        QCOMPARE(document->filePath(), renamed);
+        config->configureEditor(editor);
+        QCOMPARE(document->encoding().name(), TextEncoding(TextEncoding::Latin1).name());
     }
 };
 

@@ -3,6 +3,7 @@
 
 #include "behaviorsettings.h"
 
+#include "editorconfig.h"
 #include "extraencodingsettings.h"
 #include "icodestylepreferences.h"
 #include "storagesettings.h"
@@ -149,6 +150,7 @@ public:
         registerAspect(&globalTypingSettings());
         registerAspect(&globalStorageSettings());
         registerAspect(&globalExtraEncodingSettings());
+        registerAspect(&globalEditorConfigSettings());
         registerAspect(&globalBehaviorSettings());
 
         setLayouter([] {
@@ -158,6 +160,7 @@ public:
                 &globalTypingSettings(),
                 &globalStorageSettings(),
                 &globalExtraEncodingSettings(),
+                &globalEditorConfigSettings(),
                 &globalBehaviorSettings(),
                 st,
             };

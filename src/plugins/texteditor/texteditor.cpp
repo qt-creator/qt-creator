@@ -15,6 +15,7 @@
 #include "codeassist/documentcontentcompletion.h"
 #include "completionsettings.h"
 #include "displaysettings.h"
+#include "editorconfig.h"
 #include "extraencodingsettings.h"
 #include "fontsettings.h"
 #include "highlighter.h"
@@ -977,6 +978,8 @@ public:
     QString m_diffSignGlyphs;
     bool m_annotationsrRight = true;
     MarginSettingsData m_marginSettings;
+    MarginSettingsData m_configuredMarginSettings;
+    std::optional<int> m_appliedMaxLineLength;
     // apply when making visible the first time, for the split case
     bool m_fontSettingsNeedsApply = true;
     bool m_wasNotYetShown = true;
@@ -1394,7 +1397,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
         q->setBehaviorSettings(globalBehaviorSettings().data());
     });
     connect(&TextEditor::marginSettings(), &MarginSettings::changed, this, [this](){
-        q->setMarginSettings(TextEditor::marginSettings().data());
+        q->setConfiguredMarginSettings(TextEditor::marginSettings().data());
     });
     connect(&TextEditor::displaySettings(), &DisplaySettings::changed, this, [this](){
         q->setDisplaySettings(TextEditor::displaySettings().data());
@@ -1713,6 +1716,15 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
                                      this,
                                      &TextEditorWidgetPrivate::applyTabSettings);
 
+    m_documentConnections << connect(m_document.data(), &IDocument::filePathChanged, this, [this] {
+        // Leave an explicitly set margin alone unless .editorconfig changes it.
+        if (m_document->editorConfig().maxLineLength != m_appliedMaxLineLength)
+            q->setConfiguredMarginSettings(m_configuredMarginSettings);
+        // Save As may have switched to the encoding and line endings of the new location.
+        q->updateTextCodecLabel();
+        q->updateTextLineEndingLabel();
+    });
+
     m_documentConnections << connect(m_document.data(),
                                      &TextDocument::fontSettingsChanged,
                                      this,
@@ -1767,7 +1779,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     q->setTypingSettings(globalTypingSettings().data());
     q->setStorageSettings(globalStorageSettings().data());
     q->setBehaviorSettings(globalBehaviorSettings().data());
-    q->setMarginSettings(marginSettings().data());
+    q->setConfiguredMarginSettings(marginSettings().data());
     q->setDisplaySettings(displaySettings().data());
     q->setExtraEncodingSettings(globalExtraEncodingSettings().data());
     q->textDocument()->setCodeStyle(codeStyleForLanguage(m_tabSettingsId));
@@ -2405,6 +2417,8 @@ void TextEditorWidget::openFinishedSuccessfully()
     d->moveCursor(QTextCursor::Start);
     d->updateCannotDecodeInfo();
     updateTextCodecLabel();
+    textDocument()->editorConfig().applyTo(d->m_marginSettings);
+    d->m_appliedMaxLineLength = textDocument()->editorConfig().maxLineLength;
     updateVisualWrapColumn();
 }
 
@@ -10216,6 +10230,22 @@ void TextEditorWidget::setMarginSettings(const MarginSettingsData &ms)
     viewport()->update();
     extraArea()->update();
     d->updateCenteringContentMargins();
+}
+
+/*!
+    Sets the margin settings that come from the configuration, that is the
+    global or project settings, with the settings of \c .editorconfig files
+    for the document applied on top.
+
+    Use setMarginSettings() for an explicit change of this editor's margin.
+*/
+void TextEditorWidget::setConfiguredMarginSettings(const MarginSettingsData &marginSettings)
+{
+    d->m_configuredMarginSettings = marginSettings;
+    d->m_appliedMaxLineLength = textDocument()->editorConfig().maxLineLength;
+    MarginSettingsData effective = marginSettings;
+    textDocument()->editorConfig().applyTo(effective);
+    setMarginSettings(effective);
 }
 
 void TextEditorWidget::setBehaviorSettings(const BehaviorSettingsData &bs)

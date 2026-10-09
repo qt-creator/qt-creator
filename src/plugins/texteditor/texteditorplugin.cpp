@@ -4,6 +4,7 @@
 #include "behaviorsettings.h"
 #include "bookmarkfilter.h"
 #include "bookmarkmanager.h"
+#include "editorconfig.h"
 #include "extraencodingsettings.h"
 #include "findincurrentfile.h"
 #include "findinfiles.h"
@@ -37,6 +38,7 @@
 #ifdef WITH_TESTS
 #include "codeassist/codeassist_test.h"
 #include "codestyleaspect_test.h"
+#include "editorconfig_test.h"
 #include "formattexteditor.h"
 #include "highlighter_test.h"
 #include "mergeconflict_test.h"
@@ -115,6 +117,7 @@ void TextEditorPlugin::initialize()
     addTestCreator(createFollowSymbolTest);
     addTestCreator(createSnippetParserTest);
     addTestCreator(createCodeStyleAspectTest);
+    addTestCreator(createEditorConfigTest);
     addTestCreator(createMergeConflictTest);
     addTestCreator(createSpellCheckTest);
 #endif
@@ -136,8 +139,11 @@ void TextEditorPlugin::initialize()
     setupCommentsSettings();
     setupGlobalCodeStyle();
 
-    TabSettingsData::setRetriever(
-        [](const FilePath &) { return globalCodeStyle().tabSettings(); });
+    TabSettingsData::setRetriever([](const FilePath &filePath) {
+        TabSettingsData tabSettings = globalCodeStyle().tabSettings();
+        EditorConfigProperties::forFile(filePath).applyTo(tabSettings);
+        return tabSettings;
+    });
 
     setupTextMarkRegistry(this);
     setupOutlineFactory();

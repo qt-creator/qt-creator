@@ -409,6 +409,7 @@ public:
     // carry the markers along.
     void setScrollBarHighlights(Utils::Id category, const QList<ScrollBarHighlight> &highlights);
     virtual void setMarginSettings(const TextEditor::MarginSettingsData &);
+    void setConfiguredMarginSettings(const TextEditor::MarginSettingsData &marginSettings);
     void setBehaviorSettings(const TextEditor::BehaviorSettingsData &);
     void setTypingSettings(const TextEditor::TypingSettingsData &);
     void setStorageSettings(const TextEditor::StorageSettingsData &);

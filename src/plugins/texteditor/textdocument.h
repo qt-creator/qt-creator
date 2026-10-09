@@ -27,6 +27,7 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class CompletionAssistProvider;
+class EditorConfigProperties;
 class ExtraEncodingSettingsData;
 class FontSettingsData;
 class IAssistProvider;
@@ -65,9 +66,11 @@ public:
 
     const TypingSettingsData &typingSettings() const;
     const StorageSettingsData &storageSettings() const;
+    const StorageSettingsData &configuredStorageSettings() const;
     virtual TabSettingsData tabSettings() const;
     const ExtraEncodingSettingsData &extraEncodingSettings() const;
     const FontSettingsData &fontSettings() const;
+    const EditorConfigProperties &editorConfig() const;
 
     void setIndenter(Indenter *indenter);
     Indenter *indenter() const;
@@ -172,6 +175,10 @@ private:
     Utils::Result<> openImpl(const Utils::FilePath &filePath,
                              const Utils::FilePath &realFileName,
                              bool reload);
+    void setCodeStyleTabSettings(const TabSettingsData &tabSettings);
+    void updateEditorConfig(const Utils::FilePath &filePath);
+    void applyEditorConfigForSaveAs(const Utils::FilePath &filePath);
+    void setEditorConfig(const EditorConfigProperties &properties);
     void cleanWhitespace(QTextCursor &cursor, bool inEntireDocument, bool cleanIndentation);
     void ensureFinalNewLine(QTextCursor &cursor);
     void modificationChanged(bool modified);
