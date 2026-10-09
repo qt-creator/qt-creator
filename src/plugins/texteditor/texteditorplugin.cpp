@@ -108,6 +108,7 @@ void TextEditorPlugin::initialize()
     addTestCreator(createCleanWhitespaceTest);
     addTestCreator(createSortLinesTest);
     addTestCreator(createSelectAllTest);
+    addTestCreator(createUndoCursorTest);
     addTestCreator(createRewrapParagraphTest);
     addTestCreator(createExternalToolReadOnlyTest);
     addTestCreator(createRevertToSavedTest);

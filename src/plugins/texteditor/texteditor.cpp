@@ -106,7 +106,6 @@
 #include <QScrollBar>
 #include <QSequentialAnimationGroup>
 #include <QShortcut>
-#include <QStack>
 #include <QStyle>
 #include <QStyleFactory>
 #include <QTextBlock>
@@ -761,6 +760,7 @@ public:
     void setDocument(const QSharedPointer<TextDocument> &doc);
     void handleHomeKey(bool anchor, bool block);
     void handleBackspaceKey();
+    void insertTypedText(MultiTextCursor &cursors, const QString &text, bool overwrite);
     void moveLineUpDown(bool up);
     void copyLineUpDown(bool up);
     void addSelectionNextFindMatch();
@@ -1095,6 +1095,10 @@ public:
     QTextCursor m_autoCompleteHighlightPos;
     void updateAutoCompleteHighlight();
 
+    // Where typing with multiple cursors left off, to continue its undo step.
+    int m_typingRevision = -1;
+    QList<int> m_typingPositions;
+
     QSet<int> m_cursorBlockNumbers;
     int m_blockCount = 0;
 
@@ -1143,7 +1147,21 @@ public:
         int anchor = 0;
     };
     using UndoMultiCursor = QList<UndoCursor>;
-    QStack<UndoMultiCursor> m_undoCursorStack;
+    QMap<int, UndoMultiCursor> m_undoCursors;
+    QMap<int, UndoMultiCursor> m_redoCursors;
+    UndoMultiCursor m_cursorsBeforeEdit;
+    int m_undoStepsBeforeEdit = 0;
+    int m_revisionAfterEdit = 0;
+
+    UndoMultiCursor currentCursors() const;
+    void rememberCursorsBeforeEdit();
+    void rememberDocumentState();
+    void documentContentsChanged();
+    void addUndoCursors();
+    void trimUndoCursors();
+    void restoreCursors(const UndoMultiCursor &cursors);
+    void undoRedo(bool undo);
+
     QList<int> m_visualIndentCache;
     int m_visualIndentOffset = 0;
 
@@ -1340,6 +1358,11 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
 
     connect(q, &PlainTextEdit::cursorPositionChanged,
             this, &TextEditorWidgetPrivate::updateCursorPosition);
+
+    connect(q, &PlainTextEdit::cursorPositionChanged,
+            this, &TextEditorWidgetPrivate::rememberCursorsBeforeEdit);
+    connect(q, &PlainTextEdit::selectionChanged,
+            this, &TextEditorWidgetPrivate::rememberCursorsBeforeEdit);
 
     connect(q, &PlainTextEdit::updateRequest,
             this, &TextEditorWidgetPrivate::slotUpdateRequest);
@@ -1627,6 +1650,10 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
 
     m_document = doc;
     q->PlainTextEdit::setDocument(doc->document());
+    m_undoCursors.clear();
+    m_redoCursors.clear();
+    m_cursorsBeforeEdit.clear();
+    rememberDocumentState();
     m_tabSettingsButton->setDocument(q->textDocument());
     previousDocument.clear();
     q->setCursorWidth(2); // Applies to the document layout
@@ -1684,6 +1711,26 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
                                      &QTextDocument::contentsChange,
                                      this,
                                      &TextEditorWidgetPrivate::editorContentsChange);
+
+    m_documentConnections << connect(m_document->document(),
+                                     &QTextDocument::undoCommandAdded,
+                                     this,
+                                     &TextEditorWidgetPrivate::addUndoCursors);
+
+    m_documentConnections << connect(m_document->document(),
+                                     &QTextDocument::contentsChanged,
+                                     this,
+                                     &TextEditorWidgetPrivate::documentContentsChanged);
+
+    m_documentConnections << connect(m_document->document(),
+                                     &QTextDocument::undoAvailable,
+                                     this,
+                                     &TextEditorWidgetPrivate::trimUndoCursors);
+
+    m_documentConnections << connect(m_document->document(),
+                                     &QTextDocument::redoAvailable,
+                                     this,
+                                     &TextEditorWidgetPrivate::trimUndoCursors);
 
     m_documentConnections << connect(m_document->document(),
                                      &QTextDocument::modificationChanged,
@@ -2973,16 +3020,118 @@ void TextEditorWidget::unindent()
     setMultiTextCursor(textDocument()->unindent(multiTextCursor()));
 }
 
+TextEditorWidgetPrivate::UndoMultiCursor TextEditorWidgetPrivate::currentCursors() const
+{
+    UndoMultiCursor cursors;
+    for (const QTextCursor &cursor : m_cursors.cursors())
+        cursors.append({cursor.position(), cursor.anchor()});
+    return cursors;
+}
+
+void TextEditorWidgetPrivate::rememberCursorsBeforeEdit()
+{
+    // Beginning an edit block changes the revision, cursors set during the edit do not count.
+    if (q->document()->revision() == m_revisionAfterEdit)
+        m_cursorsBeforeEdit = currentCursors();
+}
+
+/*
+    The cursors are keyed by QTextDocument::availableUndoSteps() after the undo command was
+    added. That number grows monotonically within one undo history and does not depend on which
+    view or code path does the undo and redo. Joining a previous edit block adds another entry
+    for the same undo step, the one with the lowest key holds the cursors from before the step.
+*/
+void TextEditorWidgetPrivate::addUndoCursors()
+{
+    // An edit made in another view, or applied to this one while it neither has focus nor is
+    // part of the current editor, is shown by moving to it on undo.
+    if (Core::IEditor *current = Core::EditorManager::currentEditor();
+        current && !q->hasFocus() && TextEditorWidget::fromEditor(current) != q
+        && !(current->widget() && current->widget()->isAncestorOf(q))) {
+        return;
+    }
+    const int steps = q->document()->availableUndoSteps();
+    if (!m_undoCursors.contains(steps))
+        m_undoCursors.insert(steps, m_cursorsBeforeEdit);
+}
+
+void TextEditorWidgetPrivate::rememberDocumentState()
+{
+    m_undoStepsBeforeEdit = q->document()->availableUndoSteps();
+    m_revisionAfterEdit = q->document()->revision();
+}
+
+void TextEditorWidgetPrivate::documentContentsChanged()
+{
+    rememberDocumentState();
+    m_cursorsBeforeEdit = currentCursors();
+}
+
+/*
+    A new edit drops the redo history without notification and reports it only after its first
+    command was added, so the entries are trimmed at the undo position from before the edit.
+*/
+void TextEditorWidgetPrivate::trimUndoCursors()
+{
+    const QTextDocument *doc = q->document();
+    const int steps = doc->availableUndoSteps();
+    if (!doc->isRedoAvailable()) {
+        const int lastValid = qMin(m_undoStepsBeforeEdit, steps);
+        m_undoCursors.erase(m_undoCursors.upperBound(lastValid), m_undoCursors.end());
+        m_redoCursors.erase(m_redoCursors.upperBound(lastValid), m_redoCursors.end());
+    }
+    m_undoStepsBeforeEdit = steps;
+}
+
+void TextEditorWidgetPrivate::restoreCursors(const UndoMultiCursor &cursors)
+{
+    const int lastPosition = q->document()->characterCount() - 1;
+    QList<QTextCursor> restored;
+    for (const UndoCursor &cursor : cursors) {
+        QTextCursor c(q->document());
+        c.setPosition(qMin(cursor.anchor, lastPosition));
+        c.setPosition(qMin(cursor.position, lastPosition), QTextCursor::KeepAnchor);
+        restored.append(c);
+    }
+    if (restored.isEmpty())
+        return;
+    q->setMultiTextCursor(MultiTextCursor(restored));
+    q->ensureCursorVisible();
+}
+
+void TextEditorWidgetPrivate::undoRedo(bool undo)
+{
+    const QTextDocument *doc = q->document();
+    const UndoMultiCursor cursorsBefore = currentCursors();
+    const int stepsBefore = doc->availableUndoSteps();
+    q->doSetTextCursor(m_cursors.mainCursor());
+
+    if (undo)
+        q->PlainTextEdit::undo();
+    else
+        q->PlainTextEdit::redo();
+
+    const int stepsAfter = doc->availableUndoSteps();
+    if (undo && stepsAfter < stepsBefore) {
+        m_redoCursors.insert(stepsBefore, cursorsBefore);
+        const auto it = m_undoCursors.upperBound(stepsAfter);
+        if (it != m_undoCursors.end() && it.key() <= stepsBefore)
+            restoreCursors(it.value());
+    } else if (!undo && stepsAfter > stepsBefore) {
+        const auto it = m_redoCursors.find(stepsAfter);
+        if (it != m_redoCursors.end())
+            restoreCursors(it.value());
+    }
+}
+
 void TextEditorWidget::undo()
 {
-    doSetTextCursor(multiTextCursor().mainCursor());
-    PlainTextEdit::undo();
+    d->undoRedo(true);
 }
 
 void TextEditorWidget::redo()
 {
-    doSetTextCursor(multiTextCursor().mainCursor());
-    PlainTextEdit::redo();
+    d->undoRedo(false);
 }
 
 bool TextEditorWidget::isUndoAvailable() const
@@ -3247,6 +3396,39 @@ static void insertTextAtCursors(MultiTextCursor &cursors, const QString &text, b
     cursors.endEditBlock();
 }
 
+static QList<int> cursorPositions(const MultiTextCursor &cursors)
+{
+    QList<int> positions;
+    for (const QTextCursor &c : cursors)
+        positions.append(c.position());
+    return positions;
+}
+
+// QTextDocument merges consecutive insertions of a single cursor into one undo step, but not
+// those made in an edit block, which every insertion at multiple cursors needs.
+void TextEditorWidgetPrivate::insertTypedText(MultiTextCursor &cursors,
+                                              const QString &text,
+                                              bool overwrite)
+{
+    const bool continuesTyping = !overwrite && !cursors.hasSelection();
+    const bool joinUndoStep = continuesTyping
+                              && m_document->document()->revision() == m_typingRevision
+                              && cursorPositions(cursors) == m_typingPositions;
+    QTextCursor undoStep = cursors.mainCursor();
+    if (joinUndoStep)
+        undoStep.joinPreviousEditBlock();
+    insertTextAtCursors(cursors, text, overwrite);
+    if (joinUndoStep)
+        undoStep.endEditBlock();
+
+    if (continuesTyping) {
+        m_typingRevision = m_document->document()->revision();
+        m_typingPositions = cursorPositions(cursors);
+    } else {
+        m_typingRevision = -1;
+    }
+}
+
 void TextEditorWidget::inputMethodEvent(QInputMethodEvent *e)
 {
     MultiTextCursor cursor = multiTextCursor();
@@ -3258,7 +3440,7 @@ void TextEditorWidget::inputMethodEvent(QInputMethodEvent *e)
                 QInputMethodEvent clearPreedit;
                 PlainTextEdit::inputMethodEvent(&clearPreedit);
             }
-            insertTextAtCursors(cursor, e->commitString(), overwriteMode());
+            d->insertTypedText(cursor, e->commitString(), overwriteMode());
             setMultiTextCursor(cursor);
             d->clearBlockSelection();
             if (!e->preeditString().isEmpty()) {
@@ -3586,7 +3768,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             }
         }
     } else if (hasMultipleCursors) {
-        insertTextAtCursors(cursor, eventText, inOverwriteMode);
+        d->insertTypedText(cursor, eventText, inOverwriteMode);
         setMultiTextCursor(cursor);
     } else if ((e->modifiers() & (Qt::ControlModifier|Qt::AltModifier)) != Qt::ControlModifier){
         // only go here if control is not pressed, except if also alt is pressed

@@ -15,6 +15,8 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/externaltoolmanager.h>
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/idocument.h>
@@ -23,12 +25,15 @@
 #include <utils/multitextcursor.h>
 #include <utils/temporarydirectory.h>
 
+#include <QDropEvent>
+#include <QMimeData>
 #include <QScopeGuard>
 #include <QSignalSpy>
 #include <QTest>
 #include <QTextCursor>
 #include <QTextDocument>
 
+#include <memory>
 #include <optional>
 
 namespace TextEditor::Internal {
@@ -577,6 +582,563 @@ void SelectAllTest::testCursorAfterSelectAll()
 QObject *createSelectAllTest()
 {
     return new SelectAllTest;
+}
+
+class UndoCursorTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testSelectionRestoredOnUndo();
+    void testMultiCursorRestoredOnUndo();
+    void testMultiCursorTypingUndo();
+    void testSelectionRestoredOnRedo();
+    void testSelectAllRestoredOnUndo();
+    void testEditAfterUndo();
+    void testDropUndo();
+    void testJoinedMoveLineUndo();
+    void testJoinedIndentUndo();
+    void testUndoRedoInDuplicate();
+    void testUndoInOtherView();
+    void testUndoOfEditInOtherEditor();
+    void testUndoOfEditWhileNonTextEditorIsCurrent();
+    void testUndoInEmbeddedWidget();
+    void testUndoInFocusedWidget();
+
+private:
+    TextEditorWidget *openEditor(const QByteArray &contents);
+
+    Core::IEditor *m_editor = nullptr;
+};
+
+TextEditorWidget *UndoCursorTest::openEditor(const QByteArray &contents)
+{
+    QString title = "undo_cursor.txt";
+    m_editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, contents);
+    if (!m_editor)
+        return nullptr;
+    auto baseEditor = qobject_cast<BaseTextEditor *>(m_editor);
+    return baseEditor ? baseEditor->editorWidget() : nullptr;
+}
+
+void UndoCursorTest::testSelectionRestoredOnUndo()
+{
+    const QString contents = "first line\nsecond line";
+    TextEditorWidget *editorWidget = openEditor(contents.toUtf8());
+    QVERIFY(editorWidget);
+    const QScopeGuard cleanup([this] { Core::EditorManager::closeEditors({m_editor}, false); });
+
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.setPosition(0);
+    cursor.setPosition(5, QTextCursor::KeepAnchor);
+    editorWidget->setTextCursor(cursor);
+
+    QTest::keyClick(editorWidget, Qt::Key_X);
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("x line\nsecond line"));
+
+    editorWidget->undo();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), contents);
+    cursor = editorWidget->textCursor();
+    QVERIFY(cursor.hasSelection());
+    QCOMPARE(cursor.anchor(), 0);
+    QCOMPARE(cursor.position(), 5);
+}
+
+void UndoCursorTest::testMultiCursorRestoredOnUndo()
+{
+    const QString contents = "first line\nsecond line";
+    TextEditorWidget *editorWidget = openEditor(contents.toUtf8());
+    QVERIFY(editorWidget);
+    const QScopeGuard cleanup([this] { Core::EditorManager::closeEditors({m_editor}, false); });
+
+    QTextDocument *document = editorWidget->document();
+    QTextCursor first(document);
+    first.setPosition(0);
+    first.setPosition(5, QTextCursor::KeepAnchor);
+    QTextCursor second(document);
+    second.setPosition(11);
+    second.setPosition(17, QTextCursor::KeepAnchor);
+    editorWidget->setMultiTextCursor(Utils::MultiTextCursor({first, second}));
+
+    QTest::keyClick(editorWidget, Qt::Key_X);
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("x line\nx line"));
+
+    editorWidget->undo();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), contents);
+    const QList<QTextCursor> cursors = editorWidget->multiTextCursor().cursors();
+    QCOMPARE(cursors.size(), 2);
+    QCOMPARE(cursors.at(0).anchor(), 0);
+    QCOMPARE(cursors.at(0).position(), 5);
+    QCOMPARE(cursors.at(1).anchor(), 11);
+    QCOMPARE(cursors.at(1).position(), 17);
+}
+
+void UndoCursorTest::testMultiCursorTypingUndo()
+{
+    const QString contents = "a\nb";
+    TextEditorWidget *editorWidget = openEditor(contents.toUtf8());
+    QVERIFY(editorWidget);
+    const QScopeGuard cleanup([this] { Core::EditorManager::closeEditors({m_editor}, false); });
+
+    // A cursor at the end of each line.
+    QTextDocument *document = editorWidget->document();
+    QTextCursor first(document);
+    first.setPosition(1);
+    QTextCursor second(document);
+    second.setPosition(3);
+    editorWidget->setMultiTextCursor(Utils::MultiTextCursor({first, second}));
+
+    // Typing in a row is undone in one step, as with a single cursor.
+    QTest::keyClicks(editorWidget, "xyz");
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("axyz\nbxyz"));
+    editorWidget->undo();
+    QCOMPARE(editorWidget->textDocument()->plainText(), contents);
+    QCOMPARE(editorWidget->multiTextCursor().cursorCount(), 2);
+
+    // Moving the cursors ends the step.
+    QTest::keyClicks(editorWidget, "xy");
+    QTest::keyClick(editorWidget, Qt::Key_Left);
+    QTest::keyClicks(editorWidget, "z");
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("axzy\nbxzy"));
+    editorWidget->undo();
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("axy\nbxy"));
+    editorWidget->undo();
+    QCOMPARE(editorWidget->textDocument()->plainText(), contents);
+}
+
+void UndoCursorTest::testSelectionRestoredOnRedo()
+{
+    const QString contents = "first line\nsecond line";
+    TextEditorWidget *editorWidget = openEditor(contents.toUtf8());
+    QVERIFY(editorWidget);
+    const QScopeGuard cleanup([this] { Core::EditorManager::closeEditors({m_editor}, false); });
+
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.setPosition(0);
+    cursor.setPosition(5, QTextCursor::KeepAnchor);
+    editorWidget->setTextCursor(cursor);
+
+    QTest::keyClick(editorWidget, Qt::Key_X);
+    const QString edited = editorWidget->textDocument()->plainText();
+
+    // the selection the redo has to bring back is not the one around the edit
+    cursor = editorWidget->textCursor();
+    cursor.setPosition(2);
+    cursor.setPosition(6, QTextCursor::KeepAnchor);
+    editorWidget->setTextCursor(cursor);
+
+    editorWidget->undo();
+    editorWidget->redo();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), edited);
+    cursor = editorWidget->textCursor();
+    QVERIFY(cursor.hasSelection());
+    QCOMPARE(cursor.anchor(), 2);
+    QCOMPARE(cursor.position(), 6);
+}
+
+void UndoCursorTest::testSelectAllRestoredOnUndo()
+{
+    const QString contents = "first line\nsecond line";
+    TextEditorWidget *editorWidget = openEditor(contents.toUtf8());
+    QVERIFY(editorWidget);
+    const QScopeGuard cleanup([this] { Core::EditorManager::closeEditors({m_editor}, false); });
+
+    editorWidget->moveCursor(QTextCursor::End);
+    editorWidget->selectAll();
+
+    QTest::keyClick(editorWidget, Qt::Key_X);
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("x"));
+
+    editorWidget->undo();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), contents);
+    const QTextCursor cursor = editorWidget->textCursor();
+    QCOMPARE(cursor.selectionStart(), 0);
+    QCOMPARE(cursor.selectionEnd(), int(contents.size()));
+}
+
+void UndoCursorTest::testEditAfterUndo()
+{
+    const QString contents = "first line\nsecond line";
+    TextEditorWidget *editorWidget = openEditor(contents.toUtf8());
+    QVERIFY(editorWidget);
+    const QScopeGuard cleanup([this] { Core::EditorManager::closeEditors({m_editor}, false); });
+
+    editorWidget->moveCursor(QTextCursor::Start);
+    QTest::keyClick(editorWidget, Qt::Key_A);
+    editorWidget->undo();
+    QCOMPARE(editorWidget->textDocument()->plainText(), contents);
+
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.setPosition(3);
+    cursor.setPosition(7, QTextCursor::KeepAnchor);
+    editorWidget->setTextCursor(cursor);
+    QTest::keyClick(editorWidget, Qt::Key_B);
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("firbine\nsecond line"));
+
+    editorWidget->undo();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), contents);
+    cursor = editorWidget->textCursor();
+    QCOMPARE(cursor.anchor(), 3);
+    QCOMPARE(cursor.position(), 7);
+}
+
+void UndoCursorTest::testDropUndo()
+{
+    const QString contents = "foo bar baz";
+    TextEditorWidget *editorWidget = openEditor(contents.toUtf8());
+    QVERIFY(editorWidget);
+    const QScopeGuard cleanup([this] { Core::EditorManager::closeEditors({m_editor}, false); });
+
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.setPosition(0);
+    cursor.setPosition(3, QTextCursor::KeepAnchor);
+    editorWidget->setTextCursor(cursor);
+
+    QTextCursor end(editorWidget->document());
+    end.movePosition(QTextCursor::End);
+    QMimeData mimeData;
+    mimeData.setText("foo");
+    const QPoint dropPosition = editorWidget->cursorRect(end).center();
+    // A drop goes to the widget that accepted the drag.
+    QDragEnterEvent dragEnter(dropPosition, Qt::CopyAction, &mimeData, Qt::LeftButton, Qt::NoModifier);
+    QCoreApplication::sendEvent(editorWidget->viewport(), &dragEnter);
+    QVERIFY(dragEnter.isAccepted());
+    QDropEvent drop(dropPosition, Qt::CopyAction, &mimeData, Qt::LeftButton, Qt::NoModifier);
+    QCoreApplication::sendEvent(editorWidget->viewport(), &drop);
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("foo bar bazfoo"));
+
+    editorWidget->undo();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), contents);
+    cursor = editorWidget->textCursor();
+    QCOMPARE(cursor.anchor(), 0);
+    QCOMPARE(cursor.position(), 3);
+}
+
+void UndoCursorTest::testJoinedMoveLineUndo()
+{
+    TextEditorWidget *editorWidget = openEditor("a\nb\nc");
+    QVERIFY(editorWidget);
+    const QScopeGuard cleanup([this] { Core::EditorManager::closeEditors({m_editor}, false); });
+
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.setPosition(0);
+    cursor.setPosition(1, QTextCursor::KeepAnchor);
+    editorWidget->setTextCursor(cursor);
+    QTest::keyClick(editorWidget, Qt::Key_X);
+
+    cursor.setPosition(4);
+    cursor.setPosition(5, QTextCursor::KeepAnchor);
+    editorWidget->setTextCursor(cursor);
+    editorWidget->moveLineUp();
+    editorWidget->moveLineUp();
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("c\nx\nb\n"));
+
+    editorWidget->undo();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("x\nb\nc"));
+    cursor = editorWidget->textCursor();
+    QCOMPARE(cursor.anchor(), 4);
+    QCOMPARE(cursor.position(), 5);
+
+    editorWidget->undo();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("a\nb\nc"));
+    cursor = editorWidget->textCursor();
+    QCOMPARE(cursor.anchor(), 0);
+    QCOMPARE(cursor.position(), 1);
+}
+
+void UndoCursorTest::testJoinedIndentUndo()
+{
+    TextEditorWidget *editorWidget = openEditor("a\nb\nc");
+    QVERIFY(editorWidget);
+    const QScopeGuard cleanup([this] { Core::EditorManager::closeEditors({m_editor}, false); });
+
+    editorWidget->moveCursor(QTextCursor::End);
+    QTest::keyClick(editorWidget, Qt::Key_X);
+    const QString edited = editorWidget->textDocument()->plainText();
+    QCOMPARE(edited, QString("a\nb\ncx"));
+
+    QTextDocument *document = editorWidget->document();
+    QTextCursor first(document);
+    first.setPosition(0);
+    first.setPosition(1, QTextCursor::KeepAnchor);
+    QTextCursor second(document);
+    second.setPosition(2);
+    second.setPosition(3, QTextCursor::KeepAnchor);
+    editorWidget->setMultiTextCursor(Utils::MultiTextCursor({first, second}));
+    editorWidget->indent();
+    QVERIFY(editorWidget->textDocument()->plainText() != edited);
+
+    editorWidget->undo();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), edited);
+    const QList<QTextCursor> cursors = editorWidget->multiTextCursor().cursors();
+    QCOMPARE(cursors.size(), 2);
+    QCOMPARE(cursors.at(0).anchor(), 0);
+    QCOMPARE(cursors.at(0).position(), 1);
+    QCOMPARE(cursors.at(1).anchor(), 2);
+    QCOMPARE(cursors.at(1).position(), 3);
+
+    editorWidget->undo();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("a\nb\nc"));
+    QVERIFY(!editorWidget->multiTextCursor().hasMultipleCursors());
+    const QTextCursor cursor = editorWidget->textCursor();
+    QVERIFY(!cursor.hasSelection());
+    QCOMPARE(cursor.position(), 5);
+}
+
+void UndoCursorTest::testUndoRedoInDuplicate()
+{
+    QVERIFY(!Core::EditorManager::currentEditor());
+    const QString contents = "first line\nsecond line";
+    TextEditorWidget editorWidget;
+    editorWidget.setTextDocument(TextDocumentPtr(new TextDocument));
+    QVERIFY(editorWidget.textDocument()->setPlainText(contents));
+
+    QTextCursor cursor = editorWidget.textCursor();
+    cursor.setPosition(0);
+    cursor.setPosition(5, QTextCursor::KeepAnchor);
+    editorWidget.setTextCursor(cursor);
+    QTest::keyClick(&editorWidget, Qt::Key_X);
+    const QString firstEdit = editorWidget.textDocument()->plainText();
+    QCOMPARE(firstEdit, QString("x line\nsecond line"));
+
+    TextEditorWidget duplicate;
+    duplicate.setTextDocument(editorWidget.textDocumentPtr());
+    TextEditorWidget *duplicateWidget = &duplicate;
+
+    cursor = duplicateWidget->textCursor();
+    cursor.setPosition(7);
+    cursor.setPosition(13, QTextCursor::KeepAnchor);
+    duplicateWidget->setTextCursor(cursor);
+    QTest::keyClick(duplicateWidget, Qt::Key_Y);
+    const QString secondEdit = duplicateWidget->textDocument()->plainText();
+    QCOMPARE(secondEdit, QString("x line\ny line"));
+
+    duplicateWidget->undo();
+    duplicateWidget->undo();
+    QCOMPARE(duplicateWidget->textDocument()->plainText(), contents);
+
+    duplicateWidget->redo();
+
+    QCOMPARE(duplicateWidget->textDocument()->plainText(), firstEdit);
+    cursor = duplicateWidget->textCursor();
+    QCOMPARE(cursor.anchor(), 7);
+    QCOMPARE(cursor.position(), 13);
+
+    duplicateWidget->redo();
+
+    QCOMPARE(duplicateWidget->textDocument()->plainText(), secondEdit);
+    cursor = duplicateWidget->textCursor();
+    QVERIFY(!cursor.hasSelection());
+    QCOMPARE(cursor.position(), 8);
+}
+
+void UndoCursorTest::testUndoInOtherView()
+{
+    const QString contents = "first line\nsecond line";
+    TextEditorWidget *editorWidget = openEditor(contents.toUtf8());
+    QVERIFY(editorWidget);
+    const QScopeGuard cleanup([this] { Core::EditorManager::closeEditors({m_editor}, false); });
+    QCOMPARE(TextEditorWidget::currentTextEditorWidget(), editorWidget);
+
+    const std::unique_ptr<BaseTextEditor> duplicate(
+        qobject_cast<BaseTextEditor *>(m_editor)->duplicate());
+    QVERIFY(duplicate);
+    TextEditorWidget *duplicateWidget = duplicate->editorWidget();
+    QTextCursor cursor = duplicateWidget->textCursor();
+    cursor.setPosition(15);
+    duplicateWidget->setTextCursor(cursor);
+
+    cursor = editorWidget->textCursor();
+    cursor.setPosition(0);
+    cursor.setPosition(5, QTextCursor::KeepAnchor);
+    editorWidget->setTextCursor(cursor);
+    QTest::keyClick(editorWidget, Qt::Key_X);
+
+    duplicateWidget->undo();
+
+    // The undo in the other view moves its cursor to the undone edit.
+    QCOMPARE(duplicateWidget->textDocument()->plainText(), contents);
+    cursor = duplicateWidget->textCursor();
+    QVERIFY(!cursor.hasSelection());
+    QCOMPARE(cursor.position(), 5);
+}
+
+void UndoCursorTest::testUndoOfEditInOtherEditor()
+{
+    const QString contents = "first line\nsecond line";
+    TextEditorWidget *otherWidget = openEditor(contents.toUtf8());
+    QVERIFY(otherWidget);
+    Core::IEditor *otherEditor = m_editor;
+    const QScopeGuard closeOther([otherEditor] {
+        Core::EditorManager::closeEditors({otherEditor}, false);
+    });
+    TextEditorWidget *editorWidget = openEditor("current");
+    QVERIFY(editorWidget);
+    const QScopeGuard cleanup([this] { Core::EditorManager::closeEditors({m_editor}, false); });
+    QCOMPARE(TextEditorWidget::currentTextEditorWidget(), editorWidget);
+
+    // Like a refactoring that changes another open file.
+    QTextCursor edit(otherWidget->document());
+    edit.setPosition(11);
+    edit.insertText("x");
+    QCOMPARE(otherWidget->textDocument()->plainText(), QString("first line\nxsecond line"));
+
+    otherWidget->undo();
+
+    QCOMPARE(otherWidget->textDocument()->plainText(), contents);
+    const QTextCursor cursor = otherWidget->textCursor();
+    QVERIFY(!cursor.hasSelection());
+    QCOMPARE(cursor.position(), 11);
+}
+
+class NonTextDocument final : public Core::IDocument
+{
+public:
+    NonTextDocument() { setId("TextEditor.Test.NonTextEditor"); }
+
+    Utils::Result<> setContents(const QByteArray &) final { return Utils::ResultOk; }
+};
+
+// Like the Android manifest editor, which embeds a text editor in a widget of its own.
+class NonTextEditor final : public Core::IEditor
+{
+public:
+    NonTextEditor()
+    {
+        setWidget(m_widget.get());
+        m_embeddedWidget->setTextDocument(TextDocumentPtr(new TextDocument));
+    }
+
+    Core::IDocument *document() const final { return m_document.get(); }
+    QWidget *toolBar() final { return nullptr; }
+    TextEditorWidget *embeddedWidget() const { return m_embeddedWidget; }
+
+private:
+    const std::unique_ptr<NonTextDocument> m_document = std::make_unique<NonTextDocument>();
+    const std::unique_ptr<QWidget> m_widget = std::make_unique<QWidget>();
+    TextEditorWidget *const m_embeddedWidget = new TextEditorWidget(m_widget.get());
+};
+
+class NonTextEditorFactory final : public Core::IEditorFactory
+{
+public:
+    NonTextEditorFactory()
+    {
+        setId("TextEditor.Test.NonTextEditor");
+        setDisplayName("Non-Text Editor");
+        setEditorCreator([] { return new NonTextEditor; });
+    }
+};
+
+void UndoCursorTest::testUndoOfEditWhileNonTextEditorIsCurrent()
+{
+    const QString contents = "first line\nsecond line";
+    TextEditorWidget *editorWidget = openEditor(contents.toUtf8());
+    QVERIFY(editorWidget);
+    const QScopeGuard cleanup([this] { Core::EditorManager::closeEditors({m_editor}, false); });
+
+    const NonTextEditorFactory factory;
+    QString title = "non_text";
+    Core::IEditor *nonTextEditor
+        = Core::EditorManager::openEditorWithContents(factory.id(), &title, {});
+    QVERIFY(nonTextEditor);
+    const QScopeGuard closeNonText([nonTextEditor] {
+        Core::EditorManager::closeEditors({nonTextEditor}, false);
+    });
+    QCOMPARE(Core::EditorManager::currentEditor(), nonTextEditor);
+    QCOMPARE(TextEditorWidget::currentTextEditorWidget(), nullptr);
+
+    // Like a Replace All in open files while a form or diff editor is current.
+    QTextCursor edit(editorWidget->document());
+    edit.setPosition(11);
+    edit.insertText("x");
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("first line\nxsecond line"));
+
+    editorWidget->undo();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), contents);
+    const QTextCursor cursor = editorWidget->textCursor();
+    QVERIFY(!cursor.hasSelection());
+    QCOMPARE(cursor.position(), 11);
+}
+
+void UndoCursorTest::testUndoInEmbeddedWidget()
+{
+    const NonTextEditorFactory factory;
+    QString title = "non_text";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(factory.id(), &title, {});
+    QVERIFY(editor);
+    const QScopeGuard cleanup([editor] { Core::EditorManager::closeEditors({editor}, false); });
+    QCOMPARE(Core::EditorManager::currentEditor(), editor);
+
+    TextEditorWidget *editorWidget = static_cast<NonTextEditor *>(editor)->embeddedWidget();
+    const QString contents = "first line\nsecond line";
+    QVERIFY(editorWidget->textDocument()->setPlainText(contents));
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.setPosition(0);
+    cursor.setPosition(5, QTextCursor::KeepAnchor);
+    editorWidget->setTextCursor(cursor);
+    QVERIFY(!editorWidget->hasFocus());
+
+    QTest::keyClick(editorWidget, Qt::Key_X);
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("x line\nsecond line"));
+
+    editorWidget->undo();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), contents);
+    cursor = editorWidget->textCursor();
+    QCOMPARE(cursor.anchor(), 0);
+    QCOMPARE(cursor.position(), 5);
+}
+
+void UndoCursorTest::testUndoInFocusedWidget()
+{
+    TextEditorWidget *currentWidget = openEditor("current");
+    QVERIFY(currentWidget);
+    const QScopeGuard cleanup([this] { Core::EditorManager::closeEditors({m_editor}, false); });
+
+    // Like the text editor of a settings page or of another mode.
+    TextEditorWidget editorWidget;
+    editorWidget.setTextDocument(TextDocumentPtr(new TextDocument));
+    const QString contents = "first line\nsecond line";
+    QVERIFY(editorWidget.textDocument()->setPlainText(contents));
+    editorWidget.show();
+    editorWidget.activateWindow();
+    if (!QTest::qWaitForWindowActive(&editorWidget))
+        QSKIP("The window of the text editor does not become active.");
+    editorWidget.setFocus();
+    QVERIFY(editorWidget.hasFocus());
+    QCOMPARE(TextEditorWidget::currentTextEditorWidget(), currentWidget);
+
+    QTextCursor cursor = editorWidget.textCursor();
+    cursor.setPosition(0);
+    cursor.setPosition(5, QTextCursor::KeepAnchor);
+    editorWidget.setTextCursor(cursor);
+    QTest::keyClick(&editorWidget, Qt::Key_X);
+    QCOMPARE(editorWidget.textDocument()->plainText(), QString("x line\nsecond line"));
+
+    editorWidget.undo();
+
+    QCOMPARE(editorWidget.textDocument()->plainText(), contents);
+    cursor = editorWidget.textCursor();
+    QCOMPARE(cursor.anchor(), 0);
+    QCOMPARE(cursor.position(), 5);
+}
+
+QObject *createUndoCursorTest()
+{
+    return new UndoCursorTest;
 }
 
 // Regression test for QTCREATORBUG-31149: reflowing a comment must not pull
