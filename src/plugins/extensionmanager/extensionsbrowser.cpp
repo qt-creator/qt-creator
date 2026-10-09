@@ -159,6 +159,8 @@ static QString extensionStateDisplayString(ExtensionState state)
         return Tr::tr("Active");
     case InstalledDisabled:
         return Tr::tr("Inactive");
+    case InstalledError:
+        return Tr::tr("Error");
     default:
         return {};
     }
@@ -183,6 +185,9 @@ public:
         {vendorTF.themeColor, UiElement::UiElementCaption, vendorTF.drawTextFlags};
     constexpr static TextFormat stateInactiveTF
         {Theme::Token_Text_Subtle, stateActiveTF.uiElement, stateActiveTF.drawTextFlags};
+    constexpr static TextFormat stateErrorTF
+        {Theme::Token_Notification_Danger_Default, stateActiveTF.uiElement,
+         stateActiveTF.drawTextFlags};
     constexpr static TextFormat descriptionTF
         {itemNameTF.themeColor, UiElement::UiElementCaption};
 
@@ -297,9 +302,11 @@ public:
         const bool showState = !stateString.isEmpty();
         m_installState->setVisible(showState);
         if (showState) {
-            const bool active = state == InstalledEnabled;
+            const TextFormat &stateTF = state == InstalledError     ? stateErrorTF
+                                        : state == InstalledEnabled ? stateActiveTF
+                                                                    : stateInactiveTF;
             QPalette pal = m_installStateLabel->palette();
-            pal.setColor(QPalette::WindowText, (active ? stateActiveTF : stateInactiveTF).color());
+            pal.setColor(QPalette::WindowText, stateTF.color());
             m_installStateLabel->setPalette(pal);
             m_installStateLabel->setText(stateString);
             const FilePath checkmarkMask = ":/extensionmanager/images/checkmark.png";
@@ -307,7 +314,12 @@ public:
                                                    Icon::Tint).pixmap();
             static const QPixmap iconInactive = Icon({{checkmarkMask, stateInactiveTF.themeColor}},
                                                      Icon::Tint).pixmap();
-            m_installStateIcon->setPixmap(active ? iconActive : iconInactive);
+            static const QPixmap iconError = Icon({{":/extensionmanager/images/error.png",
+                                                    stateErrorTF.themeColor}},
+                                                  Icon::Tint).pixmap();
+            m_installStateIcon->setPixmap(state == InstalledError     ? iconError
+                                          : state == InstalledEnabled ? iconActive
+                                                                      : iconInactive);
             m_installState->layout()->invalidate(); // QTCREATORBUG-32954
         }
 

@@ -549,6 +549,11 @@ public:
             return label;
         };
 
+        m_error = createValueLabel(false);
+        QPalette errorPalette = m_error->palette();
+        errorPalette.setColor(QPalette::WindowText,
+                              creatorColor(Theme::Token_Notification_Danger_Default));
+        m_error->setPalette(errorPalette);
         m_version = createValueLabel();
         m_compatVersion = createValueLabel();
         m_id = createValueLabel();
@@ -584,6 +589,7 @@ public:
         m_blocks = {
             {{field(Tr::tr("More Information"), m_moreInfo)},
              {field(Tr::tr("Documentation"), m_documentation)}},
+            {{field(Tr::tr("Error"), m_error)}, {}, true},
             {{field(Tr::tr("Version"), m_version),
               field(Tr::tr("Compatibility Version"), m_compatVersion),
               field(Tr::tr("Last Update"), m_lastUpdate)},
@@ -627,6 +633,9 @@ public:
     // The heading shows the version of an extension that is not installed.
     void setData(const QModelIndex &index, const PluginSpec *spec, bool isInstalled)
     {
+        setValue(m_error,
+                 spec && isInstalled && spec->hasError() ? spec->errorString() : QString());
+
         QString version;
         if (spec && isInstalled) {
             version = spec->version();
@@ -777,6 +786,7 @@ private:
     QList<Block> m_blocks;
     QHash<QWidget *, bool> m_shown;
     QGridLayout *m_grid;
+    ElidingLabel *m_error;
     ElidingLabel *m_version;
     ElidingLabel *m_compatVersion;
     ElidingLabel *m_id;
