@@ -9,7 +9,6 @@ QtcPlugin {
     Depends { name: "Qt.network" }
 
     files: [
-        "extensionmanager.qrc",
         "extensionmanager_global.h",
         "extensionmanagerconstants.h",
         "extensionmanagerlegalnotice.cpp",
@@ -33,5 +32,11 @@ QtcPlugin {
             "extensionmanager_test.h",
             "extensionmanager_test.cpp",
         ]
+    }
+
+    Group {
+        name: "images"
+        files: ["images/*", "images/**/*"]
+        fileTags: "qt.core.resource_data"
     }
 }

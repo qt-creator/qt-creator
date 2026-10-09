@@ -1,7 +1,6 @@
 add_qtc_plugin(ExtensionManager
   PLUGIN_DEPENDS Core
   SOURCES
-    extensionmanager.qrc
     extensionmanager_global.h
     extensionmanagerconstants.h
     extensionmanagerlegalnotice.cpp
@@ -18,6 +17,12 @@ add_qtc_plugin(ExtensionManager
     extensionsmodel.h
     remotespec.cpp
     remotespec.h
+)
+
+file(GLOB_RECURSE images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} images/*)
+qtc_add_resources(ExtensionManager "images"
+  PREFIX "/extensionmanager"
+  FILES ${images}
 )
 
 if (WITH_TESTS)
