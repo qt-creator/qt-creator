@@ -27,11 +27,11 @@ add_qtc_executable(qtprofiler
   PROPERTIES ${qtprofiler_props}
   DESTINATION "${qtprofiler_destination}"
   SOURCES
-    mainsidebar.cpp mainsidebar.h
     qtprofilerinit.cpp qtprofilerinit.h
     qtprofilermain.cpp
     qtprofilerrpc.cpp qtprofilerrpc.h
     qtprofilersettings.cpp qtprofilersettings.h
+    qtprofilersidebar.cpp qtprofilersidebar.h
     qtprofilerwindow.h qtprofilerwindow.cpp
     schema/api.h
 )

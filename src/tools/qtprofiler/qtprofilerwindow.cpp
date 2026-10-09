@@ -3,9 +3,9 @@
 
 #include "qtprofilerwindow.h"
 
-#include "mainsidebar.h"
 #include "qtprofilerrpc.h"
 #include "qtprofilersettings.h"
+#include "qtprofilersidebar.h"
 
 #include <profiler/combinedsampler.h>
 #include <profiler/combinedtraceloader.h>

@@ -38,10 +38,10 @@ QtcTool {
         "qtprofilerrpc.h",
         "qtprofilersettings.cpp",
         "qtprofilersettings.h",
+        "qtprofilersidebar.cpp",
+        "qtprofilersidebar.h",
         "qtprofilerwindow.cpp",
         "qtprofilerwindow.h",
-        "mainsidebar.cpp",
-        "mainsidebar.h",
         "schema/api.h",
     ]
 
