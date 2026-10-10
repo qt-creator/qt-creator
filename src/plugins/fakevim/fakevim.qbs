@@ -9,9 +9,11 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "McpServerLib" }
+    Depends { name: "VcsBase"; condition: qtc.withPluginTests }
 
     pluginTestDepends: [
         "CppEditor",
+        "VcsBase",
     ]
 
     files: [

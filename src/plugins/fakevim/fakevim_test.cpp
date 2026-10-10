@@ -26,6 +26,8 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <vcsbase/vcsbaseeditor.h>
+
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/multitextcursor.h>
@@ -39,6 +41,7 @@
 #include <QFileInfo>
 #include <QKeyEvent>
 #include <QRegularExpression>
+#include <QScopeGuard>
 #include <QScrollBar>
 #include <QMainWindow>
 #include <QTemporaryDir>
@@ -167,6 +170,11 @@ private slots:
 //    // functional tests
     void test_vim_indentation();
     void test_vim_readonly();
+    void test_vim_readonly_search_and_copy();
+    void test_vim_readonly_diff_enter_data();
+    void test_vim_readonly_diff_enter();
+    void test_vim_readonly_edits_data();
+    void test_vim_readonly_edits();
     void test_vim_ctrl_backslash();
 
     // command mode
@@ -1242,6 +1250,234 @@ void FakeVimTester::test_vim_readonly()
     // (QTCREATORBUG-24237).
     data.editor()->setReadOnly(false);
     KEYS("x", X "bc def");
+}
+
+void FakeVimTester::test_vim_readonly_search_and_copy()
+{
+    TestData data;
+    setup(&data);
+    data.doCommand("set noucs");
+    data.setText("one target" N "middle" N "target last");
+    data.editor()->setReadOnly(true);
+    const int revision = data.editor()->document()->revision();
+
+    KEYS("G0", "one target" N "middle" N X "target last");
+    KEYS("gg0/target<CR>", "one " X "target" N "middle" N "target last");
+    KEYS("n", "one target" N "middle" N X "target last");
+    KEYS("N", "one " X "target" N "middle" N "target last");
+    KEYS("?one<CR>", X "one target" N "middle" N "target last");
+    KEYS("\"ayiw", X "one target" N "middle" N "target last");
+
+    QString message;
+    data.handler->commandBufferChanged.set([&](const QString &text, int, int, int) {
+        message = text;
+    });
+    data.doCommand("echo getreg('a')");
+    QCOMPARE(message, QString("one"));
+    KEYS("Vj\"by", X "one target" N "middle" N "target last");
+    data.doCommand("echo getreg('b')");
+    QCOMPARE(message, QString("one target\nmiddle\n"));
+    QCOMPARE(data.editor()->document()->revision(), revision);
+
+    data.doCommand("set ucs");
+    bool findRequested = false;
+    data.handler->findRequested.set([&](bool reverse) {
+        QVERIFY(!reverse);
+        findRequested = true;
+    });
+    data.doKeys("/");
+    QVERIFY(findRequested);
+    data.doCommand("set noucs");
+}
+
+class ReadOnlyDiffEditor final : public VcsBase::VcsBaseEditorWidget
+{
+public:
+    ReadOnlyDiffEditor()
+    {
+        setDiffFilePattern("^\\+\\+\\+ (.+)$");
+        setLogEntryPattern("^commit ([0-9a-f]+)$");
+    }
+
+    Utils::FilePath target;
+    int targetLine = -1;
+
+private:
+    QString changeUnderCursor(const QTextCursor &) const override { return {}; }
+    VcsBase::BaseAnnotationHighlighterCreator annotationHighlighterCreator() const override
+    {
+        return {};
+    }
+    void jumpToDiffTarget(const Utils::FilePath &file, int line, const QTextBlock &) override
+    {
+        target = file;
+        targetLine = line;
+    }
+};
+
+void FakeVimTester::test_vim_readonly_diff_enter_data()
+{
+    QTest::addColumn<int>("key");
+    QTest::newRow("Return") << int(Qt::Key_Return);
+    QTest::newRow("Enter") << int(Qt::Key_Enter);
+}
+
+void FakeVimTester::test_vim_readonly_diff_enter()
+{
+    QFETCH(int, key);
+    const bool previousUseFakeVim = settings().useFakeVim();
+    const QScopeGuard restoreSettings([previousUseFakeVim] {
+        settings().useFakeVim.setValue(previousUseFakeVim);
+    });
+    settings().useFakeVim.setValue(true);
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const Utils::FilePath source = Utils::FilePath::fromString(directory.path()).pathAppended("a.txt");
+    QVERIFY(source.writeFileContents("old\nnew\ntarget\ntail\n"));
+    VcsBase::VcsEditorFactory factory({VcsBase::DiffOutput, "FakeVim.ReadOnlyDiffTest",
+                                     "FakeVim read-only diff test", "text/x-patch",
+                                     [] { return new ReadOnlyDiffEditor; },
+                                     [](const Utils::FilePath &, const QString &) {}});
+    const std::unique_ptr<Core::IEditor> editor(factory.createEditor());
+    auto widget = qobject_cast<VcsBase::VcsBaseEditorWidget *>(editor->widget());
+    QVERIFY(widget);
+    auto diff = static_cast<ReadOnlyDiffEditor *>(widget);
+    widget->setPlainText("--- a.txt\n+++ " + source.path()
+                         + "\n@@ -1,3 +1,4 @@\n old\n+new\n target\n tail\n");
+    widget->setReadOnly(true);
+    auto highlighter = widget->textDocument()->syntaxHighlighter();
+    QVERIFY(highlighter);
+    highlighter->rehighlight();
+    QTRY_VERIFY(highlighter->syntaxHighlighterUpToDate());
+    widget->show();
+    QVERIFY(widget->isEnabled());
+    const int position = widget->document()->findBlockByNumber(4).position();
+    widget->setTextCursor(QTextCursor(widget->document()->findBlockByNumber(4)));
+    QTest::keyClick(widget, Qt::Key(key));
+    QCOMPARE(diff->target, source);
+    QCOMPARE(diff->targetLine, 2);
+    diff->target = {};
+    diff->targetLine = -1;
+    FakeVimHandler handler(widget);
+    handler.setupWidget();
+    handler.installEventFilter();
+    handler.handleCommand("set noucs nopasskeys nopasscontrolkey");
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    QTest::keyClick(widget, Qt::Key(key));
+    QCOMPARE(diff->target, source);
+    QCOMPARE(diff->targetLine, 2);
+    QCOMPARE(widget->textCursor().position(), position);
+
+    diff->targetLine = -1;
+    handler.handleInput("1");
+    QTest::keyClick(widget, Qt::Key(key));
+    QCOMPARE(diff->targetLine, -1);
+    QCOMPARE(widget->textCursor().blockNumber(), 5);
+    QTest::keyClick(widget, Qt::Key(key));
+    QCOMPARE(diff->targetLine, 3);
+    diff->targetLine = -1;
+
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    handler.handleInput("v");
+    QTest::keyClick(widget, Qt::Key(key));
+    QCOMPARE(diff->targetLine, -1);
+    QCOMPARE(widget->textCursor().blockNumber(), 5);
+
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    handler.handleInput("/target");
+    QTest::keyClick(widget, Qt::Key(key));
+    QCOMPARE(diff->targetLine, -1);
+    QCOMPARE(widget->textCursor().blockNumber(), 5);
+
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    handler.handleInput("vj");
+    QKeyEvent copy(QEvent::KeyPress, Qt::Key_C, Qt::ControlModifier, "c");
+    QVERIFY(handler.eventFilter(widget, &copy));
+    QVERIFY(!widget->textCursor().hasSelection());
+
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    handler.handleInput("\"ay");
+    QTest::keyClick(widget, Qt::Key(key));
+    QCOMPARE(diff->targetLine, -1);
+    QString message;
+    handler.commandBufferChanged.set([&](const QString &text, int, int, int) { message = text; });
+    handler.handleCommand("echo getreg('a')");
+    QCOMPARE(message, QString("+new\n target\n"));
+
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    const QString enterKey = key == Qt::Key_Return ? QString("<CR>") : QString("<kEnter>");
+    handler.handleCommand("nnoremap " + enterKey + " j");
+    QTest::keyClick(widget, Qt::Key(key));
+    handler.handleCommand("nunmap " + enterKey);
+    QCOMPARE(diff->targetLine, -1);
+    QCOMPARE(widget->textCursor().blockNumber(), 5);
+
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    handler.handleCommand("nnoremap " + enterKey + " <CR>");
+    QTest::keyClick(widget, Qt::Key(key));
+    handler.handleCommand("nunmap " + enterKey);
+    QCOMPARE(diff->targetLine, -1);
+    QCOMPARE(widget->textCursor().blockNumber(), 5);
+
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    handler.handleCommand("let @c = \"\\r\"");
+    handler.handleInput("@c");
+    QCOMPARE(diff->targetLine, -1);
+    QCOMPARE(widget->textCursor().blockNumber(), 5);
+
+    widget->setReadOnly(false);
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    QTest::keyClick(widget, Qt::Key(key));
+    QCOMPARE(diff->targetLine, -1);
+    QCOMPARE(widget->textCursor().blockNumber(), 5);
+    handler.disconnectFromEditor();
+}
+
+void FakeVimTester::test_vim_readonly_edits_data()
+{
+    QTest::addColumn<QString>("keys");
+    const QStringList commands = {"x", "dd", "cwreplacement<Esc>", "iX<Esc>", "RX<Esc>",
+                                  "ra", "p", "J", "~", ">>", "==", "u", "<C-r>", ".",
+                                  "Vjd", "Vjp", ":delete<CR>", ":%s/abc/changed/g<CR>",
+                                  ":put a<CR>", ":call setline(1, 'changed')<CR>",
+                                  ":set modifiable<CR>x"};
+    for (const QString &keys : commands)
+        QTest::newRow(qPrintable(keys)) << keys;
+}
+
+void FakeVimTester::test_vim_readonly_edits()
+{
+    QFETCH(QString, keys);
+    TestData data;
+    setup(&data);
+    data.doCommand("set notildeop");
+    data.setText("abc" N " def" N "xyz");
+    KEYS("iQ<Esc>", X "Qabc" N " def" N "xyz");
+    KEYS("\"ayiw", X "Qabc" N " def" N "xyz");
+    QVERIFY(data.editor()->document()->isUndoAvailable());
+    if (keys == "<C-r>") {
+        KEYS("u", X "abc" N " def" N "xyz");
+        QVERIFY(data.editor()->document()->isRedoAvailable());
+    }
+    data.editor()->setReadOnly(true);
+    const QByteArray text = data.text();
+    const int revision = data.editor()->document()->revision();
+    data.doKeys(keys);
+    QCOMPARE(data.text(), text);
+    QCOMPARE(data.editor()->document()->revision(), revision);
+
+    data.editor()->setReadOnly(false);
+    data.doKeys("<Esc>gg0x");
+    QCOMPARE(data.text(), text.mid(1));
 }
 
 void FakeVimTester::test_vim_ctrl_backslash()
