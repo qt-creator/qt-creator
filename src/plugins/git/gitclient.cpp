@@ -7,6 +7,7 @@
 #include "commitdata.h"
 #include "gitconstants.h"
 #include "giteditor.h"
+#include "githighlighters.h"
 #include "gitplugin.h"
 #include "gittr.h"
 #include "gitutils.h"
@@ -334,7 +335,17 @@ GitBaseDiffEditorController::descriptionEditorProvider() const
     parameters.describe = [](const FilePath &source, const QString &change) {
         gitClient().show(source, change);
     };
-    return createVcsBaseDescriptionEditorProvider(parameters);
+    DescriptionEditorProvider provider = createVcsBaseDescriptionEditorProvider(parameters);
+    provider.create = [parameters](QWidget *parent) {
+        auto *editor = new VcsBaseDescriptionEditorWidget(parameters, parent);
+        editor->textDocument()->resetSyntaxHighlighter([] {
+            auto *highlighter = new GitLogHighlighter;
+            highlighter->setEnabled(false);
+            return highlighter;
+        });
+        return editor;
+    };
+    return provider;
 }
 
 ///////////////////////////////

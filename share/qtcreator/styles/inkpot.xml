@@ -80,5 +80,6 @@
   <style name="LogCommitHash" foreground="#ff0000"/>
   <style name="LogCommitSubject" foreground="#d6cf9a"/>
   <style name="LogDecoration" foreground="#ff00ff"/>
+  <style name="LogCommitFooter" foreground="#e76000"/>
 </style-scheme>
 

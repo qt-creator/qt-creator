@@ -15,6 +15,7 @@
   <style name="PrimitiveType" foreground="#000080" bold="true"/>
   <style name="Label" foreground="#800000" bold="true"/>
   <style name="Local" foreground="#000000"/>
+  <style name="LogCommitFooter" foreground="#800000" bold="true"/>
   <style name="Parameter" foreground="#000000"/>
   <style name="Number" foreground="#0000ff"/>
   <style name="Operator" foreground="#000000"/>

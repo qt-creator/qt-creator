@@ -72,6 +72,7 @@
   <style name="MergeConflictIncoming" background="#d2ceda"/>
   <style name="MergeConflictBase" background="#eee8d5"/>
   <style name="LogChangeLine" foreground="#c00000"/>
+  <style name="LogCommitFooter" foreground="#268bd2" bold="true"/>
   <style name="Warning" underlineColor="#b58900" underlineStyle="SingleUnderline"/>
   <style name="WarningContext" underlineColor="#b58900" underlineStyle="DotLine"/>
   <style name="Info" underlineColor="#268bd2" underlineStyle="DashUnderline"/>

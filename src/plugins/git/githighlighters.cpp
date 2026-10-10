@@ -8,6 +8,8 @@
 #include "gitconstants.h"
 #include "githighlighters.h"
 
+#include <QTextBlock>
+
 namespace Git::Internal {
 
 const char CHANGE_PATTERN[] = "\\b[a-f0-9]{7,40}\\b";
@@ -171,6 +173,85 @@ void GitRebaseHighlighter::highlightBlock(const QString &text)
         }
     }
     formatSpaces(text);
+}
+
+GitLogHighlighter::GitLogHighlighter()
+    : VcsBase::DiffAndLogHighlighter(
+          QRegularExpression("^(?:diff --git a/|index |[+-]{3} (?:/dev/null|[ab]/(.+$)))"),
+          QRegularExpression("^commit ([0-9a-f]{8})[0-9a-f]{32}"))
+{
+}
+
+void GitLogHighlighter::highlightBlock(const QString &text)
+{
+    VcsBase::DiffAndLogHighlighter::highlightBlock(text);
+
+    static const QRegularExpression prefixPattern(R"(^[ |*\/\\]*)");
+    static const QRegularExpression graphPrefixPattern(R"(^[ |*\/\\]*[|*\/\\] ?)");
+    static const QRegularExpression commitPattern(R"(^commit [a-f0-9]{7,40}\b)");
+    static const QRegularExpression trailerPattern(R"(^((?:[\w]+-)+[\w]+|Fixes):)");
+    static const QRegularExpression amendsPattern(R"(^(Amends) [a-f0-9]{7,40}\.?\s*$)");
+    static const QRegularExpression cherryPickPattern(
+        R"(^\((cherry picked) from commit [a-f0-9]{7,40}\)\s*$)");
+    const auto contentOf = [](const QString &line) {
+        return line.mid(prefixPattern.match(line).capturedLength());
+    };
+    const auto isFooterLine = [](const QString &line) {
+        return trailerPattern.match(line).hasMatch() || amendsPattern.match(line).hasMatch()
+               || cherryPickPattern.match(line).hasMatch();
+    };
+    const auto boundaryTextOf = [](const QString &line) {
+        return line.mid(graphPrefixPattern.match(line).capturedLength());
+    };
+    const int prefixLength = prefixPattern.match(text).capturedLength();
+    const QString content = text.mid(prefixLength);
+
+    enum State { Header, BeforeSubject, Subject, Body, Diff };
+    int state = previousBlockState();
+    const QString boundaryText = boundaryTextOf(text);
+    if (state == -1 || commitPattern.match(boundaryText).hasMatch())
+        state = Header;
+    else if (boundaryText.startsWith("diff --git "))
+        state = Diff;
+    else if (state == Header && content.trimmed().isEmpty())
+        state = BeforeSubject;
+    else if (state == BeforeSubject && !content.trimmed().isEmpty())
+        state = Subject;
+    else if (state == Subject && content.trimmed().isEmpty())
+        state = Body;
+    setCurrentBlockState(state);
+    if (state != Body || !isFooterLine(content))
+        return;
+
+    for (QTextBlock block = currentBlock().previous(); block.isValid(); block = block.previous()) {
+        const QString line = contentOf(block.text());
+        if (line.trimmed().isEmpty())
+            break;
+        if (!isFooterLine(line))
+            return;
+    }
+    for (QTextBlock block = currentBlock().next(); block.isValid(); block = block.next()) {
+        const QString boundaryText = boundaryTextOf(block.text());
+        if (commitPattern.match(boundaryText).hasMatch() || boundaryText.startsWith("diff --git "))
+            break;
+        const QString line = contentOf(block.text());
+        if (!line.trimmed().isEmpty() && !isFooterLine(line))
+            return;
+    }
+
+    const QRegularExpressionMatch trailer = trailerPattern.match(content);
+    if (trailer.hasMatch()) {
+        setFormat(prefixLength, trailer.capturedLength(),
+                  formatForCategory(TextEditor::C_LOG_COMMIT_FOOTER));
+    } else {
+        QRegularExpressionMatch reference = amendsPattern.match(content);
+        if (!reference.hasMatch())
+            reference = cherryPickPattern.match(content);
+        if (!reference.hasMatch())
+            return;
+        setFormat(prefixLength + reference.capturedStart(1), reference.capturedLength(1),
+                  formatForCategory(TextEditor::C_LOG_COMMIT_FOOTER));
+    }
 }
 
 GitReflogHighlighter::GitReflogHighlighter()

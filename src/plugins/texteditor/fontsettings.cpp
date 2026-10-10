@@ -912,6 +912,10 @@ FormatDescriptions initialFormats()
     formatDescr.emplace_back(C_LOG_COMMIT_SUBJECT, Tr::tr("Log Commit Subject"),
                              Tr::tr("Applied to commit subjects in version control log."),
                              Format{QColor{}, QColor{}});
+    formatDescr.emplace_back(C_LOG_COMMIT_FOOTER, Tr::tr("Log Commit Footer"),
+                             Tr::tr("Applied to footer labels and annotations in version control "
+                                    "log and commit descriptions."),
+                             Format{Utils::creatorColor(Theme::Token_Text_Accent), QColor{}});
 
     // Mixin categories
     formatDescr.emplace_back(C_ERROR,

@@ -73,6 +73,14 @@ private:
     const QRegularExpression m_changeNumberPattern;
 };
 
+class GitLogHighlighter final : public VcsBase::DiffAndLogHighlighter
+{
+public:
+    GitLogHighlighter();
+
+    void highlightBlock(const QString &text) override;
+};
+
 // Highlighter for reflog output. Reflog entries contain several pieces of
 // information on one line, so highlighting the complete line would hide the
 // structure of the entry.

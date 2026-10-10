@@ -92,6 +92,7 @@ enum TextStyle : quint8 {
     C_LOG_COMMIT_DATE,
     C_LOG_COMMIT_HASH,
     C_LOG_COMMIT_SUBJECT,
+    C_LOG_COMMIT_FOOTER,
     C_LOG_DECORATION,
 
     C_INFO,

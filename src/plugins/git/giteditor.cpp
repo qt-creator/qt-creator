@@ -232,6 +232,8 @@ void GitEditorWidget::init()
 {
     VcsBaseEditorWidget::init();
     Id editorId = textDocument()->id();
+    if (editorId == Git::Constants::GIT_LOG_EDITOR_ID)
+        textDocument()->resetSyntaxHighlighter([] { return new GitLogHighlighter; });
     const bool isCommitEditor = editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID;
     const bool isRebaseEditor = editorId == Git::Constants::GIT_REBASE_EDITOR_ID;
     const bool isReflogEditor = editorId == Git::Constants::GIT_REFLOG_EDITOR_ID;

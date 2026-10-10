@@ -92,6 +92,7 @@ const char *nameForStyle(TextStyle style)
     case C_LOG_COMMIT_DATE:     return "LogCommitDate";
     case C_LOG_COMMIT_HASH:     return "LogCommitHash";
     case C_LOG_COMMIT_SUBJECT:  return "LogCommitSubject";
+    case C_LOG_COMMIT_FOOTER:   return "LogCommitFooter";
     case C_LOG_DECORATION:      return "LogDecoration";
 
     case C_ERROR:               return "Error";
