@@ -16,6 +16,7 @@ inline constexpr int INLINE_DIFF_SIGN_PROPERTY_ID = QTextFormat::UserProperty + 
 // colors of its formats - its syntax highlighting - and with its text in the
 // QColor that is the property's value, like code disabled by the preprocessor.
 inline constexpr int SUPPRESS_COLORS_FORMAT_PROPERTY_ID = QTextFormat::UserProperty + 47;
+inline constexpr int MERGE_CONFLICT_WORD_PROPERTY_ID = QTextFormat::UserProperty + 48;
 
 using FormatRanges = QList<QTextLayout::FormatRange>;
 

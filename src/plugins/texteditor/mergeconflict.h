@@ -46,6 +46,7 @@ TEXTEDITOR_EXPORT void resolveMergeConflict(QTextDocument *doc, const MergeConfl
 
 // objectName of the row of resolution links, for tests to find them by
 constexpr char MERGE_CONFLICT_CHOICES_OBJECT_NAME[] = "TextEditor.MergeConflict.Choices";
+constexpr char MERGE_CONFLICT_COMPARISON_OBJECT_NAME[] = "TextEditor.MergeConflict.Comparison";
 
 // Attaches to a text editor and, whenever its document contains merge conflict
 // markers, shows a row of "Choose Current Change | Choose Incoming Change |

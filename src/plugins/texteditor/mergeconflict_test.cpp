@@ -14,11 +14,15 @@
 
 #include <utils/plaintextedit/texteditorlayout.h>
 
+#include <QAbstractItemView>
+#include <QApplication>
+#include <QComboBox>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QScrollBar>
 #include <QTest>
 #include <QTextBlock>
+#include <QWheelEvent>
 
 #include <memory>
 
@@ -157,7 +161,7 @@ private slots:
         QList<QTextCharFormat> unpreviewed;
         for (int line = 1; line <= lineCount; ++line) {
             QVERIFY(!isDisabled(line));
-            unpreviewed.append(formats(line).value(0).format);
+            unpreviewed.append(formatsWithoutWordHighlights(line).value(0).format);
         }
 
         emit label->linkHovered(link);
@@ -174,7 +178,8 @@ private slots:
         QVERIFY(!layout()->hasEditorHiddenBlocks());
         QCOMPARE(reservedHeight(3), 0); // the first line below "<<<<<<<"
         for (int line = 1; line <= lineCount; ++line)
-            QCOMPARE(formats(line).value(0).format, unpreviewed.at(line - 1));
+            QCOMPARE(formatsWithoutWordHighlights(line).value(0).format,
+                     unpreviewed.at(line - 1));
         QTRY_COMPARE(label->y(), reservedLineTop(2));
         QCOMPARE(label->y(), labelTop);
     }
@@ -402,6 +407,166 @@ private slots:
         QTRY_VERIFY(formats(2).isEmpty());
     }
 
+    void testDiff3WordHighlights()
+    {
+        const QString current = "    to open the CMakeLists.txt file for the current run configuration\n"
+            "    in the editor. This is the same build target as when you go to\n"
+            "    \\uicontrol Build and select \\uicontrol {Build for Run Configuration}.\n";
+        const QString base = "    to open the CMakeLists.txt file for the current run configuration\n"
+            "    in the editor. This is the same build target as when you select\n"
+            "    \\uicontrol Build > \\uicontrol {Build for Run Configuration}.\n";
+        const QString incoming = "    to open the \\c CMakeLists.txt file for the current run configuration\n"
+            "    in the editor. This is the same build target as when you select\n"
+            "    \\uicontrol Build > \\uicontrol {Build for Run Configuration}.\n";
+        const QString text = "<<<<<<< HEAD\n" + current + "||||||| base\n" + base
+                             + "=======\n" + incoming + ">>>>>>> branch\n";
+        setText(text);
+        QTRY_COMPARE(comparisons().size(), 1);
+        QComboBox *comparison = comparisons().first();
+        QCOMPARE(comparison->currentText(), QString("Base to Incoming"));
+        QTRY_COMPARE(wordHighlights(10), QStringList{"\\c"});
+        QVERIFY(wordHighlights(2).isEmpty());
+        QVERIFY(wordHighlights(6).isEmpty());
+        QVERIFY(wordHighlights(11).isEmpty());
+        QVERIFY(wordHighlights(1).isEmpty());
+        QCOMPARE(m_widget->toPlainText(), text);
+
+        comparison->setCurrentIndex(1);
+        QTRY_VERIFY(!wordHighlights(3).isEmpty());
+        QVERIFY(wordHighlights(10).isEmpty());
+        QVERIFY(!wordHighlights(7).isEmpty());
+        QCOMPARE(m_widget->toPlainText(), text);
+        comparison->setCurrentIndex(0);
+        QTRY_COMPARE(wordHighlights(10), QStringList{"\\c"});
+        QVERIFY(wordHighlights(3).isEmpty());
+
+        QTextCursor cursor(block(10));
+        const int position = block(10).text().indexOf("\\c");
+        cursor.setPosition(block(10).position() + position);
+        cursor.setPosition(cursor.position() + 2, QTextCursor::KeepAnchor);
+        cursor.insertText("\\code");
+        QTRY_COMPARE(wordHighlights(10), QStringList{"\\code"});
+        m_widget->document()->undo();
+        QTRY_COMPARE(wordHighlights(10), QStringList{"\\c"});
+        QCOMPARE(m_widget->toPlainText(), text);
+    }
+
+    void testTwoWayWordHighlights()
+    {
+        const QString text = "<<<<<<< HEAD\nunchanged\nint value = 10;\nreturn value;\n"
+            "=======\nextra line\nunchanged\nint value = 20;\nreturn value;\n>>>>>>> branch\n";
+        setText(text);
+        QTRY_COMPARE(comparisons().size(), 1);
+        QCOMPARE(comparisons().first()->currentText(), QString("Current to Incoming"));
+        QTRY_COMPARE(wordHighlights(8), QStringList{"2"});
+        QCOMPARE(wordHighlights(3), QStringList{"1"});
+        QVERIFY(!wordHighlights(6).isEmpty());
+        QVERIFY(wordHighlights(2).isEmpty());
+        QVERIFY(wordHighlights(7).isEmpty());
+        QVERIFY(wordHighlights(5).isEmpty());
+        QCOMPARE(m_widget->toPlainText(), text);
+        resolveMergeConflict(m_widget->document(), findMergeConflicts(m_widget->document()).first(),
+                             MergeConflictChoice::Incoming);
+        QTRY_VERIFY(comparisons().isEmpty());
+        QVERIFY(wordHighlights(3).isEmpty());
+        m_widget->document()->undo();
+        QTRY_COMPARE(wordHighlights(8), QStringList{"2"});
+    }
+
+    void testChangedWords_data()
+    {
+        QTest::addColumn<QString>("source");
+        QTest::addColumn<QString>("destination");
+        QTest::addColumn<QStringList>("removed");
+        QTest::addColumn<QStringList>("added");
+        QTest::newRow("replacement") << QString("return oldCount;") << QString("return newCount;")
+                                     << QStringList{"old"} << QStringList{"new"};
+        QTest::newRow("insertion") << QString("enableFeature();") << QString("enableLocalFeature();")
+                                   << QStringList{} << QStringList{"Local"};
+        QTest::newRow("deletion") << QString("enableLocalFeature();") << QString("enableFeature();")
+                                  << QStringList{"Local"} << QStringList{};
+        QTest::newRow("number") << QString("int value = 10;") << QString("int value = 20;")
+                                << QStringList{"1"} << QStringList{"2"};
+    }
+
+    void testChangedWords()
+    {
+        QFETCH(QString, source);
+        QFETCH(QString, destination);
+        QFETCH(QStringList, removed);
+        QFETCH(QStringList, added);
+        setText("<<<<<<< HEAD\n" + source + "\n=======\n" + destination + "\n>>>>>>> branch");
+        if (!added.isEmpty())
+            QTRY_COMPARE(wordHighlights(4), added);
+        else
+            QTRY_COMPARE(wordHighlights(2), removed);
+        QCOMPARE(wordHighlights(2), removed);
+        QCOMPARE(wordHighlights(4), added);
+    }
+
+    void testDiff3InsertedIdentifier()
+    {
+        setText("<<<<<<< HEAD\nenableLocalFeature();\n||||||| base\n"
+                "enableFeature();\n=======\n>>>>>>> incoming");
+        QTRY_COMPARE(comparisons().size(), 1);
+        QTRY_COMPARE(wordHighlights(4), QStringList{"enableFeature();"});
+        comparisons().first()->setCurrentIndex(1);
+        QTRY_COMPARE(wordHighlights(2), QStringList{"Local"});
+        QVERIFY(wordHighlights(4).isEmpty());
+        comparisons().first()->setCurrentIndex(0);
+        QTRY_COMPARE(wordHighlights(4), QStringList{"enableFeature();"});
+        QVERIFY(wordHighlights(2).isEmpty());
+    }
+
+    void testIndependentComparisons()
+    {
+        const QString conflict = "<<<<<<< HEAD\ncurrent\n||||||| base\nbase\n"
+                                 "=======\nincoming\n>>>>>>> branch\n";
+        setText(conflict + conflict);
+        QTRY_COMPARE(comparisons().size(), 2);
+        QTRY_COMPARE(wordHighlights(13), QStringList{"incoming"});
+        comparisons().first()->setCurrentIndex(1);
+        QTRY_COMPARE(wordHighlights(2), (QStringList{"curr", "nt"}));
+        QCOMPARE(wordHighlights(13), QStringList{"incoming"});
+        QVERIFY(wordHighlights(6).isEmpty());
+        QTextCursor cursor(m_widget->document());
+        cursor.insertText("prefix\n");
+        QCOMPARE(comparisons().first()->currentText(), QString("Base to Current"));
+        QCOMPARE(wordHighlights(3), (QStringList{"curr", "nt"}));
+        QCOMPARE(wordHighlights(14), QStringList{"incoming"});
+        comparisons().last()->setCurrentIndex(1);
+        setText("<<<<<<< HEAD\noldValue\n=======\nnewValue\n>>>>>>> branch");
+        QTRY_COMPARE(comparisons().size(), 1);
+        QTRY_COMPARE(wordHighlights(4), QStringList{"new"});
+        QCOMPARE(wordHighlights(2), QStringList{"old"});
+        QCOMPARE(comparisons().first()->currentText(), QString("Current to Incoming"));
+    }
+
+    void testWordHighlightsEmptySides_data()
+    {
+        QTest::addColumn<QString>("text");
+        QTest::addColumn<int>("line");
+        QTest::newRow("empty-current") << QString("<<<<<<< HEAD\n=======\nadded\n>>>>>>> branch")
+                                        << 3;
+        QTest::newRow("empty-incoming") << QString("<<<<<<< HEAD\nremoved\n=======\n>>>>>>> branch")
+                                         << 2;
+        QTest::newRow("empty-base")
+            << QString("<<<<<<< HEAD\ncurrent\n||||||| base\n=======\nincoming\n>>>>>>> branch")
+            << 5;
+        QTest::newRow("deleted-incoming")
+            << QString("<<<<<<< HEAD\ncurrent\n||||||| base\nbase\n=======\n>>>>>>> branch")
+            << 4;
+    }
+
+    void testWordHighlightsEmptySides()
+    {
+        QFETCH(QString, text);
+        QFETCH(int, line);
+        setText(text);
+        QTRY_VERIFY(!wordHighlights(line).isEmpty());
+        QCOMPARE(m_widget->toPlainText(), text);
+    }
+
     void testMarksSidesOnScrollBar()
     {
         setText(QLatin1StringView(conflictText));
@@ -458,10 +623,116 @@ private slots:
         setText(QLatin1StringView(conflictText));
         QTRY_VERIFY(!formats(2).isEmpty());
         QVERIFY(links().isEmpty());
+        QTRY_COMPARE(wordHighlights(5), (QStringList{"th", "irs"}));
 
         // ... and picks the links up once it becomes writable
         m_widget->setReadOnly(false);
         QTRY_COMPARE(links().size(), 1);
+    }
+
+    void testWordHighlightsSurviveRescan()
+    {
+        setText(QLatin1StringView(conflictText));
+        QTRY_COMPARE(wordHighlights(5), (QStringList{"th", "irs"}));
+        m_widget->setReadOnly(true);
+        QCOMPARE(wordHighlights(5), (QStringList{"th", "irs"}));
+        m_widget->setReadOnly(false);
+        QCOMPARE(wordHighlights(5), (QStringList{"th", "irs"}));
+    }
+
+    void testWordHighlightsSurvivePreview()
+    {
+        setText(QLatin1StringView(conflictText));
+        QTRY_COMPARE(wordHighlights(5), (QStringList{"th", "irs"}));
+        const auto wordsFollowSections = [this] {
+            int section = -1;
+            int word = -1;
+            const auto ranges = formats(5);
+            for (int i = 0; i < ranges.size(); ++i) {
+                if (ranges[i].format.boolProperty(MERGE_CONFLICT_SECTION_PROPERTY_ID))
+                    section = i;
+                if (ranges[i].format.boolProperty(MERGE_CONFLICT_WORD_PROPERTY_ID))
+                    word = i;
+            }
+            return section >= 0 && word > section;
+        };
+        QVERIFY(wordsFollowSections());
+        emit links().first()->linkHovered("current");
+        QVERIFY(wordsFollowSections());
+        emit links().first()->linkHovered({});
+        QVERIFY(wordsFollowSections());
+    }
+
+    void testComparisonSurvivesFontChangeAfterEdit()
+    {
+        setText("prefix\n<<<<<<< HEAD\ncurrent\n||||||| base\nbase\n"
+                "=======\nincoming\n>>>>>>> branch\n");
+        QTRY_COMPARE(comparisons().size(), 1);
+        comparisons().first()->setCurrentIndex(1);
+        QTRY_VERIFY(!wordHighlights(3).isEmpty());
+        QTextCursor cursor(m_widget->document());
+        cursor.insertText("above\n");
+        emit m_widget->textDocument()->fontSettingsChanged();
+        QTRY_COMPARE(comparisons().size(), 1);
+        QCOMPARE(comparisons().first()->currentIndex(), 1);
+        QTRY_VERIFY(!wordHighlights(4).isEmpty());
+        QVERIFY(wordHighlights(8).isEmpty());
+    }
+
+    void testComparisonKeepsEditorFocus()
+    {
+        m_widget->resize(600, 250);
+        m_widget->show();
+        m_widget->activateWindow();
+        m_widget->setFocus();
+        setText("prefix\n<<<<<<< HEAD\ncurrent\n||||||| base\nbase\n"
+                "=======\nincoming\n>>>>>>> branch\n");
+        QTRY_COMPARE(comparisons().size(), 1);
+        QTRY_VERIFY(m_widget->hasFocus());
+        QComboBox *comparison = comparisons().first();
+        QTest::mouseClick(comparison, Qt::LeftButton);
+        QTRY_VERIFY(comparison->view()->isVisible());
+        QTest::keyClick(comparison->view(), Qt::Key_Down);
+        QTest::keyClick(comparison->view(), Qt::Key_Return);
+        QTRY_VERIFY(!comparison->view()->isVisible());
+        QCOMPARE(comparison->currentIndex(), 1);
+        QTRY_VERIFY(m_widget->hasFocus());
+        QTextCursor cursor(m_widget->document());
+        m_widget->setTextCursor(cursor);
+        QTest::keyClicks(QApplication::focusWidget(), "typed");
+        QVERIFY(m_widget->toPlainText().startsWith("typedprefix"));
+    }
+
+    void testComparisonWheel_data()
+    {
+        QTest::addColumn<bool>("diff3");
+        QTest::newRow("two-way") << false;
+        QTest::newRow("diff3") << true;
+    }
+
+    void testComparisonWheel()
+    {
+        QFETCH(bool, diff3);
+        m_widget->resize(600, 250);
+        m_widget->show();
+        const QString text = diff3
+            ? QString("<<<<<<< HEAD\ncurrent\n||||||| base\nbase\n=======\nincoming\n>>>>>>> branch\n")
+            : QString(QLatin1StringView(conflictText)) + '\n';
+        setText(text + QString("line\n").repeated(100));
+        QTRY_COMPARE(comparisons().size(), 1);
+        QComboBox *comparison = comparisons().first();
+        QVERIFY(!comparison->hasFocus());
+        QScrollBar *scrollBar = m_widget->verticalScrollBar();
+        QTRY_VERIFY(scrollBar->maximum() > 0);
+        scrollBar->setValue(0);
+        const QPointF position = comparison->rect().center();
+        QWheelEvent event(position, comparison->mapToGlobal(position.toPoint()), {},
+                          QPoint(0, -120), Qt::NoButton, Qt::NoModifier,
+                          Qt::NoScrollPhase, false);
+        const int selected = comparison->currentIndex();
+        QApplication::sendEvent(comparison, &event);
+        QCOMPARE(comparison->currentIndex(), selected);
+        QVERIFY(scrollBar->value() > 0);
     }
 
     void testCleansUpWhenDisabled()
@@ -473,8 +744,11 @@ private slots:
         // the highlighting back, while the document stays as it is
         m_widget->setMergeConflictResolutionEnabled(false);
         QTRY_VERIFY(links().isEmpty());
+        QTRY_VERIFY(comparisons().isEmpty());
         QCOMPARE(reservedHeight(2), 0);
         QVERIFY(formats(2).isEmpty());
+        QVERIFY(formats(3).isEmpty());
+        QVERIFY(formats(5).isEmpty());
         QCOMPARE(m_widget->toPlainText(), QString(QLatin1StringView(conflictText)));
     }
 
@@ -528,16 +802,45 @@ private:
         return layout()->blockLayout(block(line))->formats();
     }
 
+    QList<QTextLayout::FormatRange> formatsWithoutWordHighlights(int line) const
+    {
+        QList<QTextLayout::FormatRange> result = formats(line);
+        result.removeIf([](const QTextLayout::FormatRange &range) {
+            return range.format.boolProperty(MERGE_CONFLICT_WORD_PROPERTY_ID);
+        });
+        return result;
+    }
+
     // Whether the line is shown in the "Disabled Code" style, without its
     // syntax colors.
     bool isDisabled(int line) const
     {
         const QTextCharFormat disabled = m_widget->textDocument()->fontSettings().toTextCharFormat(
             C_DISABLED_CODE);
-        const QList<QTextLayout::FormatRange> ranges = formats(line);
+        const QList<QTextLayout::FormatRange> ranges = formatsWithoutWordHighlights(line);
         return !ranges.isEmpty() && ranges.first().format.background() == disabled.background()
                && ranges.first().format.foreground() == disabled.foreground()
                && ranges.first().format.hasProperty(SUPPRESS_COLORS_FORMAT_PROPERTY_ID);
+    }
+
+    QList<QComboBox *> comparisons() const
+    {
+        return m_widget->findChildren<QComboBox *>(
+            QLatin1StringView(MERGE_CONFLICT_COMPARISON_OBJECT_NAME));
+    }
+
+    QStringList wordHighlights(int line) const
+    {
+        QStringList result;
+        for (const QTextLayout::FormatRange &range : formats(line)) {
+            if (range.format.hasProperty(QTextFormat::BackgroundBrush)
+                && !range.format.boolProperty(FULL_LINE_HIGHLIGHT_FORMAT_PROPERTY_ID)) {
+                const QString text = block(line).text().mid(range.start, range.length).trimmed();
+                if (!text.isEmpty())
+                    result.append(text);
+            }
+        }
+        return result;
     }
 
     bool isBold(int line) const

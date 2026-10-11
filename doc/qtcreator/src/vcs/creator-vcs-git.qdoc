@@ -1590,6 +1590,19 @@
     To start Git Bash, go to \uicontrol Tools > \uicontrol Git >
     \uicontrol {Git Tools} > \uicontrol {Git Bash}.
 
+    \section1 Resolve conflicts in the editor
+
+    Open a file with merge conflict markers to see the current, incoming,
+    and, for diff3 conflicts, base sections highlighted in the text editor.
+    Above each conflict, select \uicontrol {Choose Current Change},
+    \uicontrol {Choose Incoming Change}, or \uicontrol {Choose Both} to resolve it.
+
+    The comparison list highlights removed and added characters within the sections.
+    For diff3 conflicts, \uicontrol {Base to Incoming} is selected by default.
+    Select \uicontrol {Base to Current} to inspect the local changes instead.
+    Conflicts without a base section use \uicontrol {Current to Incoming}.
+    The highlights update as you edit the conflict.
+
     \section1 Merge tools
 
     To resolve merge conflicts, go to \uicontrol Tools > \uicontrol Git >
