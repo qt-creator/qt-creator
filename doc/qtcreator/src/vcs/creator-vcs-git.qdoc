@@ -1517,6 +1517,11 @@
     \image {qtcreator-gerrit.png} {Gerrit view}
     \caption Gerrit view
 
+    Select a change to list its available revisions in \uicontrol {Patch set}.
+    The latest patch set is selected by default. Select an earlier patch set
+    before choosing \uicontrol Show, \uicontrol {Cherry Pick}, or
+    \uicontrol Checkout to use that revision.
+
     \section1 View details of changes
 
     To view details of the selected change, select \uicontrol Show.

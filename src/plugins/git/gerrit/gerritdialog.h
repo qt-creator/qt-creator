@@ -11,6 +11,7 @@
 #include <functional>
 
 QT_BEGIN_NAMESPACE
+class QComboBox;
 class QDialogButtonBox;
 class QLabel;
 class QModelIndex;
@@ -54,6 +55,7 @@ signals:
     void fetchCheckout(const std::shared_ptr<Gerrit::Internal::GerritChange> &);
 
 private:
+    friend class GerritDialogTest;
     void slotCurrentChanged();
     void slotActivated(const QModelIndex &);
     void slotRefreshStateChanged(bool);
@@ -72,6 +74,8 @@ private:
     void updateCompletions(const QString &query);
     QPushButton *addActionButton(const QString &text, const std::function<void ()> &buttonSlot);
     void updateButtons();
+    void updateDetails();
+    std::shared_ptr<GerritChange> selectedChange() const;
 
     const std::shared_ptr<GerritServer> m_server;
     QSortFilterProxyModel *m_filterModel;
@@ -92,8 +96,13 @@ private:
     GerritRemoteChooser *m_remoteComboBox;
     Utils::TreeView *m_treeView;
     QTextBrowser *m_detailsBrowser;
+    QComboBox *m_patchSetComboBox;
     QDialogButtonBox *m_buttonBox;
     Utils::FancyLineEdit *m_queryLineEdit;
 };
+
+#ifdef WITH_TESTS
+QObject *createGerritDialogTest();
+#endif
 
 } // Gerrit::Internal

@@ -19,6 +19,7 @@
 #include <utils/progressindicator.h>
 
 #include <QApplication>
+#include <QComboBox>
 #include <QCompleter>
 #include <QDesktopServices>
 #include <QDialog>
@@ -28,11 +29,17 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QPushButton>
+#include <QSignalBlocker>
 #include <QSortFilterProxyModel>
 #include <QSplitter>
 #include <QStringListModel>
 #include <QTextBrowser>
 #include <QUrl>
+
+#ifdef WITH_TESTS
+#include <QRegularExpression>
+#include <QTest>
+#endif
 
 using namespace Utils;
 
@@ -89,6 +96,11 @@ GerritDialog::GerritDialog(const std::shared_ptr<GerritServer> &s,
 
     m_detailsBrowser = new QTextBrowser(detailsGroup);
     m_detailsBrowser->setOpenExternalLinks(true);
+    m_patchSetComboBox = new QComboBox(detailsGroup);
+    m_patchSetComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    m_patchSetComboBox->setObjectName("GerritPatchSetComboBox"); // autotest
+    auto patchSetLabel = new QLabel(Git::Tr::tr("Patch s&et:"), detailsGroup);
+    patchSetLabel->setBuddy(m_patchSetComboBox);
 
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
     m_buttonBox->button(QDialogButtonBox::Close)->setAutoDefault(false);
@@ -132,7 +144,8 @@ GerritDialog::GerritDialog(const std::shared_ptr<GerritServer> &s,
     }.attachTo(changesGroup);
 
     Column {
-        m_detailsBrowser
+        m_detailsBrowser,
+        Row { patchSetLabel, m_patchSetComboBox, st }
     }.attachTo(detailsGroup);
 
     auto splitter = new QSplitter(this);
@@ -165,6 +178,8 @@ GerritDialog::GerritDialog(const std::shared_ptr<GerritServer> &s,
 
     connect(m_treeView->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &GerritDialog::slotCurrentChanged);
+    connect(m_model, &QAbstractItemModel::modelReset,
+            this, &GerritDialog::slotCurrentChanged);
     connect(m_treeView, &QAbstractItemView::activated,
             this, &GerritDialog::slotActivated);
 
@@ -178,6 +193,9 @@ GerritDialog::GerritDialog(const std::shared_ptr<GerritServer> &s,
         if (text.contains("returned error: 401"))
             updateRemotes(true);
     }, Qt::QueuedConnection);
+
+    connect(m_patchSetComboBox, &QComboBox::currentIndexChanged,
+            this, &GerritDialog::updateDetails);
 
     setCurrentPath(repository);
     slotCurrentChanged();
@@ -255,23 +273,20 @@ void GerritDialog::slotRefreshStateChanged(bool v)
 
 void GerritDialog::slotFetchDisplay()
 {
-    const QModelIndex index = currentIndex();
-    if (index.isValid())
-        emit fetchDisplay(m_model->change(index));
+    if (const auto change = selectedChange())
+        emit fetchDisplay(change);
 }
 
 void GerritDialog::slotFetchCherryPick()
 {
-    const QModelIndex index = currentIndex();
-    if (index.isValid())
-        emit fetchCherryPick(m_model->change(index));
+    if (const auto change = selectedChange())
+        emit fetchCherryPick(change);
 }
 
 void GerritDialog::slotFetchCheckout()
 {
-    const QModelIndex index = currentIndex();
-    if (index.isValid())
-        emit fetchCheckout(m_model->change(index));
+    if (const auto change = selectedChange())
+        emit fetchCheckout(change);
 }
 
 void GerritDialog::refresh()
@@ -339,7 +354,9 @@ QModelIndex GerritDialog::currentIndex() const
 
 void GerritDialog::updateButtons()
 {
-    const bool enabled = !m_fetchRunning && m_treeView->selectionModel()->currentIndex().isValid();
+    const bool hasPatchSet = currentIndex().isValid() && m_patchSetComboBox->currentIndex() >= 0;
+    m_patchSetComboBox->setEnabled(!m_fetchRunning && hasPatchSet);
+    const bool enabled = !m_fetchRunning && hasPatchSet;
     m_displayButton->setEnabled(enabled);
     m_cherryPickButton->setEnabled(enabled);
     m_checkoutButton->setEnabled(enabled);
@@ -347,9 +364,46 @@ void GerritDialog::updateButtons()
 
 void GerritDialog::slotCurrentChanged()
 {
+    const QSignalBlocker blocker(m_patchSetComboBox);
+    m_patchSetComboBox->clear();
     const QModelIndex current = currentIndex();
-    m_detailsBrowser->setText(current.isValid() ? m_model->toHtml(current) : QString());
+    if (current.isValid()) {
+        const GerritChangePtr change = m_model->change(current);
+        for (const GerritPatchSet &patchSet : change->patchSets) {
+            const int number = patchSet.patchSetNumber;
+            const QString text = number == change->currentPatchSet.patchSetNumber
+                ? Git::Tr::tr("%1 (latest)").arg(number) : QString::number(number);
+            m_patchSetComboBox->addItem(text, number);
+        }
+        m_patchSetComboBox->setCurrentIndex(
+            m_patchSetComboBox->findData(change->currentPatchSet.patchSetNumber));
+    }
+    updateDetails();
     updateButtons();
+}
+
+void GerritDialog::updateDetails()
+{
+    const QModelIndex current = currentIndex();
+    m_detailsBrowser->setText(current.isValid()
+        ? m_model->toHtml(current, m_patchSetComboBox->currentData().toInt()) : QString());
+}
+
+GerritChangePtr GerritDialog::selectedChange() const
+{
+    const QModelIndex current = currentIndex();
+    if (!current.isValid() || m_patchSetComboBox->currentIndex() < 0)
+        return {};
+    const GerritChangePtr change = m_model->change(current);
+    const int number = m_patchSetComboBox->currentData().toInt();
+    for (const GerritPatchSet &patchSet : change->patchSets) {
+        if (patchSet.patchSetNumber == number) {
+            auto selected = std::make_shared<GerritChange>(*change);
+            selected->currentPatchSet = patchSet;
+            return selected;
+        }
+    }
+    return {};
 }
 
 void GerritDialog::fetchStarted(const QString &changeTitle)
@@ -377,4 +431,99 @@ void GerritDialog::setProgressIndicatorVisible(bool v)
     m_progressIndicator->setVisible(v);
 }
 
+#ifdef WITH_TESTS
+
+class GerritDialogTest final : public QObject
+{
+    Q_OBJECT
+private slots:
+    void testPatchSetSelection();
+};
+
+void GerritDialogTest::testPatchSetSelection()
+{
+    auto server = std::make_shared<GerritServer>();
+    GerritDialog dialog(server, {});
+    QVERIFY(!dialog.m_patchSetComboBox->isEnabled());
+    QVERIFY(!dialog.m_cherryPickButton->isEnabled());
+    auto change = std::make_shared<GerritChange>();
+    change->number = 42;
+    change->title = "Test change";
+    change->url = "https://review/42";
+    change->project = "project";
+    change->currentPatchSet.patchSetNumber = 3;
+    change->currentPatchSet.ref = "refs/changes/42/42/3";
+    GerritPatchSet earlier;
+    earlier.patchSetNumber = 1;
+    earlier.ref = "refs/changes/42/42/1";
+    change->patchSets = {change->currentPatchSet, earlier};
+    const auto appendChange = [&dialog](const GerritChangePtr &change) {
+        QList<QStandardItem *> row;
+        for (int i = 0; i < GerritModel::ColumnCount; ++i) {
+            auto item = new QStandardItem;
+            item->setData(QVariant::fromValue(change), GerritModel::GerritChangeRole);
+            row.append(item);
+        }
+        dialog.m_model->appendRow(row);
+    };
+    appendChange(change);
+    dialog.m_treeView->setCurrentIndex(dialog.m_filterModel->index(0, 0));
+    QCOMPARE(dialog.m_patchSetComboBox->count(), 2);
+    QCOMPARE(dialog.m_patchSetComboBox->currentData().toInt(), 3);
+    QVERIFY(dialog.m_patchSetComboBox->isEnabled());
+    QVERIFY(dialog.m_cherryPickButton->isEnabled());
+    QVERIFY(dialog.m_detailsBrowser->toPlainText().contains(QRegularExpression("Patch set\\s+3")));
+
+    QList<GerritChangePtr> fetched;
+    const auto capture = [&fetched](const GerritChangePtr &selected) { fetched.append(selected); };
+    connect(&dialog, &GerritDialog::fetchDisplay, &dialog, capture);
+    connect(&dialog, &GerritDialog::fetchCherryPick, &dialog, capture);
+    connect(&dialog, &GerritDialog::fetchCheckout, &dialog, capture);
+    dialog.m_patchSetComboBox->setCurrentIndex(dialog.m_patchSetComboBox->findData(1));
+    QVERIFY(dialog.m_detailsBrowser->toPlainText().contains(QRegularExpression("Patch set\\s+1")));
+    QVERIFY(dialog.m_detailsBrowser->toHtml().contains("href=\"https://review/42/1\""));
+    dialog.m_displayButton->click();
+    dialog.m_cherryPickButton->click();
+    dialog.m_checkoutButton->click();
+    QCOMPARE(fetched.size(), 3);
+    for (const GerritChangePtr &selected : fetched) {
+        QVERIFY(selected != change);
+        QCOMPARE(selected->currentPatchSet.patchSetNumber, 1);
+        QCOMPARE(selected->gitFetchArguments(*server).last(), earlier.ref);
+    }
+    QCOMPARE(change->currentPatchSet.patchSetNumber, 3);
+    dialog.fetchStarted(change->title);
+    QVERIFY(!dialog.m_patchSetComboBox->isEnabled());
+    QVERIFY(!dialog.m_cherryPickButton->isEnabled());
+    dialog.fetchFinished();
+    QVERIFY(dialog.m_patchSetComboBox->isEnabled());
+
+    auto another = std::make_shared<GerritChange>(*change);
+    another->patchSets = {another->currentPatchSet};
+    appendChange(another);
+    dialog.m_treeView->setCurrentIndex(dialog.m_filterModel->index(1, 0));
+    QCOMPARE(dialog.m_patchSetComboBox->count(), 1);
+    QCOMPARE(dialog.m_patchSetComboBox->currentData().toInt(), 3);
+    dialog.m_cherryPickButton->click();
+    QCOMPARE(fetched.last()->currentPatchSet.patchSetNumber, 3);
+    QCOMPARE(fetched.first()->currentPatchSet.patchSetNumber, 1);
+    dialog.m_model->clear();
+    QCOMPARE(dialog.m_patchSetComboBox->count(), 0);
+    QVERIFY(!dialog.m_patchSetComboBox->isEnabled());
+    QVERIFY(!dialog.m_displayButton->isEnabled());
+    QVERIFY(!dialog.m_cherryPickButton->isEnabled());
+    QVERIFY(!dialog.m_checkoutButton->isEnabled());
+}
+
+QObject *createGerritDialogTest()
+{
+    return new GerritDialogTest;
+}
+
+#endif
+
 } // Gerrit::Internal
+
+#ifdef WITH_TESTS
+#include "gerritdialog.moc"
+#endif
