@@ -538,6 +538,146 @@ static QByteArray darkDocumentationCss(const QHelpEngineCore &engine, const QUrl
     return {};
 }
 
+static bool isXmlSpace(char c)
+{
+    return c == ' ' || c == '\t' || c == '\r' || c == '\n';
+}
+
+static qsizetype skipXmlSpace(const QByteArray &data, qsizetype pos)
+{
+    while (pos < data.size() && isXmlSpace(data.at(pos)))
+        ++pos;
+    return pos;
+}
+
+// The offset of the '<' that opens the root element, or -1 for anything that does not read
+// as a document. Whatever a prolog holds -- a declaration, comments, processing instructions
+// and a DOCTYPE with an internal subset of its own -- is stepped over without being read.
+static qsizetype rootElementStart(const QByteArray &data)
+{
+    qsizetype pos = data.startsWith("\357\273\277") ? 3 : 0; // a byte order mark
+    while (pos < data.size()) {
+        pos = skipXmlSpace(data, pos);
+        const QByteArrayView rest = QByteArrayView(data).sliced(pos);
+        if (!rest.startsWith("<"))
+            return -1;
+
+        QByteArrayView closing;
+        if (rest.startsWith("<?")) {
+            closing = "?>";
+        } else if (rest.startsWith("<!--")) {
+            closing = "-->";
+        } else if (rest.startsWith("<!")) {
+            // the internal subset of a DOCTYPE holds '>' of its own
+            const qsizetype subset = data.indexOf('[', pos);
+            qsizetype end = data.indexOf('>', pos);
+            if (subset >= 0 && end >= 0 && subset < end) {
+                const qsizetype subsetEnd = data.indexOf(']', subset);
+                end = subsetEnd < 0 ? -1 : data.indexOf('>', subsetEnd);
+            }
+            if (end < 0)
+                return -1;
+            pos = end + 1;
+            continue;
+        } else {
+            return pos;
+        }
+        const qsizetype end = data.indexOf(closing, pos);
+        if (end < 0)
+            return -1;
+        pos = end + closing.size();
+    }
+    return -1;
+}
+
+// The offset of the '>' that ends the start tag running from pos, or -1. An attribute value
+// may hold one and is stepped over.
+static qsizetype startTagEnd(const QByteArray &data, qsizetype pos)
+{
+    char quote = 0;
+    for (; pos < data.size(); ++pos) {
+        const char c = data.at(pos);
+        if (quote) {
+            if (c == quote)
+                quote = 0;
+        } else if (c == '"' || c == '\'') {
+            quote = c;
+        } else if (c == '>') {
+            return pos;
+        }
+    }
+    return -1;
+}
+
+// The offset of the quote that closes the value of the class attribute of the start tag
+// whose attributes run from pos, or -1 when the tag names no class.
+static qsizetype classValueEnd(const QByteArray &data, qsizetype pos, qsizetype tagEnd)
+{
+    while (pos < tagEnd) {
+        pos = skipXmlSpace(data, pos);
+        const qsizetype nameStart = pos;
+        while (pos < tagEnd && !isXmlSpace(data.at(pos)) && data.at(pos) != '=')
+            ++pos;
+        const QByteArrayView name = QByteArrayView(data).sliced(nameStart, pos - nameStart);
+        pos = skipXmlSpace(data, pos);
+        if (pos >= tagEnd || data.at(pos) != '=')
+            return -1; // the '/' of an empty element, or nothing this reads as an attribute
+        pos = skipXmlSpace(data, pos + 1);
+        if (pos >= tagEnd || (data.at(pos) != '"' && data.at(pos) != '\''))
+            return -1;
+        const qsizetype valueEnd = data.indexOf(data.at(pos), pos + 1);
+        if (valueEnd < 0 || valueEnd > tagEnd)
+            return -1;
+        if (name == "class")
+            return valueEnd;
+        pos = valueEnd + 1;
+    }
+    return -1;
+}
+
+// A figure is drawn for the page it expects: black strokes and black lettering on nothing,
+// which on a dark page all but disappears. A stylesheet cannot reach inside an image to say
+// otherwise and no viewer repaints one, but the drawing can be told which page it is on.
+// Put class="dark" on the root <svg> element, and a drawing that carries a dark scheme of
+// its own answers with it. Qt Assistant does the same; documentation whose drawings carry no
+// such scheme is unaffected, nothing there matching svg.dark.
+//
+// Only the root start tag is touched, and only by splicing into the original bytes: the
+// prolog with its entity declarations, the namespace declarations and the encoding of the
+// file are all left as they were. The markup is read as bytes, which an ASCII-compatible
+// encoding leaves where its characters are. Anything else -- a compressed .svgz, a document
+// in UTF-16, anything that is not a drawing at all -- is handed back untouched, a figure
+// never being made worse than it came.
+QByteArray darkThemeSvg(const QByteArray &data)
+{
+    const qsizetype tag = rootElementStart(data);
+    if (tag < 0)
+        return data;
+
+    qsizetype nameEnd = tag + 1;
+    while (nameEnd < data.size() && !isXmlSpace(data.at(nameEnd)) && data.at(nameEnd) != '/'
+           && data.at(nameEnd) != '>') {
+        ++nameEnd;
+    }
+    const QByteArrayView name = QByteArrayView(data).sliced(tag + 1, nameEnd - tag - 1);
+    if (name != "svg" && !name.endsWith(":svg"))
+        return data;
+
+    const qsizetype tagEnd = startTagEnd(data, nameEnd);
+    if (tagEnd < 0)
+        return data;
+
+    // A second class attribute beside a first would not be XML, so a drawing that already
+    // names a class is added to rather than written over.
+    QByteArray themed = data;
+    const qsizetype classEnd = classValueEnd(data, nameEnd, tagEnd);
+    if (classEnd < 0)
+        themed.insert(nameEnd, " class=\"dark\"");
+    else
+        themed.insert(classEnd, " dark");
+    return themed;
+}
+
 LocalHelpManager::HelpData LocalHelpManager::helpData(const QUrl &url)
 {
     const bool darkTheme = Utils::creatorTheme()
@@ -571,6 +711,8 @@ LocalHelpManager::HelpData LocalHelpManager::helpData(const QUrl &url, bool dark
         data.mimeType = HelpViewer::mimeFromUrl(data.resolvedUrl);
         if (data.mimeType.isEmpty())
             data.mimeType = Utils::Constants::OCTET_STREAM_MIMETYPE;
+        if (darkTheme && data.mimeType == "image/svg+xml")
+            data.data = darkThemeSvg(data.data);
     } else {
         data.data = loadErrorMessage(url, Tr::tr("The page could not be found"));
         data.mimeType = "text/html";
