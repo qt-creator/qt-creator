@@ -14,6 +14,7 @@ QtcPlugin {
     ]
 
     files: [
+        "diffalgorithm.cpp", "diffalgorithm.h",
         "diffeditor.cpp",
         "diffeditor.h",
         "diffeditor_global.h", "diffeditortr.h",

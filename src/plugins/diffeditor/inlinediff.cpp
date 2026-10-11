@@ -5,6 +5,7 @@
 
 #include "inlinediff_p.h"
 
+#include "diffalgorithm.h"
 #include "diffeditorconstants.h"
 #include "diffeditoricons.h"
 #include "diffeditortr.h"
@@ -51,6 +52,7 @@
 #include <QApplication>
 #include <QBrush>
 #include <QClipboard>
+#include <QComboBox>
 #include <QElapsedTimer>
 #include <QEnterEvent>
 #include <QEvent>
@@ -290,7 +292,7 @@ static void ignoreWhitespaceChanges(ChunkData &chunk)
 
 static void computeRenderModel(QPromise<InlineDiffRenderModel> &promise,
                                const QString &baselineText, const QString &editorText,
-                               bool ignoreWhitespace, bool patience)
+                               bool ignoreWhitespace, Differ::DiffAlgorithm algorithm)
 {
     if (baselineText == editorText) {
         InlineDiffRenderModel model;
@@ -302,7 +304,7 @@ static void computeRenderModel(QPromise<InlineDiffRenderModel> &promise,
     }
 
     Differ differ(QFuture<void>(promise.future()));
-    differ.setPatience(patience);
+    differ.setDiffAlgorithm(algorithm);
     const QList<Diff> diffList
         = Differ::cleanupLineDiffSemantics(differ.diff(baselineText, editorText));
     QList<Diff> leftDiffList;
@@ -2221,19 +2223,18 @@ public:
             startUpdate(); // the diff itself changes, recompute it
         });
 
-        // like the classic diff view's toggle, and stored under the same key
-        m_patience = Core::ICore::settings()->value(Constants::PATIENCE_KEY, false).toBool();
-        m_patienceAction = m_toolBar->addAction(QIcon(), Tr::tr("Patience"));
-        m_patienceAction->setObjectName("InlineDiffPatienceAction"); // autotest
-        m_patienceAction->setCheckable(true);
-        m_patienceAction->setChecked(m_patience);
-        m_patienceAction->setToolTip(Tr::tr("Aligns lines that occur only once on each side "
-                                            "first, so that unrelated lines, such as a lone "
-                                            "brace, are not paired."));
-        connect(m_patienceAction, &QAction::toggled, this, [this](bool on) {
-            Core::ICore::settings()->setValue(Constants::PATIENCE_KEY, on);
-            m_patience = on;
-            startUpdate(); // the diff itself changes, recompute it
+        m_diffAlgorithm = Internal::readDiffAlgorithm();
+        m_diffAlgorithmComboBox = new QComboBox(m_toolBar);
+        m_diffAlgorithmComboBox->setObjectName("InlineDiffAlgorithmComboBox"); // autotest
+        Internal::populateDiffAlgorithms(m_diffAlgorithmComboBox);
+        m_diffAlgorithmComboBox->setCurrentIndex(
+            m_diffAlgorithmComboBox->findData(m_diffAlgorithm));
+        m_toolBar->addWidget(m_diffAlgorithmComboBox);
+        connect(m_diffAlgorithmComboBox, &QComboBox::currentIndexChanged, this, [this] {
+            m_diffAlgorithm = static_cast<Differ::DiffAlgorithm>(
+                m_diffAlgorithmComboBox->currentData().toInt());
+            Internal::saveDiffAlgorithm(m_diffAlgorithm);
+            startUpdate();
         });
 
         // a global display setting, but the toggle belongs where the diff is
@@ -2792,10 +2793,10 @@ private:
 
         using namespace QtTaskTree;
         const auto onSetup = [baselineText = *m_baselineText, editorText,
-                              ignoreWhitespace = m_ignoreWhitespace, patience = m_patience]
+                              ignoreWhitespace = m_ignoreWhitespace, algorithm = m_diffAlgorithm]
             (Async<InlineDiffRenderModel> &async) {
             async.setConcurrentCallData(computeRenderModel, baselineText, editorText,
-                                        ignoreWhitespace, patience);
+                                        ignoreWhitespace, algorithm);
         };
         const auto onDone = [this](const Async<InlineDiffRenderModel> &async) {
             applyModel(async.isResultAvailable() ? async.result() : InlineDiffRenderModel());
@@ -3006,12 +3007,12 @@ private:
     QAction *m_contextLabelAction = nullptr;
     QAction *m_contextSpinBoxAction = nullptr;
     QAction *m_whitespaceAction = nullptr;
-    QAction *m_patienceAction = nullptr;
+    QComboBox *m_diffAlgorithmComboBox = nullptr;
     QAction *m_reloadAction = nullptr;
     QList<InlineDiffChunk> m_actionableHunks;
     QAction *m_signsAction = nullptr;
     bool m_ignoreWhitespace = false;
-    bool m_patience = false;
+    Differ::DiffAlgorithm m_diffAlgorithm = Differ::Histogram;
     InlineDiffViewMode m_viewMode = InlineDiffViewMode::Inline;
     bool m_centerOnNextModel = false;
     bool m_jumpToFirstChange = false;

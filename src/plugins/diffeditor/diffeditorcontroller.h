@@ -6,6 +6,8 @@
 #include "diffeditor_global.h"
 #include "diffutils.h"
 
+#include <utils/differ.h>
+
 #include <QtTaskTree/QTaskTree>
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
@@ -66,7 +68,7 @@ protected:
     bool isReloading() const { return m_taskTreeRunner.isRunning(); }
     int contextLineCount() const;
     bool ignoreWhitespace() const;
-    bool patience() const;
+    Utils::Differ::DiffAlgorithm diffAlgorithm() const;
     bool chunkExists(int fileIndex, int chunkIndex) const;
     Core::IDocument *document() const;
     QString makePatch(int fileIndex, int chunkIndex, const ChunkSelection &selection,
@@ -81,7 +83,7 @@ protected:
     void setDescription(const QString &description);
     void setStartupFile(const QString &startupFile);
     void forceContextLineCount(int lines);
-    void setPatienceButtonEnabled(bool enabled);
+    void setDiffAlgorithmEnabled(bool enabled);
 
 private:
     friend class Internal::DiffEditorWidgetController;

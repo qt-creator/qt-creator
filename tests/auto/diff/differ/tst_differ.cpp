@@ -5,6 +5,8 @@
 #include <QMetaType>
 #include <QObject>
 #include <QTest>
+#include <QPromise>
+#include <QRandomGenerator>
 #include <QTextDocument>
 #include <QTextBlock>
 
@@ -50,6 +52,8 @@ private Q_SLOTS:
     void preprocess();
     void myers_data();
     void myers();
+    void defaultMatchesMyers_data();
+    void defaultMatchesMyers();
     void merge_data();
     void merge();
     void cleanupSemantics_data();
@@ -64,6 +68,10 @@ private Q_SLOTS:
     void patience_data();
     void patience();
     void patienceLinesUpUniqueLines();
+    void histogramFunctionExtraction();
+    void histogramPrefersRarerAnchors();
+    void histogramRoundTrip();
+    void histogramCancellation();
 };
 
 // The lines of these two texts repeat, so the smallest set of changes is not
@@ -147,7 +155,7 @@ void tst_Differ::patience()
     QFETCH(QList<Diff>, expected);
 
     Differ differ;
-    differ.setPatience(true);
+    differ.setDiffAlgorithm(Differ::Patience);
     const QList<Diff> result = differ.diff(text1, text2);
     QCOMPARE(result, expected);
     // whatever the alignment, the two sides must spell out the inputs again
@@ -162,14 +170,137 @@ void tst_Differ::patienceLinesUpUniqueLines()
 
     // the removed line is removed as a whole line ...
     Differ patienceDiffer;
-    patienceDiffer.setPatience(true);
+    patienceDiffer.setDiffAlgorithm(Differ::Patience);
     QVERIFY(patienceDiffer.diff(text1, text2).contains(Diff(Diff::Delete, "check();\n")));
 
     // ... which the Myers diff, free to pick any of the equally small sets of
     // changes, does not do here: this is what the option is good for
     Differ myersDiffer;
-    QVERIFY(!myersDiffer.patience()); // the comparison rests on that default
+    QCOMPARE(myersDiffer.diffAlgorithm(), Differ::Myers);
     QVERIFY(!myersDiffer.diff(text1, text2).contains(Diff(Diff::Delete, "check();\n")));
+}
+
+void tst_Differ::histogramFunctionExtraction()
+{
+    const QString queryBefore = "    QString realQuery = query.trimmed();\n"
+                                "    if (realQuery.isEmpty()) {\n"
+                                "        realQuery = \"status:open\";\n"
+                                "        const QString user = m_server->user.userName;\n"
+                                "        if (!user.isEmpty())\n"
+                                "            realQuery += user;\n"
+                                "    }\n";
+    const QString queryAfter = "    QString realQuery = query.trimmed();\n"
+                               "    if (realQuery.isEmpty()) {\n"
+                               "        realQuery = \"NOT (status:merged OR status:abandoned)\";\n"
+                               "        const QString user = server.user.userName;\n"
+                               "        if (!user.isEmpty())\n"
+                               "            realQuery += user;\n"
+                               "    }\n";
+    const QString refresh = "void refresh()\n{\n    clearData();\n    setServer();\n\n";
+    const QString tail = "\n    FilePath binary;\n    QStringList arguments;\n}\n";
+    const QString before = refresh + queryBefore + tail;
+    const QString after = "static QString gerritQuery()\n{\n" + queryAfter
+                          + "    return realQuery;\n}\n\n" + refresh
+                          + "    const QString realQuery = gerritQuery();\n" + tail;
+    Differ differ;
+    differ.setDiffAlgorithm(Differ::Histogram);
+    const QList<Diff> result = differ.unifiedDiff(before, after);
+    QCOMPARE(textOfSide(result, Diff::Delete), before);
+    QCOMPARE(textOfSide(result, Diff::Insert), after);
+    QVERIFY(result.contains(Diff(Diff::Equal, refresh)));
+    differ.setDiffAlgorithm(Differ::Patience);
+    QVERIFY(!differ.unifiedDiff(before, after).contains(Diff(Diff::Equal, refresh)));
+}
+
+void tst_Differ::histogramPrefersRarerAnchors()
+{
+    const QString before = "common\ncommon\nrare\n";
+    const QString after = "rare\ncommon\ncommon\n";
+    Differ differ;
+    differ.setDiffAlgorithm(Differ::Histogram);
+    const QList<Diff> result = differ.unifiedDiff(before, after);
+    QVERIFY(result.contains(Diff(Diff::Equal, "rare\n")));
+    QCOMPARE(textOfSide(result, Diff::Delete), before);
+    QCOMPARE(textOfSide(result, Diff::Insert), after);
+}
+
+void tst_Differ::histogramRoundTrip()
+{
+    Differ differ;
+    differ.setDiffAlgorithm(Differ::Histogram);
+    QRandomGenerator random(12345);
+    for (int test = 0; test < 500; ++test) {
+        QString before;
+        QString after;
+        for (int i = random.bounded(80); i > 0; --i)
+            before += QString(QChar('a' + random.bounded(5))) + '\n';
+        for (int i = random.bounded(80); i > 0; --i)
+            after += QString(QChar('a' + random.bounded(5))) + '\n';
+        if (!before.isEmpty() && random.bounded(2))
+            before.chop(1);
+        if (!after.isEmpty() && random.bounded(2))
+            after.chop(1);
+        const QList<Diff> result = differ.unifiedDiff(before, after);
+        QCOMPARE(textOfSide(result, Diff::Delete), before);
+        QCOMPARE(textOfSide(result, Diff::Insert), after);
+        const QList<Diff> refined = differ.diff(before, after);
+        QCOMPARE(textOfSide(refined, Diff::Delete), before);
+        QCOMPARE(textOfSide(refined, Diff::Insert), after);
+    }
+    const QString before = QString("a\nb\n").repeated(100);
+    const QString after = QString("b\na\n").repeated(100);
+    const QList<Diff> repeated = differ.unifiedDiff(before, after);
+    QCOMPARE(textOfSide(repeated, Diff::Delete), before);
+    QCOMPARE(textOfSide(repeated, Diff::Insert), after);
+
+    differ.setDiffMode(Differ::CharMode);
+    Differ myers;
+    myers.setDiffMode(Differ::CharMode);
+    QCOMPARE(differ.diff("abcde", "bcdef"), myers.diff("abcde", "bcdef"));
+}
+
+void tst_Differ::defaultMatchesMyers_data()
+{
+    QTest::addColumn<int>("mode");
+    QTest::addColumn<QString>("before");
+    QTest::addColumn<QString>("after");
+
+    const QString longText = QString("a\nb\nc\nd\n").repeated(625);
+    const QString shortText = QString("b\na\nd\nc\n").repeated(6);
+    for (Differ::DiffMode mode : {Differ::CharMode, Differ::WordMode, Differ::LineMode}) {
+        QTest::newRow(qPrintable(QString("%1 long-short").arg(mode)))
+            << int(mode) << longText << shortText;
+        QTest::newRow(qPrintable(QString("%1 short-long").arg(mode)))
+            << int(mode) << shortText << longText;
+    }
+}
+
+void tst_Differ::defaultMatchesMyers()
+{
+    QFETCH(int, mode);
+    QFETCH(QString, before);
+    QFETCH(QString, after);
+
+    Differ defaultDiffer;
+    defaultDiffer.setDiffMode(Differ::DiffMode(mode));
+    defaultDiffer.setDiffAlgorithm(Differ::Default);
+    Differ myers;
+    myers.setDiffMode(Differ::DiffMode(mode));
+    myers.setDiffAlgorithm(Differ::Myers);
+    QCOMPARE(defaultDiffer.diff(before, after), myers.diff(before, after));
+    QCOMPARE(defaultDiffer.unifiedDiff(before, after), myers.unifiedDiff(before, after));
+}
+
+void tst_Differ::histogramCancellation()
+{
+    QPromise<void> promise;
+    promise.start();
+    QFuture<void> future = promise.future();
+    future.cancel();
+    Differ differ(future);
+    differ.setDiffAlgorithm(Differ::Histogram);
+    QVERIFY(differ.unifiedDiff("a\nb\nc\n", "c\nb\na\n").isEmpty());
+    promise.finish();
 }
 
 void tst_Differ::preprocess_data()
@@ -999,13 +1130,13 @@ void tst_Differ::cleanupLineDiffSemanticsWithDiffer()
                                   "    int m_red;\n    int m_blue;\n    int m_alpha;\n};\n";
     const QString colorEditor = "struct Color\n{\n    Color(int red, int blue);\n\n"
                                 "    int m_red;\n    int m_blue;\n};\n";
-    for (const bool patience : {false, true}) {
-        differ.setPatience(patience);
+    for (const auto algorithm : {Differ::Myers, Differ::Patience, Differ::Histogram}) {
+        differ.setDiffAlgorithm(algorithm);
         const QList<Diff> colorDiff
             = Differ::cleanupLineDiffSemantics(differ.diff(colorBaseline, colorEditor));
         QVERIFY(colorDiff.contains(Diff(Diff::Delete, "    int m_alpha;\n")));
     }
-    differ.setPatience(false);
+    differ.setDiffAlgorithm(Differ::Myers);
 }
 
 void tst_Differ::cleanupSemanticsLossless_data()

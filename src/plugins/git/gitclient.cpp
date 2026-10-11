@@ -306,7 +306,7 @@ GitBaseDiffEditorController::GitBaseDiffEditorController(IDocument *document)
     : VcsBaseDiffEditorController(document)
 {
     setDisplayName("Git Diff");
-    setPatienceButtonEnabled(true);
+    setDiffAlgorithmEnabled(true);
 }
 
 DiffEditor::DescriptionEditorProvider
@@ -364,8 +364,12 @@ QStringList GitBaseDiffEditorController::addConfigurationArguments(const QString
     };
     if (ignoreWhitespace())
         realArgs << "--ignore-space-change";
-    if (patience())
-        realArgs << "--patience";
+    switch (diffAlgorithm()) {
+    case Utils::Differ::Default: break;
+    case Utils::Differ::Histogram: realArgs << "--histogram"; break;
+    case Utils::Differ::Patience: realArgs << "--patience"; break;
+    case Utils::Differ::Myers: realArgs << "--diff-algorithm=myers"; break;
+    }
     realArgs << "--unified=" + QString::number(contextLineCount())
              << "--src-prefix=a/" << "--dst-prefix=b/" << args.mid(1);
 

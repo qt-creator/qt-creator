@@ -473,10 +473,19 @@
 
     To toggle the diff view, select \uicontrol Diff.
 
+    \section1 Select the diff algorithm
+
+    In the Git diff editor and the editable inline diff editor, select
+    \uicontrol Histogram, \uicontrol Patience, or \uicontrol Myers from the
+    diff algorithm list. Histogram is the default for new preferences and
+    can make changes such as extracting a function easier to review.
+    Existing saved choices are preserved, and the selected algorithm is
+    remembered for new diffs.
+
     \section1 Use the patience diff algorithm
 
-    To use the patience diff algorithm for calculating the differences, select
-    \uicontrol Patience.
+    In the Git log view, select \uicontrol Patience to use the patience diff
+    algorithm when showing differences in the log output.
 
     \section1 Ignore whitespace changes
 

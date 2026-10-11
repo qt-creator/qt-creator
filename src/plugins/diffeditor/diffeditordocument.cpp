@@ -211,24 +211,24 @@ bool DiffEditorDocument::ignoreWhitespace() const
     return m_ignoreWhitespace;
 }
 
-void DiffEditorDocument::setPatienceButtonEnabled(bool enabled)
+void DiffEditorDocument::setDiffAlgorithmEnabled(bool enabled)
 {
-    m_patienceButtonEnabled = enabled;
+    m_diffAlgorithmEnabled = enabled;
 }
 
-bool DiffEditorDocument::isPatienceButtonEnabled()
+bool DiffEditorDocument::isDiffAlgorithmEnabled() const
 {
-    return m_patienceButtonEnabled;
+    return m_diffAlgorithmEnabled;
 }
 
-void DiffEditorDocument::setPatience(bool patience)
+void DiffEditorDocument::setDiffAlgorithm(Utils::Differ::DiffAlgorithm algorithm)
 {
-    m_patience = patience;
+    m_diffAlgorithm = algorithm;
 }
 
-bool DiffEditorDocument::patience() const
+Utils::Differ::DiffAlgorithm DiffEditorDocument::diffAlgorithm() const
 {
-    return m_patience;
+    return m_diffAlgorithm;
 }
 
 Result<> DiffEditorDocument::setContents(const QByteArray &contents)

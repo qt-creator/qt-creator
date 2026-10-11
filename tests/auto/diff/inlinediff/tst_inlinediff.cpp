@@ -36,7 +36,8 @@ private slots:
 
 private:
     static InlineDiffRenderModel compute(const QString &baseline, const QString &editor,
-                                         bool patience = false);
+                                         Utils::Differ::DiffAlgorithm algorithm
+                                             = Utils::Differ::Myers);
 };
 
 // The repeated lines make the smallest set of changes ambiguous: the Myers diff
@@ -55,10 +56,11 @@ static QString patienceEditor()
                        "beta();"}.join('\n') + '\n';
 }
 
-static QString patchFor(const QString &baseline, const QString &editor, bool patience)
+static QString patchFor(const QString &baseline, const QString &editor,
+                        Utils::Differ::DiffAlgorithm algorithm)
 {
     Utils::Differ differ;
-    differ.setPatience(patience);
+    differ.setDiffAlgorithm(algorithm);
     const QList<Utils::Diff> diffList
         = Utils::Differ::cleanupLineDiffSemantics(differ.diff(baseline, editor));
     QList<Utils::Diff> left;
@@ -103,8 +105,8 @@ void tst_InlineDiff::patienceAvoidsSpuriousModification()
     const QString baseline = baselineLines.join('\n') + '\n';
     const QString editor = editorLines.join('\n') + '\n';
 
-    const QString withoutPatience = patchFor(baseline, editor, false);
-    const QString withPatience = patchFor(baseline, editor, true);
+    const QString withoutPatience = patchFor(baseline, editor, Utils::Differ::Myers);
+    const QString withPatience = patchFor(baseline, editor, Utils::Differ::Patience);
 
     // both report the changed line
     QVERIFY(withoutPatience.contains("-    trace();\n+    send();\n"));
@@ -207,8 +209,9 @@ void tst_InlineDiff::onlyDeletionsOrAdditions()
     QFETCH(QString, editor);
     QFETCH(QString, expected);
 
-    for (const bool patience : {false, true}) {
-        const QString patch = patchFor(baseline, editor, patience);
+    for (const auto algorithm : {Utils::Differ::Myers, Utils::Differ::Patience,
+                                 Utils::Differ::Histogram}) {
+        const QString patch = patchFor(baseline, editor, algorithm);
         QVERIFY2(patch.endsWith(expected), qPrintable(patch));
     }
 }
@@ -216,7 +219,7 @@ void tst_InlineDiff::onlyDeletionsOrAdditions()
 void tst_InlineDiff::patienceAnchorsUniqueLines()
 {
     const InlineDiffRenderModel model = compute(patienceBaseline(), patienceEditor(),
-                                                /*patience=*/true);
+                                                Utils::Differ::Patience);
     // "alpha();" occurs once on each side, so it is lined up: the only line
     // that went away above it is the first "beta();"
     QCOMPARE(model.ghosts.size(), 1);
@@ -234,11 +237,11 @@ void tst_InlineDiff::patienceIsOff()
 }
 
 InlineDiffRenderModel tst_InlineDiff::compute(const QString &baseline, const QString &editor,
-                                             bool patience)
+                                             Utils::Differ::DiffAlgorithm algorithm)
 {
     // mirrors the inline diff editor's diff pipeline
     Utils::Differ differ;
-    differ.setPatience(patience);
+    differ.setDiffAlgorithm(algorithm);
     const QList<Utils::Diff> diffList
         = Utils::Differ::cleanupLineDiffSemantics(differ.diff(baseline, editor));
     QList<Utils::Diff> leftDiffList;
@@ -316,9 +319,10 @@ void tst_InlineDiff::tableRowAddition()
     editorLines.insert(5,
                        "| [Epsilon](https://example.com/epsilon) | 5.0 | MIT |");
 
-    for (const bool patience : {false, true}) {
+    for (const auto algorithm : {Utils::Differ::Myers, Utils::Differ::Patience,
+                                 Utils::Differ::Histogram}) {
         const InlineDiffRenderModel model = compute(baselineLines.join('\n') + '\n',
-                                                    editorLines.join('\n') + '\n', patience);
+                                                    editorLines.join('\n') + '\n', algorithm);
         QVERIFY(model.ghosts.isEmpty());
         QCOMPARE(model.changes.size(), 1);
         QCOMPARE(model.changes.first().startLine, 6);
@@ -338,8 +342,9 @@ void tst_InlineDiff::lineAdditionBeforeSimilarLine()
                            "* (K)Ubuntu Linux 26.04 (arm64) or later (glibc 2.43)\n"
                            "* macOS 13 or later\n";
 
-    for (const bool patience : {false, true}) {
-        const InlineDiffRenderModel model = compute(baseline, editor, patience);
+    for (const auto algorithm : {Utils::Differ::Myers, Utils::Differ::Patience,
+                                 Utils::Differ::Histogram}) {
+        const InlineDiffRenderModel model = compute(baseline, editor, algorithm);
         QVERIFY(model.ghosts.isEmpty());
         QCOMPARE(model.changes.size(), 1);
         QCOMPARE(model.changes.first().startLine, 4);

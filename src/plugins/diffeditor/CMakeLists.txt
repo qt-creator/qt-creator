@@ -1,6 +1,7 @@
 add_qtc_plugin(DiffEditor
   PLUGIN_DEPENDS Core TextEditor
   SOURCES
+    diffalgorithm.cpp diffalgorithm.h
     diffeditor.cpp diffeditor.h
     diffeditor_global.h
     diffeditortr.h

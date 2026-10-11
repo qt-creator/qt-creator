@@ -1,6 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "diffalgorithm.h"
 #include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
 #include "diffeditordocument.h"
@@ -38,6 +39,8 @@
 
 #include <QAbstractButton>
 #include <QAction>
+#include <QComboBox>
+#include <QScopeGuard>
 #include <QMenu>
 #include <QPointer>
 #include <QTextCursor>
@@ -676,6 +679,9 @@ private slots:
     void testInlineDiffCollapseContextDirection();
     void testInlineDiffFoldedRows();
     void testInlineDiffPatience();
+    void testInlineDiffHistogram();
+    void testDiffAlgorithmSettings_data();
+    void testDiffAlgorithmSettings();
     void testInlineDiffCopyAsPatch();
     void testInlineDiffGoToFirstChange();
     void testInlineDiffChangeNavigation();
@@ -3239,17 +3245,18 @@ namespace DiffEditor::Internal {
 class InlineDiffViewGuard
 {
 public:
-    explicit InlineDiffViewGuard(bool hideUnchangedLines = true)
+    explicit InlineDiffViewGuard(bool hideUnchangedLines = true,
+                                 Differ::DiffAlgorithm algorithm = Differ::Myers)
         : m_collapse(Core::ICore::settings()->value(Constants::INLINE_DIFF_COLLAPSE_KEY, true))
         , m_ignoreWhitespace(Core::ICore::settings()
                                  ->value(Constants::INLINE_DIFF_IGNORE_WHITESPACE_KEY, false))
         , m_contextLines(Core::ICore::settings()->value(Constants::CONTEXT_LINES_KEY, 3))
-        , m_patience(Core::ICore::settings()->value(Constants::PATIENCE_KEY, false))
+        , m_algorithm(Core::ICore::settings()->value(Constants::DIFF_ALGORITHM_KEY))
     {
         Core::ICore::settings()->setValue(Constants::INLINE_DIFF_COLLAPSE_KEY, hideUnchangedLines);
         Core::ICore::settings()->setValue(Constants::INLINE_DIFF_IGNORE_WHITESPACE_KEY, false);
         Core::ICore::settings()->setValue(Constants::CONTEXT_LINES_KEY, 3);
-        Core::ICore::settings()->setValue(Constants::PATIENCE_KEY, false);
+        saveDiffAlgorithm(algorithm);
     }
     ~InlineDiffViewGuard()
     {
@@ -3257,14 +3264,17 @@ public:
         Core::ICore::settings()->setValue(Constants::INLINE_DIFF_IGNORE_WHITESPACE_KEY,
                                           m_ignoreWhitespace);
         Core::ICore::settings()->setValue(Constants::CONTEXT_LINES_KEY, m_contextLines);
-        Core::ICore::settings()->setValue(Constants::PATIENCE_KEY, m_patience);
+        if (m_algorithm.isValid())
+            Core::ICore::settings()->setValue(Constants::DIFF_ALGORITHM_KEY, m_algorithm);
+        else
+            Core::ICore::settings()->remove(Constants::DIFF_ALGORITHM_KEY);
     }
 
 private:
     const QVariant m_collapse;
     const QVariant m_ignoreWhitespace;
     const QVariant m_contextLines;
-    const QVariant m_patience;
+    const QVariant m_algorithm;
 };
 
 // the viewport position of a line's given column
@@ -4301,11 +4311,9 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffPatience()
 
     auto toolBar = diffEditor->toolBar()->findChild<QToolBar *>("InlineDiffToolBar");
     QVERIFY(toolBar);
-    QAction *patienceAction = Utils::findOrDefault(toolBar->actions(), [](QAction *action) {
-        return action->objectName() == "InlineDiffPatienceAction";
-    });
-    QVERIFY(patienceAction);
-    QVERIFY(!patienceAction->isChecked());
+    auto comboBox = toolBar->findChild<QComboBox *>("InlineDiffAlgorithmComboBox");
+    QVERIFY(comboBox);
+    QCOMPARE(comboBox->currentText(), QString("Myers"));
 
     // off: the repeated lines are paired up, which spreads the removal over two
     // ghost rows
@@ -4313,16 +4321,144 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffPatience()
 
     // on: the diff is recomputed and anchored at the unique "alpha();" line,
     // leaving a single ghost row
-    patienceAction->setChecked(true);
+    comboBox->setCurrentIndex(comboBox->findData(Differ::Patience));
     QTRY_COMPARE(ghostedLines(diffWidget), QList<int>({3}));
 
     // and off again restores the other alignment
-    patienceAction->setChecked(false);
+    comboBox->setCurrentIndex(comboBox->findData(Differ::Myers));
     QTRY_COMPARE(ghostedLines(diffWidget), QList<int>({3, 7}));
 
     const QPointer<QWidget> diffWidgetGuard = diffWidget;
     QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
     QTRY_VERIFY(diffWidgetGuard.isNull());
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffHistogram()
+{
+    using namespace TextEditor;
+    const InlineDiffViewGuard guard(false, Differ::Histogram);
+    const QString refresh = "void refresh()\n{\n    clearData();\n    setServer();\n\n";
+    const QString tail = "\n    FilePath binary;\n    QStringList arguments;\n}\n";
+    const QString before = refresh
+        + "    QString realQuery = query.trimmed();\n"
+          "    if (realQuery.isEmpty()) {\n"
+          "        realQuery = \"status:open\";\n"
+          "        const QString user = m_server->user.userName;\n"
+          "        if (!user.isEmpty())\n"
+          "            realQuery += user;\n"
+          "    }\n" + tail;
+    const QString after = "static QString gerritQuery()\n{\n"
+          "    QString realQuery = query.trimmed();\n"
+          "    if (realQuery.isEmpty()) {\n"
+          "        realQuery = \"NOT (status:merged OR status:abandoned)\";\n"
+          "        const QString user = server.user.userName;\n"
+          "        if (!user.isEmpty())\n"
+          "            realQuery += user;\n"
+          "    }\n"
+          "    return realQuery;\n}\n\n" + refresh
+        + "    const QString realQuery = gerritQuery();\n" + tail;
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath file = FilePath::fromString(temporaryDir.path()) / "extraction.cpp";
+    QVERIFY(file.writeFileContents(after.toUtf8()));
+    auto sourceEditor = qobject_cast<BaseTextEditor *>(EditorManager::openEditor(file));
+    QVERIFY(sourceEditor);
+    const TextDocumentPtr source = sourceEditor->editorWidget()->textDocumentPtr();
+    const QScopeGuard close([&] { EditorManager::closeDocuments({source.data()}, false); });
+    InlineDiffBaseline baseline;
+    baseline.id = "test";
+    baseline.displayName = "Test";
+    baseline.fetchText = [before](const InlineDiffBaseline::TextCallback &callback) {
+        callback(before);
+    };
+    QString stagedText;
+    baseline.stageHunk = [&stagedText](const InlineDiffChunk &, const QString &text) {
+        stagedText = text;
+    };
+    IEditor *editor = openInlineDiffEditor(source, baseline, "extraction.cpp");
+    QVERIFY(editor);
+    setInlineDiffViewMode(editor, InlineDiffViewMode::Inline);
+    TextEditorWidget *view = Utils::findOrDefault(
+        editor->widget()->findChildren<TextEditorWidget *>(), [&source](TextEditorWidget *widget) {
+            return widget->document() == source->document();
+        });
+    QVERIFY(view);
+    const auto ghostedLines = [view] {
+        QList<int> lines;
+        for (QTextBlock block = view->document()->firstBlock(); block.isValid();
+             block = block.next()) {
+            if (!view->editorLayout()
+                     ->layoutItemsForCategory(block, inlineDiffGhostCategory()).isEmpty())
+                lines.append(block.blockNumber() + 1);
+        }
+        return lines;
+    };
+    auto comboBox = editor->toolBar()->findChild<QComboBox *>("InlineDiffAlgorithmComboBox");
+    QVERIFY(comboBox);
+    QCOMPARE(comboBox->currentText(), QString("Histogram"));
+    QTRY_COMPARE(ghostedLines(), QList<int>{18});
+    comboBox->setCurrentIndex(comboBox->findData(Differ::Patience));
+    QTRY_VERIFY(ghostedLines() != QList<int>{18});
+    comboBox->setCurrentIndex(comboBox->findData(Differ::Histogram));
+    QTRY_COMPARE(ghostedLines(), QList<int>{18});
+    QCOMPARE(source->plainText(), after);
+    QList<QAbstractButton *> buttons;
+    QTRY_VERIFY(!(buttons = view->findChildren<QAbstractButton *>()).isEmpty());
+    buttons.first()->click();
+    QCOMPARE(stagedText, after);
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testDiffAlgorithmSettings_data()
+{
+    QTest::addColumn<QVariant>("algorithm");
+    QTest::addColumn<QVariant>("patience");
+    QTest::addColumn<int>("expected");
+    QTest::newRow("new-settings")
+        << QVariant() << QVariant() << int(Differ::Histogram);
+    QTest::newRow("old-patience")
+        << QVariant() << QVariant(true) << int(Differ::Patience);
+    QTest::newRow("old-myers")
+        << QVariant() << QVariant(false) << int(Differ::Default);
+    QTest::newRow("explicit-myers")
+        << QVariant("myers") << QVariant(true) << int(Differ::Myers);
+    QTest::newRow("explicit-default")
+        << QVariant("default") << QVariant(true) << int(Differ::Default);
+    QTest::newRow("explicit-patience")
+        << QVariant("patience") << QVariant() << int(Differ::Patience);
+    QTest::newRow("explicit-histogram")
+        << QVariant("histogram") << QVariant(true) << int(Differ::Histogram);
+    QTest::newRow("invalid-setting")
+        << QVariant("invalid") << QVariant() << int(Differ::Histogram);
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testDiffAlgorithmSettings()
+{
+    QFETCH(QVariant, algorithm);
+    QFETCH(QVariant, patience);
+    QFETCH(int, expected);
+    QtcSettings *settings = ICore::settings();
+    const QList<Key> keys{Constants::DIFF_ALGORITHM_KEY, Constants::PATIENCE_KEY};
+    QList<QVariant> previous;
+    for (const Key &key : keys)
+        previous.append(settings->value(key));
+    const QScopeGuard restore([&] {
+        for (int i = 0; i < keys.size(); ++i) {
+            if (previous.at(i).isValid())
+                settings->setValue(keys.at(i), previous.at(i));
+            else
+                settings->remove(keys.at(i));
+        }
+    });
+    const QList<QVariant> values{algorithm, patience};
+    for (int i = 0; i < keys.size(); ++i) {
+        if (values.at(i).isValid())
+            settings->setValue(keys.at(i), values.at(i));
+        else
+            settings->remove(keys.at(i));
+    }
+    QCOMPARE(int(readDiffAlgorithm()), expected);
+    QCOMPARE(int(readDiffAlgorithm()), expected);
+    QVERIFY(settings->contains(Constants::DIFF_ALGORITHM_KEY));
 }
 
 // "Copy as Patch" in the context menu of both views: a unified diff of the
@@ -4331,7 +4467,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCopyAsPatch()
 {
     using namespace TextEditor;
 
-    const InlineDiffViewGuard inlineDiffViewGuard;
+    const InlineDiffViewGuard inlineDiffViewGuard(true, Differ::Histogram);
 
     // two changes far enough apart to end up in separate hunks, plus a
     // re-indented line next to the first one for the whitespace part below

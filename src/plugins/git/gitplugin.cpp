@@ -120,6 +120,7 @@
 
 #include <QAbstractItemModelTester>
 #include <QAbstractProxyModel>
+#include <QComboBox>
 #include <QDialogButtonBox>
 #include <QLineEdit>
 #include <QHeaderView>
@@ -2536,6 +2537,7 @@ private slots:
     void testBranchViewRefreshErrorOnRepositoryChange();
     void testBranchRefreshIfChanged();
     void testBranchRefreshRetry();
+    void testShowDiffAlgorithms();
     void testRebaseAction();
 };
 
@@ -2730,6 +2732,99 @@ void GitTest::testDiffFileResolving_data()
 void GitTest::testDiffFileResolving()
 {
     VcsBaseEditorWidget::testDiffFileResolving(dd->commitTextEditorFactory);
+}
+
+void GitTest::testShowDiffAlgorithms()
+{
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repo = FilePath::fromString(temporaryDir.path());
+    const auto runGit = [repo](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repo, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(runGit({"init", "."}));
+    QVERIFY(runGit({"config", "user.email", "test@test"}));
+    QVERIFY(runGit({"config", "user.name", "test"}));
+    QVERIFY(runGit({"config", "commit.gpgsign", "false"}));
+    QVERIFY((repo / "file.txt").writeFileContents("original\n"));
+    QVERIFY(runGit({"add", "file.txt"}));
+    QVERIFY(runGit({"commit", "-m", "initial"}));
+    QVERIFY((repo / "file.txt").writeFileContents("changed\n"));
+    QVERIFY(runGit({"commit", "-am", "change"}));
+
+    QtcSettings *settings = ICore::settings();
+    const Key algorithmKey("DiffEditor/DiffAlgorithm");
+    const bool hadAlgorithm = settings->contains(algorithmKey);
+    const QVariant previousAlgorithm = settings->value(algorithmKey);
+    settings->setValue(algorithmKey, "patience");
+    QPointer<IDocument> document;
+    const QScopeGuard cleanup([&] {
+        if (document)
+            EditorManager::closeDocuments({document}, false);
+        if (hadAlgorithm)
+            settings->setValue(algorithmKey, previousAlgorithm);
+        else
+            settings->remove(algorithmKey);
+    });
+
+    VcsOutputWindow::instance()->clearContents();
+    gitClient().show(repo, "HEAD");
+    IEditor *editor = EditorManager::currentEditor();
+    QVERIFY(editor);
+    document = editor->document();
+    auto comboBox = editor->toolBar()->findChild<QComboBox *>("DiffEditorAlgorithmComboBox");
+    QVERIFY(comboBox);
+    QCOMPARE(comboBox->currentText(), QString("Patience"));
+    QSignalSpy reloaded(document, &IDocument::reloadFinished);
+    QTRY_VERIFY(!reloaded.isEmpty());
+    QVERIFY(reloaded.last().first().toBool());
+
+    QVERIFY(comboBox->isVisible());
+    QCOMPARE(comboBox->currentText(), QString("Patience"));
+    const auto output = [] {
+        return VcsOutputWindow::instance()->outputWindows().first()->toPlainText();
+    };
+    QVERIFY(output().contains("--patience"));
+    const auto selectAlgorithm = [&](const QString &name) {
+        VcsOutputWindow::instance()->clearContents();
+        reloaded.clear();
+        comboBox->setCurrentIndex(comboBox->findText(name));
+    };
+
+    selectAlgorithm("Default");
+    QTRY_VERIFY(!reloaded.isEmpty());
+    QVERIFY(reloaded.last().first().toBool());
+    QVERIFY(!output().contains("--patience"));
+    QVERIFY(!output().contains("--histogram"));
+    QVERIFY(!output().contains("--diff-algorithm=myers"));
+    QCOMPARE(settings->value(algorithmKey).toString(), QString("default"));
+    selectAlgorithm("Myers");
+    QTRY_VERIFY(!reloaded.isEmpty());
+    QVERIFY(reloaded.last().first().toBool());
+    QVERIFY(output().contains("--diff-algorithm=myers"));
+    QVERIFY(!output().contains("--patience"));
+    QVERIFY(!output().contains("--histogram"));
+
+    selectAlgorithm("Histogram");
+    QTRY_VERIFY(!reloaded.isEmpty());
+    QVERIFY(reloaded.last().first().toBool());
+    QVERIFY(output().contains("--histogram"));
+    QVERIFY(!output().contains("--patience"));
+    QVERIFY(EditorManager::closeDocuments({document}, false));
+    document = nullptr;
+    VcsOutputWindow::instance()->clearContents();
+    gitClient().show(repo, "HEAD");
+    editor = EditorManager::currentEditor();
+    QVERIFY(editor);
+    document = editor->document();
+    QSignalSpy reopened(document, &IDocument::reloadFinished);
+    QTRY_VERIFY(!reopened.isEmpty());
+    QVERIFY(reopened.last().first().toBool());
+    QVERIFY(output().contains("--histogram"));
+    comboBox = editor->toolBar()->findChild<QComboBox *>("DiffEditorAlgorithmComboBox");
+    QVERIFY(comboBox);
+    QCOMPARE(comboBox->currentText(), QString("Histogram"));
 }
 
 void GitTest::testRebaseAction()

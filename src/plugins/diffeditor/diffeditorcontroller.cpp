@@ -46,9 +46,9 @@ bool DiffEditorController::ignoreWhitespace() const
     return m_document->ignoreWhitespace();
 }
 
-bool DiffEditorController::patience() const
+Utils::Differ::DiffAlgorithm DiffEditorController::diffAlgorithm() const
 {
-    return m_document->patience();
+    return m_document->diffAlgorithm();
 }
 
 QString DiffEditorController::makePatch(int fileIndex, int chunkIndex,
@@ -108,9 +108,9 @@ void DiffEditorController::forceContextLineCount(int lines)
     m_document->forceContextLineCount(lines);
 }
 
-void DiffEditorController::setPatienceButtonEnabled(bool enabled)
+void DiffEditorController::setDiffAlgorithmEnabled(bool enabled)
 {
-    m_document->setPatienceButtonEnabled(enabled);
+    m_document->setDiffAlgorithmEnabled(enabled);
 }
 
 IDocument *DiffEditorController::document() const

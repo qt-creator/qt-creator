@@ -975,8 +975,7 @@ QList<Diff> Differ::unifiedDiff(const QString &text1, const QString &text2)
 
     // Each different subtext is a separate symbol
     // process these symbols as text with bigger alphabet
-    QList<Diff> diffList = merge(m_patience ? diffPatience(encodedText1, encodedText2)
-                                            : preprocess1AndDiff(encodedText1, encodedText2));
+    QList<Diff> diffList = merge(diffEncoded(encodedText1, encodedText2));
 
     diffList = decode(diffList, subtexts);
     m_currentDiffMode = diffMode;
@@ -993,14 +992,25 @@ Differ::DiffMode Differ::diffMode() const
     return m_diffMode;
 }
 
-void Differ::setPatience(bool patience)
+void Differ::setDiffAlgorithm(DiffAlgorithm algorithm)
 {
-    m_patience = patience;
+    m_diffAlgorithm = algorithm;
 }
 
-bool Differ::patience() const
+Differ::DiffAlgorithm Differ::diffAlgorithm() const
 {
-    return m_patience;
+    return m_diffAlgorithm;
+}
+
+QList<Diff> Differ::diffEncoded(const QString &text1, const QString &text2)
+{
+    switch (m_diffAlgorithm) {
+    case Default:
+    case Myers: return preprocess1AndDiff(text1, text2);
+    case Patience: return diffPatience(text1, text2);
+    case Histogram: return diffHistogram(text1, text2);
+    }
+    return {};
 }
 
 QList<Diff> Differ::preprocess1AndDiff(const QString &text1, const QString &text2)
@@ -1074,10 +1084,11 @@ QList<Diff> Differ::preprocess2AndDiff(const QString &text1, const QString &text
     }
 
     // Short texts are diffed character wise directly, which gives the same
-    // result more cheaply - except with patience, which needs the subtexts to
-    // look for the unique ones among them.
+    // result more cheaply - except with patience and histogram, which need
+    // the subtexts to look for uncommon ones among them.
     if (m_currentDiffMode != Differ::CharMode
-        && (m_patience || (text1.size() > 80 && text2.size() > 80))) {
+        && (m_diffAlgorithm == Patience || m_diffAlgorithm == Histogram
+            || (text1.size() > 80 && text2.size() > 80))) {
         return diffNonCharMode(text1, text2);
     }
 
@@ -1334,6 +1345,125 @@ QList<Diff> Differ::diffPatienceBetweenAnchors(const QString &text1, const QStri
     return diffList;
 }
 
+QList<Diff> Differ::diffHistogram(const QString &text1, const QString &text2)
+{
+    struct Region {
+        int start1;
+        int end1;
+        int start2;
+        int end2;
+        bool equal = false;
+    };
+    QList<Region> pending{{0, int(text1.size()), 0, int(text2.size())}};
+    QList<Diff> result;
+    while (!pending.isEmpty()) {
+        if (m_future && m_future->isCanceled())
+            return {};
+        Region region = pending.takeLast();
+        if (region.equal) {
+            result.append(Diff(Diff::Equal,
+                               text1.mid(region.start1, region.end1 - region.start1)));
+            continue;
+        }
+        const int prefixStart = region.start1;
+        while (region.start1 < region.end1 && region.start2 < region.end2
+               && text1.at(region.start1) == text2.at(region.start2)) {
+            ++region.start1;
+            ++region.start2;
+        }
+        if (region.start1 > prefixStart)
+            result.append(Diff(Diff::Equal, text1.mid(prefixStart, region.start1 - prefixStart)));
+        const int suffixEnd = region.end1;
+        while (region.start1 < region.end1 && region.start2 < region.end2
+               && text1.at(region.end1 - 1) == text2.at(region.end2 - 1)) {
+            --region.end1;
+            --region.end2;
+        }
+        if (region.end1 < suffixEnd)
+            pending.append({region.end1, suffixEnd, 0, 0, true});
+        if (region.start1 == region.end1 || region.start2 == region.end2) {
+            if (region.start1 < region.end1) {
+                result.append(Diff(Diff::Delete,
+                                   text1.mid(region.start1, region.end1 - region.start1)));
+            }
+            if (region.start2 < region.end2) {
+                result.append(Diff(Diff::Insert,
+                                   text2.mid(region.start2, region.end2 - region.start2)));
+            }
+            continue;
+        }
+
+        // Bound the number of candidate matches per symbol. Highly repetitive
+        // regions without a rare common symbol are left to Myers.
+        constexpr int maxOccurrences = 64;
+        QHash<QChar, QList<int>> positions;
+        for (int i = region.start1; i < region.end1; ++i) {
+            QList<int> &occurrences = positions[text1.at(i)];
+            if (occurrences.size() <= maxOccurrences)
+                occurrences.append(i);
+        }
+        Region best{};
+        int bestLength = 0;
+        int bestOccurrences = maxOccurrences + 1;
+        bool hasCommonSymbol = false;
+        for (int j = region.start2; j < region.end2;) {
+            if (m_future && m_future->isCanceled())
+                return {};
+            int nextPosition = j + 1;
+            const auto it = positions.constFind(text2.at(j));
+            if (it != positions.cend()) {
+                hasCommonSymbol = true;
+                if (it->size() <= bestOccurrences && it->size() <= maxOccurrences) {
+                    int nextCandidate = region.start1;
+                    for (int i : *it) {
+                        if (i < nextCandidate)
+                            continue;
+                        Region match{i, i + 1, j, j + 1};
+                        int occurrences = it->size();
+                        while (match.start1 > region.start1 && match.start2 > region.start2
+                               && text1.at(match.start1 - 1) == text2.at(match.start2 - 1)) {
+                            --match.start1;
+                            --match.start2;
+                            occurrences = qMin(occurrences,
+                                               int(positions.constFind(text1.at(match.start1))->size()));
+                        }
+                        while (match.end1 < region.end1 && match.end2 < region.end2
+                               && text1.at(match.end1) == text2.at(match.end2)) {
+                            occurrences = qMin(occurrences,
+                                               int(positions.constFind(text1.at(match.end1))->size()));
+                            ++match.end1;
+                            ++match.end2;
+                        }
+                        nextCandidate = match.end1;
+                        nextPosition = qMax(nextPosition, match.end2);
+                        const int length = match.end1 - match.start1;
+                        if (occurrences < bestOccurrences
+                            || (occurrences == bestOccurrences && length > bestLength)) {
+                            best = match;
+                            bestLength = length;
+                            bestOccurrences = occurrences;
+                        }
+                    }
+                }
+            }
+            j = nextPosition;
+        }
+        if (!bestLength) {
+            const QString left = text1.mid(region.start1, region.end1 - region.start1);
+            const QString right = text2.mid(region.start2, region.end2 - region.start2);
+            if (hasCommonSymbol)
+                result += preprocess2AndDiff(left, right);
+            else
+                result += QList<Diff>{Diff(Diff::Delete, left), Diff(Diff::Insert, right)};
+            continue;
+        }
+        pending.append({best.end1, region.end1, best.end2, region.end2});
+        pending.append({best.start1, best.end1, best.start2, best.end2, true});
+        pending.append({region.start1, best.start1, region.start2, best.start2});
+    }
+    return result;
+}
+
 QList<Diff> Differ::diffNonCharMode(const QString &text1, const QString &text2)
 {
     QString encodedText1;
@@ -1345,8 +1475,7 @@ QList<Diff> Differ::diffNonCharMode(const QString &text1, const QString &text2)
 
     // Each different subtext is a separate symbol
     // process these symbols as text with bigger alphabet
-    QList<Diff> diffList = m_patience ? diffPatience(encodedText1, encodedText2)
-                                      : preprocess1AndDiff(encodedText1, encodedText2);
+    QList<Diff> diffList = diffEncoded(encodedText1, encodedText2);
 
     diffList = decode(diffList, subtexts);
 

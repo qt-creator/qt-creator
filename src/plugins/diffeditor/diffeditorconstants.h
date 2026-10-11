@@ -24,9 +24,10 @@ inline constexpr char INLINE_DIFF_VIEW_MODE_KEY[] = "DiffEditor/InlineDiffViewMo
 inline constexpr char INLINE_DIFF_COLLAPSE_KEY[] = "DiffEditor/InlineDiffCollapseUnchanged";
 inline constexpr char INLINE_DIFF_IGNORE_WHITESPACE_KEY[]
     = "DiffEditor/InlineDiffIgnoreWhitespace";
-// these two are shared with the classic diff view's spin box and toggle, which
-// reach them as a group and a key, see diffeditor.cpp
+// Shared with the classic diff view.
 inline constexpr char CONTEXT_LINES_KEY[] = "DiffEditor/ContextLineNumbers";
+// Legacy setting, retained for migration.
 inline constexpr char PATIENCE_KEY[] = "DiffEditor/Patience";
+inline constexpr char DIFF_ALGORITHM_KEY[] = "DiffEditor/DiffAlgorithm";
 
 } // namespace DiffEditor::Constants
