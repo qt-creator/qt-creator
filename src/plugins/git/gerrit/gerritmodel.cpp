@@ -28,6 +28,11 @@
 
 #include <chrono>
 
+#ifdef WITH_TESTS
+#include <extensionsystem/iplugin.h>
+#include <QTest>
+#endif
+
 using namespace Utils;
 using namespace QtTaskTree;
 using namespace VcsBase;
@@ -306,18 +311,25 @@ QStandardItem *GerritModel::itemForNumber(int number) const
     return nullptr;
 }
 
+static QString gerritQuery(const GerritServer &server, const QString &query)
+{
+    QString realQuery = query.trimmed();
+    if (realQuery.isEmpty()) {
+        // Qt's Gerrit excludes staged and integrating changes from status:open.
+        realQuery = "NOT (status:merged OR status:abandoned)";
+        const QString user = server.user.userName;
+        if (!user.isEmpty())
+            realQuery += QString(" (owner:%1 OR reviewer:%1)").arg(user);
+    }
+    return realQuery;
+}
+
 void GerritModel::refresh(const std::shared_ptr<GerritServer> &server, const QString &query)
 {
     clearData();
     m_server = server;
 
-    QString realQuery = query.trimmed();
-    if (realQuery.isEmpty()) {
-        realQuery = "status:open";
-        const QString user = m_server->user.userName;
-        if (!user.isEmpty())
-            realQuery += QString(" (owner:%1 OR reviewer:%1)").arg(user);
-    }
+    const QString realQuery = gerritQuery(*server, query);
 
     FilePath binary;
     QStringList arguments;
@@ -840,4 +852,55 @@ void GerritModel::queryFinished()
     emit refreshStateChanged(false);
 }
 
+#ifdef WITH_TESTS
+
+class GerritModelTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testQuery_data();
+    void testQuery();
+};
+
+void GerritModelTest::testQuery_data()
+{
+    QTest::addColumn<QString>("userName");
+    QTest::addColumn<QString>("query");
+    QTest::addColumn<QString>("expectedQuery");
+
+    QTest::newRow("default-anonymous")
+        << QString() << QString() << QString("NOT (status:merged OR status:abandoned)");
+    QTest::newRow("default-user")
+        << QString("alice") << QString()
+        << QString("NOT (status:merged OR status:abandoned) (owner:alice OR reviewer:alice)");
+    QTest::newRow("blank-query")
+        << QString("alice") << QString("  \t ")
+        << QString("NOT (status:merged OR status:abandoned) (owner:alice OR reviewer:alice)");
+    QTest::newRow("explicit-change")
+        << QString("alice") << QString("  715222  ") << QString("715222");
+    QTest::newRow("explicit-status")
+        << QString("alice") << QString(" status:merged ") << QString("status:merged");
+}
+
+void GerritModelTest::testQuery()
+{
+    QFETCH(QString, userName);
+    QFETCH(QString, query);
+    QFETCH(QString, expectedQuery);
+
+    GerritServer server;
+    server.user.userName = userName;
+    QCOMPARE(gerritQuery(server, query), expectedQuery);
+}
+
+void registerGerritModelTests(ExtensionSystem::IPlugin *plugin)
+{
+    plugin->addTest<GerritModelTest>();
+}
+
+#endif
+
 } // Gerrit::Internal
+
+#include "gerritmodel.moc"

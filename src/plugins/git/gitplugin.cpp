@@ -3607,6 +3607,7 @@ class GITSHARED_EXPORT GitPlugin final : public ExtensionSystem::IPlugin
 #ifdef WITH_TESTS
         addTest<GitTest>();
         registerInstantBlameTests(this);
+        Gerrit::Internal::registerGerritModelTests(this);
 #endif
 
         dd = new GitPluginPrivate;

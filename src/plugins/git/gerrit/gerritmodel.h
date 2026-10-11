@@ -10,6 +10,10 @@
 #include <QStandardItemModel>
 #include <QDateTime>
 
+#ifdef WITH_TESTS
+namespace ExtensionSystem { class IPlugin; }
+#endif
+
 namespace Gerrit::Internal {
 
 class GerritApproval {
@@ -112,5 +116,9 @@ private:
     QtTaskTree::QSingleTaskTreeRunner m_queryRunner;
     QueryState m_state = Idle;
 };
+
+#ifdef WITH_TESTS
+void registerGerritModelTests(ExtensionSystem::IPlugin *plugin);
+#endif
 
 } // Gerrit::Internal
