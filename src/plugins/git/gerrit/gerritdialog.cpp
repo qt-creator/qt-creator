@@ -170,6 +170,7 @@ GerritDialog::GerritDialog(const std::shared_ptr<GerritServer> &s,
             this, &GerritDialog::slotRefreshStateChanged);
     connect(m_model, &GerritModel::errorText,
             this, [this](const QString &text) {
+        m_detailsBrowser->setPlainText(Git::Tr::tr("Gerrit query failed:\n%1").arg(text));
         if (text.contains("returned error: 401"))
             updateRemotes(true);
     }, Qt::QueuedConnection);
@@ -261,6 +262,7 @@ void GerritDialog::refresh()
 {
     const QString &query = m_queryLineEdit->text().trimmed();
     updateCompletions(query);
+    m_detailsBrowser->clear();
     m_model->refresh(m_server, query);
     m_treeView->sortByColumn(-1, Qt::AscendingOrder);
 }

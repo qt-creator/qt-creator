@@ -360,10 +360,14 @@ void GerritModel::refresh(const std::shared_ptr<GerritServer> &server, const QSt
     const auto onDone = [this, data](const Process &process, DoneWith result) {
         if (!data->error.isEmpty())
             emit errorText(data->error);
-        if (result == DoneWith::Success)
+        if (result == DoneWith::Success) {
             resultRetrieved(data->output);
-        else if (process.result() != ProcessResult::Canceled)
-            VcsOutputWindow::appendError(process.workingDirectory(), process.exitMessage());
+        } else if (process.result() != ProcessResult::Canceled) {
+            const QString error = process.exitMessage();
+            VcsOutputWindow::appendError(process.workingDirectory(), error);
+            if (data->error.isEmpty())
+                emit errorText(error);
+        }
         queryFinished();
     };
 
