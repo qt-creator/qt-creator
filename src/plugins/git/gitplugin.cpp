@@ -95,9 +95,17 @@
 #include <QVBoxLayout>
 
 #ifdef WITH_TESTS
+#include "gerrit/gerritdialog.h"
+#include "gerrit/gerritmodel.h"
+#include "gerrit/gerritparameters.h"
+
+#include <utils/fancylineedit.h>
+
 #include <QSignalSpy>
+#include <QSortFilterProxyModel>
 #include <QTemporaryDir>
 #include <QTest>
+#include <QTreeView>
 #endif
 
 Q_DECLARE_METATYPE(Git::Internal::FileStates)
@@ -2479,6 +2487,7 @@ private slots:
     void testRebaseActionSelection();
     void testSubmitMessageSpellCheck();
     void testDiffDescriptionEditor();
+    void testGerritFiltering();
     void testRebaseAction();
 };
 
@@ -3429,6 +3438,66 @@ void GitTest::testSubmitMessageSpellCheck()
 
     widget.setDescriptionText("Rename mispelledFunction in src/libs/utils/spellcheckr.cpp");
     QCOMPARE(underlinedTexts(widget.descriptionEdit()->document()), QStringList());
+}
+
+void GitTest::testGerritFiltering()
+{
+    using namespace Gerrit::Internal;
+
+    auto server = std::make_shared<GerritServer>();
+    server->host = "invalid-command";
+    GerritDialog dialog(server, {});
+    auto model = dialog.findChild<GerritModel *>();
+    auto tree = dialog.findChild<QTreeView *>();
+    auto proxy = dialog.findChild<QSortFilterProxyModel *>();
+    QVERIFY(model);
+    QVERIFY(tree);
+    QVERIFY(proxy);
+
+    auto filter = dialog.findChild<FancyLineEdit *>("filter");
+    QVERIFY(filter);
+
+    const FilePath ssh = gerritSettings().ssh;
+    const auto restoreSsh = qScopeGuard([ssh] { gerritSettings().ssh = ssh; });
+    // Run Git in place of SSH to complete the query without contacting a server.
+    gerritSettings().ssh = gitClient().vcsBinary({});
+    QVERIFY(!gerritSettings().ssh.isEmpty());
+    dialog.refresh();
+    QTRY_COMPARE(model->state(), GerritModel::Idle);
+
+    const auto createItem = [](int number, const QString &text) {
+        auto item = new QStandardItem(QString::number(number));
+        auto change = std::make_shared<GerritChange>();
+        change->number = number;
+        item->setData(QVariant::fromValue(change), GerritModel::GerritChangeRole);
+        item->setData(text, GerritModel::FilterRole);
+        return item;
+    };
+    auto parent = createItem(200, "parent child");
+    parent->appendRow(createItem(201, "child"));
+    model->appendRow(parent);
+    model->appendRow(createItem(100, "other"));
+    model->refreshStateChanged(false);
+
+    QCOMPARE(proxy->rowCount(), 2);
+    QVERIFY(tree->isExpanded(proxy->index(0, 0)));
+
+    filter->setText("no matching change");
+    QCOMPARE(proxy->rowCount(), 0);
+    filter->clear();
+
+    QCOMPARE(proxy->rowCount(), 2);
+    QCOMPARE(proxy->index(0, 0).data().toString(), "200");
+    QCOMPARE(proxy->index(1, 0).data().toString(), "100");
+    const QModelIndex parentIndex = proxy->index(0, 0);
+    QCOMPARE(proxy->rowCount(parentIndex), 1);
+    QCOMPARE(proxy->index(0, 0, parentIndex).data().toString(), "201");
+    QVERIFY(tree->isExpanded(parentIndex));
+
+    filter->setText("child");
+    QCOMPARE(proxy->rowCount(), 1);
+    QVERIFY(tree->isExpanded(proxy->index(0, 0)));
+    QCOMPARE(proxy->rowCount(proxy->index(0, 0)), 1);
 }
 
 void GitTest::testDiffDescriptionEditor()
