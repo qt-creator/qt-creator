@@ -28,6 +28,9 @@
 #include <QDebug>
 
 #ifdef WITH_TESTS
+#include <coreplugin/outputwindow.h>
+#include <utils/qtcprocess.h>
+
 #include <QTest>
 #endif
 
@@ -38,6 +41,68 @@ using namespace Utils;
 namespace VcsBase::Internal {
 
 #ifdef WITH_TESTS
+
+class VcsOutputWindowTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void init() { VcsOutputWindow::instance()->clearContents(); }
+    void cleanup() { VcsOutputWindow::instance()->clearContents(); }
+
+    void testCommandDuration()
+    {
+        Process first;
+        first.setCommand({FilePath::fromString("test-vcs"), {"first"}});
+        Process second;
+        second.setCommand({FilePath::fromString("test-vcs"), {"second"}});
+        VcsOutputWindow::appendCommand(first);
+        VcsOutputWindow::appendCommand(second);
+        VcsOutputWindow::appendSilently({}, "command output");
+        second.done();
+        first.done();
+        const QString text = VcsOutputWindow::instance()->outputWindows().first()->toPlainText();
+        QVERIFY(text.contains("test-vcs first [0ms]"));
+        QVERIFY(text.contains("test-vcs second [0ms]"));
+        QVERIFY(text.contains("command output"));
+    }
+
+    void testCommandDurationAfterReset_data()
+    {
+        QTest::addColumn<int>("reset");
+        QTest::newRow("pane-clear") << 0;
+        QTest::newRow("widget-clear") << 1;
+        QTest::newRow("set-text") << 2;
+        QTest::newRow("block-limit") << 3;
+    }
+
+    void testCommandDurationAfterReset()
+    {
+        QFETCH(int, reset);
+        VcsOutputWindow *pane = VcsOutputWindow::instance();
+        OutputWindow *output = pane->outputWindows().first();
+        VcsOutputWindow::appendSilently({}, QString("earlier output\n").repeated(200));
+        Process process;
+        process.setCommand({FilePath::fromString("test-vcs"), {"status"}});
+        VcsOutputWindow::appendCommand(process);
+        QVERIFY(output->toPlainText().contains("test-vcs status"));
+
+        switch (reset) {
+        case 0: pane->clearContents(); break;
+        case 1: output->clear(); break;
+        case 2: VcsOutputWindow::setText("replacement text\n"); break;
+        case 3:
+            output->setMaximumBlockCount(2);
+            VcsOutputWindow::appendSilently({}, "new output\nmore output\n");
+            output->setMaximumBlockCount(0);
+            break;
+        }
+        VcsOutputWindow::appendSilently({}, "output after reset");
+        const QString expected = output->toPlainText();
+        process.done();
+        QCOMPARE(output->toPlainText(), expected);
+    }
+};
 
 class VcsOutputFormatterTest final : public QObject
 {
@@ -244,6 +309,7 @@ void VcsPlugin::initialize()
 
 #ifdef WITH_TESTS
     addTest<VcsOutputFormatterTest>();
+    addTest<VcsOutputWindowTest>();
 #endif
 
     IOptionsPage::registerCategory(

@@ -284,7 +284,7 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
     const auto onDiffSetup = [this, leftCommit, rightCommit, extraArgs](Process &process) {
         process.setEncoding(VcsBaseEditor::getEncoding(workingDirectory(), {}));
         setupCommand(process, {addConfigurationArguments(diffArgs(leftCommit, rightCommit, extraArgs))});
-        VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+        VcsOutputWindow::appendCommand(process);
     };
     const auto onDiffDone = [diffInputStorage](const Process &process) {
         if (process.result() == ProcessResult::FinishedWithSuccess)
@@ -386,7 +386,7 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
         process.setEncoding(VcsBaseEditor::getEncoding(workingDirectory(), stagedFiles));
         setupCommand(process, addConfigurationArguments(
                               QStringList({"diff", "--cached", "--"}) + stagedFiles));
-        VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+        VcsOutputWindow::appendCommand(process);
         return SetupResult::Continue;
     };
     const auto onStagedDone = [storage](const Process &process) {
@@ -399,7 +399,7 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
         process.setEncoding(VcsBaseEditor::getEncoding(workingDirectory(), unstagedFiles));
         setupCommand(process, addConfigurationArguments(
                               QStringList({"diff", "--"}) + unstagedFiles));
-        VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+        VcsOutputWindow::appendCommand(process);
         return SetupResult::Continue;
     };
     const auto onUnstagedDone = [storage](const Process &process) {
@@ -510,7 +510,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
                                     ).arg(colors.hash, colors.decoration, colors.author,
                                           colors.date, colors.subject);
         setupCommand(process, {"show", "-s", colorOption, showFormat, id});
-        VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+        VcsOutputWindow::appendCommand(process);
     };
     const auto onDescriptionDone = [this, storage, updateDescription](const Process &process) {
         ReloadStorage *data = storage.activeStorage();
@@ -528,7 +528,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
 
     const auto onParentRevsSetup = [this, id](Process &process) {
         setupCommand(process, {"rev-list", noColorOption, "--parents", "--max-count=1", id});
-        VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+        VcsOutputWindow::appendCommand(process);
         return SetupResult::Continue;
     };
     const auto onParentRevsDone = [storage, id](const Process &process) {
@@ -558,7 +558,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
             );
         setupCommand(process, {"branch", noColorOption, "-a", branchesFormat,
                                "--contains", id});
-        VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+        VcsOutputWindow::appendCommand(process);
     };
     const auto onBranchesDone = [storage, updateDescription, decorateColor, noColor](
                                     const Process &process, DoneWith result) {
@@ -655,7 +655,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         setupCommand(process, addConfigurationArguments(
                                   {"show", "--format=format:", // omit header, already generated
                                    noColorOption, decorateOption, id}));
-        VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+        VcsOutputWindow::appendCommand(process);
     };
     const Storage<QString> diffInputStorage;
     const auto onDiffDone = [diffInputStorage](const Process &process) {

@@ -367,7 +367,7 @@ void GerritModel::refresh(const std::shared_ptr<GerritServer> &server, const QSt
         });
         auto progress = new Core::ProcessProgress(&process);
         progress->setDisplayName(Git::Tr::tr("Querying Gerrit"));
-        VcsOutputWindow::appendCommand(process.workingDirectory(), commandLine);
+        VcsOutputWindow::appendCommand(process);
     };
 
     const auto onDone = [this, data](const Process &process, DoneWith result) {

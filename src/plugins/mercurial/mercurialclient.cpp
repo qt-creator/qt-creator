@@ -53,7 +53,7 @@ MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document
 
     const auto onDiffSetup = [this, args](Process &process) {
         setupCommand(process, {addConfigurationArguments(args)});
-        VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+        VcsOutputWindow::appendCommand(process);
     };
     const auto onDiffDone = [diffInputStorage](const Process &process) {
         *diffInputStorage = process.cleanedStdOut();

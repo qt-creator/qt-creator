@@ -10,6 +10,7 @@
 namespace Utils {
 class CommandLine;
 class FilePath;
+class Process;
 } // Utils
 
 namespace VcsBase {
@@ -82,6 +83,9 @@ public slots:
     // (see msgExecutionLogEntry).
     static void appendCommand(const Utils::FilePath &workingDirectory,
                               const Utils::CommandLine &command);
+    // Update the command's log entry with its duration when the process finishes.
+    static void appendCommand(const Utils::Process &process);
+    static void appendCommandFinished(const Utils::Process &process);
 
 private:
     // Append text with a certain style (none by default),

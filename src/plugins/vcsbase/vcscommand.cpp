@@ -69,6 +69,8 @@ static ProcessTask vcsProcessTaskHelper(
         }
 
         const FilePath workingDirectory = process.workingDirectory();
+        if (!(data.flags & RunFlag::SuppressCommandLogging))
+            VcsOutputWindow::appendCommandFinished(process);
         const QString message = Process::exitMessage(process.commandLine(), result,
                                                      process.exitCode(), process.processDuration());
         if (result == ProcessResult::FinishedWithSuccess) {
@@ -103,7 +105,7 @@ static ProcessTask vcsProcessTaskHelper(
             GlobalFileChangeBlocker::instance()->forceBlocked(true);
 
         if (!(data.flags & RunFlag::SuppressCommandLogging))
-            VcsOutputWindow::appendCommand(data.runData.workingDirectory, data.runData.command);
+            VcsOutputWindow::appendCommand(process);
 
         if (data.flags & RunFlag::MergeOutputChannels)
             process.setProcessChannelMode(ProcessChannelMode::MergedChannels);

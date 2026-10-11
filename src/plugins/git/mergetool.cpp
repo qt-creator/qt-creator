@@ -256,9 +256,9 @@ void startMergeTool(const FilePath &workingDirectory, const QStringList &files)
         process.setProcessMode(ProcessMode::Writer);
         process.setProcessChannelMode(ProcessChannelMode::MergedChannels);
         const CommandLine cmd{gitClient().vcsBinary(workingDirectory), {"mergetool", "-y", files}};
-        VcsOutputWindow::appendCommand(workingDirectory, cmd);
         process.setCommand(cmd);
         process.setWorkingDirectory(workingDirectory);
+        VcsOutputWindow::appendCommand(process);
         QObject::connect(&process, &Process::readyReadStandardOutput,
                          [mergeToolPtr = storage.activeStorage(), &process] {
             mergeToolPtr->readData(process);

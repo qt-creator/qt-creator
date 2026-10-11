@@ -18,6 +18,7 @@
 
 #include <QContextMenuEvent>
 #include <QEvent>
+#include <QHash>
 #include <QMenu>
 #include <QMouseEvent>
 #include <QPlainTextEdit>
@@ -331,6 +332,7 @@ class VcsOutputWindowPrivate
 {
 public:
     Internal::OutputWindowPlainTextEdit widget;
+    QHash<const Process *, QTextCursor> commandCursors;
     const QRegularExpression passwordRegExp = QRegularExpression("://([^@:]+):([^@]+)@");
 };
 
@@ -521,6 +523,33 @@ void VcsOutputWindow::appendShellCommandLine(const FilePath &workingDirectory, c
 void VcsOutputWindow::appendCommand(const FilePath &workingDirectory, const CommandLine &command)
 {
     appendShellCommandLine(workingDirectory, msgExecutionLogEntry(workingDirectory, command));
+}
+
+void VcsOutputWindow::appendCommand(const Process &process)
+{
+    appendCommand(process.workingDirectory(), process.commandLine());
+    QTextCursor cursor(d->widget.document()->lastBlock().previous());
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    d->commandCursors.insert(&process, cursor);
+    QObject::connect(&process, &Process::done, instance(), [&process] {
+        appendCommandFinished(process);
+    }, Qt::SingleShotConnection);
+    QObject::connect(&process, &QObject::destroyed, instance(), [processPtr = &process] {
+        d->commandCursors.remove(processPtr);
+    });
+}
+
+void VcsOutputWindow::appendCommandFinished(const Process &process)
+{
+    QTextCursor cursor = d->commandCursors.take(&process);
+    if (!cursor.hasSelection())
+        return;
+    const qint64 milliseconds = process.processDuration().count();
+    QString duration = QString::number(milliseconds % 1000) + "ms";
+    if (milliseconds >= 1000)
+        duration.prepend(QString::number(milliseconds / 1000) + "s ");
+    cursor.setPosition(cursor.selectionEnd());
+    cursor.insertText(" [" + duration + ']');
 }
 
 void VcsOutputWindow::destroy()
