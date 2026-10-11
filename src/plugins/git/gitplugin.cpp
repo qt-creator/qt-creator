@@ -2488,6 +2488,8 @@ private slots:
     void testSubmitMessageSpellCheck();
     void testDiffDescriptionEditor();
     void testGerritFiltering();
+    void testGerritEscape_data();
+    void testGerritEscape();
     void testRebaseAction();
 };
 
@@ -3438,6 +3440,39 @@ void GitTest::testSubmitMessageSpellCheck()
 
     widget.setDescriptionText("Rename mispelledFunction in src/libs/utils/spellcheckr.cpp");
     QCOMPARE(underlinedTexts(widget.descriptionEdit()->document()), QStringList());
+}
+
+void GitTest::testGerritEscape_data()
+{
+    QTest::addColumn<QString>("focusWidget");
+    QTest::newRow("query") << QString("query");
+    QTest::newRow("filter") << QString("filter");
+    QTest::newRow("changes") << QString("changes");
+}
+
+void GitTest::testGerritEscape()
+{
+    QFETCH(QString, focusWidget);
+    using namespace Gerrit::Internal;
+
+    GerritDialog dialog(std::make_shared<GerritServer>(), {});
+    QAction competingEscape(&dialog);
+    competingEscape.setShortcut(QKeySequence(Qt::Key_Escape));
+    competingEscape.setShortcutContext(Qt::ApplicationShortcut);
+    dialog.addAction(&competingEscape);
+    QSignalSpy rejected(&dialog, &QDialog::rejected);
+    QSignalSpy activated(&competingEscape, &QAction::triggered);
+
+    QWidget *widget = dialog.findChild<QWidget *>(focusWidget);
+    QVERIFY(widget);
+    dialog.show();
+    dialog.activateWindow();
+    widget->setFocus();
+    QTRY_VERIFY(dialog.isActiveWindow());
+    QTest::keyClick(widget, Qt::Key_Escape);
+    QCOMPARE(rejected.count(), 1);
+    QCOMPARE(activated.count(), 0);
+    QVERIFY(!dialog.isVisible());
 }
 
 void GitTest::testGerritFiltering()
