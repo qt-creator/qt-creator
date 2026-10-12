@@ -5,17 +5,21 @@ device. It drives the HarmonyOS command-line tools and talks to the device with
 `hdc`. The SDK detection also looks where DevEco Studio keeps its copy, but
 DevEco Studio is not available for Linux, so none of this was tried with it.
 
-All of it is cross-development: Qt Creator runs on a desktop host, a Linux one
-in what follows, and the HarmonyOS machine is the target it builds for and
-deploys to. Running Qt Creator on HarmonyOS itself, and developing there for
-the machine it runs on, is what this is meant to lead to; nothing below covers
-that yet, so do not read a statement about the cross case as one about the
-native one.
+It covers two setups, and a statement about one is not a statement about the
+other:
+
+- **From a host.** Qt Creator runs on a desktop machine, a Linux one in what
+  follows, and the HarmonyOS device is the target it builds for and deploys
+  to.
+- **On the device.** Qt Creator itself is a package installed on the device,
+  and builds and runs projects there with a toolchain it carries in its own
+  package.
 
 Everything below was measured on a consumer HAD-W32 (OpenHarmony 6.1.0.115,
 API 23) with the command-line tools 6.1.0.105 (API 23) and Qt 6.12 for
 HarmonyOS, both the installed one and one built from source, from an x86_64
-Linux host.
+Linux host. Older Qt versions are not supported: the Qt online installer
+publishes Qt for HarmonyOS from 6.12 on.
 
 The three lists that follow are deliberately kept apart: what was watched
 happening, what is in place but was never watched, and what cannot be done.
@@ -23,6 +27,8 @@ Reading the second list as the first is how one ends up debugging the wrong
 thing.
 
 ## Seen working
+
+### From a host
 
 - **SDK, toolchain, Qt versions, kits.** With the SDK location set in
   Preferences > SDKs > HarmonyOS, Clang toolchains appear for aarch64, armv7
@@ -32,53 +38,90 @@ thing.
   reports it as ready, and its device test finishes successfully.
 - **Deploying and installing.** A deploy produced a signed package and put it
   on the device. That the debug session below then ran is also what says the
-  debug plugin and the `lldb-server` really were in that package.
+  debug plugin and the `lldb-server` really were in that package. A deploy
+  whose package content did not change skips the packaging and the install,
+  which took a deploy from 21 seconds to 9.
 - **Running.** The ability is started with `aa start`, the run stays alive for
   as long as the application does by following its `hilog` output, and stopping
   it force-stops the bundle.
+- **Running without installing.** With "Run without installing" set on the
+  deploy step, the package holds a runner instead of the application. It is
+  installed once, carries no Qt, and stays the same whatever the application
+  and whatever Qt it is built with. Each run hands the application library and
+  the Qt it needs over a channel on the device, and the runner maps them
+  itself. Watched with a Qt Widgets project and a Qt 6.12 kit: build, package,
+  sign, install and run, with the application's window on the tablet. The
+  first run of a Qt copies it to the device before the start (19 files, 512 MB
+  in about 10 seconds), and a later run of the same Qt skips that.
 - **Debugging.** The application starts the debug server itself, Qt Creator
   attaches through the `remote-ohos` platform, and the debugger stops.
 - **Breakpoints.** A breakpoint set by function or by file and line resolves,
-  in the application's own library as well as in Qt's, and is hit - watched
-  with one in a widget destructor as the application was closed, and with one
-  on the first line of `main()`.
+  in the application's own library as well as in Qt's, and is hit. It was
+  watched with one in a widget destructor as the application was closed, and
+  with one on the first line of `main()`.
 - **Stopping before `main()`.** A debug build links against a small library of
   ours, which the loader initializes before the library that names it as a
-  dependency - so before any static initializer of the application. It asks
+  dependency, so before any static initializer of the application. It asks
   whether this launch is being debugged, starts the debug server, and then
   spins on an exported byte until the debugger clears it. What it asks is the
   device's own loopback: Qt Creator leaves a listener there through a reverse
   forward for as long as a debug run lasts, because nothing else reaches an
-  application that early - the framework passes no environment, the parameter
+  application that early. The framework passes no environment, the parameter
   store is root-only, and a file the host writes cannot be read from the
   application sandbox. Watched stopping at the first line of `main()`, with
   the frames above it in Qt's HarmonyOS entry point. Nothing in the library
   comes from Qt, so a program that is not a Qt one is held the same way.
-- **Symbolised frames**, for the libraries there is a local copy of. The
+- **Symbolized frames**, for the libraries there is a local copy of. The
   platform reports no module list for a process it did not launch, so nothing
-  is loaded and, before this was dealt with, no frame could be named and no
-  breakpoint could be placed. What fixes it is `placeMappedModules()` in the
-  `remote-ohos` branch of `lldbbridge.py`: the memory regions of the process
-  do say which file is mapped where, so the lowest mapping of a shared object
-  is taken as its load address and the copy on this side is placed there. The
-  search paths it looks in are the ones the run already passes as
-  `solibSearchPath`.
+  would be loaded, and no frame could be named and no breakpoint placed. What
+  fixes it is `placeMappedModules()` in the `remote-ohos` branch of
+  `lldbbridge.py`: the memory regions of the process say which file is mapped
+  where, so the lowest mapping of a shared object is taken as its load address
+  and the copy on this side is placed there. The search paths it looks in are
+  the ones the run already passes as `solibSearchPath`.
 
   The libraries of a HarmonyOS application land at an address that changes
   with every launch, which is why the addresses have to be read at attach time
-  rather than assumed. Frames in the system libraries - the musl loader,
-  `appspawn`, the OHOS framework - stay nameless, because there is no local
+  rather than assumed. Frames in the system libraries (the musl loader,
+  `appspawn`, the OHOS framework) stay nameless, because there is no local
   copy of those to place.
+- **Packaging Qt Creator itself.** Qt Creator's own sources, opened with a
+  HarmonyOS kit, build, deploy and run on the device. A project declares what
+  else belongs in its package in a `<target>-harmonyos-extras.json` file its
+  build writes: resource directories, launch arguments, files that have to be
+  executable. With `"device-toolchain": true` in it, the deploy step also packs
+  the compiler, CMake, ninja and lldb from the device-hosted SDK into a native
+  package (about 145 MB), and skips that again while nothing changed.
+
+### On the device
+
+- **Kit.** Qt Creator detects the device it runs on as a build device, finds
+  the toolchain, CMake, ninja and lldb its package carries, and creates a kit
+  with that device as build and run device. Nothing has to be configured by
+  hand apart from registering a Qt.
+- **Building.** A CMake Qt Widgets project in the user's own storage
+  configures and builds with that kit.
+- **Running.** A run goes through the same runner as "Running without
+  installing" above, which has to be installed on the device. There is no
+  `hdc` on the device, so the first run of a Qt receives it over the channel
+  (512 MB in about 1 second), ends, and is started again. The application's
+  `main()` was reached under a second after that, and its window shown.
 
 ## Implemented but not confirmed
 
 Written and built, with the pieces they rest on checked by hand against the
-device, but never yet watched doing their job from within Qt Creator:
+device or under `qemu-aarch64` with the device's loader, but never yet watched
+doing their job from within Qt Creator:
 
-- **Building on the device.** The device is offered as a build device and its
-  build tools are detected, and the command bridge is signed on its way there
-  because the device refuses an unsigned binary. Signing a binary for this
-  device was tried by hand; this path through Qt Creator was not.
+- **Debugging what was built on the device.** Qt Creator may not execute a file
+  it wrote, so `qtchost` in its package maps the binary, reports where, and
+  waits until the debugger has attached. Checked under qemu only.
+- **Debugging an application started through the runner.** Not tried, from the
+  host or from the device.
+- **Getting the SDK and Qt from the settings page.** The page offers to
+  download the OpenHarmony SDK and to install Qt for HarmonyOS, through the
+  maintenance tool where there is one and from a Qt repository otherwise, which
+  is the only route for Qt Creator on the device.
 - **File access.** Reading and writing files on the device goes through `hdc`,
   with the transfer standing in where `hdc shell` cannot help. There is a test
   for it that needs an attached device.
@@ -88,8 +131,15 @@ device, but never yet watched doing their job from within Qt Creator:
 - A provisioning profile for the application, set as "Provisioning profile" in
   Preferences > SDKs > HarmonyOS. The device installs a package only under the
   bundle name the profile is issued for, and only such a package may be
-  debugged, so the deploy step writes that bundle name into the package.
-- A Java runtime, which the signing tool of the SDK needs.
+  debugged, so the deploy step writes that bundle name into the package. The
+  restricted permissions the application asks for have to be allowed by the
+  profile, and Qt already asks for `ohos.permission.SYSTEM_FLOAT_WINDOW`. The
+  deploy step lists in the Issues pane what the profile lacks.
+- A Java runtime, which the signing tool and hvigor need, at most Java 23 (see
+  below). Qt Creator puts the one `JAVA_HOME` names first.
+- For Qt Creator on the device: the SDK Huawei publishes as "native-ohos-x64"
+  (its payload is for arm64 despite the name) set as the device-hosted SDK
+  when Qt Creator's own package is built.
 
 ## Not possible
 
@@ -98,13 +148,26 @@ device, but never yet watched doing their job from within Qt Creator:
   the application starts the server and the debugger attaches, rather than the
   server starting the application. This is a property of the device, not
   something left to do. Stopping before the application's own code runs is
-  nevertheless possible, by holding it from inside - see "Stopping before
-  `main()`" above.
+  nevertheless possible, by holding it from inside (see "Stopping before
+  `main()`" above).
 
   A release build has no such library and is therefore only ever caught after
   it has started, which is where a breakpoint has to allow for: a location
   reached from `main()` resolves and is never hit, while a destructor or
   anything driven from the event loop works.
+- **Loading what an application wrote.** The device refuses to `dlopen` or
+  `execve` a file that was not installed with a package, whatever its location,
+  mode or signature. That is why the runner maps the application and its Qt
+  itself, and registers Qt's platform plugin by hand instead of letting Qt load
+  it.
+- **The runner's own limits.** It runs the application under the runner's
+  identity, so anything that depends on the application's own manifest still
+  has to be checked with an installed package. From the device a run cannot
+  stop the application (Stop closes the channel and leaves it running), a run
+  while an earlier one is still up reaches that one instead of starting anew,
+  and no exit status comes back. A run from a host and one from the device
+  cannot use the same device at the same time, because both want the same
+  port on it.
 
 ## What the SDK makes awkward
 
@@ -113,18 +176,31 @@ Worked around here, but worth knowing when reading the deploy step:
 - `hvigor` 6.0.2 deletes the generated project directly after its `PackageHap`
   task, and would take the finished package with it, so the package is copied
   out before the next run replaces the project. The 6.1 tools leave the project
-  alone; copying the package out costs nothing there and keeps both usable.
+  alone. Copying the package out costs nothing there and keeps both usable.
+- The packing tool deletes the whole generated project as well when `hvigor`
+  runs it on Java 24 or later, where `new File("")` came to mean the working
+  directory. The next task then fails with "File is not exist" on
+  `entry/oh-package.json5`. An `hvigor` daemon keeps the Java it was started
+  with.
 - `hvigor` signs only with material that DevEco Studio manages, so the package
   is signed here instead, with the `hap-sign-tool` of the SDK.
 - `harmonydeployqt` stages the third-party runtime dependencies only if it is
   told where they are, and `qt.toolchain.cmake` points it at the directory of
-  the machine Qt was built on - which exists for a Qt built here and not for an
+  the machine Qt was built on, which exists for a Qt built here and not for an
   installed one. The kit therefore carries the configured location as
   `QT_ADDITIONAL_PACKAGES_PREFIX_PATH`. The debug server it stages in no case,
-  so that one is put into the package afterwards.
+  so that one is put into the package afterwards. Nor does it follow what a
+  plugin it stages needs in turn (the JPEG one wants `libjpeg.so`), so the
+  deploy step reports by name what no directory supplies.
 - The `ohos` mkspec stops with an error unless `NATIVE_OHOS_SDK` is set in the
   environment, which Qt Creator does not set, so the mkspec cannot be evaluated
   and says nothing about the platform. A Qt version is therefore recognized by
-  the name of its mkspec. One that was registered earlier, as a desktop Qt,
-  stays that way, and its kit keeps warning that the Qt version does not
-  support the device type even though building and running work.
+  the name of its mkspec. One that was registered earlier as a desktop Qt
+  stays that way and gets no HarmonyOS kit, which the settings page points
+  out.
+- `hdc` writes a log file for every invocation into `TMPDIR`, and the device
+  detection runs it every five seconds, so Qt Creator points it at a directory
+  that goes away with the session.
+- A native package declared "public" shares one namespace on the device with
+  every other one, so two applications that each carry an `lldb-server` could
+  not both be installed. The packages built here are "private".
