@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "debuggerengine.h"
+
 #include <QJsonObject>
 #include <QList>
 #include <QObject>
@@ -11,8 +13,6 @@
 #include <functional>
 
 namespace Debugger::Internal {
-
-class DebuggerEngine;
 
 class McpSessionState final : public QObject
 {
