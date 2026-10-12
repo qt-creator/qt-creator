@@ -23,9 +23,6 @@ QtcPlugin {
         "api/library.h",
         "api/request.cpp",
         "api/request.h",
-
-        "compilerexplorer.qrc",
-
         "compilerexploreraspects.cpp",
         "compilerexploreraspects.h",
         "compilerexplorerconstants.h",
@@ -37,7 +34,26 @@ QtcPlugin {
         "compilerexplorersettings.cpp",
         "compilerexplorersettings.h",
         "compilerexplorertr.h",
-
-        "logos/logos.qrc"
     ]
+
+    Group {
+        name: "wizards"
+        Qt.core.resourcePrefix: "/compilerexplorer/wizard"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "wizard/cpp/wizard.json",
+            "wizard/cpp/file.qtce",
+            "wizard/python/wizard.json",
+            "wizard/python/file.qtce",
+            "wizard/qtcpp/file.qtce",
+            "wizard/qtcpp/wizard.json",
+        ]
+    }
+
+    Group {
+        name: "logos"
+        Qt.core.resourcePrefix: "/compilerexplorer"
+        fileTags: "qt.core.resource_data"
+        files: "logos/ce.ico"
+    }
 }
