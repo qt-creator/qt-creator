@@ -219,3 +219,20 @@ struct MemFuncCaller : public Bar
         this->mem();
     }
 };
+
+struct StaticMembers
+{
+    static const unsigned long npos;
+    static const Foo foo;
+    static const int count;
+};
+
+namespace NS { extern const Foo globalFoo; }
+
+void qualifiedVariableRefs(unsigned long &ul, Foo &f, int &i)
+{
+    ul = StaticMembers::npos;
+    f = StaticMembers::foo;
+    i = StaticMembers::count;
+    f = NS::globalFoo;
+}

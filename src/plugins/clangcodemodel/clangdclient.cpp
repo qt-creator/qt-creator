@@ -333,7 +333,8 @@ public:
                                const Utils::FilePath &filePath,
                                const QString &fqn = {},
                                HelpItem::Category category = HelpItem::Unknown,
-                               const QString &type = {});
+                               const QString &type = {},
+                               const QString &fallbackId = {});
 
     void handleSemanticTokens(TextDocument *doc, const QList<ExpandedSemanticToken> &tokens,
                               int version, bool force);
@@ -1303,10 +1304,35 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
             type.remove("&").remove("*").remove("const ").remove(" const")
                     .remove("volatile ").remove(" volatile");
             type = type.simplified();
-            if (type != "int" && !type.contains(" int")
+            const bool typeIsDocumentable = type != "int" && !type.contains(" int")
                     && type != "char" && !type.contains(" char")
                     && type != "double" && !type.contains(" double")
-                    && type != "float" && type != "bool") {
+                    && type != "float" && type != "bool";
+
+            // A qualified reference such as std::string::npos or std::cout names a static data
+            // member or a namespace-scope variable, which tends to be documented in its own
+            // right; its type usually is not. Prefer the fully qualified name of the variable
+            // then, and keep the type as a fallback for the likes of "N::someGlobalString".
+            if (node.role() == "expression" && node.arcanaContains("NestedNameSpecifier")) {
+                const QString fallbackId = typeIsDocumentable ? type : QString();
+                const auto symbolInfoHandler = [this, id, filePath, fallbackId]
+                        (const QString &name, const QString &prefix, const MessageId &) {
+                    qCDebug(clangdLog) << "handling symbol info reply";
+                    const QString fqn = prefix + name;
+                    if (fqn.isEmpty()) {
+                        d->setHelpItemForTooltip(id, filePath, fallbackId,
+                                                 fallbackId.isEmpty() ? HelpItem::Unknown
+                                                                      : HelpItem::ClassOrNamespace);
+                        return;
+                    }
+                    d->setHelpItemForTooltip(id, filePath, fqn, HelpItem::ClassOrNamespace, {},
+                                             fallbackId);
+                };
+                requestSymbolInfo(filePath, range.start(), symbolInfoHandler);
+                return;
+            }
+
+            if (typeIsDocumentable) {
                 d->setHelpItemForTooltip(id,
                                          filePath,
                                          type,
@@ -1532,7 +1558,8 @@ void ClangdClient::Private::setHelpItemForTooltip(const MessageId &token,
                                                   const Utils::FilePath &filePath,
                                                   const QString &fqn,
                                                   HelpItem::Category category,
-                                                  const QString &type)
+                                                  const QString &type,
+                                                  const QString &fallbackId)
 {
     QStringList helpIds;
     QString mark;
@@ -1552,6 +1579,13 @@ void ClangdClient::Private::setHelpItemForTooltip(const MessageId &token,
     }
     if (category == HelpItem::Enum && !type.isEmpty())
         mark = type;
+
+    // Looked up only if none of the ids above resolve, so it must not influence the doc mark.
+    if (!fallbackId.isEmpty() && !helpIds.contains(fallbackId)) {
+        helpIds << fallbackId;
+        if (mark.isEmpty())
+            mark = fallbackId;
+    }
 
     const HelpItem helpItem(helpIds, filePath, mark, category);
     q->hoverHandler()->setHelpItem(token, helpItem);
