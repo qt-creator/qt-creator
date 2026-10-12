@@ -17,6 +17,10 @@ public:
     SubversionEditorWidget();
 
 private:
+#ifdef WITH_TESTS
+    friend class SubversionTest;
+#endif
+
     QString changeUnderCursor(const QTextCursor &) const override;
     VcsBase::BaseAnnotationHighlighterCreator annotationHighlighterCreator() const override;
     QStringList annotationPreviousVersions(const QString &) const override;

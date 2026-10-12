@@ -33,7 +33,18 @@ SubversionEditorWidget::SubversionEditorWidget() :
     \endcode
     */
     setDiffFilePattern("^[-+]{3} ([^\\t]+)|^Index: .*|^=+$");
-    setLogEntryPattern("^(r\\d+) \\|");
+    setLogEntryPattern(
+        "^(?<revision>r\\d+) \\| "              // Revision and field separator.
+        "(?<author>.*) \\| "                    // Author and field separator.
+        "(?<date>"                              // Start of the date capture.
+        "\\d{4}-\\d{2}-\\d{2} "                 // Year, month and day.
+        "\\d{2}:\\d{2}:\\d{2} "                 // Hours, minutes and seconds.
+        "[+-]\\d{4}"                            // Time zone offset.
+        "(?: \\(.*\\))?"                        // Optional localized date description.
+        "|\\([^|]+\\)"                          // Localized placeholder for a missing date.
+        ") \\| "                                // End of the date capture and field separator.
+        "(?<lineCount>\\d+) "                   // Number of message lines.
+        "[^|]+$");                              // Localized line-count label and end of header.
     setAnnotateRevisionTextFormat(Tr::tr("Annotate revision \"%1\""));
     setAnnotationEntryPattern("^(\\d+):");
 }
