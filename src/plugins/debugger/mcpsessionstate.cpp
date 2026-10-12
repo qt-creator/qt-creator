@@ -79,8 +79,11 @@ McpSessionState::McpSessionState(DebuggerEngine *engine)
     WatchModelBase *watch = engine->watchHandler()->model();
     connect(watch, &WatchModelBase::updateStarted, this, [this] {
         // An update can still be on its way when the next frame is selected,
-        // so what it brings belongs to the frame it was started for.
-        m_localsRequests.append({currentFrameKey(), currentThreadId()});
+        // so what it brings belongs to the frame it was started for. Started
+        // before the threads of a stop were reported, it is for the thread
+        // that stopped, not for the one that was current before.
+        m_localsRequests.append(
+            {currentFrameKey(), m_threadsEpoch == m_epoch ? currentThreadId() : QString()});
         m_localsEpoch = -1;
         emit changed();
     });
