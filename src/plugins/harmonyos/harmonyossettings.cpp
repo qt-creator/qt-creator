@@ -644,6 +644,8 @@ HarmonyOsSettings::HarmonyOsSettings()
 
     qtRepository.setSettingsKey("QtRepository");
     qtRepository.setDisplayStyle(StringAspect::LineEditDisplay);
+    qtRepository.setDefaultValue("https://download.qt.io/online/qtsdkrepository/all_os/harmonyos/"
+                                  "qt6_6120/qt6_6120_arm64_v8a");
     qtRepository.setLabelText(Tr::tr("Qt repository:"));
     qtRepository.setToolTip(
         Tr::tr("The directory an \"Updates.xml\" describing Qt packages is published in, as "
