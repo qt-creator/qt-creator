@@ -628,7 +628,8 @@ QList<QtPackage> harmonyOsQtPackages(const QByteArray &updatesXml)
         QtPackage package;
         while (reader.readNextStartElement()) {
             const QStringView element = reader.name();
-            const QString text = reader.readElementText();
+            // "Operations" holds elements of its own.
+            const QString text = reader.readElementText(QXmlStreamReader::SkipChildElements);
             if (element == QLatin1String("Name"))
                 package.name = text;
             else if (element == QLatin1String("DisplayName"))
@@ -717,6 +718,17 @@ private:
 <Updates>
  <ApplicationName>{AnyApplication}</ApplicationName>
  <PackageUpdate>
+  <Name>qt.qt6.6120.addons.qt3d.harmonyos_arm64_v8a</Name>
+  <Version>6.12.0-0-202607072102</Version>
+  <DownloadableArchives>qt3d-HarmonyOS-ARM64.7z</DownloadableArchives>
+  <Operations>
+   <Operation name="Extract">
+    <Argument>@TargetDir@/6.12.0/harmonyos_arm64_v8a</Argument>
+    <Argument>qt3d-HarmonyOS-ARM64.7z</Argument>
+   </Operation>
+  </Operations>
+ </PackageUpdate>
+ <PackageUpdate>
   <Name>qt.qt6.6120.harmonyos</Name>
   <Version>6.12.0-0-202607072102</Version>
   <DownloadableArchives/>
@@ -732,11 +744,6 @@ private:
   <Name>qt.qt6.6120.harmonyos_arm64_v8a.debug_information</Name>
   <Version>6.12.0-0-202607072102</Version>
   <DownloadableArchives>qtbase-HarmonyOS-ARM64-debug-symbols.7z</DownloadableArchives>
- </PackageUpdate>
- <PackageUpdate>
-  <Name>qt.qt6.6120.addons.qt3d.harmonyos_arm64_v8a</Name>
-  <Version>6.12.0-0-202607072102</Version>
-  <DownloadableArchives>qt3d-HarmonyOS-ARM64.7z</DownloadableArchives>
  </PackageUpdate>
  <PackageUpdate>
   <Name>qt.qt6.6120.linux_gcc_64</Name>

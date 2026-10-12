@@ -242,11 +242,14 @@ static QtTaskTree::GroupItem downloadSdkRecipe(const FilePath &sdkPath)
         // so the entries are matched by name rather than by depth.
         const QRegularExpression pattern("(?:^|/)" + QRegularExpression::escape(sdk.hostDirectory)
                                          + "/(\\w+)-[^/]*\\.zip$");
-        task.setFilter([storage, wanted, workPath, pattern](const QString &entry) {
+        // The filter runs in the unarchiver's thread, which cannot reach the storage, and
+        // nothing on this thread reads the components before the unarchiver is done.
+        QMap<QString, FilePath> * const components = &storage->components;
+        task.setFilter([components, wanted, workPath, pattern](const QString &entry) {
             const QRegularExpressionMatch match = pattern.match(entry);
             if (!match.hasMatch() || !wanted.contains(match.captured(1)))
                 return false;
-            storage->components.insert(match.captured(1), workPath.resolvePath(entry));
+            components->insert(match.captured(1), workPath.resolvePath(entry));
             return true;
         });
     };
