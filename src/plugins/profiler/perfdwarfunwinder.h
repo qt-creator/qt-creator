@@ -46,9 +46,9 @@ struct UnwindInput
     QList<quint64> regs; // sized perfRegisterLayout(arch).count
     quint64 stackStartAddr = 0; // virtual address stackBytes[0] corresponds to
     QByteArray stackBytes;
-    // Whether this machine's CPU tells how return addresses are signed, which
-    // is only right for a recording taken here.
-    bool useHostPointerAuthentication = true;
+    // The highest user space address the recording has, which tells where
+    // return addresses are signed (see aarch64PointerAuthenticationMask()).
+    quint64 highestUserAddress = 0;
 
     bool isValid() const { return !regs.isEmpty(); }
 };

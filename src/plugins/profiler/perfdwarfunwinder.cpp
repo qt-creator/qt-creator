@@ -220,7 +220,7 @@ bool readStackWord(const UnwindInput &input, quint64 addr, quint64 *result)
     *result = withoutPointerAuthentication(input.arch,
                                            wordSize == 4 ? qFromLittleEndian<quint32>(word)
                                                          : qFromLittleEndian<quint64>(word),
-                                           input.useHostPointerAuthentication);
+                                           input.highestUserAddress);
     return true;
 }
 
@@ -575,7 +575,7 @@ QList<quint64> PerfDwarfUnwinder::unwind(const UnwindInput &input)
         if (dwarfReg >= 0 && dwarfReg < count)
             d->startRegs[dwarfReg] = withoutPointerAuthentication(input.arch,
                                                                    input.regs.at(perfReg),
-                                                                   input.useHostPointerAuthentication);
+                                                                   input.highestUserAddress);
     }
     d->startPc = input.regs.at(layout.ip);
     d->startsAtReturnAddress = false;

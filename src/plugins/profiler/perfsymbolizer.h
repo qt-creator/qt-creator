@@ -148,10 +148,14 @@ public:
     static bool canUnwind();
     QList<quint64> unwind(quint32 pid, PerfArchitecture arch, const QList<quint64> &regs,
                           const QByteArray &stack);
-    // Whether unwinding takes from this machine's CPU how return addresses
-    // are signed, which is only right for a recording taken here. On by
-    // default.
-    void setUseHostPointerAuthentication(bool use);
+
+    // [addr, addr + len) is mapped in a process of the recording, whatever
+    // it maps; kernel addresses do not count. How far these reach tells
+    // where return addresses are signed (see withoutPointerAuthentication()).
+    void addMappedRange(quint64 addr, quint64 len);
+    // `value`, as sampled on `arch`, without a pointer authentication
+    // signature, going by the ranges mapped so far.
+    quint64 withoutPointerAuthentication(PerfArchitecture arch, quint64 value) const;
 
     // Whether, at `pc` in `pid`, the CFI says the return address is still in
     // the link register. False where that cannot be told, as without libdw.

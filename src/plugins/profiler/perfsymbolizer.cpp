@@ -313,7 +313,7 @@ public:
     };
     QHash<quint32, JitMap> m_jitMaps;
     bool m_useJitMaps = true;
-    bool m_useHostPointerAuthentication = true;
+    quint64 m_highestUserAddress = 0;
     QHash<QString, ModuleSymbols> m_moduleCache;
     QHash<QString, QList<ElfSectionHeader>> m_loadSections;
 
@@ -1124,7 +1124,7 @@ QList<quint64> PerfSymbolizer::unwind(quint32 pid, PerfArchitecture arch,
     input.regs = regs;
     input.stackStartAddr = regs.at(layout.sp);
     input.stackBytes = stack;
-    input.useHostPointerAuthentication = d->m_useHostPointerAuthentication;
+    input.highestUserAddress = qMax(d->m_highestUserAddress, input.stackStartAddr);
     return unwinder->unwind(input);
 #else
     Q_UNUSED(pid)
@@ -1135,9 +1135,19 @@ QList<quint64> PerfSymbolizer::unwind(quint32 pid, PerfArchitecture arch,
 #endif
 }
 
-void PerfSymbolizer::setUseHostPointerAuthentication(bool use)
+void PerfSymbolizer::addMappedRange(quint64 addr, quint64 len)
 {
-    d->m_useHostPointerAuthentication = use;
+    constexpr quint64 highestPossibleUserAddress = (1ull << 55) - 1;
+    if (len == 0 || addr > highestPossibleUserAddress
+        || len - 1 > highestPossibleUserAddress - addr) {
+        return;
+    }
+    d->m_highestUserAddress = qMax(d->m_highestUserAddress, addr + len - 1);
+}
+
+quint64 PerfSymbolizer::withoutPointerAuthentication(PerfArchitecture arch, quint64 value) const
+{
+    return Internal::withoutPointerAuthentication(arch, value, d->m_highestUserAddress);
 }
 
 } // namespace Profiler::Internal

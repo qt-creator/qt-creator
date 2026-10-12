@@ -961,9 +961,10 @@ private slots:
     void testUnwindsThroughCodeWithoutCfi();
     void testUnwindsThroughCodeWithoutCfiInGccLayout();
     void testUnwindsSampledCodeWithoutCfiOnce();
-    void testStripsSignaturesOfRecordingsTakenElsewhere();
+    void testStripsSignaturesAboveAssumedAddressSize();
     void testTellsWhereTheReturnAddressIs();
     void testAddsLeafCallerFromLinkRegister();
+    void testStripsLinkRegisterWithMappingsOfItsRound();
 #endif
 };
 
@@ -1754,15 +1755,14 @@ void PerfRecordReaderTest::testUnwindsSampledCodeWithoutCfiOnce()
                             .arg(callerPc, 0, 16)));
 }
 
-// What this machine's CPU strips as signature says nothing about a recording
-// taken on another machine, not even whether that one signed, so there the
-// signature is taken to be above 48-bit virtual addresses.
-void PerfRecordReaderTest::testStripsSignaturesOfRecordingsTakenElsewhere()
+// Where nothing tells how far the recording's addresses reach, the signature
+// is taken to be above 48-bit virtual addresses.
+void PerfRecordReaderTest::testStripsSignaturesAboveAssumedAddressSize()
 {
     UnwindInput input;
     dwarfTestAboveNoCfi(&input);
     QVERIFY(input.isValid());
-    input.useHostPointerAuthentication = false;
+    QCOMPARE(input.highestUserAddress, quint64(0));
     QVERIFY(signNoCfiTrampolineReturnAddress(&input, 0x002a000000000000ull));
 
     Dl_info info = {};
@@ -1828,6 +1828,44 @@ void PerfRecordReaderTest::testAddsLeafCallerFromLinkRegister()
     QCOMPARE(framesFor(dwarfTestBeforeSave, {outerCaller}), 3);
     QCOMPARE(framesFor(dwarfTestAfterSave, {outerCaller}), 2);
     QCOMPARE(framesFor(dwarfTestBeforeSave, {linkRegister, outerCaller}), 3);
+}
+
+// Within a round, perf writes one CPU's buffer after the other, so a sample
+// can come before mappings recorded earlier on another CPU. Where to strip the
+// signature off its link register is only known once the round is read.
+void PerfRecordReaderTest::testStripsLinkRegisterWithMappingsOfItsRound()
+{
+    constexpr quint32 pid = 4242;
+    Dl_info info = {};
+    QVERIFY(dladdr(reinterpret_cast<void *>(&dwarfTestSavesLinkRegister), &info) != 0);
+    const QList<SelfMapping> mappings = selfMappingsOf(
+        {QFileInfo(QString::fromLocal8Bit(info.dli_fname)).canonicalFilePath()});
+    QVERIFY(!mappings.isEmpty());
+
+    const quint64 linkRegister = addressOf(&dwarfTestOuter) + 8;
+    const quint64 outerCaller = addressOf(&dwarfTestLeaf) + 8;
+    constexpr quint64 signature = 0x002a000000000000ull;
+    QCOMPARE(linkRegister & signature, quint64(0));
+
+    QList<QByteArray> records{buildAttrRecordWithRegsMask(
+        SampleIp | SampleTid | SampleTime | SampleCallchain | SampleRegsUser, 1ull << 30)};
+    // A non-PIE executable, mapped low, says little about how far the
+    // address space reaches.
+    records.append(buildMmap2Record(pid, 0x400000, 0x1000, 0, u"/opt/app"_s));
+    records.append(buildFpSampleRecord(dwarfTestBeforeSave, pid, 1000,
+                                       {PerfContextUser, dwarfTestBeforeSave, outerCaller},
+                                       linkRegister | signature));
+    for (const SelfMapping &mapping : mappings) {
+        records.append(
+            buildMmap2Record(pid, mapping.addr, mapping.len, mapping.pgoff, mapping.path));
+    }
+    records.append(buildFinishedRoundRecord());
+    const Result<SampleTraceData> result = decode(buildPipeStream(records));
+    QVERIFY(result);
+    QCOMPARE(result->samples.size(), 1);
+    const QList<int> &frames = result->samples.first().frames; // root-first
+    QCOMPARE(frames.size(), 3);
+    QCOMPARE(result->labels.at(frames.at(1)).address, linkRegister - 1);
 }
 #endif // WITH_LIBDW && Q_PROCESSOR_ARM_64
 

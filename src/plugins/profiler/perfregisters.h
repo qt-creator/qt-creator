@@ -5,6 +5,8 @@
 
 #include <QStringView>
 
+#include <bit>
+
 namespace Profiler::Internal {
 
 // The architectures whose user registers a "--call-graph dwarf" sample can
@@ -59,39 +61,26 @@ inline PerfArchitecture perfArchitectureFromName(QStringView name)
 
 // With pointer authentication, aarch64 return addresses carry a signature in
 // the bits above the address, up to bit 54. Where it starts depends on the
-// virtual address size the kernel was built for, so for a recording taken
-// here it is taken from what the CPU strips as signature off an address with
-// all bits up to 54 set. For one taken elsewhere, which this CPU says nothing
-// about, and where it cannot be asked or signs nothing, 48-bit virtual
-// addresses are assumed. No user space pointer has these bits set.
-inline quint64 aarch64UserPacMask(bool recordedHere)
+// virtual address size the recording machine's kernel was built for: 39, 42,
+// 47, 48 or 52 bits. A recording does not say which, but none of the user
+// space addresses in it reaches into the signature, so everything above the
+// highest of them is taken to be signature. Where none is known, 48-bit
+// virtual addresses are assumed.
+inline quint64 aarch64PointerAuthenticationMask(quint64 highestUserAddress)
 {
-    constexpr quint64 assumedMask = 0x007f000000000000ull;
-#if defined(Q_PROCESSOR_ARM_64) && defined(Q_OS_LINUX)
-    static const quint64 hostMask = [] {
-        constexpr quint64 allAddressBits = (1ull << 55) - 1;
-        quint64 stripped = 0;
-        // xpaclri, a NOP without pointer authentication, where nothing is signed.
-        asm("mov x30, %1\n\t"
-            "hint #7\n\t"
-            "mov %0, x30"
-            : "=r"(stripped)
-            : "r"(allAddressBits)
-            : "x30");
-        return allAddressBits & ~stripped;
-    }();
-    if (recordedHere && hostMask != 0)
-        return hostMask;
-#else
-    Q_UNUSED(recordedHere)
-#endif
-    return assumedMask;
+    constexpr quint64 belowSignatureEnd = (1ull << 55) - 1;
+    const int addressBits = highestUserAddress != 0 && highestUserAddress <= belowSignatureEnd
+                                ? std::bit_width(highestUserAddress)
+                                : 48;
+    return belowSignatureEnd & ~((1ull << addressBits) - 1);
 }
 
 inline quint64 withoutPointerAuthentication(PerfArchitecture arch, quint64 value,
-                                            bool recordedHere = true)
+                                            quint64 highestUserAddress)
 {
-    return arch == PerfArchitecture::Aarch64 ? value & ~aarch64UserPacMask(recordedHere) : value;
+    return arch == PerfArchitecture::Aarch64
+               ? value & ~aarch64PointerAuthenticationMask(highestUserAddress)
+               : value;
 }
 
 inline PerfArchitecture hostPerfArchitecture()

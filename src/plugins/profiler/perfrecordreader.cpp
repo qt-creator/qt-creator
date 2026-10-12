@@ -131,7 +131,9 @@ struct RawSample
     QByteArray dwarfStack;
 
     // "--call-graph fp" on aarch64 only: the link register, for the caller
-    // of the leaf function (see addLeafCaller()).
+    // of the leaf function (see addLeafCaller()). As sampled, with its
+    // pointer authentication signature, which only the mappings of the
+    // whole round tell where to strip.
     quint64 linkRegister = 0;
 };
 
@@ -250,6 +252,7 @@ quint64 PerfRecordDecoder::relativeUs(quint64 timeNs) const
 
 void PerfRecordDecoder::mmap(const PerfData::Mmap &mmap)
 {
+    m_symbolizer.addMappedRange(mmap.addr, mmap.len);
     // Anonymous and special mappings ("[heap]", "[stack]") have nothing to
     // symbolize, except the vdso, which the symbolizer finds elsewhere.
     if (mmap.path.isEmpty() || (mmap.path.startsWith('[') && mmap.path != QLatin1StringView(vdsoName)))
@@ -376,8 +379,7 @@ Result<> PerfRecordDecoder::sample(const PerfData::Sample &sample)
     // "--call-graph fp" on aarch64: perf samples the link register as well,
     // and no stack.
     if (sample.userStack.isEmpty() && layout.lr >= 0 && layout.lr < sample.userRegs.size()) {
-        raw.linkRegister = withoutPointerAuthentication(hostPerfArchitecture(),
-                                                        sample.userRegs.at(layout.lr));
+        raw.linkRegister = sample.userRegs.at(layout.lr);
     }
     raw.dwarfRegs = std::move(dwarfRegs);
     if (!raw.dwarfRegs.isEmpty())
@@ -587,14 +589,16 @@ void PerfRecordDecoder::unwindDwarfSample(RawSample &sample)
 // for it, as long as the CFI says the return address has not been saved.
 void PerfRecordDecoder::addLeafCaller(RawSample &sample)
 {
-    if (sample.linkRegister == 0)
+    const quint64 linkRegister
+        = m_symbolizer.withoutPointerAuthentication(hostPerfArchitecture(), sample.linkRegister);
+    if (linkRegister == 0)
         return;
     const auto leaf = std::find_if(sample.frames.crbegin(), sample.frames.crend(),
                                    [](const RawFrame &frame) { return !frame.isKernel; });
     if (leaf == sample.frames.crend())
         return;
     const qsizetype leafIndex = sample.frames.crend() - leaf - 1; // root-first
-    const quint64 caller = sample.linkRegister - 1; // in the call, as other callers are
+    const quint64 caller = linkRegister - 1; // in the call, as other callers are
     if (leafIndex > 0 && sample.frames.at(leafIndex - 1).addr == caller)
         return;
     if (!m_symbolizer.isReturnAddressInRegister(sample.pid, leaf->addr))
