@@ -452,20 +452,20 @@ bool InstantBlame::setEditor(TextEditorWidget *widget)
     }
 
     m_document = widget->textDocument();
-    FilePath topLevel = currentState().currentFileTopLevel();
-    if (topLevel.isEmpty()) {
-        const QString repository = m_document->property("GitRepository").toString();
-        if (!repository.isEmpty())
-            topLevel = FilePath::fromString(repository);
-    }
-    if (topLevel.isEmpty()) {
-        m_document = nullptr;
-        return false;
-    }
 
     const FilePath sourceFilePath = VcsBase::source(m_document);
     const FilePath workingFilePath = sourceFilePath.isEmpty() ? m_document->filePath()
                                                               : sourceFilePath;
+
+    FilePath topLevel = FilePath::fromString(m_document->property("GitRepository").toString());
+    if (topLevel.isEmpty())
+        topLevel = currentState().currentFileTopLevel();
+
+    if (topLevel.isEmpty() || !workingFilePath.isChildOf(topLevel)) {
+        m_document = nullptr;
+        return false;
+    }
+
     m_controller->setContext(widget, topLevel,
                              m_document->property("GitReference").toString(),
                              workingFilePath.path(), workingFilePath);
