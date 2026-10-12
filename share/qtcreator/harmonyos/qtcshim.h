@@ -11,7 +11,7 @@
 // reach the shim by dlopen: the platform loads napi modules into a linker namespace of their
 // own, which hides them from it. So the shim puts the address of this into the environment
 // under ShimVariable, and the runner takes it only if the version matches its own.
-static const int ShimVersion = 1;
+static const int ShimVersion = 2;
 static const char *ShimVariable = "QTC_SHIM";
 
 struct QtcShim
@@ -26,4 +26,5 @@ struct QtcShim
     bool headerPending = false;
     size_t header = 0;
     Launch *launch = nullptr;
+    bool (*protect)(QtcLoad::Image *) = nullptr;
 };

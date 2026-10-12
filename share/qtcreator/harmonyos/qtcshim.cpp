@@ -203,6 +203,7 @@ static bool mapQt()
     shim.load = &QtcLoad::load;
     shim.registerPlugin = &QtcLoad::registerPlugin;
     shim.lookup = &QtcLoad::lookup;
+    shim.protect = &QtcLoad::protect;
     char pointer[32];
     ::snprintf(pointer, sizeof(pointer), "%p", static_cast<void *>(&shim));
     ::setenv(ShimVariable, pointer, 1);

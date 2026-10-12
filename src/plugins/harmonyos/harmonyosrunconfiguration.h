@@ -3,10 +3,16 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
+#include <QtTaskTree/qbarriertask.h>
+
 #include <QString>
 #include <QStringList>
 
-#include <utils/filepath.h>
+#include <optional>
+
+namespace ProjectExplorer { class RunControl; }
 
 namespace HarmonyOs::Internal {
 
@@ -85,6 +91,27 @@ public:
 };
 
 HarmonyOsExtras harmonyOsExtras(const Utils::FilePath &buildDir, const QString &buildKey);
+
+// Where the runner holds an application for a debugger, as it reported it: the libraries it
+// mapped itself, which the debugger cannot find by itself, each with its slide.
+class RunnerHold
+{
+public:
+    qint64 pid = 0;
+    QList<std::pair<Utils::FilePath, QString>> slides;
+};
+
+// A run through the runner that holds the application until a debugger has it, and
+// advances the barrier once it does.
+class RunnerDebugging
+{
+public:
+    QtTaskTree::Storage<RunnerHold> hold;
+    QtTaskTree::QStoredBarrier held;
+};
+
+QtTaskTree::Group deviceRunRecipe(ProjectExplorer::RunControl *runControl,
+                                  const std::optional<RunnerDebugging> &debugging = {});
 
 void setupHarmonyOsRunSupport();
 

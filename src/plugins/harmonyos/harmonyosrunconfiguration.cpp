@@ -25,6 +25,7 @@
 #include <utils/temporarydirectory.h>
 
 #include <QtTaskTree/QBarrier>
+#include <QtTaskTree/qbarriertask.h>
 #include <QtTaskTree/qtasktree.h>
 
 #include <QCryptographicHash>
@@ -149,6 +150,7 @@ HarmonyOsExtras harmonyOsExtras(const FilePath &buildDir, const QString &buildKe
 // Lengths no application can have, so what follows one of them is not one.
 constexpr quint32 argumentsAnnouncement = 0xffffffff;
 constexpr quint32 qtAnnouncement = 0xfffffffe;
+constexpr quint32 debugAnnouncement = 0xfffffffd;
 
 static void announce(QTcpSocket *socket, quint32 size)
 {
@@ -283,13 +285,15 @@ class Handover final : public QObject
 public:
     Handover(QTcpSocket *socket, const FilePath &library,
              const std::optional<QStringList> &arguments, const QtLibraries &qt,
-             RunControl *runControl)
+             RunControl *runControl, RunnerHold *hold = nullptr, QBarrier *held = nullptr)
         : QObject(socket)
         , m_socket(socket)
         , m_library(library)
         , m_arguments(arguments)
         , m_qt(qt)
         , m_runControl(runControl)
+        , m_hold(hold)
+        , m_held(held)
     {
         connect(socket, &QTcpSocket::readyRead, this, &Handover::read);
         if (m_qt.files.isEmpty())
@@ -356,6 +360,8 @@ private:
             m_socket->disconnectFromHost();
             return;
         }
+        if (m_hold)
+            announce(m_socket, debugAnnouncement);
         if (m_arguments) {
             QByteArray payload;
             for (const QString &argument : *m_arguments)
@@ -382,11 +388,35 @@ private:
                 return;
             serveApplication();
         }
-        const QString text = QString::fromUtf8(m_socket->readAll());
+        m_text += m_socket->readAll();
+        const qsizetype end = m_text.lastIndexOf('\n') + 1;
+        const QString text = QString::fromUtf8(m_text.left(end));
+        m_text.remove(0, end);
         for (const QString &line : text.split('\n', Qt::SkipEmptyParts)) {
             if (line == "runner: staged, start again")
                 m_staged = true;
+            if (m_hold)
+                readHold(line);
             m_runControl->postMessage(line, StdOutFormat);
+        }
+    }
+
+    void readHold(const QString &line)
+    {
+        static const QRegularExpression mapped("^runner: mapped (\\S+) slide (0x[0-9a-f]+)$");
+        static const QRegularExpression holding("^runner: holding pid (\\d+) slide (0x[0-9a-f]+)$");
+        if (const QRegularExpressionMatch match = mapped.match(line); match.hasMatch()) {
+            const QString name = match.captured(1);
+            const auto entry = std::find_if(m_qt.files.begin(), m_qt.files.end(),
+                                            [&name](const QtLibrary &entry) {
+                return entry.file.fileName() == name;
+            });
+            if (entry != m_qt.files.end())
+                m_hold->slides.append({entry->file, match.captured(2)});
+        } else if (const QRegularExpressionMatch match = holding.match(line); match.hasMatch()) {
+            m_hold->pid = match.captured(1).toLongLong();
+            m_hold->slides.append({m_library, match.captured(2)});
+            m_held->advance();
         }
     }
 
@@ -403,8 +433,11 @@ private:
     const std::optional<QStringList> m_arguments;
     const QtLibraries m_qt;
     RunControl * const m_runControl;
+    RunnerHold * const m_hold;
+    QBarrier * const m_held;
     qsizetype m_expected = 0;
     QByteArray m_answer;
+    QByteArray m_text;
     bool m_staged = false;
 };
 
@@ -592,303 +625,329 @@ public:
     }
 };
 
+Group deviceRunRecipe(RunControl *runControl, const std::optional<RunnerDebugging> &debugging)
+{
+    const FilePath hdc = Sdk::hdcCommand(settings().sdkLocation());
+    if (hdc.isEmpty()) {
+        return runControl->errorTask(
+            Tr::tr("No HarmonyOS SDK is configured; cannot launch on the device."));
+    }
+
+    BuildConfiguration * const bc = runControl->buildConfiguration();
+    QTC_ASSERT(bc, return runControl->errorTask(
+                        Tr::tr("No build configuration; cannot launch on the device.")));
+
+    const QString bundle = bundleName(bc->buildDirectory(), bc->activeBuildKey());
+    if (bundle.isEmpty()) {
+        return runControl->errorTask(
+            Tr::tr("Could not determine the application bundle name. "
+                   "Build and deploy the package first."));
+    }
+
+    // Target the run device explicitly so the right one is used when several
+    // are connected.
+    QString serial;
+    if (auto device = std::dynamic_pointer_cast<const HarmonyOsDevice>(runControl->device()))
+        serial = device->serialNumber();
+
+    const auto command = [hdc, serial](const QStringList &args) {
+        CommandLine cmd{hdc};
+        if (!serial.isEmpty())
+            cmd.addArgs({"-t", serial});
+        cmd.addArgs(args);
+        return cmd;
+    };
+
+    // Running without installing: the package holds the runner, and this is the
+    // channel it asks on. A reverse forward puts this listener on the device's own
+    // loopback, and the runner connects to it.
+    const bool viaChannel = settings().runWithoutInstalling();
+    const FilePath library = viaChannel
+        ? applicationLibrary(bc->buildDirectory(), bc->activeBuildKey()) : FilePath();
+    if (viaChannel && library.isEmpty()) {
+        return runControl->errorTask(
+            Tr::tr("Could not find the application library to hand to the runner. "
+                   "Build and deploy the package first."));
+    }
+
+    const FilePath settings
+        = deploymentSettings(bc->buildDirectory(), bc->activeBuildKey());
+    const QtLibraries qt = viaChannel
+        ? qtLibraries(library, libraryDirectories(settings), qtPlugins(settings))
+        : QtLibraries();
+
+    const Storage<std::unique_ptr<QTcpServer>> channelStorage;
+    const auto openChannel = [channelStorage, runControl, library, qt, debugging] {
+        RunnerHold * const hold = debugging ? debugging->hold.activeStorage() : nullptr;
+        QBarrier * const held = debugging ? debugging->held.activeStorage() : nullptr;
+        auto server = std::make_unique<QTcpServer>();
+        if (!server->listen(QHostAddress::LocalHost)) {
+            runControl->postMessage(
+                Tr::tr("Could not open the channel the runner asks on: %1")
+                    .arg(server->errorString()), ErrorMessageFormat);
+            return false;
+        }
+        QTcpServer * const channel = server.get();
+        QObject::connect(channel, &QTcpServer::newConnection, channel,
+                         [channel, runControl, library, qt, hold, held] {
+            while (QTcpSocket * const socket = channel->nextPendingConnection()) {
+                QObject::connect(socket, &QTcpSocket::disconnected,
+                                 socket, &QTcpSocket::deleteLater);
+                new Handover(socket, library, std::nullopt, qt, runControl, hold, held);
+            }
+        });
+        *channelStorage = std::move(server);
+        return true;
+    };
+
+    // A forward outlives a run that Qt Creator did not get to clean up after, and
+    // the port on the device is the one the runner was built to ask, so a leftover
+    // has to go before this run can claim it.
+    const Storage<QString> staleStorage;
+    const QString channelPort = QString("tcp:%1").arg(Constants::HARMONYOS_CHANNEL_PORT);
+
+    const auto onChannelListSetup = [command](Process &process) {
+        process.setCommand(command({"fport", "ls"}));
+        process.setEnvironment(Sdk::hdcEnvironment());
+    };
+    const auto onChannelListDone = [staleStorage, channelPort](const Process &process) {
+        const QStringList lines = process.cleanedStdOut().split('\n', Qt::SkipEmptyParts);
+        for (const QString &line : lines) {
+            if (!line.contains("[Reverse]"))
+                continue;
+            const QStringList fields = line.simplified().split(' ');
+            const qsizetype at = fields.indexOf(channelPort);
+            if (at >= 0 && at + 1 < fields.size())
+                *staleStorage = fields.at(at + 1);
+        }
+    };
+    const auto onChannelDropSetup = [command, staleStorage, channelPort](Process &process) {
+        if (staleStorage->isEmpty())
+            return SetupResult::StopWithSuccess;
+        process.setCommand(command({"fport", "rm", channelPort, *staleStorage}));
+        process.setEnvironment(Sdk::hdcEnvironment());
+        return SetupResult::Continue;
+    };
+    const auto onChannelForwardSetup
+        = [command, channelStorage, channelPort](Process &process) {
+        if (!*channelStorage)
+            return SetupResult::StopWithSuccess;
+        const QString host
+            = QString("tcp:%1").arg((*channelStorage)->serverPort());
+        process.setCommand(command({"rport", channelPort, host}));
+        process.setEnvironment(Sdk::hdcEnvironment());
+        return SetupResult::Continue;
+    };
+    const auto onChannelForwardDone = [runControl](const Process &process) {
+        if (process.allOutput().contains("[Fail]")) {
+            runControl->postMessage(
+                Tr::tr("Could not offer the application to the device: %1")
+                    .arg(process.allOutput().trimmed()), ErrorMessageFormat);
+        }
+    };
+
+    const auto channelGroup = [=] {
+        if (!viaChannel)
+            return Group { nullItem };
+        return Group {
+            finishAllAndSuccess,
+            staleStorage,
+            QSyncTask(openChannel),
+            ProcessTask(onChannelListSetup, onChannelListDone),
+            ProcessTask(onChannelDropSetup),
+            ProcessTask(onChannelForwardSetup, onChannelForwardDone)
+        };
+    };
+
+    // What the runner's cache lacks of the Qt goes there before the start, not over the
+    // channel: a runner without a Qt of its own takes one while the platform is waiting
+    // for the ability, and a Qt takes longer than the platform waits. hdc can neither
+    // create a directory for a single file nor delete one, but a directory it sends
+    // lands in whatever is already there.
+    const Storage<QList<QtLibrary>> missingStorage;
+    const Storage<std::unique_ptr<TemporaryDirectory>> stageStorage;
+    const QString cache = QString("qtcrun/qt/") + qt.tag;
+
+    const auto onCacheListSetup = [command, bundle, cache](Process &process) {
+        // The sandbox as the shell sees it, for the device's one user.
+        process.setCommand(command(
+            {"shell", QString("cd /data/app/el2/100/base/%1/files/%2 && "
+                              "find . -type f -exec stat -c '%s %n' {} +")
+                          .arg(bundle, cache)}));
+    };
+    const auto onCacheListDone = [missingStorage, qt](const Process &process, DoneWith) {
+        *missingStorage = missingLibraries(qt, process.cleanedStdOut());
+        return DoneResult::Success;
+    };
+    const auto onStageSetup = [command, bundle, qt, missingStorage, stageStorage,
+                               runControl](Process &process) {
+        if (missingStorage->isEmpty())
+            return SetupResult::StopWithSuccess;
+        auto stage = std::make_unique<TemporaryDirectory>("qtc-harmonyos-qt-XXXXXX");
+        const FilePath root = stage->path().pathAppended("qtcrun");
+        qint64 size = 0;
+        for (const QtLibrary &entry : *missingStorage) {
+            const FilePath link = root.pathAppended("qt/" + qt.tag + '/'
+                                                      + cachedPath(entry.name));
+            Result<> linked = link.parentDir().ensureWritableDir();
+            if (linked)
+                linked = entry.file.createSymLink(link);
+            if (!linked) {
+                runControl->postMessage(linked.error(), ErrorMessageFormat);
+                return SetupResult::StopWithError;
+            }
+            size += entry.file.fileSize();
+        }
+        runControl->postMessage(Tr::tr("Handing %1 of %2 libraries to the runner "
+                                       "(%3 MB). It keeps them for the next run.")
+                                    .arg(missingStorage->size()).arg(qt.files.size())
+                                    .arg(size / (1024 * 1024)), NormalMessageFormat);
+        process.setCommand(command({"file", "send", "-b", bundle, root.nativePath(),
+                                    "data/storage/el2/base/files/"}));
+        process.setEnvironment(Sdk::hdcEnvironment());
+        *stageStorage = std::move(stage);
+        return SetupResult::Continue;
+    };
+    const auto onStageDone = [runControl](const Process &process) {
+        if (!process.allOutput().contains("[Fail]"))
+            return DoneResult::Success;
+        runControl->postMessage(Tr::tr("Could not hand the Qt to the runner: %1")
+                                    .arg(process.allOutput().trimmed()),
+                                ErrorMessageFormat);
+        return DoneResult::Error;
+    };
+
+    const auto stageGroup = [=] {
+        if (qt.files.isEmpty())
+            return Group { nullItem };
+        return Group {
+            missingStorage,
+            stageStorage,
+            ProcessTask(onCacheListSetup, onCacheListDone),
+            ProcessTask(onStageSetup, onStageDone)
+        };
+    };
+
+    const auto forceStopTask = [command, bundle] {
+        const auto onSetup = [command, bundle](Process &process) {
+            process.setCommand(command({"shell", "aa", "force-stop", bundle}));
+        };
+        return ProcessTask(onSetup) || successItem;
+    };
+
+    // What the application has to be started with. The platform plugin turns this
+    // Want parameter into the arguments main() gets, so a HAP needs no launch
+    // script and the project's own build is what says which ones it needs.
+    const QStringList launchArguments
+        = harmonyOsExtras(bc->buildDirectory(), bc->activeBuildKey()).launchArguments;
+
+    const auto onStartSetup = [command, bundle, launchArguments](Process &process) {
+        QStringList arguments{"shell", "aa", "start",
+                              "-a", Constants::HARMONYOS_ABILITY_NAME,
+                              "-b", bundle,
+                              "-m", Constants::HARMONYOS_MODULE_NAME};
+        if (!launchArguments.isEmpty()) {
+            const QByteArray json = QJsonDocument(
+                QJsonArray::fromStringList(launchArguments)).toJson(QJsonDocument::Compact);
+            // hdc hands the whole line to a shell on the device, which would eat the
+            // quotes the JSON is made of and leave the platform plugin with something
+            // it cannot parse - and an application that dies in onCreate.
+            arguments << "--ps" << "io.qt.appArgsJson"
+                      << '\'' + QString::fromUtf8(json) + '\'';
+            // Without this the launch URI arrives as the first argument, which an
+            // application that takes file names on the command line tries to open.
+            arguments << "--pb" << "io.qt.useUriAsArg" << "false";
+        }
+        process.setCommand(command(arguments));
+    };
+
+    // "aa start" returns as soon as the ability was launched, so it cannot stand in
+    // for the application's lifetime. Follow the application's hilog output instead:
+    // that keeps the run alive, feeds the application output pane, and lets the run
+    // be stopped. Polling for the process is still needed because hilog keeps
+    // waiting once the process is gone.
+    const Storage<QString> pidStorage;
+
+    const auto onPidSetup = [command, bundle](Process &process) {
+        process.setCommand(command({"shell", "pidof", "-s", bundle}));
+    };
+    const auto onPidDone = [pidStorage](const Process &process) {
+        *pidStorage = process.cleanedStdOut().trimmed();
+        return !pidStorage->isEmpty();
+    };
+
+    const auto onLogSetup = [command, pidStorage](Process &process) {
+        process.setCommand(command({"shell", "hilog", "-P", *pidStorage}));
+    };
+
+    const auto onGoneSetup = [command, bundle](Process &process) {
+        process.setCommand(command({"shell", "pidof", "-s", bundle}));
+    };
+    const auto onGoneDone = [](const Process &process) {
+        // Succeeding ends the polling loop, and with it the run.
+        return toDoneResult(process.cleanedStdOut().trimmed().isEmpty());
+    };
+
+    // Under the debugger the runner holds the application once it is mapped, and the
+    // debugger takes over from there.
+    const auto heldGroup = [=] {
+        if (!debugging)
+            return Group { nullItem };
+        return Group {
+            barrierAwaiterTask(debugging->held).withTimeout(30s),
+            onGroupDone([runControl](DoneWith result) {
+                if (result != DoneWith::Success) {
+                    runControl->postMessage(Tr::tr("The runner did not hold the application "
+                                                   "for the debugger."), ErrorMessageFormat);
+                }
+            })
+        };
+    };
+    // The debugger reports the start of a debug run.
+    const ProcessTask logTask = runControl->processTaskWithModifier(onLogSetup);
+
+    return Group {
+        pidStorage,
+        channelStorage,
+        channelGroup(),
+        forceStopTask(),
+        stageGroup(),
+        Group {
+            ProcessTask(onStartSetup),
+            ProcessTask(onPidSetup, onPidDone),
+            heldGroup(),
+            Group {
+                parallel,
+                stopOnSuccessOrError,
+                debugging ? Group { logTask } : runControl->processRecipe(logTask),
+                Forever {
+                    stopOnSuccess,
+                    ProcessTask(onGoneSetup, onGoneDone),
+                    timeoutTask(1s)
+                }
+            }
+        }.withCancel([runControl] {
+            return makeObjectSignal(runControl, &RunControl::canceled);
+        }),
+        forceStopTask(),
+        onGroupDone([command, channelPort, channelStorage] {
+            if (*channelStorage) {
+                Process::startDetached(command(
+                    {"fport", "rm", channelPort,
+                     QString("tcp:%1").arg((*channelStorage)->serverPort())}));
+            }
+        })
+    };
+}
+
 class HarmonyOsRunWorkerFactory final : public RunWorkerFactory
 {
 public:
     HarmonyOsRunWorkerFactory()
     {
         setId("HarmonyOsRunWorkerFactory");
-        setRecipeProducer([](RunControl *runControl) -> Group {
-            const FilePath hdc = Sdk::hdcCommand(settings().sdkLocation());
-            if (hdc.isEmpty()) {
-                return runControl->errorTask(
-                    Tr::tr("No HarmonyOS SDK is configured; cannot launch on the device."));
-            }
-
-            BuildConfiguration * const bc = runControl->buildConfiguration();
-            QTC_ASSERT(bc, return runControl->errorTask(
-                                Tr::tr("No build configuration; cannot launch on the device.")));
-
-            const QString bundle = bundleName(bc->buildDirectory(), bc->activeBuildKey());
-            if (bundle.isEmpty()) {
-                return runControl->errorTask(
-                    Tr::tr("Could not determine the application bundle name. "
-                           "Build and deploy the package first."));
-            }
-
-            // Target the run device explicitly so the right one is used when several
-            // are connected.
-            QString serial;
-            if (auto device = std::dynamic_pointer_cast<const HarmonyOsDevice>(runControl->device()))
-                serial = device->serialNumber();
-
-            const auto command = [hdc, serial](const QStringList &args) {
-                CommandLine cmd{hdc};
-                if (!serial.isEmpty())
-                    cmd.addArgs({"-t", serial});
-                cmd.addArgs(args);
-                return cmd;
-            };
-
-            // Running without installing: the package holds the runner, and this is the
-            // channel it asks on. A reverse forward puts this listener on the device's own
-            // loopback, and the runner connects to it.
-            const bool viaChannel = settings().runWithoutInstalling();
-            const FilePath library = viaChannel
-                ? applicationLibrary(bc->buildDirectory(), bc->activeBuildKey()) : FilePath();
-            if (viaChannel && library.isEmpty()) {
-                return runControl->errorTask(
-                    Tr::tr("Could not find the application library to hand to the runner. "
-                           "Build and deploy the package first."));
-            }
-
-            const FilePath settings
-                = deploymentSettings(bc->buildDirectory(), bc->activeBuildKey());
-            const QtLibraries qt = viaChannel
-                ? qtLibraries(library, libraryDirectories(settings), qtPlugins(settings))
-                : QtLibraries();
-
-            const Storage<std::unique_ptr<QTcpServer>> channelStorage;
-            const auto openChannel = [channelStorage, runControl, library, qt] {
-                auto server = std::make_unique<QTcpServer>();
-                if (!server->listen(QHostAddress::LocalHost)) {
-                    runControl->postMessage(
-                        Tr::tr("Could not open the channel the runner asks on: %1")
-                            .arg(server->errorString()), ErrorMessageFormat);
-                    return false;
-                }
-                QTcpServer * const channel = server.get();
-                QObject::connect(channel, &QTcpServer::newConnection, channel,
-                                 [channel, runControl, library, qt] {
-                    while (QTcpSocket * const socket = channel->nextPendingConnection()) {
-                        QObject::connect(socket, &QTcpSocket::disconnected,
-                                         socket, &QTcpSocket::deleteLater);
-                        new Handover(socket, library, std::nullopt, qt, runControl);
-                    }
-                });
-                *channelStorage = std::move(server);
-                return true;
-            };
-
-            // A forward outlives a run that Qt Creator did not get to clean up after, and
-            // the port on the device is the one the runner was built to ask, so a leftover
-            // has to go before this run can claim it.
-            const Storage<QString> staleStorage;
-            const QString channelPort = QString("tcp:%1").arg(Constants::HARMONYOS_CHANNEL_PORT);
-
-            const auto onChannelListSetup = [command](Process &process) {
-                process.setCommand(command({"fport", "ls"}));
-                process.setEnvironment(Sdk::hdcEnvironment());
-            };
-            const auto onChannelListDone = [staleStorage, channelPort](const Process &process) {
-                const QStringList lines = process.cleanedStdOut().split('\n', Qt::SkipEmptyParts);
-                for (const QString &line : lines) {
-                    if (!line.contains("[Reverse]"))
-                        continue;
-                    const QStringList fields = line.simplified().split(' ');
-                    const qsizetype at = fields.indexOf(channelPort);
-                    if (at >= 0 && at + 1 < fields.size())
-                        *staleStorage = fields.at(at + 1);
-                }
-            };
-            const auto onChannelDropSetup = [command, staleStorage, channelPort](Process &process) {
-                if (staleStorage->isEmpty())
-                    return SetupResult::StopWithSuccess;
-                process.setCommand(command({"fport", "rm", channelPort, *staleStorage}));
-                process.setEnvironment(Sdk::hdcEnvironment());
-                return SetupResult::Continue;
-            };
-            const auto onChannelForwardSetup
-                = [command, channelStorage, channelPort](Process &process) {
-                if (!*channelStorage)
-                    return SetupResult::StopWithSuccess;
-                const QString host
-                    = QString("tcp:%1").arg((*channelStorage)->serverPort());
-                process.setCommand(command({"rport", channelPort, host}));
-                process.setEnvironment(Sdk::hdcEnvironment());
-                return SetupResult::Continue;
-            };
-            const auto onChannelForwardDone = [runControl](const Process &process) {
-                if (process.allOutput().contains("[Fail]")) {
-                    runControl->postMessage(
-                        Tr::tr("Could not offer the application to the device: %1")
-                            .arg(process.allOutput().trimmed()), ErrorMessageFormat);
-                }
-            };
-
-            const auto channelGroup = [=] {
-                if (!viaChannel)
-                    return Group { nullItem };
-                return Group {
-                    finishAllAndSuccess,
-                    staleStorage,
-                    QSyncTask(openChannel),
-                    ProcessTask(onChannelListSetup, onChannelListDone),
-                    ProcessTask(onChannelDropSetup),
-                    ProcessTask(onChannelForwardSetup, onChannelForwardDone)
-                };
-            };
-
-            // What the runner's cache lacks of the Qt goes there before the start, not over the
-            // channel: a runner without a Qt of its own takes one while the platform is waiting
-            // for the ability, and a Qt takes longer than the platform waits. hdc can neither
-            // create a directory for a single file nor delete one, but a directory it sends
-            // lands in whatever is already there.
-            const Storage<QList<QtLibrary>> missingStorage;
-            const Storage<std::unique_ptr<TemporaryDirectory>> stageStorage;
-            const QString cache = QString("qtcrun/qt/") + qt.tag;
-
-            const auto onCacheListSetup = [command, bundle, cache](Process &process) {
-                // The sandbox as the shell sees it, for the device's one user.
-                process.setCommand(command(
-                    {"shell", QString("cd /data/app/el2/100/base/%1/files/%2 && "
-                                      "find . -type f -exec stat -c '%s %n' {} +")
-                                  .arg(bundle, cache)}));
-            };
-            const auto onCacheListDone = [missingStorage, qt](const Process &process, DoneWith) {
-                *missingStorage = missingLibraries(qt, process.cleanedStdOut());
-                return DoneResult::Success;
-            };
-            const auto onStageSetup = [command, bundle, qt, missingStorage, stageStorage,
-                                       runControl](Process &process) {
-                if (missingStorage->isEmpty())
-                    return SetupResult::StopWithSuccess;
-                auto stage = std::make_unique<TemporaryDirectory>("qtc-harmonyos-qt-XXXXXX");
-                const FilePath root = stage->path().pathAppended("qtcrun");
-                qint64 size = 0;
-                for (const QtLibrary &entry : *missingStorage) {
-                    const FilePath link = root.pathAppended("qt/" + qt.tag + '/'
-                                                              + cachedPath(entry.name));
-                    Result<> linked = link.parentDir().ensureWritableDir();
-                    if (linked)
-                        linked = entry.file.createSymLink(link);
-                    if (!linked) {
-                        runControl->postMessage(linked.error(), ErrorMessageFormat);
-                        return SetupResult::StopWithError;
-                    }
-                    size += entry.file.fileSize();
-                }
-                runControl->postMessage(Tr::tr("Handing %1 of %2 libraries to the runner "
-                                               "(%3 MB). It keeps them for the next run.")
-                                            .arg(missingStorage->size()).arg(qt.files.size())
-                                            .arg(size / (1024 * 1024)), NormalMessageFormat);
-                process.setCommand(command({"file", "send", "-b", bundle, root.nativePath(),
-                                            "data/storage/el2/base/files/"}));
-                process.setEnvironment(Sdk::hdcEnvironment());
-                *stageStorage = std::move(stage);
-                return SetupResult::Continue;
-            };
-            const auto onStageDone = [runControl](const Process &process) {
-                if (!process.allOutput().contains("[Fail]"))
-                    return DoneResult::Success;
-                runControl->postMessage(Tr::tr("Could not hand the Qt to the runner: %1")
-                                            .arg(process.allOutput().trimmed()),
-                                        ErrorMessageFormat);
-                return DoneResult::Error;
-            };
-
-            const auto stageGroup = [=] {
-                if (qt.files.isEmpty())
-                    return Group { nullItem };
-                return Group {
-                    missingStorage,
-                    stageStorage,
-                    ProcessTask(onCacheListSetup, onCacheListDone),
-                    ProcessTask(onStageSetup, onStageDone)
-                };
-            };
-
-            const auto forceStopTask = [command, bundle] {
-                const auto onSetup = [command, bundle](Process &process) {
-                    process.setCommand(command({"shell", "aa", "force-stop", bundle}));
-                };
-                return ProcessTask(onSetup) || successItem;
-            };
-
-            // What the application has to be started with. The platform plugin turns this
-            // Want parameter into the arguments main() gets, so a HAP needs no launch
-            // script and the project's own build is what says which ones it needs.
-            const QStringList launchArguments
-                = harmonyOsExtras(bc->buildDirectory(), bc->activeBuildKey()).launchArguments;
-
-            const auto onStartSetup = [command, bundle, launchArguments](Process &process) {
-                QStringList arguments{"shell", "aa", "start",
-                                      "-a", Constants::HARMONYOS_ABILITY_NAME,
-                                      "-b", bundle,
-                                      "-m", Constants::HARMONYOS_MODULE_NAME};
-                if (!launchArguments.isEmpty()) {
-                    const QByteArray json = QJsonDocument(
-                        QJsonArray::fromStringList(launchArguments)).toJson(QJsonDocument::Compact);
-                    // hdc hands the whole line to a shell on the device, which would eat the
-                    // quotes the JSON is made of and leave the platform plugin with something
-                    // it cannot parse - and an application that dies in onCreate.
-                    arguments << "--ps" << "io.qt.appArgsJson"
-                              << '\'' + QString::fromUtf8(json) + '\'';
-                    // Without this the launch URI arrives as the first argument, which an
-                    // application that takes file names on the command line tries to open.
-                    arguments << "--pb" << "io.qt.useUriAsArg" << "false";
-                }
-                process.setCommand(command(arguments));
-            };
-
-            // "aa start" returns as soon as the ability was launched, so it cannot stand in
-            // for the application's lifetime. Follow the application's hilog output instead:
-            // that keeps the run alive, feeds the application output pane, and lets the run
-            // be stopped. Polling for the process is still needed because hilog keeps
-            // waiting once the process is gone.
-            const Storage<QString> pidStorage;
-
-            const auto onPidSetup = [command, bundle](Process &process) {
-                process.setCommand(command({"shell", "pidof", "-s", bundle}));
-            };
-            const auto onPidDone = [pidStorage](const Process &process) {
-                *pidStorage = process.cleanedStdOut().trimmed();
-                return !pidStorage->isEmpty();
-            };
-
-            const auto onLogSetup = [command, pidStorage](Process &process) {
-                process.setCommand(command({"shell", "hilog", "-P", *pidStorage}));
-            };
-
-            const auto onGoneSetup = [command, bundle](Process &process) {
-                process.setCommand(command({"shell", "pidof", "-s", bundle}));
-            };
-            const auto onGoneDone = [](const Process &process) {
-                // Succeeding ends the polling loop, and with it the run.
-                return toDoneResult(process.cleanedStdOut().trimmed().isEmpty());
-            };
-
-            return Group {
-                pidStorage,
-                channelStorage,
-                channelGroup(),
-                forceStopTask(),
-                stageGroup(),
-                Group {
-                    ProcessTask(onStartSetup),
-                    ProcessTask(onPidSetup, onPidDone),
-                    Group {
-                        parallel,
-                        stopOnSuccessOrError,
-                        runControl->processRecipe(onLogSetup),
-                        Forever {
-                            stopOnSuccess,
-                            ProcessTask(onGoneSetup, onGoneDone),
-                            timeoutTask(1s)
-                        }
-                    }
-                }.withCancel([runControl] {
-                    return makeObjectSignal(runControl, &RunControl::canceled);
-                }),
-                forceStopTask(),
-                onGroupDone([command, channelPort, channelStorage] {
-                    if (*channelStorage) {
-                        Process::startDetached(command(
-                            {"fport", "rm", channelPort,
-                             QString("tcp:%1").arg((*channelStorage)->serverPort())}));
-                    }
-                })
-            };
+        setRecipeProducer([](RunControl *runControl) {
+            return deviceRunRecipe(runControl);
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::HARMONYOS_RUNCONFIG_ID);

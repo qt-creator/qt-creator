@@ -84,6 +84,8 @@ struct Launch
 
 static const size_t ArgumentsAnnouncement = 0xffffffffu;
 static const size_t QtAnnouncement = 0xfffffffeu;
+// The application is to wait for a debugger before it runs.
+static const size_t DebugAnnouncement = 0xfffffffdu;
 static const size_t ArgumentsLimit = 1024u * 1024;
 static const size_t NameLimit = 256u;
 static const size_t FileLimit = 512u * 1024 * 1024;

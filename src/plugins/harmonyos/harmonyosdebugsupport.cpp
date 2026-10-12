@@ -10,6 +10,8 @@
 #include "harmonyossettings.h"
 #include "harmonyostr.h"
 
+#include <coreplugin/icore.h>
+
 #include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -70,6 +72,96 @@ static DebuggerRunParameters debuggerRunParameters(RunControl *runControl)
     return rp;
 }
 
+// What the target already has under the same file name, a dependency of the application or
+// a copy behind a symbolic link, makes a module ambiguous to the command line. The bridge
+// keeps the module it added.
+static QString placeModuleCommand(const FilePath &file, const QString &slide)
+{
+    QString path = file.path();
+    path.replace('\\', "\\\\").replace('"', "\\\"");
+    return QString("script lldb.theDumper.placeModule(\"%1\", %2)").arg(path, slide);
+}
+
+// Running without installing, the process is the runner's, and the application and its Qt
+// are mapped into anonymous memory, where the debugger cannot see them. The runner reports
+// where it put them and holds before anything of the application runs.
+static Group runnerDebugRecipe(RunControl *runControl,
+                               const std::function<CommandLine(const QStringList &)> &command)
+{
+    DebuggerRunParameters rp = debuggerRunParameters(runControl);
+    rp.setCloseMode(KillAtClose);
+    // The runner and its shim are mapped from files, and these are their local copies.
+    FilePaths solibSearchPath = rp.solibSearchPath();
+    solibSearchPath.append(Core::ICore::userResourcePath("harmonyos"));
+    rp.setSolibSearchPath(solibSearchPath);
+
+    const Storage<RunnerHold> hold;
+    const auto kicker = [runControl, hold](const QStoredBarrier &held) {
+        return deviceRunRecipe(runControl, RunnerDebugging{hold, held});
+    };
+
+    const auto onListeningSetup = [command](Process &process) {
+        process.setCommand(command({"shell", "netstat", "-ln"}));
+        process.setEnvironment(Sdk::hdcEnvironment());
+    };
+    const auto onListeningDone = [](const Process &process) {
+        const QString port = QString(":%1").arg(Constants::HARMONYOS_DEBUG_PORT);
+        const QStringList lines = process.cleanedStdOut().split('\n', Qt::SkipEmptyParts);
+        for (const QString &line : lines) {
+            if (line.contains(port) && line.contains("LISTEN"))
+                return toDoneResult(true);
+        }
+        return toDoneResult(false);
+    };
+
+    const QString forward = QString("tcp:%1").arg(Constants::HARMONYOS_DEBUG_PORT);
+    const auto onForwardSetup = [command, forward](Process &process) {
+        process.setCommand(command({"fport", forward, forward}));
+        process.setEnvironment(Sdk::hdcEnvironment());
+    };
+    const auto onForwardDone = [runControl](const Process &process) {
+        if (process.allOutput().contains("[Fail]")) {
+            runControl->postMessage(process.allOutput().trimmed(), ErrorMessageFormat);
+            return false;
+        }
+        return true;
+    };
+
+    const auto modifier = [hold](DebuggerRunParameters &rp) {
+        rp.setAttachPid(ProcessHandle(hold->pid));
+        QStringList commands;
+        for (const auto &[file, slide] : std::as_const(hold->slides))
+            commands.append(placeModuleCommand(file, slide));
+        rp.setCommandsAfterConnect(commands.join('\n'));
+    };
+
+    return Group {
+        hold,
+        When (kicker, WorkflowPolicy::StopOnSuccessOrError) >> Do {
+            Group {
+                Forever {
+                    stopOnSuccess,
+                    ProcessTask(onListeningSetup, onListeningDone),
+                    timeoutTask(500ms)
+                }.withTimeout(30s),
+                onGroupDone([runControl](DoneWith result) {
+                    if (result != DoneWith::Success) {
+                        runControl->postMessage(
+                            Tr::tr("The runner did not start a debug server on port %1.")
+                                .arg(Constants::HARMONYOS_DEBUG_PORT),
+                            ErrorMessageFormat);
+                    }
+                })
+            },
+            ProcessTask(onForwardSetup, onForwardDone),
+            debuggerRecipe(runControl, rp, modifier)
+        },
+        onGroupDone([command, forward] {
+            Process::startDetached(command({"fport", "rm", forward, forward}));
+        })
+    };
+}
+
 class HarmonyOsDebugWorkerFactory final : public RunWorkerFactory
 {
 public:
@@ -94,6 +186,9 @@ public:
                 cmd.addArgs(args);
                 return cmd;
             };
+
+            if (settings().runWithoutInstalling())
+                return runnerDebugRecipe(runControl, command);
 
             BuildConfiguration * const bc = runControl->buildConfiguration();
             QTC_ASSERT(bc, return runControl->errorTask(
@@ -443,9 +538,7 @@ public:
             const auto modifier = [gateStorage](DebuggerRunParameters &rp) {
                 rp.setAttachPid(ProcessHandle(gateStorage->pid));
                 const FilePath binary = rp.symbolFile();
-                rp.setCommandsAfterConnect(
-                    QString("target modules add %1\ntarget modules load --file %2 --slide %3")
-                        .arg(binary.path(), binary.fileName(), gateStorage->slide));
+                rp.setCommandsAfterConnect(placeModuleCommand(binary, gateStorage->slide));
             };
             return Group {
                 gateStorage,

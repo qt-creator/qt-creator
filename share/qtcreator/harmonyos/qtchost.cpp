@@ -32,6 +32,12 @@ using Main = int (*)(int, char **);
 // only does once the debugger let it go, so every breakpoint it holds is in place by then.
 volatile int qtcHostRelease = 0;
 
+// Called while waiting for that: the debugger stops here, where it can write.
+extern "C" __attribute__((visibility("default"), noinline)) void qtcHostWaiting()
+{
+    asm volatile("");
+}
+
 static int connectToGate(int port)
 {
     const int fd = ::socket(AF_INET, SOCK_STREAM, 0);
@@ -85,8 +91,10 @@ int main(int argc, char **argv)
         ::close(gate);
         // The IDE writes that byte when its run control starts, which is before the
         // debugger has this process, so it cannot be what protection waits for.
-        for (int waited = 0; !qtcHostRelease && waited < 30000; waited += 20)
-            ::usleep(20 * 1000);
+        for (int waited = 0; !qtcHostRelease && waited < 30000; waited += 100) {
+            qtcHostWaiting();
+            ::usleep(100 * 1000);
+        }
     }
     // Only now, with the breakpoints in place: the platform lets nobody write text that
     // the jit prctl has made executable.

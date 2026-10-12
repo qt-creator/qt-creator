@@ -268,7 +268,9 @@ static FilePath runnerPackageLibrary(const FilePath &sdkRoot, const QString &fil
            // The template loads both by these names.
            "-Wl,-soname," + fileName,
            "-I" + directory.path(),
-           QString("-DQTC_CHANNEL_PORT=%1").arg(Constants::HARMONYOS_CHANNEL_PORT)};
+           QString("-DQTC_CHANNEL_PORT=%1").arg(Constants::HARMONYOS_CHANNEL_PORT),
+           QString("-DQTC_SERVER_PORT=%1").arg(Constants::HARMONYOS_DEBUG_PORT),
+           QString("-DQTC_SERVER_PATH=\"%1\"").arg(Constants::HARMONYOS_DEBUG_SERVER_PATH)};
     for (const QString &source : sources)
         arguments.append(directory.pathAppended(source).path());
     arguments << libraries << "-o" << library.path();

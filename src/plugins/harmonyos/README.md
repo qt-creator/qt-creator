@@ -36,6 +36,16 @@ thing.
   for it comes out valid and without complaints.
 - **Devices.** `hdc list targets` finds the connected device, the device page
   reports it as ready, and its device test finishes successfully.
+- **File access.** Reading and writing files on the device goes through `hdc`,
+  with the transfer standing in where `hdc shell` cannot help. The test for it
+  passes against the tablet, apart from the two cases that need an SSH build
+  device.
+- **Getting the SDK and Qt from the settings page.** The page downloads and
+  unpacks the OpenHarmony SDK (2.5 GB), and installs Qt for HarmonyOS from a Qt
+  repository, which is the only route for Qt Creator on the device. The Qt
+  comes out registered with its HarmonyOS version. The SDK downloaded this way
+  has no `hvigor`, so packaging still needs the one from DevEco Studio or the
+  command line tools.
 - **Deploying and installing.** A deploy produced a signed package and put it
   on the device. That the debug session below then ran is also what says the
   debug plugin and the `lldb-server` really were in that package. A deploy
@@ -53,6 +63,14 @@ thing.
   sign, install and run, with the application's window on the tablet. The
   first run of a Qt copies it to the device before the start (19 files, 512 MB
   in about 10 seconds), and a later run of the same Qt skips that.
+- **Debugging through the runner.** The runner starts the debug server, reports
+  where it mapped each library, and holds `main()` back. The platform lets
+  nobody write into text it made executable, so the libraries are placed at
+  those addresses, and the runner is let go from a stop in `qtcHostWaiting`,
+  which it calls while it holds. Watched stopping in a `MainWindow`
+  constructor, with `main()` of the application and of the runner above it.
+  It is slow: the stop came 3.5 minutes after the start, most of it spent at
+  the loader's stops, where the memory map is read again each time.
 - **Debugging.** The application starts the debug server itself, Qt Creator
   attaches through the `remote-ohos` platform, and the debugger stops.
 - **Breakpoints.** A breakpoint set by function or by file and line resolves,
@@ -106,25 +124,19 @@ thing.
   `hdc` on the device, so the first run of a Qt receives it over the channel
   (512 MB in about 1 second), ends, and is started again. The application's
   `main()` was reached under a second after that, and its window shown.
+- **Debugging.** Qt Creator may not execute a file it wrote, so `qtchost` in
+  its package maps the binary, reports where, and waits in `qtcHostWaiting`
+  until the debugger has placed it and lets it go. Watched stopping at a
+  breakpoint in `main()` of a project built on the device, 4 seconds after the
+  start, with `main()` of `qtchost` above it.
 
 ## Implemented but not confirmed
 
-Written and built, with the pieces they rest on checked by hand against the
-device or under `qemu-aarch64` with the device's loader, but never yet watched
-doing their job from within Qt Creator:
+Written and built, but never yet watched doing its job from within Qt Creator:
 
-- **Debugging what was built on the device.** Qt Creator may not execute a file
-  it wrote, so `qtchost` in its package maps the binary, reports where, and
-  waits until the debugger has attached. Checked under qemu only.
-- **Debugging an application started through the runner.** Not tried, from the
-  host or from the device.
-- **Getting the SDK and Qt from the settings page.** The page offers to
-  download the OpenHarmony SDK and to install Qt for HarmonyOS, through the
-  maintenance tool where there is one and from a Qt repository otherwise, which
-  is the only route for Qt Creator on the device.
-- **File access.** Reading and writing files on the device goes through `hdc`,
-  with the transfer standing in where `hdc shell` cannot help. There is a test
-  for it that needs an attached device.
+- **Installing Qt through the maintenance tool.** Where there is one, the
+  settings page installs Qt for HarmonyOS through it rather than from a Qt
+  repository. Not run, because it changes the installation on the machine.
 
 ## What it needs
 

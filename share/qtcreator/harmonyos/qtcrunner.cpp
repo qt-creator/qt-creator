@@ -19,6 +19,8 @@
 
 #include "qtcshim.h"
 
+#include <cinttypes>
+
 static QtcShim *shim()
 {
     static QtcShim *theShim = []() -> QtcShim * {
@@ -31,9 +33,9 @@ static QtcShim *shim()
 }
 
 // The IDE announces the application as a length and that many bytes, and can send the
-// arguments ahead of it, announced by a length no application can have. The shim has read
-// what came before, and maybe the first header after it.
-static bool receive(int fd, QtcShim *shim, std::string *error)
+// arguments ahead of it, announced by a length no application can have, as is a debugger
+// waiting for it. The shim has read what came before, and maybe the first header after it.
+static bool receive(int fd, QtcShim *shim, bool *debugging, std::string *error)
 {
     for (;;) {
         size_t size = 0;
@@ -47,6 +49,10 @@ static bool receive(int fd, QtcShim *shim, std::string *error)
         if (size == ArgumentsAnnouncement) {
             if (!receiveArguments(fd, shim->launch, error))
                 return false;
+            continue;
+        }
+        if (size == DebugAnnouncement) {
+            *debugging = true;
             continue;
         }
         return receiveApplication(fd, size, error);
@@ -84,6 +90,54 @@ static void registerPlugins(const std::vector<std::string> &plugins, QtcLoad::Wo
     }
 }
 
+// Written by the debugger once it has the application and its breakpoints in place.
+extern "C" __attribute__((visibility("default"))) volatile int qtcHostRelease = 0;
+
+// Called while waiting for that: the debugger stops here, where it can write.
+extern "C" __attribute__((visibility("default"), noinline)) void qtcHostWaiting()
+{
+    asm volatile("");
+}
+
+static uintptr_t slide(const QtcLoad::Image &image)
+{
+    return uintptr_t(image.base) - uintptr_t(image.lowest);
+}
+
+// The device refuses PTRACE_TRACEME, so the server is started from here, where attaching
+// is allowed. Nothing the platform knows says where the application and its Qt are, so
+// that goes over the channel, and the application waits with its text still writable:
+// once protected, the platform refuses a breakpoint there, a tracer's write included.
+static void holdForDebugger(int fd, const QtcLoad::Image &image, const QtcLoad::World &world)
+{
+    // The server would keep the channel open after the application ended.
+    ::fcntl(fd, F_SETFD, FD_CLOEXEC);
+    const pid_t child = ::fork();
+    if (child == 0) {
+        const std::string listen = "*:" + std::to_string(QTC_SERVER_PORT);
+        ::execl(QTC_SERVER_PATH, "lldb-server", "platform", "--listen", listen.c_str(), nullptr);
+        ::execlp("lldb-server", "lldb-server", "platform", "--listen", listen.c_str(), nullptr);
+        ::_exit(127);
+    }
+    if (child < 0) {
+        note("cannot start the debug server (errno %d)", errno);
+        ::dprintf(fd, "runner: cannot start the debug server (errno %d)\n", errno);
+        return;
+    }
+    for (const std::unique_ptr<QtcLoad::Image> &mapped : world.images) {
+        ::dprintf(fd, "runner: mapped %s slide 0x%" PRIxPTR "\n", mapped->name.c_str(),
+                  slide(*mapped));
+    }
+    ::dprintf(fd, "runner: holding pid %d slide 0x%" PRIxPTR "\n", int(::getpid()),
+              slide(image));
+    note("server %d started, waiting for the debugger", int(child));
+    for (int waited = 0; !qtcHostRelease && waited < 60000; waited += 100) {
+        qtcHostWaiting();
+        ::usleep(100 * 1000);
+    }
+    note(qtcHostRelease ? "released by the debugger" : "no debugger came, running anyway");
+}
+
 extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv)
 {
     note("main() entered, argc %d", argc);
@@ -93,9 +147,10 @@ extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv
     }
     Launch &launch = *shim()->launch;
     const int fd = shim()->channel;
+    bool debugging = false;
     if (fd >= 0) {
         std::string error;
-        if (!receive(fd, shim(), &error)) {
+        if (!receive(fd, shim(), &debugging, &error)) {
             note("%s", error.c_str());
             ::dprintf(fd, "runner: %s\n", error.c_str());
             ::close(fd);
@@ -106,7 +161,7 @@ extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv
 
     QtcLoad::Image image;
     std::string error;
-    if (!shim()->load(Application, &image, &error, &world, false)) {
+    if (!shim()->load(Application, &image, &error, &world, debugging)) {
         note("cannot map the application: %s", error.c_str());
         for (const std::string &name : image.missing)
             note("  missing %s", name.c_str());
@@ -136,6 +191,15 @@ extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv
         }
         for (const std::string &name : image.missing)
             ::dprintf(fd, "runner:   missing %s\n", name.c_str());
+    }
+
+    if (debugging)
+        holdForDebugger(fd, image, world);
+    if (debugging && !shim()->protect(&image)) {
+        note("cannot start the application: %s", error.c_str());
+        ::dprintf(fd, "runner: cannot start the application: %s\n", error.c_str());
+        ::close(fd);
+        return 1;
     }
 
     // Before main(), because that is where the application asks Qt for a platform.
