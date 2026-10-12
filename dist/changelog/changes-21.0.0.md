@@ -65,7 +65,7 @@ Fixed
   ([QTCREATORBUG-35019](https://bugreports.qt.io/browse/QTCREATORBUG-35019))
 * That failures were not reported when extracting archives; for example,
   when installing plugins
-
+* Issues with queueing commands in the `!` Locator filter
 
 ### Agent Client Protocol (ACP)
 
@@ -96,10 +96,16 @@ Added
 Changed
 
 * Enabled the ACP integration by default
+* The agent registry is now only downloaded when it is needed, after asking
+  for permission
+* The console of an agent is now shown while it starts up, so that it can ask
+  for input, for example for logging in
 * Changed to use tabs for chats only when tabs are used for the editors
 * Improved the chat input field and the session options
 * The content of additional context files and of editors without a file is
   no longer sent to the agent, which reduces the token usage
+* The state of including the current editor in the context is now persisted
+  ([QTCREATORBUG-34863](https://bugreports.qt.io/browse/QTCREATORBUG-34863))
 
 Fixed
 
@@ -107,6 +113,9 @@ Fixed
 * That file links in the chat were not opened
   ([QTCREATORBUG-34927](https://bugreports.qt.io/browse/QTCREATORBUG-34927))
 * That text after a `<` in the output of agents could be lost
+* That discarding changes in the agent preferences did not revert the
+  selection of a registry template
+  ([QTCREATORBUG-34868](https://bugreports.qt.io/browse/QTCREATORBUG-34868))
 
 ### Model Context Protocol
 
@@ -126,8 +135,13 @@ Added
 * Tools for the tests, CMake, projects, devices, plugins,
   language server protocol, C++, the Qt Creator documentation, profiling, kits,
   Qt versions, and debugging
-  ([QTCREATORBUG-34629](https://bugreports.qt.io/browse/QTCREATORBUG-34629))
-* The `-mcp-dump-tools` command line option
+  ([QTCREATORBUG-34629](https://bugreports.qt.io/browse/QTCREATORBUG-34629),
+   [QTCREATORBUG-35070](https://bugreports.qt.io/browse/QTCREATORBUG-35070),
+   [QTCREATORBUG-35071](https://bugreports.qt.io/browse/QTCREATORBUG-35071),
+   [QTCREATORBUG-35073](https://bugreports.qt.io/browse/QTCREATORBUG-35073),
+   [QTCREATORBUG-35074](https://bugreports.qt.io/browse/QTCREATORBUG-35074))
+* The `-mcp-dump-tools`, `-mcp-enable-tools`, and `-mcp-info-file` command line
+  options
 
 Changed
 
@@ -140,6 +154,8 @@ Changed
 Fixed
 
 * That modified documents could be overwritten with `set_file_plain_text`
+* A crash when sessions are closed
+  ([QTCREATORBUG-35058](https://bugreports.qt.io/browse/QTCREATORBUG-35058))
 
 Help
 ----
@@ -177,6 +193,8 @@ Added
   ([QTCREATORBUG-8514](https://bugreports.qt.io/browse/QTCREATORBUG-8514))
 * A separate `Template Parameter` text highlighting style
   ([QTCREATORBUG-6225](https://bugreports.qt.io/browse/QTCREATORBUG-6225))
+* `Cut Lines`, `Copy Lines`, and `Delete Lines`, which extend the selection to
+  whole lines
 
 Changed
 
@@ -187,6 +205,8 @@ Changed
   ([QTCREATORBUG-10367](https://bugreports.qt.io/browse/QTCREATORBUG-10367))
 * Changed Makefiles to always be indented with tabs
   ([QTCREATORBUG-3408](https://bugreports.qt.io/browse/QTCREATORBUG-3408))
+* `Rewrap Paragraph` now acts on all paragraphs of a selection
+  ([QTCREATORBUG-31067](https://bugreports.qt.io/browse/QTCREATORBUG-31067))
 
 Fixed
 
@@ -210,6 +230,15 @@ Fixed
 * That the completion popup changed its width while scrolling
   ([QTCREATORBUG-7925](https://bugreports.qt.io/browse/QTCREATORBUG-7925))
 * That annotations, such as `Instant Blame`, overlapped with folded code
+* That a search result that directly follows another one was not highlighted
+  ([QTCREATORBUG-35026](https://bugreports.qt.io/browse/QTCREATORBUG-35026))
+* That multi-cursor editing did not work with dead keys
+  ([QTCREATORBUG-35061](https://bugreports.qt.io/browse/QTCREATORBUG-35061))
+* That an empty last line of a selection was left behind when moving lines
+  ([QTCREATORBUG-34933](https://bugreports.qt.io/browse/QTCREATORBUG-34933))
+* That `Rewrap Paragraph` removed the space after the comment leader in
+  Doxygen comments
+  ([QTCREATORBUG-31067](https://bugreports.qt.io/browse/QTCREATORBUG-31067))
 
 ### C++
 
@@ -219,6 +248,13 @@ Added
 * The `Inline Function Call` and `Inline Function Call and Remove Function If
   Unused` quick fixes
   ([QTCREATORBUG-9615](https://bugreports.qt.io/browse/QTCREATORBUG-9615))
+* Quick fixes for converting a lambda in a `connect()` call into a free
+  function, a member function, or a slot
+  ([QTCREATORBUG-26048](https://bugreports.qt.io/browse/QTCREATORBUG-26048))
+* The `Convert to std::unique_ptr` and `Convert to QScopedPointer` quick fixes
+  ([QTCREATORBUG-12733](https://bugreports.qt.io/browse/QTCREATORBUG-12733))
+* A quick fix for adding a binding to an existing `Q_PROPERTY`
+  ([QTCREATORBUG-25036](https://bugreports.qt.io/browse/QTCREATORBUG-25036))
 * Built-in
     * Support for `__has_include`
       ([QTCREATORBUG-25181](https://bugreports.qt.io/browse/QTCREATORBUG-25181))
@@ -251,6 +287,8 @@ Fixed
 * The performance of finding function definitions, for example for the
   `Add Definitions` quick fixes
   ([QTCREATORBUG-32466](https://bugreports.qt.io/browse/QTCREATORBUG-32466))
+* A freeze when saving with the ClangFormat indenter
+  ([QTCREATORBUG-35069](https://bugreports.qt.io/browse/QTCREATORBUG-35069))
 * Clangd
     * That the context help was not shown for calls without an explicit
       `this->` when the cursor is in front of the parenthesis
@@ -286,6 +324,12 @@ Fixed
 * That Python interpreters were not found by the tool detection of devices
 
 ### Language Server Protocol
+
+Changed
+
+* Language servers are now also used for files in the source directory of a
+  project that are not part of the project
+  ([QTCREATORBUG-34931](https://bugreports.qt.io/browse/QTCREATORBUG-34931))
 
 Fixed
 
@@ -703,6 +747,8 @@ Fixed
 
 Fixed
 
+* That errors from resolving the project were reported as many separate issues
+  ([QTCREATORBUG-35043](https://bugreports.qt.io/browse/QTCREATORBUG-35043))
 * That a source file was not mapped to the binaries that link it
   ([QTCREATORBUG-30265](https://bugreports.qt.io/browse/QTCREATORBUG-30265),
    [QTCREATORBUG-27058](https://bugreports.qt.io/browse/QTCREATORBUG-27058))
@@ -712,6 +758,9 @@ Fixed
 Fixed
 
 * That the same project could be opened multiple times
+* A hang when many files in the project directory were added or removed
+  while Qt Creator was in the background
+  ([QTCREATORBUG-34934](https://bugreports.qt.io/browse/QTCREATORBUG-34934))
 
 Debugging
 ---------
@@ -755,6 +804,10 @@ Fixed
   ([QTCREATORBUG-19539](https://bugreports.qt.io/browse/QTCREATORBUG-19539))
 * That a scratch buffer kept its display name after it was saved
   ([QTCREATORBUG-12276](https://bugreports.qt.io/browse/QTCREATORBUG-12276))
+* That the layout of the views was restored wrongly when debugging C++ and QML
+  ([QTCREATORBUG-35051](https://bugreports.qt.io/browse/QTCREATORBUG-35051))
+* That breakpoint markers vanished from the editor when the debugger ended
+  unexpectedly
 
 ### C++
 
@@ -820,6 +873,9 @@ Fixed
     * The display of signed bitfields
     * That the debugger stopped in `__clone3` when running in a terminal
       ([QTCREATORBUG-34842](https://bugreports.qt.io/browse/QTCREATORBUG-34842))
+    * That classes that are only declared in the module of the current frame
+      showed no members
+      ([QTCREATORBUG-35068](https://bugreports.qt.io/browse/QTCREATORBUG-35068))
 * CDB
     * That the output of the debuggee was not shown in `Application Output`
       ([QTCREATORBUG-10626](https://bugreports.qt.io/browse/QTCREATORBUG-10626))
@@ -879,6 +935,12 @@ Added
 * The option to show and control `debuginfod` downloads
 * Better error reporting when a recording is not permitted or captured no
   samples, including the option to lower `perf_event_paranoid`
+
+### Perf
+
+Changed
+
+* Recordings are now decoded in-process, instead of with `perfparser`
 
 ### Axivion
 
@@ -979,6 +1041,15 @@ Fixed
 * Crashes in the `Branches` view
   ([QTCREATORBUG-32186](https://bugreports.qt.io/browse/QTCREATORBUG-32186),
    [QTCREATORBUG-33765](https://bugreports.qt.io/browse/QTCREATORBUG-33765))
+* A crash after editing a commit message
+  ([QTCREATORBUG-35048](https://bugreports.qt.io/browse/QTCREATORBUG-35048))
+* Gerrit
+    * That changes in the `Integrating` state were not shown by default
+      ([QTCREATORBUG-34239](https://bugreports.qt.io/browse/QTCREATORBUG-34239))
+    * That filtering broke the order and indentation of changes
+      ([QTCREATORBUG-33842](https://bugreports.qt.io/browse/QTCREATORBUG-33842))
+    * That query errors were not shown
+    * That pressing `Enter` in the query field closed the dialog
 
 Test Integration
 ----------------
@@ -997,6 +1068,9 @@ Fixed
 * The performance of parsing for tests
   ([QTCREATORBUG-34915](https://bugreports.qt.io/browse/QTCREATORBUG-34915))
 * A possible crash when parsing for tests is canceled
+* The quoting of test names and arguments that contain spaces or special
+  characters
+* A freeze with large amounts of colored test output
 
 ### Qt Quick
 
@@ -1037,15 +1111,24 @@ Fixed
 
 * The copy and paste actions in file dialogs
   ([QTCREATORBUG-31352](https://bugreports.qt.io/browse/QTCREATORBUG-31352))
+* A crash when quitting Qt Creator in full screen mode
 
 ### Android
 
 Added
 
-* `Tools > Android > Logcat`
+* `Tools > Android > Logcat`, with configurable columns and filtering by
+  package (`package:<name>`, `package:mine`), tag (`tag:<text>`), level
+  (`level:<level>`), and negation (`-tag:<text>`), which automatically binds
+  to the application that is run
+  ([QTCREATORBUG-34145](https://bugreports.qt.io/browse/QTCREATORBUG-34145),
+   [QTCREATORBUG-34398](https://bugreports.qt.io/browse/QTCREATORBUG-34398),
+   [QTCREATORBUG-34399](https://bugreports.qt.io/browse/QTCREATORBUG-34399))
 * A parser for crashes in the logcat output
   ([QTCREATORBUG-29935](https://bugreports.qt.io/browse/QTCREATORBUG-29935))
 * The name for API level 37
+* Support for `mipmap` icons in the manifest editor
+  ([QTCREATORBUG-16991](https://bugreports.qt.io/browse/QTCREATORBUG-16991))
 
 Fixed
 
@@ -1146,6 +1229,12 @@ Fixed
 * The pretty printers, which could be confused by an unknown allocator size
   ([QTCREATORBUG-32959](https://bugreports.qt.io/browse/QTCREATORBUG-32959))
 
+### Qt for MCUs
+
+Added
+
+* Support for debugging through debug server providers
+
 ### Bare Metal
 
 Added
@@ -1189,6 +1278,8 @@ Paul Olav Tvete
 Sami Shalayel  
 Samuel Gaist  
 SanthoshKumar Selvaraj  
+Sheree Morphett  
+Sivert Krøvel  
 Tasuku Suzuki  
 Ulf Hermann  
 Xavier Besson  
