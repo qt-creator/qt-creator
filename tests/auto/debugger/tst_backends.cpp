@@ -11164,13 +11164,14 @@ void tst_backends::reportsVectorRegistersInHex_data()
 
 // The register view reads every value as hex. gdb shows a vector register as
 // the union of its lanes in several types, which has to be turned into hex on
-// the way.
+// the way. gdb lists only the widest vector registers the CPU has, the zmm
+// ones where there is AVX-512.
 void tst_backends::reportsVectorRegistersInHex()
 {
     QFETCH(Backend, backend);
 
     if (QSysInfo::currentCpuArchitecture() != "x86_64")
-        QSKIP("The test looks at the xmm and ymm registers of x86-64.");
+        QSKIP("The test looks at the vector registers of x86-64.");
 
     if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
         QSKIP("This test fails on mac");
@@ -11194,7 +11195,7 @@ void tst_backends::reportsVectorRegistersInHex()
     engine->refresh(registersRequest);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Registers)), s_timeout);
 
-    static const QRegularExpression vectorName("^[xy]mm\\d+$");
+    static const QRegularExpression vectorName("^[xyz]mm\\d+$");
     static const QRegularExpression hex("^0x[0-9a-fA-F]+$");
     int seen = 0;
     QStringList notHex;
@@ -11207,7 +11208,7 @@ void tst_backends::reportsVectorRegistersInHex()
         if (!hex.match(value).hasMatch() || value.size() > 2 + 2 * item["size"].toInt())
             notHex.append(name + " = " + value.left(60));
     }
-    QVERIFY2(seen > 0, "no xmm or ymm register came back");
+    QVERIFY2(seen > 0, "no xmm, ymm or zmm register came back");
     QVERIFY2(notHex.isEmpty(), qPrintable(notHex.join(", ").left(400)));
 }
 
