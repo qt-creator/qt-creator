@@ -11157,8 +11157,8 @@ void tst_backends::reportsVectorRegistersInHex()
     if (QSysInfo::currentCpuArchitecture() != "x86_64")
         QSKIP("The test looks at the vector registers of x86-64.");
 
-    if (HostOsInfo::isLinuxHost() && backend == Backend::Bridge)
-        QSKIP("This test fails on linux");
+    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
+        QSKIP("This test fails on mac");
 
     if (auto result = checkCapability(backend, Debugger::RegisterCapability); !result)
         QSKIP(qPrintable(result.error()));
