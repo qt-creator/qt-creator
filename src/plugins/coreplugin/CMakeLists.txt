@@ -32,7 +32,6 @@ add_qtc_plugin(Core
     basefilewizard.h
     basefilewizardfactory.cpp
     basefilewizardfactory.h
-    core.qrc
     core_global.h
     coreconstants.h
     coreicons.cpp
@@ -107,7 +106,6 @@ add_qtc_plugin(Core
     externaltoolmanager.h
     fancyactionbar.cpp
     fancyactionbar.h
-    fancyactionbar.qrc
     fancytabwidget.cpp
     fancytabwidget.h
     featureprovider.cpp
@@ -118,7 +116,6 @@ add_qtc_plugin(Core
     find/basetextfind.h
     find/currentdocumentfind.cpp
     find/currentdocumentfind.h
-    find/find.qrc
     find/findplugin.cpp
     find/findplugin.h
     find/findtoolbar.cpp
@@ -371,4 +368,45 @@ qt_add_resources(Core
   BASE ${FONTS_BASE}
   PREFIX "studiofonts"
   FILES "${FONTS_BASE}/TitilliumWeb-Regular.ttf"
+)
+
+file(GLOB_RECURSE find_images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} find/images/*)
+qtc_add_resources(Core "find_images"
+  PREFIX "/find"
+  BASE "find"
+  FILES ${find_images}
+)
+
+qtc_add_resources(Core "images"
+  PREFIX "/core"
+  FILES
+    images/expandarrow.png
+    images/expandarrow@2x.png
+    images/mode_settings.png
+    images/mode_settings@2x.png
+    images/search.png
+    images/search@2x.png
+    images/settingscategory_core.png
+    images/settingscategory_core@2x.png
+    images/settingscategory_design.png
+    images/settingscategory_design@2x.png
+    images/qtlogo.png
+    images/qtlogo@2x.png
+    images/settingscategory_help.png
+    images/settingscategory_help@2x.png
+    images/settingscategory_ai.png
+    images/settingscategory_ai@2x.png
+)
+
+qtc_add_resources(Core "actionbar_images"
+  PREFIX "/fancyactionbar"
+  FILES
+    images/mode_Edit.png
+    images/mode_Edit@2x.png
+    images/mode_Design.png
+    images/mode_Design@2x.png
+    images/mode_edit_mask.png
+    images/mode_edit_mask@2x.png
+    images/mode_design_mask.png
+    images/mode_design_mask@2x.png
 )

@@ -67,7 +67,6 @@ QtcPlugin {
             "basefilewizard.h",
             "basefilewizardfactory.cpp",
             "basefilewizardfactory.h",
-            "core.qrc",
             "core_global.h",
             "coreconstants.h",
             "coreicons.cpp",
@@ -99,7 +98,6 @@ QtcPlugin {
             "externaltoolmanager.h",
             "fancyactionbar.cpp",
             "fancyactionbar.h",
-            "fancyactionbar.qrc",
             "fancytabwidget.cpp",
             "fancytabwidget.h",
             "featureprovider.cpp",
@@ -338,7 +336,6 @@ QtcPlugin {
             "basetextfind.h",
             "currentdocumentfind.cpp",
             "currentdocumentfind.h",
-            "find.qrc",
             "findplugin.cpp",
             "findplugin.h",
             "findtoolbar.cpp",
@@ -421,6 +418,53 @@ QtcPlugin {
             "searchableterminal.cpp",
             "searchableterminal.h",
         ]
+    }
+
+    Group {
+        name: "images"
+        files: [
+            "images/expandarrow.png",
+            "images/expandarrow@2x.png",
+            "images/mode_settings.png",
+            "images/mode_settings@2x.png",
+            "images/search.png",
+            "images/search@2x.png",
+            "images/settingscategory_core.png",
+            "images/settingscategory_core@2x.png",
+            "images/settingscategory_design.png",
+            "images/settingscategory_design@2x.png",
+            "images/qtlogo.png",
+            "images/qtlogo@2x.png",
+            "images/settingscategory_help.png",
+            "images/settingscategory_help@2x.png",
+            "images/settingscategory_ai.png",
+            "images/settingscategory_ai@2x.png",
+        ]
+        fileTags: "qt.core.resource_data"
+    }
+
+    Group {
+        name: "find images"
+        Qt.core.resourcePrefix: "/find"
+        Qt.core.resourceSourceBase: sourceDirectory + "/find"
+        files: "find/images/*"
+        fileTags: "qt.core.resource_data"
+    }
+
+    Group {
+        name: "action bar images"
+        Qt.core.resourcePrefix: "/fancyactionbar"
+        files: [
+            "images/mode_Edit.png",
+            "images/mode_Edit@2x.png",
+            "images/mode_Design.png",
+            "images/mode_Design@2x.png",
+            "images/mode_edit_mask.png",
+            "images/mode_edit_mask@2x.png",
+            "images/mode_design_mask.png",
+            "images/mode_design_mask@2x.png",
+        ]
+        fileTags: "qt.core.resource_data"
     }
 
     Export {
