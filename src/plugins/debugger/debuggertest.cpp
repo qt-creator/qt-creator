@@ -2797,7 +2797,8 @@ void DebuggerUnitTests::testMcpStackFollowsTheThreadThatStopped()
                                                     {"line", workerLine},
                                                     {"wait_for_completion", true}});
     QVERIFY2(run, qPrintable(errorOf(run)));
-    QCOMPARE(run->value("status").toString(), QString("completed"));
+    QVERIFY2(run->value("status").toString() == "completed",
+             QJsonDocument(*run).toJson(QJsonDocument::Compact).constData());
     const QString workerThread = threadIdOf(*run);
     QVERIFY(!workerThread.isEmpty());
     QVERIFY(workerThread != mainThread);
@@ -3004,7 +3005,8 @@ void DebuggerUnitTests::testMcpStackOfAStopInAnotherThread()
     const Result<QJsonObject> resumed
         = callDebuggerTool("debugger_continue", {{"wait_for_completion", true}});
     QVERIFY2(resumed, qPrintable(errorOf(resumed)));
-    QCOMPARE(resumed->value("status").toString(), QString("completed"));
+    QVERIFY2(resumed->value("status").toString() == "completed",
+             QJsonDocument(*resumed).toJson(QJsonDocument::Compact).constData());
 
     const Result<QJsonObject> inWorker = callDebuggerTool("debugger_get_call_stack");
     QVERIFY2(inWorker, qPrintable(errorOf(inWorker)));
@@ -3064,24 +3066,32 @@ void DebuggerUnitTests::testMcpSelectThreadWaitsForItsStack()
     const Result<QJsonObject> inMain = callDebuggerTool("debugger_get_call_stack");
     QVERIFY2(inMain, qPrintable(errorOf(inMain)));
     const QString current = inMain->value("context").toObject().value("thread_id").toString();
-    QString worker;
+    QStringList others;
     session.engine()->threadsHandler()->forItemsAtLevel<1>([&](ThreadItem *thread) {
         if (thread->id() != current)
-            worker = thread->id();
+            others.append(thread->id());
     });
-    QVERIFY(!worker.isEmpty());
+    QVERIFY(!others.isEmpty());
 
-    const Result<QJsonObject> selected = callDebuggerTool(
-        "debugger_select_thread", {{"id", worker}, {"wait_for_completion", true}});
-    QVERIFY2(selected, qPrintable(errorOf(selected)));
-    QCOMPARE(selected->value("status").toString(), QString("completed"));
+    // Windows starts threads of its own in every process, so the worker is
+    // the one of the others that has spinningWorker() on its stack.
+    QStringList workers;
+    for (const QString &other : std::as_const(others)) {
+        const Result<QJsonObject> selected = callDebuggerTool(
+            "debugger_select_thread", {{"id", other}, {"wait_for_completion", true}});
+        QVERIFY2(selected, qPrintable(errorOf(selected)));
+        QCOMPARE(selected->value("status").toString(), QString("completed"));
 
-    const Result<QJsonObject> inWorker
-        = callDebuggerTool("debugger_get_call_stack", {{"timeout_ms", 0}});
-    QVERIFY2(inWorker, qPrintable(errorOf(inWorker)));
-    QCOMPARE(inWorker->value("context").toObject().value("thread_id").toString(), worker);
-    QVERIFY2(hasFrameIn(*inWorker, "spinningWorker"),
-             QJsonDocument(*inWorker).toJson(QJsonDocument::Compact).constData());
+        const Result<QJsonObject> stack
+            = callDebuggerTool("debugger_get_call_stack", {{"timeout_ms", 0}});
+        QVERIFY2(stack, qPrintable(errorOf(stack)));
+        QCOMPARE(stack->value("context").toObject().value("thread_id").toString(), other);
+        if (hasFrameIn(*stack, "spinningWorker"))
+            workers.append(other);
+    }
+    QVERIFY2(workers.size() == 1,
+             qPrintable("spinningWorker() is on the stack of " + workers.join(", ")
+                        + " of " + others.join(", ")));
 }
 
 void DebuggerUnitTests::testMcpThreadStacksAreBounded_data()
@@ -4015,8 +4025,10 @@ void DebuggerUnitTests::testASkippedTopFrameNamesItsMissingSource()
     const QStringList frames
         = {R"({level="0",function="abort",file="/usr/src/abort.c",usable="0"})",
            R"({level="1",function="main",file="/src/main.cpp",usable="1"})"};
-    const auto mentions = [engine] {
-        return engine->logWindow()->inputContents().count("/usr/src/abort.c");
+    // As the message shows it: with backslashes on Windows.
+    const QString skippedFile = FilePath::fromUserInput("/usr/src/abort.c").toUserOutput();
+    const auto mentions = [engine, skippedFile] {
+        return engine->logWindow()->inputContents().count(skippedFile);
     };
 
     engine->stackHandler()->setFramesAndCurrentIndex(stackReply(frames), true);
