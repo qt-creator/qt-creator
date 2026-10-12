@@ -21,11 +21,7 @@ endif()
 # fail-closed pattern already used for every other unsupported feature in
 # perfrecordreader.cpp.
 find_package(elfutils)
-# Linux only: elsewhere, the plugin would need libdw deployed where it finds it.
-set(_profiler_with_libdw OFF)
-if(elfutils_FOUND AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(_profiler_with_libdw ON)
-endif()
+set(_profiler_with_libdw ${elfutils_FOUND})
 
 if(WITH_TESTS)
   set(TEST_SOURCES
@@ -182,7 +178,7 @@ set(PERFPROFILER_CPP_SOURCES
 # file is for bundled third-party source with a LicenseFile this repo
 # actually ships, which doesn't apply to a dynamically-linked system library.
 if(_profiler_with_libdw)
-  list(APPEND PERFPROFILER_CPP_SOURCES perfdwarfunwinder.cpp perfdwarfunwinder.h)
+  list(APPEND PERFPROFILER_CPP_SOURCES perfdwarfunwinder.cpp perfdwarfunwinder.h perfelfutils.h)
 endif()
 
 # QtSupport is only used for the live-profiling launch integration (selecting a Qt

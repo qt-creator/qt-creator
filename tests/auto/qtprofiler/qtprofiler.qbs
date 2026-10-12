@@ -5,6 +5,7 @@ Project {
     references: [
         "tst_calltreemodel/tst_calltreemodel.qbs",
         "tst_cpuusagemodel/tst_cpuusagemodel.qbs",
+        "tst_dwarfunwinder/tst_dwarfunwinder.qbs",
         "tst_qmlrecordingtimeline/tst_qmlrecordingtimeline.qbs",
         "tst_recordingsession/tst_recordingsession.qbs",
         "tst_samplemerge/tst_samplemerge.qbs",

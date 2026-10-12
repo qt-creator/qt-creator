@@ -233,7 +233,7 @@ Result<> checkCallgraphMode(const Profiler::PerfSettings &settings)
     // back an already-unwound frame chain (fp) or a hardware branch-history
     // buffer usable as one directly (lbr). "dwarf" needs a full DWARF CFI
     // unwinder, which is libdw's (elfutils, see perfdwarfunwinder.h), linked
-    // only into Linux x86-64 builds that found its development headers (see
+    // only into builds that found its development headers (see
     // CMakeLists.txt/profiler.qbs) -- WITH_LIBDW mirrors that.
     const QString callgraphMode = settings.callgraphMode.itemValue().toString();
 #ifdef WITH_LIBDW

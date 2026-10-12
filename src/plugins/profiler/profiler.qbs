@@ -48,7 +48,7 @@ QtcPlugin {
     // the libraries it needs are linked for all of them.
     Properties {
         condition: qbs.targetOS.contains("windows")
-        cpp.dynamicLibraries: ["advapi32", "dbghelp", "psapi"]
+        cpp.dynamicLibraries: outer.concat(["advapi32", "dbghelp", "psapi"])
     }
 
     // canSampleOtherProcesses() asks the Security framework what entitlements
@@ -126,8 +126,7 @@ QtcPlugin {
         }
     }
 
-    // Linux only: elsewhere, the plugin would need libdw deployed where it finds it.
-    property bool withLibdw: elfutilsProbe.found && qbs.targetOS.contains("linux")
+    property bool withLibdw: elfutilsProbe.found
 
     cpp.includePaths: withLibdw
         ? base.concat([elfutilsProbe.includeDir,
@@ -136,7 +135,9 @@ QtcPlugin {
     cpp.libraryPaths: withLibdw && elfutilsProbe.libDir
         ? base.concat([elfutilsProbe.libDir])
         : base
-    cpp.dynamicLibraries: withLibdw ? base.concat(["dw", "elf"]) : base
+    cpp.dynamicLibraries: withLibdw
+        ? base.concat(qbs.targetOS.contains("windows") ? ["dw", "elf", "eu_compat"] : ["dw", "elf"])
+        : base
     // An installation brings its own elfutils, in lib/elfutils (see
     // scripts/deploy.py), for systems that have none.
     cpp.rpaths: withLibdw ? base.concat(["$ORIGIN/../../elfutils"]) : base
@@ -145,7 +146,7 @@ QtcPlugin {
     Group {
         name: "DwarfUnwinder"
         condition: withLibdw
-        files: ["perfdwarfunwinder.cpp", "perfdwarfunwinder.h"]
+        files: ["perfdwarfunwinder.cpp", "perfdwarfunwinder.h", "perfelfutils.h"]
     }
 
     Group {

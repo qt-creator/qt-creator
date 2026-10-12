@@ -7,11 +7,10 @@
 
 #ifdef WITH_LIBDW
 #include "perfdwarfunwinder.h"
+#include "perfelfutils.h"
 
 #include <dwarf.h>
-#include <fcntl.h>
 #include <libdw.h>
-#include <unistd.h>
 #endif
 
 #include <utils/elfreader.h>
@@ -124,13 +123,23 @@ QString readCString(const char *p, const char *end)
 // is the only place that needs to know that.
 QString demangleName(const QString &name)
 {
-#ifdef Q_CC_GNU
+#if defined(Q_CC_GNU) || (defined(WITH_LIBDW) && defined(Q_OS_WIN))
     if (name.startsWith(u"_Z"_s)) {
         const QByteArray mangled = name.toUtf8();
         int status = 0;
-        if (char *demangled = abi::__cxa_demangle(mangled.constData(), nullptr, nullptr, &status)) {
+#ifdef Q_CC_GNU
+        char *demangled = abi::__cxa_demangle(mangled.constData(), nullptr, nullptr, &status);
+#else
+        // MSVC has no Itanium demangler, elfutils brings one.
+        char *demangled = eu_compat_demangle(mangled.constData(), nullptr, nullptr, &status);
+#endif
+        if (demangled) {
             const QString result = QString::fromUtf8(demangled);
+#ifdef Q_CC_GNU
             std::free(demangled);
+#else
+            freeFromElfutils(demangled);
+#endif
             if (status == 0)
                 return result;
         }
@@ -290,7 +299,7 @@ public:
             if (info.dwarf)
                 dwarf_end(info.dwarf);
             if (info.fd >= 0)
-                close(info.fd);
+                closeForElfutils(info.fd);
         }
     }
 #endif
@@ -840,7 +849,7 @@ QList<InlinedFunction> PerfSymbolizerPrivate::inlinedAt(const FilePath &debugInf
     auto it = m_debugInfos.find(key);
     if (it == m_debugInfos.end()) {
         DebugInfo info;
-        info.fd = open(debugInfoPath.toFSPathString().toLocal8Bit().constData(), O_RDONLY);
+        info.fd = openForElfutils(debugInfoPath);
         if (info.fd >= 0)
             info.dwarf = dwarf_begin(info.fd, DWARF_C_READ);
         it = m_debugInfos.emplace(key, info).first;
@@ -872,7 +881,7 @@ QList<InlinedFunction> PerfSymbolizerPrivate::inlinedAt(const FilePath &debugInf
     }
     Dwarf_Die *chain = nullptr;
     const int chainCount = firstInlined < 0 ? 0 : dwarf_getscopes_die(&scopes[firstInlined], &chain);
-    free(scopes);
+    freeFromElfutils(scopes);
 
     // Innermost first; the scopes also hold lexical blocks, and end at the
     // subprogram the rest were inlined into.
@@ -896,7 +905,7 @@ QList<InlinedFunction> PerfSymbolizerPrivate::inlinedAt(const FilePath &debugInf
             function.callLine = int(value);
         inlined.append(function);
     }
-    free(chain);
+    freeFromElfutils(chain);
     return inlined;
 }
 #endif

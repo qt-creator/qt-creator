@@ -322,6 +322,10 @@ function(qtc_windows_runtime_path out_var)
       list(APPEND env_path $<TARGET_FILE_DIR:${target}>)
     endif()
   endforeach()
+  if (TARGET elfutils::elf)
+    # libdw loads the backend of an architecture by its file name.
+    list(APPEND env_path $<TARGET_FILE_DIR:elfutils::elf>/elfutils)
+  endif()
 
   list(APPEND env_path $ENV{PATH})
   string(REPLACE "/" "\\" env_path "${env_path}")
