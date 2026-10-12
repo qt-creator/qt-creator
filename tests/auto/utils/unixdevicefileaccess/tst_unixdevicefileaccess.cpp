@@ -108,6 +108,25 @@ private slots:
                      {".", "..", "lsfindsubdir/.", "lsfindsubdir/..", "lsfindsubdir", "size-test"}));
     }
 
+    void iterateDirectoryDanglingSymlink()
+    {
+        const FilePath dir = FilePath::fromString(m_tempDir.filePath("dangling"));
+        QVERIFY(dir.pathAppended("dir").createDir());
+        QVERIFY(dir.pathAppended("file").writeFileContents("file"));
+        QVERIFY_RESULT(dir.pathAppended("nowhere").createSymLink(dir.pathAppended("link")));
+
+        QStringList found;
+        QVERIFY_RESULT(m_dfaPtr->iterateDirectory(
+            dir,
+            [&found](const FilePath &entry, const FilePathInfo &) {
+                found.append(entry.fileName());
+                return IterationPolicy::Continue;
+            },
+            FileFilter({}, DirFilterFlag::AllEntries | DirFilterFlag::System)));
+        found.sort();
+        QCOMPARE(found, QStringList({"dir", "file", "link"}));
+    }
+
     void findUsingLsFiltered_data()
     {
         QTest::addColumn<DirFilterFlags>("filters");

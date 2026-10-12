@@ -1980,10 +1980,13 @@ Result<> UnixDeviceFileAccess::iterateWithFind(
     static const QString startQuoteOut = "\" ";
     static const QString endQuoteOut = " \"";
     static const int quoteOutSize = 2;
+    // 'stat -L' fails on dangling links. Fall back to the link itself, and end the line in
+    // any case, as the next entry would otherwise be appended to it.
     const bool includeStats = callBack.index() == 1;
     if (includeStats)
         cmdLine.addArgs(
-            QString(R"(-exec echo -n %1{}%2" " \; -exec stat -L %3 "{}" \;)")
+            QString(R"(-exec echo -n %1{}%2" " \; \( -exec stat -L %3 "{}" \; )"
+                    R"(-o -exec stat %3 "{}" \; -o -exec echo \; \))")
                 .arg(startQuoteIn, endQuoteIn, statFormat),
             CommandLine::Raw);
 
