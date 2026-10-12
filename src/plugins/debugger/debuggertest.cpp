@@ -2119,6 +2119,14 @@ int main()
 }
 )CPP";
 
+static QTemporaryDir makeTestDir()
+{
+    QTemporaryDir inBuild(QCoreApplication::applicationDirPath() + "/qtc_debugger_XXXXXX");
+    if (inBuild.isValid())
+        return inBuild;
+    return QTemporaryDir();
+}
+
 // Builds that program and runs it up to a marked line, holding it there so a
 // test can ask for a step and see where it ends up. It needs no project: a
 // compiler and a kit to name the debugger are the whole of it.
@@ -2290,7 +2298,7 @@ public:
 private:
     QByteArray m_sourceText;
     QStringList m_extraFlags;
-    QTemporaryDir m_dir;
+    QTemporaryDir m_dir = makeTestDir();
     FilePath m_source;
     FilePath m_executable;
     RunControl *m_runControl = nullptr;
