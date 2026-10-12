@@ -109,7 +109,7 @@ static void setupDownload(QtTaskTree::QNetworkReplyWrapper &query, const QUrl &u
 #if QT_CONFIG(ssl)
     QObject::connect(&query, &QNetworkReplyWrapper::sslErrors, &query,
                      [title, queryPtr = &query](const QList<QSslError> &errors) {
-        reportDownloadError(Tr::tr("The download was aborted: %1")
+        reportDownloadError(Tr::tr("The download was canceled: %1")
                                 .arg(errors.constFirst().errorString()), title);
         queryPtr->reply()->abort();
     });
@@ -188,8 +188,7 @@ static QtTaskTree::GroupItem downloadSdkRecipe(const FilePath &sdkPath)
         storage->sha256 = QByteArray::fromHex(published.split(' ').constFirst());
         if (storage->sha256.size()
             != QCryptographicHash::hashLength(QCryptographicHash::Sha256)) {
-            reportDownloadError(Tr::tr("The published checksum of the SDK archive cannot "
-                                       "be read."));
+            reportDownloadError(Tr::tr("Cannot read the published checksum of the SDK archive."));
             return DoneResult::Error;
         }
         return DoneResult::Success;
@@ -512,7 +511,7 @@ static QtTaskTree::GroupItem downloadQtRecipe(const QUrl &repository, const File
         const QByteArray published = query.reply()->readAll().simplified();
         storage->sha1 = QByteArray::fromHex(published.split(' ').constFirst());
         if (storage->sha1.size() != QCryptographicHash::hashLength(QCryptographicHash::Sha1)) {
-            reportDownloadError(Tr::tr("The published checksum of \"%1\" cannot be read.")
+            reportDownloadError(Tr::tr("Cannot read the published checksum: \"%1\".")
                                     .arg(storage->archive.fileName()),
                                 qtDownloadTitle());
             return DoneResult::Error;
@@ -722,9 +721,8 @@ HarmonyOsSettings::HarmonyOsSettings()
         auto installQtButton = new QPushButton(Tr::tr("Install Qt for HarmonyOS"));
         if (!installerService()) {
             installQtButton->setToolTip(
-                Tr::tr("Only an installed Qt Creator carries the maintenance tool that the "
-                       "Qt installer manages its packages with, so the packages come from "
-                       "the repository below here."));
+                Tr::tr("Only Qt Creator installed with Qt Online Installer has Qt Maintenance "
+                       "Tool, so the packages come from the repository below here."));
         }
 
         auto qtStatus = new InfoLabel;

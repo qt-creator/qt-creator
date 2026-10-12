@@ -86,22 +86,21 @@
             OpenHarmony SDK whose own tools run on a device. Huawei publishes
             it as \c native-ohos-x64, and its payload is for arm64 despite
             that name. \QC takes a compiler, a CMake, and a sysroot out of it
-            and carries them in its own HarmonyOS package, which is what lets
+            and adds them into its own HarmonyOS package, which is what lets
             a \QC that runs on a device build there. Leave the field empty
             for a \QC that only builds on the host.
         \li Keep \uicontrol {Create kits automatically} selected to have \QC
             offer a kit for every Qt for HarmonyOS it knows about.
         \li Building for HarmonyOS needs a Qt that was cross-built for it. The
-            Qt installer publishes one from Qt 6.12 on, and
+            Qt installer publishes one for Qt 6.12 or later, and
             \uicontrol {Install Qt for HarmonyOS} installs it. A Qt for
             HarmonyOS that is there already but unknown to \QC is registered
             instead.
-        \li Where there is no Qt installer, which is the case for a \QC that
+        \li Where there is no \QOI, which is the case for a \QC that
             runs on a device, the same button downloads the Qt from the
             repository that \uicontrol {Qt repository} names. That is the
             directory an \c Updates.xml describing the Qt packages is
-            published in, and the newest Qt for HarmonyOS it offers is the
-            one installed.
+            published in, and the newest Qt for HarmonyOS it offers is installed.
     \endlist
 
     Once the SDK location is set, the compilers in it appear in
@@ -109,10 +108,10 @@
     \c hdc reports appears in \preferences > \uicontrol Devices >
     \uicontrol Devices, without any further configuration.
 
-    That toolchain is around 500 MB of the package it travels in. Configure
+    That toolchain is around 500 MB of the package it is included in. Configure
     \QC with \c {-DQTC_HARMONYOS_DEVICE_TOOLCHAIN=OFF} to leave it out.
 
-    The Qt tools do not travel with it, because Qt cannot build them for
+    The package does not include the Qt tools, because Qt cannot build them for
     HarmonyOS yet. A \QC running on a device therefore needs a Qt that was
     built on that device, registered once in \preferences >
     \uicontrol Kits > \uicontrol {Qt Versions}. \QC completes the kit for
