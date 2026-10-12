@@ -11,6 +11,7 @@
 
 #include <utils/commandline.h>
 #include <utils/devicefileaccess.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/link.h>
 
@@ -36,6 +37,8 @@ public:
     Result<RunResult> runInShellImpl(const CommandLine &cmdLine,
                                      const QByteArray &inputData = {}) const override
     {
+        if (m_refused.contains(cmdLine.executable().path()))
+            return ResultError("refused");
         // Note: Don't convert into Utils::Process. See more comments in this change in gerrit.
         QProcess p;
         p.setProgram(cmdLine.executable().toFSPathString());
@@ -66,6 +69,8 @@ public:
     {
         return UnixDeviceFileAccess::homeDirectory(user);
     }
+
+    QStringList m_refused;
 };
 
 class tst_unixdevicefileaccess : public QObject
@@ -79,7 +84,19 @@ private slots:
             QSKIP("This test is only for Unix hosts");
 
         m_fileSizeTestFile.writeFileContents(QByteArray(1024, 'a'));
+
+        DeviceFileHooks hooks;
+        hooks.isSameDevice = [](const FilePath &lhs, const FilePath &rhs) {
+            return lhs.scheme() == rhs.scheme() && lhs.host() == rhs.host();
+        };
+        hooks.fileAccess = [this](const FilePath &) -> Result<DeviceFileAccessPtr> {
+            return m_deviceDfa;
+        };
+        hooks.osType = [](const FilePath &) { return OsTypeLinux; };
+        DeviceFileHooks::setupDeviceFileHooks(hooks);
     }
+
+    void init() { m_deviceDfa = std::make_shared<TestDFA>(); }
 
     void fileSize()
     {
@@ -164,6 +181,59 @@ private slots:
         QCOMPARE(result, expected);
     }
 
+    void copyRecursivelyDanglingSymlink()
+    {
+        const FilePath src = FilePath::fromString(m_tempDir.filePath("dangling-src"));
+        QVERIFY(src.pathAppended("dir").createDir());
+        QVERIFY(src.pathAppended("dir/leaf").writeFileContents("leaf"));
+        QVERIFY(src.pathAppended("file").writeFileContents("file"));
+        QVERIFY_RESULT(src.pathAppended("nowhere").createSymLink(src.pathAppended("dangling")));
+        const FilePath target = FilePath::fromString(m_tempDir.filePath("dangling-target"));
+
+        QStringList copied;
+        const Result<FileUtils::CopyResult> res = FileUtils::copyRecursively(
+            onDevice(src),
+            onDevice(target),
+            [&copied](const FilePath &from, const FilePath &) -> Result<FileUtils::CopyResult> {
+                copied.append(from.fileName());
+                return FileUtils::CopyResult::Done;
+            });
+        QVERIFY_RESULT(res);
+        copied.sort();
+        QCOMPARE(copied, QStringList({"dangling", "file", "leaf"}));
+    }
+
+    void copyRecursivelyWithoutFind()
+    {
+        const FilePath src = FilePath::fromString(m_tempDir.filePath("copy-src"));
+        QVERIFY(src.pathAppended("sub").createDir());
+        QVERIFY(src.pathAppended("sub/leaf.txt").writeFileContents("leaf"));
+        const FilePath target = FilePath::fromString(m_tempDir.filePath("copy-target"));
+
+        m_deviceDfa->m_refused = {"find"};
+        const Result<FileUtils::CopyResult> res
+            = FileUtils::copyRecursively(onDevice(src), onDevice(target), &copyFile);
+        QVERIFY_RESULT(res);
+        QCOMPARE(*res, FileUtils::CopyResult::Done);
+        QCOMPARE(QDir(target.path()).entryList(QDir::AllEntries | QDir::NoDotAndDotDot),
+                 QStringList("sub"));
+        QCOMPARE(target.pathAppended("sub/leaf.txt").fileContents().value_or(QByteArray()),
+                 "leaf");
+    }
+
+    void copyRecursivelyListingFails()
+    {
+        const FilePath src = FilePath::fromString(m_tempDir.filePath("unlistable-src"));
+        QVERIFY(src.pathAppended("sub").createDir());
+        const FilePath target = FilePath::fromString(m_tempDir.filePath("unlistable-target"));
+
+        m_deviceDfa->m_refused = {"find", "ls"};
+        const Result<FileUtils::CopyResult> res
+            = FileUtils::copyRecursively(onDevice(src), onDevice(target), &copyFile);
+        QVERIFY(!res);
+        QVERIFY(res.error().contains("unlistable-src"));
+    }
+
     void createTempDir()
     {
         FilePath tmpDirTemplate = FilePath::fromUserInput(QDir::tempPath()) / "qtc-XXXXXX";
@@ -194,7 +264,20 @@ private slots:
     }
 
 private:
+    static FilePath onDevice(const FilePath &path)
+    {
+        return FilePath::fromParts(u"dfa", u"test", path.path());
+    }
+
+    static Result<FileUtils::CopyResult> copyFile(const FilePath &from, const FilePath &to)
+    {
+        if (const Result<> copied = from.copyFile(to); !copied)
+            return ResultError(copied.error());
+        return FileUtils::CopyResult::Done;
+    }
+
     TestDFA m_dfa;
+    std::shared_ptr<TestDFA> m_deviceDfa = std::make_shared<TestDFA>();
     DeviceFileAccess *m_dfaPtr = &m_dfa;
 
     QTemporaryDir m_tempDir;

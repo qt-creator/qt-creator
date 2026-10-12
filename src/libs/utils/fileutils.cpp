@@ -657,30 +657,46 @@ FilePathInfo filePathInfoFromTriple(const QString &infos, int modeBase)
     return {size, flags, dt};
 }
 
+static Result<CopyResult> copyRecursivelyImpl(const FilePath &srcFilePath,
+                                              bool srcIsDir,
+                                              const FilePath &tgtFilePath,
+                                              const CopyHelper &copyHelper)
+{
+    if (!srcIsDir)
+        return copyHelper(srcFilePath, tgtFilePath);
+
+    if (Result<> res = tgtFilePath.ensureWritableDir(); !res) {
+        return ResultError(Tr::tr("Failed to create directory \"%1\": %2")
+                                .arg(tgtFilePath.toUserOutput(), res.error()));
+    }
+    QList<std::pair<FilePath, bool>> entries;
+    const Result<> listed = srcFilePath.iterateDirectory(
+        [&entries](const FilePath &entry, const FilePathInfo &info) {
+            entries.append({entry, info.fileFlags.testFlag(FilePathInfo::DirectoryType)});
+            return IterationPolicy::Continue;
+        },
+        FileFilter({},
+                   DirFilterFlag::Files | DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot
+                       | DirFilterFlag::Hidden | DirFilterFlag::System));
+    if (!listed) {
+        return ResultError(Tr::tr("Failed to list directory \"%1\": %2")
+                                .arg(srcFilePath.toUserOutput(), listed.error()));
+    }
+    for (const auto &[newSrcFilePath, isDir] : entries) {
+        const FilePath newTgtFilePath = tgtFilePath / newSrcFilePath.fileName();
+        const Result<CopyResult> res =
+            copyRecursivelyImpl(newSrcFilePath, isDir, newTgtFilePath, copyHelper);
+        if (!res || *res == CopyResult::Canceled)
+            return res;
+    }
+    return CopyResult::Done;
+}
+
 Result<CopyResult> copyRecursively(const FilePath &srcFilePath,
                                    const FilePath &tgtFilePath,
                                    const CopyHelper &copyHelper)
 {
-    if (srcFilePath.isDir()) {
-        if (Result<> res = tgtFilePath.ensureWritableDir(); !res) {
-            return ResultError(Tr::tr("Failed to create directory \"%1\": %2")
-                                    .arg(tgtFilePath.toUserOutput(), res.error()));
-        }
-        const QDir sourceDir(srcFilePath.toFSPathString());
-        const QStringList fileNames = sourceDir.entryList(
-            QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
-        for (const QString &fileName : fileNames) {
-            const FilePath newSrcFilePath = srcFilePath / fileName;
-            const FilePath newTgtFilePath = tgtFilePath / fileName;
-            const Result<CopyResult> res =
-                copyRecursively(newSrcFilePath, newTgtFilePath, copyHelper);
-            if (!res || *res == CopyResult::Canceled)
-                return res;
-        }
-        return CopyResult::Done;
-    }
-
-    return copyHelper(srcFilePath, tgtFilePath);
+    return copyRecursivelyImpl(srcFilePath, srcFilePath.isDir(), tgtFilePath, copyHelper);
 }
 
 /*!

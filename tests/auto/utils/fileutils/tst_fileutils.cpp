@@ -1,10 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <QTemporaryDir>
 #include <QTest>
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 //TESTED_COMPONENT=src/libs/utils
 
@@ -50,6 +52,10 @@ private slots:
 
     void filePathInfoFromTriple_data();
     void filePathInfoFromTriple();
+
+    void copyRecursively();
+    void copyRecursivelyCanceled();
+    void copyRecursivelyDanglingSymlink();
 };
 
 void tst_fileutils::initTestCase() {}
@@ -199,6 +205,85 @@ void tst_fileutils::filePathInfoFromTriple()
     const FilePathInfo result = FileUtils::filePathInfoFromTriple(statoutput, 16);
 
     QCOMPARE(result, expected);
+}
+
+static FilePath createSourceTree(const FilePath &root)
+{
+    const FilePath src = root / "src";
+    QTC_CHECK(src.pathAppended("sub/deeper").createDir());
+    QTC_CHECK(src.pathAppended("top.txt").writeFileContents("top"));
+    QTC_CHECK(src.pathAppended(".hidden").writeFileContents("hidden"));
+    QTC_CHECK(src.pathAppended("sub/deeper/leaf.txt").writeFileContents("leaf"));
+    return src;
+}
+
+void tst_fileutils::copyRecursively()
+{
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath root = FilePath::fromString(tmp.path());
+    const FilePath src = createSourceTree(root);
+    const FilePath target = root / "target";
+
+    const Result<FileUtils::CopyResult> res = FileUtils::copyRecursively(
+        src, target, [](const FilePath &from, const FilePath &to) -> Result<FileUtils::CopyResult> {
+            if (Result<> copied = from.copyFile(to); !copied)
+                return ResultError(copied.error());
+            return FileUtils::CopyResult::Done;
+        });
+
+    if (!res)
+        QFAIL(qPrintable(res.error()));
+    QCOMPARE(*res, FileUtils::CopyResult::Done);
+    QCOMPARE(target.pathAppended("top.txt").fileContents().value_or(QByteArray()), "top");
+    QCOMPARE(target.pathAppended(".hidden").fileContents().value_or(QByteArray()), "hidden");
+    QCOMPARE(target.pathAppended("sub/deeper/leaf.txt").fileContents().value_or(QByteArray()),
+             "leaf");
+}
+
+void tst_fileutils::copyRecursivelyCanceled()
+{
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath root = FilePath::fromString(tmp.path());
+    const FilePath src = createSourceTree(root);
+
+    int calls = 0;
+    const Result<FileUtils::CopyResult> res = FileUtils::copyRecursively(
+        src,
+        root / "target",
+        [&calls](const FilePath &, const FilePath &) -> Result<FileUtils::CopyResult> {
+            ++calls;
+            return FileUtils::CopyResult::Canceled;
+        });
+
+    if (!res)
+        QFAIL(qPrintable(res.error()));
+    QCOMPARE(*res, FileUtils::CopyResult::Canceled);
+    QCOMPARE(calls, 1);
+}
+
+void tst_fileutils::copyRecursivelyDanglingSymlink()
+{
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath root = FilePath::fromString(tmp.path());
+    const FilePath src = createSourceTree(root);
+    if (!root.pathAppended("nowhere").createSymLink(src.pathAppended("dangling")))
+        QSKIP("Cannot create symlinks here.");
+
+    QStringList copied;
+    const Result<FileUtils::CopyResult> res = FileUtils::copyRecursively(
+        src,
+        root / "target",
+        [&copied](const FilePath &from, const FilePath &) -> Result<FileUtils::CopyResult> {
+            copied.append(from.fileName());
+            return FileUtils::CopyResult::Done;
+        });
+
+    if (!res)
+        QFAIL(qPrintable(res.error()));
+    QVERIFY(copied.contains("dangling"));
 }
 
 QTEST_GUILESS_MAIN(tst_fileutils)
