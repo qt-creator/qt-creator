@@ -13,6 +13,10 @@
 
 #include <coreplugin/vcsmanager.h>
 
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+
+#include <utils/algorithm.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -35,6 +39,26 @@ namespace Git::Internal {
 
 static Q_LOGGING_CATEGORY(nodeLog, "qtc.vcs.git.branches.node", QtWarningMsg);
 static Q_LOGGING_CATEGORY(modelLog, "qtc.vcs.git.branches.model", QtWarningMsg);
+
+static const Key checkoutRefKey("Git.LastCheckoutRef");
+
+static QList<ProjectExplorer::Project *> projectsForRepository(const FilePath &repository)
+{
+    return Utils::filtered(ProjectExplorer::ProjectManager::projects(), [repository](
+                               const ProjectExplorer::Project *project) {
+        return Core::VcsManager::findTopLevelForDirectory(project->projectDirectory()) == repository;
+    });
+}
+
+static void rememberCheckoutInProjects(const QList<ProjectExplorer::Project *> &projects,
+                                       const FilePath &repository, const QStringList &checkout)
+{
+    const QVariant value = checkout.isEmpty()
+                               ? QVariant{}
+                               : QVariant(QStringList{repository.toUrlishString()} + checkout);
+    for (ProjectExplorer::Project *project : projects)
+        project->setNamedSettings(checkoutRefKey, value);
+}
 
 enum RootNodes {
     LocalBranches = 0,
@@ -306,11 +330,37 @@ public:
     void updateAllUpstreamStatus(BranchNode *node);
     int currentBranchModifiedFiles();
 
+    QStringList lastCheckout(const FilePath &repository) const
+    {
+        const auto projects = projectsForRepository(repository);
+        if (projects.isEmpty())
+            return checkoutRefs.value(repository);
+        for (ProjectExplorer::Project *project : projects) {
+            const QStringList checkout = project->namedSettings(checkoutRefKey).toStringList();
+            if (checkout.size() == 3 && checkout.first() == repository.toUrlishString())
+                return checkout.mid(1);
+        }
+        return {};
+    }
+
+    void rememberCheckout(const FilePath &repository, const QStringList &checkout)
+    {
+        const auto projects = projectsForRepository(repository);
+        if (projects.isEmpty() && !checkout.isEmpty())
+            checkoutRefs.insert(repository, checkout);
+        else
+            checkoutRefs.remove(repository);
+        rememberCheckoutInProjects(projects, repository, checkout);
+    }
+
     BranchModel *q = nullptr;
     FilePath workingDirectory;
     BranchNode *rootNode = nullptr;
     BranchNode *currentBranch = nullptr;
     BranchNode *headNode = nullptr;
+    QHash<FilePath, QStringList> checkoutRefs;
+    QString checkedOutRef;
+    BranchNode *checkedOutBranch = nullptr;
     QString currentHash;
     QDateTime currentDateTime;
     QStringList obsoleteLocalBranches;
@@ -559,6 +609,8 @@ void BranchModel::clear()
     d->currentDateTime = {};
     d->currentBranch = nullptr;
     d->headNode = nullptr;
+    d->checkedOutRef.clear();
+    d->checkedOutBranch = nullptr;
     d->obsoleteLocalBranches.clear();
     d->currentRoot = nullptr;
     d->oldEntries.clear();
@@ -690,11 +742,20 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         d->currentDateTime = refreshData->currentDateTime;
 
         if (refreshData->refsSucceeded) {
+            const QStringList lastCheckout = d->lastCheckout(d->workingDirectory);
+            if (refreshData->currentBranch.isEmpty() && lastCheckout.size() == 2
+                && lastCheckout.at(1) == d->currentHash) {
+                d->checkedOutRef = lastCheckout.first();
+            } else if (!lastCheckout.isEmpty()) {
+                d->rememberCheckout(d->workingDirectory, {});
+            }
             const QStringList lines = refreshData->refsOutput.split('\n');
             for (const QString &line : lines)
                 d->parseOutputLine(line);
             d->flushOldEntries();
 
+            if (d->checkedOutBranch)
+                d->currentBranch = d->checkedOutBranch;
             if (d->currentBranch && d->currentBranch->isLocal())
                 d->currentBranch = nullptr;
             setCurrentBranch(refreshData->currentBranch);
@@ -949,7 +1010,28 @@ void BranchModel::checkoutBranch(const QModelIndex &idx,
     qCDebug(modelLog) << "checkoutBranch: checking out branch:" << branch;
     // No StashGuard since this function for now is only used with clean working dir.
     // If it is ever used from another place, please add StashGuard here
-    gitClient().checkout(d->workingDirectory, branch, GitClient::StashMode::NoStash, handler);
+    const FilePath workingDirectory = d->workingDirectory;
+    const QPointer<BranchModel> guard(this);
+    const auto onCheckoutDone = [workingDirectory, branch, guard, handler](
+                                   const CommandResult &result) {
+        if (result.result() == ProcessResult::FinishedWithSuccess) {
+            QStringList checkout;
+            if ((branch.startsWith("refs/remotes/") || branch.startsWith("refs/tags/"))
+                && gitClient().synchronousCurrentLocalBranch(workingDirectory).isEmpty()) {
+                QString commit;
+                if (gitClient().synchronousRevParseCmd(workingDirectory, "HEAD", &commit))
+                    checkout = {branch, commit.trimmed()};
+            }
+            if (guard)
+                guard->d->rememberCheckout(workingDirectory, checkout);
+            else
+                rememberCheckoutInProjects(projectsForRepository(workingDirectory), workingDirectory,
+                                           checkout);
+        }
+        if (handler)
+            handler(result);
+    };
+    gitClient().checkout(workingDirectory, branch, GitClient::StashMode::NoStash, onCheckoutDone);
 }
 
 bool BranchModel::branchIsMerged(const QModelIndex &idx)
@@ -1281,6 +1363,8 @@ void BranchModel::Private::parseOutputLine(const QString &line, bool force)
     if (current) {
         qCDebug(modelLog) << "parseOutputLine: current branch set to" << name;
         currentBranch = newNode;
+        if (fullName == checkedOutRef)
+            checkedOutBranch = newNode;
     }
 }
 

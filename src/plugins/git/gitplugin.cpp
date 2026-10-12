@@ -101,8 +101,13 @@
 #include "gerrit/gerritmodel.h"
 #include "gerrit/gerritparameters.h"
 
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+
 #include <utils/fancylineedit.h>
 
+#include <QDialogButtonBox>
+#include <QLineEdit>
 #include <QScrollBar>
 #include <QSignalSpy>
 #include <QSortFilterProxyModel>
@@ -2485,6 +2490,8 @@ private slots:
     void testGraphModelRepositorySwitch();
     void testBranchModelDetachedHead_data();
     void testBranchModelDetachedHead();
+    void testBranchModelCheckoutSelection_data();
+    void testBranchModelCheckoutSelection();
     void testWorkingDirectoryForShow();
     void testFileLinkResolution();
     void testFileLinkContextMenu();
@@ -3224,6 +3231,280 @@ void GitTest::testBranchModelDetachedHead()
     QVERIFY(runGit({"checkout", "--detach", "main"}));
     refresh();
     QVERIFY(model.isHead(model.currentBranch()));
+}
+
+class CheckoutTestProject final : public ProjectExplorer::Project
+{
+public:
+    explicit CheckoutTestProject(const FilePath &path) : Project("text/plain", path)
+    {
+        setType("Git.CheckoutTestProject");
+        setDisplayName("Checkout test");
+    }
+
+    bool needsConfiguration() const final { return false; }
+
+    using Project::fromMap;
+};
+
+void GitTest::testBranchModelCheckoutSelection_data()
+{
+    QTest::addColumn<QString>("selectedName");
+    QTest::addColumn<bool>("withProject");
+    for (const bool withProject : {false, true}) {
+        const QByteArray suffix = withProject ? "-project" : "-no-project";
+        QTest::newRow(QByteArray("gerrit" + suffix).constData())
+            << QString("gerrit/main") << withProject;
+        QTest::newRow(QByteArray("origin" + suffix).constData())
+            << QString("origin/main") << withProject;
+        QTest::newRow(QByteArray("lightweight-tag" + suffix).constData())
+            << QString("a-release") << withProject;
+        QTest::newRow(QByteArray("annotated-tag" + suffix).constData())
+            << QString("z-release") << withProject;
+    }
+}
+
+void GitTest::testBranchModelCheckoutSelection()
+{
+    QFETCH(QString, selectedName);
+    QFETCH(bool, withProject);
+    QtcSettings *userSettings = ICore::settings();
+    const Key checkoutKey("Git.LastCheckoutRef");
+    const Key promptKey("DoNotAskAgain/Git.CreateLocalBranchOnCheckout");
+    const QVariant previousPrompt = userSettings->value(promptKey);
+    const bool previousShowTags = settings().showTags();
+    const QScopeGuard restoreSettings([=] {
+        userSettings->setValueWithDefault(promptKey, previousPrompt);
+        settings().showTags.setValue(previousShowTags);
+    });
+    userSettings->setValue(promptKey, true);
+    settings().showTags.setValue(true);
+
+    QTemporaryDir temporaryDir;
+    QTemporaryDir otherTemporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    QVERIFY(otherTemporaryDir.isValid());
+    const FilePath repo = FilePath::fromString(temporaryDir.path());
+    const FilePath otherRepo = FilePath::fromString(otherTemporaryDir.path());
+    const auto runGit = [repo](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repo, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(runGit({"init", "-b", "main"}));
+    QVERIFY(runGit({"config", "user.email", "test@test"}));
+    QVERIFY(runGit({"config", "user.name", "test"}));
+    QVERIFY(runGit({"config", "commit.gpgsign", "false"}));
+    QVERIFY(runGit({"config", "tag.gpgsign", "false"}));
+    QVERIFY(runGit({"commit", "--allow-empty", "-m", "initial"}));
+    const QString initialHash
+        = gitClient().vcsSynchronousExec(repo, {"rev-parse", "HEAD"}).cleanedStdOut().trimmed();
+    QVERIFY(runGit({"remote", "add", "origin", repo.path()}));
+    QVERIFY(runGit({"remote", "add", "gerrit", repo.path()}));
+    QVERIFY(runGit({"update-ref", "refs/remotes/origin/main", "HEAD"}));
+    QVERIFY(runGit({"update-ref", "refs/remotes/gerrit/main", "HEAD"}));
+    QVERIFY(runGit({"tag", "a-release"}));
+    QVERIFY(runGit({"tag", "-a", "z-release", "-m", "release"}));
+    QVERIFY(runGit({"tag", "zz-release"}));
+    QVERIFY(runGit({"clone", repo.path(), otherRepo.path()}));
+    QCOMPARE(gitClient().vcsSynchronousExec(otherRepo, {"checkout", "--detach", "HEAD"}).result(),
+             ProcessResult::FinishedWithSuccess);
+
+    QPointer<CheckoutTestProject> project;
+    const QPointer<ProjectExplorer::Project> previousStartupProject
+        = ProjectExplorer::ProjectManager::startupProject();
+    const QScopeGuard removeProject([&] {
+        if (project)
+            ProjectExplorer::ProjectManager::removeProject(project);
+        if (previousStartupProject)
+            ProjectExplorer::ProjectManager::setStartupProject(previousStartupProject);
+    });
+    if (withProject) {
+        project = new CheckoutTestProject(repo / "checkout.creator");
+        ProjectExplorer::ProjectManager::addProject(project);
+    }
+
+    BranchModel model;
+    QSignalSpy resetSpy(&model, &QAbstractItemModel::modelReset);
+    const auto refresh = [&](const FilePath &directory) {
+        resetSpy.clear();
+        model.refresh(directory);
+        QTRY_VERIFY(!resetSpy.isEmpty() && model.currentBranch().isValid());
+    };
+    const auto findRef = [&](const QString &name) {
+        const QModelIndexList matches = model.match(
+            model.index(0, 0), Qt::EditRole, name, 1, Qt::MatchExactly | Qt::MatchRecursive);
+        return matches.isEmpty() ? QModelIndex() : matches.first();
+    };
+    refresh(repo);
+    const QModelIndex selected = findRef(selectedName);
+    QVERIFY(selected.isValid());
+    const QString selectedRef = model.fullName(selected, true);
+    const bool selectedTag = model.isTag(selected);
+    const QString originalRefHash = gitClient().vcsSynchronousExec(
+        repo, {"rev-parse", selectedRef}).cleanedStdOut().trimmed();
+
+    bool done = false;
+    ProcessResult result = ProcessResult::StartFailed;
+    const auto onCheckoutDone = [&](const CommandResult &commandResult) {
+        result = commandResult.result();
+        done = true;
+    };
+    model.checkoutBranch(selected, onCheckoutDone);
+    QTRY_VERIFY(done);
+    QCOMPARE(result, ProcessResult::FinishedWithSuccess);
+    QCOMPARE(model.fullName(model.currentBranch()), QString("main"));
+    refresh(repo);
+    QCOMPARE(model.fullName(model.currentBranch()), selectedName);
+    QCOMPARE(model.isTag(model.currentBranch()), selectedTag);
+
+    if (withProject) {
+        QCOMPARE(project->namedSettings(checkoutKey).toStringList(),
+                 (QStringList{repo.toUrlishString(), selectedRef, initialHash}));
+        Store savedProject;
+        project->toMap(savedProject);
+        ProjectExplorer::ProjectManager::removeProject(project);
+        project = new CheckoutTestProject(repo / "checkout.creator");
+        QString error;
+        QCOMPARE(project->fromMap(savedProject, &error), ProjectExplorer::Project::RestoreResult::Ok);
+        ProjectExplorer::ProjectManager::addProject(project);
+        QCOMPARE(project->namedSettings(checkoutKey).toStringList(),
+                 (QStringList{repo.toUrlishString(), selectedRef, initialHash}));
+    }
+    {
+        BranchModel reopened;
+        QSignalSpy reopenedSpy(&reopened, &QAbstractItemModel::modelReset);
+        reopened.refresh(repo);
+        QTRY_VERIFY(!reopenedSpy.isEmpty() && reopened.currentBranch().isValid());
+        QCOMPARE(reopened.fullName(reopened.currentBranch()),
+                 withProject ? selectedName : QString("zz-release"));
+    }
+    refresh(otherRepo);
+    QCOMPARE(model.fullName(model.currentBranch()), QString("zz-release"));
+    refresh(repo);
+    QCOMPARE(model.fullName(model.currentBranch()), selectedName);
+
+    settings().showTags.setValue(false);
+    refresh(repo);
+    QCOMPARE(model.fullName(model.currentBranch()),
+             selectedTag ? QString("origin/main") : selectedName);
+    settings().showTags.setValue(true);
+    refresh(repo);
+    QCOMPARE(model.fullName(model.currentBranch()), selectedName);
+
+    const QString failedName = selectedName == "origin/main" ? "gerrit/main" : "origin/main";
+    const QModelIndex failedIndex = findRef(failedName);
+    QVERIFY(failedIndex.isValid());
+    const QString failedRef = model.fullName(failedIndex, true);
+    QVERIFY(runGit({"update-ref", "-d", failedRef}));
+    done = false;
+    model.checkoutBranch(failedIndex, onCheckoutDone);
+    QTRY_VERIFY(done);
+    QVERIFY(result != ProcessResult::FinishedWithSuccess);
+    refresh(repo);
+    QCOMPARE(model.fullName(model.currentBranch()), selectedName);
+    QVERIFY(runGit({"update-ref", failedRef, initialHash}));
+
+    QVERIFY(runGit({"commit", "--allow-empty", "-m", "detached commit"}));
+    const QString detachedHash
+        = gitClient().vcsSynchronousExec(repo, {"rev-parse", "HEAD"}).cleanedStdOut().trimmed();
+    refresh(repo);
+    QVERIFY(model.isHead(model.currentBranch()));
+    if (project)
+        QVERIFY(project->namedSettings(checkoutKey).isNull());
+    QVERIFY(runGit({"checkout", "--detach", initialHash}));
+    refresh(repo);
+    QCOMPARE(model.fullName(model.currentBranch()), QString("zz-release"));
+    done = false;
+    model.checkoutBranch(findRef(selectedName), onCheckoutDone);
+    QTRY_VERIFY(done);
+    QCOMPARE(result, ProcessResult::FinishedWithSuccess);
+    QVERIFY(runGit({"update-ref", selectedRef, detachedHash}));
+    refresh(repo);
+    QVERIFY(model.fullName(model.currentBranch(), true) != selectedRef);
+    QVERIFY(runGit({"update-ref", "-d", selectedRef}));
+    refresh(repo);
+    QVERIFY(model.fullName(model.currentBranch(), true) != selectedRef);
+
+    QVERIFY(runGit({"checkout", "main"}));
+    QVERIFY(runGit({"update-ref", selectedRef, originalRefHash}));
+    refresh(repo);
+    QCOMPARE(model.fullName(model.currentBranch()), QString("main"));
+    if (project)
+        QVERIFY(project->namedSettings(checkoutKey).isNull());
+    QVERIFY(runGit({"checkout", "--detach", initialHash}));
+    refresh(repo);
+    QCOMPARE(model.fullName(model.currentBranch()), QString("zz-release"));
+    done = false;
+    model.checkoutBranch(findRef(selectedName), onCheckoutDone);
+    QTRY_VERIFY(done);
+    QCOMPARE(result, ProcessResult::FinishedWithSuccess);
+    refresh(repo);
+    QCOMPARE(model.fullName(model.currentBranch()), selectedName);
+    done = false;
+    model.checkoutBranch(findRef("main"), onCheckoutDone);
+    QTRY_VERIFY(done);
+    QCOMPARE(result, ProcessResult::FinishedWithSuccess);
+    QVERIFY(runGit({"checkout", "--detach", initialHash}));
+    refresh(repo);
+    QCOMPARE(model.fullName(model.currentBranch()), QString("zz-release"));
+
+    if (!selectedTag) {
+        done = false;
+        model.checkoutBranch(findRef(selectedName), onCheckoutDone);
+        QTRY_VERIFY(done);
+        QCOMPARE(result, ProcessResult::FinishedWithSuccess);
+        refresh(repo);
+        QCOMPARE(model.fullName(model.currentBranch()), selectedName);
+
+        userSettings->setValue(promptKey, false);
+        bool acceptedBranchDialog = false;
+        QTimer::singleShot(0, &model, [&] {
+            auto message = qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
+            QVERIFY(message);
+            QTimer::singleShot(0, &model, [&] {
+                auto dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget());
+                QVERIFY(dialog);
+                auto nameEdit = dialog->findChild<QLineEdit *>();
+                QVERIFY(nameEdit);
+                nameEdit->setText("local-checkout");
+                auto buttons = dialog->findChild<QDialogButtonBox *>();
+                QVERIFY(buttons);
+                QVERIFY(buttons->button(QDialogButtonBox::Ok)->isEnabled());
+                buttons->button(QDialogButtonBox::Ok)->click();
+                acceptedBranchDialog = true;
+            });
+            message->button(QMessageBox::Yes)->click();
+        });
+        done = false;
+        model.checkoutBranch(findRef(selectedName), onCheckoutDone);
+        QTRY_VERIFY(done);
+        QVERIFY(acceptedBranchDialog);
+        QCOMPARE(result, ProcessResult::FinishedWithSuccess);
+        QCOMPARE(gitClient().synchronousCurrentLocalBranch(repo), QString("local-checkout"));
+        if (project)
+            QVERIFY(project->namedSettings(checkoutKey).isNull());
+        QVERIFY(runGit({"checkout", "--detach", initialHash}));
+        refresh(repo);
+        QCOMPARE(model.fullName(model.currentBranch()), QString("zz-release"));
+    }
+
+    userSettings->setValue(promptKey, true);
+    auto transient = std::make_unique<BranchModel>();
+    QSignalSpy transientSpy(transient.get(), &QAbstractItemModel::modelReset);
+    transient->refresh(repo);
+    QTRY_VERIFY(!transientSpy.isEmpty() && transient->currentBranch().isValid());
+    const QModelIndexList matches = transient->match(
+        transient->index(0, 0), Qt::EditRole, selectedName, 1,
+        Qt::MatchExactly | Qt::MatchRecursive);
+    QVERIFY(!matches.isEmpty());
+    done = false;
+    transient->checkoutBranch(matches.first(), onCheckoutDone);
+    transient.reset();
+    QTRY_VERIFY(done);
+    QCOMPARE(result, ProcessResult::FinishedWithSuccess);
+    refresh(repo);
+    QCOMPARE(model.fullName(model.currentBranch()),
+             withProject ? selectedName : QString("zz-release"));
 }
 
 void GitTest::testWorkingDirectoryForShow()

@@ -1,6 +1,6 @@
 add_qtc_plugin(Git
   DEPENDS McpServerLib
-  PLUGIN_DEPENDS Core DiffEditor TextEditor VcsBase
+  PLUGIN_DEPENDS Core DiffEditor ProjectExplorer TextEditor VcsBase
   LONG_DESCRIPTION_MD GitDescription.md
   SOURCES
     annotationhighlighter.cpp annotationhighlighter.h
