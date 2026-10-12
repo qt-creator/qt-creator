@@ -52,7 +52,11 @@ void VariablesHandler::addVariable(const QString &iname, int variablesReference)
     bool wasEmpty = m_queue.empty();
     bool inserted = false;
 
-    for (auto i = m_queue.begin(); i != m_queue.end(); ++i) {
+    // The front of the queue is the request in flight, which handleNext() removes.
+    auto i = m_queue.begin();
+    if (!wasEmpty)
+        ++i;
+    for (; i != m_queue.end(); ++i) {
         if (i->iname > iname) {
             m_queue.insert(i, varItem);
             inserted = true;
@@ -715,7 +719,13 @@ void DapEngine::handleScopesResponse(const QJsonObject &response)
         return;
 
     watchHandler()->resetValueCache();
+    // The locals of a scope that arrives while those of an earlier one are
+    // still on their way replace them, and the watch handler expects an end
+    // for every start.
+    if (m_localsUpdateRunning)
+        watchHandler()->notifyUpdateAborted();
     watchHandler()->notifyUpdateStarted();
+    m_localsUpdateRunning = true;
 
     const QJsonArray scopes = response.value("body").toObject().value("scopes").toArray();
     for (const QJsonValueConstRef &scope : scopes) {
@@ -727,6 +737,7 @@ void DapEngine::handleScopesResponse(const QJsonObject &response)
 
     if (m_variablesHandler->queueSize() == 0) {
         watchHandler()->notifyUpdateFinished();
+        m_localsUpdateRunning = false;
     }
 }
 
@@ -961,6 +972,7 @@ void DapEngine::refreshLocals(const QJsonArray &variables)
 
     if (m_variablesHandler->queueSize() == 1 && currentItem == nullptr) {
         watchHandler()->notifyUpdateFinished();
+        m_localsUpdateRunning = false;
     }
 
     m_variablesHandler->handleNext();
