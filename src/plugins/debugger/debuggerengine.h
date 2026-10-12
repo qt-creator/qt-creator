@@ -486,6 +486,8 @@ public:
     DebuggerEngine();
     ~DebuggerEngine() override;
 
+    void destroyPerspective();
+
     void setDevice(const ProjectExplorer::IDeviceConstPtr &device);
     void setRunParameters(const DebuggerRunParameters &runParameters);
 

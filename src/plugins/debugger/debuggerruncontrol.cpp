@@ -108,6 +108,13 @@ signals:
 private:
     void clearEngines()
     {
+        // Destroy the perspectives of engines first.
+        // This cannot be done in the DebuggerEngine destructor because it can lead
+        // to virtual functions (like hasCapability) be called on the engine.
+        for (DebuggerEngine *engine : std::as_const(m_engines)) {
+            if (engine)
+                engine->destroyPerspective();
+        }
         qDeleteAll(m_engines);
         m_engines.clear();
     }

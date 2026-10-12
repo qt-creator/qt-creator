@@ -1354,6 +1354,11 @@ DebuggerEngine::~DebuggerEngine()
     delete d;
 }
 
+void DebuggerEngine::destroyPerspective()
+{
+    d->destroyPerspective();
+}
+
 void DebuggerEngine::setDebuggerName(const QString &name)
 {
     d->m_debuggerName = name;
