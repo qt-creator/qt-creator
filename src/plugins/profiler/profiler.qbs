@@ -1,4 +1,5 @@
 import qbs 1.0
+import qbs.Environment
 import qbs.File
 import qbs.FileInfo
 
@@ -115,7 +116,7 @@ QtcPlugin {
     // equivalent CMake-side comment.
     Probe {
         id: elfutilsProbe
-        property string installBase: qbs.getenv("ELFUTILS_INSTALL_DIR")
+        property string installBase: Environment.getEnv("ELFUTILS_INSTALL_DIR")
         property string includeDir: installBase
             ? FileInfo.joinPaths(installBase, "include")
             : "/usr/include"
