@@ -29,6 +29,7 @@
 
 #include <QDebug>
 #include <QLabel>
+#include <QPointer>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -204,14 +205,22 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(BuildConfiguratio
         connect(&m_languagesAspect, &BaseAspect::changed, details, setSummaryText);
         connect(&m_overrideStartupAspect, &BaseAspect::changed, details, setSummaryText);
 
-        if (BuildSystem * const buildSystem = m_buildConfiguration->buildSystem())
-            connect(buildSystem, &BuildSystem::parsingFinished, details, settleLegacyLanguages);
+        // The details widget outlives the aspect, and the build system reports finished
+        // parsing when it is destroyed, after the run configurations.
+        const QPointer<DebuggerRunConfigurationAspect> guard(this);
+        if (BuildSystem * const buildSystem = m_buildConfiguration->buildSystem()) {
+            connect(buildSystem, &BuildSystem::parsingFinished, details,
+                    [guard, settleLegacyLanguages] {
+                if (guard)
+                    settleLegacyLanguages();
+            });
+        }
 
         // The code model finishes separately, and the mapping may need its project parts.
         connect(CppEditor::CppModelManager::instance(),
                 &CppEditor::CppModelManager::projectPartsUpdated,
-                details, [this, settleLegacyLanguages](Project *project) {
-            if (project == m_buildConfiguration->project())
+                details, [this, guard, settleLegacyLanguages](Project *project) {
+            if (guard && project == m_buildConfiguration->project())
                 settleLegacyLanguages();
         });
 
