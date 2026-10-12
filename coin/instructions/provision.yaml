@@ -125,34 +125,40 @@ instructions:
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to install qt, check logs."
+      - type: Group
+        instructions:
+          - type: ExecuteCommand
+            command: >-
+                curl --fail -L --retry 5 --retry-delay 5
+                    -o {{.AgentWorkingDir}}\build\qt_temp\elfutils.7z
+                    {{.Env.QTC_ELFUTILS_URL}}
+            maxTimeInSeconds: 3600
+            maxTimeBetweenOutput: 360
+            userMessageOnFailure: "Failed to download elfutils package, check logs."
+          - type: ExecuteCommand
+            command: >-
+                7z.exe x -y
+                    {{.AgentWorkingDir}}\build\qt_temp\elfutils.7z
+                    -o{{.AgentWorkingDir}}\build\qt_temp\elfutils
+            maxTimeInSeconds: 3600
+            maxTimeBetweenOutput: 360
+            userMessageOnFailure: "Failed to extract elfutils package, check logs."
+        enable_if:
+          condition: property
+          property: target.arch
+          equals_value: X86_64
       - type: ExecuteCommand
         command: >-
             curl --fail -L --retry 5 --retry-delay 5
-                -o {{.AgentWorkingDir}}\build\qt_temp\elfutils.7z
-                {{.Env.QTC_ELFUTILS_URL}}
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to download elfutils package, check logs."
-      - type: ExecuteCommand
-        command: >-
-            7z.exe x -y
-                {{.AgentWorkingDir}}\build\qt_temp\elfutils.7z
-                -o{{.AgentWorkingDir}}\build\qt_temp\elfutils
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to extract elfutils package, check logs."
-      - type: ExecuteCommand
-        command: >-
-            curl --fail -L --retry 5 --retry-delay 5
-                -o {{.AgentWorkingDir}}\build\qt_temp\Python311-win-x64.7z
-                https://master.qt.io/development_releases/prebuilt/python/Python311-win-x64.7z
+                -o {{.AgentWorkingDir}}\build\qt_temp\{{.Env.QTC_PYTHON_PACKAGE}}.7z
+                https://master.qt.io/development_releases/prebuilt/python/{{.Env.QTC_PYTHON_PACKAGE}}.7z
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download python package, check logs."
       - type: ExecuteCommand
         command: >-
             7z.exe x -y
-                {{.AgentWorkingDir}}\build\qt_temp\Python311-win-x64.7z
+                {{.AgentWorkingDir}}\build\qt_temp\{{.Env.QTC_PYTHON_PACKAGE}}.7z
                 -o{{.AgentWorkingDir}}\build\qt_temp\python
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
@@ -244,11 +250,6 @@ instructions:
         variableName: PYTHON_EXECUTABLE
         variableValue: "{{.AgentWorkingDir}}\\build\\creator_venv\\Scripts\\python.exe"
     enable_if:
-      condition: and
-      conditions:
-        - condition: property
-          property: host.os
-          equals_value: Windows
-        - condition: property
-          property: target.arch
-          equals_value: X86_64
+      condition: property
+      property: host.os
+      equals_value: Windows
