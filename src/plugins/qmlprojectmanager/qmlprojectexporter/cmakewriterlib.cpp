@@ -39,7 +39,7 @@ void CMakeWriterLib::writeRootCMakeFile(const NodePtr &node) const
 
     const Utils::FilePath insightPath = cmakeFolderPath.pathAppended("insight.cmake");
     if (!insightPath.exists()) {
-        const QString insightTemplate = readTemplate(":/templates/insight");
+        const QString insightTemplate = readTemplate(":/templates/insight.tpl");
         writeFile(insightPath, insightTemplate);
     }
 
@@ -52,7 +52,7 @@ void CMakeWriterLib::writeRootCMakeFile(const NodePtr &node) const
         if (!configFile.isEmpty())
             fileSection = QString("\t\t%1").arg(configFile);
 
-        const QString fileTemplate = readTemplate(":/templates/cmakeroot_lib");
+        const QString fileTemplate = readTemplate(":/templates/cmakeroot_lib.tpl");
         const QString fileContent = fileTemplate.arg(mainLibName(), fileSection);
         writeFile(file, fileContent);
     }
@@ -96,7 +96,7 @@ void CMakeWriterLib::writeSourceFiles(const NodePtr &node, const NodePtr &root) 
     environmentPrefix.append(mainFile.arg(buildSystem->mainFile()));
 
     const QString environmentPostfix = makeSetEnvironmentFn();
-    const QString headerTemplate = readTemplate(":/templates/environment_h");
+    const QString headerTemplate = readTemplate(":/templates/environment_h.tpl");
     writeFile(headerPath, headerTemplate.arg(environmentPrefix, environmentPostfix));
 }
 

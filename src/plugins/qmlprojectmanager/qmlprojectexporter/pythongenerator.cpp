@@ -57,14 +57,14 @@ void PythonGenerator::updateProject(QmlProject *project)
     Utils::FilePath mainFilePath = pythonFolderPath.pathAppended("main.py");
     if (!mainFilePath.exists()) {
         const QString mainFileTemplate = CMakeWriter::readTemplate(
-            ":/templates/python_generator_main");
+            ":/templates/python_generator_main.tpl");
         CMakeWriter::writeFile(mainFilePath, mainFileTemplate);
     }
 
     Utils::FilePath pyprojectFilePath = pythonFolderPath.pathAppended("pyproject.toml");
     if (!pyprojectFilePath.exists()) {
         const QString pyprojectFileTemplate = CMakeWriter::readTemplate(
-            ":/templates/python_pyproject_toml");
+            ":/templates/python_pyproject_toml.tpl");
         const QString pyprojectFileContent = pyprojectFileTemplate.arg(project->displayName());
         CMakeWriter::writeFile(pyprojectFilePath, pyprojectFileContent);
     }
@@ -75,7 +75,7 @@ void PythonGenerator::updateProject(QmlProject *project)
 
     Utils::FilePath settingsFilePath = autogenFolderPath.pathAppended("settings.py");
     const QString settingsFileTemplate = CMakeWriter::readTemplate(
-        ":/templates/python_generator_settings");
+        ":/templates/python_generator_settings.tpl");
     const QString settingsFileContent = settingsFileTemplate.arg(buildSystem()->mainFile());
     CMakeWriter::writeFile(settingsFilePath, settingsFileContent);
 

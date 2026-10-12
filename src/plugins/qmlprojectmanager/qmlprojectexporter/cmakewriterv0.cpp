@@ -57,19 +57,19 @@ void CMakeWriterV0::writeRootCMakeFile(const NodePtr &node) const
 
     const Utils::FilePath quickControlsPath = node->dir.pathAppended("qtquickcontrols2.conf");
     if (!quickControlsPath.exists()) {
-        const QString quickControlsTemplate = readTemplate(":/templates/qtquickcontrols_conf");
+        const QString quickControlsTemplate = readTemplate(":/templates/qtquickcontrols2_conf.tpl");
         writeFile(quickControlsPath, quickControlsTemplate);
     }
 
     const Utils::FilePath insightPath = node->dir.pathAppended("insight");
     if (!insightPath.exists()) {
-        const QString insightTemplate = readTemplate(":/templates/insight");
+        const QString insightTemplate = readTemplate(":/templates/insight.tpl");
         writeFile(insightPath, insightTemplate);
     }
 
     const Utils::FilePath componentPath = node->dir.pathAppended("qmlcomponents");
     if (!componentPath.exists()) {
-        const QString compTemplate = readTemplate(":/templates/qmlcomponents");
+        const QString compTemplate = readTemplate(":/templates/qmlcomponents.tpl");
         writeFile(componentPath, compTemplate);
     }
 
@@ -84,7 +84,7 @@ void CMakeWriterV0::writeRootCMakeFile(const NodePtr &node) const
     for (const Utils::FilePath &path : sources(node))
         srcs.push_back(makeRelative(node, path));
 
-    const QString fileTemplate = readTemplate(":/templates/cmakeroot_v0");
+    const QString fileTemplate = readTemplate(":/templates/cmakeroot_v0.tpl");
     const QString fileContent = fileTemplate.arg(appName, srcs.join(" "), fileSection);
 
     const Utils::FilePath cmakeFile = node->dir.pathAppended("CMakeLists.txt");
@@ -150,11 +150,11 @@ void CMakeWriterV0::writeSourceFiles(const NodePtr &node, const NodePtr &root) c
         const Utils::FilePath componentsHeaderPath = srcDir.pathAppended(
             "import_qml_components_plugins.h");
         const QString componentsHeaderContent = readTemplate(
-            ":/templates/import_qml_components_h");
+            ":/templates/import_qml_components_h.tpl");
         writeFile(componentsHeaderPath, componentsHeaderContent);
 
         const Utils::FilePath cppFilePath = srcDir.pathAppended("main.cpp");
-        const QString cppContent = readTemplate(":/templates/main_cpp_v0");
+        const QString cppContent = readTemplate(":/templates/main_cpp_v0.tpl");
         writeFile(cppFilePath, cppContent);
     }
 

@@ -5,14 +5,12 @@ add_qtc_plugin(QmlProjectManager
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport QmlJSEditor
   SOURCES
     qmlprojectgen/qmlprojectgenerator.cpp qmlprojectgen/qmlprojectgenerator.h
-    qmlprojectgen/templates.qrc
     projectfilecontenttools.cpp projectfilecontenttools.h
     qdslandingpage.cpp qdslandingpage.h
     qdslandingpagetheme.cpp qdslandingpagetheme.h
     qmlmainfileaspect.cpp qmlmainfileaspect.h
     qmlmultilanguageaspect.cpp qmlmultilanguageaspect.h
     qmlproject.cpp qmlproject.h
-    qmlproject.qrc
     qmlprojectconstants.h
     qmlprojectmanager_global.h
     qmlprojectmanagertr.h
@@ -53,7 +51,6 @@ extend_qtc_plugin(QmlProjectManager
       exporter.cpp exporter.h
       filegenerator.cpp filegenerator.h
       filetypes.cpp filetypes.h
-      boilerplate.qrc
 )
 
 extend_qtc_plugin(QmlProjectManager
@@ -61,6 +58,25 @@ extend_qtc_plugin(QmlProjectManager
     SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/qmldirtoqmlproject
     SOURCES
     mcumoduleprojectitem.cpp mcumoduleprojectitem.h
+)
+
+qtc_add_resources(QmlProjectManager "generator_templates"
+    PREFIX "/projectfiletemplates"
+    BASE "qmlprojectgen"
+    FILES qmlprojectgen/qmlproject.tpl
+)
+
+qtc_add_resources(QmlProjectManager "images"
+    PREFIX "/qmlproject"
+    FILES
+      images/qmlproject.png
+)
+
+file(GLOB exporter_templates RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} qmlprojectexporter/templates/*.tpl)
+qtc_add_resources(QmlProjectManager "exporter_templates"
+    PREFIX "/templates"
+    BASE "qmlprojectexporter/templates"
+    FILES ${exporter_templates}
 )
 
 add_qtc_library(QmlProjectManagerLib OBJECT

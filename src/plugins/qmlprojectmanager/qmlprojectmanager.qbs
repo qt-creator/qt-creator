@@ -22,7 +22,6 @@ QtcPlugin {
             "qmlmainfileaspect.cpp", "qmlmainfileaspect.h",
             "qmlmultilanguageaspect.cpp", "qmlmultilanguageaspect.h",
             "qmlproject.cpp", "qmlproject.h",
-            "qmlproject.qrc",
             "qmlprojectconstants.h",
             "qmlprojectmanager_global.h", "qmlprojectmanagertr.h",
             "qmlprojectplugin.cpp", "qmlprojectplugin.h",
@@ -57,8 +56,15 @@ QtcPlugin {
             "exporter.cpp", "exporter.h",
             "filegenerator.cpp", "filegenerator.h",
             "filetypes.cpp", "filetypes.h",
-            "boilerplate.qrc"
         ]
+
+        Group {
+            name: "exporter templates"
+            Qt.core.resourcePrefix: "/templates"
+            Qt.core.resourceSourceBase: product.sourceDirectory + "/qmlprojectexporter/templates"
+            fileTags: "qt.core.resource_data"
+            files: "templates/*.tpl"
+        }
     }
 
     Group {
@@ -66,7 +72,21 @@ QtcPlugin {
         prefix: "qmlprojectgen/"
         files: [
             "qmlprojectgenerator.cpp", "qmlprojectgenerator.h",
-            "templates.qrc"
         ]
+
+        Group {
+            name: "generator templates"
+            Qt.core.resourcePrefix: "/projectfiletemplates"
+            Qt.core.resourceSourceBase: product.sourceDirectory + "/qmlprojectgen"
+            fileTags: "qt.core.resource_data"
+            files: "qmlproject.tpl"
+        }
+    }
+
+    Group {
+        name: "images"
+        Qt.core.resourcePrefix: "/qmlproject"
+        fileTags: "qt.core.resource_data"
+        files: "images/qmlproject.png"
     }
 }

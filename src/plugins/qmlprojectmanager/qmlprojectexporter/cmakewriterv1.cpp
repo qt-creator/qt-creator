@@ -68,7 +68,7 @@ void CMakeWriterV1::writeRootCMakeFile(const NodePtr &node) const
 
     const Utils::FilePath insightPath = cmakeFolderPath.pathAppended("insight.cmake");
     if (!insightPath.exists()) {
-        const QString insightTemplate = readTemplate(":/templates/insight");
+        const QString insightTemplate = readTemplate(":/templates/insight.tpl");
         writeFile(insightPath, insightTemplate);
     }
 
@@ -84,7 +84,7 @@ void CMakeWriterV1::writeRootCMakeFile(const NodePtr &node) const
         if (!configFile.isEmpty())
             fileSection = QString("\t\t%1").arg(configFile);
 
-        const QString fileTemplate = readTemplate(":/templates/cmakeroot_v1");
+        const QString fileTemplate = readTemplate(":/templates/cmakeroot_v1.tpl");
         const QString fileContent = fileTemplate.arg(appName, findPackage, fileSection);
         writeFile(file, fileContent);
     }
@@ -151,7 +151,7 @@ void CMakeWriterV1::writeModuleCMakeFile(const NodePtr &node, const NodePtr &) c
     QString postfix;
     postfix.append(bigResources);
 
-    const QString fileTemplate = readTemplate(":/templates/cmakemodule_v1");
+    const QString fileTemplate = readTemplate(":/templates/cmakemodule_v1.tpl");
     const QString fileContent = fileTemplate
         .arg(node->name, node->uri, prefix, moduleContent, postfix);
     writeFile(writeToFile, fileContent);
@@ -174,7 +174,7 @@ void CMakeWriterV1::writeSourceFiles(const NodePtr &node, const NodePtr &root) c
 
     const Utils::FilePath mainCppPath = srcDir.pathAppended("main.cpp");
     if (!mainCppPath.exists()) {
-        const QString cppContent = readTemplate(":/templates/main_cpp_v1");
+        const QString cppContent = readTemplate(":/templates/main_cpp_v1.tpl");
         writeFile(mainCppPath, cppContent);
     }
 
@@ -203,7 +203,7 @@ void CMakeWriterV1::writeSourceFiles(const NodePtr &node, const NodePtr &root) c
     environmentPrefix.append(mainFile.arg(buildSystem->mainFile()));
 
     const QString environmentPostfix = makeSetEnvironmentFn();
-    const QString headerTemplate = readTemplate(":/templates/environment_h");
+    const QString headerTemplate = readTemplate(":/templates/environment_h.tpl");
     writeFile(headerPath, headerTemplate.arg(environmentPrefix, environmentPostfix));
 }
 

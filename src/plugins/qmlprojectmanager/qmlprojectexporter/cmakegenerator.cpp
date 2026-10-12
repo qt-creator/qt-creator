@@ -603,7 +603,7 @@ void CMakeGenerator::createWriter()
     const Utils::FilePath settingsFile = rootPath.pathAppended("CMakeLists.txt.shared");
 
     if (!settingsFile.exists()) {
-        const QString sharedTemplate = CMakeWriter::readTemplate(":/templates/cmake_shared");
+        const QString sharedTemplate = CMakeWriter::readTemplate(":/templates/cmakelists_txt_shared.tpl");
         const QString sharedContent = sharedTemplate.arg(writer->identifier());
         CMakeWriter::writeFile(settingsFile, sharedContent);
         m_writer = writer;
