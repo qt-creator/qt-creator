@@ -2042,26 +2042,72 @@ Result<> UnixDeviceFileAccess::iterateWithFind(
     return ResultOk;
 }
 
+// 'ls' lists special files and dangling links like files, which is what System asks for.
+static const DirFilterFlags lsSupportedFilters = DirFilterFlag::AllEntries | DirFilterFlag::Hidden
+                                                 | DirFilterFlag::System
+                                                 | DirFilterFlag::NoDotAndDotDot;
+
+static bool lsEntryMatches(const QString &entry, bool isDir, DirFilterFlags filters)
+{
+    if (filters == DirFilterFlag::NoFilter)
+        return true;
+    const auto has = [filters](DirFilterFlags flags) {
+        return (filters & flags) != DirFilterFlags{};
+    };
+    if (entry == "." || entry == "..") {
+        if (has(DirFilterFlag::NoDotAndDotDot))
+            return false;
+    } else if (entry.startsWith('.') && !has(DirFilterFlag::Hidden)) {
+        return false;
+    }
+    return has(isDir ? DirFilterFlag::Dirs : DirFilterFlag::Files);
+}
+
 Result<> UnixDeviceFileAccess::findUsingLs(
     const QString &current, const FileFilter &filter, QStringList *found, const QString &start) const
 {
-    const Result<RunResult> res = runInShellImpl(
-        {"ls", {"-1", "-a", "-p", "--", current}, OsType::OsTypeLinux});
-    if (!res)
-        return ResultError(res.error());
-    // 'ls' returns non-zero exit code for any error it encounters, even if it finds some files,
-    // so ignore the exit code
-    const QStringList entries = QString::fromUtf8(res->stdOut).split('\n', Qt::SkipEmptyParts);
-    for (QString entry : entries) {
-        const QChar last = entry.back();
-        if (last == '/') {
+    const auto list = [this, &current](const QStringList &options) -> Result<QStringList> {
+        const Result<RunResult> res = runInShellImpl(
+            {"ls", QStringList{"-1", "-a", "-p"} + options + QStringList{"--", current},
+             OsType::OsTypeLinux});
+        if (!res)
+            return ResultError(res.error());
+        // 'ls' returns non-zero exit code for any error it encounters, even if it finds some
+        // files, so ignore the exit code
+        return QString::fromUtf8(res->stdOut).split('\n', Qt::SkipEmptyParts);
+    };
+
+    const Result<QStringList> entries = list({});
+    if (!entries)
+        return ResultError(entries.error());
+
+    // 'ls -p' marks directories, but not symlinks to directories. 'ls -p -L' marks both.
+    // The difference only matters when exactly one of Dirs and Files is requested: with both,
+    // every entry matches its type, with neither, none does. Recursion keeps using the plain
+    // listing so that links are not followed.
+    QSet<QString> targetDirs;
+    const DirFilterFlags types = filter.fileFilters & (DirFilterFlag::Dirs | DirFilterFlag::Files);
+    if (types == DirFilterFlag::Dirs || types == DirFilterFlag::Files) {
+        const Result<QStringList> targets = list({"-L"});
+        if (!targets)
+            return ResultError(targets.error());
+        for (const QString &target : *targets) {
+            if (target.endsWith('/'))
+                targetDirs.insert(target.chopped(1));
+        }
+    }
+
+    for (QString entry : *entries) {
+        const bool isDir = entry.back() == '/';
+        if (isDir) {
             entry.chop(1);
             if ((filter.iteratorFlags & DirIteratorFlag::Subdirectories) != DirIteratorFlag{}
                 && entry != "."
                 && entry != "..")
                 findUsingLs(current + '/' + entry, filter, found, start + entry + "/");
         }
-        found->append(start + entry);
+        if (lsEntryMatches(entry, isDir || targetDirs.contains(entry), filter.fileFilters))
+            found->append(start + entry);
     }
     return ResultOk;
 }
@@ -2089,8 +2135,9 @@ static void iterateLsOutput(const FilePath &base,
         return nameRegexps.isEmpty();
     };
 
-    // FIXME: Handle filters. For now bark on unsupported options.
-    QTC_CHECK(filter.fileFilters == DirFilterFlag::NoFilter);
+    // FIXME: Handle the remaining filters. For now bark on unsupported options.
+    QTC_CHECK(filter.fileFilters == DirFilterFlag::NoFilter
+              || (filter.fileFilters & ~lsSupportedFilters) == DirFilterFlags{});
 
     for (const QString &entry : entries) {
         if (!nameMatches(entry))

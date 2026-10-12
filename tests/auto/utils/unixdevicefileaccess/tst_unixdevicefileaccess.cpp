@@ -108,6 +108,43 @@ private slots:
                      {".", "..", "lsfindsubdir/.", "lsfindsubdir/..", "lsfindsubdir", "size-test"}));
     }
 
+    void findUsingLsFiltered_data()
+    {
+        QTest::addColumn<DirFilterFlags>("filters");
+        QTest::addColumn<QStringList>("expected");
+
+        const DirFilterFlags noDots = DirFilterFlag::NoDotAndDotDot;
+        QTest::newRow("all") << (DirFilterFlag::Dirs | DirFilterFlag::Files
+                                 | DirFilterFlag::Hidden | noDots)
+                             << QStringList({".hidden", "dir", "file", "link"});
+        QTest::newRow("dots") << (DirFilterFlag::Dirs | DirFilterFlag::Files)
+                              << QStringList({".", "..", "dir", "file", "link"});
+        QTest::newRow("files") << DirFilterFlags(DirFilterFlag::Files) << QStringList("file");
+        QTest::newRow("hidden files") << (DirFilterFlag::Files | DirFilterFlag::Hidden)
+                                      << QStringList({".hidden", "file"});
+        QTest::newRow("dirs") << (DirFilterFlag::Dirs | noDots)
+                              << QStringList({"dir", "link"});
+        QTest::newRow("no type") << (DirFilterFlag::Hidden | noDots) << QStringList();
+    }
+
+    void findUsingLsFiltered()
+    {
+        QFETCH(DirFilterFlags, filters);
+        QFETCH(QStringList, expected);
+
+        const FilePath dir = FilePath::fromString(m_tempDir.filePath("lsfilter"));
+        QVERIFY(dir.pathAppended("dir").ensureWritableDir());
+        QVERIFY(dir.pathAppended("file").writeFileContents("file"));
+        QVERIFY(dir.pathAppended(".hidden").writeFileContents("hidden"));
+        if (!dir.pathAppended("link").isSymLink())
+            QVERIFY_RESULT(dir.pathAppended("dir").createSymLink(dir.pathAppended("link")));
+
+        QStringList result;
+        m_dfa.findUsingLs(dir.path(), FileFilter({}, filters), &result);
+        result.sort();
+        QCOMPARE(result, expected);
+    }
+
     void createTempDir()
     {
         FilePath tmpDirTemplate = FilePath::fromUserInput(QDir::tempPath()) / "qtc-XXXXXX";
