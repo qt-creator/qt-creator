@@ -67,7 +67,7 @@ inline PerfArchitecture perfArchitectureFromName(QStringView name)
 inline quint64 aarch64UserPacMask(bool recordedHere)
 {
     constexpr quint64 assumedMask = 0x007f000000000000ull;
-#ifdef Q_PROCESSOR_ARM_64
+#if defined(Q_PROCESSOR_ARM_64) && defined(Q_OS_LINUX)
     static const quint64 hostMask = [] {
         constexpr quint64 allAddressBits = (1ull << 55) - 1;
         quint64 stripped = 0;
