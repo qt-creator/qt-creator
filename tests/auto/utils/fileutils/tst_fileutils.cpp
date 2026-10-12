@@ -1,9 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <QScopeGuard>
 #include <QTemporaryDir>
 #include <QTest>
 
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -56,6 +58,10 @@ private slots:
     void copyRecursively();
     void copyRecursivelyCanceled();
     void copyRecursivelyDanglingSymlink();
+
+    void filePathCopyRecursively();
+    void filePathCopyRecursivelyCanceled();
+    void filePathCopyRecursivelyFallback();
 };
 
 void tst_fileutils::initTestCase() {}
@@ -284,6 +290,74 @@ void tst_fileutils::copyRecursivelyDanglingSymlink()
     if (!res)
         QFAIL(qPrintable(res.error()));
     QVERIFY(copied.contains("dangling"));
+}
+
+void tst_fileutils::filePathCopyRecursively()
+{
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath root = FilePath::fromString(tmp.path());
+    const FilePath src = createSourceTree(root);
+    const FilePath target = root / "target";
+
+    const Result<> res = src.copyRecursively(target, [] { return false; });
+
+    if (!res)
+        QFAIL(qPrintable(res.error()));
+    QCOMPARE(target.pathAppended("top.txt").fileContents().value_or(QByteArray()), "top");
+    QCOMPARE(target.pathAppended(".hidden").fileContents().value_or(QByteArray()), "hidden");
+    QCOMPARE(target.pathAppended("sub/deeper/leaf.txt").fileContents().value_or(QByteArray()),
+             "leaf");
+}
+
+void tst_fileutils::filePathCopyRecursivelyCanceled()
+{
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath root = FilePath::fromString(tmp.path());
+    const FilePath src = createSourceTree(root);
+
+    // Cancels at the first poll, which comes before any wait.
+    int calls = 0;
+    const Result<> res = src.copyRecursively(root / "target", [&calls] {
+        ++calls;
+        return true;
+    });
+
+    QVERIFY(!res);
+    QCOMPARE(calls, 1);
+}
+
+void tst_fileutils::filePathCopyRecursivelyFallback()
+{
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath root = FilePath::fromString(tmp.path());
+    const FilePath src = createSourceTree(root);
+    const FilePath target = root / "target";
+
+    // Without tar in PATH the copy takes the iterating fallback instead of the tar pipe.
+    const QString oldPath = Environment::systemEnvironment().value("PATH");
+    Environment::modifySystemEnvironment({{"PATH", ""}});
+    const auto restore = qScopeGuard(
+        [&oldPath] { Environment::modifySystemEnvironment({{"PATH", oldPath}}); });
+    QVERIFY(!FilePath("tar").searchInPath().isExecutableFile());
+
+    int calls = 0;
+    const Result<> res = src.copyRecursively(root / "canceled", [&calls] {
+        ++calls;
+        return true;
+    });
+    QVERIFY(!res);
+    QCOMPARE(calls, 1);
+
+    const Result<> copied = src.copyRecursively(target, [] { return false; });
+    if (!copied)
+        QFAIL(qPrintable(copied.error()));
+    QCOMPARE(target.pathAppended("top.txt").fileContents().value_or(QByteArray()), "top");
+    QCOMPARE(target.pathAppended(".hidden").fileContents().value_or(QByteArray()), "hidden");
+    QCOMPARE(target.pathAppended("sub/deeper/leaf.txt").fileContents().value_or(QByteArray()),
+             "leaf");
 }
 
 QTEST_GUILESS_MAIN(tst_fileutils)

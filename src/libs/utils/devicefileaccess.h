@@ -49,7 +49,9 @@ protected:
     virtual Result<> removeRecursively(const FilePath &filePath) const;
     virtual Result<> copyFile(const FilePath &filePath, const FilePath &target) const;
     virtual Result<> createSymLink(const FilePath &filePath, const FilePath &symLink) const;
-    virtual Result<> copyRecursively(const FilePath &filePath, const FilePath &target) const;
+    virtual Result<> copyRecursively(const FilePath &filePath,
+                                     const FilePath &target,
+                                     const std::function<bool()> &isCanceled) const;
     virtual Result<> renameFile(const FilePath &filePath, const FilePath &target) const;
 
     virtual Result<FilePath> symLinkTarget(const FilePath &filePath) const;

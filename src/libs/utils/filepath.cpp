@@ -3038,17 +3038,22 @@ Result<> FilePath::removeRecursively() const
 /*!
     Recursively copies the directory or file at this path to \a target.
 
+    If \a isCanceled is set, it is polled while copying, and the copy stops
+    with an error result once it returns \c true. Files copied up to that point
+    stay in \a target.
+
     Returns a successful \c Result<> on success, or an error result on failure.
 
     \sa copyFile(), renameFile()
 */
-Result<> FilePath::copyRecursively(const FilePath &target) const
+Result<> FilePath::copyRecursively(const FilePath &target,
+                                   const std::function<bool()> &isCanceled) const
 {
     Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
         return ResultError(access.error());
 
-    return (*access)->copyRecursively(*this, target);
+    return (*access)->copyRecursively(*this, target, isCanceled);
 }
 
 /*!

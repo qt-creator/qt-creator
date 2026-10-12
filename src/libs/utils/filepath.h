@@ -207,7 +207,8 @@ public:
     OsType osType() const;
     Result<> removeFile() const;
     Result<> removeRecursively() const;
-    Result<> copyRecursively(const FilePath &target) const;
+    Result<> copyRecursively(const FilePath &target,
+                             const std::function<bool()> &isCanceled = {}) const;
     Result<> copyFile(const FilePath &target) const;
     Result<> createSymLink(const FilePath &symLink) const;
     Result<> renameFile(const FilePath &target) const;
