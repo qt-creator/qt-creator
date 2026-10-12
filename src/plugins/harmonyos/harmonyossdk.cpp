@@ -639,9 +639,10 @@ QList<QtPackage> harmonyOsQtPackages(const QByteArray &updatesXml)
                 package.archives = Utils::transform(text.split(',', Qt::SkipEmptyParts),
                                                     [](const QString &a) { return a.trimmed(); });
         }
-        // The group package and the debug information one carry no Qt, and both are
-        // named after the one that does, so the archives decide rather than the name.
-        if (package.target().startsWith("harmonyos") && !package.archives.isEmpty())
+        // A Qt is named "qt.qt6.<version>.<target>". The group package carries no
+        // archives, and the addons and the debug information have names of more parts.
+        if (package.name.count('.') == 3 && package.target().startsWith("harmonyos")
+            && !package.archives.isEmpty())
             packages.append(package);
     }
 
@@ -731,6 +732,11 @@ private:
   <Name>qt.qt6.6120.harmonyos_arm64_v8a.debug_information</Name>
   <Version>6.12.0-0-202607072102</Version>
   <DownloadableArchives>qtbase-HarmonyOS-ARM64-debug-symbols.7z</DownloadableArchives>
+ </PackageUpdate>
+ <PackageUpdate>
+  <Name>qt.qt6.6120.addons.qt3d.harmonyos_arm64_v8a</Name>
+  <Version>6.12.0-0-202607072102</Version>
+  <DownloadableArchives>qt3d-HarmonyOS-ARM64.7z</DownloadableArchives>
  </PackageUpdate>
  <PackageUpdate>
   <Name>qt.qt6.6120.linux_gcc_64</Name>
