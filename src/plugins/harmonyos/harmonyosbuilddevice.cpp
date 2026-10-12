@@ -181,14 +181,8 @@ static void detectThisBuildDevice()
 {
     for (int i = 0, n = DeviceManager::deviceCount(); i < n; ++i) {
         const IDevice::Ptr known = DeviceManager::deviceAt(i);
-        if (!known || known->type() != Constants::HARMONYOS_BUILD_DEVICE_TYPE)
-            continue;
-        if (known->id() != Utils::Id(thisDeviceId))
-            return;                     // somebody configured their own, leave it alone
-        // Settings written before this device stopped being saved hold it as the SSH
-        // server it used to be, and what the factory made of that is not this device.
-        DeviceManager::removeDevice(known->id());
-        break;
+        if (known && known->type() == Constants::HARMONYOS_BUILD_DEVICE_TYPE)
+            return;
     }
     const HarmonyOsThisDevice::Ptr device = HarmonyOsThisDevice::create();
     device->initDeviceToolAspects();

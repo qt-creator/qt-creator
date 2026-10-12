@@ -94,12 +94,6 @@ Utils::FilePath hvigorBinPath(const Utils::FilePath &sdkRoot);
 // The hvigorw launcher itself, which harmonydeployqt runs via QT_HARMONYOS_HVIGOR.
 Utils::FilePath hvigorCommand(const Utils::FilePath &sdkRoot);
 
-// Directory holding the bundled Node.js, which hvigor requires.
-Utils::FilePath nodeBinPath(const Utils::FilePath &sdkRoot);
-
-// Value for the DEVECO_SDK_HOME environment variable.
-Utils::FilePath devEcoSdkHome(const Utils::FilePath &sdkRoot);
-
 // A configured SDK root is valid when the native SDK and its clang compiler exist.
 bool isValidSdk(const Utils::FilePath &sdkRoot);
 

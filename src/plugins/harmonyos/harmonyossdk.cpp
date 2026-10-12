@@ -480,7 +480,8 @@ FilePath hvigorCommand(const FilePath &sdkRoot)
     return launcher.exists() ? launcher : FilePath();
 }
 
-FilePath nodeBinPath(const FilePath &sdkRoot)
+// Directory holding the bundled Node.js, which hvigor requires.
+static FilePath nodeBinPath(const FilePath &sdkRoot)
 {
     if (sdkRoot.isEmpty())
         return {};
@@ -496,7 +497,8 @@ FilePath nodeBinPath(const FilePath &sdkRoot)
     return {};
 }
 
-FilePath devEcoSdkHome(const FilePath &sdkRoot)
+// Value for the DEVECO_SDK_HOME environment variable.
+static FilePath devEcoSdkHome(const FilePath &sdkRoot)
 {
     if (sdkRoot.isEmpty())
         return {};

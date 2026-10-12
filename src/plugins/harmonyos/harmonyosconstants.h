@@ -38,10 +38,8 @@ inline constexpr char HARMONYOS_DEBUG_SERVER_PATH[]
 // also what holds it back until the debugger has it.
 inline constexpr char HARMONYOS_HOST_PATH[]
     = "/data/app/qtctools.org/qtctools_1.0/bin/qtchost";
-// The library that holds an application until the debugger releases it, and the byte it
-// spins on.
+// The library that holds an application until the debugger releases it.
 inline constexpr char HARMONYOS_WAIT_LIBRARY[] = "libqtcwait.so";
-inline constexpr char HARMONYOS_WAIT_FLAG[] = "qtc_waitForDebugger";
 
 // The port a run offers the application on, when the package holds the runner instead of
 // the application: a reverse forward puts Qt Creator's own listener there, and the runner
