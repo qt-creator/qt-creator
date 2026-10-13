@@ -122,6 +122,14 @@ instructions:
       property: host.os
       equals_value: Windows
 
+  - type: ExecuteCommand
+    command: >-
+        {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/prune_build_dir.py
+            --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build/build
+    maxTimeInSeconds: 1800
+    maxTimeBetweenOutput: 1800
+    userMessageOnFailure: "Failed to prune the build directory, check logs."
+
   - type: UploadArtifact
     archiveDirectory: "{{.AgentWorkingDir}}/qt-creator/qt-creator_build/build"
     transferType: UploadModuleBuildArtifact
