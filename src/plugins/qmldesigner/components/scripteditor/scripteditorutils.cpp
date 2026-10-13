@@ -143,7 +143,7 @@ QVariant typeConvertVariant(const QVariant &variant, const QmlDesigner::TypeName
     } else if (typeName == "url") {
         returnValue = variant.toUrl();
     } else if (typeName == "color") {
-        if (QColor::isValidColor(variant.toString()))
+        if (QColor::isValidColorName(variant.toString()))
             returnValue = variant.toString();
         else
             returnValue = QColor(Qt::black);

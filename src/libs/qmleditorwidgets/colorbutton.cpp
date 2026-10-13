@@ -31,7 +31,7 @@ static inline bool isColorString(const QString &colorString)
             break;
         }
     } else {
-        ok = QColor::isValidColor(colorString);
+        ok = QColor::isValidColorName(colorString);
     }
 
     return ok;

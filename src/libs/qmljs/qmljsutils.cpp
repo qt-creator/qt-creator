@@ -67,14 +67,14 @@ QColor toQColor(const QString &qmlColorString)
         const int alpha = qmlColorString.mid(1, 2).toInt(&ok, 16);
         if (ok) {
             const QString name = qmlColorString.at(0) + qmlColorString.right(6);
-            if (QColor::isValidColor(name)) {
-                color.setNamedColor(name);
+            if (QColor::isValidColorName(name)) {
+                color = QColor::fromString(name);
                 color.setAlpha(alpha);
             }
         }
     } else {
-        if (QColor::isValidColor(qmlColorString))
-            color.setNamedColor(qmlColorString);
+        if (QColor::isValidColorName(qmlColorString))
+            color = QColor::fromString(qmlColorString);
     }
     return color;
 }

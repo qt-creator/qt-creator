@@ -324,12 +324,12 @@ void ColorSchemeReader::readStyle()
 
     Format format;
 
-    if (QColor::isValidColor(foreground))
+    if (QColor::isValidColorName(foreground))
         format.setForeground(QColor(foreground));
     else
         format.setForeground(QColor());
 
-    if (QColor::isValidColor(background))
+    if (QColor::isValidColorName(background))
         format.setBackground(QColor(background));
     else
         format.setBackground(QColor());
@@ -337,7 +337,7 @@ void ColorSchemeReader::readStyle()
     format.setBold(bold);
     format.setItalic(italic);
 
-    if (QColor::isValidColor(underlineColor))
+    if (QColor::isValidColorName(underlineColor))
         format.setUnderlineColor(QColor(underlineColor));
     else
         format.setUnderlineColor(QColor());

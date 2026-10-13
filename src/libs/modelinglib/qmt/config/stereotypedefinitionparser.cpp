@@ -708,7 +708,7 @@ void StereotypeDefinitionParser::parseRelation(CustomRelation::Element element)
                     relation.setColorType(CustomRelation::ColorType::Warning);
                 } else if (colorName == "error") {
                     relation.setColorType(CustomRelation::ColorType::Error);
-                } else if (QColor::isValidColor(colorName)) {
+                } else if (QColor::isValidColorName(colorName)) {
                     relation.setColorType(CustomRelation::ColorType::Custom);
                     relation.setColor(QColor(colorName));
                 } else {
