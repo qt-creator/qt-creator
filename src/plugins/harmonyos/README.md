@@ -207,9 +207,9 @@ Worked around here, but worth knowing when reading the deploy step:
 - The `ohos` mkspec stops with an error unless `NATIVE_OHOS_SDK` is set in the
   environment, which Qt Creator does not set, so the mkspec cannot be evaluated
   and says nothing about the platform. A Qt version is therefore recognized by
-  the name of its mkspec. One that was registered earlier as a desktop Qt
-  stays that way and gets no HarmonyOS kit, which the settings page points
-  out.
+  the name of its mkspec. The Qt online installer registers Qt for HarmonyOS
+  as a desktop Qt (QTCREATORBUG-34793), and with no ABI, so such a Qt gets its
+  HarmonyOS kit by its mkspec too, with the ABI read off `libQt6Core.so`.
 - `hdc` writes a log file for every invocation into `TMPDIR`, and the device
   detection runs it every five seconds, so Qt Creator points it at a directory
   that goes away with the session.
