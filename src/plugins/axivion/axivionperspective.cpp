@@ -1303,7 +1303,8 @@ bool IssuesWidget::currentIssueHasValidMapping() const
 {
     QTC_ASSERT(!m_currentProject.isEmpty(), return false);
     const QModelIndex index = m_issuesView->currentIndex();
-    QTC_ASSERT(index.isValid(), return false);
+    if (!index.isValid()) // we might not have a current item on the issues table
+        return false;
     const Link srcLink = m_issuesModel->data(index, ListItemSourcePathRole).value<Link>();
     if (srcLink.hasValidTarget()) {
         const FilePath mapped = mappedPathForLink(srcLink);
