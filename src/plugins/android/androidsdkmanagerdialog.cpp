@@ -534,7 +534,7 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog()
     connect(&m_sdkModel, &AndroidSdkModel::modelReset, this, updateApplyButton);
     connect(&m_sdkModel, &AndroidSdkModel::dataChanged, this, updateApplyButton);
 
-    connect(expandCheck, &QCheckBox::stateChanged, this, [packagesView](int state) {
+    connect(expandCheck, &QCheckBox::checkStateChanged, this, [packagesView](int state) {
         if (state == Qt::Checked)
             packagesView->expandAll();
         else
@@ -585,7 +585,7 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog()
         }
     });
 
-    connect(obsoleteCheckBox, &QCheckBox::stateChanged, this, [](int state) {
+    connect(obsoleteCheckBox, &QCheckBox::checkStateChanged, this, [](int state) {
         const QString obsoleteArg = "--include_obsolete";
         QStringList args = AndroidConfig::sdkManagerToolArgs();
         if (state == Qt::Checked && !args.contains(obsoleteArg)) {

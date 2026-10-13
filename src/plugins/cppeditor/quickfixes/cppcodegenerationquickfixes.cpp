@@ -914,7 +914,7 @@ public:
         // setup select all/none checkbox
         QCheckBox *const checkBox = new QCheckBox(Tr::tr("Initialize all members"));
         checkBox->setChecked(true);
-        connect(checkBox, &QCheckBox::stateChanged, this,
+        connect(checkBox, &QCheckBox::checkStateChanged, this,
                 [model = constructorParamsModel](int state) {
                     if (state != Qt::PartiallyChecked) {
                         for (int i = 0; i < model->rowCount(); ++i)
@@ -1533,7 +1533,7 @@ public:
         using Column = CandidateTreeItem::Column;
         const auto createConnections = [this, setCheckStateForAll, preventPartiallyChecked](
                                            QCheckBox *checkbox, Column column) {
-            connect(checkbox, &QCheckBox::stateChanged, this, [setCheckStateForAll, column](int state) {
+            connect(checkbox, &QCheckBox::checkStateChanged, this, [setCheckStateForAll, column](int state) {
                 if (state != Qt::PartiallyChecked)
                     setCheckStateForAll(column, state);
             });

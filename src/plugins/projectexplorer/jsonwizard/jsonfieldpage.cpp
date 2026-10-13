@@ -886,7 +886,7 @@ void CheckBoxField::setup(JsonFieldPage *page, const QString &name)
 {
     auto w = qobject_cast<QCheckBox *>(widget());
     QTC_ASSERT(w, return);
-    page->registerObjectAsFieldWithName<QCheckBox>(name, w, &QCheckBox::stateChanged, [this, page, w] () -> QString {
+    page->registerObjectAsFieldWithName<QCheckBox>(name, w, &QCheckBox::checkStateChanged, [this, page, w] () -> QString {
         if (w->checkState() == Qt::Checked)
             return page->expander()->expand(m_checkedValue);
         return page->expander()->expand(m_uncheckedValue);

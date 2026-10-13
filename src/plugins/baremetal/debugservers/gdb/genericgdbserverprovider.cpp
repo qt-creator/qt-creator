@@ -110,7 +110,7 @@ GenericGdbServerProviderConfigWidget::GenericGdbServerProviderConfigWidget(
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_additionalArgumentsLineEdit, &QLineEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_useExtendedRemoteCheckBox, &QCheckBox::stateChanged,
+    connect(m_useExtendedRemoteCheckBox, &QCheckBox::checkStateChanged,
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_initCommandsTextEdit, &QPlainTextEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);

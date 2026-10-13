@@ -178,11 +178,11 @@ AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate()
             this, &AndroidCreateKeystoreCertificate::checkCertificateAlias);
     connect(m_countryLineEdit, &QLineEdit::textChanged,
             this, &AndroidCreateKeystoreCertificate::checkCountryCode);
-    connect(keystoreShowPassCheckBox, &QCheckBox::stateChanged,
+    connect(keystoreShowPassCheckBox, &QCheckBox::checkStateChanged,
             this, &AndroidCreateKeystoreCertificate::keystoreShowPassStateChanged);
-    connect(m_certificateShowPassCheckBox, &QCheckBox::stateChanged,
+    connect(m_certificateShowPassCheckBox, &QCheckBox::checkStateChanged,
             this, &AndroidCreateKeystoreCertificate::certificateShowPassStateChanged);
-    connect(m_samePasswordCheckBox, &QCheckBox::stateChanged,
+    connect(m_samePasswordCheckBox, &QCheckBox::checkStateChanged,
             this, &AndroidCreateKeystoreCertificate::samePasswordStateChanged);
     connect(buttonBox, &QDialogButtonBox::accepted,
             this, &AndroidCreateKeystoreCertificate::buttonBoxAccepted);

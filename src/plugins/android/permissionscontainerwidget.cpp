@@ -347,9 +347,9 @@ bool PermissionsContainerWidget::initialize(TextEditor::TextEditorWidget *textEd
     updateAddRemovePermissionButtons();
     loadPermissionsFromManifest();
 
-    connect(m_defaultPermissionsCheckBox, &QCheckBox::stateChanged,
+    connect(m_defaultPermissionsCheckBox, &QCheckBox::checkStateChanged,
             this, &PermissionsContainerWidget::defaultPermissionOrFeatureCheckBoxClicked);
-    connect(m_defaultFeaturesCheckBox, &QCheckBox::stateChanged,
+    connect(m_defaultFeaturesCheckBox, &QCheckBox::checkStateChanged,
             this, &PermissionsContainerWidget::defaultPermissionOrFeatureCheckBoxClicked);
     connect(m_addPermissionButton, &QAbstractButton::clicked,
             this, &PermissionsContainerWidget::addPermission);

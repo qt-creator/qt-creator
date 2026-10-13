@@ -379,7 +379,7 @@ void ClangDiagnosticConfigsWidget::updateValidityWidgets(const QString &errorMes
 void ClangDiagnosticConfigsWidget::connectClangOnlyOptionsChanged()
 {
     connect(m_clangBaseChecks->useFlagsFromBuildSystemCheckBox,
-            &QCheckBox::stateChanged,
+            &QCheckBox::checkStateChanged,
             this,
             &ClangDiagnosticConfigsWidget::onClangOnlyOptionsChanged);
     connect(m_clangBaseChecks->diagnosticOptionsTextEdit->document(),
@@ -390,7 +390,7 @@ void ClangDiagnosticConfigsWidget::connectClangOnlyOptionsChanged()
 
 void ClangDiagnosticConfigsWidget::disconnectClangOnlyOptionsChanged()
 {
-    disconnect(m_clangBaseChecks->useFlagsFromBuildSystemCheckBox, &QCheckBox::stateChanged,
+    disconnect(m_clangBaseChecks->useFlagsFromBuildSystemCheckBox, &QCheckBox::checkStateChanged,
                this,
                &ClangDiagnosticConfigsWidget::onClangOnlyOptionsChanged);
     disconnect(m_clangBaseChecks->diagnosticOptionsTextEdit->document(),

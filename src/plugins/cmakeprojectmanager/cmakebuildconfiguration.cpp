@@ -495,7 +495,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     connect(m_buildConfig, &CMakeBuildConfiguration::signingFlagsChanged,
             this, &CMakeBuildSettingsWidget::updateButtonState);
 
-    connect(m_showAdvancedCheckBox, &QCheckBox::stateChanged,
+    connect(m_showAdvancedCheckBox, &QCheckBox::checkStateChanged,
             this, &CMakeBuildSettingsWidget::updateAdvancedCheckBox);
 
     connect(m_filterEdit,

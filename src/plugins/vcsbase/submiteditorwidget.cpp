@@ -254,9 +254,9 @@ SubmitEditorWidget::SubmitEditorWidget() :
     connect(d->fileView, &QAbstractItemView::doubleClicked,
             this, &SubmitEditorWidget::diffActivated);
 
-    connect(d->checkAllCheckBox, &QCheckBox::stateChanged,
+    connect(d->checkAllCheckBox, &QCheckBox::checkStateChanged,
             this, &SubmitEditorWidget::checkAllToggled);
-    connect(d->checkSelectedCheckBox, &QCheckBox::stateChanged,
+    connect(d->checkSelectedCheckBox, &QCheckBox::checkStateChanged,
             this, &SubmitEditorWidget::checkSelectedToggled);
 
     setFocusPolicy(Qt::StrongFocus);

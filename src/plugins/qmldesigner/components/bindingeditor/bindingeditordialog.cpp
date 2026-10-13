@@ -26,7 +26,7 @@ BindingEditorDialog::BindingEditorDialog(QWidget *parent)
                      this, &BindingEditorDialog::itemIDChanged);
     QObject::connect(m_comboBoxProperty, &QComboBox::currentIndexChanged,
                      this, &BindingEditorDialog::propertyIDChanged);
-    QObject::connect(m_checkBoxNot, &QCheckBox::stateChanged,
+    QObject::connect(m_checkBoxNot, &QCheckBox::checkStateChanged,
                      this, &BindingEditorDialog::checkBoxChanged);
 }
 

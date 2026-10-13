@@ -533,7 +533,7 @@ bool SplashScreenContainerWidget::initialize(TextEditor::TextEditorWidget *textE
     processWidgets(m_portraitImageWidgets, portraitSplashFileName);
     processWidgets(m_landscapeImageWidgets, landscapeSplashFileName);
 
-    connect(m_stickyCheck, &QCheckBox::stateChanged, this, [this](int state) {
+    connect(m_stickyCheck, &QCheckBox::checkStateChanged, this, [this](int state) {
         bool old = m_splashScreenSticky;
         m_splashScreenSticky = (state == Qt::Checked);
         if (old != m_splashScreenSticky) {

@@ -508,7 +508,7 @@ private:
                      parsers.append(s.id);
             }
             checkBox->setCheckState(parsers.contains(s.id) ? Qt::Checked : Qt::Unchecked);
-            connect(checkBox, &QCheckBox::stateChanged, this, &SelectionWidget::selectionChanged);
+            connect(checkBox, &QCheckBox::checkStateChanged, this, &SelectionWidget::selectionChanged);
             parserCheckBoxes.push_back({checkBox, s.id});
             m_checkBoxesLayout->addWidget(checkBox);
         }

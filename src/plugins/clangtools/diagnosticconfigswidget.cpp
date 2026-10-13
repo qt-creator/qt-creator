@@ -1001,7 +1001,7 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
             this, [model = m_clazySortFilterProxyModel](const QModelIndex &index) {
                 openUrl(model, index);
             });
-    connect(m_clazyChecks->enableLowerLevelsCheckBox, &QCheckBox::stateChanged, this, [this] {
+    connect(m_clazyChecks->enableLowerLevelsCheckBox, &QCheckBox::checkStateChanged, this, [this] {
         const bool enable = m_clazyChecks->enableLowerLevelsCheckBox->isChecked();
         m_clazyTreeModel->setEnableLowerLevels(enable);
         ClangToolsSettings::instance()->enableLowerClazyLevels.setValue(enable);
