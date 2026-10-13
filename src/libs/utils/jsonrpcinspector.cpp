@@ -11,7 +11,6 @@
 #include "utilstr.h"
 
 #include <QAction>
-#include <QApplication>
 #include <QClipboard>
 #include <QComboBox>
 #include <QDialog>
@@ -468,7 +467,7 @@ void JsonRpcInspector::show(const QString &defaultEndpoint)
             m_settings.registerWindow(widget);
         m_currentWidget = widget;
     } else {
-        QApplication::setActiveWindow(m_currentWidget);
+        m_currentWidget->activateWindow();
     }
     if (!defaultEndpoint.isEmpty())
         static_cast<InspectorWidget *>(m_currentWidget)->selectEndpoint(defaultEndpoint);

@@ -133,7 +133,7 @@ static void ensureImpl()
         }
 
         // syncing can be slow, especially on Linux and Windows
-        d->m_db.exec(QLatin1String("PRAGMA synchronous = OFF;"));
+        QSqlQuery(d->m_db).exec(QLatin1String("PRAGMA synchronous = OFF;"));
     }
 }
 

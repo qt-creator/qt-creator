@@ -718,7 +718,7 @@ bool DockManager::eventFilter(QObject *obj, QEvent *event)
                                                & (~Qt::WindowMinimized));
         }
         if (!window()->isMinimized())
-            QApplication::setActiveWindow(window());
+            window()->activateWindow();
     }
     return Super::eventFilter(obj, event);
 
