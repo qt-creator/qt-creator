@@ -213,6 +213,79 @@ private slots:
             QVERIFY(v == 0.0f || v == 1.0f); // never the uninitialised -1
     }
 
+    void densityViewInsideLongTickIsDrawn()
+    {
+        // The tick at 0 lasts until the next one, 10 ms later. A view that
+        // contains neither of them still shows what the thread was doing.
+        SampleTraceData data;
+        data.pid = 1;
+        data.labels = {"f"};
+        data.threadNames = {{10, "a"}};
+        data.samples = {
+            {0, 10, true, {0}},
+            {10000, 10, false, {0}},
+            {10100, 10, false, {0}},
+        };
+        Timeline::TimelineModelAggregator aggregator;
+        CpuUsageModel model(&aggregator);
+        model.setTraceData(&data);
+
+        QList<float> col(4, -1.0f);
+        QVERIFY(model.fillDensityColumns(2, qint64(2000) * 1000, qint64(3000) * 1000, col));
+        for (float v : col)
+            QCOMPARE(v, 1.0f);
+
+        col.assign(4, -1.0f);
+        QVERIFY(model.fillDensityColumns(1, qint64(2000) * 1000, qint64(3000) * 1000, col));
+        for (float v : col)
+            QCOMPARE(v, 1.0f);
+
+        // Past the last tick's item nothing was sampled.
+        col.assign(4, -1.0f);
+        QVERIFY(model.fillDensityColumns(2, qint64(20000) * 1000, qint64(21000) * 1000, col));
+        for (float v : col)
+            QCOMPARE(v, 0.0f);
+
+        // A view that starts inside the long tick and ends inside the next one
+        // draws the long tick up to where the next one starts.
+        col.assign(4, -1.0f);
+        QVERIFY(model.fillDensityColumns(2, qint64(9000) * 1000, qint64(10050) * 1000, col));
+        QCOMPARE(col.first(), 1.0f);
+        QCOMPARE(col.last(), 0.0f);
+    }
+
+    void densityAfterAColumnWithSeveralTicksFollowsItsLastTick()
+    {
+        // The first column holds a running and an idle tick, the idle one
+        // lasting 10 ms. The columns after it show the idle tick, not the
+        // average of the column that ends with it.
+        SampleTraceData data;
+        data.pid = 1;
+        data.labels = {"f"};
+        data.threadNames = {{10, "a"}};
+        data.samples = {
+            {0, 10, true, {0}},
+            {100, 10, false, {0}},
+            {10100, 10, true, {0}},
+        };
+        Timeline::TimelineModelAggregator aggregator;
+        CpuUsageModel model(&aggregator);
+        model.setTraceData(&data);
+
+        QList<float> col(10, -1.0f);
+        QVERIFY(model.fillDensityColumns(2, 0, qint64(10000) * 1000, col));
+        QCOMPARE(col.at(0), 0.5f);
+        for (int c = 1; c < col.size(); ++c)
+            QCOMPARE(col.at(c), 0.0f);
+
+        // The same for the total row.
+        col.assign(10, -1.0f);
+        QVERIFY(model.fillDensityColumns(1, 0, qint64(10000) * 1000, col));
+        QCOMPARE(col.at(0), 0.5f);
+        for (int c = 1; c < col.size(); ++c)
+            QCOMPARE(col.at(c), 0.0f);
+    }
+
     void densityCacheStableAndInvalidated()
     {
         Timeline::TimelineModelAggregator aggregator;

@@ -9,6 +9,8 @@
 
 #include <QHash>
 
+#include <algorithm>
+
 using namespace Qt::StringLiterals;
 
 namespace Profiler::Internal {
@@ -102,6 +104,7 @@ void CpuUsageModel::load()
                                  : (i > 0 ? qint64(tick.tsUs - ticks.at(i - 1).tsUs) : 1);
         const qint64 startNs = qint64(tick.tsUs) * 1000;
         const qint64 durNs = qMax<qint64>(durUs, 1) * 1000;
+        m_ticks[i].endNs = startNs + durNs;
 
         m_items.insert(insert(startNs, durNs, 0), Item{tick.running, -1, 0, -1, int(i)});
         for (const Tick::Running &r : tick.runningTids) {
@@ -315,6 +318,7 @@ void CpuUsageModel::ensureDensityCache(qint64 startNs, qint64 endNs, int columns
     // at once, so a repaint costs O(ticks) here instead of O(rows x ticks).
     m_cacheCovered.assign(columns, 0);
     m_cacheRunSum.assign(columns, 0);
+    m_cacheLastTick.assign(columns, -1);
     m_cacheActive.assign(m_threads.size(), QList<int>(columns, 0));
 
     const double span = double(endNs - startNs);
@@ -326,6 +330,7 @@ void CpuUsageModel::ensureDensityCache(qint64 startNs, qint64 endNs, int columns
             col = columns - 1;
         ++m_cacheCovered[col];
         m_cacheRunSum[col] += tick.running;
+        m_cacheLastTick[col] = int(&tick - m_ticks.constData());
         for (int r : tick.runningRows) {
             const int idx = r - FirstThreadRow;
             if (idx >= 0 && idx < int(m_cacheActive.size()))
@@ -358,36 +363,46 @@ bool CpuUsageModel::fillDensityColumns(int row, qint64 startNs, qint64 endNs,
     }
 
     for (int c = 0; c < columns; ++c) {
-        if (m_cacheCovered[c] == 0) {
-            out[c] = -1.0f; // marker: filled by the inherit pass below
-            continue;
-        }
+        if (m_cacheCovered[c] == 0)
+            continue; // filled from the tick in effect below
         if (isTotal)
             out[c] = float(double(m_cacheRunSum[c]) / m_cacheCovered[c] / qMax(1, m_maxRunning));
         else
             out[c] = float(double((*active)[c]) / m_cacheCovered[c]);
     }
 
-    // Columns with no tick of their own (zoomed in finer than the sample rate)
-    // inherit the value of the nearest column that has one. Walk forward, then
-    // backward, propagating the last computed value.
-    float last = -1.0f;
-    for (int c = 0; c < columns; ++c) {
-        if (out[c] >= 0.0f)
-            last = out[c];
-        else if (last >= 0.0f)
-            out[c] = last;
+    // A tick lasts until the next one, so a column without a tick of its own
+    // shows the tick in effect at its left edge: the last one that started in
+    // an earlier column, or, for the first columns of a view that starts inside
+    // a tick, the one before the view. Nothing is drawn where no tick lasts.
+    const auto densityOf = [&](const TickRow &tick) {
+        if (isTotal)
+            return float(double(tick.running) / qMax(1, m_maxRunning));
+        return tick.runningRows.contains(row) ? 1.0f : 0.0f;
+    };
+
+    float last = 0.0f;
+    qint64 lastEndNs = startNs;
+    const auto before = std::lower_bound(m_ticks.cbegin(), m_ticks.cend(), startNs,
+                                         [](const TickRow &tick, qint64 ns) {
+                                             return tick.startNs < ns;
+                                         });
+    if (before != m_ticks.cbegin()) {
+        const TickRow &tick = *std::prev(before);
+        last = densityOf(tick);
+        lastEndNs = tick.endNs;
     }
-    last = -1.0f;
-    for (int c = columns - 1; c >= 0; --c) {
-        if (out[c] >= 0.0f)
-            last = out[c];
-        else if (last >= 0.0f)
-            out[c] = last;
-    }
+
+    const double span = double(endNs - startNs);
     for (int c = 0; c < columns; ++c) {
-        if (out[c] < 0.0f)
-            out[c] = 0.0f; // no ticks intersect the range at all
+        if (m_cacheCovered[c] != 0) {
+            const TickRow &tick = m_ticks.at(m_cacheLastTick[c]);
+            last = densityOf(tick);
+            lastEndNs = tick.endNs;
+            continue;
+        }
+        const qint64 columnStartNs = startNs + qint64(span * c / columns);
+        out[c] = columnStartNs < lastEndNs ? last : 0.0f;
     }
     return true;
 }
