@@ -242,7 +242,14 @@ FilePath CppSourceProcessor::resolveFile(const FilePath &filePath, IncludeType t
             for (; headerPathsIt != headerPathsEnd; ++headerPathsIt) {
                 if (headerPathsIt->path.path() == currentDirPath.path()) {
                     ++headerPathsIt;
-                    return resolveFile_helper(filePath, headerPathsIt);
+                    // Qt 6.12 on macOS installs forwarding headers that use include_next to
+                    // reach the framework header, which is listed after them. An earlier
+                    // header path can resolve the same relative name back to this very file
+                    // (e.g. a duplicated entry); skip only that one and keep moving forward,
+                    // rather than restarting the scan from the beginning, which could return
+                    // an unrelated, wrong header from a path earlier than the current one and
+                    // violates #include_next's forward-only search order.
+                    return resolveFile_helper(filePath, headerPathsIt, currentFilePath);
                 }
             }
         }
@@ -258,7 +265,8 @@ FilePath CppSourceProcessor::resolveFile(const FilePath &filePath, IncludeType t
 }
 
 FilePath CppSourceProcessor::resolveFile_helper(const FilePath &filePath,
-                                                HeaderPaths::Iterator headerPathsIt)
+                                                HeaderPaths::Iterator headerPathsIt,
+                                                const FilePath &excludedFilePath)
 {
     const QString fileName = filePath.path();
     auto headerPathsEnd = m_headerPaths.end();
@@ -274,7 +282,7 @@ FilePath CppSourceProcessor::resolveFile_helper(const FilePath &filePath,
             } else {
                 path = headerPathsIt->path /  fileName;
             }
-            if (m_workingCopy.get(path) || checkFile(path))
+            if (path != excludedFilePath && (m_workingCopy.get(path) || checkFile(path)))
                 return path;
         }
     }

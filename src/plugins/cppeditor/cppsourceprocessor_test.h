@@ -17,6 +17,7 @@ private slots:
     void testIncludesAllDiagnostics();
     void testMacroUses();
     void testIncludeNext();
+    void testIncludeNextWithShadowingPath();
 };
 
 } // namespace CppEditor::Internal
