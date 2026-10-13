@@ -26,6 +26,7 @@
 #include <string>
 #include <vector>
 
+#include <dirent.h>
 #include <dlfcn.h>
 #include <elf.h>
 #include <link.h>
@@ -504,6 +505,26 @@ Image *World::find(const std::string &name) const
     return nullptr;
 }
 
+// A Qt built on the device by another application has its soname links, but they carry that
+// application's label and cannot even be stat()ed from here, while the file behind them can.
+static std::string fullyVersioned(const std::string &directory, const char *name)
+{
+    DIR *listing = ::opendir(directory.c_str());
+    if (!listing)
+        return {};
+    const std::string prefix = std::string(name) + '.';
+    std::string found;
+    while (const dirent *entry = ::readdir(listing)) {
+        if (::strncmp(entry->d_name, prefix.c_str(), prefix.size()) == 0
+            && isFile(directory + '/' + entry->d_name)) {
+            found = directory + '/' + entry->d_name;
+            break;
+        }
+    }
+    ::closedir(listing);
+    return found;
+}
+
 std::string World::locate(const char *name) const
 {
     const std::string unversioned = unversionedName(name);
@@ -513,6 +534,9 @@ std::string World::locate(const char *name) const
             return path;
         if (!unversioned.empty() && isFile(directory + '/' + unversioned))
             return directory + '/' + unversioned;
+        const std::string versioned = fullyVersioned(directory, name);
+        if (!versioned.empty())
+            return versioned;
     }
     return {};
 }

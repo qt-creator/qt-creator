@@ -11,10 +11,18 @@
 // platform did not make, so it is reported over the IDE's gate on the device's loopback.
 // The same connection holds main() back until the IDE says the debugger is in place; a gate
 // nothing listens on means an ordinary run.
+//
+// Installed under the name of one of Qt's build tools (moc, rcc, uic, ...) it stands in for
+// that tool instead: the Qt a project on the device builds against has its tools in its own
+// tree, which the device does not execute either, so the tool of that name in the directory
+// QTC_QT_HOST_LIBEXECS names is mapped and run in its place, together with the libraries
+// it needs from the directory QTC_QT_HOST_LIBS names: the tool has to run on the Qt it
+// belongs to, not on the one this package carries.
 
 #include "qtcload.h"
 
 #include <cinttypes>
+#include <climits>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -54,8 +62,59 @@ static int connectToGate(int port)
     return fd;
 }
 
+static int runTool(const char *name, int argc, char **argv)
+{
+    const char *directory = std::getenv("QTC_QT_HOST_LIBEXECS");
+    if (!directory || !*directory) {
+        std::fprintf(stderr, "%s: QTC_QT_HOST_LIBEXECS does not name the directory of the "
+                             "Qt tools to run\n", name);
+        return 1;
+    }
+    // A Qt built for HarmonyOS makes even its tools loadable modules.
+    std::string path = std::string(directory) + "/lib" + name + ".so";
+    if (::access(path.c_str(), F_OK) != 0)
+        path = std::string(directory) + '/' + name;
+
+    // A Qt whose tools are these copies would otherwise have this start itself forever.
+    char self[PATH_MAX];
+    char target[PATH_MAX];
+    if (::realpath("/proc/self/exe", self) && ::realpath(path.c_str(), target)
+        && std::strcmp(self, target) == 0) {
+        std::fprintf(stderr, "%s: %s is this program, not the tool\n", name, path.c_str());
+        return 1;
+    }
+
+    QtcLoad::World world;
+    if (const char *libraries = std::getenv("QTC_QT_HOST_LIBS"); libraries && *libraries)
+        world.directories.push_back(libraries);
+
+    QtcLoad::Image image;
+    std::string error;
+    if (!QtcLoad::load(path.c_str(), &image, &error, &world)) {
+        std::fprintf(stderr, "%s: cannot load %s: %s\n", name, path.c_str(), error.c_str());
+        return 1;
+    }
+    for (const std::string &missing : image.missing)
+        std::fprintf(stderr, "%s: %s is missing %s\n", name, path.c_str(), missing.c_str());
+
+    const Main entry = reinterpret_cast<Main>(QtcLoad::lookup(image, "main"));
+    if (!entry) {
+        std::fprintf(stderr, "%s: %s has no main()\n", name, path.c_str());
+        return 1;
+    }
+    // In the tool's directory, for Qt to find its prefix, under the name the tool reports.
+    std::string tool = std::string(directory) + '/' + name;
+    argv[0] = tool.data();
+    return entry(argc, argv);
+}
+
 int main(int argc, char **argv)
 {
+    const char *slash = std::strrchr(argv[0], '/');
+    const char *name = slash ? slash + 1 : argv[0];
+    if (std::strcmp(name, "qtchost") != 0)
+        return runTool(name, argc, argv);
+
     if (argc < 3) {
         std::fprintf(stderr, "usage: qtchost <gate-port> <binary> [arguments]\n");
         return 2;

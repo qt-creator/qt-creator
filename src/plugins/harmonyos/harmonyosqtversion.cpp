@@ -9,6 +9,9 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionfactory.h>
 
+#include <utils/environment.h>
+#include <utils/hostosinfo.h>
+
 using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
@@ -51,6 +54,18 @@ QSet<Id> HarmonyOsQtVersion::availableFeatures() const
     features.insert(QtSupport::Constants::FEATURE_MOBILE);
     features.remove(QtSupport::Constants::FEATURE_QT_WEBKIT);
     return features;
+}
+
+// The device refuses to execute this Qt's own tools, so the copies of qtchost in Qt Creator's
+// package that a build runs instead map them, and this is where they find them. The host Qt
+// a cross build names is not on the device, the tools built for the device are its own.
+void HarmonyOsQtVersion::addToBuildEnvironment(const Kit *k, Environment &env) const
+{
+    QtVersion::addToBuildEnvironment(k, env);
+    if (HostOsInfo::isHarmonyHost()) {
+        env.set("QTC_QT_HOST_LIBEXECS", libExecPath().path());
+        env.set("QTC_QT_HOST_LIBS", libraryPath().path());
+    }
 }
 
 class HarmonyOsQtVersionFactory final : public QtVersionFactory

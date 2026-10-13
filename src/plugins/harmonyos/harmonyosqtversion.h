@@ -16,6 +16,8 @@ public:
     ProjectExplorer::Abis detectQtAbis() const override;
     QSet<Utils::Id> targetDeviceTypes() const override;
     QSet<Utils::Id> availableFeatures() const override;
+    void addToBuildEnvironment(const ProjectExplorer::Kit *k,
+                               Utils::Environment &env) const override;
 };
 
 void setupHarmonyOsQtVersion();

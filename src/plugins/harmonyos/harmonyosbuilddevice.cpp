@@ -342,6 +342,24 @@ static void completeKit(Kit *kit)
         config.insert(CMakeConfigItem("OHOS_ARCH", CMakeConfigItem::STRING,
                                       ohosAbiName(toolchain->targetAbi()).toUtf8()));
     }
+    // Qt's own tools are in its tree, which the device does not execute, so the build is
+    // pointed at the copies of qtchost in the package that map them.
+    if (config.valueOf("CMAKE_PROJECT_TOP_LEVEL_INCLUDES").isEmpty()) {
+        const FilePath provider = Core::ICore::resourcePath("harmonyos/qtcprovider.cmake");
+        config.insert(CMakeConfigItem("CMAKE_PROJECT_TOP_LEVEL_INCLUDES",
+                                      CMakeConfigItem::FILEPATH, provider.path().toUtf8()));
+    }
+    // For the same reason the Qt is its own host Qt, whatever host its files name.
+    if (config.valueOf("QT_HOST_PATH").isEmpty()) {
+        config.insert(CMakeConfigItem("QT_HOST_PATH", CMakeConfigItem::PATH,
+                                      "%{Qt:QT_INSTALL_PREFIX}"));
+    }
+    // A project has room for one dependency provider, and the one for the maintenance tool,
+    // which the device does not have, would replace that.
+    if (config.valueOf("QT_CREATOR_ENABLE_MAINTENANCE_TOOL_PROVIDER").isEmpty()) {
+        config.insert(CMakeConfigItem("QT_CREATOR_ENABLE_MAINTENANCE_TOOL_PROVIDER",
+                                      CMakeConfigItem::BOOL, "OFF"));
+    }
     // The toolchain file picks the compiler itself. A kit naming it as well differs from
     // what lands in the cache forever, and every build asks whether to apply the
     // difference, so leave the choice where it is made.
