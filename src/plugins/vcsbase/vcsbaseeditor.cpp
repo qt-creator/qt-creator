@@ -754,6 +754,7 @@ void VcsBaseDescriptionEditorWidget::setDescription(const QString &text, bool an
         AnsiEscapeCodeHandler::setTextInDocument(document(), text);
     else
         textDocument()->setPlainText(text);
+    moveCursor(QTextCursor::Start);
 }
 
 bool VcsBaseDescriptionEditorWidget::supportChangeLinks() const
