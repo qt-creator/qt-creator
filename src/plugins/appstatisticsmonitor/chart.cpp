@@ -93,7 +93,7 @@ void AppStatisticsMonitorChart::loadNewProcessData(const QList<double> &data)
     int i = 0;
     double max_y = 0;
 
-    for (double e : qAsConst(data)) {
+    for (double e : data) {
         points.push_back({double(++i), e});
         max_y = qMax(max_y, e);
     }

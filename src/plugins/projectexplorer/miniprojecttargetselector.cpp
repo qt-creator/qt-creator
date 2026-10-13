@@ -1585,7 +1585,7 @@ void MiniProjectTargetSelector::updateActionAndSummary()
     m_projectAction->setToolTip(toolTip);
     updateSummary();
 
-    for (GenericListWidget *listWidget : qAsConst(m_listWidgets)) {
+    for (GenericListWidget *listWidget : std::as_const(m_listWidgets)) {
         if (listWidget)
             listWidget->update();
     }

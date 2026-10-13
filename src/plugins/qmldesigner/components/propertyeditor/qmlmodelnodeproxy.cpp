@@ -194,7 +194,7 @@ PropertyEditorSubSelectionWrapper *QmlModelNodeProxy::findWrapper(int internalId
 {
     NanotraceHR::Tracer tracer{"qml model node proxy find wrapper", category()};
 
-    for (const auto &item : qAsConst(m_subselection)) {
+    for (const auto &item : std::as_const(m_subselection)) {
         if (item->modelNode().internalId() == internalId)
             return item.data();
     }
@@ -329,7 +329,7 @@ void QmlModelNodeProxy::handleInstancePropertyChanged(const ModelNode &modelNode
 
     const QmlObjectNode qmlObjectNode(modelNode);
 
-    for (const auto &item : qAsConst(m_subselection)) {
+    for (const auto &item : std::as_const(m_subselection)) {
         if (item && item->isRelevantModelNode(modelNode)) {
             if (!modelNode.hasProperty(propertyName)
                 || modelNode.property(propertyName).isBindingProperty()) {
@@ -345,7 +345,7 @@ void QmlModelNodeProxy::handleBindingPropertyChanged(const BindingProperty &prop
 {
     NanotraceHR::Tracer tracer{"qml model node proxy handle binding property changed", category()};
 
-    for (const auto &item : qAsConst(m_subselection)) {
+    for (const auto &item : std::as_const(m_subselection)) {
         if (item && item->isRelevantModelNode(property.parentModelNode())) {
             QmlObjectNode objectNode(item->modelNode());
             if (objectNode.modelNode().property(property.name()).isBindingProperty())
@@ -360,7 +360,7 @@ void QmlModelNodeProxy::handleVariantPropertyChanged(const VariantProperty &prop
 {
     NanotraceHR::Tracer tracer{"qml model node proxy handle variant property changed", category()};
 
-    for (const auto &item : qAsConst(m_subselection)) {
+    for (const auto &item : std::as_const(m_subselection)) {
         if (item && item->isRelevantModelNode(property.parentModelNode())) {
             QmlObjectNode objectNode(item->modelNode());
             if (objectNode.modelNode().property(property.name()).isBindingProperty())
@@ -375,7 +375,7 @@ void QmlModelNodeProxy::handlePropertiesRemoved(const AbstractProperty &property
 {
     NanotraceHR::Tracer tracer{"qml model node proxy handle properties removed", category()};
 
-    for (const auto &item : qAsConst(m_subselection)) {
+    for (const auto &item : std::as_const(m_subselection)) {
         if (item && item->isRelevantModelNode(property.parentModelNode())) {
             QmlObjectNode objectNode(item->modelNode());
             item->resetValue(property.name());
