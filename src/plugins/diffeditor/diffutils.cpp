@@ -903,13 +903,13 @@ static FileData readDiffHeaderAndChunks(QStringView headerAndChunks, bool *ok)
           "^Binary files ([^\\t\\n]+) and ([^\\t\\n]+) differ$");
 
     // followed either by leftFileRegExp
-    const QRegularExpressionMatch leftMatch = leftFileRegExp.match(patch);
+    const QRegularExpressionMatch leftMatch = leftFileRegExp.matchView(patch);
     if (leftMatch.hasMatch() && leftMatch.capturedStart() == 0) {
         patch = patch.mid(leftMatch.capturedEnd());
         fileData.fileInfo[LeftSide].fileName = leftMatch.captured(1);
 
         // followed by rightFileRegExp
-        const QRegularExpressionMatch rightMatch = rightFileRegExp.match(patch);
+        const QRegularExpressionMatch rightMatch = rightFileRegExp.matchView(patch);
         if (rightMatch.hasMatch() && rightMatch.capturedStart() == 0) {
             patch = patch.mid(rightMatch.capturedEnd());
             fileData.fileInfo[RightSide].fileName = rightMatch.captured(1);
@@ -920,7 +920,7 @@ static FileData readDiffHeaderAndChunks(QStringView headerAndChunks, bool *ok)
         }
     } else {
         // or by binaryRegExp
-        const QRegularExpressionMatch binaryMatch = binaryRegExp.match(patch);
+        const QRegularExpressionMatch binaryMatch = binaryRegExp.matchView(patch);
         if (binaryMatch.hasMatch() && binaryMatch.capturedStart() == 0) {
             fileData.fileInfo[LeftSide].fileName = binaryMatch.captured(1);
             fileData.fileInfo[RightSide].fileName = binaryMatch.captured(2);
@@ -960,7 +960,7 @@ static void readDiffPatch(QPromise<QList<FileData>> &promise, QStringView patch)
 
     bool readOk = false;
     QList<FileData> fileDataList;
-    QRegularExpressionMatch diffMatch = diffRegExp.match(patch);
+    QRegularExpressionMatch diffMatch = diffRegExp.matchView(patch);
     if (diffMatch.hasMatch()) {
         readOk = true;
         int lastPos = -1;
@@ -981,7 +981,7 @@ static void readDiffPatch(QPromise<QList<FileData>> &promise, QStringView patch)
             }
             lastPos = pos;
             pos = diffMatch.capturedEnd();
-            diffMatch = diffRegExp.match(patch, pos);
+            diffMatch = diffRegExp.matchView(patch, pos);
         } while (diffMatch.hasMatch());
 
         if (readOk) {
@@ -1330,7 +1330,7 @@ void DiffUtils::readPatchWithPromise(QPromise<QList<FileData>> &promise, const Q
     QStringView croppedPatch = QStringView(patch);
     // Crop e.g. "-- \n2.10.2.windows.1\n\n" at end of file
     static const QRegularExpression formatPatchEndingRegExp("(\\n-- \\n\\S*\\n\\n$)");
-    const QRegularExpressionMatch match = formatPatchEndingRegExp.match(croppedPatch);
+    const QRegularExpressionMatch match = formatPatchEndingRegExp.matchView(croppedPatch);
     if (match.hasMatch())
         croppedPatch = croppedPatch.left(match.capturedStart() + 1);
 

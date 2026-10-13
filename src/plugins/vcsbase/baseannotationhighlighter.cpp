@@ -66,11 +66,11 @@ QSet<QString> BaseAnnotationHighlighterPrivate::annotationChanges() const
     if (txt.isEmpty())
         return changes;
     if (!m_annotation.separatorPattern.pattern().isEmpty()) {
-        const QRegularExpressionMatch match = m_annotation.separatorPattern.match(txt);
+        const QRegularExpressionMatch match = m_annotation.separatorPattern.matchView(txt);
         if (match.hasMatch())
             txt.truncate(match.capturedStart());
     }
-    QRegularExpressionMatchIterator i = m_annotation.entryPattern.globalMatch(txt);
+    QRegularExpressionMatchIterator i = m_annotation.entryPattern.globalMatchView(txt);
     while (i.hasNext()) {
         const QRegularExpressionMatch match = i.next();
         changes.insert(match.captured(1));

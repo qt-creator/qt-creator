@@ -105,12 +105,12 @@ void PreprocessContext::reset()
 PreprocessorSection PreprocessContext::preprocessorLine(QStringView in,
                                                         QString *ifExpression) const
 {
-    QRegularExpressionMatch match = m_ifPattern.match(in);
+    QRegularExpressionMatch match = m_ifPattern.matchView(in);
     if (match.hasMatch()) {
         *ifExpression = match.captured(2).trimmed();
         return IfSection;
     }
-    match = m_elsifPattern.match(in);
+    match = m_elsifPattern.matchView(in);
     if (match.hasMatch()) {
         *ifExpression = match.captured(2).trimmed();
         return ElsifSection;
@@ -118,10 +118,10 @@ PreprocessorSection PreprocessContext::preprocessorLine(QStringView in,
 
     ifExpression->clear();
 
-    match = m_elsePattern.match(in);
+    match = m_elsePattern.matchView(in);
     if (match.hasMatch())
         return ElseSection;
-    match = m_endifPattern.match(in);
+    match = m_endifPattern.matchView(in);
     if (match.hasMatch())
         return EndifSection;
     return OtherSection;

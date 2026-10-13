@@ -45,7 +45,7 @@ Position Position::fromFileName(QStringView fileName, int &postfixPos)
     static const auto regexp = QRegularExpression("[:+](\\d+)?([:+](\\d+)?)?$");
     // (10) MSVC-style
     static const auto vsRegexp = QRegularExpression("[(]((\\d+)[)]?)?$");
-    const QRegularExpressionMatch match = regexp.match(fileName);
+    const QRegularExpressionMatch match = regexp.matchView(fileName);
     Position pos;
     if (match.hasMatch()) {
         postfixPos = match.capturedStart(0);
@@ -55,7 +55,7 @@ Position Position::fromFileName(QStringView fileName, int &postfixPos)
                 pos.column = match.captured(3).toInt() - 1; //column is 0 based, despite line being 1 based
         }
     } else {
-        const QRegularExpressionMatch vsMatch = vsRegexp.match(fileName);
+        const QRegularExpressionMatch vsMatch = vsRegexp.matchView(fileName);
         postfixPos = vsMatch.capturedStart(0);
         if (vsMatch.lastCapturedIndex() > 1) // index 1 includes closing )
             pos.line = vsMatch.captured(2).toInt();
