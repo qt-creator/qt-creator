@@ -58,11 +58,11 @@ BuildDirectoryAspect::BuildDirectoryAspect(BuildConfiguration *bc)
         const FilePath expandedPath = absoluteBuildDir(newPath);
         const QString problem = updateProblemLabelsHelper(expandedPath.toFSPathString());
         if (!problem.isEmpty())
-            return QtFuture::makeReadyFuture(Result<QString>(ResultError(problem)));
+            return QtFuture::makeReadyValueFuture(Result<QString>(ResultError(problem)));
 
         if (buildDevice && buildDevice->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
             && !buildDevice->rootPath().ensureReachable(expandedPath)) {
-            return QtFuture::makeReadyFuture((Utils::Result<QString>(ResultError(
+            return QtFuture::makeReadyValueFuture((Utils::Result<QString>(ResultError(
                 Tr::tr("The build directory is not reachable from the build device.")))));
         }
 
