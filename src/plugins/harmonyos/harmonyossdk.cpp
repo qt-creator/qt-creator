@@ -37,6 +37,17 @@ Environment hdcEnvironment()
     return env;
 }
 
+FilePath hdcWorkingDirectory()
+{
+    return FilePath::fromString(TemporaryDirectory::masterDirectoryPath());
+}
+
+void setupHdcProcess(Process &process)
+{
+    process.setEnvironment(hdcEnvironment());
+    process.setWorkingDirectory(hdcWorkingDirectory());
+}
+
 // Where the compiler and its utilities sit. The SDK keeps them in an "llvm" folder, the
 // native package Qt Creator carries on the device has one flat "bin" instead.
 static FilePath toolchainBinPath(const FilePath &native)

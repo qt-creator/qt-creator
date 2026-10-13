@@ -44,6 +44,7 @@ private:
 
         Process process;
         process.setCommand({hdc, {"list", "targets"}});
+        Sdk::setupHdcProcess(process);
         process.runBlocking(std::chrono::seconds(10));
         if (process.result() != ProcessResult::FinishedWithSuccess)
             return {};

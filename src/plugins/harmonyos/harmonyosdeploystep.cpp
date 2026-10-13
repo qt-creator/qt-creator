@@ -221,7 +221,7 @@ static QString deviceUdid(const QString &serial)
 
     Process process;
     process.setCommand(cmd);
-    process.setEnvironment(Sdk::hdcEnvironment());
+    Sdk::setupHdcProcess(process);
     process.runBlocking(std::chrono::seconds(5));
 
     // "udid of current device is :" and the UDID on the line below it.
@@ -1787,7 +1787,7 @@ static QString installedUpdateTime(const QString &serial, const QString &bundle)
 
     Process process;
     process.setCommand(cmd);
-    process.setEnvironment(Sdk::hdcEnvironment());
+    Sdk::setupHdcProcess(process);
     process.runBlocking(std::chrono::seconds(5));
 
     static const QRegularExpression re("\"updateTime\"\\s*:\\s*(\\d+)");
@@ -1849,7 +1849,7 @@ private:
         cmd.addArgs({"install", m_hap.nativePath()});
         processParameters()->setCommandLine(cmd);
         processParameters()->setEnvironment(Sdk::hdcEnvironment());
-        processParameters()->setWorkingDirectory(bc->buildDirectory());
+        processParameters()->setWorkingDirectory(Sdk::hdcWorkingDirectory());
         return true;
     }
 

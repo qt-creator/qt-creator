@@ -708,7 +708,7 @@ Group deviceRunRecipe(RunControl *runControl, const std::optional<RunnerDebuggin
 
     const auto onChannelListSetup = [command](Process &process) {
         process.setCommand(command({"fport", "ls"}));
-        process.setEnvironment(Sdk::hdcEnvironment());
+        Sdk::setupHdcProcess(process);
     };
     const auto onChannelListDone = [staleStorage, channelPort](const Process &process) {
         const QStringList lines = process.cleanedStdOut().split('\n', Qt::SkipEmptyParts);
@@ -725,7 +725,7 @@ Group deviceRunRecipe(RunControl *runControl, const std::optional<RunnerDebuggin
         if (staleStorage->isEmpty())
             return SetupResult::StopWithSuccess;
         process.setCommand(command({"fport", "rm", channelPort, *staleStorage}));
-        process.setEnvironment(Sdk::hdcEnvironment());
+        Sdk::setupHdcProcess(process);
         return SetupResult::Continue;
     };
     const auto onChannelForwardSetup
@@ -735,7 +735,7 @@ Group deviceRunRecipe(RunControl *runControl, const std::optional<RunnerDebuggin
         const QString host
             = QString("tcp:%1").arg((*channelStorage)->serverPort());
         process.setCommand(command({"rport", channelPort, host}));
-        process.setEnvironment(Sdk::hdcEnvironment());
+        Sdk::setupHdcProcess(process);
         return SetupResult::Continue;
     };
     const auto onChannelForwardDone = [runControl](const Process &process) {
@@ -804,7 +804,7 @@ Group deviceRunRecipe(RunControl *runControl, const std::optional<RunnerDebuggin
                                     .arg(size / (1024 * 1024)), NormalMessageFormat);
         process.setCommand(command({"file", "send", "-b", bundle, root.nativePath(),
                                     "data/storage/el2/base/files/"}));
-        process.setEnvironment(Sdk::hdcEnvironment());
+        Sdk::setupHdcProcess(process);
         *stageStorage = std::move(stage);
         return SetupResult::Continue;
     };

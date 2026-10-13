@@ -102,7 +102,7 @@ static Group runnerDebugRecipe(RunControl *runControl,
 
     const auto onListeningSetup = [command](Process &process) {
         process.setCommand(command({"shell", "netstat", "-ln"}));
-        process.setEnvironment(Sdk::hdcEnvironment());
+        Sdk::setupHdcProcess(process);
     };
     const auto onListeningDone = [](const Process &process) {
         const QString port = QString(":%1").arg(Constants::HARMONYOS_DEBUG_PORT);
@@ -117,7 +117,7 @@ static Group runnerDebugRecipe(RunControl *runControl,
     const QString forward = QString("tcp:%1").arg(Constants::HARMONYOS_DEBUG_PORT);
     const auto onForwardSetup = [command, forward](Process &process) {
         process.setCommand(command({"fport", forward, forward}));
-        process.setEnvironment(Sdk::hdcEnvironment());
+        Sdk::setupHdcProcess(process);
     };
     const auto onForwardDone = [runControl](const Process &process) {
         if (process.allOutput().contains("[Fail]")) {
@@ -232,7 +232,7 @@ public:
 
             const auto onGateListSetup = [command](Process &process) {
                 process.setCommand(command({"fport", "ls"}));
-                process.setEnvironment(Sdk::hdcEnvironment());
+                Sdk::setupHdcProcess(process);
             };
             const auto onGateListDone = [staleStorage](const Process &process) {
                 const QString gate = QString("tcp:%1").arg(Constants::HARMONYOS_GATE_PORT);
@@ -252,7 +252,7 @@ public:
                     return SetupResult::StopWithSuccess;
                 const QString gate = QString("tcp:%1").arg(Constants::HARMONYOS_GATE_PORT);
                 process.setCommand(command({"fport", "rm", gate, *staleStorage}));
-                process.setEnvironment(Sdk::hdcEnvironment());
+                Sdk::setupHdcProcess(process);
                 return SetupResult::Continue;
             };
 
@@ -262,7 +262,7 @@ public:
                 process.setCommand(command({"rport",
                                             QString("tcp:%1").arg(Constants::HARMONYOS_GATE_PORT),
                                             QString("tcp:%1").arg((*gateStorage)->serverPort())}));
-                process.setEnvironment(Sdk::hdcEnvironment());
+                Sdk::setupHdcProcess(process);
                 return SetupResult::Continue;
             };
             const auto onGateForwardDone = [runControl](const Process &process) {
@@ -279,7 +279,7 @@ public:
             // again, and the debugger would attach to one that passed main() long ago.
             const auto onStopSetup = [command, bundle](Process &process) {
                 process.setCommand(command({"shell", "aa", "force-stop", bundle}));
-                process.setEnvironment(Sdk::hdcEnvironment());
+                Sdk::setupHdcProcess(process);
             };
 
             const auto onStartSetup = [command, bundle](Process &process) {
@@ -293,12 +293,12 @@ public:
                                             // hdc runs this through a shell on the device,
                                             // which would eat the quotes JSON needs.
                                             QString(R"('["-plugin","%1"]')").arg(spec)}));
-                process.setEnvironment(Sdk::hdcEnvironment());
+                Sdk::setupHdcProcess(process);
             };
 
             const auto onPidSetup = [command, bundle](Process &process) {
                 process.setCommand(command({"shell", "pidof", "-s", bundle}));
-                process.setEnvironment(Sdk::hdcEnvironment());
+                Sdk::setupHdcProcess(process);
             };
             const auto onPidDone = [pidStorage](const Process &process) {
                 *pidStorage = process.cleanedStdOut().trimmed();
@@ -309,7 +309,7 @@ public:
             // attaching before it listens fails, so the port is waited for, not the process.
             const auto onListeningSetup = [command](Process &process) {
                 process.setCommand(command({"shell", "netstat", "-ln"}));
-                process.setEnvironment(Sdk::hdcEnvironment());
+                Sdk::setupHdcProcess(process);
             };
             const auto onListeningDone = [](const Process &process) {
                 const QString port = QString(":%1").arg(Constants::HARMONYOS_DEBUG_PORT);
@@ -324,7 +324,7 @@ public:
             const QString forward = QString("tcp:%1").arg(Constants::HARMONYOS_DEBUG_PORT);
             const auto onForwardSetup = [command, forward](Process &process) {
                 process.setCommand(command({"fport", forward, forward}));
-                process.setEnvironment(Sdk::hdcEnvironment());
+                Sdk::setupHdcProcess(process);
             };
             const auto onForwardDone = [runControl](const Process &process) {
                 // hdc reports a refused forward in its output, not in its exit code.

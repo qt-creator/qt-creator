@@ -108,7 +108,7 @@ public:
 
         Process process;
         process.setCommand(cmd);
-        process.setEnvironment(Sdk::hdcEnvironment());
+        Sdk::setupHdcProcess(process);
         process.runBlocking();
         const QString output = process.allOutput();
         qCDebug(deviceLog) << cmd.toUserOutput() << "->" << output;
@@ -134,7 +134,7 @@ protected:
         Process process;
         process.setWriteData(inputData);
         process.setCommand(cmd);
-        process.setEnvironment(Sdk::hdcEnvironment());
+        Sdk::setupHdcProcess(process);
         process.runBlocking();
         QByteArray stdOut = process.readAllRawStandardOutput();
         int exitCode = process.resultData().m_exitCode;
@@ -278,7 +278,7 @@ static Result<QStringList> connectedSerialNumbers(const FilePath &hdc)
 {
     Process process;
     process.setCommand({hdc, {"list", "targets"}});
-    process.setEnvironment(Sdk::hdcEnvironment());
+    Sdk::setupHdcProcess(process);
     process.runBlocking(5s);
     if (process.result() != ProcessResult::FinishedWithSuccess)
         return ResultError(process.exitMessage());
@@ -334,7 +334,7 @@ public:
         }
         emit progressMessage(Tr::tr("Looking for device \"%1\"...").arg(serialNumber()));
         m_process.setCommand({hdc, {"list", "targets"}});
-        m_process.setEnvironment(Sdk::hdcEnvironment());
+        Sdk::setupHdcProcess(m_process);
         m_process.start();
     }
 
@@ -460,7 +460,7 @@ private:
         if (hdc.isEmpty())
             return;
         m_process.setCommand({hdc, {"list", "targets"}});
-        m_process.setEnvironment(Sdk::hdcEnvironment());
+        Sdk::setupHdcProcess(m_process);
         m_process.start();
     }
 
