@@ -118,8 +118,10 @@ void registerMcpTools()
             .description(
                 "Registers the Qt version a qmake belongs to, as \"Add...\" on the Qt Versions "
                 "preferences page does. Returns what the version turned out to be, so that a "
-                "caller can tell which platform it was recognized as. A qmake that is already "
-                "registered is returned as it stands.")
+                "caller can tell which platform it was recognized as. A Qt without a qmake "
+                "that runs here, such as a cross build on the device it targets, is registered "
+                "from its prefix instead. A version that is already registered is returned as "
+                "it stands.")
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
@@ -128,13 +130,19 @@ void registerMcpTools()
                             {"type", "string"},
                             {"description", "Path to the qmake executable of the Qt to add."}})
                     .addProperty(
+                        "prefix",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Installation prefix of the Qt to add, read from its files "
+                             "instead of running its qmake. Used when qmake_path is not given."}})
+                    .addProperty(
                         "name",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
                              "Display name for the version. Defaults to the name the "
-                             "detection came up with."}})
-                    .addRequired("qmake_path"))
+                             "detection came up with."}}))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty(
@@ -165,31 +173,37 @@ void registerMcpTools()
                         "already_registered",
                         QJsonObject{
                             {"type", "boolean"},
-                            {"description", "Was this qmake known before the call."}})),
+                            {"description", "Was this Qt known before the call."}})),
         [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const FilePath qmake = FilePath::fromUserInput(
                 params.arguments()->value("qmake_path").toString());
-            if (qmake.isEmpty()) {
+            const FilePath prefix = FilePath::fromUserInput(
+                params.arguments()->value("prefix").toString());
+            const FilePath qtFile = qmake.isEmpty() ? prefix : qmake;
+            if (qtFile.isEmpty()) {
                 return CallToolResult{}.isError(true).addContent(
-                    TextContent{}.text("No qmake_path given"));
+                    TextContent{}.text("Neither qmake_path nor prefix given"));
             }
-            if (!qmake.isExecutableFile()) {
+            if (!qmake.isEmpty() && !qmake.isExecutableFile()) {
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(
                     QString("Not an executable file: %1").arg(qmake.toUserOutput())));
             }
 
             bool alreadyRegistered = true;
             QtVersion *version = QtVersionManager::version(
-                [&qmake](const QtVersion *v) { return v->qtFilePath() == qmake; });
+                [&qtFile](const QtVersion *v) { return v->qtFilePath() == qtFile; });
             if (!version) {
                 QString error;
-                version = QtVersionFactory::createQtVersionFromQMakePath(
-                    qmake, ProjectExplorer::DetectionSource::Manual, &error);
+                version = qmake.isEmpty()
+                    ? QtVersionFactory::createQtVersionFromPrefix(
+                        prefix, ProjectExplorer::DetectionSource::Manual, &error)
+                    : QtVersionFactory::createQtVersionFromQMakePath(
+                        qmake, ProjectExplorer::DetectionSource::Manual, &error);
                 if (!version) {
                     return CallToolResult{}.isError(true).addContent(TextContent{}.text(
-                        error.isEmpty()
-                            ? QString("No Qt version could be made of %1").arg(qmake.toUserOutput())
-                            : error));
+                        error.isEmpty() ? QString("No Qt version could be made of %1")
+                                              .arg(qtFile.toUserOutput())
+                                        : error));
                 }
                 alreadyRegistered = false;
                 const QString name = params.arguments()->value("name").toString();
