@@ -21,6 +21,7 @@
 #include <QTemporaryFile>
 #include <QTextStream>
 #include <QThread>
+#include <QTimeZone>
 #include <QXmlStreamWriter>
 
 
@@ -652,7 +653,7 @@ FilePathInfo filePathInfoFromTriple(const QString &infos, int modeBase)
 
     FilePathInfo::FileFlags flags = fileInfoFlagsfromStatMode(parts[0], modeBase);
 
-    const QDateTime dt = QDateTime::fromSecsSinceEpoch(parts[1].toLongLong(), Qt::UTC);
+    const QDateTime dt = QDateTime::fromSecsSinceEpoch(parts[1].toLongLong(), QTimeZone::UTC);
     qint64 size = parts[2].toLongLong();
     return {size, flags, dt};
 }

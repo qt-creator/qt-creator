@@ -31,6 +31,7 @@
 #include <QTemporaryDir>
 #include <QTemporaryFile>
 #include <QThread>
+#include <QTimeZone>
 #include <QTimer>
 
 #ifdef Q_OS_WIN
@@ -1831,7 +1832,7 @@ Result<QDateTime> UnixDeviceFileAccess::lastModified(const FilePath &filePath) c
     if (!res)
         return ResultError(res.error());
     qint64 secs = res->stdOut.toLongLong();
-    const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, Qt::UTC);
+    const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, QTimeZone::UTC);
     return dt;
 }
 

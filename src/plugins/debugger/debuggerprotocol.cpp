@@ -942,7 +942,7 @@ QString decodeData(QStringView ba, const QString &encoding)
 
             QDateTime dateTime;
             if (spec == Qt::OffsetFromUTC) {
-                dateTime = QDateTime(date, time, spec, offset);
+                dateTime = QDateTime(date, time, QTimeZone::fromSecondsAheadOfUtc(int(offset)));
             } else if (spec == Qt::TimeZone) {
                 QTimeZone tz(timeZoneId);
                 if (!tz.isValid())
@@ -950,7 +950,8 @@ QString decodeData(QStringView ba, const QString &encoding)
 
                 dateTime = QDateTime(date, time, tz);
             } else {
-                dateTime = QDateTime(date, time, spec);
+                dateTime = QDateTime(date, time,
+                                     spec == Qt::UTC ? QTimeZone::UTC : QTimeZone::LocalTime);
             }
             return dateTime.toString();
         }
