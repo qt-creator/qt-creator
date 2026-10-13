@@ -162,7 +162,8 @@ void setupQtModule()
                 "Writable", QDir::Writable,
                 "Executable", QDir::Executable,
                 "PermissionMask", QDir::PermissionMask,
-                "Modified", QDir::Modified,
+                // QDir::Modified (deprecated, ignored by QDir), kept for existing scripts.
+                "Modified", QDir::Filter(0x080),
                 "Hidden", QDir::Hidden,
                 "System", QDir::System,
                 "AccessMask", QDir::AccessMask,
