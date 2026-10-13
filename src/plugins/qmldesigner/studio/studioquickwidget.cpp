@@ -97,7 +97,7 @@ void StudioQuickWidget::registerDeclarativeType()
 }
 
 StudioPropertyMap::StudioPropertyMap(QObject *parent)
-    : QQmlPropertyMap(parent)
+    : QQmlPropertyMap(this, parent)
 {}
 
 void StudioPropertyMap::setProperties(const QList<PropertyPair> &properties)

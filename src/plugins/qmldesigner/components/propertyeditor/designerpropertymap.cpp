@@ -11,7 +11,7 @@ namespace QmlDesigner {
 
 using PropertyEditorTracing::category;
 
-DesignerPropertyMap::DesignerPropertyMap(QObject *parent) : QQmlPropertyMap(parent)
+DesignerPropertyMap::DesignerPropertyMap(QObject *parent) : QQmlPropertyMap(this, parent)
 {
     NanotraceHR::Tracer tracer{"designer property map", category()};
 }
