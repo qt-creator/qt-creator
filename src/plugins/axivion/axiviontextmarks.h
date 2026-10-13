@@ -9,11 +9,12 @@ namespace Axivion::Internal {
 
 namespace Dto { class FileViewDto; }
 
-enum class LineMarkerType { Dashboard, SFA };
+enum class LineMarkerType { DashboardGlobal, DashboardLocal, SFA };
 
-// bauhausSuite == std::nullopt used for LineMarkerType::Dashboard, otherwise LineMarkerType::SFA
 void handleIssuesForFile(const Dto::FileViewDto &fileView, const Utils::FilePath &filePath,
                          const std::optional<Utils::FilePath> &bauhausSuite,
+                         LineMarkerType type,
+                         const QString &projectName,
                          const QByteArray &origSource);
 void clearAllMarks(LineMarkerType type);
 void clearMarks(const Utils::FilePath &filePath, LineMarkerType type);

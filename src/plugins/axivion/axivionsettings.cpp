@@ -233,6 +233,14 @@ public:
         return fallback;
     }
 
+    bool hasPathMapping(const FilePath &filePath, const QString &projectName) const
+    {
+        return Utils::anyOf(m_pathMapping, [&filePath, &projectName](const PathMapping &pm) {
+            return pm.isValid() && projectName == pm.projectName
+                    && filePath.isChildOf(pm.localPath);
+        });
+    }
+
     FilePath localProjectForProjectName(const QString &projectName) const
     {
         QTC_ASSERT(!projectName.isEmpty(), return {});
@@ -412,10 +420,17 @@ const QList<PathMapping> AxivionSettings::validPathMappings() const
     return pathMappingSettings().validPathMappings();
 }
 
+// compute mapped file path - may use a fallback
 FilePath AxivionSettings::mappedFilePath(const FilePath &filePath,
                                          const QString &projectName) const
 {
     return pathMappingSettings().mappedFilePath(filePath, projectName);
+}
+
+// check whether file has a valid mapping - no fallback involved
+bool AxivionSettings::hasPathMapping(const FilePath &filePath, const QString &projectName) const
+{
+    return pathMappingSettings().hasPathMapping(filePath, projectName);
 }
 
 Utils::FilePath AxivionSettings::localProjectForProjectName(const QString &projectName) const

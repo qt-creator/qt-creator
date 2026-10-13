@@ -177,10 +177,10 @@ static QList<PathMapping> findPathMappingMatches(const QString &projectName, con
     return result;
 }
 
-static FilePath mappedPathForLink(const Link &link)
+static FilePath mappedPathForLink(const Link &link, const QString &projectName)
 {
-    if (const std::optional<Dto::ProjectInfoDto> pInfo = projectInfo()) {
-        const QList<PathMapping> mappings = findPathMappingMatches(pInfo->name, link);
+    if (!projectName.isEmpty()) {
+        const QList<PathMapping> mappings = findPathMappingMatches(projectName, link);
         const bool linkIsRelative = link.targetFilePath.isRelativePath();
         for (const PathMapping &mapping : mappings) {
             if (linkIsRelative) {
@@ -210,7 +210,7 @@ static FilePath requestPathMapping(const Link &link, const QString &projectName)
         return {}; // we fail to create a mapping for empty project name
     if (!handleMissingPathMapping(link.targetFilePath, projectName)) // mapping still invalid
         return {};
-    return mappedPathForLink(link);
+    return mappedPathForLink(link, projectName);
 }
 
 class IssueListItem final : public ListItem
@@ -247,12 +247,11 @@ public:
                     return link.columns.contains(column);
                 }).link;
 
-                FilePath targetFilePath = mappedPathForLink(link);
-                if (targetFilePath.isEmpty()) {
-                    auto pi = projectInfo();
-                    QTC_ASSERT(pi, return false);
+                auto pi = projectInfo();
+                QTC_ASSERT(pi, return false);
+                FilePath targetFilePath = mappedPathForLink(link, pi->name);
+                if (targetFilePath.isEmpty())
                     targetFilePath = requestPathMapping(link, pi->name);
-                }
                 link.targetFilePath = targetFilePath;
                 if (link.targetFilePath.exists()) {
                     EditorManager::openEditorAt(link);
@@ -298,6 +297,7 @@ public:
     void showErrorMessage(const QString &message);
 
     bool currentIssueHasValidMapping() const;
+    bool localChangesSelected() const;
 
     void requestFocusForIssuesTable();
 
@@ -473,6 +473,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         if (m_signalBlocker.isLocked())
             return;
         onSearchParameterChanged();
+        updateInlineIssues();
     });
 
     m_addedFilter = new QPushButton(this);
@@ -548,7 +549,8 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         QTC_ASSERT(!id.isEmpty(), return);
         const bool useGlobal = currentDashboardMode() == DashboardMode::Global
                 || !currentIssueHasValidMapping();
-        fetchIssueInfo(useGlobal ? DashboardMode::Global : DashboardMode::Local, id);
+        fetchIssueInfo(useGlobal ? DashboardMode::Global : DashboardMode::Local,
+                       m_currentProject, id);
     });
     m_totalRows = new QLabel(Tr::tr("Total rows:"), this);
 
@@ -1066,7 +1068,8 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     int buttonId = 0;
     for (const Dto::IssueKindInfoDto &kind : issueKinds) {
         auto button = new QToolButton(this);
-        button->setIcon(iconForIssue(kind.getOptionalPrefixEnum(), LineMarkerType::Dashboard));
+        button->setIcon(iconForIssue(kind.getOptionalPrefixEnum(),
+                                     LineMarkerType::DashboardGlobal));
         button->setToolTip(kind.nicePluralName);
         button->setCheckable(true);
         connect(button, &QToolButton::clicked, this, [this, prefix = kind.prefix]{
@@ -1338,10 +1341,15 @@ bool IssuesWidget::currentIssueHasValidMapping() const
         return false;
     const Link srcLink = m_issuesModel->data(index, ListItemSourcePathRole).value<Link>();
     if (srcLink.hasValidTarget()) {
-        const FilePath mapped = mappedPathForLink(srcLink);
+        const FilePath mapped = mappedPathForLink(srcLink, m_currentProject);
         return mapped.isEmpty() || mapped.exists();
     }
     return true;
+}
+
+bool IssuesWidget::localChangesSelected() const
+{
+    return m_localVersions->currentIndex() != LocalVersions::ReferenceVersion;
 }
 
 void IssuesWidget::requestFocusForIssuesTable()
@@ -1425,9 +1433,15 @@ public:
         return QTextBrowser::loadResource(type, name);
     }
 
-    void setHtmlAfterCheckingCacheSize(const QString &html, const QString &projectName)
+    void setHtmlAfterCheckingCacheSize(const QString &html, const QString &projectName,
+                                       std::optional<DashboardMode> dashboardMode)
     {
         m_projectName = projectName;
+        if (m_dashboardMode != dashboardMode) {
+            m_loaderTaskTree.reset();
+            m_loadingQueue.clear();
+        }
+        m_dashboardMode = dashboardMode;
         if (m_cachedImagesSize >= 1024 * 1024 * 250) { // if we exceeded 250MB reset the doc
             m_cachedImagesSize = 0;
             setDocument(new QTextDocument(this)); // create a new document to clear resources
@@ -1440,9 +1454,14 @@ private:
 
         const Storage<DownloadData> storage;
 
-        const bool useGlobal = currentDashboardMode() == DashboardMode::Global
-                || !currentIssueHasValidPathMapping();
-        DashboardMode dashboardMode = useGlobal ? DashboardMode::Global : DashboardMode::Local;
+        DashboardMode dashboardMode;
+        if (m_dashboardMode) {
+            dashboardMode = *m_dashboardMode;
+        } else {
+            const bool useGlobal = currentDashboardMode() == DashboardMode::Global
+                    || !currentIssueHasValidPathMapping();
+            dashboardMode = useGlobal ? DashboardMode::Global : DashboardMode::Local;
+        }
         const auto onSetup = [this, dashboardMode, storage] {
             storage->inputUrl = resolveDashboardInfoUrl(dashboardMode, m_loadingQueue.first());
             storage->expectedContentType = ContentType::Svg;
@@ -1478,6 +1497,7 @@ private:
     QList<QUrl> m_loadingQueue;
     QSingleTaskTreeRunner m_loaderTaskTree;
     QString m_projectName;
+    std::optional<DashboardMode> m_dashboardMode;
     unsigned int m_cachedImagesSize = 0;
 };
 
@@ -1795,7 +1815,8 @@ public:
     void resetDashboard();
     bool handleContextMenu(bool globalDashboard, const QString &issue, const ItemViewEvent &e);
     bool handleProgressContextMenu(const ItemViewEvent &e);
-    void setIssueDetailsHtml(const QString &html, const QString &projectName);
+    void setIssueDetailsHtml(const QString &html, const QString &projectName,
+                             std::optional<DashboardMode> dashboardMode);
     void handleAnchorClicked(const QUrl &url);
     void updateNamedFilters();
     void updateLocalBuildStateFor(const QString &projectName,const QString &state, int percent);
@@ -1806,6 +1827,7 @@ public:
 
     void leaveOrEnterDashboardMode(bool byLocalBuildButton);
     bool currentIssueHasValidPathMapping() const;
+    bool localChangesSelected() const;
 
     void showProgressWidget();
 
@@ -2044,9 +2066,10 @@ bool AxivionPerspective::handleProgressContextMenu(const ItemViewEvent &e)
     return true;
 }
 
-void AxivionPerspective::setIssueDetailsHtml(const QString &html, const QString &projectName)
+void AxivionPerspective::setIssueDetailsHtml(const QString &html, const QString &projectName,
+                                             std::optional<DashboardMode> dashboardMode)
 {
-    m_issueDetails.setHtmlAfterCheckingCacheSize(html, projectName);
+    m_issueDetails.setHtmlAfterCheckingCacheSize(html, projectName, dashboardMode);
 }
 
 void AxivionPerspective::handleAnchorClicked(const QUrl &url)
@@ -2070,7 +2093,7 @@ void AxivionPerspective::handleAnchorClicked(const QUrl &url)
     if (const QString path = query.queryItemValue("filename", QUrl::FullyDecoded); !path.isEmpty())
         link.targetFilePath = FilePath::fromUserInput(path);
     if (!m_issueDetails.projectName().isEmpty()) { // no project name -> SFA, absolute path
-        FilePath targetFilePath = mappedPathForLink(link);
+        FilePath targetFilePath = mappedPathForLink(link, m_issueDetails.projectName());
         if (targetFilePath.isEmpty())
             targetFilePath = requestPathMapping(link, m_issueDetails.projectName());
         link.targetFilePath = targetFilePath;
@@ -2133,6 +2156,11 @@ void AxivionPerspective::leaveOrEnterDashboardMode(bool byLocalBuildButton)
 bool AxivionPerspective::currentIssueHasValidPathMapping() const
 {
     return m_issuesWidget.currentIssueHasValidMapping();
+}
+
+bool AxivionPerspective::localChangesSelected() const
+{
+    return m_issuesWidget.localChangesSelected();
 }
 
 void AxivionPerspective::showProgressWidget()
@@ -2235,10 +2263,11 @@ void showErrorMessage(const QString &errorMessage)
     axivionPerspective()->handleShowErrorMessage(errorMessage);
 }
 
-void updateIssueDetails(const QString &html, const QString &projectName)
+void updateIssueDetails(const QString &html, const QString &projectName,
+                        std::optional<DashboardMode> dashboardMode)
 {
     QTC_ASSERT(axivionPerspective(), return);
-    axivionPerspective()->setIssueDetailsHtml(html, projectName);
+    axivionPerspective()->setIssueDetailsHtml(html, projectName, dashboardMode);
 }
 
 void updateNamedFilters()
@@ -2296,6 +2325,12 @@ bool currentIssueHasValidPathMapping()
 {
     QTC_ASSERT(axivionPerspective(), return false);
     return axivionPerspective()->currentIssueHasValidPathMapping();
+}
+
+bool localChangesSelected()
+{
+    QTC_ASSERT(axivionPerspective(), return false);
+    return axivionPerspective()->localChangesSelected();
 }
 
 void showLocalBuildProgress()

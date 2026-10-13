@@ -422,7 +422,7 @@ void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, 
             const QList<Result<Dto::FileViewDto>> &results = async.results();
             for (const Result<Dto::FileViewDto> &result : results) {
                 handleIssuesForFile(*result, FilePath::fromUserInput(result->fileName),
-                                    bauhausSuite, {});
+                                    bauhausSuite, LineMarkerType::SFA, {}, {});
             }
         };
         const Group deserializeRecipe = For (iterator) >> Do {
@@ -510,7 +510,7 @@ void fetchIssueInfoFromPluginAr(const Utils::FilePath &bauhausSuite, const QStri
         query.setOperation(QNetworkAccessManager::GetOperation);
     };
     auto onSuccess = [](const QByteArray &reply) {
-        updateIssueDetails(QString::fromUtf8(fixIssueDetailsHtml(reply)), {});
+        updateIssueDetails(QString::fromUtf8(fixIssueDetailsHtml(reply)), {}, std::nullopt);
         return DoneResult::Success;
     };
 
