@@ -183,7 +183,8 @@ TextMark::AnnotationRects TextMark::annotationRects(const QRectF &boundingRect,
                                                     const qreal fadeOutOffset) const
 {
     AnnotationRects rects;
-    rects.text = lineAnnotation().simplified();
+    if (boundingRect.width() > 0)
+        rects.text = lineAnnotation().simplified();
     if (rects.text.isEmpty())
         return rects;
     // truncate the text to a sensible length to avoid expensive width calculation in QFontMetrics
