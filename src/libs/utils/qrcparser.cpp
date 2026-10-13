@@ -364,20 +364,20 @@ bool QrcParserPrivate::parseFile(const FilePath &path, const QString &contents)
             return false;
         }
 
-        QString error_msg;
-        int error_line, error_col;
-        if (!doc.setContent(&file, &error_msg, &error_line, &error_col)) {
+        const QDomDocument::ParseResult result = doc.setContent(&file);
+        if (!result) {
             m_errorMessages.append(QmlJS::Tr::tr("XML error on line %1, col %2: %3")
-                                   .arg(error_line).arg(error_col).arg(error_msg));
+                                   .arg(result.errorLine).arg(result.errorColumn)
+                                   .arg(result.errorMessage));
             return false;
         }
     } else {
         // Virtual file from qmake evaluator
-        QString error_msg;
-        int error_line, error_col;
-        if (!doc.setContent(contents, &error_msg, &error_line, &error_col)) {
+        const QDomDocument::ParseResult result = doc.setContent(contents);
+        if (!result) {
             m_errorMessages.append(QmlJS::Tr::tr("XML error on line %1, col %2: %3")
-                                   .arg(error_line).arg(error_col).arg(error_msg));
+                                   .arg(result.errorLine).arg(result.errorColumn)
+                                   .arg(result.errorMessage));
             return false;
         }
     }

@@ -1167,7 +1167,7 @@ SVGPasteAction::SVGPasteAction()
 
 bool SVGPasteAction::containsSVG(const QString &str)
 {
-    if (!m_domDocument.setContent(str, true))
+    if (!m_domDocument.setContent(str, QDomDocument::ParseOption::UseNamespaceProcessing))
         return false; // TODO error reporting
 
     if (m_domDocument.documentElement().namespaceURI() == "http://www.w3.org/2000/svg")

@@ -419,9 +419,14 @@ void AndroidManifestEditorWidget::updateAfterFileLoad()
     int errorLine;
     int errorColumn;
     QDomDocument doc;
-    if (doc.setContent(m_textEditorWidget->toPlainText(), &error, &errorLine, &errorColumn)) {
+    const QDomDocument::ParseResult result = doc.setContent(m_textEditorWidget->toPlainText());
+    if (result) {
         if (checkDocument(doc, &error, &errorLine, &errorColumn))
             return;
+    } else {
+        error = result.errorMessage;
+        errorLine = int(result.errorLine);
+        errorColumn = int(result.errorColumn);
     }
     // some error occurred
     updateInfoBar(error, errorLine, errorColumn);
@@ -467,11 +472,16 @@ void AndroidManifestEditorWidget::updateInfoBar()
     int errorLine = -1;
     int errorColumn = -1;
     QString errorMessage;
-    if (doc.setContent(m_textEditorWidget->toPlainText(), &errorMessage, &errorLine, &errorColumn)) {
+    const QDomDocument::ParseResult result = doc.setContent(m_textEditorWidget->toPlainText());
+    if (result) {
         if (checkDocument(doc, &errorMessage, &errorLine, &errorColumn)) {
             hideInfoBar();
             return;
         }
+    } else {
+        errorMessage = result.errorMessage;
+        errorLine = int(result.errorLine);
+        errorColumn = int(result.errorColumn);
     }
 
     updateInfoBar(errorMessage, errorLine, errorColumn);

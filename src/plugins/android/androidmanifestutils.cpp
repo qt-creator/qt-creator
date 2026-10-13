@@ -38,11 +38,11 @@ static Result<QDomDocument> loadManifestDocument(const FilePath &manifestPath)
                                       .arg(file.errorString()));
 
     QDomDocument doc;
-    QString errorMsg;
-    int errorLine, errorColumn;
-    if (!doc.setContent(&file, &errorMsg, &errorLine, &errorColumn))
+    const QDomDocument::ParseResult result = doc.setContent(&file);
+    if (!result)
         return ResultError(QString("XML parsing error at line %1, column %2: %3")
-                                      .arg(errorLine).arg(errorColumn).arg(errorMsg));
+                                      .arg(result.errorLine).arg(result.errorColumn)
+                                      .arg(result.errorMessage));
 
     return doc;
 }

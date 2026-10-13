@@ -1575,11 +1575,12 @@ bool DockManager::writeAttribute(const FilePath &filePath, QStringView key, cons
     QTC_ASSERT_RESULT(content, return false);
 
     QDomDocument doc;
-    QString error_msg;
-    int error_line, error_col;
-    if (!doc.setContent(*content, &error_msg, &error_line, &error_col)) {
+    const QDomDocument::ParseResult parseResult = doc.setContent(*content);
+    if (!parseResult) {
         qWarning() << QString("XML error on line %1, col %2: %3")
-                          .arg(error_line).arg(error_col).arg(error_msg);
+                          .arg(parseResult.errorLine)
+                          .arg(parseResult.errorColumn)
+                          .arg(parseResult.errorMessage);
         return false;
     }
 

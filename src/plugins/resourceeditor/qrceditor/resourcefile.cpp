@@ -108,22 +108,20 @@ Result<> ResourceFile::load()
         // we always write UTF-8 when saving
         m_textFileFormat.setEncoding(TextEncoding::Utf8);
 
-        QString error_msg;
-        int error_line, error_col;
-        if (!doc.setContent(data, &error_msg, &error_line, &error_col)) {
+        const QDomDocument::ParseResult result = doc.setContent(data);
+        if (!result) {
             m_error_message = Tr::tr("XML error on line %1, col %2: %3")
-                        .arg(error_line).arg(error_col).arg(error_msg);
+                        .arg(result.errorLine).arg(result.errorColumn).arg(result.errorMessage);
             return ResultError(m_error_message);
         }
 
     } else {
 
         // Virtual file from qmake evaluator
-        QString error_msg;
-        int error_line, error_col;
-        if (!doc.setContent(m_contents, &error_msg, &error_line, &error_col)) {
+        const QDomDocument::ParseResult result = doc.setContent(m_contents);
+        if (!result) {
             m_error_message = Tr::tr("XML error on line %1, col %2: %3")
-                        .arg(error_line).arg(error_col).arg(error_msg);
+                        .arg(result.errorLine).arg(result.errorColumn).arg(result.errorMessage);
             return ResultError(m_error_message);
         }
 
