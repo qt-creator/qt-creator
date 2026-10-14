@@ -757,6 +757,50 @@ void WindowsDeviceDetectionTest::testForwardReachesTheDeviceLoopback()
     QCOMPARE(received, greeting);
 }
 
+void WindowsDeviceDetectionTest::testProcessEnvironment()
+{
+    const SshParameters params = SshTest::getParameters("WIN");
+    if (!SshTest::hasVariantHost("WIN") || !SshTest::checkParameters(params)) {
+        SshTest::printSetupHelp();
+        QSKIP("Set QTC_SSH_TEST_WIN_HOST (and _USER/_PORT/_KEYFILE where they differ from the "
+              "plain QTC_SSH_TEST_* values) to a reachable Windows-over-SSH host.");
+    }
+
+    const Result<IDevicePtr> created = connectedWindowsDevice(params);
+    if (!created)
+        QFAIL(qPrintable(created.error()));
+    const IDevicePtr device = *created;
+    const Id deviceId = device->id();
+    const FilePath deviceRoot = device->rootPath();
+    const QScopeGuard removeDevice([&] { DeviceManager::removeDevice(deviceId); });
+
+    const auto run = [&deviceRoot](const Environment &env) {
+        Process proc;
+        proc.setCommand({deviceRoot.withNewPath("C:/Windows/System32/cmd.exe"), {"/c", "set"}});
+        proc.setEnvironment(env);
+        proc.runBlocking(std::chrono::seconds(60));
+        return Environment(proc.cleanedStdOut().split('\n', Qt::SkipEmptyParts),
+                           OsTypeWindows);
+    };
+
+    const Result<Environment> deviceEnv = device->systemEnvironmentWithError();
+    if (!deviceEnv)
+        QFAIL(qPrintable(deviceEnv.error()));
+    QVERIFY(deviceEnv->hasKey("OS"));
+    Environment env = *deviceEnv;
+    env.set("QTC_TEST_ADDED", "a b");
+    env.unset("OS");
+    const Environment changed = run(env);
+    QCOMPARE(changed.value("QTC_TEST_ADDED"), "a b");
+    QVERIFY(!changed.hasKey("OS"));
+
+    Environment clean{NameValueDictionary(OsTypeWindows)};
+    clean.set("QTC_TEST_ADDED", "1");
+    const Environment cleaned = run(clean);
+    QCOMPARE(cleaned.value("QTC_TEST_ADDED"), "1");
+    QVERIFY(!cleaned.hasKey("OS"));
+}
+
 void WindowsDeviceDetectionTest::testLocalPortForwardOptions_data()
 {
     QTest::addColumn<QVariantHash>("extraData");

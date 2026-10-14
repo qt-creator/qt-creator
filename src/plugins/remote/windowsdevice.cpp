@@ -85,6 +85,24 @@ static CommandLine sshCommandLine(const SshParameters &ssh, const QString &remot
     return cmd;
 }
 
+// Use SetEnvironmentVariable rather than "$env:KEY = ...": some Windows variable names contain
+// characters PowerShell cannot parse after "$env:", e.g. the "(x86)" in "ProgramFiles(x86)" /
+// "CommonProgramFiles(x86)".
+static QString environmentScript(const EnvironmentItems &changes, const QString &indent)
+{
+    QString script;
+    for (const EnvironmentItem &item : changes) {
+        if (item.operation == EnvironmentItem::Unset) {
+            script += indent + "[Environment]::SetEnvironmentVariable(" + psQuote(item.name)
+                      + ", $null)\n";
+        } else if (!item.value.contains('\n')) {
+            script += indent + "[Environment]::SetEnvironmentVariable(" + psQuote(item.name)
+                      + ", " + psQuote(item.value) + ")\n";
+        }
+    }
+    return script;
+}
+
 // Match the image path, not the file name, and let a missing process pass. Never the caller
 // itself, which shares the path when the script runs against a shell.
 static QString killByPathScript(const FilePath &path)
@@ -315,22 +333,13 @@ CommandLine WindowsProcessInterface::fullLocalCommandLine()
     // The streaming CmdBridge process (ProcessMode::Writer, binary protocol on stdin/stdout)
     // is excluded - a PowerShell wrapper would corrupt its byte stream; it keeps the plain
     // direct invocation below.
-    const bool injectEnvironment = remote.isEmpty()
-                                   && m_setup.m_processMode != ProcessMode::Writer
-                                   && !m_setup.m_environment.toStringList().isEmpty();
+    EnvironmentItems envChanges;
+    if (remote.isEmpty() && m_setup.m_processMode != ProcessMode::Writer)
+        envChanges = m_device->environmentChanges(m_setup.m_environment);
 
-    if (injectEnvironment) {
+    if (!envChanges.isEmpty()) {
         const Environment &env = m_setup.m_environment;
-        QString script;
-        env.forEachEntry([&](const QString &key, const QString &value, bool enabled) {
-            // Use SetEnvironmentVariable rather than "$env:KEY = ...": some Windows variable
-            // names contain characters PowerShell cannot parse after "$env:", e.g. the "(x86)"
-            // in "ProgramFiles(x86)" / "CommonProgramFiles(x86)".
-            if (enabled && !key.trimmed().isEmpty() && !value.contains('\n')) {
-                script += "[Environment]::SetEnvironmentVariable(" + psQuote(key) + ", "
-                          + psQuote(env.expandVariables(value)) + ")\n";
-            }
-        });
+        QString script = environmentScript(envChanges, {});
         const FilePath workingDirectory = m_setup.rawWorkingDirectory();
         if (!workingDirectory.isEmpty())
             script += "Set-Location -LiteralPath " + psPath(workingDirectory) + "\n";
@@ -402,15 +411,8 @@ CommandLine WindowsProcessInterface::fullLocalCommandLine()
 QString WindowsProcessInterface::buildInteractiveRunRemoteCommand()
 {
     const CommandLine remoteCommand = m_setup.m_commandLine;
-    const Environment &env = m_setup.m_environment;
-
-    QString envScript;
-    env.forEachEntry([&](const QString &key, const QString &value, bool enabled) {
-        if (enabled && !key.trimmed().isEmpty() && !value.contains('\n')) {
-            envScript += "    [Environment]::SetEnvironmentVariable(" + psQuote(key) + ", "
-                         + psQuote(env.expandVariables(value)) + ")\n";
-        }
-    });
+    const QString envScript
+        = environmentScript(m_device->environmentChanges(m_setup.m_environment), "    ");
 
     // Stage under C:\Users\Public: the application is launched by SYSTEM as the (possibly
     // different) desktop user, not the SSH user, so both the script and its output/exit files

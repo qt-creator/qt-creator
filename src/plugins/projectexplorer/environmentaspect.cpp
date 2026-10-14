@@ -95,8 +95,10 @@ Environment EnvironmentAspect::environment() const
 
 Environment EnvironmentAspect::expandedEnvironment(const MacroExpander &expander) const
 {
-    Environment expandedEnv;
-    environment().forEachEntry([&](const QString &key, const QString &value, bool enabled) {
+    const Environment env = environment();
+    Environment expandedEnv = env.isComplete() ? Environment(NameValueDictionary(env.osType()))
+                                               : Environment(env.osType());
+    env.forEachEntry([&](const QString &key, const QString &value, bool enabled) {
         expandedEnv.set(key, expander.expand(value), enabled);
     });
     return expandedEnv;

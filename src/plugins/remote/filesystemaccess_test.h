@@ -25,6 +25,7 @@ private slots:
     void testCreateRemoteFile();
     void testWorkingDirectory();
     void testUserCommandInWorkingDirectory();
+    void testProcessEnvironment();
     void testDirStatus();
     void testBytesAvailable();
     void testFileActions();

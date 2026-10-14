@@ -44,6 +44,7 @@ public:
     void modify(const EnvironmentItems &items);
 
     bool hasChanges() const;
+    bool isComplete() const;
 
     OsType osType() const;
     QStringList toStringList() const;

@@ -74,7 +74,10 @@ static bool displayAlreadySet(const Utils::EnvironmentChanges &changes)
 RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(AspectContainer *container)
     : EnvironmentAspect(container)
 {
-    addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
+    addSupportedBaseEnvironment(Tr::tr("Clean Environment"), [this] {
+        const IDevice::ConstPtr device = this->device();
+        return Environment(NameValueDictionary(device ? device->osType() : OsTypeLinux));
+    });
     addPreferredBaseEnvironment(Tr::tr("System Environment"), [this] {
         // Populate the base from the device on first use, so a remote run starts with the
         // device's actual environment rather than an empty one (this previously required a

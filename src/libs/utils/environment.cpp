@@ -113,6 +113,15 @@ bool Environment::hasChanges() const
     return dict.size() != 0;
 }
 
+/*!
+    Returns whether this environment holds all variables, not just changes.
+*/
+bool Environment::isComplete() const
+{
+    resolved();
+    return m_fullDict;
+}
+
 OsType Environment::osType() const
 {
     return m_dict.m_osType;

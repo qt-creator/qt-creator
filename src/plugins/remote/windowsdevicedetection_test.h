@@ -21,6 +21,7 @@ private slots:
     void testRunsWithoutADesktopSession();
     void testStopKillsTheRemoteApplication();
     void testForwardReachesTheDeviceLoopback();
+    void testProcessEnvironment();
     void testLocalPortForwardOptions_data();
     void testLocalPortForwardOptions();
 };

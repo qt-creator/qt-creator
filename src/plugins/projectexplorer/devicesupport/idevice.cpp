@@ -50,6 +50,7 @@
 
 #include <QDateTime>
 #include <QReadWriteLock>
+#include <QRegularExpression>
 #include <QStandardItem>
 #include <QString>
 #include <QVersionNumber>
@@ -1015,6 +1016,68 @@ Result<Environment> IDevice::systemEnvironmentIfKnown() const
     if (const DeviceFileAccessPtr access = fileAccess())
         d->startSystemEnvironmentFetch(access);
     return ResultError(Tr::tr("Device environment is not available yet."));
+}
+
+/*!
+    Returns the environment a process on the device inherits, if it is
+    cached. Does not fetch it, as this runs on any thread.
+*/
+Result<Environment> IDevice::inheritedEnvironmentIfKnown() const
+{
+    if (const std::optional<Environment> cached = d->systemEnvironment.readLocked()->value)
+        return *cached;
+    return ResultError(Tr::tr("Device environment is not available yet."));
+}
+
+/*!
+    Returns how \a env differs from what a process on the device inherits,
+    with values expanded and disabled variables unset. Returns all of \a env
+    if it holds only changes or the inherited environment is not known.
+*/
+EnvironmentItems IDevice::environmentChanges(const Environment &env) const
+{
+    EnvironmentItems changes;
+    const auto addAll = [&env, &changes] {
+        env.forEachEntry([&changes](const QString &key, const QString &value, bool enabled) {
+            changes.append({key, value, enabled ? EnvironmentItem::SetEnabled
+                                                : EnvironmentItem::SetDisabled});
+        });
+    };
+    if (!env.isComplete())
+        addAll();
+    else if (const Result<Environment> inherited = inheritedEnvironmentIfKnown())
+        changes = inherited->diff(env);
+    else
+        addAll();
+
+    EnvironmentItems result;
+    for (const EnvironmentItem &item : std::as_const(changes)) {
+        if (item.name.trimmed().isEmpty())
+            continue;
+        if (item.operation == EnvironmentItem::SetEnabled)
+            result.append({item.name, env.expandVariables(item.value)});
+        else
+            result.append({item.name, {}, EnvironmentItem::Unset});
+    }
+    return result;
+}
+
+/*!
+    Returns a POSIX shell snippet that unsets the variables \a changes
+    removes. Failures are ignored and invalid names left out, as a failing
+    \c unset ends dash and ash.
+*/
+QString IDevice::unsetScript(const EnvironmentItems &changes)
+{
+    static const QRegularExpression shellName("^[A-Za-z_][A-Za-z0-9_]*$");
+    QStringList names;
+    for (const EnvironmentItem &item : changes) {
+        if (item.operation == EnvironmentItem::Unset && shellName.match(item.name).hasMatch())
+            names.append(item.name);
+    }
+    if (names.isEmpty())
+        return {};
+    return "for n in " + names.join(' ') + "; do command unset \"$n\"; done 2>/dev/null;";
 }
 
 void IDevice::warmSystemEnvironment() const

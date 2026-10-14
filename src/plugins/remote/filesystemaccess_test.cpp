@@ -8,9 +8,11 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
+#include <projectexplorer/environmentaspect.h>
 #include <utils/filepath.h>
 #include <utils/filestreamer.h>
 #include <utils/filestreamermanager.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/scopedtimer.h>
@@ -247,6 +249,44 @@ void FileSystemAccessTest::testUserCommandInWorkingDirectory()
     QCOMPARE(out.size(), 2);
     QVERIFY(baseFilePath().withNewPath(out.at(0)).isSameFile(dir));
     QCOMPARE(out.at(1), "a  b");
+}
+
+void FileSystemAccessTest::testProcessEnvironment()
+{
+    const FilePath dir = baseFilePath() / "env dir";
+    QVERIFY(dir.ensureWritableDir());
+
+    const auto run = [&dir](const Environment &env) {
+        Process proc;
+        proc.setCommand(CommandLine{dir.withNewPath("/usr/bin/env")});
+        proc.setWorkingDirectory(dir);
+        proc.setEnvironment(env);
+        proc.runBlocking();
+        return Environment(proc.allOutput().split('\n', Qt::SkipEmptyParts), OsTypeLinux);
+    };
+
+    Environment env = dir.deviceEnvironment();
+    QVERIFY(env.hasKey("HOME"));
+    env.set("QTC_TEST_ADDED", "a b");
+    env.unset("HOME");
+    const Environment changed = run(env);
+    QCOMPARE(changed.value("PWD"), dir.path());
+    QCOMPARE(changed.value("QTC_TEST_ADDED"), "a b");
+    QVERIFY(!changed.hasKey("HOME"));
+
+    Environment clean{NameValueDictionary(OsTypeLinux)};
+    clean.set("QTC_TEST_ADDED", "1");
+    const Environment cleaned = run(clean);
+    QCOMPARE(cleaned.value("QTC_TEST_ADDED"), "1");
+    QVERIFY(!cleaned.hasKey("HOME"));
+    QVERIFY(!cleaned.hasKey("PATH"));
+
+    EnvironmentAspect aspect;
+    aspect.addPreferredBaseEnvironment("System", [&dir] { return dir.deviceEnvironment(); });
+    aspect.setUserEnvironmentChanges(EnvironmentChanges({{"HOME", {}, EnvironmentItem::Unset}}));
+    const Environment fromRunSettings = run(aspect.expandedEnvironment(*globalMacroExpander()));
+    QCOMPARE(fromRunSettings.value("PWD"), dir.path());
+    QVERIFY(!fromRunSettings.hasKey("HOME"));
 }
 
 void FileSystemAccessTest::testDirStatus()

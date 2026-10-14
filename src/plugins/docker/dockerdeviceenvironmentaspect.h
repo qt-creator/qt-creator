@@ -19,6 +19,7 @@ public:
 
     void setRemoteEnvironment(const Utils::Environment &env);
     bool isRemoteEnvironmentSet() const { return m_remoteEnvironment.has_value(); }
+    std::optional<Utils::Environment> remoteEnvironment() const { return m_remoteEnvironment; }
 
     bool guiToVolatileValue() override;
     void volatileValueToGui() override;

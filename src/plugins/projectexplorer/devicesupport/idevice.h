@@ -10,6 +10,7 @@
 #include <QtTaskTree/QTaskTree>
 
 #include <utils/aspects.h>
+#include <utils/environmentfwd.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/id.h>
@@ -337,6 +338,9 @@ public:
     // answer without talking to the device; the cache is for those that cannot.
     virtual Utils::Result<Utils::Environment> systemEnvironmentIfKnown() const;
     virtual Utils::Result<Utils::Environment> sourcedEnvironment(const Utils::FilePath &script) const;
+    virtual Utils::Result<Utils::Environment> inheritedEnvironmentIfKnown() const;
+    Utils::EnvironmentItems environmentChanges(const Utils::Environment &env) const;
+    static QString unsetScript(const Utils::EnvironmentItems &changes);
 
     virtual void aboutToBeRemoved() const;
 

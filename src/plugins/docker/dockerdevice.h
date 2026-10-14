@@ -134,6 +134,7 @@ public:
 
     Utils::Result<Utils::Environment> systemEnvironmentWithError() const override;
     Utils::Result<Utils::Environment> systemEnvironmentIfKnown() const override;
+    Utils::Result<Utils::Environment> inheritedEnvironmentIfKnown() const override;
 
     Utils::Result<> updateContainerAccess() const;
 

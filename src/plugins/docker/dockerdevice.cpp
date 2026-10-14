@@ -614,13 +614,16 @@ Result<CommandLine> DockerDevicePrivate::withDockerExecCmd(
     if (withPty)
         dockerCmd.addArg("-t");
 
+    QString unset;
     if (env) {
+        // "docker exec" skips the image's entry point, so pass everything.
         env->forEachEntry([&](const QString &key, const QString &value, bool enabled) {
             if (enabled) {
                 dockerCmd.addArg("-e");
                 dockerCmd.addArg(key + "=" + env->expandVariables(value));
             }
         });
+        unset = IDevice::unsetScript(q->environmentChanges(*env));
     }
 
     if (workDir && !workDir->isEmpty())
@@ -633,6 +636,7 @@ Result<CommandLine> DockerDevicePrivate::withDockerExecCmd(
     CommandLine exec("exec");
     exec.addCommandLineAsArgs(cmd, CommandLine::Raw);
 
+    CommandLine script = exec;
     if (withMarker) {
         auto osAndArch = osTypeAndArch();
         if (!osAndArch)
@@ -651,10 +655,13 @@ Result<CommandLine> DockerDevicePrivate::withDockerExecCmd(
 
         testType.addCommandLineWithAnd(echo);
 
-        dockerCmd.addCommandLineAsSingleArg(testType);
-    } else {
-        dockerCmd.addCommandLineAsSingleArg(exec);
+        script = testType;
     }
+
+    QString combined = unset;
+    ProcessArgs::addArg(&combined, script.executable().path());
+    ProcessArgs::addArgs(&combined, script.arguments());
+    dockerCmd.addArg(combined);
 
     return dockerCmd;
 }
@@ -1745,6 +1752,14 @@ Result<Environment> DockerDevice::systemEnvironmentWithError() const
 Result<Environment> DockerDevice::systemEnvironmentIfKnown() const
 {
     return systemEnvironmentWithError();
+}
+
+// The device's own changes are passed explicitly, not inherited.
+Result<Environment> DockerDevice::inheritedEnvironmentIfKnown() const
+{
+    if (const std::optional<Environment> env = environment.remoteEnvironment())
+        return *env;
+    return make_unexpected(Tr::tr("Environment could not be captured."));
 }
 
 void DockerDevice::runAutoDetect(

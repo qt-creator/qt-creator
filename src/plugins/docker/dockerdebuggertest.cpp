@@ -22,6 +22,7 @@
 #include <QtTaskTree/QTaskTree>
 
 #include <QLoggingCategory>
+#include <QScopeGuard>
 #include <QTcpSocket>
 #include <QTest>
 
@@ -297,6 +298,55 @@ private slots:
         QVERIFY2(portsError.isEmpty(), qPrintable(portsError));
         QVERIFY2(foundPorts.contains(Port(testPort)),
                  qPrintable(QString("Port %1 not found in /proc/net/tcp output").arg(testPort)));
+    }
+
+    void testProcessEnvironment()
+    {
+        emit m_device->environment.fetchRequested();
+        const std::optional<Environment> captured = m_device->environment.remoteEnvironment();
+        QVERIFY(captured);
+        const EnvironmentChanges oldChanges = m_device->environment.value();
+        const QScopeGuard restore([&] {
+            m_device->environment.setValue(oldChanges);
+            m_device->environment.setRemoteEnvironment(*captured);
+        });
+        Environment fromEntryPoint = *captured;
+        fromEntryPoint.set("QTC_TEST_ENTRYPOINT", "e");
+        fromEntryPoint.set("BASH_FUNC_f%%", "() {  :\n}");
+        m_device->environment.setRemoteEnvironment(fromEntryPoint);
+        m_device->environment.setValue(
+            EnvironmentChanges({EnvironmentItem("QTC_TEST_DEVICE", "d")}));
+
+        const auto runEnv = [this](const Environment &env) {
+            Process proc;
+            proc.setCommand({m_device->filePath("/usr/bin/env"), {}});
+            proc.setWorkingDirectory(m_device->filePath("/tmp"));
+            proc.setEnvironment(env);
+            proc.runBlocking();
+            return Environment(proc.cleanedStdOut().split('\n', Qt::SkipEmptyParts),
+                               OsTypeLinux);
+        };
+
+        const Result<Environment> deviceEnv = m_device->systemEnvironmentWithError();
+        if (!deviceEnv)
+            QFAIL(qPrintable(deviceEnv.error()));
+        QVERIFY(deviceEnv->hasKey("PATH"));
+        Environment env = *deviceEnv;
+        env.set("QTC_TEST_ADDED", "a b");
+        env.unset("PATH");
+        env.unset("BASH_FUNC_f%%");
+        Environment changed = runEnv(env);
+        QCOMPARE(changed.value("PWD"), "/tmp");
+        QCOMPARE(changed.value("QTC_TEST_ADDED"), "a b");
+        QCOMPARE(changed.value("QTC_TEST_DEVICE"), "d");
+        QCOMPARE(changed.value("QTC_TEST_ENTRYPOINT"), "e");
+        QVERIFY(!changed.hasKey("PATH"));
+
+        Environment clean{NameValueDictionary(OsTypeLinux)};
+        clean.set("QTC_TEST_ADDED", "1");
+        changed = runEnv(clean);
+        QCOMPARE(changed.value("QTC_TEST_ADDED"), "1");
+        QVERIFY(!changed.hasKey("PATH"));
     }
 };
 

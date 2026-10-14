@@ -696,6 +696,10 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
             inner.addArgs("} </dev/null >/dev/null 2>/dev/null ;", CommandLine::Raw);
     }
 
+    const EnvironmentItems envChanges = m_device->environmentChanges(q->m_setup.m_environment);
+    if (const QString unset = IDevice::unsetScript(envChanges); !unset.isEmpty())
+        inner.addArgs(unset, CommandLine::Raw);
+
     const FilePath &workingDirectory = q->m_setup.rawWorkingDirectory();
     if (!workingDirectory.isEmpty()) {
         inner.addArgs({"cd", workingDirectory.path()});
@@ -708,13 +712,12 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
                       CommandLine::Raw);
     }
 
-    const Environment &env = q->m_setup.m_environment;
-    env.forEachEntry([&](const QString &key, const QString &value, bool enabled) {
-        if (enabled && !key.trimmed().isEmpty() && !value.contains('\n')) {
-            inner.addArgs(
-                key + "=" + ProcessArgs::quoteArgUnix(env.expandVariables(value)), CommandLine::Raw);
+    for (const EnvironmentItem &item : envChanges) {
+        if (item.operation != EnvironmentItem::Unset && !item.value.contains('\n')) {
+            inner.addArgs(item.name + "=" + ProcessArgs::quoteArgUnix(item.value),
+                          CommandLine::Raw);
         }
-    });
+    }
 
     if (!useTerminal && !commandLine.isEmpty())
         inner.addArg("exec");
@@ -812,7 +815,9 @@ LinuxDevice::LinuxDevice()
         // as the "ssh ..." call will automatically launch the default shell if there are
         // no arguments. But if we will set environment variables, we need to explicitly
         // specify the shell executable.
-        const QString shell = env.hasChanges() ? env.value_or("SHELL", "/bin/sh") : QString();
+        const QString shell = env.hasChanges() || env.isComplete()
+                                  ? env.value_or("SHELL", "/bin/sh")
+                                  : QString();
 
         proc->setCommand(CommandLine{filePath(shell)});
         proc->setTerminalMode(Utils::TerminalMode::Run);
