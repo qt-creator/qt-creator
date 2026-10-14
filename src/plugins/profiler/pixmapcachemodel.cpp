@@ -423,7 +423,7 @@ void PixmapCacheModel::resizeUnfinishedLoads()
 
 void PixmapCacheModel::flattenLoads()
 {
-    int collapsedRowCount = 0;
+    int collapsedRowCount = Timeline::kCollapsedStartRow;
 
     // computes "compressed row"
     QList <qint64> eventEndTimes;
@@ -439,8 +439,8 @@ void PixmapCacheModel::flattenLoads()
                 eventEndTimes << 0; // increase stack length, proper value added below
             eventEndTimes[event.rowNumberCollapsed] = endTime(i);
 
-            // readjust to account for category empty row and bargraph
-            event.rowNumberCollapsed += 2;
+            // readjust to account for the start row and bargraph
+            event.rowNumberCollapsed += Timeline::kCollapsedStartRow + 1;
         }
         if (event.rowNumberCollapsed > collapsedRowCount)
             collapsedRowCount = event.rowNumberCollapsed;
@@ -455,7 +455,7 @@ int PixmapCacheModel::updateCacheCount(int lastCacheSizeEvent,
         qint64 pixmapStartTime, qint64 pixSize, Item &newEvent, int typeId)
 {
     newEvent.pixmapEventType = PixmapCacheCountChanged;
-    newEvent.rowNumberCollapsed = 1;
+    newEvent.rowNumberCollapsed = Timeline::kCollapsedStartRow;
     newEvent.typeId = typeId;
 
     int index = lastCacheSizeEvent;

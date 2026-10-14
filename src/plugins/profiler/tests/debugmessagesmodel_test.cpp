@@ -85,14 +85,16 @@ void DebugMessagesModelTest::testDetails()
 
 void DebugMessagesModelTest::testExpandedRow()
 {
+    QCOMPARE(model.expandedRowCount(), QtMsgType::QtInfoMsg + 2);
     for (int i = 0; i < 10; ++i)
         QCOMPARE(model.expandedRow(i), (i % (QtMsgType::QtInfoMsg + 1) + 1));
 }
 
 void DebugMessagesModelTest::testCollapsedRow()
 {
+    QCOMPARE(model.collapsedRowCount(), 1);
     for (int i = 0; i < 10; ++i)
-        QCOMPARE(model.collapsedRow(i), 1);
+        QCOMPARE(model.collapsedRow(i), 0);
 }
 
 void DebugMessagesModelTest::testLocation()

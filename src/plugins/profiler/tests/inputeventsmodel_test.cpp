@@ -154,6 +154,7 @@ void InputEventsModelTest::testDetails()
 
 void InputEventsModelTest::testExpandedRow()
 {
+    QCOMPARE(model.expandedRowCount(), 3);
     for (int i = 0; i < 10; ++i) {
         InputEventType type = inputType(i);
         QCOMPARE(model.expandedRow(i), (type <= InputKeyUnknown ? 2 : 1));
@@ -162,8 +163,9 @@ void InputEventsModelTest::testExpandedRow()
 
 void InputEventsModelTest::testCollapsedRow()
 {
+    QCOMPARE(model.collapsedRowCount(), 1);
     for (int i = 0; i < 10; ++i)
-        QCOMPARE(model.collapsedRow(i), 1);
+        QCOMPARE(model.collapsedRow(i), 0);
 }
 
 void InputEventsModelTest::cleanupTestCase()

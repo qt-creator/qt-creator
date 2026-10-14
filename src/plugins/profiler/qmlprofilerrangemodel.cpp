@@ -78,7 +78,7 @@ void QmlProfilerRangeModel::computeNestingContracted()
     int i;
     int eventCount = count();
 
-    int nestingLevels = Constants::QML_MIN_LEVEL;
+    int nestingLevels = Timeline::kCollapsedStartRow;
     int collapsedRowCount = nestingLevels + 1;
     QList<qint64> nestingEndTimes;
     nestingEndTimes.fill(0, nestingLevels + 1);
@@ -93,7 +93,7 @@ void QmlProfilerRangeModel::computeNestingContracted()
             if (nestingLevels == collapsedRowCount)
                 ++collapsedRowCount;
         } else {
-            while (nestingLevels > Constants::QML_MIN_LEVEL &&
+            while (nestingLevels > Timeline::kCollapsedStartRow &&
                    nestingEndTimes[nestingLevels-1] <= st)
                 nestingLevels--;
         }

@@ -8,6 +8,17 @@
 
 namespace Profiler::Internal {
 
+// Saved notes count collapsed rows from 1, as the timeline used to keep row 0 empty.
+static int toSavedRow(int collapsedRow)
+{
+    return collapsedRow - Timeline::kCollapsedStartRow + 1;
+}
+
+static int fromSavedRow(int savedRow)
+{
+    return savedRow > 0 ? savedRow - 1 + Timeline::kCollapsedStartRow : -1;
+}
+
 QmlProfilerNotesModel::QmlProfilerNotesModel(QObject *parent)
     : TimelineNotesModel(parent)
 {}
@@ -68,8 +79,8 @@ void QmlProfilerNotesModel::restore()
     {
         QSignalBlocker blocker(this);
         for (QmlNote &note : m_notes) {
-            note.setLoaded(addQmlNote(note.typeIndex(), note.collapsedRow(), note.startTime(),
-                                      note.duration(), note.text()) != -1);
+            note.setLoaded(addQmlNote(note.typeIndex(), fromSavedRow(note.collapsedRow()),
+                                      note.startTime(), note.duration(), note.text()) != -1);
         }
         resetModified();
     }
@@ -92,7 +103,7 @@ void QmlProfilerNotesModel::stash()
         if (index < model->count()) {
             QmlNote save = {
                 model->typeId(index),
-                model->collapsedRow(index),
+                toSavedRow(model->collapsedRow(index)),
                 model->startTime(index),
                 model->duration(index),
                 text(i)

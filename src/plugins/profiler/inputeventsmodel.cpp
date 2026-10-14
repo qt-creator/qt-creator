@@ -114,7 +114,7 @@ int InputEventsModel::expandedRow(int index) const
 int InputEventsModel::collapsedRow(int index) const
 {
     Q_UNUSED(index)
-    return 1;
+    return Timeline::kCollapsedStartRow;
 }
 
 void InputEventsModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
@@ -135,7 +135,7 @@ void InputEventsModel::loadEvent(const QmlEvent &event, const QmlEventType &type
 
 void InputEventsModel::finalize()
 {
-    setCollapsedRowCount(2);
+    setCollapsedRowCount(Timeline::kCollapsedStartRow + 1);
     setExpandedRowCount(3);
     QmlProfilerTimelineModel::finalize();
 }

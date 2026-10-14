@@ -299,11 +299,13 @@ QtcPlugin {
             "qmlprofilerclientmanager_test.cpp", "qmlprofilerclientmanager_test.h",
             "qmlprofilerdetailsrewriter_test.cpp", "qmlprofilerdetailsrewriter_test.h",
             "qmlprofilerfindingsmodel_test.cpp", "qmlprofilerfindingsmodel_test.h",
+            "qmlprofilernotesmodel_test.cpp", "qmlprofilernotesmodel_test.h",
             "qmlprofilersampler_test.cpp", "qmlprofilersampler_test.h",
             "qmlprofilertool_test.cpp", "qmlprofilertool_test.h",
             "qmlprofilertracefile_test.cpp", "qmlprofilertracefile_test.h",
             "qmlprofilertraceview_test.cpp", "qmlprofilertraceview_test.h",
             "qttracesampler_test.cpp", "qttracesampler_test.h",
+            "scenegraphtimelinemodel_test.cpp", "scenegraphtimelinemodel_test.h",
 
             "tests.qrc"
         ]

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "profilertr.h"
-#include "qmlprofilerconstants.h"
 #include "quick3dmodel.h"
 #include <tracing/timelineformatdata.h>
 
@@ -198,7 +197,7 @@ int Quick3DModel::expandedRow(int index) const
 int Quick3DModel::collapsedRow(int index) const
 {
     Q_UNUSED(index)
-    return Constants::QML_MIN_LEVEL;
+    return Timeline::kCollapsedStartRow;
 }
 
 void Quick3DModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
@@ -322,7 +321,7 @@ void Quick3DModel::finalize()
         m_types << TextureMemoryConsumption;
     }
     computeNesting();
-    setCollapsedRowCount(Constants::QML_MIN_LEVEL + 1);
+    setCollapsedRowCount(Timeline::kCollapsedStartRow + 1);
     m_sortedTypes = m_types.values();
     std::sort(m_sortedTypes.begin(), m_sortedTypes.end(), [](int a, int b){ return a < b;});
     setExpandedRowCount(m_sortedTypes.size() + 1);

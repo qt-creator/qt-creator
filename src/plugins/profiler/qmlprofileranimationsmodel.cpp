@@ -71,14 +71,18 @@ void QmlProfilerAnimationsModel::loadEvent(const QmlEvent &event, const QmlEvent
 void QmlProfilerAnimationsModel::finalize()
 {
     computeNesting();
-    setExpandedRowCount((m_maxGuiThreadAnimations == 0 || m_maxRenderThreadAnimations == 0) ? 2 : 3);
-    setCollapsedRowCount(expandedRowCount());
+    setCollapsedRowCount(
+        Timeline::kCollapsedStartRow
+        + ((m_maxGuiThreadAnimations == 0 || m_maxRenderThreadAnimations == 0) ? 1 : 2));
+    setExpandedRowCount(collapsedRowCount() - Timeline::kCollapsedStartRow + 1);
     QmlProfilerTimelineModel::finalize();
 }
 
 int QmlProfilerAnimationsModel::rowFromThreadId(int threadId) const
 {
-    return (threadId == GuiThread || m_maxGuiThreadAnimations == 0) ? 1 : 2;
+    return (threadId == GuiThread || m_maxGuiThreadAnimations == 0)
+               ? Timeline::kCollapsedStartRow
+               : Timeline::kCollapsedStartRow + 1;
 }
 
 qint64 QmlProfilerAnimationsModel::rowMaxValue(int rowNumber) const
@@ -100,7 +104,7 @@ int QmlProfilerAnimationsModel::typeId(int index) const
 
 int QmlProfilerAnimationsModel::expandedRow(int index) const
 {
-    return rowFromThreadId(selectionId(index));
+    return collapsedRow(index) - Timeline::kCollapsedStartRow + 1;
 }
 
 int QmlProfilerAnimationsModel::collapsedRow(int index) const

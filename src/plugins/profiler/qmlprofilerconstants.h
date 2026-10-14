@@ -11,8 +11,6 @@ inline constexpr char SETTINGS[] = "Analyzer.QmlProfiler.Settings";
 inline constexpr char ANALYZER[] = "Analyzer";
 inline constexpr char TEXT_MARK_CATEGORY[] = "Analyzer.QmlProfiler.TextMark";
 
-inline constexpr int QML_MIN_LEVEL = 1; // Set to 0 to remove the empty line between models in the timeline
-
 inline constexpr char QtdFileExtension[] = ".qtd";
 inline constexpr char QztFileExtension[] = ".qzt";
 
