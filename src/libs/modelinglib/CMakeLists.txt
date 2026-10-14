@@ -141,7 +141,6 @@ add_qtc_library(Modeling
     qmt/model_widgets_ui/propertiesviewmview.cpp qmt/model_widgets_ui/propertiesviewmview.h
     qmt/project_controller/projectcontroller.cpp qmt/project_controller/projectcontroller.h
     qmt/project/project.cpp qmt/project/project.h
-    qmt/resources/resources_modelinglib.qrc
     qmt/serializer/diagramserializer.cpp qmt/serializer/diagramserializer.h
     qmt/serializer/infrastructureserializer.cpp qmt/serializer/infrastructureserializer.h
     qmt/serializer/modelserializer.cpp qmt/serializer/modelserializer.h
@@ -198,4 +197,32 @@ add_qtc_library(Modeling
     qtserialization/inc/qark/typeregistry.h
     qtserialization/src/flag.cpp
     qtserialization/src/savingrefmap.cpp
+)
+
+qtc_add_resources(Modeling "images"
+  PREFIX "/modelinglib"
+  BASE "qmt/resources"
+  FILES
+    qmt/resources/25x25/align-bottom.png
+    qmt/resources/25x25/align-horizontal.png
+    qmt/resources/25x25/align-left.png
+    qmt/resources/25x25/align-right.png
+    qmt/resources/25x25/align-top.png
+    qmt/resources/25x25/align-vertical.png
+    qmt/resources/25x25/even-horizontal.png
+    qmt/resources/25x25/even-vertical.png
+    qmt/resources/25x25/same-height.png
+    qmt/resources/25x25/same-width.png
+    qmt/resources/48x48/annotation.png
+    qmt/resources/48x48/association.png
+    qmt/resources/48x48/boundary.png
+    qmt/resources/48x48/canvas-diagram.png
+    qmt/resources/48x48/class.png
+    qmt/resources/48x48/component.png
+    qmt/resources/48x48/dependency.png
+    qmt/resources/48x48/generic.png
+    qmt/resources/48x48/inheritance.png
+    qmt/resources/48x48/item.png
+    qmt/resources/48x48/package.png
+    qmt/resources/48x48/swimlane.png
 )

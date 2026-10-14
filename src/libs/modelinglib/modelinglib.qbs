@@ -368,8 +368,10 @@ QtcLibrary {
     Group {
         name: "Images"
         prefix: "./qmt/resources/"
+        Qt.core.resourcePrefix: "/modelinglib"
+        Qt.core.resourceSourceBase: sourceDirectory + "/qmt/resources"
+        fileTags: "qt.core.resource_data"
         files: [
-            "resources_modelinglib.qrc",
             "25x25/align-bottom.png",
             "25x25/align-horizontal.png",
             "25x25/align-left.png",
@@ -391,6 +393,7 @@ QtcLibrary {
             "48x48/inheritance.png",
             "48x48/item.png",
             "48x48/package.png",
+            "48x48/swimlane.png",
         ]
     }
 
