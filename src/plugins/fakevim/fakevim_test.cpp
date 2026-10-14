@@ -45,7 +45,6 @@
 #include <QTemporaryFile>
 #include <QTest>
 #include <QTextLayout>
-#include <QTextLayout>
 #include <QTimer>
 #include <QTextEdit>
 #include <QTextDocument>
@@ -13777,6 +13776,8 @@ void FakeVimTester::test_vim_indent_equalprg()
     // answers by the command line it is given.
     TestData data;
     setup(&data);
+    // The lines go out with the line breaks of the file format.
+    data.doCommand("set fileformat=unix");
     QString ran;
     QString given;
     data.handler->processOutput.set(
@@ -13889,6 +13890,8 @@ void FakeVimTester::test_vim_reflow_formatprg()
     // which is what proves that line is built from the option.
     TestData data;
     setup(&data);
+    // The lines go out with the line breaks of the file format.
+    data.doCommand("set fileformat=unix");
     QString ran;
     QString given;
     data.handler->processOutput.set(
@@ -25649,8 +25652,10 @@ void FakeVimTester::test_vim_filter_range()
     // callback, so the stub answers as the programs would.
     TestData data;
     setup(&data);
+    QString given;
     data.handler->processOutput.set(
-        [](const QString &command, const QString &input, QString *output) {
+        [&given](const QString &command, const QString &input, QString *output) {
+            given = input;
             if (command == "sort") {
                 QStringList lines = input.split('\n', Qt::SkipEmptyParts);
                 lines.sort();
@@ -25685,6 +25690,23 @@ void FakeVimTester::test_vim_filter_range()
     COMMAND("2,$!tr a-z A-Z", "aaa" N X "BBB" N "CCC" N "");
     data.setText("aaa" N "bbb");
     COMMAND("2!printf 'x\\ny\\n'", "aaa" N X "x" N "y");
+
+    // The lines go out with the line breaks of the file format, and so do
+    // the ones "=" hands to 'equalprg'. What comes back with the same breaks
+    // is read as lines again.
+    data.doCommand("set fileformat=dos");
+    data.setText("c" N "b" N "a");
+    COMMAND("%!sort", X "a" N "b" N "c");
+    QCOMPARE(given, QLatin1String("c\r\nb\r\na\r\n"));
+    data.doCommand("set equalprg=sort");
+    data.setText("c" N "b" N "a");
+    KEYS("=G", X "a" N "b" N "c");
+    QCOMPARE(given, QLatin1String("c\r\nb\r\na\r\n"));
+    data.doCommand("set equalprg=");
+    data.doCommand("set fileformat=unix");
+    data.setText("c" N "b" N "a");
+    COMMAND("%!sort", X "a" N "b" N "c");
+    QCOMPARE(given, QLatin1String("c\nb\na\n"));
 }
 
 void FakeVimTester::test_vim_shift_round()

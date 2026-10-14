@@ -4537,6 +4537,8 @@ public:
     bool formatWithExpression(const Range &range);
     bool formatWithProgram(const Range &range);
     void filterThroughProgram(const QString &program, int beginBlock, int endBlock);
+    QString filterInput(const QString &lines);
+    static QString filterOutput(const QString &text);
 
     // The tag a jump was asked for, kept until the editor answers whether it
     // found the symbol. Empty where the answer is not wanted.
@@ -16860,7 +16862,7 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
         triggerAutocmd("FilterWritePre");
 
     QString result;
-    q->processOutput(command, input, &result);
+    q->processOutput(command, replaceText ? filterInput(input) : input, &result);
 
     if (replaceText) {
         triggerAutocmd("FilterWritePost");
@@ -16868,7 +16870,7 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
         // Where the range reaches the last line, the line break the output
         // ends with ends that line rather than opening another one.
         const bool toLastLine = blockAt(cmd.range.endPos) == document()->lastBlock();
-        QString filtered = result;
+        QString filtered = filterOutput(result);
         if (toLastLine && filtered.endsWith('\n'))
             filtered.chop(1);
         // The range of a linewise removal that reaches the last line reaches
@@ -35992,6 +35994,26 @@ bool FakeVimHandler::Private::formatWithProgram(const Range &range)
     return true;
 }
 
+// The lines a filter is given, which Vim writes with the line breaks of the
+// buffer's file format (measured). The Windows "sort" takes lines broken by a
+// bare line feed for UTF-16 where every other byte is one.
+QString FakeVimHandler::Private::filterInput(const QString &lines)
+{
+    VimValue format;
+    if (optionValue("fileformat", &format) && format.toString() == "dos")
+        return QString(lines).replace('\n', "\r\n");
+    return lines;
+}
+
+// What a filter writes, read back the way Vim reads a file: where every line
+// ends in CR LF, the CR belongs to the line break (measured).
+QString FakeVimHandler::Private::filterOutput(const QString &text)
+{
+    if (text.count('\n') != text.count("\r\n"))
+        return text;
+    return QString(text).replace("\r\n", "\n");
+}
+
 // The lines between the two blocks, given to the program and replaced by what
 // it writes. The cursor ends where the replacement does.
 void FakeVimHandler::Private::filterThroughProgram(const QString &program,
@@ -36009,7 +36031,8 @@ void FakeVimHandler::Private::filterThroughProgram(const QString &program,
     }
 
     QString output;
-    q->processOutput(program, input, &output);
+    q->processOutput(program, filterInput(input), &output);
+    output = filterOutput(output);
     if (output.endsWith('\n'))
         output.chop(1);
 
