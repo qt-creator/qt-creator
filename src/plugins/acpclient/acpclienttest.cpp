@@ -570,6 +570,8 @@ private slots:
     void testChatPanelElicitationSingleSelect();
     void testChatPanelElicitationWizard();
     void testChatPanelElicitationCustomAnswerAnswersAlone();
+    void testChatPanelElicitationCustomAnswerWithoutMeta();
+    void testChatPanelElicitationCustomNameWithoutChoices();
     void testChatPanelElicitationWizardQuestionOrder();
     void testChatPanelElicitationWizardStepLabelScale();
     void testChatPanelElicitationDecline();
@@ -2969,6 +2971,67 @@ void AcpClientTest::testChatPanelElicitationCustomAnswerAnswersAlone()
     const QJsonObject content = acceptedContents.first();
     QCOMPARE(content.value("question_0_custom").toString(), "something of my own");
     QVERIFY(!content.contains("question_0"));
+}
+
+// A custom answer that comes without the note naming its question is still
+// recognized by its name, and asked next to the question it belongs to.
+void AcpClientTest::testChatPanelElicitationCustomAnswerWithoutMeta()
+{
+    ChatPanel panel;
+
+    ElicitationRequest request;
+    request.mode = ElicitationRequest::Mode::Form;
+    V2::ElicitationSchema schema;
+    for (const QString &id : {QString("question_0"), QString("question_1")}) {
+        schema.addProperty(id, V2::StringPropertySchema().title(id).oneOf(
+                                   {V2::EnumOption().const_("A").title("A"),
+                                    V2::EnumOption().const_("B").title("B")}));
+        schema.addProperty(id + "_custom", V2::StringPropertySchema().title(id + " other"));
+    }
+    request.requestedSchema = schema;
+
+    panel.addElicitationRequest(QJsonValue(13), request);
+
+    const QList<QWidget *> pages = questionPages(panel.messageView());
+    QCOMPARE(pages.size(), 2);
+    for (QWidget *page : pages) {
+        const QString id = findField(page, "question_0") ? "question_0" : "question_1";
+        QVERIFY(findField(page, id));
+        QVERIFY(findField(page, id + " other"));
+    }
+
+    // An answer of one's own takes its own question out of reach, not another.
+    QWidget *offered0 = findField(panel.messageView(), "question_0");
+    QWidget *offered1 = findField(panel.messageView(), "question_1");
+    auto *custom0 = qobject_cast<QLineEdit *>(findField(panel.messageView(), "question_0 other"));
+    QVERIFY(offered0);
+    QVERIFY(offered1);
+    QVERIFY(custom0);
+    custom0->setText("something of my own");
+    QVERIFY(!offered0->isEnabled());
+    QVERIFY(offered1->isEnabled());
+}
+
+// A property named after a question that offers no choices is not a custom
+// answer: both are asked, each on a page of its own.
+void AcpClientTest::testChatPanelElicitationCustomNameWithoutChoices()
+{
+    ChatPanel panel;
+
+    ElicitationRequest request;
+    request.mode = ElicitationRequest::Mode::Form;
+    V2::ElicitationSchema schema;
+    schema.addProperty("name", V2::StringPropertySchema().title(QStringLiteral("Name")));
+    schema.addProperty("name_custom",
+                       V2::StringPropertySchema().title(QStringLiteral("Custom name")));
+    request.requestedSchema = schema;
+
+    panel.addElicitationRequest(QJsonValue(14), request);
+
+    const QList<QWidget *> pages = questionPages(panel.messageView());
+    QCOMPARE(pages.size(), 2);
+    for (QWidget *page : pages)
+        QVERIFY(!findField(page, "Name") != !findField(page, "Custom name"));
 }
 
 
