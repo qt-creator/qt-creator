@@ -87,6 +87,7 @@ private slots:
     void dispatchesRequestArrivingDuringNestedEventLoop();
     void doesNotWedgeOnRejectedRequest();
     void sanitizesResponseHeaderValues();
+    void terminatesChunkedBody();
 };
 
 void tst_MiniHttpServer::parsesValidRequest()
@@ -441,6 +442,36 @@ void tst_MiniHttpServer::sanitizesResponseHeaderValues()
     QVERIFY(!response.contains("\r\nInjected:"));
     QVERIFY(response.contains("x-echo: valueInjected: yes"));
     QCOMPARE(response.count("content-length"), 1);
+}
+
+void tst_MiniHttpServer::terminatesChunkedBody()
+{
+    TestServer test;
+    QVERIFY(test.start());
+    test.server.route("/sse", HttpRequest::Method::Get,
+                      [](const HttpRequest &, HttpResponder &responder) {
+                          HttpHeaders headers;
+                          headers.set("content-type", "text/event-stream");
+                          responder.writeBeginChunked(headers, StatusCode::Ok);
+                          responder.writeChunk("data: a\n\n");
+                          responder.writeChunk({});
+                          responder.writeEndChunked("\n\n");
+                      });
+
+    QTcpSocket client;
+    client.connectToHost(QHostAddress::LocalHost, test.port());
+    QVERIFY(client.waitForConnected());
+    client.write("GET /sse HTTP/1.1\r\n\r\n");
+
+    QByteArray response;
+    QTRY_VERIFY((response.append(client.readAll()),
+                 client.state() == QAbstractSocket::UnconnectedState));
+    response.append(client.readAll());
+
+    const qsizetype headerEnd = response.indexOf("\r\n\r\n");
+    QVERIFY(headerEnd > 0);
+    QVERIFY(response.left(headerEnd).contains("\r\ntransfer-encoding: chunked"));
+    QCOMPARE(response.mid(headerEnd + 4), "9\r\ndata: a\n\n\r\n2\r\n\n\n\r\n0\r\n\r\n");
 }
 
 QTEST_GUILESS_MAIN(tst_MiniHttpServer)

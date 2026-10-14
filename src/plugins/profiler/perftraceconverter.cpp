@@ -320,6 +320,7 @@ void PerfTraceConverter::tracingData(const QByteArray &data)
 
 void PerfTraceConverter::mmap(const PerfData::Mmap &mmap)
 {
+    m_symbolizer.addMappedRange(mmap.addr, mmap.len);
     if (mmap.path.isEmpty() || mmap.path.startsWith('['))
         return; // anonymous/special mapping (e.g. "[heap]", "[stack]"): nothing to symbolize
     m_symbolizer.addMapping(mmap.pid, mmap.addr, mmap.len, mmap.pgoff, mmap.path, mmap.buildId);

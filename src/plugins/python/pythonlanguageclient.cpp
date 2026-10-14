@@ -91,7 +91,7 @@ static PythonLanguageServerState checkPythonLanguageServer(const FilePath &pytho
             if (pipUsable) {
                 Process pythonProcess;
                 Environment env = pylsp.deviceEnvironment();
-                env.appendOrSet("PYTHONPATH", lspPath.toUserOutput());
+                env.appendOrSet("PYTHONPATH", lspPath.nativePath());
                 pythonProcess.setEnvironment(env);
                 pythonProcess.setCommand(
                     {python, {"-m", "pip", "list", "--outdated", "--format=json"}});
@@ -107,7 +107,7 @@ static PythonLanguageServerState checkPythonLanguageServer(const FilePath &pytho
                     if (value.toObject().value("name") == "python-lsp-server") {
                         Process pylsProcess;
                         Environment env = pylsp.deviceEnvironment();
-                        env.appendOrSet("PYTHONPATH", lspPath.toUserOutput());
+                        env.appendOrSet("PYTHONPATH", lspPath.nativePath());
                         pylsProcess.setEnvironment(env);
                         pylsProcess.setCommand({pylsp, {"--version"}});
                         pylsProcess.runBlocking(20s);

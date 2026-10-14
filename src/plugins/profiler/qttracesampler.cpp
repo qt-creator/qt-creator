@@ -219,7 +219,7 @@ void QtTraceSampler::prepareLaunch(const std::shared_ptr<RecordingSession> &sess
         return item.name == QLatin1StringView(traceLocationVariable);
     });
     session->launchEnvironmentChanges.append(
-        {QString::fromLatin1(traceLocationVariable), location.toUserOutput()});
+        {QString::fromLatin1(traceLocationVariable), location.nativePath()});
 }
 
 ExecutableItem QtTraceSampler::captureRecipe(const std::shared_ptr<RecordingSession> &session) const

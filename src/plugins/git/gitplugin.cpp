@@ -3,6 +3,7 @@
 
 #include "gitplugin.h"
 
+#include "branchmodel.h"
 #include "branchview.h"
 #include "changeselectiondialog.h"
 #include "commitdata.h"
@@ -95,9 +96,17 @@
 #include <QVBoxLayout>
 
 #ifdef WITH_TESTS
+#include "gerrit/gerritdialog.h"
+#include "gerrit/gerritmodel.h"
+#include "gerrit/gerritparameters.h"
+
+#include <utils/fancylineedit.h>
+
 #include <QSignalSpy>
+#include <QSortFilterProxyModel>
 #include <QTemporaryDir>
 #include <QTest>
+#include <QTreeView>
 #endif
 
 Q_DECLARE_METATYPE(Git::Internal::FileStates)
@@ -2472,6 +2481,8 @@ private slots:
     void testInlineDiffConflictedFile();
     void testConflictedFileInTextEditor();
     void testGraphModelRepositorySwitch();
+    void testBranchModelDetachedHead_data();
+    void testBranchModelDetachedHead();
     void testWorkingDirectoryForShow();
     void testFileLinkResolution();
     void testFileLinkContextMenu();
@@ -2479,6 +2490,9 @@ private slots:
     void testRebaseActionSelection();
     void testSubmitMessageSpellCheck();
     void testDiffDescriptionEditor();
+    void testGerritFiltering();
+    void testGerritEscape_data();
+    void testGerritEscape();
     void testRebaseAction();
 };
 
@@ -2940,7 +2954,7 @@ void GitTest::testInlineDiffFile()
     cursor.insertText("four\n");
     gitClient().inlineDiffFileAgainst(repo, "file.txt", "HEAD");
     QTRY_COMPARE(EditorManager::currentEditor()->document()->displayName(),
-                 QString("file.txt (Unstaged vs HEAD)"));
+                 QString("file.txt (Unstaged vs. HEAD)"));
     // two hunks, but only the unstaged "four" gets buttons; the already
     // staged "two changed" offers no actions
     QTRY_VERIFY((buttons = diffWidget->findChildren<QAbstractButton *>(),
@@ -3117,6 +3131,97 @@ void GitTest::testGraphModelRepositorySwitch()
     QCOMPARE(model.rowCount(), 2);
 }
 
+void GitTest::testBranchModelDetachedHead_data()
+{
+    QTest::addColumn<QString>("remoteBranch");
+    QTest::addColumn<int>("tagType");
+    QTest::addColumn<bool>("showTags");
+    QTest::newRow("origin") << QString("origin/21.0") << 0 << false;
+    QTest::newRow("gerrit") << QString("gerrit/21.0") << 0 << false;
+    QTest::newRow("lightweight-tag") << QString() << 1 << true;
+    QTest::newRow("annotated-tag") << QString() << 2 << true;
+    QTest::newRow("lightweight-tag-at-remote-tip") << QString("origin/21.0") << 1 << true;
+    QTest::newRow("annotated-tag-at-remote-tip") << QString("gerrit/21.0") << 2 << true;
+    QTest::newRow("hidden-tag-at-remote-tip") << QString("origin/21.0") << 1 << false;
+    QTest::newRow("hidden-tag") << QString() << 2 << false;
+}
+
+void GitTest::testBranchModelDetachedHead()
+{
+    QFETCH(QString, remoteBranch);
+    QFETCH(int, tagType);
+    QFETCH(bool, showTags);
+    const bool previousShowTags = settings().showTags();
+    const QScopeGuard restoreShowTags([previousShowTags] {
+        settings().showTags.setValue(previousShowTags);
+    });
+    settings().showTags.setValue(showTags);
+    const QString remoteRef = "refs/remotes/" + remoteBranch;
+    const QString tagName = "v21.0.0";
+    const QString tagRef = "refs/tags/" + tagName;
+    const bool tagSelected = tagType && showTags;
+    const QString expectedName = tagSelected ? tagName
+                                            : remoteBranch.isEmpty() ? QString("HEAD") : remoteBranch;
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repo = FilePath::fromString(temporaryDir.path());
+    const auto runGit = [repo](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repo, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(runGit({"init", "-b", "main"}));
+    QVERIFY(runGit({"config", "user.email", "test@test"}));
+    QVERIFY(runGit({"config", "user.name", "test"}));
+    QVERIFY(runGit({"config", "commit.gpgsign", "false"}));
+    QVERIFY(runGit({"config", "tag.gpgsign", "false"}));
+    QVERIFY(runGit({"commit", "--allow-empty", "-m", "initial"}));
+    if (!remoteBranch.isEmpty())
+        QVERIFY(runGit({"update-ref", remoteRef, "HEAD"}));
+    if (tagType == 1)
+        QVERIFY(runGit({"tag", tagName}));
+    else if (tagType == 2)
+        QVERIFY(runGit({"tag", "-a", tagName, "-m", "release"}));
+
+    BranchModel model;
+    QSignalSpy resetSpy(&model, &QAbstractItemModel::modelReset);
+    const auto refresh = [&] {
+        resetSpy.clear();
+        model.refresh(repo);
+        QTRY_VERIFY(!resetSpy.isEmpty() && model.currentBranch().isValid());
+    };
+
+    refresh();
+    QCOMPARE(model.fullName(model.currentBranch()), QString("main"));
+    QVERIFY(model.isLocal(model.currentBranch()));
+
+    QVERIFY(runGit({"checkout", remoteBranch.isEmpty() ? tagRef : remoteRef}));
+    refresh();
+    QCOMPARE(model.fullName(model.currentBranch()), expectedName);
+    QCOMPARE(model.isHead(model.currentBranch()), expectedName == "HEAD");
+    QCOMPARE(model.isTag(model.currentBranch()), tagSelected);
+    QVERIFY(!model.isLocal(model.currentBranch()));
+
+    QVERIFY((repo / "untracked.txt").writeFileContents("untracked\n"));
+    refresh();
+    QCOMPARE(model.fullName(model.currentBranch()), expectedName);
+    QCOMPARE(model.isTag(model.currentBranch()), tagSelected);
+
+    QVERIFY(runGit({"commit", "--allow-empty", "-m", "detached commit"}));
+    refresh();
+    QVERIFY(model.isHead(model.currentBranch()));
+    QCOMPARE(model.fullName(model.currentBranch()), QString("HEAD"));
+
+    QVERIFY(runGit({"checkout", "main"}));
+    if (!remoteBranch.isEmpty())
+        QVERIFY(runGit({"update-ref", "-d", remoteRef}));
+    if (tagType)
+        QVERIFY(runGit({"tag", "-d", tagName}));
+    QVERIFY(runGit({"checkout", "--detach", "main"}));
+    refresh();
+    QVERIFY(model.isHead(model.currentBranch()));
+}
+
 void GitTest::testWorkingDirectoryForShow()
 {
     const auto runGit = [](const FilePath &directory, const QStringList &arguments) {
@@ -3170,7 +3275,7 @@ void GitTest::testWorkingDirectoryForShow()
     QVERIFY(repoToolMetadata.parentDir().ensureWritableDir());
     QVERIFY(repoToolWorktree.ensureWritableDir());
     QVERIFY(runGit(repoToolWorktree, {"init", "--separate-git-dir",
-                                      repoToolMetadata.toUserOutput(), "."}));
+                                      repoToolMetadata.nativePath(), "."}));
     QVERIFY(repoToolRebaseApply.ensureWritableDir());
     QVERIFY(repoToolRebaseMerge.ensureWritableDir());
     QVERIFY(!runGit(repoToolRebaseApply, {"rev-parse", "--show-toplevel"}));
@@ -3431,6 +3536,99 @@ void GitTest::testSubmitMessageSpellCheck()
     QCOMPARE(underlinedTexts(widget.descriptionEdit()->document()), QStringList());
 }
 
+void GitTest::testGerritEscape_data()
+{
+    QTest::addColumn<QString>("focusWidget");
+    QTest::newRow("query") << QString("query");
+    QTest::newRow("filter") << QString("filter");
+    QTest::newRow("changes") << QString("changes");
+}
+
+void GitTest::testGerritEscape()
+{
+    QFETCH(QString, focusWidget);
+    using namespace Gerrit::Internal;
+
+    GerritDialog dialog(std::make_shared<GerritServer>(), {});
+    QAction competingEscape(&dialog);
+    competingEscape.setShortcut(QKeySequence(Qt::Key_Escape));
+    competingEscape.setShortcutContext(Qt::ApplicationShortcut);
+    dialog.addAction(&competingEscape);
+    QSignalSpy rejected(&dialog, &QDialog::rejected);
+    QSignalSpy activated(&competingEscape, &QAction::triggered);
+
+    QWidget *widget = dialog.findChild<QWidget *>(focusWidget);
+    QVERIFY(widget);
+    dialog.show();
+    dialog.activateWindow();
+    widget->setFocus();
+    QTRY_VERIFY(dialog.isActiveWindow());
+    QTest::keyClick(widget, Qt::Key_Escape);
+    QCOMPARE(rejected.count(), 1);
+    QCOMPARE(activated.count(), 0);
+    QVERIFY(!dialog.isVisible());
+}
+
+void GitTest::testGerritFiltering()
+{
+    using namespace Gerrit::Internal;
+
+    auto server = std::make_shared<GerritServer>();
+    server->host = "invalid-command";
+    GerritDialog dialog(server, {});
+    auto model = dialog.findChild<GerritModel *>();
+    auto tree = dialog.findChild<QTreeView *>();
+    auto proxy = dialog.findChild<QSortFilterProxyModel *>();
+    QVERIFY(model);
+    QVERIFY(tree);
+    QVERIFY(proxy);
+
+    auto filter = dialog.findChild<FancyLineEdit *>("filter");
+    QVERIFY(filter);
+
+    const FilePath ssh = gerritSettings().ssh;
+    const auto restoreSsh = qScopeGuard([ssh] { gerritSettings().ssh = ssh; });
+    // Run Git in place of SSH to complete the query without contacting a server.
+    gerritSettings().ssh = gitClient().vcsBinary({});
+    QVERIFY(!gerritSettings().ssh.isEmpty());
+    dialog.refresh();
+    QTRY_COMPARE(model->state(), GerritModel::Idle);
+
+    const auto createItem = [](int number, const QString &text) {
+        auto item = new QStandardItem(QString::number(number));
+        auto change = std::make_shared<GerritChange>();
+        change->number = number;
+        item->setData(QVariant::fromValue(change), GerritModel::GerritChangeRole);
+        item->setData(text, GerritModel::FilterRole);
+        return item;
+    };
+    auto parent = createItem(200, "parent child");
+    parent->appendRow(createItem(201, "child"));
+    model->appendRow(parent);
+    model->appendRow(createItem(100, "other"));
+    model->refreshStateChanged(false);
+
+    QCOMPARE(proxy->rowCount(), 2);
+    QVERIFY(tree->isExpanded(proxy->index(0, 0)));
+
+    filter->setText("no matching change");
+    QCOMPARE(proxy->rowCount(), 0);
+    filter->clear();
+
+    QCOMPARE(proxy->rowCount(), 2);
+    QCOMPARE(proxy->index(0, 0).data().toString(), "200");
+    QCOMPARE(proxy->index(1, 0).data().toString(), "100");
+    const QModelIndex parentIndex = proxy->index(0, 0);
+    QCOMPARE(proxy->rowCount(parentIndex), 1);
+    QCOMPARE(proxy->index(0, 0, parentIndex).data().toString(), "201");
+    QVERIFY(tree->isExpanded(parentIndex));
+
+    filter->setText("child");
+    QCOMPARE(proxy->rowCount(), 1);
+    QVERIFY(tree->isExpanded(proxy->index(0, 0)));
+    QCOMPARE(proxy->rowCount(proxy->index(0, 0)), 1);
+}
+
 void GitTest::testDiffDescriptionEditor()
 {
     QTemporaryDir firstTemporaryDir;
@@ -3538,6 +3736,7 @@ class GITSHARED_EXPORT GitPlugin final : public ExtensionSystem::IPlugin
 #ifdef WITH_TESTS
         addTest<GitTest>();
         registerInstantBlameTests(this);
+        Gerrit::Internal::registerGerritModelTests(this);
 #endif
 
         dd = new GitPluginPrivate;

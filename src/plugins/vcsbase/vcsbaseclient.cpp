@@ -75,6 +75,7 @@ void VcsBaseClientImpl::setupCommand(Utils::Process &process,
     process.setWorkingDirectory(workingDirectory);
     process.setCommand({vcsBinary(workingDirectory), args});
     process.setUseCtrlCStub(true);
+    process.setEnvironmentExpansion(ProcessArgs::EnvExpansion::Literal);
 }
 
 Environment VcsBaseClientImpl::processEnvironment(const FilePath &appliedTo) const

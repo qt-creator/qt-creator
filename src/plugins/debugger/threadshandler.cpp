@@ -217,6 +217,7 @@ bool ThreadsHandler::setData(const QModelIndex &idx, const QVariant &data, int r
             m_currentThread = thread;
             threadSwitcher()->setCurrentIndex(idx.row());
             m_engine->selectThread(thread);
+            emit currentThreadChanged();
         }
         return true;
     }
@@ -269,6 +270,7 @@ void ThreadsHandler::setCurrentThread(const Thread &thread)
     m_currentThread = thread;
     thread->update();
     threadSwitcher()->setCurrentIndex(thread->index().row());
+    emit currentThreadChanged();
 }
 
 void ThreadsHandler::notifyGroupCreated(const QString &groupId, const QString &pid)
@@ -345,8 +347,16 @@ QPointer<QComboBox> ThreadsHandler::threadSwitcher()
     return m_comboBox;
 }
 
+// For engines that report the threads one by one: the report of a stop is complete.
+void ThreadsHandler::notifyThreadsReported()
+{
+    emit threadsReported();
+}
+
 void ThreadsHandler::setThreads(const GdbMi &data)
 {
+    // The items, and with them m_currentThread, go away right below.
+    const QString previousId = m_currentThread ? m_currentThread->id() : QString();
     rootItem()->removeChildren();
 
     // ^done,threads=[{id="1",target-id="Thread 0xb7fdc710 (LWP 4264)",
@@ -383,6 +393,9 @@ void ThreadsHandler::setThreads(const GdbMi &data)
         const QModelIndex currentThreadIndex = m_currentThread->index();
         threadSwitcher()->setCurrentIndex(currentThreadIndex.row());
     }
+    if ((m_currentThread ? m_currentThread->id() : QString()) != previousId)
+        emit currentThreadChanged();
+    emit threadsReported();
 }
 
 QAbstractItemModel *ThreadsHandler::model()

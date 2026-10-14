@@ -4,6 +4,7 @@
 #include "windowsdevicedetection_test.h"
 
 #include "powershellutils.h"
+#include "sshconnectionsharing.h"
 #include "windowsdevice.h"
 #include "remotelinux_constants.h"
 
@@ -33,10 +34,13 @@
 #include <utils/filepath.h>
 #include <utils/qtcprocess.h>
 #include <utils/result.h>
+#include <utils/url.h>
 
 #include <QElapsedTimer>
 #include <QEventLoop>
+#include <QRandomGenerator>
 #include <QScopeGuard>
+#include <QTcpSocket>
 #include <QTest>
 #include <QTimer>
 #include <QUuid>
@@ -658,6 +662,140 @@ void WindowsDeviceDetectionTest::testStopKillsTheRemoteApplication()
     app.stop();
     QVERIFY2(waitFor([&] { return victimRuns() == std::optional(false); }, 90 * 1000),
              "Stopping the run left the application running on the device.");
+}
+
+// The QML tooling run on a Windows device reaches the application through an ssh forward to
+// the device's loopback interface, set up by the process that launches the application in the
+// interactive session. The application here is a PowerShell loopback listener that greets
+// every connection, started with the extra data WindowsQmlToolingWorkerFactory sets. It is a
+// private copy of PowerShell, so that stopping it cannot hit anything else on the device.
+void WindowsDeviceDetectionTest::testForwardReachesTheDeviceLoopback()
+{
+    // The plain QTC_SSH_TEST_* set usually names a Linux host, so the WIN variant has to
+    // name the machine, no fallback accepted.
+    const SshParameters params = SshTest::getParameters("WIN");
+    if (!SshTest::hasVariantHost("WIN") || !SshTest::checkParameters(params)) {
+        SshTest::printSetupHelp();
+        QSKIP("Set QTC_SSH_TEST_WIN_HOST (and _USER/_PORT/_KEYFILE where they differ from the "
+              "plain QTC_SSH_TEST_* values) to a reachable Windows-over-SSH host.");
+    }
+
+    const Result<IDevicePtr> created = connectedWindowsDevice(params);
+    if (!created)
+        QFAIL(qPrintable(created.error()));
+    const IDevicePtr device = *created;
+
+    const Id deviceId = device->id();
+    const FilePath deviceRoot = device->rootPath();
+    const QScopeGuard removeDevice([&] { DeviceManager::removeDevice(deviceId); });
+
+    const QUrl local = Utils::urlFromLocalHostAndFreePort();
+    QVERIFY2(local.port() > 0, "No free port found on this host.");
+    const int devicePort = 20000 + QRandomGenerator::global()->bounded(10000);
+    const QByteArray greeting = QUuid::createUuid().toByteArray(QUuid::Id128);
+
+    const QString listener = QString(
+        "$l = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, %1);"
+        "$l.Start();"
+        "while ($true) {"
+        " $c = $l.AcceptTcpClient();"
+        " $b = [System.Text.Encoding]::ASCII.GetBytes('%2');"
+        " $c.GetStream().Write($b, 0, $b.Length);"
+        " $c.Close()"
+        "}").arg(devicePort).arg(QString::fromLatin1(greeting));
+
+    const QString appName = "qtc-forward-test-" + QUuid::createUuid().toString(QUuid::Id128);
+    const FilePath appOnDevice = deviceRoot.withNewPath("C:/Users/Public/" + appName + ".exe");
+    const FilePath shell
+        = deviceRoot.withNewPath("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe");
+    QVERIFY2(bool(shell.copyFile(appOnDevice)),
+             "Failed to copy the test application onto the device.");
+
+    Process app;
+    app.setCommand({appOnDevice,
+                    {"-NoProfile", "-NonInteractive", "-EncodedCommand",
+                     encodePowerShellCommand(listener)}});
+    app.setExtraData(Constants::RunInInteractiveSession, true);
+    app.setExtraData(Constants::SshForwardAddress, "127.0.0.1");
+    app.setExtraData(Constants::SshForwardPort, devicePort);
+    app.setExtraData(Constants::SshForwardLocalPort, local.port());
+    app.setExtraData(Constants::SshForwardLocalAddress, local.host());
+    app.start();
+    const QScopeGuard killApp([&] {
+        Process killer;
+        killer.setCommand(
+            {deviceRoot.withNewPath("powershell.exe"),
+             {"-NoProfile", "-NonInteractive", "-EncodedCommand",
+              encodePowerShellCommand("Get-Process | Where-Object { $_.Name -eq '" + appName
+                                      + "' } | Stop-Process -Force")}});
+        killer.runBlocking(std::chrono::seconds(60));
+        if (killer.result() != ProcessResult::FinishedWithSuccess)
+            qWarning().noquote() << "Failed to stop" << appName << ":" << killer.allOutput();
+        if (!appOnDevice.removeFile())
+            qWarning().noquote() << "Failed to remove" << appOnDevice.path();
+    });
+
+    // Until the listener is up, the device refuses the forwarded connection and ssh closes
+    // the local end without a byte.
+    QByteArray received;
+    const bool greeted = waitFor(
+        [&] {
+            QTcpSocket socket;
+            socket.connectToHost(local.host(), local.port());
+            if (socket.waitForConnected(5000)) {
+                while (received.size() < greeting.size() && socket.waitForReadyRead(5000))
+                    received += socket.readAll();
+            }
+            return received == greeting || app.state() == ProcessState::NotRunning;
+        },
+        90 * 1000);
+    if (received != greeting)
+        qDebug().noquote() << "The launcher reported:" << app.allOutput();
+    QVERIFY2(app.state() != ProcessState::NotRunning, "The forwarding ssh ended.");
+    QVERIFY2(greeted, "Nothing answered through the forward.");
+    QCOMPARE(received, greeting);
+}
+
+void WindowsDeviceDetectionTest::testLocalPortForwardOptions_data()
+{
+    QTest::addColumn<QVariantHash>("extraData");
+    QTest::addColumn<QStringList>("expected");
+
+    const QStringList exitOnFailure{"-o", "ExitOnForwardFailure=yes", "-L"};
+
+    QTest::newRow("no forward") << QVariantHash() << QStringList();
+    QTest::newRow("same port")
+        << QVariantHash{{Constants::SshForwardPort, 1234}}
+        << exitOnFailure + QStringList{"1234:localhost:1234"};
+    QTest::newRow("string port")
+        << QVariantHash{{Constants::SshForwardPort, "1234"}}
+        << exitOnFailure + QStringList{"1234:localhost:1234"};
+    QTest::newRow("local port")
+        << QVariantHash{{Constants::SshForwardPort, 1234}, {Constants::SshForwardLocalPort, 5678}}
+        << exitOnFailure + QStringList{"5678:localhost:1234"};
+    QTest::newRow("ipv4 address")
+        << QVariantHash{{Constants::SshForwardPort, 1234},
+                        {Constants::SshForwardLocalPort, 5678},
+                        {Constants::SshForwardLocalAddress, "127.0.0.1"}}
+        << exitOnFailure + QStringList{"127.0.0.1:5678:localhost:1234"};
+    QTest::newRow("ipv6 address")
+        << QVariantHash{{Constants::SshForwardPort, 1234},
+                        {Constants::SshForwardLocalPort, 5678},
+                        {Constants::SshForwardLocalAddress, "::1"}}
+        << exitOnFailure + QStringList{"[::1]:5678:localhost:1234"};
+    QTest::newRow("device address")
+        << QVariantHash{{Constants::SshForwardAddress, "127.0.0.1"},
+                        {Constants::SshForwardPort, 1234},
+                        {Constants::SshForwardLocalPort, 5678}}
+        << exitOnFailure + QStringList{"5678:127.0.0.1:1234"};
+}
+
+void WindowsDeviceDetectionTest::testLocalPortForwardOptions()
+{
+    QFETCH(QVariantHash, extraData);
+    QFETCH(QStringList, expected);
+
+    QCOMPARE(localPortForwardOptions(extraData), expected);
 }
 
 } // namespace Remote::Internal

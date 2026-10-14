@@ -134,6 +134,32 @@ public:
     std::function<QString(const Utils::FilePath &)> moduleForSourceFile;
 };
 
+Utils::Result<QByteArray> cdbEnvironmentScript(const Utils::Environment &env,
+                                               const Utils::Environment &deviceEnvironment,
+                                               const Utils::FilePath &workingDirectory,
+                                               const Utils::CommandLine &cdb,
+                                               QStringList *skippedKeys = nullptr);
+Utils::FilePath cdbScriptDir(const Utils::FilePath &cdb,
+                             const Utils::Environment &deviceEnvironment);
+Utils::Result<Utils::CommandLine> cdbDeviceCommandLine(const Utils::FilePath &script,
+                                                       const Utils::FilePath &cmdExe);
+
+class CdbDeviceStart
+{
+public:
+    Utils::CommandLine command;
+    Utils::FilePath scriptFile;
+    QStringList warnings;
+};
+
+using CdbScriptStager = std::function<Utils::Result<Utils::FilePath>(
+    const QByteArray &contents, const Utils::FilePath &dir)>;
+
+Utils::Result<CdbDeviceStart> cdbDeviceStart(
+    const Utils::CommandLine &cdb, const Utils::Environment &env,
+    const Utils::Result<Utils::Environment> &deviceEnvironment,
+    const Utils::FilePath &workingDirectory, const CdbScriptStager &stageScript);
+
 class DEBUGGER_EXPORT CdbImpl final : public DebuggerEngineInterface
 {
     Q_OBJECT
@@ -147,7 +173,9 @@ private:
     friend class DebuggerUnitTests;
 #endif
 
-    Utils::Result<Utils::FilePath> stageInitScript(const QString &commands);
+    Utils::Result<Utils::FilePath> stageScript(const QByteArray &contents,
+                                               const Utils::FilePath &dir = {});
+    void removeStagedScripts();
     Utils::Result<> setupProcess();
     void start() final;
     void shutdownInferior(ShutdownMode mode) final;
@@ -164,6 +192,7 @@ private:
     void assignValueInDebugger(const WatchItemData &item, const QString &expr,
                                const QString &value) final;
 
+    std::optional<bool> registersFollowSelectedFrame() const override { return false; }
     void accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64 lengthOrSize,
                       const QByteArray &data) final;
     void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName) final;
@@ -261,6 +290,7 @@ private:
     CdbImplStartData m_startData;
     Utils::Process m_cdbProc;
     Utils::FilePath m_initScriptFile;
+    Utils::FilePath m_environmentScriptFile;
     QTimer m_watchdog;
 
     QString m_extensionCommandPrefix = "!qtcreatorcdbext.";

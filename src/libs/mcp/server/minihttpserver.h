@@ -379,9 +379,10 @@ public:
         m_chunked = true;
     }
 
+    // An empty chunk is the last-chunk, which would end the body early.
     void writeChunk(const QByteArray &data)
     {
-        if (!m_socket || isResponseCanceled())
+        if (data.isEmpty() || !m_socket || isResponseCanceled())
             return;
         QByteArray chunk;
         chunk += QByteArray::number(data.size(), 16);
@@ -395,8 +396,10 @@ public:
     {
         if (!m_socket)
             return;
-        if (m_chunked)
+        if (m_chunked && !isResponseCanceled()) {
             writeChunk(data);
+            writeToSocket("0\r\n\r\n");
+        }
         closeSocket();
     }
 

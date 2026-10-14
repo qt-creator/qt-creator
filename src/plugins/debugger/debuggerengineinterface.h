@@ -16,6 +16,7 @@
 
 #include <chrono>
 #include <functional>
+#include <optional>
 #include <variant>
 
 #include <QByteArray>
@@ -321,7 +322,7 @@ signals:
 
     void engineProcessFinished(const Utils::ProcessResultData &resultData);
 
-    void memoryDataReceived(quint64 requestId, quint64 address, const QByteArray &data);
+    void memoryRead(quint64 requestId, const MemoryReadResult &result);
 
     void disassemblyReceived(quint64 requestId, const DisassemblerLines &lines);
 
@@ -382,6 +383,9 @@ private:
     virtual void execute(const ExecutionRequest &request) = 0;
 
     virtual void refresh(const RefreshRequest &request) = 0;
+    // Whether the registers it reports are those of the selected frame, as
+    // the debugger reconstructs them, rather than the current CPU state.
+    virtual std::optional<bool> registersFollowSelectedFrame() const { return {}; }
 
     virtual void changeBreakpoint(const BreakpointChangeRequest &request) = 0;
 

@@ -275,7 +275,7 @@ static bool checkKeystorePassword(const FilePath &keystorePath, const QString &k
     if (keystorePasswd.isEmpty())
         return false;
     const CommandLine cmd(AndroidConfig::keytoolPath(),
-                          {"-list", "-keystore", keystorePath.toUserOutput(),
+                          {"-list", "-keystore", keystorePath.nativePath(),
                            "--storepass", keystorePasswd});
     Process proc;
     proc.setCommand(cmd);
@@ -287,7 +287,7 @@ static bool checkCertificatePassword(const FilePath &keystorePath, const QString
                                      const QString &alias, const QString &certificatePasswd)
 {
     // assumes that the keystore password is correct
-    QStringList arguments = {"-certreq", "-keystore", keystorePath.toUserOutput(),
+    QStringList arguments = {"-certreq", "-keystore", keystorePath.nativePath(),
                              "--storepass", keystorePasswd, "-alias", alias, "-keypass"};
     if (certificatePasswd.isEmpty())
         arguments << keystorePasswd;
@@ -304,7 +304,7 @@ static bool checkCertificateExists(const FilePath &keystorePath, const QString &
                                    const QString &alias)
 {
     // assumes that the keystore password is correct
-    const QStringList arguments = {"-list", "-keystore", keystorePath.toUserOutput(),
+    const QStringList arguments = {"-list", "-keystore", keystorePath.nativePath(),
                                    "--storepass", keystorePasswd, "-alias", alias};
 
     Process proc;
@@ -1301,7 +1301,7 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
         return nullptr;
 
     CertificatesModel *model = nullptr;
-    const QStringList params = {"-list", "-v", "-keystore", m_keystorePath.toUserOutput(),
+    const QStringList params = {"-list", "-v", "-keystore", m_keystorePath.nativePath(),
         "-storepass", m_keystorePasswd, "-J-Duser.language=en"};
 
     Process keytoolProc;

@@ -270,8 +270,8 @@ public:
                 // the debugger arrives after it has started.
                 if (process.allOutput().contains("[Fail]")) {
                     runControl->postMessage(
-                        Tr::tr("Could not tell the device that this launch is being debugged: "
-                               "%1").arg(process.allOutput().trimmed()), ErrorMessageFormat);
+                        Tr::tr("Could not notify the device that the application is being "
+                               "debugged: %1").arg(process.allOutput().trimmed()), ErrorMessageFormat);
                 }
             };
 
@@ -526,8 +526,9 @@ public:
             const FilePath host = FilePath::fromString(Constants::HARMONYOS_HOST_PATH);
             if (!host.isExecutableFile()) {
                 return runControl->errorTask(
-                    Tr::tr("Debugging what was built on the device needs \"%1\", which only a "
-                           "Qt Creator installed on the device has.").arg(host.toUserOutput()));
+                    Tr::tr("Debugging an application that was built on the device requires \"%1\", "
+                           "which is only available in a Qt Creator installation on the "
+                           "device.").arg(host.toUserOutput()));
             }
 
             const Storage<HostGate> gateStorage;

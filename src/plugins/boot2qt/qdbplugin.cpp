@@ -47,7 +47,7 @@ static void startFlashingWizard()
 {
     const FilePath filePath = flashWizardFilePath();
     if (HostOsInfo::isWindowsHost()) {
-        if (Process::startDetached({"explorer.exe", {filePath.toUserOutput()}}))
+        if (Process::startDetached({"explorer.exe", {filePath.nativePath()}}))
             return;
     } else if (Process::startDetached(CommandLine{filePath})) {
         return;

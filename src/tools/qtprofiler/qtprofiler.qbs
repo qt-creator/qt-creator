@@ -3,6 +3,7 @@ import qbs 1.0
 QtcTool {
     name: "QtProfiler"
     windowsFileDescription: "Qt Profiler"
+    windowsResourceFile: sourceDirectory + "/qtprofiler.rc"
 
     Depends { name: "codesign" }
 
@@ -38,10 +39,10 @@ QtcTool {
         "qtprofilerrpc.h",
         "qtprofilersettings.cpp",
         "qtprofilersettings.h",
+        "qtprofilersidebar.cpp",
+        "qtprofilersidebar.h",
         "qtprofilerwindow.cpp",
         "qtprofilerwindow.h",
-        "mainsidebar.cpp",
-        "mainsidebar.h",
         "schema/api.h",
     ]
 

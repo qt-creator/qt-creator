@@ -20,6 +20,9 @@
 #include <QMenu>
 #include <QPainter>
 
+#include <algorithm>
+#include <iterator>
+
 using namespace Utils;
 
 namespace Debugger::Internal {
@@ -190,10 +193,28 @@ static uint decodeHexChar(unsigned char c)
     return uint(-1);
 }
 
+void RegisterValue::clear()
+{
+    known = false;
+    for (Quint128 &lane : v.u128)
+        lane = 0;
+}
+
+// Adds summand to the given lane, carrying into the ones above it.
+void RegisterValue::addWithCarry(int lane, Quint128 summand)
+{
+    for (; lane < Lanes; ++lane) {
+        const Quint128 before = v.u128[lane];
+        v.u128[lane] += summand;
+        if (!(v.u128[lane] < before))
+            return;
+        summand = 1;
+    }
+}
+
 void RegisterValue::fromString(const QString &str, RegisterFormat format)
 {
-    known = !str.isEmpty();
-    v.u128[1] = v.u128[0] = 0;
+    clear();
 
     const int n = str.size();
     int pos = 0;
@@ -212,21 +233,21 @@ void RegisterValue::fromString(const QString &str, RegisterFormat format)
                 break;
         }
         shiftOneDigit(c, format);
+        known = true;
         ++pos;
     }
 
     if (negative) {
-        v.u128[1] = ~v.u128[1];
-        v.u128[0] = ~v.u128[0];
-        ++v.u128[0];
-        if (v.u128[0] == 0)
-            ++v.u128[1];
+        for (Quint128 &lane : v.u128)
+            lane = ~lane;
+        addWithCarry(0, 1);
     }
 }
 
-bool RegisterValue::operator==(const RegisterValue &other)
+bool RegisterValue::operator==(const RegisterValue &other) const
 {
-    return v.u128[0] == other.v.u128[0] && v.u128[1] == other.v.u128[1];
+    return known == other.known && std::equal(std::begin(v.u128), std::end(v.u128),
+                                              std::begin(other.v.u128));
 }
 
 static QString toDec(Quint128 v)
@@ -316,14 +337,15 @@ QString RegisterValue::toString(RegisterKind kind, int size, RegisterFormat form
             return QString::number(v.d[0]);
     }
 
+    // A register wider than 128 bits is shown 128 bits at a time, the most
+    // significant part first.
     QString result;
-    if (size > 16) {
-        result += formatRegister(v.u128[1], size - 16, format, forEdit);
-        size = 16;
+    for (int lane = std::min((size - 1) / 16, int(Lanes) - 1); lane > 0; --lane) {
+        result += formatRegister(v.u128[lane], std::min(size - 16 * lane, 16), format, forEdit);
         if (format != HexadecimalFormat)
             result += ',';
     }
-    return result + formatRegister(v.u128[0], size, format, forEdit);
+    return result + formatRegister(v.u128[0], std::min(size, 16), format, forEdit);
 }
 
 RegisterValue RegisterValue::subValue(int size, int index) const
@@ -373,8 +395,10 @@ void RegisterValue::setSubValue(int size, int index, RegisterValue subValue)
 
 static inline void shiftBitsLeft(RegisterValue *val, int amount)
 {
-    val->v.u128[1] <<= amount;
-    val->v.u128[1] |= val->v.u128[0] >> (128 - amount);
+    for (int lane = RegisterValue::Lanes - 1; lane > 0; --lane) {
+        val->v.u128[lane] <<= amount;
+        val->v.u128[lane] |= val->v.u128[lane - 1] >> (128 - amount);
+    }
     val->v.u128[0] <<= amount;
 }
 
@@ -395,17 +419,13 @@ void RegisterValue::shiftOneDigit(uint digit, RegisterFormat format)
         break;
     case DecimalFormat:
     case SignedDecimalFormat: {
+        // value * 10 + digit, as value * 8 + value * 2 + digit.
         shiftBitsLeft(this, 1);
-        Quint128 tmp0 = v.u128[0];
-        Quint128 tmp1 = v.u128[1];
+        RegisterValue twice = *this;
         shiftBitsLeft(this, 2);
-        v.u128[1] += tmp1;
-        v.u128[0] += tmp0;
-        if (v.u128[0] < tmp0)
-            ++v.u128[1];
-        v.u128[0] += digit;
-        if (v.u128[0] < digit)
-            ++v.u128[1];
+        for (int lane = Lanes - 1; lane >= 0; --lane)
+            addWithCarry(lane, twice.v.u128[lane]);
+        addWithCarry(0, digit);
         break;
     }
     case CharacterFormat:
@@ -717,6 +737,7 @@ RegisterHandler::RegisterHandler(DebuggerEngine *engine)
 
 void RegisterHandler::updateRegister(const Register &r)
 {
+    m_commitOfLastUpdate.insert(r.name, m_commits + 1);
     bool sort = false;
     bool changed = false;
     const QStringList groups = r.groups.isEmpty() ? QStringList{"all"} : r.groups;
@@ -736,6 +757,48 @@ void RegisterHandler::updateRegister(const Register &r)
     }
     if (changed)
         emit registerChanged(r.name, r.value.v.u64[0]); // Notify attached memory views.
+}
+
+void RegisterHandler::commitUpdates()
+{
+    ++m_commits;
+    emit layoutChanged();
+}
+
+/*!
+    Returns whether the engine reported \a name in the batch of updates that
+    was committed last. A register it did not report keeps the value it had
+    before, which may be from an earlier stop.
+*/
+bool RegisterHandler::wasUpdatedByLastCommit(const QString &name) const
+{
+    return m_commits > 0 && m_commitOfLastUpdate.value(name) == m_commits;
+}
+
+/*!
+    Returns every register once, in the order the engine first reported
+    them, with the groups it belongs to.
+*/
+QList<Register> RegisterHandler::registers() const
+{
+    QList<Register> result;
+    QHash<QString, int> indexByName;
+    for (int i = 0, n = rootItem()->childCount(); i != n; ++i) {
+        const RegisterGroup *group = rootItem()->childAt(i);
+        for (int j = 0, m = group->childCount(); j != m; ++j) {
+            const Register &reg = group->childAt(j)->m_reg;
+            const auto it = indexByName.constFind(reg.name);
+            if (it == indexByName.constEnd()) {
+                indexByName.insert(reg.name, int(result.size()));
+                result.append(reg);
+                if (result.last().groups.isEmpty())
+                    result.last().groups.append(group->m_group);
+            } else if (!result[*it].groups.contains(group->m_group)) {
+                result[*it].groups.append(group->m_group);
+            }
+        }
+    }
+    return result;
 }
 
 RegisterMap RegisterHandler::registerMap() const

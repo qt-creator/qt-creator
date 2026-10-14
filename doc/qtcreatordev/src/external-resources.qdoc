@@ -86,6 +86,10 @@
     \title README.md
 */
 /*!
+    \externalpage https://code.qt.io/cgit/qt-creator/qt-creator.git/about/BUILDING.md
+    \title BUILDING.md
+*/
+/*!
     \externalpage https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/cmake/QtCreatorAPI.cmake
     \title cmake/QtCreatorAPI.cmake
 */

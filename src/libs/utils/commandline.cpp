@@ -78,14 +78,15 @@ static void envExpandWin(QString &args, const Environment *env, const QString &p
 }
 
 static QString prepareArgsWin(const QString &_args, ProcessArgs::SplitError *err,
-                              const Environment *env, const QString &pwd)
+                              const Environment *env, const QString &pwd,
+                              ProcessArgs::EnvExpansion expansion = ProcessArgs::EnvExpansion::Expand)
 {
     QString args = _args;
 
-    if (env) {
-        envExpandWin(args, env, pwd);
-    } else {
-        if (args.indexOf(QLatin1Char('%')) >= 0) {
+    if (expansion == ProcessArgs::EnvExpansion::Expand) {
+        if (env) {
+            envExpandWin(args, env, pwd);
+        } else if (args.indexOf(QLatin1Char('%')) >= 0) {
             if (err)
                 *err = ProcessArgs::FoundMeta;
             return {};
@@ -570,12 +571,13 @@ static QString quoteArgWin(const QString &arg)
 }
 
 QString ProcessArgs::prepareShellArgs(const QString &args, SplitError *err, OsType osType,
-                                      const Environment *env, const FilePath &pwd)
+                                      const Environment *env, const FilePath &pwd,
+                                      EnvExpansion expansion)
 {
     const QString wd = pwd.path();
     QString res;
     if (osType == OsTypeWindows)
-        res = prepareArgsWin(args, err, env, wd);
+        res = prepareArgsWin(args, err, env, wd, expansion);
     else
         res = joinArgs(splitArgsUnix(args, true, err, env, wd), OsTypeLinux);
     return res;
@@ -638,7 +640,8 @@ CommandLine &CommandLine::operator<<(const QStringList &args)
 }
 
 bool ProcessArgs::prepareCommand(const CommandLine &cmdLine, QString *outCmd, QString *outArgs,
-                                 const Environment *env, const FilePath &pwd)
+                                 const Environment *env, const FilePath &pwd,
+                                 EnvExpansion expansion)
 {
     const FilePath executable = cmdLine.executable();
     if (executable.isEmpty())
@@ -648,7 +651,8 @@ bool ProcessArgs::prepareCommand(const CommandLine &cmdLine, QString *outCmd, QS
     const OsType osType = executable.osType();
 
     ProcessArgs::SplitError err;
-    *outArgs = ProcessArgs::prepareShellArgs(arguments, &err, osType, env, pwd);
+    *outArgs = ProcessArgs::prepareShellArgs(arguments, &err, osType, env, pwd,
+                                             expansion);
 
     if (err == ProcessArgs::SplitOk) {
         *outCmd = executable.path();

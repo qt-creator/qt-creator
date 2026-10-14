@@ -3,6 +3,18 @@
 
 #pragma once
 
+#include <utils/result.h>
+
+#include <QJsonObject>
+
+#include <functional>
+
 namespace Debugger::Internal {
+
 void registerMcpTools();
+
+void callMcpToolForTests(const QString &name,
+                         const QJsonObject &args,
+                         const std::function<void(Utils::Result<QJsonObject>)> &done);
+
 } // namespace Debugger::Internal

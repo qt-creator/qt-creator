@@ -5,6 +5,7 @@
 
 #include "qmldebug_global.h"
 #include "qmldebugclient.h"
+#include <qset.h>
 #include <qurl.h>
 #include <qvariant.h>
 
@@ -35,6 +36,7 @@ public:
     quint32 queryAvailableEngines();
     quint32 queryRootContexts(const EngineReference &context);
     quint32 queryObject(int objectId);
+    quint32 queryObjectHeader(int objectId);
     quint32 queryObjectRecursive(int objectId);
     quint32 queryExpressionResult(int objectDebugId,
                                   const QString &expr, int engineId = -1);
@@ -69,6 +71,7 @@ protected:
 
 private:
     quint32 m_nextId;
+    QSet<quint32> m_headerQueryIds;
 };
 
 class FileReference

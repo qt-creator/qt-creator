@@ -702,7 +702,7 @@ void CropAndTrimDialog::startFrameFetch()
         {
             "-v", "error",
             "-ss", m_clipInfo.timeStamp(m_nextFetchFrame),
-            "-i", m_clipInfo.file.toUserOutput(),
+            "-i", m_clipInfo.file.nativePath(),
             "-threads", "1",
             "-frames:v", "1",
             "-f", "rawvideo",

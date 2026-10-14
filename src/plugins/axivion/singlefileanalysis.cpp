@@ -240,14 +240,14 @@ static Environment setupEnv(const SFAData &data)
     Environment env = data.baseEnvironment;
     env.prependOrSetPath(data.bauhausSuite.pathAppended("bin"));
     if (!settings().javaHome().isEmpty())
-        env.set("JAVA_HOME", settings().javaHome().toUserOutput());
+        env.set("JAVA_HOME", settings().javaHome().nativePath());
     if (!settings().bauhausPython().isEmpty())
-        env.set("BAUHAUS_PYTHON", settings().bauhausPython().toUserOutput());
+        env.set("BAUHAUS_PYTHON", settings().bauhausPython().nativePath());
     env.set("PYTHON_IO_ENCODING", "utf-8:replace");
     env.set("PYTHONUNBUFFERED", "1");
     env.set("AXIVION_USER_AGENT", QString::fromUtf8(axivionUserAgent()));
     env.set("AXIVION_AR_PIPE_OUT", data.pipeName);
-    env.set("BAUHAUS_CONFIG", data.bauhausConfig.toUserOutput());
+    env.set("BAUHAUS_CONFIG", data.bauhausConfig.nativePath());
     return env;
 }
 
@@ -351,9 +351,9 @@ static FilePath constructMakefileIntegrationCommand(const FilePath &file,
                                                                                        : ".o"));
 
     const QStringList cmds = {
-        ProcessArgs::quoteArg(ms->makeExecutable().toUserOutput())
+        ProcessArgs::quoteArg(ms->makeExecutable().nativePath())
             + " CC=cafeCC CXX=cafeCC -f "
-            + ProcessArgs::quoteArg(makefile.toUserOutput()) + ' ' + fileObj, // make
+            + ProcessArgs::quoteArg(makefile.nativePath()) + ' ' + fileObj, // make
         "axivion_analysis --output - --quiet --limit_to AnalysisControl"
         " --limit_to Stylechecks --ir " + fileObj                             // analysis
     };
@@ -377,12 +377,12 @@ static void startSingleFileAnalysisDerived(const FilePath &file)
 
             const QStringList commands = {
                 // cmake call to generate compile_commands.json
-                ProcessArgs::quoteArg(bs->activeBuildTool().toUserOutput())
+                ProcessArgs::quoteArg(bs->activeBuildTool().nativePath())
                 + " -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .",
                 // build and run analysis
                 "build_compile_commands --single_file "
-                + ProcessArgs::quoteArg(file.toUserOutput()) + ' '
-                + ProcessArgs::quoteArg(compileCommandsJson.toUserOutput())
+                + ProcessArgs::quoteArg(file.nativePath()) + ' '
+                + ProcessArgs::quoteArg(compileCommandsJson.nativePath())
             };
             const FilePath cmd = FilePath::fromString(commands.join(" && "));
 

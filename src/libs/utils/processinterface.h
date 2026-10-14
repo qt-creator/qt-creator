@@ -103,6 +103,7 @@ public:
 
     std::chrono::milliseconds m_reaperTimeout{500};
     bool m_abortOnMetaChars = true;
+    ProcessArgs::EnvExpansion m_envExpansion = ProcessArgs::EnvExpansion::Expand;
     bool m_lowPriority = false;
     bool m_unixTerminalDisabled = false;
     bool m_useCtrlCStub = false;

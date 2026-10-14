@@ -1116,7 +1116,7 @@ Environment toolsEnvironment()
     env.set("NO_COLOR", "1");
     FilePath jdkLocation = openJDKLocation();
     if (!jdkLocation.isEmpty()) {
-        env.set(Constants::JAVA_HOME_ENV_VAR, jdkLocation.toUserOutput());
+        env.set(Constants::JAVA_HOME_ENV_VAR, jdkLocation.nativePath());
         env.prependOrSetPath(jdkLocation.pathAppended("bin"));
     }
     return env;

@@ -372,9 +372,9 @@ private:
         const quint32 size = quint32(contents->size());
         announce(m_socket, size);
         m_socket->write(*contents);
-        m_runControl->postMessage(Tr::tr("Handed %1 to the runner (%2 bytes).")
-                                      .arg(m_library.fileName()).arg(size),
-                                  NormalMessageFormat);
+        m_runControl->postMessage(
+            Tr::tr("Handed \"%1\" to the runner (%2 bytes).").arg(m_library.fileName()).arg(size),
+            NormalMessageFormat);
     }
 
     void read()

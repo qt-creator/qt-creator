@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <QColor>
+#include <QRandomGenerator>
 #include <QSignalSpy>
 #include <QTest>
 #include <tracing/timelinemodel_p.h>
@@ -63,6 +64,8 @@ private slots:
     void prevNext();
     void parentingOfEqualStarts();
     void rows();
+    void longRangesAreFoundInsideTheView();
+    void longRangesAreFoundAmongOverlappingRanges();
 
 private:
     TimelineModelAggregator aggregator;
@@ -473,6 +476,86 @@ void tst_TimelineModel::rows()
     QCOMPARE(levels.at(7), 7);
     QCOMPARE(levels.at(10), 2);
     QCOMPARE(maxlevel, 15);
+}
+
+// Every range that intersects a view must lie between firstIndex() and
+// lastIndex() of that view, however long it is and whether or not its start or
+// end is in view.
+void tst_TimelineModel::longRangesAreFoundInsideTheView()
+{
+    DummyModel dummy(&aggregator);
+    // One range spanning everything, a nested chain, short leaves at various
+    // depths, a range starting together with its parent, and a sibling after.
+    dummy.insert(0, 10000, 1);
+    dummy.insert(100, 8900, 2);
+    dummy.insert(200, 7800, 3);
+    dummy.insert(200, 50, 4);
+    for (int i = 0; i < 40; ++i)
+        dummy.insert(300 + i * 150, 20, 5);
+    for (int i = 0; i < 10; ++i)
+        dummy.insert(6500 + i * 200, 100, 6);
+    dummy.insert(9100, 100, 7);
+    dummy.insert(10500, 300, 8);
+    dummy.computeNesting();
+
+    int uncovered = 0;
+    QString firstFailure;
+    for (qint64 width : {1, 7, 60, 400}) {
+        for (qint64 start = -50; start < 11000; start += 13) {
+            const qint64 end = start + width;
+            const int first = dummy.firstIndex(start);
+            const int last = dummy.lastIndex(end);
+            for (int i = 0; i < dummy.count(); ++i) {
+                const bool visible = dummy.startTime(i) < end && dummy.endTime(i) > start;
+                if (visible && (first < 0 || i < first || i > last)) {
+                    if (firstFailure.isEmpty()) {
+                        firstFailure = QString("range %1 [%2, %3] not in view [%4, %5]: %6..%7")
+                                           .arg(i).arg(dummy.startTime(i)).arg(dummy.endTime(i))
+                                           .arg(start).arg(end).arg(first).arg(last);
+                    }
+                    ++uncovered;
+                }
+            }
+        }
+    }
+    QVERIFY2(uncovered == 0, qPrintable(QString("%1 misses, first: %2")
+                                            .arg(uncovered).arg(firstFailure)));
+}
+
+// Producers of Chrome trace events can emit ranges that overlap without one
+// containing the other, which the model documents as unsupported. A long range
+// must still show up for a view in its middle.
+void tst_TimelineModel::longRangesAreFoundAmongOverlappingRanges()
+{
+    DummyModel dummy(&aggregator);
+    QRandomGenerator random(42);
+    dummy.insert(0, 10000, 1);
+    for (int i = 0; i < 300; ++i)
+        dummy.insert(qint64(random.bounded(10500)) - 200, 1 + random.bounded(900), 2);
+    dummy.computeNesting();
+
+    int uncovered = 0;
+    QString firstFailure;
+    for (qint64 width : {1, 7, 60, 400}) {
+        for (qint64 start = -300; start < 11000; start += 11) {
+            const qint64 end = start + width;
+            const int first = dummy.firstIndex(start);
+            const int last = dummy.lastIndex(end);
+            for (int i = 0; i < dummy.count(); ++i) {
+                const bool visible = dummy.startTime(i) < end && dummy.endTime(i) > start;
+                if (visible && (first < 0 || i < first || i > last)) {
+                    if (firstFailure.isEmpty()) {
+                        firstFailure = QString("range %1 [%2, %3] not in view [%4, %5]: %6..%7")
+                                           .arg(i).arg(dummy.startTime(i)).arg(dummy.endTime(i))
+                                           .arg(start).arg(end).arg(first).arg(last);
+                    }
+                    ++uncovered;
+                }
+            }
+        }
+    }
+    QVERIFY2(uncovered == 0, qPrintable(QString("%1 misses, first: %2")
+                                            .arg(uncovered).arg(firstFailure)));
 }
 
 QTEST_GUILESS_MAIN(tst_TimelineModel)

@@ -1176,12 +1176,13 @@ private slots:
         })");
 
         QVERIFY(!data.hasValidPresets);
-        QCOMPARE(errorMessages(data),
-                 QStringList()
-                     << "Invalid configure preset: \"a\": Could not find inherited preset "
-                        "\"missing\""
-                     << "Invalid build preset: \"b\": Could not find inherited preset \"nope\""
-                     << "Invalid test preset: \"t\": Could not find inherited preset \"nada\"");
+        QCOMPARE(
+            errorMessages(data),
+            QStringList()
+                << "Invalid configure preset \"a\": Cannot not find inherited preset "
+                   "\"missing\"."
+                << "Invalid build preset \"b\": Cannot not find inherited preset \"nope\"."
+                << "Invalid test preset \"t\": Cannot not find inherited preset \"nada\".");
     }
 
     void testDiamondInheritanceIsNotACycle()

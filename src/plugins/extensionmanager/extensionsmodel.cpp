@@ -230,6 +230,9 @@ static ExtensionState extensionState(const QModelIndex &index)
     if (!ps)
         return NotInstalled;
 
+    if (ps->hasError())
+        return InstalledError;
+
     return ps->isEffectivelyEnabled() ? InstalledEnabled : InstalledDisabled;
 }
 

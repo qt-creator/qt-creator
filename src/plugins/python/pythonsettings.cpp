@@ -1059,7 +1059,7 @@ void PythonSettings::createVirtualEnvironment(
     QTC_ASSERT(python.isExecutableFile(), return);
     QTC_ASSERT(!directory.exists() || directory.isDir(), return);
 
-    const CommandLine command(python, QStringList{"-m", "venv", directory.toUserOutput()});
+    const CommandLine command(python, QStringList{"-m", "venv", directory.nativePath()});
     venvsCurrentlySettingUp().insert(directory);
 
     auto process = new Process;

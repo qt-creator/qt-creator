@@ -84,6 +84,8 @@ static constexpr int kCopyIconSize = 16;
 static constexpr int kCopyButtonPadding = 4;
 static constexpr int kCopyButtonMargin = 2;
 
+enum { CollapsedBlockProperty = QTextFormat::UserProperty };
+
 static QIcon copyIcon(bool isCopied)
 {
     static QIcon clickedIcon = Utils::Icons::OK.icon();
@@ -819,6 +821,17 @@ void MarkdownBrowser::highlightCodeBlock(const QString &language, QTextBlock &bl
         frameCursor.block().layout()->setFormats(formats);
     }
 
+    // insertFrame() leaves an empty block before and after the frame. Collapse them.
+    QTextBlockFormat collapsedFormat;
+    collapsedFormat.setLineHeight(SpacingTokens::GapVS, QTextBlockFormat::FixedHeight);
+    collapsedFormat.setTopMargin(0);
+    collapsedFormat.setBottomMargin(0);
+    collapsedFormat.setProperty(CollapsedBlockProperty, true);
+    for (const QTextBlock &emptyBlock : {frame->firstCursorPosition().block().previous(),
+                                         frame->lastCursorPosition().block().next()}) {
+        QTextCursor(emptyBlock).mergeBlockFormat(collapsedFormat);
+    }
+
     // Leave the frame
     QTextCursor next = frame->lastCursorPosition();
     block = next.block();
@@ -1130,8 +1143,11 @@ void MarkdownBrowser::postProcessDocument(bool firstTime)
         }
 
         // Update fonts
-        QTextCursor cursor(block);
         auto blockFormat = block.blockFormat();
+        if (blockFormat.boolProperty(CollapsedBlockProperty))
+            continue;
+
+        QTextCursor cursor(block);
 
         if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
             blockFormat.setTopMargin(SpacingTokens::PaddingVXxl * m_scale);

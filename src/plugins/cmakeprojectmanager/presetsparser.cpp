@@ -1386,10 +1386,12 @@ PresetsData combinePresets(PresetsData &cmakePresetsData, PresetsData &cmakeUser
 
                 for (const QString &inheritFrom : *p.inherits) {
                     if (!presetsHash.contains(inheritFrom)) {
-                        addError(Tr::tr("Invalid %1 preset: \"%2\": Could not find inherited "
-                                        "preset \"%3\"")
-                                     .arg(presetType, p.name, inheritFrom),
-                                 p.filePath);
+                        addError(
+                            Tr::tr(
+                                "Invalid %1 preset \"%2\": Cannot not find inherited "
+                                "preset \"%3\".")
+                                .arg(presetType, p.name, inheritFrom),
+                            p.filePath);
                     }
                 }
 
@@ -1416,9 +1418,11 @@ PresetsData combinePresets(PresetsData &cmakePresetsData, PresetsData &cmakeUser
         // Add the CMakeUserPresets to the resolve hash map
         for (auto it = userPresets.begin(); it != userPresets.end();) {
             if (presetsHash.contains(it->name)) {
-                addError(Tr::tr("%1 cannot re-define the %2 preset: %3")
-                             .arg(it->filePath.fileName(), presetType, it->name),
-                         it->filePath);
+                //: %1 = file path, %2 = preset type, %3 = preset name
+                addError(
+                    Tr::tr("%1 cannot redefine the %2 preset \"%3\".")
+                        .arg(it->filePath.fileName(), presetType, it->name),
+                    it->filePath);
                 it = userPresets.erase(it);
             } else {
                 presetsHash.insert(it->name, *it);

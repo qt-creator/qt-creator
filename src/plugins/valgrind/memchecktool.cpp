@@ -652,7 +652,7 @@ void MemcheckTool::heobAction()
                 .arg("<a href=\"https://github.com/ssbssa/heob/releases\">Heob</a>"));
         return;
     }
-    const QString heobPath = heobFilePath.toUserOutput();
+    const QString heobPath = heobFilePath.nativePath();
 
     // dwarfstack
     if (abi.osFlavor() == Abi::WindowsMSysFlavor) {

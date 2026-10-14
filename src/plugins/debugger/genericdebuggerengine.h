@@ -49,7 +49,12 @@ private:
     void setPeripheralRegisterValue(quint64 address, quint64 value) final;
     void assignValueInDebugger(WatchItem *item, const QString &expression,
                                const QVariant &value) final;
-    void fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length) final;
+    std::optional<bool> registersFollowSelectedFrame() const final
+    {
+        return m_backend->registersFollowSelectedFrame();
+    }
+    bool canReadMemory() const final;
+    void readMemory(quint64 addr, quint64 length, const MemoryReadCallback &callback) final;
     void changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray &data) final;
     void fetchDisassembler(DisassemblerAgent *agent) final;
     void watchPoint(const QPoint &pnt) final;
@@ -102,7 +107,7 @@ private:
     quint64 m_nextFullBacktraceRequestId = 1;
     quint64 m_nextWatchPointRequestId = 1;
     QHash<quint64, Breakpoint> m_pendingBreakpoints;
-    QHash<quint64, QPointer<MemoryAgent>> m_pendingMemoryRequests;
+    QHash<quint64, MemoryReadCallback> m_pendingMemoryReads;
     QHash<quint64, QPointer<DisassemblerAgent>> m_pendingDisassemblyRequests;
     bool m_notRespondingPending = false;
 };

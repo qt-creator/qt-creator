@@ -140,8 +140,11 @@ private:
 class RegisterValue
 {
 public:
-    RegisterValue() { known = false; v.u128[1] = v.u128[0] = 0; }
-    bool operator==(const RegisterValue &other);
+    // Enough for the widest registers, the 512-bit ones of AVX-512.
+    enum { Lanes = 4 }; // Of 128 bits each.
+
+    RegisterValue() { clear(); }
+    bool operator==(const RegisterValue &other) const;
 
     void fromString(const QString &str, RegisterFormat format);
     QString toString(RegisterKind kind, int size, RegisterFormat format,
@@ -153,15 +156,19 @@ public:
     void shiftOneDigit(uint digit, RegisterFormat format);
 
     union {
-        quint8    u8[32];
-        quint16  u16[16];
-        quint32   u32[8];
-        quint64   u64[4];
-        Quint128 u128[2];
-        float       f[8];
-        double      d[4];
+        quint8    u8[16 * Lanes];
+        quint16  u16[8 * Lanes];
+        quint32   u32[4 * Lanes];
+        quint64   u64[2 * Lanes];
+        Quint128 u128[Lanes];
+        float       f[4 * Lanes];
+        double      d[2 * Lanes];
     } v;
     bool known;
+
+private:
+    void clear();
+    void addWithCarry(int lane, Quint128 summand);
 };
 
 class Register
@@ -198,8 +205,11 @@ public:
     QAbstractItemModel *model() { return this; }
 
     void updateRegister(const Register &reg);
-    void commitUpdates() { emit layoutChanged(); }
+    void commitUpdates();
     RegisterMap registerMap() const;
+
+    QList<Register> registers() const;
+    bool wasUpdatedByLastCommit(const QString &name) const;
 
 signals:
     void registerChanged(const QString &name, quint64 value); // For memory views
@@ -211,6 +221,8 @@ private:
     bool contextMenuEvent(const Utils::ItemViewEvent &ev);
     RegisterGroup *allRegisters() const;
     QHash<QString, RegisterGroup *> m_registerGroups;
+    QHash<QString, int> m_commitOfLastUpdate;
+    int m_commits = 0;
     DebuggerEngine * const m_engine;
 };
 

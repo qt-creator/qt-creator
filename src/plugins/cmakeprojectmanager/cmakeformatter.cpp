@@ -63,10 +63,10 @@ public:
         formatter.setDisplayStyle(SelectionAspect::DisplayStyle::RadioButtons);
         formatter.setLabelText(Tr::tr("Formatter:"));
         formatter.addOption(Tr::tr("Built-in"),
-                            Tr::tr("Lays the file out the way the CMake files of Qt are laid "
-                                   "out. Needs nothing installed."));
+                            Tr::tr("Formats the file in the style of Qt's CMake files. "
+                                   "Requires no external tool."));
         formatter.addOption(Tr::tr("CMakeFormat"),
-                            Tr::tr("Hands the file to the cmake-format command below."));
+                            Tr::tr("Formats the file with the cmake-format command below."));
 
         command.setSettingsKey("autoFormatCommand");
         command.setDefaultValue(defaultFormatCommand);

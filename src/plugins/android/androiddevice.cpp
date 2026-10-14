@@ -881,7 +881,7 @@ QSettings *AndroidDevice::avdSettings() const
 void AndroidDevice::initAvdSettings()
 {
     const FilePath configPath = avdPath().resolvePath(QStringLiteral("config.ini"));
-    d->m_avdSettings.reset(new QSettings(configPath.toUserOutput(), QSettings::IniFormat));
+    d->m_avdSettings.reset(new QSettings(configPath.toFSPathString(), QSettings::IniFormat));
 }
 
 void AndroidDevice::updateDeviceFileAccess()

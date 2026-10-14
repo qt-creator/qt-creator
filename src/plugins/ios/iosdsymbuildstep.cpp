@@ -122,7 +122,7 @@ QStringList IosDsymBuildStep::defaultCleanCmdList() const
 {
     auto runConf = qobject_cast<IosRunConfiguration *>(buildConfiguration()->activeRunConfiguration());
     QTC_ASSERT(runConf, return {"echo"});
-    QString dsymPath = runConf->bundleDirectory().toUserOutput();
+    QString dsymPath = runConf->bundleDirectory().nativePath();
     dsymPath.chop(4);
     dsymPath.append(".dSYM");
     return {"rm", "-rf", dsymPath};
@@ -134,13 +134,13 @@ QStringList IosDsymBuildStep::defaultCmdList() const
     const Utils::FilePath dsymUtilPath = IosConfigurations::developerPath()
             .pathAppended("Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil");
     if (dsymUtilPath.exists())
-        dsymutilCmd = dsymUtilPath.toUserOutput();
+        dsymutilCmd = dsymUtilPath.nativePath();
     auto runConf = qobject_cast<const IosRunConfiguration *>(buildConfiguration()->activeRunConfiguration());
     QTC_ASSERT(runConf, return {"echo"});
-    QString dsymPath = runConf->bundleDirectory().toUserOutput();
+    QString dsymPath = runConf->bundleDirectory().nativePath();
     dsymPath.chop(4);
     dsymPath.append(".dSYM");
-    return {dsymutilCmd, "-o", dsymPath, runConf->localExecutable().toUserOutput()};
+    return {dsymutilCmd, "-o", dsymPath, runConf->localExecutable().nativePath()};
 }
 
 FilePath IosDsymBuildStep::command() const

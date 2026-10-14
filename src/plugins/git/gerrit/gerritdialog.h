@@ -62,6 +62,7 @@ private:
     void slotFetchCheckout();
     void remoteChanged();
     void updateRemotes(bool forceReload = false);
+    bool event(QEvent *event) override;
     void showEvent(QShowEvent *event) override;
 
     void manageProgressIndicator();

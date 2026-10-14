@@ -70,6 +70,7 @@ static void runGitAsync(const FilePath &repository, const QStringList &arguments
         process->deleteLater();
     });
     process->setCommand({git, arguments});
+    process->setEnvironmentExpansion(ProcessArgs::EnvExpansion::Literal);
     process->setWorkingDirectory(repository);
     process->setEnvironment(gitClient().processEnvironment(repository));
     process->setUtf8Codec(); // git emits UTF-8; do not decode with the system locale.

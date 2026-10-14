@@ -70,6 +70,8 @@ private:
 
 HelpSettings &helpSettings();
 
+QByteArray darkThemeSvg(const QByteArray &svg);
+
 class LocalHelpManager final : public QObject
 {
     Q_OBJECT

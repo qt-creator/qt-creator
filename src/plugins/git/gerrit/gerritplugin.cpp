@@ -257,6 +257,7 @@ void GerritPlugin::fetch(const std::shared_ptr<GerritChange> &change, int mode)
         const CommandLine commandLine{git, change->gitFetchArguments(server)};
         VcsBase::VcsOutputWindow::appendCommand(repository, commandLine);
         process.setCommand(commandLine);
+        process.setEnvironmentExpansion(ProcessArgs::EnvExpansion::Literal);
         new ProcessProgress(&process);
     };
 

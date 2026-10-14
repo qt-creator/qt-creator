@@ -21,7 +21,7 @@
     See the exact Qt version that a \QC package was built with in its
     \uicontrol {About \QC} dialog.
 
-    The minimum requirements for building \QC are stated in the \l{README.md} and
+    The minimum requirements for building \QC are stated in the \l{BUILDING.md} and
     near the top of the \l{cmake/QtCreatorAPI.cmake} file in the sources.
 
     You can get prebuilt Qt packages from \l{Qt Downloads}. If you want to use Qt
@@ -51,7 +51,7 @@
     \l{qt-creator.git}. If you intend to contribute to \QC itself, use the
     repository from our Gerrit review tool, as described in \l{Setting up Gerrit}.
 
-    See the \l{README.md} included in the sources for details on building \QC.
+    See the \l{BUILDING.md} included in the sources for details on building \QC.
 
     When developing your plugin, point the \c {CMAKE_PREFIX_PATH} to the
     build location of \QC.

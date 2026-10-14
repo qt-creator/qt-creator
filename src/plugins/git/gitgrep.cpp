@@ -144,6 +144,7 @@ static void runGitGrep(QPromise<SearchResultItems> &promise, const GitGrepInput 
     const auto setupProcess = [&inputs](Process &process) {
         process.setEnvironment(inputs.environment);
         process.setCommand(inputs.command);
+        process.setEnvironmentExpansion(ProcessArgs::EnvExpansion::Literal);
         process.setWorkingDirectory(inputs.parameters.searchDir);
     };
 

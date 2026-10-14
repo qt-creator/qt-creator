@@ -27,16 +27,16 @@ add_qtc_executable(qtprofiler
   PROPERTIES ${qtprofiler_props}
   DESTINATION "${qtprofiler_destination}"
   SOURCES
-    mainsidebar.cpp mainsidebar.h
     qtprofilerinit.cpp qtprofilerinit.h
     qtprofilermain.cpp
     qtprofilerrpc.cpp qtprofilerrpc.h
     qtprofilersettings.cpp qtprofilersettings.h
+    qtprofilersidebar.cpp qtprofilersidebar.h
     qtprofilerwindow.h qtprofilerwindow.cpp
     schema/api.h
 )
 
-qtc_add_version_resource(qtprofiler "Qt Profiler")
+qtc_add_version_resource(qtprofiler "Qt Profiler" RESOURCE_FILE qtprofiler.rc)
 
 # Turn it into a proper macOS application bundle: attach the Info.plist and the
 # app icon, and make sure both end up in the build tree and in the install tree.
@@ -55,7 +55,7 @@ if (APPLE AND TARGET qtprofiler)
     "${QtCreator_SOURCE_DIR}/dist/installer/mac/Qt Profiler.entitlements")
 
   # Copies the icon into qtprofiler.app/Contents/Resources in the build tree.
-  set(qtprofiler_icon "${CMAKE_CURRENT_SOURCE_DIR}/macos/qtprofiler.icns")
+  set(qtprofiler_icon "${CMAKE_CURRENT_SOURCE_DIR}/icon/qtprofiler.icns")
   target_sources(qtprofiler PRIVATE "${qtprofiler_icon}")
   set_source_files_properties("${qtprofiler_icon}" PROPERTIES
     MACOSX_PACKAGE_LOCATION "Resources"

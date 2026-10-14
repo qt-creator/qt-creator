@@ -261,7 +261,7 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
             subDir.resolvePath(filesToCopy.fish.script.fileName()));
         QTC_ASSERT_RESULT(copyResult, return);
 
-        env.appendOrSet("XDG_DATA_DIRS", xdgDir.toUserOutput());
+        env.appendOrSet("XDG_DATA_DIRS", xdgDir.nativePath());
     }
 
     process.setCommand(cmd);

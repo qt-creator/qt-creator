@@ -11,6 +11,8 @@
 
 #include <QSet>
 
+#include <optional>
+
 namespace Debugger::Internal {
 
 class DebuggerEngine;
@@ -84,6 +86,7 @@ public:
     StackFrame currentFrame() const;
     StackFrame frameAt(int index) const;
     int stackSize() const;
+    bool canExpand() const { return m_canExpand; }
     quint64 topAddress() const;
 
     // Called from StackHandler after a new stack list has been received
@@ -92,16 +95,21 @@ public:
     bool isContentsValid() const { return m_contentsValid; }
     bool operatesByInstruction() const;
     void scheduleResetLocation();
+    void cancelResetLocation();
+    void commitResetLocation();
     void resetLocation();
 
     QIcon iconForRow(int row) const;
 
 signals:
     void stackChanged();
+    // A stack the backend delivered, unlike a rebuild of the frames already shown.
+    void framesReported();
     void currentIndexChanged();
 
 private:
     int stackRowCount() const; // Including the <more...> "frame"
+    void replaceFrames(const StackFrames &frames, bool canExpand);
 
     // Native mixed: collapsed runs of debugger machinery frames can be
     // expanded in place for users who want to see them.
@@ -120,6 +128,8 @@ private:
     int m_currentIndex = -1;
     bool m_canExpand = false;
     bool m_contentsValid = false;
+    // Set while a reset is pending, so that a run that fails can undo it.
+    std::optional<bool> m_contentsValidBeforeReset;
 
     // The full, uncollapsed frame list and the set of machinery runs the
     // user expanded (keyed by the address of each run's first frame).
