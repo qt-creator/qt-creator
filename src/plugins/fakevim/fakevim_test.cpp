@@ -45,6 +45,7 @@
 #include <QTemporaryFile>
 #include <QTest>
 #include <QTextLayout>
+#include <QTextLayout>
 #include <QTimer>
 #include <QTextEdit>
 #include <QTextDocument>
@@ -1004,6 +1005,35 @@ static QByteArray cursor(int line, int column)
 
 static QByteArray lmid(int i, int n = -1) { return bajoin(l.mid(i, n)); }
 
+// A path as a listing shows it, with the home directory written as "~".
+static QString listedPath(const QString &path)
+{
+    const QString home = QDir::homePath();
+    return path.startsWith(home + '/') ? "~" + path.mid(home.size()) : path;
+}
+
+// Gives the editor a window of as many cells as Vim measured in, whatever
+// font this machine draws the text in, and lays the text out again for it.
+static void resizeToCells(TextEditorWidget *editor, int columns, int rows)
+{
+    // A row of cells laid out as the editor lays out its text, so the width
+    // follows the advances the text is wrapped by, whole pixels or not.
+    QTextLayout layout(QString(columns, QLatin1Char('x')), editor->document()->defaultFont(),
+                       editor->viewport());
+    layout.beginLayout();
+    QTextLine line = layout.createLine();
+    line.setNumColumns(columns);
+    const qreal width = line.naturalTextWidth();
+    layout.endLayout();
+    const int margin = 2 * qRound(editor->document()->documentMargin());
+    const QSize frame = editor->size() - editor->viewport()->size();
+    const QSize size = frame + QSize(qRound(width + width / columns / 2) + margin,
+                                     rows * editor->fontMetrics().lineSpacing() + margin);
+    // The layout only follows a width that changes.
+    editor->resize(size.width() + 1, size.height());
+    editor->resize(size);
+}
+
 // Data for tests containing BaseTextEditorWidget and FakeVimHAndler.
 struct FakeVimTester::TestData
 {
@@ -1948,7 +1978,7 @@ void FakeVimTester::test_vim_screen_lines_wrapped()
     data.doCommand("set wrap");
     // The editor lays the text out again where the width changes, and only a
     // layout made after the text was set knows where the text wraps.
-    data.editor()->resize(601, 400);
+    resizeToCells(data.editor(), 70, 24);
 
     const auto cursorColumn = [&] { return data.editor()->textCursor().positionInBlock() + 1; };
     const auto lineSize = [&](int n) {
@@ -1963,7 +1993,7 @@ void FakeVimTester::test_vim_screen_lines_wrapped()
     const int row = columnAt(width - 1, 1);
     // The arithmetic below wants the first line to wrap over three rows, with
     // room for a column past the second row that the short line clamps.
-    QVERIFY(row >= 67 && row <= 91);
+    QVERIFY(row >= 67 && row <= 75);
     // Wrapping is on where the second row starts where the first one ended.
     QCOMPARE(columnAt(0, 2), row + 1);
 
@@ -2055,7 +2085,7 @@ void FakeVimTester::test_vim_screen_lines_window()
     data.doCommand("set wrap");
     // The editor lays the text out again where the width changes, and only a
     // layout made after the text was set knows where the text wraps.
-    data.editor()->resize(601, 400);
+    resizeToCells(data.editor(), 80, 24);
 
     QString message;
     data.handler->commandBufferChanged.set(
@@ -2100,8 +2130,7 @@ void FakeVimTester::test_vim_screen_lines_window()
     // A line of a single row shifts the rest of the window by the rows it
     // does not take.
     data.setText(QByteArray(QByteArray("S").repeated(20) + "\n" + text).constData());
-    data.editor()->resize(600, 400);
-    data.editor()->resize(601, 400);
+    resizeToCells(data.editor(), 80, 24);
     const int shortHeight = echo("winheight(0)").toInt();
     QVERIFY(shortHeight > 8);
     const int shortHalf = (shortHeight + 1) / 2;
@@ -2143,7 +2172,7 @@ void FakeVimTester::test_vim_screen_view_wrapped()
     data.doCommand("set wrap");
     // The editor lays the text out again where the width changes, and only a
     // layout made after the text was set knows where the text wraps.
-    data.editor()->resize(601, 400);
+    resizeToCells(data.editor(), 80, 24);
 
     QString message;
     data.handler->commandBufferChanged.set(
@@ -19577,10 +19606,15 @@ void FakeVimTester::test_vim_script_environment()
     QCOMPARE(value("environ()['FV_TEST_VAR']"), QLatin1String("hello"));
     QCOMPARE(value("has_key(environ(), 'FV_TEST_VAR')"), QLatin1String("1"));
 
-    // An empty one is still a value, where a missing one is not.
+    // An empty one is still a value, where a missing one is not. Windows
+    // knows no empty variable and takes one set to nothing away.
     QCOMPARE(value("setenv('FV_TEST_VAR', '')"), QLatin1String("0"));
-    QCOMPARE(value("getenv('FV_TEST_VAR')"), QString());
-    QCOMPARE(value("type(getenv('FV_TEST_VAR')) == type('')"), QLatin1String("1"));
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        QCOMPARE(value("getenv('FV_TEST_VAR')"), QLatin1String("v:null"));
+    } else {
+        QCOMPARE(value("getenv('FV_TEST_VAR')"), QString());
+        QCOMPARE(value("type(getenv('FV_TEST_VAR')) == type('')"), QLatin1String("1"));
+    }
 
     // v:null takes it away again.
     QCOMPARE(value("setenv('FV_TEST_VAR', v:null)"), QLatin1String("0"));
@@ -19592,9 +19626,10 @@ void FakeVimTester::test_vim_script_environment()
 
     // exepath() gives the whole path where executable() gives a yes, and
     // nothing at all where it gives a no.
-    QCOMPARE(value("empty(exepath('sh')) == !executable('sh')"),
+    const QString shell = Utils::HostOsInfo::isWindowsHost() ? _("cmd") : _("sh");
+    QCOMPARE(value("empty(exepath('" + shell + "')) == !executable('" + shell + "')"),
              QLatin1String("1"));
-    QCOMPARE(value("exepath('sh')[0]"), QLatin1String("/"));
+    QVERIFY(QDir::isAbsolutePath(value("exepath('" + shell + "')")));
     QCOMPARE(value("exepath('fv_nosuchbinary_xyz')"), QString());
     QCOMPARE(value("executable('fv_nosuchbinary_xyz')"), QLatin1String("0"));
 }
@@ -19709,17 +19744,22 @@ void FakeVimTester::test_vim_script_file_info()
     QVERIFY(QDir(root).mkdir("sub"));
     QVERIFY(QFile::link("plain.txt", root + "/link.txt"));
     data.doCommand("let g:d = '" + root + "'");
+    // A link made on Windows is a shortcut, which is a file of its own, and
+    // what it may be done with is not written in permission bits there.
+    const bool isWindows = Utils::HostOsInfo::isWindowsHost();
 
     // -- getftype() --
     // A link is reported as one, not as what it points at.
     QCOMPARE(value("getftype(g:d . '/plain.txt')"), QLatin1String("file"));
     QCOMPARE(value("getftype(g:d . '/sub')"), QLatin1String("dir"));
-    QCOMPARE(value("getftype(g:d . '/link.txt')"), QLatin1String("link"));
+    if (!isWindows)
+        QCOMPARE(value("getftype(g:d . '/link.txt')"), QLatin1String("link"));
     QCOMPARE(value("getftype(g:d . '/nope')"), QString());
 
     // -- getfperm() --
     // Nine characters, no leading type character.
-    QCOMPARE(value("getfperm(g:d . '/plain.txt')"), QLatin1String("rw-r--r--"));
+    if (!isWindows)
+        QCOMPARE(value("getfperm(g:d . '/plain.txt')"), QLatin1String("rw-r--r--"));
     QCOMPARE(value("len(getfperm(g:d . '/sub'))"), QLatin1String("9"));
     QCOMPARE(value("getfperm(g:d . '/nope')"), QString());
 
@@ -19737,9 +19777,11 @@ void FakeVimTester::test_vim_script_file_info()
     // -- resolve() --
     // The link leads to the file; a plain path and a missing one are
     // themselves.
-    QCOMPARE(value("resolve(g:d . '/link.txt') == resolve(g:d . '/plain.txt')"),
-             QLatin1String("1"));
-    QCOMPARE(value("resolve(g:d . '/link.txt') =~ 'plain.txt$'"), QLatin1String("1"));
+    if (!isWindows) {
+        QCOMPARE(value("resolve(g:d . '/link.txt') == resolve(g:d . '/plain.txt')"),
+                 QLatin1String("1"));
+        QCOMPARE(value("resolve(g:d . '/link.txt') =~ 'plain.txt$'"), QLatin1String("1"));
+    }
     QCOMPARE(value("resolve(g:d . '/nope') == g:d . '/nope'"), QLatin1String("1"));
 
     // -- readdir() --
@@ -20762,6 +20804,11 @@ void FakeVimTester::test_vim_script_filecopy()
     QCOMPARE(value("filecopy('', '" + where + "out.txt')"), QLatin1String("0"));
     QCOMPARE(value("filecopy('" + where + "src.txt', '')"), QLatin1String("0"));
 
+    QCOMPARE(value("exists('*filecopy')"), QLatin1String("1"));
+
+    if (Utils::HostOsInfo::isWindowsHost())
+        QSKIP("Windows has neither the permission bits nor the links checked below.");
+
     // What the file may be done with comes along with it.
     write("run.sh", "#!/bin/sh\n");
     QVERIFY(QFile::setPermissions(where + "run.sh",
@@ -20797,8 +20844,6 @@ void FakeVimTester::test_vim_script_filecopy()
     // A destination that is there already stops it just the same.
     QCOMPARE(copy("link.txt", "taken.txt"), QLatin1String("0"));
     QCOMPARE(contentOf("taken.txt"), QByteArray("already here\n"));
-
-    QCOMPARE(value("exists('*filecopy')"), QLatin1String("1"));
 }
 
 void FakeVimTester::test_vim_autocmd_textyankpost()
@@ -22574,6 +22619,9 @@ void FakeVimTester::test_vim_script_system_functions()
     QCOMPARE(value("filewritable('" + path + "')"), QLatin1String("1"));
     QCOMPARE(value("filewritable('" + dir.path() + "')"), QLatin1String("2"));
     QCOMPARE(value("filewritable('" + dir.path() + "/nope')"), QLatin1String("0"));
+
+    if (Utils::HostOsInfo::isWindowsHost())
+        QSKIP("Windows has no permission bits to set.");
 
     // setfperm() reads back the nine characters getfperm() writes.
     QCOMPARE(value("setfperm('" + path + "', 'rwxr-xr-x')"), QLatin1String("1"));
@@ -25597,9 +25645,24 @@ void FakeVimTester::test_vim_filter_range()
 {
     // Where the range reaches the last line, the line break the output ends
     // with ends that line rather than opening another one. Values taken from
-    // Vim 9.1.
+    // Vim 9.1. Nothing here reaches a program: processOutput is a plugin
+    // callback, so the stub answers as the programs would.
     TestData data;
     setup(&data);
+    data.handler->processOutput.set(
+        [](const QString &command, const QString &input, QString *output) {
+            if (command == "sort") {
+                QStringList lines = input.split('\n', Qt::SkipEmptyParts);
+                lines.sort();
+                *output = lines.join('\n') + '\n';
+            } else if (command == "tr b c") {
+                *output = QString(input).replace('b', 'c');
+            } else if (command == "tr a-z A-Z") {
+                *output = input.toUpper();
+            } else if (command == "printf 'x\\ny\\n'") {
+                *output = "x\ny\n";
+            }
+        });
 
     data.setText("c" N "b" N "a");
     COMMAND("%!sort", X "a" N "b" N "c");
@@ -38013,8 +38076,8 @@ void FakeVimTester::test_vim_script_file_functions()
     // tempname() answers with a name no file goes by yet, a different one each
     // time it is asked.
     data.doCommand("let g:t = tempname()");
-    QCOMPARE(value("(g:t[0] == '/') .. filereadable(g:t) .. (g:t != tempname())"),
-             QLatin1String("101"));
+    QVERIFY(QDir::isAbsolutePath(value("g:t")));
+    QCOMPARE(value("filereadable(g:t) .. (g:t != tempname())"), QLatin1String("01"));
     data.doCommand("unlet! g:d g:t");
 }
 
@@ -46976,7 +47039,7 @@ void FakeVimTester::test_vim_script_bufadd_bufload()
     data.doCommand("ls");
     QCOMPARE(extra.count('\n'), 1);
     const auto unlisted = [](int number, const QString &name, bool loaded, bool modified) {
-        const QString quoted = QChar('"') + name + QChar('"');
+        const QString quoted = QChar('"') + listedPath(name) + QChar('"');
         return QString("%1u %2 %3 %4 line 0")
             .arg(number, 3)
             .arg(loaded ? QChar('h') : QChar(' '))
@@ -47293,7 +47356,7 @@ void FakeVimTester::test_vim_command_buffer_list_flags()
             .arg(tail);
     };
     const auto unlistedRow = [](int number, const QString &name, bool loaded, bool modified) {
-        const QString quoted = QChar('"') + name + QChar('"');
+        const QString quoted = QChar('"') + listedPath(name) + QChar('"');
         return QString("%1u %2 %3 %4 line 0\n")
             .arg(number, 3)
             .arg(loaded ? QChar('h') : QChar(' '))
