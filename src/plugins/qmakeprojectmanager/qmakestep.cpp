@@ -194,7 +194,8 @@ bool QMakeStep::init()
     else
         workingDirectory = qmakeBc->buildDirectory();
 
-    m_qmakeCommand = {qtVersion->qmakeFilePath(), allArguments(qtVersion), CommandLine::Raw};
+    m_qmakeCommand = qtVersion->qmakeCommand();
+    m_qmakeCommand.addArgs(allArguments(qtVersion), CommandLine::Raw);
     m_runMakeQmake = (qtVersion->qtVersion() >= QVersionNumber(5, 0 ,0));
 
     // The Makefile is used by qmake and make on the build device, from that
@@ -362,14 +363,16 @@ QString QMakeStep::makeArguments(const QString &makefile) const
 QString QMakeStep::effectiveQMakeCall() const
 {
     QtVersion *qtVersion = QtKitAspect::qtVersion(kit());
-    FilePath qmake = qtVersion ? qtVersion->qmakeFilePath() : FilePath();
+    CommandLine qmake = qtVersion ? qtVersion->qmakeCommand() : CommandLine();
     if (qmake.isEmpty())
-        qmake = FilePath::fromPathPart(Tr::tr("<no Qt version>"));
+        qmake = {FilePath::fromPathPart(Tr::tr("<no Qt version>")), {}};
     FilePath make = makeCommand();
     if (make.isEmpty())
         make = FilePath::fromPathPart(Tr::tr("<no Make step found>"));
 
-    QString result = qmake.toUrlishString();
+    QString result = qmake.executable().toUrlishString();
+    if (!qmake.arguments().isEmpty())
+        result += ' ' + qmake.arguments();
     if (qtVersion) {
         QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration();
         const FilePath makefile = qmakeBc ? qmakeBc->makefile() : FilePath();
@@ -386,7 +389,8 @@ QStringList QMakeStep::parserArguments()
     QTC_ASSERT(qt, return {});
     const QString allArgs = allArguments(qt, ArgumentFlag::Expand);
     // NOTE: extra parser args placed before the other args intentionally
-    return m_extraParserArgs + ProcessArgs::filterSimpleArgs(allArgs, qt->qmakeFilePath().osType());
+    return m_extraParserArgs + qt->qmakeCommand().splitArguments()
+           + ProcessArgs::filterSimpleArgs(allArgs, qt->qmakeFilePath().osType());
 }
 
 QString QMakeStep::mkspec() const

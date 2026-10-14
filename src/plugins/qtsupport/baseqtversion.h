@@ -23,6 +23,7 @@ class QMakeGlobals;
 QT_END_NAMESPACE
 
 namespace Utils {
+class CommandLine;
 class Environment;
 class FileInProjectFinder;
 } // Utils
@@ -126,11 +127,12 @@ public:
     ///
     /// This could be empty if the qt version was associated with qtpaths
     /// and qmake was not shipped with the qt distribution
-    Utils::FilePath qmakeFilePath() const;
+    virtual Utils::FilePath qmakeFilePath() const;
+    virtual Utils::CommandLine qmakeCommand() const;
 
     /// @returns the name of the mkspec
     QString mkspec() const;
-    QString mkspecFor(ProjectExplorer::Toolchain *tc) const;
+    virtual QString mkspecFor(ProjectExplorer::Toolchain *tc) const;
     /// @returns the full path to the default directory
     /// specifally not the directory the symlink/ORIGINAL_QMAKESPEC points to
     Utils::FilePath mkspecPath() const;

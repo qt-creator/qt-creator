@@ -531,6 +531,8 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     // are not interested in), splitting them up into individual strings:
     extractSpecFromArguments(&allArgs, workingDirectory, version, &actualArgs);
     actualArgs.removeFirst(); // Project file.
+    QString qtVersionArgs = version->qmakeCommand().arguments();
+    extractSpecFromArguments(&qtVersionArgs, workingDirectory, version, &actualArgs);
     const QString actualSpec = qs->mkspec();
 
     QString qmakeArgs = parse.unparsedArguments();
@@ -630,6 +632,11 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
             // does not automatically rerun qmake. Alas, we could try more
             // intelligent matching for -cache, but i guess people rarely
             // do use that.
+            ignoreNext = true;
+            return true;
+        }
+        if (arg == "-qtconf") {
+            // MakeFileParse takes it out of the arguments it reports.
             ignoreNext = true;
             return true;
         }

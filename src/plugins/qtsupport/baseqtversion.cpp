@@ -954,6 +954,15 @@ FilePath QtVersion::qmakeFilePath() const
     return *d->m_qmakeCommand;
 }
 
+/*!
+    Returns the command that runs qmakeFilePath().
+    The project file and the arguments of a build are added to it.
+*/
+CommandLine QtVersion::qmakeCommand() const
+{
+    return {qmakeFilePath(), {}};
+}
+
 bool QtVersion::hasQtAbisSet() const
 {
     return d->m_qtAbis.has_value();
