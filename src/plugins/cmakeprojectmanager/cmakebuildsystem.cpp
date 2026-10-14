@@ -3336,16 +3336,76 @@ void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &pa
     }
 }
 
-bool CMakeBuildSystem::mustApplyConfigurationChangesArguments(const BuildDirParameters &parameters) const
+// A build directory configured with another Qt keeps using it: CMake does not search again
+// for a package whose directory is in the cache, and ignores a changed toolchain file.
+static QString qtMismatchMessage(const CMakeConfig &cache, const CMakeConfig &changed,
+                                 const Kit *kit, const FilePath &buildDirectory)
+{
+    const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit);
+    if (!qt)
+        return {};
+    if (changed.contains("Qt6_DIR") || changed.contains("Qt5_DIR"))
+        return {};
+    // find_package(QT NAMES Qt6 Qt5) leaves Qt6_DIR-NOTFOUND behind when it picks Qt 5.
+    const FilePath qt6Dir = cache.filePathValueOf("Qt6_DIR");
+    const FilePath qtDir = qt6Dir.isEmpty() || qt6Dir.path().endsWith("-NOTFOUND")
+                               ? cache.filePathValueOf("Qt5_DIR")
+                               : qt6Dir;
+    const FilePath dir = qt->prefix().withNewPath(qtDir.path());
+    if (qtDir.isEmpty() || !dir.exists()
+        || dir.canonicalPath().isChildOf(qt->prefix().canonicalPath())) {
+        return {};
+    }
+    return Tr::tr("The build directory \"%1\" uses the Qt in \"%2\", not the kit's Qt "
+                  "\"%3\". Just applying the changes does not switch it, re-configuring "
+                  "with initial parameters does.")
+        .arg(buildDirectory.toUserOutput(), qtDir.toUserOutput(), qt->displayName());
+}
+
+// The same holds for any other package: a changed search path does not move one found before.
+static QString searchPathMessage(const CMakeConfig &cache, const CMakeConfig &changed)
+{
+    if (cache.isEmpty())
+        return {};
+    const QByteArray keys[] = {"CMAKE_PREFIX_PATH", "CMAKE_MODULE_PATH"};
+    for (const QByteArray &key : keys) {
+        if (changed.contains(key) && changed.valueOf(key) != cache.valueOf(key)) {
+            return Tr::tr("Packages that CMake found before keep their cached location when "
+                          "CMAKE_PREFIX_PATH or CMAKE_MODULE_PATH changes, so just applying "
+                          "the changes might not be enough. Re-configuring with initial "
+                          "parameters searches for them again.");
+        }
+    }
+    return {};
+}
+
+bool CMakeBuildSystem::mustApplyConfigurationChangesArguments(const BuildDirParameters &parameters)
 {
     if (parameters.configurationChangesArguments.isEmpty())
         return false;
 
+    // The cache in the build directory, not configurationFromCMake(), which outlives a removed
+    // cache and a changed build directory.
+    const CMakeConfig cache = CMakeConfig::fromFile(
+        parameters.buildDirectory / Constants::CMAKE_CACHE_TXT, nullptr);
+    QStringList unknownOptions;
+    const CMakeConfig changed = CMakeConfig::fromArguments(parameters.configurationChangesArguments,
+                                                           unknownOptions);
+    QString note = qtMismatchMessage(cache, changed, kit(), parameters.buildDirectory);
+    if (note.isEmpty())
+        note = searchPathMessage(cache, changed);
     // The question needs someone to answer it, and this dialog blocks the thread it is raised
     // on until then - which stalls Qt Creator when it is driven from the outside instead. Apply
     // the changes, the answer the dialog offers by default, when asking is turned off.
-    if (!cmakeSettingsForProject(project()).askBeforeApplyingConfigurationChanges())
+    if (!cmakeSettingsForProject(project()).askBeforeApplyingConfigurationChanges()) {
+        if (!note.isEmpty()) {
+            Core::MessageManager::writeFlashing(addCMakePrefix(
+                note + ' '
+                + Tr::tr("Use \"Re-configure with Initial Parameters\" on the Initial "
+                         "Configuration tab of the build settings.")));
+        }
         return true;
+    }
 
     QDialog question(Core::ICore::dialogParent());
     question.resize(600, 300);
@@ -3364,10 +3424,23 @@ bool CMakeBuildSystem::mustApplyConfigurationChangesArguments(const BuildDirPara
     QObject::connect(apply, &QPushButton::clicked, &question, &QDialog::accept);
     QObject::connect(discard, &QPushButton::clicked, &question, &QDialog::reject);
 
+    constexpr int reconfigureResult = QDialog::Accepted + 1;
+    if (!note.isEmpty()) {
+        QPushButton *reconfigure = buttonBox.addButton(
+            Tr::tr("Re-configure with Initial Parameters"), QDialogButtonBox::ActionRole);
+        reconfigure->setAutoDefault(false);
+        QObject::connect(reconfigure, &QPushButton::clicked, &question, [&question] {
+            question.done(reconfigureResult);
+        });
+    }
+
     using namespace Layouting;
     // clang-format off
     Column {
         Tr::tr("Run CMake with configuration changes?"),
+        If (!note.isEmpty()) >> Then {
+            Label { text(note), wordWrap(true) },
+        },
         TextEdit {
             markdown("```\n" +
                     parameters.configurationChangesArguments.join("\n") +
@@ -3380,7 +3453,20 @@ bool CMakeBuildSystem::mustApplyConfigurationChangesArguments(const BuildDirPara
     }.attachTo(&question);
     // clang-format on
 
-    return question.exec() == QDialog::Accepted;
+    const int result = question.exec();
+    if (result == reconfigureResult) {
+        // Queued: clearing the cache stops the parse this is asked from, and on a changed
+        // build directory it has to act on the parameters that are set after it.
+        QMetaObject::invokeMethod(this, [this] {
+            if (ProjectExplorerPlugin::saveModifiedFiles()) {
+                clearCMakeCache();
+                setConfigurationChanges({});
+                runCMake();
+            }
+        }, Qt::QueuedConnection);
+        return false;
+    }
+    return result == QDialog::Accepted;
 }
 
 void CMakeBuildSystem::runCMake()

@@ -234,7 +234,7 @@ private:
     void setParametersAndRequestParse(const BuildDirParameters &parameters,
                                       const int reparseParameters);
 
-    bool mustApplyConfigurationChangesArguments(const BuildDirParameters &parameters) const;
+    bool mustApplyConfigurationChangesArguments(const BuildDirParameters &parameters);
 
     // State handling:
     // Parser states:
