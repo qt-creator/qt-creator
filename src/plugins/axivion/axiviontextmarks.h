@@ -35,6 +35,7 @@ void clearMarksWithoutPathMapping(LineMarkerType type);
 bool hasLineIssues(const Utils::FilePath &filePath, LineMarkerType type);
 std::optional<LineIssuesOrigin> lineIssuesOrigin(const Utils::FilePath &filePath,
                                                  LineMarkerType type);
+QHash<Utils::FilePath, QList<qint64>> takeAllSfaIssues();
 
 void updateExistingMarks();
 

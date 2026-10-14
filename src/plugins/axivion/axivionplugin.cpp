@@ -10,6 +10,7 @@
 #include "dashboard/dto.h"
 #include "dashboard/error.h"
 #include "localbuild.h"
+#include "pluginarserver.h"
 #include "singlefileanalysis.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -1469,10 +1470,16 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
     ShutdownFlag aboutToShutdown() final
     {
         shutdownAllAnalyses();
-        if (shutdownAllLocalDashboards([this] { emit asynchronousShutdownFinished(); }))
-            return AsynchronousShutdown;
-        else
-            return SynchronousShutdown;
+        const auto pending = std::make_shared<int>(2);
+        const auto onFinished = [this, pending] {
+            if (--*pending == 0)
+                emit asynchronousShutdownFinished();
+        };
+        if (!shutdownAllLocalDashboards(onFinished))
+            --*pending;
+        if (!shutdownAllPluginArServers(onFinished))
+            --*pending;
+        return *pending > 0 ? AsynchronousShutdown : SynchronousShutdown;
     }
 };
 

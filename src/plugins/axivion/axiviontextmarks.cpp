@@ -9,6 +9,8 @@
 #include "dashboard/dto.h"
 #include "pluginarserver.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <texteditor/textdocument.h>
 #include <texteditor/textmark.h>
 
@@ -184,7 +186,7 @@ void handleIssuesForFile(const Dto::FileViewDto &fileView, const FilePath &fileP
                          const LineIssuesOrigin &origin,
                          const QByteArray &origSource)
 {
-    if (fileView.lineMarkers.empty())
+    if (fileView.lineMarkers.empty() || ExtensionSystem::PluginManager::isShuttingDown())
         return;
 
     QTC_CHECK(checkParams(bauhausSuite, type));
@@ -256,6 +258,16 @@ void clearAllMarks(LineMarkerType type)
     }
 }
 
+static void collectIssueIds(const QSet<AxivionTextMark *> &marks,
+                            QHash<FilePath, QList<qint64>> &idsToRevoke)
+{
+    for (const AxivionTextMark *mark : marks) {
+        const FilePath bauhaus = mark->bauhausSuite.value_or(FilePath{});
+        QTC_ASSERT(!bauhaus.isEmpty(), continue);
+        idsToRevoke[bauhaus].append(mark->issueId);
+    }
+}
+
 void clearMarks(const FilePath &filePath, LineMarkerType type)
 {
     switch (type) {
@@ -267,14 +279,9 @@ void clearMarks(const FilePath &filePath, LineMarkerType type)
         break;
     case LineMarkerType::SFA: {
         QSet<AxivionTextMark *> marks = textMarkManager().sfaMarks.take(filePath);
-        QMap<FilePath, QList<qint64>> idsToRevoke;
-        auto it = marks.begin();
-        for (auto end = marks.end(); it != end; ++it) {
-            const FilePath bauhaus = (*it)->bauhausSuite.value_or(FilePath{});
-            QTC_ASSERT(!bauhaus.isEmpty(), continue);
-            idsToRevoke[bauhaus].append((*it)->issueId);
-        }
-        for (auto it = idsToRevoke.begin(), end = idsToRevoke.end(); it != end; ++it)
+        QHash<FilePath, QList<qint64>> idsToRevoke;
+        collectIssueIds(marks, idsToRevoke);
+        for (auto it = idsToRevoke.cbegin(), end = idsToRevoke.cend(); it != end; ++it)
             requestIssuesDisposal(it.key(), it.value());
         qDeleteAll(marks);
     }
@@ -303,6 +310,23 @@ void clearMarksWithoutPathMapping(LineMarkerType type)
     clearMarksIf(type, [](const FilePath &filePath, const LineIssuesOrigin &origin) {
         return !settings().hasPathMapping(filePath, origin.projectName);
     });
+}
+
+/*!
+    Removes all single file analysis marks without requesting the disposal of
+    their issues. Returns the ids of the removed issues per Bauhaus suite, so
+    that the caller can dispose them.
+*/
+QHash<FilePath, QList<qint64>> takeAllSfaIssues()
+{
+    QHash<FilePath, QList<qint64>> issueIds;
+    const QHash<FilePath, QSet<AxivionTextMark *>> marks
+            = std::exchange(textMarkManager().sfaMarks, {});
+    for (const QSet<AxivionTextMark *> &marksForFile : marks) {
+        collectIssueIds(marksForFile, issueIds);
+        qDeleteAll(marksForFile);
+    }
+    return issueIds;
 }
 
 bool hasLineIssues(const FilePath &filePath, LineMarkerType type)

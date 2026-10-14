@@ -12,14 +12,14 @@ namespace Axivion::Internal {
 using OnServerStarted = std::function<void()>;
 using OnServerStartFailed = std::function<void()>;
 using OnSessionStarted = std::function<void(int)>;
+using OnSessionStartFailed = std::function<void()>;
 
 void startPluginArServer(const Utils::FilePath &bauhausSuite, const OnServerStarted &onRunning,
                          const OnServerStartFailed &onFailed);
-void cleanShutdownPluginArServer(const Utils::FilePath &bauhausSuite);
-void shutdownPluginArServer(const Utils::FilePath &bauhausSuite);
-void shutdownAllPluginArServers();
+bool shutdownAllPluginArServers(const std::function<void()> &callback);
 
-void requestArSessionStart(const Utils::FilePath &bauhausSuite, const OnSessionStarted &onStarted);
+void requestArSessionStart(const Utils::FilePath &bauhausSuite, const OnSessionStarted &onStarted,
+                           const OnSessionStartFailed &onFailed);
 void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, bool abort);
 void requestIssuesDisposal(const Utils::FilePath &bauhausSuite, const QList<qint64> &issues);
 

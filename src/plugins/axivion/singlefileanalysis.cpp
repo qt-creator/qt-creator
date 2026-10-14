@@ -170,6 +170,7 @@ public:
 
 private:
     void onPluginArServerRunning(const FilePath &filePath);
+    void onPreparationFailed(const FilePath &filePath);
     void onSessionStarted(const FilePath &filePath, int sessionId);
 
     QHash<FilePath, SFAData> m_startedAnalyses;
@@ -206,10 +207,7 @@ void SingleFileAnalysis::startAnalysisFor(const FilePath &filePath, const FilePa
     data.workingDirectory = workingDir;
 
     auto onServerRunning = [this, filePath] { onPluginArServerRunning(filePath); };
-    auto onFailed = [this, filePath] {
-        m_startedAnalyses.remove(filePath);
-        updateSfaStateFor(filePath, Tr::tr("Failed"), 100);
-    };
+    auto onFailed = [this, filePath] { onPreparationFailed(filePath); };
     if (settings().saveOpenFiles()) {
         if (!saveModifiedFiles(QString{}))
             return;
@@ -224,12 +222,22 @@ void SingleFileAnalysis::startAnalysisFor(const FilePath &filePath, const FilePa
 
 void SingleFileAnalysis::onPluginArServerRunning(const FilePath &filePath)
 {
+    if (ExtensionSystem::PluginManager::isShuttingDown())
+        return;
     QTC_ASSERT(m_startedAnalyses.contains(filePath), return);
     SFAData data = m_startedAnalyses.value(filePath);
     updateSfaStateFor(filePath, Tr::tr("Preparing"), 10);
     requestArSessionStart(data.bauhausSuite, [this, filePath](int sessionId) {
         onSessionStarted(filePath, sessionId);
-    });
+    }, [this, filePath] { onPreparationFailed(filePath); });
+}
+
+void SingleFileAnalysis::onPreparationFailed(const FilePath &filePath)
+{
+    if (ExtensionSystem::PluginManager::isShuttingDown())
+        return;
+    m_startedAnalyses.remove(filePath);
+    updateSfaStateFor(filePath, Tr::tr("Failed"), 100);
 }
 
 static Environment setupEnv(const SFAData &data)
@@ -253,6 +261,8 @@ static Environment setupEnv(const SFAData &data)
 
 void SingleFileAnalysis::onSessionStarted(const FilePath &filePath, int sessionId)
 {
+    if (ExtensionSystem::PluginManager::isShuttingDown())
+        return;
     QTC_ASSERT(m_startedAnalyses.contains(filePath), return);
     SFAData &analysis = m_startedAnalyses[filePath];
     analysis.sessionId = sessionId;
@@ -336,8 +346,7 @@ void SingleFileAnalysis::removeFinishedAnalyses()
 void SingleFileAnalysis::shutdownAll()
 {
     m_startedAnalysesRunner.reset();
-    // shutdown pluginArServers as well
-    shutdownAllPluginArServers();
+    m_startedAnalyses.clear();
 }
 
 SingleFileAnalysis s_sfaInstance;

@@ -12,6 +12,8 @@
 
 #include <coreplugin/messagemanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
@@ -22,6 +24,7 @@
 #include <QtTaskTree/QConditional>
 #include <QtTaskTree/QMappedTaskTreeRunner>
 #include <QtTaskTree/QNetworkReplyWrapper>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <QHash>
 #include <QJsonArray>
@@ -29,6 +32,7 @@
 #include <QJsonObject>
 #include <QLoggingCategory>
 #include <QMetaObject>
+#include <QTimer>
 
 using namespace Core;
 using namespace QtTaskTree;
@@ -37,8 +41,6 @@ using namespace Utils;
 namespace Axivion::Internal {
 
 static Q_LOGGING_CATEGORY(log, "qtc.axivion.pluginarserver", QtWarningMsg)
-
-class PluginArServer;
 
 class ArServerData
 {
@@ -49,22 +51,56 @@ public:
     QString m_arSessionStartRel;
     QString m_arSessionFinishRel;
     QHash<int, QString> m_runningSessions;
+    // callers waiting for the server to become initialized
+    QList<std::pair<OnServerStarted, OnServerStartFailed>> m_waiting;
 };
 
-static QHash<FilePath, ArServerData> s_arServers;
-static GuardedObject<QMappedTaskTreeRunner<FilePath>> s_arServerRunner;
+class ArServerProcessData;
 
-class ShutdownNotifier : public QObject
+class PluginArServers final : public QObject
 {
     Q_OBJECT
 
+public:
+    PluginArServers();
+    ~PluginArServers() final
+    {
+        QTC_CHECK(!m_runner.isRunning()); // shutdownAll() must be done already
+    }
+
+    void start(const FilePath &bauhausSuite, const OnServerStarted &onRunning,
+               const OnServerStartFailed &onFailed);
+    void shutdown(const FilePath &bauhausSuite);
+    void cleanShutdown(const FilePath &bauhausSuite) { emit shutdownRequested(bauhausSuite); }
+    bool shutdownAll(const std::function<void()> &callback);
+
+    ArServerData *runningServer(const FilePath &bauhausSuite);
+
 signals:
     void shutdownRequested(const FilePath &bauhausSuite);
+
+private:
+    void handleOutput(const FilePath &bauhausSuite, ArServerProcessData *data, Process *process);
+    void handleMessage(const QByteArray &msg, const FilePath &bauhausSuite,
+                       ArServerProcessData *data, Process *process);
+    void notifyStarted(const FilePath &bauhausSuite);
+    void notifyFailed(const FilePath &bauhausSuite);
+    void onServerFinished();
+    void finishShutdown();
+
+    QHash<FilePath, ArServerData> m_servers;
+    QMappedTaskTreeRunner<FilePath> m_runner;
+    QSingleTaskTreeRunner m_shutdownRunner;
+    QTimer m_shutdownTimer;
+    std::function<void()> m_onShutdownDone;
 };
 
-static GuardedObject<ShutdownNotifier> s_shutdownNotifier;
+static GuardedObject<PluginArServers> s_pluginArServers;
 
-enum class State { Starting, HttpModeRequested, Initialized };
+static ExecutableItem disposeIssuesRecipe(const FilePath &bauhausSuite,
+                                          const QList<qint64> &issues);
+
+enum class State { Starting, HttpModeRequested, Initialized, Failed, ShuttingDown };
 
 static QJsonDocument msgToJson(int msgId, int inReplyTo, const QString &subject,
                                const QVariantMap &args)
@@ -87,10 +123,6 @@ static void writeError(const QString &error)
 class ArServerProcessData
 {
 public:
-    ArServerProcessData() = default;
-    ArServerProcessData(OnServerStarted onRunning) : m_onRunning(std::move(onRunning)) {}
-
-    OnServerStarted m_onRunning;
     QByteArray m_buffer = {};
     int m_msgCounter = 0;
     State m_state = State::Starting;
@@ -102,8 +134,8 @@ static void writeMessage(Process *process, const QJsonDocument &msg)
     process->writeRaw(QByteArray{1, 0x17});
 }
 
-static void handleMessage(const QByteArray &msg, const FilePath &bauhausSuite,
-                          ArServerProcessData *data, Process *process)
+void PluginArServers::handleMessage(const QByteArray &msg, const FilePath &bauhausSuite,
+                                    ArServerProcessData *data, Process *process)
 {
     qCInfo(log) << "handling message:" << msg;
     QJsonParseError error;
@@ -119,7 +151,7 @@ static void handleMessage(const QByteArray &msg, const FilePath &bauhausSuite,
     }
     const QJsonObject obj = json.object();
 
-    ArServerData &serverData = s_arServers[bauhausSuite];
+    ArServerData &serverData = m_servers[bauhausSuite];
 
     switch (data->m_state) {
     case State::Starting: {
@@ -140,8 +172,9 @@ static void handleMessage(const QByteArray &msg, const FilePath &bauhausSuite,
         QTC_CHECK(inReplyTo == data->m_msgCounter); // should we handle this?
         if (obj.value("subject").toString() != "Response: OK") {
             writeError(Tr::tr("Unexpected response for HTTP server start request."));
+            data->m_state = State::Failed;
             QMetaObject::invokeMethod(process,
-                [bauhausSuite] { shutdownPluginArServer(bauhausSuite); }, Qt::QueuedConnection);
+                [this, bauhausSuite] { shutdown(bauhausSuite); }, Qt::QueuedConnection);
             return;
         }
         const QVariantMap args = obj.value("arguments").toVariant().toMap();
@@ -155,9 +188,12 @@ static void handleMessage(const QByteArray &msg, const FilePath &bauhausSuite,
         QTC_CHECK(!serverData.m_arSessionFinishRel.isEmpty());
         qCDebug(log) << "server started at" << serverData.m_serverUrl;
         data->m_state = State::Initialized;
-        if (data->m_onRunning)
-            data->m_onRunning();
+        notifyStarted(bauhausSuite);
     } break;
+    case State::Failed:
+    case State::ShuttingDown:
+        qCDebug(log) << "ignoring message" << msg;
+        break;
     case State::Initialized:
         const int inReplyTo = obj.value("inReplyTo").toInt();
         QTC_CHECK(inReplyTo == data->m_msgCounter); // should we handle this?
@@ -166,7 +202,8 @@ static void handleMessage(const QByteArray &msg, const FilePath &bauhausSuite,
     }
 }
 
-static void handleOutput(const FilePath &bauhausSuite, ArServerProcessData *data, Process *process)
+void PluginArServers::handleOutput(const FilePath &bauhausSuite, ArServerProcessData *data,
+                                   Process *process)
 {
     data->m_buffer.append(process->readAllRawStandardOutput());
     const int endOfFrame = data->m_buffer.indexOf(0x17);
@@ -188,18 +225,37 @@ static void handleOutput(const FilePath &bauhausSuite, ArServerProcessData *data
     data->m_buffer = data->m_buffer.mid(endOfFrame + 1);
 }
 
-void startPluginArServer(const FilePath &bauhausSuite, const OnServerStarted &onRunning,
-                         const OnServerStartFailed &onFailed)
+PluginArServers::PluginArServers()
 {
-    if (s_arServerRunner->isKeyRunning(bauhausSuite)) {
-        if (onRunning)
-            onRunning();
+    m_shutdownTimer.setSingleShot(true);
+    m_shutdownTimer.setInterval(std::chrono::seconds(5));
+    connect(&m_shutdownTimer, &QTimer::timeout, this, [this] {
+        qCDebug(log) << "clean shutdown timed out, killing remaining servers";
+        m_shutdownRunner.reset();
+        m_runner.reset();
+        finishShutdown();
+    });
+}
+
+void PluginArServers::start(const FilePath &bauhausSuite, const OnServerStarted &onRunning,
+                            const OnServerStartFailed &onFailed)
+{
+    if (ExtensionSystem::PluginManager::isShuttingDown())
+        return;
+
+    if (m_runner.isKeyRunning(bauhausSuite)) {
+        if (runningServer(bauhausSuite)) {
+            if (onRunning)
+                onRunning();
+        } else {
+            m_servers[bauhausSuite].m_waiting.append({onRunning, onFailed});
+        }
         return;
     }
 
-    const Storage<ArServerProcessData> storage{onRunning};
+    const Storage<ArServerProcessData> storage;
 
-    const auto onSetup = [bauhausSuite, storage](Process &process) {
+    const auto onSetup = [this, bauhausSuite, storage](Process &process) {
         Environment env = Environment::systemEnvironment();
         if (!bauhausSuite.isEmpty())
             env.prependOrSetPath(bauhausSuite.pathAppended("bin"));
@@ -219,26 +275,36 @@ void startPluginArServer(const FilePath &bauhausSuite, const OnServerStarted &on
 
         process.setEnvironment(env);
         process.setProcessMode(ProcessMode::Writer);
-        QObject::connect(&process, &Process::readyReadStandardOutput, &process,
-                         [bauhausSuite, data = storage.activeStorage(), process = &process] {
+        connect(&process, &Process::readyReadStandardOutput, &process,
+                [this, bauhausSuite, data = storage.activeStorage(), process = &process] {
             handleOutput(bauhausSuite, data, process);
         });
-        QObject::connect(s_shutdownNotifier.get(), &ShutdownNotifier::shutdownRequested, &process,
-                         [bauhausSuite, data = storage.activeStorage(), process = &process]
-                         (const FilePath &suite) {
-            if (bauhausSuite == suite)
-                writeMessage(process, msgToJson(++data->m_msgCounter, 0, "Command: Shutdown", {}));
+        connect(this, &PluginArServers::shutdownRequested, &process,
+                [this, bauhausSuite, data = storage.activeStorage(), process = &process]
+                (const FilePath &suite) {
+            if (bauhausSuite != suite || data->m_state == State::Failed
+                    || data->m_state == State::ShuttingDown) {
+                return;
+            }
+            data->m_state = State::ShuttingDown;
+            if (process->state() != ProcessState::Running) {
+                QMetaObject::invokeMethod(process, [this, bauhausSuite] { shutdown(bauhausSuite); },
+                                          Qt::QueuedConnection);
+                return;
+            }
+            writeMessage(process, msgToJson(++data->m_msgCounter, 0, "Command: Shutdown", {}));
         });
     };
-    const auto onDone = [bauhausSuite, storage, onFailed](const Process &proc) {
-        if (storage->m_state == State::Starting && proc.error() == ProcessError::UnknownError) {
-            const QString error = Tr::tr("PluginArServer stopped with unknown error.").append('\n')
-                    .append(proc.cleanedStdErr());
-            writeError(error);
-            if (onFailed)
-                onFailed();
+    const auto onDone = [this, bauhausSuite, storage](const Process &proc) {
+        if (storage->m_state == State::Starting
+                || storage->m_state == State::HttpModeRequested) {
+            const QString details = proc.error() == ProcessError::UnknownError
+                    ? proc.cleanedStdErr() : proc.errorString();
+            writeError(Tr::tr("PluginArServer stopped unexpectedly.").append('\n').append(details));
         }
-        s_arServers.remove(bauhausSuite);
+        if (storage->m_state != State::Initialized && storage->m_state != State::ShuttingDown)
+            notifyFailed(bauhausSuite);
+        m_servers.remove(bauhausSuite);
     };
 
     const Group recipe {
@@ -246,26 +312,98 @@ void startPluginArServer(const FilePath &bauhausSuite, const OnServerStarted &on
         ProcessTask(onSetup, onDone)
     };
 
-    s_arServers.insert(bauhausSuite, {});
-    s_arServerRunner->start(bauhausSuite, recipe);
+    ArServerData serverData;
+    serverData.m_waiting.append({onRunning, onFailed});
+    m_servers.insert(bauhausSuite, serverData);
+    m_runner.start(bauhausSuite, recipe, {}, [this] { onServerFinished(); });
 }
 
-void shutdownPluginArServer(const FilePath &bauhausSuite)
+void PluginArServers::shutdown(const FilePath &bauhausSuite)
 {
-    s_arServers.remove(bauhausSuite);
-    s_arServerRunner->resetKey(bauhausSuite);
+    m_runner.cancelKey(bauhausSuite);
 }
 
-void cleanShutdownPluginArServer(const FilePath &bauhausSuite)
+bool PluginArServers::shutdownAll(const std::function<void()> &callback)
 {
-    if (s_shutdownNotifier.get())
-        emit s_shutdownNotifier->shutdownRequested(bauhausSuite);
+    // issues must be disposed before the server is asked to shut down
+    const QHash<FilePath, QList<qint64>> issueIds = takeAllSfaIssues();
+    if (!m_runner.isRunning()) {
+        m_servers.clear();
+        return false;
+    }
+
+    m_onShutdownDone = callback;
+    m_shutdownTimer.start();
+
+    QList<GroupItem> perServer{parallel};
+    const QList<FilePath> bauhausSuites = m_servers.keys();
+    for (const FilePath &bauhausSuite : bauhausSuites) {
+        const QList<qint64> issues = issueIds.value(bauhausSuite);
+        perServer << Group {
+            finishAllAndSuccess,
+            issues.isEmpty() ? nullItem : disposeIssuesRecipe(bauhausSuite, issues),
+            QSyncTask([this, bauhausSuite] { cleanShutdown(bauhausSuite); })
+        };
+    }
+    m_shutdownRunner.start(perServer);
+    return true;
 }
 
-void shutdownAllPluginArServers()
+ArServerData *PluginArServers::runningServer(const FilePath &bauhausSuite)
 {
-    s_arServers.clear();
-    s_arServerRunner->reset();
+    const auto it = m_servers.find(bauhausSuite);
+    if (it == m_servers.end() || it->m_serverUrl.isEmpty())
+        return nullptr;
+    return &*it;
+}
+
+void PluginArServers::notifyStarted(const FilePath &bauhausSuite)
+{
+    const auto it = m_servers.find(bauhausSuite);
+    QTC_ASSERT(it != m_servers.end(), return);
+    const auto waiting = std::exchange(it->m_waiting, {});
+    for (const auto &[onRunning, onFailed] : waiting) {
+        if (onRunning)
+            onRunning();
+    }
+}
+
+void PluginArServers::notifyFailed(const FilePath &bauhausSuite)
+{
+    const auto it = m_servers.find(bauhausSuite);
+    if (it == m_servers.end())
+        return;
+    const auto waiting = std::exchange(it->m_waiting, {});
+    for (const auto &[onRunning, onFailed] : waiting) {
+        if (onFailed)
+            onFailed();
+    }
+}
+
+void PluginArServers::onServerFinished()
+{
+    if (m_shutdownTimer.isActive() && !m_runner.isRunning())
+        finishShutdown();
+}
+
+void PluginArServers::finishShutdown()
+{
+    m_shutdownTimer.stop();
+    m_shutdownRunner.reset();
+    m_servers.clear();
+    if (const auto callback = std::exchange(m_onShutdownDone, {}))
+        callback();
+}
+
+void startPluginArServer(const FilePath &bauhausSuite, const OnServerStarted &onRunning,
+                         const OnServerStartFailed &onFailed)
+{
+    s_pluginArServers->start(bauhausSuite, onRunning, onFailed);
+}
+
+bool shutdownAllPluginArServers(const std::function<void()> &callback)
+{
+    return s_pluginArServers->shutdownAll(callback);
 }
 
 static void setupQuery(QNetworkReplyWrapper &query, const QUrl &url, const QByteArray &auth,
@@ -294,14 +432,12 @@ static ExecutableItem sendQueryRecipe(const Storage<QByteArray> &replyStorage,
                                       const FilePath &bauhausSuite,
                                       const QJsonDocument &body = {})
 {
-    const auto it = s_arServers.constFind(bauhausSuite);
-    if (it == s_arServers.constEnd() || it->m_serverUrl.isEmpty())
+    const ArServerData *server = s_pluginArServers->runningServer(bauhausSuite);
+    if (!server)
         return errorItem;
 
-    const QUrl serverUrl = it->m_serverUrl;
-    QTC_ASSERT(!serverUrl.isEmpty(), return errorItem);
-    const QUrl url = serverUrl.resolved(relative);
-    const QByteArray auth = basicAuth(it->m_accessSecret);
+    const QUrl url = server->m_serverUrl.resolved(relative);
+    const QByteArray auth = basicAuth(server->m_accessSecret);
 
     qCDebug(log) << "URL" << url;
     const auto onNetworkQuerySetup = [url, auth, body](QNetworkReplyWrapper &query) {
@@ -323,11 +459,15 @@ static ExecutableItem sendQueryRecipe(const Storage<QByteArray> &replyStorage,
     return QNetworkReplyWrapperTask(onNetworkQuerySetup, onNetworkQueryDone);
 }
 
-void requestArSessionStart(const FilePath &bauhausSuite, const OnSessionStarted &onStarted)
+void requestArSessionStart(const FilePath &bauhausSuite, const OnSessionStarted &onStarted,
+                           const OnSessionStartFailed &onFailed)
 {
-    const auto it = s_arServers.constFind(bauhausSuite);
-    if (it == s_arServers.constEnd() || it->m_serverUrl.isEmpty())
+    const ArServerData *server = s_pluginArServers->runningServer(bauhausSuite);
+    if (!server) {
+        if (onFailed)
+            onFailed();
         return;
+    }
 
     const Storage<QByteArray> replyStorage;
     const auto onSuccess = [bauhausSuite, onStarted, replyStorage] {
@@ -342,28 +482,30 @@ void requestArSessionStart(const FilePath &bauhausSuite, const OnSessionStarted 
         const QJsonObject jsonObj = json.object();
         const int id = jsonObj.value("arSessionId").toInt();
         const QString pipe = jsonObj.value("pipeName").toString();
-        const auto it = s_arServers.find(bauhausSuite);
-        if (it == s_arServers.end())
+        ArServerData *server = s_pluginArServers->runningServer(bauhausSuite);
+        if (!server)
             return DoneResult::Error;
 
-        it->m_runningSessions.insert(id, pipe);
+        server->m_runningSessions.insert(id, pipe);
         if (onStarted)
             onStarted(id);
         return DoneResult::Success;
     };
-    const auto onError = [bauhausSuite, replyStorage] {
+    const auto onDone = [bauhausSuite, onFailed, replyStorage](DoneWith result) {
+        if (result == DoneWith::Success)
+            return;
         qCDebug(log) << "error starting pluginar session for" << bauhausSuite;
         qCDebug(log) << "resp:" << *replyStorage;
+        if (onFailed)
+            onFailed();
     };
 
     qCDebug(log) << "start pluginar session for" << bauhausSuite.toUserOutput();
     const Group recipe {
         replyStorage,
-        If (sendQueryRecipe(replyStorage, it->m_arSessionStartRel, bauhausSuite)) >> Then {
-            QSyncTask(onSuccess)
-        } >> Else {
-            QSyncTask(onError) && DoneResult::Error
-        }
+        sendQueryRecipe(replyStorage, server->m_arSessionStartRel, bauhausSuite),
+        QSyncTask(onSuccess),
+        onGroupDone(onDone)
     };
     GlobalTaskTree::start(recipe);
 }
@@ -384,8 +526,8 @@ static void deserializeFileView(QPromise<Result<Dto::FileViewDto>> &promise,
 
 void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, bool abort)
 {
-    const auto it = s_arServers.constFind(bauhausSuite);
-    if (it == s_arServers.constEnd() || it->m_serverUrl.isEmpty())
+    const ArServerData *server = s_pluginArServers->runningServer(bauhausSuite);
+    if (!server)
         return;
 
     QJsonObject jsonObj;
@@ -397,11 +539,11 @@ void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, 
     const auto onDeserializeSetup = [bauhausSuite, sessionId, replyStorage](QTaskTree &task) {
         qCDebug(log) << "pluginar session finished for" << bauhausSuite;
         // handle the response....
-        const auto it = s_arServers.find(bauhausSuite);
-        if (it == s_arServers.end())
+        ArServerData *server = s_pluginArServers->runningServer(bauhausSuite);
+        if (!server)
             return SetupResult::StopWithError;
 
-        it->m_runningSessions.remove(sessionId);
+        server->m_runningSessions.remove(sessionId);
         QJsonParseError error;
         QJsonDocument json = QJsonDocument::fromJson(*replyStorage, &error);
         if (error.error != QJsonParseError::NoError || !json.isObject()) {
@@ -441,7 +583,7 @@ void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, 
     qCDebug(log) << "finish pluginar session" << bauhausSuite << "session" << sessionId;
     const Group recipe {
         replyStorage,
-        If (sendQueryRecipe(replyStorage, it->m_arSessionFinishRel, bauhausSuite, json)) >> Then {
+        If (sendQueryRecipe(replyStorage, server->m_arSessionFinishRel, bauhausSuite, json)) >> Then {
             QTaskTreeTask(onDeserializeSetup)
         } >> Else {
             QSyncTask(onError) && DoneResult::Error
@@ -450,11 +592,12 @@ void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, 
     GlobalTaskTree::start(recipe);
 }
 
-void requestIssuesDisposal(const Utils::FilePath &bauhausSuite, const QList<qint64> &issues)
+static ExecutableItem disposeIssuesRecipe(const FilePath &bauhausSuite,
+                                          const QList<qint64> &issues)
 {
-    const auto it = s_arServers.constFind(bauhausSuite);
-    if (it == s_arServers.constEnd() || it->m_serverUrl.isEmpty())
-        return;
+    const ArServerData *server = s_pluginArServers->runningServer(bauhausSuite);
+    if (!server)
+        return errorItem;
 
     QJsonArray jsonArray;
     for (long issue : issues)
@@ -473,36 +616,42 @@ void requestIssuesDisposal(const Utils::FilePath &bauhausSuite, const QList<qint
     };
 
     qCDebug(log) << "dispose issues for" << bauhausSuite << "session";
-    const Group recipe {
+    return Group {
         replyStorage,
-        If (sendQueryRecipe(replyStorage, it->m_disposeIssuesRel, bauhausSuite, json)) >> Then {
+        If (sendQueryRecipe(replyStorage, server->m_disposeIssuesRel, bauhausSuite, json)) >> Then {
             QSyncTask(onSuccess)
         } >> Else {
             QSyncTask(onError) && DoneResult::Error
         }
     };
-    GlobalTaskTree::start(recipe);
+}
+
+void requestIssuesDisposal(const Utils::FilePath &bauhausSuite, const QList<qint64> &issues)
+{
+    if (!s_pluginArServers->runningServer(bauhausSuite))
+        return;
+
+    GlobalTaskTree::start({disposeIssuesRecipe(bauhausSuite, issues)});
 }
 
 QString pluginArPipeOut(const Utils::FilePath &bauhausSuite, int sessionId)
 {
-    const auto it = s_arServers.constFind(bauhausSuite);
-    if (it == s_arServers.constEnd() || it->m_serverUrl.isEmpty())
+    const ArServerData *server = s_pluginArServers->runningServer(bauhausSuite);
+    if (!server)
         return {};
 
-    return it->m_runningSessions.value(sessionId);
+    return server->m_runningSessions.value(sessionId);
 }
 
 void fetchIssueInfoFromPluginAr(const Utils::FilePath &bauhausSuite, const QString &relativeIssue)
 {
-    auto it = s_arServers.constFind(bauhausSuite);
-    if (it == s_arServers.constEnd() || it->m_serverUrl.isEmpty())
+    const ArServerData *server = s_pluginArServers->runningServer(bauhausSuite);
+    if (!server)
         return;
 
-    const QUrl serverUrl = it->m_serverUrl;
     const QString issueProperties{relativeIssue + "/properties"};
-    const QUrl url = serverUrl.resolved(issueProperties);
-    const QByteArray auth = basicAuth(it->m_accessSecret);
+    const QUrl url = server->m_serverUrl.resolved(issueProperties);
+    const QByteArray auth = basicAuth(server->m_accessSecret);
 
     qCDebug(log) << "URL" << url;
     const auto onNetworkQuerySetup = [url, auth](QNetworkReplyWrapper &query) {
