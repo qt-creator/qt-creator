@@ -334,8 +334,8 @@ Group AndroidDeployQtStep::deployRecipe()
         const QString packageName = Internal::packageName(buildConfiguration());
         if (packageName.isEmpty()) {
             reportWarningOrError(
-                Tr::tr("Cannot find the package name from AndroidManifest.xml nor "
-                       "build.gradle files at \"%1\".")
+                Tr::tr("Cannot find the package name from the app's metadata nor "
+                       "the Gradle project's files at \"%1\".")
                     .arg(androidBuildDirectory(buildConfiguration()).toUserOutput()),
                 Task::Error);
             return SetupResult::StopWithError;

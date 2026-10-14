@@ -102,6 +102,20 @@ QString packageName(const BuildConfiguration *bc)
 {
     QString packageName;
 
+    // Check apk metadata JSON file
+    if (const auto buildSteps = bc != nullptr ? bc->buildSteps() : nullptr) {
+        if (auto androidBuildApkStep = buildSteps->firstOfType<AndroidBuildApkStep>()) {
+            const auto apkMetadataPath = androidBuildApkStep->packagePath().withNewFileName(
+                "output-metadata.json");
+            if (const auto metadataJson = apkMetadataPath.fileContents()) {
+                const auto apkMetadata = QJsonDocument::fromJson(*metadataJson).object();
+                packageName = apkMetadata["applicationId"].toString();
+                if (!packageName.isEmpty())
+                    return packageName;
+            }
+        }
+    }
+
     // Check build.gradle
     auto isComment = [](const QByteArray &trimmed) {
         return trimmed.startsWith("//") || trimmed.startsWith('*') || trimmed.startsWith("/*");

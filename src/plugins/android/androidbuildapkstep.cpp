@@ -712,9 +712,9 @@ static QString packageSubPath(const AndroidBuildApkStep *step)
                              : "bundle/release/android-build-release.aab");
 }
 
-static FilePath packagePath(const AndroidBuildApkStep *step)
+FilePath AndroidBuildApkStep::packagePath() const
 {
-    return androidBuildDirectory(step->buildConfiguration()) / "build/outputs" / packageSubPath(step);
+    return androidBuildDirectory(buildConfiguration()) / "build/outputs" / packageSubPath(this);
 }
 
 bool AndroidBuildApkStep::init()
@@ -757,7 +757,7 @@ bool AndroidBuildApkStep::init()
 
     m_openPackageLocationForRun = openPackageLocation();
     const FilePath outputDir = androidBuildDirectory(buildConfiguration());
-    m_packagePath = packagePath(this);
+    m_packagePath = packagePath();
 
     qCDebug(buildapkstepLog).noquote() << "APK or AAB path:" << m_packagePath.toUserOutput();
 
