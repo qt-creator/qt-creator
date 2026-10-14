@@ -586,10 +586,10 @@ FilePath sdkManagerToolPath()
 
 FilePath avdManagerToolPath()
 {
-    const FilePath sdkmanagerPath = config()
+    const FilePath avdmanagerPath = config()
                                         .m_sdkLocation.pathAppended(Constants::cmdlineToolsName)
                                         .pathAppended("/latest/bin/avdmanager" ANDROID_BAT_SUFFIX);
-    return sdkmanagerPath.exists() ? sdkmanagerPath : FilePath();
+    return avdmanagerPath.exists() ? avdmanagerPath : FilePath();
 }
 
 void setTemporarySdkToolsPath(const FilePath &path)
