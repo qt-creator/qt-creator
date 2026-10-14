@@ -286,15 +286,14 @@ CommandLine WindowsProcessInterface::fullLocalCommandLine()
     if (useTerminal)
         cmd.addArg("-tt");
 
-    const QString forwardPort = m_setup.m_extraData.value(Constants::SshForwardPort).toString();
-    if (!forwardPort.isEmpty()) {
-        cmd.addArg("-L");
-        cmd.addArg(QString("%1:localhost:%1").arg(forwardPort));
-    }
+    const QStringList forwardOptions = Internal::localPortForwardOptions(m_setup.m_extraData);
+    cmd.addArgs(forwardOptions);
 
     cmd.addArgs(sshParameters.connectionOptions(sshBinary));
-    if (forwardPort.isEmpty())
+    if (forwardOptions.isEmpty())
         cmd.addArgs(Internal::sharedConnectionOptions(sshParameters));
+    else
+        cmd.addArgs({"-o", "ControlPath=none"}); // See SshProcessInterfacePrivate.
     cmd.addArg(sshParameters.host());
 
     // Re-assemble the remote command without the "ssh://host" prefix. The remote

@@ -139,6 +139,7 @@ protected:
     int m_nextBreakpointId = 1;
     int m_currentThreadId = -1;
     int m_currentStackFrameId = -1;
+    bool m_localsUpdateRunning = false;
 
     std::unique_ptr<VariablesHandler> m_variablesHandler;
 

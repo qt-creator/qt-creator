@@ -245,7 +245,8 @@ bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
     QString processArgs;
     const bool success = ProcessArgs::prepareCommand(commandLine, &commandString, &processArgs,
                                                      &m_setup.m_environment,
-                                                     m_setup.rawWorkingDirectory());
+                                                     m_setup.rawWorkingDirectory(),
+                                                     m_setup.m_envExpansion);
 
     if (osType == OsTypeWindows) {
         QString args;
@@ -1248,9 +1249,9 @@ bool Process::startDetached(const CommandLine &cmd, const FilePath &workingDirec
     return false;
 #else
     QProcess process;
-    process.setProgram(cmd.executable().toUserOutput());
+    process.setProgram(cmd.executable().nativePath());
     process.setArguments(cmd.splitArguments());
-    process.setWorkingDirectory(workingDirectory.toUserOutput());
+    process.setWorkingDirectory(workingDirectory.nativePath());
     if (channelMode == DetachedChannelMode::Discard) {
         process.setStandardOutputFile(QProcess::nullDevice());
         process.setStandardErrorFile(QProcess::nullDevice());
@@ -1272,6 +1273,11 @@ void Process::setDisableUnixTerminal()
 void Process::setAbortOnMetaChars(bool abort)
 {
     d->m_setup.m_abortOnMetaChars = abort;
+}
+
+void Process::setEnvironmentExpansion(ProcessArgs::EnvExpansion expansion)
+{
+    d->m_setup.m_envExpansion = expansion;
 }
 
 void Process::setProcessInterfaceCreator(const ProcessInterfaceCreator &creator)

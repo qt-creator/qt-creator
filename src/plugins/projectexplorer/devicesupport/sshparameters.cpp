@@ -164,7 +164,7 @@ void SshParameters::setupSshEnvironment(Process *process, const QString &passwor
     if (askPass.exists()) {
         if (askPass.fileName().contains("qtc"))
             env = Environment::originalSystemEnvironment();
-        env.set("SSH_ASKPASS", askPass.toUserOutput());
+        env.set("SSH_ASKPASS", askPass.nativePath());
         env.set("SSH_ASKPASS_REQUIRE", "force");
 
         // OpenSSH only uses the askpass program if DISPLAY is set, regardless of the platform.

@@ -69,6 +69,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <optional>
 #include <sstream>
 
 using namespace CPlusPlus;
@@ -597,6 +598,10 @@ public:
     QPointer<DebuggerEngine> m_engine; // Not owned.
 
     bool m_contentsValid;
+    // Set while a reset is pending, so that a run that fails can undo it.
+    std::optional<bool> m_contentsValidBeforeReset;
+    // What each update that was started, but has not finished yet, refreshes.
+    QList<QStringList> m_pendingUpdates;
 
     WatchItem *m_localsRoot; // Not owned.
     WatchItem *m_inspectorRoot; // Not owned.
@@ -690,8 +695,28 @@ void WatchModel::reinitialize(bool includeInspectData)
         m_inspectorRoot->removeChildren();
 }
 
+// Children below the inspector root carry their parent's iname as prefix, so
+// descend instead of scanning the whole model. That tree can be huge and gets
+// queried for each property update.
+static WatchItem *findInspectorItem(WatchItem *parent, const QString &iname)
+{
+    for (int i = 0, n = parent->childCount(); i < n; ++i) {
+        WatchItem *child = parent->childAt(i);
+        if (child->iname == iname)
+            return child;
+        if (iname.size() > child->iname.size() && iname.at(child->iname.size()) == '.'
+                && iname.startsWith(child->iname)) {
+            if (WatchItem *item = findInspectorItem(child, iname))
+                return item;
+        }
+    }
+    return nullptr;
+}
+
 WatchItem *WatchModel::findItem(const QString &iname) const
 {
+    if (iname.startsWith(u"inspect."))
+        return findInspectorItem(m_inspectorRoot, iname);
     return findNonRootItem([iname](WatchItem *item) { return item->iname == iname; });
 }
 
@@ -2332,9 +2357,8 @@ bool WatchHandler::insertItem(WatchItem *item)
     QTC_ASSERT(parent, return false);
 
     bool found = false;
-    const std::vector<TreeItem *> siblings(parent->begin(), parent->end());
-    for (int row = 0, n = int(siblings.size()); row < n; ++row) {
-        if (static_cast<WatchItem *>(siblings[row])->iname == item->iname) {
+    for (int row = 0, n = parent->childCount(); row < n; ++row) {
+        if (parent->childAt(row)->iname == item->iname) {
             m_model->destroyItem(parent->childAt(row));
             parent->insertChild(row, item);
             found = true;
@@ -2399,32 +2423,51 @@ void WatchHandler::resetWatchers()
         watchExpression(exp.trimmed());
 }
 
+static void markOutdated(WatchModel *model, const QStringList &inames)
+{
+    auto marker = [](WatchItem *item) { item->outdated = true; };
+
+    if (inames.isEmpty()) {
+        model->forItemsAtLevel<1>([marker](WatchItem *item) {
+            item->forAllChildren(marker);
+        });
+    } else {
+        for (const QString &iname : inames) {
+            if (WatchItem *item = model->findItem(iname))
+                item->forAllChildren(marker);
+        }
+    }
+}
+
+// An update that finishes while a later one is still on its way, as when a
+// frame is selected before the locals of the previous one arrived, does not
+// have the last word: what it brought goes, unless the later one brings it too.
+static void markOutdatedForPendingUpdates(WatchModel *model)
+{
+    for (const QStringList &inames : std::as_const(model->m_pendingUpdates))
+        markOutdated(model, inames);
+}
+
 void WatchHandler::notifyUpdateStarted(const UpdateParameters &updateParameters)
 {
     QStringList inames = updateParameters.partialVariables();
     if (inames.isEmpty())
         inames = QStringList({"local", "return"});
 
-    auto marker = [](WatchItem *item) { item->outdated = true; };
-
-    if (inames.isEmpty()) {
-        m_model->forItemsAtLevel<1>([marker](WatchItem *item) {
-            item->forAllChildren(marker);
-        });
-    } else {
-        for (const QString &iname : std::as_const(inames)) {
-            if (WatchItem *item = m_model->findItem(iname))
-                item->forAllChildren(marker);
-        }
-    }
+    markOutdated(m_model, inames);
+    m_model->m_pendingUpdates.append(inames);
 
     emit m_model->updateStarted();
     m_model->m_contentsValid = false;
+    m_model->m_contentsValidBeforeReset.reset();
     updateLocalsWindow();
 }
 
 void WatchHandler::notifyUpdateFinished()
 {
+    if (!m_model->m_pendingUpdates.isEmpty())
+        m_model->m_pendingUpdates.removeFirst();
+
     QList<WatchItem *> toRemove;
     m_model->forSelectedItems([&toRemove](WatchItem *item) {
         if (item->outdated) {
@@ -2436,6 +2479,7 @@ void WatchHandler::notifyUpdateFinished()
 
     for (WatchItem *item : std::as_const(toRemove))
         m_model->destroyItem(item);
+    markOutdatedForPendingUpdates(m_model);
 
     m_model->forAllItems([this](WatchItem *item) {
         if (item->wantsChildren && isExpandedIName(item->iname)
@@ -2456,6 +2500,7 @@ void WatchHandler::notifyUpdateFinished()
     m_model->setValueAnnotations(values);
 
     m_model->m_contentsValid = true;
+    m_model->m_contentsValidBeforeReset.reset();
     updateLocalsWindow();
     m_model->reexpandItems();
     emit m_model->updateFinished();
@@ -2471,9 +2516,14 @@ void WatchHandler::notifyUpdateAborted()
     // the contents valid again. Emit updateFinished() so the view stops the
     // progress indicator; otherwise the Locals/Expressions view stays greyed
     // out with the spinner running forever. (QTCREATORBUG-33035)
+    if (!m_model->m_pendingUpdates.isEmpty())
+        m_model->m_pendingUpdates.removeFirst();
     m_model->forAllItems([](WatchItem *item) { item->outdated = false; });
+    markOutdatedForPendingUpdates(m_model);
     m_model->m_contentsValid = true;
+    m_model->m_contentsValidBeforeReset.reset();
     updateLocalsWindow();
+    emit m_model->updateAborted();
     emit m_model->updateFinished();
 }
 
@@ -2487,10 +2537,22 @@ void WatchModel::removeWatchItem(WatchItem *item)
     QTC_ASSERT(item, return);
     if (item->isWatcher()) {
         theWatcherNames.remove(item->exp);
+        // Or cleanup() takes the next watcher of the same expression for it.
+        theTemporaryWatchers.remove(item->exp);
         saveWatchers();
     }
     destroyItem(item);
     m_handler->updateLocalsWindow();
+}
+
+bool WatchHandler::isWatched(const QString &exp)
+{
+    return theWatcherNames.contains(exp);
+}
+
+bool WatchHandler::isTemporaryWatcher(const QString &exp)
+{
+    return theTemporaryWatchers.contains(exp);
 }
 
 QString WatchHandler::watcherName(const QString &exp)
@@ -2501,9 +2563,15 @@ QString WatchHandler::watcherName(const QString &exp)
 // If \a name is empty, \a exp will be used as name.
 void WatchHandler::watchExpression(const QString &exp, const QString &name, bool temporary)
 {
-    // Do not insert the same entry more then once.
-    if (exp.isEmpty() || theWatcherNames.contains(exp))
+    if (exp.isEmpty())
         return;
+    // Do not insert the same entry more then once. A temporary watcher that is
+    // asked for again for good stays.
+    if (theWatcherNames.contains(exp)) {
+        if (!temporary)
+            theTemporaryWatchers.remove(exp);
+        return;
+    }
 
     theWatcherNames[exp] = theWatcherCount++;
     if (temporary)
@@ -3017,7 +3085,23 @@ QString WatchModel::editorContents(const QModelIndexList &list)
 
 void WatchHandler::scheduleResetLocation()
 {
+    // A run starts, and whatever is still on its way belongs to the stop before.
+    m_model->m_pendingUpdates.clear();
+    if (!m_model->m_contentsValidBeforeReset)
+        m_model->m_contentsValidBeforeReset = m_model->m_contentsValid;
     m_model->m_contentsValid = false;
+}
+
+void WatchHandler::cancelResetLocation()
+{
+    if (m_model->m_contentsValidBeforeReset)
+        m_model->m_contentsValid = *m_model->m_contentsValidBeforeReset;
+    m_model->m_contentsValidBeforeReset.reset();
+}
+
+void WatchHandler::commitResetLocation()
+{
+    m_model->m_contentsValidBeforeReset.reset();
 }
 
 void WatchHandler::setCurrentItem(const QString &iname)

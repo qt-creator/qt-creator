@@ -93,12 +93,12 @@ private:
 
 //! If \a result has an error the error will be printed and the \a action will be executed.
 #define QTC_ASSERT_RESULT(result, action) \
-    if (Q_LIKELY(result)) { \
+    if (const auto &_qtcResult = (result); Q_LIKELY(_qtcResult)) { \
     } else { \
         ::Utils::writeAssertLocation(QString("%1:%2: %3") \
                                          .arg(__FILE__) \
                                          .arg(__LINE__) \
-                                         .arg(result.error()) \
+                                         .arg(_qtcResult.error()) \
                                          .toUtf8() \
                                          .data()); \
         action; \
@@ -107,10 +107,14 @@ private:
     } while (0)
 
 #define QTC_CHECK_RESULT(result) \
-    if (Q_LIKELY(result)) { \
+    if (const auto &_qtcResult = (result); Q_LIKELY(_qtcResult)) { \
     } else { \
-        ::Utils::writeAssertLocation( \
-            QString("%1:%2: %3").arg(__FILE__).arg(__LINE__).arg(result.error()).toUtf8().data()); \
+        ::Utils::writeAssertLocation(QString("%1:%2: %3") \
+                                         .arg(__FILE__) \
+                                         .arg(__LINE__) \
+                                         .arg(_qtcResult.error()) \
+                                         .toUtf8() \
+                                         .data()); \
     } \
     do { \
     } while (0)

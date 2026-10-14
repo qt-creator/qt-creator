@@ -79,6 +79,7 @@ void VcsBaseDiffEditorController::setupCommand(Process &process, const QStringLi
     process.setWorkingDirectory(workingDirectory());
     process.setCommand({d->m_vcsBinary, args});
     process.setUseCtrlCStub(true);
+    process.setEnvironmentExpansion(ProcessArgs::EnvExpansion::Literal);
 }
 
 void VcsBaseDiffEditorController::setVcsBinary(const FilePath &path)

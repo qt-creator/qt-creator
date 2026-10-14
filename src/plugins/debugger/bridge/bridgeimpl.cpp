@@ -1187,15 +1187,25 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
             --*chunk.pending;
             if (response.value("success").toBool()) {
                 const qsizetype copied = qMin(qsizetype(chunk.length), data.size());
-                memcpy(chunk.accumulator->data() + chunk.offset, data.constData(), copied);
-            } else if (chunk.length > 1) {
-                // Part of the range may still be readable.
-                const quint64 half = chunk.length / 2;
-                fetchMemoryChunk(chunk, chunk.offset, half);
-                fetchMemoryChunk(chunk, chunk.offset + half, chunk.length - half);
+                memcpy(chunk.result->data.data() + chunk.offset, data.constData(), copied);
+                if (quint64(copied) < chunk.length) {
+                    chunk.result->setUnreadable(chunk.offset + copied, chunk.length - copied,
+                                                "The bridge returned fewer bytes.");
+                }
+            } else if (const auto parts = memoryRetryParts(chunk.base, chunk.offset, chunk.length);
+                       !parts.isEmpty()) {
+                // The pages of the range may still be readable one by one.
+                for (const auto &[offset, length] : parts)
+                    fetchMemoryChunk(chunk, offset, length);
+            } else {
+                chunk.result->setUnreadable(
+                    chunk.offset, chunk.length,
+                    memoryErrorWithoutAddress(response.value("message").toString()));
             }
-            if (*chunk.pending <= 0)
-                emit memoryDataReceived(chunk.requestId, chunk.base, *chunk.accumulator);
+            if (*chunk.pending <= 0) {
+                chunk.result->normalize();
+                emit memoryRead(chunk.requestId, *chunk.result);
+            }
             return;
         }
         if (const auto peripheral = m_peripheralRequests.take(token); peripheral.requestId) {
@@ -1208,7 +1218,9 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
             emit refreshDataReceived(peripheral.requestId, RefreshKind::PeripheralRegisters,
                                      result);
         } else {
-            emit memoryDataReceived(token, ok ? address : 0, data);
+            MemoryReadResult result(ok ? address : 0, quint64(data.size()));
+            result.data = data;
+            emit memoryRead(token, result);
         }
     } else if (command == "qtc/disassemble") {
         const QJsonObject body = response.value("body").toObject();
@@ -1865,7 +1877,7 @@ void BridgeImpl::accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quin
         MemoryRequest request;
         request.requestId = requestId;
         request.base = addr;
-        request.accumulator = std::make_shared<QByteArray>(int(lengthOrSize), 0);
+        request.result = std::make_shared<MemoryReadResult>(addr, lengthOrSize);
         request.pending = std::make_shared<int>(0);
         fetchMemoryChunk(request, 0, lengthOrSize);
     } else {

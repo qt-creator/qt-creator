@@ -102,7 +102,7 @@ SettingsPageWidget::SettingsPageWidget()
         "the activity automatically. You will not be prompted for activity name."));
 
     noCommentCheckBox = new QCheckBox(Tr::tr("Do &not prompt for comment during checkout or check-in"));
-    noCommentCheckBox->setToolTip(Tr::tr("Check out or check in files with no comment (-nc, -ncomment)."));
+    noCommentCheckBox->setToolTip(Tr::tr("Checks out or checks in files without a comment (-nc, -ncomment)."));
 
     using namespace Layouting;
 

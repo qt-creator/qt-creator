@@ -20,6 +20,7 @@
 
 #include <array>
 #include <cstdio>
+#include <algorithm>
 #include <cstring>
 
 namespace Debugger::Internal {
@@ -1262,6 +1263,117 @@ QString reformatCharacterWithFormat(int code, int size, bool isSigned, int forma
     if (format == AutomaticFormat)
         return reformatCharacter(code, size, isSigned);
     return reformatInteger(quint64(code), format, size, isSigned);
+}
+
+MemoryReadResult::MemoryReadResult(quint64 address, quint64 length)
+    : address(address)
+    , data(qsizetype(length), char(0))
+{}
+
+/*!
+    Records that \a length bytes from \a offset could not be read, for
+    \a reason, and zeroes them in data.
+*/
+void MemoryReadResult::setUnreadable(quint64 offset, quint64 length, const QString &reason)
+{
+    if (offset >= quint64(data.size()) || length == 0)
+        return;
+    length = std::min(length, quint64(data.size()) - offset);
+    memset(data.data() + offset, 0, length);
+    unreadable.append({offset, length, reason.isEmpty() ? QString("unknown reason") : reason});
+}
+
+/*!
+    Sorts the unreadable ranges and joins neighbours with the same reason, as
+    a read split into parts reports them in pieces and in any order.
+*/
+void MemoryReadResult::normalize()
+{
+    std::sort(unreadable.begin(), unreadable.end(), [](const Unreadable &a, const Unreadable &b) {
+        return a.offset < b.offset;
+    });
+    QList<Unreadable> joined;
+    for (const Unreadable &range : std::as_const(unreadable)) {
+        if (!joined.isEmpty() && joined.last().offset + joined.last().length >= range.offset
+            && joined.last().reason == range.reason) {
+            joined.last().length = std::max(joined.last().offset + joined.last().length,
+                                             range.offset + range.length)
+                                   - joined.last().offset;
+        } else {
+            joined.append(range);
+        }
+    }
+    unreadable = joined;
+}
+
+QList<QPair<quint64, quint64>> memoryRetryParts(quint64 base, quint64 offset, quint64 length)
+{
+    const quint64 pageSize = 4096;
+    QList<QPair<quint64, quint64>> parts;
+    quint64 start = offset;
+    const quint64 end = offset + length;
+    while (start < end) {
+        const quint64 pageEnd = ((base + start) / pageSize + 1) * pageSize - base;
+        const quint64 partEnd = std::min(end, pageEnd);
+        parts.append({start, partEnd - start});
+        start = partEnd;
+    }
+    if (parts.size() < 2)
+        return {};
+    return parts;
+}
+
+QString memoryErrorWithoutAddress(const QString &message)
+{
+    static const QRegularExpression address(" *(at )?(address )?0x[0-9a-fA-F]+");
+    return QString(message).remove(address).trimmed();
+}
+
+QString gdbRegisterValueAsHex(const QString &value)
+{
+    if (value.startsWith("0x"))
+        return value;
+    // See QTCREATORBUG-14029. The value of the last stop is not this one's.
+    if (value == "<error reading variable>")
+        return {};
+    // This is what GDB considers machine readable output:
+    // value="{v4_float = {0x00000000, 0x00000000, 0x00000000, 0x00000000},
+    // v2_double = {0x0000000000000000, 0x0000000000000000},
+    // v16_int8 = {0x00 <repeats 16 times>},
+    // v8_int16 = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000},
+    // v4_int32 = {0x00000000, 0x00000000, 0x00000000, 0x00000000},
+    // v2_int64 = {0x0000000000000000, 0x0000000000000000},
+    // uint128 = <error reading variable>}"}
+    // Try to make sense of it using the int32 chunks.
+    // Android gdb 7.10 has u32 = {0x00000000, 0x40340000}.
+    // Use that if available.
+    QString result;
+    int pos1 = value.indexOf("_int32");
+    if (pos1 == -1)
+        pos1 = value.indexOf("u32");
+    const int pos2 = value.indexOf('{', pos1) + 1;
+    const int pos3 = value.indexOf('}', pos2);
+    QString inner = value.mid(pos2, pos3 - pos2);
+    QStringList list = inner.split(',');
+    for (int i = list.size(); --i >= 0; ) {
+        QString chunk = list.at(i);
+        if (chunk.startsWith(' '))
+            chunk.remove(0, 1);
+        if (chunk.startsWith('<') || chunk.startsWith('{')) // <unavailable>, {v4_float=...
+            continue;
+        // GDB writes a run of equal lanes once, as "0x00000000 <repeats 16 times>".
+        static const QRegularExpression repeated(R"(^(\S+) <repeats (\d+) times>$)");
+        int times = 1;
+        if (const QRegularExpressionMatch match = repeated.match(chunk); match.hasMatch()) {
+            chunk = match.captured(1);
+            times = match.captured(2).toInt();
+        }
+        if (chunk.startsWith("0x"))
+            chunk.remove(0, 2);
+        QTC_ASSERT(chunk.size() == 8, continue);
+        result.append(chunk.repeated(times));
+    }
+    return result.isEmpty() ? result : "0x" + result;
 }
 
 } // Debugger::Internal

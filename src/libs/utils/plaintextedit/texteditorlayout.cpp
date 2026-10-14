@@ -884,7 +884,7 @@ void TextLayoutItem::paintItem(
     QPainter *p, const QPointF &pos, const FormatRanges &selections, const QRectF &clip)
 {
     QTC_ASSERT(m_textLayout, return);
-    m_textLayout->draw(p, pos, selections, clip);
+    m_textLayout->draw(p, pos, m_selections.isEmpty() ? selections : selections + m_selections, clip);
 }
 
 void TextLayoutItem::clear()
@@ -896,6 +896,24 @@ void TextLayoutItem::clear()
 QTextLayout *TextLayoutItem::layout()
 {
     return m_textLayout.get();
+}
+
+/*!
+    Sets \a selections that are drawn in addition to the ones passed to
+    paintItem(), for example a selection made in an additional layout, which
+    has no document position.
+*/
+void TextLayoutItem::setSelections(const FormatRanges &selections)
+{
+    m_selections = selections;
+}
+
+/*!
+    Returns the selections set with setSelections().
+*/
+FormatRanges TextLayoutItem::selections() const
+{
+    return m_selections;
 }
 
 EmptyLayoutItem::EmptyLayoutItem(qreal height, const Id &category)

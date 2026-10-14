@@ -29,6 +29,7 @@
 #include <QNetworkRequest>
 #include <QRegularExpression>
 #include <QSaveFile>
+#include <QTemporaryDir>
 #include <QTimer>
 #include <QUrl>
 #include <QtEndian>
@@ -102,6 +103,7 @@ struct MappedRegion
     quint64 pgoff = 0;
     QString path;         // on this machine
     QString recordedPath; // as the recording has it
+    bool executable = true;
 };
 
 quint64 readU64(const char *p) { return qFromLittleEndian<quint64>(reinterpret_cast<const uchar *>(p)); }
@@ -193,6 +195,41 @@ bool loadElfFunctionSymbols(const FilePath &path, QList<ElfSymbol> &out, QByteAr
     return false;
 }
 
+// A copy of this process's vdso, where the recording has "[vdso]": the vdso
+// is the kernel's, so a target on this machine has the same one mapped. It is
+// no file in the target, but the unwinder needs its CFI to get out of it.
+QString ownVdsoPath()
+{
+    static const QString path = [] {
+        static QTemporaryDir dir;
+        if (!dir.isValid())
+            return QString();
+        QFile maps("/proc/self/maps");
+        if (!maps.open(QIODevice::ReadOnly | QIODevice::Text))
+            return QString();
+        for (const QByteArray &line : maps.readAll().split('\n')) {
+            if (!line.endsWith(vdsoName))
+                continue;
+            const QList<QByteArray> range = line.left(line.indexOf(' ')).split('-');
+            if (range.size() != 2)
+                return QString();
+            const quint64 begin = range.at(0).toULongLong(nullptr, 16);
+            const quint64 end = range.at(1).toULongLong(nullptr, 16);
+            if (end <= begin)
+                return QString();
+            QFile file(dir.filePath(vdsoName));
+            if (!file.open(QIODevice::WriteOnly)
+                || file.write(reinterpret_cast<const char *>(quintptr(begin)), qint64(end - begin))
+                       != qint64(end - begin)) {
+                return QString();
+            }
+            return file.fileName();
+        }
+        return QString();
+    }();
+    return path;
+}
+
 } // namespace
 
 class PerfSymbolizerPrivate
@@ -276,6 +313,7 @@ public:
     };
     QHash<quint32, JitMap> m_jitMaps;
     bool m_useJitMaps = true;
+    quint64 m_highestUserAddress = 0;
     QHash<QString, ModuleSymbols> m_moduleCache;
     QHash<QString, QList<ElfSectionHeader>> m_loadSections;
 
@@ -738,8 +776,13 @@ QString PerfSymbolizerPrivate::hostPathFor(const QString &recordedPath)
         return it.value();
 
     // A recording taken here names its binaries where they are.
-    if (m_sysroot.isEmpty() && m_searchPaths.isEmpty())
+    if (m_sysroot.isEmpty() && m_searchPaths.isEmpty()) {
+        if (recordedPath == QLatin1StringView(vdsoName)) {
+            const QString vdso = ownVdsoPath();
+            return m_hostPaths.insert(recordedPath, vdso.isEmpty() ? recordedPath : vdso).value();
+        }
         return m_hostPaths.insert(recordedPath, recordedPath).value();
+    }
 
     const QByteArray buildId = m_buildIds.value(recordedPath);
     const auto matches = [&buildId](const FilePath &candidate) {
@@ -895,10 +938,16 @@ void PerfSymbolizer::addBuildId(const QString &path, const QByteArray &buildId)
 }
 
 void PerfSymbolizer::addMapping(quint32 pid, quint64 addr, quint64 len, quint64 pgoff,
-                                const QString &path, const QByteArray &buildId)
+                                const QString &path, const QByteArray &buildId, bool executable)
 {
     addBuildId(path, buildId);
-    d->m_regionsByPid[pid].append({addr, len, pgoff, d->hostPathFor(path), path});
+    d->m_regionsByPid[pid].append({addr, len, pgoff, d->hostPathFor(path), path, executable});
+}
+
+bool PerfSymbolizer::isExecutable(quint32 pid, quint64 addr) const
+{
+    const MappedRegion *region = d->findRegion(pid, addr);
+    return region && region->executable;
 }
 
 void PerfSymbolizer::addFork(quint32 parentPid, quint32 childPid)
@@ -1049,6 +1098,17 @@ bool PerfSymbolizer::canUnwind()
 #endif
 }
 
+bool PerfSymbolizer::isReturnAddressInRegister(quint32 pid, quint64 pc)
+{
+#ifdef WITH_LIBDW
+    return d->dwarfUnwinderFor(pid)->isReturnAddressInRegister(pc);
+#else
+    Q_UNUSED(pid)
+    Q_UNUSED(pc)
+    return false;
+#endif
+}
+
 QList<quint64> PerfSymbolizer::unwind(quint32 pid, PerfArchitecture arch,
                                       const QList<quint64> &regs, const QByteArray &stack)
 {
@@ -1064,6 +1124,7 @@ QList<quint64> PerfSymbolizer::unwind(quint32 pid, PerfArchitecture arch,
     input.regs = regs;
     input.stackStartAddr = regs.at(layout.sp);
     input.stackBytes = stack;
+    input.highestUserAddress = qMax(d->m_highestUserAddress, input.stackStartAddr);
     return unwinder->unwind(input);
 #else
     Q_UNUSED(pid)
@@ -1072,6 +1133,21 @@ QList<quint64> PerfSymbolizer::unwind(quint32 pid, PerfArchitecture arch,
     Q_UNUSED(stack)
     return {};
 #endif
+}
+
+void PerfSymbolizer::addMappedRange(quint64 addr, quint64 len)
+{
+    constexpr quint64 highestPossibleUserAddress = (1ull << 55) - 1;
+    if (len == 0 || addr > highestPossibleUserAddress
+        || len - 1 > highestPossibleUserAddress - addr) {
+        return;
+    }
+    d->m_highestUserAddress = qMax(d->m_highestUserAddress, addr + len - 1);
+}
+
+quint64 PerfSymbolizer::withoutPointerAuthentication(PerfArchitecture arch, quint64 value) const
+{
+    return Internal::withoutPointerAuthentication(arch, value, d->m_highestUserAddress);
 }
 
 } // namespace Profiler::Internal

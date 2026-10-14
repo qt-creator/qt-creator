@@ -1021,7 +1021,7 @@ void RunControl::provideAskPassEntry(Environment &env)
 {
     const FilePath askpass = sshSettings().askpassFilePath();
     if (askpass.exists())
-        env.setFallback("SUDO_ASKPASS", askpass.toUserOutput());
+        env.setFallback("SUDO_ASKPASS", askpass.nativePath());
 }
 
 void RunControlPrivate::debugMessage(const QString &msg) const

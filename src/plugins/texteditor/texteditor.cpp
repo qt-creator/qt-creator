@@ -6506,15 +6506,10 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
     if (depth <= 0 || blockData.layout->lineCount() < 1)
         return;
 
-    const qreal singleAdvance = charWidth();
-    const qreal indentAdvance = singleAdvance * data.tabSettings.m_indentSize;
-
     painter.save();
 
     const QTextLine textLine = blockData.layout->lineAt(0);
     const QRectF rect = textLine.naturalTextRect();
-    qreal x = textLine.x() + data.mainLayoutOffset.x() + qMax(0, q->cursorWidth() - 1)
-              + singleAdvance * m_visualIndentOffset;
     int paintColumn = 0;
 
     QList<int> cursorPositions;
@@ -6529,8 +6524,12 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
 
     const QString text = data.block.text().mid(m_visualIndentOffset);
     while (paintColumn < depth) {
-        if (x >= 0) {
-            int paintPosition = data.tabSettings.positionAtColumn(text, paintColumn);
+        int columnOffset = 0;
+        const int paintPosition = data.tabSettings.positionAtColumn(text, paintColumn, &columnOffset);
+        const qreal guideX = data.mainLayoutOffset.x()
+                             + textLine.cursorToX(paintPosition + m_visualIndentOffset)
+                             + columnOffset * charWidth() + qMax(0, q->cursorWidth() - 1);
+        if (guideX >= 0) {
             if (q->lineWrapMode() == PlainTextEdit::WidgetWidth
                 && blockData.layout->lineForTextPosition(paintPosition).lineNumber() != 0) {
                 break;
@@ -6541,12 +6540,11 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
                 painter.setPen(normalColor);
             const qreal mainLayoutTop = blockData.boundingRect.top()
                                         + q->editorLayout()->mainLayoutOffset(data.block);
-            const QPointF top(x, mainLayoutTop);
-            const QPointF bottom(x, mainLayoutTop + rect.height());
+            const QPointF top(guideX, mainLayoutTop);
+            const QPointF bottom(guideX, mainLayoutTop + rect.height());
             const QLineF line(top, bottom);
             painter.drawLine(line);
         }
-        x += indentAdvance;
         paintColumn += data.tabSettings.m_indentSize;
     }
     painter.restore();
@@ -9746,8 +9744,11 @@ void TextEditorWidget::copyLines()
 
 void TextEditorWidget::copyWithHtml()
 {
-    if (!multiTextCursor().hasSelection())
+    // subclasses can have copyable text that is not in the document
+    if (!multiTextCursor().hasSelection()) {
+        copy();
         return;
+    }
     QGuiApplication::clipboard()->setMimeData(createMimeDataFromSelection(true));
 }
 

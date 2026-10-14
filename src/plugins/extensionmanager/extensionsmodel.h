@@ -23,6 +23,7 @@ enum ExtensionState {
     None, // Not a plugin
     InstalledEnabled,
     InstalledDisabled,
+    InstalledError,
     NotInstalled,
 };
 

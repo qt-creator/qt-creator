@@ -22,6 +22,11 @@
 #include "debuggersourcepathmappingwidget.h"
 #include "enginemanager.h"
 #include "logwindow.h"
+#include "mcpsessionstate.h"
+#include "mcpsupport.h"
+#include "mcpsupport_p.h"
+#include "qml/qmlengine.h"
+#include "qml/qmlinspectoragent.h"
 #include "gdb/gdbengine.h"
 #include "genericdebuggerengine.h"
 #include "registerhandler.h"
@@ -29,6 +34,7 @@
 #include "stackframe.h"
 #include "commonoptionspage.h"
 #include "stackhandler.h"
+#include "watchhandler.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -57,6 +63,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
+#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
 #include <texteditor/texteditor.h>
@@ -67,12 +74,16 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/store.h>
+#include <utils/url.h>
 
 #include <QElapsedTimer>
 #include <QEventLoop>
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QMouseEvent>
 #include <QScopeGuard>
 #include <QSignalSpy>
+#include <QTcpServer>
 #include <QTemporaryDir>
 #include <QTest>
 #include <QTestEventLoop>
@@ -82,6 +93,7 @@
 #include <QtEndian>
 
 #include <memory>
+#include <optional>
 
 //#define WITH_BENCHMARK
 #ifdef WITH_BENCHMARK
@@ -121,6 +133,7 @@ private slots:
 
     void testRegisterValue_data();
     void testRegisterValue();
+    void testWideRegisterValues();
 
     void testDebuggerLanguages_data();
     void testDebuggerLanguages();
@@ -146,11 +159,14 @@ private slots:
     void testCdbSourcePathMappingToHost();
     void testCdbSourceFileNameOnDevice();
     void testCdbBreakpointFileName();
+    void testCdbEnvironmentScript();
+    void testCdbEnvironmentScriptOnDevice();
 
     void testQtBuildSourceRoots_data();
     void testQtBuildSourceRoots();
     void testPdbSourceFileNames();
     void testPdbSourceFileNamesOnDevice();
+    void testPeDebugStrings();
 
     void testDebugInfoDirectory();
     void testDebugInfoFile();
@@ -160,6 +176,57 @@ private slots:
     void testStepsIntoACalledFunction();
     void testStepsOverACallWithoutEnteringIt();
     void testStepsOutOfACalledFunction();
+    void testMcpStepWaitsForTheNewStop_data();
+    void testMcpStepWaitsForTheNewStop();
+    void testMcpOperationIsNotCompleteBeforeTheStop_data();
+    void testMcpOperationIsNotCompleteBeforeTheStop();
+    void testMcpResumeThatFailsKeepsTheStop_data();
+    void testMcpResumeThatFailsKeepsTheStop();
+    void testMcpSelectFrameWaitsForItsLocals_data();
+    void testMcpSelectFrameWaitsForItsLocals();
+    void testMcpStackFollowsTheThreadThatStopped_data();
+    void testMcpStackFollowsTheThreadThatStopped();
+    void testMcpLocalsOutlastFramesAddedToTheStack_data();
+    void testMcpLocalsOutlastFramesAddedToTheStack();
+    void testMcpSelectFrameBeforeTheStopsLocals_data();
+    void testMcpSelectFrameBeforeTheStopsLocals();
+    void testLocalsOfAFrameSelectedEarlyKeepNothingOfTheOtherFrame_data();
+    void testLocalsOfAFrameSelectedEarlyKeepNothingOfTheOtherFrame();
+    void testMcpVariableFetchesItsChildren_data();
+    void testMcpVariableFetchesItsChildren();
+    void testMcpCollectsTheStacksOfAllThreads_data();
+    void testMcpCollectsTheStacksOfAllThreads();
+    void testMcpThreadStacksAreBounded_data();
+    void testMcpThreadStacksAreBounded();
+    void testMcpStackOfAStopInAnotherThread_data();
+    void testMcpStackOfAStopInAnotherThread();
+    void testMcpSelectThreadWaitsForItsStack_data();
+    void testMcpSelectThreadWaitsForItsStack();
+    void testMcpReadsTheRegistersOfTheCurrentStop_data();
+    void testMcpReadsTheRegistersOfTheCurrentStop();
+    void testMcpRegistersOfAnOuterFrame_data();
+    void testMcpRegistersOfAnOuterFrame();
+    void testMcpReadsAVectorRegister_data();
+    void testMcpReadsAVectorRegister();
+    void testMemoryRetryParts();
+    void testGdbRegisterValueAsHex_data();
+    void testGdbRegisterValueAsHex();
+    void testMcpMemoryAccessPolicy_data();
+    void testMcpMemoryAccessPolicy();
+    void testMcpReadsMemory_data();
+    void testMcpReadsMemory();
+    void testMcpReadsMemoryUpToAnUnmappedPage_data();
+    void testMcpReadsMemoryUpToAnUnmappedPage();
+    void testMcpEvaluatesAnExpressionOfTheCurrentStop_data();
+    void testMcpEvaluatesAnExpressionOfTheCurrentStop();
+    void testMcpEvaluationKeepsTheUsersWatch_data();
+    void testMcpEvaluationKeepsTheUsersWatch();
+    void testMcpEvaluationsShareATemporaryWatch_data();
+    void testMcpEvaluationsShareATemporaryWatch();
+    void testMcpReportsCapabilities_data();
+    void testMcpReportsCapabilities();
+    void testDisabledBreakpointDoesNotStop_data();
+    void testDisabledBreakpointDoesNotStop();
     void testDisassemblyThatMissesTheAddressMarksNoLine();
     void testOnlyMachineCodeIsOfferedADisassembly();
     void testAnEmptyDisassemblyLeavesTheViewAlone();
@@ -167,6 +234,7 @@ private slots:
     void testMissingSourceMessage();
     void testASkippedTopFrameNamesItsMissingSource();
     void testSkippedMachineryFramesStaySilent();
+    void testAFailedRunRestoresOnlyAPendingReset();
     void testTheDisassemblyMessageIsSaidOncePerStop();
 
     void testScratchEditorAdoptsSavedName();
@@ -179,6 +247,8 @@ private slots:
     void testNativeMixedEnvironmentVariableWins();
     void testOverrideKitDebugger();
     void testCombinedEngineNeedsNoQmlChannel();
+    void testQmlInspectorLeavesParentlessObjectsCollapsed();
+    void testInspectorFollowsParentlessObjects();
     void testNamespaceFromQObjectRtti_data();
     void testNamespaceFromQObjectRtti();
 
@@ -464,6 +534,12 @@ void DebuggerUnitTests::testRegisterValue_data()
     QTest::newRow("256bit-high-only")
         << "abcdef01234567899876543210fedcba00000000000000000000000000000000";
     QTest::newRow("256bit-all-f") << QString(64, 'f');
+    // 512-bit (AVX-512 ZMM): used to be cut to its lower 256 bits.
+    QTest::newRow("512bit")
+        << "0f1e2d3c4b5a69788796a5b4c3d2e1f0" "112233445566778899aabbccddeeff00"
+           "99aabbccddeeff001122334455667788" "fedcba98765432100123456789abcdef";
+    QTest::newRow("512bit-high-only") << "deadbeef" + QString(120, '0');
+    QTest::newRow("512bit-all-f") << QString(128, 'f');
 }
 
 void DebuggerUnitTests::testRegisterValue()
@@ -483,6 +559,47 @@ void DebuggerUnitTests::testRegisterValue()
     twoPow64.fromString("0x10000000000000000", HexadecimalFormat);
     QCOMPARE(twoPow64.toString(IntegerRegister, 16, DecimalFormat).trimmed(),
              QString("18446744073709551616"));
+
+    // What a debugger says instead of a value is not a value of zero.
+    RegisterValue unavailable;
+    unavailable.fromString("<unavailable>", HexadecimalFormat);
+    QVERIFY(!unavailable.known);
+    RegisterValue zero;
+    zero.fromString("0x0", HexadecimalFormat);
+    QVERIFY(zero.known);
+    QVERIFY(!(unavailable == zero));
+}
+
+void DebuggerUnitTests::testWideRegisterValues()
+{
+    // A negative value carries through all four lanes.
+    RegisterValue minusOne;
+    minusOne.fromString("0x-1", HexadecimalFormat);
+    QCOMPARE(minusOne.toString(IntegerRegister, 64, HexadecimalFormat), QString(128, 'f'));
+
+    // Decimal input carries into the upper lanes too.
+    RegisterValue twoPow256;
+    twoPow256.fromString("115792089237316195423570985008687907853269984665640564039457584007913129639936",
+                         DecimalFormat);
+    QCOMPARE(twoPow256.toString(IntegerRegister, 64, HexadecimalFormat),
+             QString(63, '0') + '1' + QString(64, '0'));
+    QCOMPARE(twoPow256.subValue(16, 2).v.u128[0], Quint128(1));
+    QCOMPARE(twoPow256.subValue(16, 3).v.u128[0], Quint128(0));
+
+    // A 512-bit register is reported with all its bits, a wider one not at all.
+    Register zmm;
+    zmm.name = "zmm0";
+    zmm.size = 64;
+    zmm.value.fromString("0xdeadbeef" + QString(120, '0'), HexadecimalFormat);
+    const QJsonObject wide = mcpRegisterToJson(zmm, true);
+    QVERIFY(wide.value("available").toBool());
+    QCOMPARE(wide.value("bit_width").toInt(), 512);
+    QCOMPARE(wide.value("value").toString(), "0xdeadbeef" + QString(120, '0'));
+    Register wider = zmm;
+    wider.size = 128;
+    const QJsonObject tooWide = mcpRegisterToJson(wider, true);
+    QVERIFY(!tooWide.value("available").toBool());
+    QVERIFY(!tooWide.contains("value"));
 }
 
 // What a run configuration stores is the name of the selection, and what it
@@ -734,16 +851,39 @@ void DebuggerUnitTests::testCdbImplCommandLine()
         QVERIFY(cdb.m_initScriptFile.isEmpty());
     }
 
-    // A cdb on a device gets no environment, so the extension is loaded by its
-    // absolute path, from a startup script staged next to the inferior.
+    // A cdb on a device is started by a batch file that sets the environment, and the
+    // extension is loaded by its absolute path, from a startup script. Without a TEMP
+    // on the device, both are staged next to the inferior.
     {
         CdbImplStartData deviceData = startData;
-        deviceData.debuggerRunData.command
-            = CommandLine(FilePath::fromParts(u"ssh", u"somehost", u"C:/dbg/cdb.exe"));
+        const FilePath cdbExecutable = FilePath::fromParts(u"ssh", u"somehost", u"C:/dbg/cdb.exe");
+        deviceData.debuggerRunData.command = CommandLine(cdbExecutable);
 
         CdbImpl cdb(deviceData);
         QVERIFY(cdb.setupProcess());
-        const QStringList args = cdb.m_cdbProc.commandLine().splitArguments();
+        const CommandLine cmd = cdb.m_cdbProc.commandLine();
+        QCOMPARE(cmd.executable(), cdbExecutable.withNewPath("cmd.exe"));
+        QCOMPARE(cmd.arguments(),
+                 "/d /v:off /c \"" + cdb.m_environmentScriptFile.nativePath() + '"');
+        QCOMPARE(cdb.m_environmentScriptFile.parentDir(), inferiorDir);
+        const QByteArray environmentScript
+            = cdb.m_environmentScriptFile.fileContents().value_or(QByteArray());
+        QVERIFY(environmentScript.contains("set QT_LOGGING_TO_CONSOLE=0\r\n"));
+        const QString cdLine = "cd /d \"" + inferiorDir.nativePath() + "\"\r\n";
+        QVERIFY(environmentScript.contains(cdLine.toUtf8()));
+
+        const QList<QByteArray> scriptLines = environmentScript.split('\n');
+        const auto cdbLine = std::find_if(scriptLines.cbegin(), scriptLines.cend(),
+                                          [](const QByteArray &line) {
+                                              return line.startsWith("set QTC_CDB=");
+                                          });
+        QVERIFY(cdbLine != scriptLines.cend());
+        QString launch = QString::fromUtf8(cdbLine->mid(12).chopped(1)).replace("%%", "%");
+        launch.replace(QRegularExpression("\\^(.)"), "\\1");
+        const QString exePart = '"' + cdbExecutable.nativePath() + "\" ";
+        QVERIFY(launch.startsWith(exePart));
+        const QStringList args
+            = CommandLine({}, launch.mid(exePart.size()), CommandLine::Raw).splitArguments();
         QVERIFY(!args.contains("-aqtcreatorcdbext.dll"));
         QVERIFY(!args.contains("-c"));
         const int scriptIndex = args.indexOf("-cf") + 1;
@@ -753,6 +893,48 @@ void DebuggerUnitTests::testCdbImplCommandLine()
         const QByteArray script = cdb.m_initScriptFile.fileContents().value_or(QByteArray());
         QCOMPARE(QString::fromLocal8Bit(script),
                  ".load " + extension.nativePath() + '\n' + idleCommand + '\n');
+
+        // A reset restart reuses the command line, so the scripts stay until the
+        // session really ends. A local stand-in for cdb ends right away, and the
+        // restarted one ends before it ever came up.
+        const FilePath environmentScriptFile = cdb.m_environmentScriptFile;
+        const FilePath initScriptFile = cdb.m_initScriptFile;
+        cdb.m_cdbProc.setCommand(HostOsInfo::isWindowsHost()
+                                     ? CommandLine{"cmd.exe", {"/c", "exit"}}
+                                     : CommandLine{"true"});
+        cdb.m_isResetRestart = true;
+        cdb.m_initialSessionIdleHandled = true;
+        int doneCount = 0;
+        bool scriptsKept = false;
+        QObject::connect(&cdb.m_cdbProc, &Process::done, &cdb, [&] {
+            if (++doneCount == 1)
+                scriptsKept = environmentScriptFile.exists() && initScriptFile.exists();
+        });
+        cdb.m_cdbProc.start();
+        QTRY_COMPARE(doneCount, 2);
+        QVERIFY(scriptsKept);
+        QVERIFY(!environmentScriptFile.exists());
+        QVERIFY(!initScriptFile.exists());
+
+        // An engine destroyed while cdb runs never sees it end, and removes the scripts
+        // itself.
+        FilePath stagedByImpl[2];
+        {
+            CdbImpl tornDown(deviceData);
+            QVERIFY(tornDown.setupProcess());
+            stagedByImpl[0] = tornDown.m_environmentScriptFile;
+            stagedByImpl[1] = tornDown.m_initScriptFile;
+            QVERIFY(stagedByImpl[0].exists() && stagedByImpl[1].exists());
+        }
+        QVERIFY(!stagedByImpl[0].exists());
+        QVERIFY(!stagedByImpl[1].exists());
+        const FilePath stagedByEngine = inferiorDir / "qtc-cdb-engine.cmd";
+        QVERIFY(stagedByEngine.writeFileContents("@echo off\r\n"));
+        {
+            CdbEngine engine;
+            engine.m_environmentScriptFile = stagedByEngine;
+        }
+        QVERIFY(!stagedByEngine.exists());
     }
 
     // Attaching to a remote server: "-remote" has to come first, the session loads
@@ -1478,7 +1660,10 @@ void DebuggerUnitTests::testCdbSourceFileNameOnDevice()
     QVERIFY(onDevice.exists);
 
     // A mapping may point to the device, too.
-    const Result<FilePath> dir = device->rootPath().createTempDir();
+    const Result<FilePath> tmp = device->rootPath().tmpDir();
+    if (!tmp)
+        QFAIL(qPrintable(tmp.error()));
+    const Result<FilePath> dir = tmp->pathAppended("debuggertest-XXXXXX").createTempDir();
     if (!dir)
         QFAIL(qPrintable(dir.error()));
     const QScopeGuard removeDir([dir] { dir->removeRecursively(); });
@@ -1512,6 +1697,202 @@ void DebuggerUnitTests::testCdbBreakpointFileName()
     params.pathUsage = BreakpointUseShortPath;
     QCOMPARE(cdbAddBreakpointCommand(params, mapping, "100000"),
              QString("bu100000 `foo.cpp:42`"));
+}
+
+void DebuggerUnitTests::testCdbEnvironmentScript()
+{
+    const Environment device({"SystemRoot=C:\\Windows", "KEPT=1", "UNSET=2", "DISABLED=3",
+                              "LONGKEPT=" + QString(9000, 'x')},
+                             OsTypeWindows);
+    Environment env = device;
+    env.unset("UNSET");
+    env.set("DISABLED", "3", false);
+    env.set("QUOTED", "\"C:\\Program Files\";a&b|c<d>e(f)^");
+    env.set("PERCENT", "50%");
+    env.set("NEWLINE", "a\nb");
+    env.set("LONG", QString(5000, '('));
+
+    QStringList skipped;
+    const CommandLine cdb(FilePath::fromParts(u"ssh", u"somehost", u"C:/dbg/cdb.exe"),
+                          "-cf \"C:\\R&D 50%\\init.cmd\"", CommandLine::Raw);
+    const Result<QByteArray> scriptResult = cdbEnvironmentScript(env, device, {}, cdb, &skipped);
+    QVERIFY(scriptResult);
+    const QByteArray script = *scriptResult;
+    // A variable the device has already is inherited, even one too long to be set.
+    QVERIFY(!script.contains("KEPT"));
+    QVERIFY(script.contains("set UNSET=\r\n"));
+    QVERIFY(script.contains("set DISABLED=\r\n"));
+    QVERIFY(script.contains("set PERCENT=50%%\r\n"));
+    QVERIFY(script.contains("set QUOTED=^\"C:\\Program Files^\";a^&b^|c^<d^>e^(f^)^^\r\n"));
+    QVERIFY(!script.contains("NEWLINE"));
+    QVERIFY(!script.contains("LONG"));
+    QCOMPARE(skipped, QStringList({"LONG", "NEWLINE"}));
+    // cdb runs last, after the code page is restored, from a line read before that.
+    QVERIFY(script.contains(QByteArray("set QTC_CDB=^\"" + cdb.executable().nativePath().toUtf8()
+                                       + "^\" -cf ^\"C:\\R^&D 50%%\\init.cmd^\"\r\n")));
+    QVERIFY(script.endsWith("\"%QTC_CHCP%\" %QTC_OLD_CP% > nul\r\n"
+                            "set QTC_CHCP=\r\nset QTC_OLD_CP=\r\n"
+                            "set \"QTC_CDB=\" & %QTC_CDB%\r\n"));
+
+    // A cdb command line that cmd.exe cannot take is an error, not a skipped variable.
+    const CommandLine longCdb(cdb.executable(), QString(5000, '('), CommandLine::Raw);
+    QVERIFY(!cdbEnvironmentScript(env, device, {}, longCdb));
+    const CommandLine brokenCdb(cdb.executable(), "a\nb", CommandLine::Raw);
+    QVERIFY(!cdbEnvironmentScript(env, device, {}, brokenCdb));
+
+    // The default shell of the device parses the command line before cmd.exe does.
+    const FilePath scriptDir = FilePath::fromParts(u"ssh", u"somehost", u"C:/Users/A B/Temp");
+    const FilePath cmdExe = scriptDir.withNewPath("C:/Windows/System32/cmd.exe");
+    const Result<CommandLine> command = cdbDeviceCommandLine(scriptDir / "x.cmd", cmdExe);
+    QVERIFY(command);
+    QCOMPARE(command->executable(), cmdExe);
+    QCOMPARE(command->arguments(),
+             "/d /v:off /c \"" + (scriptDir / "x.cmd").nativePath() + '"');
+    QVERIFY(!cdbDeviceCommandLine(scriptDir.withNewPath("C:/R&D/x.cmd"), cmdExe));
+    // PowerShell expands a '$' in a double-quoted string.
+    QVERIFY(!cdbDeviceCommandLine(scriptDir.withNewPath("C:/Users/svc$x/x.cmd"), cmdExe));
+
+    const Environment withTemp({"TEMP=C:\\Users\\A B\\AppData\\Local\\Temp"}, OsTypeWindows);
+    QCOMPARE(cdbScriptDir(cdb.executable(), withTemp),
+             cdb.executable().withNewPath("C:/Users/A B/AppData/Local/Temp"));
+    QVERIFY(cdbScriptDir(cdb.executable(), Environment(OsTypeWindows)).isEmpty());
+    // The script then goes next to the inferior.
+    const Environment withSpecialTemp({"TEMP=C:\\Users\\R&D\\AppData\\Local\\Temp"},
+                                      OsTypeWindows);
+    QVERIFY(cdbScriptDir(cdb.executable(), withSpecialTemp).isEmpty());
+
+    // cmd.exe ignores the case of a key, a host-typed env does not.
+    const Environment windowsDevice({"SystemRoot=C:\\Windows", "Path=C:\\Windows"},
+                                    OsTypeWindows);
+    Environment linuxEnv(OsTypeLinux);
+    linuxEnv.set("SYSTEMROOT", "C:\\Windows");
+    for (const QString &path : {QString("C:\\Qt\\bin"), QString("C:\\Windows")}) {
+        linuxEnv.set("PATH", path);
+        const Result<QByteArray> linuxScript
+            = cdbEnvironmentScript(linuxEnv, windowsDevice, {}, {});
+        QVERIFY(linuxScript);
+        const QStringList lines = QString::fromUtf8(*linuxScript).split("\r\n");
+        const QStringList pathLines = Utils::filtered(lines, [](const QString &line) {
+            return line.startsWith("set PATH=", Qt::CaseInsensitive);
+        });
+        // With the value of the device, PATH is inherited from Path.
+        QCOMPARE(pathLines, path == windowsDevice.value("Path") ? QStringList()
+                                                                : QStringList("set PATH=" + path));
+    }
+
+    // A staged script that cmd.exe cannot be pointed at is removed again.
+    QTemporaryDir stageDir;
+    QVERIFY(stageDir.isValid());
+    const FilePath specialDir = FilePath::fromString(stageDir.path()) / "R&D";
+    QVERIFY(specialDir.ensureWritableDir());
+    const FilePath staged = specialDir / "x.cmd";
+    const Result<CdbDeviceStart> refused = cdbDeviceStart(
+        cdb, env, device, {}, [&staged](const QByteArray &contents, const FilePath &) {
+            return staged.writeFileContents(contents).transform([&staged](qint64) {
+                return staged;
+            });
+        });
+    QVERIFY(!refused);
+    QVERIFY(specialDir.exists());
+    QVERIFY(!staged.exists());
+
+    // A run environment that was not built on the one of the device only adds to it.
+    Environment additions(OsTypeWindows);
+    additions.set("QT_LOGGING_TO_CONSOLE", "0");
+    const Result<QByteArray> additionsScript = cdbEnvironmentScript(additions, device, {}, {});
+    QVERIFY(additionsScript);
+    QVERIFY(additionsScript->contains("set QT_LOGGING_TO_CONSOLE=0\r\n"));
+    QVERIFY(!additionsScript->contains("set SystemRoot="));
+    QVERIFY(!additionsScript->contains("set KEPT="));
+    // Prepending to PATH keeps the entries of the device, whatever the case of the key.
+    Environment pathAdditions(OsTypeWindows);
+    pathAdditions.prependOrSet("PATH", "C:\\Qt\\bin");
+    const Result<QByteArray> pathScript
+        = cdbEnvironmentScript(pathAdditions, windowsDevice, {}, {});
+    QVERIFY(pathScript);
+    const QStringList pathScriptLines = Utils::filtered(
+        QString::fromUtf8(*pathScript).split("\r\n"),
+        [](const QString &line) { return line.startsWith("set PATH=", Qt::CaseInsensitive); });
+    QCOMPARE(pathScriptLines, QStringList("set Path=C:\\Qt\\bin;C:\\Windows"));
+}
+
+// The batch file holds up in a real cmd.exe, run the way a cdb on a device is.
+void DebuggerUnitTests::testCdbEnvironmentScriptOnDevice()
+{
+    const IDevicePtr device = addWindowsTestDevice();
+    if (!device)
+        QSKIP(noWindowsTestDevice);
+    const QScopeGuard cleanup([id = device->id()] { DeviceManager::removeDevice(id); });
+    QVERIFY2(connectToDevice(device), "Cannot connect to the device.");
+
+    const FilePath root = device->rootPath();
+    const Environment deviceEnvironment = root.deviceEnvironment();
+    QVERIFY(deviceEnvironment.hasKey("USERNAME"));
+    QVERIFY(deviceEnvironment.hasKey("COMPUTERNAME"));
+    const FilePath tempDir
+        = root.withNewPath(FilePath::fromUserInput(deviceEnvironment.value("TEMP")).path());
+    QVERIFY(tempDir.isDir());
+
+    Environment env = deviceEnvironment;
+    env.set("QTC_TEST_PERCENT", "100% sure %NOPE");
+    env.set("QTC_TEST_BANG", "a!PATH!b");
+    env.set("QTC_TEST_META", "\"C:\\Program Files\";\"a&b|c<d>e(f)^");
+    env.set("QTC_TEST_UMLAUT", QString::fromUtf8("Gr\xc3\xbc\xc3\x9f" "e"));
+    const QString quotedPathEntry = "\"C:\\Qtc Test;Dir\"";
+    // Without System32, which the restoring chcp in the batch file must not depend on.
+    env.set("PATH", quotedPathEntry);
+    env.unset("USERNAME");
+    env.set("COMPUTERNAME", deviceEnvironment.value("COMPUTERNAME"), false);
+    const FilePath workDir = tempDir / "qtc a&b";
+    QVERIFY(workDir.ensureWritableDir());
+    const QScopeGuard removeWorkDir([workDir] { workDir.removeRecursively(); });
+
+    // The stand-in for cdb gets an argument that is not safe in cmd.exe and not ASCII.
+    // The commands after it run in the batch file, once the code page is restored.
+    const FilePath cmdExe = root.findCmdExe(deviceEnvironment);
+    const QString launchArgs = QString::fromUtf8("/d /c echo \"QTC_ARG=a&b \xc3\xbc\"")
+                               + " & set & cd & "
+                               + cmdExe.parentDir().pathAppended("chcp.com").nativePath();
+    const CommandLine launch(cmdExe, launchArgs, CommandLine::Raw);
+    // An ssh session may well be in 65001 already. Start from another code page, which
+    // the batch file has to switch away from and back to.
+    const Result<QByteArray> contents = cdbEnvironmentScript(env, deviceEnvironment, workDir,
+                                                             launch);
+    QVERIFY(contents);
+    const FilePath script = tempDir / "qtc-cdb-environment-test.cmd";
+    QVERIFY(script.writeFileContents("@chcp 850 > nul\r\n@chcp\r\n" + *contents));
+    const QScopeGuard removeScript([script] { script.removeFile(); });
+
+    const Result<CommandLine> command = cdbDeviceCommandLine(script, cmdExe);
+    QVERIFY(command);
+    Process cmd;
+    cmd.setCommand(*command);
+    cmd.runBlocking(std::chrono::seconds(60));
+    QCOMPARE(cmd.result(), ProcessResult::FinishedWithSuccess);
+    const QStringList lines = cmd.cleanedStdOut().split('\n', Qt::SkipEmptyParts);
+    QVERIFY(lines.contains("QTC_TEST_PERCENT=100% sure %NOPE"));
+    QVERIFY(lines.contains("QTC_TEST_BANG=a!PATH!b"));
+    QVERIFY(lines.contains("QTC_TEST_META=\"C:\\Program Files\";\"a&b|c<d>e(f)^"));
+    // Read in 65001 and printed in 850. Read in 850, the UTF-8 bytes would come back as they are.
+    QVERIFY(cmd.rawStdOut().contains("QTC_TEST_UMLAUT=Gr\x81\xe1" "e\r\n"));
+    QVERIFY(cmd.rawStdOut().contains("\"QTC_ARG=a&b \x81\""));
+    static const QRegularExpression codePageLine(": *\\d+\\.?$");
+    const QStringList codePages = Utils::filtered(lines, [](const QString &line) {
+        return !line.contains('=') && codePageLine.match(line).hasMatch();
+    });
+    QCOMPARE(codePages.size(), 2);
+    QCOMPARE(codePages.at(0), codePages.at(1));
+    const auto isSet = [&lines](const QString &key) {
+        return Utils::anyOf(lines, [key](const QString &line) {
+            return line.startsWith(key + '=', Qt::CaseInsensitive);
+        });
+    };
+    QVERIFY(!isSet("USERNAME"));
+    QVERIFY(!isSet("COMPUTERNAME"));
+    QVERIFY(!isSet("QTC_CDB"));
+    QVERIFY(!isSet("QTC_CHCP"));
+    QVERIFY(lines.contains("PATH=" + quotedPathEntry, Qt::CaseInsensitive));
+    QVERIFY(lines.contains(workDir.nativePath(), Qt::CaseInsensitive));
 }
 
 static QByteArray debugStrings(const QStringList &strings)
@@ -1658,6 +2039,79 @@ void DebuggerUnitTests::testPdbSourceFileNames()
     qToLittleEndian<quint32>(100, badBlock.data() + 3 * 512 + 20);
     QVERIFY(pdb.writeFileContents(badBlock));
     QCOMPARE(pdbSourceFileNames(pdb), QByteArray());
+}
+
+struct FakeSection
+{
+    QByteArray name;
+    QByteArray data;
+    QByteArray padding;
+};
+
+// A PE file without optional header whose sections all have long names, which
+// makes it need a string table. lld puts the names of the symbols first.
+static QByteArray fakePe(const QList<FakeSection> &sections, qsizetype symbolNames = 0)
+{
+    QByteArray dos(64, '\0');
+    dos[0] = 'M';
+    dos[1] = 'Z';
+    qToLittleEndian<quint32>(dos.size(), dos.data() + 0x3c);
+
+    const int tableStart = dos.size() + 24;
+    qsizetype dataStart = tableStart + sections.size() * 40;
+    QByteArray table;
+    QByteArray data;
+    QByteArray names = le32(0) + QByteArray(symbolNames, 's');
+    for (const FakeSection &section : sections) {
+        QByteArray entry = "/" + QByteArray::number(names.size());
+        entry.resize(8, '\0');
+        names += section.name + '\0';
+        entry += le32(section.data.size()) + le32(0);
+        entry += le32(section.data.size() + section.padding.size());
+        entry += le32(dataStart + data.size()) + QByteArray(16, '\0');
+        table += entry;
+        data += section.data + section.padding;
+    }
+    qToLittleEndian<quint32>(names.size(), names.data());
+
+    QByteArray header = QByteArray("PE\0\0", 4) + QByteArray(20, '\0');
+    qToLittleEndian<quint16>(0x8664, header.data() + 4);
+    qToLittleEndian<quint16>(sections.size(), header.data() + 6);
+    qToLittleEndian<quint32>(dataStart + data.size(), header.data() + 12);
+    return dos + header + table + data + names;
+}
+
+void DebuggerUnitTests::testPeDebugStrings()
+{
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath dir = FilePath::fromString(tmp.path());
+    const FilePath library = dir / "Qt6Core.dll";
+    const FilePath companion = dir / "Qt6Core.debug";
+
+    const QByteArray str = debugStrings({"C:/Users/qt/work/qt/qtbase/src/corelib/io"});
+    const QByteArray lineStr = debugStrings({"C:\\Users\\qt\\work\\qt\\qtbase_build",
+                                             "D:/qt/qtbase/src/corelib/qglobal.cpp"});
+    // Past the end of the data, the padding up to the file alignment is no string.
+    const QByteArray padding("/padding/qtbase/src/", 20);
+    const QStringList roots{"C:/Users/qt/work/qt", "D:/qt"};
+
+    QVERIFY(companion.writeFileContents(fakePe({{".debug_str", str, padding},
+                                                {".debug_line_str", lineStr, padding}},
+                                               512 * 1024)));
+    QCOMPARE(qtBuildSourceRoots(peDebugStrings(companion).replace('\\', '/')), roots);
+
+    // A stripped library leads to its companion.
+    QVERIFY(library.writeFileContents(
+        fakePe({{".text", "code", {}},
+                {".gnu_debuglink", QByteArray("Qt6Core.debug\0\0\0", 16) + le32(0), {}}})));
+    QCOMPARE(qtBuildSourceRoots(peDebugStrings(library).replace('\\', '/')), roots);
+
+    QVERIFY(companion.removeFile());
+    QCOMPARE(qtBuildSourceRoots(peDebugStrings(library)), QStringList());
+
+    QVERIFY(library.writeFileContents(str));
+    QCOMPARE(peDebugStrings(library), QByteArray(1, '\0'));
 }
 
 // The PDB of a Qt on a Windows device is read through the device's file access,
@@ -1966,8 +2420,6 @@ static QString preCheckStepTests(Kit **kit = nullptr, Toolchain **toolchain = nu
     if (!usableKit)
         return "no kit of this machine's own architecture to build with";
     Toolchain *usedToolchain = ToolchainKitAspect::cxxToolchain(usableKit);
-    if (usedToolchain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
-        return "building the inferior is only wired up for gcc-style compilers";
     if (kit)
         *kit = usableKit;
     if (toolchain)
@@ -1992,13 +2444,24 @@ int main()
 }
 )CPP";
 
+static QTemporaryDir makeTestDir()
+{
+    QTemporaryDir inBuild(QCoreApplication::applicationDirPath() + "/qtc_debugger_XXXXXX");
+    if (inBuild.isValid())
+        return inBuild;
+    return QTemporaryDir();
+}
+
 // Builds that program and runs it up to a marked line, holding it there so a
 // test can ask for a step and see where it ends up. It needs no project: a
 // compiler and a kit to name the debugger are the whole of it.
 class SteppingSession
 {
 public:
-    SteppingSession()
+    explicit SteppingSession(const char *source = s_steppingSource,
+                             const QStringList &extraFlags = {})
+        : m_sourceText(source)
+        , m_extraFlags(extraFlags)
     {
         // Nothing here can answer a dialog, and the engine puts one up for a
         // breakpoint it cannot place. A breakpoint that does not take shows
@@ -2017,6 +2480,10 @@ public:
         }
         if (m_breakpoint)
             m_breakpoint->deleteBreakpoint();
+        for (const GlobalBreakpoint &other : std::as_const(m_disabledBreakpoints)) {
+            if (other)
+                other->setEnabled(true);
+        }
     }
 
     // Empty when the session is up, otherwise why it is not.
@@ -2030,11 +2497,21 @@ public:
         if (QString reason = preCheckStepTests(&kit, &toolchain); !reason.isEmpty())
             return reason;
         QTC_ASSERT(kit && toolchain, return "kit or toolchain invalid");
+        if (m_gdbDap) {
+            // gdb only grew its DAP mode along the way.
+            if (DebuggerKitAspect::engineType(kit) != GdbEngineType)
+                m_skipReason = "The debugger of the kit is not gdb.";
+            else if (QVersionNumber::fromString(DebuggerKitAspect::version(kit))
+                     < QVersionNumber(14, 0, 50))
+                m_skipReason = "The gdb of the kit is too old for its DAP mode.";
+            if (!m_skipReason.isEmpty())
+                return m_skipReason;
+        }
 
         const FilePath dir = FilePath::fromString(m_dir.path());
         m_source = dir / "stepping.cpp";
         m_executable = (dir / "stepping").withExecutableSuffix();
-        if (!m_source.writeFileContents(QByteArray(s_steppingSource)))
+        if (!m_source.writeFileContents(m_sourceText))
             return "could not write " + m_source.toUserOutput();
 
         m_line = markerLine(marker);
@@ -2042,12 +2519,35 @@ public:
             return "no line marked " + marker;
 
         Process compiler;
-        compiler.setCommand({toolchain->compilerCommand(),
-                             {"-g", "-O0", m_source.nativePath(),
-                              "-o", m_executable.nativePath()}});
+        if (toolchain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
+            // cl needs the environment of its Visual Studio installation, and
+            // its own spelling of what the gcc-style flags say.
+            Environment env = Environment::systemEnvironment();
+            toolchain->addToEnvironment(env);
+            compiler.setEnvironment(env);
+            compiler.setWorkingDirectory(dir);
+            compiler.setCommand({toolchain->compilerCommand(),
+                                 {"/nologo", "/Zi", "/Od", "/EHsc", "/std:c++17",
+                                  m_source.nativePath(), "/Fe" + m_executable.nativePath(),
+                                  "/link", "/DEBUG"}});
+        } else {
+            compiler.setCommand({toolchain->compilerCommand(),
+                                 QStringList{"-g", "-O0", m_source.nativePath(),
+                                             "-o", m_executable.nativePath()}
+                                     + m_extraFlags});
+        }
         compiler.runBlocking(std::chrono::seconds(60));
         if (compiler.exitCode() != 0 || !m_executable.isExecutableFile())
             return "the inferior would not build: " + compiler.allOutput().left(300);
+
+        // The session the tests run in may hold breakpoints of its own, and
+        // CDB takes one on a file of the same name elsewhere for this one.
+        for (const GlobalBreakpoint &other : BreakpointManager::globalBreakpoints()) {
+            if (other && other->isEnabled() && !m_keptBreakpoints.contains(other)) {
+                other->setEnabled(false);
+                m_disabledBreakpoints.append(other);
+            }
+        }
 
         BreakpointParameters params;
         params.type = BreakpointByFileAndLine;
@@ -2061,6 +2561,8 @@ public:
         m_runControl->setKit(kit);
         DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(m_runControl);
         rp.setInferior(ProcessRunData{CommandLine{m_executable}, dir});
+        if (m_gdbDap)
+            rp.setCppEngineType(GdbDapEngineType);
         QObject::connect(m_runControl, &RunControl::stopped,
                          &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
         m_stoppedConnection = QObject::connect(m_runControl, &RunControl::stopped,
@@ -2097,11 +2599,20 @@ public:
     }
 
     DebuggerEngine *engine() const { return m_engine; }
+    FilePath source() const { return m_source; }
     int line() const { return m_line; }
+    FilePath sourceFile() const { return FilePath::fromString(m_dir.path()) / "stepping.cpp"; }
+    // A breakpoint of the test's own, which start() leaves as it is.
+    void keepBreakpoint(const GlobalBreakpoint &breakpoint) { m_keptBreakpoints.append(breakpoint); }
+
+    // Runs the session with gdb's DAP mode instead of its machine interface.
+    void useGdbDap() { m_gdbDap = true; }
+    // Why start() did not get to a session that it could test.
+    QString skipReason() const { return m_skipReason; }
 
     int markerLine(const QString &marker) const
     {
-        const QStringList lines = QString::fromUtf8(s_steppingSource).split('\n');
+        const QStringList lines = QString::fromUtf8(m_sourceText).split('\n');
         for (int i = 0; i < lines.size(); ++i) {
             if (lines.at(i).contains(marker))
                 return i + 1;
@@ -2110,7 +2621,9 @@ public:
     }
 
 private:
-    QTemporaryDir m_dir;
+    QByteArray m_sourceText;
+    QStringList m_extraFlags;
+    QTemporaryDir m_dir = makeTestDir();
     FilePath m_source;
     FilePath m_executable;
     RunControl *m_runControl = nullptr;
@@ -2118,7 +2631,11 @@ private:
     bool m_stopped = false;
     QPointer<DebuggerEngine> m_engine;
     GlobalBreakpoint m_breakpoint;
+    GlobalBreakpoints m_disabledBreakpoints;
+    GlobalBreakpoints m_keptBreakpoints;
     bool m_warnedAboutBreakpoints = false;
+    bool m_gdbDap = false;
+    QString m_skipReason;
     int m_line = 0;
 };
 
@@ -2155,8 +2672,12 @@ void DebuggerUnitTests::testStepsIntoACalledFunction()
 {
     if (const QString reason = reasonTheGenericBackendsAreNotUnderTest(); !reason.isEmpty())
         QSKIP(qPrintable(reason));
-    if (const QString reason = preCheckStepTests(); !reason.isEmpty())
+    Toolchain *toolchain = nullptr;
+    if (const QString reason = preCheckStepTests(nullptr, &toolchain); !reason.isEmpty())
         QSKIP(qPrintable(reason));
+    if (toolchain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        QSKIP("MSVC puts the start of a function on its opening brace, which is where "
+              "stepping in stops, not on the line after it.");
 
     const bool wasOn = commonSettings().useGenericDebugger();
     commonSettings().useGenericDebugger.setValue(true);
@@ -2226,6 +2747,1498 @@ void DebuggerUnitTests::testStepsOutOfACalledFunction()
     QVERIFY2(frame.function.startsWith("main"),
              qPrintable(QString("stepping out of addOne landed in %1:%2")
                             .arg(frame.function).arg(frame.line)));
+}
+
+// Calls a debugger MCP tool and waits for its answer. Some tools wait for the
+// debugger themselves, so the answer can take as long as a step does.
+static Result<QJsonObject> callDebuggerTool(const QString &name, const QJsonObject &args = {})
+{
+    auto answer = std::make_shared<std::optional<Result<QJsonObject>>>();
+    callMcpToolForTests(name, args, [answer](Result<QJsonObject> result) { *answer = result; });
+    if (!QTest::qWaitFor([answer] { return answer->has_value(); }, 60000))
+        return ResultError(QString("The tool \"%1\" never answered.").arg(name));
+    return **answer;
+}
+
+// QVERIFY2 evaluates its message on success too.
+static QString errorOf(const Result<QJsonObject> &result)
+{
+    return result ? QString() : result.error();
+}
+
+static int stopIdOf(const QJsonObject &result)
+{
+    return result.value("context").toObject().value("stop_id").toInt(-1);
+}
+
+static QString threadIdOf(const QJsonObject &result)
+{
+    return result.value("context").toObject().value("thread_id").toString();
+}
+
+static QJsonObject variableNamed(const QJsonObject &variables, const QString &name)
+{
+    for (const QJsonValue &v : variables.value("variables").toArray()) {
+        if (v.toObject().value("name").toString() == name)
+            return v.toObject();
+    }
+    return {};
+}
+
+// Puts either the engine's own implementation or the generic front end under
+// test, and says why not if the environment has decided that already.
+class BackendUnderTest
+{
+public:
+    explicit BackendUnderTest(bool generic)
+        : m_wasOn(commonSettings().useGenericDebugger())
+    {
+        if (isUseGenericDebuggerOverride() && useGenericDebuggerEnabled() != generic)
+            m_reason = "QTC_USE_GENERIC_DEBUGGER decides which backends run.";
+        commonSettings().useGenericDebugger.setValue(generic);
+    }
+    ~BackendUnderTest() { commonSettings().useGenericDebugger.setValue(m_wasOn); }
+
+    QString reasonItIsNotUnderTest() const { return m_reason; }
+
+private:
+    bool m_wasOn = false;
+    QString m_reason;
+};
+
+static void addBackendRows()
+{
+    QTest::addColumn<bool>("generic");
+    QTest::newRow("engine") << false;
+    QTest::newRow("generic") << true;
+}
+
+// The engines that report the threads of a stop one by one, after its stack.
+static void addBackendRowsWithGdbDap()
+{
+    QTest::addColumn<bool>("generic");
+    QTest::addColumn<bool>("gdbDap");
+    QTest::newRow("engine") << false << false;
+    QTest::newRow("generic") << true << false;
+    QTest::newRow("gdb-dap") << false << true;
+}
+
+void DebuggerUnitTests::testMcpStepWaitsForTheNewStop_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpStepWaitsForTheNewStop()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: at-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> before = callDebuggerTool("debugger_get_call_stack");
+    QVERIFY2(before, qPrintable(errorOf(before)));
+    const int stopBefore = stopIdOf(*before);
+    QVERIFY(stopBefore > 0);
+
+    const Result<QJsonObject> step
+        = callDebuggerTool("debugger_step_over", {{"wait_for_completion", true}});
+    QVERIFY2(step, qPrintable(errorOf(step)));
+    QCOMPARE(step->value("status").toString(), QString("completed"));
+    QCOMPARE(stopIdOf(*step), stopBefore + 1);
+
+    // Completed means the data is there: nothing more to wait for.
+    const Result<QJsonObject> stack
+        = callDebuggerTool("debugger_get_call_stack", {{"timeout_ms", 0}});
+    QVERIFY2(stack, qPrintable(errorOf(stack)));
+    QCOMPARE(stopIdOf(*stack), stopBefore + 1);
+    const QJsonObject top = stack->value("frames").toArray().first().toObject();
+    QCOMPARE(top.value("line").toInt(), session.markerLine("MARKER: after-call"));
+
+    const Result<QJsonObject> variables
+        = callDebuggerTool("debugger_get_variables", {{"timeout_ms", 0}});
+    QVERIFY2(variables, qPrintable(errorOf(variables)));
+    QCOMPARE(stopIdOf(*variables), stopBefore + 1);
+    QCOMPARE(variableNamed(*variables, "second").value("value").toString(), QString("2"));
+}
+
+void DebuggerUnitTests::testMcpOperationIsNotCompleteBeforeTheStop_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpOperationIsNotCompleteBeforeTheStop()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: at-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    // These answer without returning to the event loop, so the step cannot
+    // have finished in between. Should one not answer right away, its answer
+    // comes after this function has returned.
+    const auto step = std::make_shared<std::optional<Result<QJsonObject>>>();
+    callMcpToolForTests("debugger_step_over", {},
+                        [step](Result<QJsonObject> result) { *step = result; });
+    QVERIFY(step->has_value() && **step);
+    const QString status = (**step)->value("status").toString();
+    QVERIFY2(status == "accepted" || status == "in_progress", qPrintable(status));
+
+    const auto early = std::make_shared<std::optional<Result<QJsonObject>>>();
+    callMcpToolForTests("debugger_get_call_stack", {{"timeout_ms", 0}},
+                        [early](Result<QJsonObject> result) { *early = result; });
+    QVERIFY(early->has_value());
+    QVERIFY2(!**early, "the stack of the stop before the step was presented as current");
+
+    const int id = (**step)->value("operation_id").toInt();
+    const Result<QJsonObject> waited
+        = callDebuggerTool("debugger_wait_for_operation", {{"operation_id", id}});
+    QVERIFY2(waited, qPrintable(errorOf(waited)));
+    QCOMPARE(waited->value("status").toString(), QString("completed"));
+    QCOMPARE(waited->value("operation_id").toInt(), id);
+}
+
+void DebuggerUnitTests::testMcpResumeThatFailsKeepsTheStop_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpResumeThatFailsKeepsTheStop()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: at-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+    // gdb has no frame above main to finish into, the others step out into
+    // the runtime that called it.
+    if (!session.engine()->debuggerName().startsWith("GDB"))
+        QSKIP("Only gdb refuses to step out of main.");
+
+    const Result<QJsonObject> before = callDebuggerTool("debugger_get_call_stack");
+    QVERIFY2(before, qPrintable(errorOf(before)));
+
+    const Result<QJsonObject> step
+        = callDebuggerTool("debugger_step_out", {{"wait_for_completion", true}});
+    QVERIFY2(step, qPrintable(errorOf(step)));
+    QCOMPARE(step->value("status").toString(), QString("failed"));
+
+    const Result<QJsonObject> after
+        = callDebuggerTool("debugger_get_call_stack", {{"timeout_ms", 0}});
+    QVERIFY2(after, qPrintable(errorOf(after)));
+    QCOMPARE(stopIdOf(*after), stopIdOf(*before));
+}
+
+void DebuggerUnitTests::testMcpSelectFrameWaitsForItsLocals_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpSelectFrameWaitsForItsLocals()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: in-callee");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> inCallee = callDebuggerTool("debugger_get_variables");
+    QVERIFY2(inCallee, qPrintable(errorOf(inCallee)));
+    QVERIFY(!variableNamed(*inCallee, "value").isEmpty());
+
+    const Result<QJsonObject> select
+        = callDebuggerTool("debugger_select_frame", {{"level", 1}, {"wait_for_completion", true}});
+    QVERIFY2(select, qPrintable(errorOf(select)));
+    QCOMPARE(select->value("status").toString(), QString("completed"));
+    QCOMPARE(select->value("context").toObject().value("frame_level").toInt(), 1);
+
+    const Result<QJsonObject> inCaller
+        = callDebuggerTool("debugger_get_variables", {{"timeout_ms", 0}});
+    QVERIFY2(inCaller, qPrintable(errorOf(inCaller)));
+    QCOMPARE(inCaller->value("context").toObject().value("frame_level").toInt(), 1);
+    QVERIFY(!variableNamed(*inCaller, "first").isEmpty());
+    QVERIFY(variableNamed(*inCaller, "value").isEmpty());
+}
+
+void DebuggerUnitTests::testMcpSelectFrameBeforeTheStopsLocals_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpSelectFrameBeforeTheStopsLocals()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: in-callee");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    // The locals of frame 0 can still be on their way, and when they arrive,
+    // frame 1 is current. They must not pass for the locals of frame 1.
+    McpSessionState *state = McpSessionState::forEngine(session.engine());
+    WatchHandler *watch = session.engine()->watchHandler();
+    QStringList passedForCurrent;
+    QObject receiver;
+    QObject::connect(watch->model(), &WatchModelBase::updateFinished, &receiver, [&] {
+        if (state->isLocalsReady() && !watch->findItem("local.first"))
+            passedForCurrent.append(state->context().value("frame_level").toVariant().toString());
+    });
+
+    const Result<QJsonObject> select
+        = callDebuggerTool("debugger_select_frame", {{"level", 1}, {"wait_for_completion", true}});
+    QVERIFY2(select, qPrintable(errorOf(select)));
+    QCOMPARE(select->value("status").toString(), QString("completed"));
+    QVERIFY2(passedForCurrent.isEmpty(),
+             qPrintable("locals without \"first\" passed for frame "
+                        + passedForCurrent.join(", ")));
+
+    const Result<QJsonObject> inCaller
+        = callDebuggerTool("debugger_get_variables", {{"timeout_ms", 0}});
+    QVERIFY2(inCaller, qPrintable(errorOf(inCaller)));
+    QCOMPARE(inCaller->value("context").toObject().value("frame_level").toInt(), 1);
+    QVERIFY(!variableNamed(*inCaller, "first").isEmpty());
+}
+
+void DebuggerUnitTests::testLocalsOfAFrameSelectedEarlyKeepNothingOfTheOtherFrame_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testLocalsOfAFrameSelectedEarlyKeepNothingOfTheOtherFrame()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: in-callee");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    WatchHandler *watch = session.engine()->watchHandler();
+    int started = 0;
+    int finished = 0;
+    QObject receiver;
+    QObject::connect(watch->model(), &WatchModelBase::updateStarted, &receiver, [&started] {
+        ++started;
+    });
+    QObject::connect(watch->model(), &WatchModelBase::updateFinished, &receiver, [&finished] {
+        ++finished;
+    });
+
+    // The locals of frame 0 can still be on their way, and arrive after
+    // frame 1 has asked for its own.
+    session.engine()->activateFrame(1);
+    QVERIFY(QTest::qWaitFor([&] {
+        return started > 0 && finished >= started && watch->findItem("local.first");
+    }, 30000));
+    QVERIFY2(!watch->findItem("local.value"), "a local of frame 0 is shown for frame 1");
+}
+
+void DebuggerUnitTests::testMcpLocalsOutlastFramesAddedToTheStack_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpLocalsOutlastFramesAddedToTheStack()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: in-callee");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> before = callDebuggerTool("debugger_get_variables");
+    QVERIFY2(before, qPrintable(errorOf(before)));
+
+    // As "Load QML Stack" does: the same stop and the same frame, in another row.
+    StackFrame qmlFrame;
+    qmlFrame.function = "onClicked";
+    session.engine()->stackHandler()->prependFrames({qmlFrame});
+
+    const Result<QJsonObject> after
+        = callDebuggerTool("debugger_get_variables", {{"timeout_ms", 0}});
+    QVERIFY2(after, qPrintable(errorOf(after)));
+    QCOMPARE(stopIdOf(*after), stopIdOf(*before));
+    QVERIFY(!variableNamed(*after, "value").isEmpty());
+}
+
+// A second thread that stops while the first one waits for it.
+static const char s_threadSource[] = R"CPP(
+#include <thread>
+
+static int twice(int value)
+{
+    int doubled = value * 2; // MARKER: in-thread
+    return doubled;
+}
+
+int main()
+{
+    int result = 0;
+    int start = 1; // MARKER: before-thread
+    std::thread worker([&result, start] { result = twice(start); });
+    worker.join();
+    return result - 2;
+}
+)CPP";
+
+void DebuggerUnitTests::testMcpStackFollowsTheThreadThatStopped_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpStackFollowsTheThreadThatStopped()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session(s_threadSource, {"-pthread"});
+    const QString problem = session.start("MARKER: before-thread");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> inMain = callDebuggerTool("debugger_get_call_stack");
+    QVERIFY2(inMain, qPrintable(errorOf(inMain)));
+    const QString mainThread = threadIdOf(*inMain);
+    QVERIFY(!mainThread.isEmpty());
+
+    // The stop is in a thread other than the one of the stop before.
+    const int workerLine = session.markerLine("MARKER: in-thread");
+    const Result<QJsonObject> run
+        = callDebuggerTool("debugger_run_to_line", {{"file", session.source().path()},
+                                                    {"line", workerLine},
+                                                    {"wait_for_completion", true}});
+    QVERIFY2(run, qPrintable(errorOf(run)));
+    QVERIFY2(run->value("status").toString() == "completed",
+             QJsonDocument(*run).toJson(QJsonDocument::Compact).constData());
+    const QString workerThread = threadIdOf(*run);
+    QVERIFY(!workerThread.isEmpty());
+    QVERIFY(workerThread != mainThread);
+
+    const Result<QJsonObject> inWorker
+        = callDebuggerTool("debugger_get_call_stack", {{"timeout_ms", 0}});
+    QVERIFY2(inWorker, qPrintable(errorOf(inWorker)));
+    QCOMPARE(threadIdOf(*inWorker), workerThread);
+    const QJsonObject top = inWorker->value("frames").toArray().first().toObject();
+    QCOMPARE(top.value("line").toInt(), workerLine);
+
+    const Result<QJsonObject> select
+        = callDebuggerTool("debugger_select_thread",
+                           {{"id", mainThread}, {"wait_for_completion", true}});
+    QVERIFY2(select, qPrintable(errorOf(select)));
+    QCOMPARE(select->value("status").toString(), QString("completed"));
+    QCOMPARE(threadIdOf(*select), mainThread);
+
+    const Result<QJsonObject> backInMain
+        = callDebuggerTool("debugger_get_call_stack", {{"timeout_ms", 0}});
+    QVERIFY2(backInMain, qPrintable(errorOf(backInMain)));
+    QCOMPARE(threadIdOf(*backInMain), mainThread);
+    for (const QJsonValue &frame : backInMain->value("frames").toArray())
+        QVERIFY(!frame.toObject().value("function").toString().startsWith("twice"));
+}
+
+// A local whose members are fetched only when asked for.
+static const char s_structSource[] = R"CPP(
+struct Pair { int first; int second; };
+
+int main()
+{
+    Pair pair{1, 2};
+    int sum = pair.first + pair.second; // MARKER: struct
+    return sum;
+}
+)CPP";
+
+void DebuggerUnitTests::testMcpVariableFetchesItsChildren_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpVariableFetchesItsChildren()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session(s_structSource);
+    const QString problem = session.start("MARKER: struct");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> locals = callDebuggerTool("debugger_get_variables");
+    QVERIFY2(locals, qPrintable(errorOf(locals)));
+    const QJsonObject pair = variableNamed(*locals, "pair");
+    QVERIFY2(pair.value("has_children").toBool() && !pair.contains("children"),
+             QJsonDocument(pair).toJson(QJsonDocument::Compact).constData());
+
+    const Result<QJsonObject> fetched = callDebuggerTool(
+        "debugger_get_variable", {{"iname", pair.value("iname")}});
+    QVERIFY2(fetched, qPrintable(errorOf(fetched)));
+    const QJsonArray children = fetched->value("variable").toObject().value("children").toArray();
+    QCOMPARE(children.size(), 2);
+    QCOMPARE(children.at(1).toObject().value("value").toString(), QString("2"));
+}
+
+// Two threads that wait in a function of their own name while main stops.
+static const char s_threadsSource[] = R"CPP(
+#include <atomic>
+#include <chrono>
+#include <thread>
+
+std::atomic<int> started{0};
+
+void parkedWorker()
+{
+    ++started;
+    for (;;)
+        std::this_thread::sleep_for(std::chrono::milliseconds(50)); // MARKER: parked
+}
+
+int main()
+{
+    std::thread first(parkedWorker);
+    std::thread second(parkedWorker);
+    while (started < 2)
+        std::this_thread::yield();
+    int both = started; // MARKER: all-started
+    // Long enough for a worker to run into a breakpoint set at this stop.
+    std::this_thread::sleep_for(std::chrono::seconds(30));
+    first.detach();
+    second.detach();
+    return both - 2;
+}
+)CPP";
+
+static bool hasFrameIn(const QJsonObject &thread, const QString &function)
+{
+    for (const QJsonValue &frame : thread.value("frames").toArray()) {
+        if (frame.toObject().value("function").toString().startsWith(function))
+            return true;
+    }
+    return false;
+}
+
+void DebuggerUnitTests::testMcpCollectsTheStacksOfAllThreads_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpCollectsTheStacksOfAllThreads()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session(s_threadsSource, {"-std=c++17", "-pthread"});
+    const QString problem = session.start("MARKER: all-started");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> before = callDebuggerTool("debugger_get_call_stack");
+    QVERIFY2(before, qPrintable(errorOf(before)));
+    const QString originalThread = before->value("context").toObject().value("thread_id").toString();
+    QVERIFY(!originalThread.isEmpty());
+
+    const Result<QJsonObject> stacks
+        = callDebuggerTool("debugger_get_thread_stacks", {{"max_frames", 10}});
+    QVERIFY2(stacks, qPrintable(errorOf(stacks)));
+    QVERIFY(stacks->value("same_stop").toBool());
+    QVERIFY(!stacks->value("target_resumed").toBool());
+    QVERIFY(stacks->value("selection_restored").toBool());
+    QCOMPARE(stacks->value("stop_id").toInt(), stopIdOf(*before));
+
+    int workers = 0;
+    int mains = 0;
+    const QJsonArray threads = stacks->value("threads").toArray();
+    for (const QJsonValue &value : threads) {
+        const QJsonObject thread = value.toObject();
+        QVERIFY2(!thread.contains("error"),
+                 qPrintable(thread.value("id").toString() + ": "
+                            + thread.value("error").toString()));
+        if (hasFrameIn(thread, "parkedWorker"))
+            ++workers;
+        const QJsonObject top = thread.value("frames").toArray().first().toObject();
+        if (top.value("function").toString().startsWith("main")) {
+            ++mains;
+            QCOMPARE(top.value("line").toInt(), session.line());
+            QCOMPARE(thread.value("id").toString(), originalThread);
+        }
+    }
+    QVERIFY2(threads.size() >= 3, qPrintable(QString::number(threads.size())));
+    QCOMPARE(workers, 2);
+    QCOMPARE(mains, 1);
+
+    const Result<QJsonObject> after = callDebuggerTool("debugger_get_call_stack");
+    QVERIFY2(after, qPrintable(errorOf(after)));
+    QCOMPARE(after->value("context").toObject().value("thread_id").toString(), originalThread);
+    QCOMPARE(stopIdOf(*after), stopIdOf(*before));
+    QCOMPARE(after->value("frames").toArray().first().toObject().value("line").toInt(),
+             session.line());
+}
+
+void DebuggerUnitTests::testMcpStackOfAStopInAnotherThread_data()
+{
+    addBackendRowsWithGdbDap();
+}
+
+void DebuggerUnitTests::testMcpStackOfAStopInAnotherThread()
+{
+    QFETCH(bool, generic);
+    QFETCH(bool, gdbDap);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session(s_threadsSource, {"-std=c++17", "-pthread"});
+    if (gdbDap)
+        session.useGdbDap();
+    const QString problem = session.start("MARKER: all-started");
+    if (!session.skipReason().isEmpty())
+        QSKIP(qPrintable(session.skipReason()));
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+    const Result<QJsonObject> inMain = callDebuggerTool("debugger_get_call_stack");
+    QVERIFY2(inMain, qPrintable(errorOf(inMain)));
+    const QString mainThread = inMain->value("context").toObject().value("thread_id").toString();
+
+    // The next stop is in a worker, so the thread that stops is not the one
+    // that was selected.
+    BreakpointParameters params;
+    params.type = BreakpointByFileAndLine;
+    params.fileName = session.sourceFile();
+    params.textPosition = {session.markerLine("MARKER: parked"), -1};
+    params.enabled = true;
+    const GlobalBreakpoint parked = BreakpointManager::createBreakpoint(params);
+    QVERIFY(parked);
+    const QScopeGuard remove([parked] {
+        if (parked)
+            parked->deleteBreakpoint();
+    });
+
+    const Result<QJsonObject> resumed
+        = callDebuggerTool("debugger_continue", {{"wait_for_completion", true}});
+    QVERIFY2(resumed, qPrintable(errorOf(resumed)));
+    QVERIFY2(resumed->value("status").toString() == "completed",
+             QJsonDocument(*resumed).toJson(QJsonDocument::Compact).constData());
+
+    const Result<QJsonObject> inWorker = callDebuggerTool("debugger_get_call_stack");
+    QVERIFY2(inWorker, qPrintable(errorOf(inWorker)));
+    QVERIFY(inWorker->value("context").toObject().value("thread_id").toString() != mainThread);
+    QVERIFY2(hasFrameIn(*inWorker, "parkedWorker"),
+             QJsonDocument(*inWorker).toJson(QJsonDocument::Compact).constData());
+}
+
+// A worker that stays in this file, so that its innermost frame has a source.
+static const char s_spinningThreadSource[] = R"CPP(
+#include <atomic>
+#include <thread>
+
+std::atomic<bool> done{false};
+std::atomic<int> started{0};
+
+void spinningWorker()
+{
+    ++started;
+    while (!done) {
+    } // MARKER: spinning
+}
+
+int main()
+{
+    std::thread worker(spinningWorker);
+    while (started < 1)
+        std::this_thread::yield();
+    int one = started; // MARKER: worker-started
+    done = true;
+    worker.join();
+    return one - 1;
+}
+)CPP";
+
+void DebuggerUnitTests::testMcpSelectThreadWaitsForItsStack_data()
+{
+    addBackendRowsWithGdbDap();
+}
+
+void DebuggerUnitTests::testMcpSelectThreadWaitsForItsStack()
+{
+    QFETCH(bool, generic);
+    QFETCH(bool, gdbDap);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session(s_spinningThreadSource, {"-std=c++17", "-pthread"});
+    if (gdbDap)
+        session.useGdbDap();
+    const QString problem = session.start("MARKER: worker-started");
+    if (!session.skipReason().isEmpty())
+        QSKIP(qPrintable(session.skipReason()));
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> inMain = callDebuggerTool("debugger_get_call_stack");
+    QVERIFY2(inMain, qPrintable(errorOf(inMain)));
+    const QString current = inMain->value("context").toObject().value("thread_id").toString();
+    QStringList others;
+    session.engine()->threadsHandler()->forItemsAtLevel<1>([&](ThreadItem *thread) {
+        if (thread->id() != current)
+            others.append(thread->id());
+    });
+    QVERIFY(!others.isEmpty());
+
+    // Windows starts threads of its own in every process, so the worker is
+    // the one of the others that has spinningWorker() on its stack.
+    QStringList workers;
+    for (const QString &other : std::as_const(others)) {
+        const Result<QJsonObject> selected = callDebuggerTool(
+            "debugger_select_thread", {{"id", other}, {"wait_for_completion", true}});
+        QVERIFY2(selected, qPrintable(errorOf(selected)));
+        QCOMPARE(selected->value("status").toString(), QString("completed"));
+
+        const Result<QJsonObject> stack
+            = callDebuggerTool("debugger_get_call_stack", {{"timeout_ms", 0}});
+        QVERIFY2(stack, qPrintable(errorOf(stack)));
+        QCOMPARE(stack->value("context").toObject().value("thread_id").toString(), other);
+        if (hasFrameIn(*stack, "spinningWorker"))
+            workers.append(other);
+    }
+    QVERIFY2(workers.size() == 1,
+             qPrintable("spinningWorker() is on the stack of " + workers.join(", ")
+                        + " of " + others.join(", ")));
+}
+
+void DebuggerUnitTests::testMcpThreadStacksAreBounded_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpThreadStacksAreBounded()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session(s_threadsSource, {"-std=c++17", "-pthread"});
+    const QString problem = session.start("MARKER: all-started");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> shallow = callDebuggerTool(
+        "debugger_get_thread_stacks", {{"max_frames", 1}, {"fields", QJsonArray{"function"}}});
+    QVERIFY2(shallow, qPrintable(errorOf(shallow)));
+    for (const QJsonValue &value : shallow->value("threads").toArray()) {
+        const QJsonObject thread = value.toObject();
+        const QJsonArray frames = thread.value("frames").toArray();
+        QCOMPARE(frames.size(), 1);
+        const QJsonObject frame = frames.first().toObject();
+        QVERIFY(frame.contains("function"));
+        QVERIFY(!frame.contains("line"));
+        QVERIFY(!frame.contains("address"));
+        if (thread.value("frames_loaded").toInt() > 1)
+            QVERIFY(thread.value("truncated").toBool());
+    }
+
+    const Result<QJsonObject> one
+        = callDebuggerTool("debugger_get_thread_stacks", {{"max_threads", 1}});
+    QVERIFY2(one, qPrintable(errorOf(one)));
+    QCOMPARE(one->value("threads").toArray().size(), 1);
+    QVERIFY(one->value("omitted_threads").toArray().size() >= 2);
+}
+
+static QString programCounterName()
+{
+    return Abi::hostAbi().architecture() == Abi::ArmArchitecture ? QString("pc") : QString("rip");
+}
+
+static QString stackPointerName()
+{
+    return Abi::hostAbi().architecture() == Abi::ArmArchitecture ? QString("sp") : QString("rsp");
+}
+
+static QJsonObject registerNamed(const QJsonObject &registers, const QString &name)
+{
+    for (const QJsonValue &r : registers.value("registers").toArray()) {
+        if (r.toObject().value("name").toString() == name)
+            return r.toObject();
+    }
+    return {};
+}
+
+static quint64 hexValue(const QJsonValue &value)
+{
+    return value.toString().toULongLong(nullptr, 16);
+}
+
+void DebuggerUnitTests::testMcpReadsTheRegistersOfTheCurrentStop_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpReadsTheRegistersOfTheCurrentStop()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: at-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const QString pc = programCounterName();
+    for (int step = 0; step < 2; ++step) {
+        if (step == 1) {
+            const Result<QJsonObject> stepped
+                = callDebuggerTool("debugger_step_over", {{"wait_for_completion", true}});
+            QVERIFY2(stepped, qPrintable(errorOf(stepped)));
+            QCOMPARE(stepped->value("status").toString(), QString("completed"));
+        }
+        const Result<QJsonObject> stack = callDebuggerTool("debugger_get_call_stack");
+        QVERIFY2(stack, qPrintable(errorOf(stack)));
+        const quint64 topAddress = hexValue(
+            stack->value("frames").toArray().first().toObject().value("address"));
+        QVERIFY(topAddress != 0);
+
+        const Result<QJsonObject> registers = callDebuggerTool("debugger_get_registers");
+        QVERIFY2(registers, qPrintable(errorOf(registers)));
+        QCOMPARE(stopIdOf(*registers), stopIdOf(*stack));
+        QVERIFY(registers->value("live_cpu_values").toBool());
+
+        const QJsonObject programCounter = registerNamed(*registers, pc);
+        QVERIFY2(programCounter.value("available").toBool(),
+                 qPrintable(programCounter.value("reason").toString()));
+        QCOMPARE(hexValue(programCounter.value("value")), topAddress);
+
+        const QJsonObject stackPointer = registerNamed(*registers, stackPointerName());
+        QVERIFY(stackPointer.value("available").toBool());
+        QCOMPARE(stackPointer.value("bit_width").toInt(), 64);
+        // All 64 bits, padded: "0x" and 16 digits.
+        QCOMPARE(stackPointer.value("value").toString().size(), 18);
+    }
+
+    const Result<QJsonObject> selected = callDebuggerTool(
+        "debugger_get_registers", {{"names", QJsonArray{pc, "no_such_register"}}});
+    QVERIFY2(selected, qPrintable(errorOf(selected)));
+    QCOMPARE(selected->value("registers").toArray().size(), 1);
+    QCOMPARE(selected->value("unknown_names").toArray(), QJsonArray{"no_such_register"});
+}
+
+void DebuggerUnitTests::testMcpRegistersOfAnOuterFrame_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpRegistersOfAnOuterFrame()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: in-callee");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> inner = callDebuggerTool("debugger_get_registers");
+    QVERIFY2(inner, qPrintable(errorOf(inner)));
+    const quint64 innerPc = hexValue(registerNamed(*inner, programCounterName()).value("value"));
+
+    const Result<QJsonObject> select
+        = callDebuggerTool("debugger_select_frame", {{"level", 1}, {"wait_for_completion", true}});
+    QVERIFY2(select, qPrintable(errorOf(select)));
+
+    const Result<QJsonObject> outer = callDebuggerTool("debugger_get_registers");
+    QVERIFY2(outer, qPrintable(errorOf(outer)));
+    QCOMPARE(outer->value("frame_level").toInt(), 1);
+    QVERIFY(outer->contains("note"));
+    const quint64 outerPc = hexValue(registerNamed(*outer, programCounterName()).value("value"));
+    QVERIFY(outerPc != 0);
+    // Whichever frame the debugger reports the values for, it has to say so.
+    QVERIFY2(outer->contains("values_for_frame_level"),
+             "the debuggers under test are known to say which frame they report");
+    if (outer->value("values_for_frame_level").toInt() == 1) {
+        QVERIFY(!outer->value("live_cpu_values").toBool());
+        QVERIFY(outerPc != innerPc);
+    } else {
+        QCOMPARE(outer->value("values_for_frame_level").toInt(), 0);
+        QVERIFY(outer->value("live_cpu_values").toBool());
+        QCOMPARE(outerPc, innerPc);
+    }
+}
+
+void DebuggerUnitTests::testGdbRegisterValueAsHex_data()
+{
+    QTest::addColumn<QString>("value");
+    QTest::addColumn<QString>("hex");
+
+    QTest::newRow("integer") << "0x7fffffffe0b0" << "0x7fffffffe0b0";
+    QTest::newRow("unreadable") << "<error reading variable>" << "";
+    QTest::newRow("xmm")
+        << "{v8_bfloat16 = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, "
+           "v4_float = {0x1, 0x2, 0x3, 0x4}, v16_int8 = {0x0 <repeats 16 times>}, "
+           "v4_int32 = {0x03020100, 0x07060504, 0x0b0a0908, 0x0f0e0d0c}, "
+           "v2_int64 = {0x0706050403020100, 0x0f0e0d0c0b0a0908}, "
+           "uint128 = 0x0f0e0d0c0b0a09080706050403020100}"
+        << "0x0f0e0d0c0b0a09080706050403020100";
+    QTest::newRow("ymm")
+        << "{v16_bfloat16 = {0x0 <repeats 16 times>}, v8_float = {0x0, 0x0, 0x0, 0x0, "
+           "0x0, 0x0, 0x0, 0x0}, v32_int8 = {0x0 <repeats 32 times>}, "
+           "v8_int32 = {0x03020100, 0x07060504, 0x0b0a0908, 0x0f0e0d0c, 0x13121110, "
+           "0x17161514, 0x1b1a1918, 0x1f1e1d1c}, v2_int128 = {0x0, 0x0}}"
+        << "0x1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100";
+    QTest::newRow("zmm-zero")
+        << "{v32_bfloat16 = {0x0 <repeats 32 times>}, v16_float = {0x0 <repeats 16 times>}, "
+           "v64_int8 = {0x0 <repeats 64 times>}, v16_int32 = {0x00000000 <repeats 16 times>}, "
+           "v8_int64 = {0x0 <repeats 8 times>}, v4_int128 = {0x0, 0x0, 0x0, 0x0}}"
+        << "0x" + QString(128, '0');
+    QTest::newRow("zmm-run-in-low-lanes")
+        << "{v16_float = {0x0 <repeats 16 times>}, "
+           "v16_int32 = {0x00000000 <repeats 12 times>, 0x11111111, 0x22222222, 0x33333333, "
+           "0x44444444}, v8_int64 = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2222222211111111, "
+           "0x4444444433333333}}"
+        << "0x44444444333333332222222211111111" + QString(96, '0');
+}
+
+void DebuggerUnitTests::testGdbRegisterValueAsHex()
+{
+    QFETCH(QString, value);
+    QFETCH(QString, hex);
+
+    QCOMPARE(gdbRegisterValueAsHex(value), hex);
+}
+
+void DebuggerUnitTests::testMemoryRetryParts()
+{
+    // Within one page there is nothing to retry.
+    QVERIFY(memoryRetryParts(0x1000, 0, 16).isEmpty());
+    QVERIFY(memoryRetryParts(0x1ff0, 0, 16).isEmpty());
+    // A read across pages is retried page by page.
+    const QList<QPair<quint64, quint64>> parts = memoryRetryParts(0x1ff0, 0, 0x2020);
+    const QList<QPair<quint64, quint64>> expected{{0, 0x10}, {0x10, 0x1000}, {0x1010, 0x1000},
+                                                  {0x2010, 0x10}};
+    QCOMPARE(parts, expected);
+    // The offset is into the read, the pages are of the address space.
+    QCOMPARE(memoryRetryParts(0x1000, 0xff8, 16),
+             (QList<QPair<quint64, quint64>>{{0xff8, 8}, {0x1000, 8}}));
+
+    QCOMPARE(memoryErrorWithoutAddress("Cannot access memory at address 0x5"),
+             QString("Cannot access memory"));
+    QCOMPARE(memoryErrorWithoutAddress("Cannot access memory at address 0x7ffe0a1b"),
+             memoryErrorWithoutAddress("Cannot access memory at address 0x7ffe0a1c"));
+}
+
+// Puts a pattern into ymm0 whose bytes say which byte they are.
+static const char s_vectorSource[] = R"CPP(
+alignas(32) static const unsigned char pattern[32] = {
+     0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
+    16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
+
+int main()
+{
+    asm volatile("vmovdqu %0, %%ymm0" : : "m"(pattern) : "xmm0");
+    int done = 1; // MARKER: loaded
+    return done - 1;
+}
+)CPP";
+
+void DebuggerUnitTests::testMcpReadsAVectorRegister_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpReadsAVectorRegister()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    if (Abi::hostAbi().architecture() != Abi::X86Architecture || Abi::hostAbi().wordWidth() != 64)
+        QSKIP("ymm0 is a register of x86-64.");
+    Toolchain *toolchain = nullptr;
+    if (const QString reason = preCheckStepTests(nullptr, &toolchain); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    if (toolchain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        QSKIP("The program loads ymm0 with inline assembly, which MSVC has none of on x64.");
+
+    SteppingSession session(s_vectorSource);
+    const QString problem = session.start("MARKER: loaded");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> registers
+        = callDebuggerTool("debugger_get_registers", {{"names", QJsonArray{"ymm0"}}});
+    QVERIFY2(registers, qPrintable(errorOf(registers)));
+    const QJsonObject ymm0 = registerNamed(*registers, "ymm0");
+    QVERIFY2(ymm0.value("available").toBool(),
+             QJsonDocument(ymm0).toJson(QJsonDocument::Compact).constData());
+    QCOMPARE(ymm0.value("bit_width").toInt(), 256);
+    // Byte 31 is the most significant one.
+    QString expected = "0x";
+    for (int i = 31; i >= 0; --i)
+        expected += QString("%1").arg(i, 2, 16, QLatin1Char('0'));
+    QCOMPARE(ymm0.value("value").toString(), expected);
+}
+
+void DebuggerUnitTests::testMcpMemoryAccessPolicy_data()
+{
+    QTest::addColumn<int>("access");
+    QTest::addColumn<int>("startMode");
+    QTest::addColumn<int>("os");
+    QTest::addColumn<QString>("ranges");
+    QTest::addColumn<quint64>("address");
+    QTest::addColumn<quint64>("length");
+    QTest::addColumn<QString>("grant"); // Empty: refused.
+
+    const int processes = CommonSettings::McpMemoryOfProcesses;
+    QTest::newRow("local process")
+        << processes << int(StartExternal) << int(Abi::DarwinOS) << QString()
+        << quint64(0x1000) << quint64(16) << QString("process_memory");
+    QTest::newRow("gdbserver on linux")
+        << processes << int(AttachToRemoteServer) << int(Abi::LinuxOS) << QString()
+        << quint64(0x1000) << quint64(16) << QString("process_memory");
+    QTest::newRow("bare metal without ranges")
+        << processes << int(AttachToRemoteServer) << int(Abi::BareMetalOS) << QString()
+        << quint64(0x20000000) << quint64(16) << QString();
+    QTest::newRow("bare metal in a range")
+        << processes << int(AttachToRemoteServer) << int(Abi::BareMetalOS)
+        << QString("0x08000000-0x080fffff, 0x20000000-0x2001ffff")
+        << quint64(0x20000000) << quint64(0x20000) << QString("allowed_range");
+    QTest::newRow("bare metal past the end of a range")
+        << processes << int(AttachToRemoteServer) << int(Abi::BareMetalOS)
+        << QString("0x20000000-0x2001ffff")
+        << quint64(0x2001fff0) << quint64(32) << QString();
+    QTest::newRow("unknown target")
+        << processes << int(AttachToRemoteServer) << int(Abi::UnknownOS) << QString()
+        << quint64(0x1000) << quint64(16) << QString();
+    QTest::newRow("bare metal even when launched")
+        << processes << int(StartInternal) << int(Abi::BareMetalOS) << QString()
+        << quint64(0x1000) << quint64(16) << QString();
+    QTest::newRow("turned off")
+        << int(CommonSettings::McpMemoryNever) << int(StartExternal) << int(Abi::DarwinOS)
+        << QString() << quint64(0x1000) << quint64(16) << QString();
+    QTest::newRow("anywhere")
+        << int(CommonSettings::McpMemoryAnywhere) << int(AttachToRemoteServer)
+        << int(Abi::BareMetalOS) << QString() << quint64(0x40000000) << quint64(4)
+        << QString("any_memory");
+}
+
+void DebuggerUnitTests::testMcpMemoryAccessPolicy()
+{
+    QFETCH(int, access);
+    QFETCH(int, startMode);
+    QFETCH(int, os);
+    QFETCH(QString, ranges);
+    QFETCH(quint64, address);
+    QFETCH(quint64, length);
+    QFETCH(QString, grant);
+
+    CommonSettings &s = commonSettings();
+    const int oldAccess = s.mcpMemoryAccess();
+    const QString oldRanges = s.mcpMemoryRanges();
+    const QScopeGuard restore([&] {
+        s.mcpMemoryAccess.setValue(oldAccess);
+        s.mcpMemoryRanges.setValue(oldRanges);
+    });
+    s.mcpMemoryAccess.setValue(access);
+    s.mcpMemoryRanges.setValue(ranges);
+
+    DebuggerRunParameters rp;
+    rp.setStartMode(DebuggerStartMode(startMode));
+    rp.setToolChainAbi(Abi(Abi::ArmArchitecture, Abi::OS(os)));
+
+    const Result<QString> result = mcpMemoryAccessGrant(rp, address, length);
+    if (grant.isEmpty()) {
+        QVERIFY2(!result, qPrintable(result ? *result : QString()));
+        QVERIFY(!result.error().isEmpty());
+    } else {
+        QVERIFY2(result, qPrintable(result ? QString() : result.error()));
+        QCOMPARE(*result, grant);
+    }
+}
+
+// A buffer whose bytes say which offset they are at.
+static const char s_memorySource[] = R"CPP(
+int main()
+{
+    unsigned char pattern[64];
+    for (int i = 0; i < 64; ++i)
+        pattern[i] = (unsigned char)i;
+    int first = pattern[0]; // MARKER: read
+    return first;
+}
+)CPP";
+
+void DebuggerUnitTests::testMcpReadsMemory_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpReadsMemory()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    CommonSettings &s = commonSettings();
+    const int oldAccess = s.mcpMemoryAccess();
+    const int oldLimit = s.mcpMemoryReadLimit();
+    const QScopeGuard restore([&] {
+        s.mcpMemoryAccess.setValue(oldAccess);
+        s.mcpMemoryReadLimit.setValue(oldLimit);
+    });
+    s.mcpMemoryAccess.setValue(CommonSettings::McpMemoryOfProcesses);
+    s.mcpMemoryReadLimit.setValue(4096);
+
+    SteppingSession session(s_memorySource);
+    const QString problem = session.start("MARKER: read");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> locals = callDebuggerTool("debugger_get_variables");
+    QVERIFY2(locals, qPrintable(errorOf(locals)));
+    const QString patternAddress = variableNamed(*locals, "pattern").value("address").toString();
+    QVERIFY2(patternAddress.startsWith("0x"),
+             QJsonDocument(*locals).toJson(QJsonDocument::Compact).constData());
+
+    const Result<QJsonObject> read = callDebuggerTool(
+        "debugger_read_memory", {{"address", patternAddress}, {"length", 16}});
+    QVERIFY2(read, qPrintable(errorOf(read)));
+    QCOMPARE(read->value("access").toString(), QString("process_memory"));
+    QCOMPARE(read->value("bytes_read").toInt(), 16);
+    QVERIFY(!read->value("truncated").toBool());
+    const QJsonArray segments = read->value("segments").toArray();
+    QCOMPARE(segments.size(), 1);
+    QVERIFY(segments.first().toObject().value("readable").toBool());
+    QCOMPARE(segments.first().toObject().value("data").toString(),
+             QString("000102030405060708090a0b0c0d0e0f"));
+
+    // Address zero is mapped in no process.
+    const Result<QJsonObject> unmapped
+        = callDebuggerTool("debugger_read_memory", {{"address", 0}, {"length", 16}});
+    QVERIFY2(unmapped, qPrintable(errorOf(unmapped)));
+    QCOMPARE(unmapped->value("bytes_read").toInt(), 0);
+    int unreadable = 0;
+    for (const QJsonValue &v : unmapped->value("segments").toArray()) {
+        const QJsonObject segment = v.toObject();
+        QVERIFY(!segment.value("readable").toBool());
+        QVERIFY(!segment.contains("data"));
+        QVERIFY(!segment.value("reason").toString().isEmpty());
+        unreadable += segment.value("length").toInt();
+    }
+    QCOMPARE(unreadable, 16);
+
+    // A whole page that cannot be read is one range, not one per byte.
+    const Result<QJsonObject> unmappedPage
+        = callDebuggerTool("debugger_read_memory", {{"address", 0}, {"length", 4096}});
+    QVERIFY2(unmappedPage, qPrintable(errorOf(unmappedPage)));
+    QCOMPARE(unmappedPage->value("bytes_read").toInt(), 0);
+    QCOMPARE(unmappedPage->value("segments").toArray().size(), 1);
+
+    // GDB does not say which address failed, so what shows the cost of
+    // retrying is how many reads it is sent. Another read at an address the
+    // retries never touch marks where those of the page end in the log.
+    if (session.engine()->debuggerName().startsWith("GDB")) {
+        const Result<QJsonObject> marker
+            = callDebuggerTool("debugger_read_memory", {{"address", 0x2000}, {"length", 8}});
+        QVERIFY2(marker, qPrintable(errorOf(marker)));
+        const QString first = "-data-read-memory 0x0 x 1 1 4096";
+        const QString last = "-data-read-memory 0x2000 x 1 1 8";
+        QTRY_VERIFY(session.engine()->logContents().contains(last));
+        const QString log = session.engine()->logContents();
+        const qsizetype start = log.indexOf(first);
+        QVERIFY(start >= 0);
+        const QString between = log.mid(start + first.size(), log.indexOf(last) - start);
+        QVERIFY2(between.count("-data-read-memory") <= 2,
+                 qPrintable(QString("%1 more reads for one unreadable page")
+                                .arg(between.count("-data-read-memory"))));
+    }
+
+    s.mcpMemoryReadLimit.setValue(8);
+    const Result<QJsonObject> limited = callDebuggerTool(
+        "debugger_read_memory", {{"address", patternAddress}, {"length", 16},
+                                 {"encoding", "base64"}});
+    QVERIFY2(limited, qPrintable(errorOf(limited)));
+    QVERIFY(limited->value("truncated").toBool());
+    QCOMPARE(limited->value("length").toInt(), 8);
+    QCOMPARE(limited->value("requested_length").toInt(), 16);
+    QCOMPARE(limited->value("next_address").toString().toULongLong(nullptr, 16),
+             patternAddress.toULongLong(nullptr, 16) + 8);
+    QCOMPARE(QByteArray::fromBase64(limited->value("segments").toArray().first().toObject()
+                                        .value("data").toString().toLatin1()),
+             QByteArray::fromHex("0001020304050607"));
+
+    s.mcpMemoryAccess.setValue(CommonSettings::McpMemoryNever);
+    const Result<QJsonObject> refused = callDebuggerTool(
+        "debugger_read_memory", {{"address", patternAddress}, {"length", 4}});
+    QVERIFY(!refused);
+}
+
+// The last 8 bytes of a page, followed by one that is not mapped.
+static const char s_pageEdgeSource[] = R"CPP(
+#include <sys/mman.h>
+#include <unistd.h>
+
+int main()
+{
+    const long page = sysconf(_SC_PAGESIZE);
+    unsigned char *pages = (unsigned char *)mmap(nullptr, 2 * page, PROT_READ | PROT_WRITE,
+                                                 MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    for (long i = 0; i < page; ++i)
+        pages[i] = (unsigned char)i;
+    munmap(pages + page, page);
+    unsigned long long edge = (unsigned long long)(pages + page - 8);
+    int first = pages[0]; // MARKER: edge
+    return first + int(edge & 0);
+}
+)CPP";
+
+void DebuggerUnitTests::testMcpReadsMemoryUpToAnUnmappedPage_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpReadsMemoryUpToAnUnmappedPage()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    Toolchain *toolchain = nullptr;
+    if (const QString reason = preCheckStepTests(nullptr, &toolchain); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    if (toolchain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        QSKIP("The program maps its pages with mmap, which MSVC has none of.");
+
+    CommonSettings &s = commonSettings();
+    const int oldAccess = s.mcpMemoryAccess();
+    const QScopeGuard restore([&] { s.mcpMemoryAccess.setValue(oldAccess); });
+    s.mcpMemoryAccess.setValue(CommonSettings::McpMemoryOfProcesses);
+
+    SteppingSession session(s_pageEdgeSource);
+    const QString problem = session.start("MARKER: edge");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> locals = callDebuggerTool("debugger_get_variables");
+    QVERIFY2(locals, qPrintable(errorOf(locals)));
+    bool ok = false;
+    const quint64 edge = variableNamed(*locals, "edge").value("value").toString()
+                             .toULongLong(&ok, 0);
+    QVERIFY2(ok && edge != 0, QJsonDocument(*locals).toJson(QJsonDocument::Compact).constData());
+
+    const Result<QJsonObject> read = callDebuggerTool(
+        "debugger_read_memory", {{"address", QString("0x%1").arg(edge, 0, 16)}, {"length", 16}});
+    QVERIFY2(read, qPrintable(errorOf(read)));
+    const QByteArray json = QJsonDocument(*read).toJson(QJsonDocument::Compact);
+    QCOMPARE(read->value("bytes_read").toInt(), 8);
+    const QJsonArray segments = read->value("segments").toArray();
+    QVERIFY2(segments.size() >= 2, json.constData());
+    const QJsonObject readable = segments.first().toObject();
+    QVERIFY2(readable.value("readable").toBool(), json.constData());
+    QCOMPARE(readable.value("length").toInt(), 8);
+    QCOMPARE(readable.value("data").toString(), QString("f8f9fafbfcfdfeff"));
+    int unreadable = 0;
+    for (qsizetype i = 1; i < segments.size(); ++i) {
+        const QJsonObject segment = segments.at(i).toObject();
+        QVERIFY2(!segment.value("readable").toBool(), json.constData());
+        unreadable += segment.value("length").toInt();
+    }
+    QCOMPARE(unreadable, 8);
+}
+
+void DebuggerUnitTests::testMcpEvaluatesAnExpressionOfTheCurrentStop_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpEvaluatesAnExpressionOfTheCurrentStop()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: after-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const auto evaluate = [](const QString &expression) {
+        return callDebuggerTool("debugger_evaluate_expression", {{"expression", expression}});
+    };
+
+    const Result<QJsonObject> second = evaluate("second");
+    QVERIFY2(second, qPrintable(errorOf(second)));
+    QCOMPARE(second->value("value").toString(), QString("2"));
+    QCOMPARE(second->value("type").toString(), QString("int"));
+    QVERIFY(stopIdOf(*second) > 0);
+
+    const Result<QJsonObject> sum = evaluate("first + second");
+    QVERIFY2(sum, qPrintable(errorOf(sum)));
+    QCOMPARE(sum->value("value").toString(), QString("3"));
+
+    // An expression the user watches already is answered, and stays watched.
+    const Result<QJsonObject> watched
+        = callDebuggerTool("debugger_add_watch_expression", {{"expression", "first"}});
+    QVERIFY2(watched, qPrintable(errorOf(watched)));
+    const QString watchIname = watched->value("iname").toString();
+    const QScopeGuard unwatch([watchIname] {
+        callDebuggerTool("debugger_remove_watch_expression", {{"iname", watchIname}});
+    });
+    const Result<QJsonObject> first = evaluate("first");
+    QVERIFY2(first, qPrintable(errorOf(first)));
+    QCOMPARE(first->value("value").toString(), QString("1"));
+    const Result<QJsonObject> variables
+        = callDebuggerTool("debugger_get_variables", {{"include_watchers", true}});
+    QVERIFY2(variables, qPrintable(errorOf(variables)));
+    bool stillWatched = false;
+    for (const QJsonValue &v : variables->value("variables").toArray())
+        stillWatched |= v.toObject().value("iname").toString() == watchIname;
+    QVERIFY(stillWatched);
+}
+
+void DebuggerUnitTests::testMcpEvaluationKeepsTheUsersWatch_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpEvaluationKeepsTheUsersWatch()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    const QString expression = "second";
+    QVERIFY2(!WatchHandler::isWatched(expression),
+             "a watch of \"second\" is left from an earlier run; remove it in the session");
+    {
+        SteppingSession session;
+        const QString problem = session.start("MARKER: after-call");
+        QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+        // Evaluating adds and removes a watcher of its own.
+        const Result<QJsonObject> evaluated
+            = callDebuggerTool("debugger_evaluate_expression", {{"expression", expression}});
+        QVERIFY2(evaluated, qPrintable(errorOf(evaluated)));
+
+        const Result<QJsonObject> watched
+            = callDebuggerTool("debugger_add_watch_expression", {{"expression", expression}});
+        QVERIFY2(watched, qPrintable(errorOf(watched)));
+    }
+
+    // The session has ended; the user's watch outlives it.
+    QVERIFY(WatchHandler::watchedExpressions().contains(expression));
+
+    // It is there in the next session, which is also where it can be removed.
+    SteppingSession next;
+    const QString problem = next.start("MARKER: after-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+    const Result<QJsonObject> variables
+        = callDebuggerTool("debugger_get_variables", {{"include_watchers", true}});
+    QVERIFY2(variables, qPrintable(errorOf(variables)));
+    QString iname;
+    for (const QJsonValue &v : variables->value("variables").toArray()) {
+        const QJsonObject variable = v.toObject();
+        if (variable.value("iname").toString().startsWith("watch.")
+            && variable.value("name").toString() == expression) {
+            iname = variable.value("iname").toString();
+        }
+    }
+    QVERIFY2(!iname.isEmpty(), "the watch is not there in the next session");
+    const Result<QJsonObject> removed
+        = callDebuggerTool("debugger_remove_watch_expression", {{"iname", iname}});
+    QVERIFY2(removed, qPrintable(errorOf(removed)));
+    QVERIFY(!WatchHandler::isWatched(expression));
+}
+
+void DebuggerUnitTests::testMcpEvaluationsShareATemporaryWatch_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpEvaluationsShareATemporaryWatch()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: after-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    // Two evaluations of the same expression at once wait on one watcher, and
+    // the first to answer must not take it from the other.
+    const QString shared = "second + 1";
+    QVERIFY(!WatchHandler::isWatched(shared));
+    std::optional<Result<QJsonObject>> first;
+    std::optional<Result<QJsonObject>> other;
+    callMcpToolForTests("debugger_evaluate_expression", {{"expression", shared}},
+                        [&first](Result<QJsonObject> result) { first = result; });
+    callMcpToolForTests("debugger_evaluate_expression", {{"expression", shared}},
+                        [&other](Result<QJsonObject> result) { other = result; });
+    QVERIFY(QTest::qWaitFor([&] { return first && other; }, 60000));
+    QVERIFY2(*first, qPrintable(errorOf(*first)));
+    QVERIFY2(*other, qPrintable(errorOf(*other)));
+    QCOMPARE((*other)->value("value").toString(), (*first)->value("value").toString());
+    QVERIFY(!WatchHandler::isWatched(shared));
+
+    // A watch the user adds while an evaluation waits is the user's.
+    const QString kept = "second + 2";
+    QVERIFY(!WatchHandler::isWatched(kept));
+    std::optional<Result<QJsonObject>> evaluated;
+    std::optional<Result<QJsonObject>> watched;
+    callMcpToolForTests("debugger_evaluate_expression", {{"expression", kept}},
+                        [&evaluated](Result<QJsonObject> result) { evaluated = result; });
+    callMcpToolForTests("debugger_add_watch_expression", {{"expression", kept}},
+                        [&watched](Result<QJsonObject> result) { watched = result; });
+    QVERIFY(QTest::qWaitFor([&] { return evaluated && watched; }, 60000));
+    QVERIFY2(*evaluated, qPrintable(errorOf(*evaluated)));
+    QVERIFY2(*watched, qPrintable(errorOf(*watched)));
+    QVERIFY(WatchHandler::isWatched(kept));
+    const QString iname = session.engine()->watchHandler()->watcherName(kept);
+    QVERIFY(session.engine()->watchHandler()->findItem(iname));
+    const Result<QJsonObject> removed
+        = callDebuggerTool("debugger_remove_watch_expression", {{"iname", iname}});
+    QVERIFY2(removed, qPrintable(errorOf(removed)));
+    QVERIFY(!WatchHandler::isWatched(kept));
+}
+
+static QJsonObject capabilityNamed(const QJsonObject &answer, const QString &name)
+{
+    for (const QJsonValue &c : answer.value("capabilities").toArray()) {
+        if (c.toObject().value("name").toString() == name)
+            return c.toObject();
+    }
+    return {};
+}
+
+void DebuggerUnitTests::testMcpReportsCapabilities_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testMcpReportsCapabilities()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    CommonSettings &s = commonSettings();
+    const int oldAccess = s.mcpMemoryAccess();
+    const QScopeGuard restore([&] { s.mcpMemoryAccess.setValue(oldAccess); });
+    s.mcpMemoryAccess.setValue(CommonSettings::McpMemoryOfProcesses);
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: at-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    const Result<QJsonObject> paused = callDebuggerTool("debugger_get_capabilities");
+    QVERIFY2(paused, qPrintable(errorOf(paused)));
+    QVERIFY(paused->value("has_session").toBool());
+
+    const QJsonObject env = paused->value("environment").toObject();
+    QVERIFY2(env.value("debugger").toString().contains("LLDB", Qt::CaseInsensitive)
+                 || !HostOsInfo::isMacHost(),
+             qPrintable(env.value("debugger").toString()));
+    QCOMPARE(env.value("target_architecture").toString(),
+             Abi::toString(Abi::hostAbi().architecture()));
+    QCOMPARE(env.value("target_os").toString(), Abi::toString(Abi::hostAbi().os()));
+    QCOMPARE(env.value("connection_type").toString(), QString("local"));
+    QCOMPARE(env.value("session_type").toString(), QString("launch"));
+
+    const QStringList availableWhilePaused{"execution_control", "call_stack", "variables",
+                                           "registers", "memory_read", "threads"};
+    for (const QString &name : availableWhilePaused) {
+        const QJsonObject c = capabilityNamed(*paused, name);
+        QCOMPARE(c.value("status").toString() + ' ' + name, "available " + name);
+        QVERIFY(c.value("exposed").toBool());
+    }
+    QCOMPARE(capabilityNamed(*paused, "memory_read").value("permission").toString(),
+             QString("granted"));
+    QCOMPARE(capabilityNamed(*paused, "reverse_stepping").value("status").toString(),
+             QString("not_exposed"));
+
+    s.mcpMemoryAccess.setValue(CommonSettings::McpMemoryNever);
+    const Result<QJsonObject> denied = callDebuggerTool("debugger_get_capabilities");
+    QVERIFY2(denied, qPrintable(errorOf(denied)));
+    const QJsonObject memory = capabilityNamed(*denied, "memory_read");
+    QCOMPARE(memory.value("status").toString(), QString("permission_denied"));
+    QCOMPARE(memory.value("backend_support").toString(), QString("supported"));
+    QVERIFY(!memory.value("reason").toString().isEmpty());
+
+    // Once the program has run to its end, nothing that needs a stop is available.
+    const Result<QJsonObject> ran
+        = callDebuggerTool("debugger_continue", {{"wait_for_completion", true}});
+    QVERIFY2(ran, qPrintable(errorOf(ran)));
+    QCOMPARE(ran->value("status").toString(), QString("failed"));
+    const Result<QJsonObject> ended = callDebuggerTool("debugger_get_capabilities");
+    QVERIFY2(ended, qPrintable(errorOf(ended)));
+    QCOMPARE(capabilityNamed(*ended, "call_stack").value("status").toString(),
+             QString("invalid_state"));
+}
+
+void DebuggerUnitTests::testDisabledBreakpointDoesNotStop_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testDisabledBreakpointDoesNotStop()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    // A disabled breakpoint on a line that runs before the marker: if it
+    // stops the program, the session never gets to the marker.
+    BreakpointParameters params;
+    params.type = BreakpointByFileAndLine;
+    params.fileName = session.sourceFile();
+    params.textPosition = {session.markerLine("MARKER: at-call") - 1, -1};
+    params.enabled = false;
+    const GlobalBreakpoint disabled = BreakpointManager::createBreakpoint(params);
+    QVERIFY(disabled);
+    session.keepBreakpoint(disabled);
+    // cdb takes a breakpoint on a file of the same name in another directory
+    // for one on this file, and the two end up on the same address. Disabling
+    // that one must not disable the session's own.
+    QTemporaryDir otherDir;
+    QVERIFY(otherDir.isValid());
+    params.fileName = FilePath::fromString(otherDir.path()) / "stepping.cpp";
+    params.textPosition = {session.markerLine("MARKER: at-call"), -1};
+    const GlobalBreakpoint elsewhere = BreakpointManager::createBreakpoint(params);
+    QVERIFY(elsewhere);
+    session.keepBreakpoint(elsewhere);
+    const QScopeGuard remove([disabled, elsewhere] {
+        if (disabled)
+            disabled->deleteBreakpoint();
+        if (elsewhere)
+            elsewhere->deleteBreakpoint();
+    });
+
+    const QString problem = session.start("MARKER: at-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
 }
 
 static QStringList s_capturedMessages;
@@ -2528,8 +4541,10 @@ void DebuggerUnitTests::testASkippedTopFrameNamesItsMissingSource()
     const QStringList frames
         = {R"({level="0",function="abort",file="/usr/src/abort.c",usable="0"})",
            R"({level="1",function="main",file="/src/main.cpp",usable="1"})"};
-    const auto mentions = [engine] {
-        return engine->logWindow()->inputContents().count("/usr/src/abort.c");
+    // As the message shows it: with backslashes on Windows.
+    const QString skippedFile = FilePath::fromUserInput("/usr/src/abort.c").toUserOutput();
+    const auto mentions = [engine, skippedFile] {
+        return engine->logWindow()->inputContents().count(skippedFile);
     };
 
     engine->stackHandler()->setFramesAndCurrentIndex(stackReply(frames), true);
@@ -2572,6 +4587,37 @@ void DebuggerUnitTests::testSkippedMachineryFramesStaySilent()
                                        .arg(engine->logWindow()->inputContents()
                                                 .mid(before.size()))));
     }
+}
+
+void DebuggerUnitTests::testAFailedRunRestoresOnlyAPendingReset()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard cleanup([engine] { delete engine; });
+    engine->setRunParameters({});
+    StackHandler *stack = engine->stackHandler();
+
+    // The frames of the stop the run reached complete the reset.
+    stack->scheduleResetLocation();
+    stack->setFramesAndCurrentIndex(
+        stackReply({R"({level="0",function="main",file="/src/main.cpp",usable="1"})"}), true);
+    QVERIFY(stack->isContentsValid());
+
+    // A run that did not reset anything has nothing to restore.
+    stack->cancelResetLocation();
+    QVERIFY(stack->isContentsValid());
+
+    stack->scheduleResetLocation();
+    QVERIFY(!stack->isContentsValid());
+    stack->cancelResetLocation();
+    QVERIFY(stack->isContentsValid());
+
+    // Once the target ran, a later failed run does not bring back the stack
+    // of the stop before.
+    stack->scheduleResetLocation();
+    stack->commitResetLocation();
+    stack->cancelResetLocation();
+    QVERIFY(!stack->isContentsValid());
 }
 
 void DebuggerUnitTests::testTheDisassemblyMessageIsSaidOncePerStop()
@@ -2868,6 +4914,307 @@ void DebuggerUnitTests::testCombinedEngineNeedsNoQmlChannel()
 
     QVERIFY(usesQmlChannel(false));
     QVERIFY(!usesQmlChannel(true));
+}
+
+static const char s_parentlessObjectSource[] = R"(import QtQuick
+
+Item {
+    id: root
+    property QtObject host: null
+    property Component hostComponent: Component {
+        QtObject {
+            id: host
+            property QtObject orphan: null
+            property Component orphanComponent: Component {
+                QtObject {
+                    id: orphanObject
+                    property int orphanValue: 7
+                }
+            }
+            Component.onCompleted: host.orphan = orphanComponent.createObject(null)
+        }
+    }
+    Component.onCompleted: root.host = hostComponent.createObject(null)
+}
+)";
+
+// Parentless objects are fetched again whenever the object tree is rebuilt,
+// which happens after each burst of object creations. Their properties must
+// wait for the expansion, or the application keeps dumping them.
+void DebuggerUnitTests::testQmlInspectorLeavesParentlessObjectsCollapsed()
+{
+    Kit *kit = kitWithAQt();
+    if (!kit)
+        QSKIP("This test needs a kit with a Qt to run qml from.");
+    const FilePath qml = (QtSupport::QtKitAspect::qtVersion(kit)->binPath() / "qml")
+                             .withExecutableSuffix();
+    if (!qml.isExecutableFile())
+        QSKIP("The Qt of this kit has no qml tool.");
+    if (!settings().showQmlObjectTree())
+        QSKIP("The QML object tree is switched off.");
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath source = FilePath::fromString(dir.path()) / "main.qml";
+    QVERIFY(source.writeFileContents(QByteArray(s_parentlessObjectSource)));
+
+    quint16 port = 0;
+    {
+        QTcpServer probe;
+        QVERIFY(probe.listen(QHostAddress::LocalHost));
+        port = probe.serverPort();
+    }
+    Process inferior;
+    inferior.setCommand({qml, {QString("-qmljsdebugger=port:%1,block").arg(port),
+                               source.nativePath()}});
+    inferior.start();
+    QVERIFY(inferior.waitForStarted());
+
+    const QList<QPointer<DebuggerEngine>> before = EngineManager::engines();
+    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl->setKit(kit);
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+    QUrl server;
+    server.setScheme(Utils::urlTcpScheme());
+    server.setHost("127.0.0.1");
+    server.setPort(port);
+    rp.setQmlServer(server);
+    rp.setStartMode(AttachToQmlServer);
+    connect(runControl, &RunControl::stopped,
+            &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
+    runControl->setRunRecipe(debuggerRecipe(runControl, rp));
+    runControl->start();
+
+    const QScopeGuard stop([runControl, &inferior] {
+        runControl->initiateStop();
+        QTestEventLoop::instance().enterLoop(30);
+        inferior.kill();
+        inferior.waitForFinished();
+    });
+
+    QPointer<DebuggerEngine> engine;
+    const auto findOrphan = [&engine, &before]() -> WatchItem * {
+        for (const QPointer<DebuggerEngine> &candidate : EngineManager::engines()) {
+            if (candidate && !before.contains(candidate))
+                engine = candidate;
+        }
+        if (!engine)
+            return nullptr;
+        WatchItem *inspect = engine->watchHandler()->findItem("inspect");
+        if (!inspect)
+            return nullptr;
+        return inspect->findAnyChild([](TreeItem *item) {
+            return static_cast<WatchItem *>(item)->name == "orphanObject";
+        });
+    };
+    QTRY_VERIFY_WITH_TIMEOUT(findOrphan(), 30000);
+    const QString orphanIName = findOrphan()->iname;
+    const QString propertiesIName = orphanIName + ".[properties]";
+
+    WatchHandler *watchHandler = engine->watchHandler();
+    QVERIFY2(!watchHandler->findItem(propertiesIName),
+             "a collapsed parentless object reported its properties anyway");
+
+    watchHandler->fetchMore(orphanIName);
+    QTRY_VERIFY_WITH_TIMEOUT(watchHandler->findItem(propertiesIName + ".orphanValue"), 30000);
+}
+
+// Objects made with createObject(null) have no parent to hang them under the
+// engine, so the inspector shows them at its top level. The test starts the
+// churning only after the ticks: a new object makes the inspector fetch the
+// tree again, which brings every value along whether or not its change came
+// through.
+static const char s_parentlessObjectsQml[] = R"QML(
+import QtQuick
+import QtQuick.Window
+
+Window {
+    id: root
+    property int ticks: 0
+    property int churns: 0
+    property bool churning: false
+    property var ticking
+    property var churned
+    property QtObject box: QtObject {
+        id: holder
+        property QtObject inner: QtObject { id: nested; property int tick: root.ticks }
+    }
+
+    Component {
+        id: tickingComponent
+        QtObject { id: tickingOrphan; property int tick: root.ticks }
+    }
+    Component {
+        id: churnedComponent
+        QtObject { id: churnedOrphan; property QtObject child: QtObject { id: orphanChild } }
+    }
+    Timer {
+        interval: 100
+        repeat: true
+        running: true
+        onTriggered: ++root.ticks
+    }
+    Timer {
+        interval: 400
+        repeat: true
+        running: root.churning
+        onTriggered: {
+            if (root.churned)
+                root.churned.destroy()
+            root.churned = churnedComponent.createObject(null)
+            ++root.churns
+        }
+    }
+    Component.onCompleted: ticking = tickingComponent.createObject(null)
+}
+)QML";
+
+// The item Locals shows for a property of the inspected object with the given
+// QML id. Asks for the properties when they are not there yet.
+static WatchItem *inspectedItem(DebuggerEngine *engine, const QString &id,
+                                const QString &property)
+{
+    WatchHandler *handler = engine->watchHandler();
+    const WatchItem *root = handler->findItem("inspect");
+    if (!root)
+        return nullptr;
+    const WatchItem *object = root->findAnyChild([&id](TreeItem *item) {
+        return static_cast<WatchItem *>(item)->name == id;
+    });
+    if (!object)
+        return nullptr;
+    if (WatchItem *item = handler->findItem(object->iname + ".[properties]." + property))
+        return item;
+    handler->fetchMore(object->iname);
+    return nullptr;
+}
+
+static std::optional<int> inspectedProperty(DebuggerEngine *engine, const QString &id,
+                                            const QString &property)
+{
+    if (const WatchItem *item = inspectedItem(engine, id, property)) {
+        bool ok = false;
+        const int value = item->value.toInt(&ok);
+        if (ok)
+            return value;
+    }
+    return {};
+}
+
+void DebuggerUnitTests::testInspectorFollowsParentlessObjects()
+{
+    Kit *kit = kitWithAQt();
+    if (!kit)
+        QSKIP("This test needs a kit with a Qt to run qml from.");
+    const FilePath qml = QtSupport::QtKitAspect::qtVersion(kit)->qmlRuntimeFilePath();
+    if (!qml.isExecutableFile())
+        QSKIP("The Qt of the kit has no qml runtime.");
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath mainQml = FilePath::fromString(dir.path()) / "Main.qml";
+    QVERIFY(mainQml.writeFileContents(s_parentlessObjectsQml));
+
+    // Nothing here can answer the dialog about breakpoints that do not apply.
+    const bool warnedAboutBreakpoints = settings().showUnsupportedBreakpointWarning();
+    settings().showUnsupportedBreakpointWarning.setValue(false);
+    const QScopeGuard restore([warnedAboutBreakpoints] {
+        settings().showUnsupportedBreakpointWarning.setValue(warnedAboutBreakpoints);
+    });
+
+    const QList<QPointer<DebuggerEngine>> before = EngineManager::engines();
+    QPointer<RunControl> runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl->setKit(kit);
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+    rp.setCppEngineType(NoEngineType);
+    rp.setQmlDebugging(true);
+    rp.setInferior(ProcessRunData{CommandLine{qml, {mainQml.nativePath()}}, mainQml.parentDir()});
+    rp.setInferiorEnvironment(Environment::systemEnvironment());
+    rp.setStartMode(StartExternal);
+    connect(runControl, &RunControl::stopped,
+            &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
+    runControl->setRunRecipe(debuggerRecipe(runControl, rp));
+    runControl->start();
+    const QScopeGuard stop([runControl] {
+        if (runControl && runControl->isRunning()) {
+            runControl->initiateStop();
+            QTestEventLoop::instance().enterLoop(30);
+        }
+    });
+
+    QPointer<DebuggerEngine> engine;
+    const bool running = QTest::qWaitFor([&engine, &before] {
+        for (const QPointer<DebuggerEngine> &candidate : EngineManager::engines()) {
+            if (candidate && !before.contains(candidate)
+                && candidate->objectName() == "QmlEngine") {
+                engine = candidate;
+            }
+        }
+        return engine && engine->state() == InferiorRunOk;
+    }, 60000);
+    QVERIFY2(running, "the QML session never came up");
+    const QmlInspectorAgent &agent = static_cast<QmlEngine *>(engine.data())->inspectorAgent();
+
+    std::optional<int> firstTick;
+    QVERIFY2(QTest::qWaitFor([&] {
+        return bool(firstTick = inspectedProperty(engine, "tickingOrphan", "tick"));
+    }, 30000), "the parentless object never showed its properties");
+    // Changes come in batches, the root's and the orphan's of one tick together.
+    std::optional<int> ticks;
+    QVERIFY2(QTest::qWaitFor([&] {
+        ticks = inspectedProperty(engine, "root", "ticks");
+        return ticks && *ticks >= *firstTick + 3;
+    }, 10000), "the ticks of the root object never moved in Locals");
+    const std::optional<int> tick = inspectedProperty(engine, "tickingOrphan", "tick");
+    QVERIFY2(tick && *tick != *firstTick,
+             "a change of the parentless object never reached Locals");
+
+    // An object two levels down an expanded subtree must keep its watch while
+    // the churning rebuilds the tree.
+    QVERIFY2(QTest::qWaitFor([&] {
+        return inspectedItem(engine, "holder", "inner")
+               && inspectedProperty(engine, "nested", "tick");
+    }, 30000), "the nested object never showed its properties");
+    const int nestedId = inspectedItem(engine, "nested", "tick")->id;
+    const quint32 nestedWatch = agent.m_objectWatches.value(nestedId);
+    QVERIFY(nestedWatch);
+
+    // Each churn destroys an object whose child is watched as well. The watches
+    // of the destroyed ones must go away. How many watches the live objects
+    // need depends on how often the tree gets rebuilt, so follow the watches
+    // of one churned object rather than the count.
+    WatchItem *churning = inspectedItem(engine, "root", "churning");
+    QVERIFY(churning);
+    engine->assignValueInDebugger(churning, "churning", "true");
+    QSet<int> churnedWatches;
+    QVERIFY2(QTest::qWaitFor([&] {
+        const WatchItem *root = engine->watchHandler()->findItem("inspect");
+        const WatchItem *churned = root ? root->findAnyChild([](TreeItem *item) {
+            return static_cast<WatchItem *>(item)->name == "churnedOrphan";
+        }) : nullptr;
+        if (!churned || !agent.m_objectWatches.contains(churned->id))
+            return false;
+        churnedWatches.insert(churned->id);
+        churned->forAllChildren([&](WatchItem *item) {
+            if (agent.m_objectWatches.contains(item->id))
+                churnedWatches.insert(item->id);
+        });
+        return true;
+    }, 30000), "the churned object was never watched");
+    std::optional<int> firstChurn;
+    QVERIFY2(QTest::qWaitFor([&] {
+        firstChurn = inspectedProperty(engine, "root", "churns");
+        return firstChurn && *firstChurn > 0;
+    }, 30000), "the churning never started");
+    QVERIFY2(QTest::qWaitFor([&] {
+        const std::optional<int> churn = inspectedProperty(engine, "root", "churns");
+        return churn && *churn >= *firstChurn + 16;
+    }, 30000), "the churn count stopped moving in Locals");
+    for (const int id : std::as_const(churnedWatches)) {
+        if (agent.m_objectWatches.contains(id))
+            QFAIL(qPrintable(QString("the destroyed object %1 kept its watch").arg(id)));
+    }
+    QCOMPARE(agent.m_objectWatches.value(nestedId), nestedWatch);
 }
 
 QObject *createDebuggerTest()

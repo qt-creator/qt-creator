@@ -5,21 +5,25 @@
 
 #include <QStringView>
 
+#include <bit>
+
 namespace Profiler::Internal {
 
 // The architectures whose user registers a "--call-graph dwarf" sample can
 // be unwound from (see PerfDwarfUnwinder).
 enum class PerfArchitecture { Unknown, X86_64, X86, Aarch64, Arm };
 
-// Where perf keeps an architecture's stack pointer and program counter among
-// the user registers it samples, by its own register numbers
-// (arch/*/include/uapi/asm/perf_regs.h), and how many of those there are.
+// Where perf keeps an architecture's stack pointer, program counter and link
+// register, if it has one, among the user registers it samples, by its own
+// register numbers (arch/*/include/uapi/asm/perf_regs.h), and how many of
+// those there are.
 struct PerfRegisterLayout
 {
     int count = 0;
     int sp = -1;
     int ip = -1;
     int wordSize = 8;
+    int lr = -1;
 };
 
 inline PerfRegisterLayout perfRegisterLayout(PerfArchitecture arch)
@@ -30,9 +34,9 @@ inline PerfRegisterLayout perfRegisterLayout(PerfArchitecture arch)
     case PerfArchitecture::X86:
         return {9, 7, 8, 4};   // PERF_REG_X86_SP, _IP; the 32-bit ones end at IP
     case PerfArchitecture::Aarch64:
-        return {33, 31, 32, 8}; // PERF_REG_ARM64_SP, _PC
+        return {33, 31, 32, 8, 30}; // PERF_REG_ARM64_SP, _PC, _LR
     case PerfArchitecture::Arm:
-        return {16, 13, 15, 4}; // PERF_REG_ARM_SP, _PC
+        return {16, 13, 15, 4, 14}; // PERF_REG_ARM_SP, _PC, _LR
     case PerfArchitecture::Unknown:
         break;
     }
@@ -53,6 +57,30 @@ inline PerfArchitecture perfArchitectureFromName(QStringView name)
     if (name.startsWith(u"arm"))
         return PerfArchitecture::Arm;
     return PerfArchitecture::Unknown;
+}
+
+// With pointer authentication, aarch64 return addresses carry a signature in
+// the bits above the address, up to bit 54. Where it starts depends on the
+// virtual address size the recording machine's kernel was built for: 39, 42,
+// 47, 48 or 52 bits. A recording does not say which, but none of the user
+// space addresses in it reaches into the signature, so everything above the
+// highest of them is taken to be signature. Where none is known, 48-bit
+// virtual addresses are assumed.
+inline quint64 aarch64PointerAuthenticationMask(quint64 highestUserAddress)
+{
+    constexpr quint64 belowSignatureEnd = (1ull << 55) - 1;
+    const int addressBits = highestUserAddress != 0 && highestUserAddress <= belowSignatureEnd
+                                ? std::bit_width(highestUserAddress)
+                                : 48;
+    return belowSignatureEnd & ~((1ull << addressBits) - 1);
+}
+
+inline quint64 withoutPointerAuthentication(PerfArchitecture arch, quint64 value,
+                                            quint64 highestUserAddress)
+{
+    return arch == PerfArchitecture::Aarch64
+               ? value & ~aarch64PointerAuthenticationMask(highestUserAddress)
+               : value;
 }
 
 inline PerfArchitecture hostPerfArchitecture()

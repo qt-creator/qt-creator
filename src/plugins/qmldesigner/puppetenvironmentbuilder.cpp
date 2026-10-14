@@ -267,7 +267,7 @@ void PuppetEnvironmentBuilder::addMcuItems() const
                                                 ->projectFilePath()
                                                 .parentDir();
         m_environment.set(QmlProjectManager::Constants::QMLPUPPET_ENV_PROJECT_ROOT,
-                          projectRoot.toUserOutput());
+                          projectRoot.nativePath());
     }
 }
 
@@ -281,7 +281,7 @@ void PuppetEnvironmentBuilder::addMcuFonts() const
     }
 
     m_environment.set(QmlProjectManager::Constants::QMLPUPPET_ENV_MCU_FONTS_DIR,
-                      mcuFontsDir->toUserOutput());
+                      mcuFontsDir->nativePath());
     const QString defaultFontFamily = DesignerMcuManager::defaultFontFamilyMCU();
     m_environment.set(QmlProjectManager::Constants::QMLPUPPET_ENV_DEFAULT_FONT_FAMILY,
                       defaultFontFamily);

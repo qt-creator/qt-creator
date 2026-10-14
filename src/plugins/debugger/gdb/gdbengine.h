@@ -291,7 +291,9 @@ private: ////////// General Interface //////////
         const QString &expr, const QVariant &value) final;
     void watchPoint(const QPoint &pnt) final;
 
-    void fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length) final;
+    std::optional<bool> registersFollowSelectedFrame() const override { return true; }
+    bool canReadMemory() const final { return true; }
+    void readMemory(quint64 addr, quint64 length, const MemoryReadCallback &callback) final;
     void fetchMemoryHelper(const MemoryAgentCookie &cookie);
     void changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray &data) final;
     void handleFetchMemory(const DebuggerResponse &response, MemoryAgentCookie ac);

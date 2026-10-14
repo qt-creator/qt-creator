@@ -300,6 +300,13 @@ QmlEngine::~QmlEngine()
     delete d;
 }
 
+#ifdef WITH_TESTS
+const QmlInspectorAgent &QmlEngine::inspectorAgent() const
+{
+    return d->inspectorAgent;
+}
+#endif
+
 void QmlEngine::setState(DebuggerState state, bool forced)
 {
     DebuggerEngine::setState(state, forced);

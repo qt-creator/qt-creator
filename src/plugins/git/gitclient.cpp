@@ -1445,10 +1445,10 @@ void GitClient::inlineDiffFileAgainst(const FilePath &workingDirectory, const QS
             gitClient().fetchUnstagedLines(topLevel, relativeFile, editorText, callback);
         };
     if (!openInlineDiff(topLevel, filePath, baseline,
-                        Tr::tr("%1 (Unstaged vs %2)").arg(filePath.fileName(), ref),
+                        Tr::tr("%1 (Unstaged vs. %2)").arg(filePath.fileName(), ref),
                         line)) {
         // classic diff of the working tree file against the revision
-        const QString title = Tr::tr("Git Diff \"%1\" vs \"%2\"").arg(relativeFile, ref);
+        const QString title = Tr::tr("Git Diff \"%1\" vs. \"%2\"").arg(relativeFile, ref);
         const QString documentId = gitDocumentId(".DiffFile.", filePath) + "." + ref;
         requestReload(documentId, filePath, title, topLevel,
                       [ref, relativeFile](IDocument *doc) {
@@ -1717,10 +1717,10 @@ void GitClient::inlineDiffRevisions(const FilePath &workingDirectory, const File
     QTC_ASSERT(!topLevel.isEmpty(), return);
     QTC_ASSERT(!rightRef.isEmpty() && !leftRef.isEmpty(), return);
 
-    const QString title = Tr::tr("%1 (%2 vs %3)").arg(
+    const QString title = Tr::tr("%1 (%2 vs. %3)").arg(
         filePath.fileName(), shortRefLabel(rightRef), shortRefLabel(leftRef));
     const auto classicFallback = [this, topLevel, filePath, rightRef, rightFileName, leftRef] {
-        const QString classicTitle = Tr::tr("Git Diff \"%1\" %2 vs %3")
+        const QString classicTitle = Tr::tr("Git Diff \"%1\" %2 vs. %3")
             .arg(rightFileName, shortRefLabel(rightRef), shortRefLabel(leftRef));
         const QString documentId = gitDocumentId(".DiffRevs.", filePath)
             + "." + leftRef + "." + rightRef;
@@ -3366,6 +3366,7 @@ void GitClient::tryLaunchingGitK(const Environment &env,
         process->setWorkingDirectory(workingDirectory);
         process->setEnvironment(env);
         process->setCommand({binary, arguments});
+        process->setEnvironmentExpansion(ProcessArgs::EnvExpansion::Literal);
         connect(process, &Process::done, this,
                 [this, process, env, workingDirectory, fileName, trial, gitBinDirectory] {
             if (process->result() == ProcessResult::StartFailed)
@@ -3417,6 +3418,7 @@ bool GitClient::launchGitGui(const FilePath &workingDirectory)
     auto process = new Process(const_cast<GitClient *>(this));
     process->setWorkingDirectory(workingDirectory);
     process->setCommand({gitBinary, {"gui"}});
+    process->setEnvironmentExpansion(ProcessArgs::EnvExpansion::Literal);
     connect(process, &Process::done, this, [process, cannotLaunchGitGui] {
         if (process->result() == ProcessResult::StartFailed) {
             const QString errorMessage = process->readAllStandardError();

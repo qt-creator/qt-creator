@@ -529,11 +529,11 @@ void addToEnvironment(const FilePath &sdkRoot, Environment &env)
 {
     const FilePath native = nativeSdkPath(sdkRoot);
     if (!native.isEmpty())
-        env.set(Constants::NATIVE_OHOS_SDK_ENV_VAR, native.toUserOutput());
+        env.set(Constants::NATIVE_OHOS_SDK_ENV_VAR, native.nativePath());
 
     const FilePath devEco = devEcoSdkHome(sdkRoot);
     if (!devEco.isEmpty())
-        env.set(Constants::DEVECO_SDK_HOME_ENV_VAR, devEco.toUserOutput());
+        env.set(Constants::DEVECO_SDK_HOME_ENV_VAR, devEco.nativePath());
 
     const FilePath hvigor = hvigorBinPath(sdkRoot);
     if (!hvigor.isEmpty())
@@ -542,7 +542,7 @@ void addToEnvironment(const FilePath &sdkRoot, Environment &env)
     // harmonydeployqt does not search PATH for hvigor; it needs this env var.
     const FilePath hvigorw = hvigorCommand(sdkRoot);
     if (!hvigorw.isEmpty())
-        env.set(Constants::HVIGOR_ENV_VAR, hvigorw.toUserOutput());
+        env.set(Constants::HVIGOR_ENV_VAR, hvigorw.nativePath());
 
     const FilePath node = nodeBinPath(sdkRoot);
     if (!node.isEmpty())

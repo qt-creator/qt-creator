@@ -25,6 +25,10 @@ public:
     void expressionEvaluated(quint32 queryId, const QVariant &result);
     Utils::FilePath toFileInProject(const QUrl &fileUrl);
 
+#ifdef WITH_TESTS
+    const QmlInspectorAgent &inspectorAgent() const;
+#endif
+
 private:
     void disconnected();
     void errorMessageBoxFinished(int result);

@@ -107,9 +107,9 @@ public:
         m_tabSettings.setPreferences(preferences);
 
         m_formatterNote = new InfoLabel(
-            Tr::tr("The cmake-format command lays a file out through its own configuration "
-                   "files, not through the style below. The style still indents what you type "
-                   "and the files the wizards write."));
+            Tr::tr("The cmake-format command formats files according to its own configuration "
+                   "files, not according to the style below. The style is still used for "
+                   "indenting typed text and files that wizards create."));
         m_formatterNote->setAlignment(Qt::AlignTop);
         m_formatterNote->setFilled(true);
         m_formatterNote->setElideMode(Qt::ElideNone);
@@ -123,14 +123,14 @@ public:
             Tr::tr("Space between a command name and \"(\""),
             Tr::tr("Writes message (STATUS \"...\") rather than message(STATUS \"...\")."));
         m_indentKeywordValues = addOption(
-            Tr::tr("Indent the values below a keyword of its own"),
-            Tr::tr("Gives the values that follow a line holding nothing but a keyword of the "
-                   "command a level of their own, the way the CMake files of Qt lay out "
-                   "SOURCES and the other lists."));
+            Tr::tr("Indent values below a keyword on its own line"),
+            Tr::tr("Indents the values that follow a line that contains only a keyword of the "
+                   "command by one more level, as in the SOURCES lists of Qt's CMake files."));
         m_keepCommentColumn = addOption(
             Tr::tr("Keep the column of a comment at the end of a line"),
             Tr::tr("Leaves the whitespace before such a comment as it is, so that comments "
-                   "lined up in a column stay lined up. Off, one space stands before each."));
+                   "lined up in a column stay lined up. When off, a single space is placed before "
+                   "each comment."));
 
         using namespace Layouting;
         Row {

@@ -523,8 +523,9 @@ FilePaths CMakeProjectImporter::presetCandidates()
             TaskHub::addTask<BuildSystemTask>(
                 Task::TaskType::DisruptingError,
                 Tr::tr("Cannot create the probe directory of CMake Preset \"%1\": %2")
-                    .arg(configPreset.displayName.value_or(configPreset.name),
-                         presetDirCreated.error()));
+                    .arg(
+                        configPreset.displayName.value_or(configPreset.name),
+                        presetDirCreated.error()));
             continue;
         }
         candidates << configPresetDir;
@@ -1200,8 +1201,9 @@ static SetupResult setupCompilerProcess(Process &process, InternalStorage &stora
             TaskHub::addTask<BuildSystemTask>(
                 Task::TaskType::DisruptingError,
                 Tr::tr("Cannot discard the stale compiler probe of CMake Preset \"%1\": %2")
-                    .arg(configurePreset.displayName.value_or(configurePreset.name),
-                         probeDiscarded.error()));
+                    .arg(
+                        configurePreset.displayName.value_or(configurePreset.name),
+                        probeDiscarded.error()));
             return SetupResult::StopWithError;
         }
 

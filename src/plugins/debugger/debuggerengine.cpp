@@ -754,7 +754,6 @@ public:
         m_debuggerName = Tr::tr("Debugger");
 
         m_logWindow = new LogWindow(m_engine); // Needed before start()
-        m_logWindow->setObjectName("Debugger.Dock.Output");
 
         connect(&settings().enableReverseDebugging, &BaseAspect::changed, this, [this] {
             updateState();
@@ -911,6 +910,21 @@ public:
         m_locationTimer.start(80);
     }
 
+    // The target stayed where it was, so what it showed there still holds.
+    void cancelResetLocation()
+    {
+        m_locationTimer.stop();
+        m_stackHandler.cancelResetLocation();
+        m_watchHandler.cancelResetLocation();
+    }
+
+    // The target ran, so what it showed before is not to be restored any more.
+    void commitResetLocation()
+    {
+        m_stackHandler.commitResetLocation();
+        m_watchHandler.commitResetLocation();
+    }
+
     void resetLocation()
     {
         m_lookupRequests.clear();
@@ -987,6 +1001,7 @@ public:
     QPointer<QWidget> m_watchersWindow;
     QPointer<QWidget> m_inspectorWindow;
     QPointer<QWidget> m_registerWindow;
+    bool m_registersWantedWhileHidden = false;
     QPointer<QWidget> m_peripheralRegisterWindow;
     QPointer<QWidget> m_modulesWindow;
     QPointer<QWidget> m_sourceFilesWindow;
@@ -1055,8 +1070,8 @@ void DebuggerEnginePrivate::setupViews()
 
     Perspective *currentPerspective = PerspectivesView::instance()->currentPerspective();
 
-    const QString perspectiveId = "Debugger.Perspective." + m_runId + '.' + m_debuggerName;
-    const QString settingsId = "Debugger.Perspective." + m_debuggerName;
+    const QString perspectiveId = "Debugger.Perspective." + m_runId + '.' + engineId;
+    const QString settingsId = "Debugger.Perspective.v2." + engineId;
     const QString parentPerspectiveId = currentPerspective ? currentPerspective->id()
                                                            : Constants::PRESET_PERSPECTIVE_ID;
 
@@ -1108,6 +1123,8 @@ void DebuggerEnginePrivate::setupViews()
             this, &DebuggerEnginePrivate::resetLocation);
 
     QtcSettings *settings = ICore::settings();
+
+    m_logWindow->setObjectName("Debugger.Dock.Output." + engineId);
 
     m_modulesView = new BaseTreeView;
     m_modulesView->setModel(m_modulesHandler.model());
@@ -1382,6 +1399,11 @@ DebuggerEngine::~DebuggerEngine()
     delete d;
 }
 
+void DebuggerEngine::destroyPerspective()
+{
+    d->destroyPerspective();
+}
+
 void DebuggerEngine::setDebuggerName(const QString &name)
 {
     d->m_debuggerName = name;
@@ -1459,8 +1481,21 @@ void DebuggerEngine::updateLocalsWindow(bool showReturn)
 
 bool DebuggerEngine::isRegistersWindowVisible() const
 {
+    if (d->m_registersWantedWhileHidden)
+        return true;
     QTC_ASSERT(d->m_registerWindow, return false);
     return d->m_registerWindow->isVisible();
+}
+
+/*!
+    Fetches the registers like reloadRegisters(), for a client other than the
+    Registers view, which may not be shown.
+*/
+void DebuggerEngine::reloadRegistersEvenIfHidden()
+{
+    d->m_registersWantedWhileHidden = true;
+    reloadRegisters();
+    d->m_registersWantedWhileHidden = false;
 }
 
 bool DebuggerEngine::isPeripheralRegistersWindowVisible() const
@@ -1546,10 +1581,32 @@ DisassemblerAgent *DebuggerEngine::disassemblerAgent() const
     return &d->m_disassemblerAgent;
 }
 
-void DebuggerEngine::fetchMemory(MemoryAgent *, quint64 addr, quint64 length)
+void DebuggerEngine::fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length)
 {
-    Q_UNUSED(addr)
-    Q_UNUSED(length)
+    if (!canReadMemory())
+        return;
+    const QPointer<MemoryAgent> guard(agent);
+    readMemory(addr, length, [guard](const MemoryReadResult &result) {
+        if (guard)
+            guard->addData(result.address, result.data);
+    });
+}
+
+bool DebuggerEngine::canReadMemory() const
+{
+    return false;
+}
+
+/*!
+    Reads \a length bytes of target memory from \a addr and passes them to
+    \a callback, saying which of them could not be read and why. Engines that
+    can read memory override this and canReadMemory().
+*/
+void DebuggerEngine::readMemory(quint64 addr, quint64 length, const MemoryReadCallback &callback)
+{
+    MemoryReadResult result(addr, length);
+    result.setUnreadable(0, length, "The debugger of this session cannot read memory.");
+    callback(result);
 }
 
 void DebuggerEngine::changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data)
@@ -1920,6 +1977,7 @@ void DebuggerEngine::notifyInferiorRunFailed()
 {
     showMessage("NOTE: INFERIOR RUN FAILED");
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << this << state());
+    d->cancelResetLocation();
     setState(InferiorRunFailed);
     setState(InferiorStopOk);
     if (isDying())
@@ -2464,6 +2522,9 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
 
     if (state == InferiorRunRequested)
         d->m_missingSourceMessage.clear();
+
+    if (state == InferiorRunOk || state == InferiorStopOk)
+        d->commitResetLocation();
 
     showMessage(msg, LogDebug);
 

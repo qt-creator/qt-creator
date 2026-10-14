@@ -465,19 +465,17 @@ void TreeModel::onBeginResetModel()
 {
     QMT_CHECK(m_busyState == NotBusy);
     m_busyState = ResetModel;
-    QStandardItemModel::beginResetModel();
+    clear();
 }
 
 void TreeModel::onEndResetModel()
 {
     QMT_CHECK(m_busyState == ResetModel);
-    clear();
     MPackage *rootPackage = m_modelController ? m_modelController->rootPackage() : nullptr;
     if (rootPackage) {
         m_rootItem = createItem(rootPackage);
-        appendRow(m_rootItem);
         createChildren(rootPackage, m_rootItem);
-        QStandardItemModel::endResetModel();
+        appendRow(m_rootItem);
     }
     m_busyState = NotBusy;
 }

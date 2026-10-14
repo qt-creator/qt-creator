@@ -655,14 +655,13 @@ HarmonyOsSettings::HarmonyOsSettings()
     runWithoutInstalling.setSettingsKey("RunWithoutInstalling");
     runWithoutInstalling.setLabelText(Tr::tr("Run without installing"));
     runWithoutInstalling.setToolTip(
-        Tr::tr("Installs a package that holds a runner instead of the application, and hands "
-               "the application to it over a channel at every run. Installing a package costs "
-               "a minute of packaging, signing and installing; this way only the changed "
-               "application library travels. The package keeps the bundle name, the "
-               "permissions and the signature of a normal one, so what a run exercises is "
-               "still the application - but it runs under the runner's identity, which is "
-               "why anything that depends on the application's own manifest has to be "
-               "checked with an installed package."));
+        Tr::tr("Installs a runner package instead of the application and transfers the "
+               "application to it at every run. Only the changed application library is "
+               "transferred, instead of packaging, signing, and installing the application, "
+               "which takes about a minute. The runner package has the bundle name, "
+               "permissions, and signature of the application package, but the application "
+               "runs under the identity of the runner. Test features that depend on the "
+               "manifest of the application with an installed package."));
 
     signingCertificate.setSettingsKey("SigningCertificate");
     signingCertificate.setExpectedKind(PathChooserKind::File);
@@ -704,7 +703,7 @@ HarmonyOsSettings::HarmonyOsSettings()
                    "\"llvm\" and \"sysroot\" folders) used to build for HarmonyOS."));
         instruction->setWordWrap(true);
 
-        auto autodetectButton = new QPushButton(Tr::tr("Auto-detect"));
+        auto autodetectButton = new QPushButton(Tr::tr("Auto-Detect"));
 
         auto downloadButton = new QPushButton(Tr::tr("Download"));
         downloadButton->setToolTip(

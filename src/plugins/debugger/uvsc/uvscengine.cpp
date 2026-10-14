@@ -445,13 +445,20 @@ void UvscEngine::changeMemory(MemoryAgent *agent, quint64 address, const QByteAr
         handleChangeMemory(agent, address, data);
 }
 
-void UvscEngine::fetchMemory(MemoryAgent *agent, quint64 address, quint64 length)
+void UvscEngine::readMemory(quint64 address, quint64 length, const MemoryReadCallback &callback)
 {
+    MemoryReadResult result(address, length);
     QByteArray data(int(length), 0);
-    if (!m_client->fetchMemory(address, data))
+    if (!m_client->fetchMemory(address, data)) {
         showMessage(Tr::tr("UVSC: Fetching memory at address 0x%1 failed.").arg(address, 0, 16), LogMisc);
-
-    handleFetchMemory(agent, address, data);
+        result.setUnreadable(0, length, m_client->errorString());
+    } else {
+        const quint64 read = std::min(quint64(data.size()), length);
+        memcpy(result.data.data(), data.constData(), read);
+        if (read < length)
+            result.setUnreadable(read, length - read, "UVSC returned fewer bytes.");
+    }
+    callback(result);
 }
 
 void UvscEngine::reloadRegisters()
@@ -842,11 +849,6 @@ void UvscEngine::handleStoppingFailure(const QString &errorMessage)
     AsynchronousMessageBox::critical(Tr::tr("Execution Error"),
                                      Tr::tr("Cannot stop debugged process:\n") + errorMessage);
     notifyInferiorStopFailed();
-}
-
-void UvscEngine::handleFetchMemory(MemoryAgent *agent, quint64 address, const QByteArray &data)
-{
-    agent->addData(address, data);
 }
 
 void UvscEngine::handleChangeMemory(MemoryAgent *agent, quint64 address, const QByteArray &data)

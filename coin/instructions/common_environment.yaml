@@ -60,29 +60,64 @@ instructions:
         variableValue: "-buildvcs=false"
       - type: Group
         instructions:
-          - type: EnvironmentVariable
-            variableName: QTC_QT_POSTFIX
-            variableValue: "-Windows-Windows_11_24H2-MSVC2022-Windows-Windows_11_24H2-X86_64.7z"
+          - type: Group
+            instructions:
+              - type: EnvironmentVariable
+                variableName: QTC_QT_POSTFIX
+                variableValue: "-Windows-Windows_11_24H2-MSVC2022-Windows-Windows_11_24H2-X86_64.7z"
+                enable_if:
+                  condition: property
+                  property: features
+                  not_contains_value: "OldestQt"
+              - type: EnvironmentVariable
+                variableName: QTC_QT_POSTFIX
+                variableValue: "-Windows-Windows_11_23H2-MSVC2022-Windows-Windows_11_23H2-X86_64.7z"
+                enable_if:
+                  condition: property
+                  property: features
+                  contains_value: "OldestQt"
+              - type: EnvironmentVariable
+                variableName: QTC_LLVM_POSTFIX
+                variableValue: "-windows-vs2022_64.7z"
+              - type: EnvironmentVariable
+                variableName: QTC_PYTHON_PACKAGE
+                variableValue: "Python311-win-x64"
+              - type: EnvironmentVariable
+                variableName: QTC_ELFUTILS_URL
+                variableValue: "https://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-windows-x86_64.7z"
             enable_if:
               condition: property
-              property: features
-              not_contains_value: "OldestQt"
-          - type: EnvironmentVariable
-            variableName: QTC_QT_POSTFIX
-            variableValue: "-Windows-Windows_11_23H2-MSVC2022-Windows-Windows_11_23H2-X86_64.7z"
+              property: target.arch
+              equals_value: X86_64
+          - type: Group
+            instructions:
+              - type: EnvironmentVariable
+                variableName: QTC_QT_POSTFIX
+                variableValue: "-Windows-Windows_11_23H2-MSVC2022-Windows-Windows_11_23H2-AARCH64.7z"
+                enable_if:
+                  condition: property
+                  property: features
+                  not_contains_value: "OldestQt"
+              - type: EnvironmentVariable
+                variableName: QTC_QT_POSTFIX
+                variableValue: "-Windows-Windows_11_22H2-MSVC2022-Windows-Windows_11_22H2-AARCH64.7z"
+                enable_if:
+                  condition: property
+                  property: features
+                  contains_value: "OldestQt"
+              - type: EnvironmentVariable
+                variableName: QTC_LLVM_POSTFIX
+                variableValue: "-windows-vs2022_arm64.7z"
+              - type: EnvironmentVariable
+                variableName: QTC_PYTHON_PACKAGE
+                variableValue: "Python311-win-arm64"
             enable_if:
               condition: property
-              property: features
-              contains_value: "OldestQt"
+              property: target.arch
+              equals_value: AARCH64
           - type: EnvironmentVariable
             variableName: QTC_SDKTOOL_QT_EXT
             variableValue: ".zip"
-          - type: EnvironmentVariable
-            variableName: QTC_ELFUTILS_URL
-            variableValue: "https://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-windows-x86_64.7z"
-          - type: EnvironmentVariable
-            variableName: QTC_LLVM_POSTFIX
-            variableValue: "-windows-vs2022_64.7z"
           - type: EnvironmentVariable
             variableName: PYTHON_EXECUTABLE
             variableValue: "python"

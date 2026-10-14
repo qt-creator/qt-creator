@@ -141,7 +141,7 @@ static QStringList getExtraCodeModelFlags(const RawProjectPart &rpp, const Proje
         break;
     }
     if (!cudaPath.isEmpty())
-        return {"--cuda-path=" + cudaPath.toUserOutput()};
+        return {"--cuda-path=" + cudaPath.nativePath()};
     return {};
 }
 

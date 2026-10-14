@@ -105,7 +105,7 @@ Result<QByteArray> HarmonyOsBuildDevice::prepareExecutableForUpload(const QByteA
     const SignToolRun state = runSignTool({"display-sign", "-inFile", unsignedFile.nativePath()});
     if (!state.output.contains("code signature is not found")) {
         if (!state.succeeded) {
-            return ResultError(Tr::tr("Could not tell whether the bridge is signed: %1")
+            return ResultError(Tr::tr("Could not determine whether the bridge is signed: %1")
                                    .arg(state.output.trimmed()));
         }
         return binary;
@@ -167,7 +167,7 @@ private:
         setupId(IDevice::AutoDetected, thisDeviceId);
         setType(Constants::HARMONYOS_BUILD_DEVICE_TYPE);
         setDisplayType(Tr::tr("HarmonyOS Build Device"));
-        setDefaultDisplayName(Tr::tr("HarmonyOS Build Device (this device)"));
+        setDefaultDisplayName(Tr::tr("HarmonyOS Build Device (This Device)"));
         setOsType(OsTypeLinux);
         // Made again on every start, which leaves the settings free to hold a device
         // someone configured themselves, and that is what the factory constructs.

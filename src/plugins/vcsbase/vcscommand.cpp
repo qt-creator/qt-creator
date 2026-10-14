@@ -97,6 +97,7 @@ static ProcessTask vcsProcessTaskHelper(
         process.setWriteData(data.writeData);
         process.setDisableUnixTerminal();
         process.setUseCtrlCStub(true);
+        process.setEnvironmentExpansion(ProcessArgs::EnvExpansion::Literal);
 
         if (data.flags & RunFlag::ExpectRepoChanges)
             GlobalFileChangeBlocker::instance()->forceBlocked(true);

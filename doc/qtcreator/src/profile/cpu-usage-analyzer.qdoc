@@ -229,8 +229,10 @@
 
     \endlist
 
+    The frame pointer mode is the default because it is the cheapest. However,
     Qt and most system libraries are compiled without frame pointers by
-    default, so the frame pointer mode is only useful with customized systems.
+    default, so call chains through them may be incomplete. Select the dwarf
+    mode in that case.
 
     \section1 Setting stack snapshot size
 

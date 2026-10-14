@@ -109,6 +109,8 @@ public:
     void setDisableUnixTerminal();
     void setRunAsUser(const QString &user);
     void setAbortOnMetaChars(bool abort);
+    // Best effort: not honored if cmd.exe is needed.
+    void setEnvironmentExpansion(ProcessArgs::EnvExpansion expansion);
 
     using ProcessInterfaceCreator = std::function<ProcessInterface *()>;
     void setProcessInterfaceCreator(const ProcessInterfaceCreator &creator);

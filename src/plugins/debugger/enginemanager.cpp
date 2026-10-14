@@ -225,6 +225,7 @@ public:
 
     const bool m_isPreset = false;
     QPointer<DebuggerEngine> m_engine;
+    QString m_dockId;
 
     PerspectiveItem m_perspective;
 };
@@ -557,11 +558,22 @@ void EngineManagerPrivate::updatePerspectives()
 
 QString EngineManager::registerEngine(DebuggerEngine *engine)
 {
+    const auto isUsed = [](const QString &dockId) {
+        return d->m_engineModel.rootItem()->findFirstLevelChild([dockId](EngineItem *item) {
+            return item->m_dockId == dockId;
+        });
+    };
+    const QString baseId = engine->debuggerName();
+    QString dockId = baseId;
+    for (int i = 2; isUsed(dockId); ++i)
+        dockId = baseId + '.' + QString::number(i);
+
     auto engineItem = new EngineItem;
     engineItem->m_engine = engine;
+    engineItem->m_dockId = dockId;
     d->m_engineModel.rootItem()->appendChild(engineItem);
     d->updateEngineChooserVisibility();
-    return QString::number(d->m_engineModel.rootItem()->childCount());
+    return dockId;
 }
 
 void EngineManager::unregisterEngine(DebuggerEngine *engine)

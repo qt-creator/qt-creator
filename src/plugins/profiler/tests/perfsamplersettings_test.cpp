@@ -72,6 +72,28 @@ private slots:
         QVERIFY(callgraph->isEnabled());
         QVERIFY(download->isEnabled());
     }
+
+    // Settings load quietly, without the signal a changed selection emits.
+    void testStackSizeFollowsLoadedCallgraphMode()
+    {
+        PerfSamplerSettings samplerSettings;
+        PerfSettings &settings = samplerSettings.perfSettings;
+        settings.callgraphMode.setValue(1, Utils::BaseAspect::BeQuiet); // "fp"
+        QWidget fpWidget;
+        settings.layouter()().attachTo(&fpWidget);
+        QVERIFY(!settings.stackSize.isEnabled());
+
+        settings.callgraphMode.setValue(0, Utils::BaseAspect::BeQuiet); // "dwarf"
+        QWidget dwarfWidget;
+        settings.layouter()().attachTo(&dwarfWidget);
+        QVERIFY(settings.stackSize.isEnabled());
+
+        Utils::Store map;
+        settings.toMap(map);
+        map.insert(settings.callgraphMode.settingsKey(), 1);
+        settings.fromMap(map);
+        QVERIFY(!settings.stackSize.isEnabled());
+    }
 };
 
 QObject *createPerfSamplerSettingsTest()

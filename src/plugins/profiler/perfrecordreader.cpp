@@ -129,6 +129,12 @@ struct RawSample
     // The stack starts at the stack pointer among them.
     QList<quint64> dwarfRegs;
     QByteArray dwarfStack;
+
+    // "--call-graph fp" on aarch64 only: the link register, for the caller
+    // of the leaf function (see addLeafCaller()). As sampled, with its
+    // pointer authentication signature, which only the mappings of the
+    // whole round tell where to strip.
+    quint64 linkRegister = 0;
 };
 
 } // namespace
@@ -193,6 +199,7 @@ private:
     // Replaces a dwarf-mode sample's frames with its unwound stack, and drops
     // the register and stack copy it took for that.
     void unwindDwarfSample(RawSample &sample);
+    void addLeafCaller(RawSample &sample);
 
     // Resolves every decoded raw sample into a labelled ThreadSample. Assumes
     // any fetchable debug files are already in the cache. `progress` and
@@ -245,9 +252,13 @@ quint64 PerfRecordDecoder::relativeUs(quint64 timeNs) const
 
 void PerfRecordDecoder::mmap(const PerfData::Mmap &mmap)
 {
-    if (mmap.path.isEmpty() || mmap.path.startsWith('['))
-        return; // anonymous/special mapping (e.g. "[heap]", "[stack]"): nothing to symbolize
-    m_symbolizer.addMapping(mmap.pid, mmap.addr, mmap.len, mmap.pgoff, mmap.path);
+    m_symbolizer.addMappedRange(mmap.addr, mmap.len);
+    // Anonymous and special mappings ("[heap]", "[stack]") have nothing to
+    // symbolize, except the vdso, which the symbolizer finds elsewhere.
+    if (mmap.path.isEmpty() || (mmap.path.startsWith('[') && mmap.path != QLatin1StringView(vdsoName)))
+        return;
+    m_symbolizer.addMapping(mmap.pid, mmap.addr, mmap.len, mmap.pgoff, mmap.path, {},
+                            mmap.executable);
 }
 
 // A child forked without exec() keeps its parent's mappings, which the
@@ -365,6 +376,11 @@ Result<> PerfRecordDecoder::sample(const PerfData::Sample &sample)
     raw.frames.reserve(innermostFirst.size());
     for (auto it = innermostFirst.crbegin(); it != innermostFirst.crend(); ++it) // root-first
         raw.frames.append(*it);
+    // "--call-graph fp" on aarch64: perf samples the link register as well,
+    // and no stack.
+    if (sample.userStack.isEmpty() && layout.lr >= 0 && layout.lr < sample.userRegs.size()) {
+        raw.linkRegister = sample.userRegs.at(layout.lr);
+    }
     raw.dwarfRegs = std::move(dwarfRegs);
     if (!raw.dwarfRegs.isEmpty())
         raw.dwarfStack = sample.userStack;
@@ -431,6 +447,7 @@ void PerfRecordDecoder::flushPendingRound(quint64 untilUs)
         // carries a copy of the stack, kilobytes of it, which is only needed
         // until it is unwound.
         unwindDwarfSample(sample);
+        addLeafCaller(sample);
         sample.tsUs = qMax(sample.tsUs, m_lastTsUs);
         m_lastTsUs = sample.tsUs;
         m_rawSamples.append(std::move(sample));
@@ -538,8 +555,16 @@ void PerfRecordDecoder::unwindDwarfSample(RawSample &sample)
         return;
     // Falls back to the kernel-reported chain (just the leaf PC in dwarf
     // mode -- see sample()) when the unwind comes back empty.
-    const QList<quint64> pcs = m_symbolizer.unwind(sample.pid, hostPerfArchitecture(),
-                                                   sample.dwarfRegs, sample.dwarfStack);
+    QList<quint64> pcs = m_symbolizer.unwind(sample.pid, hostPerfArchitecture(),
+                                             sample.dwarfRegs, sample.dwarfStack);
+    // Where the captured stack ends, or a frame is described by neither CFI
+    // nor a frame record, the unwind can take any word for a return address,
+    // which then points at data: the heap, the stack. Return addresses are in
+    // code, so the call chain ends before the first one that is not.
+    qsizetype inCode = qMin<qsizetype>(1, pcs.size()); // the sampled PC
+    while (inCode < pcs.size() && m_symbolizer.isExecutable(sample.pid, pcs.at(inCode)))
+        ++inCode;
+    pcs.resize(inCode);
     if (!pcs.isEmpty()) {
         QList<RawFrame> frames;
         frames.reserve(pcs.size() + sample.frames.size());
@@ -555,6 +580,30 @@ void PerfRecordDecoder::unwindDwarfSample(RawSample &sample)
     }
     sample.dwarfRegs = {};
     sample.dwarfStack = {};
+}
+
+// The kernel follows the frame records that functions save when they call
+// another, so a frame pointer chain lacks the caller of a sampled function
+// that has not saved its own: a leaf function, or one still in its prologue.
+// On aarch64 that caller is still in the link register, which perf samples
+// for it, as long as the CFI says the return address has not been saved.
+void PerfRecordDecoder::addLeafCaller(RawSample &sample)
+{
+    const quint64 linkRegister
+        = m_symbolizer.withoutPointerAuthentication(hostPerfArchitecture(), sample.linkRegister);
+    if (linkRegister == 0)
+        return;
+    const auto leaf = std::find_if(sample.frames.crbegin(), sample.frames.crend(),
+                                   [](const RawFrame &frame) { return !frame.isKernel; });
+    if (leaf == sample.frames.crend())
+        return;
+    const qsizetype leafIndex = sample.frames.crend() - leaf - 1; // root-first
+    const quint64 caller = linkRegister - 1; // in the call, as other callers are
+    if (leafIndex > 0 && sample.frames.at(leafIndex - 1).addr == caller)
+        return;
+    if (!m_symbolizer.isReturnAddressInRegister(sample.pid, leaf->addr))
+        return;
+    sample.frames.insert(leafIndex, {caller, false});
 }
 
 void PerfRecordDecoder::resolveSamples(const std::function<void(int)> &progress, int progressBase)

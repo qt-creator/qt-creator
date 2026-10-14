@@ -46,6 +46,9 @@ struct UnwindInput
     QList<quint64> regs; // sized perfRegisterLayout(arch).count
     quint64 stackStartAddr = 0; // virtual address stackBytes[0] corresponds to
     QByteArray stackBytes;
+    // The highest user space address the recording has, which tells where
+    // return addresses are signed (see aarch64PointerAuthenticationMask()).
+    quint64 highestUserAddress = 0;
 
     bool isValid() const { return !regs.isEmpty(); }
 };
@@ -89,6 +92,11 @@ public:
     // gracefully within a successful setup -- this only reports whether
     // unwinding could be attempted at all.
     bool isValid() const;
+
+    // Whether, at `pc`, the CFI says the return address is still in the
+    // register the call put it in, as in a function that has not saved it,
+    // or not yet. False where there is no CFI for `pc`.
+    bool isReturnAddressInRegister(quint64 pc) const;
 
     // Replaces the modules the unwinder knows, e.g. once more were mapped.
     void setModules(const QList<UnwindModule> &modules);

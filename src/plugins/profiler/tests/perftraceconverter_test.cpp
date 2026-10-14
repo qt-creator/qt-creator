@@ -307,6 +307,8 @@ private slots:
     void testRestartsFedConversion();
     void testForkedChildKeepsParentMappings();
     void testPrefersBranchStackOverUserCallchain();
+    void testStripsSignaturesAboveRecordedAddresses_data();
+    void testStripsSignaturesAboveRecordedAddresses();
 };
 
 // Samples, with their stacks and event; a thread's name, start and end; a
@@ -1231,6 +1233,86 @@ void PerfTraceConverterTest::testPrefersBranchStackOverUserCallchain()
         frames.append(symbolName(manager, frame));
     const QList<QByteArray> expected{"0x1000", "0x2000", "0x3000"};
     QCOMPARE(frames, expected);
+}
+
+struct MappedRange
+{
+    quint64 addr = 0;
+    quint64 len = 0;
+    QByteArray path;
+};
+
+void PerfTraceConverterTest::testStripsSignaturesAboveRecordedAddresses_data()
+{
+    QTest::addColumn<QList<MappedRange>>("mapped");
+    QTest::addColumn<quint64>("address");
+    QTest::addColumn<quint64>("signature");
+
+    const MappedRange app{0x5555550000ull, 0x10000, "/usr/bin/app"};
+    const MappedRange libc39{0x7fb0000000ull, 0x200000, "/usr/lib/libc.so.6"};
+    QTest::newRow("39-bit") << QList<MappedRange>{app, libc39} << 0x7fb0001234ull
+                            << 0x002aaa8000000000ull;
+    QTest::newRow("47-bit")
+        << QList<MappedRange>{{0x7fffa0000000ull, 0x200000, "/usr/lib/libc.so.6"}}
+        << 0x7fffa0001234ull << 0x0055800000000000ull;
+    QTest::newRow("48-bit")
+        << QList<MappedRange>{{0xffffa0000000ull, 0x200000, "/usr/lib/libc.so.6"}}
+        << 0xffffa0001234ull << 0x002a000000000000ull;
+    QTest::newRow("52-bit")
+        << QList<MappedRange>{{0xfffffa0000000ull, 0x200000, "/usr/lib/libc.so.6"}}
+        << 0xfffffa0001234ull << 0x0070000000000000ull;
+    // A static executable has nothing mapped up there but the vdso.
+    QTest::newRow("vdso") << QList<MappedRange>{{0x400000, 0x100000, "/usr/bin/app"},
+                                                {0x7ff7ff0000ull, 0x2000, "[vdso]"}}
+                          << 0x7ff7ff0800ull << 0x002aaa8000000000ull;
+    QTest::newRow("kernel")
+        << QList<MappedRange>{{0xffff800008000000ull, 0x2000000, "[kernel.kallsyms]_text"},
+                              libc39}
+        << 0x7fb0001234ull << 0x002aaa8000000000ull;
+    QTest::newRow("nothing mapped") << QList<MappedRange>{} << 0xffffa0001234ull
+                                    << 0x002a000000000000ull;
+}
+
+// A recording does not say where the signature starts that pointer
+// authentication puts into return addresses on aarch64; the addresses it maps
+// do, wherever it is opened.
+void PerfTraceConverterTest::testStripsSignaturesAboveRecordedAddresses()
+{
+    QFETCH(QList<MappedRange>, mapped);
+    QFETCH(quint64, address);
+    QFETCH(quint64, signature);
+    QCOMPARE(address & signature, quint64(0));
+    const quint64 signedAddress = address | signature;
+
+    constexpr quint32 pid = 5;
+    QList<QByteArray> records{
+        attrRecord(1, 1, SampleIp | SampleTid | SampleTime | SampleCpu | SamplePeriod, 1)};
+    for (const MappedRange &range : std::as_const(mapped)) {
+        QByteArray mmap;
+        appendLe(mmap, pid, 4);
+        appendLe(mmap, pid, 4);
+        appendLe(mmap, range.addr, 8);
+        appendLe(mmap, range.len, 8);
+        appendLe(mmap, 0, 8); // pgoff
+        mmap.append(range.path);
+        mmap.append(QByteArray(8 - range.path.size() % 8, '\0'));
+        mmap += trailer(pid, pid, 500);
+        records.append(record(1, mmap));
+    }
+
+    PerfData::PerfDataParser parser;
+    PerfTraceConverter converter(parser, [](const QByteArray &) {});
+    PerfByteQueue queue;
+    queue.push(pipeStream(records));
+    queue.close();
+    QVERIFY(parser.parseStream(queue, converter));
+
+    QCOMPARE(converter.symbolizer().withoutPointerAuthentication(PerfArchitecture::Aarch64,
+                                                                 signedAddress),
+             address);
+    QCOMPARE(converter.symbolizer().withoutPointerAuthentication(PerfArchitecture::X86_64,
+                                                                 signedAddress),
+             signedAddress);
 }
 
 QObject *createPerfTraceConverterTest()

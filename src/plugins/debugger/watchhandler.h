@@ -29,6 +29,7 @@ signals:
     void itemIsExpanded(const QModelIndex &idx);
     void inameIsExpanded(const QString &iname);
     void updateStarted();
+    void updateAborted();
     void updateFinished();
 };
 
@@ -78,8 +79,12 @@ public:
     void addTypeFormats(const QString &type, const DisplayFormats &formats);
 
     QString watcherName(const QString &exp);
+    static bool isWatched(const QString &exp);
+    static bool isTemporaryWatcher(const QString &exp);
 
     void scheduleResetLocation();
+    void cancelResetLocation();
+    void commitResetLocation();
 
     void setCurrentItem(const QString &iname);
     void updateLocalsWindow();

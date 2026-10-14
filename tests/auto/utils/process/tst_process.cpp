@@ -116,6 +116,7 @@ private slots:
     void prepareArgs();
     void prepareArgsEnv_data();
     void prepareArgsEnv();
+    void prepareArgsNoEnvExpansion();
     void iterations_data();
     void iterations();
     void removeArgsWindows();
@@ -551,6 +552,23 @@ void tst_Process::prepareArgsEnv()
         QCOMPARE(outstr, out);
 }
 
+void tst_Process::prepareArgsNoEnvExpansion()
+{
+    const QString in = "\"--pretty=format:%cD%Creset\" %word%";
+    const FilePath pwd = FilePath::fromString("C:/repo");
+
+    ProcessArgs::SplitError err = ProcessArgs::SplitOk;
+    const QString expanded = ProcessArgs::prepareShellArgs(in, &err, OsTypeWindows, &envWindows,
+                                                           pwd);
+    QCOMPARE(err, ProcessArgs::SplitOk);
+    QCOMPARE(expanded, "\"--pretty=format:" + QDir::toNativeSeparators("C:/repo") + "Creset\" hi");
+
+    const QString literal = ProcessArgs::prepareShellArgs(in, &err, OsTypeWindows, &envWindows,
+                                                          pwd,
+                                                          ProcessArgs::EnvExpansion::Literal);
+    QCOMPARE(err, ProcessArgs::SplitOk);
+    QCOMPARE(literal, in);
+}
 
 void tst_Process::iterations_data()
 {

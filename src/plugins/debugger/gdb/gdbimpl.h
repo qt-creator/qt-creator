@@ -104,6 +104,7 @@ private:
     void selectThread(const QString &threadId) final;
     void activateFrame(int index) final;
     void setRegisterValue(const QString &name, const QString &value) final;
+    std::optional<bool> registersFollowSelectedFrame() const override { return true; }
     void accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64 lengthOrSize,
                       const QByteArray &data) final;
     void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName) final;
@@ -154,7 +155,7 @@ private:
 
     struct MemoryRequestCookie
     {
-        std::shared_ptr<QByteArray> accumulator;
+        std::shared_ptr<MemoryReadResult> result;
         std::shared_ptr<int> pendingRequests;
         quint64 requestId = 0;
         quint64 base = 0;

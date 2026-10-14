@@ -812,6 +812,21 @@ void ClangdTestTooltips::test_data()
     QTest::newRow("Function_CustomConstructor") << 195 << 5
             << QStringList{"ExplicitCon"} << QString("ExplicitCon")
             << int(HelpItem::ClassOrNamespace);
+
+    // Qualified variable references are looked up under their own name first, with the
+    // type of the variable as a fallback.
+    QTest::newRow("StaticMemberBuiltinType") << 234 << 26
+            << QStringList{"StaticMembers::npos", "npos", "unsigned long"} << QString("npos")
+            << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("StaticMemberCustomType") << 235 << 25
+            << QStringList{"StaticMembers::foo", "foo", "Foo"} << QString("foo")
+            << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("StaticMemberIntType") << 236 << 25
+            << QStringList{"StaticMembers::count", "count"} << QString("count")
+            << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("QualifiedGlobalVariable") << 237 << 14
+            << QStringList{"NS::globalFoo", "globalFoo", "Foo"} << QString("globalFoo")
+            << int(HelpItem::ClassOrNamespace);
 }
 
 void ClangdTestTooltips::test()

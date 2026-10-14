@@ -695,7 +695,8 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
                 d->parseOutputLine(line);
             d->flushOldEntries();
 
-            d->currentBranch = nullptr;
+            if (d->currentBranch && d->currentBranch->isLocal())
+                d->currentBranch = nullptr;
             setCurrentBranch(refreshData->currentBranch);
             if (!d->currentBranch) {
                 BranchNode *local = d->rootNode->children.at(LocalBranches);

@@ -20,6 +20,9 @@ namespace Profiler::Internal {
 
 class PerfSymbolizerPrivate;
 
+// What a recording names the kernel's vdso mapping.
+const char vdsoName[] = "[vdso]";
+
 // An address in a mapped module: the module, and where in it, as a link-time
 // address -- the one its symbols, line rows and CFI are at.
 struct ModuleAddress
@@ -103,7 +106,7 @@ public:
     // [addr, addr + len) of `pid`'s address space maps `path` from file
     // offset `pgoff`. A later mapping over an earlier one replaces it.
     void addMapping(quint32 pid, quint64 addr, quint64 len, quint64 pgoff, const QString &path,
-                    const QByteArray &buildId = {});
+                    const QByteArray &buildId = {}, bool executable = true);
 
     // `childPid` was forked from `parentPid`, whose mappings it inherits:
     // the kernel reports none of them for the child.
@@ -112,6 +115,10 @@ public:
     // The module `addr` in `pid` is mapped from, and where in it; nullopt
     // where no mapping covers it. Cheap: a key to memoize resolve() by.
     std::optional<ModuleAddress> moduleAddress(quint32 pid, quint64 addr);
+
+    // Whether `addr` in `pid` is in an executable mapping; false where no
+    // mapping covers it.
+    bool isExecutable(quint32 pid, quint64 addr) const;
 
     ResolvedAddress resolve(const ModuleAddress &address);
     ResolvedAddress resolveKernel(quint64 addr);
@@ -141,6 +148,18 @@ public:
     static bool canUnwind();
     QList<quint64> unwind(quint32 pid, PerfArchitecture arch, const QList<quint64> &regs,
                           const QByteArray &stack);
+
+    // [addr, addr + len) is mapped in a process of the recording, whatever
+    // it maps; kernel addresses do not count. How far these reach tells
+    // where return addresses are signed (see withoutPointerAuthentication()).
+    void addMappedRange(quint64 addr, quint64 len);
+    // `value`, as sampled on `arch`, without a pointer authentication
+    // signature, going by the ranges mapped so far.
+    quint64 withoutPointerAuthentication(PerfArchitecture arch, quint64 value) const;
+
+    // Whether, at `pc` in `pid`, the CFI says the return address is still in
+    // the link register. False where that cannot be told, as without libdw.
+    bool isReturnAddressInRegister(quint32 pid, quint64 pc);
 
 private:
     std::unique_ptr<PerfSymbolizerPrivate> d;

@@ -17,6 +17,8 @@
 
 #include <texteditor/textmark.h>
 
+#include <optional>
+
 #include <utils/fileinprojectfinder.h>
 #include <utils/filepath.h>
 #include <utils/outputformat.h>
@@ -499,6 +501,8 @@ public:
     DebuggerEngine();
     ~DebuggerEngine() override;
 
+    void destroyPerspective();
+
     void setDevice(const ProjectExplorer::IDeviceConstPtr &device);
     void setRunParameters(const DebuggerRunParameters &runParameters);
 
@@ -538,7 +542,10 @@ public:
 
     virtual void watchPoint(const QPoint &pnt);
     void openMemoryView(const MemoryViewSetupData &data);
-    virtual void fetchMemory(MemoryAgent *, quint64 addr, quint64 length);
+    void fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length);
+    using MemoryReadCallback = std::function<void(const MemoryReadResult &)>;
+    virtual bool canReadMemory() const;
+    virtual void readMemory(quint64 addr, quint64 length, const MemoryReadCallback &callback);
     virtual void changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data);
     void updateMemoryViews();
     void openDisassemblerView(const Internal::Location &location);
@@ -554,12 +561,14 @@ public:
     virtual void requestModuleSections(const Utils::FilePath &moduleName);
 
     virtual void reloadRegisters();
+    void reloadRegistersEvenIfHidden();
     virtual void reloadPeripheralRegisters();
     virtual void reloadSourceFiles();
     virtual void reloadFullStack();
     virtual void loadAdditionalQmlStack();
 
     virtual void setRegisterValue(const QString &name, const QString &value);
+    virtual std::optional<bool> registersFollowSelectedFrame() const { return {}; }
     virtual void setPeripheralRegisterValue(quint64 address, quint64 value);
     virtual bool hasCapability(unsigned cap) const = 0;
     virtual void debugLastCommand() {}

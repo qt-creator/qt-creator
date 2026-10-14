@@ -49,6 +49,8 @@ using ThreadsHandlerModel = Utils::TreeModel<Utils::TypedTreeItem<ThreadItem>, T
 
 class DEBUGGER_EXPORT ThreadsHandler : public ThreadsHandlerModel
 {
+    Q_OBJECT
+
 public:
     explicit ThreadsHandler(DebuggerEngine *engine);
     ~ThreadsHandler();
@@ -59,6 +61,7 @@ public:
 
     void updateThread(const ThreadData &threadData);
     void setThreads(const GdbMi &data);
+    void notifyThreadsReported();
 
     void removeThread(const QString &id);
     void removeAll();
@@ -71,6 +74,10 @@ public:
     void notifyStopped(const QString &id);
 
     QPointer<QComboBox> threadSwitcher();
+
+signals:
+    void currentThreadChanged();
+    void threadsReported();
 
 private:
     void sort(int column, Qt::SortOrder order) override;

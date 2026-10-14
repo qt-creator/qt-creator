@@ -25,6 +25,7 @@
 #include <QDialogButtonBox>
 #include <QGroupBox>
 #include <QHeaderView>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
@@ -62,6 +63,7 @@ GerritDialog::GerritDialog(const std::shared_ptr<GerritServer> &s,
     changesGroup->setMinimumSize(QSize(0, 350));
 
     m_queryLineEdit = new FancyLineEdit(changesGroup);
+    m_queryLineEdit->setObjectName("query");
     m_queryLineEdit->setMinimumSize(QSize(400, 0));
     m_queryLineEdit->setPlaceholderText(Git::Tr::tr("Change #, hash, tr:id, owner:email or reviewer:email"));
     m_queryLineEdit->setSpecialCompleter(new QCompleter(m_queryModel, this));
@@ -72,10 +74,12 @@ GerritDialog::GerritDialog(const std::shared_ptr<GerritServer> &s,
     });
 
     auto filterLineEdit = new FancyLineEdit(changesGroup);
+    filterLineEdit->setObjectName("filter");
     filterLineEdit->setMinimumSize(QSize(300, 0));
     filterLineEdit->setFiltering(true);
 
     m_treeView = new TreeView(changesGroup);
+    m_treeView->setObjectName("changes");
     m_treeView->setMinimumSize(QSize(600, 0));
     m_treeView->setRootIsDecorated(false);
     m_treeView->setSortingEnabled(true);
@@ -87,6 +91,7 @@ GerritDialog::GerritDialog(const std::shared_ptr<GerritServer> &s,
     m_detailsBrowser->setOpenExternalLinks(true);
 
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
+    m_buttonBox->button(QDialogButtonBox::Close)->setAutoDefault(false);
 
     auto queryLabel = new QLabel(Git::Tr::tr("&Query:"), changesGroup);
     queryLabel->setBuddy(m_queryLineEdit);
@@ -143,7 +148,10 @@ GerritDialog::GerritDialog(const std::shared_ptr<GerritServer> &s,
     }.attachTo(this);
 
     connect(filterLineEdit, &Utils::FancyLineEdit::filterChanged,
-            m_filterModel, &QSortFilterProxyModel::setFilterFixedString);
+            this, [this](const QString &filter) {
+        m_filterModel->setFilterFixedString(filter);
+        m_treeView->expandAll();
+    });
     connect(m_queryLineEdit, &QLineEdit::returnPressed,
             this, &GerritDialog::refresh);
     connect(m_model, &GerritModel::stateChanged,
@@ -166,6 +174,7 @@ GerritDialog::GerritDialog(const std::shared_ptr<GerritServer> &s,
             this, &GerritDialog::slotRefreshStateChanged);
     connect(m_model, &GerritModel::errorText,
             this, [this](const QString &text) {
+        m_detailsBrowser->setPlainText(Git::Tr::tr("Gerrit query failed:\n%1").arg(text));
         if (text.contains("returned error: 401"))
             updateRemotes(true);
     }, Qt::QueuedConnection);
@@ -214,6 +223,18 @@ void GerritDialog::updateCompletions(const QString &query)
 
 GerritDialog::~GerritDialog() = default;
 
+bool GerritDialog::event(QEvent *event)
+{
+    if (event->type() == QEvent::ShortcutOverride) {
+        auto keyEvent = static_cast<QKeyEvent *>(event);
+        if (keyEvent->key() == Qt::Key_Escape && !keyEvent->modifiers()) {
+            keyEvent->accept();
+            return true;
+        }
+    }
+    return QDialog::event(event);
+}
+
 void GerritDialog::slotActivated(const QModelIndex &i)
 {
     const QModelIndex source = m_filterModel->mapToSource(i);
@@ -257,8 +278,9 @@ void GerritDialog::refresh()
 {
     const QString &query = m_queryLineEdit->text().trimmed();
     updateCompletions(query);
+    m_detailsBrowser->clear();
     m_model->refresh(m_server, query);
-    m_treeView->sortByColumn(-1, Qt::DescendingOrder);
+    m_treeView->sortByColumn(-1, Qt::AscendingOrder);
 }
 
 void GerritDialog::scheduleUpdateRemotes()

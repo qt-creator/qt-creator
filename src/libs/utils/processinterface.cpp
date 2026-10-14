@@ -352,6 +352,7 @@ void WrappedProcessInterface::start()
     d->m_process.setExtraData(m_setup.m_extraData);
     d->m_process.setStandardInputFile(m_setup.m_standardInputFile);
     d->m_process.setAbortOnMetaChars(m_setup.m_abortOnMetaChars);
+    d->m_process.setEnvironmentExpansion(m_setup.m_envExpansion);
     d->m_process.setCreateConsoleOnWindows(m_setup.m_createConsoleOnWindows);
     if (m_setup.m_lowPriority)
         d->m_process.setLowPriority();

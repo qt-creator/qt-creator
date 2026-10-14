@@ -1,4 +1,13 @@
 type: Group
+disable_if:
+  condition: and
+  conditions:
+    - condition: property
+      property: target.os
+      equals_value: Windows
+    - condition: property
+      property: target.arch
+      equals_value: AARCH64
 instructions:
   - type: InstallBinaryArchive
     relativeStoragePath: "{{.Env.MODULE_ARTIFACTS_RELATIVE_STORAGE_PATH}}/artifacts.tar.zst"
