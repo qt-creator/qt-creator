@@ -296,6 +296,7 @@ public:
         , m_held(held)
     {
         connect(socket, &QTcpSocket::readyRead, this, &Handover::read);
+        connect(socket, &QTcpSocket::disconnected, this, &Handover::reportEnd);
         if (m_qt.files.isEmpty())
             serveApplication();
         else
@@ -395,9 +396,24 @@ private:
         for (const QString &line : text.split('\n', Qt::SkipEmptyParts)) {
             if (line == "runner: staged, start again")
                 m_staged = true;
+            else if (line.startsWith("runner: calling main()"))
+                m_called = true;
+            else if (line.startsWith("runner: main() returned"))
+                m_returned = true;
             if (m_hold)
                 readHold(line);
             m_runControl->postMessage(line, StdOutFormat);
+        }
+    }
+
+    // Qt's platform plugin ends the ability when the application quits, and the platform
+    // then ends the process before the application's main() got to return.
+    void reportEnd()
+    {
+        if (m_called && !m_returned) {
+            m_runControl->postMessage(Tr::tr("The application ended before its main() "
+                                             "returned. Its exit code is not known."),
+                                      NormalMessageFormat);
         }
     }
 
@@ -439,6 +455,8 @@ private:
     QByteArray m_answer;
     QByteArray m_text;
     bool m_staged = false;
+    bool m_called = false;
+    bool m_returned = false;
 };
 
 class HarmonyOsRunConfiguration final : public RunConfiguration
@@ -536,7 +554,7 @@ static Group handoverRecipe(RunControl *runControl, const FilePath &library,
                     return;
                 }
                 // The runner closes the channel when the application's main() has returned,
-                // so this is the run being over. Ending it takes the channel down, and with
+                // and the channel closes with the process, so this is the run being over. Ending it takes the channel down, and with
                 // it this socket, which a socket does not survive being emitted from - so
                 // leave the emission first. Posting to the channel is what keeps the call
                 // from reaching a barrier that a cancel has taken away in the meantime.
