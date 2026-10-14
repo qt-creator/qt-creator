@@ -87,6 +87,13 @@
     format. The latter makes sure that syntax highlighting is preserved when
     pasting to a rich-text editor.
 
+    The Markdown categories configure colors for headings,
+    emphasis, strong text, strikethrough, links, code, block quotes, list
+    markers, horizontal rules, and table separators. Code blocks with a
+    language identifier use that language's syntax colors. If a scheme has
+    no Markdown categories, their colors are initialized from the scheme's
+    existing syntax colors.
+
     \section1 Export and import color schemes
 
     To share color schemes with others, export and import them as XML files.

@@ -121,6 +121,17 @@ const char *nameForStyle(TextStyle style)
     case C_COCO_MANUALLY_VALIDATED_INFO: return "CocoManuallyValidatedInfo";
 
 
+    case C_MARKDOWN_HEADING: return "Markdown.Heading";
+    case C_MARKDOWN_EMPHASIS: return "Markdown.Emphasis";
+    case C_MARKDOWN_STRONG: return "Markdown.Strong";
+    case C_MARKDOWN_STRIKETHROUGH: return "Markdown.Strikethrough";
+    case C_MARKDOWN_LINK: return "Markdown.Link";
+    case C_MARKDOWN_CODE: return "Markdown.Code";
+    case C_MARKDOWN_BLOCKQUOTE: return "Markdown.Blockquote";
+    case C_MARKDOWN_LIST: return "Markdown.List";
+    case C_MARKDOWN_RULE: return "Markdown.Rule";
+    case C_MARKDOWN_TABLE: return "Markdown.Table";
+
     case C_LAST_STYLE_SENTINEL: return "LastStyleSentinel";
     }
     return "Unknown Style";

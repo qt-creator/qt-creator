@@ -4,6 +4,9 @@
 #include "highlighter_test.h"
 
 #include "fontsettings.h"
+#include "fontsettingspage.h"
+#include "highlighter.h"
+#include "highlighterhelper.h"
 #include "syntaxhighlighter.h"
 #include "textdocument.h"
 #include "texteditor.h"
@@ -11,9 +14,12 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <utils/fileutils.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 
+#include <QScopeGuard>
+#include <QTemporaryDir>
 #include <QTest>
 
 namespace TextEditor::Internal {
@@ -42,6 +48,9 @@ private slots:
     void testHighlight();
     void testChange();
     void testPreeditText();
+    void testMarkdownColors_data();
+    void testMarkdownColors();
+    void testMarkdownColorScheme();
     void cleanupTestCase();
 
 private:
@@ -235,6 +244,152 @@ void GenerigHighlighterTests::testPreeditText()
     // full hash calculation for QTextCharFormat fails so just check the important entries of format
     for (int i = 0; i < formatRanges.size(); ++i)
         compareFormats(actualFormats.at(i), formatRanges.at(i));
+}
+
+void GenerigHighlighterTests::testMarkdownColors_data()
+{
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<QString>("token");
+    QTest::addColumn<int>("style");
+
+    for (int level = 1; level <= 6; ++level) {
+        QTest::addRow("heading-%d", level)
+            << QString(level, '#') + " Heading" << QString("Heading") << int(C_MARKDOWN_HEADING);
+    }
+    QTest::addRow("setext-heading") << QString("Heading\n=======") << QString("=======")
+                                  << int(C_MARKDOWN_HEADING);
+    QTest::addRow("emphasis") << QString("*emphasis*") << QString("emphasis")
+                             << int(C_MARKDOWN_EMPHASIS);
+    QTest::addRow("strong") << QString("**strong**") << QString("strong") << int(C_MARKDOWN_STRONG);
+    QTest::addRow("strong-emphasis") << QString("***strong***") << QString("strong")
+                                    << int(C_MARKDOWN_STRONG);
+    QTest::addRow("strikethrough") << QString("~~removed~~") << QString("removed")
+                                  << int(C_MARKDOWN_STRIKETHROUGH);
+    QTest::addRow("link-label") << QString("[label](https://example.org)") << QString("label")
+                               << int(C_MARKDOWN_LINK);
+    QTest::addRow("link-target") << QString("[label](https://example.org)")
+                                << QString("https://example.org") << int(C_MARKDOWN_LINK);
+    QTest::addRow("autolink") << QString("<https://example.org>") << QString("https://example.org")
+                             << int(C_MARKDOWN_LINK);
+    QTest::addRow("inline-code") << QString("`code`") << QString("code") << int(C_MARKDOWN_CODE);
+    QTest::addRow("fenced-code") << QString("```\ncode\n```") << QString("code")
+                                << int(C_MARKDOWN_CODE);
+    QTest::addRow("blockquote") << QString("> quoted") << QString("quoted")
+                               << int(C_MARKDOWN_BLOCKQUOTE);
+    QTest::addRow("blockquote-highlight") << QString("> ==marked==") << QString("marked")
+                                           << int(C_ERROR_CONTEXT);
+    QTest::addRow("blockquote-emphasis") << QString("> *emphasis*") << QString("emphasis")
+                                        << int(C_MARKDOWN_EMPHASIS);
+    QTest::addRow("list-marker") << QString("- item") << QString("-") << int(C_MARKDOWN_LIST);
+    QTest::addRow("numbered-list") << QString("1. item") << QString("1.") << int(C_MARKDOWN_LIST);
+    QTest::addRow("horizontal-rule") << QString("\n---") << QString("---") << int(C_MARKDOWN_RULE);
+    QTest::addRow("table") << QString("| first | second |\n| --- | --- |") << QString("|")
+                          << int(C_MARKDOWN_TABLE);
+    QTest::addRow("embedded-code") << QString("```cpp\nint value;\n```") << QString("int")
+                                  << int(C_TYPE);
+    QTest::addRow("plain-text") << QString("ordinary text") << QString("ordinary") << int(C_TEXT);
+}
+
+void GenerigHighlighterTests::testMarkdownColors()
+{
+    QFETCH(QString, text);
+    QFETCH(QString, token);
+    QFETCH(int, style);
+
+    FontSettingsData settings = globalFontSettings().data();
+    for (int category = C_MARKDOWN_HEADING; category <= C_MARKDOWN_TABLE; ++category) {
+        Format &format = settings.formatFor(TextStyle(category));
+        format.setForeground(QColor(40 + 15 * (category - C_MARKDOWN_HEADING), 40, 150));
+        format.setBackground(QColor(232, 238, 240));
+    }
+    const ColorScheme customScheme = settings.colorScheme();
+    settings.setColorScheme(customScheme);
+    QTextDocument document;
+    Highlighter highlighter;
+    highlighter.setDocument(&document);
+    highlighter.setDefinition(HighlighterHelper::definitionForName("Markdown"));
+    highlighter.setFontSettings(settings);
+    highlighter.setSpellCheckLanguage({});
+    document.setPlainText(text);
+    highlighter.rehighlight();
+
+    const int position = text.indexOf(token);
+    QVERIFY(position >= 0);
+    const QTextBlock block = document.findBlock(position);
+    const int offset = position - block.position();
+    QTextCharFormat actual;
+    for (const QTextLayout::FormatRange &range : block.layout()->formats()) {
+        if (range.start <= offset && offset < range.start + range.length) {
+            actual = range.format;
+            break;
+        }
+    }
+    const QTextCharFormat expected = settings.toTextCharFormat(TextStyle(style));
+    QCOMPARE(actual.foreground(), style == C_TEXT ? QBrush() : expected.foreground());
+    if (style == C_TEXT)
+        return;
+    QCOMPARE(actual.background(), expected.background());
+    if (style == C_MARKDOWN_HEADING || style == C_MARKDOWN_STRONG)
+        QCOMPARE(actual.fontWeight(), int(QFont::Bold));
+    if (style == C_MARKDOWN_EMPHASIS || text.contains("***"))
+        QVERIFY(actual.fontItalic());
+    if (style == C_MARKDOWN_STRIKETHROUGH)
+        QVERIFY(actual.fontStrikeOut());
+    if (style == C_MARKDOWN_LINK && !text.startsWith('<'))
+        QVERIFY(actual.fontUnderline());
+
+    ColorScheme changed = settings.colorScheme();
+    changed.formatFor(TextStyle(style)).setForeground(QColor(40, 150, 80));
+    settings.setColorScheme(changed);
+    highlighter.setFontSettings(settings);
+    highlighter.rehighlight();
+    for (const QTextLayout::FormatRange &range : block.layout()->formats()) {
+        if (range.start <= offset && offset < range.start + range.length) {
+            QCOMPARE(range.format.foreground().color(), QColor(40, 150, 80));
+            return;
+        }
+    }
+    QFAIL("No format covers the token after changing the color settings.");
+}
+
+void GenerigHighlighterTests::testMarkdownColorScheme()
+{
+    const bool atomicSaveDisabled = Utils::FileUtils::atomicSaveDisabled();
+    const auto restoreAtomicSave = qScopeGuard([atomicSaveDisabled] {
+        Utils::FileUtils::setAtomicSaveDisabled(atomicSaveDisabled);
+    });
+    // Test scheme serialization independently of atomic file replacement.
+    Utils::FileUtils::setAtomicSaveDisabled(true);
+    const FormatDescriptions descriptions = initialFormats();
+    for (const FormatDescription &description : descriptions) {
+        if (description.id() < C_MARKDOWN_HEADING || description.id() > C_MARKDOWN_TABLE)
+            continue;
+        QVERIFY(description.showControl(FormatDescription::ShowForegroundControl));
+        QVERIFY(description.showControl(FormatDescription::ShowBackgroundControl));
+        QVERIFY(!description.showControl(FormatDescription::ShowFontControls));
+        QVERIFY(!description.showControl(FormatDescription::ShowUnderlineControl));
+    }
+
+    for (const QString &name : QStringList{"default.xml", "light-2024.xml", "dark-2024.xml",
+                                          "grayscale.xml"}) {
+        FontSettingsData settings;
+        QVERIFY(settings.loadColorScheme(FontSettingsData::defaultSchemeFileName(name), descriptions));
+        for (int style = C_MARKDOWN_HEADING; style <= C_MARKDOWN_TABLE; ++style)
+            QVERIFY(settings.colorScheme().contains(TextStyle(style)));
+        QCOMPARE(settings.formatFor(C_MARKDOWN_HEADING).foreground(),
+                 settings.formatFor(C_TYPE).foreground());
+        QCOMPARE(settings.formatFor(C_MARKDOWN_CODE).foreground(),
+                 settings.formatFor(C_STRING).foreground());
+
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const Utils::FilePath file = Utils::FilePath::fromString(directory.filePath("markdown.xml"));
+        settings.formatFor(C_MARKDOWN_HEADING).setForeground(QColor(40, 150, 80));
+        QVERIFY(settings.saveColorScheme(file));
+        FontSettingsData reloaded;
+        QVERIFY(reloaded.loadColorScheme(file, descriptions));
+        QCOMPARE(reloaded.formatFor(C_MARKDOWN_HEADING), settings.formatFor(C_MARKDOWN_HEADING));
+    }
 }
 
 void GenerigHighlighterTests::cleanupTestCase()

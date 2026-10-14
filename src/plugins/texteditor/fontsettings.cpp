@@ -11,6 +11,7 @@
 #include <coreplugin/messagemanager.h>
 #include <utils/hostosinfo.h>
 #include <utils/plaintextedit/plaintextedit.h>
+#include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
@@ -21,6 +22,8 @@
 #include <QFont>
 #include <QFontDatabase>
 #include <QTextCharFormat>
+
+#include <algorithm>
 
 using namespace Utils;
 
@@ -416,6 +419,23 @@ void FontSettingsData::setColorSchemeFileName(const Utils::FilePath &filePath)
     m_schemeFileName = filePath;
 }
 
+static TextStyle markdownFallbackStyle(TextStyle style)
+{
+    switch (style) {
+    case C_MARKDOWN_HEADING: return C_TYPE;
+    case C_MARKDOWN_EMPHASIS: return C_TYPE;
+    case C_MARKDOWN_STRONG: return C_KEYWORD;
+    case C_MARKDOWN_STRIKETHROUGH: return C_COMMENT;
+    case C_MARKDOWN_LINK: return C_KEYWORD;
+    case C_MARKDOWN_CODE: return C_STRING;
+    case C_MARKDOWN_BLOCKQUOTE: return C_COMMENT;
+    case C_MARKDOWN_LIST: return C_NUMBER;
+    case C_MARKDOWN_RULE: return C_COMMENT;
+    case C_MARKDOWN_TABLE: return C_PREPROCESSOR;
+    default: return C_LAST_STYLE_SENTINEL;
+    }
+}
+
 bool FontSettingsData::loadColorScheme(const Utils::FilePath &filePath,
                                    const FormatDescriptions &descriptions)
 {
@@ -434,6 +454,12 @@ bool FontSettingsData::loadColorScheme(const Utils::FilePath &filePath,
     for (const FormatDescription &desc : descriptions) {
         const TextStyle id = desc.id();
         if (!m_scheme.contains(id)) {
+            const TextStyle fallback = markdownFallbackStyle(id);
+            if (fallback != C_LAST_STYLE_SENTINEL && m_scheme.contains(fallback)) {
+                const Format source = m_scheme.formatFor(fallback);
+                m_scheme.setFormatFor(id, Format{source.foreground(), source.background()});
+                continue;
+            }
             if ((id == C_NAMESPACE || id == C_CONCEPT || id == C_TEMPLATE_PARAMETER)
                 && m_scheme.contains(C_TYPE)) {
                 m_scheme.setFormatFor(id, m_scheme.formatFor(C_TYPE));
@@ -845,6 +871,32 @@ FormatDescriptions initialFormats()
                              Tr::tr("Text that the editor adds to the code without it being part "
                                     "of the document, such as scope end labels and inlay hints."),
                              Qt::darkGray);
+
+    const auto addMarkdownFormat = [&formatDescr](TextStyle style, const QString &name,
+                                                 const QString &description) {
+        const TextStyle fallback = markdownFallbackStyle(style);
+        const auto source = std::find_if(formatDescr.cbegin(), formatDescr.cend(),
+                                        [fallback](const FormatDescription &format) {
+            return format.id() == fallback;
+        });
+        QTC_ASSERT(source != formatDescr.cend(),
+                   formatDescr.emplace_back(style, name, description); return);
+        formatDescr.emplace_back(style, name, description,
+                                 Format{source->format().foreground(), source->format().background()},
+                                 FormatDescription::ShowForeAndBackgroundControl);
+    };
+    addMarkdownFormat(C_MARKDOWN_HEADING, Tr::tr("Markdown Heading"), Tr::tr("Headings."));
+    addMarkdownFormat(C_MARKDOWN_EMPHASIS, Tr::tr("Markdown Emphasis"), Tr::tr("Emphasized text."));
+    addMarkdownFormat(C_MARKDOWN_STRONG, Tr::tr("Markdown Strong Text"),
+                      Tr::tr("Strongly emphasized text."));
+    addMarkdownFormat(C_MARKDOWN_STRIKETHROUGH, Tr::tr("Markdown Strikethrough"),
+                      Tr::tr("Struck-out text."));
+    addMarkdownFormat(C_MARKDOWN_LINK, Tr::tr("Markdown Link"), Tr::tr("Links and references."));
+    addMarkdownFormat(C_MARKDOWN_CODE, Tr::tr("Markdown Code"), Tr::tr("Inline code and code fences."));
+    addMarkdownFormat(C_MARKDOWN_BLOCKQUOTE, Tr::tr("Markdown Blockquote"), Tr::tr("Block quotes."));
+    addMarkdownFormat(C_MARKDOWN_LIST, Tr::tr("Markdown List"), Tr::tr("List markers and checkboxes."));
+    addMarkdownFormat(C_MARKDOWN_RULE, Tr::tr("Markdown Horizontal Rule"), Tr::tr("Horizontal rules."));
+    addMarkdownFormat(C_MARKDOWN_TABLE, Tr::tr("Markdown Table"), Tr::tr("Table separators."));
 
     // Diff categories
     formatDescr.emplace_back(C_ADDED_LINE, Tr::tr("Added Line"),

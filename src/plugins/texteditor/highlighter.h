@@ -7,6 +7,7 @@
 
 #include <KSyntaxHighlighting/AbstractHighlighter>
 
+#include <QHash>
 #include <QSet>
 
 #include <optional>
@@ -34,6 +35,7 @@ protected:
 private:
     bool definitionMarksProse(const KSyntaxHighlighting::Format &format);
 
+    QHash<int, TextStyle> m_markdownFormats;
     std::optional<QSet<int>> m_proseMarkingFormats;
 };
 

@@ -69,10 +69,20 @@ static TextStyle categoryForTextStyle(int style)
     return C_TEXT;
 }
 
+static int markdownCategory(TextStyle style)
+{
+    return QMetaEnum::fromType<KSyntaxHighlighting::Theme::TextStyle>().keyCount()
+           + style - C_MARKDOWN_HEADING;
+}
+
 Highlighter::Highlighter()
 {
-    setTextFormatCategories(QMetaEnum::fromType<KSyntaxHighlighting::Theme::TextStyle>().keyCount(),
-                            &categoryForTextStyle);
+    const int count = QMetaEnum::fromType<KSyntaxHighlighting::Theme::TextStyle>().keyCount();
+    setTextFormatCategories(count + C_MARKDOWN_TABLE - C_MARKDOWN_HEADING + 1,
+                            [count](int category) {
+        return category < count ? categoryForTextStyle(category)
+                                : TextStyle(C_MARKDOWN_HEADING + category - count);
+    });
     followSpellCheckSettings(this);
 }
 
@@ -130,9 +140,45 @@ void Highlighter::highlightBlock(const QString &text)
     spellCheck(text);
 }
 
+static std::optional<TextStyle> markdownStyle(const QString &name)
+{
+    if (name.startsWith("Header H"))
+        return C_MARKDOWN_HEADING;
+    if (name.contains("Strong"))
+        return C_MARKDOWN_STRONG;
+    if (name.contains("Emphasis"))
+        return C_MARKDOWN_EMPHASIS;
+    if (name.contains("Strikethrough"))
+        return C_MARKDOWN_STRIKETHROUGH;
+    if (name.contains("Link") || name == "Email" || name == "Footnote")
+        return C_MARKDOWN_LINK;
+    if (name == "Code" || name == "Fenced Code")
+        return C_MARKDOWN_CODE;
+    if (name == "Blockquote" || name == "Blockquote: Normal Text")
+        return C_MARKDOWN_BLOCKQUOTE;
+    if (name == "List" || name == "Number List" || name == "List: Checkbox")
+        return C_MARKDOWN_LIST;
+    if (name == "Horizontal Rule")
+        return C_MARKDOWN_RULE;
+    if (name == "Table")
+        return C_MARKDOWN_TABLE;
+    return {};
+}
+
 void Highlighter::setDefinition(const KSyntaxHighlighting::Definition &definition)
 {
     m_proseMarkingFormats.reset();
+    m_markdownFormats.clear();
+    QList<KSyntaxHighlighting::Definition> languages = definition.includedDefinitions();
+    languages.prepend(definition);
+    for (const KSyntaxHighlighting::Definition &language : std::as_const(languages)) {
+        if (language.name() != "Markdown")
+            continue;
+        for (const KSyntaxHighlighting::Format &format : language.formats()) {
+            if (const auto style = markdownStyle(format.name()))
+                m_markdownFormats.insert(format.id(), *style);
+        }
+    }
     KSyntaxHighlighting::AbstractHighlighter::setDefinition(definition);
 }
 
@@ -201,9 +247,12 @@ void Highlighter::applyFormat(int offset, int length, const KSyntaxHighlighting:
     }
 
     const KSyntaxHighlighting::Theme defaultTheme;
-    QTextCharFormat qformat = formatForCategory(format.textStyle());
+    const auto markdown = m_markdownFormats.constFind(format.id());
+    const bool isMarkdown = markdown != m_markdownFormats.cend();
+    QTextCharFormat qformat = formatForCategory(isMarkdown ? markdownCategory(*markdown)
+                                                         : int(format.textStyle()));
 
-    if (format.hasTextColor(defaultTheme)) {
+    if (!isMarkdown && format.hasTextColor(defaultTheme)) {
         const QColor textColor = format.textColor(defaultTheme);
         if (format.hasBackgroundColor(defaultTheme)) {
             const QColor backgroundColor = format.hasBackgroundColor(defaultTheme);
@@ -216,7 +265,7 @@ void Highlighter::applyFormat(int offset, int length, const KSyntaxHighlighting:
         } else if (StyleHelper::isReadableOn(qformat.background().color(), textColor)) {
             qformat.setForeground(textColor);
         }
-    } else if (format.hasBackgroundColor(defaultTheme)) {
+    } else if (!isMarkdown && format.hasBackgroundColor(defaultTheme)) {
         const QColor backgroundColor = format.hasBackgroundColor(defaultTheme);
         if (StyleHelper::isReadableOn(backgroundColor, qformat.foreground().color()))
             qformat.setBackground(backgroundColor);
