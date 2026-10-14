@@ -1810,25 +1810,22 @@ public:
                 FileUtils::getExistingDirectory(Tr::tr("Import Directory"),
                                                 project->projectDirectory());
 
-        Target *lastTarget = nullptr;
+        // Add only the imported build configurations. The kit's default ones would
+        // be configured right away, in build directories the user did not ask for.
         BuildConfiguration *lastBc = nullptr;
         for (const BuildInfo &info : projectImporter->import(importDir, false)) {
-            Target *target = project->target(info.kitId);
-            if (!target)
-                target = project->addTargetForKit(KitManager::kit(info.kitId));
-            if (target) {
-                projectImporter->makePersistent(target->kit());
-                BuildConfiguration *bc = info.factory->create(target, info);
-                QTC_ASSERT(bc, continue);
-                target->addBuildConfiguration(bc);
-
-                lastTarget = target;
-                lastBc = bc;
-            }
+            Kit * const kit = KitManager::kit(info.kitId);
+            if (!kit)
+                continue;
+            projectImporter->makePersistent(kit);
+            BuildConfiguration * const bc = project->setup(info);
+            QTC_ASSERT(bc, continue);
+            lastBc = bc;
         }
-        if (lastTarget && lastBc) {
-            lastTarget->setActiveBuildConfiguration(lastBc, SetActive::Cascade);
-            project->setActiveTarget(lastTarget, SetActive::Cascade);
+        if (lastBc) {
+            Target * const target = lastBc->target();
+            target->setActiveBuildConfiguration(lastBc, SetActive::Cascade);
+            project->setActiveTarget(target, SetActive::Cascade);
         }
     }
 
