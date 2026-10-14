@@ -215,8 +215,11 @@ void PerfNativeMixedTest::testMergedStacks()
         if (locationId < 0) {
             // Thread and context switch events are no frames and name none.
             QVERIFY(model->itemLabel(i).isEmpty());
+            QCOMPARE(model->collapsedRow(i), 0);
             continue;
         }
+        QVERIFY(model->collapsedRow(i) > 0);
+        QVERIFY(model->collapsedRow(i) < model->collapsedRowCount());
         const PerfProfilerTraceManager::Symbol &symbol = manager.symbol(locationId);
         if (symbol.binary < 0)
             continue;

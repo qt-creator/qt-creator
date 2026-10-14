@@ -45,9 +45,9 @@ private slots:
 
         // 3 total items + 3 running-thread items (2 at t=0, 1 at t=100).
         QCOMPARE(model.count(), 6);
-        // Row 0 is the timeline's category header row.
+        // Expanded row 0 is the timeline's category header row.
         QCOMPARE(model.expandedRowCount(), 4); // header + total + 2 threads
-        QCOMPARE(model.collapsedRowCount(), 2); // header + total
+        QCOMPARE(model.collapsedRowCount(), 1); // total
         // Total row scaled to its peak (2 concurrent threads), labeled per-core: 200%.
         QCOMPARE(model.rowMaxValue(1), qint64(200));
         QCOMPARE(model.traceEndNs(), qint64(200) * 1000);
@@ -73,7 +73,7 @@ private slots:
                     QCOMPARE(model.relativeHeight(i), 0.5f);
                 else
                     QCOMPARE(model.relativeHeight(i), 0.0f);
-                QCOMPARE(model.collapsedRow(i), 1);
+                QCOMPARE(model.collapsedRow(i), 0);
             } else {
                 ++threadItems;
                 QVERIFY(model.expandedRow(i) >= 2);
@@ -152,6 +152,7 @@ private slots:
         Timeline::TimelineModelAggregator aggregator;
         CpuUsageModel model(&aggregator);
         model.setTraceData(&data);
+        model.setExpanded(true);
         QVERIFY(model.rendersAsDensity());
 
         // One column covering the whole trace [0, 400us] in ns.
@@ -167,6 +168,13 @@ private slots:
         col.assign(1, 0.0f);
         QVERIFY(model.fillDensityColumns(1, 0, qint64(400) * 1000, col));
         QCOMPARE(col[0], 0.5f);
+
+        // Collapsed, the total row is row 0 and the only row.
+        model.setExpanded(false);
+        col.assign(1, 0.0f);
+        QVERIFY(model.fillDensityColumns(0, 0, qint64(400) * 1000, col));
+        QCOMPARE(col[0], 0.5f);
+        QVERIFY(!model.fillDensityColumns(1, 0, qint64(400) * 1000, col));
     }
 
     void densityTwoColumnsSplit()
@@ -183,6 +191,7 @@ private slots:
         Timeline::TimelineModelAggregator aggregator;
         CpuUsageModel model(&aggregator);
         model.setTraceData(&data);
+        model.setExpanded(true);
 
         // Two columns over [0, 400us): ticks 0,100 in col 0; 200,300 in col 1.
         QList<float> col(2, 0.0f);
@@ -202,6 +211,7 @@ private slots:
         Timeline::TimelineModelAggregator aggregator;
         CpuUsageModel model(&aggregator);
         model.setTraceData(&data);
+        model.setExpanded(true);
 
         // 8 columns over [0,100us): early columns map to tick@0 (running),
         // later columns to tick@100 (idle); none left at the uninitialised -1.
@@ -229,6 +239,7 @@ private slots:
         Timeline::TimelineModelAggregator aggregator;
         CpuUsageModel model(&aggregator);
         model.setTraceData(&data);
+        model.setExpanded(true);
 
         QList<float> col(4, -1.0f);
         QVERIFY(model.fillDensityColumns(2, qint64(2000) * 1000, qint64(3000) * 1000, col));
@@ -271,6 +282,7 @@ private slots:
         Timeline::TimelineModelAggregator aggregator;
         CpuUsageModel model(&aggregator);
         model.setTraceData(&data);
+        model.setExpanded(true);
 
         QList<float> col(10, -1.0f);
         QVERIFY(model.fillDensityColumns(2, 0, qint64(10000) * 1000, col));
@@ -296,6 +308,7 @@ private slots:
         data.threadNames = {{10, "a"}};
         data.samples = {{0, 10, true, {0}}, {100, 10, false, {0}}};
         model.setTraceData(&data);
+        model.setExpanded(true);
 
         // Same (range, width) twice -> identical results (cache-hit path).
         QList<float> a(4, 0.0f), b(4, 0.0f);
@@ -313,6 +326,7 @@ private slots:
         data2.threadNames = {{10, "a"}};
         data2.samples = {{0, 10, false, {0}}, {100, 10, false, {0}}};
         model.setTraceData(&data2);
+        model.setExpanded(true);
         QList<float> c(4, -1.0f);
         QVERIFY(model.fillDensityColumns(2, 0, qint64(100) * 1000, c));
         for (float v : c)
@@ -342,6 +356,9 @@ private slots:
         QCOMPARE(model.rowColor(1), model.color(totalItem));          // total row
         QCOMPARE(model.rowColor(threadRow), model.color(threadItem)); // a thread row
         QCOMPARE(model.rowColor(999), QRgb(0xff808080));              // out of range -> grey
+
+        model.setExpanded(false);
+        QCOMPARE(model.rowColor(0), model.color(totalItem)); // collapsed total row
     }
 
     void selectedEventShowsStack()

@@ -48,6 +48,7 @@ public:
 
 private:
     void load();
+    int toExpandedRow(int row) const;
     void ensureDensityCache(qint64 startNs, qint64 endNs, int columns) const;
 
     struct Item

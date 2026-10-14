@@ -15,15 +15,17 @@ using namespace Qt::StringLiterals;
 
 namespace Profiler::Internal {
 
-// Timeline rows: 0 = category header, 1 = total graph, 2.. = threads.
+// Expanded timeline rows: 0 = category header, 1 = total graph, 2.. = threads.
+// Collapsed, the total graph is the only row.
 constexpr int TotalRow = 1;
 constexpr int FirstThreadRow = 2;
+constexpr int CollapsedTotalRow = Timeline::kCollapsedStartRow;
 
 CpuUsageModel::CpuUsageModel(Timeline::TimelineModelAggregator *parent)
     : Timeline::TimelineModel(parent)
 {
     setDisplayName(Tr::tr("CPU Usage"));
-    setCollapsedRowCount(TotalRow + 1);
+    setCollapsedRowCount(CollapsedTotalRow + 1);
     setExpandedRowCount(TotalRow + 1);
 }
 
@@ -45,7 +47,7 @@ void CpuUsageModel::clear()
     m_maxRunning = 1;
     m_traceEndNs = 0;
     TimelineModel::clear();
-    setCollapsedRowCount(TotalRow + 1);
+    setCollapsedRowCount(CollapsedTotalRow + 1);
     setExpandedRowCount(TotalRow + 1);
 }
 
@@ -116,7 +118,7 @@ void CpuUsageModel::load()
     m_traceEndNs = qint64(ticks.last().tsUs) * 1000;
 
     setExpandedRowCount(FirstThreadRow + int(m_threads.size()));
-    setCollapsedRowCount(TotalRow + 1);
+    setCollapsedRowCount(CollapsedTotalRow + 1);
     // A taller total row makes the graph readable and is what triggers the
     // track painter's value-scale axis (drawn only for rows >= 60 px).
     setExpandedRowHeight(TotalRow, 3 * defaultRowHeight());
@@ -143,7 +145,14 @@ int CpuUsageModel::expandedRow(int index) const
 int CpuUsageModel::collapsedRow(int index) const
 {
     Q_UNUSED(index)
-    return TotalRow;
+    return CollapsedTotalRow;
+}
+
+int CpuUsageModel::toExpandedRow(int row) const
+{
+    if (expanded())
+        return row;
+    return row == CollapsedTotalRow ? TotalRow : -1;
 }
 
 QRgb CpuUsageModel::color(int index) const
@@ -155,7 +164,7 @@ QRgb CpuUsageModel::color(int index) const
 
 QRgb CpuUsageModel::rowColor(int row) const
 {
-    return m_rowColors.value(row, QRgb(0xff808080));
+    return m_rowColors.value(toExpandedRow(row), QRgb(0xff808080));
 }
 
 float CpuUsageModel::relativeHeight(int index) const
@@ -353,6 +362,7 @@ bool CpuUsageModel::fillDensityColumns(int row, qint64 startNs, qint64 endNs,
 
     ensureDensityCache(startNs, endNs, columns);
 
+    row = toExpandedRow(row);
     const bool isTotal = row == TotalRow;
     const QList<int> *active = nullptr;
     if (!isTotal) {
