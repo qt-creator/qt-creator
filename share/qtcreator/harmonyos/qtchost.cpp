@@ -15,9 +15,9 @@
 // Installed under the name of one of Qt's build tools (moc, rcc, uic, ...) it stands in for
 // that tool instead: the Qt a project on the device builds against has its tools in its own
 // tree, which the device does not execute either, so the tool of that name in the directory
-// QTC_QT_HOST_LIBEXECS names is mapped and run in its place, together with the libraries
-// it needs from the directory QTC_QT_HOST_LIBS names: the tool has to run on the Qt it
-// belongs to, not on the one this package carries.
+// QTC_QT_HOST_LIBEXECS (or, for qmake, QTC_QT_HOST_BINS) names is mapped and run in its
+// place, together with the libraries it needs from the directory QTC_QT_HOST_LIBS names:
+// the tool has to run on the Qt it belongs to, not on the one this package carries.
 
 #include "qtcload.h"
 
@@ -71,8 +71,23 @@ static int runTool(const char *name, int argc, char **argv)
         return 1;
     }
     // A Qt built for HarmonyOS makes even its tools loadable modules.
-    std::string path = std::string(directory) + "/lib" + name + ".so";
-    if (::access(path.c_str(), F_OK) != 0)
+    std::string path;
+    for (const char *variable : {"QTC_QT_HOST_LIBEXECS", "QTC_QT_HOST_BINS"}) {
+        const char *candidate = std::getenv(variable);
+        if (!candidate || !*candidate)
+            continue;
+        for (const std::string &file : {std::string(candidate) + "/lib" + name + ".so",
+                                        std::string(candidate) + '/' + name}) {
+            if (::access(file.c_str(), F_OK) == 0) {
+                directory = candidate;
+                path = file;
+                break;
+            }
+        }
+        if (!path.empty())
+            break;
+    }
+    if (path.empty())
         path = std::string(directory) + '/' + name;
 
     // A Qt whose tools are these copies would otherwise have this start itself forever.

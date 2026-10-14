@@ -94,7 +94,7 @@ for example an ssh client and its libraries")
   # The Qt a project on the device builds against brings its tools, but not in a package,
   # so they run through qtchost, which a copy under the tool's name turns into that tool.
   # Plain copies, because the package keeps no links.
-  foreach(_tool IN ITEMS moc rcc uic cmake_automoc_parser qlalr)
+  foreach(_tool IN ITEMS moc qmake rcc uic cmake_automoc_parser qlalr)
     add_custom_command(TARGET qtchost POST_BUILD
       COMMAND "${CMAKE_COMMAND}" -E copy_if_different
         "$<TARGET_FILE:qtchost>" "${_harmonyos_host_dir}/${_tool}")

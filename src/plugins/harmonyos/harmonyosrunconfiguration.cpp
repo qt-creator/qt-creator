@@ -16,6 +16,9 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitaspect.h>
+
 #include <utils/algorithm.h>
 #include <utils/elfreader.h>
 #include <utils/hostosinfo.h>
@@ -623,6 +626,20 @@ public:
                                           + runControl->commandLine().splitArguments(),
                                       qtLibraries(library, libraryDirectories(settings),
                                                   qtPlugins(settings)));
+            }
+            // A build that does not run harmonydeployqt, such as a qmake one, leaves no
+            // settings behind. Its target is then the module, linked against the kit's Qt.
+            const FilePath target = runControl->targetFilePath();
+            const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(
+                runControl->kit());
+            if (HostOsInfo::isHarmonyHost() && qt && target.fileName().endsWith(".so")) {
+                const FilePath platform
+                    = qt->pluginPath().pathAppended("platforms/libqohos.so");
+                return handoverRecipe(runControl, target,
+                                      runControl->commandLine().splitArguments(),
+                                      qtLibraries(target, {qt->libraryPath()},
+                                                  platform.isFile() ? FilePaths{platform}
+                                                                    : FilePaths()));
             }
             return runControl->processRecipe(runControl->processTask());
         });

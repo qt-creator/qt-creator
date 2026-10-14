@@ -18,6 +18,9 @@ public:
     QSet<Utils::Id> availableFeatures() const override;
     void addToBuildEnvironment(const ProjectExplorer::Kit *k,
                                Utils::Environment &env) const override;
+    Utils::FilePath qmakeFilePath() const override;
+    Utils::CommandLine qmakeCommand() const override;
+    QString mkspecFor(ProjectExplorer::Toolchain *tc) const override;
 };
 
 void setupHarmonyOsQtVersion();
