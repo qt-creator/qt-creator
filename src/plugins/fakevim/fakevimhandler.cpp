@@ -5176,6 +5176,8 @@ public:
     bool setOption(const QString &name, const VimValue &value);
     bool callFunction(const QString &name, const QList<VimValue> &args,
                       VimValue *result, QString *error);
+    Q_NEVER_INLINE bool callBuiltinFunction(const QString &name, const QList<VimValue> &args,
+                                            VimValue *result, QString *error);
     bool searchFunction(const QList<VimValue> &args, bool wantPosition, VimValue *result,
                         QString *error);
     bool searchPairFunction(const QList<VimValue> &args, bool wantPosition, VimValue *result,
@@ -26227,13 +26229,10 @@ static QString diffRange(int start, int count)
     return QString::number(start + 1) + QLatin1Char(',') + QString::number(count);
 }
 
-bool FakeVimHandler::Private::callFunction(const QString &name,
+bool FakeVimHandler::Private::callBuiltinFunction(const QString &name,
     const QList<VimValue> &args, VimValue *result, QString *error)
 {
     const auto arg = [&](int i) { return i < args.size() ? args.at(i) : VimValue(); };
-
-    if (!checkArgumentCount(name, args.size(), error))
-        return false;
 
     if (name == "strlen") {
         *result = VimValue(qlonglong(arg(0).toString().toUtf8().size()));
@@ -32639,6 +32638,21 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         }
         return callFunction(arg(0).toString(), callArgs, result, error);
     }
+    *error = Tr::tr("E117: Unknown function: %1").arg(name);
+    return false;
+}
+
+// The builtins are kept out of this frame: theirs is large enough that a few
+// levels of recursion between user functions would exhaust the stack.
+bool FakeVimHandler::Private::callFunction(const QString &name,
+    const QList<VimValue> &args, VimValue *result, QString *error)
+{
+    if (!checkArgumentCount(name, args.size(), error))
+        return false;
+
+    if (isBuiltinFunction(name))
+        return callBuiltinFunction(name, args, result, error);
+
     if (g.userFunctions.contains(functionKey(name))) {
         const QString key = functionKey(name);
         *result = callUserFunction(key, g.userFunctions.value(key), args);
