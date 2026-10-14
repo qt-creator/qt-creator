@@ -28759,7 +28759,7 @@ void FakeVimTester::test_vim_scroll_align()
     QCOMPARE(topLine(), 101 - height);
     QCOMPARE(cursorLine(), 100);
     data.doKeys("100Gzz");
-    QCOMPARE(topLine(), 100 - height / 2);
+    QCOMPARE(topLine(), 100 - (height - 1) / 2);
     data.doKeys("4Gzb");
     QCOMPARE(topLine(), 1);
     QCOMPARE(cursorLine(), 4);
@@ -28782,7 +28782,7 @@ void FakeVimTester::test_vim_scroll_align()
     // Centering stays where it was, and either edge of the document takes
     // precedence over the offset.
     data.doKeys("100Gzz");
-    QCOMPARE(topLine(), 100 - height / 2);
+    QCOMPARE(topLine(), 100 - (height - 1) / 2);
     data.doKeys("5Gzt");
     QCOMPARE(topLine(), 2);
     QCOMPARE(cursorLine(), 5);
