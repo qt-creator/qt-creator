@@ -88,6 +88,7 @@ public:
 signals:
     void serversChanged();
     void suitePathValidated();
+    void pathMappingsChanged();
 private:
     std::optional<AxivionVersionInfo> m_versionInfo = std::nullopt;
     Utils::StringAspect m_defaultServerId{this};

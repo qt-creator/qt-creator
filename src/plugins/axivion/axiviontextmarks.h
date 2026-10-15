@@ -5,6 +5,8 @@
 
 #include <utils/filepath.h>
 
+#include <functional>
+
 namespace Axivion::Internal {
 
 namespace Dto { class FileViewDto; }
@@ -16,6 +18,7 @@ class LineIssuesOrigin
 public:
     QString projectName;
     QString version;
+    Utils::FilePath analysisPath;
 };
 
 void handleIssuesForFile(const Dto::FileViewDto &fileView, const Utils::FilePath &filePath,
@@ -25,6 +28,9 @@ void handleIssuesForFile(const Dto::FileViewDto &fileView, const Utils::FilePath
                          const QByteArray &origSource);
 void clearAllMarks(LineMarkerType type);
 void clearMarks(const Utils::FilePath &filePath, LineMarkerType type);
+void clearMarksIf(LineMarkerType type,
+                  const std::function<bool(const Utils::FilePath &filePath,
+                                           const LineIssuesOrigin &origin)> &condition);
 void clearMarksWithoutPathMapping(LineMarkerType type);
 bool hasLineIssues(const Utils::FilePath &filePath, LineMarkerType type);
 std::optional<LineIssuesOrigin> lineIssuesOrigin(const Utils::FilePath &filePath,

@@ -244,9 +244,7 @@ void clearAllMarks(LineMarkerType type)
     switch (type) {
     case LineMarkerType::DashboardLocal:
     case LineMarkerType::DashboardGlobal:
-        for (const QSet<AxivionTextMark *> &marks : std::as_const(markers))
-            qDeleteAll(marks);
-        markers.clear();
+        clearMarksIf(type, [](const FilePath &, const LineIssuesOrigin &) { return true; });
         break;
     case LineMarkerType::SFA: {
         const FilePaths files = markers.keys();
@@ -283,19 +281,27 @@ void clearMarks(const FilePath &filePath, LineMarkerType type)
     }
 }
 
-void clearMarksWithoutPathMapping(LineMarkerType type)
+void clearMarksIf(LineMarkerType type,
+                  const std::function<bool(const FilePath &filePath,
+                                           const LineIssuesOrigin &origin)> &condition)
 {
     QTC_ASSERT(type != LineMarkerType::SFA, return);
     QHash<FilePath, QSet<AxivionTextMark *>> &markers = textMarkManager().marks(type);
     for (auto it = markers.begin(); it != markers.end(); ) {
-        if (it->isEmpty()
-                || !settings().hasPathMapping(it.key(), (*it->cbegin())->origin.projectName)) {
+        if (it->isEmpty() || condition(it.key(), (*it->cbegin())->origin)) {
             qDeleteAll(*it);
             it = markers.erase(it);
         } else {
             ++it;
         }
     }
+}
+
+void clearMarksWithoutPathMapping(LineMarkerType type)
+{
+    clearMarksIf(type, [](const FilePath &filePath, const LineIssuesOrigin &origin) {
+        return !settings().hasPathMapping(filePath, origin.projectName);
+    });
 }
 
 bool hasLineIssues(const FilePath &filePath, LineMarkerType type)

@@ -267,6 +267,7 @@ public:
                                       const QString &projectName);
     void handleOpenedDocs();
     void onDocumentOpened(IDocument *doc);
+    void onPathMappingsChanged();
     void onDocumentClosed(IDocument * doc);
     void onCurrentEditorChanged(IEditor *editor);
     void enableInlineIssues(bool enable);
@@ -411,6 +412,8 @@ AxivionPluginPrivate::AxivionPluginPrivate()
 #endif // ssl
     connect(&settings().highlightMarks, &BoolAspect::changed,
             this, []{ updateExistingMarks(); });
+    connect(&settings(), &AxivionSettings::pathMappingsChanged,
+            this, &AxivionPluginPrivate::onPathMappingsChanged);
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
             this, &AxivionPluginPrivate::onSessionLoaded);
     connect(SessionManager::instance(), &SessionManager::aboutToSaveSession,
@@ -1290,7 +1293,7 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
         storage->expectedContentType = ContentType::PlainText;
     };
 
-    const auto markerHandler = [this, markerStorage, docFilePath, type, otherType,
+    const auto markerHandler = [this, markerStorage, docFilePath, filePath, type, otherType,
                                 replacesOtherMarks, storage, projectName] {
         if (!m_inlineIssuesEnabled)
             return;
@@ -1309,7 +1312,7 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
         if (!markerStorage->data || markerStorage->data->lineMarkers.empty())
             return;
         handleIssuesForFile(*markerStorage->data, docFilePath, std::nullopt, type,
-                            {projectName, latestVersion(*info)}, storage->outputData);
+                            {projectName, latestVersion(*info), filePath}, storage->outputData);
     };
 
     const Group recipe = {
@@ -1320,6 +1323,26 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
         onGroupDone(markerHandler)
     };
     m_docMarksRunner.start(doc, recipe);
+}
+
+void AxivionPluginPrivate::onPathMappingsChanged()
+{
+    // Marks of other projects cannot be fetched again, so they are only kept while mapped.
+    // Marks of any project are outdated when their file is mapped to another analysis path.
+    const QString currentProject = m_currentProjectInfo ? m_currentProjectInfo->name : QString();
+    const auto isOutdated = [currentProject](const FilePath &filePath,
+                                             const LineIssuesOrigin &origin) {
+        if (!filePath.exists()) // cannot be mapped anymore
+            return true;
+        if (origin.projectName != currentProject
+                && !settings().hasPathMapping(filePath, origin.projectName)) {
+            return true;
+        }
+        return settings().mappedFilePath(filePath, origin.projectName) != origin.analysisPath;
+    };
+    clearMarksIf(LineMarkerType::DashboardGlobal, isOutdated);
+    clearMarksIf(LineMarkerType::DashboardLocal, isOutdated);
+    handleOpenedDocs();
 }
 
 void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)

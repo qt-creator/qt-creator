@@ -334,6 +334,8 @@ AxivionSettings::AxivionSettings()
         m_defaultServerId.setValue(m_allServers.first().id.toString());
 
     connect(&axivionSuitePath, &BaseAspect::changed, this, [this] { m_versionInfo.reset(); });
+    connect(&pathMappingSettings(), &BaseAspect::changed,
+            this, &AxivionSettings::pathMappingsChanged);
 
     axivionSuitePath.addOnVolatileValueChanged(this, markSettingsDirty);
     bauhausPython.addOnVolatileValueChanged(this, markSettingsDirty);
