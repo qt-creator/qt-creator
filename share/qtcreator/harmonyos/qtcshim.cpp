@@ -10,6 +10,7 @@
 #define NoteTag "qtcshim"
 #include "qtcshim.h"
 
+#include <atomic>
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
@@ -22,7 +23,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <inputmethod/inputmethod_text_editor_proxy_capi.h>
 #include <napi/native_api.h>
+#include <window_manager/oh_window_event_filter.h>
 
 static QtcLoad::World &world()
 {
@@ -134,6 +137,75 @@ static int forwardProviderSetData(void *provider, void *context, ProviderGetData
         delete forward;
     return result;
 }
+
+// And for the callbacks that get no context: the input method's text editor proxy, which only
+// passes the proxy, and the window's event filters. Each kind forwards to the one function set
+// last, which is what the plugin does anyway: it hands the same function to every proxy and window.
+template<int Kind, typename Setter>
+struct SetterForward;
+
+template<int Kind, typename Error, typename Owner, typename Result, typename... Args>
+struct SetterForward<Kind, Error (*)(Owner, Result (*)(Args...))>
+{
+    using Func = Result (*)(Args...);
+    using Setter = Error (*)(Owner, Func);
+
+    static inline Setter real = nullptr;
+    static inline std::atomic<Func> target = nullptr;
+
+    static Result call(Args... args) { return target.load()(args...); }
+
+    static Error set(Owner owner, Func func)
+    {
+        target = func;
+        return real(owner, func ? &call : nullptr);
+    }
+};
+
+template<int Kind, typename Setter>
+static void forwardSetter(void *library, const char *name)
+{
+    using Forward = SetterForward<Kind, Setter>;
+    Forward::real = reinterpret_cast<Setter>(::dlsym(library, name));
+    if (Forward::real)
+        QtcLoad::interposers()[name] = reinterpret_cast<void *>(&Forward::set);
+    else
+        note("there is no %s", name);
+}
+
+#define FORWARD(Setter) forwardSetter<__LINE__, decltype(&Setter)>(library, #Setter)
+
+static void forwardSetters()
+{
+    if (void *library = ::dlopen("libohinputmethod.so", RTLD_NOW | RTLD_LOCAL)) {
+        FORWARD(OH_TextEditorProxy_SetGetTextConfigFunc);
+        FORWARD(OH_TextEditorProxy_SetInsertTextFunc);
+        FORWARD(OH_TextEditorProxy_SetDeleteForwardFunc);
+        FORWARD(OH_TextEditorProxy_SetDeleteBackwardFunc);
+        FORWARD(OH_TextEditorProxy_SetSendKeyboardStatusFunc);
+        FORWARD(OH_TextEditorProxy_SetSendEnterKeyFunc);
+        FORWARD(OH_TextEditorProxy_SetMoveCursorFunc);
+        FORWARD(OH_TextEditorProxy_SetHandleSetSelectionFunc);
+        FORWARD(OH_TextEditorProxy_SetHandleExtendActionFunc);
+        FORWARD(OH_TextEditorProxy_SetGetLeftTextOfCursorFunc);
+        FORWARD(OH_TextEditorProxy_SetGetRightTextOfCursorFunc);
+        FORWARD(OH_TextEditorProxy_SetGetTextIndexAtCursorFunc);
+        FORWARD(OH_TextEditorProxy_SetReceivePrivateCommandFunc);
+        FORWARD(OH_TextEditorProxy_SetSetPreviewTextFunc);
+        FORWARD(OH_TextEditorProxy_SetFinishTextPreviewFunc);
+    } else {
+        note("cannot open the input method: %s", ::dlerror());
+    }
+    if (void *library = ::dlopen("libnative_window_manager.so", RTLD_NOW | RTLD_LOCAL)) {
+        FORWARD(OH_NativeWindowManager_RegisterKeyEventFilter);
+        FORWARD(OH_NativeWindowManager_RegisterMouseEventFilter);
+        FORWARD(OH_NativeWindowManager_RegisterTouchEventFilter);
+    } else {
+        note("cannot open the window manager: %s", ::dlerror());
+    }
+}
+
+#undef FORWARD
 
 static bool exists(const std::string &path)
 {
@@ -309,6 +381,7 @@ static bool mapQt()
         = reinterpret_cast<void *>(&forwardSetData);
     QtcLoad::interposers()["OH_UdmfRecordProvider_SetData"]
         = reinterpret_cast<void *>(&forwardProviderSetData);
+    forwardSetters();
 
     note("mapping %s", path.c_str());
     world().images.push_back(std::make_unique<QtcLoad::Image>());
