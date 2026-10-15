@@ -413,6 +413,11 @@ private:
     // main() returned, a crash on the way out included, takes the exit code with it.
     void reportEnd()
     {
+        m_text += m_socket->readAll();
+        if (!m_text.isEmpty()) {
+            m_runControl->postMessage(QString::fromUtf8(m_text), StdOutFormat);
+            m_text.clear();
+        }
         if (m_called && !m_returned) {
             m_runControl->postMessage(Tr::tr("The application ended before its main() "
                                              "returned. Its exit code is not known."),

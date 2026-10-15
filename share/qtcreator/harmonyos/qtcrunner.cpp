@@ -228,9 +228,30 @@ extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv
     }
 
     note("calling the application's main()");
-    if (fd >= 0)
+    int savedOutput = -1;
+    int savedError = -1;
+    if (fd >= 0) {
         ::dprintf(fd, "runner: calling main(), argc %d\n", argc);
+        // The platform sends the application's output nowhere, the IDE shows what comes
+        // over the channel. Line by line, because the platform may end the process before
+        // main() returns, and with it whatever a buffer still held.
+        ::fflush(stdout);
+        ::fflush(stderr);
+        savedOutput = ::dup(STDOUT_FILENO);
+        savedError = ::dup(STDERR_FILENO);
+        ::dup2(fd, STDOUT_FILENO);
+        ::dup2(fd, STDERR_FILENO);
+        ::setvbuf(stdout, nullptr, _IOLBF, 0);
+    }
     const int result = entry(argc, argv);
+    if (fd >= 0) {
+        ::fflush(stdout);
+        ::fflush(stderr);
+        ::dup2(savedOutput, STDOUT_FILENO);
+        ::dup2(savedError, STDERR_FILENO);
+        ::close(savedOutput);
+        ::close(savedError);
+    }
     note("the application's main() returned %d", result);
     if (fd >= 0) {
         ::dprintf(fd, "runner: main() returned %d\n", result);
