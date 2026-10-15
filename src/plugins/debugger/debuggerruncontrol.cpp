@@ -13,6 +13,7 @@
 #include "debuggerkitaspect.h"
 #include "debuggertr.h"
 #include "enginemanager.h"
+#include "genericdebuggerengine.h"
 #include "gdb/gdbengine.h"
 #include "jdwp/jdwpengine.h"
 #include "lldb/lldbengine.h"
@@ -570,7 +571,14 @@ static Result<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
         return QList<QPointer<Internal::DebuggerEngine>>{dapEngine};
 
     QList<QPointer<Internal::DebuggerEngine>> engines;
-    if (rp.isCppDebugging()) {
+    if (rp.engineInterfaceFactory()) {
+        std::unique_ptr<DebuggerEngineInterface> backend = rp.engineInterfaceFactory()(rp);
+        if (!backend) {
+            return make_unexpected(Tr::tr("The debugger backend \"%1\" could not be created.")
+                                       .arg(rp.engineInterfaceName()));
+        }
+        engines << new GenericDebuggerEngine(rp.engineInterfaceName(), backend.release());
+    } else if (rp.isCppDebugging()) {
         switch (rp.cppEngineType()) {
         case GdbEngineType:
             // Experimental opt-in: route gdb debugging through the DAP-shaped

@@ -17,6 +17,7 @@
 
 #include <texteditor/textmark.h>
 
+#include <memory>
 #include <optional>
 
 #include <utils/fileinprojectfinder.h>
@@ -50,7 +51,10 @@ class ProcessResultData;
 
 namespace Debugger {
 
-namespace Internal { class DebuggerUnitTests; }
+namespace Internal {
+class DebuggerEngineInterface;
+class DebuggerUnitTests;
+} // namespace Internal
 
 enum DebuggerState
 {
@@ -197,12 +201,23 @@ public:
     DebuggerEngineType cppEngineType() const { return m_cppEngineType; }
     // For callers that know better than the kit which engine they want, e.g. a
     // plugin driving an adapter of its own.
-    void setCppEngineType(DebuggerEngineType engineType) { m_cppEngineType = engineType; }
+    void setCppEngineType(DebuggerEngineType engineType)
+    {
+        clearEngineInterface();
+        m_cppEngineType = engineType;
+    }
 
     // Set together with DapAdapterEngineType: the adapter to speak to, which
     // the engine type alone cannot name.
     void setDapAdapter(const Internal::DapStartData &adapter) { m_dapAdapter = adapter; }
     std::optional<Internal::DapStartData> dapAdapter() const { return m_dapAdapter; }
+
+    using EngineInterfaceFactory = std::function<
+        std::unique_ptr<Internal::DebuggerEngineInterface>(const DebuggerRunParameters &)>;
+    void setEngineInterface(const QString &name, const EngineInterfaceFactory &create);
+    void clearEngineInterface();
+    QString engineInterfaceName() const { return m_engineInterfaceName; }
+    EngineInterfaceFactory engineInterfaceFactory() const { return m_engineInterfaceFactory; }
 
     QString version() const { return m_version; }
 
@@ -388,6 +403,8 @@ private:
     DebuggerEngineType m_cppEngineType = NoEngineType;
     bool m_cppDebuggingRequested = true;
     std::optional<Internal::DapStartData> m_dapAdapter;
+    QString m_engineInterfaceName;
+    EngineInterfaceFactory m_engineInterfaceFactory;
     int m_testCase = 0; // For Debugger testing.
     int m_qtVersion = 0;
     std::optional<int> m_exitCode = {};

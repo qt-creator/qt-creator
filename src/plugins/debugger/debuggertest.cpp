@@ -255,6 +255,9 @@ private slots:
     void testAutomaticDebugsAJavaLaunchAsJava();
     void testNativeMixedEnvironmentVariableWins();
     void testOverrideKitDebugger();
+    void testPluginBringsTheBackend();
+    void testPluginFailsToBringTheBackend();
+    void testPluginBackendNeedsCppDebugging();
     void testCombinedEngineNeedsNoQmlChannel();
     void testQmlInspectorLeavesParentlessObjectsCollapsed();
     void testInspectorFollowsParentlessObjects();
@@ -4460,6 +4463,17 @@ void DebuggerUnitTests::testKitWithCompiledQmlDisablesQmlDebugging()
     const DebuggerRunParameters once = DebuggerRunParameters::fromRunControl(noDebuggerRun.get());
     QCOMPARE(once.m_validationErrors.size(), 1);
 
+    // Without a debugger in the kit a plugin can still bring a backend of its own.
+    noDebuggerRun->setAspectDataForTest(qmlOnly);
+    DebuggerRunParameters brought = DebuggerRunParameters::fromRunControl(noDebuggerRun.get());
+    QVERIFY(!brought.isCppDebugging());
+    QCOMPARE(brought.m_validationErrors.size(), 1);
+    brought.setEngineInterface("Plugin", [](const DebuggerRunParameters &) {
+        return std::unique_ptr<DebuggerEngineInterface>();
+    });
+    QVERIFY(brought.isCppDebugging());
+    QVERIFY(brought.m_validationErrors.isEmpty());
+
     check = {};
     runControl->setAspectDataForTest(data);
     const DebuggerRunParameters plain = DebuggerRunParameters::fromRunControl(runControl.get());
@@ -5129,6 +5143,163 @@ void DebuggerUnitTests::testOverrideKitDebugger()
     rp = kitWithoutDebugger();
     rp.overrideKitDebugger("/sdk/gdb", GdbEngineType);
     QCOMPARE(rp.debugger().command.executable(), FilePath("/usr/bin/my-gdb"));
+}
+
+// A backend that gets through a session as soon as it is asked to.
+class SessionBackend final : public RecordingBackend
+{
+public:
+    void start() override
+    {
+        report(InferiorEvent::EngineSetupOk, InferiorEvent::RunAndInferiorRunOk);
+    }
+    void execute(const ExecutionRequest &request) override
+    {
+        if (request.command == ExecutionCommand::Interrupt)
+            report(InferiorEvent::StopOk);
+    }
+    void shutdownInferior(ShutdownMode) override { report(InferiorEvent::ShutdownFinished); }
+    void shutdownEngine() override { report(InferiorEvent::EngineShutdownFinished); }
+
+private:
+    // Not from within the call: the engine changes its state after making it.
+    void report(InferiorEvent first, std::optional<InferiorEvent> second = {})
+    {
+        QMetaObject::invokeMethod(this, [this, first, second] {
+            emit inferiorEvent(first);
+            if (second)
+                emit inferiorEvent(*second);
+        }, Qt::QueuedConnection);
+    }
+};
+
+// A plugin with a debugger of its own brings the backend. Neither the type of
+// the kit's debugger nor what is wrong with it matters then.
+void DebuggerUnitTests::testPluginBringsTheBackend()
+{
+    Kit *kit = KitManager::defaultKit();
+    QVERIFY(kit);
+
+    const std::unique_ptr<RunControl> runControl(
+        new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE));
+    runControl->setKit(kit);
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl.get());
+    rp.setInferiorExecutable(FilePath::fromUserInput("/nonexistent/program"));
+    // A Windows binary, a debugger that does not fit it, and does not work either.
+    rp.setToolChainAbi(Abi(Abi::X86Architecture, Abi::WindowsOS, Abi::WindowsMsvc2022Flavor,
+                           Abi::PEFormat, 64));
+    rp.setCppEngineType(GdbEngineType);
+    rp.m_validationErrors.append("The debugger of the kit is broken.");
+
+    QPointer<SessionBackend> backend;
+    DebuggerStartMode startMode = NoStartMode;
+    rp.setEngineInterface("Plugin", [&backend, &startMode](const DebuggerRunParameters &params) {
+        startMode = params.startMode();
+        auto created = std::make_unique<SessionBackend>();
+        backend = created.get();
+        return created;
+    });
+    QVERIFY(rp.isCppDebugging());
+    QCOMPARE(rp.cppEngineType(), NoEngineType);
+
+    const QList<QPointer<DebuggerEngine>> before = EngineManager::engines();
+    connect(runControl.get(), &RunControl::stopped,
+            &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
+    runControl->setRunRecipe(debuggerRecipe(runControl.get(), rp));
+    runControl->start();
+
+    // EngineManager holds the engines other tests left behind, too.
+    const auto newEngine = [&before] {
+        for (const QPointer<DebuggerEngine> &candidate : EngineManager::engines()) {
+            if (candidate && !before.contains(candidate))
+                return candidate;
+        }
+        return QPointer<DebuggerEngine>();
+    };
+    QTRY_VERIFY(newEngine() && newEngine()->state() == InferiorRunOk);
+    QVERIFY(backend);
+    QCOMPARE(startMode, StartInternal);
+    QCOMPARE(newEngine()->runParameters().engineInterfaceName(), QString("Plugin"));
+
+    runControl->initiateStop();
+    QTestEventLoop::instance().enterLoop(30);
+    QVERIFY(!QTestEventLoop::instance().timeout());
+}
+
+// The plugin could not build its backend, for instance because a binary of
+// its debugger is missing. That ends the run with a message.
+void DebuggerUnitTests::testPluginFailsToBringTheBackend()
+{
+    Kit *kit = KitManager::defaultKit();
+    QVERIFY(kit);
+
+    const std::unique_ptr<RunControl> runControl(
+        new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE));
+    runControl->setKit(kit);
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl.get());
+    rp.setInferiorExecutable(FilePath::fromUserInput("/nonexistent/program"));
+    rp.setStartMode(StartInternal);
+    rp.setEngineInterface("Plugin", [](const DebuggerRunParameters &) {
+        return std::unique_ptr<DebuggerEngineInterface>();
+    });
+
+    QStringList errors;
+    connect(runControl.get(), &RunControl::appendMessage, runControl.get(),
+            [&errors](const QString &message, OutputFormat format) {
+        if (format == ErrorMessageFormat)
+            errors.append(message);
+    });
+    const QList<QPointer<DebuggerEngine>> before = EngineManager::engines();
+    bool stopped = false;
+    connect(runControl.get(), &RunControl::stopped, runControl.get(),
+            [&stopped] { stopped = true; });
+    runControl->setRunRecipe(debuggerRecipe(runControl.get(), rp));
+    runControl->start();
+    QTRY_VERIFY(stopped);
+
+    QVERIFY2(Utils::anyOf(errors, [](const QString &message) {
+                 return message.contains("\"Plugin\" could not be created");
+             }),
+             qPrintable(errors.join('\n')));
+    QCOMPARE(EngineManager::engines(), before);
+}
+
+// The backend a plugin brings debugs C++, so it is not used where C++ is not
+// debugged.
+void DebuggerUnitTests::testPluginBackendNeedsCppDebugging()
+{
+    const auto create = [](const DebuggerRunParameters &) {
+        return std::make_unique<SessionBackend>();
+    };
+
+    DebuggerRunParameters rp;
+    rp.m_cppDebuggingRequested = false;
+    rp.setEngineInterface("Plugin", create);
+    QVERIFY(!rp.isCppDebugging());
+
+    rp = {};
+    rp.setEngineInterface("Plugin", create);
+    rp.setStartMode(AttachToQmlServer);
+    QVERIFY(!rp.isCppDebugging());
+
+    rp = {};
+    rp.setStartMode(AttachToQmlServer);
+    rp.setEngineInterface("Plugin", create);
+    QVERIFY(!rp.isCppDebugging());
+
+    rp = {};
+    rp.setEngineInterface("Plugin", create);
+    rp.setCppEngineType(NoEngineType);
+    QVERIFY(!rp.isCppDebugging());
+    QVERIFY(rp.engineInterfaceName().isEmpty());
+
+    rp = {};
+    rp.setEngineInterface("Plugin", create);
+    rp.setInferiorExecutable(FilePath::fromString("/nonexistent/java"));
+    RunControl runControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    QVERIFY(rp.fixupParameters(&runControl));
+    QVERIFY(rp.isJavaDebugging());
+    QVERIFY(!rp.isCppDebugging());
 }
 
 void DebuggerUnitTests::testNativeMixedEnvironmentVariableWins()

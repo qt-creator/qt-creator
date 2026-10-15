@@ -259,10 +259,9 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runContr
     if (const auto &check = qmlCompiledToNativeCheck(); check && check(kit)) {
         params.m_qmlCompiledToNative = true;
         if (params.m_isQmlDebugging && !params.m_cppDebuggingRequested) {
-            if (debuggerItem) {
+            if (debuggerItem)
                 params.m_cppEngineType = debuggerItem.engineType();
-                params.m_cppDebuggingRequested = true;
-            }
+            params.m_cppDebuggingRequested = true;
             validateKitDebugger();
         }
         params.m_isQmlDebugging = false;
@@ -310,10 +309,32 @@ void DebuggerRunParameters::overrideKitDebugger(const FilePath &command,
 {
     m_debugger = DebuggerKitAspect::commandRunnable(command);
     applyDebuggerPathOverride(m_debugger);
+    clearEngineInterface();
     if (m_cppDebuggingRequested)
         m_cppEngineType = engineType;
     m_version.clear();
     m_validationErrors.clear();
+}
+
+// A backend a plugin brings itself, used instead of the kit's debugger, which
+// it makes a C++ session whatever the kit has, unless the run configuration
+// does not debug C++.
+void DebuggerRunParameters::setEngineInterface(const QString &name,
+                                               const EngineInterfaceFactory &create)
+{
+    if (!m_cppDebuggingRequested || m_startMode == AttachToQmlServer)
+        return;
+    m_engineInterfaceName = name;
+    m_engineInterfaceFactory = create;
+    m_cppEngineType = NoEngineType;
+    m_version.clear();
+    m_validationErrors.clear();
+}
+
+void DebuggerRunParameters::clearEngineInterface()
+{
+    m_engineInterfaceName.clear();
+    m_engineInterfaceFactory = {};
 }
 
 static bool breakOnMainNextTime = false;
@@ -343,6 +364,7 @@ Result<> DebuggerRunParameters::fixupParameters(RunControl *runControl)
     if (m_languagesAutomatic && launches && (launcher == "java" || launcher == "javaw")) {
         m_isJavaDebugging = true;
         m_cppEngineType = NoEngineType;
+        clearEngineInterface();
         m_isQmlDebugging = false;
         m_isPythonDebugging = false;
         // What is left to validate is the C++ debugger, which is not used.
@@ -474,6 +496,7 @@ void DebuggerRunParameters::setStartMode(DebuggerStartMode startMode)
         return;
 
     m_cppEngineType = NoEngineType;
+    clearEngineInterface();
     m_isQmlDebugging = true;
     m_closeMode = KillAtClose;
 
@@ -526,7 +549,7 @@ QStringList DebuggerRunParameters::commandsForReset() const
 
 bool DebuggerRunParameters::isCppDebugging() const
 {
-    return cppEngineType() != NoEngineType;
+    return cppEngineType() != NoEngineType || m_engineInterfaceFactory;
 }
 
 static std::optional<bool> nativeMixedOverride()
@@ -3492,7 +3515,9 @@ void DebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
     QString detailedWarning;
     switch (rp.toolChainAbi().binaryFormat()) {
     case Abi::PEFormat: {
-        if (CheckableDecider(warnOnInappropriateDebuggerKey).shouldAskAgain()) {
+        // Another debugger is no help to a backend a plugin brings.
+        if (rp.cppEngineType() != NoEngineType
+                && CheckableDecider(warnOnInappropriateDebuggerKey).shouldAskAgain()) {
             QString preferredDebugger;
             if (rp.toolChainAbi().osFlavor() == Abi::WindowsMSysFlavor) {
                 if (rp.cppEngineType() == CdbEngineType)
