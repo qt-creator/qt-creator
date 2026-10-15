@@ -2235,6 +2235,12 @@ public:
             m_signsAction->setChecked(TextEditor::displaySettings().markDiffChangeSigns());
         });
 
+        m_reloadAction = m_toolBar->addAction(Utils::Icons::RELOAD_TOOLBAR.icon(),
+                                              Tr::tr("Reload Diff"));
+        m_reloadAction->setObjectName("InlineDiffReloadAction"); // autotest
+        m_reloadAction->setToolTip(Tr::tr("Reloads the baseline and recomputes the diff."));
+        connect(m_reloadAction, &QAction::triggered, this, [this] { fetchBaseline(); });
+
         // like the diff editor's view switcher, the icon shows the view that
         // a click switches to
         m_viewSwitcherAction = m_toolBar->addAction(QIcon(), QString());
@@ -2893,6 +2899,7 @@ private:
     QAction *m_contextSpinBoxAction = nullptr;
     QAction *m_whitespaceAction = nullptr;
     QAction *m_patienceAction = nullptr;
+    QAction *m_reloadAction = nullptr;
     QAction *m_signsAction = nullptr;
     bool m_ignoreWhitespace = false;
     bool m_patience = false;
