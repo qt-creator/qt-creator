@@ -16,6 +16,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/guard.h>
 #include <utils/guiutils.h>
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
@@ -681,6 +682,7 @@ public:
     void cancel() final;
 
 private:
+    void repopulatePathMappingTree();
     void showServerDialog(bool add);
     void removeCurrentServerConfig();
     void updateDashboardServers();
@@ -701,6 +703,7 @@ private:
     QPushButton *m_deleteMappingButton = nullptr;
     QPushButton *m_moveUpMappingButton = nullptr;
     QPushButton *m_moveDownMappingButton = nullptr;
+    Guard m_applyGuard;
 };
 
 AxivionSettingsWidget::AxivionSettingsWidget()
@@ -788,17 +791,8 @@ AxivionSettingsWidget::AxivionSettingsWidget()
             &settings(), &AxivionSettings::validatePath);
     connect(&settings(), &AxivionSettings::suitePathValidated, this,
             [this, version, build] { updateVersionAndBuildDate(version, build); });
-    const QList<QTreeWidgetItem *> items = Utils::transform(pathMappingSettings().validPathMappings(),
-                                                            [this](const PathMapping &m) {
-        QTreeWidgetItem *item = new QTreeWidgetItem(&m_mappingTree,
-                                                    {m.projectName,
-                                                     m.analysisPath.path(),
-                                                     m.localPath.toUserOutput()});
-        if (!m.isValid())
-            item->setIcon(0, Icons::CRITICAL.icon());
-        return item;
-    });
-    m_mappingTree.addTopLevelItems(items);
+
+    repopulatePathMappingTree();
 
     m_deleteMappingButton->setEnabled(false);
     m_moveUpMappingButton->setEnabled(false);
@@ -814,6 +808,8 @@ AxivionSettingsWidget::AxivionSettingsWidget()
             this, &AxivionSettingsWidget::currentChanged);
     connect(&m_details, &AspectContainer::changed, this,
             &AxivionSettingsWidget::mappingChanged);
+    connect(&pathMappingSettings(), &BaseAspect::changed,
+            this, &AxivionSettingsWidget::repopulatePathMappingTree);
 
     updateEnabledStates();
     settings().validatePath();
@@ -841,6 +837,7 @@ void AxivionSettingsWidget::apply()
                             FilePath::fromUserInput(item->text(2))});
     }
     if (oldMappings != newMappings) {
+        const GuardLocker locker(m_applyGuard);
         pathMappingSettings().setVariantValue(pathMappingsToSetting(newMappings));
         pathMappingSettings().writeSettings();
     }
@@ -853,6 +850,24 @@ void AxivionSettingsWidget::cancel()
     settings().cancel();
     pathMappingSettings().cancel();
     IOptionsPageWidget::cancel();
+}
+
+void AxivionSettingsWidget::repopulatePathMappingTree()
+{
+    if (m_applyGuard.isLocked())
+        return;
+    m_mappingTree.clear();
+    const QList<QTreeWidgetItem *> items = Utils::transform(pathMappingSettings().validPathMappings(),
+                                                            [this](const PathMapping &m) {
+        QTreeWidgetItem *item = new QTreeWidgetItem(&m_mappingTree,
+                                                    {m.projectName,
+                                                     m.analysisPath.path(),
+                                                     m.localPath.toUserOutput()});
+        if (!m.isValid())
+            item->setIcon(0, Icons::CRITICAL.icon());
+        return item;
+    });
+    m_mappingTree.addTopLevelItems(items);
 }
 
 void AxivionSettingsWidget::updateDashboardServers()
