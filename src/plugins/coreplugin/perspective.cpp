@@ -124,7 +124,9 @@ public:
 
     QString name() const { QTC_ASSERT(widget, return QString()); return widget->objectName(); }
     bool changedByUser() const;
-    void recordVisibility();
+    static void recordVisibility(PerspectivesView *view, const QString &name,
+                                 Perspective::OperationType operationType,
+                                 bool visibleByDefault, bool visible);
 
     PerspectivesView *view = nullptr; // The view owning the perspective this dock belongs to.
     Utils::Id commandId;
@@ -724,8 +726,11 @@ void DockOperation::ensureDockExists()
 
     toggleViewAction->setAction(dock->toggleViewAction());
 
-    QObject::connect(dock->toggleViewAction(), &QAction::triggered,
-                     dock->toggleViewAction(), [this] { recordVisibility(); });
+    QObject::connect(dock->toggleViewAction(), &QAction::triggered, dock->toggleViewAction(),
+                     [view = view, name = name(), type = operationType,
+                      visibleByDefault = visibleByDefault](bool checked) {
+        recordVisibility(view, name, type, visibleByDefault, checked);
+    });
 }
 
 bool DockOperation::changedByUser() const
@@ -733,16 +738,17 @@ bool DockOperation::changedByUser() const
     return view->d->m_persistentChangedDocks.contains(name());
 }
 
-void DockOperation::recordVisibility()
+void DockOperation::recordVisibility(PerspectivesView *view, const QString &name,
+                                     Perspective::OperationType operationType,
+                                     bool visibleByDefault, bool visible)
 {
     if (operationType != Perspective::Raise) {
-        if (toggleViewAction->isChecked() == visibleByDefault)
-            view->d->m_persistentChangedDocks.remove(name());
+        if (visible == visibleByDefault)
+            view->d->m_persistentChangedDocks.remove(name);
         else
-            view->d->m_persistentChangedDocks.insert(name());
+            view->d->m_persistentChangedDocks.insert(name);
     }
-    qCDebug(perspectivesLog) << "RECORDING DOCK VISIBILITY " << name()
-                             << toggleViewAction->isChecked()
+    qCDebug(perspectivesLog) << "RECORDING DOCK VISIBILITY " << name << visible
                              << view->d->m_persistentChangedDocks;
 }
 
@@ -1010,6 +1016,13 @@ void Perspective::addWindow(QWidget *widget,
     }
 
     d->m_dockOperations.append(op);
+
+    if (op.operationType != Perspective::Raise && isCurrent()) {
+        DockOperation &added = d->m_dockOperations.back();
+        added.ensureDockExists();
+        QTC_ASSERT(added.dock, return);
+        added.dock->setVisible(added.visibleByDefault != added.changedByUser());
+    }
 }
 
 void Perspective::destroy()
