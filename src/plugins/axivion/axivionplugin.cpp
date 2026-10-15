@@ -1267,8 +1267,15 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
     const LineMarkerType otherType = useLocal ? LineMarkerType::DashboardGlobal
                                               : LineMarkerType::DashboardLocal;
 
+    // Marks kept from an earlier use of the project are fetched again if there is a newer
+    // analysis.
+    const std::optional<Dto::ProjectInfoDto> &info
+            = useLocal ? m_currentLocalProjectInfo : m_currentProjectInfo;
+    const QString latest = (info && info->name == projectName) ? latestVersion(*info) : QString();
     const std::optional<LineIssuesOrigin> origin = lineIssuesOrigin(docFilePath, type);
-    if (origin && origin->projectName == projectName) {
+    const bool marksUpToDate = origin && origin->projectName == projectName
+            && (latest.isEmpty() || origin->version == latest);
+    if (marksUpToDate) {
         if (replacesOtherMarks)
             clearMarks(docFilePath, otherType);
         return;
