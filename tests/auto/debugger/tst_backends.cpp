@@ -1958,6 +1958,7 @@ private slots:
     void launchesADapAdapterTheLaunchInitializes();
     void reportsALaunchTheLaunchInitializingDapAdapterRefusesOnce();
     void stopsSettingUpAfterTheLaunchWasRefusedBeforeInitialized();
+    void readsNoRegistersOfAQualifiedScopeAsLocals();
     void reportsASocketThatCannotConnect();
     void dropsALocalsWalkThatWasStartedOver();
     void sendsTheProtocolsStepRequestsThroughADapAdapter();
@@ -19252,6 +19253,59 @@ class LaunchRefusingThenInitializedDapAdapter : public FakeDapAdapter
     }
 };
 
+// An adapter that names its register scope "CPU Registers" and hints at none
+// of its scopes, one of which is the statics of a file named after registers.
+class CpuRegistersDapAdapter : public FakeDapAdapter
+{
+    static QJsonObject variable(const QString &name, const QString &value)
+    {
+        return QJsonObject{{"name", name}, {"value", value}, {"type", "uint32_t"},
+                           {"variablesReference", 0}};
+    }
+
+    void handle(const QJsonObject &request) override
+    {
+        const QString command = request.value("command").toString();
+        const QJsonObject arguments = request.value("arguments").toObject();
+        if (command == "initialize") {
+            respond(request, QJsonObject{{"supportsConfigurationDoneRequest", true}});
+            sendEvent("initialized");
+        } else if (command == "stackTrace") {
+            respond(request, QJsonObject{
+                {"stackFrames", QJsonArray{QJsonObject{{"id", 1000},
+                                                       {"name", "main"},
+                                                       {"line", 11},
+                                                       {"column", 1}}}},
+                {"totalFrames", 1}});
+        } else if (command == "scopes") {
+            respond(request, QJsonObject{{"scopes", QJsonArray{
+                QJsonObject{{"name", "Locals"}, {"variablesReference", 2001}},
+                QJsonObject{{"name", "Static: ./registers.c"}, {"variablesReference", 2002}},
+                QJsonObject{{"name", "CPU Registers"}, {"variablesReference", 2000}}}}});
+        } else if (command == "variables") {
+            QJsonArray variables;
+            switch (arguments.value("variablesReference").toInt()) {
+            case 2000:
+                variables = {variable("R0", "0x1")};
+                break;
+            case 2001:
+                variables = {variable("counter", "1")};
+                break;
+            case 2002:
+                variables = {variable("s_map", "0x0")};
+                break;
+            }
+            respond(request, QJsonObject{{"variables", variables}});
+        } else {
+            respond(request, QJsonObject{});
+            if (command == "configurationDone") {
+                sendEvent("stopped", QJsonObject{{"reason", "breakpoint"},
+                                                 {"threadId", 1}});
+            }
+        }
+    }
+};
+
 // An adapter that announces nothing beyond the configuration it has to: the
 // optional half of the protocol is the half it does not take.
 class BareDapAdapter : public FakeDapAdapter
@@ -20593,6 +20647,52 @@ void tst_backends::stopsSettingUpAfterTheLaunchWasRefusedBeforeInitialized()
                              s_timeout);
     QVERIFY(!debuggerBackend.contains(InferiorEvent::RunAndInferiorRunOk));
     QVERIFY(!adapter.commands().contains("configurationDone"));
+}
+
+void tst_backends::readsNoRegistersOfAQualifiedScopeAsLocals()
+{
+    CpuRegistersDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DebuggerBackend debuggerBackend(
+        std::make_unique<DapImpl>(fakeDapAdapterStartData(adapter.port(), "cpuregisters")));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    QHash<quint64, GdbMi> dataById;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&dataById](quint64 requestId, RefreshKind, const GdbMi &data) {
+        dataById[requestId] = data;
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::SpontaneousStop));
+
+    RefreshRequest request;
+    request.kind = RefreshKind::Locals;
+    request.requestId = 421;
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(dataById.contains(421), s_timeout);
+
+    const GdbMi locals = dataById.value(421)["data"];
+    QStringList names;
+    for (const GdbMi &item : locals)
+        names.append(item["name"].data());
+    QCOMPARE(names, QStringList{"counter"});
+
+    request.kind = RefreshKind::Registers;
+    request.requestId = 422;
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(dataById.contains(422), s_timeout);
+
+    names.clear();
+    for (const GdbMi &item : dataById.value(422))
+        names.append(item["name"].data());
+    QCOMPARE(names, QStringList{"R0"});
+
+    engine->shutdownEngine();
 }
 
 // Most of the protocol is optional, and an adapter that announces none of it

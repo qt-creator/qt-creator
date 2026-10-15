@@ -3749,14 +3749,17 @@ void DapImpl::continueLocalsWalk()
 
 // Whether a scope holds the registers rather than something the Locals view
 // shows. Not every adapter sets the hint - cortex-debug names its scopes
-// "Local", "Global", "Static: <file>" and "Registers" and hints none of them -
-// so the name has to say what the hint does not.
+// "Local", "Global", "Static: <file>" and "Registers" and hints none of them,
+// and others qualify it, as in "CPU Registers" - so the name has to say what
+// the hint does not.
 static bool isRegisterScope(const QJsonObject &scope)
 {
     const QString hint = scope.value("presentationHint").toString();
     if (!hint.isEmpty())
         return hint == u"registers";
-    return scope.value("name").toString().startsWith("register", Qt::CaseInsensitive);
+    const QString name = scope.value("name").toString();
+    return name.startsWith(u"register", Qt::CaseInsensitive)
+        || name.endsWith(u" registers", Qt::CaseInsensitive);
 }
 
 void DapImpl::handleScopes(const QJsonObject &response)
@@ -3796,10 +3799,12 @@ void DapImpl::handleScopes(const QJsonObject &response)
     // Not every adapter sets the hint - cortex-debug names its scopes "Local",
     // "Global", "Static: <file>" and "Registers" and hints none of them - so
     // the name has to say what the hint does not.
-    static const QStringList notLocalNames = {"register", "global", "static"};
+    static const QStringList notLocalNames = {"global", "static"};
     for (const QJsonValue &value : response.value("body").toObject()
                                        .value("scopes").toArray()) {
         const QJsonObject scope = value.toObject();
+        if (isRegisterScope(scope))
+            continue;
         const QString hint = scope.value("presentationHint").toString();
         if (!hint.isEmpty()) {
             if (notLocalHints.contains(hint))
