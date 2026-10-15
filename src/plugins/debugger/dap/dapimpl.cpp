@@ -3056,6 +3056,8 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         if ((channel == AppOutput || channel == AppError) && isTerminateMessage(output))
             m_sawTerminateMessage = true;
         emit message(output, channel);
+        if (m_startData.channel && m_startData.channel->reportOutput)
+            m_startData.channel->reportOutput(category, output);
         return;
     }
     default:

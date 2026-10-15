@@ -2017,6 +2017,7 @@ private slots:
     void refusesWhatADapAdapterAnnouncesNothingAbout();
     void readsADapAdapterThatSendsMoreThanOneHeader();
     void routesWhatADapAdapterCallsOutputByItsCategory();
+    void passesOnWhatADapAdapterPutsOut();
     void leavesTheConfigurationDoneToADapAdapterThatTakesIt();
     void countsTheHitsADapAdapterReports();
     void reportsADapBreakpointPendingUntilItIsBound();
@@ -22200,6 +22201,37 @@ void tst_backends::routesWhatADapAdapterCallsOutputByItsCategory()
     // Kept, because a developer reading the log is not "the user" the protocol
     // means, but nowhere the debuggee's own output goes.
     QCOMPARE(channelsOf("QTCTELEMETRYMARKER"), QList<int>{Debugger::LogMisc});
+
+    engine->shutdownEngine();
+}
+
+// An adapter may say in its output what it has no event of its own for, so the
+// output goes to whoever started the session as well, all of it.
+void tst_backends::passesOnWhatADapAdapterPutsOut()
+{
+    ChattyDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    QStringList outputs;
+    const auto channel = std::make_shared<DapSessionChannel>();
+    channel->reportOutput = [&outputs](const QString &category, const QString &output) {
+        outputs.append(category + '=' + output.trimmed());
+    };
+
+    DapStartData startData = fakeDapAdapterStartData(adapter.port(), "chatty");
+    startData.channel = channel;
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::SpontaneousStop));
+    // The stop came after all of it.
+    QCOMPARE(outputs, QStringList({"stdout=QTCOUTMARKER", "stderr=QTCERRMARKER",
+                                   "console=QTCCONSOLEMARKER",
+                                   "telemetry=QTCTELEMETRYMARKER"}));
 
     engine->shutdownEngine();
 }

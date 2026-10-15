@@ -82,6 +82,10 @@ public:
     // An event only the adapter itself defines, as it sent it. An adapter may
     // hold its launch back until the extension it was written for answered one.
     std::function<void(const QString &event, const QJsonObject &body)> reportEvent;
+
+    // What the adapter puts out, as it put it out. An adapter may say there
+    // what it has no event of its own for.
+    std::function<void(const QString &category, const QString &output)> reportOutput;
 };
 
 class DEBUGGER_EXPORT DapStartData
