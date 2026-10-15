@@ -20185,7 +20185,7 @@ private:
                 variables = {variable("s_map", "0x0")};
                 break;
             case 2010:
-                variables = {variable("R0", "0x1"), variable("PC", "0x8000")};
+                variables = {variable("R0", "0x1"), variable("PC", "0x0000'8000")};
                 break;
             case 2011:
                 variables = {variable("S0", "0x0")};

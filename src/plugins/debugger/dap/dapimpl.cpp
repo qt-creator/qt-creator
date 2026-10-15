@@ -3853,7 +3853,8 @@ static int registerWidth(const QString &typeName)
 
 static QString registerValue(const QString &reported)
 {
-    const QString text = reported.section(' ', 0, 0);
+    // Some adapters group the digits the way C++ literals can, as in 0x0000'8000.
+    const QString text = reported.section(' ', 0, 0).remove('\'');
     bool ok = false;
     if (const qulonglong number = text.toULongLong(&ok, 0); ok)
         return "0x" + QString::number(number, 16);
