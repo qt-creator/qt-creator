@@ -82,12 +82,12 @@ QList<StyleWidgetEntry> ChangeStyleWidgetAction::getAllStyleItems()
                                      {"Universal System", "Universal", "System"}};
 
     if (Utils::HostOsInfo::isMacHost())
-        items.append({"macOS", "macOS", {}});
+        items.append(StyleWidgetEntry{"macOS", "macOS", {}});
     if (Utils::HostOsInfo::isWindowsHost())
-        items.append({"Windows", "Windows", {}});
+        items.append(StyleWidgetEntry{"Windows", "Windows", {}});
 
     if (isQtForMCUs())
-        items.append({"MCUDefaultStyle", "MCUDefaultStyle", {}});
+        items.append(StyleWidgetEntry{"MCUDefaultStyle", "MCUDefaultStyle", {}});
 
     //what if we have a custom style set in .conf?
 
