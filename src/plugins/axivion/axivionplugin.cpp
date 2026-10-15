@@ -272,7 +272,8 @@ public:
     void onCurrentEditorChanged(IEditor *editor);
     void enableInlineIssues(bool enable);
     void fetchIssueInfo(DashboardMode dashboardMode, const QString &projectName,
-                        const QString &id, const QString &version);
+                        const QString &id, const QString &version,
+                        DetailsVisibility visibility);
     void fetchNamedFilters(DashboardMode dashboardMode);
 
     void switchDashboardMode(DashboardMode mode, bool byLocalBuildButton);
@@ -1127,7 +1128,8 @@ Group tableInfoRecipe(DashboardMode dashboardMode, const QString &prefix,
 }
 
 void AxivionPluginPrivate::fetchIssueInfo(DashboardMode dashboardMode, const QString &projectName,
-                                          const QString &id, const QString &markVersion)
+                                          const QString &id, const QString &markVersion,
+                                          DetailsVisibility visibility)
 {
     m_issueInfoRunner.reset(); // an earlier request is outdated
 
@@ -1155,9 +1157,11 @@ void AxivionPluginPrivate::fetchIssueInfo(DashboardMode dashboardMode, const QSt
 
     const auto onSetup = [storage, url] { storage->inputUrl = url; };
 
-    const auto onDone = [storage, projectName, dashboardMode] {
+    const auto onDone = [storage, projectName, dashboardMode, visibility] {
         updateIssueDetails(QString::fromUtf8(fixIssueDetailsHtml(storage->outputData)),
                            projectName, dashboardMode);
+        if (visibility == DetailsVisibility::Ensure)
+            showIssueDetails();
     };
 
     m_issueInfoRunner.start({
@@ -1473,10 +1477,10 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
 };
 
 void fetchIssueInfo(DashboardMode dashboardMode, const QString &projectName, const QString &id,
-                    const QString &version)
+                    const QString &version, DetailsVisibility visibility)
 {
     QTC_ASSERT(dd, return);
-    dd->fetchIssueInfo(dashboardMode, projectName, id, version);
+    dd->fetchIssueInfo(dashboardMode, projectName, id, version, visibility);
 }
 
 void switchActiveDashboardId(const Id &toDashboardId)

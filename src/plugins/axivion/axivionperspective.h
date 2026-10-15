@@ -36,6 +36,7 @@ void leaveOrEnterDashboardMode(bool byLocalBuildButton);
 bool currentIssueHasValidPathMapping();
 bool localChangesSelected();
 void showLocalBuildProgress();
+void showIssueDetails();
 
 void setupAxivionPerspective();
 

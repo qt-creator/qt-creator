@@ -65,7 +65,8 @@ public:
                         ? DashboardMode::Local : DashboardMode::Global;
                 QObject::connect(action, &QAction::triggered,
                                  action, [id, mode, origin] {
-                    fetchIssueInfo(mode, origin.projectName, id, origin.version);
+                    fetchIssueInfo(mode, origin.projectName, id, origin.version,
+                                   DetailsVisibility::Ensure);
                 });
             } else {
                 // only connect if we have valid parameters

@@ -511,6 +511,7 @@ void fetchIssueInfoFromPluginAr(const Utils::FilePath &bauhausSuite, const QStri
     };
     auto onSuccess = [](const QByteArray &reply) {
         updateIssueDetails(QString::fromUtf8(fixIssueDetailsHtml(reply)), {}, std::nullopt);
+        showIssueDetails();
         return DoneResult::Success;
     };
 

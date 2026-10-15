@@ -1830,6 +1830,7 @@ public:
     bool localChangesSelected() const;
 
     void showProgressWidget();
+    void showIssueDetailsWidget();
 
     void requestFocusForIssuesTable();
 
@@ -2176,6 +2177,19 @@ void AxivionPerspective::showProgressWidget()
     }
 }
 
+void AxivionPerspective::showIssueDetailsWidget()
+{
+    select();
+    Command *cmd = ActionManager::command("Dock.AxivionIssuesDetails");
+    QTC_ASSERT(cmd, return);
+    if (cmd->action() && !cmd->action()->isChecked())
+        cmd->action()->trigger();
+    if (auto dockWidget = qobject_cast<QDockWidget *>(m_issueDetails.parentWidget())) {
+        dockWidget->raise();
+        FancyMainWindow::setDockCollapsed(dockWidget, false);
+    }
+}
+
 void AxivionPerspective::requestFocusForIssuesTable()
 {
     m_issuesWidget.requestFocusForIssuesTable();
@@ -2337,6 +2351,12 @@ void showLocalBuildProgress()
 {
     QTC_ASSERT(axivionPerspective(), return);
     axivionPerspective()->showProgressWidget();
+}
+
+void showIssueDetails()
+{
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->showIssueDetailsWidget();
 }
 
 void setupAxivionPerspective()

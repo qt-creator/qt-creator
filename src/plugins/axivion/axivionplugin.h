@@ -130,8 +130,10 @@ enum class LineMarkerType;
 QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind, LineMarkerType type);
 QString anyToSimpleString(const Dto::Any &any, const QString &type,
                           const std::optional<std::vector<Dto::ColumnTypeOptionDto>> &options);
+enum class DetailsVisibility { Keep, Ensure };
 void fetchIssueInfo(DashboardMode dashboardMode, const QString &projectName, const QString &id,
-                    const QString &version = {});
+                    const QString &version = {},
+                    DetailsVisibility visibility = DetailsVisibility::Keep);
 
 void switchActiveDashboardId(const Utils::Id &toDashboardId);
 void resetLocalDashboard();
