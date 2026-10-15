@@ -1392,6 +1392,7 @@ void switchActiveDashboardId(const Id &toDashboardId)
     dd->m_dashboardInfo.reset();
     dd->m_localDashboard.reset();
     dd->m_localDashboardInfo.reset();
+    dd->m_dashboardMode = DashboardMode::Global; // local dashboard access is gone
     dd->m_currentProjectInfo.reset();
     dd->m_globalNamedFilters.clear();
     dd->m_userNamedFilters.clear();

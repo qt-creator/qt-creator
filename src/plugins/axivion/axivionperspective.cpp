@@ -284,6 +284,7 @@ public:
     void updateUi(const QString &kind);
     void initDashboardList(const QString &preferredProject = {});
     void resetDashboard();
+    void updateDashboardModeUi();
     void leaveOrEnterDashboardMode(bool byLocalBuildButton);
     void updateNamedFilters();
     void updateLocalBuildState(const QString &projectName, int percent);
@@ -384,6 +385,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
             updateBasicProjectInfo(std::nullopt);
             m_issuesView->hideProgressIndicator();
         }
+        updateDashboardModeUi();
     });
 
     m_dashboardProjects = new QComboBox(this);
@@ -666,6 +668,14 @@ void IssuesWidget::resetDashboard()
     m_dashboardProjects->clear();
     m_dashboards->clear();
     m_dashboardListUninitialized = true;
+    updateDashboardModeUi();
+}
+
+void IssuesWidget::updateDashboardModeUi()
+{
+    const DashboardMode mode = currentDashboardMode();
+    m_localDashBoard->setChecked(mode == DashboardMode::Local);
+    m_versionsStack->setCurrentIndex(int(mode));
 }
 
 void IssuesWidget::leaveOrEnterDashboardMode(bool byLocalBuildButton)
@@ -740,6 +750,7 @@ void IssuesWidget::initDashboardList(const QString &preferredProject)
     const QList<AxivionServer> servers = settings().allAvailableServers();
     if (servers.isEmpty()) {
         switchActiveDashboardId({});
+        updateDashboardModeUi();
         m_showFilterHelp->setEnabled(false);
         showOverlay(Tr::tr("Configure dashboards in Preferences > Analyzer > Axivion."), SettingsIcon);
         return;
