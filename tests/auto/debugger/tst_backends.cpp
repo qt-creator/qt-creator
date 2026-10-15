@@ -16744,7 +16744,7 @@ void tst_backends::continuesPastNativeMixedCppBreakpoint()
 
     debuggerBackend->clearEvents();
     debuggerBackend->execute({ExecutionCommand::Interrupt});
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopOk), s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopOk), s_qmlStartupTimeout);
 #endif
 }
 
