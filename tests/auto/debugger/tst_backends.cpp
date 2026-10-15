@@ -1995,6 +1995,7 @@ private slots:
     void readsTheRegistersADapAdapterKeepsInGroups();
     void reportsARegisterListingADapAdapterRefuses_data();
     void reportsARegisterListingADapAdapterRefuses();
+    void passesOnTheEventsADapAdapterDefinesItself();
     void reportsASocketThatCannotConnect();
     void dropsALocalsWalkThatWasStartedOver();
     void sendsTheProtocolsStepRequestsThroughADapAdapter();
@@ -20333,6 +20334,33 @@ private:
     }
 };
 
+// An adapter that asks its own extension something in the middle of the
+// launch, and answers the launch only once the extension answered it.
+class AnnouncingDapAdapter : public FakeDapAdapter
+{
+    void handle(const QJsonObject &request) override
+    {
+        const QString command = request.value("command").toString();
+        if (command == "launch") {
+            m_launch = request;
+            sendEvent("invalidated", QJsonObject{{"areas", QJsonArray{"variables"}}});
+            sendEvent("windowsRequested", QJsonObject{{"windows", 2}});
+            return;
+        }
+        respond(request, command == "initialize"
+                             ? QJsonObject{{"supportsConfigurationDoneRequest", true}}
+                             : QJsonObject{});
+        if (command == "windowsResolved") {
+            respond(m_launch, QJsonObject{});
+            sendEvent("initialized");
+        } else if (command == "configurationDone") {
+            sendEvent("stopped", QJsonObject{{"reason", "entry"}, {"threadId", 1}});
+        }
+    }
+
+    QJsonObject m_launch;
+};
+
 // An adapter that announces nothing beyond the configuration it has to: the
 // optional half of the protocol is the half it does not take.
 class BareDapAdapter : public FakeDapAdapter
@@ -21820,6 +21848,38 @@ void tst_backends::reportsARegisterListingADapAdapterRefuses()
         found.append(reg["name"].data());
     QCOMPARE(found, registers);
     QCOMPARE(errors.size(), 1);
+
+    engine->shutdownEngine();
+}
+
+// An event the adapter defines itself goes to whoever started the session,
+// and an answer to it gets through while the launch is still out. One the
+// protocol defines does not.
+void tst_backends::passesOnTheEventsADapAdapterDefinesItself()
+{
+    AnnouncingDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    QStringList events;
+    const auto channel = std::make_shared<DapSessionChannel>();
+    channel->reportEvent = [&events, sender = channel.get()](const QString &event,
+                                                               const QJsonObject &body) {
+        events.append(event + '=' + QString::number(body.value("windows").toInt()));
+        sender->send("windowsResolved", {}, {});
+    };
+
+    DapStartData startData = fakeDapAdapterStartData(adapter.port(), "announcing");
+    startData.launchBeforeInitialized = true;
+    startData.channel = channel;
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::SpontaneousStop));
+    QCOMPARE(events, QStringList({"windowsRequested=2"}));
 
     engine->shutdownEngine();
 }

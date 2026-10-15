@@ -78,6 +78,10 @@ public:
     // Where the program stopped, and in which frame, so a follower can ask
     // the adapter about that frame. A frame below zero says it runs again.
     std::function<void(int frameId, const Utils::FilePath &file, int line)> reportStopped;
+
+    // An event only the adapter itself defines, as it sent it. An adapter may
+    // hold its launch back until the extension it was written for answered one.
+    std::function<void(const QString &event, const QJsonObject &body)> reportEvent;
 };
 
 class DEBUGGER_EXPORT DapStartData

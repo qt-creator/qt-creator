@@ -3127,6 +3127,13 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
     } else if (name == "progressStart" || name == "progressUpdate"
                || name == "progressEnd") {
         reportProgress(name, event.value("body").toObject());
+    } else if (m_startData.channel && m_startData.channel->reportEvent) {
+        // What the protocol defines and this layer leaves alone is no
+        // adapter's own either.
+        static const QSet<QString> protocolEvents{"capabilities", "invalidated",
+                                                  "loadedSource", "memory"};
+        if (!protocolEvents.contains(name))
+            m_startData.channel->reportEvent(name, event.value("body").toObject());
     }
 }
 
