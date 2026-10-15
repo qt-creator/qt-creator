@@ -238,6 +238,8 @@ F2TestCase::F2TestCase(CppEditorAction action,
         }
         if (curTestName == "testFollowClassOperator" && tag == "backward")
             QSKIP("clangd goes to operator name first");
+        if (tag == "nonStaticMemberVarSameNameInOtherClass")
+            QSKIP("Nothing to jump to, so there is no linkOpened signal to wait for");
         if (tag == "baseClassFunctionIntroducedByUsingDeclaration")
             QSKIP("clangd points to the using declaration");
         if (curTestName == "testFollowClassOperatorInOp")
@@ -794,6 +796,11 @@ void FollowSymbolTest::testSwitchMethodDeclDef_data()
                  "int OtherClass::var;\n"
                  "int Test::$var;\n"
                  "}\n");
+
+    QTest::newRow("nonStaticMemberVarSameNameInOtherClass")
+            << _("struct A { int @$member; };\n")
+            << _("#include \"file.h\"\n"
+                 "struct B { int member; };\n");
 
     QTest::newRow("conversionOperatorDecl2Def")
             << _("struct Foo {\n"

@@ -23,6 +23,8 @@ constexpr double kDefaultChroma = 0.11;
 constexpr int kCentralChromaStep = kChromaSteps / 2;
 // Spaces successive selection IDs around the hue wheel for visually distinct colors.
 constexpr int kSelectionIdHueStep = 25;
+// Row of a model's collapsed view that its first track is drawn in.
+constexpr int kCollapsedStartRow = 0;
 
 TRACING_EXPORT double defaultColorLightness();
 

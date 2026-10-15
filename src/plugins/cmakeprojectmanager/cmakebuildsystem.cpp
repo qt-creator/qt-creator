@@ -3992,9 +3992,26 @@ void CMakeBuildSystem::handleParsingSucceeded(bool restoredFromBackup)
     combineScanAndParse(restoredFromBackup);
 }
 
+static void reportGeneratorMismatch(const Kit *k, const CMakeConfig &initialConfiguration)
+{
+    const QString kitGenerator = CMakeGeneratorKitAspect::generator(k);
+    const QString generator = initialConfiguration.stringValueOf("CMAKE_GENERATOR");
+    if (kitGenerator.isEmpty() || generator.isEmpty() || generator == kitGenerator)
+        return;
+
+    TaskHub::addTask<BuildSystemTask>(
+        Task::Warning,
+        Tr::tr("The initial configuration uses the \"%1\" generator, while the kit provides "
+               "\"%2\". Change CMAKE_GENERATOR in Projects > Build > Initial Configuration and "
+               "re-configure with initial parameters to use the generator of the kit.")
+            .arg(generator, kitGenerator));
+}
+
 void CMakeBuildSystem::handleParsingFailed(const QString &msg)
 {
     setError(msg);
+    reportGeneratorMismatch(kit(),
+                            cmakeBuildConfiguration()->initialCMakeArguments.cmakeConfiguration());
 
     updateCMakeConfiguration();
 

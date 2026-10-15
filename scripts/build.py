@@ -35,7 +35,7 @@ def get_arguments():
 
     # elfutils, for the Profiler plugin
     parser.add_argument('--elfutils-path',
-                        help='Path to elfutils installation for use by perfprofiler (Linux)')
+                        help='Path to elfutils installation for use by perfprofiler (Windows, Linux)')
 
     # signing
     parser.add_argument('--keychain-unlock-script',

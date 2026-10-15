@@ -27,7 +27,7 @@
 #include <memory>
 #include <optional>
 
-#ifdef WITH_LIBDW
+#if defined(WITH_LIBDW) && defined(Q_OS_LINUX)
 #include <profiler/perfdwarfunwinder.h>
 
 #include <dlfcn.h>
@@ -535,7 +535,8 @@ QByteArray buildStrippedElfWithBuildId(const QByteArray &buildId)
     return elf;
 }
 
-#if defined(WITH_LIBDW) && (defined(Q_PROCESSOR_X86_64) || defined(Q_PROCESSOR_ARM_64))
+#if defined(WITH_LIBDW) && defined(Q_OS_LINUX) \
+    && (defined(Q_PROCESSOR_X86_64) || defined(Q_PROCESSOR_ARM_64))
 // Real DWARF CFI (.eh_frame) data cannot be convincingly hand-built the way
 // buildMinimalElfWithSymbols()'s plain .symtab can -- so testUnwindsRealDwarfCallChain()
 // below instead captures a *real* register+stack snapshot of this very test
@@ -893,7 +894,7 @@ bool signNoCfiTrampolineReturnAddress(UnwindInput *input, quint64 signature)
     return false;
 }
 #endif // Q_PROCESSOR_ARM_64
-#endif // WITH_LIBDW && (Q_PROCESSOR_X86_64 || Q_PROCESSOR_ARM_64)
+#endif // WITH_LIBDW && Q_OS_LINUX && (Q_PROCESSOR_X86_64 || Q_PROCESSOR_ARM_64)
 
 } // namespace
 
@@ -948,16 +949,17 @@ private slots:
     void testParsesDwarfModeRegistersAndStack();
     void testRejectsTruncatedDwarfModeStack();
     void testKeepsDwarfSampleWithoutUserCallchain();
-#ifdef WITH_LIBDW
+#if defined(WITH_LIBDW) && defined(Q_OS_LINUX)
     void testSkipsModulesThatAreNoFiles();
 #endif
-#if defined(WITH_LIBDW) && (defined(Q_PROCESSOR_X86_64) || defined(Q_PROCESSOR_ARM_64))
+#if defined(WITH_LIBDW) && defined(Q_OS_LINUX) \
+    && (defined(Q_PROCESSOR_X86_64) || defined(Q_PROCESSOR_ARM_64))
     void testUnwindsRealDwarfCallChain();
     void testUnwindsDwarfSampleThroughReader();
     void testSymbolicatesTheVdso();
     void testEndsDwarfCallChainBeforeData();
 #endif
-#if defined(WITH_LIBDW) && defined(Q_PROCESSOR_ARM_64)
+#if defined(WITH_LIBDW) && defined(Q_OS_LINUX) && defined(Q_PROCESSOR_ARM_64)
     void testUnwindsThroughCodeWithoutCfi();
     void testUnwindsThroughCodeWithoutCfiInGccLayout();
     void testUnwindsSampledCodeWithoutCfiOnce();
@@ -1362,7 +1364,7 @@ void PerfRecordReaderTest::testRejectsTruncatedDwarfModeStack()
     QVERIFY(!result.has_value());
 }
 
-#ifdef WITH_LIBDW
+#if defined(WITH_LIBDW) && defined(Q_OS_LINUX)
 // A process can map what is no regular file, such as a GPU render node.
 // Opening one, or reading it, can block for good; a FIFO without a writer
 // stands in for one here.
@@ -1389,9 +1391,10 @@ void PerfRecordReaderTest::testSkipsModulesThatAreNoFiles()
     unwinding->start();
     QTRY_VERIFY_WITH_TIMEOUT(unwinding->isFinished(), 10000);
 }
-#endif // WITH_LIBDW
+#endif // WITH_LIBDW && Q_OS_LINUX
 
-#if defined(WITH_LIBDW) && (defined(Q_PROCESSOR_X86_64) || defined(Q_PROCESSOR_ARM_64))
+#if defined(WITH_LIBDW) && defined(Q_OS_LINUX) \
+    && (defined(Q_PROCESSOR_X86_64) || defined(Q_PROCESSOR_ARM_64))
 // The one test in this file that exercises PerfDwarfUnwinder against *real*
 // DWARF CFI data rather than hand-built bytes (see the dwarfTest* helpers
 // above): captures a genuine register+stack snapshot several real recursive
@@ -1669,9 +1672,9 @@ void PerfRecordReaderTest::testEndsDwarfCallChainBeforeData()
         QVERIFY2(!label.module.isEmpty(), qPrintable(label.name + " is in no module"_L1));
     }
 }
-#endif // WITH_LIBDW && (Q_PROCESSOR_X86_64 || Q_PROCESSOR_ARM_64)
+#endif // WITH_LIBDW && Q_OS_LINUX && (Q_PROCESSOR_X86_64 || Q_PROCESSOR_ARM_64)
 
-#if defined(WITH_LIBDW) && defined(Q_PROCESSOR_ARM_64)
+#if defined(WITH_LIBDW) && defined(Q_OS_LINUX) && defined(Q_PROCESSOR_ARM_64)
 // Out of a frame libdw has no CFI for, the unwind follows the frame records,
 // and starts over at the first caller that has CFI, from where that caller
 // really left the stack: here, the test function that called the frames
@@ -1867,7 +1870,7 @@ void PerfRecordReaderTest::testStripsLinkRegisterWithMappingsOfItsRound()
     QCOMPARE(frames.size(), 3);
     QCOMPARE(result->labels.at(frames.at(1)).address, linkRegister - 1);
 }
-#endif // WITH_LIBDW && Q_PROCESSOR_ARM_64
+#endif // WITH_LIBDW && Q_OS_LINUX && Q_PROCESSOR_ARM_64
 
 // A dwarf-mode sample's callchain holds no user frames (see
 // buildDwarfSampleRecordWithCallchain()). The sample must not be dropped as

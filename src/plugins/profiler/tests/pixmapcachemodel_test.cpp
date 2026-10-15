@@ -174,7 +174,7 @@ void PixmapCacheModelTest::testConsistency()
 {
     // one unique URL
     QCOMPARE(model.expandedRowCount(), 4);
-    QVERIFY(model.collapsedRowCount() >= model.expandedRowCount());
+    QVERIFY(model.collapsedRowCount() >= model.expandedRowCount() - 1);
 
     float prevHeight = 0;
     qint64 currentTime = -1;
@@ -197,9 +197,6 @@ void PixmapCacheModelTest::testConsistency()
 
         switch (collapsedRow) {
         case 0:
-            QFAIL("There should be no events in row 0");
-            break;
-        case 1:
             QVERIFY(model.relativeHeight(i) != prevHeight);
             prevHeight = model.relativeHeight(i);
             QCOMPARE(expandedRow, 1);
@@ -207,6 +204,7 @@ void PixmapCacheModelTest::testConsistency()
         default:
             QVERIFY(expandedRow > 1);
             QCOMPARE(model.relativeHeight(i), 1.0f);
+            QVERIFY(collapsedRow > 0);
             QVERIFY(collapsedRow < model.collapsedRowCount());
             if (collapsedEnds.contains(collapsedRow))
                 QVERIFY(collapsedEnds[collapsedRow] <= currentTime);
@@ -219,12 +217,12 @@ void PixmapCacheModelTest::testConsistency()
             QFAIL("There should be no events in row 0");
             break;
         case 1:
-            QCOMPARE(collapsedRow, 1);
+            QCOMPARE(collapsedRow, 0);
             QVERIFY(details[QLatin1String("displayName")] == Tr::tr("Image Cached"));
             QVERIFY(details.contains(Tr::tr("Cache Size")));
             break;
         default:
-            QVERIFY(collapsedRow > 1);
+            QVERIFY(collapsedRow > 0);
             QCOMPARE(model.relativeHeight(i), 1.0f);
             QVERIFY(expandedRow < model.expandedRowCount());
             QVERIFY(details[QLatin1String("displayName")] == Tr::tr("Image Loaded"));
@@ -253,7 +251,7 @@ void PixmapCacheModelTest::testColor()
     QRgb dingsColor = 0;
     QRgb blahColor = 0;
     for (int i = 0; i < model.count(); ++i) {
-        if (model.collapsedRow(i) == 1) {
+        if (model.collapsedRow(i) == 0) {
             if (row1Color == 0)
                 row1Color = model.color(i);
             else

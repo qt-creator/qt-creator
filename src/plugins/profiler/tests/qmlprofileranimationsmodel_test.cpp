@@ -45,9 +45,11 @@ void QmlProfilerAnimationsModelTest::testRowMaxValue()
 
 void QmlProfilerAnimationsModelTest::testRowNumbers()
 {
+    QCOMPARE(model.collapsedRowCount(), 2);
+    QCOMPARE(model.expandedRowCount(), 3);
     for (int i = 0; i < 10; ++i) {
         QCOMPARE(model.expandedRow(i), (i % 2) ? 2 : 1);
-        QCOMPARE(model.collapsedRow(i), model.expandedRow(i));
+        QCOMPARE(model.collapsedRow(i), model.expandedRow(i) - 1);
     }
 }
 

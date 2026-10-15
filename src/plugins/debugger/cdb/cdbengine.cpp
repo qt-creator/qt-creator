@@ -3096,9 +3096,8 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
         runCommand({QString("theDumper.dumpermodules = [%1]").arg(moduleList.join(',')), ScriptCommand});
 
     } else {
-        QString dumperPath = Core::ICore::resourcePath("debugger").toUserOutput();
-        dumperPath.replace('\\', "\\\\");
-        runCommand({"sys.path.insert(1, '" + dumperPath + "')", ScriptCommand});
+        const QString dumperPath = Core::ICore::resourcePath("debugger").nativePath();
+        runCommand({"sys.path.insert(1, " + cdbPythonString(dumperPath) + ')', ScriptCommand});
         runCommand({"from cdbbridge import Dumper", ScriptCommand});
         runCommand({"print(dir())", ScriptCommand});
         runCommand({"theDumper = Dumper()", ScriptCommand});
@@ -3106,9 +3105,8 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
 
     const FilePath path = settings().extraDumperFile();
     if (path.isReadableFile()) {
-        DebuggerCommand cmd("theDumper.addDumperModule", ScriptCommand);
-        cmd.arg("path", path.path());
-        runCommand(cmd);
+        const QString module = cdbPythonString(path.nativePath());
+        runCommand({"theDumper.addDumperModule({'path': " + module + "})", ScriptCommand});
     }
     const QString commands = settings().extraDumperCommands();
     if (!commands.isEmpty()) {

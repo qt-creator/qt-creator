@@ -467,11 +467,11 @@ void HelpPluginPrivate::requestContextHelp()
     const HelpItem tipHelp = tipHelpValue.canConvert<HelpItem>()
                                  ? tipHelpValue.value<HelpItem>()
                                  : HelpItem(tipHelpValue.toString());
-    qCDebug(helpLog) << "Request context help, tool tip:" << tipHelp;
-    const QList<IContext *> contexts = ICore::currentContextObjects();
-    if (contexts.isEmpty() && !tipHelp.isEmpty()) {
+    if (!tipHelp.isEmpty()) {
+        qCDebug(helpLog) << "Request context help, tool tip:" << tipHelp;
         showContextHelp(tipHelp);
-    } else {
+    } else if (const QList<IContext *> contexts = ICore::currentContextObjects();
+               !contexts.isEmpty()) {
         requestContextHelpFor(Utils::transform(contexts, [](IContext *context) {
             return QPointer<IContext>(context);
         }));

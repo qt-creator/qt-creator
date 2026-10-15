@@ -4,7 +4,6 @@
 #pragma once
 
 #include "qmlprofilertimelinemodel.h"
-#include "qmlprofilerconstants.h"
 
 #include <qmldebug/qmlprofilereventtypes.h>
 
@@ -21,7 +20,7 @@ public:
     struct Item {
         // not-expanded, per type
         int displayRowExpanded = 1;
-        int displayRowCollapsed = Constants::QML_MIN_LEVEL;
+        int displayRowCollapsed = Timeline::kCollapsedStartRow;
     };
 
     QmlProfilerRangeModel(QmlProfilerModelManager *manager, QmlDebug::RangeType range,

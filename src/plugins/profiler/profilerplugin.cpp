@@ -43,11 +43,13 @@
 #include "tests/qmlprofilerclientmanager_test.h"
 #include "tests/qmlprofilerdetailsrewriter_test.h"
 #include "tests/qmlprofilerfindingsmodel_test.h"
+#include "tests/qmlprofilernotesmodel_test.h"
 #include "tests/qmlprofilersampler_test.h"
 #include "tests/qmlprofilertool_test.h"
 #include "tests/qmlprofilertracefile_test.h"
 #include "tests/qmlprofilertraceview_test.h"
 #include "tests/qttracesampler_test.h"
+#include "tests/scenegraphtimelinemodel_test.h"
 
 #endif // WITH_TESTS
 
@@ -98,11 +100,13 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<QmlProfilerClientManagerTest>();
         addTest<QmlProfilerDetailsRewriterTest>();
         addTest<QmlProfilerFindingsModelTest>();
+        addTest<QmlProfilerNotesModelTest>();
         addTest<QmlProfilerSamplerTest>();
         addTest<QmlProfilerToolTest>();
         addTest<QmlProfilerTraceFileTest>();
         addTest<QmlProfilerTraceViewTest>();
         addTest<QtTraceSamplerTest>();
+        addTest<SceneGraphTimelineModelTest>();
 
         addTestCreator(createPerfNativeMixedTest);
         addTestCreator(createPerfDataParserTest);

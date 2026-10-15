@@ -3,6 +3,8 @@
 
 #include "perfdwarfunwinder.h"
 
+#include "perfelfutils.h"
+
 #include <utils/filepath.h>
 
 #include <QtEndian>
@@ -14,12 +16,8 @@
 #include <libelf.h>
 
 #include <algorithm>
-#include <cstdlib>
 #include <iterator>
 #include <utility>
-
-#include <fcntl.h>
-#include <unistd.h>
 
 namespace Profiler::Internal {
 
@@ -54,7 +52,7 @@ struct PerfDwarfUnwinderPrivate
         if (archElf)
             elf_end(archElf);
         if (archFd >= 0)
-            ::close(archFd);
+            closeForElfutils(archFd);
     }
 };
 
@@ -234,7 +232,7 @@ bool memoryRead(Dwfl *, Dwarf_Addr addr, Dwarf_Word *result, void *arg)
     return true;
 }
 
-// What the CFI says about the frame at `pc`, to be freed with std::free(),
+// What the CFI says about the frame at `pc`, to be freed with freeFromElfutils(),
 // or null where libdw has no CFI for it.
 Dwarf_Frame *cfiFrameAt(Dwfl *dwfl, Dwarf_Addr pc)
 {
@@ -255,7 +253,7 @@ Dwarf_Frame *cfiFrameAt(Dwfl *dwfl, Dwarf_Addr pc)
 bool hasCfi(Dwfl *dwfl, Dwarf_Addr pc)
 {
     Dwarf_Frame *frame = cfiFrameAt(dwfl, pc);
-    std::free(frame);
+    freeFromElfutils(frame);
     return frame != nullptr;
 }
 
@@ -357,7 +355,7 @@ quint64 callerStackPointer(Dwfl *dwfl, quint64 pc, quint64 fp, quint64 sp)
         if (fromCfi >= sp && fromCfi <= fp)
             callerSp = fromCfi;
     }
-    std::free(frame);
+    freeFromElfutils(frame);
     return callerSp;
 }
 
@@ -487,7 +485,7 @@ PerfDwarfUnwinder::PerfDwarfUnwinder(const QList<UnwindModule> &modules)
     for (const UnwindModule &module : modules) {
         if (!Utils::FilePath::fromString(module.path).isFile())
             continue;
-        const int fd = ::open(module.path.toLocal8Bit().constData(), O_RDONLY | O_CLOEXEC);
+        const int fd = openForElfutils(Utils::FilePath::fromString(module.path));
         if (fd < 0)
             continue;
         Elf *elf = elf_begin(fd, ELF_C_READ_MMAP, nullptr);
@@ -498,7 +496,7 @@ PerfDwarfUnwinder::PerfDwarfUnwinder(const QList<UnwindModule> &modules)
         }
         if (elf)
             elf_end(elf);
-        ::close(fd);
+        closeForElfutils(fd);
     }
     if (!d->archElf
         || !dwfl_attach_state(d->dwfl, d->archElf, SyntheticTid, &threadCallbacks, d.get())) {
@@ -557,7 +555,7 @@ bool PerfDwarfUnwinder::isReturnAddressInRegister(quint64 pc) const
                             && dwarf_frame_register(frame, returnAddressRegister, opsMem, &ops,
                                                     &opCount) == 0
                             && opCount == 0 && ops == nullptr;
-    std::free(frame);
+    freeFromElfutils(frame);
     return inRegister;
 }
 

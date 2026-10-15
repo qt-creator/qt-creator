@@ -4,7 +4,6 @@
 #include "debugmessagesmodel.h"
 
 #include "profilertr.h"
-#include "qmlprofilerconstants.h"
 
 #include <tracing/timelineformatdata.h>
 
@@ -72,7 +71,7 @@ int DebugMessagesModel::expandedRow(int index) const
 int DebugMessagesModel::collapsedRow(int index) const
 {
     Q_UNUSED(index)
-    return Constants::QML_MIN_LEVEL;
+    return Timeline::kCollapsedStartRow;
 }
 
 void DebugMessagesModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
@@ -85,7 +84,7 @@ void DebugMessagesModel::loadEvent(const QmlEvent &event, const QmlEventType &ty
 
 void DebugMessagesModel::finalize()
 {
-    setCollapsedRowCount(Constants::QML_MIN_LEVEL + 1);
+    setCollapsedRowCount(Timeline::kCollapsedStartRow + 1);
     setExpandedRowCount(m_maximumMsgType + 2);
     QmlProfilerTimelineModel::finalize();
 }

@@ -163,6 +163,7 @@ void MemoryUsageModelTest::testDetails()
 
 void MemoryUsageModelTest::testExpandedRow()
 {
+    QCOMPARE(model.expandedRowCount(), 3);
     QCOMPARE(model.expandedRow(0), 1);
     QCOMPARE(model.expandedRow(1), 2); // LargeItem event is expanded to two timeline items
     QCOMPARE(model.expandedRow(2), 1);
@@ -173,12 +174,13 @@ void MemoryUsageModelTest::testExpandedRow()
 
 void MemoryUsageModelTest::testCollapsedRow()
 {
-    QCOMPARE(model.collapsedRow(0), 1);
-    QCOMPARE(model.collapsedRow(1), 2); // LargeItem event is expanded to two timeline items
-    QCOMPARE(model.collapsedRow(2), 1);
-    QCOMPARE(model.collapsedRow(3), 2); // Allocate and free tracked separately outside ranges
-    QCOMPARE(model.collapsedRow(4), 1);
-    QCOMPARE(model.collapsedRow(5), 2);
+    QCOMPARE(model.collapsedRowCount(), 2);
+    QCOMPARE(model.collapsedRow(0), 0);
+    QCOMPARE(model.collapsedRow(1), 1); // LargeItem event is expanded to two timeline items
+    QCOMPARE(model.collapsedRow(2), 0);
+    QCOMPARE(model.collapsedRow(3), 1); // Allocate and free tracked separately outside ranges
+    QCOMPARE(model.collapsedRow(4), 0);
+    QCOMPARE(model.collapsedRow(5), 1);
 }
 
 void MemoryUsageModelTest::testLocation()

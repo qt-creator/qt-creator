@@ -21,11 +21,7 @@ endif()
 # fail-closed pattern already used for every other unsupported feature in
 # perfrecordreader.cpp.
 find_package(elfutils)
-# Linux only: elsewhere, the plugin would need libdw deployed where it finds it.
-set(_profiler_with_libdw OFF)
-if(elfutils_FOUND AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(_profiler_with_libdw ON)
-endif()
+set(_profiler_with_libdw ${elfutils_FOUND})
 
 if(WITH_TESTS)
   set(TEST_SOURCES
@@ -47,11 +43,13 @@ if(WITH_TESTS)
     tests/qmlprofilerclientmanager_test.cpp tests/qmlprofilerclientmanager_test.h
     tests/qmlprofilerdetailsrewriter_test.cpp tests/qmlprofilerdetailsrewriter_test.h
     tests/qmlprofilerfindingsmodel_test.cpp tests/qmlprofilerfindingsmodel_test.h
+    tests/qmlprofilernotesmodel_test.cpp tests/qmlprofilernotesmodel_test.h
     tests/qmlprofilersampler_test.cpp tests/qmlprofilersampler_test.h
     tests/qmlprofilertool_test.cpp tests/qmlprofilertool_test.h
     tests/qmlprofilertracefile_test.cpp tests/qmlprofilertracefile_test.h
     tests/qmlprofilertraceview_test.cpp tests/qmlprofilertraceview_test.h
     tests/qttracesampler_test.cpp tests/qttracesampler_test.h
+    tests/scenegraphtimelinemodel_test.cpp tests/scenegraphtimelinemodel_test.h
     tests/tests.qrc
     tests/perfprofilertracefile_test.cpp tests/perfprofilertracefile_test.h
     tests/perfresourcecounter_test.cpp tests/perfresourcecounter_test.h
@@ -180,7 +178,7 @@ set(PERFPROFILER_CPP_SOURCES
 # file is for bundled third-party source with a LicenseFile this repo
 # actually ships, which doesn't apply to a dynamically-linked system library.
 if(_profiler_with_libdw)
-  list(APPEND PERFPROFILER_CPP_SOURCES perfdwarfunwinder.cpp perfdwarfunwinder.h)
+  list(APPEND PERFPROFILER_CPP_SOURCES perfdwarfunwinder.cpp perfdwarfunwinder.h perfelfutils.h)
 endif()
 
 # QtSupport is only used for the live-profiling launch integration (selecting a Qt

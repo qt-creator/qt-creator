@@ -199,7 +199,7 @@ void SceneGraphTimelineModel::finalize()
 
 void SceneGraphTimelineModel::flattenLoads()
 {
-    int collapsedRowCount = 0;
+    int collapsedRowCount = Timeline::kCollapsedStartRow;
 
     // computes "compressed row"
     QList<qint64> eventEndTimes;
@@ -224,8 +224,8 @@ void SceneGraphTimelineModel::flattenLoads()
             eventEndTimes << 0; // increase stack length, proper value added below
         eventEndTimes[event.rowNumberCollapsed] = endTime(i);
 
-        // readjust to account for category empty row
-        event.rowNumberCollapsed++;
+        // readjust to account for the start row
+        event.rowNumberCollapsed += Timeline::kCollapsedStartRow;
         if (event.rowNumberCollapsed > collapsedRowCount)
             collapsedRowCount = event.rowNumberCollapsed;
     }

@@ -102,6 +102,7 @@
 
 #include <utils/fancylineedit.h>
 
+#include <QScrollBar>
 #include <QSignalSpy>
 #include <QSortFilterProxyModel>
 #include <QTemporaryDir>
@@ -3648,7 +3649,8 @@ void GitTest::testDiffDescriptionEditor()
                && runGit({"config", "commit.gpgsign", "false"})
                && (repo / "file.txt").writeFileContents("content\n")
                && runGit({"add", "file.txt"})
-               && runGit({"commit", "-m", QString::fromLatin1("initial\n\nSee ") + link});
+               && runGit({"commit", "-m", QString::fromLatin1("initial\n\nSee ") + link
+                                             + '\n' + QString("Commit message line\n").repeated(40)});
     };
     QVERIFY(initializeRepository(firstRepo, "https://example.com/first"));
     QVERIFY(initializeRepository(secondRepo, "https://example.com/second"));
@@ -3697,6 +3699,11 @@ void GitTest::testDiffDescriptionEditor()
     const int descriptionHeight
         = firstDescription->fontMetrics().lineSpacing() * descriptionLineCount;
     QTRY_COMPARE(splitter->sizes().at(0), descriptionHeight);
+    QTRY_VERIFY(firstDescription->verticalScrollBar()->maximum() > 0);
+    QCOMPARE(firstDescription->textCursor().position(), 0);
+    QCOMPARE(firstDescription->verticalScrollBar()->value(),
+             firstDescription->verticalScrollBar()->minimum());
+    QVERIFY(firstDescription->document()->firstBlock().text().startsWith("commit "));
 
     QList<int> enlargedSizes = splitter->sizes();
     const int availableHeight = enlargedSizes[0] + enlargedSizes[1];
@@ -3714,6 +3721,10 @@ void GitTest::testDiffDescriptionEditor()
     QTRY_VERIFY(secondDescription->toPlainText().contains("https://example.com/second"));
     QCOMPARE(secondDescription->source(), secondRepo);
     QTRY_COMPARE(splitter->sizes().at(0), descriptionHeight);
+    QTRY_VERIFY(secondDescription->verticalScrollBar()->maximum() > 0);
+    QCOMPARE(secondDescription->textCursor().position(), 0);
+    QCOMPARE(secondDescription->verticalScrollBar()->value(),
+             secondDescription->verticalScrollBar()->minimum());
 
     QVERIFY(EditorManager::closeDocuments({EditorManager::currentDocument()}, false));
 }

@@ -22,7 +22,7 @@ PerfTimelineModel::PerfTimelineModel(quint32 pid, quint32 tid, qint64 startTime,
     m_resourceBlocks(parent->resourceContainer(pid)), m_pid(pid), m_tid(tid),
     m_samplingFrequency(1)
 {
-    setCollapsedRowCount(MaximumSpecialRow);
+    setCollapsedRowCount(MaximumCollapsedSpecialRow);
     setExpandedRowCount(MaximumSpecialRow);
 }
 
@@ -228,7 +228,7 @@ int PerfTimelineModel::collapsedRow(int index) const
 float PerfTimelineModel::relativeHeight(int index) const
 {
     const StackFrame &frame = m_data[index];
-    if (frame.displayRowCollapsed < MaximumSpecialRow)
+    if (frame.displayRowCollapsed < MaximumCollapsedSpecialRow)
         return 1.0f;
     return frame.numSamples < 0 ? 0.1f : 1.0f;
 }
@@ -347,8 +347,8 @@ void PerfTimelineModel::updateFrames(const PerfEvent &event, int numConcurrentTh
         ++level;
     }
 
-    if (level + MaximumSpecialRow > collapsedRowCount())
-        setCollapsedRowCount(level + MaximumSpecialRow);
+    if (level + MaximumCollapsedSpecialRow > collapsedRowCount())
+        setCollapsedRowCount(level + MaximumCollapsedSpecialRow);
     while (m_currentStack.length() > level) {
         TimelineModel::insertEnd(m_currentStack.last(),
                                  sampleStart - startTime(m_currentStack.last()));

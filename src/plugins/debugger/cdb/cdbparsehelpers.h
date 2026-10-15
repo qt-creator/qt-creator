@@ -43,6 +43,8 @@ QString cdbWriteMemoryCommand(quint64 addr, const QByteArray &data);
 
 QString debugByteArray(const QByteArray &a);
 
+QString cdbPythonString(const QString &text);
+
 DisassemblerLines parseCdbDisassembler(const QString &a);
 
 // Model EXCEPTION_RECORD + firstchance

@@ -48,6 +48,7 @@ public:
 
 private:
     void load();
+    int toExpandedRow(int row) const;
     void ensureDensityCache(qint64 startNs, qint64 endNs, int columns) const;
 
     struct Item
@@ -64,6 +65,7 @@ private:
     struct TickRow
     {
         qint64 startNs = 0;
+        qint64 endNs = 0;       // where the tick's items end: the next tick's start
         int running = 0;        // running threads at this tick
         QList<int> runningRows; // thread row indices (FirstThreadRow + idx) on-CPU
     };
@@ -84,6 +86,7 @@ private:
     mutable bool m_cacheValid = false;
     mutable QList<int> m_cacheCovered;       // [col] ticks in the column
     mutable QList<int> m_cacheRunSum;        // [col] sum of running threads
+    mutable QList<int> m_cacheLastTick;      // [col] index into m_ticks of its last tick
     mutable QList<QList<int>> m_cacheActive; // [threadIndex][col] on-CPU ticks
 };
 

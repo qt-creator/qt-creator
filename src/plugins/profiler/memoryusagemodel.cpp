@@ -33,13 +33,14 @@ qint64 MemoryUsageModel::rowMaxValue(int rowNumber) const
 
 int MemoryUsageModel::expandedRow(int index) const
 {
-    int type = selectionId(index);
-    return (type == HeapPage || type == LargeItem) ? 1 : 2;
+    return collapsedRow(index) - Timeline::kCollapsedStartRow + 1;
 }
 
 int MemoryUsageModel::collapsedRow(int index) const
 {
-    return expandedRow(index);
+    int type = selectionId(index);
+    return (type == HeapPage || type == LargeItem) ? Timeline::kCollapsedStartRow
+                                                   : Timeline::kCollapsedStartRow + 1;
 }
 
 int MemoryUsageModel::typeId(int index) const
@@ -218,7 +219,7 @@ void MemoryUsageModel::finalize()
 
     computeNesting();
     setExpandedRowCount(3);
-    setCollapsedRowCount(3);
+    setCollapsedRowCount(Timeline::kCollapsedStartRow + 2);
     QmlProfilerTimelineModel::finalize();
 }
 

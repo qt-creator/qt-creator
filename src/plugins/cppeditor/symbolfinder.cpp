@@ -286,6 +286,11 @@ Symbol *SymbolFinder::findMatchingVarDefinition(Symbol *declaration, const Snaps
             return nullptr;
     }
 
+    // Non-static data members cannot be defined outside of their class.
+    const Scope * const scope = declaration->enclosingScope();
+    if (scope && scope->asClass() && !declaration->type().isStatic())
+        return nullptr;
+
     const FilePath declFile = declaration->filePath();
     const Document::Ptr thisDocument = snapshot.document(declFile);
     if (!thisDocument) {

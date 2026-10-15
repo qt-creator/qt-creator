@@ -32,6 +32,11 @@ public:
         MaximumSpecialRow = 2
     };
 
+    enum CollapsedSpecialRows {
+        CollapsedSamplesRow = Timeline::kCollapsedStartRow,
+        MaximumCollapsedSpecialRow = CollapsedSamplesRow + 1
+    };
+
     PerfTimelineModel(quint32 pid, quint32 tid, qint64 startTime, qint64 endTime,
                       PerfTimelineModelManager *parent);
 
@@ -84,7 +89,7 @@ private:
     struct StackFrame {
         int numSamples = 1;
         int numExpectedParallelSamples = 1;
-        int displayRowCollapsed = MaximumSpecialRow;
+        int displayRowCollapsed = MaximumCollapsedSpecialRow;
         int displayRowExpanded = MaximumSpecialRow;
 
         quint64 attributeValue = 0;
@@ -96,7 +101,8 @@ private:
         static StackFrame sampleFrame()
         {
             StackFrame sample = StackFrame();
-            sample.displayRowCollapsed = sample.displayRowExpanded = SamplesRow;
+            sample.displayRowCollapsed = CollapsedSamplesRow;
+            sample.displayRowExpanded = SamplesRow;
             return sample;
         }
 
@@ -106,7 +112,7 @@ private:
             StackFrame stackFrame = StackFrame();
             stackFrame.numSamples = guessed ? -1 : 1;
             stackFrame.numExpectedParallelSamples = numConcurrentThreads;
-            stackFrame.displayRowCollapsed = level + MaximumSpecialRow;
+            stackFrame.displayRowCollapsed = level + MaximumCollapsedSpecialRow;
             stackFrame.resourcePeak = currentTotal;
             stackFrame.resourceDelta = delta;
             stackFrame.resourceGuesses = guesses;

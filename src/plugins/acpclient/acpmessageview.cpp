@@ -983,7 +983,7 @@ private:
     void linkCustomAnswers(const QMap<QString, ElicitationPropertySchema> &properties)
     {
         for (auto it = properties.constBegin(); it != properties.constEnd(); ++it) {
-            const QString owner = customAnswerOwner(it.value());
+            const QString owner = customAnswerOwner(it.key(), properties);
             if (owner.isEmpty())
                 continue;
             auto *custom = qobject_cast<QLineEdit *>(m_inputOfProperty.value(it.key()));
@@ -1030,9 +1030,13 @@ private:
 
     // The question a property answers, when it is not one of its own: an
     // askUserQuestion custom answer names the question it belongs to, and is
-    // asked next to it rather than on a page of its own.
-    static QString customAnswerOwner(const ElicitationPropertySchema &property)
+    // asked next to it rather than on a page of its own. Agents that leave
+    // out that note still name the answer after the question whose choices
+    // it replaces.
+    static QString customAnswerOwner(const QString &key,
+                                     const QMap<QString, ElicitationPropertySchema> &properties)
     {
+        const ElicitationPropertySchema property = properties.value(key);
         const QJsonObject meta = std::visit(
             [](const auto &schema) -> QJsonObject {
                 if constexpr (requires { schema._meta(); })
@@ -1041,10 +1045,27 @@ private:
                     return {};
             },
             property);
-        const QJsonObject custom = meta.value("_askUserQuestionCustomAnswer").toObject();
-        if (!custom.value("isCustomAnswer").toBool())
+        if (meta.contains("_askUserQuestionCustomAnswer")) {
+            const QJsonObject custom = meta.value("_askUserQuestionCustomAnswer").toObject();
+            if (!custom.value("isCustomAnswer").toBool())
+                return {};
+            return custom.value("questionId").toString();
+        }
+
+        static const QLatin1StringView suffix("_custom");
+        if (!key.endsWith(suffix))
             return {};
-        return custom.value("questionId").toString();
+        const auto *str = std::get_if<StringPropertySchema>(&property);
+        if (!str || !singleSelectOptions(*str).isEmpty())
+            return {};
+        const QString owner = key.chopped(suffix.size());
+        const auto ownerIt = properties.constFind(owner);
+        if (ownerIt == properties.constEnd())
+            return {};
+        const auto *ownerStr = std::get_if<StringPropertySchema>(&*ownerIt);
+        const bool offersChoices = (ownerStr && !singleSelectOptions(*ownerStr).isEmpty())
+                                   || std::holds_alternative<MultiSelectPropertySchema>(*ownerIt);
+        return offersChoices ? owner : QString();
     }
 
     // The order the agent wrote its questions in is gone by the time the
@@ -1076,13 +1097,13 @@ private:
         QList<QStringList> questions;
         QHash<QString, int> pageOfQuestion;
         for (const QString &key : keys) {
-            if (!customAnswerOwner(properties.value(key)).isEmpty())
+            if (!customAnswerOwner(key, properties).isEmpty())
                 continue;
             pageOfQuestion.insert(key, questions.size());
             questions.append({key});
         }
         for (const QString &key : keys) {
-            const QString owner = customAnswerOwner(properties.value(key));
+            const QString owner = customAnswerOwner(key, properties);
             if (owner.isEmpty())
                 continue;
             // A custom answer for a question that is not in the schema still
