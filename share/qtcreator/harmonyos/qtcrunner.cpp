@@ -20,6 +20,7 @@
 #include "qtcshim.h"
 
 #include <cinttypes>
+#include <csignal>
 
 static QtcShim *shim()
 {
@@ -138,6 +139,56 @@ static void holdForDebugger(int fd, const QtcLoad::Image &image, const QtcLoad::
     note(qtcHostRelease ? "released by the debugger" : "no debugger came, running anyway");
 }
 
+// A crash takes the process down before main() returns, and with it the exit code, so it is
+// told over the channel instead. The platform's own handlers, which write the crash log, run
+// afterwards.
+struct CrashSignal
+{
+    int number;
+    const char *name;
+    struct sigaction previous;
+};
+
+static CrashSignal crashSignals[] = {{SIGSEGV, "SIGSEGV", {}}, {SIGBUS, "SIGBUS", {}},
+                                     {SIGABRT, "SIGABRT", {}}, {SIGILL, "SIGILL", {}},
+                                     {SIGFPE, "SIGFPE", {}}};
+static int crashChannel = -1;
+
+static void reportCrash(int number)
+{
+    for (CrashSignal &crash : crashSignals) {
+        if (crash.number != number)
+            continue;
+        if (crashChannel >= 0) {
+            static const char prefix[] = "runner: crashed with ";
+            ssize_t ignored = ::write(crashChannel, prefix, sizeof(prefix) - 1);
+            ignored = ::write(crashChannel, crash.name, ::strlen(crash.name));
+            ignored = ::write(crashChannel, "\n", 1);
+            (void) ignored;
+        }
+        ::sigaction(number, &crash.previous, nullptr);
+        ::raise(number);
+        return;
+    }
+}
+
+static void watchForCrashes(int fd)
+{
+    crashChannel = fd;
+    for (CrashSignal &crash : crashSignals) {
+        struct sigaction action = {};
+        action.sa_handler = reportCrash;
+        ::sigaction(crash.number, &action, &crash.previous);
+    }
+}
+
+static void stopWatchingForCrashes()
+{
+    for (CrashSignal &crash : crashSignals)
+        ::sigaction(crash.number, &crash.previous, nullptr);
+    crashChannel = -1;
+}
+
 extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv)
 {
     note("main() entered, argc %d", argc);
@@ -242,9 +293,11 @@ extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv
         ::dup2(fd, STDOUT_FILENO);
         ::dup2(fd, STDERR_FILENO);
         ::setvbuf(stdout, nullptr, _IOLBF, 0);
+        watchForCrashes(fd);
     }
     const int result = entry(argc, argv);
     if (fd >= 0) {
+        stopWatchingForCrashes();
         ::fflush(stdout);
         ::fflush(stderr);
         ::dup2(savedOutput, STDOUT_FILENO);

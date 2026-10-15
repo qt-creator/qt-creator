@@ -384,6 +384,7 @@ private:
     void read()
     {
         static const QRegularExpression returned("^runner: main\\(\\) returned (-?\\d+)$");
+        static const QRegularExpression crashed("^runner: crashed with (SIG[A-Z]+)$");
         if (m_expected > 0) {
             m_answer += m_socket->read(m_expected - m_answer.size());
             if (m_answer.size() < m_expected)
@@ -404,6 +405,8 @@ private:
                 m_called = true;
             else if (const QRegularExpressionMatch match = returned.match(line); match.hasMatch())
                 m_returned = match.captured(1).toInt();
+            else if (const QRegularExpressionMatch match = crashed.match(line); match.hasMatch())
+                m_crash = match.captured(1);
             if (m_hold)
                 readHold(line);
             m_runControl->postMessage(line, StdOutFormat);
@@ -414,7 +417,7 @@ private:
     // main() returned, a crash on the way out included, takes the exit code with it.
     void reportEnd()
     {
-        m_text += m_socket->readAll();
+        read();
         if (!m_text.isEmpty()) {
             m_runControl->postMessage(QString::fromUtf8(m_text), StdOutFormat);
             m_text.clear();
@@ -425,6 +428,10 @@ private:
                                           .arg(m_library.fileName())
                                           .arg(*m_returned),
                                       NormalMessageFormat);
+        } else if (!m_crash.isEmpty()) {
+            m_runControl->postMessage(Tr::tr("The application \"%1\" crashed with %2.")
+                                          .arg(m_library.fileName(), m_crash),
+                                      ErrorMessageFormat);
         } else if (m_called) {
             m_runControl->postMessage(Tr::tr("The application ended before its main() "
                                              "returned. Its exit code is not known."),
@@ -472,6 +479,7 @@ private:
     bool m_staged = false;
     bool m_called = false;
     std::optional<int> m_returned;
+    QString m_crash;
 };
 
 class HarmonyOsRunConfiguration final : public RunConfiguration
