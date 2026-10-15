@@ -11,8 +11,12 @@ Utils::Result<Position> fromJson<Position>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("line"))
         return Utils::ResultError("Missing required field: line");
+    if (!obj["line"].isDouble())
+        return Utils::ResultError("Invalid type for field: line");
     if (!obj.contains("character"))
         return Utils::ResultError("Missing required field: character");
+    if (!obj["character"].isDouble())
+        return Utils::ResultError("Invalid type for field: character");
     Position result;
     result._line = obj.value("line").toInt();
     result._character = obj.value("character").toInt();
@@ -55,6 +59,8 @@ Utils::Result<TextDocumentIdentifier> fromJson<TextDocumentIdentifier>(const QJs
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     TextDocumentIdentifier result;
     result._uri = obj.value("uri").toString();
     return result;
@@ -74,21 +80,21 @@ Utils::Result<ImplementationParams> fromJson<ImplementationParams>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     ImplementationParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     if (obj.contains("workDoneToken")) {
         const auto res2 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
         if (!res2)
@@ -125,21 +131,21 @@ Utils::Result<Range> fromJson<Range>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("start"))
         return Utils::ResultError("Missing required field: start");
+    if (!obj["start"].isObject())
+        return Utils::ResultError("Invalid type for field: start");
     if (!obj.contains("end"))
         return Utils::ResultError("Missing required field: end");
+    if (!obj["end"].isObject())
+        return Utils::ResultError("Invalid type for field: end");
     Range result;
-    if (obj.contains("start") && obj["start"].isObject()) {
-        const auto res0 = fromJson<Position>("start", obj["start"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._start = *res0;
-    }
-    if (obj.contains("end") && obj["end"].isObject()) {
-        const auto res1 = fromJson<Position>("end", obj["end"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._end = *res1;
-    }
+    const auto res0 = fromJson<Position>("start", obj["start"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._start = *res0;
+    const auto res1 = fromJson<Position>("end", obj["end"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._end = *res1;
     return result;
 }
 
@@ -160,16 +166,18 @@ Utils::Result<Location> fromJson<Location>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     Location result;
     result._uri = obj.value("uri").toString();
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
     return result;
 }
 
@@ -196,8 +204,12 @@ Utils::Result<WorkspaceFolder> fromJson<WorkspaceFolder>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     WorkspaceFolder result;
     result._uri = obj.value("uri").toString();
     result._name = obj.value("name").toString();
@@ -253,19 +265,17 @@ Utils::Result<RelativePattern> fromJson<RelativePattern>(const QJsonValue &val)
         return Utils::ResultError("Missing required field: baseUri");
     if (!obj.contains("pattern"))
         return Utils::ResultError("Missing required field: pattern");
+    if (!obj["pattern"].isString())
+        return Utils::ResultError("Invalid type for field: pattern");
     RelativePattern result;
-    if (obj.contains("baseUri")) {
-        const auto res0 = fromJson<RelativePatternBaseUri>("baseUri", obj["baseUri"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._baseUri = *res0;
-    }
-    if (obj.contains("pattern") && obj["pattern"].isString()) {
-        const auto res1 = fromJson<Pattern>("pattern", obj["pattern"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._pattern = *res1;
-    }
+    const auto res0 = fromJson<RelativePatternBaseUri>("baseUri", obj["baseUri"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._baseUri = *res0;
+    const auto res1 = fromJson<Pattern>("pattern", obj["pattern"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._pattern = *res1;
     return result;
 }
 
@@ -322,6 +332,8 @@ Utils::Result<NotebookDocumentFilterNotebookType> fromJson<NotebookDocumentFilte
     const QJsonObject obj = val.toObject();
     if (!obj.contains("notebookType"))
         return Utils::ResultError("Missing required field: notebookType");
+    if (!obj["notebookType"].isString())
+        return Utils::ResultError("Invalid type for field: notebookType");
     NotebookDocumentFilterNotebookType result;
     result._notebookType = obj.value("notebookType").toString();
     if (obj.contains("scheme"))
@@ -358,12 +370,10 @@ Utils::Result<NotebookDocumentFilterPattern> fromJson<NotebookDocumentFilterPatt
         result._notebookType = obj.value("notebookType").toString();
     if (obj.contains("scheme"))
         result._scheme = obj.value("scheme").toString();
-    if (obj.contains("pattern")) {
-        const auto res0 = fromJson<GlobPattern>("pattern", obj["pattern"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._pattern = *res0;
-    }
+    const auto res0 = fromJson<GlobPattern>("pattern", obj["pattern"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._pattern = *res0;
     return result;
 }
 
@@ -385,6 +395,8 @@ Utils::Result<NotebookDocumentFilterScheme> fromJson<NotebookDocumentFilterSchem
     const QJsonObject obj = val.toObject();
     if (!obj.contains("scheme"))
         return Utils::ResultError("Missing required field: scheme");
+    if (!obj["scheme"].isString())
+        return Utils::ResultError("Invalid type for field: scheme");
     NotebookDocumentFilterScheme result;
     if (obj.contains("notebookType"))
         result._notebookType = obj.value("notebookType").toString();
@@ -477,12 +489,10 @@ Utils::Result<NotebookCellTextDocumentFilter> fromJson<NotebookCellTextDocumentF
     if (!obj.contains("notebook"))
         return Utils::ResultError("Missing required field: notebook");
     NotebookCellTextDocumentFilter result;
-    if (obj.contains("notebook")) {
-        const auto res0 = fromJson<NotebookCellTextDocumentFilterNotebook>("notebook", obj["notebook"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._notebook = *res0;
-    }
+    const auto res0 = fromJson<NotebookCellTextDocumentFilterNotebook>("notebook", obj["notebook"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._notebook = *res0;
     if (obj.contains("language"))
         result._language = obj.value("language").toString();
     return result;
@@ -504,6 +514,8 @@ Utils::Result<TextDocumentFilterLanguage> fromJson<TextDocumentFilterLanguage>(c
     const QJsonObject obj = val.toObject();
     if (!obj.contains("language"))
         return Utils::ResultError("Missing required field: language");
+    if (!obj["language"].isString())
+        return Utils::ResultError("Invalid type for field: language");
     TextDocumentFilterLanguage result;
     result._language = obj.value("language").toString();
     if (obj.contains("scheme"))
@@ -540,12 +552,10 @@ Utils::Result<TextDocumentFilterPattern> fromJson<TextDocumentFilterPattern>(con
         result._language = obj.value("language").toString();
     if (obj.contains("scheme"))
         result._scheme = obj.value("scheme").toString();
-    if (obj.contains("pattern")) {
-        const auto res0 = fromJson<GlobPattern>("pattern", obj["pattern"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._pattern = *res0;
-    }
+    const auto res0 = fromJson<GlobPattern>("pattern", obj["pattern"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._pattern = *res0;
     return result;
 }
 
@@ -567,6 +577,8 @@ Utils::Result<TextDocumentFilterScheme> fromJson<TextDocumentFilterScheme>(const
     const QJsonObject obj = val.toObject();
     if (!obj.contains("scheme"))
         return Utils::ResultError("Missing required field: scheme");
+    if (!obj["scheme"].isString())
+        return Utils::ResultError("Invalid type for field: scheme");
     TextDocumentFilterScheme result;
     if (obj.contains("language"))
         result._language = obj.value("language").toString();
@@ -732,21 +744,21 @@ Utils::Result<TypeDefinitionParams> fromJson<TypeDefinitionParams>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     TypeDefinitionParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     if (obj.contains("workDoneToken")) {
         const auto res2 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
         if (!res2)
@@ -819,10 +831,14 @@ Utils::Result<WorkspaceFoldersChangeEvent> fromJson<WorkspaceFoldersChangeEvent>
     const QJsonObject obj = val.toObject();
     if (!obj.contains("added"))
         return Utils::ResultError("Missing required field: added");
+    if (!obj["added"].isArray())
+        return Utils::ResultError("Invalid type for field: added");
     if (!obj.contains("removed"))
         return Utils::ResultError("Missing required field: removed");
+    if (!obj["removed"].isArray())
+        return Utils::ResultError("Invalid type for field: removed");
     WorkspaceFoldersChangeEvent result;
-    if (obj.contains("added") && obj["added"].isArray()) {
+    {
         const QJsonArray arr = obj["added"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<WorkspaceFolder>("added", v);
@@ -831,7 +847,7 @@ Utils::Result<WorkspaceFoldersChangeEvent> fromJson<WorkspaceFoldersChangeEvent>
             result._added.append(*res0);
         }
     }
-    if (obj.contains("removed") && obj["removed"].isArray()) {
+    {
         const QJsonArray arr = obj["removed"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res1 = fromJson<WorkspaceFolder>("removed", v);
@@ -863,13 +879,13 @@ Utils::Result<DidChangeWorkspaceFoldersParams> fromJson<DidChangeWorkspaceFolder
     const QJsonObject obj = val.toObject();
     if (!obj.contains("event"))
         return Utils::ResultError("Missing required field: event");
+    if (!obj["event"].isObject())
+        return Utils::ResultError("Invalid type for field: event");
     DidChangeWorkspaceFoldersParams result;
-    if (obj.contains("event") && obj["event"].isObject()) {
-        const auto res0 = fromJson<WorkspaceFoldersChangeEvent>("event", obj["event"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._event = *res0;
-    }
+    const auto res0 = fromJson<WorkspaceFoldersChangeEvent>("event", obj["event"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._event = *res0;
     return result;
 }
 
@@ -911,8 +927,10 @@ Utils::Result<ConfigurationParams> fromJson<ConfigurationParams>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("items"))
         return Utils::ResultError("Missing required field: items");
+    if (!obj["items"].isArray())
+        return Utils::ResultError("Invalid type for field: items");
     ConfigurationParams result;
-    if (obj.contains("items") && obj["items"].isArray()) {
+    {
         const QJsonArray arr = obj["items"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<ConfigurationItem>("items", v);
@@ -941,6 +959,8 @@ Utils::Result<DocumentColorParams> fromJson<DocumentColorParams>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     DocumentColorParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -954,12 +974,10 @@ Utils::Result<DocumentColorParams> fromJson<DocumentColorParams>(const QJsonValu
             return Utils::ResultError(res1.error());
         result._partialResultToken = *res1;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._textDocument = *res2;
-    }
+    const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._textDocument = *res2;
     return result;
 }
 
@@ -981,12 +999,20 @@ Utils::Result<Color> fromJson<Color>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("red"))
         return Utils::ResultError("Missing required field: red");
+    if (!obj["red"].isDouble())
+        return Utils::ResultError("Invalid type for field: red");
     if (!obj.contains("green"))
         return Utils::ResultError("Missing required field: green");
+    if (!obj["green"].isDouble())
+        return Utils::ResultError("Invalid type for field: green");
     if (!obj.contains("blue"))
         return Utils::ResultError("Missing required field: blue");
+    if (!obj["blue"].isDouble())
+        return Utils::ResultError("Invalid type for field: blue");
     if (!obj.contains("alpha"))
         return Utils::ResultError("Missing required field: alpha");
+    if (!obj["alpha"].isDouble())
+        return Utils::ResultError("Invalid type for field: alpha");
     Color result;
     result._red = obj.value("red").toDouble();
     result._green = obj.value("green").toDouble();
@@ -1014,21 +1040,21 @@ Utils::Result<ColorInformation> fromJson<ColorInformation>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     if (!obj.contains("color"))
         return Utils::ResultError("Missing required field: color");
+    if (!obj["color"].isObject())
+        return Utils::ResultError("Invalid type for field: color");
     ColorInformation result;
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
-    if (obj.contains("color") && obj["color"].isObject()) {
-        const auto res1 = fromJson<Color>("color", obj["color"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._color = *res1;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
+    const auto res1 = fromJson<Color>("color", obj["color"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._color = *res1;
     return result;
 }
 
@@ -1085,10 +1111,16 @@ Utils::Result<ColorPresentationParams> fromJson<ColorPresentationParams>(const Q
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("color"))
         return Utils::ResultError("Missing required field: color");
+    if (!obj["color"].isObject())
+        return Utils::ResultError("Invalid type for field: color");
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     ColorPresentationParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -1102,24 +1134,18 @@ Utils::Result<ColorPresentationParams> fromJson<ColorPresentationParams>(const Q
             return Utils::ResultError(res1.error());
         result._partialResultToken = *res1;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._textDocument = *res2;
-    }
-    if (obj.contains("color") && obj["color"].isObject()) {
-        const auto res3 = fromJson<Color>("color", obj["color"]);
-        if (!res3)
-            return Utils::ResultError(res3.error());
-        result._color = *res3;
-    }
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res4 = fromJson<Range>("range", obj["range"]);
-        if (!res4)
-            return Utils::ResultError(res4.error());
-        result._range = *res4;
-    }
+    const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._textDocument = *res2;
+    const auto res3 = fromJson<Color>("color", obj["color"]);
+    if (!res3)
+        return Utils::ResultError(res3.error());
+    result._color = *res3;
+    const auto res4 = fromJson<Range>("range", obj["range"]);
+    if (!res4)
+        return Utils::ResultError(res4.error());
+    result._range = *res4;
     return result;
 }
 
@@ -1145,15 +1171,17 @@ Utils::Result<TextEdit> fromJson<TextEdit>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     if (!obj.contains("newText"))
         return Utils::ResultError("Missing required field: newText");
+    if (!obj["newText"].isString())
+        return Utils::ResultError("Invalid type for field: newText");
     TextEdit result;
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
     result._newText = obj.value("newText").toString();
     return result;
 }
@@ -1175,6 +1203,8 @@ Utils::Result<ColorPresentation> fromJson<ColorPresentation>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("label"))
         return Utils::ResultError("Missing required field: label");
+    if (!obj["label"].isString())
+        return Utils::ResultError("Invalid type for field: label");
     ColorPresentation result;
     result._label = obj.value("label").toString();
     if (obj.contains("textEdit") && obj["textEdit"].isObject()) {
@@ -1218,6 +1248,8 @@ Utils::Result<FoldingRangeParams> fromJson<FoldingRangeParams>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     FoldingRangeParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -1231,12 +1263,10 @@ Utils::Result<FoldingRangeParams> fromJson<FoldingRangeParams>(const QJsonValue 
             return Utils::ResultError(res1.error());
         result._partialResultToken = *res1;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._textDocument = *res2;
-    }
+    const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._textDocument = *res2;
     return result;
 }
 
@@ -1258,8 +1288,12 @@ Utils::Result<FoldingRange> fromJson<FoldingRange>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("startLine"))
         return Utils::ResultError("Missing required field: startLine");
+    if (!obj["startLine"].isDouble())
+        return Utils::ResultError("Invalid type for field: startLine");
     if (!obj.contains("endLine"))
         return Utils::ResultError("Missing required field: endLine");
+    if (!obj["endLine"].isDouble())
+        return Utils::ResultError("Invalid type for field: endLine");
     FoldingRange result;
     result._startLine = obj.value("startLine").toInt();
     if (obj.contains("startCharacter"))
@@ -1339,21 +1373,21 @@ Utils::Result<DeclarationParams> fromJson<DeclarationParams>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     DeclarationParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     if (obj.contains("workDoneToken")) {
         const auto res2 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
         if (!res2)
@@ -1426,8 +1460,12 @@ Utils::Result<SelectionRangeParams> fromJson<SelectionRangeParams>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("positions"))
         return Utils::ResultError("Missing required field: positions");
+    if (!obj["positions"].isArray())
+        return Utils::ResultError("Invalid type for field: positions");
     SelectionRangeParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -1441,13 +1479,11 @@ Utils::Result<SelectionRangeParams> fromJson<SelectionRangeParams>(const QJsonVa
             return Utils::ResultError(res1.error());
         result._partialResultToken = *res1;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._textDocument = *res2;
-    }
-    if (obj.contains("positions") && obj["positions"].isArray()) {
+    const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._textDocument = *res2;
+    {
         const QJsonArray arr = obj["positions"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res3 = fromJson<Position>("positions", v);
@@ -1482,13 +1518,13 @@ Utils::Result<SelectionRange> fromJson<SelectionRange>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     SelectionRange result;
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
     if (obj.contains("parent") && obj["parent"].isObject()) {
         const auto res1 = fromJson<SelectionRange>("parent", obj["parent"]);
         if (!res1)
@@ -1551,12 +1587,10 @@ Utils::Result<WorkDoneProgressCreateParams> fromJson<WorkDoneProgressCreateParam
     if (!obj.contains("token"))
         return Utils::ResultError("Missing required field: token");
     WorkDoneProgressCreateParams result;
-    if (obj.contains("token")) {
-        const auto res0 = fromJson<ProgressToken>("token", obj["token"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._token = *res0;
-    }
+    const auto res0 = fromJson<ProgressToken>("token", obj["token"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._token = *res0;
     return result;
 }
 
@@ -1575,12 +1609,10 @@ Utils::Result<WorkDoneProgressCancelParams> fromJson<WorkDoneProgressCancelParam
     if (!obj.contains("token"))
         return Utils::ResultError("Missing required field: token");
     WorkDoneProgressCancelParams result;
-    if (obj.contains("token")) {
-        const auto res0 = fromJson<ProgressToken>("token", obj["token"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._token = *res0;
-    }
+    const auto res0 = fromJson<ProgressToken>("token", obj["token"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._token = *res0;
     return result;
 }
 
@@ -1598,21 +1630,21 @@ Utils::Result<CallHierarchyPrepareParams> fromJson<CallHierarchyPrepareParams>(c
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     CallHierarchyPrepareParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     if (obj.contains("workDoneToken")) {
         const auto res2 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
         if (!res2)
@@ -1641,14 +1673,24 @@ Utils::Result<CallHierarchyItem> fromJson<CallHierarchyItem>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isDouble())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     if (!obj.contains("selectionRange"))
         return Utils::ResultError("Missing required field: selectionRange");
+    if (!obj["selectionRange"].isObject())
+        return Utils::ResultError("Invalid type for field: selectionRange");
     CallHierarchyItem result;
     result._name = obj.value("name").toString();
     result._kind = obj.value("kind").toInt();
@@ -1663,18 +1705,14 @@ Utils::Result<CallHierarchyItem> fromJson<CallHierarchyItem>(const QJsonValue &v
     if (obj.contains("detail"))
         result._detail = obj.value("detail").toString();
     result._uri = obj.value("uri").toString();
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
-    if (obj.contains("selectionRange") && obj["selectionRange"].isObject()) {
-        const auto res1 = fromJson<Range>("selectionRange", obj["selectionRange"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._selectionRange = *res1;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
+    const auto res1 = fromJson<Range>("selectionRange", obj["selectionRange"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._selectionRange = *res1;
     if (obj.contains("data"))
         result._data = obj.value("data");
     return result;
@@ -1745,6 +1783,8 @@ Utils::Result<CallHierarchyIncomingCallsParams> fromJson<CallHierarchyIncomingCa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("item"))
         return Utils::ResultError("Missing required field: item");
+    if (!obj["item"].isObject())
+        return Utils::ResultError("Invalid type for field: item");
     CallHierarchyIncomingCallsParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -1758,12 +1798,10 @@ Utils::Result<CallHierarchyIncomingCallsParams> fromJson<CallHierarchyIncomingCa
             return Utils::ResultError(res1.error());
         result._partialResultToken = *res1;
     }
-    if (obj.contains("item") && obj["item"].isObject()) {
-        const auto res2 = fromJson<CallHierarchyItem>("item", obj["item"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._item = *res2;
-    }
+    const auto res2 = fromJson<CallHierarchyItem>("item", obj["item"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._item = *res2;
     return result;
 }
 
@@ -1785,16 +1823,18 @@ Utils::Result<CallHierarchyIncomingCall> fromJson<CallHierarchyIncomingCall>(con
     const QJsonObject obj = val.toObject();
     if (!obj.contains("from"))
         return Utils::ResultError("Missing required field: from");
+    if (!obj["from"].isObject())
+        return Utils::ResultError("Invalid type for field: from");
     if (!obj.contains("fromRanges"))
         return Utils::ResultError("Missing required field: fromRanges");
+    if (!obj["fromRanges"].isArray())
+        return Utils::ResultError("Invalid type for field: fromRanges");
     CallHierarchyIncomingCall result;
-    if (obj.contains("from") && obj["from"].isObject()) {
-        const auto res0 = fromJson<CallHierarchyItem>("from", obj["from"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._from = *res0;
-    }
-    if (obj.contains("fromRanges") && obj["fromRanges"].isArray()) {
+    const auto res0 = fromJson<CallHierarchyItem>("from", obj["from"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._from = *res0;
+    {
         const QJsonArray arr = obj["fromRanges"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res1 = fromJson<Range>("fromRanges", v);
@@ -1823,6 +1863,8 @@ Utils::Result<CallHierarchyOutgoingCallsParams> fromJson<CallHierarchyOutgoingCa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("item"))
         return Utils::ResultError("Missing required field: item");
+    if (!obj["item"].isObject())
+        return Utils::ResultError("Invalid type for field: item");
     CallHierarchyOutgoingCallsParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -1836,12 +1878,10 @@ Utils::Result<CallHierarchyOutgoingCallsParams> fromJson<CallHierarchyOutgoingCa
             return Utils::ResultError(res1.error());
         result._partialResultToken = *res1;
     }
-    if (obj.contains("item") && obj["item"].isObject()) {
-        const auto res2 = fromJson<CallHierarchyItem>("item", obj["item"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._item = *res2;
-    }
+    const auto res2 = fromJson<CallHierarchyItem>("item", obj["item"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._item = *res2;
     return result;
 }
 
@@ -1863,16 +1903,18 @@ Utils::Result<CallHierarchyOutgoingCall> fromJson<CallHierarchyOutgoingCall>(con
     const QJsonObject obj = val.toObject();
     if (!obj.contains("to"))
         return Utils::ResultError("Missing required field: to");
+    if (!obj["to"].isObject())
+        return Utils::ResultError("Invalid type for field: to");
     if (!obj.contains("fromRanges"))
         return Utils::ResultError("Missing required field: fromRanges");
+    if (!obj["fromRanges"].isArray())
+        return Utils::ResultError("Invalid type for field: fromRanges");
     CallHierarchyOutgoingCall result;
-    if (obj.contains("to") && obj["to"].isObject()) {
-        const auto res0 = fromJson<CallHierarchyItem>("to", obj["to"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._to = *res0;
-    }
-    if (obj.contains("fromRanges") && obj["fromRanges"].isArray()) {
+    const auto res0 = fromJson<CallHierarchyItem>("to", obj["to"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._to = *res0;
+    {
         const QJsonArray arr = obj["fromRanges"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res1 = fromJson<Range>("fromRanges", v);
@@ -1901,6 +1943,8 @@ Utils::Result<SemanticTokensParams> fromJson<SemanticTokensParams>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     SemanticTokensParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -1914,12 +1958,10 @@ Utils::Result<SemanticTokensParams> fromJson<SemanticTokensParams>(const QJsonVa
             return Utils::ResultError(res1.error());
         result._partialResultToken = *res1;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._textDocument = *res2;
-    }
+    const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._textDocument = *res2;
     return result;
 }
 
@@ -1941,10 +1983,12 @@ Utils::Result<SemanticTokens> fromJson<SemanticTokens>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("data"))
         return Utils::ResultError("Missing required field: data");
+    if (!obj["data"].isArray())
+        return Utils::ResultError("Invalid type for field: data");
     SemanticTokens result;
     if (obj.contains("resultId"))
         result._resultId = obj.value("resultId").toString();
-    if (obj.contains("data") && obj["data"].isArray()) {
+    {
         const QJsonArray arr = obj["data"].toArray();
         for (const QJsonValue &v : arr) {
             result._data.append(v.toInt());
@@ -1972,8 +2016,10 @@ Utils::Result<SemanticTokensPartialResult> fromJson<SemanticTokensPartialResult>
     const QJsonObject obj = val.toObject();
     if (!obj.contains("data"))
         return Utils::ResultError("Missing required field: data");
+    if (!obj["data"].isArray())
+        return Utils::ResultError("Invalid type for field: data");
     SemanticTokensPartialResult result;
-    if (obj.contains("data") && obj["data"].isArray()) {
+    {
         const QJsonArray arr = obj["data"].toArray();
         for (const QJsonValue &v : arr) {
             result._data.append(v.toInt());
@@ -2019,16 +2065,20 @@ Utils::Result<SemanticTokensLegend> fromJson<SemanticTokensLegend>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("tokenTypes"))
         return Utils::ResultError("Missing required field: tokenTypes");
+    if (!obj["tokenTypes"].isArray())
+        return Utils::ResultError("Invalid type for field: tokenTypes");
     if (!obj.contains("tokenModifiers"))
         return Utils::ResultError("Missing required field: tokenModifiers");
+    if (!obj["tokenModifiers"].isArray())
+        return Utils::ResultError("Invalid type for field: tokenModifiers");
     SemanticTokensLegend result;
-    if (obj.contains("tokenTypes") && obj["tokenTypes"].isArray()) {
+    {
         const QJsonArray arr = obj["tokenTypes"].toArray();
         for (const QJsonValue &v : arr) {
             result._tokenTypes.append(v.toString());
         }
     }
-    if (obj.contains("tokenModifiers") && obj["tokenModifiers"].isArray()) {
+    {
         const QJsonArray arr = obj["tokenModifiers"].toArray();
         for (const QJsonValue &v : arr) {
             result._tokenModifiers.append(v.toString());
@@ -2107,6 +2157,8 @@ Utils::Result<SemanticTokensRegistrationOptions> fromJson<SemanticTokensRegistra
         return Utils::ResultError("Missing required field: documentSelector");
     if (!obj.contains("legend"))
         return Utils::ResultError("Missing required field: legend");
+    if (!obj["legend"].isObject())
+        return Utils::ResultError("Invalid type for field: legend");
     SemanticTokensRegistrationOptions result;
     if (obj.contains("documentSelector") && !obj["documentSelector"].isNull()) {
         const auto res0 = fromJson<DocumentSelector>("documentSelector", obj["documentSelector"]);
@@ -2116,12 +2168,10 @@ Utils::Result<SemanticTokensRegistrationOptions> fromJson<SemanticTokensRegistra
     }
     if (obj.contains("workDoneProgress"))
         result._workDoneProgress = obj.value("workDoneProgress").toBool();
-    if (obj.contains("legend") && obj["legend"].isObject()) {
-        const auto res1 = fromJson<SemanticTokensLegend>("legend", obj["legend"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._legend = *res1;
-    }
+    const auto res1 = fromJson<SemanticTokensLegend>("legend", obj["legend"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._legend = *res1;
     if (obj.contains("range")) {
         const auto res2 = fromJson<SemanticTokensRegistrationOptionsRange>("range", obj["range"]);
         if (!res2)
@@ -2165,8 +2215,12 @@ Utils::Result<SemanticTokensDeltaParams> fromJson<SemanticTokensDeltaParams>(con
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("previousResultId"))
         return Utils::ResultError("Missing required field: previousResultId");
+    if (!obj["previousResultId"].isString())
+        return Utils::ResultError("Invalid type for field: previousResultId");
     SemanticTokensDeltaParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -2180,12 +2234,10 @@ Utils::Result<SemanticTokensDeltaParams> fromJson<SemanticTokensDeltaParams>(con
             return Utils::ResultError(res1.error());
         result._partialResultToken = *res1;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._textDocument = *res2;
-    }
+    const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._textDocument = *res2;
     result._previousResultId = obj.value("previousResultId").toString();
     return result;
 }
@@ -2211,8 +2263,12 @@ Utils::Result<SemanticTokensEdit> fromJson<SemanticTokensEdit>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("start"))
         return Utils::ResultError("Missing required field: start");
+    if (!obj["start"].isDouble())
+        return Utils::ResultError("Invalid type for field: start");
     if (!obj.contains("deleteCount"))
         return Utils::ResultError("Missing required field: deleteCount");
+    if (!obj["deleteCount"].isDouble())
+        return Utils::ResultError("Invalid type for field: deleteCount");
     SemanticTokensEdit result;
     result._start = obj.value("start").toInt();
     result._deleteCount = obj.value("deleteCount").toInt();
@@ -2249,10 +2305,12 @@ Utils::Result<SemanticTokensDelta> fromJson<SemanticTokensDelta>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("edits"))
         return Utils::ResultError("Missing required field: edits");
+    if (!obj["edits"].isArray())
+        return Utils::ResultError("Invalid type for field: edits");
     SemanticTokensDelta result;
     if (obj.contains("resultId"))
         result._resultId = obj.value("resultId").toString();
-    if (obj.contains("edits") && obj["edits"].isArray()) {
+    {
         const QJsonArray arr = obj["edits"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<SemanticTokensEdit>("edits", v);
@@ -2283,8 +2341,10 @@ Utils::Result<SemanticTokensDeltaPartialResult> fromJson<SemanticTokensDeltaPart
     const QJsonObject obj = val.toObject();
     if (!obj.contains("edits"))
         return Utils::ResultError("Missing required field: edits");
+    if (!obj["edits"].isArray())
+        return Utils::ResultError("Invalid type for field: edits");
     SemanticTokensDeltaPartialResult result;
-    if (obj.contains("edits") && obj["edits"].isArray()) {
+    {
         const QJsonArray arr = obj["edits"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<SemanticTokensEdit>("edits", v);
@@ -2313,8 +2373,12 @@ Utils::Result<SemanticTokensRangeParams> fromJson<SemanticTokensRangeParams>(con
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     SemanticTokensRangeParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -2328,18 +2392,14 @@ Utils::Result<SemanticTokensRangeParams> fromJson<SemanticTokensRangeParams>(con
             return Utils::ResultError(res1.error());
         result._partialResultToken = *res1;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._textDocument = *res2;
-    }
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res3 = fromJson<Range>("range", obj["range"]);
-        if (!res3)
-            return Utils::ResultError(res3.error());
-        result._range = *res3;
-    }
+    const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._textDocument = *res2;
+    const auto res3 = fromJson<Range>("range", obj["range"]);
+    if (!res3)
+        return Utils::ResultError(res3.error());
+    result._range = *res3;
     return result;
 }
 
@@ -2364,6 +2424,8 @@ Utils::Result<ShowDocumentParams> fromJson<ShowDocumentParams>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     ShowDocumentParams result;
     result._uri = obj.value("uri").toString();
     if (obj.contains("external"))
@@ -2399,6 +2461,8 @@ Utils::Result<ShowDocumentResult> fromJson<ShowDocumentResult>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("success"))
         return Utils::ResultError("Missing required field: success");
+    if (!obj["success"].isBool())
+        return Utils::ResultError("Invalid type for field: success");
     ShowDocumentResult result;
     result._success = obj.value("success").toBool();
     return result;
@@ -2418,21 +2482,21 @@ Utils::Result<LinkedEditingRangeParams> fromJson<LinkedEditingRangeParams>(const
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     LinkedEditingRangeParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     if (obj.contains("workDoneToken")) {
         const auto res2 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
         if (!res2)
@@ -2461,8 +2525,10 @@ Utils::Result<LinkedEditingRanges> fromJson<LinkedEditingRanges>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("ranges"))
         return Utils::ResultError("Missing required field: ranges");
+    if (!obj["ranges"].isArray())
+        return Utils::ResultError("Invalid type for field: ranges");
     LinkedEditingRanges result;
-    if (obj.contains("ranges") && obj["ranges"].isArray()) {
+    {
         const QJsonArray arr = obj["ranges"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<Range>("ranges", v);
@@ -2531,6 +2597,8 @@ Utils::Result<FileCreate> fromJson<FileCreate>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     FileCreate result;
     result._uri = obj.value("uri").toString();
     return result;
@@ -2550,8 +2618,10 @@ Utils::Result<CreateFilesParams> fromJson<CreateFilesParams>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("files"))
         return Utils::ResultError("Missing required field: files");
+    if (!obj["files"].isArray())
+        return Utils::ResultError("Invalid type for field: files");
     CreateFilesParams result;
-    if (obj.contains("files") && obj["files"].isArray()) {
+    {
         const QJsonArray arr = obj["files"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<FileCreate>("files", v);
@@ -2580,6 +2650,8 @@ Utils::Result<ChangeAnnotation> fromJson<ChangeAnnotation>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("label"))
         return Utils::ResultError("Missing required field: label");
+    if (!obj["label"].isString())
+        return Utils::ResultError("Invalid type for field: label");
     ChangeAnnotation result;
     result._label = obj.value("label").toString();
     if (obj.contains("needsConfirmation"))
@@ -2631,8 +2703,12 @@ Utils::Result<CreateFile> fromJson<CreateFile>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isString())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     CreateFile result;
     if (obj.value("kind").toString() != "create")
         return Utils::ResultError("Field 'kind' must be 'create', got: " + obj.value("kind").toString());
@@ -2697,8 +2773,12 @@ Utils::Result<DeleteFile> fromJson<DeleteFile>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isString())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     DeleteFile result;
     if (obj.value("kind").toString() != "delete")
         return Utils::ResultError("Field 'kind' must be 'delete', got: " + obj.value("kind").toString());
@@ -2763,10 +2843,16 @@ Utils::Result<RenameFile> fromJson<RenameFile>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isString())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("oldUri"))
         return Utils::ResultError("Missing required field: oldUri");
+    if (!obj["oldUri"].isString())
+        return Utils::ResultError("Invalid type for field: oldUri");
     if (!obj.contains("newUri"))
         return Utils::ResultError("Missing required field: newUri");
+    if (!obj["newUri"].isString())
+        return Utils::ResultError("Invalid type for field: newUri");
     RenameFile result;
     if (obj.value("kind").toString() != "rename")
         return Utils::ResultError("Field 'kind' must be 'rename', got: " + obj.value("kind").toString());
@@ -2809,24 +2895,26 @@ Utils::Result<AnnotatedTextEdit> fromJson<AnnotatedTextEdit>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     if (!obj.contains("newText"))
         return Utils::ResultError("Missing required field: newText");
+    if (!obj["newText"].isString())
+        return Utils::ResultError("Invalid type for field: newText");
     if (!obj.contains("annotationId"))
         return Utils::ResultError("Missing required field: annotationId");
+    if (!obj["annotationId"].isString())
+        return Utils::ResultError("Invalid type for field: annotationId");
     AnnotatedTextEdit result;
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
     result._newText = obj.value("newText").toString();
-    if (obj.contains("annotationId") && obj["annotationId"].isString()) {
-        const auto res1 = fromJson<ChangeAnnotationIdentifier>("annotationId", obj["annotationId"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._annotationId = *res1;
-    }
+    const auto res1 = fromJson<ChangeAnnotationIdentifier>("annotationId", obj["annotationId"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._annotationId = *res1;
     return result;
 }
 
@@ -2848,6 +2936,8 @@ Utils::Result<OptionalVersionedTextDocumentIdentifier> fromJson<OptionalVersione
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     if (!obj.contains("version"))
         return Utils::ResultError("Missing required field: version");
     OptionalVersionedTextDocumentIdentifier result;
@@ -2876,8 +2966,12 @@ Utils::Result<StringValue> fromJson<StringValue>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isString())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("value"))
         return Utils::ResultError("Missing required field: value");
+    if (!obj["value"].isString())
+        return Utils::ResultError("Invalid type for field: value");
     StringValue result;
     if (obj.value("kind").toString() != "snippet")
         return Utils::ResultError("Field 'kind' must be 'snippet', got: " + obj.value("kind").toString());
@@ -2902,21 +2996,21 @@ Utils::Result<SnippetTextEdit> fromJson<SnippetTextEdit>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     if (!obj.contains("snippet"))
         return Utils::ResultError("Missing required field: snippet");
+    if (!obj["snippet"].isObject())
+        return Utils::ResultError("Invalid type for field: snippet");
     SnippetTextEdit result;
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
-    if (obj.contains("snippet") && obj["snippet"].isObject()) {
-        const auto res1 = fromJson<StringValue>("snippet", obj["snippet"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._snippet = *res1;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
+    const auto res1 = fromJson<StringValue>("snippet", obj["snippet"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._snippet = *res1;
     if (obj.contains("annotationId") && obj["annotationId"].isString()) {
         const auto res2 = fromJson<ChangeAnnotationIdentifier>("annotationId", obj["annotationId"]);
         if (!res2)
@@ -2980,16 +3074,18 @@ Utils::Result<TextDocumentEdit> fromJson<TextDocumentEdit>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("edits"))
         return Utils::ResultError("Missing required field: edits");
+    if (!obj["edits"].isArray())
+        return Utils::ResultError("Invalid type for field: edits");
     TextDocumentEdit result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<OptionalVersionedTextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("edits") && obj["edits"].isArray()) {
+    const auto res0 = fromJson<OptionalVersionedTextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    {
         const QJsonArray arr = obj["edits"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res1 = fromJson<TextDocumentEditEditsItem>("edits", v);
@@ -3177,6 +3273,8 @@ Utils::Result<FileOperationPattern> fromJson<FileOperationPattern>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("glob"))
         return Utils::ResultError("Missing required field: glob");
+    if (!obj["glob"].isString())
+        return Utils::ResultError("Invalid type for field: glob");
     FileOperationPattern result;
     result._glob = obj.value("glob").toString();
     if (obj.contains("matches")) {
@@ -3212,15 +3310,15 @@ Utils::Result<FileOperationFilter> fromJson<FileOperationFilter>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("pattern"))
         return Utils::ResultError("Missing required field: pattern");
+    if (!obj["pattern"].isObject())
+        return Utils::ResultError("Invalid type for field: pattern");
     FileOperationFilter result;
     if (obj.contains("scheme"))
         result._scheme = obj.value("scheme").toString();
-    if (obj.contains("pattern") && obj["pattern"].isObject()) {
-        const auto res0 = fromJson<FileOperationPattern>("pattern", obj["pattern"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._pattern = *res0;
-    }
+    const auto res0 = fromJson<FileOperationPattern>("pattern", obj["pattern"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._pattern = *res0;
     return result;
 }
 
@@ -3240,8 +3338,10 @@ Utils::Result<FileOperationRegistrationOptions> fromJson<FileOperationRegistrati
     const QJsonObject obj = val.toObject();
     if (!obj.contains("filters"))
         return Utils::ResultError("Missing required field: filters");
+    if (!obj["filters"].isArray())
+        return Utils::ResultError("Invalid type for field: filters");
     FileOperationRegistrationOptions result;
-    if (obj.contains("filters") && obj["filters"].isArray()) {
+    {
         const QJsonArray arr = obj["filters"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<FileOperationFilter>("filters", v);
@@ -3270,8 +3370,12 @@ Utils::Result<FileRename> fromJson<FileRename>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("oldUri"))
         return Utils::ResultError("Missing required field: oldUri");
+    if (!obj["oldUri"].isString())
+        return Utils::ResultError("Invalid type for field: oldUri");
     if (!obj.contains("newUri"))
         return Utils::ResultError("Missing required field: newUri");
+    if (!obj["newUri"].isString())
+        return Utils::ResultError("Invalid type for field: newUri");
     FileRename result;
     result._oldUri = obj.value("oldUri").toString();
     result._newUri = obj.value("newUri").toString();
@@ -3295,8 +3399,10 @@ Utils::Result<RenameFilesParams> fromJson<RenameFilesParams>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("files"))
         return Utils::ResultError("Missing required field: files");
+    if (!obj["files"].isArray())
+        return Utils::ResultError("Invalid type for field: files");
     RenameFilesParams result;
-    if (obj.contains("files") && obj["files"].isArray()) {
+    {
         const QJsonArray arr = obj["files"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<FileRename>("files", v);
@@ -3325,6 +3431,8 @@ Utils::Result<FileDelete> fromJson<FileDelete>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     FileDelete result;
     result._uri = obj.value("uri").toString();
     return result;
@@ -3344,8 +3452,10 @@ Utils::Result<DeleteFilesParams> fromJson<DeleteFilesParams>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("files"))
         return Utils::ResultError("Missing required field: files");
+    if (!obj["files"].isArray())
+        return Utils::ResultError("Invalid type for field: files");
     DeleteFilesParams result;
-    if (obj.contains("files") && obj["files"].isArray()) {
+    {
         const QJsonArray arr = obj["files"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<FileDelete>("files", v);
@@ -3374,21 +3484,21 @@ Utils::Result<MonikerParams> fromJson<MonikerParams>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     MonikerParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     if (obj.contains("workDoneToken")) {
         const auto res2 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
         if (!res2)
@@ -3483,8 +3593,12 @@ Utils::Result<Moniker> fromJson<Moniker>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("scheme"))
         return Utils::ResultError("Missing required field: scheme");
+    if (!obj["scheme"].isString())
+        return Utils::ResultError("Invalid type for field: scheme");
     if (!obj.contains("identifier"))
         return Utils::ResultError("Missing required field: identifier");
+    if (!obj["identifier"].isString())
+        return Utils::ResultError("Invalid type for field: identifier");
     if (!obj.contains("unique"))
         return Utils::ResultError("Missing required field: unique");
     Moniker result;
@@ -3555,21 +3669,21 @@ Utils::Result<TypeHierarchyPrepareParams> fromJson<TypeHierarchyPrepareParams>(c
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     TypeHierarchyPrepareParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     if (obj.contains("workDoneToken")) {
         const auto res2 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
         if (!res2)
@@ -3598,14 +3712,24 @@ Utils::Result<TypeHierarchyItem> fromJson<TypeHierarchyItem>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isDouble())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     if (!obj.contains("selectionRange"))
         return Utils::ResultError("Missing required field: selectionRange");
+    if (!obj["selectionRange"].isObject())
+        return Utils::ResultError("Invalid type for field: selectionRange");
     TypeHierarchyItem result;
     result._name = obj.value("name").toString();
     result._kind = obj.value("kind").toInt();
@@ -3620,18 +3744,14 @@ Utils::Result<TypeHierarchyItem> fromJson<TypeHierarchyItem>(const QJsonValue &v
     if (obj.contains("detail"))
         result._detail = obj.value("detail").toString();
     result._uri = obj.value("uri").toString();
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
-    if (obj.contains("selectionRange") && obj["selectionRange"].isObject()) {
-        const auto res1 = fromJson<Range>("selectionRange", obj["selectionRange"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._selectionRange = *res1;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
+    const auto res1 = fromJson<Range>("selectionRange", obj["selectionRange"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._selectionRange = *res1;
     if (obj.contains("data"))
         result._data = obj.value("data");
     return result;
@@ -3702,6 +3822,8 @@ Utils::Result<TypeHierarchySupertypesParams> fromJson<TypeHierarchySupertypesPar
     const QJsonObject obj = val.toObject();
     if (!obj.contains("item"))
         return Utils::ResultError("Missing required field: item");
+    if (!obj["item"].isObject())
+        return Utils::ResultError("Invalid type for field: item");
     TypeHierarchySupertypesParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -3715,12 +3837,10 @@ Utils::Result<TypeHierarchySupertypesParams> fromJson<TypeHierarchySupertypesPar
             return Utils::ResultError(res1.error());
         result._partialResultToken = *res1;
     }
-    if (obj.contains("item") && obj["item"].isObject()) {
-        const auto res2 = fromJson<TypeHierarchyItem>("item", obj["item"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._item = *res2;
-    }
+    const auto res2 = fromJson<TypeHierarchyItem>("item", obj["item"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._item = *res2;
     return result;
 }
 
@@ -3742,6 +3862,8 @@ Utils::Result<TypeHierarchySubtypesParams> fromJson<TypeHierarchySubtypesParams>
     const QJsonObject obj = val.toObject();
     if (!obj.contains("item"))
         return Utils::ResultError("Missing required field: item");
+    if (!obj["item"].isObject())
+        return Utils::ResultError("Invalid type for field: item");
     TypeHierarchySubtypesParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -3755,12 +3877,10 @@ Utils::Result<TypeHierarchySubtypesParams> fromJson<TypeHierarchySubtypesParams>
             return Utils::ResultError(res1.error());
         result._partialResultToken = *res1;
     }
-    if (obj.contains("item") && obj["item"].isObject()) {
-        const auto res2 = fromJson<TypeHierarchyItem>("item", obj["item"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._item = *res2;
-    }
+    const auto res2 = fromJson<TypeHierarchyItem>("item", obj["item"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._item = *res2;
     return result;
 }
 
@@ -3782,16 +3902,18 @@ Utils::Result<InlineValueContext> fromJson<InlineValueContext>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("frameId"))
         return Utils::ResultError("Missing required field: frameId");
+    if (!obj["frameId"].isDouble())
+        return Utils::ResultError("Invalid type for field: frameId");
     if (!obj.contains("stoppedLocation"))
         return Utils::ResultError("Missing required field: stoppedLocation");
+    if (!obj["stoppedLocation"].isObject())
+        return Utils::ResultError("Invalid type for field: stoppedLocation");
     InlineValueContext result;
     result._frameId = obj.value("frameId").toInt();
-    if (obj.contains("stoppedLocation") && obj["stoppedLocation"].isObject()) {
-        const auto res0 = fromJson<Range>("stoppedLocation", obj["stoppedLocation"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._stoppedLocation = *res0;
-    }
+    const auto res0 = fromJson<Range>("stoppedLocation", obj["stoppedLocation"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._stoppedLocation = *res0;
     return result;
 }
 
@@ -3812,10 +3934,16 @@ Utils::Result<InlineValueParams> fromJson<InlineValueParams>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     if (!obj.contains("context"))
         return Utils::ResultError("Missing required field: context");
+    if (!obj["context"].isObject())
+        return Utils::ResultError("Invalid type for field: context");
     InlineValueParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -3823,24 +3951,18 @@ Utils::Result<InlineValueParams> fromJson<InlineValueParams>(const QJsonValue &v
             return Utils::ResultError(res0.error());
         result._workDoneToken = *res0;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res1 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._textDocument = *res1;
-    }
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res2 = fromJson<Range>("range", obj["range"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._range = *res2;
-    }
-    if (obj.contains("context") && obj["context"].isObject()) {
-        const auto res3 = fromJson<InlineValueContext>("context", obj["context"]);
-        if (!res3)
-            return Utils::ResultError(res3.error());
-        result._context = *res3;
-    }
+    const auto res1 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._textDocument = *res1;
+    const auto res2 = fromJson<Range>("range", obj["range"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._range = *res2;
+    const auto res3 = fromJson<InlineValueContext>("context", obj["context"]);
+    if (!res3)
+        return Utils::ResultError(res3.error());
+    result._context = *res3;
     return result;
 }
 
@@ -3900,8 +4022,12 @@ Utils::Result<InlayHintParams> fromJson<InlayHintParams>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     InlayHintParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -3909,18 +4035,14 @@ Utils::Result<InlayHintParams> fromJson<InlayHintParams>(const QJsonValue &val)
             return Utils::ResultError(res0.error());
         result._workDoneToken = *res0;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res1 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._textDocument = *res1;
-    }
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res2 = fromJson<Range>("range", obj["range"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._range = *res2;
-    }
+    const auto res1 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._textDocument = *res1;
+    const auto res2 = fromJson<Range>("range", obj["range"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._range = *res2;
     return result;
 }
 
@@ -3943,8 +4065,12 @@ Utils::Result<Command> fromJson<Command>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("title"))
         return Utils::ResultError("Missing required field: title");
+    if (!obj["title"].isString())
+        return Utils::ResultError("Invalid type for field: title");
     if (!obj.contains("command"))
         return Utils::ResultError("Missing required field: command");
+    if (!obj["command"].isString())
+        return Utils::ResultError("Invalid type for field: command");
     Command result;
     result._title = obj.value("title").toString();
     if (obj.contains("tooltip"))
@@ -4012,6 +4138,8 @@ Utils::Result<MarkupContent> fromJson<MarkupContent>(const QJsonValue &val)
         return Utils::ResultError("Missing required field: kind");
     if (!obj.contains("value"))
         return Utils::ResultError("Missing required field: value");
+    if (!obj["value"].isString())
+        return Utils::ResultError("Invalid type for field: value");
     MarkupContent result;
     const auto res0 = fromJson<MarkupKind>("kind", obj["kind"]);
     if (!res0)
@@ -4068,6 +4196,8 @@ Utils::Result<InlayHintLabelPart> fromJson<InlayHintLabelPart>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("value"))
         return Utils::ResultError("Missing required field: value");
+    if (!obj["value"].isString())
+        return Utils::ResultError("Invalid type for field: value");
     InlayHintLabelPart result;
     result._value = obj.value("value").toString();
     if (obj.contains("tooltip")) {
@@ -4145,21 +4275,19 @@ Utils::Result<InlayHint> fromJson<InlayHint>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     if (!obj.contains("label"))
         return Utils::ResultError("Missing required field: label");
     InlayHint result;
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res0 = fromJson<Position>("position", obj["position"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._position = *res0;
-    }
-    if (obj.contains("label")) {
-        const auto res1 = fromJson<InlayHintLabel>("label", obj["label"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._label = *res1;
-    }
+    const auto res0 = fromJson<Position>("position", obj["position"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._position = *res0;
+    const auto res1 = fromJson<InlayHintLabel>("label", obj["label"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._label = *res1;
     if (obj.contains("kind") && obj["kind"].isDouble())
         result._kind = obj["kind"].toInt();
     if (obj.contains("textEdits") && obj["textEdits"].isArray()) {
@@ -4260,6 +4388,8 @@ Utils::Result<DocumentDiagnosticParams> fromJson<DocumentDiagnosticParams>(const
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     DocumentDiagnosticParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -4273,12 +4403,10 @@ Utils::Result<DocumentDiagnosticParams> fromJson<DocumentDiagnosticParams>(const
             return Utils::ResultError(res1.error());
         result._partialResultToken = *res1;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._textDocument = *res2;
-    }
+    const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._textDocument = *res2;
     if (obj.contains("identifier"))
         result._identifier = obj.value("identifier").toString();
     if (obj.contains("previousResultId"))
@@ -4308,6 +4436,8 @@ Utils::Result<DiagnosticServerCancellationData> fromJson<DiagnosticServerCancell
     const QJsonObject obj = val.toObject();
     if (!obj.contains("retriggerRequest"))
         return Utils::ResultError("Missing required field: retriggerRequest");
+    if (!obj["retriggerRequest"].isBool())
+        return Utils::ResultError("Invalid type for field: retriggerRequest");
     DiagnosticServerCancellationData result;
     result._retriggerRequest = obj.value("retriggerRequest").toBool();
     return result;
@@ -4329,8 +4459,12 @@ Utils::Result<DiagnosticRegistrationOptions> fromJson<DiagnosticRegistrationOpti
         return Utils::ResultError("Missing required field: documentSelector");
     if (!obj.contains("interFileDependencies"))
         return Utils::ResultError("Missing required field: interFileDependencies");
+    if (!obj["interFileDependencies"].isBool())
+        return Utils::ResultError("Invalid type for field: interFileDependencies");
     if (!obj.contains("workspaceDiagnostics"))
         return Utils::ResultError("Missing required field: workspaceDiagnostics");
+    if (!obj["workspaceDiagnostics"].isBool())
+        return Utils::ResultError("Invalid type for field: workspaceDiagnostics");
     DiagnosticRegistrationOptions result;
     if (obj.contains("documentSelector") && !obj["documentSelector"].isNull()) {
         const auto res0 = fromJson<DocumentSelector>("documentSelector", obj["documentSelector"]);
@@ -4376,8 +4510,12 @@ Utils::Result<PreviousResultId> fromJson<PreviousResultId>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     if (!obj.contains("value"))
         return Utils::ResultError("Missing required field: value");
+    if (!obj["value"].isString())
+        return Utils::ResultError("Invalid type for field: value");
     PreviousResultId result;
     result._uri = obj.value("uri").toString();
     result._value = obj.value("value").toString();
@@ -4401,6 +4539,8 @@ Utils::Result<WorkspaceDiagnosticParams> fromJson<WorkspaceDiagnosticParams>(con
     const QJsonObject obj = val.toObject();
     if (!obj.contains("previousResultIds"))
         return Utils::ResultError("Missing required field: previousResultIds");
+    if (!obj["previousResultIds"].isArray())
+        return Utils::ResultError("Invalid type for field: previousResultIds");
     WorkspaceDiagnosticParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -4416,7 +4556,7 @@ Utils::Result<WorkspaceDiagnosticParams> fromJson<WorkspaceDiagnosticParams>(con
     }
     if (obj.contains("identifier"))
         result._identifier = obj.value("identifier").toString();
-    if (obj.contains("previousResultIds") && obj["previousResultIds"].isArray()) {
+    {
         const QJsonArray arr = obj["previousResultIds"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res2 = fromJson<PreviousResultId>("previousResultIds", v);
@@ -4451,6 +4591,8 @@ Utils::Result<CodeDescription> fromJson<CodeDescription>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("href"))
         return Utils::ResultError("Missing required field: href");
+    if (!obj["href"].isString())
+        return Utils::ResultError("Invalid type for field: href");
     CodeDescription result;
     result._href = obj.value("href").toString();
     return result;
@@ -4470,15 +4612,17 @@ Utils::Result<DiagnosticRelatedInformation> fromJson<DiagnosticRelatedInformatio
     const QJsonObject obj = val.toObject();
     if (!obj.contains("location"))
         return Utils::ResultError("Missing required field: location");
+    if (!obj["location"].isObject())
+        return Utils::ResultError("Invalid type for field: location");
     if (!obj.contains("message"))
         return Utils::ResultError("Missing required field: message");
+    if (!obj["message"].isString())
+        return Utils::ResultError("Invalid type for field: message");
     DiagnosticRelatedInformation result;
-    if (obj.contains("location") && obj["location"].isObject()) {
-        const auto res0 = fromJson<Location>("location", obj["location"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._location = *res0;
-    }
+    const auto res0 = fromJson<Location>("location", obj["location"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._location = *res0;
     result._message = obj.value("message").toString();
     return result;
 }
@@ -4500,15 +4644,15 @@ Utils::Result<Diagnostic> fromJson<Diagnostic>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     if (!obj.contains("message"))
         return Utils::ResultError("Missing required field: message");
     Diagnostic result;
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
     if (obj.contains("severity") && obj["severity"].isDouble())
         result._severity = obj["severity"].toInt();
     if (obj.contains("code")) {
@@ -4525,12 +4669,10 @@ Utils::Result<Diagnostic> fromJson<Diagnostic>(const QJsonValue &val)
     }
     if (obj.contains("source"))
         result._source = obj.value("source").toString();
-    if (obj.contains("message")) {
-        const auto res3 = fromJson<InlayHintLabelPartTooltip>("message", obj["message"]);
-        if (!res3)
-            return Utils::ResultError(res3.error());
-        result._message = *res3;
-    }
+    const auto res3 = fromJson<InlayHintLabelPartTooltip>("message", obj["message"]);
+    if (!res3)
+        return Utils::ResultError(res3.error());
+    result._message = *res3;
     if (obj.contains("tags") && obj["tags"].isArray()) {
         const QJsonArray arr = obj["tags"].toArray();
         QList<int> list_tags;
@@ -4592,10 +4734,16 @@ Utils::Result<WorkspaceFullDocumentDiagnosticReport> fromJson<WorkspaceFullDocum
     const QJsonObject obj = val.toObject();
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isString())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("items"))
         return Utils::ResultError("Missing required field: items");
+    if (!obj["items"].isArray())
+        return Utils::ResultError("Invalid type for field: items");
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     if (!obj.contains("version"))
         return Utils::ResultError("Missing required field: version");
     WorkspaceFullDocumentDiagnosticReport result;
@@ -4603,7 +4751,7 @@ Utils::Result<WorkspaceFullDocumentDiagnosticReport> fromJson<WorkspaceFullDocum
         return Utils::ResultError("Field 'kind' must be 'full', got: " + obj.value("kind").toString());
     if (obj.contains("resultId"))
         result._resultId = obj.value("resultId").toString();
-    if (obj.contains("items") && obj["items"].isArray()) {
+    {
         const QJsonArray arr = obj["items"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<Diagnostic>("items", v);
@@ -4645,10 +4793,16 @@ Utils::Result<WorkspaceUnchangedDocumentDiagnosticReport> fromJson<WorkspaceUnch
     const QJsonObject obj = val.toObject();
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isString())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("resultId"))
         return Utils::ResultError("Missing required field: resultId");
+    if (!obj["resultId"].isString())
+        return Utils::ResultError("Invalid type for field: resultId");
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     if (!obj.contains("version"))
         return Utils::ResultError("Missing required field: version");
     WorkspaceUnchangedDocumentDiagnosticReport result;
@@ -4737,8 +4891,10 @@ Utils::Result<WorkspaceDiagnosticReport> fromJson<WorkspaceDiagnosticReport>(con
     const QJsonObject obj = val.toObject();
     if (!obj.contains("items"))
         return Utils::ResultError("Missing required field: items");
+    if (!obj["items"].isArray())
+        return Utils::ResultError("Invalid type for field: items");
     WorkspaceDiagnosticReport result;
-    if (obj.contains("items") && obj["items"].isArray()) {
+    {
         const QJsonArray arr = obj["items"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<WorkspaceDocumentDiagnosticReport>("items", v);
@@ -4767,8 +4923,10 @@ Utils::Result<WorkspaceDiagnosticReportPartialResult> fromJson<WorkspaceDiagnost
     const QJsonObject obj = val.toObject();
     if (!obj.contains("items"))
         return Utils::ResultError("Missing required field: items");
+    if (!obj["items"].isArray())
+        return Utils::ResultError("Invalid type for field: items");
     WorkspaceDiagnosticReportPartialResult result;
-    if (obj.contains("items") && obj["items"].isArray()) {
+    {
         const QJsonArray arr = obj["items"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<WorkspaceDocumentDiagnosticReport>("items", v);
@@ -4797,6 +4955,8 @@ Utils::Result<ExecutionSummary> fromJson<ExecutionSummary>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("executionOrder"))
         return Utils::ResultError("Missing required field: executionOrder");
+    if (!obj["executionOrder"].isDouble())
+        return Utils::ResultError("Invalid type for field: executionOrder");
     ExecutionSummary result;
     result._executionOrder = obj.value("executionOrder").toInt();
     if (obj.contains("success"))
@@ -4820,8 +4980,12 @@ Utils::Result<NotebookCell> fromJson<NotebookCell>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isDouble())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("document"))
         return Utils::ResultError("Missing required field: document");
+    if (!obj["document"].isString())
+        return Utils::ResultError("Invalid type for field: document");
     NotebookCell result;
     result._kind = obj.value("kind").toInt();
     result._document = obj.value("document").toString();
@@ -4857,19 +5021,27 @@ Utils::Result<NotebookDocument> fromJson<NotebookDocument>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     if (!obj.contains("notebookType"))
         return Utils::ResultError("Missing required field: notebookType");
+    if (!obj["notebookType"].isString())
+        return Utils::ResultError("Invalid type for field: notebookType");
     if (!obj.contains("version"))
         return Utils::ResultError("Missing required field: version");
+    if (!obj["version"].isDouble())
+        return Utils::ResultError("Invalid type for field: version");
     if (!obj.contains("cells"))
         return Utils::ResultError("Missing required field: cells");
+    if (!obj["cells"].isArray())
+        return Utils::ResultError("Invalid type for field: cells");
     NotebookDocument result;
     result._uri = obj.value("uri").toString();
     result._notebookType = obj.value("notebookType").toString();
     result._version = obj.value("version").toInt();
     if (obj.contains("metadata"))
         result._metadata = obj.value("metadata").toObject();
-    if (obj.contains("cells") && obj["cells"].isArray()) {
+    {
         const QJsonArray arr = obj["cells"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<NotebookCell>("cells", v);
@@ -4904,20 +5076,26 @@ Utils::Result<TextDocumentItem> fromJson<TextDocumentItem>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     if (!obj.contains("languageId"))
         return Utils::ResultError("Missing required field: languageId");
+    if (!obj["languageId"].isString())
+        return Utils::ResultError("Invalid type for field: languageId");
     if (!obj.contains("version"))
         return Utils::ResultError("Missing required field: version");
+    if (!obj["version"].isDouble())
+        return Utils::ResultError("Invalid type for field: version");
     if (!obj.contains("text"))
         return Utils::ResultError("Missing required field: text");
+    if (!obj["text"].isString())
+        return Utils::ResultError("Invalid type for field: text");
     TextDocumentItem result;
     result._uri = obj.value("uri").toString();
-    if (obj.contains("languageId") && obj["languageId"].isString()) {
-        const auto res0 = fromJson<LanguageKind>("languageId", obj["languageId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._languageId = *res0;
-    }
+    const auto res0 = fromJson<LanguageKind>("languageId", obj["languageId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._languageId = *res0;
     result._version = obj.value("version").toInt();
     result._text = obj.value("text").toString();
     return result;
@@ -4942,16 +5120,18 @@ Utils::Result<DidOpenNotebookDocumentParams> fromJson<DidOpenNotebookDocumentPar
     const QJsonObject obj = val.toObject();
     if (!obj.contains("notebookDocument"))
         return Utils::ResultError("Missing required field: notebookDocument");
+    if (!obj["notebookDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: notebookDocument");
     if (!obj.contains("cellTextDocuments"))
         return Utils::ResultError("Missing required field: cellTextDocuments");
+    if (!obj["cellTextDocuments"].isArray())
+        return Utils::ResultError("Invalid type for field: cellTextDocuments");
     DidOpenNotebookDocumentParams result;
-    if (obj.contains("notebookDocument") && obj["notebookDocument"].isObject()) {
-        const auto res0 = fromJson<NotebookDocument>("notebookDocument", obj["notebookDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._notebookDocument = *res0;
-    }
-    if (obj.contains("cellTextDocuments") && obj["cellTextDocuments"].isArray()) {
+    const auto res0 = fromJson<NotebookDocument>("notebookDocument", obj["notebookDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._notebookDocument = *res0;
+    {
         const QJsonArray arr = obj["cellTextDocuments"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res1 = fromJson<TextDocumentItem>("cellTextDocuments", v);
@@ -4980,6 +5160,8 @@ Utils::Result<NotebookCellLanguage> fromJson<NotebookCellLanguage>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("language"))
         return Utils::ResultError("Missing required field: language");
+    if (!obj["language"].isString())
+        return Utils::ResultError("Invalid type for field: language");
     NotebookCellLanguage result;
     result._language = obj.value("language").toString();
     return result;
@@ -4999,6 +5181,8 @@ Utils::Result<NotebookDocumentFilterWithCells> fromJson<NotebookDocumentFilterWi
     const QJsonObject obj = val.toObject();
     if (!obj.contains("cells"))
         return Utils::ResultError("Missing required field: cells");
+    if (!obj["cells"].isArray())
+        return Utils::ResultError("Invalid type for field: cells");
     NotebookDocumentFilterWithCells result;
     if (obj.contains("notebook")) {
         const auto res0 = fromJson<NotebookCellTextDocumentFilterNotebook>("notebook", obj["notebook"]);
@@ -5006,7 +5190,7 @@ Utils::Result<NotebookDocumentFilterWithCells> fromJson<NotebookDocumentFilterWi
             return Utils::ResultError(res0.error());
         result._notebook = *res0;
     }
-    if (obj.contains("cells") && obj["cells"].isArray()) {
+    {
         const QJsonArray arr = obj["cells"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res1 = fromJson<NotebookCellLanguage>("cells", v);
@@ -5038,12 +5222,10 @@ Utils::Result<NotebookDocumentFilterWithNotebook> fromJson<NotebookDocumentFilte
     if (!obj.contains("notebook"))
         return Utils::ResultError("Missing required field: notebook");
     NotebookDocumentFilterWithNotebook result;
-    if (obj.contains("notebook")) {
-        const auto res0 = fromJson<NotebookCellTextDocumentFilterNotebook>("notebook", obj["notebook"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._notebook = *res0;
-    }
+    const auto res0 = fromJson<NotebookCellTextDocumentFilterNotebook>("notebook", obj["notebook"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._notebook = *res0;
     if (obj.contains("cells") && obj["cells"].isArray()) {
         const QJsonArray arr = obj["cells"].toArray();
         QList<NotebookCellLanguage> list_cells;
@@ -5103,8 +5285,10 @@ Utils::Result<NotebookDocumentSyncRegistrationOptions> fromJson<NotebookDocument
     const QJsonObject obj = val.toObject();
     if (!obj.contains("notebookSelector"))
         return Utils::ResultError("Missing required field: notebookSelector");
+    if (!obj["notebookSelector"].isArray())
+        return Utils::ResultError("Invalid type for field: notebookSelector");
     NotebookDocumentSyncRegistrationOptions result;
-    if (obj.contains("notebookSelector") && obj["notebookSelector"].isArray()) {
+    {
         const QJsonArray arr = obj["notebookSelector"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<NotebookDocumentSyncRegistrationOptionsNotebookSelectorItem>("notebookSelector", v);
@@ -5141,8 +5325,12 @@ Utils::Result<NotebookCellArrayChange> fromJson<NotebookCellArrayChange>(const Q
     const QJsonObject obj = val.toObject();
     if (!obj.contains("start"))
         return Utils::ResultError("Missing required field: start");
+    if (!obj["start"].isDouble())
+        return Utils::ResultError("Invalid type for field: start");
     if (!obj.contains("deleteCount"))
         return Utils::ResultError("Missing required field: deleteCount");
+    if (!obj["deleteCount"].isDouble())
+        return Utils::ResultError("Invalid type for field: deleteCount");
     NotebookCellArrayChange result;
     result._start = obj.value("start").toInt();
     result._deleteCount = obj.value("deleteCount").toInt();
@@ -5182,13 +5370,13 @@ Utils::Result<NotebookDocumentCellChangeStructure> fromJson<NotebookDocumentCell
     const QJsonObject obj = val.toObject();
     if (!obj.contains("array"))
         return Utils::ResultError("Missing required field: array");
+    if (!obj["array"].isObject())
+        return Utils::ResultError("Invalid type for field: array");
     NotebookDocumentCellChangeStructure result;
-    if (obj.contains("array") && obj["array"].isObject()) {
-        const auto res0 = fromJson<NotebookCellArrayChange>("array", obj["array"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._array = *res0;
-    }
+    const auto res0 = fromJson<NotebookCellArrayChange>("array", obj["array"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._array = *res0;
     if (obj.contains("didOpen") && obj["didOpen"].isArray()) {
         const QJsonArray arr = obj["didOpen"].toArray();
         QList<TextDocumentItem> list_didOpen;
@@ -5238,15 +5426,17 @@ Utils::Result<TextDocumentContentChangePartial> fromJson<TextDocumentContentChan
     const QJsonObject obj = val.toObject();
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     if (!obj.contains("text"))
         return Utils::ResultError("Missing required field: text");
+    if (!obj["text"].isString())
+        return Utils::ResultError("Invalid type for field: text");
     TextDocumentContentChangePartial result;
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
     if (obj.contains("rangeLength"))
         result._rangeLength = obj.value("rangeLength").toInt();
     result._text = obj.value("text").toString();
@@ -5272,6 +5462,8 @@ Utils::Result<TextDocumentContentChangeWholeDocument> fromJson<TextDocumentConte
     const QJsonObject obj = val.toObject();
     if (!obj.contains("text"))
         return Utils::ResultError("Missing required field: text");
+    if (!obj["text"].isString())
+        return Utils::ResultError("Invalid type for field: text");
     TextDocumentContentChangeWholeDocument result;
     result._text = obj.value("text").toString();
     return result;
@@ -5332,8 +5524,12 @@ Utils::Result<VersionedTextDocumentIdentifier> fromJson<VersionedTextDocumentIde
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     if (!obj.contains("version"))
         return Utils::ResultError("Missing required field: version");
+    if (!obj["version"].isDouble())
+        return Utils::ResultError("Invalid type for field: version");
     VersionedTextDocumentIdentifier result;
     result._uri = obj.value("uri").toString();
     result._version = obj.value("version").toInt();
@@ -5357,16 +5553,18 @@ Utils::Result<NotebookDocumentCellContentChanges> fromJson<NotebookDocumentCellC
     const QJsonObject obj = val.toObject();
     if (!obj.contains("document"))
         return Utils::ResultError("Missing required field: document");
+    if (!obj["document"].isObject())
+        return Utils::ResultError("Invalid type for field: document");
     if (!obj.contains("changes"))
         return Utils::ResultError("Missing required field: changes");
+    if (!obj["changes"].isArray())
+        return Utils::ResultError("Invalid type for field: changes");
     NotebookDocumentCellContentChanges result;
-    if (obj.contains("document") && obj["document"].isObject()) {
-        const auto res0 = fromJson<VersionedTextDocumentIdentifier>("document", obj["document"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._document = *res0;
-    }
-    if (obj.contains("changes") && obj["changes"].isArray()) {
+    const auto res0 = fromJson<VersionedTextDocumentIdentifier>("document", obj["document"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._document = *res0;
+    {
         const QJsonArray arr = obj["changes"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res1 = fromJson<TextDocumentContentChangeEvent>("changes", v);
@@ -5479,8 +5677,12 @@ Utils::Result<VersionedNotebookDocumentIdentifier> fromJson<VersionedNotebookDoc
     const QJsonObject obj = val.toObject();
     if (!obj.contains("version"))
         return Utils::ResultError("Missing required field: version");
+    if (!obj["version"].isDouble())
+        return Utils::ResultError("Invalid type for field: version");
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     VersionedNotebookDocumentIdentifier result;
     result._version = obj.value("version").toInt();
     result._uri = obj.value("uri").toString();
@@ -5504,21 +5706,21 @@ Utils::Result<DidChangeNotebookDocumentParams> fromJson<DidChangeNotebookDocumen
     const QJsonObject obj = val.toObject();
     if (!obj.contains("notebookDocument"))
         return Utils::ResultError("Missing required field: notebookDocument");
+    if (!obj["notebookDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: notebookDocument");
     if (!obj.contains("change"))
         return Utils::ResultError("Missing required field: change");
+    if (!obj["change"].isObject())
+        return Utils::ResultError("Invalid type for field: change");
     DidChangeNotebookDocumentParams result;
-    if (obj.contains("notebookDocument") && obj["notebookDocument"].isObject()) {
-        const auto res0 = fromJson<VersionedNotebookDocumentIdentifier>("notebookDocument", obj["notebookDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._notebookDocument = *res0;
-    }
-    if (obj.contains("change") && obj["change"].isObject()) {
-        const auto res1 = fromJson<NotebookDocumentChangeEvent>("change", obj["change"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._change = *res1;
-    }
+    const auto res0 = fromJson<VersionedNotebookDocumentIdentifier>("notebookDocument", obj["notebookDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._notebookDocument = *res0;
+    const auto res1 = fromJson<NotebookDocumentChangeEvent>("change", obj["change"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._change = *res1;
     return result;
 }
 
@@ -5539,6 +5741,8 @@ Utils::Result<NotebookDocumentIdentifier> fromJson<NotebookDocumentIdentifier>(c
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     NotebookDocumentIdentifier result;
     result._uri = obj.value("uri").toString();
     return result;
@@ -5558,13 +5762,13 @@ Utils::Result<DidSaveNotebookDocumentParams> fromJson<DidSaveNotebookDocumentPar
     const QJsonObject obj = val.toObject();
     if (!obj.contains("notebookDocument"))
         return Utils::ResultError("Missing required field: notebookDocument");
+    if (!obj["notebookDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: notebookDocument");
     DidSaveNotebookDocumentParams result;
-    if (obj.contains("notebookDocument") && obj["notebookDocument"].isObject()) {
-        const auto res0 = fromJson<NotebookDocumentIdentifier>("notebookDocument", obj["notebookDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._notebookDocument = *res0;
-    }
+    const auto res0 = fromJson<NotebookDocumentIdentifier>("notebookDocument", obj["notebookDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._notebookDocument = *res0;
     return result;
 }
 
@@ -5582,16 +5786,18 @@ Utils::Result<DidCloseNotebookDocumentParams> fromJson<DidCloseNotebookDocumentP
     const QJsonObject obj = val.toObject();
     if (!obj.contains("notebookDocument"))
         return Utils::ResultError("Missing required field: notebookDocument");
+    if (!obj["notebookDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: notebookDocument");
     if (!obj.contains("cellTextDocuments"))
         return Utils::ResultError("Missing required field: cellTextDocuments");
+    if (!obj["cellTextDocuments"].isArray())
+        return Utils::ResultError("Invalid type for field: cellTextDocuments");
     DidCloseNotebookDocumentParams result;
-    if (obj.contains("notebookDocument") && obj["notebookDocument"].isObject()) {
-        const auto res0 = fromJson<NotebookDocumentIdentifier>("notebookDocument", obj["notebookDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._notebookDocument = *res0;
-    }
-    if (obj.contains("cellTextDocuments") && obj["cellTextDocuments"].isArray()) {
+    const auto res0 = fromJson<NotebookDocumentIdentifier>("notebookDocument", obj["notebookDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._notebookDocument = *res0;
+    {
         const QJsonArray arr = obj["cellTextDocuments"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res1 = fromJson<TextDocumentIdentifier>("cellTextDocuments", v);
@@ -5620,15 +5826,17 @@ Utils::Result<SelectedCompletionInfo> fromJson<SelectedCompletionInfo>(const QJs
     const QJsonObject obj = val.toObject();
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     if (!obj.contains("text"))
         return Utils::ResultError("Missing required field: text");
+    if (!obj["text"].isString())
+        return Utils::ResultError("Invalid type for field: text");
     SelectedCompletionInfo result;
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
     result._text = obj.value("text").toString();
     return result;
 }
@@ -5650,6 +5858,8 @@ Utils::Result<InlineCompletionContext> fromJson<InlineCompletionContext>(const Q
     const QJsonObject obj = val.toObject();
     if (!obj.contains("triggerKind"))
         return Utils::ResultError("Missing required field: triggerKind");
+    if (!obj["triggerKind"].isDouble())
+        return Utils::ResultError("Invalid type for field: triggerKind");
     InlineCompletionContext result;
     result._triggerKind = obj.value("triggerKind").toInt();
     if (obj.contains("selectedCompletionInfo") && obj["selectedCompletionInfo"].isObject()) {
@@ -5677,35 +5887,35 @@ Utils::Result<InlineCompletionParams> fromJson<InlineCompletionParams>(const QJs
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     if (!obj.contains("context"))
         return Utils::ResultError("Missing required field: context");
+    if (!obj["context"].isObject())
+        return Utils::ResultError("Invalid type for field: context");
     InlineCompletionParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     if (obj.contains("workDoneToken")) {
         const auto res2 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
         if (!res2)
             return Utils::ResultError(res2.error());
         result._workDoneToken = *res2;
     }
-    if (obj.contains("context") && obj["context"].isObject()) {
-        const auto res3 = fromJson<InlineCompletionContext>("context", obj["context"]);
-        if (!res3)
-            return Utils::ResultError(res3.error());
-        result._context = *res3;
-    }
+    const auto res3 = fromJson<InlineCompletionContext>("context", obj["context"]);
+    if (!res3)
+        return Utils::ResultError(res3.error());
+    result._context = *res3;
     return result;
 }
 
@@ -5760,12 +5970,10 @@ Utils::Result<InlineCompletionItem> fromJson<InlineCompletionItem>(const QJsonVa
     if (!obj.contains("insertText"))
         return Utils::ResultError("Missing required field: insertText");
     InlineCompletionItem result;
-    if (obj.contains("insertText")) {
-        const auto res0 = fromJson<InlineCompletionItemInsertText>("insertText", obj["insertText"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._insertText = *res0;
-    }
+    const auto res0 = fromJson<InlineCompletionItemInsertText>("insertText", obj["insertText"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._insertText = *res0;
     if (obj.contains("filterText"))
         result._filterText = obj.value("filterText").toString();
     if (obj.contains("range") && obj["range"].isObject()) {
@@ -5803,8 +6011,10 @@ Utils::Result<InlineCompletionList> fromJson<InlineCompletionList>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("items"))
         return Utils::ResultError("Missing required field: items");
+    if (!obj["items"].isArray())
+        return Utils::ResultError("Invalid type for field: items");
     InlineCompletionList result;
-    if (obj.contains("items") && obj["items"].isArray()) {
+    {
         const QJsonArray arr = obj["items"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<InlineCompletionItem>("items", v);
@@ -5869,6 +6079,8 @@ Utils::Result<TextDocumentContentParams> fromJson<TextDocumentContentParams>(con
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     TextDocumentContentParams result;
     result._uri = obj.value("uri").toString();
     return result;
@@ -5888,6 +6100,8 @@ Utils::Result<TextDocumentContentResult> fromJson<TextDocumentContentResult>(con
     const QJsonObject obj = val.toObject();
     if (!obj.contains("text"))
         return Utils::ResultError("Missing required field: text");
+    if (!obj["text"].isString())
+        return Utils::ResultError("Invalid type for field: text");
     TextDocumentContentResult result;
     result._text = obj.value("text").toString();
     return result;
@@ -5907,8 +6121,10 @@ Utils::Result<TextDocumentContentRegistrationOptions> fromJson<TextDocumentConte
     const QJsonObject obj = val.toObject();
     if (!obj.contains("schemes"))
         return Utils::ResultError("Missing required field: schemes");
+    if (!obj["schemes"].isArray())
+        return Utils::ResultError("Invalid type for field: schemes");
     TextDocumentContentRegistrationOptions result;
-    if (obj.contains("schemes") && obj["schemes"].isArray()) {
+    {
         const QJsonArray arr = obj["schemes"].toArray();
         for (const QJsonValue &v : arr) {
             result._schemes.append(v.toString());
@@ -5938,6 +6154,8 @@ Utils::Result<TextDocumentContentRefreshParams> fromJson<TextDocumentContentRefr
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     TextDocumentContentRefreshParams result;
     result._uri = obj.value("uri").toString();
     return result;
@@ -5957,8 +6175,12 @@ Utils::Result<Registration> fromJson<Registration>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("id"))
         return Utils::ResultError("Missing required field: id");
+    if (!obj["id"].isString())
+        return Utils::ResultError("Invalid type for field: id");
     if (!obj.contains("method"))
         return Utils::ResultError("Missing required field: method");
+    if (!obj["method"].isString())
+        return Utils::ResultError("Invalid type for field: method");
     Registration result;
     result._id = obj.value("id").toString();
     result._method = obj.value("method").toString();
@@ -5986,8 +6208,10 @@ Utils::Result<RegistrationParams> fromJson<RegistrationParams>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("registrations"))
         return Utils::ResultError("Missing required field: registrations");
+    if (!obj["registrations"].isArray())
+        return Utils::ResultError("Invalid type for field: registrations");
     RegistrationParams result;
-    if (obj.contains("registrations") && obj["registrations"].isArray()) {
+    {
         const QJsonArray arr = obj["registrations"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<Registration>("registrations", v);
@@ -6016,8 +6240,12 @@ Utils::Result<Unregistration> fromJson<Unregistration>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("id"))
         return Utils::ResultError("Missing required field: id");
+    if (!obj["id"].isString())
+        return Utils::ResultError("Invalid type for field: id");
     if (!obj.contains("method"))
         return Utils::ResultError("Missing required field: method");
+    if (!obj["method"].isString())
+        return Utils::ResultError("Invalid type for field: method");
     Unregistration result;
     result._id = obj.value("id").toString();
     result._method = obj.value("method").toString();
@@ -6041,8 +6269,10 @@ Utils::Result<UnregistrationParams> fromJson<UnregistrationParams>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("unregisterations"))
         return Utils::ResultError("Missing required field: unregisterations");
+    if (!obj["unregisterations"].isArray())
+        return Utils::ResultError("Invalid type for field: unregisterations");
     UnregistrationParams result;
-    if (obj.contains("unregisterations") && obj["unregisterations"].isArray()) {
+    {
         const QJsonArray arr = obj["unregisterations"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<Unregistration>("unregisterations", v);
@@ -6071,6 +6301,8 @@ Utils::Result<MarkdownClientCapabilities> fromJson<MarkdownClientCapabilities>(c
     const QJsonObject obj = val.toObject();
     if (!obj.contains("parser"))
         return Utils::ResultError("Missing required field: parser");
+    if (!obj["parser"].isString())
+        return Utils::ResultError("Invalid type for field: parser");
     MarkdownClientCapabilities result;
     result._parser = obj.value("parser").toString();
     if (obj.contains("version"))
@@ -6107,13 +6339,13 @@ Utils::Result<RegularExpressionsClientCapabilities> fromJson<RegularExpressionsC
     const QJsonObject obj = val.toObject();
     if (!obj.contains("engine"))
         return Utils::ResultError("Missing required field: engine");
+    if (!obj["engine"].isString())
+        return Utils::ResultError("Invalid type for field: engine");
     RegularExpressionsClientCapabilities result;
-    if (obj.contains("engine") && obj["engine"].isString()) {
-        const auto res0 = fromJson<RegularExpressionEngineKind>("engine", obj["engine"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._engine = *res0;
-    }
+    const auto res0 = fromJson<RegularExpressionEngineKind>("engine", obj["engine"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._engine = *res0;
     if (obj.contains("version"))
         result._version = obj.value("version").toString();
     return result;
@@ -6135,11 +6367,15 @@ Utils::Result<StaleRequestSupportOptions> fromJson<StaleRequestSupportOptions>(c
     const QJsonObject obj = val.toObject();
     if (!obj.contains("cancel"))
         return Utils::ResultError("Missing required field: cancel");
+    if (!obj["cancel"].isBool())
+        return Utils::ResultError("Invalid type for field: cancel");
     if (!obj.contains("retryOnContentModified"))
         return Utils::ResultError("Missing required field: retryOnContentModified");
+    if (!obj["retryOnContentModified"].isArray())
+        return Utils::ResultError("Invalid type for field: retryOnContentModified");
     StaleRequestSupportOptions result;
     result._cancel = obj.value("cancel").toBool();
-    if (obj.contains("retryOnContentModified") && obj["retryOnContentModified"].isArray()) {
+    {
         const QJsonArray arr = obj["retryOnContentModified"].toArray();
         for (const QJsonValue &v : arr) {
             result._retryOnContentModified.append(v.toString());
@@ -6245,13 +6481,13 @@ Utils::Result<NotebookDocumentClientCapabilities> fromJson<NotebookDocumentClien
     const QJsonObject obj = val.toObject();
     if (!obj.contains("synchronization"))
         return Utils::ResultError("Missing required field: synchronization");
+    if (!obj["synchronization"].isObject())
+        return Utils::ResultError("Invalid type for field: synchronization");
     NotebookDocumentClientCapabilities result;
-    if (obj.contains("synchronization") && obj["synchronization"].isObject()) {
-        const auto res0 = fromJson<NotebookDocumentSyncClientCapabilities>("synchronization", obj["synchronization"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._synchronization = *res0;
-    }
+    const auto res0 = fromJson<NotebookDocumentSyncClientCapabilities>("synchronization", obj["synchronization"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._synchronization = *res0;
     return result;
 }
 
@@ -6289,8 +6525,10 @@ Utils::Result<ClientCodeActionKindOptions> fromJson<ClientCodeActionKindOptions>
     const QJsonObject obj = val.toObject();
     if (!obj.contains("valueSet"))
         return Utils::ResultError("Missing required field: valueSet");
+    if (!obj["valueSet"].isArray())
+        return Utils::ResultError("Invalid type for field: valueSet");
     ClientCodeActionKindOptions result;
-    if (obj.contains("valueSet") && obj["valueSet"].isArray()) {
+    {
         const QJsonArray arr = obj["valueSet"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<CodeActionKind>("valueSet", v);
@@ -6319,13 +6557,13 @@ Utils::Result<ClientCodeActionLiteralOptions> fromJson<ClientCodeActionLiteralOp
     const QJsonObject obj = val.toObject();
     if (!obj.contains("codeActionKind"))
         return Utils::ResultError("Missing required field: codeActionKind");
+    if (!obj["codeActionKind"].isObject())
+        return Utils::ResultError("Invalid type for field: codeActionKind");
     ClientCodeActionLiteralOptions result;
-    if (obj.contains("codeActionKind") && obj["codeActionKind"].isObject()) {
-        const auto res0 = fromJson<ClientCodeActionKindOptions>("codeActionKind", obj["codeActionKind"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._codeActionKind = *res0;
-    }
+    const auto res0 = fromJson<ClientCodeActionKindOptions>("codeActionKind", obj["codeActionKind"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._codeActionKind = *res0;
     return result;
 }
 
@@ -6343,8 +6581,10 @@ Utils::Result<ClientCodeActionResolveOptions> fromJson<ClientCodeActionResolveOp
     const QJsonObject obj = val.toObject();
     if (!obj.contains("properties"))
         return Utils::ResultError("Missing required field: properties");
+    if (!obj["properties"].isArray())
+        return Utils::ResultError("Invalid type for field: properties");
     ClientCodeActionResolveOptions result;
-    if (obj.contains("properties") && obj["properties"].isArray()) {
+    {
         const QJsonArray arr = obj["properties"].toArray();
         for (const QJsonValue &v : arr) {
             result._properties.append(v.toString());
@@ -6370,8 +6610,10 @@ Utils::Result<CodeActionTagOptions> fromJson<CodeActionTagOptions>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("valueSet"))
         return Utils::ResultError("Missing required field: valueSet");
+    if (!obj["valueSet"].isArray())
+        return Utils::ResultError("Invalid type for field: valueSet");
     CodeActionTagOptions result;
-    if (obj.contains("valueSet") && obj["valueSet"].isArray()) {
+    {
         const QJsonArray arr = obj["valueSet"].toArray();
         for (const QJsonValue &v : arr) {
             result._valueSet.append(v.toInt());
@@ -6461,8 +6703,10 @@ Utils::Result<ClientCodeLensResolveOptions> fromJson<ClientCodeLensResolveOption
     const QJsonObject obj = val.toObject();
     if (!obj.contains("properties"))
         return Utils::ResultError("Missing required field: properties");
+    if (!obj["properties"].isArray())
+        return Utils::ResultError("Invalid type for field: properties");
     ClientCodeLensResolveOptions result;
-    if (obj.contains("properties") && obj["properties"].isArray()) {
+    {
         const QJsonArray arr = obj["properties"].toArray();
         for (const QJsonValue &v : arr) {
             result._properties.append(v.toString());
@@ -6516,8 +6760,10 @@ Utils::Result<ClientCompletionItemInsertTextModeOptions> fromJson<ClientCompleti
     const QJsonObject obj = val.toObject();
     if (!obj.contains("valueSet"))
         return Utils::ResultError("Missing required field: valueSet");
+    if (!obj["valueSet"].isArray())
+        return Utils::ResultError("Invalid type for field: valueSet");
     ClientCompletionItemInsertTextModeOptions result;
-    if (obj.contains("valueSet") && obj["valueSet"].isArray()) {
+    {
         const QJsonArray arr = obj["valueSet"].toArray();
         for (const QJsonValue &v : arr) {
             result._valueSet.append(v.toInt());
@@ -6543,8 +6789,10 @@ Utils::Result<ClientCompletionItemResolveOptions> fromJson<ClientCompletionItemR
     const QJsonObject obj = val.toObject();
     if (!obj.contains("properties"))
         return Utils::ResultError("Missing required field: properties");
+    if (!obj["properties"].isArray())
+        return Utils::ResultError("Invalid type for field: properties");
     ClientCompletionItemResolveOptions result;
-    if (obj.contains("properties") && obj["properties"].isArray()) {
+    {
         const QJsonArray arr = obj["properties"].toArray();
         for (const QJsonValue &v : arr) {
             result._properties.append(v.toString());
@@ -6570,8 +6818,10 @@ Utils::Result<CompletionItemTagOptions> fromJson<CompletionItemTagOptions>(const
     const QJsonObject obj = val.toObject();
     if (!obj.contains("valueSet"))
         return Utils::ResultError("Missing required field: valueSet");
+    if (!obj["valueSet"].isArray())
+        return Utils::ResultError("Invalid type for field: valueSet");
     CompletionItemTagOptions result;
-    if (obj.contains("valueSet") && obj["valueSet"].isArray()) {
+    {
         const QJsonArray arr = obj["valueSet"].toArray();
         for (const QJsonValue &v : arr) {
             result._valueSet.append(v.toInt());
@@ -6839,8 +7089,10 @@ Utils::Result<ClientDiagnosticsTagOptions> fromJson<ClientDiagnosticsTagOptions>
     const QJsonObject obj = val.toObject();
     if (!obj.contains("valueSet"))
         return Utils::ResultError("Missing required field: valueSet");
+    if (!obj["valueSet"].isArray())
+        return Utils::ResultError("Invalid type for field: valueSet");
     ClientDiagnosticsTagOptions result;
-    if (obj.contains("valueSet") && obj["valueSet"].isArray()) {
+    {
         const QJsonArray arr = obj["valueSet"].toArray();
         for (const QJsonValue &v : arr) {
             result._valueSet.append(v.toInt());
@@ -7071,8 +7323,10 @@ Utils::Result<ClientSymbolTagOptions> fromJson<ClientSymbolTagOptions>(const QJs
     const QJsonObject obj = val.toObject();
     if (!obj.contains("valueSet"))
         return Utils::ResultError("Missing required field: valueSet");
+    if (!obj["valueSet"].isArray())
+        return Utils::ResultError("Invalid type for field: valueSet");
     ClientSymbolTagOptions result;
-    if (obj.contains("valueSet") && obj["valueSet"].isArray()) {
+    {
         const QJsonArray arr = obj["valueSet"].toArray();
         for (const QJsonValue &v : arr) {
             result._valueSet.append(v.toInt());
@@ -7298,8 +7552,10 @@ Utils::Result<ClientInlayHintResolveOptions> fromJson<ClientInlayHintResolveOpti
     const QJsonObject obj = val.toObject();
     if (!obj.contains("properties"))
         return Utils::ResultError("Missing required field: properties");
+    if (!obj["properties"].isArray())
+        return Utils::ResultError("Invalid type for field: properties");
     ClientInlayHintResolveOptions result;
-    if (obj.contains("properties") && obj["properties"].isArray()) {
+    {
         const QJsonArray arr = obj["properties"].toArray();
         for (const QJsonValue &v : arr) {
             result._properties.append(v.toString());
@@ -7645,34 +7901,40 @@ Utils::Result<SemanticTokensClientCapabilities> fromJson<SemanticTokensClientCap
     const QJsonObject obj = val.toObject();
     if (!obj.contains("requests"))
         return Utils::ResultError("Missing required field: requests");
+    if (!obj["requests"].isObject())
+        return Utils::ResultError("Invalid type for field: requests");
     if (!obj.contains("tokenTypes"))
         return Utils::ResultError("Missing required field: tokenTypes");
+    if (!obj["tokenTypes"].isArray())
+        return Utils::ResultError("Invalid type for field: tokenTypes");
     if (!obj.contains("tokenModifiers"))
         return Utils::ResultError("Missing required field: tokenModifiers");
+    if (!obj["tokenModifiers"].isArray())
+        return Utils::ResultError("Invalid type for field: tokenModifiers");
     if (!obj.contains("formats"))
         return Utils::ResultError("Missing required field: formats");
+    if (!obj["formats"].isArray())
+        return Utils::ResultError("Invalid type for field: formats");
     SemanticTokensClientCapabilities result;
     if (obj.contains("dynamicRegistration"))
         result._dynamicRegistration = obj.value("dynamicRegistration").toBool();
-    if (obj.contains("requests") && obj["requests"].isObject()) {
-        const auto res0 = fromJson<ClientSemanticTokensRequestOptions>("requests", obj["requests"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._requests = *res0;
-    }
-    if (obj.contains("tokenTypes") && obj["tokenTypes"].isArray()) {
+    const auto res0 = fromJson<ClientSemanticTokensRequestOptions>("requests", obj["requests"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._requests = *res0;
+    {
         const QJsonArray arr = obj["tokenTypes"].toArray();
         for (const QJsonValue &v : arr) {
             result._tokenTypes.append(v.toString());
         }
     }
-    if (obj.contains("tokenModifiers") && obj["tokenModifiers"].isArray()) {
+    {
         const QJsonArray arr = obj["tokenModifiers"].toArray();
         for (const QJsonValue &v : arr) {
             result._tokenModifiers.append(v.toString());
         }
     }
-    if (obj.contains("formats") && obj["formats"].isArray()) {
+    {
         const QJsonArray arr = obj["formats"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res1 = fromJson<TokenFormat>("formats", v);
@@ -8193,6 +8455,8 @@ Utils::Result<ShowDocumentClientCapabilities> fromJson<ShowDocumentClientCapabil
     const QJsonObject obj = val.toObject();
     if (!obj.contains("support"))
         return Utils::ResultError("Missing required field: support");
+    if (!obj["support"].isBool())
+        return Utils::ResultError("Invalid type for field: support");
     ShowDocumentClientCapabilities result;
     result._support = obj.value("support").toBool();
     return result;
@@ -8680,8 +8944,10 @@ Utils::Result<ClientSymbolResolveOptions> fromJson<ClientSymbolResolveOptions>(c
     const QJsonObject obj = val.toObject();
     if (!obj.contains("properties"))
         return Utils::ResultError("Missing required field: properties");
+    if (!obj["properties"].isArray())
+        return Utils::ResultError("Invalid type for field: properties");
     ClientSymbolResolveOptions result;
-    if (obj.contains("properties") && obj["properties"].isArray()) {
+    {
         const QJsonArray arr = obj["properties"].toArray();
         for (const QJsonValue &v : arr) {
             result._properties.append(v.toString());
@@ -8943,6 +9209,8 @@ Utils::Result<ClientInfo> fromJson<ClientInfo>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     ClientInfo result;
     result._name = obj.value("name").toString();
     if (obj.contains("version"))
@@ -9034,6 +9302,8 @@ Utils::Result<InitializeParams> fromJson<InitializeParams>(const QJsonValue &val
         return Utils::ResultError("Missing required field: rootUri");
     if (!obj.contains("capabilities"))
         return Utils::ResultError("Missing required field: capabilities");
+    if (!obj["capabilities"].isObject())
+        return Utils::ResultError("Invalid type for field: capabilities");
     InitializeParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -9059,12 +9329,10 @@ Utils::Result<InitializeParams> fromJson<InitializeParams>(const QJsonValue &val
     if (!obj["rootUri"].isNull()) {
         result._rootUri = obj.value("rootUri").toString();
     }
-    if (obj.contains("capabilities") && obj["capabilities"].isObject()) {
-        const auto res2 = fromJson<ClientCapabilities>("capabilities", obj["capabilities"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._capabilities = *res2;
-    }
+    const auto res2 = fromJson<ClientCapabilities>("capabilities", obj["capabilities"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._capabilities = *res2;
     if (obj.contains("initializationOptions"))
         result._initializationOptions = obj.value("initializationOptions");
     if (obj.contains("trace")) {
@@ -9138,21 +9406,21 @@ Utils::Result<CodeActionKindDocumentation> fromJson<CodeActionKindDocumentation>
     const QJsonObject obj = val.toObject();
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isString())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("command"))
         return Utils::ResultError("Missing required field: command");
+    if (!obj["command"].isObject())
+        return Utils::ResultError("Invalid type for field: command");
     CodeActionKindDocumentation result;
-    if (obj.contains("kind") && obj["kind"].isString()) {
-        const auto res0 = fromJson<CodeActionKind>("kind", obj["kind"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._kind = *res0;
-    }
-    if (obj.contains("command") && obj["command"].isObject()) {
-        const auto res1 = fromJson<Command>("command", obj["command"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._command = *res1;
-    }
+    const auto res0 = fromJson<CodeActionKind>("kind", obj["kind"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._kind = *res0;
+    const auto res1 = fromJson<Command>("command", obj["command"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._command = *res1;
     return result;
 }
 
@@ -9371,8 +9639,12 @@ Utils::Result<DiagnosticOptions> fromJson<DiagnosticOptions>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("interFileDependencies"))
         return Utils::ResultError("Missing required field: interFileDependencies");
+    if (!obj["interFileDependencies"].isBool())
+        return Utils::ResultError("Invalid type for field: interFileDependencies");
     if (!obj.contains("workspaceDiagnostics"))
         return Utils::ResultError("Missing required field: workspaceDiagnostics");
+    if (!obj["workspaceDiagnostics"].isBool())
+        return Utils::ResultError("Invalid type for field: workspaceDiagnostics");
     DiagnosticOptions result;
     if (obj.contains("workDoneProgress"))
         result._workDoneProgress = obj.value("workDoneProgress").toBool();
@@ -9488,6 +9760,8 @@ Utils::Result<DocumentOnTypeFormattingOptions> fromJson<DocumentOnTypeFormatting
     const QJsonObject obj = val.toObject();
     if (!obj.contains("firstTriggerCharacter"))
         return Utils::ResultError("Missing required field: firstTriggerCharacter");
+    if (!obj["firstTriggerCharacter"].isString())
+        return Utils::ResultError("Invalid type for field: firstTriggerCharacter");
     DocumentOnTypeFormattingOptions result;
     result._firstTriggerCharacter = obj.value("firstTriggerCharacter").toString();
     if (obj.contains("moreTriggerCharacter") && obj["moreTriggerCharacter"].isArray()) {
@@ -9568,10 +9842,12 @@ Utils::Result<ExecuteCommandOptions> fromJson<ExecuteCommandOptions>(const QJson
     const QJsonObject obj = val.toObject();
     if (!obj.contains("commands"))
         return Utils::ResultError("Missing required field: commands");
+    if (!obj["commands"].isArray())
+        return Utils::ResultError("Invalid type for field: commands");
     ExecuteCommandOptions result;
     if (obj.contains("workDoneProgress"))
         result._workDoneProgress = obj.value("workDoneProgress").toBool();
-    if (obj.contains("commands") && obj["commands"].isArray()) {
+    {
         const QJsonArray arr = obj["commands"].toArray();
         for (const QJsonValue &v : arr) {
             result._commands.append(v.toString());
@@ -9763,8 +10039,10 @@ Utils::Result<NotebookDocumentSyncOptions> fromJson<NotebookDocumentSyncOptions>
     const QJsonObject obj = val.toObject();
     if (!obj.contains("notebookSelector"))
         return Utils::ResultError("Missing required field: notebookSelector");
+    if (!obj["notebookSelector"].isArray())
+        return Utils::ResultError("Invalid type for field: notebookSelector");
     NotebookDocumentSyncOptions result;
-    if (obj.contains("notebookSelector") && obj["notebookSelector"].isArray()) {
+    {
         const QJsonArray arr = obj["notebookSelector"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<NotebookDocumentSyncRegistrationOptionsNotebookSelectorItem>("notebookSelector", v);
@@ -9861,15 +10139,15 @@ Utils::Result<SemanticTokensOptions> fromJson<SemanticTokensOptions>(const QJson
     const QJsonObject obj = val.toObject();
     if (!obj.contains("legend"))
         return Utils::ResultError("Missing required field: legend");
+    if (!obj["legend"].isObject())
+        return Utils::ResultError("Invalid type for field: legend");
     SemanticTokensOptions result;
     if (obj.contains("workDoneProgress"))
         result._workDoneProgress = obj.value("workDoneProgress").toBool();
-    if (obj.contains("legend") && obj["legend"].isObject()) {
-        const auto res0 = fromJson<SemanticTokensLegend>("legend", obj["legend"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._legend = *res0;
-    }
+    const auto res0 = fromJson<SemanticTokensLegend>("legend", obj["legend"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._legend = *res0;
     if (obj.contains("range")) {
         const auto res1 = fromJson<SemanticTokensRegistrationOptionsRange>("range", obj["range"]);
         if (!res1)
@@ -10140,8 +10418,10 @@ Utils::Result<TextDocumentContentOptions> fromJson<TextDocumentContentOptions>(c
     const QJsonObject obj = val.toObject();
     if (!obj.contains("schemes"))
         return Utils::ResultError("Missing required field: schemes");
+    if (!obj["schemes"].isArray())
+        return Utils::ResultError("Invalid type for field: schemes");
     TextDocumentContentOptions result;
-    if (obj.contains("schemes") && obj["schemes"].isArray()) {
+    {
         const QJsonArray arr = obj["schemes"].toArray();
         for (const QJsonValue &v : arr) {
             result._schemes.append(v.toString());
@@ -11436,6 +11716,8 @@ Utils::Result<ServerInfo> fromJson<ServerInfo>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     ServerInfo result;
     result._name = obj.value("name").toString();
     if (obj.contains("version"))
@@ -11459,13 +11741,13 @@ Utils::Result<InitializeResult> fromJson<InitializeResult>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("capabilities"))
         return Utils::ResultError("Missing required field: capabilities");
+    if (!obj["capabilities"].isObject())
+        return Utils::ResultError("Invalid type for field: capabilities");
     InitializeResult result;
-    if (obj.contains("capabilities") && obj["capabilities"].isObject()) {
-        const auto res0 = fromJson<ServerCapabilities>("capabilities", obj["capabilities"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._capabilities = *res0;
-    }
+    const auto res0 = fromJson<ServerCapabilities>("capabilities", obj["capabilities"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._capabilities = *res0;
     if (obj.contains("serverInfo") && obj["serverInfo"].isObject()) {
         const auto res1 = fromJson<ServerInfo>("serverInfo", obj["serverInfo"]);
         if (!res1)
@@ -11491,6 +11773,8 @@ Utils::Result<InitializeError> fromJson<InitializeError>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("retry"))
         return Utils::ResultError("Missing required field: retry");
+    if (!obj["retry"].isBool())
+        return Utils::ResultError("Invalid type for field: retry");
     InitializeError result;
     result._retry = obj.value("retry").toBool();
     return result;
@@ -11566,8 +11850,12 @@ Utils::Result<ShowMessageParams> fromJson<ShowMessageParams>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("type"))
         return Utils::ResultError("Missing required field: type");
+    if (!obj["type"].isDouble())
+        return Utils::ResultError("Invalid type for field: type");
     if (!obj.contains("message"))
         return Utils::ResultError("Missing required field: message");
+    if (!obj["message"].isString())
+        return Utils::ResultError("Invalid type for field: message");
     ShowMessageParams result;
     result._type = obj.value("type").toInt();
     result._message = obj.value("message").toString();
@@ -11591,6 +11879,8 @@ Utils::Result<MessageActionItem> fromJson<MessageActionItem>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("title"))
         return Utils::ResultError("Missing required field: title");
+    if (!obj["title"].isString())
+        return Utils::ResultError("Invalid type for field: title");
     MessageActionItem result;
     result._title = obj.value("title").toString();
     return result;
@@ -11610,8 +11900,12 @@ Utils::Result<ShowMessageRequestParams> fromJson<ShowMessageRequestParams>(const
     const QJsonObject obj = val.toObject();
     if (!obj.contains("type"))
         return Utils::ResultError("Missing required field: type");
+    if (!obj["type"].isDouble())
+        return Utils::ResultError("Invalid type for field: type");
     if (!obj.contains("message"))
         return Utils::ResultError("Missing required field: message");
+    if (!obj["message"].isString())
+        return Utils::ResultError("Invalid type for field: message");
     ShowMessageRequestParams result;
     result._type = obj.value("type").toInt();
     result._message = obj.value("message").toString();
@@ -11651,8 +11945,12 @@ Utils::Result<LogMessageParams> fromJson<LogMessageParams>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("type"))
         return Utils::ResultError("Missing required field: type");
+    if (!obj["type"].isDouble())
+        return Utils::ResultError("Invalid type for field: type");
     if (!obj.contains("message"))
         return Utils::ResultError("Missing required field: message");
+    if (!obj["message"].isString())
+        return Utils::ResultError("Invalid type for field: message");
     LogMessageParams result;
     result._type = obj.value("type").toInt();
     result._message = obj.value("message").toString();
@@ -11676,13 +11974,13 @@ Utils::Result<DidOpenTextDocumentParams> fromJson<DidOpenTextDocumentParams>(con
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     DidOpenTextDocumentParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentItem>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
+    const auto res0 = fromJson<TextDocumentItem>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
     return result;
 }
 
@@ -11728,16 +12026,18 @@ Utils::Result<DidChangeTextDocumentParams> fromJson<DidChangeTextDocumentParams>
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("contentChanges"))
         return Utils::ResultError("Missing required field: contentChanges");
+    if (!obj["contentChanges"].isArray())
+        return Utils::ResultError("Invalid type for field: contentChanges");
     DidChangeTextDocumentParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<VersionedTextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("contentChanges") && obj["contentChanges"].isArray()) {
+    const auto res0 = fromJson<VersionedTextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    {
         const QJsonArray arr = obj["contentChanges"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res1 = fromJson<TextDocumentContentChangeEvent>("contentChanges", v);
@@ -11768,6 +12068,8 @@ Utils::Result<TextDocumentChangeRegistrationOptions> fromJson<TextDocumentChange
         return Utils::ResultError("Missing required field: documentSelector");
     if (!obj.contains("syncKind"))
         return Utils::ResultError("Missing required field: syncKind");
+    if (!obj["syncKind"].isDouble())
+        return Utils::ResultError("Invalid type for field: syncKind");
     TextDocumentChangeRegistrationOptions result;
     if (obj.contains("documentSelector") && !obj["documentSelector"].isNull()) {
         const auto res0 = fromJson<DocumentSelector>("documentSelector", obj["documentSelector"]);
@@ -11797,13 +12099,13 @@ Utils::Result<DidCloseTextDocumentParams> fromJson<DidCloseTextDocumentParams>(c
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     DidCloseTextDocumentParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
     return result;
 }
 
@@ -11821,13 +12123,13 @@ Utils::Result<DidSaveTextDocumentParams> fromJson<DidSaveTextDocumentParams>(con
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     DidSaveTextDocumentParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
     if (obj.contains("text"))
         result._text = obj.value("text").toString();
     return result;
@@ -11881,15 +12183,17 @@ Utils::Result<WillSaveTextDocumentParams> fromJson<WillSaveTextDocumentParams>(c
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("reason"))
         return Utils::ResultError("Missing required field: reason");
+    if (!obj["reason"].isDouble())
+        return Utils::ResultError("Invalid type for field: reason");
     WillSaveTextDocumentParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
     result._reason = obj.value("reason").toInt();
     return result;
 }
@@ -11911,8 +12215,12 @@ Utils::Result<FileEvent> fromJson<FileEvent>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     if (!obj.contains("type"))
         return Utils::ResultError("Missing required field: type");
+    if (!obj["type"].isDouble())
+        return Utils::ResultError("Invalid type for field: type");
     FileEvent result;
     result._uri = obj.value("uri").toString();
     result._type = obj.value("type").toInt();
@@ -11936,8 +12244,10 @@ Utils::Result<DidChangeWatchedFilesParams> fromJson<DidChangeWatchedFilesParams>
     const QJsonObject obj = val.toObject();
     if (!obj.contains("changes"))
         return Utils::ResultError("Missing required field: changes");
+    if (!obj["changes"].isArray())
+        return Utils::ResultError("Invalid type for field: changes");
     DidChangeWatchedFilesParams result;
-    if (obj.contains("changes") && obj["changes"].isArray()) {
+    {
         const QJsonArray arr = obj["changes"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<FileEvent>("changes", v);
@@ -11967,12 +12277,10 @@ Utils::Result<FileSystemWatcher> fromJson<FileSystemWatcher>(const QJsonValue &v
     if (!obj.contains("globPattern"))
         return Utils::ResultError("Missing required field: globPattern");
     FileSystemWatcher result;
-    if (obj.contains("globPattern")) {
-        const auto res0 = fromJson<GlobPattern>("globPattern", obj["globPattern"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._globPattern = *res0;
-    }
+    const auto res0 = fromJson<GlobPattern>("globPattern", obj["globPattern"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._globPattern = *res0;
     if (obj.contains("kind") && obj["kind"].isDouble()) {
         const auto res1 = fromJson<WatchKind>("kind", obj["kind"]);
         if (!res1)
@@ -11998,8 +12306,10 @@ Utils::Result<DidChangeWatchedFilesRegistrationOptions> fromJson<DidChangeWatche
     const QJsonObject obj = val.toObject();
     if (!obj.contains("watchers"))
         return Utils::ResultError("Missing required field: watchers");
+    if (!obj["watchers"].isArray())
+        return Utils::ResultError("Invalid type for field: watchers");
     DidChangeWatchedFilesRegistrationOptions result;
-    if (obj.contains("watchers") && obj["watchers"].isArray()) {
+    {
         const QJsonArray arr = obj["watchers"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<FileSystemWatcher>("watchers", v);
@@ -12028,13 +12338,17 @@ Utils::Result<PublishDiagnosticsParams> fromJson<PublishDiagnosticsParams>(const
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     if (!obj.contains("diagnostics"))
         return Utils::ResultError("Missing required field: diagnostics");
+    if (!obj["diagnostics"].isArray())
+        return Utils::ResultError("Invalid type for field: diagnostics");
     PublishDiagnosticsParams result;
     result._uri = obj.value("uri").toString();
     if (obj.contains("version"))
         result._version = obj.value("version").toInt();
-    if (obj.contains("diagnostics") && obj["diagnostics"].isArray()) {
+    {
         const QJsonArray arr = obj["diagnostics"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<Diagnostic>("diagnostics", v);
@@ -12065,6 +12379,8 @@ Utils::Result<CompletionContext> fromJson<CompletionContext>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("triggerKind"))
         return Utils::ResultError("Missing required field: triggerKind");
+    if (!obj["triggerKind"].isDouble())
+        return Utils::ResultError("Invalid type for field: triggerKind");
     CompletionContext result;
     result._triggerKind = obj.value("triggerKind").toInt();
     if (obj.contains("triggerCharacter"))
@@ -12088,21 +12404,21 @@ Utils::Result<CompletionParams> fromJson<CompletionParams>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     CompletionParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     if (obj.contains("workDoneToken")) {
         const auto res2 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
         if (!res2)
@@ -12171,24 +12487,26 @@ Utils::Result<InsertReplaceEdit> fromJson<InsertReplaceEdit>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("newText"))
         return Utils::ResultError("Missing required field: newText");
+    if (!obj["newText"].isString())
+        return Utils::ResultError("Invalid type for field: newText");
     if (!obj.contains("insert"))
         return Utils::ResultError("Missing required field: insert");
+    if (!obj["insert"].isObject())
+        return Utils::ResultError("Invalid type for field: insert");
     if (!obj.contains("replace"))
         return Utils::ResultError("Missing required field: replace");
+    if (!obj["replace"].isObject())
+        return Utils::ResultError("Invalid type for field: replace");
     InsertReplaceEdit result;
     result._newText = obj.value("newText").toString();
-    if (obj.contains("insert") && obj["insert"].isObject()) {
-        const auto res0 = fromJson<Range>("insert", obj["insert"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._insert = *res0;
-    }
-    if (obj.contains("replace") && obj["replace"].isObject()) {
-        const auto res1 = fromJson<Range>("replace", obj["replace"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._replace = *res1;
-    }
+    const auto res0 = fromJson<Range>("insert", obj["insert"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._insert = *res0;
+    const auto res1 = fromJson<Range>("replace", obj["replace"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._replace = *res1;
     return result;
 }
 
@@ -12243,6 +12561,8 @@ Utils::Result<CompletionItem> fromJson<CompletionItem>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("label"))
         return Utils::ResultError("Missing required field: label");
+    if (!obj["label"].isString())
+        return Utils::ResultError("Invalid type for field: label");
     CompletionItem result;
     result._label = obj.value("label").toString();
     if (obj.contains("labelDetails") && obj["labelDetails"].isObject()) {
@@ -12404,21 +12724,21 @@ Utils::Result<EditRangeWithInsertReplace> fromJson<EditRangeWithInsertReplace>(c
     const QJsonObject obj = val.toObject();
     if (!obj.contains("insert"))
         return Utils::ResultError("Missing required field: insert");
+    if (!obj["insert"].isObject())
+        return Utils::ResultError("Invalid type for field: insert");
     if (!obj.contains("replace"))
         return Utils::ResultError("Missing required field: replace");
+    if (!obj["replace"].isObject())
+        return Utils::ResultError("Invalid type for field: replace");
     EditRangeWithInsertReplace result;
-    if (obj.contains("insert") && obj["insert"].isObject()) {
-        const auto res0 = fromJson<Range>("insert", obj["insert"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._insert = *res0;
-    }
-    if (obj.contains("replace") && obj["replace"].isObject()) {
-        const auto res1 = fromJson<Range>("replace", obj["replace"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._replace = *res1;
-    }
+    const auto res0 = fromJson<Range>("insert", obj["insert"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._insert = *res0;
+    const auto res1 = fromJson<Range>("replace", obj["replace"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._replace = *res1;
     return result;
 }
 
@@ -12521,8 +12841,12 @@ Utils::Result<CompletionList> fromJson<CompletionList>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("isIncomplete"))
         return Utils::ResultError("Missing required field: isIncomplete");
+    if (!obj["isIncomplete"].isBool())
+        return Utils::ResultError("Invalid type for field: isIncomplete");
     if (!obj.contains("items"))
         return Utils::ResultError("Missing required field: items");
+    if (!obj["items"].isArray())
+        return Utils::ResultError("Invalid type for field: items");
     CompletionList result;
     result._isIncomplete = obj.value("isIncomplete").toBool();
     if (obj.contains("itemDefaults") && obj["itemDefaults"].isObject()) {
@@ -12537,7 +12861,7 @@ Utils::Result<CompletionList> fromJson<CompletionList>(const QJsonValue &val)
             return Utils::ResultError(res1.error());
         result._applyKind = *res1;
     }
-    if (obj.contains("items") && obj["items"].isArray()) {
+    {
         const QJsonArray arr = obj["items"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res2 = fromJson<CompletionItem>("items", v);
@@ -12640,21 +12964,21 @@ Utils::Result<HoverParams> fromJson<HoverParams>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     HoverParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     if (obj.contains("workDoneToken")) {
         const auto res2 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
         if (!res2)
@@ -12683,8 +13007,12 @@ Utils::Result<MarkedStringWithLanguage> fromJson<MarkedStringWithLanguage>(const
     const QJsonObject obj = val.toObject();
     if (!obj.contains("language"))
         return Utils::ResultError("Missing required field: language");
+    if (!obj["language"].isString())
+        return Utils::ResultError("Invalid type for field: language");
     if (!obj.contains("value"))
         return Utils::ResultError("Missing required field: value");
+    if (!obj["value"].isString())
+        return Utils::ResultError("Invalid type for field: value");
     MarkedStringWithLanguage result;
     result._language = obj.value("language").toString();
     result._value = obj.value("value").toString();
@@ -12790,12 +13118,10 @@ Utils::Result<Hover> fromJson<Hover>(const QJsonValue &val)
     if (!obj.contains("contents"))
         return Utils::ResultError("Missing required field: contents");
     Hover result;
-    if (obj.contains("contents")) {
-        const auto res0 = fromJson<HoverContents>("contents", obj["contents"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._contents = *res0;
-    }
+    const auto res0 = fromJson<HoverContents>("contents", obj["contents"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._contents = *res0;
     if (obj.contains("range") && obj["range"].isObject()) {
         const auto res1 = fromJson<Range>("range", obj["range"]);
         if (!res1)
@@ -12880,6 +13206,8 @@ Utils::Result<SignatureInformation> fromJson<SignatureInformation>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("label"))
         return Utils::ResultError("Missing required field: label");
+    if (!obj["label"].isString())
+        return Utils::ResultError("Invalid type for field: label");
     SignatureInformation result;
     result._label = obj.value("label").toString();
     if (obj.contains("documentation")) {
@@ -12929,8 +13257,10 @@ Utils::Result<SignatureHelp> fromJson<SignatureHelp>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("signatures"))
         return Utils::ResultError("Missing required field: signatures");
+    if (!obj["signatures"].isArray())
+        return Utils::ResultError("Invalid type for field: signatures");
     SignatureHelp result;
-    if (obj.contains("signatures") && obj["signatures"].isArray()) {
+    {
         const QJsonArray arr = obj["signatures"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<SignatureInformation>("signatures", v);
@@ -12969,8 +13299,12 @@ Utils::Result<SignatureHelpContext> fromJson<SignatureHelpContext>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("triggerKind"))
         return Utils::ResultError("Missing required field: triggerKind");
+    if (!obj["triggerKind"].isDouble())
+        return Utils::ResultError("Invalid type for field: triggerKind");
     if (!obj.contains("isRetrigger"))
         return Utils::ResultError("Missing required field: isRetrigger");
+    if (!obj["isRetrigger"].isBool())
+        return Utils::ResultError("Invalid type for field: isRetrigger");
     SignatureHelpContext result;
     result._triggerKind = obj.value("triggerKind").toInt();
     if (obj.contains("triggerCharacter"))
@@ -13006,21 +13340,21 @@ Utils::Result<SignatureHelpParams> fromJson<SignatureHelpParams>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     SignatureHelpParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     if (obj.contains("workDoneToken")) {
         const auto res2 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
         if (!res2)
@@ -13115,21 +13449,21 @@ Utils::Result<DefinitionParams> fromJson<DefinitionParams>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     DefinitionParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     if (obj.contains("workDoneToken")) {
         const auto res2 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
         if (!res2)
@@ -13198,6 +13532,8 @@ Utils::Result<ReferenceContext> fromJson<ReferenceContext>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("includeDeclaration"))
         return Utils::ResultError("Missing required field: includeDeclaration");
+    if (!obj["includeDeclaration"].isBool())
+        return Utils::ResultError("Invalid type for field: includeDeclaration");
     ReferenceContext result;
     result._includeDeclaration = obj.value("includeDeclaration").toBool();
     return result;
@@ -13217,23 +13553,25 @@ Utils::Result<ReferenceParams> fromJson<ReferenceParams>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     if (!obj.contains("context"))
         return Utils::ResultError("Missing required field: context");
+    if (!obj["context"].isObject())
+        return Utils::ResultError("Invalid type for field: context");
     ReferenceParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     if (obj.contains("workDoneToken")) {
         const auto res2 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
         if (!res2)
@@ -13246,12 +13584,10 @@ Utils::Result<ReferenceParams> fromJson<ReferenceParams>(const QJsonValue &val)
             return Utils::ResultError(res3.error());
         result._partialResultToken = *res3;
     }
-    if (obj.contains("context") && obj["context"].isObject()) {
-        const auto res4 = fromJson<ReferenceContext>("context", obj["context"]);
-        if (!res4)
-            return Utils::ResultError(res4.error());
-        result._context = *res4;
-    }
+    const auto res4 = fromJson<ReferenceContext>("context", obj["context"]);
+    if (!res4)
+        return Utils::ResultError(res4.error());
+    result._context = *res4;
     return result;
 }
 
@@ -13309,21 +13645,21 @@ Utils::Result<DocumentHighlightParams> fromJson<DocumentHighlightParams>(const Q
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     DocumentHighlightParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     if (obj.contains("workDoneToken")) {
         const auto res2 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
         if (!res2)
@@ -13360,13 +13696,13 @@ Utils::Result<DocumentHighlight> fromJson<DocumentHighlight>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     DocumentHighlight result;
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
     if (obj.contains("kind") && obj["kind"].isDouble())
         result._kind = obj["kind"].toInt();
     return result;
@@ -13420,6 +13756,8 @@ Utils::Result<DocumentSymbolParams> fromJson<DocumentSymbolParams>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     DocumentSymbolParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -13433,12 +13771,10 @@ Utils::Result<DocumentSymbolParams> fromJson<DocumentSymbolParams>(const QJsonVa
             return Utils::ResultError(res1.error());
         result._partialResultToken = *res1;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._textDocument = *res2;
-    }
+    const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._textDocument = *res2;
     return result;
 }
 
@@ -13460,10 +13796,16 @@ Utils::Result<SymbolInformation> fromJson<SymbolInformation>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isDouble())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("location"))
         return Utils::ResultError("Missing required field: location");
+    if (!obj["location"].isObject())
+        return Utils::ResultError("Invalid type for field: location");
     SymbolInformation result;
     result._name = obj.value("name").toString();
     result._kind = obj.value("kind").toInt();
@@ -13479,12 +13821,10 @@ Utils::Result<SymbolInformation> fromJson<SymbolInformation>(const QJsonValue &v
         result._containerName = obj.value("containerName").toString();
     if (obj.contains("deprecated"))
         result._deprecated = obj.value("deprecated").toBool();
-    if (obj.contains("location") && obj["location"].isObject()) {
-        const auto res0 = fromJson<Location>("location", obj["location"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._location = *res0;
-    }
+    const auto res0 = fromJson<Location>("location", obj["location"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._location = *res0;
     return result;
 }
 
@@ -13517,12 +13857,20 @@ Utils::Result<DocumentSymbol> fromJson<DocumentSymbol>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isDouble())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     if (!obj.contains("selectionRange"))
         return Utils::ResultError("Missing required field: selectionRange");
+    if (!obj["selectionRange"].isObject())
+        return Utils::ResultError("Invalid type for field: selectionRange");
     DocumentSymbol result;
     result._name = obj.value("name").toString();
     if (obj.contains("detail"))
@@ -13538,18 +13886,14 @@ Utils::Result<DocumentSymbol> fromJson<DocumentSymbol>(const QJsonValue &val)
     }
     if (obj.contains("deprecated"))
         result._deprecated = obj.value("deprecated").toBool();
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
-    if (obj.contains("selectionRange") && obj["selectionRange"].isObject()) {
-        const auto res1 = fromJson<Range>("selectionRange", obj["selectionRange"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._selectionRange = *res1;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
+    const auto res1 = fromJson<Range>("selectionRange", obj["selectionRange"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._selectionRange = *res1;
     if (obj.contains("children") && obj["children"].isArray()) {
         const QJsonArray arr = obj["children"].toArray();
         QList<DocumentSymbol> list_children;
@@ -13633,8 +13977,10 @@ Utils::Result<CodeActionContext> fromJson<CodeActionContext>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("diagnostics"))
         return Utils::ResultError("Missing required field: diagnostics");
+    if (!obj["diagnostics"].isArray())
+        return Utils::ResultError("Invalid type for field: diagnostics");
     CodeActionContext result;
-    if (obj.contains("diagnostics") && obj["diagnostics"].isArray()) {
+    {
         const QJsonArray arr = obj["diagnostics"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<Diagnostic>("diagnostics", v);
@@ -13683,10 +14029,16 @@ Utils::Result<CodeActionParams> fromJson<CodeActionParams>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     if (!obj.contains("context"))
         return Utils::ResultError("Missing required field: context");
+    if (!obj["context"].isObject())
+        return Utils::ResultError("Invalid type for field: context");
     CodeActionParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -13700,24 +14052,18 @@ Utils::Result<CodeActionParams> fromJson<CodeActionParams>(const QJsonValue &val
             return Utils::ResultError(res1.error());
         result._partialResultToken = *res1;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._textDocument = *res2;
-    }
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res3 = fromJson<Range>("range", obj["range"]);
-        if (!res3)
-            return Utils::ResultError(res3.error());
-        result._range = *res3;
-    }
-    if (obj.contains("context") && obj["context"].isObject()) {
-        const auto res4 = fromJson<CodeActionContext>("context", obj["context"]);
-        if (!res4)
-            return Utils::ResultError(res4.error());
-        result._context = *res4;
-    }
+    const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._textDocument = *res2;
+    const auto res3 = fromJson<Range>("range", obj["range"]);
+    if (!res3)
+        return Utils::ResultError(res3.error());
+    result._range = *res3;
+    const auto res4 = fromJson<CodeActionContext>("context", obj["context"]);
+    if (!res4)
+        return Utils::ResultError(res4.error());
+    result._context = *res4;
     return result;
 }
 
@@ -13743,6 +14089,8 @@ Utils::Result<CodeActionDisabled> fromJson<CodeActionDisabled>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("reason"))
         return Utils::ResultError("Missing required field: reason");
+    if (!obj["reason"].isString())
+        return Utils::ResultError("Invalid type for field: reason");
     CodeActionDisabled result;
     result._reason = obj.value("reason").toString();
     return result;
@@ -13762,6 +14110,8 @@ Utils::Result<CodeAction> fromJson<CodeAction>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("title"))
         return Utils::ResultError("Missing required field: title");
+    if (!obj["title"].isString())
+        return Utils::ResultError("Invalid type for field: title");
     CodeAction result;
     result._title = obj.value("title").toString();
     if (obj.contains("kind") && obj["kind"].isString()) {
@@ -13918,6 +14268,8 @@ Utils::Result<WorkspaceSymbolParams> fromJson<WorkspaceSymbolParams>(const QJson
     const QJsonObject obj = val.toObject();
     if (!obj.contains("query"))
         return Utils::ResultError("Missing required field: query");
+    if (!obj["query"].isString())
+        return Utils::ResultError("Invalid type for field: query");
     WorkspaceSymbolParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -13953,6 +14305,8 @@ Utils::Result<LocationUriOnly> fromJson<LocationUriOnly>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     LocationUriOnly result;
     result._uri = obj.value("uri").toString();
     return result;
@@ -14003,8 +14357,12 @@ Utils::Result<WorkspaceSymbol> fromJson<WorkspaceSymbol>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isDouble())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("location"))
         return Utils::ResultError("Missing required field: location");
     WorkspaceSymbol result;
@@ -14020,12 +14378,10 @@ Utils::Result<WorkspaceSymbol> fromJson<WorkspaceSymbol>(const QJsonValue &val)
     }
     if (obj.contains("containerName"))
         result._containerName = obj.value("containerName").toString();
-    if (obj.contains("location")) {
-        const auto res0 = fromJson<WorkspaceSymbolLocation>("location", obj["location"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._location = *res0;
-    }
+    const auto res0 = fromJson<WorkspaceSymbolLocation>("location", obj["location"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._location = *res0;
     if (obj.contains("data"))
         result._data = obj.value("data");
     return result;
@@ -14082,6 +14438,8 @@ Utils::Result<CodeLensParams> fromJson<CodeLensParams>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     CodeLensParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -14095,12 +14453,10 @@ Utils::Result<CodeLensParams> fromJson<CodeLensParams>(const QJsonValue &val)
             return Utils::ResultError(res1.error());
         result._partialResultToken = *res1;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._textDocument = *res2;
-    }
+    const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._textDocument = *res2;
     return result;
 }
 
@@ -14122,13 +14478,13 @@ Utils::Result<CodeLens> fromJson<CodeLens>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     CodeLens result;
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
     if (obj.contains("command") && obj["command"].isObject()) {
         const auto res1 = fromJson<Command>("command", obj["command"]);
         if (!res1)
@@ -14194,6 +14550,8 @@ Utils::Result<DocumentLinkParams> fromJson<DocumentLinkParams>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     DocumentLinkParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -14207,12 +14565,10 @@ Utils::Result<DocumentLinkParams> fromJson<DocumentLinkParams>(const QJsonValue 
             return Utils::ResultError(res1.error());
         result._partialResultToken = *res1;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._textDocument = *res2;
-    }
+    const auto res2 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._textDocument = *res2;
     return result;
 }
 
@@ -14234,13 +14590,13 @@ Utils::Result<DocumentLink> fromJson<DocumentLink>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     DocumentLink result;
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
     if (obj.contains("target"))
         result._target = obj.value("target").toString();
     if (obj.contains("tooltip"))
@@ -14306,8 +14662,12 @@ Utils::Result<FormattingOptions> fromJson<FormattingOptions>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("tabSize"))
         return Utils::ResultError("Missing required field: tabSize");
+    if (!obj["tabSize"].isDouble())
+        return Utils::ResultError("Invalid type for field: tabSize");
     if (!obj.contains("insertSpaces"))
         return Utils::ResultError("Missing required field: insertSpaces");
+    if (!obj["insertSpaces"].isBool())
+        return Utils::ResultError("Invalid type for field: insertSpaces");
     FormattingOptions result;
     result._tabSize = obj.value("tabSize").toInt();
     result._insertSpaces = obj.value("insertSpaces").toBool();
@@ -14343,8 +14703,12 @@ Utils::Result<DocumentFormattingParams> fromJson<DocumentFormattingParams>(const
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("options"))
         return Utils::ResultError("Missing required field: options");
+    if (!obj["options"].isObject())
+        return Utils::ResultError("Invalid type for field: options");
     DocumentFormattingParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -14352,18 +14716,14 @@ Utils::Result<DocumentFormattingParams> fromJson<DocumentFormattingParams>(const
             return Utils::ResultError(res0.error());
         result._workDoneToken = *res0;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res1 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._textDocument = *res1;
-    }
-    if (obj.contains("options") && obj["options"].isObject()) {
-        const auto res2 = fromJson<FormattingOptions>("options", obj["options"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._options = *res2;
-    }
+    const auto res1 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._textDocument = *res1;
+    const auto res2 = fromJson<FormattingOptions>("options", obj["options"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._options = *res2;
     return result;
 }
 
@@ -14418,10 +14778,16 @@ Utils::Result<DocumentRangeFormattingParams> fromJson<DocumentRangeFormattingPar
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     if (!obj.contains("options"))
         return Utils::ResultError("Missing required field: options");
+    if (!obj["options"].isObject())
+        return Utils::ResultError("Invalid type for field: options");
     DocumentRangeFormattingParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -14429,24 +14795,18 @@ Utils::Result<DocumentRangeFormattingParams> fromJson<DocumentRangeFormattingPar
             return Utils::ResultError(res0.error());
         result._workDoneToken = *res0;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res1 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._textDocument = *res1;
-    }
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res2 = fromJson<Range>("range", obj["range"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._range = *res2;
-    }
-    if (obj.contains("options") && obj["options"].isObject()) {
-        const auto res3 = fromJson<FormattingOptions>("options", obj["options"]);
-        if (!res3)
-            return Utils::ResultError(res3.error());
-        result._options = *res3;
-    }
+    const auto res1 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._textDocument = *res1;
+    const auto res2 = fromJson<Range>("range", obj["range"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._range = *res2;
+    const auto res3 = fromJson<FormattingOptions>("options", obj["options"]);
+    if (!res3)
+        return Utils::ResultError(res3.error());
+    result._options = *res3;
     return result;
 }
 
@@ -14506,10 +14866,16 @@ Utils::Result<DocumentRangesFormattingParams> fromJson<DocumentRangesFormattingP
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("ranges"))
         return Utils::ResultError("Missing required field: ranges");
+    if (!obj["ranges"].isArray())
+        return Utils::ResultError("Invalid type for field: ranges");
     if (!obj.contains("options"))
         return Utils::ResultError("Missing required field: options");
+    if (!obj["options"].isObject())
+        return Utils::ResultError("Invalid type for field: options");
     DocumentRangesFormattingParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -14517,13 +14883,11 @@ Utils::Result<DocumentRangesFormattingParams> fromJson<DocumentRangesFormattingP
             return Utils::ResultError(res0.error());
         result._workDoneToken = *res0;
     }
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res1 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._textDocument = *res1;
-    }
-    if (obj.contains("ranges") && obj["ranges"].isArray()) {
+    const auto res1 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._textDocument = *res1;
+    {
         const QJsonArray arr = obj["ranges"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res2 = fromJson<Range>("ranges", v);
@@ -14532,12 +14896,10 @@ Utils::Result<DocumentRangesFormattingParams> fromJson<DocumentRangesFormattingP
             result._ranges.append(*res2);
         }
     }
-    if (obj.contains("options") && obj["options"].isObject()) {
-        const auto res3 = fromJson<FormattingOptions>("options", obj["options"]);
-        if (!res3)
-            return Utils::ResultError(res3.error());
-        result._options = *res3;
-    }
+    const auto res3 = fromJson<FormattingOptions>("options", obj["options"]);
+    if (!res3)
+        return Utils::ResultError(res3.error());
+    result._options = *res3;
     return result;
 }
 
@@ -14563,32 +14925,34 @@ Utils::Result<DocumentOnTypeFormattingParams> fromJson<DocumentOnTypeFormattingP
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     if (!obj.contains("ch"))
         return Utils::ResultError("Missing required field: ch");
+    if (!obj["ch"].isString())
+        return Utils::ResultError("Invalid type for field: ch");
     if (!obj.contains("options"))
         return Utils::ResultError("Missing required field: options");
+    if (!obj["options"].isObject())
+        return Utils::ResultError("Invalid type for field: options");
     DocumentOnTypeFormattingParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     result._ch = obj.value("ch").toString();
-    if (obj.contains("options") && obj["options"].isObject()) {
-        const auto res2 = fromJson<FormattingOptions>("options", obj["options"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._options = *res2;
-    }
+    const auto res2 = fromJson<FormattingOptions>("options", obj["options"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._options = *res2;
     return result;
 }
 
@@ -14613,6 +14977,8 @@ Utils::Result<DocumentOnTypeFormattingRegistrationOptions> fromJson<DocumentOnTy
         return Utils::ResultError("Missing required field: documentSelector");
     if (!obj.contains("firstTriggerCharacter"))
         return Utils::ResultError("Missing required field: firstTriggerCharacter");
+    if (!obj["firstTriggerCharacter"].isString())
+        return Utils::ResultError("Invalid type for field: firstTriggerCharacter");
     DocumentOnTypeFormattingRegistrationOptions result;
     if (obj.contains("documentSelector") && !obj["documentSelector"].isNull()) {
         const auto res0 = fromJson<DocumentSelector>("documentSelector", obj["documentSelector"]);
@@ -14655,23 +15021,25 @@ Utils::Result<RenameParams> fromJson<RenameParams>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     if (!obj.contains("newName"))
         return Utils::ResultError("Missing required field: newName");
+    if (!obj["newName"].isString())
+        return Utils::ResultError("Invalid type for field: newName");
     RenameParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     if (obj.contains("workDoneToken")) {
         const auto res2 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
         if (!res2)
@@ -14738,21 +15106,21 @@ Utils::Result<PrepareRenameParams> fromJson<PrepareRenameParams>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     PrepareRenameParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     if (obj.contains("workDoneToken")) {
         const auto res2 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
         if (!res2)
@@ -14781,6 +15149,8 @@ Utils::Result<ExecuteCommandParams> fromJson<ExecuteCommandParams>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("command"))
         return Utils::ResultError("Missing required field: command");
+    if (!obj["command"].isString())
+        return Utils::ResultError("Invalid type for field: command");
     ExecuteCommandParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -14821,10 +15191,12 @@ Utils::Result<ExecuteCommandRegistrationOptions> fromJson<ExecuteCommandRegistra
     const QJsonObject obj = val.toObject();
     if (!obj.contains("commands"))
         return Utils::ResultError("Missing required field: commands");
+    if (!obj["commands"].isArray())
+        return Utils::ResultError("Invalid type for field: commands");
     ExecuteCommandRegistrationOptions result;
     if (obj.contains("workDoneProgress"))
         result._workDoneProgress = obj.value("workDoneProgress").toBool();
-    if (obj.contains("commands") && obj["commands"].isArray()) {
+    {
         const QJsonArray arr = obj["commands"].toArray();
         for (const QJsonValue &v : arr) {
             result._commands.append(v.toString());
@@ -14872,15 +15244,15 @@ Utils::Result<ApplyWorkspaceEditParams> fromJson<ApplyWorkspaceEditParams>(const
     const QJsonObject obj = val.toObject();
     if (!obj.contains("edit"))
         return Utils::ResultError("Missing required field: edit");
+    if (!obj["edit"].isObject())
+        return Utils::ResultError("Invalid type for field: edit");
     ApplyWorkspaceEditParams result;
     if (obj.contains("label"))
         result._label = obj.value("label").toString();
-    if (obj.contains("edit") && obj["edit"].isObject()) {
-        const auto res0 = fromJson<WorkspaceEdit>("edit", obj["edit"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._edit = *res0;
-    }
+    const auto res0 = fromJson<WorkspaceEdit>("edit", obj["edit"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._edit = *res0;
     if (obj.contains("metadata") && obj["metadata"].isObject()) {
         const auto res1 = fromJson<WorkspaceEditMetadata>("metadata", obj["metadata"]);
         if (!res1)
@@ -14908,6 +15280,8 @@ Utils::Result<ApplyWorkspaceEditResult> fromJson<ApplyWorkspaceEditResult>(const
     const QJsonObject obj = val.toObject();
     if (!obj.contains("applied"))
         return Utils::ResultError("Missing required field: applied");
+    if (!obj["applied"].isBool())
+        return Utils::ResultError("Invalid type for field: applied");
     ApplyWorkspaceEditResult result;
     result._applied = obj.value("applied").toBool();
     if (obj.contains("failureReason"))
@@ -14935,8 +15309,12 @@ Utils::Result<WorkDoneProgressBegin> fromJson<WorkDoneProgressBegin>(const QJson
     const QJsonObject obj = val.toObject();
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isString())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("title"))
         return Utils::ResultError("Missing required field: title");
+    if (!obj["title"].isString())
+        return Utils::ResultError("Invalid type for field: title");
     WorkDoneProgressBegin result;
     if (obj.value("kind").toString() != "begin")
         return Utils::ResultError("Field 'kind' must be 'begin', got: " + obj.value("kind").toString());
@@ -14973,6 +15351,8 @@ Utils::Result<WorkDoneProgressReport> fromJson<WorkDoneProgressReport>(const QJs
     const QJsonObject obj = val.toObject();
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isString())
+        return Utils::ResultError("Invalid type for field: kind");
     WorkDoneProgressReport result;
     if (obj.value("kind").toString() != "report")
         return Utils::ResultError("Field 'kind' must be 'report', got: " + obj.value("kind").toString());
@@ -15005,6 +15385,8 @@ Utils::Result<WorkDoneProgressEnd> fromJson<WorkDoneProgressEnd>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isString())
+        return Utils::ResultError("Invalid type for field: kind");
     WorkDoneProgressEnd result;
     if (obj.value("kind").toString() != "end")
         return Utils::ResultError("Field 'kind' must be 'end', got: " + obj.value("kind").toString());
@@ -15051,6 +15433,8 @@ Utils::Result<LogTraceParams> fromJson<LogTraceParams>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("message"))
         return Utils::ResultError("Missing required field: message");
+    if (!obj["message"].isString())
+        return Utils::ResultError("Invalid type for field: message");
     LogTraceParams result;
     result._message = obj.value("message").toString();
     if (obj.contains("verbose"))
@@ -15075,12 +15459,10 @@ Utils::Result<CancelParams> fromJson<CancelParams>(const QJsonValue &val)
     if (!obj.contains("id"))
         return Utils::ResultError("Missing required field: id");
     CancelParams result;
-    if (obj.contains("id")) {
-        const auto res0 = fromJson<ProgressToken>("id", obj["id"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._id = *res0;
-    }
+    const auto res0 = fromJson<ProgressToken>("id", obj["id"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._id = *res0;
     return result;
 }
 
@@ -15101,12 +15483,10 @@ Utils::Result<ProgressParams> fromJson<ProgressParams>(const QJsonValue &val)
     if (!obj.contains("value"))
         return Utils::ResultError("Missing required field: value");
     ProgressParams result;
-    if (obj.contains("token")) {
-        const auto res0 = fromJson<ProgressToken>("token", obj["token"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._token = *res0;
-    }
+    const auto res0 = fromJson<ProgressToken>("token", obj["token"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._token = *res0;
     result._value = obj.value("value");
     return result;
 }
@@ -15128,21 +15508,21 @@ Utils::Result<TextDocumentPositionParams> fromJson<TextDocumentPositionParams>(c
     const QJsonObject obj = val.toObject();
     if (!obj.contains("textDocument"))
         return Utils::ResultError("Missing required field: textDocument");
+    if (!obj["textDocument"].isObject())
+        return Utils::ResultError("Invalid type for field: textDocument");
     if (!obj.contains("position"))
         return Utils::ResultError("Missing required field: position");
+    if (!obj["position"].isObject())
+        return Utils::ResultError("Invalid type for field: position");
     TextDocumentPositionParams result;
-    if (obj.contains("textDocument") && obj["textDocument"].isObject()) {
-        const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._textDocument = *res0;
-    }
-    if (obj.contains("position") && obj["position"].isObject()) {
-        const auto res1 = fromJson<Position>("position", obj["position"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._position = *res1;
-    }
+    const auto res0 = fromJson<TextDocumentIdentifier>("textDocument", obj["textDocument"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._textDocument = *res0;
+    const auto res1 = fromJson<Position>("position", obj["position"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._position = *res1;
     return result;
 }
 
@@ -15211,10 +15591,16 @@ Utils::Result<LocationLink> fromJson<LocationLink>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("targetUri"))
         return Utils::ResultError("Missing required field: targetUri");
+    if (!obj["targetUri"].isString())
+        return Utils::ResultError("Invalid type for field: targetUri");
     if (!obj.contains("targetRange"))
         return Utils::ResultError("Missing required field: targetRange");
+    if (!obj["targetRange"].isObject())
+        return Utils::ResultError("Invalid type for field: targetRange");
     if (!obj.contains("targetSelectionRange"))
         return Utils::ResultError("Missing required field: targetSelectionRange");
+    if (!obj["targetSelectionRange"].isObject())
+        return Utils::ResultError("Invalid type for field: targetSelectionRange");
     LocationLink result;
     if (obj.contains("originSelectionRange") && obj["originSelectionRange"].isObject()) {
         const auto res0 = fromJson<Range>("originSelectionRange", obj["originSelectionRange"]);
@@ -15223,18 +15609,14 @@ Utils::Result<LocationLink> fromJson<LocationLink>(const QJsonValue &val)
         result._originSelectionRange = *res0;
     }
     result._targetUri = obj.value("targetUri").toString();
-    if (obj.contains("targetRange") && obj["targetRange"].isObject()) {
-        const auto res1 = fromJson<Range>("targetRange", obj["targetRange"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._targetRange = *res1;
-    }
-    if (obj.contains("targetSelectionRange") && obj["targetSelectionRange"].isObject()) {
-        const auto res2 = fromJson<Range>("targetSelectionRange", obj["targetSelectionRange"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._targetSelectionRange = *res2;
-    }
+    const auto res1 = fromJson<Range>("targetRange", obj["targetRange"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._targetRange = *res1;
+    const auto res2 = fromJson<Range>("targetSelectionRange", obj["targetSelectionRange"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._targetSelectionRange = *res2;
     return result;
 }
 
@@ -15278,15 +15660,17 @@ Utils::Result<InlineValueText> fromJson<InlineValueText>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     if (!obj.contains("text"))
         return Utils::ResultError("Missing required field: text");
+    if (!obj["text"].isString())
+        return Utils::ResultError("Invalid type for field: text");
     InlineValueText result;
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
     result._text = obj.value("text").toString();
     return result;
 }
@@ -15308,15 +15692,17 @@ Utils::Result<InlineValueVariableLookup> fromJson<InlineValueVariableLookup>(con
     const QJsonObject obj = val.toObject();
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     if (!obj.contains("caseSensitiveLookup"))
         return Utils::ResultError("Missing required field: caseSensitiveLookup");
+    if (!obj["caseSensitiveLookup"].isBool())
+        return Utils::ResultError("Invalid type for field: caseSensitiveLookup");
     InlineValueVariableLookup result;
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
     if (obj.contains("variableName"))
         result._variableName = obj.value("variableName").toString();
     result._caseSensitiveLookup = obj.value("caseSensitiveLookup").toBool();
@@ -15342,13 +15728,13 @@ Utils::Result<InlineValueEvaluatableExpression> fromJson<InlineValueEvaluatableE
     const QJsonObject obj = val.toObject();
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     InlineValueEvaluatableExpression result;
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
     if (obj.contains("expression"))
         result._expression = obj.value("expression").toString();
     return result;
@@ -15370,14 +15756,18 @@ Utils::Result<FullDocumentDiagnosticReport> fromJson<FullDocumentDiagnosticRepor
     const QJsonObject obj = val.toObject();
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isString())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("items"))
         return Utils::ResultError("Missing required field: items");
+    if (!obj["items"].isArray())
+        return Utils::ResultError("Invalid type for field: items");
     FullDocumentDiagnosticReport result;
     if (obj.value("kind").toString() != "full")
         return Utils::ResultError("Field 'kind' must be 'full', got: " + obj.value("kind").toString());
     if (obj.contains("resultId"))
         result._resultId = obj.value("resultId").toString();
-    if (obj.contains("items") && obj["items"].isArray()) {
+    {
         const QJsonArray arr = obj["items"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<Diagnostic>("items", v);
@@ -15408,8 +15798,12 @@ Utils::Result<UnchangedDocumentDiagnosticReport> fromJson<UnchangedDocumentDiagn
     const QJsonObject obj = val.toObject();
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isString())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("resultId"))
         return Utils::ResultError("Missing required field: resultId");
+    if (!obj["resultId"].isString())
+        return Utils::ResultError("Invalid type for field: resultId");
     UnchangedDocumentDiagnosticReport result;
     if (obj.value("kind").toString() != "unchanged")
         return Utils::ResultError("Field 'kind' must be 'unchanged', got: " + obj.value("kind").toString());
@@ -15458,14 +15852,18 @@ Utils::Result<RelatedFullDocumentDiagnosticReport> fromJson<RelatedFullDocumentD
     const QJsonObject obj = val.toObject();
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isString())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("items"))
         return Utils::ResultError("Missing required field: items");
+    if (!obj["items"].isArray())
+        return Utils::ResultError("Invalid type for field: items");
     RelatedFullDocumentDiagnosticReport result;
     if (obj.value("kind").toString() != "full")
         return Utils::ResultError("Field 'kind' must be 'full', got: " + obj.value("kind").toString());
     if (obj.contains("resultId"))
         result._resultId = obj.value("resultId").toString();
-    if (obj.contains("items") && obj["items"].isArray()) {
+    {
         const QJsonArray arr = obj["items"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<Diagnostic>("items", v);
@@ -15513,8 +15911,12 @@ Utils::Result<RelatedUnchangedDocumentDiagnosticReport> fromJson<RelatedUnchange
     const QJsonObject obj = val.toObject();
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isString())
+        return Utils::ResultError("Invalid type for field: kind");
     if (!obj.contains("resultId"))
         return Utils::ResultError("Missing required field: resultId");
+    if (!obj["resultId"].isString())
+        return Utils::ResultError("Invalid type for field: resultId");
     RelatedUnchangedDocumentDiagnosticReport result;
     if (obj.value("kind").toString() != "unchanged")
         return Utils::ResultError("Field 'kind' must be 'unchanged', got: " + obj.value("kind").toString());
@@ -15556,8 +15958,10 @@ Utils::Result<DocumentDiagnosticReportPartialResult> fromJson<DocumentDiagnostic
     const QJsonObject obj = val.toObject();
     if (!obj.contains("relatedDocuments"))
         return Utils::ResultError("Missing required field: relatedDocuments");
+    if (!obj["relatedDocuments"].isObject())
+        return Utils::ResultError("Invalid type for field: relatedDocuments");
     DocumentDiagnosticReportPartialResult result;
-    if (obj.contains("relatedDocuments") && obj["relatedDocuments"].isObject()) {
+    {
         const QJsonObject mapObj_relatedDocuments = obj["relatedDocuments"].toObject();
         QMap<QString, RelatedFullDocumentDiagnosticReportRelatedDocumentsValue> map_relatedDocuments;
         for (auto it = mapObj_relatedDocuments.constBegin(); it != mapObj_relatedDocuments.constEnd(); ++it) {
@@ -15593,6 +15997,8 @@ Utils::Result<_InitializeParams> fromJson<_InitializeParams>(const QJsonValue &v
         return Utils::ResultError("Missing required field: rootUri");
     if (!obj.contains("capabilities"))
         return Utils::ResultError("Missing required field: capabilities");
+    if (!obj["capabilities"].isObject())
+        return Utils::ResultError("Invalid type for field: capabilities");
     _InitializeParams result;
     if (obj.contains("workDoneToken")) {
         const auto res0 = fromJson<ProgressToken>("workDoneToken", obj["workDoneToken"]);
@@ -15618,12 +16024,10 @@ Utils::Result<_InitializeParams> fromJson<_InitializeParams>(const QJsonValue &v
     if (!obj["rootUri"].isNull()) {
         result._rootUri = obj.value("rootUri").toString();
     }
-    if (obj.contains("capabilities") && obj["capabilities"].isObject()) {
-        const auto res2 = fromJson<ClientCapabilities>("capabilities", obj["capabilities"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._capabilities = *res2;
-    }
+    const auto res2 = fromJson<ClientCapabilities>("capabilities", obj["capabilities"]);
+    if (!res2)
+        return Utils::ResultError(res2.error());
+    result._capabilities = *res2;
     if (obj.contains("initializationOptions"))
         result._initializationOptions = obj.value("initializationOptions");
     if (obj.contains("trace")) {
@@ -15693,8 +16097,12 @@ Utils::Result<BaseSymbolInformation> fromJson<BaseSymbolInformation>(const QJson
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isDouble())
+        return Utils::ResultError("Invalid type for field: kind");
     BaseSymbolInformation result;
     result._name = obj.value("name").toString();
     result._kind = obj.value("kind").toInt();
@@ -15735,15 +16143,17 @@ Utils::Result<PrepareRenamePlaceholder> fromJson<PrepareRenamePlaceholder>(const
     const QJsonObject obj = val.toObject();
     if (!obj.contains("range"))
         return Utils::ResultError("Missing required field: range");
+    if (!obj["range"].isObject())
+        return Utils::ResultError("Invalid type for field: range");
     if (!obj.contains("placeholder"))
         return Utils::ResultError("Missing required field: placeholder");
+    if (!obj["placeholder"].isString())
+        return Utils::ResultError("Invalid type for field: placeholder");
     PrepareRenamePlaceholder result;
-    if (obj.contains("range") && obj["range"].isObject()) {
-        const auto res0 = fromJson<Range>("range", obj["range"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._range = *res0;
-    }
+    const auto res0 = fromJson<Range>("range", obj["range"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._range = *res0;
     result._placeholder = obj.value("placeholder").toString();
     return result;
 }
@@ -15765,6 +16175,8 @@ Utils::Result<PrepareRenameDefaultBehavior> fromJson<PrepareRenameDefaultBehavio
     const QJsonObject obj = val.toObject();
     if (!obj.contains("defaultBehavior"))
         return Utils::ResultError("Missing required field: defaultBehavior");
+    if (!obj["defaultBehavior"].isBool())
+        return Utils::ResultError("Invalid type for field: defaultBehavior");
     PrepareRenameDefaultBehavior result;
     result._defaultBehavior = obj.value("defaultBehavior").toBool();
     return result;
@@ -15804,6 +16216,8 @@ Utils::Result<ResourceOperation> fromJson<ResourceOperation>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
+    if (!obj["kind"].isString())
+        return Utils::ResultError("Invalid type for field: kind");
     ResourceOperation result;
     result._kind = obj.value("kind").toString();
     if (obj.contains("annotationId") && obj["annotationId"].isString()) {

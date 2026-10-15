@@ -1864,6 +1864,79 @@ def is_untyped_any(spec):
             return False
     return True
 
+_JSON_TYPE_CHECKS = {
+    "string": "isString()",
+    "integer": "isDouble()",
+    "number": "isDouble()",
+    "boolean": "isBool()",
+    "array": "isArray()",
+    "object": "isObject()",
+}
+
+def required_json_type_check(spec, types):
+    """The QJsonValue predicate a required property must satisfy, or None.
+
+    A required property that carries the wrong JSON type means the object is
+    not of that type at all, which is what tells the alternatives of a variant
+    apart: without the check a Command and a CodeAction holding a Command are
+    indistinguishable. Only unambiguous shapes get one, since a nullable or
+    untyped property, an enum and a union each arrive in more than one shape.
+    """
+    if not isinstance(spec, dict) or is_untyped_any(spec):
+        return None
+    if _nullable_type(spec)[1] or _extract_nullable_ref(spec):
+        return None
+    ref = _extract_ref(spec)
+    if ref:
+        t = ref_type(ref)
+        if is_integer_const_namespace(t, types):
+            return "isDouble()"
+        if is_enum_type(t, types) or is_union_type_name(t, types):
+            return None
+        if is_simple_type_alias(t, types):
+            return _JSON_TYPE_CHECKS.get(types[t].get("type"))
+        return "isObject()"
+    if any(k in spec for k in ("anyOf", "oneOf", "allOf")):
+        return None
+    return _JSON_TYPE_CHECKS.get(spec.get("type"))
+
+_PARSE_GUARD_RE = re.compile(
+    r'^    if \(obj\.contains\("([^"]+)"\)(?: && obj\["\1"\]\.(\w+\(\)))?\)( \{)?$')
+
+def _drop_established_guards(fj_lines, established):
+    """Remove the parse guards that re-test what the required-field checks established.
+
+    established maps each required property to the predicate already checked for
+    it, or None when only its presence is. A guarded block keeps its braces as a
+    plain scope, since its locals would clash with those of the next one.
+    """
+    out = []
+    i = 0
+    while i < len(fj_lines):
+        line = fj_lines[i]
+        m = _PARSE_GUARD_RE.match(line)
+        if not m or m.group(1) not in established or (
+                m.group(2) and m.group(2) != established[m.group(1)]):
+            out.append(line)
+            i += 1
+            continue
+        if m.group(3):
+            end = fj_lines.index("    }", i + 1)
+            if end + 1 < len(fj_lines) and fj_lines[end + 1].startswith("    else"):
+                out.append(line)
+                i += 1
+                continue
+            out.append("    {")
+            i += 1
+        else:
+            if i + 2 < len(fj_lines) and fj_lines[i + 2].startswith("    else"):
+                out.append(line)
+                i += 1
+                continue
+            out.append(fj_lines[i + 1][4:])
+            i += 2
+    return out
+
 def _toJsonValue_visit_lines(alias):
     """Return code lines for a toJsonValue(const alias&) using std::visit."""
     return [
@@ -3006,6 +3079,10 @@ def parse_struct(name, props, types, required=None, description='', nested_child
     for req_field in required:
         fj_lines.append(f"    if (!obj.contains(\"{req_field}\"))")
         fj_lines.append(f"        co_return Utils::ResultError(\"Missing required field: {req_field}\");")
+        type_check = required_json_type_check(props.get(req_field, {}), types)
+        if type_check:
+            fj_lines.append(f"    if (!obj[\"{req_field}\"].{type_check})")
+            fj_lines.append(f"        co_return Utils::ResultError(\"Invalid type for field: {req_field}\");")
     
     fj_lines.append(f"    {name} result;")
     for prop, spec in props.items():
@@ -3264,6 +3341,8 @@ def parse_struct(name, props, types, required=None, description='', nested_child
         fj_lines.append(f"    }}")
     fj_lines.append(f"    co_return result;")
     fj_lines.append("}")
+    fj_lines = _drop_established_guards(
+        fj_lines, {f: required_json_type_check(props.get(f, {}), types) for f in required})
     lines.extend(finalize_from_json(fj_lines))
     lines.append("")
     # toJson function — two-pass:

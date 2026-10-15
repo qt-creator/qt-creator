@@ -37,12 +37,10 @@ Utils::Result<ElicitationRequestScope> fromJson<ElicitationRequestScope>(const Q
     if (!obj.contains("requestId"))
         return Utils::ResultError("Missing required field: requestId");
     ElicitationRequestScope result;
-    if (obj.contains("requestId")) {
-        const auto res0 = fromJson<RequestId>("requestId", obj["requestId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._requestId = *res0;
-    }
+    const auto res0 = fromJson<RequestId>("requestId", obj["requestId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._requestId = *res0;
     return result;
 }
 
@@ -152,8 +150,10 @@ Utils::Result<StringMultiSelectItems> fromJson<StringMultiSelectItems>(const QJs
     const QJsonObject obj = val.toObject();
     if (!obj.contains("enum"))
         return Utils::ResultError("Missing required field: enum");
+    if (!obj["enum"].isArray())
+        return Utils::ResultError("Invalid type for field: enum");
     StringMultiSelectItems result;
-    if (obj.contains("enum") && obj["enum"].isArray()) {
+    {
         const QJsonArray arr = obj["enum"].toArray();
         for (const QJsonValue &v : arr) {
             result._enum_.append(v.toString());
@@ -185,8 +185,12 @@ Utils::Result<EnumOption> fromJson<EnumOption>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("const"))
         return Utils::ResultError("Missing required field: const");
+    if (!obj["const"].isString())
+        return Utils::ResultError("Invalid type for field: const");
     if (!obj.contains("title"))
         return Utils::ResultError("Missing required field: title");
+    if (!obj["title"].isString())
+        return Utils::ResultError("Invalid type for field: title");
     EnumOption result;
     result._const_ = obj.value("const").toString();
     result._title = obj.value("title").toString();
@@ -222,8 +226,10 @@ Utils::Result<TitledMultiSelectItems> fromJson<TitledMultiSelectItems>(const QJs
     const QJsonObject obj = val.toObject();
     if (!obj.contains("anyOf"))
         return Utils::ResultError("Missing required field: anyOf");
+    if (!obj["anyOf"].isArray())
+        return Utils::ResultError("Invalid type for field: anyOf");
     TitledMultiSelectItems result;
-    if (obj.contains("anyOf") && obj["anyOf"].isArray()) {
+    {
         const QJsonArray arr = obj["anyOf"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<EnumOption>("anyOf", v);
@@ -315,12 +321,10 @@ Utils::Result<MultiSelectPropertySchema> fromJson<MultiSelectPropertySchema>(con
         if (!obj["maxItems"].isNull()) {
             result._maxItems = obj.value("maxItems").toInt();
         }
-    if (obj.contains("items")) {
-        const auto res0 = fromJson<MultiSelectItems>("items", obj["items"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._items = *res0;
-    }
+    const auto res0 = fromJson<MultiSelectItems>("items", obj["items"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._items = *res0;
     if (obj.contains("default"))
         if (!obj["default"].isNull()) {
             result._default_ = obj.value("default").toArray();
@@ -685,13 +689,13 @@ Utils::Result<ElicitationSessionScope> fromJson<ElicitationSessionScope>(const Q
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     ElicitationSessionScope result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
     if (obj.contains("toolCallId") && !obj["toolCallId"].isNull()) {
         const auto res1 = fromJson<ToolCallId>("toolCallId", obj["toolCallId"]);
         if (!res1)
@@ -717,13 +721,13 @@ Utils::Result<ElicitationFormMode> fromJson<ElicitationFormMode>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("requestedSchema"))
         return Utils::ResultError("Missing required field: requestedSchema");
+    if (!obj["requestedSchema"].isObject())
+        return Utils::ResultError("Invalid type for field: requestedSchema");
     ElicitationFormMode result;
-    if (obj.contains("requestedSchema") && obj["requestedSchema"].isObject()) {
-        const auto res0 = fromJson<ElicitationSchema>("requestedSchema", obj["requestedSchema"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._requestedSchema = *res0;
-    }
+    const auto res0 = fromJson<ElicitationSchema>("requestedSchema", obj["requestedSchema"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._requestedSchema = *res0;
     {
         const QSet<QString> knownKeys{"requestedSchema"};
         for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) {
@@ -750,15 +754,17 @@ Utils::Result<ElicitationUrlMode> fromJson<ElicitationUrlMode>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("elicitationId"))
         return Utils::ResultError("Missing required field: elicitationId");
+    if (!obj["elicitationId"].isString())
+        return Utils::ResultError("Invalid type for field: elicitationId");
     if (!obj.contains("url"))
         return Utils::ResultError("Missing required field: url");
+    if (!obj["url"].isString())
+        return Utils::ResultError("Invalid type for field: url");
     ElicitationUrlMode result;
-    if (obj.contains("elicitationId") && obj["elicitationId"].isString()) {
-        const auto res0 = fromJson<ElicitationId>("elicitationId", obj["elicitationId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._elicitationId = *res0;
-    }
+    const auto res0 = fromJson<ElicitationId>("elicitationId", obj["elicitationId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._elicitationId = *res0;
     result._url = obj.value("url").toString();
     {
         const QSet<QString> knownKeys{"elicitationId", "url"};
@@ -789,6 +795,8 @@ Utils::Result<CreateElicitationRequest> fromJson<CreateElicitationRequest>(const
     const QJsonObject obj = val.toObject();
     if (!obj.contains("message"))
         return Utils::ResultError("Missing required field: message");
+    if (!obj["message"].isString())
+        return Utils::ResultError("Invalid type for field: message");
     CreateElicitationRequest result;
     result._message = obj.value("message").toString();
     if (obj.contains("_meta"))
@@ -823,8 +831,12 @@ Utils::Result<EnvVariable> fromJson<EnvVariable>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("value"))
         return Utils::ResultError("Missing required field: value");
+    if (!obj["value"].isString())
+        return Utils::ResultError("Invalid type for field: value");
     EnvVariable result;
     result._name = obj.value("name").toString();
     result._value = obj.value("value").toString();
@@ -854,15 +866,17 @@ Utils::Result<CreateTerminalRequest> fromJson<CreateTerminalRequest>(const QJson
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     if (!obj.contains("command"))
         return Utils::ResultError("Missing required field: command");
+    if (!obj["command"].isString())
+        return Utils::ResultError("Invalid type for field: command");
     CreateTerminalRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
     result._command = obj.value("command").toString();
     if (obj.contains("args") && obj["args"].isArray()) {
         const QJsonArray arr = obj["args"].toArray();
@@ -931,21 +945,21 @@ Utils::Result<KillTerminalRequest> fromJson<KillTerminalRequest>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     if (!obj.contains("terminalId"))
         return Utils::ResultError("Missing required field: terminalId");
+    if (!obj["terminalId"].isString())
+        return Utils::ResultError("Invalid type for field: terminalId");
     KillTerminalRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
-    if (obj.contains("terminalId") && obj["terminalId"].isString()) {
-        const auto res1 = fromJson<TerminalId>("terminalId", obj["terminalId"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._terminalId = *res1;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
+    const auto res1 = fromJson<TerminalId>("terminalId", obj["terminalId"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._terminalId = *res1;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -972,15 +986,17 @@ Utils::Result<ReadTextFileRequest> fromJson<ReadTextFileRequest>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     if (!obj.contains("path"))
         return Utils::ResultError("Missing required field: path");
+    if (!obj["path"].isString())
+        return Utils::ResultError("Invalid type for field: path");
     ReadTextFileRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
     result._path = obj.value("path").toString();
     if (obj.contains("line"))
         if (!obj["line"].isNull()) {
@@ -1020,21 +1036,21 @@ Utils::Result<ReleaseTerminalRequest> fromJson<ReleaseTerminalRequest>(const QJs
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     if (!obj.contains("terminalId"))
         return Utils::ResultError("Missing required field: terminalId");
+    if (!obj["terminalId"].isString())
+        return Utils::ResultError("Invalid type for field: terminalId");
     ReleaseTerminalRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
-    if (obj.contains("terminalId") && obj["terminalId"].isString()) {
-        const auto res1 = fromJson<TerminalId>("terminalId", obj["terminalId"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._terminalId = *res1;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
+    const auto res1 = fromJson<TerminalId>("terminalId", obj["terminalId"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._terminalId = *res1;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -1090,17 +1106,19 @@ Utils::Result<PermissionOption> fromJson<PermissionOption>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("optionId"))
         return Utils::ResultError("Missing required field: optionId");
+    if (!obj["optionId"].isString())
+        return Utils::ResultError("Invalid type for field: optionId");
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("kind"))
         return Utils::ResultError("Missing required field: kind");
     PermissionOption result;
-    if (obj.contains("optionId") && obj["optionId"].isString()) {
-        const auto res0 = fromJson<PermissionOptionId>("optionId", obj["optionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._optionId = *res0;
-    }
+    const auto res0 = fromJson<PermissionOptionId>("optionId", obj["optionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._optionId = *res0;
     result._name = obj.value("name").toString();
     const auto res1 = fromJson<PermissionOptionKind>("kind", obj["kind"]);
     if (!res1)
@@ -1198,8 +1216,12 @@ Utils::Result<AudioContent> fromJson<AudioContent>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("data"))
         return Utils::ResultError("Missing required field: data");
+    if (!obj["data"].isString())
+        return Utils::ResultError("Invalid type for field: data");
     if (!obj.contains("mimeType"))
         return Utils::ResultError("Missing required field: mimeType");
+    if (!obj["mimeType"].isString())
+        return Utils::ResultError("Invalid type for field: mimeType");
     AudioContent result;
     if (obj.contains("annotations") && !obj["annotations"].isNull()) {
         const auto res0 = fromJson<Annotations>("annotations", obj["annotations"]);
@@ -1237,8 +1259,12 @@ Utils::Result<BlobResourceContents> fromJson<BlobResourceContents>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("blob"))
         return Utils::ResultError("Missing required field: blob");
+    if (!obj["blob"].isString())
+        return Utils::ResultError("Invalid type for field: blob");
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     BlobResourceContents result;
     result._blob = obj.value("blob").toString();
     if (obj.contains("mimeType"))
@@ -1274,8 +1300,12 @@ Utils::Result<TextResourceContents> fromJson<TextResourceContents>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("text"))
         return Utils::ResultError("Missing required field: text");
+    if (!obj["text"].isString())
+        return Utils::ResultError("Invalid type for field: text");
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     TextResourceContents result;
     if (obj.contains("mimeType"))
         if (!obj["mimeType"].isNull()) {
@@ -1361,12 +1391,10 @@ Utils::Result<EmbeddedResource> fromJson<EmbeddedResource>(const QJsonValue &val
             return Utils::ResultError(res0.error());
         result._annotations = *res0;
     }
-    if (obj.contains("resource")) {
-        const auto res1 = fromJson<EmbeddedResourceResource>("resource", obj["resource"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._resource = *res1;
-    }
+    const auto res1 = fromJson<EmbeddedResourceResource>("resource", obj["resource"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._resource = *res1;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -1392,8 +1420,12 @@ Utils::Result<ImageContent> fromJson<ImageContent>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("data"))
         return Utils::ResultError("Missing required field: data");
+    if (!obj["data"].isString())
+        return Utils::ResultError("Invalid type for field: data");
     if (!obj.contains("mimeType"))
         return Utils::ResultError("Missing required field: mimeType");
+    if (!obj["mimeType"].isString())
+        return Utils::ResultError("Invalid type for field: mimeType");
     ImageContent result;
     if (obj.contains("annotations") && !obj["annotations"].isNull()) {
         const auto res0 = fromJson<Annotations>("annotations", obj["annotations"]);
@@ -1437,8 +1469,12 @@ Utils::Result<ResourceLink> fromJson<ResourceLink>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("uri"))
         return Utils::ResultError("Missing required field: uri");
+    if (!obj["uri"].isString())
+        return Utils::ResultError("Invalid type for field: uri");
     ResourceLink result;
     if (obj.contains("annotations") && !obj["annotations"].isNull()) {
         const auto res0 = fromJson<Annotations>("annotations", obj["annotations"]);
@@ -1500,6 +1536,8 @@ Utils::Result<TextContent> fromJson<TextContent>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("text"))
         return Utils::ResultError("Missing required field: text");
+    if (!obj["text"].isString())
+        return Utils::ResultError("Invalid type for field: text");
     TextContent result;
     if (obj.contains("annotations") && !obj["annotations"].isNull()) {
         const auto res0 = fromJson<Annotations>("annotations", obj["annotations"]);
@@ -1605,12 +1643,10 @@ Utils::Result<Content> fromJson<Content>(const QJsonValue &val)
     if (!obj.contains("content"))
         return Utils::ResultError("Missing required field: content");
     Content result;
-    if (obj.contains("content")) {
-        const auto res0 = fromJson<ContentBlock>("content", obj["content"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._content = *res0;
-    }
+    const auto res0 = fromJson<ContentBlock>("content", obj["content"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._content = *res0;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -1634,8 +1670,12 @@ Utils::Result<Diff> fromJson<Diff>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("path"))
         return Utils::ResultError("Missing required field: path");
+    if (!obj["path"].isString())
+        return Utils::ResultError("Invalid type for field: path");
     if (!obj.contains("newText"))
         return Utils::ResultError("Missing required field: newText");
+    if (!obj["newText"].isString())
+        return Utils::ResultError("Invalid type for field: newText");
     Diff result;
     result._path = obj.value("path").toString();
     if (obj.contains("oldText"))
@@ -1671,13 +1711,13 @@ Utils::Result<Terminal> fromJson<Terminal>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("terminalId"))
         return Utils::ResultError("Missing required field: terminalId");
+    if (!obj["terminalId"].isString())
+        return Utils::ResultError("Invalid type for field: terminalId");
     Terminal result;
-    if (obj.contains("terminalId") && obj["terminalId"].isString()) {
-        const auto res0 = fromJson<TerminalId>("terminalId", obj["terminalId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._terminalId = *res0;
-    }
+    const auto res0 = fromJson<TerminalId>("terminalId", obj["terminalId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._terminalId = *res0;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -1758,6 +1798,8 @@ Utils::Result<ToolCallLocation> fromJson<ToolCallLocation>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("path"))
         return Utils::ResultError("Missing required field: path");
+    if (!obj["path"].isString())
+        return Utils::ResultError("Invalid type for field: path");
     ToolCallLocation result;
     result._path = obj.value("path").toString();
     if (obj.contains("line"))
@@ -1859,13 +1901,13 @@ Utils::Result<ToolCallUpdate> fromJson<ToolCallUpdate>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("toolCallId"))
         return Utils::ResultError("Missing required field: toolCallId");
+    if (!obj["toolCallId"].isString())
+        return Utils::ResultError("Invalid type for field: toolCallId");
     ToolCallUpdate result;
-    if (obj.contains("toolCallId") && obj["toolCallId"].isString()) {
-        const auto res0 = fromJson<ToolCallId>("toolCallId", obj["toolCallId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._toolCallId = *res0;
-    }
+    const auto res0 = fromJson<ToolCallId>("toolCallId", obj["toolCallId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._toolCallId = *res0;
     if (obj.contains("kind") && !obj["kind"].isNull()) {
         const auto res1 = fromJson<ToolKind>("kind", obj["kind"]);
         if (!res1)
@@ -1931,24 +1973,26 @@ Utils::Result<RequestPermissionRequest> fromJson<RequestPermissionRequest>(const
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     if (!obj.contains("toolCall"))
         return Utils::ResultError("Missing required field: toolCall");
+    if (!obj["toolCall"].isObject())
+        return Utils::ResultError("Invalid type for field: toolCall");
     if (!obj.contains("options"))
         return Utils::ResultError("Missing required field: options");
+    if (!obj["options"].isArray())
+        return Utils::ResultError("Invalid type for field: options");
     RequestPermissionRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
-    if (obj.contains("toolCall") && obj["toolCall"].isObject()) {
-        const auto res1 = fromJson<ToolCallUpdate>("toolCall", obj["toolCall"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._toolCall = *res1;
-    }
-    if (obj.contains("options") && obj["options"].isArray()) {
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
+    const auto res1 = fromJson<ToolCallUpdate>("toolCall", obj["toolCall"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._toolCall = *res1;
+    {
         const QJsonArray arr = obj["options"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res2 = fromJson<PermissionOption>("options", v);
@@ -1986,21 +2030,21 @@ Utils::Result<TerminalOutputRequest> fromJson<TerminalOutputRequest>(const QJson
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     if (!obj.contains("terminalId"))
         return Utils::ResultError("Missing required field: terminalId");
+    if (!obj["terminalId"].isString())
+        return Utils::ResultError("Invalid type for field: terminalId");
     TerminalOutputRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
-    if (obj.contains("terminalId") && obj["terminalId"].isString()) {
-        const auto res1 = fromJson<TerminalId>("terminalId", obj["terminalId"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._terminalId = *res1;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
+    const auto res1 = fromJson<TerminalId>("terminalId", obj["terminalId"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._terminalId = *res1;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -2027,21 +2071,21 @@ Utils::Result<WaitForTerminalExitRequest> fromJson<WaitForTerminalExitRequest>(c
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     if (!obj.contains("terminalId"))
         return Utils::ResultError("Missing required field: terminalId");
+    if (!obj["terminalId"].isString())
+        return Utils::ResultError("Invalid type for field: terminalId");
     WaitForTerminalExitRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
-    if (obj.contains("terminalId") && obj["terminalId"].isString()) {
-        const auto res1 = fromJson<TerminalId>("terminalId", obj["terminalId"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._terminalId = *res1;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
+    const auto res1 = fromJson<TerminalId>("terminalId", obj["terminalId"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._terminalId = *res1;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -2068,17 +2112,21 @@ Utils::Result<WriteTextFileRequest> fromJson<WriteTextFileRequest>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     if (!obj.contains("path"))
         return Utils::ResultError("Missing required field: path");
+    if (!obj["path"].isString())
+        return Utils::ResultError("Invalid type for field: path");
     if (!obj.contains("content"))
         return Utils::ResultError("Missing required field: content");
+    if (!obj["content"].isString())
+        return Utils::ResultError("Invalid type for field: content");
     WriteTextFileRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
     result._path = obj.value("path").toString();
     result._content = obj.value("content").toString();
     if (obj.contains("_meta"))
@@ -2110,13 +2158,13 @@ Utils::Result<AgentRequest> fromJson<AgentRequest>(const QJsonValue &val)
         return Utils::ResultError("Missing required field: id");
     if (!obj.contains("method"))
         return Utils::ResultError("Missing required field: method");
+    if (!obj["method"].isString())
+        return Utils::ResultError("Invalid type for field: method");
     AgentRequest result;
-    if (obj.contains("id")) {
-        const auto res0 = fromJson<RequestId>("id", obj["id"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._id = *res0;
-    }
+    const auto res0 = fromJson<RequestId>("id", obj["id"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._id = *res0;
     result._method = obj.value("method").toString();
     if (obj.contains("params"))
         result._params = obj.value("params").toString();
@@ -2208,8 +2256,12 @@ Utils::Result<Error> fromJson<Error>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("code"))
         return Utils::ResultError("Missing required field: code");
+    if (!obj["code"].isDouble())
+        return Utils::ResultError("Invalid type for field: code");
     if (!obj.contains("message"))
         return Utils::ResultError("Missing required field: message");
+    if (!obj["message"].isString())
+        return Utils::ResultError("Invalid type for field: message");
     Error result;
     result._code = obj.value("code").toInt();
     result._message = obj.value("message").toString();
@@ -2583,15 +2635,17 @@ Utils::Result<AuthMethodAgent> fromJson<AuthMethodAgent>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("id"))
         return Utils::ResultError("Missing required field: id");
+    if (!obj["id"].isString())
+        return Utils::ResultError("Invalid type for field: id");
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     AuthMethodAgent result;
-    if (obj.contains("id") && obj["id"].isString()) {
-        const auto res0 = fromJson<AuthMethodId>("id", obj["id"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._id = *res0;
-    }
+    const auto res0 = fromJson<AuthMethodId>("id", obj["id"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._id = *res0;
     result._name = obj.value("name").toString();
     if (obj.contains("description"))
         if (!obj["description"].isNull()) {
@@ -2625,15 +2679,17 @@ Utils::Result<AuthMethodTerminal> fromJson<AuthMethodTerminal>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("id"))
         return Utils::ResultError("Missing required field: id");
+    if (!obj["id"].isString())
+        return Utils::ResultError("Invalid type for field: id");
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     AuthMethodTerminal result;
-    if (obj.contains("id") && obj["id"].isString()) {
-        const auto res0 = fromJson<AuthMethodId>("id", obj["id"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._id = *res0;
-    }
+    const auto res0 = fromJson<AuthMethodId>("id", obj["id"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._id = *res0;
     result._name = obj.value("name").toString();
     if (obj.contains("description"))
         if (!obj["description"].isNull()) {
@@ -2754,8 +2810,12 @@ Utils::Result<Implementation> fromJson<Implementation>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("version"))
         return Utils::ResultError("Missing required field: version");
+    if (!obj["version"].isString())
+        return Utils::ResultError("Invalid type for field: version");
     Implementation result;
     result._name = obj.value("name").toString();
     if (obj.contains("title"))
@@ -2797,13 +2857,13 @@ Utils::Result<InitializeResponse> fromJson<InitializeResponse>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("protocolVersion"))
         return Utils::ResultError("Missing required field: protocolVersion");
+    if (!obj["protocolVersion"].isDouble())
+        return Utils::ResultError("Invalid type for field: protocolVersion");
     InitializeResponse result;
-    if (obj.contains("protocolVersion") && obj["protocolVersion"].isDouble()) {
-        const auto res0 = fromJson<ProtocolVersion>("protocolVersion", obj["protocolVersion"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._protocolVersion = *res0;
-    }
+    const auto res0 = fromJson<ProtocolVersion>("protocolVersion", obj["protocolVersion"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._protocolVersion = *res0;
     if (obj.contains("agentCapabilities") && obj["agentCapabilities"].isObject()) {
         const auto res1 = fromJson<AgentCapabilities>("agentCapabilities", obj["agentCapabilities"]);
         if (!res1)
@@ -2859,15 +2919,17 @@ Utils::Result<SessionInfo> fromJson<SessionInfo>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     if (!obj.contains("cwd"))
         return Utils::ResultError("Missing required field: cwd");
+    if (!obj["cwd"].isString())
+        return Utils::ResultError("Invalid type for field: cwd");
     SessionInfo result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
     result._cwd = obj.value("cwd").toString();
     if (obj.contains("additionalDirectories") && obj["additionalDirectories"].isArray()) {
         const QJsonArray arr = obj["additionalDirectories"].toArray();
@@ -2920,8 +2982,10 @@ Utils::Result<ListSessionsResponse> fromJson<ListSessionsResponse>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessions"))
         return Utils::ResultError("Missing required field: sessions");
+    if (!obj["sessions"].isArray())
+        return Utils::ResultError("Invalid type for field: sessions");
     ListSessionsResponse result;
-    if (obj.contains("sessions") && obj["sessions"].isArray()) {
+    {
         const QJsonArray arr = obj["sessions"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<SessionInfo>("sessions", v);
@@ -2962,6 +3026,8 @@ Utils::Result<SessionConfigBoolean> fromJson<SessionConfigBoolean>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("currentValue"))
         return Utils::ResultError("Missing required field: currentValue");
+    if (!obj["currentValue"].isBool())
+        return Utils::ResultError("Invalid type for field: currentValue");
     SessionConfigBoolean result;
     result._currentValue = obj.value("currentValue").toBool();
     return result;
@@ -3010,15 +3076,17 @@ Utils::Result<SessionConfigSelectOption> fromJson<SessionConfigSelectOption>(con
     const QJsonObject obj = val.toObject();
     if (!obj.contains("value"))
         return Utils::ResultError("Missing required field: value");
+    if (!obj["value"].isString())
+        return Utils::ResultError("Invalid type for field: value");
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     SessionConfigSelectOption result;
-    if (obj.contains("value") && obj["value"].isString()) {
-        const auto res0 = fromJson<SessionConfigValueId>("value", obj["value"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._value = *res0;
-    }
+    const auto res0 = fromJson<SessionConfigValueId>("value", obj["value"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._value = *res0;
     result._name = obj.value("name").toString();
     if (obj.contains("description"))
         if (!obj["description"].isNull()) {
@@ -3052,19 +3120,23 @@ Utils::Result<SessionConfigSelectGroup> fromJson<SessionConfigSelectGroup>(const
     const QJsonObject obj = val.toObject();
     if (!obj.contains("group"))
         return Utils::ResultError("Missing required field: group");
+    if (!obj["group"].isString())
+        return Utils::ResultError("Invalid type for field: group");
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("options"))
         return Utils::ResultError("Missing required field: options");
+    if (!obj["options"].isArray())
+        return Utils::ResultError("Invalid type for field: options");
     SessionConfigSelectGroup result;
-    if (obj.contains("group") && obj["group"].isString()) {
-        const auto res0 = fromJson<SessionConfigGroupId>("group", obj["group"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._group = *res0;
-    }
+    const auto res0 = fromJson<SessionConfigGroupId>("group", obj["group"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._group = *res0;
     result._name = obj.value("name").toString();
-    if (obj.contains("options") && obj["options"].isArray()) {
+    {
         const QJsonArray arr = obj["options"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res1 = fromJson<SessionConfigSelectOption>("options", v);
@@ -3150,21 +3222,19 @@ Utils::Result<SessionConfigSelect> fromJson<SessionConfigSelect>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("currentValue"))
         return Utils::ResultError("Missing required field: currentValue");
+    if (!obj["currentValue"].isString())
+        return Utils::ResultError("Invalid type for field: currentValue");
     if (!obj.contains("options"))
         return Utils::ResultError("Missing required field: options");
     SessionConfigSelect result;
-    if (obj.contains("currentValue") && obj["currentValue"].isString()) {
-        const auto res0 = fromJson<SessionConfigValueId>("currentValue", obj["currentValue"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._currentValue = *res0;
-    }
-    if (obj.contains("options")) {
-        const auto res1 = fromJson<SessionConfigSelectOptions>("options", obj["options"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._options = *res1;
-    }
+    const auto res0 = fromJson<SessionConfigValueId>("currentValue", obj["currentValue"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._currentValue = *res0;
+    const auto res1 = fromJson<SessionConfigSelectOptions>("options", obj["options"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._options = *res1;
     return result;
 }
 
@@ -3185,15 +3255,17 @@ Utils::Result<SessionConfigOption> fromJson<SessionConfigOption>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("id"))
         return Utils::ResultError("Missing required field: id");
+    if (!obj["id"].isString())
+        return Utils::ResultError("Invalid type for field: id");
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     SessionConfigOption result;
-    if (obj.contains("id") && obj["id"].isString()) {
-        const auto res0 = fromJson<SessionConfigId>("id", obj["id"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._id = *res0;
-    }
+    const auto res0 = fromJson<SessionConfigId>("id", obj["id"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._id = *res0;
     result._name = obj.value("name").toString();
     if (obj.contains("description"))
         if (!obj["description"].isNull()) {
@@ -3244,15 +3316,17 @@ Utils::Result<SessionMode> fromJson<SessionMode>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("id"))
         return Utils::ResultError("Missing required field: id");
+    if (!obj["id"].isString())
+        return Utils::ResultError("Invalid type for field: id");
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     SessionMode result;
-    if (obj.contains("id") && obj["id"].isString()) {
-        const auto res0 = fromJson<SessionModeId>("id", obj["id"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._id = *res0;
-    }
+    const auto res0 = fromJson<SessionModeId>("id", obj["id"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._id = *res0;
     result._name = obj.value("name").toString();
     if (obj.contains("description"))
         if (!obj["description"].isNull()) {
@@ -3286,16 +3360,18 @@ Utils::Result<SessionModeState> fromJson<SessionModeState>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("currentModeId"))
         return Utils::ResultError("Missing required field: currentModeId");
+    if (!obj["currentModeId"].isString())
+        return Utils::ResultError("Invalid type for field: currentModeId");
     if (!obj.contains("availableModes"))
         return Utils::ResultError("Missing required field: availableModes");
+    if (!obj["availableModes"].isArray())
+        return Utils::ResultError("Invalid type for field: availableModes");
     SessionModeState result;
-    if (obj.contains("currentModeId") && obj["currentModeId"].isString()) {
-        const auto res0 = fromJson<SessionModeId>("currentModeId", obj["currentModeId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._currentModeId = *res0;
-    }
-    if (obj.contains("availableModes") && obj["availableModes"].isArray()) {
+    const auto res0 = fromJson<SessionModeId>("currentModeId", obj["currentModeId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._currentModeId = *res0;
+    {
         const QJsonArray arr = obj["availableModes"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res1 = fromJson<SessionMode>("availableModes", v);
@@ -3388,13 +3464,13 @@ Utils::Result<NewSessionResponse> fromJson<NewSessionResponse>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     NewSessionResponse result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
     if (obj.contains("modes") && !obj["modes"].isNull()) {
         const auto res1 = fromJson<SessionModeState>("modes", obj["modes"]);
         if (!res1)
@@ -3527,8 +3603,10 @@ Utils::Result<SetSessionConfigOptionResponse> fromJson<SetSessionConfigOptionRes
     const QJsonObject obj = val.toObject();
     if (!obj.contains("configOptions"))
         return Utils::ResultError("Missing required field: configOptions");
+    if (!obj["configOptions"].isArray())
+        return Utils::ResultError("Invalid type for field: configOptions");
     SetSessionConfigOptionResponse result;
-    if (obj.contains("configOptions") && obj["configOptions"].isArray()) {
+    {
         const QJsonArray arr = obj["configOptions"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<SessionConfigOption>("configOptions", v);
@@ -3602,13 +3680,13 @@ Utils::Result<CompleteElicitationNotification> fromJson<CompleteElicitationNotif
     const QJsonObject obj = val.toObject();
     if (!obj.contains("elicitationId"))
         return Utils::ResultError("Missing required field: elicitationId");
+    if (!obj["elicitationId"].isString())
+        return Utils::ResultError("Invalid type for field: elicitationId");
     CompleteElicitationNotification result;
-    if (obj.contains("elicitationId") && obj["elicitationId"].isString()) {
-        const auto res0 = fromJson<ElicitationId>("elicitationId", obj["elicitationId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._elicitationId = *res0;
-    }
+    const auto res0 = fromJson<ElicitationId>("elicitationId", obj["elicitationId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._elicitationId = *res0;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -3632,6 +3710,8 @@ Utils::Result<UnstructuredCommandInput> fromJson<UnstructuredCommandInput>(const
     const QJsonObject obj = val.toObject();
     if (!obj.contains("hint"))
         return Utils::ResultError("Missing required field: hint");
+    if (!obj["hint"].isString())
+        return Utils::ResultError("Invalid type for field: hint");
     UnstructuredCommandInput result;
     result._hint = obj.value("hint").toString();
     if (obj.contains("_meta"))
@@ -3694,8 +3774,12 @@ Utils::Result<AvailableCommand> fromJson<AvailableCommand>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("description"))
         return Utils::ResultError("Missing required field: description");
+    if (!obj["description"].isString())
+        return Utils::ResultError("Invalid type for field: description");
     AvailableCommand result;
     result._name = obj.value("name").toString();
     result._description = obj.value("description").toString();
@@ -3733,8 +3817,10 @@ Utils::Result<AvailableCommandsUpdate> fromJson<AvailableCommandsUpdate>(const Q
     const QJsonObject obj = val.toObject();
     if (!obj.contains("availableCommands"))
         return Utils::ResultError("Missing required field: availableCommands");
+    if (!obj["availableCommands"].isArray())
+        return Utils::ResultError("Invalid type for field: availableCommands");
     AvailableCommandsUpdate result;
-    if (obj.contains("availableCommands") && obj["availableCommands"].isArray()) {
+    {
         const QJsonArray arr = obj["availableCommands"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<AvailableCommand>("availableCommands", v);
@@ -3769,8 +3855,10 @@ Utils::Result<ConfigOptionUpdate> fromJson<ConfigOptionUpdate>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("configOptions"))
         return Utils::ResultError("Missing required field: configOptions");
+    if (!obj["configOptions"].isArray())
+        return Utils::ResultError("Invalid type for field: configOptions");
     ConfigOptionUpdate result;
-    if (obj.contains("configOptions") && obj["configOptions"].isArray()) {
+    {
         const QJsonArray arr = obj["configOptions"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<SessionConfigOption>("configOptions", v);
@@ -3806,12 +3894,10 @@ Utils::Result<ContentChunk> fromJson<ContentChunk>(const QJsonValue &val)
     if (!obj.contains("content"))
         return Utils::ResultError("Missing required field: content");
     ContentChunk result;
-    if (obj.contains("content")) {
-        const auto res0 = fromJson<ContentBlock>("content", obj["content"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._content = *res0;
-    }
+    const auto res0 = fromJson<ContentBlock>("content", obj["content"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._content = *res0;
     if (obj.contains("messageId") && !obj["messageId"].isNull()) {
         const auto res1 = fromJson<MessageId>("messageId", obj["messageId"]);
         if (!res1)
@@ -3843,13 +3929,13 @@ Utils::Result<CurrentModeUpdate> fromJson<CurrentModeUpdate>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("currentModeId"))
         return Utils::ResultError("Missing required field: currentModeId");
+    if (!obj["currentModeId"].isString())
+        return Utils::ResultError("Invalid type for field: currentModeId");
     CurrentModeUpdate result;
-    if (obj.contains("currentModeId") && obj["currentModeId"].isString()) {
-        const auto res0 = fromJson<SessionModeId>("currentModeId", obj["currentModeId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._currentModeId = *res0;
-    }
+    const auto res0 = fromJson<SessionModeId>("currentModeId", obj["currentModeId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._currentModeId = *res0;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -3927,6 +4013,8 @@ Utils::Result<PlanEntry> fromJson<PlanEntry>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("content"))
         return Utils::ResultError("Missing required field: content");
+    if (!obj["content"].isString())
+        return Utils::ResultError("Invalid type for field: content");
     if (!obj.contains("priority"))
         return Utils::ResultError("Missing required field: priority");
     if (!obj.contains("status"))
@@ -3968,8 +4056,10 @@ Utils::Result<Plan> fromJson<Plan>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("entries"))
         return Utils::ResultError("Missing required field: entries");
+    if (!obj["entries"].isArray())
+        return Utils::ResultError("Invalid type for field: entries");
     Plan result;
-    if (obj.contains("entries") && obj["entries"].isArray()) {
+    {
         const QJsonArray arr = obj["entries"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<PlanEntry>("entries", v);
@@ -4038,15 +4128,17 @@ Utils::Result<ToolCall> fromJson<ToolCall>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("toolCallId"))
         return Utils::ResultError("Missing required field: toolCallId");
+    if (!obj["toolCallId"].isString())
+        return Utils::ResultError("Invalid type for field: toolCallId");
     if (!obj.contains("title"))
         return Utils::ResultError("Missing required field: title");
+    if (!obj["title"].isString())
+        return Utils::ResultError("Invalid type for field: title");
     ToolCall result;
-    if (obj.contains("toolCallId") && obj["toolCallId"].isString()) {
-        const auto res0 = fromJson<ToolCallId>("toolCallId", obj["toolCallId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._toolCallId = *res0;
-    }
+    const auto res0 = fromJson<ToolCallId>("toolCallId", obj["toolCallId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._toolCallId = *res0;
     result._title = obj.value("title").toString();
     if (obj.contains("kind")) {
         const auto res1 = fromJson<ToolKind>("kind", obj["kind"]);
@@ -4130,8 +4222,12 @@ Utils::Result<Cost> fromJson<Cost>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("amount"))
         return Utils::ResultError("Missing required field: amount");
+    if (!obj["amount"].isDouble())
+        return Utils::ResultError("Invalid type for field: amount");
     if (!obj.contains("currency"))
         return Utils::ResultError("Missing required field: currency");
+    if (!obj["currency"].isString())
+        return Utils::ResultError("Invalid type for field: currency");
     Cost result;
     result._amount = obj.value("amount").toDouble();
     result._currency = obj.value("currency").toString();
@@ -4161,8 +4257,12 @@ Utils::Result<UsageUpdate> fromJson<UsageUpdate>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("used"))
         return Utils::ResultError("Missing required field: used");
+    if (!obj["used"].isDouble())
+        return Utils::ResultError("Invalid type for field: used");
     if (!obj.contains("size"))
         return Utils::ResultError("Missing required field: size");
+    if (!obj["size"].isDouble())
+        return Utils::ResultError("Invalid type for field: size");
     UsageUpdate result;
     result._used = obj.value("used").toInt();
     result._size = obj.value("size").toInt();
@@ -4294,21 +4394,19 @@ Utils::Result<SessionNotification> fromJson<SessionNotification>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     if (!obj.contains("update"))
         return Utils::ResultError("Missing required field: update");
     SessionNotification result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
-    if (obj.contains("update")) {
-        const auto res1 = fromJson<SessionUpdate>("update", obj["update"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._update = *res1;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
+    const auto res1 = fromJson<SessionUpdate>("update", obj["update"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._update = *res1;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -4335,6 +4433,8 @@ Utils::Result<AgentNotification> fromJson<AgentNotification>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("method"))
         return Utils::ResultError("Missing required field: method");
+    if (!obj["method"].isString())
+        return Utils::ResultError("Invalid type for field: method");
     AgentNotification result;
     result._method = obj.value("method").toString();
     if (obj.contains("params"))
@@ -4358,13 +4458,13 @@ Utils::Result<AuthenticateRequest> fromJson<AuthenticateRequest>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("methodId"))
         return Utils::ResultError("Missing required field: methodId");
+    if (!obj["methodId"].isString())
+        return Utils::ResultError("Invalid type for field: methodId");
     AuthenticateRequest result;
-    if (obj.contains("methodId") && obj["methodId"].isString()) {
-        const auto res0 = fromJson<AuthMethodId>("methodId", obj["methodId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._methodId = *res0;
-    }
+    const auto res0 = fromJson<AuthMethodId>("methodId", obj["methodId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._methodId = *res0;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -4388,13 +4488,13 @@ Utils::Result<CloseSessionRequest> fromJson<CloseSessionRequest>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     CloseSessionRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -4418,13 +4518,13 @@ Utils::Result<DeleteSessionRequest> fromJson<DeleteSessionRequest>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     DeleteSessionRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -4726,13 +4826,13 @@ Utils::Result<InitializeRequest> fromJson<InitializeRequest>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("protocolVersion"))
         return Utils::ResultError("Missing required field: protocolVersion");
+    if (!obj["protocolVersion"].isDouble())
+        return Utils::ResultError("Invalid type for field: protocolVersion");
     InitializeRequest result;
-    if (obj.contains("protocolVersion") && obj["protocolVersion"].isDouble()) {
-        const auto res0 = fromJson<ProtocolVersion>("protocolVersion", obj["protocolVersion"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._protocolVersion = *res0;
-    }
+    const auto res0 = fromJson<ProtocolVersion>("protocolVersion", obj["protocolVersion"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._protocolVersion = *res0;
     if (obj.contains("clientCapabilities") && obj["clientCapabilities"].isObject()) {
         const auto res1 = fromJson<ClientCapabilities>("clientCapabilities", obj["clientCapabilities"]);
         if (!res1)
@@ -4806,8 +4906,12 @@ Utils::Result<HttpHeader> fromJson<HttpHeader>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("value"))
         return Utils::ResultError("Missing required field: value");
+    if (!obj["value"].isString())
+        return Utils::ResultError("Invalid type for field: value");
     HttpHeader result;
     result._name = obj.value("name").toString();
     result._value = obj.value("value").toString();
@@ -4837,14 +4941,20 @@ Utils::Result<McpServerHttp> fromJson<McpServerHttp>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("url"))
         return Utils::ResultError("Missing required field: url");
+    if (!obj["url"].isString())
+        return Utils::ResultError("Invalid type for field: url");
     if (!obj.contains("headers"))
         return Utils::ResultError("Missing required field: headers");
+    if (!obj["headers"].isArray())
+        return Utils::ResultError("Invalid type for field: headers");
     McpServerHttp result;
     result._name = obj.value("name").toString();
     result._url = obj.value("url").toString();
-    if (obj.contains("headers") && obj["headers"].isArray()) {
+    {
         const QJsonArray arr = obj["headers"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<HttpHeader>("headers", v);
@@ -4882,14 +4992,20 @@ Utils::Result<McpServerSse> fromJson<McpServerSse>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("url"))
         return Utils::ResultError("Missing required field: url");
+    if (!obj["url"].isString())
+        return Utils::ResultError("Invalid type for field: url");
     if (!obj.contains("headers"))
         return Utils::ResultError("Missing required field: headers");
+    if (!obj["headers"].isArray())
+        return Utils::ResultError("Invalid type for field: headers");
     McpServerSse result;
     result._name = obj.value("name").toString();
     result._url = obj.value("url").toString();
-    if (obj.contains("headers") && obj["headers"].isArray()) {
+    {
         const QJsonArray arr = obj["headers"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<HttpHeader>("headers", v);
@@ -4927,22 +5043,30 @@ Utils::Result<McpServerStdio> fromJson<McpServerStdio>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("command"))
         return Utils::ResultError("Missing required field: command");
+    if (!obj["command"].isString())
+        return Utils::ResultError("Invalid type for field: command");
     if (!obj.contains("args"))
         return Utils::ResultError("Missing required field: args");
+    if (!obj["args"].isArray())
+        return Utils::ResultError("Invalid type for field: args");
     if (!obj.contains("env"))
         return Utils::ResultError("Missing required field: env");
+    if (!obj["env"].isArray())
+        return Utils::ResultError("Invalid type for field: env");
     McpServerStdio result;
     result._name = obj.value("name").toString();
     result._command = obj.value("command").toString();
-    if (obj.contains("args") && obj["args"].isArray()) {
+    {
         const QJsonArray arr = obj["args"].toArray();
         for (const QJsonValue &v : arr) {
             result._args.append(v.toString());
         }
     }
-    if (obj.contains("env") && obj["env"].isArray()) {
+    {
         const QJsonArray arr = obj["env"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<EnvVariable>("env", v);
@@ -5045,12 +5169,18 @@ Utils::Result<LoadSessionRequest> fromJson<LoadSessionRequest>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("mcpServers"))
         return Utils::ResultError("Missing required field: mcpServers");
+    if (!obj["mcpServers"].isArray())
+        return Utils::ResultError("Invalid type for field: mcpServers");
     if (!obj.contains("cwd"))
         return Utils::ResultError("Missing required field: cwd");
+    if (!obj["cwd"].isString())
+        return Utils::ResultError("Invalid type for field: cwd");
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     LoadSessionRequest result;
-    if (obj.contains("mcpServers") && obj["mcpServers"].isArray()) {
+    {
         const QJsonArray arr = obj["mcpServers"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<McpServer>("mcpServers", v);
@@ -5068,12 +5198,10 @@ Utils::Result<LoadSessionRequest> fromJson<LoadSessionRequest>(const QJsonValue 
         }
         result._additionalDirectories = list_additionalDirectories;
     }
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res1 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._sessionId = *res1;
-    }
+    const auto res1 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._sessionId = *res1;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -5130,8 +5258,12 @@ Utils::Result<NewSessionRequest> fromJson<NewSessionRequest>(const QJsonValue &v
     const QJsonObject obj = val.toObject();
     if (!obj.contains("cwd"))
         return Utils::ResultError("Missing required field: cwd");
+    if (!obj["cwd"].isString())
+        return Utils::ResultError("Invalid type for field: cwd");
     if (!obj.contains("mcpServers"))
         return Utils::ResultError("Missing required field: mcpServers");
+    if (!obj["mcpServers"].isArray())
+        return Utils::ResultError("Invalid type for field: mcpServers");
     NewSessionRequest result;
     result._cwd = obj.value("cwd").toString();
     if (obj.contains("additionalDirectories") && obj["additionalDirectories"].isArray()) {
@@ -5142,7 +5274,7 @@ Utils::Result<NewSessionRequest> fromJson<NewSessionRequest>(const QJsonValue &v
         }
         result._additionalDirectories = list_additionalDirectories;
     }
-    if (obj.contains("mcpServers") && obj["mcpServers"].isArray()) {
+    {
         const QJsonArray arr = obj["mcpServers"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<McpServer>("mcpServers", v);
@@ -5182,16 +5314,18 @@ Utils::Result<PromptRequest> fromJson<PromptRequest>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     if (!obj.contains("prompt"))
         return Utils::ResultError("Missing required field: prompt");
+    if (!obj["prompt"].isArray())
+        return Utils::ResultError("Invalid type for field: prompt");
     PromptRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
-    if (obj.contains("prompt") && obj["prompt"].isArray()) {
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
+    {
         const QJsonArray arr = obj["prompt"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res1 = fromJson<ContentBlock>("prompt", v);
@@ -5226,15 +5360,17 @@ Utils::Result<ResumeSessionRequest> fromJson<ResumeSessionRequest>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     if (!obj.contains("cwd"))
         return Utils::ResultError("Missing required field: cwd");
+    if (!obj["cwd"].isString())
+        return Utils::ResultError("Invalid type for field: cwd");
     ResumeSessionRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
     result._cwd = obj.value("cwd").toString();
     if (obj.contains("additionalDirectories") && obj["additionalDirectories"].isArray()) {
         const QJsonArray arr = obj["additionalDirectories"].toArray();
@@ -5291,21 +5427,21 @@ Utils::Result<SetSessionConfigOptionRequest> fromJson<SetSessionConfigOptionRequ
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     if (!obj.contains("configId"))
         return Utils::ResultError("Missing required field: configId");
+    if (!obj["configId"].isString())
+        return Utils::ResultError("Invalid type for field: configId");
     SetSessionConfigOptionRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
-    if (obj.contains("configId") && obj["configId"].isString()) {
-        const auto res1 = fromJson<SessionConfigId>("configId", obj["configId"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._configId = *res1;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
+    const auto res1 = fromJson<SessionConfigId>("configId", obj["configId"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._configId = *res1;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -5341,21 +5477,21 @@ Utils::Result<SetSessionModeRequest> fromJson<SetSessionModeRequest>(const QJson
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     if (!obj.contains("modeId"))
         return Utils::ResultError("Missing required field: modeId");
+    if (!obj["modeId"].isString())
+        return Utils::ResultError("Invalid type for field: modeId");
     SetSessionModeRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
-    if (obj.contains("modeId") && obj["modeId"].isString()) {
-        const auto res1 = fromJson<SessionModeId>("modeId", obj["modeId"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._modeId = *res1;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
+    const auto res1 = fromJson<SessionModeId>("modeId", obj["modeId"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._modeId = *res1;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -5384,13 +5520,13 @@ Utils::Result<ClientRequest> fromJson<ClientRequest>(const QJsonValue &val)
         return Utils::ResultError("Missing required field: id");
     if (!obj.contains("method"))
         return Utils::ResultError("Missing required field: method");
+    if (!obj["method"].isString())
+        return Utils::ResultError("Invalid type for field: method");
     ClientRequest result;
-    if (obj.contains("id")) {
-        const auto res0 = fromJson<RequestId>("id", obj["id"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._id = *res0;
-    }
+    const auto res0 = fromJson<RequestId>("id", obj["id"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._id = *res0;
     result._method = obj.value("method").toString();
     if (obj.contains("params"))
         result._params = obj.value("params").toString();
@@ -5511,13 +5647,13 @@ Utils::Result<CreateTerminalResponse> fromJson<CreateTerminalResponse>(const QJs
     const QJsonObject obj = val.toObject();
     if (!obj.contains("terminalId"))
         return Utils::ResultError("Missing required field: terminalId");
+    if (!obj["terminalId"].isString())
+        return Utils::ResultError("Invalid type for field: terminalId");
     CreateTerminalResponse result;
-    if (obj.contains("terminalId") && obj["terminalId"].isString()) {
-        const auto res0 = fromJson<TerminalId>("terminalId", obj["terminalId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._terminalId = *res0;
-    }
+    const auto res0 = fromJson<TerminalId>("terminalId", obj["terminalId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._terminalId = *res0;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -5563,6 +5699,8 @@ Utils::Result<ReadTextFileResponse> fromJson<ReadTextFileResponse>(const QJsonVa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("content"))
         return Utils::ResultError("Missing required field: content");
+    if (!obj["content"].isString())
+        return Utils::ResultError("Invalid type for field: content");
     ReadTextFileResponse result;
     result._content = obj.value("content").toString();
     if (obj.contains("_meta"))
@@ -5610,13 +5748,13 @@ Utils::Result<SelectedPermissionOutcome> fromJson<SelectedPermissionOutcome>(con
     const QJsonObject obj = val.toObject();
     if (!obj.contains("optionId"))
         return Utils::ResultError("Missing required field: optionId");
+    if (!obj["optionId"].isString())
+        return Utils::ResultError("Invalid type for field: optionId");
     SelectedPermissionOutcome result;
-    if (obj.contains("optionId") && obj["optionId"].isString()) {
-        const auto res0 = fromJson<PermissionOptionId>("optionId", obj["optionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._optionId = *res0;
-    }
+    const auto res0 = fromJson<PermissionOptionId>("optionId", obj["optionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._optionId = *res0;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -5679,12 +5817,10 @@ Utils::Result<RequestPermissionResponse> fromJson<RequestPermissionResponse>(con
     if (!obj.contains("outcome"))
         return Utils::ResultError("Missing required field: outcome");
     RequestPermissionResponse result;
-    if (obj.contains("outcome")) {
-        const auto res0 = fromJson<RequestPermissionOutcome>("outcome", obj["outcome"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._outcome = *res0;
-    }
+    const auto res0 = fromJson<RequestPermissionOutcome>("outcome", obj["outcome"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._outcome = *res0;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -5742,8 +5878,12 @@ Utils::Result<TerminalOutputResponse> fromJson<TerminalOutputResponse>(const QJs
     const QJsonObject obj = val.toObject();
     if (!obj.contains("output"))
         return Utils::ResultError("Missing required field: output");
+    if (!obj["output"].isString())
+        return Utils::ResultError("Invalid type for field: output");
     if (!obj.contains("truncated"))
         return Utils::ResultError("Missing required field: truncated");
+    if (!obj["truncated"].isBool())
+        return Utils::ResultError("Invalid type for field: truncated");
     TerminalOutputResponse result;
     result._output = obj.value("output").toString();
     result._truncated = obj.value("truncated").toBool();
@@ -5837,13 +5977,13 @@ Utils::Result<CancelNotification> fromJson<CancelNotification>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
         return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
     CancelNotification result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
-        const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._sessionId = *res0;
-    }
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -5867,6 +6007,8 @@ Utils::Result<ClientNotification> fromJson<ClientNotification>(const QJsonValue 
     const QJsonObject obj = val.toObject();
     if (!obj.contains("method"))
         return Utils::ResultError("Missing required field: method");
+    if (!obj["method"].isString())
+        return Utils::ResultError("Invalid type for field: method");
     ClientNotification result;
     result._method = obj.value("method").toString();
     if (obj.contains("params"))
@@ -5891,12 +6033,10 @@ Utils::Result<CancelRequestNotification> fromJson<CancelRequestNotification>(con
     if (!obj.contains("requestId"))
         return Utils::ResultError("Missing required field: requestId");
     CancelRequestNotification result;
-    if (obj.contains("requestId")) {
-        const auto res0 = fromJson<RequestId>("requestId", obj["requestId"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._requestId = *res0;
-    }
+    const auto res0 = fromJson<RequestId>("requestId", obj["requestId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._requestId = *res0;
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();

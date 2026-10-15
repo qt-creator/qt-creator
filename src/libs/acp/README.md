@@ -13,7 +13,8 @@ python scripts/generate_cpp_from_schema.py \
     --namespace Acp \
     --cpp-output src/libs/acp/acp.cpp \
     --export-macro ACPLIB_EXPORT \
-    --export-header acp_global.h
+    --export-header acp_global.h \
+    --no-cxx20
 
 # Protocol v2 (namespace Acp::V2)
 python scripts/generate_cpp_from_schema.py \
@@ -22,7 +23,8 @@ python scripts/generate_cpp_from_schema.py \
     --cpp-output src/libs/acp/acpv2.cpp \
     --export-macro ACPLIB_EXPORT \
     --export-header acp_global.h \
-    --three-state
+    --three-state \
+    --no-cxx20
 ```
 
 `schema-v2.json` is the stable v2 baseline from the upstream

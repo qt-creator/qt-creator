@@ -52,11 +52,13 @@ private slots:
     void cursorPositions();
     void positionWithOffset();
     void selectionRange();
-    void malformedFieldTolerated();
+    void malformedFieldRejected();
+    void requiredFieldAlternativeShapesAccepted();
     void enumValues();
     void constFieldMismatch();
     void discriminatedUnion();
     void untaggedUnionMismatch();
+    void commandOrCodeAction();
     void documentSelector();
     void workspaceEditChanges();
     void recursiveType();
@@ -392,17 +394,41 @@ void tst_LanguageServerProtocol::nestedParseErrorPropagates()
     QCOMPARE(workspaceEdit.error(), QString("Missing required field: range"));
 }
 
-void tst_LanguageServerProtocol::malformedFieldTolerated()
+void tst_LanguageServerProtocol::malformedFieldRejected()
 {
     const Utils::Result<Location> location = fromJson<Location>(
         QJsonObject{{"uri", "file:///tmp/test.cpp"}, {"range", "not a range"}});
-    QEXPECT_FAIL("", "a required field of the wrong JSON type is silently left default", Continue);
     QVERIFY(!location);
+    QCOMPARE(location.error(), QString("Invalid type for field: range"));
 
     const Utils::Result<Position> position = fromJson<Position>(
         QJsonObject{{"line", "1"}, {"character", 2}});
-    QEXPECT_FAIL("", "a required field of the wrong JSON type is silently left default", Continue);
     QVERIFY(!position);
+    QCOMPARE(position.error(), QString("Invalid type for field: line"));
+}
+
+void tst_LanguageServerProtocol::requiredFieldAlternativeShapesAccepted()
+{
+    const Utils::Result<ImplementationRegistrationOptions> nullSelector
+        = fromJson<ImplementationRegistrationOptions>(
+            QJsonObject{{"documentSelector", QJsonValue(QJsonValue::Null)}});
+    QVERIFY_RESULT(nullSelector);
+    QVERIFY(!nullSelector->documentSelector().has_value());
+
+    const Utils::Result<ProgressParams> numberToken = fromJson<ProgressParams>(
+        QJsonObject{{"token", 42}, {"value", "payload"}});
+    QVERIFY_RESULT(numberToken);
+    QCOMPARE(std::get<int>(numberToken->token()), 42);
+
+    const Utils::Result<ProgressParams> stringToken = fromJson<ProgressParams>(
+        QJsonObject{{"token", "a token"}, {"value", QJsonObject{{"kind", "begin"}}}});
+    QVERIFY_RESULT(stringToken);
+    QCOMPARE(std::get<QString>(stringToken->token()), QString("a token"));
+
+    const Utils::Result<MarkupContent> markup = fromJson<MarkupContent>(
+        QJsonObject{{"kind", "plaintext"}, {"value", "text"}});
+    QVERIFY_RESULT(markup);
+    QVERIFY(markup->kind() == MarkupKind::plaintext);
 }
 
 void tst_LanguageServerProtocol::enumValues()
@@ -474,6 +500,27 @@ void tst_LanguageServerProtocol::untaggedUnionMismatch()
     QCOMPARE(noRange.error(), QString("Invalid Definition"));
 
     QVERIFY(!fromJson<HoverRequestResult>(QJsonObject{{"value", "hover"}}));
+}
+
+void tst_LanguageServerProtocol::commandOrCodeAction()
+{
+    const QJsonObject commandObject{{"title", "Apply fix"},
+                                    {"command", "clangd.applyFix"},
+                                    {"arguments", QJsonArray{"argument"}}};
+
+    const Utils::Result<CommandOrCodeAction> command = fromJson<CommandOrCodeAction>(commandObject);
+    QVERIFY_RESULT(command);
+    const auto parsedCommand = std::get_if<Command>(&*command);
+    QVERIFY(parsedCommand);
+    QCOMPARE(parsedCommand->command(), QString("clangd.applyFix"));
+
+    const Utils::Result<CommandOrCodeAction> action = fromJson<CommandOrCodeAction>(
+        QJsonObject{{"title", "Apply fix"}, {"kind", "quickfix"}, {"command", commandObject}});
+    QVERIFY_RESULT(action);
+    const auto parsedAction = std::get_if<CodeAction>(&*action);
+    QVERIFY(parsedAction);
+    QVERIFY(parsedAction->command().has_value());
+    QCOMPARE(parsedAction->command()->command(), QString("clangd.applyFix"));
 }
 
 void tst_LanguageServerProtocol::documentSelector()
