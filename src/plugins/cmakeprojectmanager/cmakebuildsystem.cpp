@@ -36,6 +36,8 @@
 
 #include <ios/iosconstants.h>
 
+#include <java/javaconstants.h>
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
@@ -3827,6 +3829,67 @@ void CMakeBuildSystem::updateFallbackProjectData()
     updateInitialCMakeExpandableVars();
 }
 
+class JavaExtraData
+{
+public:
+    QVariant sources;
+    QVariant classPath;
+};
+
+/*!
+    Returns what the Java support of the IDE reads off the target named \a
+    title to tell a language server where the Java of that target is: the
+    sources and the class path of the jar it builds, out of \a javaTargets.
+
+    A target that builds no jar says so with nothing to read rather than with
+    nothing at all. The extra data of a target outlives the parse that wrote
+    it, so a target that stopped building a jar - or a project whose helper
+    stopped writing one - would go on handing out what it said when it still
+    did.
+*/
+static JavaExtraData javaExtraData(const QList<CMakeJavaTarget> &javaTargets, const QString &title)
+{
+    const auto javaTarget = std::find_if(javaTargets.cbegin(),
+                                         javaTargets.cend(),
+                                         [&title](const CMakeJavaTarget &jt) {
+                                             return jt.name == title;
+                                         });
+    if (javaTarget == javaTargets.cend())
+        return {};
+    return {javaTarget->sources.toFsPathStrings(), javaTarget->classPath.toFsPathStrings()};
+}
+
+#ifdef WITH_TESTS
+class JavaExtraDataTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test()
+    {
+        CMakeJavaTarget jt;
+        jt.name = "hello";
+        jt.sources = {"/s/Hello.java"};
+        jt.classPath = {"/s/lib.jar"};
+
+        const JavaExtraData java = javaExtraData({jt}, "hello");
+        QCOMPARE(java.sources.toStringList(), QStringList{"/s/Hello.java"});
+        QCOMPARE(java.classPath.toStringList(), QStringList{"/s/lib.jar"});
+
+        // A target that builds no jar has to say it: what it said while it
+        // still built one stays on it otherwise.
+        const JavaExtraData none = javaExtraData({jt}, "app");
+        QVERIFY(none.sources.toStringList().isEmpty());
+        QVERIFY(none.classPath.toStringList().isEmpty());
+    }
+};
+
+QObject *createJavaExtraDataTest()
+{
+    return new JavaExtraDataTest;
+}
+#endif
+
 void CMakeBuildSystem::updateExtraData()
 {
     // Data formerly served on demand from CMakeTargetNode::data(). The config
@@ -3875,6 +3938,10 @@ void CMakeBuildSystem::updateExtraData()
         setExtraData(ct.title, Android::Constants::AndroidPackageSourceDir, androidPackageSourceDir);
         setExtraData(ct.title, "QML_IMPORT_PATH", qmlImportPath);
         setExtraData(ct.title, "QML_ROOT_PATH", qmlRootPath);
+
+        const JavaExtraData java = javaExtraData(m_javaTargets, ct.title);
+        setExtraData(ct.title, Java::Constants::JavaSourceFiles, java.sources);
+        setExtraData(ct.title, Java::Constants::JavaClassPath, java.classPath);
 
         if (ct.artifact.isEmpty())
             continue;

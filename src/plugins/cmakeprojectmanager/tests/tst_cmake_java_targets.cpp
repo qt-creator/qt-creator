@@ -6,6 +6,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
@@ -32,20 +33,23 @@ static bool write(const FilePath &file, const QByteArray &contents)
 
 // What cmake-helper/java-targets.cmake writes for a project with one add_jar()
 // target: a path of either tree relative to the top of that tree, the way the
-// file API reports its own.
-static QByteArray helperOutput()
+// file API reports its own, and one outside them as it stands.
+static QByteArray helperOutput(const QString &outsideTheTrees)
 {
-    return QByteArray(R"({
+    return QString(R"({
   "targets": [
     {
       "name": "hello",
       "jar": "hello.jar",
       "sourceDirectory": ".",
-      "sources": ["Hello.java", "sub/Other.java"]
+      "sources": ["Hello.java", "sub/Other.java"],
+      "classPath": ["lib.jar", "%1"]
     }
   ]
 }
-)");
+)")
+        .arg(outsideTheTrees)
+        .toUtf8();
 }
 
 class tst_CMakeJavaTargets : public QObject
@@ -63,6 +67,7 @@ private slots:
     void dropsEntriesWithoutANameOrAJar();
     void keepsThePathsOnTheBuildDevice();
     void readsAnAddJarProject();
+    void readsTheClassPathOfEachAddJarCall();
     void readsASourceWithANonAsciiPath();
 
 private:
@@ -105,7 +110,8 @@ void tst_CMakeJavaTargets::readsWhatTheHelperWrote()
 {
     const FilePath source = m_directory / "source";
     const FilePath build = m_directory / "build";
-    QVERIFY(write(javaTargetsFile(build), helperOutput()));
+    const FilePath outside = m_directory / "elsewhere" / "ext.jar";
+    QVERIFY(write(javaTargetsFile(build), helperOutput(outside.path())));
 
     const QList<CMakeJavaTarget> targets = readJavaTargets(source, build);
     QCOMPARE(targets.size(), 1);
@@ -114,6 +120,8 @@ void tst_CMakeJavaTargets::readsWhatTheHelperWrote()
     QCOMPARE(targets.first().sourceDirectory, source);
     QCOMPARE(targets.first().sources,
              FilePaths({source / "Hello.java", source / "sub/Other.java"}));
+    // What is in neither tree is written as it stands, and stays where it is.
+    QCOMPARE(targets.first().classPath, FilePaths({source / "lib.jar", outside}));
 }
 
 void tst_CMakeJavaTargets::readsNothingWithoutAFile()
@@ -160,13 +168,20 @@ void tst_CMakeJavaTargets::keepsThePathsOnTheBuildDevice()
         = FilePath::fromParts(u"device", u"build-host", (m_directory / "build").path());
     const FilePath sourceDirectory
         = FilePath::fromParts(u"device", u"build-host", (m_directory / "source").path());
-    QVERIFY(write(javaTargetsFile(m_directory / "build"), helperOutput()));
+    QVERIFY(write(javaTargetsFile(m_directory / "build"),
+                  helperOutput((m_directory / "ext.jar").path())));
 
     const QList<CMakeJavaTarget> targets = readJavaTargets(sourceDirectory, buildDirectory);
     QCOMPARE(targets.size(), 1);
     for (const FilePath &path : QList<FilePath>{targets.first().jar,
                                                 targets.first().sourceDirectory,
-                                                targets.first().sources.first()}) {
+                                                targets.first().sources.first(),
+                                                targets.first().classPath.first(),
+                                                // The one outside both trees, which the helper
+                                                // wrote as the absolute path it is: it keeps the
+                                                // device only if resolving one against a
+                                                // directory of that device does.
+                                                targets.first().classPath.last()}) {
         QCOMPARE(path.scheme(), QString("device"));
         QCOMPARE(path.host(), QString("build-host"));
     }
@@ -191,32 +206,40 @@ static bool canConfigureAnAddJarProject()
     return version.result() == ProcessResult::FinishedWithSuccess;
 }
 
-// Configures a project with one add_jar() target that compiles \a sourceFile,
-// spelled the way the project spells it, and returns what the helper recorded.
-static Result<QList<CMakeJavaTarget>> configureAddJarProject(const FilePath &source,
-                                                             const FilePath &build,
-                                                             const QString &sourceFile)
+// Configures a project whose body is \a body, with a class of its own under
+// each of \a sourceFiles, spelled the way the project spells them, and returns
+// what the helper recorded.
+static Result<QList<CMakeJavaTarget>> configureProject(const FilePath &source,
+                                                       const FilePath &build,
+                                                       const QString &body,
+                                                       const QStringList &sourceFiles)
 {
-    const FilePath java = source / sourceFile;
-    if (!java.parentDir().ensureWritableDir())
-        return ResultError(QString("Cannot create \"%1\"").arg(java.parentDir().toUserOutput()));
+    if (!source.ensureWritableDir())
+        return ResultError(QString("Cannot create \"%1\"").arg(source.toUserOutput()));
     if (const Result<qint64> written = (source / "CMakeLists.txt")
             .writeFileContents(QString("cmake_minimum_required(VERSION 3.19)\n"
                                        "project(jars LANGUAGES NONE)\n"
                                        "find_package(Java REQUIRED COMPONENTS Development)\n"
                                        "include(UseJava)\n"
-                                       "add_jar(hello SOURCES %1)\n")
-                                   .arg(sourceFile)
+                                       "%1")
+                                   .arg(body)
                                    .toUtf8());
         !written) {
         return ResultError(written.error());
     }
-    if (const Result<qint64> written = java.writeFileContents(
-            "public class Hello {\n"
-            "    public static void main(String[] arguments) {}\n"
-            "}\n");
-        !written) {
-        return ResultError(written.error());
+    for (const QString &sourceFile : sourceFiles) {
+        const FilePath java = source / sourceFile;
+        if (!java.parentDir().ensureWritableDir())
+            return ResultError(QString("Cannot create \"%1\"").arg(java.parentDir().toUserOutput()));
+        if (const Result<qint64> written = java.writeFileContents(
+                QString("public class %1 {\n"
+                        "    public static void main(String[] arguments) {}\n"
+                        "}\n")
+                    .arg(java.completeBaseName())
+                    .toUtf8());
+            !written) {
+            return ResultError(written.error());
+        }
     }
 
     Process configure;
@@ -236,6 +259,20 @@ static Result<QList<CMakeJavaTarget>> configureAddJarProject(const FilePath &sou
         return ResultError(configure.allOutput());
 
     return readJavaTargets(source, build);
+}
+
+// Configures a project with one add_jar() target that compiles \a sourceFile,
+// spelled the way the project spells it, and returns what the helper recorded.
+static Result<QList<CMakeJavaTarget>> configureAddJarProject(const FilePath &source,
+                                                             const FilePath &build,
+                                                             const QString &sourceFile)
+{
+    return configureProject(source,
+                            build,
+                            QString("set(CMAKE_JAVA_INCLUDE_PATH lib.jar)\n"
+                                    "add_jar(hello SOURCES %1)\n")
+                                .arg(sourceFile),
+                            {sourceFile});
 }
 
 void tst_CMakeJavaTargets::readsAnAddJarProject()
@@ -263,6 +300,51 @@ void tst_CMakeJavaTargets::readsAnAddJarProject()
     QVERIFY(written);
     QVERIFY(!written->contains(source.path().toUtf8()));
     QVERIFY(!written->contains(build.path().toUtf8()));
+
+    // The class path of a jar is not recoverable from the target, but the
+    // CMAKE_JAVA_INCLUDE_PATH of its directory is, and that is what UseJava
+    // documents as the way to name one. A relative entry of it is read by
+    // javac from the directory of the add_jar() call, and by whoever reads
+    // this from wherever it happens to be.
+    QCOMPARE(targets->first().classPath, FilePaths({source / "lib.jar"}));
+}
+
+// CMAKE_JAVA_INCLUDE_PATH is a variable, and what a jar compiles against is
+// what it held at the add_jar() call: a second call in the same directory may
+// name another class path, and a call wrapped in a function() names one the
+// directory never sees. By the time the helper writes its file, every
+// directory has been processed, and the value left in the outermost one -
+// here none, as the project unsets it - is nobody's class path.
+void tst_CMakeJavaTargets::readsTheClassPathOfEachAddJarCall()
+{
+    if (!canConfigureAnAddJarProject())
+        QSKIP("No cmake or JDK on this machine");
+
+    const FilePath source = m_directory / "many-jars-source";
+    const Result<QList<CMakeJavaTarget>> targets
+        = configureProject(source,
+                           m_directory / "many-jars-build",
+                           "set(CMAKE_JAVA_INCLUDE_PATH one.jar)\n"
+                           "add_jar(one SOURCES One.java)\n"
+                           "set(CMAKE_JAVA_INCLUDE_PATH two.jar)\n"
+                           "add_jar(two SOURCES Two.java)\n"
+                           "function(wrapped)\n"
+                           "  set(CMAKE_JAVA_INCLUDE_PATH three.jar)\n"
+                           "  add_jar(three SOURCES Three.java)\n"
+                           "endfunction()\n"
+                           "wrapped()\n"
+                           "unset(CMAKE_JAVA_INCLUDE_PATH)\n",
+                           {"One.java", "Two.java", "Three.java"});
+    if (!targets)
+        QFAIL(qPrintable(targets.error()));
+
+    QCOMPARE(targets->size(), 3);
+    const auto classPathOf = [&targets](const QString &name) {
+        return Utils::findOrDefault(*targets, Utils::equal(&CMakeJavaTarget::name, name)).classPath;
+    };
+    QCOMPARE(classPathOf("one"), FilePaths({source / "one.jar"}));
+    QCOMPARE(classPathOf("two"), FilePaths({source / "two.jar"}));
+    QCOMPARE(classPathOf("three"), FilePaths({source / "three.jar"}));
 }
 
 // add_jar() writes java_sources with configure_file(), which makes it UTF-8.

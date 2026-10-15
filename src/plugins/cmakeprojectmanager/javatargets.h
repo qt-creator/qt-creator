@@ -16,6 +16,7 @@ public:
     Utils::FilePath jar;
     Utils::FilePath sourceDirectory;
     Utils::FilePaths sources;
+    Utils::FilePaths classPath;
 };
 
 QList<CMakeJavaTarget> readJavaTargets(const Utils::FilePath &sourceDirectory,

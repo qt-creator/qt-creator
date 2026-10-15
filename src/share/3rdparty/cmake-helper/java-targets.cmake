@@ -61,6 +61,59 @@ function(qtc_java_target_sources target source_directory out_sources)
   set(${out_sources} "${result}" PARENT_SCOPE)
 endfunction()
 
+# What add_jar() compiles against is not recoverable from the target: it
+# builds the class path into a local variable and hands it to javac. What is
+# recoverable is CMAKE_JAVA_INCLUDE_PATH, which UseJava documents as the way to
+# name a class path for the directory, and which add_jar() reads rather than
+# writes - so a jar naming its own INCLUDE_JARS is not in here.
+#
+# It has to be read while add_jar() runs. It is a variable, not a property of
+# the target: a second call in the same directory may name another class path,
+# and a call wrapped in a function() or a block() names one the directory
+# never sees. This file is written after all of them, when only the value the
+# outermost directory ended with is left.
+#
+# The watch below sees every access. The ones that happen in a scope defining
+# _TARGET_NAME are the ones add_jar() makes, that being the name UseJava gives
+# its first argument, and the first of them is the one it makes before adding
+# directories of its own to the list - so the value there is the one the
+# project named for that target.
+function(qtc_java_watch_include_path variable access value current_list_file stack)
+  if (NOT access MATCHES "^(UNKNOWN_)?READ_ACCESS$" OR NOT DEFINED _TARGET_NAME)
+    return()
+  endif()
+  get_property(recorded GLOBAL PROPERTY "_qtc_java_class_path_${_TARGET_NAME}" SET)
+  if (NOT recorded)
+    set_property(GLOBAL PROPERTY "_qtc_java_class_path_${_TARGET_NAME}" "${value}")
+  endif()
+endfunction()
+
+function(qtc_java_target_class_path target out_class_path)
+  get_property(source_directory TARGET "${target}" PROPERTY SOURCE_DIR)
+  get_property(recorded GLOBAL PROPERTY "_qtc_java_class_path_${target}" SET)
+  if (recorded)
+    get_property(class_path GLOBAL PROPERTY "_qtc_java_class_path_${target}")
+  else()
+    # An add_jar() that no longer reads the variable under a scope of that
+    # name leaves nothing to read, and what the directory ended with is then
+    # the whole of what is left: right for the one call that a directory-level
+    # value was written for, and no worse than naming no class path at all.
+    get_directory_property(class_path DIRECTORY "${source_directory}"
+                           DEFINITION CMAKE_JAVA_INCLUDE_PATH)
+  endif()
+
+  # An entry is written the way the project spelled it, and javac reads a
+  # relative one from the directory it runs in, which add_jar() sets to the
+  # source directory of the call. Whoever reads this file is somewhere else.
+  set(result "")
+  foreach(entry IN LISTS class_path)
+    get_filename_component(entry "${entry}" ABSOLUTE BASE_DIR "${source_directory}")
+    list(APPEND result "${entry}")
+  endforeach()
+
+  set(${out_class_path} "${result}" PARENT_SCOPE)
+endfunction()
+
 # A path of the tree is written the way the file API reports its own: relative
 # to the top of the tree it is in, so that whoever reads it resolves it against
 # the directory it knows that tree under. CMake may have been handed the tree
@@ -94,6 +147,15 @@ function(qtc_java_write_targets)
     get_property(jar_file TARGET "${target}" PROPERTY JAR_FILE)
     get_property(source_directory TARGET "${target}" PROPERTY SOURCE_DIR)
     qtc_java_target_sources("${target}" "${source_directory}" sources)
+    qtc_java_target_class_path("${target}" class_path)
+
+    set(quoted_class_path "")
+    foreach(entry IN LISTS class_path)
+      qtc_java_path_in_tree("${entry}" "${CMAKE_SOURCE_DIR}" entry)
+      qtc_java_quote("${entry}" quoted_entry)
+      list(APPEND quoted_class_path "${quoted_entry}")
+    endforeach()
+    list(JOIN quoted_class_path ", " quoted_class_path)
 
     set(quoted_sources "")
     foreach(source IN LISTS sources)
@@ -114,7 +176,8 @@ function(qtc_java_write_targets)
     string(APPEND entry "      \"name\": ${quoted_target},\n")
     string(APPEND entry "      \"jar\": ${quoted_jar_file},\n")
     string(APPEND entry "      \"sourceDirectory\": ${quoted_source_directory},\n")
-    string(APPEND entry "      \"sources\": [${quoted_sources}]\n")
+    string(APPEND entry "      \"sources\": [${quoted_sources}],\n")
+    string(APPEND entry "      \"classPath\": [${quoted_class_path}]\n")
     string(APPEND entry "    }")
     list(APPEND entries "${entry}")
   endforeach()
@@ -131,5 +194,6 @@ endfunction()
 # defer the call again, and a subdirectory inherits what the outermost set.
 if (NOT QTCREATOR_JAVA_TARGETS_DEFERRED)
   set(QTCREATOR_JAVA_TARGETS_DEFERRED ON)
+  variable_watch(CMAKE_JAVA_INCLUDE_PATH qtc_java_watch_include_path)
   cmake_language(DEFER CALL qtc_java_write_targets)
 endif()

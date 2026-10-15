@@ -59,6 +59,9 @@ QList<CMakeJavaTarget> readJavaTargets(const FilePath &sourceDirectory,
         const QJsonArray sources = object["sources"].toArray();
         for (const QJsonValue &source : sources)
             target.sources.append(inSourceTree(source.toString()));
+        const QJsonArray classPath = object["classPath"].toArray();
+        for (const QJsonValue &entry : classPath)
+            target.classPath.append(inSourceTree(entry.toString()));
         if (!target.name.isEmpty() && !target.jar.isEmpty())
             result.append(target);
     }

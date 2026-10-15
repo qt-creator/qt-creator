@@ -110,6 +110,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createImportedLibraryDirectoriesTest);
         addTestCreator(createJavaBuildTargetTest);
         addTestCreator(createJavaExecutableTest);
+        addTestCreator(createJavaExtraDataTest);
         addTestCreator(createJavaSourcesTest);
         addTestCreator(createLinkedInterfaceSourcesTest);
         addTestCreator(createLibrarySearchPathsTest);

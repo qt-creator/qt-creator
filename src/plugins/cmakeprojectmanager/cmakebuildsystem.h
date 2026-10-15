@@ -337,6 +337,7 @@ QObject *createAddDependenciesTest();
 QObject *createBinariesForSourceFileTest();
 QObject *createJavaBuildTargetTest();
 QObject *createJavaExecutableTest();
+QObject *createJavaExtraDataTest();
 QObject *createLibrarySearchPathsTest();
 QObject *createQmlModuleFilesTest();
 QObject *createResourceFilesTest();
