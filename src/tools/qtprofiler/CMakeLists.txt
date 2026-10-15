@@ -74,6 +74,15 @@ if (APPLE AND TARGET qtprofiler)
   endif()
 endif()
 
+qtc_add_resources(qtprofiler "icon"
+  PREFIX "/qtprofiler"
+  BASE "icon"
+  FILES
+    icon/qtprofiler-16.png
+    icon/qtprofiler-32.png
+    icon/qtprofiler-128.png
+)
+
 qtc_add_resources(qtprofiler "schema"
   PREFIX "/qtprofiler"
   FILES

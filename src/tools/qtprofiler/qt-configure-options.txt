@@ -28,4 +28,4 @@
 -no-feature-cborstreamwriter -no-feature-datetimeparser
 -no-feature-sizegrip -no-feature-tabletevent
 -no-feature-dial -no-feature-toolbox -no-feature-rubberband
--no-feature-graphicsview
+-no-feature-graphicsview -no-feature-timezone

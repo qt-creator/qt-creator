@@ -60,7 +60,8 @@ private:
     bool checkFile(const Utils::FilePath &absoluteFilePath) const;
     Utils::FilePath resolveFile(const Utils::FilePath &filePath, IncludeType type);
     Utils::FilePath resolveFile_helper(const Utils::FilePath &filePath,
-                                       ProjectExplorer::HeaderPaths::Iterator headerPathsIt);
+                                       ProjectExplorer::HeaderPaths::Iterator headerPathsIt,
+                                       const Utils::FilePath &excludedFilePath = {});
 
     void mergeEnvironment(CPlusPlus::Document::Ptr doc);
 

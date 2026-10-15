@@ -9,6 +9,7 @@
 #include "timelinemodel.h"
 #include "timelineoverviewwidget.h"
 #include "timelinezoomcontrol.h"
+#include "trackpainterbase.h"
 
 #include <utils/icon.h>
 #include <utils/theme/theme.h>
@@ -127,12 +128,12 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
     rangeAction->setCheckable(true);
     auto lockAction = toolbar->addAction(lockIcon, tr("View Event Information on Mouseover"));
     lockAction->setCheckable(true);
-    toolbar->addSeparator();
+    if (canSwitchTrackBackends())
+        toolbar->addSeparator();
     //: Short for "software", shown on a narrow toolbar button.
     auto softwareAction = toolbar->addAction(tr("SW"));
     softwareAction->setCheckable(true);
-    // Nothing to choose between when only the software backend was built.
-    softwareAction->setVisible(hasGpuTrackBackend());
+    softwareAction->setVisible(canSwitchTrackBackends());
     softwareAction->setToolTip(
         tr("Renders the timeline with the software (QPainter) backend instead of "
            "the hardware-accelerated (QCanvasPainter) one."));

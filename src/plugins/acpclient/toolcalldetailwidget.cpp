@@ -140,8 +140,11 @@ void ToolCallDetailWidget::applyStatus(ToolCallStatus status)
 void ToolCallDetailWidget::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    Utils::StyleHelper::drawCardBg(&p, rect(),
-        Utils::creatorColor(Utils::Theme::ChatToolCallBackground), palette().color(QPalette::Mid),
+    Utils::StyleHelper::drawCardBg(
+        &p,
+        rect(),
+        Utils::creatorColor(Utils::Theme::ChatToolCallBackground),
+        Utils::creatorColor(Utils::Theme::Token_Foreground_Subtle),
         chatRadius(RadiusS));
     QRect clipRect = rect();
     clipRect.setWidth(3);

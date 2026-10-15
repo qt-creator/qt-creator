@@ -47,6 +47,8 @@ public:
     QStringList emptyVariables() const;
     // Referenced macro variables that do not resolve at all, e.g. a typo.
     QStringList unresolvedVariables() const;
+    // Whether the command can run as it is, or which variables keep it from running.
+    Utils::Result<> canExecute() const;
     Utils::Id baseEnvironmentProviderId() const;
     Utils::Environment baseEnvironment() const;
     Utils::EnvironmentChanges environmentUserChanges() const;

@@ -17,8 +17,13 @@ dumperDir = os.environ.get("DUMPERDIR") or (sys.argv[1] if len(sys.argv) > 1 els
 source = open(os.path.join(dumperDir, "pdbbridge.py")).read()
 # Drop the module-level bootstrap that would start the interactive pdb loop.
 source = re.sub(r"(?m)^__the_dumper__.*$", "", source)
-glob = {"__builtins__": __import__("builtins"), "__name__": "pdbbridge_under_test"}
-exec(compile(source, "pdbbridge.py", "exec"), glob)
+bridgeFile = os.path.join(dumperDir, "pdbbridge.py")
+glob = {
+    "__builtins__": __import__("builtins"),
+    "__name__": "pdbbridge_under_test",
+    "__file__": bridgeFile,
+}
+exec(compile(source, bridgeFile, "exec"), glob)
 Dumper = glob["QtcInternalDumper"]
 
 failures = []

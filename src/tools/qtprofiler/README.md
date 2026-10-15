@@ -104,6 +104,11 @@ The rest of the line is about size:
   `graphicseffect` off with it, and so the opacity effects Qt Creator fades
   progress bars and indicators with: built without them, Utils and Core
   show and hide those at once, when a fade would have started.
+- `-no-feature-timezone` keeps the build as small with Qt 6.12 as with 6.11,
+  which never built QTimeZone for WebAssembly. 6.12 does, and with it the
+  time zone database and the localized zone names of `timezone_locale`:
+  3.9 MB of data. qtprofiler does not convert between time zones, and the
+  `QTimeZone::UTC` that Utils passes to QFileInfo exists without the feature.
 
 Some features that look just as unused are not: `wizard`, `colordialog`,
 `undocommand` and `undostack`, and `textodfwriter` are used by Utils and Core,

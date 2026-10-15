@@ -325,6 +325,9 @@ FilePath buildDirectory(const BuildConfiguration *bc)
         FilePath parentDuildDir = buildDir.parentDir();
         if (parentDuildDir.endsWith(libsDir) || libsDir.endsWith(libsDir + "/"))
             return parentDuildDir.parentDir().parentDir();
+
+        if (buildDir.isEmpty())
+            buildDir = bc->buildDirectory();
     } else {
         // Qt6 + CMake: Very cautios hack to work around QTCREATORBUG-26479 for simple projects
         const QString jsonFileName = AndroidQtVersion::androidDeploymentSettingsFileName(bc);

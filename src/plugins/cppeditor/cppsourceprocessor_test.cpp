@@ -187,4 +187,61 @@ void SourceProcessorTest::testIncludeNext()
     QVERIFY(isMacroDefinedInDocument("OK_FEATURE_X_ENABLED", mainDocument));
 }
 
+// An earlier, unrelated header path must not shadow the real next header once
+// #include_next's own forward search has to step past a self-resolving entry.
+// The three directories/names here - shadowIncludePath (an
+// unrelated, earlier path that happens to also have a plain "t.h"), customIncludePath
+// (found via a "sub/" prefix, as Qt's own forwarding headers are), and
+// customIncludePath/sub (the forwarding header's own directory, listed again later to
+// make #include_next resolve back to itself) - mirror the directory-prefix split real
+// Qt 6.12 forwarding headers have, which is what keeps the earlier, unrelated path from
+// also shadowing the very first #include: the first #include looks up "sub/t.h", found
+// only via customIncludePath; the #include_next "t.h" it triggers looks up the bare
+// "t.h" that both shadowIncludePath and the self-resolving entry provide. This whole
+// shape - and the fact that it still has to reach systemIncludePath/t.h rather than
+// shadowIncludePath/t.h - was verified against both gcc and clang before writing this
+// test; see [[project_qtcreatorbug_35090]] for the exact construction.
+void SourceProcessorTest::testIncludeNextWithShadowingPath()
+{
+    FilePath data
+        = SRCDIR "/../../../tests/auto/cplusplus/preprocessor/data/include_next_shadow-data";
+    data = data.canonicalPath();
+    QVERIFY(data.isReadableDir());
+    const FilePath mainFilePath = data / "main.cpp";
+    const HeaderPath shadowHeaderPath(data / "shadowIncludePath", HeaderPathType::User);
+    const HeaderPath customHeaderPath(data / "customIncludePath", HeaderPathType::User);
+    const HeaderPath customSubHeaderPath(data / "customIncludePath/sub", HeaderPathType::User);
+    const HeaderPath systemHeaderPath(data / "systemIncludePath", HeaderPathType::User);
+
+    CppSourceProcessor::DocumentCallback documentCallback = [](const Document::Ptr &){};
+    CppSourceProcessor sourceProcessor(Snapshot(), documentCallback);
+    // customSubHeaderPath is listed twice: the second occurrence is what resolves
+    // #include_next <t.h> (from inside customIncludePath/sub/t.h) back to the very file
+    // that is currently being processed.
+    sourceProcessor.setHeaderPaths(
+        {shadowHeaderPath, customHeaderPath, customSubHeaderPath, customSubHeaderPath,
+         systemHeaderPath});
+
+    sourceProcessor.run(mainFilePath);
+    const Snapshot snapshot = sourceProcessor.snapshot();
+    QVERIFY(!snapshot.isEmpty());
+
+    // The direct, precise check: customIncludePath/sub/t.h's own #include_next <t.h>
+    // must resolve to systemIncludePath/t.h, not to shadowIncludePath/t.h (a macro
+    // defined by an included file is attributed to that file's own document, not merged
+    // into every document that (transitively) includes it, so checking mainDocument's
+    // defined macros cannot tell these two outcomes apart).
+    const Document::Ptr customDocument = snapshot.document(data / "customIncludePath/sub/t.h");
+    QVERIFY(customDocument);
+    const QList<Document::Include> resolvedIncludes = customDocument->resolvedIncludes();
+    QCOMPARE(resolvedIncludes.size(), 1);
+    QCOMPARE(resolvedIncludes.at(0).resolvedFileName(), data / "systemIncludePath/t.h");
+
+    // End-to-end check: with the correct header reached, its macro should be visible by
+    // the time main.cpp's own #ifdef is evaluated.
+    const Document::Ptr mainDocument = snapshot.document(mainFilePath);
+    QVERIFY(mainDocument);
+    QVERIFY(isMacroDefinedInDocument("OK_FEATURE_X_ENABLED", mainDocument));
+}
+
 } // namespace CppEditor::Internal

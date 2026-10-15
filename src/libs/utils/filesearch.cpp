@@ -42,12 +42,22 @@ QTextDocument::FindFlags textDocumentFlagsForFindFlags(FindFlags flags)
     return textDocFlags;
 }
 
+static bool isWordChar(const QChar &c)
+{
+    return c.isLetterOrNumber() || c == QLatin1Char('_');
+}
+
 static SearchResultItems searchWithoutRegExp(const QFuture<void> &future, const QString &searchTerm,
                                              FindFlags flags, const FilePath &filePath,
                                              const QString &contents)
 {
+    if (searchTerm.isEmpty())
+        return {};
+
     const bool caseSensitive = (flags & QTextDocument::FindCaseSensitively);
     const bool wholeWord = (flags & QTextDocument::FindWholeWords);
+    const bool frontIsWordChar = isWordChar(searchTerm.front());
+    const bool backIsWordChar = isWordChar(searchTerm.back());
     const QString searchTermLower = searchTerm.toLower();
     const QString searchTermUpper = searchTerm.toUpper();
     const int termMaxIndex = searchTerm.size() - 1;
@@ -85,14 +95,10 @@ static SearchResultItems searchWithoutRegExp(const QFuture<void> &future, const 
                 const QChar *beforeRegion = regionPtr - 1;
                 const QChar *afterRegion = regionEnd + 1;
                 if (wholeWord
-                    && (((beforeRegion >= chunkPtr)
-                         && (beforeRegion->isLetterOrNumber()
-                             || ((*beforeRegion) == QLatin1Char('_'))))
-                        ||
-                        ((afterRegion <= chunkEnd)
-                         && (afterRegion->isLetterOrNumber()
-                             || ((*afterRegion) == QLatin1Char('_'))))
-                        )) {
+                    && ((frontIsWordChar && beforeRegion >= chunkPtr
+                         && isWordChar(*beforeRegion))
+                        || (backIsWordChar && afterRegion <= chunkEnd
+                            && isWordChar(*afterRegion)))) {
                     equal = false;
                 } else {
                     // check all chars
@@ -134,12 +140,20 @@ static SearchResultItems searchWithoutRegExp(const QFuture<void> &future, const 
     return results;
 }
 
+static QString wholeWordPattern(const QString &searchTerm)
+{
+    // Reject a match only when word characters sit on both sides of one of its boundaries, so a
+    // term starting or ending with a non-word character still matches next to a word character.
+    const QString boundary = "(?:(?<!\\w)|(?!\\w))";
+    return boundary + searchTerm + boundary;
+}
+
 static SearchResultItems searchWithRegExp(const QFuture<void> &future, const QString &searchTerm,
                                           FindFlags flags, const FilePath &filePath,
                                           const QString &contents)
 {
     const QString term = flags & QTextDocument::FindWholeWords
-        ? QString::fromLatin1("\\b%1\\b").arg(searchTerm) : searchTerm;
+        ? wholeWordPattern(searchTerm) : searchTerm;
     const QRegularExpression::PatternOptions patternOptions = (flags & FindCaseSensitively)
         ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
     const QRegularExpression expression = QRegularExpression(term, patternOptions);
