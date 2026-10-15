@@ -574,6 +574,7 @@ BaseSettings::BaseSettings()
     startBehavior.addOption(Tr::tr("Always On"));
     startBehavior.addOption(Tr::tr("Requires an Open File"));
     startBehavior.addOption(Tr::tr("Start Server per Project"));
+    startBehavior.addOption(Tr::tr("Start Server per Project or Open File"));
     startBehavior.setDefaultValue(RequiresFile);
 
     showInSettings.setDefaultValue(true);
@@ -1158,7 +1159,8 @@ public:
         QFormLayout *settingsLayout = nullptr;
         for (auto settings : LanguageClientSettings::pageSettings()) {
 
-            if (settings->startBehavior() != BaseSettings::RequiresProject)
+            if (settings->startBehavior() != BaseSettings::RequiresProject
+                && settings->startBehavior() != BaseSettings::RequiresProjectOrFile)
                 continue;
             if (!settingsLayout) {
                 auto group = new QGroupBox(Tr::tr("Project Specific Language Servers"));
@@ -1208,7 +1210,8 @@ public:
             [this, editor] { m_settings.setJson(editor->document()->contents()); });
 
         for (auto settings : LanguageClientSettings::pageSettings()) {
-            if (settings->startBehavior() != BaseSettings::RequiresProject)
+            if (settings->startBehavior() != BaseSettings::RequiresProject
+                && settings->startBehavior() != BaseSettings::RequiresProjectOrFile)
                 continue;
             settings->attachProjectSpecificSettingsToLayout(project, layout);
         }

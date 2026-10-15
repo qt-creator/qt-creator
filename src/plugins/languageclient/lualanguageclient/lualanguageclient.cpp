@@ -199,6 +199,8 @@ public:
     {
         if (str == "RequiresProject")
             return BaseSettings::RequiresProject;
+        if (str == "RequiresProjectOrFile")
+            return BaseSettings::RequiresProjectOrFile;
         if (str == "RequiresFile")
             return BaseSettings::RequiresFile;
         if (str == "AlwaysOn")
@@ -411,11 +413,13 @@ public:
     QList<Client *> clientsForDocument(Core::IDocument *document)
     {
         QList<Client *> result;
-        if (m_startBehavior == BaseSettings::RequiresProject) {
+        if (m_startBehavior == BaseSettings::RequiresProject
+            || m_startBehavior == BaseSettings::RequiresProjectOrFile) {
             Project *project = ProjectManager::projectForFile(document->filePath());
             const auto clients = LanguageClientManager::clientsForSettingId(m_clientSettingsId);
             result = Utils::filtered(clients, [project](Client *c) {
-                return c && c->project() && c->project() == project;
+                // Files outside of any project are served by the project-less client
+                return c && c->project() == project;
             });
         }
         else

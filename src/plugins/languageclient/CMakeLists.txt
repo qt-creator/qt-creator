@@ -34,6 +34,12 @@ add_qtc_plugin(LanguageClient
     snippet.cpp snippet.h
 )
 
+extend_qtc_plugin(LanguageClient
+  CONDITION WITH_TESTS
+  SOURCES
+    languageclientmanager_test.cpp languageclientmanager_test.h
+)
+
 qt_add_resources(LanguageClient lc_images_rcc
   PREFIX "/languageclient"
   FILES

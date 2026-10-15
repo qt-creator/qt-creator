@@ -73,6 +73,13 @@ QtcPlugin {
         "snippet.h",
     ]
 
+    QtcTestFiles {
+        files: [
+            "languageclientmanager_test.cpp",
+            "languageclientmanager_test.h",
+        ]
+    }
+
     Group {
         name: "images"
         prefix: "images/"

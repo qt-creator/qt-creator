@@ -9,7 +9,7 @@ local lsp = {}
 ---@field transport? "stdio"|"localsocket" Defaults to stdio.
 ---@field serverName? string The socket path when transport == "localsocket".
 ---@field languageFilter LanguageFilter The language filter deciding which files to open with the language server.
----@field startBehavior? "AlwaysOn"|"RequiresFile"|"RequiresProject"
+---@field startBehavior? "AlwaysOn"|"RequiresFile"|"RequiresProject"|"RequiresProjectOrFile"
 ---@field initializationOptions? function|table|string The initialization options to pass to the language server, either a JSON string, a table, or a function that returns either.
 ---@field initializationOptionsAsync? function A callback that will return the initialization options as a JSON String or a table. Inside the callback you can use Async functions.
 ---@field settings? AspectContainer The settings object to associate with the language server.

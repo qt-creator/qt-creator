@@ -68,6 +68,7 @@ public:
         AlwaysOn = 0,
         RequiresFile,
         RequiresProject,
+        RequiresProjectOrFile,
         LastSentinel
     };
 

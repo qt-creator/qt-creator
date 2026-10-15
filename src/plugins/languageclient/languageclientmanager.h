@@ -23,6 +23,8 @@ class Project;
 
 namespace LanguageClient {
 
+namespace Internal { class LanguageClientManagerTest; }
+
 class LanguageClientManagerPrivate;
 class LanguageClientMark;
 
@@ -104,6 +106,7 @@ private:
     LanguageClientManager();
 
     friend void setupLanguageClientManager();
+    friend class Internal::LanguageClientManagerTest;
 
     void updateProject(ProjectExplorer::BuildConfiguration *bc);
     void buildConfigurationAdded(ProjectExplorer::BuildConfiguration *bc);
@@ -116,6 +119,8 @@ private:
         const QList<Client *> &clients);
 
     static void applySettingsForRequiresProject(BaseSettings *setting);
+    static void applySettingsForRequiresFileOutsideProjects(BaseSettings *setting);
+    static bool isProjectLessClient(Client *client);
 
     QList<Client *> reachableClients();
 
