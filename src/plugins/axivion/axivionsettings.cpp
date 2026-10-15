@@ -1039,11 +1039,12 @@ static PathMapping showPathMappingsDialog(const PathMapping &suggested)
 }
 
 static PathMapping showPathMappingFileOpenDialog(const FilePath &missingPath,
-                                                 const QString &projectName)
+                                                 const QString &projectName,
+                                                 const FilePath &suggestedPath)
 {
     FilePath result = FileUtils::getOpenFilePath(
         Tr::tr("Select local file for \"%1\"").arg(missingPath.path()),
-        {}, missingPath.fileName());
+        suggestedPath, missingPath.fileName());
     if (result.isEmpty() || missingPath.fileName() != result.fileName())
         return {};
     // create mapping for the selected file and return it
@@ -1055,6 +1056,16 @@ static PathMapping showPathMappingFileOpenDialog(const FilePath &missingPath,
     }
     QTC_ASSERT(local, return {});
     return PathMapping{projectName, analysisPath ? *analysisPath : FilePath{}, *local};
+}
+
+static FilePath suggestedPathForFile(const FilePath &file)
+{
+    ProjectExplorer::Project *startupProj = ProjectExplorer::ProjectManager::startupProject();
+    const FilePath computedPath = startupProj ? findFileForIssuePath(file) : FilePath{};
+    if (!computedPath.exists())
+        return {};
+    const QString tail = file.isAbsolutePath() ? file.path() : '/' + file.path();
+    return computedPath.tailRemoved(tail).value_or(FilePath{});
 }
 
 bool handleMissingPathMapping(const FilePath &missingPath, const QString &projectName)
@@ -1090,7 +1101,8 @@ bool handleMissingPathMapping(const FilePath &missingPath, const QString &projec
 
     PathMapping userInput;
     if (clicked == filechooser) {
-        userInput = showPathMappingFileOpenDialog(missingPath, projectName);
+        const FilePath suggested = suggestedPathForFile(missingPath);
+        userInput = showPathMappingFileOpenDialog(missingPath, projectName, suggested);
     } else {
         // else manually set up / change existing has been clicked
         if (hasAnyMapping) {
@@ -1100,15 +1112,9 @@ bool handleMissingPathMapping(const FilePath &missingPath, const QString &projec
             ICore::showSettings("Analyzer.Axivion.Settings");
             return false;
         } else {
-            ProjectExplorer::Project *startupProj = ProjectExplorer::ProjectManager::startupProject();
-            const FilePath computedPath = startupProj ? findFileForIssuePath(missingPath)
-                                                      : FilePath{};
             PathMapping suggested;
             suggested.projectName = projectName;
-            if (computedPath.exists()) {
-                suggested.localPath = computedPath.chopped(
-                            missingPath.pathView().size() + 1);
-            }
+            suggested.localPath = suggestedPathForFile(missingPath);
             userInput = showPathMappingsDialog(suggested);
         }
     }
