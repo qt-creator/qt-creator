@@ -18,38 +18,9 @@ using namespace Utils;
 
 namespace Core {
 
-// A pattern can only match across lines if it names a line break.
-static bool patternSpansLines(const QString &pattern)
-{
-    for (qsizetype i = 0; i < pattern.size(); ++i) {
-        const QChar c = pattern.at(i);
-        if (c == '\n')
-            return true;
-        if (c == '\\' && ++i < pattern.size()) {
-            const QChar escaped = pattern.at(i);
-            if (escaped == 'n' || escaped == 'r' || escaped == 'R' || escaped == '\n')
-                return true;
-        }
-    }
-    return false;
-}
-
 QRegularExpression BaseTextFindBase::regularExpression(const QString &txt, FindFlags flags)
 {
-    // QTextDocument has no CR, the line break is a single LF
-    QString pattern = txt;
-    pattern.replace("\r\n", "\n");
-    if (flags & FindRegularExpression)
-        pattern.replace("\\r\\n", "\\n");
-    else
-        pattern = QRegularExpression::escape(pattern);
-
-    QRegularExpression::PatternOptions options = (flags & FindCaseSensitively)
-        ? QRegularExpression::NoPatternOption
-        : QRegularExpression::CaseInsensitiveOption;
-    if (patternSpansLines(pattern))
-        options |= QRegularExpression::MultilineOption;
-    return QRegularExpression(pattern, options);
+    return Utils::findRegularExpression(txt, flags);
 }
 
 static bool isWholeWord(const QString &text, qsizetype start, qsizetype end)
@@ -91,7 +62,7 @@ static QTextCursor findAcrossBlocks(
 
 bool BaseTextFindBase::spansLines(const QRegularExpression &expr)
 {
-    return expr.patternOptions() & QRegularExpression::MultilineOption;
+    return Utils::findExpressionSpansLines(expr);
 }
 
 QList<std::pair<int, int>> BaseTextFindBase::allMatchesAcrossBlocks(

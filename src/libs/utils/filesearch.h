@@ -11,6 +11,7 @@
 
 #include <QMap>
 #include <QPromise>
+#include <QRegularExpression>
 #include <QTextDocument>
 
 #include <functional>
@@ -38,6 +39,15 @@ using FilterFilesFunction = std::function<FilePaths(const FilePaths &filePath)>;
 
 QTCREATOR_UTILS_EXPORT
 QTextDocument::FindFlags textDocumentFlagsForFindFlags(FindFlags flags);
+
+// The expression for \a term, taken as a regular expression if \a flags say so. A term naming a
+// line break (\n, \r\n, \R or a literal newline) gets the multi-line option and is meant to be
+// matched against a whole text. \r\n is read as the single LF of a text document.
+QTCREATOR_UTILS_EXPORT
+QRegularExpression findRegularExpression(const QString &term, FindFlags flags);
+
+QTCREATOR_UTILS_EXPORT
+bool findExpressionSpansLines(const QRegularExpression &expression);
 
 QTCREATOR_UTILS_EXPORT
 void searchInContents(QPromise<SearchResultItems> &promise, const QString &searchTerm,

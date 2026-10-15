@@ -20,6 +20,9 @@ private slots:
     void wholeWords_data();
     void emptyTerm();
     void matchCaseReplacement();
+    void acrossLines();
+    void acrossLines_data();
+    void acrossLinesCapturedTexts();
 
 private:
     const FilePath m_filePath = FilePath::fromString(":/tst_filesearch/testfile.txt");
@@ -70,6 +73,30 @@ static QStringList searchHits(const QString &term, FindFlags flags, const QStrin
             hits << QString("%1:%2:%3").arg(range.begin.line).arg(range.begin.column)
                         .arg(range.length(contents));
         }
+    }
+    return hits;
+}
+
+struct Hit
+{
+    Text::Position begin;
+    Text::Position end;
+    QString lineText;
+};
+Q_DECLARE_METATYPE(QList<Hit>)
+
+static QList<Hit> searchAcross(const QString &term, FindFlags flags, const QString &contents)
+{
+    QPromise<SearchResultItems> promise;
+    const QFuture<SearchResultItems> future = promise.future();
+    promise.start();
+    Utils::searchInContents(promise, term, flags, FilePath::fromString("test.txt"), contents);
+    promise.finish();
+
+    QList<Hit> hits;
+    for (const SearchResultItems &items : future.results()) {
+        for (const SearchResultItem &item : items)
+            hits.append({item.mainRange().begin, item.mainRange().end, item.lineText()});
     }
     return hits;
 }
@@ -212,6 +239,85 @@ void tst_FileSearch::matchCaseReplacement()
     QCOMPARE(Utils::matchCaseReplacement("pReFiXtESTPADSuFfIx", "prefixfoobarsuffix"), QString("pReFiXfOOBARSuFfIx"));   //un-capitalized
     QCOMPARE(Utils::matchCaseReplacement("pReFiXtEsTpAdSuFfIx", "prefixfoobarsuffix"), QString("pReFiXfoobarSuFfIx"));   //mixed case, use replacement as specified
     QCOMPARE(Utils::matchCaseReplacement("pReFiXTeStPaDSuFfIx", "prefixfoobarsuffix"), QString("pReFiXfoobarSuFfIx"));   //mixed case, use replacement as specified
+}
+
+void tst_FileSearch::acrossLines_data()
+{
+    QTest::addColumn<QString>("term");
+    QTest::addColumn<int>("flags");
+    QTest::addColumn<QString>("contents");
+    QTest::addColumn<QList<Hit>>("expected");
+
+    const int regex = FindRegularExpression;
+    const QString text = "int a;\nint b;\nint c;\n";
+
+    QTest::newRow("regex") << "a;\\nint b" << regex << text
+        << QList<Hit>{{{1, 4}, {2, 5}, "int a;\nint b;"}};
+    QTest::newRow("regex-crlf-in-pattern") << "a;\\r\\nint b" << regex << text
+        << QList<Hit>{{{1, 4}, {2, 5}, "int a;\nint b;"}};
+    QTest::newRow("regex-crlf-in-file") << "a;\\nint b" << regex
+        << QString("int a;\r\nint b;\r\nint c;\r\n")
+        << QList<Hit>{{{1, 4}, {2, 5}, "int a;\nint b;"}};
+    QTest::newRow("three-lines") << "a;\\n.*\\n.*c" << regex << text
+        << QList<Hit>{{{1, 4}, {3, 5}, "int a;\nint b;\nint c;"}};
+    QTest::newRow("plain-literal-newline") << "a;\nint" << 0 << text
+        << QList<Hit>{{{1, 4}, {2, 3}, "int a;\nint b;"}};
+    QTest::newRow("plain-is-not-a-regex") << "a.\nint" << 0 << text << QList<Hit>{};
+    QTest::newRow("case-insensitive") << "A;\\nINT" << regex << text
+        << QList<Hit>{{{1, 4}, {2, 3}, "int a;\nint b;"}};
+    QTest::newRow("case-sensitive") << "A;\\nint" << (regex | FindCaseSensitively) << text
+        << QList<Hit>{};
+    QTest::newRow("several") << "x\\ny" << regex << "x\ny\nx\ny\nxy"
+        << QList<Hit>{{{1, 0}, {2, 1}, "x\ny"}, {{3, 0}, {4, 1}, "x\ny"}};
+    QTest::newRow("whole-words-match") << "b;\\nint" << (regex | FindWholeWords) << text
+        << QList<Hit>{{{2, 4}, {3, 3}, "int b;\nint c;"}};
+    QTest::newRow("whole-words-reject") << "t b;\\nin" << (regex | FindWholeWords) << text
+        << QList<Hit>{};
+    QTest::newRow("line-anchors") << "^int b;\\n^int" << regex << text
+        << QList<Hit>{{{2, 0}, {3, 3}, "int b;\nint c;"}};
+    QTest::newRow("match-ends-after-newline") << "c;\\n" << regex << text
+        << QList<Hit>{{{3, 4}, {4, 0}, "int c;\n"}};
+}
+
+void tst_FileSearch::acrossLines()
+{
+    QFETCH(QString, term);
+    QFETCH(int, flags);
+    QFETCH(QString, contents);
+    QFETCH(QList<Hit>, expected);
+
+    const QList<Hit> hits = searchAcross(term, FindFlags::fromInt(flags), contents);
+    QCOMPARE(hits.size(), expected.size());
+    for (int i = 0; i < expected.size(); ++i) {
+        QCOMPARE(hits.at(i).begin.line, expected.at(i).begin.line);
+        QCOMPARE(hits.at(i).begin.column, expected.at(i).begin.column);
+        QCOMPARE(hits.at(i).end.line, expected.at(i).end.line);
+        QCOMPARE(hits.at(i).end.column, expected.at(i).end.column);
+        QCOMPARE(hits.at(i).lineText, expected.at(i).lineText);
+    }
+}
+
+void tst_FileSearch::acrossLinesCapturedTexts()
+{
+    const auto userData = [](const QString &term, FindFlags flags) {
+        QPromise<SearchResultItems> promise;
+        const QFuture<SearchResultItems> future = promise.future();
+        promise.start();
+        Utils::searchInContents(promise, term, flags, FilePath::fromString("test.txt"),
+                                "int a;\nint b;\n");
+        promise.finish();
+        QList<QStringList> data;
+        for (const SearchResultItems &items : future.results()) {
+            for (const SearchResultItem &item : items)
+                data.append(item.userData().toStringList());
+        }
+        return data;
+    };
+    // The replacement of a search result expands the captures of a regular expression, but only
+    // that: a plain text search leaves them empty, as the one for a single line does.
+    QCOMPARE(userData("a;\nint", {}), (QList<QStringList>{QStringList()}));
+    QCOMPARE(userData("(a);\nint", FindRegularExpression),
+             (QList<QStringList>{QStringList{"a;\nint", "a"}}));
 }
 
 QTEST_GUILESS_MAIN(tst_FileSearch)

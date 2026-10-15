@@ -17,6 +17,8 @@
 #include <QStack>
 #include <QTimer>
 
+#include <algorithm>
+
 static Q_LOGGING_CATEGORY(searchLog, "qtc.utils.filesearch", QtWarningMsg)
 
 namespace Utils {
@@ -40,6 +42,43 @@ QTextDocument::FindFlags textDocumentFlagsForFindFlags(FindFlags flags)
     if (flags & FindWholeWords)
         textDocFlags |= QTextDocument::FindWholeWords;
     return textDocFlags;
+}
+
+// A pattern can only match across lines if it names a line break.
+static bool patternSpansLines(const QString &pattern)
+{
+    for (qsizetype i = 0; i < pattern.size(); ++i) {
+        const QChar c = pattern.at(i);
+        if (c == '\n')
+            return true;
+        if (c == '\\' && ++i < pattern.size()) {
+            const QChar escaped = pattern.at(i);
+            if (escaped == 'n' || escaped == 'r' || escaped == 'R' || escaped == '\n')
+                return true;
+        }
+    }
+    return false;
+}
+
+QRegularExpression findRegularExpression(const QString &term, FindFlags flags)
+{
+    QString pattern = term;
+    pattern.replace("\r\n", "\n");
+    if (flags & FindRegularExpression)
+        pattern.replace("\\r\\n", "\\n");
+    else
+        pattern = QRegularExpression::escape(pattern);
+
+    QRegularExpression::PatternOptions options = (flags & FindCaseSensitively)
+        ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
+    if (patternSpansLines(pattern))
+        options |= QRegularExpression::MultilineOption;
+    return QRegularExpression(pattern, options);
+}
+
+bool findExpressionSpansLines(const QRegularExpression &expression)
+{
+    return expression.patternOptions() & QRegularExpression::MultilineOption;
 }
 
 static bool isWordChar(const QChar &c)
@@ -148,20 +187,79 @@ static QString wholeWordPattern(const QString &searchTerm)
     return boundary + searchTerm + boundary;
 }
 
+static SearchResultItems searchAcrossLines(const QFuture<void> &future,
+                                           const QRegularExpression &expression,
+                                           bool isRegularExpression, const FilePath &filePath,
+                                           const QString &contents)
+{
+    // Match against the text as a document has it, with a single LF as the line break
+    QString text = contents;
+    if (text.contains('\r'))
+        text.replace("\r\n", "\n");
+
+    QList<qsizetype> lineStarts{0};
+    for (qsizetype i = text.indexOf('\n'); i >= 0; i = text.indexOf('\n', i + 1))
+        lineStarts.append(i + 1);
+    const auto lineOf = [&lineStarts](qsizetype position) {
+        return int(std::upper_bound(lineStarts.cbegin(), lineStarts.cend(), position)
+                   - lineStarts.cbegin());
+    };
+    const auto lineText = [&](int line) {
+        const qsizetype start = lineStarts.at(line - 1);
+        const qsizetype end = line < lineStarts.size() ? lineStarts.at(line) - 1 : text.size();
+        return clippedText(text.mid(start, end - start), MAX_LINE_SIZE);
+    };
+
+    SearchResultItems results;
+    qsizetype pos = 0;
+    while (pos <= text.size()) {
+        const QRegularExpressionMatch match = expression.match(text, pos);
+        if (!match.hasMatch())
+            break;
+        const qsizetype start = match.capturedStart();
+        const qsizetype end = match.capturedEnd();
+        pos = end > start ? end : start + 1;
+        if (end == start)
+            continue;
+
+        const int beginLine = lineOf(start);
+        const int endLine = lineOf(end);
+        QStringList lines;
+        for (int line = beginLine; line <= endLine; ++line)
+            lines << lineText(line);
+
+        SearchResultItem result;
+        result.setFilePath(filePath);
+        result.setMainRange(Text::Range{{beginLine, int(start - lineStarts.at(beginLine - 1))},
+                                        {endLine, int(end - lineStarts.at(endLine - 1))}});
+        result.setLineText(lines.join('\n'));
+        // Only the results of a regular expression search are replaced as such
+        result.setUserData(isRegularExpression ? match.capturedTexts() : QStringList());
+        result.setUseTextEditorFont(true);
+        results << result;
+        if (future.isCanceled())
+            return {};
+    }
+    return results;
+}
+
 static SearchResultItems searchWithRegExp(const QFuture<void> &future, const QString &searchTerm,
                                           FindFlags flags, const FilePath &filePath,
                                           const QString &contents)
 {
-    const QString term = flags & QTextDocument::FindWholeWords
-        ? wholeWordPattern(searchTerm) : searchTerm;
-    const QRegularExpression::PatternOptions patternOptions = (flags & FindCaseSensitively)
-        ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
-    const QRegularExpression expression = QRegularExpression(term, patternOptions);
+    QRegularExpression expression = findRegularExpression(searchTerm, flags);
+    if (flags & QTextDocument::FindWholeWords) {
+        expression.setPattern(wholeWordPattern(expression.pattern()));
+    }
     if (!expression.isValid()) {
         QFuture<void> nonConstFuture = future;
         nonConstFuture.cancel();
         return {};
     }
+
+    if (findExpressionSpansLines(expression))
+        return searchAcrossLines(future, expression, flags.testFlag(FindRegularExpression),
+                                 filePath, contents);
 
     SearchResultItems results;
     QString copy = contents;
@@ -213,7 +311,7 @@ static SearchResultItems searchInContents(const QFuture<void> &future, const QSt
         }
     }
 
-    if (flags & FindRegularExpression)
+    if ((flags & FindRegularExpression) || searchTerm.contains('\n') || searchTerm.contains('\r'))
         return searchWithRegExp(future, searchTerm, flags, filePath, contents);
     return searchWithoutRegExp(future, searchTerm, flags, filePath, contents);
 }
