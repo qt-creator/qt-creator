@@ -39,6 +39,102 @@ static void captureModule(napi_module *module)
     realModule = module;
 }
 
+// The pasteboard checks the callbacks it calls with CFI, which knows only what the platform's
+// loader mapped and aborts on a function in the mapped Qt. It gets ours, which forward.
+using PasteboardNotify = void (*)(void *context, int type);
+using PasteboardFinalize = void (*)(void *context);
+using PasteboardSetData = int (*)(void *observer, void *context, PasteboardNotify,
+                                  PasteboardFinalize);
+
+struct PasteboardForward
+{
+    void *context;
+    PasteboardNotify notify;
+    PasteboardFinalize finalize;
+};
+
+static void forwardNotify(void *context, int type)
+{
+    auto forward = static_cast<PasteboardForward *>(context);
+    if (forward->notify)
+        forward->notify(forward->context, type);
+}
+
+static void forwardFinalize(void *context)
+{
+    auto forward = static_cast<PasteboardForward *>(context);
+    if (forward->finalize)
+        forward->finalize(forward->context);
+    delete forward;
+}
+
+static int forwardSetData(void *observer, void *context, PasteboardNotify notify,
+                          PasteboardFinalize finalize)
+{
+    static const auto real = []() -> PasteboardSetData {
+        void *handle = ::dlopen("libpasteboard.so", RTLD_NOW | RTLD_LOCAL);
+        return handle ? reinterpret_cast<PasteboardSetData>(
+                   ::dlsym(handle, "OH_PasteboardObserver_SetData"))
+                      : nullptr;
+    }();
+    if (!real) {
+        note("the pasteboard has no OH_PasteboardObserver_SetData");
+        return -1;
+    }
+    auto forward = new PasteboardForward{context, notify, finalize};
+    const int result = real(observer, forward, &forwardNotify, &forwardFinalize);
+    if (result != 0)
+        delete forward;
+    return result;
+}
+
+// The same for the record provider that hands out the clipboard contents when they are read.
+using ProviderGetData = void *(*)(void *context, const char *type);
+using ProviderFinalize = void (*)(void *context);
+using ProviderSetData = int (*)(void *provider, void *context, ProviderGetData,
+                                ProviderFinalize);
+
+struct ProviderForward
+{
+    void *context;
+    ProviderGetData getData;
+    ProviderFinalize finalize;
+};
+
+static void *forwardGetData(void *context, const char *type)
+{
+    auto forward = static_cast<ProviderForward *>(context);
+    return forward->getData ? forward->getData(forward->context, type) : nullptr;
+}
+
+static void forwardProviderFinalize(void *context)
+{
+    auto forward = static_cast<ProviderForward *>(context);
+    if (forward->finalize)
+        forward->finalize(forward->context);
+    delete forward;
+}
+
+static int forwardProviderSetData(void *provider, void *context, ProviderGetData getData,
+                                  ProviderFinalize finalize)
+{
+    static const auto real = []() -> ProviderSetData {
+        void *handle = ::dlopen("libudmf.so", RTLD_NOW | RTLD_LOCAL);
+        return handle ? reinterpret_cast<ProviderSetData>(
+                   ::dlsym(handle, "OH_UdmfRecordProvider_SetData"))
+                      : nullptr;
+    }();
+    if (!real) {
+        note("UDMF has no OH_UdmfRecordProvider_SetData");
+        return -1;
+    }
+    auto forward = new ProviderForward{context, getData, finalize};
+    const int result = real(provider, forward, &forwardGetData, &forwardProviderFinalize);
+    if (result != 0)
+        delete forward;
+    return result;
+}
+
 static bool exists(const std::string &path)
 {
     struct stat info;
@@ -209,6 +305,10 @@ static bool mapQt()
     ::setenv(ShimVariable, pointer, 1);
     world().directories.push_back(directory);
     QtcLoad::interposers()["napi_module_register"] = reinterpret_cast<void *>(&captureModule);
+    QtcLoad::interposers()["OH_PasteboardObserver_SetData"]
+        = reinterpret_cast<void *>(&forwardSetData);
+    QtcLoad::interposers()["OH_UdmfRecordProvider_SetData"]
+        = reinterpret_cast<void *>(&forwardProviderSetData);
 
     note("mapping %s", path.c_str());
     world().images.push_back(std::make_unique<QtcLoad::Image>());

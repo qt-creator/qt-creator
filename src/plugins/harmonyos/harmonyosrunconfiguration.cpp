@@ -409,8 +409,8 @@ private:
         }
     }
 
-    // Qt's platform plugin ends the ability when the application quits, and the platform
-    // then ends the process before the application's main() got to return.
+    // The channel closes with the process, so one that dies before the application's
+    // main() returned, a crash on the way out included, takes the exit code with it.
     void reportEnd()
     {
         if (m_called && !m_returned) {
