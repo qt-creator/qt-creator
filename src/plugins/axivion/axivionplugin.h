@@ -133,6 +133,7 @@ QString anyToSimpleString(const Dto::Any &any, const QString &type,
 void fetchIssueInfo(DashboardMode dashboardMode, const QString &id);
 
 void switchActiveDashboardId(const Utils::Id &toDashboardId);
+void resetLocalDashboard();
 const Utils::Id activeDashboardId();
 const std::optional<DashboardInfo> currentDashboardInfo();
 void setAnalysisVersion(const QString &version);

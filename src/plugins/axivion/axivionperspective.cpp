@@ -285,6 +285,7 @@ public:
     void initDashboardList(const QString &preferredProject = {});
     void resetDashboard();
     void updateDashboardModeUi();
+    void reloadLocalDashboard();
     void leaveOrEnterDashboardMode(bool byLocalBuildButton);
     void updateNamedFilters();
     void updateLocalBuildState(const QString &projectName, int percent);
@@ -610,6 +611,12 @@ void IssuesWidget::updateUi(const QString &kind)
         return;
     }
 
+    // a reloaded local dashboard may not provide the selected version anymore
+    if (currentDashboardMode() == DashboardMode::Local && info.versions.size() < 3) {
+        GuardLocker lock(m_signalBlocker);
+        m_localVersions->setCurrentIndex(LocalVersions::ReferenceVersion);
+    }
+
     setFiltersEnabled(true);
     // avoid refetching existing data
     if (kind.isEmpty() && (!m_currentPrefix.isEmpty() || m_issuesModel->rowCount()))
@@ -676,6 +683,14 @@ void IssuesWidget::updateDashboardModeUi()
     const DashboardMode mode = currentDashboardMode();
     m_localDashBoard->setChecked(mode == DashboardMode::Local);
     m_versionsStack->setCurrentIndex(int(mode));
+}
+
+void IssuesWidget::reloadLocalDashboard()
+{
+    QTC_ASSERT(currentDashboardMode() == DashboardMode::Local, return);
+    resetLocalDashboard();
+    setFiltersEnabled(false);
+    fetchLocalDashboard();
 }
 
 void IssuesWidget::leaveOrEnterDashboardMode(bool byLocalBuildButton)
@@ -1235,6 +1250,11 @@ void IssuesWidget::fetchLocalDashboard()
     const auto onDashboardInfoFetched = [this] (const Result<DashboardInfo> &info) {
         if (!info) {
             m_issuesView->hideProgressIndicator();
+            // the local dashboard is not usable (anymore), so fall back to the global one
+            QMetaObject::invokeMethod(this, [] {
+                if (currentDashboardMode() == DashboardMode::Local)
+                    switchDashboardMode(DashboardMode::Global, false);
+            }, Qt::QueuedConnection);
             return;
         }
         fetchNamedFilters(DashboardMode::Local);
@@ -1831,6 +1851,11 @@ AxivionPerspective::AxivionPerspective()
     reloadDataAct->setIcon(Utils::Icons::RELOAD_TOOLBAR.icon());
     reloadDataAct->setToolTip(Tr::tr("Reload"));
     connect(reloadDataAct, &QAction::triggered, this, [this] {
+        // the local dashboard depends on the global project info, so keep the latter
+        if (currentDashboardMode() == DashboardMode::Local) {
+            m_issuesWidget.reloadLocalDashboard();
+            return;
+        }
         switchActiveDashboardId(activeDashboardId()); // reset cached data
         reinitDashboardList({});
     });

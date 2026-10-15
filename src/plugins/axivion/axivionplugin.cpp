@@ -1399,6 +1399,14 @@ void switchActiveDashboardId(const Id &toDashboardId)
     updateNamedFilters();
 }
 
+void resetLocalDashboard()
+{
+    QTC_ASSERT(dd, return);
+    dd->m_localDashboard.reset();
+    dd->m_localDashboardInfo.reset();
+    dd->m_currentLocalProjectInfo.reset();
+}
+
 const std::optional<DashboardInfo> currentDashboardInfo()
 {
     QTC_ASSERT(dd, return std::nullopt);
