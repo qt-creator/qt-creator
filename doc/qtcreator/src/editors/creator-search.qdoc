@@ -51,6 +51,10 @@
             All occurrences of the text are highlighted in the editor as you
             type.
 
+            To search for text that spans several lines, press
+            \key {Ctrl+Return} (\key {Cmd+Return} on \macos) to start a new
+            line in \uicontrol Find. The field grows to show the lines.
+
         \li To go to the next occurrence, select \imagenext
             (\uicontrol {Find Next}) or \key F3.
 

@@ -20,14 +20,17 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/externaltoolmanager.h>
 #include <coreplugin/find/basetextfind.h>
+#include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/idocument.h>
 
+#include <utils/aggregate.h>
 #include <utils/filepath.h>
 #include <utils/multitextcursor.h>
 #include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/temporarydirectory.h>
 
 #include <QDropEvent>
+#include <QImage>
 #include <QMimeData>
 #include <QScopeGuard>
 #include <QSignalSpy>
@@ -1768,6 +1771,15 @@ class FindReplaceTest final : public QObject
 private slots:
     void testReplaceAll();
     void testReplaceSelected();
+    void testFindAcrossLines();
+    void testFindAcrossLinesBackward();
+    void testFindLiteralNewline();
+    void testReplaceAllAcrossLines();
+    void testReplaceAllAcrossLinesInScope();
+    void testReplaceAllAcrossLinesAdjacent();
+    void testAllMatchesAcrossBlocks();
+    void testHighlightAcrossLines();
+    void testHighlightFollowsTheSearch();
 };
 
 static BaseTextEditor *openTextEditor(const QString &contents, QString title)
@@ -1814,6 +1826,200 @@ void FindReplaceTest::testReplaceSelected()
 
     QCOMPARE(editorWidget->textDocument()->plainText(),
              QString("int window;\nfind w;\nTriangleWindow tw;"));
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+void FindReplaceTest::testFindAcrossLines()
+{
+    BaseTextEditor *editor = openTextEditor("int a;\nint b;\nint c;", "find.txt");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+
+    Core::BaseTextFind find(editorWidget);
+    QCOMPARE(find.findStep("a;\\nint b", Utils::FindRegularExpression), Core::IFindSupport::Found);
+    QCOMPARE(editorWidget->textCursor().selectedText(),
+             QString("a;") + QChar(QChar::ParagraphSeparator) + "int b");
+
+    // CRLF is how the user spells a line break, the document only has LF
+    editorWidget->moveCursor(QTextCursor::Start);
+    QCOMPARE(find.findStep("b;\\r\\nint", Utils::FindRegularExpression),
+             Core::IFindSupport::Found);
+    QCOMPARE(editorWidget->textCursor().selectionStart(), 11);
+
+    QCOMPARE(find.findStep("a;\\nint b", Utils::FindRegularExpression),
+             Core::IFindSupport::Found); // wraps
+    QCOMPARE(find.findStep("a;\\nint b", Utils::FindRegularExpression | Utils::FindWholeWords),
+             Core::IFindSupport::Found);
+    QCOMPARE(find.findStep("a;\\nxint", Utils::FindRegularExpression),
+             Core::IFindSupport::NotFound);
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+void FindReplaceTest::testFindAcrossLinesBackward()
+{
+    BaseTextEditor *editor = openTextEditor("x\ny\nx\ny", "find.txt");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+    editorWidget->moveCursor(QTextCursor::End);
+
+    Core::BaseTextFind find(editorWidget);
+    const Utils::FindFlags flags = Utils::FindRegularExpression | Utils::FindBackward;
+    QCOMPARE(find.findStep("x\\ny", flags), Core::IFindSupport::Found);
+    QCOMPARE(editorWidget->textCursor().selectionStart(), 4);
+    QCOMPARE(find.findStep("x\\ny", flags), Core::IFindSupport::Found);
+    QCOMPARE(editorWidget->textCursor().selectionStart(), 0);
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+void FindReplaceTest::testFindLiteralNewline()
+{
+    BaseTextEditor *editor = openTextEditor("a.b\nc\nab\nc", "find.txt");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+
+    // Not a regular expression: the dot is a dot and the newline is a newline
+    Core::BaseTextFind find(editorWidget);
+    QCOMPARE(find.findStep("a.b\nc", {}), Core::IFindSupport::Found);
+    QCOMPARE(editorWidget->textCursor().selectionStart(), 0);
+    QCOMPARE(find.findStep("ab\nc", {}), Core::IFindSupport::Found);
+    QCOMPARE(editorWidget->textCursor().selectionStart(), 6);
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+void FindReplaceTest::testReplaceAllAcrossLines()
+{
+    BaseTextEditor *editor = openTextEditor("a,\nb,\nc", "find.txt");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+
+    Core::BaseTextFind find(editorWidget);
+    QCOMPARE(find.replaceAll(",\\n(\\w)", " \\1", Utils::FindRegularExpression), 2);
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("a b c"));
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+void FindReplaceTest::testAllMatchesAcrossBlocks()
+{
+    const QString text = "x\ny\nx\ny\nxy";
+    const QRegularExpression expr = Core::BaseTextFindBase::regularExpression(
+        "x\\ny", Utils::FindRegularExpression);
+    QVERIFY(Core::BaseTextFindBase::spansLines(expr));
+    const QList<std::pair<int, int>> expected{{0, 3}, {4, 7}};
+    QCOMPARE(Core::BaseTextFindBase::allMatchesAcrossBlocks(text, expr, false), expected);
+
+    const QRegularExpression single = Core::BaseTextFindBase::regularExpression(
+        "xy", Utils::FindRegularExpression);
+    QVERIFY(!Core::BaseTextFindBase::spansLines(single));
+}
+
+void FindReplaceTest::testHighlightAcrossLines()
+{
+    BaseTextEditor *editor = openTextEditor("aaa\nbbb\nccc", "find.txt");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+    editorWidget->resize(400, 200);
+    editorWidget->show();
+
+    auto *find = Utils::Aggregation::query<Core::IFindSupport>(editorWidget);
+    QVERIFY(find);
+
+    const auto renderedRows = [&](const QString &pattern) {
+        find->highlightAll(pattern, Utils::FindRegularExpression);
+        return editorWidget->viewport()->grab().toImage();
+    };
+    const QImage plain = renderedRows(QString());
+    const QImage highlighted = renderedRows("a\\nbb");
+
+    const auto differsInRow = [&](int y) {
+        for (int x = 0; x < plain.width(); ++x) {
+            if (plain.pixel(x, y) != highlighted.pixel(x, y))
+                return true;
+        }
+        return false;
+    };
+    const auto rowOf = [&](int position) {
+        QTextCursor cursor(editorWidget->document());
+        cursor.setPosition(position);
+        return editorWidget->cursorRect(cursor).center().y();
+    };
+    QVERIFY(differsInRow(rowOf(2)));  // the "a" on the first line
+    QVERIFY(differsInRow(rowOf(5)));  // the "bb" on the second line
+    QVERIFY(!differsInRow(rowOf(9))); // nothing on the third line
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+void FindReplaceTest::testHighlightFollowsTheSearch()
+{
+    BaseTextEditor *editor = openTextEditor("aaa\nbbb\nccc\nddd", "find.txt");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+    editorWidget->resize(400, 200);
+    editorWidget->show();
+
+    auto *find = Utils::Aggregation::query<Core::IFindSupport>(editorWidget);
+    QVERIFY(find);
+
+    const auto render = [&](const QString &pattern) {
+        find->highlightAll(pattern, Utils::FindRegularExpression);
+        return editorWidget->viewport()->grab().toImage();
+    };
+    const auto differsInRow = [&](const QImage &a, const QImage &b, int position) {
+        QTextCursor cursor(editorWidget->document());
+        cursor.setPosition(position);
+        const int y = editorWidget->cursorRect(cursor).center().y();
+        for (int x = 0; x < a.width(); ++x) {
+            if (a.pixel(x, y) != b.pixel(x, y))
+                return true;
+        }
+        return false;
+    };
+
+    const QImage plain = render(QString());
+    render("a\\nb");
+    const QImage second = render("c\\nd"); // another search over the same document
+
+    QVERIFY(differsInRow(plain, second, 9));  // the "c"
+    QVERIFY(!differsInRow(plain, second, 2)); // the "a" of the previous search
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+void FindReplaceTest::testReplaceAllAcrossLinesInScope()
+{
+    BaseTextEditor *editor = openTextEditor("a\nb\na\nb\na\nb", "find.txt");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+
+    // Only the lines 3 and 4 are in the scope of the search
+    QTextCursor cursor(editorWidget->document());
+    cursor.setPosition(4);
+    cursor.setPosition(8, QTextCursor::KeepAnchor);
+    editorWidget->setTextCursor(cursor);
+    Core::BaseTextFind<TextEditorWidget> find(editorWidget);
+    find.defineFindScope();
+
+    QCOMPARE(find.replaceAll("a\\nb", "X", Utils::FindRegularExpression), 1);
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("a\nb\nX\na\nb"));
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+void FindReplaceTest::testReplaceAllAcrossLinesAdjacent()
+{
+    BaseTextEditor *editor = openTextEditor("ab\nab\nab\ncd", "find.txt");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+
+    // The replacement is longer than the match and the matches follow each other
+    Core::BaseTextFind<TextEditorWidget> find(editorWidget);
+    QCOMPARE(find.replaceAll("b\\na", "[\\n]", Utils::FindRegularExpression), 2);
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("a[\n][\n]b\ncd"));
 
     Core::EditorManager::closeEditors({editor}, false);
 }

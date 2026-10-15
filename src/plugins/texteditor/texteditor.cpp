@@ -1049,9 +1049,13 @@ public:
     QTextCursor m_lastLinkUpdate;
 
     QRegularExpression m_searchExpr;
+    mutable QList<std::pair<int, int>> m_multiLineMatches;
+    mutable int m_multiLineMatchesRevision = -1;
     QString m_findText;
     FindFlags m_findFlags;
     void highlightSearchResults(const QTextBlock &block, const PaintEventData &data) const;
+    const QList<std::pair<int, int>> &multiLineMatches() const;
+    void highlightMultiLineMatches(int firstPosition, int lastPosition) const;
     void highlightSelection(const QTextBlock &block, const PaintEventData &data) const;
     QTimer m_delayedUpdateTimer;
 
@@ -5710,6 +5714,33 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
     }
 }
 
+const QList<std::pair<int, int>> &TextEditorWidgetPrivate::multiLineMatches() const
+{
+    const int revision = q->document()->revision();
+    if (m_multiLineMatchesRevision != revision) {
+        m_multiLineMatches = BaseTextFindBase::allMatchesAcrossBlocks(
+            q->document()->toPlainText(), m_searchExpr, m_findFlags & FindWholeWords);
+        m_multiLineMatchesRevision = revision;
+    }
+    return m_multiLineMatches;
+}
+
+void TextEditorWidgetPrivate::highlightMultiLineMatches(int firstPosition, int lastPosition) const
+{
+    const QTextCursor cursor = q->textCursor();
+    const QColor &searchResultColor = m_document->fontSettings()
+            .toTextCharFormat(C_SEARCH_RESULT).background().color().darker(120);
+    for (const auto &[start, end] : multiLineMatches()) {
+        if (start >= lastPosition)
+            break;
+        if (end <= firstPosition || !m_find->inScope(start, end))
+            continue;
+        const uint flag = (start == cursor.selectionStart() && end == cursor.selectionEnd())
+                              ? TextEditorOverlay::DropShadow : 0;
+        m_searchResultOverlay.addOverlaySelection(start, end, searchResultColor, QColor(), flag);
+    }
+}
+
 void TextEditorWidgetPrivate::highlightSelection(const QTextBlock &block, const PaintEventData &data) const
 {
     if (!m_displaySettings.m_highlightSelection || m_cursors.isNull())
@@ -6215,6 +6246,9 @@ void TextEditorWidgetPrivate::paintSearchResultOverlay(const PaintEventData &dat
         return;
 
     const int margin = 5;
+    const bool acrossBlocks = BaseTextFindBase::spansLines(m_searchExpr);
+    int firstPosition = -1;
+    int lastPosition = 0;
     QTextBlock block = data.block;
     QPointF offset = data.mainLayoutOffset;
     while (block.isValid()) {
@@ -6222,7 +6256,11 @@ void TextEditorWidgetPrivate::paintSearchResultOverlay(const PaintEventData &dat
 
         if (blockBoundingRect.bottom() >= data.eventRect.top() - margin
                 && blockBoundingRect.top() <= data.eventRect.bottom() + margin) {
-            highlightSearchResults(block, data);
+            if (!acrossBlocks)
+                highlightSearchResults(block, data);
+            else if (firstPosition < 0)
+                firstPosition = block.position();
+            lastPosition = block.position() + block.length();
         }
         offset.ry() += blockBoundingRect.height();
 
@@ -6231,6 +6269,8 @@ void TextEditorWidgetPrivate::paintSearchResultOverlay(const PaintEventData &dat
 
         block = nextVisibleBlock(block);
     }
+    if (acrossBlocks && firstPosition >= 0)
+        highlightMultiLineMatches(firstPosition, lastPosition);
 
     m_searchResultOverlay.fill(&painter,
                                data.searchResultFormat.background().color(),
@@ -9123,6 +9163,7 @@ void TextEditorWidgetPrivate::highlightSearchResultsSlot(const QString &txt, Fin
     if (m_searchExpr == newExpression)
         return;
     m_searchExpr = newExpression;
+    m_multiLineMatchesRevision = -1;
     m_findText = txt;
     m_findFlags = findFlags;
 
@@ -9156,6 +9197,15 @@ void TextEditorWidgetPrivate::highlightSearchResultsInScrollBar()
         return;
 
     adjustScrollBarRanges();
+
+    if (BaseTextFindBase::spansLines(m_searchExpr)) {
+        for (const auto &[start, end] : multiLineMatches()) {
+            if (m_find->inScope(start, end))
+                m_searchResults << SearchResult{start, end - start};
+        }
+        addSearchResultsToScrollBar(m_searchResults);
+        return;
+    }
 
     const auto onSetup = [this, txt](Async<SearchResultItems> &task) {
         task.setConcurrentCallData(Utils::searchInContents, txt, m_findFlags,

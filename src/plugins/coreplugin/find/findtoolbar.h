@@ -19,7 +19,7 @@ class QToolButton;
 QT_END_NAMESPACE
 
 namespace Utils {
-class FancyLineEdit;
+class FancyTextEdit;
 } // namespace Utils
 
 namespace Core {
@@ -161,7 +161,7 @@ private:
     QAction *m_localReplaceAllAction = nullptr;
 
     QLabel *m_findLabel;
-    Utils::FancyLineEdit *m_findEdit;
+    Utils::FancyTextEdit *m_findEdit;
     QHBoxLayout *m_findButtonLayout;
     QToolButton *m_findPreviousButton;
     QToolButton *m_findNextButton;
@@ -169,7 +169,7 @@ private:
     QSpacerItem *m_horizontalSpacer;
     QToolButton *m_close;
     QLabel *m_replaceLabel;
-    Utils::FancyLineEdit *m_replaceEdit;
+    Utils::FancyTextEdit *m_replaceEdit;
     QWidget *m_replaceButtonsWidget;
     QToolButton *m_replaceButton;
     QToolButton *m_replaceNextButton;

@@ -18,13 +18,105 @@ using namespace Utils;
 
 namespace Core {
 
+// A pattern can only match across lines if it names a line break.
+static bool patternSpansLines(const QString &pattern)
+{
+    for (qsizetype i = 0; i < pattern.size(); ++i) {
+        const QChar c = pattern.at(i);
+        if (c == '\n')
+            return true;
+        if (c == '\\' && ++i < pattern.size()) {
+            const QChar escaped = pattern.at(i);
+            if (escaped == 'n' || escaped == 'r' || escaped == 'R' || escaped == '\n')
+                return true;
+        }
+    }
+    return false;
+}
+
 QRegularExpression BaseTextFindBase::regularExpression(const QString &txt, FindFlags flags)
 {
-    return QRegularExpression((flags & FindRegularExpression) ? txt
-                                                              : QRegularExpression::escape(txt),
-                              (flags & FindCaseSensitively)
-                                  ? QRegularExpression::NoPatternOption
-                                  : QRegularExpression::CaseInsensitiveOption);
+    // QTextDocument has no CR, the line break is a single LF
+    QString pattern = txt;
+    pattern.replace("\r\n", "\n");
+    if (flags & FindRegularExpression)
+        pattern.replace("\\r\\n", "\\n");
+    else
+        pattern = QRegularExpression::escape(pattern);
+
+    QRegularExpression::PatternOptions options = (flags & FindCaseSensitively)
+        ? QRegularExpression::NoPatternOption
+        : QRegularExpression::CaseInsensitiveOption;
+    if (patternSpansLines(pattern))
+        options |= QRegularExpression::MultilineOption;
+    return QRegularExpression(pattern, options);
+}
+
+static bool isWholeWord(const QString &text, qsizetype start, qsizetype end)
+{
+    return (start == 0 || !text.at(start - 1).isLetterOrNumber())
+           && (end == text.size() || !text.at(end).isLetterOrNumber());
+}
+
+// QTextDocument::find() matches block by block, so it cannot see a line break.
+static QTextCursor findAcrossBlocks(
+    QTextDocument *document,
+    const QRegularExpression &expr,
+    const QTextCursor &from,
+    QTextDocument::FindFlags options)
+{
+    const QString text = document->toPlainText();
+    const bool backward = options & QTextDocument::FindBackward;
+    const bool wholeWords = options & QTextDocument::FindWholeWords;
+    const qsizetype limit = backward ? from.selectionStart() : from.selectionEnd();
+
+    qsizetype pos = limit;
+    while (pos >= 0 && pos <= text.size()) {
+        QRegularExpressionMatch match;
+        const qsizetype idx = backward ? text.lastIndexOf(expr, pos, &match)
+                                       : (match = expr.match(text, pos)).capturedStart();
+        if (!match.hasMatch() || idx < 0)
+            return {};
+        const qsizetype end = match.capturedEnd();
+        if ((!backward || end <= limit) && (!wholeWords || isWholeWord(text, idx, end))) {
+            QTextCursor found(document);
+            found.setPosition(idx);
+            found.setPosition(end, QTextCursor::KeepAnchor);
+            return found;
+        }
+        pos = backward ? idx - 1 : idx + 1;
+    }
+    return {};
+}
+
+bool BaseTextFindBase::spansLines(const QRegularExpression &expr)
+{
+    return expr.patternOptions() & QRegularExpression::MultilineOption;
+}
+
+QList<std::pair<int, int>> BaseTextFindBase::allMatchesAcrossBlocks(
+    const QString &documentText, const QRegularExpression &expr, bool wholeWords)
+{
+    QList<std::pair<int, int>> matches;
+    qsizetype pos = 0;
+    while (pos <= documentText.size()) {
+        const QRegularExpressionMatch match = expr.match(documentText, pos);
+        if (!match.hasMatch())
+            break;
+        const qsizetype start = match.capturedStart();
+        const qsizetype end = match.capturedEnd();
+        pos = end > start ? end : start + 1;
+        if (end > start && (!wholeWords || isWholeWord(documentText, start, end)))
+            matches.append({int(start), int(end)});
+    }
+    return matches;
+}
+
+static QString selectedPlainText(const QTextCursor &cursor)
+{
+    QString text = cursor.selectedText();
+    text.replace(QChar::ParagraphSeparator, '\n');
+    return text;
 }
 
 struct BaseTextFindPrivate
@@ -238,7 +330,7 @@ QTextCursor BaseTextFindBase::replaceInternal(
     bool usesRegExp = (findFlags & FindRegularExpression);
     bool preserveCase = (findFlags & FindPreserveCase);
     QRegularExpression regexp = regularExpression(before, findFlags);
-    QRegularExpressionMatch match = regexp.match(cursor.selectedText());
+    QRegularExpressionMatch match = regexp.match(selectedPlainText(cursor));
     if (match.hasMatch()) {
         QString realAfter;
         if (usesRegExp)
@@ -292,6 +384,31 @@ int BaseTextFindBase::replaceAll(const QString &before, const QString &after, Fi
     bool usesRegExp = (findFlags & FindRegularExpression);
     bool preserveCase = (findFlags & FindPreserveCase);
     QRegularExpression regexp = regularExpression(before, findFlags);
+    if (spansLines(regexp)) {
+        // Find the matches in the text of the document once, and replace from the last to the
+        // first so that the offsets of the earlier ones stay valid.
+        const QList<std::pair<int, int>> matches = allMatchesAcrossBlocks(
+            document()->toPlainText(), regexp, findFlags.testFlag(FindWholeWords));
+        for (auto it = matches.crbegin(); it != matches.crend(); ++it) {
+            if (!inScope(it->first, it->second))
+                continue;
+            editCursor.setPosition(it->first);
+            editCursor.setPosition(it->second, QTextCursor::KeepAnchor);
+            const QString matched = selectedPlainText(editCursor);
+
+            QString realAfter;
+            if (usesRegExp)
+                realAfter = Utils::expandRegExpReplacement(after, regexp.match(matched).capturedTexts());
+            else if (preserveCase)
+                realAfter = Utils::matchCaseReplacement(matched, after);
+            else
+                realAfter = after;
+            insertTextAfterSelection(realAfter, editCursor);
+            ++count;
+        }
+        editCursor.endEditBlock();
+        return count;
+    }
     QTextCursor found = findOne(regexp, editCursor,
                                 Utils::textDocumentFlagsForFindFlags(findFlags));
     bool first = true;
@@ -314,7 +431,7 @@ int BaseTextFindBase::replaceAll(const QString &before, const QString &after, Fi
         ++count;
         editCursor.setPosition(found.selectionStart());
         editCursor.setPosition(found.selectionEnd(), QTextCursor::KeepAnchor);
-        QRegularExpressionMatch match = regexp.match(found.selectedText());
+        QRegularExpressionMatch match = regexp.match(selectedPlainText(found));
 
         QString realAfter;
         if (usesRegExp)
@@ -359,7 +476,12 @@ bool BaseTextFindBase::find(const QString &txt, FindFlags findFlags, QTextCursor
 QTextCursor BaseTextFindBase::findOne(
     const QRegularExpression &expr, QTextCursor from, QTextDocument::FindFlags options) const
 {
-    QTextCursor found = document()->find(expr, from, options);
+    const bool acrossBlocks = spansLines(expr);
+    const auto search = [&](const QTextCursor &start) {
+        return acrossBlocks ? findAcrossBlocks(document(), expr, start, options)
+                            : document()->find(expr, start, options);
+    };
+    QTextCursor found = search(from);
     while (!found.isNull() && !inScope(found)) {
         if (!found.hasSelection()) {
             if (found.movePosition(options & QTextDocument::FindBackward
@@ -373,7 +495,7 @@ QTextCursor BaseTextFindBase::findOne(
             from.setPosition(options & QTextDocument::FindBackward ? found.selectionStart()
                                                                    : found.selectionEnd());
         }
-        found = document()->find(expr, from, options);
+        found = search(from);
     }
 
     return found;

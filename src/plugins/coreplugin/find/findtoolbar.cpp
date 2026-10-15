@@ -17,7 +17,7 @@
 #include "../icore.h"
 
 #include <utils/hostosinfo.h>
-#include <utils/fancylineedit.h>
+#include <utils/fancytextedit.h>
 #include <utils/layoutbuilder.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
@@ -58,10 +58,9 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     m_findLabel = new QLabel;
     m_findLabel->setText(Tr::tr("Find:", nullptr));
 
-    m_findEdit = new FancyLineEdit;
+    m_findEdit = new FancyTextEdit;
     m_findEdit->setObjectName("findEdit");
     m_findEdit->setMinimumWidth(100);
-    m_findEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     m_findPreviousButton = new QToolButton;
 
@@ -85,11 +84,10 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     m_findButtonLayout->addItem(m_horizontalSpacer);
     m_findButtonLayout->addWidget(m_close);
 
-    m_replaceEdit = new FancyLineEdit(this);
+    m_replaceEdit = new FancyTextEdit(this);
     m_replaceEdit->setObjectName("replaceEdit");
     m_replaceEdit->setMinimumWidth(100);
-    m_replaceEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
-    m_replaceEdit->setFiltering(true);
+    m_replaceEdit->setClearButtonEnabled(true);
 
     m_replaceLabel = new QLabel;
     m_replaceLabel->setText(Tr::tr("Replace with:"));
@@ -155,9 +153,9 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     setProperty(StyleHelper::C_TOP_BORDER, true);
     setSingleRow(false);
 
-    connect(m_findEdit, &Utils::FancyLineEdit::editingFinished,
+    connect(m_findEdit, &FancyTextEdit::editingFinished,
             this, &FindToolBar::invokeResetIncrementalSearch);
-    connect(m_findEdit, &Utils::FancyLineEdit::textChanged,
+    connect(m_findEdit, &FancyTextEdit::textChanged,
             this, &FindToolBar::updateFindReplaceEnabled);
 
     connect(m_close, &QToolButton::clicked,
@@ -168,10 +166,10 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     m_findEdit->setSpecialCompleter(m_findCompleter);
     m_replaceEdit->setSpecialCompleter(m_replaceCompleter);
 
-    m_findEdit->setButtonVisible(Utils::FancyLineEdit::Left, true);
-    m_findEdit->setFiltering(true);
+    m_findEdit->setButtonVisible(FancyTextEdit::Left, true);
+    m_findEdit->setClearButtonEnabled(true);
     m_findEdit->setPlaceholderText(QString());
-    m_findEdit->button(Utils::FancyLineEdit::Left)->setFocusPolicy(Qt::TabFocus);
+    m_findEdit->button(FancyTextEdit::Left)->setFocusPolicy(Qt::TabFocus);
     m_findEdit->setValidationFunction([this](const QString &) -> Result<> {
                                              if (m_lastResult != IFindSupport::NotFound)
                                                  return ResultOk;
@@ -179,42 +177,42 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
                                          });
     m_replaceEdit->setPlaceholderText(QString());
 
-    connect(m_findEdit, &Utils::FancyLineEdit::textChanged,
+    connect(m_findEdit, &FancyTextEdit::textChanged,
             this, &FindToolBar::invokeFindIncremental);
-    connect(m_findEdit, &Utils::FancyLineEdit::leftButtonClicked,
+    connect(m_findEdit, &FancyTextEdit::leftButtonClicked,
             this, &FindToolBar::findEditButtonClicked);
 
     // invoke{Find,Replace}Helper change the completion model. QueuedConnection is used to perform these
     // changes only after the completer's activated() signal is handled (QTCREATORBUG-8408)
-    connect(m_findEdit, &Utils::FancyLineEdit::returnPressed,
+    connect(m_findEdit, &FancyTextEdit::returnPressed,
             this, &FindToolBar::invokeFindEnter, Qt::QueuedConnection);
-    connect(m_replaceEdit, &Utils::FancyLineEdit::returnPressed,
+    connect(m_replaceEdit, &FancyTextEdit::returnPressed,
             this, &FindToolBar::invokeReplaceEnter, Qt::QueuedConnection);
     connect(m_findCompleter, QOverload<const QModelIndex &>::of(&QCompleter::activated),
             this, &FindToolBar::findCompleterActivated);
 
     auto shiftEnterAction = new QAction(m_findEdit);
     shiftEnterAction->setShortcut(QKeySequence(Tr::tr("Shift+Enter")));
-    shiftEnterAction->setShortcutContext(Qt::WidgetShortcut);
+    shiftEnterAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     connect(shiftEnterAction, &QAction::triggered,
             this, &FindToolBar::invokeFindPrevious);
     m_findEdit->addAction(shiftEnterAction);
     auto shiftReturnAction = new QAction(m_findEdit);
     shiftReturnAction->setShortcut(QKeySequence(Tr::tr("Shift+Return")));
-    shiftReturnAction->setShortcutContext(Qt::WidgetShortcut);
+    shiftReturnAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     connect(shiftReturnAction, &QAction::triggered,
             this, &FindToolBar::invokeFindPrevious);
     m_findEdit->addAction(shiftReturnAction);
 
     auto shiftEnterReplaceAction = new QAction(m_replaceEdit);
     shiftEnterReplaceAction->setShortcut(QKeySequence(Tr::tr("Shift+Enter")));
-    shiftEnterReplaceAction->setShortcutContext(Qt::WidgetShortcut);
+    shiftEnterReplaceAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     connect(shiftEnterReplaceAction, &QAction::triggered,
             this, &FindToolBar::invokeReplacePrevious);
     m_replaceEdit->addAction(shiftEnterReplaceAction);
     auto shiftReturnReplaceAction = new QAction(m_replaceEdit);
     shiftReturnReplaceAction->setShortcut(QKeySequence(Tr::tr("Shift+Return")));
-    shiftReturnReplaceAction->setShortcutContext(Qt::WidgetShortcut);
+    shiftReturnReplaceAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     connect(shiftReturnReplaceAction, &QAction::triggered,
             this, &FindToolBar::invokeReplacePrevious);
     m_replaceEdit->addAction(shiftReturnReplaceAction);
@@ -439,7 +437,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
 
     setLightColoredIcon(isLightColored());
 
-    QWidget::setTabOrder(m_findEdit->button(FancyLineEdit::Left), m_findEdit);
+    QWidget::setTabOrder(m_findEdit->button(FancyTextEdit::Left), m_findEdit);
     QWidget::setTabOrder(m_findEdit, m_replaceEdit);
     QWidget::setTabOrder(m_replaceEdit, m_findPreviousButton);
     QWidget::setTabOrder(m_findPreviousButton, m_findNextButton);
@@ -468,8 +466,8 @@ void FindToolBar::installEventFilters()
 {
     if (!m_eventFiltersInstalled) {
         m_findCompleter->popup()->installEventFilter(this);
-        m_findEdit->installEventFilter(this);
-        m_replaceEdit->installEventFilter(this);
+        m_findEdit->installEditFilter(this);
+        m_replaceEdit->installEditFilter(this);
         this->installEventFilter(this);
         m_eventFiltersInstalled = true;
     }
@@ -477,22 +475,7 @@ void FindToolBar::installEventFilters()
 
 bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::KeyPress) {
-        auto ke = static_cast<QKeyEvent *>(event);
-        if (ke->key() == Qt::Key_Down) {
-            if (obj == m_findEdit) {
-                if (m_findEdit->text().isEmpty())
-                    m_findCompleter->setCompletionPrefix(QString());
-                m_findCompleter->complete();
-            } else if (obj == m_replaceEdit) {
-                if (m_replaceEdit->text().isEmpty())
-                    m_replaceCompleter->setCompletionPrefix(QString());
-                m_replaceCompleter->complete();
-            }
-        }
-    }
-
-    if ((obj == m_findEdit || obj == m_findCompleter->popup())
+    if ((obj == m_findEdit->focusProxy() || obj == m_findCompleter->popup())
                && event->type() == QEvent::KeyPress) {
         auto ke = static_cast<QKeyEvent *>(event);
         if (ke->key() == Qt::Key_Space && (ke->modifiers() & Utils::HostOsInfo::controlModifier())) {
@@ -652,13 +635,13 @@ QString FindToolBar::getReplaceText()
 
 void FindToolBar::setFindText(const QString &text)
 {
-    disconnect(m_findEdit, &Utils::FancyLineEdit::textChanged,
+    disconnect(m_findEdit, &FancyTextEdit::textChanged,
                this, &FindToolBar::invokeFindIncremental);
     if (hasFindFlag(FindRegularExpression))
         m_findEdit->setText(QRegularExpression::escape(text));
     else
         m_findEdit->setText(text);
-    connect(m_findEdit, &Utils::FancyLineEdit::textChanged,
+    connect(m_findEdit, &FancyTextEdit::textChanged,
             this, &FindToolBar::invokeFindIncremental);
 }
 
@@ -814,9 +797,9 @@ void FindToolBar::updateIcons()
     bool preserveCase = effectiveFlags & FindPreserveCase;
     if (!casesensitive && !wholewords && !regexp && !preserveCase) {
         const QIcon icon = Utils::Icons::MAGNIFIER.icon();
-        m_findEdit->setButtonIcon(Utils::FancyLineEdit::Left, icon);
+        m_findEdit->setButtonIcon(FancyTextEdit::Left, icon);
     } else {
-        m_findEdit->setButtonIcon(Utils::FancyLineEdit::Left,
+        m_findEdit->setButtonIcon(FancyTextEdit::Left,
                                      IFindFilter::pixmapForFindFlags(effectiveFlags));
     }
 }

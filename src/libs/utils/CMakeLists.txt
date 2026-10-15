@@ -67,6 +67,7 @@ add_qtc_library(Utils
     fancyiconbutton.cpp fancyiconbutton.h
     fancylineedit.cpp fancylineedit.h
     fancymainwindow.cpp fancymainwindow.h
+    fancytextedit.cpp fancytextedit.h
     fileinprojectfinder.cpp fileinprojectfinder.h
     filepath.cpp filepath.h
     filepathinfo.h

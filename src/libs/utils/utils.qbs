@@ -143,6 +143,8 @@ QtcLibrary {
         "fancylineedit.h",
         "fancymainwindow.cpp",
         "fancymainwindow.h",
+        "fancytextedit.cpp",
+        "fancytextedit.h",
         "filedialog.cpp",
         "filedialog.h",
         "fileinprojectfinder.cpp",

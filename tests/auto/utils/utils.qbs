@@ -12,6 +12,7 @@ Project {
         "elfreader/elfreader.qbs",
         "expander/expander.qbs",
         "expected/expected.qbs",
+        "fancytextedit/fancytextedit.qbs",
         "filepath/filepath.qbs",
         "fileinprojectfinder/fileinprojectfinder.qbs",
         "filesystemmodel/filesystemmodel.qbs",

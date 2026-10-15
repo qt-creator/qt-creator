@@ -52,6 +52,11 @@ public:
     bool inScope(int candidateStart, int candidateEnd) const;
 
     static QRegularExpression regularExpression(const QString &txt, Utils::FindFlags flags);
+    // Whether \a expr, as made by regularExpression(), can match across lines.
+    static bool spansLines(const QRegularExpression &expr);
+    // The non-empty matches of \a expr in \a documentText as (start, end) pairs.
+    static QList<std::pair<int, int>> allMatchesAcrossBlocks(
+        const QString &documentText, const QRegularExpression &expr, bool wholeWords);
 
     void setResultHighlightingEnabled(bool enable);
 
