@@ -8,6 +8,7 @@
 #include "../debuggerengineinterface.h"
 
 #include <utils/filepath.h>
+#include <utils/result.h>
 
 #include <QHash>
 #include <QJsonObject>
@@ -16,6 +17,8 @@
 #include <QSet>
 #include <QTimer>
 
+#include <functional>
+#include <memory>
 #include <optional>
 
 namespace Debugger::Internal {
@@ -122,6 +125,11 @@ protected:
     void checkAttached();
     void loadSymbols(const QString &pattern, const QString &module);
     void fetchModuleSections(quint64 requestId, const Utils::FilePath &modulePath);
+    class RegisterWalk;
+    void fetchRegisters(int reference,
+                        const std::function<void(const Utils::Result<GdbMi> &)> &done);
+    void fetchRegisterLevel(const std::shared_ptr<RegisterWalk> &walk, int reference,
+                            const QString &group);
     void reportRegisters(quint64 requestId, const GdbMi &registers);
     void reportBreakpointWithLocations(quint64 requestId, BreakpointOp op, bool taken,
                                        bool verified, const GdbMi &data, const QString &number,
@@ -166,11 +174,15 @@ protected:
     // The scopes request the locals walk running now belongs to.
     int m_scopesSeq = -1;
     // The register view's own walk: the scopes request that finds the register
-    // scope, the variables request that reads it, and who is waiting.
+    // scope, and who is waiting.
     int m_registerScopesSeq = -1;
-    int m_registerVariablesSeq = -1;
     int m_registerScopeReference = 0;
     bool m_registerNamesFetched = false;
+    // What holds each register, the scope or a group in it, as a walk found
+    // it: an assignment names it. A walk that a resume has overtaken leaves it
+    // alone.
+    QHash<QString, int> m_registerContainers;
+    int m_registerWalkGeneration = 0;
     quint64 m_registersRequestId = 0;
     // Which groups a register is in, as the debugger behind the adapter
     // answered once. It is the architecture that decides, so it stays.

@@ -200,6 +200,8 @@ void DapImpl::reportRunRequested()
     m_currentFrameId = -1;
     m_registerScopeReference = 0;
     m_registerNamesFetched = false;
+    m_registerContainers.clear();
+    ++m_registerWalkGeneration;
     m_inferiorRunning = true;
     if (m_runRequestPending || !m_runReported)
         return;
@@ -1369,6 +1371,8 @@ void DapImpl::returnOverTheConsole()
         m_currentFrameId = -1;
         m_registerScopeReference = 0;
         m_registerNamesFetched = false;
+        m_registerContainers.clear();
+        ++m_registerWalkGeneration;
         const QString expression = "python import gdb.dap.frames as f; f._clear_frame_ids(None)";
         sendCustomRequest("evaluate",
                           QJsonObject{{"expression", expression}, {"context", "repl"}},
@@ -3783,8 +3787,17 @@ void DapImpl::handleScopes(const QJsonObject &response)
             emit refreshDataReceived(m_registersRequestId, RefreshKind::Registers, {});
             return;
         }
-        m_registerVariablesSeq = m_client->postRequest(
-            "variables", QJsonObject{{"variablesReference", m_registerScopeReference}});
+        const quint64 requestId = m_registersRequestId;
+        fetchRegisters(m_registerScopeReference,
+                       [this, requestId](const Utils::Result<GdbMi> &registers) {
+            if (registers)
+                reportRegisters(requestId, *registers);
+            else {
+                emit message(Tr::tr("The adapter did not list the registers: %1")
+                                 .arg(registers.error()), LogError);
+                emit refreshDataReceived(requestId, RefreshKind::Registers, {});
+            }
+        });
         return;
     }
 
@@ -3871,6 +3884,10 @@ static GdbMi registersWithGroups(const GdbMi &registers, const QHash<QString, QS
     result.m_type = GdbMi::List;
     for (const GdbMi &reg : registers) {
         GdbMi filled = reg;
+        if (reg["groups"].isValid()) {
+            result.addChild(filled);
+            continue;
+        }
         if (const auto it = groups.constFind(reg["name"].data()); it != groups.constEnd())
             filled.addConst("groups", *it);
         result.addChild(filled);
@@ -3900,32 +3917,98 @@ void DapImpl::reportRegisters(quint64 requestId, const GdbMi &registers)
     });
 }
 
+// A register as the view reads it, in the group the adapter lists it under.
+static GdbMi registerFromVariable(const QJsonObject &item, const QString &group)
+{
+    GdbMi reg;
+    reg.m_type = GdbMi::Tuple;
+    const QString type = item.value("type").toString();
+    reg.addConst("name", item.value("name").toString());
+    reg.addConst("value", registerValue(item.value("value").toString()));
+    reg.addConst("type", gdbRegisterTypeName(type));
+    // The protocol has no field for a register's width, so the only
+    // source for it is a type name that spells it out.
+    if (const int size = registerWidth(type))
+        reg.addConst("size", QString::number(size));
+    if (!group.isEmpty())
+        reg.addConst("groups", group);
+    return reg;
+}
+
+// Some adapters put the registers into groups below the register scope, and
+// mark a group as a variable of their own making. Nothing else tells it from a
+// register with children: gdb reports its vector registers with no value too.
+static bool isRegisterGroup(const QJsonObject &item)
+{
+    if (item.value("variablesReference").toInt() == 0)
+        return false;
+    // The protocol has the kind in an object, which some adapters leave out.
+    const QJsonValue hint = item.value("presentationHint");
+    const QString kind = hint.isObject() ? hint.toObject().value("kind").toString()
+                                         : hint.toString();
+    return kind == u"virtual";
+}
+
+class DapImpl::RegisterWalk
+{
+public:
+    std::function<void(const Utils::Result<GdbMi> &)> done;
+    GdbMi registers;
+    QHash<QString, int> containers;
+    int generation = 0;
+    int pending = 0;
+};
+
+// Reads the registers in the scope behind the reference, and those in the
+// groups it holds.
+void DapImpl::fetchRegisters(int reference,
+                             const std::function<void(const Utils::Result<GdbMi> &)> &done)
+{
+    auto walk = std::make_shared<RegisterWalk>();
+    walk->done = done;
+    walk->registers.m_type = GdbMi::List;
+    walk->generation = m_registerWalkGeneration;
+    fetchRegisterLevel(walk, reference, {});
+}
+
+void DapImpl::fetchRegisterLevel(const std::shared_ptr<RegisterWalk> &walk, int reference,
+                                 const QString &group)
+{
+    ++walk->pending;
+    sendCustomRequest("variables", QJsonObject{{"variablesReference", reference}},
+                      [this, walk, reference, group](const Utils::Result<QJsonObject> &answer) {
+        --walk->pending;
+        if (!answer && group.isEmpty()) {
+            walk->done(ResultError(answer.error()));
+            return;
+        }
+        if (!answer) {
+            emit message(Tr::tr("The adapter did not list the registers of the group %1: %2")
+                             .arg(group, answer.error()), LogError);
+        } else {
+            for (const QJsonValue &value : answer->value("variables").toArray()) {
+                const QJsonObject item = value.toObject();
+                const QString name = item.value("name").toString();
+                if (isRegisterGroup(item)) {
+                    fetchRegisterLevel(walk, item.value("variablesReference").toInt(), name);
+                    continue;
+                }
+                walk->registers.addChild(registerFromVariable(item, group));
+                walk->containers.insert(name, reference);
+            }
+        }
+        if (walk->pending > 0)
+            return;
+        if (walk->generation == m_registerWalkGeneration) {
+            m_registerContainers = walk->containers;
+            m_registerNamesFetched = true;
+        }
+        walk->done(walk->registers);
+    });
+}
+
 void DapImpl::handleVariables(const QJsonObject &response)
 {
-    if (response.value("request_seq").toInt() == m_registerVariablesSeq) {
-        m_registerVariablesSeq = -1;
-        m_registerNamesFetched = true;
-        GdbMi registers;
-        registers.m_type = GdbMi::List;
-        for (const QJsonValue &value : response.value("body").toObject()
-                                           .value("variables").toArray()) {
-            const QJsonObject item = value.toObject();
-            GdbMi reg;
-            reg.m_type = GdbMi::Tuple;
-            const QString type = item.value("type").toString();
-            reg.addConst("name", item.value("name").toString());
-            reg.addConst("value", registerValue(item.value("value").toString()));
-            reg.addConst("type", gdbRegisterTypeName(type));
-            // The protocol has no field for a register's width, so the only
-            // source for it is a type name that spells it out.
-            if (const int size = registerWidth(type))
-                reg.addConst("size", QString::number(size));
-            registers.addChild(reg);
-        }
-        reportRegisters(m_registersRequestId, registers);
-        return;
-    }
-
     const QPair<QString, int> request
         = m_variableRequests.take(response.value("request_seq").toInt());
     const QString parent = request.first;
@@ -4375,9 +4458,11 @@ void DapImpl::setRegisterValue(const QString &name, const QString &value)
         return;
     }
     if (m_registerNamesFetched) {
-        postRequest("setVariable", QJsonObject{{"variablesReference", m_registerScopeReference},
-                                               {"name", name},
-                                               {"value", value}});
+        postRequest("setVariable",
+                    QJsonObject{{"variablesReference",
+                                 m_registerContainers.value(name, m_registerScopeReference)},
+                                {"name", name},
+                                {"value", value}});
         return;
     }
     if (m_currentFrameId < 0) {
@@ -4406,14 +4491,12 @@ void DapImpl::setRegisterValue(const QString &name, const QString &value)
             return;
         }
         m_registerScopeReference = reference;
-        sendCustomRequest("variables", QJsonObject{{"variablesReference", reference}},
-                          [this, name, value](const Utils::Result<QJsonObject> &listed) {
-            if (!listed) {
+        fetchRegisters(reference, [this, name, value](const Utils::Result<GdbMi> &listed) {
+            if (!listed || !m_registerNamesFetched) {
                 //: Name of a feature the debug adapter does not support
                 reportUnsupported(Tr::tr("Setting registers"));
                 return;
             }
-            m_registerNamesFetched = true;
             setRegisterValue(name, value);
         });
     });

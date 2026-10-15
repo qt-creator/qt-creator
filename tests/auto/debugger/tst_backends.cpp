@@ -1985,6 +1985,9 @@ private slots:
     void reportsALaunchTheLaunchInitializingDapAdapterRefusesOnce();
     void stopsSettingUpAfterTheLaunchWasRefusedBeforeInitialized();
     void readsNoRegistersOfAQualifiedScopeAsLocals();
+    void readsTheRegistersADapAdapterKeepsInGroups();
+    void reportsARegisterListingADapAdapterRefuses_data();
+    void reportsARegisterListingADapAdapterRefuses();
     void reportsASocketThatCannotConnect();
     void dropsALocalsWalkThatWasStartedOver();
     void sendsTheProtocolsStepRequestsThroughADapAdapter();
@@ -20076,12 +20079,27 @@ class LaunchRefusingThenInitializedDapAdapter : public FakeDapAdapter
 
 // An adapter that names its register scope "CPU Registers" and hints at none
 // of its scopes, one of which is the statics of a file named after registers.
+// It keeps the registers in groups below that scope. A group is a virtual
+// variable, with the kind in the object the protocol has for it or bare, while
+// a vector register has children and no value, as gdb reports it.
 class CpuRegistersDapAdapter : public FakeDapAdapter
 {
-    static QJsonObject variable(const QString &name, const QString &value)
+public:
+    void refuseReference(int reference) { m_refused = reference; }
+
+private:
+    int m_refused = 0;
+
+    static QJsonObject variable(const QString &name, const QString &value, int reference = 0)
     {
         return QJsonObject{{"name", name}, {"value", value}, {"type", "uint32_t"},
-                           {"variablesReference", 0}};
+                           {"variablesReference", reference}};
+    }
+
+    static QJsonObject group(const QString &name, int reference, const QJsonValue &hint)
+    {
+        return QJsonObject{{"name", name}, {"value", ""}, {"type", "Register Group"},
+                           {"variablesReference", reference}, {"presentationHint", hint}};
     }
 
     void handle(const QJsonObject &request) override
@@ -20089,7 +20107,8 @@ class CpuRegistersDapAdapter : public FakeDapAdapter
         const QString command = request.value("command").toString();
         const QJsonObject arguments = request.value("arguments").toObject();
         if (command == "initialize") {
-            respond(request, QJsonObject{{"supportsConfigurationDoneRequest", true}});
+            respond(request, QJsonObject{{"supportsConfigurationDoneRequest", true},
+                                         {"supportsSetVariable", true}});
             sendEvent("initialized");
         } else if (command == "stackTrace") {
             respond(request, QJsonObject{
@@ -20103,11 +20122,16 @@ class CpuRegistersDapAdapter : public FakeDapAdapter
                 QJsonObject{{"name", "Locals"}, {"variablesReference", 2001}},
                 QJsonObject{{"name", "Static: ./registers.c"}, {"variablesReference", 2002}},
                 QJsonObject{{"name", "CPU Registers"}, {"variablesReference", 2000}}}}});
+        } else if (command == "variables"
+                   && arguments.value("variablesReference").toInt() == m_refused) {
+            refuse(request, "Register access denied.");
         } else if (command == "variables") {
             QJsonArray variables;
             switch (arguments.value("variablesReference").toInt()) {
             case 2000:
-                variables = {variable("R0", "0x1")};
+                variables = {group("Core", 2010, QJsonObject{{"kind", "virtual"}}),
+                             group("Float", 2011, "virtual"),
+                             variable("Q0", {}, 2012)};
                 break;
             case 2001:
                 variables = {variable("counter", "1")};
@@ -20115,8 +20139,21 @@ class CpuRegistersDapAdapter : public FakeDapAdapter
             case 2002:
                 variables = {variable("s_map", "0x0")};
                 break;
+            case 2010:
+                variables = {variable("R0", "0x1"), variable("PC", "0x8000")};
+                break;
+            case 2011:
+                variables = {variable("S0", "0x0")};
+                break;
+            case 2012:
+                variables = {variable("[0]", "0x1"), variable("[1]", "0x2")};
+                break;
             }
             respond(request, QJsonObject{{"variables", variables}});
+        } else if (command == "setVariable") {
+            respond(request, QJsonObject{{"value", arguments.value("value")}});
+        } else if (command == "evaluate") {
+            refuse(request, "No such expression.");
         } else {
             respond(request, QJsonObject{});
             if (command == "configurationDone") {
@@ -21511,7 +21548,109 @@ void tst_backends::readsNoRegistersOfAQualifiedScopeAsLocals()
     names.clear();
     for (const GdbMi &item : dataById.value(422))
         names.append(item["name"].data());
-    QCOMPARE(names, QStringList{"R0"});
+    QCOMPARE(names, QStringList({"Q0", "R0", "PC", "S0"}));
+
+    engine->shutdownEngine();
+}
+
+// The groups go where the Registers view keeps them, and an assignment goes
+// to the group that holds the register, as that is where the adapter looks
+// the name up.
+void tst_backends::readsTheRegistersADapAdapterKeepsInGroups()
+{
+    CpuRegistersDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DebuggerBackend debuggerBackend(
+        std::make_unique<DapImpl>(fakeDapAdapterStartData(adapter.port(), "cpuregisters")));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    QHash<quint64, GdbMi> registersById;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&registersById](quint64 requestId, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::Registers)
+            registersById[requestId] = data;
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::SpontaneousStop));
+
+    RefreshRequest request;
+    request.kind = RefreshKind::Registers;
+    request.requestId = 431;
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(registersById.contains(431), s_timeout);
+
+    QStringList found;
+    for (const GdbMi &reg : registersById.value(431))
+        found.append(reg["name"].data() + '@' + reg["groups"].data() + '=' + reg["value"].data());
+    QCOMPARE(found, QStringList({"Q0@=", "R0@Core=0x1", "PC@Core=0x8000", "S0@Float=0x0"}));
+
+    engine->setRegisterValue("S0", "0x5");
+    engine->setRegisterValue("Q0", "0x6");
+    QTRY_VERIFY_WITH_TIMEOUT(!adapter.argumentsOf("setVariable", 1).isEmpty(), s_timeout);
+    QCOMPARE(adapter.argumentsOf("setVariable", 0).value("variablesReference").toInt(), 2011);
+    QCOMPARE(adapter.argumentsOf("setVariable", 1).value("variablesReference").toInt(), 2000);
+
+    engine->shutdownEngine();
+}
+
+// The reason a refused listing gives is for the user to read, whether it is
+// the register scope or one of its groups that was refused.
+void tst_backends::reportsARegisterListingADapAdapterRefuses_data()
+{
+    QTest::addColumn<int>("reference");
+    QTest::addColumn<QStringList>("registers");
+    QTest::newRow("scope") << 2000 << QStringList();
+    QTest::newRow("group") << 2011 << QStringList({"Q0", "R0", "PC"});
+}
+
+void tst_backends::reportsARegisterListingADapAdapterRefuses()
+{
+    QFETCH(int, reference);
+    QFETCH(QStringList, registers);
+
+    CpuRegistersDapAdapter adapter;
+    adapter.refuseReference(reference);
+    QVERIFY(adapter.listen());
+
+    DebuggerBackend debuggerBackend(
+        std::make_unique<DapImpl>(fakeDapAdapterStartData(adapter.port(), "cpuregisters")));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    QHash<quint64, GdbMi> registersById;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&registersById](quint64 requestId, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::Registers)
+            registersById[requestId] = data;
+    });
+    QStringList errors;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&errors](const QString &text, int channel, int) {
+        if (channel == Debugger::LogError && text.contains("Register access denied."))
+            errors.append(text);
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::SpontaneousStop));
+
+    RefreshRequest request;
+    request.kind = RefreshKind::Registers;
+    request.requestId = 441;
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(registersById.contains(441), s_timeout);
+
+    QStringList found;
+    for (const GdbMi &reg : registersById.value(441))
+        found.append(reg["name"].data());
+    QCOMPARE(found, registers);
+    QCOMPARE(errors.size(), 1);
 
     engine->shutdownEngine();
 }
