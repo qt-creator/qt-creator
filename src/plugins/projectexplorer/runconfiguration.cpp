@@ -243,6 +243,32 @@ static std::vector<RunConfiguration::AspectFactory> theAspectFactories;
 
 static QList<RunConfigurationFactory *> g_runConfigurationFactories;
 
+/*!
+    Returns the command line that starts \a executable with \a arguments,
+    through \a launcher where there is one.
+
+    The executable is an argument of the launcher, and an argument is a string
+    that the device the launcher runs on reads on its own. Where the two are on
+    the same remote device, that string is the path that device knows the file
+    under, not the one with the device in front of it that names it from here:
+    a launcher in a container would be handed a path that does not exist on
+    its file system.
+*/
+static CommandLine launchedCommandLine(const Launcher &launcher,
+                                       const FilePath &executable,
+                                       const QString &arguments)
+{
+    if (launcher.command.isEmpty())
+        return CommandLine{executable, arguments, CommandLine::Raw};
+
+    CommandLine commandLine(launcher.command, launcher.arguments);
+    const bool onTheLauncherDevice = !executable.isLocal()
+                                     && launcher.command.isSameDevice(executable);
+    commandLine.addArg(onTheLauncherDevice ? executable.path() : executable.toUrlishString());
+    commandLine.addArgs(arguments, CommandLine::Raw);
+    return commandLine;
+}
+
 RunConfiguration::RunConfiguration(BuildConfiguration *bc, Id id)
     : ProjectConfiguration(bc->target(), id), m_buildConfiguration(bc)
 {
@@ -272,14 +298,7 @@ RunConfiguration::RunConfiguration(BuildConfiguration *bc, Id id)
         if (const auto argumentsAspect = aspect<ArgumentsAspect>())
             arguments = argumentsAspect->arguments();
 
-        if (launcher.command.isEmpty())
-            return CommandLine{executable, arguments, CommandLine::Raw};
-
-        CommandLine launcherCommand(launcher.command, launcher.arguments);
-        launcherCommand.addArg(executable.toUrlishString());
-        launcherCommand.addArgs(arguments, CommandLine::Raw);
-
-        return launcherCommand;
+        return launchedCommandLine(launcher, executable, arguments);
     };
 
     connect(bc->buildSystem(), &BuildSystem::updated, this, &RunConfiguration::update);
@@ -1023,6 +1042,43 @@ class RunConfigurationTest : public QObject
     Q_OBJECT
 
 private slots:
+    void testLaunchedCommandLine()
+    {
+        Launcher launcher;
+        launcher.id = "java";
+        launcher.command = "/opt/jdk/bin/java";
+        launcher.arguments = {"-jar"};
+
+        // Without a launcher the executable is the command, and nothing is
+        // put in front of the arguments of the user.
+        const CommandLine bare = launchedCommandLine({}, FilePath("/b/hello.jar"), "--verbose");
+        QCOMPARE(bare.executable(), FilePath("/b/hello.jar"));
+        QCOMPARE(bare.arguments(), QString("--verbose"));
+
+        // With one, the executable becomes an argument of the launcher.
+        const CommandLine launched
+            = launchedCommandLine(launcher, FilePath("/b/hello.jar"), "--verbose");
+        QCOMPARE(launched.executable(), launcher.command);
+        QCOMPARE(launched.arguments(), QString("-jar /b/hello.jar --verbose"));
+
+        // An argument is read by the device the launcher runs on, which knows
+        // the file under its own path and not under the one that names its
+        // device from here.
+        const FilePath remoteJava = FilePath::fromParts(u"docker", u"container", u"/opt/jdk/bin/java");
+        const FilePath remoteJar = FilePath::fromParts(u"docker", u"container", u"/b/hello.jar");
+        Launcher remoteLauncher = launcher;
+        remoteLauncher.command = remoteJava;
+        QCOMPARE(launchedCommandLine(remoteLauncher, remoteJar, {}).arguments(),
+                 QString("-jar /b/hello.jar"));
+
+        // A launcher that is somewhere else has no such path to be handed.
+        const FilePath elsewhere = FilePath::fromParts(u"docker", u"other", u"/opt/jdk/bin/java");
+        Launcher elsewhereLauncher = launcher;
+        elsewhereLauncher.command = elsewhere;
+        QCOMPARE(launchedCommandLine(elsewhereLauncher, remoteJar, {}).arguments(),
+                 QString("-jar ") + remoteJar.toUrlishString());
+    }
+
     void testNoRemoteExecutableIssues_data()
     {
         QTest::addColumn<bool>("hasExecutableAspect");
