@@ -20,7 +20,7 @@ The standalone binary packages support the following platforms:
 | Windows         | ARM64           | Windows 11         |
 | (K)Ubuntu Linux | x86_64          | 22.04 (glibc 2.34) |
 | (K)Ubuntu Linux | arm64           | 24.04 (glibc 2.39) |
-| macOS           | x86_64, arm64   | 13                 |
+| macOS           | x86_64, arm64   | 14.4               |
 
 When you compile Qt Creator yourself, the Qt version that you build with
 determines the supported platforms.
