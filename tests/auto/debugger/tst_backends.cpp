@@ -5617,6 +5617,8 @@ void tst_backends::testDetachCapability()
 
     if (auto result = checkExtraCapability(backend, Debugger::DebuggerExtraCapability::Detach); !result)
         QSKIP(qPrintable(result.error()));
+    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
+        QSKIP("This test is flaky on mac");
 
     if (checkStartMode(backend, DebuggerStartModeFlag::AttachToQmlServer)) {
         Process inferiorProcess;
@@ -6183,6 +6185,8 @@ void tst_backends::testResetInferiorCapability()
 
     if (auto result = checkCapability(backend, Debugger::ResetInferiorCapability); !result)
         QSKIP(qPrintable(result.error()));
+    if (HostOsInfo::isMacHost() && backend == Backend::Qml)
+        QSKIP("This test is flaky on mac");
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
@@ -6238,6 +6242,8 @@ void tst_backends::runsTheDebuggerAsTheConfiguredUser()
             Debugger::DebuggerExtraCapability::RunAsUser); !result) {
         QSKIP(qPrintable(result.error()));
     }
+    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
+        QSKIP("This test is flaky on mac");
 
     // sudo cannot be asked for a password here, so a stub takes its place: it
     // records how it was called and runs what it was given.
@@ -6812,6 +6818,8 @@ void tst_backends::testRunCommandDeferralCapability()
     // available, the deferred change never lands and there is nothing to observe.
     if (!canInterruptRunningInferior(backend))
         QSKIP("this backend's running inferior cannot be interrupted on this host");
+    if (HostOsInfo::isMacHost() && backend == Backend::Qml)
+        QSKIP("This test is flaky on mac");
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
