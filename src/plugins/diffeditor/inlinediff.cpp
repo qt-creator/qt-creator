@@ -2107,21 +2107,12 @@ public:
         toolBarLayout->setSpacing(0);
         m_toolBar = new QToolBar;
         m_toolBar->setObjectName("InlineDiffToolBar"); // autotest
-        toolBarLayout->addWidget(m_toolBar);
+        toolBarLayout->addWidget(m_toolBar, 1);
         m_viewToolBars = new QStackedWidget;
         m_viewToolBars->addWidget(m_diffWidget->toolBarWidget());
         toolBarLayout->addWidget(m_viewToolBars, 1);
         m_diffWidget->setFocusInHandler(
             [this] { m_viewToolBars->setCurrentWidget(m_diffWidget->toolBarWidget()); });
-        // like the diff editor's view switcher, the icon shows the view that
-        // a click switches to
-        m_viewSwitcherAction = m_toolBar->addAction(QIcon(), QString());
-        connect(m_viewSwitcherAction, &QAction::triggered, this, [this] {
-            setViewMode(m_viewMode == InlineDiffViewMode::Inline
-                            ? InlineDiffViewMode::SideBySide
-                            : InlineDiffViewMode::Inline);
-        });
-
         m_previousChangeAction = m_toolBar->addAction(Utils::Icons::ARROW_UP_TOOLBAR.icon(),
                                                       Tr::tr("Go to Previous Change"));
         m_previousChangeAction->setObjectName("InlineDiffPreviousChangeAction"); // autotest
@@ -2139,6 +2130,11 @@ public:
             updateChangeNavigationActions();
         });
         updateChangeNavigationActions();
+
+        // like the diff editor, the settings are flushed to the right
+        auto spacer = new QWidget;
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        m_toolBar->addWidget(spacer);
 
         const bool collapse = Core::ICore::settings()
                                   ->value(Constants::INLINE_DIFF_COLLAPSE_KEY, true).toBool();
@@ -2237,6 +2233,15 @@ public:
                 m_signsAction, [this] {
             QSignalBlocker blocker(m_signsAction);
             m_signsAction->setChecked(TextEditor::displaySettings().markDiffChangeSigns());
+        });
+
+        // like the diff editor's view switcher, the icon shows the view that
+        // a click switches to
+        m_viewSwitcherAction = m_toolBar->addAction(QIcon(), QString());
+        connect(m_viewSwitcherAction, &QAction::triggered, this, [this] {
+            setViewMode(m_viewMode == InlineDiffViewMode::Inline
+                            ? InlineDiffViewMode::SideBySide
+                            : InlineDiffViewMode::Inline);
         });
 
         m_updateTimer.setSingleShot(true);
