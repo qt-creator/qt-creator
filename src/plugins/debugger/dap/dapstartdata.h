@@ -93,6 +93,11 @@ public:
     // passed through untouched.
     QJsonObject configuration;
     bool attach = false;
+    // Whether the launch goes out as soon as the adapter answered the
+    // initialize request, as VS Code sends it, rather than once the adapter
+    // said it is initialized. An adapter that sets its session up in the
+    // launch is only initialized by it. Attaching always waits.
+    bool launchBeforeInitialized = false;
 
     // A host of Qt Creator's own, with the Qt dumpers behind it.
     Utils::ProcessRunData debuggerRunData;

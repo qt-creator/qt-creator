@@ -213,6 +213,9 @@ protected:
     // configuration it was still answering has been acknowledged.
     bool m_runReported = false;
     bool m_runRequestPending = false;
+    bool m_runFailureReported = false;
+    bool m_launchRefused = false;
+    void reportRunFailed();
     // Whether the next stop ends the setup rather than a run of its own.
     bool m_reportsSetupStop = false;
     bool isCoreSession() const;

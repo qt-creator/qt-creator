@@ -1955,6 +1955,9 @@ private slots:
     void followsAResumeTheDapAdapterMakesOnItsOwn();
     void namesNoFrameForAStopADapAdapterGivesNoneFor();
     void readsOnlyTheLocalScopeFromADapAdapter();
+    void launchesADapAdapterTheLaunchInitializes();
+    void reportsALaunchTheLaunchInitializingDapAdapterRefusesOnce();
+    void stopsSettingUpAfterTheLaunchWasRefusedBeforeInitialized();
     void reportsASocketThatCannotConnect();
     void dropsALocalsWalkThatWasStartedOver();
     void sendsTheProtocolsStepRequestsThroughADapAdapter();
@@ -19227,6 +19230,57 @@ class ScopedDapAdapter : public FakeDapAdapter
     }
 };
 
+// An adapter that sets its session up in the launch request and says it is
+// initialized only at the end of it, as it can afford to with a client that
+// sends the launch right after the initialize response.
+class LaunchInitializedDapAdapter : public FakeDapAdapter
+{
+    void handle(const QJsonObject &request) override
+    {
+        const QString command = request.value("command").toString();
+        respond(request, command == "initialize"
+                             ? QJsonObject{{"supportsConfigurationDoneRequest", true}}
+                             : QJsonObject{});
+        if (command == "launch") {
+            sendEvent("initialized");
+        } else if (command == "configurationDone") {
+            sendEvent("stopped", QJsonObject{{"reason", "entry"}, {"threadId", 1}});
+        }
+    }
+};
+
+// One of these whose launch fails, and which is therefore never initialized.
+class LaunchRefusingDapAdapter : public FakeDapAdapter
+{
+    void handle(const QJsonObject &request) override
+    {
+        const QString command = request.value("command").toString();
+        if (command == "launch")
+            refuse(request, "no such program");
+        else
+            respond(request, command == "initialize"
+                                 ? QJsonObject{{"supportsConfigurationDoneRequest", true}}
+                                 : QJsonObject{});
+    }
+};
+
+// One that says it is initialized only after it refused the launch.
+class LaunchRefusingThenInitializedDapAdapter : public FakeDapAdapter
+{
+    void handle(const QJsonObject &request) override
+    {
+        const QString command = request.value("command").toString();
+        if (command == "launch") {
+            refuse(request, "no such program");
+            sendEvent("initialized");
+        } else {
+            respond(request, command == "initialize"
+                                 ? QJsonObject{{"supportsConfigurationDoneRequest", true}}
+                                 : QJsonObject{});
+        }
+    }
+};
+
 // An adapter that announces nothing beyond the configuration it has to: the
 // optional half of the protocol is the half it does not take.
 class BareDapAdapter : public FakeDapAdapter
@@ -20418,6 +20472,90 @@ void tst_backends::readsOnlyTheLocalScopeFromADapAdapter()
     QCOMPARE(locals["data"].childAt(0)["type"].data(), QString("int counter;"));
 
     engine->shutdownEngine();
+}
+
+static DapStartData fakeDapAdapterStartData(quint16 port, const QString &adapterId)
+{
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = port;
+    startData.adapterId = adapterId;
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+    return startData;
+}
+
+void tst_backends::launchesADapAdapterTheLaunchInitializes()
+{
+    LaunchInitializedDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData = fakeDapAdapterStartData(adapter.port(), "launchinitialized");
+    startData.launchBeforeInitialized = true;
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::SpontaneousStop));
+
+    // The "initialized" the launch brings does not send it a second time.
+    QCOMPARE(adapter.commands().count("launch"), 1);
+    QVERIFY(adapter.commands().indexOf("launch") < adapter.commands().indexOf("configurationDone"));
+
+    engine->shutdownEngine();
+}
+
+// The engine ends the session on the failed run, and the adapter going away
+// with it is not a second one.
+void tst_backends::reportsALaunchTheLaunchInitializingDapAdapterRefusesOnce()
+{
+    LaunchRefusingDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData = fakeDapAdapterStartData(adapter.port(), "launchrefusing");
+    startData.launchBeforeInitialized = true;
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::EngineRunFailed)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::EngineRunFailed));
+
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+    QCOMPARE(debuggerBackend.count(InferiorEvent::EngineRunFailed), 1);
+}
+
+// The "initialized" that follows the refusal is for a session that is over.
+void tst_backends::stopsSettingUpAfterTheLaunchWasRefusedBeforeInitialized()
+{
+    LaunchRefusingThenInitializedDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData = fakeDapAdapterStartData(adapter.port(), "launchrefusinginit");
+    startData.launchBeforeInitialized = true;
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::EngineRunFailed)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::EngineRunFailed));
+
+    // The adapter answers the shutdown after it sent "initialized", and the
+    // connection keeps the order.
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+    QVERIFY(!debuggerBackend.contains(InferiorEvent::RunAndInferiorRunOk));
+    QVERIFY(!adapter.commands().contains("configurationDone"));
 }
 
 // Most of the protocol is optional, and an adapter that announces none of it

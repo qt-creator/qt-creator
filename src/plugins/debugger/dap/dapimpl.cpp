@@ -331,9 +331,18 @@ void DapImpl::handleFinished()
     if (!m_setupReported)
         reportEngineSetup(false);
     else if (!m_runReported)
-        emit inferiorEvent(InferiorEvent::EngineRunFailed);
+        reportRunFailed();
     auto provider = qobject_cast<ProcessDataProvider *>(m_client->dataProvider());
     emit engineProcessFinished(provider ? provider->resultData() : ProcessResultData());
+}
+
+// Ending the session after a failed run kills the adapter, and its end is
+// that same failure again.
+void DapImpl::reportRunFailed()
+{
+    if (std::exchange(m_runFailureReported, true))
+        return;
+    emit inferiorEvent(InferiorEvent::EngineRunFailed);
 }
 
 // The session the reset ended is replaced by one of its own, which means the
@@ -583,7 +592,7 @@ void DapImpl::loadCore()
     if (m_startData.adapterId != "gdb") {
         //: Name of a feature the debug adapter does not support
         reportUnsupported(Tr::tr("Loading core files"));
-        emit inferiorEvent(InferiorEvent::EngineRunFailed);
+        reportRunFailed();
         return;
     }
     if (!core.executable.isEmpty()) {
@@ -606,7 +615,7 @@ void DapImpl::loadCore()
         if (!answer) {
             emit message(Tr::tr("The core file could not be loaded: %1").arg(answer.error()),
                          LogError);
-            emit inferiorEvent(InferiorEvent::EngineRunFailed);
+            reportRunFailed();
             return;
         }
         bool ok = false;
@@ -2625,6 +2634,8 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
         configureTheSymbolIndexAndForks();
         runUserStartupCommands();
         reportEngineSetup(true);
+        if (m_startData.launchBeforeInitialized && !m_startData.attach && !isCoreSession())
+            postLaunchOrAttach();
         return;
     case DapResponseType::ConfigurationDone:
         return;
@@ -2674,11 +2685,18 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
         Q_FALLTHROUGH();
     case DapResponseType::Launch:
         if (!success) {
-            // The run is claimed when the request goes out, so a refusal that
-            // comes back after that is the session ending rather than a run
-            // that never started.
-            emit inferiorEvent(m_runReported ? InferiorEvent::InferiorIll
-                                             : InferiorEvent::EngineRunFailed);
+            // A refusal that comes back after the run was claimed is the
+            // session ending, one that comes back before it, with a launch
+            // sent ahead of "initialized", is a run that never started.
+            // Either way the setup ends here: an "initialized" that still
+            // follows does not end a reset, and the adapter going away must
+            // not start the session yet again.
+            m_launchRefused = true;
+            m_isResetRestart = false;
+            if (m_runReported)
+                emit inferiorEvent(InferiorEvent::InferiorIll);
+            else
+                reportRunFailed();
         }
         return;
     case DapResponseType::Evaluate:
@@ -2890,6 +2908,9 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
             loadCore();
             return;
         }
+        // A launch refused ahead of this leaves nothing to set up.
+        if (m_launchRefused)
+            return;
         // A session started anew behind a reset has the breakpoints already,
         // the ones made here among them, and the run it stands for has been
         // reported when the reset was asked for.
@@ -2927,7 +2948,10 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         // configuration is done: an adapter that starts the debuggee in its
         // launch handler would otherwise run past them, and one that waits
         // for the configuration still has the request in hand by then.
-        postLaunchOrAttach();
+        // Unless launchBeforeInitialized sent it with the initialize
+        // response already, for adapters only initialized by the launch.
+        if (!m_startData.launchBeforeInitialized || m_startData.attach)
+            postLaunchOrAttach();
         // Attaching stops the debuggee, and the adapter reports that stop: it
         // ends the setup, so what the engine hears is the stop rather than a
         // run that never happened.
