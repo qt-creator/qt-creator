@@ -383,6 +383,7 @@ private:
 
     void read()
     {
+        static const QRegularExpression returned("^runner: main\\(\\) returned (-?\\d+)$");
         if (m_expected > 0) {
             m_answer += m_socket->read(m_expected - m_answer.size());
             if (m_answer.size() < m_expected)
@@ -401,8 +402,8 @@ private:
                 m_staged = true;
             else if (line.startsWith("runner: calling main()"))
                 m_called = true;
-            else if (line.startsWith("runner: main() returned"))
-                m_returned = true;
+            else if (const QRegularExpressionMatch match = returned.match(line); match.hasMatch())
+                m_returned = match.captured(1).toInt();
             if (m_hold)
                 readHold(line);
             m_runControl->postMessage(line, StdOutFormat);
@@ -418,7 +419,13 @@ private:
             m_runControl->postMessage(QString::fromUtf8(m_text), StdOutFormat);
             m_text.clear();
         }
-        if (m_called && !m_returned) {
+        if (m_returned) {
+            m_runControl->setLastExitCode(*m_returned);
+            m_runControl->postMessage(Tr::tr("The application \"%1\" exited with code %2.")
+                                          .arg(m_library.fileName())
+                                          .arg(*m_returned),
+                                      NormalMessageFormat);
+        } else if (m_called) {
             m_runControl->postMessage(Tr::tr("The application ended before its main() "
                                              "returned. Its exit code is not known."),
                                       NormalMessageFormat);
@@ -464,7 +471,7 @@ private:
     QByteArray m_text;
     bool m_staged = false;
     bool m_called = false;
-    bool m_returned = false;
+    std::optional<int> m_returned;
 };
 
 class HarmonyOsRunConfiguration final : public RunConfiguration
@@ -923,9 +930,16 @@ Group deviceRunRecipe(RunControl *runControl, const std::optional<RunnerDebuggin
     const auto onGoneSetup = [command, bundle](Process &process) {
         process.setCommand(command({"shell", "pidof", "-s", bundle}));
     };
-    const auto onGoneDone = [](const Process &process) {
+    const auto onGoneDone = [runControl, bundle, viaChannel](const Process &process) {
         // Succeeding ends the polling loop, and with it the run.
-        return toDoneResult(process.cleanedStdOut().trimmed().isEmpty());
+        const bool gone = process.cleanedStdOut().trimmed().isEmpty();
+        // Through the channel, the runner reports how the application ended.
+        if (gone && !viaChannel) {
+            runControl->postMessage(Tr::tr("The application \"%1\" ended. Its exit code is "
+                                           "not known.").arg(bundle),
+                                    NormalMessageFormat);
+        }
+        return toDoneResult(gone);
     };
 
     // Under the debugger the runner holds the application once it is mapped, and the
@@ -944,7 +958,8 @@ Group deviceRunRecipe(RunControl *runControl, const std::optional<RunnerDebuggin
         };
     };
     // The debugger reports the start of a debug run.
-    const ProcessTask logTask = runControl->processTaskWithModifier(onLogSetup);
+    const ProcessTask logTask
+        = runControl->processTaskWithModifier(onLogSetup, {.reportsExit = false});
 
     return Group {
         pidStorage,

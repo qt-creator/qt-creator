@@ -86,6 +86,9 @@ class ProcessSetupConfig
 public:
     bool suppressDefaultStdOutHandling = false;
     bool setupCanceler = true;
+    // False for a process that only follows the application, such as a log reader. Its end
+    // says nothing about how the application ended.
+    bool reportsExit = true;
 };
 
 /**
@@ -233,6 +236,7 @@ public:
     void setExtraData(const QVariantHash &extraData);
     // std::nullopt if no process involved, crashed or never ran
     std::optional<int> lastExitCode() const;
+    void setLastExitCode(int exitCode);
 
     static bool showPromptToStopDialog(const QString &title, const QString &text,
                                        const QString &stopButtonText = QString(),

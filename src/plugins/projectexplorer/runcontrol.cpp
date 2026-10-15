@@ -778,6 +778,11 @@ std::optional<int> RunControl::lastExitCode() const
     return d->data.exitCode;
 }
 
+void RunControl::setLastExitCode(int exitCode)
+{
+    d->data.exitCode = exitCode;
+}
+
 QString RunControl::displayName() const
 {
     if (d->data.displayName.isEmpty())
@@ -1203,16 +1208,18 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
         return SetupResult::Continue;
     };
 
-    const auto onDone = [this](const Process &process) {
+    const auto onDone = [this, config](const Process &process) {
         if (d->stdInProcess.data() == &process) {
             d->stdInProcess = nullptr;
             emit acceptsStandardInputChanged(QPrivateSignal());
         }
-        postMessage(process.exitMessage(), NormalMessageFormat);
-        // Expose the exit code to interested consumers (e.g. AutoTest::TestRunner).
-        // Leave it unset on crash so a crash is not mistaken for a clean exit(0).
-        if (process.exitStatus() == ProcessExitStatus::NormalExit)
-            d->data.exitCode = process.exitCode();
+        if (config.reportsExit) {
+            postMessage(process.exitMessage(), NormalMessageFormat);
+            // Expose the exit code to interested consumers (e.g. AutoTest::TestRunner).
+            // Leave it unset on crash so a crash is not mistaken for a clean exit(0).
+            if (process.exitStatus() == ProcessExitStatus::NormalExit)
+                d->data.exitCode = process.exitCode();
+        }
         if (process.usesTerminal()) {
             Process &mutableProcess = const_cast<Process &>(process);
             auto processInterface = mutableProcess.takeProcessInterface();
