@@ -3,9 +3,17 @@
 
 #pragma once
 
+#ifdef WITH_TESTS
+class QObject;
+#endif
+
 namespace ProjectExplorer::Internal {
 
 void setupDesktopRunConfigurations();
 void setupDesktopRunWorker();
+
+#ifdef WITH_TESTS
+QObject *createDesktopRunConfigurationTest();
+#endif
 
 } // ProjectExplorer::Internal
