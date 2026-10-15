@@ -33,6 +33,7 @@ public:
     QRgb color(int index) const override;
     float relativeHeight(int index) const override;
     qint64 rowMaxValue(int rowNumber) const override;
+    QString formatRowValue(int rowNumber, qint64 value) const override;
     Timeline::RowLabels labels() const override;
     Timeline::ItemDetails details(int index) const override;
     Timeline::OrderedItemDetails orderedDetails(int index) const override;

@@ -48,6 +48,7 @@ if(WITH_TESTS)
     tests/qmlprofilertool_test.cpp tests/qmlprofilertool_test.h
     tests/qmlprofilertracefile_test.cpp tests/qmlprofilertracefile_test.h
     tests/qmlprofilertraceview_test.cpp tests/qmlprofilertraceview_test.h
+    tests/quick3dmodel_test.cpp tests/quick3dmodel_test.h
     tests/qttracesampler_test.cpp tests/qttracesampler_test.h
     tests/scenegraphtimelinemodel_test.cpp tests/scenegraphtimelinemodel_test.h
     tests/tests.qrc

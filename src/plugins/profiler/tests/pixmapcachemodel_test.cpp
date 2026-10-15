@@ -245,6 +245,12 @@ void PixmapCacheModelTest::testRowMaxValue()
     QVERIFY(model.rowMaxValue(1) > 0);
 }
 
+void PixmapCacheModelTest::testFormatRowValue()
+{
+    QCOMPARE(model.formatRowValue(1, 42), Timeline::formatPixels(42));
+    QCOMPARE(model.formatRowValue(2, 42), Timeline::formatNumber(42));
+}
+
 void PixmapCacheModelTest::testColor()
 {
     QRgb row1Color = 0;

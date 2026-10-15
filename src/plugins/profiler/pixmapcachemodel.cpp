@@ -27,6 +27,13 @@ qint64 PixmapCacheModel::rowMaxValue(int rowNumber) const
     }
 }
 
+QString PixmapCacheModel::formatRowValue(int rowNumber, qint64 value) const
+{
+    if (rowNumber == 1)
+        return Timeline::formatPixels(value);
+    return QmlProfilerTimelineModel::formatRowValue(rowNumber, value);
+}
+
 int PixmapCacheModel::expandedRow(int index) const
 {
     return selectionId(index) + 1;

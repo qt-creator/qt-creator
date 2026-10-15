@@ -121,6 +121,13 @@ public:
         return geom.labels;
     }
 
+    QList<TextLabel> scaleLabels(int trackIndex)
+    {
+        OverlayScale scale;
+        buildScaleOverlay(tracks()[trackIndex], scale);
+        return scale.labels;
+    }
+
     static QFontMetricsF labelMetrics() { return QFontMetricsF(itemLabelFormat.font()); }
 
     QList<QRectF> selectionOutlines(qreal lineWidth)
@@ -209,6 +216,32 @@ public:
     QString itemLabel(int index) const override { return index == 20 ? "Other" : "Loop"; }
 };
 
+// An expanded row tall enough for a value scale, whose values the model
+// formats with a marker, so the test can tell which formatter the labels use.
+class ScaleModel : public TimelineModel
+{
+public:
+    ScaleModel(TimelineModelAggregator *parent) : TimelineModel(parent)
+    {
+        setExpandedRowCount(1);
+        setExpandedRowHeight(0, 100);
+    }
+
+    void loadData()
+    {
+        insert(0, 10, 0);
+        computeNesting();
+        setExpanded(true);
+    }
+
+    qint64 rowMinValue(int) const override { return 0; }
+    qint64 rowMaxValue(int) const override { return 100; }
+    QString formatRowValue(int, qint64 value) const override
+    {
+        return QString("v%1").arg(value);
+    }
+};
+
 // For every drawn fill rect, sample the pixels a user could click inside it and
 // count those where the hit test finds nothing.
 static int unhittableDrawnPixels(ProbePainter &painter, QString *report)
@@ -256,6 +289,7 @@ private slots:
     void itemLabelsEndAtNextEvent();
     void noItemLabelsByDefault();
     void densityItemLabels();
+    void scaleLabelsUseModelFormat();
     void selectionOutlinesSameSelectionId();
     void selectionOutlinesKeepVaryingHeightsApart();
     void selectionOutlinesSkipUniformRow();
@@ -686,6 +720,24 @@ void tst_TrackPainterInteraction::densityItemLabels()
     QCOMPARE(labels[1].text, "Loop");
     QVERIFY(labels[1].x > 200);
     QVERIFY(labels[1].x + fm.horizontalAdvance(labels[1].text) <= 300);
+}
+
+void tst_TrackPainterInteraction::scaleLabelsUseModelFormat()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    ScaleModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 100);
+    painter.resize(100, painter.totalHeight());
+
+    const QList<ProbePainter::TextLabel> labels = painter.scaleLabels(0);
+    QVERIFY(labels.size() > 1);
+    QVERIFY(std::all_of(labels.begin(), labels.end(), [](const ProbePainter::TextLabel &label) {
+        return label.text.startsWith(u'v');
+    }));
+    QCOMPARE(labels.first().text, "v100");
 }
 
 void tst_TrackPainterInteraction::initialState()

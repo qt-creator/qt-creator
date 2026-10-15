@@ -4,7 +4,6 @@
 #include "trackpainterbase.h"
 
 #include "timelinecoordinates.h"
-#include "timelineformatdata.h"
 #include "timelinemodel.h"
 #include "timelinenotesmodel.h"
 
@@ -607,7 +606,8 @@ void TrackPainterBase::buildScaleOverlay(const Track &track, OverlayScale &out) 
         const double stepH = double(stepVal) * double(rowH) / double(valDiff);
         const int topLabelBottom = rowY + kFontPx + kMarg * 2 + 2;
 
-        out.labels.append({formatDataSize(maxVal), float(kMarg), float(topLabelBottom)});
+        out.labels.append({model->formatRowValue(row, maxVal), float(kMarg),
+                           float(topLabelBottom)});
 
         const int numLines = int(valDiff / stepVal);
         for (int i = 0; i < numLines; ++i) {
@@ -615,7 +615,7 @@ void TrackPainterBase::buildScaleOverlay(const Track &track, OverlayScale &out) 
                 break;
             const int lineY = rowY + rowH - qRound(double(i) * stepH);
             out.lines.append(QRectF(0, lineY, w, 1));
-            out.labels.append({formatDataSize(minVal + qint64(i) * stepVal),
+            out.labels.append({model->formatRowValue(row, minVal + qint64(i) * stepVal),
                                float(kMarg), float(lineY - kMarg)});
         }
     }

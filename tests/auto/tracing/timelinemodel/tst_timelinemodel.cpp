@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <QColor>
+#include <QLocale>
 #include <QRandomGenerator>
 #include <QSignalSpy>
 #include <QTest>
+#include <tracing/timelineformatdata.h>
 #include <tracing/timelinemodel_p.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <utils/stylehelper.h>
@@ -56,6 +58,8 @@ private slots:
     void hide();
     void displayName();
     void defaultValues();
+    void numberFormat();
+    void unitFormat();
     void row();
     void colorByHue();
     void colorBySelectionId();
@@ -353,6 +357,7 @@ void tst_TimelineModel::defaultValues()
     QCOMPARE(dummy.relativeHeight(0), 1.0);
     QCOMPARE(dummy.rowMinValue(0), 0);
     QCOMPARE(dummy.rowMaxValue(0), 0);
+    QCOMPARE(dummy.formatRowValue(0, 42), formatNumber(42));
     QCOMPARE(dummy.typeId(0), -1);
     QCOMPARE(dummy.color(0), QRgb());
     QCOMPARE(dummy.labels(), (RowLabels()));
@@ -360,6 +365,22 @@ void tst_TimelineModel::defaultValues()
     QCOMPARE(dummy.details(0), emptyDetails);
     QCOMPARE(dummy.collapsedRow(0), 0);
     QCOMPARE(dummy.expandedRow(0), 0);
+}
+
+void tst_TimelineModel::numberFormat()
+{
+    if (QLocale::system().zeroDigit() != u"0")
+        QSKIP("The system locale does not use Latin digits.");
+    QCOMPARE(formatNumber(0), QString("0"));
+    QCOMPARE(formatNumber(42), QString("42"));
+}
+
+void tst_TimelineModel::unitFormat()
+{
+    if (formatNumber(12800) == QString::number(12800))
+        QSKIP("The system locale formats numbers like QString::number().");
+    QCOMPARE(formatPercentage(12800), formatNumber(12800) + '%');
+    QCOMPARE(formatPixels(12800), formatNumber(12800) + " px");
 }
 
 void tst_TimelineModel::row()

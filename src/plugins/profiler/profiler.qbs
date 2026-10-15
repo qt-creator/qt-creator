@@ -315,6 +315,7 @@ QtcPlugin {
             "qmlprofilertool_test.cpp", "qmlprofilertool_test.h",
             "qmlprofilertracefile_test.cpp", "qmlprofilertracefile_test.h",
             "qmlprofilertraceview_test.cpp", "qmlprofilertraceview_test.h",
+            "quick3dmodel_test.cpp", "quick3dmodel_test.h",
             "qttracesampler_test.cpp", "qttracesampler_test.h",
             "scenegraphtimelinemodel_test.cpp", "scenegraphtimelinemodel_test.h",
 

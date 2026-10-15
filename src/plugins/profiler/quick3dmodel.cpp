@@ -95,14 +95,22 @@ float Quick3DModel::relativeHeight(int index) const
 
 qint64 Quick3DModel::rowMaxValue(int rowNumber) const
 {
-    int index = rowNumber - 1;
-    if (index == TextureMemoryConsumption)
+    const int type = m_sortedTypes.value(rowNumber - 1, -1);
+    if (type == TextureMemoryConsumption)
         return m_maxTextureSize;
-    if (index == MeshMemoryConsumption)
+    if (type == MeshMemoryConsumption)
         return m_maxMeshSize;
-    if (index == RenderPass)
+    if (type == RenderPass)
         return m_maxNestedRenderCalls;
     return 0;
+}
+
+QString Quick3DModel::formatRowValue(int rowNumber, qint64 value) const
+{
+    const int type = m_sortedTypes.value(rowNumber - 1, -1);
+    if (type == TextureMemoryConsumption || type == MeshMemoryConsumption)
+        return Timeline::formatDataSize(value);
+    return QmlProfilerTimelineModel::formatRowValue(rowNumber, value);
 }
 
 bool Quick3DModel::resolveType(const QString &object, int detailType, QString &type)

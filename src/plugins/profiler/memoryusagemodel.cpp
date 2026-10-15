@@ -31,6 +31,12 @@ qint64 MemoryUsageModel::rowMaxValue(int rowNumber) const
     return m_maxSize;
 }
 
+QString MemoryUsageModel::formatRowValue(int rowNumber, qint64 value) const
+{
+    Q_UNUSED(rowNumber)
+    return Timeline::formatDataSize(value);
+}
+
 int MemoryUsageModel::expandedRow(int index) const
 {
     return collapsedRow(index) - Timeline::kCollapsedStartRow + 1;

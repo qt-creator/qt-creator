@@ -592,4 +592,11 @@ qint64 PerfTimelineModel::rowMaxValue(int rowNumber) const
     return rowNumber == SamplesRow ? m_resourceBlocks.maxTotal() : 0;
 }
 
+QString PerfTimelineModel::formatRowValue(int rowNumber, qint64 value) const
+{
+    if (rowNumber == SamplesRow)
+        return Timeline::formatDataSize(value);
+    return Timeline::TimelineModel::formatRowValue(rowNumber, value);
+}
+
 } // namespace Profiler::Internal

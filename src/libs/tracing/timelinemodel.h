@@ -143,6 +143,7 @@ public:
     virtual float relativeHeight(int index) const;
     virtual qint64 rowMinValue(int rowNumber) const;
     virtual qint64 rowMaxValue(int rowNumber) const;
+    virtual QString formatRowValue(int rowNumber, qint64 value) const;
 
     // Density-graph models fill each pixel column by the activity in the time
     // it covers, instead of drawing one bar per item. When rendersAsDensity()

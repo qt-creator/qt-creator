@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "timelinemodel.h"
+
+#include "timelineformatdata.h"
 #include "timelinemodel_p.h"
 #include "timelinemodelaggregator.h"
 
@@ -431,6 +433,17 @@ qint64 TimelineModel::rowMaxValue(int rowNumber) const
 {
     Q_UNUSED(rowNumber)
     return 0;
+}
+
+/*!
+    Returns \a value, which lies between \l rowMinValue() and \l rowMaxValue() of row
+    \a rowNumber, as text for the value scale of the expanded row. The base model returns
+    the plain number. Override this method if the values of a row have a unit, such as bytes.
+ */
+QString TimelineModel::formatRowValue(int rowNumber, qint64 value) const
+{
+    Q_UNUSED(rowNumber)
+    return formatNumber(value);
 }
 
 bool TimelineModel::rendersAsDensity() const

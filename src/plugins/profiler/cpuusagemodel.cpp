@@ -5,6 +5,8 @@
 
 #include "profilertr.h"
 
+#include <tracing/timelineformatdata.h>
+
 #include <utils/qtcassert.h>
 
 #include <QHash>
@@ -185,6 +187,12 @@ qint64 CpuUsageModel::rowMaxValue(int rowNumber) const
     // row is scaled to its peak, so its full height is maxRunning * 100%; a
     // single thread row tops out at 100%.
     return rowNumber == TotalRow ? qint64(m_maxRunning) * 100 : 100;
+}
+
+QString CpuUsageModel::formatRowValue(int rowNumber, qint64 value) const
+{
+    Q_UNUSED(rowNumber)
+    return Timeline::formatPercentage(value);
 }
 
 Timeline::RowLabels CpuUsageModel::labels() const

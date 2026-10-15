@@ -70,4 +70,19 @@ QString formatDataSize(qint64 bytes)
     return QLocale::system().formattedDataSize(bytes, 3, QLocale::DataSizeTraditionalFormat);
 }
 
+QString formatNumber(qint64 value)
+{
+    return QLocale::system().toString(value);
+}
+
+QString formatPercentage(qint64 percent)
+{
+    return QLocale::system().toString(percent) + '%';
+}
+
+QString formatPixels(qint64 pixels)
+{
+    return QLocale::system().toString(pixels) + " px";
+}
+
 }

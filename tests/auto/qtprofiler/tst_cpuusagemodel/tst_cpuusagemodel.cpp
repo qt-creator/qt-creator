@@ -3,6 +3,7 @@
 
 #include "cpuusagemodel.h"
 
+#include <tracing/timelineformatdata.h>
 #include <tracing/timelinemodelaggregator.h>
 
 #include <QSignalSpy>
@@ -50,6 +51,7 @@ private slots:
         QCOMPARE(model.collapsedRowCount(), 1); // total
         // Total row scaled to its peak (2 concurrent threads), labeled per-core: 200%.
         QCOMPARE(model.rowMaxValue(1), qint64(200));
+        QCOMPARE(model.formatRowValue(1, 200), Timeline::formatPercentage(200));
         QCOMPARE(model.traceEndNs(), qint64(200) * 1000);
     }
 
