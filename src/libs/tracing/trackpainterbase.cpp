@@ -8,6 +8,7 @@
 #include "timelinemodel.h"
 #include "timelinenotesmodel.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/icon.h>
 #include <utils/infolabel.h>
 
@@ -48,7 +49,7 @@ bool hasGpuTrackBackend()
 #endif
 }
 
-TrackBackend resolvedTrackBackend()
+static TrackBackend resolveTrackBackendOverride()
 {
     if (!hasGpuTrackBackend())
         return TrackBackend::Software;
@@ -56,11 +57,23 @@ TrackBackend resolvedTrackBackend()
         return g_trackBackendOverride;
     // The QCanvasPainter (RHI) backend is the default where the RHI stack is
     // reliable; software (QPainter) is the default on Linux.
-#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
-    return TrackBackend::Gpu;
-#else
-    return TrackBackend::Software;
-#endif
+    return Utils::HostOsInfo::isMacHost() || Utils::HostOsInfo::isWindowsHost()
+               ? TrackBackend::Gpu
+               : TrackBackend::Software;
+}
+
+// Switching from software to GPU at runtime only works if the RHI was set up
+// before the backing store, i.e. if the first track view used the GPU.
+bool canSwitchTrackBackends()
+{
+    static const bool canSwitch = resolveTrackBackendOverride() == TrackBackend::Gpu;
+    return canSwitch;
+}
+
+TrackBackend resolvedTrackBackend()
+{
+    canSwitchTrackBackends(); // Captures the first resolution.
+    return resolveTrackBackendOverride();
 }
 
 // --- TrackPainterBase --------------------------------------------------------

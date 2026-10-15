@@ -10,6 +10,7 @@
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
 #include <utils/theme/theme.h>
@@ -18,6 +19,7 @@
 #include <app/app_version.h>
 
 #include <QApplication>
+#include <QIcon>
 #include <QStyleHints>
 #include <QSettings>
 #include <QStringConverter>
@@ -67,6 +69,18 @@ static void initAppInfo()
     Utils::Internal::setAppInfo(info);
 }
 
+static void initApplicationIcon()
+{
+    if (!HostOsInfo::isLinuxHost())
+        return; // Windows uses the .rc icon, macOS the bundle .icns.
+
+    QIcon appIcon;
+    for (const int size : {16, 32, 128})
+        appIcon.addFile(QString(":/qtprofiler/icon/qtprofiler-%1.png").arg(size));
+    QTC_CHECK(!appIcon.isNull());
+    QApplication::setWindowIcon(appIcon);
+}
+
 static void initTemporaryDirectory()
 {
     TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/"
@@ -109,6 +123,7 @@ static void initStyle()
 void init()
 {
     initAppInfo();
+    initApplicationIcon();
     initTemporaryDirectory();
     initTheme();
     initSettings();

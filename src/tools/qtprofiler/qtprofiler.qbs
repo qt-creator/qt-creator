@@ -47,6 +47,18 @@ QtcTool {
     ]
 
     Group {
+        name: "icons"
+        Qt.core.resourcePrefix: "/qtprofiler/icon"
+        Qt.core.resourceSourceBase: sourceDirectory + "/icon"
+        files: [
+            "icon/qtprofiler-16.png",
+            "icon/qtprofiler-32.png",
+            "icon/qtprofiler-128.png",
+        ]
+        fileTags: "qt.core.resource_data"
+    }
+
+    Group {
         name: "schema"
         Qt.core.resourcePrefix: "/qtprofiler/schema"
         files: [

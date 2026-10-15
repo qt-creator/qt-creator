@@ -142,7 +142,16 @@ QtcPlugin {
     // An installation brings its own elfutils, in lib/elfutils (see
     // scripts/deploy.py), for systems that have none.
     cpp.rpaths: withLibdw ? base.concat(["$ORIGIN/../../elfutils"]) : base
-    cpp.defines: withLibdw ? base.concat(["WITH_LIBDW"]) : base
+    cpp.defines: {
+        var defines = base;
+        if (withLibdw)
+            defines = defines.concat(["WITH_LIBDW"]);
+        if (qtc.withPluginTests) {
+            defines = defines.concat(['QT_TESTCASE_BUILDDIR="'
+                + FileInfo.joinPaths(project.buildDirectory, "src/plugins/profiler") + '"']);
+        }
+        return defines;
+    }
 
     Group {
         name: "DwarfUnwinder"

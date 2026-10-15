@@ -55,6 +55,7 @@ TRACING_EXPORT TrackBackend trackBackendOverride();
 TRACING_EXPORT bool hasGpuTrackBackend();
 // Automatic resolved to a concrete backend for this host OS.
 TRACING_EXPORT TrackBackend resolvedTrackBackend();
+TRACING_EXPORT bool canSwitchTrackBackends();
 
 // Backend-independent core of the track area: track bookkeeping, the per-event
 // attribute cache, hit testing, mouse interaction and the range-dependent

@@ -11,10 +11,13 @@
 #include "idocument.h"
 #include "messagemanager.h"
 
+#include <utils/aggregate.h>
 #include <utils/fileutils.h>
 #include <utils/globaltasktree.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
+
+#include <utils/plaintextedit/plaintextedit.h>
 
 #include <QDateTime>
 #include <QXmlStreamReader>
@@ -112,38 +115,88 @@ FilePath ExternalTool::workingDirectory() const
     return m_data.workingDirectory;
 }
 
-static QStringList commandStrings(const ExternalTool &tool)
+struct CommandVariables
 {
-    QStringList strings;
-    for (const FilePath &executable : tool.executables())
-        strings << executable.toUrlishString();
-    strings << tool.arguments() << tool.input() << tool.workingDirectory().toUrlishString();
+    QStringList empty;
+    QStringList unresolved;
+};
+
+static void addVariables(CommandVariables *variables, const QString &string)
+{
+    MacroExpander *expander = Utils::globalMacroExpander();
+    variables->empty += expander->emptyVariables(string);
+    variables->unresolved += expander->unresolvedVariables(string);
+}
+
+static CommandVariables commandVariables(const ExternalTool &tool)
+{
+    // The tool runs the first executable that is found, so the variables of the
+    // executables only matter if none of them can be expanded.
+    CommandVariables variables;
+    for (const FilePath &executable : tool.executables()) {
+        CommandVariables executableVariables;
+        addVariables(&executableVariables, executable.toUrlishString());
+        if (executableVariables.empty.isEmpty() && executableVariables.unresolved.isEmpty()) {
+            variables = {};
+            break;
+        }
+        variables.empty += executableVariables.empty;
+        variables.unresolved += executableVariables.unresolved;
+    }
+
+    QStringList strings{tool.arguments(), tool.input(), tool.workingDirectory().toUrlishString()};
     // Only the items the user typed: reading the environment file would mean
     // file access, or sourcing a script, on every menu or context change.
     strings << EnvironmentItem::toStringList(tool.environmentUserChanges().itemsFromUser());
-    return strings;
+    for (const QString &string : std::as_const(strings))
+        addVariables(&variables, string);
+
+    variables.empty.removeDuplicates();
+    variables.unresolved.removeDuplicates();
+    return variables;
 }
 
 QStringList ExternalTool::emptyVariables() const
 {
-    MacroExpander *expander = Utils::globalMacroExpander();
-    QStringList empty;
-    const QStringList strings = commandStrings(*this);
-    for (const QString &string : strings)
-        empty += expander->emptyVariables(string);
-    empty.removeDuplicates();
-    return empty;
+    return commandVariables(*this).empty;
 }
 
 QStringList ExternalTool::unresolvedVariables() const
 {
-    MacroExpander *expander = Utils::globalMacroExpander();
-    QStringList unresolved;
-    const QStringList strings = commandStrings(*this);
-    for (const QString &string : strings)
-        unresolved += expander->unresolvedVariables(string);
-    unresolved.removeDuplicates();
-    return unresolved;
+    return commandVariables(*this).unresolved;
+}
+
+static bool replacesSelection(const ExternalTool *tool)
+{
+    return tool->outputHandling() == ExternalTool::ReplaceSelection
+           || tool->errorHandling() == ExternalTool::ReplaceSelection;
+}
+
+static bool hasWritableTextEditor()
+{
+    IEditor *editor = EditorManager::currentEditor();
+    if (!editor)
+        return false;
+    const PlainTextEdit *edit = Aggregation::query<PlainTextEdit>(editor->widget());
+    return edit && !edit->isReadOnly();
+}
+
+Result<> ExternalTool::canExecute() const
+{
+    if (replacesSelection(this) && !hasWritableTextEditor())
+        return ResultError(Tr::tr("The tool requires a writable editor."));
+    const CommandVariables variables = commandVariables(*this);
+    if (!variables.unresolved.isEmpty()) {
+        return ResultError(
+            Tr::tr("Failed to expand the variables: %1").arg(variables.unresolved.join(", ")));
+    }
+
+    if (!variables.empty.isEmpty()) {
+        return ResultError(Tr::tr("The variables have no value in the current context: %1")
+                               .arg(variables.empty.join(", ")));
+    }
+
+    return ResultOk;
 }
 
 Id ExternalTool::baseEnvironmentProviderId() const
@@ -570,11 +623,8 @@ Result<> ExecuteData::resolve()
     MacroExpander *expander = globalMacroExpander();
     m_tool.environmentUserChanges().modifyEnvironment(m_resolvedEnvironment, expander);
 
-    // Refuse to run when the command references variables that cannot be expanded
-    // (QTCREATORBUG-8490), instead of silently running with the unexpanded "%{...}".
-    const QStringList unresolved = m_tool.unresolvedVariables();
-    if (!unresolved.isEmpty())
-        return ResultError(Tr::tr("Failed to expand the variables: %1").arg(unresolved.join(", ")));
+    if (const Result<> res = m_tool.canExecute(); !res)
+        return res;
 
     FilePaths expandedExecutables; /* for error message */
     const FilePaths executables = m_tool.executables();
