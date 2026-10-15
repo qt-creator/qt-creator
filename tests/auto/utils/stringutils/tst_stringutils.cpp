@@ -232,6 +232,9 @@ void tst_StringUtils::testRemoveCommentsFromJson_data()
             "key3": "value3" 
         }
     )");
+
+    QTest::newRow("escaped backslash") << QByteArray(R"({"a": "\\", // comment
+"b": "c"})") << QByteArray("{\"a\": \"\\\\\", \n\"b\": \"c\"}");
 }
 
 void tst_StringUtils::testRemoveCommentsFromJson()

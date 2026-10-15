@@ -157,7 +157,7 @@ QTCREATOR_UTILS_EXPORT QByteArray removeCommentsFromJson(const QByteArray &input
     bool inString = false;
     bool inSingleLineComment = false;
     bool inMultiLineComment = false;
-    char previousChar = '\0';
+    bool escaped = false;
 
     for (int i = 0; i < input.size(); ++i) {
         char currentChar = input[i];
@@ -176,9 +176,12 @@ QTCREATOR_UTILS_EXPORT QByteArray removeCommentsFromJson(const QByteArray &input
             }
             // Skip character
         } else if (inString) {
-            if (currentChar == '"' && previousChar != '\\') {
+            if (escaped)
+                escaped = false;
+            else if (currentChar == '\\')
+                escaped = true;
+            else if (currentChar == '"')
                 inString = false;
-            }
             output.append(currentChar);
         } else {
             if (currentChar == '/' && nextChar == '/') {
@@ -194,8 +197,6 @@ QTCREATOR_UTILS_EXPORT QByteArray removeCommentsFromJson(const QByteArray &input
                 output.append(currentChar);
             }
         }
-
-        previousChar = currentChar;
     }
 
     return output;
