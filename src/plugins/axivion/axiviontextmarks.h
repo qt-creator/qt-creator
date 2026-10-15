@@ -11,14 +11,24 @@ namespace Dto { class FileViewDto; }
 
 enum class LineMarkerType { DashboardGlobal, DashboardLocal, SFA };
 
+class LineIssuesOrigin
+{
+public:
+    QString projectName;
+    QString version;
+};
+
 void handleIssuesForFile(const Dto::FileViewDto &fileView, const Utils::FilePath &filePath,
                          const std::optional<Utils::FilePath> &bauhausSuite,
                          LineMarkerType type,
-                         const QString &projectName,
+                         const LineIssuesOrigin &origin,
                          const QByteArray &origSource);
 void clearAllMarks(LineMarkerType type);
 void clearMarks(const Utils::FilePath &filePath, LineMarkerType type);
+void clearMarksWithoutPathMapping(LineMarkerType type);
 bool hasLineIssues(const Utils::FilePath &filePath, LineMarkerType type);
+std::optional<LineIssuesOrigin> lineIssuesOrigin(const Utils::FilePath &filePath,
+                                                 LineMarkerType type);
 
 void updateExistingMarks();
 

@@ -39,9 +39,10 @@ class AxivionTextMark : public TextMark
 public:
     AxivionTextMark(const FilePath &filePath, const Dto::LineMarkerDto &issue,
                     std::optional<Theme::Color> color, LineMarkerType type,
-                    const QString &projectName, const std::optional<FilePath> &bauhausSuite)
+                    const LineIssuesOrigin &origin, const std::optional<FilePath> &bauhausSuite)
         : TextMark(filePath, issue.startLine, {"Axivion", s_axivionTextMarkId})
         , issueId(issue.id.value_or(-1))
+        , origin(origin)
         , bauhausSuite(bauhausSuite)
     {
         QTC_CHECK(checkParams(bauhausSuite, type));
@@ -55,7 +56,7 @@ public:
         setPriority(TextMark::NormalPriority);
         setLineAnnotation(markText);
 
-        setActionsProvider([id, type, projectName, bauhausSuite, issue] {
+        setActionsProvider([id, type, origin, bauhausSuite, issue] {
             auto action = new QAction;
             action->setIcon(Icons::INFO.icon());
             action->setToolTip(Tr::tr("Show Issue Properties"));
@@ -63,8 +64,8 @@ public:
                 const DashboardMode mode = (type == LineMarkerType::DashboardLocal)
                         ? DashboardMode::Local : DashboardMode::Global;
                 QObject::connect(action, &QAction::triggered,
-                                 action, [id, mode, projectName] {
-                    fetchIssueInfo(mode, projectName, id);
+                                 action, [id, mode, origin] {
+                    fetchIssueInfo(mode, origin.projectName, id, origin.version);
                 });
             } else {
                 // only connect if we have valid parameters
@@ -81,6 +82,7 @@ public:
     }
 
     qint64 issueId = -1;
+    LineIssuesOrigin origin;
     std::optional<FilePath> bauhausSuite = std::nullopt;
 };
 
@@ -178,7 +180,7 @@ static QHash<int, CorrectedLine> computeLineMapping(const QByteArray &analysisSo
 void handleIssuesForFile(const Dto::FileViewDto &fileView, const FilePath &filePath,
                          const std::optional<FilePath> &bauhausSuite,
                          LineMarkerType type,
-                         const QString &projectName,
+                         const LineIssuesOrigin &origin,
                          const QByteArray &origSource)
 {
     if (fileView.lineMarkers.empty())
@@ -230,7 +232,7 @@ void handleIssuesForFile(const Dto::FileViewDto &fileView, const FilePath &fileP
             corrected.startLine = start.line;
             corrected.endLine = marker.endLine == 0 ? 0 : end.line;
         }
-        marks[filePath] << new AxivionTextMark(filePath, corrected, color, type, projectName,
+        marks[filePath] << new AxivionTextMark(filePath, corrected, color, type, origin,
                                                bauhausSuite);
     }
 }
@@ -281,6 +283,21 @@ void clearMarks(const FilePath &filePath, LineMarkerType type)
     }
 }
 
+void clearMarksWithoutPathMapping(LineMarkerType type)
+{
+    QTC_ASSERT(type != LineMarkerType::SFA, return);
+    QHash<FilePath, QSet<AxivionTextMark *>> &markers = textMarkManager().marks(type);
+    for (auto it = markers.begin(); it != markers.end(); ) {
+        if (it->isEmpty()
+                || !settings().hasPathMapping(it.key(), (*it->cbegin())->origin.projectName)) {
+            qDeleteAll(*it);
+            it = markers.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
 bool hasLineIssues(const FilePath &filePath, LineMarkerType type)
 {
     switch (type) {
@@ -293,6 +310,15 @@ bool hasLineIssues(const FilePath &filePath, LineMarkerType type)
     }
     QTC_CHECK(false);
     return false;
+}
+
+std::optional<LineIssuesOrigin> lineIssuesOrigin(const FilePath &filePath, LineMarkerType type)
+{
+    const QHash<FilePath, QSet<AxivionTextMark *>> &markers = textMarkManager().marks(type);
+    const auto it = markers.constFind(filePath);
+    if (it == markers.cend() || it->isEmpty())
+        return std::nullopt;
+    return (*it->cbegin())->origin;
 }
 
 void updateExistingMarks() // update whether highlight marks or not
