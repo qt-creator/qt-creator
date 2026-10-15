@@ -3351,6 +3351,11 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffGoToSource()
     QCOMPARE(sourceWidget->textCursor().blockNumber() + 1, 13);
     QCOMPARE(sourceWidget->textCursor().positionInBlock(), clickedColumn);
 
+    // the editable side keeps a double click for selecting a word
+    EditorManager::activateEditor(diffEditor);
+    QTest::mouseDClick(diffWidget->viewport(), Qt::LeftButton, {}, clicked);
+    QCOMPARE(EditorManager::currentEditor(), diffEditor);
+
     // the baseline side of the side by side view counts baseline lines, which
     // the entry maps to the editor line they pair with: baseline line 18 is
     // editor line 19, one below because of the inserted line above it
@@ -3377,6 +3382,33 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffGoToSource()
     QTRY_COMPARE(EditorManager::currentEditor(), sourceEditor);
     QCOMPARE(sourceWidget->textCursor().blockNumber() + 1, 19);
     QCOMPARE(sourceWidget->textCursor().positionInBlock(), 0);
+
+    // the read only baseline side goes to the source on a double click on a
+    // changed line, but not on unchanged context
+    EditorManager::activateEditor(diffEditor);
+    sourceEditor->gotoLine(1, 0);
+    EditorManager::activateEditor(diffEditor);
+    QTest::mouseDClick(baselineWidget->viewport(), Qt::LeftButton, {},
+                       viewportPoint(baselineWidget, 8, 3));
+    QCOMPARE(EditorManager::currentEditor(), diffEditor);
+    QCOMPARE(sourceWidget->textCursor().blockNumber() + 1, 1);
+    QTest::mouseDClick(baselineWidget->viewport(), Qt::LeftButton, {},
+                       viewportPoint(baselineWidget, 12, 3));
+    QTRY_COMPARE(EditorManager::currentEditor(), sourceEditor);
+    QCOMPARE(sourceWidget->textCursor().blockNumber() + 1, 13);
+
+    // every line of a removal counts, the unchanged line after it does not
+    EditorManager::activateEditor(diffEditor);
+    sourceEditor->gotoLine(1, 0);
+    EditorManager::activateEditor(diffEditor);
+    QTest::mouseDClick(baselineWidget->viewport(), Qt::LeftButton, {},
+                       viewportPoint(baselineWidget, 26, 3));
+    QCOMPARE(EditorManager::currentEditor(), diffEditor);
+    QCOMPARE(sourceWidget->textCursor().blockNumber() + 1, 1);
+    QTest::mouseDClick(baselineWidget->viewport(), Qt::LeftButton, {},
+                       viewportPoint(baselineWidget, 25, 3));
+    QTRY_COMPARE(EditorManager::currentEditor(), sourceEditor);
+    QCOMPARE(sourceWidget->textCursor().blockNumber() + 1, 25);
 
     // the removed baseline lines have no editor line of their own, so the entry
     // goes to the line the removal is shown above: editor line 25 for both of
@@ -3421,6 +3453,49 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffGoToSource()
     const QPointer<QWidget> snapshotWidgetGuard = snapshotWidget;
     QVERIFY(EditorManager::closeEditors({snapshotEditor}, false));
     QTRY_VERIFY(snapshotWidgetGuard.isNull());
+
+    // a read only inline view of a file goes to the source on a double click on
+    // a changed line, but not on unchanged context, which includes the line
+    // below a removal that its ghost rows are shown above
+    const FilePath readOnlyFile = FilePath::fromString(temporaryDir.path())
+                                  / "testInlineDiffGoToSourceReadOnly.txt";
+    QVERIFY(readOnlyFile.writeFileContents(editorText.toUtf8()));
+    const TextDocumentPtr readOnlySource(new TextDocument);
+    readOnlySource->setFilePath(readOnlyFile);
+    readOnlySource->document()->setPlainText(editorText);
+    readOnlySource->document()->setModified(false);
+    IEditor *readOnlyEditor = openInlineDiffEditor(readOnlySource,
+                                                   baseline,
+                                                   "testInlineDiffGoToSourceReadOnly.txt",
+                                                   /*readOnlySource=*/true);
+    QVERIFY(readOnlyEditor);
+    setInlineDiffViewMode(readOnlyEditor, InlineDiffViewMode::Inline);
+    TextEditorWidget *readOnlyWidget = inlineDiffEditorWidget(readOnlyEditor);
+    QVERIFY(readOnlyWidget);
+    QVERIFY(readOnlyWidget->isReadOnly());
+    readOnlyEditor->widget()->resize(1000, 1000);
+    readOnlyEditor->widget()->show();
+    QTRY_COMPARE(ghostedLines(readOnlyWidget), QList<int>({13, 25}));
+    QCOMPARE(readOnlyWidget->document()->findBlockByNumber(24).text(), QString("line 26"));
+
+    EditorManager::activateEditor(readOnlyEditor);
+    QTest::mouseDClick(readOnlyWidget->viewport(), Qt::LeftButton, {},
+                       viewportPoint(readOnlyWidget, 8, 3));
+    QCOMPARE(EditorManager::currentEditor(), readOnlyEditor);
+    QTest::mouseDClick(readOnlyWidget->viewport(), Qt::LeftButton, {},
+                       viewportPoint(readOnlyWidget, 25, 3));
+    QCOMPARE(EditorManager::currentEditor(), readOnlyEditor);
+    QTest::mouseDClick(readOnlyWidget->viewport(), Qt::LeftButton, {},
+                       viewportPoint(readOnlyWidget, 13, 3));
+    QTRY_VERIFY(EditorManager::currentEditor() != readOnlyEditor);
+    auto readOnlyFileEditor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
+    QVERIFY(readOnlyFileEditor);
+    QCOMPARE(readOnlyFileEditor->document()->filePath(), readOnlyFile);
+    QCOMPARE(readOnlyFileEditor->editorWidget()->textCursor().blockNumber() + 1, 13);
+
+    const QPointer<QWidget> readOnlyWidgetGuard = readOnlyWidget;
+    QVERIFY(EditorManager::closeEditors({readOnlyEditor, readOnlyFileEditor}, false));
+    QTRY_VERIFY(readOnlyWidgetGuard.isNull());
 
     const QPointer<QWidget> diffWidgetGuard = diffWidget;
     QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));

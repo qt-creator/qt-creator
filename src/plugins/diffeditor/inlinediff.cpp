@@ -1621,6 +1621,7 @@ class InlineDiffTextEditorWidget final : public TextEditorWidget
 {
 public:
     using MenuProvider = std::function<void(QMenu *, const QTextCursor &)>;
+    using CursorHandler = std::function<void(const QTextCursor &)>;
 
     InlineDiffTextEditorWidget()
     {
@@ -1681,6 +1682,7 @@ public:
 
     void setContextMenuProvider(const MenuProvider &filler) { m_menuProvider = filler; }
     void setFocusInHandler(const std::function<void()> &handler) { m_focusInHandler = handler; }
+    void setDoubleClickHandler(const CursorHandler &handler) { m_doubleClickHandler = handler; }
 
     // the diff specific entries for the given position
     void fillContextMenu(QMenu *menu, const QTextCursor &cursor)
@@ -1780,6 +1782,8 @@ protected:
         const GhostHit hit = ghostAt(event->pos(), QTextLine::CursorOnCharacter);
         if (!hit.item || event->button() != Qt::LeftButton) {
             TextEditorWidget::mouseDoubleClickEvent(event);
+            if (!hit.item && event->button() == Qt::LeftButton && m_doubleClickHandler)
+                m_doubleClickHandler(cursorForPosition(event->pos()));
             return;
         }
         const QPair<int, int> word = wordAt(hit.item->layout()->text(), hit.position);
@@ -2034,6 +2038,7 @@ private:
 
     MenuProvider m_menuProvider;
     std::function<void()> m_focusInHandler;
+    CursorHandler m_doubleClickHandler;
     // the ghost row selection: the item is only dereferenced once it is
     // found among the items of the tracked block again
     QTextCursor m_ghostBlock;
@@ -2381,6 +2386,11 @@ public:
 private:
     void setupContextMenu(InlineDiffTextEditorWidget *view)
     {
+        view->setDoubleClickHandler([this, view](const QTextCursor &cursor) {
+            // an editable view keeps the double click for selecting a word
+            if (view->isReadOnly() && isInChange(view, cursor))
+                openSource(view, cursor);
+        });
         view->setContextMenuProvider([this, view](QMenu *menu, const QTextCursor &cursor) {
             auto goToSource = new QAction(Tr::tr("Go to Source"), menu);
             goToSource->setObjectName("InlineDiffGoToSourceAction"); // autotest
@@ -2468,6 +2478,26 @@ private:
             last = baselineLineToEditor(m_model, last);
         }
         return {first, last};
+    }
+
+    // Whether the cursor is on a line that a change touches, as opposed to
+    // unchanged context.
+    bool isInChange(TextEditorWidget *view, const QTextCursor &cursor) const
+    {
+        if (!m_model.computed)
+            return false;
+        const int line = cursor.blockNumber() + 1;
+        // a pure removal has no editor line of its own: the line its ghost
+        // rows are shown above is unchanged context
+        const bool isBaseline = view == m_baselineWidget;
+        for (const InlineDiffChunk &hunk : m_model.hunks) {
+            const int first = isBaseline ? hunk.baselineStartLine : hunk.editorStartLine;
+            const int count = isBaseline ? int(hunk.baselineLines.size())
+                                         : hunk.editorLineCount;
+            if (line >= first && line < first + count)
+                return true;
+        }
+        return false;
     }
 
     bool hasChangeInLines(const QPair<int, int> &lines) const
