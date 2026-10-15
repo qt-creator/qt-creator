@@ -16,7 +16,7 @@
 // that tool instead: the Qt a project on the device builds against has its tools in its own
 // tree, which the device does not execute either, so the tool of that name in the directory
 // QTC_QT_HOST_LIBEXECS (or, for qmake, QTC_QT_HOST_BINS) names is mapped and run in its
-// place, together with the libraries it needs from the directory QTC_QT_HOST_LIBS names:
+// place, together with the libraries it needs from the directories QTC_QT_HOST_LIBS lists:
 // the tool has to run on the Qt it belongs to, not on the one this package carries.
 
 #include "qtcload.h"
@@ -100,8 +100,15 @@ static int runTool(const char *name, int argc, char **argv)
     }
 
     QtcLoad::World world;
-    if (const char *libraries = std::getenv("QTC_QT_HOST_LIBS"); libraries && *libraries)
-        world.directories.push_back(libraries);
+    if (const char *libraries = std::getenv("QTC_QT_HOST_LIBS")) {
+        for (const char *start = libraries; *start;) {
+            const char *end = std::strchr(start, ':');
+            const size_t length = end ? size_t(end - start) : std::strlen(start);
+            if (length > 0)
+                world.directories.emplace_back(start, length);
+            start += end ? length + 1 : length;
+        }
+    }
 
     QtcLoad::Image image;
     std::string error;

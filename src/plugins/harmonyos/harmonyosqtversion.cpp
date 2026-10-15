@@ -5,6 +5,7 @@
 
 #include "harmonyosconfigurations.h"
 #include "harmonyosconstants.h"
+#include "harmonyossettings.h"
 #include "harmonyostr.h"
 
 #include <qtsupport/qtsupportconstants.h>
@@ -67,7 +68,12 @@ void HarmonyOsQtVersion::addToBuildEnvironment(const Kit *k, Environment &env) c
     if (HostOsInfo::isHarmonyHost()) {
         env.set("QTC_QT_HOST_LIBEXECS", libExecPath().path());
         env.set("QTC_QT_HOST_BINS", binPath().path());
-        env.set("QTC_QT_HOST_LIBS", libraryPath().path());
+        // The Qt libraries need the third-party ones the application package gets, ICU
+        // among them, and the device has other versions of those.
+        QString libraries = libraryPath().path();
+        if (const FilePath packages = settings().additionalPackages(); !packages.isEmpty())
+            libraries += ':' + packages.pathAppended("lib").path();
+        env.set("QTC_QT_HOST_LIBS", libraries);
         // The package is laid out like the native SDK the ohos mkspec expects.
         env.set("NATIVE_OHOS_SDK",
                 FilePath::fromString(Constants::HARMONYOS_NATIVE_PACKAGE_BIN).parentDir().path());
