@@ -225,6 +225,9 @@ void LanguageClientManager::shutdownClient(Client *client)
 {
     if (!client)
         return;
+
+    managerInstance->m_restartingClients.remove(client);
+
     qCDebug(Log) << "request client shutdown: " << client->name() << client;
     // reset and deactivate the documents for that client by assigning a null client already when
     // requesting the shutdown so they can get reassigned to another server right after this request
