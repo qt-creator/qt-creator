@@ -1,4 +1,5 @@
 import qbs 1.0
+import qbs.Environment
 import qbs.File
 import qbs.FileInfo
 
@@ -115,7 +116,7 @@ QtcPlugin {
     // equivalent CMake-side comment.
     Probe {
         id: elfutilsProbe
-        property string installBase: qbs.getenv("ELFUTILS_INSTALL_DIR")
+        property string installBase: Environment.getEnv("ELFUTILS_INSTALL_DIR")
         property string includeDir: installBase
             ? FileInfo.joinPaths(installBase, "include")
             : "/usr/include"
@@ -141,7 +142,16 @@ QtcPlugin {
     // An installation brings its own elfutils, in lib/elfutils (see
     // scripts/deploy.py), for systems that have none.
     cpp.rpaths: withLibdw ? base.concat(["$ORIGIN/../../elfutils"]) : base
-    cpp.defines: withLibdw ? base.concat(["WITH_LIBDW"]) : base
+    cpp.defines: {
+        var defines = base;
+        if (withLibdw)
+            defines = defines.concat(["WITH_LIBDW"]);
+        if (qtc.withPluginTests) {
+            defines = defines.concat(['QT_TESTCASE_BUILDDIR="'
+                + FileInfo.joinPaths(project.buildDirectory, "src/plugins/profiler") + '"']);
+        }
+        return defines;
+    }
 
     Group {
         name: "DwarfUnwinder"
