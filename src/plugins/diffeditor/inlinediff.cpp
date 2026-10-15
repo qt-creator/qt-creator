@@ -19,6 +19,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <cpaster/codepasterservice.h>
+
+#include <extensionsystem/pluginmanager.h>
+
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/syntaxhighlighter.h>
@@ -54,6 +58,7 @@
 #include <QTextLayout>
 #include <QVBoxLayout>
 
+#include <optional>
 #include <tuple>
 #include <QPointer>
 #include <QScrollBar>
@@ -2254,9 +2259,7 @@ public:
         m_updateTimer.setInterval(500);
         connect(&m_updateTimer, &QTimer::timeout, this, &InlineDiffEditor::startUpdate);
         connect(source->document(), &QTextDocument::contentsChanged, this, [this] {
-            // the hunks' line numbers are stale until the diff is recomputed
-            if (m_hunkControls)
-                m_hunkControls->invalidate();
+            invalidateHunkActions();
             m_updateTimer.start();
         });
 
@@ -2412,6 +2415,37 @@ private:
             });
             menu->addAction(goToSource);
 
+            const std::optional<InlineDiffChunk> optionalHunk = actionableHunkAt(view, cursor);
+            const bool onHunk = optionalHunk.has_value();
+            const InlineDiffChunk hunk = optionalHunk.value_or(InlineDiffChunk());
+            if (m_hunkControls && m_baseline.stageHunk) {
+                auto stageAction = new QAction(Tr::tr("Stage Chunk"), menu);
+                stageAction->setObjectName("InlineDiffStageChunkAction"); // autotest
+                stageAction->setEnabled(onHunk);
+                connect(stageAction, &QAction::triggered, this, [this, hunk] {
+                    stageChunk(hunk);
+                });
+                menu->addAction(stageAction);
+            }
+            if (m_hunkControls) {
+                auto revertAction = new QAction(Tr::tr("Revert Chunk"), menu);
+                revertAction->setObjectName("InlineDiffRevertChunkAction"); // autotest
+                revertAction->setEnabled(onHunk);
+                connect(revertAction, &QAction::triggered, this, [this, hunk] {
+                    revertChunk(hunk);
+                });
+                menu->addAction(revertAction);
+            }
+            if (ExtensionSystem::PluginManager::getObject<CodePaster::Service>()) {
+                auto pasteAction = new QAction(Tr::tr("Send Chunk to CodePaster..."), menu);
+                pasteAction->setObjectName("InlineDiffSendChunkToCodePasterAction"); // autotest
+                pasteAction->setEnabled(hasChangeInLines(changeLines(view, cursor)));
+                connect(pasteAction, &QAction::triggered, this, [this, view, cursor] {
+                    sendChunkToCodePaster(changeLines(view, cursor));
+                });
+                menu->addAction(pasteAction);
+            }
+
             auto copyAsPatchAction = new QAction(Tr::tr("Copy as Patch"), menu);
             copyAsPatchAction->setObjectName("InlineDiffCopyAsPatchAction"); // autotest
             copyAsPatchAction->setToolTip(Tr::tr("Copies the selected changes, or all of them, as "
@@ -2489,6 +2523,39 @@ private:
             last = baselineLineToEditor(m_model, last);
         }
         return {first, last};
+    }
+
+    // The editor side line of the cursor. For the baseline view that is the
+    // line it pairs with, or for a line inside a hunk the hunk's first line.
+    QPair<int, int> changeLines(TextEditorWidget *view, const QTextCursor &cursor) const
+    {
+        int line = cursor.blockNumber() + 1;
+        if (view == m_baselineWidget)
+            line = baselineLineToEditorPosition(m_model, line);
+        return {line, line};
+    }
+
+    // The hunk with a stage and revert control that the cursor is in.
+    std::optional<InlineDiffChunk> actionableHunkAt(TextEditorWidget *view,
+                                                    const QTextCursor &cursor) const
+    {
+        const int line = changeLines(view, cursor).first;
+        for (const InlineDiffChunk &hunk : m_actionableHunks) {
+            if (hunk.editorStartLine <= line
+                && line < hunk.editorStartLine + qMax(hunk.editorLineCount, 1)) {
+                return hunk;
+            }
+        }
+        return std::nullopt;
+    }
+
+    void sendChunkToCodePaster(const QPair<int, int> &lines)
+    {
+        auto pasteService = ExtensionSystem::PluginManager::getObject<CodePaster::Service>();
+        QTC_ASSERT(pasteService, return);
+        const QString patch = patchForLines(lines.first, lines.second);
+        if (!patch.isEmpty())
+            pasteService->postText(patch, Constants::DIFF_EDITOR_MIMETYPE);
     }
 
     // Whether the cursor is on a line that a change touches, as opposed to
@@ -2789,6 +2856,7 @@ private:
         // an earlier recompute is discarded
         const int requestId = ++m_actionableRequestId;
         if (m_baseline.fetchActionableLines && !m_model.hunks.isEmpty()) {
+            m_actionableHunks.clear();
             m_hunkControls->setHunks({}, {}, {});
             m_baseline.fetchActionableLines(
                 m_source->plainText(),
@@ -2812,20 +2880,40 @@ private:
     {
         if (!m_hunkControls)
             return;
+        m_actionableHunks = hunks;
         // both actions force a recompute, which rebuilds the controls even
         // when the action itself did not change anything
         HunkControls::HunkAction stage;
-        if (m_baseline.stageHunk) {
-            stage = [this](const InlineDiffChunk &hunk) {
-                m_baseline.stageHunk(hunk, m_source->plainText());
-                m_updateTimer.start();
-            };
-        }
-        const auto revert = [this](const InlineDiffChunk &hunk) {
-            revertHunk(hunk);
-            m_updateTimer.start();
-        };
+        if (m_baseline.stageHunk)
+            stage = [this](const InlineDiffChunk &hunk) { stageChunk(hunk); };
+        const auto revert = [this](const InlineDiffChunk &hunk) { revertChunk(hunk); };
         m_hunkControls->setHunks(hunks, stage, revert);
+    }
+
+    // The chunk actions of the controls and of the context menu.
+    void stageChunk(const InlineDiffChunk &hunk)
+    {
+        invalidateHunkActions();
+        m_baseline.stageHunk(hunk, m_source->plainText());
+        m_updateTimer.start();
+    }
+
+    void revertChunk(const InlineDiffChunk &hunk)
+    {
+        invalidateHunkActions();
+        revertHunk(hunk);
+        m_updateTimer.start();
+    }
+
+    // The hunks' line numbers are stale from an edit or a chunk action on
+    // until the diff is recomputed, so nothing may act on them meanwhile.
+    void invalidateHunkActions()
+    {
+        m_actionableHunks.clear();
+        // an actionable-lines callback still in flight carries the old hunks
+        ++m_actionableRequestId;
+        if (m_hunkControls)
+            m_hunkControls->invalidate();
     }
 
     void revertHunk(const InlineDiffChunk &hunk)
@@ -2900,6 +2988,7 @@ private:
     QAction *m_whitespaceAction = nullptr;
     QAction *m_patienceAction = nullptr;
     QAction *m_reloadAction = nullptr;
+    QList<InlineDiffChunk> m_actionableHunks;
     QAction *m_signsAction = nullptr;
     bool m_ignoreWhitespace = false;
     bool m_patience = false;

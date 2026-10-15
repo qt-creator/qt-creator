@@ -387,6 +387,7 @@ private slots:
     void testInlineDiffScrollBarMarkers();
     void testInlineDiffGoToSource();
     void testInlineDiffGhostSelection();
+    void testInlineDiffChunkActions();
 #endif // WITH_TESTS
 };
 
@@ -3690,6 +3691,128 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffGhostSelection()
     cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
     diffWidget->setTextCursor(cursor);
     QCOMPARE(copied(), QString("line 7"));
+
+    const QPointer<QWidget> diffWidgetGuard = diffWidget;
+    QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
+    QTRY_VERIFY(diffWidgetGuard.isNull());
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffChunkActions()
+{
+    using namespace TextEditor;
+
+    const InlineDiffViewGuard inlineDiffViewGuard(/*hideUnchangedLines=*/false);
+
+    // baseline lines 10 to 12 replaced by a single editor line 10, so that the
+    // baseline side of the side by side view has lines inside the hunk that
+    // pair up with no editor line of their own
+    QStringList baselineLines;
+    for (int i = 1; i <= 30; ++i)
+        baselineLines << QString("line %1").arg(i);
+    QStringList editorLines = baselineLines;
+    editorLines.remove(9, 3);
+    editorLines.insert(9, "lines 10 to 12 changed");
+    const QString baselineText = baselineLines.join('\n') + '\n';
+    const QString editorText = editorLines.join('\n') + '\n';
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath sourceFile = FilePath::fromString(temporaryDir.path())
+                                / "testInlineDiffChunkActions.txt";
+    QVERIFY(sourceFile.writeFileContents(editorText.toUtf8()));
+    IEditor *sourceEditor = EditorManager::openEditor(sourceFile);
+    QVERIFY(sourceEditor);
+    auto sourceTextEditor = qobject_cast<BaseTextEditor *>(sourceEditor);
+    QVERIFY(sourceTextEditor);
+    const TextDocumentPtr sourceDocument = sourceTextEditor->editorWidget()->textDocumentPtr();
+    QVERIFY(sourceDocument);
+
+    InlineDiffBaseline baseline;
+    baseline.id = "test";
+    baseline.displayName = "Test";
+    baseline.fetchText = [baselineText](const InlineDiffBaseline::TextCallback &callback) {
+        callback(baselineText);
+    };
+    int stageCount = 0;
+    baseline.stageHunk = [&stageCount](const InlineDiffChunk &, const QString &) {
+        ++stageCount;
+    };
+
+    IEditor *diffEditor
+        = openInlineDiffEditor(sourceDocument, baseline, "testInlineDiffChunkActions.txt");
+    QVERIFY(diffEditor);
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::Inline);
+    TextEditorWidget *diffWidget = Utils::findOrDefault(
+        diffEditor->widget()->findChildren<TextEditorWidget *>(),
+        [&sourceDocument](TextEditorWidget *widget) {
+            return widget->document() == sourceDocument->document();
+        });
+    QVERIFY(diffWidget);
+    diffEditor->widget()->resize(1000, 1000);
+    diffEditor->widget()->show();
+
+    const QString revert = "InlineDiffRevertChunkAction";
+    const QString stage = "InlineDiffStageChunkAction";
+    // 1 for an enabled entry, 0 for a disabled one, -1 for none
+    const auto enabledAt = [diffEditor](TextEditorWidget *view, int line, const QString &name) {
+        int enabled = -1;
+        onContextMenuEntry(diffEditor, view, viewportPoint(view, line, 3), name,
+                           [&enabled](QAction *action) {
+                               if (action)
+                                   enabled = action->isEnabled() ? 1 : 0;
+                           });
+        return enabled;
+    };
+    const auto triggerAt = [diffEditor](TextEditorWidget *view, int line, const QString &name) {
+        onContextMenuEntry(diffEditor, view, viewportPoint(view, line, 3), name,
+                           [](QAction *action) {
+                               QVERIFY(action);
+                               QVERIFY(action->isEnabled());
+                               action->trigger();
+                           });
+    };
+
+    QTRY_COMPARE(enabledAt(diffWidget, 10, revert), 1);
+    QCOMPARE(enabledAt(diffWidget, 10, stage), 1);
+    QCOMPARE(enabledAt(diffWidget, 5, revert), 0);
+
+    // an edit makes the hunks' line numbers stale until the diff is recomputed,
+    // so the entries must not act on them in the meantime: reverting would
+    // replace the line that moved into the hunk's old place
+    QTextCursor cursor(sourceDocument->document());
+    cursor.insertText("inserted\n");
+    QCOMPARE(sourceDocument->document()->findBlockByNumber(9).text(), QString("line 9"));
+    QCOMPARE(enabledAt(diffWidget, 10, revert), 0);
+    QCOMPARE(enabledAt(diffWidget, 10, stage), 0);
+    QTRY_COMPARE(enabledAt(diffWidget, 11, revert), 1);
+    sourceDocument->document()->undo();
+    QCOMPARE(sourceDocument->plainText(), editorText);
+    QTRY_COMPARE(enabledAt(diffWidget, 10, revert), 1);
+
+    // staging a chunk does not offer it again before the recompute
+    triggerAt(diffWidget, 10, stage);
+    QCOMPARE(stageCount, 1);
+    QCOMPARE(enabledAt(diffWidget, 10, stage), 0);
+    QTRY_COMPARE(enabledAt(diffWidget, 10, stage), 1);
+
+    // the baseline side of the side by side view: every line inside the hunk
+    // belongs to it, not only the first one
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::SideBySide);
+    const QList<TextEditorWidget *> sideWidgets
+        = diffEditor->widget()->findChildren<TextEditorWidget *>();
+    QCOMPARE(sideWidgets.size(), 2);
+    TextEditorWidget *baselineWidget = sideWidgets.first() == diffWidget ? sideWidgets.last()
+                                                                         : sideWidgets.first();
+    QTRY_COMPARE(baselineWidget->document()->toPlainText(), baselineText);
+    diffEditor->widget()->resize(1000, 1000);
+    diffEditor->widget()->show();
+    QTRY_COMPARE(enabledAt(baselineWidget, 10, revert), 1);
+    QCOMPARE(enabledAt(baselineWidget, 12, revert), 1);
+    QCOMPARE(enabledAt(baselineWidget, 12, stage), 1);
+    QCOMPARE(enabledAt(baselineWidget, 13, revert), 0);
+    QCOMPARE(enabledAt(baselineWidget, 9, revert), 0);
+    triggerAt(baselineWidget, 12, revert);
+    QTRY_COMPARE(sourceDocument->plainText(), baselineText);
 
     const QPointer<QWidget> diffWidgetGuard = diffWidget;
     QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
