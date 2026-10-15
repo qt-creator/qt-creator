@@ -41,6 +41,7 @@
 #include <QHash>
 #include <QJsonDocument>
 #include <QLibraryInfo>
+#include <QLoggingCategory>
 #include <QMap>
 #include <QMetaEnum>
 #include <QPoint>
@@ -58,6 +59,8 @@
 
 using namespace Debugger::Internal;
 using namespace Utils;
+
+static Q_LOGGING_CATEGORY(engineLog, "qtc.dbg.tst_backends", QtWarningMsg)
 
 static constexpr std::chrono::seconds s_timeout{5};
 static constexpr std::chrono::seconds s_warmUpTimeout{30};
@@ -1590,7 +1593,7 @@ public:
     {
         connect(m_engine.get(), &DebuggerEngineInterface::message, this,
                 [this](const QString &text, int channel, int) {
-            qDebug("engine: %s", qPrintable(text));
+            qCDebug(engineLog, "engine: %s", qPrintable(text));
             if (channel == Debugger::AppOutput)
                 m_appOutput.append(text);
         });
