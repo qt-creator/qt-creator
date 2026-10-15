@@ -1856,7 +1856,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiff()
     IEditor *diffEditor = openInlineDiffEditor(sourceDocument, baseline, diffTitle);
     QVERIFY(diffEditor);
     QVERIFY(diffEditor != sourceEditor);
-    QCOMPARE(diffEditor->document()->displayName(), diffTitle);
+    QCOMPARE(diffEditor->document()->displayName(), "Diff " + diffTitle);
     // reopening reuses the existing inline diff editor
     QCOMPARE(openInlineDiffEditor(sourceDocument, baseline, diffTitle), diffEditor);
 

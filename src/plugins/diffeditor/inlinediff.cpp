@@ -1262,10 +1262,18 @@ public:
     {
         setId("DiffEditor.InlineDiffDocument");
         setTemporary(true);
-        setPreferredDisplayName(title);
+        setTitle(title);
         setMimeType(source->mimeType());
         connect(source.data(), &IDocument::changed, this, &IDocument::changed);
     }
+
+    // the name in the document list says that this is a diff, not the file
+    void setTitle(const QString &title)
+    {
+        m_title = title;
+        setPreferredDisplayName(Tr::tr("Diff %1").arg(title));
+    }
+    QString title() const { return m_title; }
 
     bool isModified() const override { return m_source->isModified(); }
     bool isSaveAsAllowed() const override { return false; }
@@ -1294,6 +1302,7 @@ protected:
 
 private:
     const TextDocumentPtr m_source;
+    QString m_title;
 };
 
 // live diffing on every edit does not scale to arbitrarily large documents
@@ -2301,7 +2310,7 @@ public:
         m_baseline = baseline;
         m_baselineText.reset();
         m_jumpToFirstChange = true;
-        m_document->setPreferredDisplayName(title);
+        m_document->setTitle(title);
         if (m_baselineWidget) {
             const bool hadFocus = m_baselineWidget->isAncestorOf(QApplication::focusWidget());
             // recreate the baseline view, it may carry baseline specific
@@ -2506,7 +2515,7 @@ private:
             return m_baseline.sourceFileName;
         // failing that, the title: the file name plus a qualifier in brackets,
         // e.g. "main.cpp (Staged)"
-        QString title = m_document->displayName();
+        QString title = m_document->title();
         if (title.endsWith(')')) {
             const int bracket = title.lastIndexOf(" (");
             if (bracket > 0)
