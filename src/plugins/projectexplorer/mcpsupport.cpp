@@ -2483,9 +2483,11 @@ void registerMcpTools()
 
             auto rcStartedConn = std::make_shared<QMetaObject::Connection>();
 
+            // Starting rather than started: a run can say a lot before it counts as started,
+            // such as what a device does before the application comes up.
             *rcStartedConn = QObject::connect(
                 ProjectExplorerPlugin::instance(),
-                &ProjectExplorerPlugin::runControlStarted,
+                &ProjectExplorerPlugin::runControlStarting,
                 ProjectExplorerPlugin::instance(),
                 [state, notify, rcStartedConn, runMode](RunControl *rc) {
                     if (rc->runMode() != runMode)

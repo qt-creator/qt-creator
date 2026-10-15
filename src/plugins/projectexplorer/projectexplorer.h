@@ -173,6 +173,7 @@ signals:
     void recentProjectsChanged();
 
     void runActionsUpdated();
+    void runControlStarting(ProjectExplorer::RunControl *runControl);
     void runControlStarted(ProjectExplorer::RunControl *runControl);
     void runControlStoped(ProjectExplorer::RunControl *runControl);
 

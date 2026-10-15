@@ -2883,6 +2883,7 @@ void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
     connect(runControl, &RunControl::stopped, m_instance, [runControl] {
         emit m_instance->runControlStoped(runControl);
     });
+    emit m_instance->runControlStarting(runControl);
     runControl->initiateStart();
     doUpdateRunActions();
 }
