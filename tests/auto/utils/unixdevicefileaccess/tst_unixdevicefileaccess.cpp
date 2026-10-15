@@ -92,7 +92,7 @@ private slots:
         hooks.fileAccess = [this](const FilePath &) -> Result<DeviceFileAccessPtr> {
             return m_deviceDfa;
         };
-        hooks.osType = [](const FilePath &) { return OsTypeLinux; };
+        hooks.osType = [](const FilePath &) { return HostOsInfo::hostOs(); };
         DeviceFileHooks::setupDeviceFileHooks(hooks);
     }
 
