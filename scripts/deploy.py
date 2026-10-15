@@ -357,12 +357,13 @@ def deploy_elfutils(qtc_install_dir, chrpath_bin, args):
                 else name + '.dll')
 
     def find_elfutils_lib_path(path):
-        for root, _, files in os.walk(path):
-            if lib_name('elf', version) in files:
-                return root
-        return path
+        for lib_dir in ['lib', 'lib64']:
+            for root, _, files in os.walk(os.path.join(path, lib_dir)):
+                if lib_name('elf', version) in files:
+                    return root
+        return os.path.join(path, 'lib')
 
-    elfutils_lib_path = find_elfutils_lib_path(os.path.join(args.elfutils_path, 'lib'))
+    elfutils_lib_path = find_elfutils_lib_path(args.elfutils_path)
     if common.is_linux_platform():
         install_path = os.path.join(qtc_install_dir, 'lib', 'elfutils')
         backends_install_path = install_path
