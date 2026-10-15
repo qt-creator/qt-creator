@@ -7,6 +7,15 @@
 
 using namespace Profiler::Internal;
 
+// steady_clock advances in ticks -- 41.67 ns on Apple silicon -- so two readings
+// a few instructions apart are often equal. Returns once it has moved past
+// `ns`, so that whatever is stamped next is strictly later.
+static void waitForClockToPass(qint64 ns)
+{
+    while (RecordingSession::steadyNowNs() <= ns) {
+    }
+}
+
 class tst_RecordingSession : public QObject
 {
     Q_OBJECT
@@ -40,6 +49,9 @@ private slots:
         QVERIFY(session.wasPausedAt(during));
         QVERIFY(!session.wasPausedAt(before - 1));
 
+        // The interval is half-open, so `during` only counts once the resume
+        // is stamped after it.
+        waitForClockToPass(during);
         session.setPaused(false);
         const qint64 after = RecordingSession::steadyNowNs();
         QVERIFY(!session.isPaused());
@@ -58,6 +70,8 @@ private slots:
     {
         RecordingSession session;
         session.setPaused(true);
+        // Otherwise the interval may be empty.
+        waitForClockToPass(session.pausedIntervals().front().first);
         session.setPaused(false);
         const auto [start, end] = session.pausedIntervals().front();
         QVERIFY(session.wasPausedAt(start));
