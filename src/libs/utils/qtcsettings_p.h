@@ -7,6 +7,7 @@
 
 class QtProfilerCliSettings;
 class tst_PluginManager;
+class tst_StyledBar;
 int main(int, char *[]);
 
 namespace Utils::Internal {
@@ -17,6 +18,7 @@ class QTCREATOR_UTILS_EXPORT SettingsSetup final
     friend int ::main(int, char*[]);
     friend class ::QtProfilerCliSettings;
     friend class ::tst_PluginManager;
+    friend class ::tst_StyledBar;
 
     static void setupSettings(QtcSettings *userSettings, QtcSettings *installSettings);
     static void destroySettings();

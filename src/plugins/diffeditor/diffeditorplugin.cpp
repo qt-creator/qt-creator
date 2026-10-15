@@ -1043,7 +1043,6 @@ void DiffEditorPlugin::diffExternalFiles()
 #include <QSpinBox>
 #include <QTest>
 #include <QTimer>
-#include <QToolBar>
 
 #include "diffutils.h"
 
@@ -3762,7 +3761,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapse()
     QVERIFY(sourceLayout->isBlockVisibleInEditor(
         sourceWidget->document()->findBlockByNumber(0)));
 
-    auto toolBar = diffEditor->toolBar()->findChild<QToolBar *>("InlineDiffToolBar");
+    QWidget *toolBar = diffEditor->toolBar();
     QVERIFY(toolBar);
 
     // the amount of context is configurable, like in the classic diff view: one
@@ -3780,9 +3779,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapse()
     QVERIFY(!visibleInEditor(16));
 
     // turning the toggle off through the toolbar expands the whole file again
-    QAction *collapseAction = Utils::findOrDefault(toolBar->actions(), [](QAction *a) {
-        return a->objectName() == "InlineDiffCollapseAction";
-    });
+    auto collapseAction = toolBar->findChild<QAction *>("InlineDiffCollapseAction");
     QVERIFY(collapseAction);
     QVERIFY(collapseAction->isChecked());
     collapseAction->setChecked(false);
@@ -3998,10 +3995,9 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseUnchangedFile
                      ->findChildren<QWidget *>("InlineDiffCollapsedRow").size(), 0);
 
     // turning the toggle off and on again collapses the file once more
-    auto toolBar = diffEditor->toolBar()->findChild<QToolBar *>("InlineDiffToolBar");
+    QWidget *toolBar = diffEditor->toolBar();
     QVERIFY(toolBar);
-    QAction *collapseAction = Utils::findOrDefault(toolBar->actions(),
-                                                   [](QAction *a) { return a->isCheckable(); });
+    auto collapseAction = toolBar->findChild<QAction *>("InlineDiffCollapseAction");
     QVERIFY(collapseAction);
     QVERIFY(collapseAction->isChecked());
     collapseAction->setChecked(false);
@@ -4092,11 +4088,9 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffIgnoreWhitespace()
         return count;
     };
 
-    auto toolBar = diffEditor->toolBar()->findChild<QToolBar *>("InlineDiffToolBar");
+    QWidget *toolBar = diffEditor->toolBar();
     QVERIFY(toolBar);
-    QAction *whitespaceAction = Utils::findOrDefault(toolBar->actions(), [](QAction *action) {
-        return action->objectName() == "InlineDiffIgnoreWhitespaceAction";
-    });
+    auto whitespaceAction = toolBar->findChild<QAction *>("InlineDiffIgnoreWhitespaceAction");
     QVERIFY(whitespaceAction);
 
     const QString grabPath
@@ -4398,7 +4392,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffPatience()
         return lines;
     };
 
-    auto toolBar = diffEditor->toolBar()->findChild<QToolBar *>("InlineDiffToolBar");
+    QWidget *toolBar = diffEditor->toolBar();
     QVERIFY(toolBar);
     auto comboBox = toolBar->findChild<QComboBox *>("InlineDiffAlgorithmComboBox");
     QVERIFY(comboBox);
@@ -4680,11 +4674,9 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCopyAsPatch()
 
     // "Ignore Whitespace" takes the re-indented line out of the view, so a
     // selection holding nothing else has nothing to copy
-    auto toolBar = diffEditor->toolBar()->findChild<QToolBar *>("InlineDiffToolBar");
+    QWidget *toolBar = diffEditor->toolBar();
     QVERIFY(toolBar);
-    QAction *whitespaceAction = Utils::findOrDefault(toolBar->actions(), [](QAction *action) {
-        return action->objectName() == "InlineDiffIgnoreWhitespaceAction";
-    });
+    auto whitespaceAction = toolBar->findChild<QAction *>("InlineDiffIgnoreWhitespaceAction");
     QVERIFY(whitespaceAction);
     cursor.setPosition(diffWidget->document()->findBlockByNumber(4).position());
     cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
@@ -4883,12 +4875,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffChangeNavigation()
     setInlineDiffViewMode(diffEditor, InlineDiffViewMode::Inline);
     diffEditor->widget()->resize(800, 600);
 
-    auto toolBar = diffEditor->toolBar()->findChild<QToolBar *>("InlineDiffToolBar");
+    QWidget *toolBar = diffEditor->toolBar();
     QVERIFY(toolBar);
     const auto toolBarAction = [toolBar](const QString &objectName) {
-        return Utils::findOrDefault(toolBar->actions(), [&objectName](QAction *action) {
-            return action->objectName() == objectName;
-        });
+        return toolBar->findChild<QAction *>(objectName);
     };
     QAction *previousChange = toolBarAction("InlineDiffPreviousChangeAction");
     QAction *nextChange = toolBarAction("InlineDiffNextChangeAction");

@@ -34,6 +34,7 @@ Project {
         "settings/settings.qbs",
         "spellchecker/spellchecker.qbs",
         "stringutils/stringutils.qbs",
+        "styledbar/styledbar.qbs",
         "stylehelper/stylehelper.qbs",
         "synchronizedvalue/synchronizedvalue.qbs",
         "templateengine/templateengine.qbs",

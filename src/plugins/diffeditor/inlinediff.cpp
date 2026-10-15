@@ -56,6 +56,7 @@
 #include <QElapsedTimer>
 #include <QEnterEvent>
 #include <QEvent>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
 #include <QMouseEvent>
@@ -72,7 +73,7 @@
 #include <QSpinBox>
 #include <QStackedWidget>
 #include <QTimer>
-#include <QToolBar>
+#include <QToolButton>
 
 using namespace Core;
 using namespace TextEditor;
@@ -2077,6 +2078,18 @@ private:
     QPoint m_doubleClickPoint;
 };
 
+const char PREVIOUS_CHANGE_ID[] = "PreviousChange";
+const char NEXT_CHANGE_ID[] = "NextChange";
+const char STRETCH_ID[] = "Stretch";
+const char COLLAPSE_ID[] = "Collapse";
+const char CONTEXT_LINES_ID[] = "ContextLines";
+const char IGNORE_WHITESPACE_ID[] = "IgnoreWhitespace";
+const char DIFF_ALGORITHM_ID[] = "DiffAlgorithm";
+const char CHANGE_SIGNS_ID[] = "ChangeSigns";
+const char RELOAD_ID[] = "Reload";
+const char VIEW_SWITCHER_ID[] = "ViewSwitcher";
+const char EDITOR_TOOLS_ID[] = "EditorTools";
+
 class InlineDiffEditor final : public Core::IEditor
 {
 public:
@@ -2124,27 +2137,33 @@ public:
 
         // the diff actions, followed by the tool bar of the focused view, with
         // its cursor position and tab settings
-        m_toolBarWidget = new Utils::StyledBar;
-        auto toolBarLayout = new QHBoxLayout(m_toolBarWidget);
-        toolBarLayout->setContentsMargins(0, 0, 0, 0);
-        toolBarLayout->setSpacing(0);
-        m_toolBar = new QToolBar;
-        m_toolBar->setObjectName("InlineDiffToolBar"); // autotest
-        toolBarLayout->addWidget(m_toolBar, 1);
+        m_toolBar = new Utils::StyledBar;
+        const auto addAction = [this](const Utils::Key &id, const QIcon &icon,
+                                      const QString &text) {
+            auto action = new QAction(icon, text, m_toolBar);
+            auto button = new QToolButton(m_toolBar);
+            button->setDefaultAction(action);
+            m_toolBar->addItem(id, text, button);
+            return action;
+        };
         m_viewToolBars = new QStackedWidget;
+        // the views' tool bars stretch themselves, which would make them share
+        // the free space with the diff actions
+        m_viewToolBars->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         m_viewToolBars->addWidget(m_diffWidget->toolBarWidget());
-        toolBarLayout->addWidget(m_viewToolBars, 1);
         m_diffWidget->setFocusInHandler(
             [this] { m_viewToolBars->setCurrentWidget(m_diffWidget->toolBarWidget()); });
-        m_previousChangeAction = m_toolBar->addAction(Utils::Icons::ARROW_UP_TOOLBAR.icon(),
-                                                      Tr::tr("Go to Previous Change"));
+        m_previousChangeAction = addAction(PREVIOUS_CHANGE_ID,
+                                           Utils::Icons::ARROW_UP_TOOLBAR.icon(),
+                                           Tr::tr("Go to Previous Change"));
         m_previousChangeAction->setObjectName("InlineDiffPreviousChangeAction"); // autotest
         m_previousChangeAction->setToolTip(Tr::tr("Goes to the closest change above the "
                                                   "cursor."));
         connect(m_previousChangeAction, &QAction::triggered,
                 this, [this] { goToChange(/*forward=*/false); });
-        m_nextChangeAction = m_toolBar->addAction(Utils::Icons::ARROW_DOWN_TOOLBAR.icon(),
-                                                  Tr::tr("Go to Next Change"));
+        m_nextChangeAction = addAction(NEXT_CHANGE_ID,
+                                       Utils::Icons::ARROW_DOWN_TOOLBAR.icon(),
+                                       Tr::tr("Go to Next Change"));
         m_nextChangeAction->setObjectName("InlineDiffNextChangeAction"); // autotest
         m_nextChangeAction->setToolTip(Tr::tr("Goes to the closest change below the cursor."));
         connect(m_nextChangeAction, &QAction::triggered,
@@ -2154,15 +2173,11 @@ public:
         });
         updateChangeNavigationActions();
 
-        // like the diff editor, the settings are flushed to the right
-        auto spacer = new QWidget;
-        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        m_toolBar->addWidget(spacer);
-
         const bool collapse = Core::ICore::settings()
                                   ->value(Constants::INLINE_DIFF_COLLAPSE_KEY, true).toBool();
-        m_collapseAction = m_toolBar->addAction(Utils::Icons::COLLAPSE_TOOLBAR.icon(),
-                                                Tr::tr("Hide Unchanged Lines"));
+        m_collapseAction = addAction(COLLAPSE_ID,
+                                     Utils::Icons::COLLAPSE_TOOLBAR.icon(),
+                                     Tr::tr("Hide Unchanged Lines"));
         m_collapseAction->setObjectName("InlineDiffCollapseAction"); // found by the autotest
         m_collapseAction->setCheckable(true);
         m_collapseAction->setChecked(collapse);
@@ -2173,10 +2188,14 @@ public:
         // how many unchanged lines are kept around each change, the counterpart
         // of the classic diff view's spin box and stored under the same key, so
         // that the two views show the same amount of context
+        auto contextWidget = new QWidget;
+        auto contextLayout = new QHBoxLayout(contextWidget);
+        contextLayout->setContentsMargins(0, 0, 0, 0);
+        contextLayout->setSpacing(0);
         auto contextLabel = new QLabel(Tr::tr("Context lines:"));
         const int horizontalPadding = Utils::StyleHelper::SpacingTokens::PaddingHS;
         contextLabel->setContentsMargins(horizontalPadding, 0, horizontalPadding, 0);
-        m_contextLabelAction = m_toolBar->addWidget(contextLabel);
+        contextLayout->addWidget(contextLabel);
         auto contextSpinBox = new QSpinBox;
         contextSpinBox->setObjectName("InlineDiffContextLinesSpinBox"); // autotest
         contextSpinBox->setRange(1, 100);
@@ -2186,7 +2205,8 @@ public:
         contextSpinBox->setValue(Core::ICore::settings()
                                      ->value(Constants::CONTEXT_LINES_KEY, kDefaultContextLines)
                                      .toInt());
-        m_contextSpinBoxAction = m_toolBar->addWidget(contextSpinBox);
+        contextLayout->addWidget(contextSpinBox);
+        m_toolBar->addItem(CONTEXT_LINES_ID, Tr::tr("Context Lines"), contextWidget);
         m_collapseController->setContextLines(contextSpinBox->value());
         connect(contextSpinBox, &QSpinBox::valueChanged, this, [this](int lines) {
             Core::ICore::settings()->setValue(Constants::CONTEXT_LINES_KEY, lines);
@@ -2196,8 +2216,7 @@ public:
 
         // the context only applies while unchanged lines are hidden
         const auto updateContextEnabled = [this](bool collapsing) {
-            m_contextLabelAction->setVisible(collapsing);
-            m_contextSpinBoxAction->setVisible(collapsing);
+            m_toolBar->setItemVisible(CONTEXT_LINES_ID, collapsing);
         };
         updateContextEnabled(collapse);
         connect(m_collapseAction, &QAction::toggled, this,
@@ -2208,10 +2227,13 @@ public:
             updateContextEnabled(on);
         });
 
+        // like the diff editor, the settings are flushed to the right
+        m_toolBar->addStretch(STRETCH_ID);
+
         m_ignoreWhitespace = Core::ICore::settings()
                                  ->value(Constants::INLINE_DIFF_IGNORE_WHITESPACE_KEY, false)
                                  .toBool();
-        m_whitespaceAction = m_toolBar->addAction(QIcon(), Tr::tr("Ignore Whitespace"));
+        m_whitespaceAction = addAction(IGNORE_WHITESPACE_ID, QIcon(), Tr::tr("Ignore Whitespace"));
         m_whitespaceAction->setObjectName("InlineDiffIgnoreWhitespaceAction"); // autotest
         m_whitespaceAction->setCheckable(true);
         m_whitespaceAction->setChecked(m_ignoreWhitespace);
@@ -2229,7 +2251,7 @@ public:
         Internal::populateDiffAlgorithms(m_diffAlgorithmComboBox);
         m_diffAlgorithmComboBox->setCurrentIndex(
             m_diffAlgorithmComboBox->findData(m_diffAlgorithm));
-        m_toolBar->addWidget(m_diffAlgorithmComboBox);
+        m_toolBar->addItem(DIFF_ALGORITHM_ID, Tr::tr("Diff Algorithm"), m_diffAlgorithmComboBox);
         connect(m_diffAlgorithmComboBox, &QComboBox::currentIndexChanged, this, [this] {
             m_diffAlgorithm = static_cast<Differ::DiffAlgorithm>(
                 m_diffAlgorithmComboBox->currentData().toInt());
@@ -2240,7 +2262,7 @@ public:
         // a global display setting, but the toggle belongs where the diff is
         // shown: a reader who cannot tell the colors apart will not go looking
         // for it in the preferences
-        m_signsAction = m_toolBar->addAction(QIcon(), Tr::tr("Change Signs"));
+        m_signsAction = addAction(CHANGE_SIGNS_ID, QIcon(), Tr::tr("Change Signs"));
         m_signsAction->setObjectName("InlineDiffChangeSignsAction"); // autotest
         m_signsAction->setCheckable(true);
         m_signsAction->setChecked(TextEditor::displaySettings().markDiffChangeSigns());
@@ -2256,20 +2278,25 @@ public:
             m_signsAction->setChecked(TextEditor::displaySettings().markDiffChangeSigns());
         });
 
-        m_reloadAction = m_toolBar->addAction(Utils::Icons::RELOAD_TOOLBAR.icon(),
-                                              Tr::tr("Reload Diff"));
+        m_reloadAction = addAction(RELOAD_ID,
+                                   Utils::Icons::RELOAD_TOOLBAR.icon(),
+                                   Tr::tr("Reload Diff"));
         m_reloadAction->setObjectName("InlineDiffReloadAction"); // autotest
         m_reloadAction->setToolTip(Tr::tr("Reloads the baseline and recomputes the diff."));
         connect(m_reloadAction, &QAction::triggered, this, [this] { fetchBaseline(); });
 
         // like the diff editor's view switcher, the icon shows the view that
         // a click switches to
-        m_viewSwitcherAction = m_toolBar->addAction(QIcon(), QString());
+        m_viewSwitcherAction = addAction(VIEW_SWITCHER_ID, QIcon(), Tr::tr("Switch View"));
         connect(m_viewSwitcherAction, &QAction::triggered, this, [this] {
             setViewMode(m_viewMode == InlineDiffViewMode::Inline
                             ? InlineDiffViewMode::SideBySide
                             : InlineDiffViewMode::Inline);
         });
+
+        m_toolBar->addItem(EDITOR_TOOLS_ID, Tr::tr("Editor Tools"), m_viewToolBars);
+        m_toolBar->setPermanentItems({VIEW_SWITCHER_ID, EDITOR_TOOLS_ID});
+        m_toolBar->setSettingsKey("DiffEditor/InlineDiffToolBar");
 
         m_updateTimer.setSingleShot(true);
         m_updateTimer.setInterval(500);
@@ -2324,7 +2351,7 @@ public:
     {
         editorRegistry().remove(m_source.data());
         delete widget(); // deletes the splitter and the decorators, which must not clear()
-        delete m_toolBarWidget.data();
+        delete m_toolBar.data();
     }
 
     bool eventFilter(QObject *obj, QEvent *e) override
@@ -2394,7 +2421,7 @@ public:
     }
 
     Core::IDocument *document() const override { return m_document; }
-    QWidget *toolBar() override { return m_toolBarWidget; }
+    QWidget *toolBar() override { return m_toolBar; }
 
     void fillContextMenu(TextEditorWidget *view, QMenu *menu, const QTextCursor &cursor)
     {
@@ -2997,15 +3024,12 @@ private:
     QPointer<InlineDiffDecorator> m_baselineDecorator;
     QPointer<SideBySideAligner> m_aligner;
     TextDocumentPtr m_baselineDocument;
-    QPointer<QWidget> m_toolBarWidget;
-    QToolBar *m_toolBar = nullptr;
+    QPointer<Utils::StyledBar> m_toolBar;
     QStackedWidget *m_viewToolBars = nullptr;
     QAction *m_viewSwitcherAction = nullptr;
     QAction *m_previousChangeAction = nullptr;
     QAction *m_nextChangeAction = nullptr;
     QAction *m_collapseAction = nullptr;
-    QAction *m_contextLabelAction = nullptr;
-    QAction *m_contextSpinBoxAction = nullptr;
     QAction *m_whitespaceAction = nullptr;
     QComboBox *m_diffAlgorithmComboBox = nullptr;
     QAction *m_reloadAction = nullptr;

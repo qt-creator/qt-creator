@@ -4,6 +4,8 @@
 
 #include "utils_global.h"
 
+#include "store.h"
+
 #include <QCheckBox>
 #include <QComboBox>
 #include <QCursor>
@@ -162,18 +164,47 @@ private:
     QString m_lastPermanentStatusMessage;
 };
 
+namespace Internal { class StyledBarPrivate; }
+
 class QTCREATOR_UTILS_EXPORT StyledBar : public QWidget
 {
 public:
     StyledBar(QWidget *parent = nullptr);
+    ~StyledBar() override;
+
     void setSingleRow(bool singleRow);
     bool isSingleRow() const;
 
     void setLightColored(bool lightColored);
     bool isLightColored() const;
 
+    void addItem(const Key &id, const QString &displayName, QWidget *widget);
+    void addStretch(const Key &id);
+    void addSpacer(const Key &id);
+    void addSeparator(const Key &id);
+    void setPermanentItems(const KeyList &ids);
+    void setItemVisible(const Key &id, bool visible);
+    void setItemStretch(const Key &id, int stretch);
+
+    void setItemOrder(const KeyList &ids);
+    KeyList itemOrder() const;
+    void setHiddenItems(const KeyList &ids);
+    KeyList hiddenItems() const;
+    void resetItemConfiguration();
+
+    void setSettingsKey(const Key &key);
+
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+
 protected:
+    bool event(QEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
+
+private:
+    Internal::StyledBarPrivate *d;
 };
 
 class QTCREATOR_UTILS_EXPORT StyledSeparator : public QWidget
