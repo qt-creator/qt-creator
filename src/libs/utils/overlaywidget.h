@@ -29,6 +29,8 @@ public:
     void setPaintFunction(const PaintFunction &paint);
     void setResizeFunction(const ResizeFunction &resize);
 
+    static void paintDimmedBackground(QWidget *widget, QPainter &painter, QPaintEvent *event);
+
 protected:
     bool eventFilter(QObject *obj, QEvent *ev) override;
     void paintEvent(QPaintEvent *ev) override;

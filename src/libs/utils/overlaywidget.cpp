@@ -4,6 +4,7 @@
 #include "overlaywidget.h"
 
 #include "qtcassert.h"
+#include "theme/theme.h"
 
 #include <QEvent>
 #include <QPainter>
@@ -36,6 +37,13 @@ void Utils::OverlayWidget::setPaintFunction(const Utils::OverlayWidget::PaintFun
 void Utils::OverlayWidget::setResizeFunction(const ResizeFunction &resize)
 {
     d->m_resize = resize;
+}
+
+void Utils::OverlayWidget::paintDimmedBackground(QWidget *widget, QPainter &painter, QPaintEvent *)
+{
+    QColor color = Utils::creatorColor(Utils::Theme::Token_Background_Default);
+    color.setAlpha(210);
+    painter.fillRect(widget->rect(), color);
 }
 
 bool Utils::OverlayWidget::eventFilter(QObject *obj, QEvent *ev)
