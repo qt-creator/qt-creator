@@ -433,6 +433,21 @@ void LanguageClientManager::enableClientSettings(const QString &settingsId, bool
     managerInstance->applySettings();
 }
 
+void LanguageClientManager::removeClientSettings(const QString &settingsId)
+{
+    QTC_ASSERT(managerInstance, return);
+    const QList<Client *> clients = clientsForSettingId(settingsId);
+    for (Client *client : clients)
+        shutdownClient(client);
+    LanguageClientSettings::removeSettings(settingsId);
+    if (BaseSettings *settings
+        = LanguageClientSettings::settingById(managerInstance->m_currentSettings, settingsId)) {
+        managerInstance->m_currentSettings.removeOne(settings);
+        delete settings;
+    }
+    writeSettings();
+}
+
 QList<Client *> LanguageClientManager::clientsForSettingId(const QString &settingsId)
 {
     QTC_ASSERT(managerInstance, return {});
