@@ -30,7 +30,6 @@
 #include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtversionfactory.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <remote/sshdevicewizard.h>
@@ -245,9 +244,8 @@ static bool bindToolchain(Kit *kit)
     return true;
 }
 
-// The Qt here came with Qt Creator's package rather than from an installer, so nothing
-// registered it, and a kit restored from settings that names one that is gone has its Qt
-// aspect cleared rather than set up again, for the same reason the toolchain aspect has.
+// A kit restored from settings that names a Qt that is gone has its Qt aspect cleared rather
+// than set up again, for the same reason the toolchain aspect has.
 static void bindQtVersion(Kit *kit)
 {
     const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
@@ -258,25 +256,8 @@ static void bindQtVersion(Kit *kit)
         [&deviceRoot](const QtSupport::QtVersion *candidate) {
             return candidate->isValid() && candidate->qtFilePath().isSameDevice(deviceRoot);
         });
-    if (!version) {
-        const FilePath qmake = FilePath::fromString(Constants::HARMONYOS_NATIVE_PACKAGE_BIN)
-                                   .pathAppended("qmake");
-        if (!qmake.isExecutableFile())
-            return;
-        version = QtSupport::QtVersionFactory::createQtVersionFromQMakePath(
-            qmake, DetectionSource::FromSystem);
-        if (!version)
-            return;
-        // A qmake that answers is not yet a Qt that can be built against, and registering
-        // one that cannot would keep it: the lookup above passes over it, so the next kit
-        // registers another one beside it.
-        if (!version->isValid()) {
-            delete version;
-            return;
-        }
-        QtSupport::QtVersionManager::addVersion(version);
-    }
-    QtSupport::QtKitAspect::setQtVersion(kit, version);
+    if (version)
+        QtSupport::QtKitAspect::setQtVersion(kit, version);
 }
 
 // The lldb travels in Qt Creator's own package as the compiler does, so it too is a
