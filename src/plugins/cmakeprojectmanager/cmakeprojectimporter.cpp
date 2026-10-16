@@ -803,8 +803,13 @@ bool CMakeProjectImporter::filter(ProjectExplorer::Kit *k) const
 
     const auto presetConfigItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
     if (presetConfigItem.isNull())
-        return false;
+        return true;
 
+    return m_project->presetKitIds().contains(k->id());
+}
+
+bool CMakeProjectImporter::isPreferredKit(const ProjectExplorer::Kit *k) const
+{
     return m_project->presetKitIds().contains(k->id());
 }
 
@@ -2230,6 +2235,11 @@ void CMakeProjectImporter::deleteDirectoryData(void *directoryData) const
 
 #ifdef WITH_TESTS
 
+#include <projectexplorer/targetsetuppage.h>
+
+#include <utils/detailswidget.h>
+
+#include <QScopeGuard>
 #include <QTest>
 
 namespace CMakeProjectManager::Internal {
@@ -2249,6 +2259,8 @@ private slots:
     void testPresetProbeIsReusedUntilThePresetChanges();
     void testPresetProbeIsRedoneWhenTheEnvironmentChanges();
     void testBrokenPresetKeepsTheKitsOfTheOthers();
+    void testUnusablePresetsLeaveTheOtherKits();
+    void testSetupPagePrefersPresetKits();
 };
 
 void CMakeProjectImporterTest::testCMakeProjectImporterQt_data()
@@ -2606,6 +2618,93 @@ void CMakeProjectImporterTest::testBrokenPresetKeepsTheKitsOfTheOthers()
 
     QVERIFY2(!KitManager::kit(kitIds.first()), "A preset that cannot be probed gets no kit.");
     QVERIFY2(KitManager::kit(kitIds.last()), "A preset that can be probed keeps its kit.");
+
+    Kit otherKit;
+    QVERIFY2(project.projectImporter()->filter(&otherKit),
+             "A project with a preset kit offers the other kits too.");
+
+    deregisterPresetKits(project);
+}
+
+void CMakeProjectImporterTest::testUnusablePresetsLeaveTheOtherKits()
+{
+    const FilePath projectDir = presetProjectDirectory("preset-probe-all-broken");
+    QVERIFY(!projectDir.isEmpty());
+
+    QVERIFY(writePresets(projectDir, R"({
+        "version": 3,
+        "configurePresets": [
+            {
+                "name": "broken",
+                "binaryDir": "${sourceDir}/build-broken",
+                "cmakeExecutable": "/there/is/no/such/cmake"
+            }
+        ]
+    })"));
+
+    CMakeProject project(projectDir / Constants::CMAKE_LISTS_TXT);
+    QVERIFY(project.presetsData().havePresets);
+    const QList<Id> kitIds = project.presetKitIds();
+    QCOMPARE(kitIds.size(), 1);
+    QVERIFY(!KitManager::kit(kitIds.first()));
+
+    Kit otherKit;
+    QVERIFY2(project.projectImporter()->filter(&otherKit),
+             "A project whose presets yield no kit can be configured with the other kits.");
+}
+
+void CMakeProjectImporterTest::testSetupPagePrefersPresetKits()
+{
+    if (Environment::systemEnvironment().searchInPath("ninja").isEmpty())
+        QSKIP("A preset needs a generator that is installed for its probes to run.");
+
+    const FilePath projectDir = presetProjectDirectory("preset-setup-page");
+    QVERIFY(!projectDir.isEmpty());
+
+    const QtVersionRestorer qtVersionRestorer;
+
+    QVERIFY(writePresets(projectDir, R"({
+        "version": 3,
+        "configurePresets": [
+            {
+                "name": "preset",
+                "generator": "Ninja",
+                "binaryDir": "${sourceDir}/build",
+                "cacheVariables": {
+                    "CMAKE_C_COMPILER": "cc",
+                    "CMAKE_CXX_COMPILER": "c++"
+                }
+            }
+        ]
+    })"));
+
+    Kit *otherKit = KitManager::registerKit(
+        [](Kit *k) { k->setUnexpandedDisplayName("Not from a preset"); });
+    QVERIFY(otherKit);
+    Kit * const previousDefaultKit = KitManager::defaultKit();
+    const auto restoreKits = qScopeGuard([otherKit, previousDefaultKit] {
+        KitManager::setDefaultKit(previousDefaultKit);
+        KitManager::deregisterKit(otherKit);
+    });
+    QVERIFY(otherKit->isValid());
+    // The default kit is what the page selects otherwise.
+    KitManager::setDefaultKit(otherKit);
+
+    CMakeProject project(projectDir / Constants::CMAKE_LISTS_TXT);
+    const QList<Id> presetKitIds = project.presetKitIds();
+    QCOMPARE(presetKitIds.size(), 1);
+    QVERIFY(KitManager::kit(presetKitIds.first()));
+
+    TargetSetupPage page;
+    page.setProjectAndPath(&project, project.projectFilePath());
+    page.initializePage();
+    QCOMPARE(page.selectedKits(), presetKitIds);
+
+    const QList<DetailsWidget *> kitWidgets = page.findChildren<DetailsWidget *>();
+    QVERIFY2(Utils::anyOf(kitWidgets, [otherKit](const DetailsWidget *w) {
+                 return w->summaryText() == otherKit->displayName();
+             }),
+             "The other kits are offered next to the preset kits.");
 
     deregisterPresetKits(project);
 }

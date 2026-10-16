@@ -322,10 +322,18 @@ void TargetSetupPagePrivate::selectAtLeastOneEnabledKit()
         return w->isValid() && tasks.isEmpty();
     };
 
-    // Use default kit if that is preferred:
-    toCheckWidget = findOrDefault(widgets, [defaultKit, isPreferred](const TargetSetupWidget *w) {
-        return isPreferred(w) && w->kit() == defaultKit;
+    // Use a kit the importer prefers if that is preferred:
+    toCheckWidget = findOrDefault(widgets, [this, isPreferred](const TargetSetupWidget *w) {
+        return isPreferred(w) && importer() && importer()->isPreferredKit(w->kit());
     });
+
+    if (!toCheckWidget) {
+        // Use default kit if that is preferred:
+        toCheckWidget = findOrDefault(
+            widgets, [defaultKit, isPreferred](const TargetSetupWidget *w) {
+                return isPreferred(w) && w->kit() == defaultKit;
+            });
+    }
 
     if (!toCheckWidget) {
         // Use the first preferred widget:

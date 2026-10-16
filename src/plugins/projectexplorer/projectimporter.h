@@ -34,6 +34,7 @@ public:
     virtual Utils::FilePaths importCandidates() = 0;
     virtual Target *preferredTarget(const QList<Target *> &possibleTargets);
     virtual bool filter(Kit *) const { return true; }
+    virtual bool isPreferredKit(const Kit *) const { return false; }
 
     bool isUpdating() const { return m_isUpdating; }
 
