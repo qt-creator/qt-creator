@@ -87,6 +87,7 @@ Project {
         "qtsupport/qtsupport.qbs",
         "remote/remote.qbs",
         "resourceeditor/resourceeditor.qbs",
+        "ripgrep/ripgrep.qbs",
         "saferenderer/saferenderer.qbs",
         "screenrecorder/screenrecorder.qbs",
         "scxmleditor/scxmleditor.qbs",
