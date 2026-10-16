@@ -42,7 +42,7 @@ private:
 
     TextEditor::TextEditorWidget *m_textEditorWidget = nullptr;
 
-    QCheckBox *m_defaultPermissonsCheckBox = nullptr;
+    QCheckBox *m_defaultPermissionsCheckBox = nullptr;
     QCheckBox *m_defaultFeaturesCheckBox = nullptr;
     QComboBox *m_permissionsComboBox = nullptr;
     QCheckBox *m_CMakePermissionsCheckBox = nullptr;

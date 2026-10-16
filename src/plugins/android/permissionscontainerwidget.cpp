@@ -167,10 +167,10 @@ bool PermissionsContainerWidget::initialize(TextEditor::TextEditorWidget *textEd
     permissionsGroupBox->setTitle(Android::Tr::tr("Permissions"));
     auto layout = new QGridLayout(permissionsGroupBox);
 
-    m_defaultPermissonsCheckBox = new QCheckBox(this);
-    m_defaultPermissonsCheckBox->setText(
+    m_defaultPermissionsCheckBox = new QCheckBox(this);
+    m_defaultPermissionsCheckBox->setText(
         Android::Tr::tr("Include default permissions for Qt modules"));
-    layout->addWidget(m_defaultPermissonsCheckBox, 0, 0);
+    layout->addWidget(m_defaultPermissionsCheckBox, 0, 0);
 
     m_defaultFeaturesCheckBox = new QCheckBox(this);
     m_defaultFeaturesCheckBox->setText(Android::Tr::tr("Include default features for Qt modules"));
@@ -347,7 +347,7 @@ bool PermissionsContainerWidget::initialize(TextEditor::TextEditorWidget *textEd
     updateAddRemovePermissionButtons();
     loadPermissionsFromManifest();
 
-    connect(m_defaultPermissonsCheckBox, &QCheckBox::stateChanged,
+    connect(m_defaultPermissionsCheckBox, &QCheckBox::stateChanged,
             this, &PermissionsContainerWidget::defaultPermissionOrFeatureCheckBoxClicked);
     connect(m_defaultFeaturesCheckBox, &QCheckBox::stateChanged,
             this, &PermissionsContainerWidget::defaultPermissionOrFeatureCheckBoxClicked);
@@ -529,7 +529,7 @@ Utils::Result<> PermissionsContainerWidget::updateManifestPermissions()
     const Utils::Result<> result = Android::Internal::updateManifestPermissions(
         manifestPath,
         m_permissionsModel->permissions().keys(),
-        m_defaultPermissonsCheckBox->isChecked(),
+        m_defaultPermissionsCheckBox->isChecked(),
         m_defaultFeaturesCheckBox->isChecked());
     if (!result)
         return result;
@@ -562,7 +562,7 @@ void PermissionsContainerWidget::loadPermissionsFromManifest()
     const AndroidManifestParser::ManifestData &data = *dataResult;
 
     m_permissionsModel->setPermissions(data.permissions);
-    m_defaultPermissonsCheckBox->setChecked(data.hasDefaultPermissionsComment);
+    m_defaultPermissionsCheckBox->setChecked(data.hasDefaultPermissionsComment);
     m_defaultFeaturesCheckBox->setChecked(data.hasDefaultFeaturesComment);
 }
 } // namespace Android::Internal
