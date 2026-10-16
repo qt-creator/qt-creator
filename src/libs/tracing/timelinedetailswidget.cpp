@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "rangedetailswidget.h"
+#include "timelinedetailswidget.h"
 
 #include "timelineformatdata.h"
 #include "tracingtr.h"
@@ -25,12 +25,12 @@
 
 namespace Timeline {
 
-RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
+TimelineDetailsWidget::TimelineDetailsWidget(QWidget *parent)
     : QWidget(parent)
 {
     using namespace Layouting;
 
-    setObjectName("RangeDetails");
+    setObjectName("TimelineDetails");
     setWindowTitle(Tr::tr("Details"));
     setMinimumWidth(150);
 
@@ -93,7 +93,7 @@ RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
     reset();
 }
 
-void RangeDetailsWidget::setData(QObject *provider, const QString &title,
+void TimelineDetailsWidget::setData(QObject *provider, const QString &title,
                                  const QList<QPair<QString, QString>> &content)
 {
     m_provider = provider;
@@ -102,7 +102,7 @@ void RangeDetailsWidget::setData(QObject *provider, const QString &title,
     rebuildRows(content);
 }
 
-void RangeDetailsWidget::setSelectionRange(qint64 start, qint64 end, qint64 referenceDuration)
+void TimelineDetailsWidget::setSelectionRange(qint64 start, qint64 end, qint64 referenceDuration)
 {
     const bool showRange = start < end && referenceDuration > 0;
     m_selectionRangeBar->setVisible(showRange);
@@ -117,7 +117,7 @@ void RangeDetailsWidget::setSelectionRange(qint64 start, qint64 end, qint64 refe
                  formatTime(end - start, referenceDuration)));
 }
 
-void RangeDetailsWidget::clear(QObject *provider)
+void TimelineDetailsWidget::clear(QObject *provider)
 {
     // Losing a selection in one view must not take down the details another view
     // is showing.
@@ -126,18 +126,18 @@ void RangeDetailsWidget::clear(QObject *provider)
     reset();
 }
 
-void RangeDetailsWidget::reset()
+void TimelineDetailsWidget::reset()
 {
     m_provider = nullptr;
     clearContent();
 }
 
-QObject *RangeDetailsWidget::provider() const
+QObject *TimelineDetailsWidget::provider() const
 {
     return m_provider;
 }
 
-void RangeDetailsWidget::clearContent()
+void TimelineDetailsWidget::clearContent()
 {
     m_hasData = false;
     m_titleLabel->setText(Tr::tr("No item selected"));
@@ -186,7 +186,7 @@ static void fillJson(QStandardItem *keyItem, QStandardItem *valueItem, const QJs
     }
 }
 
-void RangeDetailsWidget::rebuildRows(const QList<QPair<QString, QString>> &content)
+void TimelineDetailsWidget::rebuildRows(const QList<QPair<QString, QString>> &content)
 {
     m_model->removeRows(0, m_model->rowCount());
 
@@ -218,12 +218,12 @@ void RangeDetailsWidget::rebuildRows(const QList<QPair<QString, QString>> &conte
     m_treeView->expandAll();
 }
 
-void RangeDetailsWidget::mousePressEvent(QMouseEvent *event)
+void TimelineDetailsWidget::mousePressEvent(QMouseEvent *event)
 {
     event->accept();
 }
 
-void RangeDetailsWidget::mouseReleaseEvent(QMouseEvent *event)
+void TimelineDetailsWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton && m_hasData
             && m_titleBar->geometry().contains(event->pos())) {

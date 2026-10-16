@@ -15,7 +15,7 @@ class Kit;
 class Project;
 }
 
-namespace Timeline { class RangeDetailsWidget; }
+namespace Timeline { class TimelineDetailsWidget; }
 
 namespace Profiler::Internal {
 
@@ -29,7 +29,7 @@ class PerfProfilerTraceBackend : public ProfilerTraceBackend
     Q_OBJECT
 
 public:
-    explicit PerfProfilerTraceBackend(Timeline::RangeDetailsWidget *details,
+    explicit PerfProfilerTraceBackend(Timeline::TimelineDetailsWidget *details,
                                       QObject *parent = nullptr);
     ~PerfProfilerTraceBackend() override;
 

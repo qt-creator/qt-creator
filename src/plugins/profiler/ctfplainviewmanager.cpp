@@ -9,7 +9,7 @@
 #include "ctftracemanager.h"
 #include "profilertr.h"
 
-#include <tracing/rangedetailswidget.h>
+#include <tracing/timelinedetailswidget.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinewidget.h>
 #include <tracing/timelinezoomcontrol.h>
@@ -51,7 +51,7 @@ public:
     CtfTraceManager traceManager{nullptr, &modelAggregator, &statisticsModel};
     QSingleTaskTreeRunner taskTreeRunner;
 
-    QPointer<Timeline::RangeDetailsWidget> rangeDetails; // Not owned; shared with the
+    QPointer<Timeline::TimelineDetailsWidget> timelineDetails; // Not owned; shared with the
                                                          // other backends' views.
     QPointer<Timeline::TimelineWidget> traceView;
     QPointer<CtfStatisticsView> statisticsView;
@@ -78,14 +78,14 @@ public:
     std::optional<TimelineRange> keptRange;
 };
 
-CtfPlainViewManager::CtfPlainViewManager(Timeline::RangeDetailsWidget *details, QObject *parent)
+CtfPlainViewManager::CtfPlainViewManager(Timeline::TimelineDetailsWidget *details, QObject *parent)
     : QObject(parent)
     , d(new CtfPlainViewManagerPrivate)
 {
     // The caller docks the panel it passes in. A panel the timeline creates for
     // itself instead would never be shown, leaving this backend without details.
     QTC_CHECK(details);
-    d->rangeDetails = details;
+    d->timelineDetails = details;
 }
 
 CtfPlainViewManager::~CtfPlainViewManager()
@@ -98,7 +98,7 @@ CtfPlainViewManager::~CtfPlainViewManager()
 QWidgetList CtfPlainViewManager::views(QWidget *parent)
 {
     d->traceView = new Timeline::TimelineWidget(&d->modelAggregator, &d->zoomControl,
-                                                d->rangeDetails, parent);
+                                                d->timelineDetails, parent);
     d->traceView->setObjectName("CtfVisualizerTraceView");
     d->traceView->setWindowTitle(Tr::tr("Timeline"));
 

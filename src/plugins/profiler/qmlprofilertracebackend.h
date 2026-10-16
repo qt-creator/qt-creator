@@ -10,7 +10,7 @@ class QAction;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class BuildConfiguration; }
-namespace Timeline { class RangeDetailsWidget; }
+namespace Timeline { class TimelineDetailsWidget; }
 
 namespace Profiler::Internal {
 
@@ -27,7 +27,7 @@ class QmlProfilerTraceBackend : public ProfilerTraceBackend
     Q_OBJECT
 
 public:
-    explicit QmlProfilerTraceBackend(Timeline::RangeDetailsWidget *details,
+    explicit QmlProfilerTraceBackend(Timeline::TimelineDetailsWidget *details,
                                      QObject *parent = nullptr);
     ~QmlProfilerTraceBackend() override;
 

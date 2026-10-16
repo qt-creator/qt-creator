@@ -10,7 +10,7 @@
 
 #include "profilertr.h"
 
-#include <tracing/rangedetailswidget.h>
+#include <tracing/timelinedetailswidget.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinewidget.h>
 #include <tracing/timelinezoomcontrol.h>
@@ -41,20 +41,20 @@ public:
     QSingleTaskTreeRunner taskTreeRunner;
     QTimer rangeDebounce;
 
-    QPointer<Timeline::RangeDetailsWidget> rangeDetails; // Not owned; shared with the
+    QPointer<Timeline::TimelineDetailsWidget> timelineDetails; // Not owned; shared with the
                                                          // other backends' views.
     QPointer<Timeline::TimelineWidget> timelineView;
     QPointer<CallTreeView> callTreeView;
 };
 
-SamplerViewManager::SamplerViewManager(Timeline::RangeDetailsWidget *details, QObject *parent)
+SamplerViewManager::SamplerViewManager(Timeline::TimelineDetailsWidget *details, QObject *parent)
     : QObject(parent)
     , d(new SamplerViewManagerPrivate)
 {
     // The caller docks the panel it passes in. A panel the timeline creates for
     // itself instead would never be shown, leaving this backend without details.
     QTC_CHECK(details);
-    d->rangeDetails = details;
+    d->timelineDetails = details;
 
     // Re-aggregating the call tree on every drag step would be wasteful, so
     // range selections are applied debounced.
@@ -87,7 +87,7 @@ bool SamplerViewManager::isSamplerTrace(const FilePath &dir)
 QWidgetList SamplerViewManager::views(QWidget *parent)
 {
     d->timelineView = new Timeline::TimelineWidget(&d->modelAggregator, &d->zoomControl,
-                                                   d->rangeDetails, parent);
+                                                   d->timelineDetails, parent);
     d->timelineView->setObjectName("SamplerCpuUsageView");
     d->timelineView->setWindowTitle(Tr::tr("CPU Usage"));
 

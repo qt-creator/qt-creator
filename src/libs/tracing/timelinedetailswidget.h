@@ -17,11 +17,11 @@ QT_END_NAMESPACE
 
 namespace Timeline {
 
-class TRACING_EXPORT RangeDetailsWidget : public QWidget
+class TRACING_EXPORT TimelineDetailsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit RangeDetailsWidget(QWidget *parent = nullptr);
+    explicit TimelineDetailsWidget(QWidget *parent = nullptr);
 
     // Several views share one panel: in the profiler every backend's timeline and
     // flame graph write into the same one. Each fill names the view it came from,

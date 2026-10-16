@@ -7,7 +7,7 @@
 
 #include <coreplugin/idocument.h>
 
-#include <tracing/rangedetailswidget.h>
+#include <tracing/timelinedetailswidget.h>
 
 #include <utils/link.h>
 
@@ -39,7 +39,7 @@ public:
     const QList<ProfilerTraceBackend *> &backends() const { return m_backends; }
     // The panel every backend of this document fills. Shared so a trace shows a
     // single "Details" view; a combined trace would otherwise show two.
-    Timeline::RangeDetailsWidget *rangeDetails() const { return m_rangeDetails; }
+    Timeline::TimelineDetailsWidget *timelineDetails() const { return m_timelineDetails; }
 
     Utils::Result<> open(const Utils::FilePath &filePath,
                          const Utils::FilePath &realFilePath) override;
@@ -66,7 +66,7 @@ private:
 
     const TraceFormat m_format;
     QList<ProfilerTraceBackend *> m_backends;
-    QPointer<Timeline::RangeDetailsWidget> m_rangeDetails;
+    QPointer<Timeline::TimelineDetailsWidget> m_timelineDetails;
     // Builds what the sampler views of a combined trace show; null for the
     // formats that have no second half to merge in.
     CombinedTraceLoader *m_combinedLoader = nullptr;

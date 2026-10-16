@@ -6,7 +6,7 @@ Project {
     references: [
         "flamegraph/flamegraph.qbs",
         "flamegraphview/flamegraphview.qbs",
-        "rangedetails/rangedetails.qbs",
+        "timelinedetails/timelinedetails.qbs",
         "timelinemodel/timelinemodel.qbs",
         "timelinemodelaggregator/timelinemodelaggregator.qbs",
         "timelinenotesmodel/timelinenotesmodel.qbs",

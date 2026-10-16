@@ -13,7 +13,7 @@
 #include "profiler/qmlprofilertool.h"
 #include "profiler/qmlprofilertraceview.h"
 
-#include <tracing/rangedetailswidget.h>
+#include <tracing/timelinedetailswidget.h>
 
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
@@ -31,7 +31,7 @@ class QmlProfilerPlainViewManagerPrivate
 {
 public:
     QmlProfilerModelManager modelManager;
-    QPointer<Timeline::RangeDetailsWidget> rangeDetails; // Not owned; shared with the
+    QPointer<Timeline::TimelineDetailsWidget> timelineDetails; // Not owned; shared with the
                                                          // other backends' views.
 };
 
@@ -40,7 +40,7 @@ QmlProfilerPlainViewManager::~QmlProfilerPlainViewManager()
     delete d;
 }
 
-QmlProfilerPlainViewManager::QmlProfilerPlainViewManager(Timeline::RangeDetailsWidget *details,
+QmlProfilerPlainViewManager::QmlProfilerPlainViewManager(Timeline::TimelineDetailsWidget *details,
                                                          QObject *parent)
     : QObject(parent)
     , d(new QmlProfilerPlainViewManagerPrivate)
@@ -48,7 +48,7 @@ QmlProfilerPlainViewManager::QmlProfilerPlainViewManager(Timeline::RangeDetailsW
     // Unlike the timeline, this manager cannot fall back to a panel of its own: the
     // flame graph's details would go nowhere.
     QTC_CHECK(details);
-    d->rangeDetails = details;
+    d->timelineDetails = details;
     connect(&d->modelManager, &QmlProfilerModelManager::error,
             this, &QmlProfilerPlainViewManager::error);
     connect(&d->modelManager, &QmlProfilerModelManager::loadFinished,
@@ -63,7 +63,7 @@ QWidgetList QmlProfilerPlainViewManager::views(QWidget *parent)
     connect(dashboardView, &Internal::QmlProfilerDashboardView::typeSelected,
             this, &QmlProfilerPlainViewManager::typeSelected);
 
-    auto traceView = new Internal::QmlProfilerTraceView(&d->modelManager, d->rangeDetails);
+    auto traceView = new Internal::QmlProfilerTraceView(&d->modelManager, d->timelineDetails);
     traceView->setParent(parent);
     connect(traceView, &Internal::QmlProfilerTraceView::gotoSourceLocation,
             this, &QmlProfilerPlainViewManager::gotoSourceLocation);
@@ -95,13 +95,13 @@ QWidgetList QmlProfilerPlainViewManager::views(QWidget *parent)
 
     // Route the flame graph's details into the shared range details view, matching the
     // full QML Profiler perspective.
-    connect(flameGraphView, &Internal::FlameGraphView::detailsChanged, d->rangeDetails,
+    connect(flameGraphView, &Internal::FlameGraphView::detailsChanged, d->timelineDetails,
             [this, flameGraphView](const QString &title,
                                    const QList<QPair<QString, QString>> &content) {
-        d->rangeDetails->setData(flameGraphView, title, content);
+        d->timelineDetails->setData(flameGraphView, title, content);
     });
-    connect(flameGraphView, &Internal::FlameGraphView::detailsCleared, d->rangeDetails,
-            [this, flameGraphView] { d->rangeDetails->clear(flameGraphView); });
+    connect(flameGraphView, &Internal::FlameGraphView::detailsCleared, d->timelineDetails,
+            [this, flameGraphView] { d->timelineDetails->clear(flameGraphView); });
 
     connect(dashboardView, &Internal::QmlProfilerDashboardView::noDataShown,
             this, [this, dashboardView, traceView] {

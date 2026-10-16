@@ -10,7 +10,7 @@
 #include <profiler/ctftracemanager.h>
 #include <profiler/ctfvisualizerconstants.h>
 
-#include <tracing/rangedetailswidget.h>
+#include <tracing/timelinedetailswidget.h>
 #include <tracing/timelinezoomcontrol.h>
 
 #include <utils/filepath.h>
@@ -712,7 +712,7 @@ void CtfLoaderTest::testRestrictingAProviderReloadsTheTrace()
     QVERIFY(path.pathAppended("channel_1")
                 .writeFileContents(channel(42, "beta", {{2, 2000}, {3, 5000}})));
 
-    Timeline::RangeDetailsWidget details;
+    Timeline::TimelineDetailsWidget details;
     CtfPlainViewManager manager(&details);
     QSignalSpy loaded(&manager, &CtfPlainViewManager::loadFinished);
 
@@ -764,7 +764,7 @@ void CtfLoaderTest::testAThreadRestrictionOutlivesAProviderChange()
     QVERIFY(path.pathAppended("channel_1")
                 .writeFileContents(channel(42, "beta", {{2, 2000}, {3, 5000}})));
 
-    Timeline::RangeDetailsWidget details;
+    Timeline::TimelineDetailsWidget details;
     CtfPlainViewManager manager(&details);
     CtfTraceManager *traceManager = manager.traceManager();
     QSignalSpy loaded(&manager, &CtfPlainViewManager::loadFinished);
@@ -813,7 +813,7 @@ void CtfLoaderTest::testARestrictionReplacesOneFromAClearedProvider()
     QVERIFY(path.pathAppended("channel_1")
                 .writeFileContents(channel(42, "beta", {{2, 2000}, {3, 5000}})));
 
-    Timeline::RangeDetailsWidget details;
+    Timeline::TimelineDetailsWidget details;
     CtfPlainViewManager manager(&details);
     CtfTraceManager *traceManager = manager.traceManager();
     QSignalSpy loaded(&manager, &CtfPlainViewManager::loadFinished);
@@ -865,7 +865,7 @@ void CtfLoaderTest::testTheShownRangeOutlivesAProviderChange()
                 .writeFileContents(
                     channel(42, "beta", {{2, 2000}, {3, 2500}, {2, 3000}, {3, 3500}})));
 
-    Timeline::RangeDetailsWidget details;
+    Timeline::TimelineDetailsWidget details;
     CtfPlainViewManager manager(&details);
     Timeline::TimelineZoomControl *zoom = manager.zoomControl();
     QSignalSpy loaded(&manager, &CtfPlainViewManager::loadFinished);
@@ -917,7 +917,7 @@ void CtfLoaderTest::testClearedViewsShowTheNextTraceWhole()
     QVERIFY(path.pathAppended("channel_1")
                 .writeFileContents(channel(42, "beta", {{2, 2000}, {3, 5000}})));
 
-    Timeline::RangeDetailsWidget details;
+    Timeline::TimelineDetailsWidget details;
     CtfPlainViewManager manager(&details);
     QSignalSpy loaded(&manager, &CtfPlainViewManager::loadFinished);
 
@@ -955,7 +955,7 @@ void CtfLoaderTest::testRestrictionToASilentProviderSaysSo()
     // Declares "other" and records nothing of it.
     writeTrace(FilePath::fromString(dir.path()));
 
-    Timeline::RangeDetailsWidget details;
+    Timeline::TimelineDetailsWidget details;
     CtfPlainViewManager manager(&details);
     QSignalSpy loaded(&manager, &CtfPlainViewManager::loadFinished);
     QSignalSpy failed(&manager, &CtfPlainViewManager::error);

@@ -29,7 +29,7 @@ class TimelineNotesModel;
 class TimelineZoomControl;
 class TimelineScrollSync;
 class PausedRangesOverlay;
-class RangeDetailsWidget;
+class TimelineDetailsWidget;
 class SelectionRangeOverlay;
 class TimeRuler;
 class TrackLabels;
@@ -44,7 +44,7 @@ class TRACING_EXPORT TimelineContentWidget : public QWidget
 public:
     explicit TimelineContentWidget(TimelineModelAggregator *aggregator,
                                    TimelineZoomControl *zoom,
-                                   RangeDetailsWidget *details,
+                                   TimelineDetailsWidget *details,
                                    QWidget *parent = nullptr);
 
     QSize sizeHint() const override;
@@ -130,7 +130,7 @@ private:
     QWidget *m_leftHeader = nullptr;
     PausedRangesOverlay *m_pausedOverlay = nullptr;
     SelectionRangeOverlay *m_overlay = nullptr;
-    RangeDetailsWidget *m_details; // Not owned; lives in a dockable view.
+    TimelineDetailsWidget *m_details; // Not owned; lives in a dockable view.
     TimelineNotesModel *m_notes = nullptr;
     // Backend-independent API of the single widget that renders all tracks, and
     // that same object as a QWidget (for sizing/parenting). The concrete type is

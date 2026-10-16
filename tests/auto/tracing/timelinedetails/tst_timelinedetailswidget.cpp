@@ -1,8 +1,8 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include <tracing/rangedetailswidget.h>
 #include <tracing/timelinecontentwidget.h>
+#include <tracing/timelinedetailswidget.h>
 #include <tracing/timelinemodel.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinezoomcontrol.h>
@@ -29,13 +29,13 @@ static QList<QPair<QString, QString>> testContent()
     return {{QString("Duration"), QString("42")}};
 }
 
-static int rowCount(const RangeDetailsWidget &widget)
+static int rowCount(const TimelineDetailsWidget &widget)
 {
     const QTreeView *view = widget.findChild<QTreeView *>();
     return view && view->model() ? int(view->model()->rowCount()) : -1;
 }
 
-static QString title(const RangeDetailsWidget &widget)
+static QString title(const TimelineDetailsWidget &widget)
 {
     const QLabel *label = widget.findChild<QLabel *>();
     return label ? label->text() : QString();
@@ -93,7 +93,7 @@ public:
     static constexpr qint64 traceEnd = 100000;
     static constexpr qint64 rangeLength = 1000;
 
-    SharedPanelTimeline(RangeDetailsWidget *details, const QString &title)
+    SharedPanelTimeline(TimelineDetailsWidget *details, const QString &title)
         : m_model(new DetailsModel(&m_aggregator, title))
     {
         m_zoom.setTrace(0, traceEnd);
@@ -122,7 +122,7 @@ private:
     TimelineContentWidget *m_content = nullptr;
 };
 
-class tst_RangeDetailsWidget : public QObject
+class tst_TimelineDetailsWidget : public QObject
 {
     Q_OBJECT
 
@@ -140,24 +140,24 @@ private slots:
     void modelUpdateKeepsForeignContent();
 };
 
-void tst_RangeDetailsWidget::initTestCase()
+void tst_TimelineDetailsWidget::initTestCase()
 {
     Utils::setCreatorTheme(new DummyTheme);
     // No widget is ever shown here, and the software track painter needs no RHI.
     setTrackBackendOverride(TrackBackend::Software);
 }
 
-void tst_RangeDetailsWidget::cleanupTestCase()
+void tst_TimelineDetailsWidget::cleanupTestCase()
 {
     // setCreatorTheme() deletes the previous theme.
     Utils::setCreatorTheme(nullptr);
 }
 
-void tst_RangeDetailsWidget::clearFromForeignProviderKeepsContent()
+void tst_TimelineDetailsWidget::clearFromForeignProviderKeepsContent()
 {
     QObject shower;
     QObject other;
-    RangeDetailsWidget widget;
+    TimelineDetailsWidget widget;
 
     widget.setData(&shower, QString("Range"), testContent());
     QCOMPARE(widget.provider(), &shower);
@@ -170,10 +170,10 @@ void tst_RangeDetailsWidget::clearFromForeignProviderKeepsContent()
     QCOMPARE(title(widget), QString("Range"));
 }
 
-void tst_RangeDetailsWidget::clearFromOwnProviderDropsContent()
+void tst_TimelineDetailsWidget::clearFromOwnProviderDropsContent()
 {
     QObject shower;
-    RangeDetailsWidget widget;
+    TimelineDetailsWidget widget;
 
     widget.setData(&shower, QString("Range"), testContent());
     widget.clear(&shower);
@@ -182,9 +182,9 @@ void tst_RangeDetailsWidget::clearFromOwnProviderDropsContent()
     QVERIFY(title(widget) != QString("Range"));
 }
 
-void tst_RangeDetailsWidget::clearWithoutProviderDropsContent()
+void tst_TimelineDetailsWidget::clearWithoutProviderDropsContent()
 {
-    RangeDetailsWidget widget;
+    TimelineDetailsWidget widget;
 
     // Unclaimed content: no provider owns it, so any view may drop it.
     widget.setData(nullptr, QString("Range"), testContent());
@@ -196,10 +196,10 @@ void tst_RangeDetailsWidget::clearWithoutProviderDropsContent()
     QCOMPARE(rowCount(widget), 0);
 }
 
-void tst_RangeDetailsWidget::resetDropsForeignContent()
+void tst_TimelineDetailsWidget::resetDropsForeignContent()
 {
     QObject shower;
-    RangeDetailsWidget widget;
+    TimelineDetailsWidget widget;
 
     widget.setData(&shower, QString("Range"), testContent());
     // The trace itself is going away, so the content goes whoever put it there.
@@ -208,9 +208,9 @@ void tst_RangeDetailsWidget::resetDropsForeignContent()
     QCOMPARE(rowCount(widget), 0);
 }
 
-void tst_RangeDetailsWidget::providerIsClearedWhenProviderDies()
+void tst_TimelineDetailsWidget::providerIsClearedWhenProviderDies()
 {
-    RangeDetailsWidget widget;
+    TimelineDetailsWidget widget;
     {
         QObject shower;
         widget.setData(&shower, QString("Range"), testContent());
@@ -224,9 +224,9 @@ void tst_RangeDetailsWidget::providerIsClearedWhenProviderDies()
     QCOMPARE(rowCount(widget), 0);
 }
 
-void tst_RangeDetailsWidget::recenterReachesOnlyTheShowingTimeline()
+void tst_TimelineDetailsWidget::recenterReachesOnlyTheShowingTimeline()
 {
-    RangeDetailsWidget widget;
+    TimelineDetailsWidget widget;
     SharedPanelTimeline first(&widget, QString("First"));
     SharedPanelTimeline second(&widget, QString("Second"));
 
@@ -250,9 +250,9 @@ void tst_RangeDetailsWidget::recenterReachesOnlyTheShowingTimeline()
     QVERIFY(!second.isScrolledAway());
 }
 
-void tst_RangeDetailsWidget::recenterReachesAVisibleTimeline()
+void tst_TimelineDetailsWidget::recenterReachesAVisibleTimeline()
 {
-    RangeDetailsWidget widget;
+    TimelineDetailsWidget widget;
     SharedPanelTimeline hidden(&widget, QString("Hidden"));
     SharedPanelTimeline shown(&widget, QString("Shown"));
 
@@ -276,9 +276,9 @@ void tst_RangeDetailsWidget::recenterReachesAVisibleTimeline()
     QVERIFY(!shown.isScrolledAway());
 }
 
-void tst_RangeDetailsWidget::doubleClickReachesOnlyTheShowingTimeline()
+void tst_TimelineDetailsWidget::doubleClickReachesOnlyTheShowingTimeline()
 {
-    RangeDetailsWidget widget;
+    TimelineDetailsWidget widget;
     SharedPanelTimeline first(&widget, QString("First"));
     SharedPanelTimeline second(&widget, QString("Second"));
 
@@ -297,9 +297,9 @@ void tst_RangeDetailsWidget::doubleClickReachesOnlyTheShowingTimeline()
     QCOMPARE(second.model()->navigations, 1);
 }
 
-void tst_RangeDetailsWidget::modelUpdateKeepsForeignContent()
+void tst_TimelineDetailsWidget::modelUpdateKeepsForeignContent()
 {
-    RangeDetailsWidget widget;
+    TimelineDetailsWidget widget;
     SharedPanelTimeline timeline(&widget, QString("Timeline item"));
 
     timeline.selectItem();
@@ -322,6 +322,6 @@ void tst_RangeDetailsWidget::modelUpdateKeepsForeignContent()
     QCOMPARE(title(widget), QString("Updated again"));
 }
 
-QTEST_MAIN(tst_RangeDetailsWidget)
+QTEST_MAIN(tst_TimelineDetailsWidget)
 
-#include "tst_rangedetailswidget.moc"
+#include "tst_timelinedetailswidget.moc"

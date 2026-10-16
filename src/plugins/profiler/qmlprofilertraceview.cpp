@@ -75,7 +75,7 @@ public:
 };
 
 QmlProfilerTraceView::QmlProfilerTraceView(QmlProfilerModelManager *modelManager,
-                                           Timeline::RangeDetailsWidget *details)
+                                           Timeline::TimelineDetailsWidget *details)
     : d(new QmlProfilerTraceViewPrivate)
 {
     setWindowTitle(Tr::tr("Timeline"));
@@ -147,9 +147,9 @@ QmlProfilerTraceView::~QmlProfilerTraceView()
     delete d;
 }
 
-Timeline::RangeDetailsWidget *QmlProfilerTraceView::rangeDetailsWidget() const
+Timeline::TimelineDetailsWidget *QmlProfilerTraceView::timelineDetailsWidget() const
 {
-    return d->m_mainView->rangeDetailsWidget();
+    return d->m_mainView->timelineDetailsWidget();
 }
 
 bool QmlProfilerTraceView::hasValidSelection() const

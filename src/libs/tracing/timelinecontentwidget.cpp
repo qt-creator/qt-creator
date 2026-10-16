@@ -4,8 +4,8 @@
 #include "timelinecontentwidget.h"
 
 #include "pausedrangesoverlay.h"
-#include "rangedetailswidget.h"
 #include "selectionrangeoverlay.h"
+#include "timelinedetailswidget.h"
 #include "timelinemodel.h"
 #include "timelinemodelaggregator.h"
 #include "timelinenotesmodel.h"
@@ -79,7 +79,7 @@ protected:
 
 TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator,
                                              TimelineZoomControl *zoom,
-                                             RangeDetailsWidget *details,
+                                             TimelineDetailsWidget *details,
                                              QWidget *parent)
     : QWidget(parent)
     , m_aggregator(aggregator)
@@ -148,13 +148,13 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
     // its content there while this timeline holds the matching item. Only a
     // timeline that is off screen (behind a tab, say) stays put; nobody is
     // looking at it.
-    connect(m_details, &RangeDetailsWidget::recenterOnItem, this, [this] {
+    connect(m_details, &TimelineDetailsWidget::recenterOnItem, this, [this] {
         if (m_details->provider() != this && !isVisible())
             return;
         recenterOnItem(m_selectedModelIndex, m_selectedItemIndex);
     });
 
-    connect(m_details, &RangeDetailsWidget::rowDoubleClicked, this, [this](int row) {
+    connect(m_details, &TimelineDetailsWidget::rowDoubleClicked, this, [this](int row) {
         if (m_details->provider() != this)
             return;
         if (m_selectedModelIndex >= 0 && m_selectedModelIndex < m_trackModels.size()

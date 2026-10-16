@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <tracing/pausedrangesoverlay.h>
-#include <tracing/rangedetailswidget.h>
 #include <tracing/selectionrangeoverlay.h>
 #include <tracing/timelinecontentwidget.h>
+#include <tracing/timelinedetailswidget.h>
 #include <tracing/timelinemodel.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinezoomcontrol.h>
@@ -85,7 +85,7 @@ public:
 
     TimelineModelAggregator aggregator;
     TimelineZoomControl zoom;
-    RangeDetailsWidget details;
+    TimelineDetailsWidget details;
     LocatedModel *model = nullptr;          // Owned by the aggregator.
     TimelineContentWidget *content = nullptr;
 };
@@ -157,7 +157,7 @@ public:
 
     TimelineModelAggregator aggregator;
     TimelineZoomControl zoom;
-    RangeDetailsWidget details;
+    TimelineDetailsWidget details;
     TimelineContentWidget *content = nullptr;
 
 private:

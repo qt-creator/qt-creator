@@ -17,14 +17,14 @@ namespace Profiler::Internal {
 class CtfTraceBackendPrivate
 {
 public:
-    explicit CtfTraceBackendPrivate(Timeline::RangeDetailsWidget *details)
+    explicit CtfTraceBackendPrivate(Timeline::TimelineDetailsWidget *details)
         : viewManager(details)
     {}
 
     CtfPlainViewManager viewManager;
 };
 
-CtfTraceBackend::CtfTraceBackend(Timeline::RangeDetailsWidget *details, QObject *parent)
+CtfTraceBackend::CtfTraceBackend(Timeline::TimelineDetailsWidget *details, QObject *parent)
     : ProfilerTraceBackend(parent)
     , d(new CtfTraceBackendPrivate(details))
 {

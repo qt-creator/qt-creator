@@ -17,7 +17,7 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <tracing/rangedetailswidget.h>
+#include <tracing/timelinedetailswidget.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -31,28 +31,28 @@ namespace Profiler::Internal {
 
 ProfilerTraceDocument::ProfilerTraceDocument(Id editorId, TraceFormat format)
     : m_format(format)
-    , m_rangeDetails(new Timeline::RangeDetailsWidget)
+    , m_timelineDetails(new Timeline::TimelineDetailsWidget)
 {
     setId(editorId);
 
     switch (format) {
     case TraceFormat::Qml:
-        m_backends << new QmlProfilerTraceBackend(m_rangeDetails, this);
+        m_backends << new QmlProfilerTraceBackend(m_timelineDetails, this);
         break;
     case TraceFormat::Perf:
-        m_backends << new PerfProfilerTraceBackend(m_rangeDetails, this);
+        m_backends << new PerfProfilerTraceBackend(m_timelineDetails, this);
         break;
     case TraceFormat::Ctf:
-        m_backends << new CtfTraceBackend(m_rangeDetails, this);
+        m_backends << new CtfTraceBackend(m_timelineDetails, this);
         break;
     case TraceFormat::Sampler:
-        m_backends << new SamplerTraceBackend(m_rangeDetails, this);
+        m_backends << new SamplerTraceBackend(m_timelineDetails, this);
         break;
     case TraceFormat::Combined:
         // A combined bundle holds a QML trace and a native-mixed sampler trace,
         // and shows both view sets at once.
-        m_backends << new QmlProfilerTraceBackend(m_rangeDetails, this);
-        m_backends << new SamplerTraceBackend(m_rangeDetails, this);
+        m_backends << new QmlProfilerTraceBackend(m_timelineDetails, this);
+        m_backends << new SamplerTraceBackend(m_timelineDetails, this);
         // What the sampler views show is the two traces merged into one. A
         // bundle recorded here carries that already; one merged on the way in
         // arrives later, off the GUI thread.
@@ -110,8 +110,8 @@ ProfilerTraceDocument::~ProfilerTraceDocument()
 {
     // The editor's widget takes the details panel over when it lays its views
     // out. If no editor ever did, it is still ours to delete.
-    if (m_rangeDetails && !m_rangeDetails->parentWidget())
-        delete m_rangeDetails;
+    if (m_timelineDetails && !m_timelineDetails->parentWidget())
+        delete m_timelineDetails;
 }
 
 Result<> ProfilerTraceDocument::open(const FilePath &filePath, const FilePath &realFilePath)
@@ -127,7 +127,7 @@ void ProfilerTraceDocument::load(const FilePath &rawPath)
     // is still being merged when the QML one reports.
     m_pendingLoads = m_backends.size();
     emit busyChanged(true);
-    m_rangeDetails->reset(); // Don't carry a previous trace's details over.
+    m_timelineDetails->reset(); // Don't carry a previous trace's details over.
 
     // Opening a directory-based trace by the file that names it hands us that
     // file; the loaders want the directory.

@@ -31,7 +31,7 @@ static QUrl sourceUrl(const QString &file)
 class SamplerTraceBackendPrivate
 {
 public:
-    explicit SamplerTraceBackendPrivate(Timeline::RangeDetailsWidget *details)
+    explicit SamplerTraceBackendPrivate(Timeline::TimelineDetailsWidget *details)
         : viewManager(details)
     {}
 
@@ -43,7 +43,7 @@ public:
     FileInProjectFinder fileFinder;
 };
 
-SamplerTraceBackend::SamplerTraceBackend(Timeline::RangeDetailsWidget *details, QObject *parent)
+SamplerTraceBackend::SamplerTraceBackend(Timeline::TimelineDetailsWidget *details, QObject *parent)
     : ProfilerTraceBackend(parent)
     , d(new SamplerTraceBackendPrivate(details))
 {

@@ -45,7 +45,7 @@ namespace Profiler::Internal {
 class QmlProfilerTraceBackendPrivate
 {
 public:
-    explicit QmlProfilerTraceBackendPrivate(Timeline::RangeDetailsWidget *details)
+    explicit QmlProfilerTraceBackendPrivate(Timeline::TimelineDetailsWidget *details)
         : viewManager(details)
     {}
 
@@ -79,7 +79,7 @@ static void addFeatureToMenu(QMenu *menu, ProfileFeature feature, quint64 enable
     action->setChecked(enabledFeatures & (1ULL << (feature)));
 }
 
-QmlProfilerTraceBackend::QmlProfilerTraceBackend(Timeline::RangeDetailsWidget *details,
+QmlProfilerTraceBackend::QmlProfilerTraceBackend(Timeline::TimelineDetailsWidget *details,
                                                  QObject *parent)
     : ProfilerTraceBackend(parent)
     , d(new QmlProfilerTraceBackendPrivate(details))
