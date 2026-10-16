@@ -31,6 +31,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditorconstants.h>
 #include <texteditor/codeassist/assistenums.h>
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/assistproposaliteminterface.h>
@@ -815,7 +816,7 @@ bool McpCommands::reformatFile(const QString &path)
     textEditor->setTextCursor(cursor);
 
     // Trigger the TextEditor.ReformatFile action
-    Core::Command *cmd = Core::ActionManager::command(Utils::Id("TextEditor.ReformatFile"));
+    Core::Command *cmd = Core::ActionManager::command(TextEditor::Constants::REFORMAT_FILE);
     if (cmd && cmd->action() && cmd->action()->isEnabled()) {
         cmd->action()->trigger();
         return true;
