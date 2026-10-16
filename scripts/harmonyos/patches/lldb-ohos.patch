@@ -1,0 +1,153 @@
+diff --git a/lldb/source/Plugins/Platform/CMakeLists.txt b/lldb/source/Plugins/Platform/CMakeLists.txt
+index 6869587f917e..810742c052aa 100644
+--- a/lldb/source/Plugins/Platform/CMakeLists.txt
++++ b/lldb/source/Plugins/Platform/CMakeLists.txt
+@@ -4,6 +4,7 @@ add_subdirectory(gdb-server)
+ add_subdirectory(Linux)
+ add_subdirectory(MacOSX)
+ add_subdirectory(NetBSD)
++add_subdirectory(OHOS)
+ add_subdirectory(OpenBSD)
+ add_subdirectory(POSIX)
+ add_subdirectory(QemuUser)
+diff --git a/lldb/source/Plugins/Platform/OHOS/CMakeLists.txt b/lldb/source/Plugins/Platform/OHOS/CMakeLists.txt
+new file mode 100644
+index 000000000000..56f1a67fd963
+--- /dev/null
++++ b/lldb/source/Plugins/Platform/OHOS/CMakeLists.txt
+@@ -0,0 +1,12 @@
++add_lldb_library(lldbPluginPlatformOHOS PLUGIN
++  PlatformOHOS.cpp
++
++  LINK_LIBS
++    lldbBreakpoint
++    lldbCore
++    lldbHost
++    lldbInterpreter
++    lldbTarget
++    lldbPluginPlatformLinux
++    lldbPluginPlatformPOSIX
++  )
+diff --git a/lldb/source/Plugins/Platform/OHOS/PlatformOHOS.cpp b/lldb/source/Plugins/Platform/OHOS/PlatformOHOS.cpp
+new file mode 100644
+index 000000000000..bc68afba735d
+--- /dev/null
++++ b/lldb/source/Plugins/Platform/OHOS/PlatformOHOS.cpp
+@@ -0,0 +1,53 @@
++//===-- PlatformOHOS.cpp --------------------------------------------------===//
++//
++// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
++// See https://llvm.org/LICENSE.txt for license information.
++// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
++//
++//===----------------------------------------------------------------------===//
++
++#include "PlatformOHOS.h"
++
++#include "lldb/Core/PluginManager.h"
++#include "lldb/Utility/ArchSpec.h"
++
++using namespace lldb;
++using namespace lldb_private;
++using namespace lldb_private::platform_ohos;
++
++LLDB_PLUGIN_DEFINE(PlatformOHOS)
++
++static uint32_t g_initialize_count = 0;
++
++PlatformOHOS::PlatformOHOS() : platform_linux::PlatformLinux(false) {}
++
++PlatformSP PlatformOHOS::CreateInstance(bool force, const ArchSpec *arch) {
++  // OpenHarmony is Linux-flavoured, so the Linux platform would claim every
++  // matching triple. Hand out this one only when it was asked for by name.
++  if (!force)
++    return PlatformSP();
++  return PlatformSP(new PlatformOHOS());
++}
++
++llvm::StringRef PlatformOHOS::GetPluginDescriptionStatic() {
++  return "Remote OpenHarmony user platform plug-in.";
++}
++
++void PlatformOHOS::Initialize() {
++  platform_linux::PlatformLinux::Initialize();
++
++  if (g_initialize_count++ == 0) {
++    PluginManager::RegisterPlugin(GetPluginNameStatic(),
++                                  GetPluginDescriptionStatic(),
++                                  PlatformOHOS::CreateInstance, nullptr);
++  }
++}
++
++void PlatformOHOS::Terminate() {
++  if (g_initialize_count > 0) {
++    if (--g_initialize_count == 0)
++      PluginManager::UnregisterPlugin(PlatformOHOS::CreateInstance);
++  }
++
++  platform_linux::PlatformLinux::Terminate();
++}
+diff --git a/lldb/source/Plugins/Platform/OHOS/PlatformOHOS.h b/lldb/source/Plugins/Platform/OHOS/PlatformOHOS.h
+new file mode 100644
+index 000000000000..c1e81d4110f7
+--- /dev/null
++++ b/lldb/source/Plugins/Platform/OHOS/PlatformOHOS.h
+@@ -0,0 +1,41 @@
++//===-- PlatformOHOS.h ------------------------------------------*- C++ -*-===//
++//
++// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
++// See https://llvm.org/LICENSE.txt for license information.
++// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
++//
++//===----------------------------------------------------------------------===//
++
++#ifndef LLDB_SOURCE_PLUGINS_PLATFORM_OHOS_PLATFORMOHOS_H
++#define LLDB_SOURCE_PLUGINS_PLATFORM_OHOS_PLATFORMOHOS_H
++
++#include "Plugins/Platform/Linux/PlatformLinux.h"
++
++namespace lldb_private {
++namespace platform_ohos {
++
++class PlatformOHOS : public platform_linux::PlatformLinux {
++public:
++  PlatformOHOS();
++
++  static void Initialize();
++
++  static void Terminate();
++
++  static lldb::PlatformSP CreateInstance(bool force, const ArchSpec *arch);
++
++  static llvm::StringRef GetPluginNameStatic() { return "remote-ohos"; }
++
++  static llvm::StringRef GetPluginDescriptionStatic();
++
++  llvm::StringRef GetPluginName() override { return GetPluginNameStatic(); }
++
++  llvm::StringRef GetDescription() override {
++    return GetPluginDescriptionStatic();
++  }
++};
++
++} // namespace platform_ohos
++} // namespace lldb_private
++
++#endif // LLDB_SOURCE_PLUGINS_PLATFORM_OHOS_PLATFORMOHOS_H
+diff --git a/lldb/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp b/lldb/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp
+index 53e2bcaccafb..1fd81b6e71fb 100644
+--- a/lldb/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp
++++ b/lldb/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp
+@@ -614,7 +614,11 @@ bool ScriptInterpreterPythonImpl::SetStdHandle(FileSP file_sp,
+   File &file = *file_sp;
+ 
+   // Flush the file before giving it to python to avoid interleaved output.
+-  file.Flush();
++  // An input stream has nothing to flush, and on musl the attempt drops the
++  // buffered command lines the interpreter has not read yet, because fflush()
++  // on an unseekable read stream discards the buffer there.
++  if (!mode || ::strcmp(mode, "r") != 0)
++    file.Flush();
+ 
+   PythonDictionary &sys_module_dict = GetSysModuleDictionary();
+ 

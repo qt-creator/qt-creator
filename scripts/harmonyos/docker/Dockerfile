@@ -5,7 +5,7 @@
 # down and what they produce does not depend on the machine they ran on. The image holds
 # host tools only. The scripts, the SDK and the installer's Qt are mounted, because their
 # licenses are not ours to put into an image, and the image is not meant to be published.
-# build_in_docker.py builds the image and runs the scripts in it.
+# build_creator_for_harmonyos.py builds the image and runs the scripts in it.
 
 # 26.04 for clang 21, which build_creator.py builds with. Ubuntu 24.04 has 20 at most.
 FROM ubuntu:26.04
@@ -16,8 +16,14 @@ FROM ubuntu:26.04
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         autoconf autoconf-archive automake bison build-essential ca-certificates clang-21 \
-        cmake curl flex git golang-go libtool lld-21 ninja-build pkg-config python3 tar unzip \
-        zip zlib1g-dev \
+        cmake curl flex git golang-go libtool lld-21 ninja-build patchelf pkg-config python3 \
+        tar unzip zip zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# hvigor and the signing tool of the SDK, which do not run on a Java newer than 23.
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        openjdk-21-jre-headless \
     && rm -rf /var/lib/apt/lists/*
 
 # What the tools of the installer's desktop Qt link against. The build runs qtpaths.

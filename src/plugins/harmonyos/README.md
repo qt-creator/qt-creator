@@ -108,8 +108,11 @@ thing.
   else belongs in its package in a `<target>-harmonyos-extras.json` file its
   build writes: resource directories, launch arguments, files that have to be
   executable. With `"device-toolchain": true` in it, the deploy step also packs
-  the compiler, CMake, ninja and lldb from the device-hosted SDK into a native
+  the compiler, CMake and ninja from the device-hosted SDK into a native
   package (about 145 MB), and skips that again while nothing changed.
+  `scripts/harmonyos/build_creator_for_harmonyos.py` builds and packages Qt
+  Creator outside Qt Creator, with bmake and lldb in the native package as
+  well, which the device-hosted SDK does not have.
 
 ### On the device
 
