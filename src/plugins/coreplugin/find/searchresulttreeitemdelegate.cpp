@@ -4,6 +4,8 @@
 #include "searchresulttreeitemdelegate.h"
 #include "searchresulttreeitemroles.h"
 
+#include <utils/theme/theme.h>
+
 #include <QPainter>
 #include <QApplication>
 
@@ -28,7 +30,10 @@ static std::pair<int, QString> lineNumberInfo(const QStyleOptionViewItem &option
     if (lineNumber < 1)
         return {0, {}};
     const QString lineNumberText = QString::number(lineNumber);
-    const int lineNumberDigits = qMax(minimumLineNumberDigits, lineNumberText.size());
+    const int endLineNumber = index.data(ItemDataRoles::ResultEndLineNumberRole).toInt();
+    const int lineNumberDigits = std::max({minimumLineNumberDigits,
+                                           int(lineNumberText.size()),
+                                           int(QString::number(endLineNumber).size())});
     const int fontWidth = option.fontMetrics.horizontalAdvance(QString(lineNumberDigits, QLatin1Char('0')));
     const QStyle *style = option.widget ? option.widget->style() : QApplication::style();
     return {lineNumberAreaHorizontalPadding + fontWidth + lineNumberAreaHorizontalPadding
@@ -56,9 +61,31 @@ static QPair<QString, QString> itemText(const QModelIndex &index)
         text += " (" + QString::number(index.model()->rowCount(index)) + ')';
 
     const auto functionName = index.data(ItemDataRoles::ContainingFunctionNameRole).toString();
-    if (!functionName.isEmpty())
+    if (!functionName.isEmpty()) {
+        // The function name follows the first row of a multi-line result.
+        if (text.contains('\n'))
+            return {text, "[in " + functionName + "]"};
         return {align(std::move(text)), "[in " + functionName + "]"};
+    }
     return {text, {}};
+}
+
+// The rows to display: at most maxDisplayedResultLines, the last one being "..." if lines are cut.
+static QStringList displayedRows(const QString &text)
+{
+    QStringList rows;
+    qsizetype from = 0;
+    while (rows.size() < maxDisplayedResultLines) {
+        const qsizetype lineEnd = text.indexOf('\n', from);
+        if (lineEnd < 0) {
+            rows << text.mid(from);
+            return rows;
+        }
+        rows << text.mid(from, lineEnd - from);
+        from = lineEnd + 1;
+    }
+    rows.last() = "...";
+    return rows;
 }
 
 LayoutInfo SearchResultTreeItemDelegate::getLayoutInfo(const QStyleOptionViewItem &option,
@@ -128,6 +155,13 @@ void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionVi
     if (info.checkRect.isValid())
         QItemDelegate::drawCheck(painter, info.option, info.checkRect, info.checkState);
 
+    // separate multi-line results from the next result
+    if (displayedRowCount(index.data(ItemDataRoles::ResultLineRole).toString()) > 1
+        && !index.data(ItemDataRoles::IsGroupingItemRole).toBool()) {
+        painter->setPen(Utils::creatorColor(Utils::Theme::Token_Stroke_Subtle));
+        painter->drawLine(info.option.rect.bottomLeft(), info.option.rect.bottomRight());
+    }
+
     painter->restore();
 }
 
@@ -143,10 +177,16 @@ QSize SearchResultTreeItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     const int height = index.data(Qt::SizeHintRole).value<QSize>().height();
     // get text width, see QItemDelegatePrivate::displayRect
     auto texts = itemText(index);
-    const QString text = texts.first.replace('\t', m_tabString)
-                         + texts.second.replace('\t', m_tabString);
+    QStringList rows = displayedRows(texts.first);
+    rows.first() += texts.second;
+    int textWidth = 0;
     const QRect textMaxRect(0, 0, INT_MAX / 256, height);
-    const QRect textLayoutRect = textRectangle(nullptr, textMaxRect, info.option.font, text);
+    for (const QString &row : std::as_const(rows)) {
+        const QRect rowRect = textRectangle(nullptr, textMaxRect, info.option.font,
+                                            QString(row).replace('\t', m_tabString));
+        textWidth = qMax(textWidth, rowRect.width());
+    }
+    const QRect textLayoutRect(0, 0, textWidth, height);
     const QRect textRect(info.textRect.x(), info.textRect.y(), textLayoutRect.width(), height);
     const QRect layoutRect = info.checkRect | info.pixmapRect | info.lineNumberRect | textRect;
     return QSize(layoutRect.x(), layoutRect.y()) + layoutRect.size();
@@ -161,6 +201,9 @@ int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyle
     const std::pair<int, QString> numberInfo = lineNumberInfo(option, index);
     if (numberInfo.first == 0)
         return 0;
+    const int firstLine = index.data(ItemDataRoles::ResultBeginLineNumberRole).toInt();
+    const int rows = displayedRowCount(index.data(ItemDataRoles::ResultLineRole).toString());
+    const int lineCount = resultLineCount(index.data(Qt::DisplayRole).toString());
     QRect lineNumberAreaRect(rect);
     lineNumberAreaRect.setWidth(numberInfo.first);
 
@@ -181,8 +224,16 @@ int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyle
     const QStyle *style = QApplication::style();
     const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, nullptr, nullptr) + 1;
 
-    const QRect rowRect = lineNumberAreaRect.adjusted(-textMargin, 0, textMargin-lineNumberAreaHorizontalPadding, 0);
-    QItemDelegate::drawDisplay(painter, opt, rowRect, numberInfo.second);
+    const int rowHeight = lineNumberAreaRect.height() / rows;
+    for (int row = 0; row < rows; ++row) {
+        // the last row of a cut-off result is "...", it has no line number
+        if (lineCount > rows && row == rows - 1)
+            break;
+        QRect rowRect(lineNumberAreaRect.left(), lineNumberAreaRect.top() + row * rowHeight,
+                      lineNumberAreaRect.width(), rowHeight);
+        rowRect.adjust(-textMargin, 0, textMargin - lineNumberAreaHorizontalPadding, 0);
+        QItemDelegate::drawDisplay(painter, opt, rowRect, QString::number(firstLine + row));
+    }
 
     return numberInfo.first;
 }
@@ -193,10 +244,39 @@ void SearchResultTreeItemDelegate::drawText(QPainter *painter,
                                             const QModelIndex &index) const
 {
     const auto texts = itemText(index);
-    const QString text = texts.first;
+    const QStringList rows = displayedRows(texts.first);
+    const int rowHeight = rect.height() / rows.size();
+    const int lineCount = resultLineCount(texts.first);
+    const bool multiLine = lineCount > 1;
+    const int beginColumn = index.data(ItemDataRoles::ResultBeginColumnNumberRole).toInt();
+    const int endColumn = index.data(ItemDataRoles::ResultEndColumnNumberRole).toInt();
 
-    const int searchTermStart = index.model()->data(index, ItemDataRoles::ResultBeginColumnNumberRole).toInt();
-    int searchTermLength = index.model()->data(index, ItemDataRoles::SearchTermLengthRole).toInt();
+    for (int row = 0; row < rows.size(); ++row) {
+        QRect rowRect(rect.left(), rect.top() + row * rowHeight, rect.width(), rowHeight);
+        int start = beginColumn;
+        int length = index.data(ItemDataRoles::SearchTermLengthRole).toInt();
+        if (multiLine) {
+            const bool isFirst = row == 0;
+            const bool isLast = row == lineCount - 1;
+            const bool isCutOff = row == rows.size() - 1 && lineCount > rows.size();
+            start = isFirst ? beginColumn : 0;
+            const int end = isLast ? endColumn : int(rows.at(row).size());
+            length = isCutOff ? 0 : end - start;
+        }
+        drawTextRow(painter, option, rowRect, index, rows.at(row), start, length,
+                    row == 0 ? texts.second : QString());
+    }
+}
+
+void SearchResultTreeItemDelegate::drawTextRow(QPainter *painter,
+                                               const QStyleOptionViewItem &option,
+                                               const QRect &rect,
+                                               const QModelIndex &index,
+                                               const QString &text,
+                                               int searchTermStart,
+                                               int searchTermLength,
+                                               const QString &containingFunction) const
+{
     if (searchTermStart < 0 || searchTermStart >= text.size() || searchTermLength < 1) {
         QItemDelegate::drawDisplay(painter,
                                    option,
@@ -214,7 +294,7 @@ void SearchResultTreeItemDelegate::drawText(QPainter *painter,
     int searchTermStartPixels = option.fontMetrics.horizontalAdvance(textBefore);
     int searchTermLengthPixels = option.fontMetrics.horizontalAdvance(textHighlight);
     int textAfterLengthPixels = option.fontMetrics.horizontalAdvance(textAfter);
-    int containingFunctionLengthPixels = option.fontMetrics.horizontalAdvance(texts.second);
+    int containingFunctionLengthPixels = option.fontMetrics.horizontalAdvance(containingFunction);
 
     // rects
     QRect beforeHighlightRect(rect);
@@ -284,5 +364,5 @@ void SearchResultTreeItemDelegate::drawText(QPainter *painter,
         = index.model()->data(index, ItemDataRoles::FunctionHighlightForegroundColor).value<QColor>();
     highlightOpt.palette.setColor(QPalette::Text, funcHighlightForeground);
     highlightOpt.rect = containingFunctionRect;
-    QItemDelegate::drawDisplay(painter, highlightOpt, containingFunctionRect, texts.second);
+    QItemDelegate::drawDisplay(painter, highlightOpt, containingFunctionRect, containingFunction);
 }

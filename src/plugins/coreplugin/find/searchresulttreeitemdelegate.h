@@ -30,6 +30,9 @@ private:
     int drawLineNumber(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect, const QModelIndex &index) const;
     void drawText(QPainter *painter, const QStyleOptionViewItem &option,
                            const QRect &rect, const QModelIndex &index) const;
+    void drawTextRow(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect,
+                     const QModelIndex &index, const QString &text, int searchTermStart,
+                     int searchTermLength, const QString &containingFunction) const;
 
     QString m_tabString;
 };

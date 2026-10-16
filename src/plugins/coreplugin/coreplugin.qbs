@@ -319,6 +319,8 @@ QtcPlugin {
             "editormanager/editormanager_test.cpp",
             "externaltool_test.cpp",
             "externaltool_test.h",
+            "find/searchresulttreeview_test.cpp",
+            "find/searchresulttreeview_test.h",
             "locator/locatorfiltertest.cpp",
             "locator/locatorfiltertest.h",
             "locator/locator_test.cpp",

@@ -54,6 +54,8 @@ public:
     }
     std::optional<FilePath> filePath() const { return m_filePath; }
 
+    // For a match spanning several lines this is the text of the lines
+    // mainRange().begin.line to mainRange().end.line, joined by '\n'.
     QString lineText() const { return m_lineText; }
     void setLineText(const QString &text) { m_lineText = text; }
 

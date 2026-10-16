@@ -215,6 +215,9 @@ QVariant SearchResultTreeModel::data(const QModelIndex &idx, int role) const
             const int editorFontHeight = QFontMetrics(m_textEditorFont).height();
             height = qMax(height, editorFontHeight);
         }
+        const SearchResultTreeItem *item = treeItemAtIndex(idx);
+        if (!item->isGroupingItem())
+            height *= displayedRowCount(item->item.lineText());
         result = QSize(0, height);
     } else {
         result = data(treeItemAtIndex(idx), role);
@@ -338,6 +341,12 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
         break;
     case ItemDataRoles::ResultBeginColumnNumberRole:
         result = row->item.mainRange().begin.column;
+        break;
+    case ItemDataRoles::ResultEndLineNumberRole:
+        result = row->item.mainRange().end.line;
+        break;
+    case ItemDataRoles::ResultEndColumnNumberRole:
+        result = row->item.mainRange().end.column;
         break;
     case ItemDataRoles::SearchTermLengthRole:{
         Text::Range range = row->item.mainRange();

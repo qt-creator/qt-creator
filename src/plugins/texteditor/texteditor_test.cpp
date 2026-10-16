@@ -1830,6 +1830,8 @@ private slots:
     void testAllMatchesAcrossBlocks();
     void testHighlightAcrossLines();
     void testHighlightFollowsTheSearch();
+    void testMultiLineResultReplace();
+    void testMultiLineResultSelectedOnActivation();
 };
 
 static BaseTextEditor *openTextEditor(const QString &contents, QString title)
@@ -1951,6 +1953,45 @@ void FindReplaceTest::testReplaceAllAcrossLines()
     QCOMPARE(editorWidget->textDocument()->plainText(), QString("a b c"));
 
     Core::EditorManager::closeEditors({editor}, false);
+}
+
+static Utils::SearchResultItem multiLineResult(const Utils::FilePath &file)
+{
+    Utils::SearchResultItem item;
+    item.setFilePath(file);
+    item.setMainRange(Utils::Text::Range{{2, 1}, {3, 2}});
+    item.setLineText("bXX\ncYY");
+    item.setUserData(QStringList());
+    return item;
+}
+
+void FindReplaceTest::testMultiLineResultReplace()
+{
+    const Utils::FilePath file = Utils::TemporaryDirectory::masterDirectoryFilePath() / "multiline.txt";
+    QVERIFY(file.writeFileContents("a\nbXX\ncYY\nd\n"));
+    const QScopeGuard cleanup([file] { file.removeFile(); });
+
+    const Utils::FilePaths changed = BaseFileFind::replaceAll("--", {multiLineResult(file)}, false);
+    QCOMPARE(changed, Utils::FilePaths{file});
+    const Utils::Result<QByteArray> contents = file.fileContents();
+    QVERIFY(contents);
+    QCOMPARE(QString::fromUtf8(*contents), QString("a\nb--Y\nd\n"));
+}
+
+void FindReplaceTest::testMultiLineResultSelectedOnActivation()
+{
+    const Utils::FilePath file = Utils::TemporaryDirectory::masterDirectoryFilePath() / "multiline2.txt";
+    QVERIFY(file.writeFileContents("a\nbXX\ncYY\nd\n"));
+    const QScopeGuard cleanup([file] { file.removeFile(); });
+
+    Core::EditorManager::openEditorAtSearchResult(multiLineResult(file));
+    Core::IEditor *editor = Core::EditorManager::currentEditor();
+    QVERIFY(editor);
+    const QScopeGuard closeEditor([editor] { Core::EditorManager::closeEditors({editor}, false); });
+    auto *textEdit = Utils::Aggregation::query<Utils::PlainTextEdit>(editor->widget());
+    QVERIFY(textEdit);
+    QCOMPARE(textEdit->textCursor().selectedText().replace(QChar::ParagraphSeparator, '\n'),
+             QString("XX\ncY"));
 }
 
 void FindReplaceTest::testAllMatchesAcrossBlocks()

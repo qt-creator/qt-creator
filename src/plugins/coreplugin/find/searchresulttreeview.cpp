@@ -6,6 +6,7 @@
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitemdelegate.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/searchresultitem.h>
 
@@ -78,10 +79,17 @@ void SearchResultTreeView::setTextEditorFont(const QFont &font, const SearchResu
 void SearchResultTreeView::clear()
 {
     m_model->clear();
+    setUniformRowHeights(true);
 }
 
 void SearchResultTreeView::addResults(const SearchResultItems &items, SearchResult::AddMode mode)
 {
+    if (uniformRowHeights()
+        && Utils::anyOf(items, [](const SearchResultItem &item) {
+               return displayedRowCount(item.lineText()) > 1;
+           })) {
+        setUniformRowHeights(false);
+    }
     const QList<QModelIndex> addedParents = m_model->addResults(items, mode);
     if (m_autoExpandResults && !addedParents.isEmpty()) {
         for (const QModelIndex &index : addedParents)
