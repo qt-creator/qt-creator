@@ -348,7 +348,9 @@ FilePath PathChooser::expandPath(
 
     FilePath path = input;
 
-    const Environment env = environment.appliedToEnvironment(path.deviceEnvironment());
+    // A path that is still being typed may name no device yet.
+    const Environment env = environment.appliedToEnvironment(
+        path.deviceEnvironmentWithError().value_or(Environment()));
     path = env.expandVariables(path);
 
     if (macroExpander)
