@@ -155,6 +155,9 @@ void CtfTraceManager::finalize()
                         processIds.size() > 1,
                         mainThreadOfProcess.value(model->m_processId) == model->m_threadId);
     }
+    // A single lane has no other lane to make room for, so it starts expanded.
+    if (m_threadModels.size() == 1)
+        m_threadModels.cbegin().value()->setExpanded(true);
     // TimelineModelAggregator::addModel() is called here because it
     // needs to be run in the main thread
     addModelsToAggregator();

@@ -125,6 +125,21 @@ static QStringList laneTooltips(const char *events)
     return lanes(events, &Timeline::TimelineModel::tooltip);
 }
 
+static QList<bool> lanesExpanded(const char *events)
+{
+    Timeline::TimelineModelAggregator aggregator;
+    CtfStatisticsModel statistics(nullptr);
+    CtfTraceManager manager(nullptr, &aggregator, &statistics);
+    for (const json &event : json::parse(events))
+        manager.addEvent(event);
+    manager.finalize();
+
+    QList<bool> expanded;
+    for (const CtfTimelineModel *model : manager.getSortedThreads())
+        expanded.append(model->expanded());
+    return expanded;
+}
+
 void CtfTimelineModelTest::initTestCase()
 {
     for (const json &event : json::parse(cmakeTrace))
@@ -193,6 +208,12 @@ void CtfTimelineModelTest::testLanesOfSeveralProcessesNameTheirProcess()
     // part of that: the reader is shown the ids the traces stated.
     QCOMPARE(laneNames(twoQtTraces),
              (QStringList{"qtracedemo #1 / alpha (1)", "qtracedemo #2 / alpha (1)"}));
+}
+
+void CtfTimelineModelTest::testASingleLaneIsExpanded()
+{
+    QCOMPARE(lanesExpanded(cmakeTrace), QList<bool>{true});
+    QCOMPARE(lanesExpanded(unnamedTrace), (QList<bool>{false, false}));
 }
 
 void CtfTimelineModelTest::testEventsWithoutLocation()
