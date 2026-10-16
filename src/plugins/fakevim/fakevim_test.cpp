@@ -1887,10 +1887,13 @@ void FakeVimTester::test_vim_sideways_scroll()
     // The columns the window shows are the ones the layout of the line fits
     // beside the margin the editor keeps on either side of the text. Read them
     // off that layout: a font whose characters are not all of one width would
-    // make any count from a column width drift over a line this long.
+    // make any count from a column width drift over a line this long. The
+    // layout already begins after the margin on the left, and a character
+    // the margin on the right cuts into is not one the window shows.
     const QTextLine line = data.editor()->document()->firstBlock().layout()->lineAt(0);
     const int columns = line.xToCursor(data.editor()->viewport()->width()
-                                       - 2 * data.editor()->document()->documentMargin());
+                                           - data.editor()->document()->documentMargin(),
+                                       QTextLine::CursorOnCharacter);
     const int half = columns / 2;
     QVERIFY(columns > 20 && columns < 200);
 
@@ -1991,7 +1994,8 @@ void FakeVimTester::test_vim_side_scroll_offset()
     QVERIFY(data.editor()->horizontalScrollBar()->maximum() > 0);
     const QTextLine line = data.editor()->document()->firstBlock().layout()->lineAt(0);
     const int columns = line.xToCursor(data.editor()->viewport()->width()
-                                       - 2 * data.editor()->document()->documentMargin());
+                                           - data.editor()->document()->documentMargin(),
+                                       QTextLine::CursorOnCharacter);
     const int half = columns / 2;
     QVERIFY(columns > 20 && columns < 200);
 

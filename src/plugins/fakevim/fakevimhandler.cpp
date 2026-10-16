@@ -4040,8 +4040,9 @@ public:
     int columnsOnScreen() const;
     int effectiveTextWidth() const;
     int textColumnsOnScreen() const;
-    int xForColumn(int column) const;
-    int columnForX(int x) const;
+    qreal xForColumn(int column) const;
+    int columnForX(qreal x, QTextLine::CursorPosition cursorPos
+                                = QTextLine::CursorBetweenCharacters) const;
     int firstVisibleColumn() const;
     void setFirstVisibleColumn(int column);
     int windowSideScrollOffset(int columns) const;
@@ -37239,23 +37240,26 @@ int FakeVimHandler::Private::columnsOnScreen() const
 // both taken from the layout of the line and counted the way the horizontal
 // scroll bar of the editor counts, which is in pixels from the start of the
 // text. Neither goes through a column width: a font whose characters are not
-// all of one width would drift away from the layout over a long line.
-int FakeVimHandler::Private::xForColumn(int column) const
+// all of one width would drift away from the layout over a long line. The
+// layout begins with the margin the editor keeps before the text.
+qreal FakeVimHandler::Private::xForColumn(int column) const
 {
     const QTextBlock block = this->block();
     const QTextLine line = block.layout()->lineAt(0);
     if (!line.isValid())
         return 0;
-    return int(line.cursorToX(logicalToPhysicalColumn(qMax(0, column), block.text())));
+    return line.cursorToX(logicalToPhysicalColumn(qMax(0, column), block.text()))
+           - document()->documentMargin();
 }
 
-int FakeVimHandler::Private::columnForX(int x) const
+int FakeVimHandler::Private::columnForX(qreal x, QTextLine::CursorPosition cursorPos) const
 {
     const QTextBlock block = this->block();
     const QTextLine line = block.layout()->lineAt(0);
     if (!line.isValid())
         return 0;
-    const int physical = line.xToCursor(x);
+    const qreal layoutX = x + document()->documentMargin();
+    const int physical = line.xToCursor(layoutX, cursorPos);
     const int column = physicalToLogicalColumn(physical, block.text());
     if (physical < int(block.text().size()))
         return column;
@@ -37263,7 +37267,7 @@ int FakeVimHandler::Private::columnForX(int x) const
     // to measure and the rest of the way counts in spaces. A window wider
     // than its longest line reaches that far.
     const int w = QFontMetrics(EDITOR(font())).horizontalAdvance(' ');
-    return w > 0 ? column + (x - int(line.cursorToX(physical))) / w : column;
+    return w > 0 ? column + int(layoutX - line.cursorToX(physical)) / w : column;
 }
 
 // The columns a window shows of a line it does not wrap, which are the ones
@@ -37272,9 +37276,11 @@ int FakeVimHandler::Private::textColumnsOnScreen() const
 {
     if (!editor())
         return 1;
-    const int x = EDITOR(horizontalScrollBar()->value());
-    const int width = EDITOR(viewport()->width()) - 2 * int(document()->documentMargin());
-    return qMax(1, columnForX(x + width) - columnForX(x));
+    // Count from where the first column begins, not from the scroll bar,
+    // which cannot stop between two pixels.
+    const int left = firstVisibleColumn();
+    const qreal width = EDITOR(viewport()->width()) - 2 * document()->documentMargin();
+    return qMax(1, columnForX(xForColumn(left) + width, QTextLine::CursorOnCharacter) - left);
 }
 
 // The column the window begins with, which is zero unless it is scrolled
@@ -37295,7 +37301,7 @@ void FakeVimHandler::Private::setFirstVisibleColumn(int column)
     // outside the scrolled window and the editor takes the view back to it.
     // Keep the column, so that it can be set again once the cursor is there.
     m_wantedFirstVisibleColumn = qMax(0, column);
-    EDITOR(horizontalScrollBar()->setValue(xForColumn(m_wantedFirstVisibleColumn)));
+    EDITOR(horizontalScrollBar()->setValue(qRound(xForColumn(m_wantedFirstVisibleColumn))));
 }
 
 // The columns "sidescrolloff" asks to keep beside the cursor, which cannot be
