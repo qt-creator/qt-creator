@@ -13,12 +13,11 @@
 
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
-#include <utils/fancylineedit.h>
+#include <utils/fancytextedit.h>
 #include <utils/infolabel.h>
 
 #include <QFrame>
 #include <QLabel>
-#include <QLineEdit>
 #include <QToolButton>
 #include <QCheckBox>
 #include <QVBoxLayout>
@@ -31,25 +30,28 @@ using namespace Utils;
 
 namespace Core::Internal {
 
-class WideEnoughLineEdit : public Utils::FancyLineEdit
+// Like the search field, Ctrl+Return starts a new line and Return replaces.
+class WideEnoughTextEdit : public Utils::FancyTextEdit
 {
     Q_OBJECT
 
 public:
-    WideEnoughLineEdit(QWidget *parent) : Utils::FancyLineEdit(parent)
+    WideEnoughTextEdit(QWidget *parent) : Utils::FancyTextEdit(parent)
     {
-        setFiltering(true);
+        setClearButtonEnabled(true);
         setPlaceholderText(QString());
-        connect(this, &QLineEdit::textChanged, this, &QLineEdit::updateGeometry);
-
+        connect(this, &FancyTextEdit::textChanged, this, &QWidget::updateGeometry);
     }
 
     QSize sizeHint() const override
     {
-        QSize sh = QLineEdit::minimumSizeHint();
-        sh.rwidth() += qMax(25 * fontMetrics().horizontalAdvance(QLatin1Char('x')),
-                            fontMetrics().horizontalAdvance(text()));
-        return sh;
+        // The base class fits 17 characters between its margins and buttons.
+        const QSize sh = FancyTextEdit::sizeHint();
+        const int charWidth = fontMetrics().horizontalAdvance(QLatin1Char('x'));
+        int textWidth = 0;
+        for (const QString &line : text().split('\n'))
+            textWidth = qMax(textWidth, fontMetrics().horizontalAdvance(line));
+        return {sh.width() - 17 * charWidth + qMax(25 * charWidth, textWidth), sh.height()};
     }
 };
 
@@ -141,7 +143,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     connect(m_searchAgainButton, &QAbstractButton::clicked, this, &SearchResultWidget::searchAgain);
 
     m_replaceLabel = new QLabel(Tr::tr("Repla&ce with:"), m_topReplaceWidget);
-    m_replaceTextEdit = new WideEnoughLineEdit(m_topReplaceWidget);
+    m_replaceTextEdit = new WideEnoughTextEdit(m_topReplaceWidget);
     m_replaceLabel->setBuddy(m_replaceTextEdit);
     m_replaceTextEdit->setMinimumWidth(120);
     setTabOrder(m_replaceTextEdit, m_searchResultTreeView);
@@ -178,10 +180,11 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
 
     connect(m_searchResultTreeView, &SearchResultTreeView::jumpToSearchResult,
             this, &SearchResultWidget::handleJumpToSearchResult);
-    connect(m_replaceTextEdit, &QLineEdit::returnPressed,
+    connect(m_replaceTextEdit, &FancyTextEdit::returnPressed,
             this, &SearchResultWidget::handleReplaceButton);
-    connect(m_replaceTextEdit, &QLineEdit::textChanged,
-            this, &SearchResultWidget::replaceTextChanged);
+    connect(m_replaceTextEdit, &FancyTextEdit::textChanged, this, [this] {
+        emit replaceTextChanged(m_replaceTextEdit->text());
+    });
     connect(m_replaceButton, &QAbstractButton::clicked,
             this, &SearchResultWidget::handleReplaceButton);
 
@@ -308,7 +311,8 @@ void SearchResultWidget::setFocusInternally()
 {
     if (!canFocusInternally() || hasFocusInternally())
         return;
-    if (m_isShowingReplaceUI && (!focusWidget() || focusWidget() == m_replaceTextEdit))
+    if (m_isShowingReplaceUI
+        && (!focusWidget() || m_replaceTextEdit->isAncestorOf(focusWidget())))
         m_replaceTextEdit->setFocus();
     else
         m_searchResultTreeView->setFocus();

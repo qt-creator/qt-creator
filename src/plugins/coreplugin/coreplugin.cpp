@@ -15,7 +15,9 @@
 #include "editmode.h"
 #include "editormanager/editormanager_p.h"
 #include "externaltool_test.h"
+#include "find/findtoolwindow_test.h"
 #include "find/searchresulttreeview_test.h"
+#include "find/searchresultwidget_test.h"
 #include "fileutils.h"
 #include "find/findplugin.h"
 #include "foldernavigationwidget.h"
@@ -515,7 +517,9 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
     addTestCreator(createDocumentManagerTest);
     addTestCreator(createExternalToolTest);
     addTestCreator(createRegistriesTest);
+    addTestCreator(createFindToolWindowTest);
     addTestCreator(createSearchResultTreeViewTest);
+    addTestCreator(createSearchResultWidgetTest);
     addTestCreator(createLocatorTest);
     addTestCreator(createVcsManagerTest);
     addTestCreator(createEditorManagerTest);

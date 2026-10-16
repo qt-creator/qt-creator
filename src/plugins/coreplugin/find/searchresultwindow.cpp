@@ -20,6 +20,7 @@
 #include <QDebug>
 #include <QFont>
 #include <QLabel>
+#include <QRegularExpression>
 #include <QScrollArea>
 #include <QStackedWidget>
 #include <QToolButton>
@@ -435,6 +436,12 @@ QList<QWidget*> SearchResultWindow::toolBarWidgets() const
     return d->toolBarWidgets();
 }
 
+static QString singleLine(QString term)
+{
+    static const QRegularExpression lineBreak("\\r?\\n|\\r");
+    return term.replace(lineBreak, QString(QChar(0x23ce)));
+}
+
 /*!
     Tells the \uicontrol {Search Results} output pane to start a new search.
 
@@ -470,6 +477,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
                                                  PreserveCaseMode preserveCaseMode,
                                                  const QString &cfgGroup)
 {
+    const QString shownTerm = singleLine(searchTerm);
     if (QTC_GUARD(d->m_recentSearchesBox)) {
         if (d->m_searchResults.size() >= MAX_SEARCH_HISTORY) {
             if (d->m_currentIndex >= d->m_recentSearchesBox->count() - 1) {
@@ -486,7 +494,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
                 d->m_recentSearchesBox->removeItem(toRemoveIndex + 1);
             }
         }
-        d->m_recentSearchesBox->insertItem(1, Tr::tr("%1 %2").arg(label, searchTerm));
+        d->m_recentSearchesBox->insertItem(1, Tr::tr("%1 %2").arg(label, shownTerm));
     }
     auto widget = new SearchResultWidget;
     connect(widget, &SearchResultWidget::filterInvalidated, this, [this, widget] {
@@ -510,7 +518,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
     widget->setSupportsReplace(supportsReplace, supportsReplace ? cfgGroup : QString());
     widget->setAutoExpandResults(d->m_expandCollapseAction->isChecked());
     widget->setRelativePaths(d->m_relativePathsAction->isChecked());
-    widget->setInfo(label, toolTip, searchTerm);
+    widget->setInfo(label, toolTip, shownTerm);
     auto result = new SearchResult(widget);
     d->m_searchResults.prepend(result);
     if (d->m_currentIndex > 0)

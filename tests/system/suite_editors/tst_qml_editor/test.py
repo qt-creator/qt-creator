@@ -50,7 +50,7 @@ def testRenameId():
     invokeContextMenuItem(editor, "Rename Symbol Under Cursor")
     waitForSearchResults()
     type(waitForObject("{leftWidget={text='Replace with:' type='QLabel' unnamed='1' visible='1'} "
-                       "type='Core::Internal::WideEnoughLineEdit' unnamed='1' visible='1' "
+                       "type='Core::Internal::WideEnoughTextEdit' unnamed='1' visible='1' "
                        "window=':Qt Creator_Core::Internal::MainWindow'}"), "renamedView")
     clickButton(waitForObject("{text='Replace' type='QToolButton' unnamed='1' visible='1' "
                               "window=':Qt Creator_Core::Internal::MainWindow'}"))

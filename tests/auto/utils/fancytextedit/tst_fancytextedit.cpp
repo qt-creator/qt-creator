@@ -31,6 +31,7 @@ private slots:
     void returnWhileCompletingEmitsOnce();
     void keysAreNotDroppedAfterReturnOnThePopup();
     void completingEmitsTextChangedOnce();
+    void validationSeesAllLinesAndReportsChanges();
 };
 
 // The edit that has the keyboard focus is the one inside the widget.
@@ -273,6 +274,32 @@ void tst_FancyTextEdit::completingEmitsTextChangedOnce()
 
     QCOMPARE(edit.text(), "foo\nbar");
     QCOMPARE(textChangedSpy.size(), 1);
+}
+
+void tst_FancyTextEdit::validationSeesAllLinesAndReportsChanges()
+{
+    FancyTextEdit edit;
+    // Valid as long as the term has no second line.
+    edit.setValidationFunction([](const QString &text) -> Result<> {
+        if (text.contains('\n'))
+            return ResultError(QString("multi-line"));
+        return ResultOk;
+    });
+    QVERIFY(edit.isValid());
+    QSignalSpy validSpy(&edit, &FancyTextEdit::validChanged);
+
+    typeLines(edit, {"first", "second"});
+
+    QVERIFY(!edit.isValid());
+    QCOMPARE(validSpy.size(), 1);
+    QCOMPARE(validSpy.last().at(0).toBool(), false);
+    QCOMPARE(edit.toolTip(), "multi-line");
+
+    edit.setText("one line");
+
+    QVERIFY(edit.isValid());
+    QCOMPARE(validSpy.size(), 2);
+    QCOMPARE(validSpy.last().at(0).toBool(), true);
 }
 
 QTEST_MAIN(tst_FancyTextEdit)

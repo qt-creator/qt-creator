@@ -17,7 +17,7 @@ class QPushButton;
 QT_END_NAMESPACE
 
 namespace Core { class IFindFilter; }
-namespace Utils { class FancyLineEdit; }
+namespace Utils { class FancyTextEdit; }
 
 namespace Core::Internal {
 
@@ -40,7 +40,6 @@ public:
 
 protected:
     bool event(QEvent *event) override;
-    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     void search();
@@ -49,7 +48,8 @@ private:
     void updateButtonStates();
     void updateFindFlags();
     void updateFindFilterName(IFindFilter *filter);
-    static void findCompleterActivated(const QModelIndex &index);
+    void findCompleterActivated(const QModelIndex &index);
+    void searchOnReturn();
 
     void acceptAndGetParameters(QString *term, IFindFilter **filter);
 
@@ -70,7 +70,8 @@ private:
     QCheckBox *m_ignoreBinaryFiles;
     QCheckBox *m_ignoreGeneratedFiles;
     QCheckBox *m_regExp;
-    Utils::FancyLineEdit *m_searchTerm;
+    Utils::FancyTextEdit *m_searchTerm;
+    bool m_completionJustActivated = false;
 };
 
 } // Core::Internal

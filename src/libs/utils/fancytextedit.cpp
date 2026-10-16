@@ -77,6 +77,7 @@ public:
     bool m_changingProgrammatically = false;
     bool m_completionPending = false;
     bool m_hadText = false;
+    bool m_isValid = true;
     bool m_forwardingKey = false;
     const QKeyEvent *m_ignoredKeyEvent = nullptr;
 };
@@ -468,6 +469,10 @@ void FancyTextEdit::validate()
         }
     }
     setToolTip(errorMessage);
+    if (valid != d->m_isValid) {
+        d->m_isValid = valid;
+        emit validChanged(valid);
+    }
 
     QPalette palette = d->m_edit->palette();
     palette.setColor(QPalette::Active, QPalette::Text,
@@ -475,6 +480,11 @@ void FancyTextEdit::validate()
     palette.setColor(QPalette::Active, QPalette::PlaceholderText,
                      QApplication::palette().color(QPalette::PlaceholderText));
     d->m_edit->setPalette(palette);
+}
+
+bool FancyTextEdit::isValid() const
+{
+    return d->m_isValid;
 }
 
 /*!

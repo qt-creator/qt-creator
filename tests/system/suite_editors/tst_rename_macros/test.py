@@ -102,7 +102,7 @@ def performMacroRenaming(newMacroName):
     waitForSearchResults()
     replaceLineEdit = waitForObject("{leftWidget={text='Replace with:' type='QLabel' "
                                     "unnamed='1' visible='1'} "
-                                    "type='Core::Internal::WideEnoughLineEdit' unnamed='1' "
+                                    "type='Core::Internal::WideEnoughTextEdit' unnamed='1' "
                                     "visible='1' "
                                     "window=':Qt Creator_Core::Internal::MainWindow'}")
     replaceEditorContent(replaceLineEdit, newMacroName)

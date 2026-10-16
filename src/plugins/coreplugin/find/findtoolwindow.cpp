@@ -9,7 +9,7 @@
 #include "../icore.h"
 
 #include <utils/algorithm.h>
-#include <utils/fancylineedit.h>
+#include <utils/fancytextedit.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
@@ -90,8 +90,8 @@ FindToolWindow::FindToolWindow(QWidget *parent)
     m_replaceButton = new QPushButton;
     m_replaceButton->setText(Tr::tr("Search && &Replace", nullptr));
 
-    m_searchTerm = new FancyLineEdit;
-    m_searchTerm->setFiltering(true);
+    m_searchTerm = new FancyTextEdit;
+    m_searchTerm->setClearButtonEnabled(true);
     m_searchTerm->setPlaceholderText({});
 
     m_searchLabel = new QLabel;
@@ -165,15 +165,17 @@ FindToolWindow::FindToolWindow(QWidget *parent)
 
     m_findCompleter->setModel(Find::findCompletionModel());
     m_searchTerm->setSpecialCompleter(m_findCompleter);
-    m_searchTerm->installEventFilter(this);
     connect(m_findCompleter, QOverload<const QModelIndex &>::of(&QCompleter::activated),
             this, &FindToolWindow::findCompleterActivated);
 
     m_searchTerm->setValidationFunction(validateRegExp);
     connect(Find::instance(), &Find::findFlagsChanged,
-            m_searchTerm, &Utils::FancyLineEdit::validate);
-    connect(m_searchTerm, &Utils::FancyLineEdit::validChanged,
+            m_searchTerm, &Utils::FancyTextEdit::validate);
+    connect(m_searchTerm, &Utils::FancyTextEdit::validChanged,
             this, &FindToolWindow::updateButtonStates);
+    // The completer takes the key event after returnPressed() was emitted.
+    connect(m_searchTerm, &Utils::FancyTextEdit::returnPressed,
+            this, &FindToolWindow::searchOnReturn, Qt::QueuedConnection);
 
     auto layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
@@ -195,6 +197,11 @@ bool FindToolWindow::event(QEvent *event)
         auto ke = static_cast<QKeyEvent *>(event);
         if ((ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter)
                 && (ke->modifiers() == Qt::NoModifier || ke->modifiers() == Qt::KeypadModifier)) {
+            // The search term handles its Return itself, see searchOnReturn(). An ignored
+            // key press from the completer propagates up to here, too. Ask the window rather
+            // than QApplication, which has no focus widget while the window is inactive.
+            if (m_searchTerm->isAncestorOf(window()->focusWidget()))
+                return QWidget::event(event);
             ke->accept();
             if (m_searchButton->isEnabled())
                 search();
@@ -202,19 +209,6 @@ bool FindToolWindow::event(QEvent *event)
         }
     }
     return QWidget::event(event);
-}
-
-bool FindToolWindow::eventFilter(QObject *obj, QEvent *event)
-{
-    if (obj == m_searchTerm && event->type() == QEvent::KeyPress) {
-        auto ke = static_cast<QKeyEvent *>(event);
-        if (ke->key() == Qt::Key_Down) {
-            if (m_searchTerm->text().isEmpty())
-                m_findCompleter->setCompletionPrefix(QString());
-            m_findCompleter->complete();
-        }
-    }
-    return QWidget::eventFilter(obj, event);
 }
 
 void FindToolWindow::updateButtonStates()
@@ -409,6 +403,13 @@ void FindToolWindow::search()
     filter->findAll(term, Find::findFlags());
 }
 
+void FindToolWindow::searchOnReturn()
+{
+    // Picking a completion with Return must not start the search.
+    if (!m_completionJustActivated && m_searchButton->isEnabled())
+        search();
+}
+
 void FindToolWindow::replace()
 {
     QString term;
@@ -444,6 +445,9 @@ Store FindToolWindow::save() const
 
 void FindToolWindow::findCompleterActivated(const QModelIndex &index)
 {
+    m_completionJustActivated = true;
+    QMetaObject::invokeMethod(this, [this] { m_completionJustActivated = false; },
+                              Qt::QueuedConnection);
     const int findFlagsI = index.data(Find::CompletionModelFindFlagsRole).toInt();
     const FindFlags findFlags(findFlagsI);
     Find::setCaseSensitive(findFlags.testFlag(FindCaseSensitively));

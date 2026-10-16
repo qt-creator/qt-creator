@@ -324,8 +324,12 @@ extend_qtc_plugin(Core
     editormanager/editormanager_test.cpp
     externaltool_test.cpp
     externaltool_test.h
+    find/findtoolwindow_test.cpp
+    find/findtoolwindow_test.h
     find/searchresulttreeview_test.cpp
     find/searchresulttreeview_test.h
+    find/searchresultwidget_test.cpp
+    find/searchresultwidget_test.h
     locator/locator_test.cpp
     locator/locator_test.h
     registries_test.cpp

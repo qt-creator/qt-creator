@@ -53,6 +53,7 @@ public:
     using ValidationFunction = std::function<Result<>(const QString &)>;
     void setValidationFunction(const ValidationFunction &function);
     void validate();
+    bool isValid() const;
 
     void installEditFilter(QObject *filter);
 
@@ -61,6 +62,7 @@ public:
 
 signals:
     void textChanged();
+    void validChanged(bool validState);
     void returnPressed();
     void editingFinished();
     void leftButtonClicked();

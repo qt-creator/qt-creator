@@ -13,12 +13,14 @@
 QT_BEGIN_NAMESPACE
 class QFrame;
 class QLabel;
-class QLineEdit;
 class QToolButton;
 class QCheckBox;
 QT_END_NAMESPACE
 
-namespace Utils { class InfoLabel; }
+namespace Utils {
+class FancyTextEdit;
+class InfoLabel;
+} // namespace Utils
 namespace Core {
 
 namespace Internal {
@@ -117,7 +119,7 @@ private:
     Utils::InfoBarDisplay m_infoBarDisplay;
     QWidget *m_topReplaceWidget = nullptr;
     QLabel *m_replaceLabel = nullptr;
-    QLineEdit *m_replaceTextEdit = nullptr;
+    Utils::FancyTextEdit *m_replaceTextEdit = nullptr;
     QToolButton *m_replaceButton = nullptr;
     QToolButton *m_searchAgainButton = nullptr;
     QCheckBox *m_preserveCaseCheck = nullptr;
