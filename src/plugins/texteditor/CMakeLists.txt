@@ -12,8 +12,7 @@ add_qtc_library(TextEditorSupport STATIC
 )
 
 add_qtc_plugin(TextEditor
-  DEPENDS Qt::Concurrent Qt::Network Qt::PrintSupport Qt::Xml
-  PUBLIC_DEPENDS ${KSYNTAXHIGHLIGHTING_TARGET}
+  DEPENDS Qt::Concurrent Qt::Network Qt::PrintSupport Qt::Xml ${KSYNTAXHIGHLIGHTING_TARGET}
   PLUGIN_DEPENDS Core
   LONG_DESCRIPTION_MD TextEditorDescription.md
   SOURCES

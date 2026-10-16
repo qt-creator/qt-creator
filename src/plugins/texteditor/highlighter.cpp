@@ -17,6 +17,7 @@
 #include <KSyntaxHighlighting/FoldingRegion>
 #include <KSyntaxHighlighting/Format>
 #include <KSyntaxHighlighting/Repository>
+#include <KSyntaxHighlighting/State>
 #include <KSyntaxHighlighting/SyntaxHighlighter>
 
 #include <QLoggingCategory>

@@ -12,7 +12,6 @@ Project {
         Depends { name: "KSyntaxHighlighting" }
 
         Export {
-            Depends { name: "KSyntaxHighlighting" }
             Depends { name: "TextEditorSupport" }
         }
 

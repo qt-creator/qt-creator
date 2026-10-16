@@ -12,10 +12,10 @@
 #include <utils/id.h>
 #include <utils/plaintextedit/plaintextedit.h>
 
-#include <KSyntaxHighlighting/State>
-
 #include <QPlainTextDocumentLayout>
 #include <QTextBlockUserData>
+
+namespace KSyntaxHighlighting { class State; }
 
 namespace TextEditor {
 
@@ -49,7 +49,7 @@ class TEXTEDITOR_EXPORT TextBlockUserData : public QTextBlockUserData
 {
 public:
 
-    TextBlockUserData() = default;
+    TextBlockUserData();
     ~TextBlockUserData() override;
 
     TextMarks marks() const { return m_marks; }
@@ -155,7 +155,7 @@ private:
     uint m_spellChecked : 1 = false;
     Parentheses m_parentheses;
     CodeFormatterData *m_codeFormatterData = nullptr;
-    KSyntaxHighlighting::State m_syntaxState;
+    std::unique_ptr<KSyntaxHighlighting::State> m_syntaxState;
     QByteArray m_expectedRawStringSuffix; // A bit C++-specific, but let's be pragmatic.
     std::unique_ptr<QTextDocument> m_replacement;
     std::unique_ptr<TextSuggestion> m_suggestion;

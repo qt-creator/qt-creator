@@ -8,6 +8,8 @@
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
+#include <KSyntaxHighlighting/State>
+
 #include <QDebug>
 
 #include <memory>
@@ -15,6 +17,8 @@
 namespace TextEditor {
 
 CodeFormatterData::~CodeFormatterData() = default;
+
+TextBlockUserData::TextBlockUserData() = default;
 
 TextBlockUserData::~TextBlockUserData()
 {
@@ -608,17 +612,17 @@ void TextBlockUserData::updateSuggestionFormats(const QTextBlock &block,
 
 KSyntaxHighlighting::State TextBlockUserData::syntaxState(const QTextBlock &block)
 {
-    if (TextBlockUserData *userData = textUserData(block))
-        return userData->m_syntaxState;
+    if (TextBlockUserData *userData = textUserData(block); userData && userData->m_syntaxState)
+        return *userData->m_syntaxState;
     return {};
 }
 
 void TextBlockUserData::setSyntaxState(const QTextBlock &block, KSyntaxHighlighting::State state)
 {
     if (state != KSyntaxHighlighting::State())
-        userData(block)->m_syntaxState = state;
+        userData(block)->m_syntaxState = std::make_unique<KSyntaxHighlighting::State>(state);
     else if (auto data = textUserData(block))
-        data->m_syntaxState = state;
+        data->m_syntaxState.reset();
 }
 
 void TextBlockUserData::setFoldingStartIncluded(const QTextBlock &block, bool included)
