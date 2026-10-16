@@ -175,6 +175,7 @@ private:
     V8Client *m_v8Client = nullptr;
     QmlDebug::QmlEngineDebugClient *m_engineClient = nullptr;
     int m_connectRetriesLeft = 50;
+    QString m_lastConnectionError;
 
     int m_sequence = 0;
     QHash<int, QmlCallback> m_callbackForToken;

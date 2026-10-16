@@ -1594,6 +1594,7 @@ public:
         connect(m_engine.get(), &DebuggerEngineInterface::message, this,
                 [this](const QString &text, int channel, int) {
             qDebug("engine: %s", qPrintable(text));
+            m_messages.append(text);
             if (channel == Debugger::AppOutput)
                 m_appOutput.append(text);
         });
@@ -1670,6 +1671,13 @@ public:
 
     const QStringList &progressMessages() const { return m_progressMessages; }
 
+    // What a failed wait reports, as the CI log does not have the engine messages.
+    QString lastMessages(qsizetype count = 10) const
+    {
+        return "Last engine messages:\n" + m_messages.sliced(qMax(0, m_messages.size() - count))
+                                                   .join('\n');
+    }
+
     QStringList threadIds(ThreadEvent event) const
     {
         QStringList ids;
@@ -1681,6 +1689,7 @@ public:
     }
 
 private:
+    QStringList m_messages;
     QStringList m_progressMessages;
     QList<QPair<ThreadEvent, QString>> m_threadEvents;
     std::unique_ptr<DebuggerEngineInterface> m_engine;
@@ -14743,7 +14752,11 @@ void tst_backends::passesInferiorEnvironmentDiffToDebugger()
             [&inferiorPid](const ProcessHandle &pid) { inferiorPid = pid.pid(); });
 
     engine->start();
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk), s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             startupTimeout(backend));
+    QVERIFY2(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+             qPrintable(debuggerBackend->lastMessages()));
     QTRY_VERIFY2_WITH_TIMEOUT(inferiorPid != 0, "inferiorPidKnown() never fired", s_timeout);
 
     QByteArrayList entries;
@@ -14783,7 +14796,11 @@ void tst_backends::passesInferiorWorkingDirectoryToDebugger()
             [&inferiorPid](const ProcessHandle &pid) { inferiorPid = pid.pid(); });
 
     engine->start();
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk), s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             startupTimeout(backend));
+    QVERIFY2(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+             qPrintable(debuggerBackend->lastMessages()));
     QTRY_VERIFY2_WITH_TIMEOUT(inferiorPid != 0, "inferiorPidKnown() never fired", s_timeout);
 
     const FilePath cwdLink = FilePath::fromString("/proc/" + QString::number(inferiorPid) + "/cwd");
@@ -18641,8 +18658,11 @@ void tst_backends::reportsInspectorObjectTree()
     });
 
     engine->start();
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
                              s_qmlStartupTimeout);
+    QVERIFY2(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+             qPrintable(debuggerBackend->lastMessages()));
 
     const auto itemFor = [&trees](quint64 requestId, const QString &iname) {
         GdbMi found;
