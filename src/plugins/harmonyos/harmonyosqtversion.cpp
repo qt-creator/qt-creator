@@ -69,8 +69,13 @@ void HarmonyOsQtVersion::addToBuildEnvironment(const Kit *k, Environment &env) c
         env.set("QTC_QT_HOST_LIBEXECS", libExecPath().path());
         env.set("QTC_QT_HOST_BINS", binPath().path());
         // The Qt libraries need the third-party ones the application package gets, ICU
-        // among them, and the device has other versions of those.
+        // among them, and the device has other versions of those. Tools that bring a
+        // QtCore of their own, built without ICU, get that one.
         QString libraries = libraryPath().path();
+        if (const FilePath toolsLibrary = libExecPath().pathAppended("lib");
+            toolsLibrary.pathAppended("libQt6Core.so").isFile()) {
+            libraries.prepend(toolsLibrary.path() + ':');
+        }
         if (const FilePath packages = settings().additionalPackages(); !packages.isEmpty())
             libraries += ':' + packages.pathAppended("lib").path();
         env.set("QTC_QT_HOST_LIBS", libraries);
