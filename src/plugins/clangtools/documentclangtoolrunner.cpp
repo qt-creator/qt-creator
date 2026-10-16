@@ -5,6 +5,7 @@
 
 #include "clangtoolscompilationdb.h"
 #include "clangtoolsconstants.h"
+#include "clangtoolsignoredflagsdialog.h"
 #include "clangtoolrunner.h"
 #include "clangtoolsutils.h"
 #include "diagnosticmark.h"
@@ -186,13 +187,11 @@ void DocumentClangToolRunner::run()
         return;
 
     const auto projectSettings = clangToolsProjectSettings(project);
-    const RunSettings &runSettings = projectSettings->useGlobalSettings()
-                                   ? static_cast<const RunSettings &>(*ClangToolsSettings::instance())
-                                   : static_cast<const RunSettings &>(*projectSettings);
+    const RunSettings &runSettings = runSettingsFor(project);
     m_suppressed = projectSettings->suppressedDiagnostics();
     m_lastProjectDirectory = project->projectDirectory();
     m_projectSettingsUpdate = connect(projectSettings.get(), &ClangToolsProjectSettings::changed,
-                                      this, &DocumentClangToolRunner::run);
+                                      this, &DocumentClangToolRunner::scheduleRun);
     if (!runSettings.analyzeOpenFiles())
         return;
 
@@ -263,6 +262,11 @@ static void updateLocation(Link &location)
 
 void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
 {
+    if (!output.runInfo.isEmpty())
+        qCDebug(LOG).noquote() << "Analyzed" << m_fileInfo.file << "\n" << output.runInfo;
+    if (!output.unknownFlags.isEmpty())
+        offerToIgnoreCompilerFlags(m_document, findProject(m_document->filePath()),
+                                   output.unknownFlags);
     if (!output.success) {
         qCDebug(LOG) << "Failed to analyze " << m_fileInfo.file
                      << ":" << output.errorMessage << output.errorDetails;

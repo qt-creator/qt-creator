@@ -26,6 +26,7 @@ add_qtc_plugin(ClangTools
     clangtoolsdiagnostic.cpp clangtoolsdiagnostic.h
     clangtoolsdiagnosticmodel.cpp clangtoolsdiagnosticmodel.h
     clangtoolsdiagnosticview.cpp clangtoolsdiagnosticview.h
+    clangtoolsignoredflagsdialog.cpp clangtoolsignoredflagsdialog.h
     clangtoolslogfilereader.cpp clangtoolslogfilereader.h
     clangtoolsplugin.cpp
     clangtoolsprojectsettingswidget.cpp clangtoolsprojectsettingswidget.h
@@ -45,6 +46,8 @@ extend_qtc_plugin(ClangTools
   CONDITION WITH_TESTS
   DEPENDS QtCreator::QtSupport
   SOURCES
+    clangtoolrunnertest.cpp clangtoolrunnertest.h
+    clangtoolsignoredflagstest.cpp clangtoolsignoredflagstest.h
     clangtoolspreconfiguredsessiontests.cpp clangtoolspreconfiguredsessiontests.h
     clangtoolsunittests.cpp clangtoolsunittests.h
     readexporteddiagnosticstest.cpp readexporteddiagnosticstest.h

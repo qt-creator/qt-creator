@@ -40,6 +40,8 @@ QtcPlugin {
         "clangtoolsdiagnosticmodel.h",
         "clangtoolsdiagnosticview.cpp",
         "clangtoolsdiagnosticview.h",
+        "clangtoolsignoredflagsdialog.cpp",
+        "clangtoolsignoredflagsdialog.h",
         "clangtoolslogfilereader.cpp",
         "clangtoolslogfilereader.h",
         "clangtoolsplugin.cpp",
@@ -69,6 +71,10 @@ QtcPlugin {
 
     QtcTestFiles {
         files: [
+            "clangtoolrunnertest.cpp",
+            "clangtoolrunnertest.h",
+            "clangtoolsignoredflagstest.cpp",
+            "clangtoolsignoredflagstest.h",
             "clangtoolspreconfiguredsessiontests.cpp",
             "clangtoolspreconfiguredsessiontests.h",
             "clangtoolsunittests.cpp",

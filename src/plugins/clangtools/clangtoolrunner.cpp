@@ -26,10 +26,10 @@ using namespace QtTaskTree;
 
 namespace ClangTools::Internal {
 
-static QStringList checksArguments(const AnalyzeUnit &unit, const AnalyzeInputData &input)
+static QStringList checksArguments(const AnalyzeInputData &input, const FilePath &configFile)
 {
     if (input.tool == ClangToolType::Tidy) {
-        if (input.runSettings.hasConfigFileForSourceFile(unit.file))
+        if (!configFile.isEmpty())
             return {"--warnings-as-errors=-*", "-checks=-clang-diagnostic-*"};
         switch (input.config.clangTidyMode()) {
         case ClangDiagnosticConfig::TidyMode::UseDefaultChecks:
@@ -93,6 +93,28 @@ static QString processDetails(const Process &process, const QString &stdErr)
 }
 
 
+static QString checksSourceDescription(const AnalyzeUnit &unit, const AnalyzeInputData &input,
+                                       const FilePath &configFile)
+{
+    if (input.tool != ClangToolType::Tidy)
+        return Tr::tr("Checks: from the diagnostic configuration \"%1\".")
+            .arg(input.config.displayName());
+    if (!configFile.isEmpty()) {
+        return Tr::tr("Checks: using \"%1\" (nearest .clang-tidy found for \"%2\"). Command line "
+                      "options only disable clang-diagnostic-* checks and reset "
+                      "WarningsAsErrors.")
+            .arg(configFile.toUserOutput(), unit.file.toUserOutput());
+    }
+    if (!input.runSettings.preferConfigFile) {
+        return Tr::tr("Checks: from the diagnostic configuration \"%1\" (\"Prefer .clang-tidy "
+                      "file\" is off).")
+            .arg(input.config.displayName());
+    }
+    return Tr::tr("Checks: no .clang-tidy found in \"%1\" or its parent directories, using the "
+                  "diagnostic configuration \"%2\".")
+        .arg(unit.file.parentDir().toUserOutput(), input.config.displayName());
+}
+
 GroupItem clangToolTask(const AnalyzeUnits &units,
                         const AnalyzeInputData &input,
                         const AnalyzeSetupHandler &setupHandler,
@@ -103,6 +125,8 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
         QString name;
         FilePath executable;
         FilePath outputFilePath;
+        QString runInfo;
+        QStringList unknownFlags;
     };
     const Storage<ClangToolStorage> storage;
     const ListIterator iterator(units);
@@ -143,25 +167,37 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
         process.setLowPriority();
         process.setWorkingDirectory(input.outputDirPath); // Current clang-cl puts log file into working dir.
 
+        const FilePath configFile = input.runSettings.configFileForSourceFile(unit.file);
         const ClangToolStorage &data = *storage;
-        const CommandLine commandLine{data.executable, {checksArguments(unit, input),
+        const CommandLine commandLine{data.executable, {checksArguments(input, configFile),
                                                         mainToolArguments(data)}};
         qCDebug(LOG).noquote() << "Starting" << commandLine.toUserOutput();
         process.setCommand(commandLine);
+        storage->runInfo = Tr::tr("Command line: %1\nWorking directory: %2\n%3")
+                               .arg(commandLine.toUserOutput(),
+                                    input.outputDirPath.toUserOutput(),
+                                    checksSourceDescription(unit, input, configFile));
+        qCDebug(LOG).noquote() << storage->runInfo;
     };
     const auto onProcessDone = [storage, input, outputHandler, iterator](
                                    const Process &process, DoneWith result) {
         qCDebug(LOG).noquote() << "Output:\n" << process.cleanedStdOut();
-
         if (!outputHandler)
             return;
+        QStringList unknownFlags = findUnknownCompilerFlags(process.cleanedStdOut());
+        unknownFlags += findUnknownCompilerFlags(process.cleanedStdErr());
+        unknownFlags.removeDuplicates();
+        unknownFlags.sort();
+        storage->unknownFlags = unknownFlags;
+
         const AnalyzeUnit &unit = *iterator;
         const QString stdErr = truncatedStdErr(process);
         if (result == DoneWith::Success) {
             if (stdErr.isEmpty())
                 return;
             outputHandler({true, unit.file, {}, {}, input.tool,
-                           Tr::tr("%1 produced stderr output:").arg(storage->name), stdErr});
+                           Tr::tr("%1 produced stderr output:").arg(storage->name), stdErr,
+                           {}, storage->unknownFlags});
             return;
         }
         const QString details = processDetails(process, stdErr);
@@ -173,8 +209,8 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
             message = Tr::tr("%1 finished with exit code: %2.").arg(data.name).arg(process.exitCode());
         else
             message = Tr::tr("%1 crashed.").arg(data.name);
-        outputHandler(
-            {false, unit.file, data.outputFilePath, {}, input.tool, message, details});
+        outputHandler({false, unit.file, data.outputFilePath, {}, input.tool, message, details,
+                       data.runInfo, data.unknownFlags});
     };
 
     const auto onReadSetup = [storage, input](Async<Result<Diagnostics>> &data) {
@@ -199,7 +235,10 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
                        storage->outputFilePath,
                        diagnostics,
                        input.tool,
-                       error});
+                       error,
+                       {},
+                       storage->runInfo,
+                       storage->unknownFlags});
     };
 
     return For (iterator) >> Do {

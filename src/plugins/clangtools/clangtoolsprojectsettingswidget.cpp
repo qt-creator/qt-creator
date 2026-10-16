@@ -116,6 +116,7 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
         m_projectSettings->preferConfigFile.setValue(global->preferConfigFile());
         m_projectSettings->buildBeforeAnalysis.setValue(global->buildBeforeAnalysis());
         m_projectSettings->analyzeOpenFiles.setValue(global->analyzeOpenFiles());
+        m_projectSettings->ignoredCompilerFlags.setValue(global->ignoredCompilerFlags());
     });
 
     connect(gotoClangTidyModeLabel, &QLabel::linkActivated, [](const QString &) {

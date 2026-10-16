@@ -7,6 +7,8 @@
 
 #include "projectpart.h"
 
+#include <QRegularExpression>
+
 namespace CppEditor {
 
 enum class UsePrecompiledHeaders { Yes, No };
@@ -68,6 +70,11 @@ public:
     // Add custom options
     void add(const QString &arg, bool gccOnlyOption = false);
     void prepend(const QString &arg);
+    // The compiler flags of the project part that match one of the patterns are not used by
+    // build(). Each pattern is matched against a single flag. Options added by the builder
+    // itself or by add() and prepend() are not affected.
+    void setIgnoredCompilerFlags(const QList<QRegularExpression> &patterns);
+    static QList<QRegularExpression> wildcardsToRegularExpressions(const QStringList &wildcards);
     void add(const QStringList &args, bool gccOnlyOptions = false);
 
     void reset();
@@ -106,6 +113,8 @@ private:
         QStringList flags;
         bool isLanguageVersionSpecified = false;
     } m_compilerFlags;
+
+    QList<QRegularExpression> m_ignoredCompilerFlags;
 
     QStringList m_options;
     QString m_explicitTarget;

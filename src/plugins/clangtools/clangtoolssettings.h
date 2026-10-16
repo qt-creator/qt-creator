@@ -32,6 +32,7 @@ public:
     bool preferConfigFile = true;
     bool buildBeforeAnalysis = true;
     bool analyzeOpenFiles = true;
+    Utils::FilePath configFileForSourceFile(const Utils::FilePath &sourceFile) const;
     bool hasConfigFileForSourceFile(const Utils::FilePath &sourceFile) const;
 };
 
@@ -43,6 +44,7 @@ public:
     RunSettingsData data() const;
 
     Utils::Id safeDiagnosticConfigId() const;
+    QStringList ignoredCompilerFlagPatterns() const;
     bool hasConfigFileForSourceFile(const Utils::FilePath &sourceFile) const;
     void setRunSettingsEnabled(bool enabled);
 
@@ -51,6 +53,7 @@ public:
     Utils::BoolAspect preferConfigFile{this};
     Utils::BoolAspect buildBeforeAnalysis{this};
     Utils::BoolAspect analyzeOpenFiles{this};
+    Utils::StringAspect ignoredCompilerFlags{this};
 };
 
 class ClangToolsSettings final : public RunSettings
@@ -135,6 +138,9 @@ private:
 
 ClangToolsProjectSettings::ClangToolsProjectSettingsPtr clangToolsProjectSettings(
     ProjectExplorer::Project *project);
+
+// The settings that apply to the project: its own ones, or the global ones if it uses them
+RunSettings &runSettingsFor(ProjectExplorer::Project *project);
 
 } // namespace ClangTools::Internal
 

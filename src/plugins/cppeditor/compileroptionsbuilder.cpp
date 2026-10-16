@@ -167,6 +167,26 @@ void CompilerOptionsBuilder::prepend(const QString &arg)
     m_options.prepend(arg);
 }
 
+QList<QRegularExpression> CompilerOptionsBuilder::wildcardsToRegularExpressions(
+    const QStringList &wildcards)
+{
+    QList<QRegularExpression> patterns;
+    for (const QString &wildcard : wildcards) {
+        if (wildcard.isEmpty())
+            continue;
+        const QRegularExpression pattern = QRegularExpression::fromWildcard(
+            wildcard, Qt::CaseSensitive, QRegularExpression::NonPathWildcardConversion);
+        if (pattern.isValid())
+            patterns << pattern;
+    }
+    return patterns;
+}
+
+void CompilerOptionsBuilder::setIgnoredCompilerFlags(const QList<QRegularExpression> &patterns)
+{
+    m_ignoredCompilerFlags = patterns;
+}
+
 void CompilerOptionsBuilder::add(const QStringList &args, bool gccOnlyOptions)
 {
     m_options.append((gccOnlyOptions && isClStyle()) ? clangArgsForCl(args) : args);
@@ -912,6 +932,12 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             || option.startsWith(includeUserPathOptionWindows)
             || option.startsWith("-flto")) {
             // Optimization and run-time flags.
+            continue;
+        }
+
+        if (Utils::anyOf(m_ignoredCompilerFlags, [&option](const QRegularExpression &re) {
+                return re.match(option).hasMatch();
+            })) {
             continue;
         }
 

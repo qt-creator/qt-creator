@@ -716,4 +716,76 @@ void CompilerOptionsBuilderTest::testBuildAllOptionsMsvcWithExceptions()
     QCOMPARE(compilerOptionsBuilder.options(), expectedOptions);
 }
 
+void CompilerOptionsBuilderTest::testIgnoredCompilerFlags()
+{
+    QFETCH(QStringList, flags);
+    QFETCH(QStringList, patterns);
+    QFETCH(QStringList, removed);
+    QFETCH(QStringList, kept);
+
+    TestHelper t;
+    t.flags = flags;
+    t.finalize();
+    t.compilerOptionsBuilder->setIgnoredCompilerFlags(
+        CompilerOptionsBuilder::wildcardsToRegularExpressions(patterns));
+    const QStringList options = t.compilerOptionsBuilder->build(ProjectFile::CXXSource,
+                                                                UsePrecompiledHeaders::No);
+
+    for (const QString &flag : removed)
+        QVERIFY2(!options.contains(flag), qPrintable(flag));
+    for (const QString &flag : kept)
+        QVERIFY2(options.contains(flag), qPrintable(flag));
+}
+
+void CompilerOptionsBuilderTest::testIgnoredCompilerFlagsInvalidPattern()
+{
+    const QList<QRegularExpression> patterns
+        = CompilerOptionsBuilder::wildcardsToRegularExpressions({"-fx[", "-fx[a", "-fno-bar"});
+    QCOMPARE(patterns.size(), 1);
+    QVERIFY(patterns.constFirst().isValid());
+    QVERIFY(patterns.constFirst().match("-fno-bar").hasMatch());
+}
+
+void CompilerOptionsBuilderTest::testIgnoredCompilerFlags_data()
+{
+    QTest::addColumn<QStringList>("flags");
+    QTest::addColumn<QStringList>("patterns");
+    QTest::addColumn<QStringList>("removed");
+    QTest::addColumn<QStringList>("kept");
+
+    QTest::newRow("exact")
+        << QStringList{"-fipa-pta", "-fno-foo"} << QStringList{"-fipa-pta"}
+        << QStringList{"-fipa-pta"} << QStringList{"-fno-foo"};
+    QTest::newRow("wildcard")
+        << QStringList{"-fipa-pta", "-fipa-cp", "-fno-foo"} << QStringList{"-fipa-*"}
+        << QStringList{"-fipa-pta", "-fipa-cp"} << QStringList{"-fno-foo"};
+    QTest::newRow("path-valued")
+        << QStringList{"-fplugin=/a/b.so", "-fno-foo"} << QStringList{"-fplugin=*"}
+        << QStringList{"-fplugin=/a/b.so"} << QStringList{"-fno-foo"};
+    QTest::newRow("path-valued-specs")
+        << QStringList{"-specs=/usr/lib/rpm/redhat/redhat-hardened-cc1", "-fno-foo"}
+        << QStringList{"-specs=*"} << QStringList{"-specs=/usr/lib/rpm/redhat/redhat-hardened-cc1"}
+        << QStringList{"-fno-foo"};
+    QTest::newRow("case-sensitive-define")
+        << QStringList{"-DFOO", "-dumpdir"} << QStringList{"-d*"} << QStringList{"-dumpdir"}
+        << QStringList{"-DFOO"};
+    QTest::newRow("case-sensitive")
+        << QStringList{"-MD", "-mfoo"} << QStringList{"-m*"} << QStringList{"-mfoo"}
+        << QStringList{"-MD"};
+    QTest::newRow("several-patterns")
+        << QStringList{"-fipa-pta", "-fno-bar", "-fno-foo"} << QStringList{"-fipa-*", "-fno-bar"}
+        << QStringList{"-fipa-pta", "-fno-bar"} << QStringList{"-fno-foo"};
+    QTest::newRow("whole-option-only")
+        << QStringList{"-fipa-pta-extra"} << QStringList{"-fipa-pta"} << QStringList()
+        << QStringList{"-fipa-pta-extra"};
+    QTest::newRow("empty-pattern")
+        << QStringList{"-fno-foo"} << QStringList{QString()} << QStringList()
+        << QStringList{"-fno-foo"};
+    QTest::newRow("no-match")
+        << QStringList{"-fno-foo"} << QStringList{"-g*"} << QStringList() << QStringList{"-fno-foo"};
+    QTest::newRow("options-of-the-builder-are-kept")
+        << QStringList{"-mno-foo"} << QStringList{"-m*"} << QStringList{"-mno-foo"}
+        << QStringList{"-m64", "-fsyntax-only"};
+}
+
 } // namespace CppEditor::Internal

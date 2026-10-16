@@ -51,6 +51,12 @@ struct AnalyzeOutputData
     CppEditor::ClangToolType toolType;
     QString errorMessage = {};
     QString errorDetails = {};
+    // Full command line, working directory and the source of the checks (.clang-tidy or
+    // diagnostic config) of the run. Set on exactly one output per analyzed file once the
+    // process was started.
+    QString runInfo = {};
+    // Compiler flags that clang reported as unknown while running the tool.
+    QStringList unknownFlags = {};
 };
 
 using AnalyzeSetupHandler = std::function<bool(const AnalyzeUnit &)>;

@@ -23,6 +23,7 @@
 #include <utils/temporarydirectory.h>
 
 #include <QHash>
+#include <QRegularExpression>
 
 #include <utility>
 
@@ -42,12 +43,15 @@ public:
     Private(ClangToolType toolType, ClangToolsCompilationDb *q) : q(q), toolType(toolType) {}
 
     void generate();
+    QStringList generationInputs() const;
     QString toolName() const { return clangToolName(toolType); }
 
     ClangToolsCompilationDb * const q;
     const ClangToolType toolType;
     TemporaryDirectory dir{toolName() + "XXXXXX"};
     bool readyAndUpToDate = false;
+    int invalidations = 0;
+    QStringList generatedWithInputs;
     FutureSynchronizer generatorSynchronizer;
     QSingleTaskTreeRunner taskTreeRunner;
 };
@@ -61,6 +65,10 @@ ClangToolsCompilationDb::ClangToolsCompilationDb(ClangToolType toolType, BuildCo
     connect(clangToolsProjectSettings(bc->project()).get(),
             &ClangToolsProjectSettings::changed,
             this, &ClangToolsCompilationDb::invalidate);
+    connect(ClangToolsSettings::instance(), &ClangToolsSettings::changed, this, [this] {
+        if (d->generationInputs() != d->generatedWithInputs)
+            invalidate();
+    });
     connect(CppModelManager::instance(), &CppModelManager::projectPartsUpdated, this,
         [this, bc](Project *p) {
             if (p == bc->project())
@@ -70,7 +78,11 @@ ClangToolsCompilationDb::ClangToolsCompilationDb(ClangToolType toolType, BuildCo
 
 ClangToolsCompilationDb::~ClangToolsCompilationDb() { delete d; }
 
-void ClangToolsCompilationDb::invalidate() { d->readyAndUpToDate = false; }
+void ClangToolsCompilationDb::invalidate()
+{
+    ++d->invalidations;
+    d->readyAndUpToDate = false;
+}
 
 FilePath ClangToolsCompilationDb::parentDir() const { return d->dir.path(); }
 
@@ -78,7 +90,8 @@ bool ClangToolsCompilationDb::generateIfNecessary()
 {
     if (d->readyAndUpToDate)
         return false;
-    d->generate();
+    if (!d->taskTreeRunner.isRunning())
+        d->generate();
     return true;
 }
 
@@ -93,6 +106,23 @@ ClangToolsCompilationDb &ClangToolsCompilationDb::getDb(
     return *db;
 }
 
+static ClangDiagnosticConfig diagnosticConfigFor(const RunSettings &runSettings)
+{
+    const Id configId = runSettings.safeDiagnosticConfigId();
+    return Utils::findOrDefault(
+        ClangToolsSettings::instance()->diagnosticConfigId.customConfigs(),
+        [configId](const ClangDiagnosticConfig &c) { return c.id() == configId; });
+}
+
+QStringList ClangToolsCompilationDb::Private::generationInputs() const
+{
+    const auto bc = static_cast<BuildConfiguration *>(q->parent());
+    const RunSettings &runSettings = runSettingsFor(bc->project());
+    const ClangDiagnosticConfig config = diagnosticConfigFor(runSettings);
+    return runSettings.ignoredCompilerFlagPatterns()
+           + QStringList{config.useBuildSystemWarnings() ? "1" : "0"} + config.clangOptions();
+}
+
 void ClangToolsCompilationDb::Private::generate()
 {
     QTC_CHECK(!readyAndUpToDate);
@@ -102,12 +132,13 @@ void ClangToolsCompilationDb::Private::generate()
             .arg(clangToolName(toolType), dir.path().toUserOutput()));
 
     const auto bc = static_cast<BuildConfiguration *>(q->parent());
-    const auto projectSettings = clangToolsProjectSettings(bc->project());
-    QTC_ASSERT(projectSettings, return);
-    const Id configId = projectSettings->diagnosticConfigId();
-    const ClangDiagnosticConfig config = Utils::findOrDefault(
-        ClangToolsSettings::instance()->diagnosticConfigId.customConfigs(),
-        [configId](const ClangDiagnosticConfig &c) { return c.id() == configId; });
+    generatedWithInputs = generationInputs();
+    const int generation = invalidations;
+    const RunSettings &runSettings = runSettingsFor(bc->project());
+    const ClangDiagnosticConfig config = diagnosticConfigFor(runSettings);
+    const QList<QRegularExpression> ignoredFlags
+        = CompilerOptionsBuilder::wildcardsToRegularExpressions(
+            runSettings.ignoredCompilerFlagPatterns());
     const auto useBuildSystemWarnings = config.useBuildSystemWarnings()
                                             ? UseBuildSystemWarnings::Yes
                                             : UseBuildSystemWarnings::No;
@@ -122,6 +153,7 @@ void ClangToolsCompilationDb::Private::generate()
                                               UseLanguageDefines::No,
                                               useBuildSystemWarnings,
                                               actualClangIncludeDir);
+        optionsBuilder.setIgnoredCompilerFlags(ignoredFlags);
         optionsBuilder.build(ProjectFile::Unclassified, UsePrecompiledHeaders::No);
         if (useBuildSystemWarnings == UseBuildSystemWarnings::No) {
             for (const QString &opt : config.clangOptions())
@@ -147,11 +179,11 @@ void ClangToolsCompilationDb::Private::generate()
             ClangDiagnosticConfigsModel::globalDiagnosticOptions(),
             getCompilerOptionsBuilder);
     };
-    const auto onDone = [this](const Async<GenerateCompilationDbResult> &task) {
+    const auto onDone = [this, generation](const Async<GenerateCompilationDbResult> &task) {
         const auto result = task.result();
         const bool success = result.has_value();
         QTC_CHECK(!readyAndUpToDate);
-        readyAndUpToDate = success;
+        readyAndUpToDate = success && generation == invalidations;
         if (success) {
             Core::MessageManager::writeSilently(
                 Tr::tr("Compilation database for %1 successfully generated at \"%2\".")
@@ -162,7 +194,13 @@ void ClangToolsCompilationDb::Private::generate()
                     .arg(toolName(), result.error()));
         }
     };
-    taskTreeRunner.start({AsyncTask<GenerateCompilationDbResult>(onSetup, onDone)}, {}, [this] {
+    taskTreeRunner.start({AsyncTask<GenerateCompilationDbResult>(onSetup, onDone)}, {},
+                         [this, generation] {
+        if (generation != invalidations) {
+            // The inputs changed while generating: this result is outdated.
+            generate();
+            return;
+        }
         emit q->generated(readyAndUpToDate);
     });
 }

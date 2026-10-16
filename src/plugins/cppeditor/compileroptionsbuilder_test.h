@@ -56,6 +56,9 @@ private slots:
     void testBuildAllOptions();
     void testBuildAllOptionsMsvc();
     void testBuildAllOptionsMsvcWithExceptions();
+    void testIgnoredCompilerFlags();
+    void testIgnoredCompilerFlags_data();
+    void testIgnoredCompilerFlagsInvalidPattern();
 };
 
 } // namespace CppEditor::Internal

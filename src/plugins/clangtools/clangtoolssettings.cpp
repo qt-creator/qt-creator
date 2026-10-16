@@ -24,6 +24,7 @@
 #include <utils/qtcassert.h>
 #include <utils/store.h>
 
+#include <QRegularExpression>
 #include <QThread>
 
 using namespace CppEditor;
@@ -43,11 +44,16 @@ Id RunSettings::safeDiagnosticConfigId() const
     return diagnosticConfigId();
 }
 
-bool RunSettingsData::hasConfigFileForSourceFile(const FilePath &sourceFile) const
+FilePath RunSettingsData::configFileForSourceFile(const FilePath &sourceFile) const
 {
     if (!preferConfigFile)
-        return false;
-    return !sourceFile.searchHereAndInParents(".clang-tidy", DirFilterFlag::Files).isEmpty();
+        return {};
+    return sourceFile.searchHereAndInParents(".clang-tidy", DirFilterFlag::Files);
+}
+
+bool RunSettingsData::hasConfigFileForSourceFile(const FilePath &sourceFile) const
+{
+    return !configFileForSourceFile(sourceFile).isEmpty();
 }
 
 ClangToolsSettings *ClangToolsSettings::instance()
@@ -81,6 +87,16 @@ RunSettings::RunSettings(const Key &prefix)
     analyzeOpenFiles.setDefaultValue(true);
     analyzeOpenFiles.setLabelText(Tr::tr("Analyze open files"));
 
+    ignoredCompilerFlags.setSettingsKey(prefix + "IgnoredCompilerFlags");
+    ignoredCompilerFlags.setDisplayStyle(StringAspect::TextEditDisplay);
+    ignoredCompilerFlags.setLabelText(Tr::tr("Ignored compiler flags:"));
+    ignoredCompilerFlags.setToolTip(
+        Tr::tr("Compiler flags that are removed from the compilation database before it is "
+               "passed to Clang-Tidy and Clazy, for example GCC-only flags that clang does not "
+               "understand. Separate the flags with spaces or new lines. Wildcards are "
+               "supported, e.g. -flto* or -fipa-*. Each pattern is matched against a single "
+               "argument."));
+
     setLayouter([this] {
         using namespace Layouting;
         return Column {
@@ -92,11 +108,18 @@ RunSettings::RunSettings(const Key &prefix)
                     buildBeforeAnalysis,
                     analyzeOpenFiles,
                     Row { parallelJobs, st },
+                    ignoredCompilerFlags,
                 },
             },
             noMargin,
         };
     });
+}
+
+QStringList RunSettings::ignoredCompilerFlagPatterns() const
+{
+    static const QRegularExpression separators("\\s+");
+    return ignoredCompilerFlags().split(separators, Qt::SkipEmptyParts);
 }
 
 RunSettingsData RunSettings::data() const
@@ -112,9 +135,7 @@ RunSettingsData RunSettings::data() const
 
 bool RunSettings::hasConfigFileForSourceFile(const FilePath &sourceFile) const
 {
-    if (!preferConfigFile())
-        return false;
-    return !sourceFile.searchHereAndInParents(".clang-tidy", DirFilterFlag::Files).isEmpty();
+    return data().hasConfigFileForSourceFile(sourceFile);
 }
 
 void RunSettings::setRunSettingsEnabled(bool enabled)
@@ -124,6 +145,7 @@ void RunSettings::setRunSettingsEnabled(bool enabled)
     preferConfigFile.setEnabled(enabled);
     buildBeforeAnalysis.setEnabled(enabled);
     analyzeOpenFiles.setEnabled(enabled);
+    ignoredCompilerFlags.setEnabled(enabled);
 }
 
 ClangToolsSettings::ClangToolsSettings()
@@ -172,6 +194,7 @@ ClangToolsSettings::ClangToolsSettings()
                     buildBeforeAnalysis,
                     analyzeOpenFiles,
                     Row { parallelJobs, st },
+                    ignoredCompilerFlags,
                 },
             },
             st,
@@ -408,6 +431,16 @@ ClangToolsProjectSettings::ClangToolsProjectSettingsPtr clangToolsProjectSetting
         project->setExtraData(key, v);
     }
     return v.value<std::shared_ptr<ClangToolsProjectSettings>>();
+}
+
+RunSettings &runSettingsFor(ProjectExplorer::Project *project)
+{
+    if (project) {
+        const auto projectSettings = clangToolsProjectSettings(project);
+        if (!projectSettings->useGlobalSettings())
+            return *projectSettings;
+    }
+    return *ClangToolsSettings::instance();
 }
 
 SuppressedDiagnostic::SuppressedDiagnostic(const Diagnostic &diag)

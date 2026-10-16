@@ -123,6 +123,7 @@ private:
     int m_filesCount = 0;
     int m_filesSucceeded = 0;
     int m_filesFailed = 0;
+    QSet<QString> m_unknownCompilerFlags;
 
     DiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
 

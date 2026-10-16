@@ -10,6 +10,8 @@
 #include "runsettingswidget.h"
 
 #ifdef WITH_TESTS
+#include "clangtoolrunnertest.h"
+#include "clangtoolsignoredflagstest.h"
 #include "clangtoolspreconfiguredsessiontests.h"
 #include "clangtoolsunittests.h"
 #include "inlinesuppresseddiagnostics.h"
@@ -201,6 +203,8 @@ private:
         addTestCreator(createInlineSuppressedDiagnosticsTest);
         addTest<PreconfiguredSessionTests>();
         addTest<ClangToolsUnitTests>();
+        addTest<ClangToolRunnerTest>();
+        addTest<IgnoredFlagsTest>();
         addTest<ReadExportedDiagnosticsTest>();
 #endif
     }

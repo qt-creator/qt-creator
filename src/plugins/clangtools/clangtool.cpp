@@ -8,6 +8,7 @@
 #include "clangtoolscompilationdb.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolsdiagnosticview.h"
+#include "clangtoolsignoredflagsdialog.h"
 #include "clangtoolssettings.h"
 #include "clangtoolstr.h"
 #include "clangtoolsutils.h"
@@ -353,12 +354,7 @@ static FileInfos sortedFileInfos(const CppCodeModelSettingsData &settings,
 
 static RunSettings &runSettings()
 {
-    if (Project *project = ProjectManager::startupProject()) {
-        const auto projectSettings = clangToolsProjectSettings(project);
-        if (!projectSettings->useGlobalSettings())
-            return *projectSettings;
-    }
-    return *ClangToolsSettings::instance();
+    return runSettingsFor(ProjectManager::startupProject());
 }
 
 ClangTool::~ClangTool()
@@ -593,8 +589,33 @@ void ClangTool::selectPerspective()
     m_perspective.select();
 }
 
+// Returns true if the database has to be (re)generated first; "restart" is called once it is ready.
+static bool restartWhenCompilationDbIsReady(QObject *context, ClangToolType type,
+                                            const std::function<void()> &restart)
+{
+    Project *project = ProjectManager::startupProject();
+    if (!project || !project->activeBuildConfiguration())
+        return false;
+    ClangToolsCompilationDb &db
+        = ClangToolsCompilationDb::getDb(type, project->activeBuildConfiguration());
+    db.disconnect(context);
+    if (!db.generateIfNecessary())
+        return false;
+    QObject::connect(&db, &ClangToolsCompilationDb::generated, context, [restart](bool success) {
+        if (success)
+            restart();
+    }, Qt::SingleShotConnection);
+    return true;
+}
+
 void ClangTool::startTool(FileSelection fileSelection)
 {
+    // Wait for the database here, so that the settings are read after it was generated.
+    if (restartWhenCompilationDbIsReady(this, m_type, [this, fileSelection] {
+            startTool(fileSelection);
+        })) {
+        return;
+    }
     const RunSettingsData runSettingsData = runSettings().data();
     startTool(fileSelection, runSettingsData, diagnosticConfig(runSettings().safeDiagnosticConfigId()));
 }
@@ -748,6 +769,10 @@ Group ClangTool::runRecipe(const RunSettingsData &runSettings,
             return true;
         };
         const auto outputHandler = [this, runSettings](const AnalyzeOutputData &output) {
+            if (!output.runInfo.isEmpty())
+                m_runControl->postMessage(output.runInfo, StdOutFormat);
+            m_unknownCompilerFlags.unite(
+                QSet<QString>(output.unknownFlags.cbegin(), output.unknownFlags.cend()));
             if (!output.success) {
                 qCDebug(LOG).noquote() << "Clang tool task finished with an error:"
                                        << output.errorMessage << '\n' << output.errorDetails;
@@ -799,6 +824,15 @@ Group ClangTool::runRecipe(const RunSettingsData &runSettings,
                            "\"Build the project before analysis\"."), NormalMessageFormat);
             }
         }
+        if (!m_unknownCompilerFlags.isEmpty()) {
+            QStringList flags(m_unknownCompilerFlags.cbegin(), m_unknownCompilerFlags.cend());
+            flags.sort();
+            m_runControl->postMessage(
+                Tr::tr("Compiler flags unknown to clang: %1. They can be ignored in the "
+                       "\"Ignored compiler flags\" setting.").arg(flags.join(' ')),
+                ErrorMessageFormat);
+            offerToIgnoreCompilerFlags(m_runControl->project(), flags);
+        }
         m_runControl->postMessage(Tr::tr("%1 finished: Processed %2 files successfully, %3 failed.")
                                       .arg(name()).arg(m_filesSucceeded).arg(m_filesFailed),
                                   NormalMessageFormat);
@@ -818,10 +852,6 @@ void ClangTool::startTool(FileSelection fileSelection, const RunSettingsData &ru
     QTC_ASSERT(project, return);
     QTC_ASSERT(project->activeBuildConfiguration(), return);
 
-    ClangToolsCompilationDb &db
-        = ClangToolsCompilationDb::getDb(m_type, project->activeBuildConfiguration());
-    db.disconnect(this);
-
     // Continue despite release mode?
     if (BuildConfiguration *bc = project->activeBuildConfiguration()) {
         if (bc->buildType() == BuildConfiguration::Release)
@@ -829,11 +859,9 @@ void ClangTool::startTool(FileSelection fileSelection, const RunSettingsData &ru
                 return;
     }
 
-    if (db.generateIfNecessary()) {
-        connect(&db, &ClangToolsCompilationDb::generated, this, [=, this](bool success) {
-            if (success)
-                startTool(fileSelection, runSettings, diagnosticConfig);
-        }, Qt::SingleShotConnection);
+    if (restartWhenCompilationDbIsReady(this, m_type, [=, this] {
+            startTool(fileSelection, runSettings, diagnosticConfig);
+        })) {
         return;
     }
 
@@ -1012,6 +1040,7 @@ void ClangTool::reset()
 
     m_filesSucceeded = 0;
     m_filesFailed = 0;
+    m_unknownCompilerFlags.clear();
 }
 
 static bool canAnalyzeProject(Project *project)

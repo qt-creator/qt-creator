@@ -7,6 +7,7 @@
 
 #include <utils/id.h>
 
+#include <QStringList>
 #include <QtGlobal>
 
 #include <optional>
@@ -58,6 +59,8 @@ bool isVFSOverlaySupported(const Utils::FilePath &executable);
 Utils::FilePath fullPath(const Utils::FilePath &executable);
 
 QString documentationUrl(const QString &checkName);
+
+QStringList findUnknownCompilerFlags(const QString &toolOutput);
 
 CppEditor::ClangDiagnosticConfigsModel diagnosticConfigsModel();
 CppEditor::ClangDiagnosticConfigsModel diagnosticConfigsModel(

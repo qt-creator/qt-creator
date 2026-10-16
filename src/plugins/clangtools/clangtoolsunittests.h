@@ -26,6 +26,15 @@ private slots:
     void cleanupTestCase();
     void testProject();
     void testProject_data();
+    void testIgnoredFlagsInCompilationDb();
+    void testIgnoredFlagsInCompilationDb_data();
+    void testCompilationDbIsInvalidatedByGlobalSettings();
+    void testChangeDuringGenerationIsNotLost();
+    void testUnknownFlagsDialog();
+    void testUnknownFlagsDialog_data();
+    void testUnknownFlagsDialogFromOpenDocument();
+    void testTypingInProjectSettingsRegeneratesOnce();
+    void testRunSettings();
 
 private:
     void addTestRow(const QByteArray &relativeFilePath,

@@ -21,6 +21,9 @@
 
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
 
+#include <QRegularExpression>
+#include <QSet>
+
 using namespace CppEditor;
 using namespace Utils;
 
@@ -363,6 +366,58 @@ bool toolEnabled(CppEditor::ClangToolType type, const ClangDiagnosticConfig &con
     if (type == ClangToolType::Tidy && runSettings.preferConfigFile())
         return true;
     return type == ClangToolType::Tidy ? config.isTidyEnabled() : config.isClazyEnabled();
+}
+
+static QString escapeWildcards(const QString &text)
+{
+    QString result;
+    for (const QChar c : text) {
+        if (c == '*' || c == '?' || c == '[')
+            result += '[' + QString(c) + ']';
+        else
+            result += c;
+    }
+    return result;
+}
+
+// Extracts the compiler flags that clang reported as unknown or unsupported
+// ("error: unknown argument: '-fipa-pta'") from the output of Clang-Tidy or Clazy.
+// Flags that contain whitespace are skipped, because the setting is split at whitespace, and
+// flags with '<', because the offer is shown in a label that would take them for markup.
+QStringList findUnknownCompilerFlags(const QString &toolOutput)
+{
+    // The diagnostics of the driver start a line, optionally with the program name. A source line
+    // that the tool quotes after some other diagnostic must not be taken for one.
+    static const QRegularExpression unknownArgument(
+        R"(^(?:\S+: )?error: (?:(?:unknown|unsupported) argument:?|unsupported option) )"
+        R"('([^']+)'(?! to option))",
+        QRegularExpression::MultilineOption);
+    static const QRegularExpression unsupportedOptionValue(
+        R"(^(?:\S+: )?error: unsupported argument '([^']+)' to option '([^']+=)')",
+        QRegularExpression::MultilineOption);
+
+    static const QRegularExpression unusable(R"([\s<])");
+
+    QSet<QString> flags;
+    for (auto it = unknownArgument.globalMatch(toolOutput); it.hasNext();) {
+        const QString flag = it.next().captured(1);
+        if (!flag.contains(unusable))
+            flags.insert(escapeWildcards(flag));
+    }
+    for (auto it = unsupportedOptionValue.globalMatch(toolOutput); it.hasNext();) {
+        const QRegularExpressionMatch match = it.next();
+        if (match.captured(1).contains(unusable) || match.captured(2).contains(unusable))
+            continue;
+        // Clang 14 and older print the option name without its dash, e.g. 'flto='
+        QString option = match.captured(2);
+        if (!option.startsWith('-') && !option.startsWith('/'))
+            option.prepend('-');
+        // The value can be one of several in the argument, e.g. -fsanitize=undefined,bounds-strict
+        flags.insert(escapeWildcards(option) + '*' + escapeWildcards(match.captured(1)) + '*');
+    }
+    QStringList result = QStringList(flags.cbegin(), flags.cend());
+    result.sort();
+    return result;
 }
 
 } // namespace ClangTools::Internal
