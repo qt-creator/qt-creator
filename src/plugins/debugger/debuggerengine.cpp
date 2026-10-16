@@ -1023,12 +1023,17 @@ void DebuggerEnginePrivate::setupViews()
 
     QTC_CHECK(!m_perspective);
 
-    Perspective *currentPerspective = PerspectivesView::instance()->currentPerspective();
+    // Never parent to another tool's perspective.
+    const Perspective *currentPerspective = PerspectivesView::instance()->currentPerspective();
+    const bool isDap = currentPerspective
+                       && (currentPerspective->id() == Constants::DAP_PERSPECTIVE_ID
+                           || currentPerspective->parentPerspectiveId()
+                                  == Constants::DAP_PERSPECTIVE_ID);
 
     const QString perspectiveId = "Debugger.Perspective." + m_runId + '.' + engineId;
     const QString settingsId = "Debugger.Perspective.v2." + engineId;
-    const QString parentPerspectiveId = currentPerspective ? currentPerspective->id()
-                                                           : Constants::PRESET_PERSPECTIVE_ID;
+    const QString parentPerspectiveId = QString::fromLatin1(
+        isDap ? Constants::DAP_PERSPECTIVE_ID : Constants::PRESET_PERSPECTIVE_ID);
 
     m_perspective
         = new Perspective(perspectiveId, m_engine->displayName(), parentPerspectiveId, settingsId);
@@ -1199,7 +1204,7 @@ void DebuggerEnginePrivate::setupViews()
     m_breakWindow->setObjectName("Debugger.Dock.Break." + engineId);
     m_breakWindow->setWindowTitle(Tr::tr("&Breakpoints"));
 
-    if (currentPerspective && currentPerspective->id() == Constants::DAP_PERSPECTIVE_ID)
+    if (isDap)
         m_perspective->useSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
     else
         m_perspective->useSubPerspectiveSwitcher(EngineManager::engineChooser());
