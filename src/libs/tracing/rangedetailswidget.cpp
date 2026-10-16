@@ -59,6 +59,7 @@ RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
     m_treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_treeView->setWordWrap(true);
     m_treeView->setItemsExpandable(false);
+    m_treeView->setIndentation(Utils::StyleHelper::SpacingTokens::PaddingHL);
     m_treeView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
     Column {
@@ -144,6 +145,20 @@ void RangeDetailsWidget::clearContent()
     rebuildRows({});
 }
 
+constexpr static Utils::StyleHelper::TextFormat keyFormat {
+    .themeColor = Utils::Theme::Token_Text_Muted,
+    .uiElement = Utils::StyleHelper::UiElementCaptionStrong,
+};
+
+static QStandardItem *createKeyItem(const QString &text)
+{
+    static const QFont font = keyFormat.font();
+    auto item = new QStandardItem(text);
+    item->setFont(font);
+    item->setForeground(keyFormat.color());
+    return item;
+}
+
 // Fills the row formed by (keyItem, valueItem) from a JSON value. Containers are
 // expanded into child rows of keyItem -- children must hang off the column-0 item,
 // otherwise the tree cannot navigate or expand them. Scalars go into valueItem.
@@ -152,7 +167,7 @@ static void fillJson(QStandardItem *keyItem, QStandardItem *valueItem, const QJs
     if (value.isObject()) {
         const QJsonObject obj = value.toObject();
         for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) {
-            auto childKey = new QStandardItem(it.key());
+            auto childKey = createKeyItem(it.key());
             auto childVal = new QStandardItem;
             fillJson(childKey, childVal, it.value());
             keyItem->appendRow({childKey, childVal});
@@ -161,7 +176,7 @@ static void fillJson(QStandardItem *keyItem, QStandardItem *valueItem, const QJs
         const QJsonArray arr = value.toArray();
         int i = 0;
         for (const auto &elem : arr) {
-            auto childKey = new QStandardItem(QString::number(i++));
+            auto childKey = createKeyItem(QString::number(i++));
             auto childVal = new QStandardItem;
             fillJson(childKey, childVal, elem);
             keyItem->appendRow({childKey, childVal});
@@ -175,16 +190,9 @@ void RangeDetailsWidget::rebuildRows(const QList<QPair<QString, QString>> &conte
 {
     m_model->removeRows(0, m_model->rowCount());
 
-    constexpr Utils::StyleHelper::TextFormat keyFormat {
-        .themeColor = Utils::Theme::Token_Text_Muted,
-        .uiElement = Utils::StyleHelper::UiElementCaptionStrong,
-    };
-    const QFont keyFont = keyFormat.font();
     const int lineHeight = int(keyFormat.lineHeight() * 1.8);
     for (const auto &[key, val] : content) {
-        auto keyItem = new QStandardItem(key);
-        keyItem->setFont(keyFont);
-        keyItem->setForeground(keyFormat.color());
+        auto keyItem = createKeyItem(key);
 
         if (key == "Arguments") {
             // Assume the value is a JSON object. Parse it and display each key-value pair on a separate line:
