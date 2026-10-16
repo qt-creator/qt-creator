@@ -1406,7 +1406,7 @@ void FakeVimTester::test_vim_readonly_diff_enter()
     handler.handleInput("<Esc>");
     handler.setTextCursorPosition(position);
     handler.handleInput("vj");
-    QKeyEvent copy(QEvent::KeyPress, Qt::Key_C, Qt::ControlModifier, "c");
+    QKeyEvent copy(QEvent::KeyPress, Qt::Key_C, Utils::HostOsInfo::controlModifier(), "c");
     QVERIFY(handler.eventFilter(widget, &copy));
     QVERIFY(!widget->textCursor().hasSelection());
 
