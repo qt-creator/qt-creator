@@ -214,7 +214,7 @@ void StackHandler::removeAll()
     QTC_ASSERT(threadItem, return);
     threadItem->removeChildren();
 
-    setCurrentIndex(-1);
+    m_currentIndex = -1;
 }
 
 bool StackHandler::operatesByInstruction() const

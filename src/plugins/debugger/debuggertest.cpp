@@ -239,6 +239,7 @@ private slots:
     void testMissingSourceMessage();
     void testASkippedTopFrameNamesItsMissingSource();
     void testSkippedMachineryFramesStaySilent();
+    void testAnEmptiedStackHasNoCurrentFrame();
     void testAFailedRunRestoresOnlyAPendingReset();
     void testAResumedAttachStopLeavesTheViewsAlone();
     void testARefusedResumeReadsTheAttachStopAfterAll();
@@ -4745,6 +4746,34 @@ void DebuggerUnitTests::testSkippedMachineryFramesStaySilent()
                                        .arg(engine->logWindow()->inputContents()
                                                 .mid(before.size()))));
     }
+}
+
+// What a session leaves behind when it ends without reporting an empty stack
+// first. Whatever still asks for the current frame then must not be sent to
+// one that is gone.
+void DebuggerUnitTests::testAnEmptiedStackHasNoCurrentFrame()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard cleanup([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    StackHandler *stack = engine->stackHandler();
+    stack->setFramesAndCurrentIndex(
+        stackReply({R"({level="0",function="main",file="/src/main.cpp",usable="1"})"}), true);
+    QCOMPARE(stack->currentIndex(), 0);
+
+    stack->removeAll();
+    QCOMPARE(stack->currentIndex(), -1);
+
+    s_capturedMessages.clear();
+    QtMessageHandler previous = qInstallMessageHandler(captureMessages);
+    const QScopeGuard restoreHandler([previous] { qInstallMessageHandler(previous); });
+    QVERIFY(!stack->currentFrame().isUsable());
+    const QString complaint = Utils::findOrDefault(s_capturedMessages, [](const QString &m) {
+        return m.contains("SOFT ASSERT");
+    });
+    QVERIFY2(complaint.isEmpty(), qPrintable(complaint));
 }
 
 void DebuggerUnitTests::testAFailedRunRestoresOnlyAPendingReset()
