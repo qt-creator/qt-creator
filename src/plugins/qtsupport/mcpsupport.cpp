@@ -20,6 +20,7 @@
 #include <utils/result.h>
 
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
 
 using namespace Utils;
@@ -212,6 +213,84 @@ void registerMcpTools()
                 {"valid", version->isValid()},
                 {"already_registered", alreadyRegistered},
             });
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("qt_remove_version")
+            .title("Remove a Qt version")
+            .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(true))
+            .description(
+                "Removes a registered Qt version, as \"Remove\" on the Qt Versions preferences "
+                "page does. The version is given by its ID or by its qmake path. Auto-detected "
+                "versions cannot be removed.")
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "id",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "Unique ID of the version, as qt_add_version "
+                                            "returns it."}})
+                    .addProperty(
+                        "qmake_path",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Path to the qmake executable of the version."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "id",
+                        QJsonObject{{"type", "integer"}, {"description", "Unique ID."}})
+                    .addProperty(
+                        "name", QJsonObject{{"type", "string"}, {"description", "Display name."}})),
+        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonValue idValue = params.arguments()->value("id");
+            const FilePath qmake = FilePath::fromUserInput(
+                params.arguments()->value("qmake_path").toString());
+            const bool hasId = !idValue.isUndefined() && !idValue.isNull();
+            const int id = idValue.toInt(-1);
+            if (hasId && (!idValue.isDouble() || id < 0 || idValue.toDouble() != id)) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("id must be an integer, got %1")
+                        .arg(QString::fromUtf8(
+                            QJsonDocument(QJsonArray{idValue}).toJson(QJsonDocument::Compact)))));
+            }
+            if (!hasId && qmake.isEmpty()) {
+                return CallToolResult{}.isError(true).addContent(
+                    TextContent{}.text("Neither id nor qmake_path given"));
+            }
+
+            QtVersion *version = nullptr;
+            if (hasId) {
+                version = QtVersionManager::version(id);
+                if (version && !qmake.isEmpty() && version->qtFilePath() != qmake) {
+                    return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                        QString("Version %1 does not use %2")
+                            .arg(id)
+                            .arg(qmake.toUserOutput())));
+                }
+            } else {
+                version = QtVersionManager::version(
+                    [&qmake](const QtVersion *v) { return v->qtFilePath() == qmake; });
+            }
+            if (!version) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    hasId ? QString("No Qt version with id %1").arg(id)
+                          : QString("No Qt version uses %1").arg(qmake.toUserOutput())));
+            }
+            if (version->detectionSource().isAutoDetected()) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("\"%1\" is auto-detected and cannot be removed")
+                        .arg(version->displayName())));
+            }
+
+            const QJsonObject result{
+                {"id", version->uniqueId()},
+                {"name", version->displayName()},
+            };
+            QtVersionManager::removeVersion(version);
+            return CallToolResult{}.isError(false).structuredContent(result);
         });
 }
 
