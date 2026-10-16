@@ -66,8 +66,11 @@
 
     \endlist
 
-    \note Select text before selecting \uicontrol {Find/Replace} to search only
-    from the selection.
+    \note Select text before selecting \uicontrol {Find/Replace} to enter the
+    selected text in \uicontrol Find. A selection of more than 20 lines is not
+    entered. To search only from the selection, go to \uicontrol Edit >
+    \uicontrol {Find/Replace} > \uicontrol {Find/Replace in Selection}
+    instead.
 
     \section1 Set search criteria
 

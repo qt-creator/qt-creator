@@ -90,6 +90,9 @@ static QString selectedPlainText(const QTextCursor &cursor)
     return text;
 }
 
+// The longest selection, in lines, that is taken as the text to search for
+static const int maxPrefillLineCount = 20;
+
 struct BaseTextFindPrivate
 {
     BaseTextFindPrivate();
@@ -193,11 +196,20 @@ void BaseTextFindBase::clearHighlights()
 QString BaseTextFindBase::currentFindString() const
 {
     QTextCursor cursor = textCursor();
-    if (cursor.hasSelection() && cursor.block() != cursor.document()->findBlock(cursor.anchor()))
-        return QString(); // multi block selection
-
-    if (cursor.hasSelection())
-        return cursor.selectedText();
+    if (cursor.hasSelection()) {
+        // A selection over many lines is not meant as a search term
+        // Whole lines are selected up to the start of the line after them, which has no
+        // selected character
+        const QTextDocument *document = cursor.document();
+        const QTextBlock startBlock = document->findBlock(cursor.selectionStart());
+        const QTextBlock endBlock = document->findBlock(cursor.selectionEnd());
+        const int lastLine = endBlock != startBlock && endBlock.position() == cursor.selectionEnd()
+                                 ? endBlock.blockNumber() - 1 : endBlock.blockNumber();
+        const int lineCount = lastLine - startBlock.blockNumber() + 1;
+        if (lineCount > maxPrefillLineCount)
+            return QString();
+        return selectedPlainText(cursor);
+    }
 
     if (!cursor.atBlockEnd() && !cursor.hasSelection()) {
         cursor.movePosition(QTextCursor::StartOfWord);
@@ -516,18 +528,14 @@ void BaseTextFindBase::setResultHighlightingEnabled(bool enable)
 void BaseTextFindBase::defineFindScope()
 {
     Utils::MultiTextCursor multiCursor = multiTextCursor();
-    bool foundSelection = false;
     for (const QTextCursor &c : multiCursor) {
         if (c.hasSelection()) {
-            if (foundSelection || c.block() != c.document()->findBlock(c.anchor())) {
-                d->m_scope = Utils::MultiTextCursor(Utils::sorted(multiCursor.cursors()));
-                QTextCursor cursor = textCursor();
-                cursor.clearSelection();
-                setTextCursor(cursor);
-                emit findScopeChanged(d->m_scope);
-                return;
-            }
-            foundSelection = true;
+            d->m_scope = Utils::MultiTextCursor(Utils::sorted(multiCursor.cursors()));
+            QTextCursor cursor = textCursor();
+            cursor.clearSelection();
+            setTextCursor(cursor);
+            emit findScopeChanged(d->m_scope);
+            return;
         }
     }
     clearFindScope();

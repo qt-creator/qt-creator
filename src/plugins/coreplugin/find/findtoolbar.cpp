@@ -246,6 +246,16 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     findInDocumentAction.addToContainer(Constants::M_FIND, Constants::G_FIND_CURRENTDOCUMENT);
     findInDocumentAction.addOnTriggered(this, [this] { openFind(); });
 
+    ActionBuilder findInSelectionAction(this, Constants::FIND_IN_SELECTION);
+    findInSelectionAction.setText(Tr::tr("Find/Replace in Selection"));
+    findInSelectionAction.bindContextAction(&m_findInSelectionAction);
+    findInSelectionAction.addToContainer(Constants::M_FIND, Constants::G_FIND_CURRENTDOCUMENT);
+    findInSelectionAction.addOnTriggered(this, [this] {
+        setBackward(false);
+        openFindToolBar(OpenFlags(UpdateAll & ~(UpdateFindText | UpdateFindScope))
+                        | DefineFindScope);
+    });
+
     // Pressing the find shortcut while focus is in the tool bar should not change the search text,
     // so register a different find action for the tool bar
     ActionBuilder localFindAction(this, Constants::FIND_IN_DOCUMENT);
@@ -515,6 +525,7 @@ void FindToolBar::updateActions()
     IFindSupport *candidate = m_currentDocumentFind->candidate();
     bool enabled = (candidate != nullptr);
     m_findInDocumentAction->setEnabled(enabled || (toolBarHasFocus() && isEnabled()));
+    m_findInSelectionAction->setEnabled(enabled);
     m_findNextSelectedAction->setEnabled(enabled);
     m_findPreviousSelectedAction->setEnabled(enabled);
     if (m_enterFindStringAction)
@@ -980,8 +991,10 @@ void FindToolBar::openFindToolBar(OpenFlags flags)
     }
     if (flags & UpdateFocusAndSelect)
         setFocus();
-    if (flags & UpdateFindScope)
+    if (flags & DefineFindScope)
         m_currentDocumentFind->defineFindScope();
+    else if (flags & UpdateFindScope)
+        m_currentDocumentFind->clearFindScope();
     if (flags & UpdateHighlight)
         m_currentDocumentFind->highlightAll(getFindText(), effectiveFindFlags());
     if (flags & UpdateFocusAndSelect)

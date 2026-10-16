@@ -20,6 +20,7 @@ inline constexpr char G_FIND_ACTIONS[]    = "Find.FindMenu.Actions";
 
 inline constexpr char ADVANCED_FIND[]     = "Find.Dialog";
 inline constexpr char FIND_IN_DOCUMENT[]  = "Find.FindInCurrentDocument";
+inline constexpr char FIND_IN_SELECTION[] = "Find.FindInSelection";
 inline constexpr char FIND_NEXT_SELECTED[]= "Find.FindNextSelected";
 inline constexpr char FIND_PREV_SELECTED[]= "Find.FindPreviousSelected";
 inline constexpr char FIND_SELECT_ALL[]   = "Find.SelectAll";

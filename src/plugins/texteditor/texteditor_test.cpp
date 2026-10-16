@@ -18,13 +18,18 @@
 #include "snippets/snippet.h"
 #include "snippets/snippetparser.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/externaltoolmanager.h>
 #include <coreplugin/find/basetextfind.h>
+#include <coreplugin/find/findplugin.h>
 #include <coreplugin/find/ifindsupport.h>
+#include <coreplugin/find/textfindconstants.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
 #include <utils/aggregate.h>
@@ -34,11 +39,13 @@
 #include <utils/temporarydirectory.h>
 #include <utils/tooltip/tooltip.h>
 
+#include <QAction>
 #include <QApplication>
 #include <QDropEvent>
 #include <QHelpEvent>
 #include <QImage>
 #include <QLabel>
+#include <QMainWindow>
 #include <QMimeData>
 #include <QPaintEvent>
 #include <QScopeGuard>
@@ -1891,6 +1898,10 @@ private slots:
     void testFindLiteralNewline();
     void testReplaceAllAcrossLines();
     void testReplaceAllAcrossLinesInScope();
+    void testFindScopeOnOneLine();
+    void testSelectionDoesNotLimitTheSearch();
+    void testFindInSelectionCommand();
+    void testCurrentFindString();
     void testReplaceAllAcrossLinesAdjacent();
     void testAllMatchesAcrossBlocks();
     void testHighlightAcrossLines();
@@ -2162,6 +2173,166 @@ void FindReplaceTest::testReplaceAllAcrossLinesInScope()
 
     QCOMPARE(find.replaceAll("a\\nb", "X", Utils::FindRegularExpression), 1);
     QCOMPARE(editorWidget->textDocument()->plainText(), QString("a\nb\nX\na\nb"));
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+void FindReplaceTest::testFindScopeOnOneLine()
+{
+    BaseTextEditor *editor = openTextEditor("a a\na a", "find.txt");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+
+    // Only the second line is in the scope of the search
+    QTextCursor cursor(editorWidget->document());
+    cursor.setPosition(4);
+    cursor.setPosition(7, QTextCursor::KeepAnchor);
+    editorWidget->setTextCursor(cursor);
+    Core::BaseTextFind<TextEditorWidget> find(editorWidget);
+    find.defineFindScope();
+
+    QCOMPARE(find.replaceAll("a", "X", {}), 2);
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("a a\nX X"));
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+static void selectLinesThreeAndFour(TextEditorWidget *editorWidget)
+{
+    QTextCursor cursor(editorWidget->document());
+    cursor.setPosition(4);
+    cursor.setPosition(8, QTextCursor::KeepAnchor);
+    editorWidget->setTextCursor(cursor);
+}
+
+// A widget only gets the focus while its window is active
+static bool activateMainWindow()
+{
+    Core::ICore::raiseWindow(Core::ICore::mainWindow());
+    return QTest::qWaitFor([] { return QApplication::activeWindow() == Core::ICore::mainWindow(); });
+}
+
+// The find tool bar acts on the widget with the focus, which it learns about through a queued
+// connection
+static bool focusForFind(TextEditorWidget *editorWidget)
+{
+    editorWidget->setFocus();
+    if (!QTest::qWaitFor([editorWidget] { return editorWidget->hasFocus(); }))
+        return false;
+    bool focusChangeSeen = false;
+    QMetaObject::invokeMethod(
+        qApp, [&focusChangeSeen] { focusChangeSeen = true; }, Qt::QueuedConnection);
+    return QTest::qWaitFor([&focusChangeSeen] { return focusChangeSeen; });
+}
+
+void FindReplaceTest::testSelectionDoesNotLimitTheSearch()
+{
+    if (!activateMainWindow())
+        QSKIP("The main window does not become active.");
+    BaseTextEditor *editor = openTextEditor("a\nb\na\nb\na\nb", "find.txt");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+    const auto closeEditor = qScopeGuard([editor] {
+        Core::Find::hideFindToolBar();
+        Core::EditorManager::closeEditors({editor}, false);
+    });
+    Core::Command *command = Core::ActionManager::command(Core::Constants::FIND_IN_DOCUMENT);
+    QVERIFY(command);
+
+    // Find/Replace takes the selection of the lines 3 and 4 as the text to search for, not as
+    // where to search
+    selectLinesThreeAndFour(editorWidget);
+    QVERIFY(focusForFind(editorWidget));
+    QVERIFY(command->action()->isEnabled());
+    command->action()->trigger();
+
+    auto find = Utils::Aggregation::query<Core::IFindSupport>(editorWidget);
+    QVERIFY(find);
+    QCOMPARE(find->replaceAll("a\\nb", "X", Utils::FindRegularExpression), 3);
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("X\nX\nX"));
+}
+
+void FindReplaceTest::testFindInSelectionCommand()
+{
+    if (!activateMainWindow())
+        QSKIP("The main window does not become active.");
+    BaseTextEditor *editor = openTextEditor("a\nb\na\nb\na\nb", "find.txt");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+    const auto closeEditor = qScopeGuard([editor] {
+        Core::Find::hideFindToolBar();
+        Core::EditorManager::closeEditors({editor}, false);
+    });
+    Core::Command *command = Core::ActionManager::command(Core::Constants::FIND_IN_SELECTION);
+    QVERIFY(command);
+
+    // Only the lines 3 and 4 are in the scope of the search
+    selectLinesThreeAndFour(editorWidget);
+    QVERIFY(focusForFind(editorWidget));
+    QVERIFY(command->action()->isEnabled());
+    command->action()->trigger();
+
+    auto find = Utils::Aggregation::query<Core::IFindSupport>(editorWidget);
+    QVERIFY(find);
+    QCOMPARE(find->replaceAll("a\\nb", "X", Utils::FindRegularExpression), 1);
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("a\nb\nX\na\nb"));
+}
+
+void FindReplaceTest::testCurrentFindString()
+{
+    QStringList lines;
+    for (int i = 1; i <= 25; ++i)
+        lines << QString("line %1").arg(i);
+    BaseTextEditor *editor = openTextEditor(lines.join('\n'), "find.txt");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+    Core::BaseTextFind find(editorWidget);
+
+    const auto selectLines = [&](int first, int last) {
+        const QTextDocument *document = editorWidget->document();
+        QTextCursor cursor(document->findBlockByNumber(first - 1));
+        cursor.setPosition(document->findBlockByNumber(last - 1).position()
+                               + document->findBlockByNumber(last - 1).length() - 1,
+                           QTextCursor::KeepAnchor);
+        editorWidget->setTextCursor(cursor);
+    };
+
+    // The word under the cursor, as before
+    QTextCursor cursor(editorWidget->document());
+    cursor.setPosition(2);
+    editorWidget->setTextCursor(cursor);
+    QCOMPARE(find.currentFindString(), QString("line"));
+
+    // A selection on one line, as before
+    cursor.setPosition(0);
+    cursor.setPosition(6, QTextCursor::KeepAnchor);
+    editorWidget->setTextCursor(cursor);
+    QCOMPARE(find.currentFindString(), QString("line 1"));
+
+    // A selection over several lines, with the line breaks of the document
+    selectLines(2, 4);
+    QCOMPARE(find.currentFindString(), QString("line 2\nline 3\nline 4"));
+
+    // Up to twenty lines
+    selectLines(1, 20);
+    QCOMPARE(find.currentFindString(), lines.mid(0, 20).join('\n'));
+
+    // More is not taken as the text to search for
+    selectLines(1, 21);
+    QVERIFY(find.currentFindString().isEmpty());
+
+    // Whole lines, selected up to the start of the line after them, as with Shift+Down
+    const auto selectUpToTheStartOfLine = [&](int first, int last) {
+        const QTextDocument *document = editorWidget->document();
+        QTextCursor lines(document->findBlockByNumber(first - 1));
+        lines.setPosition(document->findBlockByNumber(last - 1).position(),
+                          QTextCursor::KeepAnchor);
+        editorWidget->setTextCursor(lines);
+    };
+    selectUpToTheStartOfLine(1, 21);
+    QCOMPARE(find.currentFindString(), lines.mid(0, 20).join('\n') + '\n');
+    selectUpToTheStartOfLine(1, 22);
+    QVERIFY(find.currentFindString().isEmpty());
 
     Core::EditorManager::closeEditors({editor}, false);
 }
