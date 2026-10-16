@@ -6229,6 +6229,7 @@ void FakeVimHandler::Private::restoreWidget(int tabSize)
 {
     //EDITOR(removeEventFilter(q));
     setTabSize(tabSize);
+    q->requestDisableBlockSelection();
     g.visualMode = NoVisualMode;
     // Force "ordinary" cursor.
     setThinCursor();

@@ -256,6 +256,7 @@ private slots:
     void test_vim_fold_toggle_all();
     void test_vim_insert_indent();
     void test_vim_block_selection_to_eol();
+    void test_vim_block_selection_to_eol_caret_line();
     void test_vim_block_yank_to_eol();
     void test_vim_block_past_end_of_line();
     void test_vim_block_put_padding();
@@ -13188,6 +13189,20 @@ void FakeVimTester::test_vim_block_selection_to_eol()
         QCOMPARE(c.selectionStart() - b.position(), 0);
         QCOMPARE(c.selectionEnd() - b.position(), int(b.length()) - 1);
     }
+}
+
+void FakeVimTester::test_vim_block_selection_to_eol_caret_line()
+{
+    TestData data;
+    setup(&data);
+
+    // The single painted cursor is the main one, which has to be the caret
+    // even when its line is shorter than the column the selection starts at.
+    data.setText("abcdefgh" N "abcdefgh" N "ab");
+    data.doKeys("gg4l");
+    data.doKeys("<c-v>jj$");
+    const Utils::MultiTextCursor mtc = data.editor()->multiTextCursor();
+    QCOMPARE(mtc.mainCursor().blockNumber(), 2);
 }
 
 void FakeVimTester::test_vim_block_yank_to_eol()
