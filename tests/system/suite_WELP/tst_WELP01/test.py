@@ -4,18 +4,6 @@
 source("../../shared/qtcreator.py")
 
 
-def clickItemVerifyHelpCombo(button, expectedHelpComboRegex, testDetails):
-    mouseClick(button)
-    helpCombo = waitForObject(":Qt Creator_HelpSelector_QComboBox")
-    if not test.verify(waitFor('re.match(expectedHelpComboRegex, str(helpCombo.currentText))',
-                               5000), testDetails):
-        test.log("Found %s" % str(helpCombo.currentText))
-    # select "Welcome" page from left toolbar again
-    switchViewTo(ViewConstants.WELCOME)
-
-    return test.verify(checkIfObjectExists(getWelcomeScreenSideBarButton('Projects'), timeout=1000),
-                       "Verifying: 'Projects' button is being displayed.")
-
 def buttonActive(button):
     return waitForObject(button).checked
 

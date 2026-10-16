@@ -597,25 +597,6 @@ def prepareTemplate(sourceExample, deploymentDir=None):
                         os.path.abspath(templateDir + deploymentDir))
     return templateDir
 
-# check and copy files of given dataset to an existing templateDir
-def checkAndCopyFiles(dataSet, fieldName, templateDir):
-    files = map(lambda record:
-                os.path.normpath(os.path.join(srcPath, testData.field(record, fieldName))),
-                dataSet)
-    files = list(files)  # copy data from map object to list to make it reusable
-    for currentFile in files:
-        if not neededFilePresent(currentFile):
-            return []
-    return copyFilesToDir(files, templateDir)
-
-# copy a list of files to an existing targetDir
-def copyFilesToDir(files, targetDir):
-    result = []
-    for filepath in files:
-        dst = os.path.join(targetDir, os.path.basename(filepath))
-        shutil.copyfile(filepath, dst)
-        result.append(dst)
-    return result
 
 def __iterateChildren__(model, parent, nestingLevel=0):
     children = []
