@@ -57,6 +57,8 @@ using namespace QtTaskTree;
 
 namespace QmlPreview {
 
+static const char RUN_PREVIEW_ACTION_ID[] = "QmlPreview.RunPreview";
+
 static QByteArray defaultFileLoader(const QString &filename, bool *success)
 {
     if (Core::DocumentModel::Entry *entry
@@ -148,7 +150,7 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
         ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE, skipDeploy);
     });
     menu->addAction(
-        Core::ActionManager::registerAction(runPreviewAction, "QmlPreview.RunPreview"),
+        Core::ActionManager::registerAction(runPreviewAction, RUN_PREVIEW_ACTION_ID),
         Constants::G_BUILD_RUN);
 
     menu = Core::ActionManager::actionContainer(Constants::M_FILECONTEXT);
@@ -192,7 +194,7 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
             {":/utils/images/eyeoverlay.png", Utils::Theme::IconsDebugColor}
         }).icon();
         Utils::ProxyAction *action = Utils::ProxyAction::proxyActionWithIcon(
-                    Core::ActionManager::command("QmlPreview.RunPreview")->action(), icon);
+                    Core::ActionManager::command(RUN_PREVIEW_ACTION_ID)->action(), icon);
         toolBar->insertAction(nullptr, action);
     });
 
@@ -415,7 +417,7 @@ void QmlPreviewPlugin::removePreview(RunControl *preview)
     d->m_runningPreviews.removeOne(preview);
     emit runningPreviewsChanged(d->m_runningPreviews);
     if (d->m_runningPreviews.isEmpty()) {
-        if (auto cmd = Core::ActionManager::command("QmlPreview.RunPreview"); cmd && cmd->action())
+        if (auto cmd = Core::ActionManager::command(RUN_PREVIEW_ACTION_ID); cmd && cmd->action())
             cmd->action()->setEnabled(true);
         d->detachFromEditorManager();
     }
