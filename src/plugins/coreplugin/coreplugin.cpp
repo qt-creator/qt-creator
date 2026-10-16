@@ -517,6 +517,7 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
     addTestCreator(createEditorManagerTest);
     addTestCreator(createTabbedEditorTest);
     addTestCreator(createNavigationSettingsTest);
+    addTestCreator(createFolderNavigationWidgetTest);
     addTestCreator(createEscapeKeyTest);
     addTestCreator(createModeAreaTest);
     addTestCreator(createOutputFormatterTest);

@@ -22,6 +22,7 @@
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/guard.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/navigationtreeview.h>
@@ -48,6 +49,13 @@
 #include <QStyledItemDelegate>
 #include <QTimer>
 #include <QToolButton>
+
+#ifdef WITH_TESTS
+#include <utils/temporarydirectory.h>
+#include <QScopeGuard>
+#include <QSet>
+#include <QTest>
+#endif
 
 using namespace Utils;
 
@@ -118,6 +126,29 @@ public:
 
 private:
     Utils::FilePath m_rootDir;
+};
+
+class FolderNavigationTreeView final : public NavigationTreeView
+{
+public:
+    using NavigationTreeView::NavigationTreeView;
+
+    void setCurrentIndexWithoutModifiers(const QModelIndex &index)
+    {
+        GuardLocker locker(m_programmaticSelection);
+        setCurrentIndex(index);
+    }
+
+private:
+    QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex &index,
+                                                         const QEvent *event) const override
+    {
+        if (m_programmaticSelection.isLocked())
+            return QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows;
+        return NavigationTreeView::selectionCommand(index, event);
+    }
+
+    Guard m_programmaticSelection;
 };
 
 
@@ -247,7 +278,7 @@ public:
     \internal
 */
 FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent),
-    m_listView(new NavigationTreeView(this)),
+    m_listView(new FolderNavigationTreeView(this)),
     m_fileSystemModel(new FolderNavigationModel(this)),
     m_sortProxyModel(new Utils::FileSystemProxyModel(m_fileSystemModel)),
     m_filterHiddenFilesAction(new QAction(Tr::tr("Show Hidden Files"), this)),
@@ -557,7 +588,7 @@ bool FolderNavigationWidget::eventFilter(QObject *obj, QEvent *event)
             auto me = static_cast<QMouseEvent *>(event);
             const QModelIndex index = m_listView->indexAt(me->pos());
             if (!index.isValid())
-                m_listView->setCurrentIndex(m_listView->rootIndex());
+                m_listView->setCurrentIndexWithoutModifiers(m_listView->rootIndex());
         }
     }
     return false;
@@ -613,7 +644,7 @@ void FolderNavigationWidget::selectFile(const FilePath &filePath)
         // Unfortunately listening to directoryLoaded was still not enough (there might also
         // be some delayed sorting involved?).
         // Use magic timer for scrolling.
-        m_listView->setCurrentIndex(fileIndex);
+        m_listView->setCurrentIndexWithoutModifiers(fileIndex);
         QTimer::singleShot(200, this, [this, filePath] {
             const QModelIndex fileIndex = m_sortProxyModel->mapFromSource(
                 m_fileSystemModel->index(filePath));
@@ -705,7 +736,7 @@ void FolderNavigationWidget::createNewFolder(const QModelIndex &parent)
         m_fileSystemModel->mkdir(parent, name.fileName()));
     if (!index.isValid())
         return;
-    m_listView->setCurrentIndex(index);
+    m_listView->setCurrentIndexWithoutModifiers(index);
     m_listView->edit(index);
 }
 
@@ -1059,3 +1090,88 @@ void DelayedFileCrumbLabel::setScrollBarOnce() const
 }
 
 } // namespace ProjectExplorer
+
+#ifdef WITH_TESTS
+
+namespace Core {
+
+class FolderNavigationWidgetTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testFileSystemSynchronization_data()
+    {
+        QTest::addColumn<Qt::KeyboardModifiers>("modifiers");
+        QTest::newRow("none") << Qt::KeyboardModifiers{};
+        QTest::newRow("control") << Qt::KeyboardModifiers(Qt::ControlModifier);
+        QTest::newRow("control-alt")
+            << Qt::KeyboardModifiers(Qt::ControlModifier | Qt::AltModifier);
+        QTest::newRow("shift") << Qt::KeyboardModifiers(Qt::ShiftModifier);
+        QTest::newRow("control-shift")
+            << Qt::KeyboardModifiers(Qt::ControlModifier | Qt::ShiftModifier);
+    }
+
+    void testFileSystemSynchronization()
+    {
+        QFETCH(Qt::KeyboardModifiers, modifiers);
+        TemporaryDirectory directory("filesystem-sync");
+        QVERIFY(directory.isValid());
+        const FilePath source = directory.filePath("test.cpp");
+        const FilePath header = directory.filePath("test.h");
+        const FilePath after = directory.filePath("test.m");
+        QVERIFY(source.writeFileContents("source"));
+        QVERIFY(header.writeFileContents("header"));
+        QVERIFY(after.writeFileContents("after"));
+
+        FolderNavigationWidget widget;
+        widget.setAutoSynchronization(false);
+        widget.insertRootDirectory({"computer", 0, "Computer", {}, {}}, false);
+        widget.insertRootDirectory({"test", 1, "Test", directory.path(), {}}, false);
+        widget.show();
+        auto tree = widget.findChild<QTreeView *>();
+        QVERIFY(tree);
+        const auto filePathOf = [](const QModelIndex &index) {
+            return index.data(FileSystemModel::FilePathRole).value<FilePath>();
+        };
+        const auto selectedFilePaths = [tree, &filePathOf] {
+            QSet<FilePath> result;
+            for (const QModelIndex &index : tree->selectionModel()->selectedRows())
+                result.insert(filePathOf(index));
+            return result;
+        };
+        widget.syncWithFilePath(source);
+        QTRY_COMPARE(filePathOf(tree->currentIndex()), source);
+        QTRY_VERIFY(tree->visualRect(tree->currentIndex()).isValid());
+        QTest::mouseClick(tree->viewport(), Qt::LeftButton, {},
+                          tree->visualRect(tree->currentIndex()).center());
+        for (const FilePath &path : {header, source, header}) {
+            QTest::keyPress(widget.windowHandle(), Qt::Key_F35, modifiers);
+            const QScopeGuard releaseKey([&widget, modifiers] {
+                QTest::keyRelease(widget.windowHandle(), Qt::Key_F35, modifiers);
+            });
+            const Qt::KeyboardModifiers held = QApplication::keyboardModifiers();
+            widget.syncWithFilePath(path);
+            const FilePath current = filePathOf(tree->currentIndex());
+            QCOMPARE(held, modifiers);
+            QCOMPARE(current, path);
+            const QSet<FilePath> expectedSelection{path};
+            QCOMPARE(selectedFilePaths(), expectedSelection);
+        }
+
+        QTest::keyClick(tree, Qt::Key_Down, Qt::ShiftModifier);
+        const QSet<FilePath> expectedShiftSelection{header, after};
+        QCOMPARE(selectedFilePaths(), expectedShiftSelection);
+    }
+
+};
+
+QObject *createFolderNavigationWidgetTest()
+{
+    return new FolderNavigationWidgetTest;
+}
+
+} // namespace Core
+
+#include "foldernavigationwidget.moc"
+#endif

@@ -14,7 +14,6 @@
 namespace Core { class IEditor; }
 
 namespace Utils {
-class NavigationTreeView;
 class QtcSettings;
 }
 
@@ -31,6 +30,7 @@ namespace Core {
 namespace Internal {
 class DelayedFileCrumbLabel;
 class FolderNavigationModel;
+class FolderNavigationTreeView;
 }
 
 class CORE_EXPORT FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory
@@ -133,7 +133,7 @@ private:
     QList<QModelIndex> selectedSourceIndexes() const;
     void createNewFolder(const QModelIndex &parent);
 
-    Utils::NavigationTreeView *m_listView = nullptr;
+    Internal::FolderNavigationTreeView *m_listView = nullptr;
     Internal::FolderNavigationModel *m_fileSystemModel = nullptr;
     QSortFilterProxyModel *m_sortProxyModel = nullptr;
     QAction *m_filterHiddenFilesAction = nullptr;
@@ -150,5 +150,9 @@ private:
     // FolderNavigationWidgetFactory needs private members to build a menu
     friend class FolderNavigationWidgetFactory;
 };
+
+#ifdef WITH_TESTS
+CORE_EXPORT QObject *createFolderNavigationWidgetTest();
+#endif
 
 } // namespace Core
