@@ -14,6 +14,7 @@ namespace Utils { class FilePath; }
 namespace Axivion::Internal {
 
 enum class DashboardMode;
+inline constexpr char s_singleFileAnalysisActionId[] = "Axivion.SingleFile";
 
 void updateDashboard();
 void showFilterException(const QString &errorMessage);

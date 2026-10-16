@@ -1940,7 +1940,7 @@ AxivionPerspective::AxivionPerspective()
     action->setIcon(Icon({{":/axivion/images/axivion.png", Theme::MenuBarItemTextColorNormal}},
                          Icon::MenuTintedStyle).icon());
     action->setEnabled(false);
-    Command *cmd = ActionManager::registerAction(action, "Axivion.SingleFile");
+    Command *cmd = ActionManager::registerAction(action, s_singleFileAnalysisActionId);
     menu->addAction(cmd, Core::Constants::G_ANALYZER_TOOLS);
     connect(action, &QAction::triggered, this, &AxivionPerspective::onSingleFileAnalysisTriggered);
     menu->addSeparator();

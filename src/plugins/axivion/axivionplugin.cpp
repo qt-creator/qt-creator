@@ -1370,7 +1370,7 @@ void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
 
 void AxivionPluginPrivate::onCurrentEditorChanged(IEditor *editor)
 {
-    QAction *action = ActionManager::command("Axivion.SingleFile")->action();
+    QAction *action = ActionManager::command(s_singleFileAnalysisActionId)->action();
     const IDocument *document = editor ? editor->document() : nullptr;
     if (!document || document->filePath().isEmpty()) {
         action->setEnabled(false);
