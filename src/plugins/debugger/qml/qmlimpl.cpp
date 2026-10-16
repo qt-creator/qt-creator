@@ -166,8 +166,16 @@ QmlImpl::QmlImpl(const QmlImplStartData &startData)
             QTimer::singleShot(100, this, [this] { beginConnection(); });
             return;
         }
+        const QString server = m_port != 0
+            ? QString("127.0.0.1:%1").arg(m_port)
+            : std::get<AttachToQmlServerData>(m_startData.inferiorStartData).server.authority();
+        emit message(QString("Gave up connecting to the Qml debug server at %1, the last "
+                             "attempt failed with: %2").arg(server, m_lastConnectionError),
+                     LogError);
         emit inferiorEvent(InferiorEvent::EngineSetupFailed);
     });
+    connect(&m_connection, &QmlDebug::QmlDebugConnection::logError, this,
+            [this](const QString &error) { m_lastConnectionError = error; });
     connect(&m_connection, &QmlDebug::QmlDebugConnection::disconnected, this, [this] {
         if (m_shuttingDown || m_isResetRestart || m_aborting)
             return;
