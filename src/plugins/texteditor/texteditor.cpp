@@ -686,6 +686,7 @@ struct PaintEventData
         , searchResultFormat(fontSettings.toTextCharFormat(C_SEARCH_RESULT))
         , visualWhitespaceFormat(fontSettings.toTextCharFormat(C_VISUAL_WHITESPACE))
         , ifdefedOutFormat(fontSettings.toTextCharFormat(C_DISABLED_CODE))
+        , inlayTextFormat(fontSettings.toTextCharFormat(C_INLAY_TEXT))
         , suppressSyntaxInIfdefedOutBlock(ifdefedOutFormat.foreground()
                                           != fontSettings.toTextCharFormat(C_TEXT).foreground())
         , tabSettings(editor->textDocument()->tabSettings())
@@ -706,6 +707,7 @@ struct PaintEventData
     const QTextCharFormat searchResultFormat;
     const QTextCharFormat visualWhitespaceFormat;
     const QTextCharFormat ifdefedOutFormat;
+    const QTextCharFormat inlayTextFormat;
     const bool suppressSyntaxInIfdefedOutBlock;
     QAbstractTextDocumentLayout::PaintContext context;
     QTextBlock visibleCollapsedBlock;
@@ -722,6 +724,7 @@ struct PaintEventBlockData
     QTextLayout *layout = nullptr;
     int position = 0;
     int length = 0;
+    QRectF scopeLabelRect;
 };
 
 struct ExtraAreaPaintEventData;
@@ -778,6 +781,7 @@ public:
                            bool hovered) const;
     bool updateAnnotationBounds(const QTextBlock &block, TextDocumentLayout *layout,
                                 bool annotationsVisible);
+    qreal annotationItemOffset(const PaintEventBlockData &blockData) const;
     void updateLineAnnotation(const PaintEventData &data, const PaintEventBlockData &blockData,
                               QPainter &painter);
     void paintRightMarginArea(PaintEventData &data, QPainter &painter) const;
@@ -802,6 +806,11 @@ public:
     bool hasFoldedReplacement(const QTextBlock &block) const;
     QRectF replacementRect(const QTextBlock &block, const QRectF &lineRect) const;
     void paintReplacement(PaintEventData &data, QPainter &painter, qreal top) const;
+    bool paintsScopeLabels() const;
+    QRectF paintScopeLabel(const PaintEventData &data,
+                           const PaintEventBlockData &blockData,
+                           QPainter &painter,
+                           qreal top) const;
     void paintWidgetBackground(const PaintEventData &data, QPainter &painter) const;
     void paintOverlays(const PaintEventData &data, QPainter &painter) const;
     void paintCursor(const PaintEventData &data, QPainter &painter) const;
@@ -851,8 +860,13 @@ public:
 
     bool cursorMoveKeyEvent(QKeyEvent *e);
 
-    void processTooltipRequest(const QTextCursor &c);
+    void processTooltipRequest(const QTextCursor &c, int hoveredPosition = -1);
     bool processAnnotaionTooltipRequest(const QTextBlock &block, const QPoint &pos) const;
+    bool processScopeEndTooltipRequest(const QTextBlock &block,
+                                       int hoveredPosition,
+                                       const QPoint &globalPos) const;
+    void updateHoveredBlock(int blockNumber);
+    void updateBlockRow(int blockNumber);
     void showTextMarksToolTip(const QPoint &pos,
                               const TextMarks &marks,
                               const TextMark *mainTextMark = nullptr) const;
@@ -1006,6 +1020,7 @@ public:
         { return a.mark == b.mark && a.rect == b.rect; }
     };
     bool cleanupAnnotationRectsScheduled = false;
+    int m_hoveredBlockNumber = -1;
     bool spellCheckRangeUpdateScheduled = false;
     QMap<int, QList<AnnotationRect>> m_annotationRects;
     QRectF getLastLineLineRect(const QTextBlock &block);
@@ -1169,6 +1184,8 @@ public:
     void undoRedo(bool undo);
 
     QList<int> m_visualIndentCache;
+    // By block number, the number of the block conditionalStartBlock() returned, or -1.
+    QHash<int, int> m_conditionalStartCache;
     int m_visualIndentOffset = 0;
 
     void insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion);
@@ -1372,6 +1389,10 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
 
     connect(q, &PlainTextEdit::updateRequest,
             this, &TextEditorWidgetPrivate::slotUpdateRequest);
+
+    // Scrolling moves the lines under a mouse that does not move.
+    connect(q->verticalScrollBar(), &QScrollBar::valueChanged,
+            this, [this] { updateHoveredBlock(-1); });
 
     connect(q, &PlainTextEdit::selectionChanged,
             this, &TextEditorWidgetPrivate::slotSelectionChanged);
@@ -1659,6 +1680,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     m_undoCursors.clear();
     m_redoCursors.clear();
     m_cursorsBeforeEdit.clear();
+    m_conditionalStartCache.clear();
     rememberDocumentState();
     q->editorLayout()->setTabStopOffset(m_visualIndentOffset);
     m_tabSettingsButton->setDocument(q->textDocument());
@@ -1698,6 +1720,12 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
                                      &TextDocumentLayout::parenthesesChanged,
                                      &m_parenthesesMatchingTimer,
                                      QOverload<>::of(&QTimer::start));
+
+    // Edits, and the highlighter changing the formats, which follow its state.
+    m_documentConnections << connect(documentLayout,
+                                     &PlainTextDocumentLayout::documentContentsChanged,
+                                     this,
+                                     [this] { m_conditionalStartCache.clear(); });
 
     m_documentConnections << connect(documentLayout,
                                      &QAbstractTextDocumentLayout::documentSizeChanged,
@@ -2562,6 +2590,13 @@ void TextEditorWidgetPrivate::editorContentsChange(int position, int charsRemove
     m_blockCount = newBlockCount;
     m_scrollBarUpdateTimer.start(500);
     m_visualIndentCache.clear();
+    // A scope label depends on the start of its scope, which may be on another line.
+    if (m_displaySettings.m_displayScopeEnds) {
+        if (m_displaySettings.m_scopeEndDisplay == ScopeEndDisplay::Annotation)
+            q->viewport()->update();
+        else if (m_displaySettings.m_scopeEndDisplay == ScopeEndDisplay::OnHover)
+            updateBlockRow(m_hoveredBlockNumber);
+    }
 }
 
 void TextEditorWidgetPrivate::slotSelectionChanged()
@@ -5465,7 +5500,9 @@ void TextEditorWidget::showTextMarksToolTip(const QPoint &pos,
     d->showTextMarksToolTip(pos, marks, mainTextMark);
 }
 
-void TextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
+// hoveredPosition is the position of the character under the mouse, which can differ from the
+// closest cursor position, or -1 to use the character after the cursor.
+void TextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c, int hoveredPosition)
 {
     const QPoint toolTipPoint = q->toolTipPosition(c);
     bool handled = false;
@@ -5476,10 +5513,56 @@ void TextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
     const auto callback = [toolTipPoint](TextEditorWidget *widget, BaseHoverHandler *handler, int) {
         handler->showToolTip(widget, toolTipPoint);
     };
-    const auto fallback = [toolTipPoint, position = c.position()](TextEditorWidget *widget) {
+    // The label of a scope end comes after whatever a hover handler or a receiver of
+    // tooltipRequested has to say.
+    if (hoveredPosition < 0)
+        hoveredPosition = c.position();
+    const auto fallback = [this, toolTipPoint, position = c.position(), hoveredPosition](
+                              TextEditorWidget *widget) {
+        bool shown = false;
+        const QMetaObject::Connection connection
+            = connect(ToolTip::instance(), &ToolTip::shown, this, [&shown] { shown = true; });
         emit widget->tooltipRequested(toolTipPoint, position);
+        disconnect(connection);
+        if (!shown)
+            processScopeEndTooltipRequest(widget->document()->findBlock(position),
+                                          hoveredPosition,
+                                          toolTipPoint);
     };
     m_hoverHandlerRunner.startChecking(c, callback, fallback);
+}
+
+void TextEditorWidgetPrivate::updateHoveredBlock(int blockNumber)
+{
+    if (m_hoveredBlockNumber == blockNumber)
+        return;
+    const int previous = m_hoveredBlockNumber;
+    m_hoveredBlockNumber = blockNumber;
+    updateBlockRow(previous);
+    updateBlockRow(blockNumber);
+}
+
+void TextEditorWidgetPrivate::updateBlockRow(int blockNumber)
+{
+    const QTextBlock block = q->document()->findBlockByNumber(blockNumber);
+    if (!block.isValid())
+        return;
+    const QRectF rect = q->blockBoundingGeometry(block).translated(q->contentOffset());
+    q->viewport()->update(QRect(0, int(rect.top()), q->viewport()->width(),
+                                int(rect.height()) + 1));
+}
+
+bool TextEditorWidgetPrivate::processScopeEndTooltipRequest(const QTextBlock &block,
+                                                            int hoveredPosition,
+                                                            const QPoint &globalPos) const
+{
+    if (!m_displaySettings.m_displayScopeEnds)
+        return false;
+    const QString label = q->scopeEndLabel(block, hoveredPosition - block.position());
+    if (label.isEmpty())
+        return false;
+    ToolTip::show(globalPos, label, Qt::PlainText, q);
+    return true;
 }
 
 bool TextEditorWidgetPrivate::processAnnotaionTooltipRequest(const QTextBlock &block,
@@ -5501,6 +5584,9 @@ bool TextEditorWidgetPrivate::processAnnotaionTooltipRequest(const QTextBlock &b
 bool TextEditorWidget::viewportEvent(QEvent *event)
 {
     d->m_contentsChanged = false;
+    // The line numbers and the scroll bar are outside of the viewport, but not of the editor.
+    if (event->type() == QEvent::Leave)
+        d->updateHoveredBlock(-1);
     if (event->type() == QEvent::ToolTip) {
         if (QApplication::keyboardModifiers() & Qt::ControlModifier
                 || (!(QApplication::keyboardModifiers() & Qt::ShiftModifier)
@@ -5531,7 +5617,10 @@ bool TextEditorWidget::viewportEvent(QEvent *event)
             const int width = block == d->m_suggestionBlock ? blockGeometry.width()
                                                             : line.naturalTextRect().right();
             if (pos.x() <= blockGeometry.left() + width) {
-                d->processTooltipRequest(tc);
+                const int hoveredPosition
+                    = block.position()
+                      + line.xToCursor(pos.x() - blockGeometry.left(), QTextLine::CursorOnCharacter);
+                d->processTooltipRequest(tc, hoveredPosition);
                 return true;
             } else if (d->processAnnotaionTooltipRequest(block, pos)) {
                 return true;
@@ -6043,6 +6132,24 @@ bool TextEditorWidgetPrivate::updateAnnotationBounds(const QTextBlock &block,
     return true;
 }
 
+static TextMarks lineAnnotationMarks(const QTextBlock &block)
+{
+    TextBlockUserData *blockUserData = TextBlockUserData::textUserData(block);
+    if (!blockUserData)
+        return {};
+    return Utils::filtered(blockUserData->marks(), [](const TextMark *mark) {
+        return !mark->lineAnnotation().isEmpty() && mark->isVisible()
+               && !TextDocument::marksAnnotationHidden(mark->category().id);
+    });
+}
+
+qreal TextEditorWidgetPrivate::annotationItemOffset(const PaintEventBlockData &blockData) const
+{
+    if (globalFontSettings().lineSpacing() == 100)
+        return q->fontMetrics().lineSpacing();
+    return blockData.boundingRect.height();
+}
+
 void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
                                                    const PaintEventBlockData &blockData,
                                                    QPainter &painter)
@@ -6052,14 +6159,10 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
     if (!m_displaySettings.m_displayAnnotations)
         return;
 
-    TextBlockUserData *blockUserData = TextBlockUserData::textUserData(data.block);
-    if (!blockUserData)
+    if (!TextBlockUserData::textUserData(data.block))
         return;
 
-    TextMarks marks = Utils::filtered(blockUserData->marks(), [](const TextMark *mark) {
-        return !mark->lineAnnotation().isEmpty() && mark->isVisible()
-               && !TextDocument::marksAnnotationHidden(mark->category().id);
-    });
+    TextMarks marks = lineAnnotationMarks(data.block);
 
     const bool annotationsVisible = !marks.isEmpty();
 
@@ -6076,17 +6179,16 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
     if (m_displaySettings.m_annotationAlignment != AnnotationAlignment::BetweenLines
             && hasFoldedReplacement(data.block))
         annotationLineRect.setRight(replacementRect(data.block, lineRect).right());
+    if (m_displaySettings.m_annotationAlignment != AnnotationAlignment::BetweenLines
+            && blockData.scopeLabelRect.isValid()) {
+        annotationLineRect.setRight(blockData.scopeLabelRect.right());
+    }
 
     Utils::sort(marks, [](const TextMark* mark1, const TextMark* mark2){
         return mark1->priority() > mark2->priority();
     });
 
-    qreal itemOffset = 0.0;
-    if (globalFontSettings().lineSpacing() == 100)
-        itemOffset = q->fontMetrics().lineSpacing();
-    else
-        itemOffset = blockData.boundingRect.height();
-
+    const qreal itemOffset = annotationItemOffset(blockData);
     const qreal initialOffset = m_displaySettings.m_annotationAlignment == AnnotationAlignment::BetweenLines ? itemOffset / 2 : itemOffset * 2;
     const qreal minimalContentWidth = charWidth() * m_displaySettings.m_minimalAnnotationContent;
     qreal offset = initialOffset;
@@ -6688,6 +6790,166 @@ void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &p
     }
 }
 
+static bool hasLetterOrDigit(const QString &text)
+{
+    return std::any_of(text.cbegin(), text.cend(), [](QChar c) { return c.isLetterOrNumber(); });
+}
+
+// Returns the positions of the '}' in the line if they are the only code in it, apart from
+// what can follow the end of a scope, like the ");" of a call with a trailing lambda.
+static QList<int> closingBracePositions(const QString &text)
+{
+    QList<int> positions;
+    int i = 0;
+    for (; i < text.size(); ++i) {
+        const QChar c = text.at(i);
+        if (c == '}')
+            positions.append(i);
+        else if (!c.isSpace())
+            break;
+    }
+    for (; i < text.size(); ++i) {
+        const QChar c = text.at(i);
+        if (!c.isSpace() && c != ';' && c != ')' && c != ',')
+            return {};
+    }
+    return positions;
+}
+
+// Returns the position in the document of the '{' that matches the '}' at bracePosition in
+// block, or -1 if there is none.
+static int openingBracePosition(const QTextBlock &block, int bracePosition)
+{
+    QTextCursor cursor(block);
+    cursor.setPosition(block.position() + bracePosition + 1);
+    if (TextBlockUserData::checkClosedParenthesis(&cursor, '}') != TextBlockUserData::Match)
+        return -1;
+    return cursor.position();
+}
+
+/*!
+    Returns the label shown next to the closing brace, or after the \c {#endif}, that
+    ends a long scope in the line of \a block, or an empty string if there is none.
+    A label without a letter or digit in it is not shown.
+
+    Of several closing braces in the line, the last one, which ends the outermost
+    scope, is labeled.
+*/
+QString TextEditorWidget::scopeEndLabel(const QTextBlock &block) const
+{
+    return scopeEndLabel(block, -1);
+}
+
+/*!
+    \overload
+
+    Returns the label of the scope that the closing brace at \a positionInBlock in
+    \a block ends, if it is one of several closing braces in the line. Otherwise,
+    returns the label for the line.
+*/
+QString TextEditorWidget::scopeEndLabel(const QTextBlock &block, int positionInBlock) const
+{
+    if (!d->m_displaySettings.m_displayScopeEnds || d->hasFoldedReplacement(block))
+        return {};
+
+    const int minimumLines = d->m_displaySettings.m_scopeEndMinimumLines;
+    const QList<int> bracePositions = closingBracePositions(block.text());
+    if (bracePositions.isEmpty()) {
+        auto cached = d->m_conditionalStartCache.constFind(block.blockNumber());
+        if (cached == d->m_conditionalStartCache.cend()) {
+            cached = d->m_conditionalStartCache.insert(block.blockNumber(),
+                                                       conditionalStartBlock(block).blockNumber());
+        }
+        const QTextBlock start = *cached < 0 ? QTextBlock()
+                                             : document()->findBlockByNumber(*cached);
+        if (!start.isValid() || block.blockNumber() - start.blockNumber() < minimumLines)
+            return {};
+        return start.text().simplified();
+    }
+
+    const int bracePos = bracePositions.contains(positionInBlock) ? positionInBlock
+                                                                  : bracePositions.last();
+    const int openPos = openingBracePosition(block, bracePos);
+    if (openPos < 0)
+        return {};
+    const QTextBlock openBlock = document()->findBlock(openPos);
+    if (block.blockNumber() - openBlock.blockNumber() < minimumLines)
+        return {};
+    const QString label = scopeLabelText(openBlock, openPos - openBlock.position());
+    if (!hasLetterOrDigit(label))
+        return {};
+    return label;
+}
+
+bool TextEditorWidgetPrivate::paintsScopeLabels() const
+{
+    if (!m_displaySettings.m_displayScopeEnds)
+        return false;
+    switch (m_displaySettings.m_scopeEndDisplay) {
+    case ScopeEndDisplay::Annotation:
+        return true;
+    case ScopeEndDisplay::OnHover:
+        return m_hoveredBlockNumber >= 0;
+    case ScopeEndDisplay::ToolTip:
+        return false;
+    }
+    return false;
+}
+
+QRectF TextEditorWidgetPrivate::paintScopeLabel(const PaintEventData &data,
+                                                const PaintEventBlockData &blockData,
+                                                QPainter &painter,
+                                                qreal top) const
+{
+    if (!paintsScopeLabels()
+            || (m_displaySettings.m_scopeEndDisplay == ScopeEndDisplay::OnHover
+                && data.block.blockNumber() != m_hoveredBlockNumber)) {
+        return {};
+    }
+
+    const QString label = q->scopeEndLabel(data.block);
+    if (label.isEmpty())
+        return {};
+
+    QTextLayout *layout = q->editorLayout()->blockLayout(data.block);
+    if (layout->lineCount() < 1)
+        return {};
+    const QTextLine line = layout->lineAt(layout->lineCount() - 1);
+    const QRectF lineRect = line.naturalTextRect().translated(data.mainLayoutOffset.x(), top);
+
+    QFont labelFont = q->font();
+    if (labelFont.pointSizeF() > 0)
+        labelFont.setPointSizeF(labelFont.pointSizeF() * 0.8);
+    labelFont.setItalic(data.inlayTextFormat.fontItalic());
+    const QFontMetricsF fm(labelFont);
+    const qreal space = fm.horizontalAdvance(' ');
+    const qreal left = lineRect.right() + 2 * space;
+    qreal availableWidth = data.viewportRect.right() - left - space;
+    // Keep room for the other annotations of the line, which follow the label.
+    if (m_displaySettings.m_displayAnnotations
+            && m_displaySettings.m_annotationAlignment != AnnotationAlignment::BetweenLines
+            && !lineAnnotationMarks(data.block).isEmpty()) {
+        availableWidth -= 2 * annotationItemOffset(blockData)
+                          + charWidth() * m_displaySettings.m_minimalAnnotationContent;
+    }
+    if (availableWidth < 3 * space)
+        return {};
+    // Truncate before eliding to avoid expensive width calculations, see QTBUG-138487.
+    const int maxLength = int(1.2 * availableWidth / fm.averageCharWidth());
+    const QString text = fm.elidedText(label.left(maxLength), Qt::ElideRight, availableWidth);
+    const QRectF labelRect(left, lineRect.top(), fm.horizontalAdvance(text) + space,
+                           lineRect.height());
+    if (!labelRect.intersects(data.eventRect))
+        return labelRect;
+
+    painter.save();
+    painter.setPen(data.inlayTextFormat.foreground().color());
+    painter.setFont(labelFont);
+    painter.drawText(labelRect, Qt::AlignCenter, text);
+    painter.restore();
+    return labelRect;
+}
+
 void TextEditorWidgetPrivate::paintWidgetBackground(const PaintEventData &data,
                                                     QPainter &painter) const
 {
@@ -7037,6 +7299,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
             const qreal mainLayoutTop = blockData.boundingRect.top() + mainLayoutOffset;
             d->paintAdditionalVisualWhitespaces(data, painter, mainLayoutTop);
             d->paintReplacement(data, painter, mainLayoutTop);
+            blockData.scopeLabelRect = d->paintScopeLabel(data, blockData, painter, mainLayoutTop);
             d->updateLineAnnotation(data, blockData, painter);
         }
 
@@ -8128,6 +8391,9 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
         if (startMouseMoveCursor.has_value())
             startMouseMoveCursor.reset();
         if (e->buttons() == Qt::NoButton) {
+            if (d->m_displaySettings.m_displayScopeEnds
+                && d->m_displaySettings.m_scopeEndDisplay == ScopeEndDisplay::OnHover)
+                d->updateHoveredBlock(cursorForPosition(e->pos()).blockNumber());
             const QTextBlock collapsedBlock = d->foldedBlockAt(e->pos());
             const int blockNumber = collapsedBlock.next().blockNumber();
             if (blockNumber < 0) {
@@ -8359,6 +8625,7 @@ void TextEditorWidget::leaveEvent(QEvent *e)
 {
     // Clear link emulation when the mouse leaves the editor
     d->clearLink();
+    d->updateHoveredBlock(-1);
     PlainTextEdit::leaveEvent(e);
 }
 
@@ -10483,6 +10750,8 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettingsData &ds)
     }
 
     d->m_displaySettings = ds;
+    if (!ds.m_displayScopeEnds || ds.m_scopeEndDisplay != ScopeEndDisplay::OnHover)
+        d->updateHoveredBlock(-1);
     if (!ds.m_highlightBlocks) {
         d->extraAreaHighlightFoldedBlockNumber = -1;
         d->m_highlightBlocksInfo = TextEditorPrivateHighlightBlocks();
@@ -11661,6 +11930,80 @@ std::unique_ptr<AssistInterface> TextEditorWidget::createAssistInterface(AssistK
 QString TextEditorWidget::foldReplacementText(const QTextBlock &) const
 {
     return QLatin1String("...");
+}
+
+/*!
+    Returns the label shown next to a closing brace that is the only code in its line,
+    apart from other closing braces.
+
+    \a openBlock contains the matching opening brace at position \a openBracePosition
+    in the block. An empty string shows no label.
+
+    The default implementation returns the code in front of the opening brace, or the
+    previous line of code if the brace starts its line, joined with the lines of a
+    parameter list, condition or capture list that continues over several lines. It
+    counts the parentheses and brackets in comments and literals, too, so editors that
+    know the syntax of their language reimplement it.
+*/
+QString TextEditorWidget::scopeLabelText(const QTextBlock &openBlock, int openBracePosition) const
+{
+    static const int maximumHeaderLines = 8;
+
+    // "} else {" closes one scope and opens the next.
+    const auto withoutClosingBraces = [](QString text) {
+        text = text.trimmed();
+        while (text.startsWith('}'))
+            text.remove(0, 1);
+        return text.trimmed();
+    };
+    const auto unclosed = [](const QString &text, QChar open, QChar close) {
+        return text.count(open) - text.count(close);
+    };
+
+    QString label = withoutClosingBraces(openBlock.text().left(openBracePosition));
+
+    QTextBlock block = openBlock;
+    while (label.isEmpty() && (block = block.previous()).isValid())
+        label = block.text().trimmed();
+
+    // A line that ends the scope of a sibling, like "}," in a list, is no header.
+    if (label.startsWith('}') && !hasLetterOrDigit(withoutClosingBraces(label)))
+        return {};
+
+    // A label that closes more parentheses or brackets than it opens continues the lines in
+    // front of it, and so does a condition that continues over several lines. Lines that
+    // end with a comma are only part of the header once they turn out to be in an open call
+    // or capture list, as siblings in a list end with one, too. The label itself does not
+    // tell, as it can open a call of its own.
+    QString pending;
+    for (int i = 0; i < maximumHeaderLines && (block = block.previous()).isValid(); ++i) {
+        const QString previous = block.text().trimmed();
+        const QString lines = previous + ' ' + pending;
+        if (unclosed(label, '(', ')') < 0 || unclosed(label, '[', ']') < 0
+            || previous.endsWith('(') || previous.endsWith("&&") || previous.endsWith("||")
+            || label.startsWith("&&") || label.startsWith("||")
+            || (previous.endsWith(',')
+                && (unclosed(lines, '(', ')') > 0 || unclosed(lines, '[', ']') > 0))) {
+            label = lines + label;
+            pending.clear();
+        } else if (previous.endsWith(',')) {
+            pending = lines;
+        } else {
+            break;
+        }
+    }
+    return withoutClosingBraces(label).simplified();
+}
+
+/*!
+    Returns the block that starts the conditional preprocessor block that
+    \a endBlock ends, or an invalid block if \a endBlock does not end one or the
+    language has no such blocks. It is labeled with the text of that block.
+*/
+QTextBlock TextEditorWidget::conditionalStartBlock(const QTextBlock &endBlock) const
+{
+    Q_UNUSED(endBlock)
+    return {};
 }
 
 QByteArray BaseTextEditor::saveState() const

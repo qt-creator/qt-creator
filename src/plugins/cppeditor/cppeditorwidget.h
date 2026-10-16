@@ -103,6 +103,9 @@ protected:
     void keyPressEvent(QKeyEvent *e) override;
     bool handleStringSplitting(QKeyEvent *e) const;
 
+    QString scopeLabelText(const QTextBlock &openBlock, int openBracePosition) const override;
+    QTextBlock conditionalStartBlock(const QTextBlock &endBlock) const override;
+
     void findLinkAt(const QTextCursor &cursor,
                     const Utils::LinkHandler &processLinkCallback,
                     bool resolveTarget = true,

@@ -47,9 +47,12 @@
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/textdocumentlayout.h>
 #include <cplusplus/ASTPath.h>
+#include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/MatchingText.h>
 
+#include <utils/algorithm.h>
 #include <utils/infobar.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
@@ -62,6 +65,7 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QPointer>
+#include <QTextBlock>
 #include <QTextEdit>
 #include <QTimer>
 #include <QToolButton>
@@ -556,6 +560,405 @@ void CppEditorWidget::setProposals(const TextEditor::IAssistProposal *immediateP
 }
 
 CppEditorWidget::~CppEditorWidget() = default;
+
+namespace {
+
+// A line of code up to a position, lexed in the state the highlighter left the line in
+// front of it in. The tokens leave out the comments.
+struct CodeLine
+{
+    bool startsWith(Kind kind) const { return !tokens.isEmpty() && tokens.first().is(kind); }
+    bool endsWith(Kind kind) const { return !tokens.isEmpty() && tokens.last().is(kind); }
+
+    QStringView spell(const Token &token) const
+    {
+        return QStringView(text).mid(token.utf16charsBegin(), token.utf16chars());
+    }
+
+    // The text up to the end of the code, without a comment that follows it.
+    QString code() const
+    {
+        return tokens.isEmpty() ? QString() : text.left(tokens.last().utf16charsEnd()).trimmed();
+    }
+
+    QTextBlock block;
+    QString text;
+    Tokens tokens;
+};
+
+} // namespace
+
+static CodeLine codeLine(const QTextBlock &block, int length = -1)
+{
+    SimpleLexer tokenize;
+    tokenize.setLanguageFeatures(LanguageFeatures::defaultFeatures());
+    tokenize.setSkipComments(true);
+    tokenize.setExpectedRawStringSuffix(
+        TextBlockUserData::expectedRawStringSuffix(block.previous()));
+    CodeLine line{block, length < 0 ? block.text() : block.text().left(length), {}};
+    line.tokens = tokenize(line.text, BackwardsScanner::previousBlockState(block));
+    return line;
+}
+
+namespace {
+
+// How many more parentheses, brackets and template argument lists some code opens than it
+// closes.
+struct Nesting
+{
+    bool opens() const { return parentheses > 0 || brackets > 0 || angles > 0; }
+    // A '>' that closes a template argument list cannot be told from one that compares.
+    bool closes() const { return parentheses < 0 || brackets < 0; }
+
+    Nesting &operator+=(const Nesting &other)
+    {
+        parentheses += other.parentheses;
+        brackets += other.brackets;
+        angles += other.angles;
+        return *this;
+    }
+
+    int parentheses = 0;
+    int brackets = 0;
+    int angles = 0;
+};
+
+} // namespace
+
+// Only a '<' after "template", or right between a name and an argument, opens a template
+// argument list, and only a '>' right after an argument closes one; "a < b" and "a > b"
+// compare.
+static Nesting nesting(const CodeLine &line)
+{
+    Nesting result;
+    const Tokens &tokens = line.tokens;
+    for (int i = 0; i < tokens.size(); ++i) {
+        const Token &token = tokens.at(i);
+        const bool afterPrevious = i > 0
+                                   && tokens.at(i - 1).utf16charsEnd() == token.utf16charsBegin();
+        const bool beforeNext = i + 1 == tokens.size()
+                                || tokens.at(i + 1).utf16charsBegin() == token.utf16charsEnd();
+        switch (token.kind()) {
+        case T_LPAREN:
+            ++result.parentheses;
+            break;
+        case T_RPAREN:
+            --result.parentheses;
+            break;
+        case T_LBRACKET:
+            ++result.brackets;
+            break;
+        case T_RBRACKET:
+            --result.brackets;
+            break;
+        case T_LESS:
+            if ((i > 0 && tokens.at(i - 1).is(T_TEMPLATE))
+                || (afterPrevious && tokens.at(i - 1).is(T_IDENTIFIER) && beforeNext)) {
+                ++result.angles;
+            }
+            break;
+        case T_GREATER:
+            if (afterPrevious)
+                --result.angles;
+            break;
+        case T_GREATER_GREATER:
+            if (afterPrevious)
+                result.angles -= 2;
+            break;
+        default:
+            break;
+        }
+    }
+    return result;
+}
+
+// "} else {" closes one scope and opens the next.
+static QString withoutClosingBraces(QString text)
+{
+    text = text.trimmed();
+    while (text.startsWith('}'))
+        text.remove(0, 1);
+    return text.trimmed();
+}
+
+// The code in front of the brace at "position" in "block", or the previous line of code
+// if the brace starts its line, joined with the lines of a parameter list, condition,
+// capture list or template argument list that continues over several lines.
+static QString headerLabel(const QTextBlock &block, int position)
+{
+    static const int maximumHeaderLines = 8;
+
+    CodeLine line = codeLine(block, position);
+    while (line.startsWith(T_RBRACE))
+        line.tokens.removeFirst();
+    while (line.tokens.isEmpty() && line.block.previous().isValid())
+        line = codeLine(line.block.previous());
+    QString label = withoutClosingBraces(line.text);
+    Nesting labelNesting = nesting(line);
+
+    // Lines that end with a comma are only part of the header once they turn out to be in
+    // an open call, capture or template argument list, as siblings in a list end with one,
+    // too. The label itself does not tell, as it can open a call of its own.
+    QString pending;
+    Nesting pendingNesting;
+    QTextBlock previousBlock = line.block;
+    for (int i = 0; i < maximumHeaderLines && (previousBlock = previousBlock.previous()).isValid();
+         ++i) {
+        const CodeLine previous = codeLine(previousBlock);
+        const QString lines = previous.code() + ' ' + pending;
+        Nesting linesNesting = nesting(previous);
+        linesNesting += pendingNesting;
+        if (labelNesting.closes() || previous.endsWith(T_LPAREN)
+            || previous.endsWith(T_AMPER_AMPER) || previous.endsWith(T_PIPE_PIPE)
+            || (previous.endsWith(T_COMMA) && linesNesting.opens())) {
+            label = lines + label;
+            labelNesting += linesNesting;
+            pending.clear();
+            pendingNesting = {};
+        } else if (previous.endsWith(T_COMMA)) {
+            pending = lines;
+            pendingNesting = linesNesting;
+        } else {
+            break;
+        }
+    }
+    return withoutClosingBraces(label).simplified();
+}
+
+// Whether "line" ends with a function body, as in "Foo() : a(0) {}", rather than with
+// a member or base initialized with braces, as in ": a{1}" or ": Base<T>{}". A body
+// follows a parameter list, an initializer, or a trailing specifier.
+static bool endsWithBody(const CodeLine &line)
+{
+    if (!line.endsWith(T_RBRACE))
+        return false;
+    int depth = 0;
+    for (qsizetype i = line.tokens.size() - 1; i >= 0; --i) {
+        const Token &token = line.tokens.at(i);
+        if (token.is(T_RBRACE)) {
+            ++depth;
+        } else if (token.is(T_LBRACE) && --depth == 0) {
+            if (i == 0)
+                return true;
+            const Token &before = line.tokens.at(i - 1);
+            switch (before.kind()) {
+            case T_RPAREN:
+            case T_RBRACE:
+            case T_CONST:
+            case T_VOLATILE:
+            case T_NOEXCEPT:
+            case T_MUTABLE:
+            case T_AMPER:
+            case T_AMPER_AMPER:
+                return true;
+            case T_IDENTIFIER:
+                return line.spell(before) == u"override" || line.spell(before) == u"final";
+            default:
+                return false;
+            }
+        }
+    }
+    return false;
+}
+
+// Whether "line" ends the code in front of a declaration.
+static bool endsCodeInFront(const CodeLine &line)
+{
+    const auto opensParenthesis = [&line] {
+        return Utils::anyOf(line.tokens, [](const Token &token) { return token.is(T_LPAREN); });
+    };
+    return line.tokens.isEmpty() || line.startsWith(T_POUND) || line.startsWith(T_RBRACE)
+           || line.endsWith(T_SEMICOLON) || line.endsWith(T_LBRACE) || endsWithBody(line)
+           || (line.endsWith(T_COLON) && !opensParenthesis());
+}
+
+// Whether "tokens" start with "class" or "struct", possibly after a template header and a
+// requires clause.
+static bool startsClassHead(const Tokens &tokens)
+{
+    qsizetype i = 0;
+    if (!tokens.isEmpty() && tokens.first().is(T_TEMPLATE)) {
+        int depth = 0;
+        for (i = 1; i < tokens.size(); ++i) {
+            if (tokens.at(i).is(T_LESS))
+                ++depth;
+            else if (tokens.at(i).is(T_GREATER))
+                --depth;
+            else if (tokens.at(i).is(T_GREATER_GREATER))
+                depth -= 2;
+            if (depth <= 0) {
+                ++i;
+                break;
+            }
+        }
+    }
+    if (i < tokens.size() && tokens.at(i).is(T_REQUIRES)) {
+        while (i < tokens.size() && tokens.at(i).isNot(T_CLASS) && tokens.at(i).isNot(T_STRUCT))
+            ++i;
+    }
+    return i < tokens.size() && (tokens.at(i).is(T_CLASS) || tokens.at(i).is(T_STRUCT));
+}
+
+namespace {
+
+struct DeclarationColon
+{
+    enum Kind { None, InitializerList, BaseList };
+
+    Kind kind = None;
+    QTextBlock block;
+    int position = 0;
+    QString classHead; // The declaration up to the brace, for a base list.
+};
+
+} // namespace
+
+// The colon that starts a constructor's member initializer list or a class's base list in
+// front of the brace at "position" in "block".
+static DeclarationColon declarationColon(QTextBlock block, int position)
+{
+    static const int maximumInitializerLines = 30;
+
+    // The lines of the declaration, up to where the code in front of it ends.
+    QList<CodeLine> lines;
+    for (int i = 0; i < maximumInitializerLines && block.isValid(); ++i) {
+        CodeLine line = codeLine(block, i == 0 ? position : -1);
+        if (i > 0 && endsCodeInFront(line))
+            break;
+        lines.prepend(std::move(line));
+        block = block.previous();
+    }
+
+    // The list follows the parameter list or class name, outside of any parentheses or
+    // conditional.
+    Tokens declaration;
+    int depth = 0;
+    bool conditional = false;
+    for (const CodeLine &line : std::as_const(lines)) {
+        for (const Token &token : line.tokens) {
+            switch (token.kind()) {
+            case T_LPAREN:
+            case T_LBRACKET:
+            case T_LBRACE:
+                ++depth;
+                break;
+            case T_RPAREN:
+            case T_RBRACKET:
+            case T_RBRACE:
+                --depth;
+                break;
+            case T_QUESTION:
+                conditional = conditional || depth == 0;
+                break;
+            case T_COLON:
+                if (depth != 0 || conditional || declaration.isEmpty())
+                    break;
+                if (declaration.last().is(T_RPAREN) || declaration.last().is(T_NOEXCEPT))
+                    return {DeclarationColon::InitializerList, line.block,
+                            token.utf16charsBegin(), {}};
+                if (startsClassHead(declaration)) {
+                    QString head;
+                    for (const CodeLine &headLine : std::as_const(lines))
+                        head += headLine.code() + ' ';
+                    return {DeclarationColon::BaseList, line.block, token.utf16charsBegin(),
+                            head.simplified()};
+                }
+                break;
+            default:
+                break;
+            }
+            declaration.append(token);
+        }
+    }
+    return {};
+}
+
+// The declaration a constructor's member initializer list belongs to, not the list itself,
+// and all of a class head whose base list continues over several lines.
+QString CppEditorWidget::scopeLabelText(const QTextBlock &openBlock, int openBracePosition) const
+{
+    const DeclarationColon colon = declarationColon(openBlock, openBracePosition);
+    switch (colon.kind) {
+    case DeclarationColon::InitializerList:
+        return headerLabel(colon.block, colon.position);
+    case DeclarationColon::BaseList:
+        return colon.classHead;
+    case DeclarationColon::None:
+        break;
+    }
+    return headerLabel(openBlock, openBracePosition);
+}
+
+enum class Directive { None, If, Endif };
+
+// "rest" is what follows the directive's name.
+static Directive conditionalDirective(const QString &text, QString *rest)
+{
+    qsizetype i = 0;
+    const auto skipSpaces = [&] {
+        while (i < text.size() && text.at(i).isSpace())
+            ++i;
+    };
+    skipSpaces();
+    if (i >= text.size() || text.at(i) != '#')
+        return Directive::None;
+    ++i;
+    skipSpaces();
+    const qsizetype nameStart = i;
+    while (i < text.size() && text.at(i).isLetter())
+        ++i;
+    const QStringView name = QStringView(text).sliced(nameStart, i - nameStart);
+    if (name == u"if" || name == u"ifdef" || name == u"ifndef")
+        return Directive::If;
+    if (name == u"endif") {
+        *rest = text.mid(i).trimmed();
+        return Directive::Endif;
+    }
+    return Directive::None;
+}
+
+// The highlighter stores the state of the lexer, CPlusPlus::Lexer::State, as the state of a
+// block: the kind of the token that continues into the next line, 0 outside of comments and
+// strings, in the low 7 bits, and a flag for block comments in the high bit.
+static bool startsInCode(const QTextBlock &block)
+{
+    static const int tokenKindMask = 0x7f;
+
+    const QTextBlock previous = block.previous();
+    return !previous.isValid() || previous.userState() == -1
+           || (previous.userState() & tokenKindMask) == 0;
+}
+
+// An "#endif" that has a comment already says what it ends.
+QTextBlock CppEditorWidget::conditionalStartBlock(const QTextBlock &endBlock) const
+{
+    static const int maximumConditionalLines = 10000;
+
+    QString rest;
+    if (!startsInCode(endBlock) || conditionalDirective(endBlock.text(), &rest) != Directive::Endif
+        || !rest.isEmpty()) {
+        return {};
+    }
+
+    int depth = 1;
+    QTextBlock block = endBlock;
+    for (int i = 0; i < maximumConditionalLines && (block = block.previous()).isValid(); ++i) {
+        if (!startsInCode(block))
+            continue;
+        switch (conditionalDirective(block.text(), &rest)) {
+        case Directive::If:
+            if (--depth == 0)
+                return block;
+            break;
+        case Directive::Endif:
+            ++depth;
+            break;
+        case Directive::None:
+            break;
+        }
+    }
+    return {};
+}
 
 CppEditorDocument *CppEditorWidget::cppEditorDocument() const
 {

@@ -11,6 +11,10 @@
 #include "textdocument.h"
 #include "texteditor.h"
 #include "marginsettings.h"
+#include "textdocumentlayout.h"
+#include "textmark.h"
+#include "basefilefind.h"
+#include "basehoverhandler.h"
 #include "snippets/snippet.h"
 #include "snippets/snippetparser.h"
 
@@ -28,11 +32,17 @@
 #include <utils/multitextcursor.h>
 #include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/temporarydirectory.h>
+#include <utils/tooltip/tooltip.h>
 
+#include <QApplication>
 #include <QDropEvent>
+#include <QHelpEvent>
 #include <QImage>
+#include <QLabel>
 #include <QMimeData>
+#include <QPaintEvent>
 #include <QScopeGuard>
+#include <QScrollBar>
 #include <QSignalSpy>
 #include <QTest>
 #include <QTextCursor>
@@ -2148,6 +2158,897 @@ private slots:
 QObject *createFollowSymbolTest()
 {
     return new FollowSymbolTest;
+}
+
+class ScopeEndAnnotationsTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testLongScopeIsLabeled();
+    void testLabels_data();
+    void testLabels();
+    void testFollowsEdits();
+    void testDisabled();
+    void testIfdefedOutBraces();
+    void testBraceRuns_data();
+    void testBraceRuns();
+    void testToolTipOnHover();
+    void testToolTipOfBraceRun();
+    void testHoverHandlerGoesFirst();
+    void testToolTipReceiverGoesFirst();
+    void testAnnotationOnHover();
+    void testAnnotationOnHoverAfterEnter();
+    void testAnnotationOnHoverAfterScroll();
+    void testAnnotationKeepsItsPlace_data();
+    void testAnnotationKeepsItsPlace();
+    void testLongLabelLeavesRoomForAnnotation();
+    void testEditRepaintsOnlyWhatShowsLabels();
+
+private:
+    static void storeParentheses(QTextDocument *document);
+    static QString body(int lines);
+    // The labels of all lines, by 1-based line number.
+    static QMap<int, QString> labels(const TextEditorWidget &widget);
+    static DisplaySettingsData scopeEndSettings(int minimumLines = 20);
+    static std::unique_ptr<TextEditorWidget> createWidget(const QString &text,
+                                                          const DisplaySettingsData &settings);
+};
+
+// The editors get these from their highlighters.
+void ScopeEndAnnotationsTest::storeParentheses(QTextDocument *document)
+{
+    for (QTextBlock block = document->begin(); block.isValid(); block = block.next()) {
+        Parentheses parentheses;
+        const QString text = block.text();
+        for (int i = 0; i < text.size(); ++i) {
+            if (text.at(i) == '{')
+                parentheses.append(Parenthesis(Parenthesis::Opened, '{', i));
+            else if (text.at(i) == '}')
+                parentheses.append(Parenthesis(Parenthesis::Closed, '}', i));
+        }
+        TextBlockUserData::setParentheses(block, parentheses);
+    }
+}
+
+QString ScopeEndAnnotationsTest::body(int lines)
+{
+    QString result;
+    for (int i = 0; i < lines; ++i)
+        result += QString("    statement%1;\n").arg(i);
+    return result;
+}
+
+QMap<int, QString> ScopeEndAnnotationsTest::labels(const TextEditorWidget &widget)
+{
+    QMap<int, QString> result;
+    for (QTextBlock block = widget.document()->begin(); block.isValid(); block = block.next()) {
+        const QString label = widget.scopeEndLabel(block);
+        if (!label.isEmpty())
+            result.insert(block.blockNumber() + 1, label);
+    }
+    return result;
+}
+
+DisplaySettingsData ScopeEndAnnotationsTest::scopeEndSettings(int minimumLines)
+{
+    DisplaySettingsData settings = displaySettings().data();
+    settings.m_displayScopeEnds = true;
+    settings.m_scopeEndDisplay = ScopeEndDisplay::Annotation;
+    settings.m_scopeEndMinimumLines = minimumLines;
+    return settings;
+}
+
+std::unique_ptr<TextEditorWidget> ScopeEndAnnotationsTest::createWidget(
+    const QString &text, const DisplaySettingsData &settings)
+{
+    auto document = QSharedPointer<TextDocument>::create();
+    document->setPlainText(text);
+    storeParentheses(document->document());
+    auto widget = std::make_unique<TextEditorWidget>();
+    widget->setTextDocument(document);
+    widget->setDisplaySettings(settings);
+    return widget;
+}
+
+void ScopeEndAnnotationsTest::testLongScopeIsLabeled()
+{
+    const auto widget = createWidget("void f()\n{\n" + body(25) + "}\n"
+                                     "void g()\n{\n" + body(3) + "}\n",
+                                     scopeEndSettings());
+
+    // Only the long one, and on its closing line.
+    const QMap<int, QString> found = labels(*widget);
+    QCOMPARE(found.size(), 1);
+    QCOMPARE(found.value(2 + 25 + 1), QString("void f()"));
+}
+
+void ScopeEndAnnotationsTest::testLabels_data()
+{
+    QTest::addColumn<QString>("header");
+    QTest::addColumn<QString>("close");
+    QTest::addColumn<QString>("label"); // empty: no label
+
+    QTest::newRow("brace on own line") << "int f(int a)\n{" << "}" << "int f(int a)";
+    QTest::newRow("brace after condition") << "if (debug) {" << "}" << "if (debug)";
+    QTest::newRow("else if") << "} else if (x) {" << "}" << "else if (x)";
+    QTest::newRow("else if over several lines")
+        << "} else if (first &&\n           second) {" << "}" << "else if (first && second)";
+    QTest::newRow("else if, brace on own line") << "} else if (x)\n{" << "}" << "else if (x)";
+    QTest::newRow("indented") << "        while (!file.atEnd()) {" << "        }"
+                              << "while (!file.atEnd())";
+    QTest::newRow("parameters over several lines")
+        << "void Foo::bar(int a,\n          int b) const\n{" << "}"
+        << "void Foo::bar(int a, int b) const";
+    QTest::newRow("end of statement") << "auto l = [] {" << "};" << "auto l = []";
+    QTest::newRow("call with a trailing lambda")
+        << "connect(object, &Object::changed,\n        this, [this] {" << "});"
+        << "connect(object, &Object::changed, this, [this]";
+    QTest::newRow("call with a trailing lambda over three lines")
+        << "connect(object,\n        &Object::changed,\n        this, [this] {" << "});"
+        << "connect(object, &Object::changed, this, [this]";
+    QTest::newRow("sibling in a list") << "Item {\n},\nTransition {" << "}" << "Transition";
+    QTest::newRow("sibling in a recipe") << "parallel,\nonGroupSetup(onSetup),\nGroup {" << "}"
+                                         << "Group";
+    QTest::newRow("sibling of a call with a trailing lambda")
+        << "parallel,\nonGroupDone([this] {" << "})" << "onGroupDone([this]";
+    QTest::newRow("trailing lambda in a recipe")
+        << "const Group recipe {\n    onGroupSetup(onSetup),\n    ProcessTask(onSetup, onDone),\n"
+           "    onGroupDone([this] {"
+        << "    })" << "onGroupDone([this]";
+    QTest::newRow("lambda captures over several lines")
+        << "const auto handler = [this, document,\n                      line](int result) {"
+        << "};" << "const auto handler = [this, document, line](int result)";
+    QTest::newRow("lifetimes") << "#[inline]\nfn parse<'a>(input: &'a str) {" << "}"
+                               << "fn parse<'a>(input: &'a str)";
+    QTest::newRow("apostrophes in comments")
+        << "// Can't fail.\n/* isn't virtual */ int f(int a /* can't be 0 */)\n{" << "}"
+        << "/* isn't virtual */ int f(int a /* can't be 0 */)";
+    QTest::newRow("sibling with a comparison")
+        << "parallel,\nonGroupSetup([this] { return count < 0; }),\nonGroupDone([this] {" << "})"
+        << "onGroupDone([this]";
+    QTest::newRow("condition over several lines")
+        << "if first &&\n    second {" << "}" << "if first && second";
+    QTest::newRow("condition continued by an operator")
+        << "if first\n    || second {" << "}" << "if first || second";
+    QTest::newRow("element after a sibling")
+        << "[\n  {\n    \"a\": 1\n  },\n  {" << "  }," << "";
+    QTest::newRow("element after a call with a trailing lambda")
+        << "call(a, [] {\n}),\n{" << "}," << "";
+    QTest::newRow("first element") << "[\n  {" << "  }," << "";
+    QTest::newRow("code after brace") << "if (a) {" << "} else {" << "";
+    QTest::newRow("code before brace") << "if (a) {" << "    x; }" << "";
+}
+
+void ScopeEndAnnotationsTest::testLabels()
+{
+    QFETCH(QString, header);
+    QFETCH(QString, close);
+    QFETCH(QString, label);
+
+    const auto widget = createWidget(header + "\n" + body(25) + close + "\n", scopeEndSettings());
+
+    const QMap<int, QString> found = labels(*widget);
+    if (label.isEmpty()) {
+        QVERIFY(found.isEmpty());
+    } else {
+        QCOMPARE(found.size(), 1);
+        QCOMPARE(found.first(), label);
+    }
+}
+
+void ScopeEndAnnotationsTest::testFollowsEdits()
+{
+    const auto widget = createWidget("if (a) {\n" + body(25) + "}\n", scopeEndSettings());
+    QTextDocument *document = widget->document();
+    QCOMPARE(labels(*widget), (QMap<int, QString>{{27, "if (a)"}}));
+
+    // Lines inserted above move the label with its line.
+    QTextCursor cursor(document);
+    cursor.insertText("// comment\n// comment\n");
+    storeParentheses(document);
+    QCOMPARE(labels(*widget), (QMap<int, QString>{{29, "if (a)"}}));
+
+    // Changing the header changes the label...
+    cursor.setPosition(document->findBlockByNumber(2).position());
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    cursor.insertText("while (b) {");
+    storeParentheses(document);
+    QCOMPARE(labels(*widget), (QMap<int, QString>{{29, "while (b)"}}));
+
+    // ... and shortening the scope removes it.
+    cursor.setPosition(document->findBlockByNumber(3).position());
+    cursor.setPosition(document->findBlockByNumber(13).position(), QTextCursor::KeepAnchor);
+    cursor.removeSelectedText();
+    storeParentheses(document);
+    QVERIFY(labels(*widget).isEmpty());
+}
+
+void ScopeEndAnnotationsTest::testDisabled()
+{
+    DisplaySettingsData settings = scopeEndSettings();
+    settings.m_displayScopeEnds = false;
+    const auto widget = createWidget("if (a) {\n" + body(25) + "}\n", settings);
+    QVERIFY(labels(*widget).isEmpty());
+
+    settings.m_displayScopeEnds = true;
+    widget->setDisplaySettings(settings);
+    QCOMPARE(labels(*widget).size(), 1);
+
+    settings.m_displayScopeEnds = false;
+    widget->setDisplaySettings(settings);
+    QVERIFY(labels(*widget).isEmpty());
+}
+
+void ScopeEndAnnotationsTest::testIfdefedOutBraces()
+{
+    // Both branches open a scope, and only one of them is closed.
+    const QString text = "void f()\n"                    // 1
+                         "{\n"
+                         "#ifdef Q_OS_WIN\n"
+                         "    if (useWinApi()) {\n"      // 4
+                         "#else\n"
+                         "    if (usePosix()) {\n"       // 6
+                         "#endif\n"
+                         + body(25)
+                         + "    }\n"                     // 33
+                         + body(25)
+                         + "}\n";                        // 59
+    const auto widget = createWidget(text, scopeEndSettings());
+    TextBlockUserData::setIfdefedOut(widget->document()->findBlockByNumber(3));
+
+    QCOMPARE(labels(*widget),
+             (QMap<int, QString>{{33, "if (usePosix())"}, {59, "void f()"}}));
+}
+
+void ScopeEndAnnotationsTest::testBraceRuns_data()
+{
+    QTest::addColumn<QString>("text"); // the last line closes several scopes
+    QTest::addColumn<QStringList>("braceLabels"); // of the braces in the last line, in order
+
+    const QString function = "void f()\n{\n" + body(25);
+    QTest::newRow("three scopes") << function + "    for (x) {\n" + body(25) + "        if (a) {\n"
+                                         + body(25) + "}}}"
+                                  << QStringList{"if (a)", "for (x)", "void f()"};
+    QTest::newRow("short inner scope")
+        << function + "    for (x) {\n" + body(25) + "        if (a) {\n" + body(3) + "}}}"
+        << QStringList{"", "for (x)", "void f()"};
+    QTest::newRow("short scopes") << "void f()\n{\n    if (a) {\n" + body(3) + "    } }"
+                                  << QStringList{"", ""};
+    QTest::newRow("indented with spaces")
+        << function + "    if (a) {\n" + body(25) + "    }  }  "
+        << QStringList{"if (a)", "void f()"};
+    QTest::newRow("trailing lambda in a call")
+        << "call(a, [] {\n    if (b) {\n" + body(25) + "    }});"
+        << QStringList{"if (b)", "call(a, []"};
+    QTest::newRow("end of statement") << "auto l = [] {\n    if (b) {\n" + body(25) + "}  } ;"
+                                      << QStringList{"if (b)", "auto l = []"};
+}
+
+void ScopeEndAnnotationsTest::testBraceRuns()
+{
+    QFETCH(QString, text);
+    QFETCH(QStringList, braceLabels);
+
+    const auto widget = createWidget(text, scopeEndSettings());
+    const QTextBlock block = widget->document()->lastBlock();
+    const QString line = block.text();
+
+    // The line is labeled with the outermost scope.
+    QCOMPARE(widget->scopeEndLabel(block), braceLabels.last());
+    QCOMPARE(labels(*widget).size(), braceLabels.last().isEmpty() ? 0 : 1);
+
+    // Each brace has the label of its own scope, and all the other characters of the line,
+    // and the end of it, that of the outermost scope.
+    qsizetype brace = 0;
+    for (int i = 0; i <= line.size(); ++i) {
+        const bool isBrace = i < line.size() && line.at(i) == '}';
+        const QString expected = isBrace ? braceLabels.value(brace++) : braceLabels.last();
+        QVERIFY2(widget->scopeEndLabel(block, i) == expected,
+                 qPrintable(QString("Position %1: \"%2\" instead of \"%3\"")
+                                .arg(i)
+                                .arg(widget->scopeEndLabel(block, i), expected)));
+    }
+    QCOMPARE(brace, braceLabels.size());
+}
+
+// The visible text of the tool tip, which is a label or a group of them.
+static QStringList toolTipTexts()
+{
+    QStringList result;
+    for (QWidget *topLevel : QApplication::topLevelWidgets()) {
+        if (!topLevel->isVisible())
+            continue;
+        QList<QLabel *> labels = topLevel->findChildren<QLabel *>();
+        if (auto label = qobject_cast<QLabel *>(topLevel))
+            labels.prepend(label);
+        for (QLabel *label : std::as_const(labels)) {
+            if (label->isVisible() && !label->text().isEmpty())
+                result.append(label->text());
+        }
+    }
+    return result;
+}
+
+void ScopeEndAnnotationsTest::testToolTipOnHover()
+{
+    QString title = "scope.cpp";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title,
+        "if (a) {\n" + body(25).toUtf8() + "}\n");
+    QVERIFY(editor);
+    const QScopeGuard cleanup([&] {
+        Utils::ToolTip::hideImmediately();
+        Core::EditorManager::closeEditors({editor}, false);
+    });
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *widget = baseEditor->editorWidget();
+    widget->resize(600, 600);
+    widget->show();
+
+    TextDocument *document = baseEditor->textDocument();
+    storeParentheses(document->document());
+    DisplaySettingsData settings = scopeEndSettings();
+    settings.m_scopeEndDisplay = ScopeEndDisplay::ToolTip;
+    widget->setDisplaySettings(settings);
+
+    const auto hover = [&](int blockNumber) {
+        QTextCursor cursor(document->document()->findBlockByNumber(blockNumber));
+        const QPoint position = widget->cursorRect(cursor).center();
+        QHelpEvent event(QEvent::ToolTip, position, widget->viewport()->mapToGlobal(position));
+        Utils::ToolTip::hideImmediately();
+        QCoreApplication::sendEvent(widget->viewport(), &event);
+        return Utils::ToolTip::isVisible();
+    };
+    QVERIFY(hover(26)); // the closing brace
+    QVERIFY(!hover(5)); // a line without a scope end
+
+    // The label is also there for the lines that are too crowded to hold it.
+    settings.m_scopeEndDisplay = ScopeEndDisplay::Annotation;
+    widget->setDisplaySettings(settings);
+    QVERIFY(hover(26));
+    QVERIFY(!hover(5));
+    settings.m_scopeEndDisplay = ScopeEndDisplay::OnHover;
+    widget->setDisplaySettings(settings);
+    QVERIFY(hover(26));
+}
+
+void ScopeEndAnnotationsTest::testToolTipOfBraceRun()
+{
+    QString title = "scope.cpp";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title,
+        "void f()\n{\n    if (a) {\n" + body(25).toUtf8() + "    }};\n");
+    QVERIFY(editor);
+    const QScopeGuard cleanup([&] {
+        Utils::ToolTip::hideImmediately();
+        Core::EditorManager::closeEditors({editor}, false);
+    });
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *widget = baseEditor->editorWidget();
+    widget->resize(600, 600);
+    widget->show();
+
+    TextDocument *document = baseEditor->textDocument();
+    storeParentheses(document->document());
+    DisplaySettingsData settings = scopeEndSettings();
+    settings.m_scopeEndDisplay = ScopeEndDisplay::ToolTip;
+    widget->setDisplaySettings(settings);
+
+    // Hovers the character at positionInBlock in the closing line, at three quarters of its
+    // width, which is closer to the cursor position after it than to the one in front of it.
+    const QTextBlock closingLine = document->document()->findBlockByNumber(28);
+    QCOMPARE(closingLine.text(), QString("    }};"));
+    const auto hover = [&](int positionInBlock) {
+        QTextCursor cursor(closingLine);
+        cursor.setPosition(closingLine.position() + positionInBlock);
+        const QRect before = widget->cursorRect(cursor);
+        cursor.movePosition(QTextCursor::NextCharacter);
+        const QRect after = widget->cursorRect(cursor);
+        const QPoint position((before.center().x() + 3 * after.center().x()) / 4,
+                              before.center().y());
+        QHelpEvent event(QEvent::ToolTip, position, widget->viewport()->mapToGlobal(position));
+        Utils::ToolTip::hideImmediately();
+        QCoreApplication::sendEvent(widget->viewport(), &event);
+        const QStringList texts = toolTipTexts();
+        const bool inner = texts.contains("if (a)");
+        const bool outer = texts.contains("void f()");
+        // Exactly one of the labels, or what is shown instead.
+        if (inner == outer)
+            return texts.join(", ");
+        return inner ? QString("if (a)") : QString("void f()");
+    };
+    QCOMPARE(hover(4), QString("if (a)"));
+    QCOMPARE(hover(5), QString("void f()"));
+    QCOMPARE(hover(6), QString("void f()")); // the ';'
+    QCOMPARE(hover(1), QString("void f()")); // the indentation
+}
+
+void ScopeEndAnnotationsTest::testHoverHandlerGoesFirst()
+{
+    QString title = "scope.cpp";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title,
+        "if (a) {\n" + body(25).toUtf8() + "}\n");
+    QVERIFY(editor);
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *widget = baseEditor->editorWidget();
+    // Shows the tool tips of extra selections, which is where diagnostics put theirs.
+    BaseHoverHandler handler;
+    widget->addHoverHandler(&handler);
+    const QScopeGuard cleanup([&] {
+        Utils::ToolTip::hideImmediately();
+        widget->removeHoverHandler(&handler);
+        Core::EditorManager::closeEditors({editor}, false);
+    });
+    widget->resize(600, 600);
+    widget->show();
+
+    TextDocument *document = baseEditor->textDocument();
+    storeParentheses(document->document());
+    DisplaySettingsData settings = scopeEndSettings();
+    settings.m_scopeEndDisplay = ScopeEndDisplay::ToolTip;
+    widget->setDisplaySettings(settings);
+
+    const QTextBlock closingLine = document->document()->findBlockByNumber(26);
+    const auto hoverClosingLine = [&] {
+        const QPoint position = widget->cursorRect(QTextCursor(closingLine)).center();
+        QHelpEvent event(QEvent::ToolTip, position, widget->viewport()->mapToGlobal(position));
+        Utils::ToolTip::hideImmediately();
+        QCoreApplication::sendEvent(widget->viewport(), &event);
+    };
+
+    // With nothing else to show, the line shows the label.
+    hoverClosingLine();
+    QTRY_VERIFY(toolTipTexts().contains("if (a)"));
+
+    const QString diagnostic = "non-void function does not return a value";
+    QTextEdit::ExtraSelection selection;
+    selection.cursor = QTextCursor(closingLine);
+    selection.cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    selection.format.setToolTip(diagnostic);
+    widget->setExtraSelections(TextEditorWidget::CodeWarningsSelection, {selection});
+
+    hoverClosingLine();
+    QTRY_VERIFY(toolTipTexts().contains(diagnostic));
+    QVERIFY2(!toolTipTexts().contains("if (a)"), qPrintable(toolTipTexts().join(", ")));
+}
+
+void ScopeEndAnnotationsTest::testToolTipReceiverGoesFirst()
+{
+    QString title = "scope.cpp";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title,
+        "if (a) {\n" + body(25).toUtf8() + "}\n");
+    QVERIFY(editor);
+    const QScopeGuard cleanup([&] {
+        Utils::ToolTip::hideImmediately();
+        Core::EditorManager::closeEditors({editor}, false);
+    });
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *widget = baseEditor->editorWidget();
+    widget->resize(600, 600);
+    widget->show();
+
+    TextDocument *document = baseEditor->textDocument();
+    storeParentheses(document->document());
+    DisplaySettingsData settings = scopeEndSettings();
+    settings.m_scopeEndDisplay = ScopeEndDisplay::ToolTip;
+    widget->setDisplaySettings(settings);
+
+    // Like the GLSL editor, which shows its diagnostics this way.
+    const QString diagnostic = "syntax error, unexpected '}'";
+    bool hasDiagnostic = false;
+    QObject receiver;
+    connect(widget, &TextEditorWidget::tooltipRequested, &receiver,
+            [&](const QPoint &point, int) {
+                if (hasDiagnostic)
+                    Utils::ToolTip::show(point, diagnostic, widget);
+                else
+                    Utils::ToolTip::hide();
+            });
+
+    const auto hoverClosingLine = [&] {
+        const QTextBlock closingLine = document->document()->findBlockByNumber(26);
+        const QPoint position = widget->cursorRect(QTextCursor(closingLine)).center();
+        QHelpEvent event(QEvent::ToolTip, position, widget->viewport()->mapToGlobal(position));
+        Utils::ToolTip::hideImmediately();
+        QCoreApplication::sendEvent(widget->viewport(), &event);
+    };
+
+    // With nothing else to show, the line shows the label.
+    hoverClosingLine();
+    QTRY_VERIFY(toolTipTexts().contains("if (a)"));
+
+    hasDiagnostic = true;
+    hoverClosingLine();
+    QTRY_VERIFY(toolTipTexts().contains(diagnostic));
+    QVERIFY2(!toolTipTexts().contains("if (a)"), qPrintable(toolTipTexts().join(", ")));
+}
+
+void ScopeEndAnnotationsTest::testAnnotationOnHover()
+{
+    QString title = "scope.cpp";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title,
+        "if (a) {\n" + body(25).toUtf8() + "}\n");
+    QVERIFY(editor);
+    const QScopeGuard cleanup([&] { Core::EditorManager::closeEditors({editor}, false); });
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *widget = baseEditor->editorWidget();
+    widget->resize(600, 600);
+    widget->show();
+
+    TextDocument *document = baseEditor->textDocument();
+    storeParentheses(document->document());
+    DisplaySettingsData settings = scopeEndSettings();
+    settings.m_scopeEndDisplay = ScopeEndDisplay::OnHover;
+    widget->setDisplaySettings(settings);
+
+    const auto rowAt = [&](int blockNumber) {
+        QTextCursor cursor(document->document()->findBlockByNumber(blockNumber));
+        const QRect cursorRect = widget->cursorRect(cursor);
+        return QRect(0, cursorRect.top(), widget->viewport()->width(), cursorRect.height());
+    };
+    const auto moveOnto = [&](int blockNumber) {
+        const QPoint position = rowAt(blockNumber).center();
+        QMouseEvent move(QEvent::MouseMove, position, widget->viewport()->mapToGlobal(position),
+                         Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+        QCoreApplication::sendEvent(widget->viewport(), &move);
+    };
+    const auto closingLine = [&] { return widget->viewport()->grab(rowAt(26)).toImage(); };
+
+    const QImage idle = closingLine();
+    moveOnto(26);
+    QVERIFY(closingLine() != idle);
+    moveOnto(5);
+    QCOMPARE(closingLine(), idle);
+
+    moveOnto(26);
+    QVERIFY(closingLine() != idle);
+    QEvent leave(QEvent::Leave);
+    QCoreApplication::sendEvent(widget, &leave);
+    QCOMPARE(closingLine(), idle);
+
+    // Moving onto the line numbers or the scroll bar leaves only the viewport.
+    moveOnto(26);
+    QVERIFY(closingLine() != idle);
+    QEvent leaveViewport(QEvent::Leave);
+    QCoreApplication::sendEvent(widget->viewport(), &leaveViewport);
+    QCOMPARE(closingLine(), idle);
+
+    // Always shown, the line looks the same whether the mouse is on it or not.
+    settings.m_scopeEndDisplay = ScopeEndDisplay::Annotation;
+    widget->setDisplaySettings(settings);
+    const QImage shown = closingLine();
+    QVERIFY(shown != idle);
+    moveOnto(5);
+    QCOMPARE(closingLine(), shown);
+
+    // The switch for the other line annotations has no say in it.
+    settings.m_displayAnnotations = false;
+    widget->setDisplaySettings(settings);
+    QCOMPARE(closingLine(), shown);
+    settings.m_displayAnnotations = true;
+
+    // The group box of the settings page turns all of it off, whatever the mode.
+    settings.m_displayScopeEnds = false;
+    widget->setDisplaySettings(settings);
+    QCOMPARE(closingLine(), idle);
+}
+
+void ScopeEndAnnotationsTest::testAnnotationOnHoverAfterEnter()
+{
+    QString title = "scope.cpp";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title,
+        "if (a) {\n" + body(25).toUtf8() + "}\n");
+    QVERIFY(editor);
+    const QScopeGuard cleanup([&] { Core::EditorManager::closeEditors({editor}, false); });
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *widget = baseEditor->editorWidget();
+    widget->resize(600, 600);
+    widget->show();
+
+    TextDocument *document = baseEditor->textDocument();
+    storeParentheses(document->document());
+    DisplaySettingsData settings = scopeEndSettings();
+    settings.m_scopeEndDisplay = ScopeEndDisplay::OnHover;
+    widget->setDisplaySettings(settings);
+
+    const auto rowAt = [&](int blockNumber) {
+        QTextCursor cursor(document->document()->findBlockByNumber(blockNumber));
+        const QRect cursorRect = widget->cursorRect(cursor);
+        return QRect(0, cursorRect.top(), widget->viewport()->width(), cursorRect.height());
+    };
+    const auto rowImage = [&](int blockNumber) {
+        return widget->viewport()->grab(rowAt(blockNumber)).toImage();
+    };
+
+    const QImage idle = rowImage(26);
+    const QPoint position = rowAt(26).center();
+    QMouseEvent move(QEvent::MouseMove, position, widget->viewport()->mapToGlobal(position),
+                     Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+    QCoreApplication::sendEvent(widget->viewport(), &move);
+    QVERIFY(rowImage(26) != idle);
+
+    // A line inserted above moves the closing brace down, and the mouse stays where it is.
+    QTextCursor cursor(document->document());
+    cursor.insertText("\n");
+    storeParentheses(document->document());
+    QCoreApplication::processEvents();
+    QCOMPARE(widget->cursorForPosition(position).blockNumber(), 26);
+
+    // The mouse is on a line without a scope end now, and the closing brace has no label.
+    // Leaving the editor shows how the two rows look without any hovering.
+    const QImage underMouse = rowImage(26);
+    const QImage closingBrace = rowImage(27);
+    QEvent leave(QEvent::Leave);
+    QCoreApplication::sendEvent(widget, &leave);
+    QCOMPARE(rowImage(26), underMouse);
+    QCOMPARE(rowImage(27), closingBrace);
+}
+
+void ScopeEndAnnotationsTest::testAnnotationOnHoverAfterScroll()
+{
+    QString title = "scope.cpp";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title,
+        "if (a) {\n" + body(25).toUtf8() + "}\n" + body(100).toUtf8());
+    QVERIFY(editor);
+    const QScopeGuard cleanup([&] { Core::EditorManager::closeEditors({editor}, false); });
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *widget = baseEditor->editorWidget();
+    widget->resize(600, 600);
+    widget->show();
+
+    TextDocument *document = baseEditor->textDocument();
+    storeParentheses(document->document());
+    DisplaySettingsData settings = scopeEndSettings();
+    settings.m_scopeEndDisplay = ScopeEndDisplay::OnHover;
+    widget->setDisplaySettings(settings);
+
+    const auto rowAt = [&](int blockNumber) {
+        QTextCursor cursor(document->document()->findBlockByNumber(blockNumber));
+        const QRect cursorRect = widget->cursorRect(cursor);
+        return QRect(0, cursorRect.top(), widget->viewport()->width(), cursorRect.height());
+    };
+    const auto closingLine = [&] { return widget->viewport()->grab(rowAt(26)).toImage(); };
+    QScrollBar *scrollBar = widget->verticalScrollBar();
+    scrollBar->setValue(0);
+
+    const QImage idle = closingLine();
+    const QPoint position = rowAt(26).center();
+    QMouseEvent move(QEvent::MouseMove, position, widget->viewport()->mapToGlobal(position),
+                     Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+    QCoreApplication::sendEvent(widget->viewport(), &move);
+    QVERIFY(closingLine() != idle);
+
+    // The closing brace moves away from the mouse, and takes no label with it.
+    scrollBar->setValue(scrollBar->value() + 3 * rowAt(26).height());
+    QCOMPARE_NE(widget->cursorForPosition(position).blockNumber(), 26);
+    QCOMPARE(closingLine(), idle);
+}
+
+void ScopeEndAnnotationsTest::testAnnotationKeepsItsPlace_data()
+{
+    QTest::addColumn<AnnotationAlignment>("alignment");
+
+    QTest::newRow("next to content") << AnnotationAlignment::NextToContent;
+    QTest::newRow("next to margin") << AnnotationAlignment::NextToMargin;
+    QTest::newRow("right side") << AnnotationAlignment::RightSide;
+    QTest::newRow("between lines") << AnnotationAlignment::BetweenLines;
+}
+
+void ScopeEndAnnotationsTest::testAnnotationKeepsItsPlace()
+{
+    QFETCH(AnnotationAlignment, alignment);
+
+    QString title = "scope.cpp";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title,
+        "if (a) {\n" + body(25).toUtf8() + "}\n");
+    QVERIFY(editor);
+    const QScopeGuard cleanup([&] { Core::EditorManager::closeEditors({editor}, false); });
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *widget = baseEditor->editorWidget();
+    widget->resize(1200, 600);
+    widget->show();
+    widget->setVisibleWrapColumn(80);
+
+    TextDocument *document = baseEditor->textDocument();
+    storeParentheses(document->document());
+    DisplaySettingsData settings = scopeEndSettings();
+    settings.m_displayAnnotations = true;
+    settings.m_annotationAlignment = alignment;
+    settings.m_displayScopeEnds = false;
+    widget->setDisplaySettings(settings);
+
+    const auto closingLine = [&] {
+        // Between lines, the first paint only makes room for the annotations below the line.
+        for (int i = 0; i < 2; ++i) {
+            widget->viewport()->grab();
+            QCoreApplication::processEvents();
+        }
+        QTextCursor cursor(document->document()->findBlockByNumber(26));
+        const QRect cursorRect = widget->cursorRect(cursor);
+        return widget->viewport()
+            ->grab(QRect(0, cursorRect.top(), widget->viewport()->width(), cursorRect.height()))
+            .toImage();
+    };
+
+    const QImage idle = closingLine();
+    settings.m_displayScopeEnds = true;
+    widget->setDisplaySettings(settings);
+    const QImage alone = closingLine();
+
+    // Where the scope end label is drawn when it is alone on the line, in device pixels.
+    QRect drawn;
+    for (int x = 0; x < alone.width(); ++x) {
+        for (int y = 0; y < alone.height(); ++y) {
+            if (alone.pixel(x, y) != idle.pixel(x, y))
+                drawn |= QRect(x, y, 1, 1);
+        }
+    }
+    QVERIFY(!drawn.isEmpty());
+
+    // Another annotation on the line, like the one of Git's instant blame, goes where the
+    // settings put it, and leaves the scope end label where it was, even if it ranks higher.
+    TextMark other(document, 27, TextMarkCategory{"Other", "TextEditor.Test.Other"});
+    other.setPriority(TextMark::HighPriority);
+    other.setLineAnnotation("Some Author, 2 days ago");
+    const QImage both = closingLine();
+    QVERIFY(both != alone);
+    QCOMPARE(both.copy(drawn), alone.copy(drawn));
+}
+
+void ScopeEndAnnotationsTest::testLongLabelLeavesRoomForAnnotation()
+{
+    QString condition;
+    for (int i = 0; condition.size() < 400; ++i)
+        condition += QString(" && condition%1").arg(i);
+    QString title = "scope.cpp";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title,
+        "if (a" + condition.toUtf8() + ") {\n" + body(25).toUtf8() + "}\n");
+    QVERIFY(editor);
+    const QScopeGuard cleanup([&] { Core::EditorManager::closeEditors({editor}, false); });
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *widget = baseEditor->editorWidget();
+    widget->resize(1200, 600);
+    widget->show();
+
+    TextDocument *document = baseEditor->textDocument();
+    storeParentheses(document->document());
+    DisplaySettingsData settings = scopeEndSettings();
+    settings.m_displayAnnotations = true;
+    settings.m_annotationAlignment = AnnotationAlignment::RightSide;
+    widget->setDisplaySettings(settings);
+
+    const auto closingLine = [&] {
+        widget->viewport()->grab();
+        QCoreApplication::processEvents();
+        QTextCursor cursor(document->document()->findBlockByNumber(26));
+        const QRect cursorRect = widget->cursorRect(cursor);
+        return widget->viewport()
+            ->grab(QRect(0, cursorRect.top(), widget->viewport()->width(), cursorRect.height()))
+            .toImage();
+    };
+
+    // The label alone fills the line.
+    const QImage alone = closingLine();
+
+    // The columns that change when the line gets an annotation, in device pixels.
+    TextMark warning(document, 27, TextMarkCategory{"Warning", "TextEditor.Test.Warning"});
+    warning.setLineAnnotation("non-void function does not return a value");
+    const QImage both = closingLine();
+    int changedLeft = both.width();
+    int changedRight = -1;
+    for (int x = 0; x < both.width(); ++x) {
+        for (int y = 0; y < both.height(); ++y) {
+            if (both.pixel(x, y) != alone.pixel(x, y)) {
+                changedLeft = qMin(changedLeft, x);
+                changedRight = qMax(changedRight, x);
+            }
+        }
+    }
+
+    // A sliver at the end of the line is not enough to show any of the annotation.
+    const qreal dpr = both.devicePixelRatio();
+    const int minimalContentWidth = int(widget->fontMetrics().horizontalAdvance(QString(
+        settings.m_minimalAnnotationContent, 'x')) * dpr);
+    QVERIFY2(changedRight - changedLeft >= minimalContentWidth,
+             qPrintable(QString("changed %1 to %2, need %3")
+                            .arg(changedLeft).arg(changedRight).arg(minimalContentWidth)));
+}
+
+void ScopeEndAnnotationsTest::testEditRepaintsOnlyWhatShowsLabels()
+{
+    QString title = "scope.cpp";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title,
+        "if (a) {\n" + body(25).toUtf8() + "}\n");
+    QVERIFY(editor);
+    const QScopeGuard cleanup([&] { Core::EditorManager::closeEditors({editor}, false); });
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *widget = baseEditor->editorWidget();
+    widget->resize(600, 600);
+    widget->show();
+    QVERIFY(QTest::qWaitForWindowExposed(widget));
+
+    TextDocument *document = baseEditor->textDocument();
+    storeParentheses(document->document());
+
+    class PaintRecorder : public QObject
+    {
+    public:
+        bool eventFilter(QObject *, QEvent *event) override
+        {
+            if (event->type() == QEvent::Paint)
+                painted += static_cast<QPaintEvent *>(event)->region();
+            return false;
+        }
+        QRegion painted;
+    } recorder;
+    widget->viewport()->installEventFilter(&recorder);
+
+    QTextCursor closingCursor(document->document()->findBlockByNumber(26));
+    const QRect closingRow(0, widget->cursorRect(closingCursor).top(),
+                           widget->viewport()->width(), 1);
+
+    // What an edit in line 5 repaints, once the widget is done with the settings and the mouse.
+    const auto paintedByEdit = [&](ScopeEndDisplay display, int hoveredBlock = -1) {
+        DisplaySettingsData settings = scopeEndSettings();
+        settings.m_scopeEndDisplay = display;
+        widget->setDisplaySettings(settings);
+        if (hoveredBlock >= 0) {
+            QTextCursor hovered(document->document()->findBlockByNumber(hoveredBlock));
+            const QPoint position = widget->cursorRect(hovered).center();
+            QMouseEvent move(QEvent::MouseMove, position,
+                             widget->viewport()->mapToGlobal(position), Qt::NoButton,
+                             Qt::NoButton, Qt::NoModifier);
+            QCoreApplication::sendEvent(widget->viewport(), &move);
+        }
+        widget->viewport()->repaint();
+        recorder.painted = {};
+        QTextCursor cursor(document->document()->findBlockByNumber(4));
+        cursor.insertText("x");
+        return QTest::qWaitFor([&] { return !recorder.painted.isEmpty(); })
+                   ? recorder.painted
+                   : QRegion();
+    };
+
+    // The label of the closing line may have changed.
+    const QRegion annotation = paintedByEdit(ScopeEndDisplay::Annotation);
+    QVERIFY(!annotation.isEmpty());
+    QVERIFY(annotation.intersects(closingRow));
+
+    // There is no label in the line to change.
+    const QRegion toolTip = paintedByEdit(ScopeEndDisplay::ToolTip);
+    QVERIFY(!toolTip.isEmpty());
+    QVERIFY(!toolTip.intersects(closingRow));
+
+    // Only the line under the mouse can have a label.
+    const QRegion onHover = paintedByEdit(ScopeEndDisplay::OnHover, 26);
+    QVERIFY(onHover.intersects(closingRow));
+    const QRegion onHoverElsewhere = paintedByEdit(ScopeEndDisplay::OnHover, 9);
+    QVERIFY(!onHoverElsewhere.isEmpty());
+    QVERIFY(!onHoverElsewhere.intersects(closingRow));
+}
+
+QObject *createScopeEndAnnotationsTest()
+{
+    return new ScopeEndAnnotationsTest;
 }
 
 } // TextEditor::Internal

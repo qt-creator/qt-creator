@@ -37,6 +37,7 @@
 #include "cppmodelmanager_test.h"
 #include "cpppointerdeclarationformatter_test.h"
 #include "cpprenaming_test.h"
+#include "cppscopeend_test.h"
 #include "cppsourceprocessor_test.h"
 #include "cppuseselections_test.h"
 #include "fileandtokenactions_test.h"
@@ -660,6 +661,7 @@ void CppEditorPlugin::registerTests()
     addTest<FunctionUtilsTest>();
     addTest<HeaderPathFilterTest>();
     addTestCreator(createCppHeaderSourceTest);
+    addTestCreator(createCppScopeEndTest);
     addTestCreator(createIncludeGroupsTest);
     addTest<LocalSymbolsTest>();
     addTest<LocatorFilterTest>();

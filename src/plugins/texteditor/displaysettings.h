@@ -17,6 +17,13 @@ enum class AnnotationAlignment
     BetweenLines
 };
 
+enum class ScopeEndDisplay
+{
+    Annotation, // after the closing brace, always
+    ToolTip,    // in a tool tip when hovering the line
+    OnHover,    // after the closing brace, while the mouse is on the line
+};
+
 // How hovering a merge conflict resolution link previews the resolution.
 enum class MergeConflictPreviewMode
 {
@@ -60,6 +67,9 @@ public:
     bool m_displayAnnotations = true;
     AnnotationAlignment m_annotationAlignment = AnnotationAlignment::RightSide;
     int m_minimalAnnotationContent = 15;
+    bool m_displayScopeEnds = false;
+    ScopeEndDisplay m_scopeEndDisplay = ScopeEndDisplay::Annotation;
+    int m_scopeEndMinimumLines = 20;
     bool m_displayMinimap = false;
 
     bool equals(const DisplaySettingsData &ds) const;
@@ -100,6 +110,9 @@ public:
     Utils::BoolAspect displayAnnotations{this};
     Utils::TypedSelectionAspect<AnnotationAlignment> annotationAlignment{this};
     Utils::IntegerAspect minimalAnnotationContent{this};
+    Utils::BoolAspect displayScopeEnds{this};
+    Utils::TypedSelectionAspect<ScopeEndDisplay> scopeEndDisplay{this};
+    Utils::IntegerAspect scopeEndMinimumLines{this};
     Utils::BoolAspect displayMinimap{this};
     Utils::TypedSelectionAspect<MergeConflictPreviewMode> mergeConflictPreviewMode{this};
 
@@ -115,4 +128,5 @@ namespace Internal { void setupDisplaySettings(); }
 } // namespace TextEditor
 
 Q_DECLARE_METATYPE(TextEditor::AnnotationAlignment)
+Q_DECLARE_METATYPE(TextEditor::ScopeEndDisplay)
 Q_DECLARE_METATYPE(TextEditor::MergeConflictPreviewMode)

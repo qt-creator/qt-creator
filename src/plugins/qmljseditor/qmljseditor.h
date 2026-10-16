@@ -97,6 +97,7 @@ protected:
                     bool resolveTarget = true,
                     bool inNextSplit = false) override;
     QString foldReplacementText(const QTextBlock &block) const override;
+    QString scopeLabelText(const QTextBlock &openBlock, int openBracePosition) const override;
 
 private:
     void setSelectedElements();

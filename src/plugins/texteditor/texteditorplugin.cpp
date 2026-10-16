@@ -116,6 +116,7 @@ void TextEditorPlugin::initialize()
     addTestCreator(createSnippetTest);
     addTestCreator(createPrintTest);
     addTestCreator(createFollowSymbolTest);
+    addTestCreator(createScopeEndAnnotationsTest);
     addTestCreator(createSnippetParserTest);
     addTestCreator(createCodeStyleAspectTest);
     addTestCreator(createEditorConfigTest);

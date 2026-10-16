@@ -70,6 +70,7 @@ enum TextStyle : quint8 {
     C_BINDING,
 
     C_DISABLED_CODE,
+    C_INLAY_TEXT,
 
     C_ADDED_LINE,
     C_REMOVED_LINE,

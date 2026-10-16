@@ -20,6 +20,7 @@
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljsscanner.h>
 #include <qmljs/qmljsutils.h>
 
 #include <qmljstools/qmljsindenter.h>
@@ -76,6 +77,7 @@
 #include <QMetaMethod>
 #include <QPointer>
 #include <QScopedPointer>
+#include <QTextBlock>
 #include <QTimer>
 #include <QTreeView>
 #include <QDebug>
@@ -1129,6 +1131,147 @@ std::unique_ptr<AssistInterface> QmlJSEditorWidget::createAssistInterface(
             const_cast<QmlJSEditorWidget *>(this), reason);
     }
     return TextEditorWidget::createAssistInterface(assistKind, reason);
+}
+
+namespace {
+
+// A line of code up to a position, scanned in the state the highlighter left the line in
+// front of it in. The tokens leave out the comments.
+struct CodeLine
+{
+    bool endsWith(QmlJS::Token::Kind kind) const
+    {
+        return !tokens.isEmpty() && tokens.last().is(kind);
+    }
+
+    bool contains(QmlJS::Token::Kind kind) const
+    {
+        return Utils::anyOf(tokens, [kind](const QmlJS::Token &token) { return token.is(kind); });
+    }
+
+    QStringView spell(const QmlJS::Token &token) const
+    {
+        return QStringView(text).mid(token.begin(), token.length);
+    }
+
+    // The text up to the end of the code, without a comment that follows it.
+    QString code() const
+    {
+        return tokens.isEmpty() ? QString() : text.left(tokens.last().end()).trimmed();
+    }
+
+    // How many more of "open" than of "close" there are.
+    int unclosed(QmlJS::Token::Kind open, QmlJS::Token::Kind close) const
+    {
+        int result = 0;
+        for (const QmlJS::Token &token : tokens) {
+            if (token.is(open))
+                ++result;
+            else if (token.is(close))
+                --result;
+        }
+        return result;
+    }
+
+    QTextBlock block;
+    QString text;
+    QList<QmlJS::Token> tokens;
+};
+
+} // namespace
+
+static CodeLine codeLine(const QTextBlock &block, int length = -1)
+{
+    Scanner scanner;
+    scanner.setScanComments(false);
+    const QTextBlock previous = block.previous();
+    const int state = previous.isValid() ? qMax(previous.userState(), 0) : 0;
+    CodeLine line{block, length < 0 ? block.text() : block.text().left(length), {}};
+    line.tokens = scanner(line.text, state);
+    return line;
+}
+
+// The code in front of the brace at "position" in "block", or the previous line of code
+// if the brace starts its line, joined with the lines of a parameter list or condition
+// that continues over several lines.
+static QString headerLabel(const QTextBlock &block, int position)
+{
+    static const int maximumHeaderLines = 8;
+
+    // "} else {" closes one scope and opens the next.
+    const auto withoutClosingBraces = [](QString text) {
+        text = text.trimmed();
+        while (text.startsWith('}'))
+            text.remove(0, 1);
+        return text.trimmed();
+    };
+
+    CodeLine line = codeLine(block, position);
+    while (!line.tokens.isEmpty() && line.tokens.first().is(QmlJS::Token::RightBrace))
+        line.tokens.removeFirst();
+    while (line.tokens.isEmpty() && line.block.previous().isValid())
+        line = codeLine(line.block.previous());
+    QString label = withoutClosingBraces(line.text);
+    int unclosedParentheses = line.unclosed(QmlJS::Token::LeftParenthesis,
+                                            QmlJS::Token::RightParenthesis);
+    int unclosedBrackets = line.unclosed(QmlJS::Token::LeftBracket, QmlJS::Token::RightBracket);
+
+    // Lines that end with a comma are only part of the header once they turn out to be in
+    // an open call, as siblings in a list end with one, too. The label itself does not
+    // tell, as it can open a call of its own.
+    QString pending;
+    int pendingParentheses = 0;
+    int pendingBrackets = 0;
+    QTextBlock previousBlock = line.block;
+    for (int i = 0; i < maximumHeaderLines && (previousBlock = previousBlock.previous()).isValid();
+         ++i) {
+        const CodeLine previous = codeLine(previousBlock);
+        const QString lines = previous.code() + ' ' + pending;
+        const int parentheses = previous.unclosed(QmlJS::Token::LeftParenthesis,
+                                                  QmlJS::Token::RightParenthesis)
+                                + pendingParentheses;
+        const int brackets = previous.unclosed(QmlJS::Token::LeftBracket,
+                                               QmlJS::Token::RightBracket)
+                             + pendingBrackets;
+        if (unclosedParentheses < 0 || unclosedBrackets < 0
+            || previous.endsWith(QmlJS::Token::LeftParenthesis)
+            || (previous.endsWith(QmlJS::Token::Comma) && (parentheses > 0 || brackets > 0))) {
+            label = lines + label;
+            unclosedParentheses += parentheses;
+            unclosedBrackets += brackets;
+            pending.clear();
+            pendingParentheses = 0;
+            pendingBrackets = 0;
+        } else if (previous.endsWith(QmlJS::Token::Comma)) {
+            pending = lines;
+            pendingParentheses = parentheses;
+            pendingBrackets = brackets;
+        } else {
+            break;
+        }
+    }
+    return withoutClosingBraces(label).simplified();
+}
+
+// "Item", or "Item id: screen" when the object declares an id before its first child.
+QString QmlJSEditorWidget::scopeLabelText(const QTextBlock &openBlock, int openBracePosition) const
+{
+    static const int maximumLinesToScan = 10;
+
+    const QString label = headerLabel(openBlock, openBracePosition);
+    QTextBlock block = openBlock;
+    for (int i = 0; i < maximumLinesToScan && (block = block.next()).isValid(); ++i) {
+        const CodeLine line = codeLine(block);
+        if (line.contains(QmlJS::Token::LeftBrace) || line.contains(QmlJS::Token::RightBrace))
+            break;
+        const QList<QmlJS::Token> &tokens = line.tokens;
+        if (tokens.size() >= 3 && tokens.at(0).is(QmlJS::Token::Identifier)
+            && line.spell(tokens.at(0)) == u"id" && tokens.at(1).is(QmlJS::Token::Colon)
+            && tokens.at(2).is(QmlJS::Token::Identifier)) {
+            return label + " id: " + line.spell(tokens.at(2));
+        }
+    }
+    return label;
 }
 
 QString QmlJSEditorWidget::foldReplacementText(const QTextBlock &block) const

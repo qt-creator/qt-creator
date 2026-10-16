@@ -173,6 +173,23 @@ DisplaySettings::DisplaySettings()
     minimalAnnotationContent.setSettingsKey("MinimalAnnotationContent");
     minimalAnnotationContent.setDefaultValue(15);
 
+    displayScopeEnds.setSettingsKey("DisplayScopeEnds");
+    displayScopeEnds.setDefaultValue(false);
+    displayScopeEnds.setToolTip(
+        Tr::tr("Names the line that opens a long scope next to its closing brace."));
+
+    scopeEndDisplay.setSettingsKey("ScopeEndDisplay");
+    scopeEndDisplay.setLabelText(Tr::tr("Show the scope:"));
+    scopeEndDisplay.addOption(Tr::tr("Show annotation"));
+    scopeEndDisplay.addOption(Tr::tr("Show tooltip"));
+    scopeEndDisplay.addOption(Tr::tr("Show on hovering"));
+    scopeEndDisplay.setDefaultValue(ScopeEndDisplay::Annotation);
+
+    scopeEndMinimumLines.setSettingsKey("ScopeEndMinimumLines");
+    scopeEndMinimumLines.setDefaultValue(20);
+    scopeEndMinimumLines.setRange(2, 1000);
+    scopeEndMinimumLines.setLabelText(Tr::tr("Minimum scope length in lines:"));
+
     displayMinimap.setSettingsKey("DisplayMinimap");
     displayMinimap.setDefaultValue(false);
     displayMinimap.setLabelText(Tr::tr("Enable minimap"));
@@ -296,6 +313,14 @@ public:
                     }
                 },
                 Group {
+                    title(Tr::tr("Scope End Annotations")),
+                    groupChecker(s.displayScopeEnds.groupChecker()),
+                    Column {
+                        s.scopeEndDisplay,
+                        Row { s.scopeEndMinimumLines, st }
+                    }
+                },
+                Group {
                     title(Tr::tr("Merge Conflicts")),
                     Row { s.mergeConflictPreviewMode, st }
                 }
@@ -352,6 +377,9 @@ DisplaySettingsData DisplaySettings::data() const
     d.m_displayAnnotations = displayAnnotations();
     d.m_annotationAlignment = annotationAlignment();
     d.m_minimalAnnotationContent = minimalAnnotationContent();
+    d.m_displayScopeEnds = displayScopeEnds();
+    d.m_scopeEndDisplay = scopeEndDisplay();
+    d.m_scopeEndMinimumLines = scopeEndMinimumLines();
     d.m_highlightSelection = highlightSelection();
     d.m_displayMinimap = displayMinimap();
     d.m_markDiffChangeSigns = markDiffChangeSigns();

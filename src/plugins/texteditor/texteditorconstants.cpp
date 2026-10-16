@@ -71,6 +71,7 @@ const char *nameForStyle(TextStyle style)
     case C_BINDING:             return "Binding";
 
     case C_DISABLED_CODE:       return "DisabledCode";
+    case C_INLAY_TEXT:          return "InlayText";
     case C_ADDED_LINE:          return "AddedLine";
     case C_REMOVED_LINE:        return "RemovedLine";
     case C_DIFF_FILE:           return "DiffFile";

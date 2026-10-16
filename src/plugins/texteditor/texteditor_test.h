@@ -19,5 +19,6 @@ QObject *createFindReplaceTest();
 QObject *createSnippetTest();
 QObject *createPrintTest();
 QObject *createFollowSymbolTest();
+QObject *createScopeEndAnnotationsTest();
 
 } // TextEditor::Internal

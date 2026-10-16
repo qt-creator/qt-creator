@@ -691,6 +691,9 @@ public:
     static TextEditorWidget *fromEditor(const Core::IEditor *editor);
     static QList<TextEditorWidget *> textEditorWidgetsForDocument(TextDocument *document);
 
+    QString scopeEndLabel(const QTextBlock &block) const;
+    QString scopeEndLabel(const QTextBlock &block, int positionInBlock) const;
+
 protected:
     /*!
        Reimplement this function to enable code navigation.
@@ -717,6 +720,8 @@ protected:
       Reimplement this function to change the default replacement text.
       */
     virtual QString foldReplacementText(const QTextBlock &block) const;
+    virtual QString scopeLabelText(const QTextBlock &openBlock, int openBracePosition) const;
+    virtual QTextBlock conditionalStartBlock(const QTextBlock &endBlock) const;
     virtual void drawCollapsedBlockPopup(QPainter &painter,
                                          const QTextBlock &block,
                                          QPointF offset,

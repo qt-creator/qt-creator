@@ -52,6 +52,7 @@
   <style name="QmlStateName" foreground="#45c6d6" italic="true"/>
   <style name="Binding" foreground="#ff6aad"/>
   <style name="DisabledCode" foreground="#969696" background="#474747"/>
+  <style name="InlayText" foreground="#8a8d92" italic="true"/>
   <style name="AddedLine" foreground="#45c6d6"/>
   <style name="RemovedLine" foreground="#d65645"/>
   <style name="DiffFile" foreground="#66a334"/>

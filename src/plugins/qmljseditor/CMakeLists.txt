@@ -41,4 +41,5 @@ extend_qtc_plugin(QmlJSEditor
   SOURCES
     qmljsindenter_test.cpp qmljsindenter_test.h
     qmljsquickfix_test.cpp qmljsquickfix_test.h
+    qmljsscopeend_test.cpp qmljsscopeend_test.h
 )

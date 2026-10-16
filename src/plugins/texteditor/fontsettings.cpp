@@ -841,6 +841,10 @@ FormatDescriptions initialFormats()
                                     "in comments and strings."), Qt::lightGray);
     formatDescr.emplace_back(C_DISABLED_CODE, Tr::tr("Disabled Code"),
                              Tr::tr("Code disabled by preprocessor directives."));
+    formatDescr.emplace_back(C_INLAY_TEXT, Tr::tr("Inlay Text"),
+                             Tr::tr("Text that the editor adds to the code without it being part "
+                                    "of the document, such as scope end labels and inlay hints."),
+                             Qt::darkGray);
 
     // Diff categories
     formatDescr.emplace_back(C_ADDED_LINE, Tr::tr("Added Line"),

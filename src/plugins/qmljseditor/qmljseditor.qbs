@@ -82,6 +82,8 @@ QtcPlugin {
             "qmljsindenter_test.h",
             "qmljsquickfix_test.cpp",
             "qmljsquickfix_test.h",
+            "qmljsscopeend_test.cpp",
+            "qmljsscopeend_test.h",
         ]
     }
 

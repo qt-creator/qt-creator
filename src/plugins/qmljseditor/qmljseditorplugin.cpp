@@ -12,6 +12,7 @@
 #include "qmljsoutline.h"
 #include "qmljsquickfixassist.h"
 #include "qmljsquickfix_test.h"
+#include "qmljsscopeend_test.h"
 #include "qmllsclientsettings.h"
 #include "qmltaskmanager.h"
 
@@ -517,6 +518,7 @@ class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
 
 #ifdef WITH_TESTS
         addTestCreator(createQmlJSIndenterTest);
+        addTestCreator(createQmlJSScopeEndTest);
         addTestCreator(createQmlJSQuickFixTest);
 #endif
     }
