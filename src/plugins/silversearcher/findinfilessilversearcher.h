@@ -3,8 +3,22 @@
 
 #pragma once
 
+#include <texteditor/basefilefind.h>
+
+#include <utils/searchresultitem.h>
+
+#include <QFuture>
+
 namespace SilverSearcher {
 
 void setupFindInFilesSilverSearcher();
+
+// The arguments of ag for \a parameters, with the optional \a searchOptions added to them.
+QStringList silverSearcherArguments(const TextEditor::FileFindParameters &parameters,
+                                    const QString &searchOptions = {});
+
+// Runs ag for \a parameters, with the optional \a searchOptions added to its arguments.
+QFuture<Utils::SearchResultItems> findWithSilverSearcher(
+    const TextEditor::FileFindParameters &parameters, const QString &searchOptions = {});
 
 } // namespace SilverSearcher

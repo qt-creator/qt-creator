@@ -12,10 +12,12 @@
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/textcodec.h>
 
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QRegularExpression>
 
 using namespace TextEditor;
 using namespace Utils;
@@ -57,48 +59,92 @@ static bool isSilverSearcherAvailable()
         && silverSearcherProcess.cleanedStdOut().contains("ag version");
 }
 
+// A line break of the search term is the one of a document, which is a CRLF in a file with
+// Windows line endings. ag only finds a line feed of a term in a file with LF line endings, so a
+// plain text term with a line break is given to it as an escaped regular expression.
+static QString escapedForSilverSearcher(const QString &text)
+{
+    QStringList lines = text.split('\n');
+    for (QString &line : lines)
+        line = QRegularExpression::escape(line);
+    return lines.join("\\r?\\n");
+}
+
+// The search term with the line breaks of a document, where a CRLF is a single LF
+static QString termWithLineFeeds(const QString &text)
+{
+    QString term = text;
+    term.replace("\r\n", "\n");
+    return term;
+}
+
+QStringList silverSearcherArguments(const FileFindParameters &parameters,
+                                    const QString &searchOptions)
+{
+    QStringList arguments = {"--parallel", "--ackmate"};
+
+    if (parameters.flags & FindCaseSensitively)
+        arguments << "-s";
+    else
+        arguments << "-i";
+
+    if (parameters.flags & FindWholeWords)
+        arguments << "-w";
+
+    QString pattern = parameters.text;
+    if (!(parameters.flags & FindRegularExpression)) {
+        pattern = termWithLineFeeds(pattern);
+        if (pattern.contains('\n'))
+            pattern = escapedForSilverSearcher(pattern);
+        else
+            arguments << "-Q";
+    }
+
+    for (const QString &filter : std::as_const(parameters.exclusionFilters))
+        arguments << "--ignore" << filter;
+
+    QString nameFiltersAsRegExp;
+    for (const QString &filter : std::as_const(parameters.nameFilters))
+        nameFiltersAsRegExp += QString("(%1)|").arg(convertWildcardToRegex(filter));
+    nameFiltersAsRegExp.remove(nameFiltersAsRegExp.size() - 1, 1);
+
+    arguments << "-G" << nameFiltersAsRegExp;
+
+    if (!searchOptions.isEmpty())
+        arguments << searchOptions.split(' ');
+
+    arguments << "--" << pattern << parameters.searchDir.normalizedPathName().toUrlishString();
+    return arguments;
+}
+
 static void runSilverSeacher(QPromise<SearchResultItems> &promise,
                              const FileFindParameters &parameters, const QString &searchOptions)
 {
     const auto setupProcess = [parameters, searchOptions](Process &process) {
-        QStringList arguments = {"--parallel", "--ackmate"};
-
-        if (parameters.flags & FindCaseSensitively)
-            arguments << "-s";
-        else
-            arguments << "-i";
-
-        if (parameters.flags & FindWholeWords)
-            arguments << "-w";
-
-        if (!(parameters.flags & FindRegularExpression))
-            arguments << "-Q";
-
-        for (const QString &filter : std::as_const(parameters.exclusionFilters))
-            arguments << "--ignore" << filter;
-
-        QString nameFiltersAsRegExp;
-        for (const QString &filter : std::as_const(parameters.nameFilters))
-            nameFiltersAsRegExp += QString("(%1)|").arg(convertWildcardToRegex(filter));
-        nameFiltersAsRegExp.remove(nameFiltersAsRegExp.size() - 1, 1);
-
-        arguments << "-G" << nameFiltersAsRegExp;
-
-        if (!searchOptions.isEmpty())
-            arguments << searchOptions.split(' ');
-
-        arguments << "--" << parameters.text << parameters.searchDir.normalizedPathName().toUrlishString();
-        process.setCommand({"ag", arguments});
+        process.setCommand({"ag", silverSearcherArguments(parameters, searchOptions)});
         process.setEnvironment(Environment::systemEnvironment());
+        // The columns of the hits count bytes. The parser decodes the text as UTF-8.
+        process.setEncoding(TextEncoding::Latin1);
     };
 
-    FilePath lastFilePath;
-    const auto outputParser = [&lastFilePath](const QFuture<void> &future, const QString &input,
+    ParserState parserState;
+    if (!(parameters.flags & FindRegularExpression)) {
+        parserState.plainText = termWithLineFeeds(parameters.text);
+        parserState.plainTextCaseSensitivity = parameters.flags & FindCaseSensitively
+                                                   ? Qt::CaseSensitive : Qt::CaseInsensitive;
+    }
+    const auto outputParser = [&parserState](const QFuture<void> &future, const QString &input,
                                               const std::optional<QRegularExpression> &regExp) {
-        return SilverSearcher::parse(future, input, regExp, &lastFilePath);
+        return SilverSearcher::parse(future, input, regExp, &parserState);
     };
 
     TextEditor::searchInProcessOutput(promise, parameters, setupProcess, outputParser);
+}
+
+QFuture<SearchResultItems> findWithSilverSearcher(const FileFindParameters &parameters,
+                                                  const QString &searchOptions)
+{
+    return Utils::asyncRun(runSilverSeacher, parameters, searchOptions);
 }
 
 class FindInFilesSilverSearcher final : public SearchEngine
@@ -144,7 +190,7 @@ public:
     SearchExecutor searchExecutor() const final
     {
         return [searchOptions = m_searchOptionsLineEdit->text()](const FileFindParameters &parameters) {
-            return Utils::asyncRun(runSilverSeacher, parameters, searchOptions);
+            return findWithSilverSearcher(parameters, searchOptions);
         };
     }
 

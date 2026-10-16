@@ -14,6 +14,19 @@ class OutputParserTest : public QObject
 private slots:
     void test_data();
     void test();
+    void testChunksEndingInsideALine();
+    void testCarriageReturns();
+    void testOnlyHitOnItsLineIsNotConfirmed();
+    void testWholeMatchIsReused();
+    void testHitCountedFromEarlierLine();
+    void testRunIsBounded();
+    void testUnresolvedHitsAreBounded();
+    void testLongRunOfMatchesAcrossLines();
+    void testLongMatch();
+    void testRegularExpressionUserData();
+    void testPlainTextAcrossLinesInCrlfFile();
+    void testArguments();
+    void testSearchAcrossLinesInCrlfFile();
 };
 
 } // namespace SilverSearcher::Internal
