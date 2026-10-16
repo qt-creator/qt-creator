@@ -15,8 +15,7 @@ Project {
             name: "Sources from Debugger plugin"
             prefix: project.debuggerDir
             files: [
-                "debuggerprotocol.h", "debuggerprotocol.cpp",
-                "disassemblerlines.h", "disassemblerlines.cpp"
+                "debuggerprotocol.h", "debuggerprotocol.cpp"
             ]
         }
         Group {

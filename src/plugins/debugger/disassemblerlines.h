@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "debugger_global.h"
+
 #include <QHash>
 #include <QList>
 #include <QString>
@@ -14,7 +16,7 @@ namespace Debugger::Internal {
 //  - a code line (lineNumber, data fields), or
 //  - a comment line.
 
-class DisassemblerLine
+class DEBUGGER_EXPORT DisassemblerLine
 {
 public:
     DisassemblerLine() = default;
@@ -36,7 +38,7 @@ public:
     QString bytes;          // (ass) The instruction in raw bytes
 };
 
-class DisassemblerLines
+class DEBUGGER_EXPORT DisassemblerLines
 {
 public:
     DisassemblerLines() = default;

@@ -11,5 +11,6 @@ QtcAutotest {
         name: "Test sources"
         files: "tst_disassembler.cpp"
     }
+    cpp.defines: base.concat(["DEBUGGER_STATIC_LIBRARY"])
     cpp.includePaths: base.concat([project.debuggerDir])
 }

@@ -61,6 +61,7 @@ if(HAVE_INT128)
 endif()
 
 add_qtc_test(tst_debugger_disassembler
+  DEFINES DEBUGGER_STATIC_LIBRARY
   INCLUDES "${DEBUGGERDIR}"
   SOURCES
     tst_disassembler.cpp
@@ -176,7 +177,6 @@ add_qtc_test(tst_debugger_backends
     "${DEBUGGERDIR}"
   SOURCES
     "${DEBUGGERDIR}/debuggerprotocol.cpp" "${DEBUGGERDIR}/debuggerprotocol.h"
-    "${DEBUGGERDIR}/disassemblerlines.cpp" "${DEBUGGERDIR}/disassemblerlines.h"
     tst_backends.cpp
 )
 
