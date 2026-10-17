@@ -9,13 +9,12 @@ else()
 endif()
 
 add_qtc_library(Utils
-  DEPENDS ${UTILS_SQL_DEPENDENCY} Qt::Xml Spinner QtCLibArchive quickjsng
+  DEPENDS ${UTILS_SQL_DEPENDENCY} Qt::PrintSupport Qt::Xml Spinner QtCLibArchive quickjsng
   PUBLIC_DEPENDS
     Qt::Concurrent
     Qt::Core
     Qt::Gui
     Qt::Network
-    Qt::PrintSupport
     QtTaskTree
     Qt::Widgets
     $<$<BOOL:${QTC_STATIC_BUILD}>:Spinner>
