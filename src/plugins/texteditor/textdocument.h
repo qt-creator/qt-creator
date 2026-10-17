@@ -175,7 +175,9 @@ protected:
 private:
     Utils::Result<> openImpl(const Utils::FilePath &filePath,
                              const Utils::FilePath &realFileName,
-                             bool reload);
+                             bool reload,
+                             DecodingFallback fallback = DecodingFallback::Allowed);
+    Utils::Result<> reloadImpl(const Utils::FilePath &realFilePath, DecodingFallback fallback);
     void setCodeStyleTabSettings(const TabSettingsData &tabSettings);
     void updateEditorConfig(const Utils::FilePath &filePath);
     void applyEditorConfigForSaveAs(const Utils::FilePath &filePath);

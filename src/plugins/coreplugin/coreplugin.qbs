@@ -314,6 +314,8 @@ QtcPlugin {
         files: [
             "actionmanager/actionmanager_test.cpp",
             "actionmanager/actionmanager_test.h",
+            "basetextdocument_test.cpp",
+            "basetextdocument_test.h",
             "documentmanager_test.cpp",
             "documentmanager_test.h",
             "editormanager/editormanager_test.cpp",

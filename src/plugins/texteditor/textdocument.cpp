@@ -254,6 +254,7 @@ void TextDocumentPrivate::updateRevisions()
 TextDocument::TextDocument(Id id)
     : d(new TextDocumentPrivate)
 {
+    setDecodingFallbackEnabled(true);
     d->m_document.setParent(this);
     connect(&d->m_document, &QTextDocument::modificationChanged,
             this, &TextDocument::modificationChanged);
@@ -719,6 +720,7 @@ Result<> TextDocument::saveImpl(const FilePath &filePath, SaveOption option)
     const EditorConfigProperties previousEditorConfig = d->m_editorConfig;
     const TabSettingsData previousTabSettings = d->m_tabSettings;
     const TextFileFormat previousFormat = format();
+    const TextEncoding previousFailedPrimaryEncoding = failedPrimaryEncoding();
     if (savesAs)
         applyEditorConfigForSaveAs(target);
 
@@ -773,6 +775,7 @@ Result<> TextDocument::saveImpl(const FilePath &filePath, SaveOption option)
             setLineTerminationMode(previousFormat.lineTerminationMode);
             d->m_editorConfig = previousEditorConfig;
             d->applyEditorConfig();
+            restoreDecodingFallbackState(previousFailedPrimaryEncoding);
             if (previousTabSettings != d->m_tabSettings) {
                 d->m_tabSettings = previousTabSettings;
                 emit tabSettingsChanged();
@@ -784,6 +787,9 @@ Result<> TextDocument::saveImpl(const FilePath &filePath, SaveOption option)
     d->m_autoSaveRevision = d->m_document.revision();
     if (option == SaveOption::AutoSave)
         return ResultOk;
+
+    if (savesAs && d->m_editorConfig.encoding)
+        restoreDecodingFallbackState({});
 
     // inform about the new filename
     d->m_document.setModified(false); // also triggers update of the block revisions
@@ -897,10 +903,14 @@ Result<> TextDocument::open(const FilePath &filePath, const FilePath &realFilePa
         else
             d->m_editorConfig.encoding.reset();
     }
+    const TextEncoding encodingBeforeAboutToOpen = encoding();
     emit aboutToOpen(filePath, realFilePath);
     // An editor that picks the encoding itself, like the one for git commit messages, wins.
-    if (d->m_editorConfig.encoding && encoding() != *d->m_editorConfig.encoding)
+    const bool editorSelectedEncoding = encoding() != encodingBeforeAboutToOpen;
+    if (d->m_editorConfig.encoding && editorSelectedEncoding)
         d->m_editorConfig.encoding.reset();
+    setDecodingFallbackEnabled(isDecodingFallbackEnabled()
+                               && !editorSelectedEncoding);
     d->m_opening = true;
     const Result<> result = openImpl(filePath, realFilePath, /*reload =*/ false);
     d->m_opening = false;
@@ -917,12 +927,14 @@ Result<> TextDocument::open(const FilePath &filePath, const FilePath &realFilePa
 
 Result<> TextDocument::openImpl(const FilePath &filePath,
                                 const FilePath &realFilePath,
-                                bool reload)
+                                bool reload,
+                                DecodingFallback fallback)
 {
     ReadResult readResult = TextFileFormat::ReadIOError;
 
     if (!filePath.isEmpty()) {
-        readResult = read(realFilePath);
+        readResult = read(realFilePath, d->m_editorConfig.encoding
+                                            ? DecodingFallback::Disabled : fallback);
         if (d->m_editorConfig.lineTerminationMode)
             setLineTerminationMode(*d->m_editorConfig.lineTerminationMode);
 
@@ -985,7 +997,7 @@ Result<> TextDocument::reload(const TextEncoding &encoding)
 {
     QTC_ASSERT(encoding.isValid(), return ResultError("No encoding given"));
     setEncoding(encoding);
-    return reload();
+    return reloadImpl(filePath(), DecodingFallback::Disabled);
 }
 
 Result<> TextDocument::reload()
@@ -995,13 +1007,18 @@ Result<> TextDocument::reload()
 
 Result<> TextDocument::reload(const FilePath &realFilePath)
 {
+    return reloadImpl(realFilePath, DecodingFallback::Allowed);
+}
+
+Result<> TextDocument::reloadImpl(const FilePath &realFilePath, DecodingFallback fallback)
+{
     emit aboutToReload();
     auto documentLayout =
         qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
     if (documentLayout)
         documentLayout->documentAboutToReload(this); // removes text marks non-permanently
 
-    const Result<> result = openImpl(filePath(), realFilePath, /*reload =*/true);
+    const Result<> result = openImpl(filePath(), realFilePath, /*reload =*/true, fallback);
 
     if (documentLayout)
         documentLayout->documentReloaded(this); // re-adds text marks

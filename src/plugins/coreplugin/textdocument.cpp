@@ -37,7 +37,9 @@ public:
     QList<TextEncoding> m_supportedEncodings; // empty means all are supported
     bool m_supportsUtf8Bom = true;
     bool m_hasDecodingError = false;
+    TextEncoding m_failedPrimaryEncoding;
     QByteArray m_decodingErrorSample;
+    bool m_decodingFallbackEnabled = false;
 };
 
 } // namespace Internal
@@ -59,9 +61,29 @@ bool BaseTextDocument::hasDecodingError() const
     return d->m_hasDecodingError;
 }
 
+bool BaseTextDocument::decodedWithFallback() const
+{
+    return d->m_failedPrimaryEncoding.isValid();
+}
+
+TextEncoding BaseTextDocument::failedPrimaryEncoding() const
+{
+    return d->m_failedPrimaryEncoding;
+}
+
 QByteArray BaseTextDocument::decodingErrorSample() const
 {
     return d->m_decodingErrorSample;
+}
+
+bool BaseTextDocument::isDecodingFallbackEnabled() const
+{
+    return d->m_decodingFallbackEnabled;
+}
+
+void BaseTextDocument::setDecodingFallbackEnabled(bool enabled)
+{
+    d->m_decodingFallbackEnabled = enabled;
 }
 
 /*!
@@ -103,15 +125,36 @@ void BaseTextDocument::setLineTerminationMode(TextFileFormat::LineTerminationMod
 
 /*!
     Autodetects file format and reads the text file specified by \a filePath.
+    If decoding fails, reads the file again with the configured fallback encoding
+    when fallback decoding is enabled and \a fallback is Allowed. When a document
+    was previously decoded with the fallback encoding, a later read first retries
+    the failed primary encoding.
 
     Returns whether the operation was successful.
 */
 
-BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath)
+BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath,
+                                                    DecodingFallback fallback)
 {
-    ReadResult res = d->m_format.readFile(filePath, encoding());
+    const bool fallbackEnabled = d->m_decodingFallbackEnabled
+                                 && fallback == DecodingFallback::Allowed;
+    const TextEncoding previousFailedPrimaryEncoding = d->m_failedPrimaryEncoding;
+    const bool retryFailedPrimary = d->m_failedPrimaryEncoding.isValid() && fallbackEnabled;
+    const TextEncoding primaryEncoding = retryFailedPrimary
+                                             ? d->m_failedPrimaryEncoding : encoding();
+    if (retryFailedPrimary)
+        d->m_format.setEncoding(primaryEncoding);
+    const TextEncoding retryEncoding = fallbackEnabled
+                                           ? Core::EditorManager::fallbackTextEncoding()
+                                           : TextEncoding();
+    ReadResult res = d->m_format.readFile(filePath, primaryEncoding,
+                                          supportsEncoding(retryEncoding)
+                                              ? retryEncoding : TextEncoding());
     d->m_hasDecodingError = res.code == TextFileFormat::ReadEncodingError;
+    d->m_failedPrimaryEncoding = res.usedDecodingFallback ? primaryEncoding : TextEncoding();
     d->m_decodingErrorSample = res.decodingErrorSample;
+    if (previousFailedPrimaryEncoding != d->m_failedPrimaryEncoding)
+        emit decodingFallbackChanged();
     return res;
 }
 
@@ -123,8 +166,21 @@ QString BaseTextDocument::plainText() const
 void BaseTextDocument::setEncoding(const TextEncoding &encoding)
 {
     qCDebug(logBaseTextDocument) << Q_FUNC_INFO << this << encoding.name();
-    if (supportsEncoding(encoding))
+    if (supportsEncoding(encoding)) {
+        const bool hadFallback = d->m_failedPrimaryEncoding.isValid();
         d->m_format.setEncoding(encoding);
+        d->m_failedPrimaryEncoding = {};
+        if (hadFallback)
+            emit decodingFallbackChanged();
+    }
+}
+
+void BaseTextDocument::restoreDecodingFallbackState(const TextEncoding &failedPrimaryEncoding)
+{
+    const bool changed = d->m_failedPrimaryEncoding != failedPrimaryEncoding;
+    d->m_failedPrimaryEncoding = failedPrimaryEncoding;
+    if (changed)
+        emit decodingFallbackChanged();
 }
 
 TextEncoding BaseTextDocument::encoding() const

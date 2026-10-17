@@ -33,6 +33,7 @@ class TEXTEDITOR_EXPORT EncodingSelectionAspect : public Utils::ByteArrayAspect
 {
 public:
     explicit EncodingSelectionAspect(Utils::AspectContainer *container);
+    void setAllowNone(bool allowNone);
 
     Utils::TextEncoding operator()() const;
     void setValue(const Utils::TextEncoding &value);
@@ -41,6 +42,7 @@ private:
     void addToLayoutImpl(Layouting::Layout &parent) override;
 
     CodecChooser *m_codecChooser = nullptr;
+    bool m_allowNone = false;
 };
 
 class TEXTEDITOR_EXPORT ExtraEncodingSettings : public Utils::AspectContainer
@@ -52,8 +54,10 @@ public:
 
     void setData(const ExtraEncodingSettingsData &data);
     ExtraEncodingSettingsData data() const;
+    void setFallbackEncodingVisible(bool visible) { fallbackEncoding.setVisible(visible); }
 
     EncodingSelectionAspect defaultEncoding{this};
+    EncodingSelectionAspect fallbackEncoding{this};
     Utils::TypedSelectionAspect<ExtraEncodingSettingsData::Utf8BomSetting> utf8BomSetting{this};
     Utils::TypedSelectionAspect<ExtraEncodingSettingsData::LineEndingSetting> lineEndingSetting{this};
 };

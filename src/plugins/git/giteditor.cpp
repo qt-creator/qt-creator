@@ -384,6 +384,7 @@ void GitEditorWidget::aboutToOpen(const FilePath &filePath, const FilePath &real
         const FilePath gitPath = filePath.absolutePath();
         setSource(gitPath);
         textDocument()->setEncoding(gitClient().encoding(GitClient::EncodingCommit, gitPath));
+        textDocument()->setDecodingFallbackEnabled(false);
     }
 }
 

@@ -46,6 +46,7 @@ public:
         QString content;
         QString error;
         QByteArray decodingErrorSample;
+        bool usedDecodingFallback = false;
     };
 
     TextFileFormat();
@@ -54,7 +55,10 @@ public:
 
     bool decode(const QByteArray &data, QString *target) const;
 
-    ReadResult readFile(const FilePath &filePath, const TextEncoding &fallbackEncoding);
+    // If retryEncoding is valid, retries with it after a decoding error.
+    ReadResult readFile(const FilePath &filePath,
+                        const TextEncoding &defaultEncoding,
+                        const TextEncoding &retryEncoding = {});
 
     static Result<> readFileUtf8(const FilePath &filePath,
                                  const TextEncoding &fallbackEncoding,

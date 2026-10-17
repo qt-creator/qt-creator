@@ -4,18 +4,25 @@
 #include "editorconfig_test.h"
 
 #include "editorconfig.h"
+#include "codecchooser.h"
+#include "extraencodingsettings.h"
 #include "icodestylepreferences.h"
 #include "marginsettings.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "textdocument.h"
 #include "texteditor.h"
+#include "texteditorconstants.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 
+#include <utils/fileutils.h>
 #include <utils/filepath.h>
+#include <utils/infobar.h>
+#include <utils/layoutbuilder.h>
 #include <utils/temporarydirectory.h>
 
 #include <QDir>
@@ -23,6 +30,8 @@
 #include <QTest>
 #include <QToolBar>
 #include <QToolButton>
+
+#include <algorithm>
 
 using namespace Utils;
 
@@ -48,7 +57,13 @@ private slots:
     void testSaveAsFails();
     void testSaveUntitled();
     void testRestoreConfiguredStorageSettings();
+    void testFallbackNoticeAndFailedSaveAs();
+    void testFallbackEncodingSettings();
+    void testEditorEncodingWins_data();
     void testEditorEncodingWins();
+    void testEditorConfigEncodingDisablesFallback();
+    void testSaveAsUpdatesFallbackPolicy_data();
+    void testSaveAsUpdatesFallbackPolicy();
 };
 
 void EditorConfigTest::testGlob_data()
@@ -645,34 +660,237 @@ void EditorConfigTest::testSaveUntitled()
     QCOMPARE(document->tabSettings().m_tabPolicy, TabSettingsData::TabsOnlyTabPolicy);
 }
 
+class FallbackEncodingOverride
+{
+public:
+    explicit FallbackEncodingOverride(const TextEncoding &encoding)
+    {
+        m_settings->setValue(m_key, encoding.name());
+    }
+    ~FallbackEncodingOverride()
+    {
+        if (m_had)
+            m_settings->setValue(m_key, m_previous);
+        else
+            m_settings->remove(m_key);
+    }
+
+private:
+    QtcSettings *m_settings = Core::ICore::settings();
+    const Key m_key{Core::Constants::SETTINGS_FALLBACKTEXTENCODING};
+    const bool m_had = m_settings->contains(m_key);
+    const QVariant m_previous = m_settings->value(m_key);
+};
+
 // Like the git commit message editor, which uses the commit encoding of the repository.
 class EncodingChoosingWidget final : public TextEditorWidget
 {
 public:
+    TextEncoding chosenEncoding;
+
     void aboutToOpen(const FilePath &, const FilePath &) final
     {
-        textDocument()->setEncoding(TextEncoding(TextEncoding::Latin1));
+        textDocument()->setEncoding(chosenEncoding);
+        textDocument()->setDecodingFallbackEnabled(false);
     }
 };
 
+void EditorConfigTest::testFallbackEncodingSettings()
+{
+    QtcSettings *persistentSettings = Core::ICore::settings();
+    const Store general = Utils::storeFromSettings("General", persistentSettings);
+    const Store editor = Utils::storeFromSettings("textEditorManager", persistentSettings);
+    const auto restoreSettings = qScopeGuard([&] {
+        persistentSettings->remove("General");
+        persistentSettings->remove("textEditorManager");
+        Utils::storeToSettings("General", persistentSettings, general);
+        Utils::storeToSettings("textEditorManager", persistentSettings, editor);
+    });
+    ExtraEncodingSettings settings;
+    QWidget widget;
+    settings.layouter()().attachTo(&widget);
+    const QList<CodecChooser *> choosers = widget.findChildren<CodecChooser *>();
+    QCOMPARE(choosers.size(), 2);
+    CodecChooser *chooser = choosers.at(1);
+    QCOMPARE(chooser->itemText(0), QString("None"));
+    settings.fallbackEncoding.setValue(TextEncoding(TextEncoding::Latin1));
+    settings.apply();
+    QCOMPARE(Core::EditorManager::fallbackTextEncoding(), TextEncoding(TextEncoding::Latin1));
+    chooser->setCurrentIndex(0);
+    settings.apply();
+    QVERIFY(!settings.fallbackEncoding().isValid());
+    QVERIFY(!Core::EditorManager::fallbackTextEncoding().isValid());
+    QVERIFY(!Core::ICore::settings()->contains(Core::Constants::SETTINGS_FALLBACKTEXTENCODING));
+}
+
+void EditorConfigTest::testFallbackNoticeAndFailedSaveAs()
+{
+    const FallbackEncodingOverride fallback{TextEncoding(TextEncoding::Latin1)};
+    TemporaryDirectory tempDir("qtc-fallback-save-as");
+    QVERIFY(tempDir.isValid());
+    QVERIFY(tempDir.path().pathAppended(".editorconfig").writeFileContents("root = true\n"));
+    const FilePath file = tempDir.path().pathAppended("input.txt");
+    QVERIFY(file.writeFileContents(QByteArray::fromHex("636166e90a")));
+    TextEditorWidget widget;
+    widget.setTextDocument(TextDocumentPtr(new TextDocument));
+    TextDocument *document = widget.textDocument();
+    const TextEncoding utf8(TextEncoding::Utf8);
+    const TextEncoding latin1(TextEncoding::Latin1);
+    document->setEncoding(utf8);
+    QVERIFY(document->open(file, file));
+    QVERIFY(document->decodedWithFallback());
+    QCOMPARE(document->failedPrimaryEncoding(), utf8);
+    QVERIFY(!document->hasDecodingError());
+    QVERIFY(!widget.isReadOnly());
+    QTRY_VERIFY(document->infoBar()->containsInfo(Constants::FALLBACK_ENCODING));
+    const QList<InfoBarEntry> entries = document->infoBar()->entries();
+    const auto entry = std::find_if(entries.cbegin(), entries.cend(), [](const InfoBarEntry &e) {
+        return e.id() == Id(Constants::FALLBACK_ENCODING);
+    });
+    QVERIFY(entry != entries.cend());
+    QVERIFY(entry->text().contains(utf8.displayName()));
+    QVERIFY(entry->text().contains(latin1.displayName()));
+    QVERIFY(!entry->buttons().isEmpty());
+
+    QVERIFY(!document->save(tempDir.path()));
+    QVERIFY(document->decodedWithFallback());
+    QCOMPARE(document->failedPrimaryEncoding(), utf8);
+    QCOMPARE(document->encoding(), latin1);
+    QVERIFY(file.writeFileContents(QByteArray::fromHex("636166c3a90a")));
+    QVERIFY(document->reload());
+    QCOMPARE(document->encoding(), utf8);
+    QCOMPARE(document->plainText(), QString::fromUtf8("caf\xc3\xa9\n"));
+    QVERIFY(!document->decodedWithFallback());
+    QTRY_VERIFY(!document->infoBar()->containsInfo(Constants::FALLBACK_ENCODING));
+    QVERIFY(file.writeFileContents(QByteArray::fromHex("636166e90a")));
+    QVERIFY(document->reload());
+    QVERIFY(document->decodedWithFallback());
+    QTRY_VERIFY(document->infoBar()->containsInfo(Constants::FALLBACK_ENCODING));
+    document->setEncoding(utf8);
+    QVERIFY(document->save(file));
+    QVERIFY(!document->decodedWithFallback());
+    QTRY_VERIFY(!document->infoBar()->containsInfo(Constants::FALLBACK_ENCODING));
+    QCOMPARE(file.fileContents().value(), QByteArray::fromHex("636166c3a90a"));
+
+}
+
+void EditorConfigTest::testEditorEncodingWins_data()
+{
+    QTest::addColumn<QByteArray>("encodingName");
+    QTest::addColumn<bool>("withEditorConfig");
+    QTest::newRow("different from default") << QByteArray("ISO-8859-1") << true;
+    QTest::newRow("same as default") << QByteArray("UTF-8") << false;
+}
+
 void EditorConfigTest::testEditorEncodingWins()
 {
+    QFETCH(QByteArray, encodingName);
+    QFETCH(bool, withEditorConfig);
+    const FallbackEncodingOverride fallback{TextEncoding(TextEncoding::Latin1)};
+
     TemporaryDirectory tempDir("qtc-editorconfig-test");
     QVERIFY(tempDir.isValid());
-    QVERIFY(tempDir.path()
-                .pathAppended(".editorconfig")
-                .writeFileContents("root = true\n[*]\ncharset = utf-8\n"));
+    QVERIFY(tempDir.path().pathAppended(".editorconfig").writeFileContents(
+        withEditorConfig ? "root = true\n[*]\ncharset = utf-8\n" : "root = true\n"));
     const FilePath file = tempDir.path().pathAppended("COMMIT_EDITMSG");
     QVERIFY(file.writeFileContents("\xe4\n"));
 
     EncodingChoosingWidget widget;
+    widget.chosenEncoding = TextEncoding(encodingName);
     widget.setTextDocument(TextDocumentPtr(new TextDocument));
     TextDocument *document = widget.textDocument();
+    document->setEncoding(TextEncoding(TextEncoding::Utf8));
     QVERIFY(document->open(file, file));
 
-    QCOMPARE(document->encoding().name(), TextEncoding(TextEncoding::Latin1).name());
-    QCOMPARE(document->plainText(), QString(QChar(0xe4)) + '\n');
+    QCOMPARE(document->encoding(), widget.chosenEncoding);
+    QVERIFY(!document->isDecodingFallbackEnabled());
+    QVERIFY(!document->decodedWithFallback());
+    QCOMPARE(document->hasDecodingError(), widget.chosenEncoding.isUtf8());
+    if (!widget.chosenEncoding.isUtf8())
+        QCOMPARE(document->plainText(), QString(QChar(0xe4)) + '\n');
     QVERIFY(!document->editorConfig().encoding);
+}
+
+void EditorConfigTest::testEditorConfigEncodingDisablesFallback()
+{
+    const FallbackEncodingOverride fallback{TextEncoding(TextEncoding::Latin1)};
+
+    TemporaryDirectory tempDir("qtc-editorconfig-fallback");
+    QVERIFY(tempDir.isValid());
+    QVERIFY(tempDir.path().pathAppended(".editorconfig").writeFileContents(
+        "root = true\n[*.txt]\ncharset = utf-8\n"));
+    const FilePath file = tempDir.path().pathAppended("input.txt");
+    QVERIFY(file.writeFileContents(QByteArray("caf\xE4" "X", 5)));
+
+    TextDocument document;
+    QVERIFY(document.open(file, file));
+    QCOMPARE(document.encoding(), TextEncoding(TextEncoding::Utf8));
+    QVERIFY(document.hasDecodingError());
+    QVERIFY(!document.decodedWithFallback());
+    QVERIFY(document.isDecodingFallbackEnabled());
+
+    const FilePath reloadFile = tempDir.path().pathAppended("reload.dat");
+    QVERIFY(reloadFile.writeFileContents(QByteArray("caf\xE4" "X", 5)));
+    TextDocument reloadDocument;
+    QVERIFY(reloadDocument.open(reloadFile, reloadFile));
+    QVERIFY(reloadDocument.decodedWithFallback());
+    bool fallbackEnabledDuringReload = false;
+    const auto connection = connect(&reloadDocument, &Core::IDocument::aboutToReload, this, [&] {
+        fallbackEnabledDuringReload = reloadDocument.isDecodingFallbackEnabled();
+    });
+    QVERIFY(reloadDocument.reload(TextEncoding(TextEncoding::Utf8)));
+    disconnect(connection);
+    QVERIFY(fallbackEnabledDuringReload);
+    QVERIFY(reloadDocument.isDecodingFallbackEnabled());
+    QVERIFY(reloadDocument.hasDecodingError());
+    QVERIFY(!reloadDocument.decodedWithFallback());
+    QCOMPARE(reloadDocument.encoding(), TextEncoding(TextEncoding::Utf8));
+}
+
+void EditorConfigTest::testSaveAsUpdatesFallbackPolicy_data()
+{
+    QTest::addColumn<bool>("intoConfiguredDirectory");
+    QTest::newRow("into charset directory") << true;
+    QTest::newRow("out of charset directory") << false;
+}
+
+void EditorConfigTest::testSaveAsUpdatesFallbackPolicy()
+{
+    QFETCH(bool, intoConfiguredDirectory);
+    const FallbackEncodingOverride fallback{TextEncoding(TextEncoding::Latin1)};
+    TemporaryDirectory directory("qtc-save-as-fallback");
+    QVERIFY(directory.isValid());
+    QVERIFY(directory.filePath(".editorconfig").writeFileContents("root = true\n"));
+    const FilePath configured = directory.filePath("configured");
+    QVERIFY(configured.ensureWritableDir());
+    QVERIFY(configured.pathAppended(".editorconfig").writeFileContents(
+        "[*.txt]\ncharset = latin1\n"));
+    const FilePath configuredFile = configured.pathAppended("input.txt");
+    const FilePath unconfiguredFile = directory.filePath("input.txt");
+    const FilePath source = directory.filePath("source.txt");
+    const FilePath target = intoConfiguredDirectory ? configuredFile : unconfiguredFile;
+    QVERIFY(source.writeFileContents(QByteArray::fromHex("636166e90a")));
+    QVERIFY(target.writeFileContents(QByteArray::fromHex("636166e90a")));
+    // This test exercises EditorConfig's Save As policy, not atomic file replacement.
+    const bool previousAtomicSaveSetting = FileUtils::atomicSaveDisabled();
+    FileUtils::setAtomicSaveDisabled(true);
+    const auto restoreAtomicSaveSetting = qScopeGuard([previousAtomicSaveSetting] {
+        FileUtils::setAtomicSaveDisabled(previousAtomicSaveSetting);
+    });
+    TextDocument document;
+    const TextEncoding utf8(TextEncoding::Utf8);
+    document.setEncoding(utf8);
+    QVERIFY(document.open(source, source));
+    QVERIFY(document.decodedWithFallback());
+    QCOMPARE(document.failedPrimaryEncoding(), utf8);
+    QVERIFY(document.save(target));
+    QCOMPARE(document.editorConfig().encoding.has_value(), intoConfiguredDirectory);
+    QCOMPARE(document.decodedWithFallback(), !intoConfiguredDirectory);
+    QVERIFY(target.writeFileContents(QByteArray::fromHex("636166e90a")));
+    QVERIFY(document.reload());
+    QVERIFY(!document.hasDecodingError());
+    QCOMPARE(document.decodedWithFallback(), !intoConfiguredDirectory);
+    QCOMPARE(document.encoding(), TextEncoding(TextEncoding::Latin1));
 }
 
 QObject *createEditorConfigTest()

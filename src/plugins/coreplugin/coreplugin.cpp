@@ -5,6 +5,7 @@
 
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/actionmanager_test.h"
+#include "basetextdocument_test.h"
 #include "coreconstants.h"
 #include "coreplugintr.h"
 #include "customlanguagemodels.h"
@@ -515,6 +516,7 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
 
 #ifdef WITH_TESTS
     addTestCreator(createActionManagerTest);
+    addTestCreator(createBaseTextDocumentTest);
     addTestCreator(createDocumentManagerTest);
     addTestCreator(createExternalToolTest);
     addTestCreator(createRegistriesTest);

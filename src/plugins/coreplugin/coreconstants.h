@@ -226,6 +226,7 @@ inline constexpr char SETTINGS_ID_TOOLS[] = "D.ExternalTools";
 inline constexpr char SETTINGS_ID_MIMETYPES[] = "E.MimeTypes";
 
 inline constexpr char SETTINGS_DEFAULTTEXTENCODING[] = "General/DefaultFileEncoding";
+inline constexpr char SETTINGS_FALLBACKTEXTENCODING[] = "General/FallbackFileEncoding";
 inline constexpr char SETTINGS_DEFAULT_LINE_TERMINATOR[] = "General/DefaultLineTerminator";
 
 inline constexpr char SETTINGS_THEME[] = "Core/CreatorTheme";

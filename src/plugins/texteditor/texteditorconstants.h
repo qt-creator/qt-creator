@@ -203,6 +203,7 @@ inline constexpr char DELETE_START_OF_WORD[]  = "TextEditor.DeleteStartOfWord";
 inline constexpr char DELETE_START_OF_LINE[]  = "TextEditor.DeleteStartOfLine";
 inline constexpr char DELETE_START_OF_WORD_CAMEL_CASE[] = "TextEditor.DeleteStartOfWordCamelCase";
 inline constexpr char SELECT_ENCODING[]       = "TextEditor.SelectEncoding";
+inline constexpr char FALLBACK_ENCODING[]     = "TextEditor.FallbackEncoding";
 inline constexpr char REWRAP_PARAGRAPH[]      =  "TextEditor.RewrapParagraph";
 inline constexpr char GOTO_DOCUMENT_START[]   = "TextEditor.GotoDocumentStart";
 inline constexpr char GOTO_DOCUMENT_END[]     = "TextEditor.GotoDocumentEnd";

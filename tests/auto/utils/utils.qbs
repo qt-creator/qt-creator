@@ -38,6 +38,7 @@ Project {
         "templateengine/templateengine.qbs",
         "terminalinterface/terminalinterface.qbs",
         "text/text.qbs",
+        "textfileformat/textfileformat.qbs",
         "theme/theme.qbs",
         "treemodel/treemodel.qbs",
         "unarchiver/unarchiver.qbs",

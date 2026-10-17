@@ -998,6 +998,13 @@ void insertSorted(Parentheses &list, const Parenthesis &elem)
 
 #ifdef WITH_TESTS
 
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
+
+#include <utils/qtcsettings.h>
+#include <utils/textcodec.h>
+
+#include <QScopeGuard>
 #include <QTest>
 
 namespace TextEditor::Internal {
@@ -1008,6 +1015,7 @@ class TextDocumentLayoutTest final : public QObject
 
 private slots:
     void testDeletingMarkOnReload();
+    void testReloadWithEncodingDoesNotUseFallback();
 };
 
 void TextDocumentLayoutTest::testDeletingMarkOnReload()
@@ -1023,6 +1031,37 @@ void TextDocumentLayoutTest::testDeletingMarkOnReload()
     delete mark;
     documentLayout->documentReloaded(doc.get()); // re-adds text marks
     QVERIFY(!doc->marks().contains(mark));
+}
+
+void TextDocumentLayoutTest::testReloadWithEncodingDoesNotUseFallback()
+{
+    Utils::QtcSettings *settings = Core::ICore::settings();
+    const Utils::Key fallbackKey(Core::Constants::SETTINGS_FALLBACKTEXTENCODING);
+    const QVariant previousFallback = settings->value(fallbackKey);
+    const bool hadFallback = settings->contains(fallbackKey);
+    const auto restoreFallback = qScopeGuard([=] {
+        if (hadFallback)
+            settings->setValue(fallbackKey, previousFallback);
+        else
+            settings->remove(fallbackKey);
+    });
+    settings->setValue(fallbackKey, Utils::TextEncoding(Utils::TextEncoding::Latin1).name());
+
+    Utils::TemporaryDirectory directory("textdocument-reload-encoding-fallback");
+    QVERIFY(directory.isValid());
+    const Utils::FilePath file = directory.filePath("input.txt");
+    QVERIFY(file.writeFileContents(QByteArray("caf\xE9" "X", 5)));
+
+    TextDocument document;
+    document.setEncoding(Utils::TextEncoding(Utils::TextEncoding::Utf8));
+    QVERIFY(document.open(file, file));
+    QVERIFY(document.decodedWithFallback());
+
+    QVERIFY(document.reload(Utils::TextEncoding(Utils::TextEncoding::Utf8)).has_value());
+    QVERIFY(document.hasDecodingError());
+    QVERIFY(!document.decodedWithFallback());
+    QCOMPARE(document.encoding(), Utils::TextEncoding(Utils::TextEncoding::Utf8));
+    QVERIFY(document.isDecodingFallbackEnabled());
 }
 
 QObject *createTextDocumentTest()

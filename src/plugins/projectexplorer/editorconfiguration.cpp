@@ -60,6 +60,7 @@ EditorConfiguration::EditorConfiguration()
     behaviorSettings.setAutoApply(true);
     storageSettings.setAutoApply(true);
     extraEncodingSettings.setAutoApply(true);
+    extraEncodingSettings.setFallbackEncodingVisible(false);
 
     const QMap<Id, ICodeStylePreferences *> globalStyles = TextEditor::codeStyles();
     for (const auto &[languageId, originalPreferences] : globalStyles.asKeyValueRange()) {
@@ -213,19 +214,27 @@ void EditorConfiguration::configureEditor(Core::IEditor *editor) const
         document->setCodeStyle(codeStyle(widget->languageSettingsId()));
         if (!useGlobalSettings()) {
             const bool useProjectEncoding = !document->editorConfig().encoding;
+            const bool decodedWithFallback = document->decodedWithFallback();
+            const TextEncoding attemptedEncoding = decodedWithFallback
+                                                        ? document->failedPrimaryEncoding()
+                                                        : document->encoding();
             // On session restore, editors are reopened before the project has
             // finished loading, so a file may have been decoded with the global
             // default encoding instead of the project's. Re-read unmodified,
             // undecodable files now.
             const bool reloadWithProjectEncoding = useProjectEncoding
-                    && document->hasDecodingError()
+                    && (document->hasDecodingError() || decodedWithFallback)
                     && !document->isModified()
-                    && document->encoding() != d->m_textEncoding;
-            if (useProjectEncoding)
+                    && attemptedEncoding != d->m_textEncoding;
+            if (useProjectEncoding && (!decodedWithFallback || reloadWithProjectEncoding))
                 document->setEncoding(d->m_textEncoding);
             switchSettings(widget);
-            if (reloadWithProjectEncoding)
-                document->reload(d->m_textEncoding);
+            if (reloadWithProjectEncoding) {
+                if (decodedWithFallback)
+                    document->reload();
+                else
+                    document->reload(d->m_textEncoding);
+            }
         }
     }
 }

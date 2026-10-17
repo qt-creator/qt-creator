@@ -165,6 +165,7 @@
 #include <vector>
 
 #ifdef WITH_TESTS
+#include "editorconfiguration_test.h"
 #include "abi.h"
 #include "clangparser.h"
 #include "gccparser.h"
@@ -905,6 +906,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
         ":/projectexplorer/images/settingscategory_cpp.png");
 
 #ifdef WITH_TESTS
+    addTestCreator(createEditorConfigurationTest);
     addTestCreator(createAbiTest);
     addTestCreator(createClangParserTest);
     addTestCreator(createClangClParserTest);

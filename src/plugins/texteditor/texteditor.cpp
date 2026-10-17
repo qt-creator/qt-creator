@@ -45,6 +45,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/codecselector.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/find/highlightscrollbarcontroller.h>
 #include <coreplugin/find/minimapcontroller.h>
@@ -1792,6 +1793,12 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
                                      &TextEditorWidgetPrivate::documentAboutToBeReloaded);
 
     m_documentConnections << connect(m_document.data(),
+                                     &TextDocument::decodingFallbackChanged,
+                                     this,
+                                     &TextEditorWidgetPrivate::updateCannotDecodeInfo,
+                                     Qt::QueuedConnection);
+
+    m_documentConnections << connect(m_document.data(),
                                      &TextDocument::reloadFinished,
                                      this,
                                      &TextEditorWidgetPrivate::documentReloadFinished);
@@ -2423,6 +2430,26 @@ void TextEditorWidgetPrivate::updateCannotDecodeInfo()
     updateReadOnlyState();
     InfoBar *infoBar = m_document->infoBar();
     Id selectEncodingId(Constants::SELECT_ENCODING);
+    const Id fallbackEncodingId(Constants::FALLBACK_ENCODING);
+    infoBar->removeInfo(fallbackEncodingId);
+    if (m_document->decodedWithFallback() && infoBar->canInfoBeAdded(fallbackEncodingId)) {
+        InfoBarEntry info(fallbackEncodingId,
+            Tr::tr("Could not decode \"%1\" with \"%2\". Opened with fallback encoding \"%3\".")
+                .arg(m_document->displayName(), m_document->failedPrimaryEncoding().displayName(),
+                     m_document->encoding().displayName()));
+        info.addCustomButton(Tr::tr("Select Encoding"),
+                             [document = QPointer<TextDocument>(m_document.data())] {
+            if (!document)
+                return;
+            for (IEditor *editor : DocumentModel::editorsForDocument(document)) {
+                if (auto *textEditor = qobject_cast<BaseTextEditor *>(editor)) {
+                    textEditor->editorWidget()->selectEncoding();
+                    return;
+                }
+            }
+        });
+        infoBar->addInfo(info);
+    }
     if (m_document->hasDecodingError()) {
         if (!infoBar->canInfoBeAdded(selectEncodingId))
             return;

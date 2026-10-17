@@ -4625,6 +4625,14 @@ TextEncoding EditorManager::defaultTextEncoding()
     return TextEncoding::Utf8;
 }
 
+TextEncoding EditorManager::fallbackTextEncoding()
+{
+    QtcSettings *settings = ICore::settings();
+    const QByteArray codecName =
+            settings->value(Constants::SETTINGS_FALLBACKTEXTENCODING).toByteArray();
+    return codecName.isEmpty() ? TextEncoding() : TextEncoding(codecName);
+}
+
 /*!
     Returns the default line ending as the user specified in the settings.
 */

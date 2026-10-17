@@ -21,12 +21,19 @@ EncodingSelectionAspect::EncodingSelectionAspect(AspectContainer *container)
     : ByteArrayAspect(container)
 {}
 
+void EncodingSelectionAspect::setAllowNone(bool allowNone)
+{
+    m_allowNone = allowNone;
+}
+
 void EncodingSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     m_codecChooser = createSubWidget<CodecChooser>();
+    if (m_allowNone)
+        m_codecChooser->prependNone();
     m_codecChooser->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
-    m_codecChooser->setAssignedEncoding(value());
-    parent.addItem(m_codecChooser);
+    m_codecChooser->setAssignedEncoding((*this)());
+    addLabeledItem(parent, m_codecChooser);
 
     connect(m_codecChooser, &CodecChooser::encodingChanged, this, [this] {
         setVolatileValue(m_codecChooser->currentEncoding().name());
@@ -42,17 +49,25 @@ void EncodingSelectionAspect::setValue(const TextEncoding &encoding)
 
 TextEncoding EncodingSelectionAspect::operator()() const
 {
-    return TextEncoding(ByteArrayAspect::value());
+    const QByteArray encodingName = ByteArrayAspect::value();
+    return encodingName.isEmpty() ? TextEncoding() : TextEncoding(encodingName);
 }
 
 ExtraEncodingSettings::ExtraEncodingSettings()
 {
     setAutoApply(false);
     setSettingsGroup("textEditorManager");
+    fallbackEncoding.setAllowNone(true);
 
     defaultEncoding.setSettingsKey(Core::Constants::SETTINGS_DEFAULTTEXTENCODING);
     defaultEncoding.setLabelText(Tr::tr("Default encoding:"));
     defaultEncoding.setDefaultValue(Core::EditorManager::defaultTextEncoding().name());
+
+    fallbackEncoding.setSettingsKey("FallbackEncoding");
+    fallbackEncoding.setLabelText(Tr::tr("Fallback encoding:"));
+    fallbackEncoding.setToolTip(Tr::tr("If decoding with the default encoding fails, retry with this "
+                                      "encoding. Select None to disable the fallback."));
+    fallbackEncoding.setDefaultValue(Core::EditorManager::fallbackTextEncoding().name());
 
     utf8BomSetting.setSettingsKey("Utf8BomBehavior");
     utf8BomSetting.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
@@ -86,6 +101,7 @@ ExtraEncodingSettings::ExtraEncodingSettings()
                 Row {
                     Form {
                         defaultEncoding, br,
+                        fallbackEncoding, br,
                         utf8BomSetting, br,
                         lineEndingSetting, br,
                     }, st
@@ -119,6 +135,12 @@ void ExtraEncodingSettings::apply()
     const TextEncoding encoding(defaultEncoding());
     if (encoding.isValid())
         s.setValue(Core::Constants::SETTINGS_DEFAULTTEXTENCODING, encoding.name());
+
+    const TextEncoding fallback(fallbackEncoding());
+    if (fallback.isValid())
+        s.setValue(Core::Constants::SETTINGS_FALLBACKTEXTENCODING, fallback.name());
+    else
+        s.remove(Core::Constants::SETTINGS_FALLBACKTEXTENCODING);
 
     s.setValue(Core::Constants::SETTINGS_DEFAULT_LINE_TERMINATOR,
                 lineEndingSetting());

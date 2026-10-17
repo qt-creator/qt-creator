@@ -145,6 +145,7 @@ public:
     static bool autoSaveAfterRefactoring();
 
     static Utils::TextEncoding defaultTextEncoding();
+    static Utils::TextEncoding fallbackTextEncoding();
 
     static Utils::TextFileFormat::LineTerminationMode defaultLineEnding();
 

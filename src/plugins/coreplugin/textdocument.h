@@ -33,17 +33,42 @@ public:
 
     Utils::TextFileFormat::LineTerminationMode lineTerminationMode() const;
 
-    ReadResult read(const Utils::FilePath &filePath);
+    enum class DecodingFallback { Allowed, Disabled };
+
+    /*! Reads a filePath using the current encoding.
+
+        If a fallback is Allowed and fallback decoding is enabled for this
+        document, retries a failed decode with the configured fallback encoding.
+        Fallback decoding is disabled by default for BaseTextDocument;
+        TextEditor::TextDocument enables it by default.
+    */
+    ReadResult read(const Utils::FilePath &filePath,
+                    DecodingFallback fallback = DecodingFallback::Allowed);
     virtual QString plainText() const;
 
     bool hasDecodingError() const;
+    //! Returns whether the last read succeeded using the configured fallback encoding.
+    bool decodedWithFallback() const;
+    //! Returns the encoding that failed when the last read used fallback decoding.
+    Utils::TextEncoding failedPrimaryEncoding() const;
     QByteArray decodingErrorSample() const;
+    //! Returns whether reads may retry with the configured fallback encoding.
+    bool isDecodingFallbackEnabled() const;
+    //! Enables or disables retrying reads with the configured fallback encoding.
+    void setDecodingFallbackEnabled(bool enabled);
 
     Utils::Result<> write(const Utils::FilePath &filePath, const QString &data) const;
     Utils::Result<> write(const Utils::FilePath &filePath, const Utils::TextFileFormat &format, const QString &data) const;
 
     void setSupportsUtf8Bom(bool value);
     void setLineTerminationMode(Utils::TextFileFormat::LineTerminationMode mode);
+
+signals:
+    //! Emitted when the last read's fallback state or failed primary encoding changes.
+    void decodingFallbackChanged();
+
+protected:
+    void restoreDecodingFallbackState(const Utils::TextEncoding &failedPrimaryEncoding);
 
 private:
     Internal::TextDocumentPrivate *d;

@@ -44,6 +44,19 @@ static QDebug operator<<(QDebug d, const TextFileFormat &format)
 
 TextFileFormat::TextFileFormat() = default;
 
+static TextEncoding encodingFromBom(const QByteArray &data)
+{
+    if (data.startsWith(QByteArrayView("\xff\xfe\0\0", 4))
+        || data.startsWith(QByteArrayView("\0\0\xfe\xff", 4))) {
+        return TextEncoding(TextEncoding::Utf32);
+    }
+    if (data.startsWith("\xff\xfe") || data.startsWith("\xfe\xff"))
+        return TextEncoding(TextEncoding::Utf16);
+    if (data.startsWith("\xef\xbb\xbf"))
+        return TextEncoding(TextEncoding::Utf8);
+    return {};
+}
+
 /*!
     Detects the format of text \a data.
 */
@@ -52,20 +65,11 @@ void TextFileFormat::detectFromData(const QByteArray &data)
 {
     if (data.isEmpty())
         return;
-    const int bytesRead = data.size();
-    const auto buf = reinterpret_cast<const unsigned char *>(data.constData());
-    // code taken from qtextstream
-    if (bytesRead >= 4 && ((buf[0] == 0xff && buf[1] == 0xfe && buf[2] == 0 && buf[3] == 0)
-                           || (buf[0] == 0 && buf[1] == 0 && buf[2] == 0xfe && buf[3] == 0xff))) {
-        m_encoding = TextEncoding::Utf32;
-    } else if (bytesRead >= 2 && ((buf[0] == 0xff && buf[1] == 0xfe)
-                                  || (buf[0] == 0xfe && buf[1] == 0xff))) {
-        m_encoding = TextEncoding::Utf16;
-    } else if (bytesRead >= 3 && ((buf[0] == 0xef && buf[1] == 0xbb) && buf[2] == 0xbf)) {
-        m_encoding = TextEncoding::Utf8;
-        hasUtf8Bom = true;
+    if (const TextEncoding bomEncoding = encodingFromBom(data); bomEncoding.isValid()) {
+        m_encoding = bomEncoding;
+        if (bomEncoding.isUtf8())
+            hasUtf8Bom = true;
     }
-    // end code taken from qtextstream
     const int newLinePos = data.indexOf('\n');
     if (newLinePos == -1)
         lineTerminationMode = NativeLineTerminator;
@@ -118,15 +122,23 @@ bool TextFileFormat::decode(const QByteArray &data, QString *target) const
 
 /*!
     Reads a text file from \a filePath into a string. It detects the codec to use
-    from the BOM read file contents. If none is set, it uses \a fallbackEncoding.
-    If the fallback is not set, it uses the text encoding set for the locale.
+    from the BOM in the file contents. If there is no BOM and no encoding is set,
+    it uses \a defaultEncoding. If that is not set, it uses the text encoding
+    set for the locale.
+
+    If decoding with the primary encoding fails, the method retries with
+    \a retryEncoding unless a BOM is present or \a retryEncoding equals the
+    primary encoding. On a successful retry, \a retryEncoding becomes the
+    format's encoding and \c ReadResult::usedDecodingFallback is set.
 
     Returns whether decoding was possible without errors. If an error occurs,
     it is returned together with a decoding error sample.
 */
 
 TextFileFormat::ReadResult
-TextFileFormat::readFile(const FilePath &filePath, const TextEncoding &fallbackEncoding)
+TextFileFormat::readFile(const FilePath &filePath,
+                         const TextEncoding &defaultEncoding,
+                         const TextEncoding &retryEncoding)
 {
     QByteArray data;
     try {
@@ -139,14 +151,27 @@ TextFileFormat::readFile(const FilePath &filePath, const TextEncoding &fallbackE
     }
 
     detectFromData(data);
+    const bool hasBom = encodingFromBom(data).isValid();
 
     if (!m_encoding.isValid())
-        m_encoding = fallbackEncoding;
+        m_encoding = defaultEncoding;
     if (!m_encoding.isValid())
         m_encoding = TextEncoding::encodingForLocale();
 
     TextFileFormat::ReadResult result;
     if (!decode(data, &result.content)) {
+        if (!hasBom && retryEncoding.isValid() && retryEncoding != m_encoding) {
+            const TextEncoding failedEncoding = m_encoding;
+            const QString failedContent = result.content;
+            m_encoding = retryEncoding;
+            if (decode(data, &result.content)) {
+                result.usedDecodingFallback = true;
+                return result;
+            }
+            m_encoding = failedEncoding;
+            result.content = failedContent;
+        }
+
         result.code = TextFileFormat::ReadEncodingError;
         result.error = Tr::tr("An encoding error was encountered.");
         result.decodingErrorSample = TextFileFormat::decodingErrorSample(data);

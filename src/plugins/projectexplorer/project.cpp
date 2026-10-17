@@ -56,12 +56,14 @@
 #include <QHash>
 
 #ifdef WITH_TESTS
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcsettings.h>
 #include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
@@ -2579,6 +2581,91 @@ private slots:
         QCOMPARE(document->filePath(), renamed);
         config->configureEditor(editor);
         QCOMPARE(document->encoding().name(), TextEncoding(TextEncoding::Latin1).name());
+    }
+
+    void testProjectEncodingKeepsFallback_data()
+    {
+        QTest::addColumn<bool>("modified");
+        QTest::addColumn<QByteArray>("projectEncodingName");
+
+        QTest::newRow("unmodified-primary-encoding")
+            << false << Utils::TextEncoding(Utils::TextEncoding::Utf8).name();
+        QTest::newRow("modified-different-project-encoding")
+            << true << Utils::TextEncoding("Windows-1251").name();
+    }
+
+    void testProjectEncodingKeepsFallback()
+    {
+        using namespace Utils;
+        QFETCH(bool, modified);
+        QFETCH(QByteArray, projectEncodingName);
+
+        auto *settings = Core::ICore::settings();
+        const Key defaultEncodingKey(Core::Constants::SETTINGS_DEFAULTTEXTENCODING);
+        const Key fallbackEncodingKey(Core::Constants::SETTINGS_FALLBACKTEXTENCODING);
+        const QVariant oldDefault = settings->value(defaultEncodingKey);
+        const QVariant oldFallback = settings->value(fallbackEncodingKey);
+        const bool hadDefault = settings->contains(defaultEncodingKey);
+        const bool hadFallback = settings->contains(fallbackEncodingKey);
+        const QScopeGuard restoreSettings([=] {
+            if (hadDefault)
+                settings->setValue(defaultEncodingKey, oldDefault);
+            else
+                settings->remove(defaultEncodingKey);
+            if (hadFallback)
+                settings->setValue(fallbackEncodingKey, oldFallback);
+            else
+                settings->remove(fallbackEncodingKey);
+        });
+        settings->setValue(defaultEncodingKey, TextEncoding(TextEncoding::Utf8).name());
+        settings->setValue(fallbackEncodingKey, TextEncoding(TextEncoding::Latin1).name());
+
+        TemporaryDirectory td("qtc-project-encoding-fallback");
+        QVERIFY(td.isValid());
+        const FilePath file = td.path().pathAppended("fallback.dat");
+        QVERIFY(file.writeFileContents(QByteArray(1, char(0xe4)) + '\n'));
+
+        auto project = std::make_unique<RenameTestProject>(td);
+        auto root = std::make_unique<ProjectNode>(project->projectFilePath());
+        root->addNode(std::make_unique<FileNode>(project->projectFilePath(), FileType::Project));
+        root->addNode(std::make_unique<FileNode>(file, FileType::Source));
+        project->setRootProjectNode(std::move(root));
+        EditorConfiguration *config = project->editorConfiguration();
+        QVERIFY(!config->extraEncodingSettings.fallbackEncoding.isVisible());
+        config->useGlobalSettings.setValue(false);
+        const TextEncoding projectEncoding(projectEncodingName);
+        QVERIFY(projectEncoding.isValid());
+        config->setTextEncoding(projectEncoding);
+
+        Core::IEditor *editor = Core::EditorManager::openEditor(file);
+        QVERIFY(editor);
+        const auto closeEditor = qScopeGuard([editor] {
+            Core::EditorManager::closeEditors({editor}, false);
+        });
+        auto *widget = TextEditor::TextEditorWidget::fromEditor(editor);
+        QVERIFY(widget);
+        auto *document = widget->textDocument();
+        QVERIFY(document->decodedWithFallback());
+        QVERIFY(!document->hasDecodingError());
+        if (modified)
+            widget->insertPlainText("edited");
+        QCOMPARE(document->isModified(), modified);
+        const QString expectedText = document->plainText();
+
+        Project *projectPtr = project.release();
+        ProjectManager::addProject(projectPtr);
+        const auto removeProject = qScopeGuard([projectPtr] {
+            ProjectManager::removeProject(projectPtr);
+        });
+        QCOMPARE(ProjectManager::projectForFile(file), projectPtr);
+        QVERIFY(!document->hasDecodingError());
+        QCOMPARE(document->encoding(), TextEncoding(TextEncoding::Latin1));
+        QVERIFY(document->decodedWithFallback());
+        QCOMPARE(document->plainText(), expectedText);
+        QSignalSpy reloadSpy(document, &IDocument::reloadFinished);
+        config->configureEditor(editor);
+        QCOMPARE(reloadSpy.count(), 0);
+        QCOMPARE(document->encoding(), TextEncoding(TextEncoding::Latin1));
     }
 
     // The re-entered event loop runs the queued rebuild of the kit list, which

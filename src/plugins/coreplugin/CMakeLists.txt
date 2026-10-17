@@ -321,6 +321,8 @@ extend_qtc_plugin(Core
     actionmanager/actionmanager_test.h
     documentmanager_test.cpp
     documentmanager_test.h
+    basetextdocument_test.cpp
+    basetextdocument_test.h
     editormanager/editormanager_test.cpp
     externaltool_test.cpp
     externaltool_test.h
