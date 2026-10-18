@@ -12,6 +12,7 @@
 #include <QString>
 
 #include <array>
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 template <class T>
@@ -35,7 +36,20 @@ public:
 
     QString fileName; // This is local from the perspective of the git binary.
     QString typeInfo;
+    bool jumpToSource = false;
+    int firstLineNumber = 1;
+    int columnOffset = 0;
+    bool isRangeComparison = false;
     PatchBehaviour patchBehaviour = PatchFile;
+
+    std::optional<int> sourceColumn(int lineNumber, int columnNumber) const
+    {
+        if (isRangeComparison && !jumpToSource)
+            return std::nullopt;
+        if (jumpToSource && lineNumber == firstLineNumber)
+            columnNumber = qMax(columnNumber, 0) + columnOffset;
+        return columnNumber;
+    }
 };
 
 using DiffFileInfoArray = std::array<DiffFileInfo, SideCount>;

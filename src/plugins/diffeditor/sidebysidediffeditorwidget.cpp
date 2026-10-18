@@ -313,7 +313,7 @@ static SideBySideDiffOutput diffOutput(QPromise<SideBySideShowResults> &promise,
         addFileLine(RightSide, contextFileData);
         blockNumber++;
 
-        int lastLeftLineNumber = -1;
+        int lastLeftLineNumber = contextFileData.fileInfo[LeftSide].firstLineNumber - 2;
 
         if (contextFileData.binaryFiles) {
             output.foldingIndent.insert(blockNumber, 2);
@@ -1005,11 +1005,15 @@ void SideBySideDiffEditorWidget::jumpToOriginalFileRequested(DiffSide side, int 
     const QString fileName = fileData.fileInfo[side].fileName;
     const DiffSide otherSide = oppositeSide(side);
     const QString otherFileName = fileData.fileInfo[otherSide].fileName;
-    if (side == RightSide || fileName != otherFileName) {
+    const DiffFileInfo &info = fileData.fileInfo[side];
+    const std::optional<int> sourceColumn = info.sourceColumn(lineNumber, columnNumber);
+    if (!sourceColumn)
+        return;
+    if (info.isRangeComparison || side == RightSide || fileName != otherFileName) {
         // different file (e.g. in Tools | Diff...)
         m_controller.resolveCurrentLine(
-            fileName, lineNumber, [this, columnNumber](const QString &resolvedFileName, int line) {
-                m_controller.jumpToOriginalFile(resolvedFileName, line, columnNumber);
+            fileName, lineNumber, [this, sourceColumn](const QString &resolvedFileName, int line) {
+                m_controller.jumpToOriginalFile(resolvedFileName, line, *sourceColumn);
         });
         return;
     }

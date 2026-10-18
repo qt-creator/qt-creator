@@ -29,15 +29,24 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/differ.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/plaintextedit/plaintextedit.h>
 
 #include <QAbstractButton>
 #include <QAction>
 #include <QMenu>
 #include <QPointer>
+#include <QTextCursor>
+#include <QTextDocument>
+#include <QTimer>
+#include <QUuid>
+
+#include <memory>
+#include <utility>
 
 using namespace Core;
 using namespace TextEditor;
@@ -52,6 +61,8 @@ public:
     FileData::FileOperation fileOperation = FileData::ChangeFile;
     bool binaryFiles = false;
 };
+
+static void applyLineOffsets(FileData &fileData);
 
 class DiffFile
 {
@@ -96,6 +107,22 @@ public:
             fileData = DiffUtils::calculateContextData(chunkData, m_contextLineCount, 0);
         }
         fileData.fileInfo = reloadInput.fileInfo;
+        applyLineOffsets(fileData);
+        if (!reloadInput.binaryFiles && reloadInput.fileInfo[LeftSide].isRangeComparison) {
+            bool hasChanges = false;
+            for (const ChunkData &chunk : std::as_const(fileData.chunks)) {
+                for (const RowData &row : std::as_const(chunk.rows)) {
+                    if (!row.equal) {
+                        hasChanges = true;
+                        break;
+                    }
+                }
+                if (hasChanges)
+                    break;
+            }
+            if (!hasChanges)
+                return;
+        }
         fileData.fileOperation = reloadInput.fileOperation;
         fileData.binaryFiles = reloadInput.binaryFiles;
         promise.addResult(fileData);
@@ -259,6 +286,237 @@ static QList<ReloadInput> documentsReloadInputList(
     return {reloadInput};
 }
 
+struct ComparisonRangeTracking
+{
+    QObject context;
+    QTextCursor start;
+    QTextCursor end;
+    int previousStart = 0;
+    int previousEnd = 0;
+    bool includeInsertionsAtStart = false;
+};
+
+struct ComparisonRange
+{
+    QString text;
+    QString fileName;
+    int firstLine = 1;
+    int lastLine = 1;
+    int firstColumn = 0;
+    QTextCursor cursor;
+    QPointer<QTextDocument> sourceDocument;
+    QPointer<TextDocument> sourceTextDocument;
+    std::shared_ptr<ComparisonRangeTracking> tracking;
+    bool wholeLines = false;
+    bool tracksSourceDocument = false;
+    bool trackingStopped = false;
+    bool jumpToSource = false;
+};
+
+enum class EmptySelection { Reject, Allow };
+
+static std::optional<ComparisonRange> comparisonRange(QTextCursor cursor,
+                                                      const QString &fileName,
+                                                      QTextDocument *sourceDocument = nullptr,
+                                                      EmptySelection emptySelection = EmptySelection::Reject,
+                                                      TextDocument *sourceTextDocument = nullptr)
+{
+    if (!cursor.hasSelection() && emptySelection == EmptySelection::Reject)
+        return std::nullopt;
+
+    if (cursor.hasSelection()) {
+        const QTextBlock first = cursor.document()->findBlock(cursor.selectionStart());
+        const QTextBlock last = cursor.document()->findBlock(cursor.selectionEnd() - 1);
+        if (first != last) {
+            cursor.setPosition(first.position());
+            const int lastPosition = last.position() + last.text().size();
+            cursor.setPosition(lastPosition + (last.text().isEmpty() ? 1 : 0),
+                               QTextCursor::KeepAnchor);
+        }
+    }
+
+    QString text = cursor.selectedText();
+    text.replace(QChar::ParagraphSeparator, QLatin1Char('\n'));
+    text.replace(QChar::LineSeparator, QLatin1Char('\n'));
+
+    const int firstLine = cursor.document()->findBlock(cursor.selectionStart()).blockNumber() + 1;
+    int lastLine = firstLine + text.count(QLatin1Char('\n'));
+    if (text.endsWith(QLatin1Char('\n')))
+        --lastLine;
+
+    ComparisonRange range;
+    range.text = text;
+    range.fileName = fileName;
+    range.firstLine = firstLine;
+    range.lastLine = qMax(firstLine, lastLine);
+    range.firstColumn = cursor.selectionStart()
+                        - cursor.document()->findBlock(cursor.selectionStart()).position();
+    range.wholeLines = range.firstColumn == 0 && text.endsWith(QLatin1Char('\n'));
+    range.cursor = cursor;
+    range.sourceDocument = sourceDocument;
+    range.sourceTextDocument = sourceTextDocument;
+    range.jumpToSource = sourceTextDocument && !sourceTextDocument->filePath().isEmpty()
+                         && sourceTextDocument->filePath().isLocal();
+    return range;
+}
+
+static QTextCursor comparisonCursor(QTextCursor cursor, const ComparisonRange &reference)
+{
+    if (!cursor.hasSelection()) {
+        const int lineCount = reference.lastLine - reference.firstLine + 1;
+        if (lineCount > 1)
+            cursor.movePosition(QTextCursor::StartOfBlock);
+        QTextBlock lastBlock = cursor.block();
+        for (int line = 1; line < lineCount && lastBlock.next().isValid(); ++line)
+            lastBlock = lastBlock.next();
+        int end = lastBlock.position() + lastBlock.text().size();
+        if (reference.text.endsWith(QLatin1Char('\n')) && lastBlock.next().isValid())
+            ++end;
+        cursor.setPosition(end, QTextCursor::KeepAnchor);
+    }
+    return cursor;
+}
+
+static QString titleOfDocument(IDocument *document);
+
+static ComparisonRange currentComparisonRange(const ComparisonRange &range)
+{
+    if (range.trackingStopped)
+        return range;
+    if (range.sourceDocument && range.tracksSourceDocument) {
+        QTextDocument *document = range.sourceDocument;
+        const QString fileName = range.sourceTextDocument
+                                     ? titleOfDocument(range.sourceTextDocument)
+                                     : range.fileName;
+        QTextCursor cursor(document);
+        cursor.setPosition(qBound(0, range.tracking->start.position(),
+                                  document->characterCount() - 1));
+        if (range.wholeLines)
+            cursor.setPosition(cursor.block().position());
+        cursor.setPosition(qBound(0, range.tracking->end.position(),
+                                  document->characterCount() - 1), QTextCursor::KeepAnchor);
+        const std::optional<ComparisonRange> currentRange
+            = comparisonRange(cursor, fileName, document, EmptySelection::Allow,
+                              range.sourceTextDocument);
+        return currentRange.value_or(range);
+    }
+    if (range.cursor.document()) {
+        QTextCursor cursor = range.cursor;
+        if (range.wholeLines) {
+            const int end = cursor.selectionEnd();
+            cursor.setPosition(cursor.document()->findBlock(cursor.selectionStart()).position());
+            cursor.setPosition(end, QTextCursor::KeepAnchor);
+        }
+        return comparisonRange(cursor,
+                               range.sourceTextDocument ? titleOfDocument(range.sourceTextDocument)
+                                                        : range.fileName,
+                               range.sourceDocument,
+                               EmptySelection::Reject, range.sourceTextDocument)
+            .value_or(range);
+    }
+    return range;
+}
+
+static ComparisonRange trackComparisonRange(ComparisonRange range)
+{
+    if (!range.sourceDocument || (!range.cursor.hasSelection() && !range.text.isEmpty()))
+        return range;
+    range.tracking = std::make_shared<ComparisonRangeTracking>();
+    range.tracking->start = QTextCursor(range.sourceDocument);
+    range.tracking->start.setPosition(range.cursor.selectionStart());
+    range.tracking->end = QTextCursor(range.sourceDocument);
+    range.tracking->end.setPosition(range.cursor.selectionEnd());
+    if (range.text.endsWith(QLatin1Char('\n'))
+        && range.tracking->end.position() == range.tracking->end.block().position()) {
+        range.tracking->end.setKeepPositionOnInsert(true);
+    }
+    ComparisonRangeTracking *tracking = range.tracking.get();
+    tracking->previousStart = tracking->start.position();
+    tracking->previousEnd = tracking->end.position();
+    QObject::connect(range.sourceDocument, &QTextDocument::contentsChange, &tracking->context,
+                     [tracking](int position, int removed, int added) {
+        const int documentEnd = tracking->start.document()->characterCount() - 1;
+        if ((removed > 0 || added > 0)
+            && tracking->start.position() >= tracking->end.position()
+            && position <= tracking->previousStart
+            && position + removed >= tracking->previousEnd) {
+            tracking->start.setPosition(qBound(0, position, documentEnd));
+            tracking->end.setPosition(qBound(0, position + added, documentEnd));
+            tracking->includeInsertionsAtStart = removed == 0 && added > 0;
+        } else if (tracking->includeInsertionsAtStart && removed == 0 && added > 0
+                   && position == tracking->previousStart) {
+            tracking->start.setPosition(qBound(0, position, documentEnd));
+        }
+        tracking->previousStart = tracking->start.position();
+        tracking->previousEnd = tracking->end.position();
+    });
+    range.tracksSourceDocument = true;
+    return range;
+}
+
+static void stopTrackingComparisonRange(ComparisonRange &range)
+{
+    range = currentComparisonRange(range);
+    range.trackingStopped = true;
+}
+
+static ReloadInput comparisonReloadInput(const ComparisonRange &left,
+                                         const ComparisonRange &right)
+{
+    ReloadInput input;
+    input.text = {left.text, right.text};
+    const auto lineDescription = [](const ComparisonRange &range) {
+        return range.firstLine == range.lastLine
+                   ? Tr::tr("Line %1").arg(range.firstLine)
+                   : Tr::tr("Lines %1-%2").arg(range.firstLine).arg(range.lastLine);
+    };
+    input.fileInfo[LeftSide] = DiffFileInfo(left.fileName, lineDescription(left));
+    input.fileInfo[RightSide] = DiffFileInfo(right.fileName, lineDescription(right));
+    input.fileInfo[LeftSide].firstLineNumber = left.firstLine;
+    input.fileInfo[LeftSide].columnOffset = left.firstColumn;
+    input.fileInfo[RightSide].firstLineNumber = right.firstLine;
+    input.fileInfo[RightSide].columnOffset = right.firstColumn;
+    input.fileInfo[LeftSide].jumpToSource = left.jumpToSource;
+    input.fileInfo[RightSide].jumpToSource = right.jumpToSource;
+    input.fileInfo[LeftSide].isRangeComparison = true;
+    input.fileInfo[RightSide].isRangeComparison = true;
+    return input;
+}
+
+static void applyLineOffsets(FileData &fileData)
+{
+    if (fileData.fileInfo[LeftSide].isRangeComparison
+        && fileData.fileInfo[RightSide].isRangeComparison) {
+        if (!fileData.chunks.isEmpty()) {
+            QList<RowData> &rows = fileData.chunks.last().rows;
+            for (DiffSide side : {LeftSide, RightSide}) {
+                for (auto it = rows.rbegin(); it != rows.rend(); ++it) {
+                    TextLineData &line = it->line[side];
+                    if (line.textLineType != TextLineData::TextLine)
+                        continue;
+                    if (line.text.isEmpty()) {
+                        // The final empty text line represents the excerpt's trailing newline.
+                        line = TextLineData(TextLineData::Separator);
+                        it->equal = false;
+                    }
+                    break;
+                }
+            }
+            Utils::erase(rows, [](const RowData &row) {
+                return row.line[LeftSide].textLineType == TextLineData::Separator
+                       && row.line[RightSide].textLineType == TextLineData::Separator;
+            });
+            if (rows.isEmpty())
+                fileData.chunks.removeLast();
+        }
+        fileData.lastChunkAtTheEndOfFile = false;
+    }
+    for (ChunkData &chunk : fileData.chunks) {
+        chunk.startingLineNumber[LeftSide] += fileData.fileInfo[LeftSide].firstLineNumber - 1;
+        chunk.startingLineNumber[RightSide] += fileData.fileInfo[RightSide].firstLineNumber - 1;
+    }
+}
+
 static QString textOfDocument(IDocument *document)
 {
     if (auto *textDocument = qobject_cast<TextDocument *>(document))
@@ -290,17 +548,18 @@ public:
     void diffDocuments(IDocument *leftDocument, IDocument *rightDocument) final;
 };
 
-static void reload(const QString &vcsId, const QString &displayName,
-                   const DiffFilesController::ReloadInputListGetter &getter)
+static DiffEditorDocument *reload(const QString &vcsId, const QString &displayName,
+                                  const DiffFilesController::ReloadInputListGetter &getter)
 {
     auto const document = qobject_cast<DiffEditorDocument *>(
         DiffEditorController::findOrCreateDocument(vcsId, displayName));
     if (!document)
-        return;
+        return nullptr;
     if (!DiffEditorController::controller(document))
         new DiffFilesController(document, getter);
     EditorManager::activateEditorForDocument(document);
     document->reload();
+    return document;
 }
 
 void DiffEditorServiceImpl::diffFiles(const FilePath &leftFilePath, const FilePath &rightFilePath)
@@ -359,9 +618,19 @@ private:
     void diffCurrentFile();
     void diffOpenFiles();
     void diffExternalFiles();
+    void updateRangeComparisonActions();
+    void selectRangeForComparison();
+    void compareWithSelectedRange();
 
     QAction *m_diffCurrentFileAction = nullptr;
     QAction *m_diffOpenFilesAction = nullptr;
+    QAction *m_selectRangeAction = nullptr;
+    QAction *m_compareRangeAction = nullptr;
+    QPointer<TextEditorWidget> m_rangeActionWidget;
+    QMetaObject::Connection m_selectionChangedConnection;
+    std::optional<ComparisonRange> m_selectedRange;
+    QMetaObject::Connection m_selectedRangeDestroyedConnection;
+    QMetaObject::Connection m_selectedRangeReloadConnection;
 
     DiffEditorServiceImpl m_service;
 
@@ -381,6 +650,23 @@ private slots:
     void testFilterPatch_data();
     void testFilterPatch();
     void testDiffDocuments();
+    void testComparisonRange();
+    void testRangeComparisonTrailingNewline();
+    void testDiffFileIgnoreWhitespaceDoesNotDropFile();
+    void testComparisonSelection_data();
+    void testComparisonSelection();
+    void testComparisonSelectionBlankLine();
+    void testComparisonCursor_data();
+    void testComparisonCursor();
+    void testSelectionRangeReloadBeforeCompare();
+    void testRangeComparisonActions();
+    void testSingleLineComparisonJump();
+    void testRangeComparisonPatch_data();
+    void testRangeComparisonPatch();
+    void testClosedRangeComparison();
+    void testRangeComparisonWithoutSourceJump();
+    void testUnifiedRangeComparisonFallsBackToJumpableSide();
+    void testDiffFileInfoSourceColumn();
     void testInlineDiff();
     void testInlineDiffCollapse();
     void testInlineDiffCollapseAddedLines();
@@ -423,6 +709,31 @@ void DiffEditorPlugin::initialize()
     connect(m_diffOpenFilesAction, &QAction::triggered, this, &DiffEditorPlugin::diffOpenFiles);
     diffContainer->addAction(diffOpenFilesCommand);
 
+    ActionContainer *textEditorMenu
+        = ActionManager::actionContainer(TextEditor::Constants::M_STANDARDCONTEXTMENU);
+    if (textEditorMenu) {
+        const Id rangeComparisonGroup("DiffEditor.RangeComparison");
+        textEditorMenu->appendGroup(rangeComparisonGroup);
+        textEditorMenu->addSeparator(rangeComparisonGroup);
+
+        m_selectRangeAction = new QAction(Tr::tr("Set Selection for Comparison"), this);
+        Command *selectRangeCommand = ActionManager::registerAction(
+            m_selectRangeAction, "DiffEditor.SelectRangeForComparison",
+            Context(TextEditor::Constants::C_TEXTEDITOR));
+        selectRangeCommand->setAttribute(Command::CA_UpdateText);
+        connect(m_selectRangeAction, &QAction::triggered,
+                this, &DiffEditorPlugin::selectRangeForComparison);
+        textEditorMenu->addAction(selectRangeCommand, rangeComparisonGroup);
+
+        m_compareRangeAction = new QAction(Tr::tr("Compare with Selection"), this);
+        Command *compareRangeCommand = ActionManager::registerAction(
+            m_compareRangeAction, "DiffEditor.CompareWithSelectedRange",
+            Context(TextEditor::Constants::C_TEXTEDITOR));
+        connect(m_compareRangeAction, &QAction::triggered,
+                this, &DiffEditorPlugin::compareWithSelectedRange);
+        textEditorMenu->addAction(compareRangeCommand, rangeComparisonGroup);
+    }
+
     QAction *diffExternalFilesAction = new QAction(Tr::tr("Diff External Files..."), this);
     Command *diffExternalFilesCommand = ActionManager::registerAction(diffExternalFilesAction, "DiffEditor.DiffExternalFiles");
     connect(diffExternalFilesAction, &QAction::triggered, this, &DiffEditorPlugin::diffExternalFiles);
@@ -430,6 +741,8 @@ void DiffEditorPlugin::initialize()
 
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &DiffEditorPlugin::updateDiffCurrentFileAction);
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+            this, &DiffEditorPlugin::updateRangeComparisonActions);
     connect(EditorManager::instance(), &EditorManager::currentDocumentStateChanged,
             this, &DiffEditorPlugin::updateDiffCurrentFileAction);
     connect(EditorManager::instance(), &EditorManager::editorOpened,
@@ -441,6 +754,165 @@ void DiffEditorPlugin::initialize()
 
     updateDiffCurrentFileAction();
     updateDiffOpenFilesAction();
+    updateRangeComparisonActions();
+}
+
+void DiffEditorPlugin::updateRangeComparisonActions()
+{
+    auto *textEditor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
+    TextEditorWidget *widget = textEditor ? textEditor->editorWidget() : nullptr;
+    if (widget != m_rangeActionWidget) {
+        disconnect(m_selectionChangedConnection);
+        m_rangeActionWidget = widget;
+        if (widget) {
+            m_selectionChangedConnection = connect(
+                widget, &PlainTextEdit::selectionChanged, this,
+                &DiffEditorPlugin::updateRangeComparisonActions);
+        }
+    }
+
+    const bool hasSelection = widget && widget->textCursor().hasSelection();
+    if (m_selectedRange && !m_selectedRange->sourceDocument)
+        m_selectedRange.reset();
+    if (m_selectRangeAction) {
+        QString text = Tr::tr("Set Selection for Comparison");
+        if (m_selectedRange) {
+            text = hasSelection ? Tr::tr("Replace Selection for Comparison")
+                                : Tr::tr("Clear Selection for Comparison");
+        }
+        m_selectRangeAction->setText(text);
+        m_selectRangeAction->setEnabled(m_selectedRange.has_value() || hasSelection);
+    }
+    if (m_compareRangeAction)
+        m_compareRangeAction->setEnabled(m_selectedRange.has_value() && widget);
+}
+
+void DiffEditorPlugin::selectRangeForComparison()
+{
+    auto *textEditor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
+    if (!textEditor || !textEditor->editorWidget())
+        return;
+
+    TextDocument *document = textEditor->textDocument();
+    const QString fileName = titleOfDocument(document);
+    m_selectedRange = comparisonRange(textEditor->editorWidget()->textCursor(), fileName,
+                                     document->document(), EmptySelection::Reject,
+                                     document);
+    disconnect(m_selectedRangeDestroyedConnection);
+    disconnect(m_selectedRangeReloadConnection);
+    if (m_selectedRange) {
+        m_selectedRangeDestroyedConnection = connect(
+            document->document(), &QObject::destroyed, this, [this] {
+                m_selectedRange.reset();
+                updateRangeComparisonActions();
+            });
+        m_selectedRangeReloadConnection = connect(
+            document, &TextDocument::aboutToReload, this, [this] {
+                if (!m_selectedRange)
+                    return;
+                stopTrackingComparisonRange(*m_selectedRange);
+                m_selectedRange->jumpToSource = false;
+                updateRangeComparisonActions();
+            });
+    }
+    if (m_selectedRange)
+        textEditor->editorWidget()->setTextCursor(m_selectedRange->cursor);
+    updateRangeComparisonActions();
+}
+
+void DiffEditorPlugin::compareWithSelectedRange()
+{
+    if (!m_selectedRange || !m_selectedRange->sourceDocument) {
+        m_selectedRange.reset();
+        updateRangeComparisonActions();
+        return;
+    }
+
+    auto *textEditor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
+    if (!textEditor || !textEditor->editorWidget())
+        return;
+
+    TextDocument *document = textEditor->textDocument();
+    const QString fileName = titleOfDocument(document);
+    const ComparisonRange left = currentComparisonRange(*m_selectedRange);
+    const QTextCursor cursor = comparisonCursor(textEditor->editorWidget()->textCursor(), left);
+    const std::optional<ComparisonRange> currentRange
+        = comparisonRange(cursor, fileName, document->document(), EmptySelection::Allow,
+                          document);
+    if (!currentRange)
+        return;
+
+    const ComparisonRange right = *currentRange;
+    textEditor->editorWidget()->setTextCursor(right.cursor);
+    const auto trackedLeft = std::make_shared<ComparisonRange>(trackComparisonRange(left));
+    const auto trackedRight = std::make_shared<ComparisonRange>(trackComparisonRange(right));
+    const QString documentId = QLatin1String(Constants::DIFF_EDITOR_PLUGIN)
+                               + ".DiffTextRanges." + QUuid::createUuid().toString();
+    QPointer<DiffEditorDocument> comparisonDocument = reload(
+        documentId, Tr::tr("Compare Text Ranges"), [trackedLeft, trackedRight] {
+            return QList<ReloadInput>{comparisonReloadInput(currentComparisonRange(*trackedLeft),
+                                                           currentComparisonRange(*trackedRight))};
+    });
+    if (!comparisonDocument)
+        return;
+
+    auto *refreshTimer = new QTimer(comparisonDocument);
+    refreshTimer->setSingleShot(true);
+    refreshTimer->setInterval(250);
+    connect(refreshTimer, &QTimer::timeout, comparisonDocument, [comparisonDocument] {
+        if (DiffEditorController *controller = DiffEditorController::controller(comparisonDocument))
+            controller->requestReload();
+    });
+    const auto scheduleRefresh = [refreshTimer](int, int, int) {
+        refreshTimer->start();
+    };
+    const auto stopTrackingOnReload = [refreshTimer](
+                                          const std::shared_ptr<ComparisonRange> &trackedRange) {
+        return [refreshTimer, trackedRange] {
+            stopTrackingComparisonRange(*trackedRange);
+            trackedRange->jumpToSource = false;
+            refreshTimer->stop();
+        };
+    };
+    if (left.sourceTextDocument) {
+        connect(left.sourceTextDocument, &TextDocument::aboutToReload, comparisonDocument,
+                stopTrackingOnReload(trackedLeft));
+    }
+    if (right.sourceTextDocument) {
+        connect(right.sourceTextDocument, &TextDocument::aboutToReload, comparisonDocument,
+                stopTrackingOnReload(trackedRight));
+    }
+    connect(EditorManager::instance(), &EditorManager::documentClosed, comparisonDocument,
+            [trackedLeft, trackedRight, refreshTimer](IDocument *closedDocument) {
+                for (const auto &range : {trackedLeft, trackedRight}) {
+                    if (range->sourceTextDocument == closedDocument) {
+                        stopTrackingComparisonRange(*range);
+                        range->jumpToSource = false;
+                        refreshTimer->start();
+                    }
+                }
+            });
+    if (left.sourceDocument) {
+        connect(left.sourceDocument, &QTextDocument::contentsChange, comparisonDocument,
+                scheduleRefresh);
+    }
+    if (right.sourceDocument && right.sourceDocument != left.sourceDocument) {
+        connect(right.sourceDocument, &QTextDocument::contentsChange, comparisonDocument,
+                scheduleRefresh);
+    }
+    const auto schedulePathRefresh = [refreshTimer] { refreshTimer->start(); };
+    if (left.sourceTextDocument) {
+        connect(left.sourceTextDocument, &IDocument::filePathChanged, comparisonDocument,
+                schedulePathRefresh);
+    }
+    if (right.sourceTextDocument && right.sourceTextDocument != left.sourceTextDocument) {
+        connect(right.sourceTextDocument, &IDocument::filePathChanged, comparisonDocument,
+                schedulePathRefresh);
+    }
+    m_selectedRange.reset();
+    disconnect(m_selectedRangeDestroyedConnection);
+    disconnect(m_selectedRangeReloadConnection);
+    updateRangeComparisonActions();
 }
 
 void DiffEditorPlugin::updateDiffCurrentFileAction()
@@ -1859,6 +2331,882 @@ void DiffEditor::Internal::DiffEditorPlugin::testDiffDocuments()
     QVERIFY(diffDocument);
 
     EditorManager::closeDocuments({left->document(), right->document(), diffDocument}, false);
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testComparisonRange()
+{
+    QTextDocument document;
+    document.setDocumentLayout(new Utils::PlainTextDocumentLayout(&document));
+    document.setPlainText("alpha\nbeta\ngamma\ndelta");
+
+    const QTextBlock firstBlock = document.findBlockByNumber(1);
+    const QTextBlock lastBlock = document.findBlockByNumber(2);
+    QTextCursor cursor(firstBlock);
+    cursor.setPosition(lastBlock.position() + lastBlock.text().size(), QTextCursor::KeepAnchor);
+
+    const std::optional<ComparisonRange> range = comparisonRange(cursor, "test.cpp");
+    QVERIFY(range.has_value());
+    QCOMPARE(range->text, QString("beta\ngamma"));
+    QCOMPARE(range->fileName, QString("test.cpp"));
+    QCOMPARE(range->firstLine, 2);
+    QCOMPARE(range->lastLine, 3);
+
+    QTextCursor editCursor(&document);
+    editCursor.setPosition(range->cursor.selectionStart() + 1);
+    editCursor.insertText("X");
+    const ComparisonRange updatedRange = currentComparisonRange(*range);
+    QVERIFY(updatedRange.text.contains('X'));
+    QCOMPARE(updatedRange.firstLine, 2);
+
+    QTextDocument replacementDocument;
+    replacementDocument.setDocumentLayout(
+        new Utils::PlainTextDocumentLayout(&replacementDocument));
+    replacementDocument.setPlainText("alpha\nbeta\ngamma\ndelta");
+    const QTextBlock replacementFirstBlock = replacementDocument.findBlockByNumber(1);
+    const QTextBlock replacementLastBlock = replacementDocument.findBlockByNumber(2);
+    QTextCursor replacementSelection(replacementFirstBlock);
+    replacementSelection.setPosition(replacementLastBlock.position()
+                                         + replacementLastBlock.text().size(),
+                                     QTextCursor::KeepAnchor);
+    const auto replacementRange = comparisonRange(replacementSelection, "test.cpp",
+                                                 &replacementDocument);
+    QVERIFY(replacementRange.has_value());
+    ComparisonRange trackedRange = trackComparisonRange(*replacementRange);
+    QTextCursor insertAtStart(&replacementDocument);
+    insertAtStart.setPosition(trackedRange.tracking->start.position());
+    insertAtStart.insertText("\n");
+    QCOMPARE(currentComparisonRange(trackedRange).text, QString("beta\ngamma"));
+    QCOMPARE(currentComparisonRange(trackedRange).firstLine, 3);
+    insertAtStart.deletePreviousChar();
+    QCOMPARE(currentComparisonRange(trackedRange).firstLine, 2);
+    QTextCursor insertOutsideRange(&replacementDocument);
+    insertOutsideRange.beginEditBlock();
+    insertOutsideRange.setPosition(0);
+    insertOutsideRange.insertText("prefix\n");
+    insertOutsideRange.movePosition(QTextCursor::End);
+    insertOutsideRange.insertText("\nsuffix");
+    insertOutsideRange.endEditBlock();
+    QCOMPARE(currentComparisonRange(trackedRange).text, QString("beta\ngamma"));
+    QCOMPARE(currentComparisonRange(trackedRange).firstLine, 3);
+    QTextCursor removePrefix(&replacementDocument);
+    removePrefix.setPosition(0);
+    removePrefix.setPosition(trackedRange.tracking->start.position(), QTextCursor::KeepAnchor);
+    removePrefix.removeSelectedText();
+    QCOMPARE(currentComparisonRange(trackedRange).text, QString("beta\ngamma"));
+    QCOMPARE(currentComparisonRange(trackedRange).firstLine, 1);
+    QTextCursor replaceCursor(&replacementDocument);
+    replaceCursor.setPosition(trackedRange.tracking->start.position());
+    replaceCursor.setPosition(trackedRange.tracking->end.position(), QTextCursor::KeepAnchor);
+    replaceCursor.insertText("BETA\nGAMMA");
+    const ComparisonRange replacedRange = currentComparisonRange(trackedRange);
+    QCOMPARE(replacedRange.text, QString("BETA\nGAMMA"));
+    QCOMPARE(replacedRange.firstLine, 1);
+    QCOMPARE(replacedRange.lastLine, 2);
+
+    QTextCursor deleteCursor(&replacementDocument);
+    deleteCursor.setPosition(trackedRange.tracking->start.position());
+    deleteCursor.setPosition(trackedRange.tracking->end.position(), QTextCursor::KeepAnchor);
+    deleteCursor.removeSelectedText();
+    const ComparisonRange emptiedRange = currentComparisonRange(trackedRange);
+    QVERIFY(emptiedRange.text.isEmpty());
+    QCOMPARE(emptiedRange.firstLine, 1);
+    QCOMPARE(emptiedRange.lastLine, 1);
+    QCOMPARE(emptiedRange.firstColumn, 0);
+    QTextDocument undoDocument("alpha\nbeta\ngamma");
+    undoDocument.setDocumentLayout(new Utils::PlainTextDocumentLayout(&undoDocument));
+    QTextCursor undoSelection(&undoDocument);
+    undoSelection.setPosition(6);
+    undoSelection.setPosition(10, QTextCursor::KeepAnchor);
+    ComparisonRange undoRange = *comparisonRange(undoSelection, "test.cpp", &undoDocument);
+    undoRange = trackComparisonRange(undoRange);
+    undoSelection.removeSelectedText();
+    undoDocument.undo();
+    QCOMPARE(currentComparisonRange(undoRange).text, QString("beta"));
+    QTextCursor editRestoredRange(&undoDocument);
+    editRestoredRange.setPosition(6);
+    editRestoredRange.insertText("!");
+    QCOMPARE(currentComparisonRange(undoRange).text, QString("!beta"));
+
+    QTextDocument collapsedDocument("alpha\nbeta\ngamma");
+    QTextCursor collapsedSelection(collapsedDocument.findBlockByNumber(1));
+    collapsedSelection.setPosition(collapsedSelection.block().position()
+                                       + collapsedSelection.block().text().size(),
+                                   QTextCursor::KeepAnchor);
+    const auto selectedRange = comparisonRange(collapsedSelection, "test.cpp",
+                                               &collapsedDocument);
+    QVERIFY(selectedRange);
+    collapsedSelection.removeSelectedText();
+    const ComparisonRange preservedRange = currentComparisonRange(*selectedRange);
+    QCOMPARE(preservedRange.text, QString("beta"));
+    const ComparisonRange trackedPreservedRange = trackComparisonRange(preservedRange);
+    QCOMPARE(currentComparisonRange(trackedPreservedRange).text, QString("beta"));
+
+    for (const bool tracked : {false, true}) {
+        QTextDocument document;
+        document.setDocumentLayout(new Utils::PlainTextDocumentLayout(&document));
+        document.setPlainText("alpha\nbeta\ngamma");
+        QTextCursor selection(&document);
+        selection.setPosition(6);
+        selection.setPosition(11, QTextCursor::KeepAnchor);
+        ComparisonRange range = *comparisonRange(selection, "test.cpp", &document);
+        if (tracked)
+            range = trackComparisonRange(range);
+        QTextCursor indentation(&document);
+        indentation.setPosition(6);
+        indentation.insertText("  ");
+        const ComparisonRange current = currentComparisonRange(range);
+        QCOMPARE(current.text, QString("  beta\n"));
+        QCOMPARE(current.firstColumn, 0);
+    }
+
+    QTextDocument newlineDocument;
+    newlineDocument.setDocumentLayout(new Utils::PlainTextDocumentLayout(&newlineDocument));
+    newlineDocument.setPlainText("alpha\nbeta\ngamma");
+    QTextCursor newlineSelection(&newlineDocument);
+    newlineSelection.setPosition(6);
+    newlineSelection.setPosition(11, QTextCursor::KeepAnchor);
+    const auto newlineRange = comparisonRange(newlineSelection, "test.cpp", &newlineDocument);
+    QVERIFY(newlineRange);
+    ComparisonRange trackedNewlineRange = trackComparisonRange(*newlineRange);
+    QTextCursor insertAtNextLine(&newlineDocument);
+    insertAtNextLine.setPosition(11);
+    insertAtNextLine.insertText("X");
+    QCOMPARE(currentComparisonRange(trackedNewlineRange).text, QString("beta\n"));
+
+    newlineSelection.setPosition(6);
+    newlineSelection.setPosition(11, QTextCursor::KeepAnchor);
+    newlineSelection.insertText("BETA\n");
+    QCOMPARE(currentComparisonRange(trackedNewlineRange).text, QString("BETA\n"));
+    insertAtNextLine.setPosition(11);
+    insertAtNextLine.insertText("Y");
+    QCOMPARE(currentComparisonRange(trackedNewlineRange).text, QString("BETA\n"));
+
+    ComparisonRange staleRange = currentComparisonRange(trackedNewlineRange);
+    stopTrackingComparisonRange(staleRange);
+    newlineDocument.setPlainText("entirely replaced document contents");
+    QCOMPARE(currentComparisonRange(staleRange).text, QString("BETA\n"));
+
+    const ReloadInput input = comparisonReloadInput(*range, *range);
+    QCOMPARE(input.text[LeftSide], QString("beta\ngamma"));
+    QCOMPARE(input.fileInfo[LeftSide].typeInfo, QString("Lines 2-3"));
+    QVERIFY(!input.fileInfo[LeftSide].jumpToSource);
+    QVERIFY(input.fileInfo[LeftSide].isRangeComparison);
+    QCOMPARE(input.fileInfo[LeftSide].firstLineNumber, 2);
+
+    FileData fileData;
+    fileData.fileInfo[LeftSide].firstLineNumber = 2;
+    fileData.fileInfo[RightSide].firstLineNumber = 5;
+    ChunkData chunk;
+    chunk.startingLineNumber = {0, 0};
+    fileData.chunks.append(chunk);
+    applyLineOffsets(fileData);
+    QCOMPARE(fileData.chunks.first().startingLineNumber[LeftSide], 1);
+    QCOMPARE(fileData.chunks.first().startingLineNumber[RightSide], 4);
+
+    for (const bool contextChunk : {false, true}) {
+        FileData trailingChunk;
+        trailingChunk.fileInfo[LeftSide].isRangeComparison = true;
+        trailingChunk.fileInfo[RightSide].isRangeComparison = true;
+        ChunkData emptyTrailingChunk;
+        emptyTrailingChunk.contextChunk = contextChunk;
+        emptyTrailingChunk.rows.append(RowData(TextLineData(""), TextLineData("")));
+        trailingChunk.chunks.append(emptyTrailingChunk);
+        applyLineOffsets(trailingChunk);
+        QVERIFY(trailingChunk.chunks.isEmpty());
+    }
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testRangeComparisonTrailingNewline()
+{
+    const QList<QPair<QString, QString>> inputs{{"foo\n", "foo"}, {"foo", "foo\n"}};
+    for (const QPair<QString, QString> &texts : inputs) {
+        ReloadInput input;
+        input.text = {texts.first, texts.second};
+        for (DiffSide side : {LeftSide, RightSide})
+            input.fileInfo[side].isRangeComparison = true;
+
+        QPromise<FileData> promise;
+        promise.start();
+        DiffFile(false, 3)(promise, input);
+        promise.finish();
+        QVERIFY(promise.future().results().isEmpty());
+    }
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testComparisonSelection_data()
+{
+    QTest::addColumn<int>("start");
+    QTest::addColumn<int>("end");
+    QTest::addColumn<int>("expectedStart");
+    QTest::addColumn<int>("expectedEnd");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("single line") << 7 << 9 << 7 << 9 << QString("et");
+    QTest::newRow("single line backwards") << 9 << 7 << 7 << 9 << QString("et");
+    QTest::newRow("partial multiline") << 8 << 13 << 6 << 16 << QString("beta\ngamma");
+    QTest::newRow("multiline backwards") << 13 << 8 << 6 << 16 << QString("beta\ngamma");
+    QTest::newRow("end at next line start") << 8 << 17 << 6 << 16
+                                           << QString("beta\ngamma");
+    QTest::newRow("single line with newline") << 7 << 11 << 7 << 11 << QString("eta\n");
+    QTest::newRow("last line") << 13 << 19 << 11 << 22 << QString("gamma\ndelta");
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testComparisonSelection()
+{
+    QFETCH(int, start);
+    QFETCH(int, end);
+    QFETCH(int, expectedStart);
+    QFETCH(int, expectedEnd);
+    QFETCH(QString, expected);
+
+    QTextDocument document("alpha\nbeta\ngamma\ndelta");
+    QTextCursor cursor(&document);
+    cursor.setPosition(start);
+    cursor.setPosition(end, QTextCursor::KeepAnchor);
+    const auto range = comparisonRange(cursor, "test.txt");
+    QVERIFY(range);
+    QCOMPARE(range->text, expected);
+    QCOMPARE(range->cursor.selectionStart(), expectedStart);
+    QCOMPARE(range->cursor.selectionEnd(), expectedEnd);
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testComparisonSelectionBlankLine()
+{
+    QTextDocument document("alpha\nbeta\n\ndelta");
+    QTextCursor selection(&document);
+    selection.setPosition(8);
+    selection.setPosition(12, QTextCursor::KeepAnchor);
+
+    const auto range = comparisonRange(selection, "test.cpp");
+    QVERIFY(range);
+    QCOMPARE(range->text, QString("beta\n\n"));
+    QCOMPARE(range->cursor.selectionEnd(), 12);
+    QCOMPARE(range->lastLine, 3);
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testDiffFileIgnoreWhitespaceDoesNotDropFile()
+{
+    ReloadInput input;
+    input.text = {"foo bar", "foo  bar"};
+
+    QPromise<FileData> promise;
+    promise.start();
+    DiffFile(true, 3)(promise, input);
+    promise.finish();
+
+    const QList<FileData> files = promise.future().results();
+    QCOMPARE(files.size(), 1);
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testComparisonCursor_data()
+{
+    QTest::addColumn<QString>("referenceText");
+    QTest::addColumn<int>("start");
+    QTest::addColumn<int>("end");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("one line") << QString("x") << 6 << 6 << QString("beta");
+    QTest::newRow("two lines") << QString("x\ny") << 6 << 6 << QString("beta\ngamma");
+    QTest::newRow("trailing newline") << QString("x\ny\n") << 6 << 6
+                                      << QString("beta\ngamma");
+    QTest::newRow("middle of line") << QString("x\ny") << 8 << 8 << QString("beta\ngamma");
+    QTest::newRow("end of document") << QString("x\ny\nz\n") << 11 << 11
+                                     << QString("gamma\ndelta");
+    QTest::newRow("multiline cursor on last line") << QString("x\ny") << 19 << 19
+                                                  << QString("delta");
+    QTest::newRow("single-line cursor within line") << QString("x") << 8 << 8
+                                                   << QString("ta");
+    QTest::newRow("cursor at end") << QString("x") << 22 << 22 << QString();
+    QTest::newRow("shorter selection") << QString("x\ny") << 6 << 10 << QString("beta");
+    QTest::newRow("longer selection") << QString("x") << 6 << 16 << QString("beta\ngamma");
+    QTest::newRow("backward selection") << QString("x") << 16 << 6 << QString("beta\ngamma");
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testComparisonCursor()
+{
+    QFETCH(QString, referenceText);
+    QFETCH(int, start);
+    QFETCH(int, end);
+    QFETCH(QString, expected);
+
+    QTextDocument referenceDocument(referenceText);
+    QTextCursor referenceCursor(&referenceDocument);
+    referenceCursor.select(QTextCursor::Document);
+    const auto reference = comparisonRange(referenceCursor, "left.txt");
+    QVERIFY(reference);
+
+    QTextDocument document("alpha\nbeta\ngamma\ndelta");
+    QTextCursor cursor(&document);
+    cursor.setPosition(start);
+    cursor.setPosition(end, QTextCursor::KeepAnchor);
+    const auto range = comparisonRange(comparisonCursor(cursor, *reference), "right.txt",
+                                      &document, EmptySelection::Allow);
+    QVERIFY(range);
+    QCOMPARE(range->text, expected);
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testRangeComparisonPatch_data()
+{
+    QTest::addColumn<QString>("left");
+    QTest::addColumn<QString>("right");
+    QTest::addColumn<int>("context");
+    for (int context : {3, -1}) {
+        QTest::newRow(qPrintable(QString("partial %1").arg(context)))
+            << QString("old") << QString("new") << context;
+        QTest::newRow(qPrintable(QString("lines %1").arg(context)))
+            << QString("old\nmore") << QString("new\nMORE") << context;
+        QTest::newRow(qPrintable(QString("terminated %1").arg(context)))
+            << QString("old\n") << QString("new\n") << context;
+        QTest::newRow(qPrintable(QString("mixed %1").arg(context)))
+            << QString("old\n") << QString("new") << context;
+        QTest::newRow(qPrintable(QString("blank line %1").arg(context)))
+            << QString("old\n\n") << QString("new\n\n") << context;
+    }
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testRangeComparisonPatch()
+{
+    QFETCH(QString, left);
+    QFETCH(QString, right);
+    QFETCH(int, context);
+    ReloadInput input;
+    input.text = {left, right};
+    for (DiffSide side : {LeftSide, RightSide}) {
+        input.fileInfo[side].fileName = "source.txt";
+        input.fileInfo[side].isRangeComparison = true;
+    }
+    QPromise<FileData> promise;
+    promise.start();
+    DiffFile(false, context)(promise, input);
+    promise.finish();
+    const QList<FileData> files = promise.future().results();
+    QCOMPARE(files.size(), 1);
+    const QString patch = DiffUtils::makePatch(files);
+    QVERIFY(!patch.contains("No newline at end of file"));
+    for (DiffSide side : {LeftSide, RightSide}) {
+        int lines = 0;
+        for (const ChunkData &chunk : files.first().chunks) {
+            for (const RowData &row : chunk.rows)
+                lines += row.line[side].textLineType == TextLineData::TextLine;
+        }
+        const QString text = input.text[side];
+        QCOMPARE(lines, text.count('\n') + (text.endsWith('\n') ? 0 : 1));
+    }
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testClosedRangeComparison()
+{
+    TemporaryDirectory directory("closed-range-comparison");
+    QVERIFY(directory.isValid());
+    const FilePath path = directory.filePath("source.txt");
+    QVERIFY(path.writeFileContents("old\nnew\n"));
+    QPointer<BaseTextEditor> editor = qobject_cast<BaseTextEditor *>(
+        EditorManager::openEditor(path));
+    QVERIFY(editor);
+    QPointer<DiffEditorDocument> comparison;
+    const QScopeGuard cleanup([&] {
+        if (comparison)
+            EditorManager::closeDocuments({comparison}, false);
+        if (editor)
+            EditorManager::closeEditors({editor}, false);
+        m_selectedRange.reset();
+        updateRangeComparisonActions();
+    });
+    TextEditorWidget *widget = editor->editorWidget();
+    QTextCursor cursor(widget->document());
+    cursor.insertText("unsaved\n");
+    cursor.setPosition(8);
+    cursor.setPosition(11, QTextCursor::KeepAnchor);
+    widget->setTextCursor(cursor);
+    updateRangeComparisonActions();
+    m_selectRangeAction->trigger();
+    cursor.setPosition(12);
+    cursor.setPosition(15, QTextCursor::KeepAnchor);
+    widget->setTextCursor(cursor);
+    m_compareRangeAction->trigger();
+    comparison = qobject_cast<DiffEditorDocument *>(EditorManager::currentDocument());
+    QVERIFY(comparison);
+    QTRY_COMPARE(comparison->state(), DiffEditorDocument::LoadOK);
+    QVERIFY(comparison->diffFiles().first().fileInfo[LeftSide].jumpToSource);
+    QVERIFY(editor->document()->isModified());
+    EditorManager::closeEditors({editor}, false);
+    QTRY_VERIFY(!comparison->diffFiles().first().fileInfo[LeftSide].jumpToSource);
+    QVERIFY(!comparison->diffFiles().first().fileInfo[RightSide].jumpToSource);
+    QCOMPARE(comparison->diffFiles().first().fileInfo[LeftSide].firstLineNumber, 2);
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testSingleLineComparisonJump()
+{
+    TemporaryDirectory directory("single-line-comparison-jump");
+    QVERIFY(directory.isValid());
+    const FilePath sourceFile = directory.filePath("source.txt");
+    QVERIFY(sourceFile.writeFileContents("    int value = 1;\n    int value = 2;"));
+    auto *source = qobject_cast<BaseTextEditor *>(EditorManager::openEditor(
+        sourceFile, Core::Constants::K_DEFAULT_TEXT_EDITOR_ID));
+    QVERIFY(source);
+    QPointer<IEditor> comparisonEditor;
+    const QScopeGuard cleanup([&] {
+        if (comparisonEditor)
+            EditorManager::closeEditors({comparisonEditor}, false);
+        EditorManager::closeEditors({source}, false);
+        m_selectedRange.reset();
+        updateRangeComparisonActions();
+    });
+    TextEditorWidget *sourceWidget = source->editorWidget();
+    QTextCursor selection(sourceWidget->document());
+    selection.setPosition(8);
+    selection.setPosition(17, QTextCursor::KeepAnchor);
+    sourceWidget->setTextCursor(selection);
+    updateRangeComparisonActions();
+    m_selectRangeAction->trigger();
+    const int secondLineStart = sourceWidget->document()->lastBlock().position();
+    selection.setPosition(secondLineStart + 8);
+    selection.setPosition(secondLineStart + 17, QTextCursor::KeepAnchor);
+    sourceWidget->setTextCursor(selection);
+    m_compareRangeAction->trigger();
+    comparisonEditor = EditorManager::currentEditor();
+    QVERIFY(comparisonEditor);
+    auto *comparison = qobject_cast<DiffEditorDocument *>(comparisonEditor->document());
+    QVERIFY(comparison);
+    QTRY_COMPARE(comparison->state(), DiffEditorDocument::LoadOK);
+    QCOMPARE(comparison->diffFiles().first().fileInfo[LeftSide].columnOffset, 8);
+    QCOMPARE(comparison->diffFiles().first().fileInfo[LeftSide].typeInfo, QString("Line 1"));
+    QCOMPARE(comparison->diffFiles().first().fileInfo[RightSide].typeInfo, QString("Line 2"));
+
+    for (bool unified : {false, true}) {
+        EditorManager::activateEditor(comparisonEditor);
+        const QString targetView = unified ? Tr::tr("Switch to Unified Diff Editor")
+                                           : Tr::tr("Switch to Side By Side Diff Editor");
+        for (QAction *action : comparisonEditor->toolBar()->actions()) {
+            if (action->toolTip().contains(targetView)) {
+                action->trigger();
+                break;
+            }
+        }
+        for (bool left : {true, false}) {
+            const QList<int> cursorOffsets = unified ? QList<int>{0, 1} : QList<int>{0};
+            for (int cursorOffset : cursorOffsets) {
+                EditorManager::activateEditor(comparisonEditor);
+                TextEditorWidget *diffView = nullptr;
+                QTextBlock removedLine;
+                const QString expectedLine = (unified ? (left ? "-" : "+") : "")
+                                             + QString(left ? "value = 1" : "value = 2");
+                QTRY_VERIFY(([&] {
+                    for (TextEditorWidget *candidate : comparisonEditor->widget()
+                                                           ->findChildren<TextEditorWidget *>()) {
+                        for (QTextBlock block = candidate->document()->begin(); block.isValid();
+                             block = block.next()) {
+                            if (block.text() == expectedLine) {
+                                diffView = candidate;
+                                removedLine = block;
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                })());
+                if (unified)
+                    QVERIFY(!diffView->toPlainText().contains("No newline at end of file"));
+                QTextCursor cursor(removedLine);
+                cursor.setPosition(removedLine.position() + cursorOffset);
+                diffView->setTextCursor(cursor);
+                QTest::keyClick(diffView, Qt::Key_Return);
+                QTRY_COMPARE(EditorManager::currentEditor(), source);
+                QCOMPARE(sourceWidget->textCursor().blockNumber(), left ? 0 : 1);
+                QCOMPARE(sourceWidget->textCursor().positionInBlock(), 8);
+            }
+        }
+    }
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testRangeComparisonWithoutSourceJump()
+{
+    class JumpTrackingController final : public DiffEditorController
+    {
+    public:
+        using DiffEditorController::DiffEditorController;
+        int attempts = 0;
+
+        void resolveCurrentLine(const QString &, int,
+                                const std::function<void(const QString &, int)> &) override
+        {
+            ++attempts;
+        }
+    };
+
+    DiffEditorDocument document;
+    auto *controller = new JumpTrackingController(&document);
+    FileData file;
+    for (DiffSide side : {LeftSide, RightSide}) {
+        file.fileInfo[side].fileName = "scratch";
+        file.fileInfo[side].isRangeComparison = true;
+        file.fileInfo[side].firstLineNumber = side == LeftSide ? 50 : 80;
+    }
+    ChunkData chunk;
+    chunk.startingLineNumber = {49, 79};
+    chunk.rows = {RowData(TextLineData("old"), TextLineData("new"))};
+    file.chunks = {chunk};
+    document.setDiffFiles({file});
+
+    for (bool unified : {false, true}) {
+        std::unique_ptr<QWidget> view;
+        if (unified) {
+            auto *widget = new UnifiedDiffEditorWidget;
+            widget->setDocument(&document);
+            widget->setDiff({file});
+            view.reset(widget);
+        } else {
+            auto *widget = new SideBySideDiffEditorWidget;
+            widget->setDocument(&document);
+            widget->setDiff({file});
+            view.reset(widget);
+        }
+        for (const QString &line : {QString("old"), QString("new")}) {
+            TextEditorWidget *editor = nullptr;
+            QTextBlock content;
+            QTRY_VERIFY(([&] {
+                QList<TextEditorWidget *> editors = view->findChildren<TextEditorWidget *>();
+                if (auto *widget = qobject_cast<TextEditorWidget *>(view.get()))
+                    editors.append(widget);
+                for (TextEditorWidget *candidate : editors) {
+                    for (QTextBlock block = candidate->document()->begin(); block.isValid();
+                         block = block.next()) {
+                        if (block.text() == (unified ? (line == "old" ? "-" : "+") : "") + line) {
+                            editor = candidate;
+                            content = block;
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            })());
+            editor->setTextCursor(QTextCursor(content));
+            QTest::keyClick(editor, Qt::Key_Return);
+            QCOMPARE(controller->attempts, 0);
+        }
+    }
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testUnifiedRangeComparisonFallsBackToJumpableSide()
+{
+    class JumpTrackingController final : public DiffEditorController
+    {
+    public:
+        using DiffEditorController::DiffEditorController;
+        int attempts = 0;
+        QString fileName;
+        int lineNumber = -1;
+
+        void resolveCurrentLine(const QString &file, int line,
+                                const std::function<void(const QString &, int)> &) override
+        {
+            ++attempts;
+            fileName = file;
+            lineNumber = line;
+        }
+    };
+
+    DiffEditorDocument document;
+    auto *controller = new JumpTrackingController(&document);
+    FileData file;
+    file.fileInfo[LeftSide].fileName = "source.cpp";
+    file.fileInfo[LeftSide].isRangeComparison = true;
+    file.fileInfo[LeftSide].jumpToSource = true;
+    file.fileInfo[LeftSide].firstLineNumber = 50;
+    file.fileInfo[RightSide].fileName = "scratch";
+    file.fileInfo[RightSide].isRangeComparison = true;
+    file.fileInfo[RightSide].firstLineNumber = 80;
+    ChunkData chunk;
+    chunk.startingLineNumber = {49, 79};
+    chunk.rows = {RowData(TextLineData("context")),
+                  RowData(TextLineData("old"), TextLineData("new"))};
+    file.chunks = {chunk};
+    document.setDiffFiles({file});
+
+    UnifiedDiffEditorWidget widget;
+    widget.setDocument(&document);
+    widget.setDiff({file});
+    QTextBlock context;
+    QTRY_VERIFY(([&] {
+        for (QTextBlock block = widget.document()->begin(); block.isValid(); block = block.next()) {
+            if (block.text().trimmed() == "context") {
+                context = block;
+                return true;
+            }
+        }
+        return false;
+    })());
+
+    QTextCursor cursor(context);
+    cursor.setPosition(context.position() + 1);
+    widget.setTextCursor(cursor);
+    QTest::keyClick(&widget, Qt::Key_Return);
+    QCOMPARE(controller->attempts, 1);
+    QCOMPARE(controller->fileName, QString("source.cpp"));
+    QCOMPARE(controller->lineNumber, 50);
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testDiffFileInfoSourceColumn()
+{
+    DiffFileInfo info;
+    QCOMPARE(info.sourceColumn(5, 3).value_or(-1), 3);
+
+    info.isRangeComparison = true;
+    QVERIFY(!info.sourceColumn(5, 3));
+
+    info.jumpToSource = true;
+    info.firstLineNumber = 5;
+    info.columnOffset = 8;
+    QCOMPARE(info.sourceColumn(5, 3).value_or(-1), 11);
+    QCOMPARE(info.sourceColumn(5, -1).value_or(-1), 8);
+    QCOMPARE(info.sourceColumn(6, 3).value_or(-1), 3);
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testSelectionRangeReloadBeforeCompare()
+{
+    TemporaryDirectory directory("selection-range-reload-before-compare");
+    QVERIFY(directory.isValid());
+    const FilePath sourceFile = directory.filePath("source.txt");
+    QVERIFY(sourceFile.writeFileContents("one\ntwo\nthree"));
+    auto *editor = qobject_cast<BaseTextEditor *>(EditorManager::openEditor(sourceFile));
+    QVERIFY(editor);
+    QPointer<DiffEditorDocument> diffDocument;
+    const QScopeGuard cleanup([&] {
+        m_selectedRange.reset();
+        if (diffDocument)
+            EditorManager::closeDocuments({diffDocument}, false);
+        EditorManager::closeEditors({editor}, false);
+        updateRangeComparisonActions();
+    });
+
+    QTextCursor cursor(editor->editorWidget()->document());
+    cursor.setPosition(0);
+    cursor.setPosition(7, QTextCursor::KeepAnchor);
+    editor->editorWidget()->setTextCursor(cursor);
+    updateRangeComparisonActions();
+    m_selectRangeAction->trigger();
+    QVERIFY(m_selectedRange);
+    QCOMPARE(m_selectedRange->text, QString("one\ntwo"));
+
+    QVERIFY(sourceFile.writeFileContents("replacement\ncontents\n"));
+    QVERIFY(editor->textDocument()->reload().has_value());
+    QVERIFY(m_selectedRange);
+    QCOMPARE(m_selectedRange->text, QString("one\ntwo"));
+    QVERIFY(m_selectedRange->trackingStopped);
+    QVERIFY(!m_selectedRange->jumpToSource);
+
+    cursor = QTextCursor(editor->editorWidget()->document());
+    cursor.setPosition(0);
+    cursor.setPosition(20, QTextCursor::KeepAnchor);
+    editor->editorWidget()->setTextCursor(cursor);
+    m_compareRangeAction->trigger();
+    diffDocument = qobject_cast<DiffEditorDocument *>(EditorManager::currentDocument());
+    QVERIFY(diffDocument);
+    QTRY_COMPARE(diffDocument->state(), DiffEditorDocument::LoadOK);
+    const QList<FileData> files = diffDocument->diffFiles();
+    QCOMPARE(files.size(), 1);
+    QCOMPARE(files.first().fileInfo[LeftSide].typeInfo, QString("Lines 1-2"));
+    QVERIFY(!files.first().fileInfo[LeftSide].jumpToSource);
+    QVERIFY(files.first().fileInfo[RightSide].jumpToSource);
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testRangeComparisonActions()
+{
+    TemporaryDirectory directory("range-comparison-actions");
+    QVERIFY(directory.isValid());
+    const FilePath sourceFile = directory.filePath("source.txt");
+    QVERIFY(sourceFile.writeFileContents("one\ntwo\nONE\nTWO\nextra"));
+    auto *editor = qobject_cast<BaseTextEditor *>(EditorManager::openEditor(sourceFile));
+    QVERIFY(editor);
+    QPointer<DiffEditorDocument> diffDocument;
+    QPointer<DiffEditorDocument> firstDiffDocument;
+    const QScopeGuard cleanup([&] {
+        m_selectedRange.reset();
+        if (diffDocument)
+            EditorManager::closeDocuments({diffDocument}, false);
+        if (firstDiffDocument && firstDiffDocument != diffDocument)
+            EditorManager::closeDocuments({firstDiffDocument}, false);
+        EditorManager::closeEditors({editor}, false);
+        updateRangeComparisonActions();
+    });
+    TextEditorWidget *widget = editor->editorWidget();
+    widget->window()->activateWindow();
+    widget->setFocus();
+    QTextCursor cursor = widget->textCursor();
+    cursor.setPosition(0);
+    widget->setTextCursor(cursor);
+    updateRangeComparisonActions();
+    QVERIFY(!m_selectRangeAction->isEnabled());
+    QVERIFY(!m_compareRangeAction->isEnabled());
+
+    cursor.setPosition(1);
+    cursor.setPosition(6, QTextCursor::KeepAnchor);
+    widget->setTextCursor(cursor);
+    QVERIFY(m_selectRangeAction->isEnabled());
+    QTRY_VERIFY(ActionManager::command("DiffEditor.SelectRangeForComparison")->isActive());
+    m_selectRangeAction->trigger();
+    QVERIFY(m_selectedRange);
+    QCOMPARE(m_selectedRange->text, QString("one\ntwo"));
+    QCOMPARE(widget->textCursor().selectionStart(), 0);
+    QCOMPARE(widget->textCursor().selectionEnd(), 7);
+    QCOMPARE(m_selectRangeAction->text(), Tr::tr("Replace Selection for Comparison"));
+    QTRY_COMPARE(ActionManager::command("DiffEditor.SelectRangeForComparison")->action()->text(),
+                 Tr::tr("Replace Selection for Comparison"));
+
+    cursor.setPosition(8);
+    cursor.setPosition(15, QTextCursor::KeepAnchor);
+    widget->setTextCursor(cursor);
+    m_selectRangeAction->trigger();
+    QVERIFY(m_selectedRange);
+    QCOMPARE(m_selectedRange->text, QString("ONE\nTWO"));
+    QCOMPARE(m_selectedRange->firstLine, 3);
+    QVERIFY(m_compareRangeAction->isEnabled());
+
+    cursor.setPosition(8);
+    widget->setTextCursor(cursor);
+    QVERIFY(m_selectRangeAction->isEnabled());
+    QVERIFY(m_compareRangeAction->isEnabled());
+    QTRY_COMPARE(ActionManager::command("DiffEditor.SelectRangeForComparison")->action()->text(),
+                 Tr::tr("Clear Selection for Comparison"));
+    m_selectRangeAction->trigger();
+    QVERIFY(!m_selectedRange);
+    QVERIFY(!m_compareRangeAction->isEnabled());
+
+    QCOMPARE(m_selectRangeAction->text(), Tr::tr("Set Selection for Comparison"));
+
+    cursor.setPosition(4);
+    cursor.setPosition(11, QTextCursor::KeepAnchor);
+    widget->setTextCursor(cursor);
+    m_selectRangeAction->trigger();
+    cursor.setPosition(8);
+    widget->setTextCursor(cursor);
+    m_compareRangeAction->trigger();
+    diffDocument = qobject_cast<DiffEditorDocument *>(EditorManager::currentDocument());
+    QVERIFY(diffDocument);
+    QTRY_COMPARE(diffDocument->state(), DiffEditorDocument::LoadOK);
+    const QList<FileData> files = diffDocument->diffFiles();
+    QCOMPARE(files.size(), 1);
+    QCOMPARE(files.first().fileInfo[LeftSide].typeInfo, QString("Lines 2-3"));
+    QCOMPARE(files.first().fileInfo[RightSide].typeInfo, QString("Lines 3-4"));
+    QVERIFY(files.first().fileInfo[LeftSide].jumpToSource);
+    QVERIFY(files.first().fileInfo[LeftSide].isRangeComparison);
+    QVERIFY(!m_selectedRange);
+    firstDiffDocument = diffDocument;
+
+    for (QAction *action : EditorManager::currentEditor()->toolBar()->actions()) {
+        if (action->toolTip().contains(Tr::tr("Switch to Side By Side Diff Editor"))) {
+            action->trigger();
+            break;
+        }
+    }
+    auto *sideBySide = EditorManager::currentEditor()->widget()
+                           ->findChild<SideBySideDiffEditorWidget *>();
+    QVERIFY(sideBySide);
+    QTRY_VERIFY(!sideBySide->diffData(LeftSide).m_lineNumbers.isEmpty());
+    const SideDiffData leftData = sideBySide->diffData(LeftSide);
+    const int firstContentBlock = leftData.m_lineNumbers.firstKey();
+    for (auto it = leftData.m_skippedLines.cbegin(); it != leftData.m_skippedLines.cend(); ++it)
+        QVERIFY(it.key() > firstContentBlock);
+
+    QWidget *toolBar = EditorManager::currentEditor()->toolBar();
+    QVERIFY(toolBar);
+    QAction *switchToUnified = nullptr;
+    for (QAction *action : toolBar->actions()) {
+        if (action->toolTip().contains(Tr::tr("Switch to Unified Diff Editor"))) {
+            switchToUnified = action;
+            break;
+        }
+    }
+    QVERIFY(switchToUnified);
+    switchToUnified->trigger();
+    auto *unified = EditorManager::currentEditor()->widget()->findChild<UnifiedDiffEditorWidget *>();
+    QVERIFY(unified);
+    const FilePath renamedSourceFile = directory.filePath("renamed.txt");
+    QVERIFY(renamedSourceFile.writeFileContents("one\ntwo\nONE\nTWO\nextra"));
+    editor->textDocument()->setFilePath(renamedSourceFile);
+    QTRY_COMPARE(firstDiffDocument->diffFiles().first().fileInfo[LeftSide].fileName,
+                 renamedSourceFile.path());
+    QCOMPARE(firstDiffDocument->diffFiles().first().fileInfo[RightSide].fileName,
+             renamedSourceFile.path());
+    QTRY_VERIFY(unified->toPlainText().contains("-two"));
+    QTextBlock removedLine;
+    for (QTextBlock block = unified->document()->begin(); block.isValid(); block = block.next()) {
+        if (block.text() == "-two") {
+            removedLine = block;
+            break;
+        }
+    }
+    QVERIFY(removedLine.isValid());
+    QTextCursor removedCursor(removedLine);
+    removedCursor.setPosition(removedLine.position() + 1);
+    unified->setTextCursor(removedCursor);
+    QTest::keyClick(unified, Qt::Key_Return);
+    QTRY_COMPARE(EditorManager::currentEditor(), editor);
+    QCOMPARE(EditorManager::currentDocument()->filePath(), renamedSourceFile);
+    QCOMPARE(editor->editorWidget()->textCursor().blockNumber(), 1);
+
+    QString secondTitle = "range comparison actions second";
+    auto *secondEditor = qobject_cast<BaseTextEditor *>(EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &secondTitle, "left\nright\nLEFT\nRIGHT"));
+    QVERIFY(secondEditor);
+    QPointer<BaseTextEditor> secondEditorGuard = secondEditor;
+    const QScopeGuard closeSecond([secondEditorGuard] {
+        if (secondEditorGuard)
+            EditorManager::closeEditors({secondEditorGuard}, false);
+    });
+    QTextCursor secondCursor = secondEditor->editorWidget()->textCursor();
+    secondCursor.setPosition(0);
+    secondCursor.setPosition(9, QTextCursor::KeepAnchor);
+    secondEditor->editorWidget()->setTextCursor(secondCursor);
+    m_selectRangeAction->trigger();
+    secondCursor.setPosition(10);
+    secondCursor.setPosition(19, QTextCursor::KeepAnchor);
+    secondEditor->editorWidget()->setTextCursor(secondCursor);
+    m_compareRangeAction->trigger();
+    diffDocument = qobject_cast<DiffEditorDocument *>(EditorManager::currentDocument());
+    QVERIFY(diffDocument);
+    QVERIFY(diffDocument != firstDiffDocument);
+    QTRY_COMPARE(diffDocument->state(), DiffEditorDocument::LoadOK);
+    const QList<FileData> scratchFiles = diffDocument->diffFiles();
+    QCOMPARE(scratchFiles.size(), 1);
+    QVERIFY(!scratchFiles.first().fileInfo[LeftSide].jumpToSource);
+    QVERIFY(scratchFiles.first().fileInfo[LeftSide].isRangeComparison);
+
+    QTextCursor prefix(widget->document());
+    prefix.setPosition(0);
+    prefix.insertText("prefix\n");
+    QTRY_COMPARE(firstDiffDocument->diffFiles().first().fileInfo[LeftSide].typeInfo,
+                 QString("Lines 3-4"));
+    QVERIFY(renamedSourceFile.writeFileContents("replacement\ncontents\nfor\nthe\nwhole\nfile"));
+    QVERIFY(editor->textDocument()->reload().has_value());
+    firstDiffDocument->controller()->requestReload();
+    QTRY_COMPARE(firstDiffDocument->state(), DiffEditorDocument::LoadOK);
+    QTRY_COMPARE(firstDiffDocument->diffFiles().first().fileInfo[LeftSide].typeInfo,
+                 QString("Lines 3-4"));
+    QCOMPARE(firstDiffDocument->diffFiles().first().fileInfo[RightSide].typeInfo,
+             QString("Lines 4-5"));
+    QVERIFY(!firstDiffDocument->diffFiles().first().fileInfo[LeftSide].jumpToSource);
+    QVERIFY(!firstDiffDocument->diffFiles().first().fileInfo[RightSide].jumpToSource);
+
+    EditorManager::activateEditor(secondEditor);
+    secondCursor = secondEditor->editorWidget()->textCursor();
+    secondCursor.setPosition(0);
+    secondCursor.setPosition(4, QTextCursor::KeepAnchor);
+    secondEditor->editorWidget()->setTextCursor(secondCursor);
+    m_selectRangeAction->trigger();
+    QVERIFY(m_selectedRange);
+    QTextCursor scratchPrefix(secondEditor->editorWidget()->document());
+    scratchPrefix.setPosition(0);
+    scratchPrefix.insertText("prefix\n");
+    QTRY_COMPARE(diffDocument->diffFiles().first().fileInfo[LeftSide].typeInfo,
+                 QString("Lines 2-3"));
+    EditorManager::closeEditors({secondEditor}, false);
+    diffDocument->controller()->requestReload();
+    QTRY_COMPARE(diffDocument->state(), DiffEditorDocument::LoadOK);
+    QCOMPARE(diffDocument->diffFiles().first().fileInfo[LeftSide].typeInfo,
+             QString("Lines 2-3"));
+    QVERIFY(!m_selectedRange);
+    QVERIFY(!m_compareRangeAction->isEnabled());
 }
 
 #include "inlinediff.h"

@@ -275,6 +275,7 @@ void DiffEditorWidgetController::addPatchAction(QMenu *menu, int fileIndex, int 
         [this, fileIndex, chunkIndex, patchAction] { patch(patchAction, fileIndex, chunkIndex); },
         Qt::QueuedConnection);
     const bool enabled = chunkExists(fileIndex, chunkIndex)
+            && !m_contextFileData.at(fileIndex).fileInfo[LeftSide].isRangeComparison
             && (patchAction == PatchAction::Revert || fileNamesAreDifferent(fileIndex));
     action->setEnabled(enabled);
 }

@@ -564,15 +564,22 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
 
     const int rightLineNumber = m_data.m_lineNumbers[RightSide].value(blockNumber, {-1, 0}).first;
     if (rightLineNumber >= 0) {
-        jumpToOriginalFile(rightFileName, rightLineNumber, columnNumber);
-        return;
+        const DiffFileInfo &info = fileData.fileInfo[RightSide];
+        if (const std::optional<int> sourceColumn = info.sourceColumn(rightLineNumber, columnNumber)) {
+            jumpToOriginalFile(rightFileName, rightLineNumber, *sourceColumn);
+            return;
+        }
     }
 
     const int leftLineNumber = m_data.m_lineNumbers[LeftSide].value(blockNumber, {-1, 0}).first;
     if (leftLineNumber < 0)
         return;
-    if (leftFileName != rightFileName) {
-        jumpToOriginalFile(leftFileName, leftLineNumber, columnNumber);
+    const DiffFileInfo &info = fileData.fileInfo[LeftSide];
+    const std::optional<int> sourceColumn = info.sourceColumn(leftLineNumber, columnNumber);
+    if (!sourceColumn)
+        return;
+    if (info.isRangeComparison || leftFileName != rightFileName) {
+        jumpToOriginalFile(leftFileName, leftLineNumber, *sourceColumn);
         return;
     }
 
