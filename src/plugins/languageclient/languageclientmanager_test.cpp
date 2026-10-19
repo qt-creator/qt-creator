@@ -71,8 +71,7 @@ protected:
 private:
     void respond(const QJsonValue &id, const QJsonValue &result)
     {
-        emit messageReceived(
-            JsonRpcMessage(QJsonObject{{"jsonrpc", "2.0"}, {"id", id}, {"result", result}}));
+        emit messageReceived(QJsonObject{{"jsonrpc", "2.0"}, {"id", id}, {"result", result}});
     }
 };
 
