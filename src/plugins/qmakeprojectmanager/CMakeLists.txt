@@ -1,4 +1,5 @@
 add_qtc_plugin(QmakeProjectManager
+  PUBLIC_DEPENDS ProParser
   PLUGIN_DEPENDS Core CppEditor QtSupport ResourceEditor TextEditor
   SOURCES
     addlibrarywizard.cpp addlibrarywizard.h

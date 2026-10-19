@@ -1,6 +1,5 @@
 add_qtc_plugin(QtSupport
-  DEPENDS Qt::Xml McpServerLib
-  PUBLIC_DEPENDS ProParser
+  DEPENDS Qt::Xml McpServerLib ProParser
   PLUGIN_DEPENDS Core ProjectExplorer ResourceEditor
   SOURCES
     mcpsupport.cpp mcpsupport.h

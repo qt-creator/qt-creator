@@ -5,6 +5,7 @@ QtcPlugin {
     Depends { name: "Utils" }
 
     Depends { name: "Core" }
+    Depends { name: "ProParser" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
     Depends { name: "CppEditor" }
@@ -91,6 +92,7 @@ QtcPlugin {
     }
 
     Export {
+        Depends { name: "ProParser" }
         Depends { name: "QtSupport" }
     }
 }

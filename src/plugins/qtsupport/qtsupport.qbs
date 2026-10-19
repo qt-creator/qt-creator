@@ -19,10 +19,6 @@ QtcPlugin {
         cpp.dynamicLibraries: "advapi32"
     }
 
-    Export {
-        Depends { name: "ProParser" }
-    }
-
     Group {
         name: "Pro Parser"
         prefix: project.sharedSourcesDir + "/proparser/"
