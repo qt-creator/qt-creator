@@ -177,6 +177,8 @@
 #include "toolchainsettingsaccessor.h"
 #include "userfileaccessor.h"
 #include "xcodebuildparser.h"
+
+#include <QTest>
 #endif // WITH_TESTS
 
 /*!
@@ -592,6 +594,8 @@ public:
     void extendFolderNavigationWidgetFactory();
 
     QString projectFilterString();
+    Core::IDocumentFactory *otherProjectFactory(const Utils::MimeType &mt);
+    void openProjectFile(const Utils::FilePath &filePath);
 
     void updateDocumentOpenerMimeTypes();
     QStringList projectMimeTypes();
@@ -763,6 +767,10 @@ public:
 static ProjectExplorerPlugin *m_instance = nullptr;
 static ProjectExplorerPluginPrivate *dd = nullptr;
 
+#ifdef WITH_TESTS
+static QObject *createOpenProjectTest();
+#endif
+
 static FilePaths projectFilesInDirectory(const FilePath &path)
 {
     return path.dirEntries({ProjectExplorerPlugin::projectFileGlobs(), DirFilterFlag::Files});
@@ -908,6 +916,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTestCreator(createGccToolchainTest);
     addTestCreator(createGenericOutputParserTest);
     addTestCreator(createGnuMakeParserTest);
+    addTestCreator(createOpenProjectTest);
     addTestCreator(createJsonWizardTest);
     addTestCreator(createKitManagerTest);
     addTestCreator(createKitModelTest);
@@ -2138,8 +2147,20 @@ void ProjectExplorerPluginPrivate::loadAction()
 
     FilePath filePath
         = Utils::FileUtils::getOpenFilePath(Tr::tr("Open Project"), dir, projectFilterString());
-    if (filePath.isEmpty())
-        return;
+    if (!filePath.isEmpty())
+        openProjectFile(filePath);
+}
+
+void ProjectExplorerPluginPrivate::openProjectFile(const FilePath &filePath)
+{
+    const MimeType mt = Utils::mimeTypeForFile(filePath);
+    if (!ProjectManager::canOpenProjectForMimeType(mt)) {
+        if (IDocumentFactory *factory = otherProjectFactory(mt)) {
+            factory->open(filePath);
+            updateActions();
+            return;
+        }
+    }
 
     OpenProjectResult result = ProjectExplorerPlugin::openProject(filePath);
     if (!result)
@@ -3213,6 +3234,24 @@ void ProjectExplorerPluginPrivate::extendFolderNavigationWidgetFactory()
             });
 }
 
+// Other project factories open what is no project of its own, a workspace of
+// several projects for instance.
+static QList<IDocumentFactory *> otherProjectFactories()
+{
+    return Utils::filtered(IDocumentFactory::allDocumentFactories(), [](IDocumentFactory *f) {
+        return f->isProjectFactory() && f != &dd->m_documentFactory;
+    });
+}
+
+IDocumentFactory *ProjectExplorerPluginPrivate::otherProjectFactory(const MimeType &mt)
+{
+    return Utils::findOrDefault(otherProjectFactories(), [&mt](IDocumentFactory *f) {
+        return Utils::anyOf(f->mimeTypes(), [&mt](const QString &mimeType) {
+            return mt.inherits(mimeType);
+        });
+    });
+}
+
 QString ProjectExplorerPluginPrivate::projectFilterString()
 {
     const QString filterSeparator = QLatin1String(";;");
@@ -3220,7 +3259,12 @@ QString ProjectExplorerPluginPrivate::projectFilterString()
     QStringList filterStrings;
     QStringList allGlobPatterns;
 
-    for (const QString &mimeType : projectMimeTypes()) {
+    QStringList mimeTypes = projectMimeTypes();
+    for (IDocumentFactory *factory : otherProjectFactories())
+        mimeTypes += factory->mimeTypes();
+    mimeTypes.removeDuplicates();
+
+    for (const QString &mimeType : std::as_const(mimeTypes)) {
         MimeType mime = Utils::mimeTypeForName(mimeType);
         if (!mime.isValid())
             continue;
@@ -4851,4 +4895,41 @@ LocatorMatcherTasks ProjectSwitchFilter::matchers()
     return {QSyncTask(onSetup)};
 }
 
+#ifdef WITH_TESTS
+
+class OpenProjectTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testOffersAndOpensOtherProjectFactories()
+    {
+        IDocumentFactory factory;
+        factory.setIsProjectFactory(true);
+        factory.addMimeType("text/x-patch");
+        FilePaths opened;
+        factory.setOpener([&opened](const FilePath &filePath) {
+            opened.append(filePath);
+            return nullptr;
+        });
+
+        QVERIFY(dd->projectFilterString().contains("*.patch"));
+
+        const FilePath filePath = FilePath::fromUserInput(QDir::tempPath()).pathAppended("x.patch");
+        dd->openProjectFile(filePath);
+        QCOMPARE(opened, FilePaths{filePath});
+    }
+};
+
+static QObject *createOpenProjectTest()
+{
+    return new OpenProjectTest;
+}
+
+#endif // WITH_TESTS
+
 } // namespace ProjectExplorer
+
+#ifdef WITH_TESTS
+#include <projectexplorer.moc>
+#endif
