@@ -19,6 +19,7 @@
 #include "chatfontscale.h"
 #include "chatinputedit.h"
 #include "chatpanel.h"
+#include "collapsibleframe.h"
 #include "configselectpopup.h"
 
 #include <acp/acp.h>
@@ -38,6 +39,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
+#include <utils/elidinglabel.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
@@ -596,6 +598,7 @@ private slots:
     void testConfigSelectPopupOverridesEscapeShortcut();
     void testChatPanelSelectPopupFollowsOptions();
     void testChatPanelSelectButtonElide();
+    void testMessageViewRunningToolTitleClamp();
 
     // Tier 5: terms and conditions, chat widget
     void testTermsWidget();
@@ -3822,6 +3825,69 @@ void AcpClientTest::testChatPanelSelectButtonElide()
     QVERIFY2(button->text() != textBeforeCommands, qPrintable(button->text()));
     QVERIFY2(preferredRowWidth() <= rowWidth(),
              qPrintable(QString("%1 > %2").arg(preferredRowWidth()).arg(rowWidth())));
+}
+
+// The running tool title in a collapsed tool call group takes at most three
+// lines, and all of its lines once the group is expanded.
+void AcpClientTest::testMessageViewRunningToolTitleClamp()
+{
+    AcpMessageView view;
+    view.resize(400, 800);
+    view.show();
+    QVERIFY(QTest::qWaitForWindowExposed(&view));
+
+    QStringList lines;
+    for (int i = 0; i < 12; ++i)
+        lines << QString("line %1 of a long running tool command").arg(i);
+    const QString title = lines.join('\n');
+    view.updateToolCall(V2::ToolCallUpdate()
+                            .toolCallId("tool-1")
+                            .title(title)
+                            .status(V2::ToolCallStatus::in_progress));
+
+    QLabel *label = nullptr;
+    QTRY_VERIFY((label = Utils::findOrDefault(view.findChildren<QLabel *>(), [&](QLabel *l) {
+                     return l->wordWrap() && l->text() == title && l->isVisible()
+                            && !qobject_cast<Utils::ElidingLabel *>(l);
+                 })));
+
+    CollapsibleFrame *group = nullptr;
+    for (QWidget *w = label->parentWidget(); w && !group; w = w->parentWidget())
+        group = qobject_cast<CollapsibleFrame *>(w);
+    QVERIFY(group);
+    QVERIFY(group->isCollapsed());
+
+    const QMargins margins = label->contentsMargins();
+    const int lineHeight = label->fontMetrics().height();
+    const int clampedHeight = 3 * lineHeight + margins.top() + margins.bottom();
+    QTRY_COMPARE(label->height(), clampedHeight);
+
+    group->setCollapsed(false);
+    const int fullHeight = label->QLabel::heightForWidth(label->width());
+    QVERIFY2(fullHeight >= 12 * lineHeight, qPrintable(QString::number(fullHeight)));
+    QTRY_COMPARE(label->height(), label->QLabel::heightForWidth(label->width()));
+
+    group->setCollapsed(true);
+    QTRY_COMPARE(label->height(), clampedHeight);
+
+    // A token wider than the label is not broken, so the collapsed label
+    // paints the same lines it measures, like the expanded one.
+    const QString longTitle = "Read " + QString(500, 'x');
+    view.updateToolCall(V2::ToolCallUpdate()
+                            .toolCallId("tool-1")
+                            .title(longTitle)
+                            .status(V2::ToolCallStatus::in_progress));
+    QTRY_COMPARE(label->text(), longTitle);
+    QVERIFY(label->fontMetrics().horizontalAdvance(longTitle) > 3 * label->width());
+    const int longTitleHeight = label->QLabel::heightForWidth(label->width());
+    QVERIFY(longTitleHeight < clampedHeight);
+    QTRY_COMPARE(label->height(), longTitleHeight);
+    const QSize collapsedSize = label->size();
+    const QImage collapsedImage = label->grab().toImage();
+
+    group->setCollapsed(false);
+    QTRY_COMPARE(label->size(), collapsedSize);
+    QCOMPARE(label->grab().toImage(), collapsedImage);
 }
 
 // --- Tier 5 ------------------------------------------------------------------

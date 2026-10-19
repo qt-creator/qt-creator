@@ -51,6 +51,7 @@
 #include <QScrollBar>
 #include <QSpinBox>
 #include <QTextDocument>
+#include <QTextLayout>
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QElapsedTimer>
@@ -391,6 +392,111 @@ private:
 };
 
 // ---------------------------------------------------------------------------
+// LineClampedLabel — word-wrapped plain text label limited to a line count
+// ---------------------------------------------------------------------------
+
+class LineClampedLabel : public QLabel
+{
+public:
+    using QLabel::QLabel;
+
+    // 0 shows all lines.
+    void setMaxLines(int maxLines)
+    {
+        if (m_maxLines == maxLines)
+            return;
+        m_maxLines = maxLines;
+        updateGeometry();
+        update();
+    }
+
+    int heightForWidth(int width) const override
+    {
+        return clampHeight(QLabel::heightForWidth(width));
+    }
+
+    QSize sizeHint() const override
+    {
+        const QSize size = QLabel::sizeHint();
+        return {size.width(), clampHeight(size.height())};
+    }
+
+    QSize minimumSizeHint() const override
+    {
+        const QSize size = QLabel::minimumSizeHint();
+        return {size.width(), clampHeight(size.height())};
+    }
+
+protected:
+    void paintEvent(QPaintEvent *event) override
+    {
+        const QRect contents = contentsRect();
+        QTextLayout layout;
+        if (m_maxLines <= 0 || !layoutLines(layout, contents.width())) {
+            QLabel::paintEvent(event);
+            return;
+        }
+
+        const QFontMetrics fm = fontMetrics();
+        QPainter p(this);
+        p.setPen(palette().color(foregroundRole()));
+        for (int i = 0; i < layout.lineCount(); ++i) {
+            const QTextLine line = layout.lineAt(i);
+            const bool last = i == layout.lineCount() - 1;
+            QString lineText = last ? layout.text().mid(line.textStart())
+                                    : layout.text().mid(line.textStart(), line.textLength());
+            lineText.replace(QChar::LineSeparator, QLatin1Char(' '));
+            if (last)
+                lineText = fm.elidedText(lineText, Qt::ElideRight, contents.width());
+            p.drawText(QPointF(contents.left(), contents.top() + line.y() + line.ascent()),
+                       lineText);
+        }
+    }
+
+private:
+    // Returns whether text remains beyond m_maxLines lines.
+    bool layoutLines(QTextLayout &layout, int width) const
+    {
+        QString t = text();
+        t.replace(QLatin1Char('\n'), QChar::LineSeparator);
+        layout.setText(t);
+        layout.setFont(font());
+        QTextOption option;
+        option.setWrapMode(QTextOption::WordWrap);
+        layout.setTextOption(option);
+
+        bool truncated = false;
+        qreal y = 0;
+        layout.beginLayout();
+        while (true) {
+            QTextLine line = layout.createLine();
+            if (!line.isValid())
+                break;
+            line.setLineWidth(width);
+            line.setPosition(QPointF(0, y));
+            y += line.height();
+            if (layout.lineCount() == m_maxLines) {
+                truncated = line.textStart() + line.textLength() < t.size();
+                break;
+            }
+        }
+        layout.endLayout();
+        return truncated;
+    }
+
+    int clampHeight(int height) const
+    {
+        if (m_maxLines <= 0)
+            return height;
+        const QMargins margins = contentsMargins();
+        return qMin(height,
+                    m_maxLines * fontMetrics().height() + margins.top() + margins.bottom());
+    }
+
+    int m_maxLines = 0;
+};
+
+// ---------------------------------------------------------------------------
 // ToolCallGroupWidget — groups consecutive tool calls into one collapsible
 // ---------------------------------------------------------------------------
 
@@ -448,9 +554,14 @@ public:
         m_runningIcon->setVisible(false);
         runningRow->addWidget(m_runningIcon);
 
-        m_runningLabel = new QLabel(this);
+        m_runningLabel = new LineClampedLabel(this);
+        m_runningLabel->setTextFormat(Qt::PlainText);
         m_runningLabel->setWordWrap(true);
         m_runningLabel->setVisible(false);
+        m_runningLabel->setMaxLines(CollapsedRunningLines);
+        connect(this, &CollapsibleFrame::collapsedChanged, m_runningLabel, [this](bool collapsed) {
+            m_runningLabel->setMaxLines(collapsed ? CollapsedRunningLines : 0);
+        });
         setChatFont(m_runningLabel, 0.9);
         runningRow->addWidget(m_runningLabel, 1);
         headerVBox->addLayout(runningRow);
@@ -532,13 +643,14 @@ public:
 
 private:
     enum StatusIndex { Completed, InProgress, Failed, Pending, Cancelled, StatusCount };
+    static constexpr int CollapsedRunningLines = 3;
 
     Utils::QtcIconDisplay *m_summaryIcon = nullptr;
     QLabel *m_summaryLabel = nullptr;
     QWidget *m_statusIcons[StatusCount] = {};
     QLabel *m_statusLabels[StatusCount] = {};
     QWidget *m_runningIcon = nullptr;
-    QLabel *m_runningLabel = nullptr;
+    LineClampedLabel *m_runningLabel = nullptr;
     QVBoxLayout *m_innerLayout = nullptr;
     QHash<QString, ToolCallStatus> m_statuses;
     QHash<QString, QString> m_titles;
