@@ -34,6 +34,13 @@ QtApplication {
         fileTags: ["qt.qml.qml", "qt.core.resource_data"]
     }
 
+    // qbs >= 3.4 generates the qmldir, but only QmlModule puts it into the resources
+    Group {
+        name: "qmlmix qmldir"
+        fileTagsFilter: ["qt.qml.qmldir"]
+        fileTags: ["qt.core.resource_data"]
+    }
+
     // qbs < 3.4 registers the C++ types, but does not generate a qmldir
     Rule {
         condition: Utilities.versionCompare(qbs.version, "3.4") < 0
