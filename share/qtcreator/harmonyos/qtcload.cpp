@@ -685,6 +685,8 @@ bool Loader::applyRela(const Elf64_Rela *relocations, size_t count)
         const char *name = m_strings + symbol.st_name;
         bool ok = false;
         void *value = resolve(symbol, name, &ok);
+        if (!ok && !m_image->missing.empty())
+            return fail("undefined symbol: %s, missing %s", name, m_image->missing.front().c_str());
         if (!ok)
             return fail("undefined symbol: %s", name);
         *target = uint64_t(value) + (value ? uint64_t(relocation.r_addend) : 0);
