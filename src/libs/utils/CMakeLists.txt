@@ -267,7 +267,7 @@ qtc_add_resources(Utils "codemodel_images"
 
 extend_qtc_library(Utils
   SOURCES_PREFIX plaintextedit
-  PUBLIC_INCLUDES plaintextedit
+  INCLUDES plaintextedit
   SOURCES
     inputcontrol.cpp
     inputcontrol.h
