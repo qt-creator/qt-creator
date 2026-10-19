@@ -6,7 +6,11 @@
             "windows": "https://dl.google.com/android/repository/commandlinetools-win-16111833_latest.zip",
             "windows_sha256": "e5885e2e59038c0778a85fc19f01de7ce7c567c105553f7617b936b1e0e87b2b",
             "mac": "https://dl.google.com/android/repository/commandlinetools-mac_x86_64-16111833_latest.zip",
-            "mac_sha256": "7e601c04e7173754b3d051a87bb4c3a8243c65a9d7bfa9356ed6499fb8953fa3"
+            "mac_sha256": "7e601c04e7173754b3d051a87bb4c3a8243c65a9d7bfa9356ed6499fb8953fa3",
+            "mac_x86_64": "https://dl.google.com/android/repository/commandlinetools-mac_x86_64-16111833_latest.zip",
+            "mac_x86_64_sha256": "7e601c04e7173754b3d051a87bb4c3a8243c65a9d7bfa9356ed6499fb8953fa3",
+            "mac_arm64": "https://dl.google.com/android/repository/commandlinetools-mac_arm64-16111833_latest.zip",
+            "mac_arm64_sha256": "58da8f215781cc0208743e88b65ae259780c55e7eb40e50373d377cf369232d6"
         },
         "sdk_essential_packages": {
             "default": ["platform-tools", "cmdline-tools;latest", "emulator"],

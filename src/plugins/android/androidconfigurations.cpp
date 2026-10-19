@@ -118,6 +118,8 @@ const char DefaultVersionKey[] = "default";
 const char LinuxOsKey[] = "linux";
 const char WindowsOsKey[] = "windows";
 const char macOsKey[] = "mac";
+const char macOsX86_64Key[] = "mac_x86_64";
+const char macOsArm64Key[] = "mac_arm64";
 
 const char SettingsGroup[] = "AndroidConfigurations";
 const char SDKLocationKey[] = "SDKLocation";
@@ -400,16 +402,22 @@ void AndroidConfigData::parseDependenciesJson()
         // Parse SDK Tools URL
         if (commonObject.contains(SdkToolsUrlKey) && commonObject[SdkToolsUrlKey].isObject()) {
             QJsonObject sdkToolsObj(commonObject[SdkToolsUrlKey].toObject());
+            QString hostKey;
             if (HostOsInfo::isMacHost()) {
-                m_sdkToolsUrl = sdkToolsObj[macOsKey].toString();
-                m_sdkToolsSha256 = QByteArray::fromHex(sdkToolsObj["mac_sha256"].toString().toUtf8());
+                const QString archKey = QString::fromLatin1(
+                    HostOsInfo::hostArchitecture() == OsArchArm64 ? macOsArm64Key
+                                                                  : macOsX86_64Key);
+                // A file written by an older Creator only has the "mac" key.
+                hostKey = sdkToolsObj.contains(archKey) ? archKey
+                                                        : QString::fromLatin1(macOsKey);
             } else if (HostOsInfo::isWindowsHost()) {
-                m_sdkToolsUrl = sdkToolsObj[WindowsOsKey].toString();
-                m_sdkToolsSha256 = QByteArray::fromHex(sdkToolsObj["windows_sha256"].toString().toUtf8());
+                hostKey = QString::fromLatin1(WindowsOsKey);
             } else {
-                m_sdkToolsUrl = sdkToolsObj[LinuxOsKey].toString();
-                m_sdkToolsSha256 = QByteArray::fromHex(sdkToolsObj["linux_sha256"].toString().toUtf8());
+                hostKey = QString::fromLatin1(LinuxOsKey);
             }
+            const QString sha256Key = hostKey + "_sha256";
+            m_sdkToolsUrl = sdkToolsObj[hostKey].toString();
+            m_sdkToolsSha256 = QByteArray::fromHex(sdkToolsObj[sha256Key].toString().toUtf8());
         }
 
         // Parse common essential packages
