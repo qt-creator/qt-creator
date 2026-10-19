@@ -736,18 +736,8 @@ void ErrorInfo::generateTasks(ProjectExplorer::Task::TaskType type) const
     BuildSystemTask task(type, mainItem.description, mainItem.filePath, mainItem.line);
     task.setOrigin("qbs");
     task.clearDetails();
-    for (const ErrorInfoItem &item : items) {
-        if (item.filePath.isEmpty() || !item.filePath.isLocal()) {
-            task.addToDetails(item.toString());
-            continue;
-        }
-        QString link = "file:///" + item.filePath.toUrlishString();
-        if (item.line > 0)
-            link.append(':').append(QString::number(item.line));
-        const QString fileName = item.filePath.fileName();
-        const QString text = fileName + ": " + item.description.trimmed();
-        task.addLinkDetail(link, text, 0, fileName.size());
-    }
+    for (const ErrorInfoItem &item : items)
+        task.addToDetails(item.description.trimmed(), {item.filePath, item.line, -1});
     TaskHub::addTask(task);
 }
 

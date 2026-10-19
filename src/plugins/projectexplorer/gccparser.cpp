@@ -357,9 +357,9 @@ private slots:
                                9, 0,
                                QList<QTextLayout::FormatRange>()
                                    << formatRange(46, 0)
-                                   << formatRange(46, 29, "olpfile:///temp/test/untitled8/main.cpp::0::0")
+                                   << formatRange(46, 29, "olpfile:///temp/test/untitled8/main.cpp")
                                    << formatRange(75, 39)
-                                   << formatRange(114, 29, "olpfile:///temp/test/untitled8/main.cpp::9::0")
+                                   << formatRange(114, 29, "olpfile:///temp/test/untitled8/main.cpp::9")
                                    << formatRange(143, 56))
                 << CompileTask(Task::Error,
                                "(Each undeclared identifier is reported only once for each function it appears in.)",
@@ -460,9 +460,9 @@ private slots:
                                264, 0,
                                QList<QTextLayout::FormatRange>()
                                    << formatRange(45, 0)
-                                   << formatRange(45, 68, "olpfile:///home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp::0::0")
+                                   << formatRange(45, 68, "olpfile:///home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp")
                                    << formatRange(113, 106)
-                                   << formatRange(219, 68, "olpfile:///home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp::264::0")
+                                   << formatRange(219, 68, "olpfile:///home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp::264")
                                    << formatRange(287, 57))
                 << CompileTask(Task::Error,
                                "expected ';' before ':' token",
@@ -507,9 +507,9 @@ private slots:
                                194, 0,
                                QList<QTextLayout::FormatRange>()
                                    << formatRange(50, 0)
-                                   << formatRange(50, 67, "olpfile:///Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c::0::0")
+                                   << formatRange(50, 67, "olpfile:///Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c")
                                    << formatRange(117, 216)
-                                   << formatRange(333, 67, "olpfile:///Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c::194::0")
+                                   << formatRange(333, 67, "olpfile:///Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c::194")
                                    << formatRange(400, 64)));
 
         QTest::newRow("rm false positive")
@@ -639,13 +639,13 @@ private slots:
                                  7094, 0,
                                  QList<QTextLayout::FormatRange>{
                                      formatRange(33, 22),
-                                     formatRange(55, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.h::6792::0"),
+                                     formatRange(55, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.h::6792"),
                                      formatRange(93, 29),
-                                     formatRange(122, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32std.h::25::0"),
+                                     formatRange(122, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32std.h::25"),
                                      formatRange(160, 5),
-                                     formatRange(165, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::0::0"),
+                                     formatRange(165, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl"),
                                      formatRange(205, 69),
-                                     formatRange(274, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::7094::0"),
+                                     formatRange(274, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::7094"),
                                      formatRange(314, 48)}
                                  )};
         QTest::newRow("In constructor 2")
@@ -690,7 +690,7 @@ private slots:
                    1134, 26,
                    QList<QTextLayout::FormatRange>()
                        << formatRange(26, 22)
-                       << formatRange(48, 39, "olpfile:///Symbian/SDK/EPOC32/INCLUDE/GCCE/GCCE.h::15::0")
+                       << formatRange(48, 39, "olpfile:///Symbian/SDK/EPOC32/INCLUDE/GCCE/GCCE.h::15")
                        << formatRange(87, 46)
                        << formatRange(133, 50, "olpfile:///Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh::1134::26")
                        << formatRange(183, 44))};
@@ -763,7 +763,7 @@ private slots:
                    14, 25,
                    QList<QTextLayout::FormatRange>()
                        << formatRange(41, 22)
-                       << formatRange(63, 67, "olpfile:///home/code/src/creator/src/libs/extensionsystem/pluginerrorview.cpp::31::0")
+                       << formatRange(63, 67, "olpfile:///home/code/src/creator/src/libs/extensionsystem/pluginerrorview.cpp::31")
                        << formatRange(130, 146))};
 
         QTest::newRow("qtcreatorbug-9195")
@@ -786,9 +786,9 @@ private slots:
                    597, 5,
                    QList<QTextLayout::FormatRange>()
                        << formatRange(43, 22)
-                       << formatRange(65, 31, "olpfile:///usr/include/qt4/QtCore/QString::1::0")
+                       << formatRange(65, 31, "olpfile:///usr/include/qt4/QtCore/QString::1")
                        << formatRange(96, 40)
-                       << formatRange(136, 33, "olpfile:///usr/include/qt4/QtCore/qstring.h::0::0")
+                       << formatRange(136, 33, "olpfile:///usr/include/qt4/QtCore/qstring.h")
                        << formatRange(169, 28)
                        << formatRange(197, 33, "olpfile:///usr/include/qt4/QtCore/qstring.h::597::5")
                        << formatRange(230, 99))};
@@ -848,13 +848,13 @@ private slots:
                                  273, 25,
                                  QList<QTextLayout::FormatRange>()
                                      << formatRange(140, 22)
-                                     << formatRange(162, 32, "olpfile:///usr/include/qt/QtCore/qlocale.h::43::0")
+                                     << formatRange(162, 32, "olpfile:///usr/include/qt/QtCore/qlocale.h::43")
                                      << formatRange(194, 27)
-                                     << formatRange(221, 36, "olpfile:///usr/include/qt/QtCore/qtextstream.h::46::0")
+                                     << formatRange(221, 36, "olpfile:///usr/include/qt/QtCore/qtextstream.h::46")
                                      << formatRange(257, 27)
-                                     << formatRange(284, 38, "olpfile:///qtc/src/shared/proparser/proitems.cpp::31::0")
+                                     << formatRange(284, 38, "olpfile:///qtc/src/shared/proparser/proitems.cpp::31")
                                      << formatRange(322, 5)
-                                     << formatRange(327, 33, "olpfile:///usr/include/qt/QtCore/qvariant.h::0::0")
+                                     << formatRange(327, 33, "olpfile:///usr/include/qt/QtCore/qvariant.h")
                                      << formatRange(360, 51)
                                      << formatRange(411, 33, "olpfile:///usr/include/qt/QtCore/qvariant.h::273::25")
                                      << formatRange(444, 229)
@@ -1085,9 +1085,9 @@ private slots:
                    FilePath::fromUserInput("/data/dev/creator/src/libs/utils/aspects.cpp"), 3454, 13,
                    QList<QTextLayout::FormatRange>{
                                                    formatRange(82, 22),
-                                                   formatRange(104, 44, "olpfile:///data/dev/creator/src/libs/utils/aspects.cpp::12::0"),
+                                                   formatRange(104, 44, "olpfile:///data/dev/creator/src/libs/utils/aspects.cpp::12"),
                                                    formatRange(148, 5),
-                                                   formatRange(153, 48, "olpfile:///data/dev/creator/src/libs/utils/layoutbuilder.h::0::0"),
+                                                   formatRange(153, 48, "olpfile:///data/dev/creator/src/libs/utils/layoutbuilder.h"),
                                                    formatRange(201, 177),
                                                    formatRange(378, 44, "olpfile:///data/dev/creator/src/libs/utils/aspects.cpp::3454::13"),
                                                    formatRange(422, 31),

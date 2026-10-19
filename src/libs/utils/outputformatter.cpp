@@ -47,10 +47,15 @@ Q_GLOBAL_STATIC_WITH_ARGS(QString, linkPrefix, {"olpfile://"})
 Q_GLOBAL_STATIC_WITH_ARGS(QString, linkSep, {"::"})
 static constexpr QLatin1StringView fileScheme{"file://"};
 
-QString OutputLineParser::createLinkTarget(const FilePath &filePath, int line = -1, int column = -1)
+QString OutputLineParser::createLinkTarget(const FilePath &filePath, int line, int column)
 {
-    return *linkPrefix() + filePath.toUrlishString() + *linkSep() + QString::number(line)
-            + *linkSep() + QString::number(column);
+    QString target = *linkPrefix() + filePath.toUrlishString();
+    if (line > 0) {
+        target.append(*linkSep()).append(QString::number(line));
+        if (column > 0)
+            target.append(*linkSep()).append(QString::number(column));
+    }
+    return target;
 }
 
 bool OutputLineParser::isLinkTarget(const QString &target)
@@ -68,7 +73,7 @@ Link OutputLineParser::parseLinkTarget(const QString &target)
         return Link(
             FilePath::fromString(parts.first()),
             parts.length() > 1 ? parts.at(1).toInt() : 0,
-            parts.length() > 2 ? parts.at(2).toInt() - 1 : 0);
+            parts.length() > 2 ? parts.at(2).toInt() - 1 : -1);
     }
 
     if (!target.startsWith(fileScheme))

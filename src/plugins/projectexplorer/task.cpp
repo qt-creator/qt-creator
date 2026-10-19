@@ -11,9 +11,10 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/textmark.h>
 #include <utils/algorithm.h>
-#include <utils/utilsicons.h>
+#include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
 #include <QFileInfo>
 #include <QGuiApplication>
@@ -170,6 +171,20 @@ void Task::setType(TaskType type)
 
     m_type = type;
     // TODO: Update TextMark
+}
+
+void Task::addToDetails(const QString &line, const Link &location)
+{
+    if (!location.hasValidTarget()) {
+        m_details << line;
+        return;
+    }
+
+    const QString link = OutputLineParser::createLinkTarget(
+        location.targetFilePath, location.target.line, location.target.column + 1);
+    const QString fileName = location.targetFilePath.fileName();
+    const QString text = fileName + ": " + line;
+    addLinkDetail(link, text, 0, fileName.size());
 }
 
 int Task::line() const

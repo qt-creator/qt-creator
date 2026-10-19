@@ -61,6 +61,7 @@ public:
 
     static bool isLinkTarget(const QString &target);
     static Utils::Link parseLinkTarget(const QString &target);
+    static QString createLinkTarget(const FilePath &filePath, int line, int column);
 
     void addSearchDir(const Utils::FilePath &dir);
     void dropSearchDir(const Utils::FilePath &dir);
@@ -91,7 +92,6 @@ public:
 protected:
     static QString rightTrimmed(const QString &in);
     Utils::FilePath absoluteFilePath(const Utils::FilePath &filePath) const;
-    static QString createLinkTarget(const FilePath &filePath, int line, int column);
     static void addLinkSpecForAbsoluteFilePath(LinkSpecs &linkSpecs, const FilePath &filePath,
                                                int lineNo, int column, int pos, int len);
     static void addLinkSpecForAbsoluteFilePath(LinkSpecs &linkSpecs, const FilePath &filePath,

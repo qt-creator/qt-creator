@@ -9,7 +9,10 @@
 #include "taskfile.h"
 #include "taskmodel.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/id.h>
+#include <utils/link.h>
+#include <utils/outputformatter.h>
 
 #include <QTest>
 
@@ -17,7 +20,7 @@ namespace ProjectExplorer::Internal {
 
 // Covers the task counting, filtering and .tasks file parsing that the former
 // Squish system test suite_general/tst_tasks_handling exercised through the
-// Issues pane.
+// Issues pane, as well as linkified task details.
 class TaskHandlingTest final : public QObject
 {
     Q_OBJECT
@@ -27,6 +30,8 @@ private slots:
     void testTaskFileParsing_data();
     void testTaskFileParsing();
     void testTaskModelPopulationBenchmark();
+    void testLinkedDetails_data();
+    void testLinkedDetails();
 };
 
 void TaskHandlingTest::testTaskFiltering()
@@ -136,6 +141,61 @@ void TaskHandlingTest::testTaskModelPopulationBenchmark()
         for (int i = 0; i < 1100; ++i)
             model.addTask(Task(Task::Warning, "issue", {}, i, category));
     }
+}
+
+void TaskHandlingTest::testLinkedDetails_data()
+{
+    using namespace Utils;
+
+    QTest::addColumn<Link>("location");
+    QTest::addColumn<QString>("expectedDetail");
+    QTest::addColumn<int>("expectedColumn"); // as seen when following the link
+
+    const FilePath localFile = FilePath::fromString(
+        HostOsInfo::isWindowsHost() ? QString("C:/dir/main.cpp") : QString("/dir/main.cpp"));
+    const FilePath remoteFile = FilePath::fromString("docker://someid/dir/main.cpp");
+
+    QTest::newRow("no location") << Link() << QString("text") << 0;
+    QTest::newRow("line, no column") << Link(localFile, 12, -1) << QString("main.cpp: text") << -1;
+    QTest::newRow("line and first column")
+        << Link(localFile, 12, 0) << QString("main.cpp: text") << 0;
+    QTest::newRow("line and column") << Link(localFile, 12, 4) << QString("main.cpp: text") << 4;
+    QTest::newRow("no line") << Link(localFile, 0, -1) << QString("main.cpp: text") << -1;
+    QTest::newRow("non-local file") << Link(remoteFile, 12, 4) << QString("main.cpp: text") << 4;
+}
+
+void TaskHandlingTest::testLinkedDetails()
+{
+    QFETCH(Utils::Link, location);
+    QFETCH(QString, expectedDetail);
+    QFETCH(int, expectedColumn);
+
+    // The existing detail line makes sure the link range accounts for preceding text.
+    Task task(Task::Error, "summary\nplain detail", {}, -1, {});
+    task.addToDetails("text", location);
+    QCOMPARE(task.details(), QStringList({"plain detail", expectedDetail}));
+    if (!location.hasValidTarget()) {
+        QVERIFY(task.formats().isEmpty());
+        return;
+    }
+
+    QCOMPARE(task.formats().size(), 1);
+    const QTextLayout::FormatRange &range = task.formats().first();
+    QCOMPARE(range.start, QString("summary\nplain detail\n").size());
+    QCOMPARE(range.length, QString("main.cpp").size());
+    QVERIFY(range.format.isAnchor());
+
+    // The link must lead back to the location when clicked.
+    const QString href = range.format.anchorHref();
+    QVERIFY(Utils::OutputLineParser::isLinkTarget(href));
+    const Utils::Link target = Utils::OutputLineParser::parseLinkTarget(href);
+    QCOMPARE(target.targetFilePath, location.targetFilePath);
+    QCOMPARE(target.target.line, location.target.line);
+    QCOMPARE(target.target.column, expectedColumn);
+
+    QVERIFY(task.formattedDescription({Task::WithSummary, Task::WithLinks})
+                .contains(QString("summary\nplain detail\n<a href=\"%1\">main.cpp</a>: text")
+                              .arg(href.toHtmlEscaped())));
 }
 
 QObject *createTaskHandlingTest()

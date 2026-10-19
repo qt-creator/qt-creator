@@ -7,6 +7,7 @@
 
 #include <utils/id.h>
 #include <utils/filepath.h>
+#include <utils/link.h>
 
 #include <QIcon>
 #include <QMetaType>
@@ -47,9 +48,6 @@ public:
     QString description(DescriptionTags tags = WithSummary) const;
     QString formattedDescription(DescriptionTags tags, const QString &extraHeading = {}) const;
 
-    void addLinkDetail(
-        const QString &link, const QString &linkText = {}, int linkPos = 0, int linkLength = -1);
-
     void setFile(const Utils::FilePath &file);
     bool hasFile() const { return !m_file.isEmpty(); }
     Utils::FilePath file() const { return m_file; }
@@ -66,7 +64,9 @@ public:
 
     const QStringList &details() const { return m_details; }
     bool hasDetails() const { return !m_details.isEmpty(); }
-    void addToDetails(const QString &line) { m_details << line; }
+    void addToDetails(const QString &line, const Utils::Link &location = {});
+    void addLinkDetail(
+        const QString &link, const QString &linkText = {}, int linkPos = 0, int linkLength = -1);
     void clearDetails() { m_details.clear(); }
     void setDetails(const QStringList &details) { m_details = details; }
 

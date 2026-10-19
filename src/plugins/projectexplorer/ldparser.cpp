@@ -222,7 +222,7 @@ private slots:
                                8, 0,
                                QList<QTextLayout::FormatRange>{
                                    formatRange(51, 28),
-                                   formatRange(79, 31, "olpfile://C:/temp/test/untitled8/main.cpp::8::-1"),
+                                   formatRange(79, 31, "olpfile://C:/temp/test/untitled8/main.cpp::8"),
                                    formatRange(110, 54)})
                 << CompileTask(Task::Error, "collect2: ld returned 1 exit status"));
 
@@ -241,7 +241,7 @@ private slots:
                                -1, 0,
                                QList<QTextLayout::FormatRange>{
                                    formatRange(51, 28),
-                                   formatRange(79, 31, "olpfile://C:/temp/test/untitled8/main.cpp::-1::-1"),
+                                   formatRange(79, 31, "olpfile://C:/temp/test/untitled8/main.cpp"),
                                    formatRange(110, 65)}
                                )
                 << CompileTask(Task::Error, "collect2: ld returned 1 exit status"));
@@ -314,7 +314,7 @@ private slots:
                                26, 0,
                                QList<QTextLayout::FormatRange>{
                                    formatRange(46, 44),
-                                   formatRange(90, 39, "olpfile://M:/Development/x64/QtPlot/qplotaxis.cpp::26::-1"),
+                                   formatRange(90, 39, "olpfile://M:/Development/x64/QtPlot/qplotaxis.cpp::26"),
                                    formatRange(129, 50)})
                 << CompileTask(Task::Error,
                                "undefined reference to `vtable for QPlotAxis'",
@@ -339,7 +339,7 @@ private slots:
                                2, 0,
                                QList<QTextLayout::FormatRange>()
                                    << formatRange(31, 28)
-                                   << formatRange(59, 23, "olpfile:///home/user/test/foo.cpp::2::-1")
+                                   << formatRange(59, 23, "olpfile:///home/user/test/foo.cpp::2")
                                    << formatRange(82, 34))
                 << CompileTask(Task::Error,
                                "first defined here",
