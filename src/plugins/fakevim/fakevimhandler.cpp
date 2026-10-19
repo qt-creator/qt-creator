@@ -42437,7 +42437,13 @@ void FakeVimHandler::handleInput(const QString &keys)
 
 void FakeVimHandler::enterCommandMode()
 {
+    const bool update = d->isVisualMode() && !d->m_inFakeVim;
+    if (update)
+        d->pullCursor();
+    d->abandonVisualMode();
     d->enterCommandMode();
+    if (update)
+        d->commitCursor();
 }
 
 void FakeVimHandler::setCurrentFileName(const QString &fileName)

@@ -2550,6 +2550,11 @@ void FakeVimPlugin::editorAboutToClose(IEditor *editor)
     // only way a buffer goes, so only the ":bdelete" three are fired and
     // BufWipeout is left alone rather than guessing which close is which.
     if (FakeVimHandler *handler = m_editorToHandler.value(editor, {}).handler) {
+        // The mode is shared by all editors, so it must not carry over to the
+        // one becoming current, which currentEditorAboutToChange cannot do
+        // for an editor that is already gone from m_editorToHandler.
+        if (editor == EditorManager::currentEditor())
+            handler->enterCommandMode();
         handler->triggerAutocmd("BufWinLeave");
         handler->triggerAutocmd("BufUnload");
         // On the way out Vim unloads a buffer but does not drop it from the

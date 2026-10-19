@@ -249,6 +249,8 @@ private slots:
     void test_vim_plugin_modeline_of_the_current_buffer();
     void test_vim_plugin_buffer_lifecycle_events();
     void test_vim_plugin_window_events();
+    void test_vim_plugin_close_split_in_visual_mode();
+    void test_vim_plugin_switch_split_in_visual_mode();
     void test_vim_plugin_exit_events();
     void test_vim_visual_selection_focus_out();
     void test_vim_tagstack();
@@ -13922,6 +13924,111 @@ void FakeVimTester::test_vim_plugin_window_events()
     const int id = closedId.toInt(&ok);
     QVERIFY2(ok, qPrintable("WinClosed did not name a number: " + closedId));
     QVERIFY(id > 0);
+}
+
+void FakeVimTester::test_vim_plugin_close_split_in_visual_mode()
+{
+    // The mode is shared by all editors. Removing a split while Visual mode
+    // is active in it must not leave the editor that becomes current in
+    // Visual mode.
+    FvBoolAspect &useFakeVim = FakeVim::Internal::settings().useFakeVim;
+    const bool savedUseFakeVim = useFakeVim.value();
+    useFakeVim.setValue(true);
+    const QScopeGuard restore([&] { useFakeVim.setValue(savedUseFakeVim); });
+
+    TestData data;
+    setup(&data);
+    data.setText("abc def");
+    data.doKeys("w");
+
+    Core::EditorManager::splitSideBySide();
+    auto split = TextEditor::TextEditorWidget::fromEditor(Core::EditorManager::currentEditor());
+    QVERIFY(split);
+    QVERIFY(split != data.edit);
+    QTest::keyClick(split, Qt::Key_V);
+    QTest::keyClick(split, Qt::Key_L);
+    QVERIFY(split->textCursor().hasSelection());
+
+    QString shown;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { shown = msg; });
+    if (Core::Command *cmd = Core::ActionManager::command(Core::Constants::REMOVE_CURRENT_SPLIT)) {
+        if (QAction *action = cmd->action())
+            action->trigger();
+    }
+    QCOMPARE(Core::EditorManager::currentEditor()->widget(), data.edit);
+    QVERIFY2(!shown.contains("VISUAL"), qPrintable(shown));
+    data.doKeys("l");
+    QVERIFY(!data.cursor().hasSelection());
+}
+
+void FakeVimTester::test_vim_plugin_switch_split_in_visual_mode()
+{
+    // Like Vim, going to another split ends Visual mode, and the editor that
+    // is left keeps no selection that would bring it back on return. Without
+    // an operator, what "[count]v" reselects stays, and a cursor moved or
+    // a view scrolled outside of FakeVim is not reset.
+    FvBoolAspect &useFakeVim = FakeVim::Internal::settings().useFakeVim;
+    const bool savedUseFakeVim = useFakeVim.value();
+    useFakeVim.setValue(true);
+    const QScopeGuard restore([&] { useFakeVim.setValue(savedUseFakeVim); });
+
+    const auto trigger = [](Utils::Id id) {
+        if (Core::Command *cmd = Core::ActionManager::command(id)) {
+            if (QAction *action = cmd->action())
+                action->trigger();
+        }
+    };
+
+    TestData data;
+    setup(&data);
+    data.setText("abc def\nghi\njkl\nmno" + QString(200, '\n'));
+    data.doKeys("Vjy");
+    data.doKeys("w");
+    QTextCursor tc = data.cursor();
+    tc.setPosition(1);
+    data.editor()->setTextCursor(tc);
+    QScrollBar *scrollBar = data.editor()->verticalScrollBar();
+    scrollBar->setValue(scrollBar->maximum());
+    QVERIFY(scrollBar->value() > 0);
+
+    Core::EditorManager::splitSideBySide();
+    QCOMPARE(data.cursor().position(), 1);
+    QCOMPARE(scrollBar->value(), scrollBar->maximum());
+    auto split = TextEditor::TextEditorWidget::fromEditor(Core::EditorManager::currentEditor());
+    QVERIFY(split);
+    QVERIFY(split != data.edit);
+    QTest::keyClick(split, Qt::Key_V);
+    QTest::keyClick(split, Qt::Key_L);
+    QVERIFY(split->textCursor().hasSelection());
+
+    QString shown;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { shown = msg; });
+    trigger(Core::Constants::GOTO_NEXT_SPLIT);
+    QCOMPARE(Core::EditorManager::currentEditor()->widget(), data.edit);
+    QVERIFY2(!shown.contains("VISUAL"), qPrintable(shown));
+    QVERIFY(!split->textCursor().hasSelection());
+    data.doKeys("l");
+    QVERIFY(!data.cursor().hasSelection());
+    data.doKeys("1v");
+    QCOMPARE(shown, QLatin1String("-- VISUAL LINE --"));
+    data.doKeys("<Esc>");
+
+    trigger(Core::Constants::GOTO_NEXT_SPLIT);
+    QCOMPARE(Core::EditorManager::currentEditor()->widget(), split);
+    QTest::keyClick(split, Qt::Key_V);
+    QTest::keyClick(split, Qt::Key_L);
+    tc = split->textCursor();
+    tc.setPosition(2);
+    split->setTextCursor(tc);
+    trigger(Core::Constants::GOTO_NEXT_SPLIT);
+    QCOMPARE(Core::EditorManager::currentEditor()->widget(), data.edit);
+    QCOMPARE(split->textCursor().position(), 2);
+
+    trigger(Core::Constants::GOTO_NEXT_SPLIT);
+    QCOMPARE(Core::EditorManager::currentEditor()->widget(), split);
+    trigger(Core::Constants::REMOVE_CURRENT_SPLIT);
 }
 
 void FakeVimTester::test_vim_visual_block_corners()
