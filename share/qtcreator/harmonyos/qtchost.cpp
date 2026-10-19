@@ -62,6 +62,20 @@ static int connectToGate(int port)
     return fd;
 }
 
+static void addHostLibraries(QtcLoad::World *world)
+{
+    const char *libraries = std::getenv("QTC_QT_HOST_LIBS");
+    if (!libraries)
+        return;
+    for (const char *start = libraries; *start;) {
+        const char *end = std::strchr(start, ':');
+        const size_t length = end ? size_t(end - start) : std::strlen(start);
+        if (length > 0)
+            world->directories.emplace_back(start, length);
+        start += end ? length + 1 : length;
+    }
+}
+
 static int runTool(const char *name, int argc, char **argv)
 {
     const char *directory = std::getenv("QTC_QT_HOST_LIBEXECS");
@@ -100,16 +114,7 @@ static int runTool(const char *name, int argc, char **argv)
     }
 
     QtcLoad::World world;
-    if (const char *libraries = std::getenv("QTC_QT_HOST_LIBS")) {
-        for (const char *start = libraries; *start;) {
-            const char *end = std::strchr(start, ':');
-            const size_t length = end ? size_t(end - start) : std::strlen(start);
-            if (length > 0)
-                world.directories.emplace_back(start, length);
-            start += end ? length + 1 : length;
-        }
-    }
-
+    addHostLibraries(&world);
     QtcLoad::Image image;
     std::string error;
     if (!QtcLoad::load(path.c_str(), &image, &error, &world)) {
@@ -145,9 +150,13 @@ int main(int argc, char **argv)
     const int port = std::atoi(argv[1]);
     const char *path = argv[2];
 
+    // The platform refuses to load a Qt that an application wrote, and what the device built
+    // runs against such a Qt. Mapped here, it is found where the binary's runpath says.
+    QtcLoad::World world;
+    addHostLibraries(&world);
     QtcLoad::Image image;
     std::string error;
-    if (!QtcLoad::load(path, &image, &error, nullptr, true)) {
+    if (!QtcLoad::load(path, &image, &error, &world, true)) {
         std::fprintf(stderr, "qtchost: cannot load %s: %s\n", path, error.c_str());
         return 1;
     }

@@ -124,6 +124,7 @@ private:
     const Elf64_Relr *m_relr = nullptr;
     size_t m_relrCount = 0;
     std::vector<Elf64_Xword> m_neededNames;
+    std::vector<Elf64_Xword> m_runPaths;
     const char *m_ehFrame = nullptr;
     size_t m_ehFrameSize = 0;
     void (*m_init)() = nullptr;
@@ -261,6 +262,8 @@ bool Loader::readDynamic()
             break;
         case DT_INIT_ARRAYSZ: initArraySize = entry->d_un.d_val; break;
         case DT_NEEDED: m_neededNames.push_back(entry->d_un.d_val); break;
+        case DT_RUNPATH:
+        case DT_RPATH:  m_runPaths.push_back(entry->d_un.d_val); break;
         case DT_REL:
             return fail("DT_REL is not supported; only RELA and RELR are");
         default:
@@ -557,8 +560,43 @@ static std::string fileName(const std::string &path)
     return at == std::string::npos ? path : path.substr(at + 1);
 }
 
+// Where the object says its dependencies are. A Qt configured on the device names its own
+// library directory there, and so does what is built against it.
+static std::vector<std::string> runPathDirectories(const char *runPath, const std::string &origin)
+{
+    std::vector<std::string> directories;
+    for (const char *start = runPath; *start;) {
+        const char *end = std::strchr(start, ':');
+        std::string directory(start, end ? size_t(end - start) : std::strlen(start));
+        for (const char *variable : {"${ORIGIN}", "$ORIGIN"}) {
+            const size_t at = directory.find(variable);
+            if (at != std::string::npos)
+                directory.replace(at, std::strlen(variable), origin);
+        }
+        if (!directory.empty())
+            directories.push_back(directory);
+        if (!end)
+            break;
+        start = end + 1;
+    }
+    return directories;
+}
+
 bool Loader::loadDependencies()
 {
+    if (m_world) {
+        const size_t slash = m_image->path.rfind('/');
+        const std::string origin
+            = slash == std::string::npos ? "." : m_image->path.substr(0, slash);
+        for (Elf64_Xword offset : m_runPaths) {
+            for (const std::string &directory : runPathDirectories(m_strings + offset, origin)) {
+                if (std::find(m_world->directories.begin(), m_world->directories.end(),
+                              directory) == m_world->directories.end()) {
+                    m_world->directories.push_back(directory);
+                }
+            }
+        }
+    }
     for (Elf64_Xword offset : m_neededNames) {
         const char *name = m_strings + offset;
         const std::string privatePath = m_world ? m_world->locate(name) : std::string();

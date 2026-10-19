@@ -480,6 +480,14 @@ static Group hostRecipe(const QStoredBarrier &barrier, RunControl *runControl,
                          inferior.executable().path()}};
         cmd.addArgs(inferior.arguments(), CommandLine::Raw);
         process.setCommand(cmd);
+        // The Qt the binary was built against is where its runpath says, but that Qt needs
+        // the third-party libraries the application package would bring.
+        Environment env = runControl->environment();
+        if (const FilePath packages = settings().additionalPackages(); !packages.isEmpty())
+            env.set("QTC_QT_HOST_LIBS", packages.pathAppended("lib").path());
+        else
+            env.unset("QTC_QT_HOST_LIBS");
+        process.setEnvironment(env);
         process.setWorkingDirectory(FilePath::fromString(runControl->workingDirectory().path()));
     };
 
