@@ -1,5 +1,5 @@
 add_qtc_plugin(Remote
-  DEPENDS QmlDebug CmdBridgeClient
+  DEPENDS CmdBridgeClient
   PLUGIN_DEPENDS Core Debugger ProjectExplorer
   SOURCES
     abstractremotelinuxdeploystep.cpp abstractremotelinuxdeploystep.h

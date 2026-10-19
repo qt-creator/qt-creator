@@ -1,6 +1,6 @@
 add_qtc_plugin(Docker
   DEPENDS Utils CmdBridgeClient
-  PLUGIN_DEPENDS Core ProjectExplorer QtSupport
+  PLUGIN_DEPENDS Core ProjectExplorer
   PLUGIN_TEST_DEPENDS Debugger
   LONG_DESCRIPTION_MD DockerDescription.md
   SOURCES

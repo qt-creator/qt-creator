@@ -9,7 +9,6 @@ QtcPlugin {
     Depends { name: "McpServerLib" }
     Depends { name: "ProParser" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
     Depends { name: "Spinner" }
     Depends { name: "TextEditor" }

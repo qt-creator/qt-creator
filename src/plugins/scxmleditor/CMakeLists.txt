@@ -1,6 +1,6 @@
 add_qtc_plugin(ScxmlEditor
   INCLUDES common plugin_interface outputpane
-  PLUGIN_DEPENDS Core ProjectExplorer QtSupport TextEditor
+  PLUGIN_DEPENDS Core ProjectExplorer TextEditor
   SOURCES
     common/colorpicker.cpp common/colorpicker.h
     common/colorsettings.cpp common/colorsettings.h

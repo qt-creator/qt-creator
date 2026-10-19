@@ -8,7 +8,6 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "ProParser" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "ResourceEditor" }
 
     cpp.defines: base.concat([
                                  "QMAKE_LIBRARY",

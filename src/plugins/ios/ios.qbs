@@ -9,7 +9,6 @@ QtcPlugin {
     Depends { name: "CMakeProjectManager" }
     Depends { name: "Debugger" }
     Depends { name: "QtSupport" }
-    Depends { name: "QmlDebug" }
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
     cpp.frameworks: base.concat(qbs.targetOS.contains("macos") ? ["CoreFoundation", "IOKit"] : [])

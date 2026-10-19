@@ -9,7 +9,6 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "QtSupport" }
 
     cpp.includePaths: base.concat([
         ".",

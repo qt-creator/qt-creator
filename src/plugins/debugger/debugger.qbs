@@ -4,7 +4,6 @@ QtcPlugin {
     Depends { name: "Qt"; submodules: ["network", "widgets"] }
 
     Depends { name: "CPlusPlus" }
-    Depends { name: "LanguageUtils" }
     Depends { name: "McpServerLib" }
     Depends { name: "QmlDebug" }
     Depends { name: "QmlJS" }

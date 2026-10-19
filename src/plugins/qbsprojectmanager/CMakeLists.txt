@@ -1,5 +1,5 @@
 add_qtc_plugin(QbsProjectManager
-  DEPENDS Qt::Qml Qt::Widgets QmlJS
+  DEPENDS Qt::Qml Qt::Widgets
   DEFINES
     IDE_LIBRARY_BASENAME="${IDE_LIBRARY_BASE_PATH}"
   PLUGIN_DEPENDS Core CppEditor LanguageClient ProjectExplorer QmlJSTools QmlJSEditor QtSupport

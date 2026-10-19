@@ -56,7 +56,7 @@ add_qtc_plugin(QmlDesigner
     QtSupport
     TextEditor
   DEPENDS
-    QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
+    QmlJS AdvancedDockingSystem
     Qt::QuickWidgets Qt::CorePrivate Qt::Xml Qt::Svg Sqlite Qt::GuiPrivate
     Qt::Core Qt::GuiPrivate
   PUBLIC_DEPENDS

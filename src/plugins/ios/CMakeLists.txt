@@ -1,5 +1,5 @@
 add_qtc_plugin(Ios
-  DEPENDS QmlDebug Qt::Xml
+  DEPENDS Qt::Xml
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QmakeProjectManager CMakeProjectManager
   SOURCES
     devicectlutils.cpp

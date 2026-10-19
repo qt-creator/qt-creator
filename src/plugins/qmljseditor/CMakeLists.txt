@@ -1,5 +1,5 @@
 add_qtc_plugin(QmlJSEditor
-  DEPENDS LanguageUtils QmlJS QmlEditorWidgets
+  DEPENDS QmlJS QmlEditorWidgets
   PLUGIN_DEPENDS Core ProjectExplorer QmlJSTools TextEditor LanguageClient
   SOURCES
     qmlexpressionundercursor.cpp qmlexpressionundercursor.h

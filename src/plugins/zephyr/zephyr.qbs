@@ -8,7 +8,6 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "CMakeProjectManager" }
     Depends { name: "Debugger" }
     Depends { name: "QtSupport" }
 

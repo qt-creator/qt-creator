@@ -8,7 +8,6 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "Debugger"; condition: qtc.withPluginTests }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "QtSupport" }
 
     Group {
         name: "long description"
