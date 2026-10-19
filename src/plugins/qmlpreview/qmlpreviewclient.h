@@ -61,8 +61,12 @@ public:
     void clearCache();
     void setAnimationSpeed(float factor);
     void configureEventReplay(); // Configure the event replay client based on the current settings
-    void replayEventsForUrl(
-        const QUrl &url, QList<QmlDebug::QmlEvent> &events, QList<QmlDebug::QmlEventType> &types);
+    bool canReplayEvents() const
+    {
+        return !m_events.isEmpty() && m_replayClient
+               && m_replayClient->state() == QmlDebugClient::Enabled;
+    }
+    void replayEventsForUrl(const QUrl &url);
 
     void messageReceived(const QByteArray &message) override;
     void stateChanged(State state) override;
