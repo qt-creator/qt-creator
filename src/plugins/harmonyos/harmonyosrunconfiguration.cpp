@@ -455,6 +455,11 @@ private:
             m_hold->pid = match.captured(1).toLongLong();
             m_hold->slides.append({m_library, match.captured(2)});
             m_held->advance();
+        } else if (line.startsWith("runner: the debug server did not start listening")) {
+            // The runner goes on without the debugger, which would only wait for it.
+            m_runControl->postMessage(Tr::tr("The runner cannot start the debug server."),
+                                      ErrorMessageFormat);
+            m_runControl->initiateStop();
         }
     }
 
