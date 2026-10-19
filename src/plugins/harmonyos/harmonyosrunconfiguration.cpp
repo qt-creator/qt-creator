@@ -531,7 +531,8 @@ public:
 // else of the host route is available - hdc is on the other side of it, and from an
 // application sandbox the "aa" command can neither start the runner nor stop it again.
 static Group handoverRecipe(RunControl *runControl, const FilePath &library,
-                            const QStringList &arguments, const QtLibraries &qt)
+                            const QStringList &arguments, const QtLibraries &qt,
+                            const std::optional<RunnerDebugging> &debugging)
 {
     const Storage<std::unique_ptr<QTcpServer>> channelStorage;
     const QStoredBarrier answeredBarrier;
@@ -550,9 +551,11 @@ static Group handoverRecipe(RunControl *runControl, const FilePath &library,
     };
 
     const auto openChannel = [runControl, library, arguments, qt, channelStorage, answeredBarrier,
-                              finishedBarrier, askForTheRunner] {
+                              finishedBarrier, askForTheRunner, debugging] {
         QBarrier * const answered = answeredBarrier.activeStorage();
         QBarrier * const finished = finishedBarrier.activeStorage();
+        RunnerHold * const hold = debugging ? debugging->hold.activeStorage() : nullptr;
+        QBarrier * const held = debugging ? debugging->held.activeStorage() : nullptr;
         auto server = std::make_unique<QTcpServer>();
         if (!server->listen(QHostAddress::LocalHost, Constants::HARMONYOS_CHANNEL_PORT)) {
             runControl->postMessage(Tr::tr("Could not open the channel the runner asks on: %1")
@@ -563,11 +566,11 @@ static Group handoverRecipe(RunControl *runControl, const FilePath &library,
         QTcpServer * const channel = server.get();
         QObject::connect(channel, &QTcpServer::newConnection, channel,
                          [channel, runControl, library, arguments, qt, answered, finished,
-                          askForTheRunner] {
+                          askForTheRunner, hold, held] {
             QTcpSocket * const socket = channel->nextPendingConnection();
             QTC_ASSERT(socket, return);
             const Handover * const handover
-                = new Handover(socket, library, arguments, qt, runControl);
+                = new Handover(socket, library, arguments, qt, runControl, hold, held);
             QObject::connect(socket, &QTcpSocket::disconnected, socket,
                              [socket, channel, finished, handover, askForTheRunner] {
                 socket->deleteLater();
@@ -611,7 +614,11 @@ static Group handoverRecipe(RunControl *runControl, const FilePath &library,
                 }
             })
         },
-        QSyncTask([runControl] { runControl->reportStarted(); }),
+        // The debugger reports the start of a debug run.
+        QSyncTask([runControl, debugging] {
+            if (!debugging)
+                runControl->reportStarted();
+        }),
         barrierAwaiterTask(finishedBarrier),
         onGroupDone([runControl](DoneWith result) {
             if (result == DoneWith::Cancel) {
@@ -626,6 +633,38 @@ static Group handoverRecipe(RunControl *runControl, const FilePath &library,
     });
 }
 
+std::optional<Group> buildDeviceRunRecipe(RunControl *runControl,
+                                          const std::optional<RunnerDebugging> &debugging)
+{
+    if (!HostOsInfo::isHarmonyHost())
+        return {};
+    BuildConfiguration * const bc = runControl->buildConfiguration();
+    const FilePath library
+        = bc ? applicationLibrary(bc->buildDirectory(), bc->activeBuildKey()) : FilePath();
+    if (!library.isEmpty()) {
+        const QStringList launchArguments
+            = harmonyOsExtras(bc->buildDirectory(), bc->activeBuildKey()).launchArguments;
+        const FilePath settings = deploymentSettings(bc->buildDirectory(), bc->activeBuildKey());
+        return handoverRecipe(runControl, library,
+                              launchArguments + runControl->commandLine().splitArguments(),
+                              qtLibraries(library, libraryDirectories(settings),
+                                          qtPlugins(settings)),
+                              debugging);
+    }
+    // A build that does not run harmonydeployqt, such as a qmake one, leaves no
+    // settings behind. Its target is then the module, linked against the kit's Qt.
+    const FilePath target = runControl->targetFilePath();
+    const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(runControl->kit());
+    if (qt && target.fileName().endsWith(".so")) {
+        const FilePath platform = qt->pluginPath().pathAppended("platforms/libqohos.so");
+        return handoverRecipe(runControl, target, runControl->commandLine().splitArguments(),
+                              qtLibraries(target, {qt->libraryPath()},
+                                          platform.isFile() ? FilePaths{platform} : FilePaths()),
+                              debugging);
+    }
+    return {};
+}
+
 class HarmonyOsBuildDeviceRunWorkerFactory final : public RunWorkerFactory
 {
 public:
@@ -633,34 +672,8 @@ public:
     {
         setId("HarmonyOsBuildDeviceRunWorkerFactory");
         setRecipeProducer([](RunControl *runControl) -> Group {
-            BuildConfiguration * const bc = runControl->buildConfiguration();
-            const FilePath library = HostOsInfo::isHarmonyHost() && bc
-                ? applicationLibrary(bc->buildDirectory(), bc->activeBuildKey()) : FilePath();
-            if (!library.isEmpty()) {
-                const QStringList launchArguments
-                    = harmonyOsExtras(bc->buildDirectory(), bc->activeBuildKey()).launchArguments;
-                const FilePath settings
-                    = deploymentSettings(bc->buildDirectory(), bc->activeBuildKey());
-                return handoverRecipe(runControl, library,
-                                      launchArguments
-                                          + runControl->commandLine().splitArguments(),
-                                      qtLibraries(library, libraryDirectories(settings),
-                                                  qtPlugins(settings)));
-            }
-            // A build that does not run harmonydeployqt, such as a qmake one, leaves no
-            // settings behind. Its target is then the module, linked against the kit's Qt.
-            const FilePath target = runControl->targetFilePath();
-            const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(
-                runControl->kit());
-            if (HostOsInfo::isHarmonyHost() && qt && target.fileName().endsWith(".so")) {
-                const FilePath platform
-                    = qt->pluginPath().pathAppended("platforms/libqohos.so");
-                return handoverRecipe(runControl, target,
-                                      runControl->commandLine().splitArguments(),
-                                      qtLibraries(target, {qt->libraryPath()},
-                                                  platform.isFile() ? FilePaths{platform}
-                                                                    : FilePaths()));
-            }
+            if (const std::optional<Group> recipe = buildDeviceRunRecipe(runControl, {}))
+                return *recipe;
             return runControl->processRecipe(runControl->processTask());
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);

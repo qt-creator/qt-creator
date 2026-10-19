@@ -524,6 +524,36 @@ static DebuggerRunParameters hostDebuggerRunParameters(RunControl *runControl)
     return rp;
 }
 
+// What the device built for the platform is a module, and only the runner gives it the
+// application it needs to show a window. The runner shares the device's loopback, so its
+// server needs no forward, and it reports the hold once that server listens.
+static std::optional<Group> buildDeviceRunnerDebugRecipe(RunControl *runControl)
+{
+    if (!buildDeviceRunRecipe(runControl, {}))
+        return {};
+    const Storage<RunnerHold> hold;
+
+    DebuggerRunParameters rp = debuggerRunParameters(runControl);
+    rp.setCloseMode(KillAtClose);
+    const auto modifier = [hold](DebuggerRunParameters &rp) {
+        rp.setAttachPid(ProcessHandle(hold->pid));
+        QStringList commands;
+        for (const auto &[file, slide] : std::as_const(hold->slides))
+            commands.append(placeModuleCommand(file, slide));
+        rp.setCommandsAfterConnect(commands.join('\n'));
+    };
+    const auto kicker = [runControl, hold](const QStoredBarrier &held) {
+        return *buildDeviceRunRecipe(runControl, RunnerDebugging{hold, held});
+    };
+
+    return Group {
+        hold,
+        When (kicker, WorkflowPolicy::StopOnSuccessOrError) >> Do {
+            debuggerRecipe(runControl, rp, modifier)
+        }
+    };
+}
+
 class HarmonyOsBuildDeviceDebugWorkerFactory final : public RunWorkerFactory
 {
 public:
@@ -531,6 +561,9 @@ public:
     {
         setId("HarmonyOsBuildDeviceDebugWorkerFactory");
         setRecipeProducer([](RunControl *runControl) -> Group {
+            if (const std::optional<Group> recipe = buildDeviceRunnerDebugRecipe(runControl))
+                return *recipe;
+
             const FilePath host = FilePath::fromString(Constants::HARMONYOS_HOST_PATH);
             if (!host.isExecutableFile()) {
                 return runControl->errorTask(

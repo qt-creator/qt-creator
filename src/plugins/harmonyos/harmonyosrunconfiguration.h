@@ -113,6 +113,11 @@ public:
 QtTaskTree::Group deviceRunRecipe(ProjectExplorer::RunControl *runControl,
                                   const std::optional<RunnerDebugging> &debugging = {});
 
+// A run of what the device built, through the runner of an installed package. Nothing when
+// there is no module for the runner to map.
+std::optional<QtTaskTree::Group> buildDeviceRunRecipe(
+    ProjectExplorer::RunControl *runControl, const std::optional<RunnerDebugging> &debugging);
+
 void setupHarmonyOsRunSupport();
 
 } // namespace HarmonyOs::Internal

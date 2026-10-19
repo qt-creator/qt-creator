@@ -22,6 +22,8 @@
 #include <cinttypes>
 #include <csignal>
 
+#include <sys/wait.h>
+
 static QtcShim *shim()
 {
     static QtcShim *theShim = []() -> QtcShim * {
@@ -113,17 +115,36 @@ static void holdForDebugger(int fd, const QtcLoad::Image &image, const QtcLoad::
 {
     // The server would keep the channel open after the application ended.
     ::fcntl(fd, F_SETFD, FD_CLOEXEC);
+    // The server serves one connection, so a probe whether it listens would take that. It
+    // writes this file once it does, and the debugger is told to come only then.
+    const std::string socketFile = std::string(RunDirectory) + "/server-port";
+    ::unlink(socketFile.c_str());
     const pid_t child = ::fork();
     if (child == 0) {
         const std::string listen = "*:" + std::to_string(QTC_SERVER_PORT);
-        ::execl(QTC_SERVER_PATH, "lldb-server", "platform", "--listen", listen.c_str(), nullptr);
-        ::execlp("lldb-server", "lldb-server", "platform", "--listen", listen.c_str(), nullptr);
+        ::execl(QTC_SERVER_PATH, "lldb-server", "platform", "--listen", listen.c_str(),
+                "--socket-file", socketFile.c_str(), nullptr);
+        const int error = errno;
+        ::execlp("lldb-server", "lldb-server", "platform", "--listen", listen.c_str(),
+                 "--socket-file", socketFile.c_str(), nullptr);
+        ::dprintf(fd, "runner: cannot execute %s (errno %d)\n", QTC_SERVER_PATH, error);
         ::_exit(127);
     }
     if (child < 0) {
         note("cannot start the debug server (errno %d)", errno);
         ::dprintf(fd, "runner: cannot start the debug server (errno %d)\n", errno);
         return;
+    }
+    for (int waited = 0; ::access(socketFile.c_str(), F_OK) != 0; waited += 10) {
+        int status = 0;
+        const bool ended = ::waitpid(child, &status, WNOHANG) == child;
+        if (ended || waited >= 10000) {
+            note("the debug server did not start listening (status 0x%x)", ended ? status : -1);
+            ::dprintf(fd, "runner: the debug server did not start listening (status 0x%x)\n",
+                      ended ? status : -1);
+            return;
+        }
+        ::usleep(10 * 1000);
     }
     for (const std::unique_ptr<QtcLoad::Image> &mapped : world.images) {
         ::dprintf(fd, "runner: mapped %s slide 0x%" PRIxPTR "\n", mapped->name.c_str(),
