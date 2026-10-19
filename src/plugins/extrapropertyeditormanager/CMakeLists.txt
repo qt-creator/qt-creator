@@ -3,7 +3,7 @@ add_qtc_plugin(ExtraPropertyEditorManager
   PLUGIN_DEPENDS
     QtCreator::QmlDesigner
   DEPENDS
-    Qt::Core Qt::CorePrivate QtCreator::Utils
+    Qt::Core QtCreator::Utils
   SOURCES
     extrapropertyeditormanagerplugin.cpp
     extrapropertyeditormanagerplugin.h

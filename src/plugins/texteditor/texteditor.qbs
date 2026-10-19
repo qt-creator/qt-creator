@@ -6,7 +6,7 @@ Project {
     QtcPlugin {
         name: "TextEditor"
 
-        Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "printsupport"] }
+        Depends { name: "Qt"; submodules: ["widgets", "network", "printsupport"] }
         Depends { name: "TextEditorSupport" }
         Depends { name: "Utils" }
         Depends { name: "KSyntaxHighlighting" }

@@ -3,7 +3,7 @@ add_qtc_plugin(EffectComposer
   PLUGIN_DEPENDS
     QtCreator::QmlDesigner QtCreator::ProjectExplorer QtCreator::QmlProjectManager
   DEPENDS
-    Qt::Core Qt::CorePrivate Qt::Widgets Qt::Qml Qt::QmlPrivate Qt::Quick
+    Qt::Core Qt::Widgets Qt::Qml Qt::Quick
     QtCreator::Utils
     GLSL
   SOURCES

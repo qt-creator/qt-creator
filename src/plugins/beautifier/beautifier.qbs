@@ -4,7 +4,6 @@ QtcPlugin {
     name: "Beautifier"
 
     Depends { name: "Qt.widgets" }
-    Depends { name: "Qt.xml" }
     Depends { name: "Utils" }
     Depends { name: "Core" }
     Depends { name: "TextEditor" }

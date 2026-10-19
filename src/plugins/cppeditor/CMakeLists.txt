@@ -1,5 +1,5 @@
 add_qtc_plugin(CppEditor
-  DEPENDS Qt::Network Qt::Xml McpServerLib
+  DEPENDS Qt::Network McpServerLib
   PUBLIC_DEPENDS CPlusPlus Qt::Widgets
   PLUGIN_DEPENDS Core ProjectExplorer TextEditor
   PLUGIN_TEST_DEPENDS QbsProjectManager QmakeProjectManager

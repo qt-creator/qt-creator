@@ -3,7 +3,7 @@ add_qtc_plugin(MultiPropertyEditor
   PLUGIN_DEPENDS
     QtCreator::QmlDesigner QmlDesigner
   DEPENDS
-    Qt::Core Qt::CorePrivate Qt6::Qml QtCreator::Utils AdvancedDockingSystem
+    Qt::Core Qt6::Qml QtCreator::Utils AdvancedDockingSystem
   SOURCES
     multipropertyeditoraction.cpp multipropertyeditoraction.h
     multipropertyeditorplugin.cpp

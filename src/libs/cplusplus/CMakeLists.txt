@@ -1,7 +1,7 @@
 # TODO: Make Qt::Gui optional -- if really needed that is.
 
 add_qtc_library(CPlusPlus
-  DEPENDS Utils Qt::Concurrent
+  DEPENDS Utils
   PUBLIC_DEPENDS 3rd_cplusplus Qt::Gui
   SOURCES
     ASTParent.cpp ASTParent.h

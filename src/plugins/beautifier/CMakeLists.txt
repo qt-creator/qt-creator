@@ -1,5 +1,4 @@
 add_qtc_plugin(Beautifier
-  DEPENDS Qt::Xml
   PLUGIN_DEPENDS Core ProjectExplorer TextEditor
   SOURCES
     artisticstyle/artisticstyle.cpp artisticstyle/artisticstyle.h

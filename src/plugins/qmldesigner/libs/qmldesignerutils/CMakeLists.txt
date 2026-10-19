@@ -1,6 +1,6 @@
 add_qtc_library(QmlDesignerUtils STATIC
   DEPENDS
-    Qt::Gui Utils Qt::QmlPrivate
+    Qt::Gui Utils
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}
   PUBLIC_COMPILE_OPTIONS
     $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unneeded-internal-declaration>

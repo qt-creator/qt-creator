@@ -3,7 +3,7 @@ import qbs 1.0
 QtcPlugin {
     name: "Qnx"
 
-    Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
+    Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "QmlDebug" }
     Depends { name: "Utils" }
 

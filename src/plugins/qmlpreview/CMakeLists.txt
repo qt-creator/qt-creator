@@ -1,7 +1,7 @@
 add_qtc_plugin(QmlPreview
   CONDITION TARGET QmlProjectManager
   PUBLIC_DEPENDS QmlDebug
-  DEPENDS QmlJS Qt::QmlPrivate
+  DEPENDS QmlJS
   PLUGIN_DEPENDS
     Core ProjectExplorer QmlJSTools QtSupport
     ResourceEditor QmlProjectManager TextEditor
