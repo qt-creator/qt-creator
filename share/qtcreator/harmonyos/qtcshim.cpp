@@ -20,7 +20,9 @@
 
 #include <dlfcn.h>
 #include <fcntl.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 #include <inputmethod/inputmethod_text_editor_proxy_capi.h>
@@ -319,6 +321,35 @@ static bool receiveUpToTheApplication(int fd, QtcShim *shim, std::string *error)
     return receiveQt(fd, shim->launch, error);
 }
 
+// What went wrong goes to the IDE too, which otherwise waits for an application that is
+// never asked for.
+static bool fail(int &channel, const std::string &message,
+                 const std::vector<std::string> &missing = {})
+{
+    note("%s", message.c_str());
+    for (const std::string &name : missing)
+        note("  missing %s", name.c_str());
+    if (channel >= 0) {
+        // One write, because dprintf() writes piece by piece. And no close() before what the
+        // IDE still sends is read: unread data turns the close into a reset, and that loses
+        // the IDE whatever of the text it had not read yet.
+        std::string text = "runner: " + message + '\n';
+        for (const std::string &name : missing)
+            text += "runner:   missing " + name + '\n';
+        if (::write(channel, text.data(), text.size()) < 0)
+            note("cannot report to the IDE (errno %d)", errno);
+        ::shutdown(channel, SHUT_WR);
+        const timeval timeout{2, 0};
+        ::setsockopt(channel, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+        char buffer[65536];
+        while (::read(channel, buffer, sizeof(buffer)) > 0) {
+        }
+        ::close(channel);
+        channel = -1;
+    }
+    return false;
+}
+
 static bool mapQt()
 {
     static Launch launch;
@@ -330,12 +361,8 @@ static bool mapQt()
              errno);
     } else {
         std::string error;
-        if (!receiveUpToTheApplication(shim.channel, &shim, &error)) {
-            note("%s", error.c_str());
-            ::dprintf(shim.channel, "runner: %s\n", error.c_str());
-            ::close(shim.channel);
-            return false;
-        }
+        if (!receiveUpToTheApplication(shim.channel, &shim, &error))
+            return fail(shim.channel, error);
     }
     // Receiving took the time the platform gives the ability to come up, so this start
     // is lost anyway: end it, and let the next one find the Qt in place.
@@ -356,17 +383,14 @@ static bool mapQt()
         rememberQt(launch.qtDirectory);
     }
     const std::string directory = launch.qtDirectory;
-    if (directory.empty()) {
-        note("no Qt has been handed over yet (%s)", QtCurrent);
-        return false;
-    }
+    if (directory.empty())
+        return fail(shim.channel, std::string("no Qt has been handed over yet (") + QtCurrent
+                                      + ')');
     std::string path = directory + "/libqohos.so";
     if (!exists(path))
         path = directory + '/' + PluginDirectory + "/platforms/libqohos.so";
-    if (!exists(path)) {
-        note("%s has no libqohos.so", directory.c_str());
-        return false;
-    }
+    if (!exists(path))
+        return fail(shim.channel, directory + " has no libqohos.so");
     shim.world = &world();
     shim.load = &QtcLoad::load;
     shim.registerPlugin = &QtcLoad::registerPlugin;
@@ -388,17 +412,13 @@ static bool mapQt()
     QtcLoad::Image *image = world().images.back().get();
     image->name = "libqohos.so";
     std::string error;
-    if (!QtcLoad::load(path.c_str(), image, &error, &world())) {
-        note("cannot map it: %s", error.c_str());
-        for (const std::string &name : image->missing)
-            note("  missing %s", name.c_str());
-        return false;
-    }
+    if (!QtcLoad::load(path.c_str(), image, &error, &world()))
+        return fail(shim.channel, "cannot map the Qt: " + error, image->missing);
     for (const std::unique_ptr<QtcLoad::Image> &mapped : world().images)
         note("  mapped %s, %zu bytes", mapped->name.c_str(), mapped->size);
     if (!realModule)
-        note("it did not register a module");
-    return realModule != nullptr;
+        return fail(shim.channel, "the Qt did not register a module");
+    return true;
 }
 
 static napi_value Init(napi_env env, napi_value exports)
