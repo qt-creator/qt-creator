@@ -581,6 +581,5 @@ QtcLibrary {
     Export {
         Depends { name: "Qt"; submodules: ["concurrent", "widgets" ] }
         Depends { name: "QtTaskTree" }
-        cpp.includePaths: exportingProduct.sourceDirectory + "/mimetypes2"
     }
 }

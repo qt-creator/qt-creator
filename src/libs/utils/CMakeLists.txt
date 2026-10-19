@@ -215,7 +215,7 @@ add_qtc_library(Utils
 
 extend_qtc_library(Utils
   SOURCES_PREFIX mimetypes2
-  PUBLIC_INCLUDES mimetypes2
+  INCLUDES mimetypes2
   SOURCES
     mimedatabase.cpp
     mimedatabase.h

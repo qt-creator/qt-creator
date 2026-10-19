@@ -5,8 +5,8 @@
 
 #include "utils_global.h"
 
-#include <mimemagicrule_p.h>
-#include <mimetype.h>
+#include "mimetypes2/mimemagicrule_p.h"
+#include "mimetypes2/mimetype.h"
 
 #include <functional>
 
