@@ -28,7 +28,7 @@ extend_qtc_plugin(QmlProjectManager
 )
 
 extend_qtc_plugin(QmlProjectManager
-  PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/buildsystem
+  INCLUDES ${CMAKE_CURRENT_LIST_DIR}/buildsystem
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/buildsystem
   SOURCES
       projectitem/filefilteritems.cpp projectitem/filefilteritems.h
@@ -38,7 +38,7 @@ extend_qtc_plugin(QmlProjectManager
 )
 
 extend_qtc_plugin(QmlProjectManager
-  PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/qmlprojectexporter
+  INCLUDES ${CMAKE_CURRENT_LIST_DIR}/qmlprojectexporter
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/qmlprojectexporter
   SOURCES
       pythongenerator.cpp pythongenerator.h
@@ -54,7 +54,7 @@ extend_qtc_plugin(QmlProjectManager
 )
 
 extend_qtc_plugin(QmlProjectManager
-    PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/qmldirtoqmlproject
+    INCLUDES ${CMAKE_CURRENT_LIST_DIR}/qmldirtoqmlproject
     SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/qmldirtoqmlproject
     SOURCES
     mcumoduleprojectitem.cpp mcumoduleprojectitem.h

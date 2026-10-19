@@ -7,7 +7,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-#include <qmlbuildsystem.h>
+#include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
 
 #include <QComboBox>
 #include <QSettings>
