@@ -18,6 +18,19 @@ QTextCursor Position::toTextCursor(QTextDocument *doc) const
     return result;
 }
 
+QString Position::appendToFileName(const QString &file) const
+{
+    if (file.isEmpty())
+        return {};
+    QString link = file;
+    if (line > 0) {
+        link.append(':').append(QString::number(line));
+        if (column >= 0)
+            link.append(':').append(QString::number(column + 1));
+    }
+    return link;
+}
+
 /*!
     Returns the text position of a \a fileName and sets the \a postfixPos if
     it can find a positional postfix.

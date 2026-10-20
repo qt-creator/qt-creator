@@ -26,6 +26,7 @@ public:
 
     int toPositionInDocument(const QTextDocument *doc) const;
     QTextCursor toTextCursor(QTextDocument *doc) const;
+    QString appendToFileName(const QString &file) const;
 
     static Position fromFileName(QStringView fileName, int &postfixPos);
     static Position fromPositionInDocument(const QTextDocument *document, int pos);

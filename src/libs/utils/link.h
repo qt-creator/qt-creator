@@ -17,6 +17,7 @@ public:
     Link(const FilePath &filePath, int line = 0, int column = 0);
 
     static Link fromString(const QString &filePathWithNumbers, bool canContainLineNumber = false);
+    QString toString() const;
 
     bool hasValidTarget() const;
     bool hasValidLinkText() const { return linkTextStart != linkTextEnd; }

@@ -871,6 +871,7 @@ private slots:
         QCOMPARE(link.targetFilePath, FilePath::fromString(filePath));
         QCOMPARE(link.target.line, line);
         QCOMPARE(link.target.column, column);
+        QCOMPARE(Link::fromString(link.toString(), true), link);
     }
 
     // A path that the application prints need not be usable as is: It can be relative to

@@ -35,6 +35,11 @@ Link Link::fromString(const QString &filePathWithNumbers, bool canContainLineNum
     return link;
 }
 
+QString Link::toString() const
+{
+    return target.appendToFileName(targetFilePath.toUserOutput());
+}
+
 bool Link::hasValidTarget() const
 {
     if (!targetFilePath.isEmpty())
