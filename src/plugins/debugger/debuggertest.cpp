@@ -305,6 +305,7 @@ private slots:
     void testOverrideKitDebugger();
     void testPluginBringsTheBackend();
     void testPluginFailsToBringTheBackend();
+    void testPluginBackendFailsToSetUp();
     void testPluginBackendNeedsCppDebugging();
     void testCombinedEngineNeedsNoQmlChannel();
     void testQmlInspectorLeavesParentlessObjectsCollapsed();
@@ -7184,6 +7185,42 @@ void DebuggerUnitTests::testPluginFailsToBringTheBackend()
              }),
              qPrintable(errors.join('\n')));
     QCOMPARE(EngineManager::engines(), before);
+}
+
+// The backend cannot set up the session, for instance because it does not
+// reach the target. That ends the run, and the backend with it.
+void DebuggerUnitTests::testPluginBackendFailsToSetUp()
+{
+    class FailingBackend final : public RecordingBackend
+    {
+    public:
+        // Before start() returns, as a backend does that fails at once.
+        void start() override { emit inferiorEvent(InferiorEvent::EngineSetupFailed); }
+    };
+
+    Kit *kit = KitManager::defaultKit();
+    QVERIFY(kit);
+
+    const std::unique_ptr<RunControl> runControl(
+        new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE));
+    runControl->setKit(kit);
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl.get());
+    rp.setInferiorExecutable(FilePath::fromUserInput("/nonexistent/program"));
+    rp.setStartMode(StartInternal);
+    QPointer<FailingBackend> backend;
+    rp.setEngineInterface("Plugin", [&backend](const DebuggerRunParameters &) {
+        auto created = std::make_unique<FailingBackend>();
+        backend = created.get();
+        return created;
+    });
+
+    bool stopped = false;
+    connect(runControl.get(), &RunControl::stopped, runControl.get(),
+            [&stopped] { stopped = true; });
+    runControl->setRunRecipe(debuggerRecipe(runControl.get(), rp));
+    runControl->start();
+    QTRY_VERIFY(stopped);
+    QTRY_VERIFY(!backend);
 }
 
 // The backend a plugin brings debugs C++, so it is not used where C++ is not

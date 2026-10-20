@@ -46,6 +46,8 @@
 
 #include <QLoggingCategory>
 
+#include <memory>
+
 using namespace Core;
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
@@ -117,6 +119,8 @@ private:
     RunControl *m_runControl = nullptr;
     QList<QPointer<Internal::DebuggerEngine>> m_engines;
     int m_runningEngines = 0;
+    // An engine that fails to set up finishes without having started.
+    int m_unfinishedEngines = 0;
     int m_snapshotCounter = 0;
 };
 
@@ -750,6 +754,7 @@ Result<> Internal::checkBreakpoints(const QList<QPointer<DebuggerEngine>> &engin
 void EnginesDriver::start()
 {
     newRunId();
+    m_unfinishedEngines = m_engines.size();
     for (auto engine : std::as_const(m_engines)) {
         connect(engine, &DebuggerEngine::interruptTerminalRequested,
                 this, &EnginesDriver::interruptTerminalRequested);
@@ -757,7 +762,9 @@ void EnginesDriver::start()
                 this, &EnginesDriver::kickoffTerminalProcessRequested);
         connect(engine, &DebuggerEngine::requestRunControlStop, m_runControl, &RunControl::initiateStop);
 
-        connect(engine, &DebuggerEngine::engineStarted, this, [this, engine] {
+        const auto hasStarted = std::make_shared<bool>(false);
+        connect(engine, &DebuggerEngine::engineStarted, this, [this, engine, hasStarted] {
+            *hasStarted = true;
             ++m_runningEngines;
             if (engine->isPrimaryEngine()) {
                 EngineManager::activateDebugMode();
@@ -765,8 +772,10 @@ void EnginesDriver::start()
             }
         });
 
-        connect(engine, &DebuggerEngine::engineFinished, this, [this, engine] {
-            if (--m_runningEngines == 0) {
+        connect(engine, &DebuggerEngine::engineFinished, this, [this, engine, hasStarted] {
+            if (std::exchange(*hasStarted, false))
+                --m_runningEngines;
+            if (--m_unfinishedEngines == 0) {
                 const QString cmd = engine->runParameters().inferior().command.toUserOutput();
                 const QString msg
                     = engine->runParameters().exitCode() // Main engine.
@@ -775,7 +784,12 @@ void EnginesDriver::start()
                                 .arg(*engine->runParameters().exitCode())
                           : Debugger::Tr::tr("Debugging of %1 has finished.").arg(cmd);
                 m_runControl->postMessage(msg, NormalMessageFormat);
-                emit done(engine->runParameters().exitCode() ? DoneResult::Error : DoneResult::Success);
+                // An engine can fail to set up inside start(), before the run
+                // waits for the end.
+                const DoneResult result = engine->runParameters().exitCode() ? DoneResult::Error
+                                                                             : DoneResult::Success;
+                QMetaObject::invokeMethod(this, [this, result] { emit done(result); },
+                                          Qt::QueuedConnection);
             }
             if (engine->isPrimaryEngine())
                 stop();
