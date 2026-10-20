@@ -2056,7 +2056,7 @@ QTextDocument *TextEditorWidgetPrivate::createPrintDocument(bool selectionOnly) 
             }
         }
 
-        q->editorLayout()->blockLayout(dstBlock)->setFormats(formatList);
+        dstBlock.layout()->setFormats(formatList);
     }
 
     return doc;
@@ -8831,8 +8831,12 @@ void TextEditorWidget::processTooltipRequest(const QTextCursor &c)
 
 QString TextEditorWidget::textToPrint(bool selectionOnly) const
 {
-    const std::unique_ptr<QTextDocument> doc(d->createPrintDocument(selectionOnly));
-    return doc->toPlainText();
+    return documentToPrint(selectionOnly)->toPlainText();
+}
+
+std::unique_ptr<QTextDocument> TextEditorWidget::documentToPrint(bool selectionOnly) const
+{
+    return std::unique_ptr<QTextDocument>(d->createPrintDocument(selectionOnly));
 }
 #endif
 

@@ -2442,6 +2442,32 @@ private slots:
         editorWidget->setTextCursor(cursor);
         QCOMPARE(editorWidget->textToPrint(false), all);
     }
+
+    void testPrintsFormats()
+    {
+        QString title = "print.txt";
+        Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+            Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, "line1\nline2\n");
+        QVERIFY(editor);
+        const QScopeGuard cleanup([&] { Core::EditorManager::closeEditors({editor}, false); });
+        TextEditorWidget *editorWidget = TextEditorWidget::fromEditor(editor);
+        QVERIFY(editorWidget);
+
+        QTextLayout::FormatRange bold;
+        bold.start = 1;
+        bold.length = 3;
+        bold.format.setFontWeight(QFont::Bold);
+        const QTextBlock secondLine = editorWidget->document()->firstBlock().next();
+        editorWidget->editorLayout()->blockLayout(secondLine)->setFormats({bold});
+
+        const std::unique_ptr<QTextDocument> printed = editorWidget->documentToPrint(false);
+        const QList<QTextLayout::FormatRange> printedFormats
+            = printed->firstBlock().next().layout()->formats();
+        QCOMPARE(printedFormats.size(), 1);
+        QCOMPARE(printedFormats.first().start, bold.start);
+        QCOMPARE(printedFormats.first().length, bold.length);
+        QCOMPARE(printedFormats.first().format.fontWeight(), int(QFont::Bold));
+    }
 };
 
 QObject *createPrintTest()

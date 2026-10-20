@@ -587,6 +587,7 @@ public:
 #ifdef WITH_TESTS
     void processTooltipRequest(const QTextCursor &c);
     QString textToPrint(bool selectionOnly) const;
+    std::unique_ptr<QTextDocument> documentToPrint(bool selectionOnly) const;
 #endif
 
 signals:
