@@ -2117,7 +2117,8 @@ void Preprocessor::handleIfDefDirective(bool checkUndefined, PPToken *tk)
                     value = false; // take the branch
                 }
             }
-        } else if (Environment::isBuiltinMacro(macroName)) {
+        } else if (Environment::isBuiltinMacro(macroName)
+               || macroName == "__has_include" || macroName == "__has_include_next") {
             value = true;
         }
 
@@ -2188,7 +2189,8 @@ void Preprocessor::handleElifDefDirective(bool checkUndefined, PPToken *tk, PPTo
                 value = false; // take the branch
             }
         }
-    } else if (Environment::isBuiltinMacro(macroName)) {
+    } else if (Environment::isBuiltinMacro(macroName)
+               || macroName == "__has_include" || macroName == "__has_include_next") {
         value = true;
     }
 
