@@ -5,6 +5,8 @@
 
 #include "cropandtrim.h"
 #include "ffmpegutils.h"
+#include "portalcapture.h"
+#include "screenrecorderconstants.h"
 #include "screenrecordersettings.h"
 #include "screenrecordertr.h"
 
@@ -16,9 +18,11 @@
 #include <utils/widgets.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <QAction>
 #include <QDialogButtonBox>
+#include <QGroupBox>
 #include <QGuiApplication>
 #include <QLayout>
 #include <QLoggingCategory>
@@ -66,6 +70,7 @@ private:
     void updateWidgets();
 
     static const int m_factor = 4;
+    const bool m_usesPortal;
     CropScene *m_cropScene;
     QImage m_thumbnail;
     SelectionAspect m_screenId;
@@ -86,6 +91,7 @@ static QString optionNameForScreen(const QScreen *screen)
 
 RecordOptionsDialog::RecordOptionsDialog(QWidget *parent)
     : QDialog(parent)
+    , m_usesPortal(settings().usesPortalCapture())
 {
     setWindowTitle(Tr::tr("Screen Recording Options"));
 
@@ -97,6 +103,8 @@ RecordOptionsDialog::RecordOptionsDialog(QWidget *parent)
     m_cropScene = new CropScene;
 
     m_recordFrameRate.setLabelText(Tr::tr("FPS:"));
+    m_recordFrameRate.setRange(Constants::MIN_RECORD_FRAME_RATE,
+                               Constants::MAX_RECORD_FRAME_RATE);
 
     m_resetButton = new QToolButton;
     m_resetButton->setIcon(Icons::RESET.icon());
@@ -106,10 +114,12 @@ RecordOptionsDialog::RecordOptionsDialog(QWidget *parent)
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
+    QGroupBox *cropGroup = nullptr;
     using namespace Layouting;
     Column {
         Row { m_screenId, st },
         Group {
+            bindTo(&cropGroup),
             title(Tr::tr("Recorded screen area:")),
             Column {
                 m_cropScene,
@@ -120,11 +130,19 @@ RecordOptionsDialog::RecordOptionsDialog(QWidget *parent)
         st,
         buttonBox,
     }.attachTo(this);
+    m_screenId.setVisible(!m_usesPortal);
+    cropGroup->setVisible(!m_usesPortal);
     layout()->setSizeConstraint(QLayout::SetFixedSize);
 
     connect(buttonBox, &QDialogButtonBox::accepted, this, [this] {
-        const QRect cropRect = m_cropScene->fullySelected() ? QRect() : screenCropRect();
-        settings().applyRecordSettings({int(m_screenId()), cropRect, int(m_recordFrameRate())});
+        const int frameRate = int(m_recordFrameRate());
+        if (m_usesPortal) {
+            const ScreenRecorderSettings::RecordSettings rs = settings().recordSettings();
+            settings().applyRecordSettings({rs.screenId, rs.cropRect, frameRate});
+        } else {
+            const QRect cropRect = m_cropScene->fullySelected() ? QRect() : screenCropRect();
+            settings().applyRecordSettings({int(m_screenId()), cropRect, frameRate});
+        }
         QDialog::accept();
     });
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -160,6 +178,8 @@ QRect RecordOptionsDialog::screenCropRect() const
 
 void RecordOptionsDialog::updateCropScene()
 {
+    if (m_usesPortal)
+        return;
     const ScreenRecorderSettings::RecordSettings rs = ScreenRecorderSettings
         ::sanitizedRecordSettings({int(m_screenId()), screenCropRect(), int(m_recordFrameRate())});
     m_thumbnail = QGuiApplication::screens().at(rs.screenId)->grabWindow().toImage();
@@ -193,6 +213,8 @@ RecordWidget::RecordWidget(const FilePath &recordFile, QWidget *parent)
     setMinimumWidth(220);
 
     m_process = new Process(this);
+    m_portal = new Internal::PortalCapture(this);
+    connect(m_portal, &Internal::PortalCapture::prepared, this, &RecordWidget::startFfmpeg);
     m_process->setUseCtrlCStub(true);
     m_process->setProcessMode(ProcessMode::Writer);
 
@@ -233,20 +255,44 @@ RecordWidget::RecordWidget(const FilePath &recordFile, QWidget *parent)
         m_optionsDialog->setAttribute(Qt::WA_DeleteOnClose);
         m_optionsDialog->show();
     });
-    connect(recordButton, &QToolButton::clicked, this, [this, progressLabel] {
+    const auto enableRecordControls = [this, recordButton, settingsButton] {
+        recordButton->setEnabled(true);
+        settingsButton->setEnabled(true);
+        m_openClipAction->setEnabled(true);
+    };
+    connect(m_portal, &Internal::PortalCapture::cancelled, this, [this, enableRecordControls] {
+        m_portal->stop();
+        enableRecordControls();
+    });
+    connect(m_portal, &Internal::PortalCapture::failed, this,
+            [this, enableRecordControls](const QString &message) {
+        // Stopping the portal ends the pipe. FFmpeg then finalizes what it recorded.
+        m_portal->stop();
+        Core::MessageManager::writeDisrupting(message);
+        if (!m_process->isRunning())
+            enableRecordControls();
+    });
+    connect(recordButton, &QToolButton::clicked, this,
+            [this, progressLabel, recordButton, settingsButton] {
         m_clipInfo.duration = 0;
         progressLabel->setFrame(0);
         m_clipInfo = {};
         m_clipInfo.file = m_recordFile;
         m_clipInfo.rFrameRate = qreal(Internal::settings().recordFrameRate());
-        const CommandLine cl(Internal::settings().ffmpegTool(), ffmpegParameters(m_clipInfo));
-        m_process->setCommand(cl);
-        m_process->setWorkingDirectory(Internal::settings().ffmpegTool().parentDir());
-        FFmpegUtils::logFfmpegCall(cl);
-        m_process->start();
+        if (Internal::settings().usesPortalCapture()) {
+            // The desktop's source selection dialog does not block Qt Creator.
+            recordButton->setEnabled(false);
+            settingsButton->setEnabled(false);
+            m_openClipAction->setEnabled(false);
+            m_portal->prepare(m_recordFile.parentDir(), Internal::settings().recordFrameRate(),
+                              Internal::settings().captureCursor());
+        } else {
+            startFfmpeg();
+        }
     });
     connect(stopButton, &QToolButton::clicked, this, [this] {
         FFmpegUtils::sendQuitCommand(m_process);
+        m_portal->stop();
     });
     connect(m_process, &Process::started, this,
             [this, progressLabel, recordButton, stopButton, settingsButton] {
@@ -258,6 +304,7 @@ RecordWidget::RecordWidget(const FilePath &recordFile, QWidget *parent)
         emit started();
     });
     connect(m_process, &Process::done, this, [this, recordButton, stopButton, settingsButton] {
+        m_portal->stop();
         recordButton->setEnabled(true);
         stopButton->setEnabled(false);
         settingsButton->setEnabled(true);
@@ -301,6 +348,15 @@ RecordWidget::RecordWidget(const FilePath &recordFile, QWidget *parent)
             }
         }
     });
+}
+
+void RecordWidget::startFfmpeg()
+{
+    const CommandLine cl(Internal::settings().ffmpegTool(), ffmpegParameters(m_clipInfo));
+    m_process->setCommand(cl);
+    m_process->setWorkingDirectory(Internal::settings().ffmpegTool().parentDir());
+    FFmpegUtils::logFfmpegCall(cl);
+    m_process->start();
 }
 
 RecordWidget::~RecordWidget()
@@ -353,6 +409,9 @@ QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
                                           .arg(cropRect.x()).arg(cropRect.y())});
         break;
     }
+    case Internal::CaptureType::PortalCast:
+        videoGrabParams = m_portal->ffmpegGrabArguments();
+        break;
     case Internal::CaptureType::Ddagrab: {
         QString filter = "ddagrab=output_idx=" + screenIdStr;
         if (!rS.cropRect.isNull()) {

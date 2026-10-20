@@ -11,6 +11,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/environment.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 
@@ -85,6 +86,14 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     switch (HostOsInfo::hostOs()) {
     case OsTypeLinux:
         screenCaptureType.addOption({"x11grab", {}, CaptureType::X11grab});
+#ifdef QTC_SCREENRECORDER_WITH_PORTAL
+        screenCaptureType.addOption({"Portal/PipeWire (Wayland)", {}, CaptureType::PortalCast});
+        screenCaptureType.setVisible(true);
+        if (Utils::qtcEnvironmentVariable("XDG_SESSION_TYPE") == "wayland") {
+            screenCaptureType.setDefaultValue(
+                screenCaptureType.indexForItemValue(CaptureType::PortalCast));
+        }
+#endif
         break;
     case OsTypeWindows:
         screenCaptureType.addOption({"ddagrab", {}, CaptureType::Ddagrab});
@@ -97,9 +106,26 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     default:
         break;
     }
-    auto setCaptureMouseClicksVisible = [this] {
-        const bool visible = volatileScreenCaptureType() == CaptureType::AVFoundation;
-        captureMouseClicks.setVisible(visible);
+    portalCaptureInfo.setIconType(InfoLabelType::Information);
+    portalCaptureInfo.setText(
+        Tr::tr("Wayland does not let applications read the screen directly. Instead, "
+               "%1 asks the desktop through the desktop portal, a service that lets "
+               "you choose the screen to share each time a recording starts. The "
+               "desktop then provides the screen as a PipeWire stream. PipeWire is the "
+               "multimedia framework that handles audio and video on Linux. GStreamer, "
+               "a tool for processing media streams, reads the PipeWire stream and "
+               "passes the frames on to FFmpeg. This requires the GStreamer tool %2 "
+               "with its PipeWire and base plugins. On Debian and Ubuntu, install them "
+               "with %3 You select the screen in the desktop dialog, so the "
+               "recording options show only the frame rate.")
+            .arg(QGuiApplication::applicationDisplayName(),
+                 QString("<code>%1</code>").arg(Constants::GSTLAUNCH_COMMAND),
+                 QString("<p><code>%1</code></p>").arg(Constants::GSTREAMER_INSTALL_COMMAND)));
+
+    auto setCaptureTypeDependentVisibility = [this] {
+        const CaptureType type = volatileScreenCaptureType();
+        captureMouseClicks.setVisible(type == CaptureType::AVFoundation);
+        portalCaptureInfo.setVisible(type == CaptureType::PortalCast);
     };
 
     enableFileSizeLimit.setSettingsKey("EnableFileSizeLimit");
@@ -150,7 +176,7 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     recordFrameRate.setSettingsKey("RecordFrameRate");
     recordFrameRate.setDefaultValue(24);
     recordFrameRate.setLabelText(Tr::tr("Recording frame rate:"));
-    recordFrameRate.setRange(1, 60);
+    recordFrameRate.setRange(Constants::MIN_RECORD_FRAME_RATE, Constants::MAX_RECORD_FRAME_RATE);
     recordFrameRate.setSuffix(" fps");
 
     recordScreenId.setSettingsKey("RecordScreenID");
@@ -184,6 +210,7 @@ ScreenRecorderSettings::ScreenRecorderSettings()
                     captureCursor,
                     captureMouseClicks,
                     Row { screenCaptureType, st },
+                    portalCaptureInfo,
                     Row { enableFileSizeLimit, fileSizeLimit, st },
                     Row { enableRtBuffer, rtBufferSize, st },
                 },
@@ -205,9 +232,9 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     rtBufferSize.setEnabler(&enableRtBuffer);
     fileSizeLimit.setEnabler(&enableFileSizeLimit);
 
-    setCaptureMouseClicksVisible();
+    setCaptureTypeDependentVisibility();
     connect(&screenCaptureType, &SelectionAspect::volatileValueChanged, this,
-            setCaptureMouseClicksVisible);
+            setCaptureTypeDependentVisibility);
 }
 
 bool ScreenRecorderSettings::toolsRegistered() const
@@ -246,6 +273,11 @@ void ScreenRecorderSettings::applyRecordSettings(const RecordSettings &settings)
     recordFrameRate.setValue(settings.frameRate);
     recordFrameRate.apply();
     recordFrameRate.writeToSettingsImmediatly();
+}
+
+bool ScreenRecorderSettings::usesPortalCapture() const
+{
+    return volatileScreenCaptureType() == CaptureType::PortalCast;
 }
 
 CaptureType ScreenRecorderSettings::volatileScreenCaptureType() const

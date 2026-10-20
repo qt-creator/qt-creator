@@ -13,6 +13,8 @@ class Process;
 
 namespace ScreenRecorder {
 
+namespace Internal { class PortalCapture; }
+
 class RecordOptionsDialog;
 
 class RecordWidget : public Utils::StyledBar
@@ -31,6 +33,7 @@ signals:
 
 private:
     QStringList ffmpegParameters(const ClipInfo &clipInfo) const;
+    void startFfmpeg();
 
     const Utils::FilePath m_recordFile;
     ClipInfo m_clipInfo;
@@ -38,6 +41,7 @@ private:
     QByteArray m_lastOutputChunk;
     RecordOptionsDialog *m_optionsDialog;
     QAction *m_openClipAction;
+    Internal::PortalCapture *m_portal = nullptr;
 };
 
 } // namespace ScreenRecorder

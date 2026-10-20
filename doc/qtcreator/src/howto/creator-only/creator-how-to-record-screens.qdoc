@@ -140,5 +140,43 @@
                 \uicontrol {General Messages} view.
     \endtable
 
+    \section1 Record screens on Wayland
+
+    Wayland does not let applications read the screen directly. To record
+    screens in a Wayland session, select \uicontrol {Portal/PipeWire (Wayland)} in
+    \uicontrol {Capture device/filter}. It is the default in Wayland sessions.
+
+    Instead of reading the screen itself, \QC asks the desktop through the
+    desktop portal, a service that lets you choose the screen to share. Each
+    time you start a recording, the desktop shows a dialog where you select
+    the screen. The desktop then provides the screen as a PipeWire stream.
+    PipeWire is the multimedia framework that handles audio and video on Linux.
+    GStreamer, a tool for processing media streams, reads the PipeWire stream
+    and passes the frames on to FFmpeg, which encodes the recording.
+
+    The following components are required:
+
+    \list
+        \li A Wayland desktop that provides the desktop portal with
+            screen casting support and runs PipeWire. GNOME and KDE Plasma
+            do this by default.
+        \li The \c gst-launch-1.0 tool, the PipeWire plugin for GStreamer, and
+            the GStreamer base plugins. For example, on Debian and Ubuntu,
+            install them with the following command:
+            \code [shell]
+            sudo apt install gstreamer1.0-tools gstreamer1.0-pipewire gstreamer1.0-plugins-base
+            \endcode
+        \li A \QC build that includes support for D-Bus.
+    \endlist
+
+    Because you select the screen in the desktop dialog, the
+    \uicontrol {Screen Recording Options} dialog shows only the
+    \uicontrol FPS option for this capture device. To crop the recording, use
+    \uicontrol {Crop and Trim} after you stop recording.
+
+    On a scaled screen, the recording has the scaled size of the screen. For
+    example, a screen with 3840x2160 pixels at a scale of 200% gives a
+    recording with 1920x1080 pixels.
+
     \sa {Record screens}, {Enable and disable plugins}, {View output}
 */

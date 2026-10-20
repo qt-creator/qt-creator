@@ -9,6 +9,7 @@ namespace ScreenRecorder::Internal {
 
 enum CaptureType {
     X11grab,
+    PortalCast,
     Ddagrab,
     Gdigrab,
     AVFoundation,
@@ -30,6 +31,7 @@ public:
     RecordSettings recordSettings() const;
     void applyRecordSettings(const RecordSettings &settings);
     CaptureType volatileScreenCaptureType() const;
+    bool usesPortalCapture() const;
 
     // Visible in Settings page
     Utils::FilePathAspect ffmpegTool{this};
@@ -37,6 +39,7 @@ public:
     Utils::SelectionAspect screenCaptureType{this};
     Utils::BoolAspect captureCursor{this};
     Utils::BoolAspect captureMouseClicks{this};
+    Utils::TextDisplay portalCaptureInfo{this};
     Utils::BoolAspect enableFileSizeLimit{this};
     Utils::IntegerAspect fileSizeLimit{this}; // in MB
     Utils::BoolAspect enableRtBuffer{this};
