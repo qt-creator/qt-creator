@@ -793,8 +793,7 @@ int TrackPainterBase::indexInModel(const TimelineModel *model, const QPoint &loc
     // (see the two-tier scoring below). Items directly under the cursor always
     // win, so this only widens the target where nothing was hit before.
     constexpr double tolerance = 1.0;
-    const qint64 toleranceStart = pixelToTime(local.x() - tolerance, double(w),
-                                              m_rangeStart, m_rangeEnd);
+    constexpr double minItemWidth = 1.0;
 
     // Search outward from the candidate for the smallest item whose drawn
     // rectangle contains the cursor. Items are ordered by start time, not by
@@ -832,8 +831,8 @@ int TrackPainterBase::indexInModel(const TimelineModel *model, const QPoint &loc
 
         double x1 = timeToPixel(start, m_rangeStart, m_rangeEnd, double(w));
         double x2 = timeToPixel(end, m_rangeStart, m_rangeEnd, double(w));
-        if (x2 - x1 < 1.0)
-            x2 = x1 + 1.0;
+        if (x2 - x1 < minItemWidth)
+            x2 = x1 + minItemWidth;
 
         // The drawn rect is half-open, [x1, x2).
         const bool exact = local.x() >= x1 && local.x() < x2;
@@ -871,18 +870,13 @@ int TrackPainterBase::indexInModel(const TimelineModel *model, const QPoint &loc
     }
 
     // Backward: a short item that doesn't reach the cursor may still have a
-    // long parent that does. Only stop once neither the item nor its parent can
-    // reach the tolerance window.
-    for (int i = candidate - 1; i >= 0; --i) {
-        const qint64 end = model->endTime(i);
-        if (end < toleranceStart) {
-            const int parent = model->parentIndex(i);
-            const qint64 parentEnd = parent == -1 ? end : model->endTime(parent);
-            if (parentEnd < toleranceStart)
-                break;
-        }
+    // long range further back that does. Only go back to the first item that
+    // ends late enough to reach the tolerance window.
+    const qint64 earliestEnd = pixelToTime(local.x() - tolerance - minItemWidth, double(w),
+                                           m_rangeStart, m_rangeEnd);
+    const int first = model->firstIndex(earliestEnd - 1);
+    for (int i = candidate - 1; first >= 0 && i >= first; --i)
         test(i);
-    }
 
     return best;
 }

@@ -93,6 +93,38 @@ public:
     float relativeHeight(int) const override { return 0.2f; }
 };
 
+// A long range partially overlapping a shorter one, like the memory consumption
+// ranges next to events on other rows of a Quick3D model. computeNesting()
+// makes the first range an item is inside of its parent, which for the items
+// at 1200 is the short-lived one and not the long range. Many short events
+// follow, like in a perf or memory usage track. Counts the row lookups, of
+// which the hit test makes one for each item it visits.
+class PartialOverlapModel : public TimelineModel
+{
+public:
+    PartialOverlapModel(TimelineModelAggregator *parent) : TimelineModel(parent) {}
+
+    void loadData()
+    {
+        insert(0, 2000, 1);
+        insert(1000, 8000, 0);
+        insert(1200, 100, 2);
+        for (int i = 0; i < 20; ++i)
+            insert(3000 + i * 50, 20, 2);
+        for (int i = 0; i < 1000; ++i)
+            insert(10000 + i * 100, 100, 3);
+        computeNesting();
+    }
+
+    int collapsedRow(int) const override
+    {
+        ++rowLookups;
+        return 0;
+    }
+
+    mutable int rowLookups = 0;
+};
+
 // Exposes the renderer's own fill geometry so a test can assert that whatever
 // is drawn is also hit-testable.
 class ProbePainter : public TrackPainterGpu
@@ -282,6 +314,8 @@ private slots:
     void narrowEventTolerance();
     void narrowEventUnderCursorWins();
     void shortBarHitOverFullRow();
+    void indexAtLongRangeBehindShortParent();
+    void indexAtVisitsOnlyItemsNearCursor();
     void drawnPixelsAreHittable_data();
     void drawnPixelsAreHittable();
     void itemLabels();
@@ -595,6 +629,38 @@ void tst_TrackPainterInteraction::shortBarHitOverFullRow()
     QCOMPARE(itemIndexAt(painter, QPoint(500, rowH / 2)), 0);
     // Outside the event's time span nothing is hit, tolerance aside.
     QCOMPARE(itemIndexAt(painter, QPoint(300, rowH / 2)), -1);
+}
+
+void tst_TrackPainterInteraction::indexAtLongRangeBehindShortParent()
+{
+    TrackPainterGpu painter;
+    TimelineModelAggregator aggregator;
+    PartialOverlapModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 10000);
+    painter.resize(1000, painter.totalHeight());
+
+    // The long range (index 1) is the only item at x=500. Its closest neighbours
+    // in the index space are inside it but have the short range as parent.
+    QCOMPARE(model.parentIndex(2), 0);
+    QCOMPARE(itemIndexAt(painter, QPoint(500, 10)), 1);
+}
+
+void tst_TrackPainterInteraction::indexAtVisitsOnlyItemsNearCursor()
+{
+    TrackPainterGpu painter;
+    TimelineModelAggregator aggregator;
+    PartialOverlapModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 100000);
+    painter.resize(1000, painter.totalHeight());
+
+    // One event per pixel from x = 100 on.
+    model.rowLookups = 0;
+    QCOMPARE(itemIndexAt(painter, QPoint(900, 10)), 23 + 800);
+    QCOMPARE_LT(model.rowLookups, 10);
 }
 
 void tst_TrackPainterInteraction::drawnPixelsAreHittable_data()
