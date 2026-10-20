@@ -60,6 +60,10 @@ ProjectExplorer::Task Diagnostic::asTask() const
           taskCategory(),
           icon());
     t.setColumn(location.target.column);
+    for (const ExplainingStep &step : explainingSteps) {
+        if (!step.isFixIt)
+            t.addToDetails(step.message, step.location);
+    }
     return t;
 }
 
