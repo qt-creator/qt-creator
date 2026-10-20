@@ -19,6 +19,10 @@ arguments are not the obvious ones:
   qohosimageconversions.cpp compiles with exceptions against a Gui header
   compiled without them.
 
+The shared libraries the Qt needs from there are copied into its lib directory,
+which is where the Qt finds its libraries at run time. Without them the platform
+plugin does not load on a device that lacks them.
+
 A host Qt of the same version, with at least the modules built here, is
 required and is not built here: cross-building a module takes its host tools
 from there. An in source developer build of the same checkout will do, which is
@@ -29,6 +33,8 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -70,6 +76,27 @@ def build(build_path: Path, jobs: int | None) -> None:
         ninja += ["-j", str(jobs)]
     run(ninja)
     run(ninja + ["install"])
+
+
+def needed(readelf: Path, library: Path) -> list[str]:
+    output = subprocess.run([str(readelf), "-d", str(library)], capture_output=True,
+                            text=True).stdout
+    return re.findall(r"\(NEEDED\).*\[(.*)\]", output)
+
+
+def install_packages_libraries(prefix: Path, packages: Path, readelf: Path) -> None:
+    """Every library of the packages that the installed Qt needs, until none is missing."""
+    lib = prefix / "lib"
+    libraries = list(lib.glob("*.so")) + list((prefix / "plugins").glob("**/*.so"))
+    while libraries:
+        library = libraries.pop()
+        for name in needed(readelf, library):
+            source = packages / "lib" / name
+            if (lib / name).exists() or not source.exists():
+                continue
+            shutil.copy2(source, lib / name, follow_symlinks=True)
+            print("   {} needs {}, taken from {}".format(library.name, name, source.parent))
+            libraries.append(lib / name)
 
 
 def configure_qtbase(args: argparse.Namespace, openharmony: Path, build_path: Path) -> None:
@@ -153,6 +180,11 @@ def main() -> int:
         module_build = build_root / module
         configure_module(args, module, module_build)
         build(module_build, args.jobs)
+
+    if args.packages:
+        print("== libraries from {}".format(args.packages))
+        install_packages_libraries(args.prefix, args.packages,
+                                   openharmony / "native/llvm/bin/llvm-readelf")
 
     print("\nInstalled Qt for HarmonyOS into {}".format(args.prefix))
     print("Add {}/bin/qmake as a Qt version in Qt Creator.".format(args.prefix))
