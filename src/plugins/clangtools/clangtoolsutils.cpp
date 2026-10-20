@@ -76,8 +76,7 @@ QString createDiagnosticToolTipString(
                          diagnostic.description.toHtmlEscaped()});
     }
 
-    lines.push_back({Tr::tr("Location:"),
-                     createFullLocationString(diagnostic.location)});
+    lines.push_back({Tr::tr("Location:"), diagnostic.location.toString()});
 
     if (status) {
         lines.push_back({Tr::tr("Fixit status:"),
@@ -119,13 +118,6 @@ QString createDiagnosticToolTipString(
     }
     html += QLatin1String("</dl></body></html>");
     return html;
-}
-
-QString createFullLocationString(const Link &location)
-{
-    return location.targetFilePath.toUserOutput()
-            + QLatin1Char(':') + QString::number(location.target.line)
-            + QLatin1Char(':') + QString::number(location.target.column);
 }
 
 QString hintAboutBuildBeforeAnalysis()

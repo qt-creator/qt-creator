@@ -81,7 +81,7 @@ void DiagnosticMark::initialize()
         action->setIcon(Icon::fromTheme("edit-copy"));
         action->setToolTip(Core::msgCopyToClipboard());
         QObject::connect(action, &QAction::triggered, [diagnostic] {
-            const QString text = createFullLocationString(diagnostic.location)
+            const QString text = diagnostic.location.toString()
             + ": "
                 + diagnostic.description;
             setClipboardAndSelection(text);

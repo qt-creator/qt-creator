@@ -208,8 +208,7 @@ static QString createExplainingStepToolTipString(const ExplainingStep &step)
                          step.message.toHtmlEscaped()});
     }
 
-    lines.push_back({Tr::tr("Location:"),
-                     createFullLocationString(step.location)});
+    lines.push_back({Tr::tr("Location:"), step.location.toString()});
 
     QString html = QLatin1String("<html>"
                    "<head>"

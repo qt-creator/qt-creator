@@ -42,8 +42,6 @@ QString createDiagnosticToolTipString(const Diagnostic &diagnostic,
 
 CppEditor::ClangDiagnosticConfig builtinConfig();
 
-QString createFullLocationString(const Utils::Link &location);
-
 QString hintAboutBuildBeforeAnalysis();
 void showHintAboutBuildBeforeAnalysis();
 
