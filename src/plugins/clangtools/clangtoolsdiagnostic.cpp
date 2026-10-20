@@ -12,11 +12,6 @@ using namespace ProjectExplorer;
 
 namespace ClangTools::Internal {
 
-bool ExplainingStep::isValid() const
-{
-    return location.hasValidTarget() && !ranges.isEmpty() && !message.isEmpty();
-}
-
 static bool operator==(const ExplainingStep &lhs, const ExplainingStep &rhs)
 {
     return lhs.message == rhs.message

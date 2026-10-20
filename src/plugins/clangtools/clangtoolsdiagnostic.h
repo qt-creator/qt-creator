@@ -15,7 +15,6 @@ namespace ClangTools::Internal {
 class ExplainingStep
 {
 public:
-    bool isValid() const;
     bool operator<(const ExplainingStep &other) const {
         return std::tie(location, ranges, message)
                < std::tie(other.location, other.ranges, other.message);
