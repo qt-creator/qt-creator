@@ -7,7 +7,7 @@ endif()
 add_qtc_test(tst_qtprofiler_dwarfunwinder
   DEPENDS Utils elfutils::dw elfutils::elf
   DEFINES PROFILER_STATIC_LIBRARY WITH_LIBDW
-  INCLUDES ../../../../src/plugins/profiler
+  INCLUDES "${PluginsDir}/profiler"
   SOURCES
     tst_dwarfunwinder.cpp
     ../../../../src/plugins/profiler/perfdwarfunwinder.cpp

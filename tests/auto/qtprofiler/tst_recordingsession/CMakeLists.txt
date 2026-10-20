@@ -1,7 +1,7 @@
 add_qtc_test(tst_qtprofiler_recordingsession
   DEPENDS Utils
   DEFINES PROFILER_STATIC_LIBRARY
-  INCLUDES ../../../../src/plugins/profiler ../../../../src/plugins
+  INCLUDES "${PluginsDir}/profiler" "${PluginsDir}"
   SOURCES
     tst_recordingsession.cpp
     ../../../../src/plugins/profiler/sampler.cpp

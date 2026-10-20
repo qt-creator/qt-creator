@@ -1,8 +1,10 @@
+cmake_path(SET SqliteSourceDir NORMALIZE "${CMAKE_CURRENT_LIST_DIR}/../3rdparty/sqlite")
+
 add_qtc_library(SqliteInternal OBJECT
     PROPERTIES AUTOMOC OFF AUTOUIC OFF QT_COMPILE_OPTIONS_DISABLE_WARNINGS ON
     DEFINES SQLITE_CORE SQLITE_CUSTOM_INCLUDE=config.h $<$<CONFIG:Debug>:SQLITE_DEBUG>
     INCLUDES
-      ../3rdparty/sqlite
+      "${SqliteSourceDir}"
     SOURCES
       ../3rdparty/sqlite
       ../3rdparty/sqlite/sqlite3.c
@@ -36,7 +38,7 @@ add_qtc_library(Sqlite
   PROPERTIES AUTOMOC OFF AUTOUIC OFF
   DEPENDS Qt::Core Threads::Threads ${CMAKE_DL_LIBS} SqliteInternal Nanotrace
   INCLUDES
-    ../3rdparty/sqlite
+    "${SqliteSourceDir}"
   PUBLIC_INCLUDES
     "${CMAKE_CURRENT_LIST_DIR}"
   DEFINES SQLITE_CUSTOM_INCLUDE=config.h $<$<CONFIG:Debug>:SQLITE_REVERSE>

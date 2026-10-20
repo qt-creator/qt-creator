@@ -33,7 +33,7 @@ else()
   if(TARGET yaml-cpp)
     return()
   endif()
-  set(YAML_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/../src/libs/3rdparty/yaml-cpp)
+  cmake_path(SET YAML_SOURCE_DIR NORMALIZE "${CMAKE_CURRENT_LIST_DIR}/../src/libs/3rdparty/yaml-cpp")
   add_qtc_library(yaml-cpp
     INCLUDES ${YAML_SOURCE_DIR}/include
     PUBLIC_INCLUDES ${YAML_SOURCE_DIR}/include

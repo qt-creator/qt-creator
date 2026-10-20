@@ -1,10 +1,12 @@
 add_subdirectory(frontend)
 
+cmake_path(SET CpasterSharedDir NORMALIZE "${CMAKE_CURRENT_SOURCE_DIR}/../../shared/cpaster")
+
 add_qtc_plugin(CodePaster
   PLUGIN_DEPENDS Core TextEditor
   DEFINES CPASTER_PLUGIN_GUI
   DEPENDS Qt::Network
-  INCLUDES ../../shared/cpaster
+  INCLUDES "${CpasterSharedDir}"
   SOURCES
     codepasterservice.h
     columnindicatortextedit.cpp columnindicatortextedit.h

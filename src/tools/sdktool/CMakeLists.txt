@@ -49,7 +49,7 @@ if (APPLE)
   find_library(FWFoundation Foundation)
 endif()
 
-set(UtilsSourcesDir "../../libs/utils")
+cmake_path(SET LibsDir NORMALIZE "${CMAKE_CURRENT_SOURCE_DIR}/../../libs")
 
 file(RELATIVE_PATH DATA_PATH "/${IDE_LIBEXEC_PATH}" "/${IDE_DATA_PATH}")
 
@@ -57,7 +57,7 @@ add_qtc_library(sdktoolLib
   STATIC
   DEFINES DATA_PATH=\"${DATA_PATH}\"
   PUBLIC_DEPENDS Qt::Core
-  PUBLIC_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} "${UtilsSourcesDir}/../"
+  PUBLIC_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} "${LibsDir}"
   INCLUDES
     ${CMAKE_CURRENT_BINARY_DIR}
   SOURCES

@@ -1,7 +1,7 @@
 add_qtc_test(tst_qtprofiler_samplemerge
   DEPENDS CommonTraceFormat Utils
   DEFINES PROFILER_STATIC_LIBRARY
-  INCLUDES ../../../../src/plugins/profiler ../../../../src/plugins
+  INCLUDES "${PluginsDir}/profiler" "${PluginsDir}"
   SOURCES
     tst_samplemerge.cpp
     ../../../../src/plugins/profiler/samplemerge.cpp

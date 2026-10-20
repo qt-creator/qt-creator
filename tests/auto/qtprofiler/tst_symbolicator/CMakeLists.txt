@@ -16,7 +16,7 @@ set_target_properties(tst_qtprofiler_symbolicator_fixture PROPERTIES
 add_qtc_test(tst_qtprofiler_symbolicator
   DEPENDS Utils
   DEFINES PROFILER_STATIC_LIBRARY
-  INCLUDES ../../../../src/plugins/profiler
+  INCLUDES "${PluginsDir}/profiler"
   SOURCES
     tst_symbolicator.cpp
     ../../../../src/plugins/profiler/symbolicator.cpp
