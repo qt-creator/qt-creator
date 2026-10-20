@@ -148,42 +148,44 @@ void TaskHandlingTest::testLinkedDetails_data()
     using namespace Utils;
 
     QTest::addColumn<Link>("location");
-    QTest::addColumn<QString>("expectedDetail");
+    QTest::addColumn<QString>("linkText"); // empty if no link is expected
     QTest::addColumn<int>("expectedColumn"); // as seen when following the link
 
     const FilePath localFile = FilePath::fromString(
         HostOsInfo::isWindowsHost() ? QString("C:/dir/main.cpp") : QString("/dir/main.cpp"));
     const FilePath remoteFile = FilePath::fromString("docker://someid/dir/main.cpp");
 
-    QTest::newRow("no location") << Link() << QString("text") << 0;
-    QTest::newRow("line, no column") << Link(localFile, 12, -1) << QString("main.cpp: text") << -1;
+    QTest::newRow("no location") << Link() << QString() << 0;
+    QTest::newRow("line, no column") << Link(localFile, 12, -1) << QString("main.cpp:12") << -1;
     QTest::newRow("line and first column")
-        << Link(localFile, 12, 0) << QString("main.cpp: text") << 0;
-    QTest::newRow("line and column") << Link(localFile, 12, 4) << QString("main.cpp: text") << 4;
-    QTest::newRow("no line") << Link(localFile, 0, -1) << QString("main.cpp: text") << -1;
-    QTest::newRow("non-local file") << Link(remoteFile, 12, 4) << QString("main.cpp: text") << 4;
+        << Link(localFile, 12, 0) << QString("main.cpp:12:1") << 0;
+    QTest::newRow("line and column") << Link(localFile, 12, 4) << QString("main.cpp:12:5") << 4;
+    QTest::newRow("no line") << Link(localFile, 0, -1) << QString("main.cpp") << -1;
+    QTest::newRow("non-local file")
+        << Link(remoteFile, 12, 4) << QString("main.cpp:12:5") << 4;
 }
 
 void TaskHandlingTest::testLinkedDetails()
 {
     QFETCH(Utils::Link, location);
-    QFETCH(QString, expectedDetail);
+    QFETCH(QString, linkText);
     QFETCH(int, expectedColumn);
 
     // The existing detail line makes sure the link range accounts for preceding text.
     Task task(Task::Error, "summary\nplain detail", {}, -1, {});
     task.addToDetails("text", location);
-    QCOMPARE(task.details(), QStringList({"plain detail", expectedDetail}));
-    if (!location.hasValidTarget()) {
+    if (linkText.isEmpty()) {
+        QCOMPARE(task.details(), QStringList({"plain detail", "text"}));
         QVERIFY(task.formats().isEmpty());
         return;
     }
 
+    // The link covers the file name and position, but not the text that follows them.
+    QCOMPARE(task.details(), QStringList({"plain detail", linkText + ": text"}));
     QCOMPARE(task.formats().size(), 1);
     const QTextLayout::FormatRange &range = task.formats().first();
-    QCOMPARE(range.start, QString("summary\nplain detail\n").size());
-    QCOMPARE(range.length, QString("main.cpp").size());
     QVERIFY(range.format.isAnchor());
+    QCOMPARE(task.description().mid(range.start, range.length), linkText);
 
     // The link must lead back to the location when clicked.
     const QString href = range.format.anchorHref();
@@ -194,8 +196,8 @@ void TaskHandlingTest::testLinkedDetails()
     QCOMPARE(target.target.column, expectedColumn);
 
     QVERIFY(task.formattedDescription({Task::WithSummary, Task::WithLinks})
-                .contains(QString("summary\nplain detail\n<a href=\"%1\">main.cpp</a>: text")
-                              .arg(href.toHtmlEscaped())));
+                .contains(QString("summary\nplain detail\n<a href=\"%1\">%2</a>: text")
+                              .arg(href.toHtmlEscaped(), linkText)));
 }
 
 QObject *createTaskHandlingTest()

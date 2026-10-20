@@ -182,7 +182,7 @@ void Task::addToDetails(const QString &line, const Link &location)
 
     const QString link = OutputLineParser::createLinkTarget(
         location.targetFilePath, location.target.line, location.target.column + 1);
-    const QString fileName = location.targetFilePath.fileName();
+    const QString fileName = location.target.appendToFileName(location.targetFilePath.fileName());
     const QString text = fileName + ": " + line;
     addLinkDetail(link, text, 0, fileName.size());
 }
