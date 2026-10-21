@@ -523,7 +523,9 @@ QUrl RunControlPrivate::getNextChannel(PortList *portList, const QList<Port> &us
     } else {
         result = q->device()->toolControlChannel(IDevice::ControlChannelHint());
     }
-    result.setPort(portList->getNextFreePort(usedPorts).number());
+    const Port port = portList->getNextFreePort(usedPorts);
+    if (port.isValid())
+        result.setPort(port.number());
     return result;
 }
 
@@ -557,6 +559,17 @@ Group RunControlPrivate::portsGathererRecipe()
             data.perfChannel = getNextChannel(&portList, usedPorts);
         if (data.useWorkerChannel)
             data.workerChannel = getNextChannel(&portList, usedPorts);
+
+        const auto lacksPort = [](bool used, const QUrl &channel) {
+            return used && channel.port() <= 0;
+        };
+        if (lacksPort(data.useDebugChannel, data.debugChannel)
+            || lacksPort(data.useQmlChannel, data.qmlChannel)
+            || lacksPort(data.usePerfChannel, data.perfChannel)
+            || lacksPort(data.useWorkerChannel, data.workerChannel)) {
+            q->postMessage(Tr::tr("Not enough free ports on the device."), ErrorMessageFormat);
+            return DoneResult::Error;
+        }
         return DoneResult::Success;
     };
 
