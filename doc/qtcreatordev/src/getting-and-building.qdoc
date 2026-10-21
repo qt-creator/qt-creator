@@ -53,6 +53,8 @@
 
     See the \l{BUILDING.md} included in the sources for details on building \QC.
 
+    To build \QC for HarmonyOS devices, see \l{Building \QC for HarmonyOS}.
+
     When developing your plugin, point the \c {CMAKE_PREFIX_PATH} to the
     build location of \QC.
 */

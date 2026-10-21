@@ -1,0 +1,126 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page building-for-harmonyos.html
+    \title Building \QC for HarmonyOS
+
+    \QC runs on HarmonyOS devices, such as tablets, as an application package.
+    On the device, it can build applications and run and debug them. The
+    scripts in \c scripts/harmonyos in the \QC sources build two packages:
+
+    \list
+        \li \c qtcreator.hap, which holds \QC, its plugins, and the tools
+            it executes on the device. Those come in a native package,
+            \c qtctools.hnp, because the device executes nothing that an
+            application writes itself.
+        \li \c qtcrunner.hap, which runs what \QC builds on the device.
+            From its sandbox, \QC cannot install or start an application
+            package. Instead, it hands the application over to this
+            package, which loads it.
+    \endlist
+
+    The build runs in a Docker image that the scripts create locally. It holds
+    only the host tools, so the result does not depend on the machine that it
+    runs on.
+
+    \section1 Requirements
+
+    The build has been tested on Linux on x86_64. It needs:
+
+    \list
+        \li Docker and Python 3.
+        \li Network access. The scripts download the Ubuntu base image, the
+            Ubuntu packages, and the sources of the libraries and tools that
+            they build. The sources are pinned to fixed versions.
+        \li Qt for HarmonyOS from the Qt Online Installer, with the desktop Qt
+            of the same version installed beside it. For example,
+            \c ~/Qt/6.12.0/harmonyos_arm64_v8a and \c ~/Qt/6.12.0/gcc_64.
+            The tools that the build runs on the host must come from the same
+            Qt sources as the libraries, so the scripts check for the
+            \c sha1s.txt file beside them.
+        \li The HarmonyOS command-line tools of the SDK version that the
+            application template of the Qt for HarmonyOS names. Qt 6.12
+            requires 6.1.0(23).
+        \li Optionally, the device-hosted native SDK, which is published as
+            \c native-ohos-x64. Without it, \QC runs on the device but cannot
+            build there.
+        \li Optionally, the material for signing the packages: a keystore,
+            a file that holds the passphrase of the keystore and its key,
+            and a profile and a certificate for each package. The two
+            packages have different bundle names, so they need different
+            profiles. Without them, the packages stay unsigned.
+    \endlist
+
+    \section1 Building the Packages
+
+    To build both packages, enter:
+
+    \badcode
+    scripts/harmonyos/build_creator_for_harmonyos.py \
+        --qt ~/Qt/6.12.0/harmonyos_arm64_v8a \
+        --sdk <command-line-tools> \
+        --device-sdk <native-ohos-x64 zip, or the directory it was unpacked into> \
+        --path <output directory> \
+        --keystore <keystore.p12> --key-alias <alias> \
+        --keystore-password-file <file> \
+        --profile <profile.p7b> --certificate <certificate.cer> \
+        --runner-profile <profile.p7b> --runner-certificate <certificate.cer> \
+        --runner-bundle <bundle name>
+    \endcode
+
+    The script runs the following stages in order. Each stage is a script in
+    the same directory, which you can also run on its own:
+
+    \table
+    \header
+        \li Stage
+        \li Script
+        \li Result in the output directory
+    \row
+        \li \c packages
+        \li \c install_third_party.py
+        \li The libraries that Qt needs at runtime, such as ICU and
+            fontconfig, in \c packages/arm64-ohos.
+    \row
+        \li \c tools
+        \li \c build_qt_tools.py
+        \li The Qt tools that \QC runs on the device, in \c tools.
+    \row
+        \li \c creator
+        \li \c build_creator.py
+        \li The \QC build, in \c creator.
+    \row
+        \li \c toolchain
+        \li \c build_device_toolchain.py
+        \li The compiler, CMake, Ninja, and debugger that \QC builds and
+            debugs with on the device, in \c toolchain. Runs only with
+            \c --device-sdk.
+    \row
+        \li \c hap
+        \li \c build_hap.py
+        \li \c qtcreator.hap, or \c qtcreator-unsigned.hap.
+    \row
+        \li \c runner
+        \li \c build_runner_hap.py
+        \li \c qtcrunner.hap, or \c qtcrunner-unsigned.hap.
+    \endtable
+
+    The output directory needs about 14 GB.
+
+    To run only some stages, list them in \c --stages. A later run reuses what
+    an earlier one left in the output directory, so after the first run, a
+    stage takes little time unless its inputs changed.
+
+    \section1 Installing the Packages
+
+    To install the packages on a device that \c hdc is connected to, enter:
+
+    \badcode
+    hdc install -r <output directory>/qtcreator.hap
+    hdc install -r <output directory>/qtcrunner.hap
+    \endcode
+
+    For \c hdc to install them, the device must be in developer mode, and
+    debug profiles must list the device.
+*/
