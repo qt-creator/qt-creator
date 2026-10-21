@@ -254,6 +254,8 @@ private slots:
     void testABreakpointDropsThePlacesItNoLongerStandsIn();
     void testClaimedQmlBreakpointsGetNoQmlHint();
     void testUnhandledQmlBreakpointsGetAHint();
+    void testReadWatchpointsNeedAccessCapability();
+    void testGdbEngineReportsRefusedWatchpoints();
     void testKitWithCompiledQmlDisablesQmlDebugging();
     void testAnEmptyDisassemblyLeavesTheViewAlone();
     void testDisassemblyLinksToItsSource();
@@ -5196,6 +5198,54 @@ void DebuggerUnitTests::testUnhandledQmlBreakpointsGetAHint()
     QVERIFY2(!res, "the QML breakpoint was not reported as unhandled");
     QVERIFY2(res.error().contains("QML debugging needs"), qPrintable(res.error()));
     QVERIFY2(!res.error().contains("cannot stop in it"), qPrintable(res.error()));
+}
+
+// An engine that cannot tell reads from writes would set a watchpoint asked to
+// stop on reads as one that stops on writes only.
+void DebuggerUnitTests::testReadWatchpointsNeedAccessCapability()
+{
+    BreakpointParameters params(WatchpointAtAddress);
+    params.address = 0x1000;
+    params.access = WatchpointRead;
+    const GlobalBreakpoint gbp = BreakpointManager::createBreakpoint(params);
+    const QScopeGuard remove([gbp] {
+        if (gbp)
+            gbp->deleteBreakpoint();
+    });
+    QVERIFY(gbp);
+
+    GdbEngine gdbEngine;
+    gdbEngine.setRunParameters({});
+    QVERIFY2(checkBreakpoints({&gdbEngine}), "gdb did not take the read watchpoint");
+
+    auto engine = new GenericDebuggerEngine("test", new RecordingBackend);
+    const QScopeGuard cleanup([engine] { delete engine; });
+    engine->setRunParameters({});
+    const Result<> res = checkBreakpoints({engine});
+    QVERIFY2(!res, "the read watchpoint was not reported as unhandled");
+    QVERIFY2(res.error().contains("only stop where data is written"), qPrintable(res.error()));
+    QVERIFY(!engine->breakHandler()->tryClaimBreakpoint(gbp));
+}
+
+// gdb has no software fallback for rwatch and awatch, so refusing them is
+// common. Without a gdb process every command fails like that.
+void DebuggerUnitTests::testGdbEngineReportsRefusedWatchpoints()
+{
+    BreakpointParameters params(WatchpointAtExpression);
+    params.expression = "s";
+    params.access = WatchpointRead;
+    const GlobalBreakpoint gbp = BreakpointManager::createBreakpoint(params);
+    const QScopeGuard remove([gbp] {
+        if (gbp)
+            gbp->deleteBreakpoint();
+    });
+    QVERIFY(gbp);
+
+    GdbEngine engine;
+    engine.setRunParameters({});
+    QVERIFY(engine.breakHandler()->tryClaimBreakpoint(gbp));
+    const Breakpoints bps = engine.breakHandler()->breakpoints();
+    QVERIFY2(bps.isEmpty(), "the refused watchpoint is still pending");
 }
 
 void DebuggerUnitTests::testKitWithCompiledQmlDisablesQmlDebugging()

@@ -102,7 +102,8 @@ static DebuggerEngineSetupData gdbImplSetupData()
                       | TracePointCapability
                       | WatchWidgetsCapability
                       | WatchpointByAddressCapability
-                      | WatchpointByExpressionCapability;
+                      | WatchpointByExpressionCapability
+                      | WatchpointAccessCapability;
     data.extraCapabilities = DebuggerExtraCapability::Detach
                            | DebuggerExtraCapability::LibraryEvent
                            | DebuggerExtraCapability::RunCommandDeferral
@@ -1304,9 +1305,10 @@ void GdbImpl::insertBreakpointCommand(const BreakpointChangeRequest &request)
     const quint64 requestId = request.requestId;
 
     if (params.type == WatchpointAtAddress || params.type == WatchpointAtExpression) {
-        const QString function = "watch " + (params.type == WatchpointAtAddress
-                                             ? "*0x" + QString::number(params.address, 16)
-                                             : params.expression);
+        const QString function = gdbWatchCommand(params.access) + ' '
+                                 + (params.type == WatchpointAtAddress
+                                        ? "*0x" + QString::number(params.address, 16)
+                                        : params.expression);
         runCommand({function, [this, requestId](const DebuggerResponse &response) {
             handleWatchInsert(requestId, response);
         }});
@@ -1509,8 +1511,9 @@ void GdbImpl::handleWatchInsert(quint64 requestId, const DebuggerResponse &respo
             address = exp.mid(1).toULongLong(nullptr, 0);
     } else {
         const QString consoleOutput = response.consoleStreamOutput;
-        if (consoleOutput.startsWith("Hardware watchpoint ")
-            || consoleOutput.startsWith("Watchpoint ")) {
+        // "Hardware watchpoint 2: ...", "Hardware read watchpoint 2: ..." or
+        // "Hardware access (read/write) watchpoint 2: ..."
+        if (consoleOutput.startsWith("Hardware ") || consoleOutput.startsWith("Watchpoint ")) {
             const int end = consoleOutput.indexOf(':');
             const int begin = consoleOutput.lastIndexOf(' ', end) + 1;
             const QString addressStr = consoleOutput.mid(end + 2).trimmed();

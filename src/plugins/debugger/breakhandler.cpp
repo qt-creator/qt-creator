@@ -339,6 +339,8 @@ private:
     QLineEdit *m_lineEditAddress;
     QLabel *m_labelExpression;
     QLineEdit *m_lineEditExpression;
+    QLabel *m_labelAccess;
+    QComboBox *m_comboBoxAccess;
     QLabel *m_labelFunction;
     QLineEdit *m_lineEditFunction;
     QLabel *m_labelTracepoint;
@@ -415,6 +417,13 @@ BreakpointDialog::BreakpointDialog(BreakpointParts enabledParts, QWidget *parent
     m_lineEditExpression = new QLineEdit(groupBoxBasic);
     m_labelExpression = new QLabel(Tr::tr("&Expression:"), groupBoxBasic);
     m_labelExpression->setBuddy(m_lineEditExpression);
+
+    m_comboBoxAccess = new QComboBox(groupBoxBasic);
+    m_comboBoxAccess->addItem(Tr::tr("Write"));
+    m_comboBoxAccess->addItem(Tr::tr("Read"));
+    m_comboBoxAccess->addItem(Tr::tr("Read or Write"));
+    m_labelAccess = new QLabel(Tr::tr("Acce&ss:"), groupBoxBasic);
+    m_labelAccess->setBuddy(m_comboBoxAccess);
 
     m_lineEditFunction = new QLineEdit(groupBoxBasic);
     m_labelFunction = new QLabel(Tr::tr("Fun&ction:"), groupBoxBasic);
@@ -504,6 +513,7 @@ BreakpointDialog::BreakpointDialog(BreakpointParts enabledParts, QWidget *parent
     basicLayout->addRow(m_labelEnabled, m_checkBoxEnabled);
     basicLayout->addRow(m_labelAddress, m_lineEditAddress);
     basicLayout->addRow(m_labelExpression, m_lineEditExpression);
+    basicLayout->addRow(m_labelAccess, m_comboBoxAccess);
     basicLayout->addRow(m_labelFunction, m_lineEditFunction);
     basicLayout->addRow(m_labelOneShot, m_checkBoxOneShot);
 
@@ -591,6 +601,8 @@ void BreakpointDialog::setPartsEnabled(BreakpointParts parts)
     m_lineEditAddress->setEnabled(parts & AddressPart);
     m_labelExpression->setEnabled(parts & ExpressionPart);
     m_lineEditExpression->setEnabled(parts & ExpressionPart);
+    m_labelAccess->setEnabled(parts & AccessPart);
+    m_comboBoxAccess->setEnabled(parts & AccessPart);
 
     m_labelCondition->setEnabled(parts & ConditionPart);
     m_lineEditCondition->setEnabled(parts & ConditionPart);
@@ -628,6 +640,8 @@ void BreakpointDialog::clearOtherParts(BreakpointParts parts)
         m_lineEditAddress->clear();
     if (invertedParts & ExpressionPart)
         m_lineEditExpression->clear();
+    if (invertedParts & AccessPart)
+        m_comboBoxAccess->setCurrentIndex(WatchpointWrite);
 
     if (invertedParts & ConditionPart)
         m_lineEditCondition->clear();
@@ -664,6 +678,8 @@ void BreakpointDialog::getParts(BreakpointParts parts, BreakpointParameters *dat
         data->address = m_lineEditAddress->text().toULongLong(nullptr, 0);
     if (parts & ExpressionPart)
         data->expression = m_lineEditExpression->text();
+    if (parts & AccessPart)
+        data->access = static_cast<WatchpointAccess>(m_comboBoxAccess->currentIndex());
 
     if (parts & ConditionPart)
         data->condition = m_lineEditCondition->text();
@@ -713,6 +729,8 @@ void BreakpointDialog::setParts(BreakpointParts mask, const BreakpointParameters
         else
             m_lineEditExpression->clear();
     }
+    if (mask & AccessPart)
+        m_comboBoxAccess->setCurrentIndex(data.access);
 
     if (mask & ConditionPart)
         m_lineEditCondition->setText(data.condition);
@@ -758,11 +776,15 @@ void BreakpointDialog::typeChanged(int)
     case BreakpointAtJavaScriptThrow:
         break;
     case BreakpointByAddress:
-    case WatchpointAtAddress:
         getParts(AddressPart|AllConditionParts|TracePointPart|CommandPart, &m_savedParameters);
         break;
+    case WatchpointAtAddress:
+        getParts(AddressPart|AccessPart|AllConditionParts|TracePointPart|CommandPart,
+                 &m_savedParameters);
+        break;
     case WatchpointAtExpression:
-        getParts(ExpressionPart|AllConditionParts|TracePointPart|CommandPart, &m_savedParameters);
+        getParts(ExpressionPart|AccessPart|AllConditionParts|TracePointPart|CommandPart,
+                 &m_savedParameters);
         break;
     case BreakpointOnQmlSignalEmit:
         getParts(FunctionPart, &m_savedParameters);
@@ -802,16 +824,26 @@ void BreakpointDialog::typeChanged(int)
         setPartsEnabled(NoParts);
         break;
     case BreakpointByAddress:
-    case WatchpointAtAddress:
         setParts(AddressPart|AllConditionParts|TracePointPart|CommandPart, m_savedParameters);
         setPartsEnabled(AddressPart|AllConditionParts|TracePointPart|CommandPart);
         clearOtherParts(AddressPart|AllConditionParts|TracePointPart|CommandPart);
         break;
-    case WatchpointAtExpression:
-        setParts(ExpressionPart|AllConditionParts|TracePointPart|CommandPart, m_savedParameters);
-        setPartsEnabled(ExpressionPart|AllConditionParts|TracePointPart|CommandPart);
-        clearOtherParts(ExpressionPart|AllConditionParts|TracePointPart|CommandPart);
+    case WatchpointAtAddress: {
+        const BreakpointParts parts = AddressPart|AccessPart|AllConditionParts|TracePointPart
+                                      |CommandPart;
+        setParts(parts, m_savedParameters);
+        setPartsEnabled(parts);
+        clearOtherParts(parts);
         break;
+    }
+    case WatchpointAtExpression: {
+        const BreakpointParts parts = ExpressionPart|AccessPart|AllConditionParts|TracePointPart
+                                      |CommandPart;
+        setParts(parts, m_savedParameters);
+        setPartsEnabled(parts);
+        clearOtherParts(parts);
+        break;
+    }
     case BreakpointOnQmlSignalEmit:
         setParts(FunctionPart, m_savedParameters);
         setPartsEnabled(FunctionPart);
@@ -1159,6 +1191,7 @@ void BreakpointItem::addToCommand(
     cmd->arg("line", requested.textPosition.line);
     cmd->arg("address", requested.address);
     cmd->arg("expression", requested.expression);
+    cmd->arg("access", requested.access);
     cmd->arg("tracepoint", requested.tracepoint);
     cmd->arg("message", toHex(requested.message));
 
@@ -1510,7 +1543,8 @@ bool BreakHandler::tryClaimBreakpoint(const GlobalBreakpoint &gbp)
     if (Utils::anyOf(bps, [gbp](const Breakpoint &bp) { return bp->globalBreakpoint() == gbp; }))
         return false;
 
-    if (!m_engine->acceptsBreakpoint(gbp->requestedParameters())) {
+    const BreakpointParameters &params = gbp->requestedParameters();
+    if (!m_engine->canTakeBreakpoint(params)) {
         m_engine->showMessage(QString("BREAKPOINT %1 IS NOT ACCEPTED BY ENGINE %2")
                     .arg(gbp->displayName()).arg(objectName()));
         return false;
@@ -1845,6 +1879,8 @@ static BreakpointParts engineBreakpointCapabilities(DebuggerEngine *engine)
         enabledParts.setFlag(ModulePart, false);
     if (!engine->hasCapability(TracePointCapability))
         enabledParts.setFlag(TracePointPart, false);
+    if (!engine->hasCapability(WatchpointAccessCapability))
+        enabledParts.setFlag(AccessPart, false);
     return enabledParts;
 }
 
@@ -1854,7 +1890,11 @@ void BreakHandler::editBreakpoint(const Breakpoint &bp, QWidget *parent)
     BreakpointParameters params = bp->requestedParameters();
     BreakpointParts parts = NoParts;
 
-    BreakpointDialog dialog(engineBreakpointCapabilities(m_engine), parent);
+    BreakpointParts enabledParts = engineBreakpointCapabilities(m_engine);
+    // The engines cannot turn an inserted watchpoint into one of another kind.
+    if (bp->m_state != BreakpointNew)
+        enabledParts.setFlag(AccessPart, false);
+    BreakpointDialog dialog(enabledParts, parent);
     if (!dialog.showDialog(&params, &parts))
         return;
 
@@ -2950,6 +2990,8 @@ void BreakpointManager::saveSessionData()
             map.insert("command", params.command);
         if (!params.expression.isEmpty())
             map.insert("expression", params.expression);
+        if (params.access != WatchpointWrite)
+            map.insert("access", params.access);
         if (!params.message.isEmpty())
             map.insert("message", params.message);
         list.append(map);
@@ -3008,6 +3050,12 @@ void BreakpointManager::loadSessionData()
         v = map.value("command");
         if (v.isValid())
             params.command = v.toString();
+        v = map.value("access");
+        if (v.isValid()) {
+            const int access = v.toInt();
+            if (access == WatchpointRead || access == WatchpointReadWrite)
+                params.access = WatchpointAccess(access);
+        }
         v = map.value("expression");
         if (v.isValid())
             params.expression = v.toString();

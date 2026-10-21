@@ -82,6 +82,14 @@ enum BreakpointPathUsage
     BreakpointUseShortPath            //!< Use filename only, in case source files are relocated.
 };
 
+//! \enum Debugger::Internal::WatchpointAccess
+enum WatchpointAccess
+{
+    WatchpointWrite,     //!< Stop when the data is written.
+    WatchpointRead,      //!< Stop when the data is read.
+    WatchpointReadWrite  //!< Stop when the data is read or written.
+};
+
 enum BreakpointColumns
 {
     BreakpointNumberColumn,
@@ -113,6 +121,7 @@ enum BreakpointPart
     CommandPart     = (1 << 12),
     MessagePart     = (1 << 13),
     OneShotPart     = (1 << 14),
+    AccessPart      = (1 << 15),
 
     AllConditionParts = ConditionPart|IgnoreCountPart|ThreadSpecPart
                |OneShotPart,
@@ -121,7 +130,7 @@ enum BreakpointPart
                |ExpressionPart|AddressPart|ConditionPart
                |IgnoreCountPart|ThreadSpecPart|ModulePart|TracePointPart
                |EnabledPart|TypePart|PathUsagePart|CommandPart|MessagePart
-               |OneShotPart
+               |OneShotPart|AccessPart
 };
 Q_DECLARE_FLAGS(BreakpointParts, BreakpointPart)
 Q_DECLARE_OPERATORS_FOR_FLAGS(BreakpointParts)
@@ -161,6 +170,7 @@ public:
     uint size;               //!< Size of watched area for data breakpoints.
     uint bitpos;             //!< Location of watched bitfield within watched area.
     uint bitsize;            //!< Size of watched bitfield within watched area.
+    WatchpointAccess access = WatchpointWrite; //!< Access that triggers a data breakpoint.
     // Thread specification. A JVM object id there, so as wide as a pointer.
     qint64 threadSpec;
     QString functionName;
@@ -200,6 +210,8 @@ DEBUGGER_EXPORT bool isVirtualMachineBreakpoint(BreakpointType type,
 
 DEBUGGER_EXPORT bool isVirtualMachineBreakpoint(const BreakpointParameters &params,
                                                 bool javaDebugging);
+
+QString gdbWatchCommand(WatchpointAccess access);
 
 QList<TracepointCapture> parseTracepointCaptures(const QString &message);
 QString formatTracepointMessage(const QString &message,

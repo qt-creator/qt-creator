@@ -1461,7 +1461,9 @@ class DapServer():
                                 temporary=temporary)
         elif bptype in (self.BP_WATCH_ADDRESS, self.BP_WATCH_EXPRESSION):
             expr = args.get('expression') or ('*0x%x' % args.get('address', 0))
-            bp = gdb.Breakpoint(expr, gdb.BP_WATCHPOINT)
+            # Write, read, or both, as BreakpointParameters::access has it.
+            wpClass = (gdb.WP_WRITE, gdb.WP_READ, gdb.WP_ACCESS)[int(args.get('access', 0))]
+            bp = gdb.Breakpoint(expr, gdb.BP_WATCHPOINT, wpClass)
             self.watchedValues[str(bp.number)] = self._watchedValue(expr)
         else:
             # Keyword form, so a source path containing spaces still resolves.

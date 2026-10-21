@@ -2199,6 +2199,8 @@ private slots:
     void testWatchpointByExpressionCapability();
     void reportsTheValueAWatchpointSawChange_data() { addBackendRows(); }
     void reportsTheValueAWatchpointSawChange();
+    void stopsAtTheReadOfAReadWatchpoint_data() { addBackendRows(); }
+    void stopsAtTheReadOfAReadWatchpoint();
     void reportsWhichWatchpointAStopBelongsTo_data() { addBackendRows(); }
     void reportsWhichWatchpointAStopBelongsTo();
     void reportsAWatchpointItDeletedItself_data() { addBackendRows(); }
@@ -7722,6 +7724,60 @@ void tst_backends::reportsTheValueAWatchpointSawChange()
     QCOMPARE(report.at(1).toString(), QString("globalValue"));
     QCOMPARE(report.at(2).toString(), QString("41"));
     QCOMPARE(report.at(3).toString(), QString("42"));
+}
+
+// A read watchpoint stops where the value is read. Set as a write watchpoint,
+// the stop would come only after the inferior wrote 42 back.
+void tst_backends::stopsAtTheReadOfAReadWatchpoint()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkCapability(backend, Debugger::WatchpointAccessCapability); !result)
+        QSKIP(qPrintable(result.error()));
+    if (auto result = checkCapability(backend, Debugger::WatchpointByAddressCapability); !result)
+        QSKIP(qPrintable(result.error()));
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    const quint64 globalValueAddress = symbolAddress(backend, engine, "globalValue");
+    QVERIFY2(globalValueAddress != 0, "could not find globalValue's address via nm");
+
+    QHash<quint64, bool> results;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&results](quint64 requestId, BreakpointOp, bool ok, const GdbMi &) {
+        results[requestId] = ok;
+    });
+    QList<QByteArray> memoryChunks;
+    connect(engine, &DebuggerEngineInterface::memoryRead, this,
+            [&memoryChunks, globalValueAddress](quint64, const MemoryReadResult &result) {
+        if (result.address == globalValueAddress)
+            memoryChunks.append(result.data);
+    });
+
+    BreakpointChangeRequest watchRequest;
+    watchRequest.op = BreakpointOp::Insert;
+    watchRequest.requestId = 75;
+    watchRequest.params.type = WatchpointAtAddress;
+    watchRequest.params.address = globalValueAddress;
+    watchRequest.params.size = sizeof(int);
+    watchRequest.params.access = WatchpointRead;
+    engine->changeBreakpoint(watchRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(results.contains(75), s_timeout);
+    QVERIFY2(results.value(75), "watchpoint insert failed");
+
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                              "watchpoint never triggered on globalValue's read", s_timeout);
+
+    engine->accessMemory(MemoryOp::Fetch, 76, globalValueAddress, sizeof(int));
+    QTRY_VERIFY_WITH_TIMEOUT(!memoryChunks.isEmpty(), s_timeout);
+    int value = 0;
+    QCOMPARE(memoryChunks.constFirst().size(), int(sizeof(int)));
+    memcpy(&value, memoryChunks.constFirst().constData(), sizeof(int));
+    QCOMPARE(value, 41);
 }
 
 // A watchpoint stop is placed by the watchpoint it belongs to and by nothing
@@ -23039,6 +23095,20 @@ void tst_backends::watchesDataThroughADapAdapter()
                                   .value("breakpoints").toArray();
     QCOMPARE(resent.size(), 1);
     QCOMPARE(resent.first().toObject().value("dataId").toString(), QString("id-of-0x4004f0"));
+
+    // A read watchpoint on data the adapter only watches for writes is refused,
+    // rather than set as a write watchpoint.
+    BreakpointChangeRequest reading;
+    reading.op = BreakpointOp::Insert;
+    reading.requestId = 703;
+    reading.params.type = WatchpointAtExpression;
+    reading.params.expression = "globalValue";
+    reading.params.access = WatchpointRead;
+    engine->changeBreakpoint(reading);
+    QTRY_VERIFY2_WITH_TIMEOUT(results.contains(703),
+                              "a read watchpoint the adapter cannot set was never answered for",
+                              s_timeout);
+    QVERIFY2(!results.value(703), "a write-only adapter was taken to watch reads");
 
     // And the stop a watched datum being written to brings is one.
     debuggerBackend.clearEvents();

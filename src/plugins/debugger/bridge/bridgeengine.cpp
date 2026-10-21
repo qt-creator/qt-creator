@@ -1286,7 +1286,8 @@ bool BridgeEngine::hasCapability(unsigned cap) const
                   | RunToLineCapability | AddWatcherCapability | RegisterCapability
                   | ShowMemoryCapability | DisassemblerCapability
                   | OperateByInstructionCapability | JumpToLineCapability
-                  | WatchpointByAddressCapability | WatchpointByExpressionCapability);
+                  | WatchpointByAddressCapability | WatchpointByExpressionCapability
+                  | WatchpointAccessCapability);
 }
 
 void BridgeEngine::claimInitialBreakpoints()

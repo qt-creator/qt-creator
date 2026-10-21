@@ -77,7 +77,8 @@ static DebuggerEngineSetupData lldbImplSetupData()
                       | TracePointCapability
                       | WatchWidgetsCapability
                       | WatchpointByAddressCapability
-                      | WatchpointByExpressionCapability;
+                      | WatchpointByExpressionCapability
+                      | WatchpointAccessCapability;
     data.extraCapabilities = DebuggerExtraCapability::ContinueAfterAttach
                            | DebuggerExtraCapability::ContinueInsteadOfRun
                            | DebuggerExtraCapability::Detach
@@ -797,6 +798,7 @@ static void addBreakpointArgs(DebuggerCommand &cmd, const BreakpointChangeReques
     cmd.arg("module", request.params.module);
     cmd.arg("address", request.params.address);
     cmd.arg("expression", request.params.expression);
+    cmd.arg("access", request.params.access);
     cmd.arg("oneshot", request.params.oneShot);
     cmd.arg("enabled", request.params.enabled);
     cmd.arg("threadspec", request.params.threadSpec);

@@ -611,6 +611,7 @@ public:
     QString logContents() const;
 
     virtual bool acceptsBreakpoint(const BreakpointParameters &bp) const = 0;
+    bool canTakeBreakpoint(const BreakpointParameters &bp) const;
     virtual void insertBreakpoint(const Breakpoint &bp) = 0;
     virtual void removeBreakpoint(const Breakpoint &bp) = 0;
     virtual void updateBreakpoint(const Breakpoint &bp) = 0;

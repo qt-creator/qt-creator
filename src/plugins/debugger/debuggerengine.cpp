@@ -2998,6 +2998,15 @@ bool DebuggerEngine::isDying() const
     return d->m_isDying;
 }
 
+bool DebuggerEngine::canTakeBreakpoint(const BreakpointParameters &bp) const
+{
+    if (bp.isWatchpoint() && bp.access != WatchpointWrite
+            && !hasCapability(WatchpointAccessCapability)) {
+        return false;
+    }
+    return acceptsBreakpoint(bp);
+}
+
 QString DebuggerEngine::msgStopped(const QString &reason)
 {
     return reason.isEmpty() ? Tr::tr("Stopped.") : Tr::tr("Stopped: \"%1\".").arg(reason);

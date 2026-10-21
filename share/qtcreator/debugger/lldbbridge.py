@@ -2721,6 +2721,11 @@ class Dumper(DumperBase):
                 self.insertInterpreterBreakpoint(args)
                 return
 
+        # Write, read, or both, as BreakpointParameters::access has it.
+        access = int(args.get('access', 0))
+        read = access != 0
+        write = access != 1
+
         extra = ''
         more = True
         if bpType == BreakpointType.BreakpointByFileAndLine:
@@ -2758,7 +2763,7 @@ class Dumper(DumperBase):
             error = lldb.SBError()
             # This might yield bp.IsValid() == False and
             # error.desc == 'process is not alive'.
-            bp = self.target.WatchAddress(args['address'], 4, False, True, error)
+            bp = self.target.WatchAddress(args['address'], 4, read, write, error)
             extra = self.describeError(error)
         elif bpType == BreakpointType.BreakpointAtFork:
             # No native "catch fork" in lldb - break on the libc entry points.
@@ -2779,7 +2784,7 @@ class Dumper(DumperBase):
                 value = frame.EvaluateExpression(args['expression'])
                 error = lldb.SBError()
                 bp = self.target.WatchAddress(value.GetLoadAddress(),
-                                              value.GetByteSize(), False, True, error)
+                                              value.GetByteSize(), read, write, error)
                 if bp.IsValid():
                     self.watchedValues[bp.GetID()] = [args['expression'], value.GetValue()]
             except Exception:

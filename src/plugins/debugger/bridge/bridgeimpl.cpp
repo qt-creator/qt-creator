@@ -144,6 +144,7 @@ static DebuggerEngineSetupData bridgeImplSetupData()
                       | BreakOnThrowAndCatchCapability | BreakModuleCapability
                       | RunToLineCapability | JumpToLineCapability
                       | WatchpointByAddressCapability | WatchpointByExpressionCapability
+                      | WatchpointAccessCapability
                       | ResetInferiorCapability
                       | ReturnFromFunctionCapability | ReverseSteppingCapability
                       | SnapshotCapability
@@ -752,6 +753,7 @@ void BridgeImpl::postBreakpointRequest(const QString &request,
                      {"line", params.textPosition.line},
                      {"address", qint64(params.address)},
                      {"expression", params.expression},
+                     {"access", int(params.access)},
                      {"tracepoint", params.tracepoint},
                      {"message", QString::fromUtf8(params.message.toUtf8().toHex())},
                      {"file", params.fileNameForDebugger().path()}};

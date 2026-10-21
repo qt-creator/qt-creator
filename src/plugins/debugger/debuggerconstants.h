@@ -87,7 +87,8 @@ enum DebuggerCapabilities
     WatchComplexExpressionsCapability = 1 << 24, // Used to filter out challenges for cdb.
     AdditionalQmlStackCapability      = 1 << 25, //!< C++ debugger engine is able to retrieve QML stack as well.
     ResetInferiorCapability           = 1 << 26, //!< restart program while debugging
-    BreakIndividualLocationsCapability= 1 << 27  //!< Allows to enable/disable individual location for multi-location bps
+    BreakIndividualLocationsCapability= 1 << 27, //!< Allows to enable/disable individual location for multi-location bps
+    WatchpointAccessCapability        = 1 << 28  //!< Watchpoints can stop on reads
 };
 Q_ENUM_NS(DebuggerCapabilities)
 

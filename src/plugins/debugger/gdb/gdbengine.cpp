@@ -1445,13 +1445,20 @@ void GdbEngine::handleStop2(const GdbMi &data)
         isStopperThread = true;
     }
 
-    if (reason == "watchpoint-trigger") {
+    if (reason == "watchpoint-trigger" || reason == "read-watchpoint-trigger"
+            || reason == "access-watchpoint-trigger") {
         // *stopped,reason="watchpoint-trigger",wpt={number="2",exp="*0xbfffed40"},
         // value={old="1",new="0"},frame={addr="0x00451e1b",
         // func="QScopedPointer",args=[{name="this",value="0xbfffed40"},
         // {name="p",value="0x0"}],file="x.h",fullname="/home/.../x.h",line="95"},
         // thread-id="1",stopped-threads="all",core="2"
-        const GdbMi wpt = data["wpt"];
+        // Read and access watchpoints report hw-rwpt and hw-awpt instead of wpt.
+        const char *record = "wpt";
+        if (reason == "read-watchpoint-trigger")
+            record = "hw-rwpt";
+        else if (reason == "access-watchpoint-trigger")
+            record = "hw-awpt";
+        const GdbMi wpt = data[record];
         const QString rid = wpt["number"].data();
         const Breakpoint bp = breakHandler()->findBreakpointByResponseId(rid);
         const quint64 bpAddress = wpt["exp"].data().mid(1).toULongLong(nullptr, 0);
@@ -1878,6 +1885,7 @@ bool GdbEngine::hasCapability(unsigned cap) const
                   | ReturnFromFunctionCapability
                   | WatchpointByAddressCapability
                   | WatchpointByExpressionCapability
+                  | WatchpointAccessCapability
                   | AddWatcherWhileRunningCapability
                   | WatchWidgetsCapability
                   | RunToLineCapability
@@ -2264,9 +2272,10 @@ void GdbEngine::handleWatchInsert(const DebuggerResponse &response, const Breakp
                 bp->setAddress(exp.mid(1).toULongLong(nullptr, 0));
             QTC_CHECK(!bp->needsChange());
             notifyBreakpointInsertOk(bp);
-        } else if (ba.startsWith("Hardware watchpoint ")
-                || ba.startsWith("Watchpoint ")) {
-            // Non-Mac: "Hardware watchpoint 2: *0xbfffed40\n"
+        } else if (ba.startsWith("Hardware ") || ba.startsWith("Watchpoint ")) {
+            // Non-Mac: "Hardware watchpoint 2: *0xbfffed40\n",
+            // "Hardware read watchpoint 2: ..." or
+            // "Hardware access (read/write) watchpoint 2: ..."
             const int end = ba.indexOf(':');
             const int begin = ba.lastIndexOf(' ', end) + 1;
             const QString address = ba.mid(end + 2).trimmed();
@@ -2278,6 +2287,9 @@ void GdbEngine::handleWatchInsert(const DebuggerResponse &response, const Breakp
         } else {
             showMessage("CANNOT PARSE WATCHPOINT FROM " + ba);
         }
+    } else if (bp) {
+        showMessage(response.data["msg"].data(), LogError);
+        notifyBreakpointInsertFailed(bp);
     }
 }
 
@@ -2581,12 +2593,13 @@ void GdbEngine::insertBreakpoint(const Breakpoint &bp)
 
     BreakpointType type = requested.type;
 
+    const QString watch = gdbWatchCommand(requested.access) + ' ';
     DebuggerCommand cmd;
     if (type == WatchpointAtAddress) {
-        cmd.function = "watch " + addressSpec(requested.address);
+        cmd.function = watch + addressSpec(requested.address);
         cmd.callback = handleWatch;
     } else if (type == WatchpointAtExpression) {
-        cmd.function = "watch " + requested.expression;
+        cmd.function = watch + requested.expression;
         cmd.callback = handleWatch;
     } else if (type == BreakpointAtFork) {
         cmd.function = "catch fork";

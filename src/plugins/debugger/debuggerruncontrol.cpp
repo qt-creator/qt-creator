@@ -699,15 +699,21 @@ Result<> Internal::checkBreakpoints(const QList<QPointer<DebuggerEngine>> &engin
 {
     QStringList unhandledIds;
     bool hasQmlBreakpoints = false;
+    bool hasReadWatchpoints = false;
     for (const GlobalBreakpoint &gbp : BreakpointManager::globalBreakpoints()) {
         if (gbp->isEnabled()) {
             const BreakpointParameters &bp = gbp->requestedParameters();
             const auto engineAcceptsBp = [bp](const DebuggerEngine *engine) {
-                return engine->acceptsBreakpoint(bp);
+                return engine->canTakeBreakpoint(bp);
             };
             if (!Utils::anyOf(engines, engineAcceptsBp)) {
                 unhandledIds.append(gbp->displayName());
                 hasQmlBreakpoints = hasQmlBreakpoints || bp.isQmlFileAndLineBreakpoint();
+                hasReadWatchpoints = hasReadWatchpoints
+                    || (bp.isWatchpoint() && bp.access != WatchpointWrite
+                        && Utils::anyOf(engines, [bp](const DebuggerEngine *engine) {
+                               return engine->acceptsBreakpoint(bp);
+                           }));
             }
         }
     }
@@ -733,6 +739,10 @@ Result<> Internal::checkBreakpoints(const QList<QPointer<DebuggerEngine>> &engin
                           + Debugger::Tr::tr(
                               "QML debugging needs to be enabled both in the Build "
                               "and the Run settings.");
+    }
+    if (hasReadWatchpoints) {
+        warningMessage += "<p>"
+                          + Debugger::Tr::tr("This debugger can only stop where data is written.");
     }
     return ResultError(warningMessage);
 }

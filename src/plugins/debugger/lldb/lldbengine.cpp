@@ -1277,6 +1277,7 @@ bool LldbEngine::hasCapability(unsigned cap) const
         | CreateFullBacktraceCapability
         | WatchpointByAddressCapability
         | WatchpointByExpressionCapability
+        | WatchpointAccessCapability
         | WatchWidgetsCapability
         | AddWatcherCapability
         | ShowModuleSymbolsCapability

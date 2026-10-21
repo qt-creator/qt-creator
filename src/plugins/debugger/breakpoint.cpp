@@ -126,6 +126,8 @@ BreakpointParts BreakpointParameters::differencesTo
         parts |= MessagePart;
     if (oneShot != rhs.oneShot)
         parts |= OneShotPart;
+    if (access != rhs.access)
+        parts |= AccessPart;
     return parts;
 }
 
@@ -242,6 +244,19 @@ bool isVirtualMachineBreakpoint(const BreakpointParameters &params, bool javaDeb
                                       javaDebugging);
 }
 
+QString gdbWatchCommand(WatchpointAccess access)
+{
+    switch (access) {
+    case WatchpointRead:
+        return QString("rwatch");
+    case WatchpointReadWrite:
+        return QString("awatch");
+    case WatchpointWrite:
+        break;
+    }
+    return QString("watch");
+}
+
 QString BreakpointParameters::toString() const
 {
     QString result;
@@ -274,6 +289,8 @@ QString BreakpointParameters::toString() const
     case LastBreakpointType:
         break;
     }
+    if (isWatchpoint())
+        ts << " Access: " << access;
     ts << (enabled ? " [enabled]" : " [disabled]");
     if (!condition.isEmpty())
         ts << " Condition: " << condition;

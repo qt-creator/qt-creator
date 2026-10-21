@@ -352,7 +352,7 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
                 message = bp->msgWatchpointByAddressTriggered(expression.mid(1)
                                                                   .toULongLong(nullptr, 0));
         }
-        if (!oldValue.isEmpty() && !newValue.isEmpty()) {
+        if (!oldValue.isEmpty() && !newValue.isEmpty() && oldValue != newValue) {
             if (!message.isEmpty())
                 message += ' ';
             message += Tr::tr("Value changed from %1 to %2.").arg(oldValue, newValue);

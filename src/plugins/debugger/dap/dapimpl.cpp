@@ -83,6 +83,14 @@ static QString dotEscape(QString str)
     return str;
 }
 
+// An adapter that lists no access types does not say, and is taken at its word.
+static bool canWatchAccess(const QJsonArray &accessTypes, WatchpointAccess access)
+{
+    if (access == WatchpointWrite || accessTypes.isEmpty())
+        return true;
+    return accessTypes.contains(QLatin1String(access == WatchpointRead ? "read" : "readWrite"));
+}
+
 static DebuggerEngineSetupData dapImplSetupData()
 {
     DebuggerEngineSetupData data;
@@ -111,7 +119,8 @@ static DebuggerEngineSetupData dapImplSetupData()
                       | ReturnFromFunctionCapability
                       | RunToLineCapability | SnapshotCapability
                       | WatchComplexExpressionsCapability
-                      | WatchpointByAddressCapability | WatchpointByExpressionCapability;
+                      | WatchpointByAddressCapability | WatchpointByExpressionCapability
+                      | WatchpointAccessCapability;
     data.extraCapabilities = DebuggerExtraCapability::BreakOnMain
                            | DebuggerExtraCapability::ContinueAfterAttach
                            | DebuggerExtraCapability::ContinueInsteadOfRun
@@ -1526,6 +1535,10 @@ int DapImpl::sendDataBreakpoints()
         if (!breakpoint.enabled)
             continue;
         QJsonObject item{{"dataId", breakpoint.dataId}};
+        if (breakpoint.params.access == WatchpointRead)
+            item.insert("accessType", "read");
+        else if (breakpoint.params.access == WatchpointReadWrite)
+            item.insert("accessType", "readWrite");
         addBreakpointConditions(item, breakpoint.params);
         breakpoints.append(item);
     }
@@ -1557,6 +1570,13 @@ void DapImpl::handleDataBreakpointInfo(const QJsonObject &response)
         m_dataBreakpoints.erase(it);
         if (const QString why = body.value("description").toString(); !why.isEmpty())
             emit message(why, LogError);
+        emit breakpointEvent(requestId, op, false);
+    } else if (!canWatchAccess(body.value("accessTypes").toArray(), it->params.access)) {
+        // An adapter that cannot stop on reads may ignore the access type and
+        // watch writes instead.
+        const BreakpointOp op = it->op;
+        m_dataBreakpoints.erase(it);
+        emit message(Tr::tr("The debug adapter cannot stop on reads of this data."), LogError);
         emit breakpointEvent(requestId, op, false);
     } else {
         it->dataId = dataId;
@@ -1783,7 +1803,7 @@ void DapImpl::insertWatchpointOverConsole(const Breakpoint &breakpoint)
     const QString what = params.type == WatchpointAtAddress
                              ? "*0x" + QString::number(params.address, 16)
                              : params.expression;
-    const QString command = "watch " + what;
+    const QString command = gdbWatchCommand(params.access) + ' ' + what;
     const quint64 requestId = breakpoint.requestId;
     ++m_pendingConsoleWatchpoints;
     sendCustomRequest("evaluate", QJsonObject{{"expression", command}, {"context", "repl"}},
