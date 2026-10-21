@@ -163,7 +163,6 @@ set(PERFPROFILER_CPP_SOURCES
   perfprofilerstatisticsview.cpp perfprofilerstatisticsview.h
   perfprofilertracefile.cpp perfprofilertracefile.h
   perfprofilertracemanager.cpp perfprofilertracemanager.h
-  perfprofilertr.h
   perfconversion.cpp perfconversion.h
   perfdataparser.cpp perfdataparser.h
   perfrecordreader.cpp perfrecordreader.h

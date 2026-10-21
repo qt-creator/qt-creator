@@ -31237,7 +31237,7 @@ Ces préfixes sont utilisés en complément au répertoire actuel pour basculer 
     </message>
 </context>
 <context>
-    <name>QtC::CtfVisualizer</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Title</source>
         <translation>Titre</translation>
@@ -46523,7 +46523,7 @@ Utile si le répertoire de compilation est corrompu ou lors d’une recompilatio
     </message>
 </context>
 <context>
-    <name>QtC::PerfProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Samples</source>
         <translation>Échantillons</translation>
@@ -46786,20 +46786,8 @@ Utile si le répertoire de compilation est corrompu ou lors d’une recompilatio
         <translation>Identifie les goulets d’étranglement en matière de performances.</translation>
     </message>
     <message>
-        <source>Start</source>
-        <translation>Démarrer</translation>
-    </message>
-    <message>
         <source>Stop</source>
         <translation>Arrêter</translation>
-    </message>
-    <message>
-        <source>Timeline</source>
-        <translation>Ligne du temps</translation>
-    </message>
-    <message>
-        <source>Statistics</source>
-        <translation>Statistiques</translation>
     </message>
     <message>
         <source>Flame Graph</source>
@@ -46812,10 +46800,6 @@ Utile si le répertoire de compilation est corrompu ou lors d’une recompilatio
     <message>
         <source>Limit to Selected Range</source>
         <translation>Limiter à la plage sélectionnée</translation>
-    </message>
-    <message>
-        <source>Reset Zoom</source>
-        <translation>Réinitialiser le zoom</translation>
     </message>
     <message>
         <source>Copy Table</source>
@@ -58653,7 +58637,7 @@ Veuillez compiler l’application qmldump à partir de la page d’options à pr
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>Profileur QML</translation>
@@ -58671,20 +58655,12 @@ Veuillez compiler l’application qmldump à partir de la page d’options à pr
         <translation>Sélectionner une application QML externe prête pour le débogage. &lt;p&gt;Les arguments de la ligne de commande habituels sont&#xa0;:</translation>
     </message>
     <message>
-        <source>Kit:</source>
-        <translation>Kit :</translation>
-    </message>
-    <message>
         <source>Source code not available</source>
         <translation>Code source non disponible</translation>
     </message>
     <message>
         <source>Calls</source>
         <translation>Appels</translation>
-    </message>
-    <message>
-        <source>Allocations</source>
-        <translation>Allocations</translation>
     </message>
     <message>
         <source>Memory</source>
@@ -58731,14 +58707,6 @@ Veuillez utiliser le bouton d’arrêt à la place.</translation>
     <message>
         <source>Hide or show event categories.</source>
         <translation>Cache ou affiche les catégories d&apos;événements.</translation>
-    </message>
-    <message>
-        <source>Start</source>
-        <translation>Démarrer</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Arrêter</translation>
     </message>
     <message>
         <source>Disable Profiling</source>
@@ -58859,14 +58827,6 @@ Souhaitez-vous enregistrer les données avant&#xa0;?</translation>
         <translation>Lecture après la fin du fichier temporaire de trace.</translation>
     </message>
     <message>
-        <source>Statistics</source>
-        <translation>Statistiques</translation>
-    </message>
-    <message>
-        <source>Copy Row</source>
-        <translation>Copier la ligne</translation>
-    </message>
-    <message>
         <source>Copy Table</source>
         <translation>Copier la table</translation>
     </message>
@@ -58938,10 +58898,6 @@ Souhaitez-vous enregistrer les données avant&#xa0;?</translation>
         <translation>Temps en pourcentage</translation>
     </message>
     <message>
-        <source>Total Time</source>
-        <translation>Temps total</translation>
-    </message>
-    <message>
         <source>Self Time in Percent</source>
         <translatorcomment>Contexte de &quot;self&quot; ?</translatorcomment>
         <translation>Temps interne en pourcentage</translation>
@@ -58980,10 +58936,6 @@ Souhaitez-vous enregistrer les données avant&#xa0;?</translation>
         <translation>appelée de manière récursive</translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation>Détails</translation>
-    </message>
-    <message>
         <source>Could not re-read events from temporary trace file: %1</source>
         <translation>Impossible de relire les événements du fichier temporaire de trace&#xa0;: %1</translation>
     </message>
@@ -58999,10 +58951,6 @@ Souhaitez-vous enregistrer les données avant&#xa0;?</translation>
     <message>
         <source>Signal</source>
         <translation>Signal</translation>
-    </message>
-    <message>
-        <source>Callee</source>
-        <translation>Appelé</translation>
     </message>
     <message>
         <source>Caller</source>
@@ -59064,14 +59012,6 @@ Souhaitez-vous enregistrer les données avant&#xa0;?</translation>
     <message>
         <source>Analyze Full Range</source>
         <translation>Analyser toute la plage</translation>
-    </message>
-    <message>
-        <source>Reset Zoom</source>
-        <translation>Réinitialiser le zoom</translation>
-    </message>
-    <message>
-        <source>Timeline</source>
-        <translation>Ligne du temps</translation>
     </message>
     <message>
         <source>JavaScript</source>
@@ -59160,24 +59100,8 @@ Enregistrement échoué.</translation>
         <translation>Message inconnu %1</translation>
     </message>
     <message>
-        <source>Timestamp</source>
-        <translation>Horodatage</translation>
-    </message>
-    <message>
         <source>Message</source>
         <translation>Message</translation>
-    </message>
-    <message>
-        <source>Flame Graph</source>
-        <translation>Flame Graph</translation>
-    </message>
-    <message>
-        <source>Show Full Range</source>
-        <translation>Afficher la plage complète</translation>
-    </message>
-    <message>
-        <source>Reset Flame Graph</source>
-        <translation>Réinitialiser le Flame Graph</translation>
     </message>
     <message>
         <source>Mouse Events</source>
@@ -59218,10 +59142,6 @@ Enregistrement échoué.</translation>
     <message>
         <source>Button</source>
         <translation>Bouton</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Résultat</translation>
     </message>
     <message>
         <source>Mouse Move</source>
@@ -59274,10 +59194,6 @@ Enregistrement échoué.</translation>
     <message>
         <source>Load Error</source>
         <translation>Erreur de chargement</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>Durée</translation>
     </message>
     <message>
         <source>File</source>
@@ -59443,10 +59359,6 @@ notamment lorsque plusieurs moteurs QML démarrent et s&apos;arrêtent au cours 
     <message>
         <source>Description</source>
         <translation>Description</translation>
-    </message>
-    <message>
-        <source>Count</source>
-        <translation>Nombre</translation>
     </message>
     <message>
         <source>Draw Calls</source>

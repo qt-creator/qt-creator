@@ -3,7 +3,7 @@
 
 #include "perfprofilerflamegraphmodel.h"
 #include "perfprofilerflamegraphview.h"
-#include "perfprofilertr.h"
+#include "profilertr.h"
 
 namespace Profiler::Internal {
 

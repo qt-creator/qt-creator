@@ -12015,7 +12015,7 @@ Flags: %3</source>
     </message>
 </context>
 <context>
-    <name>QtC::CtfVisualizer</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Title</source>
         <translation>Заголовок</translation>
@@ -12526,7 +12526,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Debug Message</source>
         <translation>Отладочное сообщение</translation>
@@ -23910,7 +23910,7 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Memory Usage</source>
         <translation>Использование памяти</translation>
@@ -25736,7 +25736,7 @@ If set to false, the target will be moved straight to the current mouse position
     </message>
 </context>
 <context>
-    <name>QtC::PerfProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Could not start device process.</source>
         <translation>Не удалось запустить процесс устройства.</translation>
@@ -25970,14 +25970,6 @@ If set to false, the target will be moved straight to the current mouse position
     <message>
         <source>Finds performance bottlenecks.</source>
         <translation>Находит узкие места производительности.</translation>
-    </message>
-    <message>
-        <source>Timeline</source>
-        <translation>Временная шкала</translation>
-    </message>
-    <message>
-        <source>Statistics</source>
-        <translation>Статистика</translation>
     </message>
     <message>
         <source>Flame Graph</source>
@@ -38093,14 +38085,10 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Unknown Message %1</source>
         <translation>Неизвестное сообщение %1</translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
-        <translation>Время</translation>
     </message>
     <message>
         <source>Message</source>
@@ -38134,14 +38122,6 @@ the QML editor know about a likely URI.</source>
         <source>Flame Graph</source>
         <translatorcomment>непереводимый термин</translatorcomment>
         <translation>Flame Graph</translation>
-    </message>
-    <message>
-        <source>Show Full Range</source>
-        <translation>Показать весь диапазон</translation>
-    </message>
-    <message>
-        <source>Reset Flame Graph</source>
-        <translation>Сбросить Flame Graph</translation>
     </message>
     <message>
         <source>Mouse Events</source>
@@ -38182,10 +38162,6 @@ the QML editor know about a likely URI.</source>
     <message>
         <source>Button</source>
         <translation>Кнопка</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Результат</translation>
     </message>
     <message>
         <source>Mouse Move</source>
@@ -38252,10 +38228,6 @@ the QML editor know about a likely URI.</source>
         <translation>Выделено</translation>
     </message>
     <message>
-        <source>Allocations</source>
-        <translation>Выделений</translation>
-    </message>
-    <message>
         <source>Deallocated</source>
         <translation>Освобождено</translation>
     </message>
@@ -38294,10 +38266,6 @@ the QML editor know about a likely URI.</source>
     <message>
         <source>Load Error</source>
         <translation>Ошибка загрузки</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>Продолжительность</translation>
     </message>
     <message>
         <source>File</source>
@@ -38366,10 +38334,6 @@ the QML editor know about a likely URI.</source>
     <message>
         <source>Select an externally started QML-debug enabled application.&lt;p&gt;Commonly used command-line arguments are:</source>
         <translation>Выберите внешнее QML приложение, собранное в отладочном режиме.&lt;p&gt;Часто используемые аргументы командной строки:</translation>
-    </message>
-    <message>
-        <source>Kit:</source>
-        <translation>Комплект:</translation>
     </message>
     <message>
         <source>Flush data while profiling:</source>
@@ -38446,18 +38410,6 @@ itself takes time.</source>
         <translation>Ожидание данных</translation>
     </message>
     <message>
-        <source>Statistics</source>
-        <translation>Статистика</translation>
-    </message>
-    <message>
-        <source>Copy Row</source>
-        <translation>Скопировать строку</translation>
-    </message>
-    <message>
-        <source>Copy Table</source>
-        <translation>Скопировать таблицу</translation>
-    </message>
-    <message>
         <source>Extended Event Statistics</source>
         <translation>Расширенная статистика событий</translation>
     </message>
@@ -38502,14 +38454,6 @@ Do you want to retry and wait %2 s?</source>
     <message>
         <source>QML traces (*%1 *%2)</source>
         <translation>Трассировки QML (*%1 *%2)</translation>
-    </message>
-    <message>
-        <source>Saving Trace Data</source>
-        <translation>Сохранение данных трассировки</translation>
-    </message>
-    <message>
-        <source>Loading Trace Data</source>
-        <translation>Загрузка данных трассировки</translation>
     </message>
     <message>
         <source>You are about to discard the profiling data, including unsaved notes. Do you want to continue?</source>
@@ -38574,20 +38518,12 @@ Saving failed.</source>
 Сохранение не удалось.</translation>
     </message>
     <message>
-        <source>Timeline</source>
-        <translation>Временная шкала</translation>
-    </message>
-    <message>
         <source>Analyze Current Range</source>
         <translation>Анализировать текущий диапазон</translation>
     </message>
     <message>
         <source>Analyze Full Range</source>
         <translation>Анализировать весь диапазон</translation>
-    </message>
-    <message>
-        <source>Reset Zoom</source>
-        <translation>Сбросить масштаб</translation>
     </message>
     <message>
         <source>Stage</source>
@@ -38650,10 +38586,6 @@ Saving failed.</source>
         <translation>Время в процентах</translation>
     </message>
     <message>
-        <source>Total Time</source>
-        <translation>Общее время</translation>
-    </message>
-    <message>
         <source>Median Time</source>
         <translation>Медианное время</translation>
     </message>
@@ -38664,14 +38596,6 @@ Saving failed.</source>
     <message>
         <source>called recursively</source>
         <translation>вызывается рекурсивно</translation>
-    </message>
-    <message>
-        <source>Callee</source>
-        <translation>Вызываемое</translation>
-    </message>
-    <message>
-        <source>Caller</source>
-        <translation>Вызывающее</translation>
     </message>
     <message>
         <source>Callee Description</source>

@@ -246,7 +246,6 @@ QtcPlugin {
             "perfevent.h",
             "perfeventtype.h",
             "perfnativemixed.cpp", "perfnativemixed.h",
-            "perfprofilertr.h",
             "perfprofilerconstants.h",
             "perfprofilerflamegraphmodel.cpp", "perfprofilerflamegraphmodel.h",
             "perfprofilertracebackend.cpp", "perfprofilertracebackend.h",

@@ -3,9 +3,9 @@
 
 #include "perfdatareader.h"
 #include "perfprofilerconstants.h"
-#include "perfprofilertr.h"
 #include "perfprofilertracefile.h"
 #include "perfprofilertracemanager.h"
+#include "profilertr.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>

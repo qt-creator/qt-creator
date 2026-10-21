@@ -24560,7 +24560,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>QtC::CtfVisualizer</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Title</source>
         <translation>Titel</translation>
@@ -37932,7 +37932,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
 </context>
 <context>
-    <name>QtC::PerfProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Samples</source>
         <translation type="unfinished"></translation>
@@ -38210,14 +38210,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Timeline</source>
-        <translation>Tidslinje</translation>
-    </message>
-    <message>
-        <source>Statistics</source>
-        <translation>Statistik</translation>
-    </message>
-    <message>
         <source>Flame Graph</source>
         <translation type="unfinished"></translation>
     </message>
@@ -38228,10 +38220,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     <message>
         <source>Limit to Selected Range</source>
         <translation>Begränsa till valt intervall</translation>
-    </message>
-    <message>
-        <source>Reset Zoom</source>
-        <translation>Nollställ zoom</translation>
     </message>
     <message>
         <source>Copy Table</source>
@@ -48009,7 +47997,7 @@ Please build the qmldump application on the Qt version options page.</source>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML-profilerare</translation>
@@ -48027,20 +48015,12 @@ Please build the qmldump application on the Qt version options page.</source>
         <translation>Välj ett externt startat QML-felsökningsaktiverat program.&lt;p&gt;Ofta vanligt använda kommandoradsargument är:</translation>
     </message>
     <message>
-        <source>Kit:</source>
-        <translation>Kit:</translation>
-    </message>
-    <message>
         <source>Source code not available</source>
         <translation>Källkod inte tillgänglig</translation>
     </message>
     <message>
         <source>Calls</source>
         <translation>Anrop</translation>
-    </message>
-    <message>
-        <source>Allocations</source>
-        <translation>Allokeringar</translation>
     </message>
     <message>
         <source>Memory</source>
@@ -48204,28 +48184,12 @@ Vill du spara datat först?</translation>
         <translation>Misslyckades med att nollställa temporär spårningsfil.</translation>
     </message>
     <message>
-        <source>Failed to flush temporary trace file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Could not re-open temporary trace file.</source>
         <translation>Kunde inte återöppna temporär spårningsfil.</translation>
     </message>
     <message>
         <source>Read past end in temporary trace file.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Statistics</source>
-        <translation>Statistik</translation>
-    </message>
-    <message>
-        <source>Copy Row</source>
-        <translation>Kopiera rad</translation>
-    </message>
-    <message>
-        <source>Copy Table</source>
-        <translation>Kopiera tabell</translation>
     </message>
     <message>
         <source>Extended Event Statistics</source>
@@ -48295,10 +48259,6 @@ Vill du spara datat först?</translation>
         <translation>Tid i procent</translation>
     </message>
     <message>
-        <source>Total Time</source>
-        <translation>Total tid</translation>
-    </message>
-    <message>
         <source>Self Time in Percent</source>
         <translation type="unfinished"></translation>
     </message>
@@ -48335,10 +48295,6 @@ Vill du spara datat först?</translation>
         <translation>anropad rekursivt</translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation>Detaljer</translation>
-    </message>
-    <message>
         <source>Could not re-read events from temporary trace file: %1</source>
         <translation>`Kunde inte läsa om händelser från temporär spårningsfil: %1</translation>
     </message>
@@ -48353,14 +48309,6 @@ Vill du spara datat först?</translation>
     <message>
         <source>Signal</source>
         <translation>Signal</translation>
-    </message>
-    <message>
-        <source>Callee</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Caller</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Callee Description</source>
@@ -48418,14 +48366,6 @@ Vill du spara datat först?</translation>
     <message>
         <source>Analyze Full Range</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset Zoom</source>
-        <translation>Nollställ zoom</translation>
-    </message>
-    <message>
-        <source>Timeline</source>
-        <translation>Tidslinje</translation>
     </message>
     <message>
         <source>JavaScript</source>
@@ -48513,23 +48453,11 @@ Saving failed.</source>
         <translation>Okänt meddelande %1</translation>
     </message>
     <message>
-        <source>Timestamp</source>
-        <translation>Tidsstämpel</translation>
-    </message>
-    <message>
         <source>Message</source>
         <translation>Meddelande</translation>
     </message>
     <message>
-        <source>Flame Graph</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show Full Range</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset Flame Graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -48571,10 +48499,6 @@ Saving failed.</source>
     <message>
         <source>Button</source>
         <translation>Knapp</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Resultat</translation>
     </message>
     <message>
         <source>Mouse Move</source>

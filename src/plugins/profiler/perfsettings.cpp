@@ -5,7 +5,7 @@
 
 #include "perfconfigeventsmodel.h"
 #include "perfprofilerconstants.h"
-#include "perfprofilertr.h"
+#include "profilertr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>

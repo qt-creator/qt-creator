@@ -31118,7 +31118,7 @@ Zwykle nie jest to dobry pomysł, ponieważ plik zostanie nadpisany podczas budo
     </message>
 </context>
 <context>
-    <name>QtC::CtfVisualizer</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Title</source>
         <translation>Tytuł</translation>
@@ -31165,6 +31165,7 @@ Zwykle nie jest to dobry pomysł, ponieważ plik zostanie nadpisany podczas budo
     </message>
     <message>
         <source>Start</source>
+        <comment>start time</comment>
         <translation>Początek</translation>
     </message>
     <message>
@@ -46349,7 +46350,7 @@ Przydatne gdy katalog budowania jest uszkodzony lub przy ponownym budowaniu z no
     </message>
 </context>
 <context>
-    <name>QtC::PerfProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Samples</source>
         <translation>Próbki</translation>
@@ -46579,14 +46580,6 @@ Przydatne gdy katalog budowania jest uszkodzony lub przy ponownym budowaniu z no
         <translation>Zatrzymaj</translation>
     </message>
     <message>
-        <source>Timeline</source>
-        <translation>Oś czasu</translation>
-    </message>
-    <message>
-        <source>Statistics</source>
-        <translation>Statystyki</translation>
-    </message>
-    <message>
         <source>Flame Graph</source>
         <translation>Flame Graph</translation>
     </message>
@@ -46597,10 +46590,6 @@ Przydatne gdy katalog budowania jest uszkodzony lub przy ponownym budowaniu z no
     <message>
         <source>Limit to Selected Range</source>
         <translation>Ogranicz do wybranego zakresu</translation>
-    </message>
-    <message>
-        <source>Reset Zoom</source>
-        <translation>Zresetuj powiększenie</translation>
     </message>
     <message>
         <source>Copy Table</source>
@@ -58493,7 +58482,7 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>Profiler QML</translation>
@@ -58509,10 +58498,6 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     <message>
         <source>Select an externally started QML-debug enabled application.&lt;p&gt;Commonly used command-line arguments are:</source>
         <translation>Wybierz zewnętrznie uruchomioną aplikację z włączonym debugowaniem QML.&lt;p&gt;Często używane argumenty wiersza poleceń:</translation>
-    </message>
-    <message>
-        <source>Kit:</source>
-        <translation>Zestaw narzędzi:</translation>
     </message>
     <message>
         <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
@@ -58537,14 +58522,6 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     <message>
         <source>Hide or show event categories.</source>
         <translation>Pokazuje lub ukrywa kategorie zdarzeń.</translation>
-    </message>
-    <message>
-        <source>Start</source>
-        <translation>Początek</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Zatrzymaj</translation>
     </message>
     <message>
         <source>A QML Profiler analysis is still in progress.</source>
@@ -58774,20 +58751,12 @@ Do you want to save the data first?</source>
         <translation>Oczekiwanie na dane</translation>
     </message>
     <message>
-        <source>Timeline</source>
-        <translation>Oś czasu</translation>
-    </message>
-    <message>
         <source>Analyze Current Range</source>
         <translation>Przeanalizuj bieżący zakres</translation>
     </message>
     <message>
         <source>Analyze Full Range</source>
         <translation>Przeanalizuj pełny zakres</translation>
-    </message>
-    <message>
-        <source>Reset Zoom</source>
-        <translation>Zresetuj powiększenie</translation>
     </message>
     <message>
         <source>Cannot open temporary trace file to store events.</source>
@@ -58864,20 +58833,12 @@ Saving failed.</source>
 Zapis nie powiódł się.</translation>
     </message>
     <message>
-        <source>Duration</source>
-        <translation>Czas trwania</translation>
-    </message>
-    <message>
         <source>Framerate</source>
         <translation>Klatki na sekundę</translation>
     </message>
     <message>
         <source>Context</source>
         <translation>Kontekst</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Szczegóły</translation>
     </message>
     <message>
         <source>Location</source>
@@ -58969,28 +58930,8 @@ the program.</source>
         <translation>+%1 w wywołaniach rekurencyjnych</translation>
     </message>
     <message>
-        <source>Statistics</source>
-        <translation>Statystyki</translation>
-    </message>
-    <message>
-        <source>Copy Row</source>
-        <translation>Skopiuj wiersz</translation>
-    </message>
-    <message>
-        <source>Copy Table</source>
-        <translation>Skopiuj tabelę</translation>
-    </message>
-    <message>
         <source>Extended Event Statistics</source>
         <translation>Rozszerzona statystyka zdarzeń</translation>
-    </message>
-    <message>
-        <source>Show Full Range</source>
-        <translation>Pokaż pełen zakres</translation>
-    </message>
-    <message>
-        <source>Reset Flame Graph</source>
-        <translation>Zresetuj Flame Graph</translation>
     </message>
     <message>
         <source>called recursively</source>
@@ -59021,10 +58962,6 @@ the program.</source>
         <translation>Nieznany komunikat %1</translation>
     </message>
     <message>
-        <source>Timestamp</source>
-        <translation>Znacznik czasu</translation>
-    </message>
-    <message>
         <source>Message</source>
         <translation>Komunikat</translation>
     </message>
@@ -59043,10 +58980,6 @@ the program.</source>
     <message>
         <source>Signal</source>
         <translation>Sygnalizowanie</translation>
-    </message>
-    <message>
-        <source>Flame Graph</source>
-        <translation>Flame Graph</translation>
     </message>
     <message>
         <source>Mouse Events</source>
@@ -59087,10 +59020,6 @@ the program.</source>
     <message>
         <source>Button</source>
         <translation>Przycisk</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Wynik</translation>
     </message>
     <message>
         <source>Mouse Move</source>
@@ -59147,10 +59076,6 @@ the program.</source>
     <message>
         <source>Allocated</source>
         <translation>Przydzielone</translation>
-    </message>
-    <message>
-        <source>Allocations</source>
-        <translation>Liczba przydziałów pamięci</translation>
     </message>
     <message numerus="yes">
         <source>%n byte(s)</source>
@@ -59219,10 +59144,6 @@ the program.</source>
     <message>
         <source>Glyphs</source>
         <translation>Glify</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation>Czas całkowity</translation>
     </message>
     <message>
         <source>Calls</source>
@@ -59367,10 +59288,6 @@ the program.</source>
     <message>
         <source>Description</source>
         <translation>Opis</translation>
-    </message>
-    <message>
-        <source>Count</source>
-        <translation>Ilość</translation>
     </message>
     <message>
         <source>Draw Calls</source>

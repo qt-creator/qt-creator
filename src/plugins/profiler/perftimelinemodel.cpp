@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "perfnativemixed.h"
-#include "perfprofilertr.h"
 #include "perfprofilertracemanager.h"
 #include "perftimelinemodel.h"
 #include "perftimelinemodelmanager.h"
+#include "profilertr.h"
 
 #include <tracing/timelineformatdata.h>
 #include <utils/qtcassert.h>

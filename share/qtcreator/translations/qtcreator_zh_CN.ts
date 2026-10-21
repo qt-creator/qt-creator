@@ -13016,7 +13016,7 @@ Collecting backtrace aborted by user.</source>
     </message>
 </context>
 <context>
-    <name>QtC::CtfVisualizer</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Title</source>
         <translation type="unfinished">标题</translation>
@@ -25365,7 +25365,7 @@ Error:
     </message>
 </context>
 <context>
-    <name>QtC::PerfProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Samples</source>
         <translation type="unfinished"></translation>
@@ -25643,14 +25643,6 @@ Error:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Timeline</source>
-        <translation type="unfinished">时间轴</translation>
-    </message>
-    <message>
-        <source>Statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Flame Graph</source>
         <translation type="unfinished"></translation>
     </message>
@@ -25661,10 +25653,6 @@ Error:
     <message>
         <source>Limit to Selected Range</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset Zoom</source>
-        <translation type="unfinished">重置缩放</translation>
     </message>
     <message>
         <source>Copy Table</source>
@@ -36824,7 +36812,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML 分析器(Profiler)</translation>
@@ -37004,10 +36992,6 @@ Please use the stop button instead.</source>
         <translation>JavaScript</translation>
     </message>
     <message>
-        <source>Allocations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Memory</source>
         <translation type="unfinished"></translation>
     </message>
@@ -37044,27 +37028,11 @@ Please use the stop button instead.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Timestamp</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Message</source>
         <translation type="unfinished">消息</translation>
     </message>
     <message>
         <source>Could not re-read events from temporary trace file: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Flame Graph</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Full Range</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset Flame Graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -37106,10 +37074,6 @@ Please use the stop button instead.</source>
     <message>
         <source>Button</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation type="unfinished">结果</translation>
     </message>
     <message>
         <source>Mouse Move</source>
@@ -37214,10 +37178,6 @@ Please use the stop button instead.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Duration</source>
-        <translation type="unfinished">持续时间</translation>
-    </message>
-    <message>
         <source>File</source>
         <translation type="unfinished">文件</translation>
     </message>
@@ -37262,10 +37222,6 @@ Please use the stop button instead.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Kit:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Pixmap Cache</source>
         <translation type="unfinished"></translation>
     </message>
@@ -37299,14 +37255,6 @@ Please use the stop button instead.</source>
     </message>
     <message>
         <source>Cannot open temporary trace file to store events.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to reset temporary trace file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to flush temporary trace file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -37385,10 +37333,6 @@ the program.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Search timeline event notes.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -37427,14 +37371,6 @@ Do you want to retry and wait %2 s?</source>
     </message>
     <message>
         <source>QML traces (*%1 *%2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Saving Trace Data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Loading Trace Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -37550,10 +37486,6 @@ Saving failed.</source>
     <message>
         <source>Description</source>
         <translation type="unfinished">说明</translation>
-    </message>
-    <message>
-        <source>Count</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Draw Calls</source>

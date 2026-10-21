@@ -3,15 +3,15 @@
 
 #include "perfprofilertracebackend.h"
 
+#include "perfprofilerconstants.h"
 #include "perfprofilerflamegraphmodel.h"
 #include "perfprofilerflamegraphview.h"
 #include "perfprofilerstatisticsview.h"
-#include "perfprofilerconstants.h"
-#include "perfprofilertr.h"
 #include "perfprofilertool.h"
 #include "perfprofilertracemanager.h"
 #include "perfsettings.h"
 #include "perftimelinemodelmanager.h"
+#include "profilertr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>

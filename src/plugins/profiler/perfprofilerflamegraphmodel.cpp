@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "perfprofilerflamegraphmodel.h"
-#include "perfprofilertr.h"
 #include "perfresourcecounter.h"
+#include "profilertr.h"
 
 #include <QFileInfo>
 #include <QQueue>

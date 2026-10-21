@@ -3,7 +3,7 @@
 
 #include "perfprofilerstatisticsmodel.h"
 #include "perfprofilertracemanager.h"
-#include "perfprofilertr.h"
+#include "profilertr.h"
 
 #include <utils/qtcassert.h>
 
@@ -12,19 +12,19 @@
 namespace Profiler::Internal {
 
 static const char *headerLabels[] = {
-    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Address"),
-    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Function"),
-    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Source Location"),
-    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Binary Location"),
-    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Caller"),
-    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Callee"),
-    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Occurrences"),
-    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Occurrences in Percent"),
-    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Recursion in Percent"),
-    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Samples"),
-    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Samples in Percent"),
-    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Self Samples"),
-    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Self in Percent")
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Address"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Function"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Source Location"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Binary Location"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Caller"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Callee"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Occurrences"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Occurrences in Percent"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Recursion in Percent"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Samples"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Samples in Percent"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Self Samples"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Self in Percent")
 };
 
 Q_STATIC_ASSERT(sizeof(headerLabels) ==

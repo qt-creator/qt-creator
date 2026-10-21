@@ -5,10 +5,10 @@
 
 #include "perfdatareader.h"
 #include "perfprofilerconstants.h"
-#include "perfprofilertracemanager.h"
 #include "perfprofilertool.h"
 #include "perfprofilertracebackend.h"
-#include "perfprofilertr.h"
+#include "perfprofilertracemanager.h"
+#include "profilertr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>

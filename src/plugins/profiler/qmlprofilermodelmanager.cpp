@@ -22,19 +22,19 @@ using namespace QmlDebug;
 namespace Profiler::Internal {
 
 static const char *ProfileFeatureNames[] = {
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "JavaScript"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Memory Usage"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Pixmap Cache"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Scene Graph"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Animations"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Painting"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Compiling"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Creating"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Binding"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Handling Signal"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Input Events"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Debug Messages"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Quick3D")
+    QT_TRANSLATE_NOOP("QtC::Profiler", "JavaScript"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Memory Usage"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Pixmap Cache"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Scene Graph"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Animations"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Painting"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Compiling"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Creating"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Binding"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Handling Signal"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Input Events"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Debug Messages"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Quick3D")
 };
 
 Q_STATIC_ASSERT(sizeof(ProfileFeatureNames) == sizeof(char *) * MaximumProfileFeature);
