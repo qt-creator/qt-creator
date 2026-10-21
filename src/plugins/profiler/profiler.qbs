@@ -313,6 +313,7 @@ QtcPlugin {
             "qmlprofilerdetailsrewriter_test.cpp", "qmlprofilerdetailsrewriter_test.h",
             "qmlprofilerfindingsmodel_test.cpp", "qmlprofilerfindingsmodel_test.h",
             "qmlprofilernotesmodel_test.cpp", "qmlprofilernotesmodel_test.h",
+            "qmlprofilerrangemodel_test.cpp", "qmlprofilerrangemodel_test.h",
             "qmlprofilersampler_test.cpp", "qmlprofilersampler_test.h",
             "qmlprofilerstatisticsmodel_test.cpp", "qmlprofilerstatisticsmodel_test.h",
             "qmlprofilertool_test.cpp", "qmlprofilertool_test.h",

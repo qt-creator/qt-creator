@@ -16,12 +16,15 @@ private slots:
     void testNoPausedRanges();
     void testMalformedPausedRangesAreSkipped();
     void testCancelStopsTheLoadingThread();
-    void testRestrictionReleasesTheStorage();
     void testLoadPreparesInLoadingThread_data();
     void testLoadPreparesInLoadingThread();
     void testFinalizePreparesUnloadedTrace();
+    void testLoadedEventsAreStored_data();
+    void testLoadedEventsAreStored();
+    void testSavedChunksKeepTheirOrder();
     void testRestrictionReplaysInAnotherThread();
     void testCancelStopsTheRestrictionThread();
+    void testRestrictionReleasesTheStorage();
     void testFeatureRestrictionReplaysInAnotherThread();
     void testFeatureRestrictionDuringRangeRestriction();
 };

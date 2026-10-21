@@ -75,6 +75,8 @@ private slots:
     void rows();
     void longRangesAreFoundInsideTheView();
     void longRangesAreFoundAmongOverlappingRanges();
+    void firstIndexFollowsInsertsAndEnds();
+    void longDurations();
 
 private:
     TimelineModelAggregator aggregator;
@@ -582,6 +584,141 @@ void tst_TimelineModel::longRangesAreFoundAmongOverlappingRanges()
     }
     QVERIFY2(uncovered == 0, qPrintable(QString("%1 misses, first: %2")
                                             .arg(uncovered).arg(firstFailure)));
+}
+
+// Without parents, firstIndex() is the lowest index of a range that ends after the time. The
+// ranges are inserted out of order and grow and shrink afterwards, so that every way of
+// changing the model has to keep up the lookups.
+void tst_TimelineModel::firstIndexFollowsInsertsAndEnds()
+{
+    DummyModel dummy(&aggregator);
+    QRandomGenerator random(7);
+    QList<int> open;
+    QString firstFailure;
+    int failures = 0;
+    for (int round = 0; round < 40; ++round) {
+        for (int i = 0; i < 25; ++i) {
+            const qint64 start = random.bounded(20000);
+            // Inserting moves the ranges after the new one.
+            const auto inserted = [&open](int index) {
+                for (int &o : open) {
+                    if (o >= index)
+                        ++o;
+                }
+                return index;
+            };
+            switch (random.bounded(3)) {
+            case 0:
+                inserted(dummy.insert(start, random.bounded(i % 5 == 0 ? 8000 : 300), 1));
+                break;
+            case 1:
+                open.append(inserted(dummy.insertStart(start, 2)));
+                break;
+            default:
+                if (!open.isEmpty()) {
+                    const int index = open.takeAt(random.bounded(int(open.size())));
+                    dummy.insertEnd(index, random.bounded(5000));
+                } else if (dummy.count() > 0) {
+                    // Shorter than before.
+                    const int index = random.bounded(dummy.count());
+                    dummy.insertEnd(index, dummy.duration(index) / 2);
+                }
+                break;
+            }
+        }
+        for (qint64 t = -10; t < 30000; t += 97) {
+            int expected = -1;
+            for (int i = 0; i < dummy.count(); ++i) {
+                if (dummy.endTime(i) > t) {
+                    expected = i;
+                    break;
+                }
+            }
+            // Stepping to the next or previous range of a selection id from a time starts at
+            // the range that ends first after it.
+            int endingFirst = -1;
+            for (int i = 0; i < dummy.count(); ++i) {
+                if (dummy.endTime(i) > t
+                    && (endingFirst < 0 || dummy.endTime(i) < dummy.endTime(endingFirst))) {
+                    endingFirst = i;
+                }
+            }
+            int expectedNext = -1;
+            int expectedPrev = -1;
+            if (dummy.count() > 0) {
+                const int from = endingFirst < 0 ? 0 : endingFirst;
+                for (int step = 0; step < dummy.count() && expectedNext < 0; ++step) {
+                    const int i = (from + step) % dummy.count();
+                    if (dummy.selectionId(i) == 1)
+                        expectedNext = i;
+                }
+                const int back = endingFirst < 0 ? dummy.count() - 1 : endingFirst;
+                for (int step = 0; step < dummy.count() && expectedPrev < 0; ++step) {
+                    const int i = (back - step + dummy.count()) % dummy.count();
+                    if (dummy.selectionId(i) == 1)
+                        expectedPrev = i;
+                }
+            }
+
+            const QList<int> actual = {dummy.firstIndex(t), dummy.nextItemBySelectionId(1, t, -1),
+                                       dummy.prevItemBySelectionId(1, t, -1)};
+            const QList<int> wanted = {expected, expectedNext, expectedPrev};
+            if (actual != wanted) {
+                if (firstFailure.isEmpty()) {
+                    QStringList got;
+                    QStringList want;
+                    for (int k = 0; k < 3; ++k) {
+                        got << QString::number(actual.at(k));
+                        want << QString::number(wanted.at(k));
+                    }
+                    firstFailure = QString("round %1, %2 ranges, time %3: first, next, previous "
+                                           "%4 instead of %5")
+                                       .arg(round).arg(dummy.count()).arg(t)
+                                       .arg(got.join(", "), want.join(", "));
+                }
+                ++failures;
+            }
+        }
+    }
+    QVERIFY2(failures == 0, qPrintable(QString("%1 failures, first: %2")
+                                           .arg(failures).arg(firstFailure)));
+}
+
+// Durations that need more than 31 bits, and negative ones, come back unchanged, also when
+// they change between short and long.
+void tst_TimelineModel::longDurations()
+{
+    DummyModel dummy(&aggregator);
+    const qint64 justTooLong = qint64(1) << 31;
+    const qint64 fiveHours = qint64(5) * 3600 * 1000000000;
+    QList<qint64> durations = {0, justTooLong - 1, justTooLong, fiveHours, -5};
+    for (int i = 0; i < durations.size(); ++i)
+        QCOMPARE(dummy.insert(i * 10, durations.at(i), i), i);
+    const int open = dummy.insertStart(100, 5);
+    dummy.insertEnd(open, fiveHours + 1);
+    durations.append(fiveHours + 1);
+
+    const auto check = [&] {
+        for (int i = 0; i < durations.size(); ++i) {
+            if (dummy.duration(i) != durations.at(i) || dummy.selectionId(i) != i
+                || dummy.endTime(i) != dummy.startTime(i) + durations.at(i)) {
+                return QString("range %1: %2 instead of %3").arg(i).arg(dummy.duration(i))
+                    .arg(durations.at(i));
+            }
+        }
+        return QString();
+    };
+    QCOMPARE(check(), QString());
+
+    dummy.insertEnd(0, fiveHours);
+    durations[0] = fiveHours;
+    dummy.insertEnd(2, 7);
+    durations[2] = 7;
+    dummy.insertEnd(3, justTooLong + 1);
+    durations[3] = justTooLong + 1;
+    QCOMPARE(check(), QString());
+    QCOMPARE(dummy.firstIndex(justTooLong + 100), 0);
+    QCOMPARE(dummy.firstIndex(fiveHours + 50), 5);
 }
 
 // Overlapping items of two selection ids in collapsed row 0 and three expanded rows, of varying

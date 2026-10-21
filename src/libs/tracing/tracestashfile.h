@@ -33,6 +33,12 @@ public:
         stream << event;
     }
 
+    // Appends events serialized the way append() does.
+    void appendSerialized(QByteArrayView events)
+    {
+        stream.writeRawData(events.data(), events.size());
+    }
+
     enum ReplayResult {
         ReplaySuccess,
         ReplayOpenFailed,

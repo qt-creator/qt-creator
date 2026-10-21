@@ -11,8 +11,11 @@
 #include <tracing/timelinemodelaggregator.h>
 
 #include <utils/async.h>
+#include <utils/temporarydirectory.h>
 
+#include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QScopeGuard>
 #include <QSemaphore>
 #include <QSignalSpy>
@@ -20,6 +23,7 @@
 #include <QTest>
 #include <QThread>
 
+#include <algorithm>
 #include <atomic>
 #include <memory>
 #include <optional>
@@ -215,64 +219,6 @@ void QmlProfilerTraceFileTest::testCancelStopsTheLoadingThread()
     QVERIFY(gated->events.load() < 2 * ranges);
 }
 
-// What the process holds allocated on the heap, in bytes, where the platform tells.
-static std::optional<qint64> heapInUse()
-{
-#if defined(Q_OS_MACOS)
-    malloc_statistics_t statistics;
-    malloc_zone_statistics(nullptr, &statistics);
-    return qint64(statistics.size_in_use);
-#elif defined(__GLIBC__) && __GLIBC_PREREQ(2, 33)
-    const struct mallinfo2 info = mallinfo2();
-    return qint64(info.uordblks + info.hblkhd);
-#else
-    return std::nullopt;
-#endif
-}
-
-// Analyzing a short range of a long trace gives back the storage that held all of it.
-void QmlProfilerTraceFileTest::testRestrictionReleasesTheStorage()
-{
-    if (!heapInUse())
-        QSKIP("The heap in use cannot be measured on this platform.");
-
-    QmlProfilerModelManager manager;
-    Timeline::TimelineModelAggregator aggregator;
-    QmlProfilerRangeModel javaScript(&manager, Javascript, &aggregator);
-    MemoryUsageModel memory(&manager, &aggregator);
-    manager.initialize();
-    const int function = manager.appendEventType(
-        QmlEventType(UndefinedMessage, Javascript, -1, QmlEventLocation("main.qml", 1, 1), "f"));
-    const int allocation = manager.appendEventType(
-        QmlEventType(MemoryAllocation, UndefinedRangeType, SmallItem));
-    const int ranges = 500000;
-    for (int i = 0; i < ranges; ++i) {
-        QmlEvent event(i * 10, function, {});
-        event.setRangeStage(RangeStart);
-        manager.appendEvent(QmlEvent(event));
-        event.setRangeStage(RangeEnd);
-        event.setTimestamp(i * 10 + 5);
-        manager.appendEvent(std::move(event));
-        QmlEvent allocated(i * 10 + 6, allocation, {});
-        allocated.setNumbers<qint64>({32});
-        manager.appendEvent(std::move(allocated));
-    }
-    manager.decreaseTraceStart(0);
-    manager.increaseTraceEnd(qint64(ranges) * 10);
-    manager.finalize();
-    QCOMPARE(javaScript.count(), ranges);
-    const qint64 whole = *heapInUse();
-
-    QSignalSpy finished(&manager, &QmlProfilerModelManager::restrictionFinished);
-    manager.restrictToRange(0, 100);
-    QTRY_COMPARE(finished.count(), 1);
-    QVERIFY(javaScript.count() < 20);
-    const qint64 restricted = *heapInUse();
-    // A JavaScript range alone takes 32 bytes in its model, 16 for its end and 8 for its rows.
-    QVERIFY2(whole - restricted > qint64(ranges) * 40,
-             qPrintable(QString("%1 MB before, %2 MB after").arg(whole / 1e6).arg(restricted / 1e6)));
-}
-
 // Records in which thread the preparers ran, and whether before the finalizers.
 class PrepareRecorder
 {
@@ -363,6 +309,122 @@ void QmlProfilerTraceFileTest::testFinalizePreparesUnloadedTrace()
     QVERIFY(recorder.preparedInGuiThread);
     QVERIFY(recorder.preparedBeforeFinalize);
     QCOMPARE(statistics.data(statistics.index(0, MainCallCount), Qt::DisplayRole).toInt(), 2);
+}
+
+void QmlProfilerTraceFileTest::testLoadedEventsAreStored_data()
+{
+    QTest::addColumn<QString>("fileName");
+    QTest::newRow("qtd") << "trace.qtd";
+    QTest::newRow("qzt") << "trace.qzt";
+}
+
+// Replaying, as saving and filtering do, gives back the events of the loaded file, with
+// negative timestamps moved to zero.
+void QmlProfilerTraceFileTest::testLoadedEventsAreStored()
+{
+    QFETCH(QString, fileName);
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath(fileName);
+
+    const QList<qint64> timestamps{-5, 100, 200, -1, 300, 400};
+    QmlProfilerModelManager saved;
+    saved.initialize();
+    const int typeIndex = saved.numEventTypes();
+    saved.appendEventType(QmlEventType(DebugMessage, UndefinedRangeType, QtDebugMsg,
+                                       QmlEventLocation("main.qml", 1, 1)));
+    for (const qint64 timestamp : timestamps) {
+        QmlEvent event;
+        event.setTimestamp(timestamp);
+        event.setTypeIndex(typeIndex);
+        event.setString(QString::fromLatin1("message at %1").arg(timestamp));
+        saved.appendEvent(std::move(event));
+    }
+    saved.decreaseTraceStart(0);
+    saved.increaseTraceEnd(1000);
+    saved.finalize();
+    QSignalSpy saveSpy(&saved, &QmlProfilerModelManager::saveFinished);
+    saved.save(path);
+    QTRY_COMPARE(saveSpy.count(), 1);
+
+    // The loaded events go to a temporary file, as recorded ones do, not to memory.
+    const QDir tempDir(Utils::TemporaryDirectory::masterDirectoryPath());
+    const QStringList stashFilter{"qmlprofiler-data*"};
+    const QStringList stashesBefore = tempDir.entryList(stashFilter, QDir::Files);
+    QmlProfilerModelManager loaded;
+    QStringList loadedStash = tempDir.entryList(stashFilter, QDir::Files);
+    for (const QString &before : stashesBefore)
+        loadedStash.removeOne(before);
+    QCOMPARE(loadedStash.size(), 1);
+    QSignalSpy loadSpy(&loaded, &QmlProfilerModelManager::loadFinished);
+    loaded.load(path);
+    QTRY_COMPARE(loadSpy.count(), 1);
+    QVERIFY(QFileInfo(tempDir.filePath(loadedStash.first())).size() > 0);
+
+    QList<std::pair<qint64, QString>> replayed;
+    QFutureInterface<void> future;
+    loaded.replayQmlEvents([&](const QmlEvent &event, const QmlEventType &) {
+        replayed.append({event.timestamp(), event.string()});
+    }, {}, {}, {}, future);
+
+    QList<std::pair<qint64, QString>> expected;
+    for (const qint64 timestamp : timestamps) {
+        expected.append({qMax(timestamp, qint64(0)),
+                         QString::fromLatin1("message at %1").arg(timestamp)});
+    }
+    // A .qtd file is loaded in time order.
+    std::sort(replayed.begin(), replayed.end());
+    std::sort(expected.begin(), expected.end());
+    QCOMPARE(replayed, expected);
+}
+
+// A .qzt file holds the events in compressed chunks of 32 MB. They are compressed in parallel,
+// and have to end up in the file in order.
+void QmlProfilerTraceFileTest::testSavedChunksKeepTheirOrder()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath("trace.qzt");
+
+    // About 70 MB of events, three chunks.
+    const int eventCount = 120000;
+    const QString padding(600, u'x');
+    QmlProfilerModelManager saved;
+    saved.initialize();
+    const int typeIndex = saved.numEventTypes();
+    saved.appendEventType(QmlEventType(DebugMessage, UndefinedRangeType, QtDebugMsg,
+                                       QmlEventLocation("main.qml", 1, 1)));
+    for (int i = 0; i < eventCount; ++i) {
+        QmlEvent event;
+        event.setTimestamp(i);
+        event.setTypeIndex(typeIndex);
+        event.setString(padding + QString::number(i));
+        saved.appendEvent(std::move(event));
+    }
+    saved.decreaseTraceStart(0);
+    saved.increaseTraceEnd(eventCount);
+    saved.finalize();
+    QSignalSpy saveSpy(&saved, &QmlProfilerModelManager::saveFinished);
+    saved.save(path);
+    QTRY_COMPARE_WITH_TIMEOUT(saveSpy.count(), 1, 60000);
+
+    QmlProfilerModelManager loaded;
+    QSignalSpy loadSpy(&loaded, &QmlProfilerModelManager::loadFinished);
+    loaded.load(path);
+    QTRY_COMPARE_WITH_TIMEOUT(loadSpy.count(), 1, 60000);
+    QCOMPARE(loaded.numEvents(), eventCount);
+
+    int next = 0;
+    QFutureInterface<void> future;
+    loaded.replayQmlEvents([&](const QmlEvent &event, const QmlEventType &) {
+        if (next >= 0 && event.timestamp() == next
+                && event.string() == padding + QString::number(next)) {
+            ++next;
+        } else {
+            next = -1;
+        }
+    }, {}, {}, {}, future);
+    QCOMPARE(next, eventCount);
 }
 
 // Analyzing a range replays all events, minutes of work for a long trace, so it runs in another
@@ -497,6 +559,65 @@ void QmlProfilerTraceFileTest::testFeatureRestrictionDuringRangeRestriction()
     QTRY_COMPARE(finished.count(), 1);
     QCOMPARE(calls(statistics, javaScriptType), extraJavaScript);
     QCOMPARE(calls(statistics, bindingType), 0);
+}
+
+// What the process holds allocated on the heap, in bytes, where the platform tells.
+static std::optional<qint64> heapInUse()
+{
+#if defined(Q_OS_MACOS)
+    malloc_statistics_t statistics;
+    malloc_zone_statistics(nullptr, &statistics);
+    return qint64(statistics.size_in_use);
+#elif defined(__GLIBC__) && __GLIBC_PREREQ(2, 33)
+    const struct mallinfo2 info = mallinfo2();
+    return qint64(info.uordblks + info.hblkhd);
+#else
+    return std::nullopt;
+#endif
+}
+
+// Analyzing a short range of a long trace gives back the storage that held all of it.
+void QmlProfilerTraceFileTest::testRestrictionReleasesTheStorage()
+{
+    if (!heapInUse())
+        QSKIP("The heap in use cannot be measured on this platform.");
+
+    QmlProfilerModelManager manager;
+    Timeline::TimelineModelAggregator aggregator;
+    QmlProfilerRangeModel javaScript(&manager, Javascript, &aggregator);
+    MemoryUsageModel memory(&manager, &aggregator);
+    manager.initialize();
+    const int function = manager.appendEventType(
+        QmlEventType(UndefinedMessage, Javascript, -1, QmlEventLocation("main.qml", 1, 1), "f"));
+    const int allocation = manager.appendEventType(
+        QmlEventType(MemoryAllocation, UndefinedRangeType, SmallItem));
+    const int ranges = 500000;
+    for (int i = 0; i < ranges; ++i) {
+        QmlEvent event(i * 10, function, {});
+        event.setRangeStage(RangeStart);
+        manager.appendEvent(QmlEvent(event));
+        event.setRangeStage(RangeEnd);
+        event.setTimestamp(i * 10 + 5);
+        manager.appendEvent(std::move(event));
+        QmlEvent allocated(i * 10 + 6, allocation, {});
+        allocated.setNumbers<qint64>({32});
+        manager.appendEvent(std::move(allocated));
+    }
+    manager.decreaseTraceStart(0);
+    manager.increaseTraceEnd(qint64(ranges) * 10);
+    manager.finalize();
+    QCOMPARE(javaScript.count(), ranges);
+    const qint64 whole = *heapInUse();
+
+    QSignalSpy finished(&manager, &QmlProfilerModelManager::restrictionFinished);
+    manager.restrictToRange(0, 100);
+    QTRY_COMPARE(finished.count(), 1);
+    QVERIFY(javaScript.count() < 20);
+    const qint64 restricted = *heapInUse();
+    // Each step stores a JavaScript range, 20 bytes and a byte for its row, and an allocation, a
+    // 20 byte range and a 40 byte item. At least half of that comes back.
+    QVERIFY2(whole - restricted > qint64(ranges) * 40,
+             qPrintable(QString("%1 MB before, %2 MB after").arg(whole / 1e6).arg(restricted / 1e6)));
 }
 
 } // namespace Profiler::Internal

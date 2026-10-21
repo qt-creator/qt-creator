@@ -120,6 +120,7 @@ protected:
                         const Finalizer &finalizer, const ErrorHandler &errorHandler);
 
     void appendEvent(TraceEvent &&event);
+    void dispatchEvent(const TraceEvent &event);
     const TraceEventType &eventType(int typeId) const;
     void setEventType(int typeId, TraceEventType &&type);
     int appendEventType(TraceEventType &&type);

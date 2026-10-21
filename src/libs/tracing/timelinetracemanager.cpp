@@ -159,6 +159,12 @@ void TimelineTraceManager::appendEvent(TraceEvent &&event)
     d->eventStorage->append(std::move(event));
 }
 
+// Loads the event into the models without storing it, for a caller that stores it itself.
+void TimelineTraceManager::dispatchEvent(const TraceEvent &event)
+{
+    d->dispatch(event, d->typeStorage->get(event.typeIndex()));
+}
+
 const TraceEventType &TimelineTraceManager::eventType(int typeId) const
 {
     return d->typeStorage->get(typeId);

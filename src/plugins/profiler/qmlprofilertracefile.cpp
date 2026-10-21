@@ -6,6 +6,7 @@
 #include "qmlprofilernotesmodel.h"
 #include "qmlprofilertracefile.h"
 
+#include <utils/async.h>
 #include <utils/qtcassert.h>
 
 #include <QIODevice>
@@ -17,6 +18,7 @@
 #include <QFile>
 #include <QBuffer>
 #include <QDataStream>
+#include <QThread>
 
 using namespace QmlDebug;
 
@@ -109,11 +111,6 @@ QmlProfilerTraceFile::QmlProfilerTraceFile(QObject *parent) : Timeline::Timeline
 
 void QmlProfilerTraceFile::load(QIODevice *device)
 {
-    // Use in-memory storage for the load path: avoids writing all events to a temp file
-    // only to read them back again. The in-memory storage also serves subsequent replay
-    // (feature filtering, range restriction, saving) and is faster for that too.
-    modelManager()->useInMemoryEventStorage();
-
     const QFile *file = qobject_cast<QFile *>(device);
     if (file && file->fileName().endsWith(Constants::QtdFileExtension))
         loadQtd(device);
@@ -256,6 +253,20 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
         stream >> data;
         buffer.setData(qUncompress(data));
         buffer.open(QIODevice::ReadOnly);
+
+        // The chunk holds the events serialized as the event storage keeps them, so the
+        // stretches of events taken as they are go there in one piece.
+        const QByteArrayView chunk(buffer.data());
+        qint64 unchangedStart = 0;
+        qint64 unchangedEnd = 0;
+        int unchangedEvents = 0;
+        const auto storeUnchanged = [&] {
+            manager->appendSerializedEvents(chunk.sliced(unchangedStart,
+                                                         unchangedEnd - unchangedStart),
+                                            unchangedEvents);
+            unchangedEvents = 0;
+        };
+
         while (!buffer.atEnd() && !isCanceled()) {
             QmlEvent event;
             bufferStream >> event;
@@ -265,8 +276,13 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
                     return;
                 }
                 addFeature(manager->eventType(event.typeIndex()).feature());
-                if (event.timestamp() < 0)
+                if (event.timestamp() < 0) {
+                    storeUnchanged();
                     event.setTimestamp(0);
+                    manager->appendEvent(std::move(event));
+                    unchangedStart = unchangedEnd = buffer.pos();
+                    continue;
+                }
             } else if (bufferStream.status() == QDataStream::ReadPastEnd) {
                 break; // Apparently EOF is a character so we end up here after the last event.
             } else if (bufferStream.status() == QDataStream::ReadCorruptData) {
@@ -275,8 +291,11 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
             } else {
                 Q_UNREACHABLE();
             }
-            manager->appendEvent(std::move(event));
+            manager->dispatchEvent(event);
+            unchangedEnd = buffer.pos();
+            ++unchangedEvents;
         }
+        storeUnchanged();
         buffer.close();
         setDeviceProgress(device);
     }
@@ -884,15 +903,29 @@ void QmlProfilerTraceFile::saveQzt(QIODevice *device)
     if (isCanceled())
         return;
 
+    // Compressing takes most of the time saving does, and the chunks do not depend on each
+    // other, so a few of them are compressed at the same time, and written in order.
+    QList<QFuture<QByteArray>> compressedChunks;
+    const qsizetype maxCompressing = qBound(1, QThread::idealThreadCount(), 8);
+    const auto writeCompressed = [&](qsizetype keep) {
+        while (compressedChunks.size() > keep)
+            stream << compressedChunks.takeFirst().result();
+    };
+    const auto compressBuffer = [&] {
+        compressedChunks.append(
+            Utils::asyncRun([chunk = buffer.data()] { return qCompress(chunk); }));
+        buffer.close();
+        buffer.buffer().clear();
+        writeCompressed(maxCompressing - 1);
+    };
+
     qint64 lastProgressTimestamp = traceStart();
     modelManager()->replayQmlEvents([&](const QmlEvent &event, const QmlEventType &type) {
         Q_UNUSED(type)
         bufferStream << event;
         // 32MB buffer should be plenty for efficient compression
         if (buffer.data().length() > (1 << 25)) {
-            stream << qCompress(buffer.data());
-            buffer.close();
-            buffer.buffer().clear();
+            compressBuffer();
             buffer.open(QIODevice::WriteOnly);
             if (isProgressUpdateNeeded()) {
                 addEventsProgress(event.timestamp() - lastProgressTimestamp);
@@ -903,9 +936,8 @@ void QmlProfilerTraceFile::saveQzt(QIODevice *device)
         buffer.open(QIODevice::WriteOnly);
     }, [&]() {
         if (!isCanceled()) {
-            stream << qCompress(buffer.data());
-            buffer.close();
-            buffer.buffer().clear();
+            compressBuffer();
+            writeCompressed(0);
             addEventsProgress(traceEnd() - lastProgressTimestamp);
         }
     }, [this](const QString &message) {

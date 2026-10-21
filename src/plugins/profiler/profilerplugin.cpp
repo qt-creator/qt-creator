@@ -46,6 +46,7 @@
 #include "tests/qmlprofilerdetailsrewriter_test.h"
 #include "tests/qmlprofilerfindingsmodel_test.h"
 #include "tests/qmlprofilernotesmodel_test.h"
+#include "tests/qmlprofilerrangemodel_test.h"
 #include "tests/qmlprofilersampler_test.h"
 #include "tests/qmlprofilerstatisticsmodel_test.h"
 #include "tests/qmlprofilertool_test.h"
@@ -107,6 +108,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<QmlProfilerDetailsRewriterTest>();
         addTest<QmlProfilerFindingsModelTest>();
         addTest<QmlProfilerNotesModelTest>();
+        addTest<QmlProfilerRangeModelTest>();
         addTest<QmlProfilerSamplerTest>();
         addTest<QmlProfilerStatisticsModelTest>();
         addTest<QmlProfilerToolTest>();

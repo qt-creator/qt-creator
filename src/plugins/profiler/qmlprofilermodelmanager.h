@@ -18,6 +18,7 @@ namespace Utils { class FilePath; }
 namespace Profiler::Internal {
 
 class QmlProfilerDetailsRewriter;
+class QmlProfilerEventStorage;
 
 // Interface between the Data Model and the Engine/Tool
 class QmlProfilerModelManager final : public Timeline::TimelineTraceManager
@@ -51,13 +52,13 @@ public:
     void populateFileFinder(const ProjectExplorer::BuildConfiguration *bc = nullptr);
     Utils::FilePath findLocalFile(const QString &remoteFile);
 
-    void useInMemoryEventStorage();
-
     static const char *featureName(QmlDebug::ProfileFeature feature);
 
     int appendEventType(QmlDebug::QmlEventType &&type);
     void setEventType(int typeId, QmlDebug::QmlEventType &&type);
     void appendEvent(QmlDebug::QmlEvent &&event);
+    void dispatchEvent(const QmlDebug::QmlEvent &event);
+    void appendSerializedEvents(QByteArrayView events, int count);
 
     void restrictToRange(qint64 start, qint64 end);
     bool isRestrictedToRange() const;
@@ -95,6 +96,7 @@ private:
                       QFutureInterface<void> &future) const override;
 
     QmlProfilerDetailsRewriter *m_detailsRewriter = nullptr;
+    QmlProfilerEventStorage *m_eventStorage = nullptr; // Owned by the base class.
     bool m_isRestrictedToRange = false;
     QList<std::pair<qint64, qint64>> m_pausedRanges;
 };

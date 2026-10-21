@@ -46,6 +46,7 @@ if(WITH_TESTS)
     tests/qmlprofilerdetailsrewriter_test.cpp tests/qmlprofilerdetailsrewriter_test.h
     tests/qmlprofilerfindingsmodel_test.cpp tests/qmlprofilerfindingsmodel_test.h
     tests/qmlprofilernotesmodel_test.cpp tests/qmlprofilernotesmodel_test.h
+    tests/qmlprofilerrangemodel_test.cpp tests/qmlprofilerrangemodel_test.h
     tests/qmlprofilersampler_test.cpp tests/qmlprofilersampler_test.h
     tests/qmlprofilerstatisticsmodel_test.cpp tests/qmlprofilerstatisticsmodel_test.h
     tests/qmlprofilertool_test.cpp tests/qmlprofilertool_test.h
