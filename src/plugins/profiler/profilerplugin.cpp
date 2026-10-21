@@ -45,6 +45,7 @@
 #include "tests/qmlprofilerfindingsmodel_test.h"
 #include "tests/qmlprofilernotesmodel_test.h"
 #include "tests/qmlprofilersampler_test.h"
+#include "tests/qmlprofilerstatisticsmodel_test.h"
 #include "tests/qmlprofilertool_test.h"
 #include "tests/qmlprofilertracefile_test.h"
 #include "tests/qmlprofilertraceview_test.h"
@@ -103,6 +104,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<QmlProfilerFindingsModelTest>();
         addTest<QmlProfilerNotesModelTest>();
         addTest<QmlProfilerSamplerTest>();
+        addTest<QmlProfilerStatisticsModelTest>();
         addTest<QmlProfilerToolTest>();
         addTest<QmlProfilerTraceFileTest>();
         addTest<QmlProfilerTraceViewTest>();

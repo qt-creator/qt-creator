@@ -434,8 +434,9 @@ void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEvent
                 break;
             }
         }
+        // An end without a start is ignored, also by the callers and callees.
         if (matchIdx < 0)
-            break;
+            return;
         while (stack.size() - 1 > matchIdx)
             stack.pop();
 
