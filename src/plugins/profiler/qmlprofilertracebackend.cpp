@@ -223,6 +223,11 @@ QList<QWidget *> QmlProfilerTraceBackend::toolBarWidgets()
 #endif
 }
 
+void QmlProfilerTraceBackend::cancelBackgroundWork()
+{
+    modelManager()->cancelBackgroundWork();
+}
+
 void QmlProfilerTraceBackend::load(const FilePath &path)
 {
     emit busyChanged(true);

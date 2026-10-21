@@ -259,6 +259,11 @@ QList<QWidget *> PerfProfilerTraceBackend::toolBarWidgets()
     return {&d->aggregateButton, &d->recordedLabel, &d->delayLabel, &d->tracePointsButton};
 }
 
+void PerfProfilerTraceBackend::cancelBackgroundWork()
+{
+    traceManager()->cancelBackgroundWork();
+}
+
 void PerfProfilerTraceBackend::load(const FilePath &path)
 {
     emit busyChanged(true);

@@ -108,10 +108,17 @@ ProfilerTraceDocument::ProfilerTraceDocument(Id editorId, TraceFormat format)
 
 ProfilerTraceDocument::~ProfilerTraceDocument()
 {
+    cancelBackgroundWork();
     // The editor's widget takes the details panel over when it lays its views
     // out. If no editor ever did, it is still ours to delete.
     if (m_timelineDetails && !m_timelineDetails->parentWidget())
         delete m_timelineDetails;
+}
+
+void ProfilerTraceDocument::cancelBackgroundWork()
+{
+    for (ProfilerTraceBackend *backend : std::as_const(m_backends))
+        backend->cancelBackgroundWork();
 }
 
 Result<> ProfilerTraceDocument::open(const FilePath &filePath, const FilePath &realFilePath)

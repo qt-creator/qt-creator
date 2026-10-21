@@ -15,6 +15,7 @@ private slots:
     void testPausedRangesRoundTrip();
     void testNoPausedRanges();
     void testMalformedPausedRangesAreSkipped();
+    void testCancelStopsTheLoadingThread();
 };
 
 } // namespace Profiler::Internal

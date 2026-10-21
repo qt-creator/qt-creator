@@ -105,6 +105,8 @@ ProfilerTraceEditor::ProfilerTraceEditor(std::unique_ptr<ProfilerTraceDocument> 
 
 ProfilerTraceEditor::~ProfilerTraceEditor()
 {
+    // The views own models that a trace still loading calls into.
+    d->document->cancelBackgroundWork();
     for (const QPointer<QWidget> &widget : std::as_const(d->borrowedToolBarWidgets)) {
         if (widget)
             widget->setParent(nullptr);

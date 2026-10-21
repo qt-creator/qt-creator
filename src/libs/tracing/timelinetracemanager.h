@@ -92,6 +92,7 @@ public:
 
     QFuture<void> save(const QString &filename);
     QFuture<void> load(const QString &filename);
+    void cancelBackgroundWork();
 
 signals:
     void error(const QString &error);

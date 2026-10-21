@@ -31,6 +31,7 @@ private slots:
     void testOtherTabIsKept();
     void testOnlyFirstFinalizeSwitches();
     void testNewRecordingSwitchesAgain();
+    void testClosingTheEditorStopsTheLoad();
 
 private:
     void selectEvent(const Utils::FilePath &source);

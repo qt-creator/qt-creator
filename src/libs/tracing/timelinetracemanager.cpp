@@ -305,6 +305,21 @@ QFuture<void> TimelineTraceManager::load(const QString &filename)
     return fi.future();
 }
 
+/*!
+    Cancels a load that is running or queued, and waits until the thread that loads no longer
+    calls into the manager and the models registered with it. Call it before deleting any of
+    them while a trace may still be loading.
+*/
+void TimelineTraceManager::cancelBackgroundWork()
+{
+    d->cancelQueuedLoad();
+    if (TimelineTraceFile *reader = d->activeLoadReader) {
+        QFutureInterface<void> future = reader->future();
+        future.cancel();
+        future.waitForFinished();
+    }
+}
+
 void TimelineTraceManager::startLoad(const QString &filename, QFutureInterface<void> fi)
 {
     clearAll();

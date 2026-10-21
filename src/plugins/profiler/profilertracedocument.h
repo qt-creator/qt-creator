@@ -37,6 +37,7 @@ public:
 
     TraceFormat format() const { return m_format; }
     const QList<ProfilerTraceBackend *> &backends() const { return m_backends; }
+    void cancelBackgroundWork();
     // The panel every backend of this document fills. Shared so a trace shows a
     // single "Details" view; a combined trace would otherwise show two.
     Timeline::TimelineDetailsWidget *timelineDetails() const { return m_timelineDetails; }

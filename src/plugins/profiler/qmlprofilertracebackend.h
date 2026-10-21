@@ -35,6 +35,7 @@ public:
     QList<QWidget *> toolBarWidgets() override;
 
     void load(const Utils::FilePath &path) override;
+    void cancelBackgroundWork() override;
     bool isSaveable() const override { return true; }
     // Writing runs in the background, so this reports that the write started,
     // not that it finished; saved() marks the point the trace is on disk.

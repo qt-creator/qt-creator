@@ -6,6 +6,7 @@
 #include <profiler/profilertracebackend.h>
 #include <profiler/profilertracedocument.h>
 #include <profiler/profilertraceeditor.h>
+#include <profiler/qmlprofilerconstants.h>
 #include <profiler/qmlprofilermodelmanager.h>
 #include <profiler/qmlprofilertracebackend.h>
 #include <profiler/traceformat.h>
@@ -17,19 +18,79 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/modemanager.h>
 
+#include <utils/async.h>
 #include <utils/link.h>
 #include <utils/temporaryfile.h>
 
 #include <QAction>
+#include <QScopeGuard>
+#include <QSemaphore>
 #include <QSignalSpy>
 #include <QTabWidget>
+#include <QTemporaryDir>
 #include <QTest>
+
+#include <atomic>
+#include <memory>
 
 using namespace Core;
 using namespace QmlDebug;
 using namespace Utils;
 
 namespace Profiler::Internal {
+
+// Writes a trace of `ranges` JavaScript ranges, long enough to be still loading while a test
+// holds the loading thread.
+static void writeLongTrace(const QString &path, int ranges)
+{
+    QmlProfilerModelManager saved;
+    saved.initialize();
+    const int type = saved.appendEventType(
+        QmlEventType(UndefinedMessage, Javascript, -1, QmlEventLocation("main.qml", 1, 1), "f"));
+    for (int i = 0; i < ranges; ++i) {
+        QmlEvent event(i * 10, type, {});
+        event.setRangeStage(RangeStart);
+        saved.appendEvent(QmlEvent(event));
+        event.setRangeStage(RangeEnd);
+        event.setTimestamp(i * 10 + 5);
+        saved.appendEvent(std::move(event));
+    }
+    saved.decreaseTraceStart(0);
+    saved.increaseTraceEnd(qint64(ranges) * 10);
+    saved.finalize();
+    QSignalSpy saveSpy(&saved, &QmlProfilerModelManager::saveFinished);
+    saved.save(path);
+    QTRY_COMPARE_WITH_TIMEOUT(saveSpy.count(), 1, 60000);
+}
+
+namespace {
+
+// A loader that holds the loading thread in its first event until the gate opens, and counts
+// the events that arrive once the test has stopped the load.
+struct GatedLoader
+{
+    QSemaphore started;
+    QSemaphore gate;
+    std::atomic<int> events = 0;
+    std::atomic<bool> stopped = false;
+    std::atomic<int> eventsAfterStop = 0;
+};
+
+} // namespace
+
+static void addGatedLoader(QmlProfilerModelManager *manager,
+                           const std::shared_ptr<GatedLoader> &gated)
+{
+    manager->qmlLoaders.append({1ULL << ProfileJavaScript,
+                                [gated](const QmlEvent &, const QmlEventType &) {
+        if (gated->stopped)
+            ++gated->eventsAfterStop;
+        if (gated->events++ == 0) {
+            gated->started.release();
+            gated->gate.acquire();
+        }
+    }});
+}
 
 static IEditor *editorForDocument(IDocument *document)
 {
@@ -352,6 +413,35 @@ void ProfilerTraceDocumentTest::testNewRecordingSwitchesAgain()
     record(backend->modelManager(), false);
     QCOMPARE(switchSpy.count(), 2);
     QCOMPARE(tabs->currentIndex(), int(TimelineTab));
+}
+
+// The views of a trace own models that its load calls into. Closing the editor while the trace
+// loads stops the load before they go away.
+void ProfilerTraceDocumentTest::testClosingTheEditorStopsTheLoad()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath path = FilePath::fromString(dir.filePath("trace.qzt"));
+    writeLongTrace(path.toFSPathString(), 100000);
+    if (QTest::currentTestFailed())
+        return;
+
+    auto editor = new ProfilerTraceEditor(
+        std::make_unique<ProfilerTraceDocument>(Constants::QML_TRACE_EDITOR_ID, TraceFormat::Qml));
+    auto document = static_cast<ProfilerTraceDocument *>(editor->document());
+    auto backend = qobject_cast<QmlProfilerTraceBackend *>(document->backends().first());
+    QVERIFY(backend);
+    auto gated = std::make_shared<GatedLoader>();
+    const auto open = qScopeGuard([gated] { gated->gate.release(); });
+    addGatedLoader(backend->modelManager(), gated);
+    QVERIFY(document->open(path, path));
+    QVERIFY(gated->started.tryAcquire(1, 10000));
+
+    gated->gate.release();
+    delete editor;
+    gated->stopped = true;
+    Utils::asyncThreadPool(QThread::InheritPriority)->waitForDone();
+    QCOMPARE(gated->eventsAfterStop.load(), 0);
 }
 
 } // namespace Profiler::Internal

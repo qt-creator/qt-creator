@@ -6,15 +6,73 @@
 #include "../qmlprofilermodelmanager.h"
 
 #include <QFile>
+#include <QScopeGuard>
+#include <QSemaphore>
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTest>
+
+#include <atomic>
+#include <memory>
 
 using namespace QmlDebug;
 
 namespace Profiler::Internal {
 
 using Ranges = QList<std::pair<qint64, qint64>>;
+
+// Writes a trace of `ranges` JavaScript ranges, long enough to be still loading while a test
+// holds the loading thread.
+static void writeLongTrace(const QString &path, int ranges)
+{
+    QmlProfilerModelManager saved;
+    saved.initialize();
+    const int type = saved.appendEventType(
+        QmlEventType(UndefinedMessage, Javascript, -1, QmlEventLocation("main.qml", 1, 1), "f"));
+    for (int i = 0; i < ranges; ++i) {
+        QmlEvent event(i * 10, type, {});
+        event.setRangeStage(RangeStart);
+        saved.appendEvent(QmlEvent(event));
+        event.setRangeStage(RangeEnd);
+        event.setTimestamp(i * 10 + 5);
+        saved.appendEvent(std::move(event));
+    }
+    saved.decreaseTraceStart(0);
+    saved.increaseTraceEnd(qint64(ranges) * 10);
+    saved.finalize();
+    QSignalSpy saveSpy(&saved, &QmlProfilerModelManager::saveFinished);
+    saved.save(path);
+    QTRY_COMPARE_WITH_TIMEOUT(saveSpy.count(), 1, 60000);
+}
+
+namespace {
+
+// A loader that holds the loading thread in its first event until the gate opens, and counts
+// the events that arrive once the test has stopped the load.
+struct GatedLoader
+{
+    QSemaphore started;
+    QSemaphore gate;
+    std::atomic<int> events = 0;
+    std::atomic<bool> stopped = false;
+    std::atomic<int> eventsAfterStop = 0;
+};
+
+} // namespace
+
+static void addGatedLoader(QmlProfilerModelManager *manager,
+                           const std::shared_ptr<GatedLoader> &gated)
+{
+    manager->qmlLoaders.append({1ULL << ProfileJavaScript,
+                                [gated](const QmlEvent &, const QmlEventType &) {
+        if (gated->stopped)
+            ++gated->eventsAfterStop;
+        if (gated->events++ == 0) {
+            gated->started.release();
+            gated->gate.acquire();
+        }
+    }});
+}
 
 static void fillTrace(QmlProfilerModelManager &manager, const Ranges &paused)
 {
@@ -108,6 +166,34 @@ void QmlProfilerTraceFileTest::testMalformedPausedRangesAreSkipped()
     if (QTest::currentTestFailed())
         return;
     QCOMPARE(loaded.pausedRanges(), (Ranges{{200, 400}, {850, 900}}));
+}
+
+// Deleting what a load calls into is only safe once cancelBackgroundWork() returned: from then
+// on, the loading thread calls nothing any more.
+void QmlProfilerTraceFileTest::testCancelStopsTheLoadingThread()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath("trace.qzt");
+    const int ranges = 100000;
+    writeLongTrace(path, ranges);
+    if (QTest::currentTestFailed())
+        return;
+
+    QmlProfilerModelManager manager;
+    auto gated = std::make_shared<GatedLoader>();
+    const auto open = qScopeGuard([gated] { gated->gate.release(); });
+    addGatedLoader(&manager, gated);
+    QSignalSpy loadSpy(&manager, &QmlProfilerModelManager::loadFinished);
+    manager.load(path);
+    QVERIFY(gated->started.tryAcquire(1, 10000));
+
+    gated->gate.release();
+    manager.cancelBackgroundWork();
+    gated->stopped = true;
+    QTRY_COMPARE(loadSpy.count(), 1);
+    QCOMPARE(gated->eventsAfterStop.load(), 0);
+    QVERIFY(gated->events.load() < 2 * ranges);
 }
 
 } // namespace Profiler::Internal

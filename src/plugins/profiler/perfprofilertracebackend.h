@@ -37,6 +37,7 @@ public:
     QList<QWidget *> toolBarWidgets() override;
 
     void load(const Utils::FilePath &path) override;
+    void cancelBackgroundWork() override;
     // A perf.data file, as recorded by perf itself (see PerfConversion).
     void loadPerfData(const Utils::FilePath &path, const Utils::FilePath &executableDir,
                       ProjectExplorer::Kit *kit);

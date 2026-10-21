@@ -36,6 +36,9 @@ public:
     virtual QList<QWidget *> toolBarWidgets() { return {}; }
 
     virtual void load(const Utils::FilePath &path) = 0;
+    // Stops what runs in the background and calls into the models, before the views and
+    // their models are deleted.
+    virtual void cancelBackgroundWork() {}
 
     // Whether this backend can write its trace back out. Only the QML profiler
     // and perf can; the sampler and CTF backends read what another tool wrote.
