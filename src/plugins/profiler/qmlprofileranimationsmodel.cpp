@@ -4,6 +4,7 @@
 #include "profilertr.h"
 #include "qmlprofileranimationsmodel.h"
 #include "qmlprofilermodelmanager.h"
+#include "qmlprofilersettings.h"
 
 #include <tracing/timelineformatdata.h>
 
@@ -21,6 +22,21 @@ QmlProfilerAnimationsModel::QmlProfilerAnimationsModel(QmlProfilerModelManager *
     QmlProfilerTimelineModel(manager, Event, UndefinedRangeType, ProfileAnimations, parent)
 {
     m_minNextStartTimes[0] = m_minNextStartTimes[1] = 0;
+
+    // Frames are coloured by how close they come to the target, so a changed target
+    // re-colours the trace already loaded.
+    setTargetFrameRate(globalSettings().targetFrameRate());
+    connect(&globalSettings().targetFrameRate, &Utils::BaseAspect::changed, this, [this] {
+        setTargetFrameRate(globalSettings().targetFrameRate());
+    });
+}
+
+void QmlProfilerAnimationsModel::setTargetFrameRate(int framesPerSecond)
+{
+    if (framesPerSecond <= 0 || framesPerSecond == m_targetFrameRate)
+        return;
+    m_targetFrameRate = framesPerSecond;
+    emit contentChanged();
 }
 
 void QmlProfilerAnimationsModel::clear()
@@ -113,7 +129,7 @@ int QmlProfilerAnimationsModel::collapsedRow(int index) const
 
 QRgb QmlProfilerAnimationsModel::color(int index) const
 {
-    double fpsFraction = m_data[index].framerate / 60.0;
+    double fpsFraction = double(m_data[index].framerate) / m_targetFrameRate;
     if (fpsFraction > 1.0)
         fpsFraction = 1.0;
     if (fpsFraction < 0.0)

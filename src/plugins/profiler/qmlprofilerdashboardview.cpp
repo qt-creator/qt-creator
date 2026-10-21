@@ -7,6 +7,7 @@
 #include "qmlprofilerdashboardstats.h"
 #include "qmlprofilerfindingsmodel.h"
 #include "qmlprofilermodelmanager.h"
+#include "qmlprofilersettings.h"
 
 #include <tracing/timelineformatdata.h>
 
@@ -18,10 +19,13 @@
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
+#include <QComboBox>
 #include <QEnterEvent>
 #include <QFrame>
 #include <QGridLayout>
+#include <QIntValidator>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QVBoxLayout>
@@ -176,6 +180,7 @@ public:
              QWidget *parent = nullptr);
 
     void setScore(int score);
+    void setDescription(const QString &description);
 
 private:
     QLabel *m_title;
@@ -214,6 +219,11 @@ Category::Category(const QString &title, const QString &description, Size size, 
     }.attachTo(this);
 }
 
+void Category::setDescription(const QString &description)
+{
+    m_description->setText(description);
+}
+
 void Category::setScore(int score)
 {
     m_scoreWidget->setRating(scoreRating(score));
@@ -237,22 +247,26 @@ static QString factorTitle(ScoreFactor::Id id)
     return {};
 }
 
-static QString factorDescription(ScoreFactor::Id id)
+// Rated against the target frame rate, so each description names the budget it applies.
+static QString factorDescription(ScoreFactor::Id id, const QmlProfilerDashboardStats &stats)
 {
     switch (id) {
     case ScoreFactor::UiResponsiveness:
-        return Tr::tr("Share of frames on target, with frames near target counting half");
+        return Tr::tr("Share of frames on the %1 FPS target, with frames near it counting half")
+            .arg(stats.targetFrameRate());
     case ScoreFactor::FrameConsistency:
-        return Tr::tr("Share of frames on target (<= %1 ms)").arg(kOnTargetFrameTimeMs, 0, 'f', 1);
+        return Tr::tr("Share of frames on the %1 FPS target (<= %2 ms)")
+            .arg(stats.targetFrameRate())
+            .arg(stats.onTargetFrameTimeMs(), 0, 'f', 1);
     case ScoreFactor::StutterPrevention:
-        return Tr::tr("Share of frames faster than %1 FPS (%2 ms). Slower frames cause "
-                      "noticeable UI freezes")
-            .arg(qRound(kStutterFps))
-            .arg(kStutterFrameTimeMs, 0, 'f', 1);
+        return Tr::tr("Share of frames faster than half the target, %1 FPS (%2 ms). Slower "
+                      "frames cause noticeable UI freezes")
+            .arg(qRound(1000.0 / stats.stutterFrameTimeMs()))
+            .arg(stats.stutterFrameTimeMs(), 0, 'f', 1);
     case ScoreFactor::P99Quality:
         return Tr::tr("Stands in for the 99th percentile frame time: failed frames "
                       "(> %1 ms) count %2 times")
-            .arg(kNearTargetFrameTimeMs, 0, 'f', 1)
+            .arg(stats.nearTargetFrameTimeMs(), 0, 'f', 1)
             .arg(kP99FailedFrameWeight);
     case ScoreFactor::StartupSpeed:
         return Tr::tr("Stands in for the time to steady state: share of frames on target "
@@ -413,7 +427,6 @@ ScoreBreakdownView::ScoreBreakdownView(QWidget *parent)
         m_grid->addWidget(factorRow.icon, row, IconColumn);
         factorRow.title = addLabel(row, TitleColumn, breakdownTf,
                                    factorTitle(ScoreFactor::Id(id)));
-        factorRow.title->setToolTip(factorDescription(ScoreFactor::Id(id)));
         factorRow.measurement = addLabel(row, MeasurementColumn, breakdownMutedTf);
         factorRow.score = addLabel(row, ScoreColumn, breakdownNumberTf);
         factorRow.points = addLabel(row, PointsColumn, breakdownNumberTf);
@@ -453,6 +466,7 @@ void ScoreBreakdownView::setStats(const QmlProfilerDashboardStats &stats)
         row.icon->setAccessibleName(row.highlight ? Tr::tr("Lowers the score")
                                                   : Tr::tr("Excellent"));
 
+        row.title->setToolTip(factorDescription(factor.id, stats));
         row.measurement->setText(factorMeasurement(factor.id, stats));
         row.score->setText(QString::number(factor.score));
         row.points->setText(QString::number(factor.points));
@@ -858,11 +872,14 @@ public:
 
     bool hasData() const;
     void updateVisibility();
+    void updateTargetFrameRate();
 
     bool isFirstFinalize = true;
 
     QmlProfilerModelManager *manager = nullptr;
     QmlProfilerDashboardStats *stats = nullptr;
+
+    QComboBox *targetFrameRate = nullptr;
 
     Category *overallRating = nullptr;
     QtcButton *breakdownButton = nullptr;
@@ -892,6 +909,7 @@ public:
     QLabel *findingsTitle = nullptr;
     QmlProfilerFindingsModel *findingsModel = nullptr;
     FindingsView *findingsView = nullptr;
+    QWidget *targetFrameRateSection = nullptr;
     QWidget *statsSection = nullptr;
     QtcRectangleWidget *findingsSection = nullptr;
     QWidget *noDataAvailableSection = nullptr;
@@ -907,8 +925,49 @@ bool QmlProfilerDashboardViewPrivate::hasData() const
     return stats->hasData() || findingsModel->rowCount() > 0;
 }
 
+// Everything rated against the target says which target that is, so that no number is read
+// against a budget other than the one it was computed for.
+void QmlProfilerDashboardViewPrivate::updateTargetFrameRate()
+{
+    const int target = globalSettings().targetFrameRate();
+    stats->setTargetFrameRate(target);
+
+    const int index = targetFrameRate->findData(target);
+    if (index >= 0)
+        targetFrameRate->setCurrentIndex(index);
+    else
+        targetFrameRate->setEditText(QString::number(target));
+
+    gauge->setMaxValue(target);
+    gaugeText->setText(Tr::tr("FPS measured (median)\nTarget: %1 FPS").arg(target));
+    framesOnTargetLabel->setText(Tr::tr("On Target (>= %1 FPS, <= %2 ms)")
+                                     .arg(target)
+                                     .arg(stats->onTargetFrameTimeMs(), 0, 'f', 1));
+    framesNearTargetLabel->setText(Tr::tr("Near Target (%1-%2 ms)")
+                                       .arg(stats->onTargetFrameTimeMs(), 0, 'f', 1)
+                                       .arg(stats->nearTargetFrameTimeMs(), 0, 'f', 1));
+    framesFailedLabel->setText(Tr::tr("Failed (< %1 FPS, > %2 ms)")
+                                   .arg(qRound(1000.0 / stats->nearTargetFrameTimeMs()))
+                                   .arg(stats->nearTargetFrameTimeMs(), 0, 'f', 1));
+    framesText->setText(Tr::tr("Measured frames, rated against the %1 FPS target").arg(target));
+    breakdownTitle->setText(Tr::tr("Score Breakdown (Target: %1 FPS)").arg(target));
+    for (int id = 0; id < factors.size(); ++id)
+        factors.at(id)->setDescription(factorDescription(ScoreFactor::Id(id), *stats));
+}
+
+static void setTargetFrameRate(int framesPerSecond)
+{
+    QmlProfilerSettings &settings = globalSettings();
+    // Through the volatile value and apply(), like the options page, so that everything
+    // following the settings hears about it once.
+    settings.targetFrameRate.setVolatileValue(framesPerSecond);
+    settings.apply();
+    settings.writeSettings();
+}
+
 void QmlProfilerDashboardViewPrivate::updateVisibility()
 {
+    targetFrameRateSection->setVisible(stats->hasData());
     statsSection->setVisible(stats->hasData());
     findingsSection->setVisible(findingsModel->rowCount() > 0);
     noDataAvailableSection->setVisible(!hasData());
@@ -963,6 +1022,36 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     });
 
 
+    // Target frame rate
+    const IntegerAspect &targetFrameRateAspect = globalSettings().targetFrameRate;
+    auto targetFrameRateLabel = new QLabel(targetFrameRateAspect.labelText());
+    applyTf(targetFrameRateLabel, textFrameAnalysisTf);
+    d->targetFrameRate = new QComboBox;
+    d->targetFrameRate->setObjectName("QmlProfiler.Dashboard.TargetFrameRate");
+    d->targetFrameRate->setEditable(true);
+    d->targetFrameRate->setInsertPolicy(QComboBox::NoInsert);
+    d->targetFrameRate->setValidator(new QIntValidator(1, kMaxTargetFrameRate,
+                                                      d->targetFrameRate));
+    d->targetFrameRate->setToolTip(targetFrameRateAspect.toolTip());
+    for (int preset : targetFrameRatePresets())
+        d->targetFrameRate->addItem(QString::number(preset), preset);
+    auto targetFrameRateUnit = new QLabel(Tr::tr("FPS"));
+    applyTf(targetFrameRateUnit, textFrameAnalysisTf);
+
+    // A preset is taken when it is picked; a typed value when it is confirmed.
+    connect(d->targetFrameRate, &QComboBox::activated, this, [this](int index) {
+        setTargetFrameRate(d->targetFrameRate->itemData(index).toInt());
+    });
+    connect(d->targetFrameRate->lineEdit(), &QLineEdit::editingFinished, this, [this] {
+        bool ok = false;
+        const int framesPerSecond = d->targetFrameRate->currentText().toInt(&ok);
+        if (ok && framesPerSecond > 0)
+            setTargetFrameRate(framesPerSecond);
+        else
+            d->updateTargetFrameRate();
+    });
+
+
     // No data
     QLabel *noDataText = new QLabel(
         Tr::tr("There is nothing to show.\n"
@@ -976,10 +1065,9 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     applyTf(d->gaugeTitle, titleTf);
     d->gauge = new Gauge;
     d->gauge->setFixedSize(110, 110);
-    d->gauge->setUnit("%");
-    d->gaugeText = new QLabel(
-        Tr::tr("%1+ FPS (Steady State)").arg(qRound(kDisplayRefreshRate)));
-    applyTf(d->gaugeText, textTf);
+    d->gaugeText = new QLabel;
+    d->gaugeText->setObjectName("gaugeText");
+    applyTf(d->gaugeText, textTf, false);
 
 
     // Frame Time Analysis
@@ -988,31 +1076,23 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
 
     d->framesOnTargetBadge = new QtcBadge;
     d->framesOnTargetBadge->setInfoType(Utils::InfoLabelType::Ok);
-    d->framesOnTargetLabel = new QLabel(
-        Tr::tr("On Target (%1+ FPS, <= %2 ms)")
-            .arg(qRound(kDisplayRefreshRate))
-            .arg(kOnTargetFrameTimeMs, 0, 'f', 1));
+    d->framesOnTargetLabel = new QLabel;
     applyTf(d->framesOnTargetLabel, textFrameAnalysisTf);
 
     d->framesNearTargetBadge = new QtcBadge;
     d->framesNearTargetBadge->setInfoType(Utils::InfoLabelType::Warning);
-    d->framesNearTargetLabel = new QLabel(
-        Tr::tr("Near Target (%1-%2 ms)")
-            .arg(kOnTargetFrameTimeMs, 0, 'f', 1)
-            .arg(kNearTargetFrameTimeMs, 0, 'f', 1));
+    d->framesNearTargetLabel = new QLabel;
     applyTf(d->framesNearTargetLabel, textFrameAnalysisTf);
 
     d->framesFailedBadge = new QtcBadge;
     d->framesFailedBadge->setInfoType(Utils::InfoLabelType::NotOk);
-    d->framesFailedLabel = new QLabel(
-        Tr::tr("Failed (< %1 FPS, > %2 ms)")
-            .arg(qRound(1000.0 / kNearTargetFrameTimeMs))
-            .arg(kNearTargetFrameTimeMs, 0, 'f', 1));
+    d->framesFailedLabel = new QLabel;
     applyTf(d->framesFailedLabel, textFrameAnalysisTf);
 
-    d->framesText = new QLabel(
-        Tr::tr("%1+ FPS (Steady State)").arg(qRound(kDisplayRefreshRate)));
-    applyTf(d->framesText, textTf);
+    d->framesText = new QLabel;
+    d->framesText->setObjectName("framesText");
+    applyTf(d->framesText, textTf, false);
+    d->framesText->setWordWrap(true);
 
 
     // Multi-factor Performance Analysis
@@ -1020,8 +1100,8 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     applyTf(d->categoriesTitle, titleTf);
 
     for (int id = 0; id < ScoreFactor::Count; ++id) {
-        auto factor = new Category(factorTitle(ScoreFactor::Id(id)),
-                                   factorDescription(ScoreFactor::Id(id)));
+        // The description depends on the target: updateTargetFrameRate() sets it.
+        auto factor = new Category(factorTitle(ScoreFactor::Id(id)), {});
         factor->setToolTip(Tr::tr("Score from 0 (worst) to 100 (best). Contributes up to "
                                   "%1 points to the performance score.")
                                .arg(ScoreFactor::MaxPoints));
@@ -1106,6 +1186,17 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
                     Column {
                         noMargin,
                         noDataText,
+                    },
+                },
+                Widget {
+                    bindTo(&d->targetFrameRateSection),
+                    Row {
+                        noMargin,
+                        spacing(SpacingTokens::GapHXs),
+                        targetFrameRateLabel,
+                        d->targetFrameRate,
+                        targetFrameRateUnit,
+                        st,
                     },
                 },
                 Widget {
@@ -1203,13 +1294,17 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
                                             : Tr::tr("Show Breakdown"));
     });
 
+    connect(&globalSettings().targetFrameRate, &BaseAspect::changed,
+            d, &QmlProfilerDashboardViewPrivate::updateTargetFrameRate);
+    d->updateTargetFrameRate();
+
     d->updateVisibility();
     updateValues();
 }
 
 void QmlProfilerDashboardView::updateValues()
 {
-    d->gauge->setValue(d->stats->onTargetPercent());
+    d->gauge->setValue(d->stats->medianFrameRate());
 
     d->framesOnTargetBadge->setText(QString::number(d->stats->framesOnTarget()));
     d->framesNearTargetBadge->setText(QString::number(d->stats->framesNearTarget()));
@@ -1223,7 +1318,7 @@ void QmlProfilerDashboardView::updateValues()
     d->breakdown->setStats(*d->stats);
 
     const bool hasSlowFrame = d->stats->slowestFrameTimestamp() >= 0
-                              && d->stats->slowestFrameTimeMs() > kOnTargetFrameTimeMs;
+                              && d->stats->slowestFrameTimeMs() > d->stats->onTargetFrameTimeMs();
     if (hasSlowFrame) {
         d->slowestFrameLabel->setText(
             Tr::tr("Slowest frame: %1 ms at %2")

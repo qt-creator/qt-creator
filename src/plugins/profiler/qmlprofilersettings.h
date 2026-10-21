@@ -7,6 +7,19 @@
 
 namespace Profiler::Internal {
 
+// A frame slower than half the target frame rate is a perceptible stutter.
+constexpr int kStutterFrameBudgets = 2;
+
+// The target frame rate is a whole number up to this, so a frame's verdict can be computed
+// for every possible target ahead of time.
+constexpr int kMaxTargetFrameRate = 1000;
+
+// The time a frame has at the target frame rate.
+inline qint64 frameBudgetNs(int targetFrameRate)
+{
+    return 1000000000ll / targetFrameRate;
+}
+
 class QmlProfilerSettings : public Utils::AspectContainer
 {
 public:
@@ -17,6 +30,10 @@ public:
     Utils::FilePathAspect lastTraceFile{this};
     Utils::BoolAspect aggregateTraces{this};
 
+    // The frame rate the application is meant to reach. The dashboard rates frames against
+    // it, and the findings derive their frame budgets from it.
+    Utils::IntegerAspect targetFrameRate{this};
+
     // Thresholds for the findings rules. Defaults suit desktop traces; embedded targets
     // will want them raised.
     Utils::IntegerAspect findingsCompileThresholdMs{this};
@@ -24,9 +41,8 @@ public:
     Utils::IntegerAspect findingsPeriodicMinCount{this};
     Utils::IntegerAspect findingsPeriodicDeviationPercent{this};
     Utils::DoubleAspect findingsPixmapMegapixels{this};
-    Utils::IntegerAspect findingsPerFrameBudgetUs{this};
+    Utils::IntegerAspect findingsPerFrameCostPercent{this};
     Utils::IntegerAspect findingsBlockingCallThresholdMs{this};
-    Utils::IntegerAspect findingsJankFrameThresholdMs{this};
     Utils::IntegerAspect findingsMemoryChurnKb{this};
     Utils::IntegerAspect findingsCreationMinCount{this};
     Utils::IntegerAspect findingsBindingMinCount{this};
@@ -34,5 +50,7 @@ public:
 };
 
 QmlProfilerSettings &globalSettings();
+
+QList<int> targetFrameRatePresets();
 
 } // namespace Profiler::Internal

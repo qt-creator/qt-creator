@@ -6,6 +6,7 @@
 #include "../qmlprofilerdashboardstats.h"
 #include "../qmlprofilerdashboardview.h"
 #include "../qmlprofilermodelmanager.h"
+#include "../qmlprofilersettings.h"
 
 #include <QAbstractButton>
 #include <QLabel>
@@ -16,10 +17,12 @@ using namespace QmlDebug;
 
 namespace Profiler::Internal {
 
-static const int onTargetFps = qRound(kDisplayRefreshRate);
-static const int nearTargetFps = qRound(2000 / (kOnTargetFrameTimeMs + kNearTargetFrameTimeMs));
+// The dashboard rates against the configured target; these tests set it to this one.
+static const int targetFps = 60;
+static const int onTargetFps = targetFps;
+static const int nearTargetFps = qRound(2 * targetFps / (1 + kNearTargetFrameBudgets));
 // Fails and stutters.
-static const int stutteringFps = qRound(kStutterFps) - 10;
+static const int stutteringFps = targetFps / kStutterFrameBudgets - 10;
 
 static constexpr qint64 frameSpacing = 20'000'000; // ns
 
@@ -35,6 +38,19 @@ static void loadFrames(QmlProfilerModelManager &manager, const QList<int> &frame
         timestamp += frameSpacing;
     }
     manager.finalize();
+}
+
+void QmlProfilerDashboardTest::init()
+{
+    m_originalTargetFps = globalSettings().targetFrameRate();
+    globalSettings().targetFrameRate.setVolatileValue(targetFps);
+    globalSettings().apply();
+}
+
+void QmlProfilerDashboardTest::cleanup()
+{
+    globalSettings().targetFrameRate.setVolatileValue(m_originalTargetFps);
+    globalSettings().apply();
 }
 
 static QList<int> frames(int count, int frameRate)

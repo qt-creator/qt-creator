@@ -65,6 +65,15 @@ public:
     virtual void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) = 0;
     virtual QList<Finding> finalize(const QmlProfilerModelManager *manager) = 0;
     virtual void clear() = 0;
+
+    // A rule that judges against the target frame rate collects what it needs for every
+    // target, applies the target only in finalize(), and returns true here. The model then
+    // re-rates the trace by calling its finalize() again, without replaying the events.
+    virtual bool setTargetFrameRate(int framesPerSecond)
+    {
+        Q_UNUSED(framesPerSecond)
+        return false;
+    }
 };
 
 using FindingRules = std::vector<std::unique_ptr<FindingRule>>;

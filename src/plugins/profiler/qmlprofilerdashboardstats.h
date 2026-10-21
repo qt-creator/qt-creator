@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QList>
+#include <QMap>
 #include <QObject>
 
 namespace QmlDebug {
@@ -15,18 +16,8 @@ namespace Profiler::Internal {
 
 class QmlProfilerModelManager;
 
-// Frame time thresholds
-// The ProfileAnimations trace only carries a measured, instantaneous
-// framerate; the protocol has no concept of a target/display refresh rate,
-// so 60 fps is assumed here.
-constexpr double kDisplayRefreshRate = 60; // Frames per second
-constexpr double kOnTargetFrameTimeMs = 1000 / kDisplayRefreshRate;
-constexpr double kNearTargetFrameTimeMs = kOnTargetFrameTimeMs * 1.2;
-
-// A frame slower than half the display refresh rate is a perceptible stutter.
-constexpr double kStutterRefreshRateDivisor = 2;
-constexpr double kStutterFps = kDisplayRefreshRate / kStutterRefreshRateDivisor;
-constexpr double kStutterFrameTimeMs = 1000 / kStutterFps;
+// A frame up to this many times the frame budget is near the target rather than failed.
+constexpr double kNearTargetFrameBudgets = 1.2;
 
 // Weight of a near-target frame relative to an on-target one, for
 // uiResponsivenessPercent.
@@ -87,11 +78,22 @@ public:
     explicit QmlProfilerDashboardStats(QmlProfilerModelManager *manager,
                                        QObject *parent = nullptr);
 
+    // The ProfileAnimations trace only carries a measured, instantaneous framerate; the
+    // protocol has no concept of a target/display refresh rate, so the user sets it.
+    // Changing it re-rates the frames already loaded.
+    void setTargetFrameRate(int framesPerSecond);
+    int targetFrameRate() const;
+    double onTargetFrameTimeMs() const;
+    double nearTargetFrameTimeMs() const;
+    double stutterFrameTimeMs() const;
+
     int framesOnTarget() const;
     int framesNearTarget() const;
     int framesFailed() const;
     int framesStuttering() const;
     int framesTotal() const;
+    // The median of the measured frame rates, which is the rate reached most of the time.
+    int medianFrameRate() const;
     bool hasData() const;
     int onTargetPercent() const;
     int stutterFreePercent() const;
@@ -120,7 +122,12 @@ signals:
 private:
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type);
     void reset();
+    void rate();
 
+    int m_targetFrameRate = 60;
+    // Measured framerate -> number of GUI thread frames reporting it. Enough to rate the
+    // frames again for another target without replaying the trace.
+    QMap<qint32, int> m_frameRates;
     int m_framesOnTarget = 0;
     int m_framesNearTarget = 0;
     int m_framesFailed = 0;

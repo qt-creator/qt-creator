@@ -3,9 +3,19 @@
 
 #include "qmlprofilerfindingsmodel_test.h"
 
+#include "../profilertr.h"
+#include "../qmlprofilersettings.h"
+
+#include <utils/qtcassert.h>
+
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
+#include <QScopeGuard>
 #include <QTest>
+
+#include <algorithm>
+#include <iterator>
 
 using namespace QmlDebug;
 
@@ -841,6 +851,453 @@ void QmlProfilerFindingsModelTest::testJsonExport()
     QVERIFY(sawPositioned);
     QVERIFY(sawUnpositioned);
     QVERIFY(sawDetails);
+}
+
+// As the dashboard and the options page do it: through apply(), which is what announces it.
+static bool hasFinding(const QList<Finding> &findings, const char *ruleId)
+{
+    return std::any_of(findings.cbegin(), findings.cend(), [ruleId](const Finding &finding) {
+        return finding.ruleId == QLatin1String(ruleId);
+    });
+}
+
+static void applyTargetFrameRate(int framesPerSecond)
+{
+    QmlProfilerSettings &settings = globalSettings();
+    settings.targetFrameRate.setVolatileValue(framesPerSecond);
+    settings.apply();
+}
+
+void QmlProfilerFindingsModelTest::testTargetFrameRateRerates()
+{
+    const int originalTarget = globalSettings().targetFrameRate();
+    const auto restore = qScopeGuard([originalTarget] {
+        applyTargetFrameRate(originalTarget);
+    });
+    const int eventsBefore = manager.numEvents();
+
+    // At 30 FPS a frame has 33 ms: the 50 ms frames are late, but not by two frames, and a
+    // binding taking 0.95 ms of every frame stays below 3% of it.
+    applyTargetFrameRate(30);
+    QVERIFY(!hasFinding(model.findings(), "frame-jank"));
+    QVERIFY(!hasFinding(model.findings(), "per-frame-cost"));
+    // Rules that do not depend on frames are not lost on the way.
+    QVERIFY(findingAt(model.findings(), "blocking-call", "Import.qml"));
+
+    // At 240 FPS a frame has 4.2 ms: the same frames stutter, and the same binding eats
+    // more than 3% of each.
+    applyTargetFrameRate(240);
+    const Finding *jank = findingAt(model.findings(), "frame-jank", "Chart.qml");
+    QVERIFY(jank);
+    QCOMPARE(jank->occurrences, 5);
+    QVERIFY2(jank->what.contains(QString("than 8 ms")), qPrintable(jank->what));
+    QVERIFY(findingAt(model.findings(), "per-frame-cost", "Gauge.qml"));
+    QCOMPARE(model.rowCount(), model.findings().count());
+
+    // Re-rated from the trace already loaded, not from a new one.
+    QCOMPARE(manager.numEvents(), eventsBefore);
+}
+
+// Forwards to a rule and counts the events it is shown.
+class CountingRule final : public FindingRule
+{
+public:
+    CountingRule(std::unique_ptr<FindingRule> rule, int *events)
+        : m_rule(std::move(rule))
+        , m_events(events)
+    {}
+
+    quint64 features() const override { return m_rule->features(); }
+    void loadEvent(const QmlEvent &event, const QmlEventType &type) override
+    {
+        ++*m_events;
+        m_rule->loadEvent(event, type);
+    }
+    QList<Finding> finalize(const QmlProfilerModelManager *manager) override
+    {
+        return m_rule->finalize(manager);
+    }
+    void clear() override { m_rule->clear(); }
+    bool setTargetFrameRate(int framesPerSecond) override
+    {
+        return m_rule->setTargetFrameRate(framesPerSecond);
+    }
+
+private:
+    std::unique_ptr<FindingRule> m_rule;
+    int *m_events;
+};
+
+// The frame-rate dependent rules as they were before they learned to re-rate: they decide
+// with a fixed budget while the events go by. An independent account of what the findings
+// at a target must be.
+class FixedFrameThread
+{
+public:
+    bool accepts(const QmlEvent &event)
+    {
+        const int thread = event.number<qint32>(2);
+        if (m_thread == -1)
+            m_thread = thread;
+        return thread == m_thread;
+    }
+
+private:
+    int m_thread = -1;
+};
+
+class FixedBudgetPerFrameCostRule final : public FindingRule
+{
+public:
+    FixedBudgetPerFrameCostRule(quint64 features, qint64 budgetNs)
+        : m_features(features)
+        , m_budgetNs(budgetNs)
+    {}
+
+    quint64 features() const override { return m_features; }
+
+    void loadEvent(const QmlEvent &event, const QmlEventType &type) override
+    {
+        if (type.message() == Event && type.detailType() == AnimationFrame) {
+            if (m_frameThread.accepts(event))
+                ++m_frames;
+            return;
+        }
+        if (type.rangeType() != Binding && type.rangeType() != Javascript)
+            return;
+        QList<qint64> &starts = m_starts[event.typeIndex()];
+        if (event.rangeStage() == RangeStart) {
+            starts.append(event.timestamp());
+        } else if (event.rangeStage() == RangeEnd && !starts.isEmpty()) {
+            m_totals[event.typeIndex()] += event.timestamp() - starts.takeLast();
+        }
+    }
+
+    QList<Finding> finalize(const QmlProfilerModelManager *manager) override
+    {
+        QList<Finding> findings;
+        if (m_frames == 0)
+            return findings;
+        for (auto it = m_totals.constBegin(), end = m_totals.constEnd(); it != end; ++it) {
+            const qint64 perFrame = it.value() / m_frames;
+            if (perFrame < m_budgetNs)
+                continue;
+            Finding finding;
+            finding.ruleId = "per-frame-cost";
+            finding.location = manager->eventType(it.key()).location();
+            finding.typeIndex = it.key();
+            finding.costNs = it.value();
+            finding.occurrences = m_frames;
+            finding.what = Tr::tr("Costs %1 ms per rendered frame (%2 ms over %n frame(s)).",
+                                  nullptr, m_frames)
+                               .arg(perFrame / 1000000.0, 0, 'f', 2)
+                               .arg(it.value() / 1000000);
+            finding.why = Tr::tr("Work of this size, repeated for every frame, leaves less of the "
+                                 "frame for everything else that has to happen in it.");
+            finding.suggestion = Tr::tr("Look for a value that is recomputed although it did not "
+                                        "change, and keep the result instead of deriving it again "
+                                        "each frame.");
+            findings.append(finding);
+        }
+        return findings;
+    }
+
+    void clear() override {}
+
+private:
+    const quint64 m_features;
+    const qint64 m_budgetNs;
+    FixedFrameThread m_frameThread;
+    int m_frames = 0;
+    QMap<int, QList<qint64>> m_starts;
+    QMap<int, qint64> m_totals; // by type index, as the rule reports them
+};
+
+class FixedBudgetFrameJankRule final : public FindingRule
+{
+public:
+    FixedBudgetFrameJankRule(quint64 features, qint64 budgetNs)
+        : m_features(features)
+        , m_budgetNs(budgetNs)
+    {}
+
+    quint64 features() const override { return m_features; }
+
+    void loadEvent(const QmlEvent &event, const QmlEventType &type) override
+    {
+        if (type.message() == Event && type.detailType() == AnimationFrame) {
+            if (!m_frameThread.accepts(event))
+                return;
+            if (m_lastFrameEnd >= 0 && event.timestamp() - m_lastFrameEnd > m_budgetNs) {
+                ++m_jankyFrames;
+                for (auto it = m_pending.constBegin(), end = m_pending.constEnd(); it != end;
+                     ++it) {
+                    m_cost[it.key()] += it.value();
+                    ++m_frames[it.key()];
+                }
+            }
+            m_lastFrameEnd = event.timestamp();
+            m_pending.clear();
+            return;
+        }
+        const RangeType rangeType = type.rangeType();
+        if (rangeType != Binding && rangeType != Javascript && rangeType != Creating
+            && rangeType != HandlingSignal) {
+            return;
+        }
+        if (event.rangeStage() == RangeStart) {
+            m_open.append({event.typeIndex(), event.timestamp()});
+        } else if (event.rangeStage() == RangeEnd) {
+            for (int i = m_open.size() - 1; i >= 0; --i) {
+                if (m_open.at(i).first != event.typeIndex())
+                    continue;
+                const qint64 start = m_open.at(i).second;
+                m_open.resize(i);
+                if (m_open.isEmpty())
+                    m_pending[event.typeIndex()] += event.timestamp() - start;
+                break;
+            }
+        }
+    }
+
+    QList<Finding> finalize(const QmlProfilerModelManager *manager) override
+    {
+        QList<Finding> findings;
+        for (auto it = m_cost.constBegin(), end = m_cost.constEnd(); it != end; ++it) {
+            if (it.value() < m_budgetNs)
+                continue;
+            Finding finding;
+            finding.ruleId = "frame-jank";
+            finding.location = manager->eventType(it.key()).location();
+            finding.typeIndex = it.key();
+            finding.costNs = it.value();
+            finding.occurrences = m_frames.value(it.key());
+            finding.what = Tr::tr("Runs for %1 ms inside %2 of the %n frame(s) that took longer "
+                                  "than %3 ms.", nullptr, m_jankyFrames)
+                               .arg(it.value() / 1000000).arg(m_frames.value(it.key()))
+                               .arg(m_budgetNs / 1000000);
+            finding.why = Tr::tr("The frame could not be finished while this was running, so it "
+                                 "stayed on screen for as long as the work took. Work that lands "
+                                 "in a few frames is seen as a jump, not as a slowdown.");
+            finding.suggestion = Tr::tr("Move the work out of the frame it happens in: do it "
+                                        "before it is needed, spread it over several frames, or "
+                                        "let it run asynchronously and show the result when it "
+                                        "arrives.");
+            findings.append(finding);
+        }
+        return findings;
+    }
+
+    void clear() override {}
+
+private:
+    const quint64 m_features;
+    const qint64 m_budgetNs;
+    FixedFrameThread m_frameThread;
+    QList<std::pair<int, qint64>> m_open;
+    QMap<int, qint64> m_pending;
+    QMap<int, qint64> m_cost; // by type index, as the rule reports them
+    QMap<int, int> m_frames;
+    qint64 m_lastFrameEnd = -1;
+    int m_jankyFrames = 0;
+};
+
+// defaultFindingRules(), with the two rules that depend on the target replaced by the ones
+// above. They are the only ones that ask for animation frames.
+static FindingRules fixedBudgetRules(int targetFrameRate)
+{
+    const qint64 budgetNs = 1000000000ll / targetFrameRate;
+    FindingRules rules = defaultFindingRules();
+    int replaced = 0;
+    for (std::unique_ptr<FindingRule> &rule : rules) {
+        const quint64 features = rule->features();
+        if (!(features & (1ULL << ProfileAnimations)))
+            continue;
+        ++replaced;
+        if (features & (1ULL << ProfileHandlingSignal)) {
+            rule = std::make_unique<FixedBudgetFrameJankRule>(features,
+                                                              budgetNs * kStutterFrameBudgets);
+        } else {
+            rule = std::make_unique<FixedBudgetPerFrameCostRule>(
+                features, budgetNs * globalSettings().findingsPerFrameCostPercent() / 100);
+        }
+    }
+    QTC_CHECK(replaced == 2);
+    return rules;
+}
+
+// Everything a finding says, in order, for comparing two lists of them.
+static QString describe(const QList<Finding> &findings)
+{
+    QJsonObject json = findingsToJson(findings, 0, 0);
+    QJsonArray typeIndices;
+    for (const Finding &finding : findings)
+        typeIndices.append(finding.typeIndex);
+    json.insert("typeIndices", typeIndices);
+    return QString::fromUtf8(QJsonDocument(json).toJson(QJsonDocument::Indented));
+}
+
+static QList<Finding> findingsOf(const QList<Finding> &findings, const char *ruleId)
+{
+    QList<Finding> result;
+    std::copy_if(findings.begin(), findings.end(), std::back_inserter(result),
+                 [ruleId](const Finding &finding) {
+        return finding.ruleId == QLatin1String(ruleId);
+    });
+    return result;
+}
+
+// Frames of every length from 1 ms to 120 ms, one of 2.5 s and some exactly as long as a
+// target allows and a nanosecond either side, with handlers, bindings and functions inside
+// them, some running across the end of a frame, and a render thread that reports the same
+// frames again.
+static void loadMixedFrames(QmlProfilerModelManager &manager)
+{
+    manager.initialize();
+    const int frameType = manager.appendEventType(
+        QmlEventType(Event, UndefinedRangeType, AnimationFrame));
+    QList<int> rangeTypes;
+    const auto addTypes = [&](RangeType rangeType, const char *file, int count) {
+        for (int i = 0; i < count; ++i) {
+            rangeTypes.append(manager.appendEventType(
+                QmlEventType(UndefinedMessage, rangeType, -1,
+                             QmlEventLocation(QString::fromLatin1(file), i + 1, 1))));
+        }
+    };
+    addTypes(HandlingSignal, "Handlers.qml", 12);
+    addTypes(Binding, "Bindings.qml", 24);
+    addTypes(Javascript, "Script.js", 12);
+    addTypes(Creating, "Delegate.qml", 6);
+
+    quint32 seed = 12345;
+    const auto random = [&seed](quint32 bound) {
+        seed = seed * 1664525u + 1013904223u;
+        return (seed >> 8) % bound;
+    };
+    const auto range = [&](int typeIndex, qint64 start, qint64 end) {
+        QmlEvent event;
+        event.setTypeIndex(typeIndex);
+        event.setRangeStage(RangeStart);
+        event.setTimestamp(start);
+        manager.appendEvent(QmlEvent(event));
+        event.setRangeStage(RangeEnd);
+        event.setTimestamp(end);
+        manager.appendEvent(std::move(event));
+    };
+    const auto frame = [&](qint64 timestamp, int thread) {
+        QmlEvent event;
+        event.setTypeIndex(frameType);
+        event.setTimestamp(timestamp);
+        event.setNumbers<qint32>({60, 1, thread});
+        manager.appendEvent(std::move(event));
+    };
+
+    qint64 time = 1000000;
+    frame(time, GuiThread);
+    for (int i = 0; i < 3000; ++i) {
+        const qint64 gap = i == 1500 ? 2500000000ll : 1000000 + qint64(random(120)) * 1000000
+                                                          + random(1000000);
+        qint64 cursor = time + 1000;
+        const int ranges = int(random(6));
+        for (int r = 0; r < ranges && cursor < time + gap - 200000; ++r) {
+            const int typeIndex = rangeTypes.at(int(random(quint32(rangeTypes.size()))));
+            const qint64 room = time + gap - 100000 - cursor;
+            const qint64 duration = 1000 + qint64(random(quint32(qMin<qint64>(room, 40000000))));
+            // Sometimes a binding runs inside the outer range.
+            if (random(3) == 0 && duration > 10000) {
+                QmlEvent outer;
+                outer.setTypeIndex(typeIndex);
+                outer.setRangeStage(RangeStart);
+                outer.setTimestamp(cursor);
+                manager.appendEvent(QmlEvent(outer));
+                range(rangeTypes.at(12 + int(random(24))), cursor + 1000, cursor + duration / 2);
+                outer.setRangeStage(RangeEnd);
+                outer.setTimestamp(cursor + duration);
+                manager.appendEvent(std::move(outer));
+            } else {
+                range(typeIndex, cursor, cursor + duration);
+            }
+            cursor += duration + 1000;
+        }
+        time += gap;
+        // Now and then a handler runs across the end of the frame, and is charged to the
+        // next one.
+        if (random(10) == 0) {
+            QmlEvent across;
+            across.setTypeIndex(rangeTypes.at(int(random(12))));
+            across.setRangeStage(RangeStart);
+            across.setTimestamp(time - 50000);
+            manager.appendEvent(QmlEvent(across));
+            frame(time, GuiThread);
+            frame(time + 1, RenderThread);
+            across.setRangeStage(RangeEnd);
+            across.setTimestamp(time + 3000000);
+            manager.appendEvent(std::move(across));
+            time += 3000000;
+        } else {
+            frame(time, GuiThread);
+            frame(time + 1, RenderThread);
+        }
+    }
+    for (const int target : {30, 60, 75, 240}) {
+        for (const qint64 offset : {-1, 0, 1}) {
+            const qint64 gap = frameBudgetNs(target) * kStutterFrameBudgets + offset;
+            range(rangeTypes.at(int(random(12))), time + 1000, time + gap - 1000);
+            time += gap;
+            frame(time, GuiThread);
+        }
+    }
+    manager.finalize();
+}
+
+void QmlProfilerFindingsModelTest::testRerateMatchesReplay()
+{
+    const int originalTarget = globalSettings().targetFrameRate();
+    const auto restore = qScopeGuard([originalTarget] {
+        applyTargetFrameRate(originalTarget);
+    });
+    applyTargetFrameRate(60);
+
+    QmlProfilerModelManager traceManager;
+    // Follows the settings, as the dashboard's and the findings view's models do.
+    QmlProfilerFindingsModel followed(&traceManager);
+    int eventsSeen = 0;
+    FindingRules countingRules;
+    for (std::unique_ptr<FindingRule> &rule : defaultFindingRules())
+        countingRules.push_back(std::make_unique<CountingRule>(std::move(rule), &eventsSeen));
+    QmlProfilerFindingsModel counted(&traceManager, std::move(countingRules));
+    loadMixedFrames(traceManager);
+    QVERIFY(eventsSeen > 0);
+    const int eventsAfterLoad = eventsSeen;
+
+    // Rates the trace from scratch, by replaying it to rules that decide as they go.
+    QmlProfilerFindingsModel replayed(&traceManager, FindingRules());
+
+    QMap<int, QList<Finding>> byTarget;
+    for (const int target : {30, 240, 75, 60}) {
+        applyTargetFrameRate(target);
+        counted.setTargetFrameRate(target);
+        replayed.setRules(fixedBudgetRules(target));
+
+        const QString expected = describe(replayed.findings());
+        QCOMPARE(describe(followed.findings()), expected);
+        QCOMPARE(describe(counted.findings()), expected);
+        QCOMPARE(followed.rowCount(), replayed.rowCount());
+        byTarget.insert(target, followed.findings());
+    }
+    // Re-rated from what the rules collected while loading.
+    QCOMPARE(eventsSeen, eventsAfterLoad);
+
+    // The targets differ in their verdicts, or the comparison would show nothing.
+    QVERIFY(findingsOf(byTarget.value(30), "per-frame-cost").size()
+            < findingsOf(byTarget.value(240), "per-frame-cost").size());
+    for (const char *ruleId : {"frame-jank", "per-frame-cost"}) {
+        for (const auto &[low, high] : {std::pair(30, 240), std::pair(60, 75)}) {
+            QVERIFY2(describe(findingsOf(byTarget.value(low), ruleId))
+                         != describe(findingsOf(byTarget.value(high), ruleId)),
+                     qPrintable(QString("%1 at %2 and %3").arg(ruleId).arg(low).arg(high)));
+        }
+    }
 }
 
 void QmlProfilerFindingsModelTest::testClear()

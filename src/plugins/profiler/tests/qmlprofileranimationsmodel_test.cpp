@@ -3,9 +3,12 @@
 
 #include "qmlprofileranimationsmodel_test.h"
 #include "../profilertr.h"
+#include "../qmlprofilersettings.h"
 #include <tracing/timelineformatdata.h>
 #include <utils/stylehelper.h>
 
+#include <QScopeGuard>
+#include <QSignalSpy>
 #include <QTest>
 
 using namespace QmlDebug;
@@ -68,6 +71,40 @@ void QmlProfilerAnimationsModelTest::testColor()
         QVERIFY(hue > last);
         last = hue;
     }
+}
+
+static void applyTargetFrameRate(int framesPerSecond)
+{
+    QmlProfilerSettings &settings = globalSettings();
+    settings.targetFrameRate.setVolatileValue(framesPerSecond);
+    settings.apply();
+}
+
+void QmlProfilerAnimationsModelTest::testColorFollowsTargetFrameRate()
+{
+    const int originalTarget = globalSettings().targetFrameRate();
+    const auto restore = qScopeGuard([originalTarget] { applyTargetFrameRate(originalTarget); });
+    applyTargetFrameRate(60);
+
+    // frameRate(5) is 33 FPS, frameRate(9) is 61 FPS.
+    const QRgb at33Fps = model.color(5);
+    const QRgb at61Fps = model.color(9);
+    QVERIFY(at33Fps != at61Fps);
+
+    // Against a 30 FPS target both are on target, and coloured alike. The loaded trace is
+    // re-coloured: the timeline repaints on contentChanged().
+    QSignalSpy contentChanged(&model, &Timeline::TimelineModel::contentChanged);
+    applyTargetFrameRate(30);
+    QCOMPARE(contentChanged.count(), 1);
+    QCOMPARE(model.color(5), at61Fps);
+    QCOMPARE(model.color(9), at61Fps);
+
+    // Against 240 FPS, even 61 FPS is far off.
+    applyTargetFrameRate(240);
+    QCOMPARE(contentChanged.count(), 2);
+    QVERIFY(model.color(9) != at61Fps);
+    QVERIFY(Utils::StyleHelper::oklch(model.color(9)).hue
+            < Utils::StyleHelper::oklch(at61Fps).hue);
 }
 
 void QmlProfilerAnimationsModelTest::testRelativeHeight()

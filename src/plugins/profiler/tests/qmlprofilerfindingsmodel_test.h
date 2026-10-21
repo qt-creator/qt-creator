@@ -40,6 +40,8 @@ private slots:
     void testLocationWithoutLine();
     void testSeverityOrdering();
     void testJsonExport();
+    void testTargetFrameRateRerates();
+    void testRerateMatchesReplay();
     void testClear();
 
 private:

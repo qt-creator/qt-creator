@@ -12,10 +12,15 @@ class QmlProfilerDashboardTest : public QObject
     Q_OBJECT
 
 private slots:
+    void init();
+    void cleanup();
     void testBreakdownSumsToScore_data();
     void testBreakdownSumsToScore();
     void testFlaggedFactors();
     void testShowSlowestFrame();
+
+private:
+    int m_originalTargetFps = 0;
 };
 
 } // namespace Profiler::Internal

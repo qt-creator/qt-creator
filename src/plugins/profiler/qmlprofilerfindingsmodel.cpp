@@ -18,7 +18,9 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <map>
 #include <optional>
+#include <vector>
 
 using namespace QmlDebug;
 
@@ -1142,11 +1144,20 @@ private:
 };
 
 // Reports bindings and functions whose cost, spread over the frames that were rendered,
-// eats a noticeable part of a frame.
+// eats a noticeable part of a frame. What it collects does not depend on the frame.
 class PerFrameCostRule final : public FindingRule
 {
 public:
-    explicit PerFrameCostRule(qint64 budgetNs) : m_budgetNs(budgetNs) {}
+    PerFrameCostRule(int targetFrameRate, int costPercent)
+        : m_targetFrameRate(targetFrameRate)
+        , m_costPercent(costPercent)
+    {}
+
+    bool setTargetFrameRate(int framesPerSecond) override
+    {
+        m_targetFrameRate = framesPerSecond;
+        return true;
+    }
 
     quint64 features() const override
     {
@@ -1196,12 +1207,13 @@ public:
         if (m_frames == 0)
             return findings;
 
+        const qint64 thresholdNs = frameBudgetNs(m_targetFrameRate) * m_costPercent / 100;
         for (int typeIndex = 0; typeIndex < m_data.size(); ++typeIndex) {
             const Data &data = m_data.at(typeIndex);
             if (!data.ended)
                 continue;
             const qint64 perFrame = data.totalNs / m_frames;
-            if (perFrame < m_budgetNs)
+            if (perFrame < thresholdNs)
                 continue;
 
             QTC_ASSERT(typeIndex >= 0 && typeIndex < manager->numEventTypes(), continue);
@@ -1245,7 +1257,8 @@ private:
     QList<Data> m_data;
     FrameThread m_frameThread;
     int m_frames = 0;
-    const qint64 m_budgetNs;
+    int m_targetFrameRate;
+    const int m_costPercent;
 };
 
 // Reports a single call that ran long enough to be noticed on its own. The per-frame rule
@@ -1343,10 +1356,24 @@ private:
 // Reports what ran during the frames that took too long. An average spread over every
 // frame hides work that all lands in a few of them, and those few are the ones the user
 // sees as a stutter.
+//
+// Whether a frame took too long depends on the target frame rate, so each frame is filed
+// under the lowest target at which it would: it stutters at that target and every higher
+// one. The work of the frame is summed per type and per such level, and a target takes the
+// sum of the levels up to it. Switching the target needs no second look at the events.
 class FrameJankRule final : public FindingRule
 {
 public:
-    explicit FrameJankRule(qint64 budgetNs) : m_budgetNs(budgetNs) {}
+    explicit FrameJankRule(int targetFrameRate)
+        : m_targetFrameRate(targetFrameRate)
+        , m_framesByLevel(kMaxTargetFrameRate + 1, 0)
+    {}
+
+    bool setTargetFrameRate(int framesPerSecond) override
+    {
+        m_targetFrameRate = framesPerSecond;
+        return true;
+    }
 
     quint64 features() const override
     {
@@ -1388,14 +1415,29 @@ public:
 
     QList<Finding> finalize(const QmlProfilerModelManager *manager) override
     {
-        QList<Finding> findings;
+        const qint64 budgetNs = stutterThresholdNs(m_targetFrameRate);
+        int jankyFrames = 0;
+        for (int level = 1; level <= m_targetFrameRate; ++level)
+            jankyFrames += m_framesByLevel.at(level);
+
+        // By type index, so that the findings come out in the same order however the
+        // levels were stored.
+        std::map<int, Data> totals;
         for (auto it = m_data.constBegin(), end = m_data.constEnd(); it != end; ++it) {
+            if (levelOf(it.key()) > m_targetFrameRate)
+                continue;
+            Data &total = totals[typeOf(it.key())];
+            total.costNs += it->costNs;
+            total.frames += it->frames;
+        }
+
+        QList<Finding> findings;
+        for (const auto &[typeIndex, total] : totals) {
             // A location has to account for a frame's worth of work before it is worth
             // naming: in a long trace almost everything appears in some slow frame.
-            if (it->costNs < m_budgetNs)
+            if (total.costNs < budgetNs)
                 continue;
 
-            const int typeIndex = it.key();
             QTC_ASSERT(typeIndex >= 0 && typeIndex < manager->numEventTypes(), continue);
 
             Finding finding;
@@ -1403,12 +1445,12 @@ public:
             finding.severity = Finding::Warning;
             finding.location = manager->eventType(typeIndex).location();
             finding.typeIndex = typeIndex;
-            finding.costNs = it->costNs;
-            finding.occurrences = it->frames;
+            finding.costNs = total.costNs;
+            finding.occurrences = total.frames;
             finding.what = Tr::tr("Runs for %1 ms inside %2 of the %n frame(s) that took longer "
-                                  "than %3 ms.", nullptr, m_jankyFrames)
-                               .arg(it->costNs / 1000000).arg(it->frames)
-                               .arg(m_budgetNs / 1000000);
+                                  "than %3 ms.", nullptr, jankyFrames)
+                               .arg(total.costNs / 1000000).arg(total.frames)
+                               .arg(budgetNs / 1000000);
             finding.why = Tr::tr("The frame could not be finished while this was running, so it "
                                  "stayed on screen for as long as the work took. Work that lands "
                                  "in a few frames is seen as a jump, not as a slowdown.");
@@ -1428,10 +1470,41 @@ public:
         m_stack.clear();
         m_frameThread.clear();
         m_lastFrameEnd = -1;
-        m_jankyFrames = 0;
+        std::fill(m_framesByLevel.begin(), m_framesByLevel.end(), 0);
     }
 
 private:
+    static qint64 stutterThresholdNs(int targetFrameRate)
+    {
+        return frameBudgetNs(targetFrameRate) * kStutterFrameBudgets;
+    }
+
+    // The lowest target frame rate at which a frame of this duration stutters, or
+    // kMaxTargetFrameRate + 1 if it does at none. The threshold falls as the target rises.
+    static int jankLevel(qint64 frameNs)
+    {
+        if (frameNs <= stutterThresholdNs(kMaxTargetFrameRate))
+            return kMaxTargetFrameRate + 1;
+        int low = 1;
+        int high = kMaxTargetFrameRate;
+        while (low < high) {
+            const int middle = (low + high) / 2;
+            if (frameNs > stutterThresholdNs(middle))
+                high = middle;
+            else
+                low = middle + 1;
+        }
+        return low;
+    }
+
+    static_assert(kMaxTargetFrameRate < 0xffff, "A level has to fit into 16 bits of a key.");
+    static quint64 keyOf(int typeIndex, int level)
+    {
+        return (quint64(quint32(typeIndex)) << 16) | quint64(level);
+    }
+    static int typeOf(quint64 key) { return int(quint32(key >> 16)); }
+    static int levelOf(quint64 key) { return int(key & 0xffff); }
+
     void loadFrame(const QmlEvent &event)
     {
         if (!m_frameThread.accepts(event))
@@ -1440,12 +1513,16 @@ private:
         // The profiler timestamps a frame when it ends, so what was collected since the
         // previous frame is what this one waited for. A range that started even earlier is
         // charged to the frame it ended in, which is the frame it finally released.
-        if (m_lastFrameEnd >= 0 && event.timestamp() - m_lastFrameEnd > m_budgetNs) {
-            ++m_jankyFrames;
-            for (auto it = m_pending.constBegin(), end = m_pending.constEnd(); it != end; ++it) {
-                Data &data = m_data[it.key()];
-                data.costNs += it.value();
-                ++data.frames;
+        if (m_lastFrameEnd >= 0) {
+            const int level = jankLevel(event.timestamp() - m_lastFrameEnd);
+            if (level <= kMaxTargetFrameRate) {
+                ++m_framesByLevel[level];
+                for (auto it = m_pending.constBegin(), end = m_pending.constEnd(); it != end;
+                     ++it) {
+                    Data &data = m_data[keyOf(it.key(), level)];
+                    data.costNs += it.value();
+                    ++data.frames;
+                }
             }
         }
         m_lastFrameEnd = event.timestamp();
@@ -1457,13 +1534,15 @@ private:
         int frames = 0;
     };
 
-    QHash<int, Data> m_data;
+    // By type index and the level of the frames, see jankLevel().
+    QHash<quint64, Data> m_data;
     QHash<int, qint64> m_pending;
     RangeStack m_stack;
     FrameThread m_frameThread;
     qint64 m_lastFrameEnd = -1;
-    int m_jankyFrames = 0;
-    const qint64 m_budgetNs;
+    int m_targetFrameRate;
+    // Frames by their level.
+    std::vector<int> m_framesByLevel;
 };
 
 // Reports the code that allocates most on the JavaScript heap. Allocating is cheap; the
@@ -2008,11 +2087,10 @@ FindingRules defaultFindingRules()
     rules.push_back(std::make_unique<OversizedPixmapRule>(
         qint64(settings.findingsPixmapMegapixels() * 1000000.0)));
     rules.push_back(std::make_unique<PerFrameCostRule>(
-        settings.findingsPerFrameBudgetUs() * 1000ll));
+        settings.targetFrameRate(), settings.findingsPerFrameCostPercent()));
     rules.push_back(std::make_unique<BlockingCallRule>(
         settings.findingsBlockingCallThresholdMs() * 1000000ll));
-    rules.push_back(std::make_unique<FrameJankRule>(
-        settings.findingsJankFrameThresholdMs() * 1000000ll));
+    rules.push_back(std::make_unique<FrameJankRule>(settings.targetFrameRate()));
     rules.push_back(std::make_unique<MemoryChurnRule>(
         settings.findingsMemoryChurnKb() * 1024ll));
     rules.push_back(std::make_unique<RepeatedCreationRule>(settings.findingsCreationMinCount(),
@@ -2022,12 +2100,71 @@ FindingRules defaultFindingRules()
     return rules;
 }
 
+static Utils::Store thresholdsOtherThanTarget()
+{
+    const QmlProfilerSettings &settings = globalSettings();
+    Utils::Store store;
+    settings.toMap(store);
+    store.remove(settings.targetFrameRate.settingsKey());
+    return store;
+}
+
+QmlProfilerFindingsModel::QmlProfilerFindingsModel(QmlProfilerModelManager *modelManager)
+    : QmlProfilerFindingsModel(modelManager, defaultFindingRules())
+{
+    // The thresholds, and the frame budgets in particular, are judgments about the target
+    // the application runs on. A changed judgment re-rates the trace already loaded.
+    m_thresholds = thresholdsOtherThanTarget();
+    connect(&globalSettings(), &Utils::AspectContainer::changed, this, [this] {
+        Utils::Store thresholds = thresholdsOtherThanTarget();
+        if (thresholds == m_thresholds) {
+            // The rules collected what they need for any target frame rate.
+            setTargetFrameRate(globalSettings().targetFrameRate());
+            return;
+        }
+        m_thresholds = std::move(thresholds);
+        // Replaying while a trace is still being loaded would mix the two; the load picks
+        // up the change once it is complete.
+        if (m_loading)
+            m_rulesStale = true;
+        else
+            setRules(defaultFindingRules());
+    });
+}
+
 QmlProfilerFindingsModel::QmlProfilerFindingsModel(QmlProfilerModelManager *modelManager,
                                                    FindingRules rules)
     : m_modelManager(modelManager)
     , m_rules(std::move(rules))
 {
+    const quint64 features = sortRulesByFeature();
+    modelManager->qmlLoaders.append({features,
+                                     std::bind(&QmlProfilerFindingsModel::loadEvent, this,
+                                               std::placeholders::_1, std::placeholders::_2)});
+    modelManager->registerFeatures(features,
+                                   [this] {
+                                       m_loading = true;
+                                       beginResetModel();
+                                   },
+                                   [this] {
+                                       m_loading = false;
+                                       finalize();
+                                       if (m_rulesStale)
+                                           setRules(defaultFindingRules());
+                                   },
+                                   [this] {
+                                       m_loading = false;
+                                       clear();
+                                   });
+}
+
+QmlProfilerFindingsModel::~QmlProfilerFindingsModel() = default;
+
+quint64 QmlProfilerFindingsModel::sortRulesByFeature()
+{
     quint64 features = 0;
+    for (QList<FindingRule *> &rules : m_rulesByFeature)
+        rules.clear();
     for (const auto &rule : m_rules) {
         features |= rule->features();
         for (int feature = 0; feature < MaximumProfileFeature; ++feature) {
@@ -2035,17 +2172,8 @@ QmlProfilerFindingsModel::QmlProfilerFindingsModel(QmlProfilerModelManager *mode
                 m_rulesByFeature[feature].append(rule.get());
         }
     }
-
-    modelManager->qmlLoaders.append({features,
-                                     std::bind(&QmlProfilerFindingsModel::loadEvent, this,
-                                               std::placeholders::_1, std::placeholders::_2)});
-    modelManager->registerFeatures(features,
-                                   std::bind(&QmlProfilerFindingsModel::beginResetModel, this),
-                                   std::bind(&QmlProfilerFindingsModel::finalize, this),
-                                   std::bind(&QmlProfilerFindingsModel::clear, this));
+    return features;
 }
-
-QmlProfilerFindingsModel::~QmlProfilerFindingsModel() = default;
 
 void QmlProfilerFindingsModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
@@ -2060,9 +2188,18 @@ void QmlProfilerFindingsModel::loadEvent(const QmlEvent &event, const QmlEventTy
 
 void QmlProfilerFindingsModel::finalize()
 {
-    m_findings.clear();
+    m_findingsByRule.clear();
     for (const auto &rule : m_rules)
-        m_findings.append(rule->finalize(m_modelManager));
+        m_findingsByRule.append(rule->finalize(m_modelManager));
+    mergeFindings();
+    endResetModel();
+}
+
+void QmlProfilerFindingsModel::mergeFindings()
+{
+    m_findings.clear();
+    for (const QList<Finding> &findings : std::as_const(m_findingsByRule))
+        m_findings.append(findings);
 
     std::stable_sort(m_findings.begin(), m_findings.end(),
                      [](const Finding &a, const Finding &b) {
@@ -2070,8 +2207,50 @@ void QmlProfilerFindingsModel::finalize()
             return a.severity > b.severity;
         return a.costNs > b.costNs;
     });
+}
 
-    endResetModel();
+void QmlProfilerFindingsModel::setTargetFrameRate(int framesPerSecond)
+{
+    // While a trace loads, the rules only take the target, and apply it when the load
+    // finalizes them.
+    const bool finalized = !m_loading && m_findingsByRule.size() == qsizetype(m_rules.size());
+    if (finalized)
+        beginResetModel();
+    for (size_t i = 0; i < m_rules.size(); ++i) {
+        if (m_rules[i]->setTargetFrameRate(framesPerSecond) && finalized)
+            m_findingsByRule[i] = m_rules[i]->finalize(m_modelManager);
+    }
+    if (finalized) {
+        mergeFindings();
+        endResetModel();
+    }
+}
+
+void QmlProfilerFindingsModel::setRules(FindingRules rules)
+{
+    clear();
+    m_rules = std::move(rules);
+    sortRulesByFeature();
+    m_rulesStale = false;
+    if (m_modelManager->isEmpty())
+        return;
+
+    QFutureInterface<void> future;
+    const auto filter = m_modelManager->rangeFilter(m_modelManager->traceStart(),
+                                                    m_modelManager->traceEnd());
+    m_modelManager->replayQmlEvents(filter(std::bind(&QmlProfilerFindingsModel::loadEvent, this,
+                                                     std::placeholders::_1,
+                                                     std::placeholders::_2)),
+                                    std::bind(&QmlProfilerFindingsModel::beginResetModel, this),
+                                    std::bind(&QmlProfilerFindingsModel::finalize, this),
+                                    [this](const QString &message) {
+        if (!message.isEmpty()) {
+            emit m_modelManager->error(
+                Tr::tr("Could not re-read events from temporary trace file: %1").arg(message));
+        }
+        endResetModel();
+        clear();
+    }, future);
 }
 
 void QmlProfilerFindingsModel::clear()
@@ -2080,6 +2259,7 @@ void QmlProfilerFindingsModel::clear()
     for (const auto &rule : m_rules)
         rule->clear();
     m_findings.clear();
+    m_findingsByRule.clear();
     endResetModel();
 }
 
