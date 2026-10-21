@@ -274,6 +274,8 @@ private slots:
     void testAFailedSubBreakpointToggleRestoresItsState();
     void testARefusedResumeReadsTheAttachStopAfterAll();
     void testASuccessfulRunDropsTheUnreadAttachStop();
+    void testADebuggerCommandRereadsTheViews();
+    void testASelectionMovingCommandIsNotUndoneByTheReread();
     void testTheDisassemblyMessageIsSaidOncePerStop();
 
     void testScratchEditorAdoptsSavedName();
@@ -2990,8 +2992,10 @@ public:
     RefreshRequest lastStackRequest;
     void accessMemory(MemoryOp, quint64, quint64, quint64, const QByteArray &) override {}
     void executeDebuggerCommand(const QString &, const WatchItemData &) override {}
-    void selectThread(const QString &) override {}
-    void activateFrame(int) override {}
+    void selectThread(const QString &threadId) override { selectedThreads.append(threadId); }
+    QStringList selectedThreads;
+    void activateFrame(int level) override { activatedFrames.append(level); }
+    QList<int> activatedFrames;
     void fetchDisassembly(quint64, quint64, const QString &, DisassemblyFlavor flavor) override
     {
         disassemblyFlavors.append(flavor);
@@ -6023,6 +6027,89 @@ void DebuggerUnitTests::testASuccessfulRunDropsTheUnreadAttachStop()
     emit backend->inferiorEvent(InferiorEvent::RunFailed);
     QVERIFY2(!backend->refreshes.contains(RefreshKind::FullStack),
              "a run that failed after the inferior had run read the attach stop again");
+}
+
+// A command can change memory, registers and variables. The inferior stays
+// where it is, so there is no stop to fill the views again.
+void DebuggerUnitTests::testADebuggerCommandRereadsTheViews()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    engine->start();
+    emit backend->inferiorEvent(InferiorEvent::EngineSetupOk);
+    emit backend->inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
+    QCOMPARE(engine->state(), InferiorStopOk);
+
+    StackHandler *stack = engine->stackHandler();
+    emit backend->refreshDataReceived(backend->lastStackRequest.requestId,
+                                      RefreshKind::FullStack, stackRefreshData(3));
+    engine->activateFrame(1);
+
+    backend->refreshes.clear();
+    static_cast<DebuggerEngine *>(engine)->executeDebuggerCommand("x = 1");
+    // Until the command is through, it may still let the inferior go on.
+    QVERIFY2(!backend->refreshes.contains(RefreshKind::FullStack),
+             "the views were read before the command was through");
+    emit backend->debuggerCommandDone();
+    QVERIFY2(backend->refreshes.contains(RefreshKind::FullStack),
+             "the views kept what they showed before the command");
+    emit backend->refreshDataReceived(backend->lastStackRequest.requestId,
+                                      RefreshKind::FullStack, stackRefreshData(3));
+    QCOMPARE(stack->currentIndex(), 1);
+}
+
+// The debugger followed the command to another frame, so the frame the view
+// showed is no longer the one to go back to.
+void DebuggerUnitTests::testASelectionMovingCommandIsNotUndoneByTheReread()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    engine->start();
+    emit backend->inferiorEvent(InferiorEvent::EngineSetupOk);
+    emit backend->inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
+    QCOMPARE(engine->state(), InferiorStopOk);
+    emit backend->refreshDataReceived(backend->lastStackRequest.requestId,
+                                      RefreshKind::FullStack, stackRefreshData(3));
+
+    backend->refreshes.clear();
+    static_cast<DebuggerEngine *>(engine)->executeDebuggerCommand("up");
+    GdbMi selected;
+    selected.m_type = GdbMi::Tuple;
+    selected.addConst("id", "7");
+    GdbMi frame;
+    frame.m_type = GdbMi::Tuple;
+    frame.m_name = "frame";
+    frame.addConst("level", "2");
+    selected.addChild(frame);
+    emit backend->threadEvent(ThreadEvent::Selected, selected);
+    QVERIFY2(backend->selectedThreads.contains("7"),
+             "the reread would read the stack of the thread the command left");
+    emit backend->debuggerCommandDone();
+    QVERIFY2(backend->refreshes.contains(RefreshKind::FullStack),
+             "the views kept what they showed before the command");
+    backend->activatedFrames.clear();
+    emit backend->refreshDataReceived(backend->lastStackRequest.requestId,
+                                      RefreshKind::FullStack, stackRefreshData(3));
+    QCOMPARE(engine->stackHandler()->currentIndex(), 2);
+    QVERIFY2(!backend->activatedFrames.contains(0),
+             "the reread put the debugger back on the frame it had left");
+
+    // The next command does not move the selection, so the frame stays.
+    backend->refreshes.clear();
+    static_cast<DebuggerEngine *>(engine)->executeDebuggerCommand("print x");
+    emit backend->debuggerCommandDone();
+    backend->activatedFrames.clear();
+    emit backend->refreshDataReceived(backend->lastStackRequest.requestId,
+                                      RefreshKind::FullStack, stackRefreshData(3));
+    QCOMPARE(engine->stackHandler()->currentIndex(), 2);
+    QVERIFY2(!backend->activatedFrames.contains(0),
+             "a later command put the debugger back on the first frame");
 }
 
 void DebuggerUnitTests::testTheDisassemblyMessageIsSaidOncePerStop()

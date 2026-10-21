@@ -224,6 +224,9 @@ private:
     };
     QHash<int, SnapshotRequest> m_snapshotRequests;
 
+    // The console commands of the user's not answered yet.
+    QSet<int> m_consoleCommandRequests;
+
     QHash<int, quint64> m_breakpointRequestIds;
     QSet<int> m_interpreterBreakpointChanges;
 

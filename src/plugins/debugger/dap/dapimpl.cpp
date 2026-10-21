@@ -4340,18 +4340,29 @@ void DapImpl::askWhereTheDebuggerSelectionIs(bool report)
                                                  "gdb.selected_frame().level()))"},
                                   {"context", "repl"}},
                       [this, report](const Utils::Result<QJsonObject> &answer) {
-        if (!answer)
-            return;
-        const QString selection = answer->value("result").toString().trimmed();
-        if (selection.isEmpty())
-            return;
-        const QString moved = std::exchange(m_debuggerSelection, selection);
-        if (!report || moved.isEmpty() || moved == selection)
-            return;
-        GdbMi data;
-        data.m_type = GdbMi::Tuple;
-        data.addConst("id", selection.section(' ', 0, 0));
-        emit threadEvent(ThreadEvent::Selected, data);
+        const bool commandDone = report && !m_inferiorRunning
+                                 && (answer || !m_debuggerSelectionReadable);
+        if (!report)
+            m_debuggerSelectionReadable = bool(answer);
+        const QString selection = answer ? answer->value("result").toString().trimmed()
+                                         : QString();
+        if (!selection.isEmpty()) {
+            const QString moved = std::exchange(m_debuggerSelection, selection);
+            if (report && !moved.isEmpty() && moved != selection) {
+                GdbMi data;
+                data.m_type = GdbMi::Tuple;
+                data.addConst("id", selection.section(' ', 0, 0));
+                GdbMi frame;
+                frame.m_type = GdbMi::Tuple;
+                frame.m_name = "frame";
+                frame.addConst("level", selection.section(' ', 1, 1));
+                data.addChild(frame);
+                emit threadEvent(ThreadEvent::Selected, data);
+            }
+        }
+        // The adapter answers in order, so the command before is through.
+        if (commandDone)
+            emit debuggerCommandDone();
     });
 }
 

@@ -1853,7 +1853,13 @@ void GdbImpl::executeDebuggerCommand(const QString &command,
                                const WatchItemData &inspectorItem)
 {
     Q_UNUSED(inspectorItem)
-    runCommand({command, DebuggerCommand::NativeCommand | DebuggerCommand::NeedsTemporaryStop});
+    DebuggerCommand cmd(command, DebuggerCommand::NativeCommand
+                                     | DebuggerCommand::NeedsTemporaryStop);
+    cmd.callback = [this](const DebuggerResponse &response) {
+        if (response.resultClass != ResultRunning)
+            emit debuggerCommandDone();
+    };
+    runCommand(cmd);
 }
 
 // Where gdb cannot tell the bounds of the line, as in a PLT stub, stepping by

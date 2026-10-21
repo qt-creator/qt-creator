@@ -1630,6 +1630,7 @@ void QmlImpl::executeDebuggerCommand(const QString &command, const WatchItemData
         }
         const QVariantMap body = resp.value(QLatin1String(BODY)).toMap();
         emit message(body.value(QLatin1String(VALUE)).toString(), ConsoleOutput);
+        emit debuggerCommandDone();
     });
 }
 

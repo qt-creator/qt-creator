@@ -1336,6 +1336,11 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
             emit message(output, LogOutput);
         if (const QString error = body.value("error").toString(); !error.isEmpty())
             emit message(error, LogError);
+        // A command that resumed the inferior said so before it answered.
+        if (m_consoleCommandRequests.remove(response.value("request_seq").toInt())
+            && !m_inferiorRunning && !m_resumePending) {
+            emit debuggerCommandDone();
+        }
     } else if (command == "qtc/enableSubBreakpoint") {
         handleBreakpointResponse(BreakpointOp::EnableSub, response);
     } else if (command == "qtc/insertBreakpoint"
@@ -1615,7 +1620,16 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
         if (name == "qtc/threadSelected") {
             GdbMi selected;
             selected.m_type = GdbMi::Tuple;
-            selected.addConst("id", event.value("body").toObject() .value("id").toString());
+            const QJsonObject body = event.value("body").toObject();
+            selected.addConst("id", body.value("id").toString());
+            const QString level = body.value("frame").toString();
+            if (!level.isEmpty() && level != "-1") {
+                GdbMi frame;
+                frame.m_type = GdbMi::Tuple;
+                frame.m_name = "frame";
+                frame.addConst("level", level);
+                selected.addChild(frame);
+            }
             emit threadEvent(ThreadEvent::Selected, selected);
             return;
         }
@@ -1906,8 +1920,9 @@ void BridgeImpl::executeDebuggerCommand(const QString &command, const WatchItemD
         emit message(Tr::tr("The debugger console needs the program to be stopped."), LogError);
         return;
     }
-    postRequest("qtc/executeCommand",
-                QJsonObject{{"command", command}, {"frameid", m_currentFrameId}});
+    m_consoleCommandRequests.insert(
+        postRequest("qtc/executeCommand",
+                    QJsonObject{{"command", command}, {"frameid", m_currentFrameId}}));
 }
 
 void BridgeImpl::assignValueInDebugger(const WatchItemData &item, const QString &expr,

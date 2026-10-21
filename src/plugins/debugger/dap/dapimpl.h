@@ -180,6 +180,9 @@ protected:
     // What the debugger has selected, the thread and the frame in it, as it
     // answered last.
     QString m_debuggerSelection;
+    // Whether the debugger could say so before the console command. If it
+    // could, not saying so after it means the command let the inferior run.
+    bool m_debuggerSelectionReadable = false;
 
     // The process the debuggee's threads run in, as the adapter named it. The
     // threads view groups them by it, and it is what takes them away again.

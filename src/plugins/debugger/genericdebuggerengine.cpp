@@ -122,6 +122,15 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             return;
         }
         if (event == ThreadEvent::Selected) {
+            m_commandMovedSelection = true;
+            m_selectedFrameLevel = data["frame"]["level"].data();
+            // The reread reads the stack of the thread the backend has as its own.
+            const Thread current = threadsHandler()->currentThread();
+            if (!id.isEmpty() && (!current || current->id() != id)) {
+                m_backend->selectThread(id);
+                if (const Thread selected = threadsHandler()->threadForId(id))
+                    threadsHandler()->setCurrentThread(selected);
+            }
             showStatusMessage(Tr::tr("Thread %1 selected.").arg(id), 1000);
             return;
         }
@@ -192,6 +201,8 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             this, &GenericDebuggerEngine::handleStopReasonReported);
     connect(m_backend.get(), &DebuggerEngineInterface::recordingFailed,
             this, &GenericDebuggerEngine::handleRecordingFailed);
+    connect(m_backend.get(), &DebuggerEngineInterface::debuggerCommandDone,
+            this, &GenericDebuggerEngine::handleDebuggerCommandDone);
     connect(m_backend.get(), &DebuggerEngineInterface::notResponding,
             this, &GenericDebuggerEngine::handleNotResponding);
     connect(m_backend.get(), &DebuggerEngineInterface::startFailed,
@@ -237,7 +248,16 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
                                 || (hasMore.isValid() ? !hasMore.toInt()
                                                       : depthLimit <= 0
                                                             || frames.childCount() < depthLimit);
+            const QString keptLevel = m_frameKeepingStackRequests.take(requestId);
             stackHandler()->setFramesAndCurrentIndex(frames, isFull);
+            if (!keptLevel.isEmpty()) {
+                for (int row = 0, n = stackHandler()->stackSize(); row < n; ++row) {
+                    if (stackHandler()->frameAt(row).level == keptLevel) {
+                        stackHandler()->setCurrentIndex(row);
+                        break;
+                    }
+                }
+            }
             const int index = stackHandler()->currentIndex();
             if (index >= 0)
                 activateFrame(index);
@@ -966,7 +986,7 @@ FilePath GenericDebuggerEngine::modulePathOnDebuggerDevice(const QString &report
     return runParameters().debugger().command.executable().withNewPath(path.path());
 }
 
-void GenericDebuggerEngine::reloadStack(int depthLimit)
+quint64 GenericDebuggerEngine::reloadStack(int depthLimit)
 {
     RefreshRequest request;
     request.kind = RefreshKind::FullStack;
@@ -974,6 +994,7 @@ void GenericDebuggerEngine::reloadStack(int depthLimit)
     request.stackDepthLimit = depthLimit;
     m_stackDepthLimits.insert(request.requestId, depthLimit);
     m_backend->refresh(request);
+    return request.requestId;
 }
 
 void GenericDebuggerEngine::reloadFullStack()
@@ -1326,7 +1347,26 @@ void GenericDebuggerEngine::executeDebuggerCommand(const QString &command)
         if (item && item->isInspect())
             inspectorItem = watchItemData(item);
     }
+    m_commandMovedSelection = false;
+    m_selectedFrameLevel.clear();
     m_backend->executeDebuggerCommand(command, inspectorItem);
+}
+
+// The command can change anything the views show, but not the frame the user
+// selected. One that moved the selection of the debugger itself leaves the
+// debugger on the frame it chose, and the views follow that one.
+void GenericDebuggerEngine::handleDebuggerCommandDone()
+{
+    if (state() != InferiorStopOk)
+        return;
+    const int depth = m_shownStackDepthLimit < 0
+            ? -1 : qMax(m_shownStackDepthLimit, settings().maximalStackDepth());
+    const int row = stackHandler()->currentIndex();
+    const QString level = m_commandMovedSelection
+            ? m_selectedFrameLevel
+            : row >= 0 ? stackHandler()->frameAt(row).level : QString();
+    m_frameKeepingStackRequests.insert(reloadStack(depth), level);
+    reloadThreads();
 }
 
 void GenericDebuggerEngine::expandItem(const QString &iname)

@@ -2320,7 +2320,8 @@ class DapServer():
         # that ends it says where to.
         moved = self._selection()
         if not resumed and moved != selection and moved[0]:
-            self.sendEvent('qtc/threadSelected', {'id': str(moved[0])})
+            self.sendEvent('qtc/threadSelected', {'id': str(moved[0]),
+                                                  'frame': str(moved[1])})
         self.sendResponse(request, body=body)
         if resumed:
             self._reportInferiorState()

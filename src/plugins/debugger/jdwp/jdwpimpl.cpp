@@ -5896,6 +5896,8 @@ void JdwpImpl::executeDebuggerCommand(const QString &command, const WatchItemDat
             return;
         // What the views show was read before the call, and may be what it
         // changed. Reading them while the thread is still off in a call fails.
+        // An expression changes nothing else, so this stands in for
+        // debuggerCommandDone().
         if (m_callGeneration != callGeneration && m_callsOut.value(m_currentThread) == 0
             && m_lastLocalsRequest.requestId != 0) {
             fetchLocals(m_lastLocalsRequest);

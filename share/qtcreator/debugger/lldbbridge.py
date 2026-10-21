@@ -3421,11 +3421,19 @@ class Dumper(DumperBase):
         # that ends it says where to.
         moved = self.selection()
         if moved != selection and moved[0]:
-            self.report('thread-selected={id="%d"}' % moved[0])
+            frame = ',frame={level="%d"}' % moved[1] if moved[1] >= 0 else ''
+            self.report('thread-selected={id="%d"%s}' % (moved[0], frame))
+        # A command that let the process go on leaves the views to the stop
+        # it comes to.
+        continuing = (lldb.eReturnStatusSuccessContinuingNoResult,
+                      lldb.eReturnStatusSuccessContinuingResult)
+        resumedText = 'resumed="%d"' % int(result.GetStatus() in continuing)
         if result.Succeeded():
-            self.reportResult('output="%s"' % toCString(result.GetOutput()), args)
+            self.reportResult('output="%s",%s' % (toCString(result.GetOutput()), resumedText),
+                              args)
         else:
-            self.reportResult('error="%s"' % toCString(result.GetError()), args)
+            self.reportResult('error="%s",%s' % (toCString(result.GetError()), resumedText),
+                              args)
 
     def loadModuleAt(self, args):
         # A device whose loader LLDB cannot read tells it nothing about what is mapped

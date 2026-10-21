@@ -2190,6 +2190,8 @@ private slots:
     void runsOnAfterATracepoint();
     void reportsAResumeTheConsoleMade_data() { addBackendRows(); }
     void reportsAResumeTheConsoleMade();
+    void saysWhenAConsoleCommandIsThrough_data() { addBackendRows(); }
+    void saysWhenAConsoleCommandIsThrough();
     void refusesAConsoleCommandTheDebuggerCannotRead_data() { addBackendRows(); }
     void refusesAConsoleCommandTheDebuggerCannotRead();
 
@@ -7489,6 +7491,11 @@ void tst_backends::reportsAResumeTheConsoleMade()
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
+    bool done = false;
+    connect(engine, &DebuggerEngineInterface::debuggerCommandDone, this, [&done] {
+        done = true;
+    });
+
     debuggerBackend->clearEvents();
     engine->executeDebuggerCommand(command, {});
     // The command ends in a stop, and that stop is the later event which proves
@@ -7498,6 +7505,27 @@ void tst_backends::reportsAResumeTheConsoleMade()
                               "the console command never reported a stop", s_timeout);
     QVERIFY2(announcedTheResume(debuggerBackend->events()),
              "the resume the console made was never reported");
+    // The views are read at the stop. Read while the inferior ran, they would
+    // fail, or show what was there before.
+    QVERIFY2(!done, "a command that resumed the inferior was reported done");
+}
+
+// A console command can change what the views show without a stop to read
+// them again, so the engine has to learn when it is through.
+void tst_backends::saysWhenAConsoleCommandIsThrough()
+{
+    QFETCH(Backend, backend);
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    bool done = false;
+    connect(engine, &DebuggerEngineInterface::debuggerCommandDone, this, [&done] {
+        done = true;
+    });
+    engine->executeDebuggerCommand(printCommand(backend, "globalValue"), {});
+    QTRY_VERIFY2_WITH_TIMEOUT(done, "the console command was never reported done", s_timeout);
 }
 
 // A console command nobody can read is not a command: posted to a debugger that

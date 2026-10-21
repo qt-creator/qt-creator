@@ -3363,6 +3363,8 @@ void CdbImpl::executeDebuggerCommand(const QString &command,
         const QString output = response.data.data();
         if (!output.isEmpty())
             emit message(output, LogMisc);
+        if (!m_inferiorRunning)
+            emit debuggerCommandDone();
     }});
     // A command that resumes the inferior is seen by nobody but this backend, and
     // unannounced the stop that ends it would be taken for the one before.

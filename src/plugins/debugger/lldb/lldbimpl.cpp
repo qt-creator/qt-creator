@@ -1393,6 +1393,8 @@ void LldbImpl::executeDebuggerCommand(const QString &command,
         const QString error = response.data["error"].data();
         if (!error.isEmpty())
             emit message(error, LogError);
+        if (response.data["resumed"].data() != "1")
+            emit debuggerCommandDone();
     };
     runCommand(cmd);
 }

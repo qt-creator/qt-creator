@@ -364,6 +364,10 @@ signals:
     // covers. Empty where the backend named none.
     void stopReasonReported(const QString &reason);
 
+    // A console command is through and left the inferior stopped, with
+    // whatever it changed there for the views to read again.
+    void debuggerCommandDone();
+
     // Recording for reverse execution stopped the inferior because it could not go on.
     void recordingFailed();
 

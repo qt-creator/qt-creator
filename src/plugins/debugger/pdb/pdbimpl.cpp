@@ -856,6 +856,9 @@ void PdbImpl::executeDebuggerCommand(const QString &command, const WatchItemData
     postDirectCommand(command);
     watchCommand(command);
     timeCommand(command);
+    // pdb reads what is asked next only once the command is through.
+    if (!m_inferiorRunning)
+        emit debuggerCommandDone();
 }
 
 // A debugger running as another user cannot be signalled from here: the signal

@@ -11,6 +11,7 @@
 #include <QHash>
 #include <QMultiMap>
 #include <QPointer>
+#include <QSet>
 
 namespace Debugger::Internal {
 
@@ -75,6 +76,7 @@ private:
     void resetInferior() final;
     void abortDebuggerProcess() final;
     void executeDebuggerCommand(const QString &command) final;
+    void handleDebuggerCommandDone();
     void doUpdateLocals(const UpdateParameters &params) final;
     void updateAll() final;
     bool showsStoppedState() const;
@@ -92,7 +94,7 @@ private:
     void reportMissingQtSymbols(const QString &module);
     void handleNotResponding(std::chrono::seconds waited, const QStringList &pendingCommands,
                              NotRespondingCause cause);
-    void reloadStack(int depthLimit);
+    quint64 reloadStack(int depthLimit);
     void reloadThreads();
     Utils::FilePath cleanupFullName(const QString &fileName);
     Utils::FilePath modulePathOnDebuggerDevice(const QString &reported) const;
@@ -104,6 +106,10 @@ private:
     quint64 m_nextRefreshRequestId = 1;
     // The frame limit of each stack fetch not answered yet, -1 for none.
     QHash<quint64, int> m_stackDepthLimits;
+    // The stack fetches whose answer leaves the selected frame as it is, with its level.
+    QHash<quint64, QString> m_frameKeepingStackRequests;
+    bool m_commandMovedSelection = false;
+    QString m_selectedFrameLevel;
     // The frame limit of the stack shown. Rows are fewer with collapsed machinery.
     int m_shownStackDepthLimit = 0;
     quint64 m_nextMemoryRequestId = 1;
