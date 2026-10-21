@@ -14,6 +14,7 @@
 
 QT_BEGIN_NAMESPACE
 class QLabel;
+class QMenu;
 class QNativeGestureEvent;
 class QScrollArea;
 class QVBoxLayout;
@@ -82,11 +83,17 @@ public:
     TrackBackend trackBackend() const;
     void setTrackBackend(TrackBackend backend);
 
+    // The tracks the user has hidden that would show otherwise, and a menu to
+    // choose which tracks to show.
+    int hiddenTrackCount() const;
+    void populateTracksMenu(QMenu *menu);
+
 signals:
     void itemHovered(int modelIndex, int itemIndex);
     void selectionLockedChanged(bool locked);
     void selectionRangeModeChanged(bool active);
     void trackBackendChanged(TrackBackend backend);
+    void hiddenTrackCountChanged(int count);
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
@@ -100,6 +107,8 @@ private:
     template<class T> void wireTrackView(T *view);
 
     void rebuildTracks();
+    bool canShowTrack(const TimelineModel *model) const;
+    void showTrackContextMenu(int trackIndex, const QPoint &globalPos);
     void updateNotes();
     void applyHorizontalPan(int dx);
     void applyVerticalPan(int dy);

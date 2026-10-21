@@ -753,6 +753,38 @@ void CtfLoaderTest::testRestrictingAProviderReloadsTheTrace()
     QCOMPARE(laneNames(), (QStringList{"alpha (17)", "beta (42)"}));
 }
 
+void CtfLoaderTest::testThreadsAreKnownByNameAcrossTraces()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath path = FilePath::fromString(dir.path());
+    QVERIFY(path.pathAppended("metadata").writeFileContents(metadata()));
+    QVERIFY(path.pathAppended("channel_0")
+                .writeFileContents(channel(42, "worker", {{0, 1000}, {1, 3000}})));
+    QVERIFY(path.pathAppended("channel_1")
+                .writeFileContents(channel(17, "worker", {{0, 2000}, {1, 5000}})));
+    QVERIFY(path.pathAppended("channel_2")
+                .writeFileContents(channel(23, "main", {{2, 2000}, {3, 5000}})));
+
+    Timeline::TimelineDetailsWidget details;
+    CtfPlainViewManager manager(&details);
+    QSignalSpy loaded(&manager, &CtfPlainViewManager::loadFinished);
+    manager.loadCtf2(path);
+    QVERIFY(loaded.wait());
+
+    // The timeline keeps the order and the hidden state of the lanes by these,
+    // so they leave out the thread ids, which the next run of the program does
+    // not have again. Threads that share a name are numbered in the order of
+    // their lanes.
+    QStringList ids;
+    for (const CtfTimelineModel *model : manager.traceManager()->getSortedThreads())
+        ids.append(model->persistentId());
+    QCOMPARE(ids.size(), 3);
+    const QString process = ids.first().section('/', 0, -2);
+    QVERIFY(!process.isEmpty());
+    QCOMPARE(ids, (QStringList{process + "/worker", process + "/main", process + "/worker#2"}));
+}
+
 void CtfLoaderTest::testAThreadRestrictionOutlivesAProviderChange()
 {
     QTemporaryDir dir;

@@ -10,16 +10,20 @@
 #include "timelineoverviewwidget.h"
 #include "timelinezoomcontrol.h"
 #include "trackpainterbase.h"
+#include "tracingtr.h"
 
 #include <utils/icon.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QHBoxLayout>
 #include <QIcon>
+#include <QMenu>
 #include <QSize>
 #include <QSlider>
 #include <QToolBar>
+#include <QToolButton>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -128,6 +132,14 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
     rangeAction->setCheckable(true);
     auto lockAction = toolbar->addAction(lockIcon, tr("View Event Information on Mouseover"));
     lockAction->setCheckable(true);
+    toolbar->addSeparator();
+    auto tracksButton = new QToolButton;
+    tracksButton->setIcon(Utils::Icons::FILTER.icon());
+    tracksButton->setPopupMode(QToolButton::InstantPopup);
+    tracksButton->setProperty(Utils::StyleHelper::C_NO_ARROW, true);
+    auto tracksMenu = new QMenu(tracksButton);
+    tracksButton->setMenu(tracksMenu);
+    toolbar->addWidget(tracksButton);
     if (canSwitchTrackBackends())
         toolbar->addSeparator();
     //: Short for "software", shown on a narrow toolbar button.
@@ -158,6 +170,20 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
     outerLayout->addWidget(d->m_overview);
 
     // ---- Toolbar connections ----
+    connect(tracksMenu, &QMenu::aboutToShow, this, [this, tracksMenu] {
+        tracksMenu->clear();
+        d->m_content->populateTracksMenu(tracksMenu);
+    });
+    const auto updateTracksButton = [this, tracksButton] {
+        const int hidden = d->m_content->hiddenTrackCount();
+        tracksButton->setToolTip(hidden > 0
+            ? Tr::tr("Show or Hide Categories (%1 hidden)").arg(hidden)
+            : Tr::tr("Show or Hide Categories"));
+    };
+    connect(d->m_content, &TimelineContentWidget::hiddenTrackCountChanged,
+            this, updateTracksButton);
+    updateTracksButton();
+
     connect(prevAction, &QAction::triggered, d->m_content, &TimelineContentWidget::jumpToPrev);
     connect(nextAction, &QAction::triggered, d->m_content, &TimelineContentWidget::jumpToNext);
 

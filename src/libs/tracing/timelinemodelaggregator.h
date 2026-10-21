@@ -6,6 +6,11 @@
 #include "timelinemodel.h"
 #include "timelinenotesmodel.h"
 
+namespace Utils {
+class Key;
+class QtcSettings;
+} // namespace Utils
+
 namespace Timeline {
 
 struct ModelItem
@@ -48,6 +53,13 @@ public:
 
     void moveModel(int from, int to);
 
+    bool isModelHidden(int modelId) const;
+    void setModelHidden(int modelId, bool hidden);
+    void showOnlyModel(int modelId);
+    void showAllModels();
+
+    void persistLayout(Utils::QtcSettings *settings, const Utils::Key &key);
+
     ModelItem nextItem(int selectedModel, int selectedItem, qint64 time) const;
     ModelItem prevItem(int selectedModel, int selectedItem, qint64 time) const;
 
@@ -56,6 +68,7 @@ signals:
     void heightChanged();
     void notesChanged();
     void pausedRangesChanged();
+    void hiddenModelsChanged();
     void updateCursorPosition();
 
 private:

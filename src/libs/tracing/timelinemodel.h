@@ -102,6 +102,8 @@ public:
     void setHidden(bool hidden);
     void setDisplayName(const QString &displayName);
     QString displayName() const;
+    QString persistentId() const;
+    void setPersistentId(const QString &persistentId);
     int expandedRowCount() const;
     int collapsedRowCount() const;
     int rowCount() const;

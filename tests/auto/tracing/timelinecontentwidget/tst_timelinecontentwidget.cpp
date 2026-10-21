@@ -16,6 +16,7 @@
 #include <utils/theme/theme_p.h>
 
 #include <QApplication>
+#include <QMenu>
 #include <QNativeGestureEvent>
 #include <QPointingDevice>
 #include <QScrollArea>
@@ -87,6 +88,67 @@ public:
     TimelineZoomControl zoom;
     TimelineDetailsWidget details;
     LocatedModel *model = nullptr;          // Owned by the aggregator.
+    TimelineContentWidget *content = nullptr;
+};
+
+// Three categories of a QML trace, the middle one between the two the user wants
+// to compare.
+class CategoryTimeline
+{
+public:
+    CategoryTimeline()
+    {
+        zoom.setTrace(0, traceEnd);
+        zoom.setRange(0, traceEnd);
+        content = new TimelineContentWidget(&aggregator, &zoom, &details);
+        for (const char *name : {"Memory Usage", "Pixmap Cache", "Creating"}) {
+            auto model = new LocatedModel(&aggregator, 1, 2);
+            model->setDisplayName(QString::fromLatin1(name));
+            aggregator.addModel(model);
+            models.append(model);
+        }
+        content->resize(800, 300);
+    }
+
+    ~CategoryTimeline() { delete content; }
+
+    static constexpr qint64 traceEnd = 1000;
+
+    TrackPainterBase *tracks() const
+    {
+        return content->findChild<TrackPainterRaster *>();
+    }
+    TrackLabels *labels() const { return content->findChild<TrackLabels *>(); }
+
+    QStringList trackNames() const
+    {
+        QStringList names;
+        for (int i = 0; i < tracks()->trackCount(); ++i)
+            names.append(tracks()->trackModel(i)->displayName());
+        return names;
+    }
+
+    // The action of the menu the content pops up, by its text.
+    QAction *menuAction(const QString &text) const
+    {
+        for (QMenu *menu : content->findChildren<QMenu *>()) {
+            for (QAction *action : menu->actions()) {
+                if (action->text() == text)
+                    return action;
+            }
+        }
+        return nullptr;
+    }
+
+    void closeMenus() const
+    {
+        qDeleteAll(content->findChildren<QMenu *>(Qt::FindDirectChildrenOnly));
+    }
+
+    TimelineModelAggregator aggregator;
+    TimelineZoomControl zoom;
+    TimelineDetailsWidget details;
+    QList<TimelineModel *> models; // Owned by the aggregator.
     TimelineContentWidget *content = nullptr;
 };
 
@@ -190,6 +252,11 @@ private slots:
     void aPinchInABrowserZooms_data();
     void aPinchInABrowserZooms();
     void thePausedRangesLieBetweenTracksAndSelection();
+    void aHiddenCategoryLeavesNoGap();
+    void theLabelsSayHowManyAreHidden();
+    void showingOnlyOneCategoryHidesTheOthers();
+    void movingAcrossAHiddenCategoryKeepsItsPlace();
+    void theTitleRowOffersToBeDragged();
 };
 
 void tst_TimelineContentWidget::initTestCase()
@@ -384,6 +451,139 @@ void tst_TimelineContentWidget::thePausedRangesLieBetweenTracksAndSelection()
     QTRY_VERIFY(viewport->size() != before);
     QCOMPARE(paused->size(), viewport->size());
     QCOMPARE(selection->size(), viewport->size());
+}
+
+void tst_TimelineContentWidget::aHiddenCategoryLeavesNoGap()
+{
+    CategoryTimeline timeline;
+    QCOMPARE(timeline.trackNames(),
+             QStringList({"Memory Usage", "Pixmap Cache", "Creating"}));
+    const int creatingWasAt = timeline.tracks()->trackYOffset(2);
+    const int pixmapsAt = timeline.tracks()->trackYOffset(1);
+    QSignalSpy hiddenCount(timeline.content, &TimelineContentWidget::hiddenTrackCountChanged);
+
+    timeline.aggregator.setModelHidden(timeline.models.at(1)->modelId(), true);
+
+    QCOMPARE(timeline.trackNames(), QStringList({"Memory Usage", "Creating"}));
+    // What was below moves up into the place of what is hidden.
+    QCOMPARE(timeline.tracks()->trackYOffset(1), pixmapsAt);
+    QVERIFY(timeline.tracks()->trackYOffset(1) < creatingWasAt);
+    QCOMPARE(hiddenCount.count(), 1);
+    QCOMPARE(hiddenCount.at(0).at(0).toInt(), 1);
+    QCOMPARE(timeline.content->hiddenTrackCount(), 1);
+
+    timeline.aggregator.showAllModels();
+    QCOMPARE(timeline.trackNames(),
+             QStringList({"Memory Usage", "Pixmap Cache", "Creating"}));
+    QCOMPARE(timeline.tracks()->trackYOffset(2), creatingWasAt);
+    QCOMPARE(hiddenCount.count(), 2);
+    QCOMPARE(timeline.content->hiddenTrackCount(), 0);
+}
+
+void tst_TimelineContentWidget::theLabelsSayHowManyAreHidden()
+{
+    CategoryTimeline timeline;
+    timeline.content->show();
+    QVERIFY(QTest::qWaitForWindowExposed(timeline.content));
+    TrackLabels *labels = timeline.labels();
+    QCOMPARE(labels->footerHeight(), 0);
+    const int heightWithAll = labels->sizeHint().height();
+
+    timeline.aggregator.setModelHidden(timeline.models.at(1)->modelId(), true);
+    QCOMPARE(labels->hiddenTrackCount(), 1);
+    QVERIFY(labels->footerHeight() > 0);
+    // The note takes the place of a track, not one in addition to them.
+    QVERIFY(labels->sizeHint().height() < heightWithAll);
+
+    // It sits right below the last track, and clicking it offers the choice.
+    QSignalSpy clicked(labels, &TrackLabels::hiddenTracksClicked);
+    const int footerY = kTimeLineTopMargin + labels->sizeHint().height()
+                        - labels->footerHeight() / 2;
+    QTest::mouseClick(labels, Qt::LeftButton, {}, QPoint(labels->width() / 2, footerY));
+    QCOMPARE(clicked.count(), 1);
+    QAction *creating = timeline.menuAction("Creating");
+    QAction *pixmaps = timeline.menuAction("Pixmap Cache");
+    QVERIFY(creating);
+    QVERIFY(pixmaps);
+    QVERIFY(creating->isChecked());
+    QVERIFY(!pixmaps->isChecked());
+
+    pixmaps->setChecked(true);
+    QCOMPARE(labels->hiddenTrackCount(), 0);
+    QCOMPARE(labels->footerHeight(), 0);
+}
+
+void tst_TimelineContentWidget::showingOnlyOneCategoryHidesTheOthers()
+{
+    CategoryTimeline timeline;
+    TrackLabels *labels = timeline.labels();
+
+    emit labels->contextMenuRequested(2, QPoint());
+    QAction *showOnly = timeline.menuAction("Show Only \"Creating\"");
+    QVERIFY(showOnly);
+    showOnly->trigger();
+    QCOMPARE(timeline.trackNames(), QStringList({"Creating"}));
+    QCOMPARE(labels->hiddenTrackCount(), 2);
+
+    // And the one to compare it with, from the same menu.
+    timeline.closeMenus();
+    emit labels->contextMenuRequested(0, QPoint());
+    QAction *memory = timeline.menuAction("Memory Usage");
+    QVERIFY(memory);
+    QVERIFY(!memory->isChecked());
+    memory->setChecked(true);
+    QCOMPARE(timeline.trackNames(), QStringList({"Memory Usage", "Creating"}));
+    QCOMPARE(labels->hiddenTrackCount(), 1);
+}
+
+void tst_TimelineContentWidget::movingAcrossAHiddenCategoryKeepsItsPlace()
+{
+    CategoryTimeline timeline;
+    timeline.aggregator.setModelHidden(timeline.models.at(1)->modelId(), true);
+
+    emit timeline.labels()->contextMenuRequested(1, QPoint());
+    QAction *moveUp = timeline.menuAction("Move Up");
+    QVERIFY(moveUp);
+    QVERIFY(moveUp->isEnabled());
+    QVERIFY(!timeline.menuAction("Move Down")->isEnabled());
+    moveUp->trigger();
+
+    QCOMPARE(timeline.trackNames(), QStringList({"Creating", "Memory Usage"}));
+    // The hidden one comes back where it was, after the track it followed.
+    timeline.aggregator.showAllModels();
+    QCOMPARE(timeline.trackNames(),
+             QStringList({"Creating", "Memory Usage", "Pixmap Cache"}));
+
+    // A hidden track above stays above: moving up goes past visible tracks only.
+    timeline.closeMenus();
+    timeline.aggregator.setModelHidden(timeline.models.at(2)->modelId(), true);
+    emit timeline.labels()->contextMenuRequested(1, QPoint());
+    timeline.menuAction("Move Up")->trigger();
+    QCOMPARE(timeline.trackNames(), QStringList({"Pixmap Cache", "Memory Usage"}));
+    timeline.aggregator.showAllModels();
+    QCOMPARE(timeline.trackNames(),
+             QStringList({"Creating", "Pixmap Cache", "Memory Usage"}));
+}
+
+void tst_TimelineContentWidget::theTitleRowOffersToBeDragged()
+{
+    CategoryTimeline timeline;
+    timeline.content->show();
+    QVERIFY(QTest::qWaitForWindowExposed(timeline.content));
+    TrackLabels *labels = timeline.labels();
+    const QPoint overTitle(kTimeLineLeftMargin / 2, kTimeLineTopMargin + 10);
+
+    // Sent rather than QTest::mouseMove(), which moves the real cursor.
+    QMouseEvent hover(QEvent::MouseMove, overTitle, labels->mapToGlobal(overTitle),
+                      Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+    QApplication::sendEvent(labels, &hover);
+    QCOMPARE(labels->cursor().shape(), Qt::OpenHandCursor);
+
+    QSignalSpy menu(labels, &TrackLabels::contextMenuRequested);
+    QTest::mousePress(labels, Qt::RightButton, {}, overTitle);
+    QCOMPARE(menu.count(), 1);
+    QCOMPARE(menu.at(0).at(0).toInt(), 0);
+    QTest::mouseRelease(labels, Qt::RightButton, {}, overTitle);
 }
 
 QTEST_MAIN(tst_TimelineContentWidget)

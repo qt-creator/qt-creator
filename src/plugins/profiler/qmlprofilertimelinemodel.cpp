@@ -18,6 +18,7 @@ QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *mode
     m_modelManager(modelManager)
 {
     setDisplayName(Tr::tr(QmlProfilerModelManager::featureName(mainFeature)));
+    setPersistentId(QString::fromLatin1(QmlProfilerModelManager::featureName(mainFeature)));
     connect(modelManager, &QmlProfilerModelManager::typeDetailsFinished,
             this, &Timeline::TimelineModel::labelsChanged);
     connect(modelManager, &QmlProfilerModelManager::typeDetailsFinished,

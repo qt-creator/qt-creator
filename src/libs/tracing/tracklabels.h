@@ -35,8 +35,11 @@ public:
 
     void setTracks(const QList<TrackInfo> &tracks);
     void setScrollOffset(int y);
+    void setHiddenTrackCount(int count);
 
     int scrollOffset() const { return m_scrollOffset; }
+    int hiddenTrackCount() const { return m_hiddenTrackCount; }
+    int footerHeight() const;
 
     QSize sizeHint() const override;
 
@@ -46,13 +49,17 @@ signals:
     void rowLabelClicked(int trackIndex, int rowIndex, bool reverse);
     void rowHeightChangeRequested(int trackIndex, int rowIndex, int newHeight);
     void noteClicked(int trackIndex, int eventId);
+    void contextMenuRequested(int trackIndex, const QPoint &globalPos);
+    void hiddenTracksClicked(const QPoint &globalPos);
 
 protected:
     bool event(QEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 
 private:
     QList<TrackInfo> m_tracks;
@@ -67,8 +74,14 @@ private:
     int m_resizeStartY = 0;
     int m_resizeOrigHeight = 0;
     QList<int> m_noteCurrentIdx;
+    int m_hiddenTrackCount = 0;
+    int m_hoverTrack = -1;
+    bool m_hoverFooter = false;
 
     void updateTotalHeight();
+    void setHover(int track, bool footer);
+    int titleRowAt(const QPoint &pos) const;
+    QRect footerRect() const;
 };
 
 } // namespace Timeline

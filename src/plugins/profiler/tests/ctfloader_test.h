@@ -24,6 +24,7 @@ private slots:
     void testLoadRestrictedToOneProvider();
     void testEventsOfNoProviderAreAlwaysLoaded();
     void testRestrictingAProviderReloadsTheTrace();
+    void testThreadsAreKnownByNameAcrossTraces();
     void testAThreadRestrictionOutlivesAProviderChange();
     void testARestrictionReplacesOneFromAClearedProvider();
     void testTheShownRangeOutlivesAProviderChange();

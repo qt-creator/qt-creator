@@ -3,6 +3,7 @@ import "../tracingautotest.qbs" as TracingAutotest
 
 TracingAutotest {
     name: "TimelineModelAggregator autotest"
+    Depends { name: "Utils" }
     Group {
         name: "Test sources"
         files: [

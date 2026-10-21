@@ -13,6 +13,7 @@
 #include "perfsettings.h"
 #include "perftimelinemodelmanager.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/kit.h>
@@ -120,6 +121,7 @@ PerfProfilerTraceBackend::PerfProfilerTraceBackend(Timeline::TimelineDetailsWidg
     , d(new PerfProfilerTraceBackendPrivate)
 {
     d->timelineDetails = details;
+    d->modelManager.persistLayout(Core::ICore::settings(), "Analyzer/PerfTimeline");
     d->traceManager.registerFeatures(PerfEventType::allFeatures(),
                                      [this] { initialize(); },
                                      [this] { finalize(); },

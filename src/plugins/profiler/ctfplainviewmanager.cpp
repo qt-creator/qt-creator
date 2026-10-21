@@ -9,6 +9,8 @@
 #include "ctftracemanager.h"
 #include "profilertr.h"
 
+#include <coreplugin/icore.h>
+
 #include <tracing/timelinedetailswidget.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinewidget.h>
@@ -86,6 +88,7 @@ CtfPlainViewManager::CtfPlainViewManager(Timeline::TimelineDetailsWidget *detail
     // itself instead would never be shown, leaving this backend without details.
     QTC_CHECK(details);
     d->timelineDetails = details;
+    d->modelAggregator.persistLayout(Core::ICore::settings(), "Analyzer/CtfTimeline");
 }
 
 CtfPlainViewManager::~CtfPlainViewManager()

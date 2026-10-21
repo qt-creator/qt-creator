@@ -18,6 +18,7 @@
 
 #include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/icore.h>
 #include <tracing/timelinezoomcontrol.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinewidget.h>
@@ -121,6 +122,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QmlProfilerModelManager *modelManager
     for (int i = 0; i < MaximumRangeType; ++i)
         models.append(new QmlProfilerRangeModel(modelManager, (RangeType)i, &d->m_modelProxy));
     d->m_modelProxy.setModels(models);
+    d->m_modelProxy.persistLayout(Core::ICore::settings(), "Analyzer/QmlProfilerTimeline");
 
     d->m_mainView = new Timeline::TimelineWidget(&d->m_modelProxy, &d->m_zoomControl, details,
                                                  this);

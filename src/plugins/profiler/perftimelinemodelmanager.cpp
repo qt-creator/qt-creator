@@ -83,6 +83,18 @@ void PerfTimelineModelManager::finalize()
         return a->tid() < b->tid();
     });
 
+    // A thread is known by its name across traces, as its tid does not outlive
+    // the process. Threads sharing a name are told apart by their order.
+    QHash<QString, int> sameName;
+    for (PerfTimelineModel *model : std::as_const(finished)) {
+        const QString name = QString::fromUtf8(
+            m_traceManager->string(m_traceManager->thread(model->tid()).name));
+        if (name.isEmpty())
+            continue;
+        const int earlier = sameName[name]++;
+        model->setPersistentId(earlier ? QString("%1#%2").arg(name).arg(earlier + 1) : name);
+    }
+
     QList<Timeline::TimelineModel *> modelsToAdd;
     for (PerfTimelineModel *model : std::as_const(finished))
         modelsToAdd.append(model);

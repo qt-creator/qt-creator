@@ -583,6 +583,23 @@ QString TimelineModel::displayName() const
     return d->displayName;
 }
 
+/*!
+    Returns the name the model is known by across traces and sessions. Unlike
+    modelId(), it stays the same when the model is created again for another
+    trace, and unlike displayName(), it is not translated. The aggregator keys
+    the order and the hidden state the user chose on it. A model without one
+    takes its place from its owner every time.
+*/
+QString TimelineModel::persistentId() const
+{
+    return d->persistentId;
+}
+
+void TimelineModel::setPersistentId(const QString &persistentId)
+{
+    d->persistentId = persistentId;
+}
+
 int TimelineModel::rowCount() const
 {
     return d->expanded ? d->expandedRowCount : d->collapsedRowCount;

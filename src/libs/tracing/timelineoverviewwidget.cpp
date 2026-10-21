@@ -46,6 +46,10 @@ TimelineOverviewWidget::TimelineOverviewWidget(TimelineModelAggregator *aggregat
         update();
     });
     connect(aggregator, &TimelineModelAggregator::pausedRangesChanged, this, [this] { update(); });
+    connect(aggregator, &TimelineModelAggregator::hiddenModelsChanged, this, [this] {
+        m_contentDirty = true;
+        update();
+    });
     connect(aggregator, &TimelineModelAggregator::notesChanged, this, [this] {
         m_contentDirty = true;
         update();
@@ -142,10 +146,13 @@ void TimelineOverviewWidget::rebuildContentCache()
         return;
     }
 
+    const auto isHidden = [this](const TimelineModel *model) {
+        return model->hidden() || m_aggregator->isModelHidden(model->modelId());
+    };
     const QList<TimelineModel *> models = m_aggregator->models();
     int numModels = 0;
     for (TimelineModel *model : models) {
-        if (!model->hidden())
+        if (!isHidden(model))
             ++numModels;
     }
 
@@ -157,7 +164,7 @@ void TimelineOverviewWidget::rebuildContentCache()
         const double bandH = double(contentH) / double(numModels);
         int bandIdx = 0;
         for (TimelineModel *model : models) {
-            if (!model || model->hidden())
+            if (!model || isHidden(model))
                 continue;
 
             const double bandY = contentTop + bandIdx * bandH;
@@ -217,7 +224,7 @@ void TimelineOverviewWidget::rebuildContentCache()
             const int modelId = notes->timelineModel(i);
             TimelineModel *noteModel = nullptr;
             for (TimelineModel *model : models) {
-                if (!model || model->hidden())
+                if (!model || isHidden(model))
                     continue;
                 if (model->modelId() == modelId) {
                     noteModel = model;

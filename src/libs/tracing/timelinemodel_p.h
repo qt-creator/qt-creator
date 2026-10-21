@@ -134,6 +134,7 @@ public:
     QList<int> rowOffsets;
     const int modelId;
     QString displayName;
+    QString persistentId;
     QString tooltip;
     QColor categoryColor;
     bool hasMixedTypesInExpandedState;
