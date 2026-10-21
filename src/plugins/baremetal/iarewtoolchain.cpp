@@ -205,6 +205,17 @@ static Abi::Architecture guessArchitecture(const Macros &macros)
 
 static unsigned char guessWordWidth(const Macros &macros)
 {
+    // On 64-bit Arm and RISC-V targets int is still 32 bits wide.
+    const auto isDefined = [&macros](const QByteArray &key, const QByteArray &value = {}) {
+        return Utils::anyOf(macros, [&](const Macro &m) {
+            return m.key == key && m.type == MacroType::Define
+                   && (value.isEmpty() || m.value == value);
+        });
+    };
+    if (isDefined("__aarch64__") || isDefined("__riscv_xlen", "64")
+        || isDefined("__POINTER_SIZE__", "8")) {
+        return 64;
+    }
     const Macro sizeMacro = Utils::findOrDefault(macros, [](const Macro &m) {
         return m.key == "__INT_SIZE__";
     });
@@ -302,6 +313,7 @@ public:
     bool operator==(const Toolchain &other) const final;
 
     QStringList extraCodeModelFlags() const final { return m_extraCodeModelFlags(); }
+    QString originalTargetTriple() const final;
 
     FilePath makeCommand(const Environment &) const final { return {}; }
 
@@ -387,6 +399,25 @@ WarningFlags IarToolchain::warningFlags(const QStringList &cxxflags) const
 {
     Q_UNUSED(cxxflags)
     return WarningFlag::Default;
+}
+
+// Without one, clang takes the sizes of the types from the host.
+QString IarToolchain::originalTargetTriple() const
+{
+    const Abi abi = targetAbi();
+    switch (abi.architecture()) {
+    case Abi::ArmArchitecture:
+        return abi.wordWidth() == 64 ? QString("aarch64-none-elf") : QString("arm-none-eabi");
+    case Abi::AvrArchitecture:
+        return "avr";
+    case Abi::Msp430Architecture:
+        return "msp430";
+    case Abi::RiscVArchitecture:
+        return abi.wordWidth() == 64 ? QString("riscv64-unknown-elf")
+                                     : QString("riscv32-unknown-elf");
+    default:
+        return {};
+    }
 }
 
 Toolchain::BuiltInHeaderPathsRunner IarToolchain::createBuiltInHeaderPathsRunner(
