@@ -9,10 +9,12 @@
 #include <utils/elidinglabel.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
+#include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/widgets.h>
 
+#include <QAction>
 #include <QFont>
 #include <QHeaderView>
 #include <QJsonArray>
@@ -61,6 +63,17 @@ TimelineDetailsWidget::TimelineDetailsWidget(QWidget *parent)
     m_treeView->setItemsExpandable(false);
     m_treeView->setIndentation(Utils::StyleHelper::SpacingTokens::PaddingHL);
     m_treeView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+
+    auto copyAction = new QAction(Tr::tr("Copy Value"), m_treeView);
+    copyAction->setShortcut(QKeySequence::Copy);
+    copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    connect(copyAction, &QAction::triggered, this, [this] {
+        const QString value = m_treeView->currentIndex().siblingAtColumn(1).data().toString();
+        if (!value.isEmpty())
+            Utils::setClipboardAndSelection(value);
+    });
+    m_treeView->addAction(copyAction);
+    m_treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     Column {
         customMargins(Utils::StyleHelper::SpacingTokens::PaddingVS, 0, 0, 0),
@@ -159,6 +172,13 @@ static QStandardItem *createKeyItem(const QString &text)
     return item;
 }
 
+static void setValue(QStandardItem *keyItem, QStandardItem *valueItem, const QString &text)
+{
+    valueItem->setText(text);
+    keyItem->setToolTip(text);
+    valueItem->setToolTip(text);
+}
+
 // Fills the row formed by (keyItem, valueItem) from a JSON value. Containers are
 // expanded into child rows of keyItem -- children must hang off the column-0 item,
 // otherwise the tree cannot navigate or expand them. Scalars go into valueItem.
@@ -182,7 +202,7 @@ static void fillJson(QStandardItem *keyItem, QStandardItem *valueItem, const QJs
             keyItem->appendRow({childKey, childVal});
         }
     } else {
-        valueItem->setText(value.toVariant().toString());
+        setValue(keyItem, valueItem, value.toVariant().toString());
     }
 }
 
@@ -210,7 +230,8 @@ void TimelineDetailsWidget::rebuildRows(const QList<QPair<QString, QString>> &co
             }
         }
 
-        auto valItem = new QStandardItem(val);
+        auto valItem = new QStandardItem;
+        setValue(keyItem, valItem, val);
         valItem->setSizeHint({-1, lineHeight});
         m_model->appendRow({keyItem, valItem});
     }
