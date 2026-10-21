@@ -141,6 +141,8 @@ CPPEDITOR_EXPORT ClangdSettings::Data clangdSettingsForProject(ProjectExplorer::
 
 CPPEDITOR_EXPORT void clangdBlockIndexingForProject(ProjectExplorer::Project *project);
 CPPEDITOR_EXPORT void clangdUnblockIndexingForProject(ProjectExplorer::Project *project);
+CPPEDITOR_EXPORT void clangdSetDefaultExecutable(ProjectExplorer::BuildConfiguration *bc,
+                                                 const Utils::FilePath &clangd);
 CPPEDITOR_EXPORT void clangdSetDiagnosticConfigId(ProjectExplorer::Project *project, Utils::Id id);
 
 namespace Internal {

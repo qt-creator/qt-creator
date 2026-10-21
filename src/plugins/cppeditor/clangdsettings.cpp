@@ -83,6 +83,7 @@ static Key updateDependentSourcesKey() { return "updateDependentSources"; }
 static Key useExternalCompilationDbKey() { return "ClangdUseExternalCompilationDb"; }
 
 const char blockProjectIndexingProperty[] = "ClangBlockProjectIndexing";
+const char defaultClangdProperty[] = "ClangdDefaultExecutable";
 
 QString ClangdSettings::priorityToString(const IndexingPriority &priority)
 {
@@ -622,7 +623,7 @@ static FilePath getClangHeadersPath(const FilePath &clangdFilePath)
                 return includePath;
         }
     }
-    QTC_CHECK(false);
+    // Toolchains can come with a clangd that relies on their own headers.
     return {};
 }
 
@@ -636,8 +637,7 @@ FilePath ClangdSettings::Data::clangdIncludePath(const Kit *kit) const
     if (it != headersPathCache.constEnd())
         return *it;
     const FilePath headersPath = getClangHeadersPath(clangdPath);
-    if (!headersPath.isEmpty())
-        headersPathCache.insert(clangdPath, headersPath);
+    headersPathCache.insert(clangdPath, headersPath);
     return headersPath;
 }
 
@@ -877,21 +877,30 @@ static ClangdProjectSettings *clangdProjectSettings(Project *project)
     return projectSettings<ClangdProjectSettings>(project);
 }
 
-ClangdSettings::Data clangdSettingsForProject(Project *project)
+static ClangdSettings::Data clangdSettings(Project *project, BuildConfiguration *bc)
 {
     if (!project)
         return ClangdSettings::instance().data();
     const auto *ps = clangdProjectSettings(project);
     ClangdSettings::Data d = ps->useGlobalSettings()
         ? ClangdSettings::instance().data() : ps->data();
+    const FilePath clangd = bc ? bc->property(defaultClangdProperty).value<FilePath>()
+                               : FilePath();
+    if (d.executableFilePath.isEmpty() && checkClangdVersion(clangd))
+        d.executableFilePath = clangd;
     if (project->property(blockProjectIndexingProperty).toBool())
         d.indexingPriority = ClangdSettings::IndexingPriority::Off;
     return d;
 }
 
+ClangdSettings::Data clangdSettingsForProject(Project *project)
+{
+    return clangdSettings(project, project ? project->activeBuildConfiguration() : nullptr);
+}
+
 ClangdSettings::Data clangdSettingsForProject(BuildConfiguration *bc)
 {
-    return clangdSettingsForProject(bc ? bc->project() : nullptr);
+    return clangdSettings(bc ? bc->project() : nullptr, bc);
 }
 
 void clangdBlockIndexingForProject(Project *project)
@@ -906,6 +915,16 @@ void clangdUnblockIndexingForProject(Project *project)
 {
     QTC_ASSERT(project, return);
     project->setProperty(blockProjectIndexingProperty, false);
+}
+
+void clangdSetDefaultExecutable(BuildConfiguration *bc, const FilePath &clangd)
+{
+    QTC_ASSERT(bc, return);
+    if (bc->property(defaultClangdProperty).value<FilePath>() == clangd)
+        return;
+    bc->setProperty(defaultClangdProperty, QVariant::fromValue(clangd));
+
+    emit ClangdSettings::instance().changed();
 }
 
 void clangdSetDiagnosticConfigId(Project *project, Id id)
