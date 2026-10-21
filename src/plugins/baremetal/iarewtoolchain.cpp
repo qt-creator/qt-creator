@@ -320,13 +320,50 @@ Toolchain::MacroInspectionRunner IarToolchain::createMacroInspectionRunner() con
     return [env, compiler, extraArgs, macrosCache, languageId]
             (const QStringList &flags) {
         Macros macros = dumpPredefinedMacros(compiler, extraArgs + flags, languageId, env);
-        macros.append({"__intrinsic", "", MacroType::Define});
-        macros.append({"__nounwind", "", MacroType::Define});
-        macros.append({"__noreturn", "", MacroType::Define});
-        macros.append({"__no_init", "", MacroType::Define});
-        macros.append({"__packed", "", MacroType::Define});
-        macros.append({"__spec_string", "", MacroType::Define});
+        // Extended keywords and operators that clang does not know.
+        macros.append({"__absolute", "", MacroType::Define});
+        macros.append({"__arm", "", MacroType::Define});
+        macros.append({"__big_endian", "", MacroType::Define});
+        macros.append({"__code", "", MacroType::Define});
         macros.append({"__constrange(__a,__b)", "", MacroType::Define});
+        macros.append({"__data", "", MacroType::Define});
+        macros.append({"__fiq", "", MacroType::Define});
+        macros.append({"__inited", "", MacroType::Define});
+        macros.append({"__interrupt", "", MacroType::Define});
+        macros.append({"__interwork", "", MacroType::Define});
+        macros.append({"__intrinsic", "", MacroType::Define});
+        macros.append({"__irq", "", MacroType::Define});
+        macros.append({"__little_endian", "", MacroType::Define});
+        macros.append({"__monitor", "", MacroType::Define});
+        macros.append({"__naked", "", MacroType::Define});
+        macros.append({"__nested", "", MacroType::Define});
+        macros.append({"__no_alloc", "", MacroType::Define});
+        macros.append({"__no_alloc16", "", MacroType::Define});
+        macros.append({"__no_init", "", MacroType::Define});
+        macros.append({"__no_scratch", "", MacroType::Define});
+        macros.append({"__noreturn", "", MacroType::Define});
+        macros.append({"__nounwind", "", MacroType::Define});
+        macros.append({"__out_of_image", "", MacroType::Define});
+        macros.append({"__packed", "", MacroType::Define});
+        macros.append({"__pcrel", "", MacroType::Define});
+        macros.append({"__ramfunc", "", MacroType::Define});
+        macros.append({"__ro_placement", "", MacroType::Define});
+        macros.append({"__root", "", MacroType::Define});
+        macros.append({"__spec_string", "", MacroType::Define});
+        macros.append({"__stackless", "", MacroType::Define});
+        macros.append({"__swi", "", MacroType::Define});
+        macros.append({"__task", "", MacroType::Define});
+        macros.append({"__thumb", "", MacroType::Define});
+        macros.append({"__weak", "", MacroType::Define});
+        macros.append({"__section_begin(...)", "((void *) 0)", MacroType::Define});
+        macros.append({"__section_end(...)", "((void *) 0)", MacroType::Define});
+        macros.append({"__section_size(...)", "0", MacroType::Define});
+        macros.append({"__segment_begin(...)", "((void *) 0)", MacroType::Define});
+        macros.append({"__segment_end(...)", "((void *) 0)", MacroType::Define});
+        macros.append({"__segment_size(...)", "0", MacroType::Define});
+        macros.append({"__sfb(...)", "((void *) 0)", MacroType::Define});
+        macros.append({"__sfe(...)", "((void *) 0)", MacroType::Define});
+        macros.append({"__sfs(...)", "0", MacroType::Define});
 
         const auto languageVersion = Toolchain::languageVersion(languageId, macros);
         const auto report = MacroInspectionReport{macros, languageVersion};
