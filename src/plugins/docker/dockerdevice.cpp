@@ -66,6 +66,7 @@
 #include <QRandomGenerator>
 #include <QRegularExpression>
 #include <QStandardItem>
+#include <QTcpServer>
 #include <QTextBrowser>
 #include <QThread>
 #include <QTimer>
@@ -194,6 +195,7 @@ public:
         bool keepEntryPoint = false;
         bool enableLldbFlags = false;
         QString network;
+        QList<int> publishedPorts;
         QList<MountPair> mounts;
         QString extraArgs;
         QString repoTag;
@@ -911,6 +913,9 @@ CommandLine DockerDevicePrivate::createCommandLine(const CreateCommandLineParams
 
     dockerCreate.addArgs(q->portMappings.createArguments());
 
+    for (const int port : p.publishedPorts)
+        dockerCreate.addArgs({"-p", QString("127.0.0.1:%1:%1/tcp").arg(port)});
+
     if (!p.keepEntryPoint)
         dockerCreate.addArgs({"--entrypoint", "/bin/sh"});
 
@@ -942,13 +947,30 @@ Result<QString> DockerDevicePrivate::updateContainerAccess()
     if (*lockedThread)
         return (*lockedThread)->containerId();
 
+    CreateCommandLineParams params = appliedParams();
+
+    // The tools reach the container through "localhost", which only works for
+    // ports that are published. Offer just the ports that are usable on both sides.
+    const QSet<int> usedPorts = q->portMappings.usedPorts();
+    const bool isPublishable = params.network != "host" && params.network != "none";
     PortList freePortRange;
-    freePortRange.addRange(Port(10002), Port(10099));
+    for (int port = 10002; isPublishable && port <= 10099 && params.publishedPorts.size() < 10;
+         ++port) {
+        QTcpServer probe;
+        if (usedPorts.contains(port) || !probe.listen(QHostAddress::LocalHost, port))
+            continue;
+        params.publishedPorts.append(port);
+        freePortRange.addRange(Port(port), Port(port));
+    }
+    if (!isPublishable)
+        freePortRange.addRange(Port(10002), Port(10099));
+    else if (params.publishedPorts.isEmpty())
+        qCWarning(dockerDeviceLog) << "No free host port for QML debugging found.";
     q->setFreePorts(freePortRange);
 
     DockerContainerThread::Init init;
     init.dockerBinaryPath = m_containerSettings->binaryPath();
-    init.createContainerCmd = createCommandLine(appliedParams());
+    init.createContainerCmd = createCommandLine(params);
 
     auto result = DockerContainerThread::create(init);
 
@@ -1369,15 +1391,14 @@ QStringList PortMappings::createArguments() const
     return cmds;
 }
 
-QSet<int> PortMappings::usedContainerPorts() const
+QSet<int> PortMappings::usedPorts() const
 {
-    QSet<int> usedPorts;
-
-    forEachItem([&usedPorts](const std::shared_ptr<PortMapping> &portMapping) {
-        usedPorts.insert(portMapping->containerPort());
+    QSet<int> ports;
+    forEachItem([&ports](const std::shared_ptr<PortMapping> &portMapping) {
+        ports.insert(portMapping->hostPort());
+        ports.insert(portMapping->containerPort());
     });
-
-    return usedPorts;
+    return ports;
 }
 
 } // namespace Internal

@@ -29,7 +29,7 @@ public:
     explicit PortMappings(Utils::AspectContainer *container);
 
     QStringList createArguments() const;
-    QSet<int> usedContainerPorts() const;
+    QSet<int> usedPorts() const;
 };
 
 struct MountPair
