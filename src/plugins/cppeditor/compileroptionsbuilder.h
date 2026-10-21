@@ -95,6 +95,10 @@ private:
     QByteArray msvcVersion() const;
     void addIncludeFile(const Utils::FilePath &file);
     void removeUnsupportedCpuFlags();
+    bool isIgnoredCompilerFlag(const QString &option) const;
+    void evaluateClangFlags();
+    void addDriverModeForMsvc(bool containsDriverMode);
+    bool hasClangFlagsFromBuildSystem() const;
 
 private:
     const ProjectPart &m_projectPart;

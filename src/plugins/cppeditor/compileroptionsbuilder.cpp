@@ -26,6 +26,7 @@
 #include <QtGlobal>
 
 using namespace ProjectExplorer;
+using namespace Qt::StringLiterals;
 using namespace Utils;
 
 namespace CppEditor {
@@ -69,6 +70,48 @@ static QStringList cpuBlacklist()
     QStringList blacklist = qtcEnvironmentVariable("QTC_CLANGD_CPU_BLACKLIST")
                                 .split(':', Qt::SkipEmptyParts);
     return blacklist << "cortex-a72.cortex-a53"; // See QTCREATORBUG-29304
+}
+
+static bool takesSeparateArgument(QStringView option, bool clStyle = false)
+{
+    static constexpr QLatin1StringView options[] = {
+        "-I"_L1, "-isystem"_L1, "-iquote"_L1, "-idirafter"_L1, "-iframework"_L1, "-iprefix"_L1,
+        "-iwithprefix"_L1, "-iwithprefixbefore"_L1, "-include"_L1, "-include-pch"_L1,
+        "-imacros"_L1, "-imsvc"_L1, "-ivfsoverlay"_L1, "-D"_L1, "-U"_L1, "-Xclang"_L1,
+        "-mllvm"_L1, "--sysroot"_L1, "-isysroot"_L1, "-target"_L1, "-arch"_L1, "-o"_L1,
+        "/I"_L1, "/D"_L1, "/U"_L1, "/FI"_L1, "/winsysroot"_L1,
+        "/vctoolsdir"_L1, "/winsdkdir"_L1, "/winsdkversion"_L1, "-winsysroot"_L1, "-FI"_L1,
+        "-vctoolsdir"_L1, "-winsdkdir"_L1, "-winsdkversion"_L1, "/imsvc"_L1, "/external:I"_L1,
+        "-external:I"_L1, "-resource-dir"_L1,
+        "-gcc-toolchain"_L1, "-Xpreprocessor"_L1, "-Xassembler"_L1, "-Xlinker"_L1,
+        "-isystem-after"_L1, "-cxx-isystem"_L1, "-iwithsysroot"_L1, "-F"_L1, "-B"_L1};
+    // In cl mode these mean something else, -MT for example is /MT, which takes no argument.
+    static constexpr QLatin1StringView gccOnlyOptions[] = {
+        "-x"_L1, "-MF"_L1, "-MT"_L1, "-MQ"_L1, "-MJ"_L1};
+    const auto contains = [option](const auto &list) {
+        return std::find(std::begin(list), std::end(list), option) != std::end(list);
+    };
+    return contains(options) || (!clStyle && contains(gccOnlyOptions));
+}
+
+static bool takesSeparateCc1Argument(const QString &option)
+{
+    return takesSeparateArgument(option) || option == "-load" || option == "-add-plugin"
+           || option == "-plugin" || option.startsWith("-plugin-arg-");
+}
+
+static QStringList userOptionsBlacklist()
+{
+    return qtcEnvironmentVariable("QTC_CLANG_CMD_OPTIONS_BLACKLIST")
+        .split(';', Qt::SkipEmptyParts);
+}
+
+static bool isWarningOption(const QString &option)
+{
+    // -Wa,..., -Wl,... and -Wp,... are no warnings, they pass options on to other tools.
+    static const QRegularExpression re(
+        "^(-W(?![alp],).*|--?pedantic.*|/W.*|[-/]w|[-/]w[1-4deo]\\d*)$");
+    return re.match(option).hasMatch();
 }
 
 QStringList XclangArgs(const QStringList &args)
@@ -119,6 +162,19 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
     }
 
     addCompilerFlags();
+
+    // The build system's options for clang replace what would be derived from the toolchain,
+    // the project's macros and its header paths.
+    if (hasClangFlagsFromBuildSystem()) {
+        addSyntaxOnly();
+        updateFileLanguage(fileKind);
+        addPrecompiledHeaderOptions(usePrecompiledHeaders);
+        addProjectConfigFileInclude();
+        addMacros(m_additionalMacros);
+        addQtMacros();
+        insertWrappedQtHeaders();
+        return options();
+    }
 
     addSyntaxOnly();
     addWordWidth();
@@ -378,7 +434,17 @@ void CompilerOptionsBuilder::insertWrappedHeaders(const QStringList &relPaths)
     }
 
     static const QRegularExpression regexp("\\A-I.*\\z");
-    const int index = m_options.indexOf(regexp);
+    static const QRegularExpression clRegexp("\\A[-/]I.*\\z");
+    const QRegularExpression &re = m_clStyle ? clRegexp : regexp;
+    int index = -1;
+    for (int i = 0; i < m_options.size(); ++i) {
+        if (re.match(m_options.at(i)).hasMatch()) {
+            index = i;
+            break;
+        }
+        if (takesSeparateArgument(m_options.at(i), m_clStyle))
+            ++i; // Its value is no include option, even if it looks like one.
+    }
     if (index < 0)
         add(args);
     else
@@ -859,8 +925,12 @@ void CompilerOptionsBuilder::reset()
 //  QMakeProject: -pipe -Whello -g -std=gnu++11 -Wall -W -D_REENTRANT -fPIC
 void CompilerOptionsBuilder::evaluateCompilerFlags()
 {
-    const QStringList userBlackList = qtcEnvironmentVariable("QTC_CLANG_CMD_OPTIONS_BLACKLIST")
-                                           .split(';', Qt::SkipEmptyParts);
+    if (hasClangFlagsFromBuildSystem()) {
+        evaluateClangFlags();
+        return;
+    }
+
+    const QStringList userBlackList = userOptionsBlacklist();
 
     const Id toolChain = m_projectPart.toolchainType;
     bool containsDriverMode = false;
@@ -935,11 +1005,8 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             continue;
         }
 
-        if (Utils::anyOf(m_ignoredCompilerFlags, [&option](const QRegularExpression &re) {
-                return re.match(option).hasMatch();
-            })) {
+        if (isIgnoredCompilerFlag(option))
             continue;
-        }
 
         // GCC options that clang doesn't know.
         if (option.contains("direct-extern-access") || option == "-fnothrow-opt"
@@ -1002,18 +1069,95 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
         m_compilerFlags.flags.append(theOption);
     }
 
-    if (!m_nativeMode && !containsDriverMode
-        && (toolChain == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
-            || toolChain == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID)) {
-        m_clStyle = true;
-        m_compilerFlags.flags.prepend("--driver-mode=cl");
-    }
+    addDriverModeForMsvc(containsDriverMode);
 
     // Apple's headers are broken, see QTCREATORBUG-32499.
     // Note that the condition is not technically correct, but we don't know the target OS
     // here, and it shouldn't hurt to have the option where it is not strictly needed.
     if (HostOsInfo::isMacHost())
         m_compilerFlags.flags << "-Wno-elaborated-enum-base";
+}
+
+// The build system's options are meant for clang already. Only the user's choices of what
+// to leave out still apply to them. Warning flags interfere with the user's diagnostics.
+void CompilerOptionsBuilder::evaluateClangFlags()
+{
+    const QStringList userBlackList = userOptionsBlacklist();
+    const auto isDropped = [&](const QString &option) {
+        return userBlackList.contains(option)
+               || (m_useBuildSystemWarnings == UseBuildSystemWarnings::No
+                   && isWarningOption(option))
+               || isIgnoredCompilerFlag(option);
+    };
+    bool containsDriverMode = false;
+    const QStringList &clangFlags = m_projectPart.clangFlags;
+    const QString driverMode = Utils::findOrDefault(clangFlags, [&](const QString &option) {
+        return option.startsWith("--driver-mode=") && !isDropped(option);
+    });
+    const Id toolchain = m_projectPart.toolchainType;
+    const bool msvcLike = toolchain == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
+                          || toolchain == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID;
+    const bool clStyle = driverMode.isEmpty() ? msvcLike : driverMode.endsWith("cl");
+    // An unknown "-foo" is ignored, while clang-cl takes an unknown "/foo" for an input file.
+    const auto clOption = [&](const QString &option) {
+        if (!clStyle || m_nativeMode || !option.startsWith('/'))
+            return option;
+        return QString(option).replace(0, 1, '-');
+    };
+    for (int i = 0; i < clangFlags.size(); ++i) {
+        const QString &option = clangFlags.at(i);
+        if (i + 1 < clangFlags.size() && takesSeparateArgument(option, clStyle)) {
+            const QString &argument = clangFlags.at(++i);
+            const bool dropped = isDropped(option) || (option == "-Xclang" && isDropped(argument));
+            if (!dropped)
+                m_compilerFlags.flags << clOption(option) << argument;
+            // The value of a cc1 option comes as the next -Xclang pair and shares its fate.
+            if (option == "-Xclang" && takesSeparateCc1Argument(argument)
+                && i + 2 < clangFlags.size() && clangFlags.at(i + 1) == "-Xclang") {
+                if (!dropped)
+                    m_compilerFlags.flags << clangFlags.at(i + 1) << clangFlags.at(i + 2);
+                i += 2;
+            }
+        } else if (option == "/TP" || option == "/TC" || option == "-TP" || option == "-TC") {
+            continue; // Creator adds the file language itself.
+        } else if (!isDropped(option)) {
+            if (option.startsWith("--driver-mode=")) {
+                if (option.endsWith("cl"))
+                    m_clStyle = true;
+                containsDriverMode = true;
+            }
+            m_compilerFlags.flags << clOption(option);
+        }
+    }
+    addDriverModeForMsvc(containsDriverMode);
+
+    // Apple's headers are broken for the clang shipped with Qt Creator, which need not be
+    // the one the build system's options are made for. See QTCREATORBUG-32499.
+    if (m_projectPart.toolchainAbi.os() == Abi::DarwinOS)
+        m_compilerFlags.flags << "-Wno-elaborated-enum-base";
+}
+
+void CompilerOptionsBuilder::addDriverModeForMsvc(bool containsDriverMode)
+{
+    const Id toolChain = m_projectPart.toolchainType;
+    if (!m_nativeMode && !containsDriverMode
+        && (toolChain == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
+            || toolChain == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID)) {
+        m_clStyle = true;
+        m_compilerFlags.flags.prepend("--driver-mode=cl");
+    }
+}
+
+bool CompilerOptionsBuilder::hasClangFlagsFromBuildSystem() const
+{
+    return !m_nativeMode && !m_projectPart.clangFlags.isEmpty();
+}
+
+bool CompilerOptionsBuilder::isIgnoredCompilerFlag(const QString &option) const
+{
+    return Utils::anyOf(m_ignoredCompilerFlags, [&option](const QRegularExpression &re) {
+        return re.match(option).hasMatch();
+    });
 }
 
 bool CompilerOptionsBuilder::isClStyle() const

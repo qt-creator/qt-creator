@@ -3,6 +3,7 @@
 
 #include "compileroptionsbuilder_test.h"
 
+#include "compilationdb.h"
 #include "compileroptionsbuilder.h"
 #include "projectpart.h"
 
@@ -12,6 +13,7 @@
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
+#include <QJsonArray>
 #include <QTest>
 
 using namespace ProjectExplorer;
@@ -47,6 +49,7 @@ public:
         };
         RawProjectPartFlags rppFlags;
         rppFlags.commandLineFlags = flags;
+        rppFlags.clangFlags = clangFlags;
         projectPart = ProjectPart::create(topLevelProject, rpp, {}, {}, Utils::Language::Cxx,
                                           languageExtensions, rppFlags, tcInfo);
         compilerOptionsBuilder.emplace(CompilerOptionsBuilder(*projectPart));
@@ -66,6 +69,7 @@ public:
     }
 
     QStringList flags;
+    QStringList clangFlags;
     Utils::Id toolchainType = Constants::CLANG_TOOLCHAIN_TYPEID;
     QString targetTriple = "x86_64-apple-darwin10";
     HeaderPaths headerPaths{
@@ -786,6 +790,216 @@ void CompilerOptionsBuilderTest::testIgnoredCompilerFlags_data()
     QTest::newRow("options-of-the-builder-are-kept")
         << QStringList{"-mno-foo"} << QStringList{"-m*"} << QStringList{"-mno-foo"}
         << QStringList{"-m64", "-fsyntax-only"};
+}
+
+void CompilerOptionsBuilderTest::testBuildClangOptionsFromBuildSystem()
+{
+    TestHelper t;
+    t.flags = QStringList{"-fancyFlag"};
+    t.clangFlags = QStringList{"-fiar-extensions", "-D", "__ramfunc="};
+    t.projectConfigFile = "dummy_file.h";
+    CompilerOptionsBuilder compilerOptionsBuilder(t.finalize());
+    compilerOptionsBuilder.provideAdditionalMacros({Macro{"Q_CREATOR_RUN", "1"}});
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
+
+    QCOMPARE(compilerOptionsBuilder.options(),
+             (QStringList{"-fiar-extensions", "-D", "__ramfunc=", "-fsyntax-only", "-x", "c++",
+                          "-include", "dummy_file.h", "-DQ_CREATOR_RUN",
+                          "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))"}));
+}
+
+void CompilerOptionsBuilderTest::testBuildClStyleClangOptionsFromBuildSystem()
+{
+    TestHelper t;
+    t.clangFlags = QStringList{"--driver-mode=cl", "/std:c++20"};
+    CompilerOptionsBuilder compilerOptionsBuilder(t.finalize());
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
+
+    QVERIFY(compilerOptionsBuilder.isClStyle());
+    QCOMPARE(compilerOptionsBuilder.options(),
+             (QStringList{"--driver-mode=cl", "-std:c++20", "/Zs", "/TP",
+                          "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))"}));
+}
+
+void CompilerOptionsBuilderTest::testFilterClangOptionsFromBuildSystem()
+{
+    TestHelper t;
+    t.clangFlags = QStringList{"-fiar-extensions", "-Werror", "-w", "--pedantic-errors",
+                                 "-wd4996", "-fbreaks-tidy", "-Wp,-D_FORTIFY_SOURCE=2"};
+    t.finalize();
+    t.compilerOptionsBuilder->setIgnoredCompilerFlags(
+        CompilerOptionsBuilder::wildcardsToRegularExpressions({"-fbreaks-*"}));
+    t.compilerOptionsBuilder->build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
+
+    QCOMPARE(t.compilerOptionsBuilder->options(),
+             (QStringList{"-fiar-extensions", "-Wp,-D_FORTIFY_SOURCE=2", "-fsyntax-only",
+                          "-x", "c++",
+                          "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))"}));
+}
+
+void CompilerOptionsBuilderTest::testKeepBuildSystemWarningsInClangOptions()
+{
+    TestHelper t;
+    t.clangFlags = QStringList{"-Werror", "--pedantic-errors"};
+    CompilerOptionsBuilder compilerOptionsBuilder(t.finalize(), UseSystemHeader::No,
+                                                  UseTweakedHeaderPaths::No,
+                                                  UseLanguageDefines::No,
+                                                  UseBuildSystemWarnings::Yes);
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
+
+    QCOMPARE(compilerOptionsBuilder.options(),
+             (QStringList{"-Werror", "--pedantic-errors", "-fsyntax-only", "-x", "c++",
+                          "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))"}));
+}
+
+void CompilerOptionsBuilderTest::testMsvcClangOptionsFromBuildSystemAreClStyle()
+{
+    TestHelper t;
+    t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
+    t.clangFlags = QStringList{"/D", "/FOO", "/std:c++20", "/Zc:notAnOption"};
+    CompilerOptionsBuilder compilerOptionsBuilder(t.finalize());
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
+
+    QVERIFY(compilerOptionsBuilder.isClStyle());
+    QCOMPARE(compilerOptionsBuilder.options(),
+             (QStringList{"--driver-mode=cl", "-D", "/FOO", "-std:c++20", "-Zc:notAnOption",
+                          "/Zs", "/TP",
+                          "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))"}));
+}
+
+void CompilerOptionsBuilderTest::testClStyleRuntimeOptionTakesNoArgument()
+{
+    TestHelper t;
+    t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
+    t.clangFlags = QStringList{"-MT", "/W4", "-DFOO"};
+    CompilerOptionsBuilder compilerOptionsBuilder(t.finalize());
+    const QStringList options = compilerOptionsBuilder.build(ProjectFile::CXXSource,
+                                                             UsePrecompiledHeaders::No);
+
+    QVERIFY(options.contains("-MT"));
+    QVERIFY(options.contains("-DFOO"));
+    QVERIFY(!options.contains("/W4"));
+}
+
+void CompilerOptionsBuilderTest::testFilterClangOptionArgumentsFromBuildSystem()
+{
+    TestHelper t;
+    t.clangFlags = QStringList{"-isystem", "/workspace/inc", "-DFOO", "-Xclang", "-Wfoo",
+                                 "-iquote", "/quoted", "/winsysroot", "/winsdk", "-Wall",
+                                 "-resource-dir", "/opt/llvm/lib/clang/18", "-Xclang",
+                                 "-include-pch", "-Xclang", "x.pch"};
+    t.finalize();
+    t.compilerOptionsBuilder->setIgnoredCompilerFlags(
+        CompilerOptionsBuilder::wildcardsToRegularExpressions(
+            {"-iquote", "-resource-dir", "-include-pch"}));
+    t.compilerOptionsBuilder->build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
+
+    QCOMPARE(t.compilerOptionsBuilder->options(),
+             (QStringList{"-isystem", "/workspace/inc", "-DFOO", "/winsysroot", "/winsdk",
+                          "-fsyntax-only", "-x", "c++",
+                          "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))"}));
+}
+
+void CompilerOptionsBuilderTest::testKeepCc1OptionValueFromBuildSystem()
+{
+    TestHelper t;
+    t.clangFlags = QStringList{"-Xclang", "-include-pch", "-Xclang", "/Work/build/x.pch",
+                               "-Xclang", "-fno-foo", "-imsvc", "/Wsdk", "/winsysroot", "/W"};
+    CompilerOptionsBuilder compilerOptionsBuilder(t.finalize());
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
+
+    QCOMPARE(compilerOptionsBuilder.options(),
+             (QStringList{"-Xclang", "-include-pch", "-Xclang", "/Work/build/x.pch", "-Xclang",
+                          "-fno-foo", "-imsvc", "/Wsdk", "/winsysroot", "/W", "-fsyntax-only",
+                          "-x", "c++",
+                          "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))"}));
+}
+
+void CompilerOptionsBuilderTest::testDropLanguageOptionFromBuildSystem()
+{
+    TestHelper t;
+    t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
+    t.clangFlags = QStringList{"/nologo", "/TP", "-DFOO"};
+    const ProjectPart &projectPart = t.finalize();
+    CompilerOptionsBuilder compilerOptionsBuilder(projectPart);
+    compilerOptionsBuilder.build(ProjectFile::Unclassified, UsePrecompiledHeaders::No);
+    QVERIFY(compilerOptionsBuilder.isClStyle());
+
+    const QJsonArray fileOptions = clangOptionsForFile(
+        ProjectFile("file.cpp", ProjectFile::CXXSource), projectPart,
+        fullProjectPartOptions(compilerOptionsBuilder, {}), UsePrecompiledHeaders::No, true);
+    QCOMPARE(fileOptions.toVariantList().count("/TP"), 1);
+}
+
+void CompilerOptionsBuilderTest::testWrappedQtHeadersBeforeClStyleIncludes()
+{
+    TestHelper t;
+    t.clangFlags = QStringList{"--driver-mode=cl", "-imsvc", "/Include/sdk", "/I", "/qt/include"};
+    CompilerOptionsBuilder compilerOptionsBuilder(t.finalize(), UseSystemHeader::No,
+                                                  UseTweakedHeaderPaths::Yes,
+                                                  UseLanguageDefines::No,
+                                                  UseBuildSystemWarnings::No);
+    const QStringList options = compilerOptionsBuilder.build(ProjectFile::CXXSource,
+                                                             UsePrecompiledHeaders::No);
+
+    const int wrapped = Utils::indexOf(options, [](const QString &o) {
+        return o.contains("wrappedQtHeaders");
+    });
+    QVERIFY(wrapped >= 0);
+    QVERIFY(wrapped < options.indexOf("-I"));
+    QCOMPARE(options.value(options.indexOf("-imsvc") + 1), "/Include/sdk");
+}
+
+void CompilerOptionsBuilderTest::testIgnoredDriverModeInClangOptions()
+{
+    TestHelper t;
+    t.clangFlags = QStringList{"--driver-mode=cl", "-std=c++20"};
+    t.finalize();
+    t.compilerOptionsBuilder->setIgnoredCompilerFlags(
+        CompilerOptionsBuilder::wildcardsToRegularExpressions({"--driver-mode=*"}));
+    t.compilerOptionsBuilder->build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
+
+    QVERIFY(!t.compilerOptionsBuilder->isClStyle());
+    QCOMPARE(t.compilerOptionsBuilder->options(),
+             (QStringList{"-std=c++20", "-fsyntax-only", "-x", "c++",
+                          "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))"}));
+}
+
+void CompilerOptionsBuilderTest::testAppleWorkaroundInClangOptions()
+{
+    TestHelper t;
+    t.targetTriple = "x86-darwin-generic-mach_o-64bit";
+    t.clangFlags = QStringList{"-fiar-extensions"};
+    t.finalize();
+    t.compilerOptionsBuilder->build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
+
+    QCOMPARE(t.compilerOptionsBuilder->options(),
+             (QStringList{"-fiar-extensions", "-Wno-elaborated-enum-base", "-fsyntax-only", "-x",
+                          "c++",
+                          "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))"}));
+
+    TestHelper other;
+    other.targetTriple = "x86-linux-generic-elf-64bit";
+    other.clangFlags = t.clangFlags;
+    other.finalize();
+    const QStringList options = other.compilerOptionsBuilder->build(ProjectFile::CXXSource,
+                                                                    UsePrecompiledHeaders::No);
+    QVERIFY(options.contains("-fiar-extensions"));
+    QVERIFY(!options.contains("-Wno-elaborated-enum-base"));
+}
+
+void CompilerOptionsBuilderTest::testNativeModeIgnoresClangOptionsFromBuildSystem()
+{
+    TestHelper t;
+    t.flags = QStringList{"-fancyFlag"};
+    t.clangFlags = QStringList{"-fiar-extensions"};
+    t.finalize();
+    t.compilerOptionsBuilder->setNativeMode();
+    const QStringList options = t.compilerOptionsBuilder->build(ProjectFile::CXXSource,
+                                                                UsePrecompiledHeaders::No);
+
+    QVERIFY(options.contains("-fancyFlag"));
+    QVERIFY(!options.contains("-fiar-extensions"));
 }
 
 } // namespace CppEditor::Internal

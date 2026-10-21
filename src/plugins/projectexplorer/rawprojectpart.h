@@ -42,6 +42,14 @@ public:
     Utils::WarningFlags warningFlags = Utils::WarningFlag::Default;
     Utils::LanguageExtensions languageExtensions = Utils::LanguageExtension::None;
     Utils::FilePaths includedFiles;
+    // What the build system says to pass to clang, in the syntax of the driver it targets:
+    // cl-style for MSVC and clang-cl toolchains unless the list contains --driver-mode=.
+    // If set, it is used instead of options derived from the flags, macros, header paths
+    // and toolchain. Creator still adds the syntax-only and language options, the PCH
+    // includes, its own macros and the wrapped Qt headers. The user's diagnostic and ignored
+    // flag settings, the option and CPU blacklists and the project config file still apply.
+    // Apple targets also get the workaround for Apple's headers.
+    QStringList clangFlags;
 };
 
 class PROJECTEXPLORER_EXPORT RawProjectPart

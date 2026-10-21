@@ -96,6 +96,7 @@ public:
     // Misc
     const QStringList extraCodeModelFlags;
     const QStringList compilerFlags;
+    const QStringList clangFlags;
 
 private:
     ProjectPart(const Utils::FilePath &topLevelProject,

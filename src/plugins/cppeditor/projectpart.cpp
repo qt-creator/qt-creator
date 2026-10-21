@@ -181,6 +181,7 @@ ProjectPart::ProjectPart(const Utils::FilePath &topLevelProject,
       warningFlags(flags.warningFlags),
       extraCodeModelFlags(tcInfo.extraCodeModelFlags + getExtraCodeModelFlags(rpp, files)),
       compilerFlags(flags.commandLineFlags),
+      clangFlags(flags.clangFlags),
       m_macroReport(getToolchainMacros(flags, tcInfo, language)),
       languageFeatures(deriveLanguageFeatures())
 {

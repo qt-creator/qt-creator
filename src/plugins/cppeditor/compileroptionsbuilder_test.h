@@ -59,6 +59,19 @@ private slots:
     void testIgnoredCompilerFlags();
     void testIgnoredCompilerFlags_data();
     void testIgnoredCompilerFlagsInvalidPattern();
+    void testBuildClangOptionsFromBuildSystem();
+    void testBuildClStyleClangOptionsFromBuildSystem();
+    void testFilterClangOptionsFromBuildSystem();
+    void testKeepBuildSystemWarningsInClangOptions();
+    void testMsvcClangOptionsFromBuildSystemAreClStyle();
+    void testClStyleRuntimeOptionTakesNoArgument();
+    void testFilterClangOptionArgumentsFromBuildSystem();
+    void testKeepCc1OptionValueFromBuildSystem();
+    void testDropLanguageOptionFromBuildSystem();
+    void testWrappedQtHeadersBeforeClStyleIncludes();
+    void testIgnoredDriverModeInClangOptions();
+    void testAppleWorkaroundInClangOptions();
+    void testNativeModeIgnoresClangOptionsFromBuildSystem();
 };
 
 } // namespace CppEditor::Internal
