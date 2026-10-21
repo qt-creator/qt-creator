@@ -289,8 +289,19 @@ Result<> DeviceFileAccess::copyRecursively(const FilePath &src, const FilePath &
                          targetProcess.writeRaw(srcProcess.readAllRawStandardOutput());
                      });
 
-    srcProcess.setCommand({sourceTar, {"-cf", "-", "-C", src.path(), "."}});
-    targetProcess.setCommand({targetTar, {"-xf", "-", "-C", target.path()}});
+    // The Windows tar cannot "-C" into paths with characters outside the ANSI
+    // code page, so start local tar processes in the directory instead.
+    const auto setupTar = [](Process &process, const FilePath &tar, QStringList args,
+                             const FilePath &dir, const QStringList &trailingArgs) {
+        if (dir.isLocal())
+            process.setWorkingDirectory(dir);
+        else
+            args << "-C" << dir.path();
+        process.setCommand({tar, args + trailingArgs});
+    };
+
+    setupTar(srcProcess, sourceTar, {"-cf", "-"}, src, {"."});
+    setupTar(targetProcess, targetTar, {"-xf", "-"}, target, {});
 
     targetProcess.start();
     targetProcess.waitForStarted();
