@@ -73,7 +73,7 @@ public:
 
 private:
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) final;
-    void finalize() final;
+    void prepare() final;
     void clear() final;
 
     void flattenLoads();

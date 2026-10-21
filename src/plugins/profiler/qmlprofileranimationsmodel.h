@@ -35,7 +35,7 @@ public:
     Timeline::ItemDetails details(int index) const final;
 
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) final;
-    void finalize() final;
+    void prepare() final;
     void clear() final;
 
 private:

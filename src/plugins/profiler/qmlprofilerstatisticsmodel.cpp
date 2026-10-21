@@ -62,48 +62,54 @@ QmlProfilerStatisticsModel::QmlProfilerStatisticsModel(QmlProfilerModelManager *
     modelManager->registerFeatures(Constants::QML_JS_RANGE_FEATURES,
                                    std::bind(&QmlProfilerStatisticsModel::beginResetModel, this),
                                    std::bind(&QmlProfilerStatisticsModel::finalize, this),
-                                   std::bind(&QmlProfilerStatisticsModel::clear, this));
+                                   std::bind(&QmlProfilerStatisticsModel::clear, this),
+                                   std::bind(&QmlProfilerStatisticsModel::prepare, this));
 }
 
 void QmlProfilerStatisticsModel::restrictToFeatures(quint64 features)
 {
-    bool didChange = false;
+    QList<RangeType> acceptedTypes;
     for (int i = 0; i < MaximumRangeType; ++i) {
-        RangeType type = static_cast<RangeType>(i);
-        quint64 featureFlag = 1ULL << featureFromRangeType(type);
-        if (Constants::QML_JS_RANGE_FEATURES & featureFlag) {
-            bool accepted = features & featureFlag;
-            if (accepted && !m_acceptedTypes.contains(type)) {
-                m_acceptedTypes << type;
-                didChange = true;
-            } else if (!accepted && m_acceptedTypes.contains(type)) {
-                m_acceptedTypes.removeOne(type);
-                didChange = true;
-            }
-        }
+        const RangeType type = static_cast<RangeType>(i);
+        const quint64 featureFlag = 1ULL << featureFromRangeType(type);
+        if ((Constants::QML_JS_RANGE_FEATURES & featureFlag) && (features & featureFlag))
+            acceptedTypes << type;
     }
-
-    if (!didChange)
+    const auto sorted = [](QList<RangeType> types) {
+        std::sort(types.begin(), types.end());
+        return types;
+    };
+    if (sorted(acceptedTypes) == sorted(m_acceptedTypes))
         return;
 
-    clear();
-    QFutureInterface<void> future;
-    auto filter = m_modelManager->rangeFilter(m_modelManager->traceStart(),
-                                              m_modelManager->traceEnd());
-    m_modelManager->replayQmlEvents(filter(std::bind(&QmlProfilerStatisticsModel::loadEvent, this,
-                                                     std::placeholders::_1, std::placeholders::_2)),
-                                    std::bind(&QmlProfilerStatisticsModel::beginResetModel, this),
-                                    [this] {
-        finalize();
-        notesChanged(QmlProfilerStatisticsModel::s_invalidTypeId); // Reload notes
-    }, [this](const QString &message) {
-        endResetModel();
-        if (!message.isEmpty()) {
-            emit m_modelManager->error(Tr::tr("Could not re-read events from temporary trace file: %1")
-                                        .arg(message));
-        }
-        clear();
-    }, future);
+    // Replaying all events takes long for a long trace, so it happens in another thread.
+    // The range is the one in force once a running restriction is done.
+    m_modelManager->replayQmlEventsInThread(
+        this,
+        [this] {
+            const auto filter = m_modelManager->rangeFilter(m_modelManager->traceStart(),
+                                                            m_modelManager->traceEnd());
+            return filter(std::bind(&QmlProfilerStatisticsModel::loadEvent, this,
+                                    std::placeholders::_1, std::placeholders::_2));
+        },
+        [this, acceptedTypes] {
+            m_acceptedTypes = acceptedTypes;
+            clear();
+            beginResetModel();
+        },
+        [this] { prepare(); },
+        [this] {
+            finalize();
+            notesChanged(QmlProfilerStatisticsModel::s_invalidTypeId); // Reload notes
+        },
+        [this](const QString &message) {
+            endResetModel();
+            if (!message.isEmpty()) {
+                emit m_modelManager->error(
+                    Tr::tr("Could not re-read events from temporary trace file: %1").arg(message));
+            }
+            clear();
+        });
 }
 
 bool QmlProfilerStatisticsModel::isRestrictedToRange() const
@@ -474,10 +480,15 @@ void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEvent
         m_callersModel->loadEvent(type.rangeType(), event, isRecursive);
 }
 
-void QmlProfilerStatisticsModel::finalize()
+// May run in the thread that loaded the events, between beginResetModel() and finalize().
+void QmlProfilerStatisticsModel::prepare()
 {
     for (QmlEventStats &stats : m_data)
         stats.finalize();
+}
+
+void QmlProfilerStatisticsModel::finalize()
+{
     endResetModel();
 }
 

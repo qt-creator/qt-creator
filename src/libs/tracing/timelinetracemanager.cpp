@@ -6,6 +6,7 @@
 #include "timelinetracemanager.h"
 #include "tracingtr.h"
 
+#include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/qtcassert.h>
 
@@ -44,10 +45,12 @@ public:
 
     QList<Initializer> initializers;
     QList<Finalizer> finalizers;
+    QList<Preparer> preparers;
     QList<Clearer> clearers;
 
     qint64 traceStart = -1;
     qint64 traceEnd = -1;
+    bool prepared = false;
 
     // A load() worker thread keeps calling loadEvent() on the timeline models
     // until it notices cancellation, so a new load must not clearAll() that
@@ -63,7 +66,23 @@ public:
     // dereference the manager and its writer, so the destructor joins them.
     QList<QFuture<void>> saveFutures;
 
+    // Replays running in another thread, by who started them: the models they fill belong to
+    // that thread until it reports back. A restriction of all models has the manager as key.
+    struct Replay
+    {
+        const void *key = nullptr;
+        QFuture<void> future;
+        std::shared_ptr<bool> superseded;
+        std::function<void(bool)> complete; // Finalizes, once the thread is done.
+    };
+    QList<Replay> replays;
+    bool replaying = false; // Between restrictionStarted() and restrictionFinished().
+
     void cancelQueuedLoad();
+    void cancelRestriction() { cancelReplays(nullptr, true); }
+    void cancelReplays(const void *key, bool mayFinish);
+    void waitForReplays(const void *key);
+    void finishReplaying();
     void dispatch(const TraceEvent &event, const TraceEventType &type);
     void reset();
     void updateTraceTime(qint64 time);
@@ -88,6 +107,7 @@ TimelineTraceManager::~TimelineTraceManager()
     for (QFuture<void> &future : d->saveFutures)
         future.waitForFinished();
 
+    d->cancelRestriction();
     d->cancelQueuedLoad();
 
     // The notes model is a child QObject and would otherwise be destroyed by ~QObject's
@@ -157,7 +177,8 @@ int TimelineTraceManager::appendEventType(TraceEventType &&type)
 }
 
 void TimelineTraceManager::registerFeatures(quint64 features, Initializer initializer,
-                                            Finalizer finalizer, Clearer clearer)
+                                            Finalizer finalizer, Clearer clearer,
+                                            Preparer preparer)
 {
     if ((features & d->availableFeatures) != features) {
         d->availableFeatures |= features;
@@ -177,6 +198,8 @@ void TimelineTraceManager::registerFeatures(quint64 features, Initializer initia
 
     if (clearer)
         d->clearers.append(clearer);
+    if (preparer)
+        d->preparers.append(preparer);
 }
 
 quint64 TimelineTraceManager::availableFeatures() const
@@ -226,9 +249,32 @@ void TimelineTraceManager::initialize()
         initializer();
 }
 
-void TimelineTraceManager::finalize()
+// Does what the preparers registered with registerFeatures() do: the processing of the events
+// that finalize() then publishes. A trace file loading its events in another thread calls this
+// there, while nothing else uses the models; otherwise finalize() calls it. With a future,
+// progress continues on it.
+void TimelineTraceManager::prepare(QFutureInterface<void> *future)
 {
     d->eventStorage->finalize();
+
+    // Each preparer gets an equal share of a tenth of the progress range loading had.
+    const int progressStart = future ? future->progressMaximum() : 0;
+    const int progressShare = progressStart / 10;
+    if (future)
+        future->setProgressRange(future->progressMinimum(), progressStart + progressShare);
+    for (int i = 0; i < d->preparers.size(); ++i) {
+        d->preparers.at(i)();
+        if (future)
+            future->setProgressValue(progressStart + progressShare * (i + 1) / d->preparers.size());
+    }
+    d->prepared = true;
+}
+
+void TimelineTraceManager::finalize()
+{
+    if (!d->prepared)
+        prepare();
+    d->prepared = false;
 
     // Load notes after the timeline models have been initialized ...
     // which happens on stateChanged(Done).
@@ -306,12 +352,14 @@ QFuture<void> TimelineTraceManager::load(const QString &filename)
 }
 
 /*!
-    Cancels a load that is running or queued, and waits until the thread that loads no longer
-    calls into the manager and the models registered with it. Call it before deleting any of
-    them while a trace may still be loading.
+    Cancels a load that is running or queued, and a range analysis that replays the events, and
+    waits until the threads they run in no longer call into the manager and the models
+    registered with it. Call it before deleting any of them while a trace may still be loading
+    or analyzed.
 */
 void TimelineTraceManager::cancelBackgroundWork()
 {
+    d->cancelRestriction();
     d->cancelQueuedLoad();
     if (TimelineTraceFile *reader = d->activeLoadReader) {
         QFutureInterface<void> future = reader->future();
@@ -322,6 +370,7 @@ void TimelineTraceManager::cancelBackgroundWork()
 
 void TimelineTraceManager::startLoad(const QString &filename, QFutureInterface<void> fi)
 {
+    d->cancelRestriction();
     clearAll();
     initialize();
     TimelineTraceFile *reader = createTraceFile();
@@ -432,6 +481,7 @@ void TimelineTraceManager::setNotesModel(TimelineNotesModel *notesModel)
 
 void TimelineTraceManager::clearEventStorage()
 {
+    d->cancelRestriction();
     d->reset();
     if (d->notesModel)
         d->notesModel->clear();
@@ -480,6 +530,133 @@ void TimelineTraceManager::restrictByFilter(TraceEventFilter filter)
     }, future);
 }
 
+// Like restrictByFilter(), but replays the events in another thread, so that the GUI stays
+// responsive. The models are cleared and initialized right away, and finalized once all events
+// are replayed. Until then, between restrictionStarted() and restrictionFinished(), nothing may
+// use them.
+void TimelineTraceManager::restrictByFilterInThread(TraceEventFilter filter)
+{
+    d->cancelReplays(nullptr, false);
+    if (d->notesModel)
+        d->notesModel->stash();
+    d->reset();
+    replayInThread(this, [this, filter] {
+        return filter(std::bind(&TimelineTraceManagerPrivate::dispatch, d,
+                                std::placeholders::_1, std::placeholders::_2));
+    }, [this] { initialize(); }, [this] { prepare(); }, [this] {
+        if (d->notesModel)
+            d->notesModel->restore();
+        finalize();
+    }, [this](const QString &message) {
+        if (!message.isEmpty()) {
+            emit error(Tr::tr("Could not re-read events from temporary trace file: %1\n"
+                              "The trace data is lost.").arg(message));
+        }
+        clearAll();
+    });
+}
+
+/*!
+    Replays the events to the loader \a makeLoader makes in another thread. \a makeLoader and
+    \a initializer run right away,
+    \a preparer in the thread once all events are replayed, and then \a finalizer, or
+    \a errorHandler if the events could not be read, in this one. The trace is busy from
+    restrictionStarted() until restrictionFinished() is emitted.
+
+    A replay started earlier with the same \a key is canceled, and so are all of them when the
+    manager restricts, loads or clears its events. One with a different key that restricts all
+    models is waited for, as it fills the same models.
+*/
+void TimelineTraceManager::replayInThread(const void *key,
+                                          const std::function<TraceEventLoader()> &makeLoader,
+                                          const Initializer &initializer,
+                                          const Preparer &preparer, const Finalizer &finalizer,
+                                          const ErrorHandler &errorHandler)
+{
+    d->cancelReplays(key, false);
+    if (key != this)
+        d->waitForReplays(this);
+    const TraceEventLoader loader = makeLoader();
+    if (initializer)
+        initializer();
+
+    if (!std::exchange(d->replaying, true))
+        emit restrictionStarted();
+
+    QFutureInterface<void> fi;
+    fi.reportStarted();
+    const auto superseded = std::make_shared<bool>(false);
+    const auto replayError = std::make_shared<std::optional<QString>>();
+    const auto complete = [this, superseded, replayError, finalizer, errorHandler](
+                              bool mayFinish) {
+        if (std::exchange(*superseded, true))
+            return;
+        d->replays.removeIf([&](const TimelineTraceManagerPrivate::Replay &replay) {
+            return replay.superseded == superseded;
+        });
+        if (*replayError) {
+            if (errorHandler)
+                errorHandler(**replayError);
+        } else if (finalizer) {
+            finalizer();
+        }
+        if (mayFinish)
+            d->finishReplaying();
+    };
+    d->replays.append({key, fi.future(), superseded, complete});
+
+    auto watcher = new QFutureWatcher<void>(this);
+    connect(watcher, &QFutureWatcherBase::finished, this, [watcher, complete] {
+        watcher->deleteLater();
+        complete(true);
+    });
+    watcher->setFuture(fi.future());
+
+    Utils::asyncRun([this, loader, preparer, replayError, fi]() mutable {
+        replayEvents(loader, {}, {}, [replayError](const QString &message) {
+            *replayError = message;
+        }, fi);
+        if (!*replayError && !fi.isCanceled() && preparer)
+            preparer();
+        fi.reportFinished();
+    });
+}
+
+// Whatever cancels a replay replaces it, so the replay does not report back.
+void TimelineTraceManager::TimelineTraceManagerPrivate::cancelReplays(const void *key,
+                                                                      bool mayFinish)
+{
+    for (qsizetype i = replays.size() - 1; i >= 0; --i) {
+        Replay &replay = replays[i];
+        if (key && replay.key != key)
+            continue;
+        *replay.superseded = true;
+        replay.future.cancel();
+        replay.future.waitForFinished();
+        replays.removeAt(i);
+    }
+    if (mayFinish)
+        finishReplaying();
+}
+
+void TimelineTraceManager::TimelineTraceManagerPrivate::finishReplaying()
+{
+    if (replays.isEmpty() && std::exchange(replaying, false))
+        emit q->restrictionFinished();
+}
+
+// Waits for the replays of key and completes them right away.
+void TimelineTraceManager::TimelineTraceManagerPrivate::waitForReplays(const void *key)
+{
+    const QList<Replay> waited = Utils::filtered(replays, [key](const Replay &replay) {
+        return replay.key == key;
+    });
+    for (Replay replay : waited) {
+        replay.future.waitForFinished();
+        replay.complete(false);
+    }
+}
+
 void TimelineTraceManager::TimelineTraceManagerPrivate::dispatch(const TraceEvent &event,
                                                                  const TraceEventType &type)
 {
@@ -502,6 +679,7 @@ void TimelineTraceManager::TimelineTraceManagerPrivate::cancelQueuedLoad()
 
 void TimelineTraceManager::TimelineTraceManagerPrivate::reset()
 {
+    prepared = false;
     traceStart = -1;
     traceEnd = -1;
 

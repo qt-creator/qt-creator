@@ -45,7 +45,7 @@ public:
     Timeline::ItemDetails details(int index) const override;
 
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) override;
-    void finalize() override;
+    void prepare() override;
     void clear() override;
     bool handlesTypeId(int typeId) const override;
 

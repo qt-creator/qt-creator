@@ -44,6 +44,7 @@ public:
     virtual void load(QIODevice *device) = 0;
 
     void fail(const QString &message);
+    void prepareTrace();
     void finish();
 
     void setTraceStart(qint64 traceStart) { m_traceStart = traceStart; }

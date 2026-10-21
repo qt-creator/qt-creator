@@ -50,7 +50,7 @@ void QmlProfilerRangeModel::loadEvent(const QmlEvent &event, const QmlEventType 
     }
 }
 
-void QmlProfilerRangeModel::finalize()
+void QmlProfilerRangeModel::prepare()
 {
     if (!m_stack.isEmpty()) {
         qWarning() << "End times for some events are missing.";
@@ -69,8 +69,6 @@ void QmlProfilerRangeModel::finalize()
 
     // compute nestingLevel - expanded
     computeExpandedLevels();
-
-    QmlProfilerTimelineModel::finalize();
 }
 
 void QmlProfilerRangeModel::computeNestingContracted()

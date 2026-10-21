@@ -183,6 +183,20 @@ void QmlProfilerModelManager::replayQmlEvents(const QmlEventLoader &loader,
     }
 }
 
+// See TimelineTraceManager::replayInThread().
+void QmlProfilerModelManager::replayQmlEventsInThread(
+    const void *key, const std::function<QmlEventLoader()> &makeLoader,
+    const Initializer &initializer, const Preparer &preparer, const Finalizer &finalizer,
+    const ErrorHandler &errorHandler)
+{
+    replayInThread(key, [makeLoader]() -> TraceEventLoader {
+        return [loader = makeLoader()](const Timeline::TraceEvent &event,
+                                       const Timeline::TraceEventType &type) {
+            loader(static_cast<const QmlEvent &>(event), static_cast<const QmlEventType &>(type));
+        };
+    }, initializer, preparer, finalizer, errorHandler);
+}
+
 void QmlProfilerModelManager::initialize()
 {
     emit initialized();
@@ -297,7 +311,7 @@ void QmlProfilerModelManager::setTypeDetails(int typeId, const QString &details)
 
 void QmlProfilerModelManager::restrictByFilter(QmlProfilerModelManager::QmlEventFilter filter)
 {
-    return Timeline::TimelineTraceManager::restrictByFilter(
+    return Timeline::TimelineTraceManager::restrictByFilterInThread(
         [filter = std::move(filter)](TraceEventLoader loader) {
         const auto filteredQmlLoader = filter([loader](const QmlEvent &event,
                                                        const QmlEventType &type) {

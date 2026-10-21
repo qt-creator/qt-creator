@@ -31,7 +31,8 @@ QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *mode
     m_modelManager->registerFeatures(1ULL << m_mainFeature,
                                      std::bind(&QmlProfilerTimelineModel::initialize, this),
                                      std::bind(&QmlProfilerTimelineModel::finalize, this),
-                                     std::bind(&QmlProfilerTimelineModel::clear, this));
+                                     std::bind(&QmlProfilerTimelineModel::clear, this),
+                                     std::bind(&QmlProfilerTimelineModel::prepare, this));
 }
 
 RangeType QmlProfilerTimelineModel::rangeType() const
@@ -79,6 +80,12 @@ Timeline::ItemLocation QmlProfilerTimelineModel::locationFromTypeId(int index) c
 void QmlProfilerTimelineModel::initialize()
 {
     setHidden(!(modelManager()->visibleFeatures() & (1ULL << m_mainFeature)));
+}
+
+// Does the work that finalize() publishes. It may run in the thread that loaded the events,
+// so it must not emit signals.
+void QmlProfilerTimelineModel::prepare()
+{
 }
 
 void QmlProfilerTimelineModel::finalize()

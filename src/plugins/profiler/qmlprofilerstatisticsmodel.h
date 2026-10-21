@@ -130,6 +130,7 @@ public:
 
 private:
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type);
+    void prepare();
     void finalize();
 
     void typeDetailsChanged(int typeIndex);

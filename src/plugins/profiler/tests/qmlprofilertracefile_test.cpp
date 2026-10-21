@@ -6,8 +6,11 @@
 #include "../memoryusagemodel.h"
 #include "../qmlprofilermodelmanager.h"
 #include "../qmlprofilerrangemodel.h"
+#include "../qmlprofilerstatisticsmodel.h"
 
 #include <tracing/timelinemodelaggregator.h>
+
+#include <utils/async.h>
 
 #include <QFile>
 #include <QScopeGuard>
@@ -15,6 +18,7 @@
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTest>
+#include <QThread>
 
 #include <atomic>
 #include <memory>
@@ -25,6 +29,7 @@
 #elif defined(__GLIBC__)
 #include <malloc.h>
 #endif
+#include <tuple>
 
 using namespace QmlDebug;
 
@@ -65,6 +70,7 @@ struct GatedLoader
     QSemaphore started;
     QSemaphore gate;
     std::atomic<int> events = 0;
+    std::atomic<bool> armed = true;
     std::atomic<bool> stopped = false;
     std::atomic<int> eventsAfterStop = 0;
 };
@@ -76,6 +82,8 @@ static void addGatedLoader(QmlProfilerModelManager *manager,
 {
     manager->qmlLoaders.append({1ULL << ProfileJavaScript,
                                 [gated](const QmlEvent &, const QmlEventType &) {
+        if (!gated->armed)
+            return;
         if (gated->stopped)
             ++gated->eventsAfterStop;
         if (gated->events++ == 0) {
@@ -255,7 +263,9 @@ void QmlProfilerTraceFileTest::testRestrictionReleasesTheStorage()
     QCOMPARE(javaScript.count(), ranges);
     const qint64 whole = *heapInUse();
 
+    QSignalSpy finished(&manager, &QmlProfilerModelManager::restrictionFinished);
     manager.restrictToRange(0, 100);
+    QTRY_COMPARE(finished.count(), 1);
     QVERIFY(javaScript.count() < 20);
     const qint64 restricted = *heapInUse();
     // A JavaScript range alone takes 32 bytes in its model, 16 for its end and 8 for its rows.
@@ -263,5 +273,230 @@ void QmlProfilerTraceFileTest::testRestrictionReleasesTheStorage()
              qPrintable(QString("%1 MB before, %2 MB after").arg(whole / 1e6).arg(restricted / 1e6)));
 }
 
+// Records in which thread the preparers ran, and whether before the finalizers.
+class PrepareRecorder
+{
+public:
+    explicit PrepareRecorder(QmlProfilerModelManager &manager)
+    {
+        manager.registerFeatures(0, {}, [this] { finalized = true; }, {}, [this] {
+            ++preparations;
+            preparedInGuiThread = QThread::currentThread() == qApp->thread();
+            preparedBeforeFinalize = !finalized;
+        });
+    }
+
+    int preparations = 0;
+    bool preparedInGuiThread = false;
+    bool preparedBeforeFinalize = false;
+    bool finalized = false;
+};
+
+static void fillRanges(QmlProfilerModelManager &manager)
+{
+    manager.initialize();
+    const int typeIndex = manager.numEventTypes();
+    manager.appendEventType(QmlEventType(UndefinedMessage, Javascript, -1,
+                                         QmlEventLocation("main.qml", 1, 1), "f"));
+    for (const auto &[start, end] : {std::pair{100, 110}, std::pair{200, 230}}) {
+        QmlEvent event(start, typeIndex, {});
+        event.setRangeStage(RangeStart);
+        manager.appendEvent(QmlEvent(event));
+        event.setRangeStage(RangeEnd);
+        event.setTimestamp(end);
+        manager.appendEvent(std::move(event));
+    }
+    manager.decreaseTraceStart(0);
+    manager.increaseTraceEnd(1000);
+    manager.finalize();
+}
+
+void QmlProfilerTraceFileTest::testLoadPreparesInLoadingThread_data()
+{
+    QTest::addColumn<QString>("fileName");
+    QTest::newRow("qtd") << "trace.qtd";
+    QTest::newRow("qzt") << "trace.qzt";
+}
+
+void QmlProfilerTraceFileTest::testLoadPreparesInLoadingThread()
+{
+    QFETCH(QString, fileName);
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath(fileName);
+
+    QmlProfilerModelManager saved;
+    fillRanges(saved);
+    QSignalSpy saveSpy(&saved, &QmlProfilerModelManager::saveFinished);
+    saved.save(path);
+    QTRY_COMPARE(saveSpy.count(), 1);
+
+    QmlProfilerModelManager loaded;
+    QmlProfilerStatisticsModel statistics(&loaded);
+    PrepareRecorder recorder(loaded);
+    QSignalSpy loadSpy(&loaded, &QmlProfilerModelManager::loadFinished);
+    loaded.load(path);
+    QTRY_COMPARE(loadSpy.count(), 1);
+
+    QCOMPARE(recorder.preparations, 1);
+    QVERIFY(!recorder.preparedInGuiThread);
+    QVERIFY(recorder.preparedBeforeFinalize);
+    QVERIFY(recorder.finalized);
+
+    // The statistics are computed in the loading thread and published in the GUI thread.
+    const int typeIndex = 0;
+    QCOMPARE(statistics.data(statistics.index(typeIndex, MainCallCount), Qt::DisplayRole)
+                 .toInt(), 2);
+    QCOMPARE(statistics.data(statistics.index(typeIndex, MainMedianTime), SortRole)
+                 .toLongLong(), 20);
+}
+
+void QmlProfilerTraceFileTest::testFinalizePreparesUnloadedTrace()
+{
+    // A live recording ends in finalize() with nothing prepared yet.
+    QmlProfilerModelManager manager;
+    QmlProfilerStatisticsModel statistics(&manager);
+    PrepareRecorder recorder(manager);
+    fillRanges(manager);
+
+    QCOMPARE(recorder.preparations, 1);
+    QVERIFY(recorder.preparedInGuiThread);
+    QVERIFY(recorder.preparedBeforeFinalize);
+    QCOMPARE(statistics.data(statistics.index(0, MainCallCount), Qt::DisplayRole).toInt(), 2);
+}
+
+// Analyzing a range replays all events, minutes of work for a long trace, so it runs in another
+// thread and leaves the GUI responsive.
+void QmlProfilerTraceFileTest::testRestrictionReplaysInAnotherThread()
+{
+    QmlProfilerModelManager manager;
+    QmlProfilerStatisticsModel statistics(&manager);
+    fillRanges(manager);
+    PrepareRecorder recorder(manager);
+
+    QSignalSpy started(&manager, &QmlProfilerModelManager::restrictionStarted);
+    QSignalSpy finished(&manager, &QmlProfilerModelManager::restrictionFinished);
+    manager.restrictToRange(150, 300);
+    QCOMPARE(started.count(), 1);
+    QTRY_COMPARE(finished.count(), 1);
+
+    QCOMPARE(recorder.preparations, 1);
+    QVERIFY(!recorder.preparedInGuiThread);
+    QVERIFY(recorder.preparedBeforeFinalize);
+    QVERIFY(recorder.finalized);
+    // Only the range from 200 to 230 lies in the restricted range.
+    QCOMPARE(statistics.data(statistics.index(0, MainCallCount), Qt::DisplayRole).toInt(), 1);
+    QCOMPARE(statistics.data(statistics.index(0, MainMedianTime), SortRole).toLongLong(), 30);
+}
+
+// Like a load, analyzing a range replays the events in another thread. That stops calling into
+// the models once cancelBackgroundWork() returned, too.
+void QmlProfilerTraceFileTest::testCancelStopsTheRestrictionThread()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath("trace.qzt");
+    const int ranges = 100000;
+    writeLongTrace(path, ranges);
+    if (QTest::currentTestFailed())
+        return;
+
+    QmlProfilerModelManager manager;
+    auto gated = std::make_shared<GatedLoader>();
+    gated->armed = false;
+    const auto open = qScopeGuard([gated] { gated->gate.release(); });
+    addGatedLoader(&manager, gated);
+    QSignalSpy loadSpy(&manager, &QmlProfilerModelManager::loadFinished);
+    manager.load(path);
+    QTRY_COMPARE(loadSpy.count(), 1);
+
+    gated->armed = true;
+    manager.restrictToRange(0, qint64(ranges) * 10);
+    QVERIFY(gated->started.tryAcquire(1, 10000));
+    gated->gate.release();
+    manager.cancelBackgroundWork();
+    gated->stopped = true;
+    Utils::asyncThreadPool(QThread::InheritPriority)->waitForDone();
+    QCOMPARE(gated->eventsAfterStop.load(), 0);
+}
+
+// A JavaScript range from 100 to 110 and a binding from 200 to 230, and after them
+// extraJavaScript more JavaScript ranges, 10 apart.
+static void fillJavaScriptAndBinding(QmlProfilerModelManager &manager, int *javaScriptType,
+                                     int *bindingType, int extraJavaScript = 0)
+{
+    manager.initialize();
+    *javaScriptType = manager.appendEventType(
+        QmlEventType(UndefinedMessage, Javascript, -1, QmlEventLocation("main.qml", 1, 1), "f"));
+    *bindingType = manager.appendEventType(
+        QmlEventType(UndefinedMessage, Binding, -1, QmlEventLocation("main.qml", 2, 1), "b"));
+    for (const auto &[type, start, end] : {std::tuple{*javaScriptType, 100, 110},
+                                           std::tuple{*bindingType, 200, 230}}) {
+        QmlEvent event(start, type, {});
+        event.setRangeStage(RangeStart);
+        manager.appendEvent(QmlEvent(event));
+        event.setRangeStage(RangeEnd);
+        event.setTimestamp(end);
+        manager.appendEvent(std::move(event));
+    }
+    for (int i = 0; i < extraJavaScript; ++i) {
+        QmlEvent event(1000 + i * 10, *javaScriptType, {});
+        event.setRangeStage(RangeStart);
+        manager.appendEvent(QmlEvent(event));
+        event.setRangeStage(RangeEnd);
+        event.setTimestamp(1005 + i * 10);
+        manager.appendEvent(std::move(event));
+    }
+    manager.decreaseTraceStart(0);
+    manager.increaseTraceEnd(1000 + extraJavaScript * 10);
+    manager.finalize();
+}
+
+static int calls(const QmlProfilerStatisticsModel &statistics, int typeIndex)
+{
+    return statistics.data(statistics.index(typeIndex, MainCallCount), Qt::DisplayRole).toInt();
+}
+
+// Hiding or showing a category replays all events, which takes minutes for a long trace, so it
+// happens in another thread.
+void QmlProfilerTraceFileTest::testFeatureRestrictionReplaysInAnotherThread()
+{
+    QmlProfilerModelManager manager;
+    QmlProfilerStatisticsModel statistics(&manager);
+    int javaScriptType = -1;
+    int bindingType = -1;
+    fillJavaScriptAndBinding(manager, &javaScriptType, &bindingType);
+    QCOMPARE(calls(statistics, javaScriptType), 1);
+    QCOMPARE(calls(statistics, bindingType), 1);
+
+    QSignalSpy started(&manager, &QmlProfilerModelManager::restrictionStarted);
+    QSignalSpy finished(&manager, &QmlProfilerModelManager::restrictionFinished);
+    statistics.restrictToFeatures(1ULL << ProfileJavaScript);
+    QCOMPARE(started.count(), 1);
+    QCOMPARE(finished.count(), 0);
+    QTRY_COMPARE(finished.count(), 1);
+    QCOMPARE(calls(statistics, javaScriptType), 1);
+    QCOMPARE(calls(statistics, bindingType), 0);
+}
+
+// A category hidden while a range is analyzed applies to the analyzed range. The range holds
+// enough events for the analysis to be still running.
+void QmlProfilerTraceFileTest::testFeatureRestrictionDuringRangeRestriction()
+{
+    const int extraJavaScript = 100000;
+    QmlProfilerModelManager manager;
+    QmlProfilerStatisticsModel statistics(&manager);
+    int javaScriptType = -1;
+    int bindingType = -1;
+    fillJavaScriptAndBinding(manager, &javaScriptType, &bindingType, extraJavaScript);
+
+    QSignalSpy finished(&manager, &QmlProfilerModelManager::restrictionFinished);
+    manager.restrictToRange(150, 1000 + extraJavaScript * 10);
+    statistics.restrictToFeatures((1ULL << ProfileBinding) | (1ULL << ProfileJavaScript));
+    statistics.restrictToFeatures(1ULL << ProfileJavaScript);
+    QTRY_COMPARE(finished.count(), 1);
+    QCOMPARE(calls(statistics, javaScriptType), extraJavaScript);
+    QCOMPARE(calls(statistics, bindingType), 0);
+}
 
 } // namespace Profiler::Internal

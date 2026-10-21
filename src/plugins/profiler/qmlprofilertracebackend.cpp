@@ -90,6 +90,10 @@ QmlProfilerTraceBackend::QmlProfilerTraceBackend(Timeline::TimelineDetailsWidget
         emit busyChanged(false);
         emit loadFinished();
     });
+    connect(modelManager(), &QmlProfilerModelManager::restrictionStarted,
+            this, [this] { emit busyChanged(true); });
+    connect(modelManager(), &QmlProfilerModelManager::restrictionFinished,
+            this, [this] { emit busyChanged(false); });
     connect(&d->viewManager, &QmlProfilerPlainViewManager::viewSwitchRequested,
             this, &QmlProfilerTraceBackend::viewSwitchRequested);
     connect(&d->viewManager, &QmlProfilerPlainViewManager::gotoSourceLocation,

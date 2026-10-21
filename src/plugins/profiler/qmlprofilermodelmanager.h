@@ -38,6 +38,9 @@ public:
 
     const QmlDebug::QmlEventType &eventType(int typeId) const;
 
+    void replayQmlEventsInThread(const void *key, const std::function<QmlEventLoader()> &makeLoader,
+                                 const Initializer &initializer, const Preparer &preparer,
+                                 const Finalizer &finalizer, const ErrorHandler &errorHandler);
     void replayQmlEvents(const QmlEventLoader &loader, const Initializer &initializer,
                          const Finalizer &finalizer, const ErrorHandler &errorHandler,
                          QFutureInterface<void> &future) const;

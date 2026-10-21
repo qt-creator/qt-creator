@@ -213,7 +213,7 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
     }
 }
 
-void MemoryUsageModel::finalize()
+void MemoryUsageModel::prepare()
 {
     if (m_currentJSHeapIndex != -1) {
         insertEnd(m_currentJSHeapIndex,
@@ -226,7 +226,6 @@ void MemoryUsageModel::finalize()
     computeNesting();
     setExpandedRowCount(3);
     setCollapsedRowCount(Timeline::kCollapsedStartRow + 2);
-    QmlProfilerTimelineModel::finalize();
 }
 
 void MemoryUsageModel::clear()

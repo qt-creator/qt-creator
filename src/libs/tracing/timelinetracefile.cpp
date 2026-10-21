@@ -3,6 +3,8 @@
 
 #include "timelinetracefile.h"
 
+#include "timelinetracemanager.h"
+
 #include <utils/async.h>
 
 #include <QIODevice>
@@ -47,6 +49,19 @@ void TimelineTraceFile::fail(const QString &message)
 {
     emit error(message);
     m_future.cancel();
+}
+
+// For a trace file that hands all events to the trace manager in load() itself:
+// processes them right there, in the loading thread.
+void TimelineTraceFile::prepareTrace()
+{
+    if (!m_traceManager || isCanceled())
+        return;
+    if (m_traceStart >= 0)
+        m_traceManager->decreaseTraceStart(m_traceStart);
+    if (m_traceEnd >= 0)
+        m_traceManager->increaseTraceEnd(m_traceEnd);
+    m_traceManager->prepare(&m_future);
 }
 
 void TimelineTraceFile::finish()

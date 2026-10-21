@@ -190,11 +190,10 @@ void SceneGraphTimelineModel::loadEvent(const QmlEvent &event, const QmlEventTyp
     }
 }
 
-void SceneGraphTimelineModel::finalize()
+void SceneGraphTimelineModel::prepare()
 {
     computeNesting();
     flattenLoads();
-    QmlProfilerTimelineModel::finalize();
 }
 
 void SceneGraphTimelineModel::flattenLoads()

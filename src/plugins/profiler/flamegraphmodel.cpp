@@ -155,25 +155,31 @@ void FlameGraphModel::restrictToFeatures(quint64 visibleFeatures)
     if (visibleFeatures == m_acceptedFeatures)
         return;
 
-    m_acceptedFeatures = visibleFeatures;
-
-    clear();
-
-    QFutureInterface<void> future;
-    const auto filter = m_modelManager->rangeFilter(m_modelManager->traceStart(),
-                                                    m_modelManager->traceEnd());
-    m_modelManager->replayQmlEvents(filter(std::bind(&FlameGraphModel::loadEvent, this,
-                                                     std::placeholders::_1, std::placeholders::_2)),
-                                    std::bind(&FlameGraphModel::beginResetModel, this),
-                                    std::bind(&FlameGraphModel::finalize, this),
-                                    [this](const QString &message) {
-        if (!message.isEmpty()) {
-            emit m_modelManager->error(Tr::tr("Could not re-read events from temporary trace file: %1")
-                                           .arg(message));
-        }
-        endResetModel();
-        clear();
-    }, future);
+    // Replaying all events takes long for a long trace, so it happens in another thread.
+    // The range is the one in force once a running restriction is done.
+    m_modelManager->replayQmlEventsInThread(
+        this,
+        [this] {
+            const auto filter = m_modelManager->rangeFilter(m_modelManager->traceStart(),
+                                                            m_modelManager->traceEnd());
+            return filter(std::bind(&FlameGraphModel::loadEvent, this, std::placeholders::_1,
+                                    std::placeholders::_2));
+        },
+        [this, visibleFeatures] {
+            m_acceptedFeatures = visibleFeatures;
+            clear();
+            beginResetModel();
+        },
+        {},
+        std::bind(&FlameGraphModel::finalize, this),
+        [this](const QString &message) {
+            if (!message.isEmpty()) {
+                emit m_modelManager->error(
+                    Tr::tr("Could not re-read events from temporary trace file: %1").arg(message));
+            }
+            endResetModel();
+            clear();
+        });
 }
 
 static QString nameForType(RangeType typeNumber)
