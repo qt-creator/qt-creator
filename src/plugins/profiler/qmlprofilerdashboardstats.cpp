@@ -5,6 +5,8 @@
 
 #include "qmlprofilermodelmanager.h"
 
+#include <utils/qtcassert.h>
+
 using namespace QmlDebug;
 
 namespace Profiler::Internal {
@@ -42,6 +44,11 @@ void QmlProfilerDashboardStats::loadEvent(const QmlEvent &event, const QmlEventT
 
     if (frameTimeMs > kStutterFrameTimeMs)
         ++m_framesStuttering;
+
+    if (frameTimeMs > m_slowestFrameTimeMs) {
+        m_slowestFrameTimeMs = frameTimeMs;
+        m_slowestFrameTimestamp = event.timestamp();
+    }
 }
 
 void QmlProfilerDashboardStats::reset()
@@ -50,6 +57,8 @@ void QmlProfilerDashboardStats::reset()
     m_framesNearTarget = 0;
     m_framesFailed = 0;
     m_framesStuttering = 0;
+    m_slowestFrameTimestamp = -1;
+    m_slowestFrameTimeMs = 0;
 }
 
 int QmlProfilerDashboardStats::framesOnTarget() const
@@ -121,11 +130,53 @@ int QmlProfilerDashboardStats::startupSpeedPercent() const
     return qMax(0, onTargetPercent() - (100 - stutterFreePercent()));
 }
 
-int QmlProfilerDashboardStats::overallPercent() const
+QList<ScoreFactor> QmlProfilerDashboardStats::scoreBreakdown() const
 {
-    // Approximation: overall rating is a plain average of the categories above.
-    return (onTargetPercent() + stutterFreePercent() + uiResponsivenessPercent()
-            + p99Percent() + startupSpeedPercent()) / kOverallPercentCategoryCount;
+    const auto factor = [](ScoreFactor::Id id, int score) {
+        ScoreFactor result;
+        result.id = id;
+        result.score = score;
+        result.points = qRound(double(score) * ScoreFactor::MaxPoints / kMaxScore);
+        return result;
+    };
+    const QList<ScoreFactor> factors {
+        factor(ScoreFactor::UiResponsiveness, uiResponsivenessPercent()),
+        factor(ScoreFactor::FrameConsistency, onTargetPercent()),
+        factor(ScoreFactor::StutterPrevention, stutterFreePercent()),
+        factor(ScoreFactor::P99Quality, p99Percent()),
+        factor(ScoreFactor::StartupSpeed, startupSpeedPercent()),
+    };
+    QTC_CHECK(factors.size() == ScoreFactor::Count);
+    return factors;
+}
+
+int QmlProfilerDashboardStats::overallScore() const
+{
+    int score = 0;
+    for (const ScoreFactor &factor : scoreBreakdown())
+        score += factor.points;
+    return score;
+}
+
+qint64 QmlProfilerDashboardStats::slowestFrameTimestamp() const
+{
+    return m_slowestFrameTimestamp;
+}
+
+double QmlProfilerDashboardStats::slowestFrameTimeMs() const
+{
+    return m_slowestFrameTimeMs;
+}
+
+ScoreRating scoreRating(int score)
+{
+    if (score >= kExcellentScore)
+        return ScoreRating::Excellent;
+    if (score >= kGoodScore)
+        return ScoreRating::Good;
+    if (score >= kAlertingScore)
+        return ScoreRating::Alerting;
+    return ScoreRating::Poor;
 }
 
 } // namespace Profiler::Internal

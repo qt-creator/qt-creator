@@ -41,6 +41,7 @@ if(WITH_TESTS)
     tests/qmlprofileranimationsmodel_test.cpp tests/qmlprofileranimationsmodel_test.h
     tests/qmlprofilerattachdialog_test.cpp tests/qmlprofilerattachdialog_test.h
     tests/qmlprofilerclientmanager_test.cpp tests/qmlprofilerclientmanager_test.h
+    tests/qmlprofilerdashboard_test.cpp tests/qmlprofilerdashboard_test.h
     tests/qmlprofilerdetailsrewriter_test.cpp tests/qmlprofilerdetailsrewriter_test.h
     tests/qmlprofilerfindingsmodel_test.cpp tests/qmlprofilerfindingsmodel_test.h
     tests/qmlprofilernotesmodel_test.cpp tests/qmlprofilernotesmodel_test.h

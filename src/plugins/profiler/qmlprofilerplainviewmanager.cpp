@@ -103,6 +103,11 @@ QWidgetList QmlProfilerPlainViewManager::views(QWidget *parent)
     connect(flameGraphView, &Internal::FlameGraphView::detailsCleared, d->timelineDetails,
             [this, flameGraphView] { d->timelineDetails->clear(flameGraphView); });
 
+    connect(dashboardView, &Internal::QmlProfilerDashboardView::timelineRangeRequested,
+            this, [this, dashboardView, traceView](qint64 start, qint64 end) {
+        traceView->showRange(start, end);
+        emit viewSwitchRequested(traceView, dashboardView);
+    });
     connect(dashboardView, &Internal::QmlProfilerDashboardView::noDataShown,
             this, [this, dashboardView, traceView] {
         emit viewSwitchRequested(traceView, dashboardView);

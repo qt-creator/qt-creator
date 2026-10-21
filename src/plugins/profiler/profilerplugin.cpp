@@ -41,6 +41,7 @@
 #include "tests/qmlprofileranimationsmodel_test.h"
 #include "tests/qmlprofilerattachdialog_test.h"
 #include "tests/qmlprofilerclientmanager_test.h"
+#include "tests/qmlprofilerdashboard_test.h"
 #include "tests/qmlprofilerdetailsrewriter_test.h"
 #include "tests/qmlprofilerfindingsmodel_test.h"
 #include "tests/qmlprofilernotesmodel_test.h"
@@ -100,6 +101,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<QmlProfilerAnimationsModelTest>();
         addTest<QmlProfilerAttachDialogTest>();
         addTest<QmlProfilerClientManagerTest>();
+        addTest<QmlProfilerDashboardTest>();
         addTest<QmlProfilerDetailsRewriterTest>();
         addTest<QmlProfilerFindingsModelTest>();
         addTest<QmlProfilerNotesModelTest>();

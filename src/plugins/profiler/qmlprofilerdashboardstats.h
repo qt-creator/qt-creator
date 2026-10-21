@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QList>
 #include <QObject>
 
 namespace QmlDebug {
@@ -36,8 +37,45 @@ constexpr int kNearTargetResponsivenessWeightPercent = 50;
 // the tail.
 constexpr int kP99FailedFrameWeight = 3;
 
-// Number of categories averaged by overallPercent.
-constexpr int kOverallPercentCategoryCount = 5;
+// Lowest score of each rating band. Applies to every score on the dashboard.
+constexpr int kExcellentScore = 95;
+constexpr int kGoodScore = 80;
+constexpr int kAlertingScore = 50;
+
+constexpr int kMaxScore = 100;
+
+enum class ScoreRating {
+    Excellent,
+    Good,
+    Alerting,
+    Poor,
+};
+
+ScoreRating scoreRating(int score);
+
+// One of the factors that make up QmlProfilerDashboardStats::overallScore().
+class ScoreFactor
+{
+public:
+    enum Id {
+        UiResponsiveness,
+        FrameConsistency,
+        StutterPrevention,
+        P99Quality,
+        StartupSpeed,
+    };
+
+    static constexpr int Count = StartupSpeed + 1;
+    static constexpr int MaxPoints = kMaxScore / Count;
+
+    int pointsLost() const { return MaxPoints - points; }
+    // Rated below "Excellent", so one of the reasons for a lower overall score.
+    bool pullsScoreDown() const { return score < kExcellentScore; }
+
+    Id id = UiResponsiveness;
+    int score = 0;
+    int points = 0;
+};
 
 // Frame timing statistics derived from the ProfileAnimations trace events,
 // for QmlProfilerDashboardView.
@@ -67,7 +105,14 @@ public:
     int uiResponsivenessPercent() const;
     int p99Percent() const;
     int startupSpeedPercent() const;
-    int overallPercent() const;
+
+    QList<ScoreFactor> scoreBreakdown() const;
+    int overallScore() const;
+
+    // The GUI thread frame with the lowest frame rate, or a negative
+    // timestamp if there is none.
+    qint64 slowestFrameTimestamp() const;
+    double slowestFrameTimeMs() const;
 
 signals:
     void changed();
@@ -80,6 +125,8 @@ private:
     int m_framesNearTarget = 0;
     int m_framesFailed = 0;
     int m_framesStuttering = 0;
+    qint64 m_slowestFrameTimestamp = -1;
+    double m_slowestFrameTimeMs = 0;
 };
 
 } // namespace Profiler::Internal

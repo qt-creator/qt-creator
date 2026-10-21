@@ -184,6 +184,14 @@ void QmlProfilerTraceView::selectByEventIndex(int modelId, int eventIndex)
     d->m_mainView->selectByIndices(modelIndex, eventIndex);
 }
 
+// Zooms in on the range, leaving room for its surroundings.
+void QmlProfilerTraceView::showRange(qint64 start, qint64 end)
+{
+    const qint64 margin = qMax(end - start, d->m_zoomControl.minimumRangeLength()) * 4;
+    d->m_zoomControl.setRange(qMax(start - margin, d->m_zoomControl.traceStart()),
+                              qMin(end + margin, d->m_zoomControl.traceEnd()));
+}
+
 void QmlProfilerTraceView::updateCursorPosition()
 {
     const QString file = d->m_mainView->currentFile();

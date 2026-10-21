@@ -35,6 +35,7 @@ public:
     void clear();
     void selectByTypeId(int typeId);
     void selectByEventIndex(int modelId, int eventIndex);
+    void showRange(qint64 start, qint64 end);
     void updateCursorPosition();
 
 protected:
