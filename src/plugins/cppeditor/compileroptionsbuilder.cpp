@@ -5,6 +5,8 @@
 
 #include "headerpathfilter.h"
 
+#include <baremetal/baremetalconstants.h>
+
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/headerpath.h>
@@ -937,7 +939,11 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
     bool skipNext = false;
     bool nextIsTarget = false;
     bool nextIsGccToolchain = false;
-    const QStringList allFlags = m_projectPart.extraCodeModelFlags + m_projectPart.compilerFlags;
+    // The options of IAR's compilers mean nothing to clang, and some take their value as
+    // a separate argument. Header paths, macros and included files come from elsewhere.
+    const QStringList allFlags = toolChain == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID
+        ? m_projectPart.extraCodeModelFlags
+        : m_projectPart.extraCodeModelFlags + m_projectPart.compilerFlags;
     for (const QString &option : allFlags) {
         if (skipNext) {
             skipNext = false;

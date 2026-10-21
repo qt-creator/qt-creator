@@ -7,6 +7,8 @@
 #include "compileroptionsbuilder.h"
 #include "projectpart.h"
 
+#include <baremetal/baremetalconstants.h>
+
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
@@ -1000,6 +1002,22 @@ void CompilerOptionsBuilderTest::testNativeModeIgnoresClangOptionsFromBuildSyste
 
     QVERIFY(options.contains("-fancyFlag"));
     QVERIFY(!options.contains("-fiar-extensions"));
+}
+
+void CompilerOptionsBuilderTest::testIarCompilerFlagsAreDropped()
+{
+    TestHelper t;
+    t.toolchainType = BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID;
+    t.flags = QStringList{"--no_cse", "--dlib_config", "/ew/arm/inc/c/DLib_Config_Normal.h",
+                          "--cpu_mode", "thumb", "-e"};
+    t.extraFlags = QStringList{"-mthumb"};
+    CompilerOptionsBuilder compilerOptionsBuilder(t.finalize());
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
+
+    const QStringList options = compilerOptionsBuilder.options();
+    QVERIFY(options.contains("-mthumb"));
+    for (const QString &flag : std::as_const(t.flags))
+        QVERIFY2(!options.contains(flag), qPrintable(flag));
 }
 
 } // namespace CppEditor::Internal

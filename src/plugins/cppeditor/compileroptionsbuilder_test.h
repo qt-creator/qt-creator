@@ -72,6 +72,7 @@ private slots:
     void testIgnoredDriverModeInClangOptions();
     void testAppleWorkaroundInClangOptions();
     void testNativeModeIgnoresClangOptionsFromBuildSystem();
+    void testIarCompilerFlagsAreDropped();
 };
 
 } // namespace CppEditor::Internal
