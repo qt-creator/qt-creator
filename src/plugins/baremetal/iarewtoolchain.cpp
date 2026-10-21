@@ -21,7 +21,6 @@
 #include <QDebug>
 #include <QDir>
 #include <QFile>
-#include <QFileInfo>
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QPlainTextEdit>
@@ -119,35 +118,41 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Id languageId
     cmd.addArg("--preinclude");
     cmd.addArg(".");
 
+    // The compiler searches its working directory, too.
+    const FilePath workingDirectory
+        = FilePath::fromString(fakeIn.fileName()).parentDir().canonicalPath();
+
     Process cpp;
     cpp.setEnvironment(env);
     cpp.setCommand(cmd);
+    cpp.setWorkingDirectory(workingDirectory);
     cpp.runBlocking();
 
     HeaderPaths headerPaths;
 
-    const QByteArray output = cpp.allOutput().toUtf8();
-    for (auto pos = 0; pos < output.size(); ++pos) {
-        const int searchIndex = output.indexOf("searched:", pos);
+    const QString output = cpp.allOutput();
+    for (qsizetype pos = 0; pos < output.size(); ++pos) {
+        const qsizetype searchIndex = output.indexOf(u"searched:", pos);
         if (searchIndex == -1)
             break;
-        const int startQuoteIndex = output.indexOf('"', searchIndex + 1);
+        const qsizetype startQuoteIndex = output.indexOf('"', searchIndex + 1);
         if (startQuoteIndex == -1)
             break;
-        const int endQuoteIndex = output.indexOf('"', startQuoteIndex + 1);
+        const qsizetype endQuoteIndex = output.indexOf('"', startQuoteIndex + 1);
         if (endQuoteIndex == -1)
             break;
 
-        const QByteArray candidate = output.mid(startQuoteIndex + 1,
-                                                endQuoteIndex - startQuoteIndex - 1)
-                .simplified();
+        const QString candidate = output.mid(startQuoteIndex + 1,
+                                             endQuoteIndex - startQuoteIndex - 1)
+                .trimmed();
 
-        const QString headerPath = QFileInfo(QFile::decodeName(candidate))
-                .canonicalFilePath();
+        const FilePath headerPath = FilePath::fromUserInput(candidate).canonicalPath();
 
         // Ignore the QtC binary directory path.
-        if (headerPath != QCoreApplication::applicationDirPath())
-            headerPaths.append(HeaderPath::makeBuiltIn(FilePath::fromUserInput(headerPath)));
+        if (headerPath != FilePath::fromString(QCoreApplication::applicationDirPath())
+                && headerPath != workingDirectory) {
+            headerPaths.append(HeaderPath::makeBuiltIn(headerPath));
+        }
 
         pos = endQuoteIndex + 1;
     }
