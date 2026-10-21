@@ -168,6 +168,16 @@
     directly or indirectly include \c {gtest/gtest.h}. Files that currently will
     not be built will be ignored.
 
+    The parser also finds tests that you define with your own macros if they
+    expand to \c TEST, \c TEST_F, or \c GTEST_TEST, or if they register the
+    tests by calling \c {MakeAndRegisterTestInfo()} outside of a function body.
+    Own macros that wrap \c TEST_P or typed tests are not supported.
+    Test names registered by \c {MakeAndRegisterTestInfo()} may contain
+    characters that Google Test interprets as filter syntax: \c {:}, \c {-},
+    \c {*}, and \c {?}. When running such a test, \QC replaces these characters
+    with the \c {?} wildcard, so other tests in the same test suite whose names
+    differ only at these positions are run as well.
+
     \sa {Test}{How To: Test}, {Select the build system}, {Testing}
 */
 

@@ -34,15 +34,21 @@ inline bool operator<(const GTestCaseSpec &spec1, const GTestCaseSpec &spec2)
 class GTestVisitor : public CPlusPlus::ASTVisitor
 {
 public:
-    explicit GTestVisitor(CPlusPlus::Document::Ptr doc);
+    explicit GTestVisitor(CPlusPlus::Document::Ptr doc,
+                          const QMap<GTestCaseSpec, GTestCodeLocationList> &knownTests = {},
+                          const QByteArray &originalSource = {});
     bool visit(CPlusPlus::FunctionDefinitionAST *ast) override;
+    bool visit(CPlusPlus::CallAST *ast) override;
 
     QMap<GTestCaseSpec, GTestCodeLocationList> gtestFunctions() const { return m_gtestFunctions; }
 
 private:
     QString enclosingNamespaces(CPlusPlus::Symbol *symbol) const;
+    void tokenPosition(int token, int *line, int *column) const;
+    void addTest(GTestCaseSpec spec, const QString &testCaseName, int line, int column);
 
     CPlusPlus::Document::Ptr m_document;
+    QByteArray m_originalSource;
     CPlusPlus::Overview m_overview;
     QMap<GTestCaseSpec, GTestCodeLocationList> m_gtestFunctions;
 };

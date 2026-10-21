@@ -71,9 +71,9 @@ using GTestCodeLocationList = QList<GTestCodeLocationAndType>;
 struct GTestCaseSpec
 {
     QString testCaseName;
-    bool parameterized;
-    bool typed;
-    bool disabled;
+    bool parameterized = false;
+    bool typed = false;
+    bool disabled = false;
 };
 
 } // namespace Autotest::Internal

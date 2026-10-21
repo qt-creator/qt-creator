@@ -56,8 +56,9 @@ static bool matchesTestCase(const QString &testCaseName, const TestTreeItem *tre
     if (treeItem->type() != TestTreeItem::TestCase)
         return false;
 
+    // names registered by own code may contain a '/' that is not a parameter separator
     const QString testItemTestCase = treeItem->parentItem()->name() + '.' + treeItem->name();
-    return testItemTestCase == normalizeName(testCaseName);
+    return testItemTestCase == testCaseName || testItemTestCase == normalizeName(testCaseName);
 }
 
 static bool matchesTestSuite(const QString &name, const TestTreeItem *treeItem)

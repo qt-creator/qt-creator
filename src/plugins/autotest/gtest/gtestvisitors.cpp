@@ -5,21 +5,25 @@
 #include "gtest_utils.h"
 
 #include <cplusplus/LookupContext.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>
 
 namespace Autotest::Internal {
 
-GTestVisitor::GTestVisitor(CPlusPlus::Document::Ptr doc)
+GTestVisitor::GTestVisitor(CPlusPlus::Document::Ptr doc,
+                           const QMap<GTestCaseSpec, GTestCodeLocationList> &knownTests,
+                           const QByteArray &originalSource)
     : CPlusPlus::ASTVisitor(doc->translationUnit())
     , m_document(doc)
+    , m_originalSource(originalSource)
+    , m_gtestFunctions(knownTests)
 {
 }
 
 bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
 {
-    static const QString disabledPrefix("DISABLED_");
     if (!ast || !ast->declarator || !ast->declarator->core_declarator)
         return false;
 
@@ -85,13 +89,90 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
     if (testSuiteName.isEmpty() || testCaseName.isEmpty())
         return false;
 
-    const bool disabled = testCaseName.startsWith(disabledPrefix);
-    const bool disabledCase = testSuiteName.startsWith(disabledPrefix);
     int line = 0;
     int column = 0;
-    unsigned token = id->firstToken();
-    m_document->translationUnit()->getTokenPosition(token, &line, &column);
+    tokenPosition(id->firstToken(), &line, &column);
+    GTestCaseSpec spec;
+    // FIXME GTestCaseSpec structure wrong nowadays (suite vs case / case vs function)
+    spec.testCaseName = testSuiteName;
+    spec.parameterized = GTestUtils::isGTestParameterized(prettyName);
+    spec.typed = GTestUtils::isGTestTyped(prettyName);
+    addTest(spec, testCaseName, line, column);
+    return false;
+}
 
+bool GTestVisitor::visit(CPlusPlus::CallAST *ast)
+{
+    if (!ast || !ast->base_expression || !ast->expression_list)
+        return true;
+
+    CPlusPlus::IdExpressionAST *idExpression = ast->base_expression->asIdExpression();
+    if (!idExpression || !idExpression->name)
+        return true;
+    CPlusPlus::NameAST *name = idExpression->name;
+    if (CPlusPlus::QualifiedNameAST *qualifiedName = name->asQualifiedName())
+        name = qualifiedName->unqualified_name;
+    CPlusPlus::SimpleNameAST *simpleName = name ? name->asSimpleName() : nullptr;
+    if (!simpleName)
+        return true;
+    const CPlusPlus::Identifier *identifier
+        = translationUnit()->identifier(simpleName->identifier_token);
+    if (!identifier || !identifier->match(translationUnit()->control()->identifier(
+                           "MakeAndRegisterTestInfo"))) {
+        return true;
+    }
+
+    const auto stringArgument = [this](CPlusPlus::ExpressionListAST *argument) {
+        if (!argument || !argument->value)
+            return QString();
+        CPlusPlus::StringLiteralAST *literal = argument->value->asStringLiteral();
+        if (!literal || literal->next)
+            return QString();
+        const CPlusPlus::Token &token = translationUnit()->tokenAt(literal->literal_token);
+        if (token.kind() != CPlusPlus::T_STRING_LITERAL)
+            return QString();
+        const QString raw = QString::fromUtf8(token.spell());
+        QString text;
+        for (int i = 0; i < raw.size(); ++i) {
+            if (raw.at(i) != '\\') {
+                text.append(raw.at(i));
+                continue;
+            }
+            // other escape sequences are unlikely inside a test name
+            if (++i == raw.size() || !QStringView(u"\"'?\\").contains(raw.at(i)))
+                return QString();
+            text.append(raw.at(i));
+        }
+        return text;
+    };
+    const QString testSuiteName = stringArgument(ast->expression_list);
+    const QString testCaseName = stringArgument(ast->expression_list->next);
+    if (testSuiteName.isEmpty() || testCaseName.isEmpty())
+        return false;
+
+    // tests registered by a gtest macro may have been found already
+    for (auto it = m_gtestFunctions.cbegin(); it != m_gtestFunctions.cend(); ++it) {
+        if (it.key().testCaseName == testSuiteName
+            && Utils::anyOf(it.value(), [&testCaseName](const GTestCodeLocationAndType &location) {
+                   return location.m_name == testCaseName;
+               })) {
+            return false;
+        }
+    }
+
+    int line = 0;
+    int column = 0;
+    tokenPosition(ast->firstToken(), &line, &column);
+    GTestCaseSpec spec;
+    spec.testCaseName = testSuiteName;
+    addTest(spec, testCaseName, line, column);
+    return false;
+}
+
+void GTestVisitor::addTest(GTestCaseSpec spec, const QString &testCaseName, int line, int column)
+{
+    static const QString disabledPrefix("DISABLED_");
+    const bool disabled = testCaseName.startsWith(disabledPrefix);
     GTestCodeLocationAndType locationAndType;
     locationAndType.m_name = testCaseName;
     locationAndType.m_line = line;
@@ -99,15 +180,22 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
     locationAndType.m_type = TestTreeItem::TestCase;
     locationAndType.m_state = disabled ? GTestTreeItem::Disabled
                                        : GTestTreeItem::Enabled;
-    GTestCaseSpec spec;
-    // FIXME GTestCaseSpec structure wrong nowadays (suite vs case / case vs function)
-    spec.testCaseName = testSuiteName;
-    spec.parameterized = GTestUtils::isGTestParameterized(prettyName);
-    spec.typed = GTestUtils::isGTestTyped(prettyName);
-    spec.disabled = disabledCase;
+    spec.disabled = spec.testCaseName.startsWith(disabledPrefix);
     m_gtestFunctions[spec].append(locationAndType);
+}
 
-    return false;
+void GTestVisitor::tokenPosition(int token, int *line, int *column) const
+{
+    if (!translationUnit()->tokenAt(token).generated() || m_originalSource.isEmpty()) {
+        translationUnit()->getTokenPosition(token, line, column);
+        return;
+    }
+    // use the position of the macro invocation inside the original source
+    const int offset = translationUnit()->getExpansionPosition(token).first;
+    const QByteArrayView source(m_originalSource);
+    const QByteArrayView before = source.first(qMin<qsizetype>(offset, source.size()));
+    *line = before.count('\n') + 1;
+    *column = QString::fromUtf8(before.sliced(before.lastIndexOf('\n') + 1)).size() + 1;
 }
 
 QString GTestVisitor::enclosingNamespaces(CPlusPlus::Symbol *symbol) const

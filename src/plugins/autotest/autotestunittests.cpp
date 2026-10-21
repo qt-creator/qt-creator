@@ -17,6 +17,7 @@
 #include "gtest/gtestconfiguration.h"
 #include "gtest/gtestframework.h"
 #include "gtest/gtestoutputreader.h"
+#include "gtest/gtestresult.h"
 #include "qtest/qttest_utils.h"
 #include "qtest/qttestconfiguration.h"
 #include "qtest/qttestframework.h"
@@ -252,7 +253,7 @@ void AutotestUnitTests::testCodeParserGTest()
     QVERIFY(parserSpy.wait(20000));
     QVERIFY(modelUpdateSpy.wait());
 
-    QCOMPARE(m_model->gtestNamesCount(), 9);
+    QCOMPARE(m_model->gtestNamesCount(), 13);
 
     QMultiMap<QString, int> expectedNamesAndSets;
     expectedNamesAndSets.insert(QStringLiteral("FactorialTest"), 3);
@@ -264,11 +265,49 @@ void AutotestUnitTests::testCodeParserGTest()
     expectedNamesAndSets.insert(QStringLiteral("NumberAsNameStart"), 1);
     expectedNamesAndSets.insert(QStringLiteral("NamespaceTest"), 1);
     expectedNamesAndSets.insert(QStringLiteral("InLibTest"), 2); // in a linked library
+    expectedNamesAndSets.insert(QStringLiteral("CustomMacro"), 3);
+    expectedNamesAndSets.insert(QStringLiteral("OwnBaseMacro"), 1);
+    expectedNamesAndSets.insert(QStringLiteral("Scenarios"), 1); // custom registration
+    expectedNamesAndSets.insert(QStringLiteral("RegisteredMacro"), 1);
 
     QMultiMap<QString, int> foundNamesAndSets = m_model->gtestNamesAndSets();
     QCOMPARE(expectedNamesAndSets.size(), foundNamesAndSets.size());
     for (const QString &name : expectedNamesAndSets.keys())
         QCOMPARE(expectedNamesAndSets.values(name), foundNamesAndSets.values(name));
+
+    const auto findTest = [](const QString &suite, const QString &test) -> TestTreeItem * {
+        TestTreeItem *suiteItem = theGTestFramework().rootNode()->findFirstLevelChildItem(
+            [&suite](TestTreeItem *item) { return item->name() == suite; });
+        if (!suiteItem)
+            return nullptr;
+        return suiteItem->findFirstLevelChildItem(
+            [&test](TestTreeItem *item) { return item->name() == test; });
+    };
+
+    // tests defined by custom macros are located at the macro invocation
+    const TestTreeItem *alias = findTest("CustomMacro", "Alias");
+    QVERIFY(alias);
+    QCOMPARE(alias->line(), 43);
+    QCOMPARE(alias->column(), 0);
+    const TestTreeItem *wrapped = findTest("CustomMacro", "Wrapped");
+    QVERIFY(wrapped);
+    QCOMPARE(wrapped->line(), 50);
+    QCOMPARE(wrapped->column(), 0);
+    const TestTreeItem *scenario = findTest("Scenarios", R"(described: log-in "read/write" 1/2)");
+    QVERIFY(scenario);
+    QCOMPARE(scenario->line(), 74);
+    QCOMPARE(scenario->column(), 13);
+
+    // characters gtest reads as filter syntax must not reach the filter
+    std::unique_ptr<ITestConfiguration> config(scenario->testConfiguration());
+    QVERIFY(config);
+    QCOMPARE(static_cast<TestConfiguration *>(config.get())->testCases(),
+             QStringList(R"(Scenarios.described? log?in "read/write" 1/2)"));
+
+    // results of such tests find their tree item
+    const GTestResult result({}, "Scenarios", scenario->proFile(),
+                             R"(Scenarios.described: log-in "read/write" 1/2)");
+    QCOMPARE(result.findTestTreeItem(), scenario);
 
     // check also that no Qt related tests have been found
     QCOMPARE(m_model->autoTestsCount(), 0);

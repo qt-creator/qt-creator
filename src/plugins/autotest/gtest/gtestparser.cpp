@@ -10,6 +10,8 @@
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/projectpart.h>
 
+#include <utils/algorithm.h>
+
 #include <QPromise>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
@@ -70,6 +72,26 @@ static bool hasGTestNames(const CPlusPlus::Document::Ptr &document)
     return false;
 }
 
+static bool usesCustomGTestMacros(const CPlusPlus::Document::Ptr &document)
+{
+    static const QRegularExpression regex(
+        "\\b(TestBody|TEST(_F)?|GTEST_TEST_?|MakeAndRegisterTestInfo)\\b");
+    // macro uses include the macros used inside the expansion of other macros
+    QSet<QByteArray> checked;
+    for (const CPlusPlus::Document::MacroUse &use : document->macroUses()) {
+        const CPlusPlus::Macro &macro = use.macro();
+        if (!Utils::insert(checked, macro.name()))
+            continue;
+        if (GTestUtils::isGTestMacro(QLatin1String(macro.name())))
+            continue;
+        if (macro.name().startsWith("GTEST_"))
+            continue;
+        if (regex.match(QString::fromUtf8(macro.definitionText())).hasMatch())
+            return true;
+    }
+    return false;
+}
+
 DocumentProcessor GTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
 {
     Q_UNUSED(filesToParse)
@@ -89,7 +111,8 @@ bool GTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
         return false;
 
     const QByteArray &fileContent = getFileContent(context, fileName);
-    if (!hasGTestNames(doc)) {
+    const bool customMacros = usesCustomGTestMacros(doc);
+    if (!customMacros && !hasGTestNames(doc)) {
         static const QRegularExpression regex("\\b(TEST(_[FP])?|TYPED_TEST(_P)?|(GTEST_TEST))");
         if (!regex.match(QString::fromUtf8(fileContent)).hasMatch())
             return false;
@@ -100,10 +123,18 @@ bool GTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
         = context.cppSnapshot.preprocessedDocument(fileContent, fileName, false);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
-    GTestVisitor visitor(document);
+    GTestVisitor visitor(document, {}, fileContent);
     visitor.accept(ast);
 
-    const QMap<GTestCaseSpec, GTestCodeLocationList> result = visitor.gtestFunctions();
+    QMap<GTestCaseSpec, GTestCodeLocationList> result = visitor.gtestFunctions();
+    if (customMacros) {
+        CPlusPlus::Document::Ptr expanded
+            = context.cppSnapshot.preprocessedDocument(fileContent, fileName, true);
+        expanded->check();
+        GTestVisitor expandedVisitor(expanded, result, fileContent);
+        expandedVisitor.accept(expanded->translationUnit()->ast());
+        result = expandedVisitor.gtestFunctions();
+    }
     FilePath proFile;
     const QList<CppEditor::ProjectPart::ConstPtr> &ppList =
         CppEditor::CppModelManager::projectPart(filePath);

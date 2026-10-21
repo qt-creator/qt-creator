@@ -7,4 +7,7 @@ CONFIG += thread
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    further.cpp
+    further.cpp \
+    ownbase.cpp \
+    registered.cpp \
+    twolevel.cpp

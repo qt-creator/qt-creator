@@ -37,3 +37,41 @@ TEST(NamespaceTest, Valid)
 } // namespace Internal
 } // anon namespace
 } // namespace Dummy
+
+#define MYTEST TEST
+
+MYTEST(CustomMacro, Alias)
+{
+    EXPECT_EQ(2, sum(1, 1));
+}
+
+#define MY_TEST(suite, name) TEST(suite, name)
+
+MY_TEST(CustomMacro, Wrapped)
+{
+    EXPECT_EQ(3, sum(1, 2));
+}
+
+#define MAKE_SCENARIO(TestClass, description, FixtureClass) \
+    class TestClass : public FixtureClass \
+    { \
+    private: \
+        void TestBody() override; \
+        static ::testing::TestInfo *const test_info_; \
+    }; \
+    ::testing::TestInfo *const TestClass::test_info_ \
+        = ::testing::internal::MakeAndRegisterTestInfo( \
+            #FixtureClass, description, nullptr, nullptr, \
+            ::testing::internal::CodeLocation(__FILE__, __LINE__), \
+            ::testing::internal::GetTypeId<FixtureClass>(), \
+            FixtureClass::SetUpTestSuite, FixtureClass::TearDownTestSuite, \
+            new ::testing::internal::TestFactoryImpl<TestClass>); \
+    void TestClass::TestBody()
+
+class Scenarios : public ::testing::Test
+{};
+
+/* custom */ MAKE_SCENARIO(ScenarioOne, "described: log-in \"read/write\" 1/2", Scenarios)
+{
+    EXPECT_EQ(4, sum(2, 2));
+}

@@ -30,6 +30,9 @@ CppApplication {
         // own stuff
         "further.cpp",
         "main.cpp",
+        "ownbase.cpp",
+        "registered.cpp",
+        "twolevel.cpp",
     ].concat(googleCommon.getGTestAll(qbs, project.googletestDir))
      .concat(googleCommon.getGMockAll(qbs, project.googletestDir))
 }
