@@ -16,6 +16,7 @@
 #include "textmark.h"
 #include "basefilefind.h"
 #include "basehoverhandler.h"
+#include "jsoneditor.h"
 #include "snippets/snippet.h"
 #include "snippets/snippetparser.h"
 
@@ -2486,6 +2487,16 @@ private slots:
     void testLongScopeIsLabeled();
     void testLabels_data();
     void testLabels();
+    void testJsonLabels_data();
+    void testJsonLabels();
+    void testLongJsonScope_data();
+    void testLongJsonScope();
+    void testJsonScopeStartIsCached();
+    void testJsonElementIndexIsCached();
+    void testFarJsonElement_data();
+    void testFarJsonElement();
+    void testJsonBraceRuns_data();
+    void testJsonBraceRuns();
     void testFollowsEdits();
     void testDisabled();
     void testIfdefedOutBraces();
@@ -2505,6 +2516,12 @@ private slots:
 
 private:
     static QString body(int lines);
+    // An object with an array of elements numbers under the key "key", whose closing bracket
+    // is in line elements + 3.
+    static QString jsonArray(int elements);
+    // An array of elements numbers, of which those at objects are objects of five lines. The
+    // indexes of the objects are stored in closers by the block number of their closing brace.
+    static QString jsonElements(int elements, const QList<int> &objects, QMap<int, int> *closers);
     // The labels of all lines, by 1-based line number.
     static QMap<int, QString> labels(const TextEditorWidget &widget);
     static DisplaySettingsData scopeEndSettings(int minimumLines = 20);
@@ -2513,20 +2530,17 @@ private:
 };
 
 // The editors get these from their highlighters.
-static void storeParentheses(QTextDocument *document)
+static void storeParentheses(QTextDocument *document, const QString &brackets = "{}()")
 {
     for (QTextBlock block = document->begin(); block.isValid(); block = block.next()) {
         Parentheses parentheses;
         const QString text = block.text();
         for (int i = 0; i < text.size(); ++i) {
-            if (text.at(i) == '{')
-                parentheses.append(Parenthesis(Parenthesis::Opened, '{', i));
-            else if (text.at(i) == '}')
-                parentheses.append(Parenthesis(Parenthesis::Closed, '}', i));
-            else if (text.at(i) == '(')
-                parentheses.append(Parenthesis(Parenthesis::Opened, '(', i));
-            else if (text.at(i) == ')')
-                parentheses.append(Parenthesis(Parenthesis::Closed, ')', i));
+            const QChar c = text.at(i);
+            if (!brackets.contains(c))
+                continue;
+            const bool opens = QString("{[(").contains(c);
+            parentheses.append(Parenthesis(opens ? Parenthesis::Opened : Parenthesis::Closed, c, i));
         }
         TextBlockUserData::setParentheses(block, parentheses);
     }
@@ -2538,6 +2552,34 @@ QString ScopeEndAnnotationsTest::body(int lines)
     for (int i = 0; i < lines; ++i)
         result += QString("    statement%1;\n").arg(i);
     return result;
+}
+
+QString ScopeEndAnnotationsTest::jsonArray(int elements)
+{
+    QString result = "{\n  \"key\": [\n";
+    for (int i = 0; i < elements; ++i)
+        result += i < elements - 1 ? "    1,\n" : "    1\n";
+    return result + "  ]\n}\n";
+}
+
+QString ScopeEndAnnotationsTest::jsonElements(int elements, const QList<int> &objects,
+                                              QMap<int, int> *closers)
+{
+    QString result = "[\n";
+    int line = 1;
+    for (int i = 0; i < elements; ++i) {
+        const QString comma = i < elements - 1 ? QString(",") : QString();
+        if (objects.contains(i)) {
+            result += "    {\n      \"a\": 1,\n      \"b\": 2,\n      \"c\": 3\n    }" + comma
+                      + "\n";
+            line += 5;
+            closers->insert(line - 1, i);
+        } else {
+            result += "    1" + comma + "\n";
+            ++line;
+        }
+    }
+    return result + "]\n";
 }
 
 QMap<int, QString> ScopeEndAnnotationsTest::labels(const TextEditorWidget &widget)
@@ -2658,6 +2700,387 @@ void ScopeEndAnnotationsTest::testLabels()
     }
 }
 
+using Labels = QMap<int, QString>;
+
+void ScopeEndAnnotationsTest::testJsonLabels_data()
+{
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<Labels>("labels"); // by 1-based line number
+
+    QTest::newRow("keys and elements")
+        << QString("{\n"                                          // 1
+                   "  \"definitions\": {\n"
+                   "    \"ToolKind\": {\n"                        // 3
+                   "      \"oneOf\": [\n"
+                   "        {\n"                                  // 5
+                   "          \"description\": \"Reads files.\",\n"
+                   "          \"type\": \"string\",\n"
+                   "          \"const\": \"read\"\n"
+                   "        },\n"                                 // 9
+                   "        {\n"
+                   "          \"description\": \"Writes files.\",\n"
+                   "          \"type\": \"string\",\n"
+                   "          \"const\": \"write\"\n"
+                   "        }\n"                                  // 14
+                   "      ]\n"
+                   "    }\n"                                      // 16
+                   "  }\n"
+                   "}\n")                                         // 18
+        << Labels{{9, "[0]"}, {14, "[1]"}, {15, "\"oneOf\""}, {16, "\"ToolKind\""},
+                  {17, "\"definitions\""}};
+    QTest::newRow("key on the previous line")
+        << QString("{\n"
+                   "  \"ToolKind\":\n"
+                   "  {\n"                                        // 3
+                   "    \"a\": 1,\n"
+                   "    \"b\": 2,\n"
+                   "    \"c\": 3,\n"
+                   "    \"d\": 4\n"
+                   "  }\n"                                        // 8
+                   "}\n")
+        << Labels{{8, "\"ToolKind\""}};
+    QTest::newRow("brackets and colons in strings")
+        << QString("{\n"
+                   "  \"we{ird]: key\": {\n"                     // 2
+                   "    \"a\": \"} ]\",\n"
+                   "    \"b\": \"[ {\",\n"
+                   "    \"c\": \"x: \\\" {\",\n"
+                   "    \"d\": [\n"                              // 6
+                   "      \"]\",\n"
+                   "      \"}\",\n"
+                   "      \"{\",\n"
+                   "      \"[\"\n"
+                   "    ]\n"                                      // 11
+                   "  }\n"                                        // 12
+                   "}\n")
+        << Labels{{11, "\"d\""}, {12, "\"we{ird]: key\""}};
+    QTest::newRow("arrays in an array")
+        << QString("{\n"
+                   "  \"matrix\": [\n"                           // 2
+                   "    [\n"
+                   "      1,\n"
+                   "      2,\n"
+                   "      3,\n"
+                   "      4\n"
+                   "    ],\n"                                     // 8
+                   "    [\n"
+                   "      5\n"
+                   "    ]\n"
+                   "  ]\n"                                        // 12
+                   "}\n")
+        << Labels{{8, "[0]"}, {12, "\"matrix\""}};
+    QTest::newRow("objects in an array")
+        << QString("[\n"
+                   "  {\n"
+                   "    \"a\": 1,\n"
+                   "    \"b\": 2,\n"
+                   "    \"c\": 3\n"
+                   "  },\n"                                       // 6
+                   "  {\n"
+                   "    \"a\": 1,\n"
+                   "    \"b\": 2,\n"
+                   "    \"c\": 3\n"
+                   "  },\n"                                       // 11
+                   "  {\n"
+                   "    \"name\": \"last\",\n"
+                   "    \"b\": 2,\n"
+                   "    \"c\": 3\n"
+                   "  }\n"                                        // 16
+                   "]\n")                                         // 17
+        << Labels{{6, "[0]"}, {11, "[1]"}, {16, "[2]"}};
+    QTest::newRow("arrays in arrays")
+        << QString("{\n"
+                   "  \"rows\": [\n"
+                   "    [\n"
+                   "      1,\n"
+                   "      2,\n"
+                   "      3\n"
+                   "    ],\n"                                     // 7
+                   "    [\n"
+                   "      [\n"
+                   "        4,\n"
+                   "        5,\n"
+                   "        6\n"
+                   "      ],\n"                                   // 13
+                   "      [\n"
+                   "        7,\n"
+                   "        8,\n"
+                   "        9\n"
+                   "      ]\n"                                    // 18
+                   "    ]\n"                                      // 19
+                   "  ]\n"                                        // 20
+                   "}\n")
+        << Labels{{7, "[0]"}, {13, "[0]"}, {18, "[1]"}, {19, "[1]"}, {20, "\"rows\""}};
+    QTest::newRow("brackets and commas in elements")
+        << QString("[\n"
+                   "  \"a, b\",\n"
+                   "  \"{\",\n"
+                   "  \"]\",\n"
+                   "  {\n"
+                   "    \"x\": \"], {\",\n"
+                   "    \"y\": \",\",\n"
+                   "    \"z\": [\"[\", \",\"]\n"
+                   "  },\n"                                       // 9
+                   "  \"[, \\\" {\",\n"
+                   "  {\n"
+                   "    \"a\": 1,\n"
+                   "    \"b\": 2,\n"
+                   "    \"c\": 3\n"
+                   "  }\n"                                        // 15
+                   "]\n")
+        << Labels{{9, "[3]"}, {15, "[5]"}};
+    QTest::newRow("several elements in a line")
+        << QString("[\n"
+                   "  1, 2, {\n"
+                   "    \"a\": 1,\n"
+                   "    \"b\": 2,\n"
+                   "    \"c\": 3\n"
+                   "  },\n"                                       // 6
+                   "  { \"a\": 1 }, {\n"
+                   "    \"a\": 1,\n"
+                   "    \"b\": 2,\n"
+                   "    \"c\": 3\n"
+                   "  }\n"                                        // 11
+                   "]\n")
+        << Labels{{6, "[2]"}, {11, "[4]"}};
+}
+
+void ScopeEndAnnotationsTest::testJsonLabels()
+{
+    QFETCH(QString, text);
+    QFETCH(Labels, labels);
+
+    auto document = QSharedPointer<TextDocument>::create();
+    document->setPlainText(text);
+    // The generic highlighter stores the brackets in strings, too.
+    storeParentheses(document->document(), "{}[]()");
+    JsonEditorWidget widget;
+    widget.setTextDocument(document);
+    widget.setDisplaySettings(scopeEndSettings(4));
+
+    QCOMPARE(ScopeEndAnnotationsTest::labels(widget), labels);
+}
+
+void ScopeEndAnnotationsTest::testLongJsonScope_data()
+{
+    QTest::addColumn<int>("elements");
+    QTest::addColumn<QString>("label"); // empty: no label
+
+    QTest::newRow("shorter than the search") << 9000 << "\"key\"";
+    // The start of the scope is not searched for further back than 10000 lines.
+    QTest::newRow("longer than the search") << 11000 << "";
+    QTest::newRow("size of a compile_commands.json") << 200000 << "";
+}
+
+void ScopeEndAnnotationsTest::testLongJsonScope()
+{
+    QFETCH(int, elements);
+    QFETCH(QString, label);
+
+    auto document = QSharedPointer<TextDocument>::create();
+    document->setPlainText(jsonArray(elements));
+    JsonEditorWidget widget;
+    widget.setTextDocument(document);
+    widget.setDisplaySettings(scopeEndSettings(4));
+
+    const QTextBlock end = document->document()->findBlockByNumber(elements + 2);
+    QCOMPARE(end.text(), QString("  ]"));
+    QCOMPARE(widget.scopeEndLabel(end), label);
+}
+
+void ScopeEndAnnotationsTest::testJsonScopeStartIsCached()
+{
+    auto document = QSharedPointer<TextDocument>::create();
+    document->setPlainText(jsonArray(100));
+    JsonEditorWidget widget;
+    widget.setTextDocument(document);
+    widget.setDisplaySettings(scopeEndSettings(4));
+    QTextDocument *textDocument = document->document();
+    const QTextBlock end = textDocument->findBlockByNumber(102);
+    QCOMPARE(widget.scopeEndLabel(end), QString("\"key\""));
+
+    // Closing the array early leaves the last bracket without a match. While the document
+    // does not tell about the edit, the start found before is still used, so it is not
+    // searched for again.
+    QTextCursor cursor(textDocument->findBlockByNumber(50));
+    cursor.movePosition(QTextCursor::EndOfBlock);
+    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, 2);
+    QCOMPARE(cursor.selectedText(), QString("1,"));
+    {
+        const QSignalBlocker blocker(textDocument);
+        cursor.insertText("],");
+        QCOMPARE(widget.scopeEndLabel(end), QString("\"key\""));
+        QCOMPARE(widget.scopeEndLabel(end), QString("\"key\""));
+    }
+
+    // The next edit it tells about drops it.
+    QTextCursor(textDocument).insertText(" ");
+    QCOMPARE(widget.scopeEndLabel(end), QString());
+}
+
+void ScopeEndAnnotationsTest::testJsonElementIndexIsCached()
+{
+    QMap<int, int> closers;
+    auto document = QSharedPointer<TextDocument>::create();
+    document->setPlainText(jsonElements(5000, {0, 1, 10, 2500, 4998, 4999}, &closers));
+    JsonEditorWidget widget;
+    widget.setTextDocument(document);
+    widget.setDisplaySettings(scopeEndSettings(4));
+    QTextDocument *textDocument = document->document();
+    const auto label = [&](int index) {
+        const QTextBlock end = textDocument->findBlockByNumber(closers.key(index));
+        return widget.scopeEndLabel(end);
+    };
+
+    // The label of the last element indexes all of them.
+    QCOMPARE(label(4999), QString("[4999]"));
+    QCOMPARE(label(0), QString("[0]"));
+    QCOMPARE(label(1), QString("[1]"));
+
+    // Removing the comma after the element 9 makes the elements 9 and 10 one, which moves the
+    // elements after them one index down. While the document does not tell about the edit,
+    // the indexes found before are still used, also for elements whose label was not asked
+    // for yet, so the elements are not counted again.
+    QTextCursor cursor(textDocument->findBlockByNumber(closers.key(10) - 5));
+    cursor.movePosition(QTextCursor::EndOfBlock);
+    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, 1);
+    QCOMPARE(cursor.selectedText(), QString(","));
+    {
+        const QSignalBlocker blocker(textDocument);
+        cursor.insertText(" ");
+        QCOMPARE(label(2500), QString("[2500]"));
+        QCOMPARE(label(4998), QString("[4998]"));
+    }
+
+    // The next edit it tells about drops them.
+    cursor.movePosition(QTextCursor::End);
+    cursor.insertText("\n");
+    QCOMPARE(label(2500), QString("[2499]"));
+    QCOMPARE(label(4998), QString("[4997]"));
+    QCOMPARE(label(4999), QString("[4998]"));
+    QCOMPARE(label(1), QString("[1]"));
+}
+
+void ScopeEndAnnotationsTest::testFarJsonElement_data()
+{
+    QTest::addColumn<int>("elements");
+    QTest::addColumn<QString>("label"); // empty: no label
+
+    QTest::newRow("closer than the search") << 9000 << "[8999]";
+    // The start of the array is not searched for further back than 10000 lines.
+    QTest::newRow("further than the search") << 11000 << "";
+}
+
+void ScopeEndAnnotationsTest::testFarJsonElement()
+{
+    QFETCH(int, elements);
+    QFETCH(QString, label);
+
+    QMap<int, int> closers;
+    auto document = QSharedPointer<TextDocument>::create();
+    document->setPlainText(jsonElements(elements, {0, elements - 1}, &closers));
+    JsonEditorWidget widget;
+    widget.setTextDocument(document);
+    widget.setDisplaySettings(scopeEndSettings(4));
+
+    const QTextBlock end = document->document()->findBlockByNumber(closers.key(elements - 1));
+    QCOMPARE(end.text(), QString("    }"));
+    QCOMPARE(widget.scopeEndLabel(end), label);
+    // The first element is indexed even when the last one is too far away.
+    QCOMPARE(widget.scopeEndLabel(document->document()->findBlockByNumber(closers.key(0))),
+             QString("[0]"));
+}
+
+void ScopeEndAnnotationsTest::testJsonBraceRuns_data()
+{
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<int>("line"); // 1-based, closes several scopes
+    QTest::addColumn<QStringList>("braceLabels"); // of its braces and brackets, in order
+
+    QTest::newRow("object around an array")
+        << QString("{\n"
+                   "  \"outer\": {\n"
+                   "    \"list\": [\n"
+                   "      1,\n"
+                   "      2,\n"
+                   "      3,\n"
+                   "      4\n"
+                   "    ]},\n"                                     // 8
+                   "  \"x\": 1\n"
+                   "}\n")
+        << 8 << QStringList{"\"list\"", "\"outer\""};
+    QTest::newRow("element of an array in an object")
+        << QString("{\n"
+                   "  \"root\": {\n"
+                   "    \"items\": [\n"
+                   "      1,\n"
+                   "      {\n"
+                   "        \"a\": 1,\n"
+                   "        \"b\": 2,\n"
+                   "        \"c\": 3\n"
+                   "      }]},\n"                                  // 9
+                   "  \"x\": 1\n"
+                   "}\n")
+        << 9 << QStringList{"[1]", "\"items\"", "\"root\""};
+    QTest::newRow("outermost value")
+        << QString("{\n"
+                   "  \"items\": [\n"
+                   "    {\n"
+                   "      \"a\": 1,\n"
+                   "      \"b\": 2,\n"
+                   "      \"c\": 3\n"
+                   "    }]}\n")                                    // 7
+        << 7 << QStringList{"[0]", "\"items\"", ""};
+    QTest::newRow("array in an array")
+        << QString("{\n"
+                   "  \"m\": [\n"
+                   "    [\n"
+                   "      1,\n"
+                   "      2,\n"
+                   "      3\n"
+                   "    ] ]\n"                                     // 7
+                   "}\n")
+        << 7 << QStringList{"[0]", "\"m\""};
+    QTest::newRow("short inner array")
+        << QString("{\n"
+                   "  \"m\": [\n"
+                   "    1,\n"
+                   "    2,\n"
+                   "    [\n"
+                   "      3\n"
+                   "    ]]\n"                                      // 7
+                   "}\n")
+        << 7 << QStringList{"", "\"m\""};
+}
+
+void ScopeEndAnnotationsTest::testJsonBraceRuns()
+{
+    QFETCH(QString, text);
+    QFETCH(int, line);
+    QFETCH(QStringList, braceLabels);
+
+    auto document = QSharedPointer<TextDocument>::create();
+    document->setPlainText(text);
+    storeParentheses(document->document(), "{}[]()");
+    JsonEditorWidget widget;
+    widget.setTextDocument(document);
+    widget.setDisplaySettings(scopeEndSettings(4));
+    const QTextBlock block = document->document()->findBlockByNumber(line - 1);
+    const QString closers = block.text();
+
+    QCOMPARE(widget.scopeEndLabel(block), braceLabels.last());
+    qsizetype brace = 0;
+    for (int i = 0; i <= closers.size(); ++i) {
+        const bool isBrace = i < closers.size() && (closers.at(i) == '}' || closers.at(i) == ']');
+        const QString expected = isBrace ? braceLabels.value(brace++) : braceLabels.last();
+        QVERIFY2(widget.scopeEndLabel(block, i) == expected,
+                 qPrintable(QString("Position %1: \"%2\" instead of \"%3\"")
+                                .arg(i)
+                                .arg(widget.scopeEndLabel(block, i), expected)));
+    }
+    QCOMPARE(brace, braceLabels.size());
+}
+
 void ScopeEndAnnotationsTest::testFollowsEdits()
 {
     const auto widget = createWidget("if (a) {\n" + body(25) + "}\n", scopeEndSettings());
@@ -2744,6 +3167,9 @@ void ScopeEndAnnotationsTest::testBraceRuns_data()
         << QStringList{"if (b)", "call(a, []"};
     QTest::newRow("end of statement") << "auto l = [] {\n    if (b) {\n" + body(25) + "}  } ;"
                                       << QStringList{"if (b)", "auto l = []"};
+    // Only the brace ends a scope here, so the line has its label.
+    QTest::newRow("brace and bracket") << "model: [\n    ListElement {\n" + body(25) + "    }]"
+                                       << QStringList{"ListElement", ""};
 }
 
 void ScopeEndAnnotationsTest::testBraceRuns()
@@ -2755,16 +3181,22 @@ void ScopeEndAnnotationsTest::testBraceRuns()
     const QTextBlock block = widget->document()->lastBlock();
     const QString line = block.text();
 
-    // The line is labeled with the outermost scope.
-    QCOMPARE(widget->scopeEndLabel(block), braceLabels.last());
-    QCOMPARE(labels(*widget).size(), braceLabels.last().isEmpty() ? 0 : 1);
+    // The line is labeled with the outermost scope that has a label. The scopes nest, so an
+    // outer one is never shorter than an inner one.
+    QString lineLabel;
+    for (const QString &label : std::as_const(braceLabels)) {
+        if (!label.isEmpty())
+            lineLabel = label;
+    }
+    QCOMPARE(widget->scopeEndLabel(block), lineLabel);
+    QCOMPARE(labels(*widget).size(), lineLabel.isEmpty() ? 0 : 1);
 
     // Each brace has the label of its own scope, and all the other characters of the line,
     // and the end of it, that of the outermost scope.
     qsizetype brace = 0;
     for (int i = 0; i <= line.size(); ++i) {
-        const bool isBrace = i < line.size() && line.at(i) == '}';
-        const QString expected = isBrace ? braceLabels.value(brace++) : braceLabels.last();
+        const bool isBrace = i < line.size() && (line.at(i) == '}' || line.at(i) == ']');
+        const QString expected = isBrace ? braceLabels.value(brace++) : lineLabel;
         QVERIFY2(widget->scopeEndLabel(block, i) == expected,
                  qPrintable(QString("Position %1: \"%2\" instead of \"%3\"")
                                 .arg(i)

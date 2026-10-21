@@ -722,6 +722,7 @@ protected:
       Reimplement this function to change the default replacement text.
       */
     virtual QString foldReplacementText(const QTextBlock &block) const;
+    virtual int scopeStartPosition(const QTextBlock &endBlock, int bracePosition) const;
     virtual QString scopeLabelText(const QTextBlock &openBlock, int openBracePosition) const;
     virtual QTextBlock conditionalStartBlock(const QTextBlock &endBlock) const;
     virtual void drawCollapsedBlockPopup(QPainter &painter,

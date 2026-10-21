@@ -6804,15 +6804,15 @@ static bool hasLetterOrDigit(const QString &text)
     return std::any_of(text.cbegin(), text.cend(), [](QChar c) { return c.isLetterOrNumber(); });
 }
 
-// Returns the positions of the '}' in the line if they are the only code in it, apart from
-// what can follow the end of a scope, like the ");" of a call with a trailing lambda.
+// Returns the positions of the '}' and ']' in the line if they are the only code in it, apart
+// from what can follow the end of a scope, like the ");" of a call with a trailing lambda.
 static QList<int> closingBracePositions(const QString &text)
 {
     QList<int> positions;
     int i = 0;
     for (; i < text.size(); ++i) {
         const QChar c = text.at(i);
-        if (c == '}')
+        if (c == '}' || c == ']')
             positions.append(i);
         else if (!c.isSpace())
             break;
@@ -6825,24 +6825,13 @@ static QList<int> closingBracePositions(const QString &text)
     return positions;
 }
 
-// Returns the position in the document of the '{' that matches the '}' at bracePosition in
-// block, or -1 if there is none.
-static int openingBracePosition(const QTextBlock &block, int bracePosition)
-{
-    QTextCursor cursor(block);
-    cursor.setPosition(block.position() + bracePosition + 1);
-    if (TextBlockUserData::checkClosedParenthesis(&cursor, '}') != TextBlockUserData::Match)
-        return -1;
-    return cursor.position();
-}
-
 /*!
     Returns the label shown next to the closing brace, or after the \c {#endif}, that
     ends a long scope in the line of \a block, or an empty string if there is none.
     A label without a letter or digit in it is not shown.
 
-    Of several closing braces in the line, the last one, which ends the outermost
-    scope, is labeled.
+    Of several closing braces in the line, the last one that ends a scope, which is
+    the outermost scope, is labeled.
 */
 QString TextEditorWidget::scopeEndLabel(const QTextBlock &block) const
 {
@@ -6876,9 +6865,13 @@ QString TextEditorWidget::scopeEndLabel(const QTextBlock &block, int positionInB
         return start.text().simplified();
     }
 
-    const int bracePos = bracePositions.contains(positionInBlock) ? positionInBlock
-                                                                  : bracePositions.last();
-    const int openPos = openingBracePosition(block, bracePos);
+    int openPos = -1;
+    if (bracePositions.contains(positionInBlock)) {
+        openPos = scopeStartPosition(block, positionInBlock);
+    } else {
+        for (auto it = bracePositions.crbegin(); openPos < 0 && it != bracePositions.crend(); ++it)
+            openPos = scopeStartPosition(block, *it);
+    }
     if (openPos < 0)
         return {};
     const QTextBlock openBlock = document()->findBlock(openPos);
@@ -12076,6 +12069,32 @@ std::unique_ptr<AssistInterface> TextEditorWidget::createAssistInterface(AssistK
 QString TextEditorWidget::foldReplacementText(const QTextBlock &) const
 {
     return QLatin1String("...");
+}
+
+/*!
+    Returns the position in the document of the opening brace of the scope that ends
+    at the closing brace or bracket at \a bracePosition in \a endBlock, or -1 if it
+    does not end one.
+
+    The closing braces and brackets in a line are only scope ends if they are the only
+    code in it, apart from what can follow the end of a scope, like the \c {);} of a call
+    with a trailing lambda. If there are several, the annotation shows the label of the
+    last one for which this function returns a start. It is called for the others only
+    if the ones after them end no scope, or when the mouse hovers over them.
+
+    The default implementation matches a closing brace with the parentheses the
+    highlighter stored. Editors that know where the scopes of their language end
+    reimplement it.
+*/
+int TextEditorWidget::scopeStartPosition(const QTextBlock &endBlock, int bracePosition) const
+{
+    if (endBlock.text().at(bracePosition) != '}')
+        return -1;
+    QTextCursor cursor(endBlock);
+    cursor.setPosition(endBlock.position() + bracePosition + 1);
+    if (TextBlockUserData::checkClosedParenthesis(&cursor, '}') != TextBlockUserData::Match)
+        return -1;
+    return cursor.position();
 }
 
 /*!
