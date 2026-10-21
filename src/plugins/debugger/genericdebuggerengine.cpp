@@ -1060,6 +1060,8 @@ void GenericDebuggerEngine::reloadPeripheralRegisters()
     request.kind = RefreshKind::PeripheralRegisters;
     request.requestId = m_nextRefreshRequestId++;
     request.addresses = addresses;
+    for (const quint64 address : addresses)
+        request.sizes.append(peripheralRegisterHandler()->registerSize(address));
     m_backend->refresh(request);
 }
 

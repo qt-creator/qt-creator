@@ -88,6 +88,8 @@ public:
     QStringList uninitializedVariables = {};
     QString context = {};
     QList<quint64> addresses = {};
+    // Of the peripheral registers at the addresses, in bits, or 0 if unknown.
+    QList<int> sizes = {};
     QJsonArray watchers = {};
     QSet<QString> expandedINames = {};
     // What WatchHandler::appendFormatRequests() produces. expandedItems is

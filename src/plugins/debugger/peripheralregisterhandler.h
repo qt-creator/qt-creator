@@ -188,6 +188,7 @@ public:
     void updateRegister(quint64 address, quint64 value);
     void commitUpdates() { emit layoutChanged(); }
     QList<quint64> activeRegisters() const;
+    int registerSize(quint64 address) const;
 
 private:
     QVariant data(const QModelIndex &idx, int role) const final;

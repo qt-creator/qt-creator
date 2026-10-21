@@ -731,6 +731,8 @@ static void handleCluster(QXmlStreamReader &in, PeripheralRegisterGroup *parentG
             dimIndex = in.readElementText();
         } else if (elementName == QLatin1String(kAddressOffset)) {
             cluster->addressOffset = decodeNumeric(in.readElementText());
+        } else if (elementName == QLatin1String(kSize)) {
+            cluster->size = int(decodeNumeric(in.readElementText()));
         } else if (elementName == QLatin1String(kRegister)) {
             handleRegister(in, *cluster);
         } else if (elementName == QLatin1String(kCluster)) {
@@ -818,12 +820,15 @@ static PeripheralRegisterGroups availablePeripheralRegisterGroups(const FilePath
 
     QXmlStreamReader in(&f);
     PeripheralRegisterGroups groups;
+    int deviceSize = 0;
     while (in.readNextStartElement()) {
         const auto elementName = in.name();
         if (elementName == QLatin1String(kDevice)) {
             while (in.readNextStartElement()) {
                 const auto elementName = in.name();
-                if (elementName == QLatin1String(kPeripherals)) {
+                if (elementName == QLatin1String(kSize)) {
+                    deviceSize = int(decodeNumeric(in.readElementText()));
+                } else if (elementName == QLatin1String(kPeripherals)) {
                     while (in.readNextStartElement()) {
                         const auto elementName = in.name();
                         if (elementName == QLatin1String(kPeripheral))
@@ -836,6 +841,10 @@ static PeripheralRegisterGroups availablePeripheralRegisterGroups(const FilePath
                 }
             }
         }
+    }
+    for (const std::unique_ptr<PeripheralRegisterGroup> &group : groups) {
+        if (!group->size)
+            group->size = deviceSize;
     }
     return groups;
 }
@@ -865,6 +874,21 @@ void PeripheralRegisterHandler::updateRegister(quint64 address, quint64 value)
 QList<quint64> PeripheralRegisterHandler::activeRegisters() const
 {
     return m_activeRegisters.keys();
+}
+
+// SVD registers inherit the size from their cluster or peripheral.
+static int effectiveSize(const PeripheralRegisterGroup &group, const PeripheralRegister &reg)
+{
+    int size = reg.size;
+    for (const PeripheralRegisterGroup *g = &group; !size && g; g = g->parentGroup)
+        size = g->size;
+    return size;
+}
+
+int PeripheralRegisterHandler::registerSize(quint64 address) const
+{
+    const PeripheralRegisterItem *item = m_activeRegisters.value(address);
+    return item ? effectiveSize(item->m_group, item->m_reg) : 0;
 }
 
 QVariant PeripheralRegisterHandler::data(const QModelIndex &idx, int role) const
@@ -1195,6 +1219,7 @@ private slots:
     void testClusterArray();
     void testNestedCluster();
     void testDerivedFrom();
+    void testDeviceSize();
 
 private:
     PeripheralRegisterGroups m_groups;
@@ -1204,8 +1229,8 @@ void PeripheralRegisterTest::initTestCase()
 {
     QTemporaryFile file;
     QVERIFY(file.open());
-    file.write(R"(<device><peripherals><peripheral>
-<name>P</name><baseAddress>0x40000000</baseAddress>
+    file.write(R"(<device><size>32</size><peripherals><peripheral>
+<name>P</name><baseAddress>0x40000000</baseAddress><size>16</size>
 <registers>
   <register><name>GPIO%s</name><addressOffset>0x10</addressOffset><size>32</size>
     <dim>3</dim><dimIncrement>4</dimIncrement><dimIndex>A,B,C</dimIndex></register>
@@ -1228,19 +1253,23 @@ void PeripheralRegisterTest::initTestCase()
   <cluster><name>CH[%s]</name><addressOffset>0x100</addressOffset>
     <dim>2</dim><dimIncrement>0x20</dimIncrement>
     <register><name>CTRL</name><addressOffset>0x4</addressOffset><size>32</size></register>
-    <cluster><name>CC[%s]</name><addressOffset>0x10</addressOffset>
+    <register><name>STAT</name><addressOffset>0x8</addressOffset></register>
+    <cluster><name>CC[%s]</name><addressOffset>0x10</addressOffset><size>8</size>
       <dim>2</dim><dimIncrement>4</dimIncrement>
-      <register><name>VAL</name><addressOffset>0</addressOffset><size>32</size></register>
+      <register><name>VAL</name><addressOffset>0</addressOffset></register>
     </cluster>
   </cluster>
 </registers>
 </peripheral>
 <peripheral derivedFrom="P"><name>Q</name><baseAddress>0x50000000</baseAddress></peripheral>
+<peripheral><name>S</name><baseAddress>0x60000000</baseAddress>
+<registers><register><name>X</name><addressOffset>0</addressOffset></register></registers>
+</peripheral>
 </peripherals></device>)");
     file.close();
 
     m_groups = availablePeripheralRegisterGroups(FilePath::fromString(file.fileName()));
-    QCOMPARE(m_groups.size(), size_t(2));
+    QCOMPARE(m_groups.size(), size_t(3));
     QCOMPARE(m_groups.front()->registers.size(), qsizetype(9));
 }
 
@@ -1294,6 +1323,9 @@ void PeripheralRegisterTest::testNestedCluster()
     QCOMPARE(cc1.name, QString("CC[1]"));
     QCOMPARE(cc1.parentGroup, &ch1);
     QCOMPARE(cc1.registers.at(0).address(cc1.baseAddress()), quint64(0x40000134));
+    QCOMPARE(effectiveSize(cc1, cc1.registers.at(0)), 8);
+    QCOMPARE(effectiveSize(ch1, ch1.registers.at(0)), 32);
+    QCOMPARE(effectiveSize(ch1, ch1.registers.at(1)), 16);
 }
 
 void PeripheralRegisterTest::testDerivedFrom()
@@ -1306,6 +1338,12 @@ void PeripheralRegisterTest::testDerivedFrom()
     const PeripheralRegisterGroup &qcc1 = *qch1.clusters.at(1);
     QCOMPARE(qcc1.parentGroup, &qch1);
     QCOMPARE(qcc1.registers.at(0).address(qcc1.baseAddress()), quint64(0x50000134));
+}
+
+void PeripheralRegisterTest::testDeviceSize()
+{
+    const PeripheralRegisterGroup &s = *m_groups.at(2);
+    QCOMPARE(effectiveSize(s, s.registers.at(0)), 32);
 }
 
 QObject *createPeripheralRegisterTest()
