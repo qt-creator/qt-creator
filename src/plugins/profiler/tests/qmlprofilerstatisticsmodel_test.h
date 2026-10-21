@@ -12,6 +12,10 @@ class QmlProfilerStatisticsModelTest : public QObject
     Q_OBJECT
 
 private slots:
+    void testFinalizeStats_data();
+    void testFinalizeStats();
+    void testFinalizeWithoutCalls();
+    void testFinalizeReleasesDurations();
     void testRangeEndWithoutStart();
 };
 

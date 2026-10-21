@@ -3,7 +3,11 @@
 
 #include "qmlprofilertracefile_test.h"
 
+#include "../memoryusagemodel.h"
 #include "../qmlprofilermodelmanager.h"
+#include "../qmlprofilerrangemodel.h"
+
+#include <tracing/timelinemodelaggregator.h>
 
 #include <QFile>
 #include <QScopeGuard>
@@ -14,6 +18,13 @@
 
 #include <atomic>
 #include <memory>
+#include <optional>
+
+#if defined(Q_OS_MACOS)
+#include <malloc/malloc.h>
+#elif defined(__GLIBC__)
+#include <malloc.h>
+#endif
 
 using namespace QmlDebug;
 
@@ -195,5 +206,62 @@ void QmlProfilerTraceFileTest::testCancelStopsTheLoadingThread()
     QCOMPARE(gated->eventsAfterStop.load(), 0);
     QVERIFY(gated->events.load() < 2 * ranges);
 }
+
+// What the process holds allocated on the heap, in bytes, where the platform tells.
+static std::optional<qint64> heapInUse()
+{
+#if defined(Q_OS_MACOS)
+    malloc_statistics_t statistics;
+    malloc_zone_statistics(nullptr, &statistics);
+    return qint64(statistics.size_in_use);
+#elif defined(__GLIBC__) && __GLIBC_PREREQ(2, 33)
+    const struct mallinfo2 info = mallinfo2();
+    return qint64(info.uordblks + info.hblkhd);
+#else
+    return std::nullopt;
+#endif
+}
+
+// Analyzing a short range of a long trace gives back the storage that held all of it.
+void QmlProfilerTraceFileTest::testRestrictionReleasesTheStorage()
+{
+    if (!heapInUse())
+        QSKIP("The heap in use cannot be measured on this platform.");
+
+    QmlProfilerModelManager manager;
+    Timeline::TimelineModelAggregator aggregator;
+    QmlProfilerRangeModel javaScript(&manager, Javascript, &aggregator);
+    MemoryUsageModel memory(&manager, &aggregator);
+    manager.initialize();
+    const int function = manager.appendEventType(
+        QmlEventType(UndefinedMessage, Javascript, -1, QmlEventLocation("main.qml", 1, 1), "f"));
+    const int allocation = manager.appendEventType(
+        QmlEventType(MemoryAllocation, UndefinedRangeType, SmallItem));
+    const int ranges = 500000;
+    for (int i = 0; i < ranges; ++i) {
+        QmlEvent event(i * 10, function, {});
+        event.setRangeStage(RangeStart);
+        manager.appendEvent(QmlEvent(event));
+        event.setRangeStage(RangeEnd);
+        event.setTimestamp(i * 10 + 5);
+        manager.appendEvent(std::move(event));
+        QmlEvent allocated(i * 10 + 6, allocation, {});
+        allocated.setNumbers<qint64>({32});
+        manager.appendEvent(std::move(allocated));
+    }
+    manager.decreaseTraceStart(0);
+    manager.increaseTraceEnd(qint64(ranges) * 10);
+    manager.finalize();
+    QCOMPARE(javaScript.count(), ranges);
+    const qint64 whole = *heapInUse();
+
+    manager.restrictToRange(0, 100);
+    QVERIFY(javaScript.count() < 20);
+    const qint64 restricted = *heapInUse();
+    // A JavaScript range alone takes 32 bytes in its model, 16 for its end and 8 for its rows.
+    QVERIFY2(whole - restricted > qint64(ranges) * 40,
+             qPrintable(QString("%1 MB before, %2 MB after").arg(whole / 1e6).arg(restricted / 1e6)));
+}
+
 
 } // namespace Profiler::Internal

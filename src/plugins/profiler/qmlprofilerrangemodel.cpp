@@ -27,7 +27,7 @@ void QmlProfilerRangeModel::clear()
 {
     m_expandedRowTypes.clear();
     m_expandedRowTypes << -1;
-    m_data.clear();
+    m_data = QList<Item>(); // Not clear(), which keeps the storage, see TimelineModel::clear().
     m_stack.clear();
     QmlProfilerTimelineModel::clear();
 }
@@ -110,11 +110,12 @@ void QmlProfilerRangeModel::computeExpandedLevels()
     int eventCount = count();
     for (int i = 0; i < eventCount; i++) {
         int eventTypeId = typeId(i);
-        if (!eventRow.contains(eventTypeId)) {
-            eventRow[eventTypeId] = m_expandedRowTypes.size();
+        auto row = eventRow.constFind(eventTypeId);
+        if (row == eventRow.constEnd()) {
+            row = eventRow.insert(eventTypeId, m_expandedRowTypes.size());
             m_expandedRowTypes << eventTypeId;
         }
-        m_data[i].displayRowExpanded = eventRow[eventTypeId];
+        m_data[i].displayRowExpanded = *row;
     }
     setExpandedRowCount(m_expandedRowTypes.size());
 }

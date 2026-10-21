@@ -231,7 +231,7 @@ void MemoryUsageModel::finalize()
 
 void MemoryUsageModel::clear()
 {
-    m_data.clear();
+    m_data = QList<Item>(); // Not clear(), which keeps the storage, see TimelineModel::clear().
     m_maxSize = 1;
     m_currentSize = 0;
     m_currentUsage = 0;

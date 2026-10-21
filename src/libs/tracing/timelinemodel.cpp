@@ -12,6 +12,7 @@
 #include <utils/theme/theme.h>
 
 #include <list>
+#include <vector>
 
 namespace Timeline {
 
@@ -46,10 +47,10 @@ double defaultColorLightness()
 */
 void TimelineModel::computeNesting()
 {
-    std::list<int> parents;
+    std::vector<int> parents;
     for (int range = 0; range != count(); ++range) {
         TimelineModelPrivate::Range &current = d->ranges[range];
-        for (std::list<int>::iterator parentIt = parents.begin();;) {
+        for (auto parentIt = parents.begin();;) {
             if (parentIt == parents.end()) {
                 parents.push_back(range);
                 break;
@@ -710,8 +711,10 @@ void TimelineModel::clear()
     setExpanded(false);
     setHidden(false);
     d->rowOffsets.clear();
-    d->ranges.clear();
-    d->endTimes.clear();
+    // clear() would keep the storage, gigabytes for a long trace, and filling the model again
+    // with fewer items would keep that in memory too.
+    d->ranges = QList<TimelineModelPrivate::Range>();
+    d->endTimes = QList<TimelineModelPrivate::RangeEnd>();
     emit contentChanged();
 }
 
