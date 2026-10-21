@@ -64,6 +64,8 @@ QDataStream &operator>>(QDataStream &stream, QmlEvent &event)
 {
     if (event.m_dataType & QmlEvent::External)
         free(std::exchange(event.m_data.external, nullptr));
+    // An event with fewer numbers must not keep those of the event read into it before.
+    event.m_data = {};
 
     qint8 type;
     stream >> type;

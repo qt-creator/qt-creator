@@ -174,4 +174,30 @@ void QmlEventTest::testStreamOps()
     QVERIFY(rstream.atEnd());
 }
 
+// An event without numbers, such as a range that the qmlprofiler tool wrote without a duration,
+// is read back as it was written, even into an event that held numbers before.
+void QmlEventTest::testStreamOpsWithoutNumbers()
+{
+    QmlEvent end(10, 1, {});
+    end.setRangeStage(RangeEnd);
+    const QmlEvent withoutNumbers(20, 2, {});
+    QCOMPARE(withoutNumbers.rangeStage(), Event);
+
+    QBuffer buffer;
+    buffer.open(QIODevice::WriteOnly);
+    QDataStream wstream(&buffer);
+    wstream << end << withoutNumbers;
+    buffer.close();
+
+    buffer.open(QIODevice::ReadOnly);
+    QDataStream rstream(&buffer);
+    QmlEvent read;
+    rstream >> read;
+    QCOMPARE(read.rangeStage(), RangeEnd);
+    rstream >> read;
+    QCOMPARE(read.timestamp(), 20);
+    QCOMPARE(read.rangeStage(), Event);
+    QVERIFY(rstream.atEnd());
+}
+
 QTEST_GUILESS_MAIN(QmlEventTest)

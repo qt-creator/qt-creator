@@ -19,5 +19,6 @@ private slots:
     void testNumbers();
     void testMaxSize();
     void testStreamOps();
+    void testStreamOpsWithoutNumbers();
 };
 
