@@ -820,8 +820,8 @@ void DebuggerUnitTests::testCdbImplCommandLine()
         launch.replace(QRegularExpression("\\^(.)"), "\\1");
         const QString exePart = '"' + cdbExecutable.nativePath() + "\" ";
         QVERIFY(launch.startsWith(exePart));
-        const QStringList args
-            = CommandLine({}, launch.mid(exePart.size()), CommandLine::Raw).splitArguments();
+        const QStringList args = CommandLine(cdbExecutable, launch.mid(exePart.size()),
+                                             CommandLine::Raw).splitArguments();
         QVERIFY(!args.contains("-aqtcreatorcdbext.dll"));
         QVERIFY(!args.contains("-c"));
         const int scriptIndex = args.indexOf("-cf") + 1;
