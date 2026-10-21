@@ -9,6 +9,7 @@
 #include "diagnosticconfigswidget.h"
 
 #include <coreplugin/actionmanager/command.h>
+#include <projectexplorer/task.h>
 #include <texteditor/textdocument.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
@@ -81,10 +82,9 @@ void DiagnosticMark::initialize()
         action->setIcon(Icon::fromTheme("edit-copy"));
         action->setToolTip(Core::msgCopyToClipboard());
         QObject::connect(action, &QAction::triggered, [diagnostic] {
-            const QString text = diagnostic.location.toString()
-            + ": "
-                + diagnostic.description;
-            setClipboardAndSelection(text);
+            using ProjectExplorer::Task;
+            setClipboardAndSelection(
+                diagnostic.asTask().description({Task::WithSummary | Task::WithLocation}));
         });
         actions << action;
 
