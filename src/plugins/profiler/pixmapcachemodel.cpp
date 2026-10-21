@@ -355,7 +355,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
     }
 }
 
-void PixmapCacheModel::finalize()
+void PixmapCacheModel::prepare()
 {
     if (m_lastCacheSizeEvent != -1) {
         insertEnd(m_lastCacheSizeEvent,
@@ -366,7 +366,6 @@ void PixmapCacheModel::finalize()
     computeMaxCacheSize();
     flattenLoads();
     computeNesting();
-    QmlProfilerTimelineModel::finalize();
 }
 
 void PixmapCacheModel::clear()

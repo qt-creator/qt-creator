@@ -82,11 +82,10 @@ void DebugMessagesModel::loadEvent(const QmlEvent &event, const QmlEventType &ty
         m_maximumMsgType = type.detailType();
 }
 
-void DebugMessagesModel::finalize()
+void DebugMessagesModel::prepare()
 {
     setCollapsedRowCount(Timeline::kCollapsedStartRow + 1);
     setExpandedRowCount(m_maximumMsgType + 2);
-    QmlProfilerTimelineModel::finalize();
 }
 
 void DebugMessagesModel::clear()

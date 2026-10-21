@@ -227,6 +227,18 @@ void TrackPainterBase::ensureAttrCache(Track &track) const
     const TimelineModel *model = track.model;
     if (!model)
         return;
+    if (track.attributesFromSummary)
+        return;
+    if (const TimelineModel::Summary *summary = model->summary(model->expanded())) {
+        track.rowCache.clear();
+        track.colorCache.clear();
+        track.relHeightCache.clear();
+        track.mixedRowCache = summary->mixedRows;
+        track.rowsSplitBySelectionId = model->rowsAreSelectionIds()
+                                       && !summary->mixedRows.contains(true);
+        track.attributesFromSummary = true;
+        return;
+    }
     const int n = model->count();
     // The track is recreated whenever expansion/colour/model content changes, so
     // a matching size means the cache is still valid for this content.
@@ -260,6 +272,17 @@ void TrackPainterBase::ensureAttrCache(Track &track) const
     // its events agree: a mixed row means the rows are something else, as they
     // are in the collapsed state of most of those models.
     track.rowsSplitBySelectionId = model->rowsAreSelectionIds() && !anyMixedRow;
+}
+
+// The summary to draw the model with in the current range, if it has one and every pixel
+// covers at least two of its buckets. Closer in, the items are drawn one by one.
+const TimelineModel::Summary *TrackPainterBase::drawnSummary(const TimelineModel *model) const
+{
+    const TimelineModel::Summary *summary = model->summary(model->expanded());
+    const int w = viewWidth();
+    if (!summary || w <= 0 || summary->rows.size() != model->rowCount())
+        return nullptr;
+    return m_rangeEnd - m_rangeStart >= 2 * summary->bucketDuration * w ? summary : nullptr;
 }
 
 // Builds the range-dependent fill geometry for one track in track-local
@@ -399,10 +422,11 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
     // Drawn event rects never overlap (per-row coverage skipping keeps them
     // disjoint horizontally, rows are disjoint vertically), so per-color draw
     // order is visually irrelevant.
-    const int first = model->firstIndex(m_rangeStart);
-    const int last = model->lastIndex(m_rangeEnd);
+    const TimelineModel::Summary *summary = drawnSummary(model);
+    const int first = summary ? 0 : model->firstIndex(m_rangeStart);
+    const int last = summary ? -1 : model->lastIndex(m_rangeEnd);
 
-    if (first >= 0 && last >= first) {
+    if (summary || (first >= 0 && last >= first)) {
         // Per-row "next available x": skip events entirely covered by an earlier draw in the
         // same row. Initialized to -1 so the first event in every row always passes.
         QVarLengthArray<double, 64> rowNextX(rowCount);
@@ -462,12 +486,75 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
                 addLabel(model->itemLabel(index), l.x0, l.x1, l.y, l.h);
         };
 
+        // Draws [drawX1, x2) of item i in its row.
+        const auto addItem = [&](int i, int row, double drawX1, double x2, QRgb color,
+                                 float relativeHeight) {
+            const double itemH = rowH[row] * relativeHeight;
+            const double itemY = rowY[row] + rowH[row] - itemH;
+
+            PendingLabel &l = labels[row];
+            if (l.index >= 0) {
+                l.x1 = qMin(l.x1, drawX1);
+                flushLabel(l);
+            }
+            if (itemH >= fm.height() && x2 - drawX1 >= minLabelSpan)
+                l = {i, drawX1, x2, itemY, itemH};
+
+            const double drawW = x2 - drawX1;
+            OpenRun &o = open[row];
+            const bool contiguous = o.active && drawX1 <= o.x1;
+            const bool sameStyle = o.active && o.color == color && o.y == itemY && o.h == itemH;
+            const bool subPixelAbsorb = contiguous && drawW < 1.0 && (o.x1 - o.x0) < 1.0;
+            if (contiguous && (sameStyle || subPixelAbsorb)) {
+                o.x1 = qMax(o.x1, x2);
+                // The widest event in the run wins its color/height.
+                if (drawW > o.domW) {
+                    o.domW = drawW;
+                    o.color = color;
+                    o.y = itemY;
+                    o.h = itemH;
+                }
+            } else {
+                flush(o);
+                o = {true, color, itemY, itemH, drawX1, x2, drawW};
+            }
+        };
+
+        if (summary) {
+            // Each pixel column shows the item covering most of it. An item wider than a
+            // pixel is drawn whole, once, so that it keeps its label.
+            for (int row = 0; row < rowCount; ++row) {
+                int wideItem = -1;
+                double wideItemEnd = -1.0;
+                summary->forEachDominantItem(row, m_rangeStart, m_rangeEnd, w, [&](int x, int i) {
+                    if (i == wideItem && x < wideItemEnd)
+                        return;
+                    double x1 = double(model->startTime(i) - m_rangeStart) * scale;
+                    double x2 = double(model->endTime(i) - m_rangeStart) * scale;
+                    if (x2 - x1 > 1.0) {
+                        x1 = qMax(x1, qMax(0.0, rowNextX[row]));
+                        x2 = qMin(x2, wf);
+                        wideItem = i;
+                        wideItemEnd = x2;
+                    } else {
+                        x1 = qMax(double(x), rowNextX[row]);
+                        x2 = x + 1.0;
+                    }
+                    if (x2 <= x1)
+                        return;
+                    rowNextX[row] = x2;
+                    addItem(i, row, x1, x2, model->color(i), model->relativeHeight(i));
+                });
+            }
+        }
+
+        const bool cached = track.rowCache.size() == model->count();
         const int *rowCache = track.rowCache.constData();
         const QRgb *colorCache = track.colorCache.constData();
         const float *relHeightCache = track.relHeightCache.constData();
 
         for (int i = first; i <= last; ++i) {
-            const int row = rowCache[i];
+            const int row = cached ? rowCache[i] : model->row(i);
             // Rows are assigned while loading, the row count only from
             // finalize(), so a not yet finalized model can report rows beyond
             // it. Skip those instead of indexing out of bounds; finalize()
@@ -499,36 +586,8 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
             if (x2 - drawX1 <= 0.0)
                 continue;
 
-            const QRgb color = colorCache[i];
-            const double itemH = rowH[row] * relHeightCache[i];
-            const double itemY = rowY[row] + rowH[row] - itemH;
-
-            PendingLabel &l = labels[row];
-            if (l.index >= 0) {
-                l.x1 = qMin(l.x1, drawX1);
-                flushLabel(l);
-            }
-            if (itemH >= fm.height() && x2 - drawX1 >= minLabelSpan)
-                l = {i, drawX1, x2, itemY, itemH};
-
-            const double drawW = x2 - drawX1;
-            OpenRun &o = open[row];
-            const bool contiguous = o.active && drawX1 <= o.x1;
-            const bool sameStyle = o.active && o.color == color && o.y == itemY && o.h == itemH;
-            const bool subPixelAbsorb = contiguous && drawW < 1.0 && (o.x1 - o.x0) < 1.0;
-            if (contiguous && (sameStyle || subPixelAbsorb)) {
-                o.x1 = qMax(o.x1, x2);
-                // The widest event in the run wins its color/height.
-                if (drawW > o.domW) {
-                    o.domW = drawW;
-                    o.color = color;
-                    o.y = itemY;
-                    o.h = itemH;
-                }
-            } else {
-                flush(o);
-                o = {true, color, itemY, itemH, drawX1, x2, drawW};
-            }
+            addItem(i, row, drawX1, x2, cached ? colorCache[i] : model->color(i),
+                    cached ? relHeightCache[i] : model->relativeHeight(i));
         }
 
         for (OpenRun &o : open)
@@ -670,12 +729,14 @@ const QList<QRectF> &TrackPainterBase::selectionIdOutlines() const
     if (!outlined)
         return cache.rects;
 
-    const int first = model->firstIndex(m_rangeStart);
-    const int last = model->lastIndex(m_rangeEnd);
-    if (first < 0 || last < first)
+    const TimelineModel::Summary *summary = drawnSummary(model);
+    const int first = summary ? 0 : model->firstIndex(m_rangeStart);
+    const int last = summary ? -1 : model->lastIndex(m_rangeEnd);
+    if (!summary && (first < 0 || last < first))
         return cache.rects;
 
     ensureAttrCache(*track);
+    const bool cached = track->rowCache.size() == model->count();
     const int *rowCache = track->rowCache.constData();
     const float *relHeightCache = track->relHeightCache.constData();
     const int rowCount = model->rowCount();
@@ -689,32 +750,58 @@ const QList<QRectF> &TrackPainterBase::selectionIdOutlines() const
     }
 
     QVarLengthArray<std::optional<QRectF>, 64> runs(rowCount);
-    for (int i = first; i <= last; ++i) {
-        if (model->selectionId(i) != selectionId)
-            continue;
-        const int row = rowCache[i];
-        if (row < 0 || row >= rowCount)
-            continue;
-        // A row holding one selection id is outlined as a whole, which says
-        // nothing about the selected item, so it is left out. Models whose
-        // rows are their selection ids are the exception: there the outlines
-        // are the only thing marking the id.
-        if (!track->rowsSplitBySelectionId && !track->mixedRowCache.value(row))
-            continue;
-        const std::optional<QRectF> rect = itemRect(model, i, rowY[row], rowH[row],
-                                                    relHeightCache[i]);
-        if (!rect)
-            continue;
+    // A row holding one selection id is outlined as a whole, which says
+    // nothing about the selected item, so it is left out. Models whose
+    // rows are their selection ids are the exception: there the outlines
+    // are the only thing marking the id.
+    const auto rowOutlined = [&](int row) {
+        return track->rowsSplitBySelectionId || track->mixedRowCache.value(row);
+    };
+    const auto addRect = [&](int row, const QRectF &rect) {
         std::optional<QRectF> &run = runs[row];
         // Merging items of different heights would enclose the empty space
         // above the shorter one, so only equally tall ones are merged.
-        if (run && rect->left() <= run->right() && qFuzzyCompare(rect->top(), run->top())) {
-            run = run->united(*rect);
-            continue;
+        if (run && rect.left() <= run->right() && qFuzzyCompare(rect.top(), run->top())) {
+            run = run->united(rect);
+            return;
         }
         if (run)
             cache.rects.append(*run);
         run = rect;
+    };
+
+    if (summary) {
+        // Outlines the pixel columns that the selection id covers most of.
+        for (int row = 0; row < rowCount; ++row) {
+            if (!rowOutlined(row))
+                continue;
+            summary->forEachDominantItem(row, m_rangeStart, m_rangeEnd, w, [&](int x, int i) {
+                if (model->selectionId(i) != selectionId)
+                    return;
+                const std::optional<QRectF> rect = itemRect(model, i, rowY[row], rowH[row],
+                                                            model->relativeHeight(i));
+                if (!rect)
+                    return;
+                addRect(row, rect->width() > 1.0
+                                 ? rect->intersected(QRectF(x, rect->top(), w - x, rect->height()))
+                                 : QRectF(x, rect->top(), 1.0, rect->height()));
+            });
+        }
+    }
+
+    for (int i = first; i <= last; ++i) {
+        if (model->selectionId(i) != selectionId)
+            continue;
+        const int row = cached ? rowCache[i] : model->row(i);
+        if (row < 0 || row >= rowCount)
+            continue;
+        if (!rowOutlined(row))
+            continue;
+        const std::optional<QRectF> rect = itemRect(model, i, rowY[row], rowH[row],
+                                                    cached ? relHeightCache[i]
+                                                           : model->relativeHeight(i));
+        if (rect)
+            addRect(row, *rect);
     }
     for (const std::optional<QRectF> &run : std::as_const(runs)) {
         if (run)

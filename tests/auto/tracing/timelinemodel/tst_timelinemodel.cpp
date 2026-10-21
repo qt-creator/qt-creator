@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <QColor>
+#include <QHash>
 #include <QLocale>
 #include <QRandomGenerator>
 #include <QSignalSpy>
@@ -10,6 +11,8 @@
 #include <tracing/timelinemodel_p.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <utils/stylehelper.h>
+
+#include <functional>
 
 using namespace Timeline;
 
@@ -45,6 +48,8 @@ public:
     tst_TimelineModel();
 
 private slots:
+    void summaries();
+    void noSummariesForFewItems();
     void isEmpty();
     void modelId();
     void rowHeight();
@@ -577,6 +582,104 @@ void tst_TimelineModel::longRangesAreFoundAmongOverlappingRanges()
     }
     QVERIFY2(uncovered == 0, qPrintable(QString("%1 misses, first: %2")
                                             .arg(uncovered).arg(firstFailure)));
+}
+
+// Overlapping items of two selection ids in collapsed row 0 and three expanded rows, of varying
+// durations so that buckets hold competing items.
+class SummarizedModel : public TimelineModel
+{
+public:
+    SummarizedModel(TimelineModelAggregator *parent) : TimelineModel(parent) {}
+
+    void loadData(int items)
+    {
+        setCollapsedRowCount(1);
+        setExpandedRowCount(3);
+        for (int i = 0; i < items; ++i)
+            insert(i * 7, 1 + (i * 13) % 29, i % 2);
+        computeSummaries();
+    }
+
+    void add(qint64 start, qint64 duration, int selectionId)
+    {
+        insert(start, duration, selectionId);
+    }
+
+    int expandedRow(int index) const override { return index % 3; }
+    int collapsedRow(int) const override { return 0; }
+};
+
+// For every bucket of every row, the item overlapping it most, by brute force.
+static void verifySummary(const TimelineModel &model, const TimelineModel::Summary &summary,
+                          const std::function<int(int)> &rowOf)
+{
+    QCOMPARE(summary.start, model.startTime(0));
+    for (int row = 0; row < summary.rows.size(); ++row) {
+        QHash<quint32, std::pair<int, qint64>> expected;
+        for (int i = 0; i < model.count(); ++i) {
+            if (rowOf(i) != row)
+                continue;
+            const qint64 start = model.startTime(i) - summary.start;
+            const qint64 end = model.endTime(i) - summary.start;
+            const qint64 bucketDuration = summary.bucketDuration;
+            for (qint64 b = start / bucketDuration; b <= end / bucketDuration; ++b) {
+                const qint64 overlap = std::min(end, (b + 1) * bucketDuration)
+                                       - std::max(start, b * bucketDuration);
+                auto it = expected.find(quint32(b));
+                if (it == expected.end() || overlap > it->second)
+                    expected[quint32(b)] = {i, overlap};
+            }
+        }
+        const QList<TimelineModel::Summary::Bucket> &buckets = summary.rows.at(row);
+        QCOMPARE(buckets.size(), expected.size());
+        for (int b = 0; b < buckets.size(); ++b) {
+            if (b > 0)
+                QVERIFY(buckets.at(b - 1).index < buckets.at(b).index);
+            const auto it = expected.constFind(buckets.at(b).index);
+            QVERIFY(it != expected.constEnd());
+            QCOMPARE(buckets.at(b).overlap, float(it->second));
+            QCOMPARE(buckets.at(b).item, it->first);
+        }
+    }
+}
+
+void tst_TimelineModel::summaries()
+{
+    TimelineModelAggregator aggregator;
+    SummarizedModel model(&aggregator);
+    model.loadData(70000);
+
+    const TimelineModel::Summary *collapsed = model.summary(false);
+    const TimelineModel::Summary *expanded = model.summary(true);
+    const TimelineModel::Summary *overview = model.overviewSummary();
+    QVERIFY(collapsed && expanded && overview);
+    QCOMPARE(collapsed->rows.size(), 1);
+    QCOMPARE(expanded->rows.size(), 3);
+    QCOMPARE(overview->rows.size(), 1);
+    QVERIFY(collapsed->bucketDuration > 1);
+    QCOMPARE(collapsed->mixedRows, QList<bool>{true});
+    // Row r holds the items i with i % 3 == r, so every row has both selection ids.
+    QCOMPARE(expanded->mixedRows, QList<bool>({true, true, true}));
+
+    verifySummary(model, *collapsed, [](int) { return 0; });
+    if (QTest::currentTestFailed())
+        return;
+    verifySummary(model, *expanded, [](int i) { return i % 3; });
+
+    // Items added later are not in the summaries, so they go.
+    model.add(1000000, 10, 0);
+    QVERIFY(!model.summary(false));
+    QVERIFY(!model.summary(true));
+    QVERIFY(!model.overviewSummary());
+}
+
+void tst_TimelineModel::noSummariesForFewItems()
+{
+    TimelineModelAggregator aggregator;
+    SummarizedModel model(&aggregator);
+    model.loadData(1000);
+    QVERIFY(!model.summary(false));
+    QVERIFY(!model.overviewSummary());
 }
 
 QTEST_GUILESS_MAIN(tst_TimelineModel)

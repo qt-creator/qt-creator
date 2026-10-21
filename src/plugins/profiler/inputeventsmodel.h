@@ -23,7 +23,7 @@ public:
     InputEventsModel(QmlProfilerModelManager *manager, Timeline::TimelineModelAggregator *parent);
 
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) override;
-    void finalize() override;
+    void prepare() override;
     void clear() override;
 
     int typeId(int index) const override;

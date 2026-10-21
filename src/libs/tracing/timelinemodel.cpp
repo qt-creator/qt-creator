@@ -11,6 +11,8 @@
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
+#include <algorithm>
+#include <bit>
 #include <list>
 #include <vector>
 
@@ -506,6 +508,7 @@ QRgb TimelineModel::colorByHueChroma(int hue, int chroma) const
 */
 int TimelineModel::insert(qint64 startTime, qint64 duration, int selectionId)
 {
+    d->dropSummaries();
     /* Doing insert-sort here is preferable as most of the time the times will actually be
      * presorted in the right way. So usually this will just result in appending. */
     int index = d->insertStart(TimelineModelPrivate::Range(startTime, duration, selectionId));
@@ -526,6 +529,7 @@ int TimelineModel::insert(qint64 startTime, qint64 duration, int selectionId)
 */
 int TimelineModel::insertStart(qint64 startTime, int selectionId)
 {
+    d->dropSummaries();
     int index = d->insertStart(TimelineModelPrivate::Range(startTime, 0, selectionId));
     if (index < d->ranges.size() - 1)
         d->incrementStartIndices(index);
@@ -537,6 +541,7 @@ int TimelineModel::insertStart(qint64 startTime, int selectionId)
 */
 void TimelineModel::insertEnd(int index, qint64 duration)
 {
+    d->dropSummaries();
     d->ranges[index].duration = duration;
     int endIndex = d->insertEnd(TimelineModelPrivate::RangeEnd(index, d->ranges[index].start + duration));
     d->setEndIndex(index, endIndex);
@@ -732,7 +737,147 @@ void TimelineModel::clear()
     // with fewer items would keep that in memory too.
     d->ranges = QList<TimelineModelPrivate::Range>();
     d->endTimes = QList<TimelineModelPrivate::RangeEnd>();
+    d->dropSummaries();
     emit contentChanged();
+}
+
+// Below this many items, drawing them one by one is fast enough at any zoom level.
+static constexpr int kMinSummaryItems = 1 << 16;
+static constexpr quint32 kMaxSummaryBuckets = 1u << 18;
+static constexpr quint32 kOverviewSummaryBuckets = 1u << 14;
+
+using Summary = TimelineModel::Summary;
+
+static void addToBucket(QList<Summary::Bucket> &buckets, quint32 index, int item, float overlap)
+{
+    const auto update = [&](Summary::Bucket &bucket) {
+        if (overlap > bucket.overlap) {
+            bucket.item = item;
+            bucket.overlap = overlap;
+        }
+    };
+    if (buckets.isEmpty() || buckets.constLast().index < index) {
+        buckets.append({index, item, overlap});
+        return;
+    }
+    if (buckets.constLast().index == index) {
+        update(buckets.last());
+        return;
+    }
+    // Items arrive in the order they start, so an earlier one can only be still open here:
+    // it has added every bucket it overlaps already.
+    auto it = std::lower_bound(buckets.begin(), buckets.end(), index,
+                               [](const Summary::Bucket &bucket, quint32 index) {
+                                   return bucket.index < index;
+                               });
+    if (it != buckets.end() && it->index == index)
+        update(*it);
+    else
+        buckets.insert(it, {index, item, overlap});
+}
+
+class SummaryBuilder
+{
+public:
+    SummaryBuilder(qint64 start, qint64 end, quint32 bucketCount, int rowCount)
+        : m_rowSelectionIds(rowCount)
+    {
+        m_summary.start = start;
+        m_summary.bucketCount = bucketCount;
+        m_summary.bucketDuration = std::max<qint64>(1, (end - start + bucketCount) / bucketCount);
+        m_summary.rows.resize(rowCount);
+        m_summary.mixedRows.resize(rowCount);
+    }
+
+    // itemStart and itemEnd are relative to the summary's start.
+    void add(int row, int item, int selectionId, qint64 itemStart, qint64 itemEnd)
+    {
+        if (row < 0 || row >= m_summary.rows.size())
+            return;
+
+        std::optional<int> &rowSelectionId = m_rowSelectionIds[row];
+        if (!rowSelectionId)
+            rowSelectionId = selectionId;
+        else if (*rowSelectionId != selectionId)
+            m_summary.mixedRows[row] = true;
+
+        const qint64 bucketDuration = m_summary.bucketDuration;
+        const qint64 lastBucket = m_summary.bucketCount - 1;
+        const qint64 first = std::min(itemStart / bucketDuration, lastBucket);
+        const qint64 last = std::min(itemEnd / bucketDuration, lastBucket);
+        for (qint64 bucket = first; bucket <= last; ++bucket) {
+            const qint64 bucketStart = bucket * bucketDuration;
+            const qint64 overlap = std::min(itemEnd, bucketStart + bucketDuration)
+                                   - std::max(itemStart, bucketStart);
+            addToBucket(m_summary.rows[row], quint32(bucket), item,
+                        float(std::max<qint64>(0, overlap)));
+        }
+    }
+
+    Summary take()
+    {
+        for (QList<Summary::Bucket> &buckets : m_summary.rows)
+            buckets.squeeze();
+        return std::move(m_summary);
+    }
+
+private:
+    Summary m_summary;
+    QList<std::optional<int>> m_rowSelectionIds;
+};
+
+/*!
+    Computes the summaries of the items for the collapsed and the expanded rows and for the
+    overview, for a model with many items. Models call this once they know the rows of all
+    items; adding items drops the summaries again. A model without summaries is drawn item by
+    item at any zoom level.
+
+    It may run in the thread that loaded the items, while nothing else uses the model.
+*/
+void TimelineModel::computeSummaries()
+{
+    d->dropSummaries();
+    const int items = count();
+    if (items < kMinSummaryItems)
+        return;
+
+    const qint64 start = d->ranges.constFirst().start;
+    const qint64 end = std::max(d->ranges.constLast().start,
+                                d->endTimes.isEmpty() ? start : d->endTimes.constLast().end);
+
+    const quint32 buckets = std::min(kMaxSummaryBuckets, std::bit_ceil(quint32(items) / 16));
+    SummaryBuilder collapsed(start, end, buckets, collapsedRowCount());
+    SummaryBuilder expanded(start, end, buckets, expandedRowCount());
+    SummaryBuilder overview(start, end, kOverviewSummaryBuckets, 1);
+    for (int i = 0; i < items; ++i) {
+        const TimelineModelPrivate::Range &range = d->ranges.at(i);
+        const qint64 itemStart = range.start - start;
+        const qint64 itemEnd = std::max(itemStart, itemStart + range.duration);
+        collapsed.add(collapsedRow(i), i, range.selectionId, itemStart, itemEnd);
+        expanded.add(expandedRow(i), i, range.selectionId, itemStart, itemEnd);
+        overview.add(0, i, range.selectionId, itemStart, itemEnd);
+    }
+    d->collapsedSummary = collapsed.take();
+    d->expandedSummary = expanded.take();
+    d->overviewSummary = overview.take();
+}
+
+/*!
+    Returns the summary of the items in the \a expanded or collapsed rows, or \c nullptr if
+    computeSummaries() has not computed one.
+*/
+const TimelineModel::Summary *TimelineModel::summary(bool expanded) const
+{
+    const std::optional<Summary> &summary = expanded ? d->expandedSummary : d->collapsedSummary;
+    return summary ? &*summary : nullptr;
+}
+
+/*!
+    Returns the summary of all items in a single row, for the overview, or \c nullptr.
+*/
+const TimelineModel::Summary *TimelineModel::overviewSummary() const
+{
+    return d->overviewSummary ? &*d->overviewSummary : nullptr;
 }
 
 int TimelineModel::nextItemBySelectionId(int selectionId, qint64 time, int currentItem) const

@@ -329,6 +329,9 @@ private slots:
     void selectionOutlinesSkipUniformRow();
     void selectionOutlinesSkipUniformRowsWithoutMixedRow();
     void selectionOutlinesRowsSplitBySelectionId();
+    void summaryDrawsZoomedOutRangeByPixel();
+    void summaryNotUsedZoomedIn();
+    void summarySelectionOutlines();
 };
 
 // Alternating selection ids with gaps between the events, followed by a
@@ -882,6 +885,116 @@ void tst_TrackPainterInteraction::unlockedHover()
     QMouseEvent ev(QEvent::MouseMove, QPointF(5, 15), QPointF(5, 15),
                    Qt::NoButton, Qt::NoButton, Qt::NoModifier);
     QCoreApplication::sendEvent(&painter, &ev);
+}
+
+// More short items than a summary needs, 10 time units apart: selection id 0 in the first half
+// of the trace, 1 in the second. Counts the per-item lookups drawing makes.
+class ManyItemsModel : public TimelineModel
+{
+public:
+    static constexpr int itemCount = 100000;
+
+    ManyItemsModel(TimelineModelAggregator *parent) : TimelineModel(parent) {}
+
+    void loadData(bool summarized)
+    {
+        for (int i = 0; i < itemCount; ++i)
+            insert(i * 10, 4, i < itemCount / 2 ? 0 : 1);
+        computeNesting();
+        if (summarized)
+            computeSummaries();
+    }
+
+    QRgb color(int index) const override
+    {
+        ++lookups;
+        return selectionId(index) == 0 ? qRgb(255, 0, 0) : qRgb(0, 0, 255);
+    }
+
+    float relativeHeight(int) const override
+    {
+        ++lookups;
+        return 1.0f;
+    }
+
+    mutable int lookups = 0;
+};
+
+void tst_TrackPainterInteraction::summaryDrawsZoomedOutRangeByPixel()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    ManyItemsModel model(&aggregator);
+    model.loadData(true);
+    QVERIFY(model.summary(false));
+    painter.setTracks({&model});
+    painter.setRange(0, ManyItemsModel::itemCount * 10);
+    painter.resize(500, painter.totalHeight());
+
+    model.lookups = 0;
+    const QList<QRectF> rects = painter.fillRects(0);
+    // One item per pixel column, not every item.
+    QVERIFY2(model.lookups <= 2 * 500, qPrintable(QString::number(model.lookups)));
+
+    // Every column holds items, red ones in the first half and blue ones in the second.
+    QCOMPARE(rects.size(), 2);
+    QCOMPARE(rects.at(0).left() + rects.at(1).left(), 250.0);
+    QCOMPARE(rects.at(0).width() + rects.at(1).width(), 500.0);
+
+    QString report;
+    const int misses = unhittableDrawnPixels(painter, &report);
+    if (misses != 0)
+        qDebug().noquote() << misses << "unhittable drawn pixels:" << report;
+    QCOMPARE(misses, 0);
+}
+
+// Closer in than two of the summary's buckets per pixel, the items are drawn one by one,
+// exactly as without a summary.
+void tst_TrackPainterInteraction::summaryNotUsedZoomedIn()
+{
+    TimelineModelAggregator aggregator;
+    ManyItemsModel summarized(&aggregator);
+    summarized.loadData(true);
+    ManyItemsModel plain(&aggregator);
+    plain.loadData(false);
+    const TimelineModel::Summary *summary = summarized.summary(false);
+    QVERIFY(summary);
+
+    // A pixel covers about one bucket, which holds an item in only some of the pixels.
+    const int width = 400;
+    const qint64 start = 123457;
+    const qint64 end = start + summary->bucketDuration * width;
+    QList<QList<QRectF>> rects;
+    for (ManyItemsModel *model : {&summarized, &plain}) {
+        ProbePainter painter;
+        painter.setTracks({model});
+        painter.setRange(start, end);
+        painter.resize(width, painter.totalHeight());
+        rects.append(painter.fillRects(0));
+    }
+    QVERIFY(!rects.at(1).isEmpty());
+    QCOMPARE(rects.at(0), rects.at(1));
+}
+
+void tst_TrackPainterInteraction::summarySelectionOutlines()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    ManyItemsModel model(&aggregator);
+    model.loadData(true);
+    painter.setTracks({&model});
+    painter.setRange(0, ManyItemsModel::itemCount * 10);
+    painter.resize(500, painter.totalHeight());
+
+    // The row holds both selection ids, so the selected one is outlined where it lies.
+    painter.setSelectedItem(0, ManyItemsModel::itemCount - 1);
+    model.lookups = 0;
+    const QList<QRectF> outlines = painter.selectionOutlines(1);
+    QVERIFY2(model.lookups <= 2 * 500, qPrintable(QString::number(model.lookups)));
+    // The strokes run along the outside of the pixels, half a line width out.
+    QCOMPARE(outlines.size(), 1);
+    QVERIFY(qAbs(outlines.first().left() - 250.0) <= 1.0);
+    QVERIFY(qAbs(outlines.first().right() - 500.0) <= 1.0);
 }
 
 QTEST_MAIN(tst_TrackPainterInteraction)

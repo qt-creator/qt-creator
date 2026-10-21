@@ -168,6 +168,21 @@ void TimelineOverviewWidget::rebuildContentCache()
                 continue;
 
             const double bandY = contentTop + bandIdx * bandH;
+
+            // With many more items than pixels, each pixel column shows the item covering
+            // most of it.
+            const TimelineModel::Summary *summary = model->overviewSummary();
+            if (summary && traceDuration >= 2 * summary->bucketDuration * width()) {
+                summary->forEachDominantItem(0, m_zoom->traceStart(), m_zoom->traceEnd(), width(),
+                                             [&](int x, int i) {
+                    const double itemH = bandH * model->relativeHeight(i);
+                    p.fillRect(QRectF(x, bandY + bandH - itemH, 1.0, itemH),
+                               QColor::fromRgb(model->color(i)));
+                });
+                ++bandIdx;
+                continue;
+            }
+
             const int count = model->count();
 
             const int rowCount = model->rowCount();

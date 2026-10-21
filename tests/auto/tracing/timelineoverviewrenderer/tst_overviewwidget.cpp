@@ -112,6 +112,7 @@ private slots:
     void noCrashWithData();
     void rowsBeyondRowCount();
     void pausedRangesAreDrawnWhereTheyLie();
+    void summaryDrawsByPixel();
 };
 
 void tst_OverviewWidget::noCrashEmpty()
@@ -194,6 +195,57 @@ void tst_OverviewWidget::pausedRangesAreDrawnWhereTheyLie()
 
     aggregator.setPausedRanges({});
     QVERIFY(differingColumns(before, rendered(widget)).isEmpty());
+}
+
+// More short red items than a summary needs, in the first half of the trace only. Counts the
+// per-item lookups drawing makes.
+class ManyItemsModel : public TimelineModel
+{
+public:
+    static constexpr int itemCount = 100000;
+
+    ManyItemsModel(TimelineModelAggregator *parent) : TimelineModel(parent)
+    {
+        for (int i = 0; i < itemCount; ++i)
+            insert(i * 10, 4, 0);
+        computeSummaries();
+    }
+
+    QRgb color(int) const override
+    {
+        ++lookups;
+        return qRgb(255, 0, 0);
+    }
+
+    mutable int lookups = 0;
+};
+
+void tst_OverviewWidget::summaryDrawsByPixel()
+{
+    TimelineModelAggregator aggregator;
+    ManyItemsModel model(&aggregator);
+    QVERIFY(model.overviewSummary());
+    TimelineZoomControl zoom;
+    zoom.setTrace(0, 2 * ManyItemsModel::itemCount * 10);
+    aggregator.setModels({&model});
+    TimelineOverviewWidget widget(&aggregator, &zoom);
+    widget.resize(200, 50);
+
+    model.lookups = 0;
+    const QImage image = rendered(widget);
+    QVERIFY2(model.lookups <= 200, qPrintable(QString::number(model.lookups)));
+    const auto redColumn = [&](int x) {
+        for (int y = 0; y < image.height(); ++y) {
+            if (image.pixelColor(x, y).red() > 200 && image.pixelColor(x, y).blue() < 100)
+                return true;
+        }
+        return false;
+    };
+    // Clear of the range handles at the edges.
+    for (int x = 10; x < 100; ++x)
+        QVERIFY2(redColumn(x), qPrintable(QString::number(x)));
+    for (int x = 101; x < 190; ++x)
+        QVERIFY2(!redColumn(x), qPrintable(QString::number(x)));
 }
 
 QTEST_MAIN(tst_OverviewWidget)

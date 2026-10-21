@@ -314,7 +314,7 @@ void Quick3DModel::calculateRenderPassNesting()
     }
 }
 
-void Quick3DModel::finalize()
+void Quick3DModel::prepare()
 {
     if (m_prevMeshStartTime != -1) {
         m_data.insert(insert(m_prevMeshStartTime, modelManager()->traceEnd() - m_prevMeshStartTime,
@@ -333,9 +333,7 @@ void Quick3DModel::finalize()
     m_sortedTypes = m_types.values();
     std::sort(m_sortedTypes.begin(), m_sortedTypes.end(), [](int a, int b){ return a < b;});
     setExpandedRowCount(m_sortedTypes.size() + 1);
-    QmlProfilerTimelineModel::finalize();
     calculateRenderPassNesting();
-
 }
 
 void Quick3DModel::clear()

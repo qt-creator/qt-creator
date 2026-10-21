@@ -125,6 +125,13 @@ public:
         return fromIndex;
     }
 
+    void dropSummaries()
+    {
+        collapsedSummary.reset();
+        expandedSummary.reset();
+        overviewSummary.reset();
+    }
+
     int prevItemById(std::function<bool(int)> matchesId, qint64 time, int currentSelected) const;
     int nextItemById(std::function<bool(int)> matchesId, qint64 time, int currentSelected) const;
 
@@ -143,6 +150,10 @@ public:
     bool hidden;
     int expandedRowCount;
     int collapsedRowCount;
+
+    std::optional<Summary> collapsedSummary;
+    std::optional<Summary> expandedSummary;
+    std::optional<Summary> overviewSummary;
 };
 
 } // namespace Timeline

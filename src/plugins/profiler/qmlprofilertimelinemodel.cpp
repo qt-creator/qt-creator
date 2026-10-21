@@ -33,7 +33,10 @@ QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *mode
                                      std::bind(&QmlProfilerTimelineModel::initialize, this),
                                      std::bind(&QmlProfilerTimelineModel::finalize, this),
                                      std::bind(&QmlProfilerTimelineModel::clear, this),
-                                     std::bind(&QmlProfilerTimelineModel::prepare, this));
+                                     [this] {
+                                         prepare();
+                                         computeSummaries();
+                                     });
 }
 
 RangeType QmlProfilerTimelineModel::rangeType() const

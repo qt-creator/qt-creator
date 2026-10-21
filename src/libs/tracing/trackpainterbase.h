@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "timelinemodel.h"
 #include "tracing_global.h"
 
 #include <QList>
@@ -26,7 +27,6 @@ class Icon;
 
 namespace Timeline {
 
-class TimelineModel;
 class TimelineNotesModel;
 
 // Which rendering backend the track area uses.
@@ -120,6 +120,8 @@ protected:
         // are virtual and range-independent, so caching them avoids a few million
         // virtual calls per frame while panning/zooming. Rebuilt whenever the track
         // set is rebuilt (which is what an expand/colour/model change triggers).
+        // They stay empty for a model with a summary: that draws the ranges with
+        // many items, and the few items of the others are looked up directly.
         QList<int> rowCache;
         QList<QRgb> colorCache;
         QList<float> relHeightCache;
@@ -128,6 +130,7 @@ protected:
         // out. Both are read by selectionIdOutlines().
         QList<bool> mixedRowCache;
         bool rowsSplitBySelectionId = false;
+        bool attributesFromSummary = false;
     };
 
     // Range-dependent fill geometry for one track, expressed as plain
@@ -180,6 +183,7 @@ protected:
 
     // --- Shared geometry / overlay computation (single-sourced) ---------------
     void ensureAttrCache(Track &track) const;
+    const TimelineModel::Summary *drawnSummary(const TimelineModel *model) const;
     void buildNeutralGeometry(const Track &track, NeutralTrackGeometry &geom) const;
     void buildScaleOverlay(const Track &track, OverlayScale &out) const;
     QList<OverlayStroke> buildSelectionOverlay() const;
