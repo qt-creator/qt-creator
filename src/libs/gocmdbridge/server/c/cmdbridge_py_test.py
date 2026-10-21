@@ -1331,6 +1331,254 @@ def test_socket_forward_data_roundtrip(bin_path):
         bridge.close()
 
 
+def _wait_response(bridge, rtype, timeout=5.0):
+    """Wait for a response of the given Type and remove it from the queue."""
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        for r in bridge.responses[:]:
+            if _extract_cbor_string(r, "Type") == rtype:
+                bridge.responses.remove(r)
+                return r
+        time.sleep(0.02)
+    return None
+
+
+def _tcp_listener():
+    server = sock_module.socket(sock_module.AF_INET, sock_module.SOCK_STREAM)
+    server.setsockopt(sock_module.SOL_SOCKET, sock_module.SO_REUSEADDR, 1)
+    server.bind(("127.0.0.1", 0))
+    server.listen(1)
+    server.settimeout(5)
+    return server, "127.0.0.1:%d" % server.getsockname()[1]
+
+
+def test_dial_tcp_relays_both_ways(bin_path):
+    """dialtcp connects to a TCP server and relays data in both directions."""
+    server, addr = _tcp_listener()
+    bridge = CmdBridgeInteractive(bin_path)
+    try:
+        bridge.proc.stdin.write(build_cbor_map([("Type", "dialtcp"), ("Id", 300), ("Path", addr)]))
+        bridge.proc.stdin.flush()
+        assert _wait_response(bridge, "dialtcpready"), "no dialtcpready"
+        conn, _ = server.accept()
+        conn.settimeout(5)
+
+        conn.sendall(b"hello")
+        r = _wait_response(bridge, "socketdata")
+        assert r is not None and _extract_cbor_bytes(r, "Data") == b"hello", "no data from server"
+
+        bridge.proc.stdin.write(build_cbor({"Type": "socketdata", "Id": 300, "ConnId": 0,
+                                            "SocketData": {"Data": b"world"}}))
+        bridge.proc.stdin.flush()
+        got = b""
+        while len(got) < 5:
+            chunk = conn.recv(16)
+            assert chunk, "server saw EOF before the data"
+            got += chunk
+        assert got == b"world", got
+
+        bridge.proc.stdin.write(build_cbor_map([("Type", "stopforwardserver"), ("Id", 300)]))
+        bridge.proc.stdin.flush()
+        assert _wait_response(bridge, "forwardserverstopped"), "no forwardserverstopped"
+        conn.close()
+        return True
+    finally:
+        server.close()
+        bridge.close()
+
+
+def test_dial_tcp_refused_is_error(bin_path):
+    """A refused connection is reported as an error for the dial."""
+    server, addr = _tcp_listener()
+    server.close()
+    bridge = CmdBridgeInteractive(bin_path)
+    try:
+        bridge.proc.stdin.write(build_cbor_map([("Type", "dialtcp"), ("Id", 301), ("Path", addr)]))
+        bridge.proc.stdin.flush()
+        r = _wait_response(bridge, "error")
+        assert r is not None, "no error for a refused connection"
+        assert _extract_cbor_string(r, "Error"), "error without message"
+        assert _wait_response(bridge, "dialtcpready", 0.3) is None, "dialtcpready after failure"
+        return True
+    finally:
+        bridge.close()
+
+
+def test_dial_tcp_bad_address(bin_path):
+    """An address without a port is rejected."""
+    bridge = CmdBridgeInteractive(bin_path)
+    try:
+        bridge.proc.stdin.write(build_cbor_map([("Type", "dialtcp"), ("Id", 302), ("Path", "nonsense")]))
+        bridge.proc.stdin.flush()
+        assert _wait_response(bridge, "error") is not None, "no error for a bad address"
+        return True
+    finally:
+        bridge.close()
+
+
+def test_dial_tcp_server_close_is_reported(bin_path):
+    """The server hanging up produces socketclose; stop is still acknowledged."""
+    server, addr = _tcp_listener()
+    bridge = CmdBridgeInteractive(bin_path)
+    try:
+        bridge.proc.stdin.write(build_cbor_map([("Type", "dialtcp"), ("Id", 303), ("Path", addr)]))
+        bridge.proc.stdin.flush()
+        assert _wait_response(bridge, "dialtcpready"), "no dialtcpready"
+        conn, _ = server.accept()
+        conn.close()
+        assert _wait_response(bridge, "socketclose"), "no socketclose"
+        bridge.proc.stdin.write(build_cbor_map([("Type", "stopforwardserver"), ("Id", 303)]))
+        bridge.proc.stdin.flush()
+        assert _wait_response(bridge, "forwardserverstopped"), "no forwardserverstopped"
+        return True
+    finally:
+        server.close()
+        bridge.close()
+
+
+def test_dial_tcp_stop_closes_connection(bin_path):
+    """Stopping an open dial closes the connection towards the server."""
+    server, addr = _tcp_listener()
+    bridge = CmdBridgeInteractive(bin_path)
+    try:
+        bridge.proc.stdin.write(build_cbor_map([("Type", "dialtcp"), ("Id", 304), ("Path", addr)]))
+        bridge.proc.stdin.flush()
+        assert _wait_response(bridge, "dialtcpready"), "no dialtcpready"
+        conn, _ = server.accept()
+        conn.settimeout(5)
+        bridge.proc.stdin.write(build_cbor_map([("Type", "stopforwardserver"), ("Id", 304)]))
+        bridge.proc.stdin.flush()
+        assert _wait_response(bridge, "forwardserverstopped"), "no forwardserverstopped"
+        assert conn.recv(1) == b"", "connection stayed open after stop"
+        conn.close()
+        return True
+    finally:
+        server.close()
+        bridge.close()
+
+
+def test_dial_tcp_keeps_data_in_order(bin_path):
+    """Chunks of one connection reach the server in the order they were sent."""
+    server, addr = _tcp_listener()
+    server.settimeout(10)
+    bridge = CmdBridgeInteractive(bin_path)
+    try:
+        bridge.proc.stdin.write(build_cbor_map([("Type", "dialtcp"), ("Id", 305), ("Path", addr)]))
+        bridge.proc.stdin.flush()
+        assert _wait_response(bridge, "dialtcpready"), "no dialtcpready"
+        conn, _ = server.accept()
+        conn.settimeout(10)
+
+        chunks, size = 2000, 1024
+        packed = b"".join(
+            build_cbor({"Type": "socketdata", "Id": 305, "ConnId": 0,
+                        "SocketData": {"Data": bytes([i & 0xFF]) * size}})
+            for i in range(chunks))
+        writer = threading.Thread(target=lambda: (bridge.proc.stdin.write(packed),
+                                                  bridge.proc.stdin.flush()))
+        writer.start()
+
+        got = b""
+        while len(got) < chunks * size:
+            part = conn.recv(65536)
+            assert part, "server saw EOF before all data arrived"
+            got += part
+        writer.join()
+        for i in range(chunks):
+            assert got[i * size] == i & 0xFF and got[(i + 1) * size - 1] == i & 0xFF, \
+                "chunk %d arrived out of order (found %d)" % (i, got[i * size])
+        return True
+    finally:
+        server.close()
+        bridge.close()
+
+
+def test_dial_tcp_stop_keeps_queued_data(bin_path):
+    """Data sent right before stopforwardserver still reaches the server."""
+    server, addr = _tcp_listener()
+    bridge = CmdBridgeInteractive(bin_path)
+    try:
+        # The stop used to close the socket before the connection's thread had
+        # written what was queued, so check several rounds.
+        for i in range(10):
+            fid = 310 + i
+            bridge.proc.stdin.write(build_cbor_map([("Type", "dialtcp"), ("Id", fid), ("Path", addr)]))
+            bridge.proc.stdin.flush()
+            assert _wait_response(bridge, "dialtcpready"), "no dialtcpready"
+            conn, _ = server.accept()
+            conn.settimeout(5)
+
+            bridge.proc.stdin.write(
+                build_cbor({"Type": "socketdata", "Id": fid, "ConnId": 0,
+                            "SocketData": {"Data": b"bye"}})
+                + build_cbor_map([("Type", "stopforwardserver"), ("Id", fid)]))
+            bridge.proc.stdin.flush()
+            assert _wait_response(bridge, "forwardserverstopped"), "no forwardserverstopped"
+
+            got = b""
+            while True:
+                chunk = conn.recv(16)
+                if not chunk:
+                    break
+                got += chunk
+            conn.close()
+            assert got == b"bye", "round %d: server got %r" % (i, got)
+        return True
+    finally:
+        server.close()
+        bridge.close()
+
+
+def _virtual_size_kb(pid):
+    """VmSize of a process in KiB, or None where /proc does not tell."""
+    try:
+        with open("/proc/%d/status" % pid) as status:
+            for line in status:
+                if line.startswith("VmSize:"):
+                    return int(line.split()[1])
+    except OSError:
+        pass
+    return None
+
+
+def test_dial_tcp_server_close_leaves_no_thread_behind(bin_path):
+    """A connection the server closes first leaves nothing behind after the stop."""
+    server, addr = _tcp_listener()
+    server.settimeout(5)
+    bridge = CmdBridgeInteractive(bin_path)
+    if _virtual_size_kb(bridge.proc.pid) is None:
+        bridge.close()
+        server.close()
+        return True  # Skipped: the size of the bridge is only known through /proc.
+
+    def cycle(cid):
+        bridge.proc.stdin.write(build_cbor_map([("Type", "dialtcp"), ("Id", cid), ("Path", addr)]))
+        bridge.proc.stdin.flush()
+        assert _wait_response(bridge, "dialtcpready"), "no dialtcpready"
+        conn, _ = server.accept()
+        conn.close()
+        assert _wait_response(bridge, "socketclose"), "no socketclose"
+        bridge.proc.stdin.write(build_cbor_map([("Type", "stopforwardserver"), ("Id", cid)]))
+        bridge.proc.stdin.flush()
+        assert _wait_response(bridge, "forwardserverstopped"), "no forwardserverstopped"
+
+    try:
+        # The pool of workers grows to what the commands need and then stays;
+        # that is not what is measured here.
+        for i in range(50):
+            cycle(500 + i)
+        before = _virtual_size_kb(bridge.proc.pid)
+        for i in range(100):
+            cycle(600 + i)
+        grown = _virtual_size_kb(bridge.proc.pid) - before
+        # An unjoined thread keeps its stack mapped, 512 KiB or more each.
+        assert grown < 16 * 1024, "the bridge grew by %d KiB over 100 connections" % grown
+        return True
+    finally:
+        server.close()
+        bridge.close()
+
+
 @_skip_if_no_af_unix
 def test_stop_forward_closes_all_connections(bin_path):
     """Test that stopping the forward server closes all active connections."""
@@ -4894,6 +5142,14 @@ def main():
         ("symlink_stat", test_symlink_stat),
         ("socket_forward_server_start", test_socket_forward_server_start),
         ("socket_forward_data_roundtrip", test_socket_forward_data_roundtrip),
+        ("dial_tcp_relays_both_ways", test_dial_tcp_relays_both_ways),
+        ("dial_tcp_refused_is_error", test_dial_tcp_refused_is_error),
+        ("dial_tcp_bad_address", test_dial_tcp_bad_address),
+        ("dial_tcp_server_close_is_reported", test_dial_tcp_server_close_is_reported),
+        ("dial_tcp_stop_closes_connection", test_dial_tcp_stop_closes_connection),
+        ("dial_tcp_keeps_data_in_order", test_dial_tcp_keeps_data_in_order),
+        ("dial_tcp_stop_keeps_queued_data", test_dial_tcp_stop_keeps_queued_data),
+        ("dial_tcp_server_close_leaves_no_thread_behind", test_dial_tcp_server_close_leaves_no_thread_behind),
         ("stop_forward_closes_all_connections", test_stop_forward_closes_all_connections),
         ("multiple_simultaneous_connections", test_multiple_simultaneous_connections),
         ("data_routing_isolation", test_data_routing_isolation),

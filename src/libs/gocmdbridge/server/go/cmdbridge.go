@@ -662,6 +662,8 @@ func processCommand(watcher *WatcherHandler, socketHandler *SocketForwardHandler
 		processIsSameFile(cmd, out)
 	case "forwardlocalsocketserver":
 		socketHandler.processForward(cmd, out)
+	case "dialtcp":
+		socketHandler.processDialTCP(cmd, out)
 	case "socketdata":
 		socketHandler.processData(cmd)
 	case "socketclose":
@@ -682,6 +684,17 @@ func processCommand(watcher *WatcherHandler, socketHandler *SocketForwardHandler
 
 func executor(watcher *WatcherHandler, socketHandler *SocketForwardHandler, commands <-chan command, out chan<- []byte) {
 	for cmd := range commands {
+		// The bytes of a connection must reach it in the order they were sent,
+		// which commands run on goroutines of their own do not guarantee.
+		// These two only queue the command for the connection's goroutine.
+		switch cmd.Type {
+		case "socketdata":
+			socketHandler.processData(cmd)
+			continue
+		case "socketclose":
+			socketHandler.processClose(cmd)
+			continue
+		}
 		globalWaitGroup.Add(1)
 		go processCommand(watcher, socketHandler, cmd, out)
 	}

@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/fxamacker/cbor/v2"
 )
@@ -22,9 +23,41 @@ type socketForwardCmd struct {
 }
 
 // connState is the per-connection goroutine state.
+//
+// Commands for a connection are queued without bound and in the order they
+// arrive. The reader of the bridge's input must be able to hand a command over
+// without waiting for the application to take the bytes, and a bounded channel
+// would make it do exactly that.
 type connState struct {
-	cmdCh chan socketForwardCmd
+	mu    sync.Mutex
+	queue []socketForwardCmd
+	wake  chan struct{} // capacity 1; signalled when the queue became non-empty
 	done  chan struct{} // closed when the per-connection goroutine exits
+}
+
+func newConnState() *connState {
+	return &connState{
+		wake: make(chan struct{}, 1),
+		done: make(chan struct{}),
+	}
+}
+
+func (cs *connState) push(cmd socketForwardCmd) {
+	cs.mu.Lock()
+	cs.queue = append(cs.queue, cmd)
+	cs.mu.Unlock()
+	select {
+	case cs.wake <- struct{}{}:
+	default:
+	}
+}
+
+func (cs *connState) take() []socketForwardCmd {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	cmds := cs.queue
+	cs.queue = nil
+	return cmds
 }
 
 // socketForwardState is the per-forward-server state.
@@ -91,6 +124,11 @@ type socketcloseresult struct {
 	Type   string
 	Id     int
 	ConnId int
+}
+
+type dialtcpreadyresult struct {
+	Type string
+	Id   int
 }
 
 type forwardserverStoppedResult struct {
@@ -160,10 +198,7 @@ func (h *SocketForwardHandler) processForward(cmd command, out chan<- []byte) {
 			fwd.mu.Lock()
 			connId := fwd.nextConn
 			fwd.nextConn++
-			cs := &connState{
-				cmdCh: make(chan socketForwardCmd, 64),
-				done:  make(chan struct{}),
-			}
+			cs := newConnState()
 			fwd.conns[connId] = cs
 			fwd.mu.Unlock()
 
@@ -178,94 +213,149 @@ func (h *SocketForwardHandler) processForward(cmd command, out chan<- []byte) {
 			connWG.Add(1)
 			globalWaitGroup.Add(1)
 			go func(connId int, conn net.Conn, cs *connState) {
-				defer globalWaitGroup.Done()
 				defer connWG.Done()
-				defer close(cs.done)
-				defer func() {
-					fwd.mu.Lock()
-					delete(fwd.conns, connId)
-					fwd.mu.Unlock()
-				}()
-
-				// closedByCpp is set before closing conn when the close was
-				// initiated by the C++ side, to suppress the redundant
-				// socketclose that the read goroutine would otherwise send.
-				var closedByCpp atomic.Bool
-
-				readDone := make(chan struct{})
-				globalWaitGroup.Add(1)
-				go func() {
-					defer globalWaitGroup.Done()
-					defer close(readDone)
-					buf := make([]byte, 32768)
-					for {
-						n, readErr := conn.Read(buf)
-						if n > 0 {
-							data, _ := cbor.Marshal(socketdataresult{
-								Type:   "socketdata",
-								Id:     cmd.Id,
-								ConnId: connId,
-								Data:   append([]byte(nil), buf[:n]...),
-							})
-							out <- data
-						}
-						if readErr != nil {
-							if !closedByCpp.Load() {
-								closeData, _ := cbor.Marshal(socketcloseresult{
-									Type:   "socketclose",
-									Id:     cmd.Id,
-									ConnId: connId,
-								})
-								out <- closeData
-							}
-							return
-						}
-					}
-				}()
-
-				closeConn := func() {
-					conn.Close()
-					<-readDone
-				}
-
-				for {
-					select {
-					case fc, ok := <-cs.cmdCh:
-						if !ok {
-							closeConn()
-							return
-						}
-						switch fc.kind {
-						case "data":
-							_, writeErr := conn.Write(fc.data)
-							if writeErr != nil {
-								// Write failed: the connection is broken. Set closedByCpp to
-								// suppress the read goroutine's duplicate notification.
-								closedByCpp.Store(true)
-								closeConn()
-								closeData, _ := cbor.Marshal(socketcloseresult{
-									Type:   "socketclose",
-									Id:     cmd.Id,
-									ConnId: connId,
-								})
-								out <- closeData
-								return
-							}
-						case "close":
-							closedByCpp.Store(true)
-							closeConn()
-							return
-						}
-					case <-readDone:
-						return
-					case <-fwd.stopCh:
-						closedByCpp.Store(true)
-						closeConn()
-						return
-					}
-				}
+				h.serveConn(fwd, cmd.Id, connId, conn, cs, out)
 			}(connId, conn, cs)
 		}
+	}()
+}
+
+// serveConn relays one connection of forward id until either side closes it or
+// the forward is stopped. It is shared by the accept loop of a socket server
+// and by outgoing TCP connections.
+func (h *SocketForwardHandler) serveConn(fwd *socketForwardState, id int, connId int, conn net.Conn, cs *connState, out chan<- []byte) {
+	defer globalWaitGroup.Done()
+	defer close(cs.done)
+	defer func() {
+		fwd.mu.Lock()
+		delete(fwd.conns, connId)
+		fwd.mu.Unlock()
+	}()
+
+	// closedByCpp is set before closing conn when the close was
+	// initiated by the C++ side, to suppress the redundant
+	// socketclose that the read goroutine would otherwise send.
+	var closedByCpp atomic.Bool
+
+	readDone := make(chan struct{})
+	globalWaitGroup.Add(1)
+	go func() {
+		defer globalWaitGroup.Done()
+		defer close(readDone)
+		buf := make([]byte, 32768)
+		for {
+			n, readErr := conn.Read(buf)
+			if n > 0 {
+				data, _ := cbor.Marshal(socketdataresult{
+					Type:   "socketdata",
+					Id:     id,
+					ConnId: connId,
+					Data:   append([]byte(nil), buf[:n]...),
+				})
+				out <- data
+			}
+			if readErr != nil {
+				if !closedByCpp.Load() {
+					closeData, _ := cbor.Marshal(socketcloseresult{
+						Type:   "socketclose",
+						Id:     id,
+						ConnId: connId,
+					})
+					out <- closeData
+				}
+				return
+			}
+		}
+	}()
+
+	closeConn := func() {
+		conn.Close()
+		<-readDone
+	}
+
+	for {
+		select {
+		case <-cs.wake:
+			for _, fc := range cs.take() {
+				switch fc.kind {
+				case "data":
+					_, writeErr := conn.Write(fc.data)
+					if writeErr != nil {
+						// Write failed: the connection is broken. Set closedByCpp to
+						// suppress the read goroutine's duplicate notification.
+						closedByCpp.Store(true)
+						closeConn()
+						closeData, _ := cbor.Marshal(socketcloseresult{
+							Type:   "socketclose",
+							Id:     id,
+							ConnId: connId,
+						})
+						out <- closeData
+						return
+					}
+				case "close":
+					closedByCpp.Store(true)
+					closeConn()
+					return
+				}
+			}
+		case <-readDone:
+			// The other side hung up; an application that only shut down its
+			// sending side waits for this.
+			conn.Close()
+			return
+		case <-fwd.stopCh:
+			// socketdata that came in before the stop may still be queued for
+			// an outgoing connection; it is owed to the application.
+			if fwd.listener == nil {
+				conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
+				for _, fc := range cs.take() {
+					if fc.kind != "data" {
+						break
+					}
+					if _, writeErr := conn.Write(fc.data); writeErr != nil {
+						break
+					}
+				}
+			}
+			closedByCpp.Store(true)
+			closeConn()
+			return
+		}
+	}
+}
+
+// processDialTCP connects to the TCP endpoint cmd.Path ("host:port", resolved on
+// the device) and relays it through the same socketdata / socketclose packets
+// as a socket server connection. The connection is the only one of the forward
+// and has ConnId 0. It lives until C++ sends stopforwardserver, so the caller
+// always gets forwardserverstopped to release its state, whichever side closed
+// the connection first.
+func (h *SocketForwardHandler) processDialTCP(cmd command, out chan<- []byte) {
+	conn, err := net.DialTimeout("tcp", cmd.Path, 5*time.Second)
+	if err != nil {
+		sendError(out, cmd, err)
+		return
+	}
+
+	cs := newConnState()
+	fwd := &socketForwardState{
+		done:   make(chan struct{}),
+		stopCh: make(chan struct{}),
+		conns:  map[int]*connState{0: cs},
+	}
+
+	h.mutex.Lock()
+	h.forwards[cmd.Id] = fwd
+	h.mutex.Unlock()
+
+	result, _ := cbor.Marshal(dialtcpreadyresult{Type: "dialtcpready", Id: cmd.Id})
+	out <- result
+
+	globalWaitGroup.Add(1)
+	go func() {
+		defer close(fwd.done)
+		h.serveConn(fwd, cmd.Id, 0, conn, cs, out)
 	}()
 }
 
@@ -286,10 +376,7 @@ func (h *SocketForwardHandler) processData(cmd command) {
 		return
 	}
 
-	select {
-	case cs.cmdCh <- socketForwardCmd{kind: "data", data: cmd.SocketData.Data}:
-	case <-cs.done:
-	}
+	cs.push(socketForwardCmd{kind: "data", data: cmd.SocketData.Data})
 }
 
 // processClose tells the per-connection goroutine identified by cmd.ConnId to
@@ -310,10 +397,7 @@ func (h *SocketForwardHandler) processClose(cmd command) {
 		return
 	}
 
-	select {
-	case cs.cmdCh <- socketForwardCmd{kind: "close"}:
-	case <-cs.done:
-	}
+	cs.push(socketForwardCmd{kind: "close"})
 }
 
 // processStopForward tears down the entire forward server: closes the listener
@@ -336,7 +420,11 @@ func (h *SocketForwardHandler) processStopForward(cmd command, out chan<- []byte
 	// Closing the listener unblocks Accept in the accept goroutine. The accept
 	// goroutine then closes fwd.stopCh, which signals all per-connection
 	// goroutines to shut down.
-	fwd.listener.Close()
+	if fwd.listener != nil {
+		fwd.listener.Close()
+	} else {
+		close(fwd.stopCh)
+	}
 
 	// Wait for all connection goroutines to finish (and flush their packets to
 	// out) before notifying C++ that the forward has fully stopped.

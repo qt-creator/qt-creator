@@ -87,6 +87,8 @@ struct ClientPrivate
     };
     QMap<int, Watcher> watchers;
     QMap<int, std::shared_ptr<QPromise<Client::SocketServerEvent>>> socketServerForwards;
+    // Only used in the thread that parses the packets.
+    QMap<int, std::shared_ptr<Client::TcpEvents>> tcpStreams;
 
     Result<> readPacket(QCborStreamReader &reader);
     std::optional<Result<>> handleWatchResults(const QVariantMap &map);
@@ -234,6 +236,23 @@ std::optional<Result<>> ClientPrivate::handleSocketResults(const QVariantMap &ma
 {
     const QString type = map.value("Type").toString();
 
+    const auto stream = tcpStreams.constFind(map.value("Id").toInt());
+    if (stream != tcpStreams.constEnd()) {
+        if (type == "socketdata") {
+            (*stream)->push({Client::TcpEvents::Data, map.value("Data").toByteArray()});
+            return Result<>{};
+        }
+        if (type == "socketclose") {
+            (*stream)->push({Client::TcpEvents::Closed, {}});
+            return Result<>{};
+        }
+        if (type == "forwardserverstopped") {
+            (*stream)->push({Client::TcpEvents::Stopped, {}});
+            tcpStreams.erase(stream);
+            return Result<>{};
+        }
+    }
+
     auto addEvent = [&](int id, Client::SocketServerEvent event) -> std::optional<Result<>> {
         const auto it = socketServerForwards.find(id);
         if (it == socketServerForwards.end())
@@ -355,6 +374,10 @@ void ClientPrivate::concludePendingJobs(const QString &error, bool normalExit)
     for (auto &promise : socketServerForwards)
         promise->finish();
     socketServerForwards.clear();
+
+    for (const auto &stream : std::as_const(tcpStreams))
+        stream->push({Client::TcpEvents::Stopped, {}});
+    tcpStreams.clear();
 }
 
 void ClientPrivate::handleProcessDone()
@@ -1214,6 +1237,54 @@ Utils::Result<Client::SocketServerForward> Client::forwardSocketServer()
     } catch (const std::exception &e) {
         return ResultError(QString::fromUtf8(e.what()));
     }
+}
+
+Client::TcpEvents::TcpEvents(const std::function<void()> &wake)
+    : m_wake(wake)
+{}
+
+QList<Client::TcpEvents::Event> Client::TcpEvents::take()
+{
+    QMutexLocker locker(&m_mutex);
+    return std::exchange(m_events, {});
+}
+
+void Client::TcpEvents::push(const Event &event)
+{
+    // The wake-up is made under the lock so that detach() cannot return while
+    // one is under way.
+    QMutexLocker locker(&m_mutex);
+    const bool wasEmpty = m_events.isEmpty();
+    m_events.append(event);
+    if (wasEmpty && m_wake)
+        m_wake();
+}
+
+void Client::TcpEvents::detach()
+{
+    QMutexLocker locker(&m_mutex);
+    m_wake = {};
+}
+
+Utils::Result<QFuture<Client::TcpConnection>> Client::dialTcp(
+    const QString &hostPort, const std::function<void()> &wake)
+{
+    return createJob<TcpConnection>(
+        d.get(),
+        QCborMap{{"Type", "dialtcp"}, {"Path", hostPort}},
+        [this, wake](QVariantMap map, QPromise<TcpConnection> &promise) {
+            ASSERT_TYPE("dialtcpready");
+
+            const int id = map.value("Id").toInt();
+
+            // Registered here, on the thread that parses the packets, so that
+            // no socketdata of this connection can arrive before it exists.
+            auto events = std::make_shared<TcpEvents>(wake);
+            d->tcpStreams.insert(id, events);
+
+            promise.addResult(TcpConnection{id, events});
+            return JobResult::Done;
+        });
 }
 
 void Client::sendSocketData(int id, int connId, const QByteArray &data)

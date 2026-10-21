@@ -9,11 +9,14 @@
 #include <utils/osspecificaspects.h>
 #include <utils/processinterface.h>
 
+#include <functional>
 #include <memory>
 #include <variant>
 
 #include <QByteArray>
 #include <QFuture>
+#include <QList>
+#include <QMutex>
 #include <QString>
 
 namespace CmdBridge {
@@ -146,6 +149,58 @@ public:
     // SocketServerConnect by connecting to the local App's server and relays
     // SocketServerData / SocketServerClose in both directions.
     Utils::Result<SocketServerForward> forwardSocketServer();
+
+    // What arrives for an outgoing TCP connection, handed over once. A QFuture
+    // would keep every result for as long as a copy of it exists, which for a
+    // connection that lives as long as a profiling session is everything the
+    // device ever sent.
+    class QTCREATOR_CMDBRIDGE_EXPORT TcpEvents
+    {
+    public:
+        enum Kind {
+            Data,    // Bytes the application on the device sent.
+            Closed,  // The application closed the connection.
+            Stopped  // The bridge is done with the connection; nothing follows.
+        };
+        struct Event
+        {
+            Kind kind;
+            QByteArray bytes;
+        };
+
+        // wake is called, from the thread that reads the bridge and with the
+        // queue locked, when events arrive in an empty queue. It must only hand
+        // over to the thread that calls take(), and must not call back in.
+        explicit TcpEvents(const std::function<void()> &wake);
+
+        // Everything that arrived since the last call, in order.
+        QList<Event> take();
+
+        void push(const Event &event);
+
+        // Once this returns, wake is not called and not running any more.
+        // The events keep being collected.
+        void detach();
+
+    private:
+        QMutex m_mutex;
+        QList<Event> m_events;
+        std::function<void()> m_wake;
+    };
+
+    // An outgoing TCP connection made by the bridge on the device. After a
+    // Closed event sendSocketStopForward(id) must be called to release it.
+    struct TcpConnection
+    {
+        int id;
+        std::shared_ptr<TcpEvents> events;
+    };
+
+    // Tells the bridge to connect to hostPort ("host:port", resolved on the
+    // device). The future yields the connection once it is established and
+    // fails if it could not be. wake is handed to the events of the connection.
+    Utils::Result<QFuture<TcpConnection>> dialTcp(
+        const QString &hostPort, const std::function<void()> &wake);
 
     // Send raw bytes to the remote client identified by connId within forward id.
     void sendSocketData(int id, int connId, const QByteArray &data);

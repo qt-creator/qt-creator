@@ -33,6 +33,19 @@ public:
     virtual Utils::FilePath path() const = 0;
 };
 
+// RAII handle returned by forwardTcpPort().  Keep it alive for as long as the
+// port should stay reachable; destroying it closes the local listener and all
+// connections made through it.
+class QTCREATOR_CMDBRIDGE_EXPORT TcpPortForward
+{
+public:
+    virtual ~TcpPortForward() = default;
+
+    // Port on 127.0.0.1 of this machine.  Connections to it are carried
+    // through the bridge to the forwarded port on the device.
+    virtual int localPort() const = 0;
+};
+
 class QTCREATOR_CMDBRIDGE_EXPORT FileAccess : public Utils::DeviceFileAccess
 {
     friend class ::tst_CmdBridge;
@@ -90,6 +103,14 @@ public:
     // to stop forwarding.
     Utils::Result<std::unique_ptr<LocalSocketForward>> forwardLocalSocketServer(
         const QString &localSocketServerPath);
+
+    // Listens on 127.0.0.1 (on localPort, or on a free port if that is 0) and
+    // carries every connection made to it through the bridge to
+    // deviceHost:devicePort, as seen from the device.
+    // Unlike forwardLocalSocketServer() the application on the device is the
+    // server, so this works for anything that listens on a TCP port.
+    Utils::Result<std::unique_ptr<TcpPortForward>> forwardTcpPort(
+        const QString &deviceHost, int devicePort, int localPort = 0);
 
     Utils::Result<Utils::Environment> deviceEnvironment() const override;
 

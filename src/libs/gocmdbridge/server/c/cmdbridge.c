@@ -137,6 +137,8 @@ static void process(value *cmd)
         h_exec(cmd);
     else if (!strcmp(t, "forwardlocalsocketserver"))
         h_forward_server(cmd);
+    else if (!strcmp(t, "dialtcp"))
+        h_dial_tcp(cmd);
     else if (!strcmp(t, "socketdata"))
         h_socket_data(cmd);
     else if (!strcmp(t, "socketclose"))
@@ -536,6 +538,18 @@ int main(int argc, char **argv)
             rpos += sz;
             if (!cmd)
                 continue;
+
+            /* The bytes of a connection must reach it in the order they were
+               sent, which commands handed to different workers do not
+               guarantee. These two only queue the command for the
+               connection's own thread, so they are cheap to run right here. */
+            const char *type = mstr(cmd, "Type");
+            if (type && (!strcmp(type, "socketdata") || !strcmp(type, "socketclose"))) {
+                process(cmd);
+                mfreekeys(cmd);
+                vfree(cmd);
+                continue;
+            }
 
             if (queue_push(&command_queue, cmd) < 0) {
                 mfreekeys(cmd);

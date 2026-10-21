@@ -5,9 +5,15 @@
 // Included by cmdbridge.c - do not compile separately.
 
 #ifndef _WIN32
+#include <fcntl.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <poll.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#else
+#include <ws2tcpip.h>
 #endif
 
 /* ================================================================== */
@@ -59,6 +65,19 @@ static void send_socket_close(int forwardId, int connId)
 static void send_forward_ready(int id, const char *path)
 {
     value *m = mk3("Type", vs("forwardlocalsocketserverready"), "Id", vi(id), "Path", vs(path));
+    size_t l;
+    uint8_t *c = encode(m, &l);
+    if (c) {
+        send_pkt(c, l);
+        free(c);
+    }
+    mfreekeys(m);
+    vfree(m);
+}
+
+static void send_dialtcp_ready(int id)
+{
+    value *m = mk2("Type", vs("dialtcpready"), "Id", vi(id));
     size_t l;
     uint8_t *c = encode(m, &l);
     if (c) {
@@ -196,7 +215,13 @@ typedef struct
     imap conns; /* connection Id -> connState * */
     int nextConnId;
     int stop;
+    int hasAccept; /* 0 for an outgoing TCP connection, which has no listener */
     pthread_t acceptTid;
+    /* The thread of an outgoing TCP connection. The connection removes itself
+       when the application closes it, so this is the only place that still
+       knows the thread when the stop arrives. */
+    pthread_t dialTid;
+    int hasDialThread;
 } socketForwardState;
 
 /* --- Per-connection command --- */
@@ -220,6 +245,7 @@ struct connState
     pthread_cond_t cmdCv;
     int done;
     int closedByCpp;
+    int announceConnect; /* first packet: 1 socketconnect, 2 dialtcpready, 0 none */
     int refcount;
     pthread_t tid;
 };
@@ -316,7 +342,10 @@ static void *conn_thread(void *arg)
     connState *cs = (connState *) arg;
     uint8_t readBuf[SOCKET_DATA_BUF];
 
-    send_socket_connect(cs->fwd->id, cs->id);
+    if (cs->announceConnect == 2)
+        send_dialtcp_ready(cs->fwd->id);
+    else if (cs->announceConnect)
+        send_socket_connect(cs->fwd->id, cs->id);
 
     for (;;) {
         struct pollfd pfd;
@@ -396,6 +425,7 @@ static void *accept_thread(void *arg)
         cs->id = fwd->nextConnId++;
         cs->fwd = fwd;
         cs->done = 0;
+        cs->announceConnect = 1;
         cs->refcount = 1;
         fifo_init(&cs->cmdCh);
         pthread_mutex_init(&cs->cmdMu, NULL);
@@ -505,6 +535,7 @@ static void h_forward_server(value *cmd)
     snprintf(fwd->path, sizeof(fwd->path), "%s", serverPath);
     fwd->nextConnId = 0;
     fwd->stop = 0;
+    fwd->hasAccept = 1;
     imap_init(&fwd->conns);
 
     pthread_mutex_lock(&forwardMu);
@@ -530,6 +561,175 @@ static void h_forward_server(value *cmd)
         imap_free(&fwd->conns);
         free(fwd);
         send_err(mkey(cmd, "Id"), "could not start accept thread");
+    }
+}
+
+/* --- Outgoing TCP connection --- */
+
+/* Splits "host:port", where host may be a bracketed IPv6 literal. */
+static bool split_host_port(const char *hostPort, char *host, size_t hostLen, char *port, size_t portLen)
+{
+    const char *colon = hostPort ? strrchr(hostPort, ':') : NULL;
+    if (!colon || colon == hostPort || !colon[1])
+        return false;
+    size_t n = (size_t) (colon - hostPort);
+    const char *start = hostPort;
+    if (hostPort[0] == '[' && colon[-1] == ']') {
+        start++;
+        n -= 2;
+    }
+    if (n == 0 || n >= hostLen || strlen(colon + 1) >= portLen)
+        return false;
+    memcpy(host, start, n);
+    host[n] = 0;
+    snprintf(port, portLen, "%s", colon + 1);
+    return true;
+}
+
+/* Connects to host:port and returns the descriptor, or -1 with a message in
+   err. On POSIX the connect times out after timeoutMs, so that a dead address
+   does not hold a worker for the system's default of minutes. */
+static int connect_tcp(const char *host, const char *port, int timeoutMs, char *err, size_t errLen)
+{
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+
+    struct addrinfo *res = NULL;
+    int rc = getaddrinfo(host, port, &hints, &res);
+    if (rc != 0) {
+        snprintf(err, errLen, "cannot resolve %s: %s", host, gai_strerror(rc));
+        return -1;
+    }
+
+    int fd = -1;
+    snprintf(err, errLen, "connection to %s:%s failed", host, port);
+    for (struct addrinfo *ai = res; ai; ai = ai->ai_next) {
+        int candidate = (int) socket(ai->ai_family, ai->ai_socktype | SOCK_CLOEXEC_FLAG, ai->ai_protocol);
+#if _WIN32
+        if (candidate == (int) INVALID_SOCKET)
+            continue;
+        if (connect(candidate, ai->ai_addr, (int) ai->ai_addrlen) == 0) {
+            fd = candidate;
+            break;
+        }
+        snprintf(err, errLen, "connection to %s:%s failed (error %d)", host, port, WSAGetLastError());
+        s_close(candidate);
+#else
+        if (candidate < 0)
+            continue;
+        int flags = fcntl(candidate, F_GETFL, 0);
+        fcntl(candidate, F_SETFL, flags | O_NONBLOCK);
+        int cr = connect(candidate, ai->ai_addr, ai->ai_addrlen);
+        int connectErrno = errno;
+        if (cr != 0 && connectErrno == EINPROGRESS) {
+            struct pollfd pfd = {.fd = candidate, .events = POLLOUT, .revents = 0};
+            if (poll(&pfd, 1, timeoutMs) > 0) {
+                socklen_t len = sizeof(connectErrno);
+                if (getsockopt(candidate, SOL_SOCKET, SO_ERROR, &connectErrno, &len) != 0)
+                    connectErrno = errno;
+                cr = connectErrno == 0 ? 0 : -1;
+            } else {
+                connectErrno = ETIMEDOUT;
+            }
+        }
+        if (cr == 0) {
+            fcntl(candidate, F_SETFL, flags);
+            fd = candidate;
+            break;
+        }
+        snprintf(err, errLen, "connection to %s:%s failed: %s", host, port, strerror(connectErrno));
+        s_close(candidate);
+#endif
+    }
+    freeaddrinfo(res);
+
+    if (fd >= 0) {
+        int one = 1;
+        setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (const char *) &one, sizeof(one));
+    }
+    return fd;
+}
+
+/* Connects to cmd.Path ("host:port", resolved on this device) and relays the
+   connection through the same socketdata / socketclose packets as a socket
+   server connection, with ConnId 0. The forward stays registered until
+   stopforwardserver, whichever side closed first. */
+static void h_dial_tcp(value *cmd)
+{
+    int id = mkey(cmd, "Id");
+    char host[256], port[16], err[320];
+
+    if (!split_host_port(mstr(cmd, "Path"), host, sizeof(host), port, sizeof(port))) {
+        send_err(id, "invalid address, expected host:port");
+        return;
+    }
+
+    int fd = connect_tcp(host, port, 5000, err, sizeof(err));
+    if (fd < 0) {
+        send_err(id, err);
+        return;
+    }
+
+    socketForwardState *fwd = (socketForwardState *) calloc(1, sizeof(*fwd));
+    connState *cs = (connState *) calloc(1, sizeof(*cs));
+    if (!fwd || !cs) {
+        free(fwd);
+        free(cs);
+        s_close(fd);
+        send_err(id, "out of memory");
+        return;
+    }
+    fwd->id = id;
+    fwd->listenerFd = -1;
+    imap_init(&fwd->conns);
+
+    cs->fd = fd;
+    cs->id = 0;
+    cs->fwd = fwd;
+    cs->announceConnect = 2;
+    cs->refcount = 1;
+    fifo_init(&cs->cmdCh);
+    pthread_mutex_init(&cs->cmdMu, NULL);
+    pthread_cond_init(&cs->cmdCv, NULL);
+
+    pthread_mutex_lock(&forwardMu);
+    bool added = imap_put(&forwards, id, fwd) && imap_put(&fwd->conns, 0, cs);
+    pthread_mutex_unlock(&forwardMu);
+    if (!added) {
+        pthread_mutex_lock(&forwardMu);
+        imap_remove(&forwards, id);
+        pthread_mutex_unlock(&forwardMu);
+        imap_free(&fwd->conns);
+        pthread_mutex_destroy(&cs->cmdMu);
+        pthread_cond_destroy(&cs->cmdCv);
+        free(fwd);
+        free(cs);
+        s_close(fd);
+        send_err(id, "could not register connection");
+        return;
+    }
+
+    /* The thread is created and recorded under the lock, so that a stop which
+       follows the ready packet always finds it to join. It needs the lock only
+       to leave. Ready is its first packet, so it precedes any data. */
+    pthread_mutex_lock(&forwardMu);
+    int rc = pthread_create(&fwd->dialTid, NULL, conn_thread, cs);
+    fwd->hasDialThread = rc == 0;
+    if (rc != 0) {
+        imap_remove(&fwd->conns, 0);
+        imap_remove(&forwards, id);
+    }
+    pthread_mutex_unlock(&forwardMu);
+    if (rc != 0) {
+        s_close(fd);
+        imap_free(&fwd->conns);
+        pthread_mutex_destroy(&cs->cmdMu);
+        pthread_cond_destroy(&cs->cmdCv);
+        free(fwd);
+        free(cs);
+        send_err(id, "could not start the connection thread");
     }
 }
 
@@ -574,6 +774,24 @@ static void h_socket_data(value *cmd)
         free(cmdItem);
     }
     conn_release(cs);
+}
+
+/* Queues a close behind whatever is queued for the connection. */
+static bool queue_close(connState *cs)
+{
+    socketForwardCmd *cmdItem = (socketForwardCmd *) malloc(sizeof(socketForwardCmd));
+    if (!cmdItem)
+        return false;
+    cmdItem->kind = 2;
+    cmdItem->data = NULL;
+    cmdItem->data_len = 0;
+
+    pthread_mutex_lock(&cs->cmdMu);
+    bool queued = fifo_push(&cs->cmdCh, cmdItem);
+    pthread_mutex_unlock(&cs->cmdMu);
+    if (!queued)
+        free(cmdItem);
+    return queued;
 }
 
 static void h_socket_close(value *cmd)
@@ -638,11 +856,15 @@ static void h_stop_forward(value *cmd)
         void *val;
         while (imap_next(&fwd->conns, &it, NULL, &val)) {
             connState *cs = (connState *) val;
-            cs->done = 1;
-            /* See conn_thread(): only one of us closes the descriptor. */
-            int fd = __sync_lock_test_and_set(&cs->fd, -1);
-            if (fd >= 0)
-                s_close(fd);
+            /* socketdata that came in before this stop is still queued for a
+               dialed connection. Its thread writes that out, then closes. */
+            if (fwd->hasAccept || !queue_close(cs)) {
+                cs->done = 1;
+                /* See conn_thread(): only one of us closes the descriptor. */
+                int fd = __sync_lock_test_and_set(&cs->fd, -1);
+                if (fd >= 0)
+                    s_close(fd);
+            }
             conn_retain(cs);
             conns[nconnTids] = cs;
             connTids[nconnTids] = cs->tid;
@@ -653,11 +875,21 @@ static void h_stop_forward(value *cmd)
     /* The accept thread polls with a timeout and closes the listener itself,
        so setting `stop` above is all that is needed to end it. */
     pthread_t acceptTid = fwd->acceptTid;
+    int hasAccept = fwd->hasAccept;
+    pthread_t dialTid = fwd->dialTid;
+    int hasDialThread = fwd->hasDialThread;
     pthread_mutex_unlock(&forwardMu);
 
-    pthread_join(acceptTid, NULL);
+    if (hasAccept)
+        pthread_join(acceptTid, NULL);
+    /* The thread of an outgoing connection is joined here whether or not it
+       is still registered, so that it does not outlive the forward as a
+       joinable thread nothing waits for. */
+    if (hasDialThread)
+        pthread_join(dialTid, NULL);
     for (size_t i = 0; i < nconnTids; i++) {
-        pthread_join(connTids[i], NULL);
+        if (hasAccept)
+            pthread_join(connTids[i], NULL);
         conn_release(conns[i]);
     }
     free(connTids);
@@ -665,7 +897,8 @@ static void h_stop_forward(value *cmd)
 
     /* Only now that no thread can touch the state may it be discarded. */
     pthread_mutex_lock(&forwardMu);
-    s_unlink(fwd->path);
+    if (fwd->path[0])
+        s_unlink(fwd->path);
     imap_remove(&forwards, forwardId);
     pthread_mutex_unlock(&forwardMu);
     imap_free(&fwd->conns);

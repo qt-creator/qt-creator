@@ -15,12 +15,15 @@
 #include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 
+#include <QDeadlineTimer>
 #include <QElapsedTimer>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QObject>
 #include <QScopeGuard>
 #include <QSignalSpy>
+#include <QTcpServer>
+#include <QTcpSocket>
 #include <QTest>
 #include <QThread>
 #include <QTimer>
@@ -28,6 +31,11 @@
 #include <atomic>
 #include <memory>
 #include <optional>
+#include <thread>
+
+#ifdef Q_OS_UNIX
+#include <sys/resource.h>
+#endif
 
 using namespace Utils;
 
@@ -43,6 +51,48 @@ using namespace Utils;
         if (HostOsInfo::isWindowsHost()) \
             QSKIP(what " is POSIX only."); \
     } while (false)
+
+static qint64 peakResidentBytes()
+{
+#ifdef Q_OS_UNIX
+    rusage usage;
+    if (getrusage(RUSAGE_SELF, &usage) != 0)
+        return 0;
+#ifdef Q_OS_MACOS
+    return usage.ru_maxrss; // In bytes.
+#else
+    return qint64(usage.ru_maxrss) * 1024; // In KiB.
+#endif
+#else
+    return 0;
+#endif
+}
+
+// The application on the device listens on a TCP port; the tool connects to
+// the forwarded port on this machine. The test process plays the application.
+struct TcpForwardFixture
+{
+    CmdBridge::FileAccess fileAccess;
+    QTcpServer app;
+    std::unique_ptr<CmdBridge::TcpPortForward> forward;
+};
+
+static bool setupTcpForward(TcpForwardFixture &f, const QString &libExecPath)
+{
+    if (!f.app.listen(QHostAddress::LocalHost, 0))
+        return false;
+    const CmdBridge::FileAccess::DeployResult res = f.fileAccess.deployAndInit(
+        FilePath::fromUserInput(libExecPath),
+        FilePath::fromUserInput("/"),
+        Environment::systemEnvironment());
+    if (!res)
+        return false;
+    auto forward = f.fileAccess.forwardTcpPort("127.0.0.1", f.app.serverPort());
+    if (!forward)
+        return false;
+    f.forward = std::move(*forward);
+    return true;
+}
 
 class TestDFA : public UnixDeviceFileAccess
 {
@@ -722,6 +772,415 @@ The end.
                   "ran inline on this thread and the handler path was not exercised.");
         }
     }
+
+    // What the queue hands over is gone from it: unlike the results of a
+    // QFuture, nothing keeps a copy for the life of the connection.
+    void testTcpEventsAreHandedOver()
+    {
+        int wakes = 0;
+        CmdBridge::Client::TcpEvents events([&wakes] { ++wakes; });
+        QVERIFY(events.take().isEmpty());
+
+        events.push({CmdBridge::Client::TcpEvents::Data, "one"});
+        events.push({CmdBridge::Client::TcpEvents::Data, "two"});
+        events.push({CmdBridge::Client::TcpEvents::Closed, {}});
+        QCOMPARE(wakes, 1); // Only the transition from empty needs a wake-up.
+
+        const auto taken = events.take();
+        QCOMPARE(taken.size(), 3);
+        QCOMPARE(taken.at(0).bytes, QByteArray("one"));
+        QCOMPARE(taken.at(1).bytes, QByteArray("two"));
+        QCOMPARE(taken.at(2).kind, CmdBridge::Client::TcpEvents::Closed);
+        QVERIFY(events.take().isEmpty());
+
+        events.push({CmdBridge::Client::TcpEvents::Stopped, {}});
+        QCOMPARE(wakes, 2);
+    }
+
+    // After detach() the wake-up must neither run nor be running, as what it
+    // reaches may be deleted right afterwards.
+    void testTcpEventsDetachWaitsForTheWakeUp()
+    {
+        std::atomic<bool> inWake = false;
+        std::atomic<bool> wakeFinished = false;
+        CmdBridge::Client::TcpEvents events([&] {
+            inWake = true;
+            QThread::msleep(200);
+            wakeFinished = true;
+        });
+
+        std::thread pusher([&events] {
+            events.push({CmdBridge::Client::TcpEvents::Data, "x"});
+        });
+        QTRY_VERIFY_WITH_TIMEOUT(inWake.load(), 5000);
+        events.detach();
+        QVERIFY(wakeFinished.load());
+        pusher.join();
+
+        // Later events are kept, but nobody is woken for them.
+        events.take();
+        int wakes = 0;
+        CmdBridge::Client::TcpEvents detached([&wakes] { ++wakes; });
+        detached.detach();
+        detached.push({CmdBridge::Client::TcpEvents::Data, "y"});
+        QCOMPARE(wakes, 0);
+        QCOMPARE(detached.take().size(), 1);
+    }
+
+    // The handle is destroyed while the device still streams into it; what is in
+    // flight must not reach the destroyed handle.
+    void testTcpForwardDestroyWhileDataStreams()
+    {
+        SKIP_ON_WINDOWS("TCP forwarding");
+
+        for (int round = 0; round < 20; ++round) {
+            TcpForwardFixture f;
+            QVERIFY(setupTcpForward(f, libExecPath));
+
+            QTcpSocket tool;
+            tool.connectToHost(QHostAddress::LocalHost, f.forward->localPort());
+            QVERIFY(tool.waitForConnected(5000));
+            QTRY_VERIFY_WITH_TIMEOUT(f.app.hasPendingConnections(), 5000);
+            QTcpSocket *app = f.app.nextPendingConnection();
+            QVERIFY(app);
+
+            const QByteArray chunk(16384, 'z');
+            for (int i = 0; i < 200; ++i)
+                app->write(chunk);
+            app->flush();
+            QTRY_VERIFY_WITH_TIMEOUT(tool.bytesAvailable() > 0, 5000);
+
+            QSignalSpy toolDisconnected(&tool, &QTcpSocket::disconnected);
+            f.forward.reset();
+            QTRY_VERIFY_WITH_TIMEOUT(!toolDisconnected.isEmpty(), 5000);
+        }
+    }
+
+    // A connection that lives as long as a profiling session must not hold on
+    // to what the application sent through it.
+    void testTcpForwardDoesNotRetainDeliveredData()
+    {
+        SKIP_ON_WINDOWS("TCP forwarding");
+
+        TcpForwardFixture f;
+        QVERIFY(setupTcpForward(f, libExecPath));
+
+        QTcpSocket tool;
+        tool.connectToHost(QHostAddress::LocalHost, f.forward->localPort());
+        QVERIFY(tool.waitForConnected(5000));
+        QTRY_VERIFY_WITH_TIMEOUT(f.app.hasPendingConnections(), 5000);
+        QTcpSocket *app = f.app.nextPendingConnection();
+        QVERIFY(app);
+
+        constexpr qint64 total = 256LL * 1024 * 1024;
+        const QByteArray chunk(65536, 'z');
+        const qint64 before = peakResidentBytes();
+        qint64 sent = 0;
+        qint64 received = 0;
+        QElapsedTimer timer;
+        timer.start();
+        while (received < total && timer.elapsed() < 120000) {
+            while (sent < total && app->bytesToWrite() < 4 * 1024 * 1024) {
+                app->write(chunk);
+                sent += chunk.size();
+            }
+            QCoreApplication::processEvents(QEventLoop::WaitForMoreEvents, 5);
+            received += tool.readAll().size();
+        }
+        QCOMPARE(received, total);
+
+        // Keeping everything would have raised the peak by as much as was sent.
+        const qint64 grown = peakResidentBytes() - before;
+        QVERIFY2(grown < total / 2,
+                 qPrintable(QString("The peak memory grew by %1 MiB while %2 MiB were delivered")
+                                .arg(grown / 1048576)
+                                .arg(total / 1048576)));
+    }
+
+
+    void testTcpForward()
+    {
+        SKIP_ON_WINDOWS("TCP forwarding");
+
+        TcpForwardFixture f;
+        QVERIFY(setupTcpForward(f, libExecPath));
+        QVERIFY(f.forward->localPort() > 0);
+
+        QTcpSocket tool;
+        tool.connectToHost(QHostAddress::LocalHost, f.forward->localPort());
+        QVERIFY(tool.waitForConnected(5000));
+
+        // Sent before the bridge has necessarily finished dialing.
+        tool.write("early");
+        QTRY_VERIFY_WITH_TIMEOUT(f.app.hasPendingConnections(), 5000);
+        QTcpSocket *app = f.app.nextPendingConnection();
+        QVERIFY(app);
+        QByteArray fromTool;
+        QTRY_VERIFY_WITH_TIMEOUT((fromTool += app->readAll()).size() >= 5, 5000);
+        QCOMPARE(fromTool, QByteArray("early"));
+
+        app->write("answer");
+        QByteArray fromApp;
+        QTRY_VERIFY_WITH_TIMEOUT((fromApp += tool.readAll()).size() >= 6, 5000);
+        QCOMPARE(fromApp, QByteArray("answer"));
+
+        // The tool hangs up: the application sees it.
+        QSignalSpy appDisconnected(app, &QTcpSocket::disconnected);
+        tool.disconnectFromHost();
+        QTRY_VERIFY_WITH_TIMEOUT(!appDisconnected.isEmpty(), 5000);
+
+        // A second connection through the same forward works independently.
+        QTcpSocket tool2;
+        tool2.connectToHost(QHostAddress::LocalHost, f.forward->localPort());
+        QVERIFY(tool2.waitForConnected(5000));
+        QTRY_VERIFY_WITH_TIMEOUT(f.app.hasPendingConnections(), 5000);
+        QTcpSocket *app2 = f.app.nextPendingConnection();
+        QVERIFY(app2);
+
+        // The application hangs up: the tool sees it.
+        QSignalSpy toolDisconnected(&tool2, &QTcpSocket::disconnected);
+        app2->write("bye");
+        app2->disconnectFromHost();
+        QTRY_VERIFY_WITH_TIMEOUT(!toolDisconnected.isEmpty(), 5000);
+        QCOMPARE(tool2.readAll(), QByteArray("bye"));
+    }
+
+    void testTcpForwardRefusedDialClosesTheTool()
+    {
+        SKIP_ON_WINDOWS("TCP forwarding");
+
+        TcpForwardFixture f;
+        QVERIFY(setupTcpForward(f, libExecPath));
+        f.app.close(); // Nothing listens on the forwarded port any more.
+
+        QTcpSocket tool;
+        QSignalSpy toolDisconnected(&tool, &QTcpSocket::disconnected);
+        tool.connectToHost(QHostAddress::LocalHost, f.forward->localPort());
+        QVERIFY(tool.waitForConnected(5000));
+        QTRY_VERIFY_WITH_TIMEOUT(!toolDisconnected.isEmpty(), 10000);
+    }
+
+    void testTcpForwardManyConnectionsLargeData()
+    {
+        SKIP_ON_WINDOWS("TCP forwarding");
+
+        TcpForwardFixture f;
+        QVERIFY(setupTcpForward(f, libExecPath));
+
+        constexpr int connections = 8;
+        constexpr int size = 4 * 1024 * 1024;
+        QByteArray payload(size, 0);
+        for (int i = 0; i < size; ++i)
+            payload[i] = char((i * 31) ^ (i >> 8));
+
+        QList<std::shared_ptr<QTcpSocket>> tools;
+        for (int i = 0; i < connections; ++i) {
+            auto tool = std::make_shared<QTcpSocket>();
+            tool->connectToHost(QHostAddress::LocalHost, f.forward->localPort());
+            QVERIFY(tool->waitForConnected(5000));
+            tools.append(tool);
+        }
+        QTRY_COMPARE_WITH_TIMEOUT(
+            [&] {
+                // Accept as they come; nextPendingConnection() consumes them.
+                return int(f.app.hasPendingConnections());
+            }(),
+            1,
+            5000);
+
+        // Every tool sends the whole payload; the application echoes it back.
+        QList<QTcpSocket *> apps;
+        QList<QByteArray> echoed(connections), received(connections);
+        QTRY_VERIFY_WITH_TIMEOUT(
+            [&] {
+                while (f.app.hasPendingConnections())
+                    apps.append(f.app.nextPendingConnection());
+                return apps.size() == connections;
+            }(),
+            10000);
+        for (QTcpSocket *app : std::as_const(apps)) {
+            connect(app, &QTcpSocket::readyRead, app, [app] { app->write(app->readAll()); });
+            if (app->bytesAvailable() > 0)
+                app->write(app->readAll());
+        }
+        for (const auto &tool : std::as_const(tools))
+            tool->write(payload);
+
+        QTRY_VERIFY_WITH_TIMEOUT(
+            [&] {
+                for (int i = 0; i < connections; ++i)
+                    received[i] += tools[i]->readAll();
+                return std::all_of(received.cbegin(), received.cend(), [&](const QByteArray &r) {
+                    return r.size() >= size;
+                });
+            }(),
+            60000);
+        for (const QByteArray &r : std::as_const(received)) {
+            int firstDiff = -1;
+            for (int i = 0; i < qMin(r.size(), payload.size()); ++i) {
+                if (r[i] != payload[i]) {
+                    firstDiff = i;
+                    break;
+                }
+            }
+            QVERIFY2(r == payload,
+                     qPrintable(QString("size %1 of %2, first difference at %3")
+                                    .arg(r.size()).arg(payload.size()).arg(firstDiff)));
+        }
+    }
+
+    void testTcpForwardDestroyClosesConnections()
+    {
+        SKIP_ON_WINDOWS("TCP forwarding");
+
+        TcpForwardFixture f;
+        QVERIFY(setupTcpForward(f, libExecPath));
+
+        QTcpSocket tool;
+        tool.connectToHost(QHostAddress::LocalHost, f.forward->localPort());
+        QVERIFY(tool.waitForConnected(5000));
+        QTRY_VERIFY_WITH_TIMEOUT(f.app.hasPendingConnections(), 5000);
+        QTcpSocket *app = f.app.nextPendingConnection();
+        QVERIFY(app);
+
+        QSignalSpy appDisconnected(app, &QTcpSocket::disconnected);
+        QSignalSpy toolDisconnected(&tool, &QTcpSocket::disconnected);
+        f.forward.reset();
+        QTRY_VERIFY_WITH_TIMEOUT(!appDisconnected.isEmpty(), 5000);
+        QTRY_VERIFY_WITH_TIMEOUT(!toolDisconnected.isEmpty(), 5000);
+    }
+
+    // A short-lived tool writes and hangs up before the bridge has dialed.
+    void testTcpForwardKeepsDataSentBeforeTheDial()
+    {
+        SKIP_ON_WINDOWS("TCP forwarding");
+
+        TcpForwardFixture f;
+        QVERIFY(setupTcpForward(f, libExecPath));
+
+        QTcpSocket tool;
+        tool.connectToHost(QHostAddress::LocalHost, f.forward->localPort());
+        QVERIFY(tool.waitForConnected(5000));
+        tool.write("early");
+        tool.disconnectFromHost();
+
+        QTRY_VERIFY_WITH_TIMEOUT(f.app.hasPendingConnections(), 5000);
+        QTcpSocket *app = f.app.nextPendingConnection();
+        QVERIFY(app);
+        QByteArray fromTool;
+        QTRY_VERIFY_WITH_TIMEOUT((fromTool += app->readAll(),
+                                  app->state() == QAbstractSocket::UnconnectedState),
+                                 5000);
+        fromTool += app->readAll();
+        QCOMPARE(fromTool, QByteArray("early"));
+    }
+
+    // The tool writes its last bytes and hangs up at once on an established
+    // connection. The stop of the connection must not overtake the bytes.
+    void testTcpForwardKeepsDataSentBeforeHangingUp()
+    {
+        SKIP_ON_WINDOWS("TCP forwarding");
+
+        TcpForwardFixture f;
+        QVERIFY(setupTcpForward(f, libExecPath));
+
+        // Losing the bytes was a race, so one round would not reliably show it.
+        for (int round = 0; round < 10; ++round) {
+            QTcpSocket tool;
+            tool.connectToHost(QHostAddress::LocalHost, f.forward->localPort());
+            QVERIFY(tool.waitForConnected(5000));
+            QTRY_VERIFY_WITH_TIMEOUT(f.app.hasPendingConnections(), 5000);
+            QTcpSocket *app = f.app.nextPendingConnection();
+            QVERIFY(app);
+
+            // Once the answer is through, the connection is established.
+            app->write("hi");
+            QByteArray fromApp;
+            QTRY_VERIFY_WITH_TIMEOUT((fromApp += tool.readAll()).size() >= 2, 5000);
+
+            tool.write("bye");
+            tool.disconnectFromHost();
+
+            QByteArray fromTool;
+            QTRY_VERIFY_WITH_TIMEOUT((fromTool += app->readAll(),
+                                      app->state() == QAbstractSocket::UnconnectedState),
+                                     5000);
+            fromTool += app->readAll();
+            QVERIFY2(fromTool == "bye",
+                     qPrintable(QString("round %1: \"%2\"").arg(round)
+                                    .arg(QString::fromUtf8(fromTool))));
+            delete app;
+        }
+    }
+
+    // The forward goes away while the bridge is still dialing. Once the dial
+    // succeeds, the connection on the device must be closed all the same.
+    void testTcpForwardDestroyDuringDialClosesConnection()
+    {
+        SKIP_ON_WINDOWS("TCP forwarding");
+
+        TcpForwardFixture f;
+        QVERIFY(setupTcpForward(f, libExecPath));
+
+        QTcpSocket tool;
+        tool.connectToHost(QHostAddress::LocalHost, f.forward->localPort());
+        QVERIFY(tool.waitForConnected(5000));
+
+        // Let the forward accept and dial, but stop as soon as the dial reaches the
+        // application: waitForNewConnection() does not run the event loop, so the
+        // forward does not get to see the dial finish.
+        QDeadlineTimer deadline(5000);
+        bool dialed = false;
+        while (!deadline.hasExpired() && !(dialed = f.app.waitForNewConnection(10)))
+            QCoreApplication::processEvents();
+        QVERIFY(dialed);
+        QTcpSocket *app = f.app.nextPendingConnection();
+        QVERIFY(app);
+
+        QSignalSpy appDisconnected(app, &QTcpSocket::disconnected);
+        f.forward.reset();
+        QTRY_VERIFY_WITH_TIMEOUT(!appDisconnected.isEmpty(), 5000);
+    }
+
+    void testTcpForwardRejectsInvalidPorts()
+    {
+        SKIP_ON_WINDOWS("TCP forwarding");
+
+        TcpForwardFixture f;
+        QVERIFY(setupTcpForward(f, libExecPath));
+
+        QVERIFY(!f.fileAccess.forwardTcpPort("127.0.0.1", 0));
+        QVERIFY(!f.fileAccess.forwardTcpPort("127.0.0.1", 70000));
+        QVERIFY(!f.fileAccess.forwardTcpPort("127.0.0.1", f.app.serverPort(), -1));
+        QVERIFY(!f.fileAccess.forwardTcpPort("127.0.0.1", f.app.serverPort(), 70000));
+    }
+
+    void testTcpForwardToIPv6Address()
+    {
+        SKIP_ON_WINDOWS("TCP forwarding");
+
+        TcpForwardFixture f;
+        QVERIFY(setupTcpForward(f, libExecPath));
+        QTcpServer app;
+        if (!app.listen(QHostAddress::LocalHostIPv6, 0))
+            QSKIP("No IPv6 loopback.");
+
+        auto forward = f.fileAccess.forwardTcpPort("::1", app.serverPort());
+        if (!forward)
+            QFAIL(qPrintable(forward.error()));
+
+        QTcpSocket tool;
+        tool.connectToHost(QHostAddress::LocalHost, (*forward)->localPort());
+        QVERIFY(tool.waitForConnected(5000));
+        tool.write("six");
+        QTRY_VERIFY_WITH_TIMEOUT(app.hasPendingConnections(), 5000);
+        QTcpSocket *appSocket = app.nextPendingConnection();
+        QVERIFY(appSocket);
+        QByteArray fromTool;
+        QTRY_VERIFY_WITH_TIMEOUT((fromTool += appSocket->readAll()).size() >= 3, 5000);
+        QCOMPARE(fromTool, QByteArray("six"));
+    }
+
 
     void testSocketForward()
     {

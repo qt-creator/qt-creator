@@ -16,9 +16,13 @@
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QLoggingCategory>
+#include <QTcpServer>
+#include <QTcpSocket>
 #include <QThread>
 #include <QTimer>
 #include <QUuid>
+
+#include <optional>
 
 static Q_LOGGING_CATEGORY(faLog, "qtc.cmdbridge.fileaccess", QtWarningMsg);
 
@@ -1238,6 +1242,292 @@ Result<std::unique_ptr<LocalSocketForward>> FileAccess::forwardLocalSocketServer
         localSocketServerPath,
         forwardResult->remotePath,
         forwardResult->eventFuture));
+}
+
+// ---------------------------------------------------------------------------
+// TcpPortForward implementation
+// ---------------------------------------------------------------------------
+
+// The forwarding direction is:
+//   local tool  <->  (this) QTcpServer / QTcpSocket  <->  cmdbridge protocol
+//       <->  Go/C bridge on the device  <->  application listening on the device
+//
+// Every accepted local connection becomes one "dialtcp" job. Bytes the tool
+// sends before the bridge reports the connection as established are held back
+// and sent as soon as it is.
+class TcpPortForwardImpl : public QObject
+{
+    Q_OBJECT
+
+    struct Conn
+    {
+        QTcpSocket *socket = nullptr;
+        int id = -1;                // Bridge-side id, valid once established.
+        bool established = false;
+        bool closedLocally = false; // The tool hung up.
+        bool stopSent = false;
+        QByteArray pending;         // Sent by the tool before the dial finished.
+        QFutureWatcher<Client::TcpConnection> *dial = nullptr;
+        std::shared_ptr<Client::TcpEvents> events;
+    };
+    using ConnPtr = std::shared_ptr<Conn>;
+
+public:
+    TcpPortForwardImpl(Client *client, const QString &deviceHostPort)
+        : m_client(client)
+        , m_deviceHostPort(deviceHostPort)
+    {
+        // The sockets and the watchers deliver through the event loop of the
+        // thread they live in, so they all live in the main thread, whichever
+        // thread the bridge file access was created on.
+        QObject::moveToThread(QCoreApplication::instance()->thread());
+    }
+
+    ~TcpPortForwardImpl() override { shutdown(); }
+
+    Result<int> start(int localPort)
+    {
+        bool listening = false;
+        const auto listen = [this, localPort] {
+            m_server = new QTcpServer(this);
+            connect(m_server, &QTcpServer::newConnection, this, [this] {
+                while (QTcpSocket *socket = m_server->nextPendingConnection())
+                    onNewConnection(socket);
+            });
+            return m_server->listen(QHostAddress::LocalHost, quint16(localPort));
+        };
+        if (QThread::currentThread() == thread())
+            listening = listen();
+        else
+            QMetaObject::invokeMethod(this, listen, Qt::BlockingQueuedConnection, &listening);
+
+        if (!listening)
+            return ResultError(Tr::tr("Cannot listen for forwarded connections: %1")
+                               .arg(m_server->errorString()));
+        return m_server->serverPort();
+    }
+
+    // Must run in the thread the object lives in.
+    void shutdown()
+    {
+        if (m_server)
+            m_server->close();
+        const QList<ConnPtr> conns = m_conns;
+        m_conns.clear();
+        for (const ConnPtr &conn : conns) {
+            if (conn->dial) {
+                conn->dial->disconnect();
+                // The dial can still succeed, and then the connection on the device
+                // stays open until something releases it, which nothing here will.
+                conn->dial->future().then([client = m_client](const Client::TcpConnection &tcp) {
+                    tcp.events->detach();
+                    if (client)
+                        client->sendSocketStopForward(tcp.id);
+                });
+            }
+            if (conn->events)
+                conn->events->detach();
+            conn->events.reset();
+            if (conn->socket) {
+                conn->socket->disconnect();
+                conn->socket->abort();
+            }
+            release(conn);
+        }
+    }
+
+private:
+    void onNewConnection(QTcpSocket *socket)
+    {
+        socket->setParent(this);
+        auto conn = std::make_shared<Conn>();
+        conn->socket = socket;
+
+        // Called in the thread that reads the bridge, which has to hand over.
+        const auto wake = [self = QPointer<TcpPortForwardImpl>(this),
+                           weak = std::weak_ptr<Conn>(conn)] {
+            if (!self)
+                return;
+            QMetaObject::invokeMethod(
+                self.data(),
+                [self, weak] {
+                    if (const ConnPtr conn = weak.lock(); conn && self)
+                        self->onEvents(conn);
+                },
+                Qt::QueuedConnection);
+        };
+
+        Result<QFuture<Client::TcpConnection>> dial
+            = m_client ? m_client->dialTcp(m_deviceHostPort, wake)
+                       : Result<QFuture<Client::TcpConnection>>(
+                             ResultError(Tr::tr("The bridge is gone.")));
+        if (!dial) {
+            qCWarning(faLog) << "TcpPortForward: cannot dial" << m_deviceHostPort << ":"
+                             << dial.error();
+            socket->deleteLater();
+            return;
+        }
+        m_conns.append(conn);
+
+        connect(socket, &QTcpSocket::readyRead, this, [this, conn] {
+            const QByteArray bytes = conn->socket->readAll();
+            if (conn->established && m_client)
+                m_client->sendSocketData(conn->id, 0, bytes);
+            else
+                conn->pending += bytes;
+        });
+        connect(socket, &QTcpSocket::disconnected, this, [this, conn] {
+            conn->closedLocally = true;
+            if (conn->established)
+                release(conn);
+            // Otherwise the dial is still running and onDialFinished() ends it.
+        });
+
+        conn->dial = new QFutureWatcher<Client::TcpConnection>(this);
+        connect(conn->dial, &QFutureWatcherBase::finished, this, [this, conn] {
+            onDialFinished(conn);
+        });
+        conn->dial->setFuture(*dial);
+    }
+
+    void onDialFinished(const ConnPtr &conn)
+    {
+        const QFuture<Client::TcpConnection> future = conn->dial->future();
+        conn->dial->deleteLater();
+        conn->dial = nullptr;
+
+        std::optional<Client::TcpConnection> tcp;
+        try {
+            tcp = future.result();
+        } catch (const std::exception &e) {
+            qCWarning(faLog) << "TcpPortForward: connecting to" << m_deviceHostPort
+                             << "failed:" << e.what();
+        }
+        if (!tcp) {
+            drop(conn);
+            return;
+        }
+
+        conn->id = tcp->id;
+        conn->established = true;
+
+        conn->events = tcp->events;
+
+        // A tool that wrote and hung up before the dial finished still gets its
+        // bytes delivered.
+        if (!conn->pending.isEmpty() && m_client)
+            m_client->sendSocketData(conn->id, 0, std::exchange(conn->pending, {}));
+        if (conn->closedLocally)
+            release(conn);
+
+        // What arrived while the dial result was on its way.
+        onEvents(conn);
+    }
+
+    void onEvents(const ConnPtr &conn)
+    {
+        if (!conn->events)
+            return;
+        for (const Client::TcpEvents::Event &event : conn->events->take()) {
+            switch (event.kind) {
+            case Client::TcpEvents::Data:
+                if (conn->socket)
+                    conn->socket->write(event.bytes);
+                break;
+            case Client::TcpEvents::Closed:
+                // The application hung up: finish what it sent, then close.
+                if (conn->socket)
+                    conn->socket->disconnectFromHost();
+                break;
+            case Client::TcpEvents::Stopped:
+                // The bridge acknowledges the stop after everything it had
+                // queued, so nothing can arrive for the connection any more.
+                drop(conn);
+                return;
+            }
+        }
+    }
+
+    // Tells the bridge to drop the connection; it answers when it is done.
+    void release(const ConnPtr &conn)
+    {
+        if (!conn->established || conn->stopSent)
+            return;
+        conn->stopSent = true;
+        if (m_client)
+            m_client->sendSocketStopForward(conn->id);
+    }
+
+    void drop(const ConnPtr &conn)
+    {
+        m_conns.removeOne(conn);
+        if (conn->dial)
+            conn->dial->disconnect();
+        if (conn->events)
+            conn->events->detach();
+        conn->events.reset();
+        if (conn->socket) {
+            conn->socket->disconnect();
+            conn->socket->abort();
+            conn->socket->deleteLater();
+            conn->socket = nullptr;
+        }
+    }
+
+    QPointer<Client> m_client;
+    QString m_deviceHostPort;
+    QTcpServer *m_server = nullptr;
+    QList<ConnPtr> m_conns;
+};
+
+// The sockets belong to the main thread, so that is where they go.
+struct TcpPortForwardImplDeleter
+{
+    void operator()(TcpPortForwardImpl *impl) const
+    {
+        if (QThread::currentThread() == impl->thread())
+            delete impl;
+        else
+            QMetaObject::invokeMethod(impl, [impl] { delete impl; }, Qt::QueuedConnection);
+    }
+};
+using TcpPortForwardImplPtr = std::unique_ptr<TcpPortForwardImpl, TcpPortForwardImplDeleter>;
+
+class TcpPortForwardHandle : public TcpPortForward
+{
+public:
+    TcpPortForwardHandle(TcpPortForwardImplPtr impl, int port)
+        : m_impl(std::move(impl))
+        , m_port(port)
+    {}
+
+    int localPort() const override { return m_port; }
+
+private:
+    TcpPortForwardImplPtr m_impl;
+    int m_port;
+};
+
+Result<std::unique_ptr<TcpPortForward>> FileAccess::forwardTcpPort(
+    const QString &deviceHost, int devicePort, int localPort)
+{
+    if (!m_client)
+        return ResultError(Tr::tr("The bridge is not initialized."));
+    if (devicePort < 1 || devicePort > 65535)
+        return ResultError(Tr::tr("Invalid device port %1.").arg(devicePort));
+    if (localPort < 0 || localPort > 65535)
+        return ResultError(Tr::tr("Invalid local port %1.").arg(localPort));
+
+    // An IPv6 address needs brackets to be told apart from the port.
+    const QString host = deviceHost.contains(QLatin1Char(':')) ? QString("[%1]").arg(deviceHost)
+                                                                : deviceHost;
+    TcpPortForwardImplPtr impl(new TcpPortForwardImpl(
+        m_client.get(), QString("%1:%2").arg(host, QString::number(devicePort))));
+    const Result<int> port = impl->start(localPort);
+    if (!port)
+        return ResultError(port.error());
+
+    return std::make_unique<TcpPortForwardHandle>(std::move(impl), *port);
 }
 
 } // namespace CmdBridge
