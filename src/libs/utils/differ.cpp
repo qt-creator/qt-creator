@@ -1557,10 +1557,47 @@ static QList<Diff> cleanupLineBoundaries(const QList<Diff> &diffList)
     return result;
 }
 
+// Semantic cleanup turns every equality that is not longer than the edits around it into
+// an edit, which suits character diffs but not whole lines: an unchanged block of
+// lines between two large insertions would be shown as removed and added again. Equal
+// whole lines therefore stay as they are, and only the text between them is cleaned up.
+static QList<Diff> cleanupBetweenEqualLines(const QList<Diff> &diffList)
+{
+    QList<Diff> result;
+    QList<Diff> segment;
+    const auto flush = [&] {
+        result += Differ::cleanupSemantics(segment);
+        segment.clear();
+    };
+    bool oldAtLineStart = true;
+    bool newAtLineStart = true;
+    for (const Diff &diff : diffList) {
+        const bool atLineStart = oldAtLineStart && newAtLineStart;
+        if (diff.command != Diff::Insert && !diff.text.isEmpty())
+            oldAtLineStart = diff.text.endsWith('\n');
+        if (diff.command != Diff::Delete && !diff.text.isEmpty())
+            newAtLineStart = diff.text.endsWith('\n');
+
+        const int lastNewline = diff.text.lastIndexOf('\n');
+        const int start = atLineStart ? 0 : diff.text.indexOf('\n') + 1;
+        const int end = lastNewline + 1;
+        if (diff.command != Diff::Equal || lastNewline < 0 || start >= end) {
+            segment.append(diff);
+            continue;
+        }
+        segment.append(Diff(Diff::Equal, diff.text.left(start)));
+        flush();
+        result.append(Diff(Diff::Equal, diff.text.mid(start, end - start)));
+        segment.append(Diff(Diff::Equal, diff.text.mid(end)));
+    }
+    flush();
+    return Differ::merge(result);
+}
+
 QList<Diff> Differ::cleanupLineDiffSemantics(const QList<Diff> &diffList)
 {
     if (containsDeleteAndInsert(diffList))
-        return cleanupSemantics(diffList);
+        return cleanupBetweenEqualLines(diffList);
     return cleanupLineBoundaries(diffList);
 }
 

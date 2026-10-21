@@ -110,9 +110,9 @@ void tst_InlineDiff::patienceAvoidsSpuriousModification()
 
     // the added line: patience reports just that, while the Myers alignment
     // takes an unchanged "send();" line along as a modification of itself
-    QVERIFY(withPatience.contains("     flush();\n+    flush();\n"));
-    QVERIFY(!withPatience.contains("-    send();\n+    send();\n"));
-    QVERIFY(withoutPatience.contains("-    send();\n+    send();\n"));
+    QVERIFY(withPatience.contains("     send();\n     send();\n+    flush();\n     flush();\n"));
+    QVERIFY(withoutPatience.contains("     prepare();\n+    send();\n     send();\n"
+                                     "-    send();\n+    flush();\n     flush();\n"));
 }
 
 void tst_InlineDiff::patienceAnchorsUniqueLines()
