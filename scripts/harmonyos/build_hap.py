@@ -29,6 +29,7 @@ import argparse
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -203,6 +204,30 @@ def add_native_package(hap: Path, build: Path, toolchain: Path | None, hnpcli: P
             print("   {} added to {}".format(package.name, hap.name))
 
 
+def without_daemon(hvigor: Path, directory: Path) -> Path:
+    """An hvigorw for harmonydeployqt, which has no option to run hvigor without its daemon.
+    A daemon outlives the project it was started in, which a rerun replaces, and is not
+    always reachable when the build connects to it."""
+    directory.mkdir(parents=True, exist_ok=True)
+    wrapper = directory / "hvigorw"
+    wrapper.write_text("#!/bin/sh\nexec {} \"$@\" --no-daemon\n".format(shlex.quote(str(hvigor))))
+    wrapper.chmod(0o755)
+    return wrapper
+
+
+def sign(hap: Path, output: Path, toolchains: Path, args: argparse.Namespace,
+         environment: dict) -> None:
+    password = args.keystore_password_file.read_text().strip()
+    command = ["java", "-jar", toolchains / "lib/hap-sign-tool.jar", "sign-app",
+               "-mode", "localSign", "-signAlg", "SHA256withECDSA", "-signCode", "1",
+               "-keyAlias", args.key_alias, "-keyPwd", password, "-keystorePwd", password,
+               "-keystoreFile", args.keystore, "-appCertFile", args.certificate,
+               "-profileFile", args.profile, "-inFile", hap, "-outFile", output]
+    shown = [part if part != password else "<from {}>".format(args.keystore_password_file.name)
+             for part in command]
+    run(command, env=environment, shown=shown)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -269,7 +294,8 @@ def main() -> int:
     # harmonydeployqt also runs hvigor. That package is thrown away, the project still
     # has to be adjusted.
     run(["cmake", "--build", args.build, "--target", "qtcreator_make_hap"],
-        env=dict(environment, QT_HARMONYOS_HVIGOR=str(hvigor)),
+        env=dict(environment,
+                 QT_HARMONYOS_HVIGOR=str(without_daemon(hvigor, args.build / "hvigor"))),
         log=args.build / "make-hap.log")
 
     resources = project / "entry/src/main/resources/resfile/qtcreator"
@@ -316,15 +342,7 @@ def main() -> int:
         return 0
 
     output = args.output or args.build / "src/app/qtcreator.hap"
-    password = args.keystore_password_file.read_text().strip()
-    command = ["java", "-jar", toolchains / "lib/hap-sign-tool.jar", "sign-app",
-               "-mode", "localSign", "-signAlg", "SHA256withECDSA", "-signCode", "1",
-               "-keyAlias", args.key_alias, "-keyPwd", password, "-keystorePwd", password,
-               "-keystoreFile", args.keystore, "-appCertFile", args.certificate,
-               "-profileFile", args.profile, "-inFile", hap, "-outFile", output]
-    shown = [part if part != password else "<from {}>".format(args.keystore_password_file.name)
-             for part in command]
-    run(command, env=environment, shown=shown)
+    sign(hap, output, toolchains, args, environment)
     print("\nPackaged and signed Qt Creator as {}".format(output))
     return 0
 

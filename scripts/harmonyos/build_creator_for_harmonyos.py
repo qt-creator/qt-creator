@@ -14,7 +14,8 @@ host tools only and is built locally. The inputs are mounted read-only:
 - optionally the device-hosted native SDK ("native-ohos-x64"), for the
   toolchain that lets the device build,
 - optionally the signing profile, certificate and keystore, and a file with
-  the passphrase of the keystore,
+  the passphrase of the keystore, and the profile and certificate for the
+  runner, whose bundle name is a different one,
 - this checkout, as the Qt Creator sources and the scripts.
 
 The stages, each a script beside this one, and what they leave in --path:
@@ -24,12 +25,15 @@ The stages, each a script beside this one, and what they leave in --path:
     creator     build_creator.py            creator
     toolchain   build_device_toolchain.py   toolchain
     hap         build_hap.py                qtcreator.hap, or qtcreator-unsigned.hap
+    runner      build_runner_hap.py         qtcrunner.hap, or qtcrunner-unsigned.hap
 
 All other sources are pinned downloads. A later run reuses what the earlier
 one left in --path, so after the first run a stage costs little unless its
 inputs changed.
 
-The package is installed with "hdc install -r <path>/qtcreator.hap".
+The packages are installed with "hdc install -r <path>/qtcreator.hap" and
+"hdc install -r <path>/qtcrunner.hap". Qt Creator on the device runs what it
+builds through the runner.
 """
 
 from __future__ import annotations
@@ -44,7 +48,7 @@ from pathlib import Path
 IMAGE = "qtc-harmonyos"
 HERE = Path(__file__).resolve().parent
 SOURCE = HERE.parents[1]
-STAGES = ["packages", "tools", "creator", "toolchain", "hap"]
+STAGES = ["packages", "tools", "creator", "toolchain", "hap", "runner"]
 
 
 def absolute(path: str) -> Path:
@@ -84,6 +88,12 @@ def main() -> int:
     parser.add_argument("--keystore-password-file", type=absolute,
                         help="file holding the passphrase of the keystore and the key")
     parser.add_argument("--bundle", help="bundle name, the one the signing profile is for")
+    parser.add_argument("--runner-profile", type=absolute,
+                        help="signing profile for the runner, .p7b")
+    parser.add_argument("--runner-certificate", type=absolute,
+                        help="signing certificate for the runner, .cer")
+    parser.add_argument("--runner-bundle",
+                        help="bundle name of the runner, the one its profile is for")
     parser.add_argument("--mcp-port", type=int,
                         help="start the MCP server on this port. For development packages")
     parser.add_argument("--mcp-token-file", type=absolute,
@@ -117,6 +127,9 @@ def main() -> int:
         "hap": ["/scripts/build_hap.py", "--build", "/out/creator", "--qt", qt,
                 "--sdk", "/sdk", "--packages", "/out/packages/arm64-ohos",
                 "--source", "/source"],
+        "runner": ["/scripts/build_runner_hap.py", "--qt", qt, "--sdk", "/sdk",
+                   "--packages", "/out/packages/arm64-ohos", "--source", "/source",
+                   "--path", "/out/runner"],
     }
 
     if args.device_sdk:
@@ -137,14 +150,29 @@ def main() -> int:
             inside = "/inputs/{}/{}".format(option.lstrip("-"), value.name)
             mounts[inside] = value
             commands["hap"] += [option, inside]
+            # The runner is signed with the same key, under a profile of its own.
+            if args.runner_profile and option.startswith("--keystore"):
+                commands["runner"] += [option, inside]
+    for option, value in [("--profile", args.runner_profile),
+                          ("--certificate", args.runner_certificate)]:
+        if value:
+            inside = "/inputs/runner-{}/{}".format(option.lstrip("-"), value.name)
+            mounts[inside] = value
+            commands["runner"] += [option, inside]
     if args.key_alias:
         commands["hap"] += ["--key-alias", args.key_alias]
+        if args.runner_profile:
+            commands["runner"] += ["--key-alias", args.key_alias]
+    if args.runner_bundle:
+        commands["runner"] += ["--bundle", args.runner_bundle]
     if args.bundle:
         commands["hap"] += ["--bundle", args.bundle]
     if args.mcp_port:
         commands["hap"] += ["--mcp-port", str(args.mcp_port)]
     commands["hap"] += ["--output", "/out/qtcreator.hap" if args.keystore
                         else "/out/qtcreator-unsigned.hap"]
+    commands["runner"] += ["--output", "/out/qtcrunner.hap" if args.runner_profile
+                           else "/out/qtcrunner-unsigned.hap"]
 
     run([args.docker, "build", "-t", IMAGE, HERE / "docker"])
 
