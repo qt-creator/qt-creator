@@ -22,6 +22,7 @@
 #include <QtTaskTree/QTaskTree>
 
 #include <QLoggingCategory>
+#include <QTcpSocket>
 #include <QTest>
 
 using namespace ProjectExplorer;
@@ -203,6 +204,39 @@ private slots:
         }
         m_device.reset();
         QLoggingCategory::setFilterRules("");
+    }
+
+    // Runs first: the other tests replace the device's free ports.
+    // Verifies that the ports offered for QML debugging are reachable from the
+    // host through "localhost", which is how the tools connect to them.
+    void testFreePortIsReachableFromHost()
+    {
+        PortList ports = m_device->freePorts();
+        QVERIFY(ports.count() > 0);
+        const quint16 port = ports.getNextFreePort({}).number();
+
+        Process server;
+        server.setCommand(CommandLine{
+            m_device->filePath("/bin/sh"),
+            {"-c", QString("while true; do echo reachable | nc -l -p %1; done").arg(port)}});
+        server.start();
+
+        // The connection is refused until the container side listens. QTRY_* evaluates
+        // its condition once more after it first holds, so remember the answer.
+        QByteArray received;
+        const auto probe = [&received, port] {
+            QTcpSocket socket;
+            socket.connectToHost("localhost", port);
+            if (socket.waitForConnected(1000) && socket.waitForReadyRead(3000))
+                received = socket.readAll();
+            return !received.isEmpty();
+        };
+        QTRY_VERIFY2_WITH_TIMEOUT(
+            !received.isEmpty() || probe(),
+            qPrintable(QString("server running: %1, port %2").arg(server.isRunning()).arg(port)),
+            30000);
+        QCOMPARE(received.trimmed(), QByteArray("reachable"));
+        server.close();
     }
 
     // Verifies that portsGatheringRecipe() succeeds inside a Docker container.
