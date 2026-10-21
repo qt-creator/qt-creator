@@ -211,6 +211,46 @@ void FlameGraphModelTest::testNotes()
              QString());
 }
 
+static QStringList softAsserts;
+
+static void collectSoftAsserts(QtMsgType, const QMessageLogContext &, const QString &message)
+{
+    if (message.startsWith("SOFT ASSERT"))
+        softAsserts.append(message);
+}
+
+// A trace written by the qmlprofiler tool has events of range types that are not ranges: the
+// ranges it recorded without a duration. They are left out of the flame graph.
+void FlameGraphModelTest::testEventWithoutRangeStage()
+{
+    QmlProfilerModelManager manager;
+    FlameGraphModel model(&manager);
+    manager.initialize();
+    const int type = manager.appendEventType(
+        QmlEventType(UndefinedMessage, Javascript, -1, QmlEventLocation("main.qml", 1, 1), "f"));
+    QmlEvent start(10, type, {});
+    start.setRangeStage(RangeStart);
+    manager.appendEvent(QmlEvent(start));
+    QmlEvent notARange(15, type, {});
+    QCOMPARE(notARange.rangeStage(), Event);
+    softAsserts.clear();
+    const QtMessageHandler previous = qInstallMessageHandler(collectSoftAsserts);
+    manager.appendEvent(std::move(notARange));
+    qInstallMessageHandler(previous);
+    QmlEvent end(start);
+    end.setRangeStage(RangeEnd);
+    end.setTimestamp(20);
+    manager.appendEvent(std::move(end));
+    manager.finalize();
+
+    QCOMPARE(softAsserts, QStringList());
+    QCOMPARE(model.rowCount(), 1);
+    const QModelIndex function = model.index(0, 0);
+    QCOMPARE(model.data(function, FlameGraphModel::CallCountRole).toInt(), 1);
+    QCOMPARE(model.data(function, FlameGraphModel::DurationRole).toLongLong(), 10);
+    QCOMPARE(model.rowCount(function), 0);
+}
+
 void FlameGraphModelTest::cleanupTestCase()
 {
     manager.clearAll();

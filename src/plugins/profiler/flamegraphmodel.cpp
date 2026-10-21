@@ -126,11 +126,12 @@ void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
         stackTop->duration += event.timestamp() - stack.top().timestamp();
         stack.pop();
         stackTop = stackTop->parent;
-    } else {
-        QTC_ASSERT(event.rangeStage() == RangeStart, return);
+    } else if (event.rangeStage() == RangeStart) {
         stack.push(event);
         stackTop = pushChild(stackTop, event);
     }
+    // Other events of a range type are not ranges. The qmlprofiler tool writes ranges without
+    // a duration that way, and they cannot be placed in the call tree.
     QTC_CHECK(stackTop);
 }
 
