@@ -29,7 +29,12 @@ private slots:
     void testBlockingCallReported();
     void testFrameJankAttributedToHandler();
     void testMemoryChurnAttributedToCaller();
-    void testRepeatedCreationReported();
+    void testRepeatedCreationByView();
+    void testRepeatedCreationByRepeaterOfFileDelegate();
+    void testRepeatedCreationFromScript();
+    void testRepeatedCreationWithoutContext();
+    void testSyncViewLoadNamesWhatItBuilds();
+    void testDetailsAreChildRows();
     void testBindingChurnReported();
     void testPixmapReloadReported();
     void testLocationWithoutLine();
@@ -59,6 +64,37 @@ private:
     int memoryTypeId = -1;
     int reloadStartTypeId = -1;
     int reloadFinishTypeId = -1;
+
+    int viewTypeId = -1;
+    int viewComponentTypeId = -1;
+    int viewDelegateTypeId = -1;
+    int viewTextTypeId = -1;
+    int viewTextBindingTypeId = -1;
+    int viewTextJsTypeId = -1;
+    int viewVisibleBindingTypeId = -1;
+    int viewVisibleJsTypeId = -1;
+    int outsideBindingTypeId = -1;
+
+    int repeaterTypeId = -1;
+    int repeaterComponentTypeId = -1;
+    int wrapperTypeId = -1;
+    int fileRootTypeId = -1;
+    int fileBindingTypeId = -1;
+
+    int gameHandlerTypeId = -1;
+    int gameHandlerJsTypeId = -1;
+    int createBlockTypeId = -1;
+    int blockTypeId = -1;
+    int blockImageTypeId = -1;
+    int blockStateTypeId = -1;
+    int blockAnimationTypeId = -1;
+    int blockChangesTypeId = -1;
+    int blockSourceBindingTypeId = -1;
+    int blockSourceJsTypeId = -1;
+    int blockCompletedTypeId = -1;
+    int blockCompletedJsTypeId = -1;
+    int blockAfterBindingTypeId = -1;
+    int blockAfterJsTypeId = -1;
 };
 
 } // namespace Profiler::Internal

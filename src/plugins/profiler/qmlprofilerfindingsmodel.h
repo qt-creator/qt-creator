@@ -5,13 +5,15 @@
 
 #include "qmlprofilerfindings.h"
 
-#include <QAbstractTableModel>
+#include <QAbstractItemModel>
+
+#include <array>
 
 namespace Profiler::Internal {
 
 class QmlProfilerModelManager;
 
-class QmlProfilerFindingsModel final : public QAbstractTableModel
+class QmlProfilerFindingsModel final : public QAbstractItemModel
 {
     Q_OBJECT
 
@@ -40,6 +42,9 @@ public:
                                       FindingRules rules = defaultFindingRules());
     ~QmlProfilerFindingsModel() override;
 
+    QModelIndex index(int row, int column,
+                      const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -56,6 +61,7 @@ private:
 
     QmlProfilerModelManager *m_modelManager = nullptr;
     FindingRules m_rules;
+    std::array<QList<FindingRule *>, QmlDebug::MaximumProfileFeature> m_rulesByFeature;
     QList<Finding> m_findings;
 };
 

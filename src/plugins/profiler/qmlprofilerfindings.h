@@ -17,6 +17,18 @@ namespace Profiler::Internal {
 
 class QmlProfilerModelManager;
 
+// A place in the source a finding points at besides its own location, such as the part of
+// a component that costs most to build.
+class FindingDetail
+{
+public:
+    QString text;
+    QmlDebug::QmlEventLocation location;
+    int typeIndex = -1;
+    qint64 costNs = 0;
+    int occurrences = 0;
+};
+
 // A single actionable observation about the profiled application, derived from the trace
 // by a FindingRule. Kept plain and copyable so it can be serialized without the model.
 class Finding
@@ -37,6 +49,7 @@ public:
     QString suggestion;
     qint64 costNs = 0;
     int occurrences = 0;
+    QList<FindingDetail> details;
 };
 
 // Rules see every event of the features they ask for, in trace order, and turn what they

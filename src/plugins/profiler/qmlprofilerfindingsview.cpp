@@ -132,7 +132,9 @@ QmlProfilerFindingsMainView::QmlProfilerFindingsMainView(QmlProfilerFindingsMode
 
     setSortingEnabled(true);
     sortByColumn(QmlProfilerFindingsModel::ColumnSeverity, Qt::DescendingOrder);
-    setRootIsDecorated(false);
+    // The details of a finding, like the parts of a component that cost most to build, are
+    // its children, each with a location of its own to jump to.
+    setRootIsDecorated(true);
 
     resizeColumnToContents(QmlProfilerFindingsModel::ColumnSeverity);
     resizeColumnToContents(QmlProfilerFindingsModel::ColumnFinding);

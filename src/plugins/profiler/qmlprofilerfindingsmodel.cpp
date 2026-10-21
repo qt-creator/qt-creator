@@ -13,8 +13,11 @@
 #include <QHash>
 #include <QSet>
 #include <QStack>
+#include <QStringList>
 
+#include <algorithm>
 #include <cmath>
+#include <functional>
 #include <optional>
 
 using namespace QmlDebug;
@@ -228,54 +231,632 @@ private:
     QHash<int, int> m_errors;
 };
 
-// Reports handlers that build items while the caller waits. Assigning a Loader's source,
-// or instantiating a view from a signal handler, runs the whole creation before the
-// handler returns, and nothing can repaint until it does.
-class SyncViewLoadRule final : public FindingRule
+// Follows the engine building component instances. The trace has no event for "an instance
+// was created", only Creating ranges, one per object, and they come in two phases: the
+// object is created, nested inside its parent, and once the whole tree exists and its
+// bindings have run, every object that implements QQmlParserStatus is completed, children
+// before parents, in a range of the same type. So an Item shows up twice, a QtObject once,
+// and the composite type wrapping another file's root not at all on completion. Telling the
+// two apart is what makes instance counts right.
+//
+// An instance is a Creating range that is not nested in another object's creation, and
+// not an object of an earlier instance that is only created when first needed. What runs
+// directly next to it until its root is completed - its bindings, completions and
+// Component.onCompleted handlers - is part of building it.
+class InstanceTracker
 {
 public:
-    explicit SyncViewLoadRule(qint64 thresholdNs) : m_thresholdNs(thresholdNs) {}
-
-    quint64 features() const override
+    // What made the engine build an instance.
+    struct Context
     {
-        return (1ULL << ProfileCreating) | (1ULL << ProfileHandlingSignal)
-               | (1ULL << ProfileJavaScript);
+        enum Kind {
+            Unknown, // No QML or JavaScript was running: C++ built it.
+            Owner,   // An object built it while completing, or owns the component it is from.
+            Script   // JavaScript created it.
+        };
+
+        Kind kind = Unknown;
+        int typeIndex = -1; // The owning object's Creating type, or the script's type.
+
+        friend bool operator==(const Context &a, const Context &b)
+        {
+            return a.kind == b.kind && a.typeIndex == b.typeIndex;
+        }
+        friend size_t qHash(const Context &context, size_t seed = 0)
+        {
+            return qHashMulti(seed, int(context.kind), context.typeIndex);
+        }
+    };
+
+    // Where the time to build an instance goes, by event type: an object's own time without
+    // what nests inside it, the full time of a binding or handler, and instances of other
+    // components that were built inside this one.
+    struct Part
+    {
+        qint64 costNs = 0;
+        int count = 0;
+        bool nestedInstance = false;
+        bool createdLater = false;
+    };
+
+    struct Instance
+    {
+        int rootType = -1;
+        qint64 costNs = 0;
+        Context context;
+        // The outermost handler or function that was running when the instance was built,
+        // and which call of it, if the instance was built by JavaScript.
+        int callType = -1;
+        int callId = -1;
+        // An object of another component created when that one first needed it, like the
+        // animation of a Behavior or the changes of a State: the root of that component.
+        int partOf = -1;
+        QHash<int, Part> parts;
+
+        QList<int> pendingCompletions;
+        QHash<QString, int> firstLines; // Where the instance's objects begin, per file.
+        bool completed = false;
+    };
+
+    using InstanceHandler = std::function<void(const Instance &)>;
+
+    explicit InstanceTracker(const InstanceHandler &handler) : m_handler(handler) {}
+
+    static quint64 features()
+    {
+        return (1ULL << ProfileCreating) | (1ULL << ProfileBinding)
+               | (1ULL << ProfileHandlingSignal) | (1ULL << ProfileJavaScript);
     }
 
-    void loadEvent(const QmlEvent &event, const QmlEventType &type) override
+    void loadEvent(const QmlEvent &event, const QmlEventType &type)
     {
         const RangeType rangeType = type.rangeType();
-        if (rangeType != Creating && rangeType != HandlingSignal && rangeType != Javascript)
+        if (rangeType != Creating && rangeType != Binding && rangeType != HandlingSignal
+            && rangeType != Javascript) {
             return;
+        }
 
-        const int typeIndex = event.typeIndex();
         switch (event.rangeStage()) {
         case RangeStart:
-            m_stack.push(typeIndex, rangeType, event.timestamp());
+            start(event, type);
             break;
-        case RangeEnd: {
-            const std::optional<RangeStack::Frame> frame = m_stack.pop(typeIndex);
-            if (!frame || frame->rangeType != Creating || m_stack.isEmpty())
-                break;
-
-            // Attribute the creation to the handler that waited for it: that is where the
-            // load has to be made asynchronous.
-            const RangeStack::Frame &parent = m_stack.top();
-            if (parent.rangeType != HandlingSignal && parent.rangeType != Javascript)
-                break;
-
-            Data &data = m_data[parent.typeIndex];
-            data.totalNs += event.timestamp() - frame->startTime;
-            ++data.count;
+        case RangeEnd:
+            end(event);
             break;
-        }
         default:
             break;
         }
     }
 
+    // The name a binding or signal handler gives in the trace: the property or the signal.
+    // The engine reports it on the JavaScript range nested in it, as "expression for x".
+    QString name(int typeIndex) const { return m_names.value(typeIndex); }
+
+    void finish()
+    {
+        while (!m_frames.isEmpty()) {
+            Frame frame = m_frames.pop();
+            finishInstance(frame);
+        }
+        finishInstance(m_root);
+    }
+
+    void clear()
+    {
+        m_frames.clear();
+        m_root = {};
+        m_instances.clear();
+        m_componentOwners.clear();
+        m_componentLines.clear();
+        m_fileRoots.clear();
+        m_owners.clear();
+        m_names.clear();
+        m_nextInstance = 0;
+        m_nextCall = 0;
+    }
+
+private:
+    struct Frame
+    {
+        enum Kind { Creation, Completion, Work, Other };
+
+        int typeIndex = -1;
+        RangeType rangeType = UndefinedRangeType;
+        Kind kind = Other;
+        qint64 startTime = 0;
+        qint64 childrenNs = 0;
+        int instance = -1;     // The instance this frame's time belongs to.
+        int openInstance = -1; // The instance being built directly inside this frame.
+        int call = -1;
+        bool hasChild = false;
+        bool maybeCompleted = false; // A handler that may be the instance's onCompleted.
+        QString filename;
+        int line = 0;
+    };
+
+    Frame &top() { return m_frames.isEmpty() ? m_root : m_frames.top(); }
+
+    void start(const QmlEvent &event, const QmlEventType &type)
+    {
+        Frame &parent = top();
+        Frame frame;
+        frame.typeIndex = event.typeIndex();
+        frame.rangeType = type.rangeType();
+        frame.startTime = event.timestamp();
+        const QmlEventLocation location = type.location();
+        frame.filename = location.filename();
+        frame.line = location.line();
+        frame.call = m_nextCall++;
+
+        if (frame.rangeType == Creating)
+            startCreating(parent, frame, type);
+        else
+            startWork(parent, frame, type);
+
+        m_frames.push(frame);
+    }
+
+    void startCreating(Frame &parent, Frame &frame, const QmlEventType &type)
+    {
+        // A component written inline, like a delegate, is created as a value of the
+        // object whose property it is. Instances of it are that object's.
+        const bool isComponent = type.data() == QLatin1String("<component>");
+
+        if (parent.kind == Frame::Creation) {
+            frame.instance = parent.instance;
+            if (isComponent) {
+                m_componentOwners.insert(type.location(), parent.typeIndex);
+                m_componentLines[frame.filename].append(frame.line);
+                return;
+            }
+
+            auto it = m_instances.find(parent.instance);
+            if (it == m_instances.end())
+                return;
+            Instance &instance = *it;
+            // A composite type is created by creating the root of its file inside it, and
+            // completing that root is all the completing it gets.
+            if (!parent.hasChild && parent.filename != frame.filename
+                && !instance.pendingCompletions.isEmpty()
+                && instance.pendingCompletions.last() == parent.typeIndex) {
+                instance.pendingCompletions.removeLast();
+            }
+            parent.hasChild = true;
+            frame.kind = Frame::Creation;
+            addObject(instance, frame);
+            return;
+        }
+
+        if (auto it = m_instances.find(parent.openInstance); it != m_instances.end()) {
+            Instance &instance = *it;
+            const int pending = instance.pendingCompletions.lastIndexOf(frame.typeIndex);
+            if (pending >= 0) {
+                // Completions run in the reverse order of creation. Objects created after
+                // this one that have not been completed yet never will be.
+                instance.pendingCompletions.resize(pending);
+                frame.kind = Frame::Completion;
+                frame.instance = parent.openInstance;
+                return;
+            }
+        }
+
+        if (isComponent) {
+            frame.instance = parent.instance;
+            return;
+        }
+
+        // Some objects are created only when they are first needed, after the rest of their
+        // component: a Behavior's animation while the instance is finalized, a State's
+        // changes when it first applies.
+        const int laterPartOf = parent.openInstance >= 0 ? parent.openInstance : parent.instance;
+        if (auto it = m_instances.find(laterPartOf);
+            it != m_instances.end() && it->rootType != frame.typeIndex
+            && isLaterPart(it->firstLines, frame)) {
+            frame.kind = Frame::Creation;
+            frame.instance = laterPartOf;
+            addObject(*it, frame);
+            return;
+        }
+
+        finishInstance(parent);
+
+        const int id = m_nextInstance++;
+        Instance &instance = m_instances[id];
+        instance.rootType = frame.typeIndex;
+        instance.context = context(parent, type);
+        const std::optional<std::pair<int, int>> call = outermostCall();
+        if (call) {
+            instance.callType = call->first;
+            instance.callId = call->second;
+        }
+        if (parent.kind != Frame::Completion) {
+            const auto root = m_fileRoots.constFind(frame.filename);
+            if (root != m_fileRoots.constEnd()
+                && isLaterPart({{frame.filename, root->first}}, frame)) {
+                instance.partOf = root->second;
+            }
+        }
+        parent.openInstance = id;
+        frame.kind = Frame::Creation;
+        frame.instance = id;
+        addObject(instance, frame);
+    }
+
+    // Whether an object lies inside a component, given where the component's objects begin,
+    // and is not the root of an inline component of its own.
+    bool isLaterPart(const QHash<QString, int> &firstLines, const Frame &frame) const
+    {
+        const auto first = firstLines.constFind(frame.filename);
+        if (first == firstLines.constEnd() || frame.line <= *first)
+            return false;
+        const QList<int> components = m_componentLines.value(frame.filename);
+        return std::none_of(components.begin(), components.end(), [&](int line) {
+            return line > *first && line <= frame.line;
+        });
+    }
+
+    void startWork(Frame &parent, Frame &frame, const QmlEventType &type)
+    {
+        frame.kind = Frame::Work;
+        frame.instance = parent.instance;
+        if (parent.openInstance >= 0) {
+            // While an instance is finalized, the engine runs its bindings, completes its
+            // objects and then calls its Component.onCompleted handlers, each in a range of
+            // its own next to the instance's. A function called there, or a binding once the
+            // instance is complete, is the caller going on. A handler is onCompleted only if
+            // the JavaScript range nested in it says so.
+            const auto open = m_instances.constFind(parent.openInstance);
+            const bool completed = open == m_instances.constEnd() || open->completed;
+            if (frame.rangeType == Javascript || (frame.rangeType == Binding && completed)) {
+                finishInstance(parent);
+            } else {
+                frame.instance = parent.openInstance;
+                frame.maybeCompleted = frame.rangeType == HandlingSignal;
+            }
+        }
+
+        static const QLatin1String expressionFor("expression for ");
+        if (frame.rangeType != Javascript || parent.kind != Frame::Work
+            || parent.rangeType == Javascript) {
+            return;
+        }
+
+        // This runs for most events of a trace, so the name is only copied once per type.
+        const QString data = type.data();
+        const QStringView name = data.startsWith(expressionFor)
+                                     ? QStringView(data).sliced(expressionFor.size())
+                                     : QStringView();
+        if (!name.isEmpty() && !m_names.contains(parent.typeIndex))
+            m_names.insert(parent.typeIndex, name.toString());
+
+        if (parent.maybeCompleted) {
+            parent.maybeCompleted = false;
+            if (name != QLatin1String("onCompleted")) {
+                Frame &grandParent = m_frames.size() > 1 ? m_frames[m_frames.size() - 2]
+                                                         : m_root;
+                parent.instance = grandParent.instance;
+                frame.instance = parent.instance;
+                finishInstance(grandParent);
+            }
+        }
+    }
+
+    void end(const QmlEvent &event)
+    {
+        std::optional<Frame> found;
+        while (!m_frames.isEmpty()) {
+            Frame frame = m_frames.pop();
+            finishInstance(frame);
+            if (frame.typeIndex == event.typeIndex()) {
+                found = frame;
+                break;
+            }
+        }
+        // A range that started before the trace did: what was left above it is dropped,
+        // the way RangeStack does.
+        if (!found)
+            return;
+
+        const Frame &frame = *found;
+        const qint64 durationNs = event.timestamp() - frame.startTime;
+        Frame &parent = top();
+        parent.childrenNs += durationNs;
+
+        auto it = m_instances.find(frame.instance);
+        if (it == m_instances.end())
+            return;
+        Instance &instance = *it;
+
+        switch (frame.kind) {
+        case Frame::Creation:
+        case Frame::Completion: {
+            Part &part = instance.parts[frame.typeIndex];
+            part.costNs += durationNs - frame.childrenNs;
+            if (frame.kind == Frame::Creation)
+                ++part.count;
+            else if (instance.pendingCompletions.isEmpty())
+                instance.completed = true;
+            break;
+        }
+        case Frame::Work:
+            // Only the outermost binding or handler is named. What nests in it is part of
+            // its cost.
+            if ((parent.kind != Frame::Work || parent.instance != frame.instance)
+                && belongsTo(instance, frame)) {
+                Part &part = instance.parts[frame.typeIndex];
+                part.costNs += durationNs;
+                ++part.count;
+            }
+            break;
+        case Frame::Other:
+            break;
+        }
+
+        if (parent.openInstance == frame.instance)
+            instance.costNs += durationNs;
+    }
+
+    // While an instance is built, the engine may evaluate bindings elsewhere that react to
+    // it. Those are not the instance's to make cheaper.
+    static bool belongsTo(const Instance &instance, const Frame &frame)
+    {
+        const auto it = instance.firstLines.constFind(frame.filename);
+        return it != instance.firstLines.constEnd() && frame.line >= *it;
+    }
+
+    static void addObject(Instance &instance, const Frame &frame)
+    {
+        instance.pendingCompletions.append(frame.typeIndex);
+        auto it = instance.firstLines.find(frame.filename);
+        if (it == instance.firstLines.end())
+            instance.firstLines.insert(frame.filename, frame.line);
+        else if (frame.line < *it)
+            *it = frame.line;
+    }
+
+    Context context(const Frame &parent, const QmlEventType &type)
+    {
+        // An object that builds instances while it is completed is a view or a Loader
+        // filling itself. Remember it: later instances of the same component are built
+        // when nothing in the trace says who asked for them, like a view scrolling.
+        if (parent.kind == Frame::Completion) {
+            m_owners.insert(type.location(), parent.typeIndex);
+            return {Context::Owner, parent.typeIndex};
+        }
+
+        int owner = m_componentOwners.value(type.location(), -1);
+        if (owner < 0)
+            owner = m_owners.value(type.location(), -1);
+        if (owner >= 0)
+            return {Context::Owner, owner};
+
+        int script = -1;
+        for (int i = m_frames.size() - 1; i >= 0; --i) {
+            const Frame &frame = m_frames.at(i);
+            if (frame.kind != Frame::Work)
+                continue;
+            if (frame.rangeType == Javascript)
+                return {Context::Script, frame.typeIndex};
+            if (script < 0)
+                script = frame.typeIndex;
+        }
+        if (script >= 0)
+            return {Context::Script, script};
+        return {};
+    }
+
+    // The handler or function that the user waits for while the instance is built: the
+    // outermost one of the calls directly above it. Calls made while building another
+    // instance are that instance's.
+    std::optional<std::pair<int, int>> outermostCall() const
+    {
+        std::optional<std::pair<int, int>> call;
+        for (int i = m_frames.size() - 1; i >= 0; --i) {
+            const Frame &frame = m_frames.at(i);
+            if (frame.kind != Frame::Work || frame.instance >= 0)
+                break;
+            if (frame.rangeType != Binding)
+                call = std::make_pair(frame.typeIndex, frame.call);
+        }
+        return call;
+    }
+
+    void finishInstance(Frame &frame)
+    {
+        if (frame.openInstance < 0)
+            return;
+
+        const Instance instance = m_instances.take(frame.openInstance);
+        frame.openInstance = -1;
+        m_handler(instance);
+
+        if (instance.partOf < 0) {
+            for (auto it = instance.firstLines.constBegin(), end = instance.firstLines.constEnd();
+                 it != end; ++it) {
+                const auto root = m_fileRoots.constFind(it.key());
+                if (root == m_fileRoots.constEnd() || it.value() < root->first)
+                    m_fileRoots.insert(it.key(), {it.value(), instance.rootType});
+            }
+        }
+
+        // An instance built while another one was, like the delegates of a view inside a
+        // delegate, is part of what building the outer one costs.
+        auto outer = m_instances.find(frame.instance);
+        if (outer != m_instances.end()) {
+            Part &part = outer->parts[instance.rootType];
+            part.costNs += instance.costNs;
+            ++part.count;
+            part.nestedInstance = true;
+        }
+    }
+
+    const InstanceHandler m_handler;
+    QStack<Frame> m_frames;
+    Frame m_root;
+    QHash<int, Instance> m_instances;
+    QHash<QmlEventLocation, int> m_componentOwners;
+    QHash<QString, QList<int>> m_componentLines;
+    // Where the first object of a file was seen, and the root of the instance it was in.
+    QHash<QString, std::pair<int, int>> m_fileRoots;
+    QHash<QmlEventLocation, int> m_owners;
+    QHash<int, QString> m_names;
+    int m_nextInstance = 0;
+    int m_nextCall = 0;
+};
+
+// The type a Creating range reports carries the module, like "QtQuick/ListView".
+static QString objectTypeName(const QmlEventType &type)
+{
+    const QString data = type.data();
+    const QString name = data.mid(data.lastIndexOf(QLatin1Char('/')) + 1);
+    return name.isEmpty() ? Tr::tr("object") : name;
+}
+
+static bool isHandlerName(const QString &name)
+{
+    return name.size() > 2 && name.startsWith(QLatin1String("on")) && name.at(2).isUpper();
+}
+
+// How a binding, a signal handler or a function is called in a sentence.
+static QString scriptName(const QmlEventType &type, const QString &name)
+{
+    static const QLatin1String expressionFor("expression for ");
+    QString data = type.data();
+    if (data.startsWith(expressionFor))
+        data = data.mid(expressionFor.size());
+
+    switch (type.rangeType()) {
+    case Binding:
+        return name.isEmpty() ? Tr::tr("binding") : Tr::tr("%1 binding").arg(name);
+    case HandlingSignal:
+        return name.isEmpty() ? Tr::tr("signal handler") : Tr::tr("%1 handler").arg(name);
+    case Javascript:
+        if (type.data().startsWith(expressionFor)) {
+            return isHandlerName(data) ? Tr::tr("%1 handler").arg(data)
+                                       : Tr::tr("%1 binding").arg(data);
+        }
+        return data.isEmpty() ? Tr::tr("anonymous function") : data + QLatin1String("()");
+    default:
+        return objectTypeName(type);
+    }
+}
+
+// The views that keep a pool of delegates when reuseItems is set. TableView and TreeView
+// do so by default.
+static bool isReusingView(const QString &typeName)
+{
+    return typeName == QLatin1String("ListView") || typeName == QLatin1String("GridView");
+}
+
+static bool reusesByDefault(const QString &typeName)
+{
+    return typeName == QLatin1String("TableView") || typeName == QLatin1String("TreeView")
+           || typeName == QLatin1String("HorizontalHeaderView")
+           || typeName == QLatin1String("VerticalHeaderView");
+}
+
+// The types that build one instance per model entry, all of them at once.
+static bool buildsEveryEntry(const QString &typeName)
+{
+    return typeName == QLatin1String("Repeater") || typeName == QLatin1String("Instantiator");
+}
+
+// Tracking instances costs as much as all other rules together, so the rules that look at
+// them share it: the first rule to subscribe feeds the events, and finishing is done once,
+// for whichever rule needs the instances first.
+class SharedInstanceTracker
+{
+public:
+    SharedInstanceTracker()
+        : m_tracker([this](const InstanceTracker::Instance &instance) {
+            for (const InstanceTracker::InstanceHandler &handler : std::as_const(m_handlers))
+                handler(instance);
+        })
+    {}
+
+    void subscribe(const FindingRule *rule, const InstanceTracker::InstanceHandler &handler)
+    {
+        if (!m_feeder)
+            m_feeder = rule;
+        m_handlers.append(handler);
+    }
+
+    void loadEvent(const FindingRule *rule, const QmlEvent &event, const QmlEventType &type)
+    {
+        if (rule == m_feeder)
+            m_tracker.loadEvent(event, type);
+    }
+
+    void finish()
+    {
+        if (!std::exchange(m_finished, true))
+            m_tracker.finish();
+    }
+
+    void clear(const FindingRule *rule)
+    {
+        if (rule != m_feeder)
+            return;
+        m_tracker.clear();
+        m_finished = false;
+    }
+
+    QString name(int typeIndex) const { return m_tracker.name(typeIndex); }
+
+private:
+    InstanceTracker m_tracker;
+    QList<InstanceTracker::InstanceHandler> m_handlers;
+    const FindingRule *m_feeder = nullptr;
+    bool m_finished = false;
+};
+
+static InstanceTracker::Context dominantContext(
+    const QHash<InstanceTracker::Context, int> &contexts)
+{
+    InstanceTracker::Context result;
+    int most = 0;
+    for (auto it = contexts.constBegin(), end = contexts.constEnd(); it != end; ++it) {
+        if (it.value() > most) {
+            most = it.value();
+            result = it.key();
+        }
+    }
+    return result;
+}
+
+static QmlEventLocation locationOf(const QmlProfilerModelManager *manager, int typeIndex)
+{
+    QTC_ASSERT(typeIndex >= 0 && typeIndex < manager->numEventTypes(), return {});
+    return manager->eventType(typeIndex).location();
+}
+// Reports handlers that build items while the caller waits. Assigning a Loader's source,
+// or creating objects from a signal handler, runs the whole creation before the handler
+// returns, and nothing can repaint until it does.
+class SyncViewLoadRule final : public FindingRule
+{
+public:
+    explicit SyncViewLoadRule(qint64 thresholdNs,
+                              const std::shared_ptr<SharedInstanceTracker> &tracker
+                              = std::make_shared<SharedInstanceTracker>())
+        : m_tracker(tracker)
+        , m_thresholdNs(thresholdNs)
+    {
+        m_tracker->subscribe(this, [this](const InstanceTracker::Instance &instance) {
+            add(instance);
+        });
+    }
+
+    quint64 features() const override { return InstanceTracker::features(); }
+
+    void loadEvent(const QmlEvent &event, const QmlEventType &type) override
+    {
+        m_tracker->loadEvent(this, event, type);
+    }
+
     QList<Finding> finalize(const QmlProfilerModelManager *manager) override
     {
+        m_tracker->finish();
+
         QList<Finding> findings;
         for (auto it = m_data.constBegin(), end = m_data.constEnd(); it != end; ++it) {
             if (it->totalNs < m_thresholdNs)
@@ -290,16 +871,46 @@ public:
             finding.location = manager->eventType(typeIndex).location();
             finding.typeIndex = typeIndex;
             finding.costNs = it->totalNs;
-            finding.occurrences = it->count;
-            finding.what = Tr::tr("Building items inside this handler costs %1 ms over %n call(s).",
-                                  nullptr, it->count)
-                               .arg(it->totalNs / 1000000);
+            finding.occurrences = it->calls;
+            finding.what = Tr::tr("Building items inside this handler costs %1 over %n call(s).",
+                                  nullptr, it->calls)
+                               .arg(Timeline::formatTime(it->totalNs));
             finding.why = Tr::tr("The items are created while the handler runs, so the interface "
                                  "cannot repaint until the whole component is built. The longer "
                                  "the component, the longer the interface stands still.");
-            finding.suggestion = Tr::tr("Load the component asynchronously, for example by setting "
-                                        "asynchronous on the Loader, and show a placeholder while "
-                                        "it is loading.");
+
+            QList<std::pair<int, Built>> built;
+            for (auto b = it->built.constBegin(), bEnd = it->built.constEnd(); b != bEnd; ++b)
+                built.append({b.key(), b.value()});
+            std::sort(built.begin(), built.end(), [](const auto &a, const auto &b) {
+                return a.second.costNs > b.second.costNs;
+            });
+
+            const InstanceTracker::Context context
+                = built.isEmpty() ? InstanceTracker::Context()
+                                  : dominantContext(built.first().second.contexts);
+            finding.suggestion = suggestion(manager, context);
+
+            for (const auto &[rootType, data] : built.mid(0, maxDetails)) {
+                FindingDetail detail;
+                detail.text = Tr::tr("Builds %1, %n time(s)", nullptr, data.count)
+                                  .arg(objectTypeName(manager->eventType(rootType)));
+                detail.location = locationOf(manager, rootType);
+                detail.typeIndex = rootType;
+                detail.costNs = data.costNs;
+                detail.occurrences = data.count;
+                finding.details.append(detail);
+            }
+            if (context.kind == InstanceTracker::Context::Script
+                && context.typeIndex != typeIndex) {
+                FindingDetail detail;
+                detail.text = Tr::tr("Created in %1")
+                                  .arg(scriptName(manager->eventType(context.typeIndex),
+                                                  m_tracker->name(context.typeIndex)));
+                detail.location = locationOf(manager, context.typeIndex);
+                detail.typeIndex = context.typeIndex;
+                finding.details.append(detail);
+            }
             findings.append(finding);
         }
         return findings;
@@ -307,18 +918,80 @@ public:
 
     void clear() override
     {
+        m_tracker->clear(this);
         m_data.clear();
-        m_stack.clear();
     }
 
 private:
-    struct Data {
-        qint64 totalNs = 0;
+    struct Built
+    {
+        qint64 costNs = 0;
         int count = 0;
+        QHash<InstanceTracker::Context, int> contexts;
     };
 
+    struct Data
+    {
+        qint64 totalNs = 0;
+        int calls = 0;
+        int lastCall = -1;
+        QHash<int, Built> built;
+    };
+
+    void add(const InstanceTracker::Instance &instance)
+    {
+        if (instance.callType < 0)
+            return;
+
+        // Attribute the creation to the handler that waited for it: that is where the
+        // load has to be made asynchronous.
+        Data &data = m_data[instance.callType];
+        data.totalNs += instance.costNs;
+        if (instance.callId != data.lastCall) {
+            data.lastCall = instance.callId;
+            ++data.calls;
+        }
+        if (instance.partOf >= 0) {
+            // Part of something built earlier, like the changes of a State the handler
+            // applies: it costs the handler time, but it is not an item it builds.
+            if (auto part = data.built.find(instance.partOf); part != data.built.end())
+                part->costNs += instance.costNs;
+            return;
+        }
+        Built &built = data.built[instance.rootType];
+        built.costNs += instance.costNs;
+        ++built.count;
+        ++built.contexts[instance.context];
+    }
+
+    static QString suggestion(const QmlProfilerModelManager *manager,
+                              const InstanceTracker::Context &context)
+    {
+        if (context.kind == InstanceTracker::Context::Owner) {
+            const QmlEventType &owner = manager->eventType(context.typeIndex);
+            const QString ownerName = objectTypeName(owner);
+            if (ownerName == QLatin1String("Loader")) {
+                return Tr::tr("Set asynchronous: true on the Loader at %1, so that it builds its "
+                              "item over several frames, and show a placeholder while it is "
+                              "loading.").arg(owner.displayName());
+            }
+            return Tr::tr("The %1 at %2 builds these items in response to what the handler "
+                          "changes. Make that change in smaller steps, or move it out of the "
+                          "handler, so that the interface can repaint in between.")
+                .arg(ownerName, owner.displayName());
+        }
+        // A Loader whose source is set to a file and a component created from JavaScript
+        // look the same in the trace.
+        return Tr::tr("If the handler creates the items with createObject(), use "
+                      "incubateObject() instead, so that they are built over several frames. If "
+                      "it sets the source of a Loader, set asynchronous: true on that Loader. "
+                      "Either way, show a placeholder until the items are ready.");
+    }
+
+    static constexpr int maxDetails = 3;
+
     QHash<int, Data> m_data;
-    RangeStack m_stack;
+    const std::shared_ptr<SharedInstanceTracker> m_tracker;
     const qint64 m_thresholdNs;
 };
 
@@ -496,13 +1169,20 @@ public:
         const int typeIndex = event.typeIndex();
         switch (event.rangeStage()) {
         case RangeStart:
-            m_starts[typeIndex].push(event.timestamp());
+            if (typeIndex < 0)
+                break;
+            if (typeIndex >= m_data.size())
+                m_data.resize(typeIndex + 1);
+            m_data[typeIndex].starts.push(event.timestamp());
             break;
         case RangeEnd: {
-            auto it = m_starts.find(typeIndex);
-            if (it == m_starts.end() || it->isEmpty())
+            if (typeIndex < 0 || typeIndex >= m_data.size())
                 break;
-            m_data[typeIndex] += event.timestamp() - it->pop();
+            Data &data = m_data[typeIndex];
+            if (data.starts.isEmpty())
+                break;
+            data.totalNs += event.timestamp() - data.starts.pop();
+            data.ended = true;
             break;
         }
         default:
@@ -516,12 +1196,14 @@ public:
         if (m_frames == 0)
             return findings;
 
-        for (auto it = m_data.constBegin(), end = m_data.constEnd(); it != end; ++it) {
-            const qint64 perFrame = it.value() / m_frames;
+        for (int typeIndex = 0; typeIndex < m_data.size(); ++typeIndex) {
+            const Data &data = m_data.at(typeIndex);
+            if (!data.ended)
+                continue;
+            const qint64 perFrame = data.totalNs / m_frames;
             if (perFrame < m_budgetNs)
                 continue;
 
-            const int typeIndex = it.key();
             QTC_ASSERT(typeIndex >= 0 && typeIndex < manager->numEventTypes(), continue);
 
             Finding finding;
@@ -529,12 +1211,12 @@ public:
             finding.severity = Finding::Warning;
             finding.location = manager->eventType(typeIndex).location();
             finding.typeIndex = typeIndex;
-            finding.costNs = it.value();
+            finding.costNs = data.totalNs;
             finding.occurrences = m_frames;
             finding.what = Tr::tr("Costs %1 ms per rendered frame (%2 ms over %n frame(s)).",
                                   nullptr, m_frames)
                                .arg(perFrame / 1000000.0, 0, 'f', 2)
-                               .arg(it.value() / 1000000);
+                               .arg(data.totalNs / 1000000);
             finding.why = Tr::tr("Work of this size, repeated for every frame, leaves less of the "
                                  "frame for everything else that has to happen in it.");
             finding.suggestion = Tr::tr("Look for a value that is recomputed although it did not "
@@ -548,14 +1230,19 @@ public:
     void clear() override
     {
         m_data.clear();
-        m_starts.clear();
         m_frameThread.clear();
         m_frames = 0;
     }
 
 private:
-    QHash<int, qint64> m_data;
-    QHash<int, QStack<qint64>> m_starts;
+    // By type index: this rule sees every binding and function call.
+    struct Data
+    {
+        QStack<qint64> starts;
+        qint64 totalNs = 0;
+        bool ended = false;
+    };
+    QList<Data> m_data;
     FrameThread m_frameThread;
     int m_frames = 0;
     const qint64 m_budgetNs;
@@ -877,55 +1564,282 @@ private:
     const qint64 m_thresholdBytes;
 };
 
-// Reports a component built over and over. A view builds one delegate per item, so what a
-// single one costs is paid again for everything the user scrolls past.
+// Reports a component built over and over. What one instance costs to build is paid again
+// for every instance, so the finding names what builds them, which decides how to build
+// fewer, and what in an instance costs most, which decides how to make each one cheaper.
 class RepeatedCreationRule final : public FindingRule
 {
 public:
-    explicit RepeatedCreationRule(int minCount) : m_minCount(minCount) {}
+    explicit RepeatedCreationRule(int minCount,
+                                  const std::shared_ptr<SharedInstanceTracker> &tracker
+                                  = std::make_shared<SharedInstanceTracker>())
+        : m_tracker(tracker)
+        , m_minCount(minCount)
+    {
+        m_tracker->subscribe(this, [this](const InstanceTracker::Instance &instance) {
+            add(instance);
+        });
+    }
 
-    quint64 features() const override { return 1ULL << ProfileCreating; }
+    quint64 features() const override { return InstanceTracker::features(); }
 
     void loadEvent(const QmlEvent &event, const QmlEventType &type) override
     {
-        if (type.rangeType() == Creating)
-            m_totals.loadEvent(event, Creating);
+        m_tracker->loadEvent(this, event, type);
     }
 
     QList<Finding> finalize(const QmlProfilerModelManager *manager) override
     {
+        m_tracker->finish();
+
         QList<Finding> findings;
-        for (auto it = m_totals.begin(), end = m_totals.end(); it != end; ++it) {
-            if (it->count < m_minCount)
+        for (auto it = m_components.constBegin(), end = m_components.constEnd(); it != end;
+             ++it) {
+            if (it->instances < m_minCount || it->instances <= 0)
                 continue;
 
             const int typeIndex = it.key();
             QTC_ASSERT(typeIndex >= 0 && typeIndex < manager->numEventTypes(), continue);
-
-            Finding finding;
-            finding.ruleId = "repeated-creation";
-            finding.severity = Finding::Info;
-            finding.location = manager->eventType(typeIndex).location();
-            finding.typeIndex = typeIndex;
-            finding.costNs = it->totalNs;
-            finding.occurrences = it->count;
-            finding.what = Tr::tr("Built %n time(s), %1 ms in total.", nullptr, it->count)
-                               .arg(it->totalNs / 1000000);
-            finding.why = Tr::tr("Whatever one instance costs to build is paid once per "
-                                 "instance, and a view builds one per item it shows.");
-            finding.suggestion = Tr::tr("Let the view reuse its delegates by setting reuseItems, "
-                                        "and make the delegate itself cheaper: fewer items, fewer "
-                                        "bindings, and parts that are rarely seen behind a "
-                                        "Loader.");
-            findings.append(finding);
+            findings.append(finding(manager, typeIndex, *it));
         }
         return findings;
     }
 
-    void clear() override { m_totals.clear(); }
+    void clear() override
+    {
+        m_tracker->clear(this);
+        m_components.clear();
+    }
 
 private:
-    RangeTotals m_totals;
+    struct Component
+    {
+        int instances = 0;
+        qint64 costNs = 0;
+        QHash<InstanceTracker::Context, int> contexts;
+        QHash<int, InstanceTracker::Part> parts;
+    };
+
+    void add(const InstanceTracker::Instance &instance)
+    {
+        if (instance.partOf >= 0) {
+            // Built for an instance of another component, so it is a part of that one.
+            Component &component = m_components[instance.partOf];
+            component.costNs += instance.costNs;
+            InstanceTracker::Part &part = component.parts[instance.rootType];
+            part.costNs += instance.costNs;
+            ++part.count;
+            part.createdLater = true;
+            return;
+        }
+
+        Component &component = m_components[instance.rootType];
+        ++component.instances;
+        component.costNs += instance.costNs;
+        ++component.contexts[instance.context];
+        for (auto it = instance.parts.constBegin(), end = instance.parts.constEnd(); it != end;
+             ++it) {
+            InstanceTracker::Part &part = component.parts[it.key()];
+            part.costNs += it->costNs;
+            part.count += it->count;
+            part.nestedInstance = part.nestedInstance || it->nestedInstance;
+            part.createdLater = part.createdLater || it->createdLater;
+        }
+    }
+
+    QString partName(const QmlProfilerModelManager *manager, int typeIndex,
+                     const InstanceTracker::Part &part) const
+    {
+        const QmlEventType &type = manager->eventType(typeIndex);
+        if (part.nestedInstance)
+            return Tr::tr("instances of %1 built inside it").arg(objectTypeName(type));
+        if (part.createdLater)
+            return Tr::tr("%1, created when first needed").arg(objectTypeName(type));
+        return scriptName(type, m_tracker->name(typeIndex));
+    }
+
+    Finding finding(const QmlProfilerModelManager *manager, int typeIndex,
+                    const Component &component) const
+    {
+        const QmlEventType &type = manager->eventType(typeIndex);
+        const QString total = Timeline::formatTime(component.costNs);
+        const QString each = Timeline::formatTime(component.costNs / component.instances);
+
+        Finding finding;
+        finding.ruleId = "repeated-creation";
+        finding.severity = Finding::Info;
+        finding.location = type.location();
+        finding.typeIndex = typeIndex;
+        finding.costNs = component.costNs;
+        finding.occurrences = component.instances;
+
+        QStringList suggestion;
+        const InstanceTracker::Context context = dominantContext(component.contexts);
+        if (context.kind != InstanceTracker::Context::Unknown) {
+            QTC_ASSERT(context.typeIndex >= 0 && context.typeIndex < manager->numEventTypes(),
+                       return finding);
+        }
+        switch (context.kind) {
+        case InstanceTracker::Context::Owner: {
+            const QmlEventType &owner = manager->eventType(context.typeIndex);
+            const QString ownerName = objectTypeName(owner);
+            const QString ownerLocation = owner.displayName();
+            finding.what = Tr::tr("Built %n time(s) by the %1 at %2, %3 in total, %4 each.",
+                                  nullptr, component.instances)
+                               .arg(ownerName, ownerLocation, total, each);
+            if (isReusingView(ownerName)) {
+                finding.why = Tr::tr("The %1 at %2 builds an instance for each item that comes "
+                                     "into view. Unless it reuses them, it builds a new one for "
+                                     "every item scrolled to, and each costs %3 to build.")
+                                  .arg(ownerName, ownerLocation, each);
+                suggestion << Tr::tr("Unless it does already, set reuseItems: true on the %1, so "
+                                     "that instances scrolled out of view are kept in a pool and "
+                                     "handed out again.").arg(ownerName);
+            } else if (reusesByDefault(ownerName)) {
+                finding.why = Tr::tr("The %1 at %2 builds an instance for each cell that comes "
+                                     "into view, and each costs %3 to build. It reuses them by "
+                                     "default, so building this many usually means that "
+                                     "reuseItems is turned off, or that the model is reset, "
+                                     "which rebuilds them all.")
+                                  .arg(ownerName, ownerLocation, each);
+                suggestion << Tr::tr("Check that reuseItems is not turned off on the %1, and "
+                                     "change its model in place rather than resetting it.")
+                                  .arg(ownerName);
+            } else if (buildsEveryEntry(ownerName)) {
+                finding.why = Tr::tr("The %1 at %2 builds an instance for every entry of its "
+                                     "model, all at once, and builds all of them again whenever "
+                                     "the model is replaced. Each costs %3 to build.")
+                                  .arg(ownerName, ownerLocation, each);
+                suggestion << Tr::tr("Change the model in place rather than replacing it, for "
+                                     "example with a ListModel instead of a JavaScript array or "
+                                     "a number, or show the items in a ListView with reuseItems "
+                                     "if only some of them are visible at a time.");
+            } else if (ownerName == QLatin1String("Loader")) {
+                finding.why = Tr::tr("The Loader at %1 builds its item anew whenever it becomes "
+                                     "active or its source changes, and each build costs %2.")
+                                  .arg(ownerLocation, each);
+                suggestion << Tr::tr("If the item is needed again and again, keep it loaded and "
+                                     "hide it, instead of deactivating the Loader or changing its "
+                                     "source.");
+            } else {
+                finding.why = Tr::tr("The %1 at %2 builds these instances, and each costs %3 to "
+                                     "build.").arg(ownerName, ownerLocation, each);
+                suggestion << Tr::tr("Check whether the %1 can keep instances instead of building "
+                                     "new ones.").arg(ownerName);
+            }
+
+            FindingDetail detail;
+            detail.text = Tr::tr("Built by %1").arg(ownerName);
+            detail.location = owner.location();
+            detail.typeIndex = context.typeIndex;
+            detail.occurrences = component.contexts.value(context);
+            finding.details.append(detail);
+            break;
+        }
+        case InstanceTracker::Context::Script: {
+            const QmlEventType &script = manager->eventType(context.typeIndex);
+            const QString name = scriptName(script, m_tracker->name(context.typeIndex));
+            finding.what = Tr::tr("Built %n time(s) from JavaScript in %1 at %2, %3 in total, "
+                                  "%4 each.", nullptr, component.instances)
+                               .arg(name, script.displayName(), total, each);
+            finding.why = Tr::tr("These instances are created from JavaScript, in %1 at %2. "
+                                 "Building one costs %3: creating its objects, evaluating their "
+                                 "bindings and completing them. No view is involved, so nothing "
+                                 "reuses instances that are no longer needed.")
+                              .arg(name, script.displayName(), each);
+            suggestion << Tr::tr("Keep instances that are no longer needed and reuse them instead "
+                                 "of destroying them and creating new ones, create them ahead of "
+                                 "time or with incubateObject() so that the work is spread over "
+                                 "several frames, or create fewer of them.");
+
+            FindingDetail detail;
+            detail.text = Tr::tr("Created in %1").arg(name);
+            detail.location = script.location();
+            detail.typeIndex = context.typeIndex;
+            detail.occurrences = component.contexts.value(context);
+            finding.details.append(detail);
+            break;
+        }
+        case InstanceTracker::Context::Unknown:
+            finding.what = Tr::tr("Built %n time(s), %1 in total, %2 each.", nullptr,
+                                  component.instances)
+                               .arg(total, each);
+            finding.why = Tr::tr("Each instance costs %1 to build. The trace does not show what "
+                                 "built them: no QML or JavaScript was running at the time, so "
+                                 "it was C++ code.").arg(each);
+            break;
+        }
+
+        QList<std::pair<int, InstanceTracker::Part>> parts;
+        for (auto it = component.parts.constBegin(), end = component.parts.constEnd(); it != end;
+             ++it) {
+            if (it->costNs > 0)
+                parts.append({it.key(), it.value()});
+        }
+        std::sort(parts.begin(), parts.end(), [](const auto &a, const auto &b) {
+            return a.second.costNs > b.second.costNs;
+        });
+
+        QStringList costliest;
+        for (const auto &[partType, part] : parts.mid(0, maxDetails)) {
+            const QString name = partName(manager, partType, part);
+            costliest << Tr::tr("%1 at %2 (%3 each)")
+                             .arg(name, manager->eventType(partType).displayName(),
+                                  Timeline::formatTime(part.costNs / component.instances));
+
+            FindingDetail detail;
+            detail.text = name;
+            detail.location = locationOf(manager, partType);
+            detail.typeIndex = partType;
+            detail.costNs = part.costNs;
+            detail.occurrences = part.count;
+            finding.details.append(detail);
+        }
+        if (costliest.isEmpty()) {
+            suggestion << Tr::tr("To make each instance cheaper, give it fewer objects and "
+                                 "bindings.");
+        } else {
+            suggestion << Tr::tr("To make each instance cheaper, start with what takes longest "
+                                 "to build in it: %1.").arg(costliest.join(QLatin1String(", ")));
+        }
+
+        // Which parts are actually shown is not in the trace: the profiler records that a
+        // binding ran, not what it evaluated to. Where visibility is a binding, though, the
+        // part is shown only under some condition, and that is worth checking.
+        QList<int> conditionTypes;
+        for (auto it = component.parts.constBegin(), end = component.parts.constEnd(); it != end;
+             ++it) {
+            const QString name = m_tracker->name(it.key());
+            if (name == QLatin1String("visible") || name == QLatin1String("opacity"))
+                conditionTypes.append(it.key());
+        }
+        std::sort(conditionTypes.begin(), conditionTypes.end(), [manager](int a, int b) {
+            const QmlEventLocation first = manager->eventType(a).location();
+            const QmlEventLocation second = manager->eventType(b).location();
+            if (first.filename() != second.filename())
+                return first.filename() < second.filename();
+            return first.line() < second.line();
+        });
+        QStringList conditions;
+        for (int conditionType : conditionTypes.mid(0, maxDetails)) {
+            conditions << Tr::tr("%1 at %2").arg(m_tracker->name(conditionType),
+                                                 manager->eventType(conditionType).displayName());
+        }
+        if (!conditions.isEmpty()) {
+            suggestion << Tr::tr("Some of its parts are shown only under a condition (%1). The "
+                                 "trace does not record what such a binding evaluates to; if a "
+                                 "part is rarely shown, build it with a Loader only when it is "
+                                 "needed.").arg(conditions.join(QLatin1String(", ")));
+        }
+
+        finding.suggestion = suggestion.join(QLatin1Char(' '));
+        return finding;
+    }
+
+    static constexpr int maxDetails = 3;
+
+    QHash<int, Component> m_components;
+    const std::shared_ptr<SharedInstanceTracker> m_tracker;
     const int m_minCount;
 };
 
@@ -1085,8 +1999,9 @@ FindingRules defaultFindingRules()
     rules.push_back(std::make_unique<FirstUseCompileRule>(
         settings.findingsCompileThresholdMs() * 1000000ll));
     rules.push_back(std::make_unique<PixmapLoadErrorRule>());
+    const auto instanceTracker = std::make_shared<SharedInstanceTracker>();
     rules.push_back(std::make_unique<SyncViewLoadRule>(
-        settings.findingsSyncLoadThresholdMs() * 1000000ll));
+        settings.findingsSyncLoadThresholdMs() * 1000000ll, instanceTracker));
     rules.push_back(std::make_unique<PeriodicHandlerRule>(
         settings.findingsPeriodicMinCount(),
         settings.findingsPeriodicDeviationPercent() / 100.0));
@@ -1100,7 +2015,8 @@ FindingRules defaultFindingRules()
         settings.findingsJankFrameThresholdMs() * 1000000ll));
     rules.push_back(std::make_unique<MemoryChurnRule>(
         settings.findingsMemoryChurnKb() * 1024ll));
-    rules.push_back(std::make_unique<RepeatedCreationRule>(settings.findingsCreationMinCount()));
+    rules.push_back(std::make_unique<RepeatedCreationRule>(settings.findingsCreationMinCount(),
+                                                           instanceTracker));
     rules.push_back(std::make_unique<BindingChurnRule>(settings.findingsBindingMinCount()));
     rules.push_back(std::make_unique<PixmapReloadRule>(settings.findingsPixmapReloadMinCount()));
     return rules;
@@ -1112,8 +2028,13 @@ QmlProfilerFindingsModel::QmlProfilerFindingsModel(QmlProfilerModelManager *mode
     , m_rules(std::move(rules))
 {
     quint64 features = 0;
-    for (const auto &rule : m_rules)
+    for (const auto &rule : m_rules) {
         features |= rule->features();
+        for (int feature = 0; feature < MaximumProfileFeature; ++feature) {
+            if (rule->features() & (1ULL << feature))
+                m_rulesByFeature[feature].append(rule.get());
+        }
+    }
 
     modelManager->qmlLoaders.append({features,
                                      std::bind(&QmlProfilerFindingsModel::loadEvent, this,
@@ -1128,9 +2049,12 @@ QmlProfilerFindingsModel::~QmlProfilerFindingsModel() = default;
 
 void QmlProfilerFindingsModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    // Rules select the events they care about themselves; the feature mask only decides
-    // which events the manager replays to us at all.
-    for (const auto &rule : m_rules)
+    // Every event goes only to the rules that asked for its feature. They pick the events of
+    // it they care about themselves.
+    const quint8 feature = type.feature();
+    if (feature >= MaximumProfileFeature)
+        return;
+    for (FindingRule *rule : std::as_const(m_rulesByFeature[feature]))
         rule->loadEvent(event, type);
 }
 
@@ -1159,14 +2083,35 @@ void QmlProfilerFindingsModel::clear()
     endResetModel();
 }
 
+// Findings are the top-level rows, and the details of a finding are its children. A child
+// carries the row of its finding, plus one, as internal id; a finding carries 0.
+QModelIndex QmlProfilerFindingsModel::index(int row, int column, const QModelIndex &parent) const
+{
+    if (!hasIndex(row, column, parent))
+        return {};
+    return createIndex(row, column, parent.isValid() ? quintptr(parent.row() + 1) : quintptr(0));
+}
+
+QModelIndex QmlProfilerFindingsModel::parent(const QModelIndex &child) const
+{
+    if (!child.isValid() || child.internalId() == 0)
+        return {};
+    return createIndex(int(child.internalId() - 1), 0, quintptr(0));
+}
+
 int QmlProfilerFindingsModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : m_findings.count();
+    if (!parent.isValid())
+        return m_findings.count();
+    if (parent.internalId() != 0 || parent.column() != 0 || parent.row() >= m_findings.count())
+        return 0;
+    return m_findings.at(parent.row()).details.count();
 }
 
 int QmlProfilerFindingsModel::columnCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : MaxColumn;
+    Q_UNUSED(parent)
+    return MaxColumn;
 }
 
 static QString severityLabel(Finding::Severity severity)
@@ -1182,9 +2127,72 @@ static QString severityLabel(Finding::Severity severity)
     return Tr::tr("Info");
 }
 
+static QString locationText(const QmlEventLocation &location)
+{
+    // Compiling ranges and pixmap events carry no line: the trace reports 0 for them, and
+    // QML lines are 1-based, so anything below 1 is "no line".
+    return location.line() > 0
+               ? QString::fromLatin1("%1:%2").arg(location.filename()).arg(location.line())
+               : location.filename();
+}
+
+static QVariant detailData(const Finding &finding, const FindingDetail &detail, int column,
+                           int role)
+{
+    switch (role) {
+    case Qt::DisplayRole:
+        switch (column) {
+        case QmlProfilerFindingsModel::ColumnFinding:
+            return detail.text;
+        case QmlProfilerFindingsModel::ColumnLocation:
+            return locationText(detail.location);
+        case QmlProfilerFindingsModel::ColumnCost:
+            return detail.costNs > 0 ? Timeline::formatTime(detail.costNs) : QString();
+        case QmlProfilerFindingsModel::ColumnOccurrences:
+            return detail.occurrences > 0 ? QVariant(detail.occurrences) : QVariant();
+        default:
+            return {};
+        }
+    case QmlProfilerFindingsModel::SortRole:
+        switch (column) {
+        case QmlProfilerFindingsModel::ColumnCost:
+            return detail.costNs;
+        case QmlProfilerFindingsModel::ColumnOccurrences:
+            return detail.occurrences;
+        default:
+            return detailData(finding, detail, column, Qt::DisplayRole);
+        }
+    case QmlProfilerFindingsModel::TypeIdRole:
+        return detail.typeIndex;
+    case QmlProfilerFindingsModel::FilenameRole:
+        return detail.location.filename();
+    case QmlProfilerFindingsModel::LineRole:
+        return detail.location.line();
+    case QmlProfilerFindingsModel::ColumnRole:
+        return detail.location.column();
+    case QmlProfilerFindingsModel::RuleIdRole:
+        return finding.ruleId;
+    default:
+        return {};
+    }
+}
+
 QVariant QmlProfilerFindingsModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_findings.count())
+    if (!index.isValid())
+        return {};
+
+    if (index.internalId() != 0) {
+        const int findingRow = int(index.internalId() - 1);
+        if (findingRow >= m_findings.count())
+            return {};
+        const Finding &finding = m_findings.at(findingRow);
+        if (index.row() >= finding.details.count())
+            return {};
+        return detailData(finding, finding.details.at(index.row()), index.column(), role);
+    }
+
+    if (index.row() >= m_findings.count())
         return {};
 
     const Finding &finding = m_findings.at(index.row());
@@ -1197,12 +2205,7 @@ QVariant QmlProfilerFindingsModel::data(const QModelIndex &index, int role) cons
         case ColumnFinding:
             return finding.what;
         case ColumnLocation:
-            // Compiling ranges and pixmap events carry no line: the trace reports 0 for
-            // them, and QML lines are 1-based, so anything below 1 is "no line".
-            return finding.location.line() > 0
-                       ? QString::fromLatin1("%1:%2").arg(finding.location.filename())
-                             .arg(finding.location.line())
-                       : finding.location.filename();
+            return locationText(finding.location);
         case ColumnCost:
             return finding.costNs > 0 ? QString::fromLatin1("%1 ms").arg(finding.costNs / 1000000)
                                       : QString();
