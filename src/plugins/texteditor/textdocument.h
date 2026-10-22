@@ -91,6 +91,7 @@ public:
     TextMarks marks() const;
     bool addMark(TextMark *mark);
     TextMarks marksAt(int line) const;
+    QStringList markLeadingTexts() const;
     void removeMark(TextMark *mark);
     void updateLayout() const;
     void scheduleUpdateLayout() const;

@@ -321,6 +321,7 @@ public:
 
     QWidget *extraArea() const;
     virtual int extraAreaWidth(int *markWidthPtr = nullptr) const;
+    int leadingTextColumnWidth() const;
     virtual void extraAreaPaintEvent(QPaintEvent *);
     virtual void extraAreaLeaveEvent(QEvent *);
     virtual void extraAreaContextMenuEvent(QContextMenuEvent *);

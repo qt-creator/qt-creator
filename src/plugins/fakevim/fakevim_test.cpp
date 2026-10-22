@@ -25,6 +25,7 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textmark.h>
 
 #include <vcsbase/vcsbaseeditor.h>
 
@@ -534,6 +535,7 @@ private slots:
     void test_vim_functions_none_of_that();
     void test_vim_function_undotree_screen();
     void test_vim_function_undotree_branches();
+    void test_relativenumber_leading_text();
     void test_vim_tuple();
     void test_vim_option_modifiable();
     void test_vim_command_wincmd_clearjumps();
@@ -30633,6 +30635,57 @@ void FakeVimTester::test_vim_function_undotree_screen()
                                            "screenpos"}) {
         QCOMPARE(value(QString("exists('*%1')").arg(name)), QLatin1String("1"));
     }
+}
+
+void FakeVimTester::test_relativenumber_leading_text()
+{
+    // The column of relative numbers sits on top of the extra area, so it has
+    // to start after the column the marks show their leading texts in.
+    TestData data;
+    setup(&data);
+    data.setText("one" N "two" N "three");
+    TextEditorWidget *editor = data.editor();
+    editor->setLineNumbersVisible(true);
+    editor->show();
+    FvBoolAspect &relativeNumber = settings().relativeNumber;
+    const bool previousRelativeNumber = relativeNumber();
+    const bool previousUseFakeVim = settings().useFakeVim();
+    const QScopeGuard restoreSettings([&relativeNumber, previousRelativeNumber, previousUseFakeVim] {
+        relativeNumber.setValue(previousRelativeNumber);
+        settings().useFakeVim.setValue(previousUseFakeVim);
+    });
+    settings().useFakeVim.setValue(true);
+    relativeNumber.setValue(false);
+    const QList<QWidget *> existing = editor->findChildren<QWidget *>(Qt::FindDirectChildrenOnly);
+    relativeNumber.setValue(true);
+    QWidget *column = nullptr;
+    for (QWidget *child : editor->findChildren<QWidget *>(Qt::FindDirectChildrenOnly)) {
+        if (!existing.contains(child))
+            column = child;
+    }
+    QVERIFY(column);
+
+    TextMark mark(editor->textDocument(), 2, {"Test", "Test.LeadingText"});
+    const int before = column->geometry().left();
+    mark.setLeadingText("Someone, 2 days ago");
+    QTRY_VERIFY(editor->leadingTextColumnWidth() > 0);
+    QTRY_COMPARE(column->geometry().left(), before + editor->leadingTextColumnWidth());
+    mark.setLeadingText({});
+    QTRY_COMPARE(column->geometry().left(), before);
+
+    // Without line numbers the column follows the marks, which the leading
+    // texts leave where they are.
+    editor->setLineNumbersVisible(false);
+    QTRY_VERIFY(column->geometry().right() > 0);
+    const int leftBefore = column->geometry().left();
+    const int rightBefore = column->geometry().right();
+    const int areaWidthBefore = editor->extraArea()->width();
+    mark.setLeadingText("Someone, 2 days ago");
+    QTRY_VERIFY(editor->extraArea()->width() > areaWidthBefore);
+    // The column follows the resize from a zero-interval timer.
+    QCoreApplication::processEvents();
+    QCOMPARE(column->geometry().left(), leftBefore);
+    QCOMPARE(column->geometry().right(), rightBefore);
 }
 
 void FakeVimTester::test_vim_tuple()

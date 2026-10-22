@@ -109,6 +109,9 @@ public:
     QString lineAnnotation() const { return m_lineAnnotation; }
     void setLineAnnotation(const QString &lineAnnotation);
 
+    QString leadingText() const { return m_leadingText; }
+    void setLeadingText(const QString &leadingText);
+
     QString toolTip() const;
     void setToolTip(const QString &toolTip);
     void setToolTipProvider(const std::function<QString ()> &toolTipProvider);
@@ -141,6 +144,7 @@ private:
     TextMarkCategory m_category;
     Qt::TextFormat m_annotationTextFormat = Qt::AutoText;
     QString m_lineAnnotation;
+    QString m_leadingText;
     mutable QStaticText m_staticAnnotationText;
     QString m_toolTip;
     std::function<QString()> m_toolTipProvider;

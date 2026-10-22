@@ -37,6 +37,7 @@
 #include <QScrollBar>
 #include <QStringList>
 
+#include <optional>
 #include <tuple>
 
 using namespace Core;
@@ -104,6 +105,7 @@ public:
     bool m_silentReload = false;
 
     TextMarks m_marksCache; // Marks not owned
+    std::optional<QStringList> m_markLeadingTexts; // Reset when the marks change
     Utils::Guard m_modificationChangedGuard;
 
     SyntaxHighlighter *m_highlighter = nullptr;
@@ -1178,6 +1180,7 @@ void TextDocument::scheduleUpdateLayout() const
 {
     auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
     QTC_ASSERT(documentLayout, return);
+    d->m_markLeadingTexts.reset();
     documentLayout->scheduleUpdate();
 }
 
@@ -1200,6 +1203,7 @@ bool TextDocument::addMark(TextMark *mark)
         TextBlockUserData *userData = TextBlockUserData::userData(block);
         userData->addMark(mark);
         d->m_marksCache.append(mark);
+        d->m_markLeadingTexts.reset();
         mark->updateLineNumber(blockNumber + 1);
         QTC_CHECK(mark->lineNumber() == blockNumber + 1); // Checks that the base class is called
         mark->updateBlock(block);
@@ -1207,7 +1211,8 @@ bool TextDocument::addMark(TextMark *mark)
         if (!mark->isVisible())
             return true;
         // Update document layout
-        bool fullUpdate = !documentLayout->hasMarks;
+        // A leading text can make the editors widen their extra area.
+        bool fullUpdate = !documentLayout->hasMarks || !mark->leadingText().isEmpty();
         documentLayout->hasMarks = true;
         if (!documentLayout->hasLocationMarker && mark->isLocationMarker()) {
             documentLayout->hasLocationMarker = true;
@@ -1235,11 +1240,34 @@ TextMarks TextDocument::marksAt(int line) const
     return TextMarks();
 }
 
+/*!
+    Returns the texts that visible marks show in front of their lines, one
+    entry per line, which decide how much room the editors leave for them.
+
+    \sa TextMark::setLeadingText()
+*/
+QStringList TextDocument::markLeadingTexts() const
+{
+    if (d->m_markLeadingTexts)
+        return *d->m_markLeadingTexts;
+    QMap<int, QStringList> byLine;
+    for (const TextMark *mark : std::as_const(d->m_marksCache)) {
+        if (mark->isVisible() && !mark->leadingText().isEmpty())
+            byLine[mark->lineNumber()].append(mark->leadingText());
+    }
+    QStringList result;
+    for (const QStringList &texts : std::as_const(byLine))
+        result.append(texts.join(' '));
+    d->m_markLeadingTexts = result;
+    return result;
+}
+
 void TextDocument::removeMarkFromMarksCache(TextMark *mark)
 {
     auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
     QTC_ASSERT(documentLayout, return);
     d->m_marksCache.removeOne(mark);
+    d->m_markLeadingTexts.reset();
 
     if (mark->isLocationMarker()) {
         documentLayout->hasLocationMarker = false;

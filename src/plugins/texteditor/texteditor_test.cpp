@@ -138,6 +138,7 @@ private slots:
     void testTabStopArrayBound_data();
     void testTabStopArrayBound();
     void testMoveLinesEndingInEmptyLine();
+    void testMarkLeadingText();
 };
 
 void TextEditorTest::testIndentationClean_data()
@@ -678,6 +679,70 @@ void TextEditorTest::testMoveLinesEndingInEmptyLine()
     editorWidget->moveLineUp();
     editorWidget->moveLineUp();
     QCOMPARE(editorWidget->textDocument()->plainText(), input);
+}
+
+void TextEditorTest::testMarkLeadingText()
+{
+    TextEditorWidget widget;
+    const TextDocumentPtr document(new TextDocument);
+    document->setPlainText("one\ntwo\nthree\n");
+    widget.setTextDocument(document);
+    widget.resize(1200, 300);
+    widget.show();
+    QVERIFY(QTest::qWaitForWindowExposed(&widget));
+
+    TextMark mark(document.data(), 2, {"Test", "Test.LeadingText"});
+    const int before = widget.extraAreaWidth();
+    const QString text = "Someone, 2 days ago";
+    const int textWidth = widget.extraArea()->fontMetrics().horizontalAdvance(text);
+    mark.setLeadingText(text);
+    QTRY_VERIFY(widget.extraArea()->width() >= before + textWidth);
+    int markWidth = 0;
+    widget.extraAreaWidth(&markWidth);
+
+    // In the row of the line that has it, and not in the one above.
+    const QImage area = widget.extraArea()->grab().toImage();
+    const QRgb background = area.pixel(area.width() / 2, area.height() - 1);
+    const auto inks = [&](int line) {
+        QTextCursor cursor(document->document()->findBlockByNumber(line - 1));
+        const QRect row = widget.cursorRect(cursor);
+        const qreal ratio = area.devicePixelRatio();
+        int count = 0;
+        for (int y = qRound(row.top() * ratio); y <= qRound(row.bottom() * ratio); ++y) {
+            for (int x = qRound(markWidth * ratio); x < qRound((markWidth + textWidth) * ratio);
+                 ++x) {
+                if (area.pixel(x, y) != background)
+                    ++count;
+            }
+        }
+        return count;
+    };
+    QVERIFY(inks(2) > 0);
+    QCOMPARE(inks(1), 0);
+
+    // A long one leaves room for the code.
+    const int shortWidth = widget.extraArea()->width();
+    mark.setLeadingText(text.repeated(20));
+    QTRY_VERIFY(widget.extraArea()->width() > shortWidth);
+    QVERIFY(widget.extraArea()->width() < before + widget.width() / 2);
+
+    // A hidden mark draws nothing, so it takes no room.
+    mark.setVisible(false);
+    QTRY_COMPARE(widget.extraArea()->width(), before);
+    mark.setVisible(true);
+    QTRY_VERIFY(widget.extraArea()->width() > before);
+
+    // The marks of one line share its text.
+    const QString second = "Other, 3 days ago";
+    TextMark other(document.data(), 2, {"Test", "Test.LeadingText"});
+    other.setLeadingText(second);
+    const int joinedWidth = widget.extraArea()->fontMetrics().horizontalAdvance(
+        text + ' ' + second);
+    QTRY_VERIFY(widget.extraArea()->width() >= before + joinedWidth);
+    other.setLeadingText({});
+
+    mark.setLeadingText({});
+    QTRY_COMPARE(widget.extraArea()->width(), before);
 }
 
 QObject *createTextEditorTest()

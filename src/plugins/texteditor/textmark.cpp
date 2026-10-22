@@ -429,6 +429,21 @@ void TextMark::setLineAnnotation(const QString &lineAnnotation)
     updateMarker();
 }
 
+/*!
+    Sets the text shown in front of the line, in a column the editor reserves
+    to the left of the line numbers, to \a leadingText. Blame information is
+    an example.
+
+    \sa setLineAnnotation()
+*/
+void TextMark::setLeadingText(const QString &leadingText)
+{
+    if (m_leadingText == leadingText)
+        return;
+    m_leadingText = leadingText;
+    updateMarker();
+}
+
 void TextMark::setToolTipProvider(const std::function<QString()> &toolTipProvider)
 {
     m_toolTipProvider = toolTipProvider;

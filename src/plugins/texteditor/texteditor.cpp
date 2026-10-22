@@ -833,6 +833,9 @@ public:
     // extra area paint methods
     void paintLineNumbers(QPainter &painter, const ExtraAreaPaintEventData &data,
                           const QRectF &blockBoundingRect) const;
+    int leadingTextWidth() const;
+    void paintLeadingTexts(QPainter &painter, const ExtraAreaPaintEventData &data,
+                           const QRectF &blockBoundingRect) const;
     void paintTextMarks(QPainter &painter, const ExtraAreaPaintEventData &data,
                         const QRectF &blockBoundingRect) const;
     void paintCodeFolding(QPainter &painter, const ExtraAreaPaintEventData &data,
@@ -981,6 +984,9 @@ public:
     QTimer m_parenthesesMatchingTimer;
 
     QWidget *m_extraArea = nullptr;
+    mutable QStringList m_leadingTexts; // What m_leadingTextWidth was measured for
+    mutable QFont m_leadingTextFont;
+    mutable int m_leadingTextWidth = 0;
 
     Id m_tabSettingsId;
     DisplaySettingsData m_displaySettings;
@@ -7445,6 +7451,18 @@ QWidget *TextEditorWidget::extraArea() const
     return d->m_extraArea;
 }
 
+/*!
+    Returns the width of the column in the extra area that shows the leading
+    texts of the marks, including the space after it, or 0 if there is none.
+
+    \sa TextMark::setLeadingText()
+*/
+int TextEditorWidget::leadingTextColumnWidth() const
+{
+    const int width = d->leadingTextWidth();
+    return width ? width + d->m_extraArea->fontMetrics().horizontalAdvance(QLatin1Char(' ')) : 0;
+}
+
 int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
 {
     auto documentLayout = qobject_cast<TextDocumentLayout*>(document()->documentLayout());
@@ -7474,6 +7492,7 @@ int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
 
         space += linefm.horizontalAdvance(QLatin1Char('9')) * lineNumberDigits();
     }
+    space += leadingTextColumnWidth();
     int markWidth = 0;
 
     if (d->m_marksVisible) {
@@ -7583,6 +7602,7 @@ struct Internal::ExtraAreaPaintEventData
         , fontMetrics(d->m_extraArea->font())
         , lineSpacing(fontMetrics.lineSpacing())
         , markWidth(d->m_marksVisible ? lineSpacing : 0)
+        , leadingTextWidth(d->leadingTextWidth())
         , signWidth(d->diffChangeSignWidth(fontMetrics))
         , collapseColumnWidth(d->m_codeFoldingVisible ? foldBoxWidth(fontMetrics) : 0)
         , extraAreaWidth(d->m_extraArea->width() - collapseColumnWidth)
@@ -7605,6 +7625,7 @@ struct Internal::ExtraAreaPaintEventData
     const QFontMetrics fontMetrics;
     int lineSpacing;
     int markWidth;
+    const int leadingTextWidth;
     int signWidth;
     int collapseColumnWidth;
     const int extraAreaWidth;
@@ -7648,6 +7669,49 @@ void TextEditorWidgetPrivate::paintLineNumbers(QPainter &painter,
     painter.drawText(rect, Qt::AlignRight, number);
     if (selected)
         painter.restore();
+}
+
+// At most a third of the editor, so that a long text cannot push the code out
+// of view.
+int TextEditorWidgetPrivate::leadingTextWidth() const
+{
+    const QStringList texts = m_document->markLeadingTexts();
+    const QFont font = m_extraArea->font();
+    if (texts != m_leadingTexts || font != m_leadingTextFont) {
+        const QFontMetrics fm(font);
+        m_leadingTextWidth = 0;
+        for (const QString &text : texts)
+            m_leadingTextWidth = std::max(m_leadingTextWidth, fm.horizontalAdvance(text));
+        m_leadingTextFont = font;
+    }
+    // Share the document's list, so that the next comparison is a pointer check.
+    m_leadingTexts = texts;
+    return std::min(m_leadingTextWidth, q->width() / 3);
+}
+
+void TextEditorWidgetPrivate::paintLeadingTexts(QPainter &painter,
+                                                const ExtraAreaPaintEventData &data,
+                                                const QRectF &blockBoundingRect) const
+{
+    auto userData = static_cast<TextBlockUserData *>(data.block.userData());
+    if (!userData || data.leadingTextWidth == 0)
+        return;
+    QStringList texts;
+    const TextMarks marks = userData->marks();
+    for (const TextMark *mark : marks) {
+        if (mark->isVisible() && !mark->leadingText().isEmpty())
+            texts.append(mark->leadingText());
+    }
+    if (texts.isEmpty())
+        return;
+    const QRectF rect(data.markWidth,
+                      blockBoundingRect.top() + q->editorLayout()->mainLayoutOffset(data.block),
+                      data.leadingTextWidth,
+                      blockBoundingRect.height());
+    painter.drawText(rect,
+                     Qt::AlignLeft,
+                     data.fontMetrics.elidedText(texts.join(' '), Qt::ElideRight,
+                                                 data.leadingTextWidth));
 }
 
 void TextEditorWidgetPrivate::paintTextMarks(QPainter &painter, const ExtraAreaPaintEventData &data,
@@ -7920,6 +7984,7 @@ void TextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
             painter.setPen(data.palette.color(QPalette::Dark));
 
             d->paintLineNumbers(painter, data, boundingRect);
+            d->paintLeadingTexts(painter, data, boundingRect);
 
             if (d->m_codeFoldingVisible || d->m_marksVisible) {
                 painter.save();

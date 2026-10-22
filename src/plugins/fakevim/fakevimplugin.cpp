@@ -273,6 +273,7 @@ public:
                 this, &RelativeNumbersColumn::followEditorLayout);
 
         m_editor->installEventFilter(this);
+        m_editor->extraArea()->installEventFilter(this);
 
         followEditorLayout();
     }
@@ -366,6 +367,12 @@ private:
                                 : fs.lineSpacing();
             rect.setLeft(lineSpacing + 2);
         }
+        // Stay clear of the column with the leading texts of the marks.
+        const int leadingWidth = m_editor->leadingTextColumnWidth();
+        if (lineNumbersVisible)
+            rect.setLeft(rect.left() + leadingWidth);
+        else
+            rect.setRight(rect.right() - leadingWidth);
 
         if (foldMarksVisible && (marksVisible || lineNumbersVisible)) {
             int lineSpacing = m_editor->fontMetrics().lineSpacing();
