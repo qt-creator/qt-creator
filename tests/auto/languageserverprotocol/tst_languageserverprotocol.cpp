@@ -61,6 +61,7 @@ private slots:
     void commandOrCodeAction();
     void documentSelector();
     void workspaceEditChanges();
+    void workspaceEditChangeAnnotations();
     void recursiveType();
     void nullPayload();
     void malformedRequestParams();
@@ -559,6 +560,36 @@ void tst_LanguageServerProtocol::workspaceEditChanges()
         QJsonObject{{"changes", QJsonArray{}}});
     QVERIFY_RESULT(wrongMapType);
     QVERIFY(!wrongMapType->changes().has_value());
+}
+
+void tst_LanguageServerProtocol::workspaceEditChangeAnnotations()
+{
+    const Range range
+        = Range().start(Position().line(1).character(0)).end(Position().line(1).character(4));
+    const TextDocumentEdit documentEdit
+        = TextDocumentEdit()
+              .textDocument(OptionalVersionedTextDocumentIdentifier().uri("file:///tmp/test.cpp"))
+              .addEdit(TextEdit().range(range).newText("void"))
+              .addEdit(AnnotatedTextEdit().range(range).newText("int").annotationId("confirm"));
+    const WorkspaceEdit edit
+        = WorkspaceEdit()
+              .addDocumentChange(documentEdit)
+              .addDocumentChange(DeleteFile().uri("file:///tmp/old.cpp").annotationId("confirm"))
+              .addChangeAnnotation(
+                  "confirm", ChangeAnnotation().label("Confirm").needsConfirmation(true));
+
+    const Utils::Result<WorkspaceEdit> parsed = fromJson<WorkspaceEdit>(toJson(edit));
+    QVERIFY_RESULT(parsed);
+    QCOMPARE(*parsed, edit);
+    const auto parsedDocumentEdit = std::get_if<TextDocumentEdit>(&parsed->documentChanges()->at(0));
+    QVERIFY(parsedDocumentEdit);
+    QVERIFY(std::holds_alternative<TextEdit>(parsedDocumentEdit->edits().at(0)));
+    QVERIFY(std::holds_alternative<AnnotatedTextEdit>(parsedDocumentEdit->edits().at(1)));
+
+    const QJsonObject capabilities = toJson(
+        WorkspaceEditClientCapabilities().changeAnnotationSupport(
+            ChangeAnnotationsSupportOptions()));
+    QCOMPARE(capabilities.value("changeAnnotationSupport"), QJsonValue(QJsonObject()));
 }
 
 void tst_LanguageServerProtocol::recursiveType()

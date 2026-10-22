@@ -4449,19 +4449,19 @@ Utils::Result<ClientResult> fromJson<ClientResult>(const QJsonValue &val)
         return ClientResult(*res3);
     }
     {
-        auto result = fromJson<Result>(val);
-        if (result) return ClientResult(*result);
-    }
-    {
         auto result = fromJson<GetTaskResult>(val);
         if (result) return ClientResult(*result);
     }
     {
-        auto result = fromJson<GetTaskPayloadResult>(val);
+        auto result = fromJson<CancelTaskResult>(val);
         if (result) return ClientResult(*result);
     }
     {
-        auto result = fromJson<CancelTaskResult>(val);
+        auto result = fromJson<Result>(val);
+        if (result) return ClientResult(*result);
+    }
+    {
+        auto result = fromJson<GetTaskPayloadResult>(val);
         if (result) return ClientResult(*result);
     }
     return Utils::ResultError("Invalid ClientResult");
@@ -5845,18 +5845,6 @@ Utils::Result<PrimitiveSchemaDefinition> fromJson<PrimitiveSchemaDefinition>(con
         return PrimitiveSchemaDefinition(*res0);
     }
     {
-        auto result = fromJson<StringSchema>(val);
-        if (result) return PrimitiveSchemaDefinition(*result);
-    }
-    {
-        auto result = fromJson<NumberSchema>(val);
-        if (result) return PrimitiveSchemaDefinition(*result);
-    }
-    {
-        auto result = fromJson<BooleanSchema>(val);
-        if (result) return PrimitiveSchemaDefinition(*result);
-    }
-    {
         auto result = fromJson<UntitledSingleSelectEnumSchema>(val);
         if (result) return PrimitiveSchemaDefinition(*result);
     }
@@ -5870,6 +5858,18 @@ Utils::Result<PrimitiveSchemaDefinition> fromJson<PrimitiveSchemaDefinition>(con
     }
     {
         auto result = fromJson<LegacyTitledEnumSchema>(val);
+        if (result) return PrimitiveSchemaDefinition(*result);
+    }
+    {
+        auto result = fromJson<StringSchema>(val);
+        if (result) return PrimitiveSchemaDefinition(*result);
+    }
+    {
+        auto result = fromJson<NumberSchema>(val);
+        if (result) return PrimitiveSchemaDefinition(*result);
+    }
+    {
+        auto result = fromJson<BooleanSchema>(val);
         if (result) return PrimitiveSchemaDefinition(*result);
     }
     return Utils::ResultError("Invalid PrimitiveSchemaDefinition");
@@ -8434,19 +8434,19 @@ Utils::Result<ServerResult> fromJson<ServerResult>(const QJsonValue &val)
         return ServerResult(*res9);
     }
     {
-        auto result = fromJson<Result>(val);
-        if (result) return ServerResult(*result);
-    }
-    {
         auto result = fromJson<GetTaskResult>(val);
         if (result) return ServerResult(*result);
     }
     {
-        auto result = fromJson<GetTaskPayloadResult>(val);
+        auto result = fromJson<CancelTaskResult>(val);
         if (result) return ServerResult(*result);
     }
     {
-        auto result = fromJson<CancelTaskResult>(val);
+        auto result = fromJson<Result>(val);
+        if (result) return ServerResult(*result);
+    }
+    {
+        auto result = fromJson<GetTaskPayloadResult>(val);
         if (result) return ServerResult(*result);
     }
     return Utils::ResultError("Invalid ServerResult");

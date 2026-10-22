@@ -2813,18 +2813,6 @@ Utils::Result<PrimitiveSchemaDefinition> fromJson<PrimitiveSchemaDefinition>(con
         return PrimitiveSchemaDefinition(*res0);
     }
     {
-        auto result = fromJson<StringSchema>(val);
-        if (result) return PrimitiveSchemaDefinition(*result);
-    }
-    {
-        auto result = fromJson<NumberSchema>(val);
-        if (result) return PrimitiveSchemaDefinition(*result);
-    }
-    {
-        auto result = fromJson<BooleanSchema>(val);
-        if (result) return PrimitiveSchemaDefinition(*result);
-    }
-    {
         auto result = fromJson<UntitledSingleSelectEnumSchema>(val);
         if (result) return PrimitiveSchemaDefinition(*result);
     }
@@ -2838,6 +2826,18 @@ Utils::Result<PrimitiveSchemaDefinition> fromJson<PrimitiveSchemaDefinition>(con
     }
     {
         auto result = fromJson<LegacyTitledEnumSchema>(val);
+        if (result) return PrimitiveSchemaDefinition(*result);
+    }
+    {
+        auto result = fromJson<StringSchema>(val);
+        if (result) return PrimitiveSchemaDefinition(*result);
+    }
+    {
+        auto result = fromJson<NumberSchema>(val);
+        if (result) return PrimitiveSchemaDefinition(*result);
+    }
+    {
+        auto result = fromJson<BooleanSchema>(val);
         if (result) return PrimitiveSchemaDefinition(*result);
     }
     return Utils::ResultError("Invalid PrimitiveSchemaDefinition");
@@ -7495,15 +7495,15 @@ Utils::Result<ServerResult> fromJson<ServerResult>(const QJsonValue &val)
         return ServerResult(*res8);
     }
     {
+        auto result = fromJson<SubscriptionsListenResult>(val);
+        if (result) return ServerResult(*result);
+    }
+    {
         auto result = fromJson<Result>(val);
         if (result) return ServerResult(*result);
     }
     {
         auto result = fromJson<InputRequiredResult>(val);
-        if (result) return ServerResult(*result);
-    }
-    {
-        auto result = fromJson<SubscriptionsListenResult>(val);
         if (result) return ServerResult(*result);
     }
     return Utils::ResultError("Invalid ServerResult");

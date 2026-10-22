@@ -884,6 +884,46 @@ def find_presence_dispatch(variant_type_names, types):
                 break
     return unique_field
 
+_reported_shadowed_variants = set()
+
+def most_specific_first(variant_type_names, types, union_name):
+    """Order variants that are tried one after the other so that a type comes
+    before any type whose required fields are a strict subset of its own.
+    The less specific type would otherwise accept the values of the more
+    specific one and drop the fields only that one has, as TextEdit does for
+    AnnotatedTextEdit. Unrelated types keep their order, and so do types that
+    are not generated structs, such as nested unions, whose required fields
+    are not known.
+
+    Types with the same required fields cannot be ordered that way: either
+    one accepts the values of the other, unless one pins a field to a
+    constant the other does not share. Warns when such a type is never
+    chosen although it has fields the earlier one drops.
+    """
+    structs = {n for n in variant_type_names
+               if "properties" in types.get(n, {}) or "allOf" in types.get(n, {})}
+    required = {n: get_required_fields_for_type(n, types) for n in variant_type_names}
+    ordered = []
+    for name in variant_type_names:
+        pos = next((i for i, other in enumerate(ordered)
+                    if name in structs and other in structs
+                    and required[other] < required[name]),
+                   len(ordered))
+        ordered.insert(pos, name)
+    fields = {n: get_all_fields_for_type(n, types) for n in variant_type_names}
+    consts = {n: get_const_fields_for_type(n, types) for n in variant_type_names}
+    for index, name in enumerate(ordered):
+        for other in ordered[:index]:
+            if (name in structs and other in structs
+                    and required[other] == required[name] and fields[name] - fields[other]
+                    and all(consts[name].get(f) == v for f, v in consts[other].items())
+                    and (union_name, name) not in _reported_shadowed_variants):
+                _reported_shadowed_variants.add((union_name, name))
+                print(f"warning: {union_name}: {name} is never chosen, {other} accepts its"
+                      f" values first and drops {', '.join(sorted(fields[name] - fields[other]))}",
+                      file=sys.stderr)
+    return ordered
+
 def _extract_ref(item):
     """Extract a $ref string from a schema item.
 
@@ -1581,7 +1621,7 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
                             fj.append(f"        co_return {name}(co_await fromJson<{ref_name}>(val));")
                     # Fall back to try-each for remaining ambiguous types
                     ambiguous = [r for r in ref_names if r not in presence_map]
-                    for ref_name in ambiguous:
+                    for ref_name in most_specific_first(ambiguous, types, name):
                         fj.append(f"    {{")
                         fj.append(f"        auto result = fromJson<{ref_name}>(val);")
                         fj.append(f"        if (result) co_return {name}(*result);")
@@ -1591,7 +1631,7 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
                         fj.append(f"    if (!val.isObject()) {{")
                         fj.extend(f"    {line}" for line in nested_union_branches)
                         fj.append(f"    }}")
-                    for ref_name in ref_names:
+                    for ref_name in most_specific_first(ref_names, types or {}, name):
                         fj.append(f"    if (val.isObject()) {{")
                         fj.append(f"        auto result = fromJson<{ref_name}>(val);")
                         fj.append(f"        if (result) co_return {name}(*result);")
@@ -3501,14 +3541,14 @@ def _build_inline_union_code(union_alias, ref_names, types):
                     field = presence_map[ref_name]
                     fj.append(f"    if (obj.contains(\"{field}\"))")
                     fj.append(f"        co_return {union_alias}(co_await fromJson<{ref_name}>(val));")
-            for ref_name in obj_names:
+            for ref_name in most_specific_first(obj_names, types, union_alias):
                 if ref_name not in presence_map:
                     fj.append(f"    {{")
                     fj.append(f"        auto result = fromJson<{ref_name}>(val);")
                     fj.append(f"        if (result) co_return {union_alias}(*result);")
                     fj.append(f"    }}")
         else:
-            for ref_name in obj_names:
+            for ref_name in most_specific_first(obj_names, types or {}, union_alias):
                 fj.append(f"    {{")
                 fj.append(f"        auto result = fromJson<{ref_name}>(val);")
                 fj.append(f"        if (result) co_return {union_alias}(*result);")

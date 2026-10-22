@@ -1,6 +1,7 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <mcp/schemas/schema_2025_11_25.h>
 #include <mcp/server/mcpserver.h>
 
 #include <utils/qtcassert.h>
@@ -11,6 +12,7 @@
 #include <QTest>
 
 #include <optional>
+#include <variant>
 
 using namespace Mcp;
 using namespace Utils;
@@ -163,6 +165,8 @@ private slots:
     void refusesASecondSubscriptionUnderAnIdItAlreadyHolds();
     void refusesMoreSubscriptionsThanASessionMayHold();
     void answersEveryInputRequestATaskIsWaitingOn();
+    void readsAnEnumSchemaWithItsValues();
+    void readsAClientResultAsTheResultItIs();
 };
 
 // The revision is decided per message, not per connection: the same method with
@@ -861,6 +865,34 @@ void tst_McpProtocol::answersEveryInputRequestATaskIsWaitingOn()
         capabilities));
     QCOMPARE(heard.size(), 2);
     QCOMPARE(heard.at(1), QString("sampling"));
+}
+
+namespace Schema = Mcp::Generated::Schema::_2025_11_25;
+
+// A plain string schema accepts an enum schema too, and would drop its values.
+void tst_McpProtocol::readsAnEnumSchemaWithItsValues()
+{
+    const auto schema = Schema::fromJson<Schema::PrimitiveSchemaDefinition>(
+        QJsonObject{{"type", "string"}, {"enum", QJsonArray{"a", "b"}}});
+    QVERIFY(schema);
+    const auto enumSchema = std::get_if<Schema::UntitledSingleSelectEnumSchema>(&*schema);
+    QVERIFY(enumSchema);
+    QCOMPARE(enumSchema->enum_(), QStringList({"a", "b"}));
+}
+
+// The base Result requires nothing and would accept every result.
+void tst_McpProtocol::readsAClientResultAsTheResultItIs()
+{
+    const auto result = Schema::fromJson<Schema::ClientResult>(QJsonObject{
+        {"taskId", "task"},
+        {"status", "working"},
+        {"createdAt", "2026-07-28T00:00:00Z"},
+        {"lastUpdatedAt", "2026-07-28T00:00:00Z"},
+        {"ttl", 1000}});
+    QVERIFY(result);
+    const auto taskResult = std::get_if<Schema::GetTaskResult>(&*result);
+    QVERIFY(taskResult);
+    QCOMPARE(taskResult->taskId(), QString("task"));
 }
 
 QTEST_GUILESS_MAIN(tst_McpProtocol)

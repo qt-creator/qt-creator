@@ -3044,11 +3044,11 @@ Utils::Result<TextDocumentEditEditsItem> fromJson<TextDocumentEditEditsItem>(con
         return TextDocumentEditEditsItem(*res0);
     }
     {
-        auto result = fromJson<TextEdit>(val);
+        auto result = fromJson<AnnotatedTextEdit>(val);
         if (result) return TextDocumentEditEditsItem(*result);
     }
     {
-        auto result = fromJson<AnnotatedTextEdit>(val);
+        auto result = fromJson<TextEdit>(val);
         if (result) return TextDocumentEditEditsItem(*result);
     }
     return Utils::ResultError("Invalid TextDocumentEditEditsItem");
