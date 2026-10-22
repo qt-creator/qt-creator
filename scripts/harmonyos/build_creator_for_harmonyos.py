@@ -10,9 +10,11 @@ host tools only and is built locally. The inputs are mounted read-only:
 - the installer's Qt for HarmonyOS, with the desktop Qt of the same version
   beside it,
 - the HarmonyOS command-line tools, of the SDK version that Qt's application
-  template names,
+  template names, unpacked or as the zip they are downloaded as, which is
+  unpacked into --path once,
 - optionally the device-hosted native SDK ("native-ohos-x64"), for the
-  toolchain that lets the device build,
+  toolchain that lets the device build. Without it, the toolchain stage
+  downloads a pinned one,
 - optionally the signing profile, certificate and keystore, and a file with
   the passphrase of the keystore, and the profile and certificate for the
   runner, whose bundle name is a different one,
@@ -69,11 +71,11 @@ def main() -> int:
                         help="the installer's Qt for HarmonyOS, such as "
                              "~/Qt/6.12.0/harmonyos_arm64_v8a, with the desktop Qt beside it")
     parser.add_argument("--sdk", type=absolute, required=True,
-                        help="HarmonyOS command-line-tools directory")
+                        help="HarmonyOS command-line tools, the directory or the zip they "
+                             "are downloaded as")
     parser.add_argument("--device-sdk", type=absolute,
                         help="the device-hosted native SDK, its native-ohos-x64 zip or the "
-                             "directory it was unpacked into. Without it the package carries "
-                             "no toolchain, and the device cannot build")
+                             "directory it was unpacked into. Downloaded by default")
     parser.add_argument("--path", type=absolute, required=True,
                         help="directory for everything the stages produce and their work "
                              "trees")
@@ -107,27 +109,38 @@ def main() -> int:
         raise SystemExit("Unknown stages: {}".format(", ".join(sorted(unknown))))
     if not (args.qt.parent / "sha1s.txt").is_file():
         raise SystemExit("No sha1s.txt beside {}".format(args.qt))
-    if "toolchain" in stages and not args.device_sdk:
-        stages.remove("toolchain")
     args.path.mkdir(parents=True, exist_ok=True)
 
-    mounts = {"/scripts": HERE, "/sdk": args.sdk, "/qt": args.qt.parent,
-              "/source": args.source}
+    mounts = {"/scripts": HERE, "/qt": args.qt.parent, "/source": args.source}
     qt = "/qt/" + args.qt.name
+    unpack = ""
+    if args.sdk.is_dir():
+        sdk = "/sdk"
+        mounts[sdk] = args.sdk
+    elif args.sdk.is_file():
+        sdk = "/out/command-line-tools"
+        archive = "/inputs/sdk/" + args.sdk.name
+        mounts[archive] = args.sdk
+        # unzip keeps the permission bits, which zipfile drops.
+        unpack = ("test -d {sdk} || {{ rm -rf {tmp} && unzip -q {archive} -d {tmp} && "
+                  "mv {tmp}/command-line-tools {sdk} && rm -rf {tmp}; }} && ").format(
+                      sdk=sdk, tmp="/out/sdk-unpacking", archive=shlex.quote(archive))
+    else:
+        raise SystemExit("No command-line tools at {}".format(args.sdk))
     commands = {
-        "packages": ["/scripts/install_third_party.py", "--sdk", "/sdk",
+        "packages": ["/scripts/install_third_party.py", "--sdk", sdk,
                      "--path", "/out/packages"],
-        "tools": ["/scripts/build_qt_tools.py", "--qt", qt, "--sdk", "/sdk",
+        "tools": ["/scripts/build_qt_tools.py", "--qt", qt, "--sdk", sdk,
                   "--packages", "/out/packages/arm64-ohos", "--path", "/out/tools"],
-        "creator": ["/scripts/build_creator.py", "--qt", qt, "--sdk", "/sdk",
+        "creator": ["/scripts/build_creator.py", "--qt", qt, "--sdk", sdk,
                     "--source", "/source", "--packages", "/out/packages/arm64-ohos",
                     "--path", "/out/creator"],
-        "toolchain": ["/scripts/build_device_toolchain.py", "--sdk", "/sdk",
+        "toolchain": ["/scripts/build_device_toolchain.py", "--sdk", sdk,
                       "--path", "/out/toolchain"],
         "hap": ["/scripts/build_hap.py", "--build", "/out/creator", "--qt", qt,
-                "--sdk", "/sdk", "--packages", "/out/packages/arm64-ohos",
+                "--sdk", sdk, "--packages", "/out/packages/arm64-ohos",
                 "--source", "/source"],
-        "runner": ["/scripts/build_runner_hap.py", "--qt", qt, "--sdk", "/sdk",
+        "runner": ["/scripts/build_runner_hap.py", "--qt", qt, "--sdk", sdk,
                    "--packages", "/out/packages/arm64-ohos", "--source", "/source",
                    "--path", "/out/runner"],
     }
@@ -137,7 +150,7 @@ def main() -> int:
             else args.device_sdk.parent
         commands["toolchain"] += ["--device-sdk", "/device-sdk" if args.device_sdk.is_dir()
                                   else "/device-sdk/" + args.device_sdk.name]
-    if args.device_sdk or (args.path / "toolchain" / "bin").is_dir():
+    if "toolchain" in stages or (args.path / "toolchain" / "bin").is_dir():
         commands["hap"] += ["--toolchain", "/out/toolchain"]
 
     # Each file on its own, so that nothing else beside it becomes visible, and under
@@ -177,6 +190,7 @@ def main() -> int:
     run([args.docker, "build", "-t", IMAGE, HERE / "docker"])
 
     script = " && ".join(shlex.join(commands[stage]) for stage in STAGES if stage in stages)
+    script = unpack + script
     command = [args.docker, "run", "--rm",
                "--user", "{}:{}".format(os.getuid(), os.getgid()),
                "-e", "HOME=/out", "-v", "{}:/out".format(args.path)]

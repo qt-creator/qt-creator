@@ -11,8 +11,9 @@ and lldb with the Python it embeds, beside the lldb-server of the SDK given
 as --sdk.
 
 The device-hosted native SDK is the one published as "native-ohos-x64", whose
-payload is for arm64 despite the name. It has no make and no lldb, so those
-are cross-built here with the clang of the SDK given as --sdk:
+payload is for arm64 despite the name. Without --device-sdk, it is taken from
+a pinned OpenHarmony SDK build. It has no make and no lldb, so those are
+cross-built here with the clang of the SDK given as --sdk:
 
 - bmake, from its release tarball.
 - CPython 3.10, which lldb embeds, cross-built against a host build of the
@@ -66,6 +67,15 @@ SOURCES = {
              "40502d31d75b40d856127ba063bff710b51a3599614dc8e7379b6a07e7428157",
              "llvm-project-7283f48a05de46fe8721ee6c29b1b6427e7d1a33"),
 }
+
+# The OpenHarmony SDK build that carries the device-hosted native SDK, and the
+# zip of it inside.
+DEVICE_SDK = ("https://cidownload.openharmony.cn/version/Master_Version/"
+              "ohos-sdk-public_ohos/20260330_020501/"
+              "version-Master_Version-ohos-sdk-public_ohos-20260330_020501-"
+              "ohos-sdk-public_ohos.tar.gz",
+              "191094c9efcc4c0a6874aadaec5a1bf8b16f09f60c8f34a828d4ab0007356248",
+              "ohos/native-ohos-x64-26.0.0.18-Beta.zip")
 
 PYTHON = "python3.10"
 
@@ -161,12 +171,8 @@ def only_directory(pattern: str, parent: Path) -> Path:
     return found[0]
 
 
-def source(name: str, work: Path) -> Path:
-    """Download and unpack a pinned source tarball, once."""
-    url, sha256, directory = SOURCES[name]
-    unpacked = work / "src" / directory
-    if unpacked.is_dir():
-        return unpacked
+def download(url: str, sha256: str, work: Path) -> Path:
+    """Download a pinned archive, once, and check it."""
     archive = work / "downloads" / url.rsplit("/", 1)[1]
     if not archive.is_file():
         archive.parent.mkdir(parents=True, exist_ok=True)
@@ -180,6 +186,16 @@ def source(name: str, work: Path) -> Path:
             digest.update(chunk)
     if digest.hexdigest() != sha256:
         raise SystemExit("Checksum mismatch for {}".format(archive))
+    return archive
+
+
+def source(name: str, work: Path) -> Path:
+    """Download and unpack a pinned source tarball, once."""
+    url, sha256, directory = SOURCES[name]
+    unpacked = work / "src" / directory
+    if unpacked.is_dir():
+        return unpacked
+    archive = download(url, sha256, work)
     staging = work / "src" / (directory + ".unpacking")
     shutil.rmtree(staging, ignore_errors=True)
     staging.mkdir(parents=True)
@@ -190,8 +206,28 @@ def source(name: str, work: Path) -> Path:
     return unpacked
 
 
-def device_native(device_sdk: Path, work: Path) -> Path:
+def device_sdk_zip(work: Path) -> Path:
+    """The zip of the device-hosted native SDK, from the pinned SDK build."""
+    url, sha256, member = DEVICE_SDK
+    target = work / "downloads" / Path(member).name
+    if target.is_file():
+        return target
+    archive = download(url, sha256, work)
+    print("Extracting {}".format(member), flush=True)
+    staging = work / "downloads" / "sdk"
+    with tarfile.open(archive) as tar:
+        tar.extract(member, staging, filter="tar")
+    (staging / member).rename(target)
+    shutil.rmtree(staging)
+    # The rest of the SDK build is not needed, and the zip alone is kept.
+    archive.unlink()
+    return target
+
+
+def device_native(device_sdk: Path | None, work: Path) -> Path:
     """The "native" directory of the device-hosted SDK, unpacked from its zip if need be."""
+    if not device_sdk:
+        device_sdk = device_sdk_zip(work)
     if device_sdk.is_dir():
         for candidate in [device_sdk / "native", device_sdk]:
             if (candidate / "llvm" / "bin" / "clang").is_file():
@@ -435,9 +471,9 @@ def main() -> int:
     parser.add_argument("--sdk", type=absolute, required=True,
                         help="HarmonyOS SDK for the host, whose clang cross-builds bmake, "
                              "Python and lldb")
-    parser.add_argument("--device-sdk", type=absolute, required=True,
+    parser.add_argument("--device-sdk", type=absolute,
                         help="the device-hosted native SDK, either its native-ohos-x64 zip or "
-                             "the directory it was unpacked into")
+                             "the directory it was unpacked into. Downloaded by default")
     parser.add_argument("--path", type=absolute, required=True,
                         help="directory to lay the toolchain out in, replaced")
     parser.add_argument("--work-path", type=absolute,

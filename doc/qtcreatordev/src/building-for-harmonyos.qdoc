@@ -41,10 +41,14 @@
             \c sha1s.txt file beside them.
         \li The HarmonyOS command-line tools of the SDK version that the
             application template of the Qt for HarmonyOS names. Qt 6.12
-            requires 6.1.0(23).
+            requires 6.1.0(23), which the command-line tools 6.1.0.850
+            carry. Download \uicontrol {Command Line Tools} for Linux from
+            the \l {https://developer.huawei.com/consumer/en/download/}
+            {HUAWEI Developer download page}. The scripts take the downloaded
+            zip file as it is and unpack it into the output directory once.
         \li Optionally, the device-hosted native SDK, which is published as
-            \c native-ohos-x64. Without it, \QC runs on the device but cannot
-            build there.
+            \c native-ohos-x64. Without it, the scripts download a pinned
+            OpenHarmony SDK build that contains it.
         \li Optionally, the material for signing the packages: a keystore,
             a file that holds the passphrase of the keystore and its key,
             and a profile and a certificate for each package. The two
@@ -59,8 +63,7 @@
     \badcode
     scripts/harmonyos/build_creator_for_harmonyos.py \
         --qt ~/Qt/6.12.0/harmonyos_arm64_v8a \
-        --sdk <command-line-tools> \
-        --device-sdk <native-ohos-x64 zip, or the directory it was unpacked into> \
+        --sdk <command-line tools zip, or the directory it was unpacked into> \
         --path <output directory> \
         --keystore <keystore.p12> --key-alias <alias> \
         --keystore-password-file <file> \
@@ -94,8 +97,8 @@
         \li \c toolchain
         \li \c build_device_toolchain.py
         \li The compiler, CMake, Ninja, and debugger that \QC builds and
-            debugs with on the device, in \c toolchain. Runs only with
-            \c --device-sdk.
+            debugs with on the device, in \c toolchain. Without this stage,
+            \QC runs on the device but cannot build there.
     \row
         \li \c hap
         \li \c build_hap.py
