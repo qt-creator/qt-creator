@@ -9,6 +9,7 @@
 #include "languageclientoutline.h"
 #include "languageclienttr.h"
 #include "snippet.h"
+#include "workspaceeditpreview.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
@@ -67,15 +68,64 @@ ChangeSet editsToChangeSet(const QList<TextEdit> &edits, const QTextDocument *do
     return changeSet;
 }
 
-bool applyTextDocumentEdit(const Client *client, const TextDocumentEdit &edit)
+/// \a item as a plain text edit, without its change annotation. A snippet edit
+/// has no plain text.
+std::optional<TextEdit> plainTextEdit(const TextDocumentEditEditsItem &item)
+{
+    if (const auto textEdit = std::get_if<TextEdit>(&item))
+        return *textEdit;
+    if (const auto annotated = std::get_if<AnnotatedTextEdit>(&item))
+        return TextEdit().range(annotated->range()).newText(annotated->newText());
+    return std::nullopt;
+}
+
+/// The plain text edits of \a edit, without their change annotations. Snippet
+/// edits have no plain text and are skipped.
+QList<TextEdit> plainTextEdits(const TextDocumentEdit &edit)
 {
     QList<TextEdit> edits;
     for (const TextDocumentEditEditsItem &item : edit.edits()) {
-        if (const auto textEdit = std::get_if<TextEdit>(&item))
+        if (const std::optional<TextEdit> textEdit = plainTextEdit(item))
             edits << *textEdit;
-        else if (const auto annotated = std::get_if<AnnotatedTextEdit>(&item))
-            edits << TextEdit().range(annotated->range()).newText(annotated->newText());
     }
+    return edits;
+}
+
+std::optional<ChangeAnnotationIdentifier> annotationId(const TextDocumentEditEditsItem &edit)
+{
+    if (const auto annotated = std::get_if<AnnotatedTextEdit>(&edit))
+        return annotated->annotationId();
+    if (const auto snippet = std::get_if<SnippetTextEdit>(&edit))
+        return snippet->annotationId();
+    return std::nullopt;
+}
+
+std::optional<ChangeAnnotationIdentifier> annotationId(const WorkspaceEditDocumentChangesItem &change)
+{
+    if (const auto op = std::get_if<LanguageServerProtocol::CreateFile>(&change))
+        return op->annotationId();
+    if (const auto op = std::get_if<RenameFile>(&change))
+        return op->annotationId();
+    if (const auto op = std::get_if<LanguageServerProtocol::DeleteFile>(&change))
+        return op->annotationId();
+    return std::nullopt;
+}
+
+/// The annotation \a id refers to in \a edit, if any.
+std::optional<ChangeAnnotation> changeAnnotation(
+    const WorkspaceEdit &edit, const std::optional<ChangeAnnotationIdentifier> &id)
+{
+    if (!id || !edit.changeAnnotations())
+        return std::nullopt;
+    const auto it = edit.changeAnnotations()->constFind(*id);
+    if (it == edit.changeAnnotations()->constEnd())
+        return std::nullopt;
+    return *it;
+}
+
+bool applyTextDocumentEdit(const Client *client, const TextDocumentEdit &edit)
+{
+    const QList<TextEdit> edits = plainTextEdits(edit);
     if (edits.isEmpty())
         return true;
     const QString &uri = edit.textDocument().uri();
@@ -121,11 +171,11 @@ bool applyWorkspaceEdit(const Client *client, const WorkspaceEdit &edit)
         QList<WorkspaceEditDocumentChangesItem>());
     if (!documentChanges.isEmpty()) {
         for (const WorkspaceEditDocumentChangesItem &documentChange : documentChanges)
-            result |= applyDocumentChange(client, documentChange);
+            result &= applyDocumentChange(client, documentChange);
     } else {
         const auto changes = edit.changes().value_or(QMap<QString, QList<TextEdit>>());
         for (auto it = changes.cbegin(); it != changes.cend(); ++it)
-            result |= applyTextEdits(client, it.key(), it.value());
+            result &= applyTextEdits(client, it.key(), it.value());
         return result;
     }
     return result;
@@ -173,9 +223,10 @@ void updateCodeActionRefactoringMarker(
         marker.tooltip = action.title();
         if (action.edit()) {
             marker.callback = [client = QPointer(client),
-                               edit = action.edit()](const TextEditorWidget *) {
+                               edit = action.edit(),
+                               title = action.title()](const TextEditorWidget *) {
                 if (QTC_GUARD(client))
-                    applyWorkspaceEdit(client, *edit);
+                    applyWorkspaceEditWithPreview(client, *edit, title);
             };
         } else if (action.command()) {
             marker.callback = [command = action.command(),

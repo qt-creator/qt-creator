@@ -20,6 +20,7 @@
 #include "languageclientutils.h"
 #include "progressmanager.h"
 #include "semantichighlightsupport.h"
+#include "workspaceeditpreview.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
@@ -392,10 +393,13 @@ static ClientCapabilities generateClientCapabilities()
 {
     WorkspaceClientCapabilities workspaceCapabilities;
     workspaceCapabilities.workspaceEdit(
-        WorkspaceEditClientCapabilities().documentChanges(true).resourceOperations(QList{
-            ResourceOperationKind::create,
-            ResourceOperationKind::rename,
-            ResourceOperationKind::delete_}));
+        WorkspaceEditClientCapabilities()
+            .documentChanges(true)
+            .resourceOperations(QList{
+                ResourceOperationKind::create,
+                ResourceOperationKind::rename,
+                ResourceOperationKind::delete_})
+            .changeAnnotationSupport(ChangeAnnotationsSupportOptions().groupsOnLabel(true)));
     workspaceCapabilities.workspaceFolders(true);
     workspaceCapabilities.applyEdit(true);
     workspaceCapabilities.didChangeConfiguration(
@@ -2112,11 +2116,28 @@ void ClientPrivate::handleMethod(
                 return std::monostate{};
             });
     } else if (method == ApplyWorkspaceEditRequest::method) {
-        respondTo.template operator()<ApplyWorkspaceEditRequest>(
-            LanguageServerProtocol::params<ApplyWorkspaceEditRequest>(message),
-            [&](const ApplyWorkspaceEditParams &params) {
-                return ApplyWorkspaceEditResult().applied(applyWorkspaceEdit(q, params.edit()));
-            });
+        const Utils::Result<ApplyWorkspaceEditParams> params
+            = LanguageServerProtocol::params<ApplyWorkspaceEditRequest>(message);
+        if (!params) {
+            q->log(QtMsgType::QtCriticalMsg, params.error());
+            if (isRequest)
+                sendResponse(invalidParamsResponse(id, params.error()));
+        } else {
+            // The user may look at the changes first, so the answer comes when they are done.
+            responseSend = true;
+            applyWorkspaceEditWithPreview(
+                q,
+                params->edit(),
+                params->label().value_or(QString()),
+                [client = QPointer<Client>(q), id, isRequest](bool applied) {
+                    if (!isRequest || !client || !client->reachable())
+                        return;
+                    ApplyWorkspaceEditResult result = ApplyWorkspaceEditResult().applied(applied);
+                    if (!applied)
+                        result.failureReason(Tr::tr("The changes were not applied."));
+                    client->sendRawMessage(responseObject<ApplyWorkspaceEditRequest>(id, result));
+                });
+        }
     } else if (method == WorkspaceFoldersRequest::method) {
         const QList<ProjectExplorer::Project *> projects
             = ProjectExplorer::ProjectManager::projects();

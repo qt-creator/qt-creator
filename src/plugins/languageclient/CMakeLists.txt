@@ -32,6 +32,7 @@ add_qtc_plugin(LanguageClient
     progressmanager.cpp progressmanager.h
     semantichighlightsupport.cpp semantichighlightsupport.h
     snippet.cpp snippet.h
+    workspaceeditpreview.cpp workspaceeditpreview.h
 )
 
 extend_qtc_plugin(LanguageClient

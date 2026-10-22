@@ -35,6 +35,17 @@ LANGUAGECLIENT_EXPORT Utils::ChangeSet editsToChangeSet(
     const QList<LanguageServerProtocol::TextEdit> &edits, const QTextDocument *doc);
 bool LANGUAGECLIENT_EXPORT
 applyWorkspaceEdit(const Client *client, const LanguageServerProtocol::WorkspaceEdit &edit);
+LANGUAGECLIENT_EXPORT std::optional<LanguageServerProtocol::TextEdit> plainTextEdit(
+    const LanguageServerProtocol::TextDocumentEditEditsItem &item);
+LANGUAGECLIENT_EXPORT QList<LanguageServerProtocol::TextEdit> plainTextEdits(
+    const LanguageServerProtocol::TextDocumentEdit &edit);
+LANGUAGECLIENT_EXPORT std::optional<LanguageServerProtocol::ChangeAnnotationIdentifier>
+annotationId(const LanguageServerProtocol::TextDocumentEditEditsItem &edit);
+LANGUAGECLIENT_EXPORT std::optional<LanguageServerProtocol::ChangeAnnotationIdentifier>
+annotationId(const LanguageServerProtocol::WorkspaceEditDocumentChangesItem &change);
+LANGUAGECLIENT_EXPORT std::optional<LanguageServerProtocol::ChangeAnnotation> changeAnnotation(
+    const LanguageServerProtocol::WorkspaceEdit &edit,
+    const std::optional<LanguageServerProtocol::ChangeAnnotationIdentifier> &id);
 bool LANGUAGECLIENT_EXPORT
 applyTextDocumentEdit(const Client *client, const LanguageServerProtocol::TextDocumentEdit &edit);
 bool LANGUAGECLIENT_EXPORT applyTextEdits(

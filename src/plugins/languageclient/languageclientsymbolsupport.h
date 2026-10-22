@@ -99,4 +99,8 @@ private:
     bool m_limitRenamingToProjects = false;
 };
 
+#ifdef WITH_TESTS
+QObject *createSymbolSupportTest();
+#endif
+
 } // namespace LanguageClient

@@ -5,6 +5,7 @@
 
 #include "client.h"
 #include "languageclientutils.h"
+#include "workspaceeditpreview.h"
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
@@ -29,7 +30,7 @@ void CodeActionQuickFixOperation::perform()
     if (!m_client)
         return;
     if (const std::optional<LanguageServerProtocol::WorkspaceEdit> &edit = m_action.edit())
-        applyWorkspaceEdit(m_client, *edit);
+        applyWorkspaceEditWithPreview(m_client, *edit, m_action.title());
     else if (const std::optional<LanguageServerProtocol::Command> &command = m_action.command())
         m_client->executeCommand(*command);
 }

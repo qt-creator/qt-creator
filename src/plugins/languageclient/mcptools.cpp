@@ -1037,37 +1037,66 @@ static QString textBetween(const QStringList &lines, const Position &start, cons
 
 // The text edits of a workspace edit, each with its file, position, old and
 // new text, in file and position order. A server may also ask for files to
-// be created, renamed or deleted; those are only counted.
+// be created, renamed or deleted; those are counted and listed separately.
+// The changes the server wants the user to confirm are named in
+// needsConfirmation.
 struct EditList
 {
     QList<QJsonObject> edits;
     QStringList files;
     int otherChanges = 0;
+    QJsonArray fileOperations;
+    QStringList needsConfirmation;
 };
 
-// The plain text edits of a document edit; a snippet edit has no plain text.
-static QList<TextEdit> plainEdits(const TextDocumentEdit &edit)
+static void addAnnotation(QJsonObject &json, const std::optional<ChangeAnnotation> &annotation)
 {
-    QList<TextEdit> edits;
-    for (const TextDocumentEditEditsItem &item : edit.edits()) {
-        if (const auto *textEdit = std::get_if<TextEdit>(&item))
-            edits.append(*textEdit);
-        else if (const auto *annotated = std::get_if<AnnotatedTextEdit>(&item))
-            edits.append(TextEdit().range(annotated->range()).newText(annotated->newText()));
-    }
-    return edits;
+    if (!annotation)
+        return;
+    json.insert("annotation", annotation->label());
+    if (annotation->needsConfirmation().value_or(false))
+        json.insert("needs_confirmation", true);
 }
 
-static EditList listEdits(const Client *client, const WorkspaceEdit &edit)
+// A file operation as its "operation", "file", "new_file" for a rename, and
+// the server's annotation, if any.
+static QJsonObject fileOperationJson(
+    const WorkspaceEdit &edit,
+    const WorkspaceEditDocumentChangesItem &change,
+    const std::function<QString(const QString &uri)> &fileFor)
+{
+    QJsonObject json;
+    if (const auto op = std::get_if<LanguageServerProtocol::CreateFile>(&change)) {
+        json.insert("operation", "create");
+        json.insert("file", fileFor(op->uri()));
+    } else if (const auto op = std::get_if<RenameFile>(&change)) {
+        json.insert("operation", "rename");
+        json.insert("file", fileFor(op->oldUri()));
+        json.insert("new_file", fileFor(op->newUri()));
+    } else if (const auto op = std::get_if<LanguageServerProtocol::DeleteFile>(&change)) {
+        json.insert("operation", "delete");
+        json.insert("file", fileFor(op->uri()));
+    }
+    addAnnotation(json, changeAnnotation(edit, annotationId(change)));
+    return json;
+}
+
+using AnnotatedEdits = QList<std::pair<TextEdit, std::optional<ChangeAnnotation>>>;
+
+// fileFor gives the file a server URI is reported as, and linesFor the lines
+// of its text.
+static EditList listEdits(
+    const WorkspaceEdit &edit,
+    const std::function<QString(const QString &uri)> &fileFor,
+    const std::function<QStringList(const QString &uri)> &linesFor)
 {
     EditList list;
-    FileTexts texts;
-    const auto add = [&](const QString &uri, const QList<TextEdit> &edits) {
-        const QString file = hostPathString(client, uri);
+    const auto add = [&](const QString &uri, const AnnotatedEdits &edits) {
+        const QString file = fileFor(uri);
         if (!list.files.contains(file))
             list.files.append(file);
-        const QStringList lines = texts.lines(client->filePathFor(uri));
-        for (const TextEdit &textEdit : edits) {
+        const QStringList lines = linesFor(uri);
+        for (const auto &[textEdit, annotation] : edits) {
             const Range range = textEdit.range();
             QJsonObject json = rangeJson(range);
             json.insert("file", file);
@@ -1076,25 +1105,77 @@ static EditList listEdits(const Client *client, const WorkspaceEdit &edit)
             const QString lineText = lines.value(range.start().line()).trimmed();
             if (!lineText.isEmpty())
                 json.insert("line_text", lineText);
+            addAnnotation(json, annotation);
             list.edits.append(json);
         }
     };
+    QStringList operationsToConfirm;
     const std::optional<QList<WorkspaceEditDocumentChangesItem>> documentChanges
         = edit.documentChanges();
     if (documentChanges && !documentChanges->isEmpty()) {
         for (const WorkspaceEditDocumentChangesItem &change : *documentChanges) {
-            if (const TextDocumentEdit *textDocumentEdit = std::get_if<TextDocumentEdit>(&change))
-                add(textDocumentEdit->textDocument().uri(), plainEdits(*textDocumentEdit));
-            else
+            const TextDocumentEdit *textDocumentEdit = std::get_if<TextDocumentEdit>(&change);
+            if (!textDocumentEdit) {
                 ++list.otherChanges;
+                const QJsonObject operation = fileOperationJson(edit, change, fileFor);
+                if (operation.value("needs_confirmation").toBool()) {
+                    operationsToConfirm.append(
+                        QString("%1 %2").arg(operation.value("operation").toString(),
+                                             operation.value("file").toString()));
+                }
+                list.fileOperations.append(operation);
+                continue;
+            }
+            AnnotatedEdits edits;
+            for (const TextDocumentEditEditsItem &item : textDocumentEdit->edits()) {
+                if (const std::optional<TextEdit> textEdit = plainTextEdit(item))
+                    edits.append({*textEdit, changeAnnotation(edit, annotationId(item))});
+            }
+            add(textDocumentEdit->textDocument().uri(), edits);
         }
     } else if (const std::optional<QMap<QString, QList<TextEdit>>> changes = edit.changes()) {
-        for (auto it = changes->cbegin(); it != changes->cend(); ++it)
-            add(it.key(), it.value());
+        for (auto it = changes->cbegin(); it != changes->cend(); ++it) {
+            add(it.key(), Utils::transform(it.value(), [](const TextEdit &textEdit) {
+                    return std::make_pair(textEdit, std::optional<ChangeAnnotation>());
+                }));
+        }
     }
     sortAndDedupeLocations(list.edits);
+    for (const QJsonObject &json : std::as_const(list.edits)) {
+        if (!json.value("needs_confirmation").toBool())
+            continue;
+        const QString place = QString("%1:%2").arg(json.value("file").toString())
+                                  .arg(json.value("line").toInt());
+        if (!list.needsConfirmation.contains(place))
+            list.needsConfirmation.append(place);
+    }
+    list.needsConfirmation.append(operationsToConfirm);
     list.files.sort();
     return list;
+}
+
+static EditList listEdits(const Client *client, const WorkspaceEdit &edit)
+{
+    FileTexts texts;
+    return listEdits(
+        edit,
+        [client](const QString &uri) { return hostPathString(client, uri); },
+        [client, &texts](const QString &uri) { return texts.lines(client->filePathFor(uri)); });
+}
+
+// Applying changes the server wants the user to confirm needs \a confirmed.
+// At most \a limit of them are named.
+static Result<> checkConfirmed(const EditList &edits, bool confirmed, int limit)
+{
+    if (confirmed || edits.needsConfirmation.isEmpty())
+        return ResultOk;
+    QString changes = edits.needsConfirmation.mid(0, limit).join(", ");
+    if (const qsizetype more = edits.needsConfirmation.size() - limit; more > 0)
+        changes += QString(" and %1 more").arg(more);
+    return ResultError(
+        QString("Cannot apply: the server wants the user to confirm %1. Nothing was "
+                "changed. Ask the user, then call again with \"confirmed\" set to true.")
+            .arg(changes));
 }
 
 // One rename in progress: prepare, rename, look for clashes, then report or
@@ -1103,9 +1184,10 @@ class Rename : public std::enable_shared_from_this<Rename>
 {
 public:
     Rename(const Resolved &resolved, const LocationArgs &location, const Position &position,
-           const QString &newName, bool apply, int limit, const ToolResultHandler &handler)
+           const QString &newName, bool apply, bool confirmed, int limit,
+           const ToolResultHandler &handler)
         : m_resolved(resolved), m_location(location), m_position(position), m_newName(newName),
-          m_apply(apply), m_limit(limit), m_handler(handler)
+          m_apply(apply), m_confirmed(confirmed), m_limit(limit), m_handler(handler)
     {}
 
     void start(bool prepareSupported)
@@ -1244,12 +1326,19 @@ private:
                            {"files_affected", QJsonArray::fromStringList(m_edits.files)},
                            {"has_conflicts", !m_conflicts.isEmpty()},
                            {"conflicts", m_conflicts}};
-        if (m_edits.otherChanges > 0)
+        if (m_edits.otherChanges > 0) {
             result.insert("other_changes", m_edits.otherChanges);
+            result.insert("file_operations", m_edits.fileOperations);
+        }
         if (!m_note.isEmpty())
             result.insert("note", m_note);
         if (!m_apply) {
             m_handler(result);
+            return;
+        }
+
+        if (const Result<> confirmed = checkConfirmed(m_edits, m_confirmed, m_limit); !confirmed) {
+            m_handler(ResultError(confirmed.error()));
             return;
         }
 
@@ -1303,7 +1392,7 @@ private:
         if (documentChanges && !documentChanges->isEmpty()) {
             for (const WorkspaceEditDocumentChangesItem &change : *documentChanges) {
                 if (const TextDocumentEdit *textEdit = std::get_if<TextDocumentEdit>(&change))
-                    gather(textEdit->textDocument().uri(), plainEdits(*textEdit));
+                    gather(textEdit->textDocument().uri(), plainTextEdits(*textEdit));
                 else
                     applyDocumentChange(m_resolved.client, change);
             }
@@ -1342,6 +1431,7 @@ private:
     const Position m_position;
     const QString m_newName;
     const bool m_apply;
+    const bool m_confirmed;
     const int m_limit;
     const ToolResultHandler m_handler;
     QString m_oldName;
@@ -1364,9 +1454,10 @@ void lspRename(const QJsonObject &args, const ToolResultHandler &handler)
         return;
     }
     const bool apply = args.value("apply").toBool();
+    const bool confirmed = args.value("confirmed").toBool();
     const int limit = resultLimit(args);
 
-    resolveClient(location->file, [location = *location, newName, apply, limit, handler](
+    resolveClient(location->file, [location = *location, newName, apply, confirmed, limit, handler](
                                       const Result<Resolved> &resolved) {
         if (!resolved) {
             handler(ResultError(resolved.error()));
@@ -1393,7 +1484,7 @@ void lspRename(const QJsonObject &args, const ToolResultHandler &handler)
             return;
         }
         auto rename = std::make_shared<Rename>(*resolved, location, *position, newName, apply,
-                                               limit, handler);
+                                               confirmed, limit, handler);
         rename->start(prepareSupported);
     });
 }
@@ -1779,10 +1870,16 @@ void registerMcpTools()
                 "knows it - templates, overloads and macros included. Give the file, a "
                 "1-based line and column on the identifier, and the \"new_name\". By default "
                 "this is a dry run: it returns the edits the server proposes (each with file, "
-                "1-based position, old and new text) and changes nothing. Set \"apply\" to "
+                "1-based position, old and new text, and the server's \"annotation\" if it "
+                "gave one; \"needs_confirmation\" marks an edit the server wants the user to "
+                "confirm, so ask before applying it) and changes nothing. Files the server "
+                "wants created, renamed or deleted are listed in \"file_operations\", marked "
+                "the same way. Set \"apply\" to "
                 "true to make the edits: they reach the files on disk, and a file open in an "
                 "editor is updated there too, unless it had unsaved changes of its own, in "
-                "which case it is edited but not saved and named in \"unsaved_files\". The "
+                "which case it is edited but not saved and named in \"unsaved_files\". "
+                "Applying changes that need confirmation is refused unless \"confirmed\" is "
+                "true. The "
                 "server refuses a name that clashes within the same scope. Other "
                 "symbols that already carry the new name anywhere in the project are listed "
                 "as \"conflicts\" for you to judge, and do not block. The file is opened in a "
@@ -1799,6 +1896,12 @@ void registerMcpTools()
                         QJsonObject{{"type", "boolean"},
                                     {"description",
                                      "Make the edits. Default false (dry run)."}})
+                    .addProperty(
+                        "confirmed",
+                        QJsonObject{{"type", "boolean"},
+                                    {"description",
+                                     "The user confirmed the changes marked "
+                                     "\"needs_confirmation\". Default false."}})
                     .addProperty("limit", limitProperty())
                     .addRequired("new_name"))
             .outputSchema(
@@ -1830,6 +1933,14 @@ void registerMcpTools()
                                      "Other symbols already named new_name: name, container, "
                                      "kind and location."}})
                     .addProperty("other_changes", QJsonObject{{"type", "integer"}})
+                    .addProperty(
+                        "file_operations",
+                        QJsonObject{{"type", "array"},
+                                    {"items", QJsonObject{{"type", "object"}}},
+                                    {"description",
+                                     "Files to create, rename or delete: operation, file, "
+                                     "new_file for a rename, annotation and "
+                                     "needs_confirmation."}})
                     .addProperty("note", QJsonObject{{"type", "string"}})
                     .addRequired("applied")
                     .addRequired("edits")
@@ -1922,3 +2033,111 @@ void registerMcpTools()
 }
 
 } // namespace LanguageClient
+
+#ifdef WITH_TESTS
+
+#include <QTest>
+
+namespace LanguageClient {
+
+static TextEdit textEdit(int line, int column, int length, const QString &newText)
+{
+    return TextEdit()
+        .range(Range()
+                   .start(Position().line(line).character(column))
+                   .end(Position().line(line).character(column + length)))
+        .newText(newText);
+}
+
+static AnnotatedTextEdit annotatedEdit(int line, const QString &annotationId, int column = 0)
+{
+    const TextEdit edit = textEdit(line, column, 3, "bar");
+    return AnnotatedTextEdit().range(edit.range()).newText(edit.newText()).annotationId(annotationId);
+}
+
+class McpToolsTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testListEdits()
+    {
+        const WorkspaceEdit edit
+            = WorkspaceEdit()
+                  .addDocumentChange(
+                      TextDocumentEdit()
+                          .textDocument(OptionalVersionedTextDocumentIdentifier().uri("a"))
+                          .edits({textEdit(0, 4, 3, "bar"),
+                                  annotatedEdit(1, "confirm"),
+                                  annotatedEdit(2, "label"),
+                                  annotatedEdit(1, "confirm", 4)}))
+                  .addDocumentChange(
+                      LanguageServerProtocol::DeleteFile().uri("b").annotationId("confirm"))
+                  .addDocumentChange(LanguageServerProtocol::CreateFile().uri("c"))
+                  .addChangeAnnotation(
+                      "confirm", ChangeAnnotation().label("Confirm").needsConfirmation(true))
+                  .addChangeAnnotation("label", ChangeAnnotation().label("Label"));
+        QStringList fileCalls;
+        QStringList linesCalls;
+        const EditList list = listEdits(
+            edit,
+            [&fileCalls](const QString &uri) {
+                fileCalls << uri;
+                return uri + ".cpp";
+            },
+            [&linesCalls](const QString &uri) {
+                linesCalls << uri;
+                return QStringList({"int foo;", "foo = 1;", "foo++;"});
+            });
+
+        QCOMPARE(fileCalls, QStringList({"a", "b", "c"}));
+        QCOMPARE(linesCalls, QStringList({"a"}));
+        QCOMPARE(list.files, QStringList({"a.cpp"}));
+        QCOMPARE(list.edits.size(), 4);
+        QCOMPARE(list.edits.at(0).value("old_text").toString(), QString("foo"));
+        QVERIFY(!list.edits.at(0).contains("annotation"));
+        QCOMPARE(list.edits.at(1).value("annotation").toString(), QString("Confirm"));
+        QCOMPARE(list.edits.at(1).value("needs_confirmation").toBool(), true);
+        QCOMPARE(list.edits.at(2).value("needs_confirmation").toBool(), true);
+        QCOMPARE(list.edits.at(3).value("annotation").toString(), QString("Label"));
+        QVERIFY(!list.edits.at(3).contains("needs_confirmation"));
+
+        QCOMPARE(list.otherChanges, 2);
+        QCOMPARE(list.fileOperations.size(), 2);
+        const QJsonObject deleteOperation = list.fileOperations.at(0).toObject();
+        QCOMPARE(deleteOperation.value("operation").toString(), QString("delete"));
+        QCOMPARE(deleteOperation.value("file").toString(), QString("b.cpp"));
+        QCOMPARE(deleteOperation.value("needs_confirmation").toBool(), true);
+        const QJsonObject createOperation = list.fileOperations.at(1).toObject();
+        QCOMPARE(createOperation.value("operation").toString(), QString("create"));
+        QVERIFY(!createOperation.contains("annotation"));
+
+        QCOMPARE(list.needsConfirmation, QStringList({"a.cpp:2", "delete b.cpp"}));
+    }
+
+    void testCheckConfirmed()
+    {
+        EditList list;
+        QVERIFY(checkConfirmed(list, false, 10));
+        list.needsConfirmation = {"a.cpp:2", "delete b.cpp"};
+        const Result<> refused = checkConfirmed(list, false, 10);
+        QVERIFY(!refused);
+        QVERIFY(refused.error().contains("a.cpp:2, delete b.cpp."));
+        const Result<> capped = checkConfirmed(list, false, 1);
+        QVERIFY(!capped);
+        QVERIFY(capped.error().contains("a.cpp:2 and 1 more."));
+        QVERIFY(!capped.error().contains("b.cpp"));
+        QVERIFY(checkConfirmed(list, true, 10));
+    }
+};
+
+QObject *createMcpToolsTest()
+{
+    return new McpToolsTest;
+}
+
+} // namespace LanguageClient
+
+#include "mcptools.moc"
+
+#endif // WITH_TESTS

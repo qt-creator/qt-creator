@@ -6,6 +6,7 @@
 #include "client.h"
 #include "dynamiccapabilities.h"
 #include "languageclientutils.h"
+#include "workspaceeditpreview.h"
 
 #include "languageclienttr.h"
 #include <languageserverprotocol/lsputils.h>
@@ -27,6 +28,14 @@
 #include <QFile>
 #include <QHBoxLayout>
 #include <QLabel>
+
+#ifdef WITH_TESTS
+#include "languageclientinterface.h"
+
+#include <utils/temporarydirectory.h>
+
+#include <QTest>
+#endif
 
 using namespace LanguageServerProtocol;
 using namespace ProjectExplorer;
@@ -295,10 +304,12 @@ struct ItemData
 {
     Utils::Text::Range range;
     QVariant userData;
+    std::optional<ChangeAnnotation> annotation;
 };
 [[maybe_unused]] static bool operator==(const ItemData &id1, const ItemData &id2)
 {
-    return id1.range == id2.range && id1.userData == id2.userData;
+    return id1.range == id2.range && id1.userData == id2.userData
+           && id1.annotation == id2.annotation;
 }
 
 QStringList SymbolSupport::getFileContents(const FilePath &filePath)
@@ -358,11 +369,13 @@ static Utils::SearchResultItems generateSearchResultItems(
 
         QStringList lines = SymbolSupport::getFileContents(filePath);
         for (const ItemData &data : it.value()) {
-            item.setMainRange(data.range);
+            Utils::SearchResultItem dataItem = item;
+            dataItem.setMainRange(data.range);
             if (data.range.begin.line > 0 && data.range.begin.line <= lines.size())
-                item.setLineText(lines[data.range.begin.line - 1]);
-            item.setUserData(data.userData);
-            result << item;
+                dataItem.setLineText(lines[data.range.begin.line - 1]);
+            dataItem.setUserData(data.userData);
+            groupByAnnotation(dataItem, data.annotation);
+            result << dataItem;
         }
     }
     if (renaming) {
@@ -395,7 +408,7 @@ static Utils::SearchResultItems generateSearchResultItems(
     ItemDataPerPath rangesInDocument;
     for (const Location &location : locations) {
         rangesInDocument[client->filePathFor(location.uri())]
-            << ItemData{SymbolSupport::convertRange(location.range()), {}};
+            << ItemData{SymbolSupport::convertRange(location.range()), {}, {}};
     }
     filterFileAliases(rangesInDocument);
     return generateSearchResultItems(rangesInDocument, client, nullptr, false);
@@ -585,27 +598,13 @@ void SymbolSupport::requestRename(const DocumentPosition &position, Core::Search
         search->popup();
 }
 
-/// The edits of a document edit, dropping the annotations Qt Creator does not
-/// show.
-static QList<TextEdit> textEdits(const TextDocumentEdit &documentEdit)
-{
-    QList<TextEdit> edits;
-    for (const TextDocumentEditEditsItem &item : documentEdit.edits()) {
-        if (const auto edit = std::get_if<TextEdit>(&item))
-            edits << *edit;
-        else if (const auto annotated = std::get_if<AnnotatedTextEdit>(&item))
-            edits << TextEdit().range(annotated->range()).newText(annotated->newText());
-    }
-    return edits;
-}
-
 static Utils::SearchResultItems generateReplaceItems(
     const WorkspaceEdit &edits, Client *client, Core::SearchResult *search, bool limitToProjects)
 {
     Utils::SearchResultItems items;
     auto convertEdits = [](const QList<TextEdit> &edits) {
         return Utils::transform(edits, [](const TextEdit &edit) {
-            return ItemData{SymbolSupport::convertRange(edit.range()), QVariant(toJson(edit))};
+            return ItemData{SymbolSupport::convertRange(edit.range()), QVariant(toJson(edit)), {}};
         });
     };
     ItemDataPerPath rangesInDocument;
@@ -614,11 +613,18 @@ static Utils::SearchResultItems generateReplaceItems(
     if (!documentChanges.isEmpty()) {
         for (const WorkspaceEditDocumentChangesItem &documentChange : documentChanges) {
             if (const auto edit = std::get_if<TextDocumentEdit>(&documentChange)) {
-                rangesInDocument[client->filePathFor(edit->textDocument().uri())]
-                    = convertEdits(textEdits(*edit));
+                QList<ItemData> itemData;
+                for (const TextDocumentEditEditsItem &item : edit->edits()) {
+                    const std::optional<TextEdit> textEdit = plainTextEdit(item);
+                    if (!textEdit)
+                        continue;
+                    itemData << ItemData{SymbolSupport::convertRange(textEdit->range()),
+                                         QVariant(toJson(*textEdit)),
+                                         changeAnnotation(edits, annotationId(item))};
+                }
+                rangesInDocument[client->filePathFor(edit->textDocument().uri())] = itemData;
             } else {
                 Utils::SearchResultItem item;
-
                 if (const auto op = std::get_if<LanguageServerProtocol::CreateFile>(
                         &documentChange)) {
                     item.setLineText(Tr::tr("Create %1").arg(op->uri()));
@@ -635,6 +641,7 @@ static Utils::SearchResultItems generateReplaceItems(
                     item.setFilePath(client->filePathFor(op->uri()));
                     item.setUserData(QVariant(toJson(*op)));
                 }
+                groupByAnnotation(item, changeAnnotation(edits, annotationId(documentChange)));
 
                 items << item;
             }
@@ -747,13 +754,15 @@ void SymbolSupport::handleRenameResult(
     }
 }
 
-void SymbolSupport::applyRename(const Utils::SearchResultItems &checkedItems,
-                                Core::SearchResult *search)
+/// Applies the edits and file operations of  checkedItems, which come from
+/// generateReplaceItems().
+static void applyReplaceItems(const Client *client, const Utils::SearchResultItems &checkedItems)
 {
     QMap<Utils::FilePath, QList<TextEdit>> editsForDocuments;
     QList<WorkspaceEditDocumentChangesItem> changes;
     for (const Utils::SearchResultItem &item : checkedItems) {
-        const auto filePath = Utils::FilePath::fromUserInput(item.path().value(0));
+        const Utils::FilePath filePath = item.filePath().value_or(
+            Utils::FilePath::fromUserInput(item.path().value(0)));
         const QJsonObject jsonObject = item.userData().toJsonObject();
         // A file operation names itself in its "kind"; everything else is an edit.
         const QString kind = jsonObject.value("kind").toString();
@@ -779,10 +788,16 @@ void SymbolSupport::applyRename(const Utils::SearchResultItems &checkedItems,
     }
 
     for (const WorkspaceEditDocumentChangesItem &change : std::as_const(changes))
-        applyDocumentChange(m_client, change);
+        applyDocumentChange(client, change);
 
     for (auto it = editsForDocuments.begin(), end = editsForDocuments.end(); it != end; ++it)
-        applyTextEdits(m_client, it.key(), it.value());
+        applyTextEdits(client, it.key(), it.value());
+}
+
+void SymbolSupport::applyRename(const Utils::SearchResultItems &checkedItems,
+                                Core::SearchResult *search)
+{
+    applyReplaceItems(m_client, checkedItems);
 
     const auto extraWidget = qobject_cast<ReplaceWidget *>(search->additionalReplaceWidget());
     QTC_ASSERT(extraWidget, return);
@@ -825,6 +840,75 @@ void SymbolSupport::setRenameResultsEnhancer(const RenameResultsEnhancer &enhanc
 {
     m_renameResultsEnhancer = enhancer;
 }
+
+#ifdef WITH_TESTS
+
+class SymbolSupportTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testAnnotatedRename()
+    {
+        class NullInterface final : public BaseClientInterface
+        {
+            FilePath serverDeviceTemplate() const final { return {}; }
+            void sendData(const QByteArray &) final {}
+        };
+        Client client(new NullInterface);
+        const TemporaryDirectory dir("symbolsupport");
+        const FilePath code = dir.filePath("code.cpp");
+        const FilePath comment = dir.filePath("comment.cpp");
+        QVERIFY(code.writeFileContents("int foo;\n"));
+        QVERIFY(comment.writeFileContents("// foo\n"));
+        const auto rename = [](int column, const QString &annotationId) {
+            return AnnotatedTextEdit()
+                .range(Range()
+                           .start(Position().line(0).character(column))
+                           .end(Position().line(0).character(column + 3)))
+                .newText("bar")
+                .annotationId(annotationId);
+        };
+        const auto documentEdit = [&client](
+                                      const FilePath &filePath, const AnnotatedTextEdit &edit) {
+            return TextDocumentEdit()
+                .textDocument(
+                    OptionalVersionedTextDocumentIdentifier().uri(client.uriFor(filePath)))
+                .edits({edit});
+        };
+        const WorkspaceEdit edit
+            = WorkspaceEdit()
+                  .addDocumentChange(documentEdit(code, rename(4, "code")))
+                  .addDocumentChange(documentEdit(comment, rename(3, "comment")))
+                  .addChangeAnnotation("code", ChangeAnnotation().label("Code"))
+                  .addChangeAnnotation(
+                      "comment", ChangeAnnotation().label("Comments").needsConfirmation(true));
+
+        const Utils::SearchResultItems items = generateReplaceItems(edit, &client, nullptr, false);
+        const QList<QStringList> paths = Utils::transform(items, &Utils::SearchResultItem::path);
+        QCOMPARE(paths,
+                 QList<QStringList>(
+                     {{"Code", code.toUserOutput()}, {"Comments", comment.toUserOutput()}}));
+        const QList<bool> selected
+            = Utils::transform(items, &Utils::SearchResultItem::selectForReplacement);
+        QCOMPARE(selected, QList<bool>({true, false}));
+
+        applyReplaceItems(
+            &client, Utils::filtered(items, &Utils::SearchResultItem::selectForReplacement));
+        QCOMPARE(code.fileContents().value_or(QByteArray()), QByteArray("int bar;\n"));
+        QCOMPARE(comment.fileContents().value_or(QByteArray()), QByteArray("// foo\n"));
+
+        applyReplaceItems(&client, items.mid(1));
+        QCOMPARE(comment.fileContents().value_or(QByteArray()), QByteArray("// bar\n"));
+    }
+};
+
+QObject *createSymbolSupportTest()
+{
+    return new SymbolSupportTest;
+}
+
+#endif
 
 } // namespace LanguageClient
 

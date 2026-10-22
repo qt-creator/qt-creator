@@ -6,10 +6,12 @@
 #include "languageclientmanager_test.h"
 #include "languageclientoutline.h"
 #include "languageclientsettings.h"
+#include "languageclientsymbolsupport.h"
 #include "languageclienttr.h"
 #include "mcptools.h"
 #include "requiresprojectorfile_test.h"
 #include "snippet.h"
+#include "workspaceeditpreview.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -60,6 +62,9 @@ void LanguageClientPlugin::initialize()
     addTestCreator(&createSnippetParsingTest);
     addTestCreator(&createLanguageClientManagerTest);
     addTestCreator(&Internal::createRequiresProjectOrFileTest);
+    addTestCreator(&createWorkspaceEditPreviewTest);
+    addTestCreator(&createMcpToolsTest);
+    addTestCreator(&createSymbolSupportTest);
 #endif
 
     LanguageClientSettings::registerClientType({Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID,

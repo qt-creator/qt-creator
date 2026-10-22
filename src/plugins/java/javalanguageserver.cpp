@@ -18,6 +18,7 @@
 #include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientsettings.h>
 #include <languageclient/languageclientutils.h>
+#include <languageclient/workspaceeditpreview.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
@@ -280,7 +281,7 @@ void JLSClient::executeCommand(const LanguageServerProtocol::Command &command)
             const Utils::Result<LanguageServerProtocol::WorkspaceEdit> edit
                 = LanguageServerProtocol::fromJson<LanguageServerProtocol::WorkspaceEdit>(argument);
             if (edit)
-                LanguageClient::applyWorkspaceEdit(this, *edit);
+                LanguageClient::applyWorkspaceEditWithPreview(this, *edit, command.title());
             else
                 log(QtWarningMsg, edit.error());
         }

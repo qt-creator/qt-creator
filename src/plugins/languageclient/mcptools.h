@@ -8,6 +8,7 @@
 #include <utils/result.h>
 
 #include <QJsonObject>
+#include <QObject>
 
 #include <functional>
 
@@ -36,5 +37,9 @@ LANGUAGECLIENT_EXPORT void lspSymbols(const QJsonObject &args, const ToolResultH
 LANGUAGECLIENT_EXPORT void closeDocumentsOpenedByMcpTools();
 
 void registerMcpTools();
+
+#ifdef WITH_TESTS
+QObject *createMcpToolsTest();
+#endif
 
 } // namespace LanguageClient

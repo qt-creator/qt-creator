@@ -71,6 +71,8 @@ QtcPlugin {
         "semantichighlightsupport.h",
         "snippet.cpp",
         "snippet.h",
+        "workspaceeditpreview.cpp",
+        "workspaceeditpreview.h",
     ]
 
     QtcTestFiles {
