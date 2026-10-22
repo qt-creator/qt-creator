@@ -266,9 +266,15 @@ QtcPlugin {
             "perfsettings.cpp", "perfsettings.h",
             "perftimelinemodel.cpp", "perftimelinemodel.h",
             "perftimelinemodelmanager.cpp", "perftimelinemodelmanager.h",
-            "perfprofiler.qrc",
             "profiler.qrc",
         ]
+    }
+
+    Group {
+        name: "Perf profiler runtime resources"
+        Qt.core.resourcePrefix: "/perfprofiler"
+        files: "tracepoints.sh"
+        fileTags: "qt.core.resource_data"
     }
 
     QtcTestFiles {

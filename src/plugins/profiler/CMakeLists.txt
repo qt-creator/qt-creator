@@ -153,7 +153,6 @@ set(PERFPROFILER_CPP_SOURCES
   perfevent.h
   perfeventtype.h
   perfnativemixed.cpp perfnativemixed.h
-  perfprofiler.qrc
   profiler.qrc
   perfprofilerconstants.h
   perfprofilerflamegraphmodel.cpp perfprofilerflamegraphmodel.h
@@ -291,3 +290,8 @@ if(TARGET Profiler AND _profiler_with_libdw)
   # scripts/deploy.py), for systems that have none.
   set_property(TARGET Profiler APPEND PROPERTY INSTALL_RPATH "\$ORIGIN/../../elfutils")
 endif()
+
+qtc_add_resources(Profiler "perf_resources"
+  PREFIX "/perfprofiler"
+  FILES tracepoints.sh
+)
