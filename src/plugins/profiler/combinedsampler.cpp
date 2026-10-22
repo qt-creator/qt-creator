@@ -294,6 +294,11 @@ ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSes
     // so by now the parent knows its pid and which debug server it came up on.
     // Neither is known when this recipe is built, so both are copied to the
     // children here rather than above.
+    //
+    // The parent owns the launch, so the children see the target the way a run
+    // control's recording does: started by someone else (see launchExecutable).
+    // That keeps the QML side waiting for it to come up, rather than giving up
+    // after a few seconds as if no server were there.
     const auto prime = [parent, qmlChild, nativeChild] {
         const qint64 pid = parent->pid.load();
         qmlChild->pid.store(pid);
@@ -301,6 +306,10 @@ ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSes
         qmlChild->processName = parent->processName;
         nativeChild->processName = parent->processName;
         qmlChild->serverUrl = parent->serverUrl;
+        const FilePath launched = parent->launchCommand ? parent->launchCommand->executable()
+                                                        : parent->launchExecutable;
+        qmlChild->launchExecutable = launched;
+        nativeChild->launchExecutable = launched;
     };
 
     const auto assemble = [parent, qmlChild, nativeChild] {

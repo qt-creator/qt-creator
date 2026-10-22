@@ -215,11 +215,13 @@ ExecutableItem QmlProfilerSampler::captureRecipe(const std::shared_ptr<Recording
     const auto onSetup = [this, session](QBarrier &barrier) {
         QBarrier *b = &barrier;
 
-        // Connecting to nothing should fail in a few seconds, not the default ~50s.
-        if (!session->launchCommand) {
-            m_clientManager->setMaximumRetries(5);
-            m_clientManager->setRetryInterval(1000);
-        }
+        // A target started for this recording may take well over a few seconds
+        // to start listening on a loaded machine, so it gets the default ~50s;
+        // connecting to a server that is not there should fail in a few. Set
+        // on every recording, since the client manager outlives each one.
+        const bool launched = session->launchCommand || !session->launchExecutable.isEmpty();
+        m_clientManager->setRetryInterval(1000);
+        m_clientManager->setMaximumRetries(launched ? 50 : 5);
 
         QObject::connect(m_clientManager.get(), &QmlProfilerClientManager::connectionFailed,
                          b, [b, session] {
