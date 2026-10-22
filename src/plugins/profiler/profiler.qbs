@@ -266,7 +266,6 @@ QtcPlugin {
             "perfsettings.cpp", "perfsettings.h",
             "perftimelinemodel.cpp", "perftimelinemodel.h",
             "perftimelinemodelmanager.cpp", "perftimelinemodelmanager.h",
-            "profiler.qrc",
         ]
     }
 
@@ -274,6 +273,16 @@ QtcPlugin {
         name: "Perf profiler runtime resources"
         Qt.core.resourcePrefix: "/perfprofiler"
         files: "tracepoints.sh"
+        fileTags: "qt.core.resource_data"
+    }
+
+    Group {
+        name: "images"
+        prefix: "images/"
+        files: [
+            "mode_profiler_mask.png",
+            "mode_profiler_mask@2x.png",
+        ]
         fileTags: "qt.core.resource_data"
     }
 

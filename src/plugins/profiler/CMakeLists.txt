@@ -153,7 +153,6 @@ set(PERFPROFILER_CPP_SOURCES
   perfevent.h
   perfeventtype.h
   perfnativemixed.cpp perfnativemixed.h
-  profiler.qrc
   perfprofilerconstants.h
   perfprofilerflamegraphmodel.cpp perfprofilerflamegraphmodel.h
   perfprofilertracebackend.cpp perfprofilertracebackend.h
@@ -294,4 +293,11 @@ endif()
 qtc_add_resources(Profiler "perf_resources"
   PREFIX "/perfprofiler"
   FILES tracepoints.sh
+)
+
+qtc_add_resources(Profiler "images"
+  PREFIX "/profiler"
+  FILES
+    images/mode_profiler_mask.png
+    images/mode_profiler_mask@2x.png
 )
