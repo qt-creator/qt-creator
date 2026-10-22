@@ -294,6 +294,8 @@ public:
     bool acceptsStandardInput() const;
     void writeStandardInput(const QString &data);
     void closeStandardInput();
+    void setStandardInputHandler(const std::function<void(const QString &)> &write,
+                                 const std::function<void()> &close = {});
 
 #ifdef WITH_TESTS
     void setAspectDataForTest(Utils::AspectContainerData data);

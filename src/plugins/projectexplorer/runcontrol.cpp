@@ -271,6 +271,13 @@ public:
     // The application process, as long as it is writable, i.e. does not run in a terminal.
     QPointer<Process> stdInProcess;
     bool stdInClosed = false;
+
+    struct StandardInputHandler
+    {
+        std::function<void(const QString &)> write;
+        std::function<void()> close;
+    };
+    std::optional<StandardInputHandler> stdInHandler;
 };
 
 } // Internal
@@ -972,6 +979,8 @@ void RunControlPrivate::startTaskTree()
 void RunControlPrivate::emitStopped()
 {
     q->setApplicationProcessHandle(ProcessHandle());
+    if (stdInHandler)
+        q->setStandardInputHandler({});
     emit q->stopped();
 }
 
@@ -1050,20 +1059,44 @@ void RunControlPrivate::debugMessage(const QString &msg) const
 
 bool RunControl::acceptsStandardInput() const
 {
+    if (d->stdInHandler)
+        return !d->stdInClosed;
     return d->stdInProcess && !d->stdInClosed && d->stdInProcess->isRunning();
 }
 
 void RunControl::writeStandardInput(const QString &data)
 {
     QTC_ASSERT(acceptsStandardInput(), return);
-    d->stdInProcess->write(data);
+    if (d->stdInHandler)
+        d->stdInHandler->write(data);
+    else
+        d->stdInProcess->write(data);
 }
 
 void RunControl::closeStandardInput()
 {
     QTC_ASSERT(acceptsStandardInput(), return);
     d->stdInClosed = true;
-    d->stdInProcess->closeWriteChannel();
+    if (d->stdInHandler) {
+        if (d->stdInHandler->close)
+            d->stdInHandler->close();
+    } else {
+        d->stdInProcess->closeWriteChannel();
+    }
+    emit acceptsStandardInputChanged(QPrivateSignal());
+}
+
+// For a run that does not start the application as a process of its own.
+// Without a function to write, the run does not take input this way.
+void RunControl::setStandardInputHandler(const std::function<void(const QString &)> &write,
+                                         const std::function<void()> &close)
+{
+    if (write) {
+        d->stdInHandler = {write, close};
+        d->stdInClosed = false;
+    } else {
+        d->stdInHandler.reset();
+    }
     emit acceptsStandardInputChanged(QPrivateSignal());
 }
 
@@ -1448,6 +1481,42 @@ private slots:
         QCOMPARE(changedSpy.count(), 2);
         QTRY_VERIFY2(!stoppedSpy.isEmpty(), qPrintable(messages));
         QVERIFY2(output.contains("hello"), qPrintable(messages));
+    }
+
+    void testStandardInputHandler()
+    {
+        RunControl runControl(Constants::NORMAL_RUN_MODE);
+        QVERIFY(!runControl.acceptsStandardInput());
+
+        QString input;
+        bool closed = false;
+        QSignalSpy changedSpy(&runControl, &RunControl::acceptsStandardInputChanged);
+        runControl.setStandardInputHandler([&input](const QString &data) { input += data; },
+                                           [&closed] { closed = true; });
+        QVERIFY(runControl.acceptsStandardInput());
+        QCOMPARE(changedSpy.count(), 1);
+
+        runControl.writeStandardInput("hello\n");
+        QCOMPARE(input, "hello\n");
+        runControl.closeStandardInput();
+        QVERIFY(closed);
+        QVERIFY(!runControl.acceptsStandardInput());
+        QCOMPARE(changedSpy.count(), 2);
+
+        runControl.setStandardInputHandler({});
+        QVERIFY(!runControl.acceptsStandardInput());
+    }
+
+    void testStandardInputHandlerStops()
+    {
+        RunControl runControl(Constants::NORMAL_RUN_MODE);
+        runControl.setStandardInputHandler([](const QString &) {});
+        QVERIFY(runControl.acceptsStandardInput());
+
+        QSignalSpy changedSpy(&runControl, &RunControl::acceptsStandardInputChanged);
+        runControl.forceStop();
+        QVERIFY(!runControl.acceptsStandardInput());
+        QCOMPARE(changedSpy.count(), 1);
     }
 };
 
