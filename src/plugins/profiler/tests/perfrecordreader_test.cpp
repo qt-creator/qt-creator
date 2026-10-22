@@ -266,25 +266,6 @@ QByteArray buildDwarfSampleRecord(quint64 ip, quint32 pid, quint32 tid, quint64 
     return wrapRecord(RecordSample, payload);
 }
 
-// A sample the way "perf record --call-graph fp" writes it on aarch64: the
-// callchain the kernel walked, and the link register, the one user register
-// it asks for, without a stack.
-QByteArray buildFpSampleRecord(quint64 ip, quint32 pid, quint64 timeNs,
-                               const QList<quint64> &callchain, quint64 linkRegister)
-{
-    QByteArray payload;
-    appendU64(payload, ip);
-    appendU32(payload, pid);
-    appendU32(payload, pid);
-    appendU64(payload, timeNs);
-    appendU64(payload, quint64(callchain.size()));
-    for (quint64 addr : callchain)
-        appendU64(payload, addr);
-    appendU64(payload, 1); // abi: PERF_SAMPLE_REGS_ABI_64
-    appendU64(payload, linkRegister);
-    return wrapRecord(RecordSample, payload);
-}
-
 // A dwarf-mode sample the way "perf record --call-graph dwarf" really writes
 // it: also carrying a callchain, which holds the kernel frames only -- perf
 // sets exclude_callchain_user, leaving the user stack to the unwinder.
@@ -1675,6 +1656,26 @@ void PerfRecordReaderTest::testEndsDwarfCallChainBeforeData()
 #endif // WITH_LIBDW && Q_OS_LINUX && (Q_PROCESSOR_X86_64 || Q_PROCESSOR_ARM_64)
 
 #if defined(WITH_LIBDW) && defined(Q_OS_LINUX) && defined(Q_PROCESSOR_ARM_64)
+
+// A sample the way "perf record --call-graph fp" writes it on aarch64: the
+// callchain the kernel walked, and the link register, the one user register
+// it asks for, without a stack.
+static QByteArray buildFpSampleRecord(quint64 ip, quint32 pid, quint64 timeNs,
+                                      const QList<quint64> &callchain, quint64 linkRegister)
+{
+    QByteArray payload;
+    appendU64(payload, ip);
+    appendU32(payload, pid);
+    appendU32(payload, pid);
+    appendU64(payload, timeNs);
+    appendU64(payload, quint64(callchain.size()));
+    for (quint64 addr : callchain)
+        appendU64(payload, addr);
+    appendU64(payload, 1); // abi: PERF_SAMPLE_REGS_ABI_64
+    appendU64(payload, linkRegister);
+    return wrapRecord(RecordSample, payload);
+}
+
 // Out of a frame libdw has no CFI for, the unwind follows the frame records,
 // and starts over at the first caller that has CFI, from where that caller
 // really left the stack: here, the test function that called the frames
