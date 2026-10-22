@@ -109,7 +109,8 @@
         \li \c qtcrunner.hap, or \c qtcrunner-unsigned.hap.
     \endtable
 
-    The output directory needs about 14 GB.
+    The output directory needs about 21 GB, 6.4 GB of which are the
+    command-line tools when \c --sdk is the zip file.
 
     To run only some stages, list them in \c --stages. A later run reuses what
     an earlier one left in the output directory, so after the first run, a
