@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "texteditor_global.h"
+
 #include <KSyntaxHighlighting/Definition>
 
 #include <QFuture>
@@ -29,13 +31,14 @@ Definitions definitionsForFileName(const Utils::FilePath &filePath);
 void rememberDefinitionForDocument(const Definition &definition, const TextDocument *document);
 void clearDefinitionForDocumentCache();
 
-void addCustomHighlighterPath(const Utils::FilePath &path);
+TEXTEDITOR_EXPORT void addCustomHighlighterPath(const Utils::FilePath &path);
 void downloadDefinitions(const QPointer<QLabel> &logger = {});
 void reload();
 
 void handleShutdown();
 
-QFuture<QTextDocument *> highlightCode(const QString &code, const QString &mimeType);
+TEXTEDITOR_EXPORT QFuture<QTextDocument *> highlightCode(const QString &code,
+                                                         const QString &mimeType);
 
 } // namespace HighlighterHelper
 
