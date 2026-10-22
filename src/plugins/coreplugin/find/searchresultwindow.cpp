@@ -853,11 +853,31 @@ void SearchResult::setAdditionalReplaceWidget(QWidget *widget)
 }
 
 /*!
+    Shows or hides the field for the replacement text, depending on \a visible.
+    A search whose results carry their own replacements hides it and keeps only
+    the button that applies the checked results. While the field is hidden,
+    textToReplace() and replaceButtonClicked() report an empty replacement text.
+*/
+void SearchResult::setReplaceTextVisible(bool visible)
+{
+    m_widget->setReplaceTextVisible(visible);
+}
+
+/*!
     Adds a single result line to the \uicontrol {Search Results} output pane.
 
     \a {item}.mainRange() specifies the region from the beginning of the search term
     through its length that should be visually marked.
     \a {item}.path(), \a {item}.text() are shown on the result line.
+    A path with more than one part nests the result below groups, and the last
+    part names the file that \a {item}.filePath() is attached to. Because
+    SearchResultItem::setFilePath() resets the path to the file alone, call
+    SearchResultItem::setPath() after it to nest a file below a group.
+    Results are grouped by label only, so the last part must be unique per file
+    within its group, for example the file path in user output form. A search
+    that nests files and supports replacing must take the file from
+    \a {item}.filePath() in its handler of replaceButtonClicked(), because the
+    first part of the path is the group, not the file.
     You can attach arbitrary \a {item}.userData() to the search result, which can
     be used, for example, when reacting to the signals of the search results
     for your search.

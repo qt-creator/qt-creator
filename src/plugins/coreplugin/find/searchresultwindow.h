@@ -57,6 +57,7 @@ public:
     void setSearchAgainSupported(bool supported);
     QWidget *additionalReplaceWidget() const;
     void setAdditionalReplaceWidget(QWidget *widget);
+    void setReplaceTextVisible(bool visible);
     void makeNonInteractive(const std::function<void()> &callback);
     bool isInteractive() const { return !m_finishedHandler; }
     Utils::SearchResultItems allItems() const;

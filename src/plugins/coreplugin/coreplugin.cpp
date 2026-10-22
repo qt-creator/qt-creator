@@ -21,6 +21,7 @@
 #include "find/searchresultwidget_test.h"
 #include "fileutils.h"
 #include "find/findplugin.h"
+#include "find/searchresult_test.h"
 #include "foldernavigationwidget.h"
 #include "navigationwidget.h"
 #include "icore.h"
@@ -535,6 +536,7 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
     addTestCreator(createModeAreaTest);
     addTestCreator(createOutputFormatterTest);
     addTestCreator(createJsExpanderTest);
+    addTestCreator(createSearchResultTest);
 #endif
 
     return ResultOk;

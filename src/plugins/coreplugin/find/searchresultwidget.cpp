@@ -282,7 +282,7 @@ void SearchResultWidget::setTextToReplace(const QString &textToReplace)
 
 QString SearchResultWidget::textToReplace() const
 {
-    return m_replaceTextEdit->text();
+    return m_replaceTextVisible ? m_replaceTextEdit->text() : QString();
 }
 
 void SearchResultWidget::setSupportPreserveCase(bool enabled)
@@ -291,12 +291,21 @@ void SearchResultWidget::setSupportPreserveCase(bool enabled)
     m_preserveCaseCheck->setVisible(m_preserveCaseSupported);
 }
 
+void SearchResultWidget::setReplaceTextVisible(bool visible)
+{
+    m_replaceTextVisible = visible;
+    m_replaceLabel->setVisible(visible);
+    m_replaceTextEdit->setVisible(visible);
+    if (!visible && m_replaceTextEdit->hasFocus())
+        m_searchResultTreeView->setFocus();
+}
+
 void SearchResultWidget::setShowReplaceUI(bool visible)
 {
     m_searchResultTreeView->model()->setShowReplaceUI(visible);
     m_topReplaceWidget->setVisible(visible);
     m_isShowingReplaceUI = visible;
-    if (visible)
+    if (visible && m_replaceTextVisible)
         m_replaceTextEdit->setFocus();
     else
         m_searchResultTreeView->setFocus();
@@ -304,14 +313,15 @@ void SearchResultWidget::setShowReplaceUI(bool visible)
 
 bool SearchResultWidget::hasFocusInternally() const
 {
-    return m_searchResultTreeView->hasFocus() || (m_isShowingReplaceUI && m_replaceTextEdit->hasFocus());
+    return m_searchResultTreeView->hasFocus()
+           || (m_isShowingReplaceUI && m_replaceTextVisible && m_replaceTextEdit->hasFocus());
 }
 
 void SearchResultWidget::setFocusInternally()
 {
     if (!canFocusInternally() || hasFocusInternally())
         return;
-    if (m_isShowingReplaceUI
+    if (m_isShowingReplaceUI && m_replaceTextVisible
         && (!focusWidget() || m_replaceTextEdit->isAncestorOf(focusWidget())))
         m_replaceTextEdit->setFocus();
     else
@@ -478,7 +488,7 @@ void SearchResultWidget::doReplace()
 {
     m_infoBar.clear();
     setShowReplaceUI(false);
-    emit replaceButtonClicked(m_replaceTextEdit->text(), items(true),
+    emit replaceButtonClicked(textToReplace(), items(true),
                               m_preserveCaseSupported && m_preserveCaseCheck->isChecked());
 }
 
@@ -496,22 +506,28 @@ void SearchResultWidget::searchAgain()
     emit searchAgainRequested();
 }
 
+static void collectItems(
+    SearchResultFilterModel *model,
+    const QModelIndex &parent,
+    bool checkedOnly,
+    SearchResultItems &result)
+{
+    const int rowCount = model->rowCount(parent);
+    for (int rowIndex = 0; rowIndex < rowCount; ++rowIndex) {
+        const QModelIndex index = model->index(rowIndex, 0, parent);
+        const SearchResultTreeItem * const rowItem = model->itemForIndex(index);
+        QTC_ASSERT(rowItem != nullptr, continue);
+        if (!rowItem->isGroupingItem() && (!checkedOnly || rowItem->checkState()))
+            result << rowItem->item;
+        if (rowItem->childrenCount() > 0)
+            collectItems(model, index, checkedOnly, result);
+    }
+}
+
 SearchResultItems SearchResultWidget::items(bool checkedOnly) const
 {
     SearchResultItems result;
-    SearchResultFilterModel *model = m_searchResultTreeView->model();
-    const int fileCount = model->rowCount();
-    for (int i = 0; i < fileCount; ++i) {
-        const QModelIndex fileIndex = model->index(i, 0);
-        const int itemCount = model->rowCount(fileIndex);
-        for (int rowIndex = 0; rowIndex < itemCount; ++rowIndex) {
-            const QModelIndex textIndex = model->index(rowIndex, 0, fileIndex);
-            const SearchResultTreeItem * const rowItem = model->itemForIndex(textIndex);
-            QTC_ASSERT(rowItem != nullptr, continue);
-            if (!checkedOnly || rowItem->checkState())
-                result << rowItem->item;
-        }
-    }
+    collectItems(m_searchResultTreeView->model(), {}, checkedOnly, result);
     return result;
 }
 

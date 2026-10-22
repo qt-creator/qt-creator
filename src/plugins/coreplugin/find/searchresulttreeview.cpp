@@ -3,6 +3,7 @@
 
 #include "searchresulttreeview.h"
 #include "searchresulttreeitemroles.h"
+#include "searchresulttreeitems.h"
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitemdelegate.h"
 
@@ -118,6 +119,16 @@ void SearchResultTreeView::showFilterWidget(QWidget *parent)
     optionsWidget->show();
 }
 
+static bool hasGroupingChild(const SearchResultTreeItem *item)
+{
+    QTC_ASSERT(item, return false);
+    for (int row = 0; row < item->childrenCount(); ++row) {
+        if (item->childAt(row)->isGroupingItem())
+            return true;
+    }
+    return false;
+}
+
 void SearchResultTreeView::keyPressEvent(QKeyEvent *event)
 {
     if ((event->key() == Qt::Key_Return
@@ -125,8 +136,14 @@ void SearchResultTreeView::keyPressEvent(QKeyEvent *event)
             && event->modifiers() == 0
             && currentIndex().isValid()
             && state() != QAbstractItemView::EditingState) {
+        const QModelIndex index = currentIndex();
         const SearchResultItem item
-            = model()->data(currentIndex(), ItemDataRoles::ResultItemRole).value<SearchResultItem>();
+            = model()->data(index, ItemDataRoles::ResultItemRole).value<SearchResultItem>();
+        if (model()->data(index, ItemDataRoles::IsGroupingItemRole).toBool() && !item.filePath()
+            && (!item.path().isEmpty() || hasGroupingChild(model()->itemForIndex(index)))) {
+            setExpanded(index, !isExpanded(index));
+            return;
+        }
         emit jumpToSearchResult(item);
         return;
     }

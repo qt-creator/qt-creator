@@ -3951,13 +3951,17 @@ void EditorManager::openEditorAtSearchResult(const SearchResultItem &item,
 {
     const QStringList &path = item.path();
     if (path.isEmpty()) {
-        openEditor(FilePath::fromUserInput(item.lineText()), editorId, flags, newEditor);
+        openEditor(
+            item.filePath().value_or(FilePath::fromUserInput(item.lineText())),
+            editorId,
+            flags,
+            newEditor);
         return;
     }
     const Text::Range range = item.mainRange();
+    const FilePath filePath = item.filePath().value_or(FilePath::fromUserInput(path.last()));
     IEditor *editor = openEditorAt(
-        {FilePath::fromUserInput(path.first()), range.begin.line, range.begin.column},
-        editorId, flags, newEditor);
+        {filePath, range.begin.line, range.begin.column}, editorId, flags, newEditor);
     // Select the match, so it stands out instead of leaving just a caret at its start.
     if (editor) {
         if (auto textEdit = Aggregation::query<Utils::PlainTextEdit>(editor->widget())) {

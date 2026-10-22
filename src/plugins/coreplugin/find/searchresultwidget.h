@@ -49,6 +49,7 @@ public:
     void setTextToReplace(const QString &textToReplace);
     QString textToReplace() const;
     void setSupportPreserveCase(bool enabled);
+    void setReplaceTextVisible(bool visible);
 
     bool hasFocusInternally() const;
     void setFocusInternally();
@@ -132,6 +133,7 @@ private:
     QLabel *m_matchesFoundLabel = nullptr;
     bool m_preserveCaseSupported = true;
     bool m_isShowingReplaceUI = false;
+    bool m_replaceTextVisible = true;
     bool m_searchAgainSupported = false;
     bool m_replaceSupported = false;
 };

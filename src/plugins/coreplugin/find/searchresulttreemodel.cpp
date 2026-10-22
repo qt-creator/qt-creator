@@ -394,7 +394,7 @@ QSet<SearchResultTreeItem *> SearchResultTreeModel::addPath(
         const int insertionIndex = currentItem->insertionIndex(part, &partItem);
         if (!partItem) {
             SearchResultItem item;
-            if (filePath && QTC_GUARD(path.size() == 1))
+            if (filePath && currentPath.size() == path.size() - 1)
                 item.setFilePath(*filePath);
             item.setPath(currentPath);
             item.setLineText(part);

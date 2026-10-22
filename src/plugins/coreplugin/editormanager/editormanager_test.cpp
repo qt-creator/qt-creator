@@ -18,6 +18,7 @@
 #include "documentmodel_p.h"
 #include "editormanager_p.h"
 
+#include <utils/searchresultitem.h>
 #include <utils/temporaryfile.h>
 
 #include <QApplication>
@@ -91,6 +92,7 @@ private slots:
     void testClosingCurrentViewKeepsCurrentView();
     void testRemovingAllSplitsKeepsCurrentView();
     void testNoStaleEntryAfterResolvedPathChange();
+    void testOpenSearchResultBelowGroup();
 };
 
 QObject *createEditorManagerTest()
@@ -1466,6 +1468,26 @@ void EditorManagerTest::testNoStaleEntryAfterResolvedPathChange()
     // Opening the target must create a new entry instead of finding the removed one.
     QVERIFY(EMP::openEditor(views.at(0), targetPath));
     QCOMPARE(DocumentModel::entries().size(), 1);
+}
+
+void EditorManagerTest::testOpenSearchResultBelowGroup()
+{
+    TestFile withFilePath;
+    SearchResultItem item;
+    item.setFilePath(withFilePath.filePath());
+    item.setPath({"Group", "label"});
+    item.setMainRange(1, 0, 0);
+    EM::openEditorAtSearchResult(item);
+    QVERIFY(EM::currentDocument());
+    QCOMPARE(EM::currentDocument()->filePath(), withFilePath.filePath());
+
+    TestFile withoutFilePath;
+    SearchResultItem fallback;
+    fallback.setPath({"Group", withoutFilePath.filePath().toUserOutput()});
+    fallback.setMainRange(1, 0, 0);
+    EM::openEditorAtSearchResult(fallback);
+    QVERIFY(EM::currentDocument());
+    QCOMPARE(EM::currentDocument()->filePath(), withoutFilePath.filePath());
 }
 
 } // namespace Core::Internal

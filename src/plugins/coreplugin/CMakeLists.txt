@@ -328,6 +328,8 @@ extend_qtc_plugin(Core
     externaltool_test.h
     find/findtoolwindow_test.cpp
     find/findtoolwindow_test.h
+    find/searchresult_test.cpp
+    find/searchresult_test.h
     find/searchresulttreeview_test.cpp
     find/searchresulttreeview_test.h
     find/searchresultwidget_test.cpp
