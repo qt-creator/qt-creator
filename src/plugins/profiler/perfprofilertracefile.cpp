@@ -44,7 +44,7 @@ struct PerfNrCpus {
     quint32 available = 0;
 };
 
-QDataStream &operator>>(QDataStream &stream, PerfNrCpus &nrCpus)
+static QDataStream &operator>>(QDataStream &stream, PerfNrCpus &nrCpus)
 {
     return stream >> nrCpus.online >> nrCpus.available;
 }
@@ -55,7 +55,7 @@ struct PerfBuildId {
     QByteArray fileName;
 };
 
-QDataStream &operator>>(QDataStream &stream, PerfBuildId &buildId)
+static QDataStream &operator>>(QDataStream &stream, PerfBuildId &buildId)
 {
     return stream >> buildId.pid >> buildId.id >> buildId.fileName;
 }
@@ -65,7 +65,7 @@ struct PerfCpuTopology {
     QList<QByteArray> siblingThreads;
 };
 
-QDataStream &operator>>(QDataStream &stream, PerfCpuTopology &cpuTopology)
+static QDataStream &operator>>(QDataStream &stream, PerfCpuTopology &cpuTopology)
 {
     return stream >> cpuTopology.siblingCores >> cpuTopology.siblingThreads;
 }
@@ -77,7 +77,7 @@ struct PerfNumaNode {
     QByteArray topology;
 };
 
-QDataStream &operator>>(QDataStream &stream, PerfNumaNode &node)
+static QDataStream &operator>>(QDataStream &stream, PerfNumaNode &node)
 {
     return stream >> node.nodeId >> node.memTotal >> node.memFree >> node.topology;
 }
@@ -87,7 +87,7 @@ struct PerfPmu {
     QByteArray name;
 };
 
-QDataStream &operator>>(QDataStream &stream, PerfPmu &pmu)
+static QDataStream &operator>>(QDataStream &stream, PerfPmu &pmu)
 {
     return stream >> pmu.type >> pmu.name;
 }
@@ -98,7 +98,7 @@ struct PerfGroupDesc {
     quint32 numMembers = 0;
 };
 
-QDataStream &operator>>(QDataStream &stream, PerfGroupDesc &groupDesc)
+static QDataStream &operator>>(QDataStream &stream, PerfGroupDesc &groupDesc)
 {
     return stream >> groupDesc.name >> groupDesc.leaderIndex >> groupDesc.numMembers;
 }
@@ -121,7 +121,7 @@ struct PerfFeatures
     QList<PerfGroupDesc> groupDescs;
 };
 
-QDataStream &operator>>(QDataStream &stream, PerfFeatures &features)
+static QDataStream &operator>>(QDataStream &stream, PerfFeatures &features)
 {
     return stream >> features.hostName
                   >> features.osRelease

@@ -83,7 +83,7 @@ void QmlProfilerClientManagerTest::testConnectionFailure_data()
     }
 }
 
-void softAssertMessageHandler(QtMsgType type, const QMessageLogContext &context,
+static void softAssertMessageHandler(QtMsgType type, const QMessageLogContext &context,
                               const QString &message)
 {
     if (type != QtDebugMsg || !message.startsWith("SOFT ASSERT: "))
@@ -193,7 +193,7 @@ void QmlProfilerClientManagerTest::testUnresponsiveLocal()
     clientManager.disconnectFromServer();
 }
 
-void responsiveTestData()
+static void responsiveTestData()
 {
     QTest::addColumn<quint32>("flushInterval");
 
@@ -313,7 +313,7 @@ void QmlProfilerClientManagerTest::testResponsiveLocal()
     stateManager.setCurrentState(QmlProfilerStateManager::Idle);
 }
 
-void invalidHelloMessageHandler(QtMsgType type, const QMessageLogContext &context,
+static void invalidHelloMessageHandler(QtMsgType type, const QMessageLogContext &context,
                                 const QString &message)
 {
     if (type != QtWarningMsg || message != "QML Debug Client: Invalid hello message")
