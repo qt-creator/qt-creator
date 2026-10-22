@@ -90,6 +90,7 @@ public:
     void updateLocalsWindow();
 
     bool insertItem(WatchItem *item); // Takes ownership, returns whether item was added, not overwritten.
+    void appendNewItem(WatchItem *item); // Takes ownership, item must not exist yet.
     void insertItems(const GdbMi &data);
 
     void removeItemByIName(const QString &iname);
@@ -107,6 +108,8 @@ public:
     void setLocation(const Location &loc);
 
 private:
+    void itemInserted(WatchItem *item);
+
     DebuggerEngine * const m_engine; // Not owned
     WatchModel *m_model; // Owned.
 };

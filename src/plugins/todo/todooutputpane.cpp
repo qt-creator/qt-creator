@@ -155,19 +155,7 @@ void TodoOutputPane::scanningScopeChanged(ScanningScope scanningScope)
 
 void TodoOutputPane::todoTreeViewClicked(const QModelIndex &index)
 {
-    // Create a to-do item and notify that it was clicked on
-
-    int row = index.row();
-
-    TodoItem item;
-    item.text = index.sibling(row, Constants::OUTPUT_COLUMN_TEXT).data().toString();
-    item.file = Utils::FilePath::fromUserInput(index.sibling(row, Constants::OUTPUT_COLUMN_FILE).data().toString());
-    item.line = index.sibling(row, Constants::OUTPUT_COLUMN_LINE).data().toInt();
-    item.color = index.data(Qt::ForegroundRole).value<QColor>();
-    item.iconType = static_cast<IconType>(index.sibling(row, Constants::OUTPUT_COLUMN_TEXT)
-                                          .data(Qt::UserRole).toInt());
-
-    todoItemClicked(item);
+    todoItemClicked(index.data(Qt::UserRole).value<TodoItem>());
 }
 
 void TodoOutputPane::updateTodoCount()

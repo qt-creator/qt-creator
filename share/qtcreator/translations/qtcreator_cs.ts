@@ -26376,7 +26376,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Dialog</translation>
@@ -32246,7 +32246,7 @@ Vytvořte, prosím, součástky pomocné knihovny pro výstup dat o ladění na 
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>No executable file to launch.</source>
         <translation>Nebyl zadán žádný spustitelný soubor ke spuštění.</translation>
@@ -36601,7 +36601,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Painting</source>
         <translation>Vykreslení</translation>
@@ -43371,7 +43371,7 @@ Chcete jej ukončit?</translation>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Could not connect to the in-process QML profiler.
 Do you want to retry?</source>
@@ -43707,7 +43707,7 @@ reference k prvkům v jiných souborech, smyčkách atd.)</translation>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Events</source>
         <translation>Události</translation>
@@ -46231,7 +46231,7 @@ o pravděpodobném URI.</translation>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Loading data</source>
         <translation>Nahrávají se data</translation>
@@ -53203,7 +53203,7 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Animations</source>
         <translation>Animace</translation>
@@ -54439,7 +54439,7 @@ Tyto soubory jsou zachovány.</numerusform>
     <name>QtC::QmlJSEditor</name>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>anonymous function</source>
         <translation>Anonymní funkce</translation>

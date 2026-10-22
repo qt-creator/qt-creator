@@ -26,7 +26,3 @@ def startQtCreatorWithNewAppAtQMLEditor(projectDir, projectName, line = None):
             return None
     return editorArea
 
-def verifyCurrentLine(editorArea, currentLineExpectedText, verifyMessage):
-    currentLineText = str(lineUnderCursor(editorArea)).strip();
-    return test.compare(currentLineText, currentLineExpectedText, verifyMessage)
-

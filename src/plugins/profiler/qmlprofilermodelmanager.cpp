@@ -22,19 +22,19 @@ using namespace QmlDebug;
 namespace Profiler::Internal {
 
 static const char *ProfileFeatureNames[] = {
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "JavaScript"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Memory Usage"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Pixmap Cache"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Scene Graph"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Animations"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Painting"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Compiling"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Creating"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Binding"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Handling Signal"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Input Events"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Debug Messages"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Quick3D")
+    QT_TRANSLATE_NOOP("QtC::Profiler", "JavaScript"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Memory Usage"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Pixmap Cache"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Scene Graph"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Animations"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Painting"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Compiling"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Creating"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Binding"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Handling Signal"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Input Events"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Debug Messages"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Quick3D")
 };
 
 Q_STATIC_ASSERT(sizeof(ProfileFeatureNames) == sizeof(char *) * MaximumProfileFeature);
@@ -60,6 +60,7 @@ public:
     QmlProfilerEventStorage(const ErrorHandler &errorHandler);
 
     int append(Timeline::TraceEvent &&event) override;
+    void appendSerialized(QByteArrayView events, int count);
     int size() const override;
     void clear() override;
     bool replay(const std::function<bool(Timeline::TraceEvent &&)> &receiver) const override;
@@ -74,34 +75,6 @@ private:
     int m_size = 0;
 };
 
-class QmlProfilerInMemoryEventStorage : public Timeline::TraceEventStorage
-{
-public:
-    int append(Timeline::TraceEvent &&event) override
-    {
-        QTC_ASSERT(event.is<QmlEvent>(), return int(m_events.size()));
-        m_events.push_back(std::move(event.asRvalueRef<QmlEvent>()));
-        return int(m_events.size()) - 1;
-    }
-
-    int size() const override { return int(m_events.size()); }
-    void clear() override { m_events.clear(); }
-    void finalize() override {}
-
-    bool replay(const std::function<bool(Timeline::TraceEvent &&)> &receiver) const override
-    {
-        for (const QmlEvent &event : m_events) {
-            if (!receiver(QmlEvent(event)))
-                return false;
-        }
-        return true;
-    }
-
-private:
-    std::vector<QmlEvent> m_events;
-};
-
-
 QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent)
     : Timeline::TimelineTraceManager({}, std::make_unique<QmlProfilerEventTypeStorage>(), parent)
 {
@@ -111,9 +84,9 @@ QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent)
             this, &QmlProfilerModelManager::setTypeDetails);
     connect(m_detailsRewriter, &QmlProfilerDetailsRewriter::eventDetailsChanged,
             this, &QmlProfilerModelManager::typeDetailsFinished);
-    auto storage = new QmlProfilerEventStorage(QmlProfilerEventStorage::ErrorHandler());
-    storage->setErrorHandler([this](const QString &message) { emit error(message); });
-    std::unique_ptr<Timeline::TraceEventStorage> storagePtr(storage);
+    m_eventStorage = new QmlProfilerEventStorage(QmlProfilerEventStorage::ErrorHandler());
+    m_eventStorage->setErrorHandler([this](const QString &message) { emit error(message); });
+    std::unique_ptr<Timeline::TraceEventStorage> storagePtr(m_eventStorage);
     swapEventStorage(storagePtr);
 }
 
@@ -183,17 +156,24 @@ void QmlProfilerModelManager::replayQmlEvents(const QmlEventLoader &loader,
     }
 }
 
+// See TimelineTraceManager::replayInThread().
+void QmlProfilerModelManager::replayQmlEventsInThread(
+    const void *key, const std::function<QmlEventLoader()> &makeLoader,
+    const Initializer &initializer, const Preparer &preparer, const Finalizer &finalizer,
+    const ErrorHandler &errorHandler)
+{
+    replayInThread(key, [makeLoader]() -> TraceEventLoader {
+        return [loader = makeLoader()](const Timeline::TraceEvent &event,
+                                       const Timeline::TraceEventType &type) {
+            loader(static_cast<const QmlEvent &>(event), static_cast<const QmlEventType &>(type));
+        };
+    }, initializer, preparer, finalizer, errorHandler);
+}
+
 void QmlProfilerModelManager::initialize()
 {
     emit initialized();
     TimelineTraceManager::initialize();
-}
-
-void QmlProfilerModelManager::useInMemoryEventStorage()
-{
-    std::unique_ptr<Timeline::TraceEventStorage> storage =
-        std::make_unique<QmlProfilerInMemoryEventStorage>();
-    swapEventStorage(storage);
 }
 
 void QmlProfilerModelManager::addPausedRange(qint64 start, qint64 end)
@@ -297,7 +277,7 @@ void QmlProfilerModelManager::setTypeDetails(int typeId, const QString &details)
 
 void QmlProfilerModelManager::restrictByFilter(QmlProfilerModelManager::QmlEventFilter filter)
 {
-    return Timeline::TimelineTraceManager::restrictByFilter(
+    return Timeline::TimelineTraceManager::restrictByFilterInThread(
         [filter = std::move(filter)](TraceEventLoader loader) {
         const auto filteredQmlLoader = filter([loader](const QmlEvent &event,
                                                        const QmlEventType &type) {
@@ -364,6 +344,19 @@ void QmlProfilerModelManager::setEventType(int typeIndex, QmlEventType &&type)
 void QmlProfilerModelManager::appendEvent(QmlEvent &&event)
 {
     TimelineTraceManager::appendEvent(std::move(event));
+}
+
+// Loads the event into the models without storing it, for a trace file that stores the events
+// with appendSerializedEvents().
+void QmlProfilerModelManager::dispatchEvent(const QmlEvent &event)
+{
+    TimelineTraceManager::dispatchEvent(event);
+}
+
+// Stores count events serialized as QmlEvent's stream operator writes them.
+void QmlProfilerModelManager::appendSerializedEvents(QByteArrayView events, int count)
+{
+    m_eventStorage->appendSerialized(events, count);
 }
 
 void QmlProfilerModelManager::restrictToRange(qint64 start, qint64 end)
@@ -516,6 +509,12 @@ int QmlProfilerEventStorage::append(Timeline::TraceEvent &&event)
     QTC_ASSERT(event.is<QmlEvent>(), return m_size);
     m_file.append(std::move(event.asRvalueRef<QmlEvent>()));
     return m_size++;
+}
+
+void QmlProfilerEventStorage::appendSerialized(QByteArrayView events, int count)
+{
+    m_file.appendSerialized(events);
+    m_size += count;
 }
 
 int QmlProfilerEventStorage::size() const

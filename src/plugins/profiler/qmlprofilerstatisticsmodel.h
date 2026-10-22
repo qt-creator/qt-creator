@@ -90,7 +90,9 @@ public:
             minimum = durations.front();
             maximum = durations.back();
 
-            durations.clear();
+            // One entry per call adds up to gigabytes over a long trace; clear() would
+            // keep all of it allocated.
+            std::vector<qint64>().swap(durations);
         }
 
         qint64 average() const
@@ -128,6 +130,7 @@ public:
 
 private:
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type);
+    void prepare();
     void finalize();
 
     void typeDetailsChanged(int typeIndex);

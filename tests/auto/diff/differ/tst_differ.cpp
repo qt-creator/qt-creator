@@ -789,6 +789,20 @@ void tst_Differ::cleanupLineDiffSemantics_data()
                 << Diff(Diff::Equal, "int x = 1;")
                 << Diff(Diff::Insert, " // c\nint y;")
                 << Diff(Diff::Equal, "\n"));
+
+    QTest::newRow("Unchanged line between large edits")
+            << (QList<Diff>()
+                << Diff(Diff::Insert, "// A comment that outweighs the line below.\n")
+                << Diff(Diff::Equal, "int unchanged;\n")
+                << Diff(Diff::Insert, "void added()\n{\n    return;\n}\n")
+                << Diff(Diff::Equal, "int y;\n")
+                << Diff(Diff::Delete, "int z;\n"))
+            << (QList<Diff>()
+                << Diff(Diff::Insert, "// A comment that outweighs the line below.\n")
+                << Diff(Diff::Equal, "int unchanged;\n")
+                << Diff(Diff::Insert, "void added()\n{\n    return;\n}\n")
+                << Diff(Diff::Equal, "int y;\n")
+                << Diff(Diff::Delete, "int z;\n"));
 }
 
 void tst_Differ::cleanupLineDiffSemantics()
@@ -815,6 +829,18 @@ void tst_Differ::cleanupLineDiffSemanticsWithDiffer()
     const QString inlineEditor = "foo(a,\nfoo(a);\n";
     const QList<Diff> rawDiff = differ.diff(inlineBaseline, inlineEditor);
     QCOMPARE(Differ::cleanupLineDiffSemantics(rawDiff), rawDiff);
+
+    const QString unchangedBlock = "namespace {\nclass Greeter\n{\npublic:\n    int x;\n};\n";
+    const QString blockBaseline = "// TODO: Add a farewell.\n" + unchangedBlock + "int a = 1;\n";
+    const QString blockEditor = "// A long comment that is added above the unchanged block\n"
+                                "// and continues for a good number of characters.\n"
+                                + unchangedBlock + "class Farewell\n{\npublic:\n    int farewellCount = 0;\n};\nint a = 2;\n";
+    const QList<Diff> blockDiff
+        = Differ::cleanupLineDiffSemantics(differ.diff(blockBaseline, blockEditor));
+    bool foundBlock = false;
+    for (const Diff &diff : blockDiff)
+        foundBlock |= diff.command == Diff::Equal && diff.text.contains(unchangedBlock);
+    QVERIFY(foundBlock);
 }
 
 void tst_Differ::cleanupSemanticsLossless_data()

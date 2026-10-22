@@ -35,7 +35,7 @@ public:
     Timeline::ItemDetails details(int index) const final;
 
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) final;
-    void finalize() final;
+    void prepare() final;
     void clear() final;
 
 private:
@@ -45,6 +45,9 @@ private:
     qint64 m_minNextStartTimes[2]{};
 
     int rowFromThreadId(int threadId) const;
+    void setTargetFrameRate(int framesPerSecond);
+
+    int m_targetFrameRate = 60;
 };
 
 } // namespace Profiler::Internal

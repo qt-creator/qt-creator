@@ -21,6 +21,7 @@ private slots:
     void initTestCase();
     void testConsistency();
     void testRowMaxValue();
+    void testFormatRowValue();
     void testColor();
     void testLabels();
     void cleanupTestCase();

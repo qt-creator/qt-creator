@@ -4040,8 +4040,9 @@ public:
     int columnsOnScreen() const;
     int effectiveTextWidth() const;
     int textColumnsOnScreen() const;
-    int xForColumn(int column) const;
-    int columnForX(int x) const;
+    qreal xForColumn(int column) const;
+    int columnForX(qreal x, QTextLine::CursorPosition cursorPos
+                                = QTextLine::CursorBetweenCharacters) const;
     int firstVisibleColumn() const;
     void setFirstVisibleColumn(int column);
     int windowSideScrollOffset(int columns) const;
@@ -6228,6 +6229,7 @@ void FakeVimHandler::Private::restoreWidget(int tabSize)
 {
     //EDITOR(removeEventFilter(q));
     setTabSize(tabSize);
+    q->requestDisableBlockSelection();
     g.visualMode = NoVisualMode;
     // Force "ordinary" cursor.
     setThinCursor();
@@ -9165,6 +9167,13 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
 
 EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
 {
+    if (EDITOR(isReadOnly()) && input.isReturn() && isNoVisualMode()
+        && g.submode == NoSubMode && g.subsubmode == NoSubSubMode
+        && g.mvcount == 0 && g.opcount == 0 && !g.gflag
+        && g.currentCommand.isEmpty() && g.mapStates.isEmpty() && m_replayDepth == 0) {
+        return EventUnhandled;
+    }
+
     bool handled = false;
 
     bool clearGflag = g.gflag;
@@ -9184,11 +9193,6 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
     // Process input for a sub-mode.
     if (input.isEscape() && g.subsubmode != ExpressionSubSubMode) {
         handled = handleEscape();
-    } else if (EDITOR(isReadOnly())) {
-        // Queried live, not cached: a document can become writable later (e.g.
-        // reloaded with another encoding), and FakeVim must handle keys again
-        // (QTCREATORBUG-24237).
-        return EventUnhandled;
     } else if (g.subsubmode != NoSubSubMode) {
         const SubSubMode subsubmode = g.subsubmode;
         handled = handleCommandSubSubMode(input);
@@ -9457,6 +9461,8 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (s.commaPassesShortcuts() && input.is(',')) {
         passShortcuts(true);
     } else if (input.is('.')) {
+        if (refuseUnmodifiable())
+            return true;
         //qDebug() << "REPEATING" << quoteUnprintable(g.dotCommand) << count()
         //    << input;
         // What is played back was counted when it was typed, so v:prevcount
@@ -16555,10 +16561,12 @@ bool FakeVimHandler::Private::isBufferReadOnly()
 // would bypass the undo blocks too.
 bool FakeVimHandler::Private::refuseUnmodifiable()
 {
-    if (m_modifiable)
+    if (m_modifiable && (!hasValidEditor() || !EDITOR(isReadOnly())))
         return false;
 
-    showMessage(MessageError, Tr::tr("E21: Cannot make changes, 'modifiable' is off"));
+    showMessage(MessageError, m_modifiable
+                                 ? Tr::tr("E21: Cannot make changes, editor is read-only")
+                                 : Tr::tr("E21: Cannot make changes, 'modifiable' is off"));
     return true;
 }
 
@@ -37233,23 +37241,26 @@ int FakeVimHandler::Private::columnsOnScreen() const
 // both taken from the layout of the line and counted the way the horizontal
 // scroll bar of the editor counts, which is in pixels from the start of the
 // text. Neither goes through a column width: a font whose characters are not
-// all of one width would drift away from the layout over a long line.
-int FakeVimHandler::Private::xForColumn(int column) const
+// all of one width would drift away from the layout over a long line. The
+// layout begins with the margin the editor keeps before the text.
+qreal FakeVimHandler::Private::xForColumn(int column) const
 {
     const QTextBlock block = this->block();
     const QTextLine line = block.layout()->lineAt(0);
     if (!line.isValid())
         return 0;
-    return int(line.cursorToX(logicalToPhysicalColumn(qMax(0, column), block.text())));
+    return line.cursorToX(logicalToPhysicalColumn(qMax(0, column), block.text()))
+           - document()->documentMargin();
 }
 
-int FakeVimHandler::Private::columnForX(int x) const
+int FakeVimHandler::Private::columnForX(qreal x, QTextLine::CursorPosition cursorPos) const
 {
     const QTextBlock block = this->block();
     const QTextLine line = block.layout()->lineAt(0);
     if (!line.isValid())
         return 0;
-    const int physical = line.xToCursor(x);
+    const qreal layoutX = x + document()->documentMargin();
+    const int physical = line.xToCursor(layoutX, cursorPos);
     const int column = physicalToLogicalColumn(physical, block.text());
     if (physical < int(block.text().size()))
         return column;
@@ -37257,7 +37268,7 @@ int FakeVimHandler::Private::columnForX(int x) const
     // to measure and the rest of the way counts in spaces. A window wider
     // than its longest line reaches that far.
     const int w = QFontMetrics(EDITOR(font())).horizontalAdvance(' ');
-    return w > 0 ? column + (x - int(line.cursorToX(physical))) / w : column;
+    return w > 0 ? column + int(layoutX - line.cursorToX(physical)) / w : column;
 }
 
 // The columns a window shows of a line it does not wrap, which are the ones
@@ -37266,9 +37277,11 @@ int FakeVimHandler::Private::textColumnsOnScreen() const
 {
     if (!editor())
         return 1;
-    const int x = EDITOR(horizontalScrollBar()->value());
-    const int width = EDITOR(viewport()->width()) - 2 * int(document()->documentMargin());
-    return qMax(1, columnForX(x + width) - columnForX(x));
+    // Count from where the first column begins, not from the scroll bar,
+    // which cannot stop between two pixels.
+    const int left = firstVisibleColumn();
+    const qreal width = EDITOR(viewport()->width()) - 2 * document()->documentMargin();
+    return qMax(1, columnForX(xForColumn(left) + width, QTextLine::CursorOnCharacter) - left);
 }
 
 // The column the window begins with, which is zero unless it is scrolled
@@ -37289,7 +37302,7 @@ void FakeVimHandler::Private::setFirstVisibleColumn(int column)
     // outside the scrolled window and the editor takes the view back to it.
     // Keep the column, so that it can be set again once the cursor is there.
     m_wantedFirstVisibleColumn = qMax(0, column);
-    EDITOR(horizontalScrollBar()->setValue(xForColumn(m_wantedFirstVisibleColumn)));
+    EDITOR(horizontalScrollBar()->setValue(qRound(xForColumn(m_wantedFirstVisibleColumn))));
 }
 
 // The columns "sidescrolloff" asks to keep beside the cursor, which cannot be
@@ -42424,7 +42437,13 @@ void FakeVimHandler::handleInput(const QString &keys)
 
 void FakeVimHandler::enterCommandMode()
 {
+    const bool update = d->isVisualMode() && !d->m_inFakeVim;
+    if (update)
+        d->pullCursor();
+    d->abandonVisualMode();
     d->enterCommandMode();
+    if (update)
+        d->commitCursor();
 }
 
 void FakeVimHandler::setCurrentFileName(const QString &fileName)

@@ -599,13 +599,14 @@ void CppEditorPlugin::addPerFileActions()
 
 void CppEditorPlugin::addGlobalActions()
 {
-    ActionBuilder findUnusedFunctions(this, "CppTools.FindUnusedFunctions");
+    ActionBuilder findUnusedFunctions(this, Constants::FIND_UNUSED_FUNCTIONS);
     findUnusedFunctions.setText(Tr::tr("Find Unused Functions"));
     findUnusedFunctions.addToContainer(Constants::M_TOOLS_CPP, Constants::G_GLOBAL);
     findUnusedFunctions.addToContainer(Constants::M_CONTEXT_ANALYZE, Core::Constants::G_DEFAULT_THREE);
     findUnusedFunctions.addOnTriggered(this, [] { CppModelManager::findUnusedFunctions({}); });
 
-    ActionBuilder findUnusedFunctionsSubProject(this, "CppTools.FindUnusedFunctionsInSubProject");
+    ActionBuilder findUnusedFunctionsSubProject(
+        this, Constants::FIND_UNUSED_FUNCTIONS_IN_SUBPROJECT);
     findUnusedFunctionsSubProject.setText(Tr::tr("Find Unused C/C++ Functions"));
     for (ActionContainer *const projectContextMenu :
          {ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT),

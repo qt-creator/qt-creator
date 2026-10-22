@@ -26,6 +26,7 @@ private slots:
     void testItemLabels();
     void testTheMainThreadLaneIsNamedAfterTheProcess();
     void testLanesOfSeveralProcessesNameTheirProcess();
+    void testASingleLaneIsExpanded();
 
 private:
     Timeline::TimelineModelAggregator m_aggregator;

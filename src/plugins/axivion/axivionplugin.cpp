@@ -76,8 +76,8 @@ QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind, LineMarkerTyp
         return *it;
 
     const QLatin1String prefix = Dto::IssueKindMeta::enumToStr(*issueKind);
-    auto themeColor = (type == LineMarkerType::Dashboard) ? Theme::PaletteButtonText
-                                                          : Theme::IconsWarningColor;
+    auto themeColor = (type == LineMarkerType::SFA) ? Theme::IconsWarningColor
+                                                    : Theme::PaletteButtonText;
     const Icon icon({{FilePath::fromString(":/axivion/images/button-" + prefix + ".png"),
                       themeColor}}, Icon::Tint);
     return prefixToIcon.insert({*issueKind, type}, icon.icon()).value();
@@ -267,10 +267,13 @@ public:
                                       const QString &projectName);
     void handleOpenedDocs();
     void onDocumentOpened(IDocument *doc);
+    void onPathMappingsChanged();
     void onDocumentClosed(IDocument * doc);
     void onCurrentEditorChanged(IEditor *editor);
     void enableInlineIssues(bool enable);
-    void fetchIssueInfo(DashboardMode dashboardMode, const QString &id);
+    void fetchIssueInfo(DashboardMode dashboardMode, const QString &projectName,
+                        const QString &id, const QString &version,
+                        DetailsVisibility visibility);
     void fetchNamedFilters(DashboardMode dashboardMode);
 
     void switchDashboardMode(DashboardMode mode, bool byLocalBuildButton);
@@ -410,6 +413,8 @@ AxivionPluginPrivate::AxivionPluginPrivate()
 #endif // ssl
     connect(&settings().highlightMarks, &BoolAspect::changed,
             this, []{ updateExistingMarks(); });
+    connect(&settings(), &AxivionSettings::pathMappingsChanged,
+            this, &AxivionPluginPrivate::onPathMappingsChanged);
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
             this, &AxivionPluginPrivate::onSessionLoaded);
     connect(SessionManager::instance(), &SessionManager::aboutToSaveSession,
@@ -988,15 +993,25 @@ Group dashboardInfoRecipe(DashboardMode dashboardMode, const DashboardInfoHandle
     return root;
 }
 
+static QString latestVersion(const Dto::ProjectInfoDto &info)
+{
+    return info.versions.empty() ? QString() : info.versions.back().date;
+}
+
 Group projectInfoRecipe(DashboardMode dashboardMode, const QString &projectName)
 {
     const auto onSetup = [dashboardMode] {
-        clearAllMarks(LineMarkerType::Dashboard);
-        if (dashboardMode == DashboardMode::Global)
+        if (dashboardMode == DashboardMode::Global) {
+            // Local marks are kept: they refer to the local dashboard, which stays usable
+            // until another local dashboard is used or the dashboard server changes.
+            // Global marks are kept for files mapped to the project they belong to.
+            clearMarksWithoutPathMapping(LineMarkerType::DashboardGlobal);
             dd->m_currentProjectInfo = {};
-        else
+            dd->m_analysisVersion = {};
+        } else {
+            clearAllMarks(LineMarkerType::DashboardLocal);
             dd->m_currentLocalProjectInfo = {};
-        dd->m_analysisVersion = {};
+        }
     };
 
     const auto onTaskTreeSetup = [dashboardMode, projectName](QTaskTree &taskTree) {
@@ -1034,12 +1049,10 @@ Group projectInfoRecipe(DashboardMode dashboardMode, const QString &projectName)
 
             if (dashboardMode == DashboardMode::Global) {
                 dd->m_currentProjectInfo = data;
-                if (!dd->m_currentProjectInfo->versions.empty())
-                    setAnalysisVersion(dd->m_currentProjectInfo->versions.back().date);
+                if (const QString latest = latestVersion(data); !latest.isEmpty())
+                    setAnalysisVersion(latest);
             } else {
                 dd->m_currentLocalProjectInfo = data;
-                if (!dd->m_currentLocalProjectInfo->versions.empty())
-                    setAnalysisVersion(dd->m_currentLocalProjectInfo->versions.back().date);
             }
             updateDashboard();
             dd->handleOpenedDocs();
@@ -1114,24 +1127,41 @@ Group tableInfoRecipe(DashboardMode dashboardMode, const QString &prefix,
     return fetchDataRecipe<Dto::TableInfoDto>(dashboardMode, url, handler);
 }
 
-void AxivionPluginPrivate::fetchIssueInfo(DashboardMode dashboardMode, const QString &id)
+void AxivionPluginPrivate::fetchIssueInfo(DashboardMode dashboardMode, const QString &projectName,
+                                          const QString &id, const QString &markVersion,
+                                          DetailsVisibility visibility)
 {
-    if (!m_currentProjectInfo || !dd->m_analysisVersion)
+    m_issueInfoRunner.reset(); // an earlier request is outdated
+
+    QString version;
+    if (dashboardMode == DashboardMode::Global) {
+        if (!markVersion.isEmpty()) // marks refer to the analysis they were fetched from
+            version = markVersion;
+        else if (m_currentProjectInfo && m_currentProjectInfo->name == projectName)
+            version = m_analysisVersion.value_or(latestVersion(*m_currentProjectInfo));
+    } else {
+        // the local dashboard may still serve a project other than the current one
+        if (!m_currentLocalProjectInfo || m_currentLocalProjectInfo->name != projectName)
+            return;
+        version = latestVersion(*m_currentLocalProjectInfo);
+    }
+    if (version.isEmpty())
         return;
 
-    const QString projectName = dd->m_currentProjectInfo->name;
     const QUrl url = constructUrl(dashboardMode,
                                   projectName,
                                   QString("issues/" + id + "/properties/"),
-                                  {{"version", *dd->m_analysisVersion}});
+                                  {{"version", version}});
 
     const Storage<DownloadData> storage;
 
     const auto onSetup = [storage, url] { storage->inputUrl = url; };
 
-    const auto onDone = [storage, projectName] {
+    const auto onDone = [storage, projectName, dashboardMode, visibility] {
         updateIssueDetails(QString::fromUtf8(fixIssueDetailsHtml(storage->outputData)),
-                           projectName);
+                           projectName, dashboardMode);
+        if (visibility == DetailsVisibility::Ensure)
+            showIssueDetails();
     };
 
     m_issueInfoRunner.start({
@@ -1209,15 +1239,16 @@ void AxivionPluginPrivate::handleOpenedDocs()
 
 void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
 {
-    if (!m_inlineIssuesEnabled)
+    if (!doc)
         return;
 
-    if (!doc || !m_currentProjectInfo)
+    // a fetch still running for the document is outdated
+    m_docMarksRunner.resetKey(doc);
+
+    if (!m_inlineIssuesEnabled || !m_currentProjectInfo)
         return;
 
     const FilePath docFilePath = doc->filePath();
-    if (hasLineIssues(docFilePath, LineMarkerType::Dashboard)) // FIXME local vs global dashboard
-        return;
 
     if (docFilePath.isEmpty())
         return;
@@ -1226,9 +1257,37 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
     if (filePath.isEmpty())
         return;
 
-    const bool useGlobal = m_dashboardMode == DashboardMode::Global
-            || !currentIssueHasValidPathMapping();
-    const DashboardMode mode = useGlobal ? DashboardMode::Global : DashboardMode::Local;
+    // Only replace marks of another type or project for files mapped to the current project.
+    // Marks of another project are kept, as they are still usable for that project.
+    const QString projectName = m_currentProjectInfo->name;
+    const bool replacesOtherMarks = settings().hasPathMapping(docFilePath, projectName);
+    const bool useLocal = (m_dashboardMode == DashboardMode::Local)
+            && localChangesSelected() && replacesOtherMarks
+            && m_currentLocalProjectInfo
+            && m_currentLocalProjectInfo->name == m_currentProjectInfo->name;
+    const DashboardMode mode = useLocal ? DashboardMode::Local : DashboardMode::Global;
+    const LineMarkerType type = useLocal ? LineMarkerType::DashboardLocal
+                                         : LineMarkerType::DashboardGlobal;
+    const LineMarkerType otherType = useLocal ? LineMarkerType::DashboardGlobal
+                                              : LineMarkerType::DashboardLocal;
+
+    // Marks kept from an earlier use of the project are fetched again if there is a newer
+    // analysis.
+    const std::optional<Dto::ProjectInfoDto> &info
+            = useLocal ? m_currentLocalProjectInfo : m_currentProjectInfo;
+    const QString latest = (info && info->name == projectName) ? latestVersion(*info) : QString();
+    const std::optional<LineIssuesOrigin> origin = lineIssuesOrigin(docFilePath, type);
+    const bool marksUpToDate = origin && origin->projectName == projectName
+            && (latest.isEmpty() || origin->version == latest);
+    if (marksUpToDate) {
+        if (replacesOtherMarks)
+            clearMarks(docFilePath, otherType);
+        return;
+    }
+    if (!replacesOtherMarks && (hasLineIssues(docFilePath, LineMarkerType::DashboardGlobal)
+                                || hasLineIssues(docFilePath, LineMarkerType::DashboardLocal))) {
+        return;
+    }
 
     struct FileViewStorage
     {
@@ -1245,10 +1304,26 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
         storage->expectedContentType = ContentType::PlainText;
     };
 
-    const auto markerHandler = [markerStorage, docFilePath, storage] {
+    const auto markerHandler = [this, markerStorage, docFilePath, filePath, type, otherType,
+                                replacesOtherMarks, storage, projectName] {
+        if (!m_inlineIssuesEnabled)
+            return;
+        const std::optional<Dto::ProjectInfoDto> &info
+                = (type == LineMarkerType::DashboardGlobal) ? m_currentProjectInfo
+                                                            : m_currentLocalProjectInfo;
+        if (!info || info->name != projectName)
+            return;
+        // if the fetch failed, outdated marks of the current project are better than none
+        const std::optional<LineIssuesOrigin> origin = lineIssuesOrigin(docFilePath, type);
+        if (markerStorage->data || (origin && origin->projectName != projectName))
+            clearMarks(docFilePath, type);
+        // marks of the other type are wrong for the current view, even if the fetch failed
+        if (replacesOtherMarks)
+            clearMarks(docFilePath, otherType);
         if (!markerStorage->data || markerStorage->data->lineMarkers.empty())
             return;
-        handleIssuesForFile(*markerStorage->data, docFilePath, std::nullopt, storage->outputData);
+        handleIssuesForFile(*markerStorage->data, docFilePath, std::nullopt, type,
+                            {projectName, latestVersion(*info), filePath}, storage->outputData);
     };
 
     const Group recipe = {
@@ -1261,6 +1336,26 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
     m_docMarksRunner.start(doc, recipe);
 }
 
+void AxivionPluginPrivate::onPathMappingsChanged()
+{
+    // Marks of other projects cannot be fetched again, so they are only kept while mapped.
+    // Marks of any project are outdated when their file is mapped to another analysis path.
+    const QString currentProject = m_currentProjectInfo ? m_currentProjectInfo->name : QString();
+    const auto isOutdated = [currentProject](const FilePath &filePath,
+                                             const LineIssuesOrigin &origin) {
+        if (!filePath.exists()) // cannot be mapped anymore
+            return true;
+        if (origin.projectName != currentProject
+                && !settings().hasPathMapping(filePath, origin.projectName)) {
+            return true;
+        }
+        return settings().mappedFilePath(filePath, origin.projectName) != origin.analysisPath;
+    };
+    clearMarksIf(LineMarkerType::DashboardGlobal, isOutdated);
+    clearMarksIf(LineMarkerType::DashboardLocal, isOutdated);
+    handleOpenedDocs();
+}
+
 void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
 {
     const auto document = qobject_cast<TextDocument *>(doc);
@@ -1269,12 +1364,13 @@ void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
 
     m_docMarksRunner.resetKey(doc);
     clearMarks(document->filePath(), LineMarkerType::SFA);
-    clearMarks(document->filePath(), LineMarkerType::Dashboard);
+    clearMarks(document->filePath(), LineMarkerType::DashboardLocal);
+    clearMarks(document->filePath(), LineMarkerType::DashboardGlobal);
 }
 
 void AxivionPluginPrivate::onCurrentEditorChanged(IEditor *editor)
 {
-    QAction *action = ActionManager::command("Axivion.SingleFile")->action();
+    QAction *action = ActionManager::command(s_singleFileAnalysisActionId)->action();
     const IDocument *document = editor ? editor->document() : nullptr;
     if (!document || document->filePath().isEmpty()) {
         action->setEnabled(false);
@@ -1293,10 +1389,12 @@ void AxivionPluginPrivate::enableInlineIssues(bool enable)
         return;
     m_inlineIssuesEnabled = enable;
 
-    if (enable && m_dashboardServerId.isValid())
+    if (enable && m_dashboardServerId.isValid()) {
         handleOpenedDocs();
-    else
-        clearAllMarks(LineMarkerType::Dashboard);
+    } else {
+        clearAllMarks(LineMarkerType::DashboardLocal);
+        clearAllMarks(LineMarkerType::DashboardGlobal);
+    }
 }
 
 void AxivionPluginPrivate::switchDashboardMode(DashboardMode mode, bool byLocalBuildButton)
@@ -1305,6 +1403,7 @@ void AxivionPluginPrivate::switchDashboardMode(DashboardMode mode, bool byLocalB
         return;
     m_dashboardMode = mode;
     leaveOrEnterDashboardMode(byLocalBuildButton);
+    handleOpenedDocs();
 }
 
 static constexpr char SV_PROJECTNAME[] = "Axivion.ProjectName";
@@ -1377,10 +1476,11 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
     }
 };
 
-void fetchIssueInfo(DashboardMode dashboardMode, const QString &id)
+void fetchIssueInfo(DashboardMode dashboardMode, const QString &projectName, const QString &id,
+                    const QString &version, DetailsVisibility visibility)
 {
     QTC_ASSERT(dd, return);
-    dd->fetchIssueInfo(dashboardMode, id);
+    dd->fetchIssueInfo(dashboardMode, projectName, id, version, visibility);
 }
 
 void switchActiveDashboardId(const Id &toDashboardId)
@@ -1392,10 +1492,24 @@ void switchActiveDashboardId(const Id &toDashboardId)
     dd->m_dashboardInfo.reset();
     dd->m_localDashboard.reset();
     dd->m_localDashboardInfo.reset();
+    dd->m_dashboardMode = DashboardMode::Global; // local dashboard access is gone
     dd->m_currentProjectInfo.reset();
+    dd->m_currentLocalProjectInfo.reset();
+    dd->m_docMarksRunner.reset();
+    dd->m_issueInfoRunner.reset();
+    clearAllMarks(LineMarkerType::DashboardLocal);
+    clearAllMarks(LineMarkerType::DashboardGlobal);
     dd->m_globalNamedFilters.clear();
     dd->m_userNamedFilters.clear();
     updateNamedFilters();
+}
+
+void resetLocalDashboard()
+{
+    QTC_ASSERT(dd, return);
+    dd->m_localDashboard.reset();
+    dd->m_localDashboardInfo.reset();
+    dd->m_currentLocalProjectInfo.reset();
 }
 
 const std::optional<DashboardInfo> currentDashboardInfo()
@@ -1446,6 +1560,12 @@ void switchDashboardMode(DashboardMode mode, bool byLocalBuildButton)
 {
     QTC_ASSERT(dd, return);
     dd->switchDashboardMode(mode, byLocalBuildButton);
+}
+
+void updateInlineIssues()
+{
+    QTC_ASSERT(dd, return);
+    dd->handleOpenedDocs();
 }
 
 DashboardMode currentDashboardMode()

@@ -9,7 +9,7 @@
 
 namespace Timeline {
 
-class RangeDetailsWidget;
+class TimelineDetailsWidget;
 class TimelineModelAggregator;
 class TimelineZoomControl;
 
@@ -22,14 +22,14 @@ public:
     // is null the timeline creates its own.
     explicit TimelineWidget(TimelineModelAggregator *aggregator,
                             TimelineZoomControl *zoomControl,
-                            RangeDetailsWidget *details = nullptr,
+                            TimelineDetailsWidget *details = nullptr,
                             QWidget *parent = nullptr);
     ~TimelineWidget() override;
 
     // The range details panel, meant to be added to a perspective as a dockable
     // view. Ownership transfers to the perspective via Perspective::addWindow(),
     // unless the panel was passed in.
-    RangeDetailsWidget *rangeDetailsWidget() const;
+    TimelineDetailsWidget *timelineDetailsWidget() const;
 
     bool hasValidSelection() const;
     qint64 selectionStart() const;

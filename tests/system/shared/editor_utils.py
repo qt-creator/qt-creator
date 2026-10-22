@@ -442,19 +442,6 @@ def openDocumentPlaceCursor(doc, line, additionalFunction=None):
         earlyExit("Open %s or placing cursor to line (%s) failed." % (doc, line))
         return None
 
-# Replaces a line in the editor with another
-# param fileSpec a string specifying a file in Projects view
-# param oldLine a string holding the line to be replaced
-# param newLine a string holding the line to be inserted
-def replaceLine(fileSpec, oldLine, newLine):
-    if openDocumentPlaceCursor(fileSpec, oldLine) == None:
-        return False
-    editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
-    for _ in oldLine:
-        type(editor, "<Backspace>")
-    type(editor, newLine)
-    return True
-
 def addTestableCodeAfterLine(editorObject, line, newCodeLines):
     if not placeCursorToLine(editorObject, line):
         return False

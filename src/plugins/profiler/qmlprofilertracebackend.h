@@ -10,7 +10,7 @@ class QAction;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class BuildConfiguration; }
-namespace Timeline { class RangeDetailsWidget; }
+namespace Timeline { class TimelineDetailsWidget; }
 
 namespace Profiler::Internal {
 
@@ -27,7 +27,7 @@ class QmlProfilerTraceBackend : public ProfilerTraceBackend
     Q_OBJECT
 
 public:
-    explicit QmlProfilerTraceBackend(Timeline::RangeDetailsWidget *details,
+    explicit QmlProfilerTraceBackend(Timeline::TimelineDetailsWidget *details,
                                      QObject *parent = nullptr);
     ~QmlProfilerTraceBackend() override;
 
@@ -35,6 +35,7 @@ public:
     QList<QWidget *> toolBarWidgets() override;
 
     void load(const Utils::FilePath &path) override;
+    void cancelBackgroundWork() override;
     bool isSaveable() const override { return true; }
     // Writing runs in the background, so this reports that the write started,
     // not that it finished; saved() marks the point the trace is on disk.

@@ -134,6 +134,30 @@ QObject *createEscapeKeyTest()
     return new EscapeKeyTest;
 }
 
+class ModeAreaTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+
+    void init();
+    void cleanup();
+
+    void testOpenInVisibleSplitIgnoresViewOutOfSight();
+    void testOpenInVisibleSplitReusesMainAreaOutOfSight();
+
+private:
+    IMode *m_plainMode = nullptr;
+    IMode *m_areaMode = nullptr;
+};
+
+QObject *createModeAreaTest()
+{
+    return new ModeAreaTest;
+}
+
 // Records what qDebug()/qWarning() emit while it is alive, so that a test can
 // assert that a code path stays quiet. QTC_ASSERT reports through qDebug().
 class MessageLog
@@ -1303,6 +1327,95 @@ void EscapeKeyTest::testStaysInEditMode()
     QCOMPARE(ModeManager::currentModeId(), Id(Constants::MODE_EDIT));
     QVERIFY(viewHasFocus(view));
     QVERIFY2(log.messages().isEmpty(), qPrintable(log.messages().join(", ")));
+}
+
+void ModeAreaTest::initTestCase()
+{
+    m_plainMode = new TestMode(MODE_PLAIN, Context(), [] { return new PlainModeWidget; });
+    m_areaMode = new TestMode(MODE_WITH_AREA,
+                              Context(Constants::C_EDITORMANAGER),
+                              [] { return new AreaModeWidget; });
+    QTRY_VERIFY(m_plainMode->widget()->parentWidget());
+    QTRY_VERIFY(m_areaMode->widget()->parentWidget());
+}
+
+void ModeAreaTest::cleanupTestCase()
+{
+    ModeManager::activateMode(Id(Constants::MODE_EDIT));
+    // in reverse order of registration, so that the mode indexes stay valid
+    ModeManager::removeMode(m_areaMode);
+    ModeManager::removeMode(m_plainMode);
+    delete m_areaMode;
+    delete m_plainMode;
+}
+
+void ModeAreaTest::init()
+{
+    closeAll();
+    ModeManager::activateMode(Id(Constants::MODE_EDIT));
+}
+
+void ModeAreaTest::cleanup()
+{
+    ModeManager::activateMode(Id(Constants::MODE_EDIT));
+    closeAll();
+}
+
+/*
+    A document that is the current editor in the view of a mode that is not on
+    screen is not already visible there: opening it, as the debugger does for
+    the location it stops at, must not raise that mode.
+*/
+void ModeAreaTest::testOpenInVisibleSplitIgnoresViewOutOfSight()
+{
+    TestFile a;
+    ModeManager::activateMode(MODE_WITH_AREA);
+    EditorView *areaView = areaModeWidget(m_areaMode)->view();
+    QVERIFY(areaView);
+    QVERIFY(EMP::openEditor(areaView, a.filePath()));
+    ModeManager::activateMode(Id(Constants::MODE_EDIT));
+    // The area that comes on screen claims the current view
+    EditorView *mainView = mainAreaViews().at(0);
+    EMP::setCurrentView(mainView);
+    QVERIFY(!areaView->isVisible());
+
+    IEditor *editor = EditorManager::openEditor(a.filePath(),
+                                                Id(),
+                                                EditorManager::IgnoreNavigationHistory
+                                                    | EditorManager::DoNotSwitchToDesignMode
+                                                    | EditorManager::SwitchSplitIfAlreadyVisible);
+
+    QVERIFY(editor);
+    QCOMPARE(ModeManager::currentModeId(), Id(Constants::MODE_EDIT));
+    QVERIFY(mainView->hasEditor(editor));
+}
+
+/*
+    The main area is not on screen while a mode without an editor area is current,
+    but the split of it that shows the document is still the one to switch to.
+*/
+void ModeAreaTest::testOpenInVisibleSplitReusesMainAreaOutOfSight()
+{
+    TestFile a;
+    EMP::mainEditorArea()->findFirstView()->split(Qt::Vertical);
+    const QList<EditorView *> views = mainAreaViews();
+    QCOMPARE(views.size(), 2);
+    IEditor *editor = EMP::openEditor(views.at(1), a.filePath());
+    QVERIFY(editor);
+    EMP::setCurrentView(views.at(0));
+    ModeManager::activateMode(MODE_PLAIN);
+    QCOMPARE(EMP::currentEditorView(), views.at(0));
+    QVERIFY(!views.at(1)->isVisible());
+
+    IEditor *opened = EditorManager::openEditor(a.filePath(),
+                                                Id(),
+                                                EditorManager::IgnoreNavigationHistory
+                                                    | EditorManager::DoNotSwitchToDesignMode
+                                                    | EditorManager::SwitchSplitIfAlreadyVisible);
+
+    QCOMPARE(opened, editor);
+    QCOMPARE(views.at(1)->currentEditor(), editor);
+    QVERIFY(views.at(0)->editors().isEmpty());
 }
 
 /*

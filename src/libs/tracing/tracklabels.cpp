@@ -4,6 +4,7 @@
 #include "tracklabels.h"
 
 #include "trackpainterbase.h"
+#include "tracingtr.h"
 
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
@@ -28,6 +29,10 @@ static constexpr int kTextRightMargin = kIndicatorSize
                                         + kIndicatorSize;
 static constexpr int kResizeZone = 5;
 static constexpr int kMinRowHeight = 30;
+static constexpr int kGripDot = Utils::StyleHelper::SpacingTokens::PrimitiveXxs;
+static constexpr int kGripColumns = 2;
+static constexpr int kGripRows = 3;
+static constexpr int kDropMarkerSize = Utils::StyleHelper::SpacingTokens::PrimitiveS;
 
 static int trackTitleHeight(const TrackInfo &track)
 {
@@ -54,6 +59,7 @@ void TrackLabels::setTracks(const QList<TrackInfo> &tracks)
     m_tracks = tracks;
     m_noteCurrentIdx.resize(tracks.size());
     m_noteCurrentIdx.fill(-1);
+    m_hoverTrack = -1;
     updateTotalHeight();
     update();
 }
@@ -66,9 +72,52 @@ void TrackLabels::setScrollOffset(int y)
     update();
 }
 
+void TrackLabels::setHiddenTrackCount(int count)
+{
+    if (m_hiddenTrackCount == count)
+        return;
+    m_hiddenTrackCount = count;
+    update();
+}
+
+int TrackLabels::footerHeight() const
+{
+    return m_hiddenTrackCount > 0 ? kMinRowHeight : 0;
+}
+
+// Below the last track, the note that some tracks are hidden. It scrolls with
+// the tracks, so it sits where the hidden ones would have continued the list.
+QRect TrackLabels::footerRect() const
+{
+    if (m_hiddenTrackCount <= 0)
+        return {};
+    return QRect(0, -m_scrollOffset + kTimeLineTopMargin + m_totalHeight, width(),
+                 footerHeight());
+}
+
+int TrackLabels::titleRowAt(const QPoint &pos) const
+{
+    int y = -m_scrollOffset + kTimeLineTopMargin;
+    for (int i = 0; i < m_tracks.size(); ++i) {
+        if (pos.y() >= y && pos.y() < y + trackTitleHeight(m_tracks[i]))
+            return i;
+        y += trackTotalHeight(m_tracks[i]);
+    }
+    return -1;
+}
+
+void TrackLabels::setHover(int track, bool footer)
+{
+    if (m_hoverTrack == track && m_hoverFooter == footer)
+        return;
+    m_hoverTrack = track;
+    m_hoverFooter = footer;
+    update();
+}
+
 QSize TrackLabels::sizeHint() const
 {
-    return QSize(162, m_totalHeight);
+    return QSize(162, m_totalHeight + footerHeight());
 }
 
 void TrackLabels::updateTotalHeight()
@@ -94,6 +143,11 @@ bool TrackLabels::event(QEvent *e)
                 if (!track.noteEventIds.isEmpty() && help->pos().x() >= noteLeft
                         && help->pos().x() < expandLeft) {
                     QToolTip::showText(help->globalPos(), track.noteTexts.join('\n'), this);
+                } else if (help->pos().x() < kTimeLineLeftMargin) {
+                    QToolTip::showText(help->globalPos(),
+                                       Tr::tr("Drag to move this category. "
+                                              "Right-click for more options."),
+                                       this);
                 } else {
                     const QString tip = track.tooltip.isEmpty() ? track.name : track.tooltip;
                     QToolTip::showText(help->globalPos(), tip, this);
@@ -112,6 +166,13 @@ bool TrackLabels::event(QEvent *e)
                 }
             }
             y += trackHeight;
+        }
+        if (footerRect().contains(help->pos())) {
+            QToolTip::showText(help->globalPos(),
+                               Tr::tr("Some categories are hidden from the timeline. "
+                                      "Click to choose which ones to show."),
+                               this);
+            return true;
         }
         QToolTip::hideText();
         return true;
@@ -151,6 +212,10 @@ void TrackLabels::paintEvent(QPaintEvent *event)
     const QColor trackLabelColor = trackLabelTf.color();
     const QFont subTrackLabelFont = subTrackLabelTf.font();
     const QColor subTrackLabelColor = subTrackLabelTf.color();
+    const QColor gripIdleColor = Utils::creatorColor(Utils::Theme::Token_Text_Subtle);
+    const QColor gripActiveColor = Utils::creatorColor(Utils::Theme::Token_Text_Default);
+    const QColor dragColor = Utils::creatorColor(Utils::Theme::Token_Accent_Default);
+    const QPen dragPen(dragColor, 2 * kTrackOutline);
 
     p.fillRect(rect(), bgColor);
 
@@ -158,7 +223,8 @@ void TrackLabels::paintEvent(QPaintEvent *event)
 
     const QRect viewRect = event->rect();
     p.fillRect(viewRect, bgColor);
-    for (const TrackInfo &track : std::as_const(m_tracks)) {
+    for (int index = 0; index < m_tracks.size(); ++index) {
+        const TrackInfo &track = m_tracks.at(index);
         const int titleHeight = trackTitleHeight(track);
         const int trackHeight = trackTotalHeight(track);
 
@@ -184,6 +250,25 @@ void TrackLabels::paintEvent(QPaintEvent *event)
             p.setClipRect(accentR);
             Utils::StyleHelper::drawCardBg(&p, trackStripR, track.color, Qt::NoPen, rounding);
             p.restore();
+        }
+
+        if (m_dragging && index == m_dragSource)
+            Utils::StyleHelper::drawCardBg(&p, trackStripR, Qt::NoBrush, dragPen, rounding);
+
+        // Drag grip, left of the card, centered on the title row
+        {
+            const int gripW = (2 * kGripColumns - 1) * kGripDot;
+            const int gripH = (2 * kGripRows - 1) * kGripDot;
+            const int gx = (kTimeLineLeftMargin - gripW) / 2;
+            const int gy = y + (titleHeight - gripH) / 2;
+            const bool active = index == m_hoverTrack || (m_dragging && index == m_dragSource);
+            const QColor gripColor = active ? gripActiveColor : gripIdleColor;
+            for (int row = 0; row < kGripRows; ++row) {
+                for (int column = 0; column < kGripColumns; ++column) {
+                    p.fillRect(gx + 2 * column * kGripDot, gy + 2 * row * kGripDot,
+                               kGripDot, kGripDot, gripColor);
+                }
+            }
         }
 
         // Title row
@@ -248,10 +333,38 @@ void TrackLabels::paintEvent(QPaintEvent *event)
         y += trackHeight;
     }
 
-    if (m_dragging && m_dragInsertSlot >= 0) {
+    if (m_hiddenTrackCount > 0) {
+        const QRect footer = footerRect();
+        if (footer.intersects(viewRect)) {
+            static const QIcon hiddenIcon = Utils::Icons::EYE_CLOSED_TOOLBAR.icon();
+            const int ix = (kTimeLineLeftMargin - kIndicatorSize) / 2;
+            const int iy = footer.top() + (footer.height() - kIndicatorSize) / 2;
+            hiddenIcon.paint(&p, ix, iy, kIndicatorSize, kIndicatorSize);
+            p.setFont(trackLabelFont);
+            p.setPen(m_hoverFooter ? trackLabelColor
+                                   : Utils::creatorColor(Utils::Theme::Token_Text_Muted));
+            const QRect textRect = footer.adjusted(kTextLeftMargin, 0, 0, 0);
+            p.drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine,
+                       p.fontMetrics().elidedText(
+                           Tr::tr("%1 hidden").arg(m_hiddenTrackCount), Qt::ElideRight,
+                           textRect.width()));
+        }
+    }
+
+    // The drop marker, only where dropping would move the dragged track
+    if (m_dragging && m_dragInsertSlot >= 0 && m_dragInsertSlot != m_dragSource
+            && m_dragInsertSlot != m_dragSource + 1) {
         const int lineY = insertionSlotY(m_tracks, m_dragInsertSlot, m_scrollOffset);
-        p.fillRect(0, lineY - 1, width(), 2,
-                   Utils::creatorColor(Utils::Theme::Timeline_HandleColor));
+        const int lineH = 2 * kTrackOutline;
+        const int markerX = (kTimeLineLeftMargin - kDropMarkerSize) / 2;
+        p.fillRect(markerX, lineY - lineH / 2, width() - markerX, lineH, dragColor);
+        p.save();
+        p.setRenderHint(QPainter::Antialiasing);
+        p.setPen(Qt::NoPen);
+        p.setBrush(dragColor);
+        p.drawEllipse(QRectF(markerX, lineY - kDropMarkerSize / 2.0, kDropMarkerSize,
+                             kDropMarkerSize));
+        p.restore();
     }
 }
 
@@ -271,25 +384,29 @@ void TrackLabels::mousePressEvent(QMouseEvent *event)
         const int titleHeight = trackTitleHeight(track);
         const int trackHeight = trackTotalHeight(track);
 
+        if (event->button() == Qt::RightButton && clickY >= y && clickY < y + trackHeight) {
+            emit contextMenuRequested(i, event->globalPosition().toPoint());
+            event->accept();
+            return;
+        }
+
         if (clickY >= y && clickY < y + titleHeight) {
-            if (event->button() == Qt::LeftButton) {
-                const int expandLeft = width() - kTextRightMargin;
-                const int noteLeft = expandLeft - kNoteButtonWidth;
-                if (clickX >= expandLeft) {
-                    if (track.expanded || !track.empty)
-                        emit expandToggled(i);
-                } else if (!track.noteEventIds.isEmpty() && clickX >= noteLeft) {
-                    auto &idx = m_noteCurrentIdx[i];
-                    if (++idx >= track.noteEventIds.size())
-                        idx = 0;
-                    emit noteClicked(i, track.noteEventIds.at(idx));
-                } else {
-                    m_dragSource = i;
-                    m_dragPressPos = event->pos();
-                    m_dragging = false;
-                    m_dragInsertSlot = -1;
-                    setCursor(Qt::OpenHandCursor);
-                }
+            const int expandLeft = width() - kTextRightMargin;
+            const int noteLeft = expandLeft - kNoteButtonWidth;
+            if (clickX >= expandLeft) {
+                if (track.expanded || !track.empty)
+                    emit expandToggled(i);
+            } else if (!track.noteEventIds.isEmpty() && clickX >= noteLeft) {
+                auto &idx = m_noteCurrentIdx[i];
+                if (++idx >= track.noteEventIds.size())
+                    idx = 0;
+                emit noteClicked(i, track.noteEventIds.at(idx));
+            } else {
+                m_dragSource = i;
+                m_dragPressPos = event->pos();
+                m_dragging = false;
+                m_dragInsertSlot = -1;
+                setCursor(Qt::ClosedHandCursor);
             }
             event->accept();
             return;
@@ -300,15 +417,13 @@ void TrackLabels::mousePressEvent(QMouseEvent *event)
             for (int row = 0; row < track.rowLabels.size(); ++row) {
                 const int rowH = track.rowHeights[row + 1];
                 if (clickY >= subRowY && clickY < subRowY + rowH) {
-                    if (event->button() == Qt::LeftButton
-                            && clickY >= subRowY + rowH - kResizeZone) {
+                    if (clickY >= subRowY + rowH - kResizeZone) {
                         m_resizeTrack = i;
                         m_resizeRow = row;
                         m_resizeStartY = clickY;
                         m_resizeOrigHeight = rowH;
                     } else {
-                        const bool reverse = event->button() == Qt::RightButton
-                                             || (event->modifiers() & Qt::ShiftModifier);
+                        const bool reverse = event->modifiers() & Qt::ShiftModifier;
                         emit rowLabelClicked(i, row, reverse);
                     }
                     event->accept();
@@ -320,7 +435,20 @@ void TrackLabels::mousePressEvent(QMouseEvent *event)
 
         y += trackHeight;
     }
+
+    const QRect footer = footerRect();
+    if (footer.contains(event->pos())) {
+        emit hiddenTracksClicked(mapToGlobal(footer.bottomLeft()));
+        event->accept();
+        return;
+    }
     event->ignore();
+}
+
+void TrackLabels::contextMenuEvent(QContextMenuEvent *event)
+{
+    // The track menus open on mouse press. Keep the parents' menu from opening on top.
+    event->accept();
 }
 
 void TrackLabels::mouseMoveEvent(QMouseEvent *event)
@@ -365,6 +493,26 @@ void TrackLabels::mouseMoveEvent(QMouseEvent *event)
     }
 
     // Hover: update cursor based on what's under the mouse
+    const int hoverTrack = titleRowAt(event->pos());
+    const bool hoverFooter = hoverTrack < 0 && footerRect().contains(event->pos());
+    setHover(hoverTrack, hoverFooter);
+    if (hoverTrack >= 0) {
+        const TrackInfo &track = m_tracks.at(hoverTrack);
+        const int expandLeft = width() - kTextRightMargin;
+        const int buttonsLeft = track.noteEventIds.isEmpty() ? expandLeft
+                                                             : expandLeft - kNoteButtonWidth;
+        if (event->pos().x() < buttonsLeft)
+            setCursor(Qt::OpenHandCursor);
+        else
+            unsetCursor();
+        event->accept();
+        return;
+    }
+    if (hoverFooter) {
+        setCursor(Qt::PointingHandCursor);
+        event->accept();
+        return;
+    }
     const int hoverY = event->pos().y();
     int y = -m_scrollOffset + kTimeLineTopMargin;
     for (const TrackInfo &track : std::as_const(m_tracks)) {
@@ -418,9 +566,20 @@ void TrackLabels::mouseReleaseEvent(QMouseEvent *event)
     m_dragSource = -1;
     m_dragging = false;
     m_dragInsertSlot = -1;
-    unsetCursor();
+    const int hoverTrack = titleRowAt(event->pos());
+    setHover(hoverTrack, false);
+    if (hoverTrack >= 0)
+        setCursor(Qt::OpenHandCursor);
+    else
+        unsetCursor();
     update();
     event->accept();
+}
+
+void TrackLabels::leaveEvent(QEvent *event)
+{
+    setHover(-1, false);
+    QWidget::leaveEvent(event);
 }
 
 } // namespace Timeline

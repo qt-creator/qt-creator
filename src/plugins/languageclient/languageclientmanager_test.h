@@ -5,8 +5,10 @@
 
 #include <QObject>
 
-namespace LanguageClient::Internal {
+namespace LanguageClient {
 
+#ifdef WITH_TESTS
 QObject *createLanguageClientManagerTest();
+#endif
 
-} // namespace LanguageClient::Internal
+} // namespace LanguageClient

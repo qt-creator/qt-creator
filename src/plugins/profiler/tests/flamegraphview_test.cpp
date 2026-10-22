@@ -65,7 +65,10 @@ void FlameGraphViewTest::testSelection()
                       QPoint(canvas->width() - 15, 50));
     QCOMPARE(spy.count(), 2);
 
+    // The events are replayed in another thread.
+    QSignalSpy replayed(&manager, &QmlProfilerModelManager::restrictionFinished);
     view.onVisibleFeaturesChanged(1 << ProfileBinding);
+    QTRY_COMPARE(replayed.count(), 1);
     QCOMPARE(spy.count(), 2); // External event: still doesn't change anything
 
     disconnect(con1);

@@ -21,6 +21,16 @@ static QString severityString(Finding::Severity severity)
     return "info";
 }
 
+static void insertPosition(QJsonObject &object, const QmlDebug::QmlEventLocation &location)
+{
+    // Only report a position where there is one: pixmap events and Compiling ranges
+    // carry no line, and the trace reports 0 for them.
+    if (location.line() > 0) {
+        object.insert("line", location.line());
+        object.insert("column", location.column());
+    }
+}
+
 QJsonObject findingsToJson(const QList<Finding> &findings, qint64 traceStartNs, qint64 traceEndNs)
 {
     QJsonArray array;
@@ -35,11 +45,21 @@ QJsonObject findingsToJson(const QList<Finding> &findings, qint64 traceStartNs, 
             {"costNs", finding.costNs},
             {"occurrences", finding.occurrences},
         };
-        // Only report a position where there is one: pixmap events and Compiling ranges
-        // carry no line, and the trace reports 0 for them.
-        if (finding.location.line() > 0) {
-            object.insert("line", finding.location.line());
-            object.insert("column", finding.location.column());
+        insertPosition(object, finding.location);
+
+        if (!finding.details.isEmpty()) {
+            QJsonArray details;
+            for (const FindingDetail &detail : finding.details) {
+                QJsonObject detailObject{
+                    {"text", detail.text},
+                    {"file", detail.location.filename()},
+                    {"costNs", detail.costNs},
+                    {"occurrences", detail.occurrences},
+                };
+                insertPosition(detailObject, detail.location);
+                details.append(detailObject);
+            }
+            object.insert("details", details);
         }
         array.append(object);
     }

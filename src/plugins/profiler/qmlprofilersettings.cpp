@@ -49,6 +49,16 @@ QmlProfilerSettings::QmlProfilerSettings()
         "for example if multiple QML engines start and stop sequentially during a single run of\n"
         "the program."));
 
+    targetFrameRate.setSettingsKey("Analyzer.QmlProfiler.TargetFrameRate");
+    targetFrameRate.setRange(1, kMaxTargetFrameRate);
+    targetFrameRate.setDefaultValue(60);
+    targetFrameRate.setSuffix(Tr::tr(" FPS"));
+    targetFrameRate.setLabelText(Tr::tr("Target frame rate:"));
+    targetFrameRate.setToolTip(Tr::tr(
+        "The frame rate the application has to reach on its target display, for example\n"
+        "30 on an embedded device or 240 on a high refresh rate monitor. Frames are rated\n"
+        "against it, and the findings derive their frame budgets from it."));
+
     findingsCompileThresholdMs.setSettingsKey("Analyzer.QmlProfiler.Findings.CompileThresholdMs");
     findingsCompileThresholdMs.setRange(1, 100000);
     findingsCompileThresholdMs.setDefaultValue(50);
@@ -78,26 +88,20 @@ QmlProfilerSettings::QmlProfilerSettings()
     findingsPixmapMegapixels.setDefaultValue(2.0);
     findingsPixmapMegapixels.setLabelText(Tr::tr("Report images above (megapixels):"));
 
-    findingsPerFrameBudgetUs.setSettingsKey("Analyzer.QmlProfiler.Findings.PerFrameBudgetUs");
-    findingsPerFrameBudgetUs.setRange(1, 1000000);
-    findingsPerFrameBudgetUs.setDefaultValue(500);
-    //: micro seconds
-    findingsPerFrameBudgetUs.setLabelText(Tr::tr("Report per-frame cost above (\xc2\xb5s):"));
+    findingsPerFrameCostPercent.setSettingsKey(
+        "Analyzer.QmlProfiler.Findings.PerFrameCostPercent");
+    findingsPerFrameCostPercent.setRange(1, 100);
+    findingsPerFrameCostPercent.setDefaultValue(3);
+    findingsPerFrameCostPercent.setLabelText(Tr::tr("Report per-frame cost above (% of a frame):"));
+    findingsPerFrameCostPercent.setToolTip(Tr::tr(
+        "How much of the time a frame has at the target frame rate a binding or function has\n"
+        "to take, on average over all frames, before it is reported."));
 
     findingsBlockingCallThresholdMs.setSettingsKey(
         "Analyzer.QmlProfiler.Findings.BlockingCallThresholdMs");
     findingsBlockingCallThresholdMs.setRange(1, 100000);
     findingsBlockingCallThresholdMs.setDefaultValue(100);
     findingsBlockingCallThresholdMs.setLabelText(Tr::tr("Report a single call above (ms):"));
-
-    findingsJankFrameThresholdMs.setSettingsKey(
-        "Analyzer.QmlProfiler.Findings.JankFrameThresholdMs");
-    findingsJankFrameThresholdMs.setRange(1, 10000);
-    findingsJankFrameThresholdMs.setDefaultValue(32);
-    findingsJankFrameThresholdMs.setLabelText(Tr::tr("A frame stutters above (ms):"));
-    findingsJankFrameThresholdMs.setToolTip(Tr::tr(
-        "How long a frame has to take before the work done in it is reported. At 60 frames\n"
-        "per second a frame lasts about 17 ms, so twice that is a frame the user sees twice."));
 
     findingsMemoryChurnKb.setSettingsKey("Analyzer.QmlProfiler.Findings.MemoryChurnKb");
     findingsMemoryChurnKb.setRange(1, 10000000);
@@ -128,14 +132,14 @@ QmlProfilerSettings::QmlProfilerSettings()
             flushEnabled, br,
             flushInterval, br,
             aggregateTraces, br,
+            targetFrameRate, br,
             findingsCompileThresholdMs, br,
             findingsSyncLoadThresholdMs, br,
             findingsPeriodicMinCount, br,
             findingsPeriodicDeviationPercent, br,
             findingsPixmapMegapixels, br,
-            findingsPerFrameBudgetUs, br,
+            findingsPerFrameCostPercent, br,
             findingsBlockingCallThresholdMs, br,
-            findingsJankFrameThresholdMs, br,
             findingsMemoryChurnKb, br,
             findingsCreationMinCount, br,
             findingsBindingMinCount, br,
@@ -146,6 +150,11 @@ QmlProfilerSettings::QmlProfilerSettings()
     readSettings();
 
     flushInterval.setEnabler(&flushEnabled);
+}
+
+QList<int> targetFrameRatePresets()
+{
+    return {30, 60, 90, 120, 144, 240};
 }
 
 // QmlProfilerSettingsPage

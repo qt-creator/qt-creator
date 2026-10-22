@@ -1,0 +1,129 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-view-android-logcat.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-android
+
+    \title View Android Logcat output
+
+    Debug Android applications by viewing the log of the device or emulator
+    that they run on. The log contains the messages of your application,
+    Android services, and the system. If the application crashes, the log also
+    contains the stack trace.
+
+    Your application logs messages with \c qDebug() and the other
+    \l {<QtLogging>}{Qt logging functions}. By default, Qt uses the name of the
+    logging category as the tag of a message, or \c default if the message has
+    no category.
+
+    \image {qtcreator-android-logcat.webp} {Logcat tab in Application Output}
+
+    \section1 View Logcat output
+
+    To view the log of a device:
+
+    \list 1
+        \li Connect the device and \l{Enable debugging on devices}
+            {enable USB debugging on it}, or \l {Start AVDs}{start an
+            emulator}.
+        \li Go to \uicontrol Tools > \uicontrol Android > \uicontrol Logcat,
+            and select the device.
+    \endlist
+
+    The log opens in a tab in \l {Application Output}. Each device has its own
+    tab. To see the SDK level and serial number of the device, hover over the
+    tab.
+
+    When you run an application on a device, \QC opens the tab for you and
+    enters \c package:mine in the filter field to show only the messages of
+    that application.
+
+    \section1 Read the log
+
+    By default, each line shows the level, tag, and process ID, followed by the
+    message:
+
+    \code [text]
+    D/default ( 4521): Brewing espresso
+    \endcode
+
+    In the \uicontrol Standard view mode, the same line shows the date and
+    time, tag, package name, and level in columns:
+
+    \code [text]
+    2026-10-06 12:32:41.512 default   io.qt.coffeemachine   D  Brewing espresso
+    \endcode
+
+    \QC reads the log while the tab is visible or while an application that you
+    started from \QC is running. Between the log messages, \QC adds status
+    messages framed by asterisks:
+
+    \code [text]
+    **** Phone_API_36 (emulator-5554) - disconnected ****
+    \endcode
+
+    Status messages report when the device disconnects or reconnects, when a
+    new run stops an earlier one, and when output was skipped while the tab was
+    hidden. The filter does not hide them.
+
+    \section1 Change the layout
+
+    To select what each line shows, go to \preferences >
+    \uicontrol {Build & Run} > \uicontrol {Application Output}, and set
+    \uicontrol {View mode} in the \uicontrol {Android Logcat} group. For
+    \uicontrol Standard, select the columns to show. The settings apply to all
+    \uicontrol Logcat tabs.
+
+    \image {qtcreator-preferences-application-output.webp}
+           {Application Output tab in Build & Run preferences}
+
+    \section1 Filter messages
+
+    To show only the messages that you are interested in, enter a query in the
+    filter field of the \uicontrol {Application Output} view. Each tab has its
+    own filter.
+
+    A query consists of terms separated by spaces. A message is shown when it
+    matches all the terms. The matching is not case sensitive. A term is either
+    plain text or one of the keys from the following table with a value.
+
+    \table
+    \header
+        \li Term
+        \li Shows messages that
+    \row
+        \li \e text
+        \li Contain \e text anywhere in the line, including the tag and the
+            package name.
+    \row
+        \li \c {tag:}\e name
+        \li Have a tag that contains \e name.
+    \row
+        \li \c {package:}\e name
+        \li Come from an application that has \e name in its package name.
+    \row
+        \li \c package:mine
+        \li Come from your application, including its other processes. This
+            is the application that you last ran on the device from \QC, or
+            otherwise the application of the active project.
+    \row
+        \li \c {level:}\e level
+        \li Have the given level or a more severe one. Use \c verbose,
+            \c debug, \c info, \c warning, \c error, or \c fatal. You can
+            abbreviate the level, as in \c {level:warn}.
+    \endtable
+
+    To leave out messages, add a minus sign in front of a term. For example, to
+    see the warnings and errors of your application, except those with the tag
+    \c Choreographer, enter:
+
+    \code [text]
+    package:mine level:warning -tag:Choreographer
+    \endcode
+
+    \sa {Android}{How to: Develop for Android}, {Developing for Android},
+    {Application Output}, {Debug on Android devices}
+*/

@@ -13,7 +13,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/minisplitter.h>
 
-#include <tracing/rangedetailswidget.h>
+#include <tracing/timelinedetailswidget.h>
 
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
@@ -49,7 +49,7 @@ public:
         }
 
         addWidget(m_tabs);
-        addWidget(document->rangeDetails());
+        addWidget(document->timelineDetails());
         setStretchFactor(0, 1);
         setStretchFactor(1, 0);
         setObjectName("ProfilerTraceWidget");
@@ -105,6 +105,8 @@ ProfilerTraceEditor::ProfilerTraceEditor(std::unique_ptr<ProfilerTraceDocument> 
 
 ProfilerTraceEditor::~ProfilerTraceEditor()
 {
+    // The views own models that a trace still loading calls into.
+    d->document->cancelBackgroundWork();
     for (const QPointer<QWidget> &widget : std::as_const(d->borrowedToolBarWidgets)) {
         if (widget)
             widget->setParent(nullptr);

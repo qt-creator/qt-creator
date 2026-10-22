@@ -77,6 +77,8 @@ QtcPlugin {
         files: [
             "languageclientmanager_test.cpp",
             "languageclientmanager_test.h",
+            "requiresprojectorfile_test.cpp",
+            "requiresprojectorfile_test.h",
         ]
     }
 

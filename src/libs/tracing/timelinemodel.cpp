@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "timelinemodel.h"
+
+#include "timelineformatdata.h"
 #include "timelinemodel_p.h"
 #include "timelinemodelaggregator.h"
 
@@ -9,7 +11,11 @@
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
+#include <algorithm>
+#include <bit>
+#include <limits>
 #include <list>
+#include <vector>
 
 namespace Timeline {
 
@@ -44,21 +50,21 @@ double defaultColorLightness()
 */
 void TimelineModel::computeNesting()
 {
-    std::list<int> parents;
+    std::vector<int> parents;
     for (int range = 0; range != count(); ++range) {
         TimelineModelPrivate::Range &current = d->ranges[range];
-        for (std::list<int>::iterator parentIt = parents.begin();;) {
+        for (auto parentIt = parents.begin();;) {
             if (parentIt == parents.end()) {
                 parents.push_back(range);
                 break;
             }
 
             TimelineModelPrivate::Range &parent = d->ranges[*parentIt];
-            qint64 parentEnd = parent.start + parent.duration;
+            qint64 parentEnd = parent.start + d->duration(parent);
             if (parentEnd < current.start) {
                 // We've completely passed the parent. Remove it.
                 parentIt = parents.erase(parentIt);
-            } else if (parentEnd >= current.start + current.duration) {
+            } else if (parentEnd >= current.start + d->duration(current)) {
                 // Current range is completely inside the parent range: no need to insert
                 current.parent = (parent.parent == -1 ? *parentIt : parent.parent);
                 break;
@@ -111,7 +117,7 @@ QList<int> TimelineModel::computeRows(int *maxlevel) const
                 break;
             }
             TimelineModelPrivate::Range &rowItem = d->ranges[*rowIt];
-            if (rowItem.start + rowItem.duration < current.start) {
+            if (rowItem.start + d->duration(rowItem) < current.start) {
                 // We've completely passed the item
                 // Use this row for the range
                 *rowIt = range;
@@ -126,7 +132,7 @@ QList<int> TimelineModel::computeRows(int *maxlevel) const
         // remove other rows that we passed
         while (rowIt != rows.end()) {
             TimelineModelPrivate::Range &rowItem = d->ranges[*rowIt];
-            if (rowItem.start + rowItem.duration < current.start) {
+            if (rowItem.start + d->duration(rowItem) < current.start) {
                 // We've completely passed the item, remove
                 rowIt = rows.erase(rowIt);
             } else {
@@ -284,7 +290,7 @@ int TimelineModel::count() const
 
 qint64 TimelineModel::duration(int index) const
 {
-    return d->ranges[index].duration;
+    return d->duration(d->ranges[index]);
 }
 
 qint64 TimelineModel::startTime(int index) const
@@ -294,7 +300,7 @@ qint64 TimelineModel::startTime(int index) const
 
 qint64 TimelineModel::endTime(int index) const
 {
-    return d->ranges[index].start + d->ranges[index].duration;
+    return d->rangeEnd(index);
 }
 
 /*!
@@ -326,23 +332,110 @@ int TimelineModel::firstIndex(qint64 startTime) const
 }
 
 /*!
-    Of all indexes of ranges starting at the same time as the first range with an end time later
-    than the specified \a startTime returns the lowest one. If no such range is found, it returns
-    -1.
+    Returns the lowest index of a range with an end time later than the specified \a startTime,
+    or -1 if there is none.
 */
 int TimelineModel::TimelineModelPrivate::firstIndexNoParents(qint64 startTime) const
 {
-    // in the "endtime" list, find the first event that ends after startTime
-
-    // lowerBound() cannot deal with empty lists, and it never finds the last element.
-    if (endTimes.isEmpty() || endTimes.last().end <= startTime)
+    // That range is in the first block of ranges that the latest end up to it is later for.
+    const auto block = std::upper_bound(endMaxima.cbegin(), endMaxima.cend(), startTime);
+    if (block == endMaxima.cend())
         return -1;
+    const int count = ranges.count();
+    for (int i = int(block - endMaxima.cbegin()) << EndBlockShift; i < count; ++i) {
+        if (rangeEnd(i) > startTime)
+            return i;
+    }
+    QTC_CHECK(false);
+    return -1;
+}
 
-    // lowerBound() never returns "invalid", so handle this manually.
-    if (endTimes.first().end > startTime)
-        return endTimes.first().startIndex;
+/*!
+    Returns the index of the range that ends first after \a time, or -1 if there is none. Of
+    ranges ending at the same time, it returns the lowest index.
+*/
+int TimelineModel::TimelineModelPrivate::firstEndingAfter(qint64 time) const
+{
+    int first = firstIndexNoParents(time);
+    if (first < 0)
+        return -1;
+    qint64 firstEnd = rangeEnd(first);
+    // A range starting no earlier than that end cannot end before it.
+    for (int i = first + 1, count = ranges.count(); i < count && ranges[i].start < firstEnd; ++i) {
+        const qint64 end = rangeEnd(i);
+        if (end > time && end < firstEnd) {
+            first = i;
+            firstEnd = end;
+        }
+    }
+    return first;
+}
 
-    return endTimes[lowerBound(endTimes, startTime) + 1].startIndex;
+/*!
+    Returns \a duration as stored in a range, adding it to the long durations if needed.
+*/
+quint32 TimelineModel::TimelineModelPrivate::encodeDuration(qint64 duration)
+{
+    if (duration >= 0 && duration < LongDuration)
+        return quint32(duration);
+    longDurations.append(duration);
+    return LongDuration | quint32(longDurations.size() - 1);
+}
+
+/*!
+    Sets the duration of \a range to \a duration.
+*/
+void TimelineModel::TimelineModelPrivate::setDuration(Range &range, qint64 duration)
+{
+    if (range.duration >= LongDuration && (duration < 0 || duration >= LongDuration))
+        longDurations[range.duration & ~LongDuration] = duration;
+    else
+        range.duration = encodeDuration(duration);
+}
+
+/*!
+    Updates the end maxima for the range just inserted at \a index.
+*/
+void TimelineModel::TimelineModelPrivate::rangeInserted(int index)
+{
+    // An insertion before the end moves the ranges after it to other blocks.
+    if (index < ranges.count() - 1) {
+        recomputeEndMaxima(index);
+        return;
+    }
+    if ((index >> EndBlockShift) == endMaxima.count()) {
+        endMaxima.append(endMaxima.isEmpty() ? std::numeric_limits<qint64>::min()
+                                             : endMaxima.constLast());
+    }
+    raiseEndMaxima(index);
+}
+
+/*!
+    Updates the end maxima for a range at \a index that ends later than before.
+*/
+void TimelineModel::TimelineModelPrivate::raiseEndMaxima(int index)
+{
+    const qint64 end = rangeEnd(index);
+    for (int block = index >> EndBlockShift; block < endMaxima.count() && endMaxima[block] < end;
+         ++block) {
+        endMaxima[block] = end;
+    }
+}
+
+/*!
+    Recomputes the end maxima from the block of the range at \a index on.
+*/
+void TimelineModel::TimelineModelPrivate::recomputeEndMaxima(int index)
+{
+    const int count = ranges.count();
+    const int firstBlock = index >> EndBlockShift;
+    endMaxima.resize((count + (1 << EndBlockShift) - 1) >> EndBlockShift);
+    qint64 maximum = firstBlock > 0 ? endMaxima[firstBlock - 1]
+                                    : std::numeric_limits<qint64>::min();
+    for (int i = firstBlock << EndBlockShift; i < count; ++i) {
+        maximum = std::max(maximum, rangeEnd(i));
+        endMaxima[i >> EndBlockShift] = maximum;
+    }
 }
 
 /*!
@@ -378,16 +471,10 @@ int TimelineModel::bestIndex(qint64 timestamp) const
     const int start = d->ranges.last().start < timestamp
             ? d->ranges.count() - 1 : d->lowerBound(d->ranges, timestamp);
 
-    int endTimeIndex;
-    if (d->endTimes.first().end >= timestamp)
-        endTimeIndex = 0;
-    else if (d->endTimes.last().end < timestamp)
-        endTimeIndex = d->endTimes.count() - 1;
-    else
-        endTimeIndex = d->lowerBound(d->endTimes, timestamp) + 1;
-
-    // First range that ends after
-    const int end = d->endTimes[endTimeIndex].startIndex;
+    // First range that ends at or after timestamp
+    int end = d->firstIndexNoParents(timestamp - 1);
+    if (end < 0)
+        end = start;
 
     // Best is probably between those
     return (start + end) / 2;
@@ -431,6 +518,17 @@ qint64 TimelineModel::rowMaxValue(int rowNumber) const
 {
     Q_UNUSED(rowNumber)
     return 0;
+}
+
+/*!
+    Returns \a value, which lies between \l rowMinValue() and \l rowMaxValue() of row
+    \a rowNumber, as text for the value scale of the expanded row. The base model returns
+    the plain number. Override this method if the values of a row have a unit, such as bytes.
+ */
+QString TimelineModel::formatRowValue(int rowNumber, qint64 value) const
+{
+    Q_UNUSED(rowNumber)
+    return formatNumber(value);
 }
 
 bool TimelineModel::rendersAsDensity() const
@@ -492,15 +590,12 @@ QRgb TimelineModel::colorByHueChroma(int hue, int chroma) const
 */
 int TimelineModel::insert(qint64 startTime, qint64 duration, int selectionId)
 {
+    d->dropSummaries();
     /* Doing insert-sort here is preferable as most of the time the times will actually be
      * presorted in the right way. So usually this will just result in appending. */
-    int index = d->insertStart(TimelineModelPrivate::Range(startTime, duration, selectionId));
-    if (index < d->ranges.size() - 1)
-        d->incrementStartIndices(index);
-    int endIndex = d->insertEnd(TimelineModelPrivate::RangeEnd(index, startTime + duration));
-    d->setEndIndex(index, endIndex);
-    if (endIndex < d->endTimes.size() - 1)
-        d->incrementEndIndices(endIndex);
+    const int index = d->insertStart(TimelineModelPrivate::Range(
+        startTime, d->encodeDuration(duration), selectionId));
+    d->rangeInserted(index);
     return index;
 }
 
@@ -512,9 +607,9 @@ int TimelineModel::insert(qint64 startTime, qint64 duration, int selectionId)
 */
 int TimelineModel::insertStart(qint64 startTime, int selectionId)
 {
-    int index = d->insertStart(TimelineModelPrivate::Range(startTime, 0, selectionId));
-    if (index < d->ranges.size() - 1)
-        d->incrementStartIndices(index);
+    d->dropSummaries();
+    const int index = d->insertStart(TimelineModelPrivate::Range(startTime, 0, selectionId));
+    d->rangeInserted(index);
     return index;
 }
 
@@ -523,11 +618,14 @@ int TimelineModel::insertStart(qint64 startTime, int selectionId)
 */
 void TimelineModel::insertEnd(int index, qint64 duration)
 {
-    d->ranges[index].duration = duration;
-    int endIndex = d->insertEnd(TimelineModelPrivate::RangeEnd(index, d->ranges[index].start + duration));
-    d->setEndIndex(index, endIndex);
-    if (endIndex < d->endTimes.size() - 1)
-        d->incrementEndIndices(endIndex);
+    d->dropSummaries();
+    TimelineModelPrivate::Range &range = d->ranges[index];
+    const qint64 previousDuration = d->duration(range);
+    d->setDuration(range, duration);
+    if (duration >= previousDuration)
+        d->raiseEndMaxima(index);
+    else
+        d->recomputeEndMaxima(index);
 }
 
 bool TimelineModel::expanded() const
@@ -567,6 +665,23 @@ void TimelineModel::setDisplayName(const QString &displayName)
 QString TimelineModel::displayName() const
 {
     return d->displayName;
+}
+
+/*!
+    Returns the name the model is known by across traces and sessions. Unlike
+    modelId(), it stays the same when the model is created again for another
+    trace, and unlike displayName(), it is not translated. The aggregator keys
+    the order and the hidden state the user chose on it. A model without one
+    takes its place from its owner every time.
+*/
+QString TimelineModel::persistentId() const
+{
+    return d->persistentId;
+}
+
+void TimelineModel::setPersistentId(const QString &persistentId)
+{
+    d->persistentId = persistentId;
 }
 
 int TimelineModel::rowCount() const
@@ -697,9 +812,152 @@ void TimelineModel::clear()
     setExpanded(false);
     setHidden(false);
     d->rowOffsets.clear();
-    d->ranges.clear();
-    d->endTimes.clear();
+    // clear() would keep the storage, gigabytes for a long trace, and filling the model again
+    // with fewer items would keep that in memory too.
+    d->ranges = QList<TimelineModelPrivate::Range>();
+    d->endMaxima = QList<qint64>();
+    d->longDurations = QList<qint64>();
+    d->dropSummaries();
     emit contentChanged();
+}
+
+// Below this many items, drawing them one by one is fast enough at any zoom level.
+static constexpr int kMinSummaryItems = 1 << 16;
+static constexpr quint32 kMaxSummaryBuckets = 1u << 18;
+static constexpr quint32 kOverviewSummaryBuckets = 1u << 14;
+
+using Summary = TimelineModel::Summary;
+
+static void addToBucket(QList<Summary::Bucket> &buckets, quint32 index, int item, float overlap)
+{
+    const auto update = [&](Summary::Bucket &bucket) {
+        if (overlap > bucket.overlap) {
+            bucket.item = item;
+            bucket.overlap = overlap;
+        }
+    };
+    if (buckets.isEmpty() || buckets.constLast().index < index) {
+        buckets.append({index, item, overlap});
+        return;
+    }
+    if (buckets.constLast().index == index) {
+        update(buckets.last());
+        return;
+    }
+    // Items arrive in the order they start, so an earlier one can only be still open here:
+    // it has added every bucket it overlaps already.
+    auto it = std::lower_bound(buckets.begin(), buckets.end(), index,
+                               [](const Summary::Bucket &bucket, quint32 index) {
+                                   return bucket.index < index;
+                               });
+    if (it != buckets.end() && it->index == index)
+        update(*it);
+    else
+        buckets.insert(it, {index, item, overlap});
+}
+
+class SummaryBuilder
+{
+public:
+    SummaryBuilder(qint64 start, qint64 end, quint32 bucketCount, int rowCount)
+        : m_rowSelectionIds(rowCount)
+    {
+        m_summary.start = start;
+        m_summary.bucketCount = bucketCount;
+        m_summary.bucketDuration = std::max<qint64>(1, (end - start + bucketCount) / bucketCount);
+        m_summary.rows.resize(rowCount);
+        m_summary.mixedRows.resize(rowCount);
+    }
+
+    // itemStart and itemEnd are relative to the summary's start.
+    void add(int row, int item, int selectionId, qint64 itemStart, qint64 itemEnd)
+    {
+        if (row < 0 || row >= m_summary.rows.size())
+            return;
+
+        std::optional<int> &rowSelectionId = m_rowSelectionIds[row];
+        if (!rowSelectionId)
+            rowSelectionId = selectionId;
+        else if (*rowSelectionId != selectionId)
+            m_summary.mixedRows[row] = true;
+
+        const qint64 bucketDuration = m_summary.bucketDuration;
+        const qint64 lastBucket = m_summary.bucketCount - 1;
+        const qint64 first = std::min(itemStart / bucketDuration, lastBucket);
+        const qint64 last = std::min(itemEnd / bucketDuration, lastBucket);
+        for (qint64 bucket = first; bucket <= last; ++bucket) {
+            const qint64 bucketStart = bucket * bucketDuration;
+            const qint64 overlap = std::min(itemEnd, bucketStart + bucketDuration)
+                                   - std::max(itemStart, bucketStart);
+            addToBucket(m_summary.rows[row], quint32(bucket), item,
+                        float(std::max<qint64>(0, overlap)));
+        }
+    }
+
+    Summary take()
+    {
+        for (QList<Summary::Bucket> &buckets : m_summary.rows)
+            buckets.squeeze();
+        return std::move(m_summary);
+    }
+
+private:
+    Summary m_summary;
+    QList<std::optional<int>> m_rowSelectionIds;
+};
+
+/*!
+    Computes the summaries of the items for the collapsed and the expanded rows and for the
+    overview, for a model with many items. Models call this once they know the rows of all
+    items; adding items drops the summaries again. A model without summaries is drawn item by
+    item at any zoom level.
+
+    It may run in the thread that loaded the items, while nothing else uses the model.
+*/
+void TimelineModel::computeSummaries()
+{
+    d->dropSummaries();
+    const int items = count();
+    if (items < kMinSummaryItems)
+        return;
+
+    const qint64 start = d->ranges.constFirst().start;
+    const qint64 end = std::max(d->ranges.constLast().start,
+                                d->endMaxima.isEmpty() ? start : d->endMaxima.constLast());
+
+    const quint32 buckets = std::min(kMaxSummaryBuckets, std::bit_ceil(quint32(items) / 16));
+    SummaryBuilder collapsed(start, end, buckets, collapsedRowCount());
+    SummaryBuilder expanded(start, end, buckets, expandedRowCount());
+    SummaryBuilder overview(start, end, kOverviewSummaryBuckets, 1);
+    for (int i = 0; i < items; ++i) {
+        const TimelineModelPrivate::Range &range = d->ranges.at(i);
+        const qint64 itemStart = range.start - start;
+        const qint64 itemEnd = std::max(itemStart, itemStart + d->duration(range));
+        collapsed.add(collapsedRow(i), i, range.selectionId, itemStart, itemEnd);
+        expanded.add(expandedRow(i), i, range.selectionId, itemStart, itemEnd);
+        overview.add(0, i, range.selectionId, itemStart, itemEnd);
+    }
+    d->collapsedSummary = collapsed.take();
+    d->expandedSummary = expanded.take();
+    d->overviewSummary = overview.take();
+}
+
+/*!
+    Returns the summary of the items in the \a expanded or collapsed rows, or \c nullptr if
+    computeSummaries() has not computed one.
+*/
+const TimelineModel::Summary *TimelineModel::summary(bool expanded) const
+{
+    const std::optional<Summary> &summary = expanded ? d->expandedSummary : d->collapsedSummary;
+    return summary ? &*summary : nullptr;
+}
+
+/*!
+    Returns the summary of all items in a single row, for the overview, or \c nullptr.
+*/
+const TimelineModel::Summary *TimelineModel::overviewSummary() const
+{
+    return d->overviewSummary ? &*d->overviewSummary : nullptr;
 }
 
 int TimelineModel::nextItemBySelectionId(int selectionId, qint64 time, int currentItem) const
@@ -771,7 +1029,7 @@ int TimelineModel::TimelineModelPrivate::nextItemById(std::function<bool(int)> m
 
     int ndx = -1;
     if (currentItem == -1)
-        ndx = firstIndexNoParents(time);
+        ndx = firstEndingAfter(time);
     else
         ndx = currentItem + 1;
 
@@ -794,7 +1052,7 @@ int TimelineModel::TimelineModelPrivate::prevItemById(std::function<bool(int)> m
 
     int ndx = -1;
     if (currentItem == -1)
-        ndx = firstIndexNoParents(time);
+        ndx = firstEndingAfter(time);
     else
         ndx = currentItem - 1;
     if (ndx < 0)

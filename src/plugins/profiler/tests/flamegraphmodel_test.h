@@ -28,6 +28,7 @@ private slots:
     void testData();
     void testRoleNames();
     void testNotes();
+    void testEventWithoutRangeStage();
     void cleanupTestCase();
 
 private:

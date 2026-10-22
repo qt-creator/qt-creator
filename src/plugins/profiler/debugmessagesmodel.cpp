@@ -28,11 +28,11 @@ QRgb DebugMessagesModel::color(int index) const
 }
 
 static const char *messageTypes[] = {
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Debug Message"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Warning Message"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Critical Message"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Fatal Message"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Info Message"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Debug Message"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Warning Message"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Critical Message"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Fatal Message"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Info Message"),
 };
 
 QString DebugMessagesModel::messageType(uint i)
@@ -82,11 +82,10 @@ void DebugMessagesModel::loadEvent(const QmlEvent &event, const QmlEventType &ty
         m_maximumMsgType = type.detailType();
 }
 
-void DebugMessagesModel::finalize()
+void DebugMessagesModel::prepare()
 {
     setCollapsedRowCount(Timeline::kCollapsedStartRow + 1);
     setExpandedRowCount(m_maximumMsgType + 2);
-    QmlProfilerTimelineModel::finalize();
 }
 
 void DebugMessagesModel::clear()

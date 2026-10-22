@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "perfnativemixed.h"
-#include "perfprofilertr.h"
 #include "perfprofilertracemanager.h"
 #include "perftimelinemodel.h"
 #include "perftimelinemodelmanager.h"
+#include "profilertr.h"
 
 #include <tracing/timelineformatdata.h>
 #include <utils/qtcassert.h>
@@ -590,6 +590,13 @@ qint64 PerfTimelineModel::rowMinValue(int rowNumber) const
 qint64 PerfTimelineModel::rowMaxValue(int rowNumber) const
 {
     return rowNumber == SamplesRow ? m_resourceBlocks.maxTotal() : 0;
+}
+
+QString PerfTimelineModel::formatRowValue(int rowNumber, qint64 value) const
+{
+    if (rowNumber == SamplesRow)
+        return Timeline::formatDataSize(value);
+    return Timeline::TimelineModel::formatRowValue(rowNumber, value);
 }
 
 } // namespace Profiler::Internal

@@ -36,48 +36,44 @@ public:
 
     static const int DefaultRowHeight = 30;
 
+    // Packed to 20 bytes, as a long trace holds hundreds of millions of ranges.
+#pragma pack(push, 4)
     struct Range {
-        Range() : start(-1), duration(-1), selectionId(-1), parent(-1), endIndex(-1) {}
-        Range(qint64 start, qint64 duration, int selectionId) :
-            start(start), duration(duration), selectionId(selectionId), parent(-1), endIndex(-1) {}
-        qint64 start;
-        qint64 duration;
-        int selectionId;
-        int parent;
-        int endIndex;
+        Range() = default;
+        Range(qint64 start, quint32 duration, int selectionId) :
+            start(start), duration(duration), selectionId(selectionId) {}
+        qint64 start = -1;
+        quint32 duration = 0; // Encoded, see TimelineModelPrivate::duration().
+        int selectionId = -1;
+        int parent = -1;
         inline qint64 timestamp() const {return start;}
     };
+#pragma pack(pop)
+    static_assert(sizeof(Range) == 20);
 
-    struct RangeEnd {
-        RangeEnd() : startIndex(-1), end(-1) {}
-        RangeEnd(int startIndex, qint64 end) :
-            startIndex(startIndex), end(end) {}
-        int startIndex;
-        qint64 end;
-        inline qint64 timestamp() const {return end;}
-    };
+    // Durations from this one on, and negative ones, are kept in longDurations. The range
+    // holds this bit and their index there.
+    static constexpr quint32 LongDuration = 0x80000000u;
+
+    // endMaxima holds one entry per block of this many ranges.
+    static constexpr int EndBlockShift = 6;
 
     TimelineModelPrivate(int modelId);
 
     int firstIndexNoParents(qint64 startTime) const;
+    int firstEndingAfter(qint64 time) const;
 
-    void incrementStartIndices(int index)
+    qint64 duration(const Range &range) const
     {
-        for (index = index + 1; index < ranges.count(); index++) {
-            if (ranges[index].endIndex >= 0)
-                endTimes[ranges[index].endIndex].startIndex++;
-        }
+        return range.duration < LongDuration ? qint64(range.duration)
+                                             : longDurations[range.duration & ~LongDuration];
     }
-    void incrementEndIndices(int index)
-    {
-        for (index = index + 1; index < endTimes.count(); index++)
-            ranges[endTimes[index].startIndex].endIndex++;
-    }
-
-    inline void setEndIndex(int index, int endIndex)
-    {
-        ranges[index].endIndex = endIndex;
-    }
+    qint64 rangeEnd(int index) const { return ranges[index].start + duration(ranges[index]); }
+    quint32 encodeDuration(qint64 duration);
+    void setDuration(Range &range, qint64 duration);
+    void rangeInserted(int index);
+    void raiseEndMaxima(int index);
+    void recomputeEndMaxima(int index);
 
     inline int insertStart(const Range &start)
     {
@@ -88,22 +84,8 @@ public:
             }
             const Range &range = ranges.at(--i);
             if (range.start < start.start || (range.start == start.start &&
-                                              range.duration >= start.duration)) {
+                                              duration(range) >= duration(start))) {
                 ranges.insert(++i, start);
-                return i;
-            }
-        }
-    }
-
-    inline int insertEnd(const RangeEnd &end)
-    {
-        for (int i = endTimes.count();;) {
-            if (i == 0) {
-                endTimes.prepend(end);
-                return 0;
-            }
-            if (endTimes.at(--i).end <= end.end) {
-                endTimes.insert(++i, end);
                 return i;
             }
         }
@@ -125,15 +107,25 @@ public:
         return fromIndex;
     }
 
+    void dropSummaries()
+    {
+        collapsedSummary.reset();
+        expandedSummary.reset();
+        overviewSummary.reset();
+    }
+
     int prevItemById(std::function<bool(int)> matchesId, qint64 time, int currentSelected) const;
     int nextItemById(std::function<bool(int)> matchesId, qint64 time, int currentSelected) const;
 
     QList<Range> ranges;
-    QList<RangeEnd> endTimes;
+    QList<qint64> longDurations;
+    // The latest end of the ranges up to the end of each block, so that it is sorted.
+    QList<qint64> endMaxima;
 
     QList<int> rowOffsets;
     const int modelId;
     QString displayName;
+    QString persistentId;
     QString tooltip;
     QColor categoryColor;
     bool hasMixedTypesInExpandedState;
@@ -142,6 +134,10 @@ public:
     bool hidden;
     int expandedRowCount;
     int collapsedRowCount;
+
+    std::optional<Summary> collapsedSummary;
+    std::optional<Summary> expandedSummary;
+    std::optional<Summary> overviewSummary;
 };
 
 } // namespace Timeline

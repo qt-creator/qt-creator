@@ -25,7 +25,6 @@ CtfStatisticsView::CtfStatisticsView(CtfStatisticsModel *model, QWidget *parent)
     header()->setDefaultSectionSize(100);
     header()->setMinimumSectionSize(50);
     header()->setStretchLastSection(false);
-    header()->setSectionResizeMode(CtfStatisticsModel::Column::Title, QHeaderView::Stretch);
     setRootIsDecorated(false);
     setSortingEnabled(true);
 

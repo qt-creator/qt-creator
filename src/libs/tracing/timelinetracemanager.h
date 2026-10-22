@@ -48,6 +48,7 @@ public:
     using Initializer = std::function<void()>;
     using Finalizer = std::function<void()>;
     using Clearer = std::function<void()>;
+    using Preparer = std::function<void()>;
     using ErrorHandler = std::function<void(const QString &)>;
 
     explicit TimelineTraceManager(std::unique_ptr<TraceEventStorage> &&eventStorage,
@@ -74,7 +75,8 @@ public:
     void registerFeatures(quint64 features,
                           Initializer initializer = Initializer(),
                           Finalizer finalizer = Finalizer(),
-                          Clearer clearer = Clearer());
+                          Clearer clearer = Clearer(),
+                          Preparer preparer = Preparer());
 
     quint64 availableFeatures() const;
     quint64 visibleFeatures() const;
@@ -85,6 +87,7 @@ public:
     void setAggregateTraces(bool aggregateTraces);
 
     virtual void initialize();
+    void prepare(QFutureInterface<void> *future = nullptr);
     virtual void finalize();
     virtual void clear();
 
@@ -92,11 +95,14 @@ public:
 
     QFuture<void> save(const QString &filename);
     QFuture<void> load(const QString &filename);
+    void cancelBackgroundWork();
 
 signals:
     void error(const QString &error);
     void loadFinished();
     void saveFinished();
+    void restrictionStarted();
+    void restrictionFinished();
 
     void availableFeaturesChanged(quint64 features);
     void visibleFeaturesChanged(quint64 features);
@@ -108,8 +114,13 @@ protected:
     virtual void clearTypeStorage();
 
     void restrictByFilter(TraceEventFilter filter);
+    void restrictByFilterInThread(TraceEventFilter filter);
+    void replayInThread(const void *key, const std::function<TraceEventLoader()> &makeLoader,
+                        const Initializer &initializer, const Preparer &preparer,
+                        const Finalizer &finalizer, const ErrorHandler &errorHandler);
 
     void appendEvent(TraceEvent &&event);
+    void dispatchEvent(const TraceEvent &event);
     const TraceEventType &eventType(int typeId) const;
     void setEventType(int typeId, TraceEventType &&type);
     int appendEventType(TraceEventType &&type);

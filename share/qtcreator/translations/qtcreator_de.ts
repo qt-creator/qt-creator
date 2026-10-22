@@ -31119,7 +31119,7 @@ Flags: %3</translation>
     </message>
 </context>
 <context>
-    <name>QtC::CtfVisualizer</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Title</source>
         <translation>Titel</translation>
@@ -31166,6 +31166,7 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Start</source>
+        <comment>start time</comment>
         <translation>Anfang</translation>
     </message>
     <message>
@@ -46320,7 +46321,7 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
 </context>
 <context>
-    <name>QtC::PerfProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Stack snapshot size (kB):</source>
         <translation>Größe des Stackabbilds (kB):</translation>
@@ -46662,14 +46663,6 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
         <translation>Anhalten</translation>
     </message>
     <message>
-        <source>Timeline</source>
-        <translation>Zeitleiste</translation>
-    </message>
-    <message>
-        <source>Statistics</source>
-        <translation>Statistik</translation>
-    </message>
-    <message>
         <source>Flame Graph</source>
         <translation>Flame Graph</translation>
     </message>
@@ -46680,10 +46673,6 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     <message>
         <source>Limit to Selected Range</source>
         <translation>Auf markierten Bereich einschränken</translation>
-    </message>
-    <message>
-        <source>Reset Zoom</source>
-        <translation>Vergrößerung zurücksetzen</translation>
     </message>
     <message>
         <source>Copy Table</source>
@@ -58450,7 +58439,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML-Profiler</translation>
@@ -58466,10 +58455,6 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     <message>
         <source>Select an externally started QML-debug enabled application.&lt;p&gt;Commonly used command-line arguments are:</source>
         <translation>Wählen Sie eine extern gestartete Anwendung aus, die QML-Debugging erlaubt.&lt;p&gt;Häufig verwendete Kommandozeilenargumente sind:</translation>
-    </message>
-    <message>
-        <source>Kit:</source>
-        <translation>Kit:</translation>
     </message>
     <message>
         <source>Load QML Trace</source>
@@ -58492,14 +58477,6 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
         <translation>Profiling deaktivieren</translation>
     </message>
     <message>
-        <source>Start</source>
-        <translation>Starten</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Anhalten</translation>
-    </message>
-    <message>
         <source>Enable Profiling</source>
         <translation>Profiling aktivieren</translation>
     </message>
@@ -58518,14 +58495,6 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     <message>
         <source>QML traces (*%1 *%2)</source>
         <translation>QML-Traces (*%1 *%2)</translation>
-    </message>
-    <message>
-        <source>Saving Trace Data</source>
-        <translation>Speichere Trace-Daten</translation>
-    </message>
-    <message>
-        <source>Loading Trace Data</source>
-        <translation>Lade Trace-Daten</translation>
     </message>
     <message>
         <source>You are about to discard the profiling data, including unsaved notes. Do you want to continue?</source>
@@ -58721,20 +58690,12 @@ Wollen Sie die Daten vorher speichern?</translation>
         <translation>Warte auf Daten</translation>
     </message>
     <message>
-        <source>Timeline</source>
-        <translation>Zeitleiste</translation>
-    </message>
-    <message>
         <source>Analyze Current Range</source>
         <translation>Analysiere aktuellen Bereich</translation>
     </message>
     <message>
         <source>Analyze Full Range</source>
         <translation>Analysiere kompletten Bereich</translation>
-    </message>
-    <message>
-        <source>Reset Zoom</source>
-        <translation>Vergrößerung zurücksetzen</translation>
     </message>
     <message>
         <source>Quick3D</source>
@@ -58787,20 +58748,12 @@ Daten und den Speicherverbrauch der Applikation. Es stört das Profiling, weil d
 Senden selbst auch Zeit benötigt.</translation>
     </message>
     <message>
-        <source>Duration</source>
-        <translation>Dauer</translation>
-    </message>
-    <message>
         <source>Framerate</source>
         <translation>Bildwiederholrate</translation>
     </message>
     <message>
         <source>Context</source>
         <translation>Kontext</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Details</translation>
     </message>
     <message>
         <source>Location</source>
@@ -58811,24 +58764,8 @@ Senden selbst auch Zeit benötigt.</translation>
         <translation>Einstellungen des QML-Profilers</translation>
     </message>
     <message>
-        <source>Statistics</source>
-        <translation>Statistik</translation>
-    </message>
-    <message>
-        <source>Copy Row</source>
-        <translation>Zeile kopieren</translation>
-    </message>
-    <message>
-        <source>Copy Table</source>
-        <translation>Tabelle kopieren</translation>
-    </message>
-    <message>
         <source>Extended Event Statistics</source>
         <translation>Erweiterte Ereignisstatistik</translation>
-    </message>
-    <message>
-        <source>Show Full Range</source>
-        <translation>Ganzen Bereich anzeigen</translation>
     </message>
     <message>
         <source>Debug Message</source>
@@ -58855,10 +58792,6 @@ Senden selbst auch Zeit benötigt.</translation>
         <translation>Unbekannte Nachricht %1</translation>
     </message>
     <message>
-        <source>Timestamp</source>
-        <translation>Zeitstempel</translation>
-    </message>
-    <message>
         <source>Message</source>
         <translation>Nachricht</translation>
     </message>
@@ -58881,14 +58814,6 @@ Senden selbst auch Zeit benötigt.</translation>
     <message>
         <source>Source code not available</source>
         <translation>Kein Quelltext verfügbar</translation>
-    </message>
-    <message>
-        <source>Flame Graph</source>
-        <translation>Flame Graph</translation>
-    </message>
-    <message>
-        <source>Reset Flame Graph</source>
-        <translation>Flame Graph zurücksetzen</translation>
     </message>
     <message>
         <source>Mouse Events</source>
@@ -58929,10 +58854,6 @@ Senden selbst auch Zeit benötigt.</translation>
     <message>
         <source>Button</source>
         <translation>Maustaste</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Ergebnis</translation>
     </message>
     <message>
         <source>Mouse Move</source>
@@ -58998,10 +58919,6 @@ Senden selbst auch Zeit benötigt.</translation>
         <translation>Allokiert</translation>
     </message>
     <message>
-        <source>Allocations</source>
-        <translation>Allokationen</translation>
-    </message>
-    <message>
         <source>Deallocated</source>
         <translation>Freigegeben</translation>
     </message>
@@ -59060,10 +58977,6 @@ Senden selbst auch Zeit benötigt.</translation>
     <message>
         <source>Glyphs</source>
         <translation>Glyphen</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation>Gesamtdauer</translation>
     </message>
     <message>
         <source>Calls</source>
@@ -59142,10 +59055,6 @@ Senden selbst auch Zeit benötigt.</translation>
         <translation>Eine temporäre Trace-Datei konnte nicht zurückgesetzt werden.</translation>
     </message>
     <message>
-        <source>Failed to flush temporary trace file.</source>
-        <translation>Das Schreiben in eine temporäre Trace-Datei konnte nicht beendet werden.</translation>
-    </message>
-    <message>
         <source>Could not re-open temporary trace file.</source>
         <translation>Eine temporäre Trace-Datei konnte nicht neu geöffnet werden.</translation>
     </message>
@@ -59156,14 +59065,6 @@ Senden selbst auch Zeit benötigt.</translation>
     <message>
         <source>called recursively</source>
         <translation>rekursiv aufgerufen</translation>
-    </message>
-    <message>
-        <source>Callee</source>
-        <translation>Aufgerufene Funktion</translation>
-    </message>
-    <message>
-        <source>Caller</source>
-        <translation>Aufrufende Funktion</translation>
     </message>
     <message>
         <source>Callee Description</source>
@@ -59282,10 +59183,6 @@ Speichern fehlgeschlagen.</translation>
     <message>
         <source>Description</source>
         <translation>Beschreibung</translation>
-    </message>
-    <message>
-        <source>Count</source>
-        <translation>Anzahl</translation>
     </message>
     <message>
         <source>Draw Calls</source>

@@ -31,6 +31,12 @@ qint64 MemoryUsageModel::rowMaxValue(int rowNumber) const
     return m_maxSize;
 }
 
+QString MemoryUsageModel::formatRowValue(int rowNumber, qint64 value) const
+{
+    Q_UNUSED(rowNumber)
+    return Timeline::formatDataSize(value);
+}
+
 int MemoryUsageModel::expandedRow(int index) const
 {
     return collapsedRow(index) - Timeline::kCollapsedStartRow + 1;
@@ -207,7 +213,7 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
     }
 }
 
-void MemoryUsageModel::finalize()
+void MemoryUsageModel::prepare()
 {
     if (m_currentJSHeapIndex != -1) {
         insertEnd(m_currentJSHeapIndex,
@@ -220,12 +226,11 @@ void MemoryUsageModel::finalize()
     computeNesting();
     setExpandedRowCount(3);
     setCollapsedRowCount(Timeline::kCollapsedStartRow + 2);
-    QmlProfilerTimelineModel::finalize();
 }
 
 void MemoryUsageModel::clear()
 {
-    m_data.clear();
+    m_data = QList<Item>(); // Not clear(), which keeps the storage, see TimelineModel::clear().
     m_maxSize = 1;
     m_currentSize = 0;
     m_currentUsage = 0;

@@ -15,6 +15,7 @@
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerengineinterface.h"
+#include "debuggerinternalconstants.h"
 #include "debuggeritem.h"
 #include "debuggerkitaspect.h"
 #include "debuggerrunconfigurationaspect.h"
@@ -894,8 +895,8 @@ void DebuggerUnitTests::testCdbImplCommandLine()
         launch.replace(QRegularExpression("\\^(.)"), "\\1");
         const QString exePart = '"' + cdbExecutable.nativePath() + "\" ";
         QVERIFY(launch.startsWith(exePart));
-        const QStringList args
-            = CommandLine({}, launch.mid(exePart.size()), CommandLine::Raw).splitArguments();
+        const QStringList args = CommandLine(cdbExecutable, launch.mid(exePart.size()),
+                                             CommandLine::Raw).splitArguments();
         QVERIFY(!args.contains("-aqtcreatorcdbext.dll"));
         QVERIFY(!args.contains("-c"));
         const int scriptIndex = args.indexOf("-cf") + 1;
@@ -5458,11 +5459,10 @@ void DebuggerUnitTests::testQmlInspectorLeavesParentlessObjectsCollapsed()
     QTRY_VERIFY_WITH_TIMEOUT(watchHandler->findItem(propertiesIName + ".orphanValue"), 30000);
 }
 
-// Objects made with createObject(null) have no parent to hang them under the
-// engine, so the inspector shows them at its top level. The test starts the
-// churning only after the ticks: a new object makes the inspector fetch the
-// tree again, which brings every value along whether or not its change came
-// through.
+// Objects made with createObject(null) have no parent, so the inspector hangs
+// them directly below their engine. The test starts the churning only after
+// the ticks: a new object makes the inspector fetch the tree again, which
+// brings every value along whether or not its change came through.
 static const char s_parentlessObjectsQml[] = R"QML(
 import QtQuick
 import QtQuick.Window
@@ -5472,6 +5472,7 @@ Window {
     property int ticks: 0
     property int churns: 0
     property bool churning: false
+    property bool spawning: false
     property var ticking
     property var churned
     property QtObject box: QtObject {
@@ -5487,11 +5488,23 @@ Window {
         id: churnedComponent
         QtObject { id: churnedOrphan; property QtObject child: QtObject { id: orphanChild } }
     }
+    Component {
+        id: lateComponent
+        QtObject { id: lateChild }
+    }
     Timer {
         interval: 100
         repeat: true
         running: true
         onTriggered: ++root.ticks
+    }
+    Timer {
+        interval: 50
+        running: root.spawning
+        onTriggered: {
+            root.spawning = false
+            lateComponent.createObject(holder)
+        }
     }
     Timer {
         interval: 400
@@ -5618,12 +5631,78 @@ void DebuggerUnitTests::testInspectorFollowsParentlessObjects()
     const quint32 nestedWatch = agent.m_objectWatches.value(nestedId);
     QVERIFY(nestedWatch);
 
+    // Parentless objects live below their engine, not at the top level.
+    const WatchItem *inspectRoot = engine->watchHandler()->findItem("inspect");
+    QVERIFY(inspectRoot);
+    const auto named = [](const QString &name) {
+        return [name](TreeItem *item) { return static_cast<WatchItem *>(item)->name == name; };
+    };
+    const WatchItem *orphan = inspectRoot->findAnyChild(named("tickingOrphan"));
+    QVERIFY(orphan);
+    QVERIFY(orphan->parent() != inspectRoot);
+    QVERIFY(orphan->parent()->parent() == inspectRoot);
+
+    // A child of an expanded object is inserted at once, without waiting for
+    // the throttled rebuild. The rebuild starts by emptying the inspector tree,
+    // and its answer comes after that of the direct fetch, so the child must
+    // show up before the tree is emptied. Let the rebuilds from the startup
+    // finish first.
+    QVERIFY2(QTest::qWaitFor([&agent] {
+        return !agent.m_delayQueryTimer.isActive() && agent.m_rootContextQueryIds.isEmpty();
+    }, 30000), "the rebuild never finished");
+    const auto lateChildShown = [&] {
+        const WatchItem *holder = inspectRoot->findAnyChild(named("holder"));
+        return holder && holder->findAnyChild(named("lateChild"));
+    };
+    WatchModelBase *model = engine->watchHandler()->model();
+    bool cleared = false;
+    bool shownBeforeClear = false;
+    QObject guard;
+    connect(model, &QAbstractItemModel::rowsInserted, &guard, [&] {
+        if (!cleared && lateChildShown())
+            shownBeforeClear = true;
+    });
+    connect(model, &QAbstractItemModel::rowsAboutToBeRemoved, &guard,
+            [&](const QModelIndex &parent) {
+                if (model->itemForIndex(parent) == inspectRoot)
+                    cleared = true;
+            });
+    WatchItem *spawning = inspectedItem(engine, "root", "spawning");
+    QVERIFY(spawning);
+    engine->assignValueInDebugger(spawning, "spawning", "true");
+    QVERIFY2(QTest::qWaitFor([&] { return shownBeforeClear || cleared; }, 30000),
+             "neither the child of the expanded object nor a rebuild showed up");
+    QVERIFY2(shownBeforeClear, "the child of the expanded object waited for the rebuild");
+
+    // A rebuild that comes due while the answers to the previous one are still
+    // on their way must wait for them instead of dropping them.
+    const auto rebuildDone = [&agent] {
+        return !agent.m_delayQueryTimer.isActive() && !agent.m_rebuildPending
+               && agent.m_rootContextQueryIds.isEmpty();
+    };
+    QVERIFY2(QTest::qWaitFor(rebuildDone, 30000), "the rebuild never finished");
+    auto &mutableAgent = const_cast<QmlInspectorAgent &>(agent);
+    mutableAgent.queryEngineContext();
+    const QList<quint32> pendingQueries = agent.m_rootContextQueryIds;
+    QVERIFY(!pendingQueries.isEmpty());
+    mutableAgent.rebuildObjectTree();
+    QCOMPARE(agent.m_rootContextQueryIds, pendingQueries);
+    QVERIFY2(QTest::qWaitFor([&agent] { return agent.m_rootContextQueryIds.isEmpty(); }, 30000),
+             "the pending rebuild never finished");
+    QVERIFY2(agent.m_delayQueryTimer.isActive(), "the rebuild that came due was dropped");
+    const qint64 rebuilt = agent.m_lastRebuild.msecsSinceReference();
+    QVERIFY2(QTest::qWaitFor([&] {
+        return rebuildDone() && agent.m_lastRebuild.msecsSinceReference() != rebuilt;
+    }, 30000), "the rebuild that came due was never run");
+
     // Each churn destroys an object whose child is watched as well. The watches
     // of the destroyed ones must go away. How many watches the live objects
     // need depends on how often the tree gets rebuilt, so follow the watches
     // of one churned object rather than the count.
-    WatchItem *churning = inspectedItem(engine, "root", "churning");
-    QVERIFY(churning);
+    WatchItem *churning = nullptr;
+    QVERIFY2(QTest::qWaitFor([&] {
+        return bool(churning = inspectedItem(engine, "root", "churning"));
+    }, 30000), "the root object never showed its properties again");
     engine->assignValueInDebugger(churning, "churning", "true");
     QSet<int> churnedWatches;
     QVERIFY2(QTest::qWaitFor([&] {
@@ -5654,6 +5733,26 @@ void DebuggerUnitTests::testInspectorFollowsParentlessObjects()
             QFAIL(qPrintable(QString("the destroyed object %1 kept its watch").arg(id)));
     }
     QCOMPARE(agent.m_objectWatches.value(nestedId), nestedWatch);
+
+    // The churning goes on, and a collapsed engine item must stay collapsed
+    // while the new objects are added below it.
+    const WatchItem *ticking = inspectRoot->findAnyChild(named("tickingOrphan"));
+    QVERIFY(ticking);
+    const QString engineIName = ticking->parent()->iname;
+    model->setData(model->indexForItem(ticking->parent()), false, LocalsExpandedRole);
+    QVERIFY(!engine->watchHandler()->isExpandedIName(engineIName));
+    for (int i = 0; i < 2; ++i) {
+        const qint64 rebuilt = agent.m_lastRebuild.msecsSinceReference();
+        QVERIFY2(QTest::qWaitFor([&] {
+            return agent.m_lastRebuild.msecsSinceReference() != rebuilt;
+        }, 30000), "the tree was not rebuilt while the objects kept coming");
+    }
+    QVERIFY2(!engine->watchHandler()->isExpandedIName(engineIName),
+             "the collapsed engine item was expanded again");
+    QVERIFY2(QTest::qWaitFor([&] {
+        const WatchItem *engineItem = engine->watchHandler()->findItem(engineIName);
+        return engineItem && engineItem->findAnyChild(named("churnedOrphan"));
+    }, 30000), "no new object showed up below the collapsed engine item");
 }
 
 QObject *createDebuggerTest()

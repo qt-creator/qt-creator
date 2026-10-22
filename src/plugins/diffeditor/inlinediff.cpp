@@ -19,6 +19,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <cpaster/codepasterservice.h>
+
+#include <extensionsystem/pluginmanager.h>
+
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/syntaxhighlighter.h>
@@ -54,6 +58,7 @@
 #include <QTextLayout>
 #include <QVBoxLayout>
 
+#include <optional>
 #include <tuple>
 #include <QPointer>
 #include <QScrollBar>
@@ -1596,6 +1601,7 @@ class InlineDiffTextEditorWidget final : public TextEditorWidget
 {
 public:
     using MenuProvider = std::function<void(QMenu *, const QTextCursor &)>;
+    using CursorHandler = std::function<void(const QTextCursor &)>;
 
     InlineDiffTextEditorWidget()
     {
@@ -1656,6 +1662,7 @@ public:
 
     void setContextMenuProvider(const MenuProvider &filler) { m_menuProvider = filler; }
     void setFocusInHandler(const std::function<void()> &handler) { m_focusInHandler = handler; }
+    void setDoubleClickHandler(const CursorHandler &handler) { m_doubleClickHandler = handler; }
 
     // the diff specific entries for the given position
     void fillContextMenu(QMenu *menu, const QTextCursor &cursor)
@@ -1755,6 +1762,8 @@ protected:
         const GhostHit hit = ghostAt(event->pos(), QTextLine::CursorOnCharacter);
         if (!hit.item || event->button() != Qt::LeftButton) {
             TextEditorWidget::mouseDoubleClickEvent(event);
+            if (!hit.item && event->button() == Qt::LeftButton && m_doubleClickHandler)
+                m_doubleClickHandler(cursorForPosition(event->pos()));
             return;
         }
         const QPair<int, int> word = wordAt(hit.item->layout()->text(), hit.position);
@@ -2009,6 +2018,7 @@ private:
 
     MenuProvider m_menuProvider;
     std::function<void()> m_focusInHandler;
+    CursorHandler m_doubleClickHandler;
     // the ghost row selection: the item is only dereferenced once it is
     // found among the items of the tracked block again
     QTextCursor m_ghostBlock;
@@ -2077,21 +2087,12 @@ public:
         toolBarLayout->setSpacing(0);
         m_toolBar = new QToolBar;
         m_toolBar->setObjectName("InlineDiffToolBar"); // autotest
-        toolBarLayout->addWidget(m_toolBar);
+        toolBarLayout->addWidget(m_toolBar, 1);
         m_viewToolBars = new QStackedWidget;
         m_viewToolBars->addWidget(m_diffWidget->toolBarWidget());
         toolBarLayout->addWidget(m_viewToolBars, 1);
         m_diffWidget->setFocusInHandler(
             [this] { m_viewToolBars->setCurrentWidget(m_diffWidget->toolBarWidget()); });
-        // like the diff editor's view switcher, the icon shows the view that
-        // a click switches to
-        m_viewSwitcherAction = m_toolBar->addAction(QIcon(), QString());
-        connect(m_viewSwitcherAction, &QAction::triggered, this, [this] {
-            setViewMode(m_viewMode == InlineDiffViewMode::Inline
-                            ? InlineDiffViewMode::SideBySide
-                            : InlineDiffViewMode::Inline);
-        });
-
         m_previousChangeAction = m_toolBar->addAction(Utils::Icons::ARROW_UP_TOOLBAR.icon(),
                                                       Tr::tr("Go to Previous Change"));
         m_previousChangeAction->setObjectName("InlineDiffPreviousChangeAction"); // autotest
@@ -2109,6 +2110,11 @@ public:
             updateChangeNavigationActions();
         });
         updateChangeNavigationActions();
+
+        // like the diff editor, the settings are flushed to the right
+        auto spacer = new QWidget;
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        m_toolBar->addWidget(spacer);
 
         const bool collapse = Core::ICore::settings()
                                   ->value(Constants::INLINE_DIFF_COLLAPSE_KEY, true).toBool();
@@ -2208,13 +2214,26 @@ public:
             m_signsAction->setChecked(TextEditor::displaySettings().markDiffChangeSigns());
         });
 
+        m_reloadAction = m_toolBar->addAction(Utils::Icons::RELOAD_TOOLBAR.icon(),
+                                              Tr::tr("Reload Diff"));
+        m_reloadAction->setObjectName("InlineDiffReloadAction"); // autotest
+        m_reloadAction->setToolTip(Tr::tr("Reloads the baseline and recomputes the diff."));
+        connect(m_reloadAction, &QAction::triggered, this, [this] { fetchBaseline(); });
+
+        // like the diff editor's view switcher, the icon shows the view that
+        // a click switches to
+        m_viewSwitcherAction = m_toolBar->addAction(QIcon(), QString());
+        connect(m_viewSwitcherAction, &QAction::triggered, this, [this] {
+            setViewMode(m_viewMode == InlineDiffViewMode::Inline
+                            ? InlineDiffViewMode::SideBySide
+                            : InlineDiffViewMode::Inline);
+        });
+
         m_updateTimer.setSingleShot(true);
         m_updateTimer.setInterval(500);
         connect(&m_updateTimer, &QTimer::timeout, this, &InlineDiffEditor::startUpdate);
         connect(source->document(), &QTextDocument::contentsChanged, this, [this] {
-            // the hunks' line numbers are stale until the diff is recomputed
-            if (m_hunkControls)
-                m_hunkControls->invalidate();
+            invalidateHunkActions();
             m_updateTimer.start();
         });
 
@@ -2355,6 +2374,11 @@ public:
 private:
     void setupContextMenu(InlineDiffTextEditorWidget *view)
     {
+        view->setDoubleClickHandler([this, view](const QTextCursor &cursor) {
+            // an editable view keeps the double click for selecting a word
+            if (view->isReadOnly() && isInChange(view, cursor))
+                openSource(view, cursor);
+        });
         view->setContextMenuProvider([this, view](QMenu *menu, const QTextCursor &cursor) {
             auto goToSource = new QAction(Tr::tr("Go to Source"), menu);
             goToSource->setObjectName("InlineDiffGoToSourceAction"); // autotest
@@ -2364,6 +2388,37 @@ private:
                 openSource(view, cursor);
             });
             menu->addAction(goToSource);
+
+            const std::optional<InlineDiffChunk> optionalHunk = actionableHunkAt(view, cursor);
+            const bool onHunk = optionalHunk.has_value();
+            const InlineDiffChunk hunk = optionalHunk.value_or(InlineDiffChunk());
+            if (m_hunkControls && m_baseline.stageHunk) {
+                auto stageAction = new QAction(Tr::tr("Stage Chunk"), menu);
+                stageAction->setObjectName("InlineDiffStageChunkAction"); // autotest
+                stageAction->setEnabled(onHunk);
+                connect(stageAction, &QAction::triggered, this, [this, hunk] {
+                    stageChunk(hunk);
+                });
+                menu->addAction(stageAction);
+            }
+            if (m_hunkControls) {
+                auto revertAction = new QAction(Tr::tr("Revert Chunk"), menu);
+                revertAction->setObjectName("InlineDiffRevertChunkAction"); // autotest
+                revertAction->setEnabled(onHunk);
+                connect(revertAction, &QAction::triggered, this, [this, hunk] {
+                    revertChunk(hunk);
+                });
+                menu->addAction(revertAction);
+            }
+            if (ExtensionSystem::PluginManager::getObject<CodePaster::Service>()) {
+                auto pasteAction = new QAction(Tr::tr("Send Chunk to CodePaster..."), menu);
+                pasteAction->setObjectName("InlineDiffSendChunkToCodePasterAction"); // autotest
+                pasteAction->setEnabled(hasChangeInLines(changeLines(view, cursor)));
+                connect(pasteAction, &QAction::triggered, this, [this, view, cursor] {
+                    sendChunkToCodePaster(changeLines(view, cursor));
+                });
+                menu->addAction(pasteAction);
+            }
 
             auto copyAsPatchAction = new QAction(Tr::tr("Copy as Patch"), menu);
             copyAsPatchAction->setObjectName("InlineDiffCopyAsPatchAction"); // autotest
@@ -2442,6 +2497,59 @@ private:
             last = baselineLineToEditor(m_model, last);
         }
         return {first, last};
+    }
+
+    // The editor side line of the cursor. For the baseline view that is the
+    // line it pairs with, or for a line inside a hunk the hunk's first line.
+    QPair<int, int> changeLines(TextEditorWidget *view, const QTextCursor &cursor) const
+    {
+        int line = cursor.blockNumber() + 1;
+        if (view == m_baselineWidget)
+            line = baselineLineToEditorPosition(m_model, line);
+        return {line, line};
+    }
+
+    // The hunk with a stage and revert control that the cursor is in.
+    std::optional<InlineDiffChunk> actionableHunkAt(TextEditorWidget *view,
+                                                    const QTextCursor &cursor) const
+    {
+        const int line = changeLines(view, cursor).first;
+        for (const InlineDiffChunk &hunk : m_actionableHunks) {
+            if (hunk.editorStartLine <= line
+                && line < hunk.editorStartLine + qMax(hunk.editorLineCount, 1)) {
+                return hunk;
+            }
+        }
+        return std::nullopt;
+    }
+
+    void sendChunkToCodePaster(const QPair<int, int> &lines)
+    {
+        auto pasteService = ExtensionSystem::PluginManager::getObject<CodePaster::Service>();
+        QTC_ASSERT(pasteService, return);
+        const QString patch = patchForLines(lines.first, lines.second);
+        if (!patch.isEmpty())
+            pasteService->postText(patch, Constants::DIFF_EDITOR_MIMETYPE);
+    }
+
+    // Whether the cursor is on a line that a change touches, as opposed to
+    // unchanged context.
+    bool isInChange(TextEditorWidget *view, const QTextCursor &cursor) const
+    {
+        if (!m_model.computed)
+            return false;
+        const int line = cursor.blockNumber() + 1;
+        // a pure removal has no editor line of its own: the line its ghost
+        // rows are shown above is unchanged context
+        const bool isBaseline = view == m_baselineWidget;
+        for (const InlineDiffChunk &hunk : m_model.hunks) {
+            const int first = isBaseline ? hunk.baselineStartLine : hunk.editorStartLine;
+            const int count = isBaseline ? int(hunk.baselineLines.size())
+                                         : hunk.editorLineCount;
+            if (line >= first && line < first + count)
+                return true;
+        }
+        return false;
     }
 
     bool hasChangeInLines(const QPair<int, int> &lines) const
@@ -2722,6 +2830,7 @@ private:
         // an earlier recompute is discarded
         const int requestId = ++m_actionableRequestId;
         if (m_baseline.fetchActionableLines && !m_model.hunks.isEmpty()) {
+            m_actionableHunks.clear();
             m_hunkControls->setHunks({}, {}, {});
             m_baseline.fetchActionableLines(
                 m_source->plainText(),
@@ -2745,20 +2854,40 @@ private:
     {
         if (!m_hunkControls)
             return;
+        m_actionableHunks = hunks;
         // both actions force a recompute, which rebuilds the controls even
         // when the action itself did not change anything
         HunkControls::HunkAction stage;
-        if (m_baseline.stageHunk) {
-            stage = [this](const InlineDiffChunk &hunk) {
-                m_baseline.stageHunk(hunk, m_source->plainText());
-                m_updateTimer.start();
-            };
-        }
-        const auto revert = [this](const InlineDiffChunk &hunk) {
-            revertHunk(hunk);
-            m_updateTimer.start();
-        };
+        if (m_baseline.stageHunk)
+            stage = [this](const InlineDiffChunk &hunk) { stageChunk(hunk); };
+        const auto revert = [this](const InlineDiffChunk &hunk) { revertChunk(hunk); };
         m_hunkControls->setHunks(hunks, stage, revert);
+    }
+
+    // The chunk actions of the controls and of the context menu.
+    void stageChunk(const InlineDiffChunk &hunk)
+    {
+        invalidateHunkActions();
+        m_baseline.stageHunk(hunk, m_source->plainText());
+        m_updateTimer.start();
+    }
+
+    void revertChunk(const InlineDiffChunk &hunk)
+    {
+        invalidateHunkActions();
+        revertHunk(hunk);
+        m_updateTimer.start();
+    }
+
+    // The hunks' line numbers are stale from an edit or a chunk action on
+    // until the diff is recomputed, so nothing may act on them meanwhile.
+    void invalidateHunkActions()
+    {
+        m_actionableHunks.clear();
+        // an actionable-lines callback still in flight carries the old hunks
+        ++m_actionableRequestId;
+        if (m_hunkControls)
+            m_hunkControls->invalidate();
     }
 
     void revertHunk(const InlineDiffChunk &hunk)
@@ -2832,6 +2961,8 @@ private:
     QAction *m_contextSpinBoxAction = nullptr;
     QAction *m_whitespaceAction = nullptr;
     QAction *m_patienceAction = nullptr;
+    QAction *m_reloadAction = nullptr;
+    QList<InlineDiffChunk> m_actionableHunks;
     QAction *m_signsAction = nullptr;
     bool m_ignoreWhitespace = false;
     bool m_patience = false;

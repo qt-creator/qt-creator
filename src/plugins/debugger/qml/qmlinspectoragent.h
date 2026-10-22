@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QElapsedTimer>
 #include <QPointer>
 #include <QSet>
 #include <QStack>
@@ -54,6 +55,8 @@ private:
     void onValueChanged(int debugId, const QByteArray &propertyName, const QVariant &value);
     void applyValueChanges();
 
+    void scheduleRebuild();
+    void rebuildObjectTree();
     void queryEngineContext();
     void updateObjectTree(const QmlDebug::ContextReference &contexts, int engineId = -1);
     void verifyAndInsertObjectInTree(const QmlDebug::ObjectReference &object, int engineId = -1,
@@ -105,12 +108,14 @@ private:
 
     QHash<int, quint32> m_objectWatches; // debug id -> watch query id
     QList<int> m_fetchDataIds;
-    QSet<int> m_knownDelegateIds;
+    QHash<int, int> m_knownDelegateIds; // delegate debug id -> engine id
     QHash<quint32, int> m_delegateQueryIds; // fetch query id -> delegate debug id
     QSet<int> m_seenObjectIds; // watched objects inserted since the last rebuild
     QSet<int> m_previouslySeenObjectIds; // ... and during the rebuild before
     QHash<int, QHash<QString, QVariant>> m_valueChanges; // debug id -> property -> value
     QTimer m_delayQueryTimer;
+    QElapsedTimer m_lastRebuild;
+    bool m_rebuildPending = false;
     QTimer m_valueChangeTimer;
     QTimer m_updateLocalsTimer;
 

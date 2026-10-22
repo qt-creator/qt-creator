@@ -45,7 +45,7 @@ namespace Profiler::Internal {
 class QmlProfilerTraceBackendPrivate
 {
 public:
-    explicit QmlProfilerTraceBackendPrivate(Timeline::RangeDetailsWidget *details)
+    explicit QmlProfilerTraceBackendPrivate(Timeline::TimelineDetailsWidget *details)
         : viewManager(details)
     {}
 
@@ -79,7 +79,7 @@ static void addFeatureToMenu(QMenu *menu, ProfileFeature feature, quint64 enable
     action->setChecked(enabledFeatures & (1ULL << (feature)));
 }
 
-QmlProfilerTraceBackend::QmlProfilerTraceBackend(Timeline::RangeDetailsWidget *details,
+QmlProfilerTraceBackend::QmlProfilerTraceBackend(Timeline::TimelineDetailsWidget *details,
                                                  QObject *parent)
     : ProfilerTraceBackend(parent)
     , d(new QmlProfilerTraceBackendPrivate(details))
@@ -90,6 +90,10 @@ QmlProfilerTraceBackend::QmlProfilerTraceBackend(Timeline::RangeDetailsWidget *d
         emit busyChanged(false);
         emit loadFinished();
     });
+    connect(modelManager(), &QmlProfilerModelManager::restrictionStarted,
+            this, [this] { emit busyChanged(true); });
+    connect(modelManager(), &QmlProfilerModelManager::restrictionFinished,
+            this, [this] { emit busyChanged(false); });
     connect(&d->viewManager, &QmlProfilerPlainViewManager::viewSwitchRequested,
             this, &QmlProfilerTraceBackend::viewSwitchRequested);
     connect(&d->viewManager, &QmlProfilerPlainViewManager::gotoSourceLocation,
@@ -221,6 +225,11 @@ QList<QWidget *> QmlProfilerTraceBackend::toolBarWidgets()
 #else
     return {&d->timeLabel};
 #endif
+}
+
+void QmlProfilerTraceBackend::cancelBackgroundWork()
+{
+    modelManager()->cancelBackgroundWork();
 }
 
 void QmlProfilerTraceBackend::load(const FilePath &path)

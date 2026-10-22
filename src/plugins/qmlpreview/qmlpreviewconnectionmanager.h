@@ -58,6 +58,7 @@ private:
     QmlPreviewFileClassifier m_fileClassifier = nullptr;
     QmlPreviewFpsHandler m_fpsHandler = nullptr;
     QmlDebugTranslationClientFactoryFunction m_createDebugTranslationClientMethod;
+    void doRestart();
 };
 
 class QmlPreviewConnectionManagerTaskAdapter final

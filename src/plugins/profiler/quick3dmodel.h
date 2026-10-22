@@ -52,9 +52,10 @@ public:
     int collapsedRow(int index) const override;
     bool rowsAreSelectionIds() const override { return true; }
     qint64 rowMaxValue(int rowNumber) const override;
+    QString formatRowValue(int rowNumber, qint64 value) const override;
     float relativeHeight(int index) const override;
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) override;
-    void finalize() override;
+    void prepare() override;
     void clear() override;
     Timeline::ItemLocation location(int index) const override;
     int typeId(int index) const override;

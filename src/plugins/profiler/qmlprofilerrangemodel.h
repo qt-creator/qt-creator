@@ -17,12 +17,6 @@ class QmlProfilerModelManager;
 class QmlProfilerRangeModel : public QmlProfilerTimelineModel
 {
 public:
-    struct Item {
-        // not-expanded, per type
-        int displayRowExpanded = 1;
-        int displayRowCollapsed = Timeline::kCollapsedStartRow;
-    };
-
     QmlProfilerRangeModel(QmlProfilerModelManager *manager, QmlDebug::RangeType range,
                           Timeline::TimelineModelAggregator *parent);
 
@@ -39,13 +33,18 @@ public:
 
 private:
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) final;
-    void finalize() final;
+    void prepare() final;
     void clear() final;
 
     void computeNestingContracted();
     void computeExpandedLevels();
 
-    QList<Item> m_data;
+    // The collapsed row of each range is its nesting level. One byte holds most of them, the
+    // deeper ones are kept by index.
+    QList<quint8> m_collapsedRows;
+    QHash<int, int> m_deepCollapsedRows;
+    // The expanded row of each type, by type index, or -1.
+    QList<int> m_expandedRowsByType;
     QStack<int> m_stack;
     QList<int> m_expandedRowTypes;
 };

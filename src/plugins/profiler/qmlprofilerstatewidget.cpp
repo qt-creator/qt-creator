@@ -5,6 +5,7 @@
 #include "qmlprofilerstatewidget.h"
 
 #include <utils/qtcassert.h>
+#include <utils/qtdesignwidgets.h>
 
 #include <QPainter>
 #include <QVBoxLayout>
@@ -32,29 +33,36 @@ class QmlProfilerStateWidget::QmlProfilerStateWidgetPrivate
 };
 
 QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateManager,
-                                QmlProfilerModelManager *modelManager, QWidget *parent)
-    : Utils::QtcRectangleWidget(parent)
-    , d(new QmlProfilerStateWidgetPrivate(this))
+                                               QmlProfilerModelManager *modelManager,
+                                               QWidget *parent)
+    : d(new QmlProfilerStateWidgetPrivate(this))
 {
     setObjectName(QLatin1String("QML Profiler State Display"));
-    setStrokePen(Utils::creatorColor(Utils::Theme::Token_Stroke_Subtle));
-    setFillBrush(Utils::creatorColor(Utils::Theme::Token_Background_Muted));
-
-    setMinimumHeight(120);
-    setMinimumWidth(440);
+    setAttribute(Qt::WA_TransparentForMouseEvents, false);
+    setPaintFunction(&OverlayWidget::paintDimmedBackground);
 
     // UI elements
-    auto layout = new QVBoxLayout(this);
+    auto rectangle = new Utils::QtcRectangleWidget;
+    rectangle->setStrokePen(Utils::creatorColor(Utils::Theme::Token_Stroke_Subtle));
+    rectangle->setFillBrush(Utils::creatorColor(Utils::Theme::Token_Background_Muted));
+    rectangle->setMinimumHeight(120);
+    rectangle->setMinimumWidth(440);
 
-    d->text = new Utils::QtcLabel({}, Utils::QtcLabel::Primary, this);
+    auto rectangleLayout = new QVBoxLayout(rectangle);
+
+    d->text = new Utils::QtcLabel({}, Utils::QtcLabel::Primary, rectangle);
     d->text->setAlignment(Qt::AlignCenter);
     d->text->setWordWrap(true);
     d->text->setMinimumHeight(0); // Undo QtcLabel's fixed height
     d->text->setMaximumHeight(QWIDGETSIZE_MAX);
 
-    layout->addWidget(d->text);
+    rectangleLayout->addWidget(d->text);
 
-    setLayout(layout);
+    // positioning it at 2/3 height (it looks better)
+    auto layout = new QVBoxLayout(this);
+    layout->addStretch(1);
+    layout->addWidget(rectangle, 0, Qt::AlignHCenter);
+    layout->addStretch(2);
 
     // profiler state
     d->m_modelManager = modelManager;
@@ -67,19 +75,13 @@ QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateMan
     connect(&d->timer, &QTimer::timeout, this, &QmlProfilerStateWidget::updateDisplay);
 
     d->timer.setInterval(1000);
+    attachToWidget(parent);
     setVisible(false);
 }
 
 QmlProfilerStateWidget::~QmlProfilerStateWidget()
 {
     delete d;
-}
-
-void QmlProfilerStateWidget::reposition()
-{
-    QWidget *parentWidget = qobject_cast<QWidget *>(parent());
-    // positioning it at 2/3 height (it looks better)
-    move(parentWidget->width()/2 - width()/2, parentWidget->height()/3 - height()/2);
 }
 
 void QmlProfilerStateWidget::initialize()
@@ -94,9 +96,8 @@ void QmlProfilerStateWidget::initialize()
 
 void QmlProfilerStateWidget::showText(const QString &text)
 {
-    setVisible(true);
     d->text->setText(text);
-    reposition();
+    setVisible(true);
 }
 
 void QmlProfilerStateWidget::clear()

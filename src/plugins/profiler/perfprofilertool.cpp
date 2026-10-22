@@ -5,11 +5,11 @@
 
 #include "perfloaddialog.h"
 #include "perfprofilerconstants.h"
-#include "perfprofilertr.h"
 #include "perfprofilertracebackend.h"
 #include "perfprofilertracemanager.h"
 #include "perftracepointdialog.h"
 #include "profilermode.h"
+#include "profilertr.h"
 #include "profilertracedocument.h"
 #include "profilertraceeditor.h"
 

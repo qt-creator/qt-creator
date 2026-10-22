@@ -149,12 +149,28 @@ void CtfTraceManager::finalize()
         }
     }
 
+    // A thread is known by its name across traces, as its id does not outlive
+    // the process. Threads sharing a name are told apart by their order.
+    QHash<QString, int> sameName;
+    for (CtfTimelineModel *model : sorted) {
+        const QString thread = m_threadNames.value(model->m_threadId);
+        if (thread.isEmpty())
+            continue;
+        const QString process = m_processNames.value(model->m_processId);
+        const QString name = process.isEmpty() ? thread : process + '/' + thread;
+        const int earlier = sameName[name]++;
+        model->setPersistentId(earlier ? QString("%1#%2").arg(name).arg(earlier + 1) : name);
+    }
+
     for (CtfTimelineModel *model: std::as_const(m_threadModels)) {
         model->finalize(m_traceBegin, m_traceEnd,
                         m_processNames[model->m_processId], m_threadNames[model->m_threadId],
                         processIds.size() > 1,
                         mainThreadOfProcess.value(model->m_processId) == model->m_threadId);
     }
+    // A single lane has no other lane to make room for, so it starts expanded.
+    if (m_threadModels.size() == 1)
+        m_threadModels.cbegin().value()->setExpanded(true);
     // TimelineModelAggregator::addModel() is called here because it
     // needs to be run in the main thread
     addModelsToAggregator();

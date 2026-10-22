@@ -23,15 +23,6 @@ def __getUrl__():
         return ""
     return str(url.scheme) + "://" + str(url.host) + str(url.path)
 
-def getHighlightsInHtml(htmlCode):
-    pattern = re.compile('color:#ff0000;">(.*?)</span>')
-    res = ""
-    for curr in pattern.finditer(htmlCode):
-        if curr.group(1) in res:
-            continue
-        res += "%s " % curr.group(1)
-    return res
-
 def verifySelection(expected):
     selText = str(__getSelectedText__())
     if test.verify(selText, "Verify that there is a selection"):

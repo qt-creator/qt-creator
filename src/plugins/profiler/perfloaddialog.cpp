@@ -3,7 +3,7 @@
 
 #include "perfloaddialog.h"
 #include "perfprofilerconstants.h"
-#include "perfprofilertr.h"
+#include "profilertr.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kit.h>

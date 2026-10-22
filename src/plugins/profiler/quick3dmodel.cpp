@@ -31,27 +31,27 @@ QRgb Quick3DModel::color(int index) const
 }
 
 static const char *messageTypes[] = {
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Render Frame"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Synchronize Frame"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Prepare Frame"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Mesh Load"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Custom Mesh Load"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Texture Load"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Generate Shader"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Load Shader"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Particle Update"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Render Call"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Render Pass"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Event Data"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Render Frame"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Synchronize Frame"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Prepare Frame"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Mesh Load"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Custom Mesh Load"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Texture Load"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Generate Shader"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Load Shader"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Particle Update"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Render Call"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Render Pass"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Event Data"),
 
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Mesh Memory consumption"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Texture Memory consumption"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Mesh Memory consumption"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Texture Memory consumption"),
 };
 
 static const char *unloadMessageTypes[] = {
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Mesh Unload"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Custom Mesh Unload"),
-    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Texture Unload"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Mesh Unload"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Custom Mesh Unload"),
+    QT_TRANSLATE_NOOP("QtC::Profiler", "Texture Unload"),
 };
 
 QString Quick3DModel::messageType(uint i)
@@ -95,14 +95,22 @@ float Quick3DModel::relativeHeight(int index) const
 
 qint64 Quick3DModel::rowMaxValue(int rowNumber) const
 {
-    int index = rowNumber - 1;
-    if (index == TextureMemoryConsumption)
+    const int type = m_sortedTypes.value(rowNumber - 1, -1);
+    if (type == TextureMemoryConsumption)
         return m_maxTextureSize;
-    if (index == MeshMemoryConsumption)
+    if (type == MeshMemoryConsumption)
         return m_maxMeshSize;
-    if (index == RenderPass)
+    if (type == RenderPass)
         return m_maxNestedRenderCalls;
     return 0;
+}
+
+QString Quick3DModel::formatRowValue(int rowNumber, qint64 value) const
+{
+    const int type = m_sortedTypes.value(rowNumber - 1, -1);
+    if (type == TextureMemoryConsumption || type == MeshMemoryConsumption)
+        return Timeline::formatDataSize(value);
+    return QmlProfilerTimelineModel::formatRowValue(rowNumber, value);
 }
 
 bool Quick3DModel::resolveType(const QString &object, int detailType, QString &type)
@@ -306,7 +314,7 @@ void Quick3DModel::calculateRenderPassNesting()
     }
 }
 
-void Quick3DModel::finalize()
+void Quick3DModel::prepare()
 {
     if (m_prevMeshStartTime != -1) {
         m_data.insert(insert(m_prevMeshStartTime, modelManager()->traceEnd() - m_prevMeshStartTime,
@@ -325,9 +333,7 @@ void Quick3DModel::finalize()
     m_sortedTypes = m_types.values();
     std::sort(m_sortedTypes.begin(), m_sortedTypes.end(), [](int a, int b){ return a < b;});
     setExpandedRowCount(m_sortedTypes.size() + 1);
-    QmlProfilerTimelineModel::finalize();
     calculateRenderPassNesting();
-
 }
 
 void Quick3DModel::clear()

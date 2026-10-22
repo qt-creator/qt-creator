@@ -27,6 +27,13 @@ qint64 PixmapCacheModel::rowMaxValue(int rowNumber) const
     }
 }
 
+QString PixmapCacheModel::formatRowValue(int rowNumber, qint64 value) const
+{
+    if (rowNumber == 1)
+        return Timeline::formatPixels(value);
+    return QmlProfilerTimelineModel::formatRowValue(rowNumber, value);
+}
+
 int PixmapCacheModel::expandedRow(int index) const
 {
     return selectionId(index) + 1;
@@ -348,7 +355,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
     }
 }
 
-void PixmapCacheModel::finalize()
+void PixmapCacheModel::prepare()
 {
     if (m_lastCacheSizeEvent != -1) {
         insertEnd(m_lastCacheSizeEvent,
@@ -359,7 +366,6 @@ void PixmapCacheModel::finalize()
     computeMaxCacheSize();
     flattenLoads();
     computeNesting();
-    QmlProfilerTimelineModel::finalize();
 }
 
 void PixmapCacheModel::clear()

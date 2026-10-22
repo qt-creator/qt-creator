@@ -107,7 +107,7 @@ Timeline::OrderedItemDetails CtfTimelineModel::orderedDetails(int index) const
         info.insert(6, {Tr::tr("Max"),
                         QString::number(double(m_counterData.at(counterIdx - 1).max), 'g')});
     }
-    info.insert(2, {Tr::tr("Start"), Timeline::formatTime(startTime(index))});
+    info.insert(2, {Tr::tr("Start", "start time"), Timeline::formatTime(startTime(index))});
     info.insert(3, {Tr::tr("Wall Duration"), Timeline::formatTime(duration(index))});
     Timeline::OrderedItemDetails result;
     result.title = info.value(0).second;

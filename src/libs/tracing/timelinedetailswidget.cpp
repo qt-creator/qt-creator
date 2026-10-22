@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "rangedetailswidget.h"
+#include "timelinedetailswidget.h"
 
 #include "timelineformatdata.h"
 #include "tracingtr.h"
@@ -9,10 +9,12 @@
 #include <utils/elidinglabel.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
+#include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/widgets.h>
 
+#include <QAction>
 #include <QFont>
 #include <QHeaderView>
 #include <QJsonArray>
@@ -25,12 +27,12 @@
 
 namespace Timeline {
 
-RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
+TimelineDetailsWidget::TimelineDetailsWidget(QWidget *parent)
     : QWidget(parent)
 {
     using namespace Layouting;
 
-    setObjectName("RangeDetails");
+    setObjectName("TimelineDetails");
     setWindowTitle(Tr::tr("Details"));
     setMinimumWidth(150);
 
@@ -59,7 +61,19 @@ RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
     m_treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_treeView->setWordWrap(true);
     m_treeView->setItemsExpandable(false);
+    m_treeView->setIndentation(Utils::StyleHelper::SpacingTokens::PaddingHL);
     m_treeView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+
+    auto copyAction = new QAction(Tr::tr("Copy Value"), m_treeView);
+    copyAction->setShortcut(QKeySequence::Copy);
+    copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    connect(copyAction, &QAction::triggered, this, [this] {
+        const QString value = m_treeView->currentIndex().siblingAtColumn(1).data().toString();
+        if (!value.isEmpty())
+            Utils::setClipboardAndSelection(value);
+    });
+    m_treeView->addAction(copyAction);
+    m_treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     Column {
         customMargins(Utils::StyleHelper::SpacingTokens::PaddingVS, 0, 0, 0),
@@ -92,7 +106,7 @@ RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
     reset();
 }
 
-void RangeDetailsWidget::setData(QObject *provider, const QString &title,
+void TimelineDetailsWidget::setData(QObject *provider, const QString &title,
                                  const QList<QPair<QString, QString>> &content)
 {
     m_provider = provider;
@@ -101,7 +115,7 @@ void RangeDetailsWidget::setData(QObject *provider, const QString &title,
     rebuildRows(content);
 }
 
-void RangeDetailsWidget::setSelectionRange(qint64 start, qint64 end, qint64 referenceDuration)
+void TimelineDetailsWidget::setSelectionRange(qint64 start, qint64 end, qint64 referenceDuration)
 {
     const bool showRange = start < end && referenceDuration > 0;
     m_selectionRangeBar->setVisible(showRange);
@@ -116,7 +130,7 @@ void RangeDetailsWidget::setSelectionRange(qint64 start, qint64 end, qint64 refe
                  formatTime(end - start, referenceDuration)));
 }
 
-void RangeDetailsWidget::clear(QObject *provider)
+void TimelineDetailsWidget::clear(QObject *provider)
 {
     // Losing a selection in one view must not take down the details another view
     // is showing.
@@ -125,23 +139,44 @@ void RangeDetailsWidget::clear(QObject *provider)
     reset();
 }
 
-void RangeDetailsWidget::reset()
+void TimelineDetailsWidget::reset()
 {
     m_provider = nullptr;
     clearContent();
 }
 
-QObject *RangeDetailsWidget::provider() const
+QObject *TimelineDetailsWidget::provider() const
 {
     return m_provider;
 }
 
-void RangeDetailsWidget::clearContent()
+void TimelineDetailsWidget::clearContent()
 {
     m_hasData = false;
     m_titleLabel->setText(Tr::tr("No item selected"));
     setSelectionRange(0, 0, 0);
     rebuildRows({});
+}
+
+constexpr static Utils::StyleHelper::TextFormat keyFormat {
+    .themeColor = Utils::Theme::Token_Text_Muted,
+    .uiElement = Utils::StyleHelper::UiElementCaptionStrong,
+};
+
+static QStandardItem *createKeyItem(const QString &text)
+{
+    static const QFont font = keyFormat.font();
+    auto item = new QStandardItem(text);
+    item->setFont(font);
+    item->setForeground(keyFormat.color());
+    return item;
+}
+
+static void setValue(QStandardItem *keyItem, QStandardItem *valueItem, const QString &text)
+{
+    valueItem->setText(text);
+    keyItem->setToolTip(text);
+    valueItem->setToolTip(text);
 }
 
 // Fills the row formed by (keyItem, valueItem) from a JSON value. Containers are
@@ -152,7 +187,7 @@ static void fillJson(QStandardItem *keyItem, QStandardItem *valueItem, const QJs
     if (value.isObject()) {
         const QJsonObject obj = value.toObject();
         for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) {
-            auto childKey = new QStandardItem(it.key());
+            auto childKey = createKeyItem(it.key());
             auto childVal = new QStandardItem;
             fillJson(childKey, childVal, it.value());
             keyItem->appendRow({childKey, childVal});
@@ -161,30 +196,23 @@ static void fillJson(QStandardItem *keyItem, QStandardItem *valueItem, const QJs
         const QJsonArray arr = value.toArray();
         int i = 0;
         for (const auto &elem : arr) {
-            auto childKey = new QStandardItem(QString::number(i++));
+            auto childKey = createKeyItem(QString::number(i++));
             auto childVal = new QStandardItem;
             fillJson(childKey, childVal, elem);
             keyItem->appendRow({childKey, childVal});
         }
     } else {
-        valueItem->setText(value.toVariant().toString());
+        setValue(keyItem, valueItem, value.toVariant().toString());
     }
 }
 
-void RangeDetailsWidget::rebuildRows(const QList<QPair<QString, QString>> &content)
+void TimelineDetailsWidget::rebuildRows(const QList<QPair<QString, QString>> &content)
 {
     m_model->removeRows(0, m_model->rowCount());
 
-    constexpr Utils::StyleHelper::TextFormat keyFormat {
-        .themeColor = Utils::Theme::Token_Text_Muted,
-        .uiElement = Utils::StyleHelper::UiElementCaptionStrong,
-    };
-    const QFont keyFont = keyFormat.font();
     const int lineHeight = int(keyFormat.lineHeight() * 1.8);
     for (const auto &[key, val] : content) {
-        auto keyItem = new QStandardItem(key);
-        keyItem->setFont(keyFont);
-        keyItem->setForeground(keyFormat.color());
+        auto keyItem = createKeyItem(key);
 
         if (key == "Arguments") {
             // Assume the value is a JSON object. Parse it and display each key-value pair on a separate line:
@@ -202,7 +230,8 @@ void RangeDetailsWidget::rebuildRows(const QList<QPair<QString, QString>> &conte
             }
         }
 
-        auto valItem = new QStandardItem(val);
+        auto valItem = new QStandardItem;
+        setValue(keyItem, valItem, val);
         valItem->setSizeHint({-1, lineHeight});
         m_model->appendRow({keyItem, valItem});
     }
@@ -210,12 +239,12 @@ void RangeDetailsWidget::rebuildRows(const QList<QPair<QString, QString>> &conte
     m_treeView->expandAll();
 }
 
-void RangeDetailsWidget::mousePressEvent(QMouseEvent *event)
+void TimelineDetailsWidget::mousePressEvent(QMouseEvent *event)
 {
     event->accept();
 }
 
-void RangeDetailsWidget::mouseReleaseEvent(QMouseEvent *event)
+void TimelineDetailsWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton && m_hasData
             && m_titleBar->geometry().contains(event->pos())) {

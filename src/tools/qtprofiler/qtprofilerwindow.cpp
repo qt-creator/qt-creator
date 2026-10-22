@@ -23,7 +23,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/minisplitter.h>
 
-#include <tracing/rangedetailswidget.h>
+#include <tracing/timelinedetailswidget.h>
 #include <tracing/timelineformatdata.h>
 
 #include <utils/commandline.h>
@@ -80,7 +80,7 @@ constexpr int pkexecDismissed = 126;
 // One set of dock widgets. The views are tabbed onto the first by default; when
 // stackVertically is set they are split below it instead (the sampler stacks
 // Call Stacks below CPU Usage). The range details dock is not part of a group:
-// every backend fills the same one (see WindowPrivate::rangeDetails).
+// every backend fills the same one (see WindowPrivate::timelineDetails).
 struct ViewGroup
 {
     QList<QDockWidget *> docks;         // List with original dock widgets order
@@ -143,7 +143,7 @@ public:
     // The one range details panel every backend's views fill, and its dock. It is
     // shared rather than per-backend so a trace shows a single "Details" view --
     // combined traces would otherwise put the QML and sampler ones side by side.
-    Timeline::RangeDetailsWidget *rangeDetails = nullptr;
+    Timeline::TimelineDetailsWidget *timelineDetails = nullptr;
     QDockWidget *detailsDock = nullptr;   // Created with the first view group.
     ProfilerRecorder *recorder = nullptr;
     QmlProfilerPlainViewManager *qmlManager;
@@ -231,10 +231,10 @@ WindowPrivate::WindowPrivate(Window *window)
         showError(e, fix);
     });
 
-    rangeDetails = new Timeline::RangeDetailsWidget(traceArea);
-    qmlManager = new QmlProfilerPlainViewManager(rangeDetails, traceArea);
-    ctfManager = new CtfPlainViewManager(rangeDetails, traceArea);
-    samplerManager = new SamplerViewManager(rangeDetails, traceArea);
+    timelineDetails = new Timeline::TimelineDetailsWidget(traceArea);
+    qmlManager = new QmlProfilerPlainViewManager(timelineDetails, traceArea);
+    ctfManager = new CtfPlainViewManager(timelineDetails, traceArea);
+    samplerManager = new SamplerViewManager(timelineDetails, traceArea);
 
     progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Large);
     progressIndicator->hide();
@@ -503,7 +503,7 @@ void WindowPrivate::ensureGroupBuilt(Format format)
     // The details panel is shared by all backends, so it gets a single dock, put
     // up with the first views to be built.
     if (!detailsDock)
-        detailsDock = traceArea->addDockForWidget(rangeDetails);
+        detailsDock = traceArea->addDockForWidget(timelineDetails);
 
     ViewGroup &group = groupFor(format);
     if (group.built)
@@ -643,7 +643,7 @@ void WindowPrivate::closeCurrentTrace()
     samplerManager->clear();
     progressIndicator->hide();
     // Whichever view last filled the shared panel, its trace is gone now.
-    rangeDetails->reset();
+    timelineDetails->reset();
     rightPane->setCurrentWidget(welcomePage);
     RPC::notifyTraceDiscarded();
 }
@@ -660,7 +660,7 @@ void WindowPrivate::doLoad(const FilePath &filePath)
     combinedLoader->cancel();
     rightPane->setCurrentWidget(traceArea);
     setTraceDuration(milliseconds{0});
-    rangeDetails->reset(); // Don't carry the previous trace's details over.
+    timelineDetails->reset(); // Don't carry the previous trace's details over.
     progressIndicator->show();
     lastLoadError.clear();
     RPC::notifyTraceFileLoadingStarted(filePath);
@@ -734,20 +734,20 @@ Window::Window(QWidget *parent)
     const bool embedded = settings().embedded();
 
     QAction *recordAction = nullptr;
-#ifndef Q_OS_WASM
-    if (!embedded) {
+    if (!embedded && !ProfilerRecorder::isTraceViewerOnly()) {
         recordAction = new QAction(Icons::PLUS.icon(), Tr::tr("New Recording"), this);
         recordAction->setToolTip(Tr::tr("Set up and start a new recording."));
         recordAction->setShortcut(QKeySequence::New);
         connect(recordAction, &QAction::triggered, d, &WindowPrivate::showWelcomePage);
         connect(d->sidebar, &MainSidebar::newRecordingRequested, recordAction, &QAction::trigger);
     }
-#endif
 
     QAction *loadTraceFileAction = nullptr;
     if (!embedded) {
         loadTraceFileAction = new QAction(Icons::FILE.icon(), Tr::tr("Load Trace File"), this);
         connect(loadTraceFileAction, &QAction::triggered, d, &WindowPrivate::showOpenFileDialog);
+        connect(d->welcomePage, &WelcomePage::loadTraceRequested,
+                loadTraceFileAction, &QAction::trigger);
     }
 
     // Loading a Common Trace Format *directory* needs a directory picker, which blocks in a

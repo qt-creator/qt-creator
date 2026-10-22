@@ -23,6 +23,7 @@ private slots:
     void testRowNumbers();
     void testTypeId();
     void testColor();
+    void testColorFollowsTargetFrameRate();
     void testRelativeHeight();
     void testLabels();
     void testDetails();

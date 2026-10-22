@@ -9,7 +9,7 @@
 
 #include <QObject>
 
-namespace Timeline { class RangeDetailsWidget; }
+namespace Timeline { class TimelineDetailsWidget; }
 namespace Utils { class FilePath; }
 
 namespace Profiler {
@@ -23,7 +23,7 @@ class PROFILER_EXPORT QmlProfilerPlainViewManager : public QObject
 public:
     // `details` is the range details panel this manager's views fill. It is owned
     // by the caller, which lets every profiler backend share a single one.
-    explicit QmlProfilerPlainViewManager(Timeline::RangeDetailsWidget *details,
+    explicit QmlProfilerPlainViewManager(Timeline::TimelineDetailsWidget *details,
                                          QObject *parent = nullptr);
     ~QmlProfilerPlainViewManager();
 

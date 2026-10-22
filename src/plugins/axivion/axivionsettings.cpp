@@ -16,6 +16,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/guard.h>
 #include <utils/guiutils.h>
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
@@ -233,6 +234,14 @@ public:
         return fallback;
     }
 
+    bool hasPathMapping(const FilePath &filePath, const QString &projectName) const
+    {
+        return Utils::anyOf(m_pathMapping, [&filePath, &projectName](const PathMapping &pm) {
+            return pm.isValid() && projectName == pm.projectName
+                    && filePath.isChildOf(pm.localPath);
+        });
+    }
+
     FilePath localProjectForProjectName(const QString &projectName) const
     {
         QTC_ASSERT(!projectName.isEmpty(), return {});
@@ -326,6 +335,8 @@ AxivionSettings::AxivionSettings()
         m_defaultServerId.setValue(m_allServers.first().id.toString());
 
     connect(&axivionSuitePath, &BaseAspect::changed, this, [this] { m_versionInfo.reset(); });
+    connect(&pathMappingSettings(), &BaseAspect::changed,
+            this, &AxivionSettings::pathMappingsChanged);
 
     axivionSuitePath.addOnVolatileValueChanged(this, markSettingsDirty);
     bauhausPython.addOnVolatileValueChanged(this, markSettingsDirty);
@@ -412,10 +423,17 @@ const QList<PathMapping> AxivionSettings::validPathMappings() const
     return pathMappingSettings().validPathMappings();
 }
 
+// compute mapped file path - may use a fallback
 FilePath AxivionSettings::mappedFilePath(const FilePath &filePath,
                                          const QString &projectName) const
 {
     return pathMappingSettings().mappedFilePath(filePath, projectName);
+}
+
+// check whether file has a valid mapping - no fallback involved
+bool AxivionSettings::hasPathMapping(const FilePath &filePath, const QString &projectName) const
+{
+    return pathMappingSettings().hasPathMapping(filePath, projectName);
 }
 
 Utils::FilePath AxivionSettings::localProjectForProjectName(const QString &projectName) const
@@ -664,6 +682,7 @@ public:
     void cancel() final;
 
 private:
+    void repopulatePathMappingTree();
     void showServerDialog(bool add);
     void removeCurrentServerConfig();
     void updateDashboardServers();
@@ -684,6 +703,7 @@ private:
     QPushButton *m_deleteMappingButton = nullptr;
     QPushButton *m_moveUpMappingButton = nullptr;
     QPushButton *m_moveDownMappingButton = nullptr;
+    Guard m_applyGuard;
 };
 
 AxivionSettingsWidget::AxivionSettingsWidget()
@@ -771,17 +791,8 @@ AxivionSettingsWidget::AxivionSettingsWidget()
             &settings(), &AxivionSettings::validatePath);
     connect(&settings(), &AxivionSettings::suitePathValidated, this,
             [this, version, build] { updateVersionAndBuildDate(version, build); });
-    const QList<QTreeWidgetItem *> items = Utils::transform(pathMappingSettings().validPathMappings(),
-                                                            [this](const PathMapping &m) {
-        QTreeWidgetItem *item = new QTreeWidgetItem(&m_mappingTree,
-                                                    {m.projectName,
-                                                     m.analysisPath.path(),
-                                                     m.localPath.toUserOutput()});
-        if (!m.isValid())
-            item->setIcon(0, Icons::CRITICAL.icon());
-        return item;
-    });
-    m_mappingTree.addTopLevelItems(items);
+
+    repopulatePathMappingTree();
 
     m_deleteMappingButton->setEnabled(false);
     m_moveUpMappingButton->setEnabled(false);
@@ -797,6 +808,8 @@ AxivionSettingsWidget::AxivionSettingsWidget()
             this, &AxivionSettingsWidget::currentChanged);
     connect(&m_details, &AspectContainer::changed, this,
             &AxivionSettingsWidget::mappingChanged);
+    connect(&pathMappingSettings(), &BaseAspect::changed,
+            this, &AxivionSettingsWidget::repopulatePathMappingTree);
 
     updateEnabledStates();
     settings().validatePath();
@@ -824,6 +837,7 @@ void AxivionSettingsWidget::apply()
                             FilePath::fromUserInput(item->text(2))});
     }
     if (oldMappings != newMappings) {
+        const GuardLocker locker(m_applyGuard);
         pathMappingSettings().setVariantValue(pathMappingsToSetting(newMappings));
         pathMappingSettings().writeSettings();
     }
@@ -836,6 +850,24 @@ void AxivionSettingsWidget::cancel()
     settings().cancel();
     pathMappingSettings().cancel();
     IOptionsPageWidget::cancel();
+}
+
+void AxivionSettingsWidget::repopulatePathMappingTree()
+{
+    if (m_applyGuard.isLocked())
+        return;
+    m_mappingTree.clear();
+    const QList<QTreeWidgetItem *> items = Utils::transform(pathMappingSettings().validPathMappings(),
+                                                            [this](const PathMapping &m) {
+        QTreeWidgetItem *item = new QTreeWidgetItem(&m_mappingTree,
+                                                    {m.projectName,
+                                                     m.analysisPath.path(),
+                                                     m.localPath.toUserOutput()});
+        if (!m.isValid())
+            item->setIcon(0, Icons::CRITICAL.icon());
+        return item;
+    });
+    m_mappingTree.addTopLevelItems(items);
 }
 
 void AxivionSettingsWidget::updateDashboardServers()
@@ -1022,11 +1054,12 @@ static PathMapping showPathMappingsDialog(const PathMapping &suggested)
 }
 
 static PathMapping showPathMappingFileOpenDialog(const FilePath &missingPath,
-                                                 const QString &projectName)
+                                                 const QString &projectName,
+                                                 const FilePath &suggestedPath)
 {
     FilePath result = FileUtils::getOpenFilePath(
         Tr::tr("Select local file for \"%1\"").arg(missingPath.path()),
-        {}, missingPath.fileName());
+        suggestedPath, missingPath.fileName());
     if (result.isEmpty() || missingPath.fileName() != result.fileName())
         return {};
     // create mapping for the selected file and return it
@@ -1038,6 +1071,16 @@ static PathMapping showPathMappingFileOpenDialog(const FilePath &missingPath,
     }
     QTC_ASSERT(local, return {});
     return PathMapping{projectName, analysisPath ? *analysisPath : FilePath{}, *local};
+}
+
+static FilePath suggestedPathForFile(const FilePath &file)
+{
+    ProjectExplorer::Project *startupProj = ProjectExplorer::ProjectManager::startupProject();
+    const FilePath computedPath = startupProj ? findFileForIssuePath(file) : FilePath{};
+    if (!computedPath.exists())
+        return {};
+    const QString tail = file.isAbsolutePath() ? file.path() : '/' + file.path();
+    return computedPath.tailRemoved(tail).value_or(FilePath{});
 }
 
 bool handleMissingPathMapping(const FilePath &missingPath, const QString &projectName)
@@ -1073,7 +1116,8 @@ bool handleMissingPathMapping(const FilePath &missingPath, const QString &projec
 
     PathMapping userInput;
     if (clicked == filechooser) {
-        userInput = showPathMappingFileOpenDialog(missingPath, projectName);
+        const FilePath suggested = suggestedPathForFile(missingPath);
+        userInput = showPathMappingFileOpenDialog(missingPath, projectName, suggested);
     } else {
         // else manually set up / change existing has been clicked
         if (hasAnyMapping) {
@@ -1083,15 +1127,9 @@ bool handleMissingPathMapping(const FilePath &missingPath, const QString &projec
             ICore::showSettings("Analyzer.Axivion.Settings");
             return false;
         } else {
-            ProjectExplorer::Project *startupProj = ProjectExplorer::ProjectManager::startupProject();
-            const FilePath computedPath = startupProj ? findFileForIssuePath(missingPath)
-                                                      : FilePath{};
             PathMapping suggested;
             suggested.projectName = projectName;
-            if (computedPath.exists()) {
-                suggested.localPath = computedPath.chopped(
-                            missingPath.pathView().size() + 1);
-            }
+            suggested.localPath = suggestedPathForFile(missingPath);
             userInput = showPathMappingsDialog(suggested);
         }
     }

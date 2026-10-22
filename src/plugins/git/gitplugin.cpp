@@ -2927,7 +2927,7 @@ void GitTest::testInlineDiffFile()
     gitClient().inlineDiffFile(repo, "file.txt");
     Core::IEditor *diffEditor = EditorManager::currentEditor();
     QVERIFY(diffEditor);
-    QCOMPARE(diffEditor->document()->displayName(), QString("file.txt (Unstaged)"));
+    QCOMPARE(diffEditor->document()->displayName(), QString("Diff file.txt (Unstaged)"));
     TextEditor::TextEditorWidget *diffWidget = DiffEditor::inlineDiffEditorWidget(diffEditor);
     QVERIFY(diffWidget);
     QCOMPARE(diffWidget->findChildren<BaselineBlame *>().size(), 1);
@@ -2958,7 +2958,7 @@ void GitTest::testInlineDiffFile()
     cursor.insertText("four\n");
     gitClient().inlineDiffFileAgainst(repo, "file.txt", "HEAD");
     QTRY_COMPARE(EditorManager::currentEditor()->document()->displayName(),
-                 QString("file.txt (Unstaged vs. HEAD)"));
+                 QString("Diff file.txt (Unstaged vs. HEAD)"));
     // two hunks, but only the unstaged "four" gets buttons; the already
     // staged "two changed" offers no actions
     QTRY_VERIFY((buttons = diffWidget->findChildren<QAbstractButton *>(),
@@ -3033,7 +3033,7 @@ void GitTest::testInlineDiffConflictedFile()
 
     gitClient().inlineDiffFile(repo, "file.txt");
     QTRY_COMPARE(EditorManager::currentEditor()->document()->displayName(),
-                 QString("file.txt (Unstaged)"));
+                 QString("Diff file.txt (Unstaged)"));
     Core::IEditor *diffEditor = EditorManager::currentEditor();
     TextEditor::TextEditorWidget *diffWidget = DiffEditor::inlineDiffEditorWidget(diffEditor);
     QVERIFY(diffWidget);

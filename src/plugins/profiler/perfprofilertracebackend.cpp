@@ -3,16 +3,17 @@
 
 #include "perfprofilertracebackend.h"
 
+#include "perfprofilerconstants.h"
 #include "perfprofilerflamegraphmodel.h"
 #include "perfprofilerflamegraphview.h"
 #include "perfprofilerstatisticsview.h"
-#include "perfprofilerconstants.h"
-#include "perfprofilertr.h"
 #include "perfprofilertool.h"
 #include "perfprofilertracemanager.h"
 #include "perfsettings.h"
 #include "perftimelinemodelmanager.h"
+#include "profilertr.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/kit.h>
@@ -28,7 +29,7 @@
 #include <qtsupport/qtkitaspect.h>
 #endif
 
-#include <tracing/rangedetailswidget.h>
+#include <tracing/timelinedetailswidget.h>
 #include <tracing/timelinewidget.h>
 #include <tracing/timelinezoomcontrol.h>
 
@@ -59,7 +60,7 @@ public:
     PerfProfilerFlameGraphModel flameGraphModel{&traceManager};
     FileInProjectFinder fileFinder;
 
-    QPointer<Timeline::RangeDetailsWidget> rangeDetails; // Not owned; shared with
+    QPointer<Timeline::TimelineDetailsWidget> timelineDetails; // Not owned; shared with
                                                          // the document's other views.
     QPointer<Timeline::TimelineWidget> traceView;
     QPointer<PerfProfilerStatisticsView> statisticsView;
@@ -114,12 +115,13 @@ static FilePaths sourceFiles(const ProjectExplorer::Project *currentProject = nu
     return sourceFiles;
 }
 
-PerfProfilerTraceBackend::PerfProfilerTraceBackend(Timeline::RangeDetailsWidget *details,
+PerfProfilerTraceBackend::PerfProfilerTraceBackend(Timeline::TimelineDetailsWidget *details,
                                                    QObject *parent)
     : ProfilerTraceBackend(parent)
     , d(new PerfProfilerTraceBackendPrivate)
 {
-    d->rangeDetails = details;
+    d->timelineDetails = details;
+    d->modelManager.persistLayout(Core::ICore::settings(), "Analyzer/PerfTimeline");
     d->traceManager.registerFeatures(PerfEventType::allFeatures(),
                                      [this] { initialize(); },
                                      [this] { finalize(); },
@@ -166,7 +168,7 @@ PerfProfilerTraceBackend::~PerfProfilerTraceBackend()
 QWidgetList PerfProfilerTraceBackend::views(QWidget *parent)
 {
     d->traceView = new Timeline::TimelineWidget(&d->modelManager, &d->zoomControl,
-                                                d->rangeDetails, parent);
+                                                d->timelineDetails, parent);
     d->traceView->setObjectName("PerfProfilerTraceView");
     d->traceView->setWindowTitle(Tr::tr("Timeline"));
 
@@ -211,12 +213,12 @@ QWidgetList PerfProfilerTraceBackend::views(QWidget *parent)
             d->flameGraphView, &PerfProfilerFlameGraphView::selectByTypeId);
 
     // Route the flame graph's details into the shared range details view.
-    connect(d->flameGraphView, &Timeline::FlameGraphWidget::detailsChanged, d->rangeDetails,
+    connect(d->flameGraphView, &Timeline::FlameGraphWidget::detailsChanged, d->timelineDetails,
             [this](const QString &title, const QList<QPair<QString, QString>> &content) {
-        d->rangeDetails->setData(d->flameGraphView, title, content);
+        d->timelineDetails->setData(d->flameGraphView, title, content);
     });
-    connect(d->flameGraphView, &Timeline::FlameGraphWidget::detailsCleared, d->rangeDetails,
-            [this] { d->rangeDetails->clear(d->flameGraphView); });
+    connect(d->flameGraphView, &Timeline::FlameGraphWidget::detailsCleared, d->timelineDetails,
+            [this] { d->timelineDetails->clear(d->flameGraphView); });
 
     const auto addContextMenu = [this](QWidget *view, const QList<QAction *> &extra) {
         QMenu *menu = new QMenu(view);
@@ -257,6 +259,11 @@ QWidgetList PerfProfilerTraceBackend::views(QWidget *parent)
 QList<QWidget *> PerfProfilerTraceBackend::toolBarWidgets()
 {
     return {&d->aggregateButton, &d->recordedLabel, &d->delayLabel, &d->tracePointsButton};
+}
+
+void PerfProfilerTraceBackend::cancelBackgroundWork()
+{
+    traceManager()->cancelBackgroundWork();
 }
 
 void PerfProfilerTraceBackend::load(const FilePath &path)

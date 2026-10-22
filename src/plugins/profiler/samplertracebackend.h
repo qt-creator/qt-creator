@@ -5,7 +5,7 @@
 
 #include "profilertracebackend.h"
 
-namespace Timeline { class RangeDetailsWidget; }
+namespace Timeline { class TimelineDetailsWidget; }
 
 namespace Profiler::Internal {
 
@@ -16,7 +16,7 @@ class SamplerTraceBackend : public ProfilerTraceBackend
     Q_OBJECT
 
 public:
-    explicit SamplerTraceBackend(Timeline::RangeDetailsWidget *details, QObject *parent = nullptr);
+    explicit SamplerTraceBackend(Timeline::TimelineDetailsWidget *details, QObject *parent = nullptr);
     ~SamplerTraceBackend() override;
 
     QWidgetList views(QWidget *parent) override;

@@ -45,6 +45,7 @@ enum MakeWritableResult { OpenedWithVersionControl, MadeWritable, SavedAs, Faile
 QObject *createTabbedEditorTest();
 QObject *createEditorManagerTest();
 QObject *createEscapeKeyTest();
+QObject *createModeAreaTest();
 #endif
 
 class EditorManagerPrivate : public QObject

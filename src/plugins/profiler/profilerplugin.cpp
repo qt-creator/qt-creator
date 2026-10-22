@@ -41,13 +41,18 @@
 #include "tests/qmlprofileranimationsmodel_test.h"
 #include "tests/qmlprofilerattachdialog_test.h"
 #include "tests/qmlprofilerclientmanager_test.h"
+#include "tests/qmlprofilerdashboard_test.h"
+#include "tests/qmlprofilerdashboardstats_test.h"
 #include "tests/qmlprofilerdetailsrewriter_test.h"
 #include "tests/qmlprofilerfindingsmodel_test.h"
 #include "tests/qmlprofilernotesmodel_test.h"
+#include "tests/qmlprofilerrangemodel_test.h"
 #include "tests/qmlprofilersampler_test.h"
+#include "tests/qmlprofilerstatisticsmodel_test.h"
 #include "tests/qmlprofilertool_test.h"
 #include "tests/qmlprofilertracefile_test.h"
 #include "tests/qmlprofilertraceview_test.h"
+#include "tests/quick3dmodel_test.h"
 #include "tests/qttracesampler_test.h"
 #include "tests/scenegraphtimelinemodel_test.h"
 
@@ -98,13 +103,18 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<QmlProfilerAnimationsModelTest>();
         addTest<QmlProfilerAttachDialogTest>();
         addTest<QmlProfilerClientManagerTest>();
+        addTest<QmlProfilerDashboardTest>();
+        addTest<QmlProfilerDashboardStatsTest>();
         addTest<QmlProfilerDetailsRewriterTest>();
         addTest<QmlProfilerFindingsModelTest>();
         addTest<QmlProfilerNotesModelTest>();
+        addTest<QmlProfilerRangeModelTest>();
         addTest<QmlProfilerSamplerTest>();
+        addTest<QmlProfilerStatisticsModelTest>();
         addTest<QmlProfilerToolTest>();
         addTest<QmlProfilerTraceFileTest>();
         addTest<QmlProfilerTraceViewTest>();
+        addTest<Quick3DModelTest>();
         addTest<QtTraceSamplerTest>();
         addTest<SceneGraphTimelineModelTest>();
 

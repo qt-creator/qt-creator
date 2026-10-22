@@ -190,7 +190,13 @@ function settings.FilePathAspect.create(options) end
 ---@param value string|FilePath The value to set.
 function settings.FilePathAspect:setValue(value) end
 
+---@class IntegerAspectCreate : TypedAspectCreate<integer>
+---@field range? integer[] The inclusive `{ minimum, maximum }` the value is restricted to. Both must fit into a 32-bit integer. Without it the widget only accepts 0 to 99.
+
 settings.IntegerAspect = {}
+
+---Create a new IntegerAspect
+---@param options IntegerAspectCreate
 function settings.IntegerAspect.create(options) end
 
 settings.DoubleAspect = {}

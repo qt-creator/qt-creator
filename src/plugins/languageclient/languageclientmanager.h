@@ -23,7 +23,7 @@ class Project;
 
 namespace LanguageClient {
 
-namespace Internal { class LanguageClientManagerTest; }
+namespace Internal { class RequiresProjectOrFileTest; }
 
 class LanguageClientManagerPrivate;
 class LanguageClientMark;
@@ -61,6 +61,7 @@ public:
     static QList<BaseSettings *> currentSettings();
     static void registerClientSettings(BaseSettings *settings);
     static void enableClientSettings(const QString &settingsId, bool enable = true);
+    static void removeClientSettings(const QString &settingsId);
     static QList<Client *> clientsForSetting(const BaseSettings *setting);
     static QList<Client *> clientsForSettingId(const QString &settingsId);
     static const BaseSettings *settingForClient(Client *setting);
@@ -106,17 +107,21 @@ private:
     LanguageClientManager();
 
     friend void setupLanguageClientManager();
-    friend class Internal::LanguageClientManagerTest;
+    friend class Internal::RequiresProjectOrFileTest;
 
+    static Client *liveClientForBuildConfiguration(
+        const BaseSettings *setting, const ProjectExplorer::BuildConfiguration *bc);
+    static Client *ensureClientForProject(
+        const BaseSettings *setting, ProjectExplorer::Project *project);
     void updateProject(ProjectExplorer::BuildConfiguration *bc);
+    void restartClientsForNewBuildConfiguration(
+        ProjectExplorer::Project *project, ProjectExplorer::BuildConfiguration *bc);
+    void projectAdded(ProjectExplorer::Project *project);
     void buildConfigurationAdded(ProjectExplorer::BuildConfiguration *bc);
 
     void trackClientDeletion(Client *client);
 
-    void documentOpenedForProject(
-        TextEditor::TextDocument *textDocument,
-        BaseSettings *setting,
-        const QList<Client *> &clients);
+    void documentOpenedForProject(TextEditor::TextDocument *textDocument, BaseSettings *setting);
 
     static void applySettingsForRequiresProject(BaseSettings *setting);
     static void applySettingsForRequiresFileOutsideProjects(BaseSettings *setting);

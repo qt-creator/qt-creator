@@ -5,19 +5,36 @@
 
 #include <utils/filepath.h>
 
+#include <functional>
+
 namespace Axivion::Internal {
 
 namespace Dto { class FileViewDto; }
 
-enum class LineMarkerType { Dashboard, SFA };
+enum class LineMarkerType { DashboardGlobal, DashboardLocal, SFA };
 
-// bauhausSuite == std::nullopt used for LineMarkerType::Dashboard, otherwise LineMarkerType::SFA
+class LineIssuesOrigin
+{
+public:
+    QString projectName;
+    QString version;
+    Utils::FilePath analysisPath;
+};
+
 void handleIssuesForFile(const Dto::FileViewDto &fileView, const Utils::FilePath &filePath,
                          const std::optional<Utils::FilePath> &bauhausSuite,
+                         LineMarkerType type,
+                         const LineIssuesOrigin &origin,
                          const QByteArray &origSource);
 void clearAllMarks(LineMarkerType type);
 void clearMarks(const Utils::FilePath &filePath, LineMarkerType type);
+void clearMarksIf(LineMarkerType type,
+                  const std::function<bool(const Utils::FilePath &filePath,
+                                           const LineIssuesOrigin &origin)> &condition);
+void clearMarksWithoutPathMapping(LineMarkerType type);
 bool hasLineIssues(const Utils::FilePath &filePath, LineMarkerType type);
+std::optional<LineIssuesOrigin> lineIssuesOrigin(const Utils::FilePath &filePath,
+                                                 LineMarkerType type);
 
 void updateExistingMarks();
 

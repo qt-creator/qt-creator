@@ -24,8 +24,9 @@
 
     \QC integrates the Android Debug Bridge (\c adb) command-line tool for
     deploying applications to Android devices, running them, and reading their
-    logs. The \c adb tool includes a client and server that run on
-    the computer and a daemon that runs on the Android emulator or device.
+    logs. For more information, see \l {View Android Logcat output}. The \c adb
+    tool includes a client and server that run on the computer and a daemon
+    that runs on the Android emulator or device.
 
     \note \QC only detects a device and connects to it after you
     \l{Debug on Android Devices}{enable USB debugging on it}.

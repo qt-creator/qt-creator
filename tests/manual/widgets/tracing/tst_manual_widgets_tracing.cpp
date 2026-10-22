@@ -17,7 +17,7 @@
 #include <tracing/trackpaintergpu.h>
 #include <tracing/trackpainterraster.h>
 #include <tracing/timelinecontentwidget.h>
-#include <tracing/rangedetailswidget.h>
+#include <tracing/timelinedetailswidget.h>
 
 #include <utils/stylehelper.h>
 
@@ -397,7 +397,7 @@ int main(int argc, char *argv[])
     auto contentLayout = new QVBoxLayout(contentWindow);
     contentLayout->setContentsMargins(0, 0, 0, 0);
     contentLayout->setSpacing(0);
-    auto detailsWidget = new Timeline::RangeDetailsWidget(contentWindow);
+    auto detailsWidget = new Timeline::TimelineDetailsWidget(contentWindow);
     auto contentWidget = new Timeline::TimelineContentWidget(
         modelAggregator, zoomControl, detailsWidget, contentWindow);
     contentLayout->addWidget(contentWidget, 1);

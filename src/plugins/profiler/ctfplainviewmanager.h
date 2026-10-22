@@ -16,7 +16,7 @@
 namespace QtTaskTree { class QTaskTree; }
 
 namespace Timeline {
-class RangeDetailsWidget;
+class TimelineDetailsWidget;
 class TimelineZoomControl;
 } // namespace Timeline
 namespace Utils { class FilePath; }
@@ -35,7 +35,7 @@ class PROFILER_EXPORT CtfPlainViewManager : public QObject
 public:
     // `details` is the range details panel this manager's views fill. It is owned
     // by the caller, which lets every profiler backend share a single one.
-    explicit CtfPlainViewManager(Timeline::RangeDetailsWidget *details,
+    explicit CtfPlainViewManager(Timeline::TimelineDetailsWidget *details,
                                  QObject *parent = nullptr);
     ~CtfPlainViewManager();
 

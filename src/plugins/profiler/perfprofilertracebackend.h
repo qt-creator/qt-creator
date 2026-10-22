@@ -15,7 +15,7 @@ class Kit;
 class Project;
 }
 
-namespace Timeline { class RangeDetailsWidget; }
+namespace Timeline { class TimelineDetailsWidget; }
 
 namespace Profiler::Internal {
 
@@ -29,7 +29,7 @@ class PerfProfilerTraceBackend : public ProfilerTraceBackend
     Q_OBJECT
 
 public:
-    explicit PerfProfilerTraceBackend(Timeline::RangeDetailsWidget *details,
+    explicit PerfProfilerTraceBackend(Timeline::TimelineDetailsWidget *details,
                                       QObject *parent = nullptr);
     ~PerfProfilerTraceBackend() override;
 
@@ -37,6 +37,7 @@ public:
     QList<QWidget *> toolBarWidgets() override;
 
     void load(const Utils::FilePath &path) override;
+    void cancelBackgroundWork() override;
     // A perf.data file, as recorded by perf itself (see PerfConversion).
     void loadPerfData(const Utils::FilePath &path, const Utils::FilePath &executableDir,
                       ProjectExplorer::Kit *kit);

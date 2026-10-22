@@ -18,6 +18,7 @@
 
 #include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/icore.h>
 #include <tracing/timelinezoomcontrol.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinewidget.h>
@@ -75,7 +76,7 @@ public:
 };
 
 QmlProfilerTraceView::QmlProfilerTraceView(QmlProfilerModelManager *modelManager,
-                                           Timeline::RangeDetailsWidget *details)
+                                           Timeline::TimelineDetailsWidget *details)
     : d(new QmlProfilerTraceViewPrivate)
 {
     setWindowTitle(Tr::tr("Timeline"));
@@ -121,6 +122,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QmlProfilerModelManager *modelManager
     for (int i = 0; i < MaximumRangeType; ++i)
         models.append(new QmlProfilerRangeModel(modelManager, (RangeType)i, &d->m_modelProxy));
     d->m_modelProxy.setModels(models);
+    d->m_modelProxy.persistLayout(Core::ICore::settings(), "Analyzer/QmlProfilerTimeline");
 
     d->m_mainView = new Timeline::TimelineWidget(&d->m_modelProxy, &d->m_zoomControl, details,
                                                  this);
@@ -147,9 +149,9 @@ QmlProfilerTraceView::~QmlProfilerTraceView()
     delete d;
 }
 
-Timeline::RangeDetailsWidget *QmlProfilerTraceView::rangeDetailsWidget() const
+Timeline::TimelineDetailsWidget *QmlProfilerTraceView::timelineDetailsWidget() const
 {
-    return d->m_mainView->rangeDetailsWidget();
+    return d->m_mainView->timelineDetailsWidget();
 }
 
 bool QmlProfilerTraceView::hasValidSelection() const
@@ -182,6 +184,14 @@ void QmlProfilerTraceView::selectByEventIndex(int modelId, int eventIndex)
     const int modelIndex = d->m_modelProxy.modelIndexById(modelId);
     QTC_ASSERT(modelIndex != -1, return);
     d->m_mainView->selectByIndices(modelIndex, eventIndex);
+}
+
+// Zooms in on the range, leaving room for its surroundings.
+void QmlProfilerTraceView::showRange(qint64 start, qint64 end)
+{
+    const qint64 margin = qMax(end - start, d->m_zoomControl.minimumRangeLength()) * 4;
+    d->m_zoomControl.setRange(qMax(start - margin, d->m_zoomControl.traceStart()),
+                              qMin(end + margin, d->m_zoomControl.traceEnd()));
 }
 
 void QmlProfilerTraceView::updateCursorPosition()

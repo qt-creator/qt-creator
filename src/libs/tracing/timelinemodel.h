@@ -10,7 +10,10 @@
 #include <QMap>
 #include <QObject>
 
+#include <algorithm>
+#include <cmath>
 #include <memory>
+#include <optional>
 
 namespace Timeline {
 
@@ -102,6 +105,8 @@ public:
     void setHidden(bool hidden);
     void setDisplayName(const QString &displayName);
     QString displayName() const;
+    QString persistentId() const;
+    void setPersistentId(const QString &persistentId);
     int expandedRowCount() const;
     int collapsedRowCount() const;
     int rowCount() const;
@@ -143,6 +148,7 @@ public:
     virtual float relativeHeight(int index) const;
     virtual qint64 rowMinValue(int rowNumber) const;
     virtual qint64 rowMaxValue(int rowNumber) const;
+    virtual QString formatRowValue(int rowNumber, qint64 value) const;
 
     // Density-graph models fill each pixel column by the activity in the time
     // it covers, instead of drawing one bar per item. When rendersAsDensity()
@@ -158,6 +164,69 @@ public:
     // reproduces the per-item lookup (first item in the row); density models
     // that know their row colours cheaply should override.
     virtual QRgb rowColor(int row) const;
+
+    // A coarse version of the items, for drawing ranges that hold many more items than
+    // pixels: the time from the first start to the last end, split into bucketCount buckets
+    // of bucketDuration, and per row the buckets that items overlap, in order, each with the
+    // item that overlaps it most.
+    class Summary
+    {
+    public:
+        struct Bucket
+        {
+            quint32 index = 0;
+            int item = -1;
+            float overlap = 0;
+        };
+
+        // Calls f(x, item) for every pixel column x in [0, width) of the range
+        // [rangeStart, rangeEnd) that items of row overlap, in order, with the item that
+        // overlaps the buckets in that column most.
+        template<typename F>
+        void forEachDominantItem(int row, qint64 rangeStart, qint64 rangeEnd, int width,
+                                 const F &f) const
+        {
+            const QList<Bucket> &buckets = rows.at(row);
+            const quint32 firstBucket = rangeStart <= start
+                    ? 0 : quint32((rangeStart - start) / bucketDuration);
+            auto it = std::lower_bound(buckets.cbegin(), buckets.cend(), firstBucket,
+                                       [](const Bucket &bucket, quint32 index) {
+                                           return bucket.index < index;
+                                       });
+            const double scale = double(width) / double(rangeEnd - rangeStart);
+            int x = -1;
+            const Bucket *dominant = nullptr;
+            for (; it != buckets.cend(); ++it) {
+                const qint64 bucketStart = start + qint64(it->index) * bucketDuration;
+                if (bucketStart >= rangeEnd)
+                    break;
+                const int bucketX = std::max(0, int(std::floor(double(bucketStart - rangeStart)
+                                                               * scale)));
+                if (bucketX >= width)
+                    break;
+                if (bucketX != x) {
+                    if (dominant)
+                        f(x, dominant->item);
+                    x = bucketX;
+                    dominant = &*it;
+                } else if (it->overlap > dominant->overlap) {
+                    dominant = &*it;
+                }
+            }
+            if (dominant)
+                f(x, dominant->item);
+        }
+
+        qint64 start = 0;
+        qint64 bucketDuration = 1;
+        quint32 bucketCount = 0;
+        QList<QList<Bucket>> rows;
+        QList<bool> mixedRows; // Rows holding items of more than one selection id.
+    };
+
+    void computeSummaries();
+    const Summary *summary(bool expanded) const;
+    const Summary *overviewSummary() const;
 
     int nextItemBySelectionId(int selectionId, qint64 time, int currentItem) const;
     int nextItemByTypeId(int typeId, qint64 time, int currentItem) const;

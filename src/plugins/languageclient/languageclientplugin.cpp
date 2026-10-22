@@ -8,6 +8,7 @@
 #include "languageclientsettings.h"
 #include "languageclienttr.h"
 #include "mcptools.h"
+#include "requiresprojectorfile_test.h"
 #include "snippet.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -57,7 +58,8 @@ void LanguageClientPlugin::initialize()
 
 #ifdef WITH_TESTS
     addTestCreator(&createSnippetParsingTest);
-    addTestCreator(&Internal::createLanguageClientManagerTest);
+    addTestCreator(&createLanguageClientManagerTest);
+    addTestCreator(&Internal::createRequiresProjectOrFileTest);
 #endif
 
     LanguageClientSettings::registerClientType({Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID,

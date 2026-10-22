@@ -109,17 +109,17 @@ QString UtilsJsExtension::relativeFilePath(const QString &path, const QString &b
 
 bool UtilsJsExtension::exists(const QString &in) const
 {
-    return QFileInfo::exists(in);
+    return FilePath::fromUserInput(in).exists();
 }
 
 bool UtilsJsExtension::isDirectory(const QString &in) const
 {
-    return QFileInfo(in).isDir();
+    return FilePath::fromUserInput(in).isDir();
 }
 
 bool UtilsJsExtension::isFile(const QString &in) const
 {
-    return QFileInfo(in).isFile();
+    return FilePath::fromUserInput(in).isFile();
 }
 
 QString UtilsJsExtension::preferredSuffix(const QString &mimetype) const

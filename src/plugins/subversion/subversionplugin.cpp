@@ -56,7 +56,11 @@
 #include <climits>
 
 #ifdef WITH_TESTS
+#include <texteditor/syntaxhighlighter.h>
+
+#include <QComboBox>
 #include <QTest>
+#include <QTextBlock>
 #endif
 
 using namespace Core;
@@ -1304,6 +1308,9 @@ class SubversionTest final : public QObject
 
 private slots:
     void testLogResolving();
+    void testLogMessages_data();
+    void testLogMessages();
+    void testRevisionReferences();
 };
 
 void SubversionTest::testLogResolving()
@@ -1325,6 +1332,83 @@ void SubversionTest::testLogResolving()
                 "\n"
                 );
     VcsBaseEditorWidget::testLogResolving(dd->logEditorFactory, data, "r1439551", "r1439540");
+}
+
+void SubversionTest::testLogMessages_data()
+{
+    QTest::addColumn<QString>("message");
+    QTest::addColumn<bool>("header");
+    QTest::newRow("reported message") << QString("r6 | schmu | date | schmi") << false;
+    QTest::newRow("revision reference") << QString("r19 schlumpf") << false;
+    QTest::newRow("header prefix") << QString("r6 | author") << false;
+    QTest::newRow("invalid date") << QString("r6 | author | date | 2 lines") << false;
+    QTest::newRow("missing line count")
+        << QString("r6 | author | 2025-01-28 11:11:46 +0100 (Tue, 28 Jan 2025)") << false;
+    QTest::newRow("invalid line count")
+        << QString("r6 | author | 2025-01-28 11:11:46 +0100 | lines") << false;
+    QTest::newRow("singular")
+        << QString("r6 | author | 2025-01-28 11:11:46 +0100 (Tue, 28 Jan 2025) | 1 line") << true;
+    QTest::newRow("plural")
+        << QString("r6 | author | 2025-01-28 11:11:46 -0500 (Tue, 28 Jan 2025) | 2 lines") << true;
+    QTest::newRow("localized")
+        << QString("r6 | author | 2025-01-28 11:11:46 +0100 (Di, 28 Jan 2025) | 2 Zeilen") << true;
+    QTest::newRow("missing date") << QString("r6 | (no author) | (no date) | 1 line") << true;
+    QTest::newRow("localized missing date")
+        << QString("r6 | (kein Autor) | (kein Datum) | 1 Zeile") << true;
+}
+
+void SubversionTest::testLogMessages()
+{
+    QFETCH(QString, message);
+    QFETCH(bool, header);
+    const std::unique_ptr<IEditor> editor(dd->logEditorFactory.createEditor());
+    auto widget = qobject_cast<SubversionEditorWidget *>(editor->widget());
+    QVERIFY(widget);
+    const QString separator = QString(72, '-') + '\n';
+    const QString first = "r5 | chris | 2025-01-28 11:13:28 +0100 (Tue, 28 Jan 2025) | 1 line";
+    const QString last = "r4 | chris | 2025-01-28 11:11:46 +0100 (Tue, 28 Jan 2025) | 1 line";
+    widget->setPlainText(separator + first + "\n\n" + message + "\n\n" + separator + last + '\n');
+    QComboBox *entries = editor->toolBar()->findChild<QComboBox *>();
+    QVERIFY(entries);
+    QCOMPARE(entries->count(), header ? 3 : 2);
+    QCOMPARE(entries->itemText(0), QString("r5"));
+    QCOMPARE(entries->itemText(entries->count() - 1), QString("r4"));
+    if (header)
+        QCOMPARE(entries->itemText(1), QString("r6"));
+
+    auto highlighter = widget->textDocument()->syntaxHighlighter();
+    QVERIFY(highlighter);
+    highlighter->rehighlight();
+    QTRY_VERIFY(highlighter->syntaxHighlighterUpToDate());
+    const QTextBlock firstBlock = widget->document()->findBlockByNumber(1);
+    const QTextBlock messageBlock = widget->document()->findBlockByNumber(3);
+    const auto formatAtStart = [](const QTextBlock &block) {
+        for (const QTextLayout::FormatRange &range : block.layout()->formats()) {
+            if (range.start == 0 && range.length > 0)
+                return range.format;
+        }
+        return QTextCharFormat();
+    };
+    const QTextCharFormat headerFormat = formatAtStart(firstBlock);
+    QVERIFY(headerFormat.isValid());
+    QCOMPARE(formatAtStart(messageBlock) == headerFormat, header);
+}
+
+void SubversionTest::testRevisionReferences()
+{
+    const std::unique_ptr<IEditor> editor(dd->logEditorFactory.createEditor());
+    auto widget = qobject_cast<SubversionEditorWidget *>(editor->widget());
+    QVERIFY(widget);
+    widget->setPlainText("r19 schlumpf\nr6 | schmu | date | schmi\nsee Revision 42");
+    QTextCursor cursor(widget->document());
+    cursor.setPosition(1);
+    QCOMPARE(widget->changeUnderCursor(cursor), QString("19"));
+    cursor.setPosition(widget->document()->findBlockByNumber(1).position() + 1);
+    QCOMPARE(widget->changeUnderCursor(cursor), QString("6"));
+    cursor.setPosition(widget->document()->findBlockByNumber(2).position() + 5);
+    QCOMPARE(widget->changeUnderCursor(cursor), QString("42"));
+    cursor.setPosition(widget->document()->findBlockByNumber(1).position() + 8);
+    QVERIFY(widget->changeUnderCursor(cursor).isEmpty());
 }
 
 #endif

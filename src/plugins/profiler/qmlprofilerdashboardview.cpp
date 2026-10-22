@@ -7,20 +7,30 @@
 #include "qmlprofilerdashboardstats.h"
 #include "qmlprofilerfindingsmodel.h"
 #include "qmlprofilermodelmanager.h"
+#include "qmlprofilersettings.h"
+
+#include <tracing/timelineformatdata.h>
 
 #include <utils/icon.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
+#include <utils/qtcassert.h>
 #include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
+#include <QComboBox>
 #include <QEnterEvent>
 #include <QFrame>
+#include <QGridLayout>
+#include <QIntValidator>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QVBoxLayout>
+
+#include <optional>
 
 using namespace Utils;
 using namespace Utils::StyleHelper;
@@ -71,16 +81,9 @@ constexpr TextFormat scoreWidgetTf {
 class ScoreWidget : public QWidget
 {
 public:
-    enum Score {
-        Excellent,
-        Good,
-        Alerting,
-        Poor,
-    };
-
     ScoreWidget(QWidget *parent = nullptr);
 
-    void setScore(Score score);
+    void setRating(ScoreRating rating);
 
     QSize minimumSizeHint() const override;
 
@@ -98,7 +101,7 @@ private:
 ScoreWidget::ScoreWidget(QWidget *parent)
     : QWidget(parent)
 {
-    setScore(Excellent);
+    setRating(ScoreRating::Excellent);
     setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 }
 
@@ -114,37 +117,39 @@ void ScoreWidget::paintEvent([[maybe_unused]] QPaintEvent *event)
     p.drawText(textR, scoreWidgetTf.drawTextFlags, m_text);
 }
 
-static InfoLabelType infoType(ScoreWidget::Score score)
+static InfoLabelType infoType(ScoreRating rating)
 {
-    switch (score) {
-    case ScoreWidget::Alerting:
+    switch (rating) {
+    case ScoreRating::Alerting:
         return InfoLabelType::Warning;
-    case ScoreWidget::Poor:
+    case ScoreRating::Poor:
         return InfoLabelType::Error;
-    case ScoreWidget::Excellent:
-    case ScoreWidget::Good:
+    case ScoreRating::Excellent:
+    case ScoreRating::Good:
         break;
     }
     return InfoLabelType::Ok;
 }
 
-void ScoreWidget::setScore(ScoreWidget::Score score)
+static QString ratingName(ScoreRating rating)
 {
-    switch (score) {
-    case Excellent:
-        m_text = Tr::tr("Excellent");
-        break;
-    case Good:
-        m_text = Tr::tr("Good");
-        break;
-    case Alerting:
-        m_text = Tr::tr("Alerting");
-        break;
-    case Poor:
-        m_text = Tr::tr("Poor");
-        break;
+    switch (rating) {
+    case ScoreRating::Excellent:
+        return Tr::tr("Excellent");
+    case ScoreRating::Good:
+        return Tr::tr("Good");
+    case ScoreRating::Alerting:
+        return Tr::tr("Alerting");
+    case ScoreRating::Poor:
+        return Tr::tr("Poor");
     }
-    const InfoLabelType type = infoType(score);
+    return {};
+}
+
+void ScoreWidget::setRating(ScoreRating rating)
+{
+    m_text = ratingName(rating);
+    const InfoLabelType type = infoType(rating);
     m_color = infoTypeForegroundColor(type);
     m_bgColor = infoTypeBackgroundColor(type);
     m_icon = infoTypeIconLarge(type).icon();
@@ -174,8 +179,8 @@ public:
     Category(const QString &title, const QString &description, Size size = Small,
              QWidget *parent = nullptr);
 
-    void setText(const QString &title, const QString &text);
-    void setScore(ScoreWidget::Score score, int points, int pointsRange = 100);
+    void setScore(int score);
+    void setDescription(const QString &description);
 
 private:
     QLabel *m_title;
@@ -195,6 +200,7 @@ Category::Category(const QString &title, const QString &description, Size size, 
     m_scoreWidget = new ScoreWidget;
 
     m_score = new QLabel;
+    m_score->setObjectName("score");
     applyTf(m_score, small ? titleSmallTf : titleTf, false);
 
     m_description = new QLabel(description);
@@ -213,10 +219,279 @@ Category::Category(const QString &title, const QString &description, Size size, 
     }.attachTo(this);
 }
 
-void Category::setScore(ScoreWidget::Score score, int points, int pointsRange)
+void Category::setDescription(const QString &description)
 {
-    m_scoreWidget->setScore(score);
-    m_score->setText(QString::fromLatin1("%1/%2").arg(points).arg(pointsRange));
+    m_description->setText(description);
+}
+
+void Category::setScore(int score)
+{
+    m_scoreWidget->setRating(scoreRating(score));
+    m_score->setText(QString::number(score));
+}
+
+static QString factorTitle(ScoreFactor::Id id)
+{
+    switch (id) {
+    case ScoreFactor::UiResponsiveness:
+        return Tr::tr("UI Responsiveness");
+    case ScoreFactor::FrameConsistency:
+        return Tr::tr("Frame Consistency");
+    case ScoreFactor::StutterPrevention:
+        return Tr::tr("Stutter Prevention");
+    case ScoreFactor::P99Quality:
+        return Tr::tr("P99 Quality");
+    case ScoreFactor::StartupSpeed:
+        return Tr::tr("Startup Speed");
+    }
+    return {};
+}
+
+// Rated against the target frame rate, so each description names the budget it applies.
+static QString factorDescription(ScoreFactor::Id id, const QmlProfilerDashboardStats &stats)
+{
+    switch (id) {
+    case ScoreFactor::UiResponsiveness:
+        return Tr::tr("Share of frames on the %1 FPS target, with frames near it counting half")
+            .arg(stats.targetFrameRate());
+    case ScoreFactor::FrameConsistency:
+        return Tr::tr("Share of frames on the %1 FPS target (<= %2 ms)")
+            .arg(stats.targetFrameRate())
+            .arg(stats.onTargetFrameTimeMs(), 0, 'f', 1);
+    case ScoreFactor::StutterPrevention:
+        return Tr::tr("Share of frames faster than half the target, %1 FPS (%2 ms). Slower "
+                      "frames cause noticeable UI freezes")
+            .arg(qRound(1000.0 / stats.stutterFrameTimeMs()))
+            .arg(stats.stutterFrameTimeMs(), 0, 'f', 1);
+    case ScoreFactor::P99Quality:
+        return Tr::tr("Stands in for the 99th percentile frame time: failed frames "
+                      "(> %1 ms) count %2 times")
+            .arg(stats.nearTargetFrameTimeMs(), 0, 'f', 1)
+            .arg(kP99FailedFrameWeight);
+    case ScoreFactor::StartupSpeed:
+        return Tr::tr("Stands in for the time to steady state: share of frames on target "
+                      "minus share of stuttering frames");
+    }
+    return {};
+}
+
+static QString factorMeasurement(ScoreFactor::Id id, const QmlProfilerDashboardStats &stats)
+{
+    const int total = stats.framesTotal();
+    switch (id) {
+    case ScoreFactor::UiResponsiveness:
+        return Tr::tr("%1 on target, %2 near target of %n frame(s)", nullptr, total)
+            .arg(stats.framesOnTarget())
+            .arg(stats.framesNearTarget());
+    case ScoreFactor::FrameConsistency:
+        return Tr::tr("%1 of %n frame(s) on target", nullptr, total).arg(stats.framesOnTarget());
+    case ScoreFactor::StutterPrevention:
+        return Tr::tr("%1 of %n frame(s) stuttering", nullptr, total)
+            .arg(stats.framesStuttering());
+    case ScoreFactor::P99Quality:
+        return Tr::tr("%1 of %n frame(s) failed", nullptr, total).arg(stats.framesFailed());
+    case ScoreFactor::StartupSpeed:
+        return Tr::tr("%1% on target, %2% stuttering")
+            .arg(stats.onTargetPercent())
+            .arg(kMaxScore - stats.stutterFreePercent());
+    }
+    return {};
+}
+
+static QString scoreHelpText()
+{
+    return Tr::tr("The performance score is the sum of the points of five factors. Each factor "
+                  "rates the frame times of the GUI thread from 0 (worst) to 100 (best) and "
+                  "contributes up to %1 points, its score divided by %2. Findings do not "
+                  "affect the score.")
+        .arg(ScoreFactor::MaxPoints)
+        .arg(kMaxScore / ScoreFactor::MaxPoints);
+}
+
+static QString signedPoints(int points)
+{
+    return points > 0 ? QChar(0x2212) + QString::number(points) : QString::number(points);
+}
+
+constexpr TextFormat breakdownHeaderTf {
+    .themeColor = Theme::Token_Text_Muted,
+    .uiElement = UiElementCaptionStrong,
+    .drawTextFlags = Qt::AlignLeft | Qt::AlignVCenter,
+};
+
+constexpr TextFormat breakdownTf {
+    .themeColor = Theme::Token_Text_Default,
+    .uiElement = UiElementBody2,
+    .drawTextFlags = Qt::AlignLeft | Qt::AlignVCenter,
+};
+
+constexpr TextFormat breakdownMutedTf {
+    .themeColor = Theme::Token_Text_Muted,
+    .uiElement = breakdownTf.uiElement,
+    .drawTextFlags = breakdownTf.drawTextFlags,
+};
+
+constexpr TextFormat breakdownNumberTf {
+    .themeColor = breakdownTf.themeColor,
+    .uiElement = breakdownTf.uiElement,
+    .drawTextFlags = Qt::AlignRight | Qt::AlignVCenter,
+};
+
+constexpr TextFormat breakdownTotalTf {
+    .themeColor = Theme::Token_Text_Default,
+    .uiElement = UiElementH6,
+    .drawTextFlags = Qt::AlignRight | Qt::AlignVCenter,
+};
+
+constexpr int breakdownIconSize = 16;
+
+// Lists the factors of the performance score with the points each one contributes, and
+// highlights those rated below "Excellent".
+class ScoreBreakdownView : public QWidget
+{
+public:
+    ScoreBreakdownView(QWidget *parent = nullptr);
+
+    void setStats(const QmlProfilerDashboardStats &stats);
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    enum Column {
+        IconColumn,
+        TitleColumn,
+        MeasurementColumn,
+        ScoreColumn,
+        PointsColumn,
+        PointsLostColumn,
+        ColumnCount,
+    };
+
+    class FactorRow
+    {
+    public:
+        QLabel *icon = nullptr;
+        QLabel *title = nullptr;
+        QLabel *measurement = nullptr;
+        QLabel *score = nullptr;
+        QLabel *points = nullptr;
+        QLabel *pointsLost = nullptr;
+        std::optional<InfoLabelType> highlight;
+    };
+
+    QGridLayout *m_grid = nullptr;
+    QList<FactorRow> m_rows;
+    QLabel *m_totalPoints = nullptr;
+    QLabel *m_totalPointsLost = nullptr;
+};
+
+ScoreBreakdownView::ScoreBreakdownView(QWidget *parent)
+    : QWidget(parent)
+{
+    setObjectName("QmlProfiler.Dashboard.ScoreBreakdown");
+
+    m_grid = new QGridLayout(this);
+    m_grid->setContentsMargins(SpacingTokens::PaddingHS, 0, SpacingTokens::PaddingHS, 0);
+    m_grid->setHorizontalSpacing(SpacingTokens::GapHL);
+    m_grid->setVerticalSpacing(SpacingTokens::GapVS);
+    m_grid->setColumnStretch(MeasurementColumn, 1);
+
+    const auto addLabel = [this](int row, int column, const TextFormat &tf,
+                                 const QString &text = {}) {
+        auto label = new QLabel(text);
+        applyTf(label, tf);
+        m_grid->addWidget(label, row, column);
+        return label;
+    };
+
+    int row = 0;
+    addLabel(row, TitleColumn, breakdownHeaderTf, Tr::tr("Factor"));
+    addLabel(row, MeasurementColumn, breakdownHeaderTf, Tr::tr("Measured"));
+    addLabel(row, ScoreColumn, breakdownHeaderTf, Tr::tr("Score"))
+        ->setToolTip(Tr::tr("From 0 (worst) to 100 (best). Below %1, the factor is rated "
+                            "lower than \"Excellent\" and highlighted.").arg(kExcellentScore));
+    addLabel(row, PointsColumn, breakdownHeaderTf, Tr::tr("Points"))
+        ->setToolTip(Tr::tr("The factor's score divided by %1, rounded.")
+                         .arg(kMaxScore / ScoreFactor::MaxPoints));
+    addLabel(row, PointsLostColumn, breakdownHeaderTf, Tr::tr("Lost"))
+        ->setToolTip(Tr::tr("Points below the maximum of %1 per factor.")
+                         .arg(ScoreFactor::MaxPoints));
+
+    for (int id = 0; id < ScoreFactor::Count; ++id) {
+        ++row;
+        FactorRow factorRow;
+        factorRow.icon = new QLabel;
+        factorRow.icon->setObjectName(QString("status%1").arg(id));
+        factorRow.icon->setFixedSize(breakdownIconSize, breakdownIconSize);
+        m_grid->addWidget(factorRow.icon, row, IconColumn);
+        factorRow.title = addLabel(row, TitleColumn, breakdownTf,
+                                   factorTitle(ScoreFactor::Id(id)));
+        factorRow.measurement = addLabel(row, MeasurementColumn, breakdownMutedTf);
+        factorRow.score = addLabel(row, ScoreColumn, breakdownNumberTf);
+        factorRow.points = addLabel(row, PointsColumn, breakdownNumberTf);
+        factorRow.points->setObjectName(QString("points%1").arg(id));
+        factorRow.pointsLost = addLabel(row, PointsLostColumn, breakdownNumberTf);
+        m_rows.append(factorRow);
+    }
+
+    ++row;
+    addLabel(row, TitleColumn, breakdownTotalTf, Tr::tr("Performance score"))
+        ->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    m_totalPoints = addLabel(row, PointsColumn, breakdownTotalTf);
+    m_totalPoints->setObjectName("totalPoints");
+    m_totalPointsLost = addLabel(row, PointsLostColumn, breakdownTotalTf);
+}
+
+void ScoreBreakdownView::setStats(const QmlProfilerDashboardStats &stats)
+{
+    const QList<ScoreFactor> factors = stats.scoreBreakdown();
+    QTC_ASSERT(factors.size() == m_rows.size(), return);
+
+    int totalPointsLost = 0;
+    for (int i = 0; i < factors.size(); ++i) {
+        const ScoreFactor &factor = factors.at(i);
+        FactorRow &row = m_rows[i];
+        QTC_CHECK(factor.id == i);
+
+        if (factor.pullsScoreDown()) {
+            const InfoLabelType type = infoType(scoreRating(factor.score));
+            row.highlight = type == InfoLabelType::Ok ? InfoLabelType::Information : type;
+        } else {
+            row.highlight.reset();
+        }
+        const InfoLabelType iconType = row.highlight.value_or(InfoLabelType::Ok);
+        row.icon->setPixmap(infoTypeIconLarge(iconType).icon().pixmap(
+            QSize(breakdownIconSize, breakdownIconSize), devicePixelRatioF()));
+        row.icon->setAccessibleName(row.highlight ? Tr::tr("Lowers the score")
+                                                  : Tr::tr("Excellent"));
+
+        row.title->setToolTip(factorDescription(factor.id, stats));
+        row.measurement->setText(factorMeasurement(factor.id, stats));
+        row.score->setText(QString::number(factor.score));
+        row.points->setText(QString::number(factor.points));
+        row.pointsLost->setText(signedPoints(factor.pointsLost()));
+        totalPointsLost += factor.pointsLost();
+    }
+    m_totalPoints->setText(QString::number(stats.overallScore()));
+    m_totalPointsLost->setText(signedPoints(totalPointsLost));
+    update();
+}
+
+void ScoreBreakdownView::paintEvent([[maybe_unused]] QPaintEvent *event)
+{
+    QPainter painter(this);
+    for (int i = 0; i < m_rows.size(); ++i) {
+        const FactorRow &row = m_rows.at(i);
+        if (!row.highlight)
+            continue;
+        const int gridRow = i + 1; // Below the header.
+        const QRect rowRect = m_grid->cellRect(gridRow, IconColumn)
+                                  .united(m_grid->cellRect(gridRow, ColumnCount - 1))
+                                  .adjusted(-SpacingTokens::PaddingHS, -SpacingTokens::PaddingVXs,
+                                            SpacingTokens::PaddingHS, SpacingTokens::PaddingVXs);
+        drawCardBg(&painter, rowRect, creatorColor(infoTypeBackgroundColor(*row.highlight)));
+    }
 }
 
 class Gauge : public QWidget
@@ -597,12 +872,23 @@ public:
 
     bool hasData() const;
     void updateVisibility();
+    void updateTargetFrameRate();
 
     bool isFirstFinalize = true;
 
+    QmlProfilerModelManager *manager = nullptr;
     QmlProfilerDashboardStats *stats = nullptr;
 
+    QComboBox *targetFrameRate = nullptr;
+
     Category *overallRating = nullptr;
+    QtcButton *breakdownButton = nullptr;
+
+    QWidget *breakdownSection = nullptr;
+    QLabel *breakdownTitle = nullptr;
+    ScoreBreakdownView *breakdown = nullptr;
+    QLabel *slowestFrameLabel = nullptr;
+    QtcButton *slowestFrameButton = nullptr;
 
     QLabel *gaugeTitle = nullptr;
     Gauge *gauge = nullptr;
@@ -618,15 +904,12 @@ public:
     QLabel *framesText = nullptr;
 
     QLabel *categoriesTitle = nullptr;
-    Category *uiResponsiveness = nullptr;
-    Category *frameConsistency = nullptr;
-    Category *stutterPrevention = nullptr;
-    Category *p99Quality = nullptr;
-    Category *startupSpeed = nullptr;
+    QList<Category *> factors; // By ScoreFactor::Id
 
     QLabel *findingsTitle = nullptr;
     QmlProfilerFindingsModel *findingsModel = nullptr;
     FindingsView *findingsView = nullptr;
+    QWidget *targetFrameRateSection = nullptr;
     QWidget *statsSection = nullptr;
     QtcRectangleWidget *findingsSection = nullptr;
     QWidget *noDataAvailableSection = nullptr;
@@ -642,8 +925,49 @@ bool QmlProfilerDashboardViewPrivate::hasData() const
     return stats->hasData() || findingsModel->rowCount() > 0;
 }
 
+// Everything rated against the target says which target that is, so that no number is read
+// against a budget other than the one it was computed for.
+void QmlProfilerDashboardViewPrivate::updateTargetFrameRate()
+{
+    const int target = globalSettings().targetFrameRate();
+    stats->setTargetFrameRate(target);
+
+    const int index = targetFrameRate->findData(target);
+    if (index >= 0)
+        targetFrameRate->setCurrentIndex(index);
+    else
+        targetFrameRate->setEditText(QString::number(target));
+
+    gauge->setMaxValue(target);
+    gaugeText->setText(Tr::tr("FPS measured (median)\nTarget: %1 FPS").arg(target));
+    framesOnTargetLabel->setText(Tr::tr("On Target (>= %1 FPS, <= %2 ms)")
+                                     .arg(target)
+                                     .arg(stats->onTargetFrameTimeMs(), 0, 'f', 1));
+    framesNearTargetLabel->setText(Tr::tr("Near Target (%1-%2 ms)")
+                                       .arg(stats->onTargetFrameTimeMs(), 0, 'f', 1)
+                                       .arg(stats->nearTargetFrameTimeMs(), 0, 'f', 1));
+    framesFailedLabel->setText(Tr::tr("Failed (< %1 FPS, > %2 ms)")
+                                   .arg(qRound(1000.0 / stats->nearTargetFrameTimeMs()))
+                                   .arg(stats->nearTargetFrameTimeMs(), 0, 'f', 1));
+    framesText->setText(Tr::tr("Measured frames, rated against the %1 FPS target").arg(target));
+    breakdownTitle->setText(Tr::tr("Score Breakdown (Target: %1 FPS)").arg(target));
+    for (int id = 0; id < factors.size(); ++id)
+        factors.at(id)->setDescription(factorDescription(ScoreFactor::Id(id), *stats));
+}
+
+static void setTargetFrameRate(int framesPerSecond)
+{
+    QmlProfilerSettings &settings = globalSettings();
+    // Through the volatile value and apply(), like the options page, so that everything
+    // following the settings hears about it once.
+    settings.targetFrameRate.setVolatileValue(framesPerSecond);
+    settings.apply();
+    settings.writeSettings();
+}
+
 void QmlProfilerDashboardViewPrivate::updateVisibility()
 {
+    targetFrameRateSection->setVisible(stats->hasData());
     statsSection->setVisible(stats->hasData());
     findingsSection->setVisible(findingsModel->rowCount() > 0);
     noDataAvailableSection->setVisible(!hasData());
@@ -654,6 +978,7 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     : QWidget(parent)
     , d(new QmlProfilerDashboardViewPrivate(this))
 {
+    d->manager = manager;
     d->stats = new QmlProfilerDashboardStats(manager, d);
     connect(d->stats, &QmlProfilerDashboardStats::changed, this, [this] {
         d->updateVisibility();
@@ -669,8 +994,62 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     // Performance Rating
     d->overallRating = new Category(
         Tr::tr("Performance Rating"),
-        Tr::tr("Overall technical rating of the application performance"),
+        Tr::tr("Performance score from 0 to 100: the points of the five factors below, "
+               "added up"),
         Large);
+    d->overallRating->setObjectName("QmlProfiler.Dashboard.PerformanceRating");
+    d->overallRating->setToolTip(scoreHelpText());
+
+    d->breakdownButton = new QtcButton(Tr::tr("Show Breakdown"), QtcButton::SmallLink);
+    d->breakdownButton->setCheckable(true);
+
+
+    // Score Breakdown
+    d->breakdownTitle = new QLabel(Tr::tr("Score Breakdown"));
+    applyTf(d->breakdownTitle, titleTf);
+    QLabel *breakdownHelp = new QLabel(scoreHelpText());
+    applyTf(breakdownHelp, textFrameAnalysisTf, false);
+    breakdownHelp->setWordWrap(true);
+    d->breakdown = new ScoreBreakdownView;
+    d->slowestFrameLabel = new QLabel;
+    applyTf(d->slowestFrameLabel, textFrameAnalysisTf);
+    d->slowestFrameButton = new QtcButton(Tr::tr("Show in Timeline"), QtcButton::SmallLink);
+    d->slowestFrameButton->setObjectName("showSlowestFrame");
+    connect(d->slowestFrameButton, &QAbstractButton::clicked, this, [this] {
+        const qint64 end = d->stats->slowestFrameTimestamp();
+        const qint64 duration = qRound64(d->stats->slowestFrameTimeMs() * 1e6);
+        emit timelineRangeRequested(end - duration, end);
+    });
+
+
+    // Target frame rate
+    const IntegerAspect &targetFrameRateAspect = globalSettings().targetFrameRate;
+    auto targetFrameRateLabel = new QLabel(targetFrameRateAspect.labelText());
+    applyTf(targetFrameRateLabel, textFrameAnalysisTf);
+    d->targetFrameRate = new QComboBox;
+    d->targetFrameRate->setObjectName("QmlProfiler.Dashboard.TargetFrameRate");
+    d->targetFrameRate->setEditable(true);
+    d->targetFrameRate->setInsertPolicy(QComboBox::NoInsert);
+    d->targetFrameRate->setValidator(new QIntValidator(1, kMaxTargetFrameRate,
+                                                      d->targetFrameRate));
+    d->targetFrameRate->setToolTip(targetFrameRateAspect.toolTip());
+    for (int preset : targetFrameRatePresets())
+        d->targetFrameRate->addItem(QString::number(preset), preset);
+    auto targetFrameRateUnit = new QLabel(Tr::tr("FPS"));
+    applyTf(targetFrameRateUnit, textFrameAnalysisTf);
+
+    // A preset is taken when it is picked; a typed value when it is confirmed.
+    connect(d->targetFrameRate, &QComboBox::activated, this, [this](int index) {
+        setTargetFrameRate(d->targetFrameRate->itemData(index).toInt());
+    });
+    connect(d->targetFrameRate->lineEdit(), &QLineEdit::editingFinished, this, [this] {
+        bool ok = false;
+        const int framesPerSecond = d->targetFrameRate->currentText().toInt(&ok);
+        if (ok && framesPerSecond > 0)
+            setTargetFrameRate(framesPerSecond);
+        else
+            d->updateTargetFrameRate();
+    });
 
 
     // No data
@@ -686,10 +1065,9 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     applyTf(d->gaugeTitle, titleTf);
     d->gauge = new Gauge;
     d->gauge->setFixedSize(110, 110);
-    d->gauge->setUnit("%");
-    d->gaugeText = new QLabel(
-        Tr::tr("%1+ FPS (Steady State)").arg(qRound(kDisplayRefreshRate)));
-    applyTf(d->gaugeText, textTf);
+    d->gaugeText = new QLabel;
+    d->gaugeText->setObjectName("gaugeText");
+    applyTf(d->gaugeText, textTf, false);
 
 
     // Frame Time Analysis
@@ -698,54 +1076,37 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
 
     d->framesOnTargetBadge = new QtcBadge;
     d->framesOnTargetBadge->setInfoType(Utils::InfoLabelType::Ok);
-    d->framesOnTargetLabel = new QLabel(
-        Tr::tr("On Target (%1+ FPS, <= %2 ms)")
-            .arg(qRound(kDisplayRefreshRate))
-            .arg(kOnTargetFrameTimeMs, 0, 'f', 1));
+    d->framesOnTargetLabel = new QLabel;
     applyTf(d->framesOnTargetLabel, textFrameAnalysisTf);
 
     d->framesNearTargetBadge = new QtcBadge;
     d->framesNearTargetBadge->setInfoType(Utils::InfoLabelType::Warning);
-    d->framesNearTargetLabel = new QLabel(
-        Tr::tr("Near Target (%1-%2 ms)")
-            .arg(kOnTargetFrameTimeMs, 0, 'f', 1)
-            .arg(kNearTargetFrameTimeMs, 0, 'f', 1));
+    d->framesNearTargetLabel = new QLabel;
     applyTf(d->framesNearTargetLabel, textFrameAnalysisTf);
 
     d->framesFailedBadge = new QtcBadge;
     d->framesFailedBadge->setInfoType(Utils::InfoLabelType::NotOk);
-    d->framesFailedLabel = new QLabel(
-        Tr::tr("Failed (< %1 FPS, > %2 ms)")
-            .arg(qRound(1000.0 / kNearTargetFrameTimeMs))
-            .arg(kNearTargetFrameTimeMs, 0, 'f', 1));
+    d->framesFailedLabel = new QLabel;
     applyTf(d->framesFailedLabel, textFrameAnalysisTf);
 
-    d->framesText = new QLabel(
-        Tr::tr("%1+ FPS (Steady State)").arg(qRound(kDisplayRefreshRate)));
-    applyTf(d->framesText, textTf);
+    d->framesText = new QLabel;
+    d->framesText->setObjectName("framesText");
+    applyTf(d->framesText, textTf, false);
+    d->framesText->setWordWrap(true);
 
 
     // Multi-factor Performance Analysis
     d->categoriesTitle = new QLabel(Tr::tr("Multifactor Performance Analysis"));
     applyTf(d->categoriesTitle, titleTf);
 
-    d->uiResponsiveness = new Category(
-        Tr::tr("UI Responsiveness"),
-        Tr::tr("Percentage of frames within the P95 threshold for smooth UI interactions"));
-    d->frameConsistency = new Category(
-        Tr::tr("Frame Consistency"),
-        Tr::tr("Frame time variation (lower is better for smooth animations)"));
-    d->stutterPrevention = new Category(
-        Tr::tr("Stutter Prevention"),
-        Tr::tr("Frames slower than %1 FPS (%2 ms) cause noticeable UI freezes")
-            .arg(qRound(kStutterFps))
-            .arg(kStutterFrameTimeMs, 0, 'f', 1));
-    d->p99Quality = new Category(
-        Tr::tr("P99 Quality"),
-        Tr::tr("99th percentile frame time ensures a consistent experience"));
-    d->startupSpeed = new Category(
-        Tr::tr("Startup Speed"),
-        Tr::tr("Frames until reaching steady-state performance"));
+    for (int id = 0; id < ScoreFactor::Count; ++id) {
+        // The description depends on the target: updateTargetFrameRate() sets it.
+        auto factor = new Category(factorTitle(ScoreFactor::Id(id)), {});
+        factor->setToolTip(Tr::tr("Score from 0 (worst) to 100 (best). Contributes up to "
+                                  "%1 points to the performance score.")
+                               .arg(ScoreFactor::MaxPoints));
+        d->factors.append(factor);
+    }
 
 
     // Findings
@@ -794,6 +1155,13 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     const QPen rectStrokePen = creatorColor(Theme::Token_Stroke_Subtle);
     using namespace Layouting;
 
+    Row factorsRow {
+        noMargin,
+        spacing(2 * SpacingTokens::GapHXl + QtcSeparatedItemsWidget::separatorLineWidth()),
+    };
+    for (Category *factor : std::as_const(d->factors))
+        factorsRow.addItem(factor);
+
     auto framesGrid = Grid {
         noMargin,
         spacing(SpacingTokens::GapVL),
@@ -821,6 +1189,17 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
                     },
                 },
                 Widget {
+                    bindTo(&d->targetFrameRateSection),
+                    Row {
+                        noMargin,
+                        spacing(SpacingTokens::GapHXs),
+                        targetFrameRateLabel,
+                        d->targetFrameRate,
+                        targetFrameRateUnit,
+                        st,
+                    },
+                },
+                Widget {
                     bindTo(&d->statsSection),
                     Column {
                         noMargin,
@@ -831,6 +1210,7 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
                                 strokePen(rectStrokePen),
                                 Column {
                                     d->overallRating,
+                                    Row { st, d->breakdownButton, st },
                                     st,
                                 },
                             },
@@ -858,6 +1238,24 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
                             },
                         },
                         QtDesignWidgets::Rectangle {
+                            bindTo(&d->breakdownSection),
+                            fillBrush(rectFillBrush),
+                            strokePen(rectStrokePen),
+                            Column {
+                                spacing(SpacingTokens::GapVL),
+                                d->breakdownTitle,
+                                breakdownHelp,
+                                d->breakdown,
+                                Row {
+                                    noMargin,
+                                    spacing(SpacingTokens::GapHM),
+                                    d->slowestFrameLabel,
+                                    d->slowestFrameButton,
+                                    st,
+                                },
+                            },
+                        },
+                        QtDesignWidgets::Rectangle {
                             fillBrush(rectFillBrush),
                             strokePen(rectStrokePen),
                             Column {
@@ -865,16 +1263,7 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
                                 d->categoriesTitle,
                                 QtDesignWidgets::SeparatedItems {
                                     separatorInset(0),
-                                    Row {
-                                        noMargin,
-                                        spacing(2 * SpacingTokens::GapHXl
-                                                + QtcSeparatedItemsWidget::separatorLineWidth()),
-                                        d->uiResponsiveness,
-                                        d->frameConsistency,
-                                        d->stutterPrevention,
-                                        d->p99Quality,
-                                        d->startupSpeed,
-                                    },
+                                    factorsRow,
                                 },
                             }
                         },
@@ -898,41 +1287,47 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
         },
     }.attachTo(this);
 
+    d->breakdownSection->setVisible(false);
+    connect(d->breakdownButton, &QAbstractButton::toggled, this, [this](bool checked) {
+        d->breakdownSection->setVisible(checked);
+        d->breakdownButton->setText(checked ? Tr::tr("Hide Breakdown")
+                                            : Tr::tr("Show Breakdown"));
+    });
+
+    connect(&globalSettings().targetFrameRate, &BaseAspect::changed,
+            d, &QmlProfilerDashboardViewPrivate::updateTargetFrameRate);
+    d->updateTargetFrameRate();
+
     d->updateVisibility();
     updateValues();
 }
 
 void QmlProfilerDashboardView::updateValues()
 {
-    d->gauge->setValue(d->stats->onTargetPercent());
+    d->gauge->setValue(d->stats->medianFrameRate());
 
     d->framesOnTargetBadge->setText(QString::number(d->stats->framesOnTarget()));
     d->framesNearTargetBadge->setText(QString::number(d->stats->framesNearTarget()));
     d->framesFailedBadge->setText(QString::number(d->stats->framesFailed()));
 
-    const auto scoreFor = [](int percent) {
-        if (percent >= 95)
-            return ScoreWidget::Excellent;
-        if (percent >= 80)
-            return ScoreWidget::Good;
-        if (percent >= 50)
-            return ScoreWidget::Alerting;
-        return ScoreWidget::Poor;
-    };
+    const QList<ScoreFactor> factors = d->stats->scoreBreakdown();
+    QTC_ASSERT(factors.size() == d->factors.size(), return);
+    for (const ScoreFactor &factor : factors)
+        d->factors.at(factor.id)->setScore(factor.score);
+    d->overallRating->setScore(d->stats->overallScore());
+    d->breakdown->setStats(*d->stats);
 
-    const int onTargetPercent = d->stats->onTargetPercent();
-    const int stutterFreePercent = d->stats->stutterFreePercent();
-    const int uiResponsivenessPercent = d->stats->uiResponsivenessPercent();
-    const int p99Percent = d->stats->p99Percent();
-    const int startupSpeedPercent = d->stats->startupSpeedPercent();
-    const int overallPercent = d->stats->overallPercent();
-
-    d->frameConsistency->setScore(scoreFor(onTargetPercent), onTargetPercent);
-    d->stutterPrevention->setScore(scoreFor(stutterFreePercent), stutterFreePercent);
-    d->uiResponsiveness->setScore(scoreFor(uiResponsivenessPercent), uiResponsivenessPercent);
-    d->p99Quality->setScore(scoreFor(p99Percent), p99Percent);
-    d->startupSpeed->setScore(scoreFor(startupSpeedPercent), startupSpeedPercent);
-    d->overallRating->setScore(scoreFor(overallPercent), overallPercent);
+    const bool hasSlowFrame = d->stats->slowestFrameTimestamp() >= 0
+                              && d->stats->slowestFrameTimeMs() > d->stats->onTargetFrameTimeMs();
+    if (hasSlowFrame) {
+        d->slowestFrameLabel->setText(
+            Tr::tr("Slowest frame: %1 ms at %2")
+                .arg(d->stats->slowestFrameTimeMs(), 0, 'f', 1)
+                .arg(Timeline::formatTime(d->stats->slowestFrameTimestamp()
+                                          - d->manager->traceStart())));
+    }
+    d->slowestFrameLabel->setVisible(hasSlowFrame);
+    d->slowestFrameButton->setVisible(hasSlowFrame);
 }
 
 } // namespace Profiler::Internal

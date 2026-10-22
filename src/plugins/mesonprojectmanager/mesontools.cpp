@@ -11,8 +11,6 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QFileInfo>
-
 using namespace Utils;
 
 namespace MesonProjectManager::Internal {
@@ -196,9 +194,9 @@ ProcessRunData MesonToolWrapper::install(const FilePath &buildDirectory, bool ve
             buildDirectory};
 }
 
-bool containsFiles(const QString &path, const auto &...files)
+bool containsFiles(const FilePath &path, const auto &...files)
 {
-    return (QFileInfo::exists(QString("%1/%2").arg(path).arg(files)) && ...);
+    return (path.pathAppended(files).exists() && ...);
 }
 
 bool run_meson(const ProcessRunData &runData, QIODevice *output)
@@ -216,7 +214,7 @@ bool run_meson(const ProcessRunData &runData, QIODevice *output)
 
 bool isSetup(const FilePath &buildPath)
 {
-    return containsFiles(buildPath.pathAppended(Constants::MESON_INFO_DIR).toUrlishString(),
+    return containsFiles(buildPath.pathAppended(Constants::MESON_INFO_DIR),
                          Constants::MESON_INTRO_TESTS,
                          Constants::MESON_INTRO_TARGETS,
                          Constants::MESON_INTRO_INSTALLED,

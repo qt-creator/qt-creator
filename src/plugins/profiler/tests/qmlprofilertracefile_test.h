@@ -15,6 +15,18 @@ private slots:
     void testPausedRangesRoundTrip();
     void testNoPausedRanges();
     void testMalformedPausedRangesAreSkipped();
+    void testCancelStopsTheLoadingThread();
+    void testLoadPreparesInLoadingThread_data();
+    void testLoadPreparesInLoadingThread();
+    void testFinalizePreparesUnloadedTrace();
+    void testLoadedEventsAreStored_data();
+    void testLoadedEventsAreStored();
+    void testSavedChunksKeepTheirOrder();
+    void testRestrictionReplaysInAnotherThread();
+    void testCancelStopsTheRestrictionThread();
+    void testRestrictionReleasesTheStorage();
+    void testFeatureRestrictionReplaysInAnotherThread();
+    void testFeatureRestrictionDuringRangeRestriction();
 };
 
 } // namespace Profiler::Internal

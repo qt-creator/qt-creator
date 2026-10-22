@@ -17,7 +17,7 @@
 #include <profiler/qmlprofilertool.h>
 #include <profiler/qmlprofilertracebackend.h>
 
-#include <tracing/rangedetailswidget.h>
+#include <tracing/timelinedetailswidget.h>
 
 #include <utils/qtcsettings.h>
 #include <utils/url.h>
@@ -105,7 +105,7 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
 void QmlProfilerToolTest::testClearEvents()
 {
     // A trace's own models and recording state, as a document owns them.
-    Timeline::RangeDetailsWidget details;
+    Timeline::TimelineDetailsWidget details;
     QmlProfilerTraceBackend backend(&details);
     QmlProfilerModelManager *modelManager = backend.modelManager();
     QVERIFY(modelManager);

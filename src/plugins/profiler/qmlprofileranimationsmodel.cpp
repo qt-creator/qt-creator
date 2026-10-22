@@ -4,6 +4,7 @@
 #include "profilertr.h"
 #include "qmlprofileranimationsmodel.h"
 #include "qmlprofilermodelmanager.h"
+#include "qmlprofilersettings.h"
 
 #include <tracing/timelineformatdata.h>
 
@@ -21,6 +22,21 @@ QmlProfilerAnimationsModel::QmlProfilerAnimationsModel(QmlProfilerModelManager *
     QmlProfilerTimelineModel(manager, Event, UndefinedRangeType, ProfileAnimations, parent)
 {
     m_minNextStartTimes[0] = m_minNextStartTimes[1] = 0;
+
+    // Frames are coloured by how close they come to the target, so a changed target
+    // re-colours the trace already loaded.
+    setTargetFrameRate(globalSettings().targetFrameRate());
+    connect(&globalSettings().targetFrameRate, &Utils::BaseAspect::changed, this, [this] {
+        setTargetFrameRate(globalSettings().targetFrameRate());
+    });
+}
+
+void QmlProfilerAnimationsModel::setTargetFrameRate(int framesPerSecond)
+{
+    if (framesPerSecond <= 0 || framesPerSecond == m_targetFrameRate)
+        return;
+    m_targetFrameRate = framesPerSecond;
+    emit contentChanged();
 }
 
 void QmlProfilerAnimationsModel::clear()
@@ -68,14 +84,13 @@ void QmlProfilerAnimationsModel::loadEvent(const QmlEvent &event, const QmlEvent
     m_minNextStartTimes[lastThread] = event.timestamp() + 1;
 }
 
-void QmlProfilerAnimationsModel::finalize()
+void QmlProfilerAnimationsModel::prepare()
 {
     computeNesting();
     setCollapsedRowCount(
         Timeline::kCollapsedStartRow
         + ((m_maxGuiThreadAnimations == 0 || m_maxRenderThreadAnimations == 0) ? 1 : 2));
     setExpandedRowCount(collapsedRowCount() - Timeline::kCollapsedStartRow + 1);
-    QmlProfilerTimelineModel::finalize();
 }
 
 int QmlProfilerAnimationsModel::rowFromThreadId(int threadId) const
@@ -114,7 +129,7 @@ int QmlProfilerAnimationsModel::collapsedRow(int index) const
 
 QRgb QmlProfilerAnimationsModel::color(int index) const
 {
-    double fpsFraction = m_data[index].framerate / 60.0;
+    double fpsFraction = double(m_data[index].framerate) / m_targetFrameRate;
     if (fpsFraction > 1.0)
         fpsFraction = 1.0;
     if (fpsFraction < 0.0)

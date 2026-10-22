@@ -68,6 +68,8 @@ inline constexpr char SWITCH_HEADER_SOURCE[]     = "CppTools.SwitchHeaderSource"
 inline constexpr char OPEN_HEADER_SOURCE_IN_NEXT_SPLIT[] = "CppTools.OpenHeaderSourceInNextSplit";
 inline constexpr char SHOW_PREPROCESSED_FILE[]     = "CppTools.ShowPreprocessedFile";
 inline constexpr char SHOW_PREPROCESSED_FILE_SPLIT[]     = "CppTools.ShowPreprocessedFileSplit";
+inline constexpr char FIND_UNUSED_FUNCTIONS[]    = "CppTools.FindUnusedFunctions";
+inline constexpr char FIND_UNUSED_FUNCTIONS_IN_SUBPROJECT[] = "CppTools.FindUnusedFunctionsInSubProject";
 inline constexpr char TASK_INDEX[]               = "CppTools.Task.Index";
 inline constexpr char TASK_SEARCH[]              = "CppTools.Task.Search";
 

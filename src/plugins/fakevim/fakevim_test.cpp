@@ -26,6 +26,8 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <vcsbase/vcsbaseeditor.h>
+
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/multitextcursor.h>
@@ -39,6 +41,7 @@
 #include <QFileInfo>
 #include <QKeyEvent>
 #include <QRegularExpression>
+#include <QScopeGuard>
 #include <QScrollBar>
 #include <QMainWindow>
 #include <QTemporaryDir>
@@ -74,6 +77,17 @@ namespace FakeVim::Internal {
 
 static QString _(const char *c) { return QLatin1String(c); }
 static QString _(const QString &c) { return c; }
+
+// Lives below the canonical temporary directory, so that path() matches what
+// getcwd() and resolved file names report also where the temporary directory
+// is reached through a symlink (/var -> /private/var on macOS).
+class TemporaryDir final : public QTemporaryDir
+{
+public:
+    TemporaryDir()
+        : QTemporaryDir(QDir(QDir::tempPath()).canonicalPath() + "/QtCreator-XXXXXX")
+    {}
+};
 
 class FakeVimTester final : public QObject
 {
@@ -167,6 +181,11 @@ private slots:
 //    // functional tests
     void test_vim_indentation();
     void test_vim_readonly();
+    void test_vim_readonly_search_and_copy();
+    void test_vim_readonly_diff_enter_data();
+    void test_vim_readonly_diff_enter();
+    void test_vim_readonly_edits_data();
+    void test_vim_readonly_edits();
     void test_vim_ctrl_backslash();
 
     // command mode
@@ -230,6 +249,8 @@ private slots:
     void test_vim_plugin_modeline_of_the_current_buffer();
     void test_vim_plugin_buffer_lifecycle_events();
     void test_vim_plugin_window_events();
+    void test_vim_plugin_close_split_in_visual_mode();
+    void test_vim_plugin_switch_split_in_visual_mode();
     void test_vim_plugin_exit_events();
     void test_vim_visual_selection_focus_out();
     void test_vim_tagstack();
@@ -237,6 +258,7 @@ private slots:
     void test_vim_fold_toggle_all();
     void test_vim_insert_indent();
     void test_vim_block_selection_to_eol();
+    void test_vim_block_selection_to_eol_caret_line();
     void test_vim_block_yank_to_eol();
     void test_vim_block_past_end_of_line();
     void test_vim_block_put_padding();
@@ -1244,6 +1266,234 @@ void FakeVimTester::test_vim_readonly()
     KEYS("x", X "bc def");
 }
 
+void FakeVimTester::test_vim_readonly_search_and_copy()
+{
+    TestData data;
+    setup(&data);
+    data.doCommand("set noucs");
+    data.setText("one target" N "middle" N "target last");
+    data.editor()->setReadOnly(true);
+    const int revision = data.editor()->document()->revision();
+
+    KEYS("G0", "one target" N "middle" N X "target last");
+    KEYS("gg0/target<CR>", "one " X "target" N "middle" N "target last");
+    KEYS("n", "one target" N "middle" N X "target last");
+    KEYS("N", "one " X "target" N "middle" N "target last");
+    KEYS("?one<CR>", X "one target" N "middle" N "target last");
+    KEYS("\"ayiw", X "one target" N "middle" N "target last");
+
+    QString message;
+    data.handler->commandBufferChanged.set([&](const QString &text, int, int, int) {
+        message = text;
+    });
+    data.doCommand("echo getreg('a')");
+    QCOMPARE(message, QString("one"));
+    KEYS("Vj\"by", X "one target" N "middle" N "target last");
+    data.doCommand("echo getreg('b')");
+    QCOMPARE(message, QString("one target\nmiddle\n"));
+    QCOMPARE(data.editor()->document()->revision(), revision);
+
+    data.doCommand("set ucs");
+    bool findRequested = false;
+    data.handler->findRequested.set([&](bool reverse) {
+        QVERIFY(!reverse);
+        findRequested = true;
+    });
+    data.doKeys("/");
+    QVERIFY(findRequested);
+    data.doCommand("set noucs");
+}
+
+class ReadOnlyDiffEditor final : public VcsBase::VcsBaseEditorWidget
+{
+public:
+    ReadOnlyDiffEditor()
+    {
+        setDiffFilePattern("^\\+\\+\\+ (.+)$");
+        setLogEntryPattern("^commit ([0-9a-f]+)$");
+    }
+
+    Utils::FilePath target;
+    int targetLine = -1;
+
+private:
+    QString changeUnderCursor(const QTextCursor &) const override { return {}; }
+    VcsBase::BaseAnnotationHighlighterCreator annotationHighlighterCreator() const override
+    {
+        return {};
+    }
+    void jumpToDiffTarget(const Utils::FilePath &file, int line, const QTextBlock &) override
+    {
+        target = file;
+        targetLine = line;
+    }
+};
+
+void FakeVimTester::test_vim_readonly_diff_enter_data()
+{
+    QTest::addColumn<int>("key");
+    QTest::newRow("Return") << int(Qt::Key_Return);
+    QTest::newRow("Enter") << int(Qt::Key_Enter);
+}
+
+void FakeVimTester::test_vim_readonly_diff_enter()
+{
+    QFETCH(int, key);
+    const bool previousUseFakeVim = settings().useFakeVim();
+    const QScopeGuard restoreSettings([previousUseFakeVim] {
+        settings().useFakeVim.setValue(previousUseFakeVim);
+    });
+    settings().useFakeVim.setValue(true);
+    TemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const Utils::FilePath source = Utils::FilePath::fromString(directory.path()).pathAppended("a.txt");
+    QVERIFY(source.writeFileContents("old\nnew\ntarget\ntail\n"));
+    VcsBase::VcsEditorFactory factory({VcsBase::DiffOutput, "FakeVim.ReadOnlyDiffTest",
+                                     "FakeVim read-only diff test", "text/x-patch",
+                                     [] { return new ReadOnlyDiffEditor; },
+                                     [](const Utils::FilePath &, const QString &) {}});
+    const std::unique_ptr<Core::IEditor> editor(factory.createEditor());
+    auto widget = qobject_cast<VcsBase::VcsBaseEditorWidget *>(editor->widget());
+    QVERIFY(widget);
+    auto diff = static_cast<ReadOnlyDiffEditor *>(widget);
+    widget->setPlainText("--- a.txt\n+++ " + source.path()
+                         + "\n@@ -1,3 +1,4 @@\n old\n+new\n target\n tail\n");
+    widget->setReadOnly(true);
+    auto highlighter = widget->textDocument()->syntaxHighlighter();
+    QVERIFY(highlighter);
+    highlighter->rehighlight();
+    QTRY_VERIFY(highlighter->syntaxHighlighterUpToDate());
+    widget->show();
+    QVERIFY(widget->isEnabled());
+    const int position = widget->document()->findBlockByNumber(4).position();
+    widget->setTextCursor(QTextCursor(widget->document()->findBlockByNumber(4)));
+    QTest::keyClick(widget, Qt::Key(key));
+    QCOMPARE(diff->target, source);
+    QCOMPARE(diff->targetLine, 2);
+    diff->target = {};
+    diff->targetLine = -1;
+    FakeVimHandler handler(widget);
+    handler.setupWidget();
+    handler.installEventFilter();
+    handler.handleCommand("set noucs nopasskeys nopasscontrolkey");
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    QTest::keyClick(widget, Qt::Key(key));
+    QCOMPARE(diff->target, source);
+    QCOMPARE(diff->targetLine, 2);
+    QCOMPARE(widget->textCursor().position(), position);
+
+    diff->targetLine = -1;
+    handler.handleInput("1");
+    QTest::keyClick(widget, Qt::Key(key));
+    QCOMPARE(diff->targetLine, -1);
+    QCOMPARE(widget->textCursor().blockNumber(), 5);
+    QTest::keyClick(widget, Qt::Key(key));
+    QCOMPARE(diff->targetLine, 3);
+    diff->targetLine = -1;
+
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    handler.handleInput("v");
+    QTest::keyClick(widget, Qt::Key(key));
+    QCOMPARE(diff->targetLine, -1);
+    QCOMPARE(widget->textCursor().blockNumber(), 5);
+
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    handler.handleInput("/target");
+    QTest::keyClick(widget, Qt::Key(key));
+    QCOMPARE(diff->targetLine, -1);
+    QCOMPARE(widget->textCursor().blockNumber(), 5);
+
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    handler.handleInput("vj");
+    QKeyEvent copy(QEvent::KeyPress, Qt::Key_C, Utils::HostOsInfo::controlModifier(), "c");
+    QVERIFY(handler.eventFilter(widget, &copy));
+    QVERIFY(!widget->textCursor().hasSelection());
+
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    handler.handleInput("\"ay");
+    QTest::keyClick(widget, Qt::Key(key));
+    QCOMPARE(diff->targetLine, -1);
+    QString message;
+    handler.commandBufferChanged.set([&](const QString &text, int, int, int) { message = text; });
+    handler.handleCommand("echo getreg('a')");
+    QCOMPARE(message, QString("+new\n target\n"));
+
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    const QString enterKey = key == Qt::Key_Return ? QString("<CR>") : QString("<kEnter>");
+    handler.handleCommand("nnoremap " + enterKey + " j");
+    QTest::keyClick(widget, Qt::Key(key));
+    handler.handleCommand("nunmap " + enterKey);
+    QCOMPARE(diff->targetLine, -1);
+    QCOMPARE(widget->textCursor().blockNumber(), 5);
+
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    handler.handleCommand("nnoremap " + enterKey + " <CR>");
+    QTest::keyClick(widget, Qt::Key(key));
+    handler.handleCommand("nunmap " + enterKey);
+    QCOMPARE(diff->targetLine, -1);
+    QCOMPARE(widget->textCursor().blockNumber(), 5);
+
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    handler.handleCommand("let @c = \"\\r\"");
+    handler.handleInput("@c");
+    QCOMPARE(diff->targetLine, -1);
+    QCOMPARE(widget->textCursor().blockNumber(), 5);
+
+    widget->setReadOnly(false);
+    handler.handleInput("<Esc>");
+    handler.setTextCursorPosition(position);
+    QTest::keyClick(widget, Qt::Key(key));
+    QCOMPARE(diff->targetLine, -1);
+    QCOMPARE(widget->textCursor().blockNumber(), 5);
+    handler.disconnectFromEditor();
+}
+
+void FakeVimTester::test_vim_readonly_edits_data()
+{
+    QTest::addColumn<QString>("keys");
+    const QStringList commands = {"x", "dd", "cwreplacement<Esc>", "iX<Esc>", "RX<Esc>",
+                                  "ra", "p", "J", "~", ">>", "==", "u", "<C-r>", ".",
+                                  "Vjd", "Vjp", ":delete<CR>", ":%s/abc/changed/g<CR>",
+                                  ":put a<CR>", ":call setline(1, 'changed')<CR>",
+                                  ":set modifiable<CR>x"};
+    for (const QString &keys : commands)
+        QTest::newRow(qPrintable(keys)) << keys;
+}
+
+void FakeVimTester::test_vim_readonly_edits()
+{
+    QFETCH(QString, keys);
+    TestData data;
+    setup(&data);
+    data.doCommand("set notildeop");
+    data.setText("abc" N " def" N "xyz");
+    KEYS("iQ<Esc>", X "Qabc" N " def" N "xyz");
+    KEYS("\"ayiw", X "Qabc" N " def" N "xyz");
+    QVERIFY(data.editor()->document()->isUndoAvailable());
+    if (keys == "<C-r>") {
+        KEYS("u", X "abc" N " def" N "xyz");
+        QVERIFY(data.editor()->document()->isRedoAvailable());
+    }
+    data.editor()->setReadOnly(true);
+    const QByteArray text = data.text();
+    const int revision = data.editor()->document()->revision();
+    data.doKeys(keys);
+    QCOMPARE(data.text(), text);
+    QCOMPARE(data.editor()->document()->revision(), revision);
+
+    data.editor()->setReadOnly(false);
+    data.doKeys("<Esc>gg0x");
+    QCOMPARE(data.text(), text.mid(1));
+}
+
 void FakeVimTester::test_vim_ctrl_backslash()
 {
     TestData data;
@@ -1640,10 +1890,13 @@ void FakeVimTester::test_vim_sideways_scroll()
     // The columns the window shows are the ones the layout of the line fits
     // beside the margin the editor keeps on either side of the text. Read them
     // off that layout: a font whose characters are not all of one width would
-    // make any count from a column width drift over a line this long.
+    // make any count from a column width drift over a line this long. The
+    // layout already begins after the margin on the left, and a character
+    // the margin on the right cuts into is not one the window shows.
     const QTextLine line = data.editor()->document()->firstBlock().layout()->lineAt(0);
     const int columns = line.xToCursor(data.editor()->viewport()->width()
-                                       - 2 * data.editor()->document()->documentMargin());
+                                           - data.editor()->document()->documentMargin(),
+                                       QTextLine::CursorOnCharacter);
     const int half = columns / 2;
     QVERIFY(columns > 20 && columns < 200);
 
@@ -1744,7 +1997,8 @@ void FakeVimTester::test_vim_side_scroll_offset()
     QVERIFY(data.editor()->horizontalScrollBar()->maximum() > 0);
     const QTextLine line = data.editor()->document()->firstBlock().layout()->lineAt(0);
     const int columns = line.xToCursor(data.editor()->viewport()->width()
-                                       - 2 * data.editor()->document()->documentMargin());
+                                           - data.editor()->document()->documentMargin(),
+                                       QTextLine::CursorOnCharacter);
     const int half = columns / 2;
     QVERIFY(columns > 20 && columns < 200);
 
@@ -8085,7 +8339,7 @@ void FakeVimTester::test_vim_script_changenr_reg_recording_executing()
     // at a time here - an unrelated, pre-existing harness quirk, sidestepped
     // rather than chased since ":source" is what the rest of the suite
     // already uses for this exact pattern.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/probe.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -8556,7 +8810,7 @@ void FakeVimTester::test_vim_script_command_line_functions()
     QCOMPARE(value("getcmdprompt()"), QString());
 
     // -- while it IS being edited --
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/cl.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -11541,7 +11795,7 @@ void FakeVimTester::test_vim_edit_during_inline_rename()
     const bool savedUseFakeVim = useFakeVim.value();
     useFakeVim.setValue(true);
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const Utils::FilePath file = Utils::FilePath::fromString(dir.path() + "/rename.cpp");
     QVERIFY(file.writeFileContents(
@@ -12939,6 +13193,20 @@ void FakeVimTester::test_vim_block_selection_to_eol()
     }
 }
 
+void FakeVimTester::test_vim_block_selection_to_eol_caret_line()
+{
+    TestData data;
+    setup(&data);
+
+    // The single painted cursor is the main one, which has to be the caret
+    // even when its line is shorter than the column the selection starts at.
+    data.setText("abcdefgh" N "abcdefgh" N "ab");
+    data.doKeys("gg4l");
+    data.doKeys("<c-v>jj$");
+    const Utils::MultiTextCursor mtc = data.editor()->multiTextCursor();
+    QCOMPARE(mtc.mainCursor().blockNumber(), 2);
+}
+
 void FakeVimTester::test_vim_block_yank_to_eol()
 {
     TestData data;
@@ -13329,7 +13597,7 @@ void FakeVimTester::test_vim_plugin_off_leaves_buffer_alone()
     shiftWidth.setValue(8);
     tabStop.setValue(8);
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const Utils::FilePath file = Utils::FilePath::fromString(dir.path() + "/modeline.txt");
     QVERIFY(file.writeFileContents("# vim: sw=3 ts=3\nalpha\nbeta\n"));
@@ -13369,7 +13637,7 @@ void FakeVimTester::test_vim_plugin_modeline_of_the_current_buffer()
     useFakeVim.setValue(false);
     shiftWidth.setValue(8);
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const Utils::FilePath three = Utils::FilePath::fromString(dir.path() + "/three.txt");
     const Utils::FilePath five = Utils::FilePath::fromString(dir.path() + "/five.txt");
@@ -13450,7 +13718,7 @@ void FakeVimTester::test_vim_plugin_buffer_lifecycle_events()
                        + ":' . fnamemodify(expand('<afile>'), ':t'))");
     }
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const Utils::FilePath existing = Utils::FilePath::fromString(dir.path() + "/there.txt");
     const Utils::FilePath other = Utils::FilePath::fromString(dir.path() + "/other.txt");
@@ -13532,7 +13800,7 @@ void FakeVimTester::test_vim_plugin_exit_events()
                        + ":' . fnamemodify(expand('<afile>'), ':t'))");
     }
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const Utils::FilePath file = Utils::FilePath::fromString(dir.path() + "/gone.txt");
     QVERIFY(file.writeFileContents("alpha\n"));
@@ -13656,6 +13924,111 @@ void FakeVimTester::test_vim_plugin_window_events()
     const int id = closedId.toInt(&ok);
     QVERIFY2(ok, qPrintable("WinClosed did not name a number: " + closedId));
     QVERIFY(id > 0);
+}
+
+void FakeVimTester::test_vim_plugin_close_split_in_visual_mode()
+{
+    // The mode is shared by all editors. Removing a split while Visual mode
+    // is active in it must not leave the editor that becomes current in
+    // Visual mode.
+    FvBoolAspect &useFakeVim = FakeVim::Internal::settings().useFakeVim;
+    const bool savedUseFakeVim = useFakeVim.value();
+    useFakeVim.setValue(true);
+    const QScopeGuard restore([&] { useFakeVim.setValue(savedUseFakeVim); });
+
+    TestData data;
+    setup(&data);
+    data.setText("abc def");
+    data.doKeys("w");
+
+    Core::EditorManager::splitSideBySide();
+    auto split = TextEditor::TextEditorWidget::fromEditor(Core::EditorManager::currentEditor());
+    QVERIFY(split);
+    QVERIFY(split != data.edit);
+    QTest::keyClick(split, Qt::Key_V);
+    QTest::keyClick(split, Qt::Key_L);
+    QVERIFY(split->textCursor().hasSelection());
+
+    QString shown;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { shown = msg; });
+    if (Core::Command *cmd = Core::ActionManager::command(Core::Constants::REMOVE_CURRENT_SPLIT)) {
+        if (QAction *action = cmd->action())
+            action->trigger();
+    }
+    QCOMPARE(Core::EditorManager::currentEditor()->widget(), data.edit);
+    QVERIFY2(!shown.contains("VISUAL"), qPrintable(shown));
+    data.doKeys("l");
+    QVERIFY(!data.cursor().hasSelection());
+}
+
+void FakeVimTester::test_vim_plugin_switch_split_in_visual_mode()
+{
+    // Like Vim, going to another split ends Visual mode, and the editor that
+    // is left keeps no selection that would bring it back on return. Without
+    // an operator, what "[count]v" reselects stays, and a cursor moved or
+    // a view scrolled outside of FakeVim is not reset.
+    FvBoolAspect &useFakeVim = FakeVim::Internal::settings().useFakeVim;
+    const bool savedUseFakeVim = useFakeVim.value();
+    useFakeVim.setValue(true);
+    const QScopeGuard restore([&] { useFakeVim.setValue(savedUseFakeVim); });
+
+    const auto trigger = [](Utils::Id id) {
+        if (Core::Command *cmd = Core::ActionManager::command(id)) {
+            if (QAction *action = cmd->action())
+                action->trigger();
+        }
+    };
+
+    TestData data;
+    setup(&data);
+    data.setText("abc def\nghi\njkl\nmno" + QString(200, '\n'));
+    data.doKeys("Vjy");
+    data.doKeys("w");
+    QTextCursor tc = data.cursor();
+    tc.setPosition(1);
+    data.editor()->setTextCursor(tc);
+    QScrollBar *scrollBar = data.editor()->verticalScrollBar();
+    scrollBar->setValue(scrollBar->maximum());
+    QVERIFY(scrollBar->value() > 0);
+
+    Core::EditorManager::splitSideBySide();
+    QCOMPARE(data.cursor().position(), 1);
+    QCOMPARE(scrollBar->value(), scrollBar->maximum());
+    auto split = TextEditor::TextEditorWidget::fromEditor(Core::EditorManager::currentEditor());
+    QVERIFY(split);
+    QVERIFY(split != data.edit);
+    QTest::keyClick(split, Qt::Key_V);
+    QTest::keyClick(split, Qt::Key_L);
+    QVERIFY(split->textCursor().hasSelection());
+
+    QString shown;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { shown = msg; });
+    trigger(Core::Constants::GOTO_NEXT_SPLIT);
+    QCOMPARE(Core::EditorManager::currentEditor()->widget(), data.edit);
+    QVERIFY2(!shown.contains("VISUAL"), qPrintable(shown));
+    QVERIFY(!split->textCursor().hasSelection());
+    data.doKeys("l");
+    QVERIFY(!data.cursor().hasSelection());
+    data.doKeys("1v");
+    QCOMPARE(shown, QLatin1String("-- VISUAL LINE --"));
+    data.doKeys("<Esc>");
+
+    trigger(Core::Constants::GOTO_NEXT_SPLIT);
+    QCOMPARE(Core::EditorManager::currentEditor()->widget(), split);
+    QTest::keyClick(split, Qt::Key_V);
+    QTest::keyClick(split, Qt::Key_L);
+    tc = split->textCursor();
+    tc.setPosition(2);
+    split->setTextCursor(tc);
+    trigger(Core::Constants::GOTO_NEXT_SPLIT);
+    QCOMPARE(Core::EditorManager::currentEditor()->widget(), data.edit);
+    QCOMPARE(split->textCursor().position(), 2);
+
+    trigger(Core::Constants::GOTO_NEXT_SPLIT);
+    QCOMPARE(Core::EditorManager::currentEditor()->widget(), split);
+    trigger(Core::Constants::REMOVE_CURRENT_SPLIT);
 }
 
 void FakeVimTester::test_vim_visual_block_corners()
@@ -14958,7 +15331,7 @@ void FakeVimTester::test_vim_script_builtins()
     QCOMPARE(echo("strlen(getcwd()) > 0"), QLatin1String("1"));
     {
         // A directory and a file that are really there.
-        QTemporaryDir dir;
+        TemporaryDir dir;
         QVERIFY(dir.isValid());
         QVERIFY(QDir(dir.path()).mkpath("sub"));
         QFile f(dir.path() + "/file.txt");
@@ -16449,7 +16822,7 @@ void FakeVimTester::test_vim_script_error_numbers()
 
     // Inside a ":try" it arrives as an exception. A block spans several lines,
     // so this runs as a script rather than one line at a time.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString path = dir.path() + "/t.vim";
     QFile f(path);
@@ -16556,7 +16929,7 @@ void FakeVimTester::test_vim_pattern_lookbehind_limit()
         return message;
     };
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/p.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -16591,7 +16964,7 @@ void FakeVimTester::test_vim_script_block_abbreviations()
             if (!msg.startsWith("--"))
                 message = msg;
         });
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const auto ran = [&](const QByteArray &script) {
         const QString path = dir.path() + "/b.vim";
@@ -16634,7 +17007,7 @@ void FakeVimTester::test_vim_command_line_ctrl_u()
             if (!msg.startsWith("--"))
                 message = msg;
         });
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/m.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -17391,7 +17764,7 @@ void FakeVimTester::test_vim_ex_normal_unfinished()
             if (!msg.startsWith("--"))
                 message = msg;
         });
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/m.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -17424,7 +17797,7 @@ void FakeVimTester::test_vim_operator_pending_ex_mapping()
     // operator works on. argtextobj and every plugin like it do this.
     TestData data;
     setup(&data);
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/o.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -17650,7 +18023,7 @@ void FakeVimTester::test_vim_script_v_register()
             if (!msg.startsWith("--"))
                 message = msg;
         });
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/r.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -17861,7 +18234,7 @@ void FakeVimTester::test_vim_script_script_local_funcref()
             if (!msg.startsWith("--"))
                 message = msg;
         });
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/s.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -17917,7 +18290,7 @@ void FakeVimTester::test_vim9_statements()
         data.doCommand("echo " + expr);
         return message;
     };
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/s.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -17986,7 +18359,7 @@ void FakeVimTester::test_vim9_script_level_scope()
         data.doCommand("echo " + expr);
         return message;
     };
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/s.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -18039,7 +18412,7 @@ void FakeVimTester::test_vim_script_script_scope()
         data.doCommand("echo " + expr);
         return message;
     };
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile a(dir.path() + "/a.vim");
     QVERIFY(a.open(QIODevice::WriteOnly));
@@ -18149,7 +18522,7 @@ void FakeVimTester::test_vim_motion_underscore()
              QLatin1String("alpha/XX/gamma/delta  reg=[beta\\n] V"));
 
     // What an operator is handed: a line, however the count is spelled.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/o.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -18556,7 +18929,7 @@ void FakeVimTester::test_vim_script_getchar()
             if (!msg.startsWith("--"))
                 message = msg;
         });
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/g.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -18716,7 +19089,7 @@ void FakeVimTester::test_vim_command_line_expression()
         data.doCommand("echo " + expr);
         return message;
     };
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/t.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -18862,7 +19235,7 @@ void FakeVimTester::test_vim_script_count_in_mapping()
             if (!msg.startsWith("--"))
                 message = msg;
         });
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/c.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -19016,7 +19389,7 @@ void FakeVimTester::test_vim_script_curly_name()
             if (!msg.startsWith("--"))
                 message = msg;
         });
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/cb.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -19734,7 +20107,7 @@ void FakeVimTester::test_vim_script_file_info()
         return message;
     };
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString root = dir.path();
     QFile plain(root + "/plain.txt");
@@ -19882,7 +20255,7 @@ void FakeVimTester::test_vim_autocmd_once()
         return "autocmd_get({'group': 'FvOnceTest', 'pattern': '" + pattern + "'})";
     };
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/ao.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -19946,7 +20319,7 @@ void FakeVimTester::test_vim_script_autocmd_get()
     const QString mine = "autocmd_get({'group': 'FvGetTest'})";
 
     // Defined by ":source", the way the suite's other autocommand tests do it.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/ag.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -20092,7 +20465,7 @@ void FakeVimTester::test_vim_script_typename()
     // function that never arrived cannot be mistaken for one without types.
     QCOMPARE(name("{-> 1}"), QLatin1String("func(...): [unknown]"));
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/fn.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -20325,7 +20698,7 @@ void FakeVimTester::test_vim_autocmd_nested()
         return message;
     };
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     data.setText("one" N "two");
     data.doCommand("augroup FvN");
@@ -20392,7 +20765,7 @@ void FakeVimTester::test_vim_autocmd_eventignore()
         return message;
     };
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     data.setText("one" N "two");
     data.doCommand("augroup FvE");
@@ -20469,7 +20842,7 @@ void FakeVimTester::test_vim_autocmd_eventignorewin()
         return message;
     };
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     data.setText("one" N "two");
     data.doCommand("augroup FvW");
@@ -20521,7 +20894,7 @@ void FakeVimTester::test_vim_autocmd_error_while_handling_key()
     TestData data;
     setup(&data);
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/fn.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -20763,7 +21136,7 @@ void FakeVimTester::test_vim_script_filecopy()
         data.doCommand("echo " + expr);
         return message;
     };
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString where = dir.path() + "/";
     const auto write = [&](const QString &name, const QByteArray &what) {
@@ -21625,7 +21998,7 @@ void FakeVimTester::test_vim_script_more_stubs_and_region()
     data.setText("alpha beta" N "gamma delta" N "epsilon zeta");
 
     // readdirex(): the same names readdir() gives, with details alongside.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/probe.txt");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -21658,7 +22031,7 @@ void FakeVimTester::test_vim_script_more_stubs_and_region()
     // getscriptinfo(): the registry sourcing keeps, walked by id. Shared with
     // every other test slot the way the command history is, so only THIS
     // script's own entry is asserted, found by name rather than by number.
-    QTemporaryDir scriptDir;
+    TemporaryDir scriptDir;
     QVERIFY(scriptDir.isValid());
     const QString scriptPath = scriptDir.path() + "/gsi_probe.vim";
     QFile sf(scriptPath);
@@ -21720,7 +22093,7 @@ void FakeVimTester::test_vim_script_directory_and_window_stubs()
     // was before, so it is put back afterwards - this is shared with every
     // other test slot in the process.
     const QString before = value("getcwd()");
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QCOMPARE(value("chdir('" + dir.path() + "') != ''"), QLatin1String("1"));
     QCOMPARE(value("getcwd()"), dir.path());
@@ -21832,9 +22205,9 @@ void FakeVimTester::test_vim_command_cd()
     };
 
     const QString before = value("getcwd()");
-    QTemporaryDir dirA;
+    TemporaryDir dirA;
     QVERIFY(dirA.isValid());
-    QTemporaryDir dirB;
+    TemporaryDir dirB;
     QVERIFY(dirB.isValid());
 
     data.doCommand("cd " + dirA.path());
@@ -22043,7 +22416,7 @@ void FakeVimTester::test_vim_script_getstacktrace()
 
     data.setText("x");
     // A multi-line function has to be SOURCED; one ex command is one line.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString path = dir.path() + "/st.vim";
     QFile file(path);
@@ -22204,7 +22577,7 @@ void FakeVimTester::test_vim_script_assert_functions()
     QCOMPARE(value("len(v:errors)"), QLatin1String("2"));
 
     // assert_equalfile compares the content of two files.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString pathA = dir.path() + "/a.txt";
     const QString pathB = dir.path() + "/b.txt";
@@ -22256,7 +22629,7 @@ void FakeVimTester::test_vim_script_state_pending_operator()
         return message;
     };
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/s.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -22352,7 +22725,7 @@ void FakeVimTester::test_vim_script_state_mapping_autocmd()
 
     // A timer callback runs from the event loop, which is where Vim waits and
     // counts itself safe, so the answer is the callback letter alone.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString path = dir.path() + "/cb.vim";
     QFile file(path);
@@ -22609,7 +22982,7 @@ void FakeVimTester::test_vim_script_system_functions()
     // file_readable() is the older name for the same question, and
     // filewritable() answers ONE for a file, TWO for a directory and nothing
     // where neither holds. Measured in Vim 9.1.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString path = dir.path() + "/perm.txt";
     QFile f(path);
@@ -22873,7 +23246,7 @@ void FakeVimTester::test_vim_autocmd_filewrite()
         data.doCommand("echo " + expr);
         return message;
     };
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const auto go = [&](const QString &command) {
         data.setText("one" N "two" N "three");
@@ -22932,7 +23305,7 @@ void FakeVimTester::test_vim_autocmd_cmd_events()
         data.doCommand("echo " + expr);
         return message;
     };
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const auto go = [&](const QString &command) {
         data.setText("one" N "two" N "three");
@@ -23030,7 +23403,7 @@ void FakeVimTester::test_vim_command_write_whole_buffer()
     // before, never the file's actual content.
     TestData data;
     setup(&data);
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString target = dir.path() + "/whole.txt";
 
@@ -23069,7 +23442,7 @@ void FakeVimTester::test_vim_command_write_append()
         data.doCommand("echo " + expr);
         return message;
     };
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString target = dir.path() + "/append.txt";
 
@@ -23749,7 +24122,7 @@ void FakeVimTester::test_vim_read_from_command()
     // same place, honours an address the same way, and leaves the cursor on the
     // last line read - none of which it did before, since it went by the cursor
     // alone. Measured in Vim 9.1 alongside the command form.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString plain = dir.path() + "/plain.txt";
     QFile f(plain);
@@ -24144,7 +24517,7 @@ void FakeVimTester::test_vim_autocmd_source()
         return message;
     };
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString path = dir.path() + "/sourced.vim";
     QFile f(path);
@@ -28992,7 +29365,7 @@ void FakeVimTester::test_vim_command_map_listing()
     // ":mkvimrc" writes what a vimrc would have to say to get this state
     // back: the options that differ from their defaults and the mappings, in
     // the shape Vim writes them.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString path = dir.path() + "/out.vimrc";
     data.doCommand("set shiftwidth=7");
@@ -29297,7 +29670,7 @@ void FakeVimTester::test_vim_command_accepted_batch()
     // unknown one is the error Vim gives and a known one runs.
     QVERIFY2(run("compiler nosuchcompiler").contains("E666"), qPrintable(message));
     QVERIFY2(run("compiler").contains("E471"), qPrintable(message));
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QVERIFY(QDir(dir.path()).mkpath("compiler"));
     QFile file(dir.path() + "/compiler/mine.vim");
@@ -29418,7 +29791,7 @@ void FakeVimTester::test_vim_command_append_insert()
             if (!msg.isEmpty() && !msg.startsWith("--"))
                 message = msg;
         });
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const auto source = [&](const QByteArray &script) {
         QFile file(dir.path() + "/script.vim");
@@ -29496,7 +29869,7 @@ void FakeVimTester::test_vim_command_undolist()
     QString extra;
     data.handler->extraInformationChanged.set([&](const QString &msg) { extra = msg; });
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString fileName = dir.path() + "/undolist.txt";
     data.handler->setCurrentFileName(fileName);
@@ -29614,7 +29987,7 @@ void FakeVimTester::test_vim_function_undotree_branches()
         return lines.join('\n');
     };
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString fileName = dir.path() + "/undotree.txt";
     data.handler->setCurrentFileName(fileName);
@@ -29874,7 +30247,7 @@ void FakeVimTester::test_vim_function_confirm_listeners()
     // does NOT run when the change happens - it runs at listener_flush().
     // The callback is defined in a sourced file: a "function ... endfunction"
     // spans several command lines and cannot go through one doCommand().
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile file(dir.path() + "/listen.vim");
     QVERIFY(file.open(QIODevice::WriteOnly));
@@ -31072,7 +31445,7 @@ void FakeVimTester::test_vim_command_scriptnames()
     };
 
     data.setText("x");
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString one = dir.path() + "/one.vim";
     const QString two = dir.path() + "/two.vim";
@@ -31530,7 +31903,7 @@ void FakeVimTester::test_vim_script_timers()
 
     data.setText("x");
     // A multi-line function has to be sourced; one ex command is one line.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString path = dir.path() + "/tick.vim";
     QFile file(path);
@@ -31857,7 +32230,7 @@ void FakeVimTester::test_vim_option_depth_limits()
 
     // A function that calls itself stops at the limit rather than running out
     // of stack, and the depth reached is the limit itself.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString path = dir.path() + "/deep.vim";
     QFile file(path);
@@ -33060,7 +33433,7 @@ void FakeVimTester::test_vim_command_vimgrep()
     };
 
     const QString before = value("getcwd()");
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QVERIFY(QDir(dir.path()).mkdir("sub"));
     write(dir.path() + "/a.txt", "alpha one\nbeta alpha two alpha\n   alpha indented\n");
@@ -33479,7 +33852,7 @@ void FakeVimTester::test_vim_command_runtime()
     };
 
     data.setText("x");
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QVERIFY(QDir(dir.path()).mkpath("plugin"));
     const auto write = [&](const QString &name, const QString &body) {
@@ -33708,7 +34081,7 @@ void FakeVimTester::test_vim_command_swapname_scriptencoding()
 
     // Inside one it is accepted and does nothing: Qt Creator decides how a
     // file is read, so there is nothing for it to act on.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString path = dir.path() + "/enc.vim";
     QFile file(path);
@@ -35254,7 +35627,7 @@ void FakeVimTester::test_vim_autocmd_funcundefined()
     // that a definition assembled one call at a time can silently misbehave.
     data.doCommand("autocmd! FvFu");
     data.doCommand("let g:m = []");
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/fallback.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -35997,7 +36370,7 @@ void FakeVimTester::test_vim_script_maparg_dict()
     // file it stands on - the comment above it counts as a line. The number a
     // script is given depends on how many came before it, so it is only
     // compared against 0.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/m.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -36074,7 +36447,7 @@ void FakeVimTester::test_vim_line_address_zero_and_counts()
     QCOMPARE(run("j0", "3dd"), QLatin1String("[beta\\ngamma\\n] text=[alpha]"));
 
     // The marks a linewise "g@" leaves.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/k.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -36228,7 +36601,7 @@ void FakeVimTester::test_vim9_type_annotations()
             if (!msg.startsWith("--"))
                 message = msg;
         });
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/t.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -36279,7 +36652,7 @@ void FakeVimTester::test_vim9_dict_literal()
             if (!msg.startsWith("--"))
                 message = msg;
         });
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/d.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -36329,7 +36702,7 @@ void FakeVimTester::test_vim9_call_funcref_variable()
         data.doCommand("echo " + expr);
         return message;
     };
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const auto write = [&dir](const QString &name, const QByteArray &text) {
         QFile f(dir.path() + '/' + name);
@@ -36388,7 +36761,7 @@ void FakeVimTester::test_vim_script_feedkeys()
         data.doCommand("echo " + expr);
         return message;
     };
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/f.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -36755,7 +37128,7 @@ void FakeVimTester::test_vim_indent_with_expression()
         data.doCommand("echo " + expr);
         return message;
     };
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/i.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -36815,7 +37188,7 @@ void FakeVimTester::test_vim_script_method_call_blanks()
     QCOMPARE(value("[1, 2, 3] ->len()"), QLatin1String("3"));
     QCOMPARE(value("'ab' ->toupper() ->strlen()"), QLatin1String("2"));
     // The same over two lines, where the second begins with the arrow.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/m.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -36979,7 +37352,7 @@ void FakeVimTester::test_vim_script_literal_key_dict()
     QCOMPARE(value("string(#{outer: #{inner: [1, 2]}})"),
              QLatin1String("{'outer': {'inner': [1, 2]}}"));
     // The same written over several lines, a comment among them.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/d.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -37017,7 +37390,7 @@ void FakeVimTester::test_vim_script_lazy_ternary()
     QCOMPARE(value("1 ?? g:nosuchvar"), QLatin1String("1"));
     QCOMPARE(value("0 ?? 7"), QLatin1String("7"));
     // Nothing of the arm not taken happens, not even a call.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/t.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -37794,7 +38167,7 @@ void FakeVimTester::test_vim_goto_file()
     // the same names in the same layout.
     TestData data;
     setup(&data);
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QVERIFY(QDir(dir.path()).mkpath("sub"));
     const auto write = [&](const QString &name, const QString &text) {
@@ -37900,11 +38273,11 @@ void FakeVimTester::test_vim_script_findfile()
     };
     // The answers are shortened against the working directory, so pin it away
     // from the layout below.
-    QTemporaryDir elsewhere;
+    TemporaryDir elsewhere;
     QVERIFY(elsewhere.isValid());
     const QString before = value("getcwd()");
     data.doCommand("cd " + elsewhere.path());
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QVERIFY(QDir(dir.path()).mkpath("A/deep"));
     QVERIFY(QDir(dir.path()).mkpath("B"));
@@ -38063,7 +38436,7 @@ void FakeVimTester::test_vim_script_file_functions()
         data.doCommand("echo " + expr);
         return message;
     };
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString d = dir.path();
     data.doCommand("let g:d = '" + d + "'");
@@ -38210,7 +38583,7 @@ void FakeVimTester::test_vim_script_glob()
         data.doCommand("echo " + expr);
         return message;
     };
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString d = dir.path();
     QVERIFY(QDir(d).mkpath("sub"));
@@ -38264,7 +38637,7 @@ void FakeVimTester::test_vim_script_bufname()
     };
     // The name is shortened against the working directory, so pin it away from
     // the one asked about.
-    QTemporaryDir elsewhere;
+    TemporaryDir elsewhere;
     QVERIFY(elsewhere.isValid());
     const QString before = value("getcwd()");
     data.doCommand("cd " + elsewhere.path());
@@ -38283,7 +38656,7 @@ void FakeVimTester::test_vim_script_bufname()
     // was absolute when the buffer opened stays absolute. Vim shortens from the
     // full name rather than from the name as it stands, a file that is not below
     // the new directory keeps its full name, and the root shortens nothing.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QVERIFY(QDir(dir.path()).mkpath("A"));
     const QString deep = dir.path() + "/A/dup.h";
@@ -38612,7 +38985,7 @@ void FakeVimTester::test_vim_command_file()
 
     // Writing over the file it is named for is editing it again. Writing
     // somewhere else is not, and neither is appending.
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString target = dir.path() + "/fi.txt";
     data.doCommand("file " + target);
@@ -39482,7 +39855,7 @@ void FakeVimTester::test_vim_command_earlier_later_file()
     TestData data;
     setup(&data);
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString fileName = dir.path() + "/earlier.txt";
     const QString other = dir.path() + "/other.txt";
@@ -41022,7 +41395,7 @@ void FakeVimTester::test_vim_ex_bar_after_file_name()
             if (!msg.startsWith("--"))
                 message = msg;
         });
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QVERIFY(QDir(dir.path()).mkpath("sub/deep"));
     QFile f(dir.path() + "/sub/deep/s.vim");
@@ -41236,7 +41609,7 @@ void FakeVimTester::test_vim_script_script_id()
             if (!msg.startsWith("--"))
                 message = msg;
         });
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/s.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -41332,7 +41705,7 @@ void FakeVimTester::test_vim_script_range_function()
             if (!msg.startsWith("--"))
                 message = msg;
         });
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/r.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -41621,7 +41994,7 @@ void FakeVimTester::test_vim_script_mode()
             if (!msg.startsWith("--"))
                 message = msg;
         });
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/m.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -41683,7 +42056,7 @@ void FakeVimTester::test_vim_ex_command_own_selection()
     // Vim 9.1.
     TestData data;
     setup(&data);
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/s.vim");
     QVERIFY(f.open(QIODevice::WriteOnly));
@@ -42018,7 +42391,7 @@ void FakeVimTester::test_vim_script_throwpoint()
         return message;
     };
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString path = dir.path() + "/t.vim";
     QFile f(path);
@@ -42269,7 +42642,7 @@ void FakeVimTester::test_vim_script_lockvar()
     // A script can catch the attempt, as in Vim. A block spans several lines,
     // so this runs as a script: driven one line at a time every line runs,
     // block or no block, and the catch would prove nothing.
-    QTemporaryDir lockDir;
+    TemporaryDir lockDir;
     QVERIFY(lockDir.isValid());
     QFile lf(lockDir.path() + "/l.vim");
     QVERIFY(lf.open(QIODevice::WriteOnly));
@@ -42490,7 +42863,7 @@ void FakeVimTester::test_vim_script_trailing_comment()
     QCOMPARE(echo("g:q"), QLatin1String("has \" inside"));
     // A condition may carry one too, which only a block shows: a false one has
     // to skip its body, so this runs as a script rather than line by line.
-    QTemporaryDir ifDir;
+    TemporaryDir ifDir;
     QVERIFY(ifDir.isValid());
     QFile cf(ifDir.path() + "/c.vim");
     QVERIFY(cf.open(QIODevice::WriteOnly));
@@ -42624,7 +42997,7 @@ void FakeVimTester::test_vim_script_autoload()
         return message;
     };
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QVERIFY(QDir(dir.path()).mkpath("autoload/deep"));
     QFile lib(dir.path() + "/autoload/mylib.vim");
@@ -43161,7 +43534,7 @@ void FakeVimTester::test_vim9_import_autoload()
         return message;
     };
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QVERIFY(QDir(dir.path()).mkpath("autoload"));
     QVERIFY(QDir(dir.path()).mkpath("plugin"));
@@ -43531,7 +43904,7 @@ void FakeVimTester::test_vim_script_readfile_writefile()
         return message;
     };
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     data.doCommand("let g:p = '" + dir.path() + "/a.txt'");
 
@@ -43969,7 +44342,7 @@ void FakeVimTester::test_vim_script_operator_plugin()
     TestData data;
     setup(&data);
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QVERIFY(QDir(dir.path()).mkpath("autoload"));
     QVERIFY(QDir(dir.path()).mkpath("plugin"));
@@ -45902,7 +46275,7 @@ void FakeVimTester::test_vim_script_heredoc_and_comments()
         data.doCommand("echo " + expr);
         return message;
     };
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const auto source = [&](const QString &name, const QByteArray &text) {
         QFile f(dir.path() + '/' + name);
@@ -46923,7 +47296,7 @@ void FakeVimTester::test_vim_script_bufadd_bufload()
     QString extra;
     data.handler->extraInformationChanged.set([&](const QString &msg) { extra = msg; });
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString where = dir.path() + '/';
     QFile file(where + "read.txt");
@@ -47132,7 +47505,7 @@ void FakeVimTester::test_vim_command_buffer_delete()
     QString extra;
     data.handler->extraInformationChanged.set([&](const QString &msg) { extra = msg; });
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString where = dir.path() + '/';
     QFile file(where + "drop.txt");
@@ -47350,7 +47723,7 @@ void FakeVimTester::test_vim_command_buffer_list_flags()
         return extra;
     };
 
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString where = dir.path() + '/';
     QFile file(where + "kept.txt");
@@ -47666,7 +48039,7 @@ void FakeVimTester::test_vim_command_grep()
         });
 
     const QString before = value("getcwd()");
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     write(dir.path() + "/ga.txt", "alpha one\nbeta here\nthird alpha\n");
     write(dir.path() + "/gb.txt", "nothing\nalpha in b\n");
@@ -48056,7 +48429,7 @@ void FakeVimTester::test_vim_command_quickfix_buffer()
 
     // Another buffer is read by its number, and its name goes into the title.
     const QString before = value("getcwd()");
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile file(dir.path() + "/qb.txt");
     QVERIFY(file.open(QIODevice::WriteOnly));
@@ -48157,7 +48530,7 @@ void FakeVimTester::test_vim_command_quickfix_file()
     QCOMPARE(value("&ef == &errorfile"), QLatin1String("1"));
 
     const QString before = value("getcwd()");
-    QTemporaryDir dir;
+    TemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile one(dir.path() + "/ef1.txt");
     QVERIFY(one.open(QIODevice::WriteOnly));

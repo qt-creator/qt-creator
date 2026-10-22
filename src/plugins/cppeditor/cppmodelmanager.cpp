@@ -9,6 +9,7 @@
 #include "cppcanonicalsymbol.h"
 #include "cppcodemodelinspectordumper.h"
 #include "cppcodemodelsettings.h"
+#include "cppeditorconstants.h"
 #include "cppeditortr.h"
 #include "cppeditorwidget.h"
 #include "cppfindreferences.h"
@@ -509,8 +510,8 @@ class FindUnusedActionsEnabledSwitcher
 {
 public:
     FindUnusedActionsEnabledSwitcher()
-        : actions{ActionManager::command("CppTools.FindUnusedFunctions"),
-                  ActionManager::command("CppTools.FindUnusedFunctionsInSubProject")}
+        : actions{ActionManager::command(Constants::FIND_UNUSED_FUNCTIONS),
+                  ActionManager::command(Constants::FIND_UNUSED_FUNCTIONS_IN_SUBPROJECT)}
     {
         for (Command * const action : actions)
             action->action()->setEnabled(false);

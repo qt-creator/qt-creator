@@ -80,6 +80,7 @@ public:
 
     qint64 rowMinValue(int rowNumber) const override;
     qint64 rowMaxValue(int rowNumber) const override;
+    QString formatRowValue(int rowNumber, qint64 value) const override;
 
     void addLostEvent(qint64 timestamp, int numConcurrentThreads);
 

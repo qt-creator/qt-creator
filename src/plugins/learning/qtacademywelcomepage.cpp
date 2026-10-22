@@ -438,6 +438,7 @@ public:
         // clang-format off
         auto detailWdgt = QtDesignWidgets::Rectangle {
             Layouting::sizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding)),
+            strokePen(creatorColor(Theme::Token_Stroke_Subtle)),
             fillBrush(creatorColor(Theme::Color::BackgroundColorNormal)),
             replaceLayoutOn(this, &QtAcademyWelcomePageWidget::courseSelected, [this]() -> Layouting::Layout {
                 if (m_selectedCourse) {
@@ -458,9 +459,7 @@ public:
         auto mouseCatcher = new OverlayWidget(this);
         mouseCatcher->attachToWidget(m_view);
         mouseCatcher->setAttribute(Qt::WA_TransparentForMouseEvents, false);
-        mouseCatcher->setPaintFunction([](QWidget *that, QPainter &p, QPaintEvent *) {
-            p.fillRect(that->rect(), QColor(0, 0, 0, 128));
-        });
+        mouseCatcher->setPaintFunction(&OverlayWidget::paintDimmedBackground);
 
         mouseCatcher->setVisible(false);
         detailWdgt->setVisible(false);

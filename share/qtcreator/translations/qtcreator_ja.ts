@@ -5584,7 +5584,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML プロファイラ</translation>
@@ -27168,7 +27168,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
@@ -31928,7 +31928,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source> µs</source>
         <translation> µs</translation>
@@ -33882,7 +33882,7 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Flush data while profiling:</source>
         <translation>プロファイル中にデータを送信する:</translation>
@@ -39870,7 +39870,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Duration</source>
         <translation>持続時間</translation>
@@ -41417,7 +41417,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Could not re-read events from temporary trace file: %1</source>
         <translation>一時的なトレース・ファイルからイベントを再読み取りできませんでした: %1</translation>
@@ -42189,7 +42189,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>QtC::PerfProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Additional arguments:</source>
         <translation>追加の引数:</translation>
@@ -42201,10 +42201,6 @@ Output:
     <message>
         <source>&amp;Browse...</source>
         <translation type="unfinished">参照(&amp;B)...</translation>
-    </message>
-    <message>
-        <source>Kit:</source>
-        <translation>キット:</translation>
     </message>
 </context>
 <context>
@@ -42440,7 +42436,7 @@ Output:
     <name>QtC::Tracing</name>
 </context>
 <context>
-    <name>QtC::PerfProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Function</source>
         <translation>関数</translation>
@@ -42454,16 +42450,9 @@ Output:
         <translation>2進数</translation>
     </message>
     <message>
-        <source>Allocations</source>
-        <translation>確保</translation>
-    </message>
-    <message>
         <source>Various</source>
         <translation>その他</translation>
     </message>
-</context>
-<context>
-    <name>QtC::QmlProfiler</name>
     <message>
         <source>Total Time</source>
         <translation>合計時間</translation>
@@ -44297,7 +44286,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>QtC::CtfVisualizer</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Title</source>
         <translation>タイトル</translation>
@@ -44305,10 +44294,6 @@ Output:
     <message>
         <source>Count</source>
         <translation>カウント</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation>合計時間</translation>
     </message>
     <message>
         <source>Value</source>
@@ -44321,18 +44306,6 @@ Output:
     <message>
         <source>Arguments</source>
         <translation>引数</translation>
-    </message>
-    <message>
-        <source>Timeline</source>
-        <translation>タイムライン</translation>
-    </message>
-    <message>
-        <source>Reset Zoom</source>
-        <translation>縮尺を戻す</translation>
-    </message>
-    <message>
-        <source>Statistics</source>
-        <translation>統計</translation>
     </message>
 </context>
 <context>
@@ -45019,11 +44992,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     <name>QtC::Perforce</name>
 </context>
 <context>
-    <name>QtC::PerfProfiler</name>
-    <message>
-        <source>Result</source>
-        <translation>結果</translation>
-    </message>
+    <name>QtC::Profiler</name>
     <message>
         <source>[unknown]</source>
         <translation>[不明]</translation>
@@ -45045,56 +45014,12 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <translation>出現箇所</translation>
     </message>
     <message>
-        <source>Show Full Range</source>
-        <translation>全体を表示</translation>
-    </message>
-    <message>
-        <source>Timeline</source>
-        <translation>タイムライン</translation>
-    </message>
-    <message>
-        <source>Statistics</source>
-        <translation>統計</translation>
-    </message>
-    <message>
         <source>Flame Graph</source>
         <translation type="unfinished">フレームグラフ</translation>
     </message>
     <message>
-        <source>Reset Zoom</source>
-        <translation>縮尺を戻す</translation>
-    </message>
-    <message>
-        <source>Copy Table</source>
-        <translation>表をコピー</translation>
-    </message>
-    <message>
-        <source>Copy Row</source>
-        <translation>行をコピー</translation>
-    </message>
-    <message>
-        <source>Reset Flame Graph</source>
-        <translation type="unfinished">フレームグラフをリセットする</translation>
-    </message>
-    <message>
         <source>Invalid</source>
         <translation>無効</translation>
-    </message>
-    <message>
-        <source>Loading Trace Data</source>
-        <translation>トレースデータの読込中</translation>
-    </message>
-    <message>
-        <source>Saving Trace Data</source>
-        <translation>トレースデータの保存中</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>詳細</translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
-        <translation>タイムスタンプ</translation>
     </message>
     <message>
         <source>System</source>
@@ -45103,10 +45028,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     <message>
         <source>Name</source>
         <translation>名前</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>持続時間</translation>
     </message>
 </context>
 <context>
@@ -46530,15 +46451,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
-    <message>
-        <source>Callee</source>
-        <translation>呼び出し先</translation>
-    </message>
-    <message>
-        <source>Caller</source>
-        <translation>呼び出し元</translation>
-    </message>
+    <name>QtC::Profiler</name>
 </context>
 <context>
     <name>QtC::QmlProjectManager</name>

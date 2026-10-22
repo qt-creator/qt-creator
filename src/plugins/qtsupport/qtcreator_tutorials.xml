@@ -33,16 +33,9 @@
         <entry name="category">Help</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/qtcreator-transitions-example.html" projectPath="" name="Qt Quick application">
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/qtquick-app-tutorial.html" projectPath="" name="Qt Quick application">
       <description><![CDATA[Using basic QML types and learning about basic concepts of Qt Quick.]]></description>
       <tags>qt creator,qt quick,qml,states,transitions,help</tags>
-      <meta>
-        <entry name="category">Help</entry>
-      </meta>
-    </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/qtcreator-accelbubble-example.html" projectPath="" name="Mobile application">
-      <description><![CDATA[Developing Qt Quick applications for Android and iOS devices.]]></description>
-      <tags>qt creator,qml,android,ios,controls,help</tags>
       <meta>
         <entry name="category">Help</entry>
       </meta>

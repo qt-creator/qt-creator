@@ -12,7 +12,7 @@
 
 #include <chrono>
 
-namespace Timeline { class RangeDetailsWidget; }
+namespace Timeline { class TimelineDetailsWidget; }
 
 namespace Profiler::Internal {
 
@@ -28,7 +28,7 @@ class PROFILER_EXPORT SamplerViewManager : public QObject
 public:
     // `details` is the range details panel this manager's views fill. It is owned
     // by the caller, which lets every profiler backend share a single one.
-    explicit SamplerViewManager(Timeline::RangeDetailsWidget *details,
+    explicit SamplerViewManager(Timeline::TimelineDetailsWidget *details,
                                 QObject *parent = nullptr);
     ~SamplerViewManager() override;
 

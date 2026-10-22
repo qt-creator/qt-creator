@@ -93,6 +93,38 @@ public:
     float relativeHeight(int) const override { return 0.2f; }
 };
 
+// A long range partially overlapping a shorter one, like the memory consumption
+// ranges next to events on other rows of a Quick3D model. computeNesting()
+// makes the first range an item is inside of its parent, which for the items
+// at 1200 is the short-lived one and not the long range. Many short events
+// follow, like in a perf or memory usage track. Counts the row lookups, of
+// which the hit test makes one for each item it visits.
+class PartialOverlapModel : public TimelineModel
+{
+public:
+    PartialOverlapModel(TimelineModelAggregator *parent) : TimelineModel(parent) {}
+
+    void loadData()
+    {
+        insert(0, 2000, 1);
+        insert(1000, 8000, 0);
+        insert(1200, 100, 2);
+        for (int i = 0; i < 20; ++i)
+            insert(3000 + i * 50, 20, 2);
+        for (int i = 0; i < 1000; ++i)
+            insert(10000 + i * 100, 100, 3);
+        computeNesting();
+    }
+
+    int collapsedRow(int) const override
+    {
+        ++rowLookups;
+        return 0;
+    }
+
+    mutable int rowLookups = 0;
+};
+
 // Exposes the renderer's own fill geometry so a test can assert that whatever
 // is drawn is also hit-testable.
 class ProbePainter : public TrackPainterGpu
@@ -119,6 +151,13 @@ public:
         ensureAttrCache(t);
         buildNeutralGeometry(t, geom);
         return geom.labels;
+    }
+
+    QList<TextLabel> scaleLabels(int trackIndex)
+    {
+        OverlayScale scale;
+        buildScaleOverlay(tracks()[trackIndex], scale);
+        return scale.labels;
     }
 
     static QFontMetricsF labelMetrics() { return QFontMetricsF(itemLabelFormat.font()); }
@@ -209,6 +248,32 @@ public:
     QString itemLabel(int index) const override { return index == 20 ? "Other" : "Loop"; }
 };
 
+// An expanded row tall enough for a value scale, whose values the model
+// formats with a marker, so the test can tell which formatter the labels use.
+class ScaleModel : public TimelineModel
+{
+public:
+    ScaleModel(TimelineModelAggregator *parent) : TimelineModel(parent)
+    {
+        setExpandedRowCount(1);
+        setExpandedRowHeight(0, 100);
+    }
+
+    void loadData()
+    {
+        insert(0, 10, 0);
+        computeNesting();
+        setExpanded(true);
+    }
+
+    qint64 rowMinValue(int) const override { return 0; }
+    qint64 rowMaxValue(int) const override { return 100; }
+    QString formatRowValue(int, qint64 value) const override
+    {
+        return QString("v%1").arg(value);
+    }
+};
+
 // For every drawn fill rect, sample the pixels a user could click inside it and
 // count those where the hit test finds nothing.
 static int unhittableDrawnPixels(ProbePainter &painter, QString *report)
@@ -249,6 +314,8 @@ private slots:
     void narrowEventTolerance();
     void narrowEventUnderCursorWins();
     void shortBarHitOverFullRow();
+    void indexAtLongRangeBehindShortParent();
+    void indexAtVisitsOnlyItemsNearCursor();
     void drawnPixelsAreHittable_data();
     void drawnPixelsAreHittable();
     void itemLabels();
@@ -256,11 +323,15 @@ private slots:
     void itemLabelsEndAtNextEvent();
     void noItemLabelsByDefault();
     void densityItemLabels();
+    void scaleLabelsUseModelFormat();
     void selectionOutlinesSameSelectionId();
     void selectionOutlinesKeepVaryingHeightsApart();
     void selectionOutlinesSkipUniformRow();
     void selectionOutlinesSkipUniformRowsWithoutMixedRow();
     void selectionOutlinesRowsSplitBySelectionId();
+    void summaryDrawsZoomedOutRangeByPixel();
+    void summaryNotUsedZoomedIn();
+    void summarySelectionOutlines();
 };
 
 // Alternating selection ids with gaps between the events, followed by a
@@ -563,6 +634,38 @@ void tst_TrackPainterInteraction::shortBarHitOverFullRow()
     QCOMPARE(itemIndexAt(painter, QPoint(300, rowH / 2)), -1);
 }
 
+void tst_TrackPainterInteraction::indexAtLongRangeBehindShortParent()
+{
+    TrackPainterGpu painter;
+    TimelineModelAggregator aggregator;
+    PartialOverlapModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 10000);
+    painter.resize(1000, painter.totalHeight());
+
+    // The long range (index 1) is the only item at x=500. Its closest neighbours
+    // in the index space are inside it but have the short range as parent.
+    QCOMPARE(model.parentIndex(2), 0);
+    QCOMPARE(itemIndexAt(painter, QPoint(500, 10)), 1);
+}
+
+void tst_TrackPainterInteraction::indexAtVisitsOnlyItemsNearCursor()
+{
+    TrackPainterGpu painter;
+    TimelineModelAggregator aggregator;
+    PartialOverlapModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 100000);
+    painter.resize(1000, painter.totalHeight());
+
+    // One event per pixel from x = 100 on.
+    model.rowLookups = 0;
+    QCOMPARE(itemIndexAt(painter, QPoint(900, 10)), 23 + 800);
+    QCOMPARE_LT(model.rowLookups, 10);
+}
+
 void tst_TrackPainterInteraction::drawnPixelsAreHittable_data()
 {
     QTest::addColumn<bool>("expanded");
@@ -688,6 +791,24 @@ void tst_TrackPainterInteraction::densityItemLabels()
     QVERIFY(labels[1].x + fm.horizontalAdvance(labels[1].text) <= 300);
 }
 
+void tst_TrackPainterInteraction::scaleLabelsUseModelFormat()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    ScaleModel model(&aggregator);
+    model.loadData();
+    painter.setTracks({&model});
+    painter.setRange(0, 100);
+    painter.resize(100, painter.totalHeight());
+
+    const QList<ProbePainter::TextLabel> labels = painter.scaleLabels(0);
+    QVERIFY(labels.size() > 1);
+    QVERIFY(std::all_of(labels.begin(), labels.end(), [](const ProbePainter::TextLabel &label) {
+        return label.text.startsWith(u'v');
+    }));
+    QCOMPARE(labels.first().text, "v100");
+}
+
 void tst_TrackPainterInteraction::initialState()
 {
     TrackPainterGpu painter;
@@ -764,6 +885,116 @@ void tst_TrackPainterInteraction::unlockedHover()
     QMouseEvent ev(QEvent::MouseMove, QPointF(5, 15), QPointF(5, 15),
                    Qt::NoButton, Qt::NoButton, Qt::NoModifier);
     QCoreApplication::sendEvent(&painter, &ev);
+}
+
+// More short items than a summary needs, 10 time units apart: selection id 0 in the first half
+// of the trace, 1 in the second. Counts the per-item lookups drawing makes.
+class ManyItemsModel : public TimelineModel
+{
+public:
+    static constexpr int itemCount = 100000;
+
+    ManyItemsModel(TimelineModelAggregator *parent) : TimelineModel(parent) {}
+
+    void loadData(bool summarized)
+    {
+        for (int i = 0; i < itemCount; ++i)
+            insert(i * 10, 4, i < itemCount / 2 ? 0 : 1);
+        computeNesting();
+        if (summarized)
+            computeSummaries();
+    }
+
+    QRgb color(int index) const override
+    {
+        ++lookups;
+        return selectionId(index) == 0 ? qRgb(255, 0, 0) : qRgb(0, 0, 255);
+    }
+
+    float relativeHeight(int) const override
+    {
+        ++lookups;
+        return 1.0f;
+    }
+
+    mutable int lookups = 0;
+};
+
+void tst_TrackPainterInteraction::summaryDrawsZoomedOutRangeByPixel()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    ManyItemsModel model(&aggregator);
+    model.loadData(true);
+    QVERIFY(model.summary(false));
+    painter.setTracks({&model});
+    painter.setRange(0, ManyItemsModel::itemCount * 10);
+    painter.resize(500, painter.totalHeight());
+
+    model.lookups = 0;
+    const QList<QRectF> rects = painter.fillRects(0);
+    // One item per pixel column, not every item.
+    QVERIFY2(model.lookups <= 2 * 500, qPrintable(QString::number(model.lookups)));
+
+    // Every column holds items, red ones in the first half and blue ones in the second.
+    QCOMPARE(rects.size(), 2);
+    QCOMPARE(rects.at(0).left() + rects.at(1).left(), 250.0);
+    QCOMPARE(rects.at(0).width() + rects.at(1).width(), 500.0);
+
+    QString report;
+    const int misses = unhittableDrawnPixels(painter, &report);
+    if (misses != 0)
+        qDebug().noquote() << misses << "unhittable drawn pixels:" << report;
+    QCOMPARE(misses, 0);
+}
+
+// Closer in than two of the summary's buckets per pixel, the items are drawn one by one,
+// exactly as without a summary.
+void tst_TrackPainterInteraction::summaryNotUsedZoomedIn()
+{
+    TimelineModelAggregator aggregator;
+    ManyItemsModel summarized(&aggregator);
+    summarized.loadData(true);
+    ManyItemsModel plain(&aggregator);
+    plain.loadData(false);
+    const TimelineModel::Summary *summary = summarized.summary(false);
+    QVERIFY(summary);
+
+    // A pixel covers about one bucket, which holds an item in only some of the pixels.
+    const int width = 400;
+    const qint64 start = 123457;
+    const qint64 end = start + summary->bucketDuration * width;
+    QList<QList<QRectF>> rects;
+    for (ManyItemsModel *model : {&summarized, &plain}) {
+        ProbePainter painter;
+        painter.setTracks({model});
+        painter.setRange(start, end);
+        painter.resize(width, painter.totalHeight());
+        rects.append(painter.fillRects(0));
+    }
+    QVERIFY(!rects.at(1).isEmpty());
+    QCOMPARE(rects.at(0), rects.at(1));
+}
+
+void tst_TrackPainterInteraction::summarySelectionOutlines()
+{
+    ProbePainter painter;
+    TimelineModelAggregator aggregator;
+    ManyItemsModel model(&aggregator);
+    model.loadData(true);
+    painter.setTracks({&model});
+    painter.setRange(0, ManyItemsModel::itemCount * 10);
+    painter.resize(500, painter.totalHeight());
+
+    // The row holds both selection ids, so the selected one is outlined where it lies.
+    painter.setSelectedItem(0, ManyItemsModel::itemCount - 1);
+    model.lookups = 0;
+    const QList<QRectF> outlines = painter.selectionOutlines(1);
+    QVERIFY2(model.lookups <= 2 * 500, qPrintable(QString::number(model.lookups)));
+    // The strokes run along the outside of the pixels, half a line width out.
+    QCOMPARE(outlines.size(), 1);
+    QVERIFY(qAbs(outlines.first().left() - 250.0) <= 1.0);
+    QVERIFY(qAbs(outlines.first().right() - 500.0) <= 1.0);
 }
 
 QTEST_MAIN(tst_TrackPainterInteraction)

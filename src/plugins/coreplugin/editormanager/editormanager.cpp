@@ -893,14 +893,27 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
     if (!editors.isEmpty()) {
         IEditor *editor = editors.first();
         if (flags & EditorManager::SwitchSplitIfAlreadyVisible) {
+            IEditor *visibleEditor = nullptr;
+            IEditor *fallbackEditor = nullptr;
             for (IEditor *ed : editors) {
                 EditorView *v = viewForEditor(ed);
                 // Don't switch to a view where editor is not its current editor
-                if (v && v->currentEditor() == ed) {
-                    editor = ed;
-                    view = v;
+                if (!v || v->currentEditor() != ed)
+                    continue;
+                if (v->isVisible()) {
+                    visibleEditor = ed;
                     break;
                 }
+                // Without a view on screen, take one of an area that belongs to no mode, like
+                // the main area while a mode without it is current, but not one in the area of
+                // a mode that is not on screen: activating the editor there raises that mode
+                const EditorArea *area = v->editorArea();
+                if (!fallbackEditor && area && !area->id().isValid())
+                    fallbackEditor = ed;
+            }
+            if (IEditor *found = visibleEditor ? visibleEditor : fallbackEditor) {
+                editor = found;
+                view = viewForEditor(found);
             }
         }
         return activateEditor(view, editor, flags);

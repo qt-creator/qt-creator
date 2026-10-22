@@ -360,6 +360,7 @@ private slots:
     void defined_data();
     void defined_usage();
     void has_include();
+    void has_include_fallback_definition();
     void empty_macro_args();
     void macro_args_count();
     void macro_args_offsets();
@@ -1350,6 +1351,37 @@ void tst_Preprocessor::has_include()
     QCOMPARE(client.definedMacros(), expected);
     // __has_include must not be reported as an unresolved macro
     QVERIFY(!client.unresolvedDefines().contains("__has_include"));
+}
+
+void tst_Preprocessor::has_include_fallback_definition()
+{
+    QByteArray output;
+    Environment env;
+    MockClient client(&env, &output);
+    client.setIncludePaths({QLatin1String(SRCDIR) + "/data/include-data/global"});
+    Preprocessor pp(&client, &env);
+
+    // Qt headers provide a fallback for compilers lacking these operators, which must not
+    // take effect: the operators are always available.
+    const QString currentFile =
+            QLatin1String(SRCDIR) + "/data/include-data/local/has_include_test.cpp";
+    const QByteArray source =
+            "#ifndef __has_include\n"
+            "#define __has_include(x) 0\n"
+            "#endif\n"
+            "#ifndef __has_include_next\n"
+            "#define __has_include_next(x) 0\n"
+            "#endif\n"
+            "#ifdef __has_include_next\n"
+            "#define NEXT_DEFINED\n"
+            "#endif\n"
+            "#if __has_include(<global.h>)\n"
+            "#define HAS_GLOBAL\n"
+            "#endif\n";
+    pp.run(Utils::FilePath::fromString(currentFile), source, false, true);
+
+    const QList<QByteArray> expected = QList<QByteArray>() << "NEXT_DEFINED" << "HAS_GLOBAL";
+    QCOMPARE(client.definedMacros(), expected);
 }
 
 void tst_Preprocessor::dont_eagerly_expand_data()

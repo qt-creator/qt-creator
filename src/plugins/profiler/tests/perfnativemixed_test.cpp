@@ -10,6 +10,8 @@
 #include <profiler/perftimelinemodel.h>
 #include <profiler/perftimelinemodelmanager.h>
 
+#include <tracing/timelineformatdata.h>
+
 #include <QBuffer>
 #include <QByteArray>
 #include <QDataStream>
@@ -38,6 +40,7 @@ class PerfNativeMixedTest : public QObject
     Q_OBJECT
 private slots:
     void testMergedStacks();
+    void testFormatRowValue();
     void testFrameKindRecognizesJitRegion();
 };
 
@@ -259,6 +262,18 @@ void PerfNativeMixedTest::testMergedStacks()
     QVERIFY(!manager.aggregateAddresses());
     QCOMPARE(manager.symbol(LocInlinedJsAddr).binary, qint32(-1));
     QCOMPARE(frameKind(manager, LocInlinedJsAddr), FrameKind::Js);
+}
+
+void PerfNativeMixedTest::testFormatRowValue()
+{
+    PerfProfilerTraceManager manager;
+    PerfTimelineModelManager modelManager(&manager);
+    PerfTimelineModel model(1, 1, 0, 100, &modelManager);
+
+    QCOMPARE(model.formatRowValue(PerfTimelineModel::SamplesRow, 4096),
+             Timeline::formatDataSize(4096));
+    QCOMPARE(model.formatRowValue(PerfTimelineModel::SpaceRow, 4096),
+             Timeline::formatNumber(4096));
 }
 
 // Real perf traces of a QML app attribute JIT'd JS samples to QV4's executable

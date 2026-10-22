@@ -521,6 +521,7 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
     addTestCreator(createNavigationSettingsTest);
     addTestCreator(createNavigationFactoriesTest);
     addTestCreator(createEscapeKeyTest);
+    addTestCreator(createModeAreaTest);
     addTestCreator(createOutputFormatterTest);
     addTestCreator(createJsExpanderTest);
 #endif

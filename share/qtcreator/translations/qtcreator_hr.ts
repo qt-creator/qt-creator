@@ -4977,7 +4977,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>QtC::PerfProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Stack snapshot size (kB):</source>
         <translation type="unfinished"></translation>
@@ -7113,7 +7113,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Total Time</source>
         <translation>Cjelokupno vrijeme</translation>
@@ -7137,10 +7137,6 @@ Greška: %5</translation>
     <message>
         <source>Location</source>
         <translation>Mjesto</translation>
-    </message>
-    <message>
-        <source>Allocations</source>
-        <translation>Alokacije</translation>
     </message>
     <message>
         <source>Memory</source>
@@ -7181,10 +7177,6 @@ Greška: %5</translation>
     <message>
         <source>Select an externally started QML-debug enabled application.&lt;p&gt;Commonly used command-line arguments are:</source>
         <translation>Odaberi vanjski pokrenutu QML aplikaciju za uklanjanje grešaka.&lt;P&gt;Uobičajeni argumenti naredbenog retka su:</translation>
-    </message>
-    <message>
-        <source>Kit:</source>
-        <translation>Komplet:</translation>
     </message>
     <message>
         <source>Flush data while profiling:</source>
@@ -25707,7 +25699,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>QtC::PerfProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Event Type</source>
         <translation>Vrsta događaja</translation>
@@ -25968,9 +25960,6 @@ Rok upotrebe: %3</translation>
         <source>Invalid data format</source>
         <translation>Neispravni format podataka</translation>
     </message>
-</context>
-<context>
-    <name>QtC::QmlProfiler</name>
     <message>
         <source>Failed to reset temporary trace file.</source>
         <translation>Neuspjelo resetiranje privremene trace datoteke.</translation>
@@ -25999,9 +25988,6 @@ Rok upotrebe: %3</translation>
         <source>Read past end in temporary trace file.</source>
         <translation>Čitaj iza kraja u privremenoj trace datoteci.</translation>
     </message>
-</context>
-<context>
-    <name>QtC::PerfProfiler</name>
     <message>
         <source>Thread started</source>
         <translation type="unfinished"></translation>
@@ -26033,10 +26019,6 @@ Rok upotrebe: %3</translation>
     <message>
         <source>sample collected</source>
         <translation>primjer prikupljen</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Detalji</translation>
     </message>
     <message>
         <source>Timestamp</source>
@@ -30986,7 +30968,7 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Debug Message</source>
         <translation type="unfinished"></translation>
@@ -31098,10 +31080,6 @@ ID oznake moraju započeti malim slovom.</translation>
     <message>
         <source>Button</source>
         <translation>Gumb</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Rezultat</translation>
     </message>
     <message>
         <source>Mouse Move</source>
@@ -31392,10 +31370,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Duration</source>
-        <translation>Trajanje</translation>
-    </message>
-    <message>
         <source>QML Profiler Settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -31490,10 +31464,6 @@ ID oznake moraju započeti malim slovom.</translation>
     <message>
         <source>Caller Description</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Statistics</source>
-        <translation>Statistika</translation>
     </message>
     <message>
         <source>Copy Row</source>

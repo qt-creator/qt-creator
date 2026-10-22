@@ -7,7 +7,7 @@
 
 #include <QWidget>
 
-namespace Timeline { class RangeDetailsWidget; }
+namespace Timeline { class TimelineDetailsWidget; }
 
 namespace Profiler::Internal {
 
@@ -21,10 +21,10 @@ public:
     // `details` is the range details panel to fill; when null the view brings its
     // own (see Timeline::TimelineWidget).
     explicit QmlProfilerTraceView(QmlProfilerModelManager *modelManager,
-                                  Timeline::RangeDetailsWidget *details = nullptr);
+                                  Timeline::TimelineDetailsWidget *details = nullptr);
     ~QmlProfilerTraceView() override;
 
-    Timeline::RangeDetailsWidget *rangeDetailsWidget() const;
+    Timeline::TimelineDetailsWidget *timelineDetailsWidget() const;
 
     bool hasValidSelection() const;
     qint64 selectionStart() const;
@@ -35,6 +35,7 @@ public:
     void clear();
     void selectByTypeId(int typeId);
     void selectByEventIndex(int modelId, int eventIndex);
+    void showRange(qint64 start, qint64 end);
     void updateCursorPosition();
 
 protected:

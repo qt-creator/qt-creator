@@ -3,23 +3,27 @@
 
 #include "timelinewidget.h"
 
-#include "rangedetailswidget.h"
 #include "timelinecontentwidget.h"
+#include "timelinedetailswidget.h"
 #include "timelinemodelaggregator.h"
 #include "timelinemodel.h"
 #include "timelineoverviewwidget.h"
 #include "timelinezoomcontrol.h"
 #include "trackpainterbase.h"
+#include "tracingtr.h"
 
 #include <utils/icon.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QHBoxLayout>
 #include <QIcon>
+#include <QMenu>
 #include <QSize>
 #include <QSlider>
 #include <QToolBar>
+#include <QToolButton>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -37,7 +41,7 @@ public:
     TimelineZoomControl *m_zoomControl = nullptr;
     TimelineContentWidget *m_content = nullptr;
     TimelineOverviewWidget *m_overview = nullptr;
-    RangeDetailsWidget *m_details = nullptr; // Owned by the perspective once docked,
+    TimelineDetailsWidget *m_details = nullptr; // Owned by the perspective once docked,
                                              // or by whoever passed it in.
 
     QWidget *m_zoomSliderRow = nullptr;
@@ -85,7 +89,7 @@ public:
 
 TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
                                TimelineZoomControl *zoomControl,
-                               RangeDetailsWidget *details,
+                               TimelineDetailsWidget *details,
                                QWidget *parent)
     : QWidget(parent), d(new TimelineWidgetPrivate)
 {
@@ -94,7 +98,7 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
     setMinimumHeight(170);
 
     // ---- Range details (hosted in a dockable view; ownership transfers there) ----
-    d->m_details = details ? details : new RangeDetailsWidget(this);
+    d->m_details = details ? details : new TimelineDetailsWidget(this);
 
     // ---- Content and overview ----
     d->m_content = new TimelineContentWidget(aggregator, zoomControl, d->m_details, this);
@@ -128,6 +132,14 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
     rangeAction->setCheckable(true);
     auto lockAction = toolbar->addAction(lockIcon, tr("View Event Information on Mouseover"));
     lockAction->setCheckable(true);
+    toolbar->addSeparator();
+    auto tracksButton = new QToolButton;
+    tracksButton->setIcon(Utils::Icons::FILTER.icon());
+    tracksButton->setPopupMode(QToolButton::InstantPopup);
+    tracksButton->setProperty(Utils::StyleHelper::C_NO_ARROW, true);
+    auto tracksMenu = new QMenu(tracksButton);
+    tracksButton->setMenu(tracksMenu);
+    toolbar->addWidget(tracksButton);
     if (canSwitchTrackBackends())
         toolbar->addSeparator();
     //: Short for "software", shown on a narrow toolbar button.
@@ -158,6 +170,20 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
     outerLayout->addWidget(d->m_overview);
 
     // ---- Toolbar connections ----
+    connect(tracksMenu, &QMenu::aboutToShow, this, [this, tracksMenu] {
+        tracksMenu->clear();
+        d->m_content->populateTracksMenu(tracksMenu);
+    });
+    const auto updateTracksButton = [this, tracksButton] {
+        const int hidden = d->m_content->hiddenTrackCount();
+        tracksButton->setToolTip(hidden > 0
+            ? Tr::tr("Show or Hide Categories (%1 hidden)").arg(hidden)
+            : Tr::tr("Show or Hide Categories"));
+    };
+    connect(d->m_content, &TimelineContentWidget::hiddenTrackCountChanged,
+            this, updateTracksButton);
+    updateTracksButton();
+
     connect(prevAction, &QAction::triggered, d->m_content, &TimelineContentWidget::jumpToPrev);
     connect(nextAction, &QAction::triggered, d->m_content, &TimelineContentWidget::jumpToNext);
 
@@ -235,7 +261,7 @@ TimelineWidget::~TimelineWidget()
     delete d;
 }
 
-RangeDetailsWidget *TimelineWidget::rangeDetailsWidget() const
+TimelineDetailsWidget *TimelineWidget::timelineDetailsWidget() const
 {
     return d->m_details;
 }

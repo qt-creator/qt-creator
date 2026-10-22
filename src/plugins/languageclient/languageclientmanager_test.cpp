@@ -3,13 +3,14 @@
 
 #include "languageclientmanager_test.h"
 
+#ifdef WITH_TESTS
+
 #include "client.h"
 #include "languageclientinterface.h"
 #include "languageclientmanager.h"
 #include "languageclientsettings.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
@@ -22,73 +23,112 @@
 
 #include <texteditor/textdocument.h>
 
+#include <utils/algorithm.h>
+#include <utils/filepath.h>
 #include <utils/temporarydirectory.h>
 
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QPointer>
+#include <QRegularExpression>
 #include <QTest>
+#include <QTimer>
 
 #include <atomic>
 
-using namespace Core;
-using namespace LanguageServerProtocol;
 using namespace ProjectExplorer;
-using namespace TextEditor;
-using namespace Utils;
+using namespace LanguageServerProtocol;
 
-namespace LanguageClient::Internal {
+namespace LanguageClient {
 
-const char testProjectType[] = "LanguageClientManagerTest.Project";
-const char testFilePattern[] = "*.lcmtest";
+static const char fakeProjectType[] = "LanguageClientManagerTest.Project";
+static const char fakeBuildConfigurationType[] = "LanguageClientManagerTest.BuildConfiguration";
 
-// Answers initialize and shutdown requests like a language server, and finishes on exit.
 class FakeServerInterface final : public BaseClientInterface
 {
 public:
-    // Used from the interface thread
-    static inline std::atomic_bool answerShutdown = true;
+    FakeServerInterface() { instances << this; }
 
-    FilePath serverDeviceTemplate() const final { return {}; }
+    ~FakeServerInterface() override { instances.removeOne(this); }
+
+    Utils::FilePath serverDeviceTemplate() const final { return {}; }
+
+    void releaseShutdown()
+    {
+        if (!m_pendingShutdownId.isUndefined())
+            replyToShutdown();
+    }
+
+    static inline QList<FakeServerInterface *> instances;
+    static inline std::atomic_bool holdShutdown = false;
 
 protected:
     void sendData(const QByteArray &data) final
     {
-        // The header and the content arrive separately, only the content parses as JSON.
-        const QJsonObject message = QJsonDocument::fromJson(data).object();
-        const QString method = message.value("method").toString();
-        if (method == "initialize") {
-            const QJsonObject capabilities{{"textDocumentSync", 1}};
-            respond(message.value("id"), QJsonObject{{"capabilities", capabilities}});
-        } else if (method == "shutdown") {
-            if (answerShutdown)
-                respond(message.value("id"), QJsonValue::Null);
-        } else if (method == "exit") {
-            emit finished();
+        m_received += data;
+        static const QRegularExpression contentLength("Content-Length: (\\d+)");
+        while (true) {
+            const qsizetype headerEnd = m_received.indexOf("\r\n\r\n");
+            if (headerEnd < 0)
+                return;
+            const QRegularExpressionMatch match = contentLength.match(
+                QString::fromLatin1(m_received.left(headerEnd)));
+            const qsizetype bodyStart = headerEnd + 4;
+            const qsizetype bodyEnd = bodyStart + match.captured(1).toInt();
+            if (!match.hasMatch() || m_received.size() < bodyEnd)
+                return;
+            const QJsonObject message
+                = QJsonDocument::fromJson(m_received.mid(bodyStart, bodyEnd - bodyStart)).object();
+            m_received.remove(0, bodyEnd);
+            handleMessage(message);
         }
     }
 
 private:
-    void respond(const QJsonValue &id, const QJsonValue &result)
+    void handleMessage(const QJsonObject &message)
     {
-        emit messageReceived(QJsonObject{{"jsonrpc", "2.0"}, {"id", id}, {"result", result}});
+        const QString method = message.value("method").toString();
+        if (method == "initialize") {
+            reply(message.value("id"), QJsonObject{{"capabilities", QJsonObject()}});
+        } else if (method == "shutdown") {
+            m_pendingShutdownId = message.value("id");
+            if (!holdShutdown)
+                replyToShutdown();
+        } else if (method == "exit") {
+            QTimer::singleShot(0, this, [this] { emit finished(); });
+        }
     }
+
+    void replyToShutdown()
+    {
+        reply(m_pendingShutdownId, QJsonValue::Null);
+        m_pendingShutdownId = QJsonValue::Undefined;
+    }
+
+    void reply(const QJsonValue &id, const QJsonValue &result)
+    {
+        const QJsonObject response{{"jsonrpc", "2.0"}, {"id", id}, {"result", result}};
+        QTimer::singleShot(0, this, [this, response] {
+            emit messageReceived(response);
+        });
+    }
+
+    QByteArray m_received;
+    QJsonValue m_pendingShutdownId = QJsonValue::Undefined;
 };
 
-class TestSettings final : public BaseSettings
+class FakeServerSettings final : public BaseSettings
 {
 public:
-    TestSettings()
+    FakeServerSettings()
     {
-        name.setValue("LanguageClientManagerTest");
-        id.setValue("LanguageClientManagerTest.Settings");
-        filePattern.setValue(testFilePattern);
-        startBehavior.setValue(RequiresProjectOrFile);
+        id.setValue("LanguageClientManagerTest.Server");
+        name.setValue("LanguageClientManagerTest server");
+        mimeTypes.setValue({"text/plain"});
+        startBehavior.setValue(RequiresProject);
         enabled.setValue(true);
-        activatable.setValue(true);
     }
 
-    BaseSettings *create() const final { return new TestSettings; }
+    BaseSettings *create() const final { return new FakeServerSettings; }
 
 protected:
     BaseClientInterface *createInterface(BuildConfiguration *) const final
@@ -97,288 +137,359 @@ protected:
     }
 };
 
-class TestBuildSystem final : public BuildSystem
+class FakeBuildSystem final : public BuildSystem
 {
 public:
     using BuildSystem::BuildSystem;
 
-    static QString name() { return "LanguageClientManagerTest"; }
+    static QString name() { return "fake"; }
     void triggerParsing() final {}
 };
 
-class TestBuildConfigurationFactory final : public BuildConfigurationFactory
+class FakeBuildConfigurationFactory final : public BuildConfigurationFactory
 {
 public:
-    TestBuildConfigurationFactory()
+    FakeBuildConfigurationFactory()
     {
-        setSupportedProjectType(testProjectType);
-        setBuildGenerator([](const Kit *, const FilePath &projectFilePath, bool) {
-            BuildInfo info;
-            info.buildSystemName = TestBuildSystem::name();
-            info.buildDirectory = projectFilePath.parentDir();
-            info.displayName = "default";
-            return QList<BuildInfo>{info};
+        setSupportedProjectType(fakeProjectType);
+        setBuildGenerator([](const Kit *, const Utils::FilePath &projectFilePath, bool) {
+            QList<BuildInfo> infos;
+            for (const QString &displayName : {QString("first"), QString("second")}) {
+                BuildInfo info;
+                info.buildSystemName = FakeBuildSystem::name();
+                info.buildDirectory = projectFilePath.parentDir();
+                info.displayName = displayName;
+                infos << info;
+            }
+            return infos;
         });
-        registerBuildConfiguration<BuildConfiguration>(
-            "LanguageClientManagerTest.BuildConfiguration");
+        registerBuildConfiguration<BuildConfiguration>(fakeBuildConfigurationType);
     }
 };
 
-class TestProject final : public Project
+class FakeProject final : public Project
 {
 public:
-    explicit TestProject(const FilePath &projectFilePath)
-        : Project("text/plain", projectFilePath)
+    FakeProject(const Utils::FilePath &projectFilePath, Kit *kit)
+        : Project("application/vnd.test.languageclientmanager", projectFilePath)
     {
-        setType(testProjectType);
-        setDisplayName("LanguageClientManagerTest");
-        setBuildSystemCreator<TestBuildSystem>();
+        setType(fakeProjectType);
+        setDisplayName("languageClientManagerTestProject");
+        setBuildSystemCreator<FakeBuildSystem>();
+        target = addTargetForKit(kit);
     }
 
     bool needsConfiguration() const final { return false; }
 
-    // Like a finished parse: makes the files known to the project.
-    void setFiles(const FilePaths &files)
-    {
-        auto root = std::make_unique<ProjectNode>(projectDirectory());
-        std::vector<std::unique_ptr<FileNode>> nodes;
-        nodes.emplace_back(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
-        for (const FilePath &file : files)
-            nodes.emplace_back(std::make_unique<FileNode>(file, FileType::Source));
-        root->addNestedNodes(std::move(nodes));
-        setRootProjectNode(std::move(root));
-    }
+    Target *target = nullptr;
 };
+
+static bool isLive(const Client *client)
+{
+    const Client::State state = client->state();
+    return state == Client::Uninitialized || state == Client::InitializeRequested
+           || state == Client::Initialized;
+}
 
 class LanguageClientManagerTest final : public QObject
 {
     Q_OBJECT
 
 private slots:
+    void initTestCase();
+    void cleanupTestCase();
     void init();
     void cleanup();
 
-    void testFileMovesToProjectClientWhenProjectOpens();
-    void testShutdownProjectClientIsNotUsedForFileOutsideProjects();
-    void testRestartingProjectLessClientIsReused();
-    void testFileMovesToExistingProjectClientWhenAddedToProject();
-    void testFileReturnsToProjectLessClientWhenProjectCloses();
+    void testSwitchingBuildConfigurationMovesClient();
+    void testSwitchingBackBeforeOldServerExits();
+    void testDocumentOpenedWhileOldServerIsShuttingDown();
+    void testApplySettingsWhileClientIsRestarting();
+    void testDocumentOpenedWhileClientIsRestartedInPlace();
+    void testFileListChangeDoesNotStartClientForInactiveBuildConfiguration();
+    void testSwitchingTargetMovesClient();
 
 private:
-    TextDocument *openDocument(const FilePath &filePath);
-    TestProject *addProject(const FilePath &projectDirectory, const FilePaths &files);
-    QList<Client *> testClients() const;
+    QList<Client *> clients() const
+    {
+        return LanguageClientManager::clientsForSettingId(m_settingId);
+    }
+    QList<Client *> liveClientsFor(const BuildConfiguration *bc) const
+    {
+        return Utils::filtered(clients(), [bc](const Client *client) {
+            return client->buildConfiguration() == bc && isLive(client);
+        });
+    }
+    void switchTo(BuildConfiguration *bc)
+    {
+        m_project->setActiveBuildConfiguration(bc, SetActive::Cascade);
+    }
+    TextEditor::TextDocument *openFile(const QString &fileName)
+    {
+        const Utils::FilePath file = m_directory->path() / fileName;
+        if (!file.writeFileContents("int main() {}\n"))
+            return nullptr;
+        Core::IEditor *editor = Core::EditorManager::openEditor(file);
+        return editor ? qobject_cast<TextEditor::TextDocument *>(editor->document()) : nullptr;
+    }
+    void announceFile(const QString &fileName)
+    {
+        auto root = std::make_unique<ProjectNode>(m_directory->path());
+        root->addNode(std::make_unique<FileNode>(m_directory->path() / fileName, FileType::Source));
+        m_project->setRootProjectNode(std::move(root));
+    }
+    void releaseAllServers()
+    {
+        FakeServerInterface::holdShutdown = false;
+        const QList<FakeServerInterface *> servers = FakeServerInterface::instances;
+        for (FakeServerInterface *server : servers)
+            QMetaObject::invokeMethod(server, &FakeServerInterface::releaseShutdown);
+    }
 
-    std::unique_ptr<TemporaryDirectory> m_tempDir;
-    std::unique_ptr<TestBuildConfigurationFactory> m_buildConfigurationFactory;
+    std::unique_ptr<FakeBuildConfigurationFactory> m_factory;
     std::unique_ptr<Kit> m_kit;
-    TestSettings *m_settings = nullptr;
-    QList<IDocument *> m_documents;
-    QList<QPointer<Project>> m_projects;
+    std::unique_ptr<Kit> m_otherKit;
+    std::unique_ptr<Utils::TemporaryDirectory> m_directory;
+    QString m_settingId;
+    FakeProject *m_project = nullptr;
+    BuildConfiguration *m_firstBc = nullptr;
+    BuildConfiguration *m_secondBc = nullptr;
+    TextEditor::TextDocument *m_document = nullptr;
 };
+
+void LanguageClientManagerTest::initTestCase()
+{
+    m_factory = std::make_unique<FakeBuildConfigurationFactory>();
+    m_kit = std::make_unique<Kit>();
+    m_otherKit = std::make_unique<Kit>();
+
+    auto *settings = new FakeServerSettings;
+    m_settingId = settings->id();
+    LanguageClientManager::registerClientSettings(settings);
+}
+
+void LanguageClientManagerTest::cleanupTestCase()
+{
+    LanguageClientManager::removeClientSettings(m_settingId);
+    QVERIFY(
+        !LanguageClientSettings::settingById(LanguageClientSettings::pageSettings(), m_settingId));
+    m_otherKit.reset();
+    m_kit.reset();
+    m_factory.reset();
+}
 
 void LanguageClientManagerTest::init()
 {
-    m_tempDir = std::make_unique<TemporaryDirectory>("LanguageClientManagerTest");
-    m_buildConfigurationFactory = std::make_unique<TestBuildConfigurationFactory>();
-    m_kit = std::make_unique<Kit>();
-    FakeServerInterface::answerShutdown = true;
+    FakeServerInterface::holdShutdown = false;
+    m_directory = std::make_unique<Utils::TemporaryDirectory>("languageclientmanagertest-XXXXXX");
 
-    // Bypass the settings page, which would write the setting to the user's settings.
-    m_settings = new TestSettings;
-    LanguageClientManager::instance()->m_currentSettings.append(m_settings);
+    m_project = new FakeProject(m_directory->path() / "test.project", m_kit.get());
+    QVERIFY(m_project->target);
+    const QList<BuildConfiguration *> buildConfigurations = m_project->target->buildConfigurations();
+    QCOMPARE(buildConfigurations.size(), 2);
+    m_firstBc = buildConfigurations.at(0);
+    m_secondBc = buildConfigurations.at(1);
+    QCOMPARE(m_project->activeBuildConfiguration(), m_firstBc);
+    ProjectManager::addProject(m_project);
+
+    m_document = openFile("main.txt");
+    QVERIFY(m_document);
 }
 
 void LanguageClientManagerTest::cleanup()
 {
-    FakeServerInterface::answerShutdown = true;
-    EditorManager::closeDocuments(m_documents, false);
-    m_documents.clear();
-    for (const QPointer<Project> &project : std::as_const(m_projects)) {
-        if (project)
-            ProjectManager::removeProject(project);
-    }
-    m_projects.clear();
+    releaseAllServers();
+    Core::EditorManager::closeAllDocuments();
+    m_document = nullptr;
 
-    LanguageClientManager::instance()->m_currentSettings.removeOne(m_settings);
-    QList<QPointer<Client>> clients;
-    for (Client *client : testClients()) {
-        clients << client;
-        // Nothing will answer a shutdown request that was sent while answerShutdown was off.
-        if (client->state() == Client::ShutdownRequested)
-            LanguageClientManager::deleteClient(client);
-        else
+    for (Client *client : clients()) {
+        if (client->state() != Client::ShutdownRequested && client->state() != Client::Shutdown)
             LanguageClientManager::shutdownClient(client);
     }
-    QTRY_VERIFY(Utils::allOf(clients, [](const QPointer<Client> &client) { return !client; }));
-    delete m_settings;
-    m_settings = nullptr;
+    QTRY_VERIFY(clients().isEmpty());
 
-    m_kit.reset();
-    m_buildConfigurationFactory.reset();
-    m_tempDir.reset();
+    ProjectManager::removeProject(m_project);
+    m_project = nullptr;
+    m_firstBc = nullptr;
+    m_secondBc = nullptr;
+    m_directory.reset();
 }
 
-TextDocument *LanguageClientManagerTest::openDocument(const FilePath &filePath)
+void LanguageClientManagerTest::testSwitchingBuildConfigurationMovesClient()
 {
-    if (!filePath.parentDir().ensureWritableDir() || !filePath.writeFileContents("content"))
-        return nullptr;
-    IEditor *editor = EditorManager::openEditor(filePath);
-    if (!editor)
-        return nullptr;
-    m_documents << editor->document();
-    return qobject_cast<TextDocument *>(editor->document());
+    QTRY_COMPARE(liveClientsFor(m_firstBc).size(), 1);
+    QPointer<Client> firstClient = liveClientsFor(m_firstBc).first();
+    QCOMPARE(clients().size(), 1);
+    QTRY_COMPARE(firstClient->state(), Client::Initialized);
+    QCOMPARE(LanguageClientManager::clientForDocument(m_document), firstClient.data());
+
+    switchTo(m_secondBc);
+
+    QTRY_COMPARE(clients().size(), 1);
+    QPointer<Client> secondClient = clients().first();
+    QCOMPARE(secondClient->buildConfiguration(), m_secondBc);
+    QVERIFY(secondClient != firstClient);
+    QTRY_VERIFY(firstClient.isNull());
+    QTRY_COMPARE(secondClient->state(), Client::Initialized);
+    QCOMPARE(LanguageClientManager::clientForDocument(m_document), secondClient.data());
 }
 
-TestProject *LanguageClientManagerTest::addProject(
-    const FilePath &projectDirectory, const FilePaths &files)
+void LanguageClientManagerTest::testSwitchingBackBeforeOldServerExits()
 {
-    const FilePath projectFile = projectDirectory.pathAppended("test.lcmproject");
-    if (!projectDirectory.ensureWritableDir() || !projectFile.writeFileContents({}))
-        return nullptr;
-    auto project = new TestProject(projectFile);
-    ProjectManager::addProject(project);
-    m_projects << project;
-    // Adding the build configuration connects the language client manager to the file list.
-    if (!project->addTargetForKit(m_kit.get()))
-        return nullptr;
-    project->setFiles(files);
-    return project;
+    QTRY_COMPARE(liveClientsFor(m_firstBc).size(), 1);
+    QPointer<Client> oldClient = liveClientsFor(m_firstBc).first();
+    QTRY_COMPARE(oldClient->state(), Client::Initialized);
+
+    FakeServerInterface::holdShutdown = true;
+
+    switchTo(m_secondBc);
+    QTRY_COMPARE(oldClient->state(), Client::ShutdownRequested);
+    QTRY_COMPARE(liveClientsFor(m_secondBc).size(), 1);
+    QPointer<Client> interimClient = liveClientsFor(m_secondBc).first();
+    QTRY_COMPARE(interimClient->state(), Client::Initialized);
+
+    switchTo(m_firstBc);
+
+    QTRY_COMPARE(liveClientsFor(m_firstBc).size(), 1);
+    QPointer<Client> newClient = liveClientsFor(m_firstBc).first();
+    QVERIFY(newClient != oldClient);
+    QCOMPARE(oldClient->state(), Client::ShutdownRequested);
+
+    releaseAllServers();
+
+    QTRY_VERIFY(oldClient.isNull());
+    QTRY_VERIFY(interimClient.isNull());
+    QCOMPARE(clients().size(), 1);
+    QCOMPARE(clients().first(), newClient.data());
+    QTRY_COMPARE(newClient->state(), Client::Initialized);
+    QCOMPARE(LanguageClientManager::clientForDocument(m_document), newClient.data());
 }
 
-QList<Client *> LanguageClientManagerTest::testClients() const
+void LanguageClientManagerTest::testDocumentOpenedWhileOldServerIsShuttingDown()
 {
-    return LanguageClientManager::clientsForSetting(m_settings);
-}
+    QTRY_COMPARE(liveClientsFor(m_firstBc).size(), 1);
+    QPointer<Client> oldClient = liveClientsFor(m_firstBc).first();
+    QTRY_COMPARE(oldClient->state(), Client::Initialized);
 
-void LanguageClientManagerTest::testFileMovesToProjectClientWhenProjectOpens()
-{
-    const FilePath projectDirectory = m_tempDir->path().pathAppended("project");
-    const FilePath file = projectDirectory.pathAppended("file.lcmtest");
+    FakeServerInterface::holdShutdown = true;
+    switchTo(m_secondBc);
+    QTRY_COMPARE(oldClient->state(), Client::ShutdownRequested);
+    QTRY_COMPARE(liveClientsFor(m_secondBc).size(), 1);
+    switchTo(m_firstBc);
+    QTRY_COMPARE(liveClientsFor(m_firstBc).size(), 1);
+    QPointer<Client> newClient = liveClientsFor(m_firstBc).first();
 
-    TextDocument *document = openDocument(file);
-    QVERIFY(document);
-    QPointer<Client> projectLessClient = LanguageClientManager::clientForDocument(document);
-    QVERIFY(projectLessClient);
-    QVERIFY(!projectLessClient->buildConfiguration());
-    QTRY_COMPARE(projectLessClient->state(), Client::Initialized);
-
-    TestProject *project = addProject(projectDirectory, {file});
-    QVERIFY(project);
-    BuildConfiguration *bc = project->activeBuildConfiguration();
-    QVERIFY(bc);
-
-    QTRY_VERIFY(LanguageClientManager::clientForDocument(document)
-                && LanguageClientManager::clientForDocument(document)->buildConfiguration() == bc);
-    QTRY_COMPARE(LanguageClientManager::clientForDocument(document)->state(), Client::Initialized);
-}
-
-void LanguageClientManagerTest::testShutdownProjectClientIsNotUsedForFileOutsideProjects()
-{
-    const FilePath projectDirectory = m_tempDir->path().pathAppended("project");
-    const FilePath projectFile = projectDirectory.pathAppended("file.lcmtest");
-    const FilePath looseFile = m_tempDir->path().pathAppended("loose/file.lcmtest");
-
-    TestProject *project = addProject(projectDirectory, {projectFile});
-    QVERIFY(project);
-    TextDocument *projectDocument = openDocument(projectFile);
-    QVERIFY(projectDocument);
-    QPointer<Client> projectClient = LanguageClientManager::clientForDocument(projectDocument);
-    QVERIFY(projectClient);
-    QCOMPARE(projectClient->buildConfiguration(), project->activeBuildConfiguration());
-    QTRY_COMPARE(projectClient->state(), Client::Initialized);
-
-    // Keep the project client in ShutdownRequested, as for a server that takes time to exit.
-    FakeServerInterface::answerShutdown = false;
-    ProjectManager::removeProject(project);
-    QVERIFY(projectClient);
-    QCOMPARE(projectClient->state(), Client::ShutdownRequested);
-    QVERIFY(!projectClient->buildConfiguration());
-
-    TextDocument *looseDocument = openDocument(looseFile);
-    QVERIFY(looseDocument);
-    Client *looseClient = LanguageClientManager::clientForDocument(looseDocument);
-    QVERIFY(looseClient);
-    QVERIFY(looseClient != projectClient);
-    QVERIFY(!looseClient->buildConfiguration());
-    QTRY_COMPARE(looseClient->state(), Client::Initialized);
-}
-
-void LanguageClientManagerTest::testRestartingProjectLessClientIsReused()
-{
-    const FilePath firstFile = m_tempDir->path().pathAppended("loose/first.lcmtest");
-    const FilePath secondFile = m_tempDir->path().pathAppended("loose/second.lcmtest");
-
-    TextDocument *firstDocument = openDocument(firstFile);
-    QVERIFY(firstDocument);
-    QPointer<Client> projectLessClient = LanguageClientManager::clientForDocument(firstDocument);
-    QVERIFY(projectLessClient);
-    QTRY_COMPARE(projectLessClient->state(), Client::Initialized);
-
-    // Keep the client in ShutdownRequested, as for a server that takes time to exit.
-    FakeServerInterface::answerShutdown = false;
-    LanguageClientManager::restartClient(projectLessClient);
-    QCOMPARE(projectLessClient->state(), Client::ShutdownRequested);
-
-    TextDocument *secondDocument = openDocument(secondFile);
+    TextEditor::TextDocument *secondDocument = openFile("second.txt");
     QVERIFY(secondDocument);
-    QCOMPARE(testClients(), QList<Client *>{projectLessClient.data()});
-    QCOMPARE(LanguageClientManager::clientForDocument(secondDocument), projectLessClient.data());
+
+    QTRY_COMPARE(LanguageClientManager::clientForDocument(secondDocument), newClient.data());
+    QCOMPARE(oldClient->state(), Client::ShutdownRequested);
+
+    releaseAllServers();
+
+    QTRY_VERIFY(oldClient.isNull());
+    QTRY_COMPARE(newClient->state(), Client::Initialized);
+    QCOMPARE(LanguageClientManager::clientForDocument(secondDocument), newClient.data());
+    QCOMPARE(LanguageClientManager::clientForDocument(m_document), newClient.data());
 }
 
-void LanguageClientManagerTest::testFileMovesToExistingProjectClientWhenAddedToProject()
+void LanguageClientManagerTest::testApplySettingsWhileClientIsRestarting()
 {
-    const FilePath projectDirectory = m_tempDir->path().pathAppended("project");
-    const FilePath projectFile = projectDirectory.pathAppended("file.lcmtest");
-    // Outside of the project directory, so it is not part of the project until it is listed.
-    const FilePath sharedFile = m_tempDir->path().pathAppended("shared/file.lcmtest");
+    QTRY_COMPARE(liveClientsFor(m_firstBc).size(), 1);
+    QPointer<Client> oldClient = liveClientsFor(m_firstBc).first();
+    QTRY_COMPARE(oldClient->state(), Client::Initialized);
 
-    TestProject *project = addProject(projectDirectory, {projectFile});
-    QVERIFY(project);
-    TextDocument *projectDocument = openDocument(projectFile);
-    QVERIFY(projectDocument);
-    QPointer<Client> projectClient = LanguageClientManager::clientForDocument(projectDocument);
-    QVERIFY(projectClient);
-    QCOMPARE(projectClient->buildConfiguration(), project->activeBuildConfiguration());
-    QTRY_COMPARE(projectClient->state(), Client::Initialized);
+    FakeServerInterface::holdShutdown = true;
+    LanguageClientManager::applySettings(m_settingId);
+    QTRY_COMPARE(oldClient->state(), Client::ShutdownRequested);
+    QCOMPARE(liveClientsFor(m_firstBc).size(), 1);
+    QPointer<Client> restartedClient = liveClientsFor(m_firstBc).first();
+    QVERIFY(restartedClient != oldClient);
+    QTRY_COMPARE(restartedClient->state(), Client::Initialized);
 
-    TextDocument *sharedDocument = openDocument(sharedFile);
-    QVERIFY(sharedDocument);
-    QPointer<Client> projectLessClient = LanguageClientManager::clientForDocument(sharedDocument);
-    QVERIFY(projectLessClient);
-    QVERIFY(!projectLessClient->buildConfiguration());
-    QTRY_COMPARE(projectLessClient->state(), Client::Initialized);
+    LanguageClientManager::applySettings(m_settingId);
 
-    project->setFiles({projectFile, sharedFile});
+    QTRY_COMPARE(restartedClient->state(), Client::ShutdownRequested);
+    QCOMPARE(liveClientsFor(m_firstBc).size(), 1);
+    QPointer<Client> latestClient = liveClientsFor(m_firstBc).first();
+    QVERIFY(latestClient != restartedClient);
 
-    QTRY_COMPARE(LanguageClientManager::clientForDocument(sharedDocument), projectClient.data());
-    QCOMPARE(LanguageClientManager::clientForDocument(projectDocument), projectClient.data());
+    releaseAllServers();
+
+    QTRY_VERIFY(oldClient.isNull());
+    QTRY_VERIFY(restartedClient.isNull());
+    QCOMPARE(clients().size(), 1);
+    QCOMPARE(clients().first(), latestClient.data());
+    QTRY_COMPARE(latestClient->state(), Client::Initialized);
+    QCOMPARE(LanguageClientManager::clientForDocument(m_document), latestClient.data());
 }
 
-void LanguageClientManagerTest::testFileReturnsToProjectLessClientWhenProjectCloses()
+void LanguageClientManagerTest::testDocumentOpenedWhileClientIsRestartedInPlace()
 {
-    const FilePath projectDirectory = m_tempDir->path().pathAppended("project");
-    const FilePath file = projectDirectory.pathAppended("file.lcmtest");
+    QTRY_COMPARE(liveClientsFor(m_firstBc).size(), 1);
+    QPointer<Client> client = liveClientsFor(m_firstBc).first();
+    QTRY_COMPARE(client->state(), Client::Initialized);
 
-    TextDocument *document = openDocument(file);
-    QVERIFY(document);
-    QPointer<Client> projectLessClient = LanguageClientManager::clientForDocument(document);
-    QVERIFY(projectLessClient);
-    QVERIFY(!projectLessClient->buildConfiguration());
-    QTRY_COMPARE(projectLessClient->state(), Client::Initialized);
+    FakeServerInterface::holdShutdown = true;
+    LanguageClientManager::restartClient(client);
+    QTRY_COMPARE(client->state(), Client::ShutdownRequested);
 
-    TestProject *project = addProject(projectDirectory, {file});
-    QVERIFY(project);
-    QTRY_VERIFY(LanguageClientManager::clientForDocument(document)
-                && LanguageClientManager::clientForDocument(document) != projectLessClient);
-    QPointer<Client> projectClient = LanguageClientManager::clientForDocument(document);
-    QTRY_COMPARE(projectClient->state(), Client::Initialized);
+    TextEditor::TextDocument *secondDocument = openFile("second.txt");
+    QVERIFY(secondDocument);
 
-    ProjectManager::removeProject(project);
+    QCOMPARE(clients().size(), 1);
+    QCOMPARE(clients().first(), client.data());
 
-    QTRY_COMPARE(LanguageClientManager::clientForDocument(document), projectLessClient.data());
-    QTRY_VERIFY(!projectClient);
-    QCOMPARE(testClients(), QList<Client *>{projectLessClient.data()});
+    releaseAllServers();
+
+    QTRY_COMPARE(client->state(), Client::Initialized);
+    QCOMPARE(clients().size(), 1);
+    QCOMPARE(clients().first(), client.data());
+    QCOMPARE(LanguageClientManager::clientForDocument(m_document), client.data());
+    QTRY_COMPARE(LanguageClientManager::clientForDocument(secondDocument), client.data());
+}
+
+void LanguageClientManagerTest::testFileListChangeDoesNotStartClientForInactiveBuildConfiguration()
+{
+    QTRY_COMPARE(liveClientsFor(m_firstBc).size(), 1);
+    QPointer<Client> firstClient = liveClientsFor(m_firstBc).first();
+    QTRY_COMPARE(firstClient->state(), Client::Initialized);
+
+    announceFile("main.txt");
+
+    QCOMPARE(liveClientsFor(m_secondBc).size(), 0);
+    QCOMPARE(clients().size(), 1);
+    QCOMPARE(clients().first(), firstClient.data());
+}
+
+void LanguageClientManagerTest::testSwitchingTargetMovesClient()
+{
+    QTRY_COMPARE(liveClientsFor(m_firstBc).size(), 1);
+    QPointer<Client> firstClient = liveClientsFor(m_firstBc).first();
+    QTRY_COMPARE(firstClient->state(), Client::Initialized);
+
+    Target *otherTarget = m_project->addTargetForKit(m_otherKit.get());
+    QVERIFY(otherTarget);
+    BuildConfiguration *otherBc = otherTarget->buildConfigurations().first();
+    QVERIFY(otherBc);
+    QCOMPARE(m_project->activeBuildConfiguration(), m_firstBc);
+    QCOMPARE(liveClientsFor(m_firstBc).size(), 1);
+
+    m_project->setActiveTarget(otherTarget, SetActive::NoCascade);
+    QCOMPARE(m_project->activeBuildConfiguration(), otherBc);
+
+    QTRY_COMPARE(clients().size(), 1);
+    QPointer<Client> otherClient = clients().first();
+    QCOMPARE(otherClient->buildConfiguration(), otherBc);
+    QTRY_VERIFY(firstClient.isNull());
+    QTRY_COMPARE(otherClient->state(), Client::Initialized);
+    QCOMPARE(LanguageClientManager::clientForDocument(m_document), otherClient.data());
+
+    announceFile("main.txt");
+
+    QCOMPARE(liveClientsFor(m_firstBc).size(), 0);
+    QCOMPARE(liveClientsFor(m_secondBc).size(), 0);
+    QCOMPARE(clients().size(), 1);
 }
 
 QObject *createLanguageClientManagerTest()
@@ -386,6 +497,8 @@ QObject *createLanguageClientManagerTest()
     return new LanguageClientManagerTest;
 }
 
-} // namespace LanguageClient::Internal
+} // namespace LanguageClient
 
 #include "languageclientmanager_test.moc"
+
+#endif // WITH_TESTS

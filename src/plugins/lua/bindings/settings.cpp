@@ -15,6 +15,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/secretaspect.h>
 
+#include <limits>
+
 using namespace Utils;
 using namespace Core;
 using namespace std::string_view_literals;
@@ -185,6 +187,30 @@ void typedAspectCreate(StringAspect *aspect, const std::string &key, const sol::
     }
     else
         typedAspectCreate(static_cast<TypedAspect<QString> *>(aspect), key, value);
+}
+
+template<>
+void typedAspectCreate(IntegerAspect *aspect, const std::string &key, const sol::object &value)
+{
+    if (key == "range") {
+        const auto range = value.as<sol::optional<sol::table>>();
+        if (!range)
+            throw sol::error("range must be a table of the form { minimum, maximum }");
+        const auto minimum = range->get<sol::optional<qint64>>(1);
+        const auto maximum = range->get<sol::optional<qint64>>(2);
+        if (!minimum || !maximum)
+            throw sol::error("range must be a table of the form { minimum, maximum }");
+        if (*minimum > *maximum)
+            throw sol::error("range minimum must not be greater than maximum");
+        // The spin box only takes int
+        if (*minimum < std::numeric_limits<int>::min()
+            || *maximum > std::numeric_limits<int>::max()) {
+            throw sol::error("range must fit into a 32-bit integer");
+        }
+        aspect->setRange(*minimum, *maximum);
+    } else {
+        typedAspectCreate(static_cast<TypedAspect<qint64> *>(aspect), key, value);
+    }
 }
 
 template<>

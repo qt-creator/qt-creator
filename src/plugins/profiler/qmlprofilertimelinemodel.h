@@ -29,6 +29,7 @@ public:
 
     virtual void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) = 0;
     virtual void initialize();
+    virtual void prepare();
     virtual void finalize();
 
 private:

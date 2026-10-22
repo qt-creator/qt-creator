@@ -4,8 +4,8 @@
 #include "timelinecontentwidget.h"
 
 #include "pausedrangesoverlay.h"
-#include "rangedetailswidget.h"
 #include "selectionrangeoverlay.h"
+#include "timelinedetailswidget.h"
 #include "timelinemodel.h"
 #include "timelinemodelaggregator.h"
 #include "timelinenotesmodel.h"
@@ -17,6 +17,7 @@
 #include "trackpaintergpu.h"
 #endif
 #include "trackpainterraster.h"
+#include "tracingtr.h"
 
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
@@ -26,6 +27,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLoggingCategory>
+#include <QMenu>
 #include <QNativeGestureEvent>
 #include <QPainter>
 #include <QResizeEvent>
@@ -79,7 +81,7 @@ protected:
 
 TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator,
                                              TimelineZoomControl *zoom,
-                                             RangeDetailsWidget *details,
+                                             TimelineDetailsWidget *details,
                                              QWidget *parent)
     : QWidget(parent)
     , m_aggregator(aggregator)
@@ -148,13 +150,13 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
     // its content there while this timeline holds the matching item. Only a
     // timeline that is off screen (behind a tab, say) stays put; nobody is
     // looking at it.
-    connect(m_details, &RangeDetailsWidget::recenterOnItem, this, [this] {
+    connect(m_details, &TimelineDetailsWidget::recenterOnItem, this, [this] {
         if (m_details->provider() != this && !isVisible())
             return;
         recenterOnItem(m_selectedModelIndex, m_selectedItemIndex);
     });
 
-    connect(m_details, &RangeDetailsWidget::rowDoubleClicked, this, [this](int row) {
+    connect(m_details, &TimelineDetailsWidget::rowDoubleClicked, this, [this](int row) {
         if (m_details->provider() != this)
             return;
         if (m_selectedModelIndex >= 0 && m_selectedModelIndex < m_trackModels.size()
@@ -282,7 +284,18 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
         selectItem(trackIndex, eventId);
     });
 
+    connect(m_labels, &TrackLabels::contextMenuRequested,
+            this, &TimelineContentWidget::showTrackContextMenu);
+    connect(m_labels, &TrackLabels::hiddenTracksClicked, this, [this](const QPoint &globalPos) {
+        auto menu = new QMenu(this);
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+        populateTracksMenu(menu);
+        menu->popup(globalPos);
+    });
+
     connect(aggregator, &TimelineModelAggregator::modelsChanged,
+            this, &TimelineContentWidget::rebuildTracks);
+    connect(aggregator, &TimelineModelAggregator::hiddenModelsChanged,
             this, &TimelineContentWidget::rebuildTracks);
     connect(aggregator, &TimelineModelAggregator::notesChanged,
             this, &TimelineContentWidget::updateNotes);
@@ -443,7 +456,7 @@ void TimelineContentWidget::updateContainerSize()
     // and as tall as the full track content so the vertical scroll bar covers
     // the whole timeline. The render widget itself stays viewport-sized.
     const int viewW = m_scrollArea->viewport()->width();
-    const int contentH = m_tracksView->totalHeight();
+    const int contentH = m_tracksView->totalHeight() + m_labels->footerHeight();
     m_trackContainer->resize(viewW, contentH);
 }
 
@@ -570,7 +583,7 @@ void TimelineContentWidget::rebuildTracks()
     m_hoveredItemIndex = -1;
 
     QList<TrackInfo> tracks;
-    const bool hasTrace = m_zoom->traceDuration() > 0;
+    int hiddenTracks = 0;
     int aggIdx = -1;
     for (TimelineModel *model : m_aggregator->models()) {
         ++aggIdx;
@@ -581,10 +594,12 @@ void TimelineContentWidget::rebuildTracks()
         connect(model, &TimelineModel::hiddenChanged, this, [this] { rebuildTracks(); });
         connect(model, &TimelineModel::labelsChanged, this, [this] { rebuildTracks(); });
 
-        if (model->hidden())
+        if (!canShowTrack(model))
             continue;
-        if (hasTrace && model->isEmpty())
+        if (m_aggregator->isModelHidden(model->modelId())) {
+            ++hiddenTracks;
             continue;
+        }
 
         m_trackModels.append(model);
         m_painterAggregatorMap.append(aggIdx);
@@ -632,11 +647,15 @@ void TimelineContentWidget::rebuildTracks()
     m_tracksView->setNotes(m_aggregator->notes());
     m_tracksView->setSelectionLocked(m_selectionLocked);
     m_tracksView->setTracks(m_trackModels);
+    const bool hiddenTracksChanged = m_labels->hiddenTrackCount() != hiddenTracks;
+    m_labels->setHiddenTrackCount(hiddenTracks);
     updateContainerSize();
     m_tracksView->setScrollOffset(m_scrollArea->verticalScrollBar()->value());
 
     m_labels->setTracks(tracks);
     m_labels->setScrollOffset(m_scrollArea->verticalScrollBar()->value());
+    if (hiddenTracksChanged)
+        emit hiddenTrackCountChanged(hiddenTracks);
 
     // Restore selection if the item's model is still visible and the item still
     // exists; otherwise clear details. The item index can go stale when the model
@@ -657,6 +676,78 @@ void TimelineContentWidget::rebuildTracks()
     m_selectedModelIndex = -1;
     m_selectedItemIndex = -1;
     m_details->clear(this);
+}
+
+// Whether the model has a track at all, before the user's choice to hide it.
+bool TimelineContentWidget::canShowTrack(const TimelineModel *model) const
+{
+    if (model->hidden())
+        return false;
+    return m_zoom->traceDuration() <= 0 || !model->isEmpty();
+}
+
+int TimelineContentWidget::hiddenTrackCount() const
+{
+    return m_labels->hiddenTrackCount();
+}
+
+void TimelineContentWidget::populateTracksMenu(QMenu *menu)
+{
+    QAction *showAll = menu->addAction(Tr::tr("Show All Categories"));
+    showAll->setEnabled(hiddenTrackCount() > 0);
+    connect(showAll, &QAction::triggered,
+            m_aggregator, &TimelineModelAggregator::showAllModels);
+    menu->addSeparator();
+    for (const TimelineModel *model : m_aggregator->models()) {
+        if (!canShowTrack(model))
+            continue;
+        QAction *action = menu->addAction(model->displayName());
+        action->setCheckable(true);
+        action->setChecked(!m_aggregator->isModelHidden(model->modelId()));
+        const int modelId = model->modelId();
+        connect(action, &QAction::toggled, m_aggregator, [this, modelId](bool checked) {
+            m_aggregator->setModelHidden(modelId, !checked);
+        });
+    }
+}
+
+void TimelineContentWidget::showTrackContextMenu(int trackIndex, const QPoint &globalPos)
+{
+    if (trackIndex < 0 || trackIndex >= m_trackModels.size())
+        return;
+    const int modelId = m_trackModels.at(trackIndex)->modelId();
+    const QString name = m_trackModels.at(trackIndex)->displayName();
+
+    auto menu = new QMenu(this);
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+
+    QAction *moveUp = menu->addAction(Tr::tr("Move Up"));
+    moveUp->setEnabled(trackIndex > 0);
+    connect(moveUp, &QAction::triggered, this, [this, trackIndex] {
+        m_aggregator->moveModel(painterToAggregator(trackIndex),
+                                painterToAggregator(trackIndex - 1));
+    });
+    QAction *moveDown = menu->addAction(Tr::tr("Move Down"));
+    moveDown->setEnabled(trackIndex + 1 < m_trackModels.size());
+    connect(moveDown, &QAction::triggered, this, [this, trackIndex] {
+        m_aggregator->moveModel(painterToAggregator(trackIndex),
+                                painterToAggregator(trackIndex + 1));
+    });
+    menu->addSeparator();
+
+    QAction *hide = menu->addAction(Tr::tr("Hide \"%1\"").arg(name));
+    connect(hide, &QAction::triggered, m_aggregator, [this, modelId] {
+        m_aggregator->setModelHidden(modelId, true);
+    });
+    QAction *showOnly = menu->addAction(Tr::tr("Show Only \"%1\"").arg(name));
+    showOnly->setEnabled(m_trackModels.size() > 1);
+    connect(showOnly, &QAction::triggered, m_aggregator, [this, modelId] {
+        m_aggregator->showOnlyModel(modelId);
+    });
+    menu->addSeparator();
+    populateTracksMenu(menu->addMenu(Tr::tr("Categories")));
+
+    menu->popup(globalPos);
 }
 
 void TimelineContentWidget::updateNotes()

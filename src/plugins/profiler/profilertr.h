@@ -9,7 +9,7 @@ namespace Profiler {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(QtC::QmlProfiler)
+    Q_DECLARE_TR_FUNCTIONS(QtC::Profiler)
 };
 
 } // namespace Profiler

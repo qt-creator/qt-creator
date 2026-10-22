@@ -116,6 +116,18 @@ void QmlPreviewConnectionManager::createDebugTranslationClient()
     }, Qt::QueuedConnection); // Queue it, so that it interfere with the connection timer
 }
 
+void QmlPreview::QmlPreviewConnectionManager::doRestart()
+{
+    // we want to keep the recorded events, so that the user can start where they
+    // left off after restart. We have to keep the events in the plugin, because
+    // the connection manager and thus the client will be destroyed on restart.
+
+    QmlPreviewPlugin *plugin = QmlPreviewPlugin::instance();
+    plugin->setEvents(m_qmlPreviewClient->events());
+    plugin->setEventTypes(m_qmlPreviewClient->eventTypes());
+    emit restart();
+}
+
 void QmlPreviewConnectionManager::createPreviewClient()
 {
     m_qmlPreviewClient = new QmlPreviewClient(connection());
@@ -134,7 +146,7 @@ void QmlPreviewConnectionManager::createPreviewClient()
                 [this](const QString &filename, const QString &changedFile,
                        const QByteArray &contents) {
         if (!m_fileClassifier(changedFile)) {
-            emit restart();
+            doRestart();
             return;
         }
 
@@ -193,9 +205,14 @@ void QmlPreviewConnectionManager::createPreviewClient()
     connect(m_qmlPreviewClient.data(),
             &QmlPreviewClient::errorReported,
             this,
-            [](const QString &error) {
-                Core::MessageManager::writeFlashing("Error loading QML Live Preview:");
-                Core::MessageManager::writeSilently(error);
+            [this](const QString &error) {
+                static_assert(QmlPreviewClient::Configuration == 10);
+                if (error == QLatin1String("Invalid command: 10")) {
+                    m_qmlPreviewClient->configureEventReplay();
+                } else {
+                    Core::MessageManager::writeFlashing("Error loading QML Live Preview:");
+                    Core::MessageManager::writeSilently(error);
+                }
             });
 
     connect(m_qmlPreviewClient.data(), &QmlPreviewClient::fpsReported,
@@ -213,15 +230,9 @@ void QmlPreviewConnectionManager::createPreviewClient()
         m_qmlPreviewClient.data(),
         &QmlPreviewClient::hotReloadFailure,
         this,
-        [this, plugin](const QString &reason) {
-            // In case of hot reload failure, we want to keep the recorded events,
-            //  so that the user can start where they left off after restart.
-            // We have to keep the events in the plugin, because the connection manager
-            // and thus the client will be destroyed on restart.
-            plugin->setEvents(m_qmlPreviewClient->events());
-            plugin->setEventTypes(m_qmlPreviewClient->eventTypes());
+        [this](const QString &reason) {
             Core::MessageManager::writeFlashing(QStringLiteral("Hot reload failed: %1").arg(reason));
-            emit restart();
+            doRestart();
         });
 
     connect(m_qmlPreviewClient.data(), &QmlPreviewClient::debugServiceUnavailable,
@@ -242,7 +253,7 @@ void QmlPreviewConnectionManager::createPreviewClient()
             return;
 
         if (!m_fileClassifier(changedFile.toFSPathString())) {
-            emit restart();
+            doRestart();
             return;
         }
 

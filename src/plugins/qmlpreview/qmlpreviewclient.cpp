@@ -21,10 +21,8 @@ QmlPreviewClient::QmlPreviewClient(QmlDebug::QmlDebugConnection *connection)
 
 void QmlPreviewClient::loadUrl(const QUrl &url)
 {
-    m_numExpectedEvents = m_events.size();
-    if (m_numExpectedEvents > 0 && m_replayClient
-        && m_replayClient->state() == QmlDebugClient::Enabled) {
-        replayEventsForUrl(url, m_events, m_eventTypes);
+    if (!m_confirmedSettings.enableInPlaceUpdates && canReplayEvents()) {
+        replayEventsForUrl(url);
     } else {
         m_events.clear();
         doLoad(url);
@@ -177,18 +175,18 @@ void QmlPreviewClient::configureEventReplay()
     });
 
     // We want to start the replay as soon as possible after the configuration is confirmed.
-    if (!m_events.isEmpty() && m_replayClient && m_replayClient->state() == QmlDebugClient::Enabled)
-        replayEventsForUrl(QUrl(), m_events, m_eventTypes);
+    if (canReplayEvents())
+        replayEventsForUrl(QUrl());
 }
 
-void QmlPreviewClient::replayEventsForUrl(
-    const QUrl &url, QList<QmlDebug::QmlEvent> &events, QList<QmlDebug::QmlEventType> &types)
+void QmlPreviewClient::replayEventsForUrl(const QUrl &url)
 {
-    const QList<QmlEvent> recorded = std::exchange(events, {});
+    m_numExpectedEvents = m_events.size();
+    const QList<QmlEvent> recorded = std::exchange(m_events, {});
     setAnimationSpeed(1000);
     doLoad(url);
     for (const QmlEvent &event : recorded)
-        m_replayClient->sendEvent(types[event.typeIndex()], event);
+        m_replayClient->sendEvent(m_eventTypes[event.typeIndex()], event);
     m_replayTimer.start();
 }
 

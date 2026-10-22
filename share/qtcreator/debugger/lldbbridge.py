@@ -85,6 +85,9 @@ class Dumper(DumperBase):
             self.debugger.Initialize()
             self.debugger.SetAsync(True)
             self.debugger.HandleCommand('settings set auto-confirm on')
+            if sys.platform == 'darwin':
+                self.debugger.HandleCommand(
+                    'settings set platform.plugin.darwin.ignored-exceptions EXC_BAD_ACCESS')
 
             # FIXME: warn('DISABLING DEFAULT FORMATTERS')
             # It doesn't work at all with 179.5 and we have some bad
@@ -3535,7 +3538,10 @@ class Dumper(DumperBase):
 
     def createSnapshot(self, args):
         self.reportToken(args)
-        error = self.process.SaveCore(args['path'])
+        if sys.platform == 'darwin' and hasattr(lldb, 'eSaveCoreDirtyOnly'):
+            error = self.process.SaveCore(args['path'], '', lldb.eSaveCoreDirtyOnly)
+        else:
+            error = self.process.SaveCore(args['path'])
         self.reportResult('ok="%d"' % (0 if error.Fail() else 1), args)
 
     def watchPoint(self, args):

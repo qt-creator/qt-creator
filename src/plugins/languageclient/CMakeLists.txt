@@ -38,6 +38,7 @@ extend_qtc_plugin(LanguageClient
   CONDITION WITH_TESTS
   SOURCES
     languageclientmanager_test.cpp languageclientmanager_test.h
+    requiresprojectorfile_test.cpp requiresprojectorfile_test.h
 )
 
 qt_add_resources(LanguageClient lc_images_rcc

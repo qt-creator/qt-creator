@@ -6,11 +6,11 @@
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilermodelmanager.h"
 
-#include <utils/qtdesignwidgets.h>
+#include <utils/overlaywidget.h>
 
 namespace Profiler::Internal {
 
-class QmlProfilerStateWidget : public Utils::QtcRectangleWidget
+class QmlProfilerStateWidget : public Utils::OverlayWidget
 {
     Q_OBJECT
 
@@ -23,7 +23,6 @@ public:
 private:
     void showText(const QString &text);
     void updateDisplay();
-    void reposition();
     void initialize();
     void clear();
 

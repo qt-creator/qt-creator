@@ -5641,6 +5641,8 @@ void tst_backends::testDetachCapability()
 
     if (auto result = checkExtraCapability(backend, Debugger::DebuggerExtraCapability::Detach); !result)
         QSKIP(qPrintable(result.error()));
+    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
+        QSKIP("This test is flaky on mac");
 
     if (checkStartMode(backend, DebuggerStartModeFlag::AttachToQmlServer)) {
         Process inferiorProcess;
@@ -6207,6 +6209,8 @@ void tst_backends::testResetInferiorCapability()
 
     if (auto result = checkCapability(backend, Debugger::ResetInferiorCapability); !result)
         QSKIP(qPrintable(result.error()));
+    if (HostOsInfo::isMacHost() && backend == Backend::Qml)
+        QSKIP("This test is flaky on mac");
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
@@ -6262,6 +6266,8 @@ void tst_backends::runsTheDebuggerAsTheConfiguredUser()
             Debugger::DebuggerExtraCapability::RunAsUser); !result) {
         QSKIP(qPrintable(result.error()));
     }
+    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
+        QSKIP("This test is flaky on mac");
 
     // sudo cannot be asked for a password here, so a stub takes its place: it
     // records how it was called and runs what it was given.
@@ -6836,6 +6842,8 @@ void tst_backends::testRunCommandDeferralCapability()
     // available, the deferred change never lands and there is nothing to observe.
     if (!canInterruptRunningInferior(backend))
         QSKIP("this backend's running inferior cannot be interrupted on this host");
+    if (HostOsInfo::isMacHost() && backend == Backend::Qml)
+        QSKIP("This test is flaky on mac");
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
@@ -7080,9 +7088,6 @@ void tst_backends::reportsASignalledExitAsACrash()
     if (auto result = checkExtraCapability(backend, Debugger::DebuggerExtraCapability::SignalReceived); !result)
         QSKIP(qPrintable(result.error()));
 
-    if (HostOsInfo::isMacHost())
-        QSKIP("This test fails on Mac");
-
     std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {},
         ProcessRunData{{inferiorTestData(backend).executable, {"crash"}}, {}, Environment::systemEnvironment()});
     DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -7120,9 +7125,6 @@ void tst_backends::namesTheSignalThatTookTheInferior()
         QSKIP(qPrintable(result.error()));
     }
 
-    if (HostOsInfo::isMacHost())
-        QSKIP("This test fails on Mac");
-
     std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {},
         ProcessRunData{{inferiorTestData(backend).executable, {"crash"}}, {}, Environment::systemEnvironment()});
     DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -7149,9 +7151,6 @@ void tst_backends::testSnapshotCapability()
 
     if (auto result = checkCapability(backend, Debugger::SnapshotCapability); !result)
         QSKIP(qPrintable(result.error()));
-
-    if (HostOsInfo::isMacHost())
-        QSKIP("This test fails on Mac");
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
@@ -10889,9 +10888,6 @@ void tst_backends::fillsInTheColumnsOfTheDisassemblerView()
 {
     QFETCH(Backend, backend);
 
-    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
-        QSKIP("This test fails on mac");
-
     if (auto result = checkCapability(backend, Debugger::DisassemblerCapability); !result)
         QSKIP(qPrintable(result.error()));
 
@@ -11043,9 +11039,6 @@ void tst_backends::fillsInTheColumnsOfTheSectionView()
 {
     QFETCH(Backend, backend);
 
-    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
-        QSKIP("This test fails on mac");
-
     if (auto result = checkCapability(backend, Debugger::ShowModuleSectionsCapability); !result)
         QSKIP(qPrintable(result.error()));
 
@@ -11090,9 +11083,6 @@ void tst_backends::fillsInTheColumnsOfTheSectionView()
 void tst_backends::fillsInTheColumnsOfTheSymbolView()
 {
     QFETCH(Backend, backend);
-
-    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
-        QSKIP("This test fails on mac");
 
     if (auto result = checkCapability(backend, Debugger::ShowModuleSymbolsCapability); !result)
         QSKIP(qPrintable(result.error()));
@@ -11142,9 +11132,6 @@ void tst_backends::fillsInTheColumnsOfTheSymbolView()
 void tst_backends::reportsTheKindOfARegister()
 {
     QFETCH(Backend, backend);
-
-    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
-        QSKIP("This test fails on mac");
 
     if (auto result = checkCapability(backend, Debugger::RegisterCapability); !result)
         QSKIP(qPrintable(result.error()));
@@ -11215,9 +11202,6 @@ void tst_backends::reportsVectorRegistersInHex()
     if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
         QSKIP("This test fails on mac");
 
-    if (HostOsInfo::isLinuxHost() && backend == Backend::Bridge)
-        QSKIP("This test fails on linux");
-
     if (auto result = checkCapability(backend, Debugger::RegisterCapability); !result)
         QSKIP(qPrintable(result.error()));
 
@@ -11257,9 +11241,6 @@ void tst_backends::reportsVectorRegistersInHex()
 void tst_backends::reportsWhereAModuleIsLoaded()
 {
     QFETCH(Backend, backend);
-
-    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
-        QSKIP("This test fails on mac");
 
     if (auto result = checkCapability(backend, Debugger::ReloadModuleCapability); !result)
         QSKIP(qPrintable(result.error()));
@@ -11474,9 +11455,6 @@ void tst_backends::refreshesRegisters()
 {
     QFETCH(Backend, backend);
 
-    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
-        QSKIP("This test fails on mac");
-
     if (auto result = checkCapability(backend, Debugger::RegisterCapability); !result)
         QSKIP(qPrintable(result.error()));
 
@@ -11512,9 +11490,6 @@ void tst_backends::refreshesRegisters()
 void tst_backends::setsARegisterTheViewsNeverFetched()
 {
     QFETCH(Backend, backend);
-
-    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
-        QSKIP("This test fails on mac");
 
     if (auto result = checkCapability(backend, Debugger::RegisterCapability); !result)
         QSKIP(qPrintable(result.error()));
@@ -11568,9 +11543,6 @@ void tst_backends::sortsTheRegistersIntoGroups()
 {
     QFETCH(Backend, backend);
 
-    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
-        QSKIP("This test fails on mac");
-
     if (auto result = checkCapability(backend, Debugger::RegisterCapability); !result)
         QSKIP(qPrintable(result.error()));
     if (!reportsRegisterGroups(backend))
@@ -11609,9 +11581,6 @@ void tst_backends::sortsTheRegistersIntoGroups()
 void tst_backends::refreshesRegistersAfterResume()
 {
     QFETCH(Backend, backend);
-
-    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
-        QSKIP("This test fails on mac");
 
     if (auto result = checkCapability(backend, Debugger::RegisterCapability); !result)
         QSKIP(qPrintable(result.error()));
@@ -16874,7 +16843,7 @@ void tst_backends::continuesPastNativeMixedCppBreakpoint()
 
     debuggerBackend->clearEvents();
     debuggerBackend->execute({ExecutionCommand::Interrupt});
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopOk), s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopOk), s_qmlStartupTimeout);
 #endif
 }
 

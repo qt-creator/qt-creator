@@ -41,13 +41,18 @@ if(WITH_TESTS)
     tests/qmlprofileranimationsmodel_test.cpp tests/qmlprofileranimationsmodel_test.h
     tests/qmlprofilerattachdialog_test.cpp tests/qmlprofilerattachdialog_test.h
     tests/qmlprofilerclientmanager_test.cpp tests/qmlprofilerclientmanager_test.h
+    tests/qmlprofilerdashboard_test.cpp tests/qmlprofilerdashboard_test.h
+    tests/qmlprofilerdashboardstats_test.cpp tests/qmlprofilerdashboardstats_test.h
     tests/qmlprofilerdetailsrewriter_test.cpp tests/qmlprofilerdetailsrewriter_test.h
     tests/qmlprofilerfindingsmodel_test.cpp tests/qmlprofilerfindingsmodel_test.h
     tests/qmlprofilernotesmodel_test.cpp tests/qmlprofilernotesmodel_test.h
+    tests/qmlprofilerrangemodel_test.cpp tests/qmlprofilerrangemodel_test.h
     tests/qmlprofilersampler_test.cpp tests/qmlprofilersampler_test.h
+    tests/qmlprofilerstatisticsmodel_test.cpp tests/qmlprofilerstatisticsmodel_test.h
     tests/qmlprofilertool_test.cpp tests/qmlprofilertool_test.h
     tests/qmlprofilertracefile_test.cpp tests/qmlprofilertracefile_test.h
     tests/qmlprofilertraceview_test.cpp tests/qmlprofilertraceview_test.h
+    tests/quick3dmodel_test.cpp tests/quick3dmodel_test.h
     tests/qttracesampler_test.cpp tests/qttracesampler_test.h
     tests/scenegraphtimelinemodel_test.cpp tests/scenegraphtimelinemodel_test.h
     tests/tests.qrc
@@ -158,7 +163,6 @@ set(PERFPROFILER_CPP_SOURCES
   perfprofilerstatisticsview.cpp perfprofilerstatisticsview.h
   perfprofilertracefile.cpp perfprofilertracefile.h
   perfprofilertracemanager.cpp perfprofilertracemanager.h
-  perfprofilertr.h
   perfconversion.cpp perfconversion.h
   perfdataparser.cpp perfdataparser.h
   perfrecordreader.cpp perfrecordreader.h

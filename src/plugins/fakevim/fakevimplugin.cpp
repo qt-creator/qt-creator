@@ -2003,8 +2003,10 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
     });
 
     handler->requestDisableBlockSelection.set([tew] {
-        if (tew)
+        if (tew) {
+            tew->setPaintOnlyMainCursor(false);
             tew->setTextCursor(tew->textCursor());
+        }
     });
 
     handler->requestSetBlockSelection.set([tew](const QTextCursor &cursor,
@@ -2020,9 +2022,12 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
             const int pos = tabs.columnAt(cursor.block().text(), cursor.positionInBlock());
             while (block.isValid() && block != end) {
                 const int columns = tabs.columnCountForText(block.text());
-                if (columns >= anchor || (!toEndOfLine && columns >= pos)) {
+                // The caret line always gets a cursor, as the last one added is the one painted.
+                if (columns >= anchor || (!toEndOfLine && columns >= pos)
+                    || block == cursor.block()) {
                     QTextCursor c(block);
-                    c.setPosition(block.position() + tabs.positionAtColumn(block.text(), anchor));
+                    c.setPosition(qMin(block.position() + tabs.positionAtColumn(block.text(), anchor),
+                                       block.position() + block.length() - 1));
                     int endPosition = block.position() + tabs.positionAtColumn(block.text(), pos);
                     // After '$' the selection extends to the end of each line
                     // rather than to a fixed column (QTCREATORBUG-22192).
@@ -2039,6 +2044,8 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
                 }
                 block = forwardSelection ? block.next() : block.previous();
             }
+            // Vim shows a single cursor for a block selection, not one per line.
+            tew->setPaintOnlyMainCursor(true);
             tew->setMultiTextCursor(mtc);
         }
     });
@@ -2543,6 +2550,11 @@ void FakeVimPlugin::editorAboutToClose(IEditor *editor)
     // only way a buffer goes, so only the ":bdelete" three are fired and
     // BufWipeout is left alone rather than guessing which close is which.
     if (FakeVimHandler *handler = m_editorToHandler.value(editor, {}).handler) {
+        // The mode is shared by all editors, so it must not carry over to the
+        // one becoming current, which currentEditorAboutToChange cannot do
+        // for an editor that is already gone from m_editorToHandler.
+        if (editor == EditorManager::currentEditor())
+            handler->enterCommandMode();
         handler->triggerAutocmd("BufWinLeave");
         handler->triggerAutocmd("BufUnload");
         // On the way out Vim unloads a buffer but does not drop it from the

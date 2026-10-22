@@ -301,6 +301,7 @@ public:
 
     Utils::MultiTextCursor multiTextCursor() const;
     void setMultiTextCursor(const Utils::MultiTextCursor &cursor);
+    void setPaintOnlyMainCursor(bool onlyMain);
 
     QRegion translatedLineRegion(int lineStart, int lineEnd) const;
 

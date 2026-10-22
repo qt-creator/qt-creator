@@ -23,6 +23,8 @@
 #include <cppeditor/cppprojectfile.h>
 #include <cppeditor/cpptoolsreuse.h>
 
+#include <profiler/ctfvisualizerconstants.h> // soft dependency
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
@@ -267,7 +269,7 @@ void runCMakeWithProfiling(BuildSystem *buildSystem)
         // which will ensure that the "cmake-profile.json" has been created and we can load the viewer
         QObject::connect(cmakeBuildSystem, &BuildSystem::updated, cmakeBuildSystem, [] {
             Core::Command *ctfVisualiserLoadTrace = Core::ActionManager::command(
-                "Analyzer.Menu.StartAnalyzer.CtfVisualizer.LoadTrace");
+                Profiler::Constants::CtfVisualizerTaskLoadJson);
 
             if (ctfVisualiserLoadTrace) {
                 auto *action = ctfVisualiserLoadTrace->actionForContext(Core::Constants::C_GLOBAL);

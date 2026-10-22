@@ -133,11 +133,10 @@ void InputEventsModel::loadEvent(const QmlEvent &event, const QmlEventType &type
     }
 }
 
-void InputEventsModel::finalize()
+void InputEventsModel::prepare()
 {
     setCollapsedRowCount(Timeline::kCollapsedStartRow + 1);
     setExpandedRowCount(3);
-    QmlProfilerTimelineModel::finalize();
 }
 
 void InputEventsModel::clear()

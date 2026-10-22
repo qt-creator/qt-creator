@@ -31,6 +31,7 @@ public:
     MemoryUsageModel(QmlProfilerModelManager *manager, Timeline::TimelineModelAggregator *parent);
 
     qint64 rowMaxValue(int rowNumber) const override;
+    QString formatRowValue(int rowNumber, qint64 value) const override;
 
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;
@@ -44,7 +45,7 @@ public:
     Timeline::ItemDetails details(int index) const override;
 
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) override;
-    void finalize() override;
+    void prepare() override;
     void clear() override;
     bool handlesTypeId(int typeId) const override;
 

@@ -70,6 +70,7 @@ public:
     const QList<PathMapping> validPathMappings() const;
     Utils::FilePath mappedFilePath(const Utils::FilePath &filePath,
                                    const QString &projectName) const;
+    bool hasPathMapping(const Utils::FilePath &filePath, const QString &projectName) const;
     Utils::FilePath localProjectForProjectName(const QString &projectName) const;
     void validatePath();
     std::optional<AxivionVersionInfo> versionInfo() const { return m_versionInfo; }
@@ -87,6 +88,7 @@ public:
 signals:
     void serversChanged();
     void suitePathValidated();
+    void pathMappingsChanged();
 private:
     std::optional<AxivionVersionInfo> m_versionInfo = std::nullopt;
     Utils::StringAspect m_defaultServerId{this};

@@ -820,7 +820,8 @@ public:
     void setupSelections(const PaintEventData &data, PaintEventBlockData &blockData) const;
     void addCursorsPosition(PaintEventData &data,
                            QPainter &painter,
-                           const PaintEventBlockData &blockData) const;
+                           const PaintEventBlockData &blockData,
+                           const QList<QTextCursor> &paintedCursors) const;
     // skips document-invisible blocks and blocks hidden in this widget's
     // layout only (e.g. unchanged lines collapsed by the inline diff editor)
     QTextBlock nextVisibleBlock(const QTextBlock &block) const;
@@ -1081,6 +1082,8 @@ public:
     void resetCursorFlashTimer();
     QBasicTimer m_cursorFlashTimer;
     bool m_cursorVisible = false;
+    bool m_paintOnlyMainCursor = false;
+    QList<QTextCursor> paintedCursors() const;
     bool m_moveLineUndoHack = false;
     void updateCursorSelections();
     QString identicalSingleLineSelection() const;
@@ -7104,9 +7107,17 @@ static bool blockContainsCursor(const PaintEventBlockData &blockData, const QTex
     return pos >= blockData.position && pos < blockData.position + blockData.length;
 }
 
+QList<QTextCursor> TextEditorWidgetPrivate::paintedCursors() const
+{
+    if (m_paintOnlyMainCursor && !m_cursors.isNull())
+        return {m_cursors.mainCursor()};
+    return m_cursors.cursors();
+}
+
 void TextEditorWidgetPrivate::addCursorsPosition(PaintEventData &data,
                                                  QPainter &painter,
-                                                 const PaintEventBlockData &blockData) const
+                                                 const PaintEventBlockData &blockData,
+                                                 const QList<QTextCursor> &paintedCursors) const
 {
     if (!m_dndCursor.isNull()) {
         if (blockContainsCursor(blockData, m_dndCursor)) {
@@ -7114,7 +7125,7 @@ void TextEditorWidgetPrivate::addCursorsPosition(PaintEventData &data,
                 generateCursorData(m_dndCursor.positionInBlock(), data, blockData, painter));
         }
     } else {
-        for (const QTextCursor &cursor : m_cursors) {
+        for (const QTextCursor &cursor : paintedCursors) {
             if (blockContainsCursor(blockData, cursor)) {
                 data.cursors.append(
                     generateCursorData(cursor.positionInBlock(), data, blockData, painter));
@@ -7224,6 +7235,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
     if (!suggestionVisible())
         paintPlaceholderText(&painter);
 
+    const QList<QTextCursor> paintedCursors = d->paintedCursors();
     while (data.block.isValid()) {
 
         PaintEventBlockData blockData;
@@ -7247,7 +7259,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
             bool drawCursorAsBlock = false;
             if (d->m_dndCursor.isNull()) {
                 drawCursor = d->m_cursorVisible
-                             && Utils::anyOf(d->m_cursors, [&](const QTextCursor &cursor) {
+                             && Utils::anyOf(paintedCursors, [&](const QTextCursor &cursor) {
                                     return blockContainsCursor(blockData, cursor);
                                 });
                 drawCursorAsBlock = drawCursor && overwriteMode();
@@ -7256,7 +7268,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
             }
 
             if (drawCursorAsBlock) {
-                for (const QTextCursor &cursor : multiTextCursor()) {
+                for (const QTextCursor &cursor : paintedCursors) {
                     if (blockContainsCursor(blockData, cursor))
                         d->paintCursorAsBlock(data, painter, blockData, cursor.position());
                 }
@@ -7292,7 +7304,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                     data.cursors = {generateCursorData(cursorPos, data, blockData, painter)};
                 }
             } else if (drawCursor && !drawCursorAsBlock) {
-                d->addCursorsPosition(data, painter, blockData);
+                d->addCursorsPosition(data, painter, blockData, paintedCursors);
             }
             d->paintIndentDepth(data, painter, blockData);
             // the main layout starts below potential additional layout items
@@ -9675,6 +9687,19 @@ void TextEditorWidget::setMultiTextCursor(const Utils::MultiTextCursor &cursor)
     updateRect |= d->cursorUpdateRect(d->m_cursors);
     viewport()->update(updateRect);
     emit cursorPositionChanged();
+}
+
+/*!
+    Paints the cursor only at the position of the main cursor of
+    multiTextCursor() if \a onlyMain is \c true. Selections of all
+    cursors are still painted.
+*/
+void TextEditorWidget::setPaintOnlyMainCursor(bool onlyMain)
+{
+    if (d->m_paintOnlyMainCursor == onlyMain)
+        return;
+    d->m_paintOnlyMainCursor = onlyMain;
+    viewport()->update(d->cursorUpdateRect(d->m_cursors));
 }
 
 QRegion TextEditorWidget::translatedLineRegion(int lineStart, int lineEnd) const

@@ -17345,7 +17345,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>No QML events recorded</source>
         <translation>Zabeleženega ni nobenega dogodka QML</translation>
@@ -17367,7 +17367,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -22524,7 +22524,7 @@ S strani z možnostmi za različice Qt zgradite razhroščevalne pomočnike.</tr
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML Profiler</translation>

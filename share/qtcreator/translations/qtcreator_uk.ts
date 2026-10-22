@@ -10253,7 +10253,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Memory Usage</source>
         <translation>Вживання пам&apos;яті</translation>
@@ -15181,7 +15181,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>Профайлер QML</translation>
@@ -22968,7 +22968,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>&lt;program&gt;</source>
         <translation type="vanished">&lt;програма&gt;</translation>
@@ -27371,7 +27371,7 @@ Qt Creator know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
@@ -33324,7 +33324,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Could not open %1 for writing.</source>
         <translation>Не вдалось відкрити %1 для запису.</translation>
@@ -34778,7 +34778,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>&lt;bytecode&gt;</source>
         <translation>&lt;байт-код&gt;</translation>
@@ -39074,7 +39074,7 @@ The files in the Android package source directory are copied to the build direct
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
 </context>
 <context>
     <name>QtC::ResourceEditor</name>
@@ -40180,7 +40180,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Duration</source>
         <translation>Тривалість</translation>
@@ -41042,7 +41042,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Could not connect to the in-process QML debugger:
 %1</source>
@@ -41519,7 +41519,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Flush data while profiling:</source>
         <translation type="unfinished"></translation>
@@ -42472,7 +42472,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>Analyzer</source>
         <translation>Аналізатор</translation>
@@ -43875,7 +43875,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QtC::QmlProfiler</name>
+    <name>QtC::Profiler</name>
     <message>
         <source>No executable file to launch.</source>
         <translation>Немає виконуваного модуля для запуску.</translation>

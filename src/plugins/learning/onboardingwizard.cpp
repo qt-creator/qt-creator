@@ -14,7 +14,6 @@
 
 #include <coreplugin/welcomepagehelper.h>
 
-#include <QPainter>
 #include <QRadioButton>
 #include <QWidget>
 
@@ -116,13 +115,7 @@ QWidget *createOnboardingWizard(QWidget *parent)
 
     auto widget = new OverlayWidget(parent);
     widget->setAttribute(Qt::WA_TransparentForMouseEvents, false);
-    widget->setPaintFunction(
-        [](QWidget *that, QPainter &p, QPaintEvent *)
-        {
-            QColor color = creatorColor(Theme::Token_Background_Default);
-            color.setAlpha(210);
-            p.fillRect(that->rect(), color);
-        });
+    widget->setPaintFunction(&OverlayWidget::paintDimmedBackground);
     widget->attachToWidget(parent);
 
     using namespace Layouting;

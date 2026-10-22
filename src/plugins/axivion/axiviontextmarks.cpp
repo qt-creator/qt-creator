@@ -3,7 +3,6 @@
 
 #include "axiviontextmarks.h"
 
-#include "axivionperspective.h"
 #include "axivionplugin.h"
 #include "axivionsettings.h"
 #include "axiviontr.h"
@@ -28,16 +27,25 @@ namespace Axivion::Internal {
 
 constexpr char s_axivionTextMarkId[] = "AxivionTextMark";
 
+static bool checkParams(const std::optional<FilePath> &bauhausSuite, LineMarkerType type)
+{
+    return bauhausSuite ? (type == LineMarkerType::SFA)
+                        : (type == LineMarkerType::DashboardGlobal
+                           || type == LineMarkerType::DashboardLocal);
+}
+
 class AxivionTextMark : public TextMark
 {
 public:
     AxivionTextMark(const FilePath &filePath, const Dto::LineMarkerDto &issue,
-                    std::optional<Theme::Color> color, const std::optional<FilePath> &bauhausSuite)
+                    std::optional<Theme::Color> color, LineMarkerType type,
+                    const LineIssuesOrigin &origin, const std::optional<FilePath> &bauhausSuite)
         : TextMark(filePath, issue.startLine, {"Axivion", s_axivionTextMarkId})
         , issueId(issue.id.value_or(-1))
+        , origin(origin)
         , bauhausSuite(bauhausSuite)
     {
-        LineMarkerType type = bauhausSuite ? LineMarkerType::SFA : LineMarkerType::Dashboard;
+        QTC_CHECK(checkParams(bauhausSuite, type));
         const QString markText = issue.description;
         const QString id = (type  == LineMarkerType::SFA)
                 ? issue.kind : issue.kind + QString::number(issueId);
@@ -48,16 +56,17 @@ public:
         setPriority(TextMark::NormalPriority);
         setLineAnnotation(markText);
 
-        setActionsProvider([id, type, bauhausSuite, issue] {
+        setActionsProvider([id, type, origin, bauhausSuite, issue] {
             auto action = new QAction;
             action->setIcon(Icons::INFO.icon());
             action->setToolTip(Tr::tr("Show Issue Properties"));
-            if (type == LineMarkerType::Dashboard) {
+            if (type != LineMarkerType::SFA) {
+                const DashboardMode mode = (type == LineMarkerType::DashboardLocal)
+                        ? DashboardMode::Local : DashboardMode::Global;
                 QObject::connect(action, &QAction::triggered,
-                                 action, [id] {
-                    const bool useGlobal = currentDashboardMode() == DashboardMode::Global
-                            || !currentIssueHasValidPathMapping();
-                    fetchIssueInfo(useGlobal ? DashboardMode::Global : DashboardMode::Local, id);
+                                 action, [id, mode, origin] {
+                    fetchIssueInfo(mode, origin.projectName, id, origin.version,
+                                   DetailsVisibility::Ensure);
                 });
             } else {
                 // only connect if we have valid parameters
@@ -74,6 +83,7 @@ public:
     }
 
     qint64 issueId = -1;
+    LineIssuesOrigin origin;
     std::optional<FilePath> bauhausSuite = std::nullopt;
 };
 
@@ -83,23 +93,27 @@ public:
     TextMarkManager() = default;
     ~TextMarkManager()
     {
-        QTC_CHECK(issueMarks.isEmpty());
+        QTC_CHECK(issueMarksLocal.isEmpty());
+        QTC_CHECK(issueMarksGlobal.isEmpty());
         QTC_CHECK(sfaMarks.isEmpty());
     }
 
     QHash<FilePath, QSet<AxivionTextMark *>> &marks(LineMarkerType type)
     {
         switch (type) {
-        case LineMarkerType::Dashboard:
-            return issueMarks;
+        case LineMarkerType::DashboardLocal:
+            return issueMarksLocal;
+        case LineMarkerType::DashboardGlobal:
+            return issueMarksGlobal;
         case LineMarkerType::SFA:
             return sfaMarks;
         }
         QTC_CHECK(false);
-        return issueMarks; // should not be reached at all
+        return issueMarksGlobal; // should not be reached at all
     }
 
-    QHash<FilePath, QSet<AxivionTextMark *>> issueMarks;
+    QHash<FilePath, QSet<AxivionTextMark *>> issueMarksLocal;
+    QHash<FilePath, QSet<AxivionTextMark *>> issueMarksGlobal;
     QHash<FilePath, QSet<AxivionTextMark *>> sfaMarks;
 };
 
@@ -166,12 +180,14 @@ static QHash<int, CorrectedLine> computeLineMapping(const QByteArray &analysisSo
 
 void handleIssuesForFile(const Dto::FileViewDto &fileView, const FilePath &filePath,
                          const std::optional<FilePath> &bauhausSuite,
+                         LineMarkerType type,
+                         const LineIssuesOrigin &origin,
                          const QByteArray &origSource)
 {
     if (fileView.lineMarkers.empty())
         return;
 
-    LineMarkerType type = bauhausSuite ? LineMarkerType::SFA : LineMarkerType::Dashboard;
+    QTC_CHECK(checkParams(bauhausSuite, type));
     std::optional<Theme::Color> color = std::nullopt;
     if (settings().highlightMarks())
         color.emplace(Theme::Color(Theme::Bookmarks_TextMarkColor)); // FIXME!
@@ -217,7 +233,8 @@ void handleIssuesForFile(const Dto::FileViewDto &fileView, const FilePath &fileP
             corrected.startLine = start.line;
             corrected.endLine = marker.endLine == 0 ? 0 : end.line;
         }
-        marks[filePath] << new AxivionTextMark(filePath, corrected, color, bauhausSuite);
+        marks[filePath] << new AxivionTextMark(filePath, corrected, color, type, origin,
+                                               bauhausSuite);
     }
 }
 
@@ -226,10 +243,9 @@ void clearAllMarks(LineMarkerType type)
     QHash<FilePath, QSet<AxivionTextMark *>> &markers = textMarkManager().marks(type);
 
     switch (type) {
-    case LineMarkerType::Dashboard:
-        for (const QSet<AxivionTextMark *> &marks : std::as_const(markers))
-            qDeleteAll(marks);
-        markers.clear();
+    case LineMarkerType::DashboardLocal:
+    case LineMarkerType::DashboardGlobal:
+        clearMarksIf(type, [](const FilePath &, const LineIssuesOrigin &) { return true; });
         break;
     case LineMarkerType::SFA: {
         const FilePaths files = markers.keys();
@@ -243,8 +259,11 @@ void clearAllMarks(LineMarkerType type)
 void clearMarks(const FilePath &filePath, LineMarkerType type)
 {
     switch (type) {
-    case LineMarkerType::Dashboard:
-        qDeleteAll(textMarkManager().issueMarks.take(filePath));
+    case LineMarkerType::DashboardLocal:
+        qDeleteAll(textMarkManager().issueMarksLocal.take(filePath));
+        break;
+    case LineMarkerType::DashboardGlobal:
+        qDeleteAll(textMarkManager().issueMarksGlobal.take(filePath));
         break;
     case LineMarkerType::SFA: {
         QSet<AxivionTextMark *> marks = textMarkManager().sfaMarks.take(filePath);
@@ -263,16 +282,50 @@ void clearMarks(const FilePath &filePath, LineMarkerType type)
     }
 }
 
+void clearMarksIf(LineMarkerType type,
+                  const std::function<bool(const FilePath &filePath,
+                                           const LineIssuesOrigin &origin)> &condition)
+{
+    QTC_ASSERT(type != LineMarkerType::SFA, return);
+    QHash<FilePath, QSet<AxivionTextMark *>> &markers = textMarkManager().marks(type);
+    for (auto it = markers.begin(); it != markers.end(); ) {
+        if (it->isEmpty() || condition(it.key(), (*it->cbegin())->origin)) {
+            qDeleteAll(*it);
+            it = markers.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
+void clearMarksWithoutPathMapping(LineMarkerType type)
+{
+    clearMarksIf(type, [](const FilePath &filePath, const LineIssuesOrigin &origin) {
+        return !settings().hasPathMapping(filePath, origin.projectName);
+    });
+}
+
 bool hasLineIssues(const FilePath &filePath, LineMarkerType type)
 {
     switch (type) {
-    case LineMarkerType::Dashboard:
-        return textMarkManager().issueMarks.contains(filePath);
+    case LineMarkerType::DashboardLocal:
+        return textMarkManager().issueMarksLocal.contains(filePath);
+    case LineMarkerType::DashboardGlobal:
+        return textMarkManager().issueMarksGlobal.contains(filePath);
     case LineMarkerType::SFA:
         return textMarkManager().sfaMarks.contains(filePath);
     }
     QTC_CHECK(false);
     return false;
+}
+
+std::optional<LineIssuesOrigin> lineIssuesOrigin(const FilePath &filePath, LineMarkerType type)
+{
+    const QHash<FilePath, QSet<AxivionTextMark *>> &markers = textMarkManager().marks(type);
+    const auto it = markers.constFind(filePath);
+    if (it == markers.cend() || it->isEmpty())
+        return std::nullopt;
+    return (*it->cbegin())->origin;
 }
 
 void updateExistingMarks() // update whether highlight marks or not
@@ -283,7 +336,13 @@ void updateExistingMarks() // update whether highlight marks or not
     auto changeColor = colored ? [](TextMark *mark) { mark->setColor(color); }
                                : [](TextMark *mark) { mark->unsetColor(); };
 
-    for (const QSet<AxivionTextMark *> &marksForFile : std::as_const(textMarkManager().issueMarks)) {
+    for (const QSet<AxivionTextMark *> &marksForFile
+         : std::as_const(textMarkManager().issueMarksLocal)) {
+        for (auto mark : marksForFile)
+            changeColor(mark);
+    }
+    for (const QSet<AxivionTextMark *> &marksForFile
+         : std::as_const(textMarkManager().issueMarksGlobal)) {
         for (auto mark : marksForFile)
             changeColor(mark);
     }

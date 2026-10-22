@@ -130,9 +130,13 @@ enum class LineMarkerType;
 QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind, LineMarkerType type);
 QString anyToSimpleString(const Dto::Any &any, const QString &type,
                           const std::optional<std::vector<Dto::ColumnTypeOptionDto>> &options);
-void fetchIssueInfo(DashboardMode dashboardMode, const QString &id);
+enum class DetailsVisibility { Keep, Ensure };
+void fetchIssueInfo(DashboardMode dashboardMode, const QString &projectName, const QString &id,
+                    const QString &version = {},
+                    DetailsVisibility visibility = DetailsVisibility::Keep);
 
 void switchActiveDashboardId(const Utils::Id &toDashboardId);
+void resetLocalDashboard();
 const Utils::Id activeDashboardId();
 const std::optional<DashboardInfo> currentDashboardInfo();
 void setAnalysisVersion(const QString &version);
@@ -140,6 +144,7 @@ void enableInlineIssues(bool enable);
 
 void switchDashboardMode(DashboardMode mode, bool byLocalBuildButton); // FIXME
 DashboardMode currentDashboardMode();
+void updateInlineIssues();
 
 Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath);
 

@@ -7,16 +7,22 @@
 
 #include <utils/outputformat.h>
 
+#include <optional>
+
 namespace Utils { class FilePath; }
 
 namespace Axivion::Internal {
+
+enum class DashboardMode;
+inline constexpr char s_singleFileAnalysisActionId[] = "Axivion.SingleFile";
 
 void updateDashboard();
 void showFilterException(const QString &errorMessage);
 void showErrorMessage(const QString &errorMessage);
 void reinitDashboard(const QString &projectName);
 void resetDashboard();
-void updateIssueDetails(const QString &html, const QString &projectName);
+void updateIssueDetails(const QString &html, const QString &projectName,
+                        std::optional<DashboardMode> dashboardMode);
 void updateNamedFilters();
 void updateLocalBuildStateFor(const QString &projectName, const QString &state, int percent);
 void updateSfaStateFor(const Utils::FilePath &fileName, const QString &state, int percent);
@@ -29,7 +35,9 @@ void resetSfaConsole(const Utils::FilePath &fileName);
 
 void leaveOrEnterDashboardMode(bool byLocalBuildButton);
 bool currentIssueHasValidPathMapping();
+bool localChangesSelected();
 void showLocalBuildProgress();
+void showIssueDetails();
 
 void setupAxivionPerspective();
 
