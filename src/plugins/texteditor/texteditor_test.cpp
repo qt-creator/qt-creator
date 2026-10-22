@@ -5,6 +5,7 @@
 
 #include "texteditor_test.h"
 
+#include "behaviorsettings.h"
 #include "storagesettings.h"
 #include "displaysettings.h"
 #include "tabsettings.h"
@@ -2503,7 +2504,6 @@ private slots:
     void testEditRepaintsOnlyWhatShowsLabels();
 
 private:
-    static void storeParentheses(QTextDocument *document);
     static QString body(int lines);
     // The labels of all lines, by 1-based line number.
     static QMap<int, QString> labels(const TextEditorWidget &widget);
@@ -2513,7 +2513,7 @@ private:
 };
 
 // The editors get these from their highlighters.
-void ScopeEndAnnotationsTest::storeParentheses(QTextDocument *document)
+static void storeParentheses(QTextDocument *document)
 {
     for (QTextBlock block = document->begin(); block.isValid(); block = block.next()) {
         Parentheses parentheses;
@@ -2523,6 +2523,10 @@ void ScopeEndAnnotationsTest::storeParentheses(QTextDocument *document)
                 parentheses.append(Parenthesis(Parenthesis::Opened, '{', i));
             else if (text.at(i) == '}')
                 parentheses.append(Parenthesis(Parenthesis::Closed, '}', i));
+            else if (text.at(i) == '(')
+                parentheses.append(Parenthesis(Parenthesis::Opened, '(', i));
+            else if (text.at(i) == ')')
+                parentheses.append(Parenthesis(Parenthesis::Closed, ')', i));
         }
         TextBlockUserData::setParentheses(block, parentheses);
     }
@@ -3366,6 +3370,65 @@ void ScopeEndAnnotationsTest::testEditRepaintsOnlyWhatShowsLabels()
 QObject *createScopeEndAnnotationsTest()
 {
     return new ScopeEndAnnotationsTest;
+}
+
+class DoubleClickSelectsInParenthesesTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testDoubleClick_data();
+    void testDoubleClick();
+};
+
+void DoubleClickSelectsInParenthesesTest::testDoubleClick_data()
+{
+    QTest::addColumn<bool>("selectsInParentheses");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("default") << false << QString("(bar, baz)");
+    QTest::newRow("selectContents") << true << QString("bar, baz");
+}
+
+void DoubleClickSelectsInParenthesesTest::testDoubleClick()
+{
+    QFETCH(bool, selectsInParentheses);
+    QFETCH(QString, expected);
+
+    BaseTextEditor *editor = openTextEditor("foo(bar, baz)", "doubleclick.cpp");
+    QVERIFY(editor);
+    const QScopeGuard cleanup([&] { Core::EditorManager::closeEditors({editor}, false); });
+
+    TextDocument *document = editor->textDocument();
+    storeParentheses(document->document());
+
+    TextEditorWidget *editorWidget = editor->editorWidget();
+    QVERIFY(editorWidget);
+
+    BehaviorSettingsData behaviorSettings = editorWidget->behaviorSettings();
+    behaviorSettings.m_doubleClickSelectsInParentheses = selectsInParentheses;
+    editorWidget->setBehaviorSettings(behaviorSettings);
+
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.setPosition(4); // foo(|bar)
+    editorWidget->setTextCursor(cursor);
+
+    const QPoint pos = editorWidget->cursorRect(cursor).center();
+    QTest::mouseDClick(editorWidget->viewport(), Qt::LeftButton, Qt::NoModifier, pos);
+
+    cursor = editorWidget->textCursor();
+    QVERIFY(cursor.hasSelection());
+    QCOMPARE(cursor.selectedText(), expected);
+
+    if (selectsInParentheses) {
+        QCOMPARE(cursor.selectionStart(), 4);
+        QCOMPARE(cursor.selectionEnd(), 12);
+    }
+}
+
+QObject *createDoubleClickSelectsInParenthesesTest()
+{
+    return new DoubleClickSelectsInParenthesesTest;
 }
 
 } // TextEditor::Internal

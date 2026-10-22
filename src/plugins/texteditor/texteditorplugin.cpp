@@ -124,6 +124,7 @@ void TextEditorPlugin::initialize()
     addTestCreator(createEditorConfigTest);
     addTestCreator(createMergeConflictTest);
     addTestCreator(createSpellCheckTest);
+    addTestCreator(createDoubleClickSelectsInParenthesesTest);
 #endif
 
     IOptionsPage::registerCategory(

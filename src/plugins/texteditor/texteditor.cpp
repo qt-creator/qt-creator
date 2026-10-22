@@ -8660,8 +8660,25 @@ void TextEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
         QTextCursor cursor = textCursor();
         const int position = cursor.position();
         if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, false, true)) {
-            if (position - cursor.position() == 1 && selectBlockUp())
-                return;
+            if (position - cursor.position() == 1) {
+                if (behaviorSettings().m_doubleClickSelectsInParentheses) {
+                    // Interested only in parentheses, so using the base method.
+                    if (TextEditorWidget::selectBlockUp()) {
+                        QTextCursor selCursor = textCursor();
+                        if (selCursor.hasSelection()) {
+                            // The TextEditorWidget::selectBlockUp() selects with parentheses, deselect them.
+                            const int start = selCursor.selectionStart();
+                            const int end = selCursor.selectionEnd();
+                            selCursor.setPosition(end - 1);
+                            selCursor.setPosition(start + 1, QTextCursor::KeepAnchor);
+                            setTextCursor(selCursor);
+                        }
+                        return;
+                    }
+                } else if (selectBlockUp()) {
+                    return;
+                }
+            }
         }
     }
 

@@ -25,6 +25,7 @@ public:
     bool m_camelCaseNavigation = true;
     bool m_keyboardTooltips = false;
     bool m_smartSelectionChanging = true;
+    bool m_doubleClickSelectsInParentheses = false;
 };
 
 class TEXTEDITOR_EXPORT BehaviorSettings final : public Utils::AspectContainer
@@ -44,6 +45,7 @@ public:
     Utils::BoolAspect camelCaseNavigation{this};
     Utils::BoolAspect keyboardTooltips{this};
     Utils::BoolAspect smartSelectionChanging{this};
+    Utils::BoolAspect doubleClickSelectsInParentheses{this};
 };
 
 TEXTEDITOR_EXPORT BehaviorSettings &globalBehaviorSettings();

@@ -76,6 +76,16 @@ BehaviorSettings::BehaviorSettings(const Key &keyPrefix)
     smartSelectionChanging.setLabelText(Tr::tr("Enable smart selection changing"));
     smartSelectionChanging.setToolTip(Tr::tr("Using Select Block Up / Down actions will now provide smarter selections."));
 
+    doubleClickSelectsInParentheses.setSettingsKey(keyPrefix + "DoubleClickSelectsInParentheses");
+    doubleClickSelectsInParentheses.setDefaultValue(false);
+    doubleClickSelectsInParentheses.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    doubleClickSelectsInParentheses.setLabelText(
+        Tr::tr("Enable double-click select between parentheses"));
+    doubleClickSelectsInParentheses.setToolTip(
+        Tr::tr(
+            "Double-clicking immediately after an opening parenthesis selects everything inside "
+            "the parentheses."));
+
     setLayouter([this] {
         using namespace Layouting;
         return Column {
@@ -88,6 +98,7 @@ BehaviorSettings::BehaviorSettings(const Key &keyPrefix)
                         scrollWheelZooming, br,
                         camelCaseNavigation, br,
                         smartSelectionChanging, br,
+                        doubleClickSelectsInParentheses, br,
                         keyboardTooltips, br,
                         constrainHoverTooltips, br
                     }, st
@@ -106,6 +117,7 @@ void BehaviorSettings::setData(const BehaviorSettingsData &data)
     camelCaseNavigation.setValue(data.m_camelCaseNavigation);
     keyboardTooltips.setValue(data.m_keyboardTooltips);
     smartSelectionChanging.setValue(data.m_smartSelectionChanging);
+    doubleClickSelectsInParentheses.setValue(data.m_doubleClickSelectsInParentheses);
 }
 
 void BehaviorSettings::apply()
@@ -124,6 +136,7 @@ BehaviorSettingsData BehaviorSettings::data() const
     d.m_camelCaseNavigation = camelCaseNavigation();
     d.m_keyboardTooltips = keyboardTooltips();
     d.m_smartSelectionChanging = smartSelectionChanging();
+    d.m_doubleClickSelectsInParentheses = doubleClickSelectsInParentheses();
     return d;
 }
 
