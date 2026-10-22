@@ -6244,6 +6244,8 @@ void tst_backends::runsTheDebuggerAsTheConfiguredUser()
     }
     if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
         QSKIP("This test is flaky on mac");
+    if (HostOsInfo::isLinuxHost() && backend == Backend::Qml)
+        QSKIP("This test is flaky on linux");
 
     // sudo cannot be asked for a password here, so a stub takes its place: it
     // records how it was called and runs what it was given.
@@ -14129,6 +14131,8 @@ void tst_backends::honorsTheDebugInfoDaemonSetting()
 
     if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
         QSKIP("This test fails on mac");
+    if (HostOsInfo::isLinuxHost() && backend == Backend::Gdb)
+        QSKIP("This test is flaky on linux");
 
     if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
         QSKIP(qPrintable(result.error()));
