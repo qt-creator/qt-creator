@@ -303,10 +303,10 @@ void JavaKitAspectFactory::onKitsLoaded()
             if (!k->isAspectRelevant(JavaKitAspect::id()))
                 continue;
             if (!k->hasValue(JavaKitAspect::id())) {
-                if (const std::optional<Jdk> jdk
+                if (const std::optional<Jdk> jdkOpt
                     = providedJdkForKit(k, &JdkManager::jdkForJavaHome)) {
-                    if (jdk->id.isValid())
-                        k->setValue(JavaKitAspect::id(), jdk->id.toSetting());
+                    if (jdkOpt->id.isValid())
+                        k->setValue(JavaKitAspect::id(), jdkOpt->id.toSetting());
                 } else if (const Jdk jdk = defaultJdkForKit(k); jdk.id.isValid()) {
                     setTheJdkOfTheMachine(k, jdk);
                 }
