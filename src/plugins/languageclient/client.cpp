@@ -304,7 +304,7 @@ public:
 
     QSet<TextEditor::TextDocument *> m_postponedDocuments;
     QMap<Utils::FilePath, int> m_documentVersions;
-    std::unordered_map<TextEditor::TextDocument *, QList<TextDocumentContentChangePartial>>
+    std::unordered_map<TextEditor::TextDocument *, QList<TextDocumentContentChangeEvent>>
         m_documentsToUpdate;
     QHash<TextEditor::TextEditorWidget *, QTimer *> m_documentHighlightsTimer;
     QTimer m_documentUpdateTimer;
@@ -1310,11 +1310,14 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
             // as otherwise we'd send tons of single-character changes.
             auto &queue = d->m_documentsToUpdate[document];
             bool append = true;
-            if (!queue.isEmpty() && charsRemoved == 0) {
-                TextDocumentContentChangePartial &prev = queue.last();
-                const int prevStart = positionInDocument(prev.range().start(), document->document());
-                if (prevStart + prev.text().size() == position) {
-                    prev.text(prev.text() + text);
+            auto prev = queue.isEmpty() || charsRemoved != 0
+                            ? nullptr
+                            : std::get_if<TextDocumentContentChangePartial>(&queue.last());
+            if (prev) {
+                const int prevStart = positionInDocument(prev->range().start(),
+                                                         document->document());
+                if (prevStart + prev->text().size() == position) {
+                    prev->text(prev->text() + text);
                     append = false;
                 }
             }
@@ -1326,7 +1329,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
             }
         } else {
             d->m_documentsToUpdate[document] = {
-                TextDocumentContentChangePartial().text(document->plainText())};
+                TextDocumentContentChangeWholeDocument().text(document->plainText())};
         }
     }
     cursor.insertText(text);
@@ -1994,10 +1997,7 @@ void ClientPrivate::sendPostponedDocumentUpdates(Schedule semanticTokensSchedule
         params.textDocument(VersionedTextDocumentIdentifier()
                                 .uri(q->uriFor(filePath))
                                 .version(m_documentVersions[filePath]));
-        params.contentChanges(
-            Utils::transform(elem.second, [](const TextDocumentContentChangePartial &c) {
-                return TextDocumentContentChangeEvent(c);
-            }));
+        params.contentChanges(elem.second);
         return DocumentUpdate{document, params};
     });
     m_documentsToUpdate.clear();
