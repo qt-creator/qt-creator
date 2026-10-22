@@ -55,7 +55,6 @@ if(WITH_TESTS)
     tests/quick3dmodel_test.cpp tests/quick3dmodel_test.h
     tests/qttracesampler_test.cpp tests/qttracesampler_test.h
     tests/scenegraphtimelinemodel_test.cpp tests/scenegraphtimelinemodel_test.h
-    tests/tests.qrc
     tests/perfprofilertracefile_test.cpp tests/perfprofilertracefile_test.h
     tests/perfresourcecounter_test.cpp tests/perfresourcecounter_test.h
     tests/perfnativemixed_test.cpp tests/perfnativemixed_test.h
@@ -300,4 +299,12 @@ qtc_add_resources(Profiler "images"
   FILES
     images/mode_profiler_mask.png
     images/mode_profiler_mask@2x.png
+)
+
+qtc_add_resources(Profiler "qmlprofiler_testdata"
+  CONDITION WITH_TESTS
+  PREFIX "/qmlprofiler"
+  FILES
+    tests/Test.qml
+    tests/qmlprofilerdetailsrewriter_test.cpp
 )

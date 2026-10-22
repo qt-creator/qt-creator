@@ -286,6 +286,22 @@ QtcPlugin {
         fileTags: "qt.core.resource_data"
     }
 
+    QtcTestResources {
+        name: "QML profiler test data"
+        prefix: "tests/"
+        Qt.core.resourcePrefix: "/qmlprofiler"
+        files: "Test.qml"
+    }
+
+    QtcTestResources {
+        name: "QML profiler test source and data"
+        condition: qtc.withPluginTests
+        prefix: "tests/"
+        Qt.core.resourcePrefix: "/qmlprofiler"
+        files: "qmlprofilerdetailsrewriter_test.cpp"
+        fileTags: base.concat("cpp")
+    }
+
     QtcTestFiles {
         name: "Perf sampler tests"
         condition: qtc.withPluginTests && qbs.targetOS.contains("linux")
@@ -324,7 +340,7 @@ QtcPlugin {
             "qmlprofilerclientmanager_test.cpp", "qmlprofilerclientmanager_test.h",
             "qmlprofilerdashboard_test.cpp", "qmlprofilerdashboard_test.h",
             "qmlprofilerdashboardstats_test.cpp", "qmlprofilerdashboardstats_test.h",
-            "qmlprofilerdetailsrewriter_test.cpp", "qmlprofilerdetailsrewriter_test.h",
+            "qmlprofilerdetailsrewriter_test.h",
             "qmlprofilerfindingsmodel_test.cpp", "qmlprofilerfindingsmodel_test.h",
             "qmlprofilernotesmodel_test.cpp", "qmlprofilernotesmodel_test.h",
             "qmlprofilerrangemodel_test.cpp", "qmlprofilerrangemodel_test.h",
@@ -336,8 +352,6 @@ QtcPlugin {
             "quick3dmodel_test.cpp", "quick3dmodel_test.h",
             "qttracesampler_test.cpp", "qttracesampler_test.h",
             "scenegraphtimelinemodel_test.cpp", "scenegraphtimelinemodel_test.h",
-
-            "tests.qrc"
         ]
     }
 }
