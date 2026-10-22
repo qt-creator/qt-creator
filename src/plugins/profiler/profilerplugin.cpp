@@ -7,6 +7,7 @@
 #include "profilersamplerruncontrol.h"
 #include "profilerstarteditor.h"
 #include "profilertraceeditor.h"
+#include "profilerusage.h"
 #include "qmlprofilerrunconfigurationaspect.h"
 #include "qmlprofilerruncontrol.h"
 #include "qmlprofilertool.h"
@@ -62,6 +63,7 @@
 #endif // WITH_TESTS
 
 #include <extensionsystem/iplugin.h>
+#include <extensionsystem/pluginmanager.h>
 
 using namespace ProjectExplorer;
 using namespace Profiler::Internal;
@@ -86,6 +88,9 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         setupProfilerSamplerRunning();
 
         registerMcpTools();
+
+        // Lets Qt Creator's telemetry plugin find the usage events by name.
+        ExtensionSystem::PluginManager::addObject(ProfilerUsage::instance());
 
         setupPerfProfilerTool();
         setupPerfProfilerRunWorker();
@@ -145,6 +150,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
 
     ShutdownFlag aboutToShutdown() final
     {
+        ExtensionSystem::PluginManager::removeObject(ProfilerUsage::instance());
         destroyPerfProfilerTool();
         destroyProfilerStartEditor();
         destroyProfilerTraceEditors();

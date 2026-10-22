@@ -3,6 +3,7 @@
 
 #include "qtprofilerwindow.h"
 
+#include "qtprofilerinsight.h"
 #include "qtprofilerrpc.h"
 #include "qtprofilersettings.h"
 #include "qtprofilersidebar.h"
@@ -13,6 +14,7 @@
 #include <profiler/perfprofilertracebackend.h>
 #include <profiler/profilerrecorder.h>
 #include <profiler/profilertr.h>
+#include <profiler/profilerusage.h>
 #include <profiler/qmlprofilerconstants.h>
 #include <profiler/qmlprofilerplainviewmanager.h>
 #include <profiler/recordingpage.h>
@@ -45,6 +47,7 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QDockWidget>
+#include <QScopeGuard>
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
@@ -154,6 +157,9 @@ public:
     PerfProfilerTraceBackend *perfBackend;
     CombinedTraceLoader *combinedLoader; // Merges a combined bundle into one sampler trace.
     Format activeFormat = Format::Qml;
+    Format shownFormat = Format::Qml; // The format of the trace on show, as soon as it is chosen.
+    int pendingLoadReports = 0;       // Loads of the trace being opened that are still to finish.
+    bool layingOut = false;           // Docks are being shown and hidden by resetLayout() or doLoad().
     QHash<const QObject *, QMetaObject::Connection> loadConnections; // Pending loads.
     QString lastLoadError;
     QSet<Utils::FilePath> pendingRecentFiles; // Join the recent files once they loaded.
@@ -183,6 +189,13 @@ WindowPrivate::WindowPrivate(Window *window)
     rightPane->addWidget(recordingPage);
     rightPane->addWidget(traceArea);
     rightPane->setCurrentWidget(welcomePage);
+    connect(rightPane, &QStackedWidget::currentChanged, this, [this](int) {
+        if (rightPane->currentWidget() == welcomePage)
+            ProfilerUsage::welcomeShown();
+        else if (rightPane->currentWidget() == recordingPage)
+            ProfilerUsage::recordingShown();
+    });
+    ProfilerUsage::welcomeShown();
 
     recorder = new ProfilerRecorder(this);
     // Any --launch command reaches the backends through the same path Qt
@@ -455,6 +468,9 @@ void WindowPrivate::onLoadFinished(const FilePath &trace, Format format)
     }
     if (pendingRecentFiles.remove(trace) && lastLoadError.isEmpty())
         settings().addRecentFile(trace);
+    // A combined trace is in once both halves are.
+    if (--pendingLoadReports <= 0 && lastLoadError.isEmpty())
+        ProfilerUsage::traceLoaded(format);
     RPC::notifyTraceFileLoadingFinished(trace, lastLoadError);
 }
 
@@ -528,8 +544,18 @@ void WindowPrivate::ensureGroupBuilt(Format format)
     group.built = true;
 
     const auto buildGroup = [this](const QWidgetList &views, ViewGroup &g) {
-        for (QWidget *w : views)
-            g.docks.append(traceArea->addDockForWidget(w));
+        for (QWidget *w : views) {
+            QDockWidget *dock = traceArea->addDockForWidget(w);
+            g.docks.append(dock);
+            // A raised tab is the user moving on to another view. Views that are
+            // stacked instead of tabbed are all in view all the time.
+            connect(dock, &QDockWidget::visibilityChanged, this, [this, dock, w](bool visible) {
+                if (visible && !layingOut && rightPane->currentWidget() == traceArea
+                    && !traceArea->tabifiedDockWidgets(dock).isEmpty()) {
+                    ProfilerUsage::viewShown(shownFormat, w);
+                }
+            });
+        }
     };
 
     switch (format) {
@@ -555,6 +581,9 @@ void WindowPrivate::ensureGroupBuilt(Format format)
 
 void WindowPrivate::resetLayout(Format format)
 {
+    layingOut = true;
+    const auto doneLayingOut = qScopeGuard([this] { layingOut = false; });
+
     ensureGroupBuilt(format);
 
     // The groups shown for each format. Combined tabs the QML and sampler view
@@ -688,14 +717,23 @@ void WindowPrivate::doLoad(const FilePath &filePath)
 {
     settings().lastTraceFile.setValue(filePath);
     combinedLoader->cancel();
-    rightPane->setCurrentWidget(traceArea);
+    const TraceFile trace = identifyTrace(filePath);
+    pendingLoadReports = trace.format == Format::Combined ? 2 : 1;
+    shownFormat = trace.format;
+    ProfilerUsage::traceShown(trace.format);
+    {
+        // Showing the trace area shows its raised tabs, which is not the user
+        // moving on to another view.
+        layingOut = true;
+        const auto doneLayingOut = qScopeGuard([this] { layingOut = false; });
+        rightPane->setCurrentWidget(traceArea);
+    }
     setTraceDuration(milliseconds{0});
     timelineDetails->reset(); // Don't carry the previous trace's details over.
     progressIndicator->show();
     lastLoadError.clear();
     RPC::notifyTraceFileLoadingStarted(filePath);
 
-    const TraceFile trace = identifyTrace(filePath);
     setActiveFormat(trace.format);
     switch (trace.format) {
     case Format::Combined:
@@ -819,6 +857,19 @@ Window::Window(QWidget *parent)
         connect(d->sidebar, &MainSidebar::hasTraceChanged, closeTraceAction, &QAction::setEnabled);
     }
 
+    QAction *usageStatisticsAction = nullptr;
+    if (!embedded && usageStatisticsAvailable()) {
+        usageStatisticsAction = new QAction(Tr::tr("Usage Statistics"), this);
+        usageStatisticsAction->setCheckable(true);
+        usageStatisticsAction->setChecked(settings().usageStatistics());
+        usageStatisticsAction->setToolTip(
+            Tr::tr("Send pseudonymous usage statistics to The Qt Company"));
+        connect(usageStatisticsAction, &QAction::toggled, this, &setUsageStatisticsEnabled);
+        settings().usageStatistics.addOnChanged(usageStatisticsAction, [usageStatisticsAction] {
+            usageStatisticsAction->setChecked(settings().usageStatistics());
+        });
+    }
+
     auto helpAction = new QAction("?", this);
     helpAction->setToolTip(Tr::tr("Open Help in Web Browser"));
     helpAction->setShortcut(QKeySequence::HelpContents);
@@ -862,6 +913,8 @@ Window::Window(QWidget *parent)
     if (!embedded)
         toolBar->addSeparator();
     toolBar->addWidget(d->traceDurationLabel);
+    if (usageStatisticsAction)
+        toolBar->addAction(usageStatisticsAction);
     toolBar->addAction(helpAction);
     toolBar->setMovable(false);
     toolBar->setIconSize(QSize(16, 16));

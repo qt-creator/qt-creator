@@ -1,4 +1,5 @@
 import qbs 1.0
+import qbs.Environment
 
 QtcTool {
     name: "QtProfiler"
@@ -28,12 +29,38 @@ QtcTool {
     Depends { name: "Profiler" }
     Depends { name: "CommonTraceFormat" }
     Depends { name: "Tracing"; required: false }
+    // Usage statistics are only built in when Qt Insight Tracker is part of the
+    // Qt in use and a server and token are given in the environment.
+    Depends { name: "Qt.insighttracker"; required: false }
+    // The tracker takes a host name; it refuses a server that starts with "http".
+    property string insightUrl: (Environment.getEnv("QTPROFILER_INSIGHT_URL") || "")
+                                    .replace(/^https?:\/\//, "").replace(/\/+$/, "")
+    property string insightToken: Environment.getEnv("QTPROFILER_INSIGHT_TOKEN") || ""
+    property bool withInsight: Qt.insighttracker.present && insightUrl && insightToken
+    Properties {
+        condition: withInsight
+        cpp.defines: base.concat([
+            "QTPROFILER_WITH_INSIGHT",
+            'QTPROFILER_INSIGHT_URL="' + insightUrl + '"',
+            'QTPROFILER_INSIGHT_TOKEN="' + insightToken + '"',
+        ])
+    }
+
+    Group {
+        name: "insight configuration"
+        condition: withInsight
+        Qt.core.resourcePrefix: "/"
+        files: ["qtinsight.conf"]
+        fileTags: "qt.core.resource_data"
+    }
 
     condition: Tracing.present
 
     files: [
         "qtprofilerinit.cpp",
         "qtprofilerinit.h",
+        "qtprofilerinsight.cpp",
+        "qtprofilerinsight.h",
         "qtprofilermain.cpp",
         "qtprofilerrpc.cpp",
         "qtprofilerrpc.h",

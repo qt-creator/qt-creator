@@ -6,6 +6,7 @@
 #include <profiler/profilertracebackend.h>
 #include <profiler/profilertracedocument.h>
 #include <profiler/profilertraceeditor.h>
+#include <profiler/profilerusage.h>
 #include <profiler/qmlprofilerconstants.h>
 #include <profiler/qmlprofilermodelmanager.h>
 #include <profiler/qmlprofilertracebackend.h>
@@ -444,6 +445,59 @@ void ProfilerTraceDocumentTest::testClosingTheEditorStopsTheLoad()
     gated->stopped = true;
     Utils::asyncThreadPool(QThread::InheritPriority)->waitForDone();
     QCOMPARE(gated->eventsAfterStop.load(), 0);
+}
+
+// Opens `contents` as a Chrome Trace Format document and collects the usage events
+// it reported by the time the load was over.
+static void usageEventsOfCtfLoad(const QByteArray &contents, QStringList *keys)
+{
+    TemporaryFile file("profilertestctf-XXXXXX.json");
+    QVERIFY(file.open());
+    QCOMPARE(file.write(contents), contents.size());
+    file.close();
+
+    const QMetaObject::Connection connection = QObject::connect(
+        ProfilerUsage::instance(), &ProfilerUsage::usageEvent,
+        [keys](const QString &key) { *keys << key; });
+    ProfilerTraceDocument document(Constants::CTF_TRACE_EDITOR_ID, TraceFormat::Ctf);
+    QSignalSpy busySpy(&document, &ProfilerTraceDocument::busyChanged);
+    document.open(file.filePath(), file.filePath());
+    // busyChanged(true) came with open(); the load is over with the next one.
+    QTRY_VERIFY_WITH_TIMEOUT(busySpy.count() >= 2, 10000);
+    QObject::disconnect(connection);
+}
+
+void ProfilerTraceDocumentTest::testLoadedTraceIsReported()
+{
+    QStringList keys;
+    usageEventsOfCtfLoad(
+        R"({"traceEvents":[{"name":"a","ph":"X","ts":0,"dur":10,"pid":1,"tid":1}]})", &keys);
+    QCOMPARE(keys, QStringList{"ProfilerTraceLoaded"});
+}
+
+void ProfilerTraceDocumentTest::testFailedLoadIsNotReported()
+{
+    QStringList keys;
+    usageEventsOfCtfLoad("", &keys);
+    QCOMPARE(keys, QStringList{});
+}
+
+void ProfilerTraceDocumentTest::testSameScreenIsReportedOnce()
+{
+    QStringList screens;
+    const QMetaObject::Connection connection = QObject::connect(
+        ProfilerUsage::instance(), &ProfilerUsage::usageTransition,
+        [&screens](const QString &screen) { screens << screen; });
+    ProfilerUsage::welcomeShown();
+    ProfilerUsage::recordingShown();
+    ProfilerUsage::recordingShown();
+    ProfilerUsage::traceShown(TraceFormat::Ctf);
+    QObject::disconnect(connection);
+    // The first one is not reported when it is the screen already shown.
+    QVERIFY(screens.size() >= 2);
+    QCOMPARE(screens.mid(screens.size() - 2),
+             (QStringList{":PROFILER:Recording", ":PROFILER:Trace:ctf"}));
+    QCOMPARE(screens.count(":PROFILER:Recording"), 1);
 }
 
 } // namespace Profiler::Internal

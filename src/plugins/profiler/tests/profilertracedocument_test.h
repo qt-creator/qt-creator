@@ -33,6 +33,10 @@ private slots:
     void testNewRecordingSwitchesAgain();
     void testClosingTheEditorStopsTheLoad();
 
+    void testLoadedTraceIsReported();
+    void testFailedLoadIsNotReported();
+    void testSameScreenIsReportedOnce();
+
 private:
     void selectEvent(const Utils::FilePath &source);
 

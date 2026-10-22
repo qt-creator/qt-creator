@@ -113,6 +113,7 @@ set(QMLPROFILER_CPP_SOURCES
   profilertracedocument.cpp profilertracedocument.h
   profilertraceeditor.cpp profilertraceeditor.h
   profilertr.h
+  profilerusage.cpp profilerusage.h
   profiler_global.h
   recordingpage.cpp recordingpage.h
   traceformat.cpp traceformat.h

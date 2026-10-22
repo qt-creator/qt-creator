@@ -72,6 +72,7 @@ private:
     // formats that have no second half to merge in.
     CombinedTraceLoader *m_combinedLoader = nullptr;
     int m_pendingLoads = 0; // Backends still to report on the current load.
+    bool m_loadFailed = false; // Some backend reported an error for the current load.
     // Zero until the first selection, and again once that split is closed.
     int m_sourceViewId = 0;
 };

@@ -7,6 +7,7 @@
 #include "combinedsampler.h"
 #include "perfsampler.h"
 #include "profilertr.h"
+#include "profilerusage.h"
 #include "qmlprofilersampler.h"
 #include "qttracesampler.h"
 #include "sampler.h"
@@ -92,6 +93,9 @@ public:
     bool pausedReported = false;          // What pausedChanged() last said.
     bool waitingForShutdown = false;      // Set while stopAndWait() runs.
     std::optional<milliseconds> duration; // Set by startTimed(); auto-stop span.
+    // How long the capture had run when it was asked to stop. recordedTime() keeps
+    // counting through the post-processing, which is not what was recorded.
+    std::optional<milliseconds> recordedWhenStopped;
 };
 
 ProfilerRecorderPrivate::ProfilerRecorderPrivate(ProfilerRecorder *recorder)
@@ -225,20 +229,25 @@ void ProfilerRecorderPrivate::startRecording(const QString &target)
     this->target = target;
     pausedReported = false;
     downloadNameable = false;
+    recordedWhenStopped.reset();
     // The recipe (or the user) ends the capture; either way that is the switch
     // from recording to post-processing. Reported from the request itself, so
     // nothing has to watch the flag for it.
     // A recording that failed to start can still be asked to stop as it is torn
     // down, after it has finished.
     session->onStopRequested(this, [this] {
-        if (recording)
-            emit q->processingStarted();
+        if (!recording)
+            return;
+        recordedWhenStopped = duration_cast<milliseconds>(session->recordedTime());
+        emit q->processingStarted();
     });
     // Likewise for progress, the debug-info download and capture going live:
     // the session says when they move, rather than being asked.
     connect(session->reporter(), &RecordingReporter::changed,
             this, &ProfilerRecorderPrivate::updateReports);
     emit q->started(target);
+    if (active)
+        ProfilerUsage::recordingStarted(active->id().toString());
 }
 
 void ProfilerRecorderPrivate::beginRecording(const QString &target)
@@ -263,12 +272,20 @@ void ProfilerRecorderPrivate::finishRecording()
     duration.reset(); // One-shot: do not auto-stop a later manual recording.
 
     const std::shared_ptr<RecordingSession> finished = session;
+    const milliseconds recordedTime = recordedWhenStopped.value_or(
+        finished ? duration_cast<milliseconds>(finished->recordedTime()) : 0ms);
     session.reset();
     Sampler *sampler = active;
     active = nullptr;
 
     if (waitingForShutdown)
         return; // Shutting down: don't hand a trace to a frontend that is going away.
+
+    if (sampler) {
+        ProfilerUsage::recordingFinished(sampler->id().toString(),
+                                         finished && finished->result && *finished->result,
+                                         recordedTime);
+    }
 
     if (!finished || !finished->result) {
         emit q->error(Tr::tr("Recording did not produce a trace."));

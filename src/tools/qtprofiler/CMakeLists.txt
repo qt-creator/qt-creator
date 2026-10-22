@@ -20,6 +20,21 @@ elseif (EMSCRIPTEN)
   set(qtprofiler_destination "qtprofiler")
 endif()
 
+# Usage statistics are optional: they are built in only when Qt Insight Tracker
+# is part of the Qt in use and a Qt Insight server and token were configured.
+# Qt Creator does not use this; its Profile mode is covered by Qt Creator's own
+# telemetry plugin, which picks up the same events (see profilerusage.h).
+set(QTPROFILER_INSIGHT_URL "$ENV{QTPROFILER_INSIGHT_URL}" CACHE STRING
+    "Qt Insight server for Qt Profiler's usage statistics")
+set(QTPROFILER_INSIGHT_TOKEN "$ENV{QTPROFILER_INSIGHT_TOKEN}" CACHE STRING
+    "Qt Insight token for Qt Profiler's usage statistics")
+# The tracker takes a host name; it refuses a server that starts with "http".
+string(REGEX REPLACE "^https?://" "" QTPROFILER_INSIGHT_SERVER "${QTPROFILER_INSIGHT_URL}")
+string(REGEX REPLACE "/+$" "" QTPROFILER_INSIGHT_SERVER "${QTPROFILER_INSIGHT_SERVER}")
+if (NOT EMSCRIPTEN AND QTPROFILER_INSIGHT_SERVER AND QTPROFILER_INSIGHT_TOKEN)
+  find_package(Qt6 OPTIONAL_COMPONENTS InsightTracker QUIET)
+endif()
+
 add_qtc_executable(qtprofiler
   CONDITION TARGET Profiler
   SKIP_INSTALL
@@ -28,6 +43,7 @@ add_qtc_executable(qtprofiler
   DESTINATION "${qtprofiler_destination}"
   SOURCES
     qtprofilerinit.cpp qtprofilerinit.h
+    qtprofilerinsight.cpp qtprofilerinsight.h
     qtprofilermain.cpp
     qtprofilerrpc.cpp qtprofilerrpc.h
     qtprofilersettings.cpp qtprofilersettings.h
@@ -35,6 +51,19 @@ add_qtc_executable(qtprofiler
     qtprofilerwindow.h qtprofilerwindow.cpp
     schema/api.h
 )
+
+if (TARGET qtprofiler AND TARGET Qt6::InsightTracker AND QTPROFILER_INSIGHT_SERVER
+    AND QTPROFILER_INSIGHT_TOKEN)
+  target_link_libraries(qtprofiler PRIVATE Qt6::InsightTracker)
+  # Without a ":/qtinsight.conf" of our own the tracker reads whichever one it
+  # finds next, such as the one installed with Qt, which carries its own token
+  # and event list. An empty one leaves the configuration to the code.
+  qt_add_resources(qtprofiler "insight" PREFIX "/" FILES qtinsight.conf)
+  target_compile_definitions(qtprofiler PRIVATE
+    QTPROFILER_WITH_INSIGHT
+    QTPROFILER_INSIGHT_URL="${QTPROFILER_INSIGHT_SERVER}"
+    QTPROFILER_INSIGHT_TOKEN="${QTPROFILER_INSIGHT_TOKEN}")
+endif()
 
 qtc_add_version_resource(qtprofiler "Qt Profiler" RESOURCE_FILE qtprofiler.rc)
 

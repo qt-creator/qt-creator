@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qtprofilerinit.h"
+#include "qtprofilerinsight.h"
 #include "qtprofilerwindow.h"
 #include "qtprofilersettings.h"
 
@@ -161,7 +162,17 @@ int main(int argc, char *argv[])
     }
 
     window.show();
+
+    // Runs driven from a script, or hosted by Qt Creator (whose own telemetry
+    // plugin covers it), are neither asked nor tracked.
+    const bool automated = parser.isSet(exitOnError) || parser.isSet(withRpc)
+                           || parser.isSet(embedded) || parser.isSet(launch)
+                           || parser.isSet(recordFor);
+    if (!automated)
+        QTimer::singleShot(0, &window, [&window] { QtProfiler::initUsageStatistics(&window); });
+
     const int exitCode = app.exec();
+    QtProfiler::shutdownUsageStatistics();
     QtProfiler::deinit();
     Internal::SettingsSetup::destroySettings();
     return exitCode;

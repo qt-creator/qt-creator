@@ -6,6 +6,7 @@
 #include "qmlprofilerconstants.h"
 #include "profilermode.h"
 #include "profilertr.h"
+#include "profilerusage.h"
 #include "profilertracebackend.h"
 #include "profilertracedocument.h"
 
@@ -47,6 +48,12 @@ public:
                     m_tabs->setCurrentWidget(to);
             });
         }
+
+        // Switching tabs while the trace is on show is the user changing view.
+        connect(m_tabs, &QTabWidget::currentChanged, this, [this, format = document->format()] {
+            if (isVisible())
+                ProfilerUsage::viewShown(format, m_tabs->currentWidget());
+        });
 
         addWidget(m_tabs);
         addWidget(document->timelineDetails());
@@ -202,6 +209,13 @@ void setupProfilerTraceEditors()
         << new ProfilerTraceEditorFactory(Constants::COMBINED_TRACE_EDITOR_ID,
                                           Tr::tr("Combined Trace Editor"), TraceFormat::Combined,
                                           {"application/x-combined-profiler-trace"});
+
+    QObject::connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+                     EditorManager::instance(), [](IEditor *editor) {
+        if (auto document = qobject_cast<ProfilerTraceDocument *>(editor ? editor->document()
+                                                                         : nullptr))
+            ProfilerUsage::traceShown(document->format());
+    });
 }
 
 void destroyProfilerTraceEditors()

@@ -9,6 +9,7 @@
 #include "perfprofilertracebackend.h"
 #include "profilertr.h"
 #include "profilertracebackend.h"
+#include "profilerusage.h"
 #include "qmlprofilertracebackend.h"
 #include "samplertracebackend.h"
 
@@ -60,6 +61,7 @@ ProfilerTraceDocument::ProfilerTraceDocument(Id editorId, TraceFormat format)
         connect(m_combinedLoader, &CombinedTraceLoader::merged, this,
                 [this](const FilePath &mergedDir) { m_backends.at(1)->load(mergedDir); });
         connect(m_combinedLoader, &CombinedTraceLoader::failed, this, [this](const QString &error) {
+            m_loadFailed = true;
             finishLoadStep(); // The sampler half will not arrive after all.
             QmlProfilerTool::showNonmodalWarning(error);
         });
@@ -72,7 +74,8 @@ ProfilerTraceDocument::ProfilerTraceDocument(Id editorId, TraceFormat format)
             finishLoadStep();
             emit changed();
         });
-        connect(backend, &ProfilerTraceBackend::error, this, [](const QString &message) {
+        connect(backend, &ProfilerTraceBackend::error, this, [this](const QString &message) {
+            m_loadFailed = true;
             QmlProfilerTool::showNonmodalWarning(message);
         });
         connect(backend, &ProfilerTraceBackend::warning, this, [](const QString &message) {
@@ -133,6 +136,7 @@ void ProfilerTraceDocument::load(const FilePath &rawPath)
     // A combined trace is only there once both halves are, and the sampler one
     // is still being merged when the QML one reports.
     m_pendingLoads = m_backends.size();
+    m_loadFailed = false;
     emit busyChanged(true);
     m_timelineDetails->reset(); // Don't carry a previous trace's details over.
 
@@ -153,8 +157,15 @@ void ProfilerTraceDocument::load(const FilePath &rawPath)
 
 void ProfilerTraceDocument::finishLoadStep()
 {
-    if (m_pendingLoads > 0 && --m_pendingLoads == 0)
+    if (m_pendingLoads <= 0)
+        return;
+
+    --m_pendingLoads;
+    if (m_pendingLoads == 0) {
+        if (!m_loadFailed)
+            ProfilerUsage::traceLoaded(m_format);
         emit busyChanged(false);
+    }
 }
 
 void ProfilerTraceDocument::showSourceLocation(const Link &link)

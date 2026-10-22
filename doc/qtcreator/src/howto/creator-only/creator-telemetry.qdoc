@@ -51,7 +51,23 @@
             \endlist
         \li The Qt examples that you opened.
         \li The \QC wizards that you used.
+        \li How you use the profiler: which recording backend you used, whether
+            the recording succeeded and how many seconds it lasted, and the
+            format of the traces that you opened. The names and paths of the
+            programs you profile and of your traces are not collected.
+        \li How you move through the profiler: whether you are on the page for
+            starting a recording, in a running recording, or in a trace, the
+            trace format, and which view of the trace you switch to.
     \endlist
+
+    \section1 Qt Profiler
+
+    The standalone Qt Profiler application can collect the profiler data
+    listed above if it was built with support for it. It asks for your consent
+    when you start it for the first time. To change your choice later, select
+    \uicontrol {Usage Statistics} in the toolbar. Qt Profiler does not collect
+    data when it runs in a script or when \QC hosts it, and \QC then collects
+    it as described above.
 
     The code is available at \l{qt-creator/plugin-telemetry.git}.
 

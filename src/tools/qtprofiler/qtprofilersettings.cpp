@@ -21,6 +21,11 @@ QtProfilerSettings::QtProfilerSettings()
 
     windowGeometry.setSettingsKey("WindowGeometry");
 
+    usageStatistics.setSettingsKey("UsageStatistics");
+    usageStatistics.setDefaultValue(false);
+    usageStatisticsAsked.setSettingsKey("UsageStatisticsAsked");
+    usageStatisticsAsked.setDefaultValue(false);
+
     // recordExecutable/recordArguments are transient (no settings key): they only
     // carry a --launch command line into the active backend at startup.
     recordExecutable.setExpectedKind(Utils::PathChooserKind::Command);

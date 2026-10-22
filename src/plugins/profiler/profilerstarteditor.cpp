@@ -10,6 +10,7 @@
 #include "profilertraceeditor.h"
 #include "qmlprofilerconstants.h"
 #include "recordingpage.h"
+#include "profilerusage.h"
 #include "sampler.h"
 #include "welcomepage.h"
 
@@ -86,6 +87,10 @@ public:
     {
         addWidget(m_welcomePage);
         addWidget(m_recordingPage);
+        connect(this, &QStackedWidget::currentChanged, this, [this] {
+            if (isVisible())
+                reportScreen();
+        });
 
         m_welcomePage->setBackends(profilerRecorder()->backendNames(),
                                    profilerRecorder()->currentBackend());
@@ -288,6 +293,16 @@ private:
                                        canRun ? QString() : canRun.error());
     }
 
+public:
+    void reportScreen() const
+    {
+        if (currentWidget() == m_recordingPage)
+            ProfilerUsage::recordingShown();
+        else
+            ProfilerUsage::welcomeShown();
+    }
+
+private:
     const QList<Id> m_backendIds; // Parallel to the backend selector.
     Target m_target = StartupProject;
     WelcomePage *m_welcomePage = nullptr;
@@ -335,6 +350,7 @@ public:
 
     IDocument *document() const override { return m_document.get(); }
     QWidget *toolBar() override { return nullptr; }
+    void reportScreen() const { m_widget->reportScreen(); }
 
 private:
     std::unique_ptr<ProfilerStartDocument> m_document;
@@ -376,6 +392,12 @@ void setupProfilerStartEditor()
 {
     QTC_ASSERT(!s_factory, return);
     s_factory = new ProfilerStartEditorFactory;
+
+    QObject::connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+                     EditorManager::instance(), [](IEditor *editor) {
+        if (editor && editor->document()->id() == Constants::START_EDITOR_ID)
+            static_cast<ProfilerStartEditor *>(editor)->reportScreen();
+    });
 
     // Entering the mode raises the page, but only reopens it while no trace is
     // open, and the mode button says nothing once the mode is already current.

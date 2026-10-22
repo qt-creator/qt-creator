@@ -18,6 +18,10 @@ public:
     Utils::FilePathAspect lastTraceFile{this};
     Utils::ByteArrayAspect windowGeometry{this};
     Utils::FilePathListAspect recentFiles{this};
+    // Whether usage statistics are sent, and whether the user was asked yet.
+    // Only meaningful in a build that has Qt Insight Tracker (see qtprofilerinsight.h).
+    Utils::BoolAspect usageStatistics{this};
+    Utils::BoolAspect usageStatisticsAsked{this};
 
     // Not persisted. A command line passed via --launch; the window seeds the
     // active backend's launch settings from these. Backend-specific recording
