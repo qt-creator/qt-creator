@@ -347,25 +347,28 @@ void QmlProfilerTraceFileTest::testLoadedEventsAreStored()
     saved.save(path);
     QTRY_COMPARE(saveSpy.count(), 1);
 
-    // The loaded events go to a temporary file, as recorded ones do, not to memory.
     const QDir tempDir(Utils::TemporaryDirectory::masterDirectoryPath());
     const QStringList stashFilter{"qmlprofiler-data*"};
     const QStringList stashesBefore = tempDir.entryList(stashFilter, QDir::Files);
     QmlProfilerModelManager loaded;
-    QStringList loadedStash = tempDir.entryList(stashFilter, QDir::Files);
-    for (const QString &before : stashesBefore)
-        loadedStash.removeOne(before);
-    QCOMPARE(loadedStash.size(), 1);
     QSignalSpy loadSpy(&loaded, &QmlProfilerModelManager::loadFinished);
     loaded.load(path);
     QTRY_COMPARE(loadSpy.count(), 1);
-    QVERIFY(QFileInfo(tempDir.filePath(loadedStash.first())).size() > 0);
 
     QList<std::pair<qint64, QString>> replayed;
     QFutureInterface<void> future;
     loaded.replayQmlEvents([&](const QmlEvent &event, const QmlEventType &) {
         replayed.append({event.timestamp(), event.string()});
     }, {}, {}, {}, future);
+
+    // The loaded events go to a temporary file, as recorded ones do, not to memory.
+    // Only asking for its name gives that file a directory entry: on Linux Qt
+    // opens it unnamed, and replaying above is what asks.
+    QStringList loadedStash = tempDir.entryList(stashFilter, QDir::Files);
+    for (const QString &before : stashesBefore)
+        loadedStash.removeOne(before);
+    QCOMPARE(loadedStash.size(), 1);
+    QVERIFY(QFileInfo(tempDir.filePath(loadedStash.first())).size() > 0);
 
     QList<std::pair<qint64, QString>> expected;
     for (const qint64 timestamp : timestamps) {
