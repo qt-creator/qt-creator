@@ -3,6 +3,7 @@
 
 #include "zephyrdebug.h"
 
+#include "westbuildstep.h"
 #include "zephyrconstants.h"
 #include "zephyrrun.h"
 #include "zephyrsettings.h"
@@ -166,7 +167,8 @@ public:
             rp.setUseContinueInsteadOfRun(true);
             rp.setSkipDebugServer(true);
 
-            const auto modifier = [buildDir, domain](Process &process) {
+            const FilePath workingDir = westWorkingDirectory(runControl->project());
+            const auto modifier = [buildDir, domain, workingDir](Process &process) {
                 CommandLine cmd{settings().westFilePath()};
                 cmd.addArg("build");
                 cmd.addArg("-d");
@@ -176,7 +178,7 @@ public:
                 if (!domain.isEmpty())
                     cmd.addArgs({"--domain", domain});
                 process.setCommand(cmd);
-                process.setWorkingDirectory(settings().workspaceDir());
+                process.setWorkingDirectory(workingDir);
             };
 
             // The SDK's gdb knows the target architecture, a desktop kit's does not.

@@ -27,6 +27,7 @@ namespace Zephyr::Internal {
 void setupWestBuildSteps();
 
 Utils::FilePath westWorkingDirectory(const ProjectExplorer::Project *project);
+void forgetProjectWorkspace(const Utils::FilePath &projectDir);
 QString westBoard(const ProjectExplorer::BuildConfiguration *bc);
 Utils::CommandLine westConfigureCommand(const ProjectExplorer::BuildConfiguration *bc);
 std::function<void(bool success)> westConfigureRecorder(

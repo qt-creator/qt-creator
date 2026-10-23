@@ -87,8 +87,8 @@ public:
             return cmd;
         });
 
-        setRunnableModifier([](ProcessRunData &r) {
-            r.workingDirectory = settings().workspaceDir();
+        setRunnableModifier([this](ProcessRunData &r) {
+            r.workingDirectory = westWorkingDirectory(project());
         });
     }
 };

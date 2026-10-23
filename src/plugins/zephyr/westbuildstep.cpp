@@ -42,6 +42,7 @@
 #include <QDir>
 #include <QSettings>
 #include <QStringListModel>
+#include <QUrlQuery>
 
 #ifdef WITH_TESTS
 #include <QTemporaryDir>
@@ -57,8 +58,47 @@ namespace Zephyr::Internal {
 
 static const char SDK_INSTALL_SCHEME[] = "zephyr-sdk-install";
 
+// The build step summary asks on every edit, and each isDir() can be a round trip
+// to a device. Parsing the project again looks again.
+static QHash<FilePath, FilePath> &projectWorkspaces()
+{
+    static QHash<FilePath, FilePath> theProjectWorkspaces;
+    return theProjectWorkspaces;
+}
+
+static FilePath projectWorkspace(const FilePath &projectDir)
+{
+    QHash<FilePath, FilePath> &workspaces = projectWorkspaces();
+    if (const auto it = workspaces.constFind(projectDir); it != workspaces.cend())
+        return *it;
+    FilePath workspace;
+    for (FilePath dir = projectDir; !dir.isEmpty(); dir = dir.parentDir()) {
+        if ((dir / ".west").isDir()) {
+            workspace = dir;
+            break;
+        }
+        if (dir.isRootPath())
+            break;
+    }
+    workspaces.insert(projectDir, workspace);
+    return workspace;
+}
+
+void forgetProjectWorkspace(const FilePath &projectDir)
+{
+    projectWorkspaces().remove(projectDir);
+}
+
+// West looks for .west/ upwards from the working directory, so the workspace of
+// a project wins over the configured one.
 FilePath westWorkingDirectory(const Project *project)
 {
+    if (project) {
+        if (const FilePath workspace = projectWorkspace(project->projectDirectory());
+            !workspace.isEmpty()) {
+            return workspace;
+        }
+    }
     const FilePath ws = settings().workspaceDir();
     return ws.isEmpty() && project ? project->projectDirectory() : ws;
 }
@@ -80,6 +120,24 @@ static void runWestInTerminal(const QStringList &westArgs, const FilePath &worki
     Terminal::Hooks::instance().openTerminal({cmd, workingDir, env});
 }
 
+static QString sdkInstallUrl(const FilePath &workspaceDir)
+{
+    QUrlQuery query;
+    // QUrlQuery takes the value as already encoded.
+    query.addQueryItem("dir", QString::fromLatin1(QUrl::toPercentEncoding(
+                                  workspaceDir.toSettings().toString(), "/:")));
+    QUrl url;
+    url.setScheme(SDK_INSTALL_SCHEME);
+    url.setPath("install");
+    url.setQuery(query);
+    return url.toString(QUrl::FullyEncoded);
+}
+
+static FilePath sdkInstallDirectory(const QUrl &url)
+{
+    return FilePath::fromSettings(QUrlQuery(url).queryItemValue("dir", QUrl::FullyDecoded));
+}
+
 class WestSdkInstaller : public QObject
 {
     Q_OBJECT
@@ -96,9 +154,10 @@ public:
     }
 
 public slots:
-    void install(const QUrl &)
+    void install(const QUrl &url)
     {
-        runWestInTerminal({"sdk", "install"}, settings().workspaceDir());
+        const FilePath dir = sdkInstallDirectory(url);
+        runWestInTerminal({"sdk", "install"}, dir.isEmpty() ? settings().workspaceDir() : dir);
     }
 };
 
@@ -148,8 +207,7 @@ private:
     {
         QStringList args{"build", "-d", bc->buildDirectory().nativePath()};
         const FilePath projectDir = bc->project()->projectDirectory();
-        const FilePath ws = settings().workspaceDir();
-        if (!ws.isEmpty() && ws != projectDir)
+        if (westWorkingDirectory(bc->project()) != projectDir)
             args << "--source-dir" << projectDir.nativePath();
         return args + QStringList{"-t", target};
     }
@@ -205,8 +263,7 @@ private:
         if (line.contains("Zephyr-sdk") && line.contains("Could not find")) {
             BuildSystemTask task(Task::Error,
                 Tr::tr("Zephyr SDK (toolchain) not installed."));
-            const QString url = QString(SDK_INSTALL_SCHEME) + ":install";
-            task.addLinkDetail(url,
+            task.addLinkDetail(sdkInstallUrl(m_workspaceDir),
                 Tr::tr("Run \"west sdk install\" in \"%1\"")
                     .arg(m_workspaceDir.toUserOutput()));
             scheduleTask(task, 1, 0);
@@ -360,7 +417,7 @@ public:
         m_board.setLabelText(Tr::tr("Board:"));
         m_board.setDisplayStyle(StringAspect::LineEditDisplay);
         m_board.setPlaceHolderText(Tr::tr("For example, qemu_x86"));
-        m_board.setDefaultValue(boardFromWestConfig(settings().workspaceDir()));
+        m_board.setDefaultValue(boardFromWestConfig(westWorkingDirectory(project())));
         m_boardCompleter.setCaseSensitivity(Qt::CaseInsensitive);
         m_boardCompleter.setFilterMode(Qt::MatchContains);
         m_board.setCompleter(&m_boardCompleter);
@@ -397,10 +454,7 @@ public:
         m_extraArgs.setDisplayStyle(StringAspect::LineEditDisplay);
 
         setCommandLineProvider([this] { return westCommand(); });
-        setWorkingDirectoryProvider([this]() -> FilePath {
-            const FilePath ws = settings().workspaceDir();
-            return ws.isEmpty() ? project()->projectDirectory() : ws;
-        });
+        setWorkingDirectoryProvider([this] { return westWorkingDirectory(project()); });
         setUseEnglishOutput();
     }
 
@@ -438,7 +492,7 @@ public:
 
     void setupOutputFormatter(OutputFormatter *formatter) final
     {
-        formatter->addLineParser(new WestOutputParser(settings().workspaceDir()));
+        formatter->addLineParser(new WestOutputParser(westWorkingDirectory(project())));
         AbstractProcessStep::setupOutputFormatter(formatter);
     }
 
@@ -449,7 +503,6 @@ public:
     CommandLine westCommand(WestStage stage = WestStage::Build) const
     {
         const FilePath projectDir = project()->projectDirectory();
-        const FilePath ws = settings().workspaceDir();
 
         CommandLine cmd{settings().westFilePath()};
         cmd.addArg("build");
@@ -459,7 +512,7 @@ public:
         }
         cmd.addArg("-d");
         cmd.addArg(buildConfiguration()->buildDirectory().nativePath());
-        if (!ws.isEmpty() && ws != projectDir) {
+        if (westWorkingDirectory(project()) != projectDir) {
             cmd.addArg("--source-dir");
             cmd.addArg(projectDir.nativePath());
         }
@@ -703,10 +756,7 @@ public:
             cmd.addArg(m_pristine() ? QString("pristine") : QString("clean"));
             return cmd;
         });
-        setWorkingDirectoryProvider([this]() -> FilePath {
-            const FilePath ws = settings().workspaceDir();
-            return ws.isEmpty() ? project()->projectDirectory() : ws;
-        });
+        setWorkingDirectoryProvider([this] { return westWorkingDirectory(project()); });
         setUseEnglishOutput();
     }
 
@@ -795,10 +845,7 @@ public:
             cmd.addArgs(m_extraArgs(), CommandLine::Raw);
             return cmd;
         });
-        setWorkingDirectoryProvider([this]() -> FilePath {
-            const FilePath ws = settings().workspaceDir();
-            return ws.isEmpty() ? project()->projectDirectory() : ws;
-        });
+        setWorkingDirectoryProvider([this] { return westWorkingDirectory(project()); });
         setUseEnglishOutput();
     }
 
@@ -888,6 +935,8 @@ private slots:
     void testReconfigureArgs();
     void testSysbuildSwitched();
     void testConfigureRecorder();
+    void testSdkInstallUrl_data();
+    void testSdkInstallUrl();
 };
 
 void WestBuildStepTest::testReconfigureArgs_data()
@@ -996,6 +1045,23 @@ private slots:
 QObject *createWestBoardsTest()
 {
     return new WestBoardsTest;
+}
+
+void WestBuildStepTest::testSdkInstallUrl_data()
+{
+    QTest::addColumn<FilePath>("dir");
+    QTest::newRow("local") << FilePath::fromUserInput("/home/me/my ws&co/#1");
+    QTest::newRow("percent") << FilePath::fromUserInput("/home/me/50%25 ws");
+    QTest::newRow("device") << FilePath::fromUserInput("docker://1234/zephyr ws");
+    QTest::newRow("none") << FilePath();
+}
+
+void WestBuildStepTest::testSdkInstallUrl()
+{
+    QFETCH(FilePath, dir);
+    const QUrl url(sdkInstallUrl(dir));
+    QCOMPARE(url.scheme(), QString(SDK_INSTALL_SCHEME));
+    QCOMPARE(sdkInstallDirectory(url), dir);
 }
 
 #endif // WITH_TESTS

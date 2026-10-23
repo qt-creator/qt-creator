@@ -49,6 +49,7 @@
 #include <utils/algorithm.h>
 
 #include <QFile>
+#include <QScopeGuard>
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTest>
@@ -414,6 +415,7 @@ public:
         ParseGuard guard = guardParsingRun();
         const FilePath root = projectDirectory();
         const FilePath buildDir = buildConfiguration()->buildDirectory();
+        forgetProjectWorkspace(root);
 
         auto newRoot = std::make_unique<ProjectNode>(root);
         for (const FilePath &f : scanProjectFiles(root, buildDir))
@@ -642,6 +644,8 @@ public:
         setProjectLanguages(Core::Context(ProjectExplorer::Constants::C_LANGUAGE_ID));
         setDisplayName(projectDirectory().fileName());
         setBuildSystemCreator<ZephyrBuildSystem>();
+        // The build steps restored next take their default board from the workspace.
+        forgetProjectWorkspace(projectDirectory());
     }
 };
 
@@ -937,6 +941,10 @@ private slots:
     void testNoApplicationSource();
     void testProjectFiles_data();
     void testProjectFiles();
+    void testWorkspaceFromProject();
+    void testWestRunsInWorkspace_data();
+    void testWestRunsInWorkspace();
+    void testBoardAfterReopen();
 
 private:
     void openProject();
@@ -969,9 +977,9 @@ void ZephyrParseFlowTest::cleanupTestCase()
     settings().westFilePath.setValue(m_previousWest);
 }
 
-// The fake west logs the arguments of "west build". Its configure step blocks
-// while "hold" exists, fails if "fail" exists and otherwise copies "db.json"
-// to the compile database.
+// The fake west logs the directory and arguments of "west build". Its configure
+// step blocks while "hold" exists, fails if "fail" exists and otherwise copies
+// "db.json" to the compile database.
 void ZephyrParseFlowTest::init()
 {
     m_dir = std::make_unique<QTemporaryDir>();
@@ -983,7 +991,7 @@ void ZephyrParseFlowTest::init()
     QVERIFY_RESULT(west.writeFileContents(R"(#!/bin/sh
 [ "$1" = build ] || exit 0
 tmp=$(dirname "$0")/..
-echo "$*" >> "$tmp/log"
+echo "$(pwd -P): $*" >> "$tmp/log"
 case " $* " in
 *" --cmake-only "*)
     while [ -e "$tmp/hold" ]; do sleep 0.05; done
@@ -1153,6 +1161,82 @@ void ZephyrParseFlowTest::testProjectFiles()
     Utils::sort(expected);
     Utils::sort(files);
     QCOMPARE(files, expected);
+}
+
+void ZephyrParseFlowTest::testWorkspaceFromProject()
+{
+    const FilePath previous = settings().workspaceDir();
+    const auto restore = qScopeGuard([previous] { settings().workspaceDir.setValue(previous); });
+    const FilePath configured = m_tmp / "configured";
+    QVERIFY(configured.createDir());
+    settings().workspaceDir.setValue(configured);
+
+    openProject();
+    if (QTest::currentTestFailed())
+        return;
+    QTRY_COMPARE(m_finished->size(), 1);
+    QCOMPARE(westWorkingDirectory(m_project), configured);
+
+    QVERIFY((m_tmp / ".west").createDir());
+    QCOMPARE(westWorkingDirectory(m_project), configured);
+    m_buildSystem->requestParse();
+    QTRY_COMPARE(m_finished->size(), 2);
+    QCOMPARE(westWorkingDirectory(m_project), m_tmp);
+}
+
+void ZephyrParseFlowTest::testWestRunsInWorkspace_data()
+{
+    QTest::addColumn<QString>("workspaceSubdir");
+    QTest::newRow("workspace above the project") << QString();
+    QTest::newRow("workspace is the project") << QString("hello");
+}
+
+void ZephyrParseFlowTest::testWestRunsInWorkspace()
+{
+    QFETCH(QString, workspaceSubdir);
+    const FilePath previous = settings().workspaceDir();
+    const auto restore = qScopeGuard([previous] { settings().workspaceDir.setValue(previous); });
+    const FilePath configured = m_tmp / "configured";
+    QVERIFY(configured.createDir());
+    settings().workspaceDir.setValue(configured);
+    const FilePath workspace = workspaceSubdir.isEmpty() ? m_tmp : m_tmp / workspaceSubdir;
+    QVERIFY((workspace / ".west").createDir());
+
+    openProject();
+    if (QTest::currentTestFailed())
+        return;
+    QTRY_COMPARE(m_finished->size(), 1);
+    const QString call = westCalls().value(0);
+    QVERIFY2(call.startsWith(workspace.canonicalPath().path() + ": "), qPrintable(call));
+    const QString sourceDir = "--source-dir " + (m_tmp / "hello").nativePath();
+    QCOMPARE(call.contains(sourceDir), workspaceSubdir.isEmpty());
+}
+
+void ZephyrParseFlowTest::testBoardAfterReopen()
+{
+    const FilePath previous = settings().workspaceDir();
+    const auto restore = qScopeGuard([previous] { settings().workspaceDir.setValue(previous); });
+    const FilePath configured = m_tmp / "configured";
+    QVERIFY((configured / ".west").createDir());
+    QVERIFY_RESULT((configured / ".west/config").writeFileContents("[build]\nboard = qemu_x86\n"));
+    settings().workspaceDir.setValue(configured);
+
+    openProject();
+    if (QTest::currentTestFailed())
+        return;
+    QTRY_COMPARE(m_finished->size(), 1);
+    QCOMPARE(westBoard(m_project->activeBuildConfiguration()), QString("qemu_x86"));
+    ProjectExplorerPlugin::unloadProject(m_project);
+    m_project = nullptr;
+
+    QVERIFY((m_tmp / ".west").createDir());
+    QVERIFY_RESULT((m_tmp / ".west/config").writeFileContents("[build]\nboard = nrf52840dk\n"));
+    const OpenProjectResult result = ProjectExplorerPlugin::openProject(m_tmp / "hello/west.yml");
+    QVERIFY2(result && result.project(), qPrintable(result.errorMessage()));
+    m_project = result.project();
+    if (!m_project->activeBuildConfiguration())
+        QVERIFY(m_project->configureAsExampleProject(m_kit));
+    QCOMPARE(westBoard(m_project->activeBuildConfiguration()), QString("nrf52840dk"));
 }
 
 QObject *createZephyrParseFlowTest()
