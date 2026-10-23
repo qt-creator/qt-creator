@@ -532,6 +532,7 @@ void Client::initialize()
     QTC_ASSERT(d->m_state == Uninitialized, return);
     qCDebug(LOGLSPCLIENT) << "initializing language server " << d->m_displayName;
     InitializeParams params;
+    params.processId(int(QCoreApplication::applicationPid()));
     params.clientInfo(d->m_clientInfo);
     params.capabilities(d->m_clientCapabilities);
     params.initializationOptions(d->m_initializationOptions);
