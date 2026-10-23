@@ -378,6 +378,10 @@ static QStringList reconfigureArgs(const QStringList &configureArgs,
         args.append("--cmake-opt=-DEXTRA_CONF_FILE=");
     if (!hasArg("--extra-dtc-overlay="))
         args.append("--cmake-opt=-DEXTRA_DTC_OVERLAY_FILE=");
+    if (!hasArg("--cmake-opt=-DBOARD_FLASH_RUNNER="))
+        args.append("--cmake-opt=-UBOARD_FLASH_RUNNER");
+    if (!hasArg("--cmake-opt=-DBOARD_DEBUG_RUNNER="))
+        args.append("--cmake-opt=-UBOARD_DEBUG_RUNNER");
     return args;
 }
 
@@ -443,6 +447,20 @@ public:
         m_optimization.addOption({Tr::tr("Speed"), {}, QString("CONFIG_SPEED_OPTIMIZATIONS")});
         m_optimization.addOption({Tr::tr("None"), {}, QString("CONFIG_NO_OPTIMIZATIONS")});
 
+        m_flashRunner.setSettingsKey("Zephyr.WestBuildStep.FlashRunner");
+        m_flashRunner.setLabelText(Tr::tr("Flash runner:"));
+        m_flashRunner.setDisplayStyle(StringAspect::LineEditDisplay);
+        m_flashRunner.setPlaceHolderText(Tr::tr("Board default, for example jlink"));
+        m_flashRunner.setToolTip(Tr::tr("The runner that flashing uses, "
+                                        "such as openocd, jlink or nrfutil."));
+
+        m_debugRunner.setSettingsKey("Zephyr.WestBuildStep.DebugRunner");
+        m_debugRunner.setLabelText(Tr::tr("Debug runner:"));
+        m_debugRunner.setDisplayStyle(StringAspect::LineEditDisplay);
+        m_debugRunner.setPlaceHolderText(Tr::tr("Board default, for example jlink"));
+        m_debugRunner.setToolTip(Tr::tr("The runner that debugging uses, "
+                                        "such as openocd, jlink or pyocd."));
+
         m_extraConfFiles.setSettingsKey("Zephyr.WestBuildStep.ExtraConfFiles");
         m_extraConfFiles.setLabelText(Tr::tr("Extra Kconfig fragments:"));
 
@@ -474,6 +492,8 @@ public:
         m_board.addOnChanged(this, updateDetails);
         m_sysbuild.addOnChanged(this, updateDetails);
         m_optimization.addOnChanged(this, updateDetails);
+        m_flashRunner.addOnChanged(this, updateDetails);
+        m_debugRunner.addOnChanged(this, updateDetails);
         m_extraConfFiles.addOnChanged(this, updateDetails);
         m_extraOverlays.addOnChanged(this, updateDetails);
         m_extraArgs.addOnChanged(this, updateDetails);
@@ -484,6 +504,8 @@ public:
             m_board, br,
             m_sysbuild, br,
             m_optimization, br,
+            m_flashRunner, br,
+            m_debugRunner, br,
             m_extraConfFiles, br,
             m_extraOverlays, br,
             m_extraArgs
@@ -593,6 +615,10 @@ private:
         const QString optimization = m_optimization.itemValue().toString();
         if (!optimization.isEmpty())
             args.append("--cmake-opt=-D" + optimization + "=y");
+        if (const QString runner = m_flashRunner().trimmed(); !runner.isEmpty())
+            args.append("--cmake-opt=-DBOARD_FLASH_RUNNER=" + runner);
+        if (const QString runner = m_debugRunner().trimmed(); !runner.isEmpty())
+            args.append("--cmake-opt=-DBOARD_DEBUG_RUNNER=" + runner);
         return args;
     }
 
@@ -600,6 +626,8 @@ private:
     StringAspect m_board{this};
     SelectionAspect m_sysbuild{this};
     SelectionAspect m_optimization{this};
+    StringAspect m_flashRunner{this};
+    StringAspect m_debugRunner{this};
     FilePathListAspect m_extraConfFiles{this};
     FilePathListAspect m_extraOverlays{this};
     StringAspect m_extraArgs{this};
@@ -953,21 +981,40 @@ void WestBuildStepTest::testReconfigureArgs_data()
     const QString size = "--cmake-opt=-DCONFIG_SIZE_OPTIMIZATIONS=y";
     const QString conf = "--extra-conf=/a.conf";
     const QString overlay = "--extra-dtc-overlay=/a.overlay";
+    const QString clearFlashRunner = "--cmake-opt=-UBOARD_FLASH_RUNNER";
+    const QString clearDebugRunner = "--cmake-opt=-UBOARD_DEBUG_RUNNER";
+    const QString flashRunner = "--cmake-opt=-DBOARD_FLASH_RUNNER=jlink";
+    const QString debugRunner = "--cmake-opt=-DBOARD_DEBUG_RUNNER=jlink";
 
     QTest::newRow("unchanged default") << QStringList() << QStringList() << QStringList();
     QTest::newRow("unchanged") << QStringList{conf, debug} << QStringList{conf, debug}
                                << QStringList();
     QTest::newRow("back to default") << QStringList() << QStringList{debug}
                                      << QStringList{force, clearOptimization, clearConf,
-                                                    clearOverlay};
+                                                    clearOverlay, clearFlashRunner,
+                                                    clearDebugRunner};
     QTest::newRow("other optimization") << QStringList{size} << QStringList{debug}
                                         << QStringList{force, clearOptimization, clearConf,
-                                                       clearOverlay};
+                                                       clearOverlay, clearFlashRunner,
+                                                       clearDebugRunner};
     QTest::newRow("last fragment removed") << QStringList{overlay} << QStringList{conf, overlay}
-                                           << QStringList{force, clearOptimization, clearConf};
+                                           << QStringList{force, clearOptimization, clearConf,
+                                                          clearFlashRunner, clearDebugRunner};
     QTest::newRow("last overlay removed") << QStringList{conf} << QStringList{conf, overlay}
                                           << QStringList{force, clearOptimization,
-                                                         clearOverlay};
+                                                         clearOverlay, clearFlashRunner,
+                                                         clearDebugRunner};
+    QTest::newRow("runner chosen") << QStringList{flashRunner, debugRunner} << QStringList()
+                                   << QStringList{force, clearOptimization, clearConf,
+                                                  clearOverlay};
+    QTest::newRow("flash runner only") << QStringList{flashRunner}
+                                       << QStringList{flashRunner, debugRunner}
+                                       << QStringList{force, clearOptimization, clearConf,
+                                                      clearOverlay, clearDebugRunner};
+    QTest::newRow("runner removed") << QStringList() << QStringList{flashRunner, debugRunner}
+                                    << QStringList{force, clearOptimization, clearConf,
+                                                   clearOverlay, clearFlashRunner,
+                                                   clearDebugRunner};
 }
 
 void WestBuildStepTest::testReconfigureArgs()
