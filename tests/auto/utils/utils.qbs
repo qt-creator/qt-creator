@@ -26,6 +26,7 @@ Project {
         "multicursor/multicursor.qbs",
         "pathchooser/pathchooser.qbs",
         "persistentsettings/persistentsettings.qbs",
+        "plaintextedit/plaintextedit.qbs",
         "process/process.qbs",
         "settings/settings.qbs",
         "spellchecker/spellchecker.qbs",
