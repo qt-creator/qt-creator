@@ -35,6 +35,21 @@
 #endif
 #include <tuple>
 
+#if !defined(Q_OS_WIN)
+#if defined(__SANITIZE_ADDRESS__)
+#define PROFILER_TEST_ASAN
+#elif defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#define PROFILER_TEST_ASAN
+#endif
+#endif
+#endif
+
+#if defined(PROFILER_TEST_ASAN)
+// Declared here because GCC does not ship <sanitizer/allocator_interface.h>.
+extern "C" size_t __sanitizer_get_current_allocated_bytes();
+#endif
+
 using namespace QmlDebug;
 
 namespace Profiler::Internal {
@@ -567,7 +582,10 @@ void QmlProfilerTraceFileTest::testFeatureRestrictionDuringRangeRestriction()
 // What the process holds allocated on the heap, in bytes, where the platform tells.
 static std::optional<qint64> heapInUse()
 {
-#if defined(Q_OS_MACOS)
+#if defined(PROFILER_TEST_ASAN)
+    // The sanitizer keeps freed memory to itself, so the system allocator never sees it return.
+    return qint64(__sanitizer_get_current_allocated_bytes());
+#elif defined(Q_OS_MACOS)
     malloc_statistics_t statistics;
     malloc_zone_statistics(nullptr, &statistics);
     return qint64(statistics.size_in_use);
