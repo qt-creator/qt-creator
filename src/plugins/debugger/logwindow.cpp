@@ -315,7 +315,8 @@ private:
             return;
 
         const auto markerLine = [this] {
-            return m_markerPrefix + Tr::tr("[... %n lines dropped ...]", nullptr, m_droppedLines);
+            return QString(m_markerPrefix
+                + QString("[... %1 lines dropped ...]").arg(m_droppedLines));
         };
         const bool hasMarker = m_droppedLines > 0
             && doc->findBlockByNumber(fromBlock).text() == markerLine();
