@@ -296,25 +296,28 @@ void QmlImpl::handleConnectHandshakeDone()
     parameters.insert(QLatin1String("namesAsObjects"), false);
     runDirectCommand(CONNECT, QJsonDocument(parameters).toJson());
 
-    runCommand({VERSION}, [this](const QVariantMap &resp) {
+    // The service ignores what it is asked before it has answered the version
+    // request, so the inferior is reported as running only after that.
+    const bool isResetRestart = std::exchange(m_isResetRestart, false);
+    runCommand({VERSION}, [this, isResetRestart](const QVariantMap &resp) {
         const QVariantMap body = resp.value(QLatin1String(BODY)).toMap();
         m_supportChangeBreakpoint = body.value("ChangeBreakpoint", false).toBool();
-    });
 
-    if (std::exchange(m_isResetRestart, false)) {
-        // The fresh runtime knows none of the breakpoints, while the model knows
-        // them all: they go in again under the ids it has, and it hears nothing.
-        const QList<BreakpointChangeRequest> breakpoints
-            = m_activeBreakpointsByResponseId.values();
-        for (const BreakpointChangeRequest &breakpoint : breakpoints)
-            setScriptBreakpoint(breakpoint.requestId, breakpoint, breakpoint.responseId);
+        if (isResetRestart) {
+            // The fresh runtime knows none of the breakpoints, while the model knows
+            // them all: they go in again under the ids it has, and it hears nothing.
+            const QList<BreakpointChangeRequest> breakpoints
+                = m_activeBreakpointsByResponseId.values();
+            for (const BreakpointChangeRequest &breakpoint : breakpoints)
+                setScriptBreakpoint(breakpoint.requestId, breakpoint, breakpoint.responseId);
+            m_inferiorRunning = true;
+            return;
+        }
+
+        emit inferiorEvent(InferiorEvent::EngineSetupOk);
         m_inferiorRunning = true;
-        return;
-    }
-
-    emit inferiorEvent(InferiorEvent::EngineSetupOk);
-    m_inferiorRunning = true;
-    emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
+        emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
+    });
 }
 
 void QmlImpl::runDirectCommand(const QByteArray &type, const QByteArray &msg)
