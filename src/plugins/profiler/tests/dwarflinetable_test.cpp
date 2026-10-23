@@ -175,8 +175,6 @@ class DwarfLineTableTest final : public QObject
     Q_OBJECT
 
 private slots:
-    void initTestCase();
-
     void testParsesRealCompilerOutput_data();
     void testParsesRealCompilerOutput();
     void testEmptyForBinaryWithoutDebugInfo();
@@ -185,19 +183,21 @@ private slots:
     void testSequenceStartWinsOverAdjacentEnd();
 };
 
-// This whole test needs an ELF+DWARF-producing toolchain, which every
-// environment able to build Qt Creator itself already has (this plugin's own
-// build just used one) -- but guard anyway rather than assume, and QSKIP
-// (not fail) if either is actually missing. QSKIP inside initTestCase()
-// skips every test function in this class, not just this one.
-void DwarfLineTableTest::initTestCase()
+// The tests that read what a compiler wrote need an ELF+DWARF-producing
+// toolchain, which every Linux environment able to build Qt Creator itself
+// already has (this plugin's own build just used one) -- but guard anyway
+// rather than assume, and QSKIP (not fail) if it is missing. Returns why, or
+// null. Asked per test rather than in initTestCase(): a QSKIP there leaves
+// QtTest's skip flag set, so every test class that runs after this one in
+// the same process runs nothing.
+static const char *missingToolchain()
 {
-    if (!HostOsInfo::isLinuxHost()) {
-        QSKIP("DwarfLineTable is only exercised against ELF/DWARF, produced here via a "
-              "Linux C compiler");
-    }
+    if (!HostOsInfo::isLinuxHost())
+        return "DwarfLineTable is only exercised against ELF/DWARF, produced here via a "
+               "Linux C compiler";
     if (Environment::systemEnvironment().searchInPath("cc").isEmpty())
-        QSKIP("no C compiler (\"cc\") in PATH");
+        return "no C compiler (\"cc\") in PATH";
+    return nullptr;
 }
 
 // The real target: what an actual, unmodified GCC/Clang emits. Hand-encoding
@@ -218,6 +218,8 @@ void DwarfLineTableTest::testParsesRealCompilerOutput_data()
 
 void DwarfLineTableTest::testParsesRealCompilerOutput()
 {
+    if (const char *reason = missingToolchain())
+        QSKIP(reason);
     QFETCH(QString, dwarfVersionFlag);
 
     QTemporaryDir dir;
@@ -251,6 +253,8 @@ void DwarfLineTableTest::testParsesRealCompilerOutput()
 
 void DwarfLineTableTest::testEmptyForBinaryWithoutDebugInfo()
 {
+    if (const char *reason = missingToolchain())
+        QSKIP(reason);
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     const std::optional<FilePath> exe = compileToExecutable(QString::fromLatin1(kSource), {"-O0"}, dir);

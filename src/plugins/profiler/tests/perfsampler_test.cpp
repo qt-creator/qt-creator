@@ -40,7 +40,7 @@ class PerfSamplerTest final : public QObject
     Q_OBJECT
 
 private slots:
-    void initTestCase();
+    void init();
     void testSurfacesPerfStderrOnFailure();
     void testReportsParanoidRestriction();
     void testReportsPerfMissingForKernel();
@@ -136,7 +136,10 @@ static QString failedRecordingError(const PerfSampler &sampler, const QString &p
     return session->result->error();
 }
 
-void PerfSamplerTest::initTestCase()
+// Skips each test rather than the class from initTestCase(): a QSKIP there
+// leaves QtTest's skip flag set, so every test class that runs after this one
+// in the same process runs nothing.
+void PerfSamplerTest::init()
 {
     if (Environment::systemEnvironment().searchInPath("perf").isEmpty())
         QSKIP("no \"perf\" in PATH");
