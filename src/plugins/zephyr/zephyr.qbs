@@ -13,7 +13,6 @@ QtcPlugin {
 
     files: [
         "westbuildstep.cpp", "westbuildstep.h",
-        "zephyr.qrc",
         "zephyrconstants.h",
         "zephyrdebug.cpp", "zephyrdebug.h",
         "zephyrplugin.cpp",
@@ -25,7 +24,13 @@ QtcPlugin {
 
     Group {
         name: "wizards"
-        files: "wizards/**/*"
-        fileTags: []
+        files: [
+            "wizards/application/CMakeLists.txt",
+            "wizards/application/main.c",
+            "wizards/application/prj.conf",
+            "wizards/application/west.yml",
+            "wizards/application/wizard.json",
+        ]
+        fileTags: "qt.core.resource_data"
     }
 }
