@@ -19,9 +19,12 @@
 
 #include "qtcshim.h"
 
+#include <atomic>
 #include <cinttypes>
 #include <csignal>
+#include <thread>
 
+#include <sys/socket.h>
 #include <sys/wait.h>
 
 static QtcShim *shim()
@@ -210,6 +213,39 @@ static void stopWatchingForCrashes()
     crashChannel = -1;
 }
 
+// The IDE stops a run by closing the channel, as the platform lets no application end
+// another one's ability. The runner shuts the socket down when it is done, which wakes the
+// watcher, and whichever of the two lets go of the descriptor last closes it, so that
+// neither uses a number the process has reused since.
+static std::atomic_bool runnerDone = false;
+static std::atomic_int channelUsers = 2;
+
+static void endWithTheChannel(int fd)
+{
+    std::thread([fd] {
+        char buffer[256];
+        for (;;) {
+            const ssize_t got = ::read(fd, buffer, sizeof(buffer));
+            if (got <= 0 && !(got < 0 && errno == EINTR))
+                break;
+        }
+        if (!runnerDone) {
+            note("the channel is closed, ending the application");
+            ::_exit(0);
+        }
+        if (--channelUsers == 0)
+            ::close(fd);
+    }).detach();
+}
+
+static void closeChannel(int fd)
+{
+    runnerDone = true;
+    ::shutdown(fd, SHUT_RDWR);
+    if (--channelUsers == 0)
+        ::close(fd);
+}
+
 extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv)
 {
     note("main() entered, argc %d", argc);
@@ -228,6 +264,7 @@ extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv
             ::close(fd);
             return 1;
         }
+        endWithTheChannel(fd);
     }
     QtcLoad::World &world = *shim()->world;
 
@@ -241,7 +278,7 @@ extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv
             ::dprintf(fd, "runner: cannot map the application: %s\n", error.c_str());
             for (const std::string &name : image.missing)
                 ::dprintf(fd, "runner:   missing %s\n", name.c_str());
-            ::close(fd);
+            closeChannel(fd);
         }
         return 1;
     }
@@ -270,7 +307,7 @@ extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv
     if (debugging && !shim()->protect(&image)) {
         note("cannot start the application: %s", error.c_str());
         ::dprintf(fd, "runner: cannot start the application: %s\n", error.c_str());
-        ::close(fd);
+        closeChannel(fd);
         return 1;
     }
 
@@ -283,7 +320,7 @@ extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv
         note("the application has no main()");
         if (fd >= 0) {
             ::dprintf(fd, "runner: the application has no main()\n");
-            ::close(fd);
+            closeChannel(fd);
         }
         return 1;
     }
@@ -329,7 +366,7 @@ extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv
     note("the application's main() returned %d", result);
     if (fd >= 0) {
         ::dprintf(fd, "runner: main() returned %d\n", result);
-        ::close(fd);
+        closeChannel(fd);
     }
     return result;
 }

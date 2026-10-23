@@ -628,8 +628,8 @@ static Group handoverRecipe(RunControl *runControl, const FilePath &library,
         onGroupDone([runControl](DoneWith result) {
             if (result == DoneWith::Cancel) {
                 runControl->postMessage(
-                    Tr::tr("The channel is closed, but the application keeps running: "
-                           "stopping an ability is not something an application may do."),
+                    Tr::tr("The channel is closed, and the runner ends the application "
+                           "with it."),
                     NormalMessageFormat);
             }
         })
