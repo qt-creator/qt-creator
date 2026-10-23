@@ -46,6 +46,14 @@ static bool isJsExecutionFrame(const SampleTraceData::Label &label)
     return label.name.startsWith(QLatin1StringView("QV4::")) || label.name == jitRegionMarker;
 }
 
+// A frame through which the engine calls into JS: a signal handler or a binding
+// about to be evaluated.
+static bool isJsEntryFrame(const SampleTraceData::Label &label)
+{
+    return label.name.startsWith(QLatin1StringView("QQmlBoundSignal"))
+           || label.name.startsWith(QLatin1StringView("QQmlJavaScriptExpression"));
+}
+
 namespace {
 
 // The thread that ran the profiled engine's JS, or nothing when the trace
@@ -158,27 +166,50 @@ QList<int> activeRangeChain(const QList<QmlRange> &ranges, microseconds timestam
     return rootFirst;
 }
 
-// [begin, end) of the first maximal run of engine frames in `frames`, or a zero
-// length run (begin == end) when there is none.
+// [begin, end) of the run of engine frames in `frames` that runs the JS, or a
+// zero length run (begin == end) when there is no engine frame at all.
+//
+// Qt's own C++ splits a stack into several runs. A timer's QQmlTimer::event and
+// the QQmlBoundSignal frames that call its handler are both engine frames, with
+// the signal dispatch, which is QtCore's, between them. The JS runs in the
+// outermost run that holds an interpreter or JIT frame. A sample caught before
+// the interpreter was entered has none. If it is on its way into a handler or a
+// binding, its JS is about to start in the innermost run that calls into JS.
+// Otherwise, as while a component is created, the engine runs no JS of its own
+// and the JS stack belongs at the first run, where the engine was entered.
 struct FrameRun { int begin = 0; int end = 0; };
 
-FrameRun firstEngineRun(const QList<int> &frames, const QList<SampleTraceData::Label> &labels)
+FrameRun jsEngineRun(const QList<int> &frames, const QList<SampleTraceData::Label> &labels)
 {
+    FrameRun first;
+    FrameRun innermostEntry;
     int begin = -1;
-    for (int i = 0; i < frames.size(); ++i) {
-        const int labelId = frames[i];
+    bool executing = false;
+    bool entering = false;
+    for (int i = 0; i <= frames.size(); ++i) {
+        const int labelId = i < frames.size() ? frames[i] : -1;
         const bool engine = labelId >= 0 && labelId < labels.size()
                             && isEngineFrame(labels[labelId]);
         if (engine) {
-            if (begin < 0)
+            if (begin < 0) {
                 begin = i;
+                executing = false;
+                entering = false;
+            }
+            executing = executing || isJsExecutionFrame(labels[labelId]);
+            entering = entering || isJsEntryFrame(labels[labelId]);
         } else if (begin >= 0) {
-            return {begin, i};
+            const FrameRun run{begin, i};
+            if (executing)
+                return run;
+            if (first.begin == first.end)
+                first = run;
+            if (entering)
+                innermostEntry = run;
+            begin = -1;
         }
     }
-    if (begin >= 0)
-        return {begin, int(frames.size())};
-    return {0, 0};
+    return innermostEntry.begin != innermostEntry.end ? innermostEntry : first;
 }
 
 } // namespace
@@ -201,7 +232,7 @@ SampleTraceData mergeQmlIntoSamples(
         if (sample.tid != *engineThread)
             continue; // Not the engine's thread, so not running the engine's JS.
 
-        const FrameRun run = firstEngineRun(sample.frames, merged.labels);
+        const FrameRun run = jsEngineRun(sample.frames, merged.labels);
         if (run.begin == run.end)
             continue; // No engine frames: pure C++ sample, nothing to attribute.
 

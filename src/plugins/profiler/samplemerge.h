@@ -56,8 +56,10 @@ struct MergeOptions
 // is the one the trace caught in the V4 interpreter or its JIT'd code; a trace
 // that caught none is returned unchanged.
 //
-// Within that thread, for each sample, the contiguous run of QML engine frames
-// (see isEngineFrame) is replaced by -- or, with
+// Within that thread, for each sample, the run of QML engine frames (see
+// isEngineFrame) that runs the JS -- the outermost one with an interpreter or
+// JIT frame in it; without one, the innermost one that calls into JS, or else
+// the first one -- is replaced by -- or, with
 // MergeOptions::revealEngineFrames, followed by -- the JS call stack active at
 // the sample's timestamp. A sample is returned unchanged when it has no
 // engine-frame run (nothing to attribute) or when no JS is active at its time

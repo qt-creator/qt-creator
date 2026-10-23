@@ -68,6 +68,81 @@ private slots:
         QVERIFY(onClicked.module.isEmpty()); // empty module marks a JS frame
     }
 
+    void jsGoesWhereTheInterpreterRuns()
+    {
+        // A timer's handler: QQmlTimer::event and the QQmlBoundSignal frames are
+        // both engine frames, but the signal dispatch between them is QtCore's.
+        // The JS was called by that dispatch, so it belongs below it.
+        SampleTraceData native;
+        native.labels = {"main", "QQmlTimer::event", "doActivate",
+                         "QQmlBoundSignal_callback", "QV4::Moth::VME::interpret", "mixBytes"};
+        native.samples = {{500us, 1, true, {0, 1, 2, 3, 4, 5}}};
+        const QList<QmlRange> ranges = {{0us, 1000us, "onTriggered", "/main.qml", 31, -1}};
+
+        const SampleTraceData merged = mergeQmlIntoSamples(native, ranges);
+        QCOMPARE(names(merged, 0),
+                 (QStringList{"main", "QQmlTimer::event", "doActivate", "onTriggered",
+                              "mixBytes"}));
+    }
+
+    void jsGoesAtTheInnermostRunBeforeTheInterpreter()
+    {
+        // Caught on the way into the handler, before the interpreter: the JS is
+        // about to run below the dispatch, not above it.
+        SampleTraceData native;
+        native.labels = {"main", "QQmlTimer::event", "doActivate",
+                         "QQmlBoundSignal_callback", "QV4::Moth::VME::interpret"};
+        native.samples = {
+            {500us, 1, true, {0, 1, 2, 3}},
+            {600us, 1, true, {0, 1, 2, 3, 4}}, // makes thread 1 the engine's
+        };
+        const QList<QmlRange> ranges = {{0us, 1000us, "onTriggered", "/main.qml", 31, -1}};
+
+        const SampleTraceData merged = mergeQmlIntoSamples(native, ranges);
+        QCOMPARE(names(merged, 0),
+                 (QStringList{"main", "QQmlTimer::event", "doActivate", "onTriggered"}));
+    }
+
+    void jsGoesAtTheOutermostExecutingRun()
+    {
+        // onClicked calls C++, which emits a signal that runs another handler.
+        SampleTraceData native;
+        native.labels = {"main", "QV4::Moth::VME::interpret", "Backend::run",
+                         "doActivate", "QQmlBoundSignal_callback",
+                         "QV4::Moth::VME::interpret"};
+        native.samples = {{500us, 1, true, {0, 1, 2, 3, 4, 5}}};
+        const QList<QmlRange> ranges = {
+            {0us, 1000us, "onClicked", "/main.qml", 10, -1},
+            {400us, 900us, "onDone", "/main.qml", 20, 0},
+        };
+
+        const SampleTraceData merged = mergeQmlIntoSamples(native, ranges);
+        QCOMPARE(names(merged, 0),
+                 (QStringList{"main", "onClicked", "onDone", "Backend::run", "doActivate",
+                              "QQmlBoundSignal_callback", "QV4::Moth::VME::interpret"}));
+    }
+
+    void creationGoesWhereTheEngineWasEntered()
+    {
+        // A constructor of a created type calls back into the QML library. No JS
+        // is about to run there, so the component creation stays above the
+        // constructor.
+        SampleTraceData native;
+        native.labels = {"main", "QQmlApplicationEngine::load",
+                         "QQmlObjectCreator::createInstance", "MyItem::MyItem",
+                         "QQmlEngine::contextForObject", "QV4::Moth::VME::interpret"};
+        native.samples = {
+            {500us, 1, true, {0, 1, 2, 3, 4}},
+            {600us, 1, true, {0, 5}}, // makes thread 1 the engine's
+        };
+        const QList<QmlRange> ranges = {{0us, 1000us, "Create", "/main.qml", 1, -1}};
+
+        const SampleTraceData merged = mergeQmlIntoSamples(native, ranges);
+        QCOMPARE(names(merged, 0),
+                 (QStringList{"main", "Create", "MyItem::MyItem",
+                              "QQmlEngine::contextForObject"}));
+    }
+
     void interleaveKeepsEngineFrames()
     {
         SampleTraceData native;
