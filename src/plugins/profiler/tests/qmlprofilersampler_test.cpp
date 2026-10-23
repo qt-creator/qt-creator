@@ -3,6 +3,8 @@
 
 #include "qmlprofilersampler_test.h"
 
+#include "../combinedsampler.h"
+#include "../qmlprofilerclientmanager.h"
 #include "../qmlprofilermodelmanager.h"
 #include "../qmlprofilersampler.h"
 
@@ -14,6 +16,7 @@
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
+#include <QRegularExpression>
 #include <QSignalSpy>
 #include <QTcpServer>
 #include <QTcpSocket>
@@ -29,19 +32,26 @@ namespace Profiler::Internal {
 // start with a trace start and an animation frame, and a stop with the end of
 // the trace. Its clock advances 1000 with every event, from 5000000, so the
 // times the capture rebases are known. While held, it keeps its answers until
-// released, as a busy server does.
+// released, as a busy server does. One that is not listening yet is a target
+// still coming up.
 class FakeProfilerServer : public QObject
 {
 public:
-    FakeProfilerServer()
+    explicit FakeProfilerServer(bool listening = true)
     {
-        m_server.listen(QHostAddress(url.host()), url.port());
+        if (listening)
+            listen();
         connect(&m_server, &QTcpServer::newConnection, this, [this] {
             m_socket = m_server.nextPendingConnection();
             m_protocol = new QPacketProtocol(m_socket, m_socket);
             connect(m_protocol, &QPacketProtocol::readyRead, this, &FakeProfilerServer::read);
         });
     }
+
+    void listen() { m_server.listen(QHostAddress(url.host()), url.port()); }
+
+    // As a target that exits does.
+    void closeConnection() { m_socket->close(); }
 
     void setHeld(bool held)
     {
@@ -235,6 +245,83 @@ void QmlProfilerSamplerTest::testPauseResumeStopBeforeTheServerAnswers()
         return;
     QCOMPARE(loaded.numEvents(), 2);
     QCOMPARE(loaded.pausedRanges(), (Ranges{{2000ns, 3000ns}}));
+}
+
+// Nothing will end a recording the server is never told to start, so a stop
+// before the capture got through must not wait for the server to come up.
+void QmlProfilerSamplerTest::testStopBeforeTheServerListens()
+{
+    FakeProfilerServer server(false);
+    Capture capture(server, false);
+    capture.session->requestStop();
+    server.listen();
+
+    QTRY_VERIFY(capture.done);
+    QVERIFY(capture.session->result);
+    QVERIFY(!*capture.session->result);
+    QCOMPARE(capture.session->result->error(), stoppedBeforeConnectedMessage());
+}
+
+// A target that exits by itself is stopped, too, once the connection to it is
+// gone. That must not end the capture as if it had never connected: the trace
+// it got is being written.
+void QmlProfilerSamplerTest::testStopAfterTheTargetWentAway()
+{
+    FakeProfilerServer server;
+    Capture capture(server, false);
+    QTRY_VERIFY(capture.session->isStarted());
+
+    // Connected after the capture's own handler, so this runs once the capture
+    // has seen the connection go.
+    QObject::connect(capture.sampler.clientManager(),
+                     &QmlProfilerClientManager::connectionClosed,
+                     capture.sampler.clientManager(),
+                     [&capture] { capture.session->requestStop(); });
+    server.closeConnection();
+
+    QTRY_VERIFY(capture.done);
+    QVERIFY(capture.session->result);
+    QVERIFY_RESULT(*capture.session->result);
+}
+
+// When the native side of a combined recording ends first -- it could not
+// attach, say -- the QML side is stopped before it ever connected. The
+// recording must report the native side's error, and must not finish the QML
+// side from inside the native side's done handler.
+void QmlProfilerSamplerTest::testCombinedNativeSideFailsFirst()
+{
+    using namespace QtTaskTree;
+
+    QTest::failOnWarning(QRegularExpression("Nested execution of handlers"));
+
+    FakeProfilerServer server(false);
+    QmlProfilerSampler qml;
+    auto parent = std::make_shared<RecordingSession>();
+    parent->serverUrl = server.url;
+    parent->requestedFeatures = 1ULL << ProfileAnimations;
+    // A launched target, so the QML side keeps waiting for its server.
+    parent->launchExecutable = Utils::FilePath::fromString("target");
+
+    const QString nativeError = "The native side could not attach.";
+    const auto qmlCapture = [&qml](const std::shared_ptr<RecordingSession> &session) {
+        return qml.captureRecipe(session);
+    };
+    const auto failingNativeCapture = [nativeError](const std::shared_ptr<RecordingSession> &session) {
+        return ExecutableItem(QSyncTask([session, nativeError] {
+            session->result.emplace(Utils::ResultError(nativeError));
+            return false;
+        }));
+    };
+
+    bool done = false;
+    QSingleTaskTreeRunner runner;
+    runner.start(Group{combinedCaptureRecipe(parent, qmlCapture, failingNativeCapture)}, {},
+                 [&done](DoneWith) { done = true; });
+
+    QTRY_VERIFY(done);
+    QVERIFY(parent->result);
+    QVERIFY(!*parent->result);
+    QCOMPARE(parent->result->error(), nativeError);
 }
 
 } // namespace Profiler::Internal

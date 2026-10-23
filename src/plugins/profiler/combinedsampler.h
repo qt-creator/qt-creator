@@ -95,4 +95,10 @@ private:
     std::unique_ptr<QmlProfilerSampler> m_qml; // QML debug-protocol capture
 };
 
+using CaptureRecipe
+    = std::function<QtTaskTree::ExecutableItem(const std::shared_ptr<RecordingSession> &)>;
+QtTaskTree::ExecutableItem combinedCaptureRecipe(const std::shared_ptr<RecordingSession> &parent,
+                                                 const CaptureRecipe &qmlCapture,
+                                                 const CaptureRecipe &nativeCapture);
+
 } // namespace Profiler::Internal

@@ -15,6 +15,9 @@ private slots:
     void testPauseResumeStop();
     void testStartPausedThenStop();
     void testPauseResumeStopBeforeTheServerAnswers();
+    void testStopBeforeTheServerListens();
+    void testStopAfterTheTargetWentAway();
+    void testCombinedNativeSideFailsFirst();
 };
 
 } // namespace Profiler::Internal

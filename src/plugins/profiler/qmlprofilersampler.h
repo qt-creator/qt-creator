@@ -65,6 +65,10 @@ public:
 
     SamplerSettings *settings() const override;
 
+#ifdef WITH_TESTS
+    QmlProfilerClientManager *clientManager() const { return m_clientManager.get(); }
+#endif
+
 private:
     std::unique_ptr<QmlProfilerSamplerSettings> m_settings;
     std::unique_ptr<Profiler::Internal::QmlProfilerModelManager> m_modelManager;
@@ -74,5 +78,9 @@ private:
     mutable QmlPauseTracker m_pauseTracker;
     mutable bool m_initialized = false; // The model is set up for the recording.
 };
+
+// Why a recording that was stopped before it reached the QML debug server has
+// no trace.
+QString stoppedBeforeConnectedMessage();
 
 } // namespace Profiler::Internal

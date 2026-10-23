@@ -194,6 +194,12 @@ static FilePath tempQtdPath()
     return uniqueTracePath("qtprofiler-qml"_L1, QLatin1StringView(Constants::QtdFileExtension));
 }
 
+QString stoppedBeforeConnectedMessage()
+{
+    return Tr::tr("Nothing was recorded: the recording was stopped before it had connected "
+                  "to the QML debug server.");
+}
+
 void QmlProfilerSampler::prepareLaunch(const std::shared_ptr<RecordingSession> &session) const
 {
     if (!session->launchCommand)
@@ -329,7 +335,19 @@ ExecutableItem QmlProfilerSampler::captureRecipe(const std::shared_ptr<Recording
         // Translate a stop request into "stop recording", which makes the
         // server send its final trace. The barrier is the context, so the
         // handler lasts exactly as long as this capture.
-        session->onStopRequested(b, [this, b, session, finishRecording] {
+        session->onStopRequested(b, [this, b, session, saving, finishRecording] {
+            // Already ending: the save or the error finishes the capture. The
+            // connection is down then too, when the target went away by itself.
+            if (*saving || session->result.has_value())
+                return;
+            // Before the connection is up the server has not been told to
+            // record, and once it is, nothing would tell it to: there is no
+            // trace to end, so stop trying to connect (see onDone) and finish.
+            if (!m_clientManager->isConnected()) {
+                session->result.emplace(ResultError(stoppedBeforeConnectedMessage()));
+                b->stopWithResult(DoneResult::Error);
+                return;
+            }
             m_pauseTracker.stopRequested();
             if (session->isPaused() && m_pauseTracker.isSettled(m_stateManager->serverRecording())) {
                 // Paused, and the server has answered all it was asked: no

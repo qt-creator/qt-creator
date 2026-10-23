@@ -16,6 +16,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -190,9 +191,11 @@ void CombinedSampler::prepareLaunch(const std::shared_ptr<RecordingSession> &ses
 
 // Moves `finished`'s two child traces into a fresh bundle directory and writes a
 // manifest, storing the bundle path (or an error) into parent->result.
+// `firstToEnd` is the child that ended the recording.
 static void assembleBundle(const std::shared_ptr<RecordingSession> &parent,
                            const std::shared_ptr<RecordingSession> &qmlChild,
-                           const std::shared_ptr<RecordingSession> &nativeChild)
+                           const std::shared_ptr<RecordingSession> &nativeChild,
+                           const RecordingSession *firstToEnd)
 {
     const auto fail = [&parent](const QString &message) {
         if (!parent->result)
@@ -205,6 +208,13 @@ static void assembleBundle(const std::shared_ptr<RecordingSession> &parent,
     }
     const Result<FilePath> &qmlResult = *qmlChild->result;
     const Result<FilePath> &nativeResult = *nativeChild->result;
+    // When both failed, the first to end stopped the other, so its error is
+    // the cause and the other's a consequence -- a QML capture that never got
+    // to connect, say, because the native side could not attach.
+    if (!qmlResult && !nativeResult && firstToEnd == nativeChild.get()) {
+        fail(nativeResult.error());
+        return;
+    }
     if (!qmlResult) {
         fail(qmlResult.error());
         return;
@@ -260,7 +270,11 @@ static void assembleBundle(const std::shared_ptr<RecordingSession> &parent,
     parent->result.emplace(bundlePath);
 }
 
-ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSession> &parent) const
+// What CombinedSampler::captureRecipe() runs, with the captures of the two
+// sides passed in, so that a test can stand in for either.
+ExecutableItem combinedCaptureRecipe(const std::shared_ptr<RecordingSession> &parent,
+                                     const CaptureRecipe &qmlCapture,
+                                     const CaptureRecipe &nativeCapture)
 {
     // Each sub-capture writes its own trace into its own result; they share the
     // parent's target and stop flag, forwarded below. The QML child connects to
@@ -312,8 +326,26 @@ ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSes
         nativeChild->launchExecutable = launched;
     };
 
-    const auto assemble = [parent, qmlChild, nativeChild] {
-        assembleBundle(parent, qmlChild, nativeChild);
+    // Neither side is worth recording without the other, so whichever ends
+    // first ends the recording -- the request cascades through the parent to
+    // both. Not a cancel: a capture that is asked to stop still writes what it
+    // has, which is the trace half we need.
+    //
+    // Queued, because a stop can finish the other side's task, and finishing
+    // it from inside this handler runs one task of the group from another's
+    // handler -- which QtTaskTree warns about and says may crash.
+    const auto firstToEnd = std::make_shared<const RecordingSession *>(nullptr);
+    const auto endsTheRecording = [parent, firstToEnd](const RecordingSession *child) {
+        return onGroupDone([parent, firstToEnd, child] {
+            if (!*firstToEnd)
+                *firstToEnd = child;
+            QMetaObject::invokeMethod(qApp, [parent] { parent->requestStop(); },
+                                      Qt::QueuedConnection);
+        });
+    };
+
+    const auto assemble = [parent, qmlChild, nativeChild, firstToEnd] {
+        assembleBundle(parent, qmlChild, nativeChild, *firstToEnd);
     };
 
     // Merging the two sides into one native-mixed trace is the last, and by far
@@ -344,18 +376,24 @@ ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSes
         Group {
             parallel,
             finishAllAndSuccess,
-            // Neither side is worth recording without the other, so whichever
-            // ends first ends the recording -- the request cascades through the
-            // parent to both. Not a cancel: a capture that is asked to stop
-            // still writes what it has, which is the trace half we need.
-            Group { m_qml->captureRecipe(qmlChild),
-                    onGroupDone([parent] { parent->requestStop(); }) },
-            Group { m_native->captureRecipe(nativeChild),
-                    onGroupDone([parent] { parent->requestStop(); }) },
+            Group { qmlCapture(qmlChild), endsTheRecording(qmlChild.get()) },
+            Group { nativeCapture(nativeChild), endsTheRecording(nativeChild.get()) },
         },
         QSyncTask(assemble),
         QTaskTreeTask(onMergeSetup),
     };
+}
+
+ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSession> &parent) const
+{
+    return combinedCaptureRecipe(
+        parent,
+        [this](const std::shared_ptr<RecordingSession> &session) {
+            return m_qml->captureRecipe(session);
+        },
+        [this](const std::shared_ptr<RecordingSession> &session) {
+            return m_native->captureRecipe(session);
+        });
 }
 
 bool CombinedSampler::isCombinedTrace(const FilePath &dir)
