@@ -84,13 +84,20 @@ FilePath deploymentSettings(const FilePath &buildDir, const QString &buildKey)
 
 // Where harmonydeployqt generates the HAP project: beside the application target, which is
 // the top of the build directory only when the application is the whole project. Qt
-// Creator's own application lives in src/app.
+// Creator's own application lives in src/app. Newer Qt versions name the directory in the
+// deployment settings; older ones always use harmonyos-build.
 FilePath generatedProjectDir(const FilePath &buildDir, const QString &buildKey)
 {
     const FilePath settings = deploymentSettings(buildDir, buildKey);
-    if (!settings.isEmpty())
-        return settings.parentDir().pathAppended("harmonyos-build");
-    return buildDir.pathAppended("harmonyos-build");
+    if (settings.isEmpty())
+        return buildDir.pathAppended("harmonyos-build");
+    if (const Result<QByteArray> contents = settings.fileContents()) {
+        const QString dir = QJsonDocument::fromJson(*contents)
+                                .object().value("harmonyos-build-directory").toString();
+        if (!dir.isEmpty())
+            return FilePath::fromUserInput(dir);
+    }
+    return settings.parentDir().pathAppended("harmonyos-build");
 }
 
 FilePaths libraryDirectories(const FilePath &deploymentSettings)

@@ -2426,6 +2426,14 @@ private slots:
         QCOMPARE(generatedProjectDir(build, "app"), nested.pathAppended("harmonyos-build"));
         // Another target's settings are not this target's.
         QCOMPARE(generatedProjectDir(build, "other"), build.pathAppended("harmonyos-build"));
+
+        // Newer Qt versions name the directory, which is per target by default.
+        const FilePath perTarget = nested.pathAppended("harmonyos-build-app");
+        QVERIFY(nested.pathAppended("app-harmony-deployment-settings.json")
+                    .writeFileContents(QString(R"({ "harmonyos-build-directory": "%1" })")
+                                           .arg(perTarget.path())
+                                           .toUtf8()));
+        QCOMPARE(generatedProjectDir(build, "app"), perTarget);
     }
 
     void testHarmonyOsExtras()

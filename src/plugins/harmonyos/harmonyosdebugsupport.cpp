@@ -62,8 +62,9 @@ static DebuggerRunParameters debuggerRunParameters(RunControl *runControl)
         }
 
         FilePaths solibSearchPath = {bc->buildDirectory(),
-                                     bc->buildDirectory().pathAppended(
-                                         "harmonyos-build/entry/libs/arm64-v8a")};
+                                     generatedProjectDir(bc->buildDirectory(),
+                                                         bc->activeBuildKey())
+                                         .pathAppended("entry/libs/arm64-v8a")};
         if (QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(runControl->kit()))
             solibSearchPath.append(qt->qtSoPaths());
         FilePath::removeDuplicates(solibSearchPath);
