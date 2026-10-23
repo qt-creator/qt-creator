@@ -63,7 +63,6 @@ if(WITH_TESTS)
     tests/perfrecordreader_test.cpp tests/perfrecordreader_test.h
     tests/perfsamplersettings_test.cpp tests/perfsamplersettings_test.h
     tests/dwarflinetable_test.cpp tests/dwarflinetable_test.h
-    tests/perfprofilertests.qrc
   )
 else()
   set(TEST_SOURCES "")
@@ -307,4 +306,10 @@ qtc_add_resources(Profiler "qmlprofiler_testdata"
   FILES
     tests/Test.qml
     tests/qmlprofilerdetailsrewriter_test.cpp
+)
+
+qtc_add_resources(Profiler "perfprofiler_testdata"
+  CONDITION WITH_TESTS
+  PREFIX "/perfprofiler"
+  FILES tests/probe.file.ptr
 )

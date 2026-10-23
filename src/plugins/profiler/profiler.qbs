@@ -302,6 +302,12 @@ QtcPlugin {
         fileTags: base.concat("cpp")
     }
 
+    QtcTestResources {
+        name: "perf profiler test data"
+        Qt.core.resourcePrefix: "/perfprofiler"
+        files: "tests/probe.file.ptr"
+    }
+
     QtcTestFiles {
         name: "Perf sampler tests"
         condition: qtc.withPluginTests && qbs.targetOS.contains("linux")
@@ -320,7 +326,6 @@ QtcPlugin {
             "perfrecordreader_test.cpp", "perfrecordreader_test.h",
             "perfsamplersettings_test.cpp", "perfsamplersettings_test.h",
             "perfresourcecounter_test.cpp", "perfresourcecounter_test.h",
-            "perfprofilertests.qrc",
 
             "calltreeview_test.cpp", "calltreeview_test.h",
             "ctfloader_test.cpp", "ctfloader_test.h",
