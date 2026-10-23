@@ -46,6 +46,8 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 
+#include <utils/algorithm.h>
+
 #include <QFile>
 #include <QSignalSpy>
 #include <QTemporaryDir>
@@ -342,6 +344,35 @@ static RawProjectParts projectPartsFromDatabase(KitInfo &kitInfo,
     return rpps;
 }
 
+// Project files
+
+// Many Zephyr files have no suffix the code model would know, like Kconfig.
+static FilePaths scanProjectFiles(const FilePath &root, const FilePath &buildDir)
+{
+    static const QStringList nameFilters = {
+        "*.c", "*.h", "*.cpp", "*.hpp", "CMakeLists.txt", "*.cmake",
+        "*.conf", "*.overlay", "*.dts", "*.dtsi", "*.yml", "*.yaml",
+        "Kconfig", "Kconfig.*", "*_defconfig", "Dockerfile", "Dockerfile.*", "Makefile",
+        "*.patch", "*.sh", "*.py", "*.rst", "*.md"};
+    static const QStringList skipDirs = {".git", ".west", "build"};
+
+    FilePaths files;
+    root.iterateDirectory(
+        [&](const FilePath &path) {
+            if (buildDir.isChildOf(root) && path.isChildOf(buildDir))
+                return IterationPolicy::Continue;
+            const QStringList dirs = path.relativeChildPath(root).path().split('/');
+            for (int i = 0; i < dirs.size() - 1; ++i) {
+                if (skipDirs.contains(dirs.at(i)))
+                    return IterationPolicy::Continue;
+            }
+            files.append(path);
+            return IterationPolicy::Continue;
+        },
+        {nameFilters, DirFilterFlag::Files, DirIteratorFlag::Subdirectories});
+    return files;
+}
+
 // ZephyrBuildSystem
 
 class ZephyrBuildSystem final : public BuildSystem
@@ -382,31 +413,13 @@ public:
 
         ParseGuard guard = guardParsingRun();
         const FilePath root = projectDirectory();
-
-        static const QStringList skipDirs = {".git", ".west", "build"};
-
-        FilePaths files;
-        root.iterateDirectory(
-            [&](const FilePath &path) {
-                const QString pathStr = path.path();
-                for (const QString &skip : skipDirs) {
-                    if (pathStr.contains('/' + skip + '/') || pathStr.endsWith('/' + skip))
-                        return IterationPolicy::Continue;
-                }
-                files.append(path);
-                return IterationPolicy::Continue;
-            },
-            {{"*.c", "*.h", "*.cpp", "*.hpp", "*.cmake", "*.conf", "*.yml", "*.yaml",
-              "CMakeLists.txt"},
-             DirFilterFlag::Files,
-             DirIteratorFlag::Subdirectories});
+        const FilePath buildDir = buildConfiguration()->buildDirectory();
 
         auto newRoot = std::make_unique<ProjectNode>(root);
-        for (const FilePath &f : files)
+        for (const FilePath &f : scanProjectFiles(root, buildDir))
             newRoot->addNestedNode(std::make_unique<FileNode>(f, FileNode::fileTypeForFileName(f)));
         setRootProjectNode(std::move(newRoot));
 
-        const FilePath buildDir = buildConfiguration()->buildDirectory();
         if (project()->activeBuildSystem() == this && !compileDatabaseFile().exists()) {
             m_configureGuard = std::move(guard);
             if (startConfigure(buildDir))
@@ -922,6 +935,8 @@ private slots:
     void testReparseDuringConfigure();
     void testConfigureFails();
     void testNoApplicationSource();
+    void testProjectFiles_data();
+    void testProjectFiles();
 
 private:
     void openProject();
@@ -1090,6 +1105,54 @@ void ZephyrParseFlowTest::testNoApplicationSource()
     QTRY_COMPARE(m_finished->size(), 1);
     QCOMPARE(m_started->size(), 1);
     QCOMPARE(westCalls().size(), 1);
+}
+
+void ZephyrParseFlowTest::testProjectFiles_data()
+{
+    QTest::addColumn<QString>("buildSubdir");
+    QTest::newRow("default build directory") << QString("build");
+    QTest::newRow("in-source build") << QString();
+    QTest::newRow("build directory not skipped by name") << QString("out");
+}
+
+void ZephyrParseFlowTest::testProjectFiles()
+{
+    QFETCH(QString, buildSubdir);
+    const FilePath projectDir = m_tmp / "hello";
+    const QStringList listed = {"CMakeLists.txt", "west.yml", "prj.conf", "Kconfig",
+                                "Kconfig.app", "Dockerfile", "boards/disco.overlay",
+                                "boards/disco.conf", "scripts/flash.sh",
+                                "zephyr/patches/fix.patch", "cmake/extra.cmake", "src/main.c",
+                                "build-other/prj.conf", "boards/disco/disco_defconfig"};
+    const QStringList unlisted = {"build/zephyr/.config", "build/zephyr/dts.overlay",
+                                  "notes.txt"};
+    const QString outOverlay = "out/zephyr/dts.overlay";
+    for (const QString &name : listed + unlisted + QStringList{outOverlay}) {
+        const FilePath file = projectDir / name;
+        QVERIFY(file.parentDir().ensureWritableDir());
+        if (!file.exists())
+            QVERIFY_RESULT(file.writeFileContents("\n"));
+    }
+    openProject();
+    if (QTest::currentTestFailed())
+        return;
+    QTRY_COMPARE(m_finished->size(), 1);
+    if (buildSubdir != "build") {
+        m_project->activeBuildConfiguration()->setBuildDirectory(
+            buildSubdir.isEmpty() ? projectDir : projectDir / buildSubdir);
+        QTRY_COMPARE(m_finished->size(), 2);
+    }
+
+    FilePaths expected;
+    for (const QString &name : listed)
+        expected.append(projectDir / name);
+    if (buildSubdir != "out")
+        expected.append(projectDir / outOverlay);
+    FilePaths files = m_project->files(Project::SourceFiles);
+    files.removeAll(projectDir);
+    Utils::sort(expected);
+    Utils::sort(files);
+    QCOMPARE(files, expected);
 }
 
 QObject *createZephyrParseFlowTest()
