@@ -10,6 +10,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <nanotrace/nanotrace.h>
 
@@ -22,6 +23,7 @@
 #include "toolchainconfigwidget.h"
 
 #include <QSet>
+#include <QTemporaryDir>
 #include <QTest>
 #endif // WITH_TESTS
 
@@ -253,11 +255,15 @@ void ToolchainSettingsAccessor::saveToolchains(const Toolchains &toolchains)
 
     int count = 0;
     for (const Toolchain *tc : toolchains) {
+        QTC_ASSERT(tc, continue);
         if (tc->detectionSource().isTemporary())
             continue;
 
-        if (!tc || (!tc->isValid() && tc->detectionSource().isAutoDetected()))
+        // A device might just be unreachable at the moment.
+        if (!tc->isValid() && tc->detectionSource().isAutoDetected()
+            && !tc->isDeviceDetected()) {
             continue;
+        }
         Store tmp;
         tc->toMap(tmp);
         if (tmp.isEmpty())
@@ -320,6 +326,7 @@ public:
         setLanguage(Constants::CXX_LANGUAGE_ID);
         setTypeDisplayName("Test Tool Chain");
         setTargetAbiNoSignal(Abi::hostAbi());
+        setCompilerCommandKey("TestCompilerCommand");
         setCompilerCommand("/tmp/test/gcc");
     }
 
@@ -512,6 +519,49 @@ private slots:
         QCOMPARE(expToDemote, actToDemote);
         QCOMPARE(Utils::toSet(system + user + autodetect),
                  Utils::toSet(ops.toRegister + ops.toDemote + ops.toDelete));
+    }
+
+    // A device that is not reachable when the settings are saved, e.g. a Docker daemon
+    // that has not started yet, must not cost the kits their compilers.
+    void testKeepUnreachableDeviceToolchain()
+    {
+        class TestToolchainFactory : ToolchainFactory
+        {
+        public:
+            TestToolchainFactory() {
+                setSupportedToolchainType(TestToolChainType);
+                setToolchainConstructor([] { return new TTC; });
+            }
+            std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget(
+                const ToolchainBundle &) const override
+            {
+                return nullptr;
+            }
+        };
+
+        TestToolchainFactory factory;
+
+        auto onDevice = new TTC("onDevice", false);
+        onDevice->setCompilerCommand("docker://4711/usr/bin/gcc");
+        onDevice->setDetectionSource(DetectionSource::FromSystem);
+
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        ToolchainSettingsAccessor accessor;
+        accessor.setBaseFilePath(FilePath::fromString(dir.filePath("toolchains.xml")));
+        accessor.saveToolchains({onDevice});
+        const Toolchains restored = accessor.restoreToolchains();
+
+        const Toolchain * const found = Utils::findOrDefault(restored, [](const Toolchain *tc) {
+            return tc->typeId() == TestToolChainType;
+        });
+        QVERIFY(found);
+        QCOMPARE(found->id(), onDevice->id());
+        QCOMPARE(found->compilerCommand(), onDevice->compilerCommand());
+
+        qDeleteAll(Utils::filtered(restored, [](const Toolchain *tc) {
+            return tc->typeId() != TestToolChainType;
+        }));
     }
 
     void cleanupTestCase()
