@@ -79,6 +79,7 @@ public:
     QList<Utils::Id> supportedTargetDeviceTypes() const;
     void setDefaultDisplayName(const QString &defaultDisplayName);
     void setSupportedProjectType(Utils::Id id);
+    Utils::Id supportedProjectType() const;
 
     // Step is only added if condition is not set, or returns true when called.
     void addInitialStep(

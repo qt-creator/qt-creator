@@ -43,6 +43,7 @@
 #ifdef WITH_TESTS
 #include "zephyrsettings.h"
 
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 
@@ -945,6 +946,7 @@ private slots:
     void testWestRunsInWorkspace_data();
     void testWestRunsInWorkspace();
     void testBoardAfterReopen();
+    void testFlashOnDeploy();
 
 private:
     void openProject();
@@ -1237,6 +1239,17 @@ void ZephyrParseFlowTest::testBoardAfterReopen()
     if (!m_project->activeBuildConfiguration())
         QVERIFY(m_project->configureAsExampleProject(m_kit));
     QCOMPARE(westBoard(m_project->activeBuildConfiguration()), QString("nrf52840dk"));
+}
+
+void ZephyrParseFlowTest::testFlashOnDeploy()
+{
+    openProject();
+    if (QTest::currentTestFailed())
+        return;
+    const DeployConfiguration *dc = m_project->activeBuildConfiguration()
+                                        ->activeDeployConfiguration();
+    QVERIFY(dc);
+    QCOMPARE(dc->id(), Id(Constants::ZEPHYR_DEPLOY_CONFIG_ID));
 }
 
 QObject *createZephyrParseFlowTest()

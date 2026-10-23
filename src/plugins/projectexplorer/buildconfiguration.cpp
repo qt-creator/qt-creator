@@ -685,7 +685,9 @@ void BuildConfiguration::updateDefaultDeployConfigurations()
                     addDeployConfiguration(dc);
                     // Prefer a deploy configuration that specifically supports the target
                     // over the generic DefaultDeployConfiguration:
-                    if (!preferredDc && !dcFactory->supportedTargetDeviceTypes().isEmpty()) {
+                    if (!preferredDc
+                        && (!dcFactory->supportedTargetDeviceTypes().isEmpty()
+                            || dcFactory->supportedProjectType().isValid())) {
                         preferredDc = dc;
                     }
                 }

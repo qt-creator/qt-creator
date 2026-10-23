@@ -273,6 +273,11 @@ void DeployConfigurationFactory::setSupportedProjectType(Utils::Id id)
     m_supportedProjectType = id;
 }
 
+Utils::Id DeployConfigurationFactory::supportedProjectType() const
+{
+    return m_supportedProjectType;
+}
+
 void DeployConfigurationFactory::addInitialStep(
     Utils::Id stepId, const std::function<bool(BuildConfiguration *)> &condition)
 {
