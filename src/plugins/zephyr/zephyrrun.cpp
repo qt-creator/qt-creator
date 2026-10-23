@@ -160,8 +160,12 @@ public:
         setId("Zephyr.RunWorkerFactory");
         setRecipeProducer([](RunControl *runControl) -> Group {
             const FilePath appDir = appBuildDirectory(runControl->buildDirectory());
-            if (zephyrTarget(appDir) != ZephyrTarget::Hardware)
-                return runControl->processRecipe(runControl->processTask());
+            if (zephyrTarget(appDir) != ZephyrTarget::Hardware) {
+                // West starts the emulator through CMake and ninja. Stopping has to
+                // reach all of them.
+                const auto modifier = [](Process &process) { process.setDisableUnixTerminal(); };
+                return runControl->processRecipe(runControl->processTaskWithModifier(modifier));
+            }
             return {QSyncTask([runControl] {
                 runControl->postMessage(Tr::tr("The application runs on the board after flashing."),
                                         NormalMessageFormat);

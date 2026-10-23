@@ -179,6 +179,7 @@ public:
                     cmd.addArgs({"--domain", domain});
                 process.setCommand(cmd);
                 process.setWorkingDirectory(workingDir);
+                process.setDisableUnixTerminal();
             };
 
             // The SDK's gdb knows the target architecture, a desktop kit's does not.
