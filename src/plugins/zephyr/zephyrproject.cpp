@@ -5,6 +5,7 @@
 
 #include "westbuildstep.h"
 #include "zephyrconstants.h"
+#include "zephyrrun.h"
 #include "zephyrtr.h"
 
 #include <coreplugin/icontext.h>
@@ -35,6 +36,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
+#include <QtEndian>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
@@ -375,6 +377,131 @@ static FilePaths scanProjectFiles(const FilePath &root, const FilePath &buildDir
     return files;
 }
 
+// Ninja's dependency log names every source and header the last build read. In format
+// version 4, a path record ends with the complement of its index, and a dependency record
+// holds the output, a 64-bit mtime and the inputs. The log keeps the records of outputs
+// that left the build until Ninja recompacts it, so only the given outputs count.
+static FilePaths readNinjaDeps(const QByteArray &log, const FilePath &ninjaDir,
+                               const std::optional<QSet<QByteArray>> &outputs)
+{
+    static const QByteArray signature = "# ninjadeps\n";
+    const qsizetype headerSize = signature.size() + 4;
+    if (!log.startsWith(signature) || log.size() < headerSize
+        || qFromLittleEndian<qint32>(log.constData() + signature.size()) != 4) {
+        return {};
+    }
+
+    QList<QByteArray> paths;
+    QHash<qint32, QList<qint32>> inputsByOutput;
+    for (qsizetype pos = headerSize; pos + 4 <= log.size();) {
+        const quint32 header = qFromLittleEndian<quint32>(log.constData() + pos);
+        const qsizetype size = header & 0x7fffffff;
+        pos += 4;
+        if (size < 4 || size % 4 != 0 || pos + size > log.size())
+            break;
+        const char *record = log.constData() + pos;
+        pos += size;
+        if (header & 0x80000000) {
+            if (size < 12)
+                break;
+            QList<qint32> inputs;
+            for (qsizetype i = 12; i < size; i += 4)
+                inputs.append(qFromLittleEndian<qint32>(record + i));
+            inputsByOutput.insert(qFromLittleEndian<qint32>(record), inputs);
+        } else {
+            QByteArray path(record, size - 4);
+            while (path.endsWith('\0'))
+                path.chop(1);
+            paths.append(path);
+        }
+    }
+
+    QSet<qint32> ids;
+    for (auto it = inputsByOutput.cbegin(); it != inputsByOutput.cend(); ++it) {
+        if (!outputs || outputs->contains(paths.value(it.key())))
+            ids.unite(QSet<qint32>(it.value().begin(), it.value().end()));
+    }
+    FilePaths files;
+    for (const qint32 id : std::as_const(ids)) {
+        if (id >= 0 && id < paths.size())
+            files.append(ninjaDir.resolvePath(QString::fromUtf8(paths.at(id))));
+    }
+    return files;
+}
+
+// The outputs of the build statements in a Ninja manifest.
+static QSet<QByteArray> ninjaOutputs(const QByteArray &manifest)
+{
+    QSet<QByteArray> outputs;
+    for (const QByteArray &line : manifest.split('\n')) {
+        if (!line.startsWith("build "))
+            continue;
+        QByteArray path;
+        for (qsizetype i = 6; i < line.size(); ++i) {
+            const char c = line.at(i);
+            if (c == '$' && i + 1 < line.size()) {
+                path.append(line.at(++i));
+            } else if (c == ' ' || c == '|' || c == ':') {
+                if (!path.isEmpty())
+                    outputs.insert(path);
+                path.clear();
+                if (c == ':')
+                    break;
+            } else {
+                path.append(c == '\\' ? '/' : c);
+            }
+        }
+    }
+    return outputs;
+}
+
+static FilePath ninjaDepsFile(const FilePath &buildDir)
+{
+    return appBuildDirectory(buildDir) / ".ninja_deps";
+}
+
+// Files from other west projects that the build used, such as headers of shared
+// libraries, so that they can be searched without opening those projects.
+static QSet<FilePath> dependencyFiles(const FilePath &workspace,
+                                      const FilePath &projectDir,
+                                      const FilePath &buildDir)
+{
+    if (!(workspace / ".west").isDir())
+        return {};
+    const FilePath depsFile = ninjaDepsFile(buildDir);
+    std::optional<QSet<QByteArray>> outputs;
+    if (const Result<QByteArray> manifest = (depsFile.parentDir() / "build.ninja").fileContents())
+        outputs = ninjaOutputs(*manifest);
+    const FilePaths used = readNinjaDeps(depsFile.fileContents().value_or(QByteArray()),
+                                         depsFile.parentDir(), outputs);
+
+    QSet<FilePath> files;
+    for (const FilePath &file : used) {
+        if (!file.isChildOf(workspace) || file.isChildOf(projectDir))
+            continue;
+        if (buildDir.isChildOf(workspace) && file.isChildOf(buildDir))
+            continue;
+        files.insert(file);
+    }
+    return files;
+}
+
+static std::unique_ptr<FolderNode> dependenciesNode(const FilePath &workspace,
+                                                    const QSet<FilePath> &dependencies)
+{
+    std::vector<std::unique_ptr<FileNode>> files;
+    for (const FilePath &file : dependencies)
+        files.push_back(std::make_unique<FileNode>(file, FileNode::fileTypeForFileName(file)));
+    if (files.empty())
+        return {};
+
+    auto node = std::make_unique<VirtualFolderNode>(workspace);
+    node->setDisplayName(Tr::tr("Dependencies"));
+    node->setPriority(Node::DefaultPriority);
+    node->addNestedNodes(std::move(files), workspace);
+    return node;
+}
+
 // ZephyrBuildSystem
 
 class ZephyrBuildSystem final : public BuildSystem
@@ -391,15 +518,19 @@ public:
         connect(project(), &Project::projectFileIsDirty, this, reparseIfActive);
         connect(project(), &Project::activeBuildConfigurationChanged, this, reparseIfActive);
         connect(bc, &BuildConfiguration::buildDirectoryChanged, this, reparseIfActive);
-        // A build does not change the source tree, only the compile database.
+        // A build does not change the source tree, only the compile database and the
+        // dependencies it used.
         connect(BuildManager::instance(), &BuildManager::buildStateChanged, this,
                 [this](Project *p) {
                     if (p != project() || BuildManager::isBuilding(p)
                         || project()->activeBuildSystem() != this) {
                         return;
                     }
-                    if (m_compileDatabaseStamp.update(compileDatabaseFile()))
-                        updateCppCodeModel();
+                    // A reparse also updates the code model.
+                    checkDependencies([this] {
+                        if (m_compileDatabaseStamp.update(compileDatabaseFile()))
+                            updateCppCodeModel();
+                    });
                 });
         requestDelayedParse();
     }
@@ -413,14 +544,30 @@ public:
             return;
         }
 
-        ParseGuard guard = guardParsingRun();
+        if (!m_parseGuard.guardsProject())
+            m_parseGuard = guardParsingRun();
+        forgetProjectWorkspace(projectDirectory());
+        m_ninjaDepsStamp.update(ninjaDepsFile(buildConfiguration()->buildDirectory()));
+        readDependencies(m_dependencyReader, [this](const QSet<FilePath> &dependencies) {
+            m_dependencies = dependencies;
+            finishTree();
+        });
+    }
+
+    bool isCheckingDependencies() const { return m_dependencyChecker.isRunning(); }
+
+private:
+    void finishTree()
+    {
+        ParseGuard guard = std::move(m_parseGuard);
         const FilePath root = projectDirectory();
         const FilePath buildDir = buildConfiguration()->buildDirectory();
-        forgetProjectWorkspace(root);
 
         auto newRoot = std::make_unique<ProjectNode>(root);
         for (const FilePath &f : scanProjectFiles(root, buildDir))
             newRoot->addNestedNode(std::make_unique<FileNode>(f, FileNode::fileTypeForFileName(f)));
+        if (auto deps = dependenciesNode(westWorkingDirectory(project()), m_dependencies))
+            newRoot->addNode(std::move(deps));
         setRootProjectNode(std::move(newRoot));
 
         if (project()->activeBuildSystem() == this && !compileDatabaseFile().exists()) {
@@ -433,13 +580,44 @@ public:
         finishParsing(guard);
     }
 
-private:
     void finishParsing(ParseGuard &guard,
                        const std::optional<Result<CompileDatabase>> &parsed = {})
     {
         updateCppCodeModel(parsed);
         guard.markAsSuccess();
         emitBuildSystemUpdated();
+    }
+
+    // The dependency log grows with the compile database, so it is read in a worker, too.
+    void readDependencies(QSingleTaskTreeRunner &runner,
+                          const std::function<void(const QSet<FilePath> &)> &handler)
+    {
+        const auto onSetup = [workspace = westWorkingDirectory(project()),
+                              root = projectDirectory(),
+                              buildDir = buildConfiguration()->buildDirectory()](
+                                 Async<QSet<FilePath>> &task) {
+            task.setConcurrentCallData(dependencyFiles, workspace, root, buildDir);
+        };
+        const auto onDone = [handler](const Async<QSet<FilePath>> &task, DoneWith result) {
+            if (result != DoneWith::Cancel)
+                handler(task.isResultAvailable() ? task.result() : QSet<FilePath>());
+        };
+        runner.start({AsyncTask<QSet<FilePath>>(onSetup, onDone)});
+    }
+
+    // Ninja rewrites its log on nearly every build, the set of files used rarely changes.
+    void checkDependencies(const std::function<void()> &ifUnchanged = {})
+    {
+        const auto handle = [this, ifUnchanged](const QSet<FilePath> &dependencies) {
+            if (dependencies != m_dependencies)
+                requestDelayedParse();
+            else if (ifUnchanged)
+                ifUnchanged();
+        };
+        if (m_ninjaDepsStamp.update(ninjaDepsFile(buildConfiguration()->buildDirectory())))
+            readDependencies(m_dependencyChecker, handle);
+        else
+            handle(m_dependencies);
     }
 
     FilePath compileDatabaseFile() const
@@ -532,10 +710,11 @@ private:
     {
         ParseGuard guard = std::move(m_configureGuard);
         finishParsing(guard, std::exchange(m_configuredDatabase, std::nullopt));
-        if (m_reparseAfterConfigure) {
-            m_reparseAfterConfigure = false;
+        // Building the generated headers writes the dependency log.
+        if (std::exchange(m_reparseAfterConfigure, false))
             requestDelayedParse();
-        }
+        else
+            checkDependencies();
     }
 
     // A Zephyr database is several megabytes, so it is read in a worker.
@@ -590,6 +769,11 @@ private:
     std::unique_ptr<ProjectUpdater> m_cppCodeModelUpdater;
     OwnedToolchains m_detectedToolchains;
     CompileDatabaseStamp m_compileDatabaseStamp;
+    CompileDatabaseStamp m_ninjaDepsStamp;
+    QSet<FilePath> m_dependencies;
+    QSingleTaskTreeRunner m_dependencyReader;
+    QSingleTaskTreeRunner m_dependencyChecker;
+    ParseGuard m_parseGuard;
     QSingleTaskTreeRunner m_compileDatabaseReader;
     Process *m_configureProcess = nullptr;
     QSingleTaskTreeRunner m_configureReader;
@@ -670,6 +854,8 @@ private slots:
     void testToolchainNotRegistered();
     void testCMakeTarget_data();
     void testCMakeTarget();
+    void testNinjaOutputs_data();
+    void testNinjaOutputs();
     void testCompileDatabaseFile();
     void testCompileDatabaseStamp();
     void testProjectParts_data();
@@ -877,6 +1063,28 @@ void ZephyrCompileDatabaseTest::testCMakeTarget()
     QCOMPARE(cmakeTargetFromOutput(output), target);
 }
 
+void ZephyrCompileDatabaseTest::testNinjaOutputs_data()
+{
+    QTest::addColumn<QByteArray>("manifest");
+    QTest::addColumn<QSet<QByteArray>>("outputs");
+
+    const QSet<QByteArray> app = {"CMakeFiles/app.dir/src/main.c.obj", "out 2"};
+    QTest::newRow("unix")
+        << QByteArray("build CMakeFiles/app.dir/src/main.c.obj | out$ 2: C_COMPILER__app\n")
+        << app;
+    QTest::newRow("windows")
+        << QByteArray("build CMakeFiles\\app.dir\\src\\main.c.obj | out$ 2: C_COMPILER__app\n")
+        << app;
+}
+
+void ZephyrCompileDatabaseTest::testNinjaOutputs()
+{
+    QFETCH(QByteArray, manifest);
+    QFETCH(QSet<QByteArray>, outputs);
+
+    QCOMPARE(ninjaOutputs(manifest), outputs);
+}
+
 void ZephyrCompileDatabaseTest::testCompileDatabaseFile()
 {
     QTemporaryDir dir;
@@ -947,6 +1155,10 @@ private slots:
     void testWestRunsInWorkspace();
     void testBoardAfterReopen();
     void testFlashOnDeploy();
+    void testDependencies_data();
+    void testDependencies();
+    void testDependenciesAfterConfigure();
+    void testOverlappingParse();
 
 private:
     void openProject();
@@ -981,7 +1193,8 @@ void ZephyrParseFlowTest::cleanupTestCase()
 
 // The fake west logs the directory and arguments of "west build". Its configure
 // step blocks while "hold" exists, fails if "fail" exists and otherwise copies
-// "db.json" to the compile database.
+// "db.json" to the compile database. Building one source copies "deps", if it
+// exists, to the dependency log.
 void ZephyrParseFlowTest::init()
 {
     m_dir = std::make_unique<QTemporaryDir>();
@@ -994,15 +1207,19 @@ void ZephyrParseFlowTest::init()
 [ "$1" = build ] || exit 0
 tmp=$(dirname "$0")/..
 echo "$(pwd -P): $*" >> "$tmp/log"
-case " $* " in
+args=" $* "
+while [ $# -gt 0 ]; do
+    [ "$1" = -d ] && build=$2
+    shift
+done
+case "$args" in
 *" --cmake-only "*)
     while [ -e "$tmp/hold" ]; do sleep 0.05; done
     [ -e "$tmp/fail" ] && exit 1
-    while [ $# -gt 0 ]; do
-        [ "$1" = -d ] && build=$2
-        shift
-    done
     mkdir -p "$build" && cp "$tmp/db.json" "$build/compile_commands.json"
+    ;;
+*"^ "*)
+    [ -e "$tmp/deps" ] && cp "$tmp/deps" "$build/.ninja_deps"
     ;;
 esac
 exit 0
@@ -1250,6 +1467,149 @@ void ZephyrParseFlowTest::testFlashOnDeploy()
                                         ->activeDeployConfiguration();
     QVERIFY(dc);
     QCOMPARE(dc->id(), Id(Constants::ZEPHYR_DEPLOY_CONFIG_ID));
+}
+
+// Each dependency record is the output index followed by the input indices.
+static QByteArray ninjaDepsLog(const QList<QByteArray> &paths, const QList<QList<qint32>> &deps)
+{
+    QByteArray log = "# ninjadeps\n";
+    const auto append = [&log](quint32 value) {
+        log.append(reinterpret_cast<const char *>(&value), 4);
+    };
+    append(qToLittleEndian<quint32>(4));
+    for (int id = 0; id < paths.size(); ++id) {
+        QByteArray path = paths.at(id);
+        while (path.size() % 4 != 0)
+            path.append('\0');
+        append(qToLittleEndian<quint32>(path.size() + 4));
+        log.append(path);
+        append(qToLittleEndian<quint32>(~quint32(id)));
+    }
+    for (const QList<qint32> &record : deps) {
+        append(qToLittleEndian<quint32>(0x80000000 | (12 + (record.size() - 1) * 4)));
+        append(qToLittleEndian<quint32>(record.first()));
+        append(0);
+        append(0);
+        for (const qint32 input : record.mid(1))
+            append(qToLittleEndian<quint32>(input));
+    }
+    return log;
+}
+
+void ZephyrParseFlowTest::testDependencies_data()
+{
+    QTest::addColumn<bool>("atWorkspaceRoot");
+    QTest::newRow("build subdirectory") << false;
+    QTest::newRow("build at workspace root") << true;
+}
+
+void ZephyrParseFlowTest::testDependencies()
+{
+    QFETCH(bool, atWorkspaceRoot);
+    QVERIFY((m_tmp / ".west").createDir());
+    const FilePath used = m_tmp / "common/setup/Setup_Interface.h";
+    const FilePath unused = m_tmp / "common/setup/Unused.h";
+    const FilePath removed = m_tmp / "common/setup/Removed.h";
+    for (const FilePath &file : {used, unused, removed}) {
+        QVERIFY(file.parentDir().ensureWritableDir());
+        QVERIFY_RESULT(file.writeFileContents("\n"));
+    }
+    const FilePath buildDir = atWorkspaceRoot ? m_tmp : m_tmp / "hello/build";
+    QVERIFY(buildDir.ensureWritableDir());
+    QVERIFY_RESULT((buildDir / "build.ninja").writeFileContents(
+        "build CMakeFiles/app.dir/src/main.c.obj | out$ 2: C_COMPILER__app src/main.c\n"));
+    QVERIFY_RESULT((buildDir / ".ninja_deps").writeFileContents(ninjaDepsLog(
+        {"CMakeFiles/app.dir/src/main.c.obj", m_source.path().toUtf8(), used.path().toUtf8(),
+         (buildDir / "zephyr/include/generated/zephyr/autoconf.h").path().toUtf8(),
+         "/usr/include/stdio.h", "CMakeFiles/app.dir/src/removed.c.obj",
+         removed.path().toUtf8()},
+        {{0, 1, 2, 3, 4}, {5, 6}})));
+
+    openProject();
+    if (QTest::currentTestFailed())
+        return;
+    QTRY_COMPARE(m_finished->size(), 1);
+    if (atWorkspaceRoot) {
+        m_project->activeBuildConfiguration()->setBuildDirectory(buildDir);
+        QTRY_COMPARE(m_finished->size(), 2);
+    }
+    QCOMPARE(m_project->activeBuildConfiguration()->buildDirectory(), buildDir);
+
+    const FilePaths files = m_project->files(Project::SourceFiles);
+    QVERIFY(files.contains(used));
+    QVERIFY(files.contains(m_source));
+    QCOMPARE(files.count(m_source), 1);
+    QVERIFY(!files.contains(unused));
+    QVERIFY(!files.contains(removed));
+    if (!atWorkspaceRoot)
+        QVERIFY(!files.contains(buildDir / "zephyr/include/generated/zephyr/autoconf.h"));
+    QVERIFY(!files.contains("/usr/include/stdio.h"));
+
+    // After a build, only a change in the files used from other projects reparses.
+    // The mtime is set explicitly, two writes in a row can share it.
+    const qsizetype parses = m_finished->size();
+    const FilePath depsFile = buildDir / ".ninja_deps";
+    const QDateTime built = depsFile.lastModified();
+    QFile depsLog(depsFile.toFSPathString());
+    QVERIFY_RESULT(depsFile.writeFileContents(ninjaDepsLog(
+        {"CMakeFiles/app.dir/src/main.c.obj", m_source.path().toUtf8(), used.path().toUtf8(),
+         (buildDir / "zephyr/include/generated/zephyr/autoconf.h").path().toUtf8(),
+         "/usr/include/stdio.h", "/usr/include/stdlib.h"},
+        {{0, 1, 2, 3, 4, 5}})));
+    QVERIFY(depsLog.open(QIODevice::ReadWrite));
+    QVERIFY(depsLog.setFileTime(built.addSecs(1), QFileDevice::FileModificationTime));
+    depsLog.close();
+    const auto buildSystem = static_cast<ZephyrBuildSystem *>(m_buildSystem);
+    emit BuildManager::instance()->buildStateChanged(m_project);
+    QVERIFY(buildSystem->isCheckingDependencies());
+    QTRY_VERIFY(!buildSystem->isCheckingDependencies());
+    QVERIFY(!m_buildSystem->isWaitingForParse());
+
+    QVERIFY_RESULT(depsFile.writeFileContents(ninjaDepsLog(
+        {"CMakeFiles/app.dir/src/main.c.obj", used.path().toUtf8(), unused.path().toUtf8()},
+        {{0, 1, 2}})));
+    QVERIFY(depsLog.open(QIODevice::ReadWrite));
+    QVERIFY(depsLog.setFileTime(built.addSecs(2), QFileDevice::FileModificationTime));
+    depsLog.close();
+    emit BuildManager::instance()->buildStateChanged(m_project);
+    QTRY_COMPARE(m_finished->size(), parses + 1);
+    QVERIFY(m_project->files(Project::SourceFiles).contains(unused));
+}
+
+void ZephyrParseFlowTest::testDependenciesAfterConfigure()
+{
+    QVERIFY((m_tmp / ".west").createDir());
+    const FilePath used = m_tmp / "common/setup/Setup_Interface.h";
+    QVERIFY(used.parentDir().ensureWritableDir());
+    QVERIFY_RESULT(used.writeFileContents("\n"));
+    QVERIFY_RESULT((m_tmp / "deps").writeFileContents(ninjaDepsLog(
+        {"CMakeFiles/app.dir/src/main.c.obj", m_source.path().toUtf8(), used.path().toUtf8()},
+        {{0, 1, 2}})));
+
+    openProject();
+    if (QTest::currentTestFailed())
+        return;
+    QTRY_COMPARE(m_finished->size(), 2);
+    QCOMPARE(westCalls().size(), 2);
+    QVERIFY(m_project->files(Project::SourceFiles).contains(used));
+}
+
+void ZephyrParseFlowTest::testOverlappingParse()
+{
+    openProject();
+    if (QTest::currentTestFailed())
+        return;
+    QTRY_COMPARE(m_finished->size(), 1);
+    QVERIFY(!m_buildSystem->isWaitingForParse());
+
+    const auto buildSystem = static_cast<ZephyrBuildSystem *>(m_buildSystem);
+    buildSystem->triggerParsing();
+    buildSystem->triggerParsing();
+    QCOMPARE(m_started->size(), 2);
+    QTRY_COMPARE(m_finished->size(), 2);
+    QCOMPARE(m_finished->at(1).at(0).toBool(), true);
+    QVERIFY(m_buildSystem->hasParsingData());
+    QVERIFY(!m_buildSystem->isParsing());
 }
 
 QObject *createZephyrParseFlowTest()
