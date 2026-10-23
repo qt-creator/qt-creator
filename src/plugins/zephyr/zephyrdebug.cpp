@@ -241,6 +241,7 @@ private slots:
     void testGdbHasPython_data();
     void testGdbHasPython();
     void testSysbuildDomain();
+    void testZephyrTarget();
 };
 
 void ZephyrRunnerConfigTest::testRunnerConfig_data()
@@ -355,6 +356,62 @@ flash_order:
   - hello_world
 )"));
     QCOMPARE(sysbuildDomain(buildDir), QString("hello_world"));
+}
+
+void ZephyrRunnerConfigTest::testZephyrTarget()
+{
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath buildDir = FilePath::fromString(tmp.path());
+    QCOMPARE(zephyrTarget(buildDir), ZephyrTarget::Unknown);
+
+    QVERIFY_RESULT((buildDir / "build.ninja").writeFileContents(R"(
+build run: phony CMakeFiles/run
+build flash: phony zephyr/cmake/flash/CMakeFiles/flash
+)"));
+    QCOMPARE(zephyrTarget(buildDir), ZephyrTarget::Hardware);
+
+    QVERIFY_RESULT((buildDir / "build.ninja").writeFileContents(R"(
+build run: phony zephyr/run
+build run_qemu: phony zephyr/run_qemu
+)"));
+    QCOMPARE(zephyrTarget(buildDir), ZephyrTarget::Emulator);
+
+    QVERIFY_RESULT((buildDir / "zephyr").ensureWritableDir());
+    QVERIFY_RESULT((buildDir / "zephyr/runners.yaml").writeFileContents(R"(runners:
+- native
+flash-runner: native
+)"));
+    QCOMPARE(zephyrTarget(buildDir), ZephyrTarget::Emulator);
+
+    QVERIFY_RESULT((buildDir / "build.ninja").writeFileContents(R"(
+build flash: phony zephyr/cmake/flash/CMakeFiles/flash
+build run_nsim: phony zephyr/run_nsim
+)"));
+    QVERIFY_RESULT((buildDir / "zephyr/runners.yaml").writeFileContents(R"(runners:
+- arc-nsim
+flash-runner: arc-nsim
+debug-runner: arc-nsim
+)"));
+    QCOMPARE(zephyrTarget(buildDir), ZephyrTarget::Emulator);
+
+    QVERIFY_RESULT((buildDir / "zephyr/runners.yaml").writeFileContents(R"(runners:
+- mdb-nsim
+flash-runner: mdb-nsim
+debug-runner: mdb-nsim
+)"));
+    QCOMPARE(zephyrTarget(buildDir), ZephyrTarget::Emulator);
+
+    QVERIFY_RESULT((buildDir / "build.ninja").writeFileContents(R"(
+build flash: phony zephyr/cmake/flash/CMakeFiles/flash
+build run_renode: phony zephyr/run_renode
+)"));
+    QVERIFY_RESULT((buildDir / "zephyr/runners.yaml").writeFileContents(R"(runners:
+- openocd
+flash-runner: openocd
+debug-runner: openocd
+)"));
+    QCOMPARE(zephyrTarget(buildDir), ZephyrTarget::Hardware);
 }
 
 QObject *createZephyrRunnerConfigTest()

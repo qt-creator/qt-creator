@@ -12,5 +12,8 @@ namespace Zephyr::Internal {
 void setupZephyrRun();
 
 QString sysbuildDomain(const Utils::FilePath &buildDir);
+Utils::FilePath appBuildDirectory(const Utils::FilePath &buildDir);
+enum class ZephyrTarget : quint8 { Unknown, Emulator, Hardware };
+ZephyrTarget zephyrTarget(const Utils::FilePath &appBuildDir);
 
 } // namespace Zephyr::Internal

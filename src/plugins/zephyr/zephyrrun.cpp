@@ -10,6 +10,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
@@ -19,6 +20,7 @@
 #include <QRegularExpression>
 
 using namespace ProjectExplorer;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Zephyr::Internal {
@@ -31,6 +33,36 @@ QString sysbuildDomain(const FilePath &buildDir)
     static const QRegularExpression defaultRe(R"(^default:\s*(\S+))",
                                               QRegularExpression::MultilineOption);
     return defaultRe.match(QString::fromUtf8(yaml)).captured(1);
+}
+
+FilePath appBuildDirectory(const FilePath &buildDir)
+{
+    const QString domain = sysbuildDomain(buildDir);
+    return domain.isEmpty() ? buildDir : buildDir / domain;
+}
+
+// Zephyr adds a run_<emulator> target for each emulator the board supports.
+// Without one, "run" only says that emulation is not supported. Some physical
+// boards have one too (run_renode), they have a flash runner then. The flash
+// runners of native_sim ("native") and of the nSIM boards ("arc-nsim", and
+// "mdb-nsim" on the SMP ones) start the simulation instead.
+ZephyrTarget zephyrTarget(const FilePath &appBuildDir)
+{
+    const Result<QByteArray> ninja = (appBuildDir / "build.ninja").fileContents();
+    if (!ninja)
+        return ZephyrTarget::Unknown;
+    if (!ninja->contains("\nbuild run_"))
+        return ZephyrTarget::Hardware;
+    const QByteArray yaml
+        = (appBuildDir / "zephyr/runners.yaml").fileContents().value_or(QByteArray());
+    static const QRegularExpression flashRunnerRe(R"(^flash-runner:\s*(\S+))",
+                                                  QRegularExpression::MultilineOption);
+    const QString flashRunner = flashRunnerRe.match(QString::fromUtf8(yaml)).captured(1);
+    if (flashRunner.isEmpty() || flashRunner == "native" || flashRunner == "arc-nsim"
+        || flashRunner == "mdb-nsim") {
+        return ZephyrTarget::Emulator;
+    }
+    return ZephyrTarget::Hardware;
 }
 
 class ZephyrRunConfiguration final : public RunConfiguration
@@ -119,12 +151,34 @@ public:
     }
 };
 
+// On hardware the deploy step flashes the application, which then runs on the board.
+class ZephyrRunWorkerFactory final : public RunWorkerFactory
+{
+public:
+    ZephyrRunWorkerFactory()
+    {
+        setId("Zephyr.RunWorkerFactory");
+        setRecipeProducer([](RunControl *runControl) -> Group {
+            const FilePath appDir = appBuildDirectory(runControl->buildDirectory());
+            if (zephyrTarget(appDir) != ZephyrTarget::Hardware)
+                return runControl->processRecipe(runControl->processTask());
+            return {QSyncTask([runControl] {
+                runControl->postMessage(Tr::tr("The application runs on the board after flashing."),
+                                        NormalMessageFormat);
+            })};
+        });
+        addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+        addSupportedRunConfig(Constants::ZEPHYR_RUN_CONFIG_ID);
+        setExecutionType(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
+    }
+};
+
 void setupZephyrRun()
 {
     static ZephyrRunConfigurationFactory theRunConfigurationFactory;
     static ZephyrTwisterRunConfigurationFactory theTwisterRunConfigurationFactory;
-    static ProcessRunnerFactory theRunWorkerFactory(
-        {Constants::ZEPHYR_RUN_CONFIG_ID, Constants::ZEPHYR_TWISTER_RUN_CONFIG_ID});
+    static ZephyrRunWorkerFactory theRunWorkerFactory;
+    static ProcessRunnerFactory theTwisterRunWorkerFactory({Constants::ZEPHYR_TWISTER_RUN_CONFIG_ID});
 }
 
 } // namespace Zephyr::Internal

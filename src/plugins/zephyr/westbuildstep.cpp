@@ -5,6 +5,7 @@
 
 #include "zephyrconstants.h"
 #include "zephyrsettings.h"
+#include "zephyrrun.h"
 #include "zephyrtr.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -815,6 +816,22 @@ public:
 
         using namespace Layouting;
         return Form { noMargin, m_extraArgs }.emerge();
+    }
+
+private:
+    // For a board with an emulator, "west flash" runs the application in it and does
+    // not return. Running starts the emulator instead.
+    GroupItem runRecipe() final
+    {
+        const auto onSetup = [this] {
+            const FilePath appDir = appBuildDirectory(buildConfiguration()->buildDirectory());
+            if (zephyrTarget(appDir) != ZephyrTarget::Emulator)
+                return SetupResult::Continue;
+            emit addOutput(Tr::tr("The board runs in an emulator, there is nothing to flash."),
+                           OutputFormat::NormalMessage);
+            return SetupResult::StopWithSuccess;
+        };
+        return Group { onGroupSetup(onSetup), defaultProcessTask() };
     }
 
     StringAspect m_extraArgs{this};
