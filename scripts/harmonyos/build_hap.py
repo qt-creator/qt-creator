@@ -29,6 +29,7 @@ import argparse
 import json
 import os
 import re
+import secrets
 import shlex
 import shutil
 import subprocess
@@ -260,7 +261,8 @@ def main() -> int:
                              "For development packages")
     parser.add_argument("--mcp-token-file", type=absolute,
                         help="file with the token the MCP server requires. Everyone on the "
-                             "device can read the launch arguments it goes into")
+                             "device can read the launch arguments it goes into. Without it, "
+                             "a new token is written beside the package")
     parser.add_argument("--load-all", action="store_true",
                         help="load every plugin, including those that are off by default")
     args = parser.parse_args()
@@ -270,6 +272,8 @@ def main() -> int:
     if any(signing) and not all(signing):
         raise SystemExit("Signing needs --profile, --certificate, --keystore, --key-alias "
                          "and --keystore-password-file")
+    output = args.output or args.build / ("src/app/qtcreator.hap" if args.keystore
+                                          else "src/app/qtcreator-unsigned.hap")
     openharmony = openharmony_path(args.sdk)
     toolchains = openharmony / "toolchains"
     readelf = openharmony / "native/llvm/bin/llvm-readelf"
@@ -320,8 +324,17 @@ def main() -> int:
         (resources / "QtProject/QtCreator.ini").write_text(
             "[McpServer]\n" + "".join("EnabledTools\\{}=true\n".format(tool)
                                       for tool in sorted(tools)))
+    token_file = None
     if args.mcp_token_file:
         arguments.append(["-mcp-token", args.mcp_token_file.read_text().strip()])
+    elif args.mcp_port:
+        # The server would make up a token of its own on every start, which no client knows.
+        token_file = output.with_suffix(".mcp-token")
+        token = secrets.token_hex(24)
+        descriptor = os.open(token_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(descriptor, "w") as file:
+            file.write(token + "\n")
+        arguments.append(["-mcp-token", token])
 
     search = [args.build / "lib/qtcreator", args.build / "lib/qtcreator/plugins",
               args.qt / "lib"]
@@ -336,14 +349,13 @@ def main() -> int:
     add_native_package(hap, args.build, args.toolchain, toolchains / "hnpcli")
 
     if not args.keystore:
-        output = args.output or args.build / "src/app/qtcreator-unsigned.hap"
         shutil.copy2(hap, output)
         print("\nPackaged Qt Creator unsigned as {}".format(output))
-        return 0
-
-    output = args.output or args.build / "src/app/qtcreator.hap"
-    sign(hap, output, toolchains, args, environment)
-    print("\nPackaged and signed Qt Creator as {}".format(output))
+    else:
+        sign(hap, output, toolchains, args, environment)
+        print("\nPackaged and signed Qt Creator as {}".format(output))
+    if token_file:
+        print("The MCP server requires the token in {}".format(token_file))
     return 0
 
 

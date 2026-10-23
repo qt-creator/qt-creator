@@ -99,7 +99,8 @@ def main() -> int:
     parser.add_argument("--mcp-port", type=int,
                         help="start the MCP server on this port. For development packages")
     parser.add_argument("--mcp-token-file", type=absolute,
-                        help="file with the token the MCP server requires")
+                        help="file with the token the MCP server requires. Without it, "
+                             "a new token is written beside the package")
     parser.add_argument("--docker", default="docker", help="docker executable")
     args = parser.parse_args()
 
