@@ -541,10 +541,13 @@ public:
         if (const QString sysbuild = m_sysbuild.itemValue().toString(); !sysbuild.isEmpty())
             cmd.addArg(sysbuild);
         const QStringList configure = configureArgs();
-        if (needsPristine())
+        if (needsPristine()) {
             cmd.addArg("--pristine=always");
-        else
+        } else {
+            // West refuses to build for another board or application than the cached one.
+            cmd.addArg("--pristine=auto");
             cmd.addArgs(reconfigureArgs(configure, lastConfigureArgs()));
+        }
         cmd.addArgs(configure);
         if (stage == WestStage::ConfigureOnly)
             cmd.addArg("--cmake-only");
