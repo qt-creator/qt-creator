@@ -105,6 +105,7 @@
 #include <projectexplorer/projectmanager.h>
 
 #include <utils/fancylineedit.h>
+#include <utils/guitest.h>
 
 #include <QDialogButtonBox>
 #include <QLineEdit>
@@ -3457,12 +3458,12 @@ void GitTest::testBranchModelCheckoutSelection()
         QCOMPARE(model.fullName(model.currentBranch()), selectedName);
 
         userSettings->setValue(promptKey, false);
-        bool acceptedBranchDialog = false;
-        QTimer::singleShot(0, &model, [&] {
-            auto message = qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
+        const auto acceptedBranchDialog = std::make_shared<bool>(false);
+        const auto handledQuestion = GuiTest::onNextDialog([acceptedBranchDialog](QWidget *widget) {
+            auto message = qobject_cast<QMessageBox *>(widget);
             QVERIFY(message);
-            QTimer::singleShot(0, &model, [&] {
-                auto dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget());
+            GuiTest::onNextDialog([acceptedBranchDialog](QWidget *widget) {
+                auto dialog = qobject_cast<QDialog *>(widget);
                 QVERIFY(dialog);
                 auto nameEdit = dialog->findChild<QLineEdit *>();
                 QVERIFY(nameEdit);
@@ -3471,14 +3472,15 @@ void GitTest::testBranchModelCheckoutSelection()
                 QVERIFY(buttons);
                 QVERIFY(buttons->button(QDialogButtonBox::Ok)->isEnabled());
                 buttons->button(QDialogButtonBox::Ok)->click();
-                acceptedBranchDialog = true;
+                *acceptedBranchDialog = true;
             });
             message->button(QMessageBox::Yes)->click();
         });
         done = false;
         model.checkoutBranch(findRef(selectedName), onCheckoutDone);
         QTRY_VERIFY(done);
-        QVERIFY(acceptedBranchDialog);
+        QVERIFY(*handledQuestion);
+        QVERIFY(*acceptedBranchDialog);
         QCOMPARE(result, ProcessResult::FinishedWithSuccess);
         QCOMPARE(gitClient().synchronousCurrentLocalBranch(repo), QString("local-checkout"));
         if (project)
