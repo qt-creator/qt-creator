@@ -128,10 +128,12 @@ using namespace Utils::Internal;
 }
 
 // Work around QTBUG-61707
-- (void)applicationWillFinishLaunching:(NSNotification*)notify
+- (void)applicationWillFinishLaunching:(NSNotification*)notification
 {
-    Q_UNUSED(notify)
     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"NSFullScreenMenuItemEverywhere"];
     NSWindow.allowsAutomaticWindowTabbing = NO;
+
+    if ([qtDelegate respondsToSelector:_cmd])
+        [qtDelegate applicationWillFinishLaunching:notification];
 }
 @end
