@@ -20,11 +20,14 @@
 #include <QtCore/QMap>
 #include <QtCore/QMetaEnum>
 #include <QtCore/QPointer>
-#include <QtCore/QReadWriteLock>
 #include <QtCore/QSet>
 #include <QtCore/QThread>
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
+
+#include <mutex>
+#include <shared_mutex>
+#include <unordered_map>
 
 using namespace std::chrono;
 
@@ -2105,7 +2108,7 @@ static DoneWith toDoneWith(DoneResult result)
 }
 
 template <typename T>
-class LocalThreadStorage
+class alignas(64) LocalThreadStorage
 {
 public:
     T &data() {
@@ -2116,28 +2119,33 @@ public:
             return *m_mainThreadData;
         }
         QThread *currentThread = QThread::currentThread();
-        // 1. FAST PATH: lock-free
+        // 1. Fast path: lock-free
         {
-            QReadLocker locker(&m_threadDataLock);
+            std::shared_lock locker(m_threadDataLock);
             if (m_threadDataMap) {
                 auto it = m_threadDataMap->find(currentThread);
                 if (it != m_threadDataMap->end())
                     return it->second; // Lock-free read.
             }
         }
-        // 2. SLOW PATH: synchronized
-        QWriteLocker locker(&m_threadDataLock);
-        if (!m_threadDataMap)
-            m_threadDataMap.emplace();
-        return m_threadDataMap->try_emplace(currentThread).first->second;
+        // 2. Slow path: synchronized
+        // Allocate the node outside of the lock, only insert it under the lock.
+        std::unordered_map<QThread *, T> tmp;
+        const auto it = tmp.try_emplace(currentThread).first;
+        std::unique_lock locker(m_threadDataLock);
+        if (!m_threadDataMap) {
+            m_threadDataMap.emplace(std::move(tmp));
+            return m_threadDataMap->begin()->second; // The only element.
+        }
+        return m_threadDataMap->insert(tmp.extract(it)).position->second;
     }
 private:
-    QReadWriteLock m_threadDataLock;
-    // Use std::map on purpose, so that it doesn't invalidate references on modifications.
-    // Don't optimize it by using std::unordered_map.
-    // The main thread is excluded and kept on m_mainThreadData.
-    std::optional<std::map<QThread *, T>> m_threadDataMap = std::nullopt;
+    // The hot data goes first (offset zero), and the rest starts on a new cache line
+    // (64 bytes assumed) to avoid false sharing with the main thread's accesses.
     std::optional<T> m_mainThreadData = std::nullopt;
+    alignas(64) std::shared_mutex m_threadDataLock;
+    // The main thread is excluded and kept on m_mainThreadData.
+    std::optional<std::unordered_map<QThread *, T>> m_threadDataMap = std::nullopt;
 };
 
 class IteratorThreadData
