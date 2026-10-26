@@ -1645,7 +1645,7 @@ void QtcIconDisplay::paintEvent(QPaintEvent *event)
 
     qreal dpr = devicePixelRatio();
     QSize actualSize = size();
-    auto px = d->m_icon.pixmap(actualSize, dpr);
+    auto px = d->m_icon.pixmap(actualSize, dpr, isEnabled() ? QIcon::Normal : QIcon::Disabled);
     px.setDevicePixelRatio(dpr);
 
     QRect r(QPoint(0, 0), actualSize);
