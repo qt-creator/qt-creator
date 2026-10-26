@@ -1116,8 +1116,10 @@ bool handleMissingPathMapping(const FilePath &missingPath, const QString &projec
 
     PathMapping userInput;
     if (clicked == filechooser) {
-        const FilePath suggested = suggestedPathForFile(missingPath);
-        userInput = showPathMappingFileOpenDialog(missingPath, projectName, suggested);
+        const FilePath root = suggestedPathForFile(missingPath);
+        const FilePath start = root.isEmpty() ? root
+                                              : root.pathAppended(missingPath.path()).parentDir();
+        userInput = showPathMappingFileOpenDialog(missingPath, projectName, start);
     } else {
         // else manually set up / change existing has been clicked
         if (hasAnyMapping) {
