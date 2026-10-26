@@ -33,6 +33,7 @@ TimelineOverviewWidget::TimelineOverviewWidget(TimelineModelAggregator *aggregat
     , m_aggregator(aggregator)
     , m_zoom(zoom)
 {
+    setAttribute(Qt::WA_OpaquePaintEvent);
     setMouseTracking(true);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
