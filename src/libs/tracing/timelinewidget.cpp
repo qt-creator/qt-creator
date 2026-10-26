@@ -47,7 +47,6 @@ public:
                                              // or by whoever passed it in.
 
     QSlider *m_zoomSlider = nullptr;
-    bool m_zoomSliderUpdating = false;
 
     void updateZoomSlider()
     {
@@ -57,15 +56,12 @@ public:
             return;
         const int value = qRound(std::pow(double(rangeDuration) / double(windowDuration),
                                           1.0 / zoomSliderExponent) * zoomSliderMaximum);
-        m_zoomSliderUpdating = true;
+        QSignalBlocker blocker(m_zoomSlider);
         m_zoomSlider->setValue(qBound(zoomSliderMinimum, value, zoomSliderMaximum));
-        m_zoomSliderUpdating = false;
     }
 
     void applyZoomSlider(int value)
     {
-        if (m_zoomSliderUpdating)
-            return;
         const qint64 windowDuration = m_zoomControl->windowDuration();
         if (windowDuration <= 0)
             return;
