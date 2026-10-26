@@ -316,10 +316,10 @@ void TimelineContentWidget::setLeftHeaderWidget(QWidget *widget)
     m_leftPanel->setMinimumWidth(qMax(m_leftPanel->minimumWidth(), widget->sizeHint().width()));
 }
 
-void TimelineContentWidget::addLeftPanelWidget(QWidget *widget)
+void TimelineContentWidget::setLeftFooterWidget(QWidget *widget)
 {
     widget->setParent(m_leftPanel);
-    m_leftLayout->insertWidget(m_leftLayout->indexOf(m_labels), widget);
+    m_leftLayout->addWidget(widget);
 }
 
 QSize TimelineContentWidget::sizeHint() const
@@ -363,6 +363,9 @@ bool TimelineContentWidget::eventFilter(QObject *watched, QEvent *event)
         updateContainerSize();
         positionFrameTimeLabel();
     }
+
+    if (watched == m_labels && event->type() == QEvent::Resize)
+        updateContainerSize();
 
     // The track view and the selection overlay above it leave wheel and gesture
     // events to the viewport. They are handled here, once for both and before
@@ -455,8 +458,12 @@ void TimelineContentWidget::updateContainerSize()
     // Keep the spacer container as wide as the viewport (no horizontal scroll)
     // and as tall as the full track content so the vertical scroll bar covers
     // the whole timeline. The render widget itself stays viewport-sized.
+    // The widgets above and below the TrackLabels in the left panel can make the
+    // TrackLabels less tall than the viewport, so the content grows by the height
+    // difference to keep the bottom of the TrackLabels reachable.
     const int viewW = m_scrollArea->viewport()->width();
-    const int contentH = m_tracksView->totalHeight() + m_labels->footerHeight();
+    const int labelsShortfall = qMax(0, m_scrollArea->viewport()->height() - m_labels->height());
+    const int contentH = m_tracksView->totalHeight() + m_labels->footerHeight() + labelsShortfall;
     m_trackContainer->resize(viewW, contentH);
 }
 

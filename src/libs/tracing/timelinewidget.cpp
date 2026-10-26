@@ -13,11 +13,13 @@
 #include "tracingtr.h"
 
 #include <utils/icon.h>
+#include <utils/layoutbuilder.h>
+#include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
-#include <QHBoxLayout>
 #include <QIcon>
 #include <QMenu>
 #include <QSize>
@@ -44,7 +46,6 @@ public:
     TimelineDetailsWidget *m_details = nullptr; // Owned by the perspective once docked,
                                              // or by whoever passed it in.
 
-    QWidget *m_zoomSliderRow = nullptr;
     QSlider *m_zoomSlider = nullptr;
     bool m_zoomSliderUpdating = false;
 
@@ -111,7 +112,6 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
 
     const QIcon prevIcon = Utils::Icons::PREV_TOOLBAR.icon();
     const QIcon nextIcon = Utils::Icons::NEXT_TOOLBAR.icon();
-    const QIcon zoomIcon = Utils::Icons::ZOOM_TOOLBAR.icon();
     const QIcon rangeSelIcon = Utils::Icon(
         {{":/tracing/images/rangeselection.png",
           Utils::Theme::IconsBaseColor}}).icon();
@@ -124,9 +124,6 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
 
     auto prevAction = toolbar->addAction(prevIcon, tr("Jump to Previous Event"));
     auto nextAction = toolbar->addAction(nextIcon, tr("Jump to Next Event"));
-    toolbar->addSeparator();
-    auto zoomAction = toolbar->addAction(zoomIcon, tr("Show Zoom Slider"));
-    zoomAction->setCheckable(true);
     toolbar->addSeparator();
     auto rangeAction = toolbar->addAction(rangeSelIcon, tr("Select Range"));
     rangeAction->setCheckable(true);
@@ -152,16 +149,21 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
 
     d->m_content->setLeftHeaderWidget(toolbar);
 
-    // ---- Zoom slider row (initially hidden, below toolbar in left panel) ----
-    d->m_zoomSliderRow = new QWidget;
-    d->m_zoomSliderRow->setVisible(false);
-    auto sliderLayout = new QHBoxLayout(d->m_zoomSliderRow);
-    sliderLayout->setContentsMargins(4, 0, 4, 0);
-    d->m_zoomSlider = new QSlider(Qt::Horizontal, d->m_zoomSliderRow);
+    // ---- Zoom slider row (below the track labels in left panel) ----
+    auto zoomSliderRow = new Utils::StyledBar;
+    zoomSliderRow->setProperty(Utils::StyleHelper::C_TOP_BORDER, true);
+    d->m_zoomSlider = new QSlider(Qt::Horizontal);
     d->m_zoomSlider->setRange(zoomSliderMinimum, zoomSliderMaximum);
     d->m_zoomSlider->setValue(zoomSliderMaximum);
-    sliderLayout->addWidget(d->m_zoomSlider);
-    d->m_content->addLeftPanelWidget(d->m_zoomSliderRow);
+    using namespace Layouting;
+    using Utils::StyleHelper::SpacingTokens::PaddingHXs;
+    Row {
+        Utils::QtDesignWidgets::IconDisplay { icon(Utils::Icons::ZOOMIN_TOOLBAR) },
+        d->m_zoomSlider,
+        Utils::QtDesignWidgets::IconDisplay { icon(Utils::Icons::ZOOMOUT_TOOLBAR) },
+        customMargins(PaddingHXs, 0, PaddingHXs, 0),
+    }.attachTo(zoomSliderRow);
+    d->m_content->setLeftFooterWidget(zoomSliderRow);
 
     auto outerLayout = new QVBoxLayout(this);
     outerLayout->setContentsMargins(0, 0, 0, 0);
@@ -186,12 +188,6 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
 
     connect(prevAction, &QAction::triggered, d->m_content, &TimelineContentWidget::jumpToPrev);
     connect(nextAction, &QAction::triggered, d->m_content, &TimelineContentWidget::jumpToNext);
-
-    connect(zoomAction, &QAction::toggled, this, [this](bool checked) {
-        d->m_zoomSliderRow->setVisible(checked);
-        if (checked)
-            d->updateZoomSlider();
-    });
 
     connect(rangeAction, &QAction::toggled,
             d->m_content, &TimelineContentWidget::setSelectionRangeMode);
@@ -228,15 +224,14 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
     });
 
     connect(zoomControl, &TimelineZoomControl::rangeChanged, this, [this] {
-        if (d->m_zoomSliderRow->isVisible())
-            d->updateZoomSlider();
+        d->updateZoomSlider();
     });
 
     const auto updateToolbarEnabled = [=] {
         const bool hasTrace = zoomControl->traceDuration() > 0;
         prevAction->setEnabled(hasTrace);
         nextAction->setEnabled(hasTrace);
-        zoomAction->setEnabled(hasTrace);
+        zoomSliderRow->setEnabled(hasTrace);
         rangeAction->setEnabled(hasTrace);
         lockAction->setEnabled(hasTrace);
     };
