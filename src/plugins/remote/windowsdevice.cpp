@@ -1541,7 +1541,6 @@ WindowsDeviceConfigurationWidget::WindowsDeviceConfigurationWidget(const IDevice
         windowsDevice->autoConnectOnStartup, br,
         windowsDevice->cdbExtensionDirectory, br,
         device->deviceToolsGui(),
-        device->autoDetectGui(),
     }.attachTo(this);
     // clang-format on
 

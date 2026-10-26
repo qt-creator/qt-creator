@@ -90,7 +90,6 @@ WslDeviceWidget::WslDeviceWidget(const IDevice::Ptr &device)
             wslDevice->freePortsAspect, br,
             Tr::tr("Command line:"), commandLineLabel, br,
             wslDevice->deviceToolsGui(),
-            wslDevice->autoDetectGui(),
         }, br,
     }.attachTo(this);
     // clang-format on

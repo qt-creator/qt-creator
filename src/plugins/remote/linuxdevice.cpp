@@ -147,7 +147,6 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
         device->linkDevice, br,
         linuxDevice->mounts.labelText(), linuxDevice->mounts, br,
         device->deviceToolsGui(),
-        device->autoDetectGui(),
     }.attachTo(this);
     // clang-format on
 

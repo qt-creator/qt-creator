@@ -39,8 +39,19 @@
             Or, in \uicontrol {Auto-Detection}, configure the auto-detection options
             and then select \uicontrol {Run Auto-Detection Now}.
 
-        \li For remote Linux devices, select \uicontrol {Create kits} to create
-            a kit for using the automatically detected development tools.
+        \li For remote Linux, Docker, and WSL devices, select
+            \uicontrol {Kit Creation} > \uicontrol {Create kits targeting} to
+            create a kit for using the automatically detected development tools.
+            Or, select \uicontrol {Create Kits Now} to create kits for the
+            toolchains that are already set up for the device.
+
+            Kits for toolchains that target the operating system of the device
+            use the device that you select in the list as run device. By
+            default, this is the device itself. To have the kits use another
+            device with the same operating system, for example a board that
+            you cross-compile for on the device, select that device before
+            creating the kits. The choice does not change kits that already
+            exist.
 
     \endlist
 

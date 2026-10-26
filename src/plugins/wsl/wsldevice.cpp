@@ -11,7 +11,6 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <client/bridgedfileaccess.h>
@@ -762,6 +761,7 @@ WslDevice::WslDevice()
     setupId(IDevice::ManuallyAdded);
     setType(Constants::WSL_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
+    offerKitCreation();
 
     setFileAccessFactory([this]() -> DeviceFileAccessPtr {
         if (DeviceFileAccessPtr fileAccess = d->cachedFileAccess())
@@ -814,23 +814,6 @@ CommandLine WslDevice::createCommandLineForDisplay() const
 IDeviceWidget *WslDevice::createWidget()
 {
     return new WslDeviceWidget(shared_from_this());
-}
-
-void WslDevice::runAutoDetect(
-    const ToolDetectionLogger &logger, const std::function<void()> &onDone)
-{
-    const auto log = [logger](const QString &msg) {
-        if (logger)
-            logger.logTopLevel(msg);
-    };
-    // clang-format off
-    const Group recipe {
-        autoDetectDeviceToolsRecipe(logger),
-        removeDetectedKitsRecipe(shared_from_this(), log),
-        kitDetectionRecipe(shared_from_this(), DetectionSource::FromSystem, log)
-    };
-    // clang-format on
-    GlobalTaskTree::start(recipe, {}, onDone);
 }
 
 ProcessInterface *WslDevice::createProcessInterface() const

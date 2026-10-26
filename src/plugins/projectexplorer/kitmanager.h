@@ -20,6 +20,7 @@ class KitAspectFactory;
 namespace Internal {
 class KitManagerConfigWidget;
 class KitModel;
+QObject *createKitManagerTest();
 } // namespace Internal
 
 class PROJECTEXPLORER_EXPORT KitManager final : public QObject

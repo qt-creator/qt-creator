@@ -16,6 +16,8 @@
 #include "../projectexplorericons.h"
 #include "../projectexplorertr.h"
 #include "../target.h"
+#include "../toolchain.h"
+#include "../toolchainmanager.h"
 
 #include <coreplugin/messagemanager.h>
 
@@ -39,6 +41,7 @@
 
 #include <utils/globaltasktree.h>
 
+#include <QComboBox>
 #include <QCoreApplication>
 #include <QPlainTextEdit>
 #include <QPointer>
@@ -143,6 +146,70 @@ const int DefaultTimeout = 10;
 
 namespace Internal {
 
+// Holds the id of the run device for kits created for this device's own operating system.
+// Empty means the device itself.
+class RunDeviceForKitsAspect final : public TypedAspect<QString>
+{
+public:
+    RunDeviceForKitsAspect(IDevice *device)
+        : TypedAspect(device), m_device(device)
+    {}
+
+    IDeviceConstPtr runDevice() const
+    {
+        if (const IDeviceConstPtr dev = DeviceManager::find(Id::fromString(volatileValue())))
+            return dev;
+        return m_device->shared_from_this();
+    }
+
+private:
+    void addToLayoutImpl(Layouting::Layout &parent) final
+    {
+        m_comboBox = createSubWidget<QComboBox>();
+        m_comboBox->setToolTip(
+            Tr::tr("Kits created for toolchains that target the operating system of \"%1\" use "
+                   "it as build device and the selected device as run device.")
+                .arg(m_device->displayName()));
+        populate();
+        const auto repopulate = [this] {
+            populate();
+            volatileValueToGui();
+        };
+        connect(DeviceManager::instance(), &DeviceManager::deviceAdded, m_comboBox, repopulate);
+        connect(DeviceManager::instance(), &DeviceManager::deviceRemoved, m_comboBox, repopulate);
+        connect(DeviceManager::instance(), &DeviceManager::deviceUpdated, m_comboBox, repopulate);
+        connect(m_comboBox, &QComboBox::activated, this, &RunDeviceForKitsAspect::handleGuiChanged);
+        parent.addItem(m_comboBox.data());
+    }
+
+    void populate()
+    {
+        const QSignalBlocker blocker(m_comboBox);
+        m_comboBox->clear();
+        m_comboBox->addItem(Tr::tr("This device"), QString());
+        DeviceManager::forEachDevice([this](const IDeviceConstPtr &dev) {
+            if (dev->id() != m_device->id() && dev->osType() == m_device->osType())
+                m_comboBox->addItem(dev->displayName(), dev->id().toString());
+        });
+    }
+
+    void volatileValueToGui() final
+    {
+        if (m_comboBox)
+            m_comboBox->setCurrentIndex(std::max(0, m_comboBox->findData(m_volatileValue)));
+    }
+
+    bool guiToVolatileValue() final
+    {
+        if (!m_comboBox)
+            return false;
+        return updateStorage(m_volatileValue, m_comboBox->currentData().toString());
+    }
+
+    IDevice *m_device;
+    QPointer<QComboBox> m_comboBox;
+};
+
 class IDevicePrivate
 {
 public:
@@ -155,7 +222,8 @@ public:
           autoDetectQtInstallation(q),
           autoDetectInDirectories(q),
           autoDetectDirectories(q),
-          autoCreateKits(q)
+          autoCreateKits(q),
+          runDeviceForKits(q)
     {
         displayName.setSettingsKey("Name");
         displayName.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
@@ -191,10 +259,13 @@ public:
 
         autoCreateKits.setSettingsKey("AutoCreateKits");
         autoCreateKits.setDefaultValue(true);
-        autoCreateKits.setLabelText(Tr::tr("Create kits"));
+        autoCreateKits.setLabelText(Tr::tr("Create kits targeting"));
         autoCreateKits.setToolTip(Tr::tr("Set up kits for this device's toolchains."));
         autoCreateKits.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
         autoCreateKits.setVisible(false);
+
+        runDeviceForKits.setSettingsKey("RunDeviceForKits");
+        runDeviceForKits.setVisible(false);
 
         QObject::connect(&sshParametersAspectContainer, &AspectContainer::applied, q, [this] {
             *sshParameters.writeLocked() = sshParametersAspectContainer.sshParameters();
@@ -255,6 +326,7 @@ public:
     BoolAspect autoDetectInDirectories;
     StringAspect autoDetectDirectories;
     BoolAspect autoCreateKits;
+    RunDeviceForKitsAspect runDeviceForKits;
 };
 
 } // namespace Internal
@@ -391,6 +463,7 @@ bool IDevice::supportsFileTransferMethod(FileTransferMethod method) const
 void IDevice::offerKitCreation()
 {
     d->autoCreateKits.setVisible(true);
+    d->runDeviceForKits.setVisible(true);
 }
 
 bool IDevice::kitCreationEnabled() const
@@ -401,6 +474,11 @@ bool IDevice::kitCreationEnabled() const
 bool IDevice::kitCreationRefused() const
 {
     return d->autoCreateKits.isVisible() && !d->autoCreateKits.volatileValue();
+}
+
+IDeviceConstPtr IDevice::runDeviceForKits() const
+{
+    return d->runDeviceForKits.runDevice();
 }
 
 void IDevice::registerToolDetectionTask(quint64 token)
@@ -1387,6 +1465,31 @@ std::function<void(Layouting::Layout *)> IDevice::deviceToolsGui()
 {
     using namespace Layouting;
     return [this](Layout *layout) {
+        const IDevicePtr device = shared_from_this();
+        auto detectButton = new QPushButton(Tr::tr("Run Auto-Detection Now"));
+        auto logView = new QPlainTextEdit;
+        logView->setReadOnly(true);
+        logView->setMaximumHeight(120);
+        logView->setPlaceholderText(
+            Tr::tr("Press \"Run Auto-Detection Now\" to detect tools."));
+
+        QObject::connect(detectButton, &QPushButton::clicked, detectButton,
+            [device, detectButton, lv = QPointer<QPlainTextEdit>(logView)] {
+                detectButton->setEnabled(false);
+                if (lv)
+                    lv->clear();
+                const ToolDetectionLogger logger([lv](const QString &msg) {
+                    if (lv)
+                        lv->appendPlainText(msg);
+                });
+                const auto onDone = [btn = QPointer<QWidget>(detectButton), logger] {
+                    if (btn)
+                        btn->setEnabled(true);
+                    logger.logTopLevel(Tr::tr("Done."));
+                };
+                device->runAutoDetect(logger, onDone);
+            });
+
         layout->addItems({
             Column { Space(20) }, br,
             Layouting::Group {
@@ -1409,60 +1512,59 @@ std::function<void(Layouting::Layout *)> IDevice::deviceToolsGui()
                         d->autoDetectInPath, br,
                         d->autoDetectInQtInstallation, d->autoDetectQtInstallation, br,
                         d->autoDetectInDirectories, d->autoDetectDirectories, br,
-                        d->autoCreateKits, br,
                     },
+                    Row { detectButton, st },
                 }
             }, br,
         });
-    };
-}
 
-std::function<void(Layouting::Layout *)> IDevice::autoDetectGui()
-{
-    using namespace Layouting;
-    return [device = shared_from_this()](Layout *layout) {
-        auto button = new QPushButton(Tr::tr("Run Auto-Detection Now"));
-        auto kitButton = new QPushButton(Tr::tr("Create Kits Now"));
-        kitButton->setToolTip(Tr::tr("Set up kits for this device's detected toolchains."));
-        kitButton->setVisible(device->d->autoCreateKits.isVisible());
-        auto logView = new QPlainTextEdit;
-        logView->setReadOnly(true);
-        logView->setMaximumHeight(120);
-        logView->setPlaceholderText(
-            Tr::tr("Press \"Run Auto-Detection Now\" to detect tools."));
+        if (d->autoCreateKits.isVisible()) {
+            auto kitButton = new QPushButton(Tr::tr("Create Kits Now"));
+            const auto updateKitButton = [device, kitButton] {
+                const Toolchains toolchains
+                    = Utils::filtered(ToolchainManager::toolchains(), [&device](Toolchain *tc) {
+                          return tc->isSameDevice(device->rootPath());
+                      });
+                kitButton->setEnabled(!toolchains.isEmpty());
+                if (toolchains.isEmpty()) {
+                    kitButton->setToolTip(Tr::tr("There are no toolchains for this device yet. "
+                                                 "Run auto-detection first."));
+                } else {
+                    kitButton->setToolTip(
+                        Tr::tr("Set up kits for these toolchains of this device:") + '\n'
+                        + Utils::transform(toolchains, &Toolchain::displayName).join('\n'));
+                }
+            };
+            updateKitButton();
+            QObject::connect(ToolchainManager::instance(), &ToolchainManager::toolchainsChanged,
+                             kitButton, updateKitButton);
 
-        QObject::connect(button, &QPushButton::clicked, button,
-            [device, button, lv = QPointer<QPlainTextEdit>(logView)] {
-                button->setEnabled(false);
-                if (lv)
-                    lv->clear();
-                const ToolDetectionLogger logger([lv](const QString &msg) {
-                    if (lv)
-                        lv->appendPlainText(msg);
+            QObject::connect(kitButton, &QPushButton::clicked, kitButton,
+                [device, lv = QPointer<QPlainTextEdit>(logView)] {
+                    const QList<Kit *> before = KitManager::kits();
+                    KitManager::createKitsForBuildDevice(device);
+                    const QList<Kit *> added = Utils::filtered(KitManager::kits(),
+                        [&before](Kit *kit) { return !before.contains(kit); });
+                    if (!lv)
+                        return;
+                    if (added.isEmpty())
+                        lv->appendPlainText(Tr::tr("No new kits created."));
+                    for (const Kit *kit : added)
+                        lv->appendPlainText(Tr::tr("Created kit \"%1\".").arg(kit->displayName()));
                 });
-                const auto onDone = [btn = QPointer<QWidget>(button), logger] {
-                    if (btn)
-                        btn->setEnabled(true);
-                    logger.logTopLevel(Tr::tr("Done."));
-                };
-                device->runAutoDetect(logger, onDone);
-            });
 
-        QObject::connect(kitButton, &QPushButton::clicked, kitButton,
-            [device, lv = QPointer<QPlainTextEdit>(logView)] {
-                const QList<Kit *> before = KitManager::kits();
-                KitManager::createKitsForBuildDevice(device);
-                const QList<Kit *> added = Utils::filtered(KitManager::kits(),
-                    [&before](Kit *kit) { return !before.contains(kit); });
-                if (!lv)
-                    return;
-                if (added.isEmpty())
-                    lv->appendPlainText(Tr::tr("No new kits created."));
-                for (const Kit *kit : added)
-                    lv->appendPlainText(Tr::tr("Created kit \"%1\".").arg(kit->displayName()));
+            layout->addItems({
+                Layouting::Group {
+                    title(Tr::tr("Kit Creation")),
+                    Column {
+                        Row { d->autoCreateKits, d->runDeviceForKits, st },
+                        Row { kitButton, st },
+                    }
+                }, br,
             });
+        }
 
-        layout->addItems({Row{button, kitButton, st}, br, logView, br});
+        layout->addItems({logView, br});
     };
 }
 

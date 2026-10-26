@@ -36,8 +36,6 @@ public:
     Utils::CommandLine createCommandLineForDisplay() const;
 
     ProjectExplorer::IDeviceWidget *createWidget() final;
-    void runAutoDetect(const ProjectExplorer::ToolDetectionLogger &logger,
-                       const std::function<void()> &onDone) final;
 
     bool canCreateProcessModel() const final { return true; }
     bool hasDeviceTester() const final { return false; }

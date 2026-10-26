@@ -16,7 +16,6 @@
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/devicesupport/processlist.h>
 #include <projectexplorer/environmentkitaspect.h>
-#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -1575,6 +1574,7 @@ DockerDevice::DockerDevice(ContainerToolSettings *settings)
     setupId(IDevice::ManuallyAdded);
     setType(settings->typeId());
     setMachineType(IDevice::Hardware);
+    offerKitCreation();
 
     setFileAccessFactory([this]() -> DeviceFileAccessPtr {
         if (DeviceFileAccessPtr fileAccess = d->cachedFileAccess())
@@ -1760,18 +1760,7 @@ void DockerDevice::runAutoDetect(
         return;
     }
 
-    const auto log = [logger](const QString &msg) {
-        if (logger)
-            logger.logTopLevel(msg);
-    };
-    // clang-format off
-    const QtTaskTree::Group recipe {
-        autoDetectDeviceToolsRecipe(logger),
-        removeDetectedKitItemsRecipe(shared_from_this(), log),
-        kitDetectionRecipe(shared_from_this(), DetectionSource::FromSystem, log)
-    };
-    // clang-format on
-    GlobalTaskTree::start(recipe, {}, onDone);
+    IDevice::runAutoDetect(logger, onDone);
 }
 
 bool DockerDevice::prepareForBuild(const Target *target)

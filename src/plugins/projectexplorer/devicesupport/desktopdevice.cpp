@@ -238,7 +238,6 @@ public:
             empty, m_portsWarningLabel, br,
             noMargin,
             device->deviceToolsGui(),
-            device->autoDetectGui(),
         }.attachTo(this);
 
         connect(m_freePortsLineEdit, &QLineEdit::textChanged,

@@ -290,7 +290,6 @@ public:
     QList<DeviceToolAspect *> deviceToolAspects(DeviceToolAspect::ToolTypes supportType) const;
 
     std::function<void(Layouting::Layout *)> deviceToolsGui();
-    std::function<void(Layouting::Layout *)> autoDetectGui();
     virtual void runAutoDetect(const ToolDetectionLogger &logger,
                                const std::function<void()> &onDone);
     void detectToolsAndKits(
@@ -362,6 +361,7 @@ public:
 
     void offerKitCreation();
     bool kitCreationRefused() const;
+    IDeviceConstPtr runDeviceForKits() const;
 
     void requestToolDetection(const Utils::FilePaths &searchPaths,
                                const ToolDetectionLogger &logger = {});

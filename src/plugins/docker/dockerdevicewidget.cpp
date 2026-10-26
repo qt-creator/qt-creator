@@ -133,7 +133,6 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             Tr::tr("Port mappings:"), dockerDevice->portMappings, br,
             Tr::tr("Command line:"), createLineLabel, br,
             dockerDevice->deviceToolsGui(),
-            dockerDevice->autoDetectGui(),
         }, br,
     }.attachTo(this);
     // clang-format on

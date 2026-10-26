@@ -21,10 +21,8 @@
 
 #include <android/androidconstants.h>
 #include <baremetal/baremetalconstants.h>
-#include <harmonyos/harmonyosconstants.h>
 #include <qnx/qnxconstants.h>
 #include <remote/remotelinux_constants.h>
-#include <wsl/wslconstants.h>
 
 #include <utils/layoutbuilder.h>
 #include <utils/persistentsettings.h>
@@ -36,6 +34,10 @@
 
 #include <QElapsedTimer>
 #include <QHash>
+#ifdef WITH_TESTS
+#include <QScopeGuard>
+#include <QTest>
+#endif
 
 #include <optional>
 
@@ -159,13 +161,6 @@ static Id runDeviceTypeForKit(const Kit *kit)
         case Abi::LinuxOS:
             if (tcAbi.osFlavor() == Abi::AndroidLinuxFlavor)
                 return Android::Constants::ANDROID_DEVICE_TYPE;
-            // A build device that is itself a Linux system runs what it
-            // built. Leaving it at the generic type would point the kit at
-            // whatever unrelated Remote Linux device is the default one.
-            if (buildDeviceType == HarmonyOs::Constants::HARMONYOS_BUILD_DEVICE_TYPE
-                || buildDeviceType == Wsl::Constants::WSL_DEVICE_TYPE) {
-                return buildDeviceType;
-            }
             return Remote::Constants::GenericLinuxOsType;
         case Abi::QnxOS:
             return Qnx::Constants::QNX_QNX_OS_TYPE;
@@ -177,6 +172,30 @@ static Id runDeviceTypeForKit(const Kit *kit)
     }
     return buildDeviceType;
 };
+
+static bool targetsOs(const Abi &abi, OsType osType)
+{
+    switch (abi.os()) {
+    case Abi::LinuxOS:
+        return osType == OsTypeLinux && abi.osFlavor() != Abi::AndroidLinuxFlavor;
+    case Abi::DarwinOS:
+        return osType == OsTypeMac;
+    case Abi::BsdOS:
+        return (osType == OsTypeFreeBSD && abi.osFlavor() == Abi::FreeBsdFlavor)
+               || (osType == OsTypeOpenBSD && abi.osFlavor() == Abi::OpenBsdFlavor)
+               || (osType == OsTypeNetBSD && abi.osFlavor() == Abi::NetBsdFlavor);
+    case Abi::UnixOS:
+        return osType == OsTypeOtherUnix;
+    case Abi::WindowsOS:
+        return osType == OsTypeWindows;
+    case Abi::VxWorks:
+    case Abi::QnxOS:
+    case Abi::BareMetalOS:
+    case Abi::UnknownOS:
+        break;
+    }
+    return false;
+}
 
 // Detection source id for a kit auto-created for a build device. Encodes the device and the
 // ABI so each such kit has a stable identity across re-detections and can be associated back
@@ -495,15 +514,18 @@ void KitManager::createKitsFromToolchains(
                 })) {
                 continue;
             }
-            const Id runDeviceType = runDeviceTypeForKit(kit.get());
+            // Whether a toolchain targets the build device itself or another machine with
+            // the same operating system cannot be told from its ABI, so the device says.
+            const IDeviceConstPtr runDevice
+                = buildDevice && buildDevice->type() != Constants::DESKTOP_DEVICE_TYPE
+                          && targetsOs(it.key(), buildDevice->osType())
+                      ? buildDevice->runDeviceForKits()
+                      : IDeviceConstPtr();
+            const Id runDeviceType = runDevice ? runDevice->type()
+                                               : runDeviceTypeForKit(kit.get());
             RunDeviceTypeKitAspect::setDeviceTypeId(kit.get(), runDeviceType);
-            // When the kit runs on the same kind of device it was built for (e.g. a remote
-            // macOS build device that also runs the binary), pin the run device to that very
-            // device. Otherwise the run device would default to the type's default device,
-            // which may be a different, unrelated device at the same host - leading to deploy
-            // and debug connecting to the wrong account.
-            if (buildDevice && runDeviceType == buildDevice->type())
-                RunDeviceKitAspect::setDevice(kit.get(), buildDevice);
+            if (runDevice)
+                RunDeviceKitAspect::setDevice(kit.get(), runDevice);
             //: <abi> on <device display name>
             const QString displayName = buildDevice
                                             ? Tr::tr("%1 on %2").arg(abiString,
@@ -762,12 +784,16 @@ void KitManager::createKitsForBuildDevice(const IDevicePtr &dev)
         // Auto-created kits carry a stable detection source id (device + ABI), so a
         // re-detection recognizes the existing kit by that id and skips it instead of
         // adding another identical copy.
+        // A kit made another way has another id, so compare the toolchains, too.
         const QString sourceId = kit->detectionSource().id;
+        const QList<Toolchain *> toolchains = ToolchainKitAspect::toolChains(kit.get());
         const bool alreadyExists
-            = !sourceId.isEmpty()
-              && Utils::anyOf(KitManager::kits(), [&sourceId](const Kit *existing) {
-                     return existing->detectionSource().id == sourceId;
-                 });
+            = Utils::anyOf(KitManager::kits(), [&](const Kit *existing) {
+                  if (!sourceId.isEmpty() && existing->detectionSource().id == sourceId)
+                      return true;
+                  return BuildDeviceKitAspect::deviceId(existing) == dev->id()
+                         && ToolchainKitAspect::toolChains(existing) == toolchains;
+              });
         if (alreadyExists)
             continue;
 
@@ -829,4 +855,136 @@ QString KitFeatureProvider::displayNameForPlatform(Id id) const
     return {};
 }
 
+#ifdef WITH_TESTS
+namespace Internal {
+
+class BuildDeviceTestDevice final : public IDevice
+{
+public:
+    BuildDeviceTestDevice(Id id, Id type, OsType osType)
+    {
+        setupId(IDevice::AutoDetected, id);
+        setType(type);
+        setOsType(osType);
+    }
+
+    void setRunDeviceForKits(Id runDeviceId)
+    {
+        Store map;
+        toMap(map);
+        map.insert("RunDeviceForKits", runDeviceId.toString());
+        fromMap(map);
+    }
+
+private:
+    IDeviceWidget *createWidget() final { return nullptr; }
+};
+
+class KitManagerTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testKitsForBuildDevice_data()
+    {
+        QTest::addColumn<Id>("deviceType");
+        QTest::addColumn<OsType>("osType");
+        QTest::addColumn<Abi::OS>("abiOs");
+        QTest::addColumn<Abi::BinaryFormat>("binaryFormat");
+        QTest::addColumn<Id>("boardType");
+
+        QTest::newRow("linux") << Id("KitManagerTest.BuildDeviceType") << OsTypeLinux
+                               << Abi::LinuxOS << Abi::ElfFormat
+                               << Id(Remote::Constants::GenericLinuxOsType);
+        QTest::newRow("mac") << Id(Remote::Constants::GenericMacOsType) << OsTypeMac
+                             << Abi::DarwinOS << Abi::MachOFormat
+                             << Id("KitManagerTest.BoardType");
+    }
+
+    void testKitsForBuildDevice()
+    {
+        QFETCH(Id, deviceType);
+        QFETCH(OsType, osType);
+        QFETCH(Abi::OS, abiOs);
+        QFETCH(Abi::BinaryFormat, binaryFormat);
+        QFETCH(Id, boardType);
+
+        const auto device = std::make_shared<BuildDeviceTestDevice>(
+            Id("KitManagerTest.BuildDevice"), deviceType, osType);
+        DeviceManager::addDevice(device);
+        const QScopeGuard removeDevice([&device] { DeviceManager::removeDevice(device->id()); });
+
+        Toolchain *toolchain = ToolchainFactory::createToolchain(Constants::GCC_TOOLCHAIN_TYPEID);
+        QVERIFY(toolchain);
+        toolchain->setLanguage(Constants::CXX_LANGUAGE_ID);
+        const Abi host = Abi::hostAbi();
+        toolchain->setTargetAbi(
+            Abi(host.architecture(), abiOs, Abi::GenericFlavor, binaryFormat, host.wordWidth()));
+        toolchain->setCompilerCommand(device->rootPath().withNewPath("/usr/bin/g++"));
+        const QScopeGuard removeToolchains([&device] {
+            ToolchainManager::deregisterToolchains(
+                Utils::filtered(ToolchainManager::toolchains(), [&device](Toolchain *tc) {
+                    return tc->isSameDevice(device->rootPath());
+                }));
+        });
+        QVERIFY(ToolchainManager::registerToolchains({toolchain}).isEmpty());
+        const QScopeGuard removeKits([&device] {
+            KitManager::deregisterKits(Utils::filtered(KitManager::kits(), [&device](Kit *k) {
+                return BuildDeviceKitAspect::deviceId(k) == device->id();
+            }));
+        });
+
+        const int kitCount = KitManager::kits().size();
+        KitManager::createKitsForBuildDevice(device);
+        QCOMPARE(KitManager::kits().size(), kitCount + 1);
+        Kit *kit = KitManager::kits().last();
+        QCOMPARE(BuildDeviceKitAspect::deviceId(kit), device->id());
+        QCOMPARE(RunDeviceTypeKitAspect::deviceTypeId(kit), device->type());
+        QCOMPARE(RunDeviceKitAspect::deviceId(kit), device->id());
+
+        // A kit from the old detection has another source id.
+        kit->setDetectionSource({DetectionSource::FromSystem, "KitManagerTest.OtherSource"});
+        KitManager::createKitsForBuildDevice(device);
+        QCOMPARE(KitManager::kits().size(), kitCount + 1);
+
+        const auto board = std::make_shared<BuildDeviceTestDevice>(
+            Id("KitManagerTest.Board"), boardType, osType);
+        DeviceManager::addDevice(board);
+        const QScopeGuard removeBoard([&board] {
+            if (DeviceManager::find(board->id()))
+                DeviceManager::removeDevice(board->id());
+        });
+
+        KitManager::deregisterKit(kit);
+        device->setRunDeviceForKits(board->id());
+        KitManager::createKitsForBuildDevice(device);
+        QCOMPARE(KitManager::kits().size(), kitCount + 1);
+        kit = KitManager::kits().last();
+        QCOMPARE(BuildDeviceKitAspect::deviceId(kit), device->id());
+        QCOMPARE(RunDeviceTypeKitAspect::deviceTypeId(kit), boardType);
+        QCOMPARE(RunDeviceKitAspect::deviceId(kit), board->id());
+
+        // Without the selected device, the device itself is the run device again.
+        KitManager::deregisterKit(kit);
+        DeviceManager::removeDevice(board->id());
+        KitManager::createKitsForBuildDevice(device);
+        QCOMPARE(KitManager::kits().size(), kitCount + 1);
+        kit = KitManager::kits().last();
+        QCOMPARE(RunDeviceTypeKitAspect::deviceTypeId(kit), device->type());
+        QCOMPARE(RunDeviceKitAspect::deviceId(kit), device->id());
+    }
+};
+
+QObject *createKitManagerTest()
+{
+    return new KitManagerTest;
+}
+
+} // namespace Internal
+#endif // WITH_TESTS
+
 } // namespace ProjectExplorer
+
+#ifdef WITH_TESTS
+#include <kitmanager.moc>
+#endif
