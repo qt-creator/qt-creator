@@ -26,7 +26,6 @@
 #include <QSlider>
 #include <QToolBar>
 #include <QToolButton>
-#include <QVBoxLayout>
 #include <QWidget>
 
 namespace Timeline {
@@ -161,11 +160,19 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
     }.attachTo(zoomSliderRow);
     d->m_content->setLeftFooterWidget(zoomSliderRow);
 
-    auto outerLayout = new QVBoxLayout(this);
-    outerLayout->setContentsMargins(0, 0, 0, 0);
-    outerLayout->setSpacing(0);
-    outerLayout->addWidget(d->m_content, 1);
-    outerLayout->addWidget(d->m_overview);
+    Column {
+        Utils::QtDesignWidgets::SeparatedItems {
+            Utils::separatorColor(Utils::Theme::FancyToolBarSeparatorColor),
+            Utils::separatorInset(0),
+            Column {
+                d->m_content,
+                d->m_overview,
+                noMargin,
+                spacing(Utils::QtcSeparatedItemsWidget::separatorLineWidth()),
+            },
+        },
+        noMargin,
+    }.attachTo(this);
 
     // ---- Toolbar connections ----
     connect(tracksMenu, &QMenu::aboutToShow, this, [this, tracksMenu] {
