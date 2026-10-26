@@ -28,6 +28,7 @@ Project {
         "persistentsettings/persistentsettings.qbs",
         "plaintextedit/plaintextedit.qbs",
         "process/process.qbs",
+        "qtdesignwidgets/qtdesignwidgets.qbs",
         "settings/settings.qbs",
         "spellchecker/spellchecker.qbs",
         "stringutils/stringutils.qbs",
