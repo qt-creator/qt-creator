@@ -20,11 +20,18 @@ QtcLibrary {
         "sixel.cpp",
         "sixel.h",
         "surfaceintegration.h",
-        "terminal.qrc",
         "terminal_global.h",
         "terminalsurface.cpp",
         "terminalsurface.h",
         "terminalview.cpp",
         "terminalview.h",
     ]
+
+    Group {
+        name: "images"
+        Qt.core.resourcePrefix: "/terminal"
+        Qt.core.resourceSourceBase: sourceDirectory
+        files: "images/passwordlock.png"
+        fileTags: "qt.core.resource_data"
+    }
 }

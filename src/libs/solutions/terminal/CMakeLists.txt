@@ -9,7 +9,11 @@ add_qtc_library(TerminalLib
     sixel.cpp sixel.h
     surfaceintegration.h
     terminal_global.h
-    terminal.qrc
     terminalsurface.cpp terminalsurface.h
     terminalview.cpp terminalview.h
+)
+
+qtc_add_resources(TerminalLib "images"
+  PREFIX "/terminal"
+  FILES images/passwordlock.png
 )
