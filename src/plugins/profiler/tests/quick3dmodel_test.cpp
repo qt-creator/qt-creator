@@ -73,6 +73,8 @@ void Quick3DModelTest::testFormatRowValue()
             || type == Quick3DModel::TextureMemoryConsumption) {
             QCOMPARE(label, Timeline::formatDataSize(4096));
             memoryTypes.insert(type);
+        } else if (type == Quick3DModel::RenderPass) {
+            QCOMPARE(label, QString("4096 render pass(es)"));
         } else {
             QCOMPARE(label, Timeline::formatNumber(4096));
         }
