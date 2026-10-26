@@ -8,9 +8,23 @@ QtcLibrary {
     files: [
         "spinner.cpp",
         "spinner.h",
-        "spinner.qrc",
         "spinner_global.h",
     ]
+
+    Group {
+        name: "images"
+        prefix: "icons/"
+        Qt.core.resourceSourceBase: sourceDirectory
+        files: [
+            "spinner_large.png",
+            "spinner_large@2x.png",
+            "spinner_medium.png",
+            "spinner_medium@2x.png",
+            "spinner_small.png",
+            "spinner_small@2x.png",
+        ]
+        fileTags: "qt.core.resource_data"
+    }
 
     Export {
         Depends { name: "cpp" }
