@@ -16,6 +16,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPen>
+#include <QtMath>
 
 namespace Timeline {
 
@@ -61,18 +62,23 @@ TimelineOverviewWidget::TimelineOverviewWidget(TimelineModelAggregator *aggregat
 // The cached content depends on the models' rows, which change after the models
 // have been set: a model publishes its row count from finalize(), and expanding
 // one switches to its expanded rows. Follow that, or a cache built while the
-// rows are still incomplete stays on screen.
+// rows are still incomplete stays on screen. The same goes for a model hiding
+// itself, which the aggregator does not report.
 void TimelineOverviewWidget::connectModels()
 {
     for (const QMetaObject::Connection &connection : std::as_const(m_modelConnections))
         disconnect(connection);
     m_modelConnections.clear();
 
+    const auto markContentDirty = [this] {
+        m_contentDirty = true;
+        update();
+    };
     for (TimelineModel *model : m_aggregator->models()) {
-        m_modelConnections.append(connect(model, &TimelineModel::rowCountChanged, this, [this] {
-            m_contentDirty = true;
-            update();
-        }));
+        m_modelConnections.append(
+            connect(model, &TimelineModel::rowCountChanged, this, markContentDirty));
+        m_modelConnections.append(
+            connect(model, &TimelineModel::hiddenChanged, this, markContentDirty));
     }
 }
 
@@ -102,11 +108,18 @@ bool TimelineOverviewWidget::nearHandle(double px, double handlePx) const
     return px >= handlePx - HandleWidth && px <= handlePx + HandleWidth;
 }
 
+// In device pixels, rounded up, so that the cache covers every device pixel of
+// this widget
+static QSize contentCacheSize(const QWidget *widget)
+{
+    const qreal dpr = widget->devicePixelRatioF();
+    return QSize(qCeil(widget->width() * dpr), qCeil(widget->height() * dpr));
+}
+
 void TimelineOverviewWidget::rebuildContentCache()
 {
-    const qreal dpr = devicePixelRatioF();
-    m_contentCache = QPixmap(qRound(width() * dpr), qRound(height() * dpr));
-    m_contentCache.setDevicePixelRatio(dpr);
+    m_contentCache = QPixmap(contentCacheSize(this));
+    m_contentCache.setDevicePixelRatio(devicePixelRatioF());
 
     QPainter p(&m_contentCache);
     p.fillRect(m_contentCache.rect(), Utils::creatorColor(Utils::Theme::Timeline_BackgroundColor2));
@@ -266,7 +279,7 @@ void TimelineOverviewWidget::rebuildContentCache()
 
 void TimelineOverviewWidget::paintEvent(QPaintEvent *)
 {
-    if (m_contentDirty || m_contentCache.size() != size())
+    if (m_contentDirty || m_contentCache.size() != contentCacheSize(this))
         rebuildContentCache();
 
     QPainter p(this);

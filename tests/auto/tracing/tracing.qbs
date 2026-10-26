@@ -21,6 +21,7 @@ Project {
         "timelineselectionrenderpass/timelineselectionrenderpass.qbs",
         "timelinezoomcontrol/timelinezoomcontrol.qbs",
         "timelinescrollsync/timelinescrollsync.qbs",
-        "timelinecontentwidget/timelinecontentwidget.qbs"
+        "timelinecontentwidget/timelinecontentwidget.qbs",
+        "timelineoverviewwidget/timelineoverviewwidget.qbs"
     ]
 }
