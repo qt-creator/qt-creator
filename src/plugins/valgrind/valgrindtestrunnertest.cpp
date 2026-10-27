@@ -420,15 +420,25 @@ void ValgrindTestRunnerTest::testUninit2()
     {
     const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
-    QCOMPARE(stack.frames().count(), 1);
+    QCOMPARE(stack.frames().count(), 2);
+    {
+        const Frame frame = stack.frames().at(0);
+        QCOMPARE(frame.functionName(), QString("writeThroughPointer(bool)"));
+        QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
-    const Frame frame = stack.frames().constFirst();
-    QCOMPARE(frame.functionName(), QString("main"));
-    QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
+        QCOMPARE(frame.object(), binary);
+        QCOMPARE(frame.fileName(), QString("main.cpp"));
+        QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
+    }
+    {
+        const Frame frame = stack.frames().at(1);
+        QCOMPARE(frame.functionName(), QString("main"));
+        QCOMPARE(frame.line(), 14 + HEADER_LENGTH);
 
-    QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QString("main.cpp"));
-    QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
+        QCOMPARE(frame.object(), binary);
+        QCOMPARE(frame.fileName(), QString("main.cpp"));
+        QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
+    }
     }
     //BEGIN second stack
     {
@@ -437,7 +447,7 @@ void ValgrindTestRunnerTest::testUninit2()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().constFirst();
-    QCOMPARE(frame.functionName(), QString("main"));
+    QCOMPARE(frame.functionName(), QString("writeThroughPointer(bool)"));
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
@@ -453,15 +463,25 @@ void ValgrindTestRunnerTest::testUninit2()
 
     const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
-    QCOMPARE(stack.frames().count(), 1);
+    QCOMPARE(stack.frames().count(), 2);
+    {
+        const Frame frame = stack.frames().at(0);
+        QCOMPARE(frame.functionName(), QString("writeThroughPointer(bool)"));
+        QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
-    const Frame frame = stack.frames().constFirst();
-    QCOMPARE(frame.functionName(), QString("main"));
-    QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
+        QCOMPARE(frame.object(), binary);
+        QCOMPARE(frame.fileName(), QString("main.cpp"));
+        QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
+    }
+    {
+        const Frame frame = stack.frames().at(1);
+        QCOMPARE(frame.functionName(), QString("main"));
+        QCOMPARE(frame.line(), 14 + HEADER_LENGTH);
 
-    QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QString("main.cpp"));
-    QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
+        QCOMPARE(frame.object(), binary);
+        QCOMPARE(frame.fileName(), QString("main.cpp"));
+        QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
+    }
     }
 }
 
@@ -491,15 +511,25 @@ void ValgrindTestRunnerTest::testUninit3()
     {
     const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
-    QCOMPARE(stack.frames().count(), 1);
+    QCOMPARE(stack.frames().count(), 2);
+    {
+        const Frame frame = stack.frames().at(0);
+        QCOMPARE(frame.functionName(), QString("readThroughPointer(bool)"));
+        QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
-    const Frame frame = stack.frames().constFirst();
-    QCOMPARE(frame.functionName(), QString("main"));
-    QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
+        QCOMPARE(frame.object(), binary);
+        QCOMPARE(frame.fileName(), QString("main.cpp"));
+        QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
+    }
+    {
+        const Frame frame = stack.frames().at(1);
+        QCOMPARE(frame.functionName(), QString("main"));
+        QCOMPARE(frame.line(), 15 + HEADER_LENGTH);
 
-    QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QString("main.cpp"));
-    QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
+        QCOMPARE(frame.object(), binary);
+        QCOMPARE(frame.fileName(), QString("main.cpp"));
+        QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
+    }
     }
     //BEGIN second stack
     {
@@ -508,7 +538,7 @@ void ValgrindTestRunnerTest::testUninit3()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().constFirst();
-    QCOMPARE(frame.functionName(), QString("main"));
+    QCOMPARE(frame.functionName(), QString("readThroughPointer(bool)"));
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
@@ -524,15 +554,25 @@ void ValgrindTestRunnerTest::testUninit3()
 
     const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
-    QCOMPARE(stack.frames().count(), 1);
+    QCOMPARE(stack.frames().count(), 2);
+    {
+        const Frame frame = stack.frames().at(0);
+        QCOMPARE(frame.functionName(), QString("readThroughPointer(bool)"));
+        QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
-    const Frame frame = stack.frames().constFirst();
-    QCOMPARE(frame.functionName(), QString("main"));
-    QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
+        QCOMPARE(frame.object(), binary);
+        QCOMPARE(frame.fileName(), QString("main.cpp"));
+        QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
+    }
+    {
+        const Frame frame = stack.frames().at(1);
+        QCOMPARE(frame.functionName(), QString("main"));
+        QCOMPARE(frame.line(), 15 + HEADER_LENGTH);
 
-    QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QString("main.cpp"));
-    QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
+        QCOMPARE(frame.object(), binary);
+        QCOMPARE(frame.fileName(), QString("main.cpp"));
+        QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
+    }
     }
 }
 
@@ -589,7 +629,7 @@ void ValgrindTestRunnerTest::testSyscall()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().constFirst();
-    QCOMPARE(frame.functionName(), QString("main"));
+    QCOMPARE(frame.functionName(), QString("value(bool)"));
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);

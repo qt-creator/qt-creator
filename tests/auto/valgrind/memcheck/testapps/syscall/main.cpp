@@ -1,8 +1,17 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-int main()
+static int value(bool initialize)
 {
     int i;
+    if (initialize)
+        i = 0;
     return i;
+}
+
+int main()
+{
+    // The first call leaves 0 in the stack slot of the second.
+    value(true);
+    return value(false);
 }
