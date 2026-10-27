@@ -298,7 +298,8 @@ def main() -> int:
     parser.add_argument("--mcp-token-file", type=absolute,
                         help="file with the token the MCP server requires. Everyone on the "
                              "device can read the launch arguments it goes into. Without it, "
-                             "a new token is written beside the package")
+                             "the token beside the package is used, or a new one is "
+                             "written there")
     parser.add_argument("--load-all", action="store_true",
                         help="load every plugin, including those that are off by default")
     args = parser.parse_args()
@@ -367,11 +368,14 @@ def main() -> int:
         arguments.append(["-mcp-token", args.mcp_token_file.read_text().strip()])
     elif args.mcp_port:
         # The server would make up a token of its own on every start, which no client knows.
+        # A rebuilt package keeps the token of the earlier one, so its clients still work.
         token_file = output.with_suffix(".mcp-token")
-        token = secrets.token_hex(24)
-        descriptor = os.open(token_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-        with os.fdopen(descriptor, "w") as file:
-            file.write(token + "\n")
+        token = token_file.read_text().strip() if token_file.is_file() else ""
+        if not token:
+            token = secrets.token_hex(24)
+            descriptor = os.open(token_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            with os.fdopen(descriptor, "w") as file:
+                file.write(token + "\n")
         arguments.append(["-mcp-token", token])
 
     search = [args.build / "lib/qtcreator", args.build / "lib/qtcreator/plugins",

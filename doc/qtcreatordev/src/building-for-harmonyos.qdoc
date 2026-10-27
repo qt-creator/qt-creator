@@ -241,7 +241,8 @@
 
     The server only accepts requests that carry its token. Pass a file that
     holds the token in \c --mcp-token-file, or let the script write a new
-    token into \c qtcreator.mcp-token beside the package. Anyone on the device
+    token into \c qtcreator.mcp-token beside the package. Later builds use the
+    token in that file, so delete it to get a new one. Anyone on the device
     can read the arguments that the token is passed in, so do not use MCP
     packages outside development.
 
