@@ -1972,6 +1972,29 @@ public:
     }
 };
 
+const char TEST_RUN_CONFIG_ID[] = "TestProject.RunConfiguration";
+
+class TestRunConfiguration final : public RunConfiguration
+{
+public:
+    TestRunConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id)
+    {
+        setUsesEmptyBuildKeys();
+    }
+};
+
+// Offers its run configuration without parsing data, as e.g. Zephyr's does.
+class TestRunConfigurationFactory final : public FixedRunConfigurationFactory
+{
+public:
+    TestRunConfigurationFactory() : FixedRunConfigurationFactory("Test Run")
+    {
+        registerRunConfiguration<TestRunConfiguration>(TEST_RUN_CONFIG_ID);
+        addSupportedProjectType(TEST_PROJECT_ID);
+    }
+};
+
 class TestProject : public Project
 {
 public:
@@ -2099,6 +2122,24 @@ private slots:
 
         QVERIFY(!project.activeBuildSystem()->isParsing());
         QVERIFY(!project.activeBuildSystem()->hasParsingData());
+    }
+
+    void testRunConfigurationsKeptBeforeParsing()
+    {
+        const TestRunConfigurationFactory factory;
+        TestProject project;
+        BuildConfiguration *bc = project.target->activeBuildConfiguration();
+        QVERIFY(bc);
+        QVERIFY(!bc->buildSystem()->hasParsingData());
+
+        const auto testRunConfigCount = [bc] {
+            return Utils::count(bc->runConfigurations(), [](RunConfiguration *rc) {
+                return rc->id() == TEST_RUN_CONFIG_ID;
+            });
+        };
+        QCOMPARE(testRunConfigCount(), 1);
+        bc->updateDefaultRunConfigurations();
+        QCOMPARE(testRunConfigCount(), 1);
     }
 
     void testChangeDisplayName()

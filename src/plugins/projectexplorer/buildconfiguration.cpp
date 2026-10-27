@@ -719,25 +719,24 @@ void BuildConfiguration::updateDefaultRunConfigurations()
     int configuredCount = existingConfigured.count();
 
     // Put outdated RCs into toRemove, do not bother with factories
-    // that produce already existing RCs
+    // that produce already existing RCs. Before parsing, only factories
+    // that need no parsing data have creators, and nothing is outdated yet.
     QList<RunConfiguration *> toRemove;
     QList<RunConfigurationCreationInfo> existing;
-    if (buildSystem()->hasParsingData()) {
-        for (RunConfiguration *rc : std::as_const(existingConfigured)) {
-            bool present = false;
-            for (const RunConfigurationCreationInfo &item : creators) {
-                if (item.factory->runConfigurationId() == rc->id()
-                    && item.buildKey == rc->buildKey()) {
-                    existing.append(item);
-                    present = true;
-                    break;
-                }
+    for (RunConfiguration *rc : std::as_const(existingConfigured)) {
+        bool present = false;
+        for (const RunConfigurationCreationInfo &item : creators) {
+            if (item.factory->runConfigurationId() == rc->id()
+                && item.buildKey == rc->buildKey()) {
+                existing.append(item);
+                present = true;
+                break;
             }
-            if (!present
-                && ProjectExplorerSettings::get(this).automaticallyCreateRunConfigurations()
-                && !rc->isCustomized()) {
-                toRemove.append(rc);
-            }
+        }
+        if (!present && buildSystem()->hasParsingData()
+            && ProjectExplorerSettings::get(this).automaticallyCreateRunConfigurations()
+            && !rc->isCustomized()) {
+            toRemove.append(rc);
         }
     }
     configuredCount -= toRemove.count();
