@@ -127,6 +127,10 @@ void tst_gdb::version_data()
     QTest::newRow("crosstool-NG")
        << "GNU gdb (crosstool-NG 1.29.0_rc2) 17.2"
        << 170200 << 0 << false << false;
+
+    QTest::newRow("Zephyr SDK")
+       << "GNU gdb (Zephyr SDK 1.0.1) 16.2"
+       << 160200 << 0 << false << false;
 }
 
 static QString chopConst(QString type)

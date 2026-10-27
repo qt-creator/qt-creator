@@ -496,7 +496,8 @@ void extractGdbVersion(const QString &msg,
     const bool ignoreParenthesisContent = msg.contains("rubenvb")
                                        || msg.contains("openSUSE")
                                        || msg.contains("SUSE Linux Enterprise")
-                                       || msg.contains("crosstool-NG");
+                                       || msg.contains("crosstool-NG")
+                                       || msg.contains("Zephyr SDK");
 
     const QChar parOpen('(');
     const QChar parClose(')');
