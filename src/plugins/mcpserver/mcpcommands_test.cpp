@@ -16,16 +16,19 @@
 #include <utils/temporarydirectory.h>
 
 #include <QAction>
+#include <QEventLoop>
 #include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QListView>
 #include <QMap>
 #include <QMenu>
+#include <QPushButton>
 #include <QScopeGuard>
 #include <QStandardItemModel>
 #include <QTest>
 #include <QTextCursor>
+#include <QTimer>
 
 #include <algorithm>
 
@@ -80,6 +83,8 @@ private slots:
     void testClickItemShiftExtendsTheSelection();
     void testActivateMenuItemGoesThroughTheMenu();
     void testActivateMenuItemRefusesADisabledItem();
+    void testClickWidgetReportsTheStateAfterTheClick();
+    void testClickWidgetAnswersWhileTheClickRunsALoop();
 
 private:
     QMap<QString, bool> m_uiToolStates;
@@ -545,6 +550,60 @@ void McpCommandsTest::testActivateMenuItemRefusesADisabledItem()
     // also reports as "disabled" - from passing for the refusal under test.
     QVERIFY2(error.contains("Menu item is disabled"), qPrintable(error));
     QCOMPARE(triggered, 0);
+}
+
+void McpCommandsTest::testClickWidgetReportsTheStateAfterTheClick()
+{
+    QPushButton button("McpCommandsTestToggle");
+    button.setCheckable(true);
+    button.show();
+    const QScopeGuard hideButton([&button] { button.hide(); });
+
+    QString error;
+    const QJsonObject result
+        = callTool("ui_click_widget", {{"text", "McpCommandsTestToggle"}}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QVERIFY(button.isChecked());
+    QVERIFY(result.value("checked").toBool());
+    QVERIFY(!result.contains("blocking"));
+}
+
+void McpCommandsTest::testClickWidgetAnswersWhileTheClickRunsALoop()
+{
+    // What QMenu::exec() and QDialog::exec() do to the caller of a click.
+    QPushButton button("McpCommandsTestBlockingButton");
+    QEventLoop loop;
+    connect(&button, &QPushButton::clicked, &loop, [&loop] {
+        // Started after the tool's own zero timer, so it fires after it, and
+        // ends the loop if the tool does not. Not QTimer::singleShot(), which
+        // posts a zero timeout as an event, and events go before timers.
+        QTimer guard;
+        guard.setSingleShot(true);
+        connect(&guard, &QTimer::timeout, &loop, &QEventLoop::quit);
+        guard.start(0);
+        loop.exec();
+    });
+    button.show();
+    const QScopeGuard hideButton([&button] { button.hide(); });
+
+    bool answeredInsideLoop = false;
+    QJsonObject result;
+    QString error;
+    ToolRegistry::callToolForTests(
+        "ui_click_widget",
+        Schema::CallToolRequestParams{}.arguments(
+            QJsonObject{{"text", "McpCommandsTestBlockingButton"}}),
+        [&](const Result<Schema::CallToolResult> &answer) {
+            answeredInsideLoop = loop.isRunning();
+            if (answer)
+                result = answer->structuredContentAsObject();
+            else
+                error = answer.error();
+            loop.quit();
+        });
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QVERIFY(answeredInsideLoop);
+    QVERIFY(result.value("blocking").toBool());
 }
 
 QObject *createMcpCommandsTest()

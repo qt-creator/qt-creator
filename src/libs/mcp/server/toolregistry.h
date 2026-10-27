@@ -28,11 +28,18 @@ public:
     static bool isToolEnabled(const QString &toolName);
     static QList<Schema::Tool> registeredTools();
 
-    // Invokes a registered synchronous tool by name and returns its result.
-    // Intended for tests; asynchronous (ToolInterface) tools cannot be driven
-    // this way and return an error.
+    // Invokes a registered tool by name and returns its result. Intended for
+    // tests; an asynchronous (ToolInterface) tool that has not answered by the
+    // time its callback returns is an error.
     static Utils::Result<Schema::CallToolResult> callToolForTests(
         const QString &name, const Schema::CallToolRequestParams &params);
+    // The same for a tool that may answer later. onResult is called at most
+    // once, when and wherever the tool answers, and never if the tool drops its
+    // ToolInterface without answering.
+    static void callToolForTests(
+        const QString &name,
+        const Schema::CallToolRequestParams &params,
+        const ToolInterface::FinishCallback &onResult);
 
 signals:
     void toolRegistered();

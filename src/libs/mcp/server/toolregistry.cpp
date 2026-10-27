@@ -5,6 +5,8 @@
 
 #include <utils/algorithm.h>
 
+#include <memory>
+
 namespace Mcp {
 
 namespace Internal {
@@ -65,20 +67,42 @@ QList<Schema::Tool> ToolRegistry::registeredTools()
 Utils::Result<Schema::CallToolResult> ToolRegistry::callToolForTests(
     const QString &name, const Schema::CallToolRequestParams &params)
 {
+    // Owned by the callback too, so a tool that answers late writes into a live slot.
+    const auto answer = std::make_shared<std::optional<Utils::Result<Schema::CallToolResult>>>();
+    callToolForTests(name, params, [answer](const Utils::Result<Schema::CallToolResult> &result) {
+        *answer = result;
+    });
+    if (!*answer) {
+        return Utils::ResultError(
+            QString("Tool \"%1\" is asynchronous and did not answer before returning.").arg(name));
+    }
+    return **answer;
+}
+
+void ToolRegistry::callToolForTests(
+    const QString &name,
+    const Schema::CallToolRequestParams &params,
+    const ToolInterface::FinishCallback &onResult)
+{
     for (const auto &tool : Internal::registry().tools) {
         if (tool.metadata.name() != name)
             continue;
         if (!tool.enabled)
-            return Utils::ResultError(QString("Tool \"%1\" is disabled.").arg(name));
+            return onResult(Utils::ResultError(QString("Tool \"%1\" is disabled.").arg(name)));
         // The same check the server makes, so a test sees what a client sees.
         if (const Utils::Result<> ok = validateToolArguments(tool.metadata, params); !ok)
-            return Utils::ResultError(ok.error());
+            return onResult(Utils::ResultError(ok.error()));
         if (auto *callback = std::get_if<Server::ToolCallback>(&tool.callback))
-            return (*callback)(params);
-        return Utils::ResultError(
-            QString("Tool \"%1\" is asynchronous and cannot be called synchronously.").arg(name));
+            return onResult((*callback)(params));
+        const auto &callback = std::get<Server::ToolInterfaceCallback>(tool.callback);
+        // An error returned instead of an answer is what the server reports
+        // to the client in place of one.
+        const ToolInterface toolInterface = ToolInterface::createForTests(params, onResult);
+        if (const Utils::Result<> ok = callback(params, toolInterface); !ok)
+            toolInterface.finish(Utils::ResultError(ok.error()));
+        return;
     }
-    return Utils::ResultError(QString("No registered tool named \"%1\".").arg(name));
+    onResult(Utils::ResultError(QString("No registered tool named \"%1\".").arg(name)));
 }
 
 bool ToolRegistry::isToolEnabled(const QString &toolName)

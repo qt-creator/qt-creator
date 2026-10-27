@@ -268,9 +268,19 @@ public:
     using SampleResultCallback
         = std::function<void(const Utils::Result<Schema::CreateMessageResult> &)>;
     using ElicitResultCallback = std::function<void(const Utils::Result<Schema::ElicitResult> &)>;
+    using FinishCallback = std::function<void(const Utils::Result<Schema::CallToolResult> &)>;
 
     ToolInterface() = delete;
     ~ToolInterface();
+
+    /*!
+        \brief Creates a tool interface that belongs to no server, for tests.
+
+        finish() hands the result to \a onFinish instead of answering a client.
+        Starting a task and requests to the client, such as elicitation, fail.
+    */
+    static ToolInterface createForTests(
+        const Schema::CallToolRequestParams &params, const FinishCallback &onFinish);
 
     /*!
         \brief Returns the capabilities reported by the connected client.

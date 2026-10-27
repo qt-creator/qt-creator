@@ -3128,6 +3128,7 @@ struct ToolInterfacePrivate
     Schema::CallToolRequest _initialRequest;
     QString _sessionId;
     Responder _responder;
+    ToolInterface::FinishCallback _onFinishForTests;
     UniqueDeleteLaterTimer _longRunningToolTimer;
     mutable ToolInterface::CancelTaskCallback _cancelTaskCallback;
 
@@ -3269,6 +3270,11 @@ struct ToolInterfacePrivate
         _isFinished = true;
         removeFromPending();
 
+        if (_onFinishForTests) {
+            _onFinishForTests(result);
+            return;
+        }
+
         if (!result) {
             _responder.write(QJsonDocument(makeResponse(
                 _initialRequest.id(),
@@ -3383,6 +3389,15 @@ ToolInterface::ToolInterface(
 {}
 
 ToolInterface::~ToolInterface() {}
+
+ToolInterface ToolInterface::createForTests(
+    const Schema::CallToolRequestParams &params, const FinishCallback &onFinish)
+{
+    ToolInterface toolInterface(
+        {}, {}, Schema::CallToolRequest().params(params), QString(), Responder());
+    toolInterface.d->_onFinishForTests = onFinish;
+    return toolInterface;
+}
 
 const Schema::ClientCapabilities &ToolInterface::clientCapabilities() const
 {
@@ -3690,6 +3705,10 @@ Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
             "Attempted to start a task for a tool that is already finished or started a "
             "task");
     }
+
+    // There is no client connection to carry one.
+    if (d->_onFinishForTests)
+        return Utils::ResultError("A tool called by a test cannot start a task");
 
     // The update and result callbacks are mandatory and stored as std::function.
     // Calling an empty std::function throws std::bad_function_call, which would
