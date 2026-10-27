@@ -353,6 +353,7 @@ PROJECTEXPLORER_EXPORT QList<Utils::OutputLineParser *> createOutputParsers(Buil
 #ifdef WITH_TESTS
 namespace Internal {
 QObject *createRunWorkerConflictTest();
+QObject *createRunControlOutputPaneTest();
 QObject *createRunControlStandardInputTest();
 } // Internal
 #endif

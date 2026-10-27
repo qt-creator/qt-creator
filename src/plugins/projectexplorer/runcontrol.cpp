@@ -1294,6 +1294,10 @@ void RunControl::handleProcessCancellation(Process *process)
 
 #ifdef WITH_TESTS
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+
+#include <QScopeGuard>
 #include <QSignalSpy>
 #include <QTest>
 
@@ -1352,6 +1356,40 @@ private slots:
 QObject *createRunWorkerConflictTest()
 {
     return new RunWorkerConflictTest;
+}
+
+class RunControlOutputPaneTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+
+    void testStopEnabledBeforeStarted()
+    {
+        auto runControl = new RunControl(Constants::NORMAL_RUN_MODE);
+        runControl->setDeviceForTest(DeviceManager::defaultDesktopDevice());
+        const auto onSetup = [](std::chrono::milliseconds &timeout) {
+            timeout = std::chrono::hours(1);
+        };
+        runControl->setRunRecipe(
+            Group{QTimeoutTask(onSetup)}.withCancel(runControl->canceler()));
+
+        QAction *stop = Core::ActionManager::command(Constants::STOP)->action();
+        QSignalSpy stoppedSpy(runControl, &RunControl::stopped);
+        appOutputPane().prepareRunControlStart(runControl);
+        const auto cleanup = qScopeGuard([] { appOutputPane().closeTabsWithoutPrompt(); });
+        runControl->initiateStart();
+        QTRY_VERIFY(stop->isEnabled());
+
+        runControl->initiateStop();
+        QTRY_VERIFY(!stoppedSpy.isEmpty());
+        QTRY_VERIFY(!stop->isEnabled());
+    }
+};
+
+QObject *createRunControlOutputPaneTest()
+{
+    return new RunControlOutputPaneTest;
 }
 
 class RunControlStandardInputTest : public QObject

@@ -703,7 +703,9 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
             enableButtons(current); // RunControl::isRunning() cannot be trusted in signal handler.
     };
 
-    connect(rc, &RunControl::aboutToStart, this, runControlChanged);
+    // Queued: aboutToStart() is emitted before the task tree is started, so isRunning()
+    // only becomes true after initiateStart() returns.
+    connect(rc, &RunControl::aboutToStart, this, runControlChanged, Qt::QueuedConnection);
     connect(rc, &RunControl::started, this, runControlChanged);
     connect(rc, &RunControl::stopped, this, [this, rc] {
         QTimer::singleShot(0, this, [this, rc] { runControlFinished(rc); });
