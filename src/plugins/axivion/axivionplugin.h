@@ -105,7 +105,7 @@ QtTaskTree::Group issueTableRecipe(DashboardMode dashboardMode,
 
 // TODO: Wrap into Result<>?
 using LineMarkerHandler = std::function<void(const Dto::FileViewDto &)>;
-QtTaskTree::Group lineMarkerRecipe(DashboardMode dashboardMode,
+QtTaskTree::Group lineMarkerRecipe(DashboardMode dashboardMode, const QString &projectName,
                                 const Utils::FilePath &filePath, const LineMarkerHandler &handler);
 
 void fetchLocalDashboardInfo(const DashboardInfoHandler &handler, const QString &projectName);

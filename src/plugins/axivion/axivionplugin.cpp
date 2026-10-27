@@ -267,6 +267,9 @@ public:
     void fetchDashboardAndProjectInfo(const DashboardInfoHandler &handler,
                                       const QString &projectName);
     void handleOpenedDocs();
+    QString projectForFile(const FilePath &filePath) const;
+    const std::optional<Dto::ProjectInfoDto> &globalProjectInfo(const QString &projectName) const;
+    void fetchProjectInfo(const QString &projectName);
     void onDocumentOpened(IDocument *doc);
     void onPathMappingsChanged();
     void onDocumentClosed(IDocument * doc);
@@ -298,12 +301,15 @@ public:
     std::optional<DashboardInfo> m_localDashboardInfo;
     std::optional<Dto::ProjectInfoDto> m_currentProjectInfo;
     std::optional<Dto::ProjectInfoDto> m_currentLocalProjectInfo;
+    // infos of other projects having inline issues, nullopt if fetching failed
+    QHash<QString, std::optional<Dto::ProjectInfoDto>> m_otherProjectInfos;
     std::optional<QString> m_analysisVersion;
     QList<Dto::NamedFilterInfoDto> m_globalNamedFilters;
     QList<Dto::NamedFilterInfoDto> m_userNamedFilters;
     bool m_runningQuery = false;
     QSingleTaskTreeRunner m_taskTreeRunner;
     QMappedTaskTreeRunner<IDocument *> m_docMarksRunner;
+    QMappedTaskTreeRunner<QString> m_projectInfoRunner;
     QSingleTaskTreeRunner m_issueInfoRunner;
     QSingleTaskTreeRunner m_namedFilterRunner;
     bool m_inlineIssuesEnabled = true;
@@ -1008,6 +1014,8 @@ Group projectInfoRecipe(DashboardMode dashboardMode, const QString &projectName)
             // Global marks are kept for files mapped to the project they belong to.
             clearMarksWithoutPathMapping(LineMarkerType::DashboardGlobal);
             dd->m_currentProjectInfo = {};
+            dd->m_otherProjectInfos.clear();
+            dd->m_projectInfoRunner.reset();
             dd->m_analysisVersion = {};
         } else {
             clearAllMarks(LineMarkerType::DashboardLocal);
@@ -1093,15 +1101,15 @@ Group issueTableRecipe(DashboardMode dashboardMode, const IssueListSearch &searc
     return fetchDataRecipe<Dto::IssueTableDto>(dashboardMode, url, handler);
 }
 
-Group lineMarkerRecipe(DashboardMode dashboardMode, const FilePath &filePath,
-                       const LineMarkerHandler &handler)
+Group lineMarkerRecipe(DashboardMode dashboardMode, const QString &projectName,
+                       const FilePath &filePath, const LineMarkerHandler &handler)
 {
-    QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
+    QTC_ASSERT(!projectName.isEmpty(), return {}); // TODO: Call handler with unexpected?
     QTC_ASSERT(!filePath.isEmpty(), return {}); // TODO: Call handler with unexpected?
 
     const QString fileName = QString::fromUtf8(QUrl::toPercentEncoding(filePath.path()));
     const QUrlQuery query({{"filename", fileName}});
-    const QUrl url = constructUrl(dashboardMode, dd->m_currentProjectInfo->name, "files", query);
+    const QUrl url = constructUrl(dashboardMode, projectName, "files", query);
     return fetchDataRecipe<Dto::FileViewDto>(dashboardMode, url, handler);
 }
 
@@ -1238,6 +1246,65 @@ void AxivionPluginPrivate::handleOpenedDocs()
     onCurrentEditorChanged(EditorManager::currentEditor()); // ensure correct enabled state for SFA
 }
 
+// The current project wins if mapped, otherwise the first mapping of a project of the dashboard.
+QString AxivionPluginPrivate::projectForFile(const FilePath &filePath) const
+{
+    const QString currentProject = m_currentProjectInfo ? m_currentProjectInfo->name : QString();
+    if (!currentProject.isEmpty() && settings().hasPathMapping(filePath, currentProject))
+        return currentProject;
+    if (m_dashboardInfo) {
+        const QList<PathMapping> mappings = settings().validPathMappings();
+        for (const PathMapping &pm : mappings) {
+            if (filePath.isChildOf(pm.localPath)
+                    && m_dashboardInfo->projectUrls.contains(pm.projectName)) {
+                return pm.projectName;
+            }
+        }
+    }
+    return currentProject;
+}
+
+const std::optional<Dto::ProjectInfoDto> &AxivionPluginPrivate::globalProjectInfo(
+        const QString &projectName) const
+{
+    static const std::optional<Dto::ProjectInfoDto> none;
+    if (m_currentProjectInfo && m_currentProjectInfo->name == projectName)
+        return m_currentProjectInfo;
+    const auto it = m_otherProjectInfos.constFind(projectName);
+    return it == m_otherProjectInfos.constEnd() ? none : *it;
+}
+
+void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
+{
+    if (m_projectInfoRunner.isKeyRunning(projectName))
+        return;
+    QTC_ASSERT(m_dashboardInfo, return);
+    const auto it = m_dashboardInfo->projectUrls.constFind(projectName);
+    QTC_ASSERT(it != m_dashboardInfo->projectUrls.constEnd(), return);
+
+    const auto handler = [this, projectName](const Dto::ProjectInfoDto &data) {
+        if (data.name == projectName)
+            m_otherProjectInfos.insert(projectName, data);
+    };
+
+    const auto onDone = [this, projectName] {
+        if (!m_otherProjectInfos.contains(projectName))
+            m_otherProjectInfos.insert(projectName, std::nullopt); // do not try again
+        const QList<IDocument *> openDocuments = DocumentModel::openedDocuments();
+        for (IDocument *doc : openDocuments) {
+            if (projectForFile(doc->filePath()) == projectName)
+                onDocumentOpened(doc);
+        }
+    };
+
+    m_projectInfoRunner.start(projectName, {
+        fetchDataRecipe<Dto::ProjectInfoDto>(DashboardMode::Global,
+                                             resolveDashboardInfoUrl(DashboardMode::Global, *it),
+                                             handler),
+        onGroupDone(onDone)
+    });
+}
+
 void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
 {
     if (!doc)
@@ -1254,18 +1321,29 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
     if (docFilePath.isEmpty())
         return;
 
-    FilePath filePath = settings().mappedFilePath(docFilePath, m_currentProjectInfo->name);
+    const QString projectName = projectForFile(docFilePath);
+    const bool isCurrentProject = projectName == m_currentProjectInfo->name;
+    if (!isCurrentProject) {
+        const auto it = m_otherProjectInfos.constFind(projectName);
+        if (it == m_otherProjectInfos.constEnd()) {
+            fetchProjectInfo(projectName); // handles the document again when done
+            return;
+        }
+        if (!*it) // fetching failed
+            return;
+    }
+
+    FilePath filePath = settings().mappedFilePath(docFilePath, projectName);
     if (filePath.isEmpty())
         return;
 
-    // Only replace marks of another type or project for files mapped to the current project.
+    // Only replace marks of another type or project for files mapped to the project.
     // Marks of another project are kept, as they are still usable for that project.
-    const QString projectName = m_currentProjectInfo->name;
     const bool replacesOtherMarks = settings().hasPathMapping(docFilePath, projectName);
-    const bool useLocal = (m_dashboardMode == DashboardMode::Local)
+    const bool useLocal = isCurrentProject && (m_dashboardMode == DashboardMode::Local)
             && localChangesSelected() && replacesOtherMarks
             && m_currentLocalProjectInfo
-            && m_currentLocalProjectInfo->name == m_currentProjectInfo->name;
+            && m_currentLocalProjectInfo->name == projectName;
     const DashboardMode mode = useLocal ? DashboardMode::Local : DashboardMode::Global;
     const LineMarkerType type = useLocal ? LineMarkerType::DashboardLocal
                                          : LineMarkerType::DashboardGlobal;
@@ -1275,7 +1353,7 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
     // Marks kept from an earlier use of the project are fetched again if there is a newer
     // analysis.
     const std::optional<Dto::ProjectInfoDto> &info
-            = useLocal ? m_currentLocalProjectInfo : m_currentProjectInfo;
+            = useLocal ? m_currentLocalProjectInfo : globalProjectInfo(projectName);
     const QString latest = (info && info->name == projectName) ? latestVersion(*info) : QString();
     const std::optional<LineIssuesOrigin> origin = lineIssuesOrigin(docFilePath, type);
     const bool marksUpToDate = origin && origin->projectName == projectName
@@ -1310,7 +1388,7 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
         if (!m_inlineIssuesEnabled)
             return;
         const std::optional<Dto::ProjectInfoDto> &info
-                = (type == LineMarkerType::DashboardGlobal) ? m_currentProjectInfo
+                = (type == LineMarkerType::DashboardGlobal) ? globalProjectInfo(projectName)
                                                             : m_currentLocalProjectInfo;
         if (!info || info->name != projectName)
             return;
@@ -1330,7 +1408,7 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
     const Group recipe = {
         storage,
         markerStorage,
-        lineMarkerRecipe(mode, filePath, handler),
+        lineMarkerRecipe(mode, projectName, filePath, handler),
         downloadDataRecipe(mode, storage) || successItem,
         onGroupDone(markerHandler)
     };
@@ -1339,17 +1417,12 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
 
 void AxivionPluginPrivate::onPathMappingsChanged()
 {
-    // Marks of other projects cannot be fetched again, so they are only kept while mapped.
-    // Marks of any project are outdated when their file is mapped to another analysis path.
-    const QString currentProject = m_currentProjectInfo ? m_currentProjectInfo->name : QString();
-    const auto isOutdated = [currentProject](const FilePath &filePath,
-                                             const LineIssuesOrigin &origin) {
+    // Marks are outdated when their file is mapped to another project or analysis path.
+    const auto isOutdated = [this](const FilePath &filePath, const LineIssuesOrigin &origin) {
         if (!filePath.exists()) // cannot be mapped anymore
             return true;
-        if (origin.projectName != currentProject
-                && !settings().hasPathMapping(filePath, origin.projectName)) {
+        if (origin.projectName != projectForFile(filePath))
             return true;
-        }
         return settings().mappedFilePath(filePath, origin.projectName) != origin.analysisPath;
     };
     clearMarksIf(LineMarkerType::DashboardGlobal, isOutdated);
@@ -1502,6 +1575,8 @@ void switchActiveDashboardId(const Id &toDashboardId)
     dd->m_dashboardMode = DashboardMode::Global; // local dashboard access is gone
     dd->m_currentProjectInfo.reset();
     dd->m_currentLocalProjectInfo.reset();
+    dd->m_otherProjectInfos.clear();
+    dd->m_projectInfoRunner.reset();
     dd->m_docMarksRunner.reset();
     dd->m_issueInfoRunner.reset();
     clearAllMarks(LineMarkerType::DashboardLocal);
