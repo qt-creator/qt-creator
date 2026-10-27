@@ -31,6 +31,7 @@
 #include "cppdoxygen_test.h"
 #include "cppfollowsymbolundercursor.h"
 #include "cppincludehierarchy_test.h"
+#include "cppindexqueries.h"
 #include "cpplocalsymbols_test.h"
 #include "cpplocatorfilter_test.h"
 #include "cppmcpsupport_test.h"
@@ -664,6 +665,7 @@ void CppEditorPlugin::registerTests()
     addTestCreator(createCppHeaderSourceTest);
     addTestCreator(createCppScopeEndTest);
     addTestCreator(createIncludeGroupsTest);
+    addTestCreator(createIndexQueriesTest);
     addTest<LocalSymbolsTest>();
     addTest<LocatorFilterTest>();
     addTest<ModelManagerTest>();

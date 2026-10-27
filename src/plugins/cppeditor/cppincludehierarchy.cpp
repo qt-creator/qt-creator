@@ -7,6 +7,7 @@
 #include "cppeditorconstants.h"
 #include "cppeditordocument.h"
 #include "cppeditortr.h"
+#include "cppindexqueries.h"
 #include "cppmodelmanager.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -67,17 +68,9 @@ using FileAndLines = QList<FileAndLine>;
 static FileAndLines findIncluders(const FilePath &filePath)
 {
     FileAndLines result;
-    const Snapshot snapshot = globalSnapshot();
-    for (auto cit = snapshot.begin(), citEnd = snapshot.end(); cit != citEnd; ++cit) {
-        const FilePath filePathFromSnapshot = cit.key();
-        Document::Ptr doc = cit.value();
-        const QList<Document::Include> resolvedIncludes = doc->resolvedIncludes();
-        for (const auto &includeFile : resolvedIncludes) {
-            const FilePath includedFilePath = includeFile.resolvedFileName();
-            if (includedFilePath == filePath)
-                result.append(FileAndLine(filePathFromSnapshot, int(includeFile.line())));
-        }
-    }
+    const Links includers = includersOf(globalSnapshot(), filePath);
+    for (const Link &includer : includers)
+        result.append(FileAndLine(includer.targetFilePath, includer.target.line));
     return result;
 }
 
