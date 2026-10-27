@@ -32,7 +32,10 @@
         \li Docker and Python 3.
         \li Network access. The scripts download the Ubuntu base image, the
             Ubuntu packages, and the sources of the libraries and tools that
-            they build. The sources are pinned to fixed versions.
+            they build. The sources are pinned to fixed versions. If a
+            download from a mirror fails, for example with a certificate
+            error, the build tries the next source on its own. Such errors
+            in the output only matter if the build stops at them.
         \li Qt for HarmonyOS from the Qt Online Installer, with the desktop Qt
             of the same version installed beside it. For example,
             \c ~/Qt/6.12.0/harmonyos_arm64_v8a and \c ~/Qt/6.12.0/gcc_64.
