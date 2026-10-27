@@ -49,11 +49,15 @@
         \li Optionally, the device-hosted native SDK, which is published as
             \c native-ohos-x64. Without it, the scripts download a pinned
             OpenHarmony SDK build that contains it.
-        \li Optionally, the material for signing the packages: a keystore,
-            a file that holds the passphrase of the keystore and its key,
-            and a profile and a certificate for each package. The two
-            packages have different bundle names, so they need different
-            profiles. Without them, the packages stay unsigned.
+        \li The material for signing the packages: a keystore, a file that
+            holds the passphrase of the keystore and its key, and a profile
+            and a certificate for each package. The two packages have
+            different bundle names, so they need different profiles. Debug
+            profiles from AppGallery Connect are enough, and they need no
+            ACL permissions. Each profile must list the devices that the
+            package is installed on. Without signing material, the
+            scripts build the packages but leave them unsigned, and a
+            device does not install unsigned packages.
     \endlist
 
     \section1 Building the Packages
@@ -126,5 +130,50 @@
     \endcode
 
     For \c hdc to install them, the device must be in developer mode, and
-    debug profiles must list the device.
+    the profiles that the packages are signed with must list the device.
+
+    \section1 Starting \QC on the Device
+
+    To start \QC from \c hdc, enter:
+
+    \badcode
+    hdc shell aa start -a QAbility -b <bundle name>
+    \endcode
+
+    The bundle name is the one that you passed in \c --bundle, which is
+    \c org.qtproject.qtcreator by default.
+
+    \section1 Building, Running, and Debugging on the Device
+
+    When \QC starts on the device, it adds the device itself as
+    \uicontrol {HarmonyOS Build Device (This Device)} and creates a kit for it.
+    The kit uses the compiler, CMake, and LLDB from the \c toolchain stage and
+    the Qt that the package holds, so a package built without that stage has
+    no kit to build with.
+
+    When you run or debug an application, \QC hands it over to the runner, so
+    \c qtcrunner.hap must be installed on the device as well. To stop the
+    application, stop it in \QC as usual.
+
+    \section1 Controlling \QC over MCP
+
+    For development, \QC on the device can run its MCP server, so that an
+    agent or a script on the host can drive it. To start the server on a
+    port, pass \c --mcp-port to the build script. The package then starts
+    \QC with the McpServer plugin loaded and its \c ui_* tools turned on.
+
+    The server only accepts requests that carry its token. Pass a file that
+    holds the token in \c --mcp-token-file, or let the script write a new
+    token into \c qtcreator.mcp-token beside the package. Anyone on the device
+    can read the arguments that the token is passed in, so do not use MCP
+    packages outside development.
+
+    To reach the server from the host, forward the port with \c hdc:
+
+    \badcode
+    hdc fport tcp:<port> tcp:<port>
+    \endcode
+
+    Then send the requests to \c http://127.0.0.1:<port>/ with the token in an
+    \c {Authorization: Bearer} header.
 */
