@@ -48,8 +48,12 @@
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorersettings.h>
+#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runconfigurationaspects.h>
 
 #include <utils/algorithm.h>
+#include <utils/processinterface.h>
 
 #include <QFile>
 #include <QScopeGuard>
@@ -1155,6 +1159,7 @@ private slots:
     void testWestRunsInWorkspace();
     void testBoardAfterReopen();
     void testFlashOnDeploy();
+    void testRunEnvironment();
     void testDependencies_data();
     void testDependencies();
     void testDependenciesAfterConfigure();
@@ -1610,6 +1615,29 @@ void ZephyrParseFlowTest::testOverlappingParse()
     QCOMPARE(m_finished->at(1).at(0).toBool(), true);
     QVERIFY(m_buildSystem->hasParsingData());
     QVERIFY(!m_buildSystem->isParsing());
+}
+
+void ZephyrParseFlowTest::testRunEnvironment()
+{
+    openProject();
+    if (QTest::currentTestFailed())
+        return;
+    BuildConfiguration *bc = m_project->activeBuildConfiguration();
+    bc->setUserEnvironmentChanges(
+        EnvironmentChanges({EnvironmentItem("ZEPHYR_SDK_INSTALL_DIR", "/opt/sdk")}));
+    const RunConfiguration *rc = Utils::findOrDefault(
+        bc->runConfigurations(), Utils::equal(&RunConfiguration::id,
+                                              Id(Constants::ZEPHYR_RUN_CONFIG_ID)));
+    QVERIFY(rc);
+    QCOMPARE(rc->runnable().environment.value("ZEPHYR_SDK_INSTALL_DIR"), QString("/opt/sdk"));
+    const auto terminal = rc->aspect<TerminalAspect>();
+    QVERIFY(terminal);
+    ProjectExplorerSettings &peSettings = ProjectExplorerSettings::get(rc);
+    const auto previousMode = peSettings.terminalMode();
+    peSettings.terminalMode.setValue(ProjectExplorer::TerminalMode::Smart);
+    const bool useTerminal = terminal->useTerminal();
+    peSettings.terminalMode.setValue(previousMode);
+    QVERIFY(useTerminal);
 }
 
 QObject *createZephyrParseFlowTest()

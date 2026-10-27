@@ -9,6 +9,7 @@
 #include "zephyrtr.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
@@ -74,6 +75,9 @@ public:
         setDefaultDisplayName(Tr::tr("Run with West"));
         setUsesEmptyBuildKeys();
 
+        environment.setSupportForBuildEnvironment(bc);
+        terminal.setUseTerminalHint(true);
+
         setCommandLineGetter([this] {
             const FilePath buildDir = buildConfiguration()->buildDirectory();
             CommandLine cmd{settings().westFilePath()};
@@ -91,6 +95,9 @@ public:
             r.workingDirectory = westWorkingDirectory(project());
         });
     }
+
+    EnvironmentAspect environment{this};
+    TerminalAspect terminal{this};
 };
 
 class ZephyrRunConfigurationFactory final : public FixedRunConfigurationFactory
