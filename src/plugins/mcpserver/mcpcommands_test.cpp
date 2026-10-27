@@ -16,13 +16,16 @@
 #include <utils/temporarydirectory.h>
 
 #include <QAction>
+#include <QDialog>
 #include <QEventLoop>
 #include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QListView>
 #include <QMap>
+#include <QCursor>
 #include <QMenu>
+#include <QPointer>
 #include <QPushButton>
 #include <QScopeGuard>
 #include <QStandardItemModel>
@@ -85,6 +88,12 @@ private slots:
     void testActivateMenuItemRefusesADisabledItem();
     void testClickWidgetReportsTheStateAfterTheClick();
     void testClickWidgetAnswersWhileTheClickRunsALoop();
+    void testClickWidgetAnswersWhileTheHoldRunsALoop();
+    void testClickWidgetDoesNotTakeAnEventLoopForABlock();
+    void testClickWidgetDoesNotTakeAnOlderModalForABlock();
+    void testClickWidgetAnswersWhileTheClickRunsAMenu();
+    void testClickWidgetSurvivesTheClickedWidgetGoingAway();
+    void testClickWidgetRefusesAWidgetGoneBeforeThePress();
 
 private:
     QMap<QString, bool> m_uiToolStates;
@@ -570,18 +579,17 @@ void McpCommandsTest::testClickWidgetReportsTheStateAfterTheClick()
 
 void McpCommandsTest::testClickWidgetAnswersWhileTheClickRunsALoop()
 {
-    // What QMenu::exec() and QDialog::exec() do to the caller of a click.
     QPushButton button("McpCommandsTestBlockingButton");
-    QEventLoop loop;
-    connect(&button, &QPushButton::clicked, &loop, [&loop] {
+    QDialog dialog;
+    connect(&button, &QPushButton::clicked, &dialog, [&dialog] {
         // Started after the tool's own zero timer, so it fires after it, and
-        // ends the loop if the tool does not. Not QTimer::singleShot(), which
+        // closes the dialog if the tool does not. Not QTimer::singleShot(), which
         // posts a zero timeout as an event, and events go before timers.
         QTimer guard;
         guard.setSingleShot(true);
-        connect(&guard, &QTimer::timeout, &loop, &QEventLoop::quit);
+        connect(&guard, &QTimer::timeout, &dialog, &QDialog::reject);
         guard.start(0);
-        loop.exec();
+        dialog.exec();
     });
     button.show();
     const QScopeGuard hideButton([&button] { button.hide(); });
@@ -594,16 +602,217 @@ void McpCommandsTest::testClickWidgetAnswersWhileTheClickRunsALoop()
         Schema::CallToolRequestParams{}.arguments(
             QJsonObject{{"text", "McpCommandsTestBlockingButton"}}),
         [&](const Result<Schema::CallToolResult> &answer) {
+            answeredInsideLoop = dialog.isVisible();
+            if (answer)
+                result = answer->structuredContentAsObject();
+            else
+                error = answer.error();
+            dialog.reject();
+        });
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QVERIFY(answeredInsideLoop);
+    QVERIFY(result.value("blocking").toBool());
+}
+
+void McpCommandsTest::testClickWidgetAnswersWhileTheHoldRunsALoop()
+{
+    QString error;
+    callTool("ui_set_demo_pace", {{"click_hold_ms", 1}}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    const QScopeGuard resetPace([] {
+        QString error;
+        callTool("ui_set_demo_pace", {{"click_hold_ms", 0}}, &error);
+    });
+
+    // As a QToolButton with a delayed popup does: the press starts a timer that
+    // runs a menu, so the loop runs while the click is held.
+    QPushButton button("McpCommandsTestHoldButton");
+    QDialog dialog;
+    QTimer popupTimer;
+    popupTimer.setSingleShot(true);
+    connect(&popupTimer, &QTimer::timeout, &dialog, [&dialog] {
+        QTimer guard;
+        guard.setSingleShot(true);
+        connect(&guard, &QTimer::timeout, &dialog, &QDialog::reject);
+        guard.start(0);
+        dialog.exec();
+    });
+    connect(&button, &QPushButton::pressed, &popupTimer, [&popupTimer] { popupTimer.start(0); });
+    button.show();
+    const QScopeGuard hideButton([&button] { button.hide(); });
+
+    bool answeredInsideLoop = false;
+    QJsonObject result;
+    ToolRegistry::callToolForTests(
+        "ui_click_widget",
+        Schema::CallToolRequestParams{}.arguments(
+            QJsonObject{{"text", "McpCommandsTestHoldButton"}}),
+        [&](const Result<Schema::CallToolResult> &answer) {
+            answeredInsideLoop = dialog.isVisible();
+            if (answer)
+                result = answer->structuredContentAsObject();
+            else
+                error = answer.error();
+            dialog.reject();
+        });
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QVERIFY(answeredInsideLoop);
+    QVERIFY(result.value("blocking").toBool());
+}
+
+void McpCommandsTest::testClickWidgetDoesNotTakeAnEventLoopForABlock()
+{
+    // What a slot does that waits for a process, or calls processEvents().
+    QPushButton button("McpCommandsTestBusyButton");
+    QEventLoop loop;
+    connect(&button, &QPushButton::clicked, &loop, [&loop] {
+        QTimer guard;
+        guard.setSingleShot(true);
+        connect(&guard, &QTimer::timeout, &loop, &QEventLoop::quit);
+        guard.start(0);
+        loop.exec();
+    });
+    button.show();
+    const QScopeGuard hideButton([&button] { button.hide(); });
+
+    bool answeredInsideLoop = true;
+    QJsonObject result;
+    QString error;
+    ToolRegistry::callToolForTests(
+        "ui_click_widget",
+        Schema::CallToolRequestParams{}.arguments(
+            QJsonObject{{"text", "McpCommandsTestBusyButton"}}),
+        [&](const Result<Schema::CallToolResult> &answer) {
             answeredInsideLoop = loop.isRunning();
             if (answer)
                 result = answer->structuredContentAsObject();
             else
                 error = answer.error();
-            loop.quit();
+        });
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QVERIFY(!answeredInsideLoop);
+    QVERIFY(!result.contains("blocking"));
+}
+
+void McpCommandsTest::testClickWidgetDoesNotTakeAnOlderModalForABlock()
+{
+    QDialog outer;
+    outer.setWindowModality(Qt::ApplicationModal);
+    outer.show();
+    QDialog inner;
+    inner.setWindowModality(Qt::ApplicationModal);
+    QPushButton button("McpCommandsTestCloseInnerButton", &inner);
+    QEventLoop loop;
+    connect(&button, &QPushButton::clicked, &loop, [&inner, &loop] {
+        inner.hide();
+        QTimer guard;
+        guard.setSingleShot(true);
+        connect(&guard, &QTimer::timeout, &loop, &QEventLoop::quit);
+        guard.start(0);
+        loop.exec();
+    });
+    inner.show();
+    const QScopeGuard hideDialogs([&inner, &outer] {
+        inner.hide();
+        outer.hide();
+    });
+
+    QString error;
+    const QJsonObject result
+        = callTool("ui_click_widget", {{"text", "McpCommandsTestCloseInnerButton"}}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QVERIFY(!result.contains("blocking"));
+}
+
+void McpCommandsTest::testClickWidgetAnswersWhileTheClickRunsAMenu()
+{
+    // A menu makes no modal widget active, so only the popup tells the block apart.
+    if (QGuiApplication::platformName() == QLatin1String("offscreen"))
+        QSKIP("The offscreen platform does not keep a popup menu up.");
+
+    QPushButton button("McpCommandsTestMenuButton");
+    QMenu menu;
+    menu.addAction("McpCommandsTestMenuItem");
+    connect(&button, &QPushButton::clicked, &menu, [&menu] {
+        QTimer guard;
+        guard.setSingleShot(true);
+        connect(&guard, &QTimer::timeout, &menu, &QMenu::hide);
+        guard.start(0);
+        menu.exec(QPoint(0, 0));
+    });
+    button.show();
+    const QScopeGuard hideButton([&button] { button.hide(); });
+
+    bool answeredInsideLoop = false;
+    QJsonObject result;
+    QString error;
+    ToolRegistry::callToolForTests(
+        "ui_click_widget",
+        Schema::CallToolRequestParams{}.arguments(
+            QJsonObject{{"text", "McpCommandsTestMenuButton"}}),
+        [&](const Result<Schema::CallToolResult> &answer) {
+            answeredInsideLoop = menu.isVisible();
+            if (answer)
+                result = answer->structuredContentAsObject();
+            else
+                error = answer.error();
+            menu.hide();
         });
     QVERIFY2(error.isEmpty(), qPrintable(error));
     QVERIFY(answeredInsideLoop);
     QVERIFY(result.value("blocking").toBool());
+}
+
+void McpCommandsTest::testClickWidgetSurvivesTheClickedWidgetGoingAway()
+{
+    QString error;
+    callTool("ui_set_demo_pace", {{"click_hold_ms", 1}}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    const QScopeGuard resetPace([] {
+        QString error;
+        callTool("ui_set_demo_pace", {{"click_hold_ms", 0}}, &error);
+    });
+
+    QPointer<QPushButton> button = new QPushButton("McpCommandsTestVanishingButton");
+    QTimer deleter;
+    deleter.setSingleShot(true);
+    connect(&deleter, &QTimer::timeout, [&button] { delete button; });
+    connect(button, &QPushButton::pressed, &deleter, [&deleter] { deleter.start(0); });
+    button->show();
+    const QScopeGuard deleteButton([&button] { delete button; });
+
+    const QJsonObject result
+        = callTool("ui_click_widget", {{"text", "McpCommandsTestVanishingButton"}}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QVERIFY(!button);
+    QCOMPARE(result.value("text").toString(), QString("McpCommandsTestVanishingButton"));
+    QVERIFY(result.value("destroyed").toBool());
+    QVERIFY(!result.contains("blocking"));
+}
+
+void McpCommandsTest::testClickWidgetRefusesAWidgetGoneBeforeThePress()
+{
+    QString error;
+    callTool("ui_set_demo_pace", {{"pointer_speed", 10000}}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    const QScopeGuard resetPace([] {
+        QString error;
+        callTool("ui_set_demo_pace", {{"pointer_speed", 0}}, &error);
+    });
+
+    QPointer<QPushButton> button = new QPushButton("McpCommandsTestGoneButton");
+    button->show();
+    const QScopeGuard deleteButton([&button] { delete button; });
+    // Far enough away that the glide waits at least one frame, where the timer fires.
+    QCursor::setPos(button->mapToGlobal(button->rect().center()) + QPoint(200, 200));
+    QTimer deleter;
+    deleter.setSingleShot(true);
+    connect(&deleter, &QTimer::timeout, [&button] { delete button; });
+    deleter.start(0);
+
+    callTool("ui_click_widget", {{"text", "McpCommandsTestGoneButton"}}, &error);
+    QVERIFY(!button);
+    QVERIFY2(error.contains("went away before it could be clicked"), qPrintable(error));
 }
 
 QObject *createMcpCommandsTest()

@@ -620,6 +620,9 @@ private:
                 socket->deleteLater();
                 continue;
             }
+            // Not a child of the listener, which a handler may delete while the
+            // socket's readyRead emission is on the stack.
+            socket->setParent(this);
             ++m_connectionCount;
             connect(socket, &QObject::destroyed, this, [this]() { --m_connectionCount; });
 
@@ -646,6 +649,13 @@ private:
             };
             connect(socket, &QTcpSocket::disconnected, this, close);
             connect(socket, &QTcpSocket::errorOccurred, this, close);
+
+            // Still end with the listener, as its children did. A connection
+            // that is being read closes itself once its answer is written.
+            connect(server, &QObject::destroyed, socket, [socket, state] {
+                if (!state->reading)
+                    socket->abort();
+            });
         }
     }
 

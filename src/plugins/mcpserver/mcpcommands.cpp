@@ -103,6 +103,7 @@
 #include <QMouseEvent>
 #include <QPixmap>
 #include <QProcess>
+#include <QSet>
 #include <QThread>
 #include <QTimer>
 #include <QUrl>
@@ -1418,9 +1419,49 @@ static void glidePointerToGlobal(const QPoint &target)
     }
 }
 
-static void clickWidget(QWidget *w)
+// Runs the action, and calls onBlocked if it opens a popup or a modal widget and runs
+// its event loop, as QMenu::exec() and QDialog::exec() do. The call comes from inside
+// that loop, so it is the only chance to act before the loop ends. A handler that
+// merely processes events for a while does not count, and neither does a popup or modal
+// widget that was already open, or one shown without a loop. ownLoops is the number of
+// event loops the action runs itself.
+static void runNoticingBlock(
+    const std::function<void()> &action,
+    const std::function<void()> &onBlocked,
+    int ownLoops = 0)
 {
+    QSet<QWidget *> visibleBefore;
+    for (QWidget *window : QApplication::topLevelWidgets()) {
+        if (window->isVisible())
+            visibleBefore.insert(window);
+    }
+    const int levelBefore = QThread::currentThread()->loopLevel();
+    QTimer timer;
+    timer.setSingleShot(true);
+    QObject::connect(&timer, &QTimer::timeout, [&] {
+        const auto isNew = [&visibleBefore](QWidget *window) {
+            return window && !visibleBefore.contains(window);
+        };
+        const bool inItsLoop = QThread::currentThread()->loopLevel() > levelBefore + ownLoops;
+        if (inItsLoop
+            && (isNew(QApplication::activePopupWidget())
+                || isNew(QApplication::activeModalWidget()))) {
+            onBlocked();
+        } else {
+            timer.start(50); // Not 0, which would spin a loop waiting for a process.
+        }
+    });
+    timer.start(0);
+    action();
+}
+
+// Returns false if the widget went away before the press, so nothing was clicked.
+static bool clickWidget(QWidget *w, const std::function<void()> &onBlocked)
+{
+    const QPointer<QWidget> guard(w);
     glidePointerTo(w);
+    if (!guard)
+        return false;
     // Deliver the events a real click produces rather than calling click() on a
     // button: a widget is free to act on the mouse itself, and some do - Qt Creator's
     // own buttons emit a separate signal from their mouse handler, so click() leaves
@@ -1431,9 +1472,13 @@ static void clickWidget(QWidget *w)
         QEvent::MouseButtonPress, center, global, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
     QMouseEvent release(
         QEvent::MouseButtonRelease, center, global, Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
-    QApplication::sendEvent(w, &press);
-    waitPainting(demoPace().clickHoldMs);
-    QApplication::sendEvent(w, &release);
+    runNoticingBlock([&] { QApplication::sendEvent(w, &press); }, onBlocked);
+    // A press may start a timer that runs a menu, as a QToolButton's delayed popup does.
+    const int holdMs = demoPace().clickHoldMs;
+    runNoticingBlock([holdMs] { waitPainting(holdMs); }, onBlocked, holdMs > 0 ? 1 : 0);
+    if (guard)
+        runNoticingBlock([&] { QApplication::sendEvent(w, &release); }, onBlocked);
+    return true;
 }
 
 // Sends a single mouse press/move/release to a widget at widget-local (x, y).
@@ -3287,18 +3332,44 @@ void McpCommands::registerCommands()
                 "check box or radio button, where only the indicator reacts to one. The query "
                 "must resolve to exactly one visible widget - zero or multiple matches are an "
                 "error, so the tool never silently picks a widget. The result describes the "
-                "widget as ui_find_widgets does, so a toggle can be told from a miss.")
+                "widget as ui_find_widgets does, so a toggle can be told from a miss. A widget "
+                "the click destroyed is described as it was before, with \"destroyed\": true. "
+                "A click "
+                "whose handler runs the event loop of a popup menu or modal dialog "
+                "(QMenu::exec(), QDialog::exec()) is answered while that loop runs, with "
+                "\"blocking\": true in the result, so the next call can act on it. A popup or "
+                "dialog shown without such a loop (a combo box drop-down, QMenu::popup(), "
+                "QDialog::open()) gives a plain result.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(addWidgetQueryProps(Tool::InputSchema{})),
-        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+        [](const Schema::CallToolRequestParams &params,
+           const ToolInterface &toolInterface) -> Utils::Result<> {
             const WidgetQuery q = widgetQueryFromJson(params.argumentsAsObject());
             const Utils::Result<QWidget *> w = resolveSingleWidget(q);
             if (!w)
                 return ResultError(w.error());
             if (!(*w)->isEnabled())
                 return ResultError(QString("Widget is disabled: %1.").arg(describeWidgetShort(*w)));
-            clickWidget(*w);
-            return CallToolResult{}.isError(false).structuredContent(describeWidget(*w));
+            const QPointer<QWidget> widget(*w);
+            const QJsonObject before = describeWidget(widget);
+            const QString beforeShort = describeWidgetShort(widget);
+            const auto answered = std::make_shared<bool>(false);
+            const auto answer = [toolInterface, widget, before, answered](bool blocking) {
+                if (std::exchange(*answered, true))
+                    return;
+                QJsonObject result = widget ? describeWidget(widget) : before;
+                if (!widget)
+                    result.insert("destroyed", true);
+                if (blocking)
+                    result.insert("blocking", true);
+                toolInterface.finish(CallToolResult{}.isError(false).structuredContent(result));
+            };
+            if (!clickWidget(widget, [answer] { answer(true); })) {
+                return ResultError(QString("Widget went away before it could be clicked: %1.")
+                                       .arg(beforeShort));
+            }
+            answer(false);
+            return ResultOk;
         });
 
     ToolRegistry::registerTool(

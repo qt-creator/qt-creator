@@ -87,6 +87,9 @@ private slots:
     void dispatchesPipelinedRequests();
     void dispatchesRequestArrivingDuringNestedEventLoop();
     void keepsSocketWhenPeerLeavesDuringNestedEventLoop();
+    void keepsSocketWhileAnsweringFromNestedEventLoop();
+    void answersAfterHandlerDeletesListener();
+    void closesIdleConnectionWithListener();
     void doesNotWedgeOnRejectedRequest();
     void sanitizesResponseHeaderValues();
     void terminatesChunkedBody();
@@ -435,6 +438,91 @@ void tst_MiniHttpServer::keepsSocketWhenPeerLeavesDuringNestedEventLoop()
     QTRY_VERIFY(handled);
     QVERIFY(aliveAfterLoop);
     QTRY_VERIFY(socket.isNull());
+}
+
+// An MCP tool answers from inside a menu's or dialog's event loop. The answer
+// closes the connection, and the socket must survive that loop: its readyRead
+// emission is still on the stack below it.
+void tst_MiniHttpServer::keepsSocketWhileAnsweringFromNestedEventLoop()
+{
+    TestServer test;
+    QVERIFY(test.start());
+
+    QTcpSocket client;
+    bool aliveInLoop = false;
+    QPointer<QTcpSocket> serverSide;
+
+    test.server.route("/a", HttpRequest::Method::Get,
+                      [&](const HttpRequest &, HttpResponder &responder) {
+                          serverSide = test.server.findChild<QTcpSocket *>();
+                          QEventLoop loop;
+                          connect(&client, &QTcpSocket::disconnected,
+                                  &loop, &QEventLoop::quit);
+                          QTimer::singleShot(0, &loop, [&responder] {
+                              responder.write(StatusCode::Ok);
+                          });
+                          loop.exec();
+                          aliveInLoop = serverSide;
+                      });
+
+    client.connectToHost(QHostAddress::LocalHost, test.port());
+    QVERIFY(client.waitForConnected());
+    client.write("GET /a HTTP/1.1\r\n\r\n");
+
+    QTRY_VERIFY(client.state() == QAbstractSocket::UnconnectedState);
+    QVERIFY(aliveInLoop);
+    QTRY_VERIFY(!serverSide);
+}
+
+// An MCP tool that changes the server settings restarts the server, which
+// deletes the listener the request came in on.
+void tst_MiniHttpServer::answersAfterHandlerDeletesListener()
+{
+    HttpServer server;
+    auto listener = new QTcpServer;
+    QVERIFY(listener->listen(QHostAddress::LocalHost));
+    QVERIFY(server.bind(listener));
+    const quint16 port = listener->serverPort();
+
+    server.route("/a", HttpRequest::Method::Get,
+                 [&listener](const HttpRequest &, HttpResponder &responder) {
+                     delete listener;
+                     listener = nullptr;
+                     responder.write("done", HttpHeaders{}, StatusCode::Ok);
+                 });
+
+    QTcpSocket client;
+    client.connectToHost(QHostAddress::LocalHost, port);
+    QVERIFY(client.waitForConnected());
+    client.write("GET /a HTTP/1.1\r\n\r\n");
+
+    QByteArray response;
+    QTRY_VERIFY((response.append(client.readAll()),
+                 client.state() == QAbstractSocket::UnconnectedState));
+    response.append(client.readAll());
+    QVERIFY(!listener);
+    QVERIFY(server.servers().isEmpty());
+    QVERIFY(response.startsWith("HTTP/1.1 200"));
+    QVERIFY(response.endsWith("done"));
+}
+
+// A server restart deletes the listeners, which must also end the open
+// notification streams: a client holding a revoked token stays locked out.
+void tst_MiniHttpServer::closesIdleConnectionWithListener()
+{
+    HttpServer server;
+    auto listener = new QTcpServer;
+    QVERIFY(listener->listen(QHostAddress::LocalHost));
+    QVERIFY(server.bind(listener));
+
+    QTcpSocket client;
+    client.connectToHost(QHostAddress::LocalHost, listener->serverPort());
+    QVERIFY(client.waitForConnected());
+    QTRY_VERIFY(server.findChild<QTcpSocket *>());
+
+    delete listener;
+    QTRY_VERIFY(client.state() == QAbstractSocket::UnconnectedState);
+    QTRY_VERIFY(!server.findChild<QTcpSocket *>());
 }
 
 void tst_MiniHttpServer::doesNotWedgeOnRejectedRequest()
