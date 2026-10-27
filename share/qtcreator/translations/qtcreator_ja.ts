@@ -45014,10 +45014,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <translation>出現箇所</translation>
     </message>
     <message>
-        <source>Flame Graph</source>
-        <translation type="unfinished">フレームグラフ</translation>
-    </message>
-    <message>
         <source>Invalid</source>
         <translation>無効</translation>
     </message>
@@ -46449,9 +46445,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Stop</source>
         <translation>停止</translation>
     </message>
-</context>
-<context>
-    <name>QtC::Profiler</name>
 </context>
 <context>
     <name>QtC::QmlProjectManager</name>

@@ -59051,10 +59051,6 @@ Senden selbst auch Zeit benötigt.</translation>
         <translation>Eine temporäre Trace-Datei kann nicht geöffnet werden um Ereignisse zu speichern.</translation>
     </message>
     <message>
-        <source>Failed to reset temporary trace file.</source>
-        <translation>Eine temporäre Trace-Datei konnte nicht zurückgesetzt werden.</translation>
-    </message>
-    <message>
         <source>Could not re-open temporary trace file.</source>
         <translation>Eine temporäre Trace-Datei konnte nicht neu geöffnet werden.</translation>
     </message>

@@ -46500,14 +46500,6 @@ Przydatne gdy katalog budowania jest uszkodzony lub przy ponownym budowaniu z no
         <translation>Lokalizacja pliku binarnego</translation>
     </message>
     <message>
-        <source>Caller</source>
-        <translation>Wywołujący</translation>
-    </message>
-    <message>
-        <source>Callee</source>
-        <translation>Wywoływany</translation>
-    </message>
-    <message>
         <source>Occurrences</source>
         <translation>Wystąpienia</translation>
     </message>
@@ -58779,28 +58771,12 @@ Do you want to save the data first?</source>
         <translation>anonimowa funkcja</translation>
     </message>
     <message>
-        <source>Failed to reset temporary trace file.</source>
-        <translation>Błąd resetowania tymczasowego pliku stosu.</translation>
-    </message>
-    <message>
-        <source>Failed to flush temporary trace file.</source>
-        <translation>Błąd przepychania tymczasowego pliku stosu.</translation>
-    </message>
-    <message>
         <source>Could not re-open temporary trace file.</source>
         <translation>Błąd ponownego otwierania tymczasowego pliku stosu.</translation>
     </message>
     <message>
         <source>Read past end in temporary trace file.</source>
         <translation>Odczyt poza końcem tymczasowego pliku stosu.</translation>
-    </message>
-    <message>
-        <source>Saving Trace Data</source>
-        <translation>Zachowywanie danych stosu</translation>
-    </message>
-    <message>
-        <source>Loading Trace Data</source>
-        <translation>Ładowanie danych stosu</translation>
     </message>
     <message>
         <source>Error while parsing trace data file: %1</source>

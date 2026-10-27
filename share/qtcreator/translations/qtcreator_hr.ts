@@ -30994,10 +30994,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <translation>Nepoznata poruka %1</translation>
     </message>
     <message>
-        <source>Timestamp</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Message</source>
         <translation>Poruka</translation>
     </message>
@@ -31027,18 +31023,6 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
     <message>
         <source>Source code not available</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Flame Graph</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Full Range</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset Flame Graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -31450,27 +31434,11 @@ ID oznake moraju započeti malim slovom.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Callee</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Caller</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Callee Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Caller Description</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy Row</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy Table</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -31531,14 +31499,6 @@ Do you want to retry and wait %2 s?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Saving Trace Data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Loading Trace Data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>You are about to discard the profiling data, including unsaved notes. Do you want to continue?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -31586,20 +31546,12 @@ Saving failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Timeline</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Analyze Current Range</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Analyze Full Range</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset Zoom</source>
-        <translation type="unfinished">Resetiraj zumiranje</translation>
     </message>
     <message>
         <source>Stage</source>

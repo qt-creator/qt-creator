@@ -46713,10 +46713,6 @@ Utile si le répertoire de compilation est corrompu ou lors d’une recompilatio
         <translation>Emplacement du binaire</translation>
     </message>
     <message>
-        <source>Caller</source>
-        <translation>Appeleur</translation>
-    </message>
-    <message>
         <source>Callee</source>
         <translation>Appelé</translation>
     </message>
@@ -58741,14 +58737,6 @@ Veuillez utiliser le bouton d’arrêt à la place.</translation>
         <translation>Traces QML (*%1 *%2)</translation>
     </message>
     <message>
-        <source>Saving Trace Data</source>
-        <translation>Enregistrement des données de traçage</translation>
-    </message>
-    <message>
-        <source>Loading Trace Data</source>
-        <translation>Chargement des données de traçage</translation>
-    </message>
-    <message>
         <source>You are about to discard the profiling data, including unsaved notes. Do you want to continue?</source>
         <translation>Vous allez perdre les données de profilage, ainsi que les notes non enregistrées. Souhaitez-vous continuer&#xa0;?</translation>
     </message>
@@ -58811,24 +58799,12 @@ Souhaitez-vous enregistrer les données avant&#xa0;?</translation>
         <translation>Impossible d&apos;ouvrir le fichier temporaire de trace pour stocker les événements.</translation>
     </message>
     <message>
-        <source>Failed to reset temporary trace file.</source>
-        <translation>Impossible de réinitialiser le fichier de trace temporaire.</translation>
-    </message>
-    <message>
-        <source>Failed to flush temporary trace file.</source>
-        <translation>Impossible de vider le fichier de trace temporaire.</translation>
-    </message>
-    <message>
         <source>Could not re-open temporary trace file.</source>
         <translation>Impossible de réouvrir le fichier temporaire de trace.</translation>
     </message>
     <message>
         <source>Read past end in temporary trace file.</source>
         <translation>Lecture après la fin du fichier temporaire de trace.</translation>
-    </message>
-    <message>
-        <source>Copy Table</source>
-        <translation>Copier la table</translation>
     </message>
     <message>
         <source>Extended Event Statistics</source>

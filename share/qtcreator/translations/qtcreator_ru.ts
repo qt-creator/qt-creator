@@ -12143,10 +12143,6 @@ Do you want to display them anyway?</source>
         <translation>Временная шкала</translation>
     </message>
     <message>
-        <source>Reset Zoom</source>
-        <translation>Сбросить приближение</translation>
-    </message>
-    <message>
         <source>Statistics</source>
         <translation>Статистика</translation>
     </message>
@@ -25972,10 +25968,6 @@ If set to false, the target will be moved straight to the current mouse position
         <translation>Находит узкие места производительности.</translation>
     </message>
     <message>
-        <source>Flame Graph</source>
-        <translation>Flame Graph</translation>
-    </message>
-    <message>
         <source>Discard data.</source>
         <translation>Отбросить данные.</translation>
     </message>
@@ -38368,10 +38360,6 @@ itself takes time.</source>
     <message>
         <source>Analyzer</source>
         <translation>Анализатор</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Подробнее</translation>
     </message>
     <message numerus="yes">
         <source>Profiling application: %n events</source>
