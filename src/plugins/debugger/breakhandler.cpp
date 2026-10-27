@@ -1518,6 +1518,18 @@ bool BreakHandler::tryClaimBreakpoint(const GlobalBreakpoint &gbp)
 
     m_engine->showMessage(QString("TAKING OWNERSHIP OF BREAKPOINT %1").arg(gbp->displayName()));
 
+    // The debuggers match the file name case-sensitively, but on a case-insensitive
+    // file system a session or an editor can spell it differently than the disk does.
+    // Ask the disk only now: a share that does not answer then is needed anyway.
+    const FilePath &fileName = gbp->m_params.fileName;
+    if (fileName.isAbsolutePath()) {
+        const FilePath normalized = fileName.normalizedPathName();
+        if (normalized.path() != fileName.path()) {
+            gbp->m_params.fileName = normalized;
+            gbp->update();
+        }
+    }
+
     Breakpoint bp(new BreakpointItem(gbp));
     rootItem()->appendChild(bp);
 

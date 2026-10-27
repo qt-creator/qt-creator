@@ -251,6 +251,7 @@ private slots:
     void testScratchEditorAdoptsSavedName();
     void testBreakpointUpdateAnnouncesItIsProceeding();
     void testInterpreterBreakpointStaysEnabled();
+    void testBreakpointFileNameSpelledAsOnDisk();
     void testUnresolvedLegacyLanguagesSurviveASave();
     void testLegacyQmlAndPythonKeepsBothLanguages();
     void testJavaOnlyEnablesNoOtherDebugger();
@@ -2398,6 +2399,58 @@ void DebuggerUnitTests::testInterpreterBreakpointStaysEnabled()
     backend->reportAsInterpreter(modelId + 1000, "1");
     QVERIFY2(bp->isEnabled(), "a report for another breakpoint was applied by number");
     QCOMPARE(bp->condition(), QString("x > 1"));
+}
+
+// The debuggers match the file name case-sensitively. A breakpoint restored from
+// a session that spells the file differently than the disk does is never hit.
+// The disk is asked only once a debugger takes the breakpoint, so that restoring
+// a session does not wait for a network share that does not answer.
+void DebuggerUnitTests::testBreakpointFileNameSpelledAsOnDisk()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    // A breakpoint without a file, or with a bare file name, has no spelling on
+    // disk to take over.
+    BreakpointParameters function(BreakpointByFunction);
+    function.functionName = "main";
+    const GlobalBreakpoint functionGbp = BreakpointManager::createBreakpoint(function);
+    QVERIFY(functionGbp);
+    const QScopeGuard removeFunctionBreakpoint(
+        [functionGbp] { functionGbp->removeBreakpointFromModel(); });
+    const GlobalBreakpoint relativeGbp = createInterpreterBreakpoint();
+    QVERIFY(relativeGbp);
+    const QScopeGuard removeRelativeBreakpoint(
+        [relativeGbp] { relativeGbp->removeBreakpointFromModel(); });
+    BreakpointManager::claimBreakpointsForEngine(engine);
+    QVERIFY(engine->breakHandler()->findBreakpointByModelId(functionGbp->modelId()));
+    QCOMPARE(functionGbp->requestedParameters().fileName, FilePath());
+    QVERIFY(engine->breakHandler()->findBreakpointByModelId(relativeGbp->modelId()));
+    QCOMPARE(relativeGbp->requestedParameters().fileName.path(), QString("Main.qml"));
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath onDisk = FilePath::fromString(dir.path()).pathAppended("Source.cpp");
+    QVERIFY(onDisk.writeFileContents("int main() {}\n"));
+    const FilePath misspelled = onDisk.parentDir().pathAppended("source.CPP");
+    if (!QFileInfo::exists(misspelled.path()))
+        QSKIP("The file system is case-sensitive.");
+
+    BreakpointParameters params;
+    params.type = BreakpointByFileAndLine;
+    params.fileName = misspelled;
+    params.textPosition = {1, -1};
+    const GlobalBreakpoint gbp = BreakpointManager::createBreakpoint(params);
+    QVERIFY(gbp);
+    const QScopeGuard removeBreakpoint([gbp] { gbp->removeBreakpointFromModel(); });
+    QCOMPARE(gbp->requestedParameters().fileName.fileName(), QString("source.CPP"));
+
+    BreakpointManager::claimBreakpointsForEngine(engine);
+    const Breakpoint bp = engine->breakHandler()->findBreakpointByModelId(gbp->modelId());
+    QVERIFY(bp);
+    QCOMPARE(bp->requestedParameters().fileName.fileName(), QString("Source.cpp"));
 }
 
 // Insertion and removal both say they are proceeding, and the state machine
