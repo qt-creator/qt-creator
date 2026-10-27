@@ -33,7 +33,7 @@ public:
         DisruptingError,
     };
 
-    enum DescriptionTag { WithSummary = 1, WithLinks = 2 };
+    enum DescriptionTag { WithSummary = 1, WithLinks = 2, WithLocation = 4, WithType = 8 };
     using DescriptionTags = QFlags<DescriptionTag>;
 
     Task() = default;
@@ -81,6 +81,7 @@ public:
     void setColumn(int col) { m_column = col; }
 
     QString summary() const { return m_summary; }
+    QString fullSummary(DescriptionTags tags) const;
     void setSummary(const QString &summary) { m_summary = summary; }
     void addToSummary(const QString &s) { m_summary += s; }
 

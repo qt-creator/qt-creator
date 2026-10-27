@@ -146,24 +146,10 @@ public:
 private:
     void handle(const Tasks &tasks) override
     {
-        QStringList lines;
-        for (const Task &task : tasks) {
-            QString type;
-            switch (task.type()) {
-            case Task::Error:
-                //: Task is of type: error
-                type = Tr::tr("error:") + QLatin1Char(' ');
-                break;
-            case Task::Warning:
-                //: Task is of type: warning
-                type = Tr::tr("warning:") + QLatin1Char(' ');
-                break;
-            default:
-                break;
-            }
-            lines << task.file().toUserOutput() + ':' + QString::number(task.line())
-                         + ": " + type + task.description();
-        }
+        const Task::DescriptionTags tags{Task::WithSummary | Task::WithLocation | Task::WithType};
+        const QStringList lines = Utils::transform(tasks, [tags](const Task &t) {
+            return t.description(tags);
+        });
         setClipboardAndSelection(lines.join('\n'));
     }
 };

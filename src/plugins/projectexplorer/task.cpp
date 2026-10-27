@@ -205,11 +205,40 @@ void Task::setLine(int line)
         m_mark->move(line);
 }
 
+QString Task::fullSummary(DescriptionTags tags) const
+{
+    QString summary;
+    if (tags & WithSummary) {
+        summary = m_summary;
+        if (!summary.isEmpty()) {
+            if (tags & WithType) {
+                QString typeString;
+                switch (type()) {
+                case Task::Error:
+                    //: Task is of type: error
+                    typeString = Tr::tr("error:") + ' ';
+                    break;
+                case Task::Warning:
+                    //: Task is of type: warning
+                    typeString = Tr::tr("warning:") + ' ';
+                    break;
+                default:
+                    break;
+                }
+                summary.prepend(typeString);
+            }
+            if (tags & WithLocation) {
+                if (Link l(m_file, line(), m_column - 1); l.hasValidTarget())
+                    summary.prepend(l.toString().append(": "));
+            }
+        }
+    }
+    return summary;
+}
+
 QString Task::description(DescriptionTags tags) const
 {
-    QString desc;
-    if (tags & WithSummary)
-        desc = m_summary;
+    QString desc = fullSummary(tags);
     if (!m_details.isEmpty()) {
         if (!desc.isEmpty())
             desc.append('\n');
@@ -242,7 +271,8 @@ QString Task::formattedDescription(DescriptionTags tags, const QString &extraHea
         return {};
 
     QString text = description(tags);
-    const int offset = (tags & WithSummary) ? 0 : m_summary.size() + 1;
+    const int offset = (tags & WithSummary) ? m_summary.size() - fullSummary(tags).size()
+                                            : m_summary.size() + 1;
     static const QString linkTagStartPlaceholder("__QTC_LINK_TAG_START__");
     static const QString linkTagEndPlaceholder("__QTC_LINK_TAG_END__");
     static const QString linkEndPlaceholder("__QTC_LINK_END__");
