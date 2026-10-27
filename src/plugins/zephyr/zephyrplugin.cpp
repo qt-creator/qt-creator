@@ -27,6 +27,7 @@ public:
         addTestCreator(createZephyrCompileDatabaseTest);
         addTestCreator(createZephyrParseFlowTest);
         addTestCreator(createZephyrRunnerConfigTest);
+        addTestCreator(createZephyrDockerTest);
         addTestCreator(createWestBuildStepTest);
         addTestCreator(createWestBoardsTest);
 #endif

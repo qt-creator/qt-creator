@@ -15,6 +15,7 @@ void setupZephyrDebug();
 
 #ifdef WITH_TESTS
 QObject *createZephyrRunnerConfigTest();
+QObject *createZephyrDockerTest();
 #endif
 
 } // namespace Zephyr::Internal

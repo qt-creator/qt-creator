@@ -6,7 +6,6 @@
 #include "westbuildstep.h"
 #include "zephyrconstants.h"
 #include "zephyrrun.h"
-#include "zephyrsettings.h"
 #include "zephyrtr.h"
 
 #include <debugger/debuggerengine.h>
@@ -22,6 +21,12 @@
 #include <QRegularExpression>
 
 #ifdef WITH_TESTS
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
+#include <projectexplorer/kitmanager.h>
+
+#include <QLoggingCategory>
 #include <QTemporaryDir>
 #include <QTest>
 #endif
@@ -121,6 +126,14 @@ static bool gdbHasPython(const QString &configuration)
     return configuration.contains("--with-python");
 }
 
+// A debugger in a container takes "localhost" for the host. The debug server runs on the
+// build device, so a debugger there reaches it under 127.0.0.1.
+static QString remoteChannel(const FilePath &debugger, const FilePath &buildDevicePath, int port)
+{
+    const bool nextToServer = debugger.isSameDevice(buildDevicePath);
+    return QLatin1String(nextToServer ?"127.0.0.1:" : "localhost:") + QString::number(port);
+}
+
 static RunnerConfig readRunnerConfig(const FilePath &buildDir)
 {
     const FilePath yamlFile = buildDir / "zephyr/runners.yaml";
@@ -167,9 +180,11 @@ public:
             rp.setUseContinueInsteadOfRun(true);
             rp.setSkipDebugServer(true);
 
-            const FilePath workingDir = westWorkingDirectory(runControl->project());
-            const auto modifier = [buildDir, domain, workingDir](Process &process) {
-                CommandLine cmd{settings().westFilePath()};
+            const FilePath workingDir
+                = onBuildDevice(runControl->kit(), westWorkingDirectory(runControl->project()));
+            const auto modifier = [buildDir, domain, workingDir,
+                                   env = runControl->environment()](Process &process) {
+                CommandLine cmd{westExecutable(workingDir, env)};
                 cmd.addArg("build");
                 cmd.addArg("-d");
                 cmd.addArg(buildDir.nativePath());
@@ -204,9 +219,21 @@ public:
                     runControl->postMessage(message.arg(gdb.toUserOutput()), NormalMessageFormat);
                 return DoneResult::Success;
             };
-            const auto applyUsableGdb = [usableGdb](DebuggerRunParameters &rp) {
+            const auto applyUsableGdb = [runControl, usableGdb, workingDir, port = rc.gdbPort](
+                                            DebuggerRunParameters &rp) {
                 if (!usableGdb->isEmpty())
                     rp.overrideKitDebugger(*usableGdb, GdbEngineType);
+                const FilePath gdb = rp.debugger().command.executable();
+                if (!gdb.isSameDevice(workingDir)) {
+                    runControl->postMessage(
+                        Tr::tr("The debug server runs on the build device, but %1 does not. "
+                               "It reaches port %2 only if both share a network. Otherwise, "
+                               "use a debugger on the build device.")
+                            .arg(gdb.toUserOutput())
+                            .arg(port),
+                        ErrorMessageFormat);
+                }
+                rp.setRemoteChannel(remoteChannel(gdb, workingDir, port));
             };
 
             return Group {
@@ -243,6 +270,8 @@ private slots:
     void testRunnerConfig();
     void testGdbHasPython_data();
     void testGdbHasPython();
+    void testRemoteChannel_data();
+    void testRemoteChannel();
     void testSysbuildDomain();
     void testZephyrTarget();
 };
@@ -340,6 +369,32 @@ void ZephyrRunnerConfigTest::testGdbHasPython()
     QCOMPARE(gdbHasPython(configuration), hasPython);
 }
 
+void ZephyrRunnerConfigTest::testRemoteChannel_data()
+{
+    QTest::addColumn<QString>("debugger");
+    QTest::addColumn<QString>("buildDevicePath");
+    QTest::addColumn<QString>("channel");
+
+    QTest::newRow("local") << "/sdk/gdb" << "/home/me/ws" << "127.0.0.1:3333";
+    QTest::newRow("on the build device")
+        << "docker://abc/usr/bin/gdb" << "docker://abc/home/me/ws" << "127.0.0.1:3333";
+    QTest::newRow("in a container, built on the host")
+        << "docker://abc/usr/bin/gdb" << "/home/me/ws" << "localhost:3333";
+    QTest::newRow("in another container")
+        << "docker://abc/usr/bin/gdb" << "docker://def/home/me/ws" << "localhost:3333";
+}
+
+void ZephyrRunnerConfigTest::testRemoteChannel()
+{
+    QFETCH(QString, debugger);
+    QFETCH(QString, buildDevicePath);
+    QFETCH(QString, channel);
+
+    QCOMPARE(remoteChannel(FilePath::fromString(debugger),
+                           FilePath::fromString(buildDevicePath), 3333),
+             channel);
+}
+
 void ZephyrRunnerConfigTest::testSysbuildDomain()
 {
     QTemporaryDir tmp;
@@ -420,6 +475,155 @@ debug-runner: openocd
 QObject *createZephyrRunnerConfigTest()
 {
     return new ZephyrRunnerConfigTest;
+}
+
+// Needs the Docker plugin (-load Docker), a reachable Docker daemon and
+// alpine:latest. Skipped otherwise.
+
+class ZephyrDockerTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void init();
+    void cleanupTestCase();
+    void testMappedPath();
+    void testWestOnDevice();
+    void testKillQemuOnDevice();
+
+private:
+    QString m_skipReason;
+    QTemporaryDir m_hostDir;
+    IDevicePtr m_device;
+    Kit *m_kit = nullptr;
+};
+
+static bool setDeviceSetting(const IDevicePtr &device, const Key &key, const QVariant &value)
+{
+    for (BaseAspect *aspect : device->aspects()) {
+        if (aspect->settingsKey() == key) {
+            aspect->setVariantValue(value);
+            return true;
+        }
+    }
+    return false;
+}
+
+// The command bridge cannot read /proc, so ask a shell on the device.
+static bool isRunning(const IDevicePtr &device, const QString &pid)
+{
+    Process check;
+    check.setCommand({device->filePath("/bin/sh"),
+                      {"-c", "kill -0 \"$0\" && ! grep -q '^State:.*Z' /proc/\"$0\"/status",
+                       pid}});
+    check.runBlocking();
+    return check.result() == ProcessResult::FinishedWithSuccess;
+}
+
+void ZephyrDockerTest::initTestCase()
+{
+    IDeviceFactory *factory = IDeviceFactory::find("DockerDeviceType");
+    if (!factory) {
+        m_skipReason = "Needs the Docker plugin (-load Docker).";
+        return;
+    }
+
+    Process imageCheck;
+    imageCheck.setCommand({FilePath::fromString("docker").searchInPath(),
+                           {"image", "inspect", "alpine:latest", "--format", "{{.Id}}"}});
+    imageCheck.runBlocking();
+    if (imageCheck.result() != ProcessResult::FinishedWithSuccess) {
+        m_skipReason = "Needs a Docker daemon and alpine:latest (docker pull alpine:latest).";
+        return;
+    }
+
+    QVERIFY(m_hostDir.isValid());
+    m_device = factory->construct();
+    QVERIFY(m_device);
+    QVERIFY(setDeviceSetting(m_device, "DockerDeviceDataRepo", "alpine"));
+    QVERIFY(setDeviceSetting(m_device, "DockerDeviceDataTag", "latest"));
+    QVERIFY(setDeviceSetting(m_device, "DockerDeviceDataImageId", imageCheck.stdOut().trimmed()));
+    QVERIFY(setDeviceSetting(m_device, "DockerDeviceMappedPaths",
+                             QStringList(m_hostDir.path() + ":/hostws")));
+    DeviceManager::addDevice(m_device);
+
+    m_kit = KitManager::registerKit([this](Kit *k) {
+        k->setUnexpandedDisplayName("Zephyr Docker Test");
+        BuildDeviceKitAspect::setDeviceId(k, m_device->id());
+    });
+    QVERIFY(m_kit);
+}
+
+// A skip in initTestCase() would also skip the test classes that run after this one.
+void ZephyrDockerTest::init()
+{
+    if (!m_skipReason.isEmpty())
+        QSKIP(qPrintable(m_skipReason));
+}
+
+void ZephyrDockerTest::cleanupTestCase()
+{
+    if (m_kit)
+        KitManager::deregisterKit(m_kit);
+    // Stopping the container ends the command bridge with expected errors.
+    QLoggingCategory::setFilterRules("qtc.cmdbridge.client=false");
+    if (m_device)
+        DeviceManager::removeDevice(m_device->id());
+    m_device.reset();
+    QLoggingCategory::setFilterRules({});
+}
+
+void ZephyrDockerTest::testMappedPath()
+{
+    const FilePath hostWs = FilePath::fromString(m_hostDir.path()) / "ws";
+    QVERIFY_RESULT(hostWs.ensureWritableDir());
+    QVERIFY_RESULT((hostWs / "marker").writeFileContents("from the host"));
+
+    const FilePath onDevice = onBuildDevice(m_kit, hostWs);
+    QCOMPARE(onDevice, m_device->filePath("/hostws/ws"));
+    QCOMPARE((onDevice / "marker").fileContents().value_or(QByteArray()), "from the host");
+}
+
+void ZephyrDockerTest::testWestOnDevice()
+{
+    const FilePath hostDir = FilePath::fromString(m_hostDir.path());
+    const FilePath west = hostDir / "bin/west";
+    QVERIFY_RESULT(west.parentDir().ensureWritableDir());
+    QVERIFY_RESULT(west.writeFileContents("#!/bin/sh\n"));
+    QVERIFY_RESULT(west.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
+
+    Environment env;
+    env.set("PATH", "/hostws/bin");
+    QCOMPARE(westExecutable(onBuildDevice(m_kit, hostDir), env),
+             m_device->filePath("/hostws/bin/west"));
+}
+
+void ZephyrDockerTest::testKillQemuOnDevice()
+{
+    const FilePath hostBuild = FilePath::fromString(m_hostDir.path()) / "build";
+    QVERIFY_RESULT(hostBuild.ensureWritableDir());
+
+    Process qemu;
+    qemu.setCommand({m_device->filePath("/bin/sh"),
+                     {"-c", "sleep 1000 >/dev/null 2>&1 & echo $! > /hostws/build/qemu.pid"}});
+    qemu.runBlocking();
+    QCOMPARE(qemu.result(), ProcessResult::FinishedWithSuccess);
+
+    const FilePath pidFile = hostBuild / "qemu.pid";
+    const QString pid = QString::fromUtf8(pidFile.fileContents().value_or(QByteArray()).trimmed());
+    QVERIFY(pid.toInt() > 0);
+    QVERIFY(isRunning(m_device, pid));
+
+    killQemuIfRunning(onBuildDevice(m_kit, hostBuild));
+
+    QTRY_VERIFY2(!isRunning(m_device, pid), "the process in the container survived");
+    QVERIFY(!pidFile.exists());
+}
+
+QObject *createZephyrDockerTest()
+{
+    return new ZephyrDockerTest;
 }
 
 #endif // WITH_TESTS

@@ -46,6 +46,8 @@
 #include "zephyrsettings.h"
 
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
@@ -692,7 +694,7 @@ private:
     {
         m_configureProcess = new Process(this);
         m_configureProcess->setCommand(cmd);
-        m_configureProcess->setWorkingDirectory(westWorkingDirectory(project()));
+        m_configureProcess->setWorkingDirectory(westRunDirectory(buildConfiguration()));
         m_configureProcess->setEnvironment(buildConfiguration()->environment());
         auto progress = new Core::ProcessProgress(m_configureProcess);
         progress->setDisplayName(Tr::tr("Configuring \"%1\"").arg(project()->displayName()));
@@ -1157,6 +1159,7 @@ private slots:
     void testWorkspaceFromProject();
     void testWestRunsInWorkspace_data();
     void testWestRunsInWorkspace();
+    void testCommandsOnBuildDevice();
     void testBoardAfterReopen();
     void testFlashOnDeploy();
     void testRunEnvironment();
@@ -1434,6 +1437,84 @@ void ZephyrParseFlowTest::testWestRunsInWorkspace()
     QVERIFY2(call.startsWith(workspace.canonicalPath().path() + ": "), qPrintable(call));
     const QString sourceDir = "--source-dir " + (m_tmp / "hello").nativePath();
     QCOMPARE(call.contains(sourceDir), workspaceSubdir.isEmpty());
+}
+
+static QString argumentAfter(const QStringList &args, const QString &option)
+{
+    const int index = args.indexOf(option);
+    return index < 0 ? QString() : args.value(index + 1);
+}
+
+void ZephyrParseFlowTest::testCommandsOnBuildDevice()
+{
+    const FilePath previous = settings().workspaceDir();
+    const auto restore = qScopeGuard([previous] { settings().workspaceDir.setValue(previous); });
+    const FilePath configured = m_tmp / "configured";
+    QVERIFY(configured.createDir());
+    settings().workspaceDir.setValue(configured);
+    QVERIFY((m_tmp / ".west").createDir());
+
+    openProject();
+    if (QTest::currentTestFailed())
+        return;
+    QTRY_COMPARE(m_finished->size(), 1);
+
+    BuildConfiguration *bc = m_project->activeBuildConfiguration();
+    QVERIFY(bc);
+    BuildStep *step = bc->buildSteps()->firstStepWithId(Constants::WEST_BUILD_STEP_ID);
+    QVERIFY(step);
+    const FilePath conf = m_tmp / "hello/extra.conf";
+    const FilePath overlay = m_tmp / "hello/extra.overlay";
+    for (BaseAspect *aspect : step->aspects()) {
+        if (aspect->settingsKey() == "Zephyr.WestBuildStep.ExtraConfFiles")
+            aspect->setVariantValue(QStringList(conf.toFSPathString()));
+        else if (aspect->settingsKey() == "Zephyr.WestBuildStep.ExtraOverlays")
+            aspect->setVariantValue(QStringList(overlay.toFSPathString()));
+    }
+
+    // The test device cannot run processes, so the parse that the switch starts fails.
+    // Removing a device spins an event loop while it is still listed. A settings save
+    // queued earlier would then persist it.
+    QCoreApplication::sendPostedEvents();
+    const FilePath hostBuildDir = bc->buildDirectory();
+    const Id deviceId("Zephyr.TestDevice.Mapped");
+    DeviceManager::addDevice(createWestTestDevice(deviceId, m_tmp / "bin", "/device"));
+    const Id previousType = BuildDeviceTypeKitAspect::deviceTypeId(m_kit);
+    const Id previousDevice = BuildDeviceKitAspect::deviceId(m_kit);
+    const auto setBuildDevice = [this](Id type, Id device) {
+        const KitGuard guard(m_kit);
+        BuildDeviceTypeKitAspect::setDeviceTypeId(m_kit, type);
+        BuildDeviceKitAspect::setDeviceId(m_kit, device);
+    };
+    const auto removeDevice = qScopeGuard([=] {
+        setBuildDevice(previousType, previousDevice);
+        DeviceManager::removeDevice(deviceId);
+    });
+    setBuildDevice("Zephyr.TestDevice", deviceId);
+
+    const auto onDevice = [](const FilePath &path) { return "/device" + path.path(); };
+    const QString buildDir = onDevice(hostBuildDir);
+    const QStringList configure = westConfigureCommand(bc).splitArguments();
+    QCOMPARE(argumentAfter(configure, "-d"), buildDir);
+    QCOMPARE(argumentAfter(configure, "--source-dir"), onDevice(m_tmp / "hello"));
+    QVERIFY2(configure.contains("--extra-conf=" + onDevice(conf)), qPrintable(configure.join(' ')));
+    QVERIFY2(configure.contains("--extra-dtc-overlay=" + onDevice(overlay)),
+             qPrintable(configure.join(' ')));
+
+    const QList<RunConfiguration *> runConfigs = bc->runConfigurations();
+    RunConfiguration *run = Utils::findOrDefault(runConfigs, [](RunConfiguration *rc) {
+        return rc->id() == Constants::ZEPHYR_RUN_CONFIG_ID;
+    });
+    QVERIFY(run);
+    QCOMPARE(argumentAfter(run->commandLine().splitArguments(), "-d"), buildDir);
+
+    RunConfiguration *twister = Utils::findOrDefault(runConfigs, [](RunConfiguration *rc) {
+        return rc->id() == Constants::ZEPHYR_TWISTER_RUN_CONFIG_ID;
+    });
+    QVERIFY(twister);
+    const QStringList twisterArgs = twister->commandLine().splitArguments();
+    QCOMPARE(argumentAfter(twisterArgs, "-T"), onDevice(m_tmp / "hello"));
+    QCOMPARE(argumentAfter(twisterArgs, "-O"), onDevice(hostBuildDir / "twister-out"));
 }
 
 void ZephyrParseFlowTest::testBoardAfterReopen()

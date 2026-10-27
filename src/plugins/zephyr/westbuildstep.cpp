@@ -16,6 +16,9 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -45,6 +48,12 @@
 #include <QUrlQuery>
 
 #ifdef WITH_TESTS
+#include <projectexplorer/kitmanager.h>
+
+#include <utils/devicefileaccess.h>
+#include <utils/hostosinfo.h>
+
+#include <QScopeGuard>
 #include <QTemporaryDir>
 #include <QTest>
 #endif
@@ -103,11 +112,59 @@ FilePath westWorkingDirectory(const Project *project)
     return ws.isEmpty() && project ? project->projectDirectory() : ws;
 }
 
+// West runs on the build device of the kit, which sees the files of the host,
+// for example in the mounts of a Docker container, under its own paths.
+FilePath onBuildDevice(const Kit *kit, const FilePath &path)
+{
+    const IDeviceConstPtr device = BuildDeviceKitAspect::device(kit);
+    if (!device || path.isEmpty() || path.isSameDevice(device->rootPath()))
+        return path;
+    return device->rootPath().withNewMappedPath(path);
+}
+
+FilePath westRunDirectory(const BuildConfiguration *bc)
+{
+    return onBuildDevice(bc->kit(), westWorkingDirectory(bc->project()));
+}
+
+// The setting names the west of the host. Another device has its own. Either is
+// looked up in the PATH that west runs with, or else in the device's PATH. The build
+// steps need it absolute, as they do not search a device's PATH, and the build step
+// summary asks on every edit, so the outcome is kept until the devices change or a
+// build starts.
+static QHash<FilePaths, FilePath> &westExecutableCache()
+{
+    static QHash<FilePaths, FilePath> found;
+    static const QMetaObject::Connection clearOnUpdate
+        = QObject::connect(DeviceManager::instance(), &DeviceManager::updated,
+                           DeviceManager::instance(), [] { found.clear(); });
+    return found;
+}
+
+FilePath westExecutable(const FilePath &workingDir, const Environment &env)
+{
+    const FilePath west = settings().westFilePath();
+    const FilePath onDevice = west.isSameDevice(workingDir) ? west : workingDir.withNewPath("west");
+    const FilePaths dirs = Utils::transform(env.path(), [&workingDir](const FilePath &dir) {
+        return workingDir.withNewPath(dir.path());
+    });
+    QHash<FilePaths, FilePath> &found = westExecutableCache();
+    const FilePaths key = FilePaths{onDevice} + dirs;
+    if (const auto it = found.constFind(key); it != found.cend())
+        return *it;
+    const FilePath result = dirs.isEmpty() ? onDevice.searchInPath()
+                                           : onDevice.searchInDirectories(dirs);
+    const FilePath westOnDevice = result.isEmpty() ? onDevice : result;
+    found.insert(key, westOnDevice);
+    return westOnDevice;
+}
+
 static void runWestInTerminal(const QStringList &westArgs, const FilePath &workingDir,
                               const std::optional<Environment> &env = std::nullopt)
 {
     const OsType osType = workingDir.osType();
-    QString command = ProcessArgs::quoteArg(settings().westFilePath().nativePath(), osType);
+    const FilePath west = westExecutable(workingDir, env.value_or(Environment()));
+    QString command = ProcessArgs::quoteArg(west.nativePath(), osType);
     for (const QString &arg : westArgs)
         command += ' ' + ProcessArgs::quoteArg(arg, osType);
 
@@ -157,6 +214,11 @@ public slots:
     void install(const QUrl &url)
     {
         const FilePath dir = sdkInstallDirectory(url);
+        if (const BuildConfiguration *bc = activeBuildConfigForActiveProject();
+            bc && !dir.isEmpty() && westRunDirectory(bc) == dir) {
+            runWestInTerminal({"sdk", "install"}, dir, bc->environment());
+            return;
+        }
         runWestInTerminal({"sdk", "install"}, dir.isEmpty() ? settings().workspaceDir() : dir);
     }
 };
@@ -191,8 +253,7 @@ public:
                   [](BuildConfiguration *bc) { runBuildTarget(bc, "rom_report"); });
         addAction("WestUpdate", Tr::tr("Run west update"), &m_westUpdateAction,
                   [](BuildConfiguration *bc) {
-                      runWestInTerminal({"update"}, westWorkingDirectory(bc->project()),
-                                        bc->environment());
+                      runWestInTerminal({"update"}, westRunDirectory(bc), bc->environment());
                   });
 
         connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
@@ -208,7 +269,7 @@ private:
         QStringList args{"build", "-d", bc->buildDirectory().nativePath()};
         const FilePath projectDir = bc->project()->projectDirectory();
         if (westWorkingDirectory(bc->project()) != projectDir)
-            args << "--source-dir" << projectDir.nativePath();
+            args << "--source-dir" << onBuildDevice(bc->kit(), projectDir).nativePath();
         return args + QStringList{"-t", target};
     }
 
@@ -226,8 +287,7 @@ private:
     {
         if (!isConfigured(bc))
             return;
-        runWestInTerminal(buildTargetArgs(bc, target), westWorkingDirectory(bc->project()),
-                          bc->environment());
+        runWestInTerminal(buildTargetArgs(bc, target), westRunDirectory(bc), bc->environment());
     }
 
     void updateActions()
@@ -294,10 +354,11 @@ static QStringList boardTargetsFromWestOutput(const QString &output)
 class BoardList final : public QObject
 {
 public:
-    void update(const FilePath &workingDir)
+    void update(const FilePath &workingDir, const Environment &env)
     {
-        m_west = settings().westFilePath();
+        m_west = westExecutable(workingDir, env);
         m_workingDir = workingDir;
+        m_env = env;
         if (m_process || !m_west.isExecutableFile())
             return;
         if (m_workingDir.isEmpty()) {
@@ -310,6 +371,7 @@ public:
         m_process.reset(new Process);
         m_process->setCommand({west, {"boards", "-f", "{name};{qualifiers}"}});
         m_process->setWorkingDirectory(dir);
+        m_process->setEnvironment(m_env);
         connect(m_process.get(), &Process::done, this, [this, west, dir] {
             if (m_process->result() == ProcessResult::FinishedWithSuccess)
                 m_model.setStringList(boardTargetsFromWestOutput(m_process->cleanedStdOut()));
@@ -317,7 +379,7 @@ public:
                 m_model.setStringList({});
             m_process.release()->deleteLater();
             if (m_west != west || m_workingDir != dir)
-                update(m_workingDir);
+                update(m_workingDir, m_env);
         });
         m_process->start();
     }
@@ -328,6 +390,7 @@ private:
     std::unique_ptr<Process> m_process;
     FilePath m_west;
     FilePath m_workingDir;
+    Environment m_env;
 };
 
 static BoardList &boardList()
@@ -472,7 +535,7 @@ public:
         m_extraArgs.setDisplayStyle(StringAspect::LineEditDisplay);
 
         setCommandLineProvider([this] { return westCommand(); });
-        setWorkingDirectoryProvider([this] { return westWorkingDirectory(project()); });
+        setWorkingDirectoryProvider([this] { return westRunDirectory(buildConfiguration()); });
         setUseEnglishOutput();
     }
 
@@ -486,7 +549,8 @@ public:
 
         setDisplayName(Tr::tr("West Build"));
 
-        boardList().update(westWorkingDirectory(project()));
+        boardList().update(westRunDirectory(buildConfiguration()),
+                           buildConfiguration()->environment());
         updateDetails();
 
         m_board.addOnChanged(this, updateDetails);
@@ -514,7 +578,7 @@ public:
 
     void setupOutputFormatter(OutputFormatter *formatter) final
     {
-        formatter->addLineParser(new WestOutputParser(westWorkingDirectory(project())));
+        formatter->addLineParser(new WestOutputParser(westRunDirectory(buildConfiguration())));
         AbstractProcessStep::setupOutputFormatter(formatter);
     }
 
@@ -526,7 +590,8 @@ public:
     {
         const FilePath projectDir = project()->projectDirectory();
 
-        CommandLine cmd{settings().westFilePath()};
+        CommandLine cmd{westExecutable(westRunDirectory(buildConfiguration()),
+                                        buildConfiguration()->environment())};
         cmd.addArg("build");
         if (!m_board().isEmpty()) {
             cmd.addArg("-b");
@@ -536,7 +601,7 @@ public:
         cmd.addArg(buildConfiguration()->buildDirectory().nativePath());
         if (westWorkingDirectory(project()) != projectDir) {
             cmd.addArg("--source-dir");
-            cmd.addArg(projectDir.nativePath());
+            cmd.addArg(onBuildDevice(kit(), projectDir).nativePath());
         }
         if (const QString sysbuild = m_sysbuild.itemValue().toString(); !sysbuild.isEmpty())
             cmd.addArg(sysbuild);
@@ -564,6 +629,7 @@ public:
 private:
     bool init() final
     {
+        westExecutableCache().clear();
         m_appliedConfigureArgs = configureArgs();
         m_appliedStampFile = stampFile();
         m_reconfigures = needsPristine()
@@ -612,9 +678,9 @@ private:
     {
         QStringList args;
         for (const FilePath &file : m_extraConfFiles())
-            args.append("--extra-conf=" + file.nativePath());
+            args.append("--extra-conf=" + onBuildDevice(kit(), file).nativePath());
         for (const FilePath &file : m_extraOverlays())
-            args.append("--extra-dtc-overlay=" + file.nativePath());
+            args.append("--extra-dtc-overlay=" + onBuildDevice(kit(), file).nativePath());
         const QString optimization = m_optimization.itemValue().toString();
         if (!optimization.isEmpty())
             args.append("--cmake-opt=-D" + optimization + "=y");
@@ -779,7 +845,8 @@ public:
                                      "the CMake cache, instead of only the build products."));
 
         setCommandLineProvider([this] {
-            CommandLine cmd{settings().westFilePath()};
+            CommandLine cmd{westExecutable(westRunDirectory(buildConfiguration()),
+                                        buildConfiguration()->environment())};
             cmd.addArg("build");
             cmd.addArg("-d");
             cmd.addArg(buildConfiguration()->buildDirectory().nativePath());
@@ -787,7 +854,7 @@ public:
             cmd.addArg(m_pristine() ? QString("pristine") : QString("clean"));
             return cmd;
         });
-        setWorkingDirectoryProvider([this] { return westWorkingDirectory(project()); });
+        setWorkingDirectoryProvider([this] { return westRunDirectory(buildConfiguration()); });
         setUseEnglishOutput();
     }
 
@@ -869,14 +936,15 @@ public:
         m_extraArgs.setDisplayStyle(StringAspect::LineEditDisplay);
 
         setCommandLineProvider([this] {
-            CommandLine cmd{settings().westFilePath()};
+            CommandLine cmd{westExecutable(westRunDirectory(buildConfiguration()),
+                                        buildConfiguration()->environment())};
             cmd.addArg("flash");
             cmd.addArg("-d");
             cmd.addArg(buildConfiguration()->buildDirectory().nativePath());
             cmd.addArgs(m_extraArgs(), CommandLine::Raw);
             return cmd;
         });
-        setWorkingDirectoryProvider([this] { return westWorkingDirectory(project()); });
+        setWorkingDirectoryProvider([this] { return westRunDirectory(buildConfiguration()); });
         setUseEnglishOutput();
     }
 
@@ -968,6 +1036,7 @@ private slots:
     void testConfigureRecorder();
     void testSdkInstallUrl_data();
     void testSdkInstallUrl();
+    void testBuildDevice();
 };
 
 void WestBuildStepTest::testReconfigureArgs_data()
@@ -1112,6 +1181,121 @@ void WestBuildStepTest::testSdkInstallUrl()
     const QUrl url(sdkInstallUrl(dir));
     QCOMPARE(url.scheme(), QString(SDK_INSTALL_SCHEME));
     QCOMPARE(sdkInstallDirectory(url), dir);
+}
+
+// Runs on the host, with only binDir in PATH. A host path is at root + path on the device.
+class WestTestFileAccess final : public UnixDeviceFileAccess
+{
+public:
+    WestTestFileAccess(const FilePath &binDir, const QString &root)
+        : m_binDir(binDir)
+        , m_root(root)
+    {}
+
+private:
+    QString mapToDevicePath(const QString &hostPath) const final { return m_root + hostPath; }
+
+    Result<Environment> deviceEnvironment() const final
+    {
+        Environment env;
+        env.set("PATH", m_binDir.path());
+        return env;
+    }
+
+    Result<RunResult> runInShellImpl(const CommandLine &cmdLine,
+                                     const QByteArray &stdInData) const final
+    {
+        Process proc;
+        proc.setWriteData(stdInData);
+        proc.setCommand({FilePath::fromString(cmdLine.executable().path()),
+                         ProcessArgs::splitArgs(cmdLine.arguments(), OsTypeLinux)});
+        proc.runBlocking();
+        return RunResult{proc.resultData().m_exitCode,
+                         proc.readAllRawStandardOutput(),
+                         proc.readAllRawStandardError()};
+    }
+
+    const FilePath m_binDir;
+    const QString m_root;
+};
+
+class WestTestDevice final : public IDevice
+{
+public:
+    WestTestDevice(Id id, const FilePath &binDir, const QString &root)
+    {
+        setupId(AutoDetected, id);
+        setType("Zephyr.TestDevice");
+        setFileAccess(std::make_shared<WestTestFileAccess>(binDir, root), false);
+    }
+
+private:
+    IDeviceWidget *createWidget() final { return nullptr; }
+    Result<> supportsBuildingProject(const FilePath &) const final { return ResultOk; }
+};
+
+IDevicePtr createWestTestDevice(Id id, const FilePath &binDir, const QString &root)
+{
+    return std::make_shared<WestTestDevice>(id, binDir, root);
+}
+
+void WestBuildStepTest::testBuildDevice()
+{
+    const FilePath previousWest = settings().westFilePath();
+    const auto restoreWest = qScopeGuard([previousWest] {
+        settings().westFilePath.setValue(previousWest);
+    });
+    const FilePath hostWest = FilePath::fromUserInput("/opt/west/bin/west");
+    settings().westFilePath.setValue(hostWest);
+    const FilePath hostDir = FilePath::fromUserInput("/home/me/ws");
+
+    Kit *kit = KitManager::registerKit([](Kit *k) { k->setUnexpandedDisplayName("West Test"); });
+    QVERIFY(kit);
+    const auto removeKit = qScopeGuard([kit] { KitManager::deregisterKit(kit); });
+    QCOMPARE(onBuildDevice(kit, hostDir), hostDir);
+    QCOMPARE(westExecutable(onBuildDevice(kit, hostDir), {}), hostWest);
+
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("The test device runs Unix tools on the host.");
+
+    // Removing a device spins an event loop while it is still listed. A settings save
+    // queued by an earlier test would then persist it.
+    QCoreApplication::sendPostedEvents();
+    const Id deviceId("Zephyr.TestDevice.West");
+    QTemporaryDir binDir;
+    QVERIFY(binDir.isValid());
+    const FilePath hostBin = FilePath::fromString(binDir.path());
+    const IDevicePtr device = createWestTestDevice(deviceId, hostBin, {});
+    DeviceManager::addDevice(device);
+    const auto removeDevice = qScopeGuard([deviceId] { DeviceManager::removeDevice(deviceId); });
+    BuildDeviceKitAspect::setDeviceId(kit, deviceId);
+
+    const FilePath deviceDir = onBuildDevice(kit, hostDir);
+    QCOMPARE(deviceDir, device->filePath("/home/me/ws"));
+    QCOMPARE(onBuildDevice(kit, deviceDir), deviceDir);
+    QCOMPARE(onBuildDevice(kit, FilePath()), FilePath());
+    QCOMPARE(westExecutable(deviceDir, {}), device->filePath("west"));
+
+    const FilePath hostBinWest = hostBin / "west";
+    QVERIFY(hostBinWest.writeFileContents("#!/bin/sh\n"));
+    QVERIFY(hostBinWest.setPermissions(QFile::ReadOwner | QFile::ExeOwner));
+    QCOMPARE(westExecutable(deviceDir, {}), device->filePath("west"));
+    DeviceManager::announceDeviceUpdate(deviceId);
+    QCOMPARE(westExecutable(deviceDir, {}), device->filePath(hostBinWest.path()));
+
+    QTemporaryDir venvDir;
+    QVERIFY(venvDir.isValid());
+    const FilePath venvWest = FilePath::fromString(venvDir.path()) / "west";
+    QVERIFY(venvWest.writeFileContents("#!/bin/sh\n"));
+    QVERIFY(venvWest.setPermissions(QFile::ReadOwner | QFile::ExeOwner));
+    Environment env;
+    env.set("PATH", venvDir.path());
+    QCOMPARE(westExecutable(deviceDir, env), device->filePath(venvWest.path()));
+
+    QVERIFY(hostBinWest.removeFile());
+    QCOMPARE(westExecutable(deviceDir, {}), device->filePath(hostBinWest.path()));
+    DeviceManager::announceDeviceUpdate(deviceId);
+    QCOMPARE(westExecutable(deviceDir, {}), device->filePath("west"));
 }
 
 #endif // WITH_TESTS

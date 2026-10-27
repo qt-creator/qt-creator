@@ -5,7 +5,6 @@
 
 #include "westbuildstep.h"
 #include "zephyrconstants.h"
-#include "zephyrsettings.h"
 #include "zephyrtr.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -80,7 +79,8 @@ public:
 
         setCommandLineGetter([this] {
             const FilePath buildDir = buildConfiguration()->buildDirectory();
-            CommandLine cmd{settings().westFilePath()};
+            CommandLine cmd{westExecutable(westRunDirectory(buildConfiguration()),
+                                            buildConfiguration()->environment())};
             cmd.addArg("build");
             cmd.addArg("-d");
             cmd.addArg(buildDir.nativePath());
@@ -92,7 +92,7 @@ public:
         });
 
         setRunnableModifier([this](ProcessRunData &r) {
-            r.workingDirectory = westWorkingDirectory(project());
+            r.workingDirectory = westRunDirectory(buildConfiguration());
         });
     }
 
@@ -122,10 +122,11 @@ public:
 
         setCommandLineGetter([this] {
             const FilePath buildDir = buildConfiguration()->buildDirectory();
-            CommandLine cmd{settings().westFilePath()};
+            CommandLine cmd{westExecutable(westRunDirectory(buildConfiguration()),
+                                            buildConfiguration()->environment())};
             cmd.addArg("twister");
             cmd.addArg("-T");
-            cmd.addArg(project()->projectDirectory().nativePath());
+            cmd.addArg(onBuildDevice(kit(), project()->projectDirectory()).nativePath());
             const QString board = westBoard(buildConfiguration());
             if (!board.isEmpty()) {
                 cmd.addArg("-p");
@@ -139,7 +140,7 @@ public:
         });
 
         setRunnableModifier([this](ProcessRunData &r) {
-            r.workingDirectory = westWorkingDirectory(project());
+            r.workingDirectory = westRunDirectory(buildConfiguration());
         });
     }
 
