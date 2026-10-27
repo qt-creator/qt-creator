@@ -96,18 +96,17 @@ install(DIRECTORY config
   ${EXCLUDE_DOCS_FROM_ALL}
 )
 
-# The full MCP tool list is generated from the running server; the committed
-# mcp-tools.qdocinc is only a placeholder. A committed snapshot goes stale
-# whenever a tool is added in another commit, so the real list is produced at
-# doc-build time: regenerate_mcp_tools_doc writes it from the built server
+# The MCP tool list is generated from the running server. The committed
+# mcp-tools.qdocinc is a snapshot of that output for docs-only setups (such as
+# the doc snapshot server), which cannot build the application. It goes stale
+# whenever a tool is added or reworded, so refresh it by copying the generated
+# file over it. regenerate_mcp_tools_doc writes the list from the built server
 # into the generated sources directory, which qtcreator-project.qdocconf lists
-# before ../src so that it wins over the placeholder. With
-# BUILD_MCP_TOOLS_DOC it is also made a prerequisite of the documentation
-# targets. That is off by default, because it makes a doc build build the
-# whole application, which a docs-only setup (such as the doc snapshot
-# server) cannot do. Otherwise, or in a cross build, which cannot run the
-# application, the placeholder is used unless regenerate_mcp_tools_doc is
-# built explicitly.
+# before ../src so that it wins over the snapshot. With BUILD_MCP_TOOLS_DOC it
+# is also made a prerequisite of the documentation targets. That is off by
+# default, because it makes a doc build build the whole application.
+# Otherwise, or in a cross build, which cannot run the application, the
+# snapshot is used unless regenerate_mcp_tools_doc is built explicitly.
 #
 # "-load all" force-enables every plugin, so tools from plugins that are
 # disabled by default are captured too; the list is meant to be exhaustive.
