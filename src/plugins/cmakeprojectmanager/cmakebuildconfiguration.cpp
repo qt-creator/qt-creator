@@ -1016,7 +1016,10 @@ static CMakeConfig removeOldQmlConfigSettings(const CMakeConfig &configList)
 
 CMakeConfig CMakeBuildSettingsWidget::getQmlDebugConfigItem()
 {
-    const bool enable = m_buildConfig->qmlDebugging() == TriState::Enabled;
+    const TriState setting = m_buildConfig->qmlDebugging();
+    if (setting == TriState::Default)
+        return {};
+    const bool enable = setting == TriState::Enabled;
 
     const CMakeConfig configList = m_buildConfig->cmakeBuildSystem()->configurationFromCMake();
     CMakeConfig changedConfig;
