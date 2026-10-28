@@ -56,11 +56,17 @@
             holds the passphrase of the keystore and its key, and a profile
             and a certificate for each package. The two packages have
             different bundle names, so they need different profiles. Debug
-            profiles from AppGallery Connect are enough, and they need no
-            ACL permissions. Each profile must list the devices that the
-            package is installed on. Without signing material, the
-            scripts build the packages but leave them unsigned, and a
-            device does not install unsigned packages.
+            profiles from AppGallery Connect are enough. Each profile must
+            list the devices that the package is installed on, and allow
+            the restricted permissions that the package requests in its
+            ACLs. For \c qtcreator.hap, these are
+            \c ohos.permission.READ_WRITE_USER_FILE and
+            \c ohos.permission.READ_PASTEBOARD. For \c qtcrunner.hap, it
+            is \c ohos.permission.READ_PASTEBOARD. Otherwise, the device
+            refuses to install the package with error 9568289. Without
+            signing material, the scripts build the packages but leave
+            them unsigned, and a device does not install unsigned
+            packages.
     \endlist
 
     \section1 Building the Packages
@@ -150,9 +156,12 @@
 
     When \QC starts on the device, it adds the device itself as
     \uicontrol {HarmonyOS Build Device (This Device)} and creates a kit for it.
-    The kit uses the compiler, CMake, and LLDB from the \c toolchain stage and
-    the Qt that the package holds, so a package built without that stage has
-    no kit to build with.
+    The kit uses the compiler, CMake, and LLDB from the \c toolchain stage, so
+    a package built without that stage has no kit to build with.
+
+    The kit has no Qt at first. To download one and add it to the kit, go to
+    \uicontrol Preferences > \uicontrol SDKs > \uicontrol HarmonyOS and select
+    \uicontrol {Install Qt for HarmonyOS}.
 
     When you run or debug an application, \QC hands it over to the runner, so
     \c qtcrunner.hap must be installed on the device as well. To stop the
