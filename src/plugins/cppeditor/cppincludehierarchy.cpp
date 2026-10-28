@@ -77,11 +77,9 @@ static FileAndLines findIncluders(const FilePath &filePath)
 static FileAndLines findIncludes(const FilePath &filePath, const Snapshot &snapshot)
 {
     FileAndLines result;
-    if (Document::Ptr doc = snapshot.document(filePath)) {
-        const QList<Document::Include> resolvedIncludes = doc->resolvedIncludes();
-        for (const auto &includeFile : resolvedIncludes)
-            result.append(FileAndLine(includeFile.resolvedFileName(), 0));
-    }
+    const FilePaths includes = includedFilesOf(snapshot, filePath);
+    for (const FilePath &include : includes)
+        result.append(FileAndLine(include, 0));
     return result;
 }
 

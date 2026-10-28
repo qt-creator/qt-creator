@@ -31,11 +31,35 @@ Links includersOf(const Snapshot &snapshot, const FilePath &filePath)
     return including;
 }
 
+FilePaths includedFilesOf(const Snapshot &snapshot, const FilePath &filePath)
+{
+    const Document::Ptr doc = snapshot.document(filePath);
+    if (!doc)
+        return {};
+
+    // TODO: Remove duplicates? Repeated inclusions of the same file are rarely of interest.
+    return doc->includedFiles(Document::Duplicates::Keep);
+}
+
 } // namespace CppEditor
 
 #ifdef WITH_TESTS
 
 namespace CppEditor::Internal {
+
+static void addDocument(Snapshot &snapshot, const FilePath &filePath,
+                        const QList<Document::Include> &includes)
+{
+    const Document::Ptr doc = Document::create(filePath);
+    for (const Document::Include &include : includes)
+        doc->addIncludeFile(include);
+    snapshot.insert(doc);
+}
+
+static Document::Include include(const FilePath &filePath, int line)
+{
+    return Document::Include(filePath.fileName(), filePath, line, Client::IncludeLocal);
+}
 
 class IndexQueriesTest : public QObject
 {
@@ -43,6 +67,7 @@ class IndexQueriesTest : public QObject
 
 private slots:
     void testIncludersOf();
+    void testIncludedFilesOf();
 };
 
 void IndexQueriesTest::testIncludersOf()
@@ -53,17 +78,6 @@ void IndexQueriesTest::testIncludersOf()
     const FilePath repeatedIncluder = FilePath::fromString("/project/repeated.cpp");
     const FilePath otherIncluder = FilePath::fromString("/project/other.cpp");
     const FilePath unresolvedIncluder = FilePath::fromString("/project/unresolved.cpp");
-
-    const auto addDocument = [](Snapshot &snapshot, const FilePath &filePath,
-                                const QList<Document::Include> &includes) {
-        const Document::Ptr doc = Document::create(filePath);
-        for (const Document::Include &include : includes)
-            doc->addIncludeFile(include);
-        snapshot.insert(doc);
-    };
-    const auto include = [](const FilePath &filePath, int line) {
-        return Document::Include(filePath.fileName(), filePath, line, Client::IncludeLocal);
-    };
 
     Snapshot snapshot;
     addDocument(snapshot, header, {});
@@ -80,6 +94,28 @@ void IndexQueriesTest::testIncludersOf()
     QCOMPARE(actual, expected);
 
     QVERIFY(includersOf(snapshot, includer).isEmpty());
+}
+
+void IndexQueriesTest::testIncludedFilesOf()
+{
+    const FilePath header = FilePath::fromString("/project/header.h");
+    const FilePath otherHeader = FilePath::fromString("/project/other.h");
+    const FilePath source = FilePath::fromString("/project/source.cpp");
+    const FilePath unknown = FilePath::fromString("/project/unknown.cpp");
+
+    Snapshot snapshot;
+    addDocument(snapshot, header, {});
+    addDocument(snapshot, otherHeader, {});
+    addDocument(snapshot, source,
+                {include(otherHeader, 1),
+                 include(header, 2),
+                 Document::Include("missing.h", {}, 3, Client::IncludeLocal),
+                 include(otherHeader, 4)});
+
+    const FilePaths expected{otherHeader, header, otherHeader};
+    QCOMPARE(includedFilesOf(snapshot, source), expected);
+    QVERIFY(includedFilesOf(snapshot, header).isEmpty());
+    QVERIFY(includedFilesOf(snapshot, unknown).isEmpty());
 }
 
 QObject *createIndexQueriesTest()

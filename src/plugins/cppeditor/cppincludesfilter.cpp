@@ -5,6 +5,7 @@
 
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
+#include "cppindexqueries.h"
 #include "cppmodelmanager.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
@@ -35,10 +36,7 @@ static FilePaths generateFilePaths(const QFuture<void> &future,
         const auto iterator = queuedPaths.cbegin();
         const FilePath filePath = *iterator;
         queuedPaths.erase(iterator);
-        const CPlusPlus::Document::Ptr doc = snapshot.document(filePath);
-        if (!doc)
-            continue;
-        const FilePaths includedFiles = doc->includedFiles();
+        const FilePaths includedFiles = includedFilesOf(snapshot, filePath);
         for (const FilePath &includedFile : includedFiles) {
             if (resultsCache.emplace(includedFile).second) {
                 queuedPaths.emplace(includedFile);

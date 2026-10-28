@@ -8,6 +8,7 @@
 #include "qmt/tasks/diagramscenecontroller.h"
 #include "qmt/model_controller/modelcontroller.h"
 
+#include <cppeditor/cppindexqueries.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cplusplus/CppDocument.h>
 
@@ -205,16 +206,11 @@ qmt::MObject *PxNodeUtilities::findSameObject(const QStringList &relativeElement
 
 bool PxNodeUtilities::isProxyHeader(const Utils::FilePath &filePath) const
 {
-    CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
-
-    CPlusPlus::Document::Ptr document = snapshot.document(filePath);
-    if (document) {
-        QList<CPlusPlus::Document::Include> includes = document->resolvedIncludes();
-        if (includes.count() != 1)
-            return false;
-        return includes.at(0).resolvedFileName().fileName() == filePath.fileName();
-    }
-    return false;
+    const Utils::FilePaths includes
+        = CppEditor::includedFilesOf(CppEditor::CppModelManager::snapshot(), filePath);
+    if (includes.count() != 1)
+        return false;
+    return includes.first().fileName() == filePath.fileName();
 }
 
 } // namespace ModelEditor::Internal

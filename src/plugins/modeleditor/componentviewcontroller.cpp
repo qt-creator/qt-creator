@@ -15,6 +15,7 @@
 #include "qmt/model/mpackage.h"
 #include "qmt/tasks/diagramscenecontroller.h"
 
+#include <cppeditor/cppindexqueries.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cplusplus/CppDocument.h>
 
@@ -142,39 +143,32 @@ void UpdateIncludeDependenciesVisitor::updateFilePaths()
 
 void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *component)
 {
-    CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
+    const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
 
     const QStringList filePaths = findFilePathOfComponent(component);
     for (const QString &filePath : filePaths) {
-        CPlusPlus::Document::Ptr document = snapshot.document(FilePath::fromString(filePath));
-        if (document) {
-            const QList<CPlusPlus::Document::Include> includes = document->resolvedIncludes();
-            for (const CPlusPlus::Document::Include &include : includes) {
-                FilePath includeFilePath = include.resolvedFileName();
-                // replace proxy header with real one
-                CPlusPlus::Document::Ptr includeDocument = snapshot.document(includeFilePath);
-                if (includeDocument) {
-                    QList<CPlusPlus::Document::Include> includes = includeDocument->resolvedIncludes();
-                    if (includes.count() == 1 &&
-                            includes.at(0).resolvedFileName().fileName() == includeFilePath.fileName())
-                    {
-                        includeFilePath = includes.at(0).resolvedFileName();
-                    }
+        const FilePaths includes
+            = CppEditor::includedFilesOf(snapshot, FilePath::fromString(filePath));
+        for (FilePath includeFilePath : includes) {
+            // replace proxy header with real one
+            const FilePaths headersIncluded = CppEditor::includedFilesOf(snapshot, includeFilePath);
+            if (headersIncluded.count() == 1
+                && headersIncluded.first().fileName() == includeFilePath.fileName()) {
+                includeFilePath = headersIncluded.first();
+            }
+            qmt::MComponent *includeComponent = findComponentFromFilePath(includeFilePath);
+            if (includeComponent && includeComponent != component) {
+                // add dependency between components
+                if (!m_modelUtilities->haveDependency(component, includeComponent)) {
+                    auto dependency = new qmt::MDependency;
+                    dependency->setFlags(qmt::MElement::ReverseEngineered);
+                    dependency->setStereotypes({"include"});
+                    dependency->setDirection(qmt::MDependency::AToB);
+                    dependency->setSource(component->uid());
+                    dependency->setTarget(includeComponent->uid());
+                    m_modelController->addRelation(component, dependency);
                 }
-                qmt::MComponent *includeComponent = findComponentFromFilePath(includeFilePath);
-                if (includeComponent && includeComponent != component) {
-                    // add dependency between components
-                    if (!m_modelUtilities->haveDependency(component, includeComponent)) {
-                        auto dependency = new qmt::MDependency;
-                        dependency->setFlags(qmt::MElement::ReverseEngineered);
-                        dependency->setStereotypes({"include"});
-                        dependency->setDirection(qmt::MDependency::AToB);
-                        dependency->setSource(component->uid());
-                        dependency->setTarget(includeComponent->uid());
-                        m_modelController->addRelation(component, dependency);
-                    }
-                    m_packageViewController->createAncestorDependencies(component, includeComponent);
-                }
+                m_packageViewController->createAncestorDependencies(component, includeComponent);
             }
         }
     }
