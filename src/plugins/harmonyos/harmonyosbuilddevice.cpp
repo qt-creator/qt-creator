@@ -341,11 +341,14 @@ static void completeKit(Kit *kit)
         config.insert(CMakeConfigItem("QT_CREATOR_ENABLE_MAINTENANCE_TOOL_PROVIDER",
                                       CMakeConfigItem::BOOL, "OFF"));
     }
-    // The toolchain file picks the compiler itself. A kit naming it as well differs from
-    // what lands in the cache forever, and every build asks whether to apply the
-    // difference, so leave the choice where it is made.
-    config.remove("CMAKE_C_COMPILER");
-    config.remove("CMAKE_CXX_COMPILER");
+    // The toolchain file picks the compiler itself, under the package's path. The toolchain
+    // of the kit is the same file under the name the platform links it as, and a kit naming
+    // that differs from what lands in the cache forever, so every build would ask whether
+    // to apply the difference.
+    config.insert(CMakeConfigItem("CMAKE_C_COMPILER", CMakeConfigItem::FILEPATH,
+                                  sdkRoot.pathAppended("bin/clang").path().toUtf8()));
+    config.insert(CMakeConfigItem("CMAKE_CXX_COMPILER", CMakeConfigItem::FILEPATH,
+                                  sdkRoot.pathAppended("bin/clang++").path().toUtf8()));
     if (config != before)
         CMakeConfigurationKitAspect::setConfiguration(kit, config);
 }

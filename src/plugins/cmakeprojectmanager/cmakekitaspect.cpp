@@ -1438,6 +1438,15 @@ QVariant CMakeConfigurationKitAspectFactory::defaultValue(const Kit *k) const
     return tmp;
 }
 
+// A link to the compiler that keeps its name is the same compiler. One under another name
+// is not: clang++ is often a link to clang, and behaves differently.
+static bool isSameCompiler(const FilePath &configured, const FilePath &compiler)
+{
+    return configured == compiler || configured == configured.withNewMappedPath(compiler)
+           || (configured.fileName() == compiler.fileName()
+               && configured.isSameExecutable(compiler));
+}
+
 Tasks CMakeConfigurationKitAspectFactory::validate(const Kit *k) const
 {
     QTC_ASSERT(k, return Tasks());
@@ -1507,7 +1516,7 @@ Tasks CMakeConfigurationKitAspectFactory::validate(const Kit *k) const
         if (!tcC || !tcC->isValid()) {
             addWarning(Tr::tr("CMake configuration has a path to a C compiler set, "
                           "even though the kit has no valid tool chain."));
-        } else if (tcCPath != tcC->compilerCommand() && tcCPath != tcCPath.withNewMappedPath(tcC->compilerCommand())) {
+        } else if (!isSameCompiler(tcCPath, tcC->compilerCommand())) {
             addWarning(Tr::tr("CMake configuration has a path to a C compiler set "
                           "that does not match the compiler path "
                           "configured in the tool chain of the kit."));
@@ -1523,7 +1532,7 @@ Tasks CMakeConfigurationKitAspectFactory::validate(const Kit *k) const
         if (!tcCxx || !tcCxx->isValid()) {
             addWarning(Tr::tr("CMake configuration has a path to a C++ compiler set, "
                           "even though the kit has no valid tool chain."));
-        } else if (tcCxxPath != tcCxx->compilerCommand() && tcCxxPath != tcCxxPath.withNewMappedPath(tcCxx->compilerCommand())) {
+        } else if (!isSameCompiler(tcCxxPath, tcCxx->compilerCommand())) {
             addWarning(Tr::tr("CMake configuration has a path to a C++ compiler set "
                           "that does not match the compiler path "
                           "configured in the tool chain of the kit."));
