@@ -375,6 +375,20 @@ static void detectToolsOnThisDevice()
     });
     device->runAutoDetect(logger, [] {
         qCDebug(buildDeviceLog) << "detection done," << KitManager::kits().size() << "kits";
+        const IDevice::Ptr device = DeviceManager::find(Utils::Id(thisDeviceId));
+        if (!device || Utils::anyOf(KitManager::kits(), &isThisDeviceKit))
+            return;
+        // The generic kit setup builds on the desktop device and runs on whatever device
+        // type the ABI suggests, while what is built here also runs here.
+        Kit *kit = KitManager::registerKit([&device](Kit *k) {
+            k->setUnexpandedDisplayName(device->displayName());
+            BuildDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
+            BuildDeviceKitAspect::setDevice(k, device);
+            RunDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
+            RunDeviceKitAspect::setDevice(k, device);
+        });
+        if (kit)
+            KitManager::setDefaultKit(kit);
     });
 }
 
@@ -412,6 +426,15 @@ void setupHarmonyOsBuildDevice()
     QObject::connect(KitManager::instance(), &KitManager::kitAdded,
                      KitManager::instance(), [](Kit *kit) {
         if (isThisDeviceKit(kit))
+            completeKit(kit);
+    });
+    // A Qt is installed into the settings only after the kit exists.
+    QObject::connect(QtSupport::QtVersionManager::instance(),
+                     &QtSupport::QtVersionManager::qtVersionsChanged,
+                     KitManager::instance(), [] {
+        if (!KitManager::isLoaded())
+            return;
+        for (Kit *kit : Utils::filtered(KitManager::kits(), &isThisDeviceKit))
             completeKit(kit);
     });
     QObject::connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
