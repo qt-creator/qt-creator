@@ -120,6 +120,13 @@ pattern: other instances on the machine are not yours.
 - An assertion that cannot fail is worse than no assertion. Before claiming a
   test covers a fix, disable the fix and confirm the test goes red.
 
+## Runtime resources
+
+- Strongly prefer generating .qrc files at build time, rather than adding them
+  to the repository.
+- Use qtc_add_resources for the CMake build, and a "qt.core.resource_data" group
+  for the qbs build, as almost all existing plugins already do.
+
 ## Code style rules
 
 Condensed from `doc/qtcreatordev/src/coding-style.qdoc`, which is the full
