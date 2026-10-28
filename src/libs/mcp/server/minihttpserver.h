@@ -604,6 +604,8 @@ private:
         qsizetype searchStart = 0;
         qsizetype bodyStart = -1;
         qsizetype contentLength = 0;
+        bool reading = false;
+        bool closed = false;
     };
 
     void onNewConnection(QTcpServer *server)
@@ -626,17 +628,24 @@ private:
             auto state = std::make_shared<Connection>();
 
             connect(socket, &QTcpSocket::readyRead, this, [this, socket, state]() {
+                state->reading = true;
                 state->buffer += socket->readAll();
                 processBuffer(socket, *state);
+                state->reading = false;
+                if (state->closed)
+                    socket->deleteLater();
             });
 
-            connect(socket, &QTcpSocket::disconnected, this, [socket]() {
-                socket->deleteLater();
-            });
-
-            connect(socket, &QTcpSocket::errorOccurred, this, [socket](auto) {
-                socket->deleteLater();
-            });
+            // A handler's nested event loop would run the deferred delete, and
+            // QIODevice still touches the socket after readyRead returns.
+            const auto close = [socket, state] {
+                if (state->reading)
+                    state->closed = true;
+                else
+                    socket->deleteLater();
+            };
+            connect(socket, &QTcpSocket::disconnected, this, close);
+            connect(socket, &QTcpSocket::errorOccurred, this, close);
         }
     }
 

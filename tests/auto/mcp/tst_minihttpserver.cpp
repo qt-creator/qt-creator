@@ -5,6 +5,7 @@
 
 #include <QEventLoop>
 #include <QHostAddress>
+#include <QPointer>
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QTest>
@@ -85,6 +86,7 @@ private slots:
 
     void dispatchesPipelinedRequests();
     void dispatchesRequestArrivingDuringNestedEventLoop();
+    void keepsSocketWhenPeerLeavesDuringNestedEventLoop();
     void doesNotWedgeOnRejectedRequest();
     void sanitizesResponseHeaderValues();
     void terminatesChunkedBody();
@@ -396,6 +398,43 @@ void tst_MiniHttpServer::dispatchesRequestArrivingDuringNestedEventLoop()
     client.write("GET /a HTTP/1.1\r\n\r\n");
 
     QTRY_COMPARE(seen, QStringList({"/a", "/b"}));
+}
+
+// The client giving up while a handler waits in a nested event loop must not
+// delete the socket under the readyRead emission that is still on the stack.
+void tst_MiniHttpServer::keepsSocketWhenPeerLeavesDuringNestedEventLoop()
+{
+    TestServer test;
+    QVERIFY(test.start());
+
+    QTcpSocket client;
+    QPointer<QTcpSocket> socket;
+    bool handled = false;
+    bool aliveAfterLoop = false;
+
+    test.server.route("/a", HttpRequest::Method::Get,
+                      [&](const HttpRequest &, HttpResponder &responder) {
+                          socket = responder.socket();
+                          QEventLoop loop;
+                          // Queued behind the deferred delete that the
+                          // disconnect may post, so that it had its chance.
+                          connect(socket, &QTcpSocket::disconnected, &loop, [&loop] {
+                              QMetaObject::invokeMethod(&loop, &QEventLoop::quit,
+                                                        Qt::QueuedConnection);
+                          });
+                          QTimer::singleShot(0, &client, [&client] { client.abort(); });
+                          loop.exec();
+                          aliveAfterLoop = !socket.isNull();
+                          handled = true;
+                      });
+
+    client.connectToHost(QHostAddress::LocalHost, test.port());
+    QVERIFY(client.waitForConnected());
+    client.write("GET /a HTTP/1.1\r\n\r\n");
+
+    QTRY_VERIFY(handled);
+    QVERIFY(aliveAfterLoop);
+    QTRY_VERIFY(socket.isNull());
 }
 
 void tst_MiniHttpServer::doesNotWedgeOnRejectedRequest()
