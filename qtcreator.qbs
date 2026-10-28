@@ -29,6 +29,7 @@ Project {
     Product {
         name: "Other Files"
         files: [
+            "AGENTS.md",
             "BUILDING.md",
             "CLAUDE.md",
             "CONTRIBUTING.md",
