@@ -7,6 +7,10 @@
 #include "symbolgroupvalue.h"
 #include "extensioncontext.h"
 
+#undef GetContext // From wdbgexts.h, clashes with IDebugHostSymbol::GetContext().
+#include <dbgmodel.h>
+#include <wrl/client.h>
+
 #include <vector>
 
 StackFrame::StackFrame(ULONG64 a) : address(a) {}
@@ -149,6 +153,61 @@ bool getFrame(CIDebugSymbols *debugSymbols,
     return true;
 }
 
+// Recent versions of dbgeng fail DEBUG_SYSOBJINFO_THREAD_NAME_WIDE with E_NOINTERFACE,
+// while the debugger data model still provides the thread names.
+class DataModelThreadNames
+{
+public:
+    explicit DataModelThreadNames(CIDebugSystemObjects *debugSystemObjects)
+        : m_debugSystemObjects(debugSystemObjects)
+    {}
+
+    std::wstring name(ULONG systemId)
+    {
+        if (!m_initialized) {
+            m_initialized = true;
+            initialize();
+        }
+        if (!m_evaluator)
+            return {};
+        std::wostringstream expression;
+        expression << L"@$curprocess.Threads[0x" << std::hex << systemId << L"].Name";
+        Microsoft::WRL::ComPtr<IModelObject> result;
+        Microsoft::WRL::ComPtr<IKeyStore> metadata;
+        if (FAILED(m_evaluator->EvaluateExtendedExpression(m_context.Get(),
+                                                           expression.str().c_str(),
+                                                           nullptr, &result, &metadata))) {
+            return {};
+        }
+        VARIANT value;
+        VariantInit(&value);
+        std::wstring name;
+        if (SUCCEEDED(result->GetIntrinsicValueAs(VT_BSTR, &value)) && value.bstrVal)
+            name = value.bstrVal;
+        VariantClear(&value);
+        return name;
+    }
+
+private:
+    void initialize()
+    {
+        Microsoft::WRL::ComPtr<IHostDataModelAccess> access;
+        if (FAILED(m_debugSystemObjects->QueryInterface(IID_PPV_ARGS(&access))))
+            return;
+        Microsoft::WRL::ComPtr<IDataModelManager> manager;
+        Microsoft::WRL::ComPtr<IDebugHost> host;
+        if (FAILED(access->GetDataModel(&manager, &host)))
+            return;
+        if (FAILED(host->GetCurrentContext(&m_context)) || FAILED(host.As(&m_evaluator)))
+            m_evaluator.Reset();
+    }
+
+    CIDebugSystemObjects *m_debugSystemObjects;
+    bool m_initialized = false;
+    Microsoft::WRL::ComPtr<IDebugHostEvaluator2> m_evaluator;
+    Microsoft::WRL::ComPtr<IDebugHostContext> m_context;
+};
+
 bool threadList(CIDebugSystemObjects *debugSystemObjects,
                 CIDebugSymbols *debugSymbols,
                 CIDebugControl *debugControl,
@@ -184,6 +243,7 @@ bool threadList(CIDebugSystemObjects *debugSystemObjects,
     }
     // Create entries
     static WCHAR name[256];
+    DataModelThreadNames dataModelThreadNames(debugSystemObjects);
     for (ULONG i= 0; i < threadCount ; ++i) {
         const ULONG id = ids[i];
         Thread thread(id, systemIds[i]);
@@ -194,6 +254,8 @@ bool threadList(CIDebugSystemObjects *debugSystemObjects,
                                                        sizeof(name), &bytesReceived);
         if (SUCCEEDED(hr) && bytesReceived)
             thread.name = name;
+        else
+            thread.name = dataModelThreadNames.name(systemIds[i]);
         threads->push_back(thread);
     }
     delete [] ids;

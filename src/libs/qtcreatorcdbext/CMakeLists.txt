@@ -171,7 +171,7 @@ endif()
 
 add_qtc_library(qtcreatorcdbext SHARED
   COMPONENT qtcreatorcdbext
-  DEPENDS dbgeng
+  DEPENDS dbgeng oleaut32
   DESTINATION lib/qtcreatorcdbext${ArchSuffix}/
   SOURCES
     common.cpp common.h

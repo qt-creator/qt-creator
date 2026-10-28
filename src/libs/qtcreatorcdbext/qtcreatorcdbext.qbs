@@ -95,7 +95,7 @@ QtcLibrary {
         return [ ];
     }
     cpp.dynamicLibraries: {
-        var libs = [ "user32.lib", "dbgeng.lib" ];
+        var libs = [ "user32.lib", "dbgeng.lib", "oleaut32.lib" ];
         if (pythonDllProbe.found)
             libs.push(FileInfo.joinPaths(pythonInstallDir, "libs",
                                          pythonDllProbe.fileNamePrefix + ".lib"));
