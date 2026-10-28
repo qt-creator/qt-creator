@@ -43,6 +43,8 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -171,6 +173,33 @@ def only_directory(pattern: str, parent: Path) -> Path:
     return found[0]
 
 
+def retrieve(url: str, target: Path) -> None:
+    """Download, waiting out rate limits and server errors.
+
+    GitHub answers 429 to archive downloads when it gets too many, which would
+    otherwise end a run that has been building for an hour.
+    """
+    attempts = 6
+    for attempt in range(1, attempts + 1):
+        try:
+            urllib.request.urlretrieve(url, str(target))
+            return
+        except urllib.error.HTTPError as error:
+            if attempt == attempts or (error.code != 429 and error.code < 500):
+                raise
+            after = error.headers.get("Retry-After", "")
+            wait = int(after) if after.isdigit() else 30 * 2 ** (attempt - 1)
+            reason = "HTTP {}".format(error.code)
+        except urllib.error.URLError as error:
+            if attempt == attempts:
+                raise
+            wait = 30 * 2 ** (attempt - 1)
+            reason = str(error.reason)
+        wait = min(wait, 600)
+        print("Download failed ({}), trying again in {} s".format(reason, wait), flush=True)
+        time.sleep(wait)
+
+
 def download(url: str, sha256: str, work: Path) -> Path:
     """Download a pinned archive, once, and check it."""
     archive = work / "downloads" / url.rsplit("/", 1)[1]
@@ -178,7 +207,7 @@ def download(url: str, sha256: str, work: Path) -> Path:
         archive.parent.mkdir(parents=True, exist_ok=True)
         print("Downloading {}".format(url), flush=True)
         partial = archive.with_name(archive.name + ".part")
-        urllib.request.urlretrieve(url, str(partial))
+        retrieve(url, partial)
         partial.rename(archive)
     digest = hashlib.sha256()
     with open(archive, "rb") as data:
