@@ -189,6 +189,13 @@ QtKitAspectFactory::QtKitAspectFactory()
     setEmbeddableAspects({QmakeProjectManager::Constants::KIT_INFORMATION_ID});
 }
 
+static bool supportsRunDevice(const QtVersion *qt, const Kit *k)
+{
+    if (const IDeviceConstPtr runDevice = RunDeviceKitAspect::device(k))
+        return runDevice->supportsQtTargetDeviceType(qt->targetDeviceTypes());
+    return qt->targetDeviceTypes().contains(RunDeviceTypeKitAspect::deviceTypeId(k));
+}
+
 void QtKitAspectFactory::setup(Kit *k)
 {
     if (!k || k->hasValue(id()))
@@ -199,12 +206,11 @@ void QtKitAspectFactory::setup(Kit *k)
         return;
 
     const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
-    const Id runDeviceType = RunDeviceTypeKitAspect::deviceTypeId(k);
     const FilePath buildDeviceRoot = buildDev->rootPath();
 
     const QtVersions matches = QtVersionManager::versions([&](const QtVersion *qt) {
         return buildDeviceRoot.isSameDevice(qt->qtFilePath())
-               && qt->targetDeviceTypes().contains(runDeviceType)
+               && supportsRunDevice(qt, k)
                && Utils::contains(qt->qtAbis(), [&tcAbi](const Abi &qtAbi) {
                       return qtAbi.isCompatibleWith(tcAbi);
                   });
@@ -644,7 +650,7 @@ int QtKitAspectFactory::weight(const Kit *k) const
     const QtVersion * const qt = QtKitAspect::qtVersion(k);
     if (!qt)
         return 0;
-    if (!qt->targetDeviceTypes().contains(RunDeviceTypeKitAspect::deviceTypeId(k)))
+    if (!supportsRunDevice(qt, k))
         return 0;
     const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
     if (qt->qtAbis().contains(tcAbi))
