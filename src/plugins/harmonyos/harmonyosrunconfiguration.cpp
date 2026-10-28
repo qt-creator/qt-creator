@@ -36,6 +36,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QPointer>
 #include <QRegularExpression>
 #include <QTcpServer>
 #include <QTcpSocket>
@@ -529,6 +530,14 @@ public:
     }
 };
 
+// The channel is a fixed port and the runner a single instance, so a run that holds it
+// has to end before the next one can start.
+static QPointer<RunControl> &channelHolder()
+{
+    static QPointer<RunControl> holder;
+    return holder;
+}
+
 // Building for the platform produces an application module rather than a program, and the
 // only thing that loads one is the runner in an installed package. So a run offers it over
 // the same channel a run from a host does, and needs no forward for it: an application's
@@ -595,13 +604,28 @@ static Group handoverRecipe(RunControl *runControl, const FilePath &library,
             answered->advance();
         });
         *channelStorage = std::move(server);
+        channelHolder() = runControl;
         return true;
+    };
+
+    const auto stopEarlierRun = [runControl](QBarrier &barrier) {
+        RunControl * const earlier = channelHolder();
+        if (!earlier || earlier == runControl || earlier->isStopped())
+            return SetupResult::StopWithSuccess;
+        runControl->postMessage(Tr::tr("Stopping \"%1\", which holds the channel.")
+                                    .arg(earlier->displayName()), NormalMessageFormat);
+        QObject::connect(earlier, &RunControl::stopped, &barrier, &QBarrier::advance);
+        QObject::connect(earlier, &QObject::destroyed, &barrier, &QBarrier::advance);
+        // After the barrier has started, which a stop that ends at once would precede.
+        QMetaObject::invokeMethod(earlier, &RunControl::initiateStop, Qt::QueuedConnection);
+        return SetupResult::Continue;
     };
 
     return Group {
         channelStorage,
         answeredBarrier,
         finishedBarrier,
+        QBarrierTask(stopEarlierRun),
         QSyncTask(openChannel),
         QSyncTask(askForTheRunner),
         Group {
