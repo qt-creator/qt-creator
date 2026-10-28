@@ -5962,9 +5962,13 @@ void TextEditorWidgetPrivate::updateCursorSelections()
     const QTextCharFormat selectionFormat = globalFontSettings().data().toTextCharFormat(
         C_SELECTION);
     QList<QTextEdit::ExtraSelection> selections;
+    // The text control paints the selection of its own cursor.
+    const QTextCursor controlCursor = q->textCursor();
     for (const QTextCursor &cursor : m_cursors) {
-        if (cursor.hasSelection())
+        if (cursor.hasSelection()
+            && !(cursor == controlCursor && cursor.anchor() == controlCursor.anchor())) {
             selections << QTextEdit::ExtraSelection{cursor, selectionFormat};
+        }
     }
     q->setExtraSelections(TextEditorWidget::CursorSelection, selections);
 

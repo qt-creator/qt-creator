@@ -148,6 +148,7 @@ private slots:
     void testTabStopArrayBound();
     void testMoveLinesEndingInEmptyLine();
     void testMarkLeadingText();
+    void testMainSelectionIsNoExtraSelection();
 };
 
 void TextEditorTest::testIndentationClean_data()
@@ -752,6 +753,31 @@ void TextEditorTest::testMarkLeadingText()
 
     mark.setLeadingText({});
     QTRY_COMPARE(widget.extraArea()->width(), before);
+}
+
+void TextEditorTest::testMainSelectionIsNoExtraSelection()
+{
+    TextEditorWidget widget;
+    const TextDocumentPtr document(new TextDocument);
+    document->setPlainText("foo bar");
+    widget.setTextDocument(document);
+
+    // At the ends of the words, so that selecting them moves only the anchors.
+    QTextCursor secondary(document->document());
+    secondary.setPosition(7);
+    QTextCursor main(document->document());
+    main.setPosition(3);
+    widget.setMultiTextCursor(Utils::MultiTextCursor({secondary, main}));
+    QCOMPARE(widget.textCursor().position(), 3);
+
+    widget.selectWordUnderCursor();
+    QCOMPARE(widget.textCursor().selectedText(), QString("foo"));
+
+    // The text control paints the selection of the main cursor.
+    const QList<QTextEdit::ExtraSelection> selections = widget.extraSelections(
+        TextEditorWidget::CursorSelection);
+    QCOMPARE(selections.size(), 1);
+    QCOMPARE(selections.first().cursor.selectedText(), QString("bar"));
 }
 
 QObject *createTextEditorTest()
