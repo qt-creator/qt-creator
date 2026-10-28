@@ -66,8 +66,43 @@
             refuses to install the package with error 9568289. Without
             signing material, the scripts build the packages but leave
             them unsigned, and a device does not install unsigned
-            packages.
+            packages. For more information, see
+            \l {Getting the Signing Material}.
     \endlist
+
+    \section1 Getting the Signing Material
+
+    The profiles and the certificate come from AppGallery Connect, which needs
+    a HUAWEI developer account. The keystore stays with you. AppGallery
+    Connect only receives a certificate signing request (CSR) that is created
+    from the key in it.
+
+    To get the material:
+
+    \list 1
+        \li Create a keystore with a key pair, and a CSR for that key. DevEco
+            Studio does this in \uicontrol Build >
+            \uicontrol {Generate Key and CSR}. Put the passphrase into a file
+            that only you can read, and pass that file in
+            \c --keystore-password-file.
+        \li In AppGallery Connect, create a debug certificate from the CSR,
+            and download it as a \c .cer file.
+        \li Register each device that the packages are installed on. To find
+            the UDID of the device that \c hdc is connected to, enter:
+            \badcode
+            hdc shell bm get --udid
+            \endcode
+        \li Create an application for each of the two bundle names. By
+            default, \c qtcreator.hap has the bundle name
+            \c org.qtproject.qtcreator. For \c qtcrunner.hap, choose a
+            bundle name of your own and pass it in \c --runner-bundle.
+        \li For each application, create a debug profile with the
+            certificate, the devices, and the restricted permissions that
+            the package requests, and download it as a \c .p7b file.
+    \endlist
+
+    The two profiles can share the certificate and the keystore. If you
+    register another device later, create the profiles again.
 
     \section1 Building the Packages
 
@@ -124,6 +159,9 @@
 
     The output directory needs about 21 GB, 6.4 GB of which are the
     command-line tools when \c --sdk is the zip file.
+
+    The first run takes a while. On a Linux machine with 8 cores and 32 GB
+    of RAM, all stages, including the Docker image, took about two hours.
 
     To run only some stages, list them in \c --stages. A later run reuses what
     an earlier one left in the output directory, so after the first run, a
