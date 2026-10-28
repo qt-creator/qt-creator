@@ -14,9 +14,6 @@
 #include "threadshandler.h"
 #include "watchhandler.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -539,51 +536,17 @@ static Result<QString> startDebugExecutable(const QJsonObject &args)
     return QString("Debug session start requested for %1.").arg(executable.toUserOutput());
 }
 
-static QString stopDebug()
+static Result<QString> stopDebug()
 {
-    QStringList results;
-    results.append("=== STOP DEBUGGING ===");
-
-    Core::ActionManager *actionManager = Core::ActionManager::instance();
-    if (!actionManager) {
-        results.append("ERROR: ActionManager not available");
-        return results.join("\n");
-    }
-
-    QStringList stopActionIds
-        = {"Debugger.StopDebugger",
-           "Debugger.Stop",
-           "ProjectExplorer.StopDebugging",
-           "ProjectExplorer.Stop",
-           "Debugger.StopDebugging"};
-
-    bool actionTriggered = false;
-    for (const QString &actionId : stopActionIds) {
-        results.append("Trying stop debug action: " + actionId);
-
-        Core::Command *command = actionManager->command(Utils::Id::fromString(actionId));
-        if (command && command->action()) {
-            results.append("Found stop debug action, triggering...");
-            command->action()->trigger();
-            results.append("Stop debug action triggered successfully");
-            actionTriggered = true;
-            break;
-        } else {
-            results.append("Stop debug action not found: " + actionId);
-        }
-    }
-
-    if (!actionTriggered) {
-        results.append("WARNING: No stop debug action found among tried IDs");
-        results.append(
-            "You may need to stop debugging manually from Qt Creator's debugger interface");
-    }
-
-    results.append("");
-    results.append("=== STOP DEBUG RESULT ===");
-    results.append("Stop debug command completed.");
-
-    return results.join("\n");
+    const auto engine = getActiveEngine();
+    if (!engine)
+        return ResultError(engine.error());
+    if ((*engine)->state() == DebuggerFinished)
+        return ResultError("No active debug session");
+    if ((*engine)->isDying())
+        return ResultError("The debug session is already stopping");
+    emit (*engine)->requestRunControlStop();
+    return QString("Stop requested");
 }
 
 static Result<QString> debuggerStepOver()
@@ -2221,16 +2184,19 @@ void registerMcpTools()
             .name("debugger_stop")
             .title("Stop debugging")
             .description(
-                "Stops the current debug session. "
-                "Returns a message indicating whether the stop was successful.")
+                "Stops the current debug session. Stopping takes a moment, "
+                "debugger_get_status reports when the session has ended.")
             .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty("message", QJsonObject{{"type", "string"}})
                     .addRequired("message")),
-        wrap([](const QJsonObject &) {
-            return QJsonObject{{"message", stopDebug()}};
-        }));
+        [](const Schema::CallToolRequestParams &) -> Utils::Result<CallToolResult> {
+            const Utils::Result<QString> result = stopDebug();
+            if (!result)
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(result.error()));
+            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"message", *result}});
+        });
 
     registerIntrospectionMcpTools();
 }
