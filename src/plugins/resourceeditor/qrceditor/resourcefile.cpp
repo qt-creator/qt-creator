@@ -224,8 +224,10 @@ void ResourceFile::refresh()
 {
     for (int i = 0; i < prefixCount(); ++i) {
         const FileList &file_list = m_prefix_list.at(i)->file_list;
-        for (File *file : file_list)
+        for (File *file : file_list) {
             file->checkExistence();
+            file->icon = {};
+        }
     }
 }
 
@@ -641,6 +643,12 @@ bool ResourceModel::hasChildren(const QModelIndex &parent) const
 void ResourceModel::refresh()
 {
     m_resource_file.refresh();
+    for (int i = 0, n = rowCount({}); i < n; ++i) {
+        const QModelIndex prefix = index(i, 0, {});
+        if (const int files = rowCount(prefix))
+            emit dataChanged(index(0, 0, prefix), index(files - 1, 0, prefix),
+                             {Qt::ForegroundRole, Qt::DecorationRole});
+    }
 }
 
 QString ResourceModel::errorMessage() const

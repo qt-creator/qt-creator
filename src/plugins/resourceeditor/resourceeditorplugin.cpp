@@ -1,6 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "qrceditor/qrceditor.h"
 #include "resourceeditor.h"
 #include "resourceeditorconstants.h"
 #include "resourceeditortr.h"
@@ -132,6 +133,10 @@ class ResourceEditorPlugin final : public ExtensionSystem::IPlugin
 void ResourceEditorPlugin::initialize()
 {
     setupResourceEditor(this);
+
+#ifdef WITH_TESTS
+    addTestCreator(createQrcEditorTest);
+#endif
 
     const Context projectTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
     const Id folderContextMenu = ProjectExplorer::Constants::M_FOLDERCONTEXT;

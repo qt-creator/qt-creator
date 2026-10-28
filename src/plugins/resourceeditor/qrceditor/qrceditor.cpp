@@ -8,27 +8,42 @@
 
 #include <coreplugin/fileutils.h>
 #include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/icore.h>
 
 #include <utils/aggregate.h>
 #include <utils/algorithm.h>
+#include <utils/aspects.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
+#include <utils/qtdesignwidgets.h>
+#include <utils/stylehelper.h>
+#include <utils/utilsicons.h>
 #include <utils/widgets.h>
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QDebug>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QHeaderView>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
+#include <QListView>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPoint>
 #include <QPushButton>
 #include <QScopedPointer>
+#include <QSlider>
+#include <QStackedWidget>
 #include <QString>
 #include <QUndoCommand>
+
+#ifdef WITH_TESTS
+#include <QSignalSpy>
+#include <QTest>
+#endif
 
 #include <algorithm>
 #include <utility>
@@ -36,6 +51,41 @@
 using namespace Utils;
 
 namespace ResourceEditor::Internal {
+
+constexpr int kMinPreviewSize = 24;
+constexpr int kMaxPreviewSize = 256;
+constexpr int kDefaultPreviewSize = 64;
+// Room around the icon for the wrapped file name below it.
+constexpr QSize kPreviewCellPadding(StyleHelper::SpacingTokens::PaddingHXxl,
+                                    StyleHelper::SpacingTokens::PaddingVXxl);
+
+class QrcEditorSettings final : public AspectContainer
+{
+public:
+    QrcEditorSettings()
+    {
+        setSettingsGroup("ResourceEditor");
+
+        iconMode.setSettingsKey("IconMode");
+
+        previewSize.setSettingsKey("PreviewSize");
+        previewSize.setRange(kMinPreviewSize, kMaxPreviewSize);
+        previewSize.setDefaultValue(kDefaultPreviewSize);
+
+        readSettings();
+        connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
+                this, [this] { writeSettings(); });
+    }
+
+    BoolAspect iconMode{this};
+    IntegerAspect previewSize{this};
+};
+
+static QrcEditorSettings &settings()
+{
+    static QrcEditorSettings theSettings;
+    return theSettings;
+}
 
 class ResourceView : public TreeView
 {
@@ -74,8 +124,6 @@ public:
     QModelIndex addPrefix();
     QList<QModelIndex> nonExistingFiles();
 
-    void refresh();
-
     void setCurrentAlias(const QString &before, const QString &after);
     void setCurrentPrefix(const QString &before, const QString &after);
     void setCurrentLanguage(const QString &before, const QString &after);
@@ -86,15 +134,11 @@ public:
 
 signals:
     void removeItem();
-    void itemActivated(const FilePath &filePath);
-    void contextMenuShown(const QPoint &globalPos, const FilePath &filePath);
 
 protected:
     void keyPressEvent(QKeyEvent *e) override;
 
 private:
-    void onItemActivated(const QModelIndex &index);
-    void showContextMenu(const QPoint &pos);
     void addUndoCommand(const QModelIndex &nodeIndex, NodeProperty property,
                         const QString &before, const QString &after);
 
@@ -103,6 +147,40 @@ private:
     QUndoStack *m_history;
     int m_mergeId;
 };
+
+class IconListView : public ListView
+{
+    Q_OBJECT
+
+public:
+    explicit IconListView(RelativeResourceModel *model);
+
+signals:
+    void removeItem();
+
+protected:
+    void keyPressEvent(QKeyEvent *e) override;
+};
+
+class ResourceIconView : public QWidget
+{
+public:
+    explicit ResourceIconView(RelativeResourceModel *model);
+
+    IconListView *view() const { return m_view; }
+    QComboBox *prefixCombo() const { return m_prefixCombo; }
+
+private:
+    IconListView *m_view;
+    QComboBox *m_prefixCombo;
+};
+
+enum ViewPage { ListPage, IconPage };
+
+static bool isRemoveKey(const QKeyEvent *e)
+{
+    return e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace;
+}
 
 class ViewCommand : public QUndoCommand
 {
@@ -333,9 +411,73 @@ ResourceView::ResourceView(RelativeResourceModel *model, QUndoStack *history, QW
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
     header()->hide();
+}
 
-    connect(this, &QWidget::customContextMenuRequested, this, &ResourceView::showContextMenu);
-    connect(this, &QAbstractItemView::activated, this, &ResourceView::onItemActivated);
+IconListView::IconListView(RelativeResourceModel *model)
+{
+    setModel(model);
+    setViewMode(QListView::IconMode);
+    setResizeMode(QListView::Adjust);
+    setMovement(QListView::Static);
+    setWordWrap(true);
+    setSelectionMode(ExtendedSelection);
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    setFrameStyle(QFrame::NoFrame);
+    setEditTriggers(EditKeyPressed);
+}
+
+void IconListView::keyPressEvent(QKeyEvent *e)
+{
+    if (isRemoveKey(e))
+        emit removeItem();
+    else
+        ListView::keyPressEvent(e);
+}
+
+ResourceIconView::ResourceIconView(RelativeResourceModel *model)
+    : m_view(new IconListView(model))
+    , m_prefixCombo(new QComboBox)
+{
+    m_prefixCombo->setModel(model);
+    m_prefixCombo->setToolTip(Tr::tr("Resource prefix whose files are shown as icons."));
+
+    auto previewSizeSlider = new QSlider(Qt::Horizontal);
+    previewSizeSlider->setRange(kMinPreviewSize, kMaxPreviewSize);
+    previewSizeSlider->setValue(settings().previewSize());
+    previewSizeSlider->setToolTip(Tr::tr("Size of the image previews in the icon view."));
+
+    auto bar = new Utils::StyledBar;
+    using namespace Layouting;
+    using namespace Utils::StyleHelper::SpacingTokens;
+    Row {
+        Tr::tr("Prefix:"), m_prefixCombo, st,
+        Tr::tr("Preview size:"),
+        QtDesignWidgets::IconDisplay { icon(Icons::ZOOMOUT_TOOLBAR) },
+        previewSizeSlider,
+        QtDesignWidgets::IconDisplay { icon(Icons::ZOOMIN_TOOLBAR) },
+        customMargins(PaddingHS, 0, PaddingHS, 0),
+        spacing(PrimitiveS),
+    }.attachTo(bar);
+
+    Column {
+        bar,
+        m_view,
+        noMargin,
+    }.attachTo(this);
+
+    const auto applyPreviewSize = [this](int size) {
+        m_view->setIconSize(QSize(size, size));
+        m_view->setGridSize(QSize(size, size) + kPreviewCellPadding);
+        settings().previewSize.setValue(size);
+    };
+    connect(previewSizeSlider, &QSlider::valueChanged, this, applyPreviewSize);
+    applyPreviewSize(previewSizeSlider->value());
+
+    const auto showPrefix = [this, model](int row) {
+        m_view->setRootIndex(model->index(row, 0, {}));
+    };
+    connect(m_prefixCombo, &QComboBox::currentIndexChanged, this, showPrefix);
+    showPrefix(m_prefixCombo->currentIndex());
 }
 
 void ResourceView::findSamePlacePostDeletionModelIndex(int &row, QModelIndex &parent) const
@@ -486,7 +628,7 @@ void ResourceView::removeFiles(int prefixIndex, int firstFileIndex, int lastFile
 
 void ResourceView::keyPressEvent(QKeyEvent *e)
 {
-    if (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace)
+    if (isRemoveKey(e))
         emit removeItem();
     else
         TreeView::keyPressEvent(e);
@@ -502,16 +644,6 @@ QModelIndex ResourceView::addPrefix()
 QList<QModelIndex> ResourceView::nonExistingFiles()
 {
     return m_qrcModel->nonExistingFiles();
-}
-
-void ResourceView::refresh()
-{
-    m_qrcModel->refresh();
-    QModelIndex idx = currentIndex();
-    setModel(nullptr);
-    setModel(m_qrcModel);
-    setCurrentIndex(idx);
-    expandAll();
 }
 
 QStringList ResourceView::fileNamesToAdd()
@@ -582,23 +714,6 @@ void ResourceView::changeValue(const QModelIndex &nodeIndex, NodeProperty proper
     case LanguageProperty: m_qrcModel->changeLang(nodeIndex, value); return;
     default: Q_ASSERT(false);
     }
-}
-
-void ResourceView::onItemActivated(const QModelIndex &index)
-{
-    const FilePath filePath = m_qrcModel->file(index);
-    if (filePath.isEmpty())
-        return;
-    emit itemActivated(filePath);
-}
-
-void ResourceView::showContextMenu(const QPoint &pos)
-{
-    const QModelIndex index = indexAt(pos);
-    const FilePath filePath = m_qrcModel->file(index);
-    if (filePath.isEmpty())
-        return;
-    emit contextMenuShown(mapToGlobal(pos), filePath);
 }
 
 void ResourceView::advanceMergeId()
@@ -673,13 +788,24 @@ bool ResourceView::resourceDragEnabled() const
 
 QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
   : Core::MiniSplitter(Qt::Vertical, parent),
+    m_model(model),
     m_treeview(new ResourceView(model, &m_history))
 {
-    addWidget(m_treeview);
-    auto widget = new QWidget;
-    addWidget(widget);
+    m_iconview = new ResourceIconView(model);
+    // Share the tree's selection model so the Properties group and the
+    // Remove actions operate on the same current item in both views.
+    m_iconview->view()->setSelectionModel(m_treeview->selectionModel());
+
     m_treeview->setFrameStyle(QFrame::NoFrame);
     m_treeview->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+
+    m_viewStack = new QStackedWidget;
+    m_viewStack->insertWidget(ListPage, m_treeview);
+    m_viewStack->insertWidget(IconPage, m_iconview);
+
+    addWidget(m_viewStack);
+    auto widget = new QWidget;
+    addWidget(widget);
 
     auto addPrefixButton = new QPushButton(Tr::tr("Add Prefix"));
     m_addFilesButton = new QPushButton(Tr::tr("Add Files"));
@@ -719,13 +845,38 @@ QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
     connect(m_removeNonExistingButton, &QPushButton::clicked,
             this, &QrcEditor::onRemoveNonExisting);
 
+    connect(m_iconview->prefixCombo(), &QComboBox::currentIndexChanged, this, [this] {
+        if (isIconMode())
+            limitSelectionToShownPrefix();
+    });
+    connect(m_treeview->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, [this](const QModelIndex &current) {
+        if (current.isValid()) {
+            m_iconview->prefixCombo()->setCurrentIndex(m_model->prefixIndex(current).row());
+        } else if (isIconMode()) {
+            // The last file of the shown prefix is gone, stay on the prefix.
+            m_treeview->selectionModel()->setCurrentIndex(m_iconview->view()->rootIndex(),
+                                                          QItemSelectionModel::NoUpdate);
+        }
+    });
+    connect(m_treeview->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, [this] {
+        // The icon view never shows its prefix row, so it must not stay selected.
+        QItemSelectionModel *selection = m_treeview->selectionModel();
+        const QModelIndex root = currentView()->rootIndex();
+        if (selection->isSelected(root))
+            selection->select(root, QItemSelectionModel::Deselect);
+    });
+    setIconMode(settings().iconMode());
+
     connect(m_treeview, &ResourceView::removeItem, this, &QrcEditor::onRemove);
     connect(m_treeview->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &QrcEditor::updateCurrent);
     connect(m_treeview->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &QrcEditor::updateCurrent);
-    connect(m_treeview, &ResourceView::itemActivated, this, &QrcEditor::itemActivated);
-    connect(m_treeview, &ResourceView::contextMenuShown, this, &QrcEditor::showContextMenu);
+    connect(m_iconview->view(), &IconListView::removeItem, this, &QrcEditor::onRemove);
+    connectFileSignals(m_treeview);
+    connectFileSignals(m_iconview->view());
     m_treeview->setFocus();
 
     connect(m_aliasText, &QLineEdit::textEdited, this, &QrcEditor::onAliasChanged);
@@ -753,12 +904,69 @@ QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
     auto agg = new Aggregation::Aggregate;
     agg->add(m_treeview);
     agg->add(new Core::ItemViewFind(m_treeview));
+    auto iconAgg = new Aggregation::Aggregate;
+    iconAgg->add(m_iconview->view());
+    iconAgg->add(new Core::ItemViewFind(m_iconview->view()));
 
     updateHistoryControls();
     updateCurrent();
 }
 
 QrcEditor::~QrcEditor() = default;
+
+void QrcEditor::connectFileSignals(QAbstractItemView *view)
+{
+    connect(view, &QAbstractItemView::activated, this, [this](const QModelIndex &index) {
+        const FilePath filePath = m_model->file(index);
+        if (!filePath.isEmpty())
+            emit itemActivated(filePath);
+    });
+    connect(view, &QWidget::customContextMenuRequested, this, [this, view](const QPoint &pos) {
+        const FilePath filePath = m_model->file(view->indexAt(pos));
+        if (!filePath.isEmpty())
+            emit showContextMenu(view->viewport()->mapToGlobal(pos), filePath);
+    });
+}
+
+QAbstractItemView *QrcEditor::currentView() const
+{
+    if (isIconMode())
+        return m_iconview->view();
+    return m_treeview;
+}
+
+// The selection is shared with the tree, so it has to leave the prefixes
+// the icon view does not show, or Remove and the Properties fields would
+// act on items the user cannot see.
+void QrcEditor::limitSelectionToShownPrefix()
+{
+    const QModelIndex root = m_iconview->view()->rootIndex();
+    QItemSelectionModel *selection = m_treeview->selectionModel();
+    QItemSelection hidden;
+    for (const QModelIndex &index : selection->selectedIndexes()) {
+        if (index == root || m_model->prefixIndex(index) != root)
+            hidden.select(index, index);
+    }
+    selection->select(hidden, QItemSelectionModel::Deselect);
+    if (m_model->prefixIndex(selection->currentIndex()) != root)
+        selection->setCurrentIndex(root, QItemSelectionModel::NoUpdate);
+}
+
+bool QrcEditor::isIconMode() const
+{
+    return m_viewStack->currentIndex() == IconPage;
+}
+
+void QrcEditor::setIconMode(bool on)
+{
+    settings().iconMode.setValue(on);
+    m_viewStack->setCurrentIndex(on ? IconPage : ListPage);
+    if (on) {
+        limitSelectionToShownPrefix();
+        m_iconview->view()->setFocus();
+    }
+    updateCurrent();
+}
 
 void QrcEditor::loaded(bool success)
 {
@@ -772,7 +980,7 @@ void QrcEditor::loaded(bool success)
 
 void QrcEditor::refresh()
 {
-    m_treeview->refresh();
+    m_model->refresh();
 }
 
 // Propagates a change of selection in the tree
@@ -782,8 +990,13 @@ void QrcEditor::updateCurrent()
     // The property fields edit the current entry, so they are only offered
     // while that entry is also the only selected one.
     const QModelIndexList selected = m_treeview->selectionModel()->selectedRows();
-    const bool single = selected.size() == 1 && selected.first() == m_treeview->currentIndex();
-    const bool isPrefix = single && m_treeview->isPrefix(selected.first());
+    const QModelIndex current = m_treeview->currentIndex();
+    // The icon view keeps its prefix out of the selection, but it is still
+    // the entry being edited while nothing else is selected.
+    const bool iconPrefix = selected.isEmpty() && current.isValid()
+                            && current == currentView()->rootIndex();
+    const bool single = iconPrefix || (selected.size() == 1 && selected.first() == current);
+    const bool isPrefix = single && m_treeview->isPrefix(current);
     const bool isFile = !isPrefix && single;
 
     m_aliasLabel->setEnabled(isFile);
@@ -801,7 +1014,7 @@ void QrcEditor::updateCurrent()
     m_currentLanguage = m_treeview->currentLanguage();
     m_languageText->setText(m_currentLanguage);
 
-    m_addFilesButton->setEnabled(m_treeview->currentIndex().isValid());
+    m_addFilesButton->setEnabled(current.isValid());
     m_removeButton->setEnabled(!selected.isEmpty());
 }
 
@@ -963,6 +1176,7 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
 void QrcEditor::setResourceDragEnabled(bool e)
 {
     m_treeview->setResourceDragEnabled(e);
+    m_iconview->view()->setDragEnabled(e); // after setMovement(), which resets it
 }
 
 bool QrcEditor::resourceDragEnabled() const
@@ -972,8 +1186,9 @@ bool QrcEditor::resourceDragEnabled() const
 
 void QrcEditor::editCurrentItem()
 {
-    if (m_treeview->selectionModel()->currentIndex().isValid())
-        m_treeview->edit(m_treeview->selectionModel()->currentIndex());
+    const QModelIndex current = m_treeview->selectionModel()->currentIndex();
+    if (current.isValid())
+        currentView()->edit(current);
 }
 
 QString QrcEditor::currentResourcePath() const
@@ -1053,8 +1268,14 @@ void QrcEditor::onRemove()
         const QModelIndex current = selected.first();
         int afterDeletionArrayIndex = current.row();
         QModelIndex afterDeletionParent = current.parent();
-        m_treeview->findSamePlacePostDeletionModelIndex(afterDeletionArrayIndex,
-                                                        afterDeletionParent);
+        // The icon view only shows one prefix, so stay inside it.
+        if (isIconMode() && afterDeletionParent.isValid()) {
+            afterDeletionArrayIndex
+                    = qMin(current.row(), m_model->rowCount(afterDeletionParent) - 2);
+        } else {
+            m_treeview->findSamePlacePostDeletionModelIndex(afterDeletionArrayIndex,
+                                                            afterDeletionParent);
+        }
         m_history.push(new RemoveEntryCommand(m_treeview, current));
         const QModelIndex afterDeletionModelIndex
                 = m_treeview->model()->index(afterDeletionArrayIndex, 0, afterDeletionParent);
@@ -1136,6 +1357,291 @@ void QrcEditor::onRedo()
     updateCurrent();
     updateHistoryControls();
 }
+
+#ifdef WITH_TESTS
+
+class QrcEditorTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void init();
+    void cleanup();
+
+    void testIconViewFollowsTreeCurrent();
+    void testSwitchingPrefixKeepsItsSelection();
+    void testIconModeDropsHiddenSelection();
+    void testIconModeDropsSelectedPrefix();
+    void testRemoveInIconModeStaysInPrefix();
+    void testRenameEditsInIconView();
+    void testDoubleClickActivatesInIconView();
+    void testIconViewKeepsSelectionAfterRefresh();
+    void testNoContextMenuOnEmptySpace();
+    void testDeleteKeyRemovesInIconView();
+    void testRecheckNotifiesViews();
+    void testPrefixFieldsFollowModeSwitch();
+    void testAddPrefixInIconModeIsEditable();
+    void testRemoveAllFilesInIconModeStaysInPrefix();
+    void testIconViewDragFollowsSetting();
+    void testPrefixChangeUpdatesCombo();
+    void testUndoAddPrefixInIconModeRebuildsCombo();
+
+private:
+    QModelIndex prefix(int row) const { return m_model->index(row, 0, {}); }
+    QModelIndex file(int prefixRow, int row) const
+    {
+        return m_model->index(row, 0, prefix(prefixRow));
+    }
+    QItemSelectionModel *selection() const { return m_editor->m_treeview->selectionModel(); }
+    QComboBox *combo() const { return m_editor->m_iconview->prefixCombo(); }
+    IconListView *iconView() const { return m_editor->m_iconview->view(); }
+
+    bool m_savedIconMode = false;
+    RelativeResourceModel *m_model = nullptr;
+    QrcEditor *m_editor = nullptr;
+};
+
+void QrcEditorTest::initTestCase()
+{
+    m_savedIconMode = settings().iconMode();
+}
+
+void QrcEditorTest::cleanupTestCase()
+{
+    settings().iconMode.setValue(m_savedIconMode);
+}
+
+void QrcEditorTest::init()
+{
+    m_model = new RelativeResourceModel;
+    m_model->setFilePath(FilePath::fromString("/qrcedit/test.qrc"));
+    m_model->insertPrefix(0, "/a", {});
+    m_model->insertFile(0, 0, "/qrcedit/a1.png", {});
+    m_model->insertFile(0, 1, "/qrcedit/a2.png", {});
+    m_model->insertPrefix(1, "/b", {});
+    m_model->insertFile(1, 0, "/qrcedit/b1.png", {});
+    settings().iconMode.setValue(false);
+    m_editor = new QrcEditor(m_model);
+}
+
+void QrcEditorTest::cleanup()
+{
+    delete m_editor;
+    m_editor = nullptr;
+    delete m_model;
+    m_model = nullptr;
+}
+
+void QrcEditorTest::testIconViewFollowsTreeCurrent()
+{
+    m_editor->setIconMode(true);
+    QCOMPARE(combo()->currentIndex(), 0);
+
+    selection()->setCurrentIndex(file(1, 0), QItemSelectionModel::ClearAndSelect);
+
+    QCOMPARE(combo()->currentIndex(), 1);
+    QCOMPARE(iconView()->rootIndex(), prefix(1));
+}
+
+void QrcEditorTest::testSwitchingPrefixKeepsItsSelection()
+{
+    m_editor->setIconMode(true);
+    selection()->setCurrentIndex(file(0, 0), QItemSelectionModel::ClearAndSelect);
+    selection()->select(file(1, 0), QItemSelectionModel::Select);
+
+    combo()->setCurrentIndex(1);
+
+    QVERIFY(!selection()->isSelected(file(0, 0)));
+    QVERIFY(selection()->isSelected(file(1, 0)));
+    QCOMPARE(selection()->currentIndex(), prefix(1));
+}
+
+void QrcEditorTest::testIconModeDropsHiddenSelection()
+{
+    selection()->setCurrentIndex(file(0, 0), QItemSelectionModel::ClearAndSelect);
+    selection()->select(file(1, 0), QItemSelectionModel::Select);
+
+    m_editor->setIconMode(true);
+
+    QCOMPARE(combo()->currentIndex(), 0);
+    QVERIFY(selection()->isSelected(file(0, 0)));
+    QVERIFY(!selection()->isSelected(file(1, 0)));
+}
+
+void QrcEditorTest::testIconModeDropsSelectedPrefix()
+{
+    selection()->setCurrentIndex(prefix(0), QItemSelectionModel::ClearAndSelect);
+
+    m_editor->setIconMode(true);
+    QVERIFY(!selection()->isSelected(prefix(0)));
+
+    selection()->setCurrentIndex(prefix(0), QItemSelectionModel::ClearAndSelect);
+    QVERIFY(!selection()->isSelected(prefix(0)));
+}
+
+void QrcEditorTest::testRemoveInIconModeStaysInPrefix()
+{
+    m_model->insertFile(0, 2, "/qrcedit/a3.png", {});
+    m_editor->setIconMode(true);
+
+    selection()->setCurrentIndex(file(0, 2), QItemSelectionModel::ClearAndSelect);
+    m_editor->m_removeButton->click();
+    QCOMPARE(iconView()->rootIndex(), prefix(0));
+    QCOMPARE(selection()->currentIndex(), file(0, 1));
+
+    selection()->setCurrentIndex(file(0, 1), QItemSelectionModel::ClearAndSelect);
+    m_editor->m_removeButton->click();
+    selection()->setCurrentIndex(file(0, 0), QItemSelectionModel::ClearAndSelect);
+    m_editor->m_removeButton->click();
+    QCOMPARE(iconView()->rootIndex(), prefix(0));
+    QCOMPARE(combo()->currentIndex(), 0);
+    QCOMPARE(selection()->currentIndex(), prefix(0));
+    QVERIFY(!selection()->isSelected(prefix(0)));
+}
+
+void QrcEditorTest::testRenameEditsInIconView()
+{
+    m_editor->setIconMode(true);
+    selection()->setCurrentIndex(file(0, 1), QItemSelectionModel::ClearAndSelect);
+
+    m_editor->editCurrentItem();
+
+    QVERIFY(iconView()->viewport()->findChild<QLineEdit *>());
+    QVERIFY(!m_editor->m_treeview->viewport()->findChild<QLineEdit *>());
+}
+
+void QrcEditorTest::testDoubleClickActivatesInIconView()
+{
+    m_editor->setIconMode(true);
+    m_editor->resize(400, 400);
+    m_editor->show();
+    QAbstractItemView *view = iconView();
+    QTRY_VERIFY(view->visualRect(file(0, 0)).isValid());
+    const QPoint center = view->visualRect(file(0, 0)).center();
+    QCOMPARE(view->indexAt(center), file(0, 0));
+    QSignalSpy spy(m_editor, &QrcEditor::itemActivated);
+
+    QTest::mouseClick(view->viewport(), Qt::LeftButton, {}, center);
+    QTest::mouseDClick(view->viewport(), Qt::LeftButton, {}, center);
+
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(!view->viewport()->findChild<QLineEdit *>());
+}
+
+void QrcEditorTest::testIconViewKeepsSelectionAfterRefresh()
+{
+    m_editor->setIconMode(true);
+
+    m_editor->refresh();
+
+    QCOMPARE(iconView()->selectionModel(), selection());
+    selection()->setCurrentIndex(file(1, 0), QItemSelectionModel::ClearAndSelect);
+    QCOMPARE(combo()->currentIndex(), 1);
+}
+
+void QrcEditorTest::testNoContextMenuOnEmptySpace()
+{
+    m_editor->setIconMode(true);
+    QSignalSpy spy(m_editor, &QrcEditor::showContextMenu);
+
+    emit iconView()->customContextMenuRequested(QPoint(10000, 10000));
+
+    QCOMPARE(spy.count(), 0);
+}
+
+void QrcEditorTest::testDeleteKeyRemovesInIconView()
+{
+    m_editor->setIconMode(true);
+    selection()->setCurrentIndex(file(0, 0), QItemSelectionModel::ClearAndSelect);
+
+    QTest::keyClick(iconView(), Qt::Key_Delete);
+
+    QCOMPARE(m_model->rowCount(prefix(0)), 1);
+}
+
+void QrcEditorTest::testRecheckNotifiesViews()
+{
+    QSignalSpy spy(m_model, &QAbstractItemModel::dataChanged);
+
+    m_editor->refresh();
+
+    QVERIFY(spy.count() > 0);
+    QVERIFY(spy.last().at(2).value<QList<int>>().contains(Qt::DecorationRole));
+}
+
+void QrcEditorTest::testPrefixFieldsFollowModeSwitch()
+{
+    m_editor->setIconMode(true);
+    combo()->setCurrentIndex(1);
+    QVERIFY(m_editor->m_prefixText->isEnabled());
+
+    m_editor->setIconMode(false);
+
+    QVERIFY(!m_editor->m_prefixText->isEnabled());
+}
+
+void QrcEditorTest::testAddPrefixInIconModeIsEditable()
+{
+    m_editor->setIconMode(true);
+
+    m_editor->onAddPrefix();
+
+    QVERIFY(m_editor->m_prefixText->isEnabled());
+    QVERIFY(m_editor->m_languageText->isEnabled());
+}
+
+void QrcEditorTest::testRemoveAllFilesInIconModeStaysInPrefix()
+{
+    m_editor->setIconMode(true);
+    selection()->setCurrentIndex(file(0, 0), QItemSelectionModel::ClearAndSelect);
+    selection()->select(file(0, 1), QItemSelectionModel::Select);
+
+    m_editor->m_removeButton->click();
+
+    QCOMPARE(selection()->currentIndex(), prefix(0));
+    QVERIFY(m_editor->m_addFilesButton->isEnabled());
+}
+
+void QrcEditorTest::testIconViewDragFollowsSetting()
+{
+    m_editor->setResourceDragEnabled(true);
+    QVERIFY(iconView()->dragEnabled());
+
+    m_editor->setResourceDragEnabled(false);
+    QVERIFY(!iconView()->dragEnabled());
+}
+
+void QrcEditorTest::testPrefixChangeUpdatesCombo()
+{
+    m_editor->setIconMode(true);
+
+    m_model->changePrefix(prefix(0), "/z");
+
+    QCOMPARE(combo()->itemText(0), prefix(0).data().toString());
+    QVERIFY(combo()->itemText(0).contains("/z"));
+}
+
+void QrcEditorTest::testUndoAddPrefixInIconModeRebuildsCombo()
+{
+    m_editor->setIconMode(true);
+    m_editor->onAddPrefix();
+    QCOMPARE(combo()->count(), 3);
+
+    m_editor->onUndo();
+
+    QCOMPARE(combo()->count(), 2);
+    QVERIFY(combo()->currentIndex() >= 0);
+    QCOMPARE(iconView()->rootIndex(), prefix(combo()->currentIndex()));
+}
+
+QObject *createQrcEditorTest()
+{
+    return new QrcEditorTest;
+}
+
+#endif // WITH_TESTS
 
 } // ResourceEditor::Internal
 

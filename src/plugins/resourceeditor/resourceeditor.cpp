@@ -145,6 +145,16 @@ ResourceEditorImpl::ResourceEditorImpl()
     connect(refreshButton, &QAbstractButton::clicked, m_resourceEditor, &QrcEditor::refresh);
     m_toolBar->addWidget(refreshButton);
 
+    auto iconModeButton = new QToolButton;
+    iconModeButton->setText(Tr::tr("Icon View"));
+    iconModeButton->setCheckable(true);
+    iconModeButton->setChecked(m_resourceEditor->isIconMode());
+    iconModeButton->setToolTip(Tr::tr("Show the files of a prefix as image previews."));
+    connect(iconModeButton, &QAbstractButton::toggled,
+            m_resourceEditor, &QrcEditor::setIconMode);
+    m_toolBar->addSeparator();
+    m_toolBar->addWidget(iconModeButton);
+
     m_resourceEditor->setResourceDragEnabled(true);
     m_contextMenu->addAction(Tr::tr("Open File"), this, &ResourceEditorImpl::openCurrentFile);
     m_openWithMenu = m_contextMenu->addMenu(Tr::tr("Open With"));
