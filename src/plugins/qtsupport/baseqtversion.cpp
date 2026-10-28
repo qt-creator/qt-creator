@@ -600,6 +600,10 @@ Tasks QtVersion::validateKit(const Kit *k)
     QtVersion *version = QtKitAspect::qtVersion(k);
     Q_ASSERT(version == this);
 
+    // An inherently invalid Qt is invalid for any kit.
+    if (!version->isValid())
+        return {BuildSystemTask(Task::Error, version->invalidReason())};
+
     const Abis qtAbis = version->qtAbis();
     if (qtAbis.isEmpty()) // No need to test if Qt does not know anyway...
         return result;
