@@ -36,6 +36,7 @@ public:
 private:
     QtTaskTree::QSingleTaskTreeRunner m_sdkDownloader;
     QtTaskTree::QSingleTaskTreeRunner m_qtDownloader;
+    QtTaskTree::QSingleTaskTreeRunner m_qtToolsAdder;
 };
 
 HarmonyOsSettings &settings();

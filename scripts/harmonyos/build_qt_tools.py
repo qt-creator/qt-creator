@@ -19,6 +19,11 @@ The tools are built with QT_FORCE_BUILD_TOOLS, which does not configure for
 HarmonyOS before qtbase 0107b66097d ("CMake: Record the Qt module deps of
 plugins only for Android"). That change is applied to older sources.
 
+Without the HarmonyOS platform plugin, QtCore asks a JS thread that does not
+exist for the application and OS versions and the standard paths, and
+crashes. The fixes for that, which are in qtbase 6.12.1 (QTBUG-150323), are
+applied to older sources as well.
+
 Building needs git, cmake, ninja and a host compiler, the desktop Qt of the
 same version, and the node-addon-api headers, which install_third_party.py
 installs together with the libraries a Qt for HarmonyOS needs at run time.
@@ -27,33 +32,60 @@ The tools come with a QtCore of their own, built without ICU, in libexec/lib.
 Qt Creator loads it in place of the one of the Qt for HarmonyOS, which needs
 the ICU of the additional packages.
 
-The output directory holds libexec and bin. Their files go into the libexec
-and bin directories of the Qt for HarmonyOS on the device.
+The result is one archive, "qt-tools-<version>-<target>.tar.gz", whose
+contents go into the Qt for HarmonyOS on the device, which Qt Creator does
+with "Add Qt Tools" in its HarmonyOS preferences. Besides the tools, the
+archive has the Qt6CoreTools, Qt6GuiTools and Qt6WidgetsTools CMake packages
+of the desktop Qt, because the Qt for HarmonyOS has none. They name the
+desktop's executables, which CMake insists exist, so the archive has an empty
+file for each of them that the Qt for HarmonyOS lacks. Qt Creator runs its
+copies of qtchost in place of moc, rcc, uic, cmake_automoc_parser and qlalr.
+The others are not needed for building Qt Widgets applications.
+
+The archive records the qtbase commit in sha1s-tools.txt, so that Qt Creator
+can refuse it for a Qt built from other sources.
 """
 
 from __future__ import annotations
 
 import argparse
 import os
-import shutil
+import re
 import subprocess
 import sys
+import tarfile
 from pathlib import Path
 
 QTBASE_URL = "https://code.qt.io/qt/qtbase.git"
 
 BACKPORT = "0107b66097dda8bdd25d020cca1da3d4edf5c931"
 
+# In the order they were integrated in the 6.12 branch.
+NO_JS_THREAD = [
+    "5001441b5a2ec6d5009208900841f4a45280c0b3",
+    "032ca114a1bc24f9904f2b9273fb5c4596c63e78",
+    "39d3b1523cdc1703a829d485ec2beedc6501ff67",
+    "599c8f65fbfd870e31d3e6e2dfff6f9b2cff42b0",
+]
+
 # Build target, and where its library lands relative to the build directory.
 TOOLS = {
     "moc_native": "libexec/libmoc.so",
     "rcc_native": "libexec/librcc.so",
     "uic_native": "libexec/libuic.so",
+    "cmake_automoc_parser_native": "libexec/libcmake_automoc_parser.so",
     "qmake_native": "bin/libqmake.so",
 }
 
 # The tools' own QtCore, where Qt Creator looks for it, and where it lands in the build.
 TOOLS_QTCORE = ("libexec/lib/libQt6Core.so", "lib/libQt6Core.so")
+
+# The packages that find_package(Qt6 COMPONENTS Widgets) looks for in QT_HOST_PATH, which
+# the Qt for HarmonyOS lacks.
+TOOLS_PACKAGES = ["Qt6CoreTools", "Qt6GuiTools", "Qt6WidgetsTools"]
+
+# Where a package names the executables it imports.
+IMPORTED_FILE = re.compile(r'"\$\{_IMPORT_PREFIX\}/((?:bin|libexec)/[^"]+)"')
 
 # Only QtCore and Bootstrap are needed for the tools. ICU is left out so that the tools'
 # own QtCore does not need it.
@@ -116,27 +148,73 @@ def recorded_qtbase(qt: Path) -> str | None:
     return None
 
 
+def apply(source: Path, patch: Path, name: str) -> None:
+    """Apply patch to source unless it is there already."""
+    if succeeds(["git", "apply", "--reverse", "--check", patch], source):
+        print("qtbase has {} already".format(name))
+    elif succeeds(["git", "apply", "--check", patch], source):
+        run(["git", "apply", patch], cwd=source)
+    else:
+        raise SystemExit("{} applies to qtbase neither way".format(name))
+
+
 def fetch(source: Path, sha: str) -> None:
-    """Check qtbase out at sha, with the backport applied where it is missing."""
+    """Check qtbase out at sha, with the backport and NO_JS_THREAD applied where they
+    are missing."""
     if not (source / ".git").is_dir():
         source.mkdir(parents=True, exist_ok=True)
         run(["git", "init", "--quiet"], cwd=source)
     head = subprocess.run(["git", "rev-parse", "--verify", "--quiet", "HEAD"], cwd=source,
                           stdout=subprocess.PIPE, text=True).stdout.strip()
+    commits = [BACKPORT] + NO_JS_THREAD
+    missing = [commit for commit in commits
+               if not succeeds(["git", "cat-file", "-e", commit + "^{commit}"], source)]
+    if head != sha or missing:
+        # The parents come along, so that the commits can be turned into patches.
+        run(["git", "fetch", "--quiet", "--depth", "2", QTBASE_URL, sha] + commits,
+            cwd=source)
     if head != sha:
-        # The parent comes along, so that the backport can be turned into a patch.
-        run(["git", "fetch", "--quiet", "--depth", "2", QTBASE_URL, sha, BACKPORT], cwd=source)
         run(["git", "checkout", "--quiet", "--force", "--detach", sha], cwd=source)
 
-    patch = source.parent / "backport.patch"
-    patch.write_text(run(["git", "format-patch", "-1", "--stdout", BACKPORT], cwd=source,
-                         capture=True))
-    if succeeds(["git", "apply", "--reverse", "--check", patch], source):
-        print("qtbase {} has {} already".format(sha[:11], BACKPORT[:11]))
-    elif succeeds(["git", "apply", "--check", patch], source):
-        run(["git", "apply", patch], cwd=source)
-    else:
-        raise SystemExit("{} applies to qtbase {} neither way".format(BACKPORT[:11], sha[:11]))
+    for commit in commits:
+        patch = source.parent / "{}.patch".format(commit[:11])
+        patch.write_text(run(["git", "format-patch", "-1", "--stdout", commit], cwd=source,
+                             capture=True))
+        apply(source, patch, commit[:11])
+
+
+def pack(archive: Path, qt: Path, host_path: Path, build: Path, sha: str) -> None:
+    """Write the archive whose contents go into the Qt for HarmonyOS qt."""
+    entries = {library: build / library for library in TOOLS.values()}
+    entries[TOOLS_QTCORE[0]] = build / TOOLS_QTCORE[1]
+    placeholders = set()
+    for package in TOOLS_PACKAGES:
+        directory = Path("lib") / "cmake" / package
+        if (qt / directory).exists():
+            raise SystemExit("{} has a {} already".format(qt, package))
+        for file in sorted((host_path / directory).iterdir()):
+            entries[str(directory / file.name)] = file
+            placeholders.update(IMPORTED_FILE.findall(file.read_text()))
+    placeholders = sorted(name for name in placeholders
+                          if name not in entries and not (qt / name).exists())
+
+    record = archive.parent / "sha1s-tools.txt"
+    record.write_text("qtbase {}\n".format(sha))
+    empty = archive.parent / "placeholder"
+    empty.write_bytes(b"")
+    def anonymous(info: tarfile.TarInfo) -> tarfile.TarInfo:
+        info.uid = info.gid = 0
+        info.uname = info.gname = ""
+        return info
+
+    with tarfile.open(archive, "w:gz") as tar:
+        tar.add(record, "sha1s-tools.txt", filter=anonymous)
+        for name, file in sorted(entries.items()):
+            tar.add(file, name, filter=anonymous)
+        for name in placeholders:
+            tar.add(empty, name, filter=anonymous)
+    record.unlink()
+    empty.unlink()
 
 
 def main() -> int:
@@ -155,7 +233,7 @@ def main() -> int:
                         help="prefix that install_third_party.py installed into, for the "
                              "node-addon-api headers in its include directory")
     parser.add_argument("--path", type=absolute, required=True,
-                        help="directory to put libexec and bin with the tools into")
+                        help="directory to put the archive with the tools into")
     parser.add_argument("--work-path", type=absolute,
                         help="where to keep the qtbase checkout and its build, "
                              "\"<path>-work\" by default. Reused by a later run")
@@ -198,15 +276,17 @@ def main() -> int:
         command += ["--parallel", str(args.jobs)]
     run(command)
 
-    copies = {library: library for library in TOOLS.values()}
-    copies[TOOLS_QTCORE[0]] = TOOLS_QTCORE[1]
-    for target, built in copies.items():
-        target = args.path / target
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(build / built, target)
+    args.path.mkdir(parents=True, exist_ok=True)
+    version = re.search(r"^QT_VERSION = (\S+)$",
+                        (args.qt / "mkspecs" / "qconfig.pri").read_text(), re.M)
+    if not version:
+        raise SystemExit("No QT_VERSION in the qconfig.pri of {}".format(args.qt))
+    archive = args.path / "qt-tools-{}-{}.tar.gz".format(version.group(1), args.qt.name)
+    pack(archive, args.qt, host_path, build, sha)
 
-    print("\nBuilt the tools of qtbase {} into {}".format(sha[:11], args.path))
-    print("Copy its libexec and bin into those of the Qt for HarmonyOS on the device.")
+    print("\nPacked the tools of qtbase {} as {}".format(sha[:11], archive))
+    print("Add them to the Qt for HarmonyOS on the device with \"Add Qt Tools\" in the "
+          "HarmonyOS preferences of Qt Creator.")
     return 0
 
 

@@ -136,7 +136,8 @@
     \row
         \li \c tools
         \li \c build_qt_tools.py
-        \li The Qt tools that \QC runs on the device, in \c tools.
+        \li The Qt tools that \QC runs on the device, as
+            \c tools/qt-tools-<version>-<target>.tar.gz.
     \row
         \li \c creator
         \li \c build_creator.py
@@ -200,6 +201,24 @@
     The kit has no Qt at first. To download one and add it to the kit, go to
     \uicontrol Preferences > \uicontrol SDKs > \uicontrol HarmonyOS and select
     \uicontrol {Install Qt for HarmonyOS}.
+
+    That Qt lacks the tools that building needs on the device, such as \c moc
+    and \c uic. The \c tools stage builds them into an archive. To add them to
+    the Qt, copy the archive to the device:
+
+    \badcode
+    hdc file send <output directory>/tools/qt-tools-6.12.0-harmonyos_arm64_v8a.tar.gz \
+        /storage/media/100/local/files/Docs/Documents/
+    \endcode
+
+    Then select \uicontrol {Add Qt Tools} in the same place, and select the
+    archive. \QC adds the tools to the Qt that was built from the same qtbase
+    sources, and refuses the archive if there is no such Qt. Because
+    \uicontrol {Install Qt for HarmonyOS} downloads the build of Qt that the
+    Qt repository currently offers, update the Qt that you build with in the
+    Qt Online Installer before you run the \c tools stage. The tools cover
+    Qt Widgets applications. Qt Quick applications need more tools than the
+    archive holds.
 
     When you run or debug an application, \QC hands it over to the runner, so
     \c qtcrunner.hap must be installed on the device as well. To stop the

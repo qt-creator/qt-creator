@@ -26,6 +26,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/fileutils.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
@@ -611,6 +612,137 @@ static QtTaskTree::GroupItem downloadQtRecipe(const QUrl &repository, const File
     };
 }
 
+// Qt tools
+
+static QString qtToolsTitle()
+{
+    return Tr::tr("Add Qt Tools");
+}
+
+// The record of the qtbase commit in an archive of build_qt_tools.py.
+static const char qtToolsRecord[] = "sha1s-tools.txt";
+
+// The qtbase commit a Qt was built from, as its software bill of materials names it.
+static QString qtbaseCommit(const QtSupport::QtVersion *version)
+{
+    const FilePath sbom = version->prefix() / "sbom"
+                          / QString("qtbase-%1.spdx").arg(version->qtVersionString());
+    const Result<QByteArray> contents = sbom.fileContents();
+    if (!contents)
+        return {};
+    static const QRegularExpression location("qtbase\\.git@([0-9a-f]{40})");
+    return location.match(QString::fromUtf8(*contents)).captured(1);
+}
+
+// Unpacks an archive that scripts/harmonyos/build_qt_tools.py wrote into the Qt for
+// HarmonyOS built from the same qtbase, which gives that Qt tools the device can run.
+static QtTaskTree::GroupItem addQtToolsRecipe(const FilePath &archive, const FilePath &workPath)
+{
+    using namespace QtTaskTree;
+
+    struct QtToolsStorage
+    {
+        QtToolsStorage()
+        {
+            progressDialog.reset(createProgressDialog(0, qtToolsTitle(),
+                                                      Tr::tr("Reading the archive...")));
+        }
+        std::unique_ptr<QProgressDialog> progressDialog;
+        FilePath prefix;
+    };
+
+    const Storage<QtToolsStorage> storage;
+
+    const auto onSetup = [workPath] {
+        if (const Result<> writable = workPath.ensureWritableDir(); !writable) {
+            reportDownloadError(writable.error(), qtToolsTitle());
+            return SetupResult::StopWithError;
+        }
+        return SetupResult::Continue;
+    };
+
+    const auto onRecordSetup = [archive, workPath](Unarchiver &task) {
+        task.setArchive(archive);
+        task.setDestination(workPath);
+        task.setFilter([](const QString &entry) { return entry == qtToolsRecord; });
+    };
+    const auto onRecordDone = [storage, archive, workPath](const Unarchiver &task,
+                                                          DoneWith result) {
+        if (result == DoneWith::Cancel)
+            return DoneResult::Error;
+        if (const Result<> unpacked = task.result(); !unpacked) {
+            reportDownloadError(Tr::tr("Unpacking \"%1\" failed: %2.")
+                                    .arg(archive.fileName(), unpacked.error()),
+                                qtToolsTitle());
+            return DoneResult::Error;
+        }
+        const Result<QByteArray> record = (workPath / qtToolsRecord).fileContents();
+        const QStringList fields = record ? QString::fromUtf8(*record).split(' ') : QStringList();
+        if (fields.size() != 2 || fields.first() != "qtbase") {
+            reportDownloadError(Tr::tr("\"%1\" is no archive of Qt tools.")
+                                    .arg(archive.toUserOutput()),
+                                qtToolsTitle());
+            return DoneResult::Error;
+        }
+        // Tools only work with the libraries of the sources they were built from.
+        const QString commit = fields.last().trimmed();
+        const QtSupport::QtVersions versions = harmonyOsQtVersions();
+        const auto matches = [&commit](const QtSupport::QtVersion *version) {
+            return qtbaseCommit(version) == commit;
+        };
+        const QtSupport::QtVersion *version = Utils::findOrDefault(versions, matches);
+        if (!version) {
+            QString message = Tr::tr("The tools in \"%1\" were built from qtbase %2, and no "
+                                     "registered Qt for HarmonyOS was.")
+                                  .arg(archive.toUserOutput(), commit.left(11));
+            QStringList registered;
+            for (const QtSupport::QtVersion *other : versions) {
+                if (const QString otherCommit = qtbaseCommit(other); !otherCommit.isEmpty())
+                    registered.append(otherCommit.left(11));
+            }
+            if (!registered.isEmpty()) {
+                message += ' ' + Tr::tr("The registered ones were built from qtbase %1.")
+                                     .arg(registered.join(", "));
+            }
+            reportDownloadError(message, qtToolsTitle());
+            return DoneResult::Error;
+        }
+        storage->prefix = version->prefix();
+        return DoneResult::Success;
+    };
+
+    const auto onUnpackSetup = [storage, archive](Unarchiver &task) {
+        storage->progressDialog->setLabelText(Tr::tr("Unpacking %1...").arg(archive.fileName()));
+        task.setArchive(archive);
+        task.setDestination(storage->prefix);
+    };
+    const auto onUnpackDone = [archive](const Unarchiver &task, DoneWith result) {
+        if (result == DoneWith::Cancel)
+            return DoneResult::Error;
+        if (const Result<> unpacked = task.result(); !unpacked) {
+            reportDownloadError(Tr::tr("Unpacking \"%1\" failed: %2.")
+                                    .arg(archive.fileName(), unpacked.error()),
+                                qtToolsTitle());
+            return DoneResult::Error;
+        }
+        return DoneResult::Success;
+    };
+
+    const auto onCancel = [storage] {
+        return makeObjectSignal(storage->progressDialog.get(), &QProgressDialog::canceled);
+    };
+
+    return Group {
+        storage,
+        Group {
+            onGroupSetup(onSetup),
+            UnarchiverTask(onRecordSetup, onRecordDone),
+            UnarchiverTask(onUnpackSetup, onUnpackDone),
+        }.withCancel(onCancel),
+        onGroupDone([workPath] { workPath.removeRecursively(); }),
+    };
+}
+
 HarmonyOsSettings::HarmonyOsSettings()
 {
     setSettingsGroup("HarmonyOSConfiguration");
@@ -726,6 +858,13 @@ HarmonyOsSettings::HarmonyOsSettings()
                        "Tool, so the packages come from the repository below here."));
         }
 
+        auto addQtToolsButton = new QPushButton(Tr::tr("Add Qt Tools..."));
+        addQtToolsButton->setToolTip(
+            Tr::tr("Adds the tools that building on this device needs to the Qt for HarmonyOS "
+                   "they were built for. Qt for HarmonyOS lacks them. "
+                   "scripts/harmonyos/build_qt_tools.py in the Qt Creator sources builds "
+                   "them as an archive."));
+
         auto qtStatus = new InfoLabel;
         qtStatus->setElideMode(Qt::ElideNone);
         qtStatus->setWordWrap(true);
@@ -755,7 +894,7 @@ HarmonyOsSettings::HarmonyOsSettings()
                 title(Tr::tr("Qt for HarmonyOS")),
                 Column {
                     qtNote,
-                    Row { installQtButton, st },
+                    Row { installQtButton, addQtToolsButton, st },
                     Form { qtRepository, br },
                     qtStatus,
                 },
@@ -901,6 +1040,21 @@ HarmonyOsSettings::HarmonyOsSettings()
                                  [root, reportScan](QtTaskTree::DoneWith result) {
                 if (result == QtTaskTree::DoneWith::Success)
                     reportScan(registerQtVersions(root), root);
+            });
+        });
+
+        connect(addQtToolsButton, &QPushButton::clicked, this, [this, qtStatus] {
+            const FilePath archive = FileUtils::getOpenFilePath(
+                qtToolsTitle(), {}, Tr::tr("Qt tools (*.tar.gz);;All files (*)"));
+            if (archive.isEmpty())
+                return;
+            m_qtToolsAdder.start({addQtToolsRecipe(archive, downloadedQtRoot() / "tools")}, {},
+                                 [archive, qtStatus](QtTaskTree::DoneWith result) {
+                if (result != QtTaskTree::DoneWith::Success)
+                    return;
+                qtStatus->setType(InfoLabelType::Ok);
+                qtStatus->setText(Tr::tr("Added the Qt tools from \"%1\".")
+                                      .arg(archive.fileName()));
             });
         });
 
