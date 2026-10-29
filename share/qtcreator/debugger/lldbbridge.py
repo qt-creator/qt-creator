@@ -553,6 +553,40 @@ class Dumper(DumperBase):
                 return candidate
         return nativeType
 
+    def type_size(self, typeid):
+        size = super().type_size(typeid)
+        if size == 0 and self.complete_cached_type(typeid):
+            size = super().type_size(typeid)
+        return size
+
+    # A library load can bring the definition of a type that was incomplete
+    # when it was cached: LLDB completes the cached one in place, or another
+    # module has it. What was derived from the incomplete one is stale then.
+    # The lookup is costly, so it is done once per step.
+    def complete_cached_type(self, typeid):
+        nativeType = self.type_nativetype_cache.get(typeid, None)
+        if nativeType is not None and nativeType.GetTypeClass() == lldb.eTypeClassTypedef:
+            # A typedef copied the size of its target when it was created.
+            target_typeid = self.type_target_cache.get(typeid, None)
+            if target_typeid is None or self.type_size(target_typeid) == 0:
+                return False
+            self.drop_native_type(typeid)
+            self.typeid_from_typekey.pop(self.native_type_key(nativeType), None)
+            return self.from_native_type(nativeType) == typeid
+        if nativeType is None or nativeType.GetTypeClass() not in \
+                (lldb.eTypeClassClass, lldb.eTypeClassStruct, lldb.eTypeClassUnion):
+            return False
+        checked = self.perStepCache.setdefault('completed_types', set())
+        if typeid in checked:
+            return False
+        checked.add(typeid)
+        nativeType = self.completeNativeType(nativeType)
+        if not nativeType.IsTypeComplete():
+            return False
+        self.drop_native_type(typeid)
+        self.typeid_from_typekey.pop(self.native_type_key(nativeType), None)
+        return self.from_native_type(nativeType) == typeid
+
     def nativeTemplateParameter(self, typeid, index, nativeType):
         #n = nativeType.GetNumberOfTemplateArguments()
         #if n != len(stringArgs):

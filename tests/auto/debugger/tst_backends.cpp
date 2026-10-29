@@ -303,9 +303,11 @@ struct InferiorTestData
     // A line the inferior reaches while a library it loads at runtime is
     // loaded, plus a global whose target type only that library's debug
     // info describes, and a member of that type. The local points to the same
-    // type, read from a frame whose module only declares it.
+    // type, read from a frame whose module only declares it, and the typedef
+    // symbol to a typedef of it.
     int libraryLoadedLine = 0;
     QString libraryTypeSymbol;
+    QString libraryTypedefSymbol;
     QString libraryTypeLocal;
     QString libraryTypeChild;
     QString inspectorObject;
@@ -1345,6 +1347,22 @@ static bool encodesAStringAssignment(Backend backend)
     return false;
 }
 
+static bool takesIndividualFormats(Backend backend)
+{
+    switch (backend) {
+    case Backend::Bridge:
+    case Backend::Gdb:
+    case Backend::Lldb:
+    case Backend::Cdb:
+        return true;
+    case Backend::Pdb:
+    case Backend::Qml:
+    case Backend::Dap:
+        break;
+    }
+    return false;
+}
+
 static bool passesInferiorCallPermission(Backend backend)
 {
     switch (backend) {
@@ -2246,6 +2264,8 @@ private slots:
     void reportsAnObjectLocalAsExpandable();
     void resolvesATypeArrivingWithALaterLibrary_data() { addBackendRows(); }
     void resolvesATypeArrivingWithALaterLibrary();
+    void stridesAnArrayOfATypeArrivingWithALaterLibrary_data() { addBackendRows(); }
+    void stridesAnArrayOfATypeArrivingWithALaterLibrary();
     void readsALocalOfATypeOnlyALibraryDefines_data() { addBackendRows(); }
     void readsALocalOfATypeOnlyALibraryDefines();
     void honorsDumperOptionsFromTheRequest_data() { addBackendRows(); }
@@ -3919,6 +3939,8 @@ void tst_backends::initTestCase()
         "struct LibProbe;",
         "int probeStorage = 4711;",
         "LibProbe *libProbe = (LibProbe *) &probeStorage;",
+        "typedef LibProbe ProbeHandle;",
+        "ProbeHandle *probeHandle = (ProbeHandle *) &probeStorage;",
         "volatile int globalValue = 41;",
         "volatile bool keepSpinning = true;",
         "const char *globalMessage = \"hi\";",
@@ -4167,6 +4189,7 @@ void tst_backends::initTestCase()
     cppInferiorData.disassemblySourceMarker = "globalValue = localValue";
     cppInferiorData.expectedExitCode = 7;
     cppInferiorData.libraryTypeSymbol = "libProbe";
+    cppInferiorData.libraryTypedefSymbol = "probeHandle";
     cppInferiorData.libraryTypeLocal = "localProbe";
     cppInferiorData.libraryTypeChild = "probeValue";
     QVERIFY(cppInferiorData.secondBreakpointLine > 0);
@@ -9187,6 +9210,96 @@ void tst_backends::resolvesATypeArrivingWithALaterLibrary()
              qPrintable("the type the library brought along did not resolve, so "
                         + data.libraryTypeSymbol + " has no " + data.libraryTypeChild
                         + " member: " + afterLoad));
+}
+
+void tst_backends::stridesAnArrayOfATypeArrivingWithALaterLibrary()
+{
+    QFETCH(Backend, backend);
+
+    const InferiorTestData data = inferiorTestData(backend);
+    if (data.libraryTypeSymbol.isEmpty() || data.libraryLoadedLine == 0)
+        QSKIP("inferior loads no library carrying a type of its own");
+    if (!takesIndividualFormats(backend))
+        QSKIP("This backend takes no display format for a single item.");
+    if (auto result = checkCapability(backend, Debugger::AddWatcherCapability); !result)
+        QSKIP(qPrintable(result.error()));
+    QVERIFY(!data.libraryTypedefSymbol.isEmpty());
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, GdbMi> locals;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&locals](quint64 requestId, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::Locals)
+            locals[requestId] = data;
+    });
+
+    // The typedef reaches the size of the type through a type of its own.
+    const QStringList symbols = {data.libraryTypeSymbol, data.libraryTypedefSymbol};
+    RefreshRequest request;
+    request.kind = RefreshKind::Locals;
+    for (int i = 0; i < symbols.size(); ++i) {
+        const QString iname = "watch." + QString::number(i);
+        QJsonObject watcher;
+        watcher.insert("iname", iname);
+        watcher.insert("exp", toHex(symbols.at(i)));
+        request.watchers.append(watcher);
+        request.expandedINames.insert(iname);
+    }
+
+    // The pointees are looked up while the library is not loaded, which records
+    // a size of 0 for them.
+    request.requestId = 140;
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(locals.contains(140), s_timeout);
+    for (int i = 0; i < symbols.size(); ++i) {
+        QVERIFY2(findItemByIName(locals.value(140), "watch." + QString::number(i)).isValid(),
+                 qPrintable("no watch on " + symbols.at(i) + " before the library load: "
+                            + locals.value(140).toString()));
+    }
+
+    QHash<quint64, bool> insertResults;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&insertResults](quint64 requestId, BreakpointOp op, bool ok, const GdbMi &) {
+        if (op == BreakpointOp::Insert)
+            insertResults[requestId] = ok;
+    });
+    BreakpointChangeRequest breakpointRequest;
+    breakpointRequest.op = BreakpointOp::Insert;
+    breakpointRequest.requestId = 141;
+    breakpointRequest.params.type = BreakpointByFileAndLine;
+    breakpointRequest.params.fileName = data.source;
+    breakpointRequest.params.textPosition.line = data.libraryLoadedLine;
+    breakpointRequest.params.enabled = true;
+    engine->changeBreakpoint(breakpointRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(insertResults.contains(141), s_timeout);
+    QVERIFY2(insertResults.value(141), "breakpoint on the library-loaded line failed to insert");
+
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop), s_timeout);
+    QCOMPARE(debuggerBackend->stoppedLine(), data.libraryLoadedLine);
+
+    // Shown as an array first, the elements are placed by the size of the type
+    // before anything shows the type itself. A dereferenced local of that type
+    // would show it before the watchers come.
+    for (int i = 0; i < symbols.size(); ++i)
+        request.individualFormats.insert("watch." + QString::number(i), Array10Format);
+    request.autoDerefPointers = false;
+    request.requestId = 142;
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(locals.contains(142), s_timeout);
+    for (int i = 0; i < symbols.size(); ++i) {
+        const GdbMi watchItem = findItemByIName(locals.value(142), "watch." + QString::number(i));
+        QVERIFY2(watchItem["addrstep"].isValid(),
+                 qPrintable("no array of " + symbols.at(i) + ": "
+                            + locals.value(142).toString()));
+        QVERIFY2(watchItem["addrstep"].toInt() > 0,
+                 qPrintable("the elements of " + symbols.at(i)
+                            + " all sit at the same address: " + watchItem.toString()));
+    }
 }
 
 void tst_backends::readsALocalOfATypeOnlyALibraryDefines()

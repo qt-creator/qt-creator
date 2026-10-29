@@ -542,7 +542,11 @@ class DumperBase():
         native_type = self.type_nativetype_cache.get(typeid, None)
         if native_type is None or self.nativeTypeIsUsable(native_type):
             return native_type
-        del self.type_nativetype_cache[typeid]
+        self.drop_native_type(typeid)
+        return None
+
+    def drop_native_type(self, typeid):
+        self.type_nativetype_cache.pop(typeid, None)
         self.type_size_cache.pop(typeid, None)
         self.type_bitsize_cache.pop(typeid, None)
         self.type_alignment_cache.pop(typeid, None)
@@ -550,10 +554,9 @@ class DumperBase():
         self.type_qobject_based_cache.pop(typeid, None)
         self.type_fields_cache.pop(typeid, None)
         self.native_type_dropped(typeid)
-        return None
 
     # What a bridge derived from the answer for a type on its own, to go with
-    # it in cached_nativetype().
+    # it in drop_native_type().
     def native_type_dropped(self, typeid):
         pass
 
