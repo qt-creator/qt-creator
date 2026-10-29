@@ -394,8 +394,6 @@ QtObject {
 
     // Popup background color (ComboBox, SpinBox, TextArea)
     property color themePopupBackground: Theme.color(Theme.DSpopupBackground)
-    // GradientPopupDialog modal overlay color
-    property color themePopupOverlayColor: Theme.color(Theme.DSpopupOverlayColor)
 
     // ToolTip (UrlChooser)
     property color themeToolTipBackground: Theme.color(Theme.DStoolTipBackground)

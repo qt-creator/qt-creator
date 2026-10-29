@@ -48,7 +48,6 @@ DSpopoutButtonBackground_disabled=ff202020
 DSpopoutButtonBorder_idle=ff8d8d8d
 DSpopoutButtonBorder_hover=ffdfdfdf
 DSpopoutButtonBorder_interaction=ff57b9fc
-DSpopoutButtonBorder_disabled=ff202020
 
 ;4.4
 DSconnectionCodeEditor=ff333333
@@ -81,7 +80,6 @@ DSnavigatorItemBackgroundHover=ff343434
 DSnavigatorItemBackgroundSelected=ff333333
 DStabActiveBackground=ff4d4d4d
 DStabActiveText=ffdcdada
-DStabActiveIcon=ffdcdada
 DStabFocusButtonHover=ff57b9fc
 DStabFocusButtonPress=ff57b9fc
 DStabFocusBackground=ff57b9fc
@@ -139,9 +137,6 @@ DSlinkIndicatorColorHover=ffffffff
 DSlinkIndicatorColorInteraction=ff2aafd3
 DSlinkIndicatorColorDisabled=ff707070
 
-
-DSpopupOverlayColor=99191919
-
 DSsliderActiveTrack=ff7c7b7b
 DSsliderActiveTrackHover=ff000000
 DSsliderActiveTrackFocus=ffaaaaaa
@@ -153,7 +148,6 @@ DSsliderHandleHover=ff606060
 DSsliderHandleFocus=ff0492c9
 DSsliderHandleInteraction=ff2aafd3
 
-DSstateDefaultHighlight=ffffe400
 DSstateBackgroundColor=fffff000
 DSstatePreviewOutline=ffaaaaaa
 
@@ -171,16 +165,13 @@ DSactionAlias=fff93a3a
 DSactionKeyframe=ffe0e01b
 DSactionJIT=ff2db543
 
-DStableHeaderBackground=ffff0000
 DStableCellCurrent=ff08475B
-DStableHeaderText=ff00ff00
 
 DSdockContainerBackground=ff242424
 DSdockContainerSplitter=ff323232
 DSdockAreaBackground=ff2a2a2a
 DSdockWidgetBackground=ff2a2a2a
 DStitleBarText=ffdadada
-DStitleBarIcon=ffffffff
 DStitleBarButtonHover=40ffffff
 DStitleBarButtonPress=60ffffff
 
@@ -189,15 +180,11 @@ DStabSplitter=ff595959
 
 DStabInactiveBackground=ff1f1f1f
 DStabInactiveText=ffdadada
-DStabInactiveIcon=ffffffff
-DStabInactiveButtonHover=ff1f1f1f
 DStabInactiveButtonPress=ff1f1f1f
 
-DStabActiveButtonHover=ffdadada
 DStabActiveButtonPress=ffdadada
 
 DStabFocusText=ff111111
-DStabFocusIcon=ff000000
 
 DSnavigatorBranch=ff7c7b7b
 DSnavigatorBranchIndicator=ff7c7b7b
@@ -240,5 +227,4 @@ QmlDesigner_ButtonColor=ff595b5c
 QmlDesigner_TabDark=ff404142
 QmlDesigner_TabLight=Token_Text_Default
 QmlDesigner_FormeditorBackgroundColor=ff4c4e50
-QmlDesigner_AlternateBackgroundColor=ff4c4e50
 QmlDesigner_ScrollBarHandleColor=ff595b5c

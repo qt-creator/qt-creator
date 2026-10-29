@@ -48,7 +48,6 @@ DSpopoutButtonBackground_disabled=ffdcdada
 DSpopoutButtonBorder_idle=ff8b8b8b
 DSpopoutButtonBorder_hover=ff636363
 DSpopoutButtonBorder_interaction=ff57b9fc
-DSpopoutButtonBorder_disabled=ffdcdada
 
 ;4.4
 DSconnectionCodeEditor=ffdfdfdf
@@ -114,7 +113,6 @@ DSlinkIndicatorColorInteraction=ff2aafd3
 DSlinkIndicatorColorDisabled=ff707070
 
 DSpopupBackground=ffd3d3d3
-DSpopupOverlayColor=99191919
 
 DSsliderActiveTrack=ff7c7b7b
 DSsliderActiveTrackHover=ff000000
@@ -133,7 +131,6 @@ DSscrollBarHandle_idle=ff8d8d8d
 
 DSsectionHeadBackground=ffd8d8d8
 
-DSstateDefaultHighlight=ffffe400
 DSstateSeparatorColor=ffadadad
 DSstateBackgroundColor=ffe0e0e0
 DSstatePreviewOutline=ff363636
@@ -152,9 +149,7 @@ DSactionAlias=fff93a3a
 DSactionKeyframe=ffe0e01b
 DSactionJIT=ff2db543
 
-DStableHeaderBackground=ffff0000
 DStableCellCurrent=ff71d1ef
-DStableHeaderText=ff00ff00
 
 DSdockContainerBackground=ff323232
 DSdockContainerSplitter=ff323232
@@ -164,7 +159,6 @@ DSdockWidgetSplitter=ff595959
 DSdockWidgetTitleBar=ffeaeaea
 
 DStitleBarText=ffdadada
-DStitleBarIcon=ff4f5052
 DStitleBarButtonHover=40ffffff
 DStitleBarButtonPress=60ffffff
 
@@ -173,19 +167,14 @@ DStabSplitter=ff595959
 
 DStabInactiveBackground=ff999999
 DStabInactiveText=ff262626
-DStabInactiveIcon=ffffffff
-DStabInactiveButtonHover=ff1f1f1f
 DStabInactiveButtonPress=ff1f1f1f
 
 DStabActiveBackground=ffdadada
 DStabActiveText=ff111111
-DStabActiveIcon=ff000000
-DStabActiveButtonHover=ffdadada
 DStabActiveButtonPress=ffdadada
 
 DStabFocusBackground=ff2aafd3
 DStabFocusText=ff111111
-DStabFocusIcon=ff000000
 DStabFocusButtonHover=ff2aafd3
 DStabFocusButtonPress=ff2aafd3
 
@@ -234,5 +223,4 @@ QmlDesigner_ButtonColor=ffcccccc
 QmlDesigner_TabDark=ff585858
 QmlDesigner_TabLight=ffd0d0d0
 QmlDesigner_FormeditorBackgroundColor=fff8f8f8
-QmlDesigner_AlternateBackgroundColor=fff8f8f8
 QmlDesigner_ScrollBarHandleColor=ffcccccc

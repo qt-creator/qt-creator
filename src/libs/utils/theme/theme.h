@@ -300,7 +300,6 @@ public:
         QmlDesigner_ButtonColor,
         QmlDesigner_BorderColor,
         QmlDesigner_FormeditorBackgroundColor,
-        QmlDesigner_AlternateBackgroundColor,
         QmlDesigner_ScrollBarHandleColor,
 
         /* Palette for DS Controls */
@@ -403,7 +402,6 @@ public:
         DSpopoutButtonBorder_idle,
         DSpopoutButtonBorder_hover,
         DSpopoutButtonBorder_interaction,
-        DSpopoutButtonBorder_disabled,
         DSscrollBarTrack,
         DSscrollBarHandle,
         DSscrollBarHandle_idle,
@@ -432,7 +430,6 @@ public:
         DSlinkIndicatorColorInteraction,
         DSlinkIndicatorColorDisabled,
         DSpopupBackground,
-        DSpopupOverlayColor,
         DSsliderActiveTrack,
         DSsliderActiveTrackHover,
         DSsliderActiveTrackFocus,
@@ -444,7 +441,6 @@ public:
         DSsliderHandleFocus,
         DSsliderHandleInteraction,
         DSsectionHeadBackground,
-        DSstateDefaultHighlight,
         DSstateSeparatorColor,
         DSstateBackgroundColor,
         DSstatePreviewOutline,
@@ -457,9 +453,7 @@ public:
         DSactionKeyframe,
         DSactionJIT,
 
-        DStableHeaderBackground,
         DStableCellCurrent,
-        DStableHeaderText,
 
         DSdockContainerBackground,
         DSdockContainerSplitter,
@@ -470,7 +464,6 @@ public:
         DSdockWidgetTitleBar,
 
         DStitleBarText,
-        DStitleBarIcon,
         DStitleBarButtonHover,
         DStitleBarButtonPress,
 
@@ -479,19 +472,14 @@ public:
 
         DStabInactiveBackground,
         DStabInactiveText,
-        DStabInactiveIcon,
-        DStabInactiveButtonHover,
         DStabInactiveButtonPress,
 
         DStabActiveBackground,
         DStabActiveText,
-        DStabActiveIcon,
-        DStabActiveButtonHover,
         DStabActiveButtonPress,
 
         DStabFocusBackground,
         DStabFocusText,
-        DStabFocusIcon,
         DStabFocusButtonHover,
         DStabFocusButtonPress,
 

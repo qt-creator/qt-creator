@@ -174,7 +174,6 @@ QtObject {
 
     component PopupColors: QtObject {
         property color background: Values.themePopupBackground
-        property color overlay: Values.themePopupOverlayColor
     }
 
     property PopupColors popup: PopupColors {}
