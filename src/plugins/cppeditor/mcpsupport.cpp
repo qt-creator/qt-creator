@@ -7,6 +7,7 @@
 #include "cppeditorwidget.h"
 #include "cppelementevaluator.h"
 #include "cppindexingsupport.h"
+#include "cppindexqueries.h"
 #include "cpplocatordata.h"
 #include "cppmodelmanager.h"
 #include "cpprefactoringchanges.h"
@@ -2083,7 +2084,7 @@ void registerMcpTools()
                 };
                 result.insert("transitive_includes",
                               capped("transitive_includes",
-                                     sortedPaths(snapshot.allIncludesForDocument(filePath))));
+                                     sortedPaths(includeClosureOf(snapshot, filePath))));
                 const FilePaths dependents = snapshot.filesDependingOn(filePath);
                 result.insert("transitive_included_by",
                               capped("transitive_included_by",

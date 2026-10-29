@@ -41,6 +41,11 @@ FilePaths includedFilesOf(const Snapshot &snapshot, const FilePath &filePath)
     return doc->includedFiles(Document::Duplicates::Keep);
 }
 
+QSet<FilePath> includeClosureOf(const Snapshot &snapshot, const FilePath &filePath)
+{
+    return snapshot.allIncludesForDocument(filePath);
+}
+
 } // namespace CppEditor
 
 #ifdef WITH_TESTS
@@ -68,6 +73,7 @@ class IndexQueriesTest : public QObject
 private slots:
     void testIncludersOf();
     void testIncludedFilesOf();
+    void testIncludeClosureOf();
 };
 
 void IndexQueriesTest::testIncludersOf()
@@ -116,6 +122,39 @@ void IndexQueriesTest::testIncludedFilesOf()
     QCOMPARE(includedFilesOf(snapshot, source), expected);
     QVERIFY(includedFilesOf(snapshot, header).isEmpty());
     QVERIFY(includedFilesOf(snapshot, unknown).isEmpty());
+}
+
+void IndexQueriesTest::testIncludeClosureOf()
+{
+    const FilePath source = FilePath::fromString("/project/source.cpp");
+    const FilePath direct = FilePath::fromString("/project/direct.h");
+    const FilePath shared = FilePath::fromString("/project/shared.h");
+    const FilePath nested = FilePath::fromString("/project/nested.h");
+    const FilePath unparsed = FilePath::fromString("/project/unparsed.h");
+    const FilePath cycleStart = FilePath::fromString("/project/cyclestart.h");
+    const FilePath cycleEnd = FilePath::fromString("/project/cycleend.h");
+    const FilePath unrelated = FilePath::fromString("/project/unrelated.h");
+    const FilePath unknown = FilePath::fromString("/project/unknown.cpp");
+
+    Snapshot snapshot;
+    addDocument(snapshot, source,
+                {include(direct, 1),
+                 include(shared, 2),
+                 Document::Include("missing.h", {}, 3, Client::IncludeLocal)});
+    addDocument(snapshot, direct, {include(shared, 1), include(nested, 2)});
+    addDocument(snapshot, shared, {});
+    addDocument(snapshot, nested, {include(unparsed, 1)});
+    addDocument(snapshot, cycleStart, {include(cycleEnd, 1)});
+    addDocument(snapshot, cycleEnd, {include(cycleStart, 1)});
+    addDocument(snapshot, unrelated, {});
+
+    const QSet<FilePath> expectedForSource{direct, shared, nested, unparsed};
+    QCOMPARE(includeClosureOf(snapshot, source), expectedForSource);
+    const QSet<FilePath> expectedForCycle{cycleStart, cycleEnd};
+    QCOMPARE(includeClosureOf(snapshot, cycleStart), expectedForCycle);
+
+    QVERIFY(includeClosureOf(snapshot, shared).isEmpty());
+    QVERIFY(includeClosureOf(snapshot, unknown).isEmpty());
 }
 
 QObject *createIndexQueriesTest()

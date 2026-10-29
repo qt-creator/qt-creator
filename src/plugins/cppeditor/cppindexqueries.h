@@ -8,6 +8,8 @@
 #include <utils/filepath.h>
 #include <utils/link.h>
 
+#include <QSet>
+
 QT_BEGIN_NAMESPACE
 class QObject;
 QT_END_NAMESPACE
@@ -23,6 +25,11 @@ CPPEDITOR_EXPORT Utils::Links includersOf(const CPlusPlus::Snapshot &snapshot,
 // The files that the #include directives of filePath resolved to, in order.
 CPPEDITOR_EXPORT Utils::FilePaths includedFilesOf(const CPlusPlus::Snapshot &snapshot,
                                                   const Utils::FilePath &filePath);
+
+// The files reachable from filePath via #include directives.
+// Contains filePath itself only if it is part of an include cycle.
+CPPEDITOR_EXPORT QSet<Utils::FilePath> includeClosureOf(const CPlusPlus::Snapshot &snapshot,
+                                                        const Utils::FilePath &filePath);
 
 #ifdef WITH_TESTS
 namespace Internal { QObject *createIndexQueriesTest(); }

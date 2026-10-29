@@ -22,6 +22,7 @@
 #include <cppeditor/clangdsettings.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppeditorwidget.h>
+#include <cppeditor/cppindexqueries.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cppprojectfile.h>
 #include <cppeditor/cpptoolsreuse.h>
@@ -789,7 +790,7 @@ void ClangModelManagerSupport::updateStaleIndexEntries()
             const QDateTime sourceIndexedTime = indexFilesIt->minLastModifiedTime;
 
             bool rescan = false;
-            const QSet<FilePath> allIncludes = snapshot.allIncludesForDocument(sourceFile);
+            const QSet<FilePath> allIncludes = CppEditor::includeClosureOf(snapshot, sourceFile);
             for (const FilePath &includeFile : allIncludes) {
                 auto includeFileTimeIt = lastModifiedCache.find(includeFile);
                 if (includeFileTimeIt == lastModifiedCache.end()) {

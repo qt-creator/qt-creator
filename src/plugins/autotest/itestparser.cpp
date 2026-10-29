@@ -4,6 +4,7 @@
 #include "itestparser.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <cppeditor/cppindexqueries.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <projectexplorer/projectmanager.h>
 #include <utils/textfileformat.h>
@@ -76,8 +77,8 @@ static bool precompiledHeaderContains(
         LookupInfo info{header, cacheString};
         auto it = s_pchLookupCache.find(info);
         if (it == s_pchLookupCache.end()) {
-            it = s_pchLookupCache.insert(info,
-                         Utils::anyOf(snapshot.allIncludesForDocument(header), checker));
+            it = s_pchLookupCache.insert(
+                info, Utils::anyOf(CppEditor::includeClosureOf(snapshot, header), checker));
         }
         return it.value();
     };
