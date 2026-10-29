@@ -190,6 +190,8 @@ public:
     QdbDeviceWizard(QWidget *parent)
         : QWizard(parent)
     {
+        if (!creatorTheme()->preferredStyles().isEmpty())
+            setWizardStyle(QWizard::ModernStyle);
         setWindowTitle(Tr::tr("Boot to Qt Network Device Setup"));
         settingsPage.setCommitPage(true);
 
@@ -231,8 +233,6 @@ public:
         setConstructionFunction(&QdbDevice::create);
         setCreator([] {
             QdbDeviceWizard wizard(Core::ICore::dialogParent());
-            if (!creatorTheme()->preferredStyles().isEmpty())
-                wizard.setWizardStyle(QWizard::ModernStyle);
             if (wizard.exec() != QDialog::Accepted)
                 return IDevice::Ptr();
             return wizard.device();

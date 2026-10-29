@@ -311,6 +311,10 @@ public:
 Wizard::Wizard(Qt::WindowFlags flags)
     : QWizard(dialogParent(), flags), d_ptr(new WizardPrivate)
 {
+    // Must come before anything that triggers a layout update: QWizard's AeroStyle
+    // layout sets a white background that switching styles later does not undo.
+    if (!creatorTheme()->preferredStyles().isEmpty())
+        setWizardStyle(QWizard::ModernStyle);
     d_ptr->m_wizardProgress = new WizardProgress(this);
     connect(this, &QWizard::currentIdChanged, this, &Wizard::_q_currentPageChanged);
     connect(this, &QWizard::pageAdded, this, &Wizard::_q_pageAdded);
@@ -319,8 +323,6 @@ Wizard::Wizard(Qt::WindowFlags flags)
     setOption(QWizard::NoCancelButton, false);
     setOption(QWizard::NoDefaultButton, false);
     setOption(QWizard::NoBackButtonOnStartPage, true);
-    if (!creatorTheme()->preferredStyles().isEmpty())
-        setWizardStyle(QWizard::ModernStyle);
 
     if (HostOsInfo::isMacHost()) {
         setButtonLayout(QList<QWizard::WizardButton>()
