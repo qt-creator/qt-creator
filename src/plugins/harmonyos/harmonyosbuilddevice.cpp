@@ -24,6 +24,7 @@
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
@@ -381,6 +382,16 @@ static void detectToolsOnThisDevice()
         const IDevice::Ptr device = DeviceManager::find(Utils::Id(thisDeviceId));
         if (!device || Utils::anyOf(KitManager::kits(), &isThisDeviceKit))
             return;
+        // On a first start the generic kit setup made a kit of the same compiler before this
+        // device existed, building on the desktop device and running nowhere.
+        for (Kit *kit : KitManager::kits()) {
+            const Toolchain *toolchain = ToolchainKitAspect::cxxToolchain(kit);
+            const Id deviceType = BuildDeviceTypeKitAspect::deviceTypeId(kit);
+            if (deviceType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE && toolchain
+                && toolchain->targetAbi().osFlavor() == Abi::OpenHarmonyLinuxFlavor) {
+                KitManager::deregisterKit(kit);
+            }
+        }
         // The generic kit setup builds on the desktop device and runs on whatever device
         // type the ABI suggests, while what is built here also runs here.
         Kit *kit = KitManager::registerKit([&device](Kit *k) {
