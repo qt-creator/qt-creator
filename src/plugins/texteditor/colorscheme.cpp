@@ -163,6 +163,12 @@ void ColorScheme::clear()
     m_formats.clear();
 }
 
+static QString colorToString(const QColor &color)
+{
+    const QColor::NameFormat format = color.alpha() == 255 ? QColor::HexRgb : QColor::HexArgb;
+    return color.name(format).toLower();
+}
+
 bool ColorScheme::save(const FilePath &filePath) const
 {
     FileSaver saver(filePath);
@@ -182,15 +188,15 @@ bool ColorScheme::save(const FilePath &filePath) const
             w.writeStartElement(QLatin1String("style"));
             w.writeAttribute(QLatin1String("name"), QString::fromLatin1(Constants::nameForStyle(i.key())));
             if (format.foreground().isValid())
-                w.writeAttribute(QLatin1String("foreground"), format.foreground().name().toLower());
+                w.writeAttribute(QLatin1String("foreground"), colorToString(format.foreground()));
             if (format.background().isValid())
-                w.writeAttribute(QLatin1String("background"), format.background().name().toLower());
+                w.writeAttribute(QLatin1String("background"), colorToString(format.background()));
             if (format.bold())
                 w.writeAttribute(QLatin1String("bold"), QLatin1String(trueString));
             if (format.italic())
                 w.writeAttribute(QLatin1String("italic"), QLatin1String(trueString));
             if (format.underlineColor().isValid())
-                 w.writeAttribute(QStringLiteral("underlineColor"), format.underlineColor().name().toLower());
+                 w.writeAttribute(QStringLiteral("underlineColor"), colorToString(format.underlineColor()));
             if (format.underlineStyle() != QTextCharFormat::NoUnderline)
                  w.writeAttribute(QLatin1String("underlineStyle"), underlineStyleToString(format.underlineStyle()));
             if (!qFuzzyIsNull(format.relativeForegroundSaturation()))

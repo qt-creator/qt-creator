@@ -122,6 +122,8 @@ extend_qtc_plugin(TextEditor
     codeassist/codeassist_test.h
     codestyleaspect_test.cpp
     codestyleaspect_test.h
+    colorscheme_test.cpp
+    colorscheme_test.h
     editorconfig_test.cpp
     editorconfig_test.h
     highlighter_test.cpp

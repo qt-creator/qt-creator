@@ -38,6 +38,7 @@
 #ifdef WITH_TESTS
 #include "codeassist/codeassist_test.h"
 #include "codestyleaspect_test.h"
+#include "colorscheme_test.h"
 #include "editorconfig_test.h"
 #include "formattexteditor.h"
 #include "highlighter_test.h"
@@ -119,6 +120,7 @@ void TextEditorPlugin::initialize()
     addTestCreator(createScopeEndAnnotationsTest);
     addTestCreator(createSnippetParserTest);
     addTestCreator(createCodeStyleAspectTest);
+    addTestCreator(createColorSchemeTest);
     addTestCreator(createEditorConfigTest);
     addTestCreator(createMergeConflictTest);
     addTestCreator(createSpellCheckTest);
