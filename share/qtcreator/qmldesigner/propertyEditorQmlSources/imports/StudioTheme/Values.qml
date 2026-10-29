@@ -487,51 +487,51 @@ QtObject {
 
     // base
 
-    property color base_black: Theme.color(Theme.DS_base_black)
-    property color base_white: Theme.color(Theme.DS_base_white)
+    property color base_black: Theme.color(Theme.Token_Basic_Black)
+    property color base_white: Theme.color(Theme.Token_Basic_White)
 
     // primary / accent
-    property color accent_default: Theme.color(Theme.DS_accent_default)
-    property color accent_muted: Theme.color(Theme.DS_accent_muted)
-    property color accent_subtle: Theme.color(Theme.DS_accent_subtle)
+    property color accent_default: Theme.color(Theme.Token_Accent_Default)
+    property color accent_muted: Theme.color(Theme.Token_Accent_Muted)
+    property color accent_subtle: Theme.color(Theme.Token_Accent_Subtle)
 
     // background
-    property color background_default: Theme.color(Theme.DS_background_default)
-    property color background_muted: Theme.color(Theme.DS_background_muted)
-    property color background_subtle: Theme.color(Theme.DS_background_subtle)
+    property color background_default: Theme.color(Theme.Token_Background_Default)
+    property color background_muted: Theme.color(Theme.Token_Background_Muted)
+    property color background_subtle: Theme.color(Theme.Token_Background_Subtle)
 
     // foreground
-    property color foreground_default: Theme.color(Theme.DS_forground_default)
-    property color foreground_muted: Theme.color(Theme.DS_foreground_muted)
-    property color foreground_subtle: Theme.color(Theme.DS_foreground_subtle)
+    property color foreground_default: Theme.color(Theme.Token_Foreground_Default)
+    property color foreground_muted: Theme.color(Theme.Token_Foreground_Muted)
+    property color foreground_subtle: Theme.color(Theme.Token_Foreground_Subtle)
 
     //text / icon
-    property color text_default: Theme.color(Theme.DS_text_default)
-    property color text_muted: Theme.color(Theme.DS_text_muted)
-    property color text_subtle: Theme.color(Theme.DS_text_subtle)
-    property color text_accent: Theme.color(Theme.DS_text_accent)
+    property color text_default: Theme.color(Theme.Token_Text_Default)
+    property color text_muted: Theme.color(Theme.Token_Text_Muted)
+    property color text_subtle: Theme.color(Theme.Token_Text_Subtle)
+    property color text_accent: Theme.color(Theme.Token_Text_Accent)
 
     //stroke
-    property color stroke_strong: Theme.color(Theme.DS_stroke_strong)
-    property color stroke_muted: Theme.color(Theme.DS_stroke_muted)
-    property color stroke_subtle: Theme.color(Theme.DS_stroke_subtle)
+    property color stroke_strong: Theme.color(Theme.Token_Stroke_Strong)
+    property color stroke_muted: Theme.color(Theme.Token_Stroke_Muted)
+    property color stroke_subtle: Theme.color(Theme.Token_Stroke_Subtle)
 
     //notification
-    property color notification_alertDefault: Theme.color(Theme.DS_notification_alert_default)
-    property color notification_alertMuted: Theme.color(Theme.DS_notification_alert_muted)
-    property color notification_alertSubtle: Theme.color(Theme.DS_notification_alert_subtle)
+    property color notification_alertDefault: Theme.color(Theme.Token_Notification_Alert_Default)
+    property color notification_alertMuted: Theme.color(Theme.Token_Notification_Alert_Muted)
+    property color notification_alertSubtle: Theme.color(Theme.Token_Notification_Alert_Subtle)
 
-    property color notification_neutralDefault: Theme.color(Theme.DS_notification_neutral_default)
-    property color notification_neutralMuted: Theme.color(Theme.DS_notification_neutral_muted)
-    property color notification_neutralSubtle: Theme.color(Theme.DS_notification_neutral_subtle)
+    property color notification_neutralDefault: Theme.color(Theme.Token_Notification_Neutral_Default)
+    property color notification_neutralMuted: Theme.color(Theme.Token_Notification_Neutral_Muted)
+    property color notification_neutralSubtle: Theme.color(Theme.Token_Notification_Neutral_Subtle)
 
-    property color notification_dangerDefault: Theme.color(Theme.DS_notification_danger_default)
-    property color notification_dangerMuted: Theme.color(Theme.DS_notification_danger_muted)
-    property color notification_dangerSubtle: Theme.color(Theme.DS_notification_danger_subtle)
+    property color notification_dangerDefault: Theme.color(Theme.Token_Notification_Danger_Default)
+    property color notification_dangerMuted: Theme.color(Theme.Token_Notification_Danger_Muted)
+    property color notification_dangerSubtle: Theme.color(Theme.Token_Notification_Danger_Subtle)
 
-    property color notification_successDefault: Theme.color(Theme.DS_notification_success_default)
-    property color notification_successMuted: Theme.color(Theme.DS_notification_success_muted)
-    property color notification_successSubtle: Theme.color(Theme.DS_notification_success_subtle)
+    property color notification_successDefault: Theme.color(Theme.Token_Notification_Success_Default)
+    property color notification_successMuted: Theme.color(Theme.Token_Notification_Success_Muted)
+    property color notification_successSubtle: Theme.color(Theme.Token_Notification_Success_Subtle)
 
     // Control Style Mapping
     property ControlStyle controlStyle: DefaultStyle {}

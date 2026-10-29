@@ -1,6 +1,3 @@
-[General]
-Includes=ds.tokenmapping
-
 [Colors]
 ;DS controls theme
 

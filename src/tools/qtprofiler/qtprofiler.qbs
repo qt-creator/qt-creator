@@ -83,7 +83,6 @@ QtcTool {
             "light.figmatokens",
             "primitive-colors.inc",
             "2024.tokenmapping",
-            "ds.tokenmapping",
             "qmldesigner-dark.inc",
             "qmldesigner-light.inc",
         ]
