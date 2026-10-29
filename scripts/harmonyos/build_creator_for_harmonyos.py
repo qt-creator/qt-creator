@@ -47,6 +47,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+import build_hap
+import build_runner_hap
+
 IMAGE = "qtc-harmonyos"
 HERE = Path(__file__).resolve().parent
 SOURCE = HERE.parents[1]
@@ -110,6 +113,12 @@ def main() -> int:
         raise SystemExit("Unknown stages: {}".format(", ".join(sorted(unknown))))
     if not (args.qt.parent / "sha1s.txt").is_file():
         raise SystemExit("No sha1s.txt beside {}".format(args.qt))
+    # A wrong profile would otherwise only show when the last stages sign.
+    if args.profile and "hap" in stages:
+        build_hap.check_profile_bundle(args.profile, args.bundle or build_hap.BUNDLE)
+    if args.runner_profile and "runner" in stages:
+        build_hap.check_profile_bundle(args.runner_profile,
+                                       args.runner_bundle or build_runner_hap.BUNDLE)
     args.path.mkdir(parents=True, exist_ok=True)
 
     mounts = {"/scripts": HERE, "/qt": args.qt.parent, "/source": args.source}

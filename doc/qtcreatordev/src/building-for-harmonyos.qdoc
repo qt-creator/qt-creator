@@ -63,7 +63,9 @@
             \c ohos.permission.READ_WRITE_USER_FILE and
             \c ohos.permission.READ_PASTEBOARD. For \c qtcrunner.hap, it
             is \c ohos.permission.READ_PASTEBOARD. Otherwise, the device
-            refuses to install the package with error 9568289. Without
+            refuses to install the package with error 9568289. The scripts
+            check the bundle name and the ACLs of a profile before they
+            assemble the package, and stop if they do not match. Without
             signing material, the scripts build the packages but leave
             them unsigned, and a device does not install unsigned
             packages. For more information, see

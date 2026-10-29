@@ -40,6 +40,7 @@ from pathlib import Path
 ABILITY_STAGE = "entry/src/main/ets/qabilitystage/QAbilityStage.ets"
 DEVICE_PLUGINS = "/data/storage/el1/bundle/libs/arm64"
 DEVICE_RESOURCES = "/data/storage/el1/bundle/entry/resources/resfile/qtcreator"
+BUNDLE = "org.qtproject.qtcreator"
 
 
 def absolute(path: str) -> Path:
@@ -216,6 +217,41 @@ def without_daemon(hvigor: Path, directory: Path) -> Path:
     return wrapper
 
 
+def profile_contents(profile: Path) -> dict:
+    """The JSON a signing profile carries, which the .p7b holds as it is."""
+    data = profile.read_bytes()
+    start = data.find(b'{"')
+    try:
+        contents, _ = json.JSONDecoder().raw_decode(data[max(start, 0):].decode("utf-8",
+                                                                                 "replace"))
+    except ValueError:
+        raise SystemExit("Cannot read the signing profile {}".format(profile))
+    return contents
+
+
+def check_profile_bundle(profile: Path, bundle: str) -> None:
+    """A device refuses a package whose profile is for another bundle."""
+    named = profile_contents(profile).get("bundle-info", {}).get("bundle-name")
+    if named != bundle:
+        raise SystemExit("The signing profile {} is for the bundle {}, not for {}".format(
+            profile, named, bundle))
+
+
+def check_profile_acls(profile: Path, module: Path, toolchains: Path) -> None:
+    """A device refuses a package that requests a permission above the "normal" level
+    which its profile does not allow, with error 9568289."""
+    definitions = json.loads((toolchains / "lib/PermissionDefinitions.json").read_text())
+    restricted = {permission["name"] for permission in definitions["definePermissions"]
+                  if permission.get("availableLevel") != "normal"}
+    requested = set(re.findall(r'"name"\s*:\s*"(ohos\.permission\.[\w.]+)"',
+                               module.read_text()))
+    allowed = set(profile_contents(profile).get("acls", {}).get("allowed-acls", []))
+    missing = sorted((requested & restricted) - allowed)
+    if missing:
+        raise SystemExit("The package requests {}, which the signing profile {} does not "
+                         "allow in its ACLs".format(", ".join(missing), profile))
+
+
 def sign(hap: Path, output: Path, toolchains: Path, args: argparse.Namespace,
          environment: dict) -> None:
     password = args.keystore_password_file.read_text().strip()
@@ -245,7 +281,7 @@ def main() -> int:
                              "the device")
     parser.add_argument("--source", type=absolute,
                         help="Qt Creator sources, this checkout by default")
-    parser.add_argument("--bundle", default="org.qtproject.qtcreator",
+    parser.add_argument("--bundle", default=BUNDLE,
                         help="bundle name, the one the signing profile is for, %(default)s "
                              "by default")
     parser.add_argument("--output", type=absolute,
@@ -272,6 +308,8 @@ def main() -> int:
     if any(signing) and not all(signing):
         raise SystemExit("Signing needs --profile, --certificate, --keystore, --key-alias "
                          "and --keystore-password-file")
+    if args.profile:
+        check_profile_bundle(args.profile, args.bundle)
     output = args.output or args.build / ("src/app/qtcreator.hap" if args.keystore
                                           else "src/app/qtcreator-unsigned.hap")
     openharmony = openharmony_path(args.sdk)
@@ -342,6 +380,8 @@ def main() -> int:
         search.append(args.packages / "lib")
     stage_libraries(project, args.build, search, readelf)
     adjust_project(project, args.bundle, version, arguments)
+    if args.profile:
+        check_profile_acls(args.profile, project / "entry/src/main/module.json5", toolchains)
 
     log = args.build / "hvigor.log"
     run([hvigor, "assembleHap", "--no-daemon"], cwd=project, env=environment, log=log)

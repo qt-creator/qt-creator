@@ -38,10 +38,11 @@ import sys
 import zipfile
 from pathlib import Path
 
-from build_hap import (absolute, openharmony_path, run, sdk_version, sign,
-                       without_daemon)
+from build_hap import (absolute, check_profile_acls, check_profile_bundle, openharmony_path,
+                       run, sdk_version, sign, without_daemon)
 
 APPLICATION = "runnerapp"
+BUNDLE = "org.qtproject.qtcrunner"
 PROJECT = """\
 cmake_minimum_required(VERSION 3.22)
 project({name} LANGUAGES CXX)
@@ -129,7 +130,7 @@ def main() -> int:
                         help="Qt Creator sources, this checkout by default")
     parser.add_argument("--path", type=absolute, required=True,
                         help="directory to build in")
-    parser.add_argument("--bundle", default="org.qtproject.qtcrunner",
+    parser.add_argument("--bundle", default=BUNDLE,
                         help="bundle name, the one the signing profile is for, %(default)s "
                              "by default")
     parser.add_argument("--output", type=absolute,
@@ -149,6 +150,8 @@ def main() -> int:
     if any(signing) and not all(signing):
         raise SystemExit("Signing needs --profile, --certificate, --keystore, --key-alias "
                          "and --keystore-password-file")
+    if args.profile:
+        check_profile_bundle(args.profile, args.bundle)
     source = args.source or Path(__file__).resolve().parents[2]
     host_path = args.host_path or args.qt.parent / "gcc_64"
     openharmony = openharmony_path(args.sdk)
@@ -228,6 +231,8 @@ def main() -> int:
     edit(module, r'"module"\s*:\s*\{',
          '\n    "hnpPackages": [\n      { "package": "qtctools.hnp", "type": "private" }\n'
          '    ],', "module object")
+    if args.profile:
+        check_profile_acls(args.profile, module, openharmony / "toolchains")
 
     run([hvigor, "assembleHap", "--no-daemon"], cwd=project, env=environment,
         log=args.path / "hvigor.log")
