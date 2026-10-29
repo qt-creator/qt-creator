@@ -4338,7 +4338,7 @@ void TextEditorWidgetPrivate::openTypeUnderCursor(bool openInNextSplit)
 
 qreal TextEditorWidgetPrivate::charWidth() const
 {
-    return QFontMetricsF(q->font()).horizontalAdvance(QLatin1Char('x'));
+    return QFontMetricsF(q->font()).horizontalAdvance("x");
 }
 
 qreal TextEditorWidgetPrivate::tabStopDistance() const
