@@ -6,11 +6,6 @@ QtcAutotest {
     Depends { name: "Utils" }
     Depends { name: "Qt.network" }
     Group {
-        name: "Sources from Debugger plugin"
-        prefix: project.debuggerDir
-        files: ["debuggerprotocol.h", "debuggerprotocol.cpp"]
-    }
-    Group {
         name: "Test sources"
         files: "tst_jdwp.cpp"
     }
@@ -20,5 +15,4 @@ QtcAutotest {
         files: ["Helper.java", "Inferior.java", "other/Helper.java"]
     }
     cpp.defines: base.concat(['JDWP_TEST_SOURCE_DIR="' + path + '/jdwp"'])
-    cpp.includePaths: base.concat([project.debuggerDir])
 }

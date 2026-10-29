@@ -13,5 +13,6 @@ QtcAutotest {
         name: "Test sources"
         files: "tst_gdb.cpp"
     }
+    cpp.defines: base.concat("DEBUGGER_STATIC_LIBRARY")
     cpp.includePaths: base.concat([project.debuggerDir])
 }

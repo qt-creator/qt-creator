@@ -1,17 +1,16 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "breakpoint.h"
-#include "debuggerengine.h"
-#include "debuggerengineinterface.h"
-
-#include "bridge/bridgeimpl.h"
-#include "dap/dapimpl.h"
-#include "cdb/cdbimpl.h"
-#include "gdb/gdbimpl.h"
-#include "lldb/lldbimpl.h"
-#include "pdb/pdbimpl.h"
-#include "qml/qmlimpl.h"
+#include <debugger/breakpoint.h>
+#include <debugger/bridge/bridgeimpl.h>
+#include <debugger/cdb/cdbimpl.h>
+#include <debugger/dap/dapimpl.h>
+#include <debugger/debuggerengine.h>
+#include <debugger/debuggerengineinterface.h>
+#include <debugger/gdb/gdbimpl.h>
+#include <debugger/lldb/lldbimpl.h>
+#include <debugger/pdb/pdbimpl.h>
+#include <debugger/qml/qmlimpl.h>
 
 #include <utils/algorithm.h>
 #include <utils/commandline.h>

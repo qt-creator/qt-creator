@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "debugger_global.h"
+
 #include <QByteArray>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -20,7 +22,7 @@ namespace Utils { class ProcessHandle; }
 namespace Debugger::Internal {
 
 QString fromHex(const QString &str);
-QString toHex(const QString &str);
+DEBUGGER_TEST_EXPORT QString toHex(const QString &str);
 
 class DebuggerResponse;
 
@@ -158,7 +160,7 @@ private:
     QStringDecoder &decoder;
 };
 
-class GdbMi
+class DEBUGGER_TEST_EXPORT GdbMi
 {
 public:
     GdbMi() = default;
@@ -233,7 +235,7 @@ public:
     QString     consoleStreamOutput;
 };
 
-void extractGdbVersion(const QString &msg,
+DEBUGGER_TEST_EXPORT void extractGdbVersion(const QString &msg,
     int *gdbVersion, int *gdbBuildVersion, bool *isMacGdb, bool *isQnxGdb);
 
 // The listing "maint info sections" writes, as the sections of one module.
@@ -278,7 +280,7 @@ public:
 };
 
 // Decode string data as returned by the dumper helpers.
-QString decodeData(QStringView baIn, const QString &encoding);
+DEBUGGER_TEST_EXPORT QString decodeData(QStringView baIn, const QString &encoding);
 
 
 // These enum values correspond to possible value display format requests,

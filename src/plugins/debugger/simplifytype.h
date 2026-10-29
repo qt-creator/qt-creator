@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "debugger_global.h"
+
 #include <QString>
 
 namespace Debugger::Internal {
@@ -10,6 +12,6 @@ namespace Debugger::Internal {
 // Simplify complicated STL template types, such as
 // 'std::basic_string<char,std::char_traits<char>,std::allocator<char> > '->
 // 'std::string'.
-QString simplifyType(const QString &typeIn);
+DEBUGGER_TEST_EXPORT QString simplifyType(const QString &typeIn);
 
 } // Debugger::Internal

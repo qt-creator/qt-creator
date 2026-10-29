@@ -12,3 +12,9 @@
 #else
 #  define DEBUGGER_EXPORT Q_DECL_IMPORT
 #endif
+
+#ifdef WITH_TESTS
+#define DEBUGGER_TEST_EXPORT DEBUGGER_EXPORT
+#else
+#define DEBUGGER_TEST_EXPORT
+#endif

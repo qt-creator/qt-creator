@@ -1,14 +1,13 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "breakpoint.h"
-#include "debuggerengineinterface.h"
-#include "debuggerprotocol.h"
-
-#include "gdb/gdbimpl.h"
-#include "jdwp/jdwpclient.h"
-#include "jdwp/jdwpimpl.h"
-#include "lldb/lldbimpl.h"
+#include <debugger/breakpoint.h>
+#include <debugger/debuggerengineinterface.h>
+#include <debugger/debuggerprotocol.h>
+#include <debugger/gdb/gdbimpl.h>
+#include <debugger/jdwp/jdwpclient.h>
+#include <debugger/jdwp/jdwpimpl.h>
+#include <debugger/lldb/lldbimpl.h>
 
 #include <utils/algorithm.h>
 #include <utils/commandline.h>

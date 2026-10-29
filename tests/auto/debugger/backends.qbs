@@ -11,19 +11,8 @@ Project {
         Depends { name: "qmlstack_inferior"; required: false }
         Depends { name: "qmlserver_inferior"; required: false }
         Depends { name: "qmlmix_inferior"; required: false }
-        Group {
-            name: "Sources from Debugger plugin"
-            prefix: project.debuggerDir
-            files: [
-                "debuggerprotocol.h", "debuggerprotocol.cpp"
-            ]
-        }
-        Group {
-            name: "Test sources"
-            files: [
-                "tst_backends.cpp"
-            ]
-        }
+
+        files: "tst_backends.cpp"
 
         cpp.defines: {
             var defines = base.concat([
@@ -51,7 +40,6 @@ Project {
             }
             return defines;
         }
-        cpp.includePaths: base.concat([project.debuggerDir])
     }
     references: [
         "qmlstack_inferior.qbs",

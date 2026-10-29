@@ -86,14 +86,7 @@ if (WITH_DEBUGGER_DUMPERS)
       DUMPERDIR="${PROJECT_SOURCE_DIR}/share/qtcreator/debugger"
       CDBEXT_PATH="${CDBEXT_BASE_PATH}"
       DEFAULT_QMAKE_BINARY="${qmake_binary}"
-    INCLUDES
-      "${DEBUGGERDIR}"
-    SOURCES
-      "${DEBUGGERDIR}/debuggertr.h"
-      "${DEBUGGERDIR}/debuggerprotocol.cpp" "${DEBUGGERDIR}/debuggerprotocol.h"
-      "${DEBUGGERDIR}/simplifytype.cpp" "${DEBUGGERDIR}/simplifytype.h"
-      "${DEBUGGERDIR}/watchutils.cpp" "${DEBUGGERDIR}/watchutils.h"
-      tst_dumpers.cpp
+    SOURCES tst_dumpers.cpp
   )
 endif()
 
@@ -120,6 +113,7 @@ endif()
 add_qtc_test(tst_debugger_gdb
   DEPENDS Qt::Network Utils
   INCLUDES "${DEBUGGERDIR}"
+  DEFINES DEBUGGER_STATIC_LIBRARY
   SOURCES
     tst_gdb.cpp
     "${DEBUGGERDIR}/debuggertr.h"
@@ -173,10 +167,7 @@ add_qtc_test(tst_debugger_backends
   TIMEOUT 0
   DEPENDS Qt::Network Utils Debugger
   DEFINES ${BACKENDS_TEST_DEFINES}
-  INCLUDES
-    "${DEBUGGERDIR}"
   SOURCES
-    "${DEBUGGERDIR}/debuggerprotocol.cpp" "${DEBUGGERDIR}/debuggerprotocol.h"
     tst_backends.cpp
 )
 
@@ -184,17 +175,14 @@ add_qtc_test(tst_debugger_jdwp
   TIMEOUT 300
   DEPENDS Qt::Network Utils Debugger
   DEFINES JDWP_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/jdwp"
-  INCLUDES
-    "${DEBUGGERDIR}"
-  SOURCES
-    "${DEBUGGERDIR}/debuggerprotocol.cpp" "${DEBUGGERDIR}/debuggerprotocol.h"
-    tst_jdwp.cpp
+  SOURCES tst_jdwp.cpp
 )
 
 add_qtc_test(tst_debugger_protocol
   DEPENDS Qt::Network Utils
   INCLUDES
     "${DEBUGGERDIR}"
+  DEFINES DEBUGGER_STATIC_LIBRARY
   SOURCES
     "${DEBUGGERDIR}/debuggertr.h"
     "${DEBUGGERDIR}/debuggerprotocol.cpp" "${DEBUGGERDIR}/debuggerprotocol.h"
@@ -210,7 +198,9 @@ add_qtc_test(tst_debugger_offsets
 add_qtc_test(tst_debugger_simplifytypes
   INCLUDES "${DEBUGGERDIR}"
   DEPENDS Utils
-  DEFINES DUMPERDIR="${PROJECT_SOURCE_DIR}/share/qtcreator/debugger"
+  DEFINES
+    DUMPERDIR="${PROJECT_SOURCE_DIR}/share/qtcreator/debugger"
+    DEBUGGER_STATIC_LIBRARY
   SOURCES
     tst_simplifytypes.cpp
     "${DEBUGGERDIR}/debuggertr.h"
