@@ -145,7 +145,7 @@ Import3dDialog::Import3dDialog(const QStringList &importFiles,
                 "QPushButton#advancedSettingsButton {background-color: transparent}");
     ui->advancedSettingsButton->setStyleSheet(
                 QString("QPushButton { border: none; color :%1 }").arg(
-                    Utils::creatorColor(Utils::Theme::QmlDesigner_HighlightColor).name()));
+                    Utils::creatorColor(Utils::Theme::TextColorLink).name()));
 
     QStringList importPaths;
     auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
