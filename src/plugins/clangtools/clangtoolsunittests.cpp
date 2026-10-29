@@ -542,6 +542,41 @@ void ClangToolsUnitTests::testTypingInProjectSettingsRegeneratesOnce()
     Core::EditorManager::closeDocuments({editor->document()}, false);
 }
 
+void ClangToolsUnitTests::testMissingToolGeneratesNoCompilationDb()
+{
+    IgnoredFlagsGuard guard;
+    ClangToolsSettings * const global = ClangToolsSettings::instance();
+    const FilePath tidy = global->clangTidyExecutable();
+    const QScopeGuard restoreTidy([global, tidy] { global->clangTidyExecutable.setValue(tidy); });
+    global->clangTidyExecutable.setValue(m_tmpDir->absolutePath("no-such-clang-tidy"));
+
+    const FilePath projectFile = m_tmpDir->absolutePath("gcc-only-flags/gcc-only-flags.pro");
+    QVERIFY(writeGccOnlyFlagProject(projectFile, "-fno-strict-aliasing"));
+    Tests::ProjectOpenerAndCloser projectManager;
+    QVERIFY(projectManager.open(projectFile, m_kit));
+    Project * const project = projectManager.projects().constFirst();
+    const auto projectSettings = clangToolsProjectSettings(project);
+    const QScopeGuard restoreProjectSettings([projectSettings] {
+        projectSettings->useGlobalSettings.setValue(true);
+    });
+    projectSettings->useGlobalSettings.setValue(false);
+    projectSettings->analyzeOpenFiles.setValue(true);
+
+    ClangToolsCompilationDb &clazyDb
+        = ClangToolsCompilationDb::getDb(ClangToolType::Clazy, project->activeBuildConfiguration());
+    QSignalSpy clazyGenerated(&clazyDb, &ClangToolsCompilationDb::generated);
+    const int before = generationMessageCount();
+    Core::IEditor * const editor = Core::EditorManager::openEditor(
+        m_tmpDir->absolutePath("gcc-only-flags/main.cpp"));
+    QVERIFY(editor);
+
+    // Clang-Tidy comes first, so by the time the database for Clazy is ready, one for
+    // Clang-Tidy would have been generated.
+    QTRY_VERIFY_WITH_TIMEOUT(clazyGenerated.count() >= 1, m_timeout);
+    QCOMPARE(generationMessageCount(), before);
+    Core::EditorManager::closeDocuments({editor->document()}, false);
+}
+
 void ClangToolsUnitTests::testRunSettings()
 {
     IgnoredFlagsGuard guard;

@@ -196,6 +196,8 @@ void DocumentClangToolRunner::run()
         return;
 
     for (const ClangToolType type : {ClangToolType::Tidy, ClangToolType::Clazy}) {
+        if (!toolExecutable(type).isExecutableFile())
+            continue;
         ClangToolsCompilationDb &db
             = ClangToolsCompilationDb::getDb(type, project->activeBuildConfiguration());
         db.disconnect(this);

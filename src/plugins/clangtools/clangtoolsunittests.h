@@ -34,6 +34,7 @@ private slots:
     void testUnknownFlagsDialog_data();
     void testUnknownFlagsDialogFromOpenDocument();
     void testTypingInProjectSettingsRegeneratesOnce();
+    void testMissingToolGeneratesNoCompilationDb();
     void testRunSettings();
 
 private:
