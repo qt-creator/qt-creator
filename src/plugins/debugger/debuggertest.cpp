@@ -147,6 +147,7 @@ private slots:
     void testCdbImplBreakpointStopMessages();
     void testCdbImplStepIntoLanding();
     void testCdbImplScriptMessages();
+    void testCdbImplDebuggeeOutput();
     void testCdbImplBreakpointInsertCommand();
     void testCdbImplBreakpointModuleScope();
     void testCdbImplDisassemblyRange();
@@ -1200,6 +1201,22 @@ void DebuggerUnitTests::testCdbImplScriptMessages()
 
     // An empty entry is not worth a log line of its own.
     QVERIFY(scriptMessages(reply(R"(msg=[""])")).isEmpty());
+}
+
+void DebuggerUnitTests::testCdbImplDebuggeeOutput()
+{
+    const auto encoded = [](const QString &text) {
+        return QString::fromLatin1(QByteArray(reinterpret_cast<const char *>(text.utf16()),
+                                              text.size() * 2).toHex());
+    };
+
+    QCOMPARE(debuggeeOutput(encoded("Hello\n")), QString("Hello\n"));
+
+    // Each OutputDebugString call is a line of its own in the output pane.
+    QCOMPARE(debuggeeOutput(encoded("no newline")), QString("no newline\n"));
+
+    const QString umlaut = QString::fromUtf8("Gr\xc3\xbc\xc3\x9f\n");
+    QCOMPARE(debuggeeOutput(encoded(umlaut)), umlaut);
 }
 
 void DebuggerUnitTests::testCdbImplBreakpointInsertCommand()

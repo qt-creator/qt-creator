@@ -22,6 +22,8 @@ DEBUGGER_EXPORT bool stoppedInArtificialThread(const GdbMi &stopData);
 
 DEBUGGER_EXPORT QStringList scriptMessages(const GdbMi &data);
 
+DEBUGGER_EXPORT QString debuggeeOutput(const QString &hexEncodedUtf16);
+
 enum class StepIntoLanding { Arrived, OnThunk, WithoutSource };
 
 DEBUGGER_EXPORT StepIntoLanding stepIntoLanding(

@@ -320,6 +320,8 @@ struct InferiorTestData
     // full: Cdb's limit is not configured, Pdb and Qml have no such symbol.
     QString longTextSymbol;
     QString applicationOutputMarker;
+    // What the inferior passes to OutputDebugString, where it can.
+    QString debugStringMarker;
     QString environmentReportPrefix;
     // What the inferior prints the debug heap flag it was started with behind.
     QString heapFlagReportPrefix;
@@ -2233,6 +2235,8 @@ private slots:
     void continueSignalsExitedForSpontaneousExit();
     void reportsApplicationOutput_data() { addBackendRows(); }
     void reportsApplicationOutput();
+    void reportsTheDebugStringOutput_data() { addBackendRows(); }
+    void reportsTheDebugStringOutput();
     void reportsThatTheCppRuntimeTookTheInferior_data() { addBackendRows(); }
     void reportsThatTheCppRuntimeTookTheInferior();
     void reportsAFirstChanceExceptionWhenAsked_data() { addBackendRows(); }
@@ -4130,6 +4134,9 @@ void tst_backends::initTestCase()
         "        cwd[0] = 0;",
         "#endif",
         "    printf(\"cwd=%s\\n\", cwd); // thunk step line",
+        "#ifdef _WIN32",
+        "    OutputDebugStringA(\"OutputDebugString marker\\n\");",
+        "#endif",
         "    printf(\"after bump\\n\");",
         "    fflush(stdout);",
         "    if (argc > 1 && strcmp(argv[1], \"vfork\") == 0)",
@@ -4433,6 +4440,8 @@ void tst_backends::initTestCase()
             m_backendData[Backend::Cdb].inferiorData.answersRedundantContinue = true;
             m_backendData[Backend::Cdb].inferiorData.remoteServerIsGdbserver = false;
             m_backendData[Backend::Cdb].inferiorData.moduleListMarker = "kernel32";
+            m_backendData[Backend::Cdb].inferiorData.debugStringMarker
+                = "OutputDebugString marker";
             m_backendData[Backend::Cdb].inferiorData.survivedAccessViolationMarker
                 = "survived the access violation";
             m_backendData[Backend::Cdb].inferiorData.enableToggleWireMarker = "bd";
@@ -8525,6 +8534,43 @@ void tst_backends::reportsApplicationOutput()
                                                  "application channel - looked for \"%1\", other "
                                                  "channels saw:\n  %2")
                                              .arg(marker, otherChannels.join("\n  ").left(600))),
+                              s_timeout);
+}
+
+void tst_backends::reportsTheDebugStringOutput()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+    if (backend != Backend::Cdb)
+        QSKIP("only cdb passes on what the debuggee sends to OutputDebugString");
+
+    const QString marker = inferiorTestData(backend).debugStringMarker;
+    if (marker.isEmpty())
+        QSKIP("inferior sends nothing to OutputDebugString");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList applicationOutput;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&applicationOutput](const QString &text, int channel, int) {
+        if (channel == Debugger::AppOutput)
+            applicationOutput.append(text);
+    });
+
+    stopInferiorSpinLoop(backend, engine);
+
+    debuggerBackend->clearInferiorResults();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY_WITH_TIMEOUT(!debuggerBackend->inferiorResults().isEmpty(), s_timeout);
+
+    QTRY_VERIFY2_WITH_TIMEOUT(applicationOutput.join('\n').contains(marker),
+                              qPrintable(QString("\"%1\" never arrived on the application "
+                                                 "channel, it saw:\n  %2")
+                                             .arg(marker, applicationOutput.join("\n  ").left(600))),
                               s_timeout);
 }
 

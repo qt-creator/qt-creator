@@ -3426,6 +3426,16 @@ QStringList scriptMessages(const GdbMi &data)
     return result;
 }
 
+// What the debuggee passed to OutputDebugString, hex encoded UTF-16 as the
+// extension's output callback sends it.
+QString debuggeeOutput(const QString &hexEncodedUtf16)
+{
+    const QByteArray encoded = QByteArray::fromHex(hexEncodedUtf16.toLatin1());
+    const QString text = QString::fromUtf16(reinterpret_cast<const char16_t *>(encoded.data()),
+                                            encoded.size() / 2);
+    return text.endsWith('\n') ? text : text + '\n';
+}
+
 void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
                                      const QString &payload)
 {
@@ -3481,6 +3491,11 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
             resumeAfterSetup();
         if (m_resumeWhenServiceRepliesDrain)
             finishServiceSafePoint();
+        return;
+    }
+
+    if (what == "debuggee_output") {
+        emit message(debuggeeOutput(payload), AppOutput);
         return;
     }
 
