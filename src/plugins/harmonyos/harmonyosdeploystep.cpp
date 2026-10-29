@@ -2862,6 +2862,25 @@ private slots:
         QVERIFY(platform.parentDir().ensureWritableDir());
         QVERIFY(platform.writeFileContents("not an ELF file, but a file"));
         QCOMPARE(qtPlugins(settings), FilePaths{platform});
+
+        // The QML plugins are the ones qmlimportscanner listed for the target, where they
+        // exist.
+        const FilePath appSettings = root.pathAppended("app-harmony-deployment-settings.json");
+        QVERIFY(appSettings.writeFileContents(settings.fileContents().value_or(QByteArray())));
+        const FilePath layouts = root.pathAppended("qml/QtQuick/Layouts/libqquicklayoutsplugin.so");
+        QVERIFY(layouts.parentDir().ensureWritableDir());
+        QVERIFY(layouts.writeFileContents("a plugin"));
+        const FilePath imports = root.pathAppended(".qt/qml_imports/app_conf.cmake");
+        QVERIFY(imports.parentDir().ensureWritableDir());
+        QVERIFY(imports.writeFileContents(QString(
+            "set(qml_import_scanner_imports_count 3)\n"
+            "set(qml_import_scanner_import_0 \"NAME;QML;PATH;%1/qml/QML;TYPE;module;\")\n"
+            "set(qml_import_scanner_import_1 \"NAME;QtQuick.Layouts;PATH;%1/qml/QtQuick/Layouts;"
+            "PLUGIN;qquicklayoutsplugin;PLUGINISOPTIONAL;;TYPE;module;\")\n"
+            "set(qml_import_scanner_import_2 \"NAME;QtQuick.Shapes;PATH;%1/qml/QtQuick/Shapes;"
+            "PLUGIN;qmlshapesplugin;TYPE;module;\")\n").arg(root.path()).toUtf8()));
+        QCOMPARE(qtPlugins(appSettings), FilePaths({platform, layouts}));
+        QCOMPARE(qtPlugins(settings), FilePaths{platform});
     }
 
     void testAddPermissionWithoutList()

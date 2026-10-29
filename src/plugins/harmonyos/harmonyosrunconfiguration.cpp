@@ -191,8 +191,45 @@ FilePath findLibrary(const QString &name, const FilePaths &directories)
     return {};
 }
 
-// The plugin the platform is asked for by name, which on this platform is the only one the
-// device can use: the others in that directory are for displays it does not have.
+// The plugins of the QML modules the application imports, as qmlimportscanner listed them
+// when the project was configured. Each entry is a list of keys and values.
+static FilePaths qmlPlugins(const FilePath &deploymentSettings)
+{
+    static const QString suffix = "-harmony-deployment-settings.json";
+    const QString name = deploymentSettings.fileName();
+    if (!name.endsWith(suffix))
+        return {};
+    const FilePath imports = deploymentSettings.parentDir().pathAppended(
+        ".qt/qml_imports/" + name.chopped(suffix.size()) + "_conf.cmake");
+    const Result<QByteArray> contents = imports.fileContents();
+    if (!contents)
+        return {};
+    static const QRegularExpression entry(
+        R"re(set\(qml_import_scanner_import_\d+ "([^"]*)"\))re");
+    FilePaths plugins;
+    for (const QRegularExpressionMatch &match : entry.globalMatch(QString::fromUtf8(*contents))) {
+        const QStringList fields = match.captured(1).split(';');
+        QString path;
+        QString plugin;
+        for (qsizetype index = 0; index + 1 < fields.size(); index += 2) {
+            if (fields.at(index) == "PATH")
+                path = fields.at(index + 1);
+            else if (fields.at(index) == "PLUGIN")
+                plugin = fields.at(index + 1);
+        }
+        if (path.isEmpty() || plugin.isEmpty())
+            continue;
+        const FilePath file = FilePath::fromUserInput(path).pathAppended("lib" + plugin + ".so");
+        if (file.isFile())
+            plugins.append(file);
+    }
+    return plugins;
+}
+
+// The plugin the platform is asked for by name, which on this platform is the only platform
+// plugin the device can use: the others in that directory are for displays it does not have.
+// The QML plugins come along with it. The runner registers them all as static plugins, which
+// the QML engine finds by the module they provide.
 FilePaths qtPlugins(const FilePath &deploymentSettings)
 {
     const Result<QByteArray> contents = deploymentSettings.fileContents();
@@ -204,7 +241,9 @@ FilePaths qtPlugins(const FilePath &deploymentSettings)
         return {};
     const FilePath platform = FilePath::fromUserInput(plugins)
                                   .pathAppended("platforms/libqohos.so");
-    return platform.isFile() ? FilePaths{platform} : FilePaths();
+    if (!platform.isFile())
+        return {};
+    return FilePaths{platform} + qmlPlugins(deploymentSettings);
 }
 
 QtLibraries qtLibraries(const FilePath &library, const FilePaths &directories,
