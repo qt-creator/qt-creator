@@ -42,6 +42,9 @@ def convert_thumbnail(thumbnail_file_name, url, thumbnail_type):
 
     is_blog_pic = thumbnail_type == "blogpost"
     is_course_pic = thumbnail_type == "course"
+    # Videos on the blog are screen recordings. They get cropped, because
+    # scaling would blur the text.
+    is_video = Path(url).suffix.lower() in (".mov", ".mp4", ".webm")
     size = (
         # Learning::Internal::blogThumbSize
         {"w": 450 * 2, "h": 192 * 2} if is_blog_pic else
@@ -55,14 +58,15 @@ def convert_thumbnail(thumbnail_file_name, url, thumbnail_type):
         # https://imagemagick.org/script/command-line-options.php#filter
         "-filter", "Mitchell",
         # https://usage.imagemagick.org/resize/#fill
-        "-resize", f"{size_str}^",
-        "-gravity", "north",
+        # https://usage.imagemagick.org/resize/#enlarge
+        "-resize", f"{size_str}^<" if is_video else f"{size_str}^",
+        "-gravity", "northwest" if is_video else "north",
         "-extent", size_str,
     ])
-    if is_course_pic:
+    if is_course_pic or is_video:
         command.extend([
             "+dither",
-            "-colors", "15",
+            "-colors", "32" if is_video else "15",
             # https://imagemagick.org/script/webp.php
             "-define", "webp:lossless=true",
         ])

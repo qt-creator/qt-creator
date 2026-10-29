@@ -476,24 +476,24 @@
         },
 
         {
-            "id_url": "https://www.qt.io/blog/qt-6.11-beta-1-released",
-            "name": "Qt 6.11 Beta 1 Released",
-            "thumbnail": "blogpostqt611released.webp",
-            "thumbnailurl": "https://www.qt.io/hubfs/QtFramework-6.10-ReleaseBlog-FeaturedImage.webp",
+            "id_url": "https://www.qt.io/blog/qt-6.12-released",
+            "name": "Qt 6.12 LTS Released!",
+            "thumbnail": "blogpostqt612released.webp",
+            "thumbnailurl": "https://www.qt.io/hubfs/Qt612-ReleaseBlog-Featured-1200x628.webp",
             "itemtype": "blogpost"
         },
         {
-            "id_url": "https://www.qt.io/blog/2d-rendering-introducing-qt-canvas-painter",
-            "name": "2D Rendering - Introducing Qt Canvas Painter",
-            "thumbnail": "blogpostintroducingqtcanvaspainter.webp",
-            "thumbnailurl": "https://www.qt.io/hs-fs/hubfs/canvas_rendering_adjustable_text_antialiasing.webp",
+            "id_url": "https://www.qt.io/blog/meet-clate-the-first-design-tool-for-real-world-experiences",
+            "name": "Meet Clate: the First Design Tool",
+            "thumbnail": "blogpostmeetclate.webp",
+            "thumbnailurl": "https://www.qt.io/hubfs/clate-ux-design-tools-icon.png",
             "itemtype": "blogpost"
         },
         {
-            "id_url": "https://www.qt.io/blog/qtwidgets-to-qtquick-application-journey-part1",
-            "name": "Qt Widgets to Qt Quick, An Application Journey",
-            "thumbnail": "blogpostqtwidgetstoqtquick.webp",
-            "thumbnailurl": "https://www.qt.io/hs-fs/hubfs/EniokaBlogs-qt-app-anatomy-qtwidgets.webp",
+            "id_url": "https://www.qt.io/blog/qt-creator-21-cmake-changes",
+            "name": "Qt Creator 21 - CMake Changes",
+            "thumbnail": "blogpostqtcreator21cmakechanges.webp",
+            "thumbnailurl": "https://www.qt.io/hubfs/qtcreator21-quick-fixes.mp4",
             "itemtype": "blogpost"
         }
     ]
