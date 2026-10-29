@@ -208,9 +208,11 @@ Worked around here, but worth knowing when reading the deploy step:
   plugin it stages needs in turn (the JPEG one wants `libjpeg.so`), so the
   deploy step reports by name what no directory supplies.
 - The `ohos` mkspec stops with an error unless `NATIVE_OHOS_SDK` is set in the
-  environment, which Qt Creator does not set, so the mkspec cannot be evaluated
-  and says nothing about the platform. A Qt version is therefore recognized by
-  the name of its mkspec. The Qt online installer registers Qt for HarmonyOS
+  environment. A HarmonyOS Qt version sets it when it evaluates its mkspec, but
+  when Qt Creator first reads a Qt, before it knows what kind it is, the mkspec
+  cannot be evaluated and says nothing about the platform. A Qt version is
+  therefore recognized by the name of its mkspec. The Qt online installer
+  registers Qt for HarmonyOS
   as a desktop Qt (QTCREATORBUG-34793), and with no ABI, so such a Qt gets its
   HarmonyOS kit by its mkspec too, with the ABI read off `libQt6Core.so`.
 - `hdc` writes a log file for every invocation into `TMPDIR`, and the device

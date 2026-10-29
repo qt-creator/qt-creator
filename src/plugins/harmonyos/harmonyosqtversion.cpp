@@ -5,6 +5,7 @@
 
 #include "harmonyosconfigurations.h"
 #include "harmonyosconstants.h"
+#include "harmonyossdk.h"
 #include "harmonyossettings.h"
 #include "harmonyostr.h"
 
@@ -84,6 +85,18 @@ void HarmonyOsQtVersion::addToBuildEnvironment(const Kit *k, Environment &env) c
                 FilePath::fromString(Constants::HARMONYOS_NATIVE_PACKAGE_BIN).parentDir().path());
         if (const Abis abis = qtAbis(); !abis.isEmpty())
             env.set("OHOS_TARGET_ARCH", ohosAbiName(abis.first()));
+    }
+}
+
+// The ohos mkspec stops with an error unless NATIVE_OHOS_SDK names an existing directory.
+void HarmonyOsQtVersion::setupQmakeRunEnvironment(Environment &env) const
+{
+    if (HostOsInfo::isHarmonyHost()) {
+        env.set(Constants::NATIVE_OHOS_SDK_ENV_VAR,
+                FilePath::fromString(Constants::HARMONYOS_NATIVE_PACKAGE_BIN).parentDir().path());
+    } else if (const FilePath native = Sdk::nativeSdkPath(settings().sdkLocation());
+               !native.isEmpty()) {
+        env.set(Constants::NATIVE_OHOS_SDK_ENV_VAR, native.nativePath());
     }
 }
 

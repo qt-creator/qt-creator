@@ -21,6 +21,9 @@ public:
     Utils::FilePath qmakeFilePath() const override;
     Utils::CommandLine qmakeCommand() const override;
     QString mkspecFor(ProjectExplorer::Toolchain *tc) const override;
+
+protected:
+    void setupQmakeRunEnvironment(Utils::Environment &env) const override;
 };
 
 void setupHarmonyOsQtVersion();
