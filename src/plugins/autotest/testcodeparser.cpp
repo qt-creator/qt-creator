@@ -17,6 +17,7 @@
 #include <cplusplus/CppDocument.h>
 
 #include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppindexqueries.h>
 #include <cppeditor/cppmodelmanager.h>
 
 #include <projectexplorer/buildsystem.h>
@@ -313,10 +314,7 @@ static QSet<FilePath> filesOfApplicationTargets(Project *project, const CPlusPlu
         }
     }
     while (!pending.isEmpty()) {
-        const CPlusPlus::Document::Ptr doc = snapshot.document(pending.pop());
-        if (!doc)
-            continue;
-        const FilePaths included = doc->includedFiles();
+        const FilePaths included = CppEditor::includedFilesOf(snapshot, pending.pop());
         for (const FilePath &file : included) {
             if (Utils::insert(result, file))
                 pending.push(file);
