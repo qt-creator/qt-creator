@@ -236,7 +236,7 @@ void TimelineSectionItem::paint(QPainter *painter,
 
         int fillOffset = 0;
         if (isSelected()) {
-            brushColor = Theme::getColor(Theme::QmlDesigner_HighlightColor);
+            brushColor = Theme::getColor(Theme::Token_Foreground_Default);
             fillOffset = 1;
         }
 
@@ -249,7 +249,7 @@ void TimelineSectionItem::paint(QPainter *painter,
                           0,
                           size().width() - TimelineConstants::sectionWidth,
                           size().height(),
-                          Theme::getColor(Theme::DScontrolBackground));
+                          Theme::getColor(Theme::Token_Background_Subtle));
 
         painter->setPen(penColor);
         drawLine(painter,
@@ -626,10 +626,10 @@ qreal TimelineRulerSectionItem::playbackLoopEnd() const
 
 void TimelineRulerSectionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
-    static const QColor backgroundColor = Theme::getColor(Theme::DScontrolBackground);
+    static const QColor backgroundColor = Theme::getColor(Theme::Token_Background_Subtle);
     static const QColor penColor = Theme::getColor(Theme::PanelTextColorLight);
     static const QColor highlightColor = Theme::instance()->Theme::qmlDesignerButtonColor();
-    static const QColor handleColor = Theme::getColor(Theme::QmlDesigner_HighlightColor);
+    static const QColor handleColor = Theme::getColor(Theme::Token_Foreground_Default);
     static const QColor playbackLoopColor = QColor(0, 255, 0, 255); // TODO: Timeline looping range color. Select color for this QDS-4941
 
     const int scrollOffset = TimelineGraphicsScene::getScrollOffset(scene());
@@ -987,8 +987,8 @@ void TimelineBarItem::paint(QPainter *painter,
                             [[maybe_unused]] const QStyleOptionGraphicsItem *option,
                             [[maybe_unused]] QWidget *widget)
 {
-    QColor brushColorSelected = Theme::getColor(Theme::QmlDesigner_HighlightColor);
-    QColor brushColor = Theme::getColor(Theme::QmlDesigner_HighlightColor).darker(120);
+    QColor brushColorSelected = Theme::getColor(Theme::Token_Foreground_Default);
+    QColor brushColor = Theme::getColor(Theme::Token_Foreground_Default).darker(120);
     const QColor indicatorColor = Theme::getColor(Theme::PanelTextColorLight);
 
     ModelNode target = sectionItem()->targetNode();

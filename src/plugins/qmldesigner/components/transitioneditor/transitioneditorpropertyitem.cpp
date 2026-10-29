@@ -94,7 +94,7 @@ void TransitionEditorPropertyItem::paint(QPainter *painter,
 
     static const QColor penColor = Theme::getColor(Theme::BackgroundColorDark);
     static const QColor textColor = Theme::getColor(Theme::PanelTextColorLight);
-    static const QColor backgroundColor = Theme::getColor(Theme::DScontrolBackground);
+    static const QColor backgroundColor = Theme::getColor(Theme::Token_Background_Subtle);
 
     painter->fillRect(0, 0, TimelineConstants::sectionWidth, size().height(), backgroundColor);
     painter->fillRect(TimelineConstants::textIndentationProperties - 4,

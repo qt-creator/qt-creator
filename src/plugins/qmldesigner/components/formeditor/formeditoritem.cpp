@@ -351,7 +351,7 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
 
     const QColor frameColor(0xaa, 0xaa, 0xaa);
     static const QColor selectionColor = Utils::creatorColor(
-        Utils::Theme::QmlDesigner_FormEditorSelectionColor);
+        Utils::Theme::Token_Notification_Neutral_Default);
 
     if (scene()->showBoundingRects()) {
         pen.setColor(frameColor.darker(150));

@@ -1,5 +1,5 @@
 [General]
-Includes=dark.figmatokens, qmldesigner.inc
+Includes=dark.figmatokens
 ThemeName=Dark (2016)
 PreferredStyles=
 DefaultTextEditorColorScheme=creator-dark.xml

@@ -36,7 +36,7 @@ void TreeItemDelegate::paint(QPainter *painter,
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
 
-    QColor high = Theme::getColor(Theme::Color::QmlDesigner_HighlightColor);
+    QColor high = Theme::getColor(Theme::Color::Token_Foreground_Default);
     opt.palette.setColor(QPalette::Active, QPalette::Highlight, high);
     opt.palette.setColor(QPalette::Inactive, QPalette::Highlight, high);
 

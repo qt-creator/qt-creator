@@ -61,7 +61,7 @@ public:
                 mouseOverStateSavedFrameRectangle = option->rect;
 
             painter->fillRect(option->rect.adjusted(0, delegateMargin, 0, -delegateMargin),
-                              Theme::getColor(Theme::Color::DSnavigatorItemBackground));
+                              Theme::getColor(Theme::Color::Token_Background_Subtle));
         } else if (element == PE_IndicatorItemViewItemDrop) {
             // between elements and on elements we have a width
             if (option->rect.width() > 0) {
@@ -89,7 +89,7 @@ public:
             int aft_h = mid_h;
             int aft_v = mid_v;
 
-            QBrush brush(Theme::getColor(Theme::Color::DSnavigatorBranch), Qt::SolidPattern);
+            QBrush brush(Theme::getColor(Theme::Color::Token_Stroke_Muted), Qt::SolidPattern);
             if (option->state & State_Item) {
                 if (option->direction == Qt::RightToLeft)
                     painter->fillRect(option->rect.left(), mid_v, bef_h - option->rect.left(), 1, brush);
@@ -108,7 +108,7 @@ public:
                 //aft_v += delta;
 
                 const QRectF rect(bef_h, bef_v, decoration_size + 1, decoration_size + 1);
-                painter->fillRect(rect, QBrush(Theme::getColor(Theme::Color::DSpanelBackground)));
+                painter->fillRect(rect, QBrush(Theme::getColor(Theme::Color::Token_Background_Subtle)));
 
                 constexpr QPointF collapsePoints[3] = {QPointF(0.0, 0.0),
                                                        QPointF(4.0, 4.0),
@@ -118,7 +118,7 @@ public:
                                                      QPointF(8.0, 0.0),
                                                      QPointF(4.0, 4.0)};
 
-                auto color = Theme::getColor(Theme::Color::DSnavigatorBranchIndicator);
+                auto color = Theme::getColor(Theme::Color::Token_Stroke_Muted);
                 painter->setPen(color);
                 painter->setBrush(color);
 
@@ -155,7 +155,7 @@ private: // functions
     {
         NanotraceHR::Tracer tracer{"table view style highlight brush color", category()};
 
-        QColor color = Theme::getColor(Theme::Color::DSnavigatorDropIndicatorBackground);
+        QColor color = Theme::getColor(Theme::Color::Token_Stroke_Muted);
         color.setAlphaF(0.7f);
         return color;
     }
@@ -163,7 +163,7 @@ private: // functions
     {
         NanotraceHR::Tracer tracer{"table view style highlight line color", category()};
 
-        QColor color = Theme::getColor(Theme::Color::DSnavigatorDropIndicatorOutline);
+        QColor color = Theme::getColor(Theme::Color::Token_Stroke_Muted);
         color.setAlphaF(0.7f);
         return color;
     }
@@ -218,7 +218,7 @@ void NavigatorTreeView::drawSelectionBackground(QPainter *painter, const QStyleO
 
     painter->save();
     painter->fillRect(option.rect.adjusted(0, delegateMargin, 0, -delegateMargin),
-                      Theme::getColor(Theme::Color::DSnavigatorItemBackgroundSelected));
+                      Theme::getColor(Theme::Color::Token_Background_Default));
     painter->restore();
 }
 

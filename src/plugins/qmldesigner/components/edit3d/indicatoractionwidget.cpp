@@ -20,7 +20,7 @@ static void drawIndicator(QPainter *painter, const QPoint &point, int dimension)
 {
     painter->save();
     painter->setPen(Qt::NoPen);
-    painter->setBrush(Theme::getColor(Theme::DSamberLight));
+    painter->setBrush(Theme::getColor(Theme::Token_Notification_Alert_Default));
     painter->drawEllipse(point, dimension, dimension);
     painter->restore();
 }

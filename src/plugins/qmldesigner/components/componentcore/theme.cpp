@@ -180,7 +180,7 @@ QIcon Theme::iconFromName(Icon i, QColor c)
 {
     QColor color = c;
     if (!color.isValid())
-        color = getColor(Theme::Color::DSiconColor);
+        color = getColor(Theme::Color::Token_Text_Default);
 
     const QString fontName = "qtds_propertyIconFont.ttf";
     return Utils::StyleHelper::getIconFromIconFont(fontName, Theme::getIconUnicode(i), 32, 32, color);
@@ -193,32 +193,32 @@ int Theme::toolbarSize()
 
 QColor Theme::qmlDesignerBackgroundColorDarker() const
 {
-    return getColor(QmlDesigner_BackgroundColorDarker);
+    return getColor(Token_Background_Muted);
 }
 
 QColor Theme::qmlDesignerBackgroundColorDarkAlternate() const
 {
-    return getColor(QmlDesigner_BackgroundColorDarkAlternate);
+    return getColor(Token_Background_Subtle);
 }
 
 QColor Theme::qmlDesignerTabLight() const
 {
-    return getColor(QmlDesigner_TabLight);
+    return getColor(Token_Text_Default);
 }
 
 QColor Theme::qmlDesignerTabDark() const
 {
-    return getColor(QmlDesigner_TabDark);
+    return getColor(Token_Foreground_Muted);
 }
 
 QColor Theme::qmlDesignerButtonColor() const
 {
-    return getColor(QmlDesigner_ButtonColor);
+    return getColor(Token_Text_Subtle);
 }
 
 QColor Theme::qmlDesignerBorderColor() const
 {
-    return getColor(QmlDesigner_BorderColor);
+    return getColor(Token_Basic_Black);
 }
 
 } // namespace QmlDesigner

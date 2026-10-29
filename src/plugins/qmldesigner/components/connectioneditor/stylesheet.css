@@ -1,19 +1,19 @@
 QFrame {
-    background-color: creatorTheme.DSpanelBackground;
-    color: creatorTheme.DStextColor;
+    background-color: creatorTheme.Token_Background_Subtle;
+    color: creatorTheme.Token_Stroke_Strong;
     font-size: creatorTheme.captionFontPixelSize;
     border-radius: 0px;
 }
 
 QTableView {
-    color: creatorTheme.DStextColor;
-    selection-color: creatorTheme.DStextSelectedTextColor;
-    selection-background-color: creatorTheme.DStextSelectionColor;
+    color: creatorTheme.Token_Stroke_Strong;
+    selection-color: creatorTheme.Token_Background_Default;
+    selection-background-color: creatorTheme.Token_Text_Muted;
 }
 
 QTabBar QToolButton {
-    background-color: creatorTheme.DSpanelBackground;
-    border: 1px solid creatorTheme.QmlDesigner_BackgroundColorDarker;
+    background-color: creatorTheme.Token_Background_Subtle;
+    border: 1px solid creatorTheme.Token_Background_Muted;
     border-radius: 0px;
 }
 
@@ -32,32 +32,32 @@ QTableView::item:selected {
 }
 
 QHeaderView::section {
-    background-color: creatorTheme.DSheaderViewBackground;
+    background-color: creatorTheme.Token_Background_Default;
     border: 0px;
-    color: creatorTheme.DStextColor;
+    color: creatorTheme.Token_Stroke_Strong;
     margin-right: 1px;
     padding-left: 6px;
 }
 
 QTableView {
-    alternate-background-color: creatorTheme.DStableViewAlternateBackground;
+    alternate-background-color: creatorTheme.Token_Text_Accent;
 }
 
 QWidget#widgetSpacer {
-    background-color: creatorTheme.DStabActiveBackground;
+    background-color: creatorTheme.Token_Foreground_Default;
 }
 
 QStackedWidget {
     border: 0px;
-    background-color: creatorTheme.DStabActiveBackground;
+    background-color: creatorTheme.Token_Foreground_Default;
 }
 
 QTabBar::tab:selected {
     border: none;
     border-image: none;
     image: none;
-    background-color: creatorTheme.DStabActiveBackground;
-    color: creatorTheme.DStabActiveText;
+    background-color: creatorTheme.Token_Foreground_Default;
+    color: creatorTheme.Token_Stroke_Strong;
 }
 
 QTabBar::tab {
@@ -69,62 +69,62 @@ QTabBar::tab {
     margin-right: 0px;
     font: bold;
     font-size: creatorTheme.captionFontPixelSize;
-    background-color: creatorTheme.DStabInactiveBackground;
-    color: creatorTheme.DStabInactiveText;
+    background-color: creatorTheme.Token_Background_Default;
+    color: creatorTheme.Token_Stroke_Strong;
 }
 
 /*
 QSpinBox {
     font-size: creatorTheme.captionFontPixelSize;
-    color: creatorTheme.DStextColor;
+    color: creatorTheme.Token_Stroke_Strong;
     padding-right: 2px;
     padding-top: 2px;
     padding-bottom: 2px;
     padding-left: 12px;
-    border: 1px solid creatorTheme.DScontrolOutline;
-    background-color: creatorTheme.DScontrolBackground;
+    border: 1px solid creatorTheme.Token_Background_Default;
+    background-color: creatorTheme.Token_Background_Subtle;
     min-height: 22px;
 }
 
 QDoubleSpinBox {
     font-size: creatorTheme.captionFontPixelSize;
-    color: creatorTheme.DStextColor;
+    color: creatorTheme.Token_Stroke_Strong;
     padding-right: 2px;
     padding-top: 2px;
     padding-bottom: 2px;
     padding-left: 12px;
-    border: 1px solid creatorTheme.DScontrolOutline;
-    background-color: creatorTheme.DScontrolBackground;
+    border: 1px solid creatorTheme.Token_Background_Default;
+    background-color: creatorTheme.Token_Background_Subtle;
     min-height: 22px;
 }
 */
 
 QLineEdit {
-    color: creatorTheme.DStextColor;
-    selection-color: creatorTheme.DStextSelectedTextColor;
-    selection-background-color: creatorTheme.DStextSelectionColor;
+    color: creatorTheme.Token_Stroke_Strong;
+    selection-color: creatorTheme.Token_Background_Default;
+    selection-background-color: creatorTheme.Token_Text_Muted;
     font-size: creatorTheme.captionFontPixelSize;
-    border: 1px solid creatorTheme.DScontrolOutline;
+    border: 1px solid creatorTheme.Token_Background_Default;
     min-height: 26px;
-    background-color: creatorTheme.DScontrolBackground;
+    background-color: creatorTheme.Token_Background_Subtle;
 }
 
 QComboBox {
-    color: creatorTheme.DStextColor;
-    selection-color: creatorTheme.DStextSelectedTextColor;
-    selection-background-color: creatorTheme.DStextSelectionColor;
+    color: creatorTheme.Token_Stroke_Strong;
+    selection-color: creatorTheme.Token_Background_Default;
+    selection-background-color: creatorTheme.Token_Text_Muted;
     font-size: creatorTheme.captionFontPixelSize;
-    border: 1px solid creatorTheme.DScontrolOutline;
+    border: 1px solid creatorTheme.Token_Background_Default;
     min-height: 26px;
-    background-color: creatorTheme.DScontrolBackground;
+    background-color: creatorTheme.Token_Background_Subtle;
 }
 
 QComboBox QAbstractItemView {
     show-decoration-selected: 1; /* make the selection span the entire width of the view */
-    background-color: creatorTheme.DSpopupBackground; /* sets background of the menu */
-    border: 1px solid creatorTheme.DScontrolOutline;
+    background-color: creatorTheme.Token_Background_Default; /* sets background of the menu */
+    border: 1px solid creatorTheme.Token_Background_Default;
     margin: 0px; /* some spacing around the menu */
-    color: creatorTheme.DStextColor;
-    selection-color: creatorTheme.DStextSelectedTextColor;
-    selection-background-color: creatorTheme.DSinteraction;
+    color: creatorTheme.Token_Stroke_Strong;
+    selection-color: creatorTheme.Token_Background_Default;
+    selection-background-color: creatorTheme.Token_Text_Muted;
 }

@@ -344,9 +344,9 @@ QGraphicsItem *FormEditorAnnotationIcon::createCommentBubble(QRectF rect, const 
 {
     NanotraceHR::Tracer tracer{"formeditor annotation icon create comment bubble", category()};
 
-    static QColor textColor = Utils::creatorColor(Utils::Theme::DStextColor);
-    static QColor backgroundColor = Utils::creatorColor(Utils::Theme::QmlDesigner_BackgroundColorDarker);
-    static QColor frameColor = Utils::creatorColor(Utils::Theme::QmlDesigner_BackgroundColor);
+    static QColor textColor = Utils::creatorColor(Utils::Theme::Token_Stroke_Strong);
+    static QColor backgroundColor = Utils::creatorColor(Utils::Theme::Token_Background_Muted);
+    static QColor frameColor = Utils::creatorColor(Utils::Theme::Token_Foreground_Default);
     QFont font;
     font.setBold(true);
 
@@ -449,9 +449,9 @@ QGraphicsItem *FormEditorAnnotationIcon::createTitleBubble(const QRectF &rect, c
 {
     NanotraceHR::Tracer tracer{"formeditor annotation icon create title bubble", category()};
 
-    static QColor textColor = Utils::creatorColor(Utils::Theme::DStextColor);
-    static QColor backgroundColor = Utils::creatorColor(Utils::Theme::QmlDesigner_BackgroundColorDarker);
-    static QColor frameColor = Utils::creatorColor(Utils::Theme::QmlDesigner_BackgroundColor);
+    static QColor textColor = Utils::creatorColor(Utils::Theme::Token_Stroke_Strong);
+    static QColor backgroundColor = Utils::creatorColor(Utils::Theme::Token_Background_Muted);
+    static QColor frameColor = Utils::creatorColor(Utils::Theme::Token_Foreground_Default);
     QFont font;
     font.setBold(true);
 

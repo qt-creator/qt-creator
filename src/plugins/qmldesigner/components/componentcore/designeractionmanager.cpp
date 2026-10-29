@@ -1385,13 +1385,13 @@ void DesignerActionManager::createDefaultDesignerActions()
     using namespace FormatOperation;
 
     const Utils::Icon prevIcon({
-        {":/utils/images/prev.png", Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
+        {":/utils/images/prev.png", Utils::Theme::Token_Basic_White}}, Utils::Icon::MenuTintedStyle);
 
     const Utils::Icon nextIcon({
-        {":/utils/images/next.png", Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
+        {":/utils/images/next.png", Utils::Theme::Token_Basic_White}}, Utils::Icon::MenuTintedStyle);
 
     const Utils::Icon addIcon({
-        {":/utils/images/plus.png", Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
+        {":/utils/images/plus.png", Utils::Theme::Token_Basic_White}}, Utils::Icon::MenuTintedStyle);
 
     addDesignerAction(new SelectionModelNodeAction(
                           selectionCategoryDisplayName,

@@ -69,7 +69,7 @@ void SplineEditor::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
 
-    QPen pen(Theme::getColor(Theme::DScontrolOutline));
+    QPen pen(Theme::getColor(Theme::Token_Background_Default));
     pen.setWidth(1);
     painter.drawRect(0, 0, width() - 1, height() - 1);
 
@@ -77,7 +77,7 @@ void SplineEditor::paintEvent(QPaintEvent *)
 
     QColor curveColor = Theme::getColor(Theme::PanelTextColorLight);
     if (!m_curve.isLegal())
-        curveColor = Theme::getColor(Theme::DSerrorColor);
+        curveColor = Theme::getColor(Theme::Token_Notification_Danger_Default);
 
     QBrush background(Theme::getColor(Theme::BackgroundColorDark));
 

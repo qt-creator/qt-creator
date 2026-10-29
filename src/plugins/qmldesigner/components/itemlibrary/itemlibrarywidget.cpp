@@ -151,7 +151,7 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
 
     m_previewTooltipBackend = std::make_unique<PreviewTooltipBackend>(m_imageCache);
 
-    m_itemsWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
+    m_itemsWidget->setClearColor(Theme::getColor(Theme::Color::Token_Background_Subtle));
     m_itemsWidget->engine()->addImageProvider(QStringLiteral("qmldesigner_itemlibrary"),
                                               new Internal::ItemLibraryImageProvider);
     Theme::setupTheme(m_itemsWidget->engine());

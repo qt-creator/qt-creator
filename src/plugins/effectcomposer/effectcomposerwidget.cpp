@@ -93,7 +93,7 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_quickWidget->engine()->addImportPath(EffectUtils::nodesSourcesPath() + "/common");
     m_quickWidget->setClearColor(QmlDesigner::Theme::getColor(
-        QmlDesigner::Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
+        QmlDesigner::Theme::Color::Token_Background_Subtle));
 
     auto layout = new QHBoxLayout(this);
     layout->setContentsMargins({});

@@ -1,5 +1,5 @@
 QScrollBar {
-    background-color: creatorTheme.DSscrollBarTrack;
+    background-color: creatorTheme.Token_Stroke_Muted;
 }
 
 QScrollBar:vertical {
@@ -11,7 +11,7 @@ QScrollBar:horizontal {
 }
 
 QScrollBar::handle {
-    background-color: creatorTheme.DSscrollBarHandle;
+    background-color: creatorTheme.Token_Text_Muted;
 }
 
 QScrollBar::handle:vertical {

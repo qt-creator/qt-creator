@@ -279,7 +279,7 @@ void TimelineToolBar::createCenterControls()
     addSpacing(2);
     QIcon playbackIcon = TimelineUtils::mergeIcons(
         Theme::iconFromName(Theme::Icon::pause,
-                            Theme::getColor(Theme::Color::DStextSelectedTextColor)),
+                            Theme::getColor(Theme::Color::Token_Background_Default)),
         Theme::iconFromName(Theme::Icon::playOutline_medium,
                             Theme::getColor(Theme::Color::IconsRunColor)));
 

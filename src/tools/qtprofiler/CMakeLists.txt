@@ -105,7 +105,6 @@ if (TARGET qtprofiler)
       "${qtprofiler_themes_dir}/light.figmatokens"
       "${qtprofiler_themes_dir}/primitive-colors.inc"
       "${qtprofiler_themes_dir}/2024.tokenmapping"
-      "${qtprofiler_themes_dir}/qmldesigner.inc"
   )
 endif()
 

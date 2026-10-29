@@ -39,7 +39,7 @@ FloatControl::FloatControl()
     setMinimum(std::numeric_limits<float>::lowest());
     setMaximum(std::numeric_limits<float>::max());
 
-    QColor bg = Theme::getColor(Theme::DScontrolBackground);
+    QColor bg = Theme::getColor(Theme::Token_Background_Subtle);
 
     auto p = palette();
     p.setColor(QPalette::Text, Theme::instance()->color(Utils::Theme::PanelTextColorLight));

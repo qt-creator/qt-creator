@@ -75,7 +75,7 @@ QPixmap AssetsLibraryIconProvider::generateFontIcons(const QString &filePath, co
     QSize reqSize = requestedSize.isValid() ? requestedSize : QSize{48, 48};
     return m_fontImageCache.icon(filePath, {},
            ImageCache::FontCollectorSizesAuxiliaryData{Utils::span{iconSizes},
-                                                       Theme::getColor(Theme::DStextColor).name(),
+                                                       Theme::getColor(Theme::Token_Stroke_Strong).name(),
                                                        "Abc"}).pixmap(reqSize);
 }
 

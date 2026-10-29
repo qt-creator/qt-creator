@@ -205,11 +205,11 @@ void DesignModeWidget::setup()
     const QSize size = QSize(28, 28);
 
     auto tabCloseIconNormal = Utils::StyleHelper::IconFontHelper(
-        closeUnicode, Theme::getColor(Theme::DSdockWidgetTitleBar), size, QIcon::Normal, QIcon::Off);
+        closeUnicode, Theme::getColor(Theme::Token_Background_Subtle), size, QIcon::Normal, QIcon::Off);
     auto tabCloseIconActive = Utils::StyleHelper::IconFontHelper(
-        closeUnicode, Theme::getColor(Theme::DSdockWidgetTitleBar), size, QIcon::Active, QIcon::Off);
+        closeUnicode, Theme::getColor(Theme::Token_Background_Subtle), size, QIcon::Active, QIcon::Off);
     auto tabCloseIconFocus = Utils::StyleHelper::IconFontHelper(
-        closeUnicode, Theme::getColor(Theme::DSdockWidgetTitleBar), size, QIcon::Selected, QIcon::Off);
+        closeUnicode, Theme::getColor(Theme::Token_Background_Subtle), size, QIcon::Selected, QIcon::Off);
 
     const QIcon tabsCloseIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
                                                                         {tabCloseIconNormal,
@@ -219,7 +219,7 @@ void DesignModeWidget::setup()
     ADS::DockManager::iconProvider().registerCustomIcon(ADS::TabCloseIcon, tabsCloseIcon);
 
     auto floatingWidgetCloseIconNormal = Utils::StyleHelper::IconFontHelper(
-        closeUnicode, Theme::getColor(Theme::DStitleBarText), QSize(17, 17), QIcon::Normal, QIcon::Off);
+        closeUnicode, Theme::getColor(Theme::Token_Stroke_Strong), QSize(17, 17), QIcon::Normal, QIcon::Off);
     const QIcon floatingWidgetCloseIcon = Utils::StyleHelper::getIconFromIconFont(
         fontName, {floatingWidgetCloseIconNormal});
 
@@ -228,7 +228,7 @@ void DesignModeWidget::setup()
 
     auto floatingWidgetMaxIconNormal = Utils::StyleHelper::IconFontHelper(maximizeUnicode,
                                                                           Theme::getColor(
-                                                                              Theme::DStitleBarText),
+                                                                              Theme::Token_Stroke_Strong),
                                                                           QSize(17, 17),
                                                                           QIcon::Normal,
                                                                           QIcon::Off);
@@ -239,7 +239,7 @@ void DesignModeWidget::setup()
                                                         floatingWidgetMaxIcon);
 
     auto floatingWidgetNormalIconNormal = Utils::StyleHelper::IconFontHelper(
-        normalUnicode, Theme::getColor(Theme::DStitleBarText), QSize(17, 17), QIcon::Normal, QIcon::Off);
+        normalUnicode, Theme::getColor(Theme::Token_Stroke_Strong), QSize(17, 17), QIcon::Normal, QIcon::Off);
     const QIcon floatingWidgetNormalIcon = Utils::StyleHelper::getIconFromIconFont(
         fontName, {floatingWidgetNormalIconNormal});
 
@@ -275,7 +275,7 @@ void DesignModeWidget::setup()
 
         // Apply stylesheet to QWidget
         QString sheet = Utils::FileUtils::fetchQrc(":/qmldesigner/stylesheet.css");
-        sheet += "QLabel { background-color: creatorTheme.DSsectionHeadBackground; }";
+        sheet += "QLabel { background-color: creatorTheme.Token_Foreground_Subtle; }";
         navigationView.widget->setStyleSheet(Theme::replaceCssColors(sheet));
 
         ensureMinimumSize(navigationView.widget);

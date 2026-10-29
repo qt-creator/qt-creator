@@ -944,17 +944,17 @@ void NavigatorView::setupWidget()
     const QString lockOffUnicode = Theme::getIconUnicode(Theme::Icon::lockOff);
 
     auto visibilityIconOffNormal = Utils::StyleHelper::IconFontHelper(
-        visibilityOffUnicode, Theme::getColor(Theme::DSnavigatorIcon), size, QIcon::Normal, QIcon::Off);
+        visibilityOffUnicode, Theme::getColor(Theme::Token_Text_Default), size, QIcon::Normal, QIcon::Off);
     auto visibilityIconOffHover = Utils::StyleHelper::IconFontHelper(
-        visibilityOffUnicode, Theme::getColor(Theme::DSnavigatorIconHover), size, QIcon::Active, QIcon::Off);
+        visibilityOffUnicode, Theme::getColor(Theme::Token_Text_Muted), size, QIcon::Active, QIcon::Off);
     auto visibilityIconOffSelected = Utils::StyleHelper::IconFontHelper(
-        visibilityOffUnicode, Theme::getColor(Theme::DSnavigatorIconSelected), size, QIcon::Selected, QIcon::Off);
+        visibilityOffUnicode, Theme::getColor(Theme::Token_Text_Default), size, QIcon::Selected, QIcon::Off);
     auto visibilityIconOnNormal = Utils::StyleHelper::IconFontHelper(
-        visibilityOnUnicode, Theme::getColor(Theme::DSnavigatorIcon), size, QIcon::Normal, QIcon::On);
+        visibilityOnUnicode, Theme::getColor(Theme::Token_Text_Default), size, QIcon::Normal, QIcon::On);
     auto visibilityIconOnHover = Utils::StyleHelper::IconFontHelper(
-        visibilityOnUnicode, Theme::getColor(Theme::DSnavigatorIconHover), size, QIcon::Active, QIcon::On);
+        visibilityOnUnicode, Theme::getColor(Theme::Token_Text_Muted), size, QIcon::Active, QIcon::On);
     auto visibilityIconOnSelected = Utils::StyleHelper::IconFontHelper(
-        visibilityOnUnicode, Theme::getColor(Theme::DSnavigatorIconSelected), size, QIcon::Selected, QIcon::On);
+        visibilityOnUnicode, Theme::getColor(Theme::Token_Text_Default), size, QIcon::Selected, QIcon::On);
 
     const QIcon visibilityIcon = Utils::StyleHelper::getIconFromIconFont(
                 fontName, {visibilityIconOffNormal,
@@ -965,17 +965,17 @@ void NavigatorView::setupWidget()
                            visibilityIconOnSelected});
 
     auto aliasIconOffNormal = Utils::StyleHelper::IconFontHelper(
-        aliasOffUnicode, Theme::getColor(Theme::DSnavigatorIcon), size, QIcon::Normal, QIcon::Off);
+        aliasOffUnicode, Theme::getColor(Theme::Token_Text_Default), size, QIcon::Normal, QIcon::Off);
     auto aliasIconOffHover = Utils::StyleHelper::IconFontHelper(
-        aliasOffUnicode, Theme::getColor(Theme::DSnavigatorIconHover), size, QIcon::Active, QIcon::Off);
+        aliasOffUnicode, Theme::getColor(Theme::Token_Text_Muted), size, QIcon::Active, QIcon::Off);
     auto aliasIconOffSelected = Utils::StyleHelper::IconFontHelper(
-        aliasOffUnicode, Theme::getColor(Theme::DSnavigatorIconSelected), size, QIcon::Selected, QIcon::Off);
+        aliasOffUnicode, Theme::getColor(Theme::Token_Text_Default), size, QIcon::Selected, QIcon::Off);
     auto aliasIconOnNormal = Utils::StyleHelper::IconFontHelper(
-        aliasOnUnicode, Theme::getColor(Theme::DSnavigatorAliasIconChecked), size, QIcon::Normal, QIcon::On);
+        aliasOnUnicode, Theme::getColor(Theme::Token_Notification_Danger_Default), size, QIcon::Normal, QIcon::On);
     auto aliasIconOnHover = Utils::StyleHelper::IconFontHelper(
-        aliasOnUnicode, Theme::getColor(Theme::DSnavigatorAliasIconChecked), size, QIcon::Active, QIcon::On);
+        aliasOnUnicode, Theme::getColor(Theme::Token_Notification_Danger_Default), size, QIcon::Active, QIcon::On);
     auto aliasIconOnSelected = Utils::StyleHelper::IconFontHelper(
-        aliasOnUnicode, Theme::getColor(Theme::DSnavigatorAliasIconChecked), size, QIcon::Selected, QIcon::On);
+        aliasOnUnicode, Theme::getColor(Theme::Token_Notification_Danger_Default), size, QIcon::Selected, QIcon::On);
 
     const QIcon aliasIcon = Utils::StyleHelper::getIconFromIconFont(
                 fontName, {aliasIconOffNormal,
@@ -986,17 +986,17 @@ void NavigatorView::setupWidget()
                            aliasIconOnSelected});
 
     auto lockIconOffNormal = Utils::StyleHelper::IconFontHelper(
-        lockOffUnicode, Theme::getColor(Theme::DSnavigatorIcon), size, QIcon::Normal, QIcon::Off);
+        lockOffUnicode, Theme::getColor(Theme::Token_Text_Default), size, QIcon::Normal, QIcon::Off);
     auto lockIconOffHover = Utils::StyleHelper::IconFontHelper(
-        lockOffUnicode, Theme::getColor(Theme::DSnavigatorIconHover), size, QIcon::Active, QIcon::Off);
+        lockOffUnicode, Theme::getColor(Theme::Token_Text_Muted), size, QIcon::Active, QIcon::Off);
     auto lockIconOffSelected = Utils::StyleHelper::IconFontHelper(
-        lockOffUnicode, Theme::getColor(Theme::DSnavigatorIconSelected), size, QIcon::Selected, QIcon::Off);
+        lockOffUnicode, Theme::getColor(Theme::Token_Text_Default), size, QIcon::Selected, QIcon::Off);
     auto lockIconOnNormal = Utils::StyleHelper::IconFontHelper(
-        lockOnUnicode, Theme::getColor(Theme::DSnavigatorIcon), size, QIcon::Normal, QIcon::On);
+        lockOnUnicode, Theme::getColor(Theme::Token_Text_Default), size, QIcon::Normal, QIcon::On);
     auto lockIconOnHover = Utils::StyleHelper::IconFontHelper(
-        lockOnUnicode, Theme::getColor(Theme::DSnavigatorIconHover), size, QIcon::Active, QIcon::On);
+        lockOnUnicode, Theme::getColor(Theme::Token_Text_Muted), size, QIcon::Active, QIcon::On);
     auto lockIconOnSelected = Utils::StyleHelper::IconFontHelper(
-        lockOnUnicode, Theme::getColor(Theme::DSnavigatorIconSelected), size, QIcon::Selected, QIcon::On);
+        lockOnUnicode, Theme::getColor(Theme::Token_Text_Default), size, QIcon::Selected, QIcon::On);
 
     const QIcon lockIcon = Utils::StyleHelper::getIconFromIconFont(
                 fontName, {lockIconOffNormal,

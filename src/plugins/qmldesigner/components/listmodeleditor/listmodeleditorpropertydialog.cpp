@@ -38,7 +38,7 @@ ListModelEditorPropertyDialog::ListModelEditorPropertyDialog(const PropertyNameL
     connect(dialogButtons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     m_errorLabel->setStyleSheet(
-        QString("color: %1").arg(Theme::getColor(Theme::DSwarningColor).name()));
+        QString("color: %1").arg(Theme::getColor(Theme::Token_Notification_Alert_Default).name()));
 
     QVBoxLayout *dialogLayout = new QVBoxLayout(this);
     dialogLayout->addWidget(propertyLabel);

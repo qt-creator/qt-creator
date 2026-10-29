@@ -21,14 +21,14 @@ struct CanvasStyle
     qreal thinLineWidth = 0.3;
     qreal thickLineWidth = 2.5;
 
-    QColor thinLineColor = Theme::getColor(Theme::DSscrollBarHandle);
-    QColor thickLineColor = Theme::getColor(Theme::DSscrollBarHandle);
+    QColor thinLineColor = Theme::getColor(Theme::Token_Text_Muted);
+    QColor thickLineColor = Theme::getColor(Theme::Token_Text_Muted);
 
     qreal handleSize = 7.0;
     qreal handleLineWidth = 2.0;
 
     QColor endPointColor = Theme::getColor(Theme::IconsWarningToolBarColor);
-    QColor interPointColor = Theme::getColor(Theme::DSerrorColor);
+    QColor interPointColor = Theme::getColor(Theme::Token_Notification_Danger_Default);
 
     qreal curveWidth = 3.0;
 };

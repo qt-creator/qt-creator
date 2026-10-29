@@ -204,21 +204,21 @@ static QColor nodeColor(const ModelNode &node)
     NodeMetaInfo nodeType = metaInfo.basedOn(item, node3D, material, texture);
 
     if (nodeType == item)
-        return Utils::creatorTheme()->color(Utils::Theme::Navigator_2DColor);
+        return Utils::creatorTheme()->color(Utils::Theme::Token_Text_Accent);
     if (nodeType == node3D)
-        return Utils::creatorTheme()->color(Utils::Theme::Navigator_3DColor);
+        return Utils::creatorTheme()->color(Utils::Theme::Token_Notification_Alert_Default);
     if (nodeType == material || nodeType == texture)
-        return Utils::creatorTheme()->color(Utils::Theme::Navigator_MaterialColor);
+        return Utils::creatorTheme()->color(Utils::Theme::Token_Stroke_Muted);
 #else
     if (metaInfo.isBasedOn(model->qtQuickItemMetaInfo()))
-        return Utils::creatorTheme()->color(Utils::Theme::Navigator_2DColor);
+        return Utils::creatorTheme()->color(Utils::Theme::Token_Text_Accent);
     if (metaInfo.isBasedOn(model->qtQuick3DNodeMetaInfo()))
-        return Utils::creatorTheme()->color(Utils::Theme::Navigator_3DColor);
+        return Utils::creatorTheme()->color(Utils::Theme::Token_Notification_Alert_Default);
     if (metaInfo.isBasedOn(model->qtQuick3DMaterialMetaInfo()), model->qtQuick3DTextureMetaInfo())
-        return Utils::creatorTheme()->color(Utils::Theme::Navigator_MaterialColor);
+        return Utils::creatorTheme()->color(Utils::Theme::Token_Stroke_Muted);
 #endif
 
-    return Utils::creatorTheme()->color(Utils::Theme::Navigator_DefaultColor);
+    return Utils::creatorTheme()->color(Utils::Theme::Token_Text_Default);
 }
 
 NavigatorTreeModel::NavigatorTreeModel(QObject *parent)

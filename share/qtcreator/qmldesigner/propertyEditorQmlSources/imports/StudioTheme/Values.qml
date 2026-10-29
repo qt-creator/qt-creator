@@ -275,213 +275,213 @@ QtObject {
     //Top & View toolbar colors
 
     //backgrounds
-    property color themeControlBackground_toolbarIdle: Theme.color(Theme.DScontrolBackground_toolbarIdle)
-    property color themeControlBackground_toolbarHover: Theme.color(Theme.DScontrolBackground_toolbarHover)
-    property color themeControlBackground_topToolbarHover: Theme.color(Theme.DScontrolBackground_topToolbarHover)
-    property color themeToolbarBackground: Theme.color(Theme.DStoolbarBackground)
-    property color themeConnectionEditorButtonBackground_hover: Theme.color(Theme.DSconnectionEditorButtonBackground_hover)
+    property color themeControlBackground_toolbarIdle: Theme.color(Theme.Token_Foreground_Subtle)
+    property color themeControlBackground_toolbarHover: Theme.color(Theme.Token_Foreground_Subtle)
+    property color themeControlBackground_topToolbarHover: Theme.color(Theme.Token_Foreground_Default)
+    property color themeToolbarBackground: Theme.color(Theme.Token_Foreground_Subtle)
+    property color themeConnectionEditorButtonBackground_hover: Theme.color(Theme.Token_Foreground_Subtle)
 
     //outlines
-    property color controlOutline_toolbarIdle: Theme.color(Theme.DScontrolOutline_topToolbarIdle)
-    property color controlOutline_toolbarHover: Theme.color(Theme.DScontrolOutline_topToolbarHover)
-    property color themeConnectionEditorButtonBorder_hover: Theme.color(Theme.DSconnectionEditorButtonBorder_hover)
+    property color controlOutline_toolbarIdle: Theme.color(Theme.Token_Background_Subtle)
+    property color controlOutline_toolbarHover: Theme.color(Theme.Token_Foreground_Default)
+    property color themeConnectionEditorButtonBorder_hover: Theme.color(Theme.Token_Text_Subtle)
 
     //icons
-    property color themeToolbarIcon_blocked: Theme.color(Theme.DStoolbarIcon_blocked)
+    property color themeToolbarIcon_blocked: Theme.color(Theme.Token_Text_Subtle)
 
     //primary buttons
-    property color themePrimaryButton_hoverHighlight: Theme.color(Theme.DSprimaryButton_hoverHighlight)
+    property color themePrimaryButton_hoverHighlight: Theme.color(Theme.Token_Text_Default)
 
     //states
-    property color themeStateControlBackgroundColor_hover: Theme.color(Theme.DSstateControlBackgroundColor_hover)
-    property color themeStateBackgroundColor_hover: Theme.color(Theme.DSstateBackgroundColor_hover)
-    property color themeStateControlBackgroundColor_globalHover: Theme.color(Theme.DSstateControlBackgroundColor_globalHover)
-    property color themeThumbnailBackground_baseState: Theme.color(Theme.DSthumbnailBackground_baseState)
+    property color themeStateControlBackgroundColor_hover: Theme.color(Theme.Token_Foreground_Default)
+    property color themeStateBackgroundColor_hover: Theme.color(Theme.Token_Foreground_Default)
+    property color themeStateControlBackgroundColor_globalHover: Theme.color(Theme.Token_Foreground_Default)
+    property color themeThumbnailBackground_baseState: Theme.color(Theme.Token_Background_Default)
 
     //task bar
-    property color themeStatusbarBackground:Theme.color(Theme.DSstatusbarBackground)
-    property color themecontrolBackground_statusbarIdle:Theme.color(Theme.DScontrolBackground_statusbarIdle)
-    property color themecontrolBackground_statusbarHover:Theme.color(Theme.DSControlBackground_statusbarHover)
+    property color themeStatusbarBackground:Theme.color(Theme.Token_Background_Default)
+    property color themecontrolBackground_statusbarIdle:Theme.color(Theme.Token_Background_Default)
+    property color themecontrolBackground_statusbarHover:Theme.color(Theme.Token_Background_Subtle)
 
     //run project button
-    property color themeIdleGreen: Theme.color(Theme.DSidleGreen)
-    property color themeRunningGreen: Theme.color(Theme.DSrunningGreen)
+    property color themeIdleGreen: Theme.color(Theme.Token_Accent_Default)
+    property color themeRunningGreen: Theme.color(Theme.Token_Text_Accent)
 
     //popoutWindow (connections)
-    property color themePopoutBackground: Theme.color(Theme.DSpopoutBackground)
-    property color themePopoutControlBackground_idle: Theme.color(Theme.DSpopoutControlBackground_idle)
-    property color themePopoutControlBackground_hover: Theme.color(Theme.DSpopoutControlBackground_hover)
-    property color themePopoutControlBackground_globalHover: Theme.color(Theme.DSpopoutControlBackground_globalHover)
-    property color themePopoutControlBackground_interaction: Theme.color(Theme.DSpopoutControlBackground_interaction)
-    property color themePopoutControlBackground_disabled: Theme.color(Theme.DSpopoutControlBackground_disabled)
+    property color themePopoutBackground: Theme.color(Theme.Token_Background_Default)
+    property color themePopoutControlBackground_idle: Theme.color(Theme.Token_Background_Default)
+    property color themePopoutControlBackground_hover: Theme.color(Theme.Token_Background_Subtle)
+    property color themePopoutControlBackground_globalHover: Theme.color(Theme.Token_Background_Subtle)
+    property color themePopoutControlBackground_interaction: Theme.color(Theme.Token_Text_Muted)
+    property color themePopoutControlBackground_disabled: Theme.color(Theme.Token_Background_Default)
 
-    property color themePopoutPopupBackground: Theme.color(Theme.DSpopoutPopupBackground)
+    property color themePopoutPopupBackground: Theme.color(Theme.Token_Background_Default)
 
-    property color themePopoutControlBorder_idle: Theme.color(Theme.DSpopoutControlBorder_idle)
-    property color themePopoutControlBorder_hover: Theme.color(Theme.DSpopoutControlBorder_hover)
-    property color themePopoutControlBorder_interaction: Theme.color(Theme.DSpopoutControlBorder_interaction)
-    property color themePopoutControlBorder_disabled: Theme.color(Theme.DSpopoutControlBorder_disabled)
+    property color themePopoutControlBorder_idle: Theme.color(Theme.Token_Foreground_Subtle)
+    property color themePopoutControlBorder_hover: Theme.color(Theme.Token_Foreground_Default)
+    property color themePopoutControlBorder_interaction: Theme.color(Theme.Token_Text_Muted)
+    property color themePopoutControlBorder_disabled: Theme.color(Theme.Token_Background_Default)
 
-    property color themePopoutButtonBackground_idle: Theme.color(Theme.DSpopoutButtonBackground_idle)
-    property color themePopoutButtonBackground_hover: Theme.color(Theme.DSpopoutButtonBackground_hover)
-    property color themePopoutButtonBackground_interaction: Theme.color(Theme.DSpopoutButtonBackground_interaction)
-    property color themePopoutButtonBackground_disabled: Theme.color(Theme.DSpopoutButtonBackground_disabled)
+    property color themePopoutButtonBackground_idle: Theme.color(Theme.Token_Background_Default)
+    property color themePopoutButtonBackground_hover: Theme.color(Theme.Token_Background_Subtle)
+    property color themePopoutButtonBackground_interaction: Theme.color(Theme.Token_Text_Muted)
+    property color themePopoutButtonBackground_disabled: Theme.color(Theme.Token_Background_Default)
 
-    property color themePopoutButtonBorder_idle: Theme.color(Theme.DSpopoutButtonBorder_idle)
-    property color themePopoutButtonBorder_hover: Theme.color(Theme.DSpopoutButtonBorder_hover)
-    property color themePopoutButtonBorder_interaction: Theme.color(Theme.DSpopoutButtonBorder_interaction)
+    property color themePopoutButtonBorder_idle: Theme.color(Theme.Token_Stroke_Muted)
+    property color themePopoutButtonBorder_hover: Theme.color(Theme.Token_Stroke_Strong)
+    property color themePopoutButtonBorder_interaction: Theme.color(Theme.Token_Text_Muted)
 
     //END NEW COLORS QtDS 4.0
 
-    property color themePanelBackground: Theme.color(Theme.DSpanelBackground)
+    property color themePanelBackground: Theme.color(Theme.Token_Background_Subtle)
 
-    property color themeGreenLight: Theme.color(Theme.DSgreenLight)
-    property color themeAmberLight: Theme.color(Theme.DSamberLight)
-    property color themeRedLight: Theme.color(Theme.DSredLight)
+    property color themeGreenLight: Theme.color(Theme.Token_Text_Accent)
+    property color themeAmberLight: Theme.color(Theme.Token_Notification_Alert_Default)
+    property color themeRedLight: Theme.color(Theme.Token_Notification_Danger_Default)
 
-    property color themeInteraction: Theme.color(Theme.DSinteraction)
-    property color themeError: Theme.color(Theme.DSerrorColor)
-    property color themeWarning: Theme.color(Theme.DSwarningColor)
-    property color themeDisabled: Theme.color(Theme.DSdisabledColor)
+    property color themeInteraction: Theme.color(Theme.Token_Text_Muted)
+    property color themeError: Theme.color(Theme.Token_Notification_Danger_Default)
+    property color themeWarning: Theme.color(Theme.Token_Notification_Alert_Default)
+    property color themeDisabled: Theme.color(Theme.Token_Text_Subtle)
 
-    property color themeInteractionHover: Theme.color(Theme.DSinteractionHover)
+    property color themeInteractionHover: Theme.color(Theme.Token_Text_Default)
 
-    property color themeAliasIconChecked: Theme.color(Theme.DSnavigatorAliasIconChecked)
+    property color themeAliasIconChecked: Theme.color(Theme.Token_Notification_Danger_Default)
 
     // Control colors
-    property color themeControlBackground: Theme.color(Theme.DScontrolBackground)
-    property color themeControlBackgroundInteraction: Theme.color(Theme.DScontrolBackgroundInteraction)
-    property color themeControlBackgroundDisabled: Theme.color(Theme.DScontrolBackgroundDisabled)
-    property color themeControlBackgroundGlobalHover: Theme.color(Theme.DScontrolBackgroundGlobalHover)
-    property color themeControlBackgroundHover: Theme.color(Theme.DScontrolBackgroundHover)
+    property color themeControlBackground: Theme.color(Theme.Token_Background_Subtle)
+    property color themeControlBackgroundInteraction: Theme.color(Theme.Token_Foreground_Default)
+    property color themeControlBackgroundDisabled: Theme.color(Theme.Token_Background_Subtle)
+    property color themeControlBackgroundGlobalHover: Theme.color(Theme.Token_Foreground_Muted)
+    property color themeControlBackgroundHover: Theme.color(Theme.Token_Foreground_Muted)
 
-    property color themeControlOutline: Theme.color(Theme.DScontrolOutline)
-    property color themeControlOutlineInteraction: Theme.color(Theme.DScontrolOutlineInteraction)
-    property color themeControlOutlineDisabled: Theme.color(Theme.DScontrolOutlineDisabled)
-    property color themeControlOutlineHover: Theme.color(Theme.DScontrolOutline_topToolbarHover)
+    property color themeControlOutline: Theme.color(Theme.Token_Background_Default)
+    property color themeControlOutlineInteraction: Theme.color(Theme.Token_Text_Muted)
+    property color themeControlOutlineDisabled: Theme.color(Theme.Token_Text_Subtle)
+    property color themeControlOutlineHover: Theme.color(Theme.Token_Foreground_Default)
 
     // Panels & Panes
-    property color themeBackgroundColorNormal: Theme.color(Theme.DSBackgroundColorNormal)
-    property color themeBackgroundColorAlternate: Theme.color(Theme.DSBackgroundColorAlternate)
-    property color themeConnectionCodeEditor: Theme.color(Theme.DSconnectionCodeEditor)
-    property color themeConnectionEditorMicroToolbar: Theme.color(Theme.DSconnectionEditorMicroToolbar)
+    property color themeBackgroundColorNormal: Theme.color(Theme.Token_Background_Muted)
+    property color themeBackgroundColorAlternate: Theme.color(Theme.Token_Foreground_Subtle)
+    property color themeConnectionCodeEditor: Theme.color(Theme.Token_Foreground_Subtle)
+    property color themeConnectionEditorMicroToolbar: Theme.color(Theme.Token_Background_Subtle)
 
     // Text colors
-    property color themeTextColor: Theme.color(Theme.DStextColor)
-    property color themeTextColorDisabled: Theme.color(Theme.DStextColorDisabled)
-    property color themeTextSelectionColor: Theme.color(Theme.DStextSelectionColor)
-    property color themeTextSelectedTextColor: Theme.color(Theme.DStextSelectedTextColor)
-    property color themeTextColorDisabledMCU: Theme.color(Theme.DStextColorDisabled)
+    property color themeTextColor: Theme.color(Theme.Token_Stroke_Strong)
+    property color themeTextColorDisabled: Theme.color(Theme.Token_Text_Subtle)
+    property color themeTextSelectionColor: Theme.color(Theme.Token_Text_Muted)
+    property color themeTextSelectedTextColor: Theme.color(Theme.Token_Background_Default)
+    property color themeTextColorDisabledMCU: Theme.color(Theme.Token_Text_Subtle)
 
-    property color themePlaceholderTextColor: Theme.color(Theme.DSplaceholderTextColor)
-    property color themePlaceholderTextColorInteraction: Theme.color(Theme.DSplaceholderTextColorInteraction)
+    property color themePlaceholderTextColor: Theme.color(Theme.Token_Text_Default)
+    property color themePlaceholderTextColorInteraction: Theme.color(Theme.Token_Text_Muted)
 
     // Icon colors
-    property color themeIconColor: Theme.color(Theme.DSiconColor)
-    property color themeIconColorHover: Theme.color(Theme.DSiconColorHover)
-    property color themeIconColorInteraction: Theme.color(Theme.DSiconColorInteraction)
-    property color themeIconColorDisabled: Theme.color(Theme.DSiconColorDisabled)
-    property color themeIconColorSelected: Theme.color(Theme.DSiconColorSelected)
+    property color themeIconColor: Theme.color(Theme.Token_Text_Default)
+    property color themeIconColorHover: Theme.color(Theme.Token_Text_Default)
+    property color themeIconColorInteraction: Theme.color(Theme.Token_Background_Default)
+    property color themeIconColorDisabled: Theme.color(Theme.Token_Text_Muted)
+    property color themeIconColorSelected: Theme.color(Theme.Token_Stroke_Muted)
 
-    property color themeLinkIndicatorColor: Theme.color(Theme.DSlinkIndicatorColor)
-    property color themeLinkIndicatorColorHover: Theme.color(Theme.DSlinkIndicatorColorHover)
-    property color themeLinkIndicatorColorInteraction: Theme.color(Theme.DSlinkIndicatorColorInteraction)
-    property color themeLinkIndicatorColorDisabled: Theme.color(Theme.DSlinkIndicatorColorDisabled)
+    property color themeLinkIndicatorColor: Theme.color(Theme.Token_Stroke_Muted)
+    property color themeLinkIndicatorColorHover: Theme.color(Theme.Token_Text_Default)
+    property color themeLinkIndicatorColorInteraction: Theme.color(Theme.Token_Text_Muted)
+    property color themeLinkIndicatorColorDisabled: Theme.color(Theme.Token_Text_Subtle)
 
-    property color themeInfiniteLoopIndicatorColor: Theme.color(Theme.DSlinkIndicatorColor)
-    property color themeInfiniteLoopIndicatorColorHover: Theme.color(Theme.DSlinkIndicatorColorHover)
-    property color themeInfiniteLoopIndicatorColorInteraction: Theme.color(Theme.DSlinkIndicatorColorInteraction)
+    property color themeInfiniteLoopIndicatorColor: Theme.color(Theme.Token_Stroke_Muted)
+    property color themeInfiniteLoopIndicatorColorHover: Theme.color(Theme.Token_Text_Default)
+    property color themeInfiniteLoopIndicatorColorInteraction: Theme.color(Theme.Token_Text_Muted)
 
     // Popup background color (ComboBox, SpinBox, TextArea)
-    property color themePopupBackground: Theme.color(Theme.DSpopupBackground)
+    property color themePopupBackground: Theme.color(Theme.Token_Background_Default)
 
     // ToolTip (UrlChooser)
-    property color themeToolTipBackground: Theme.color(Theme.DStoolTipBackground)
-    property color themeToolTipOutline: Theme.color(Theme.DStoolTipOutline)
-    property color themeToolTipText: Theme.color(Theme.DStoolTipText)
+    property color themeToolTipBackground: Theme.color(Theme.Token_Basic_Black)
+    property color themeToolTipOutline: Theme.color(Theme.Token_Stroke_Strong)
+    property color themeToolTipText: Theme.color(Theme.Token_Basic_White)
 
     // Slider colors
-    property color themeSliderActiveTrack: Theme.color(Theme.DSsliderActiveTrack)
-    property color themeSliderActiveTrackHover: Theme.color(Theme.DSsliderActiveTrackHover)
-    property color themeSliderActiveTrackFocus: Theme.color(Theme.DSsliderActiveTrackFocus)
-    property color themeSliderInactiveTrack: Theme.color(Theme.DSsliderInactiveTrack)
-    property color themeSliderInactiveTrackHover: Theme.color(Theme.DSsliderInactiveTrackHover)
-    property color themeSliderInactiveTrackFocus: Theme.color(Theme.DSsliderInactiveTrackFocus)
-    property color themeSliderHandle: Theme.color(Theme.DSsliderHandle)
-    property color themeSliderHandleHover: Theme.color(Theme.DSsliderHandleHover)
-    property color themeSliderHandleFocus: Theme.color(Theme.DSsliderHandleFocus)
-    property color themeSliderHandleInteraction: Theme.color(Theme.DSsliderHandleInteraction)
+    property color themeSliderActiveTrack: Theme.color(Theme.Token_Stroke_Muted)
+    property color themeSliderActiveTrackHover: Theme.color(Theme.Token_Basic_Black)
+    property color themeSliderActiveTrackFocus: Theme.color(Theme.Token_Text_Muted)
+    property color themeSliderInactiveTrack: Theme.color(Theme.Token_Text_Subtle)
+    property color themeSliderInactiveTrackHover: Theme.color(Theme.Token_Text_Subtle)
+    property color themeSliderInactiveTrackFocus: Theme.color(Theme.Token_Text_Subtle)
+    property color themeSliderHandle: Theme.color(Theme.Token_Background_Default)
+    property color themeSliderHandleHover: Theme.color(Theme.Token_Text_Subtle)
+    property color themeSliderHandleFocus: Theme.color(Theme.Token_Stroke_Muted)
+    property color themeSliderHandleInteraction: Theme.color(Theme.Token_Stroke_Muted)
 
-    property color themeScrollBarTrack: Theme.color(Theme.DSscrollBarTrack)
-    property color themeScrollBarHandle: Theme.color(Theme.DSscrollBarHandle)
-    property color themeScrollBarHandle_idle: Theme.color(Theme.DSscrollBarHandle_idle)
+    property color themeScrollBarTrack: Theme.color(Theme.Token_Stroke_Muted)
+    property color themeScrollBarHandle: Theme.color(Theme.Token_Text_Muted)
+    property color themeScrollBarHandle_idle: Theme.color(Theme.Token_Stroke_Muted)
 
-    property color themeSectionHeadBackground: Theme.color(Theme.DSsectionHeadBackground)
+    property color themeSectionHeadBackground: Theme.color(Theme.Token_Foreground_Subtle)
 
-    property color themeTabActiveBackground: Theme.color(Theme.DStabActiveBackground)
-    property color themeTabActiveText: Theme.color(Theme.DStabActiveText)
-    property color themeTabInactiveBackground: Theme.color(Theme.DStabInactiveBackground)
-    property color themeTabInactiveText: Theme.color(Theme.DStabInactiveText)
+    property color themeTabActiveBackground: Theme.color(Theme.Token_Foreground_Default)
+    property color themeTabActiveText: Theme.color(Theme.Token_Stroke_Strong)
+    property color themeTabInactiveBackground: Theme.color(Theme.Token_Background_Default)
+    property color themeTabInactiveText: Theme.color(Theme.Token_Stroke_Strong)
 
 
     // State Editor
-    property color themeStateSeparator: Theme.color(Theme.DSstateSeparatorColor)
-    property color themeStateBackground: Theme.color(Theme.DSstateBackgroundColor)
-    property color themeStatePreviewOutline: Theme.color(Theme.DSstatePreviewOutline)
+    property color themeStateSeparator: Theme.color(Theme.Token_Foreground_Subtle)
+    property color themeStateBackground: Theme.color(Theme.Token_Basic_White)
+    property color themeStatePreviewOutline: Theme.color(Theme.Token_Text_Muted)
 
     // State Editor *new*
-    property color themeStatePanelBackground: Theme.color(Theme.DSstatePanelBackground)
-    property color themeStateHighlight: Theme.color(Theme.DSstateHighlight)
+    property color themeStatePanelBackground: Theme.color(Theme.Token_Background_Muted)
+    property color themeStateHighlight: Theme.color(Theme.Token_Stroke_Muted)
 
-    property color themeUnimportedModuleColor: Theme.color(Theme.DSUnimportedModuleColor)
+    property color themeUnimportedModuleColor: Theme.color(Theme.Token_Notification_Danger_Default)
 
     // Taken out of Constants.js
-    property color themeChangedStateText: Theme.color(Theme.DSchangedStateText)
+    property color themeChangedStateText: Theme.color(Theme.Token_Text_Muted)
 
     // 3D
-    property color theme3DAxisXColor: Theme.color(Theme.DS3DAxisXColor)
-    property color theme3DAxisYColor: Theme.color(Theme.DS3DAxisYColor)
-    property color theme3DAxisZColor: Theme.color(Theme.DS3DAxisZColor)
+    property color theme3DAxisXColor: Theme.color(Theme.Token_Notification_Danger_Muted)
+    property color theme3DAxisYColor: Theme.color(Theme.Token_Accent_Default)
+    property color theme3DAxisZColor: Theme.color(Theme.Token_Notification_Neutral_Muted)
 
-    property color themeActionBinding: Theme.color(Theme.DSactionBinding)
-    property color themeActionAlias: Theme.color(Theme.DSactionAlias)
-    property color themeActionKeyframe: Theme.color(Theme.DSactionKeyframe)
-    property color themeActionJIT: Theme.color(Theme.DSactionJIT)
+    property color themeActionBinding: Theme.color(Theme.Token_Stroke_Muted)
+    property color themeActionAlias: Theme.color(Theme.Token_Notification_Danger_Default)
+    property color themeActionKeyframe: Theme.color(Theme.Token_Notification_Alert_Default)
+    property color themeActionJIT: Theme.color(Theme.Token_Text_Accent)
 
-    property color themeListItemBackground: Theme.color(Theme.DSnavigatorItemBackground)
-    property color themeListItemBackgroundHover: Theme.color(Theme.DSnavigatorItemBackgroundHover)
-    property color themeListItemBackgroundPress: Theme.color(Theme.DSnavigatorItemBackgroundSelected)
-    property color themeListItemText: Theme.color(Theme.DSnavigatorText)
-    property color themeListItemTextHover: Theme.color(Theme.DSnavigatorTextHover)
-    property color themeListItemTextPress: Theme.color(Theme.DSnavigatorTextSelected)
+    property color themeListItemBackground: Theme.color(Theme.Token_Background_Subtle)
+    property color themeListItemBackgroundHover: Theme.color(Theme.Token_Foreground_Muted)
+    property color themeListItemBackgroundPress: Theme.color(Theme.Token_Background_Default)
+    property color themeListItemText: Theme.color(Theme.Token_Stroke_Strong)
+    property color themeListItemTextHover: Theme.color(Theme.Token_Text_Default)
+    property color themeListItemTextPress: Theme.color(Theme.Token_Text_Accent)
 
     // Welcome Page
-    property color welcomeScreenBackground: Theme.color(Theme.DSwelcomeScreenBackground)
-    property color themeSubPanelBackground: Theme.color(Theme.DSsubPanelBackground)
-    property color themeThumbnailBackground: Theme.color(Theme.DSthumbnailBackground)
-    property color themeThumbnailLabelBackground: Theme.color(Theme.DSthumbnailLabelBackground)
+    property color welcomeScreenBackground: Theme.color(Theme.Token_Background_Muted)
+    property color themeSubPanelBackground: Theme.color(Theme.Token_Background_Default)
+    property color themeThumbnailBackground: Theme.color(Theme.Token_Background_Muted)
+    property color themeThumbnailLabelBackground: Theme.color(Theme.Token_Background_Subtle)
 
     // Dialog
     property color themeDialogBackground: values.themeThumbnailBackground
     property color themeDialogOutline: values.themeInteraction
 
     // Expression Builder
-    property color themePillDefaultBackgroundIdle: Theme.color(Theme.DSpillDefaultBackgroundIdle)
-    property color themePillDefaultBackgroundHover: Theme.color(Theme.DSpillDefaultBackgroundHover)
-    property color themePillOperatorBackgroundIdle: Theme.color(Theme.DSpillOperatorBackgroundIdle)
-    property color themePillOperatorBackgroundHover: Theme.color(Theme.DSpillOperatorBackgroundHover)
-    property color themePillLiteralBackgroundIdle: Theme.color(Theme.DSpillLiteralBackgroundIdle)
-    property color themePillLiteralBackgroundHover: Theme.color(Theme.DSpillLiteralBackgroundHover)
+    property color themePillDefaultBackgroundIdle: Theme.color(Theme.Token_Basic_Black)
+    property color themePillDefaultBackgroundHover: Theme.color(Theme.Token_Basic_Black)
+    property color themePillOperatorBackgroundIdle: Theme.color(Theme.Token_Notification_Neutral_Muted)
+    property color themePillOperatorBackgroundHover: Theme.color(Theme.Token_Notification_Neutral_Default)
+    property color themePillLiteralBackgroundIdle: Theme.color(Theme.Token_Accent_Muted)
+    property color themePillLiteralBackgroundHover: Theme.color(Theme.Token_Accent_Subtle)
 
     property color themePillShadowBackground: values.themeInteraction
 
     property color themePillOutline: "#ffffffff"
 
-    property color themePillText: Theme.color(Theme.DSpillText)
-    property color themePillTextSelected: Theme.color(Theme.DSpillTextSelected)
-    property color themePillTextEdit: Theme.color(Theme.DspillTextEdit)
+    property color themePillText: Theme.color(Theme.Token_Text_On_Accent)
+    property color themePillTextSelected: Theme.color(Theme.Token_Background_Default)
+    property color themePillTextEdit: Theme.color(Theme.Token_Text_Default)
 
-    property color themeTableCellCurrent: Theme.color(Theme.DStableCellCurrent)
+    property color themeTableCellCurrent: Theme.color(Theme.Token_Gradient01_Start)
 
     // Design System Semantics
 

@@ -218,10 +218,10 @@ TimelineWidget::TimelineWidget(TimelineView *view, ModulesStorage &modulesStorag
     {
         QPalette timelinePalette;
         timelinePalette.setColor(QPalette::Text, Utils::creatorColor(
-                                     Utils::Theme::DStextColor));
+                                     Utils::Theme::Token_Stroke_Strong));
         timelinePalette.setColor(QPalette::WindowText, timelinePalette.color(QPalette::Text));
         timelinePalette.setColor(QPalette::Window, Utils::creatorColor(
-                                     Utils::Theme::QmlDesigner_BackgroundColorDarkAlternate));
+                                     Utils::Theme::Token_Background_Subtle));
 
         onboardingTopLabel->setPalette(timelinePalette);
         onboardingBottomLabel->setPalette(timelinePalette);

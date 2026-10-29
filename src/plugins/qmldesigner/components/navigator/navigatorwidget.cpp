@@ -134,7 +134,7 @@ QList<QWidget *> NavigatorWidget::createToolBarWidgets()
     // Colorize Component Icons
     const QIcon colorizeOffIcon = Theme::iconFromName(Theme::Icon::colorSelection_medium);
     const QIcon colorizeOnIcon = Theme::iconFromName(Theme::Icon::colorSelection_medium,
-                                             Theme::getColor(Theme::Color::DStextSelectedTextColor));
+                                             Theme::getColor(Theme::Color::Token_Background_Default));
     QIcon cIcon;
     cIcon.addPixmap(colorizeOnIcon.pixmap({16, 16}), QIcon::Normal, QIcon::On);
     cIcon.addPixmap(colorizeOffIcon.pixmap({16, 16}), QIcon::Normal, QIcon::Off);
@@ -168,7 +168,7 @@ QList<QWidget *> NavigatorWidget::createToolBarWidgets()
     // Show Only Visible Components
     auto visibleIcon = Theme::iconFromName(Theme::Icon::visible_medium);
     auto invisibleIcon = Theme::iconFromName(Theme::Icon::invisible_medium,
-                                             Theme::getColor(Theme::Color::DStextSelectedTextColor));
+                                             Theme::getColor(Theme::Color::Token_Background_Default));
     QIcon vIcon;
     vIcon.addPixmap(invisibleIcon.pixmap({16, 16}), QIcon::Normal, QIcon::On);
     vIcon.addPixmap(visibleIcon.pixmap({16, 16}), QIcon::Normal, QIcon::Off);
@@ -185,7 +185,7 @@ QList<QWidget *> NavigatorWidget::createToolBarWidgets()
     // Reverse Component Order
     auto reverseOffIcon = Theme::iconFromName(Theme::Icon::reverseOrder_medium);
     auto reverseOnIcon = Theme::iconFromName(Theme::Icon::reverseOrder_medium,
-                                             Theme::getColor(Theme::Color::DStextSelectedTextColor));
+                                             Theme::getColor(Theme::Color::Token_Background_Default));
     QIcon rIcon;
     rIcon.addPixmap(reverseOnIcon.pixmap({16, 16}), QIcon::Normal, QIcon::On);
     rIcon.addPixmap(reverseOffIcon.pixmap({16, 16}), QIcon::Normal, QIcon::Off);

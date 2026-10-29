@@ -3,16 +3,16 @@
         "ContextMenuArea": {
             "size": "28x28",
             "Off": {
-                "Disabled": { "color": "DStextColorDisabled" },
-                "Hovered": { "color": "DSpanelBackground" },
-                "Normal": { "color": "DStextColor" },
-                "Selected": { "color": "DStextSelectedTextColor" }
+                "Disabled": { "color": "Token_Text_Subtle" },
+                "Hovered": { "color": "Token_Background_Subtle" },
+                "Normal": { "color": "Token_Stroke_Strong" },
+                "Selected": { "color": "Token_Background_Default" }
             },
             "On": {
-                "Disabled": { "color": "DStextColorDisabled" },
-                "Hovered": { "color": "DSsubPanelBackground" },
-                "Normal": { "color": "DStextColor" },
-                "Selected": { "color": "DStextSelectedTextColor" }
+                "Disabled": { "color": "Token_Text_Subtle" },
+                "Hovered": { "color": "Token_Background_Default" },
+                "Normal": { "color": "Token_Stroke_Strong" },
+                "Selected": { "color": "Token_Background_Default" }
             }
         },
         "AddMouseAreaIcon": {
@@ -232,16 +232,16 @@
         "ToolbarArea": {
             "size": "32x32",
             "Off": {
-                "Disabled": { "color": "DStoolbarIcon_blocked" },
-                "Hovered": { "color": "DSiconColor" },
-                "Normal": { "color": "DSiconColor" },
-                "Selected": { "color": "DStextSelectedTextColor" }
+                "Disabled": { "color": "Token_Text_Subtle" },
+                "Hovered": { "color": "Token_Text_Default" },
+                "Normal": { "color": "Token_Text_Default" },
+                "Selected": { "color": "Token_Background_Default" }
             },
             "On": {
-                "Disabled": { "color": "DStoolbarIcon_blocked" },
-                "Hovered": { "color": "DStextSelectedTextColor" },
-                "Normal": { "color": "DStextSelectedTextColor" },
-                "Selected": { "color": "DStextSelectedTextColor" }
+                "Disabled": { "color": "Token_Text_Subtle" },
+                "Hovered": { "color": "Token_Background_Default" },
+                "Normal": { "color": "Token_Background_Default" },
+                "Selected": { "color": "Token_Background_Default" }
             }
         },
         "AlignCameraToViewIcon": {

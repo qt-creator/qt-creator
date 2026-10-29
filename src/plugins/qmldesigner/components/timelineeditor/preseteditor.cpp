@@ -148,8 +148,8 @@ PresetList::PresetList(QSettings::Scope scope, QWidget *parent)
     , m_scope(scope)
     , m_index(-1)
     , m_filename(Internal::settingsFullFilePath(scope))
-    , m_background(Theme::getColor(Theme::DSsectionHeadBackground ))
-    , m_curveColor(Theme::getColor(Theme::DStextColor))
+    , m_background(Theme::getColor(Theme::Token_Foreground_Subtle ))
+    , m_curveColor(Theme::getColor(Theme::Token_Stroke_Strong))
 {
     int magic = 4;
     int scrollBarWidth = this->style()->pixelMetric(QStyle::PM_ScrollBarExtent);

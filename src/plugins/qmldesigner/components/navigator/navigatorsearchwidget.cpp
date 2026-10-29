@@ -28,7 +28,7 @@ LineEdit::LineEdit(QWidget *parent)
 
     const QString fontName = "qtds_propertyIconFont.ttf";
     const int clearIconSize = 10;
-    const QColor iconColor(QmlDesigner::Theme::getColor(QmlDesigner::Theme::DStextColor));
+    const QColor iconColor(QmlDesigner::Theme::getColor(QmlDesigner::Theme::Token_Stroke_Strong));
 
     const QIcon searchIcon = Utils::StyleHelper::getIconFromIconFont(
         fontName,
@@ -62,17 +62,17 @@ LineEdit::LineEdit(QWidget *parent)
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     setStyleSheet(Theme::replaceCssColors(
         QString("QLineEdit { padding-right: %1px; border-radius: 4;"
-                "color: creatorTheme.DStextColor;"
-                "border-color: creatorTheme.DScontrolOutline_topToolbarIdle;"
-                "background: creatorTheme.DStoolbarBackground; }"
+                "color: creatorTheme.Token_Stroke_Strong;"
+                "border-color: creatorTheme.Token_Background_Subtle;"
+                "background: creatorTheme.Token_Foreground_Subtle; }"
                 "QLineEdit:hover {"
-                "color: creatorTheme.DStextColor;"
-                "border-color: creatorTheme.DScontrolOutline_topToolbarHover;"
-                "background: creatorTheme.DScontrolBackground_toolbarHover; }"
+                "color: creatorTheme.Token_Stroke_Strong;"
+                "border-color: creatorTheme.Token_Foreground_Default;"
+                "background: creatorTheme.Token_Foreground_Subtle; }"
                 "QLineEdit:focus {"
-                "color: creatorTheme.DStextColor;"
-                "border-color: creatorTheme.DSinteraction;"
-                "background: creatorTheme.DStoolbarBackground; }")
+                "color: creatorTheme.Token_Stroke_Strong;"
+                "border-color: creatorTheme.Token_Text_Muted;"
+                "background: creatorTheme.Token_Foreground_Subtle; }")
             .arg(clearButton->sizeHint().width() + frameWidth + 8)));
 
     setFixedHeight(29);
@@ -109,10 +109,10 @@ void LineEdit::paintEvent(QPaintEvent *event)
         QPalette p(palette());
         p.setColor(QPalette::Active,
                    QPalette::PlaceholderText,
-                   Utils::creatorColor(Utils::Theme::DSplaceholderTextColor));
+                   Utils::creatorColor(Utils::Theme::Token_Text_Default));
         p.setColor(QPalette::Inactive,
                    QPalette::PlaceholderText,
-                   Utils::creatorColor(Utils::Theme::DSplaceholderTextColor));
+                   Utils::creatorColor(Utils::Theme::Token_Text_Default));
         setPalette(p);
     }
     QLineEdit::paintEvent(event);
@@ -145,7 +145,7 @@ NavigatorSearchWidget::NavigatorSearchWidget(QWidget *parent)
 
     setFixedHeight(Theme::toolbarSize());
     QPalette pal = QPalette();
-    pal.setColor(QPalette::Window, Theme::getColor(Utils::Theme::DStoolbarBackground));
+    pal.setColor(QPalette::Window, Theme::getColor(Utils::Theme::Token_Foreground_Subtle));
     setAutoFillBackground(true);
     setPalette(pal);
 }

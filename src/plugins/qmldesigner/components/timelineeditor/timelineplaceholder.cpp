@@ -30,7 +30,7 @@ void TimelinePlaceholder::paint(QPainter *painter, const QStyleOptionGraphicsIte
 {
     painter->save();
     static const QColor penColor = Theme::getColor(Theme::BackgroundColorDark);
-    static const QColor backgroundColor = Theme::getColor(Theme::DScontrolBackground);
+    static const QColor backgroundColor = Theme::getColor(Theme::Token_Background_Subtle);
     static const QColor backgroundColorSection = Theme::getColor(Theme::BackgroundColorDark);
 
     painter->fillRect(0, 0, size().width(), size().height(), backgroundColor);

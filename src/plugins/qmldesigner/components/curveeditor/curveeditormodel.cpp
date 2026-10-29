@@ -49,9 +49,9 @@ CurveEditorStyle CurveEditorModel::style() const
 {
     // Pseudo auto generated. See: CurveEditorStyleDialog
     CurveEditorStyle out;
-    out.backgroundBrush = QmlDesigner::Theme::getColor(QmlDesigner::Theme::DSsectionHeadBackground);
-    out.backgroundAlternateBrush = QmlDesigner::Theme::getColor(QmlDesigner::Theme::DSpanelBackground);
-    out.fontColor = QmlDesigner::Theme::getColor(QmlDesigner::Theme::DStextColor);
+    out.backgroundBrush = QmlDesigner::Theme::getColor(QmlDesigner::Theme::Token_Foreground_Subtle);
+    out.backgroundAlternateBrush = QmlDesigner::Theme::getColor(QmlDesigner::Theme::Token_Background_Subtle);
+    out.fontColor = QmlDesigner::Theme::getColor(QmlDesigner::Theme::Token_Stroke_Strong);
     out.gridColor = QColor(114, 116, 118);
     out.canvasMargin = 15;
     out.zoomInWidth = 99;
@@ -59,9 +59,9 @@ CurveEditorStyle CurveEditorModel::style() const
     out.timeAxisHeight = 60;
     out.timeOffsetLeft = 10;
     out.timeOffsetRight = 10;
-    out.rangeBarColor = QmlDesigner::Theme::getColor(Theme::DScontrolBackground);
+    out.rangeBarColor = QmlDesigner::Theme::getColor(Theme::Token_Background_Subtle);
     out.rangeBarCapsColor = QmlDesigner::Theme::getColor(
-        QmlDesigner::Theme::QmlDesigner_HighlightColor);
+        QmlDesigner::Theme::Token_Foreground_Default);
     out.valueAxisWidth = 60;
     out.valueOffsetTop = 10;
     out.valueOffsetBottom = 10;

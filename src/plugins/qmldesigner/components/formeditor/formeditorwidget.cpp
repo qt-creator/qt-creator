@@ -169,7 +169,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     auto zoomSelectionNormal = Theme::iconFromName(Theme::Icon::fitSelection_medium);
     auto zoomSelectionDisabeld = Theme::iconFromName(Theme::Icon::fitSelection_medium,
                                                      Theme::getColor(
-                                                         Theme::Color::DStoolbarIcon_blocked));
+                                                         Theme::Color::Token_Text_Subtle));
     QIcon zoomSelectionIcon;
     zoomSelectionIcon.addPixmap(zoomSelectionNormal.pixmap({16, 16}), QIcon::Normal);
     zoomSelectionIcon.addPixmap(zoomSelectionDisabeld.pixmap({16, 16}), QIcon::Disabled);

@@ -76,7 +76,7 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
 
     if (styleOption.state & QStyle::State_MouseOver && !isThisOrAncestorLocked(modelIndex)) {
         painter->fillRect(styleOption.rect.adjusted(0, delegateMargin, 0, -delegateMargin),
-                          Theme::getColor(Theme::Color::DSnavigatorItemBackgroundHover));
+                          Theme::getColor(Theme::Color::Token_Foreground_Muted));
         mode = QIcon::Mode::Active; // hover
     }
 

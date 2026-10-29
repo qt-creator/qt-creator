@@ -212,18 +212,18 @@ void NameItemDelegate::paint(QPainter *painter,
 
     painter->save();
 
-    painter->setPen(Theme::getColor(Theme::Color::DSnavigatorText));
+    painter->setPen(Theme::getColor(Theme::Color::Token_Stroke_Strong));
 
     if (styleOption.state & QStyle::State_MouseOver && !isThisOrAncestorLocked(modelIndex)
         && !isReference(modelIndex)) {
         painter->fillRect(styleOption.rect.adjusted(0, delegateMargin, 0, -delegateMargin),
-                          Theme::getColor(Theme::Color::DSnavigatorItemBackgroundHover));
-        painter->setPen(Theme::getColor(Theme::Color::DSnavigatorTextHover));
+                          Theme::getColor(Theme::Color::Token_Foreground_Muted));
+        painter->setPen(Theme::getColor(Theme::Color::Token_Text_Default));
     }
 
     if (styleOption.state & QStyle::State_Selected) {
         NavigatorTreeView::drawSelectionBackground(painter, styleOption);
-        painter->setPen(Theme::getColor(Theme::Color::DSnavigatorTextSelected));
+        painter->setPen(Theme::getColor(Theme::Color::Token_Text_Accent));
     }
 
     ModelNode node = getModelNode(modelIndex);
@@ -268,9 +268,9 @@ void NameItemDelegate::paint(QPainter *painter,
             if (validDrop) {
                 painter->setOpacity(0.5);
                 painter->fillRect(styleOption.rect.adjusted(0, delegateMargin, 0, -delegateMargin),
-                                  Theme::getColor(Theme::Color::DSnavigatorDropIndicatorBackground));
+                                  Theme::getColor(Theme::Color::Token_Stroke_Muted));
                 painter->setOpacity(1.0);
-                painter->setPen(Theme::getColor(Theme::Color::DSnavigatorTextSelected));
+                painter->setPen(Theme::getColor(Theme::Color::Token_Text_Accent));
             }
         }
     }

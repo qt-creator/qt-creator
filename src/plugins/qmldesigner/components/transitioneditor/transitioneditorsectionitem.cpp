@@ -275,11 +275,11 @@ void TransitionEditorSectionItem::paint(QPainter *painter,
 
         const QColor textColor = Theme::getColor(Theme::PanelTextColorLight);
         const QColor penColor = Theme::getColor(Theme::BackgroundColorDark);
-        QColor brushColor = Theme::getColor(Theme::DScontrolBackground);
+        QColor brushColor = Theme::getColor(Theme::Token_Background_Subtle);
 
         int fillOffset = 0;
         if (isSelected()) {
-            brushColor = Theme::getColor(Theme::QmlDesigner_HighlightColor);
+            brushColor = Theme::getColor(Theme::Token_Foreground_Default);
             fillOffset = 1;
         }
 
@@ -292,7 +292,7 @@ void TransitionEditorSectionItem::paint(QPainter *painter,
                           0,
                           size().width() - TimelineConstants::sectionWidth,
                           size().height(),
-                          Theme::getColor(Theme::DScontrolBackground));
+                          Theme::getColor(Theme::Token_Background_Subtle));
 
         painter->setPen(penColor);
         drawLine(painter,
@@ -603,9 +603,9 @@ void TransitionEditorBarItem::paint(QPainter *painter,
                                     [[maybe_unused]] const QStyleOptionGraphicsItem *option,
                                     [[maybe_unused]] QWidget *widget)
 {
-    QColor brushColor = Theme::getColor(Theme::QmlDesigner_HighlightColor);
-    QColor brushColorSection = Theme::getColor(Theme::QmlDesigner_HighlightColor).darker(120);
-    QColor penColor = Theme::getColor(Theme::QmlDesigner_HighlightColor).lighter(140);
+    QColor brushColor = Theme::getColor(Theme::Token_Foreground_Default);
+    QColor brushColorSection = Theme::getColor(Theme::Token_Foreground_Default).darker(120);
+    QColor penColor = Theme::getColor(Theme::Token_Foreground_Default).lighter(140);
 
     const QRectF itemRect = rect();
 

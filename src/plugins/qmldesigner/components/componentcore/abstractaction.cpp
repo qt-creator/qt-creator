@@ -11,7 +11,7 @@ AbstractAction::AbstractAction(const QString &description)
     : m_pureAction(std::make_unique<DefaultAction>(description))
 {
     const Utils::Icon defaultIcon({
-            {":/utils/images/select.png", Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
+            {":/utils/images/select.png", Utils::Theme::Token_Basic_White}}, Utils::Icon::MenuTintedStyle);
 
     action()->setIcon(defaultIcon.icon());
 }

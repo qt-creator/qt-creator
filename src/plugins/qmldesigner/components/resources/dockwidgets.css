@@ -1,13 +1,13 @@
 ADS--DockContainerWidget {
-    background: creatorTheme.DSdockContainerBackground;
+    background: creatorTheme.Token_Background_Muted;
 }
 
 ADS--DockContainerWidget QSplitter::handle {
-    background: creatorTheme.DSdockContainerSplitter;
+    background: creatorTheme.Token_Foreground_Subtle;
 }
 
 ADS--DockAreaWidget {
-    background: creatorTheme.DSdockAreaBackground;
+    background: creatorTheme.Token_Background_Subtle;
 }
 
 ADS--DockAreaWidget #tabsMenuButton::menu-indicator {
@@ -16,49 +16,49 @@ ADS--DockAreaWidget #tabsMenuButton::menu-indicator {
 
 ADS--DockSplitter::handle:horizontal {
     width: 1px;
-    background: creatorTheme.DSdockWidgetSplitter;
+    background: creatorTheme.Token_Basic_Black;
 }
 
 ADS--DockSplitter::handle:vertical {
     height: 1px;
-    background: creatorTheme.DSdockWidgetSplitter;
+    background: creatorTheme.Token_Basic_Black;
 }
 
 ADS--DockWidgetTab {
-    background-color: creatorTheme.DStabInactiveBackground;
-    border-color: creatorTheme.DStabSplitter;
+    background-color: creatorTheme.Token_Background_Default;
+    border-color: creatorTheme.Token_Text_Subtle;
     border-style: solid;
     border-width: 0 1px 0 0;
     padding-left: 16px;
 }
 
 ADS--DockWidgetTab QLabel {
-    color: creatorTheme.DStabInactiveText;
+    color: creatorTheme.Token_Stroke_Strong;
 }
 
 ADS--DockWidgetTab[activeTab="true"] {
-    background: creatorTheme.DStabActiveBackground;
+    background: creatorTheme.Token_Foreground_Default;
 }
 
 ADS--DockWidgetTab[activeTab="true"] QLabel {
-    color: creatorTheme.DStabActiveText;
+    color: creatorTheme.Token_Stroke_Strong;
 }
 
 ADS--DockWidgetTab[activeTab="true"] > #tabCloseButton:hover {
-    background: creatorTheme.DStabActiveBackground;
+    background: creatorTheme.Token_Foreground_Default;
 }
 
 ADS--DockWidgetTab[activeTab="true"] > #tabCloseButton:pressed {
-    background: creatorTheme.DStabActiveButtonPress;
+    background: creatorTheme.Token_Stroke_Strong;
 }
 
 ADS--DockWidget {
-    background: creatorTheme.DSdockWidgetBackground;
+    background: creatorTheme.Token_Background_Subtle;
     border: none;
 }
 
 QWidget#tabsContainerWidget {
-    background: creatorTheme.DStabContainerBackground;
+    background: creatorTheme.Token_Background_Default;
 }
 
 ADS--TitleBarButton {
@@ -68,15 +68,15 @@ ADS--TitleBarButton {
 }
 
 ADS--TitleBarButton:hover {
-    background-color: creatorTheme.DStitleBarButtonHover;
+    background-color: creatorTheme.Token_Text_Subtle;
 }
 
 ADS--TitleBarButton:press {
-    background-color: creatorTheme.DStitleBarButtonPress;
+    background-color: creatorTheme.Token_Stroke_Muted;
 }
 
 #floatingTitleLabel {
-    color: creatorTheme.DStitleBarText;
+    color: creatorTheme.Token_Stroke_Strong;
 }
 
 #floatingTitleCloseButton {
@@ -86,11 +86,11 @@ ADS--TitleBarButton:press {
 }
 
 #floatingTitleCloseButton:hover {
-    background: creatorTheme.DStitleBarButtonHover;
+    background: creatorTheme.Token_Text_Subtle;
 }
 
 #floatingTitleCloseButton:pressed {
-    background: creatorTheme.DStitleBarButtonPress;
+    background: creatorTheme.Token_Stroke_Muted;
 }
 
 #floatingTitleMaxButton {
@@ -100,15 +100,15 @@ ADS--TitleBarButton:press {
 }
 
 #floatingTitleMaxButton:hover {
-    background: creatorTheme.DStitleBarButtonHover;
+    background: creatorTheme.Token_Text_Subtle;
 }
 
 #floatingTitleMaxButton:pressed {
-    background: creatorTheme.DStitleBarButtonPress;
+    background: creatorTheme.Token_Stroke_Muted;
 }
 
 QScrollArea#dockWidgetScrollArea {
-    background-color: creatorTheme.DSpanelBackground;
+    background-color: creatorTheme.Token_Background_Subtle;
     padding: 0px;
     border: none;
 }
@@ -120,38 +120,38 @@ QScrollArea#dockWidgetScrollArea {
 }
 
 #tabCloseButton:hover {
-    background: creatorTheme.DStabActiveBackground;
+    background: creatorTheme.Token_Foreground_Default;
 }
 
 #tabCloseButton:pressed {
-    background: creatorTheme.DStabInactiveButtonPress;
+    background: creatorTheme.Token_Background_Default;
 }
 
 /* Focus related styling */
 ADS--DockWidgetTab[focused="true"] {
-    background: creatorTheme.DStabFocusBackground;
+    background: creatorTheme.Token_Text_Muted;
 }
 
 ADS--DockWidgetTab[focused="true"] > #tabCloseButton:hover {
-    background: creatorTheme.DStabFocusButtonHover;
+    background: creatorTheme.Token_Text_Muted;
 }
 
 ADS--DockWidgetTab[focused="true"] > #tabCloseButton:pressed {
-    background: creatorTheme.DStabFocusButtonPress;
+    background: creatorTheme.Token_Text_Muted;
 }
 
 ADS--DockWidgetTab[focused="true"] QLabel {
-    color: creatorTheme.DStabFocusText;
+    color: creatorTheme.Token_Background_Default;
 }
 
 ADS--DockAreaTitleBar {
-    background: creatorTheme.DSdockWidgetTitleBar;
-    border-bottom: 2px solid creatorTheme.DStabActiveBackground;
+    background: creatorTheme.Token_Background_Subtle;
+    border-bottom: 2px solid creatorTheme.Token_Foreground_Default;
     padding-bottom: 0px;
 }
 
 ADS--DockAreaWidget[focused="true"] ADS--DockAreaTitleBar {
-    border-bottom-color: creatorTheme.DStabFocusBackground;
+    border-bottom-color: creatorTheme.Token_Text_Muted;
 }
 
 ADS--AutoHideTab {
@@ -166,7 +166,7 @@ ADS--AutoHideTab {
 }
 
 ADS--AutoHideTab:hover {
-    color: creatorTheme.DSinteraction;
+    color: creatorTheme.Token_Text_Muted;
 }
 
 ADS--AutoHideTab[iconOnly="false"][sideBarLocation="0"],
@@ -183,14 +183,14 @@ ADS--AutoHideTab:hover[iconOnly="false"][sideBarLocation="0"],
 ADS--AutoHideTab:hover[iconOnly="false"][sideBarLocation="2"],
 ADS--AutoHideTab[iconOnly="false"][sideBarLocation="0"][activeTab="true"],
 ADS--AutoHideTab[iconOnly="false"][sideBarLocation="2"][activeTab="true"] {
-    border-top: 6px solid creatorTheme.DSinteraction;
+    border-top: 6px solid creatorTheme.Token_Text_Muted;
 }
 
 ADS--AutoHideTab:hover[iconOnly="false"][sideBarLocation="1"],
 ADS--AutoHideTab:hover[iconOnly="false"][sideBarLocation="3"],
 ADS--AutoHideTab[iconOnly="false"][sideBarLocation="1"][activeTab="true"],
 ADS--AutoHideTab[iconOnly="false"][sideBarLocation="3"][activeTab="true"] {
-    border-bottom: 6px solid creatorTheme.DSinteraction;
+    border-bottom: 6px solid creatorTheme.Token_Text_Muted;
 }
 
 /* Auto hide tabs with icon only */
@@ -213,22 +213,22 @@ ADS--AutoHideTab[iconOnly="true"][sideBarLocation="3"] {
 /* Auto hide tabs with icon only hover */
 ADS--AutoHideTab:hover[iconOnly="true"][sideBarLocation="0"],
 ADS--AutoHideTab[iconOnly="true"][sideBarLocation="0"][activeTab="true"] {
-    border-top: 6px solid creatorTheme.DSinteraction;
+    border-top: 6px solid creatorTheme.Token_Text_Muted;
 }
 
 ADS--AutoHideTab:hover[iconOnly="true"][sideBarLocation="1"],
 ADS--AutoHideTab[iconOnly="true"][sideBarLocation="1"][activeTab="true"] {
-    border-left: 6px solid creatorTheme.DSinteraction;
+    border-left: 6px solid creatorTheme.Token_Text_Muted;
 }
 
 ADS--AutoHideTab:hover[iconOnly="true"][sideBarLocation="2"],
 ADS--AutoHideTab[iconOnly="true"][sideBarLocation="2"][activeTab="true"] {
-    border-right: 6px solid creatorTheme.DSinteraction;
+    border-right: 6px solid creatorTheme.Token_Text_Muted;
 }
 
 ADS--AutoHideTab:hover[iconOnly="true"][sideBarLocation="3"],
 ADS--AutoHideTab[iconOnly="true"][sideBarLocation="3"][activeTab="true"] {
-    border-bottom: 6px solid creatorTheme.DSinteraction;
+    border-bottom: 6px solid creatorTheme.Token_Text_Muted;
 }
 
 /* AutoHideSideBar */
@@ -264,7 +264,7 @@ ADS--AutoHideDockContainer {
 }
 
 ADS--AutoHideDockContainer ADS--DockAreaTitleBar {
-    background: creatorTheme.DSinteraction;
+    background: creatorTheme.Token_Text_Muted;
     padding: 0px;
     border: none;
 }
@@ -274,7 +274,7 @@ ADS--AutoHideDockContainer ADS--DockAreaTitleBar {
  * overwrite the ADS--AutoHideDockContainer ADS--DockAreaTitleBar rule
  */
 ADS--AutoHideDockContainer ADS--DockAreaWidget[focused="true"] ADS--DockAreaTitleBar {
-    background: creatorTheme.DSinteraction;
+    background: creatorTheme.Token_Text_Muted;
     padding: 0px;
     border: none;
 }

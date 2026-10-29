@@ -381,7 +381,7 @@ void EffectShadersCodeEditor::createHeader()
     m_headerWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_headerWidget->engine()->addImportPath(EffectUtils::nodesSourcesPath() + "/common");
     m_headerWidget->setClearColor(QmlDesigner::Theme::getColor(
-        QmlDesigner::Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
+        QmlDesigner::Theme::Color::Token_Background_Subtle));
     m_headerWidget->rootContext()->setContextProperty("shaderEditor", QVariant::fromValue(this));
     m_headerWidget->rootContext()->setContextProperty(
         "editableCompositionsModel", QVariant::fromValue(m_editableNodesModel.get()));
@@ -396,7 +396,7 @@ void EffectShadersCodeEditor::createQmlTabs()
     m_qmlTabWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_qmlTabWidget->engine()->addImportPath(EffectUtils::nodesSourcesPath() + "/common");
     m_qmlTabWidget->setClearColor(QmlDesigner::Theme::getColor(
-        QmlDesigner::Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
+        QmlDesigner::Theme::Color::Token_Background_Subtle));
     m_qmlTabWidget->rootContext()->setContextProperty("shaderEditor", QVariant::fromValue(this));
     m_qmlTabWidget->setFixedHeight(37);
 }
@@ -410,7 +410,7 @@ void EffectShadersCodeEditor::createQmlFooter()
     m_qmlFooterWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_qmlFooterWidget->engine()->addImportPath(EffectUtils::nodesSourcesPath() + "/common");
     m_qmlFooterWidget->setClearColor(QmlDesigner::Theme::getColor(
-        QmlDesigner::Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
+        QmlDesigner::Theme::Color::Token_Background_Subtle));
     m_qmlFooterWidget->rootContext()->setContextProperty("shaderEditor", QVariant::fromValue(this));
     m_qmlFooterWidget->setFixedHeight(40);
 }

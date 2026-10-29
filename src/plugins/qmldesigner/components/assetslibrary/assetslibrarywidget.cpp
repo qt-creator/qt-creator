@@ -159,7 +159,7 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &mainImageCache,
     // For fonts that do not have latin glyphs, the font family name will have to suffice for preview.
     m_fontPreviewTooltipBackend->setAuxiliaryData(
         ImageCache::FontCollectorSizeAuxiliaryData{QSize{300, 150},
-                                                   Theme::getColor(Theme::DStextColor).name(),
+                                                   Theme::getColor(Theme::Token_Stroke_Strong).name(),
                                                    QStringLiteral("The quick brown fox jumps\n"
                                                                   "over the lazy dog\n"
                                                                   "1234567890")});
@@ -168,7 +168,7 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &mainImageCache,
     m_assetsWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     Theme::setupTheme(m_assetsWidget->engine());
     m_assetsWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
-    m_assetsWidget->setClearColor(Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
+    m_assetsWidget->setClearColor(Theme::getColor(Theme::Color::Token_Background_Subtle));
     m_assetsWidget->engine()->addImageProvider("qmldesigner_assets", m_assetsIconProvider);
 
     connect(m_assetsModel, &AssetsLibraryModel::generatedAssetsDeleted,
