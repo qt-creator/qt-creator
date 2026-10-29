@@ -43,4 +43,8 @@ HarmonyOsSettings &settings();
 
 void setupHarmonyOsSettingsPage();
 
+#ifdef WITH_TESTS
+QObject *createHarmonyOsSettingsTest();
+#endif
+
 } // namespace HarmonyOs::Internal

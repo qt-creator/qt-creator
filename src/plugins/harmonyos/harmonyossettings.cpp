@@ -32,6 +32,7 @@
 #include <utils/networkaccessmanager.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/temporarydirectory.h>
 #include <utils/unarchiver.h>
 #include <utils/widgets.h>
 
@@ -42,6 +43,10 @@
 #include <QProgressDialog>
 #include <QPushButton>
 #include <QRegularExpression>
+
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
 
 using namespace Utils;
 
@@ -416,6 +421,29 @@ static FilePath downloadedQtRoot()
     return Core::ICore::userResourcePath("harmonyos/qt");
 }
 
+// The configuration a Qt package carries names host paths of the machine it was built on,
+// which the Qt installer replaces on installation. A downloaded Qt is used on the device it
+// was built for, so it is its own host.
+static Result<> makeSelfHosted(const FilePath &prefix)
+{
+    const FilePath conf = prefix / "bin" / "target_qt.conf";
+    if (!conf.exists())
+        return ResultOk;
+    const Result<QByteArray> contents = conf.fileContents();
+    if (!contents)
+        return ResultError(contents.error());
+    QByteArrayList lines = contents->split('\n');
+    for (QByteArray &line : lines) {
+        if (line.startsWith("HostPrefix="))
+            line = "HostPrefix=../";
+        else if (line.startsWith("HostData="))
+            line = "HostData=.";
+    }
+    if (const Result<qint64> written = conf.writeFileContents(lines.join('\n')); !written)
+        return ResultError(written.error());
+    return ResultOk;
+}
+
 // Installs the newest Qt for HarmonyOS a repository offers into "<root>/<version>/<target>",
 // which is the layout the Qt installer produces as well. A repository is plain files over
 // HTTP, so this way needs no installer.
@@ -589,6 +617,15 @@ static QtTaskTree::GroupItem downloadQtRecipe(const QUrl &repository, const File
         return DoneResult::Success;
     };
 
+    const auto onConfigure = [storage, root] {
+        const FilePath prefix = root / storage->package.qtVersion() / storage->package.target();
+        if (const Result<> configured = makeSelfHosted(prefix); !configured) {
+            reportDownloadError(configured.error(), qtDownloadTitle());
+            return DoneResult::Error;
+        }
+        return DoneResult::Success;
+    };
+
     const auto onCancel = [storage] {
         return makeObjectSignal(storage->progressDialog.get(), &QProgressDialog::canceled);
     };
@@ -607,6 +644,7 @@ static QtTaskTree::GroupItem downloadQtRecipe(const QUrl &repository, const File
                     UnarchiverTask(onUnpackSetup, onUnpackDone),
                 },
             },
+            QSyncTask(onConfigure),
         }.withCancel(onCancel),
         onGroupDone([workPath] { workPath.removeRecursively(); }),
     };
@@ -1086,4 +1124,47 @@ void setupHarmonyOsSettingsPage()
     static HarmonyOsSettingsPage theHarmonyOsSettingsPage;
 }
 
+
+#ifdef WITH_TESTS
+
+class HarmonyOsSettingsTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testMakeSelfHosted()
+    {
+        const TemporaryDirectory prefix("harmonyos-qt");
+        QVERIFY(makeSelfHosted(prefix.path()));
+
+        const FilePath conf = prefix.path() / "bin" / "target_qt.conf";
+        QVERIFY(conf.parentDir().ensureWritableDir());
+        QVERIFY(conf.writeFileContents("[Paths]\n"
+                                       "Prefix=../\n"
+                                       "HostPrefix=../../gcc_64\n"
+                                       "HostBinaries=bin\n"
+                                       "HostData=../harmonyos_arm64_v8a\n"
+                                       "TargetSpec=ohos-clang"));
+        QVERIFY(makeSelfHosted(prefix.path()));
+        QCOMPARE(conf.fileContents().value_or(QByteArray()),
+                 QByteArray("[Paths]\n"
+                            "Prefix=../\n"
+                            "HostPrefix=../\n"
+                            "HostBinaries=bin\n"
+                            "HostData=.\n"
+                            "TargetSpec=ohos-clang"));
+    }
+};
+
+QObject *createHarmonyOsSettingsTest()
+{
+    return new HarmonyOsSettingsTest;
+}
+
+#endif // WITH_TESTS
+
 } // namespace HarmonyOs::Internal
+
+#ifdef WITH_TESTS
+#include "harmonyossettings.moc"
+#endif

@@ -78,6 +78,7 @@ class HarmonyOsPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createHarmonyOsDeviceTest);
         addTestCreator(createHarmonyOsManifestTest);
         addTestCreator(Sdk::createHarmonyOsSdkTest);
+        addTestCreator(createHarmonyOsSettingsTest);
 #endif
     }
 
