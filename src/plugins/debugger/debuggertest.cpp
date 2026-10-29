@@ -143,6 +143,7 @@ private slots:
     void testCdbImplStartData();
     void testCdbImplCommandLine();
     void testCdbImplArtificialThreadStop();
+    void testCdbImplStoppedByException();
     void testCdbImplResolvedBreakpointUpdates();
     void testCdbImplBreakpointStopMessages();
     void testCdbImplStepIntoLanding();
@@ -1024,6 +1025,42 @@ void DebuggerUnitTests::testCdbImplArtificialThreadStop()
     QVERIFY(!stoppedInArtificialThread(stopData(
         R"(reason="exception",exceptionCode="2147483651",)"
         R"(exceptionFunction="tst_inferior!main")")));
+}
+
+void DebuggerUnitTests::testCdbImplStoppedByException()
+{
+    const auto stopData = [](const QString &contents) {
+        QStringDecoder decoder(QStringDecoder::Utf8);
+        GdbMi data;
+        data.fromString('{' + contents + '}', decoder);
+        return data;
+    };
+
+    // An access violation is the program's own doing.
+    const std::optional<QString> crash = stoppedByException(stopData(
+        R"(reason="exception",threadId="4",exceptionCode="3221225477")"));
+    QVERIFY(crash);
+    QVERIFY2(crash->startsWith("Stopped in thread 4 by: "), qPrintable(*crash));
+
+    // So is a C++ exception.
+    QVERIFY(stoppedByException(stopData(
+        R"(reason="exception",threadId="1",exceptionCode="3765269347")")));
+
+    // Breaks the debugger caused are no news.
+    QVERIFY(!stoppedByException(stopData(
+        R"(reason="exception",threadId="1",exceptionCode="2147483651")")));
+    QVERIFY(!stoppedByException(stopData(
+        R"(reason="exception",threadId="1",exceptionCode="2147483652")")));
+    QVERIFY(!stoppedByException(stopData(
+        R"(reason="exception",threadId="1",exceptionCode="1073807365")")));
+
+    // Neither are the ones that cdb passes on silently.
+    QVERIFY(!stoppedByException(stopData(
+        R"(reason="exception",threadId="1",exceptionCode="1080890248")")));
+    QVERIFY(!stoppedByException(stopData(
+        R"(reason="exception",threadId="1",exceptionCode="1073741855")")));
+
+    QVERIFY(!stoppedByException(stopData(R"(reason="breakpoint",threadId="1")")));
 }
 
 void DebuggerUnitTests::testCdbImplResolvedBreakpointUpdates()

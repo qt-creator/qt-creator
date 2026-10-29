@@ -3715,6 +3715,26 @@ bool stoppedInArtificialThread(const GdbMi &stopData)
            && exception.function == "ntdll!DbgBreakPoint";
 }
 
+// An exception the program raised, as opposed to a break the debugger caused
+// or one that cdb lets pass silently, is worth a word to the user.
+std::optional<QString> stoppedByException(const GdbMi &stopData)
+{
+    if (stopData["reason"].data() != "exception")
+        return {};
+    WinException exception;
+    exception.fromGdbMI(stopData);
+    switch (exception.exceptionCode) {
+    case 0x80000003: // EXCEPTION_BREAKPOINT
+    case 0x80000004: // EXCEPTION_SINGLE_STEP
+    case winExceptionCtrlPressed:
+    case winExceptionSetThreadName:
+    case winExceptionWX86Breakpoint:
+        return {};
+    }
+    return Tr::tr("Stopped in thread %1 by: %2.")
+        .arg(stopData["threadId"].data(), exception.toString());
+}
+
 // Stepping into a call can land on the jump the linker put in front of the
 // function, which has no source of its own. CdbEngine steps once more from
 // there, so that what gets reported is the function itself.
@@ -3841,6 +3861,8 @@ void CdbImpl::reportStop(const GdbMi &stopData)
         emit inferiorEvent(InferiorEvent::StopOk);
     }
     m_expectSpontaneousStop = false;
+    if (const std::optional<QString> exception = stoppedByException(stopData))
+        emit signalReceived({}, *exception);
 }
 
 void CdbImpl::adjustOperateByInstruction(bool operateByInstruction)

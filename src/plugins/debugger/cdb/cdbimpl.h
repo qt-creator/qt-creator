@@ -20,6 +20,8 @@ namespace Debugger::Internal {
 
 DEBUGGER_EXPORT bool stoppedInArtificialThread(const GdbMi &stopData);
 
+DEBUGGER_EXPORT std::optional<QString> stoppedByException(const GdbMi &stopData);
+
 DEBUGGER_EXPORT QStringList scriptMessages(const GdbMi &data);
 
 DEBUGGER_EXPORT QString debuggeeOutput(const QString &hexEncodedUtf16);

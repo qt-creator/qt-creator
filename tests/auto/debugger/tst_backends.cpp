@@ -2251,6 +2251,8 @@ private slots:
     void asksCdbForItsOwnConsoleWithATerminal();
     void ignoresAFirstChanceAccessViolationWhenAsked_data() { addBackendRows(); }
     void ignoresAFirstChanceAccessViolationWhenAsked();
+    void reportsTheExceptionThatStopsTheInferior_data() { addBackendRows(); }
+    void reportsTheExceptionThatStopsTheInferior();
     void passesTheHeapDebuggingFlagToTheDebuggee_data() { addBackendRows(); }
     void passesTheHeapDebuggingFlagToTheDebuggee();
     void passesInferiorEnvironmentToTheDebuggee_data() { addBackendRows(); }
@@ -8907,6 +8909,37 @@ void tst_backends::ignoresAFirstChanceAccessViolationWhenAsked()
     QVERIFY2(!debuggerBackend->contains(InferiorEvent::SpontaneousStop)
                  && !debuggerBackend->contains(InferiorEvent::StopOk),
              "the violation stopped the inferior although it was to be ignored");
+
+    debuggerBackend->clearEvents();
+    engine->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+    engine->shutdownEngine();
+}
+
+void tst_backends::reportsTheExceptionThatStopsTheInferior()
+{
+    QFETCH(Backend, backend);
+
+    if (inferiorTestData(backend).survivedAccessViolationMarker.isEmpty())
+        QSKIP("inferior cannot handle an access violation of its own");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend
+        = createEngineForAccessViolations(backend, false, {"survivable-crash"});
+    if (!debuggerBackend)
+        QSKIP("This backend's start data says nothing about first chance violations.");
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList reports;
+    connect(engine, &DebuggerEngineInterface::signalReceived, this,
+            [&reports](const QString &, const QString &meaning) { reports.append(meaning); });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                             s_warmUpTimeout);
+    // Reported together with the stop, so it is here if it is coming at all.
+    QVERIFY2(reports.join(' ').contains("access violation"),
+             qPrintable("the stop came without a word on what caused it: "
+                        + reports.join(" | ")));
 
     debuggerBackend->clearEvents();
     engine->shutdownInferior(ShutdownMode::Kill);
