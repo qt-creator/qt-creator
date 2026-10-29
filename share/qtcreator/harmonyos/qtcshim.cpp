@@ -321,6 +321,20 @@ static bool receiveUpToTheApplication(int fd, QtcShim *shim, std::string *error)
     return receiveQt(fd, shim->launch, error);
 }
 
+// No close() before what the IDE still sends is read: unread data turns the close into a
+// reset, and that loses the IDE whatever of the last text it had not read yet.
+static void closeAfterLastText(int &channel)
+{
+    ::shutdown(channel, SHUT_WR);
+    const timeval timeout{2, 0};
+    ::setsockopt(channel, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+    char buffer[65536];
+    while (::read(channel, buffer, sizeof(buffer)) > 0) {
+    }
+    ::close(channel);
+    channel = -1;
+}
+
 // What went wrong goes to the IDE too, which otherwise waits for an application that is
 // never asked for.
 static bool fail(int &channel, const std::string &message,
@@ -330,22 +344,13 @@ static bool fail(int &channel, const std::string &message,
     for (const std::string &name : missing)
         note("  missing %s", name.c_str());
     if (channel >= 0) {
-        // One write, because dprintf() writes piece by piece. And no close() before what the
-        // IDE still sends is read: unread data turns the close into a reset, and that loses
-        // the IDE whatever of the text it had not read yet.
+        // One write, because dprintf() writes piece by piece.
         std::string text = "runner: " + message + '\n';
         for (const std::string &name : missing)
             text += "runner:   missing " + name + '\n';
         if (::write(channel, text.data(), text.size()) < 0)
             note("cannot report to the IDE (errno %d)", errno);
-        ::shutdown(channel, SHUT_WR);
-        const timeval timeout{2, 0};
-        ::setsockopt(channel, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
-        char buffer[65536];
-        while (::read(channel, buffer, sizeof(buffer)) > 0) {
-        }
-        ::close(channel);
-        channel = -1;
+        closeAfterLastText(channel);
     }
     return false;
 }
@@ -370,7 +375,7 @@ static bool mapQt()
         rememberQt(launch.qtDirectory);
         note("staged %zu libraries, the next start runs", launch.received);
         ::dprintf(shim.channel, "runner: staged, start again\n");
-        ::close(shim.channel);
+        closeAfterLastText(shim.channel);
         ::_exit(0);
     }
     if (launch.qtDirectory.empty()) {
