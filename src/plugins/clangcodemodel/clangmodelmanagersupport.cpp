@@ -771,16 +771,14 @@ void ClangModelManagerSupport::updateStaleIndexEntries()
         const QHash<QString, IndexFiles> indexedFiles = collectIndexedFiles(indexFolder);
         bool restartCodeModel = false;
         const CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
-        for (const CPlusPlus::Document::Ptr &document : snapshot) {
-            const FilePath sourceFile = document->filePath();
-            if (sourceFile.fileName() == "<configuration>")
-                continue;
 
-            if (!project->isKnownFile(sourceFile)) {
-                qCDebug(clangdIndexLog) << "Not in project:" << sourceFile.fileName();
-                continue;
-            }
+        const FilePaths projectSources = project->files([](const Node *node) {
+            const auto fileNode = node->asFileNode();
+            return fileNode && (fileNode->fileType() == FileType::Source
+                                || fileNode->fileType() == FileType::Header);
+        });
 
+        for (const FilePath &sourceFile : projectSources) {
             const auto indexFilesIt = indexedFiles.find(sourceFile.fileName());
             if (indexFilesIt == indexedFiles.end()) {
                 qCDebug(clangdIndexLog) << "No index files for:" << sourceFile.fileName();
