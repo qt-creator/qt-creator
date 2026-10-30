@@ -24,6 +24,7 @@
 #include "quick/quicktestconfiguration.h"
 #include "quick/quicktestframework.h"
 
+#include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpptoolstestcase.h>
 #include <cppeditor/projectinfo.h>
 
@@ -60,6 +61,7 @@ public:
 private slots:
     void initTestCase();
     void cleanupTestCase();
+    void testASecondSessionFindsTheSameTests();
     void testCodeParser();
     void testCodeParser_data();
     void testCodeParserSwitchStartup();
@@ -118,6 +120,33 @@ void AutotestUnitTests::initTestCase()
 void AutotestUnitTests::cleanupTestCase()
 {
     delete m_tmpDir;
+}
+
+void AutotestUnitTests::testASecondSessionFindsTheSameTests()
+{
+    const FilePath projectFilePath = m_tmpDir->filePath() / "plain/plain.pro";
+
+    {
+        QSignalSpy parserSpy(m_model->parser(), &TestCodeParser::parsingFinished);
+        QSignalSpy modelUpdateSpy(m_model, &TestTreeModel::sweepingDone);
+        CppEditor::Tests::ProjectOpenerAndCloser projectManager;
+        QVERIFY(projectManager.open(projectFilePath, m_kit));
+        QVERIFY(parserSpy.wait(20000));
+        QVERIFY(modelUpdateSpy.wait());
+        QCOMPARE(m_model->autoTestsCount(), 1);
+    }
+
+    // The documents of a closed project outlive it.
+    CppEditor::CppModelManager::GC();
+
+    QSignalSpy parserSpy(m_model->parser(), &TestCodeParser::parsingFinished);
+    QSignalSpy modelUpdateSpy(m_model, &TestTreeModel::sweepingDone);
+    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
+    QVERIFY(projectManager.open(projectFilePath, m_kit));
+    QVERIFY(parserSpy.wait(20000));
+    QVERIFY(modelUpdateSpy.wait());
+
+    QCOMPARE(m_model->autoTestsCount(), 1);
 }
 
 void AutotestUnitTests::testCodeParser()
