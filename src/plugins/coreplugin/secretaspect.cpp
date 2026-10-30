@@ -31,6 +31,14 @@ namespace Core {
 
 using ReadCallback = std::function<void(Utils::Result<QString>)>;
 
+// Probing for KWallet makes blocking D-Bus calls, which take the full D-Bus
+// timeout when the service is registered but does not answer.
+static bool isKeychainAvailable()
+{
+    static const bool available = QKeychain::isAvailable();
+    return available;
+}
+
 class SecretAspectPrivate
 {
 public:
@@ -101,7 +109,7 @@ void SecretAspect::readSecret(const std::function<void(Result<QString>)> &cb) co
     if (d->readRunner.isRunning())
         return;
 
-    if (!QKeychain::isAvailable()) {
+    if (!isKeychainAvailable()) {
         qWarning() << "No Keychain available, reading from plaintext";
         QtcSettings &settings = Utils::userSettings();
         settings.beginGroup("Secrets");
@@ -145,7 +153,8 @@ QString SecretAspect::warningThatNoSecretStorageIsAvailable()
 
 void SecretAspect::readSettings()
 {
-    readSecret([](const Result<QString> &) {});
+    // The secret is read on demand by requestValue(), so that loading the
+    // settings does not touch the keychain.
 }
 
 void SecretAspect::writeSettings() const
@@ -153,7 +162,7 @@ void SecretAspect::writeSettings() const
     if (!d->wasEdited)
         return;
 
-    if (!QKeychain::isAvailable()) {
+    if (!isKeychainAvailable()) {
         QtcSettings &settings = Utils::userSettings();
         settings.beginGroup("Secrets");
         settings.setValue(d->plaintextKey(settingsKey()), toSettingsValue(d->value));
@@ -209,7 +218,7 @@ void SecretAspect::addToLayoutImpl(Layouting::Layout &parent)
     showPasswordButton->setEnabled(false);
     QLabel *warningLabel = nullptr;
 
-    if (!QKeychain::isAvailable()) {
+    if (!isKeychainAvailable()) {
         warningLabel = new QLabel();
         warningLabel->setPixmap(Utils::Icons::WARNING.icon().pixmap(16, 16));
         warningLabel->setToolTip(warningThatNoSecretStorageIsAvailable());
@@ -259,7 +268,7 @@ void SecretAspect::setValue(const QString &value)
 
 bool SecretAspect::isSecretStorageAvailable()
 {
-    return QKeychain::isAvailable();
+    return isKeychainAvailable();
 }
 
 void deleteSecret(const QString &service, const QString &key)
@@ -271,7 +280,7 @@ void deleteSecret(const QString &service, const QString &key)
     settings.remove(Utils::keyFromString(service + '.' + key));
     settings.endGroup();
 
-    if (!QKeychain::isAvailable())
+    if (!isKeychainAvailable())
         return;
 
     const auto onDeleteSetup = [service, key](CredentialQuery &credential) {
