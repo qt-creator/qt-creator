@@ -227,6 +227,7 @@ utils.ThemeColor = {
     Token_Text_Muted = 0,
     Token_Text_Subtle = 0,
     Token_Text_Accent = 0,
+    Token_Text_On_Accent = 0,
     Token_Stroke_Strong = 0,
     Token_Stroke_Muted = 0,
     Token_Stroke_Subtle = 0,
