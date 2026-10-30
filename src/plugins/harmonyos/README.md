@@ -121,7 +121,9 @@ thing.
   with that device as build and run device. Nothing has to be configured by
   hand apart from registering a Qt.
 - **Building.** A CMake Qt Widgets project in the user's own storage
-  configures and builds with that kit.
+  configures and builds with that kit. So does the Qt Quick application the
+  new project wizard creates, unchanged, and it runs: its window showed, and
+  the dark mode button switched it.
 - **Running.** A run goes through the same runner as "Running without
   installing" above, which has to be installed on the device. There is no
   `hdc` on the device, so the first run of a Qt receives it over the channel
