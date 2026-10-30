@@ -235,7 +235,7 @@ static std::optional<QString> extractValueIfMatches(const QString &arg, const QS
 
 static std::optional<QString> extractInclude(const QString &arg)
 {
-    return extractValueIfMatches(arg, {"-I", "/I", "-isystem", "-imsvc", "/imsvc"});
+    return extractValueIfMatches(arg, {"-I", "/I", "-isystem", "-imsvc", "/imsvc", "-iquote"});
 }
 
 static std::optional<Macro> extractMacro(const QString &arg)
@@ -252,16 +252,25 @@ static std::optional<Macro> extractMacro(const QString &arg)
 static CompilerArgs splitArgs(const QStringList &args)
 {
     CompilerArgs splited;
+    bool waitingForIncludePath = false;
     for (const QString &arg : args) {
-        auto inc = extractInclude(arg);
-        if (inc) {
-            splited.includePaths << *inc;
+        if (waitingForIncludePath) {
+            splited.includePaths << arg;
+            waitingForIncludePath = false;
         } else {
-            auto macro = extractMacro(arg);
-            if (macro) {
-                splited.macros << *macro;
+            auto inc = extractInclude(arg);
+            if (inc) {
+                QString p = inc->trimmed();
+                if (p.isEmpty())
+                    waitingForIncludePath = true;
+                else
+                    splited.includePaths << p;
             } else {
-                splited.args << arg;
+                auto macro = extractMacro(arg);
+                if (macro)
+                    splited.macros << *macro;
+                else
+                    splited.args << arg;
             }
         }
     }
