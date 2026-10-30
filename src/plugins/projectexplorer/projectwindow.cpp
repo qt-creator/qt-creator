@@ -917,23 +917,33 @@ public:
     ProjectPanels panelWidgets() const final
     {
         // Creating a settings widget can re-enter the event loop, e.g. via a
-        // password dialog, and the target can be removed meanwhile. Re-check
-        // the target after each creation and bail out if it is gone.
-        const auto makePanel = [this](QPointer<QWidget> &panel, QWidget *(*create)(Target *)) {
+        // password dialog, and the target or this item itself can be removed
+        // meanwhile. Re-check both after each creation and bail out if gone.
+        // A nested update may also have created and shown the panel already.
+        const QPointer<const QObject> alive(&m_guard);
+        const auto makePanel = [this, &alive](QPointer<QWidget> &panel,
+                                              QWidget *(*create)(Target *)) {
             if (panel)
-                return;
+                return true;
             Target * const t = target();
             if (!t)
-                return;
+                return true;
             QWidget * const inner = create(t);
-            if (target() == t)
+            if (!alive) {
+                delete inner;
+                return false;
+            }
+            if (!panel && target() == t)
                 panel = new ProjectPanel(inner);
             else
                 delete inner;
+            return true;
         };
-        makePanel(m_buildSettingsWidget, &createBuildSettingsWidget);
-        makePanel(m_deploySettingsWidget, &createDeploySettingsWidget);
-        makePanel(m_runSettingsWidget, &createRunSettingsWidget);
+        if (!makePanel(m_buildSettingsWidget, &createBuildSettingsWidget)
+            || !makePanel(m_deploySettingsWidget, &createDeploySettingsWidget)
+            || !makePanel(m_runSettingsWidget, &createRunSettingsWidget)) {
+            return {};
+        }
 
         ProjectPanels panels;
         if (m_buildSettingsWidget)
@@ -1104,6 +1114,7 @@ public:
     mutable QPointer<QWidget> m_deploySettingsWidget;
     mutable QPointer<QWidget> m_runSettingsWidget;
     QMetaObject::Connection m_targetRemovedConnection;
+    QObject m_guard;
 };
 
 //
@@ -1648,9 +1659,14 @@ public:
         if (!projectItem)
             return;
 
+        // Creating the panels can re-enter the event loop and trigger a nested
+        // update, whose result must not be overwritten by this stale one.
+        const int updateCount = ++m_panelUpdateCount;
         ProjectPanels panels;
         if (ProjectItemBase *active = projectItem->activeItem())
             panels = active->panelWidgets();
+        if (updateCount != m_panelUpdateCount)
+            return;
         setPanels(panels);
 
         m_targetsView->updateSize();
@@ -1853,6 +1869,7 @@ public:
     QSplitter *m_selectorSplitter = nullptr;
     BuildSystemOutputWindow *m_buildSystemOutput;
     CentralWidget *m_centralWidget;
+    int m_panelUpdateCount = 0;
 };
 
 //

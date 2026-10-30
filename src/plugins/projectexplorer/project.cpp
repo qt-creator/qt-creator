@@ -62,7 +62,10 @@
 
 #include <QCoreApplication>
 #include <QEventLoop>
+#include <QPointer>
+#include <QScopeGuard>
 #include <QSignalSpy>
+#include <QTabWidget>
 #include <QTest>
 #include <QTimer>
 #endif
@@ -1878,6 +1881,27 @@ public:
     }
 };
 
+class TestBuildConfiguration final : public BuildConfiguration
+{
+public:
+    using BuildConfiguration::BuildConfiguration;
+
+    // Stands in for a widget that re-enters the event loop while it is being
+    // created, e.g. through a password dialog.
+    static inline std::function<void()> whileCreatingConfigWidget;
+    static inline QList<QPointer<QWidget>> configWidgets;
+
+private:
+    QWidget *createConfigWidget() final
+    {
+        if (const auto reenter = std::exchange(whileCreatingConfigWidget, {}))
+            reenter();
+        auto widget = new QWidget;
+        configWidgets.append(widget);
+        return widget;
+    }
+};
+
 class TestBuildConfigurationFactory : public BuildConfigurationFactory
 {
 public:
@@ -1891,7 +1915,7 @@ public:
             bi.displayName = "default";
             return QList<BuildInfo>{bi};
         });
-        registerBuildConfiguration<BuildConfiguration>("TestProject.BuildConfiguration");
+        registerBuildConfiguration<TestBuildConfiguration>("TestProject.BuildConfiguration");
     }
 };
 
@@ -1910,6 +1934,19 @@ public:
 
     Kit testKit;
     Target *target = nullptr;
+};
+
+class TargetlessTestProject : public Project
+{
+public:
+    TargetlessTestProject() : Project(TEST_PROJECT_MIMETYPE, TEST_PROJECT_PATH)
+    {
+        setType(TEST_PROJECT_ID);
+        setDisplayName(TEST_PROJECT_DISPLAYNAME);
+        setBuildSystemCreator<TestBuildSystem>();
+    }
+
+    bool needsConfiguration() const final { return false; }
 };
 
 class RenameTestProject : public Project
@@ -1958,6 +1995,20 @@ private:
         setRootProjectNode(std::move(root));
     }
 };
+
+static bool isOnTab(const QWidget *widget)
+{
+    for (QWidget *w = widget->parentWidget(); w; w = w->parentWidget()) {
+        if (auto tabWidget = qobject_cast<QTabWidget *>(w)) {
+            for (int i = 0; i < tabWidget->count(); ++i) {
+                if (tabWidget->widget(i)->isAncestorOf(widget))
+                    return true;
+            }
+            return false;
+        }
+    }
+    return false;
+}
 
 static FilePath makeRenamedFilePath(const FilePath &original)
 {
@@ -2455,6 +2506,63 @@ private slots:
 
         QVERIFY(oneByOne->isEmpty());
         QVERIFY(batched->isEmpty());
+    }
+
+    // The re-entered event loop runs the queued rebuild of the kit list, which
+    // replaces the target item whose panels are being created.
+    void testTargetItemRemovedDuringPanelCreation()
+    {
+        addTargetWhileCreatingConfigWidget([](Project *) {
+            // Posted events are delivered in order, so all that is queued
+            // already is handled before the loop quits.
+            QEventLoop loop;
+            QMetaObject::invokeMethod(&loop, &QEventLoop::quit, Qt::QueuedConnection);
+            loop.exec();
+        });
+    }
+
+    void testNestedPanelUpdateForSameTargetItem()
+    {
+        addTargetWhileCreatingConfigWidget([](Project *project) {
+            emit project->activeTargetChanged(project->activeTarget());
+        });
+    }
+
+private:
+    void addTargetWhileCreatingConfigWidget(const std::function<void(Project *)> &reenter)
+    {
+        Kit * const kit = KitManager::registerKit([](Kit *k) {
+            k->setUnexpandedDisplayName("Reentrant Panel Kit");
+        });
+        QVERIFY(kit);
+        const auto deregisterKit = qScopeGuard([kit] { KitManager::deregisterKit(kit); });
+
+        auto project = new TargetlessTestProject;
+        ProjectManager::addProject(project);
+        const auto removeProject = qScopeGuard([project] {
+            ProjectManager::removeProject(project);
+        });
+        ProjectManager::setStartupProject(project);
+        QCOMPARE(ProjectManager::startupProject(), project);
+
+        bool reentered = false;
+        TestBuildConfiguration::configWidgets.clear();
+        TestBuildConfiguration::whileCreatingConfigWidget = [&] {
+            reentered = true;
+            reenter(project);
+        };
+        const auto reset = qScopeGuard([] {
+            TestBuildConfiguration::whileCreatingConfigWidget = {};
+        });
+        QVERIFY(project->addTargetForKit(kit));
+        QVERIFY(reentered);
+
+        // The panels of the nested update are the ones shown, and the outer
+        // update leaves no others behind.
+        QVERIFY(Utils::anyOf(TestBuildConfiguration::configWidgets,
+                             [](const QPointer<QWidget> &w) { return w; }));
+        for (const QPointer<QWidget> &widget : std::as_const(TestBuildConfiguration::configWidgets))
+            QVERIFY(!widget || isOnTab(widget));
     }
 };
 
