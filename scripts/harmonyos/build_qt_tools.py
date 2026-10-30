@@ -6,17 +6,19 @@
 
 Qt Creator running on a HarmonyOS device builds projects against a Qt for
 HarmonyOS, and that needs moc, rcc, uic, qmake and qtpaths built for the device,
-and qmltyperegistrar, qmlcachegen and qmlimportscanner for a Qt Quick project. The
-installer's Qt for HarmonyOS has none: its qmake and qt-cmake are scripts that
-forward to the desktop Qt next to it.
+and qmltyperegistrar, qmlcachegen and qmlimportscanner for a Qt Quick project,
+and qmlls for editing QML. The installer's Qt for HarmonyOS has none: its qmake
+and qt-cmake are scripts that forward to the desktop Qt next to it.
 
-This builds them from the qtbase and qtdeclarative commits that Qt was built
-from, read from the sha1s.txt the installer puts beside it, because tools and
-libraries have to come from the same sources. The QML tools are built against
-the Qt for HarmonyOS itself and run with its libraries. The result is librcc.so
-and friends rather than executables, since on HarmonyOS every executable is a
-loadable module. The copies of qtchost in Qt Creator's package map and run
-them.
+This builds them from the qtbase, qtlanguageserver and qtdeclarative commits
+that Qt was built from, read from the sha1s.txt the installer puts beside it,
+because tools and libraries have to come from the same sources. The QML tools
+are built against the Qt for HarmonyOS itself and run with its libraries.
+qmlls needs the Qt Language Server module, which the Qt for HarmonyOS lacks,
+so that is built against it as well, as static libraries. The result is
+librcc.so and friends rather than executables, since on HarmonyOS every
+executable is a loadable module. The copies of qtchost in Qt Creator's package
+map and run them.
 
 The tools are built with QT_FORCE_BUILD_TOOLS, which does not configure for
 HarmonyOS before qtbase 0107b66097d ("CMake: Record the Qt module deps of
@@ -43,8 +45,8 @@ CMake packages of the desktop Qt, because the Qt for HarmonyOS has none. They
 name the desktop's executables, which CMake insists exist, so the archive has
 an empty file for each of them that the Qt for HarmonyOS lacks. Qt Creator runs
 its copies of qtchost in place of moc, rcc, uic, cmake_automoc_parser, qlalr,
-qtpaths, qmltyperegistrar, qmlcachegen and qmlimportscanner. The others are
-not needed for building Qt Widgets and Qt Quick applications.
+qtpaths, qmltyperegistrar, qmlcachegen, qmlimportscanner and qmlls. The others
+are not needed for building Qt Widgets and Qt Quick applications.
 
 The archive records the qtbase commit in sha1s-tools.txt, so that Qt Creator
 can refuse it for a Qt built from other sources.
@@ -62,6 +64,7 @@ from pathlib import Path
 
 QTBASE_URL = "https://code.qt.io/qt/qtbase.git"
 QTDECLARATIVE_URL = "https://code.qt.io/qt/qtdeclarative.git"
+QTLANGUAGESERVER_URL = "https://code.qt.io/qt/qtlanguageserver.git"
 
 BACKPORT = "0107b66097dda8bdd25d020cca1da3d4edf5c931"
 
@@ -88,6 +91,7 @@ QML_TOOLS = {
     "qmltyperegistrar_native": "libexec/libqmltyperegistrar.so",
     "qmlcachegen_native": "libexec/libqmlcachegen.so",
     "qmlimportscanner_native": "libexec/libqmlimportscanner.so",
+    "qmlls": "bin/libqmlls.so",
 }
 
 # The tools' own QtCore, where Qt Creator looks for it, and where it lands in the build.
@@ -280,6 +284,9 @@ def main() -> int:
     parser.add_argument("--qtbase-sha",
                         help="qtbase commit to build, the one sha1s.txt beside --qt records "
                              "by default")
+    parser.add_argument("--qtlanguageserver-sha",
+                        help="qtlanguageserver commit to build, the one sha1s.txt beside "
+                             "--qt records by default")
     parser.add_argument("--qtdeclarative-sha",
                         help="qtdeclarative commit to build, the one sha1s.txt beside --qt "
                              "records by default")
@@ -299,6 +306,10 @@ def main() -> int:
     if host_sha and host_sha != sha:
         raise SystemExit("The desktop Qt is qtbase {}, the tools would be {}"
                          .format(host_sha[:11], sha[:11]))
+    languageserver_sha = args.qtlanguageserver_sha or recorded(args.qt, "qtlanguageserver")
+    if not languageserver_sha:
+        raise SystemExit("No sha1s.txt beside {} names qtlanguageserver, give "
+                         "--qtlanguageserver-sha".format(args.qt))
     declarative_sha = args.qtdeclarative_sha or recorded(args.qt, "qtdeclarative")
     if not declarative_sha:
         raise SystemExit("No sha1s.txt beside {} names qtdeclarative, give "
@@ -321,18 +332,34 @@ def main() -> int:
         + CONFIGURE_ARGUMENTS)
     build_targets(args, build, TOOLS)
 
+    def configure_against_qt(source: Path, build: Path, prefixes: list[Path]) -> None:
+        run([args.cmake, "-S", source, "-B", build, "-GNinja",
+             "-DCMAKE_TOOLCHAIN_FILE={}".format(
+                 args.qt / "lib" / "cmake" / "Qt6" / "qt.toolchain.cmake"),
+             "-DQT_CHAINLOAD_TOOLCHAIN_FILE={}".format(
+                 openharmony / "native" / "build" / "cmake" / "ohos.toolchain.cmake"),
+             "-DQT_ADDITIONAL_PACKAGES_PREFIX_PATH={}".format(
+                 ";".join(str(prefix) for prefix in prefixes)),
+             "-DQT_HOST_PATH={}".format(host_path),
+             "-DQT_HOST_PATH_CMAKE_DIR={}".format(host_path / "lib" / "cmake")]
+            + QML_CONFIGURE_ARGUMENTS)
+
+    # Installed, because a Qt module is found only in an installation, and into a prefix of
+    # its own, because that of the Qt for HarmonyOS is not to be touched.
+    languageserver_source = work / "qtlanguageserver"
+    languageserver_build = work / "build-qtlanguageserver"
+    languageserver = work / "qtlanguageserver-install"
+    fetch(languageserver_source, QTLANGUAGESERVER_URL, languageserver_sha, [])
+    configure_against_qt(languageserver_source, languageserver_build, [args.packages])
+    run([args.cmake, "--build", languageserver_build]
+        + (["--parallel", str(args.jobs)] if args.jobs else []))
+    run([args.cmake, "--install", languageserver_build, "--prefix", languageserver])
+
     declarative_source = work / "qtdeclarative"
     declarative_build = work / "build-qtdeclarative"
     fetch(declarative_source, QTDECLARATIVE_URL, declarative_sha, [])
-    run([args.cmake, "-S", declarative_source, "-B", declarative_build, "-GNinja",
-         "-DCMAKE_TOOLCHAIN_FILE={}".format(
-             args.qt / "lib" / "cmake" / "Qt6" / "qt.toolchain.cmake"),
-         "-DQT_CHAINLOAD_TOOLCHAIN_FILE={}".format(
-             openharmony / "native" / "build" / "cmake" / "ohos.toolchain.cmake"),
-         "-DQT_ADDITIONAL_PACKAGES_PREFIX_PATH={}".format(args.packages),
-         "-DQT_HOST_PATH={}".format(host_path),
-         "-DQT_HOST_PATH_CMAKE_DIR={}".format(host_path / "lib" / "cmake")]
-        + QML_CONFIGURE_ARGUMENTS)
+    configure_against_qt(declarative_source, declarative_build,
+                         [args.packages, languageserver])
     build_targets(args, declarative_build, QML_TOOLS)
 
     args.path.mkdir(parents=True, exist_ok=True)

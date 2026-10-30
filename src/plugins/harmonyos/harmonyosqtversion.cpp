@@ -100,6 +100,17 @@ void HarmonyOsQtVersion::setupQmakeRunEnvironment(Environment &env) const
     }
 }
 
+// The device executes qmlls only as the copy of qtchost in the package, and that only once
+// the Qt tools are added to this Qt.
+FilePath HarmonyOsQtVersion::qmllsFilePath() const
+{
+    if (!HostOsInfo::isHarmonyHost())
+        return QtVersion::qmllsFilePath();
+    if (!binPath().pathAppended("libqmlls.so").isFile())
+        return {};
+    return FilePath::fromString(Constants::HARMONYOS_NATIVE_PACKAGE_BIN).pathAppended("qmlls");
+}
+
 // The compiler the device builds with is detected as a plain clang, which would choose
 // linux-clang over the mkspec this Qt was built for.
 QString HarmonyOsQtVersion::mkspecFor(Toolchain *tc) const

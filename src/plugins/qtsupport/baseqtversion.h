@@ -108,6 +108,7 @@ public:
     Utils::FilePath qscxmlcFilePath() const;
     Utils::FilePath qmlRuntimeFilePath() const;
     Utils::FilePath qmlplugindumpFilePath() const;
+    virtual Utils::FilePath qmllsFilePath() const;
 
     QString qtVersionString() const;
     QVersionNumber qtVersion() const;

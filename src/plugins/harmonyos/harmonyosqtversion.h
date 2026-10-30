@@ -20,6 +20,7 @@ public:
                                Utils::Environment &env) const override;
     Utils::FilePath qmakeFilePath() const override;
     Utils::CommandLine qmakeCommand() const override;
+    Utils::FilePath qmllsFilePath() const override;
     QString mkspecFor(ProjectExplorer::Toolchain *tc) const override;
 
 protected:

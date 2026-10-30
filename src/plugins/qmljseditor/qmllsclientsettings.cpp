@@ -147,8 +147,7 @@ static QmllsForBuildConfiguration evaluateLatestQmlls()
         if (std::tie(version, uniqueId) < std::tie(latestVersion, latestUniqueId))
             continue;
 
-        const FilePath qmlls
-            = QmlJS::ModelManagerInterface::qmllsForBinPath(qtVersion->hostBinPath(), version);
+        const FilePath qmlls = qtVersion->qmllsFilePath();
         if (!qmlls.isExecutableFile())
             continue;
 
@@ -340,10 +339,7 @@ static QmllsForBuildConfiguration evaluateQmlls(const BuildConfiguration *bc)
         const QtVersion *qtVersion = QtKitAspect::qtVersion(bc->kit());
         if (!qtVersion)
             return {};
-        return {
-            QmlJS::ModelManagerInterface::qmllsForBinPath(
-                qtVersion->hostBinPath(), qtVersion->qtVersion()),
-            qtVersion->qtVersion()};
+        return {qtVersion->qmllsFilePath(), qtVersion->qtVersion()};
     }
     case QmllsClientSettings::FromLatestQtKit:
         return evaluateLatestQmlls();
@@ -513,7 +509,15 @@ public:
 BaseClientInterface *QmllsClientSettings::createInterface(BuildConfiguration *bc) const
 {
     auto interface = new QmllsClientInterface;
-    interface->setCommandLine(commandLineForQmlls(bc));
+    const CommandLine command = commandLineForQmlls(bc);
+    interface->setCommandLine(command);
+    // A Qt's own qmlls may need the environment its other tools run in.
+    if (const QtVersion *qtVersion = QtKitAspect::qtVersion(bc->kit());
+        qtVersion && command.executable() == qtVersion->qmllsFilePath()) {
+        Environment environment = command.executable().deviceEnvironment();
+        qtVersion->addToBuildEnvironment(bc->kit(), environment);
+        interface->setEnvironment(environment);
+    }
     return interface;
 }
 

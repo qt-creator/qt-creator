@@ -1926,14 +1926,22 @@ static FilePath qmllsForBinPath(const FilePath &binPath, const QVersionNumber &v
     return binPath.pathAppended("qmlls").withExecutableSuffix();
 }
 
+/*!
+    Returns the QML language server for code in this Qt version, which may not exist,
+    or an empty path if the Qt version has none.
+*/
+FilePath QtVersion::qmllsFilePath() const
+{
+    return qmllsForBinPath(hostBinPath(), qtVersion());
+}
+
 void QtVersion::fillExtraProjectInfo(Kit *kit, QmlCodeModelInfo &projectInfo)
 {
     QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
     if (qtVersion && qtVersion->isValid()) {
         projectInfo.tryQmlDump = qtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
         projectInfo.qtQmlPath = qtVersion->qmlPath();
-        auto v = qtVersion->qtVersion();
-        projectInfo.qmllsPath = qmllsForBinPath(qtVersion->hostBinPath(), v);
+        projectInfo.qmllsPath = qtVersion->qmllsFilePath();
         projectInfo.qtVersionString = qtVersion->qtVersionString();
     } else if (!kit->value(QtSupport::Constants::FLAGS_SUPPLIES_QTQUICK_IMPORT_PATH, false).toBool()) {
         projectInfo.qtQmlPath = FilePath::fromUserInput(QLibraryInfo::path(QLibraryInfo::Qml2ImportsPath));

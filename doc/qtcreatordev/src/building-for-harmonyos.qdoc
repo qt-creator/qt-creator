@@ -219,7 +219,8 @@
     \uicontrol {Install Qt for HarmonyOS} downloads the build of Qt that the
     Qt repository currently offers, update the Qt that you build with in the
     Qt Online Installer before you run the \c tools stage. The tools cover
-    Qt Widgets and Qt Quick applications.
+    Qt Widgets and Qt Quick applications, and include the QML language
+    server, \c qmlls.
 
     When you run or debug an application, \QC hands it over to the runner, so
     \c qtcrunner.hap must be installed on the device as well. To stop the
