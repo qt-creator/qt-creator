@@ -3787,7 +3787,9 @@ void JdwpImpl::expandSupertypes(const std::shared_ptr<SupertypeWalk> &walk, cons
            && (walk->pending.first() == 0 || walk->order.contains(walk->pending.first()))) {
         walk->pending.removeFirst();
     }
-    if (walk->pending.isEmpty()) {
+    // Without a connection every question is answered before it returns, and
+    // walking on would recurse once for each type that is left.
+    if (walk->pending.isEmpty() || !m_client.isConnected()) {
         done(walk->order);
         return;
     }
