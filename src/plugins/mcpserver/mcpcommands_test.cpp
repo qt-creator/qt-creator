@@ -94,6 +94,8 @@ private slots:
     void testClickWidgetAnswersWhileTheClickRunsAMenu();
     void testClickWidgetSurvivesTheClickedWidgetGoingAway();
     void testClickWidgetRefusesAWidgetGoneBeforeThePress();
+    void testMouseEventRightClickRequestsAContextMenu();
+    void testMouseEventAnswersWhileTheContextMenuRunsALoop();
 
 private:
     QMap<QString, bool> m_uiToolStates;
@@ -813,6 +815,86 @@ void McpCommandsTest::testClickWidgetRefusesAWidgetGoneBeforeThePress()
     callTool("ui_click_widget", {{"text", "McpCommandsTestGoneButton"}}, &error);
     QVERIFY(!button);
     QVERIFY2(error.contains("went away before it could be clicked"), qPrintable(error));
+}
+
+void McpCommandsTest::testMouseEventRightClickRequestsAContextMenu()
+{
+    QWidget widget;
+    widget.setObjectName("McpCommandsTestMenuTarget");
+    widget.setContextMenuPolicy(Qt::CustomContextMenu);
+    QList<QPoint> requested;
+    connect(&widget, &QWidget::customContextMenuRequested, &widget, [&requested](QPoint pos) {
+        requested.append(pos);
+    });
+    widget.show();
+    const QScopeGuard hideWidget([&widget] { widget.hide(); });
+
+    const auto click = [](const QString &button) {
+        QString error;
+        for (const char *action : {"press", "release"}) {
+            callTool("ui_mouse_event",
+                     {{"object_name", "McpCommandsTestMenuTarget"},
+                      {"action", action},
+                      {"x", 5},
+                      {"y", 7},
+                      {"button", button}},
+                     &error);
+            if (!error.isEmpty())
+                return error;
+        }
+        return error;
+    };
+
+    QString error = click("left");
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QVERIFY(requested.isEmpty());
+
+    error = click("right");
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(requested, QList<QPoint>{QPoint(5, 7)});
+}
+
+void McpCommandsTest::testMouseEventAnswersWhileTheContextMenuRunsALoop()
+{
+    QWidget widget;
+    widget.setObjectName("McpCommandsTestBlockingMenuTarget");
+    widget.setContextMenuPolicy(Qt::CustomContextMenu);
+    QDialog dialog;
+    connect(&widget, &QWidget::customContextMenuRequested, &dialog, [&dialog] {
+        // As in testClickWidgetAnswersWhileTheClickRunsALoop.
+        QTimer guard;
+        guard.setSingleShot(true);
+        connect(&guard, &QTimer::timeout, &dialog, &QDialog::reject);
+        guard.start(0);
+        dialog.exec();
+    });
+    widget.show();
+    const QScopeGuard hideWidget([&widget] { widget.hide(); });
+
+    bool answeredInsideLoop = false;
+    bool blocking = false;
+    QString error;
+    for (const char *action : {"press", "release"}) {
+        ToolRegistry::callToolForTests(
+            "ui_mouse_event",
+            Schema::CallToolRequestParams{}.arguments(
+                QJsonObject{{"object_name", "McpCommandsTestBlockingMenuTarget"},
+                            {"action", action},
+                            {"x", 5},
+                            {"y", 7},
+                            {"button", "right"}}),
+            [&](const Result<Schema::CallToolResult> &answer) {
+                answeredInsideLoop |= dialog.isVisible();
+                if (answer)
+                    blocking |= answer->structuredContentAsObject().value("blocking").toBool();
+                else
+                    error = answer.error();
+                dialog.reject();
+            });
+        QVERIFY2(error.isEmpty(), qPrintable(error));
+    }
+    QVERIFY(answeredInsideLoop);
+    QVERIFY(blocking);
 }
 
 QObject *createMcpCommandsTest()

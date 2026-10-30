@@ -80,6 +80,7 @@
 #include <QKeySequence>
 #include <QLabel>
 #include <QRadioButton>
+#include <QStyleHints>
 #include <QStyleOptionButton>
 #include <QCursor>
 
@@ -1485,26 +1486,44 @@ static bool clickWidget(QWidget *w, const std::function<void()> &onBlocked)
 // Unlike clickWidget these are separate tool calls, so a caller can hold a
 // press, do something else (e.g. start a debug session), then move/release -
 // which is how a dock-separator drag racing a relayout is reproduced.
-static Utils::Result<> sendMouseEventTo(QWidget *w, const QString &action, int x, int y)
+static Utils::Result<> sendMouseEventTo(
+    QWidget *w,
+    const QString &action,
+    int x,
+    int y,
+    Qt::MouseButton held,
+    const std::function<void()> &onBlocked)
 {
     const QPointF local(x, y);
     const QPointF global = w->mapToGlobal(QPoint(x, y));
     QEvent::Type type = QEvent::MouseMove;
     Qt::MouseButton button = Qt::NoButton;
-    Qt::MouseButtons buttons = Qt::LeftButton;
+    Qt::MouseButtons buttons = held;
     if (action == "press") {
         type = QEvent::MouseButtonPress;
-        button = Qt::LeftButton;
+        button = held;
     } else if (action == "release") {
         type = QEvent::MouseButtonRelease;
-        button = Qt::LeftButton;
+        button = held;
         buttons = Qt::NoButton;
     } else if (action != "move") {
         return ResultError(QString("Unknown mouse action \"%1\" (use press, move or release).")
                                .arg(action));
     }
+    const QPointer<QWidget> guard(w);
     QMouseEvent ev(type, local, global, button, buttons, Qt::NoModifier);
-    QApplication::sendEvent(w, &ev);
+    runNoticingBlock([&] { QApplication::sendEvent(w, &ev); }, onBlocked);
+    // The window makes the context menu event out of the platform's right click,
+    // which a synthetic one never passes through.
+    const QEvent::Type menuTrigger = QGuiApplication::styleHints()->contextMenuTrigger()
+                                             == Qt::ContextMenuTrigger::Press
+                                         ? QEvent::MouseButtonPress
+                                         : QEvent::MouseButtonRelease;
+    if (guard && button == Qt::RightButton && type == menuTrigger) {
+        QContextMenuEvent menu(
+            QContextMenuEvent::Mouse, local.toPoint(), global.toPoint(), Qt::NoModifier);
+        runNoticingBlock([&] { QApplication::sendEvent(w, &menu); }, onBlocked);
+    }
     return ResultOk;
 }
 
@@ -3380,8 +3399,12 @@ void McpCommands::registerCommands()
                 "Delivers one mouse press, move or release to the widget matching the query at "
                 "widget-local coordinates (x, y). Because the three actions are separate calls, a "
                 "caller can press, do something else, then move and release - for example, hold a "
-                "drag on a QMainWindow dock separator across a relayout. describeWidget in the "
-                "result gives the widget's screen geometry to compute coordinates from.")
+                "drag on a QMainWindow dock separator across a relayout. A right button also "
+                "brings up the context menu, on the press or the release as the platform "
+                "does. describeWidget in the result gives the widget's screen geometry to "
+                "compute coordinates from. An event whose handler runs the event loop of a "
+                "popup menu or modal dialog is answered while that loop runs, with "
+                "\"blocking\": true in the result, as ui_click_widget does.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 addWidgetQueryProps(Tool::InputSchema{})
@@ -3395,19 +3418,51 @@ void McpCommands::registerCommands()
                                                   {"description", "Widget-local x."}})
                     .addProperty("y", QJsonObject{{"type", "integer"},
                                                   {"description", "Widget-local y."}})
+                    .addProperty(
+                        "button",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"enum", QJsonArray{"left", "right", "middle"}},
+                            {"description",
+                             "The button pressed, released or held while moving (default "
+                             "left)."}})
                     .addRequired("action")
                     .addRequired("x")
                     .addRequired("y")),
-        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+        [](const Schema::CallToolRequestParams &params,
+           const ToolInterface &toolInterface) -> Utils::Result<> {
             const QJsonObject p = params.argumentsAsObject();
             const Utils::Result<QWidget *> w = resolveSingleWidget(widgetQueryFromJson(p));
             if (!w)
                 return ResultError(w.error());
+            const QString buttonName = p.value("button").toString("left");
+            const Qt::MouseButton button = buttonName == "right"    ? Qt::RightButton
+                                           : buttonName == "middle" ? Qt::MiddleButton
+                                                                    : Qt::LeftButton;
+            const QPointer<QWidget> widget(*w);
+            const QJsonObject before = describeWidget(widget);
+            const auto answered = std::make_shared<bool>(false);
+            const auto answer = [toolInterface, widget, before, answered](bool blocking) {
+                if (std::exchange(*answered, true))
+                    return;
+                QJsonObject result = widget ? describeWidget(widget) : before;
+                if (!widget)
+                    result.insert("destroyed", true);
+                if (blocking)
+                    result.insert("blocking", true);
+                toolInterface.finish(CallToolResult{}.isError(false).structuredContent(result));
+            };
             const Utils::Result<> sent = sendMouseEventTo(
-                *w, p.value("action").toString(), p.value("x").toInt(), p.value("y").toInt());
+                widget,
+                p.value("action").toString(),
+                p.value("x").toInt(),
+                p.value("y").toInt(),
+                button,
+                [answer] { answer(true); });
             if (!sent)
                 return ResultError(sent.error());
-            return CallToolResult{}.isError(false).structuredContent(describeWidget(*w));
+            answer(false);
+            return ResultOk;
         });
 
     ToolRegistry::registerTool(
