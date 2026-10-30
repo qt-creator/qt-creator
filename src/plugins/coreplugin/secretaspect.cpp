@@ -78,6 +78,7 @@ public:
     QSingleTaskTreeRunner writeRunner;
     bool wasFetchedFromSecretStorage = false;
     bool wasEdited = false;
+    std::optional<QString> pendingValue;
     bool repeatWriting = false;
     std::vector<ReadCallback> readCallbacks;
     QString value;
@@ -204,7 +205,21 @@ void SecretAspect::writeSettings() const
 
 bool SecretAspect::isDirty() const
 {
-    return d->wasEdited;
+    return d->wasEdited || d->pendingValue;
+}
+
+void SecretAspect::apply()
+{
+    if (!d->pendingValue)
+        return;
+    d->value = *std::exchange(d->pendingValue, std::nullopt);
+    d->wasEdited = true;
+}
+
+void SecretAspect::cancel()
+{
+    if (std::exchange(d->pendingValue, std::nullopt))
+        emit volatileValueChanged();
 }
 
 void SecretAspect::addToLayoutImpl(Layouting::Layout &parent)
@@ -241,9 +256,18 @@ void SecretAspect::addToLayoutImpl(Layouting::Layout &parent)
         edit->setEchoMode(showPasswordButton->isChecked() ? QLineEdit::Normal : QLineEdit::Password);
     });
 
-    connect(edit, &FancyLineEdit::textChanged, this, [this](const QString &text) {
-        d->value = text;
-        d->wasEdited = true;
+    // The plaintext fallback does not keep the value, so it is requested again.
+    connect(this, &BaseAspect::volatileValueChanged, edit, [this, edit] {
+        requestValue(guardedCallback(edit, [edit](const Utils::Result<QString> &value) {
+            if (value)
+                edit->setText(*value);
+        }));
+    });
+
+    connect(edit, &FancyLineEdit::textEdited, this, [this](const QString &text) {
+        d->pendingValue = text;
+        if (isAutoApply())
+            apply();
     });
 
     addLabeledItem(parent, Layouting::Row{Layouting::noMargin, edit, warningLabel, showPasswordButton}.emerge());

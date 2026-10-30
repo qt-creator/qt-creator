@@ -32,6 +32,7 @@
 #include "mcp/mcpmanager.h"
 #include "modemanager.h"
 #include "registries_test.h"
+#include "secretaspect_test.h"
 #include "session.h"
 #include "systemsettings.h"
 #include "themechooser.h"
@@ -517,6 +518,7 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
     addTestCreator(createDocumentManagerTest);
     addTestCreator(createExternalToolTest);
     addTestCreator(createRegistriesTest);
+    addTestCreator(createSecretAspectTest);
     addTestCreator(createFindToolWindowTest);
     addTestCreator(createSearchResultTreeViewTest);
     addTestCreator(createSearchResultWidgetTest);

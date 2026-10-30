@@ -21,6 +21,8 @@ public:
     ~SecretAspect() override;
 
     bool isDirty() const override;
+    void apply() override;
+    void cancel() override;
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
 

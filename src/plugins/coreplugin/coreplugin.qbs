@@ -330,7 +330,9 @@ QtcPlugin {
             "locator/locator_test.cpp",
             "locator/locator_test.h",
             "registries_test.cpp",
-            "registries_test.h"
+            "registries_test.h",
+            "secretaspect_test.cpp",
+            "secretaspect_test.h"
         ]
 
         cpp.defines: outer.concat(['SRCDIR="' + path + '"'])
