@@ -8,3 +8,7 @@
 [submodule "googletest"]
 	path = src/libs/3rdparty/googletest
 	url = https://github.com/google/googletest.git
+[submodule "whisper.cpp"]
+	path = src/libs/3rdparty/whisper.cpp
+	url = https://github.com/ggml-org/whisper.cpp.git
+	shallow = true

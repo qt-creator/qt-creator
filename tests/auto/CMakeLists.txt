@@ -38,6 +38,7 @@ add_subdirectory(treeviewfind)
 add_subdirectory(updateinfo)
 add_subdirectory(utils)
 add_subdirectory(valgrind)
+add_subdirectory(voiceinput)
 
 if(QTC_USE_INTERNAL_TASKTREE)
   add_subdirectory(qttasktree)

@@ -285,6 +285,26 @@ function(add_qtc_documentation qdocconf_file)
   )
 endfunction()
 
+# The license file of a submodule that is not checked out would make the
+# attribution scanner fail, so leave out the entries of missing paths.
+function(qtc_remove_unavailable_attributions attribution_file)
+  file(READ "${attribution_file}" content)
+  string(JSON count LENGTH "${content}")
+  set(removed FALSE)
+  math(EXPR index "${count} - 1")
+  while(index GREATER_EQUAL 0)
+    string(JSON path ERROR_VARIABLE error GET "${content}" ${index} Path)
+    if(NOT error AND NOT EXISTS "${path}")
+      string(JSON content REMOVE "${content}" ${index})
+      set(removed TRUE)
+    endif()
+    math(EXPR index "${index} - 1")
+  endwhile()
+  if(removed)
+    file(WRITE "${attribution_file}" "${content}")
+  endif()
+endfunction()
+
 function(qtc_prepare_attribution_file attribution_file_src attribution_file_dest)
   if(NOT EXISTS "${attribution_file_src}")
     message(FATAL_ERROR "Attribution file ${attribution_file_src} not found.")
@@ -298,6 +318,7 @@ function(qtc_prepare_attribution_file attribution_file_src attribution_file_dest
   if(Qt6_VERSION VERSION_GREATER_EQUAL 6.8.0)
     # The attribution scanner is new enough, just copy the file.
     configure_file("${attribution_file_src}" "${attribution_file_dest}" @ONLY)
+    qtc_remove_unavailable_attributions("${attribution_file_dest}")
     return()
   endif()
 
@@ -332,6 +353,7 @@ function(qtc_prepare_attribution_file attribution_file_src attribution_file_dest
   string(REPLACE "QT_ATTRIBUTION_RIGHT_SQUARE" "]" content "${content}")
 
   file(CONFIGURE OUTPUT "${attribution_file_dest}" CONTENT "${content}" @ONLY)
+  qtc_remove_unavailable_attributions("${attribution_file_dest}")
 endfunction()
 
 function(add_qtc_doc_attribution target attribution_file output_file qdocconf_file)

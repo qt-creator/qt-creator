@@ -15,6 +15,9 @@ Project {
         Depends { name: "Core" }
         Depends { name: "ProjectExplorer" }
         Depends { name: "TextEditor" }
+        Depends { name: "VoiceInput"; required: false }
+
+        cpp.defines: VoiceInput.present ? base.concat(["WITH_VOICE_INPUT"]) : base
 
         files: [
             "acpchatcontroller.cpp",

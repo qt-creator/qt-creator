@@ -25,6 +25,7 @@ add_subdirectory(rstlang)
 add_subdirectory(solutions)
 add_subdirectory(tracing)
 add_subdirectory(utils)
+add_subdirectory(voiceinput)
 
 if (WITH_QMLDESIGNER)
   add_subdirectory(sqlite)

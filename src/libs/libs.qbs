@@ -31,6 +31,7 @@ Project {
         "tracing/tracing.qbs",
         "utils/process_ctrlc_stub.qbs",
         "utils/utils.qbs",
+        "voiceinput/voiceinput.qbs",
         "QtTaskTree/QtTaskTree/QtTaskTree.qbs",
         "3rdparty/bzip2/bzip2.qbs",
         "3rdparty/json/json.qbs",

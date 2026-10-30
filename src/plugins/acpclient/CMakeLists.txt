@@ -58,6 +58,12 @@ qtc_add_resources(AcpClient "terms"
 )
 
 extend_qtc_plugin(AcpClient
+  CONDITION TARGET VoiceInput
+  DEPENDS VoiceInput
+  DEFINES WITH_VOICE_INPUT
+)
+
+extend_qtc_plugin(AcpClient
   CONDITION WITH_TESTS
   DEFINES "ACP_TESTSERVER_DIR=\"${CMAKE_CURRENT_BINARY_DIR}/testserver\""
   SOURCES

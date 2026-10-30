@@ -17,10 +17,15 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/progressmanager/taskprogress.h>
 #include <coreplugin/rightpane.h>
 #include <extensionsystem/iplugin.h>
 #include <texteditor/texteditor.h>
 #include <utils/icon.h>
+
+#ifdef WITH_VOICE_INPUT
+#include <voiceinput/transcriber.h>
+#endif
 
 #include <QAction>
 #include <QLoggingCategory>
@@ -57,6 +62,14 @@ public:
 
         setupAcpSettings();
         setupChatZoomActions(this);
+
+#ifdef WITH_VOICE_INPUT
+        VoiceInput::Transcriber::setDownloadProgressHandler(
+            [](QtTaskTree::QTaskTree *taskTree, const QString &title) {
+                auto progress = new TaskProgress(taskTree);
+                progress->setDisplayName(title);
+            });
+#endif
 
         m_inspector = new AcpInspector;
 

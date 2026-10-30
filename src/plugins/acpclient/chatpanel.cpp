@@ -37,6 +37,11 @@
 #include <utils/utilsicons.h>
 #include <utils/widgets.h>
 
+#ifdef WITH_VOICE_INPUT
+#include <voiceinput/voiceinputbutton.h>
+#include <voiceinput/voicelevelmeter.h>
+#endif
+
 #include <texteditor/textdocument.h>
 
 #include <QApplication>
@@ -613,7 +618,23 @@ ChatPanel::ChatPanel(QWidget *parent)
     inputContainerLayout->addWidget(m_contextBar);
 
     m_inputEdit = new ChatInputEdit;
+#ifdef WITH_VOICE_INPUT
+    // Voice input goes on the line of the text it writes.
+    auto inputRow = new QHBoxLayout;
+    inputRow->setContentsMargins(0, 0, 0, 0);
+    inputRow->setSpacing(GapHS);
+    inputRow->addWidget(m_inputEdit, 1);
+    auto voiceButton = new VoiceInput::VoiceInputButton;
+    voiceButton->setTextEdit(m_inputEdit);
+    connect(voiceButton, &VoiceInput::VoiceInputButton::errorOccurred,
+            this, &ChatPanel::showTransientInputMessage);
+    inputRow->addWidget(new VoiceInput::VoiceLevelMeter(voiceButton->transcriber()), 0,
+                        Qt::AlignTop);
+    inputRow->addWidget(voiceButton, 0, Qt::AlignTop);
+    inputContainerLayout->addLayout(inputRow);
+#else
     inputContainerLayout->addWidget(m_inputEdit);
+#endif
     inputContainer->setFocusProxy(m_inputEdit);
 
     auto *bottomRow = new QWidget;

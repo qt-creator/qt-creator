@@ -769,5 +769,36 @@
         "License": "MIT License",
         "LicenseFile": "@SOURCE_DIR@/src/plugins/mcpserver/LICENSE",
         "Copyright": "Copyright (c) 2025 davecotter"
+    },
+    {
+        "Id": "whisper.cpp",
+        "Name": "whisper.cpp",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for transcribing speech for voice input.",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/whisper.cpp",
+        "Description": "Inference of OpenAI's Whisper automatic speech recognition model in C/C++.",
+        "Homepage": "https://github.com/ggml-org/whisper.cpp",
+        "Version": "1.9.5",
+        "PURL": "pkg:github/ggml-org/whisper.cpp@v$<VERSION>",
+        "LicenseId": "MIT",
+        "License": "MIT License",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/whisper.cpp/LICENSE",
+        "Copyright": "Copyright (c) 2023-2026 The ggml authors"
+    },
+    {
+        "Id": "ggml",
+        "Name": "ggml",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used by whisper.cpp for the tensor computations of speech recognition.",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/whisper.cpp/ggml",
+        "Description": "Tensor library for machine learning, in the version included in whisper.cpp.",
+        "Homepage": "https://github.com/ggml-org/ggml",
+        "Version": "0.26.0",
+        "LicenseId": "MIT",
+        "License": "MIT License",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/whisper.cpp/LICENSE",
+        "Copyright": "Copyright (c) 2023-2026 The ggml authors"
     }
 ]

@@ -203,6 +203,14 @@ if (APPLE)
   set_target_properties(qtcreator PROPERTIES
       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/app-Info.plist"
   )
+  # Qt asks for permissions through static plugins that qt_finalize_target()
+  # links for the usage descriptions in the Info.plist. The chat's voice input
+  # needs the microphone.
+  if (TARGET Qt6::QDarwinMicrophonePermissionPlugin)
+    set_target_properties(qtcreator PROPERTIES
+      _qt_has_QDarwinMicrophonePermissionPlugin_usage_description TRUE)
+    qt_import_plugins(qtcreator INCLUDE Qt6::QDarwinMicrophonePermissionPlugin)
+  endif()
   # The profiler's call-stack sampler attaches with task_for_pid(), which the
   # kernel only grants to a binary carrying the debugger entitlement. Packaging
   # signs a release with the file below (see scripts/common.py); a build from the

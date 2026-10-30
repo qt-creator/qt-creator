@@ -43,5 +43,6 @@ Project {
         "updateinfo/updateinfo.qbs",
         "utils/utils.qbs",
         "valgrind/valgrind.qbs",
+        "voiceinput/voiceinput.qbs",
     ].concat(project.additionalAutotests)
 }
