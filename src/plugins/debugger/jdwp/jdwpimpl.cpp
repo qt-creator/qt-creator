@@ -57,11 +57,6 @@ static constexpr qint32 s_classPreparedStatus = 2;
 // "static" is a keyword, so no local of that frame can be standing there.
 static const char s_staticIName[] = "local.@static";
 
-// How long a toString() is given before the views go on without it. A call
-// that does not return holds a thread the virtual machine will not suspend
-// again, which is bad; waiting for it for the rest of the session is worse.
-static constexpr std::chrono::seconds s_invokeTimeout{5};
-
 static GdbMi constMi(const QString &name, const QString &data)
 {
     GdbMi mi;
@@ -778,11 +773,13 @@ void JdwpImpl::handleEventSet(const JdwpEventSet &set)
     // Everything that stops at one place comes in one set, and it takes only
     // one of them to mean it.
     QList<JdwpEvent> stops;
+    bool dying = false;
 
     for (const JdwpEvent &event : set.events) {
         switch (event.kind) {
         case Jdwp::VmDeathEvent:
             emit message(Tr::tr("The Java virtual machine is shutting down."), LogMisc);
+            dying = true;
             break;
         case Jdwp::ThreadStartEvent:
         case Jdwp::ThreadDeathEvent: {
@@ -805,6 +802,14 @@ void JdwpImpl::handleEventSet(const JdwpEventSet &set)
         default:
             break;
         }
+    }
+
+    // The machine waits for its agent to leave the connection before it
+    // exits, up to a third of a second, unless the connection goes first.
+    // A launch hears of the end from the process.
+    if (dying && isLaunch()) {
+        m_client.close();
+        return;
     }
 
     if (!stops.isEmpty()) {
@@ -3728,7 +3733,7 @@ void JdwpImpl::invoke(const Stop &stop, quint64 object, quint64 classId, quint64
 
     // A call that never comes back cannot be taken back, so the views go on
     // without it rather than waiting for the rest of the session.
-    QTimer::singleShot(s_invokeTimeout, this, [answer] { answer({.gaveUp = true}); });
+    QTimer::singleShot(m_startData.invokeTimeout, this, [answer] { answer({.gaveUp = true}); });
 }
 
 class JdwpImpl::SupertypeWalk

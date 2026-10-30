@@ -18,6 +18,7 @@
 #include <QSet>
 #include <QTcpServer>
 
+#include <chrono>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -41,6 +42,10 @@ public:
     QList<Utils::FilePath> sourceSearchPaths;
     // The sources of the project, which is where a class is looked for first.
     QList<Utils::FilePath> sourceFiles;
+    // How long a toString() is given before the views go on without it. A call
+    // that does not return holds a thread the virtual machine will not suspend
+    // again, which is bad; waiting for it for the rest of the session is worse.
+    std::chrono::milliseconds invokeTimeout = std::chrono::seconds(5);
 };
 
 // A backend that is no debugger process but the virtual machine itself,
