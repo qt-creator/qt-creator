@@ -181,6 +181,7 @@ add_qtc_test(tst_debugger_backends
 )
 
 add_qtc_test(tst_debugger_jdwp
+  TIMEOUT 300
   DEPENDS Qt::Network Utils Debugger
   DEFINES JDWP_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/jdwp"
   INCLUDES
