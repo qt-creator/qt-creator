@@ -59,7 +59,7 @@ ProjectExplorer::Task Diagnostic::asTask() const
           location.target.line,
           taskCategory(),
           icon());
-    t.setColumn(location.target.column);
+    t.setColumn(location.target.column + 1);
     return t;
 }
 
