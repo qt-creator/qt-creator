@@ -6,6 +6,10 @@
 #include "coreplugintr.h"
 #include "credentialquery.h"
 
+#ifdef WITH_TESTS
+#include "secretaspect_test.h"
+#endif
+
 #include <qtkeychain/keychain.h>
 
 #include <QtTaskTree/QTaskTree>
@@ -31,10 +35,25 @@ namespace Core {
 
 using ReadCallback = std::function<void(Utils::Result<QString>)>;
 
+#ifdef WITH_TESTS
+static std::optional<bool> s_keychainAvailableForTest;
+
+namespace Internal {
+void setKeychainAvailableForTest(std::optional<bool> available)
+{
+    s_keychainAvailableForTest = available;
+}
+} // namespace Internal
+#endif
+
 // Probing for KWallet makes blocking D-Bus calls, which take the full D-Bus
 // timeout when the service is registered but does not answer.
 static bool isKeychainAvailable()
 {
+#ifdef WITH_TESTS
+    if (s_keychainAvailableForTest)
+        return *s_keychainAvailableForTest;
+#endif
     static const bool available = QKeychain::isAvailable();
     return available;
 }
@@ -79,6 +98,9 @@ public:
     bool wasFetchedFromSecretStorage = false;
     bool wasEdited = false;
     std::optional<QString> pendingValue;
+    // The settings group of the container, which is open while the settings
+    // are read and written, but not when the secret is requested.
+    QString settingsGroup;
     bool repeatWriting = false;
     std::vector<ReadCallback> readCallbacks;
     QString value;
@@ -113,9 +135,10 @@ void SecretAspect::readSecret(const std::function<void(Result<QString>)> &cb) co
     if (!isKeychainAvailable()) {
         qWarning() << "No Keychain available, reading from plaintext";
         QtcSettings &settings = Utils::userSettings();
-        settings.beginGroup("Secrets");
+        const SettingsGroupNester nester(
+            d->settingsGroup.isEmpty() ? QStringList{"Secrets"}
+                                       : QStringList{d->settingsGroup, "Secrets"});
         QVariant value = settings.value(d->plaintextKey(settingsKey()));
-        settings.endGroup();
 
         d->callReadCallbacks(fromSettingsValue(value).toString());
         return;
@@ -156,10 +179,12 @@ void SecretAspect::readSettings()
 {
     // The secret is read on demand by requestValue(), so that loading the
     // settings does not touch the keychain.
+    d->settingsGroup = Utils::userSettings().group();
 }
 
 void SecretAspect::writeSettings() const
 {
+    d->settingsGroup = Utils::userSettings().group();
     if (!d->wasEdited)
         return;
 

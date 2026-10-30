@@ -5,8 +5,13 @@
 
 #include <QObject>
 
+#include <optional>
+
 namespace Core::Internal {
 
 QObject *createSecretAspectTest();
+
+// Overrides whether a keychain is available, std::nullopt restores the probe.
+void setKeychainAvailableForTest(std::optional<bool> available);
 
 } // namespace Core::Internal

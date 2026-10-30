@@ -6,8 +6,10 @@
 #include "secretaspect.h"
 
 #include <utils/layoutbuilder.h>
+#include <utils/qtcsettings.h>
 
 #include <QLineEdit>
+#include <QScopeGuard>
 #include <QTest>
 
 #include <memory>
@@ -16,8 +18,6 @@ using namespace Utils;
 
 namespace Core::Internal {
 
-// A value set with setValue() is handed out without asking the keychain, so
-// none of these tests touches the secrets of the user.
 static QString valueOf(const SecretAspect &aspect)
 {
     QString result;
@@ -40,6 +40,11 @@ class SecretAspectTest final : public QObject
     Q_OBJECT
 
 private slots:
+    // Keeps the tests away from the keychain of the host, which they would
+    // otherwise probe and possibly read.
+    void initTestCase() { setKeychainAvailableForTest(false); }
+    void cleanupTestCase() { setKeychainAvailableForTest(std::nullopt); }
+
     void testCancelDiscardsEdit()
     {
         SecretAspect aspect;
@@ -85,6 +90,30 @@ private slots:
 
         QTest::keyClicks(edit, "-typed");
         QCOMPARE(valueOf(aspect), "applied-typed");
+    }
+
+    void testPlaintextSecretIsReadBack()
+    {
+        const char group[] = "CoreTestsSecretAspect";
+        const auto cleanup = qScopeGuard([group] { Utils::userSettings().remove(group); });
+
+        {
+            AspectContainer container;
+            container.setSettingsGroup(group);
+            SecretAspect aspect(&container);
+            aspect.setSettingsKey("Password");
+            container.readSettings();
+            aspect.setValue("stored");
+            container.writeSettings();
+            QCOMPARE(valueOf(aspect), "stored");
+        }
+
+        AspectContainer container;
+        container.setSettingsGroup(group);
+        SecretAspect aspect(&container);
+        aspect.setSettingsKey("Password");
+        container.readSettings();
+        QCOMPARE(valueOf(aspect), "stored");
     }
 };
 
