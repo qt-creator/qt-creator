@@ -195,32 +195,31 @@ public:
         m_toggleEditorVisible->setChecked(showEditor);
         m_textEditorWidget->setVisible(showEditor);
 
+        QList<QToolButton *> markDownButtons;
         auto button = Command::createToolButtonWithShortcutToolTip(EMPHASIS_ACTION);
         button->defaultAction()->setIconText("i");
         button->setFont([button]{ auto f = button->font(); f.setItalic(true); return f; }());
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerEmphasis);
-        m_markDownButtons.append(button);
+        markDownButtons.append(button);
         button = Command::createToolButtonWithShortcutToolTip(STRONG_ACTION);
         button->defaultAction()->setIconText("b");
         button->setFont([button]{ auto f = button->font(); f.setBold(true); return f; }());
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerStrong);
-        m_markDownButtons.append(button);
+        markDownButtons.append(button);
         button = Command::createToolButtonWithShortcutToolTip(INLINECODE_ACTION);
         button->defaultAction()->setIconText("`");
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerInlineCode);
-        m_markDownButtons.append(button);
+        markDownButtons.append(button);
         button = Command::createToolButtonWithShortcutToolTip(LINK_ACTION);
         button->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerLink);
-        m_markDownButtons.append(button);
-        for (auto button : std::as_const(m_markDownButtons)) {
-            // do not call setVisible(true) at this point, this destroys the hover effect on macOS
-            if (!showEditor)
-                button->setVisible(false);
+        markDownButtons.append(button);
+        for (auto it = markDownButtons.rbegin(); it != markDownButtons.rend(); ++it) {
+            QAction *action = m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Left,
+                                                                          *it);
+            action->setVisible(showEditor);
+            m_markDownButtonActions.append(action);
         }
-
-        for (auto it = m_markDownButtons.rbegin(); it != m_markDownButtons.rend(); ++it)
-            m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Left, *it);
 
         m_swapViews = Command::createToolButtonWithShortcutToolTip(SWAPVIEWS_ACTION);
         m_swapViews->setEnabled(showEditor && showPreview);
@@ -263,8 +262,8 @@ public:
                                 visible,
                                 m_previewWidget,
                                 m_togglePreviewVisible);
-                    for (auto button : std::as_const(m_markDownButtons))
-                        button->setVisible(visible);
+                    for (QAction *action : std::as_const(m_markDownButtonActions))
+                        action->setVisible(visible);
                     if (visible)
                         flushHighlights(m_editorHighlight);
                     saveViewSettings();
@@ -563,7 +562,7 @@ private:
     Utils::MarkdownBrowser *m_previewWidget;
     TextEditorWidget *m_textEditorWidget;
     TextDocumentPtr m_document;
-    QList<QToolButton *> m_markDownButtons;
+    QList<QAction *> m_markDownButtonActions;
     QToolButton *m_toggleEditorVisible;
     QToolButton *m_togglePreviewVisible;
     QToolButton *m_swapViews;
