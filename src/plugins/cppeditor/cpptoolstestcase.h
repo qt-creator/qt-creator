@@ -172,6 +172,7 @@ public:
 
 private:
     QList<ProjectExplorer::Project *> m_openProjects;
+    QList<ProjectExplorer::Project *> m_projectsToClose;
 };
 
 class CPPEDITOR_EXPORT TemporaryDir

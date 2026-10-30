@@ -399,14 +399,14 @@ ProjectOpenerAndCloser::ProjectOpenerAndCloser()
 
 ProjectOpenerAndCloser::~ProjectOpenerAndCloser()
 {
-    if (m_openProjects.isEmpty())
+    if (m_projectsToClose.isEmpty())
         return;
 
     bool hasGcFinished = false;
     auto connection = QObject::connect(CppModelManager::instance(), &CppModelManager::gcFinished,
                                        [&hasGcFinished] { hasGcFinished = true; });
 
-    for (Project *project : std::as_const(m_openProjects))
+    for (Project *project : std::as_const(m_projectsToClose))
         ProjectExplorerPlugin::unloadProject(project);
 
     QElapsedTimer t;
@@ -426,6 +426,7 @@ ProjectInfo::ConstPtr ProjectOpenerAndCloser::open(const FilePath &projectFile, 
     }
 
     Project *project = result.project();
+    m_projectsToClose.append(project);
     QTC_ASSERT(project->configureAsExampleProject(kit), return {});
 
     if (TestCase::waitUntilProjectIsFullyOpened(project)) {
