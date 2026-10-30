@@ -698,7 +698,7 @@ Result<> CdbImpl::setupProcess()
     const Result<Environment> deviceEnvironmentResult = cdbExecutable.deviceEnvironmentWithError();
     Environment env = runData.environment.hasChanges()
                           ? runData.environment : deviceEnvironmentResult.value_or(Environment());
-    env.set("_NT_DEBUGGER_EXTENSION_PATH", m_startData.extensionDir.nativePath());
+    env.prependOrSet("_NT_DEBUGGER_EXTENSION_PATH", m_startData.extensionDir.nativePath());
     if (!env.hasKey(Constants::NO_DEBUG_HEAP))
         env.set(Constants::NO_DEBUG_HEAP, m_startData.enableHeapDebugging ? "0" : "1");
     // Without a console of its own, QTestLib and qDebug() have to reach the

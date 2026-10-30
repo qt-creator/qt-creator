@@ -489,13 +489,7 @@ void CdbEngine::setupEngine()
     if (!sp.useTerminal() && !inferiorEnvironment.hasKey(qtForceStderrLogging))
         inferiorEnvironment.set(qtForceStderrLogging, "0");
 
-    static const char cdbExtensionPathVariableC[] = "_NT_DEBUGGER_EXTENSION_PATH";
-    inferiorEnvironment.prependOrSet(cdbExtensionPathVariableC, extensionDir.nativePath());
-    if (cdbCommand.isLocal()) {
-        const QString oldCdbExtensionPath = qtcEnvironmentVariable(cdbExtensionPathVariableC);
-        if (!oldCdbExtensionPath.isEmpty())
-            inferiorEnvironment.appendOrSet(cdbExtensionPathVariableC, oldCdbExtensionPath);
-    }
+    inferiorEnvironment.prependOrSet("_NT_DEBUGGER_EXTENSION_PATH", extensionDir.nativePath());
 
     if (!inferiorEnvironment.hasKey(Debugger::Constants::NO_DEBUG_HEAP)) {
         const QString value = s.enableHeapDebugging() ? "0" : "1";
