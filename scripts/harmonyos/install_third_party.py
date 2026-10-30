@@ -35,8 +35,9 @@ import subprocess
 import sys
 import tarfile
 import tempfile
-import urllib.request
 from pathlib import Path
+
+from build_device_toolchain import retrieve
 
 # The fork of the vcpkg registry that carries the OpenHarmony triplets and
 # toolchain, and the fork of the vcpkg tool that knows "ohos" as a platform.
@@ -137,7 +138,7 @@ def tool(path: Path, work: Path) -> Path:
         print("Downloading {}".format(url), flush=True)
         with tempfile.TemporaryDirectory() as temp:
             archive = Path(temp) / "vcpkg-tool.tar.gz"
-            urllib.request.urlretrieve(url, str(archive))
+            retrieve(url, archive)
             if hashlib.sha256(archive.read_bytes()).hexdigest() != TOOL_SHA256:
                 raise SystemExit("Checksum mismatch for {}".format(url))
             with tarfile.open(archive) as tar:

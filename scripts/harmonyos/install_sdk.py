@@ -29,9 +29,10 @@ import stat
 import sys
 import tarfile
 import tempfile
-import urllib.request
 import zipfile
 from pathlib import Path
+
+from build_device_toolchain import retrieve
 
 BASE_URL = "https://repo.huaweicloud.com/openharmony/os"
 
@@ -67,7 +68,7 @@ def download(url: str, target: Path) -> Path:
         return target
     print("Downloading {}".format(url))
     part = target.with_suffix(target.suffix + "-part")
-    urllib.request.urlretrieve(url, str(part))
+    retrieve(url, part)
     part.rename(target)
     return target
 
