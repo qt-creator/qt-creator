@@ -48,6 +48,7 @@ import sys
 from pathlib import Path
 
 import build_hap
+import build_qt_tools
 import build_runner_hap
 
 IMAGE = "qtc-harmonyos"
@@ -113,6 +114,9 @@ def main() -> int:
         raise SystemExit("Unknown stages: {}".format(", ".join(sorted(unknown))))
     if not (args.qt.parent / "sha1s.txt").is_file():
         raise SystemExit("No sha1s.txt beside {}".format(args.qt))
+    # Before the hours the stages ahead of the tools take.
+    if "tools" in stages:
+        build_qt_tools.check_release(args.qt, build_qt_tools.recorded(args.qt, "qtbase"))
     # A wrong profile would otherwise only show when the last stages sign.
     if args.profile and "hap" in stages:
         build_hap.check_profile_bundle(args.profile, args.bundle or build_hap.BUNDLE)

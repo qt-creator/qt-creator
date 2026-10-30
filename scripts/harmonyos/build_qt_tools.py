@@ -179,6 +179,57 @@ def recorded(qt: Path, module: str) -> str | None:
     return None
 
 
+def check_release(qt: Path, sha: str | None) -> None:
+    """Refuse a pre-release qtbase once its release is out, which is the Qt that Qt Creator
+    on the device installs, and which therefore refuses tools built from other sources."""
+    version = qt_version(qt)
+    try:
+        result = subprocess.run(["git", "ls-remote", "--tags", QTBASE_URL,
+                                 "v{}".format(version), "v{}^{{}}".format(version),
+                                 "v{}-*".format(version)],
+                                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+    except OSError:
+        result = None
+    if not result or result.returncode != 0:
+        print("Could not list the qtbase tags, so whether {} is a release is not checked"
+              .format(qt))
+        return
+    # The commit an annotated tag points to is listed as "<tag>^{}".
+    tags = {}
+    for line in result.stdout.splitlines():
+        commit, ref = line.split("\t")
+        tags[ref.removeprefix("refs/tags/").removesuffix("^{}")] = commit
+    release = "v" + version
+    if release not in tags or tags[release] == sha:
+        return
+    for tag, commit in tags.items():
+        if commit == sha:
+            raise SystemExit("The Qt at {} is {}, but {} is released, and that is what Qt "
+                             "Creator on the device installs. Update the Qt in the Qt Online "
+                             "Installer first.".format(qt, tag, release))
+
+
+def qt_version(qt: Path) -> str:
+    version = re.search(r"^QT_VERSION = (\S+)$",
+                        (qt / "mkspecs" / "qconfig.pri").read_text(), re.M)
+    if not version:
+        raise SystemExit("No QT_VERSION in the qconfig.pri of {}".format(qt))
+    return version.group(1)
+
+
+def configure(command: list, build: Path) -> None:
+    """Run the CMake configure command for build, from scratch when its arguments changed,
+    since a cache from other ones, such as those of an older version of this script, can
+    keep CMake from configuring at all."""
+    record = build / "configure-arguments.txt"
+    arguments = "\n".join(str(part) for part in command)
+    if (build / "CMakeCache.txt").exists() and (
+            not record.is_file() or record.read_text() != arguments):
+        command = command[:1] + ["--fresh"] + command[1:]
+    run(command)
+    record.write_text(arguments)
+
+
 def apply(source: Path, patch: Path, name: str) -> None:
     """Apply patch to source unless it is there already."""
     if succeeds(["git", "apply", "--reverse", "--check", patch], source):
@@ -302,6 +353,8 @@ def main() -> int:
     if not sha:
         raise SystemExit("No sha1s.txt beside {} names qtbase, give --qtbase-sha"
                          .format(args.qt))
+    if not args.qtbase_sha:
+        check_release(args.qt, sha)
     host_sha = recorded(host_path, "qtbase")
     if host_sha and host_sha != sha:
         raise SystemExit("The desktop Qt is qtbase {}, the tools would be {}"
@@ -324,25 +377,25 @@ def main() -> int:
     fetch(source, QTBASE_URL, sha, [BACKPORT] + NO_JS_THREAD)
     unprefix_zlib(source)
 
-    run([args.cmake, "-S", source, "-B", build, "-GNinja",
-         "-DQT_HOST_PATH={}".format(host_path),
-         "-DQT_HOST_PATH_CMAKE_DIR={}".format(host_path / "lib" / "cmake"),
-         "-DOHOS_SDK_ROOT={}".format(openharmony),
-         "-DNodeAddonApi_INCLUDE_DIR={}".format(args.packages / "include")]
-        + CONFIGURE_ARGUMENTS)
+    configure([args.cmake, "-S", source, "-B", build, "-GNinja",
+               "-DQT_HOST_PATH={}".format(host_path),
+               "-DQT_HOST_PATH_CMAKE_DIR={}".format(host_path / "lib" / "cmake"),
+               "-DOHOS_SDK_ROOT={}".format(openharmony),
+               "-DNodeAddonApi_INCLUDE_DIR={}".format(args.packages / "include")]
+              + CONFIGURE_ARGUMENTS, build)
     build_targets(args, build, TOOLS)
 
     def configure_against_qt(source: Path, build: Path, prefixes: list[Path]) -> None:
-        run([args.cmake, "-S", source, "-B", build, "-GNinja",
-             "-DCMAKE_TOOLCHAIN_FILE={}".format(
-                 args.qt / "lib" / "cmake" / "Qt6" / "qt.toolchain.cmake"),
-             "-DQT_CHAINLOAD_TOOLCHAIN_FILE={}".format(
-                 openharmony / "native" / "build" / "cmake" / "ohos.toolchain.cmake"),
-             "-DQT_ADDITIONAL_PACKAGES_PREFIX_PATH={}".format(
-                 ";".join(str(prefix) for prefix in prefixes)),
-             "-DQT_HOST_PATH={}".format(host_path),
-             "-DQT_HOST_PATH_CMAKE_DIR={}".format(host_path / "lib" / "cmake")]
-            + QML_CONFIGURE_ARGUMENTS)
+        configure([args.cmake, "-S", source, "-B", build, "-GNinja",
+                   "-DCMAKE_TOOLCHAIN_FILE={}".format(
+                       args.qt / "lib" / "cmake" / "Qt6" / "qt.toolchain.cmake"),
+                   "-DQT_CHAINLOAD_TOOLCHAIN_FILE={}".format(
+                       openharmony / "native" / "build" / "cmake" / "ohos.toolchain.cmake"),
+                   "-DQT_ADDITIONAL_PACKAGES_PREFIX_PATH={}".format(
+                       ";".join(str(prefix) for prefix in prefixes)),
+                   "-DQT_HOST_PATH={}".format(host_path),
+                   "-DQT_HOST_PATH_CMAKE_DIR={}".format(host_path / "lib" / "cmake")]
+                  + QML_CONFIGURE_ARGUMENTS, build)
 
     # Installed, because a Qt module is found only in an installation, and into a prefix of
     # its own, because that of the Qt for HarmonyOS is not to be touched.
@@ -363,11 +416,7 @@ def main() -> int:
     build_targets(args, declarative_build, QML_TOOLS)
 
     args.path.mkdir(parents=True, exist_ok=True)
-    version = re.search(r"^QT_VERSION = (\S+)$",
-                        (args.qt / "mkspecs" / "qconfig.pri").read_text(), re.M)
-    if not version:
-        raise SystemExit("No QT_VERSION in the qconfig.pri of {}".format(args.qt))
-    archive = args.path / "qt-tools-{}-{}.tar.gz".format(version.group(1), args.qt.name)
+    archive = args.path / "qt-tools-{}-{}.tar.gz".format(qt_version(args.qt), args.qt.name)
     entries = {library: build / library for library in TOOLS.values()}
     entries.update({library: declarative_build / library for library in QML_TOOLS.values()})
     entries[TOOLS_QTCORE[0]] = build / TOOLS_QTCORE[1]

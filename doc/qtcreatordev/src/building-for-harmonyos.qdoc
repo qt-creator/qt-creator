@@ -26,7 +26,10 @@
 
     \section1 Requirements
 
-    The build has been tested on Linux on x86_64. It needs:
+    The build has been tested on Linux on x86_64, and on Windows in WSL 2 with
+    Ubuntu 24.04. On Windows, run the scripts in WSL 2 with Docker installed
+    there, and install the Qt for Linux into WSL 2, because the scripts need
+    the desktop Qt for Linux beside the Qt for HarmonyOS. The build needs:
 
     \list
         \li Docker and Python 3.
@@ -41,7 +44,9 @@
             \c ~/Qt/6.12.0/harmonyos_arm64_v8a and \c ~/Qt/6.12.0/gcc_64.
             The tools that the build runs on the host must come from the same
             Qt sources as the libraries, so the scripts check for the
-            \c sha1s.txt file beside them.
+            \c sha1s.txt file beside them. They also stop if that Qt is a
+            pre-release, such as a beta, of a version that has been released
+            since, because \QC on the device installs the release.
         \li The HarmonyOS command-line tools of the SDK version that the
             application template of the Qt for HarmonyOS names. Qt 6.12
             requires 6.1.0(23), which the command-line tools 6.1.0.850
