@@ -26,6 +26,9 @@ DEBUGGER_EXPORT QStringList scriptMessages(const GdbMi &data);
 
 DEBUGGER_EXPORT QString debuggeeOutput(const QString &hexEncodedUtf16);
 
+DEBUGGER_EXPORT QString extensionCommandLines(const QString &prefix, int token,
+                                              const QString &arguments);
+
 enum class StepIntoLanding { Arrived, OnThunk, WithoutSource };
 
 DEBUGGER_EXPORT StepIntoLanding stepIntoLanding(

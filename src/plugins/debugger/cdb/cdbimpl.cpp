@@ -3882,6 +3882,53 @@ void CdbImpl::jumpToAddress(quint64 address, const Utils::FilePath &file, int li
     emit inferiorEvent(InferiorEvent::SpontaneousStop);
 }
 
+constexpr int maxCdbCommandLength = 4096;
+
+// Longer arguments go in pieces numbered down to 0, which the extension
+// collects until the last one arrives. It skips the blanks in front of each
+// piece, so no piece may start with one. cdb's limit is in bytes, so a piece
+// is measured in UTF-8, which is never shorter than the process's encoding.
+QString extensionCommandLines(const QString &prefix, int token, const QString &arguments)
+{
+    // " -t ", the token, '.', up to three digits of piece number, ' ' and '\n'.
+    const qsizetype tokenLength = 4 + QString::number(token).size() + 1 + 3 + 1 + 1;
+    const qsizetype maxPieceBytes = maxCdbCommandLength - prefix.size() - tokenLength;
+    QStringList pieces;
+    for (qsizetype pos = 0; pos < arguments.size(); ) {
+        qsizetype end = pos;
+        for (qsizetype bytes = 0; end < arguments.size(); ) {
+            const char16_t c = arguments.at(end).unicode();
+            const bool pair = QChar::isHighSurrogate(c) && end + 1 < arguments.size()
+                              && arguments.at(end + 1).isLowSurrogate();
+            const int size = pair ? 4 : c < 0x80 ? 1 : c < 0x800 ? 2 : 3;
+            if (bytes + size > maxPieceBytes)
+                break;
+            bytes += size;
+            end += pair ? 2 : 1;
+        }
+        if (end < arguments.size()) {
+            qsizetype cut = end;
+            while (cut > pos && arguments.at(cut) == ' ')
+                --cut;
+            if (cut > pos && arguments.at(cut).isLowSurrogate())
+                --cut;
+            if (cut > pos)
+                end = cut;
+        }
+        pieces.append(arguments.mid(pos, end - pos));
+        pos = end;
+    }
+    if (pieces.isEmpty())
+        pieces.append(QString());
+    QString lines;
+    qsizetype piece = pieces.size();
+    for (const QString &text : std::as_const(pieces)) {
+        lines += prefix + " -t " + QString::number(token) + '.' + QString::number(--piece)
+                 + ' ' + text + '\n';
+    }
+    return lines;
+}
+
 void CdbImpl::runCommand(const DebuggerCommand &dbgCmd)
 {
     if (!m_cdbProc.isRunning()) {
@@ -3940,7 +3987,14 @@ void CdbImpl::runCommand(const DebuggerCommand &dbgCmd)
         m_commandForToken.insert(token, dbgCmd);
         const QString prefix = m_extensionCommandPrefix + dbgCmd.function;
         const QString arguments = dbgCmd.args.isString() ? dbgCmd.args.toString() : QString();
-        fullCmd = prefix + " -t " + QString::number(token) + ".0 " + arguments + '\n';
+        fullCmd = extensionCommandLines(prefix, token, arguments);
+    }
+    if (!(dbgCmd.flags & ExtensionCommand)
+        && dbgCmd.function.toUtf8().size() + 1 > maxCdbCommandLength) {
+        emit message(QString("CdbImpl: \"%1\" is longer than %2 bytes, cdb will likely "
+                             "fail to execute it.")
+                         .arg(dbgCmd.function.left(40), QString::number(maxCdbCommandLength)),
+                     LogWarning);
     }
     emit message(fullCmd.trimmed(), LogInput);
     m_cdbProc.write(fullCmd);

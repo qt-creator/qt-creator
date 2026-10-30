@@ -149,6 +149,7 @@ private slots:
     void testCdbImplStepIntoLanding();
     void testCdbImplScriptMessages();
     void testCdbImplDebuggeeOutput();
+    void testCdbImplExtensionCommandLines();
     void testCdbImplBreakpointInsertCommand();
     void testCdbImplBreakpointModuleScope();
     void testCdbImplDisassemblyRange();
@@ -1254,6 +1255,64 @@ void DebuggerUnitTests::testCdbImplDebuggeeOutput()
 
     const QString umlaut = QString::fromUtf8("Gr\xc3\xbc\xc3\x9f\n");
     QCOMPARE(debuggeeOutput(encoded(umlaut)), umlaut);
+}
+
+void DebuggerUnitTests::testCdbImplExtensionCommandLines()
+{
+    QCOMPARE(extensionCommandLines("!qtcreatorcdbext.stack", 7, "unlimited"),
+             QString("!qtcreatorcdbext.stack -t 7.0 unlimited\n"));
+    QCOMPARE(extensionCommandLines("!qtcreatorcdbext.threads", 8, {}),
+             QString("!qtcreatorcdbext.threads -t 8.0 \n"));
+
+    // cdb cuts a line off at 4096 characters, so long arguments travel in pieces
+    // numbered down to 0, the one the extension waits for.
+    const QString prefix = "!qtcreatorcdbext.script";
+    QString arguments;
+    for (int i = 0; arguments.size() < 10000; ++i)
+        arguments += QString::number(i) + ' ';
+    const QStringList lines = extensionCommandLines(prefix, 12345, arguments)
+                                  .split('\n', Qt::SkipEmptyParts);
+    QCOMPARE(lines.size(), 3);
+    QString reassembled;
+    for (int i = 0; i < lines.size(); ++i) {
+        QVERIFY2(lines.at(i).size() + 1 <= 4096, qPrintable(QString::number(lines.at(i).size())));
+        const QString start = prefix + " -t 12345." + QString::number(lines.size() - 1 - i) + ' ';
+        QVERIFY2(lines.at(i).startsWith(start), qPrintable(lines.at(i).left(60)));
+        reassembled += lines.at(i).mid(start.size());
+    }
+    QCOMPARE(reassembled, arguments);
+
+    // The token's length is not bounded.
+    const QStringList longTokenLines = extensionCommandLines(prefix, 123456789, arguments)
+                                           .split('\n', Qt::SkipEmptyParts);
+    for (const QString &line : longTokenLines)
+        QVERIFY2(line.size() + 1 <= 4096, qPrintable(QString::number(line.size())));
+
+    // A blank at the start of a piece would be lost on the way.
+    const QString blanks = QString(4000, 'x') + QString(200, ' ') + 'y';
+    const QStringList blankLines = extensionCommandLines(prefix, 9, blanks)
+                                       .split('\n', Qt::SkipEmptyParts);
+    QCOMPARE(blankLines.size(), 2);
+    QVERIFY(!blankLines.at(1).mid(QString(prefix + " -t 9.0 ").size()).startsWith(' '));
+    QCOMPARE(blankLines.at(0).mid(QString(prefix + " -t 9.1 ").size())
+                 + blankLines.at(1).mid(QString(prefix + " -t 9.0 ").size()),
+             blanks);
+
+    // The limit is in bytes, and a cut must not separate a surrogate pair.
+    const QString wide = 'x' + QString(3000, QChar(0xe4)) + QString(1000, QChar(0x20ac))
+                         + QString::fromUcs4(U"\U0001F600").repeated(1000);
+    const QStringList wideLines = extensionCommandLines(prefix, 5, wide)
+                                      .split('\n', Qt::SkipEmptyParts);
+    QString wideReassembled;
+    for (int i = 0; i < wideLines.size(); ++i) {
+        const QString &line = wideLines.at(i);
+        QVERIFY2(line.toUtf8().size() + 1 <= 4096, qPrintable(QString::number(i)));
+        QVERIFY(!line.back().isHighSurrogate());
+        const QString start = prefix + " -t 5." + QString::number(wideLines.size() - 1 - i) + ' ';
+        QVERIFY(line.startsWith(start));
+        wideReassembled += line.mid(start.size());
+    }
+    QCOMPARE(wideReassembled, wide);
 }
 
 void DebuggerUnitTests::testCdbImplBreakpointInsertCommand()
