@@ -2386,6 +2386,8 @@ private slots:
     void refreshesPeripherals();
     void reloadsDebuggingHelpersAndSymbols_data() { addBackendRows(); }
     void reloadsDebuggingHelpersAndSymbols();
+    void offersTheStringFormatsForABasicString_data() { addBackendRows(); }
+    void offersTheStringFormatsForABasicString();
     void reloadsAnExtraDumperFile_data() { addBackendRows(); }
     void reloadsAnExtraDumperFile();
     void addsThePythonPathOfAnUninstalledDebugger_data() { addBackendRows(); }
@@ -14691,6 +14693,49 @@ void tst_backends::reloadsDebuggingHelpersAndSymbols()
     engine->refresh(locals2Request);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
     QVERIFY(responses.value(int(RefreshKind::Locals)).toString().contains(testData.localMarker));
+}
+
+// What MSVC's std::string is called, so the Locals view offers the ways to
+// show it that the other spellings of a string get.
+void tst_backends::offersTheStringFormatsForABasicString()
+{
+    QFETCH(Backend, backend);
+
+    if (!reportsDumperTypes(backend))
+        QSKIP("This backend reports no dumper types.");
+    if (inferiorTestData(backend).longStringLocalType != "std::string")
+        QSKIP("The inferior has no std::string.");
+
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    GdbMi helpers;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&helpers](quint64, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::DebuggingHelpers)
+            helpers = data;
+    });
+    RefreshRequest request;
+    request.kind = RefreshKind::DebuggingHelpers;
+    request.requestId = 105;
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(helpers.isValid(), s_timeout);
+
+    const GdbMi dumpers = helpers["dumpers"];
+    for (const GdbMi &dumper : dumpers) {
+        if (dumper["type"].data() == "std__basic_string") {
+            const QStringList formats = dumper["formats"].data().split(',', Qt::SkipEmptyParts);
+            if (!Utils::contains(formats, [](const QString &format) {
+                    return format.trimmed().toInt() == Latin1StringFormat;
+                })) {
+                QFAIL(qPrintable("no Latin-1 format: " + dumper.toString()));
+            }
+            return;
+        }
+    }
+    QFAIL(qPrintable("no dumper for std::basic_string: " + dumpers.toString().left(1000)));
 }
 
 // Reloading the debugging helpers runs the user's own dumper file again, where

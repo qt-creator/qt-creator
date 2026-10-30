@@ -1235,6 +1235,12 @@ def qdump__std__wstring(d, value):
     qdumpHelper_std__string(d, value, d.createType('wchar_t'), d.currentItemFormat())
 
 
+def qform__std__basic_string():
+    # A qform__ function does not see the character type, so this is the union.
+    # The Latin-1 and UTF-8 entries change nothing for wider characters.
+    return qform__std__string() + qform__std__wstring()
+
+
 def qdump__std__basic_string(d, value):
     innerType = value.type[0]
     qdumpHelper_std__string(d, value, innerType, d.currentItemFormat())
