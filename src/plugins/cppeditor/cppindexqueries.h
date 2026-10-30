@@ -31,6 +31,11 @@ CPPEDITOR_EXPORT Utils::FilePaths includedFilesOf(const CPlusPlus::Snapshot &sna
 CPPEDITOR_EXPORT QSet<Utils::FilePath> includeClosureOf(const CPlusPlus::Snapshot &snapshot,
                                                         const Utils::FilePath &filePath);
 
+// The files from which filePath is reachable via #include directives.
+// Contains filePath itself only if it is part of an include cycle.
+CPPEDITOR_EXPORT Utils::FilePaths filesDependingOn(const CPlusPlus::Snapshot &snapshot,
+                                                   const Utils::FilePath &filePath);
+
 #ifdef WITH_TESTS
 namespace Internal { QObject *createIndexQueriesTest(); }
 #endif

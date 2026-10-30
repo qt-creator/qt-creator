@@ -46,6 +46,11 @@ QSet<FilePath> includeClosureOf(const Snapshot &snapshot, const FilePath &filePa
     return snapshot.allIncludesForDocument(filePath);
 }
 
+FilePaths filesDependingOn(const Snapshot &snapshot, const FilePath &filePath)
+{
+    return snapshot.filesDependingOn(filePath);
+}
+
 } // namespace CppEditor
 
 #ifdef WITH_TESTS
@@ -74,6 +79,7 @@ private slots:
     void testIncludersOf();
     void testIncludedFilesOf();
     void testIncludeClosureOf();
+    void testFilesDependingOn();
 };
 
 void IndexQueriesTest::testIncludersOf()
@@ -155,6 +161,44 @@ void IndexQueriesTest::testIncludeClosureOf()
 
     QVERIFY(includeClosureOf(snapshot, shared).isEmpty());
     QVERIFY(includeClosureOf(snapshot, unknown).isEmpty());
+}
+
+void IndexQueriesTest::testFilesDependingOn()
+{
+    const FilePath header = FilePath::fromString("/project/header.h");
+    const FilePath directIncluder = FilePath::fromString("/project/direct.cpp");
+    const FilePath middle = FilePath::fromString("/project/middle.h");
+    const FilePath indirectIncluder = FilePath::fromString("/project/indirect.cpp");
+    const FilePath otherHeader = FilePath::fromString("/project/other.h");
+    const FilePath otherIncluder = FilePath::fromString("/project/other.cpp");
+    const FilePath cycleStart = FilePath::fromString("/project/cyclestart.h");
+    const FilePath cycleEnd = FilePath::fromString("/project/cycleend.h");
+    const FilePath unknown = FilePath::fromString("/project/unknown.h");
+
+    Snapshot snapshot;
+    addDocument(snapshot, header, {});
+    addDocument(snapshot, directIncluder, {include(header, 1)});
+    addDocument(snapshot, middle, {include(header, 1)});
+    addDocument(snapshot, indirectIncluder, {include(middle, 1)});
+    addDocument(snapshot, otherHeader, {});
+    addDocument(snapshot, otherIncluder, {include(otherHeader, 1)});
+    addDocument(snapshot, cycleStart, {include(cycleEnd, 1)});
+    addDocument(snapshot, cycleEnd, {include(cycleStart, 1)});
+
+    FilePaths actual = filesDependingOn(snapshot, header);
+    Utils::sort(actual);
+    FilePaths expected{directIncluder, middle, indirectIncluder};
+    Utils::sort(expected);
+    QCOMPARE(actual, expected);
+
+    actual = filesDependingOn(snapshot, cycleStart);
+    Utils::sort(actual);
+    expected = {cycleStart, cycleEnd};
+    Utils::sort(expected);
+    QCOMPARE(actual, expected);
+
+    QVERIFY(filesDependingOn(snapshot, directIncluder).isEmpty());
+    QVERIFY(filesDependingOn(snapshot, unknown).isEmpty());
 }
 
 QObject *createIndexQueriesTest()

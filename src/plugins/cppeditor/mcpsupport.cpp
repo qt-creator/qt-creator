@@ -2085,7 +2085,7 @@ void registerMcpTools()
                 result.insert("transitive_includes",
                               capped("transitive_includes",
                                      sortedPaths(includeClosureOf(snapshot, filePath))));
-                const FilePaths dependents = snapshot.filesDependingOn(filePath);
+                const FilePaths dependents = filesDependingOn(snapshot, filePath);
                 result.insert("transitive_included_by",
                               capped("transitive_included_by",
                                      sortedPaths(QSet<FilePath>(dependents.begin(),

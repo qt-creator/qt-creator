@@ -6,6 +6,7 @@
 #include "cppcodemodelsettings.h"
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
+#include "cppindexqueries.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
@@ -356,7 +357,7 @@ static void find_helper(QPromise<CPlusPlus::Usage> &promise,
                 files.append(i.key());
         }
     } else {
-        files += snapshot.filesDependingOn(sourceFile);
+        files += CppEditor::filesDependingOn(snapshot, sourceFile);
     }
     files = Utils::filteredUnique(files);
 
@@ -714,7 +715,7 @@ static void findMacroUses_helper(QPromise<CPlusPlus::Usage> &promise,
 {
     const FilePath sourceFile = macro.filePath();
     FilePaths files{sourceFile};
-    files = Utils::filteredUnique(files + snapshot.filesDependingOn(sourceFile));
+    files = Utils::filteredUnique(files + CppEditor::filesDependingOn(snapshot, sourceFile));
 
     promise.setProgressRange(0, files.size());
     FindMacroUsesInFile process(workingCopy, snapshot, macro, &promise);

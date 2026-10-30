@@ -3,6 +3,8 @@
 
 #include "typehierarchybuilder.h"
 
+#include "cppindexqueries.h"
+
 #include <cplusplus/LookupContext.h>
 
 #include <utils/algorithm.h>
@@ -163,7 +165,7 @@ static FilePaths filesDependingOn(const Snapshot &snapshot, Symbol *symbol)
         return {};
 
     const FilePath file = symbol->filePath();
-    return FilePaths{file} + snapshot.filesDependingOn(file);
+    return FilePaths{file} + CppEditor::filesDependingOn(snapshot, file);
 }
 
 void TypeHierarchyBuilder::buildDerived(const std::optional<QFuture<void>> &future,

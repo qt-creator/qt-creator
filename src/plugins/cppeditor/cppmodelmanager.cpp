@@ -15,6 +15,7 @@
 #include "cppfindreferences.h"
 #include "cppincludesfilter.h"
 #include "cppindexingsupport.h"
+#include "cppindexqueries.h"
 #include "cpplocatordata.h"
 #include "cpplocatorfilter.h"
 #include "cppprojectfile.h"
@@ -1674,7 +1675,7 @@ QList<ProjectPart::ConstPtr> CppModelManager::projectPartFromDependencies(
         const FilePath &fileName)
 {
     QSet<ProjectPart::ConstPtr> parts;
-    const FilePaths deps = snapshot().filesDependingOn(fileName);
+    const FilePaths deps = CppEditor::filesDependingOn(snapshot(), fileName);
 
     for (const FilePath &dep : deps)
         parts.unite(Utils::toSet(projectPart(dep)));
@@ -1812,8 +1813,8 @@ QSet<QString> CppModelManager::dependingInternalTargets(const FilePath &file)
     bool wasHeader;
     const FilePath correspondingFile
             = correspondingHeaderOrSource(file, &wasHeader, CacheUsage::ReadOnly);
-    const FilePaths dependingFiles = snapshot.filesDependingOn(
-                wasHeader ? file : correspondingFile);
+    const FilePaths dependingFiles = CppEditor::filesDependingOn(
+                snapshot, wasHeader ? file : correspondingFile);
     for (const FilePath &fn : std::as_const(dependingFiles)) {
         for (const ProjectPart::ConstPtr &part : projectPart(fn))
             result.insert(part->buildSystemTarget);
