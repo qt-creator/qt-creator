@@ -33,16 +33,7 @@ public:
     Core::SecretAspect signingKeyPassword{this};
     Core::SecretAspect signingStorePassword{this};
 
-    // The keychain is read asynchronously while the build steps need the passwords
-    // synchronously, so they are fetched once per session and kept in memory.
-    QString keyPassword() const { return m_keyPassword; }
-    QString storePassword() const { return m_storePassword; }
-
 private:
-    void refreshSigningPasswords();
-
-    QString m_keyPassword;
-    QString m_storePassword;
     QtTaskTree::QSingleTaskTreeRunner m_sdkDownloader;
     QtTaskTree::QSingleTaskTreeRunner m_qtDownloader;
 };

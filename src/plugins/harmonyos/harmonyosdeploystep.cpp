@@ -14,6 +14,7 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/secretaspect.h>
 #include <qtsupport/qtkitaspect.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildstep.h>
@@ -37,12 +38,15 @@
 #include <utils/store.h>
 #include <utils/stringutils.h>
 
+#include <QtTaskTree/QBarrier>
+
 #include <QCryptographicHash>
 #include <QDateTime>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLocale>
+#include <QPointer>
 #include <QRegularExpression>
 
 using namespace ProjectExplorer;
@@ -102,15 +106,61 @@ static SigningConfig signingConfigFromSettings(const Environment &env)
     config.insert(Constants::SIGNING_PROFILE_ENV_VAR, profile.nativePath());
     config.insert(Constants::SIGNING_STORE_FILE_ENV_VAR, keystore.nativePath());
     config.insert(Constants::SIGNING_KEY_ALIAS_ENV_VAR, alias);
-    const auto insertPassword = [&config, &env](const QString &var, const QString &password) {
-        if (!password.isEmpty())
-            config.insert(var, password);
-        else if (const QString fromEnv = env.value(var); !fromEnv.isEmpty())
-            config.insert(var, fromEnv);
-    };
-    insertPassword(Constants::SIGNING_KEY_PASSWORD_ENV_VAR, settings().keyPassword());
-    insertPassword(Constants::SIGNING_STORE_PASSWORD_ENV_VAR, settings().storePassword());
+    for (const char *var : {Constants::SIGNING_KEY_PASSWORD_ENV_VAR,
+                            Constants::SIGNING_STORE_PASSWORD_ENV_VAR}) {
+        if (const QString fromEnv = env.value(QLatin1String(var)); !fromEnv.isEmpty())
+            config.insert(QLatin1String(var), fromEnv);
+    }
     return config;
+}
+
+// The password from the preferences wins over the one in the environment. Empty when
+// neither has one.
+static QString signingPassword(const QString &stored, const SigningConfig &config,
+                               const char *envVar)
+{
+    return !stored.isEmpty() ? stored : config.value(QLatin1String(envVar));
+}
+
+class SigningPasswords
+{
+public:
+    QString key;
+    QString store;
+    QStringList errors;
+};
+
+// Reads both passwords, from the keychain if they are not known yet.
+static QtTaskTree::ExecutableItem signingPasswordsTask(
+    const Core::SecretAspect &keyAspect, const Core::SecretAspect &storeAspect,
+    const QtTaskTree::Storage<SigningPasswords> &storage)
+{
+    using namespace QtTaskTree;
+
+    const auto onSetup = [&keyAspect, &storeAspect, storage](QBarrier &barrier) {
+        barrier.setLimit(2);
+        SigningPasswords *passwords = storage.activeStorage();
+        const QPointer<QBarrier> guard(&barrier);
+        const auto request = [passwords, guard](const Core::SecretAspect &aspect,
+                                                QString *password) {
+            aspect.requestValue([passwords, guard, password](const Result<QString> &value) {
+                if (!guard)
+                    return;
+                if (value)
+                    *password = *value;
+                else
+                    passwords->errors.append(value.error());
+                guard->advance();
+            });
+        };
+        // A secret that is already known is passed on right away, and the barrier
+        // only counts what arrives after it is started.
+        QMetaObject::invokeMethod(&barrier, [&keyAspect, &storeAspect, passwords, request] {
+            request(keyAspect, &passwords->key);
+            request(storeAspect, &passwords->store);
+        }, Qt::QueuedConnection);
+    };
+    return QBarrierTask(onSetup);
 }
 
 // The profile is a PKCS#7 file whose signed content is plain JSON, so this reads it
@@ -1621,17 +1671,6 @@ private:
                            OutputFormat::ErrorMessage);
             return false;
         }
-        const QString keyPassword = config.value(Constants::SIGNING_KEY_PASSWORD_ENV_VAR);
-        const QString storePassword = config.value(Constants::SIGNING_STORE_PASSWORD_ENV_VAR);
-        if (keyPassword.isEmpty() || storePassword.isEmpty()) {
-            emit addOutput(Tr::tr("The HarmonyOS signing passwords are not available. Enter them "
-                                  "in Preferences > SDKs > HarmonyOS, or pass them in the "
-                                  "environment as %1 and %2.")
-                               .arg(QLatin1String(Constants::SIGNING_KEY_PASSWORD_ENV_VAR),
-                                    QLatin1String(Constants::SIGNING_STORE_PASSWORD_ENV_VAR)),
-                           OutputFormat::ErrorMessage);
-            return false;
-        }
 
         const FilePath jar = Sdk::hapSignToolJar(settings().sdkLocation());
         if (jar.isEmpty()) {
@@ -1650,40 +1689,43 @@ private:
         m_project = projectDir(bc);
         m_unsignedPackage = packageDir(bc).pathAppended(buildKey + "-unsigned.hap");
         m_signedPackage = packageDir(bc).pathAppended(buildKey + ".hap");
+        m_config = config;
+        m_jar = jar;
+        m_java = java;
 
-        const auto arguments = [&](const QString &keyPwd, const QString &storePwd) {
-            return QStringList{"-jar", jar.nativePath(), "sign-app",
-                               "-mode", "localSign",
-                               "-signAlg", config.value(Constants::SIGNING_ALG_ENV_VAR,
-                                                        "SHA256withECDSA"),
-                               "-signCode", "1",
-                               "-keyAlias", config.value(Constants::SIGNING_KEY_ALIAS_ENV_VAR),
-                               "-keyPwd", keyPwd,
-                               "-keystorePwd", storePwd,
-                               "-keystoreFile",
-                               config.value(Constants::SIGNING_STORE_FILE_ENV_VAR),
-                               "-appCertFile",
-                               config.value(Constants::SIGNING_CERT_PATH_ENV_VAR),
-                               "-profileFile", config.value(Constants::SIGNING_PROFILE_ENV_VAR),
-                               "-inFile", m_unsignedPackage.nativePath(),
-                               "-outFile", m_signedPackage.nativePath()};
-        };
-        processParameters()->setCommandLine({java, arguments(keyPassword, storePassword)});
+        // The passwords are filled in once they are read from the keychain.
+        processParameters()->setCommandLine({java, signArguments({}, {})});
         processParameters()->setWorkingDirectory(packageDir(bc));
 
         // The step prints the command line it starts, and these two are secrets.
         setupProcessParameters(&m_concealedParams);
         m_concealedParams.setWorkingDirectory(packageDir(bc));
-        m_concealedParams.setCommandLine({java, arguments("******", "******")});
+        m_concealedParams.setCommandLine({java, signArguments("******", "******")});
         setDisplayedParameters(&m_concealedParams);
         return true;
+    }
+
+    QStringList signArguments(const QString &keyPassword, const QString &storePassword) const
+    {
+        return {"-jar", m_jar.nativePath(), "sign-app",
+                "-mode", "localSign",
+                "-signAlg", m_config.value(Constants::SIGNING_ALG_ENV_VAR, "SHA256withECDSA"),
+                "-signCode", "1",
+                "-keyAlias", m_config.value(Constants::SIGNING_KEY_ALIAS_ENV_VAR),
+                "-keyPwd", keyPassword,
+                "-keystorePwd", storePassword,
+                "-keystoreFile", m_config.value(Constants::SIGNING_STORE_FILE_ENV_VAR),
+                "-appCertFile", m_config.value(Constants::SIGNING_CERT_PATH_ENV_VAR),
+                "-profileFile", m_config.value(Constants::SIGNING_PROFILE_ENV_VAR),
+                "-inFile", m_unsignedPackage.nativePath(),
+                "-outFile", m_signedPackage.nativePath()};
     }
 
     QtTaskTree::GroupItem runRecipe() final
     {
         using namespace QtTaskTree;
 
-        const auto onSetup = [this](Process &process) {
+        const auto onSigningSetup = [this] {
             m_content = packagedContentFingerprint(m_project);
             m_signing = signingFingerprint();
             // The step before this one leaves the package alone when it is already the
@@ -1698,6 +1740,32 @@ private:
                                OutputFormat::ErrorMessage);
                 return SetupResult::StopWithError;
             }
+            return SetupResult::Continue;
+        };
+        const Storage<SigningPasswords> passwords;
+        const auto onPasswordsDone = [this, passwords] {
+            const QString keyPassword = signingPassword(
+                passwords->key, m_config, Constants::SIGNING_KEY_PASSWORD_ENV_VAR);
+            const QString storePassword = signingPassword(
+                passwords->store, m_config, Constants::SIGNING_STORE_PASSWORD_ENV_VAR);
+            if (keyPassword.isEmpty() || storePassword.isEmpty()) {
+                emit addOutput(Tr::tr("The HarmonyOS signing passwords are not available. Enter "
+                                      "them in Preferences > SDKs > HarmonyOS, or pass them in "
+                                      "the environment as %1 and %2.")
+                                   .arg(QLatin1String(Constants::SIGNING_KEY_PASSWORD_ENV_VAR),
+                                        QLatin1String(Constants::SIGNING_STORE_PASSWORD_ENV_VAR)),
+                               OutputFormat::ErrorMessage);
+                for (const QString &error : std::as_const(passwords->errors)) {
+                    emit addOutput(Tr::tr("Reading the keychain failed: %1").arg(error),
+                                   OutputFormat::ErrorMessage);
+                }
+                return false;
+            }
+            processParameters()->setCommandLine(
+                {m_java, signArguments(keyPassword, storePassword)});
+            return true;
+        };
+        const auto onSetup = [this](Process &process) {
             m_signedPackage.removeFile();
             packageNote(m_signedPackage).removeFile();
             return setupProcess(process) ? SetupResult::Continue : SetupResult::StopWithError;
@@ -1719,7 +1787,14 @@ private:
             }
             return true;
         };
-        return ProcessTask(onSetup, onDone);
+        return Group {
+            passwords,
+            onGroupSetup(onSigningSetup),
+            signingPasswordsTask(settings().signingKeyPassword, settings().signingStorePassword,
+                                 passwords),
+            QSyncTask(onPasswordsDone),
+            ProcessTask(onSetup, onDone)
+        };
     }
 
     void setupOutputFormatter(OutputFormatter *formatter) final
@@ -1731,6 +1806,9 @@ private:
     FilePath m_project;
     FilePath m_unsignedPackage;
     FilePath m_signedPackage;
+    FilePath m_jar;
+    FilePath m_java;
+    SigningConfig m_config;
     QString m_content;
     QString m_signing;
     ProcessParameters m_concealedParams;
@@ -2195,6 +2273,41 @@ private slots:
         ProvisioningProfile otherKind = valid;
         otherKind.deviceIdType = "sn";
         QVERIFY(provisioningProblems(otherKind, QString(64, 'b')).isEmpty());
+    }
+
+    void testSigningPassword()
+    {
+        const char *var = Constants::SIGNING_KEY_PASSWORD_ENV_VAR;
+        const SigningConfig fromEnvironment{{QLatin1String(var), "environment"}};
+
+        QCOMPARE(signingPassword("stored", fromEnvironment, var), "stored");
+        QCOMPARE(signingPassword({}, fromEnvironment, var), "environment");
+        QCOMPARE(signingPassword("stored", {}, var), "stored");
+        QVERIFY(signingPassword({}, {}, var).isEmpty());
+        QVERIFY(signingPassword({}, fromEnvironment,
+                                Constants::SIGNING_STORE_PASSWORD_ENV_VAR).isEmpty());
+    }
+
+    void testSigningPasswordsKnownUpFront()
+    {
+        using namespace QtTaskTree;
+
+        Core::SecretAspect keyAspect;
+        Core::SecretAspect storeAspect;
+        keyAspect.setValue("key");
+        storeAspect.setValue("store");
+        const Storage<SigningPasswords> storage;
+        SigningPasswords result;
+        // Bounds the test if the barrier misses the answers and never finishes.
+        const DoneWith done = QTaskTree::runBlocking(
+            Group{storage,
+                  signingPasswordsTask(keyAspect, storeAspect, storage)
+                      .withTimeout(std::chrono::seconds(10)),
+                  onGroupDone([storage, &result] { result = *storage; })});
+        QCOMPARE(done, DoneWith::Success);
+        QCOMPARE(result.key, "key");
+        QCOMPARE(result.store, "store");
+        QVERIFY(result.errors.isEmpty());
     }
 
     void testDebugPluginSourceIsShipped()

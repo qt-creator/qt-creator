@@ -691,10 +691,7 @@ HarmonyOsSettings::HarmonyOsSettings()
     signingStorePassword.setKey("StorePassword");
     signingStorePassword.setLabelText(Tr::tr("Keystore password:"));
 
-    connect(this, &AspectContainer::applied, this, [this] {
-        refreshSigningPasswords();
-        applyConfig();
-    });
+    connect(this, &AspectContainer::applied, this, [] { applyConfig(); });
 
     setLayouter([this] {
         auto instruction = new QLabel(
@@ -914,19 +911,6 @@ HarmonyOsSettings::HarmonyOsSettings()
     });
 
     readSettings();
-    refreshSigningPasswords();
-}
-
-void HarmonyOsSettings::refreshSigningPasswords()
-{
-    signingKeyPassword.requestValue([this](const Result<QString> &password) {
-        if (password)
-            m_keyPassword = *password;
-    });
-    signingStorePassword.requestValue([this](const Result<QString> &password) {
-        if (password)
-            m_storePassword = *password;
-    });
 }
 
 // HarmonyOsSettingsPage
