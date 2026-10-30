@@ -793,11 +793,17 @@ bool Loader::protectSegments()
                 return fail("mprotect of segment %d failed (errno %d)", index, errno);
             continue;
         }
-        // The one thing the platform insists on.
-        ::prctl(JitPrctl, 0, 0);
-        const int result = ::mprotect(start, length, protection);
-        const int failure = errno;
-        ::prctl(JitPrctl, 0, 1);
+        // The one thing the platform insists on. While other processes of the application
+        // load as well, the platform now and then refuses with EINVAL although the switch is
+        // on, and the next attempt succeeds.
+        int result = -1;
+        int failure = 0;
+        for (int attempt = 0; attempt < 5 && result != 0; ++attempt) {
+            ::prctl(JitPrctl, 0, 0);
+            result = ::mprotect(start, length, protection);
+            failure = errno;
+            ::prctl(JitPrctl, 0, 1);
+        }
         if (result != 0)
             return fail("mprotect PROT_EXEC of segment %d failed (errno %d)", index, failure);
     }
