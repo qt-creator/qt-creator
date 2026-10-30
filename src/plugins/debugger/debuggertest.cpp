@@ -44,6 +44,7 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
 #include <cppeditor/cpptoolstestcase.h>
@@ -159,6 +160,7 @@ private slots:
     void testCdbImplScriptMessages();
     void testCdbImplDebuggeeOutput();
     void testCdbImplExtensionCommandLines();
+    void testCdbImplPipedDumperModules();
     void testCdbImplBreakpointInsertCommand();
     void testCdbImplBreakpointModuleScope();
     void testCdbImplDisassemblyRange();
@@ -1673,6 +1675,39 @@ void DebuggerUnitTests::testCdbImplExtensionCommandLines()
         wideReassembled += line.mid(start.size());
     }
     QCOMPARE(wideReassembled, wide);
+}
+
+void DebuggerUnitTests::testCdbImplPipedDumperModules()
+{
+    const FilePath dumperDir = Core::ICore::resourcePath("debugger");
+    const Result<QList<PipedDumperModule>> modules = pipedDumperModules(dumperDir, "cdbbridge");
+    if (!modules)
+        QFAIL(qPrintable(modules.error()));
+    const QStringList names = Utils::transform(*modules, &PipedDumperModule::name);
+
+    // Each module comes after the ones it imports.
+    QVERIFY(names.indexOf("utils") < names.indexOf("dumper"));
+    QVERIFY(names.indexOf("dumper") < names.indexOf("cdbbridge"));
+    QVERIFY(names.contains("qttypes"));
+    QVERIFY(!names.contains("gdbbridge"));
+    QCOMPARE(modules->first().source, (dumperDir / "utils.py").fileContents().value_or(""));
+
+    QVERIFY(!pipedDumperModules(dumperDir / "nonexistent", "cdbbridge"));
+
+    // A missing set of type dumpers is skipped, a missing bridge is not.
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+    const FilePath partialDir = FilePath::fromString(tempDir.path());
+    QVERIFY(partialDir.pathAppended("loadorder_cdbbridge.txt")
+                .writeFileContents("utils\nmissingtypes\n***bridge***\n"));
+    QVERIFY(partialDir.pathAppended("utils.py").writeFileContents("pass\n"));
+    QVERIFY(!pipedDumperModules(partialDir, "cdbbridge"));
+    QVERIFY(partialDir.pathAppended("cdbbridge.py").writeFileContents("pass\n"));
+    const Result<QList<PipedDumperModule>> partial = pipedDumperModules(partialDir, "cdbbridge");
+    if (!partial)
+        QFAIL(qPrintable(partial.error()));
+    QCOMPARE(Utils::transform(*partial, &PipedDumperModule::name),
+             QStringList({"utils", "cdbbridge"}));
 }
 
 void DebuggerUnitTests::testCdbImplBreakpointInsertCommand()

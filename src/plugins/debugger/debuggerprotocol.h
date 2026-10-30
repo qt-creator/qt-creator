@@ -15,6 +15,7 @@
 #include <QVarLengthArray>
 
 #include <utils/filepath.h>
+#include <utils/result.h>
 #include <utils/textutils.h>
 
 namespace Utils { class ProcessHandle; }
@@ -415,6 +416,16 @@ QString memoryErrorWithoutAddress(const QString &message);
 // The hexadecimal digits of a register value as reported by GDB's
 // -data-list-register-values, empty if GDB could not read it.
 QString gdbRegisterValueAsHex(const QString &value);
+
+class DEBUGGER_EXPORT PipedDumperModule
+{
+public:
+    QString name;
+    QByteArray source;
+};
+
+DEBUGGER_EXPORT Utils::Result<QList<PipedDumperModule>> pipedDumperModules(
+    const Utils::FilePath &dumperScriptsDir, const QString &bridgeModuleName);
 
 } // Debugger::Internal
 

@@ -2294,7 +2294,7 @@ void CdbImpl::flushPendingBridgeWork()
 // addDumperModule() only takes the name down; loadDumpers() is what imports it.
 void CdbImpl::loadConfiguredDumpers()
 {
-    if (m_startData.extraDumperFile.isReadableFile()) {
+    if (!isRemoteServer() && m_startData.extraDumperFile.isReadableFile()) {
         DebuggerCommand cmd("theDumper.addDumperModule", ScriptCommand);
         cmd.arg("path", m_startData.extraDumperFile.path());
         runCommand(cmd);
@@ -2309,6 +2309,61 @@ void CdbImpl::loadConfiguredDumpers()
                [this](const DebuggerResponse &response) {
         emit refreshDataReceived(0, RefreshKind::DebuggingHelpers, response.data["result"]);
     }});
+}
+
+// A cdb server on another machine cannot read the dumper scripts here, so they
+// travel as source. A reload runs the dumper modules again into the module
+// objects the bridge already holds, as importlib finds no files for them there.
+// Returns the dumper modules, quoted for a Python list.
+Result<QStringList> CdbImpl::pipeDumperModules(DumperPipe mode)
+{
+    const bool reload = mode == DumperPipe::Reload;
+    Result<QList<PipedDumperModule>> modules
+        = pipedDumperModules(m_startData.dumperScriptsDir, "cdbbridge");
+    if (!modules)
+        return ResultError(modules.error());
+    const FilePath &extraDumperFile = m_startData.extraDumperFile;
+    QString extraName;
+    if (extraDumperFile.isReadableFile()) {
+        if (const Result<QByteArray> source = extraDumperFile.fileContents()) {
+            extraName = extraDumperFile.completeBaseName();
+            modules->append({extraName, *source});
+        } else {
+            emit message("CdbImpl: " + source.error(), LogWarning);
+        }
+    }
+    runCommand({"import sys, types", ScriptCommand});
+    QStringList typeModules;
+    for (const PipedDumperModule &module : std::as_const(*modules)) {
+        const bool isTypes = module.name.endsWith("types") || module.name == extraName;
+        if (reload && !isTypes)
+            continue;
+        emit message("CdbImpl: sending " + module.name + " to the cdb server", LogMisc);
+        const QString pyName = cdbPythonString(module.name);
+        runCommand({QLatin1String(reload
+                                      ? "module = sys.modules.get(%1) or types.ModuleType(%1)"
+                                      : "module = types.ModuleType(%1)").arg(pyName),
+                    ScriptCommand});
+        // Every piece of a long command is a round trip to the server. qCompress()
+        // puts a 4-byte length in front of the zlib stream.
+        const QByteArray packed = qCompress(module.source, 9).toBase64();
+        DebuggerCommand exec(QString("exec(__import__('zlib').decompress("
+                                     "__import__('binascii').a2b_base64('%1')[4:])"
+                                     ".decode('utf-8'), module.__dict__)")
+                                 .arg(QString::fromLatin1(packed)),
+                             ScriptCommand | DebuggerCommand::Silent);
+        exec.callback = [this, name = module.name](const DebuggerResponse &response) {
+            if (response.resultClass != ResultDone) {
+                emit message("CdbImpl: the cdb server could not load " + name + ": "
+                                 + response.data["msg"].data(), LogWarning);
+            }
+        };
+        runCommand(exec);
+        runCommand({"sys.modules[" + pyName + "] = module", ScriptCommand});
+        if (isTypes)
+            typeModules.append(pyName);
+    }
+    return typeModules;
 }
 
 void CdbImpl::setupScripting()
@@ -2337,17 +2392,37 @@ void CdbImpl::setupScripting()
         emit message(QString("CdbImpl: Python %1 in the cdb extension")
                          .arg(reportedVersion.trimmed()), LogMisc);
 
-        const QString dumperPath = m_startData.dumperScriptsDir.nativePath();
-        runCommand({"sys.path.insert(1, " + cdbPythonString(dumperPath) + ')', ScriptCommand});
+        QStringList typeModules;
+        if (isRemoteServer()) {
+            const Result<QStringList> piped = pipeDumperModules(DumperPipe::Initial);
+            if (!piped) {
+                emit message(QString("CdbImpl: cannot send the dumpers to the cdb server: %1")
+                                 .arg(piped.error()), LogError);
+                m_pythonVersion = 0;
+                flushPendingBridgeWork();
+                return;
+            }
+            typeModules = *piped;
+        } else {
+            const QString dumperPath = m_startData.dumperScriptsDir.nativePath();
+            runCommand({"sys.path.insert(1, " + cdbPythonString(dumperPath) + ')',
+                        ScriptCommand});
+        }
         runCommand({"from cdbbridge import Dumper", ScriptCommand});
         runCommand({"theDumper = Dumper()", ScriptCommand,
-                   [this](const DebuggerResponse &response) {
+                   [this, typeModules](const DebuggerResponse &response) {
             if (response.resultClass != ResultDone) {
                 emit message(QString("CdbImpl: could not construct the dumper bridge: %1")
                                  .arg(response.data["msg"].data()), LogError);
                 m_pythonVersion = 0;
                 flushPendingBridgeWork();
                 return;
+            }
+            // Without a file to look next to, the bridge finds no dumper modules
+            // of its own.
+            if (!typeModules.isEmpty()) {
+                runCommand({"theDumper.dumpermodules = [" + typeModules.join(',') + ']',
+                            ScriptCommand});
             }
             // The bridge picks the session mode up from a locals fetch, which a
             // QML frame answers from the interpreter before it reads the options.
@@ -3014,7 +3089,20 @@ void CdbImpl::refresh(const RefreshRequest &request)
     }
     if (request.kind == RefreshKind::DebuggingHelpers) {
         const quint64 requestId = request.requestId;
-        runCommand({"theDumper.reloadDumpers(None)", ScriptCommand,
+        QString reload = "theDumper.reloadDumpers(None)";
+        if (isRemoteServer()) {
+            const Result<QStringList> piped = pipeDumperModules(DumperPipe::Reload);
+            if (!piped) {
+                emit message("CdbImpl: cannot send the dumpers to the cdb server: "
+                                 + piped.error(), LogError);
+            } else if (!piped->isEmpty()) {
+                runCommand({"theDumper.dumpermodules += [m for m in [" + piped->join(',')
+                                + "] if m not in theDumper.dumpermodules]",
+                            ScriptCommand});
+            }
+            reload = "theDumper.loadDumpers(None)";
+        }
+        runCommand({reload, ScriptCommand,
                    [this, requestId](const DebuggerResponse &response) {
             emit refreshDataReceived(requestId, RefreshKind::DebuggingHelpers,
                                      response.data["result"]);
@@ -4312,7 +4400,8 @@ void CdbImpl::runCommand(const DebuggerCommand &dbgCmd)
         for (const QString &id : messageIds)
             runCommand({"bd" + id, NoFlags});
         const DebuggerCommand::Callback callback = dbgCmd.callback;
-        DebuggerCommand scriptCmd("script", ExtensionCommand,
+        const int flags = ExtensionCommand | (dbgCmd.flags & DebuggerCommand::Silent);
+        DebuggerCommand scriptCmd("script", flags,
                                   [this, messageIds, callback](const DebuggerResponse &r) {
             for (const QString &id : messageIds)
                 runCommand({"be" + id, NoFlags});
@@ -4348,7 +4437,8 @@ void CdbImpl::runCommand(const DebuggerCommand &dbgCmd)
                          .arg(dbgCmd.function.left(40), QString::number(maxCdbCommandLength)),
                      LogWarning);
     }
-    emit message(fullCmd.trimmed(), LogInput);
+    if (!(dbgCmd.flags & DebuggerCommand::Silent))
+        emit message(fullCmd.trimmed(), LogInput);
     m_cdbProc.write(fullCmd);
     restartWatchdog();
 }

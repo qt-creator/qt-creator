@@ -2491,6 +2491,8 @@ private slots:
     void attachesToTerminalRunProcess();
     void attachesToRunningRemoteServer_data() { addBackendRows(); }
     void attachesToRunningRemoteServer();
+    void readsTheLocalsThroughACdbServer_data() { addBackendRows(); }
+    void readsTheLocalsThroughACdbServer();
     void reportsARemoteServerThatGoesAway_data() { addBackendRows(); }
     void reportsARemoteServerThatGoesAway();
     void runsUserCommandsAfterConnectingToARemoteServer_data() { addBackendRows(); }
@@ -18232,6 +18234,119 @@ void tst_backends::attachesToRunningRemoteServer()
     engine->shutdownEngine();
 
     QTRY_COMPARE_WITH_TIMEOUT(gdbserverProcess.state(), ProcessState::NotRunning, s_timeout);
+}
+
+// The dumpers are files on the machine the session runs on, which for a cdb
+// server is not where they are, so they have to travel through the session.
+void tst_backends::readsTheLocalsThroughACdbServer()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Cdb)
+        QSKIP("only cdb serves a session of its own over \"-server\"");
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::AttachToRemoteServer); !result)
+        QSKIP(qPrintable(result.error()));
+
+    quint16 port = 0;
+    {
+        QTcpServer probe;
+        QVERIFY(probe.listen(QHostAddress::LocalHost));
+        port = probe.serverPort();
+    }
+
+    // The session loads the extension by name, which the server resolves.
+    Environment serverEnvironment = Environment::systemEnvironment();
+    serverEnvironment.set("_NT_DEBUGGER_EXTENSION_PATH",
+                          m_backendData[backend].cdbExtensionDir.nativePath());
+    Process server;
+    server.setProcessMode(ProcessMode::Writer);
+    server.setEnvironment(serverEnvironment);
+    server.setCommand({m_backendData[backend].path,
+                       {"-server", QString("tcp:port=%1").arg(port), "-G",
+                        inferiorTestData(backend).executable.nativePath()}});
+    QString serverOutput;
+    server.setStdOutCallback([&serverOutput](const QString &text) { serverOutput += text; });
+    server.start();
+    QTRY_VERIFY2_WITH_TIMEOUT(serverOutput.contains("Server started"),
+                              qPrintable("the cdb server did not come up: " + serverOutput),
+                              s_timeout);
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createAttachEngine(backend,
+        AttachToRemoteServerData{QString("tcp:port=%1,server=localhost").arg(port),
+                                 inferiorTestData(backend).executable});
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList log;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&log](const QString &text, int, int) { log.append(text.left(200)); });
+
+    // The server holds the inferior at its start, and the session lets it run
+    // like a launched one.
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, this,
+            [this, engine, backend](InferiorEvent event) {
+        if (event != InferiorEvent::EngineSetupOk)
+            return;
+        BreakpointChangeRequest breakpoint;
+        breakpoint.op = BreakpointOp::Insert;
+        breakpoint.requestId = 1;
+        breakpoint.params.type = BreakpointByFileAndLine;
+        breakpoint.params.fileName = inferiorTestData(backend).source;
+        breakpoint.params.textPosition.line = inferiorTestData(backend).breakpointLine;
+        breakpoint.params.enabled = true;
+        engine->changeBreakpoint(breakpoint);
+    });
+
+    // Sending the dumpers through the session takes about ten seconds.
+    engine->start();
+    QTest::qWaitFor([&debuggerBackend] {
+        return debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+               || debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
+               || debuggerBackend->contains(InferiorEvent::EngineRunFailed);
+    }, std::chrono::seconds(60));
+    if (!debuggerBackend->contains(InferiorEvent::SpontaneousStop))
+        QFAIL(qPrintable("no stop at the breakpoint, the session said:\n"
+                         + log.join('\n').right(6000)));
+    // On this machine the server could read the dumpers itself, so only the
+    // session can say that it did not.
+    QVERIFY2(log.join('\n').contains("to the cdb server"),
+             "the session did not send the dumpers to the server");
+
+    QHash<int, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        responses[int(kind)] = data;
+    });
+    RefreshRequest request;
+    request.kind = RefreshKind::Locals;
+    request.requestId = 10;
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
+    const GdbMi locals = responses.value(int(RefreshKind::Locals));
+    // Only a dumper counts the items of a container.
+    const GdbMi vector = findItemByName(locals, inferiorTestData(backend).expandableLocal);
+    QVERIFY2(vector["valueencoded"].data() == "itemcount",
+             qPrintable("locals: " + locals.toString().left(1000) + "\nlog:\n"
+                        + log.join('\n').right(2000)));
+
+    // The server has no files to reload the dumpers from.
+    responses.remove(int(RefreshKind::DebuggingHelpers));
+    request.kind = RefreshKind::DebuggingHelpers;
+    request.requestId = 11;
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::DebuggingHelpers)), s_timeout);
+    QVERIFY2(responses.value(int(RefreshKind::DebuggingHelpers))["dumpers"].childCount() > 0,
+             qPrintable("reloading the dumpers reported no types, log:\n"
+                        + log.join('\n').right(2000)));
+
+    debuggerBackend->clearEvents();
+    engine->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+    engine->shutdownEngine();
+
+    if (server.state() != ProcessState::NotRunning)
+        server.kill();
+    QTRY_COMPARE_WITH_TIMEOUT(server.state(), ProcessState::NotRunning, s_timeout);
 }
 
 void tst_backends::reportsARemoteServerThatGoesAway()

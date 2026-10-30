@@ -3736,31 +3736,19 @@ Result<> DebuggerEngine::pipeInDebuggerHelpers(
     const ImportResponse &callback)
 {
     const FilePath dumperPath = ICore::resourcePath("debugger");
-    const FilePath loadOrderFile = dumperPath / QString("loadorder_%1.txt").arg(bridgeModuleName);
-    const Result<QByteArray> toLoad = loadOrderFile.fileContents();
-    if (!toLoad)
-        return ResultError(toLoad.error());
+    const Result<QList<PipedDumperModule>> modules
+        = pipedDumperModules(dumperPath, bridgeModuleName);
+    if (!modules)
+        return ResultError(modules.error());
 
     runPythonCommand({"import sys, types"});
     QStringList moduleList;
-    for (const QByteArray &rawModuleName : toLoad->split('\n')) {
-        QString module = QString::fromUtf8(rawModuleName).trimmed();
-        if (module.startsWith('#') || module.isEmpty())
-            continue;
-        if (module == "***bridge***")
-            module = bridgeModuleName;
-
-        const FilePath codeFile = dumperPath / (module + ".py");
-        const Result<QByteArray> code = codeFile.fileContents();
-        if (!code) {
-            qDebug() << Tr::tr("Cannot read \"%1\": %2").arg(codeFile.toUserOutput(), code.error());
-            continue;
-        }
-
-        showMessage("Reading " + codeFile.toUserOutput(), LogInput);
+    for (const PipedDumperModule &piped : *modules) {
+        const QString &module = piped.name;
+        showMessage("Reading " + (dumperPath / (module + ".py")).toUserOutput(), LogInput);
         runPythonCommand({QString("module = types.ModuleType('%1')").arg(module)});
         runPythonCommand({QString("code = bytes.fromhex('%1').decode('utf-8')")
-                              .arg(QString::fromUtf8(code->toHex()))});
+                              .arg(QString::fromUtf8(piped.source.toHex()))});
         runPythonCommand({QString("exec(code, module.__dict__)")});
         runPythonCommand({QString("sys.modules['%1'] = module").arg(module)});
         if (module != bridgeModuleName)

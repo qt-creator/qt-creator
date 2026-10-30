@@ -1379,4 +1379,34 @@ QString gdbRegisterValueAsHex(const QString &value)
     return result.isEmpty() ? result : "0x" + result;
 }
 
+// The dumper scripts as source, for a debugger that cannot read them from here,
+// in the order loadorder_<bridge>.txt gives.
+Utils::Result<QList<PipedDumperModule>> pipedDumperModules(
+    const Utils::FilePath &dumperScriptsDir, const QString &bridgeModuleName)
+{
+    const Utils::Result<QByteArray> loadOrder
+        = (dumperScriptsDir / QString("loadorder_%1.txt").arg(bridgeModuleName)).fileContents();
+    if (!loadOrder)
+        return Utils::ResultError(loadOrder.error());
+    QList<PipedDumperModule> modules;
+    for (const QByteArray &line : loadOrder->split('\n')) {
+        QString name = QString::fromUtf8(line).trimmed();
+        if (name.isEmpty() || name.startsWith('#'))
+            continue;
+        if (name == "***bridge***")
+            name = bridgeModuleName;
+        const Utils::Result<QByteArray> source
+            = (dumperScriptsDir / (name + ".py")).fileContents();
+        if (!source) {
+            // The bridge works without any one set of type dumpers.
+            if (!name.endsWith("types"))
+                return Utils::ResultError(source.error());
+            qWarning().noquote() << source.error();
+            continue;
+        }
+        modules.append({name, *source});
+    }
+    return modules;
+}
+
 } // Debugger::Internal
