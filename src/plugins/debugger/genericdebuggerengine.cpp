@@ -433,6 +433,11 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             break;
         }
     });
+
+    connect(&settings().useDebuggingHelpers, &BaseAspect::changed, this, [this] {
+        if ((state() == InferiorStopOk && !m_attachStopUnread) || state() == InferiorUnrunnable)
+            updateLocals();
+    });
 }
 
 // m_backend is the first member, so it is destroyed last - after every member a

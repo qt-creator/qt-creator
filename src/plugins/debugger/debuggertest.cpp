@@ -260,6 +260,7 @@ private slots:
     void testAnEmptiedStackHasNoCurrentFrame();
     void testAFailedRunRestoresOnlyAPendingReset();
     void testAResumedAttachStopLeavesTheViewsAlone();
+    void testTogglingDebuggingHelpersRereadsTheLocals();
     void testARefusedResumeReadsTheAttachStopAfterAll();
     void testASuccessfulRunDropsTheUnreadAttachStop();
     void testTheDisassemblyMessageIsSaidOncePerStop();
@@ -5552,6 +5553,38 @@ void DebuggerUnitTests::testAResumedAttachStopLeavesTheViewsAlone()
              "the stack was read from an attach stop the backend resumes at once");
     QVERIFY2(!backend->refreshes.contains(RefreshKind::Threads),
              "the threads were read from an attach stop the backend resumes at once");
+}
+
+void DebuggerUnitTests::testTogglingDebuggingHelpersRereadsTheLocals()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    BoolAspect &helpers = settings().useDebuggingHelpers;
+    const bool wasOn = helpers();
+    const QScopeGuard cleanup([engine, &helpers, wasOn] {
+        delete engine;
+        helpers.setValue(wasOn);
+    });
+    engine->setRunParameters({});
+    engine->setDevice({});
+
+    engine->start();
+    reportAnAttachStopThatIsResumed(backend);
+    emit backend->inferiorEvent(InferiorEvent::RunRequested);
+    emit backend->inferiorEvent(InferiorEvent::RunOk);
+
+    // A running inferior has no locals to show.
+    backend->refreshes.clear();
+    helpers.setValue(!helpers());
+    QVERIFY2(!backend->refreshes.contains(RefreshKind::Locals),
+             "the locals were read from a running inferior");
+
+    emit backend->inferiorEvent(InferiorEvent::SpontaneousStop);
+    QCOMPARE(engine->state(), InferiorStopOk);
+    backend->refreshes.clear();
+    helpers.setValue(!helpers());
+    QVERIFY2(backend->refreshes.contains(RefreshKind::Locals),
+             "the locals kept the dumpers they were read with");
 }
 
 // That stop is the only one an attach has, so a resume the debugger refuses
