@@ -18,6 +18,8 @@
 
 #include <functional>
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 class QmlProfilerStateWidget::QmlProfilerStateWidgetPrivate
@@ -74,7 +76,7 @@ QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateMan
     d->m_profilerState = stateManager;
     connect(&d->timer, &QTimer::timeout, this, &QmlProfilerStateWidget::updateDisplay);
 
-    d->timer.setInterval(1000);
+    d->timer.setInterval(1s);
     attachToWidget(parent);
     setVisible(false);
 }
@@ -122,7 +124,7 @@ void QmlProfilerStateWidget::updateDisplay()
         const int numEvents = d->m_modelManager->numEvents();
         showText(numEvents > 256 ? Tr::tr("Profiling application: %n events", nullptr, numEvents) :
                                    Tr::tr("Profiling application"));
-    } else if (d->m_modelManager->traceDuration() > 0 && d->m_modelManager->isEmpty()) {
+    } else if (d->m_modelManager->traceDuration() > 0ns && d->m_modelManager->isEmpty()) {
         // After profiling, there is an empty trace
         showText(Tr::tr("No QML events recorded"));
     } else if (!d->m_modelManager->isEmpty()) {

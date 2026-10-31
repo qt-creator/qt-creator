@@ -120,7 +120,7 @@ void QmlProfilerTraceClientTest::testMessageReceived()
             QVERIFY(rangeType != MaximumRangeType);
             QVERIFY(type.message() != MaximumMessage);
             QVERIFY(type.rangeType() != MaximumRangeType);
-            QCOMPARE(event.timestamp(), timestamp);
+            QCOMPARE(event.timestamp(), std::chrono::nanoseconds(timestamp));
             QCOMPARE(type.message(), static_cast<Message>(message));
             QCOMPARE(type.rangeType(), static_cast<RangeType>(rangeType));
         }, [this]() {

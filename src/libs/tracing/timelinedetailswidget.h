@@ -31,7 +31,8 @@ public:
     void setData(QObject *provider, const QString &title,
                  const QList<QPair<QString, QString>> &content);
     // Shows the current time-range selection in a bar above the details tree.
-    void setSelectionRange(qint64 start, qint64 end, qint64 referenceDuration);
+    void setSelectionRange(std::chrono::nanoseconds start, std::chrono::nanoseconds end,
+                           std::chrono::nanoseconds referenceDuration);
     // Drops the content only if `provider` is the view that put it there.
     void clear(QObject *provider);
     // Drops the content whoever put it there, for when the trace itself goes away.

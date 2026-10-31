@@ -13,6 +13,7 @@
 #include <QTimer>
 
 using namespace Utils;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -88,7 +89,7 @@ void PerfConversion::connectSocket(QTcpSocket *socket,
         const bool notYetListening = error == QAbstractSocket::ConnectionRefusedError
                                      || error == QAbstractSocket::SocketTimeoutError;
         if (notYetListening && !deadline.hasExpired()) {
-            QTimer::singleShot(100, socket, [this, socket] {
+            QTimer::singleShot(100ms, socket, [this, socket] {
                 socket->connectToHost(m_inputUrl.host(), quint16(m_inputUrl.port()));
             });
             return;

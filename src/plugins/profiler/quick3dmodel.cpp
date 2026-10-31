@@ -8,6 +8,8 @@
 #include <QUrl>
 
 using namespace QmlDebug;
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 int Quick3DModel::eventDataId(int id)
@@ -223,8 +225,8 @@ void Quick3DModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
     QList<quint64> numbers = event.numbers<QList<quint64>>();
     if (numbers.isEmpty())
         return;
-    qint64 eventDuration = numbers[0];
-    qint64 eventTime = event.timestamp() - eventDuration;
+    nanoseconds eventDuration(numbers[0]);
+    nanoseconds eventTime = event.timestamp() - eventDuration;
     quint64 data = numbers.size() > 1 ? numbers[1] : 0;
     QList<int> eventData;
     // The rest are pairs of event data id's
@@ -240,7 +242,7 @@ void Quick3DModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
     if (detailType == MeshLoad || detailType == CustomMeshLoad) {
         bool updatePrevValues = true;
 
-        if (m_prevMeshStartTime != -1) {
+        if (m_prevMeshStartTime != -1ns) {
             bool unload = m_prevMeshData > data;
             Item i = Item(detailType, data, unload);
             i.eventData = eventData;
@@ -266,7 +268,7 @@ void Quick3DModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
     } else if (detailType == TextureLoad) {
         bool updatePrevValues = true;
 
-        if (m_prevTexStartTime != -1) {
+        if (m_prevTexStartTime != -1ns) {
             bool unload = m_prevTexData > data;
             Item i = Item(detailType, data, unload);
             i.eventData = eventData;
@@ -299,7 +301,7 @@ void Quick3DModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 
 void Quick3DModel::calculateRenderPassNesting()
 {
-    QList<qint64> nesting;
+    QList<nanoseconds> nesting;
     for (int item = 0; item < m_data.size(); item++) {
         if (m_data[item].additionalType != RenderPass)
             continue;
@@ -318,13 +320,13 @@ void Quick3DModel::calculateRenderPassNesting()
 
 void Quick3DModel::prepare()
 {
-    if (m_prevMeshStartTime != -1) {
+    if (m_prevMeshStartTime != -1ns) {
         m_data.insert(insert(m_prevMeshStartTime, modelManager()->traceEnd() - m_prevMeshStartTime,
                              MeshMemoryConsumption),
                       Item(MeshMemoryConsumption, m_prevMeshData));
         m_types << MeshMemoryConsumption;
     }
-    if (m_prevTexStartTime != -1) {
+    if (m_prevTexStartTime != -1ns) {
         m_data.insert(insert(m_prevTexStartTime, modelManager()->traceEnd() - m_prevTexStartTime,
                              TextureMemoryConsumption),
                       Item(TextureMemoryConsumption, m_prevTexData));
@@ -344,8 +346,8 @@ void Quick3DModel::clear()
     m_types.clear();
     m_sortedTypes.clear();
     m_eventData.clear();
-    m_prevTexStartTime = -1;
-    m_prevMeshStartTime = -1;
+    m_prevTexStartTime = -1ns;
+    m_prevMeshStartTime = -1ns;
     m_maxMeshSize = 0;
     m_maxTextureSize = 0;
     QmlProfilerTimelineModel::clear();

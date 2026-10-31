@@ -10,6 +10,7 @@
 
 #include <QByteArray>
 
+#include <chrono>
 #include <condition_variable>
 #include <deque>
 #include <functional>
@@ -120,8 +121,11 @@ public:
     // The samples the last read() decoded, including those dropped for having
     // no call stack.
     int receivedSamples() const { return m_receivedSamples; }
-    qint64 firstTimestampNs() const { return m_firstTimestampNs; }
-    void setSampleFilter(const std::function<bool(qint64)> &filter) { m_sampleFilter = filter; }
+    std::chrono::nanoseconds firstTimestamp() const { return m_firstTimestamp; }
+    void setSampleFilter(const std::function<bool(std::chrono::nanoseconds)> &filter)
+    {
+        m_sampleFilter = filter;
+    }
     // Polled while reading, and while debug information is fetched and
     // samples are resolved; once it returns true, read() gives up with an
     // error.
@@ -130,10 +134,10 @@ public:
 private:
     bool m_downloadDebugInfo = false;
     std::function<void(int, const QString &)> m_debugInfoDownloadHandler;
-    std::function<bool(qint64)> m_sampleFilter;
+    std::function<bool(std::chrono::nanoseconds)> m_sampleFilter;
     std::function<bool()> m_isCanceled;
     int m_receivedSamples = 0;
-    qint64 m_firstTimestampNs = -1;
+    std::chrono::nanoseconds m_firstTimestamp{-1};
 };
 
 } // namespace Profiler::Internal

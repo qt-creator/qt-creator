@@ -719,7 +719,7 @@ void WindowPrivate::doLoad(const FilePath &filePath)
 
 void WindowPrivate::setTraceDuration(milliseconds ms)
 {
-    const qint64 ns = duration_cast<nanoseconds>(ms).count();
+    const nanoseconds ns = duration_cast<nanoseconds>(ms);
     const QString durationString = Timeline::formatTime(ns);
     const QString text = Tr::tr("Trace duration: %1").arg(durationString);
     traceDurationLabel->setText(text);

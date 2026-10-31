@@ -29,7 +29,7 @@ namespace {
 struct Args
 {
     qint64 pid = 0;
-    int intervalUs = 200;
+    std::chrono::microseconds interval{200};
     FilePath outputDir;    // Where to leave the trace for Qt Creator to pick up.
     FilePath readyFile;    // Written once sampling is about to start.
     FilePath stopFile;     // Created by Qt Creator to end the recording.
@@ -45,7 +45,7 @@ Args parseArgs(const QStringList &args)
         if (arg == "--pid")
             result.pid = args.at(++i).toLongLong();
         else if (arg == "--interval")
-            result.intervalUs = args.at(++i).toInt();
+            result.interval = std::chrono::microseconds(args.at(++i).toInt());
         else if (arg == "--output")
             result.outputDir = FilePath::fromUserInput(args.at(++i));
         else if (arg == "--readyFile")
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
 
     SamplerOptions opts;
     opts.pid = args.pid;
-    opts.intervalUs = args.intervalUs;
+    opts.interval = args.interval;
 
     // Tells Qt Creator that the consent prompt is behind us, so that it starts
     // the recording's clock here rather than when it asked for elevation. A

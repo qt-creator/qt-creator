@@ -9,6 +9,7 @@
 #include <QTest>
 
 using namespace Timeline;
+using namespace std::chrono;
 
 // The track painter renders all tracks in one widget; for these single-track tests
 // the item index under a point is the item of track 0.
@@ -27,7 +28,7 @@ public:
     void loadData()
     {
         for (int i = 0; i < 10; ++i)
-            insert(i * 10, 10, i);
+            insert(10ns * i, 10ns, i);
     }
 };
 
@@ -65,7 +66,7 @@ void tst_TrackPainterVisibility::emptyRange()
         DummyModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 0);
+        painter.setRange(0ns, 0ns);
         painter.resize(100, 30);
         QCOMPARE(itemIndexAt(painter, QPoint(50, 15)), -1);
     });
@@ -79,7 +80,7 @@ void tst_TrackPainterVisibility::indexAtItem()
         DummyModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 100);
+        painter.setRange(0ns, 100ns);
         painter.resize(QSize(100, 30));
 
         int idx = itemIndexAt(painter, QPoint(50, 15));
@@ -96,7 +97,7 @@ void tst_TrackPainterVisibility::outOfRange()
         DummyModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(200, 300);
+        painter.setRange(200ns, 300ns);
         painter.resize(100, 30);
         QCOMPARE(itemIndexAt(painter, QPoint(50, 15)), -1);
     });

@@ -12,6 +12,8 @@
 #include <QStack>
 #include <QStringList>
 
+#include <chrono>
+
 namespace QmlDebug {
 
 class QMLDEBUG_EXPORT QmlProfilerTraceClient : public QmlDebugClient
@@ -38,12 +40,12 @@ public:
     void clear();
     void sendRecordingStatus(int engineId = -1);
     void setRequestedFeatures(quint64 features);
-    void setFlushInterval(quint32 flushInterval);
+    void setFlushInterval(std::chrono::milliseconds flushInterval);
 
 signals:
-    void complete(qint64 maximumTime);
-    void traceFinished(qint64 timestamp, const QList<int> &engineIds);
-    void traceStarted(qint64 timestamp, const QList<int> &engineIds);
+    void complete(std::chrono::nanoseconds maximumTime);
+    void traceFinished(std::chrono::nanoseconds timestamp, const QList<int> &engineIds);
+    void traceStarted(std::chrono::nanoseconds timestamp, const QList<int> &engineIds);
 
     void recordingChanged(bool arg);
     void recordedFeaturesChanged(quint64 features);

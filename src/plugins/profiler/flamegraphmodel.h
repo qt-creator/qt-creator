@@ -18,12 +18,13 @@ struct FlameGraphData
 {
     Q_DISABLE_COPY_MOVE(FlameGraphData)
 
-    FlameGraphData(FlameGraphData *parent = nullptr, int typeIndex = -1, qint64 duration = 0);
+    FlameGraphData(FlameGraphData *parent = nullptr, int typeIndex = -1,
+                   std::chrono::nanoseconds duration = std::chrono::nanoseconds(0));
     ~FlameGraphData();
 
     void clear()
     {
-        duration = 0;
+        duration = std::chrono::nanoseconds(0);
         calls = 1;
         memory = 0;
         allocations = 0;
@@ -32,7 +33,7 @@ struct FlameGraphData
         qDeleteAll(std::exchange(children, {}));
     }
 
-    qint64 duration = 0;
+    std::chrono::nanoseconds duration{0};
     qint64 calls = 1;
     qint64 memory = 0;
 

@@ -100,8 +100,8 @@ private:
     PerfProfilerStatisticsRelativesModel *m_children;
     PerfProfilerStatisticsRelativesModel *m_parents;
 
-    qint64 m_startTime;
-    qint64 m_endTime;
+    std::chrono::nanoseconds m_startTime;
+    std::chrono::nanoseconds m_endTime;
     uint m_totalSamples;
 
     std::unique_ptr<PerfProfilerStatisticsData> m_offlineData;

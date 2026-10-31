@@ -17,6 +17,8 @@
 #include <list>
 #include <vector>
 
+using namespace std::chrono;
+
 namespace Timeline {
 
 double defaultColorLightness()
@@ -60,7 +62,7 @@ void TimelineModel::computeNesting()
             }
 
             TimelineModelPrivate::Range &parent = d->ranges[*parentIt];
-            qint64 parentEnd = parent.start + d->duration(parent);
+            nanoseconds parentEnd = parent.start + d->duration(parent);
             if (parentEnd < current.start) {
                 // We've completely passed the parent. Remove it.
                 parentIt = parents.erase(parentIt);
@@ -288,17 +290,17 @@ int TimelineModel::count() const
     return d->ranges.count();
 }
 
-qint64 TimelineModel::duration(int index) const
+nanoseconds TimelineModel::duration(int index) const
 {
     return d->duration(d->ranges[index]);
 }
 
-qint64 TimelineModel::startTime(int index) const
+nanoseconds TimelineModel::startTime(int index) const
 {
     return d->ranges[index].start;
 }
 
-qint64 TimelineModel::endTime(int index) const
+nanoseconds TimelineModel::endTime(int index) const
 {
     return d->rangeEnd(index);
 }
@@ -322,7 +324,7 @@ int TimelineModel::typeId(int index) const
     "Completely covers" means:
     parent.startTime <= child.startTime && parent.endTime >= child.endTime
 */
-int TimelineModel::firstIndex(qint64 startTime) const
+int TimelineModel::firstIndex(nanoseconds startTime) const
 {
     int index = d->firstIndexNoParents(startTime);
     if (index == -1)
@@ -335,7 +337,7 @@ int TimelineModel::firstIndex(qint64 startTime) const
     Returns the lowest index of a range with an end time later than the specified \a startTime,
     or -1 if there is none.
 */
-int TimelineModel::TimelineModelPrivate::firstIndexNoParents(qint64 startTime) const
+int TimelineModel::TimelineModelPrivate::firstIndexNoParents(nanoseconds startTime) const
 {
     // That range is in the first block of ranges that the latest end up to it is later for.
     const auto block = std::upper_bound(endMaxima.cbegin(), endMaxima.cend(), startTime);
@@ -354,15 +356,15 @@ int TimelineModel::TimelineModelPrivate::firstIndexNoParents(qint64 startTime) c
     Returns the index of the range that ends first after \a time, or -1 if there is none. Of
     ranges ending at the same time, it returns the lowest index.
 */
-int TimelineModel::TimelineModelPrivate::firstEndingAfter(qint64 time) const
+int TimelineModel::TimelineModelPrivate::firstEndingAfter(nanoseconds time) const
 {
     int first = firstIndexNoParents(time);
     if (first < 0)
         return -1;
-    qint64 firstEnd = rangeEnd(first);
+    nanoseconds firstEnd = rangeEnd(first);
     // A range starting no earlier than that end cannot end before it.
     for (int i = first + 1, count = ranges.count(); i < count && ranges[i].start < firstEnd; ++i) {
-        const qint64 end = rangeEnd(i);
+        const nanoseconds end = rangeEnd(i);
         if (end > time && end < firstEnd) {
             first = i;
             firstEnd = end;
@@ -374,10 +376,10 @@ int TimelineModel::TimelineModelPrivate::firstEndingAfter(qint64 time) const
 /*!
     Returns \a duration as stored in a range, adding it to the long durations if needed.
 */
-quint32 TimelineModel::TimelineModelPrivate::encodeDuration(qint64 duration)
+quint32 TimelineModel::TimelineModelPrivate::encodeDuration(nanoseconds duration)
 {
-    if (duration >= 0 && duration < LongDuration)
-        return quint32(duration);
+    if (duration >= 0ns && duration.count() < LongDuration)
+        return quint32(duration.count());
     longDurations.append(duration);
     return LongDuration | quint32(longDurations.size() - 1);
 }
@@ -385,9 +387,9 @@ quint32 TimelineModel::TimelineModelPrivate::encodeDuration(qint64 duration)
 /*!
     Sets the duration of \a range to \a duration.
 */
-void TimelineModel::TimelineModelPrivate::setDuration(Range &range, qint64 duration)
+void TimelineModel::TimelineModelPrivate::setDuration(Range &range, nanoseconds duration)
 {
-    if (range.duration >= LongDuration && (duration < 0 || duration >= LongDuration))
+    if (range.duration >= LongDuration && (duration < 0ns || duration.count() >= LongDuration))
         longDurations[range.duration & ~LongDuration] = duration;
     else
         range.duration = encodeDuration(duration);
@@ -404,7 +406,7 @@ void TimelineModel::TimelineModelPrivate::rangeInserted(int index)
         return;
     }
     if ((index >> EndBlockShift) == endMaxima.count()) {
-        endMaxima.append(endMaxima.isEmpty() ? std::numeric_limits<qint64>::min()
+        endMaxima.append(endMaxima.isEmpty() ? nanoseconds::min()
                                              : endMaxima.constLast());
     }
     raiseEndMaxima(index);
@@ -415,7 +417,7 @@ void TimelineModel::TimelineModelPrivate::rangeInserted(int index)
 */
 void TimelineModel::TimelineModelPrivate::raiseEndMaxima(int index)
 {
-    const qint64 end = rangeEnd(index);
+    const nanoseconds end = rangeEnd(index);
     for (int block = index >> EndBlockShift; block < endMaxima.count() && endMaxima[block] < end;
          ++block) {
         endMaxima[block] = end;
@@ -430,8 +432,8 @@ void TimelineModel::TimelineModelPrivate::recomputeEndMaxima(int index)
     const int count = ranges.count();
     const int firstBlock = index >> EndBlockShift;
     endMaxima.resize((count + (1 << EndBlockShift) - 1) >> EndBlockShift);
-    qint64 maximum = firstBlock > 0 ? endMaxima[firstBlock - 1]
-                                    : std::numeric_limits<qint64>::min();
+    nanoseconds maximum = firstBlock > 0 ? endMaxima[firstBlock - 1]
+                                         : nanoseconds::min();
     for (int i = firstBlock << EndBlockShift; i < count; ++i) {
         maximum = std::max(maximum, rangeEnd(i));
         endMaxima[i >> EndBlockShift] = maximum;
@@ -442,7 +444,7 @@ void TimelineModel::TimelineModelPrivate::recomputeEndMaxima(int index)
     Looks up the last range with a start time earlier than the specified \a endTime and
     returns its index. If no such range is found, it returns -1.
 */
-int TimelineModel::lastIndex(qint64 endTime) const
+int TimelineModel::lastIndex(nanoseconds endTime) const
 {
     // in the "starttime" list, find the last event that starts before endtime
 
@@ -462,7 +464,7 @@ int TimelineModel::lastIndex(qint64 endTime) const
     given timestamp. This might not be a range that covers the timestamp, even if one exists.
     However, it's likely that the range is close to the given timestamp.
  */
-int TimelineModel::bestIndex(qint64 timestamp) const
+int TimelineModel::bestIndex(nanoseconds timestamp) const
 {
     if (d->ranges.isEmpty())
         return -1;
@@ -472,7 +474,7 @@ int TimelineModel::bestIndex(qint64 timestamp) const
             ? d->ranges.count() - 1 : d->lowerBound(d->ranges, timestamp);
 
     // First range that ends at or after timestamp
-    int end = d->firstIndexNoParents(timestamp - 1);
+    int end = d->firstIndexNoParents(timestamp - 1ns);
     if (end < 0)
         end = start;
 
@@ -536,7 +538,7 @@ bool TimelineModel::rendersAsDensity() const
     return false;
 }
 
-bool TimelineModel::fillDensityColumns(int row, qint64 startTime, qint64 endTime,
+bool TimelineModel::fillDensityColumns(int row, nanoseconds startTime, nanoseconds endTime,
                                        QList<float> &out) const
 {
     Q_UNUSED(row)
@@ -588,7 +590,7 @@ QRgb TimelineModel::colorByHueChroma(int hue, int chroma) const
     returns its index. The \a selectionId determines the selection group the new event belongs to.
     \sa selectionId()
 */
-int TimelineModel::insert(qint64 startTime, qint64 duration, int selectionId)
+int TimelineModel::insert(nanoseconds startTime, nanoseconds duration, int selectionId)
 {
     d->dropSummaries();
     /* Doing insert-sort here is preferable as most of the time the times will actually be
@@ -605,7 +607,7 @@ int TimelineModel::insert(qint64 startTime, qint64 duration, int selectionId)
     event belongs to.
     \sa selectionId()
 */
-int TimelineModel::insertStart(qint64 startTime, int selectionId)
+int TimelineModel::insertStart(nanoseconds startTime, int selectionId)
 {
     d->dropSummaries();
     const int index = d->insertStart(TimelineModelPrivate::Range(startTime, 0, selectionId));
@@ -616,11 +618,11 @@ int TimelineModel::insertStart(qint64 startTime, int selectionId)
 /*!
     Adds the range \a duration at the specified start \a index.
 */
-void TimelineModel::insertEnd(int index, qint64 duration)
+void TimelineModel::insertEnd(int index, nanoseconds duration)
 {
     d->dropSummaries();
     TimelineModelPrivate::Range &range = d->ranges[index];
-    const qint64 previousDuration = d->duration(range);
+    const nanoseconds previousDuration = d->duration(range);
     d->setDuration(range, duration);
     if (duration >= previousDuration)
         d->raiseEndMaxima(index);
@@ -815,8 +817,8 @@ void TimelineModel::clear()
     // clear() would keep the storage, gigabytes for a long trace, and filling the model again
     // with fewer items would keep that in memory too.
     d->ranges = QList<TimelineModelPrivate::Range>();
-    d->endMaxima = QList<qint64>();
-    d->longDurations = QList<qint64>();
+    d->endMaxima = QList<nanoseconds>();
+    d->longDurations = QList<nanoseconds>();
     d->dropSummaries();
     emit contentChanged();
 }
@@ -859,18 +861,19 @@ static void addToBucket(QList<Summary::Bucket> &buckets, quint32 index, int item
 class SummaryBuilder
 {
 public:
-    SummaryBuilder(qint64 start, qint64 end, quint32 bucketCount, int rowCount)
+    SummaryBuilder(nanoseconds start, nanoseconds end, quint32 bucketCount, int rowCount)
         : m_rowSelectionIds(rowCount)
     {
         m_summary.start = start;
         m_summary.bucketCount = bucketCount;
-        m_summary.bucketDuration = std::max<qint64>(1, (end - start + bucketCount) / bucketCount);
+        m_summary.bucketDuration
+            = std::max(1ns, (end - start + nanoseconds(bucketCount)) / bucketCount);
         m_summary.rows.resize(rowCount);
         m_summary.mixedRows.resize(rowCount);
     }
 
     // itemStart and itemEnd are relative to the summary's start.
-    void add(int row, int item, int selectionId, qint64 itemStart, qint64 itemEnd)
+    void add(int row, int item, int selectionId, nanoseconds itemStart, nanoseconds itemEnd)
     {
         if (row < 0 || row >= m_summary.rows.size())
             return;
@@ -881,16 +884,16 @@ public:
         else if (*rowSelectionId != selectionId)
             m_summary.mixedRows[row] = true;
 
-        const qint64 bucketDuration = m_summary.bucketDuration;
+        const nanoseconds bucketDuration = m_summary.bucketDuration;
         const qint64 lastBucket = m_summary.bucketCount - 1;
-        const qint64 first = std::min(itemStart / bucketDuration, lastBucket);
-        const qint64 last = std::min(itemEnd / bucketDuration, lastBucket);
+        const qint64 first = std::min<qint64>(itemStart / bucketDuration, lastBucket);
+        const qint64 last = std::min<qint64>(itemEnd / bucketDuration, lastBucket);
         for (qint64 bucket = first; bucket <= last; ++bucket) {
-            const qint64 bucketStart = bucket * bucketDuration;
-            const qint64 overlap = std::min(itemEnd, bucketStart + bucketDuration)
-                                   - std::max(itemStart, bucketStart);
+            const nanoseconds bucketStart = bucket * bucketDuration;
+            const nanoseconds overlap = std::min(itemEnd, bucketStart + bucketDuration)
+                                        - std::max(itemStart, bucketStart);
             addToBucket(m_summary.rows[row], quint32(bucket), item,
-                        float(std::max<qint64>(0, overlap)));
+                        float(std::max(0ns, overlap).count()));
         }
     }
 
@@ -921,9 +924,9 @@ void TimelineModel::computeSummaries()
     if (items < kMinSummaryItems)
         return;
 
-    const qint64 start = d->ranges.constFirst().start;
-    const qint64 end = std::max(d->ranges.constLast().start,
-                                d->endMaxima.isEmpty() ? start : d->endMaxima.constLast());
+    const nanoseconds start = d->ranges.constFirst().start;
+    const nanoseconds end = std::max(d->ranges.constLast().start,
+                                     d->endMaxima.isEmpty() ? start : d->endMaxima.constLast());
 
     const quint32 buckets = std::min(kMaxSummaryBuckets, std::bit_ceil(quint32(items) / 16));
     SummaryBuilder collapsed(start, end, buckets, collapsedRowCount());
@@ -931,8 +934,8 @@ void TimelineModel::computeSummaries()
     SummaryBuilder overview(start, end, kOverviewSummaryBuckets, 1);
     for (int i = 0; i < items; ++i) {
         const TimelineModelPrivate::Range &range = d->ranges.at(i);
-        const qint64 itemStart = range.start - start;
-        const qint64 itemEnd = std::max(itemStart, itemStart + d->duration(range));
+        const nanoseconds itemStart = range.start - start;
+        const nanoseconds itemEnd = std::max(itemStart, itemStart + d->duration(range));
         collapsed.add(collapsedRow(i), i, range.selectionId, itemStart, itemEnd);
         expanded.add(expandedRow(i), i, range.selectionId, itemStart, itemEnd);
         overview.add(0, i, range.selectionId, itemStart, itemEnd);
@@ -960,28 +963,28 @@ const TimelineModel::Summary *TimelineModel::overviewSummary() const
     return d->overviewSummary ? &*d->overviewSummary : nullptr;
 }
 
-int TimelineModel::nextItemBySelectionId(int selectionId, qint64 time, int currentItem) const
+int TimelineModel::nextItemBySelectionId(int selectionId, nanoseconds time, int currentItem) const
 {
     return d->nextItemById([this, selectionId](int index) {
         return d->ranges[index].selectionId == selectionId;
     }, time, currentItem);
 }
 
-int TimelineModel::nextItemByTypeId(int requestedTypeId, qint64 time, int currentItem) const
+int TimelineModel::nextItemByTypeId(int requestedTypeId, nanoseconds time, int currentItem) const
 {
     return d->nextItemById([this, requestedTypeId](int index) {
         return typeId(index) == requestedTypeId;
     }, time, currentItem);
 }
 
-int TimelineModel::prevItemBySelectionId(int selectionId, qint64 time, int currentItem) const
+int TimelineModel::prevItemBySelectionId(int selectionId, nanoseconds time, int currentItem) const
 {
     return d->prevItemById([this, selectionId](int index) {
         return d->ranges[index].selectionId == selectionId;
     }, time, currentItem);
 }
 
-int TimelineModel::prevItemByTypeId(int requestedTypeId, qint64 time, int currentItem) const
+int TimelineModel::prevItemByTypeId(int requestedTypeId, nanoseconds time, int currentItem) const
 {
     return d->prevItemById([this, requestedTypeId](int index) {
         return typeId(index) == requestedTypeId;
@@ -1022,7 +1025,7 @@ QualityColorLookupTable::QualityColorLookupTable()
 }
 
 int TimelineModel::TimelineModelPrivate::nextItemById(std::function<bool(int)> matchesId,
-                                                      qint64 time, int currentItem) const
+                                                      nanoseconds time, int currentItem) const
 {
     if (ranges.empty())
         return -1;
@@ -1045,7 +1048,7 @@ int TimelineModel::TimelineModelPrivate::nextItemById(std::function<bool(int)> m
 }
 
 int TimelineModel::TimelineModelPrivate::prevItemById(std::function<bool(int)> matchesId,
-                                                      qint64 time, int currentItem) const
+                                                      nanoseconds time, int currentItem) const
 {
     if (ranges.empty())
         return -1;

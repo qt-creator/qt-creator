@@ -15,6 +15,7 @@
 #include <functional>
 
 using namespace Timeline;
+using namespace std::chrono;
 
 static QRgb hueColor(double hue)
 {
@@ -22,8 +23,8 @@ static QRgb hueColor(double hue)
 }
 
 static const int NumItems = 32;
-static const qint64 ItemDuration = 1 << 19;
-static const qint64 ItemSpacing = 1 << 20;
+static constexpr nanoseconds ItemDuration(1 << 19);
+static constexpr nanoseconds ItemSpacing(1 << 20);
 
 class DummyModel : public TimelineModel
 {
@@ -100,10 +101,10 @@ void DummyModel::loadData()
     // firstIndex(0) you get the first event insered in the third iteration of the loop.
 
     for (int i = 0; i < NumItems / 4; ++i) {
-        insert((i / 3) * ItemSpacing, ItemDuration * (i + 1) + 2, 4);
-        insert((i / 3) * ItemSpacing + 1, ItemDuration * (i + 1), 5);
-        insert(i * ItemSpacing / 3 + 1, ItemDuration * (i + 1) + 3, 6);
-        insert(i * ItemSpacing / 3 + 2, 1, 7);
+        insert((i / 3) * ItemSpacing, ItemDuration * (i + 1) + 2ns, 4);
+        insert((i / 3) * ItemSpacing + 1ns, ItemDuration * (i + 1), 5);
+        insert(i * ItemSpacing / 3 + 1ns, ItemDuration * (i + 1) + 3ns, 6);
+        insert(i * ItemSpacing / 3 + 2ns, 1ns, 7);
     }
     computeNesting();
     setCollapsedRowCount(2);
@@ -269,9 +270,9 @@ void tst_TimelineModel::times()
 {
     DummyModel dummy(&aggregator);
     dummy.loadData();
-    QCOMPARE(dummy.startTime(0), 0);
-    QCOMPARE(dummy.duration(0), ItemDuration * 3 + 2);
-    QCOMPARE(dummy.endTime(0), ItemDuration * 3 + 2);
+    QCOMPARE(dummy.startTime(0), 0ns);
+    QCOMPARE(dummy.duration(0), ItemDuration * 3 + 2ns);
+    QCOMPARE(dummy.endTime(0), ItemDuration * 3 + 2ns);
 
 }
 
@@ -285,19 +286,19 @@ void tst_TimelineModel::selectionId()
 void tst_TimelineModel::firstLast()
 {
     DummyModel dummy(&aggregator);
-    QCOMPARE(dummy.firstIndex(0), -1);
+    QCOMPARE(dummy.firstIndex(0ns), -1);
     QCOMPARE(dummy.firstIndex(ItemSpacing), -1);
-    QCOMPARE(dummy.lastIndex(0), -1);
+    QCOMPARE(dummy.lastIndex(0ns), -1);
     QCOMPARE(dummy.lastIndex(ItemSpacing), -1);
-    dummy.insert(0, 10, 5); // test special case for only one item
-    QCOMPARE(dummy.firstIndex(5), 0);
-    QCOMPARE(dummy.lastIndex(5), 0);
+    dummy.insert(0ns, 10ns, 5); // test special case for only one item
+    QCOMPARE(dummy.firstIndex(5ns), 0);
+    QCOMPARE(dummy.lastIndex(5ns), 0);
     dummy.clear();
     dummy.loadData();
-    QCOMPARE(dummy.firstIndex(0), 0);
-    QCOMPARE(dummy.firstIndex(ItemSpacing + 1), 0);
-    QCOMPARE(dummy.lastIndex(0), -1);
-    QCOMPARE(dummy.lastIndex(ItemSpacing + 1), 14);
+    QCOMPARE(dummy.firstIndex(0ns), 0);
+    QCOMPARE(dummy.firstIndex(ItemSpacing + 1ns), 0);
+    QCOMPARE(dummy.lastIndex(0ns), -1);
+    QCOMPARE(dummy.lastIndex(ItemSpacing + 1ns), 14);
     QCOMPARE(dummy.firstIndex(ItemDuration * 5000), -1);
     QCOMPARE(dummy.lastIndex(ItemDuration * 5000), NumItems - 1);
 }
@@ -422,22 +423,22 @@ void tst_TimelineModel::colorBySelectionId()
 void tst_TimelineModel::insertStartEnd()
 {
     DummyModel dummy(&aggregator);
-    int id = dummy.insertStart(10, 0);
-    dummy.insertEnd(id, 10);
-    QCOMPARE(dummy.startTime(id), 10);
-    QCOMPARE(dummy.endTime(id), 20);
-    int id2 = dummy.insertStart(5, 3);
-    dummy.insertEnd(id2, 10);
-    QCOMPARE(dummy.startTime(id2), 5);
-    QCOMPARE(dummy.endTime(id2), 15);
+    int id = dummy.insertStart(10ns, 0);
+    dummy.insertEnd(id, 10ns);
+    QCOMPARE(dummy.startTime(id), 10ns);
+    QCOMPARE(dummy.endTime(id), 20ns);
+    int id2 = dummy.insertStart(5ns, 3);
+    dummy.insertEnd(id2, 10ns);
+    QCOMPARE(dummy.startTime(id2), 5ns);
+    QCOMPARE(dummy.endTime(id2), 15ns);
 
-    int id3 = dummy.insertStart(10, 1);
+    int id3 = dummy.insertStart(10ns, 1);
     QVERIFY(id3 > id);
-    dummy.insertEnd(id3, 20);
+    dummy.insertEnd(id3, 20ns);
 
     // Make sure that even though the new range is larger than the one pointed to by id, we still
     // get to search from id when looking up a timestamp which is in both ranges.
-    QCOMPARE(dummy.firstIndex(11), id);
+    QCOMPARE(dummy.firstIndex(11ns), id);
 }
 
 void tst_TimelineModel::rowCount()
@@ -460,38 +461,38 @@ void tst_TimelineModel::rowCount()
 void tst_TimelineModel::prevNext()
 {
     DummyModel dummy(&aggregator);
-    QCOMPARE(dummy.nextItemBySelectionId(5, 10, 5), -1);
-    QCOMPARE(dummy.prevItemBySelectionId(5, 10, 5), -1);
+    QCOMPARE(dummy.nextItemBySelectionId(5, 10ns, 5), -1);
+    QCOMPARE(dummy.prevItemBySelectionId(5, 10ns, 5), -1);
 
     dummy.loadData();
     QCOMPARE(dummy.nextItemBySelectionId(5, 5000 * ItemSpacing, -1), 3);
     QCOMPARE(dummy.prevItemBySelectionId(5, 5000 * ItemSpacing, -1), 28);
 
-    QCOMPARE(dummy.nextItemBySelectionId(15, 10, -1), -1);
-    QCOMPARE(dummy.prevItemBySelectionId(15, 10, -1), -1);
+    QCOMPARE(dummy.nextItemBySelectionId(15, 10ns, -1), -1);
+    QCOMPARE(dummy.prevItemBySelectionId(15, 10ns, -1), -1);
 
-    QCOMPARE(dummy.nextItemBySelectionId(5, 10, -1), 15);
-    QCOMPARE(dummy.prevItemBySelectionId(5, 10, -1), 6);
-    QCOMPARE(dummy.nextItemBySelectionId(5, 10, 5), 6);
-    QCOMPARE(dummy.prevItemBySelectionId(5, 10, 5), 4);
-    QCOMPARE(dummy.nextItemByTypeId(-1, 10, 5), 6);
-    QCOMPARE(dummy.prevItemByTypeId(-1, 10, 5), 4);
+    QCOMPARE(dummy.nextItemBySelectionId(5, 10ns, -1), 15);
+    QCOMPARE(dummy.prevItemBySelectionId(5, 10ns, -1), 6);
+    QCOMPARE(dummy.nextItemBySelectionId(5, 10ns, 5), 6);
+    QCOMPARE(dummy.prevItemBySelectionId(5, 10ns, 5), 4);
+    QCOMPARE(dummy.nextItemByTypeId(-1, 10ns, 5), 6);
+    QCOMPARE(dummy.prevItemByTypeId(-1, 10ns, 5), 4);
 }
 
 void tst_TimelineModel::parentingOfEqualStarts()
 {
     DummyModel dummy(&aggregator);
     // Trick it so that it cannot reorder the events and has to parent them in the "wrong" way ...
-    QCOMPARE(dummy.insert(1, 10, 998), 0);
-    QCOMPARE(dummy.insertStart(1, 999), 1);
-    dummy.insertEnd(1, 20);
+    QCOMPARE(dummy.insert(1ns, 10ns, 998), 0);
+    QCOMPARE(dummy.insertStart(1ns, 999), 1);
+    dummy.insertEnd(1, 20ns);
     dummy.computeNesting();
 
     // .. which is reflected in the resulting order.
     QCOMPARE(dummy.selectionId(0), 998);
     QCOMPARE(dummy.selectionId(1), 999);
-    QCOMPARE(dummy.firstIndex(10), 0);
-    QCOMPARE(dummy.lastIndex(2), 1);
+    QCOMPARE(dummy.firstIndex(10ns), 0);
+    QCOMPARE(dummy.lastIndex(2ns), 1);
 }
 
 void tst_TimelineModel::rows()
@@ -514,23 +515,23 @@ void tst_TimelineModel::longRangesAreFoundInsideTheView()
     DummyModel dummy(&aggregator);
     // One range spanning everything, a nested chain, short leaves at various
     // depths, a range starting together with its parent, and a sibling after.
-    dummy.insert(0, 10000, 1);
-    dummy.insert(100, 8900, 2);
-    dummy.insert(200, 7800, 3);
-    dummy.insert(200, 50, 4);
+    dummy.insert(0ns, 10000ns, 1);
+    dummy.insert(100ns, 8900ns, 2);
+    dummy.insert(200ns, 7800ns, 3);
+    dummy.insert(200ns, 50ns, 4);
     for (int i = 0; i < 40; ++i)
-        dummy.insert(300 + i * 150, 20, 5);
+        dummy.insert(300ns + i * 150ns, 20ns, 5);
     for (int i = 0; i < 10; ++i)
-        dummy.insert(6500 + i * 200, 100, 6);
-    dummy.insert(9100, 100, 7);
-    dummy.insert(10500, 300, 8);
+        dummy.insert(6500ns + i * 200ns, 100ns, 6);
+    dummy.insert(9100ns, 100ns, 7);
+    dummy.insert(10500ns, 300ns, 8);
     dummy.computeNesting();
 
     int uncovered = 0;
     QString firstFailure;
-    for (qint64 width : {1, 7, 60, 400}) {
-        for (qint64 start = -50; start < 11000; start += 13) {
-            const qint64 end = start + width;
+    for (nanoseconds width : {1ns, 7ns, 60ns, 400ns}) {
+        for (nanoseconds start = -50ns; start < 11000ns; start += 13ns) {
+            const nanoseconds end = start + width;
             const int first = dummy.firstIndex(start);
             const int last = dummy.lastIndex(end);
             for (int i = 0; i < dummy.count(); ++i) {
@@ -538,8 +539,9 @@ void tst_TimelineModel::longRangesAreFoundInsideTheView()
                 if (visible && (first < 0 || i < first || i > last)) {
                     if (firstFailure.isEmpty()) {
                         firstFailure = QString("range %1 [%2, %3] not in view [%4, %5]: %6..%7")
-                                           .arg(i).arg(dummy.startTime(i)).arg(dummy.endTime(i))
-                                           .arg(start).arg(end).arg(first).arg(last);
+                                           .arg(i).arg(dummy.startTime(i).count())
+                                           .arg(dummy.endTime(i).count()).arg(start.count())
+                                           .arg(end.count()).arg(first).arg(last);
                     }
                     ++uncovered;
                 }
@@ -557,16 +559,17 @@ void tst_TimelineModel::longRangesAreFoundAmongOverlappingRanges()
 {
     DummyModel dummy(&aggregator);
     QRandomGenerator random(42);
-    dummy.insert(0, 10000, 1);
+    dummy.insert(0ns, 10000ns, 1);
     for (int i = 0; i < 300; ++i)
-        dummy.insert(qint64(random.bounded(10500)) - 200, 1 + random.bounded(900), 2);
+        dummy.insert(nanoseconds(qint64(random.bounded(10500)) - 200),
+                     nanoseconds(1 + random.bounded(900)), 2);
     dummy.computeNesting();
 
     int uncovered = 0;
     QString firstFailure;
-    for (qint64 width : {1, 7, 60, 400}) {
-        for (qint64 start = -300; start < 11000; start += 11) {
-            const qint64 end = start + width;
+    for (nanoseconds width : {1ns, 7ns, 60ns, 400ns}) {
+        for (nanoseconds start = -300ns; start < 11000ns; start += 11ns) {
+            const nanoseconds end = start + width;
             const int first = dummy.firstIndex(start);
             const int last = dummy.lastIndex(end);
             for (int i = 0; i < dummy.count(); ++i) {
@@ -574,8 +577,9 @@ void tst_TimelineModel::longRangesAreFoundAmongOverlappingRanges()
                 if (visible && (first < 0 || i < first || i > last)) {
                     if (firstFailure.isEmpty()) {
                         firstFailure = QString("range %1 [%2, %3] not in view [%4, %5]: %6..%7")
-                                           .arg(i).arg(dummy.startTime(i)).arg(dummy.endTime(i))
-                                           .arg(start).arg(end).arg(first).arg(last);
+                                           .arg(i).arg(dummy.startTime(i).count())
+                                           .arg(dummy.endTime(i).count()).arg(start.count())
+                                           .arg(end.count()).arg(first).arg(last);
                     }
                     ++uncovered;
                 }
@@ -598,7 +602,7 @@ void tst_TimelineModel::firstIndexFollowsInsertsAndEnds()
     int failures = 0;
     for (int round = 0; round < 40; ++round) {
         for (int i = 0; i < 25; ++i) {
-            const qint64 start = random.bounded(20000);
+            const nanoseconds start(random.bounded(20000));
             // Inserting moves the ranges after the new one.
             const auto inserted = [&open](int index) {
                 for (int &o : open) {
@@ -609,7 +613,8 @@ void tst_TimelineModel::firstIndexFollowsInsertsAndEnds()
             };
             switch (random.bounded(3)) {
             case 0:
-                inserted(dummy.insert(start, random.bounded(i % 5 == 0 ? 8000 : 300), 1));
+                inserted(dummy.insert(
+                    start, nanoseconds(random.bounded(i % 5 == 0 ? 8000 : 300)), 1));
                 break;
             case 1:
                 open.append(inserted(dummy.insertStart(start, 2)));
@@ -617,7 +622,7 @@ void tst_TimelineModel::firstIndexFollowsInsertsAndEnds()
             default:
                 if (!open.isEmpty()) {
                     const int index = open.takeAt(random.bounded(int(open.size())));
-                    dummy.insertEnd(index, random.bounded(5000));
+                    dummy.insertEnd(index, nanoseconds(random.bounded(5000)));
                 } else if (dummy.count() > 0) {
                     // Shorter than before.
                     const int index = random.bounded(dummy.count());
@@ -626,7 +631,7 @@ void tst_TimelineModel::firstIndexFollowsInsertsAndEnds()
                 break;
             }
         }
-        for (qint64 t = -10; t < 30000; t += 97) {
+        for (nanoseconds t = -10ns; t < 30000ns; t += 97ns) {
             int expected = -1;
             for (int i = 0; i < dummy.count(); ++i) {
                 if (dummy.endTime(i) > t) {
@@ -673,7 +678,7 @@ void tst_TimelineModel::firstIndexFollowsInsertsAndEnds()
                     }
                     firstFailure = QString("round %1, %2 ranges, time %3: first, next, previous "
                                            "%4 instead of %5")
-                                       .arg(round).arg(dummy.count()).arg(t)
+                                       .arg(round).arg(dummy.count()).arg(t.count())
                                        .arg(got.join(", "), want.join(", "));
                 }
                 ++failures;
@@ -689,21 +694,21 @@ void tst_TimelineModel::firstIndexFollowsInsertsAndEnds()
 void tst_TimelineModel::longDurations()
 {
     DummyModel dummy(&aggregator);
-    const qint64 justTooLong = qint64(1) << 31;
-    const qint64 fiveHours = qint64(5) * 3600 * 1000000000;
-    QList<qint64> durations = {0, justTooLong - 1, justTooLong, fiveHours, -5};
+    const nanoseconds justTooLong(qint64(1) << 31);
+    const nanoseconds fiveHours = 5h;
+    QList<nanoseconds> durations = {0ns, justTooLong - 1ns, justTooLong, fiveHours, -5ns};
     for (int i = 0; i < durations.size(); ++i)
-        QCOMPARE(dummy.insert(i * 10, durations.at(i), i), i);
-    const int open = dummy.insertStart(100, 5);
-    dummy.insertEnd(open, fiveHours + 1);
-    durations.append(fiveHours + 1);
+        QCOMPARE(dummy.insert(i * 10ns, durations.at(i), i), i);
+    const int open = dummy.insertStart(100ns, 5);
+    dummy.insertEnd(open, fiveHours + 1ns);
+    durations.append(fiveHours + 1ns);
 
     const auto check = [&] {
         for (int i = 0; i < durations.size(); ++i) {
             if (dummy.duration(i) != durations.at(i) || dummy.selectionId(i) != i
                 || dummy.endTime(i) != dummy.startTime(i) + durations.at(i)) {
-                return QString("range %1: %2 instead of %3").arg(i).arg(dummy.duration(i))
-                    .arg(durations.at(i));
+                return QString("range %1: %2 instead of %3").arg(i)
+                    .arg(dummy.duration(i).count()).arg(durations.at(i).count());
             }
         }
         return QString();
@@ -712,13 +717,13 @@ void tst_TimelineModel::longDurations()
 
     dummy.insertEnd(0, fiveHours);
     durations[0] = fiveHours;
-    dummy.insertEnd(2, 7);
-    durations[2] = 7;
-    dummy.insertEnd(3, justTooLong + 1);
-    durations[3] = justTooLong + 1;
+    dummy.insertEnd(2, 7ns);
+    durations[2] = 7ns;
+    dummy.insertEnd(3, justTooLong + 1ns);
+    durations[3] = justTooLong + 1ns;
     QCOMPARE(check(), QString());
-    QCOMPARE(dummy.firstIndex(justTooLong + 100), 0);
-    QCOMPARE(dummy.firstIndex(fiveHours + 50), 5);
+    QCOMPARE(dummy.firstIndex(justTooLong + 100ns), 0);
+    QCOMPARE(dummy.firstIndex(fiveHours + 50ns), 5);
 }
 
 // Overlapping items of two selection ids in collapsed row 0 and three expanded rows, of varying
@@ -733,11 +738,11 @@ public:
         setCollapsedRowCount(1);
         setExpandedRowCount(3);
         for (int i = 0; i < items; ++i)
-            insert(i * 7, 1 + (i * 13) % 29, i % 2);
+            insert(i * 7ns, nanoseconds(1 + (i * 13) % 29), i % 2);
         computeSummaries();
     }
 
-    void add(qint64 start, qint64 duration, int selectionId)
+    void add(nanoseconds start, nanoseconds duration, int selectionId)
     {
         insert(start, duration, selectionId);
     }
@@ -756,9 +761,9 @@ static void verifySummary(const TimelineModel &model, const TimelineModel::Summa
         for (int i = 0; i < model.count(); ++i) {
             if (rowOf(i) != row)
                 continue;
-            const qint64 start = model.startTime(i) - summary.start;
-            const qint64 end = model.endTime(i) - summary.start;
-            const qint64 bucketDuration = summary.bucketDuration;
+            const qint64 start = (model.startTime(i) - summary.start).count();
+            const qint64 end = (model.endTime(i) - summary.start).count();
+            const qint64 bucketDuration = summary.bucketDuration.count();
             for (qint64 b = start / bucketDuration; b <= end / bucketDuration; ++b) {
                 const qint64 overlap = std::min(end, (b + 1) * bucketDuration)
                                        - std::max(start, b * bucketDuration);
@@ -793,7 +798,7 @@ void tst_TimelineModel::summaries()
     QCOMPARE(collapsed->rows.size(), 1);
     QCOMPARE(expanded->rows.size(), 3);
     QCOMPARE(overview->rows.size(), 1);
-    QVERIFY(collapsed->bucketDuration > 1);
+    QVERIFY(collapsed->bucketDuration > 1ns);
     QCOMPARE(collapsed->mixedRows, QList<bool>{true});
     // Row r holds the items i with i % 3 == r, so every row has both selection ids.
     QCOMPARE(expanded->mixedRows, QList<bool>({true, true, true}));
@@ -804,7 +809,7 @@ void tst_TimelineModel::summaries()
     verifySummary(model, *expanded, [](int i) { return i % 3; });
 
     // Items added later are not in the summaries, so they go.
-    model.add(1000000, 10, 0);
+    model.add(1000000ns, 10ns, 0);
     QVERIFY(!model.summary(false));
     QVERIFY(!model.summary(true));
     QVERIFY(!model.overviewSummary());

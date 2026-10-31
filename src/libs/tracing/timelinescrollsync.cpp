@@ -12,6 +12,8 @@
 #include <QEvent>
 #include <QScrollBar>
 
+using namespace std::chrono;
+
 namespace Timeline {
 
 TimelineScrollSync::TimelineScrollSync(TimelineZoomControl *zoom, QObject *parent)
@@ -38,7 +40,7 @@ void TimelineScrollSync::registerContent(TrackPainterBase *painter)
     // TrackPainterBase is not a QObject; use its widget as the connection
     // context so the lambda is disconnected when the track area is destroyed.
     connect(m_zoom, &TimelineZoomControl::rangeChanged, painter->widget(),
-            [painter](qint64 start, qint64 end) { painter->setRange(start, end); });
+            [painter](nanoseconds start, nanoseconds end) { painter->setRange(start, end); });
 }
 
 void TimelineScrollSync::registerLabels(TrackLabels *labels)

@@ -11,6 +11,7 @@
 #include <QList>
 #include <QString>
 
+#include <chrono>
 #include <memory>
 
 namespace Profiler::Internal {
@@ -25,7 +26,7 @@ public:
     QString text;
     QmlDebug::QmlEventLocation location;
     int typeIndex = -1;
-    qint64 costNs = 0;
+    std::chrono::nanoseconds cost{};
     int occurrences = 0;
 };
 
@@ -47,7 +48,7 @@ public:
     QString what;
     QString why;
     QString suggestion;
-    qint64 costNs = 0;
+    std::chrono::nanoseconds cost{};
     int occurrences = 0;
     QList<FindingDetail> details;
 };
@@ -82,7 +83,7 @@ FindingRules defaultFindingRules();
 
 // Serializes findings for consumers outside the views: the shape is a contract, so it
 // carries an explicit version.
-QJsonObject findingsToJson(const QList<Finding> &findings, qint64 traceStartNs,
-                           qint64 traceEndNs);
+QJsonObject findingsToJson(const QList<Finding> &findings, std::chrono::nanoseconds traceStart,
+                           std::chrono::nanoseconds traceEnd);
 
 } // namespace Profiler::Internal

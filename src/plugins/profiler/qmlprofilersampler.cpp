@@ -31,6 +31,8 @@ using namespace Utils;
 
 using namespace Qt::StringLiterals;
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 QmlProfilerSamplerSettings::QmlProfilerSamplerSettings()
@@ -264,13 +266,13 @@ ExecutableItem QmlProfilerSampler::captureRecipe(const std::shared_ptr<Recording
                 m_pauseTracker.startRequested();
         });
         QObject::connect(m_clientManager.get(), &QmlProfilerClientManager::traceStartedAt,
-                         b, [this, session](qint64 time) {
+                         b, [this, session](nanoseconds time) {
             if (const auto range = m_pauseTracker.traceStarted(time))
                 m_modelManager->addPausedRange(range->first, range->second);
             session->markStarted(); // capture is live; the duration clock can start
         });
         QObject::connect(m_clientManager.get(), &QmlProfilerClientManager::traceFinishedAt,
-                         b, [this, session, finishRecording](qint64 time) {
+                         b, [this, session, finishRecording](nanoseconds time) {
             if (m_pauseTracker.traceFinished(time, session->isPaused())
                 == QmlPauseTracker::TraceEnd::Recording) {
                 finishRecording();

@@ -15,13 +15,15 @@
 #include <QStack>
 
 using namespace QmlDebug;
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 QmlProfilerAnimationsModel::QmlProfilerAnimationsModel(QmlProfilerModelManager *manager,
                                                        Timeline::TimelineModelAggregator *parent) :
     QmlProfilerTimelineModel(manager, Event, UndefinedRangeType, ProfileAnimations, parent)
 {
-    m_minNextStartTimes[0] = m_minNextStartTimes[1] = 0;
+    m_minNextStartTimes[0] = m_minNextStartTimes[1] = 0ns;
 
     // Frames are coloured by how close they come to the target, so a changed target
     // re-colours the trace already loaded.
@@ -41,7 +43,7 @@ void QmlProfilerAnimationsModel::setTargetFrameRate(int framesPerSecond)
 
 void QmlProfilerAnimationsModel::clear()
 {
-    m_minNextStartTimes[0] = m_minNextStartTimes[1] = 0;
+    m_minNextStartTimes[0] = m_minNextStartTimes[1] = 0ns;
     m_maxGuiThreadAnimations = m_maxRenderThreadAnimations = 0;
     m_data.clear();
     QmlProfilerTimelineModel::clear();
@@ -53,18 +55,19 @@ void QmlProfilerAnimationsModel::loadEvent(const QmlEvent &event, const QmlEvent
     AnimationThread lastThread = (AnimationThread)event.number<qint32>(2);
 
     // initial estimation of the event duration: 1/framerate
-    qint64 estimatedDuration = event.number<qint32>(0) > 0 ? 1e9 / event.number<qint32>(0) : 1;
+    const qint32 frameRate = event.number<qint32>(0);
+    const nanoseconds estimatedDuration = frameRate > 0 ? nanoseconds(1s) / frameRate : 1ns;
 
     // the profiler registers the animation events at the end of them
-    qint64 realEndTime = event.timestamp();
+    nanoseconds realEndTime = event.timestamp();
 
     // ranges should not overlap. If they do, our estimate wasn't accurate enough
-    qint64 realStartTime = qMax(event.timestamp() - estimatedDuration,
-                                m_minNextStartTimes[lastThread]);
+    nanoseconds realStartTime = qMax(event.timestamp() - estimatedDuration,
+                                     m_minNextStartTimes[lastThread]);
 
     // Sometimes our estimate is far off or the server has miscalculated the frame rate
     if (realStartTime >= realEndTime)
-        realEndTime = realStartTime + 1;
+        realEndTime = realStartTime + 1ns;
 
     // Don't "fix" the framerate even if we've fixed the duration.
     // The server should know better after all and if it doesn't we want to see that.
@@ -81,7 +84,7 @@ void QmlProfilerAnimationsModel::loadEvent(const QmlEvent &event, const QmlEvent
         m_maxRenderThreadAnimations = qMax(lastEvent.animationcount,
                                            m_maxRenderThreadAnimations);
 
-    m_minNextStartTimes[lastThread] = event.timestamp() + 1;
+    m_minNextStartTimes[lastThread] = event.timestamp() + 1ns;
 }
 
 void QmlProfilerAnimationsModel::prepare()

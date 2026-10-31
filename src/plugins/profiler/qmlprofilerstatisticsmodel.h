@@ -62,13 +62,13 @@ class QmlProfilerStatisticsModel final : public QAbstractTableModel
 {
 public:
     struct QmlEventStats {
-        std::vector<qint64> durations;
-        qint64 total = 0;
-        qint64 self = 0;
-        qint64 recursive = 0;
-        qint64 minimum = 0;
-        qint64 maximum = 0;
-        qint64 median = 0;
+        std::vector<std::chrono::nanoseconds> durations;
+        std::chrono::nanoseconds total{0};
+        std::chrono::nanoseconds self{0};
+        std::chrono::nanoseconds recursive{0};
+        std::chrono::nanoseconds minimum{0};
+        std::chrono::nanoseconds maximum{0};
+        std::chrono::nanoseconds median{0};
         qint64 calls = 0;
 
         void finalize()
@@ -82,8 +82,10 @@ public:
                 return;
 
             std::sort(durations.begin(), durations.end());
-            const auto avg
-                    = [](const qint64 a, const qint64 b) { return a / 2ll + b / 2ll + ((a & 1) + (b & 1)) / 2ll; };
+            const auto avg = [](std::chrono::nanoseconds a, std::chrono::nanoseconds b) {
+                return a / 2 + b / 2
+                       + std::chrono::nanoseconds(((a.count() & 1) + (b.count() & 1)) / 2);
+            };
 
             const size_t half = size / 2;
             median = (size & 1) == 0 ? avg(durations[half - 1], durations[half]) : durations[half];
@@ -92,15 +94,16 @@ public:
 
             // One entry per call adds up to gigabytes over a long trace; clear() would
             // keep all of it allocated.
-            std::vector<qint64>().swap(durations);
+            std::vector<std::chrono::nanoseconds>().swap(durations);
         }
 
-        qint64 average() const
+        std::chrono::nanoseconds average() const
         {
-            return calls == 0 ? 0 : total / calls;
+            return calls == 0 ? std::chrono::nanoseconds(0)
+                              : std::chrono::nanoseconds(total / calls);
         }
 
-        qint64 totalNonRecursive() const
+        std::chrono::nanoseconds totalNonRecursive() const
         {
             return total - recursive;
         }
@@ -153,18 +156,19 @@ private:
     QStack<QmlDebug::QmlEvent> m_callStack;
     QStack<QmlDebug::QmlEvent> m_compileStack;
 
-    qint64 m_rootDuration = 0;
+    std::chrono::nanoseconds m_rootDuration{0};
 };
 
 class QmlProfilerStatisticsRelativesModel final : public QAbstractTableModel
 {
 public:
     struct QmlStatisticsRelativesData {
-        QmlStatisticsRelativesData(qint64 duration = 0, qint64 calls = 0,
+        QmlStatisticsRelativesData(std::chrono::nanoseconds duration = std::chrono::nanoseconds(0),
+                                   qint64 calls = 0,
                                    int typeIndex = QmlProfilerStatisticsModel::s_invalidTypeId,
                                    bool isRecursive = false)
             : duration(duration), calls(calls), typeIndex(typeIndex), isRecursive(isRecursive) {}
-        qint64 duration;
+        std::chrono::nanoseconds duration;
         qint64 calls;
         int typeIndex;
         bool isRecursive;
@@ -184,7 +188,7 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role) final;
 
 private:
-    QVariant dataForMainEntry(qint64 totalDuration, int role, int column) const;
+    QVariant dataForMainEntry(std::chrono::nanoseconds totalDuration, int role, int column) const;
     void typeDetailsChanged(int typeId);
 
     QHash<int, QList<QmlStatisticsRelativesData>> m_data;
@@ -193,9 +197,10 @@ private:
     int m_relativeTypeIndex = QmlProfilerStatisticsModel::s_invalidTypeId;
 
     struct Frame {
-        Frame(qint64 startTime = 0, int typeId = QmlProfilerStatisticsModel::s_invalidTypeId)
+        Frame(std::chrono::nanoseconds startTime = std::chrono::nanoseconds(0),
+              int typeId = QmlProfilerStatisticsModel::s_invalidTypeId)
             : startTime(startTime), typeId(typeId) {}
-        qint64 startTime;
+        std::chrono::nanoseconds startTime;
         int typeId;
     };
     QStack<Frame> m_callStack;

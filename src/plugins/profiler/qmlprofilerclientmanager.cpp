@@ -11,6 +11,8 @@
 
 using namespace QmlDebug;
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent)
@@ -32,7 +34,7 @@ void QmlProfilerClientManager::setProfilerStateManager(QmlProfilerStateManager *
     m_profilerState = profilerState;
 }
 
-void QmlProfilerClientManager::setFlushInterval(quint32 flushInterval)
+void QmlProfilerClientManager::setFlushInterval(milliseconds flushInterval)
 {
     m_flushInterval = flushInterval;
 }
@@ -65,7 +67,7 @@ void QmlProfilerClientManager::createClients()
     m_profilerState->setServerRecording(false);
     m_profilerState->setRecordedFeatures(0);
     m_rebaser.reset();
-    const auto rebased = [this](qint64 time) {
+    const auto rebased = [this](nanoseconds time) {
         return m_rebasingTime ? m_rebaser.map(time) : time;
     };
     m_clientPlugin = new QmlProfilerTraceClient(
@@ -81,7 +83,7 @@ void QmlProfilerClientManager::createClients()
     m_clientPlugin->setFlushInterval(m_flushInterval);
 
     QObject::connect(m_clientPlugin.data(), &QmlProfilerTraceClient::traceFinished,
-                     m_modelManager, [this, rebased](qint64 time) {
+                     m_modelManager, [this, rebased](nanoseconds time) {
         m_modelManager->increaseTraceEnd(rebased(time));
     });
 
@@ -91,7 +93,7 @@ void QmlProfilerClientManager::createClients()
                      m_profilerState.data(), &QmlProfilerStateManager::setRecordedFeatures);
 
     QObject::connect(m_clientPlugin.data(), &QmlProfilerTraceClient::traceStarted,
-                     this, [this, rebased](qint64 time) {
+                     this, [this, rebased](nanoseconds time) {
         if (m_rebasingTime)
             time = m_rebaser.traceStarted(time);
         m_profilerState->setServerRecording(true);
@@ -100,7 +102,7 @@ void QmlProfilerClientManager::createClients()
     });
 
     QObject::connect(m_clientPlugin, &QmlProfilerTraceClient::complete,
-                     this, [this, rebased](qint64 time) {
+                     this, [this, rebased](nanoseconds time) {
         time = rebased(time);
         m_modelManager->increaseTraceEnd(time);
         emit traceFinishedAt(time);

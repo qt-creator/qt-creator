@@ -13,6 +13,7 @@
 #include <QList>
 #include <QString>
 
+#include <chrono>
 #include <functional>
 
 namespace Profiler::Internal {
@@ -49,7 +50,7 @@ struct SampleId
 {
     quint32 pid = 0;
     quint32 tid = 0;
-    quint64 time = 0;
+    std::chrono::nanoseconds time{0};
     bool hasTime = false;
     quint64 id = 0;
     quint32 cpu = 0;
@@ -62,7 +63,7 @@ struct Sample
     quint64 ip = 0;
     quint32 pid = 0;
     quint32 tid = 0;
-    quint64 time = 0;
+    std::chrono::nanoseconds time{0};
     quint64 addr = 0;
     quint64 id = 0;
     quint32 cpu = 0;
@@ -111,7 +112,7 @@ struct Task
     quint32 ppid = 0;
     quint32 tid = 0;
     quint32 ptid = 0;
-    quint64 time = 0;
+    std::chrono::nanoseconds time{0};
 };
 
 // PERF_RECORD_SWITCH and PERF_RECORD_SWITCH_CPU_WIDE.
@@ -131,7 +132,7 @@ struct Lost
 struct Throttle
 {
     bool unthrottle = false;
-    quint64 time = 0;
+    std::chrono::nanoseconds time{0};
     quint64 id = 0;
 };
 

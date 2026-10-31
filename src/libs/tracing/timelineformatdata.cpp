@@ -7,8 +7,10 @@
 
 namespace Timeline {
 
-QString formatTime(qint64 timestamp, qint64 reference)
+QString formatTime(std::chrono::nanoseconds time, std::chrono::nanoseconds referenceTime)
 {
+    const qint64 timestamp = time.count();
+    const qint64 reference = referenceTime.count();
     static const char *decimalUnits[] = {" ns", " \xb5s", " ms", " s"};
     static const double second = 1e9;
     static const double minute = 60;

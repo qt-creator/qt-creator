@@ -41,6 +41,7 @@
 
 using namespace Utils;
 using namespace Qt::StringLiterals;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -181,19 +182,19 @@ QByteArray buildCommRecord(quint32 pid, quint32 tid, const QString &name)
 
 // For sample_type == SampleIp|SampleTid|SampleTime (no callchain): a single
 // leaf-PC sample.
-QByteArray buildFlatSampleRecord(quint64 ip, quint32 pid, quint32 tid, quint64 timeNs)
+QByteArray buildFlatSampleRecord(quint64 ip, quint32 pid, quint32 tid, nanoseconds time)
 {
     QByteArray payload;
     appendU64(payload, ip);
     appendU32(payload, pid);
     appendU32(payload, tid);
-    appendU64(payload, timeNs);
+    appendU64(payload, quint64(time.count()));
     return wrapRecord(RecordSample, payload);
 }
 
 // For sample_type == SampleIp|SampleTid|SampleTime|SampleCallchain: `callchain`
 // is innermost-first, exactly as the kernel emits it (context markers included).
-QByteArray buildCallchainSampleRecord(quint32 pid, quint32 tid, quint64 timeNs,
+QByteArray buildCallchainSampleRecord(quint32 pid, quint32 tid, nanoseconds time,
                                       const QList<quint64> &callchain)
 {
     QByteArray payload;
@@ -201,7 +202,7 @@ QByteArray buildCallchainSampleRecord(quint32 pid, quint32 tid, quint64 timeNs,
                            // SampleCallchain takes precedence (see handleSample()).
     appendU32(payload, pid);
     appendU32(payload, tid);
-    appendU64(payload, timeNs);
+    appendU64(payload, quint64(time.count()));
     appendU64(payload, quint64(callchain.size()));
     for (quint64 addr : callchain)
         appendU64(payload, addr);
@@ -214,7 +215,7 @@ QByteArray buildCallchainSampleRecord(quint32 pid, quint32 tid, quint64 timeNs,
 // "to" and "flags" are filled with zero -- handleSample() doesn't use either.
 // A non-empty `callchain` needs SampleCallchain as well, and `hwIdx` an attr
 // whose branch_sample_type has PERF_SAMPLE_BRANCH_HW_INDEX.
-QByteArray buildLbrSampleRecord(quint64 ip, quint32 pid, quint32 tid, quint64 timeNs,
+QByteArray buildLbrSampleRecord(quint64 ip, quint32 pid, quint32 tid, nanoseconds time,
                                 const QList<quint64> &branchFroms,
                                 const QList<quint64> &callchain = {},
                                 std::optional<quint64> hwIdx = {})
@@ -223,7 +224,7 @@ QByteArray buildLbrSampleRecord(quint64 ip, quint32 pid, quint32 tid, quint64 ti
     appendU64(payload, ip);
     appendU32(payload, pid);
     appendU32(payload, tid);
-    appendU64(payload, timeNs);
+    appendU64(payload, quint64(time.count()));
     if (!callchain.isEmpty()) {
         appendU64(payload, quint64(callchain.size()));
         for (quint64 addr : callchain)
@@ -248,14 +249,14 @@ QByteArray buildLbrSampleRecord(quint64 ip, quint32 pid, quint32 tid, quint64 ti
 // captured chunk of the user stack, with dyn_size always reported equal to
 // its full size (nothing "cut off" -- handleSample() only treats dyn_size as
 // a size to trust, not as a claim about where it came from).
-QByteArray buildDwarfSampleRecord(quint64 ip, quint32 pid, quint32 tid, quint64 timeNs,
+QByteArray buildDwarfSampleRecord(quint64 ip, quint32 pid, quint32 tid, nanoseconds time,
                                   const QList<quint64> &regValues, const QByteArray &stackBytes)
 {
     QByteArray payload;
     appendU64(payload, ip);
     appendU32(payload, pid);
     appendU32(payload, tid);
-    appendU64(payload, timeNs);
+    appendU64(payload, quint64(time.count()));
     appendU64(payload, regValues.isEmpty() ? 0 : 1); // abi: 0 == NONE, 1 == PERF_SAMPLE_REGS_ABI_64
     for (quint64 v : regValues)
         appendU64(payload, v);
@@ -269,7 +270,7 @@ QByteArray buildDwarfSampleRecord(quint64 ip, quint32 pid, quint32 tid, quint64 
 // A dwarf-mode sample the way "perf record --call-graph dwarf" really writes
 // it: also carrying a callchain, which holds the kernel frames only -- perf
 // sets exclude_callchain_user, leaving the user stack to the unwinder.
-QByteArray buildDwarfSampleRecordWithCallchain(quint64 ip, quint32 pid, quint64 timeNs,
+QByteArray buildDwarfSampleRecordWithCallchain(quint64 ip, quint32 pid, nanoseconds time,
                                                const QList<quint64> &callchain,
                                                const QList<quint64> &regValues,
                                                const QByteArray &stackBytes)
@@ -278,7 +279,7 @@ QByteArray buildDwarfSampleRecordWithCallchain(quint64 ip, quint32 pid, quint64 
     appendU64(payload, ip);
     appendU32(payload, pid);
     appendU32(payload, pid);
-    appendU64(payload, timeNs);
+    appendU64(payload, quint64(time.count()));
     appendU64(payload, quint64(callchain.size()));
     for (quint64 addr : callchain)
         appendU64(payload, addr);
@@ -902,23 +903,23 @@ private slots:
         PerfByteQueue queue;
         queue.push(buildPipeStream({
             buildAttrRecord(SampleIp | SampleTid | SampleTime),
-            buildFlatSampleRecord(0, 7, 7, 1'000),
-            buildFlatSampleRecord(0, 7, 7, 2'000),
-            buildFlatSampleRecord(0, 7, 7, 3'000),
-            buildFlatSampleRecord(0, 7, 7, 4'000),
+            buildFlatSampleRecord(0, 7, 7, 1us),
+            buildFlatSampleRecord(0, 7, 7, 2us),
+            buildFlatSampleRecord(0, 7, 7, 3us),
+            buildFlatSampleRecord(0, 7, 7, 4us),
         }));
         queue.close();
         PerfRecordReader reader;
-        reader.setSampleFilter([](qint64 timestampNs) {
-            return timestampNs == 2'000 || timestampNs == 4'000;
+        reader.setSampleFilter([](nanoseconds timestamp) {
+            return timestamp == 2000ns || timestamp == 4000ns;
         });
         const Result<SampleTraceData> result = reader.read(queue);
         QVERIFY_RESULT(result);
         QCOMPARE(reader.receivedSamples(), 2);
-        QCOMPARE(reader.firstTimestampNs(), 2'000);
+        QCOMPARE(reader.firstTimestamp(), 2000ns);
         QCOMPARE(result->samples.size(), 2);
-        QCOMPARE(result->samples.at(0).tsUs, 0);
-        QCOMPARE(result->samples.at(1).tsUs, 2);
+        QCOMPARE(result->samples.at(0).timestamp, 0us);
+        QCOMPARE(result->samples.at(1).timestamp, 2us);
     }
     void testQueueReportsDrainingAndDropsAfterClose();
     void testRejectsUnsupportedSampleType();
@@ -971,7 +972,7 @@ void PerfRecordReaderTest::testSymbolicatesNonPieExecutable()
     const QByteArray stream = buildPipeStream({
         buildAttrRecord(SampleIp | SampleTid | SampleTime | SampleCallchain),
         buildMmap2Record(pid, 0x401000, 0x1000, 0x1000, elfPath),
-        buildCallchainSampleRecord(pid, pid, 1'000'000, {0x401004, 0x401108}),
+        buildCallchainSampleRecord(pid, pid, 1ms, {0x401004, 0x401108}),
         buildFinishedRoundRecord(),
     });
 
@@ -1016,7 +1017,7 @@ void PerfRecordReaderTest::testSymbolicatesAndDemanglesUserFrames()
         buildMmap2Record(pid, mapAddr, 0x2000, 0, elfPath),
         buildCommRecord(pid, pid, u"Worker"_s),
         // Innermost-first: foo() called by bar(), returning 8 bytes into it.
-        buildCallchainSampleRecord(pid, pid, 1'000'000, {fooIp, barIp + 8}),
+        buildCallchainSampleRecord(pid, pid, 1ms, {fooIp, barIp + 8}),
         buildFinishedRoundRecord(),
     });
 
@@ -1029,7 +1030,7 @@ void PerfRecordReaderTest::testSymbolicatesAndDemanglesUserFrames()
     const SampleTraceData::ThreadSample &sample = data.samples.first();
     QCOMPARE(sample.tid, quint64(pid));
     QVERIFY(sample.running);
-    QCOMPARE(sample.tsUs, quint64(0)); // first (and only) sample defines the baseline
+    QCOMPARE(sample.timestamp, 0us); // first (and only) sample defines the baseline
 
     // Root-first: bar (the caller) before foo (the callee).
     QCOMPARE(sample.frames.size(), 2);
@@ -1070,7 +1071,7 @@ void PerfRecordReaderTest::testBuildsCallChainFromBranchStack()
         buildCommRecord(pid, pid, u"Worker"_s),
         // Leaf is the sample's own IP (foo); the one branch-stack entry's
         // "from" (bar) is the caller, exactly like the callchain test.
-        buildLbrSampleRecord(fooIp, pid, pid, 1'000'000, {barIp}),
+        buildLbrSampleRecord(fooIp, pid, pid, 1ms, {barIp}),
         buildFinishedRoundRecord(),
     });
 
@@ -1101,7 +1102,7 @@ void PerfRecordReaderTest::testDropsHypervisorFramesAndFlagsKernelFrames()
 
     const QByteArray stream = buildPipeStream({
         buildAttrRecord(SampleIp | SampleTid | SampleTime | SampleCallchain),
-        buildCallchainSampleRecord(pid, pid, 1'000'000, {
+        buildCallchainSampleRecord(pid, pid, 1ms, {
             PerfContextHv, 0xdeadbeef,      // dropped: no HV symbol table exists
             PerfContextKernel, fakeKernelIp, // innermost real frame
             PerfContextUser, unmappedUserIp, // caller
@@ -1133,26 +1134,26 @@ void PerfRecordReaderTest::testDropsHypervisorFramesAndFlagsKernelFrames()
 void PerfRecordReaderTest::testOrdersAndClampsAcrossRounds()
 {
     constexpr quint32 pid = 7;
-    // A throwaway warm-up sample fixes the baseline (tsUs 0) at a known point,
+    // A throwaway warm-up sample fixes the baseline (timestamp 0) at a known point,
     // so every later timestamp in this test maps to a small, easy-to-check
     // offset instead of an arbitrary one.
     const QByteArray stream = buildPipeStream({
         buildAttrRecord(SampleIp | SampleTid | SampleTime),
-        buildFlatSampleRecord(0, pid, pid, 0),
+        buildFlatSampleRecord(0, pid, pid, 0ns),
         buildFinishedRoundRecord(),
         // One round, three samples arriving out of timestamp order.
-        buildFlatSampleRecord(0, pid, pid, 9'000),
-        buildFlatSampleRecord(0, pid, pid, 3'000),
-        buildFlatSampleRecord(0, pid, pid, 6'000),
+        buildFlatSampleRecord(0, pid, pid, 9us),
+        buildFlatSampleRecord(0, pid, pid, 3us),
+        buildFlatSampleRecord(0, pid, pid, 6us),
         buildFinishedRoundRecord(),
         // Next round's sample is earlier than the previous round's: read late
         // from another CPU's buffer, which is why a round is only complete up
         // to where the one before reached. It still sorts in.
-        buildFlatSampleRecord(0, pid, pid, 1'000),
+        buildFlatSampleRecord(0, pid, pid, 1us),
         buildFinishedRoundRecord(),
         // Earlier than what is written already -- must be clamped up, not let
         // the timeline go backwards.
-        buildFlatSampleRecord(0, pid, pid, 2'000),
+        buildFlatSampleRecord(0, pid, pid, 2us),
         buildFinishedRoundRecord(),
     });
 
@@ -1160,10 +1161,10 @@ void PerfRecordReaderTest::testOrdersAndClampsAcrossRounds()
     QVERIFY_RESULT(result);
     const SampleTraceData &data = result.value();
 
-    QList<quint64> timestamps;
+    QList<microseconds> timestamps;
     for (const SampleTraceData::ThreadSample &sample : data.samples)
-        timestamps.append(sample.tsUs);
-    QCOMPARE(timestamps, QList<quint64>({0, 1, 3, 6, 9, 9}));
+        timestamps.append(sample.timestamp);
+    QCOMPARE(timestamps, QList<microseconds>({0us, 1us, 3us, 6us, 9us, 9us}));
 }
 
 // Whoever holds back data while the queue is full hears once it has room
@@ -1240,8 +1241,8 @@ void PerfRecordReaderTest::testCountsSamplesWithoutCallStack()
     constexpr quint32 pid = 42;
     const QByteArray stream = buildPipeStream({
         buildAttrRecord(SampleIp | SampleTid | SampleTime | SampleCallchain),
-        buildCallchainSampleRecord(pid, pid, 1000, {PerfContextHv, 0xdeadbeef}),
-        buildCallchainSampleRecord(pid, pid, 2000, {PerfContextHv, 0xdeadbeef}),
+        buildCallchainSampleRecord(pid, pid, 1us, {PerfContextHv, 0xdeadbeef}),
+        buildCallchainSampleRecord(pid, pid, 2us, {PerfContextHv, 0xdeadbeef}),
     });
 
     int receivedSamples = -1;
@@ -1261,7 +1262,7 @@ void PerfRecordReaderTest::testReportsProgressDuringSymbolication()
     constexpr quint32 pid = 99;
     QList<QByteArray> records = {buildAttrRecord(SampleIp | SampleTid | SampleTime)};
     for (int i = 0; i < 3000; ++i)
-        records.append(buildFlatSampleRecord(0, pid, pid, quint64(i) * 1000));
+        records.append(buildFlatSampleRecord(0, pid, pid, i * 1us));
     records.append(buildFinishedRoundRecord());
     const QByteArray stream = buildPipeStream(records);
 
@@ -1300,7 +1301,7 @@ void PerfRecordReaderTest::testParsesDwarfModeRegistersAndStack()
         buildAttrRecordWithRegsMask(SampleIp | SampleTid | SampleTime | SampleRegsUser
                                         | SampleStackUser,
                                     regsMask),
-        buildDwarfSampleRecord(ip, pid, pid, 1'000'000, {0x7fffffffe000ull, ip}, stack),
+        buildDwarfSampleRecord(ip, pid, pid, 1ms, {0x7fffffffe000ull, ip}, stack),
         buildFinishedRoundRecord(),
     });
 
@@ -1517,7 +1518,7 @@ static QByteArray buildDwarfRecording(quint32 pid,
             buildMmap2Record(pid, mapping.addr, mapping.len, mapping.pgoff, mapping.path));
     }
 
-    records.append(buildDwarfSampleRecord(input.regs.at(perfRegisterLayout(input.arch).ip), pid, pid, 1000, input.regs,
+    records.append(buildDwarfSampleRecord(input.regs.at(perfRegisterLayout(input.arch).ip), pid, pid, 1us, input.regs,
                                           input.stackBytes));
     records.append(buildFinishedRoundRecord());
     return buildPipeStream(records);
@@ -1595,7 +1596,7 @@ void PerfRecordReaderTest::testSymbolicatesTheVdso()
     const QByteArray stream = buildPipeStream({
         buildAttrRecord(SampleIp | SampleTid | SampleTime | SampleCallchain),
         buildMmap2Record(pid, vdso.addr, vdso.len, vdso.pgoff, vdso.path),
-        buildCallchainSampleRecord(pid, pid, 1'000'000, {function.address}),
+        buildCallchainSampleRecord(pid, pid, 1ms, {function.address}),
         buildFinishedRoundRecord(),
     });
 
@@ -1660,14 +1661,14 @@ void PerfRecordReaderTest::testEndsDwarfCallChainBeforeData()
 // A sample the way "perf record --call-graph fp" writes it on aarch64: the
 // callchain the kernel walked, and the link register, the one user register
 // it asks for, without a stack.
-static QByteArray buildFpSampleRecord(quint64 ip, quint32 pid, quint64 timeNs,
+static QByteArray buildFpSampleRecord(quint64 ip, quint32 pid, nanoseconds time,
                                       const QList<quint64> &callchain, quint64 linkRegister)
 {
     QByteArray payload;
     appendU64(payload, ip);
     appendU32(payload, pid);
     appendU32(payload, pid);
-    appendU64(payload, timeNs);
+    appendU64(payload, quint64(time.count()));
     appendU64(payload, quint64(callchain.size()));
     for (quint64 addr : callchain)
         appendU64(payload, addr);
@@ -1820,7 +1821,7 @@ void PerfRecordReaderTest::testAddsLeafCallerFromLinkRegister()
             records.append(
                 buildMmap2Record(pid, mapping.addr, mapping.len, mapping.pgoff, mapping.path));
         }
-        records.append(buildFpSampleRecord(ip, pid, 1000, QList{PerfContextUser, ip} + callers,
+        records.append(buildFpSampleRecord(ip, pid, 1us, QList{PerfContextUser, ip} + callers,
                                            linkRegister));
         records.append(buildFinishedRoundRecord());
         const Result<SampleTraceData> result = decode(buildPipeStream(records));
@@ -1856,7 +1857,7 @@ void PerfRecordReaderTest::testStripsLinkRegisterWithMappingsOfItsRound()
     // A non-PIE executable, mapped low, says little about how far the
     // address space reaches.
     records.append(buildMmap2Record(pid, 0x400000, 0x1000, 0, u"/opt/app"_s));
-    records.append(buildFpSampleRecord(dwarfTestBeforeSave, pid, 1000,
+    records.append(buildFpSampleRecord(dwarfTestBeforeSave, pid, 1us,
                                        {PerfContextUser, dwarfTestBeforeSave, outerCaller},
                                        linkRegister | signature));
     for (const SelfMapping &mapping : mappings) {
@@ -1895,9 +1896,9 @@ void PerfRecordReaderTest::testKeepsDwarfSampleWithoutUserCallchain()
         buildAttrRecordWithRegsMask(SampleIp | SampleTid | SampleTime | SampleCallchain
                                         | SampleRegsUser | SampleStackUser,
                                     regsMask),
-        buildDwarfSampleRecordWithCallchain(kernelIp, pid, 1000, {PerfContextKernel, kernelIp},
+        buildDwarfSampleRecordWithCallchain(kernelIp, pid, 1us, {PerfContextKernel, kernelIp},
                                             {0x7fffffffe000ull, userIp}, QByteArray(256, '\0')),
-        buildDwarfSampleRecordWithCallchain(userIp, pid, 2000, {}, {0x7fffffffe000ull, userIp},
+        buildDwarfSampleRecordWithCallchain(userIp, pid, 2us, {}, {0x7fffffffe000ull, userIp},
                                             QByteArray(256, '\0')),
         buildFinishedRoundRecord(),
     });
@@ -1946,12 +1947,12 @@ void PerfRecordReaderTest::testRecordsLostAndThrottledSamples()
     const auto decodeWithTotal = [&](quint64 total) {
         return decode(buildPipeStream({
             buildAttrRecord(SampleIp | SampleTid | SampleTime),
-            buildFlatSampleRecord(0x1000, pid, pid, 1'000'000),
-            buildFlatSampleRecord(0x1000, pid, pid, 1'000'000 + 3'000),
+            buildFlatSampleRecord(0x1000, pid, pid, 1ms),
+            buildFlatSampleRecord(0x1000, pid, pid, 1ms + 3us),
             lostRecord(5),
             lostRecord(2),
             wrapRecord(RecordThrottle, throttle),
-            buildFlatSampleRecord(0x1000, pid, pid, 1'000'000 + 9'000),
+            buildFlatSampleRecord(0x1000, pid, pid, 1ms + 9us),
             lostRecord(4),
             buildFinishedRoundRecord(),
             lostSamplesRecord(total),
@@ -1960,13 +1961,13 @@ void PerfRecordReaderTest::testRecordsLostAndThrottledSamples()
 
     const Result<SampleTraceData> covered = decodeWithTotal(11);
     QVERIFY_RESULT(covered);
-    const QList<SampleTraceData::LostSamples> located{{3, 7}, {9, 4}};
+    const QList<SampleTraceData::LostSamples> located{{3us, 7}, {9us, 4}};
     QCOMPARE(covered->lostSamples, located);
-    QCOMPARE(covered->throttledTsUs, QList<quint64>{7});
+    QCOMPARE(covered->throttledTimestamps, QList<microseconds>{7us});
 
     const Result<SampleTraceData> beyond = decodeWithTotal(14);
     QVERIFY_RESULT(beyond);
-    const QList<SampleTraceData::LostSamples> withRest{{3, 7}, {9, 7}};
+    const QList<SampleTraceData::LostSamples> withRest{{3us, 7}, {9us, 7}};
     QCOMPARE(beyond->lostSamples, withRest);
 }
 
@@ -1996,7 +1997,7 @@ void PerfRecordReaderTest::testSkipsBranchStackHwIndex()
         buildAttrRecordWithRegsMask(SampleIp | SampleTid | SampleTime | SampleBranchStack, 0, {0},
                                     branchHwIndex),
         buildMmap2Record(pid, mapAddr, 0x2000, 0, elfPath),
-        buildLbrSampleRecord(fooIp, pid, pid, 1'000'000, {barIp + 4}, {}, quint64(-1)),
+        buildLbrSampleRecord(fooIp, pid, pid, 1ms, {barIp + 4}, {}, quint64(-1)),
         buildFinishedRoundRecord(),
     });
 
@@ -2033,7 +2034,7 @@ void PerfRecordReaderTest::testSymbolicatesForkedChild()
         buildAttrRecord(SampleIp | SampleTid | SampleTime),
         buildMmap2Record(parent, mapAddr, 0x2000, 0, elfPath),
         wrapRecord(RecordFork, fork),
-        buildFlatSampleRecord(mapAddr + 0x1004, child, child, 1'000'000),
+        buildFlatSampleRecord(mapAddr + 0x1004, child, child, 1ms),
         buildFinishedRoundRecord(),
     });
 
@@ -2063,7 +2064,7 @@ void PerfRecordReaderTest::testPrefersBranchStackOverUserCallchain()
     const QByteArray stream = buildPipeStream({
         buildAttrRecord(SampleIp | SampleTid | SampleTime | SampleCallchain | SampleBranchStack),
         buildMmap2Record(pid, mapAddr, 0x2000, 0, elfPath),
-        buildLbrSampleRecord(fooIp, pid, pid, 1'000'000, {barIp + 4},
+        buildLbrSampleRecord(fooIp, pid, pid, 1ms, {barIp + 4},
                              {PerfContextUser, fooIp, 0x1234, 0x5678}),
         buildFinishedRoundRecord(),
     });
@@ -2094,7 +2095,7 @@ void PerfRecordReaderTest::testLooksUpCallersAtTheCall()
         buildAttrRecord(SampleIp | SampleTid | SampleTime | SampleCallchain),
         buildMmap2Record(pid, mapAddr, 0x2000, 0, elfPath),
         // Sampled in bar(), called by the last instruction of foo().
-        buildCallchainSampleRecord(pid, pid, 1'000'000, {PerfContextUser, barIp + 4, barIp}),
+        buildCallchainSampleRecord(pid, pid, 1ms, {PerfContextUser, barIp + 4, barIp}),
         buildFinishedRoundRecord(),
     });
 
@@ -2172,7 +2173,7 @@ void PerfRecordReaderTest::testSkipsTracingData()
     const Result<SampleTraceData> result = decode(buildPipeStream({
         buildAttrRecord(SampleIp | SampleTid | SampleTime),
         wrapRecord(RecordHeaderTracingData, header) + tracingData,
-        buildFlatSampleRecord(0x1000, 7, 7, 1'000'000),
+        buildFlatSampleRecord(0x1000, 7, 7, 1ms),
         buildFinishedRoundRecord(),
     }));
     QVERIFY_RESULT(result);
@@ -2218,7 +2219,7 @@ void PerfRecordReaderTest::testStopsSymbolizingWhenCanceled()
     queue.push(buildPipeStream({
         buildAttrRecord(SampleIp | SampleTid | SampleTime),
         buildMmap2Record(pid, mapAddr, 0x2000, 0, elfPath),
-        buildFlatSampleRecord(mapAddr + 0x10, pid, pid, 1'000'000),
+        buildFlatSampleRecord(mapAddr + 0x10, pid, pid, 1ms),
         buildFinishedRoundRecord(),
     }));
     queue.close();

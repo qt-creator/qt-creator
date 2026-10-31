@@ -61,16 +61,17 @@ SamplerViewManager::SamplerViewManager(Timeline::TimelineDetailsWidget *details,
     // Re-aggregating the call tree on every drag step would be wasteful, so
     // range selections are applied debounced.
     d->rangeDebounce.setSingleShot(true);
-    d->rangeDebounce.setInterval(200);
+    d->rangeDebounce.setInterval(200ms);
     connect(&d->zoomControl, &Timeline::TimelineZoomControl::selectionChanged,
             &d->rangeDebounce, qOverload<>(&QTimer::start));
     connect(&d->rangeDebounce, &QTimer::timeout, this, [this] {
-        // Selection times are ns; the tree filters in µs. Integer division
-        // would turn the -1 "no selection" marker into 0, so guard it.
-        const qint64 start = d->zoomControl.selectionStart();
-        const qint64 end = d->zoomControl.selectionEnd();
-        d->callTreeModel.setTimeRange(start < 0 ? -1 : start / 1000,
-                                      end < 0 ? -1 : end / 1000);
+        // Integer division would turn the -1 "no selection" marker into 0,
+        // so guard it.
+        const auto wholeMicroseconds = [](nanoseconds time) {
+            return time < 0ns ? time : duration_cast<microseconds>(time);
+        };
+        d->callTreeModel.setTimeRange(wholeMicroseconds(d->zoomControl.selectionStart()),
+                                      wholeMicroseconds(d->zoomControl.selectionEnd()));
     });
 }
 
@@ -152,15 +153,15 @@ void SamplerViewManager::load(const FilePath &dir)
             d->callTreeModel.setTraceData(&d->data);
             d->modelAggregator.setModels({&d->cpuModel});
             Timeline::TimelineModelAggregator::PausedRanges paused;
-            for (const auto &[start, end] : std::as_const(d->data.pausedRangesUs))
-                paused.append({qint64(start) * 1000, qint64(end) * 1000});
+            for (const auto &[start, end] : std::as_const(d->data.pausedRanges))
+                paused.append({start, end});
             d->modelAggregator.setPausedRanges(paused);
-            const qint64 end = d->cpuModel.traceEndNs();
-            const qint64 padded = end + qMax<qint64>(end / 20, 1000);
+            const nanoseconds end = d->cpuModel.traceEnd();
+            const nanoseconds padded = end + qMax<nanoseconds>(end / 20, 1us);
             // Drop any selection left over from a previously loaded trace.
-            d->zoomControl.setSelection(-1, -1);
-            d->zoomControl.setTrace(0, padded);
-            d->zoomControl.setRange(0, padded);
+            d->zoomControl.setSelection(-1ns, -1ns);
+            d->zoomControl.setTrace(0ns, padded);
+            d->zoomControl.setRange(0ns, padded);
             if (const QString incomplete = incompleteTraceWarning(d->data); !incomplete.isEmpty())
                 emit warning(incomplete);
         } else {
@@ -195,7 +196,7 @@ void SamplerViewManager::clearFlameGraphSelection()
 
 milliseconds SamplerViewManager::traceDuration() const
 {
-    return duration_cast<milliseconds>(nanoseconds{d->cpuModel.traceEndNs()});
+    return duration_cast<milliseconds>(d->cpuModel.traceEnd());
 }
 
 } // namespace Profiler::Internal

@@ -23,7 +23,7 @@ public:
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
     void typeSelected(int typeIndex);
-    void timelineRangeRequested(qint64 start, qint64 end);
+    void timelineRangeRequested(std::chrono::nanoseconds start, std::chrono::nanoseconds end);
     // A load or recording ended with nothing to show.
     void noDataShown();
 

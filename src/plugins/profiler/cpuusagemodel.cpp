@@ -15,6 +15,8 @@
 
 using namespace Qt::StringLiterals;
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 // Expanded timeline rows: 0 = category header, 1 = total graph, 2.. = threads.
@@ -47,7 +49,7 @@ void CpuUsageModel::clear()
     m_rowColors.clear();
     m_cacheValid = false;
     m_maxRunning = 1;
-    m_traceEndNs = 0;
+    m_traceEnd = 0ns;
     TimelineModel::clear();
     setCollapsedRowCount(CollapsedTotalRow + 1);
     setExpandedRowCount(TotalRow + 1);
@@ -62,7 +64,7 @@ void CpuUsageModel::load()
     // the task was suspended once share a timestamp.
     struct Tick
     {
-        quint64 tsUs = 0;
+        microseconds timestamp{0};
         int running = 0;
         struct Running { quint64 tid; int sampleIndex; };
         QList<Running> runningTids;
@@ -71,8 +73,8 @@ void CpuUsageModel::load()
     QHash<quint64, int> threadRows;
     for (qsizetype s = 0; s < m_data->samples.size(); ++s) {
         const SampleTraceData::ThreadSample &sample = m_data->samples.at(s);
-        if (ticks.isEmpty() || ticks.last().tsUs != sample.tsUs)
-            ticks.append({sample.tsUs, 0, {}});
+        if (ticks.isEmpty() || ticks.last().timestamp != sample.timestamp)
+            ticks.append({sample.timestamp, 0, {}});
         if (!threadRows.contains(sample.tid)) {
             threadRows.insert(sample.tid, int(m_threads.size()));
             m_threads.append(sample.tid);
@@ -90,7 +92,7 @@ void CpuUsageModel::load()
     m_ticks.reserve(ticks.size());
     for (const Tick &tick : std::as_const(ticks)) {
         TickRow row;
-        row.startNs = qint64(tick.tsUs) * 1000;
+        row.start = tick.timestamp;
         row.running = tick.running;
         row.runningRows.reserve(tick.runningTids.size());
         for (const Tick::Running &r : tick.runningTids)
@@ -103,21 +105,23 @@ void CpuUsageModel::load()
     // nest, so the base model's computeNesting() is intentionally not used.
     for (qsizetype i = 0; i < ticks.size(); ++i) {
         const Tick &tick = ticks.at(i);
-        const qint64 durUs = i + 1 < ticks.size()
-                                 ? qint64(ticks.at(i + 1).tsUs - tick.tsUs)
-                                 : (i > 0 ? qint64(tick.tsUs - ticks.at(i - 1).tsUs) : 1);
-        const qint64 startNs = qint64(tick.tsUs) * 1000;
-        const qint64 durNs = qMax<qint64>(durUs, 1) * 1000;
-        m_ticks[i].endNs = startNs + durNs;
+        const microseconds duration = i + 1 < ticks.size()
+                                          ? ticks.at(i + 1).timestamp - tick.timestamp
+                                          : (i > 0 ? tick.timestamp - ticks.at(i - 1).timestamp
+                                                   : 1us);
+        const nanoseconds start = tick.timestamp;
+        const nanoseconds length = std::max(duration, 1us);
+        m_ticks[i].end = start + length;
 
-        m_items.insert(insert(startNs, durNs, 0), Item{tick.running, -1, 0, -1, int(i)});
+        m_items.insert(insert(start, length, 0),
+                       Item{tick.running, -1, 0, -1, int(i)});
         for (const Tick::Running &r : tick.runningTids) {
             const int threadRow = threadRows.value(r.tid);
-            m_items.insert(insert(startNs, durNs, 1 + threadRow),
+            m_items.insert(insert(start, length, 1 + threadRow),
                            Item{tick.running, threadRow, r.tid, r.sampleIndex, int(i)});
         }
     }
-    m_traceEndNs = qint64(ticks.last().tsUs) * 1000;
+    m_traceEnd = ticks.last().timestamp;
 
     setExpandedRowCount(FirstThreadRow + int(m_threads.size()));
     setCollapsedRowCount(CollapsedTotalRow + 1);
@@ -324,9 +328,9 @@ bool CpuUsageModel::rendersAsDensity() const
     return true;
 }
 
-void CpuUsageModel::ensureDensityCache(qint64 startNs, qint64 endNs, int columns) const
+void CpuUsageModel::ensureDensityCache(nanoseconds start, nanoseconds end, int columns) const
 {
-    if (m_cacheValid && m_cacheStartNs == startNs && m_cacheEndNs == endNs
+    if (m_cacheValid && m_cacheStart == start && m_cacheEnd == end
         && m_cacheColumns == columns) {
         return;
     }
@@ -338,11 +342,11 @@ void CpuUsageModel::ensureDensityCache(qint64 startNs, qint64 endNs, int columns
     m_cacheLastTick.assign(columns, -1);
     m_cacheActive.assign(m_threads.size(), QList<int>(columns, 0));
 
-    const double span = double(endNs - startNs);
+    const nanoseconds span = end - start;
     for (const TickRow &tick : m_ticks) {
-        if (tick.startNs < startNs || tick.startNs > endNs)
+        if (tick.start < start || tick.start > end)
             continue;
-        int col = int(double(tick.startNs - startNs) * columns / span);
+        int col = int((tick.start - start) * columns / span);
         if (col >= columns)
             col = columns - 1;
         ++m_cacheCovered[col];
@@ -355,20 +359,20 @@ void CpuUsageModel::ensureDensityCache(qint64 startNs, qint64 endNs, int columns
         }
     }
 
-    m_cacheStartNs = startNs;
-    m_cacheEndNs = endNs;
+    m_cacheStart = start;
+    m_cacheEnd = end;
     m_cacheColumns = columns;
     m_cacheValid = true;
 }
 
-bool CpuUsageModel::fillDensityColumns(int row, qint64 startNs, qint64 endNs,
+bool CpuUsageModel::fillDensityColumns(int row, nanoseconds start, nanoseconds end,
                                        QList<float> &out) const
 {
     const int columns = int(out.size());
-    if (m_ticks.isEmpty() || columns <= 0 || endNs <= startNs)
+    if (m_ticks.isEmpty() || columns <= 0 || end <= start)
         return false;
 
-    ensureDensityCache(startNs, endNs, columns);
+    ensureDensityCache(start, end, columns);
 
     row = toExpandedRow(row);
     const bool isTotal = row == TotalRow;
@@ -400,27 +404,28 @@ bool CpuUsageModel::fillDensityColumns(int row, qint64 startNs, qint64 endNs,
     };
 
     float last = 0.0f;
-    qint64 lastEndNs = startNs;
-    const auto before = std::lower_bound(m_ticks.cbegin(), m_ticks.cend(), startNs,
-                                         [](const TickRow &tick, qint64 ns) {
-                                             return tick.startNs < ns;
+    nanoseconds lastEnd = start;
+    const auto before = std::lower_bound(m_ticks.cbegin(), m_ticks.cend(), start,
+                                         [](const TickRow &tick, nanoseconds time) {
+                                             return tick.start < time;
                                          });
     if (before != m_ticks.cbegin()) {
         const TickRow &tick = *std::prev(before);
         last = densityOf(tick);
-        lastEndNs = tick.endNs;
+        lastEnd = tick.end;
     }
 
-    const double span = double(endNs - startNs);
+    const nanoseconds span = end - start;
     for (int c = 0; c < columns; ++c) {
         if (m_cacheCovered[c] != 0) {
             const TickRow &tick = m_ticks.at(m_cacheLastTick[c]);
             last = densityOf(tick);
-            lastEndNs = tick.endNs;
+            lastEnd = tick.end;
             continue;
         }
-        const qint64 columnStartNs = startNs + qint64(span * c / columns);
-        out[c] = columnStartNs < lastEndNs ? last : 0.0f;
+        // Floors to whole nanoseconds, far below a pixel.
+        const nanoseconds columnStart = start + span * c / columns;
+        out[c] = columnStart < lastEnd ? last : 0.0f;
     }
     return true;
 }

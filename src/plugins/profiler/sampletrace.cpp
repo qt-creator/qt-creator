@@ -25,6 +25,7 @@
 using namespace CommonTraceFormat;
 using namespace Utils;
 using namespace Qt::StringLiterals;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -168,7 +169,7 @@ QString incompleteTraceWarning(const SampleTraceData &data)
     quint64 lost = 0;
     for (const SampleTraceData::LostSamples &gap : data.lostSamples)
         lost += gap.count;
-    const int throttled = int(data.throttledTsUs.size());
+    const int throttled = int(data.throttledTimestamps.size());
     if (lost == 0 && throttled == 0)
         return {};
 
@@ -235,29 +236,30 @@ Result<> writeSampleTrace(const SampleTraceData &data, const FilePath &dir,
     }
 
     // Written in timestamp order along with the samples, as a stream's clock
-    // only moves forward: everything up to `tsUs` that is not a sample.
+    // only moves forward: everything up to `timestamp` that is not a sample.
     qsizetype nextLost = 0;
     qsizetype nextThrottle = 0;
-    const auto writeGapsUpTo = [&](quint64 tsUs) -> Result<> {
+    const auto writeGapsUpTo = [&](microseconds timestamp) -> Result<> {
         for (;;) {
             const bool haveLost = nextLost < data.lostSamples.size()
-                                  && data.lostSamples.at(nextLost).tsUs <= tsUs;
-            const bool haveThrottle = nextThrottle < data.throttledTsUs.size()
-                                      && data.throttledTsUs.at(nextThrottle) <= tsUs;
+                                  && data.lostSamples.at(nextLost).timestamp <= timestamp;
+            const bool haveThrottle = nextThrottle < data.throttledTimestamps.size()
+                                      && data.throttledTimestamps.at(nextThrottle) <= timestamp;
             if (!haveLost && !haveThrottle)
                 return ResultOk;
             // Whichever comes first, the two being in time order each.
             if (haveLost && (!haveThrottle
-                             || data.lostSamples.at(nextLost).tsUs
-                                    <= data.throttledTsUs.at(nextThrottle))) {
+                             || data.lostSamples.at(nextLost).timestamp
+                                    <= data.throttledTimestamps.at(nextThrottle))) {
                 const SampleTraceData::LostSamples &lost = data.lostSamples.at(nextLost++);
                 StructureValue payload;
                 payload.set(u"count"_s, lost.count);
-                if (auto r = writer->writeEvent(LostEvent, payload, {}, processCtx, lost.tsUs); !r)
+                if (auto r = writer->writeEvent(LostEvent, payload, {}, processCtx, lost.timestamp.count()); !r)
                     return r;
             } else {
-                const quint64 throttledUs = data.throttledTsUs.at(nextThrottle++);
-                if (auto r = writer->writeEvent(ThrottleEvent, {}, {}, processCtx, throttledUs);
+                const microseconds throttled = data.throttledTimestamps.at(nextThrottle++);
+                if (auto r = writer->writeEvent(ThrottleEvent, {}, {}, processCtx,
+                                                throttled.count());
                     !r) {
                     return r;
                 }
@@ -268,7 +270,7 @@ Result<> writeSampleTrace(const SampleTraceData &data, const FilePath &dir,
     const int total = std::max<int>(1, int(data.samples.size()));
     int written = 0;
     for (const SampleTraceData::ThreadSample &sample : data.samples) {
-        if (Result<> r = writeGapsUpTo(sample.tsUs); !r)
+        if (Result<> r = writeGapsUpTo(sample.timestamp); !r)
             return r;
 
         StructureValue payload;
@@ -284,24 +286,25 @@ Result<> writeSampleTrace(const SampleTraceData &data, const FilePath &dir,
         ctx.set(u"pid"_s, data.pid);
         ctx.set(u"tid"_s, sample.tid);
 
-        if (auto r = writer->writeEvent(SampleEvent, payload, {}, ctx, sample.tsUs); !r)
+        if (auto r = writer->writeEvent(SampleEvent, payload, {}, ctx, sample.timestamp.count()); !r)
             return ResultError(r.error());
         if (progress && (++written & 0x3ff) == 0)
             progress(written * 100 / total);
     }
-    if (Result<> r = writeGapsUpTo(std::numeric_limits<quint64>::max()); !r)
+    if (Result<> r = writeGapsUpTo(microseconds::max()); !r)
         return r;
 
     if (auto r = tw.close(); !r)
         return ResultError(r.error());
 
-    if (!data.pausedRangesUs.isEmpty()) {
+    if (!data.pausedRanges.isEmpty()) {
         const FilePath pausedPath = dir.pathAppended(pausedRangesFileName);
         QFile pausedFile(pausedPath.toFSPathString());
         if (!pausedFile.open(QIODevice::WriteOnly | QIODevice::Text))
             return ResultError(Tr::tr("Cannot write \"%1\".").arg(pausedPath.toUserOutput()));
-        for (const auto &[start, end] : data.pausedRangesUs)
-            pausedFile.write(QByteArray::number(start) + ' ' + QByteArray::number(end) + '\n');
+        for (const auto &[start, end] : data.pausedRanges)
+            pausedFile.write(QByteArray::number(start.count()) + ' ' + QByteArray::number(end.count())
+                                + '\n');
     }
     return ResultOk;
 }
@@ -399,7 +402,7 @@ Result<SampleTraceData> readSampleTrace(const FilePath &dir, const std::function
         }
         case SampleEvent: {
             SampleTraceData::ThreadSample sample;
-            sample.tsUs = rec->timestamp;
+            sample.timestamp = microseconds(rec->timestamp);
             sample.tid = uintField(rec->commonContext, u"tid"_s);
             sample.running = uintField(rec->payload, u"running"_s) != 0;
             if (const FieldValue *stack = rec->payload.get(u"stack"_s);
@@ -415,10 +418,10 @@ Result<SampleTraceData> readSampleTrace(const FilePath &dir, const std::function
             break;
         }
         case LostEvent:
-            data.lostSamples.append({rec->timestamp, uintField(rec->payload, u"count"_s)});
+            data.lostSamples.append({microseconds(rec->timestamp), uintField(rec->payload, u"count"_s)});
             break;
         case ThrottleEvent:
-            data.throttledTsUs.append(rec->timestamp);
+            data.throttledTimestamps.append(microseconds(rec->timestamp));
             break;
         default:
             break; // unknown event classes: skip for forward compatibility
@@ -439,24 +442,28 @@ Result<SampleTraceData> readSampleTrace(const FilePath &dir, const std::function
             const quint64 start = fields.at(0).toULongLong(&startOk);
             const quint64 end = fields.at(1).toULongLong(&endOk);
             if (startOk && endOk && start <= end)
-                data.pausedRangesUs.append({start, end});
+                data.pausedRanges.append({microseconds(start),
+                                          microseconds(end)});
         }
     }
     return data;
 }
 
-QList<std::pair<quint64, quint64>> pausedRangesUs(
-    const std::vector<std::pair<qint64, qint64>> &steadyIntervalsNs, qint64 firstSampleNs,
-    quint64 lastSampleUs)
+QList<std::pair<microseconds, microseconds>> pausedRanges(
+    const std::vector<std::pair<nanoseconds, nanoseconds>>
+        &steadyIntervals,
+    nanoseconds firstSampleTimestamp, microseconds lastSampleTimestamp)
 {
-    QList<std::pair<quint64, quint64>> ranges;
-    for (const auto &[start, end] : steadyIntervalsNs) {
-        if (end < 0 || start <= firstSampleNs)
+    QList<std::pair<microseconds, microseconds>> ranges;
+    for (const auto &[start, end] : steadyIntervals) {
+        if (end < 0ns || start <= firstSampleTimestamp)
             continue;
-        const quint64 startUs = quint64(start - firstSampleNs) / 1000;
-        const quint64 endUs = std::min(quint64(end - firstSampleNs) / 1000, lastSampleUs);
-        if (startUs < endUs)
-            ranges.append({startUs, endUs});
+        const microseconds rangeStart = duration_cast<microseconds>(start - firstSampleTimestamp);
+        const microseconds rangeEnd
+            = std::min(duration_cast<microseconds>(end - firstSampleTimestamp),
+                       lastSampleTimestamp);
+        if (rangeStart < rangeEnd)
+            ranges.append({rangeStart, rangeEnd});
     }
     return ranges;
 }

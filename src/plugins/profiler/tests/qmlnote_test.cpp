@@ -7,6 +7,8 @@
 #include <QBuffer>
 #include <QTest>
 
+using namespace std::chrono_literals;
+
 namespace Profiler::Internal {
 
 QmlNoteTest::QmlNoteTest() = default;
@@ -15,8 +17,8 @@ void QmlNoteTest::testAccessors()
 {
     QmlNote note;
     QCOMPARE(note.typeIndex(), -1);
-    QCOMPARE(note.startTime(), -1);
-    QCOMPARE(note.duration(), 0);
+    QCOMPARE(note.startTime(), -1ns);
+    QCOMPARE(note.duration(), 0ns);
     QCOMPARE(note.collapsedRow(), -1);
     QVERIFY(!note.loaded());
     QVERIFY(note.text().isEmpty());
@@ -24,10 +26,10 @@ void QmlNoteTest::testAccessors()
     note.setText("blah");
     QCOMPARE(note.text(), QString("blah"));
 
-    QmlNote note2(8, 5, 9, 10, "semmeln");
+    QmlNote note2(8, 5, 9ns, 10ns, "semmeln");
     QCOMPARE(note2.typeIndex(), 8);
-    QCOMPARE(note2.startTime(), 9);
-    QCOMPARE(note2.duration(), 10);
+    QCOMPARE(note2.startTime(), 9ns);
+    QCOMPARE(note2.duration(), 10ns);
     QCOMPARE(note2.collapsedRow(), 5);
     QVERIFY(!note2.loaded());
     QCOMPARE(note2.text(), QString("semmeln"));
@@ -38,7 +40,7 @@ void QmlNoteTest::testAccessors()
 
 void QmlNoteTest::testStreamOps()
 {
-    QmlNote note(4, 1, 5, 6, "eheheh");
+    QmlNote note(4, 1, 5ns, 6ns, "eheheh");
 
     QBuffer wbuffer;
     wbuffer.open(QIODevice::WriteOnly);

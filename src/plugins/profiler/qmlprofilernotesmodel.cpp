@@ -6,6 +6,8 @@
 #include <tracing/timelinemodel.h>
 #include <utils/algorithm.h>
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 // Saved notes count collapsed rows from 1, as the timeline used to keep row 0 empty.
@@ -23,10 +25,10 @@ QmlProfilerNotesModel::QmlProfilerNotesModel(QObject *parent)
     : TimelineNotesModel(parent)
 {}
 
-int QmlProfilerNotesModel::addQmlNote(int typeId, int collapsedRow, qint64 start, qint64 duration,
-                                      const QString &text)
+int QmlProfilerNotesModel::addQmlNote(int typeId, int collapsedRow, nanoseconds start,
+                                      nanoseconds duration, const QString &text)
 {
-    qint64 difference = std::numeric_limits<qint64>::max();
+    nanoseconds difference = nanoseconds::max();
     int foundTypeId = -1;
     int timelineModel = -1;
     int timelineIndex = -1;
@@ -40,8 +42,8 @@ int QmlProfilerNotesModel::addQmlNote(int typeId, int collapsedRow, qint64 start
             if (collapsedRow != -1 && collapsedRow != model->collapsedRow(i))
                 continue;
 
-            qint64 modelStart = model->startTime(i);
-            qint64 modelDuration = model->duration(i);
+            nanoseconds modelStart = model->startTime(i);
+            nanoseconds modelDuration = model->duration(i);
 
             if (modelStart + modelDuration < start || start + duration < modelStart)
                 continue;
@@ -53,17 +55,17 @@ int QmlProfilerNotesModel::addQmlNote(int typeId, int collapsedRow, qint64 start
             if (foundTypeId == typeId && modelTypeId != typeId)
                 continue;
 
-            qint64 newDifference = qAbs(modelStart - start) + qAbs(modelDuration - duration);
+            nanoseconds newDifference = abs(modelStart - start) + abs(modelDuration - duration);
             if (newDifference < difference) {
                 timelineModel = model->modelId();
                 timelineIndex = i;
                 difference = newDifference;
                 foundTypeId = modelTypeId;
-                if (difference == 0 && modelTypeId == typeId)
+                if (difference == 0ns && modelTypeId == typeId)
                     break;
             }
         }
-        if (difference == 0 && foundTypeId == typeId)
+        if (difference == 0ns && foundTypeId == typeId)
             break;
     }
 

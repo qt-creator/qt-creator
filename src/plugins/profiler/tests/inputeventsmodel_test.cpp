@@ -9,6 +9,7 @@
 #include <QTest>
 
 using namespace QmlDebug;
+using namespace std::chrono;
 namespace Profiler::Internal {
 
 static InputEventType inputType(int i)
@@ -29,7 +30,7 @@ void InputEventsModelTest::initTestCase()
 
     for (int i = 0; i < 10; ++i) {
         QmlEvent event;
-        event.setTimestamp(i);
+        event.setTimestamp(nanoseconds(i));
         InputEventType type = inputType(i);
         event.setTypeIndex(type <= InputKeyUnknown ? keyTypeId : mouseTypeId);
         event.setNumbers({static_cast<qint32>(type),
@@ -80,7 +81,7 @@ void InputEventsModelTest::testDetails()
 {
     for (int i = 0; i < 10; ++i) {
         const Timeline::ItemDetails details = model.details(i);
-        QCOMPARE(details[Tr::tr("Timestamp")], Timeline::formatTime(i));
+        QCOMPARE(details[Tr::tr("Timestamp")], Timeline::formatTime(nanoseconds(i)));
         QString displayName = details[QString("displayName")];
         QVERIFY(!displayName.isEmpty());
         switch (inputType(i)) {

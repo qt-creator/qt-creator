@@ -38,6 +38,7 @@
 
 using namespace Utils;
 using namespace Qt::StringLiterals;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 namespace {
@@ -168,9 +169,9 @@ struct EtwCaptureContext
 {
     // `process` must stay open for the lifetime of the context: the symbolicator
     // and the labeler read the target's module list through it.
-    EtwCaptureContext(HANDLE process, DWORD pid, int interval)
+    EtwCaptureContext(HANDLE process, DWORD pid, microseconds interval)
         : targetPid(pid)
-        , intervalUs(interval)
+        , interval(interval)
         , symbolicator(process)
         , labeler(symbolicator, data)
     {
@@ -187,7 +188,7 @@ struct EtwCaptureContext
     }
 
     quint64 targetPid = 0;
-    int intervalUs = 200; // Sampling interval in microseconds.
+    microseconds interval = 200us;
 
     // Declaration order matters: `labeler` binds references to the two above it.
     SampleTraceData data;
@@ -238,7 +239,7 @@ struct EtwCaptureContext
     // Timestamp baseline (QPC ticks since system boot): the trace's zero
     // point, captured in the constructor when the capture goes live. Anchoring
     // it there rather than on the first sample keeps the trace aligned with
-    // RecordingSession::startedMonotonicUs, which a combined recording uses to
+    // RecordingSession::startedMonotonic, which a combined recording uses to
     // correlate this trace with the QML one — a target that idles before its
     // first sample must not shift the timeline. 0 only if
     // QueryPerformanceCounter failed; the first sample then anchors it.
@@ -368,9 +369,10 @@ void processStackWalk(const EVENT_RECORD &record, EtwCaptureContext &ctx)
     // clamps to 0 instead of letting the subtraction wrap. The tick rate is
     // whatever QueryPerformanceFrequency reports — commonly 10 MHz, but not
     // universally (e.g. ARM64), so no hard-coded divisor.
-    const quint64 tsUsRelative = header->eventTimeStamp > baseline
-        ? (header->eventTimeStamp - baseline) * 1'000'000 / ctx.qpcTicksPerSecond
-        : 0;
+    const microseconds relativeTimestamp(
+        header->eventTimeStamp > baseline
+            ? qint64((header->eventTimeStamp - baseline) * 1'000'000 / ctx.qpcTicksPerSecond)
+            : 0);
 
     // Resolve thread name lazily on first encounter: try GetThreadDescription
     // first, then fall back to the module name from the start address. Resolving
@@ -421,7 +423,7 @@ void processStackWalk(const EVENT_RECORD &record, EtwCaptureContext &ctx)
     CaptureBuffer::Fragment fragment;
     fragment.rawTs = header->eventTimeStamp;
     fragment.kernel = kernelFragment;
-    fragment.sample.tsUs = tsUsRelative;
+    fragment.sample.timestamp = relativeTimestamp;
     fragment.sample.tid = tid;
     fragment.sample.running = true; // SampledProfile events are on-CPU samples.
     fragment.sample.frames = std::move(labelIds);
@@ -579,18 +581,19 @@ Result<> startEtwSession(EtwCaptureContext &ctx)
         // verbatim (verified down to 1 µs), but the interval is machine-global
         // and per-CPU — "as fast as possible" (0) must not arm a ~1 MHz
         // interrupt rate on every core.
-        const int clampedInterval = qMax(ctx.intervalUs, 123);
-        profileInterval.Interval = clampedInterval * 10; // us -> 100-ns units
+        const microseconds clampedInterval = std::max(ctx.interval, 123us);
+        profileInterval.Interval = ULONG(clampedInterval / 100ns); // In 100-ns units.
         const ULONG st = TraceSetInformation(0, TraceSampledProfileIntervalInfo, &profileInterval,
                                              sizeof(profileInterval));
         if (st != ERROR_SUCCESS) {
             //: micro seconds
             return ResultError(Tr::tr("Cannot set the sampling interval to %1 \xc2\xb5s "
                                       "(error 0x%2).")
-                                   .arg(clampedInterval)
+                                   .arg(clampedInterval.count())
                                    .arg(st, 0, 16));
         }
-        qCDebug(etwLog, "Sampling interval set to %d \xc2\xb5s.", clampedInterval);
+        qCDebug(etwLog, "Sampling interval set to %lld \xc2\xb5s.",
+                static_cast<long long>(clampedInterval.count()));
     }
 
     // --- Start NT Kernel Logger (without flags yet; consumer attaches first) ---
@@ -726,7 +729,7 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts,
 
     // Initialize capture context. Declared after closeTarget so it is destroyed
     // before the process handle it holds is closed.
-    EtwCaptureContext ctx(targetProcess, targetPid, opts.intervalUs);
+    EtwCaptureContext ctx(targetProcess, targetPid, opts.interval);
 
     // The sampled-profile interval is machine-global; put the value found by
     // startEtwSession() back no matter how the recording ends. It fills in the
@@ -750,7 +753,7 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts,
 
     // Wait for stop signal from GUI thread.
     while (!isCanceled())
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(milliseconds(10));
 
     // Stop the ETW session so ProcessTrace returns in the capture thread, then
     // wait for the in-flight callbacks to drain.
@@ -815,7 +818,11 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts,
                     "sampleBytes=%zu, duration=%llu ms.",
             ctx.eventsReceived.load(), ctx.stackWalkEvents.load(),
             static_cast<long long>(ctx.data.samples.size()), ctx.sampleBytes.load(),
-            ctx.data.samples.isEmpty() ? 0 : ctx.data.samples.last().tsUs / 1000);
+            ctx.data.samples.isEmpty()
+                ? 0ULL
+                : static_cast<unsigned long long>(
+                    duration_cast<milliseconds>(
+                        ctx.data.samples.last().timestamp).count()));
 
     if (ctx.data.samples.isEmpty())
         return ResultError(Tr::tr("No samples were captured. The target may have exited, "

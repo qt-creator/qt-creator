@@ -7,6 +7,8 @@
 #include <QHash>
 #include <QList>
 
+#include <chrono>
+
 namespace Profiler::Internal {
 
 class CtfStatisticsModel : public QAbstractTableModel
@@ -31,9 +33,9 @@ public:
 
     struct EventData {
         int count = 0;
-        qint64 totalDuration = 0.0;
-        qint64 minDuration = std::numeric_limits<qint64>::max();
-        qint64 maxDuration = 0.0;
+        std::chrono::nanoseconds totalDuration{0};
+        std::chrono::nanoseconds minDuration = std::chrono::nanoseconds::max();
+        std::chrono::nanoseconds maxDuration{0};
     };
 
     struct Row {
@@ -45,8 +47,8 @@ public:
     ~CtfStatisticsModel() override = default;
 
     void beginLoading();
-    void addEvent(const QString &title, qint64 durationInNs);
-    void setMeasurementDuration(qint64 timeInNs);
+    void addEvent(const QString &title, std::chrono::nanoseconds duration);
+    void setMeasurementDuration(std::chrono::nanoseconds duration);
     void endLoading();
 
 private:
@@ -58,7 +60,7 @@ private:
 
     QHash<QString, EventData> m_data;
     QList<Row> m_rows;
-    qint64 m_measurementDurationInNs = 0;
+    std::chrono::nanoseconds m_measurementDuration{0};
 
 };
 

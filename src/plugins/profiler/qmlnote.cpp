@@ -9,14 +9,18 @@ namespace Profiler {
 
 QDataStream &operator>>(QDataStream &stream, QmlNote &note)
 {
-    return stream >> note.m_typeIndex >> note.m_collapsedRow >> note.m_startTime >> note.m_duration
-                  >> note.m_text;
+    qint64 startTime = 0;
+    qint64 duration = 0;
+    stream >> note.m_typeIndex >> note.m_collapsedRow >> startTime >> duration >> note.m_text;
+    note.m_startTime = std::chrono::nanoseconds(startTime);
+    note.m_duration = std::chrono::nanoseconds(duration);
+    return stream;
 }
 
 QDataStream &operator<<(QDataStream &stream, const QmlNote &note)
 {
-    return stream << note.m_typeIndex << note.m_collapsedRow << note.m_startTime << note.m_duration
-                  << note.m_text;
+    return stream << note.m_typeIndex << note.m_collapsedRow << qint64(note.m_startTime.count())
+                  << qint64(note.m_duration.count()) << note.m_text;
 }
 
 bool operator==(const QmlNote &note1, const QmlNote &note2)

@@ -10,6 +10,8 @@
 #include <QObject>
 #include <QStringList>
 
+#include <chrono>
+
 namespace Timeline { class TimelineModelAggregator; }
 
 namespace Profiler::Internal {
@@ -26,9 +28,9 @@ public:
                              Timeline::TimelineModelAggregator *modelAggregator,
                              CtfStatisticsModel *statisticsModel);
 
-    qint64 traceDuration() const;
-    qint64 traceBegin() const;
-    qint64 traceEnd() const;
+    std::chrono::nanoseconds traceDuration() const;
+    std::chrono::nanoseconds traceBegin() const;
+    std::chrono::nanoseconds traceEnd() const;
 
     void addEvent(const nlohmann::json &event);
 

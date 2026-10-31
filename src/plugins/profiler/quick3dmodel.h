@@ -74,8 +74,8 @@ private:
 
     QSet<int> m_types;
     QList<int> m_sortedTypes;
-    qint64 m_prevTexStartTime = -1;
-    qint64 m_prevMeshStartTime = -1;
+    std::chrono::nanoseconds m_prevTexStartTime{-1};
+    std::chrono::nanoseconds m_prevMeshStartTime{-1};
     quint64 m_prevMeshData = 0;
     quint64 m_prevTexData = 0;
     quint64 m_maxMeshSize = 0;

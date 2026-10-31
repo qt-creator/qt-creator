@@ -20,6 +20,7 @@
 #include <QStringList>
 
 #include <algorithm>
+#include <chrono>
 #include <fstream>
 #include <limits>
 #include <set>
@@ -28,6 +29,7 @@
 #include <unordered_map>
 
 using namespace Profiler::Constants;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -179,7 +181,7 @@ QString traceDirectoryName(const QString &directory)
 // microseconds in a double could tell apart, while the integer arithmetic that
 // rebases one would overflow. A trace states its clock's origin and its events'
 // cycle counts itself, and is not trusted to keep either below it.
-constexpr qint64 maxClockSeconds = Q_INT64_C(1) << 40;
+constexpr seconds maxClockTime{Q_INT64_C(1) << 40};
 
 // Where a tracepoint came from, which for Qt is the module that declares it:
 // its CTF2 namespace, or the "<provider>:" its name carries in a TSDL 1.8 trace
@@ -332,12 +334,12 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath, const QString
     }
 
     // Clock parameters of one stream: an event's cycle count is
-    // offsetSeconds + (cycles + offsetCycles) / frequency seconds from the
+    // offset + (cycles + offsetCycles) / frequency seconds from the
     // clock's origin (spec 5.7).
     struct StreamClock
     {
         quint64 frequency = 1000000000ULL;
-        qint64 offsetSeconds = 0; // Within +-maxClockSeconds.
+        seconds offset{0}; // Within +-maxClockTime.
         quint64 offsetCycles = 0;
         // Whether the stream's class names a clock the metadata declares.
         // Without one every event of the stream carries the timestamp 0
@@ -358,18 +360,18 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath, const QString
 
         // Whole seconds of `cycles`, which count from the clock's origin and
         // include offsetCycles, as wall-clock time.
-        qint64 seconds(quint64 cycles) const
+        seconds wholeSeconds(quint64 cycles) const
         {
             const quint64 whole = cycles / frequency;
-            if (whole > quint64(maxClockSeconds))
-                return maxClockSeconds;
-            return std::min(offsetSeconds + qint64(whole), maxClockSeconds);
+            if (whole > quint64(maxClockTime.count()))
+                return maxClockTime;
+            return std::min(offset + seconds(whole), maxClockTime);
         }
 
         // Whole seconds at or below every timestamp of the stream, which is the
         // offset alone: an event's own cycle count is counted from the origin,
         // so it cannot be negative.
-        qint64 originSeconds() const { return seconds(cyclesFromOrigin(0)); }
+        seconds origin() const { return wholeSeconds(cyclesFromOrigin(0)); }
     };
 
     const auto streamClock = [](const Schema &schema, const DataStreamClass *dsc) {
@@ -382,8 +384,8 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath, const QString
                                  || cc.name == dsc->defaultClockClassName;
             if (matches && cc.frequency > 0) {
                 clock.frequency = cc.frequency;
-                clock.offsetSeconds = std::clamp(cc.offsetSeconds, -maxClockSeconds,
-                                                 maxClockSeconds);
+                clock.offset = std::clamp(seconds(cc.offsetSeconds), -maxClockTime,
+                                          maxClockTime);
                 clock.offsetCycles = cc.offsetCycles;
                 // Told by the clock that was found, not by the name that was
                 // looked up: a stream may name a clock the metadata never
@@ -412,7 +414,7 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath, const QString
     // emitted against a base of 0, which puts them where they were before --
     // at the very start of the timeline -- rather than a wall-clock era before
     // it.
-    qint64 baseSeconds = 0;
+    seconds base{0};
     bool haveBase = false;
     for (const TraceDirectory::Trace &trace : traceDir.traces()) {
         for (const TraceDirectory::Stream &sf : trace.streams) {
@@ -421,9 +423,9 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath, const QString
             const StreamClock clock = streamClock(*trace.schema, sf.dsc);
             if (!clock.hasClock)
                 continue;
-            const qint64 origin = clock.originSeconds();
-            if (!haveBase || origin < baseSeconds) {
-                baseSeconds = origin;
+            const seconds origin = clock.origin();
+            if (!haveBase || origin < base) {
+                base = origin;
                 haveBase = true;
             }
         }
@@ -471,7 +473,7 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath, const QString
             const StreamClock clock = streamClock(schema, dsc);
             // See the base computation above: a stream left out of it counts
             // from its own origin instead.
-            const qint64 streamBase = clock.hasClock ? baseSeconds : 0;
+            const seconds streamBase = clock.hasClock ? base : 0s;
 
             // Stream instance id, used as a pid/tid lane fallback.
             const quint64 streamId = sf.streamId ? *sf.streamId : fallbackStreamId++;
@@ -525,9 +527,10 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath, const QString
                 // Cycles to microseconds from `streamBase`: the whole seconds
                 // are counted in integers, only the remainder is divided.
                 const quint64 cycles = clock.cyclesFromOrigin(rec.timestamp);
-                const double ts = double(clock.seconds(cycles) - streamBase) * 1.0e6
-                                  + double(cycles % clock.frequency) * 1.0e6
-                                        / double(clock.frequency);
+                const seconds whole = clock.wholeSeconds(cycles) - streamBase;
+                const duration<double> remainder(double(cycles % clock.frequency)
+                                                 / double(clock.frequency));
+                const double ts = duration<double, std::micro>(whole + remainder).count();
 
                 json event;
                 std::string evName = rec.eventClass ? rec.eventClass->name.toStdString()

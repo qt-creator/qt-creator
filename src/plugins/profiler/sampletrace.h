@@ -11,6 +11,7 @@
 #include <QLatin1StringView>
 #include <QList>
 
+#include <chrono>
 #include <functional>
 #include <utility>
 #include <vector>
@@ -27,7 +28,7 @@ class SampleTraceData
 public:
     struct ThreadSample
     {
-        quint64 tsUs = 0;     // microseconds since recording start
+        std::chrono::microseconds timestamp{0}; // since recording start
         quint64 tid = 0;
         bool running = false; // scheduler run state at capture (best-effort "on-CPU")
         QList<int> frames;    // root-first indices into `labels`; may be empty
@@ -72,7 +73,7 @@ public:
     // them, as "perf record" does when its ring buffer overflows.
     struct LostSamples
     {
-        quint64 tsUs = 0; // about where, in microseconds since recording start
+        std::chrono::microseconds timestamp{0}; // about where, since recording start
         quint64 count = 0;
 
         friend bool operator==(const LostSamples &, const LostSamples &) = default;
@@ -81,22 +82,24 @@ public:
     quint64 pid = 0;
     QList<Label> labels;                 // index = label id
     QHash<quint64, QString> threadNames; // tid -> name (entries may be empty)
-    QList<ThreadSample> samples;         // ordered by tsUs
-    // Stretches (start, end in tsUs) during which the recording was paused, so
-    // the gap in `samples` reads as deliberate. Kept beside the stream rather
-    // than in it, in a file of its own that is only there when there were any.
-    QList<std::pair<quint64, quint64>> pausedRangesUs;
+    QList<ThreadSample> samples;         // ordered by timestamp
+    // Stretches (start, end, on the timeline of the sample timestamps) during
+    // which the recording was paused, so the gap in `samples` reads as
+    // deliberate. Kept beside the stream rather than in it, in a file of its
+    // own that is only there when there were any.
+    QList<std::pair<std::chrono::microseconds, std::chrono::microseconds>> pausedRanges;
     // Where the samples do not show everything that ran: stretches around a
     // loss, and after the kernel throttled sampling because more samples were
     // due than it would take, are underrepresented.
-    QList<LostSamples> lostSamples;      // ordered by tsUs
-    QList<quint64> throttledTsUs;        // when sampling was throttled, ordered
+    QList<LostSamples> lostSamples;      // ordered by timestamp
+    // When sampling was throttled, ordered.
+    QList<std::chrono::microseconds> throttledTimestamps;
 
     friend bool operator==(const SampleTraceData &, const SampleTraceData &) = default;
 };
 
 // What a user should know about the samples `data` lacks (see
-// SampleTraceData::lostSamples and throttledTsUs), or an empty string when it
+// SampleTraceData::lostSamples and throttledTimestamps), or an empty string when it
 // lacks none.
 QString incompleteTraceWarning(const SampleTraceData &data);
 
@@ -112,14 +115,16 @@ Utils::Result<> writeSampleTrace(const SampleTraceData &data, const Utils::FileP
 Utils::Result<SampleTraceData> readSampleTrace(const Utils::FilePath &dir,
                                                const std::function<void(int)> &progress = {});
 
-// The recording's pauses `steadyIntervalsNs`, as (start, end) on the steady
+// The recording's pauses `steadyIntervals`, as (start, end) on the steady
 // clock with -1 for an end still to come, on the timeline of a trace whose
-// first sample was taken at `firstSampleNs` there and whose last is at
-// `lastSampleUs`. A pause still going on, or one that began before the first
-// sample, leaves no range: the trace starts and ends at the samples it holds.
-QList<std::pair<quint64, quint64>> pausedRangesUs(
-    const std::vector<std::pair<qint64, qint64>> &steadyIntervalsNs, qint64 firstSampleNs,
-    quint64 lastSampleUs);
+// first sample was taken at `firstSampleTimestamp` there and whose last is at
+// `lastSampleTimestamp`. A pause still going on, or one that began before the
+// first sample, leaves no range: the trace starts and ends at the samples it
+// holds.
+QList<std::pair<std::chrono::microseconds, std::chrono::microseconds>> pausedRanges(
+    const std::vector<std::pair<std::chrono::nanoseconds, std::chrono::nanoseconds>>
+        &steadyIntervals,
+    std::chrono::nanoseconds firstSampleTimestamp, std::chrono::microseconds lastSampleTimestamp);
 
 // True if `dir` holds a CTF2 trace whose schema contains a data stream class
 // named samplerStreamName. Reads only the metadata file.

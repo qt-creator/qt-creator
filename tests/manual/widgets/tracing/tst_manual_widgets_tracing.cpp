@@ -28,10 +28,12 @@
 #include "../common/themeselector.h"
 
 using namespace Timeline;
+using namespace std::chrono;
 
-static const qint64 oneMs = 1000 * 1000; // in nanoseconds
-static const qint64 cellWidth = oneMs * 8;
-static const qint64 cellGap = oneMs * 1;
+static constexpr nanoseconds cellWidth = 8ms;
+static constexpr nanoseconds cellGap = 1ms;
+static constexpr nanoseconds traceDuration = 1s;
+static constexpr nanoseconds initialRange = traceDuration / 3;
 
 class FractionTableModel : public Timeline::TimelineModel
 {
@@ -73,7 +75,7 @@ public:
     void populateData()
     {
         for (int step = 0; step < m_steps; ++step) {
-            const qint64 cellStart = step * (cellWidth + cellGap);
+            const nanoseconds cellStart = step * (cellWidth + cellGap);
             insert(cellStart, cellWidth, step);
         }
         emit contentChanged();
@@ -144,7 +146,7 @@ public:
     void populateData()
     {
         for (int hueStep = 0; hueStep < m_hueSteps; ++hueStep) {
-            const qint64 hueCellStart = hueStep * (cellWidth + cellGap);
+            const nanoseconds hueCellStart = hueStep * (cellWidth + cellGap);
             forEachChroma([this, hueCellStart, hueStep](int chroma) {
                 const int hueChromaTableCellIndex = hueStep * kChromaSteps + chroma;
                 insert(hueCellStart, cellWidth, hueChromaTableCellIndex);
@@ -219,17 +221,17 @@ public:
     void populateData()
     {
         // One region per selection
-        insert(oneMs *  20, oneMs * 20, 0);
-        insert(oneMs * 100, oneMs * 30, 1);
+        insert(20ms, 20ms, 0);
+        insert(100ms, 30ms, 1);
 
         // Two regions in the same selection
-        insert(oneMs *  40, oneMs * 20, 2);
-        insert(oneMs * 120, oneMs * 30, 2);
+        insert(40ms, 20ms, 2);
+        insert(120ms, 30ms, 2);
 
         // Three regions in the same selection
-        insert(oneMs *  60, oneMs * 30, 3);
-        insert(oneMs * 140, oneMs * 20, 3);
-        insert(oneMs * 170, oneMs * 20, 3);
+        insert(60ms, 30ms, 3);
+        insert(140ms, 20ms, 3);
+        insert(170ms, 20ms, 3);
 
         emit contentChanged();
     }
@@ -257,8 +259,8 @@ int main(int argc, char *argv[])
     modelAggregator->setNotes(notes);
 
     auto zoomControl = new TimelineZoomControl;
-    zoomControl->setTrace(0, oneMs * 1000);
-    zoomControl->setRange(0, oneMs * 1000 / 3);
+    zoomControl->setTrace(0ns, traceDuration);
+    zoomControl->setRange(0ns, initialRange);
 
     // QPainter ruler widget
     auto rulerWindow = new QWidget;
@@ -270,7 +272,7 @@ int main(int argc, char *argv[])
     rulerLayout->setSpacing(2);
 
     auto ruler = new Timeline::TimeRuler(rulerWindow);
-    ruler->setRange(0, oneMs * 1000 / 3);
+    ruler->setRange(0ns, initialRange);
     rulerLayout->addWidget(ruler);
 
     auto rangeLabel = new QLabel("range: 0 .. 333333333 ns", rulerWindow);
@@ -278,9 +280,10 @@ int main(int argc, char *argv[])
     rulerLayout->addWidget(rangeLabel);
 
     QObject::connect(zoomControl, &Timeline::TimelineZoomControl::rangeChanged,
-                     ruler, [ruler, rangeLabel](qint64 start, qint64 end) {
+                     ruler, [ruler, rangeLabel](nanoseconds start, nanoseconds end) {
                          ruler->setRange(start, end);
-                         rangeLabel->setText(QString("range: %1 .. %2 ns").arg(start).arg(end));
+                         rangeLabel->setText(
+                             QString("range: %1 .. %2 ns").arg(start.count()).arg(end.count()));
                      });
 
     rulerWindow->show();
@@ -336,12 +339,12 @@ int main(int argc, char *argv[])
     auto trackPainter = new Timeline::TrackPainterGpu(painterWindow);
     trackPainter->setTracks({model});
     trackPainter->setNotes(notes);
-    trackPainter->setRange(0, oneMs * 1000 / 3);
+    trackPainter->setRange(0ns, initialRange);
     painterLayout->addWidget(trackPainter);
     painterLayout->addStretch();
 
     QObject::connect(zoomControl, &Timeline::TimelineZoomControl::rangeChanged,
-                     trackPainter, [trackPainter](qint64 start, qint64 end) {
+                     trackPainter, [trackPainter](nanoseconds start, nanoseconds end) {
                          trackPainter->setRange(start, end);
                      });
 
@@ -369,12 +372,12 @@ int main(int argc, char *argv[])
     auto rasterPainter = new Timeline::TrackPainterRaster(rasterWindow);
     rasterPainter->setTracks({model});
     rasterPainter->setNotes(notes);
-    rasterPainter->setRange(0, oneMs * 1000 / 3);
+    rasterPainter->setRange(0ns, initialRange);
     rasterLayout->addWidget(rasterPainter);
     rasterLayout->addStretch();
 
     QObject::connect(zoomControl, &Timeline::TimelineZoomControl::rangeChanged,
-                     rasterPainter, [rasterPainter](qint64 start, qint64 end) {
+                     rasterPainter, [rasterPainter](nanoseconds start, nanoseconds end) {
                          rasterPainter->setRange(start, end);
                      });
 

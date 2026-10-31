@@ -70,7 +70,8 @@ QDataStream &operator>>(QDataStream &stream, QmlEvent &event)
     qint8 type;
     stream >> type;
 
-    event.setTimestamp(readNumber<qint64>(stream, (type >> TimestampOffset) & TypeMask));
+    event.setTimestamp(
+        std::chrono::nanoseconds(readNumber<qint64>(stream, (type >> TimestampOffset) & TypeMask)));
     event.setTypeIndex(readNumber<qint32>(stream, (type >> TypeIndexOffset) & TypeMask));
     event.m_dataLength = readNumber<qint16>(stream, (type >> DataLengthOffset) & TypeMask);
 
@@ -194,13 +195,13 @@ static inline void writeNumber(QDataStream &stream, Number number, qint8 type)
 
 QDataStream &operator<<(QDataStream &stream, const QmlEvent &event)
 {
-    qint8 type = minimumType(event.timestamp()) << TimestampOffset;
+    qint8 type = minimumType(qint64(event.timestamp().count())) << TimestampOffset;
     type |= minimumType(event.typeIndex()) << TypeIndexOffset;
     type |= minimumType(event.m_dataLength) << DataLengthOffset;
     type |= minimumType(event, event.m_dataLength, event.m_dataType) << DataOffset;
     stream << type;
 
-    writeNumber(stream, event.timestamp(), (type >> TimestampOffset) & TypeMask);
+    writeNumber(stream, qint64(event.timestamp().count()), (type >> TimestampOffset) & TypeMask);
     writeNumber(stream, event.typeIndex(), (type >> TypeIndexOffset) & TypeMask);
     writeNumber(stream, event.m_dataLength, (type >> DataLengthOffset) & TypeMask);
 

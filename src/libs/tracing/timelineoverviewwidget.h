@@ -10,6 +10,8 @@
 #include <QPixmap>
 #include <QWidget>
 
+#include <chrono>
+
 namespace Timeline {
 
 class TimelineModelAggregator;
@@ -34,8 +36,8 @@ protected:
     void leaveEvent(QEvent *) override;
 
 private:
-    double timeToPixel(qint64 t) const;
-    qint64 pixelToTime(double px) const;
+    double timeToPixel(std::chrono::nanoseconds t) const;
+    std::chrono::nanoseconds pixelToTime(double px) const;
     bool nearHandle(double px, double handlePx) const;
     void applyDrag(double px);
     void connectModels();
@@ -48,8 +50,8 @@ private:
 
     DragMode m_dragMode = DragNone;
     double m_dragStartX = 0;
-    qint64 m_dragRangeStart = 0;
-    qint64 m_dragRangeEnd = 0;
+    std::chrono::nanoseconds m_dragRangeStart{0};
+    std::chrono::nanoseconds m_dragRangeEnd{0};
 
     bool m_leftHovered = false;
     bool m_rightHovered = false;

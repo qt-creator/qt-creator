@@ -54,7 +54,7 @@ public:
     // Called when a run starts recording into this trace.
     void prepareRun(const ProjectExplorer::Project *project, const ProjectExplorer::Kit *kit);
     bool isReaderRunning() const;
-    void updateTime(qint64 duration, qint64 delay);
+    void updateTime(std::chrono::nanoseconds duration, std::chrono::nanoseconds delay);
 
     void restrictToSelectedRange();
     void showFullRange();

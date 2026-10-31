@@ -28,8 +28,8 @@ public:
 protected:
     QList<QmlNote> m_notes;
 
-    int addQmlNote(int typeId, int collapsedRow, qint64 startTime, qint64 duration,
-                   const QString &text);
+    int addQmlNote(int typeId, int collapsedRow, std::chrono::nanoseconds startTime,
+                   std::chrono::nanoseconds duration, const QString &text);
 };
 
 } // namespace Profiler::Internal

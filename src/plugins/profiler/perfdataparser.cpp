@@ -14,6 +14,7 @@
 
 using namespace Utils;
 using namespace Qt::StringLiterals;
+using namespace std::chrono;
 
 namespace Profiler::Internal::PerfData {
 
@@ -241,7 +242,7 @@ SampleId PerfDataParser::readSampleId(const QByteArray &record, qsizetype bodyEn
         p += 8;
     }
     if (type & SampleTime) {
-        sampleId.time = readU64(p);
+        sampleId.time = nanoseconds(readU64(p));
         sampleId.hasTime = true;
         p += 8;
     }
@@ -317,8 +318,11 @@ Result<> PerfDataParser::handleSample(quint16 misc, const QByteArray &record,
         sample.pid = quint32(scratch);
         sample.tid = quint32(scratch >> 32);
     }
-    if ((type & SampleTime) && !take(sample.time))
-        return truncated();
+    if (type & SampleTime) {
+        if (!take(scratch))
+            return truncated();
+        sample.time = nanoseconds(scratch);
+    }
     if ((type & SampleAddr) && !take(sample.addr))
         return truncated();
     if ((type & SampleIdBit) && !take(sample.id))
@@ -613,7 +617,7 @@ Result<> PerfDataParser::handleRecord(const QByteArray &record, PerfDataHandler 
         task.ppid = readU32(p + 4);
         task.tid = readU32(p + 8);
         task.ptid = readU32(p + 12);
-        task.time = readU64(p + 16);
+        task.time = nanoseconds(readU64(p + 16));
         handler.task(task);
         return ResultOk;
     }
@@ -651,7 +655,7 @@ Result<> PerfDataParser::handleRecord(const QByteArray &record, PerfDataHandler 
             return truncated();
         Throttle throttle;
         throttle.unthrottle = type == RecordUnthrottle;
-        throttle.time = readU64(p);
+        throttle.time = nanoseconds(readU64(p));
         throttle.id = readU64(p + 8);
         handler.throttle(throttle);
         return ResultOk;

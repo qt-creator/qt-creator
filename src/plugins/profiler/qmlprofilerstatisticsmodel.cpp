@@ -17,6 +17,8 @@
 
 using namespace QmlDebug;
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 static QString nameForType(RangeType typeNumber)
@@ -38,14 +40,15 @@ double QmlProfilerStatisticsModel::durationPercent(int typeId) const
         return 0;
     else if (typeId >= m_data.length())
         return 100;
-    return double(m_data[typeId].totalNonRecursive()) / double(m_rootDuration) * 100;
+    return double(m_data[typeId].totalNonRecursive().count()) / double(m_rootDuration.count())
+           * 100;
 }
 
 double QmlProfilerStatisticsModel::durationSelfPercent(int typeId) const
 {
     if (typeId < 0 || typeId >= m_data.length())
         return 0;
-    return double(m_data[typeId].self) / double(m_rootDuration) * 100;
+    return double(m_data[typeId].self.count()) / double(m_rootDuration.count()) * 100;
 }
 
 QmlProfilerStatisticsModel::QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager)
@@ -175,7 +178,7 @@ QString QmlProfilerStatisticsModel::summary(const QList<int> &typeIds) const
 void QmlProfilerStatisticsModel::clear()
 {
     beginResetModel();
-    m_rootDuration = 0;
+    m_rootDuration = 0ns;
     m_data.clear();
     m_notes.clear();
     m_callStack.clear();
@@ -210,7 +213,7 @@ QVariant QmlProfilerStatisticsModel::dataForMainEntry(const QModelIndex &index, 
 {
     switch (role) {
     case FilterRole:
-        return m_rootDuration > 0 ? "+" : "-";
+        return m_rootDuration > 0ns ? "+" : "-";
     case TypeIdRole:
         return s_mainEntryTypeId;
     case Qt::ForegroundRole:
@@ -227,7 +230,7 @@ QVariant QmlProfilerStatisticsModel::dataForMainEntry(const QModelIndex &index, 
         case MainMedianTime:
         case MainMaxTime:
         case MainMinTime:
-            return m_rootDuration;
+            return qint64(m_rootDuration.count());
         }
         Q_FALLTHROUGH();
     case Qt::DisplayRole:
@@ -239,9 +242,9 @@ QVariant QmlProfilerStatisticsModel::dataForMainEntry(const QModelIndex &index, 
         case MainSelfTimeInPercent:
             return "0.00 %";
         case MainSelfTime:
-            return Timeline::formatTime(0);
+            return Timeline::formatTime(0ns);
         case MainCallCount:
-            return m_rootDuration > 0 ? 1 : 0;
+            return m_rootDuration > 0ns ? 1 : 0;
         case MainTotalTime:
         case MainTimePerCall:
         case MainMedianTime:
@@ -283,7 +286,7 @@ QVariant QmlProfilerStatisticsModel::data(const QModelIndex &index, int role) co
     case ColumnRole:
         return type.location().column();
     case Qt::ToolTipRole:
-        if (stats.recursive > 0) {
+        if (stats.recursive > 0ns) {
             return (Tr::tr("+%1 in recursive calls")
                     .arg(Timeline::formatTime(stats.recursive)));
         } else {
@@ -291,7 +294,7 @@ QVariant QmlProfilerStatisticsModel::data(const QModelIndex &index, int role) co
             return it == m_notes.constEnd() ? QString() : it.value();
         }
     case Qt::ForegroundRole:
-        return (stats.recursive > 0 || m_notes.contains(typeIndex))
+        return (stats.recursive > 0ns || m_notes.contains(typeIndex))
                 ? Utils::creatorColor(Utils::Theme::Timeline_HighlightColor)
                 : Utils::creatorColor(Utils::Theme::Timeline_TextColor);
     case SortRole:
@@ -301,19 +304,19 @@ QVariant QmlProfilerStatisticsModel::data(const QModelIndex &index, int role) co
         case MainTimeInPercent:
             return durationPercent(typeIndex);
         case MainTotalTime:
-            return stats.totalNonRecursive();
+            return qint64(stats.totalNonRecursive().count());
         case MainSelfTimeInPercent:
             return durationSelfPercent(typeIndex);
         case MainSelfTime:
-            return stats.self;
+            return qint64(stats.self.count());
         case MainTimePerCall:
-            return stats.average();
+            return qint64(stats.average().count());
         case MainMedianTime:
-            return stats.median;
+            return qint64(stats.median.count());
         case MainMaxTime:
-            return stats.maximum;
+            return qint64(stats.maximum.count());
         case MainMinTime:
-            return stats.minimum;
+            return qint64(stats.minimum.count());
         case MainDetails:
             return type.data();
         default:
@@ -448,7 +451,7 @@ void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEvent
 
         // update stats
         QmlEventStats &stats = m_data[typeIndex];
-        qint64 duration = event.timestamp() - stack.top().timestamp();
+        nanoseconds duration = event.timestamp() - stack.top().timestamp();
         stats.total += duration;
         stats.self += duration;
         stats.durations.push_back(duration);
@@ -562,7 +565,7 @@ int QmlProfilerStatisticsRelativesModel::columnCount(const QModelIndex &parent) 
     return parent.isValid() ? 0 : MaxRelativeField;
 }
 
-QVariant QmlProfilerStatisticsRelativesModel::dataForMainEntry(qint64 totalDuration, int role,
+QVariant QmlProfilerStatisticsRelativesModel::dataForMainEntry(nanoseconds totalDuration, int role,
                                                                int column) const
 {
     switch (role) {
@@ -572,7 +575,7 @@ QVariant QmlProfilerStatisticsRelativesModel::dataForMainEntry(qint64 totalDurat
         return Utils::creatorColor(Utils::Theme::Timeline_TextColor);
     case SortRole:
         if (column == RelativeTotalTime)
-            return totalDuration;
+            return qint64(totalDuration.count());
         Q_FALLTHROUGH(); // rest is same as Qt::DisplayRole
     case Qt::DisplayRole:
         switch (column) {
@@ -627,7 +630,7 @@ QVariant QmlProfilerStatisticsRelativesModel::data(const QModelIndex &index, int
         case RelativeLocation:
             return type.displayName();
         case RelativeTotalTime:
-            return stats.duration;
+            return qint64(stats.duration.count());
         case RelativeDetails:
             return type.data();
         default: break;

@@ -86,11 +86,11 @@ public:
     int totalHeight() const { return m_totalHeight; }
 
     void setNotes(const TimelineNotesModel *notes);
-    void setMarkers(const QList<qint64> &markers);
+    void setMarkers(const QList<std::chrono::nanoseconds> &markers);
 
-    void setRange(qint64 rangeStart, qint64 rangeEnd);
-    qint64 rangeStart() const { return m_rangeStart; }
-    qint64 rangeEnd() const { return m_rangeEnd; }
+    void setRange(std::chrono::nanoseconds rangeStart, std::chrono::nanoseconds rangeEnd);
+    std::chrono::nanoseconds rangeStart() const { return m_rangeStart; }
+    std::chrono::nanoseconds rangeEnd() const { return m_rangeEnd; }
 
     void setScrollOffset(int y);
     int scrollOffset() const { return m_scrollOffset; }
@@ -228,8 +228,8 @@ private:
         QList<QRectF> rects;
         int track = -1;
         int selectionId = -1;
-        qint64 rangeStart = 0;
-        qint64 rangeEnd = 0;
+        std::chrono::nanoseconds rangeStart{0};
+        std::chrono::nanoseconds rangeEnd{0};
         int width = 0;
         bool valid = false;
     };
@@ -238,9 +238,9 @@ private:
     mutable SelectionIdOutlines m_selectionIdOutlines;
     const TimelineNotesModel *m_notes = nullptr;
     QMetaObject::Connection m_notesConnection;
-    QList<qint64> m_markers;
-    qint64 m_rangeStart = 0;
-    qint64 m_rangeEnd = 0;
+    QList<std::chrono::nanoseconds> m_markers;
+    std::chrono::nanoseconds m_rangeStart{0};
+    std::chrono::nanoseconds m_rangeEnd{0};
     int m_scrollOffset = 0;
     int m_totalHeight = 0;
     int m_selectedTrack = -1;

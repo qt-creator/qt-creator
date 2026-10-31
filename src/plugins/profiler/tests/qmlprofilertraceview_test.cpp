@@ -6,6 +6,8 @@
 #include <QSignalSpy>
 #include <QTest>
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 QmlProfilerTraceViewTest::QmlProfilerTraceViewTest()
@@ -29,11 +31,11 @@ void QmlProfilerTraceViewTest::testStateChanges()
     QVERIFY(!traceView.isSuspended());
     // The events are replayed in another thread, and the view waits for them.
     QSignalSpy restricted(&modelManager, &QmlProfilerModelManager::restrictionFinished);
-    modelManager.restrictToRange(10, 14);
+    modelManager.restrictToRange(10ns, 14ns);
     QVERIFY(traceView.isSuspended());
     QTRY_COMPARE(restricted.count(), 1);
     QVERIFY(!traceView.isSuspended());
-    modelManager.restrictToRange(-1, -1);
+    modelManager.restrictToRange(-1ns, -1ns);
     QTRY_COMPARE(restricted.count(), 2);
     QVERIFY(!traceView.isSuspended());
     modelManager.clearAll();

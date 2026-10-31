@@ -37,6 +37,7 @@
 
 using namespace Utils;
 using namespace Qt::StringLiterals;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -250,7 +251,7 @@ std::optional<QByteArray> recordWithPerf(const FilePath &exe, const QStringList 
     Process record;
     record.setCommand({perf, QStringList{"record"} + outputArgs
                                  + QStringList{"--call-graph", "fp", "--", exe.path()}});
-    record.runBlocking(std::chrono::seconds(60));
+    record.runBlocking(seconds(60));
     if (record.result() != ProcessResult::FinishedWithSuccess) {
         *error = u"\"perf record\" failed here: %1"_s.arg(record.cleanedStdErr());
         return std::nullopt;
@@ -914,7 +915,7 @@ void PerfTraceConverterTest::testConvertsRecordingFromConnection()
     });
     QCOMPARE(samples, SampleCount);
     QVERIFY(std::any_of(timestamps.cbegin(), timestamps.cend(), [](const QList<QVariant> &args) {
-        return args.at(1).toLongLong() > 0;
+        return args.at(1).value<nanoseconds>() > 0ns;
     }));
 }
 

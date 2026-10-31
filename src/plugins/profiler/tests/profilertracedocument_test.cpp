@@ -37,6 +37,8 @@ using namespace Core;
 using namespace QmlDebug;
 using namespace Utils;
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 // Writes a trace of `ranges` JavaScript ranges, long enough to be still loading while a test
@@ -48,15 +50,15 @@ static void writeLongTrace(const QString &path, int ranges)
     const int type = saved.appendEventType(
         QmlEventType(UndefinedMessage, Javascript, -1, QmlEventLocation("main.qml", 1, 1), "f"));
     for (int i = 0; i < ranges; ++i) {
-        QmlEvent event(i * 10, type, {});
+        QmlEvent event(nanoseconds(i * 10), type, {});
         event.setRangeStage(RangeStart);
         saved.appendEvent(QmlEvent(event));
         event.setRangeStage(RangeEnd);
-        event.setTimestamp(i * 10 + 5);
+        event.setTimestamp(nanoseconds(i * 10 + 5));
         saved.appendEvent(std::move(event));
     }
-    saved.decreaseTraceStart(0);
-    saved.increaseTraceEnd(qint64(ranges) * 10);
+    saved.decreaseTraceStart(0ns);
+    saved.increaseTraceEnd(nanoseconds(qint64(ranges) * 10));
     saved.finalize();
     QSignalSpy saveSpy(&saved, &QmlProfilerModelManager::saveFinished);
     saved.save(path);
@@ -134,7 +136,7 @@ static void record(QmlProfilerModelManager *manager, bool withFrames)
 {
     manager->initialize();
     QmlEvent event;
-    event.setTimestamp(100);
+    event.setTimestamp(100ns);
     event.setString("message");
     event.setTypeIndex(manager->appendEventType(QmlEventType(
         DebugMessage, UndefinedRangeType, QtDebugMsg, QmlEventLocation("main.qml", 1, 1))));
@@ -144,13 +146,13 @@ static void record(QmlProfilerModelManager *manager, bool withFrames)
         frame.setTypeIndex(manager->appendEventType(
             QmlEventType(Event, UndefinedRangeType, AnimationFrame)));
         for (int i = 0; i < 5; ++i) {
-            frame.setTimestamp(200 + i);
+            frame.setTimestamp(nanoseconds(200 + i));
             frame.setNumbers<int>({60, 1, GuiThread});
             manager->appendEvent(QmlEvent(frame));
         }
     }
-    manager->decreaseTraceStart(0);
-    manager->increaseTraceEnd(1000);
+    manager->decreaseTraceStart(0ns);
+    manager->increaseTraceEnd(1000ns);
     manager->finalize();
 }
 

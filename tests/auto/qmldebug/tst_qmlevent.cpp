@@ -11,6 +11,7 @@
 #include <cstring>
 
 using namespace QmlDebug;
+using namespace std::chrono_literals;
 
 QmlEventTest::QmlEventTest() = default;
 
@@ -18,7 +19,7 @@ void QmlEventTest::testCtors()
 {
     {
         QmlEvent event;
-        QCOMPARE(event.timestamp(), -1);
+        QCOMPARE(event.timestamp(), -1ns);
         QCOMPARE(event.typeIndex(), -1);
         QVERIFY(!event.isValid());
         auto numbers = event.numbers<QList<qint32>, qint32>();
@@ -26,8 +27,8 @@ void QmlEventTest::testCtors()
     }
 
     {
-        QmlEvent event(12, 10, {34, 35, 25});
-        QCOMPARE(event.timestamp(), 12);
+        QmlEvent event(12ns, 10, {34, 35, 25});
+        QCOMPARE(event.timestamp(), 12ns);
         QCOMPARE(event.typeIndex(), 10);
         QVERIFY(event.isValid());
         auto numbers = event.numbers<QList<qint8>, qint8>();
@@ -38,15 +39,15 @@ void QmlEventTest::testCtors()
     }
 
     {
-        QmlEvent event(11, 9, QString("blah"));
-        QCOMPARE(event.timestamp(), 11);
+        QmlEvent event(11ns, 9, QString("blah"));
+        QCOMPARE(event.timestamp(), 11ns);
         QCOMPARE(event.typeIndex(), 9);
         QCOMPARE(event.string(), QString("blah"));
     }
 
     {
-        QmlEvent event(20, 30, QList<qint64>({600, 700, 800, 900}));
-        QCOMPARE(event.timestamp(), 20);
+        QmlEvent event(20ns, 30, QList<qint64>({600, 700, 800, 900}));
+        QCOMPARE(event.timestamp(), 20ns);
         QCOMPARE(event.typeIndex(), 30);
         QCOMPARE(event.numbers<QList<qint32>>(), QList<qint32>({600, 700, 800, 900}));
 
@@ -68,7 +69,7 @@ void QmlEventTest::testCtors()
 
 void QmlEventTest::testNumbers()
 {
-    QmlEvent event(1, 2, {3});
+    QmlEvent event(1ns, 2, {3});
     QCOMPARE(event.number<qint32>(0), 3);
     QCOMPARE(event.number<qint32>(1), 0);
     event.setNumber<qint8>(1, 20);
@@ -115,7 +116,7 @@ void QmlEventTest::testStreamOps()
 {
     QQueue<QmlEvent> sentEvents;
 
-    QmlEvent event(12, 13, QString("semmelsemmel"));
+    QmlEvent event(12ns, 13, QString("semmelsemmel"));
 
     QBuffer wbuffer;
     wbuffer.open(QIODevice::WriteOnly);
@@ -123,42 +124,42 @@ void QmlEventTest::testStreamOps()
     wstream << event;
     sentEvents.enqueue(event);
 
-    event.setTimestamp(9000);
+    event.setTimestamp(9000ns);
     event.setNumber(0, 700);
     wstream << event;
     sentEvents.enqueue(event);
 
-    event.setTimestamp(90000);
+    event.setTimestamp(90000ns);
     event.setNumber(0, 70000);
     wstream << event;
     sentEvents.enqueue(event);
 
-    event.setTimestamp(11000000000LL);
+    event.setTimestamp(11000000000ns);
     event.setNumber(0, 5000000000LL);
     wstream << event;
     sentEvents.enqueue(event);
 
-    event.setTimestamp(-1);
+    event.setTimestamp(-1ns);
     event.setNumbers({2});
     wstream << event;
     sentEvents.enqueue(event);
 
-    event.setTimestamp(-1000);
+    event.setTimestamp(-1000ns);
     event.setNumber(0, 800);
     wstream << event;
     sentEvents.enqueue(event);
 
-    event.setTimestamp(-100000000);
+    event.setTimestamp(-100000000ns);
     event.setNumber(0, 90000);
     wstream << event;
     sentEvents.enqueue(event);
 
-    event.setTimestamp(0);
+    event.setTimestamp(0ns);
     event.setNumber(0, 6000000000LL);
     wstream << event;
     sentEvents.enqueue(event);
 
-    QmlEvent event2(20, 30, QString("naeh"));
+    QmlEvent event2(20ns, 30, QString("naeh"));
     QVERIFY(event != event2);
 
     QBuffer rbuffer;
@@ -178,9 +179,9 @@ void QmlEventTest::testStreamOps()
 // is read back as it was written, even into an event that held numbers before.
 void QmlEventTest::testStreamOpsWithoutNumbers()
 {
-    QmlEvent end(10, 1, {});
+    QmlEvent end(10ns, 1, {});
     end.setRangeStage(RangeEnd);
-    const QmlEvent withoutNumbers(20, 2, {});
+    const QmlEvent withoutNumbers(20ns, 2, {});
     QCOMPARE(withoutNumbers.rangeStage(), Event);
 
     QBuffer buffer;
@@ -195,7 +196,7 @@ void QmlEventTest::testStreamOpsWithoutNumbers()
     rstream >> read;
     QCOMPARE(read.rangeStage(), RangeEnd);
     rstream >> read;
-    QCOMPARE(read.timestamp(), 20);
+    QCOMPARE(read.timestamp(), 20ns);
     QCOMPARE(read.rangeStage(), Event);
     QVERIFY(rstream.atEnd());
 }

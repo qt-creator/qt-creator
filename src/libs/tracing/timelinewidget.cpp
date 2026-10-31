@@ -28,6 +28,8 @@
 #include <QToolButton>
 #include <QWidget>
 
+using namespace std::chrono;
+
 namespace Timeline {
 
 // The slider position maps to the visible fraction of the window by a cubic curve.
@@ -49,11 +51,12 @@ public:
 
     void updateZoomSlider()
     {
-        const qint64 windowDuration = m_zoomControl->windowDuration();
-        const qint64 rangeDuration = m_zoomControl->rangeDuration();
-        if (windowDuration <= 0 || rangeDuration <= 0)
+        const nanoseconds windowDuration = m_zoomControl->windowDuration();
+        const nanoseconds rangeDuration = m_zoomControl->rangeDuration();
+        if (windowDuration <= 0ns || rangeDuration <= 0ns)
             return;
-        const int value = qRound(std::pow(double(rangeDuration) / double(windowDuration),
+        const int value = qRound(std::pow(double(rangeDuration.count())
+                                              / double(windowDuration.count()),
                                           1.0 / zoomSliderExponent) * zoomSliderMaximum);
         QSignalBlocker blocker(m_zoomSlider);
         m_zoomSlider->setValue(qBound(zoomSliderMinimum, value, zoomSliderMaximum));
@@ -61,13 +64,14 @@ public:
 
     void applyZoomSlider(int value)
     {
-        const qint64 windowDuration = m_zoomControl->windowDuration();
-        if (windowDuration <= 0)
+        const nanoseconds windowDuration = m_zoomControl->windowDuration();
+        if (windowDuration <= 0ns)
             return;
         const double factor = std::pow(double(value) / zoomSliderMaximum, zoomSliderExponent);
-        const qint64 newRange = qMax(qint64(1), qRound64(factor * windowDuration));
-        const qint64 center = (m_zoomControl->rangeStart() + m_zoomControl->rangeEnd()) / 2;
-        const qint64 newStart = qMax(m_zoomControl->windowStart(), center - newRange / 2);
+        const nanoseconds newRange
+            = qMax(1ns, nanoseconds(qRound64(factor * windowDuration.count())));
+        const nanoseconds center = (m_zoomControl->rangeStart() + m_zoomControl->rangeEnd()) / 2;
+        const nanoseconds newStart = qMax(m_zoomControl->windowStart(), center - newRange / 2);
         m_zoomControl->setRange(newStart, newStart + newRange);
     }
 
@@ -231,7 +235,7 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
     });
 
     const auto updateToolbarEnabled = [=] {
-        const bool hasTrace = zoomControl->traceDuration() > 0;
+        const bool hasTrace = zoomControl->traceDuration() > 0ns;
         prevAction->setEnabled(hasTrace);
         nextAction->setEnabled(hasTrace);
         zoomSliderRow->setEnabled(hasTrace);
@@ -269,12 +273,12 @@ bool TimelineWidget::hasValidSelection() const
     return d->m_content->selectionRangeReady();
 }
 
-qint64 TimelineWidget::selectionStart() const
+nanoseconds TimelineWidget::selectionStart() const
 {
     return d->m_zoomControl->selectionStart();
 }
 
-qint64 TimelineWidget::selectionEnd() const
+nanoseconds TimelineWidget::selectionEnd() const
 {
     return d->m_zoomControl->selectionEnd();
 }

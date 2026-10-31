@@ -14,6 +14,7 @@
 #include <QSignalSpy>
 
 using namespace ProjectExplorer;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -195,10 +196,10 @@ void QmlProfilerClientManagerTest::testUnresponsiveLocal()
 
 static void responsiveTestData()
 {
-    QTest::addColumn<quint32>("flushInterval");
+    QTest::addColumn<milliseconds>("flushInterval");
 
-    QTest::newRow("no flush") << 0u;
-    QTest::newRow("flush")    << 1u;
+    QTest::newRow("no flush") << 0ms;
+    QTest::newRow("flush")    << 1ms;
 }
 
 void QmlProfilerClientManagerTest::testResponsiveTcp_data()
@@ -208,7 +209,7 @@ void QmlProfilerClientManagerTest::testResponsiveTcp_data()
 
 void QmlProfilerClientManagerTest::testResponsiveTcp()
 {
-    QFETCH(quint32, flushInterval);
+    QFETCH(milliseconds, flushInterval);
 
     QUrl serverUrl = Utils::urlFromLocalHostAndFreePort();
 
@@ -267,7 +268,7 @@ void QmlProfilerClientManagerTest::testResponsiveLocal_data()
 
 void QmlProfilerClientManagerTest::testResponsiveLocal()
 {
-    QFETCH(quint32, flushInterval);
+    QFETCH(milliseconds, flushInterval);
 
     QUrl socketUrl = Utils::urlFromLocalSocket();
 

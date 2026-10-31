@@ -16,6 +16,8 @@
 
 using namespace Utils;
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 const QByteArray PerfProfilerTraceManager::s_resourceNamePrefix
@@ -107,7 +109,7 @@ PerfProfilerTraceManager::PerfProfilerTraceManager()
               std::bind(&PerfProfilerTraceManager::error, this, std::placeholders::_1)),
           std::make_unique<PerfProfilerEventTypeStorage>())
 {
-    m_reparseTimer.setInterval(100);
+    m_reparseTimer.setInterval(100ms);
     m_reparseTimer.setSingleShot(true);
 
     connect(this, &PerfProfilerTraceManager::aggregateAddressesChanged,
@@ -202,7 +204,7 @@ void PerfProfilerTraceManager::resetAttributes()
 
 void PerfProfilerTraceManager::finalize()
 {
-    if (traceDuration() <= 0) {
+    if (traceDuration() <= 0ns) {
         emit finishedEmpty();
         return;
     }
@@ -211,23 +213,22 @@ void PerfProfilerTraceManager::finalize()
 
 qint64 PerfProfilerTraceManager::samplingFrequency() const
 {
-    static const qint64 billion = 1000000000;
-    return qMax(1ll, numEvents() * billion / qMax(1ll, traceDuration()));
+    return qMax(1ll, qint64(numEvents() * 1s / qMax(1ns, traceDuration())));
 }
 
 PerfProfilerTraceManager::PerfEventFilter PerfProfilerTraceManager::rangeAndThreadFilter(
-        qint64 rangeStart, qint64 rangeEnd) const
+        nanoseconds start, nanoseconds end) const
 {
-    return [rangeStart, rangeEnd, this](PerfEventLoader loader) {
-        return [rangeStart, rangeEnd, this, loader = std::move(loader)](const PerfEvent &event,
-                                                                        const PerfEventType &type) {
+    return [start, end, this](PerfEventLoader loader) {
+        return [start, end, this, loader = std::move(loader)](const PerfEvent &event,
+                                                              const PerfEventType &type) {
             if (thread(event.tid()).enabled
-                            && (rangeStart == -1 || event.timestamp() >= rangeStart)
-                            && (rangeEnd == -1 || event.timestamp() <= rangeEnd)) {
+                            && (start == -1ns || event.timestamp() >= start)
+                            && (end == -1ns || event.timestamp() <= end)) {
                 loader(event, type);
             } else if (type.feature() == PerfEventType::TracePointSample) {
                 PerfEvent newEvent = event;
-                newEvent.setTimestamp(-1);
+                newEvent.setTimestamp(-1ns);
                 loader(newEvent, type);
             }
         };
@@ -452,14 +453,14 @@ void PerfProfilerTraceManager::checkThread(const PerfEvent &event)
                          Thread(event.timestamp(), event.timestamp(), event.timestamp(),
                                 event.pid(), event.tid(), -1, true));
     } else {
-        if (it->firstEvent < 0 || event.timestamp() < it->firstEvent)
+        if (it->firstEvent < 0ns || event.timestamp() < it->firstEvent)
             it->firstEvent = event.timestamp();
         if (it->lastEvent < event.timestamp())
             it->lastEvent = event.timestamp();
     }
 }
 
-void PerfProfilerTraceManager::handleTimeOrderViolations(qint64 nextEvent)
+void PerfProfilerTraceManager::handleTimeOrderViolations(nanoseconds nextEvent)
 {
     if (nextEvent < traceEnd()) {
         // Ouch. a time order violation.
@@ -488,9 +489,9 @@ void PerfProfilerTraceManager::handleTimeOrderViolations(qint64 nextEvent)
     } else if (!m_violatedStorages.empty()) {
         forever {
             auto best = m_violatedStorages.end();
-            qint64 timestamp = nextEvent;
+            nanoseconds timestamp = nextEvent;
             for (auto it = m_violatedStorages.begin(), end = best; it != end; ++it) {
-                const qint64 peekTimestamp = it->iterator.peekNext().timestamp();
+                const nanoseconds peekTimestamp = it->iterator.peekNext().timestamp();
                 if (peekTimestamp <= timestamp) {
                     best = it;
                     timestamp = peekTimestamp;
@@ -614,7 +615,7 @@ void PerfProfilerTraceManager::loadFromPerfData(const FilePath &filePath,
         = Core::ProgressManager::addTimedTask(reader->future(),
                                               Tr::tr("Loading Trace Data"),
                                               Constants::PerfProfilerTaskLoadPerf,
-                                              std::chrono::seconds(fileMegabytes));
+                                              seconds(fileMegabytes));
 
     connect(fp, &Core::FutureProgress::canceled, reader, [reader]() {
         reader->stopParser();

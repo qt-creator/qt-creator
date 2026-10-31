@@ -20,6 +20,7 @@
 
 using namespace Utils;
 using namespace Qt::StringLiterals;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -113,7 +114,7 @@ struct RawFrame
 // fetched (in parallel, see PerfRecordDecoder::resolveDebugInfo()) in between.
 struct RawSample
 {
-    quint64 tsUs = 0;
+    microseconds ts{0};
     quint64 tid = 0;
     quint32 pid = 0;
     bool running = false;
@@ -145,7 +146,7 @@ class PerfRecordDecoder : public PerfData::PerfDataHandler
 public:
     PerfRecordDecoder(bool downloadDebugInfo,
                       const std::function<void(int, const QString &)> &onDebugInfoDownload,
-                      const std::function<bool(qint64)> &sampleFilter,
+                      const std::function<bool(nanoseconds)> &sampleFilter,
                       const std::function<bool()> &isCanceled)
         : m_sampleFilter(sampleFilter)
         , m_isCanceled(isCanceled)
@@ -178,14 +179,14 @@ public:
 
     SampleTraceData &data() { return m_data; }
     int receivedSamples() const { return m_receivedSamples; }
-    qint64 firstTimestampNs() const { return m_firstTimestampNs; }
+    nanoseconds firstTimestamp() const { return m_firstTimestamp; }
 
 private:
     void addLostSamples(quint64 count);
-    // Microseconds since the first sample, as a sample's own tsUs.
-    quint64 relativeUs(quint64 timeNs) const;
-    // Moves the pending samples up to `untilUs` over, all by default.
-    void flushPendingRound(quint64 untilUs = std::numeric_limits<quint64>::max());
+    // Microseconds since the first sample, as a sample's own timestamp.
+    microseconds relativeTimestamp(nanoseconds time) const;
+    // Moves the pending samples up to `until` over, all by default.
+    void flushPendingRound(microseconds until = microseconds::max());
 
     // Resolves one absolute address in `pid`'s address space to label ids,
     // memoized: root first, one per function inlined there besides the one it
@@ -212,19 +213,19 @@ private:
     SampleTraceData m_data;
     QHash<ModuleAddress, QList<int>> m_labelIds;
     QHash<quint64, int> m_unknownLabelIds; // addr -> label id, when no region covers it
-    const std::function<bool(qint64)> m_sampleFilter;
+    const std::function<bool(nanoseconds)> m_sampleFilter;
     const std::function<bool()> m_isCanceled;
     QHash<quint64, int> m_kernelLabelIds;
 
-    qint64 m_firstTimestampNs = -1;
+    nanoseconds m_firstTimestamp{-1};
     // The newest sample time seen yet: a lost-samples record carries no time
     // of its own, and perf writes it as soon as it notices the loss.
-    quint64 m_latestSampleNs = 0;
+    nanoseconds m_latestSampleTimestamp{0};
     // What PERF_RECORD_LOST_SAMPLES records say was lost in all, and what the
     // PERF_RECORD_LOST ones found along the way add up to (see finish()).
     quint64 m_lostSamplesTotal = 0;
     quint64 m_lostSamplesLocated = 0;
-    quint64 m_lastTsUs = 0;
+    microseconds m_lastTimestamp{0};
     int m_receivedSamples = 0;
 
     // Raw (pre-symbolication) samples in final timestamp order, produced by
@@ -239,15 +240,15 @@ private:
     // would only be hit if a stream never emits FINISHED_ROUND at all.
     static constexpr qsizetype MaxPendingSamples = 200'000;
     QList<RawSample> m_pendingSamples;
-    quint64 m_roundEndUs = 0;         // the latest sample since the last round ended
-    quint64 m_previousRoundEndUs = 0; // and before that
+    microseconds m_roundEnd{0};         // the latest sample since the last round ended
+    microseconds m_previousRoundEnd{0}; // and before that
 };
 
-quint64 PerfRecordDecoder::relativeUs(quint64 timeNs) const
+microseconds PerfRecordDecoder::relativeTimestamp(nanoseconds time) const
 {
-    if (m_firstTimestampNs < 0)
-        return 0;
-    return quint64(qMax<qint64>(0, qint64(timeNs) - m_firstTimestampNs) / 1000);
+    if (m_firstTimestamp < 0ns)
+        return 0us;
+    return duration_cast<microseconds>(std::max(0ns, time - m_firstTimestamp));
 }
 
 void PerfRecordDecoder::mmap(const PerfData::Mmap &mmap)
@@ -291,16 +292,16 @@ void PerfRecordDecoder::throttle(const PerfData::Throttle &throttle)
 {
     if (throttle.unthrottle)
         return;
-    const quint64 tsUs = relativeUs(throttle.time);
-    m_data.throttledTsUs.append(
-        m_data.throttledTsUs.isEmpty() ? tsUs : qMax(tsUs, m_data.throttledTsUs.last()));
+    const microseconds timestamp = relativeTimestamp(throttle.time);
+    m_data.throttledTimestamps.append(
+        m_data.throttledTimestamps.isEmpty() ? timestamp : qMax(timestamp, m_data.throttledTimestamps.last()));
 }
 
 Result<> PerfRecordDecoder::sample(const PerfData::Sample &sample)
 {
     if (isCanceled())
         return ResultError(Tr::tr("The recording was canceled."));
-    if (m_sampleFilter && !m_sampleFilter(qint64(sample.time)))
+    if (m_sampleFilter && !m_sampleFilter(sample.time))
         return ResultOk;
     ++m_receivedSamples;
 
@@ -368,10 +369,10 @@ Result<> PerfRecordDecoder::sample(const PerfData::Sample &sample)
     raw.tid = sample.tid;
     raw.pid = sample.pid;
     raw.running = true; // a perf sample always fires while its thread is on-CPU
-    if (m_firstTimestampNs < 0)
-        m_firstTimestampNs = qint64(sample.time);
-    m_latestSampleNs = qMax(m_latestSampleNs, sample.time);
-    raw.tsUs = relativeUs(sample.time);
+    if (m_firstTimestamp < 0ns)
+        m_firstTimestamp = sample.time;
+    m_latestSampleTimestamp = std::max(m_latestSampleTimestamp, sample.time);
+    raw.ts = relativeTimestamp(sample.time);
 
     raw.frames.reserve(innermostFirst.size());
     for (auto it = innermostFirst.crbegin(); it != innermostFirst.crend(); ++it) // root-first
@@ -389,7 +390,7 @@ Result<> PerfRecordDecoder::sample(const PerfData::Sample &sample)
     // time-sorted (samples from different per-CPU ring buffers can interleave
     // slightly out of order); see flushPendingRound() for how this gets sorted
     // out before landing in m_rawSamples.
-    m_roundEndUs = qMax(m_roundEndUs, raw.tsUs);
+    m_roundEnd = std::max(m_roundEnd, raw.ts);
     m_pendingSamples.append(std::move(raw));
     if (m_pendingSamples.size() >= MaxPendingSamples)
         flushPendingRound();
@@ -399,11 +400,11 @@ Result<> PerfRecordDecoder::sample(const PerfData::Sample &sample)
 // At the newest sample, merged with a loss already recorded there.
 void PerfRecordDecoder::addLostSamples(quint64 count)
 {
-    const quint64 tsUs = relativeUs(m_latestSampleNs);
-    if (!m_data.lostSamples.isEmpty() && m_data.lostSamples.last().tsUs == tsUs)
+    const microseconds timestamp = relativeTimestamp(m_latestSampleTimestamp);
+    if (!m_data.lostSamples.isEmpty() && m_data.lostSamples.last().timestamp == timestamp)
         m_data.lostSamples.last().count += count;
     else
-        m_data.lostSamples.append({tsUs, count});
+        m_data.lostSamples.append({timestamp, count});
 }
 
 void PerfRecordDecoder::finish()
@@ -425,21 +426,21 @@ void PerfRecordDecoder::finishedRound()
     // before reached are then complete; later ones may still be followed by
     // earlier ones from a buffer read late, which the next round brings (the
     // same rule perf's own ordered-events flushing follows).
-    flushPendingRound(m_previousRoundEndUs);
-    m_previousRoundEndUs = qMax(m_previousRoundEndUs, m_roundEndUs);
-    m_roundEndUs = 0;
+    flushPendingRound(m_previousRoundEnd);
+    m_previousRoundEnd = std::max(m_previousRoundEnd, m_roundEnd);
+    m_roundEnd = 0us;
 }
 
-void PerfRecordDecoder::flushPendingRound(quint64 untilUs)
+void PerfRecordDecoder::flushPendingRound(microseconds until)
 {
     if (m_pendingSamples.isEmpty())
         return;
     // The clamp below is a backstop for a stream without rounds, which is
     // only flushed every MaxPendingSamples.
     std::stable_sort(m_pendingSamples.begin(), m_pendingSamples.end(),
-                     [](const RawSample &a, const RawSample &b) { return a.tsUs < b.tsUs; });
-    const auto end = std::upper_bound(m_pendingSamples.begin(), m_pendingSamples.end(), untilUs,
-                                      [](quint64 us, const RawSample &s) { return us < s.tsUs; });
+                     [](const RawSample &a, const RawSample &b) { return a.ts < b.ts; });
+    const auto end = std::upper_bound(m_pendingSamples.begin(), m_pendingSamples.end(), until,
+                                      [](microseconds us, const RawSample &s) { return us < s.ts; });
     m_rawSamples.reserve(m_rawSamples.size() + (end - m_pendingSamples.begin()));
     for (auto it = m_pendingSamples.begin(); it != end; ++it) {
         RawSample &sample = *it;
@@ -448,8 +449,8 @@ void PerfRecordDecoder::flushPendingRound(quint64 untilUs)
         // until it is unwound.
         unwindDwarfSample(sample);
         addLeafCaller(sample);
-        sample.tsUs = qMax(sample.tsUs, m_lastTsUs);
-        m_lastTsUs = sample.tsUs;
+        sample.ts = std::max(sample.ts, m_lastTimestamp);
+        m_lastTimestamp = sample.ts;
         m_rawSamples.append(std::move(sample));
     }
     m_pendingSamples.erase(m_pendingSamples.begin(), end);
@@ -615,7 +616,7 @@ void PerfRecordDecoder::resolveSamples(const std::function<void(int)> &progress,
         if ((done & 0x3ff) == 0 && isCanceled())
             break;
         SampleTraceData::ThreadSample sample;
-        sample.tsUs = raw.tsUs;
+        sample.timestamp = raw.ts;
         sample.tid = raw.tid;
         sample.running = raw.running;
 
@@ -640,7 +641,7 @@ Result<SampleTraceData> PerfRecordReader::read(PerfByteQueue &queue,
                                                const std::function<void(int)> &progress)
 {
     m_receivedSamples = 0;
-    m_firstTimestampNs = -1;
+    m_firstTimestamp = -1ns;
     const auto canceled = [this] { return m_isCanceled && m_isCanceled(); };
     const auto canceledError = [] { return ResultError(Tr::tr("The recording was canceled.")); };
     PerfRecordDecoder decoder(m_downloadDebugInfo, m_debugInfoDownloadHandler, m_sampleFilter,
@@ -663,7 +664,7 @@ Result<SampleTraceData> PerfRecordReader::read(PerfByteQueue &queue,
         return canceledError();
 
     m_receivedSamples = decoder.receivedSamples();
-    m_firstTimestampNs = decoder.firstTimestampNs();
+    m_firstTimestamp = decoder.firstTimestamp();
     return decoder.data();
 }
 

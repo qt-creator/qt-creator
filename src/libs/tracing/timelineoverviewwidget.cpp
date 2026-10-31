@@ -18,6 +18,8 @@
 #include <QPen>
 #include <QtMath>
 
+using namespace std::chrono;
+
 namespace Timeline {
 
 static const int HandleWidth = 7;
@@ -88,20 +90,21 @@ QSize TimelineOverviewWidget::sizeHint() const
     return QSize(400, OverviewHeight);
 }
 
-double TimelineOverviewWidget::timeToPixel(qint64 t) const
+double TimelineOverviewWidget::timeToPixel(nanoseconds t) const
 {
-    const qint64 traceDuration = m_zoom->traceDuration();
-    if (traceDuration <= 0)
+    const nanoseconds traceDuration = m_zoom->traceDuration();
+    if (traceDuration <= 0ns)
         return 0;
-    return double(t - m_zoom->traceStart()) * width() / double(traceDuration);
+    return double((t - m_zoom->traceStart()).count()) * width() / double(traceDuration.count());
 }
 
-qint64 TimelineOverviewWidget::pixelToTime(double px) const
+nanoseconds TimelineOverviewWidget::pixelToTime(double px) const
 {
-    const qint64 traceDuration = m_zoom->traceDuration();
+    const nanoseconds traceDuration = m_zoom->traceDuration();
     if (width() <= 0)
         return m_zoom->traceStart();
-    return m_zoom->traceStart() + qRound64(px * double(traceDuration) / double(width()));
+    return m_zoom->traceStart()
+           + nanoseconds(qRound64(px * double(traceDuration.count()) / double(width())));
 }
 
 bool TimelineOverviewWidget::nearHandle(double px, double handlePx) const
@@ -125,7 +128,7 @@ void TimelineOverviewWidget::rebuildContentCache()
     QPainter p(&m_contentCache);
     p.fillRect(m_contentCache.rect(), Utils::creatorColor(Utils::Theme::Timeline_BackgroundColor2));
 
-    const qint64 traceDuration = m_zoom->traceDuration();
+    const nanoseconds traceDuration = m_zoom->traceDuration();
 
     // Time bar: small ruler at the top showing the full trace time scale
     {
@@ -133,13 +136,13 @@ void TimelineOverviewWidget::rebuildContentCache()
         const QColor textColor = Utils::creatorColor(Utils::Theme::PanelTextColorLight);
         const QColor divColor = Utils::creatorColor(Utils::Theme::Timeline_DividerColor);
         p.fillRect(0, 0, width(), kTimeBarHeight, bgColor);
-        if (traceDuration > 0 && width() > 0) {
+        if (traceDuration > 0ns && width() > 0) {
             QFont f = p.font();
             f.setPixelSize(kTimeBarFontPx);
             p.setFont(f);
             forEachRulerTick(
                 m_zoom->traceStart(), m_zoom->traceEnd(), double(width()),
-                [&](qint64 t, double x, double pixPerBlock) {
+                [&](nanoseconds t, double x, double pixPerBlock) {
                     const QRectF lr(x + 1, 0, pixPerBlock - 1, kTimeBarHeight);
                     p.setPen(textColor);
                     p.drawText(lr, Qt::AlignLeft | Qt::AlignVCenter,
@@ -155,7 +158,7 @@ void TimelineOverviewWidget::rebuildContentCache()
         }
     }
 
-    if (traceDuration <= 0) {
+    if (traceDuration <= 0ns) {
         m_contentDirty = false;
         return;
     }
@@ -211,8 +214,8 @@ void TimelineOverviewWidget::rebuildContentCache()
                 // beyond it. Skip those instead of indexing out of bounds.
                 if (row < 0 || row >= rowCount)
                     continue;
-                const qint64 start = model->startTime(i);
-                const qint64 end   = model->endTime(i);
+                const nanoseconds start = model->startTime(i);
+                const nanoseconds end   = model->endTime(i);
 
                 double x1 = timeToPixel(start);
                 double x2 = timeToPixel(end);
@@ -265,7 +268,7 @@ void TimelineOverviewWidget::rebuildContentCache()
                 continue;
 
             const int idx = notes->timelineIndex(i);
-            const qint64 mid = (noteModel->startTime(idx) + noteModel->endTime(idx)) / 2;
+            const nanoseconds mid = (noteModel->startTime(idx) + noteModel->endTime(idx)) / 2;
             const double cx = timeToPixel(mid);
             const double topY = contentTop + bandIdx * bandH + vertSpace;
 
@@ -286,7 +289,7 @@ void TimelineOverviewWidget::paintEvent(QPaintEvent *)
     QPainter p(this);
     p.drawPixmap(0, 0, m_contentCache);
 
-    if (m_zoom->traceDuration() <= 0)
+    if (m_zoom->traceDuration() <= 0ns)
         return;
 
     for (const auto &[start, end] : m_aggregator->pausedRanges()) {
@@ -328,7 +331,7 @@ void TimelineOverviewWidget::resizeEvent(QResizeEvent *event)
 
 void TimelineOverviewWidget::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() != Qt::LeftButton || m_zoom->traceDuration() <= 0) {
+    if (event->button() != Qt::LeftButton || m_zoom->traceDuration() <= 0ns) {
         event->accept();
         return;
     }
@@ -350,12 +353,12 @@ void TimelineOverviewWidget::mousePressEvent(QMouseEvent *event)
     } else {
         // Jump: center the current range around the clicked position
         m_dragMode = DragRange;
-        const qint64 halfRange = (m_zoom->rangeEnd() - m_zoom->rangeStart()) / 2;
-        const qint64 center = pixelToTime(px);
-        qint64 newStart = center - halfRange;
-        qint64 newEnd = center + halfRange;
-        const qint64 traceStart = m_zoom->traceStart();
-        const qint64 traceEnd = m_zoom->traceEnd();
+        const nanoseconds halfRange = (m_zoom->rangeEnd() - m_zoom->rangeStart()) / 2;
+        const nanoseconds center = pixelToTime(px);
+        nanoseconds newStart = center - halfRange;
+        nanoseconds newEnd = center + halfRange;
+        const nanoseconds traceStart = m_zoom->traceStart();
+        const nanoseconds traceEnd = m_zoom->traceEnd();
         if (newStart < traceStart) {
             newEnd += traceStart - newStart;
             newStart = traceStart;
@@ -377,27 +380,27 @@ void TimelineOverviewWidget::mousePressEvent(QMouseEvent *event)
 void TimelineOverviewWidget::applyDrag(double px)
 {
     const double dx = px - m_dragStartX;
-    const qint64 traceDuration = m_zoom->traceDuration();
-    if (traceDuration <= 0 || width() <= 0)
+    const nanoseconds traceDuration = m_zoom->traceDuration();
+    if (traceDuration <= 0ns || width() <= 0)
         return;
-    const qint64 dt = qRound64(dx * double(traceDuration) / double(width()));
-    const qint64 traceStart = m_zoom->traceStart();
-    const qint64 traceEnd = m_zoom->traceEnd();
-    const qint64 minRange = m_zoom->minimumRangeLength();
+    const nanoseconds dt(qRound64(dx * double(traceDuration.count()) / double(width())));
+    const nanoseconds traceStart = m_zoom->traceStart();
+    const nanoseconds traceEnd = m_zoom->traceEnd();
+    const nanoseconds minRange = m_zoom->minimumRangeLength();
 
     if (m_dragMode == DragLeft) {
-        qint64 newStart = qBound(traceStart,
-                                 m_dragRangeStart + dt,
-                                 m_dragRangeEnd - minRange);
+        nanoseconds newStart = qBound(traceStart,
+                                      m_dragRangeStart + dt,
+                                      m_dragRangeEnd - minRange);
         m_zoom->setRange(newStart, m_dragRangeEnd);
     } else if (m_dragMode == DragRight) {
-        qint64 newEnd = qBound(m_dragRangeStart + minRange,
-                               m_dragRangeEnd + dt,
-                               traceEnd);
+        nanoseconds newEnd = qBound(m_dragRangeStart + minRange,
+                                    m_dragRangeEnd + dt,
+                                    traceEnd);
         m_zoom->setRange(m_dragRangeStart, newEnd);
     } else if (m_dragMode == DragRange) {
-        const qint64 rangeLen = m_dragRangeEnd - m_dragRangeStart;
-        qint64 newStart = m_dragRangeStart + dt;
+        const nanoseconds rangeLen = m_dragRangeEnd - m_dragRangeStart;
+        nanoseconds newStart = m_dragRangeStart + dt;
         if (newStart < traceStart)
             newStart = traceStart;
         if (newStart + rangeLen > traceEnd)

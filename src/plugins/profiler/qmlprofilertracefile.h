@@ -43,7 +43,7 @@ private:
         ProgressEvents = MaximumProgress - ProgressTypes - ProgressNotes - MinimumProgress,
     };
 
-    void addEventsProgress(qint64 timestamp);
+    void addEventsProgress(std::chrono::nanoseconds timestamp);
     void addStageProgress(ProgressValues stage);
 };
 

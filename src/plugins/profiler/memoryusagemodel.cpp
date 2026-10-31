@@ -10,6 +10,8 @@
 #include <utils/qtcassert.h>
 
 using namespace QmlDebug;
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager,
@@ -160,9 +162,9 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
             m_currentUsage = allocation.size;
 
             if (m_currentUsageIndex != -1) {
-                qint64 duration = event.timestamp() - startTime(m_currentUsageIndex);
-                if (duration > 0) {
-                    insertEnd(m_currentUsageIndex, duration - 1);
+                nanoseconds duration = event.timestamp() - startTime(m_currentUsageIndex);
+                if (duration > 0ns) {
+                    insertEnd(m_currentUsageIndex, duration - 1ns);
                     m_currentUsageIndex = insertStart(event.timestamp(), SmallItem);
                     m_data.insert(m_currentUsageIndex, allocation);
                 } else {
@@ -194,9 +196,9 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
                 m_maxSize = m_currentSize;
 
             if (m_currentJSHeapIndex != -1) {
-                qint64 duration = event.timestamp() - startTime(m_currentJSHeapIndex);
-                if (duration > 0){
-                    insertEnd(m_currentJSHeapIndex, duration - 1);
+                nanoseconds duration = event.timestamp() - startTime(m_currentJSHeapIndex);
+                if (duration > 0ns){
+                    insertEnd(m_currentJSHeapIndex, duration - 1ns);
                     m_currentJSHeapIndex = insertStart(event.timestamp(), type.detailType());
                     m_data.insert(m_currentJSHeapIndex, allocation);
                 } else {

@@ -26,7 +26,7 @@ namespace Profiler::Internal {
 //
 // This file is only part of the build on Windows (see CMakeLists.txt).
 Utils::Result<Utils::FilePath> recordSampleTraceElevated(
-    const std::shared_ptr<RecordingSession> &session, int intervalUs,
+    const std::shared_ptr<RecordingSession> &session, std::chrono::microseconds interval,
     const std::function<bool()> &isCanceled);
 
 } // namespace Profiler::Internal

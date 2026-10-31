@@ -12,6 +12,8 @@
 #include <QDebug>
 
 using namespace QmlDebug;
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 static const char *ThreadLabels[] = {
@@ -110,6 +112,8 @@ Timeline::ItemDetails SceneGraphTimelineModel::details(int index) const
 
 void SceneGraphTimelineModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
+    const auto number = [&event](int i) { return nanoseconds(event.number<qint64>(i)); };
+
     // combine the data of several eventtypes into two rows
     switch ((SceneGraphFrameType)type.detailType()) {
     case SceneGraphRendererFrame: {
@@ -117,72 +121,71 @@ void SceneGraphTimelineModel::loadEvent(const QmlEvent &event, const QmlEventTyp
         // look incomplete if that was left out as the printf profiler lists it, too, and people
         // are apparently comparing that. Unfortunately it is somewhat redundant as the other
         // parts of the breakdown are usually very short.
-        qint64 startTime = event.timestamp() - event.number<qint64>(0) - event.number<qint64>(1) -
-                event.number<qint64>(2) - event.number<qint64>(3);
-        startTime += insert(startTime, event.number<qint64>(0), event.typeIndex(),
+        nanoseconds startTime = event.timestamp() - number(0) - number(1) - number(2) - number(3);
+        startTime += insert(startTime, number(0), event.typeIndex(),
                             RenderPreprocess);
-        startTime += insert(startTime, event.number<qint64>(1), event.typeIndex(), RenderUpdate);
-        startTime += insert(startTime, event.number<qint64>(2), event.typeIndex(), RenderBind);
-        insert(startTime, event.number<qint64>(3), event.typeIndex(), RenderRender);
+        startTime += insert(startTime, number(1), event.typeIndex(), RenderUpdate);
+        startTime += insert(startTime, number(2), event.typeIndex(), RenderBind);
+        insert(startTime, number(3), event.typeIndex(), RenderRender);
         break;
     }
     case SceneGraphAdaptationLayerFrame: {
-        qint64 startTime = event.timestamp() - event.number<qint64>(1) - event.number<qint64>(2);
-        startTime += insert(startTime, event.number<qint64>(1), event.typeIndex(), GlyphRender,
+        nanoseconds startTime = event.timestamp() - number(1) - number(2);
+        startTime += insert(startTime, number(1), event.typeIndex(), GlyphRender,
                             event.number<qint64>(0));
-        insert(startTime, event.number<qint64>(2), event.typeIndex(), GlyphStore,
+        insert(startTime, number(2), event.typeIndex(), GlyphStore,
                event.number<qint64>(0));
         break;
     }
     case SceneGraphContextFrame: {
-        insert(event.timestamp() - event.number<qint64>(0), event.number<qint64>(0),
+        insert(event.timestamp() - number(0), number(0),
                event.typeIndex(), Material);
         break;
     }
     case SceneGraphRenderLoopFrame: {
-        qint64 startTime = event.timestamp() - event.number<qint64>(0) - event.number<qint64>(1) -
-                event.number<qint64>(2);
-        startTime += insert(startTime, event.number<qint64>(0), event.typeIndex(),
+        nanoseconds startTime = event.timestamp() - number(0) - number(1) -
+                number(2);
+        startTime += insert(startTime, number(0), event.typeIndex(),
                                RenderThreadSync);
-        startTime += insert(startTime, event.number<qint64>(1), event.typeIndex(),
+        startTime += insert(startTime, number(1), event.typeIndex(),
                                Render);
-        insert(startTime, event.number<qint64>(2), event.typeIndex(), Swap);
+        insert(startTime, number(2), event.typeIndex(), Swap);
         break;
     }
     case SceneGraphTexturePrepare: {
-        qint64 startTime = event.timestamp() - event.number<qint64>(0) - event.number<qint64>(1) -
-                event.number<qint64>(2) - event.number<qint64>(3) - event.number<qint64>(4);
-        startTime += insert(startTime, event.number<qint64>(0), event.typeIndex(), TextureBind);
-        startTime += insert(startTime, event.number<qint64>(1), event.typeIndex(), TextureConvert);
-        startTime += insert(startTime, event.number<qint64>(2), event.typeIndex(), TextureSwizzle);
-        startTime += insert(startTime, event.number<qint64>(3), event.typeIndex(), TextureUpload);
-        insert(startTime, event.number<qint64>(4), event.typeIndex(), TextureMipmap);
+        nanoseconds startTime = event.timestamp() - number(0) - number(1) -
+                number(2) - number(3) - number(4);
+        startTime += insert(startTime, number(0), event.typeIndex(), TextureBind);
+        startTime += insert(startTime, number(1), event.typeIndex(), TextureConvert);
+        startTime += insert(startTime, number(2), event.typeIndex(), TextureSwizzle);
+        startTime += insert(startTime, number(3), event.typeIndex(), TextureUpload);
+        insert(startTime, number(4), event.typeIndex(), TextureMipmap);
         break;
     }
     case SceneGraphTextureDeletion: {
-        insert(event.timestamp() - event.number<qint64>(0), event.number<qint64>(0),
+        insert(event.timestamp() - number(0), number(0),
                event.typeIndex(), TextureDeletion);
         break;
     }
     case SceneGraphPolishAndSync: {
-        qint64 startTime = event.timestamp() - event.number<qint64>(0) - event.number<qint64>(1) -
-                event.number<qint64>(2) - event.number<qint64>(3);
+        nanoseconds startTime = event.timestamp() - number(0) - number(1) -
+                number(2) - number(3);
 
-        startTime += insert(startTime, event.number<qint64>(0), event.typeIndex(), Polish);
-        startTime += insert(startTime, event.number<qint64>(1), event.typeIndex(), Wait);
-        startTime += insert(startTime, event.number<qint64>(2), event.typeIndex(), GUIThreadSync);
-        insert(startTime, event.number<qint64>(3), event.typeIndex(), Animations);
+        startTime += insert(startTime, number(0), event.typeIndex(), Polish);
+        startTime += insert(startTime, number(1), event.typeIndex(), Wait);
+        startTime += insert(startTime, number(2), event.typeIndex(), GUIThreadSync);
+        insert(startTime, number(3), event.typeIndex(), Animations);
         break;
     }
     case SceneGraphWindowsAnimations: {
         // GUI thread, separate animations stage
-        insert(event.timestamp() - event.number<qint64>(0), event.number<qint64>(0),
+        insert(event.timestamp() - number(0), number(0),
                event.typeIndex(), Animations);
         break;
     }
     case SceneGraphPolishFrame: {
         // GUI thread, separate polish stage
-        insert(event.timestamp() - event.number<qint64>(0), event.number<qint64>(0),
+        insert(event.timestamp() - number(0), number(0),
                event.typeIndex(), Polish);
         break;
     }
@@ -201,7 +204,7 @@ void SceneGraphTimelineModel::flattenLoads()
     int collapsedRowCount = Timeline::kCollapsedStartRow;
 
     // computes "compressed row"
-    QList<qint64> eventEndTimes;
+    QList<nanoseconds> eventEndTimes;
 
     for (int i = 0; i < count(); i++) {
         Item &event = m_data[i];
@@ -220,7 +223,7 @@ void SceneGraphTimelineModel::flattenLoads()
             ++event.rowNumberCollapsed;
 
         while (eventEndTimes.count() <= event.rowNumberCollapsed)
-            eventEndTimes << 0; // increase stack length, proper value added below
+            eventEndTimes << 0ns; // increase stack length, proper value added below
         eventEndTimes[event.rowNumberCollapsed] = endTime(i);
 
         // readjust to account for the start row
@@ -239,11 +242,11 @@ void SceneGraphTimelineModel::flattenLoads()
  * \a glyphCount (if it's a \c GlyphRender or \c GlyphStore event) into the scene graph model if its
  * \a duration is greater than 0. Returns \a duration in that case; otherwise returns 0.
  */
-qint64 SceneGraphTimelineModel::insert(qint64 start, qint64 duration, int typeIndex,
-                                       SceneGraphStage stage, int glyphCount)
+nanoseconds SceneGraphTimelineModel::insert(nanoseconds start, nanoseconds duration,
+                                            int typeIndex, SceneGraphStage stage, int glyphCount)
 {
-    if (duration <= 0)
-        return 0;
+    if (duration <= 0ns)
+        return 0ns;
 
     m_data.insert(QmlProfilerTimelineModel::insert(start, duration, stage),
                   Item(typeIndex, glyphCount));

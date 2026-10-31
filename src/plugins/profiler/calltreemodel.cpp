@@ -12,6 +12,8 @@
 
 #include <algorithm>
 
+using namespace std::chrono;
+
 
 namespace Profiler::Internal {
 
@@ -25,17 +27,17 @@ CallTreeModel::~CallTreeModel() = default;
 void CallTreeModel::setTraceData(const SampleTraceData *data)
 {
     m_data = data;
-    m_startUs = -1;
-    m_endUs = -1;
+    m_start = -1ns;
+    m_end = -1ns;
     rebuild();
 }
 
-void CallTreeModel::setTimeRange(qint64 startUs, qint64 endUs)
+void CallTreeModel::setTimeRange(nanoseconds start, nanoseconds end)
 {
-    if (m_startUs == startUs && m_endUs == endUs)
+    if (m_start == start && m_end == end)
         return;
-    m_startUs = startUs;
-    m_endUs = endUs;
+    m_start = start;
+    m_end = end;
     rebuild();
 }
 
@@ -65,9 +67,9 @@ void CallTreeModel::rebuild()
         for (const SampleTraceData::ThreadSample &sample : m_data->samples) {
             if (!sample.running || sample.frames.isEmpty())
                 continue;
-            if (m_startUs >= 0 && qint64(sample.tsUs) < m_startUs)
+            if (m_start >= 0ns && sample.timestamp < m_start)
                 continue;
-            if (m_endUs >= 0 && qint64(sample.tsUs) > m_endUs)
+            if (m_end >= 0ns && sample.timestamp > m_end)
                 continue;
             ++m_root->weight;
             Node *node = m_root.get();

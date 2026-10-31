@@ -14,6 +14,8 @@
 #include <QMessageBox>
 #include <QSet>
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 using json = nlohmann::json;
@@ -28,19 +30,19 @@ CtfTraceManager::CtfTraceManager(QObject *parent,
 {
 }
 
-qint64 CtfTraceManager::traceDuration() const
+nanoseconds CtfTraceManager::traceDuration() const
 {
-    return qint64((m_traceEnd - m_traceBegin) * 1000);
+    return fromMicroseconds(m_traceEnd - m_traceBegin);
 }
 
-qint64 CtfTraceManager::traceBegin() const
+nanoseconds CtfTraceManager::traceBegin() const
 {
-    return qint64((m_traceBegin - m_timeOffset) * 1000);
+    return fromMicroseconds(m_traceBegin - m_timeOffset);
 }
 
-qint64 CtfTraceManager::traceEnd() const
+nanoseconds CtfTraceManager::traceEnd() const
 {
-    return qint64((m_traceEnd - m_timeOffset) * 1000);
+    return fromMicroseconds(m_traceEnd - m_timeOffset);
 }
 
 void CtfTraceManager::addEvent(const json &event)
@@ -82,7 +84,7 @@ void CtfTraceManager::addEvent(const json &event)
             }
         }
 
-        const QPair<bool, qint64> result = m_threadModels[threadId]->addEvent(event, m_timeOffset);
+        const QPair<bool, nanoseconds> result = m_threadModels[threadId]->addEvent(event, m_timeOffset);
         const bool visibleOnTimeline = result.first;
         if (visibleOnTimeline) {
             m_traceBegin = std::min(m_traceBegin, timestamp);
@@ -309,7 +311,7 @@ void CtfTraceManager::updateStatistics()
             }
         }
     }
-    m_statisticsModel->setMeasurementDuration(qint64((m_traceEnd - m_traceBegin) * 1000));
+    m_statisticsModel->setMeasurementDuration(traceDuration());
     m_statisticsModel->endLoading();
 }
 

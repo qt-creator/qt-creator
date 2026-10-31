@@ -9,6 +9,8 @@
 
 #include <QFileInfo>
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 static const char *headerLabels[] = {
@@ -189,7 +191,7 @@ void PerfProfilerStatisticsMainModel::initialize()
 
 void PerfProfilerStatisticsData::loadEvent(const PerfEvent &event, const PerfEventType &type)
 {
-    if (event.timestamp() < 0)
+    if (event.timestamp() < 0ns)
         return;
 
     Q_UNUSED(type)
@@ -302,8 +304,8 @@ void PerfProfilerStatisticsMainModel::clear(PerfProfilerStatisticsData *data)
     m_backwardIndex.clear();
     m_children->clear();
     m_parents->clear();
-    m_startTime = std::numeric_limits<qint64>::min();
-    m_endTime = std::numeric_limits<qint64>::max();
+    m_startTime = nanoseconds::min();
+    m_endTime = nanoseconds::max();
     endResetModel();
 }
 
@@ -318,8 +320,8 @@ int PerfProfilerStatisticsMainModel::rowForTypeId(int typeId) const
 PerfProfilerStatisticsMainModel::PerfProfilerStatisticsMainModel(
         PerfProfilerTraceManager *traceManager, QObject *parent) :
     PerfProfilerStatisticsModel(Main, parent), m_traceManager(traceManager),
-    m_startTime(std::numeric_limits<qint64>::min()),
-    m_endTime(std::numeric_limits<qint64>::max()), m_totalSamples(0)
+    m_startTime(nanoseconds::min()),
+    m_endTime(nanoseconds::max()), m_totalSamples(0)
 {
     m_children = new PerfProfilerStatisticsRelativesModel(Children, this);
     m_parents = new PerfProfilerStatisticsRelativesModel(Parents, this);

@@ -23,6 +23,7 @@
 using namespace QtTaskTree;
 using namespace Utils;
 using namespace Qt::StringLiterals;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -113,7 +114,7 @@ quint64 CombinedSamplerSettings::requestedFeatures() const
 
 void CombinedSamplerSettings::fillOptions(RecordingSession &session) const
 {
-    session.intervalUs = int(intervalUs());
+    session.interval = microseconds(intervalUs());
     session.requestedFeatures = requestedFeatures();
 }
 
@@ -227,23 +228,23 @@ static void assembleBundle(const std::shared_ptr<RecordingSession> &parent,
         return;
     }
 
-    // The offset (microseconds) to add to a native sample's timestamp to place it
-    // on the QML profiler's (trace-start-relative) timeline. Both captures stamp
-    // their go-live instant on the same process-wide steady_clock, so the
+    // The offset to add to a native sample's timestamp to place it on the QML
+    // profiler's (trace-start-relative) timeline. Both captures stamp their
+    // go-live instant on the same process-wide steady_clock, so the
     // difference of those anchors correlates the two zero-based clocks. This is an
     // approximation (each anchor lags the trace's true zero by connect/attach
     // latency); exact per-sample alignment needs a common engine clock (M5).
-    qint64 qmlClockOffsetUs = 0;
-    const qint64 nativeMono = nativeChild->startedMonotonicUs.load();
-    const qint64 qmlMono = qmlChild->startedMonotonicUs.load();
-    if (nativeMono >= 0 && qmlMono >= 0)
-        qmlClockOffsetUs = nativeMono - qmlMono;
+    microseconds qmlClockOffset{0};
+    const microseconds nativeMono = nativeChild->startedMonotonic.load();
+    const microseconds qmlMono = qmlChild->startedMonotonic.load();
+    if (nativeMono >= 0us && qmlMono >= 0us)
+        qmlClockOffset = nativeMono - qmlMono;
 
     QJsonObject manifest;
     manifest.insert("sampler"_L1, combinedSamplerSubdir);
     manifest.insert("qml"_L1, combinedQmlFileName);
     manifest.insert("pid"_L1, double(parent->pid.load()));
-    manifest.insert("qmlClockOffsetUs"_L1, double(qmlClockOffsetUs));
+    manifest.insert("qmlClockOffsetUs"_L1, double(qmlClockOffset.count()));
 
     QFile manifestFile(bundle.filePath(combinedManifestName));
     if (!manifestFile.open(QIODevice::WriteOnly)) {
@@ -264,7 +265,7 @@ ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSes
     auto qmlChild = std::make_shared<RecordingSession>();
     auto nativeChild = std::make_shared<RecordingSession>();
     qmlChild->requestedFeatures = parent->requestedFeatures; // QML feature toggles
-    nativeChild->intervalUs = parent->intervalUs;            // native sampler cadence
+    nativeChild->interval = parent->interval;                // native sampler cadence
 
     // With the two registered, a stop request reaches both, and the parent
     // answers for them when the GUI asks whether capture is live or how far

@@ -13,6 +13,8 @@
 #include <QQueue>
 #include <QScopedPointer>
 
+using namespace std::chrono;
+
 namespace QmlDebug {
 
 class QmlProfilerTraceClientPrivate {
@@ -53,11 +55,11 @@ public:
     // dtor calls.
     std::unique_ptr<QmlEngineControlClient, QScopedPointerDeleteLater> engineControl;
     std::unique_ptr<QDebugMessageClient, QScopedPointerDeleteLater> messageClient;
-    qint64 maximumTime;
+    nanoseconds maximumTime;
     bool recording;
     quint64 requestedFeatures;
     quint64 recordedFeatures;
-    quint32 flushInterval;
+    milliseconds flushInterval;
 
     // Reuse the same event, so that we don't have to constantly reallocate all the data.
     QmlTypedEvent currentEvent;
@@ -192,7 +194,7 @@ void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
     QPacket stream(q->dataStreamVersion());
     stream << recording << engineId; // engineId -1 is OK. It means "all of them"
     if (recording) {
-        stream << requestedFeatures << flushInterval;
+        stream << requestedFeatures << quint32(flushInterval.count());
         stream << true; // yes, we support type IDs
     }
     q->sendMessage(stream.data());
@@ -214,7 +216,7 @@ QmlProfilerTraceClient::QmlProfilerTraceClient(
             d->engineControl->blockEngine(engineId);
     });
     connect(this, &QmlProfilerTraceClient::traceFinished,
-            d->engineControl.get(), [this](qint64 timestamp, const QList<int> &engineIds) {
+            d->engineControl.get(), [this](nanoseconds timestamp, const QList<int> &engineIds) {
         Q_UNUSED(timestamp)
         // The engines might not be blocked because the trace can get finished before engine control
         // sees them.
@@ -292,7 +294,8 @@ void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
                        const QDebugContextInfo &context)
         {
             QTC_ASSERT(d->updateFeatures(ProfileDebugMessages), return);
-            d->currentEvent.event.setTimestamp(context.timestamp > 0 ? context.timestamp : 0);
+            d->currentEvent.event.setTimestamp(
+                nanoseconds(context.timestamp > 0 ? context.timestamp : 0));
             d->currentEvent.event.setTypeIndex(-1);
             d->currentEvent.event.setString(text);
             d->currentEvent.type = QmlEventType(DebugMessage, UndefinedRangeType, type,
@@ -305,7 +308,7 @@ void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
     }
 }
 
-void QmlProfilerTraceClient::setFlushInterval(quint32 flushInterval)
+void QmlProfilerTraceClient::setFlushInterval(milliseconds flushInterval)
 {
     d->flushInterval = flushInterval;
 }

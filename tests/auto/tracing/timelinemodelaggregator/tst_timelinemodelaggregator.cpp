@@ -9,6 +9,7 @@
 
 using namespace Timeline;
 using namespace Utils;
+using namespace std::chrono;
 
 class tst_TimelineModelAggregator : public QObject
 {
@@ -63,7 +64,7 @@ class HeightTestModel : public TimelineModel {
 public:
     HeightTestModel(TimelineModelAggregator *parent) : TimelineModel(parent)
     {
-        insert(0, 1, 1);
+        insert(0ns, 1ns, 1);
     }
 };
 
@@ -126,7 +127,7 @@ public:
     PrevNextTestModel(TimelineModelAggregator *parent) : TimelineModel(parent)
     {
         for (int i = 0; i < 20; ++i)
-            insert(i + modelId(), i * modelId(), modelId());
+            insert(nanoseconds(i + modelId()), nanoseconds(i * modelId()), modelId());
     }
 };
 
@@ -145,7 +146,7 @@ void tst_TimelineModelAggregator::prevNext()
         int lastModel = -1;
         int lastIndex = -1;
         for (int i = 0; i < 60; ++i) {
-            ModelItem item = aggregator.nextItem(lastModel, lastIndex, -1);
+            ModelItem item = aggregator.nextItem(lastModel, lastIndex, -1ns);
             QVERIFY(item.modelIndex < 3);
             QVERIFY(item.modelIndex >= 0);
             QCOMPARE(item.itemIndex, ++indexes[item.modelIndex]);
@@ -153,7 +154,7 @@ void tst_TimelineModelAggregator::prevNext()
             lastIndex = item.itemIndex;
         }
 
-        ModelItem item = aggregator.nextItem(lastModel, lastIndex, -1);
+        ModelItem item = aggregator.nextItem(lastModel, lastIndex, -1ns);
         QCOMPARE(item.modelIndex, 0);
         QCOMPARE(item.itemIndex, 0);
     }
@@ -163,7 +164,7 @@ void tst_TimelineModelAggregator::prevNext()
         int lastModel = -1;
         int lastIndex = -1;
         for (int i = 0; i < 60; ++i) {
-            ModelItem item = aggregator.prevItem(lastModel, lastIndex, -1);
+            ModelItem item = aggregator.prevItem(lastModel, lastIndex, -1ns);
             QVERIFY(item.modelIndex < 3);
             QVERIFY(item.modelIndex >= 0);
             QCOMPARE(item.itemIndex, --indexes[item.modelIndex]);
@@ -171,7 +172,7 @@ void tst_TimelineModelAggregator::prevNext()
             lastIndex = item.itemIndex;
         }
 
-        ModelItem item = aggregator.prevItem(lastModel, lastIndex, -1);
+        ModelItem item = aggregator.prevItem(lastModel, lastIndex, -1ns);
         QCOMPARE(item.modelIndex, 2);
         QCOMPARE(item.itemIndex, 19);
     }
@@ -183,7 +184,7 @@ void tst_TimelineModelAggregator::pausedRanges()
     QSignalSpy spy(&aggregator, &TimelineModelAggregator::pausedRangesChanged);
     QVERIFY(aggregator.pausedRanges().isEmpty());
 
-    const TimelineModelAggregator::PausedRanges ranges{{10, 20}, {30, 40}};
+    const TimelineModelAggregator::PausedRanges ranges{{10ns, 20ns}, {30ns, 40ns}};
     aggregator.setPausedRanges(ranges);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(aggregator.pausedRanges(), ranges);

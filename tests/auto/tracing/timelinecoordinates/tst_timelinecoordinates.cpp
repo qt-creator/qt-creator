@@ -4,6 +4,7 @@
 #include <QTest>
 #include <tracing/timelinecoordinates.h>
 
+using namespace std::chrono;
 using namespace Timeline;
 
 class tst_TimelineCoordinates : public QObject
@@ -26,19 +27,19 @@ namespace {
 
 struct Ticks
 {
-    QList<qint64> blockTimes;
+    QList<nanoseconds> blockTimes;
     QList<double> blockX;
     QList<double> minor;
     QList<double> major;
     double pixelsPerBlock = 0.0;
 };
 
-Ticks collectTicks(qint64 rangeStart, qint64 rangeEnd, double widthPx)
+Ticks collectTicks(nanoseconds rangeStart, nanoseconds rangeEnd, double widthPx)
 {
     Ticks ticks;
     Timeline::forEachRulerTick(
         rangeStart, rangeEnd, widthPx,
-        [&](qint64 t, double x, double pixelsPerBlock) {
+        [&](nanoseconds t, double x, double pixelsPerBlock) {
             ticks.blockTimes.append(t);
             ticks.blockX.append(x);
             ticks.pixelsPerBlock = pixelsPerBlock;
@@ -52,71 +53,73 @@ Ticks collectTicks(qint64 rangeStart, qint64 rangeEnd, double widthPx)
 void tst_TimelineCoordinates::timeToProportion()
 {
     // Basic proportions within range
-    QCOMPARE(Timeline::timeToProportion(0, 0, 100), 0.0);
-    QCOMPARE(Timeline::timeToProportion(50, 0, 100), 0.5);
-    QCOMPARE(Timeline::timeToProportion(100, 0, 100), 1.0);
-    QCOMPARE(Timeline::timeToProportion(25, 0, 100), 0.25);
+    QCOMPARE(Timeline::timeToProportion(0ns, 0ns, 100ns), 0.0);
+    QCOMPARE(Timeline::timeToProportion(50ns, 0ns, 100ns), 0.5);
+    QCOMPARE(Timeline::timeToProportion(100ns, 0ns, 100ns), 1.0);
+    QCOMPARE(Timeline::timeToProportion(25ns, 0ns, 100ns), 0.25);
 
     // Non-zero start
-    QCOMPARE(Timeline::timeToProportion(200, 100, 300), 0.5);
-    QCOMPARE(Timeline::timeToProportion(100, 100, 300), 0.0);
-    QCOMPARE(Timeline::timeToProportion(300, 100, 300), 1.0);
+    QCOMPARE(Timeline::timeToProportion(200ns, 100ns, 300ns), 0.5);
+    QCOMPARE(Timeline::timeToProportion(100ns, 100ns, 300ns), 0.0);
+    QCOMPARE(Timeline::timeToProportion(300ns, 100ns, 300ns), 1.0);
 
     // Time outside range — no clamping
-    QCOMPARE(Timeline::timeToProportion(-50, 0, 100), -0.5);
-    QCOMPARE(Timeline::timeToProportion(150, 0, 100), 1.5);
+    QCOMPARE(Timeline::timeToProportion(-50ns, 0ns, 100ns), -0.5);
+    QCOMPARE(Timeline::timeToProportion(150ns, 0ns, 100ns), 1.5);
 
     // Degenerate zero-width range
-    QCOMPARE(Timeline::timeToProportion(42, 100, 100), 0.0);
+    QCOMPARE(Timeline::timeToProportion(42ns, 100ns, 100ns), 0.0);
 }
 
 void tst_TimelineCoordinates::timeToPixel()
 {
     // Start maps to 0, end maps to width
-    QCOMPARE(Timeline::timeToPixel(0, 0, 1000, 500.0), 0.0);
-    QCOMPARE(Timeline::timeToPixel(1000, 0, 1000, 500.0), 500.0);
-    QCOMPARE(Timeline::timeToPixel(500, 0, 1000, 500.0), 250.0);
+    QCOMPARE(Timeline::timeToPixel(0ns, 0ns, 1000ns, 500.0), 0.0);
+    QCOMPARE(Timeline::timeToPixel(1000ns, 0ns, 1000ns, 500.0), 500.0);
+    QCOMPARE(Timeline::timeToPixel(500ns, 0ns, 1000ns, 500.0), 250.0);
 
     // Proportional
-    QCOMPARE(Timeline::timeToPixel(250, 0, 1000, 400.0), 100.0);
+    QCOMPARE(Timeline::timeToPixel(250ns, 0ns, 1000ns, 400.0), 100.0);
 
     // Zero-width range
-    QCOMPARE(Timeline::timeToPixel(42, 5, 5, 800.0), 0.0);
+    QCOMPARE(Timeline::timeToPixel(42ns, 5ns, 5ns, 800.0), 0.0);
 
     // Outside range — unclamped
-    QVERIFY(Timeline::timeToPixel(-100, 0, 1000, 500.0) < 0.0);
-    QVERIFY(Timeline::timeToPixel(1100, 0, 1000, 500.0) > 500.0);
+    QVERIFY(Timeline::timeToPixel(-100ns, 0ns, 1000ns, 500.0) < 0.0);
+    QVERIFY(Timeline::timeToPixel(1100ns, 0ns, 1000ns, 500.0) > 500.0);
 }
 
 void tst_TimelineCoordinates::pixelToTime()
 {
     // x=0 maps to rangeStart, x=width maps to rangeEnd
-    QCOMPARE(Timeline::pixelToTime(0.0, 500.0, 0, 1000), qint64(0));
-    QCOMPARE(Timeline::pixelToTime(500.0, 500.0, 0, 1000), qint64(1000));
-    QCOMPARE(Timeline::pixelToTime(250.0, 500.0, 0, 1000), qint64(500));
+    QCOMPARE(Timeline::pixelToTime(0.0, 500.0, 0ns, 1000ns), 0ns);
+    QCOMPARE(Timeline::pixelToTime(500.0, 500.0, 0ns, 1000ns), 1000ns);
+    QCOMPARE(Timeline::pixelToTime(250.0, 500.0, 0ns, 1000ns), 500ns);
 
     // Non-zero start
-    QCOMPARE(Timeline::pixelToTime(0.0, 400.0, 100, 500), qint64(100));
-    QCOMPARE(Timeline::pixelToTime(400.0, 400.0, 100, 500), qint64(500));
-    QCOMPARE(Timeline::pixelToTime(200.0, 400.0, 100, 500), qint64(300));
+    QCOMPARE(Timeline::pixelToTime(0.0, 400.0, 100ns, 500ns), 100ns);
+    QCOMPARE(Timeline::pixelToTime(400.0, 400.0, 100ns, 500ns), 500ns);
+    QCOMPARE(Timeline::pixelToTime(200.0, 400.0, 100ns, 500ns), 300ns);
 
     // Zero/negative width — returns rangeStart
-    QCOMPARE(Timeline::pixelToTime(100.0, 0.0, 50, 200), qint64(50));
-    QCOMPARE(Timeline::pixelToTime(100.0, -1.0, 50, 200), qint64(50));
+    QCOMPARE(Timeline::pixelToTime(100.0, 0.0, 50ns, 200ns), 50ns);
+    QCOMPARE(Timeline::pixelToTime(100.0, -1.0, 50ns, 200ns), 50ns);
 }
 
 void tst_TimelineCoordinates::roundTrip()
 {
-    const qint64 rangeStart = 1000;
-    const qint64 rangeEnd = 9000;
+    const nanoseconds rangeStart = 1000ns;
+    const nanoseconds rangeEnd = 9000ns;
     const double width = 640.0;
 
-    for (qint64 t : {rangeStart, rangeEnd, qint64(3000), qint64(5000), qint64(7500)}) {
+    for (nanoseconds t : {rangeStart, rangeEnd, 3000ns, 5000ns, 7500ns}) {
         double px = Timeline::timeToPixel(t, rangeStart, rangeEnd, width);
-        qint64 back = Timeline::pixelToTime(px, width, rangeStart, rangeEnd);
+        nanoseconds back = Timeline::pixelToTime(px, width, rangeStart, rangeEnd);
         // Integer truncation: allow at most 1ns of error
-        QVERIFY2(qAbs(back - t) <= 1,
-                 qPrintable(QString("round-trip failed for t=%1: got %2").arg(t).arg(back)));
+        QVERIFY2(abs(back - t) <= 1ns,
+                 qPrintable(QString("round-trip failed for t=%1: got %2")
+                                .arg(t.count())
+                                .arg(back.count())));
     }
 }
 
@@ -182,34 +185,34 @@ void tst_TimelineCoordinates::rowTop()
 void tst_TimelineCoordinates::rulerBlockDuration()
 {
     // 1000 ns over 1000 px: the 120 px hint asks for 120 ns, snapped down to 64.
-    QCOMPARE(Timeline::rulerBlockDuration(1000, 1000.0), qint64(64));
+    QCOMPARE(Timeline::rulerBlockDuration(1000ns, 1000.0), 64ns);
 
     // Snapping is to the power of two at or below the ideal duration.
-    QCOMPARE(Timeline::rulerBlockDuration(1280, 1280.0), qint64(64));
-    QCOMPARE(Timeline::rulerBlockDuration(2560, 1280.0), qint64(128));
+    QCOMPARE(Timeline::rulerBlockDuration(1280ns, 1280.0), 64ns);
+    QCOMPARE(Timeline::rulerBlockDuration(2560ns, 1280.0), 128ns);
 
     // A smaller hint asks for shorter blocks.
-    QCOMPARE(Timeline::rulerBlockDuration(1000, 1000.0, 80), qint64(64));
-    QCOMPARE(Timeline::rulerBlockDuration(1000, 1000.0, 30), qint64(16));
+    QCOMPARE(Timeline::rulerBlockDuration(1000ns, 1000.0, 80), 64ns);
+    QCOMPARE(Timeline::rulerBlockDuration(1000ns, 1000.0, 30), 16ns);
 
     // Never shorter than 1 ns, and degenerate input is safe.
-    QCOMPARE(Timeline::rulerBlockDuration(1, 100000.0), qint64(1));
-    QCOMPARE(Timeline::rulerBlockDuration(0, 100.0), qint64(1));
-    QCOMPARE(Timeline::rulerBlockDuration(100, 0.0), qint64(1));
-    QCOMPARE(Timeline::rulerBlockDuration(100, -1.0), qint64(1));
+    QCOMPARE(Timeline::rulerBlockDuration(1ns, 100000.0), 1ns);
+    QCOMPARE(Timeline::rulerBlockDuration(0ns, 100.0), 1ns);
+    QCOMPARE(Timeline::rulerBlockDuration(100ns, 0.0), 1ns);
+    QCOMPARE(Timeline::rulerBlockDuration(100ns, -1.0), 1ns);
 }
 
 void tst_TimelineCoordinates::forEachRulerTick()
 {
     // 1024 ns over 1024 px: 64 ns blocks, 64 px wide, 12.8 px per section.
-    const Ticks aligned = collectTicks(0, 1024, 1024.0);
+    const Ticks aligned = collectTicks(0ns, 1024ns, 1024.0);
     QCOMPARE(aligned.pixelsPerBlock, 64.0);
 
     // Blocks start at multiples of the block duration. The block starting on the
     // right edge has no visible label area and is not reported.
     QCOMPARE(aligned.blockTimes.size(), 16);
-    QCOMPARE(aligned.blockTimes.first(), qint64(0));
-    QCOMPARE(aligned.blockTimes.last(), qint64(960));
+    QCOMPARE(aligned.blockTimes.first(), 0ns);
+    QCOMPARE(aligned.blockTimes.last(), 960ns);
     QCOMPARE(aligned.blockX.first(), 0.0);
     QCOMPARE(aligned.blockX.last(), 960.0);
 
@@ -234,17 +237,17 @@ void tst_TimelineCoordinates::forEachRulerTick()
 
     // A range that does not start on a block boundary: the first block starts
     // left of the view and is reported, because its label area reaches into it.
-    const Ticks unaligned = collectTicks(100, 1100, 1000.0);
-    QCOMPARE(unaligned.blockTimes.first(), qint64(64));
+    const Ticks unaligned = collectTicks(100ns, 1100ns, 1000.0);
+    QCOMPARE(unaligned.blockTimes.first(), 64ns);
     QCOMPARE(unaligned.blockX.first(), -36.0);
     QCOMPARE(unaligned.minor.first(), 2.4);
     QCOMPARE(unaligned.major.first(), 28.0);
 
     // Degenerate ranges report nothing at all.
-    for (const Ticks &ticks : {collectTicks(0, 0, 1000.0),
-                               collectTicks(1000, 0, 1000.0),
-                               collectTicks(0, 1000, 0.0),
-                               collectTicks(0, 1000, -1.0)}) {
+    for (const Ticks &ticks : {collectTicks(0ns, 0ns, 1000.0),
+                               collectTicks(1000ns, 0ns, 1000.0),
+                               collectTicks(0ns, 1000ns, 0.0),
+                               collectTicks(0ns, 1000ns, -1.0)}) {
         QVERIFY(ticks.blockTimes.isEmpty());
         QVERIFY(ticks.minor.isEmpty());
         QVERIFY(ticks.major.isEmpty());

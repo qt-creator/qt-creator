@@ -15,6 +15,8 @@
 
 using namespace QmlDebug;
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 // The dashboard rates against the configured target; these tests set it to this one.
@@ -24,7 +26,7 @@ static const int nearTargetFps = qRound(2 * targetFps / (1 + kNearTargetFrameBud
 // Fails and stutters.
 static const int stutteringFps = targetFps / kStutterFrameBudgets - 10;
 
-static constexpr qint64 frameSpacing = 20'000'000; // ns
+static constexpr nanoseconds frameSpacing = 20ms;
 
 // Appends GUI thread animation frames with the given frame rates, one frameSpacing apart.
 static void loadFrames(QmlProfilerModelManager &manager, const QList<int> &frameRates)
@@ -32,9 +34,10 @@ static void loadFrames(QmlProfilerModelManager &manager, const QList<int> &frame
     manager.initialize();
     const int typeIndex = manager.appendEventType(
         QmlEventType(Event, UndefinedRangeType, AnimationFrame));
-    qint64 timestamp = frameSpacing;
+    nanoseconds timestamp = frameSpacing;
     for (int frameRate : frameRates) {
-        manager.appendEvent(QmlEvent(timestamp, typeIndex, {frameRate, 1, int(GuiThread)}));
+        manager.appendEvent(
+            QmlEvent(timestamp, typeIndex, {frameRate, 1, int(GuiThread)}));
         timestamp += frameSpacing;
     }
     manager.finalize();
@@ -158,18 +161,18 @@ void QmlProfilerDashboardTest::testShowSlowestFrame()
     frameRates[7] = nearTargetFps;
     loadFrames(manager, frameRates);
 
-    const qint64 slowestTimestamp = 4 * frameSpacing;
+    const nanoseconds slowestTimestamp = 4 * frameSpacing;
     QCOMPARE(stats.slowestFrameTimestamp(), slowestTimestamp);
-    QCOMPARE(stats.slowestFrameTimeMs(), 1000.0 / stutteringFps);
+    QCOMPARE(stats.slowestFrameTime().count(), 1000.0 / stutteringFps);
 
     auto showButton = view.findChild<QAbstractButton *>("showSlowestFrame");
     QVERIFY(showButton);
     QSignalSpy spy(&view, &QmlProfilerDashboardView::timelineRangeRequested);
     showButton->click();
     QCOMPARE(spy.count(), 1);
-    const qint64 frameDuration = qRound64(1e9 / stutteringFps);
-    QCOMPARE(spy.at(0).at(0).toLongLong(), slowestTimestamp - frameDuration);
-    QCOMPARE(spy.at(0).at(1).toLongLong(), slowestTimestamp);
+    const nanoseconds frameDuration(qRound64(1e9 / stutteringFps));
+    QCOMPARE(spy.at(0).at(0).value<nanoseconds>(), slowestTimestamp - frameDuration);
+    QCOMPARE(spy.at(0).at(1).value<nanoseconds>(), slowestTimestamp);
 }
 
 } // namespace Profiler::Internal

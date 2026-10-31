@@ -40,13 +40,13 @@ public:
 #pragma pack(push, 4)
     struct Range {
         Range() = default;
-        Range(qint64 start, quint32 duration, int selectionId) :
+        Range(std::chrono::nanoseconds start, quint32 duration, int selectionId) :
             start(start), duration(duration), selectionId(selectionId) {}
-        qint64 start = -1;
+        std::chrono::nanoseconds start{-1};
         quint32 duration = 0; // Encoded, see TimelineModelPrivate::duration().
         int selectionId = -1;
         int parent = -1;
-        inline qint64 timestamp() const {return start;}
+        inline std::chrono::nanoseconds timestamp() const {return start;}
     };
 #pragma pack(pop)
     static_assert(sizeof(Range) == 20);
@@ -60,17 +60,20 @@ public:
 
     TimelineModelPrivate(int modelId);
 
-    int firstIndexNoParents(qint64 startTime) const;
-    int firstEndingAfter(qint64 time) const;
+    int firstIndexNoParents(std::chrono::nanoseconds startTime) const;
+    int firstEndingAfter(std::chrono::nanoseconds time) const;
 
-    qint64 duration(const Range &range) const
+    std::chrono::nanoseconds duration(const Range &range) const
     {
-        return range.duration < LongDuration ? qint64(range.duration)
+        return range.duration < LongDuration ? std::chrono::nanoseconds(range.duration)
                                              : longDurations[range.duration & ~LongDuration];
     }
-    qint64 rangeEnd(int index) const { return ranges[index].start + duration(ranges[index]); }
-    quint32 encodeDuration(qint64 duration);
-    void setDuration(Range &range, qint64 duration);
+    std::chrono::nanoseconds rangeEnd(int index) const
+    {
+        return ranges[index].start + duration(ranges[index]);
+    }
+    quint32 encodeDuration(std::chrono::nanoseconds duration);
+    void setDuration(Range &range, std::chrono::nanoseconds duration);
     void rangeInserted(int index);
     void raiseEndMaxima(int index);
     void recomputeEndMaxima(int index);
@@ -92,7 +95,8 @@ public:
     }
 
     template<typename RangeDelimiter>
-    static inline int lowerBound(const QList<RangeDelimiter> &container, qint64 time)
+    static inline int lowerBound(const QList<RangeDelimiter> &container,
+                                 std::chrono::nanoseconds time)
     {
         int fromIndex = 0;
         int toIndex = container.count() - 1;
@@ -114,13 +118,15 @@ public:
         overviewSummary.reset();
     }
 
-    int prevItemById(std::function<bool(int)> matchesId, qint64 time, int currentSelected) const;
-    int nextItemById(std::function<bool(int)> matchesId, qint64 time, int currentSelected) const;
+    int prevItemById(std::function<bool(int)> matchesId, std::chrono::nanoseconds time,
+                     int currentSelected) const;
+    int nextItemById(std::function<bool(int)> matchesId, std::chrono::nanoseconds time,
+                     int currentSelected) const;
 
     QList<Range> ranges;
-    QList<qint64> longDurations;
+    QList<std::chrono::nanoseconds> longDurations;
     // The latest end of the ranges up to the end of each block, so that it is sorted.
-    QList<qint64> endMaxima;
+    QList<std::chrono::nanoseconds> endMaxima;
 
     QList<int> rowOffsets;
     const int modelId;

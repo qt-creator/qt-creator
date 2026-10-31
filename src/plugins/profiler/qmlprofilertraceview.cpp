@@ -37,6 +37,8 @@
 
 using namespace QmlDebug;
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 class TraceViewFindSupport : public Core::IFindSupport
@@ -92,8 +94,8 @@ QmlProfilerTraceView::QmlProfilerTraceView(QmlProfilerModelManager *modelManager
         // aborted or we're doing a "restrict to range" which consists of a partial clearing and
         // then re-acquiring of data.
     }, [this, modelManager]() {
-        const qint64 start = modelManager->traceStart();
-        const qint64 end = modelManager->traceEnd();
+        const nanoseconds start = modelManager->traceStart();
+        const nanoseconds end = modelManager->traceEnd();
         d->m_zoomControl.setTrace(start, end);
         d->m_zoomControl.setRange(start, start + (end - start) / 10);
         d->m_modelProxy.setModels(d->m_suspendedModels);
@@ -159,12 +161,12 @@ bool QmlProfilerTraceView::hasValidSelection() const
     return d->m_mainView->hasValidSelection();
 }
 
-qint64 QmlProfilerTraceView::selectionStart() const
+nanoseconds QmlProfilerTraceView::selectionStart() const
 {
     return d->m_mainView->selectionStart();
 }
 
-qint64 QmlProfilerTraceView::selectionEnd() const
+nanoseconds QmlProfilerTraceView::selectionEnd() const
 {
     return d->m_mainView->selectionEnd();
 }
@@ -187,9 +189,9 @@ void QmlProfilerTraceView::selectByEventIndex(int modelId, int eventIndex)
 }
 
 // Zooms in on the range, leaving room for its surroundings.
-void QmlProfilerTraceView::showRange(qint64 start, qint64 end)
+void QmlProfilerTraceView::showRange(nanoseconds start, nanoseconds end)
 {
-    const qint64 margin = qMax(end - start, d->m_zoomControl.minimumRangeLength()) * 4;
+    const nanoseconds margin = qMax(end - start, d->m_zoomControl.minimumRangeLength()) * 4;
     d->m_zoomControl.setRange(qMax(start - margin, d->m_zoomControl.traceStart()),
                               qMin(end + margin, d->m_zoomControl.traceEnd()));
 }
@@ -244,10 +246,10 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
         d->m_modelManager->restrictToRange(selectionStart(), selectionEnd());
     });
     connect(getGlobalStatsAction, &QAction::triggered, this, [this] {
-        d->m_modelManager->restrictToRange(-1, -1);
+        d->m_modelManager->restrictToRange(-1ns, -1ns);
     });
 
-    if (d->m_zoomControl.traceDuration() > 0) {
+    if (d->m_zoomControl.traceDuration() > 0ns) {
         menu->addSeparator();
         QAction *viewAllAction = menu->addAction(Tr::tr("Reset Zoom"));
         connect(viewAllAction, &QAction::triggered, this, [this] {

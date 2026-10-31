@@ -30,6 +30,7 @@
 using namespace Profiler::Constants;
 using namespace Utils;
 using namespace Qt::StringLiterals;
+using namespace std::chrono;
 
 using json = nlohmann::json;
 
@@ -906,8 +907,8 @@ void CtfLoaderTest::testTheShownRangeOutlivesAProviderChange()
     QVERIFY(loaded.wait());
 
     // A trace that is opened is looked at whole.
-    const qint64 wholeStart = zoom->traceStart();
-    const qint64 wholeEnd = zoom->traceEnd();
+    const nanoseconds wholeStart = zoom->traceStart();
+    const nanoseconds wholeEnd = zoom->traceEnd();
     QCOMPARE(zoom->rangeStart(), wholeStart);
     QCOMPARE(zoom->rangeEnd(), wholeEnd);
 
@@ -925,8 +926,8 @@ void CtfLoaderTest::testTheShownRangeOutlivesAProviderChange()
 
     // A stretch the trace read next does have is gone back to: reading the
     // trace for a provider is not the reader asking to see all of it again.
-    const qint64 start = zoom->traceStart() + zoom->traceDuration() / 4;
-    const qint64 end = zoom->traceEnd();
+    const nanoseconds start = zoom->traceStart() + zoom->traceDuration() / 4;
+    const nanoseconds end = zoom->traceEnd();
     zoom->setRange(start, end);
     QCOMPARE(zoom->rangeStart(), start);
     QCOMPARE(zoom->rangeEnd(), end);

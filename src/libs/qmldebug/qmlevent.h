@@ -26,20 +26,20 @@ public:
     QmlEvent() : TraceEvent(staticClassId) {}
 
     template<typename Number>
-    QmlEvent(qint64 timestamp, int typeIndex, std::initializer_list<Number> list)
+    QmlEvent(std::chrono::nanoseconds timestamp, int typeIndex, std::initializer_list<Number> list)
         : TraceEvent(staticClassId, timestamp, typeIndex)
     {
         assignNumbers<std::initializer_list<Number>, Number>(list);
     }
 
-    QmlEvent(qint64 timestamp, int typeIndex, const QString &data)
+    QmlEvent(std::chrono::nanoseconds timestamp, int typeIndex, const QString &data)
         : TraceEvent(staticClassId, timestamp, typeIndex)
     {
         assignNumbers<QByteArray, qint8>(data.toUtf8());
     }
 
     template<typename Number>
-    QmlEvent(qint64 timestamp, int typeIndex, const QList<Number> &data)
+    QmlEvent(std::chrono::nanoseconds timestamp, int typeIndex, const QList<Number> &data)
         : TraceEvent(staticClassId, timestamp, typeIndex)
     {
         assignNumbers<QList<Number>, Number>(data);

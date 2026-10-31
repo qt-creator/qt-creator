@@ -7,6 +7,8 @@
 
 #include <tracing/timelineformatdata.h>
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 using json = nlohmann::json;
@@ -23,20 +25,20 @@ void CtfStatisticsModel::beginLoading()
     m_rows.clear();
 }
 
-void CtfStatisticsModel::addEvent(const QString &title, qint64 durationInNs)
+void CtfStatisticsModel::addEvent(const QString &title, nanoseconds duration)
 {
     EventData &data = m_data[title];
     ++data.count;
-    if (durationInNs >= 0) {
-        data.totalDuration += durationInNs;
-        data.minDuration = std::min(data.minDuration, durationInNs);
-        data.maxDuration = std::max(data.maxDuration, durationInNs);
+    if (duration >= 0ns) {
+        data.totalDuration += duration;
+        data.minDuration = std::min(data.minDuration, duration);
+        data.maxDuration = std::max(data.maxDuration, duration);
     }
 }
 
-void CtfStatisticsModel::setMeasurementDuration(qint64 timeInNs)
+void CtfStatisticsModel::setMeasurementDuration(nanoseconds duration)
 {
-    m_measurementDurationInNs = timeInNs;
+    m_measurementDuration = duration;
 }
 
 void CtfStatisticsModel::endLoading()
@@ -90,20 +92,20 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
             return eventData.count;
         case Column::TotalDuration:
         case Column::RelativeDuration:
-            return eventData.totalDuration;
+            return qint64(eventData.totalDuration.count());
         case Column::MinDuration:
         {
             auto minDuration = eventData.minDuration;
-            return minDuration != std::numeric_limits<qint64>::max() ? minDuration : 0;
+            return minDuration != nanoseconds::max() ? qint64(minDuration.count()) : 0;
         }
         case Column::AvgDuration:
         {
-            if (eventData.totalDuration > 0 && eventData.count > 0)
-                return double(eventData.totalDuration) / eventData.count;
+            if (eventData.totalDuration > 0ns && eventData.count > 0)
+                return double(eventData.totalDuration.count()) / eventData.count;
             return 0;
         }
         case Column::MaxDuration:
-            return eventData.maxDuration;
+            return qint64(eventData.maxDuration.count());
         default:
             return {};
         }
@@ -116,7 +118,7 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
         case Column::TotalDuration:
         {
             auto totalDuration = eventData.totalDuration;
-            if (totalDuration > 0)
+            if (totalDuration > 0ns)
                 return Timeline::formatTime(totalDuration);
             else
                 return "-";
@@ -124,8 +126,9 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
         case Column::RelativeDuration:
         {
             auto totalDuration = eventData.totalDuration;
-            if (m_measurementDurationInNs > 0 && totalDuration > 0) {
-                const double percent = (totalDuration / double(m_measurementDurationInNs)) * 100;
+            if (m_measurementDuration > 0ns && totalDuration > 0ns) {
+                const double percent
+                    = (totalDuration.count() / double(m_measurementDuration.count())) * 100;
                 return QString("%1 %").arg(percent, 0, 'f', 2);
             } else {
                 return "-";
@@ -134,21 +137,21 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
         case Column::MinDuration:
         {
             auto minDuration = eventData.minDuration;
-            if (minDuration != std::numeric_limits<qint64>::max())
+            if (minDuration != nanoseconds::max())
                 return Timeline::formatTime(minDuration);
             else
                 return "-";
         }
         case Column::AvgDuration:
         {
-            if (eventData.totalDuration > 0 && eventData.count > 0)
+            if (eventData.totalDuration > 0ns && eventData.count > 0)
                 return Timeline::formatTime(eventData.totalDuration / eventData.count);
             return "-";
         }
         case Column::MaxDuration:
         {
             auto maxDuration = eventData.maxDuration;
-            if (maxDuration > 0)
+            if (maxDuration > 0ns)
                 return Timeline::formatTime(maxDuration);
             else
                 return "-";

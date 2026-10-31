@@ -11,6 +11,7 @@
 #include <QTest>
 
 using namespace QmlDebug;
+using namespace std::chrono_literals;
 namespace QmlPreview {
 
 class QmlPreviewClientTest : public QObject
@@ -177,11 +178,11 @@ void QmlPreviewClientTest::testHandleInput()
 
     const QmlEventType mouseType {Event, MaximumRangeType, Mouse};
     const QList<QmlEvent> clickEvents {{
-        0ll, 0, QList<int>({InputMouseMove, 12, 13})
+        0ns, 0, QList<int>({InputMouseMove, 12, 13})
     }, {
-        1ll, 0, QList<int>({InputMousePress, Qt::LeftButton, Qt::LeftButton})
+        1ns, 0, QList<int>({InputMousePress, Qt::LeftButton, Qt::LeftButton})
     }, {
-        2ll, 0, QList<int>({InputMouseRelease, Qt::LeftButton, Qt::NoButton})
+        2ns, 0, QList<int>({InputMouseRelease, Qt::LeftButton, Qt::NoButton})
     }};
 
     rig.client()->injectEvents({mouseType}, clickEvents);
@@ -210,7 +211,7 @@ void QmlPreviewClientTest::testHandleInput()
         qint64 timestamp;
         packet >> timestamp;
 
-        QCOMPARE(timestamp, expected.timestamp());
+        QCOMPARE(timestamp, expected.timestamp().count());
         Message message;
         packet >> message;
         QCOMPARE(message, mouseType.message());

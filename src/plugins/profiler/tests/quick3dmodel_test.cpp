@@ -9,6 +9,8 @@
 
 using namespace QmlDebug;
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 Quick3DModelTest::Quick3DModelTest()
@@ -18,8 +20,8 @@ Quick3DModelTest::Quick3DModelTest()
 void Quick3DModelTest::initTestCase()
 {
     manager.initialize();
-    manager.decreaseTraceStart(0);
-    manager.increaseTraceEnd(200);
+    manager.decreaseTraceStart(0ns);
+    manager.increaseTraceEnd(200ns);
 
     // Leave out most message types, so that rows and types do not line up.
     const auto appendEvents = [this](Quick3DModel::MessageType type,
@@ -30,7 +32,7 @@ void Quick3DModelTest::initTestCase()
         for (const qint64 value : data) {
             QmlEvent event;
             event.setTypeIndex(typeIndex);
-            event.setTimestamp(++timestamp);
+            event.setTimestamp(nanoseconds(++timestamp));
             event.setNumbers<qint64>({1, value});
             manager.appendEvent(std::move(event));
         }

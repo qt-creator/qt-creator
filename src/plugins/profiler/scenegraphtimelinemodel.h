@@ -77,8 +77,9 @@ private:
     void clear() final;
 
     void flattenLoads();
-    qint64 insert(qint64 start, qint64 duration, int typeIndex, SceneGraphStage stage,
-                  int glyphCount = -1);
+    std::chrono::nanoseconds insert(std::chrono::nanoseconds start,
+                                    std::chrono::nanoseconds duration, int typeIndex,
+                                    SceneGraphStage stage, int glyphCount = -1);
     static const char *threadLabel(SceneGraphStage stage);
 
     QList<Item> m_data;

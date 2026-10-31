@@ -31,6 +31,8 @@ using namespace QtTaskTree;
 using namespace Utils;
 using namespace Qt::StringLiterals;
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 class CombinedTraceLoaderPrivate
@@ -54,13 +56,13 @@ public:
 // The clock-correlation offset (microseconds) CombinedSampler wrote to the
 // bundle manifest; 0 if absent or unreadable. Added to each native sample's
 // timestamp so it lines up with the QML profiler's timeline.
-static qint64 readClockOffsetUs(const FilePath &bundleDir)
+static microseconds readClockOffset(const FilePath &bundleDir)
 {
     const Result<QByteArray> content = (bundleDir / combinedManifestName).fileContents();
     if (!content)
-        return 0;
+        return 0us;
     const QJsonObject object = QJsonDocument::fromJson(*content).object();
-    return qint64(object.value("qmlClockOffsetUs"_L1).toDouble(0));
+    return microseconds(qint64(object.value("qmlClockOffsetUs"_L1).toDouble(0)));
 }
 
 // The manifest entry appears only once the merge is complete, so unlike probing the
@@ -124,7 +126,7 @@ static void mergeBundle(QPromise<Result<FilePath>> &promise, const FilePath &bun
     }
 
     MergeOptions options;
-    options.sampleTimeOffsetUs = readClockOffsetUs(bundleDir);
+    options.sampleTimeOffset = readClockOffset(bundleDir);
     const SampleTraceData mergedData = mergeQmlIntoSamples(*native, ranges, options);
 
     const FilePath outDir = bundleDir / combinedMergedSubdir;
@@ -250,8 +252,10 @@ void CombinedTraceLoader::onQmlLoaded()
     // range with its parent set to the enclosing open range. Timestamps are made
     // zero-based against the QML trace start so they line up (approximately, until
     // clock correlation lands) with the sampler's own zero-based timestamps.
-    const qint64 baseNs = d->modelManager.traceStart();
-    const auto toUs = [baseNs](qint64 ns) { return quint64(qMax<qint64>(0, ns - baseNs) / 1000); };
+    const nanoseconds base = d->modelManager.traceStart();
+    const auto toUs = [base](nanoseconds time) {
+        return duration_cast<microseconds>(qMax(0ns, time - base));
+    };
 
     QList<QmlRange> ranges;
     struct OpenRange { int rangeIndex; int typeIndex; };
@@ -269,7 +273,7 @@ void CombinedTraceLoader::onQmlLoaded()
         const Message stage = event.rangeStage();
         if (stage == RangeStart) {
             QmlRange range;
-            range.startUs = toUs(event.timestamp());
+            range.start = toUs(event.timestamp());
             range.parent = stack.isEmpty() ? -1 : stack.last().rangeIndex;
             const QmlEventLocation location = type.location();
             range.file = location.filename();
@@ -293,7 +297,7 @@ void CombinedTraceLoader::onQmlLoaded()
                 return;
             while (stack.size() - 1 > matchIndex)
                 stack.removeLast();
-            ranges[stack.last().rangeIndex].endUs = toUs(event.timestamp());
+            ranges[stack.last().rangeIndex].end = toUs(event.timestamp());
             stack.removeLast();
         }
     };
@@ -302,10 +306,10 @@ void CombinedTraceLoader::onQmlLoaded()
     d->modelManager.replayQmlEvents(loader, [] {}, [] {}, [](const QString &) {}, future);
 
     // Close ranges still open at the end of the trace at the trace end.
-    const quint64 traceEndUs = toUs(d->modelManager.traceEnd());
+    const microseconds traceEnd = toUs(d->modelManager.traceEnd());
     for (const OpenRange &open : std::as_const(stack)) {
-        if (ranges[open.rangeIndex].endUs == 0)
-            ranges[open.rangeIndex].endUs = traceEndUs;
+        if (ranges[open.rangeIndex].end == 0us)
+            ranges[open.rangeIndex].end = traceEnd;
     }
 
     // The native side of the merge runs on a worker thread. It is the expensive

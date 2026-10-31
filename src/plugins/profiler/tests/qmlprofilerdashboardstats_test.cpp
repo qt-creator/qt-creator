@@ -13,6 +13,7 @@
 #include <QTest>
 
 using namespace QmlDebug;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -26,7 +27,7 @@ void QmlProfilerDashboardStatsTest::initTestCase()
 
     const int typeIndex
         = manager.appendEventType(QmlEventType(Event, UndefinedRangeType, AnimationFrame));
-    qint64 timestamp = 0;
+    nanoseconds timestamp = 0ns;
     const auto addFrames = [&](int framesPerSecond, int count, AnimationThread thread) {
         for (int i = 0; i < count; ++i) {
             QmlEvent frame;
@@ -182,7 +183,7 @@ void QmlProfilerDashboardStatsTest::testBreakdownRatedAgainstTarget()
         = viewManager.appendEventType(QmlEventType(Event, UndefinedRangeType, AnimationFrame));
     // A steady 58 FPS: plenty for 30 FPS, nowhere near 240 FPS.
     for (int i = 1; i <= 100; ++i)
-        viewManager.appendEvent(QmlEvent(i * 17'000'000ll, typeIndex, {58, 1, int(GuiThread)}));
+        viewManager.appendEvent(QmlEvent(i * 17ms, typeIndex, {58, 1, int(GuiThread)}));
     viewManager.finalize();
 
     const auto shown = [&view](const QString &name) {

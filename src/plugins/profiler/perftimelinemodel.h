@@ -37,8 +37,8 @@ public:
         MaximumCollapsedSpecialRow = CollapsedSamplesRow + 1
     };
 
-    PerfTimelineModel(quint32 pid, quint32 tid, qint64 startTime, qint64 endTime,
-                      PerfTimelineModelManager *parent);
+    PerfTimelineModel(quint32 pid, quint32 tid, std::chrono::nanoseconds startTime,
+                      std::chrono::nanoseconds endTime, PerfTimelineModelManager *parent);
 
     QRgb color(int index) const override;
     Timeline::RowLabels labels() const override;
@@ -60,8 +60,14 @@ public:
     quint32 pid() const { return m_pid; }
     quint32 tid() const { return m_tid; }
 
-    qint64 threadStartTimestamp() const { return m_threadStartTimestamp + 1; }
-    qint64 threadEndTimestamp() const { return m_threadEndTimestamp - 1; }
+    std::chrono::nanoseconds threadStartTimestamp() const
+    {
+        return m_threadStartTimestamp + std::chrono::nanoseconds(1);
+    }
+    std::chrono::nanoseconds threadEndTimestamp() const
+    {
+        return m_threadEndTimestamp - std::chrono::nanoseconds(1);
+    }
 
     void setSamplingFrequency(qint64 samplingFrequency) { m_samplingFrequency = samplingFrequency; }
 
@@ -82,7 +88,7 @@ public:
     qint64 rowMaxValue(int rowNumber) const override;
     QString formatRowValue(int rowNumber, qint64 value) const override;
 
-    void addLostEvent(qint64 timestamp, int numConcurrentThreads);
+    void addLostEvent(std::chrono::nanoseconds timestamp, int numConcurrentThreads);
 
 private:
     const PerfProfilerTraceManager *traceManager() const { return m_traceManager; }
@@ -124,9 +130,9 @@ private:
     const PerfProfilerTraceManager *m_traceManager = nullptr;
     QList<int> m_currentStack;
 
-    qint64 m_lastTimestamp;
-    qint64 m_threadStartTimestamp;
-    qint64 m_threadEndTimestamp;
+    std::chrono::nanoseconds m_lastTimestamp;
+    std::chrono::nanoseconds m_threadStartTimestamp;
+    std::chrono::nanoseconds m_threadEndTimestamp;
 
     PerfResourceCounter<> m_resourceBlocks;
 

@@ -35,6 +35,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <chrono>
 #include <unordered_map>
 
 #ifdef Q_CC_GNU
@@ -44,6 +45,7 @@
 
 using namespace Utils;
 using namespace Qt::StringLiterals;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -341,7 +343,7 @@ public:
     bool m_debuginfodChecked = false;
     QStringList m_debuginfodUrls;
     FilePath m_debuginfodCacheDir;
-    int m_debuginfodTimeoutMs = 5000;
+    milliseconds m_debuginfodTimeout = 5s;
 
     // /proc/kallsyms, read once per session (see ensureKallsymsLoaded()),
     // sorted by address for the same binary-search pattern as ELF symbols.
@@ -448,7 +450,7 @@ void PerfSymbolizerPrivate::ensureDebuginfodConfig()
     bool ok = false;
     const int secs = qEnvironmentVariable("DEBUGINFOD_TIMEOUT").toInt(&ok);
     if (ok && secs > 0)
-        m_debuginfodTimeoutMs = secs * 1000;
+        m_debuginfodTimeout = seconds(secs);
 }
 FilePath PerfSymbolizerPrivate::debuginfodCachePath(const QByteArray &buildId) const
 {
@@ -636,7 +638,7 @@ bool PerfSymbolizerPrivate::fetchDebugFiles(const QSet<QString> &modulePaths,
     // loop -- the documented way to run a task tree off the main thread; the
     // NetworkAccessManager is likewise created and used only on this thread.
     NetworkAccessManager nam;
-    const int timeoutMs = m_debuginfodTimeoutMs;
+    const milliseconds timeout = m_debuginfodTimeout;
 
     // All of `progress` is the fetches': they are one stage of the caller's.
     const int fetchWeight = 100;
@@ -672,14 +674,14 @@ bool PerfSymbolizerPrivate::fetchDebugFiles(const QSet<QString> &modulePaths,
     QElapsedTimer fetchElapsed;
     if (totalFetches > 0 && progress) {
         fetchElapsed.start();
-        fetchProgressTicker.setInterval(200);
+        fetchProgressTicker.setInterval(200ms);
         QObject::connect(&fetchProgressTicker, &QTimer::timeout, [&] {
             if (fetchesDone.load() >= totalFetches) {
                 fetchProgressTicker.stop();
                 return;
             }
-            const qint64 elapsedFraction = qMin<qint64>(90, fetchElapsed.elapsed() * 100
-                                                                 / qMax(1, timeoutMs));
+            const qint64 elapsedFraction = qMin<qint64>(90, fetchElapsed.durationElapsed() * 100
+                                                                 / qMax(1ms, timeout));
             reportProgress(int(elapsedFraction) * fetchWeight / 100);
         });
         fetchProgressTicker.start();
@@ -708,11 +710,11 @@ bool PerfSymbolizerPrivate::fetchDebugFiles(const QSet<QString> &modulePaths,
         for (const Fetch &fetch : std::as_const(fetches)) {
             const QString url = fetch.url;
             const FilePath cachePath = fetch.cachePath;
-            const auto onQuerySetup = [url, timeoutMs, &nam](QNetworkReplyWrapper &query) {
+            const auto onQuerySetup = [url, timeout, &nam](QNetworkReplyWrapper &query) {
                 QNetworkRequest request{QUrl(url)};
                 request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
                                      QNetworkRequest::NoLessSafeRedirectPolicy);
-                request.setTransferTimeout(timeoutMs);
+                request.setTransferTimeout(timeout);
                 query.setRequest(request);
                 query.setNetworkAccessManager(&nam);
             };
@@ -750,7 +752,7 @@ bool PerfSymbolizerPrivate::fetchDebugFiles(const QSet<QString> &modulePaths,
     QTaskTree tree(Group{recipe});
     QTimer cancelPoll;
     if (isCanceled) {
-        cancelPoll.setInterval(100);
+        cancelPoll.setInterval(100ms);
         QObject::connect(&cancelPoll, &QTimer::timeout, &tree, [&isCanceled, &tree] {
             if (isCanceled())
                 tree.cancel();

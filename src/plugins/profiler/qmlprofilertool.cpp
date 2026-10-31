@@ -168,10 +168,11 @@ static ProfilerTraceDocument *openRunDocument(int runNumber)
 void QmlProfilerTool::finalizeRunControl(RunControl *runControl)
 {
     bool aggregateTraces = false;
-    int flushInterval = 0;
+    std::chrono::milliseconds flushInterval{0};
     if (auto aspect = runControl->aspectData<QmlProfilerRunConfigurationAspect>()) {
         if (auto settings = static_cast<const QmlProfilerSettings *>(aspect->currentSettings)) {
-            flushInterval = settings->flushEnabled() ? settings->flushInterval() : 0;
+            if (settings->flushEnabled())
+                flushInterval = std::chrono::milliseconds(settings->flushInterval());
             aggregateTraces = settings->aggregateTraces();
         }
     }

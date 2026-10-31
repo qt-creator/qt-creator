@@ -26,7 +26,7 @@ public:
     // The model keeps the pointer; pass nullptr to clear.
     void setTraceData(const SampleTraceData *data);
 
-    qint64 traceEndNs() const { return m_traceEndNs; }
+    std::chrono::nanoseconds traceEnd() const { return m_traceEnd; }
 
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;
@@ -41,8 +41,8 @@ public:
     void navigateToDetail(int itemIndex, int detailRow) override;
 
     bool rendersAsDensity() const override;
-    bool fillDensityColumns(int row, qint64 startTime, qint64 endTime,
-                            QList<float> &out) const override;
+    bool fillDensityColumns(int row, std::chrono::nanoseconds startTime,
+                            std::chrono::nanoseconds endTime, QList<float> &out) const override;
     QRgb rowColor(int row) const override;
 
     void clear() override;
@@ -50,7 +50,8 @@ public:
 private:
     void load();
     int toExpandedRow(int row) const;
-    void ensureDensityCache(qint64 startNs, qint64 endNs, int columns) const;
+    void ensureDensityCache(std::chrono::nanoseconds start, std::chrono::nanoseconds end,
+                            int columns) const;
 
     struct Item
     {
@@ -62,11 +63,11 @@ private:
     };
 
     // Retained sample grid for per-column density aggregation. Sorted ascending
-    // by startNs; one entry per sampling tick.
+    // by start; one entry per sampling tick.
     struct TickRow
     {
-        qint64 startNs = 0;
-        qint64 endNs = 0;       // where the tick's items end: the next tick's start
+        std::chrono::nanoseconds start{0};
+        std::chrono::nanoseconds end{0}; // where the tick's items end: the next tick's start
         int running = 0;        // running threads at this tick
         QList<int> runningRows; // thread row indices (FirstThreadRow + idx) on-CPU
     };
@@ -77,12 +78,12 @@ private:
     QList<QRgb> m_rowColors; // index = expanded row; constant colour per row
     QList<TickRow> m_ticks;
     int m_maxRunning = 1;     // peak concurrent on-CPU threads; the total row's full scale
-    qint64 m_traceEndNs = 0;
+    std::chrono::nanoseconds m_traceEnd{0};
 
     // Per-column density accumulators, rebuilt once per (start, end, columns)
     // view and shared across all rows of a repaint. See ensureDensityCache().
-    mutable qint64 m_cacheStartNs = 0;
-    mutable qint64 m_cacheEndNs = -1;
+    mutable std::chrono::nanoseconds m_cacheStart{0};
+    mutable std::chrono::nanoseconds m_cacheEnd{-1};
     mutable int m_cacheColumns = 0;
     mutable bool m_cacheValid = false;
     mutable QList<int> m_cacheCovered;       // [col] ticks in the column

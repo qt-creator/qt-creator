@@ -6,13 +6,14 @@
 #include <QtTest>
 
 using namespace Profiler::Internal;
+using namespace std::chrono;
 
 // steady_clock advances in ticks -- 41.67 ns on Apple silicon -- so two readings
 // a few instructions apart are often equal. Returns once it has moved past
 // `ns`, so that whatever is stamped next is strictly later.
-static void waitForClockToPass(qint64 ns)
+static void waitForClockToPass(nanoseconds ns)
 {
-    while (RecordingSession::steadyNowNs() <= ns) {
+    while (RecordingSession::steadyNow() <= ns) {
     }
 }
 
@@ -36,28 +37,28 @@ private slots:
         RecordingSession session;
         QVERIFY(!session.isPaused());
         QVERIFY(session.pausedIntervals().empty());
-        QVERIFY(!session.wasPausedAt(RecordingSession::steadyNowNs()));
+        QVERIFY(!session.wasPausedAt(RecordingSession::steadyNow()));
     }
 
     void pauseAndResumeRecordAnInterval()
     {
         RecordingSession session;
-        const qint64 before = RecordingSession::steadyNowNs();
+        const nanoseconds before = RecordingSession::steadyNow();
         session.setPaused(true);
         QVERIFY(session.isPaused());
-        const qint64 during = RecordingSession::steadyNowNs();
+        const nanoseconds during = RecordingSession::steadyNow();
         QVERIFY(session.wasPausedAt(during));
-        QVERIFY(!session.wasPausedAt(before - 1));
+        QVERIFY(!session.wasPausedAt(before - 1ns));
 
         // The interval is half-open, so `during` only counts once the resume
         // is stamped after it.
         waitForClockToPass(during);
         session.setPaused(false);
-        const qint64 after = RecordingSession::steadyNowNs();
+        const nanoseconds after = RecordingSession::steadyNow();
         QVERIFY(!session.isPaused());
         // Judged by when it was taken, not by the state now.
         QVERIFY(session.wasPausedAt(during));
-        QVERIFY(!session.wasPausedAt(after + 1));
+        QVERIFY(!session.wasPausedAt(after + 1ns));
 
         const auto intervals = session.pausedIntervals();
         QCOMPARE(intervals.size(), size_t(1));
@@ -75,7 +76,7 @@ private slots:
         session.setPaused(false);
         const auto [start, end] = session.pausedIntervals().front();
         QVERIFY(session.wasPausedAt(start));
-        QVERIFY(!session.wasPausedAt(start - 1));
+        QVERIFY(!session.wasPausedAt(start - 1ns));
         QVERIFY(!session.wasPausedAt(end));
     }
 
@@ -83,8 +84,8 @@ private slots:
     {
         RecordingSession session;
         session.setPaused(true);
-        QCOMPARE(session.pausedIntervals().front().second, qint64(-1));
-        QVERIFY(session.wasPausedAt(RecordingSession::steadyNowNs() + 1'000'000'000));
+        QCOMPARE(session.pausedIntervals().front().second, -1ns);
+        QVERIFY(session.wasPausedAt(RecordingSession::steadyNow() + 1s));
     }
 
     void settingTheSameStateChangesNothing()
@@ -168,7 +169,7 @@ private slots:
         parent->setPaused(true);
         QVERIFY(first->isPaused());
         QVERIFY(second->isPaused());
-        QVERIFY(first->wasPausedAt(RecordingSession::steadyNowNs()));
+        QVERIFY(first->wasPausedAt(RecordingSession::steadyNow()));
 
         parent->setPaused(false);
         QVERIFY(!first->isPaused());
@@ -205,7 +206,7 @@ private slots:
         session.requestStop();
         session.setPaused(false);
         QVERIFY(session.isPaused());
-        QCOMPARE(session.pausedIntervals().front().second, qint64(-1));
+        QCOMPARE(session.pausedIntervals().front().second, -1ns);
     }
 };
 

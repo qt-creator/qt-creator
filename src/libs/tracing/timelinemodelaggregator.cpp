@@ -12,6 +12,8 @@
 #include <QSet>
 #include <QVarLengthArray>
 
+using namespace std::chrono;
+
 namespace Timeline {
 
 // Models the aggregator remembers the place or the hidden state of, beyond
@@ -401,7 +403,7 @@ int TimelineModelAggregator::modelIndexById(int modelId) const
 }
 
 ModelItem TimelineModelAggregator::nextItem(int selectedModel, int selectedItem,
-                                                   qint64 time) const
+                                            nanoseconds time) const
 {
     if (selectedItem != -1)
         time = model(selectedModel)->startTime(selectedItem);
@@ -427,11 +429,11 @@ ModelItem TimelineModelAggregator::nextItem(int selectedModel, int selectedItem,
     }
 
     int candidateModelIndex = -1;
-    qint64 candidateStartTime = std::numeric_limits<qint64>::max();
+    nanoseconds candidateStartTime = nanoseconds::max();
     for (int i = 0; i < modelCount(); i++) {
         if (itemIndexes[i] == -1)
             continue;
-        qint64 newStartTime = model(i)->startTime(itemIndexes[i]);
+        nanoseconds newStartTime = model(i)->startTime(itemIndexes[i]);
         if (newStartTime < candidateStartTime &&
                 (newStartTime > time || (newStartTime == time && i > selectedModel))) {
             candidateStartTime = newStartTime;
@@ -444,7 +446,7 @@ ModelItem TimelineModelAggregator::nextItem(int selectedModel, int selectedItem,
         itemIndex = itemIndexes[candidateModelIndex];
     } else {
         itemIndex = -1;
-        candidateStartTime = std::numeric_limits<qint64>::max();
+        candidateStartTime = nanoseconds::max();
         for (int i = 0; i < modelCount(); i++) {
             const TimelineModel *currentModel = model(i);
             if (currentModel->count() > 0 && currentModel->startTime(0) < candidateStartTime) {
@@ -459,7 +461,7 @@ ModelItem TimelineModelAggregator::nextItem(int selectedModel, int selectedItem,
 }
 
 ModelItem TimelineModelAggregator::prevItem(int selectedModel, int selectedItem,
-                                                   qint64 time) const
+                                            nanoseconds time) const
 {
     if (selectedItem != -1)
         time = model(selectedModel)->startTime(selectedItem);
@@ -481,12 +483,12 @@ ModelItem TimelineModelAggregator::prevItem(int selectedModel, int selectedItem,
     }
 
     int candidateModelIndex = -1;
-    qint64 candidateStartTime = std::numeric_limits<qint64>::min();
+    nanoseconds candidateStartTime = nanoseconds::min();
     for (int i = modelCount() - 1; i >= 0 ; --i) {
         const TimelineModel *currentModel = model(i);
         if (itemIndexes[i] == -1 || itemIndexes[i] >= currentModel->count())
             continue;
-        qint64 newStartTime = currentModel->startTime(itemIndexes[i]);
+        nanoseconds newStartTime = currentModel->startTime(itemIndexes[i]);
         if (newStartTime > candidateStartTime &&
                 (newStartTime < time || (newStartTime == time && i < selectedModel))) {
             candidateStartTime = newStartTime;
@@ -498,7 +500,7 @@ ModelItem TimelineModelAggregator::prevItem(int selectedModel, int selectedItem,
     if (candidateModelIndex != -1) {
         itemIndex = itemIndexes[candidateModelIndex];
     } else {
-        candidateStartTime = std::numeric_limits<qint64>::min();
+        candidateStartTime = nanoseconds::min();
         for (int i = 0; i < modelCount(); i++) {
             const TimelineModel *currentModel = model(i);
             if (currentModel->count() > 0 &&

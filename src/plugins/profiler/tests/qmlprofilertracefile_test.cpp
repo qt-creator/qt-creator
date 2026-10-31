@@ -52,9 +52,11 @@ extern "C" size_t __sanitizer_get_current_allocated_bytes();
 
 using namespace QmlDebug;
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
-using Ranges = QList<std::pair<qint64, qint64>>;
+using Ranges = QmlProfilerModelManager::PausedRanges;
 
 // Writes a trace of `ranges` JavaScript ranges, long enough to be still loading while a test
 // holds the loading thread.
@@ -65,15 +67,15 @@ static void writeLongTrace(const QString &path, int ranges)
     const int type = saved.appendEventType(
         QmlEventType(UndefinedMessage, Javascript, -1, QmlEventLocation("main.qml", 1, 1), "f"));
     for (int i = 0; i < ranges; ++i) {
-        QmlEvent event(i * 10, type, {});
+        QmlEvent event(nanoseconds(i * 10), type, {});
         event.setRangeStage(RangeStart);
         saved.appendEvent(QmlEvent(event));
         event.setRangeStage(RangeEnd);
-        event.setTimestamp(i * 10 + 5);
+        event.setTimestamp(nanoseconds(i * 10 + 5));
         saved.appendEvent(std::move(event));
     }
-    saved.decreaseTraceStart(0);
-    saved.increaseTraceEnd(qint64(ranges) * 10);
+    saved.decreaseTraceStart(0ns);
+    saved.increaseTraceEnd(nanoseconds(qint64(ranges) * 10));
     saved.finalize();
     QSignalSpy saveSpy(&saved, &QmlProfilerModelManager::saveFinished);
     saved.save(path);
@@ -117,15 +119,15 @@ static void fillTrace(QmlProfilerModelManager &manager, const Ranges &paused)
     manager.initialize();
     for (const qint64 time : {100, 900}) {
         QmlEvent event;
-        event.setTimestamp(time);
+        event.setTimestamp(nanoseconds(time));
         event.setString(QString::fromLatin1("message at %1").arg(time));
         event.setTypeIndex(manager.numEventTypes());
         manager.appendEventType(QmlEventType(DebugMessage, UndefinedRangeType, QtDebugMsg,
                                              QmlEventLocation("main.qml", 1, 1)));
         manager.appendEvent(std::move(event));
     }
-    manager.decreaseTraceStart(0);
-    manager.increaseTraceEnd(1000);
+    manager.decreaseTraceStart(0ns);
+    manager.increaseTraceEnd(1000ns);
     for (const auto &[start, end] : paused)
         manager.addPausedRange(start, end);
     manager.finalize();
@@ -160,7 +162,7 @@ static void saveAndLoad(const Ranges &paused, QmlProfilerModelManager &loaded,
         file.write(content);
     }
 
-    loaded.addPausedRange(5, 6); // Left from before; loading has to replace it.
+    loaded.addPausedRange(5ns, 6ns); // Left from before; loading has to replace it.
     QSignalSpy loadSpy(&loaded, &QmlProfilerModelManager::loadFinished);
     QSignalSpy errorSpy(&loaded, &QmlProfilerModelManager::error);
     loaded.load(path);
@@ -171,7 +173,7 @@ static void saveAndLoad(const Ranges &paused, QmlProfilerModelManager &loaded,
 
 void QmlProfilerTraceFileTest::testPausedRangesRoundTrip()
 {
-    const Ranges paused{{200, 400}, {600, 700}};
+    const Ranges paused{{200ns, 400ns}, {600ns, 700ns}};
     QmlProfilerModelManager loaded;
     saveAndLoad(paused, loaded);
     if (QTest::currentTestFailed())
@@ -191,7 +193,7 @@ void QmlProfilerTraceFileTest::testNoPausedRanges()
 void QmlProfilerTraceFileTest::testMalformedPausedRangesAreSkipped()
 {
     QmlProfilerModelManager loaded;
-    saveAndLoad({{1, 2}}, loaded,
+    saveAndLoad({{1ns, 2ns}}, loaded,
                 "<pausedRanges>"
                 "<paused start=\"200\" end=\"400\"/>"
                 "<paused start=\"500\"/>"               // No end.
@@ -203,7 +205,7 @@ void QmlProfilerTraceFileTest::testMalformedPausedRangesAreSkipped()
                 "</pausedRanges>");
     if (QTest::currentTestFailed())
         return;
-    QCOMPARE(loaded.pausedRanges(), (Ranges{{200, 400}, {850, 900}}));
+    QCOMPARE(loaded.pausedRanges(), (Ranges{{200ns, 400ns}, {850ns, 900ns}}));
 }
 
 // Deleting what a load calls into is only safe once cancelBackgroundWork() returned: from then
@@ -260,15 +262,15 @@ static void fillRanges(QmlProfilerModelManager &manager)
     manager.appendEventType(QmlEventType(UndefinedMessage, Javascript, -1,
                                          QmlEventLocation("main.qml", 1, 1), "f"));
     for (const auto &[start, end] : {std::pair{100, 110}, std::pair{200, 230}}) {
-        QmlEvent event(start, typeIndex, {});
+        QmlEvent event(nanoseconds(start), typeIndex, {});
         event.setRangeStage(RangeStart);
         manager.appendEvent(QmlEvent(event));
         event.setRangeStage(RangeEnd);
-        event.setTimestamp(end);
+        event.setTimestamp(nanoseconds(end));
         manager.appendEvent(std::move(event));
     }
-    manager.decreaseTraceStart(0);
-    manager.increaseTraceEnd(1000);
+    manager.decreaseTraceStart(0ns);
+    manager.increaseTraceEnd(1000ns);
     manager.finalize();
 }
 
@@ -350,13 +352,13 @@ void QmlProfilerTraceFileTest::testLoadedEventsAreStored()
                                        QmlEventLocation("main.qml", 1, 1)));
     for (const qint64 timestamp : timestamps) {
         QmlEvent event;
-        event.setTimestamp(timestamp);
+        event.setTimestamp(nanoseconds(timestamp));
         event.setTypeIndex(typeIndex);
         event.setString(QString::fromLatin1("message at %1").arg(timestamp));
         saved.appendEvent(std::move(event));
     }
-    saved.decreaseTraceStart(0);
-    saved.increaseTraceEnd(1000);
+    saved.decreaseTraceStart(0ns);
+    saved.increaseTraceEnd(1000ns);
     saved.finalize();
     QSignalSpy saveSpy(&saved, &QmlProfilerModelManager::saveFinished);
     saved.save(path);
@@ -373,7 +375,7 @@ void QmlProfilerTraceFileTest::testLoadedEventsAreStored()
     QList<std::pair<qint64, QString>> replayed;
     QFutureInterface<void> future;
     loaded.replayQmlEvents([&](const QmlEvent &event, const QmlEventType &) {
-        replayed.append({event.timestamp(), event.string()});
+        replayed.append({event.timestamp().count(), event.string()});
     }, {}, {}, {}, future);
 
     // The loaded events go to a temporary file, as recorded ones do, not to memory.
@@ -414,13 +416,13 @@ void QmlProfilerTraceFileTest::testSavedChunksKeepTheirOrder()
                                        QmlEventLocation("main.qml", 1, 1)));
     for (int i = 0; i < eventCount; ++i) {
         QmlEvent event;
-        event.setTimestamp(i);
+        event.setTimestamp(nanoseconds(i));
         event.setTypeIndex(typeIndex);
         event.setString(padding + QString::number(i));
         saved.appendEvent(std::move(event));
     }
-    saved.decreaseTraceStart(0);
-    saved.increaseTraceEnd(eventCount);
+    saved.decreaseTraceStart(0ns);
+    saved.increaseTraceEnd(nanoseconds(eventCount));
     saved.finalize();
     QSignalSpy saveSpy(&saved, &QmlProfilerModelManager::saveFinished);
     saved.save(path);
@@ -435,7 +437,7 @@ void QmlProfilerTraceFileTest::testSavedChunksKeepTheirOrder()
     int next = 0;
     QFutureInterface<void> future;
     loaded.replayQmlEvents([&](const QmlEvent &event, const QmlEventType &) {
-        if (next >= 0 && event.timestamp() == next
+        if (next >= 0 && event.timestamp() == nanoseconds(next)
                 && event.string() == padding + QString::number(next)) {
             ++next;
         } else {
@@ -456,7 +458,7 @@ void QmlProfilerTraceFileTest::testRestrictionReplaysInAnotherThread()
 
     QSignalSpy started(&manager, &QmlProfilerModelManager::restrictionStarted);
     QSignalSpy finished(&manager, &QmlProfilerModelManager::restrictionFinished);
-    manager.restrictToRange(150, 300);
+    manager.restrictToRange(150ns, 300ns);
     QCOMPARE(started.count(), 1);
     QTRY_COMPARE(finished.count(), 1);
 
@@ -491,7 +493,7 @@ void QmlProfilerTraceFileTest::testCancelStopsTheRestrictionThread()
     QTRY_COMPARE(loadSpy.count(), 1);
 
     gated->armed = true;
-    manager.restrictToRange(0, qint64(ranges) * 10);
+    manager.restrictToRange(0ns, nanoseconds(qint64(ranges) * 10));
     QVERIFY(gated->started.tryAcquire(1, 10000));
     gated->gate.release();
     manager.cancelBackgroundWork();
@@ -512,23 +514,23 @@ static void fillJavaScriptAndBinding(QmlProfilerModelManager &manager, int *java
         QmlEventType(UndefinedMessage, Binding, -1, QmlEventLocation("main.qml", 2, 1), "b"));
     for (const auto &[type, start, end] : {std::tuple{*javaScriptType, 100, 110},
                                            std::tuple{*bindingType, 200, 230}}) {
-        QmlEvent event(start, type, {});
+        QmlEvent event(nanoseconds(start), type, {});
         event.setRangeStage(RangeStart);
         manager.appendEvent(QmlEvent(event));
         event.setRangeStage(RangeEnd);
-        event.setTimestamp(end);
+        event.setTimestamp(nanoseconds(end));
         manager.appendEvent(std::move(event));
     }
     for (int i = 0; i < extraJavaScript; ++i) {
-        QmlEvent event(1000 + i * 10, *javaScriptType, {});
+        QmlEvent event(nanoseconds(1000 + i * 10), *javaScriptType, {});
         event.setRangeStage(RangeStart);
         manager.appendEvent(QmlEvent(event));
         event.setRangeStage(RangeEnd);
-        event.setTimestamp(1005 + i * 10);
+        event.setTimestamp(nanoseconds(1005 + i * 10));
         manager.appendEvent(std::move(event));
     }
-    manager.decreaseTraceStart(0);
-    manager.increaseTraceEnd(1000 + extraJavaScript * 10);
+    manager.decreaseTraceStart(0ns);
+    manager.increaseTraceEnd(nanoseconds(1000 + extraJavaScript * 10));
     manager.finalize();
 }
 
@@ -571,7 +573,7 @@ void QmlProfilerTraceFileTest::testFeatureRestrictionDuringRangeRestriction()
     fillJavaScriptAndBinding(manager, &javaScriptType, &bindingType, extraJavaScript);
 
     QSignalSpy finished(&manager, &QmlProfilerModelManager::restrictionFinished);
-    manager.restrictToRange(150, 1000 + extraJavaScript * 10);
+    manager.restrictToRange(150ns, nanoseconds(1000 + extraJavaScript * 10));
     statistics.restrictToFeatures((1ULL << ProfileBinding) | (1ULL << ProfileJavaScript));
     statistics.restrictToFeatures(1ULL << ProfileJavaScript);
     QTRY_COMPARE(finished.count(), 1);
@@ -614,24 +616,24 @@ void QmlProfilerTraceFileTest::testRestrictionReleasesTheStorage()
         QmlEventType(MemoryAllocation, UndefinedRangeType, SmallItem));
     const int ranges = 500000;
     for (int i = 0; i < ranges; ++i) {
-        QmlEvent event(i * 10, function, {});
+        QmlEvent event(nanoseconds(i * 10), function, {});
         event.setRangeStage(RangeStart);
         manager.appendEvent(QmlEvent(event));
         event.setRangeStage(RangeEnd);
-        event.setTimestamp(i * 10 + 5);
+        event.setTimestamp(nanoseconds(i * 10 + 5));
         manager.appendEvent(std::move(event));
-        QmlEvent allocated(i * 10 + 6, allocation, {});
+        QmlEvent allocated(nanoseconds(i * 10 + 6), allocation, {});
         allocated.setNumbers<qint64>({32});
         manager.appendEvent(std::move(allocated));
     }
-    manager.decreaseTraceStart(0);
-    manager.increaseTraceEnd(qint64(ranges) * 10);
+    manager.decreaseTraceStart(0ns);
+    manager.increaseTraceEnd(nanoseconds(qint64(ranges) * 10));
     manager.finalize();
     QCOMPARE(javaScript.count(), ranges);
     const qint64 whole = *heapInUse();
 
     QSignalSpy finished(&manager, &QmlProfilerModelManager::restrictionFinished);
-    manager.restrictToRange(0, 100);
+    manager.restrictToRange(0ns, 100ns);
     QTRY_COMPARE(finished.count(), 1);
     QVERIFY(javaScript.count() < 20);
     const qint64 restricted = *heapInUse();

@@ -10,6 +10,7 @@
 #include <QObject>
 #include <QFuture>
 
+#include <chrono>
 #include <functional>
 #include <memory>
 
@@ -56,11 +57,11 @@ public:
                                   QObject *parent = nullptr);
     ~TimelineTraceManager() override;
 
-    qint64 traceStart() const;
-    qint64 traceEnd() const;
-    qint64 traceDuration() const;
-    void decreaseTraceStart(qint64 start);
-    void increaseTraceEnd(qint64 end);
+    std::chrono::nanoseconds traceStart() const;
+    std::chrono::nanoseconds traceEnd() const;
+    std::chrono::nanoseconds traceDuration() const;
+    void decreaseTraceStart(std::chrono::nanoseconds start);
+    void increaseTraceEnd(std::chrono::nanoseconds end);
 
     void setNotesModel(TimelineNotesModel *notesModel);
     TimelineNotesModel *notesModel() const;

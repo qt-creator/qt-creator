@@ -7,6 +7,8 @@
 
 #include <QTimer>
 
+#include <chrono>
+
 namespace Timeline {
 
 class TRACING_EXPORT TimelineZoomControl : public QObject
@@ -17,39 +19,39 @@ public:
     TimelineZoomControl(QObject *parent = nullptr);
 
     qint64 maximumZoomFactor() const { return 1 << 10; }
-    qint64 minimumRangeLength() const { return 500; }
+    std::chrono::nanoseconds minimumRangeLength() const { return std::chrono::nanoseconds(500); }
 
-    qint64 traceStart() const { return m_traceStart; }
-    qint64 traceEnd() const { return m_traceEnd; }
-    qint64 traceDuration() const { return m_traceEnd - m_traceStart; }
+    std::chrono::nanoseconds traceStart() const { return m_traceStart; }
+    std::chrono::nanoseconds traceEnd() const { return m_traceEnd; }
+    std::chrono::nanoseconds traceDuration() const { return m_traceEnd - m_traceStart; }
 
-    qint64 windowStart() const { return m_windowStart; }
-    qint64 windowEnd() const { return m_windowEnd; }
-    qint64 windowDuration() const { return m_windowEnd - m_windowStart; }
+    std::chrono::nanoseconds windowStart() const { return m_windowStart; }
+    std::chrono::nanoseconds windowEnd() const { return m_windowEnd; }
+    std::chrono::nanoseconds windowDuration() const { return m_windowEnd - m_windowStart; }
 
-    qint64 rangeStart() const { return m_rangeStart; }
-    qint64 rangeEnd() const { return m_rangeEnd; }
-    qint64 rangeDuration() const { return m_rangeEnd - m_rangeStart; }
+    std::chrono::nanoseconds rangeStart() const { return m_rangeStart; }
+    std::chrono::nanoseconds rangeEnd() const { return m_rangeEnd; }
+    std::chrono::nanoseconds rangeDuration() const { return m_rangeEnd - m_rangeStart; }
 
-    qint64 selectionStart() const { return m_selectionStart; }
-    qint64 selectionEnd() const { return m_selectionEnd; }
-    qint64 selectionDuration() const { return m_selectionEnd - m_selectionStart; }
+    std::chrono::nanoseconds selectionStart() const { return m_selectionStart; }
+    std::chrono::nanoseconds selectionEnd() const { return m_selectionEnd; }
+    std::chrono::nanoseconds selectionDuration() const { return m_selectionEnd - m_selectionStart; }
 
     bool windowLocked() const { return m_windowLocked; }
     bool windowMoving() const { return m_timer.isActive(); }
 
     virtual void clear();
 
-    void setTrace(qint64 start, qint64 end);
-    void setRange(qint64 start, qint64 end);
-    void setSelection(qint64 start, qint64 end);
+    void setTrace(std::chrono::nanoseconds start, std::chrono::nanoseconds end);
+    void setRange(std::chrono::nanoseconds start, std::chrono::nanoseconds end);
+    void setSelection(std::chrono::nanoseconds start, std::chrono::nanoseconds end);
     void setWindowLocked(bool windowLocked);
 
 signals:
-    void traceChanged(qint64 start, qint64 end);
-    void windowChanged(qint64 start, qint64 end);
-    void rangeChanged(qint64 start, qint64 end);
-    void selectionChanged(qint64 start, qint64 end);
+    void traceChanged(std::chrono::nanoseconds start, std::chrono::nanoseconds end);
+    void windowChanged(std::chrono::nanoseconds start, std::chrono::nanoseconds end);
+    void rangeChanged(std::chrono::nanoseconds start, std::chrono::nanoseconds end);
+    void selectionChanged(std::chrono::nanoseconds start, std::chrono::nanoseconds end);
     void windowLockedChanged(bool windowLocked);
     void windowMovingChanged(bool windowMoving);
 
@@ -58,14 +60,14 @@ protected:
     void rebuildWindow();
     void clampRangeToWindow();
 
-    qint64 m_traceStart = -1;
-    qint64 m_traceEnd = -1;
-    qint64 m_windowStart = -1;
-    qint64 m_windowEnd = -1;
-    qint64 m_rangeStart = -1;
-    qint64 m_rangeEnd = -1;
-    qint64 m_selectionStart = -1;
-    qint64 m_selectionEnd = -1;
+    std::chrono::nanoseconds m_traceStart{-1};
+    std::chrono::nanoseconds m_traceEnd{-1};
+    std::chrono::nanoseconds m_windowStart{-1};
+    std::chrono::nanoseconds m_windowEnd{-1};
+    std::chrono::nanoseconds m_rangeStart{-1};
+    std::chrono::nanoseconds m_rangeEnd{-1};
+    std::chrono::nanoseconds m_selectionStart{-1};
+    std::chrono::nanoseconds m_selectionEnd{-1};
 
     QTimer m_timer;
     bool m_windowLocked = false;

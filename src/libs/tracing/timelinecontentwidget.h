@@ -147,7 +147,8 @@ private:
     // Both backends are kept alive once created; only visibility is toggled.
     TrackPainterGpu *m_gpuView = nullptr;
     TrackPainterRaster *m_rasterView = nullptr;
-    QList<qint64> m_markers; // last ruler markers, re-applied when the view changes
+    // last ruler markers, re-applied when the view changes
+    QList<std::chrono::nanoseconds> m_markers;
     QList<TimelineModel *> m_trackModels; // visible models, parallel to track index
     QList<int> m_painterAggregatorMap; // m_painterAggregatorMap[trackIdx] = aggregator model index
 

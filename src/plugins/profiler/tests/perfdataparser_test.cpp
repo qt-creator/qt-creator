@@ -151,7 +151,7 @@ void PerfDataParserTest::testReadsTaskAndSwitchTimes()
     QCOMPARE(handler.tasks.at(0).pid, 20u);
     QCOMPARE(handler.tasks.at(0).ppid, 10u);
     QCOMPARE(handler.tasks.at(0).tid, 21u);
-    QCOMPARE(handler.tasks.at(0).time, quint64(5000));
+    QCOMPARE(handler.tasks.at(0).time, std::chrono::nanoseconds(5000));
     QVERIFY(handler.tasks.at(1).exit);
 
     QCOMPARE(handler.switches.size(), 1);
@@ -160,7 +160,7 @@ void PerfDataParserTest::testReadsTaskAndSwitchTimes()
     QCOMPARE(contextSwitch.sampleId.pid, 20u);
     QCOMPARE(contextSwitch.sampleId.tid, 21u);
     QVERIFY(contextSwitch.sampleId.hasTime);
-    QCOMPARE(contextSwitch.sampleId.time, quint64(7000));
+    QCOMPARE(contextSwitch.sampleId.time, std::chrono::nanoseconds(7000));
 }
 
 // In a stream, the tracing data -- the formats of the tracepoints recorded --

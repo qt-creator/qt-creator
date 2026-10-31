@@ -7,6 +7,7 @@
 #include <QTest>
 
 using namespace Timeline;
+using namespace std::chrono;
 
 class DummyModel : public TimelineModel
 {
@@ -30,8 +31,8 @@ void tst_TimelineModelState::emptyModel()
     DummyModel model(&aggregator);
     QCOMPARE(model.count(), 0);
     QVERIFY(model.isEmpty());
-    QCOMPARE(model.firstIndex(0), -1);
-    QCOMPARE(model.lastIndex(0), -1);
+    QCOMPARE(model.firstIndex(0ns), -1);
+    QCOMPARE(model.lastIndex(0ns), -1);
 }
 
 void tst_TimelineModelState::defaultRowHeight()

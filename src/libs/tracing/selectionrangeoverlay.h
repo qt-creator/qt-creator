@@ -7,6 +7,8 @@
 
 #include <QWidget>
 
+#include <chrono>
+
 namespace Timeline {
 
 class TimelineZoomControl;
@@ -21,7 +23,7 @@ public:
     bool isActive() const { return m_active; }
     bool isReady() const { return m_state == State::Finished; }
 
-    void setRange(qint64 rangeStart, qint64 rangeEnd);
+    void setRange(std::chrono::nanoseconds rangeStart, std::chrono::nanoseconds rangeEnd);
     void reset();
 
 signals:
@@ -59,8 +61,8 @@ private:
     double m_dragStartLeft = 0;
     double m_dragStartRight = 0;
 
-    qint64 m_rangeStart = 0;
-    qint64 m_rangeEnd = 0;
+    std::chrono::nanoseconds m_rangeStart{0};
+    std::chrono::nanoseconds m_rangeEnd{0};
 };
 
 } // namespace Timeline

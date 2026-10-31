@@ -17,6 +17,8 @@
 
 using namespace QmlDebug;
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 static inline quint64 supportedFeatures()
@@ -212,9 +214,9 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
         }
         return ret;
     }
-    case DurationRole: return stats.duration;
+    case DurationRole: return qint64(stats.duration.count());
     case CallCountRole: return stats.calls;
-    case TimePerCallRole: return stats.duration / stats.calls;
+    case TimePerCallRole: return qint64((stats.duration / stats.calls).count());
     case AllocationsRole: return stats.allocations;
     case MemoryRole: return stats.memory;
     case DurationDisplayRole: return Timeline::formatTime(stats.duration);
@@ -242,7 +244,7 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
     }
 }
 
-FlameGraphData::FlameGraphData(FlameGraphData *parent, int typeIndex, qint64 duration) :
+FlameGraphData::FlameGraphData(FlameGraphData *parent, int typeIndex, nanoseconds duration) :
     duration(duration), typeIndex(typeIndex), parent(parent) {}
 
 FlameGraphData::~FlameGraphData()

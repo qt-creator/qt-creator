@@ -7,6 +7,7 @@
 #include <QAbstractItemModelTester>
 
 using namespace Profiler::Internal;
+using namespace std::chrono_literals;
 
 // labels: 0=start 1=main 2=work 3=idle 4=helper
 static SampleTraceData makeTestData()
@@ -15,11 +16,11 @@ static SampleTraceData makeTestData()
     data.pid = 1;
     data.labels = {"start", "main", "work", "idle", "helper"};
     data.samples = {
-        {0, 10, true, {0, 1, 2}},    // start>main>work
-        {0, 11, true, {0, 1, 4}},    // start>main>helper
-        {100, 10, true, {0, 1, 2}},  // start>main>work
-        {100, 11, false, {0, 3}},    // idle thread: must be ignored
-        {200, 10, true, {0, 3}},     // start>idle
+        {0us, 10, true, {0, 1, 2}},    // start>main>work
+        {0us, 11, true, {0, 1, 4}},    // start>main>helper
+        {100us, 10, true, {0, 1, 2}},  // start>main>work
+        {100us, 11, false, {0, 3}},    // idle thread: must be ignored
+        {200us, 10, true, {0, 3}},     // start>idle
     };
     return data;
 }
@@ -90,13 +91,13 @@ private slots:
         CallTreeModel model;
         model.setTraceData(&data);
 
-        model.setTimeRange(0, 100);
+        model.setTimeRange(0us, 100us);
         QCOMPARE(model.totalWeight(), quint64(3)); // t=200 sample excluded
         const CallTreeModel::Node *startNode = model.node(model.index(0, 0));
         QCOMPARE(startNode->weight, quint64(3));
         QCOMPARE(startNode->childCount(), 1); // "idle" path is gone
 
-        model.setTimeRange(-1, -1); // back to the full recording
+        model.setTimeRange(-1us, -1us); // back to the full recording
         QCOMPARE(model.totalWeight(), quint64(4));
     }
 
@@ -115,7 +116,7 @@ private slots:
         SampleTraceData data;
         data.pid = 1;
         data.labels = {{"root", "/r.cpp", 5, "app", 0x40}, {"leaf", QString(), 0, "QtCore", 0x99}};
-        data.samples = {{0, 10, true, {0, 1}}};
+        data.samples = {{0us, 10, true, {0, 1}}};
         CallTreeModel model;
         model.setTraceData(&data);
 
@@ -141,7 +142,7 @@ private slots:
         SampleTraceData data;
         data.pid = 1;
         data.labels = {{"root", "/r.cpp", 5, "app", 0x40}, {"leaf", QString(), 0, "QtCore", 0x99}};
-        data.samples = {{0, 10, true, {0, 1}}, {100, 10, true, {0}}};
+        data.samples = {{0us, 10, true, {0, 1}}, {100us, 10, true, {0}}};
         CallTreeModel model;
         model.setTraceData(&data);
         using namespace CpuFlameGraph;
@@ -218,7 +219,7 @@ private slots:
         // A rebuild invalidates outstanding indexes via the model reset.
         QPersistentModelIndex persistent(main);
         QVERIFY(persistent.isValid());
-        model.setTimeRange(0, 100);
+        model.setTimeRange(0us, 100us);
         QVERIFY(!persistent.isValid());
     }
 };

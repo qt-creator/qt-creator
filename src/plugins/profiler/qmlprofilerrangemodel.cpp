@@ -18,6 +18,8 @@
 #include <limits>
 
 using namespace QmlDebug;
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 // Collapsed rows from this one on do not fit into a byte.
@@ -63,7 +65,7 @@ void QmlProfilerRangeModel::prepare()
 {
     if (!m_stack.isEmpty()) {
         qWarning() << "End times for some events are missing.";
-        const qint64 endTime = modelManager()->traceEnd();
+        const nanoseconds endTime = modelManager()->traceEnd();
         do {
             int index = m_stack.pop();
             insertEnd(index, endTime - startTime(index));
@@ -87,18 +89,18 @@ void QmlProfilerRangeModel::computeNestingContracted()
 
     int nestingLevels = Timeline::kCollapsedStartRow;
     int collapsedRowCount = nestingLevels + 1;
-    QList<qint64> nestingEndTimes;
-    nestingEndTimes.fill(0, nestingLevels + 1);
+    QList<nanoseconds> nestingEndTimes;
+    nestingEndTimes.fill(0ns, nestingLevels + 1);
     m_collapsedRows.resize(eventCount);
     m_deepCollapsedRows.clear();
 
     for (i = 0; i < eventCount; i++) {
-        qint64 st = startTime(i);
+        nanoseconds st = startTime(i);
 
         // per type
         if (nestingEndTimes[nestingLevels] > st) {
             if (++nestingLevels == nestingEndTimes.size())
-                nestingEndTimes << 0;
+                nestingEndTimes << 0ns;
             if (nestingLevels == collapsedRowCount)
                 ++collapsedRowCount;
         } else {

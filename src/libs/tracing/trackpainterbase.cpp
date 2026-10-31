@@ -21,6 +21,8 @@
 #include <optional>
 #include <utility>
 
+using namespace std::chrono;
+
 namespace Timeline {
 
 // --- Backend selection -------------------------------------------------------
@@ -157,14 +159,14 @@ void TrackPainterBase::setNotes(const TimelineNotesModel *notes)
     requestUpdate();
 }
 
-void TrackPainterBase::setMarkers(const QList<qint64> &markers)
+void TrackPainterBase::setMarkers(const QList<nanoseconds> &markers)
 {
     m_markers = markers;
     invalidateBackendGeometry();
     requestUpdate();
 }
 
-void TrackPainterBase::setRange(qint64 rangeStart, qint64 rangeEnd)
+void TrackPainterBase::setRange(nanoseconds rangeStart, nanoseconds rangeEnd)
 {
     if (m_rangeStart == rangeStart && m_rangeEnd == rangeEnd)
         return;
@@ -315,14 +317,14 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
     geom.outlines[0] = QRectF(0, -kTrackOutline, w, kTrackOutline);
     geom.outlines[1] = QRectF(0, trackH, w, kTrackOutline);
 
-    const qint64 rangeDuration = m_rangeEnd - m_rangeStart;
-    if (model->isEmpty() || rangeDuration <= 0 || w == 0)
+    const nanoseconds rangeDuration = m_rangeEnd - m_rangeStart;
+    if (model->isEmpty() || rangeDuration <= 0ns || w == 0)
         return;
 
     // Vertical grid lines (same block geometry as TimeRuler) as 1px columns.
     forEachRulerTick(
         m_rangeStart, m_rangeEnd, double(w),
-        [](qint64, double, double) {}, // no per-block start marker here
+        [](nanoseconds, double, double) {}, // no per-block start marker here
         [&](double x, bool) { geom.grid.append(QRectF(qRound(x), 0, 1, trackH)); });
 
     // Item labels, elided to the bar they are drawn in.
@@ -377,7 +379,7 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
         const int last = model->lastIndex(m_rangeEnd);
         if (first >= 0 && last >= first && qint64(last - first) < qint64(w) * rowCount) {
             const double wf = double(w);
-            const double scale = wf / double(rangeDuration);
+            const double scale = wf / double(rangeDuration.count());
             struct LabelRun { QString text; double x0; double x1; double h; };
             QVarLengthArray<LabelRun, 64> runs(rowCount);
             const auto flushRun = [&](int row) {
@@ -397,8 +399,10 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
                 const int row = rowCache[i];
                 if (row < 0 || row >= rowCount)
                     continue;
-                const double x0 = qMax(double(model->startTime(i) - m_rangeStart) * scale, 0.0);
-                const double x1 = qMin(double(model->endTime(i) - m_rangeStart) * scale, wf);
+                const double x0
+                    = qMax(double((model->startTime(i) - m_rangeStart).count()) * scale, 0.0);
+                const double x1
+                    = qMin(double((model->endTime(i) - m_rangeStart).count()) * scale, wf);
                 if (x1 <= x0)
                     continue;
                 const QString text = model->itemLabel(i);
@@ -436,7 +440,7 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
         const double wf = double(w);
         // Precompute the pixels-per-time scale once so the per-event hot loop uses
         // a multiply instead of a division (timeToPixel divides every call).
-        const double scale = wf / double(rangeDuration);
+        const double scale = wf / double(rangeDuration.count());
         const bool expanded = model->expanded();
 
         // Cache per-row geometry once instead of calling the (range-independent)
@@ -530,8 +534,8 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
                 summary->forEachDominantItem(row, m_rangeStart, m_rangeEnd, w, [&](int x, int i) {
                     if (i == wideItem && x < wideItemEnd)
                         return;
-                    double x1 = double(model->startTime(i) - m_rangeStart) * scale;
-                    double x2 = double(model->endTime(i) - m_rangeStart) * scale;
+                    double x1 = double((model->startTime(i) - m_rangeStart).count()) * scale;
+                    double x2 = double((model->endTime(i) - m_rangeStart).count()) * scale;
                     if (x2 - x1 > 1.0) {
                         x1 = qMax(x1, qMax(0.0, rowNextX[row]));
                         x2 = qMin(x2, wf);
@@ -563,8 +567,8 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
             if (row < 0 || row >= rowCount)
                 continue;
 
-            double x1 = double(model->startTime(i) - m_rangeStart) * scale;
-            double x2 = double(model->endTime(i) - m_rangeStart) * scale;
+            double x1 = double((model->startTime(i) - m_rangeStart).count()) * scale;
+            double x2 = double((model->endTime(i) - m_rangeStart).count()) * scale;
             if (x2 - x1 < 1.0)
                 x2 = x1 + 1.0;
 
@@ -604,7 +608,7 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
 
     // Time ruler marker lines (2px wide filled columns).
     if (!m_markers.isEmpty()) {
-        for (qint64 ts : m_markers) {
+        for (nanoseconds ts : m_markers) {
             const double mx = timeToPixel(ts, m_rangeStart, m_rangeEnd, double(w));
             geom.markers.append(QRectF(mx - 1.0, -kTrackPaddingAndOutline,
                                        2.0, trackH + 2 * kTrackPaddingAndOutline));
@@ -623,7 +627,7 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
             const int row = model->row(idx);
             const double rowH = model->rowHeight(row);
             const double rowY = model->rowOffset(row);
-            const qint64 center = (model->startTime(idx) + model->endTime(idx)) / 2;
+            const nanoseconds center = (model->startTime(idx) + model->endTime(idx)) / 2;
             const double cx = timeToPixel(center, m_rangeStart, m_rangeEnd, double(w));
             geom.noteIcons.append(QPoint(cx, rowY + rowH / 2));
         }
@@ -690,8 +694,8 @@ std::optional<QRectF> TrackPainterBase::itemRect(const TimelineModel *model, int
     const int w = viewWidth();
     const double itemH = rowH * relativeHeight;
     const double itemY = rowY + rowH - itemH;
-    const qint64 start = model->startTime(index);
-    const qint64 end = model->endTime(index);
+    const nanoseconds start = model->startTime(index);
+    const nanoseconds end = model->endTime(index);
     const double x1raw = timeToPixel(start, m_rangeStart, m_rangeEnd, double(w));
     double x2raw = timeToPixel(end, m_rangeStart, m_rangeEnd, double(w));
     x2raw = qMax(x2raw, x1raw + 1.0);
@@ -864,12 +868,12 @@ int TrackPainterBase::indexInModel(const TimelineModel *model, const QPoint &loc
 {
     if (!model || model->isEmpty())
         return -1;
-    const qint64 rangeDuration = m_rangeEnd - m_rangeStart;
+    const nanoseconds rangeDuration = m_rangeEnd - m_rangeStart;
     const int w = viewWidth();
-    if (rangeDuration <= 0 || w == 0)
+    if (rangeDuration <= 0ns || w == 0)
         return -1;
 
-    const qint64 t = pixelToTime(local.x(), double(w), m_rangeStart, m_rangeEnd);
+    const nanoseconds t = pixelToTime(local.x(), double(w), m_rangeStart, m_rangeEnd);
 
     const int candidate = model->bestIndex(t);
     if (candidate < 0)
@@ -891,7 +895,7 @@ int TrackPainterBase::indexInModel(const TimelineModel *model, const QPoint &loc
     // the start-time ordering proves no further item can match.
     int best = -1;
     bool bestExact = false;
-    qint64 bestWidth = std::numeric_limits<qint64>::max();
+    nanoseconds bestWidth = nanoseconds::max();
     double bestDistance = std::numeric_limits<double>::max();
     const int count = model->count();
 
@@ -914,8 +918,8 @@ int TrackPainterBase::indexInModel(const TimelineModel *model, const QPoint &loc
         if (local.y() < rowY || local.y() >= rowY + rowH)
             return;
 
-        const qint64 start = model->startTime(i);
-        const qint64 end = model->endTime(i);
+        const nanoseconds start = model->startTime(i);
+        const nanoseconds end = model->endTime(i);
 
         double x1 = timeToPixel(start, m_rangeStart, m_rangeEnd, double(w));
         double x2 = timeToPixel(end, m_rangeStart, m_rangeEnd, double(w));
@@ -935,7 +939,7 @@ int TrackPainterBase::indexInModel(const TimelineModel *model, const QPoint &loc
                 return;
         }
 
-        const qint64 width = end - start;
+        const nanoseconds width = end - start;
         const bool better = (exact && !bestExact) // first exact hit outranks any nearby item
                 || distance < bestDistance
                 || (distance == bestDistance && width < bestWidth);
@@ -960,9 +964,9 @@ int TrackPainterBase::indexInModel(const TimelineModel *model, const QPoint &loc
     // Backward: a short item that doesn't reach the cursor may still have a
     // long range further back that does. Only go back to the first item that
     // ends late enough to reach the tolerance window.
-    const qint64 earliestEnd = pixelToTime(local.x() - tolerance - minItemWidth, double(w),
-                                           m_rangeStart, m_rangeEnd);
-    const int first = model->firstIndex(earliestEnd - 1);
+    const nanoseconds earliestEnd = pixelToTime(local.x() - tolerance - minItemWidth, double(w),
+                                                m_rangeStart, m_rangeEnd);
+    const int first = model->firstIndex(earliestEnd - 1ns);
     for (int i = candidate - 1; first >= 0 && i >= first; --i)
         test(i);
 

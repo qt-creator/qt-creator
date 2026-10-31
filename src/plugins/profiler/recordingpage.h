@@ -78,7 +78,7 @@ private:
     QProgressBar *m_progressBar = nullptr;
     QTimer *m_tick = nullptr;
     QElapsedTimer m_elapsed;
-    qint64 m_recordedMs = 0; // Time recorded before the current stretch.
+    std::chrono::milliseconds m_recorded{0}; // Time recorded before the current stretch.
     bool m_capturing = false;
     bool m_paused = false;
     QString m_processName;

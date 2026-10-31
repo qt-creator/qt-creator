@@ -9,6 +9,8 @@
 #include <QHash>
 #include <QMetaType>
 
+#include <chrono>
+
 namespace Timeline {
 
 class TraceEvent : public SafeCastable<TraceEvent>
@@ -19,8 +21,8 @@ public:
     TraceEvent &operator=(const TraceEvent &) = default;
     TraceEvent &operator=(TraceEvent &&) = default;
 
-    qint64 timestamp() const { return m_timestamp; }
-    void setTimestamp(qint64 timestamp) { m_timestamp = timestamp; }
+    std::chrono::nanoseconds timestamp() const { return m_timestamp; }
+    void setTimestamp(std::chrono::nanoseconds timestamp) { m_timestamp = timestamp; }
 
     qint32 typeIndex() const { return m_typeIndex; }
     void setTypeIndex(qint32 typeIndex) { m_typeIndex = typeIndex; }
@@ -30,12 +32,13 @@ public:
     qint32 classId() const { return m_classId; }
 
 protected:
-    TraceEvent(qint32 classId, qint64 timestamp = -1, qint32 typeIndex = -1)
+    TraceEvent(qint32 classId, std::chrono::nanoseconds timestamp = std::chrono::nanoseconds(-1),
+               qint32 typeIndex = -1)
         : m_timestamp(timestamp), m_typeIndex(typeIndex), m_classId(classId)
     {}
 
 private:
-    qint64 m_timestamp;
+    std::chrono::nanoseconds m_timestamp;
     qint32 m_typeIndex;
     qint32 m_classId;
 };

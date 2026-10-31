@@ -300,7 +300,7 @@ void PerfProfilerTraceBackend::clearUi()
 {
     if (d->traceView)
         d->traceView->clear();
-    updateTime(0, 0);
+    updateTime(0ns, 0ns);
 }
 
 void PerfProfilerTraceBackend::clear()
@@ -329,12 +329,12 @@ void PerfProfilerTraceBackend::restrictToSelectedRange()
 
 void PerfProfilerTraceBackend::showFullRange()
 {
-    d->traceManager.restrictByFilter(d->traceManager.rangeAndThreadFilter(-1, -1));
+    d->traceManager.restrictByFilter(d->traceManager.rangeAndThreadFilter(-1ns, -1ns));
 }
 
 milliseconds PerfProfilerTraceBackend::traceDuration() const
 {
-    return duration_cast<milliseconds>(nanoseconds{d->traceManager.traceDuration()});
+    return duration_cast<milliseconds>(d->traceManager.traceDuration());
 }
 
 PerfProfilerTraceManager *PerfProfilerTraceBackend::traceManager() const
@@ -405,31 +405,35 @@ void PerfProfilerTraceBackend::initialize()
 void PerfProfilerTraceBackend::finalize()
 {
     d->readerRunning = false;
-    const qint64 startTime = d->traceManager.traceStart();
-    const qint64 endTime = d->traceManager.traceEnd();
+    const nanoseconds startTime = d->traceManager.traceStart();
+    const nanoseconds endTime = d->traceManager.traceEnd();
     QTC_ASSERT(endTime >= startTime, return);
     d->zoomControl.setTrace(startTime, endTime);
     d->zoomControl.setRange(startTime, startTime + (endTime - startTime) / 10);
-    updateTime(d->zoomControl.traceDuration(), -1);
+    updateTime(d->zoomControl.traceDuration(), -1ns);
     setToolActionsEnabled(true);
     emit busyChanged(false);
     emit traceChanged();
 }
 
-void PerfProfilerTraceBackend::updateTime(qint64 duration, qint64 delay)
+void PerfProfilerTraceBackend::updateTime(nanoseconds duration, nanoseconds delay)
 {
-    const qint64 e9 = 1e9, e8 = 1e8, ten = 10; // The compiler would cast to double.
-    if (duration > 0) {
+    const auto wholeSeconds = [](nanoseconds time) { return duration_cast<seconds>(time).count(); };
+    const auto tenths = [](nanoseconds time) {
+        return qAbs(duration_cast<milliseconds>(time).count() / 100) % 10;
+    };
+
+    if (duration > 0ns) {
         d->recordedLabel.setText(
-            Tr::tr("Recorded: %1.%2s").arg(duration / e9).arg(qAbs(duration / e8) % ten));
-    } else if (duration == 0) {
+            Tr::tr("Recorded: %1.%2s").arg(wholeSeconds(duration)).arg(tenths(duration)));
+    } else if (duration == 0ns) {
         d->recordedLabel.clear();
     }
 
-    if (delay > 0) {
+    if (delay > 0ns) {
         d->delayLabel.setText(
-            Tr::tr("Processing delay: %1.%2s").arg(delay / e9).arg(qAbs(delay / e8) % ten));
-    } else if (delay == 0) {
+            Tr::tr("Processing delay: %1.%2s").arg(wholeSeconds(delay)).arg(tenths(delay)));
+    } else if (delay == 0ns) {
         d->delayLabel.clear();
     }
 }

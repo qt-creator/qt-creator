@@ -11,11 +11,16 @@
 #include <QSet>
 #include <QStack>
 
+#include <chrono>
+
 namespace Timeline { class TimelineModelAggregator; }
 
 namespace Profiler::Internal {
 
 class CtfTraceManager;
+
+// A time span given in microseconds, as a CTF trace states it, as nanoseconds.
+std::chrono::nanoseconds fromMicroseconds(double microseconds);
 
 class CtfTimelineModel : public Timeline::TimelineModel
 {
@@ -41,7 +46,7 @@ public:
     bool handlesTypeId(int typeId) const override;
     float relativeHeight(int index) const override;
 
-    QPair<bool, qint64> addEvent(const nlohmann::json &event, double traceBegin);
+    QPair<bool, std::chrono::nanoseconds> addEvent(const nlohmann::json &event, double traceBegin);
 
     // `manyProcesses` says whether the trace holds more than one, which is when
     // naming this lane's process tells the reader which lane it is looking at.
@@ -59,12 +64,16 @@ signals:
 private:
     void updateName();
 
-    qint64 newStackEvent(const nlohmann::json &event, qint64 normalizedTime,
-                         const std::string &eventPhase, const std::string &name, int selectionId);
+    std::chrono::nanoseconds newStackEvent(const nlohmann::json &event,
+                                           std::chrono::nanoseconds normalizedTime,
+                                           const std::string &eventPhase,
+                                           const std::string &name, int selectionId);
 
-    qint64 closeStackEvent(const nlohmann::json &event, double timestamp, qint64 normalizedTime);
+    std::chrono::nanoseconds closeStackEvent(const nlohmann::json &event, double timestamp,
+                                             std::chrono::nanoseconds normalizedTime);
 
-    void addCounterValue(const nlohmann::json &event, qint64 normalizedTime, const std::string &name, int selectionId);
+    void addCounterValue(const nlohmann::json &event, std::chrono::nanoseconds normalizedTime,
+                         const std::string &name, int selectionId);
 
     QString reuse(const QString &value);
 
@@ -93,7 +102,7 @@ protected:
     QSet<QString> m_reusableStrings;
 
     struct CounterData {
-        qint64 end = 0;
+        std::chrono::nanoseconds end{0};
         int startEventIndex = -1;
         float min = std::numeric_limits<float>::max();
         float max = std::numeric_limits<float>::min();

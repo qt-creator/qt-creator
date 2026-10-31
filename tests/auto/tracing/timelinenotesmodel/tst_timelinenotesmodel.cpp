@@ -7,6 +7,8 @@
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinenotesmodel.h>
 
+using namespace std::chrono;
+
 class tst_TimelineNotesModel : public QObject
 {
     Q_OBJECT
@@ -26,7 +28,7 @@ class TestModel : public Timeline::TimelineModel {
 public:
     TestModel(Timeline::TimelineModelAggregator *parent) : TimelineModel(parent)
     {
-        insert(0, 10, 10);
+        insert(0ns, 10ns, 10);
     }
 
     int typeId(int) const

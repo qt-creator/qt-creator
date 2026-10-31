@@ -103,7 +103,7 @@ inline QDataStream &operator>>(QDataStream &stream, PerfEvent &event)
     stream >> event.m_pid >> event.m_tid >> timestamp >> event.m_cpu;
 
     static const quint64 qint64Max = static_cast<quint64>(std::numeric_limits<qint64>::max());
-    event.setTimestamp(static_cast<qint64>(qMin(timestamp, qint64Max)));
+    event.setTimestamp(std::chrono::nanoseconds(static_cast<qint64>(qMin(timestamp, qint64Max))));
 
     switch (event.m_feature) {
     case PerfEventType::ThreadStart: {
@@ -157,7 +157,9 @@ inline QDataStream &operator<<(QDataStream &stream, const PerfEvent &event)
 {
     quint8 feature = event.feature();
     stream << feature << event.m_pid << event.m_tid
-           << (event.timestamp() < 0ll ? 0ull : static_cast<quint64>(event.timestamp()))
+           << (event.timestamp() < std::chrono::nanoseconds(0)
+                   ? 0ull
+                   : static_cast<quint64>(event.timestamp().count()))
            << event.m_cpu;
     switch (feature) {
     case PerfEventType::ThreadStart:

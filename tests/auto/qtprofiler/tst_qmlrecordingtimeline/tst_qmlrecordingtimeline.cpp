@@ -6,6 +6,7 @@
 #include <QtTest>
 
 using namespace Profiler::Internal;
+using namespace std::chrono_literals;
 
 using TraceEnd = QmlPauseTracker::TraceEnd;
 using Range = QmlPauseTracker::Range;
@@ -23,49 +24,49 @@ private slots:
     void rebaserStartsAtTheFirstTrace()
     {
         QmlServerTimeRebaser rebaser;
-        QCOMPARE(rebaser.map(1234), 0); // Nothing started yet.
-        QCOMPARE(rebaser.traceStarted(5000), 0);
-        QCOMPARE(rebaser.map(7000), 2000);
-        QCOMPARE(rebaser.map(4000), 0); // Before the recording's zero.
-        QCOMPARE(rebaser.traceStarted(9000), 4000); // A resume keeps the zero.
+        QCOMPARE(rebaser.map(1234ns), 0ns); // Nothing started yet.
+        QCOMPARE(rebaser.traceStarted(5000ns), 0ns);
+        QCOMPARE(rebaser.map(7000ns), 2000ns);
+        QCOMPARE(rebaser.map(4000ns), 0ns); // Before the recording's zero.
+        QCOMPARE(rebaser.traceStarted(9000ns), 4000ns); // A resume keeps the zero.
     }
 
     void rebaserResets()
     {
         QmlServerTimeRebaser rebaser;
-        rebaser.traceStarted(5000);
+        rebaser.traceStarted(5000ns);
         rebaser.reset();
-        QCOMPARE(rebaser.traceStarted(8000), 0);
-        QCOMPARE(rebaser.map(8500), 500);
+        QCOMPARE(rebaser.traceStarted(8000ns), 0ns);
+        QCOMPARE(rebaser.map(8500ns), 500ns);
     }
 
     void stopEndsTheRecording()
     {
         QmlPauseTracker tracker;
         tracker.startRequested();
-        QCOMPARE(tracker.traceStarted(100), std::nullopt);
+        QCOMPARE(tracker.traceStarted(100ns), std::nullopt);
         tracker.stopRequested();
-        QCOMPARE(tracker.traceFinished(500, false), TraceEnd::Recording);
+        QCOMPARE(tracker.traceFinished(500ns, false), TraceEnd::Recording);
     }
 
     void theApplicationEndingTheTraceEndsTheRecording()
     {
         QmlPauseTracker tracker;
         tracker.startRequested();
-        tracker.traceStarted(100);
-        QCOMPARE(tracker.traceFinished(500, false), TraceEnd::Recording);
+        tracker.traceStarted(100ns);
+        QCOMPARE(tracker.traceFinished(500ns, false), TraceEnd::Recording);
     }
 
     void pauseAndResumeMakeARange()
     {
         QmlPauseTracker tracker;
         tracker.startRequested();
-        tracker.traceStarted(100);
-        QCOMPARE(tracker.traceFinished(200, true), TraceEnd::Pause);  // Pause.
+        tracker.traceStarted(100ns);
+        QCOMPARE(tracker.traceFinished(200ns, true), TraceEnd::Pause);  // Pause.
         tracker.startRequested();                                      // Resume.
-        QCOMPARE(tracker.traceStarted(300), std::optional(Range(200, 300)));
+        QCOMPARE(tracker.traceStarted(300ns), std::optional(Range(200ns, 300ns)));
         tracker.stopRequested();
-        QCOMPARE(tracker.traceFinished(400, false), TraceEnd::Recording);
+        QCOMPARE(tracker.traceFinished(400ns, false), TraceEnd::Recording);
     }
 
     // Pause, resume, pause again, all before the server answers the first:
@@ -74,13 +75,13 @@ private slots:
     {
         QmlPauseTracker tracker;
         tracker.startRequested();
-        tracker.traceStarted(100);
+        tracker.traceStarted(100ns);
         tracker.startRequested(); // The resume, still unanswered.
-        QCOMPARE(tracker.traceFinished(200, true), TraceEnd::Pause);
-        QCOMPARE(tracker.traceStarted(300), std::optional(Range(200, 300)));
-        QCOMPARE(tracker.traceFinished(310, true), TraceEnd::Pause);
+        QCOMPARE(tracker.traceFinished(200ns, true), TraceEnd::Pause);
+        QCOMPARE(tracker.traceStarted(300ns), std::optional(Range(200ns, 300ns)));
+        QCOMPARE(tracker.traceFinished(310ns, true), TraceEnd::Pause);
         tracker.startRequested();
-        QCOMPARE(tracker.traceStarted(400), std::optional(Range(310, 400)));
+        QCOMPARE(tracker.traceStarted(400ns), std::optional(Range(310ns, 400ns)));
     }
 
     // A resume that is not paused any more by the time its pause is reported.
@@ -88,10 +89,10 @@ private slots:
     {
         QmlPauseTracker tracker;
         tracker.startRequested();
-        tracker.traceStarted(100);
+        tracker.traceStarted(100ns);
         tracker.startRequested(); // Paused, then resumed before the answer.
-        QCOMPARE(tracker.traceFinished(200, false), TraceEnd::Pause);
-        tracker.traceStarted(300);
+        QCOMPARE(tracker.traceFinished(200ns, false), TraceEnd::Pause);
+        tracker.traceStarted(300ns);
     }
 
     // Resume, then stop, before the server starts the trace for the resume:
@@ -100,15 +101,15 @@ private slots:
     {
         QmlPauseTracker tracker;
         tracker.startRequested();
-        tracker.traceStarted(100);
-        QCOMPARE(tracker.traceFinished(200, true), TraceEnd::Pause);
+        tracker.traceStarted(100ns);
+        QCOMPARE(tracker.traceFinished(200ns, true), TraceEnd::Pause);
         QVERIFY(tracker.isSettled(false));
 
         tracker.startRequested();
         QVERIFY(!tracker.isSettled(false));
         tracker.stopRequested();
-        tracker.traceStarted(300);
-        QCOMPARE(tracker.traceFinished(400, false), TraceEnd::Recording);
+        tracker.traceStarted(300ns);
+        QCOMPARE(tracker.traceFinished(400ns, false), TraceEnd::Recording);
     }
 
     // Pause, resume, stop, all before the server answers: the first end is
@@ -117,12 +118,12 @@ private slots:
     {
         QmlPauseTracker tracker;
         tracker.startRequested();
-        tracker.traceStarted(100);
+        tracker.traceStarted(100ns);
         tracker.startRequested();
         tracker.stopRequested();
-        QCOMPARE(tracker.traceFinished(200, false), TraceEnd::Pause);
-        tracker.traceStarted(300);
-        QCOMPARE(tracker.traceFinished(400, false), TraceEnd::Recording);
+        QCOMPARE(tracker.traceFinished(200ns, false), TraceEnd::Pause);
+        tracker.traceStarted(300ns);
+        QCOMPARE(tracker.traceFinished(400ns, false), TraceEnd::Recording);
     }
 
     // From a confirmed pause: resume, pause, resume, stop, all unanswered.
@@ -130,15 +131,15 @@ private slots:
     {
         QmlPauseTracker tracker;
         tracker.startRequested();
-        tracker.traceStarted(100);
-        QCOMPARE(tracker.traceFinished(200, true), TraceEnd::Pause);
+        tracker.traceStarted(100ns);
+        QCOMPARE(tracker.traceFinished(200ns, true), TraceEnd::Pause);
         tracker.startRequested();
         tracker.startRequested();
         tracker.stopRequested();
-        tracker.traceStarted(300);
-        QCOMPARE(tracker.traceFinished(350, false), TraceEnd::Pause);
-        tracker.traceStarted(400);
-        QCOMPARE(tracker.traceFinished(500, false), TraceEnd::Recording);
+        tracker.traceStarted(300ns);
+        QCOMPARE(tracker.traceFinished(350ns, false), TraceEnd::Pause);
+        tracker.traceStarted(400ns);
+        QCOMPARE(tracker.traceFinished(500ns, false), TraceEnd::Recording);
     }
 
     // Stop while the pause is still being reported: that report ends it.
@@ -146,10 +147,10 @@ private slots:
     {
         QmlPauseTracker tracker;
         tracker.startRequested();
-        tracker.traceStarted(100);
+        tracker.traceStarted(100ns);
         QVERIFY(!tracker.isSettled(true));
         tracker.stopRequested();
-        QCOMPARE(tracker.traceFinished(200, true), TraceEnd::Recording);
+        QCOMPARE(tracker.traceFinished(200ns, true), TraceEnd::Recording);
     }
 
     void startingPausedIsSettled()
@@ -164,10 +165,10 @@ private slots:
     {
         QmlPauseTracker tracker;
         tracker.startRequested();
-        QCOMPARE(tracker.traceStarted(100), std::nullopt);
-        QCOMPARE(tracker.traceFinished(200, true), TraceEnd::Pause);
+        QCOMPARE(tracker.traceStarted(100ns), std::nullopt);
+        QCOMPARE(tracker.traceFinished(200ns, true), TraceEnd::Pause);
         tracker.startRequested();
-        QCOMPARE(tracker.traceStarted(200), std::nullopt); // Empty.
+        QCOMPARE(tracker.traceStarted(200ns), std::nullopt); // Empty.
     }
 };
 

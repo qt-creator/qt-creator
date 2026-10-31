@@ -14,6 +14,7 @@
 #include <QHash>
 
 #include <atomic>
+#include <chrono>
 #include <functional>
 
 namespace Profiler::Internal {
@@ -75,7 +76,7 @@ public:
 private:
     struct Event
     {
-        quint64 time = 0;
+        std::chrono::nanoseconds time{0};
         QByteArray message;
     };
 
@@ -83,11 +84,12 @@ private:
     void writeMessage(const std::function<void(QDataStream &)> &fill);
     // An event: held back until no earlier one can come any more, then written
     // in time order.
-    void writeEvent(quint8 feature, quint32 pid, quint32 tid, quint64 time, quint32 cpu,
+    void writeEvent(quint8 feature, quint32 pid, quint32 tid,
+                    std::chrono::nanoseconds time, quint32 cpu,
                     const std::function<void(QDataStream &)> &fill = {});
     void flush();
     // Writes the events up to `until`, in time order.
-    void flushEvents(quint64 until);
+    void flushEvents(std::chrono::nanoseconds until);
 
     qint32 stringId(const QByteArray &string);
     qint32 attributeId(int attrIndex);
@@ -107,8 +109,8 @@ private:
 
     QByteArray m_output;
     QList<Event> m_round;
-    quint64 m_roundEnd = 0;         // the latest event since the last round ended
-    quint64 m_previousRoundEnd = 0; // and before that
+    std::chrono::nanoseconds m_roundEnd{0};         // the latest event since the last round ended
+    std::chrono::nanoseconds m_previousRoundEnd{0}; // and before that
 
     QHash<QByteArray, qint32> m_stringIds;
     QHash<int, qint32> m_attributeIds;
@@ -154,7 +156,7 @@ private:
         }
     };
     QHash<InlineKey, qint32> m_inlineLocationIds;
-    quint64 m_latestTime = 0;
+    std::chrono::nanoseconds m_latestTime{0};
     const std::atomic_bool *m_canceled = nullptr;
     std::function<void(const QString &)> m_onWarning;
     bool m_canUnwind = PerfSymbolizer::canUnwind();

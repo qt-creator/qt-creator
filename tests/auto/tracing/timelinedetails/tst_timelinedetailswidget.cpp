@@ -17,6 +17,7 @@
 #include <QTreeView>
 
 using namespace Timeline;
+using namespace std::chrono;
 
 class DummyTheme : public Utils::Theme
 {
@@ -46,8 +47,8 @@ static QString title(const TimelineDetailsWidget &widget)
 class DetailsModel : public TimelineModel
 {
 public:
-    static constexpr qint64 itemStart = 0;
-    static constexpr qint64 itemDuration = 10;
+    static constexpr nanoseconds itemStart = 0ns;
+    static constexpr nanoseconds itemDuration = 10ns;
 
     DetailsModel(TimelineModelAggregator *aggregator, const QString &title)
         : TimelineModel(aggregator), m_title(title)
@@ -60,7 +61,7 @@ public:
         Q_UNUSED(index)
         OrderedItemDetails details;
         details.title = m_title;
-        details.content.append({QString("Duration"), QString::number(itemDuration)});
+        details.content.append({QString("Duration"), QString::number(itemDuration.count())});
         return details;
     }
 
@@ -90,14 +91,14 @@ private:
 class SharedPanelTimeline
 {
 public:
-    static constexpr qint64 traceEnd = 100000;
-    static constexpr qint64 rangeLength = 1000;
+    static constexpr nanoseconds traceEnd{100000};
+    static constexpr nanoseconds rangeLength{1000};
 
     SharedPanelTimeline(TimelineDetailsWidget *details, const QString &title)
         : m_model(new DetailsModel(&m_aggregator, title))
     {
-        m_zoom.setTrace(0, traceEnd);
-        m_zoom.setRange(0, rangeLength);
+        m_zoom.setTrace(0ns, traceEnd);
+        m_zoom.setRange(0ns, rangeLength);
         m_content = new TimelineContentWidget(&m_aggregator, &m_zoom, details);
         m_aggregator.addModel(m_model);
     }

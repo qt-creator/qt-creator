@@ -14,6 +14,8 @@
 #include <QWindow>
 
 using namespace QmlDebug;
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 FlameGraphViewTest::FlameGraphViewTest()
@@ -23,7 +25,7 @@ FlameGraphViewTest::FlameGraphViewTest()
 void FlameGraphViewTest::initTestCase()
 {
     connect(&view, &QmlProfilerEventsView::showFullRange,
-            this, [this](){ manager.restrictToRange(-1, -1); });
+            this, [this](){ manager.restrictToRange(-1ns, -1ns); });
     FlameGraphModelTest::generateData(&manager, &aggregator);
     view.resize(500, 500);
     view.show();
@@ -145,7 +147,7 @@ void FlameGraphViewTest::testContextMenu()
     timer.start();
     QTRY_VERIFY(menuClicks > 0);
     QCOMPARE(spy.count(), 0);
-    manager.restrictToRange(1, 10);
+    manager.restrictToRange(1ns, 10ns);
     QVERIFY(manager.isRestrictedToRange());
     QTRY_COMPARE(spy.count(), 1);
     QVERIFY(menuClicks > 1);

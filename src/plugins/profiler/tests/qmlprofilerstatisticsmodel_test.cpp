@@ -10,35 +10,40 @@
 
 #include <limits>
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 using Stats = QmlProfilerStatisticsModel::QmlEventStats;
 
 void QmlProfilerStatisticsModelTest::testFinalizeStats_data()
 {
-    QTest::addColumn<QList<qint64>>("durations");
-    QTest::addColumn<qint64>("minimum");
-    QTest::addColumn<qint64>("maximum");
-    QTest::addColumn<qint64>("median");
+    using Durations = QList<nanoseconds>;
+    QTest::addColumn<Durations>("durations");
+    QTest::addColumn<nanoseconds>("minimum");
+    QTest::addColumn<nanoseconds>("maximum");
+    QTest::addColumn<nanoseconds>("median");
 
-    QTest::newRow("one") << QList<qint64>{7} << 7ll << 7ll << 7ll;
-    QTest::newRow("odd") << QList<qint64>{5, 1, 9, 3, 7} << 1ll << 9ll << 5ll;
-    QTest::newRow("even") << QList<qint64>{8, 2, 6, 4, 10, 1} << 1ll << 10ll << 5ll;
-    QTest::newRow("even, duplicates") << QList<qint64>{3, 3, 1, 3} << 1ll << 3ll << 3ll;
-    const qint64 max = std::numeric_limits<qint64>::max();
-    QTest::newRow("even, near overflow") << QList<qint64>{max, max - 2} << max - 2 << max
-                                         << max - 1;
+    QTest::newRow("one") << Durations{7ns} << 7ns << 7ns << 7ns;
+    QTest::newRow("odd") << Durations{5ns, 1ns, 9ns, 3ns, 7ns} << 1ns << 9ns << 5ns;
+    QTest::newRow("even") << Durations{8ns, 2ns, 6ns, 4ns, 10ns, 1ns} << 1ns << 10ns << 5ns;
+    QTest::newRow("even, duplicates") << Durations{3ns, 3ns, 1ns, 3ns} << 1ns << 3ns << 3ns;
+    const nanoseconds max = nanoseconds::max();
+    QTest::newRow("even, near overflow") << Durations{max, max - 2ns} << max - 2ns << max
+                                         << max - 1ns;
 }
 
 void QmlProfilerStatisticsModelTest::testFinalizeStats()
 {
-    QFETCH(QList<qint64>, durations);
-    QFETCH(qint64, minimum);
-    QFETCH(qint64, maximum);
-    QFETCH(qint64, median);
+    using Durations = QList<nanoseconds>;
+    QFETCH(Durations, durations);
+    QFETCH(nanoseconds, minimum);
+    QFETCH(nanoseconds, maximum);
+    QFETCH(nanoseconds, median);
 
     Stats stats;
-    stats.durations.assign(durations.cbegin(), durations.cend());
+    for (const nanoseconds duration : std::as_const(durations))
+        stats.durations.push_back(duration);
     stats.finalize();
 
     QCOMPARE(stats.calls, durations.size());
@@ -53,15 +58,15 @@ void QmlProfilerStatisticsModelTest::testFinalizeWithoutCalls()
     stats.finalize();
 
     QCOMPARE(stats.calls, 0);
-    QCOMPARE(stats.minimum, 0);
-    QCOMPARE(stats.maximum, 0);
-    QCOMPARE(stats.median, 0);
+    QCOMPARE(stats.minimum, 0ns);
+    QCOMPARE(stats.maximum, 0ns);
+    QCOMPARE(stats.median, 0ns);
 }
 
 void QmlProfilerStatisticsModelTest::testFinalizeReleasesDurations()
 {
     Stats stats;
-    for (qint64 duration = 0; duration < 1000; ++duration)
+    for (nanoseconds duration = 0ns; duration < 1000ns; ++duration)
         stats.durations.push_back(duration);
     QVERIFY(stats.durations.capacity() >= 1000);
 
@@ -87,17 +92,17 @@ void QmlProfilerStatisticsModelTest::testRangeEndWithoutStart()
     const int typeIndex = manager.appendEventType(
         QmlEventType(UndefinedMessage, Javascript, -1, QmlEventLocation("main.qml", 1, 1), "f"));
 
-    QmlEvent event(5, typeIndex, {});
+    QmlEvent event(5ns, typeIndex, {});
     event.setRangeStage(RangeEnd);
     manager.appendEvent(QmlEvent(event));
     event.setRangeStage(RangeStart);
-    event.setTimestamp(10);
+    event.setTimestamp(10ns);
     manager.appendEvent(QmlEvent(event));
     event.setRangeStage(RangeEnd);
-    event.setTimestamp(30);
+    event.setTimestamp(30ns);
     manager.appendEvent(std::move(event));
-    manager.decreaseTraceStart(0);
-    manager.increaseTraceEnd(100);
+    manager.decreaseTraceStart(0ns);
+    manager.increaseTraceEnd(100ns);
     manager.finalize();
 
     QCOMPARE(statistics.data(statistics.index(typeIndex, MainCallCount), Qt::DisplayRole).toInt(),

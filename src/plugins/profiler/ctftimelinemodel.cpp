@@ -18,6 +18,12 @@ namespace Profiler::Internal {
 
 using json = nlohmann::json;
 using namespace Constants;
+using namespace std::chrono;
+
+nanoseconds fromMicroseconds(double value)
+{
+    return duration_cast<nanoseconds>(duration<double, std::micro>(value));
+}
 
 // The Chrome Trace Format has no place for a source location, so a producer
 // that knows one puts it among the event's arguments. CMake names the line a
@@ -174,13 +180,13 @@ float CtfTimelineModel::relativeHeight(int index) const
     return 1.0f;
 }
 
-QPair<bool, qint64> CtfTimelineModel::addEvent(const json &event, double timeOffset)
+QPair<bool, nanoseconds> CtfTimelineModel::addEvent(const json &event, double timeOffset)
 {
     const double timestamp = event.value(CtfTracingClockTimestampKey, 0.0);
-    const qint64 normalizedTime = qint64((timestamp - timeOffset) * 1000);
+    const nanoseconds normalizedTime = fromMicroseconds(timestamp - timeOffset);
     const std::string eventPhase = event.value(CtfEventPhaseKey, "");
     const std::string name = event.value(CtfEventNameKey, "");
-    qint64 duration = -1;
+    nanoseconds duration = -1ns;
 
     const int selectionId = m_traceManager->getSelectionId(name);
     m_handledTypeIds.insert(selectionId);
@@ -220,10 +226,10 @@ void CtfTimelineModel::finalize(double traceBegin, double traceEnd, const QStrin
     m_mainThread = mainThread;
     updateName();
 
-    qint64 normalizedEnd = qint64((traceEnd - traceBegin) * 1000);
+    const nanoseconds normalizedEnd = fromMicroseconds(traceEnd - traceBegin);
     while (!m_openEventIds.isEmpty()) {
         int index = m_openEventIds.pop();
-        qint64 duration = normalizedEnd - startTime(index);
+        nanoseconds duration = normalizedEnd - startTime(index);
         insertEnd(index, duration);
         m_details[index].insert(3, {reuse(Tr::tr("Wall Duration")), Timeline::formatTime(duration)});
         m_details[index].insert(6, {reuse(Tr::tr("Unfinished")), reuse(Tr::tr("true"))});
@@ -294,12 +300,12 @@ void CtfTimelineModel::updateName()
     setTooltip(QString("Process: %1\nThread: %2").arg(process, thread));
 }
 
-qint64 CtfTimelineModel::newStackEvent(const json &event, qint64 normalizedTime,
-                                       const std::string &eventPhase, const std::string &name,
-                                       int selectionId)
+nanoseconds CtfTimelineModel::newStackEvent(const json &event, nanoseconds normalizedTime,
+                                            const std::string &eventPhase,
+                                            const std::string &name, int selectionId)
 {
     int index = 0;
-    qint64 duration = -1;
+    nanoseconds duration = -1ns;
     if (eventPhase == CtfEventTypeBegin) {
         index = insertStart(normalizedTime, selectionId);
         m_openEventIds.push(index);
@@ -310,14 +316,15 @@ qint64 CtfTimelineModel::newStackEvent(const json &event, qint64 normalizedTime,
             if (m_openEventIds[i] >= index) ++m_openEventIds[i];
         }
     } else if (eventPhase == CtfEventTypeComplete) {
-        duration = qint64(event[CtfDurationKey]) * 1000;
+        duration = duration_cast<nanoseconds>(
+            microseconds{qint64(event[CtfDurationKey].get<double>())});
         index = insert(normalizedTime, duration, selectionId);
         for (int i = m_openEventIds.size() - 1; i >= 0; --i) {
             if (m_openEventIds[i] >= index)
                 ++m_openEventIds[i];
         }
     } else {
-        index = insert(normalizedTime, 0, selectionId);
+        index = insert(normalizedTime, 0ns, selectionId);
         for (int i = m_openEventIds.size() - 1; i >= 0; --i) {
             if (m_openEventIds[i] >= index)
                 ++m_openEventIds[i];
@@ -375,14 +382,15 @@ qint64 CtfTimelineModel::newStackEvent(const json &event, qint64 normalizedTime,
     return duration;
 }
 
-qint64 CtfTimelineModel::closeStackEvent(const json &event, double timestamp, qint64 normalizedTime)
+nanoseconds CtfTimelineModel::closeStackEvent(const json &event, double timestamp,
+                                              nanoseconds normalizedTime)
 {
     if (m_openEventIds.isEmpty()) {
         qWarning() << QString("End event without open 'begin' event at timestamp %1").arg(timestamp, 0, 'f');
-        return -1;
+        return -1ns;
     } else {
         const int index = m_openEventIds.pop();
-        const qint64 duration = normalizedTime - startTime(index);
+        const nanoseconds duration = normalizedTime - startTime(index);
         insertEnd(index, duration);
         if (event.contains("args") && !event["args"].empty()) {
             QString argsJson = QString::fromStdString(event["args"].dump(1));
@@ -394,7 +402,7 @@ qint64 CtfTimelineModel::closeStackEvent(const json &event, double timestamp, qi
     }
 }
 
-void CtfTimelineModel::addCounterValue(const json &event, qint64 normalizedTime,
+void CtfTimelineModel::addCounterValue(const json &event, nanoseconds normalizedTime,
                                        const std::string &name, int selectionId)
 {
     if (!event.contains("args")) return;

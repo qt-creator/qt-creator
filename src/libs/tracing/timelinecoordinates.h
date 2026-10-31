@@ -6,6 +6,7 @@
 #include <QList>
 #include <QtGlobal>
 
+#include <chrono>
 #include <cmath>
 #include <functional>
 
@@ -15,27 +16,32 @@ constexpr int kInitialBlockLength = 120; // target pixels per major block
 
 // Fraction of the visible range that `time` falls at.
 // Returns 0 when rangeEnd == rangeStart (degenerate range).
-inline double timeToProportion(qint64 time, qint64 rangeStart, qint64 rangeEnd)
+inline double timeToProportion(std::chrono::nanoseconds time, std::chrono::nanoseconds rangeStart,
+                               std::chrono::nanoseconds rangeEnd)
 {
     if (rangeEnd == rangeStart)
         return 0.0;
-    return double(time - rangeStart) / double(rangeEnd - rangeStart);
+    return double((time - rangeStart).count()) / double((rangeEnd - rangeStart).count());
 }
 
 // Pixel x-position for `time` given a widget of `width` pixels.
 // No clamping: values outside [0, width] are valid (caller clips as needed).
-inline double timeToPixel(qint64 time, qint64 rangeStart, qint64 rangeEnd, double width)
+inline double timeToPixel(std::chrono::nanoseconds time, std::chrono::nanoseconds rangeStart,
+                          std::chrono::nanoseconds rangeEnd, double width)
 {
     return timeToProportion(time, rangeStart, rangeEnd) * width;
 }
 
 // Inverse: time value for pixel x.
 // Returns rangeStart when width <= 0.
-inline qint64 pixelToTime(double x, double width, qint64 rangeStart, qint64 rangeEnd)
+inline std::chrono::nanoseconds pixelToTime(double x, double width,
+                                            std::chrono::nanoseconds rangeStart,
+                                            std::chrono::nanoseconds rangeEnd)
 {
     if (width <= 0.0)
         return rangeStart;
-    return rangeStart + qint64(x / width * double(rangeEnd - rangeStart));
+    return rangeStart
+           + std::chrono::nanoseconds(qint64(x / width * double((rangeEnd - rangeStart).count())));
 }
 
 // Row index and y-offset within that row, given a flat y and a list of row heights.
@@ -73,14 +79,16 @@ inline int rowTop(int index, const QList<int> &rowHeights)
 // Duration of one major ruler block given visible range and pixel width.
 // Uses power-of-2 snapping matching the QML TimeDisplay.qml algorithm.
 // blockLengthHint is the target width of one block in pixels.
-inline qint64 rulerBlockDuration(qint64 rangeDuration, double widthPx,
-                                 int blockLengthHint = kInitialBlockLength)
+inline std::chrono::nanoseconds rulerBlockDuration(std::chrono::nanoseconds rangeDuration,
+                                                   double widthPx,
+                                                   int blockLengthHint = kInitialBlockLength)
 {
-    if (widthPx <= 0.0 || rangeDuration <= 0)
-        return 1;
-    const double scale = widthPx / double(rangeDuration);
+    if (widthPx <= 0.0 || rangeDuration <= std::chrono::nanoseconds::zero())
+        return std::chrono::nanoseconds(1);
+    const double scale = widthPx / double(rangeDuration.count());
     const double ideal = double(blockLengthHint) / scale;
-    return qMax(qint64(1), qint64(std::pow(2.0, std::floor(std::log2(ideal)))));
+    return std::chrono::nanoseconds(
+        qMax(qint64(1), qint64(std::pow(2.0, std::floor(std::log2(ideal))))));
 }
 
 // Iterates the ruler block grid of the visible range, in the order the ruler and
@@ -95,23 +103,24 @@ inline qint64 rulerBlockDuration(qint64 rangeDuration, double widthPx,
 // block as minor ticks and its right edge, which is the next block's left edge,
 // as a major tick. Tick positions are clipped to [0, widthPx].
 // blockLengthHint is passed on to rulerBlockDuration().
-inline void forEachRulerTick(qint64 rangeStart, qint64 rangeEnd, double widthPx,
-                             const std::function<void(qint64, double, double)> &onBlockStart,
-                             const std::function<void(double, bool)> &onTick,
-                             int blockLengthHint = kInitialBlockLength)
+inline void forEachRulerTick(
+    std::chrono::nanoseconds rangeStart, std::chrono::nanoseconds rangeEnd, double widthPx,
+    const std::function<void(std::chrono::nanoseconds, double, double)> &onBlockStart,
+    const std::function<void(double, bool)> &onTick, int blockLengthHint = kInitialBlockLength)
 {
-    const qint64 rangeDuration = rangeEnd - rangeStart;
-    if (rangeDuration <= 0 || widthPx <= 0.0)
+    const std::chrono::nanoseconds rangeDuration = rangeEnd - rangeStart;
+    if (rangeDuration <= std::chrono::nanoseconds::zero() || widthPx <= 0.0)
         return;
 
     constexpr int sectionsPerBlock = 5;
-    const double scale = widthPx / double(rangeDuration);
-    const qint64 timePerBlock = rulerBlockDuration(rangeDuration, widthPx, blockLengthHint);
-    const double pixelsPerBlock = double(timePerBlock) * scale;
+    const double scale = widthPx / double(rangeDuration.count());
+    const std::chrono::nanoseconds timePerBlock
+        = rulerBlockDuration(rangeDuration, widthPx, blockLengthHint);
+    const double pixelsPerBlock = double(timePerBlock.count()) * scale;
     const double pixelsPerSection = pixelsPerBlock / sectionsPerBlock;
-    const qint64 alignedStart = rangeStart - (rangeStart % timePerBlock);
+    const std::chrono::nanoseconds alignedStart = rangeStart - (rangeStart % timePerBlock);
 
-    for (qint64 t = alignedStart; ; t += timePerBlock) {
+    for (std::chrono::nanoseconds t = alignedStart; ; t += timePerBlock) {
         const double x = timeToPixel(t, rangeStart, rangeEnd, widthPx);
         if (x > widthPx)
             break;

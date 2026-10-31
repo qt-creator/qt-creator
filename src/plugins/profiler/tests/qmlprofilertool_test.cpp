@@ -29,6 +29,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 using namespace QmlDebug;
+using namespace std::chrono_literals;
 
 namespace Profiler::Internal {
 
@@ -129,7 +130,7 @@ void QmlProfilerToolTest::testClearEvents()
     QCOMPARE(modelManager->numEvents(), 0);
     const int typeIndex = modelManager->appendEventType(QmlEventType());
     QCOMPARE(typeIndex, 0);
-    modelManager->appendEvent(QmlEvent(0, typeIndex, ""));
+    modelManager->appendEvent(QmlEvent(0ns, typeIndex, ""));
     QCOMPARE(modelManager->numEventTypes(), 1);
     QCOMPARE(modelManager->numEvents(), 1);
     stateManager->setServerRecording(false);
@@ -138,7 +139,7 @@ void QmlProfilerToolTest::testClearEvents()
     stateManager->setServerRecording(true); // clears previous events, but not types
     QCOMPARE(modelManager->numEventTypes(), 1);
     QCOMPARE(modelManager->numEvents(), 0);
-    modelManager->appendEvent(QmlEvent(0, typeIndex, ""));
+    modelManager->appendEvent(QmlEvent(0ns, typeIndex, ""));
     QCOMPARE(modelManager->numEventTypes(), 1);
     QCOMPARE(modelManager->numEvents(), 1);
 }

@@ -10,6 +10,7 @@
 #include <QTest>
 
 using namespace QmlDebug;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -43,7 +44,7 @@ int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager,
             typeIndex = typeIndices[i - 5];
         }
         event.setTypeIndex(typeIndex);
-        event.setTimestamp(++i);
+        event.setTimestamp(nanoseconds(++i));
         event.setRangeStage(RangeStart);
         manager->appendEvent(std::move(event));
         typeIndices.push(typeIndex);
@@ -53,18 +54,18 @@ int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager,
     event.setTypeIndex(typeIndex);
     event.setRangeStage(RangeEnd);
     event.setTypeIndex(typeIndices.pop());
-    event.setTimestamp(++i);
+    event.setTimestamp(nanoseconds(++i));
     manager->appendEvent(QmlEvent(event));
 
     event.setRangeStage(RangeStart);
     event.setTypeIndex(0); // Have it accepted by the JavaScript range model above
     typeIndices.push(0);
-    event.setTimestamp(++i);
+    event.setTimestamp(nanoseconds(++i));
     manager->appendEvent(std::move(event));
 
     while (!typeIndices.isEmpty()) {
         QmlEvent event;
-        event.setTimestamp(++i);
+        event.setTimestamp(nanoseconds(++i));
         event.setRangeStage(RangeEnd);
         event.setTypeIndex(typeIndices.pop());
         manager->appendEvent(std::move(event));
@@ -75,8 +76,8 @@ int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager,
     static_cast<QmlProfilerNotesModel *>(manager->notesModel())
             ->setNotes(QList<QmlNote>({
                                             // row 2 on purpose to test the range heuristic
-                                            QmlNote(0, 2, 1, 21, "dings"),
-                                            QmlNote(0, 3, 12, 1, "weg")
+                                            QmlNote(0, 2, 1ns, 21ns, "dings"),
+                                            QmlNote(0, 3, 12ns, 1ns, "weg")
                                         }));
     manager->notesModel()->restore();
 
@@ -228,10 +229,10 @@ void FlameGraphModelTest::testEventWithoutRangeStage()
     manager.initialize();
     const int type = manager.appendEventType(
         QmlEventType(UndefinedMessage, Javascript, -1, QmlEventLocation("main.qml", 1, 1), "f"));
-    QmlEvent start(10, type, {});
+    QmlEvent start(10ns, type, {});
     start.setRangeStage(RangeStart);
     manager.appendEvent(QmlEvent(start));
-    QmlEvent notARange(15, type, {});
+    QmlEvent notARange(15ns, type, {});
     QCOMPARE(notARange.rangeStage(), Event);
     softAsserts.clear();
     const QtMessageHandler previous = qInstallMessageHandler(collectSoftAsserts);
@@ -239,7 +240,7 @@ void FlameGraphModelTest::testEventWithoutRangeStage()
     qInstallMessageHandler(previous);
     QmlEvent end(start);
     end.setRangeStage(RangeEnd);
-    end.setTimestamp(20);
+    end.setTimestamp(20ns);
     manager.appendEvent(std::move(end));
     manager.finalize();
 

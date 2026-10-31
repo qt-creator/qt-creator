@@ -100,14 +100,14 @@ signals:
     void started();
     void finishing();
     void finished();
-    void updateTimestamps(qint64 duration, qint64 delay);
+    void updateTimestamps(std::chrono::nanoseconds duration, std::chrono::nanoseconds delay);
 
     void processStarted();
     void processFinished();
 
 protected:
     void timerEvent(QTimerEvent *) override;
-    qint64 adjustTimestamp(qint64 timestamp) override;
+    std::chrono::nanoseconds adjustTimestamp(std::chrono::nanoseconds timestamp) override;
     bool acceptsSamples() const override;
 
 private:
@@ -130,13 +130,13 @@ private:
     // input queue bounded. See writeToParser().
     qint64 m_bytesSinceParserOutput = 0;
     QQueue<Utils::TemporaryFile *> m_buffer;
-    qint64 m_localProcessStart;
-    qint64 m_localRecordingEnd;
-    qint64 m_localRecordingStart;
-    qint64 m_remoteProcessStart;
-    qint64 m_lastRemoteTimestamp;
+    std::chrono::nanoseconds m_localProcessStart;
+    std::chrono::nanoseconds m_localRecordingEnd;
+    std::chrono::nanoseconds m_localRecordingStart;
+    std::chrono::nanoseconds m_remoteProcessStart;
+    std::chrono::nanoseconds m_lastRemoteTimestamp;
 
-    qint64 delay(qint64 currentTime);
+    std::chrono::nanoseconds delay(std::chrono::nanoseconds currentTime);
 };
 
 } // namespace Profiler::Internal

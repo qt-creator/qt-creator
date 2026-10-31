@@ -20,6 +20,7 @@
 
 #include <projectexplorer/projectexplorericons.h>
 
+#include <tracing/timelineformatdata.h>
 #include <tracing/timelinenotesmodel.h>
 
 #include <utils/qtcassert.h>
@@ -347,7 +348,7 @@ void QmlProfilerTraceBackend::setupToolBar()
     StyleHelper::setPanelWidget(&d->timeLabel);
     d->timeLabel.setIndent(StyleHelper::SpacingTokens::PaddingHL);
 
-    d->recordingTimer.setInterval(100);
+    d->recordingTimer.setInterval(100ms);
     connect(&d->recordingTimer, &QTimer::timeout,
             this, &QmlProfilerTraceBackend::updateTimeDisplay);
     updateTimeDisplay();
@@ -374,22 +375,23 @@ void QmlProfilerTraceBackend::setupToolBar()
 
 void QmlProfilerTraceBackend::updateTimeDisplay()
 {
-    double seconds = 0;
+    nanoseconds elapsed{0};
     switch (d->stateManager.currentState()) {
     case QmlProfilerStateManager::AppStopRequested:
     case QmlProfilerStateManager::AppDying:
         return; // Transitional state: don't update the display.
     case QmlProfilerStateManager::AppRunning:
         if (d->stateManager.serverRecording()) {
-            seconds = d->recordingElapsedTime.elapsed() / 1000.0;
+            elapsed = d->recordingElapsedTime.durationElapsed();
             break;
         }
         Q_FALLTHROUGH();
     case QmlProfilerStateManager::Idle:
-        if (modelManager()->traceDuration() > 0)
-            seconds = modelManager()->traceDuration() / 1.0e9;
+        if (modelManager()->traceDuration() > 0ns)
+            elapsed = modelManager()->traceDuration();
         break;
     }
+    const double seconds = std::chrono::duration<double>(elapsed).count();
     const QString timeString = QString::number(seconds, 'f', 1);
     d->timeLabel.setText(Tr::tr("Elapsed: %1").arg(Tr::tr("%1 s").arg(timeString, 6)));
 }
@@ -444,7 +446,8 @@ void QmlProfilerTraceBackend::clearEvents()
 }
 
 void QmlProfilerTraceBackend::prepareRun(const ProjectExplorer::BuildConfiguration *bc,
-                                         bool aggregateTraces, int flushInterval)
+                                         bool aggregateTraces,
+                                         std::chrono::milliseconds flushInterval)
 {
     d->clientManager.setFlushInterval(flushInterval);
     modelManager()->setAggregateTraces(aggregateTraces);

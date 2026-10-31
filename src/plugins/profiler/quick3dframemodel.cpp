@@ -33,6 +33,8 @@
 
 using namespace QmlDebug;
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 Quick3DFrameModel::Quick3DFrameModel(QmlProfilerModelManager *modelManager, QObject *parent)
@@ -174,7 +176,7 @@ QVariant Quick3DFrameModel::data(const QModelIndex &index, int role) const
             result = QVariant::fromValue(data);
         } break;
         case FrameDelta: {
-            if (item.frameDelta) {
+            if (item.frameDelta > 0ns) {
                 QString data = Timeline::formatTime(item.frameDelta);
                 result = QVariant::fromValue(data);
             }
@@ -196,14 +198,14 @@ QVariant Quick3DFrameModel::data(const QModelIndex &index, int role) const
                 result = QVariant::fromValue(item.index);
             break;
         case Timestamp:
-            result = QVariant::fromValue(item.begin);
+            result = QVariant::fromValue(qint64(item.begin.count()));
             break;
         case Duration:
-            result = QVariant::fromValue(item.end - item.begin);
+            result = QVariant::fromValue(qint64((item.end - item.begin).count()));
             break;
         case FrameDelta:
-            if (item.frameDelta)
-                result = QVariant::fromValue(item.frameDelta);
+            if (item.frameDelta > 0ns)
+                result = QVariant::fromValue(qint64(item.frameDelta.count()));
             break;
         default:
             break;
@@ -328,8 +330,8 @@ void Quick3DFrameModel::loadEvent(const QmlEvent &event, const QmlEventType &typ
     QList<quint64> numbers = event.numbers<QList<quint64>>();
     if (numbers.isEmpty())
         return;
-    qint64 eventDuration = numbers[0];
-    qint64 eventTime = event.timestamp() - eventDuration;
+    nanoseconds eventDuration{qint64(numbers[0])};
+    nanoseconds eventTime = event.timestamp() - eventDuration;
     quint64 data = numbers.size() > 1 ? numbers[1] : 0;
     QList<int> eventData;
     // The rest are pairs of event data id's
@@ -370,13 +372,13 @@ void Quick3DFrameModel::loadEvent(const QmlEvent &event, const QmlEventType &typ
     case SynchronizeFrame:
         if (m_frameTimes[v3d].inFrame)
             qWarning () << "Previous frame was not ended correctly";
-        m_frameTimes[v3d].begin = eventTime - 1;
+        m_frameTimes[v3d].begin = eventTime - 1ns;
         m_frameTimes[v3d].inFrame = true;
         break;
     case PrepareFrame:
         if (!m_frameTimes[v3d].inFrame) {
             qWarning () << "Synchronize frame missing";
-            m_frameTimes[v3d].begin = eventTime - 1;
+            m_frameTimes[v3d].begin = eventTime - 1ns;
             m_frameTimes[v3d].inFrame = true;
         }
         m_frameTimes[v3d].prepareReceived = true;
@@ -388,7 +390,8 @@ void Quick3DFrameModel::loadEvent(const QmlEvent &event, const QmlEventType &typ
         } else {
             if (!m_frameTimes[v3d].prepareReceived)
                 qWarning () << "Frame received without Prepare message";
-            item = Item(index, -1, m_frameTimes[v3d].begin, event.timestamp() + 1, FrameGroup, m_frameTimes[v3d].frameCount);
+            item = Item(index, -1, m_frameTimes[v3d].begin, event.timestamp() + 1ns, FrameGroup,
+                        m_frameTimes[v3d].frameCount);
             if (m_frameTimes[v3d].frameCount)
                 item.frameDelta = item.end - m_frameTimes[v3d].end;
             item.eventData = v3d;

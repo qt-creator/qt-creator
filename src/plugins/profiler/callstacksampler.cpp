@@ -28,6 +28,7 @@
 
 using namespace QtTaskTree;
 using namespace Utils;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -92,7 +93,7 @@ CallStackSamplerSettings::CallStackSamplerSettings()
 
 void CallStackSamplerSettings::fillOptions(RecordingSession &session) const
 {
-    session.intervalUs = int(intervalUs());
+    session.interval = microseconds(intervalUs());
 }
 
 // The launch settings are irrelevant while attaching, and both are while the
@@ -165,7 +166,7 @@ ExecutableItem CallStackSampler::captureRecipe(const std::shared_ptr<RecordingSe
 {
     // The cadence comes from the session (set by createSession, or by a composite
     // backend that drives this capture), so the sampling worker can read it.
-    const int intervalUs = session->intervalUs;
+    const microseconds interval = session->interval;
 
     // Where the worker leaves the trace it captured. Not the promise's own
     // result channel: stopping cancels the promise, and Qt drops a result added
@@ -174,7 +175,7 @@ ExecutableItem CallStackSampler::captureRecipe(const std::shared_ptr<RecordingSe
     // once the tree is: a capture abandoned at shutdown may still be writing.
     auto captured = std::make_shared<std::optional<Result<FilePath>>>();
 
-    const auto onSetup = [session, intervalUs, captured](QBarrier &barrier) {
+    const auto onSetup = [session, interval, captured](QBarrier &barrier) {
         QBarrier *b = &barrier;
 
         // recordSampleTrace samples until its promise is cancelled, so it runs
@@ -182,19 +183,19 @@ ExecutableItem CallStackSampler::captureRecipe(const std::shared_ptr<RecordingSe
         // only terminated once this task finishes) so it can still be
         // symbolized.
         QFuture<void> capture = Utils::asyncRun(
-            [session, intervalUs, captured](QPromise<void> &promise) {
+            [session, interval, captured](QPromise<void> &promise) {
 #ifdef Q_OS_WIN
             // The ETW session needs administrator rights, so the sampling
             // happens in an elevated helper process rather than here (see
             // etwlauncher_win.h). It marks the session started itself, once the
             // consent prompt is behind us.
-            *captured = recordSampleTraceElevated(session, intervalUs,
+            *captured = recordSampleTraceElevated(session, interval,
                                                   [&promise] { return promise.isCanceled(); });
 #else
             SamplerOptions opts;
             opts.pid = session->pid.load();
             opts.processName = session->processName;
-            opts.intervalUs = intervalUs;
+            opts.interval = interval;
             opts.isPaused = [session] { return session->isPaused(); };
             // The capture is live once sampling begins, which is when the duration
             // clock can start.

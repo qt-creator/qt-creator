@@ -8,6 +8,8 @@
 #include <QList>
 #include <QWidget>
 
+#include <chrono>
+
 namespace Timeline {
 
 class TRACING_EXPORT TimeRuler : public QWidget
@@ -16,15 +18,15 @@ class TRACING_EXPORT TimeRuler : public QWidget
 public:
     explicit TimeRuler(QWidget *parent = nullptr);
 
-    void setRange(qint64 rangeStart, qint64 rangeEnd);
+    void setRange(std::chrono::nanoseconds rangeStart, std::chrono::nanoseconds rangeEnd);
 
-    qint64 rangeStart() const { return m_rangeStart; }
-    qint64 rangeEnd() const { return m_rangeEnd; }
+    std::chrono::nanoseconds rangeStart() const { return m_rangeStart; }
+    std::chrono::nanoseconds rangeEnd() const { return m_rangeEnd; }
 
     QSize sizeHint() const override;
 
 signals:
-    void markersChanged(const QList<qint64> &markers);
+    void markersChanged(const QList<std::chrono::nanoseconds> &markers);
 
 protected:
     void paintEvent(QPaintEvent *) override;
@@ -34,15 +36,15 @@ protected:
 
 private:
     int markerAt(int x) const;
-    double markerPixel(qint64 timestamp) const;
+    double markerPixel(std::chrono::nanoseconds timestamp) const;
 
-    qint64 m_rangeStart = 0;
-    qint64 m_rangeEnd = 0;
-    QList<qint64> m_markers;
+    std::chrono::nanoseconds m_rangeStart{0};
+    std::chrono::nanoseconds m_rangeEnd{0};
+    QList<std::chrono::nanoseconds> m_markers;
 
     int m_dragIndex = -1;
     int m_dragStartX = 0;
-    qint64 m_dragStartTime = 0;
+    std::chrono::nanoseconds m_dragStartTime{0};
     bool m_dragged = false;
 };
 

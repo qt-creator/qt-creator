@@ -11,6 +11,8 @@
 
 #include <unordered_map>
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 class Payload
@@ -287,7 +289,7 @@ bool PerfProfilerFlameGraphData::isEmpty() const
 
 void PerfProfilerFlameGraphData::loadEvent(const PerfEvent &event, const PerfEventType &type)
 {
-    const uint numSamples = (event.timestamp() < 0) ? 0 : 1;
+    const uint numSamples = (event.timestamp() < 0ns) ? 0 : 1;
     m_stackBottom->samples += numSamples;
     auto data = m_stackBottom.get();
     const QList<int> &stack = event.frames();

@@ -8,6 +8,8 @@
 #include <QFutureInterface>
 #include <QObject>
 
+#include <chrono>
+
 QT_FORWARD_DECLARE_CLASS(QIODevice)
 
 namespace Timeline {
@@ -32,7 +34,8 @@ public:
     void setNotes(TimelineNotesModel *notes) { m_notes = notes; }
     TimelineNotesModel *notes() const { return m_notes; }
 
-    void setTraceTime(qint64 startTime, qint64 endTime, qint64 measturedTime);
+    void setTraceTime(std::chrono::nanoseconds startTime, std::chrono::nanoseconds endTime,
+                      std::chrono::nanoseconds measuredTime);
     void setFuture(const QFutureInterface<void> &future);
     QFutureInterface<void> &future();
 
@@ -47,12 +50,12 @@ public:
     void prepareTrace();
     void finish();
 
-    void setTraceStart(qint64 traceStart) { m_traceStart = traceStart; }
-    qint64 traceStart() const { return m_traceStart; }
+    void setTraceStart(std::chrono::nanoseconds traceStart) { m_traceStart = traceStart; }
+    std::chrono::nanoseconds traceStart() const { return m_traceStart; }
 
-    void setTraceEnd(qint64 traceEnd) { m_traceEnd = traceEnd; }
-    qint64 traceEnd() const { return m_traceEnd; }
-    qint64 measuredTime() const { return m_measuredTime; }
+    void setTraceEnd(std::chrono::nanoseconds traceEnd) { m_traceEnd = traceEnd; }
+    std::chrono::nanoseconds traceEnd() const { return m_traceEnd; }
+    std::chrono::nanoseconds measuredTime() const { return m_measuredTime; }
 
     bool isCanceled() const;
 
@@ -63,9 +66,9 @@ signals:
     void error(const QString &error);
 
 private:
-    qint64 m_traceStart = -1;
-    qint64 m_traceEnd = -1;
-    qint64 m_measuredTime = -1;
+    std::chrono::nanoseconds m_traceStart{-1};
+    std::chrono::nanoseconds m_traceEnd{-1};
+    std::chrono::nanoseconds m_measuredTime{-1};
     quint64 m_loadedFeatures = 0;
 
     QFutureInterface<void> m_future;

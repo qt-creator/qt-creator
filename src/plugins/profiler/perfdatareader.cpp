@@ -35,24 +35,28 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 using namespace Qt::StringLiterals;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
-static const qint64 million = static_cast<qint64>(1000000);
+static nanoseconds wallClockNow()
+{
+    return milliseconds(QDateTime::currentMSecsSinceEpoch());
+}
 
 PerfDataReader::PerfDataReader(QObject *parent) :
     PerfProfilerTraceFile(parent), m_recording(true), m_dataFinished(false),
-    m_localProcessStart(QDateTime::currentMSecsSinceEpoch() * million),
+    m_localProcessStart(wallClockNow()),
     m_localRecordingEnd(0),
     m_localRecordingStart(0),
-    m_remoteProcessStart(std::numeric_limits<qint64>::max()),
+    m_remoteProcessStart(nanoseconds::max()),
     m_lastRemoteTimestamp(0)
 {
     connect(&m_input, &PerfConversion::done, this, [this] {
         // process any remaining input before signaling finished()
         readFromConversion();
         if (m_recording || future().isRunning()) {
-            m_localRecordingEnd = 0;
+            m_localRecordingEnd = 0ns;
             emit finished();
         }
         for (const QString &warning : m_input.warnings())
@@ -102,7 +106,7 @@ void PerfDataReader::loadFromFile(const FilePath &filePath, const QString &execu
     createParser(collectOptions(executableDirPath, kit));
     m_input.setInputFile(filePath);
 
-    m_remoteProcessStart = 0; // Don't try to guess the timestamps
+    m_remoteProcessStart = 0ns; // Don't try to guess the timestamps
     m_input.start();
 }
 
@@ -132,7 +136,7 @@ void PerfDataReader::stopParser()
     m_dataFinished = true;
     if (m_input.isRunning()) {
         if (m_recording || future().isRunning()) {
-            m_localRecordingEnd = QDateTime::currentMSecsSinceEpoch() * million;
+            m_localRecordingEnd = wallClockNow();
             emit finishing();
             if (m_buffer.isEmpty() && m_input.isRunning())
                 m_input.closeWriteChannel();
@@ -142,11 +146,11 @@ void PerfDataReader::stopParser()
     }
 }
 
-qint64 PerfDataReader::delay(qint64 currentTime)
+nanoseconds PerfDataReader::delay(nanoseconds currentTime)
 {
     return (currentTime - m_localProcessStart) -
             (m_lastRemoteTimestamp > m_remoteProcessStart ?
-                 m_lastRemoteTimestamp - m_remoteProcessStart : 0);
+                 m_lastRemoteTimestamp - m_remoteProcessStart : 0ns);
 }
 
 void PerfDataReader::setRecording(bool recording)
@@ -156,10 +160,10 @@ void PerfDataReader::setRecording(bool recording)
 
     m_recording = recording;
     if (m_recording) {
-        m_localRecordingStart = 0;
+        m_localRecordingStart = 0ns;
         emit started();
     } else {
-        m_localRecordingEnd = 0;
+        m_localRecordingEnd = 0ns;
         emit finished();
     }
     future().reportFinished();
@@ -167,7 +171,7 @@ void PerfDataReader::setRecording(bool recording)
 
 void PerfDataReader::timerEvent(QTimerEvent *event)
 {
-    qint64 currentTime = QDateTime::currentMSecsSinceEpoch() * million;
+    const nanoseconds currentTime = wallClockNow();
     if (m_input.isRunning()) {
         // Heartbeat for the disk-spill drain, for the case where the backlog was spilled
         // while the conversion was idle: readFromConversion() only pumps us when output
@@ -175,45 +179,48 @@ void PerfDataReader::timerEvent(QTimerEvent *event)
         if (!m_buffer.isEmpty())
             writeChunk();
 
-        bool waitingForEndDelay = (m_localRecordingEnd != 0 && !m_dataFinished &&
+        bool waitingForEndDelay = (m_localRecordingEnd != 0ns && !m_dataFinished &&
                 m_input.isLive());
-        bool waitingForStartDelay = m_localRecordingStart != 0;
-        qint64 endTime = (m_localRecordingEnd == 0 || waitingForEndDelay) ?
+        bool waitingForStartDelay = m_localRecordingStart != 0ns;
+        const nanoseconds endTime
+                = (m_localRecordingEnd == 0ns || waitingForEndDelay) ?
                     currentTime : m_localRecordingEnd;
-        qint64 currentDelay = qMax(delay(endTime), 1ll);
+        const nanoseconds currentDelay
+                = std::max(delay(endTime), 1ns);
 
-        emit updateTimestamps(m_recording && traceManager() ? traceManager()->traceDuration() : -1,
+        emit updateTimestamps(m_recording && traceManager()
+                                  ? nanoseconds(traceManager()->traceDuration())
+                                  : -1ns,
                               currentDelay);
         if (waitingForStartDelay && currentTime - m_localRecordingStart > currentDelay)
             setRecording(true);
         else if (waitingForEndDelay && currentTime - m_localRecordingEnd > currentDelay)
             setRecording(false);
     } else {
-        emit updateTimestamps(-1, 0);
+        emit updateTimestamps(-1ns, 0ns);
         killTimer(event->timerId());
         future().reportCanceled();
     }
 }
 
-qint64 PerfDataReader::adjustTimestamp(qint64 timestamp)
+nanoseconds PerfDataReader::adjustTimestamp(nanoseconds timestamp)
 {
     if (timestamp > m_lastRemoteTimestamp)
         m_lastRemoteTimestamp = timestamp;
 
-    if (timestamp > 0) {
-        if (m_remoteProcessStart == std::numeric_limits<qint64>::max()) {
+    if (timestamp > 0ns) {
+        if (m_remoteProcessStart == nanoseconds::max()) {
             // Subtract the time since we locally triggered the process. Any mixup in remote
             // timestamps is certainly smaller than that.
-            m_remoteProcessStart = timestamp - QDateTime::currentMSecsSinceEpoch() * million
-                    + m_localProcessStart;
+            m_remoteProcessStart = timestamp - wallClockNow() + m_localProcessStart;
         }
         return timestamp - m_remoteProcessStart;
     }
 
-    if (m_remoteProcessStart != std::numeric_limits<qint64>::max())
+    if (m_remoteProcessStart != nanoseconds::max())
         return m_remoteProcessStart;
 
-    return -1;
+    return -1ns;
 }
 
 bool PerfDataReader::acceptsSamples() const
@@ -343,11 +350,11 @@ void PerfDataReader::clear()
     qDeleteAll(m_buffer);
     m_buffer.clear();
     m_dataFinished = false;
-    m_localProcessStart = QDateTime::currentMSecsSinceEpoch() * million;
-    m_localRecordingEnd = 0;
-    m_localRecordingStart = 0;
-    m_lastRemoteTimestamp = 0;
-    m_remoteProcessStart = std::numeric_limits<qint64>::max();
+    m_localProcessStart = wallClockNow();
+    m_localRecordingEnd = 0ns;
+    m_localRecordingStart = 0ns;
+    m_lastRemoteTimestamp = 0ns;
+    m_remoteProcessStart = nanoseconds::max();
     PerfProfilerTraceFile::clear();
 }
 

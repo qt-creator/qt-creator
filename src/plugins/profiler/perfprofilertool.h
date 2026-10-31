@@ -50,7 +50,7 @@ public:
     void onWorkerCreation(ProjectExplorer::RunControl *runControl);
 
     void loadTraceFile(const Utils::FilePath &filePath);
-    void updateTime(qint64 duration, qint64 delay);
+    void updateTime(std::chrono::nanoseconds duration, std::chrono::nanoseconds delay);
 
 signals:
     // A run has opened the trace it records into, before it starts reading.

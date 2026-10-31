@@ -4,6 +4,8 @@
 #include "timelinezoomcontrol.h"
 #include <utils/qtcassert.h>
 
+using namespace std::chrono;
+
 namespace Timeline {
 
 TimelineZoomControl::TimelineZoomControl(QObject *parent)
@@ -14,20 +16,20 @@ TimelineZoomControl::TimelineZoomControl(QObject *parent)
 
 void TimelineZoomControl::clear()
 {
-    const bool changeTrace = m_traceStart != -1 || m_traceEnd != -1;
-    const bool changeWindow = m_windowStart != -1 || m_windowEnd != -1;
-    const bool changeRange = m_rangeStart != -1 || m_rangeEnd != -1;
+    const bool changeTrace = m_traceStart != -1ns || m_traceEnd != -1ns;
+    const bool changeWindow = m_windowStart != -1ns || m_windowEnd != -1ns;
+    const bool changeRange = m_rangeStart != -1ns || m_rangeEnd != -1ns;
 
     setWindowLocked(false);
     if (changeWindow && !m_timer.isActive())
         emit windowMovingChanged(true);
 
-    m_traceStart = m_traceEnd = m_windowStart = m_windowEnd = m_rangeStart = m_rangeEnd = -1;
+    m_traceStart = m_traceEnd = m_windowStart = m_windowEnd = m_rangeStart = m_rangeEnd = -1ns;
     if (changeTrace)
-        emit traceChanged(-1, -1);
+        emit traceChanged(-1ns, -1ns);
 
     if (changeWindow) {
-        emit windowChanged(-1, -1);
+        emit windowChanged(-1ns, -1ns);
         m_timer.stop();
         emit windowMovingChanged(false);
     } else {
@@ -35,12 +37,12 @@ void TimelineZoomControl::clear()
     }
 
     if (changeRange)
-        emit rangeChanged(-1, -1);
+        emit rangeChanged(-1ns, -1ns);
 
-    setSelection(-1, -1);
+    setSelection(-1ns, -1ns);
 }
 
-void TimelineZoomControl::setTrace(qint64 start, qint64 end)
+void TimelineZoomControl::setTrace(nanoseconds start, nanoseconds end)
 {
     QTC_ASSERT(start <= end, { std::swap(start, end); });
     if (start != m_traceStart || end != m_traceEnd) {
@@ -51,7 +53,7 @@ void TimelineZoomControl::setTrace(qint64 start, qint64 end)
     }
 }
 
-void TimelineZoomControl::setRange(qint64 start, qint64 end)
+void TimelineZoomControl::setRange(nanoseconds start, nanoseconds end)
 {
     QTC_ASSERT(start <= end, { std::swap(start, end); });
     if (m_rangeStart != start || m_rangeEnd != end) {
@@ -68,7 +70,7 @@ void TimelineZoomControl::setRange(qint64 start, qint64 end)
     }
 }
 
-void TimelineZoomControl::setSelection(qint64 start, qint64 end)
+void TimelineZoomControl::setSelection(nanoseconds start, nanoseconds end)
 {
     if (m_selectionStart != start || m_selectionEnd != end) {
         m_selectionStart = start;
@@ -87,18 +89,17 @@ void TimelineZoomControl::setWindowLocked(bool windowLocked)
 
 void TimelineZoomControl::rebuildWindow()
 {
-    qint64 minDuration = 1; // qMax needs equal data types, so literal 1 won't do
-    qint64 shownDuration = qMax(rangeDuration(), minDuration);
+    nanoseconds shownDuration = qMax(rangeDuration(), 1ns);
 
-    qint64 oldWindowStart = m_windowStart;
-    qint64 oldWindowEnd = m_windowEnd;
+    nanoseconds oldWindowStart = m_windowStart;
+    nanoseconds oldWindowEnd = m_windowEnd;
     if (traceDuration() / shownDuration < maximumZoomFactor()) {
         m_windowStart = m_traceStart;
         m_windowEnd = m_traceEnd;
     } else if (windowDuration() / shownDuration > maximumZoomFactor() ||
                windowDuration() / shownDuration * 2 < maximumZoomFactor() ||
                m_rangeStart < m_windowStart || m_rangeEnd > m_windowEnd) {
-        qint64 keep = shownDuration * maximumZoomFactor() / 2 - shownDuration;
+        nanoseconds keep = shownDuration * maximumZoomFactor() / 2 - shownDuration;
         m_windowStart = m_rangeStart - keep;
         if (m_windowStart < m_traceStart) {
             keep += m_traceStart - m_windowStart;
@@ -111,7 +112,7 @@ void TimelineZoomControl::rebuildWindow()
             m_windowEnd = m_traceEnd;
         }
     } else {
-        m_timer.start(501);
+        m_timer.start(501ms);
     }
     if (oldWindowStart != m_windowStart || oldWindowEnd != m_windowEnd) {
         bool runTimer = m_timer.isActive();
@@ -133,9 +134,9 @@ void TimelineZoomControl::moveWindow()
         return;
     m_timer.stop();
 
-    qint64 offset = (m_rangeEnd - m_windowEnd + m_rangeStart - m_windowStart) / 2;
-    if (offset == 0 || (offset < 0 && m_windowStart == m_traceStart) ||
-            (offset > 0 && m_windowEnd == m_traceEnd)) {
+    nanoseconds offset = (m_rangeEnd - m_windowEnd + m_rangeStart - m_windowStart) / 2;
+    if (offset == 0ns || (offset < 0ns && m_windowStart == m_traceStart) ||
+            (offset > 0ns && m_windowEnd == m_traceEnd)) {
         emit windowMovingChanged(false);
         return;
     } else if (offset > rangeDuration()) {
@@ -156,13 +157,13 @@ void TimelineZoomControl::moveWindow()
 
     clampRangeToWindow();
     emit windowChanged(m_windowStart, m_windowEnd);
-    m_timer.start(100);
+    m_timer.start(100ms);
 }
 
 void TimelineZoomControl::clampRangeToWindow()
 {
-    qint64 rangeStart = qMin(qMax(m_rangeStart, m_windowStart), m_windowEnd);
-    qint64 rangeEnd = qMin(qMax(rangeStart, m_rangeEnd), m_windowEnd);
+    nanoseconds rangeStart = qMin(qMax(m_rangeStart, m_windowStart), m_windowEnd);
+    nanoseconds rangeEnd = qMin(qMax(rangeStart, m_rangeEnd), m_windowEnd);
     if (rangeStart != m_rangeStart || rangeEnd != m_rangeEnd)
         setRange(rangeStart, rangeEnd);
 }

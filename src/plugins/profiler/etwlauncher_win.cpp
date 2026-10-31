@@ -47,7 +47,7 @@ QString takeContents(const FilePath &path)
 } // namespace
 
 Result<FilePath> recordSampleTraceElevated(const std::shared_ptr<RecordingSession> &session,
-                                           int intervalUs,
+                                           std::chrono::microseconds interval,
                                            const std::function<bool()> &isCanceled)
 {
     const FilePath launcher = launcherExecutable();
@@ -94,7 +94,7 @@ Result<FilePath> recordSampleTraceElevated(const std::shared_ptr<RecordingSessio
     ProcessArgs::addArgs(&parameters,
                          {"--library-path", QLibraryInfo::path(QLibraryInfo::BinariesPath),
                           "--pid", QString::number(pid),
-                          "--interval", QString::number(intervalUs),
+                          "--interval", QString::number(interval.count()),
                           "--output", outputDir.toFSPathString(),
                           "--readyFile", readyFile.toFSPathString(),
                           "--stopFile", stopFile.toFSPathString(),

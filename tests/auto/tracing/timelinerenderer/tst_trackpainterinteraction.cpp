@@ -15,6 +15,7 @@
 #include <algorithm>
 
 using namespace Timeline;
+using namespace std::chrono;
 
 // The track painter renders all tracks in one widget, stacked below the top margin.
 // For these single-track tests the point is given in track-0-local coordinates
@@ -35,7 +36,7 @@ public:
     void loadData()
     {
         for (int i = 0; i < 10; ++i)
-            insert(i * 10, 10, i);
+            insert(i * 10ns, 10ns, i);
     }
 };
 
@@ -49,9 +50,9 @@ public:
 
     void loadData()
     {
-        insert(0, 1000, 0);
+        insert(0ns, 1000ns, 0);
         for (int i = 1; i <= 20; ++i)
-            insert(i * 40, 5, i);
+            insert(i * 40ns, 5ns, i);
         computeNesting();
     }
 };
@@ -67,7 +68,7 @@ public:
     void loadData()
     {
         for (int i = 0; i < 2000; ++i)
-            insert(i * 5, 5, i);
+            insert(i * 5ns, 5ns, i);
         computeNesting();
     }
 
@@ -87,7 +88,7 @@ public:
 
     void loadData()
     {
-        insert(4000, 2000, 0); // x = 400..600, comfortably wider than a pixel
+        insert(4000ns, 2000ns, 0); // x = 400..600, comfortably wider than a pixel
         computeNesting();
     }
 
@@ -107,13 +108,13 @@ public:
 
     void loadData()
     {
-        insert(0, 2000, 1);
-        insert(1000, 8000, 0);
-        insert(1200, 100, 2);
+        insert(0ns, 2000ns, 1);
+        insert(1000ns, 8000ns, 0);
+        insert(1200ns, 100ns, 2);
         for (int i = 0; i < 20; ++i)
-            insert(3000 + i * 50, 20, 2);
+            insert(3000ns + i * 50ns, 20ns, 2);
         for (int i = 0; i < 1000; ++i)
-            insert(10000 + i * 100, 100, 3);
+            insert(10000ns + i * 100ns, 100ns, 3);
         computeNesting();
     }
 
@@ -194,9 +195,9 @@ public:
 
     void loadData()
     {
-        insert(0, 4000, 0);    // x = 0..400
-        insert(5000, 50, 1);   // x = 500..505
-        insert(6000, 600, 2);  // x = 600..660
+        insert(0ns, 4000ns, 0);    // x = 0..400
+        insert(5000ns, 50ns, 1);   // x = 500..505
+        insert(6000ns, 600ns, 2);  // x = 600..660
         computeNesting();
     }
 
@@ -217,9 +218,9 @@ public:
 
     void loadData()
     {
-        insert(0, 10000, 0);   // x = 0..1000
-        insert(1000, 500, 1);  // x = 100..150
-        insert(2000, 1000, 2); // x = 200..300
+        insert(0ns, 10000ns, 0);   // x = 0..1000
+        insert(1000ns, 500ns, 1);  // x = 100..150
+        insert(2000ns, 1000ns, 2); // x = 200..300
         computeNesting();
     }
 
@@ -243,16 +244,16 @@ public:
     {
         int id = 0;
         for (int i = 0; i < 20; ++i)
-            insert(i * 50, 50, id++); // x = 0..100
-        insert(1000, 50, id++);       // x = 100..105
+            insert(i * 50ns, 50ns, id++); // x = 0..100
+        insert(1000ns, 50ns, id++);       // x = 100..105
         for (int i = 0; i < 20; ++i)
-            insert(2000 + i * 50, 50, id++); // x = 200..300
+            insert(2000ns + i * 50ns, 50ns, id++); // x = 200..300
         computeNesting();
     }
 
     bool rendersAsDensity() const override { return true; }
 
-    bool fillDensityColumns(int, qint64, qint64, QList<float> &out) const override
+    bool fillDensityColumns(int, nanoseconds, nanoseconds, QList<float> &out) const override
     {
         out.fill(1.0f);
         return true;
@@ -274,7 +275,7 @@ public:
 
     void loadData()
     {
-        insert(0, 10, 0);
+        insert(0ns, 10ns, 0);
         computeNesting();
         setExpanded(true);
     }
@@ -364,9 +365,9 @@ public:
     void loadData()
     {
         for (int i = 0; i < 6; ++i)
-            insert(i * 10, 5, i % 2);
+            insert(i * 10ns, 5ns, i % 2);
         for (int i = 0; i < 4; ++i)
-            insert(60 + i * 10, 10, 0);
+            insert(60ns + i * 10ns, 10ns, 0);
         computeNesting();
     }
 };
@@ -379,7 +380,7 @@ void tst_TrackPainterInteraction::selectionOutlinesSameSelectionId()
         AlternatingModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 100);
+        painter.setRange(0ns, 100ns);
         painter.resize(100, painter.totalHeight());
 
         painter.setSelectedItem(0, 2);
@@ -408,9 +409,9 @@ void tst_TrackPainterInteraction::selectionOutlinesSameSelectionId()
         QCOMPARE(painter.selectionOutlines(1), outlines);
 
         // The contiguous stretch is out of range now.
-        painter.setRange(0, 50);
+        painter.setRange(0ns, 50ns);
         QCOMPARE(painter.selectionOutlines(1).size(), 3);
-        painter.setRange(0, 100);
+        painter.setRange(0ns, 100ns);
 
         painter.setSelectedItem(0, 1);
         QCOMPARE(painter.selectionOutlines(1).size(), 3);
@@ -430,9 +431,9 @@ public:
 
     void loadData()
     {
-        insert(0, 5, 1);
+        insert(0ns, 5ns, 1);
         for (int i = 0; i < 5; ++i)
-            insert(10 + i * 10, 10, 0);
+            insert(10ns + i * 10ns, 10ns, 0);
         computeNesting();
     }
 
@@ -447,7 +448,7 @@ void tst_TrackPainterInteraction::selectionOutlinesKeepVaryingHeightsApart()
         SteppedModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 100);
+        painter.setRange(0ns, 100ns);
         painter.resize(100, painter.totalHeight());
 
         painter.setSelectedItem(0, 1);
@@ -478,9 +479,9 @@ public:
     void loadData(bool withSecondId = true)
     {
         for (int i = 0; i < 4; ++i)
-            insert(i * 10, 5, withSecondId ? i % 2 : 0);
+            insert(i * 10ns, 5ns, withSecondId ? i % 2 : 0);
         for (int i = 0; i < 4; ++i)
-            insert(50 + i * 10, 5, 2);
+            insert(50ns + i * 10ns, 5ns, 2);
         computeNesting();
     }
 
@@ -496,7 +497,7 @@ void tst_TrackPainterInteraction::selectionOutlinesSkipUniformRow()
         MemoryLikeModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 100);
+        painter.setRange(0ns, 100ns);
         painter.resize(100, painter.totalHeight());
 
         // In the mixed row the selection id picks the item out: item 2 shares it.
@@ -522,7 +523,7 @@ void tst_TrackPainterInteraction::selectionOutlinesSkipUniformRowsWithoutMixedRo
         MemoryLikeModel model(&aggregator);
         model.loadData(false);
         painter.setTracks({&model});
-        painter.setRange(0, 100);
+        painter.setRange(0ns, 100ns);
         painter.resize(100, painter.totalHeight());
 
         painter.setSelectedItem(0, 0);
@@ -548,7 +549,7 @@ public:
     void loadData()
     {
         for (int i = 0; i < 6; ++i)
-            insert(i * 10, 5, i % 2);
+            insert(i * 10ns, 5ns, i % 2);
         computeNesting();
     }
 
@@ -565,7 +566,7 @@ void tst_TrackPainterInteraction::selectionOutlinesRowsSplitBySelectionId()
         SplitModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 100);
+        painter.setRange(0ns, 100ns);
         painter.resize(100, painter.totalHeight());
 
         // Every row holds one selection id, so the row tells the id apart as much
@@ -587,7 +588,7 @@ public:
 
     void loadData()
     {
-        insert(5005, 1, 0); // 0.1px wide at the zoom level used below
+        insert(5005ns, 1ns, 0); // 0.1px wide at the zoom level used below
         computeNesting();
     }
 };
@@ -600,7 +601,7 @@ void tst_TrackPainterInteraction::narrowEventTolerance()
         NarrowModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 10000);
+        painter.setRange(0ns, 10000ns);
         painter.resize(1000, painter.totalHeight());
 
         // Drawn as the pixel column x=500.5..501.5, i.e. only x=501 is pixel-exact.
@@ -624,8 +625,8 @@ public:
 
     void loadData()
     {
-        insert(5000, 1, 0); // pixel column 500
-        insert(5010, 1, 1); // pixel column 501
+        insert(5000ns, 1ns, 0); // pixel column 500
+        insert(5010ns, 1ns, 1); // pixel column 501
         computeNesting();
     }
 };
@@ -638,7 +639,7 @@ void tst_TrackPainterInteraction::narrowEventUnderCursorWins()
         TwoNarrowModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 10000);
+        painter.setRange(0ns, 10000ns);
         painter.resize(1000, painter.totalHeight());
 
         QCOMPARE(itemIndexAt(painter, QPoint(500, 15)), 0);
@@ -654,7 +655,7 @@ void tst_TrackPainterInteraction::shortBarHitOverFullRow()
         ShortBarModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 10000);
+        painter.setRange(0ns, 10000ns);
         painter.resize(1000, painter.totalHeight());
 
         const int rowH = model.rowHeight(0);
@@ -678,7 +679,7 @@ void tst_TrackPainterInteraction::indexAtLongRangeBehindShortParent()
         PartialOverlapModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 10000);
+        painter.setRange(0ns, 10000ns);
         painter.resize(1000, painter.totalHeight());
 
         // The long range (index 1) is the only item at x=500. Its closest neighbours
@@ -696,7 +697,7 @@ void tst_TrackPainterInteraction::indexAtVisitsOnlyItemsNearCursor()
         PartialOverlapModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 100000);
+        painter.setRange(0ns, 100000ns);
         painter.resize(1000, painter.totalHeight());
 
         // One event per pixel from x = 100 on.
@@ -724,7 +725,7 @@ void tst_TrackPainterInteraction::drawnPixelsAreHittable()
         model.loadData();
         model.setExpanded(expanded);
         painter.setTracks({&model});
-        painter.setRange(0, 10000);
+        painter.setRange(0ns, 10000ns);
         painter.resize(1000, painter.totalHeight());
 
         QString report;
@@ -743,7 +744,7 @@ void tst_TrackPainterInteraction::itemLabels()
         LabelModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 10000);
+        painter.setRange(0ns, 10000ns);
         painter.resize(1000, painter.totalHeight());
 
         const QList<TextLabel> labels = painter.itemLabels(0);
@@ -768,7 +769,7 @@ void tst_TrackPainterInteraction::itemLabelsOnWholePixels()
         LabelModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(3, 10003); // the last event starts at x = 599.7
+        painter.setRange(3ns, 10003ns); // the last event starts at x = 599.7
         painter.resize(1000, painter.totalHeight());
 
         const QList<TextLabel> labels = painter.itemLabels(0);
@@ -788,7 +789,7 @@ void tst_TrackPainterInteraction::itemLabelsEndAtNextEvent()
         NestedLabelModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 10000);
+        painter.setRange(0ns, 10000ns);
         painter.resize(1000, painter.totalHeight());
         QVERIFY(!model.expanded());
 
@@ -811,7 +812,7 @@ void tst_TrackPainterInteraction::noItemLabelsByDefault()
         DummyModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 100);
+        painter.setRange(0ns, 100ns);
         painter.resize(1000, painter.totalHeight());
 
         QVERIFY(painter.itemLabels(0).isEmpty());
@@ -826,7 +827,7 @@ void tst_TrackPainterInteraction::densityItemLabels()
         DensityLabelModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 10000);
+        painter.setRange(0ns, 10000ns);
         painter.resize(1000, painter.totalHeight());
 
         const QFontMetricsF fm = ProbePainter<TrackPainter>::labelMetrics();
@@ -851,7 +852,7 @@ void tst_TrackPainterInteraction::scaleLabelsUseModelFormat()
         ScaleModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 100);
+        painter.setRange(0ns, 100ns);
         painter.resize(100, painter.totalHeight());
 
         const QList<TextLabel> labels = painter.scaleLabels(0);
@@ -882,7 +883,7 @@ void tst_TrackPainterInteraction::selectionLockedHover()
         DummyModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 100);
+        painter.setRange(0ns, 100ns);
         painter.resize(100, painter.totalHeight());
         painter.setSelectionLocked(true);
 
@@ -900,7 +901,7 @@ void tst_TrackPainterInteraction::indexAtWithData()
         DummyModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 100);
+        painter.setRange(0ns, 100ns);
         painter.resize(100, painter.totalHeight());
 
         int idx = itemIndexAt(painter, QPoint(5, 15));
@@ -917,7 +918,7 @@ void tst_TrackPainterInteraction::indexAtFarParent()
         NestedModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 1000);
+        painter.setRange(0ns, 1000ns);
         painter.resize(1000, painter.totalHeight());
 
         // x=610 falls in a gap between the children at 600..605 and 640..645, so
@@ -939,7 +940,7 @@ void tst_TrackPainterInteraction::unlockedHover()
         DummyModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 100);
+        painter.setRange(0ns, 100ns);
         painter.resize(100, painter.totalHeight());
         painter.setSelectionLocked(false);
 
@@ -963,7 +964,7 @@ public:
     void loadData(bool summarized)
     {
         for (int i = 0; i < itemCount; ++i)
-            insert(i * 10, 4, i < itemCount / 2 ? 0 : 1);
+            insert(i * 10ns, 4ns, i < itemCount / 2 ? 0 : 1);
         computeNesting();
         if (summarized)
             computeSummaries();
@@ -993,7 +994,7 @@ void tst_TrackPainterInteraction::summaryDrawsZoomedOutRangeByPixel()
         model.loadData(true);
         QVERIFY(model.summary(false));
         painter.setTracks({&model});
-        painter.setRange(0, ManyItemsModel::itemCount * 10);
+        painter.setRange(0ns, ManyItemsModel::itemCount * 10ns);
         painter.resize(500, painter.totalHeight());
 
         model.lookups = 0;
@@ -1029,8 +1030,8 @@ void tst_TrackPainterInteraction::summaryNotUsedZoomedIn()
 
         // A pixel covers about one bucket, which holds an item in only some of the pixels.
         const int width = 400;
-        const qint64 start = 123457;
-        const qint64 end = start + summary->bucketDuration * width;
+        const nanoseconds start = 123457ns;
+        const nanoseconds end = start + summary->bucketDuration * width;
         QList<QList<QRectF>> rects;
         for (ManyItemsModel *model : {&summarized, &plain}) {
             ProbePainter<TrackPainter> painter;
@@ -1052,7 +1053,7 @@ void tst_TrackPainterInteraction::summarySelectionOutlines()
         ManyItemsModel model(&aggregator);
         model.loadData(true);
         painter.setTracks({&model});
-        painter.setRange(0, ManyItemsModel::itemCount * 10);
+        painter.setRange(0ns, ManyItemsModel::itemCount * 10ns);
         painter.resize(500, painter.totalHeight());
 
         // The row holds both selection ids, so the selected one is outlined where it lies.

@@ -11,6 +11,7 @@
 #include <QObject>
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <memory>
 #include <optional>
@@ -89,14 +90,14 @@ public:
 
     int height() const;
     int count() const;
-    qint64 duration(int index) const;
-    qint64 startTime(int index) const;
-    qint64 endTime(int index) const;
+    std::chrono::nanoseconds duration(int index) const;
+    std::chrono::nanoseconds startTime(int index) const;
+    std::chrono::nanoseconds endTime(int index) const;
     int selectionId(int index) const;
 
-    int firstIndex(qint64 startTime) const;
-    int lastIndex(qint64 endTime) const;
-    int bestIndex(qint64 timestamp) const;
+    int firstIndex(std::chrono::nanoseconds startTime) const;
+    int lastIndex(std::chrono::nanoseconds endTime) const;
+    int bestIndex(std::chrono::nanoseconds timestamp) const;
     int parentIndex(int index) const;
 
     bool expanded() const;
@@ -157,8 +158,8 @@ public:
     // Fill `out` (already sized to the column count) with the 0..1 activity
     // fraction of `row` across the equal time columns spanning [startTime,
     // endTime]; return false to fall back to per-item rendering.
-    virtual bool fillDensityColumns(int row, qint64 startTime, qint64 endTime,
-                                    QList<float> &out) const;
+    virtual bool fillDensityColumns(int row, std::chrono::nanoseconds startTime,
+                                    std::chrono::nanoseconds endTime, QList<float> &out) const;
 
     // Constant colour of a whole row, for density-graph rendering. The default
     // reproduces the per-item lookup (first item in the row); density models
@@ -183,8 +184,8 @@ public:
         // [rangeStart, rangeEnd) that items of row overlap, in order, with the item that
         // overlaps the buckets in that column most.
         template<typename F>
-        void forEachDominantItem(int row, qint64 rangeStart, qint64 rangeEnd, int width,
-                                 const F &f) const
+        void forEachDominantItem(int row, std::chrono::nanoseconds rangeStart,
+                                 std::chrono::nanoseconds rangeEnd, int width, const F &f) const
         {
             const QList<Bucket> &buckets = rows.at(row);
             const quint32 firstBucket = rangeStart <= start
@@ -193,15 +194,16 @@ public:
                                        [](const Bucket &bucket, quint32 index) {
                                            return bucket.index < index;
                                        });
-            const double scale = double(width) / double(rangeEnd - rangeStart);
+            const double scale = double(width) / double((rangeEnd - rangeStart).count());
             int x = -1;
             const Bucket *dominant = nullptr;
             for (; it != buckets.cend(); ++it) {
-                const qint64 bucketStart = start + qint64(it->index) * bucketDuration;
+                const std::chrono::nanoseconds bucketStart
+                    = start + qint64(it->index) * bucketDuration;
                 if (bucketStart >= rangeEnd)
                     break;
-                const int bucketX = std::max(0, int(std::floor(double(bucketStart - rangeStart)
-                                                               * scale)));
+                const int bucketX = std::max(
+                    0, int(std::floor(double((bucketStart - rangeStart).count()) * scale)));
                 if (bucketX >= width)
                     break;
                 if (bucketX != x) {
@@ -217,8 +219,8 @@ public:
                 f(x, dominant->item);
         }
 
-        qint64 start = 0;
-        qint64 bucketDuration = 1;
+        std::chrono::nanoseconds start{0};
+        std::chrono::nanoseconds bucketDuration{1};
         quint32 bucketCount = 0;
         QList<QList<Bucket>> rows;
         QList<bool> mixedRows; // Rows holding items of more than one selection id.
@@ -228,10 +230,12 @@ public:
     const Summary *summary(bool expanded) const;
     const Summary *overviewSummary() const;
 
-    int nextItemBySelectionId(int selectionId, qint64 time, int currentItem) const;
-    int nextItemByTypeId(int typeId, qint64 time, int currentItem) const;
-    int prevItemBySelectionId(int selectionId, qint64 time, int currentItem) const;
-    int prevItemByTypeId(int typeId, qint64 time, int currentItem) const;
+    int nextItemBySelectionId(int selectionId, std::chrono::nanoseconds time,
+                              int currentItem) const;
+    int nextItemByTypeId(int typeId, std::chrono::nanoseconds time, int currentItem) const;
+    int prevItemBySelectionId(int selectionId, std::chrono::nanoseconds time,
+                              int currentItem) const;
+    int prevItemByTypeId(int typeId, std::chrono::nanoseconds time, int currentItem) const;
 
     static int defaultRowHeight();
 
@@ -257,9 +261,10 @@ protected:
     QRgb colorByHue(int hue) const;
     QRgb colorByHueChroma(int hue, int chroma) const;
 
-    int insert(qint64 startTime, qint64 duration, int selectionId);
-    int insertStart(qint64 startTime, int selectionId);
-    void insertEnd(int index, qint64 duration);
+    int insert(std::chrono::nanoseconds startTime, std::chrono::nanoseconds duration,
+               int selectionId);
+    int insertStart(std::chrono::nanoseconds startTime, int selectionId);
+    void insertEnd(int index, std::chrono::nanoseconds duration);
     void computeNesting();
     QList<int> computeRows(int *maxlevel) const;
 

@@ -22,6 +22,8 @@
 
 using namespace QmlDebug;
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 const char PROFILER_FILE_VERSION[] = "1.02";
@@ -146,9 +148,9 @@ void QmlProfilerTraceFile::loadQtd(QIODevice *device)
                 else
                     validVersion = false;
                 if (attributes.hasAttribute(_("traceStart")))
-                    setTraceStart(attributes.value(_("traceStart")).toLongLong());
+                    setTraceStart(nanoseconds(attributes.value(_("traceStart")).toLongLong()));
                 if (attributes.hasAttribute(_("traceEnd")))
-                    setTraceEnd(attributes.value(_("traceEnd")).toLongLong());
+                    setTraceEnd(nanoseconds(attributes.value(_("traceEnd")).toLongLong()));
             }
 
             if (elementName == _("eventData")) {
@@ -208,8 +210,8 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
 
     qint64 traceStart, traceEnd;
     stream >> traceStart >> traceEnd;
-    setTraceStart(traceStart);
-    setTraceEnd(traceEnd);
+    setTraceStart(nanoseconds(traceStart));
+    setTraceEnd(nanoseconds(traceEnd));
 
     QBuffer buffer;
     QDataStream bufferStream(&buffer);
@@ -276,9 +278,9 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
                     return;
                 }
                 addFeature(manager->eventType(event.typeIndex()).feature());
-                if (event.timestamp() < 0) {
+                if (event.timestamp() < 0ns) {
                     storeUnchanged();
-                    event.setTimestamp(0);
+                    event.setTimestamp(0ns);
                     manager->appendEvent(std::move(event));
                     unchangedStart = unchangedEnd = buffer.pos();
                     continue;
@@ -304,9 +306,10 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
     finish();
 }
 
-void QmlProfilerTraceFile::addEventsProgress(qint64 timestamp)
+void QmlProfilerTraceFile::addEventsProgress(nanoseconds timestamp)
 {
-    addProgressValue(static_cast<float>(timestamp) / static_cast<float>(traceEnd() - traceStart())
+    addProgressValue(static_cast<float>(timestamp.count())
+                         / static_cast<float>((traceEnd() - traceStart()).count())
                      * int(ProgressEvents));
 }
 
@@ -533,7 +536,7 @@ void QmlProfilerTraceFile::loadEvents(QXmlStreamReader &stream)
                 }
 
                 const qint64 timestamp = attributes.value(_("startTime")).toLongLong();
-                event.setTimestamp(timestamp > 0 ? timestamp : 0);
+                event.setTimestamp(nanoseconds(timestamp > 0 ? timestamp : 0));
                 event.setTypeIndex(attributes.value(_("eventIndex")).toInt());
 
                 if (attributes.hasAttribute(_("duration"))) {
@@ -541,7 +544,8 @@ void QmlProfilerTraceFile::loadEvents(QXmlStreamReader &stream)
                     QmlEvent rangeEnd(event);
                     rangeEnd.setRangeStage(RangeEnd);
                     const qint64 duration = attributes.value(_("duration")).toLongLong();
-                    rangeEnd.setTimestamp(event.timestamp() + (duration > 0 ? duration : 0));
+                    rangeEnd.setTimestamp(event.timestamp()
+                                          + nanoseconds(duration > 0 ? duration : 0));
                     events.addRange(event, rangeEnd);
                 } else {
                     // attributes for special events
@@ -625,8 +629,8 @@ void QmlProfilerTraceFile::loadNotes(QXmlStreamReader &stream)
 
                 currentNote = QmlNote(attrs.value(_("eventIndex")).toInt(),
                                       collapsedRow,
-                                      attrs.value(_("startTime")).toLongLong(),
-                                      attrs.value(_("duration")).toLongLong());
+                                      nanoseconds(attrs.value(_("startTime")).toLongLong()),
+                                      nanoseconds(attrs.value(_("duration")).toLongLong()));
             }
             break;
         }
@@ -650,7 +654,7 @@ void QmlProfilerTraceFile::loadNotes(QXmlStreamReader &stream)
 
 void QmlProfilerTraceFile::loadPausedRanges(QXmlStreamReader &stream)
 {
-    QList<std::pair<qint64, qint64>> ranges;
+    QmlProfilerModelManager::PausedRanges ranges;
     while (!stream.atEnd() && !stream.hasError()) {
         const QXmlStreamReader::TokenType token = stream.readNext();
         if (token == QXmlStreamReader::EndElement && stream.name() == _("pausedRanges"))
@@ -663,7 +667,7 @@ void QmlProfilerTraceFile::loadPausedRanges(QXmlStreamReader &stream)
             const qint64 start = attributes.value(_("start")).toLongLong(&startOk);
             const qint64 end = attributes.value(_("end")).toLongLong(&endOk);
             if (startOk && endOk && start < end)
-                ranges.append({start, end});
+                ranges.append({nanoseconds(start), nanoseconds(end)});
         }
     }
     modelManager()->setPausedRanges(ranges);
@@ -679,11 +683,11 @@ void QmlProfilerTraceFile::saveQtd(QIODevice *device)
     stream.writeStartElement(_("trace"));
     stream.writeAttribute(_("version"), _(PROFILER_FILE_VERSION));
 
-    stream.writeAttribute(_("traceStart"), QString::number(traceStart()));
-    stream.writeAttribute(_("traceEnd"), QString::number(traceEnd()));
+    stream.writeAttribute(_("traceStart"), QString::number(traceStart().count()));
+    stream.writeAttribute(_("traceEnd"), QString::number(traceEnd().count()));
 
     stream.writeStartElement(_("eventData"));
-    stream.writeAttribute(_("totalTime"), QString::number(measuredTime()));
+    stream.writeAttribute(_("totalTime"), QString::number(measuredTime().count()));
     const QmlProfilerModelManager *manager = modelManager();
     for (int typeIndex = 0, end = manager->numEventTypes(); typeIndex < end && !isCanceled();
          ++typeIndex) {
@@ -740,8 +744,8 @@ void QmlProfilerTraceFile::saveQtd(QIODevice *device)
         stream.writeStartElement(_("pausedRanges"));
         for (const auto &[start, end] : manager->pausedRanges()) {
             stream.writeStartElement(_("paused"));
-            stream.writeAttribute(_("start"), QString::number(start));
-            stream.writeAttribute(_("end"), QString::number(end));
+            stream.writeAttribute(_("start"), QString::number(start.count()));
+            stream.writeAttribute(_("end"), QString::number(end.count()));
             stream.writeEndElement();
         }
         stream.writeEndElement(); // pausedRanges
@@ -751,7 +755,7 @@ void QmlProfilerTraceFile::saveQtd(QIODevice *device)
         return;
 
     QStack<QmlEvent> stack;
-    qint64 lastProgressTimestamp = traceStart();
+    nanoseconds lastProgressTimestamp = traceStart();
     modelManager()->replayQmlEvents([&](const QmlEvent &event, const QmlEventType &type) {
         if (type.rangeType() != UndefinedRangeType && event.rangeStage() == RangeStart) {
             stack.push(event);
@@ -761,11 +765,11 @@ void QmlProfilerTraceFile::saveQtd(QIODevice *device)
         stream.writeStartElement(_("range"));
         if (type.rangeType() != UndefinedRangeType && event.rangeStage() == RangeEnd) {
             QmlEvent start = stack.pop();
-            stream.writeAttribute(_("startTime"), QString::number(start.timestamp()));
+            stream.writeAttribute(_("startTime"), QString::number(start.timestamp().count()));
             stream.writeAttribute(_("duration"),
-                                  QString::number(event.timestamp() - start.timestamp()));
+                                  QString::number((event.timestamp() - start.timestamp()).count()));
         } else {
-            stream.writeAttribute(_("startTime"), QString::number(event.timestamp()));
+            stream.writeAttribute(_("startTime"), QString::number(event.timestamp().count()));
         }
 
         stream.writeAttribute(_("eventIndex"), QString::number(event.typeIndex()));
@@ -842,8 +846,8 @@ void QmlProfilerTraceFile::saveQtd(QIODevice *device)
             for (int noteIndex = 0; noteIndex < notes.length() && !isCanceled(); ++noteIndex) {
                 const QmlNote &note = notes[noteIndex];
                 stream.writeStartElement(_("note"));
-                stream.writeAttribute(_("startTime"), QString::number(note.startTime()));
-                stream.writeAttribute(_("duration"), QString::number(note.duration()));
+                stream.writeAttribute(_("startTime"), QString::number(note.startTime().count()));
+                stream.writeAttribute(_("duration"), QString::number(note.duration().count()));
                 stream.writeAttribute(_("eventIndex"), QString::number(note.typeIndex()));
                 stream.writeAttribute(_("collapsedRow"), QString::number(note.collapsedRow()));
                 stream.writeCharacters(note.text());
@@ -873,7 +877,7 @@ void QmlProfilerTraceFile::saveQzt(QIODevice *device)
     stream << static_cast<qint32>(QDataStream::Qt_DefaultCompiledVersion);
     stream.setVersion(QDataStream::Qt_DefaultCompiledVersion);
 
-    stream << traceStart() << traceEnd();
+    stream << qint64(traceStart().count()) << qint64(traceEnd().count());
 
     QBuffer buffer;
     QDataStream bufferStream(&buffer);
@@ -919,7 +923,7 @@ void QmlProfilerTraceFile::saveQzt(QIODevice *device)
         writeCompressed(maxCompressing - 1);
     };
 
-    qint64 lastProgressTimestamp = traceStart();
+    nanoseconds lastProgressTimestamp = traceStart();
     modelManager()->replayQmlEvents([&](const QmlEvent &event, const QmlEventType &type) {
         Q_UNUSED(type)
         bufferStream << event;

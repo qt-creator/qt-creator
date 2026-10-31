@@ -11,6 +11,7 @@
 
 #include <QPointer>
 
+#include <chrono>
 #include <functional>
 #include <optional>
 
@@ -29,7 +30,7 @@ public:
     void setProfilerStateManager(QmlProfilerStateManager *profilerState);
     void clearEvents();
     void setModelManager(QmlProfilerModelManager *modelManager);
-    void setFlushInterval(quint32 flushInterval);
+    void setFlushInterval(std::chrono::milliseconds flushInterval);
     void clearBufferedData();
     void stopRecording();
 
@@ -46,8 +47,8 @@ public:
 signals:
     // The server began or ended a trace, with the time it gives for it. Ended
     // also for a pause, which the server cannot tell from a stop.
-    void traceStartedAt(qint64 time);
-    void traceFinishedAt(qint64 time);
+    void traceStartedAt(std::chrono::nanoseconds time);
+    void traceFinishedAt(std::chrono::nanoseconds time);
 
 private:
     void createClients() final;
@@ -58,7 +59,7 @@ private:
     QPointer<QmlProfilerStateManager> m_profilerState;
     QPointer<QmlProfilerModelManager> m_modelManager;
     std::function<void(const QString &)> m_logger;
-    quint32 m_flushInterval = 0;
+    std::chrono::milliseconds m_flushInterval{0};
     bool m_rebasingTime = false;
     QmlServerTimeRebaser m_rebaser;
 };

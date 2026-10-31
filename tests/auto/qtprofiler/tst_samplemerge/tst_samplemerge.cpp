@@ -6,6 +6,7 @@
 #include <QtTest>
 
 using namespace Profiler::Internal;
+using namespace std::chrono_literals;
 
 using Label = SampleTraceData::Label;
 using ThreadSample = SampleTraceData::ThreadSample;
@@ -47,12 +48,12 @@ private slots:
         SampleTraceData native;
         native.pid = 1;
         native.labels = {"main", "QV4::call", "QV4::interpret", "MyModel::data"};
-        native.samples = {{500, 1, true, {0, 1, 2, 3}}};
+        native.samples = {{500us, 1, true, {0, 1, 2, 3}}};
 
         // At t=500 the JS stack is onClicked() > compute() (root-first).
         const QList<QmlRange> ranges = {
-            {100, 1000, "onClicked", "/main.qml", 10, -1},
-            {400, 900, "compute", "/main.qml", 20, 0},
+            {100us, 1000us, "onClicked", "/main.qml", 10, -1},
+            {400us, 900us, "compute", "/main.qml", 20, 0},
         };
 
         const SampleTraceData merged = mergeQmlIntoSamples(native, ranges);
@@ -71,8 +72,8 @@ private slots:
     {
         SampleTraceData native;
         native.labels = {"main", "QV4::call", "MyModel::data"};
-        native.samples = {{500, 1, true, {0, 1, 2}}};
-        const QList<QmlRange> ranges = {{0, 1000, "onClicked", "/main.qml", 10, -1}};
+        native.samples = {{500us, 1, true, {0, 1, 2}}};
+        const QList<QmlRange> ranges = {{0us, 1000us, "onClicked", "/main.qml", 10, -1}};
 
         MergeOptions opts;
         opts.revealEngineFrames = true;
@@ -86,8 +87,8 @@ private slots:
     {
         SampleTraceData native;
         native.labels = {"main", "compute", "work"};
-        native.samples = {{500, 1, true, {0, 1, 2}}};
-        const QList<QmlRange> ranges = {{0, 1000, "onClicked", "/main.qml", 10, -1}};
+        native.samples = {{500us, 1, true, {0, 1, 2}}};
+        const QList<QmlRange> ranges = {{0us, 1000us, "onClicked", "/main.qml", 10, -1}};
 
         const SampleTraceData merged = mergeQmlIntoSamples(native, ranges);
         QCOMPARE(names(merged, 0), (QStringList{"main", "compute", "work"}));
@@ -100,8 +101,8 @@ private slots:
         // survive rather than be dropped, so engine housekeeping stays visible.
         SampleTraceData native;
         native.labels = {"main", "QV4::gc"};
-        native.samples = {{5000, 1, true, {0, 1}}};
-        const QList<QmlRange> ranges = {{0, 1000, "onClicked", "/main.qml", 10, -1}};
+        native.samples = {{5000us, 1, true, {0, 1}}};
+        const QList<QmlRange> ranges = {{0us, 1000us, "onClicked", "/main.qml", 10, -1}};
 
         const SampleTraceData merged = mergeQmlIntoSamples(native, ranges);
         QCOMPARE(names(merged, 0), (QStringList{"main", "QV4::gc"}));
@@ -113,10 +114,10 @@ private slots:
         SampleTraceData native;
         native.labels = {"main", "QV4::call"};
         native.samples = {
-            {300, 1, true, {0, 1}},
-            {700, 1, true, {0, 1}},
+            {300us, 1, true, {0, 1}},
+            {700us, 1, true, {0, 1}},
         };
-        const QList<QmlRange> ranges = {{0, 1000, "onClicked", "/main.qml", 10, -1}};
+        const QList<QmlRange> ranges = {{0us, 1000us, "onClicked", "/main.qml", 10, -1}};
 
         const SampleTraceData merged = mergeQmlIntoSamples(native, ranges);
         QCOMPARE(merged.labels.size(), 3); // main, QV4::call, onClicked
@@ -125,18 +126,18 @@ private slots:
 
     void clockOffsetShiftsSampleLookup()
     {
-        // The sample sits at tsUs=50, but the QML range only covers [1000,2000).
+        // The sample sits at timestamp 50us, but the QML range only covers [1000,2000).
         // A +1200us offset moves the lookup into the range; without it, nothing
         // is active and the engine frame is kept.
         SampleTraceData native;
         native.labels = {"QV4::call"};
-        native.samples = {{50, 1, true, {0}}};
-        const QList<QmlRange> ranges = {{1000, 2000, "onClicked", "/main.qml", 10, -1}};
+        native.samples = {{50us, 1, true, {0}}};
+        const QList<QmlRange> ranges = {{1000us, 2000us, "onClicked", "/main.qml", 10, -1}};
 
         QCOMPARE(names(mergeQmlIntoSamples(native, ranges), 0), (QStringList{"QV4::call"}));
 
         MergeOptions opts;
-        opts.sampleTimeOffsetUs = 1200; // 50 + 1200 = 1250, inside [1000,2000)
+        opts.sampleTimeOffset = 1200us; // 50 + 1200 = 1250, inside [1000,2000)
         QCOMPARE(names(mergeQmlIntoSamples(native, ranges, opts), 0), (QStringList{"onClicked"}));
     }
 
@@ -144,11 +145,11 @@ private slots:
     {
         SampleTraceData native;
         native.labels = {"QV4::call"};
-        native.samples = {{100, 1, true, {0}}};
-        const QList<QmlRange> ranges = {{0, 50, "onClicked", "/main.qml", 10, -1}};
+        native.samples = {{100us, 1, true, {0}}};
+        const QList<QmlRange> ranges = {{0us, 50us, "onClicked", "/main.qml", 10, -1}};
 
         MergeOptions opts;
-        opts.sampleTimeOffsetUs = -1000; // 100 - 1000 clamps to 0, inside [0,50)
+        opts.sampleTimeOffset = -1000us; // 100 - 1000 clamps to 0, inside [0,50)
         QCOMPARE(names(mergeQmlIntoSamples(native, ranges, opts), 0), (QStringList{"onClicked"}));
     }
 
@@ -162,10 +163,10 @@ private slots:
                          Label("QQmlThreadPrivate::run", QString(), 0, "libQt6Qml.so"),
                          "poll"};
         native.samples = {
-            {500, 1, true, {0, 1}},    // the engine's thread
-            {500, 2, true, {2, 3, 4}}, // a QQmlThread worker, parked
+            {500us, 1, true, {0, 1}},    // the engine's thread
+            {500us, 2, true, {2, 3, 4}}, // a QQmlThread worker, parked
         };
-        const QList<QmlRange> ranges = {{0, 1000, "onClicked", "/main.qml", 10, -1}};
+        const QList<QmlRange> ranges = {{0us, 1000us, "onClicked", "/main.qml", 10, -1}};
 
         const SampleTraceData merged = mergeQmlIntoSamples(native, ranges);
         QCOMPARE(names(merged, 0), (QStringList{"main", "onClicked"}));
@@ -181,11 +182,11 @@ private slots:
         native.labels = {"main", Label("idle", QString(), 0, "libQt6Qml.so"),
                          "thread_start", "QV4::call"};
         native.samples = {
-            {500, 1, true, {0, 1}},    // main thread, in the library but not in JS
-            {500, 7, true, {2, 3}},    // worker thread, in the interpreter
-            {600, 7, true, {2, 3}},
+            {500us, 1, true, {0, 1}},    // main thread, in the library but not in JS
+            {500us, 7, true, {2, 3}},    // worker thread, in the interpreter
+            {600us, 7, true, {2, 3}},
         };
-        const QList<QmlRange> ranges = {{0, 1000, "onClicked", "/main.qml", 10, -1}};
+        const QList<QmlRange> ranges = {{0us, 1000us, "onClicked", "/main.qml", 10, -1}};
 
         const SampleTraceData merged = mergeQmlIntoSamples(native, ranges);
         QCOMPARE(names(merged, 0), (QStringList{"main", "idle"}));
@@ -200,8 +201,8 @@ private slots:
         SampleTraceData native;
         native.labels = {"thread_start",
                          Label("QQmlThreadPrivate::run", QString(), 0, "libQt6Qml.so")};
-        native.samples = {{500, 2, true, {0, 1}}};
-        const QList<QmlRange> ranges = {{0, 1000, "onClicked", "/main.qml", 10, -1}};
+        native.samples = {{500us, 2, true, {0, 1}}};
+        const QList<QmlRange> ranges = {{0us, 1000us, "onClicked", "/main.qml", 10, -1}};
 
         const SampleTraceData merged = mergeQmlIntoSamples(native, ranges);
         QCOMPARE(names(merged, 0), (QStringList{"thread_start", "QQmlThreadPrivate::run"}));
@@ -213,12 +214,12 @@ private slots:
         SampleTraceData native;
         native.labels = {"QV4::call"};
         native.samples = {
-            {150, 1, true, {0}}, // only onClicked active
-            {450, 1, true, {0}}, // onClicked > compute active
+            {150us, 1, true, {0}}, // only onClicked active
+            {450us, 1, true, {0}}, // onClicked > compute active
         };
         const QList<QmlRange> ranges = {
-            {100, 1000, "onClicked", "/main.qml", 10, -1},
-            {400, 900, "compute", "/main.qml", 20, 0},
+            {100us, 1000us, "onClicked", "/main.qml", 10, -1},
+            {400us, 900us, "compute", "/main.qml", 20, 0},
         };
 
         const SampleTraceData merged = mergeQmlIntoSamples(native, ranges);
@@ -237,9 +238,9 @@ private slots:
             fn(Label("shapeLine", "/qtextengine.cpp", 1500, "Qt6Gui.dll", 0x900), 0x3000),
         };
         data.samples = {
-            {100, 1, true, {0, 1, 3}},
-            {200, 1, true, {0, 2, 3}},
-            {300, 1, true, {0, 2}},
+            {100us, 1, true, {0, 1, 3}},
+            {200us, 1, true, {0, 2, 3}},
+            {300us, 1, true, {0, 2}},
         };
 
         mergeLabelsOfSameFunction(data);
@@ -266,7 +267,7 @@ private slots:
             Label("0x5000"),
             Label("0x5000"),
         };
-        data.samples = {{100, 1, true, {0, 1, 2, 3, 4, 5}}};
+        data.samples = {{100us, 1, true, {0, 1, 2, 3, 4, 5}}};
         const SampleTraceData before = data;
 
         mergeLabelsOfSameFunction(data);

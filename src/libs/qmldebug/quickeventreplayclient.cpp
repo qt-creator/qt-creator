@@ -22,7 +22,7 @@ QuickEventReplayClient::QuickEventReplayClient(QmlDebug::QmlDebugConnection *con
 void QuickEventReplayClient::sendEvent(const QmlEventType &type, const QmlEvent &event)
 {
     QmlDebug::QPacket stream(connection()->currentDataStreamVersion());
-    stream << event.timestamp() << Message::Event
+    stream << qint64(event.timestamp().count()) << Message::Event
            << type.detailType() << event.number<int>(0) << event.number<int>(1)
            << event.number<int>(2);
     sendMessage(stream.data());

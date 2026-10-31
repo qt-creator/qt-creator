@@ -11,6 +11,7 @@
 #include <QTest>
 
 using namespace QmlDebug;
+using namespace std::chrono;
 namespace Profiler::Internal {
 
 DebugMessagesModelTest::DebugMessagesModelTest()
@@ -23,7 +24,7 @@ void DebugMessagesModelTest::initTestCase()
 
     for (int i = 0; i < 10; ++i) {
         QmlEvent event;
-        event.setTimestamp(i);
+        event.setTimestamp(nanoseconds(i));
         event.setString(QString::fromLatin1("message %1").arg(i));
         QmlEventType type(DebugMessage, UndefinedRangeType, i % (QtMsgType::QtInfoMsg + 1),
                           QmlEventLocation("somefile.js", i, 10 - i));
@@ -75,7 +76,7 @@ void DebugMessagesModelTest::testDetails()
         Timeline::ItemDetails details = model.details(i);
         QCOMPARE(details.value(QLatin1String("displayName")),
                  Tr::tr(messageTypes[i % (QtMsgType::QtInfoMsg + 1)]));
-        QCOMPARE(details.value(Tr::tr("Timestamp")), Timeline::formatTime(i));
+        QCOMPARE(details.value(Tr::tr("Timestamp")), Timeline::formatTime(nanoseconds(i)));
         QCOMPARE(details.value(Tr::tr("Message")),
                  QString::fromLatin1("message %1").arg(i));
         QCOMPARE(details.value(Tr::tr("Location")),

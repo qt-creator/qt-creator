@@ -13,12 +13,14 @@
 #include <QCoreApplication>
 #include <QFileInfo>
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
-PerfTimelineModel::PerfTimelineModel(quint32 pid, quint32 tid, qint64 startTime, qint64 endTime,
-                                     PerfTimelineModelManager *parent) :
+PerfTimelineModel::PerfTimelineModel(quint32 pid, quint32 tid, nanoseconds startTime,
+                                     nanoseconds endTime, PerfTimelineModelManager *parent) :
     Timeline::TimelineModel(parent), m_traceManager(parent->traceManager()), m_lastTimestamp(-1),
-    m_threadStartTimestamp(startTime - 1), m_threadEndTimestamp(endTime + 1),
+    m_threadStartTimestamp(startTime - 1ns), m_threadEndTimestamp(endTime + 1ns),
     m_resourceBlocks(parent->resourceContainer(pid)), m_pid(pid), m_tid(tid),
     m_samplingFrequency(1)
 {
@@ -28,8 +30,8 @@ PerfTimelineModel::PerfTimelineModel(quint32 pid, quint32 tid, qint64 startTime,
 
 QRgb PerfTimelineModel::color(int index) const
 {
-    const qint64 avgSampleDuration = static_cast<qint64>(1e9) / m_samplingFrequency;
-    const qint64 sampleDuration = qMin(
+    const nanoseconds avgSampleDuration = nanoseconds(1s) / m_samplingFrequency;
+    const nanoseconds sampleDuration = qMin(
                 qMax(duration(index) / m_data[index].numExpectedParallelSamples,
                      avgSampleDuration / 2),
                 avgSampleDuration * 2);
@@ -283,9 +285,9 @@ void PerfTimelineModel::updateFrames(const PerfEvent &event, int numConcurrentTh
     const QList<qint32> &frames = event.frames();
 
     const int numFrames = frames.length();
-    const qint64 sampleStart = m_lastTimestamp < 0
-            ? (m_threadStartTimestamp < 0 ? event.timestamp() - 1 : m_threadStartTimestamp)
-            : (m_lastTimestamp + event.timestamp()) / 2 - 1;
+    const nanoseconds sampleStart = m_lastTimestamp < 0ns
+            ? (m_threadStartTimestamp < 0ns ? event.timestamp() - 1ns : m_threadStartTimestamp)
+            : (m_lastTimestamp + event.timestamp()) / 2 - 1ns;
     const qint64 resources = m_resourceBlocks.currentTotal();
 
     int level = 0;
@@ -358,7 +360,7 @@ void PerfTimelineModel::updateFrames(const PerfEvent &event, int numConcurrentTh
 
 void PerfTimelineModel::addSample(const PerfEvent &event, qint64 resourceDelta, int resourceGuesses)
 {
-    const int id = TimelineModel::insert(event.timestamp(), 1, event.attributeId(0));
+    const int id = TimelineModel::insert(event.timestamp(), 1ns, event.attributeId(0));
     StackFrame sample = StackFrame::sampleFrame();
     sample.attributeValue = event.attributeValue(0);
     sample.numSamples = event.numGuessedFrames() > 0 ? -event.numGuessedFrames() : 1;
@@ -398,42 +400,43 @@ void PerfTimelineModel::loadEvent(const PerfEvent &event, int numConcurrentThrea
         break;
     }
     case PerfEvent::ContextSwitchTypeId: {
-        const int id = TimelineModel::insert(event.timestamp(), 1, PerfEvent::ContextSwitchTypeId);
+        const int id = TimelineModel::insert(event.timestamp(), 1ns,
+                                             PerfEvent::ContextSwitchTypeId);
         m_data.insert(id, StackFrame::sampleFrame());
         break;
     }
     case PerfEvent::ThreadStartTypeId: {
-        if (m_threadStartTimestamp < 0 || event.timestamp() <= m_threadStartTimestamp)
-            m_threadStartTimestamp = event.timestamp() - 1;
-        const int id = TimelineModel::insert(event.timestamp(), 1, PerfEvent::ThreadStartTypeId);
+        if (m_threadStartTimestamp < 0ns || event.timestamp() <= m_threadStartTimestamp)
+            m_threadStartTimestamp = event.timestamp() - 1ns;
+        const int id = TimelineModel::insert(event.timestamp(), 1ns, PerfEvent::ThreadStartTypeId);
         m_data.insert(id, StackFrame::sampleFrame());
         break;
     }
     case PerfEvent::ThreadEndTypeId: {
-        if (m_threadEndTimestamp < 0 || event.timestamp() >= m_threadEndTimestamp)
-            m_threadEndTimestamp = event.timestamp() + 1;
+        if (m_threadEndTimestamp < 0ns || event.timestamp() >= m_threadEndTimestamp)
+            m_threadEndTimestamp = event.timestamp() + 1ns;
         while (!m_currentStack.empty()) {
             TimelineModel::insertEnd(m_currentStack.last(),
                                      m_threadEndTimestamp - startTime(m_currentStack.last()));
             m_currentStack.pop_back();
         }
 
-        const int id = TimelineModel::insert(event.timestamp(), 1, PerfEvent::ThreadEndTypeId);
+        const int id = TimelineModel::insert(event.timestamp(), 1ns, PerfEvent::ThreadEndTypeId);
         m_data.insert(id, StackFrame::sampleFrame());
         break;
     }
     default: {
         QTC_ASSERT(event.attributeId(0) <= PerfEvent::LastSpecialTypeId, break);
 
-        if (event.timestamp() < 0) {
+        if (event.timestamp() < 0ns) {
             updateTraceData(event);
             break;
         }
 
-        QTC_ASSERT(event.timestamp() >= 0, break);
+        QTC_ASSERT(event.timestamp() >= 0ns, break);
 
         if (event.timestamp() <= m_threadStartTimestamp)
-            m_threadStartTimestamp = event.timestamp() - 1;
+            m_threadStartTimestamp = event.timestamp() - 1ns;
 
         const qint64 total = m_resourceBlocks.currentTotal();
         const qint64 guesses = m_resourceBlocks.currentNumGuesses();
@@ -453,7 +456,7 @@ void PerfTimelineModel::loadEvent(const PerfEvent &event, int numConcurrentThrea
 void PerfTimelineModel::finalize()
 {
     if (m_threadEndTimestamp <= m_lastTimestamp)
-        m_threadEndTimestamp = m_lastTimestamp + 1;
+        m_threadEndTimestamp = m_lastTimestamp + 1ns;
     while (!m_currentStack.empty()) {
         TimelineModel::insertEnd(m_currentStack.last(),
                                  m_threadEndTimestamp - startTime(m_currentStack.last()));
@@ -462,7 +465,7 @@ void PerfTimelineModel::finalize()
 
     if (isEmpty()) {
         // Empty models are hidden in the UI. We don't want that here, as it would be confusing.
-        const int id = TimelineModel::insert(-1, 0, -1);
+        const int id = TimelineModel::insert(-1ns, 0ns, -1);
         m_data.insert(id, StackFrame::sampleFrame());
     }
 
@@ -523,9 +526,9 @@ void PerfTimelineModel::clear()
     m_samplingFrequency = 1;
     m_pid = 0;
     m_tid = 0;
-    m_lastTimestamp = -1;
-    m_threadStartTimestamp = -1;
-    m_threadEndTimestamp = -1;
+    m_lastTimestamp = -1ns;
+    m_threadStartTimestamp = -1ns;
+    m_threadEndTimestamp = -1ns;
     m_resourceBlocks.clear();
     m_locationStats.clear();
     m_locationOrder.clear();

@@ -40,7 +40,7 @@ protected:
         return static_cast<PerfProfilerTraceManager *>(traceManager());
     }
 
-    virtual qint64 adjustTimestamp(qint64 timestamp);
+    virtual std::chrono::nanoseconds adjustTimestamp(std::chrono::nanoseconds timestamp);
     virtual bool acceptsSamples() const;
 
     QPointer<QIODevice> m_device;

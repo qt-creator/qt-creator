@@ -41,7 +41,7 @@ public:
 
     // Stretches of the trace during which nothing was recorded, in trace time
     // (nanoseconds), ordered by start.
-    using PausedRanges = QList<std::pair<qint64, qint64>>;
+    using PausedRanges = QList<std::pair<std::chrono::nanoseconds, std::chrono::nanoseconds>>;
     const PausedRanges &pausedRanges() const;
     void setPausedRanges(const PausedRanges &ranges);
 
@@ -60,8 +60,8 @@ public:
 
     void persistLayout(Utils::QtcSettings *settings, const Utils::Key &key);
 
-    ModelItem nextItem(int selectedModel, int selectedItem, qint64 time) const;
-    ModelItem prevItem(int selectedModel, int selectedItem, qint64 time) const;
+    ModelItem nextItem(int selectedModel, int selectedItem, std::chrono::nanoseconds time) const;
+    ModelItem prevItem(int selectedModel, int selectedItem, std::chrono::nanoseconds time) const;
 
 signals:
     void modelsChanged();

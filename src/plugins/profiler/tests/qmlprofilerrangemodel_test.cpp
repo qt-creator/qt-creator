@@ -11,6 +11,7 @@
 #include <QTest>
 
 using namespace QmlDebug;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -23,11 +24,11 @@ static int appendBindingType(QmlProfilerModelManager &manager, int line)
 
 static void appendRange(QmlProfilerModelManager &manager, int type, qint64 start, qint64 end)
 {
-    QmlEvent event(start, type, {});
+    QmlEvent event(nanoseconds(start), type, {});
     event.setRangeStage(RangeStart);
     manager.appendEvent(QmlEvent(event));
     event.setRangeStage(RangeEnd);
-    event.setTimestamp(end);
+    event.setTimestamp(nanoseconds(end));
     manager.appendEvent(std::move(event));
 }
 
@@ -44,7 +45,7 @@ void QmlProfilerRangeModelTest::testRows()
     const int c = appendBindingType(manager, 3);
     // The events of a range arrive in the order they happen.
     const auto stage = [&](int type, qint64 time, Message rangeStage) {
-        QmlEvent e(time, type, {});
+        QmlEvent e(nanoseconds(time), type, {});
         e.setRangeStage(rangeStage);
         manager.appendEvent(std::move(e));
     };
@@ -81,12 +82,12 @@ void QmlProfilerRangeModelTest::testDeepNesting()
     manager.initialize();
     const int type = appendBindingType(manager, 1);
     for (int level = 0; level < depth; ++level) {
-        QmlEvent event(level, type, {});
+        QmlEvent event(nanoseconds(level), type, {});
         event.setRangeStage(RangeStart);
         manager.appendEvent(std::move(event));
     }
     for (int level = depth - 1; level >= 0; --level) {
-        QmlEvent event(2 * depth - level, type, {});
+        QmlEvent event(nanoseconds(2 * depth - level), type, {});
         event.setRangeStage(RangeEnd);
         manager.appendEvent(std::move(event));
     }

@@ -11,6 +11,7 @@
 #include <tracing/timeruler.h>
 #include <tracing/tracklabels.h>
 
+using namespace std::chrono;
 using namespace Timeline;
 
 class tst_TimelineScrollSync : public QObject
@@ -30,31 +31,31 @@ private slots:
 void tst_TimelineScrollSync::rulerSyncedOnRegister()
 {
     TimelineZoomControl zoom;
-    zoom.setTrace(0, 100000);
-    zoom.setRange(1000, 5000);
+    zoom.setTrace(0ns, 100000ns);
+    zoom.setRange(1000ns, 5000ns);
 
     TimelineScrollSync sync(&zoom);
     TimeRuler ruler;
     sync.registerRuler(&ruler);
 
-    QCOMPARE(ruler.rangeStart(), qint64(1000));
-    QCOMPARE(ruler.rangeEnd(), qint64(5000));
+    QCOMPARE(ruler.rangeStart(), 1000ns);
+    QCOMPARE(ruler.rangeEnd(), 5000ns);
 }
 
 void tst_TimelineScrollSync::rulerGetsRangeChange()
 {
     TimelineZoomControl zoom;
-    zoom.setTrace(0, 100000);
-    zoom.setRange(1000, 5000);
+    zoom.setTrace(0ns, 100000ns);
+    zoom.setRange(1000ns, 5000ns);
 
     TimelineScrollSync sync(&zoom);
     TimeRuler ruler;
     sync.registerRuler(&ruler);
 
-    zoom.setRange(2000, 8000);
+    zoom.setRange(2000ns, 8000ns);
 
-    QCOMPARE(ruler.rangeStart(), qint64(2000));
-    QCOMPARE(ruler.rangeEnd(), qint64(8000));
+    QCOMPARE(ruler.rangeStart(), 2000ns);
+    QCOMPARE(ruler.rangeEnd(), 8000ns);
 }
 
 void tst_TimelineScrollSync::painterSyncedOnRegister_data()
@@ -68,15 +69,15 @@ void tst_TimelineScrollSync::painterSyncedOnRegister()
 
     withTrackPainter(backend, []<typename TrackPainter>() {
         TimelineZoomControl zoom;
-        zoom.setTrace(0, 100000);
-        zoom.setRange(3000, 7000);
+        zoom.setTrace(0ns, 100000ns);
+        zoom.setRange(3000ns, 7000ns);
 
         TimelineScrollSync sync(&zoom);
         TrackPainter painter;
         sync.registerContent(&painter);
 
-        QCOMPARE(painter.rangeStart(), qint64(3000));
-        QCOMPARE(painter.rangeEnd(), qint64(7000));
+        QCOMPARE(painter.rangeStart(), 3000ns);
+        QCOMPARE(painter.rangeEnd(), 7000ns);
     });
 }
 
@@ -91,24 +92,24 @@ void tst_TimelineScrollSync::painterGetsRangeChange()
 
     withTrackPainter(backend, []<typename TrackPainter>() {
         TimelineZoomControl zoom;
-        zoom.setTrace(0, 100000);
-        zoom.setRange(3000, 7000);
+        zoom.setTrace(0ns, 100000ns);
+        zoom.setRange(3000ns, 7000ns);
 
         TimelineScrollSync sync(&zoom);
         TrackPainter painter;
         sync.registerContent(&painter);
 
-        zoom.setRange(0, 100000);
+        zoom.setRange(0ns, 100000ns);
 
-        QCOMPARE(painter.rangeStart(), qint64(0));
-        QCOMPARE(painter.rangeEnd(), qint64(100000));
+        QCOMPARE(painter.rangeStart(), 0ns);
+        QCOMPARE(painter.rangeEnd(), 100000ns);
     });
 }
 
 void tst_TimelineScrollSync::labelsScrollBarPropagates()
 {
     TimelineZoomControl zoom;
-    zoom.setTrace(0, 100000);
+    zoom.setTrace(0ns, 100000ns);
 
     TimelineScrollSync sync(&zoom);
     TrackLabels labels;
@@ -128,7 +129,7 @@ void tst_TimelineScrollSync::labelsScrollBarPropagates()
 void tst_TimelineScrollSync::labelsRegisteredAfterScrollBar()
 {
     TimelineZoomControl zoom;
-    zoom.setTrace(0, 100000);
+    zoom.setTrace(0ns, 100000ns);
 
     TimelineScrollSync sync(&zoom);
     TrackLabels labels;

@@ -26,6 +26,7 @@
 #include <QWheelEvent>
 
 using namespace Timeline;
+using namespace std::chrono;
 
 class DummyTheme : public Utils::Theme
 {
@@ -46,8 +47,8 @@ public:
         , m_firstLine(firstLine)
         , m_secondLine(secondLine)
     {
-        insert(0, 10, sharedTypeId);
-        insert(20, 10, sharedTypeId);
+        insert(0ns, 10ns, sharedTypeId);
+        insert(20ns, 10ns, sharedTypeId);
     }
 
     int typeId(int index) const override
@@ -74,15 +75,15 @@ public:
     SelectableTimeline(int firstLine, int secondLine)
         : model(new LocatedModel(&aggregator, firstLine, secondLine))
     {
-        zoom.setTrace(0, traceEnd);
-        zoom.setRange(0, traceEnd);
+        zoom.setTrace(0ns, traceEnd);
+        zoom.setRange(0ns, traceEnd);
         content = new TimelineContentWidget(&aggregator, &zoom, &details);
         aggregator.addModel(model);
     }
 
     ~SelectableTimeline() { delete content; }
 
-    static constexpr qint64 traceEnd = 1000;
+    static constexpr nanoseconds traceEnd{1000};
 
     TimelineModelAggregator aggregator;
     TimelineZoomControl zoom;
@@ -98,8 +99,8 @@ class CategoryTimeline
 public:
     CategoryTimeline()
     {
-        zoom.setTrace(0, traceEnd);
-        zoom.setRange(0, traceEnd);
+        zoom.setTrace(0ns, traceEnd);
+        zoom.setRange(0ns, traceEnd);
         content = new TimelineContentWidget(&aggregator, &zoom, &details);
         for (const char *name : {"Memory Usage", "Pixmap Cache", "Creating"}) {
             auto model = new LocatedModel(&aggregator, 1, 2);
@@ -112,7 +113,7 @@ public:
 
     ~CategoryTimeline() { delete content; }
 
-    static constexpr qint64 traceEnd = 1000;
+    static constexpr nanoseconds traceEnd{1000};
 
     TrackPainterBase *tracks() const
     {
@@ -159,7 +160,7 @@ class ScrollableTimeline
 public:
     ScrollableTimeline()
     {
-        zoom.setTrace(0, traceEnd);
+        zoom.setTrace(0ns, traceEnd);
         zoom.setRange(rangeStart, rangeEnd);
         content = new TimelineContentWidget(&aggregator, &zoom, &details);
         for (int i = 0; i < 20; ++i)
@@ -170,9 +171,9 @@ public:
 
     ~ScrollableTimeline() { delete content; }
 
-    static constexpr qint64 traceEnd = 1000000;
-    static constexpr qint64 rangeStart = 250000;
-    static constexpr qint64 rangeEnd = 750000;
+    static constexpr nanoseconds traceEnd{1000000};
+    static constexpr nanoseconds rangeStart{250000};
+    static constexpr nanoseconds rangeEnd{750000};
 
     QScrollBar *verticalScrollBar() const
     {
@@ -193,7 +194,7 @@ public:
     {
         const double fraction = trackArea()->mapFrom(content, pos).x()
                                 / double(trackArea()->width());
-        return zoom.rangeStart() + fraction * zoom.rangeDuration();
+        return (zoom.rangeStart() + fraction * zoom.rangeDuration()).count();
     }
 
     // Two fingers moving over pos by pixelDelta, as macOS reports them: in
@@ -327,9 +328,9 @@ void tst_TimelineContentWidget::aDiagonalSwipeScrollsBothWays()
     // right, as in any scroll area: later times, and further tracks.
     timeline.swipe(timeline.trackAreaCenter(), {-40, -30});
 
-    const qint64 panned = qRound64(40.0 * (ScrollableTimeline::rangeEnd
-                                           - ScrollableTimeline::rangeStart)
-                                   / timeline.trackArea()->width());
+    const nanoseconds panned(qRound64(
+        40.0 * (ScrollableTimeline::rangeEnd - ScrollableTimeline::rangeStart).count()
+        / timeline.trackArea()->width()));
     QCOMPARE(timeline.zoom.rangeStart(), ScrollableTimeline::rangeStart + panned);
     QCOMPARE(timeline.zoom.rangeEnd(), ScrollableTimeline::rangeEnd + panned);
     QCOMPARE(vbar->value(), 30);
@@ -377,7 +378,8 @@ void tst_TimelineContentWidget::aPinchZoomsAroundTheFingers()
     // The fingers spread by a quarter: what lay between them now fills a
     // quarter more of the screen, and what was under them stays there.
     QCOMPARE(timeline.zoom.rangeDuration(),
-             qRound64((ScrollableTimeline::rangeEnd - ScrollableTimeline::rangeStart) / 1.25));
+             nanoseconds(qRound64(
+                 (ScrollableTimeline::rangeEnd - ScrollableTimeline::rangeStart).count() / 1.25)));
     const double timeAtFingersNow = timeline.timeAt(fingers);
     QVERIFY2(qAbs(timeAtFingersNow - timeAtFingers) <= 1,
              qPrintable(QString("%1 moved to %2").arg(timeAtFingers).arg(timeAtFingersNow)));
@@ -394,7 +396,8 @@ void tst_TimelineContentWidget::aPinchOverTheLabelsKeepsTheStart()
 
     QCOMPARE(timeline.zoom.rangeStart(), ScrollableTimeline::rangeStart);
     QCOMPARE(timeline.zoom.rangeDuration(),
-             qRound64((ScrollableTimeline::rangeEnd - ScrollableTimeline::rangeStart) / 1.25));
+             nanoseconds(qRound64(
+                 (ScrollableTimeline::rangeEnd - ScrollableTimeline::rangeStart).count() / 1.25)));
 }
 
 void tst_TimelineContentWidget::aPinchInABrowserZooms_data()
@@ -419,7 +422,7 @@ void tst_TimelineContentWidget::aPinchInABrowserZooms()
 
     QVERIFY2(timeline.zoom.rangeDuration()
                  > ScrollableTimeline::rangeEnd - ScrollableTimeline::rangeStart,
-             qPrintable(QString::number(timeline.zoom.rangeDuration())));
+             qPrintable(QString::number(timeline.zoom.rangeDuration().count())));
     QCOMPARE(timeline.verticalScrollBar()->value(), 0);
 }
 

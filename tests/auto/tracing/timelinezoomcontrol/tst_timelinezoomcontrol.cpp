@@ -6,6 +6,7 @@
 #include <QTest>
 #include <tracing/timelinezoomcontrol.h>
 
+using namespace std::chrono;
 using namespace Timeline;
 
 class tst_TimelineZoomControl : public QObject
@@ -33,20 +34,20 @@ void tst_TimelineZoomControl::trace()
 {
     TimelineZoomControl zoomControl;
     QSignalSpy spy(&zoomControl, &TimelineZoomControl::traceChanged);
-    QCOMPARE(zoomControl.traceStart(), -1);
-    QCOMPARE(zoomControl.traceEnd(), -1);
-    QCOMPARE(zoomControl.traceDuration(), 0);
+    QCOMPARE(zoomControl.traceStart(), -1ns);
+    QCOMPARE(zoomControl.traceEnd(), -1ns);
+    QCOMPARE(zoomControl.traceDuration(), 0ns);
 
-    zoomControl.setTrace(100, 200);
-    QCOMPARE(zoomControl.traceStart(), 100);
-    QCOMPARE(zoomControl.traceEnd(), 200);
-    QCOMPARE(zoomControl.traceDuration(), 100);
+    zoomControl.setTrace(100ns, 200ns);
+    QCOMPARE(zoomControl.traceStart(), 100ns);
+    QCOMPARE(zoomControl.traceEnd(), 200ns);
+    QCOMPARE(zoomControl.traceDuration(), 100ns);
     QCOMPARE(spy.count(), 1);
 
     zoomControl.clear();
-    QCOMPARE(zoomControl.traceStart(), -1);
-    QCOMPARE(zoomControl.traceEnd(), -1);
-    QCOMPARE(zoomControl.traceDuration(), 0);
+    QCOMPARE(zoomControl.traceStart(), -1ns);
+    QCOMPARE(zoomControl.traceEnd(), -1ns);
+    QCOMPARE(zoomControl.traceDuration(), 0ns);
     QCOMPARE(spy.count(), 2);
 }
 
@@ -63,7 +64,7 @@ void tst_TimelineZoomControl::window()
 
     int numWindowChanges = 0;
 
-    connect(&zoomControl, &TimelineZoomControl::windowChanged, this, [&](qint64, qint64) {
+    connect(&zoomControl, &TimelineZoomControl::windowChanged, this, [&](nanoseconds, nanoseconds) {
         verifyWindow(zoomControl);
 
         QVERIFY(!timer.isActive());
@@ -73,31 +74,31 @@ void tst_TimelineZoomControl::window()
         }
     });
 
-    QCOMPARE(zoomControl.windowStart(), -1);
-    QCOMPARE(zoomControl.windowEnd(), -1);
-    QCOMPARE(zoomControl.windowDuration(), 0);
+    QCOMPARE(zoomControl.windowStart(), -1ns);
+    QCOMPARE(zoomControl.windowEnd(), -1ns);
+    QCOMPARE(zoomControl.windowDuration(), 0ns);
 
-    zoomControl.setTrace(100, 200);
-    QCOMPARE(zoomControl.windowStart(), 100);
-    QCOMPARE(zoomControl.windowEnd(), 200);
-    QCOMPARE(zoomControl.windowDuration(), 100);
+    zoomControl.setTrace(100ns, 200ns);
+    QCOMPARE(zoomControl.windowStart(), 100ns);
+    QCOMPARE(zoomControl.windowEnd(), 200ns);
+    QCOMPARE(zoomControl.windowDuration(), 100ns);
 
     zoomControl.clear();
-    QCOMPARE(zoomControl.windowStart(), -1);
-    QCOMPARE(zoomControl.windowEnd(), -1);
-    QCOMPARE(zoomControl.windowDuration(), 0);
+    QCOMPARE(zoomControl.windowStart(), -1ns);
+    QCOMPARE(zoomControl.windowEnd(), -1ns);
+    QCOMPARE(zoomControl.windowDuration(), 0ns);
 
-    zoomControl.setTrace(100000, 200000);
-    QCOMPARE(zoomControl.windowStart(), 100000);
-    QVERIFY(zoomControl.windowEnd() < 110000);
+    zoomControl.setTrace(100000ns, 200000ns);
+    QCOMPARE(zoomControl.windowStart(), 100000ns);
+    QVERIFY(zoomControl.windowEnd() < 110000ns);
 
-    zoomControl.setRange(199995, 200000); // jump to end
+    zoomControl.setRange(199995ns, 200000ns); // jump to end
     verifyWindow(zoomControl);
-    zoomControl.setRange(100000, 100005); // jump to start
+    zoomControl.setRange(100000ns, 100005ns); // jump to start
     verifyWindow(zoomControl);
 
-    zoomControl.setRange(150000, 150005);
-    zoomControl.setRange(152000, 152005); // move right
+    zoomControl.setRange(150000ns, 150005ns);
+    zoomControl.setRange(152000ns, 152005ns); // move right
 
     QMetaObject::Connection connection = connect(
                 &zoomControl, &TimelineZoomControl::windowMovingChanged, this, [&](bool moving) {
@@ -106,20 +107,20 @@ void tst_TimelineZoomControl::window()
 
         verifyWindow(zoomControl);
         if (zoomControl.windowEnd() == zoomControl.traceEnd()) {
-            zoomControl.setRange(104005, 104010); // jump left
+            zoomControl.setRange(104005ns, 104010ns); // jump left
             verifyWindow(zoomControl);
-            zoomControl.setRange(102005, 102010); // make sure it doesn't overrun trace start
+            zoomControl.setRange(102005ns, 102010ns); // make sure it doesn't overrun trace start
         } else if (zoomControl.windowStart() == zoomControl.traceStart()) {
             QCoreApplication::exit();
         } else {
             QVERIFY(zoomControl.rangeStart() - zoomControl.windowStart() ==
                     zoomControl.windowEnd() - zoomControl.rangeEnd());
-            if (zoomControl.rangeStart() == 152000) {
-                zoomControl.setRange(150000, 150005); // move left
-            } else if (zoomControl.rangeStart() == 150000) {
-                zoomControl.setRange(196990, 196995); // jump right
+            if (zoomControl.rangeStart() == 152000ns) {
+                zoomControl.setRange(150000ns, 150005ns); // move left
+            } else if (zoomControl.rangeStart() == 150000ns) {
+                zoomControl.setRange(196990ns, 196995ns); // jump right
                 verifyWindow(zoomControl);
-                zoomControl.setRange(198990, 198995); // make sure it doesn't overrun trace end
+                zoomControl.setRange(198990ns, 198995ns); // make sure it doesn't overrun trace end
             }
         }
         verifyWindow(zoomControl);
@@ -136,41 +137,41 @@ void tst_TimelineZoomControl::window()
             stopDetected = true;
         } else {
             zoomControl.clear();
-            QCOMPARE(zoomControl.windowStart(), -1);
-            QCOMPARE(zoomControl.windowEnd(), -1);
-            QCOMPARE(zoomControl.rangeStart(), -1);
-            QCOMPARE(zoomControl.rangeEnd(), -1);
+            QCOMPARE(zoomControl.windowStart(), -1ns);
+            QCOMPARE(zoomControl.windowEnd(), -1ns);
+            QCOMPARE(zoomControl.rangeStart(), -1ns);
+            QCOMPARE(zoomControl.rangeEnd(), -1ns);
             zoomControl.clear(); // no second windowMovingChanged(false), please
         }
     });
 
-    zoomControl.setRange(180010, 180015);
+    zoomControl.setRange(180010ns, 180015ns);
 }
 
 void tst_TimelineZoomControl::range()
 {
     TimelineZoomControl zoomControl;
     QSignalSpy spy(&zoomControl, &TimelineZoomControl::rangeChanged);
-    QCOMPARE(zoomControl.rangeStart(), -1);
-    QCOMPARE(zoomControl.rangeEnd(), -1);
-    QCOMPARE(zoomControl.rangeDuration(), 0);
+    QCOMPARE(zoomControl.rangeStart(), -1ns);
+    QCOMPARE(zoomControl.rangeEnd(), -1ns);
+    QCOMPARE(zoomControl.rangeDuration(), 0ns);
 
-    zoomControl.setTrace(10, 500);
-    QCOMPARE(zoomControl.rangeStart(), 10);
-    QCOMPARE(zoomControl.rangeEnd(), 10);
-    QCOMPARE(zoomControl.rangeDuration(), 0);
+    zoomControl.setTrace(10ns, 500ns);
+    QCOMPARE(zoomControl.rangeStart(), 10ns);
+    QCOMPARE(zoomControl.rangeEnd(), 10ns);
+    QCOMPARE(zoomControl.rangeDuration(), 0ns);
     QCOMPARE(spy.count(), 1);
 
-    zoomControl.setRange(100, 200);
-    QCOMPARE(zoomControl.rangeStart(), 100);
-    QCOMPARE(zoomControl.rangeEnd(), 200);
-    QCOMPARE(zoomControl.rangeDuration(), 100);
+    zoomControl.setRange(100ns, 200ns);
+    QCOMPARE(zoomControl.rangeStart(), 100ns);
+    QCOMPARE(zoomControl.rangeEnd(), 200ns);
+    QCOMPARE(zoomControl.rangeDuration(), 100ns);
     QCOMPARE(spy.count(), 2);
 
     zoomControl.clear();
-    QCOMPARE(zoomControl.rangeStart(), -1);
-    QCOMPARE(zoomControl.rangeEnd(), -1);
-    QCOMPARE(zoomControl.rangeDuration(), 0);
+    QCOMPARE(zoomControl.rangeStart(), -1ns);
+    QCOMPARE(zoomControl.rangeEnd(), -1ns);
+    QCOMPARE(zoomControl.rangeDuration(), 0ns);
     QCOMPARE(spy.count(), 3);
 }
 
@@ -178,21 +179,21 @@ void tst_TimelineZoomControl::selection()
 {
     TimelineZoomControl zoomControl;
     QSignalSpy spy(&zoomControl, &TimelineZoomControl::selectionChanged);
-    QCOMPARE(zoomControl.selectionStart(), -1);
-    QCOMPARE(zoomControl.selectionEnd(), -1);
-    QCOMPARE(zoomControl.selectionDuration(), 0);
+    QCOMPARE(zoomControl.selectionStart(), -1ns);
+    QCOMPARE(zoomControl.selectionEnd(), -1ns);
+    QCOMPARE(zoomControl.selectionDuration(), 0ns);
 
-    zoomControl.setTrace(10, 500);
-    zoomControl.setSelection(100, 200);
-    QCOMPARE(zoomControl.selectionStart(), 100);
-    QCOMPARE(zoomControl.selectionEnd(), 200);
-    QCOMPARE(zoomControl.selectionDuration(), 100);
+    zoomControl.setTrace(10ns, 500ns);
+    zoomControl.setSelection(100ns, 200ns);
+    QCOMPARE(zoomControl.selectionStart(), 100ns);
+    QCOMPARE(zoomControl.selectionEnd(), 200ns);
+    QCOMPARE(zoomControl.selectionDuration(), 100ns);
     QCOMPARE(spy.count(), 1);
 
     zoomControl.clear();
-    QCOMPARE(zoomControl.selectionStart(), -1);
-    QCOMPARE(zoomControl.selectionEnd(), -1);
-    QCOMPARE(zoomControl.selectionDuration(), 0);
+    QCOMPARE(zoomControl.selectionStart(), -1ns);
+    QCOMPARE(zoomControl.selectionEnd(), -1ns);
+    QCOMPARE(zoomControl.selectionDuration(), 0ns);
     QCOMPARE(spy.count(), 2);
 }
 

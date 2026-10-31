@@ -36,7 +36,7 @@ struct SamplerOptions
 {
     qint64 pid = 0;       // Process id to attach to; 0 selects by processName instead.
     QString processName;  // Executable basename to attach to, e.g. "Qt Creator".
-    int intervalUs = 200; // Target delay between samples; 0 = as fast as possible.
+    std::chrono::microseconds interval{200}; // Target delay between samples; 0 = as fast as possible.
     // Polled from the sampling thread; while it returns true, nothing is sampled
     // and the target runs undisturbed. Unset means never paused.
     std::function<bool()> isPaused;
@@ -63,8 +63,8 @@ signals:
 struct RecordingSession : std::enable_shared_from_this<RecordingSession>
 {
     // Inputs, set before recording starts.
-    int intervalUs = 200;            // Backend-specific cadence hint.
-    QString processName;             // Attach-by-name target, used when pid == 0.
+    std::chrono::microseconds interval{200}; // Backend-specific cadence hint.
+    QString processName;                     // Attach-by-name target, used when pid == 0.
 
     // QmlDebug::ProfileFeature bitmask to record for protocol-based backends; 0
     // means "record everything". Carried on the session so a composite backend
@@ -223,9 +223,9 @@ struct RecordingSession : std::enable_shared_from_this<RecordingSession>
         m_paused = paused;
         {
             QMutexLocker lock(&m_pauseIntervalsMutex);
-            const qint64 now = steadyNowNs();
+            const std::chrono::nanoseconds now = steadyNow();
             if (paused)
-                m_pauseIntervals.push_back({now, -1});
+                m_pauseIntervals.push_back({now, std::chrono::nanoseconds(-1)});
             else if (!m_pauseIntervals.empty())
                 m_pauseIntervals.back().second = now;
         }
@@ -242,26 +242,28 @@ struct RecordingSession : std::enable_shared_from_this<RecordingSession>
 
     bool isStopRequested() const { return m_stopRequested; }
 
-    // The pauses so far as (start, end) on the steady_clock timeline, in
-    // nanoseconds; the end is -1 for one still going on. Safe from any thread.
+    // The pauses so far as (start, end) on the steady_clock timeline; the end
+    // is -1 ns for one still going on. Safe from any thread.
     // A capture that cannot stop at the moment of a pause, because what it
     // reads is delivered late, judges each sample by when it was taken with
     // this, rather than by isPaused() at the time it gets to it.
-    std::vector<std::pair<qint64, qint64>> pausedIntervals() const
+    std::vector<std::pair<std::chrono::nanoseconds, std::chrono::nanoseconds>>
+    pausedIntervals() const
     {
         QMutexLocker lock(&m_pauseIntervalsMutex);
         return m_pauseIntervals;
     }
 
-    // Whether the recording was paused at `steadyNs` on the steady_clock
+    // Whether the recording was paused at `steadyTime` on the steady_clock
     // timeline, whatever its state is now.
-    bool wasPausedAt(qint64 steadyNs) const
+    bool wasPausedAt(std::chrono::nanoseconds steadyTime) const
     {
         QMutexLocker lock(&m_pauseIntervalsMutex);
         return std::any_of(m_pauseIntervals.cbegin(), m_pauseIntervals.cend(),
-                           [steadyNs](const std::pair<qint64, qint64> &interval) {
-                               return steadyNs >= interval.first
-                                      && (interval.second < 0 || steadyNs < interval.second);
+                           [steadyTime](const auto &interval) {
+                               return steadyTime >= interval.first
+                                      && (interval.second < std::chrono::nanoseconds(0)
+                                          || steadyTime < interval.second);
                            });
     }
 
@@ -269,26 +271,27 @@ struct RecordingSession : std::enable_shared_from_this<RecordingSession>
     // is not live yet. A composite is live from when its last side went live.
     std::chrono::nanoseconds recordedTime() const
     {
-        qint64 liveSinceNs = startedMonotonicUs.load() * 1000;
+        using std::chrono::nanoseconds;
+        nanoseconds liveSince = startedMonotonic.load();
         for (const std::shared_ptr<RecordingSession> &child : m_children)
-            liveSinceNs = std::max(liveSinceNs, child->startedMonotonicUs.load() * 1000);
-        if (!isStarted() || liveSinceNs < 0)
+            liveSince = std::max<nanoseconds>(liveSince, child->startedMonotonic.load());
+        if (!isStarted() || liveSince < nanoseconds(0))
             return {};
-        const qint64 now = steadyNowNs();
-        qint64 recorded = now - liveSinceNs;
+        const nanoseconds now = steadyNow();
+        nanoseconds recorded = now - liveSince;
         for (const auto &[start, end] : pausedIntervals()) {
-            const qint64 from = std::max(start, liveSinceNs);
-            const qint64 to = end < 0 ? now : end;
+            const nanoseconds from = std::max(start, liveSince);
+            const nanoseconds to = end < nanoseconds(0) ? now : end;
             if (to > from)
                 recorded -= to - from;
         }
-        return std::chrono::nanoseconds(std::max<qint64>(0, recorded));
+        return std::max(nanoseconds(0), recorded);
     }
 
-    static qint64 steadyNowNs()
+    static std::chrono::nanoseconds steadyNow()
     {
         return std::chrono::duration_cast<std::chrono::nanoseconds>(
-                   std::chrono::steady_clock::now().time_since_epoch()).count();
+            std::chrono::steady_clock::now().time_since_epoch());
     }
 
     // Runs `handler` with the new state each time setPaused() changes it, for
@@ -348,11 +351,11 @@ struct RecordingSession : std::enable_shared_from_this<RecordingSession>
             parent->notifyReports();
     }
 
-    // Monotonic instant (steady_clock, microseconds) at which the backend went
-    // live, or -1 if it never did. steady_clock is a single process-wide timeline,
+    // Monotonic instant (steady_clock) at which the backend went live, or -1 us
+    // if it never did. steady_clock is a single process-wide timeline,
     // so two sessions recorded together are directly comparable -- this is what
     // lets a combined recording correlate its two traces onto one axis.
-    std::atomic<qint64> startedMonotonicUs = -1;
+    std::atomic<std::chrono::microseconds> startedMonotonic{std::chrono::microseconds(-1)};
 
     // Marks the capture live, stamping the monotonic instant on the first call
     // (later calls only re-set the flag). Backends call this at the exact point
@@ -360,10 +363,9 @@ struct RecordingSession : std::enable_shared_from_this<RecordingSession>
     void markStarted()
     {
         if (!m_started.exchange(true)) {
-            startedMonotonicUs.store(std::chrono::duration_cast<std::chrono::microseconds>(
-                                         std::chrono::steady_clock::now().time_since_epoch())
-                                         .count(),
-                                     std::memory_order_relaxed);
+            startedMonotonic.store(std::chrono::duration_cast<std::chrono::microseconds>(
+                                       std::chrono::steady_clock::now().time_since_epoch()),
+                                   std::memory_order_relaxed);
             notifyReports();
         }
     }
@@ -386,7 +388,7 @@ private:
     // Atomic because a sampling thread polls it (see SamplerOptions::isPaused).
     std::atomic_bool m_paused = false;
     mutable QMutex m_pauseIntervalsMutex;
-    std::vector<std::pair<qint64, qint64>> m_pauseIntervals;
+    std::vector<std::pair<std::chrono::nanoseconds, std::chrono::nanoseconds>> m_pauseIntervals;
     std::vector<std::pair<QPointer<QObject>, std::function<void(bool)>>> m_pauseHandlers;
 
     std::vector<std::shared_ptr<RecordingSession>> m_children;

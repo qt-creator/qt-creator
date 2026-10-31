@@ -15,6 +15,7 @@
 #include <QScopeGuard>
 #include <QVarLengthArray>
 
+#include <chrono>
 #include <vector>
 
 using namespace Utils;
@@ -31,6 +32,7 @@ using namespace Utils;
 #include <time.h>
 
 using namespace Qt::StringLiterals;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 namespace {
@@ -44,7 +46,7 @@ constexpr quint64 kVaMask = 0x0000FFFFFFFFFFFFULL;
 // currently executing function).
 struct Sample
 {
-    quint64 timestampUs = 0;
+    microseconds timestamp{0};
     quint64 tid = 0;
     // Scheduler run state at capture: TH_STATE_RUNNING means runnable/running,
     // read under task_suspend, so it is a best-effort "on-CPU" indicator.
@@ -52,9 +54,9 @@ struct Sample
     std::vector<quint64> frames;
 };
 
-quint64 nowNs()
+nanoseconds now()
 {
-    return clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW);
+    return nanoseconds(clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW));
 }
 
 Result<pid_t> findProcessByName(const QString &name)
@@ -150,13 +152,13 @@ void walkThread(task_t task, thread_act_t thread, Sample &sample)
 // Returns true when it stopped because the Mach task went away, which is either
 // the process exiting or it exec()ing a new image.
 //
-// Sample timestamps are relative to `startNs`, which is the whole recording's
+// Sample timestamps are relative to `start`, which is the whole recording's
 // zero rather than this call's: a capture that starts over after an exec has to
 // stay on the timeline the caller anchored, or a combined recording could not
 // line the two traces up (see RecordingSession::markStarted).
 bool capture(task_t task, const SamplerOptions &opts, const std::function<bool()> &isCanceled,
-             SampleTraceData &data, LiveLabeler &labeler, quint64 &startNs, bool &live,
-             std::optional<quint64> &pausedSinceUs)
+             SampleTraceData &data, LiveLabeler &labeler, nanoseconds &start,
+             bool &live, std::optional<microseconds> &pausedSince)
 {
     std::vector<Sample> tick; // raw stacks gathered during one suspend window
 
@@ -175,8 +177,8 @@ bool capture(task_t task, const SamplerOptions &opts, const std::function<bool()
             int pid = 0;
             if (pid_for_task(task, &pid) != KERN_SUCCESS)
                 return true;
-            if (!pausedSinceUs)
-                pausedSinceUs = (nowNs() - startNs) / 1000;
+            if (!pausedSince)
+                pausedSince = duration_cast<microseconds>(now() - start);
             timespec req{0, 10 * 1000 * 1000};
             nanosleep(&req, nullptr);
             continue;
@@ -187,15 +189,16 @@ bool capture(task_t task, const SamplerOptions &opts, const std::function<bool()
             // resumed. The same goes for the moment the recording counts as
             // live, which is what a combined recording aligns its sides by.
             live = true;
-            if (pausedSinceUs)
-                startNs = nowNs();
+            if (pausedSince)
+                start = now();
             if (opts.markStarted)
                 opts.markStarted();
-        } else if (pausedSinceUs) {
-            data.pausedRangesUs.append({*pausedSinceUs, (nowNs() - startNs) / 1000});
+        } else if (pausedSince) {
+            data.pausedRanges.append(
+                {*pausedSince, duration_cast<microseconds>(now() - start)});
         }
-        pausedSinceUs.reset();
-        const quint64 elapsedNs = nowNs() - startNs;
+        pausedSince.reset();
+        const nanoseconds elapsed = now() - start;
 
         thread_act_array_t threads = nullptr;
         mach_msg_type_number_t threadCount = 0;
@@ -220,7 +223,7 @@ bool capture(task_t task, const SamplerOptions &opts, const std::function<bool()
         }
 
         task_suspend(task);
-        const quint64 tsUs = elapsedNs / 1000;
+        const microseconds timestamp = duration_cast<microseconds>(elapsed);
         tick.clear();
         for (mach_msg_type_number_t i = 0; i < threadCount; ++i) {
             thread_identifier_info_data_t idInfo;
@@ -245,7 +248,7 @@ bool capture(task_t task, const SamplerOptions &opts, const std::function<bool()
             }
 
             Sample sample;
-            sample.timestampUs = tsUs;
+            sample.timestamp = timestamp;
             sample.tid = tid;
             sample.running = running[i];
             walkThread(task, threads[i], sample);
@@ -263,7 +266,7 @@ bool capture(task_t task, const SamplerOptions &opts, const std::function<bool()
         labeler.refreshImagesIfChanged();
         for (Sample &sample : tick) {
             SampleTraceData::ThreadSample out;
-            out.tsUs = sample.timestampUs;
+            out.timestamp = sample.timestamp;
             out.tid = sample.tid;
             out.running = sample.running;
             out.frames.reserve(qsizetype(sample.frames.size()));
@@ -286,11 +289,10 @@ bool capture(task_t task, const SamplerOptions &opts, const std::function<bool()
             break;
         }
 
-        if (opts.intervalUs > 0) {
-            // Normalize into seconds + nanoseconds: tv_nsec must stay in [0, 1e9),
-            // and the multiplication must not overflow for large user-set intervals.
-            const long long ns = static_cast<long long>(opts.intervalUs) * 1000;
-            timespec req{time_t(ns / 1'000'000'000), long(ns % 1'000'000'000)};
+        if (opts.interval > 0us) {
+            // Normalize into seconds + nanoseconds: tv_nsec must stay in [0, 1e9).
+            const nanoseconds interval = opts.interval;
+            timespec req{time_t(interval / 1s), long((interval % 1s).count())};
             nanosleep(&req, nullptr);
         }
     }
@@ -336,12 +338,12 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts,
 
     SampleTraceData data;
     data.pid = quint64(pid);
-    quint64 startNs = nowNs();
+    nanoseconds start = now();
     bool live = false; // Set once the first sample window has begun; see capture().
     // Start of the pause in progress, in the trace's own microseconds. A pause
     // that ends the recording leaves no range: the trace ends where it began.
     // Kept here so that a re-attach after an exec() does not lose it.
-    std::optional<quint64> pausedSinceUs;
+    std::optional<microseconds> pausedSince;
 
     // What Qt Creator runs is started through a helper that exec()s the real
     // target (see src/tools/disclaim), and an exec replaces the Mach task the
@@ -358,8 +360,8 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts,
         // capture ends.
         Symbolicator symbolicator(task);
         LiveLabeler labeler(task, symbolicator, data);
-        const bool taskGone = capture(task, opts, isCanceled, data, labeler, startNs, live,
-                                       pausedSinceUs);
+        const bool taskGone = capture(task, opts, isCanceled, data, labeler, start, live,
+                                       pausedSince);
 
         mach_port_deallocate(mach_task_self(), task);
 

@@ -102,8 +102,8 @@ private:
     void computeMaxCacheSize();
     void resizeUnfinishedLoads();
     void flattenLoads();
-    int updateCacheCount(int m_lastCacheSizeEvent, qint64 startTime, qint64 pixSize,
-                         Item &newEvent, int typeId);
+    int updateCacheCount(int m_lastCacheSizeEvent, std::chrono::nanoseconds startTime,
+                         qint64 pixSize, Item &newEvent, int typeId);
 
     QList<Item> m_data;
     QList<Pixmap> m_pixmaps;

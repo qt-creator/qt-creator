@@ -5,8 +5,11 @@
 
 #include <QHash>
 
+#include <algorithm>
 #include <optional>
 #include <vector>
+
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -121,20 +124,20 @@ private:
     QHash<QPair<QString, QPair<QString, int>>, int> m_ids;
 };
 
-// The QML/JS call stack active at time `tsUs`, as range indices ordered
+// The QML/JS call stack active at time `timestamp`, as range indices ordered
 // root-first, or empty if no range covers that time.
-QList<int> activeRangeChain(const QList<QmlRange> &ranges, quint64 tsUs)
+QList<int> activeRangeChain(const QList<QmlRange> &ranges, microseconds timestamp)
 {
     // The innermost covering range is the one that starts latest among those
-    // that contain tsUs (ties broken by the earliest end); its parent chain is
+    // that contain timestamp (ties broken by the earliest end); its parent chain is
     // the full stack. Ranges are perfectly nested, so this is unambiguous.
     int innermost = -1;
     for (int i = 0; i < ranges.size(); ++i) {
         const QmlRange &r = ranges[i];
-        if (tsUs < r.startUs || tsUs >= r.endUs)
+        if (timestamp < r.start || timestamp >= r.end)
             continue;
-        if (innermost < 0 || r.startUs > ranges[innermost].startUs
-            || (r.startUs == ranges[innermost].startUs && r.endUs < ranges[innermost].endUs)) {
+        if (innermost < 0 || r.start > ranges[innermost].start
+            || (r.start == ranges[innermost].start && r.end < ranges[innermost].end)) {
             innermost = i;
         }
     }
@@ -202,8 +205,9 @@ SampleTraceData mergeQmlIntoSamples(
         if (run.begin == run.end)
             continue; // No engine frames: pure C++ sample, nothing to attribute.
 
-        const qint64 adjusted = qint64(sample.tsUs) + options.sampleTimeOffsetUs;
-        const QList<int> chain = activeRangeChain(qmlRanges, adjusted < 0 ? 0 : quint64(adjusted));
+        const microseconds adjusted = sample.timestamp + options.sampleTimeOffset;
+        const QList<int> chain
+            = activeRangeChain(qmlRanges, std::max(adjusted, 0us));
         if (chain.isEmpty())
             continue; // Engine active but no instrumented JS: keep engine frames.
 

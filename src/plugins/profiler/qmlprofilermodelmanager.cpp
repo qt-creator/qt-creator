@@ -19,6 +19,8 @@
 #include <functional>
 
 using namespace QmlDebug;
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 static const char *ProfileFeatureNames[] = {
@@ -176,13 +178,13 @@ void QmlProfilerModelManager::initialize()
     TimelineTraceManager::initialize();
 }
 
-void QmlProfilerModelManager::addPausedRange(qint64 start, qint64 end)
+void QmlProfilerModelManager::addPausedRange(nanoseconds start, nanoseconds end)
 {
     if (end > start)
         m_pausedRanges.append({start, end});
 }
 
-void QmlProfilerModelManager::setPausedRanges(const QList<std::pair<qint64, qint64>> &ranges)
+void QmlProfilerModelManager::setPausedRanges(const PausedRanges &ranges)
 {
     m_pausedRanges = ranges;
 }
@@ -359,9 +361,9 @@ void QmlProfilerModelManager::appendSerializedEvents(QByteArrayView events, int 
     m_eventStorage->appendSerialized(events, count);
 }
 
-void QmlProfilerModelManager::restrictToRange(qint64 start, qint64 end)
+void QmlProfilerModelManager::restrictToRange(nanoseconds start, nanoseconds end)
 {
-    m_isRestrictedToRange = (start != -1 || end != -1);
+    m_isRestrictedToRange = (start != -1ns || end != -1ns);
     restrictByFilter(rangeFilter(start, end));
 }
 
@@ -371,7 +373,7 @@ bool QmlProfilerModelManager::isRestrictedToRange() const
 }
 
 QmlProfilerModelManager::QmlEventFilter
-QmlProfilerModelManager::rangeFilter(qint64 rangeStart, qint64 rangeEnd) const
+QmlProfilerModelManager::rangeFilter(nanoseconds rangeStart, nanoseconds rangeEnd) const
 {
     return [this, rangeStart, rangeEnd] (QmlEventLoader loader) {
         // TODO: It seems that below 2 variables are passed by copy to the lambda body,
@@ -386,13 +388,13 @@ QmlProfilerModelManager::rangeFilter(qint64 rangeStart, qint64 rangeEnd) const
                    const QmlEvent &event, const QmlEventType &type) mutable {
 
             // No restrictions: load all events
-            if (rangeStart == -1 || rangeEnd == -1) {
+            if (rangeStart == -1ns || rangeEnd == -1ns) {
                 loader(event, type);
                 return true;
             }
 
             // Double-check if rangeStart has been crossed. Some versions of Qt send dirty data.
-            qint64 adjustedTimestamp = event.timestamp();
+            nanoseconds adjustedTimestamp = event.timestamp();
             if (event.timestamp() < rangeStart && !crossedRangeStart) {
                 if (type.rangeType() != UndefinedRangeType) {
                     if (event.rangeStage() == RangeStart)

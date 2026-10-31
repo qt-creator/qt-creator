@@ -31,6 +31,7 @@
 using namespace QtTaskTree;
 using namespace Utils;
 using namespace Qt::StringLiterals;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -509,7 +510,7 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
         // otherwise be gone by post-processing time -- see CapturedThreadNames.
         threadNames->snapshot(session->pid.load());
         auto *namePoll = new QTimer(&process);
-        namePoll->setInterval(500);
+        namePoll->setInterval(500ms);
         QObject::connect(namePoll, &QTimer::timeout, &process, [session, threadNames] {
             threadNames->snapshot(session->pid.load());
         });
@@ -562,8 +563,8 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
                 PerfRecordReader reader;
                 reader.setDownloadDebugInfo(downloadDebugInfo);
                 reader.setCancelCheck([&promise] { return promise.isCanceled(); });
-                reader.setSampleFilter([session](qint64 timestampNs) {
-                    return !session->wasPausedAt(timestampNs);
+                reader.setSampleFilter([session](std::chrono::nanoseconds timestamp) {
+                    return !session->wasPausedAt(timestamp);
                 });
                 reader.setDebugInfoDownloadHandler([session](int percent, const QString &urls) {
                     if (percent < 0)
@@ -603,9 +604,9 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
                     return ResultError(noSamplesError(recordOutcome->stdErr, recordOutcome->failed,
                                                       reader.receivedSamples(), lost));
                 }
-                data->pausedRangesUs = pausedRangesUs(session->pausedIntervals(),
-                                                      reader.firstTimestampNs(),
-                                                      data->samples.last().tsUs);
+                data->pausedRanges = pausedRanges(session->pausedIntervals(),
+                                                  reader.firstTimestamp(),
+                                                  data->samples.last().timestamp);
 
                 // Fill in any thread names PERF_RECORD_COMM missed from the live
                 // /proc snapshots taken during recording (see CapturedThreadNames);

@@ -8,6 +8,7 @@
 
 #include <QAbstractItemModel>
 
+#include <chrono>
 #include <memory>
 #include <vector>
 
@@ -45,9 +46,9 @@ public:
     // The model keeps the pointer; pass nullptr to clear. Resets the time range.
     void setTraceData(const SampleTraceData *data);
 
-    // Restrict aggregation to samples with startUs <= tsUs <= endUs.
+    // Restrict aggregation to samples with start <= timestamp <= end.
     // Negative values mean "no restriction".
-    void setTimeRange(qint64 startUs, qint64 endUs);
+    void setTimeRange(std::chrono::nanoseconds start, std::chrono::nanoseconds end);
 
     quint64 totalWeight() const; // counted on-CPU samples in the current range
 
@@ -86,8 +87,8 @@ private:
     void rebuild();
 
     const SampleTraceData *m_data = nullptr;
-    qint64 m_startUs = -1;
-    qint64 m_endUs = -1;
+    std::chrono::nanoseconds m_start{-1};
+    std::chrono::nanoseconds m_end{-1};
     std::unique_ptr<Node> m_root; // invisible; its children are the tree roots,
                                   // its weight is the total sample count
 };

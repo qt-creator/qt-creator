@@ -16,6 +16,7 @@
 
 using namespace Utils;
 using namespace Qt::StringLiterals;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -80,13 +81,14 @@ void PerfTraceConverter::writeMessage(const std::function<void(QDataStream &)> &
         flush();
 }
 
-void PerfTraceConverter::writeEvent(quint8 feature, quint32 pid, quint32 tid, quint64 time,
-                                    quint32 cpu, const std::function<void(QDataStream &)> &fill)
+void PerfTraceConverter::writeEvent(quint8 feature, quint32 pid, quint32 tid,
+                                    nanoseconds time, quint32 cpu,
+                                    const std::function<void(QDataStream &)> &fill)
 {
     QByteArray payload;
     QDataStream stream(&payload, QIODevice::WriteOnly);
     stream.setVersion(StreamVersion);
-    stream << feature << pid << tid << time << cpu;
+    stream << feature << pid << tid << quint64(time.count()) << cpu;
     if (fill)
         fill(stream);
     QByteArray message;
@@ -113,21 +115,23 @@ void PerfTraceConverter::finishedRound()
     // earlier ones, which the next round brings.
     flushEvents(m_previousRoundEnd);
     m_previousRoundEnd = std::max(m_previousRoundEnd, m_roundEnd);
-    m_roundEnd = 0;
+    m_roundEnd = 0ns;
 }
 
 void PerfTraceConverter::finish()
 {
-    flushEvents(std::numeric_limits<quint64>::max());
+    flushEvents(nanoseconds::max());
 }
 
-void PerfTraceConverter::flushEvents(quint64 until)
+void PerfTraceConverter::flushEvents(nanoseconds until)
 {
     // The definitions the events use are out already.
     std::stable_sort(m_round.begin(), m_round.end(),
                      [](const Event &a, const Event &b) { return a.time < b.time; });
     const auto end = std::upper_bound(m_round.cbegin(), m_round.cend(), until,
-                                      [](quint64 time, const Event &e) { return time < e.time; });
+                                      [](nanoseconds time, const Event &e) {
+                                          return time < e.time;
+                                      });
     for (auto it = m_round.cbegin(); it != end; ++it)
         m_output.append(it->message);
     m_round.erase(m_round.cbegin(), end);
@@ -334,7 +338,7 @@ void PerfTraceConverter::buildId(const PerfData::BuildId &buildId)
 void PerfTraceConverter::comm(const PerfData::Comm &comm)
 {
     const qint32 name = stringId(comm.name.toUtf8());
-    const qint64 start = comm.sampleId.hasTime ? qint64(comm.sampleId.time) : -1;
+    const qint64 start = comm.sampleId.hasTime ? comm.sampleId.time.count() : -1;
     writeMessage([&](QDataStream &s) {
         s << quint8(PerfEventType::Command) << comm.pid << comm.tid << start
           << comm.sampleId.cpu << name;
@@ -343,12 +347,13 @@ void PerfTraceConverter::comm(const PerfData::Comm &comm)
 
 void PerfTraceConverter::task(const PerfData::Task &task)
 {
-    m_latestTime = qMax(m_latestTime, task.time);
+    const nanoseconds time = task.time;
+    m_latestTime = std::max(m_latestTime, time);
     if (task.exit) {
-        writeEvent(PerfEventType::ThreadEnd, task.pid, task.tid, task.time, 0);
+        writeEvent(PerfEventType::ThreadEnd, task.pid, task.tid, time, 0);
     } else {
         m_symbolizer.addFork(task.ppid, task.pid);
-        writeEvent(PerfEventType::ThreadStart, task.pid, task.tid, task.time, 0,
+        writeEvent(PerfEventType::ThreadStart, task.pid, task.tid, time, 0,
                    [&task](QDataStream &s) { s << qint32(task.ppid); });
     }
 }
@@ -358,8 +363,9 @@ void PerfTraceConverter::contextSwitch(const PerfData::ContextSwitch &contextSwi
     const PerfData::SampleId &id = contextSwitch.sampleId;
     if (!id.hasTime)
         return; // nowhere to put it
-    m_latestTime = qMax(m_latestTime, id.time);
-    writeEvent(PerfEventType::ContextSwitchDefinition, id.pid, id.tid, id.time, id.cpu,
+    const nanoseconds time = id.time;
+    m_latestTime = std::max(m_latestTime, time);
+    writeEvent(PerfEventType::ContextSwitchDefinition, id.pid, id.tid, time, id.cpu,
                [&contextSwitch](QDataStream &s) { s << contextSwitch.out; });
 }
 
@@ -368,7 +374,7 @@ void PerfTraceConverter::lost(const PerfData::Lost &lost)
     const PerfData::SampleId &id = lost.sampleId;
     // Without a time of its own, a loss is placed where perf noticed it: at
     // the newest event.
-    const quint64 time = id.hasTime ? id.time : m_latestTime;
+    const nanoseconds time = id.hasTime ? id.time : m_latestTime;
     writeEvent(PerfEventType::LostDefinition, id.pid, id.tid, time, id.cpu,
                [&lost](QDataStream &s) { s << lost.count; });
 }
@@ -377,7 +383,8 @@ Result<> PerfTraceConverter::sample(const PerfData::Sample &sample)
 {
     if (m_canceled && *m_canceled)
         return ResultError(Tr::tr("Canceled."));
-    m_latestTime = qMax(m_latestTime, sample.time);
+    const nanoseconds time = sample.time;
+    m_latestTime = std::max(m_latestTime, time);
 
     // The call chain, innermost first, with PERF_CONTEXT_* markers saying
     // which part is the kernel's. Hypervisor frames have nothing to resolve
@@ -464,7 +471,7 @@ Result<> PerfTraceConverter::sample(const PerfData::Sample &sample)
 
     const quint8 feature = attr.type == PerfTypeTracepoint ? PerfEventType::TracePointSample
                                                            : PerfEventType::Sample;
-    writeEvent(feature, sample.pid, sample.tid, sample.time, sample.cpu, [&](QDataStream &s) {
+    writeEvent(feature, sample.pid, sample.tid, time, sample.cpu, [&](QDataStream &s) {
         s << locations << quint8(0) << values; // no frames guessed
         if (feature == PerfEventType::TracePointSample)
             s << traceData;

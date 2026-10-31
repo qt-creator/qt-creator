@@ -4,11 +4,12 @@
 
 #include "tracing_global.h"
 #include <QString>
-#include <limits>
+#include <chrono>
 
 namespace Timeline {
-QString TRACING_EXPORT formatTime(qint64 timestamp,
-                                   qint64 reference = std::numeric_limits<qint64>::max());
+QString TRACING_EXPORT formatTime(
+    std::chrono::nanoseconds time,
+    std::chrono::nanoseconds referenceTime = std::chrono::nanoseconds::max());
 QString TRACING_EXPORT formatDataSize(qint64 bytes);
 QString TRACING_EXPORT formatNumber(qint64 value);
 QString TRACING_EXPORT formatPercentage(qint64 percent);

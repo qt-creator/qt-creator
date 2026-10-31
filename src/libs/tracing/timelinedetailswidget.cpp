@@ -25,6 +25,8 @@
 #include <QStandardItemModel>
 #include <QTreeView>
 
+using namespace std::chrono;
+
 namespace Timeline {
 
 TimelineDetailsWidget::TimelineDetailsWidget(QWidget *parent)
@@ -115,9 +117,10 @@ void TimelineDetailsWidget::setData(QObject *provider, const QString &title,
     rebuildRows(content);
 }
 
-void TimelineDetailsWidget::setSelectionRange(qint64 start, qint64 end, qint64 referenceDuration)
+void TimelineDetailsWidget::setSelectionRange(nanoseconds start, nanoseconds end,
+                                              nanoseconds referenceDuration)
 {
-    const bool showRange = start < end && referenceDuration > 0;
+    const bool showRange = start < end && referenceDuration > 0ns;
     m_selectionRangeBar->setVisible(showRange);
 
     if (!showRange)
@@ -154,7 +157,7 @@ void TimelineDetailsWidget::clearContent()
 {
     m_hasData = false;
     m_titleLabel->setText(Tr::tr("No item selected"));
-    setSelectionRange(0, 0, 0);
+    setSelectionRange(0ns, 0ns, 0ns);
     rebuildRows({});
 }
 

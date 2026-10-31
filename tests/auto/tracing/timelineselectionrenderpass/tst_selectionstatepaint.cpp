@@ -9,6 +9,7 @@
 #include <QTest>
 
 using namespace Timeline;
+using namespace std::chrono;
 
 // The track painter renders all tracks in one widget; for these single-track tests
 // the item index under a point is the item of track 0.
@@ -27,7 +28,7 @@ public:
     void loadData()
     {
         for (int i = 0; i < 10; ++i)
-            insert(i * 10, 10, i);
+            insert(10ns * i, 10ns, i);
     }
 };
 
@@ -73,7 +74,7 @@ void tst_SelectionStatePaint::paintWithSelection()
         DummyModel model(&aggregator);
         model.loadData();
         painter.setTracks({&model});
-        painter.setRange(0, 100);
+        painter.setRange(0ns, 100ns);
         painter.setSelectedItem(0, 0);
         painter.repaint();
     });

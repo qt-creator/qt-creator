@@ -52,10 +52,10 @@ public:
 private:
     struct RangeStackFrame {
         RangeStackFrame() = default;
-        RangeStackFrame(int originTypeIndex, qint64 startTime) :
+        RangeStackFrame(int originTypeIndex, std::chrono::nanoseconds startTime) :
             originTypeIndex(originTypeIndex), startTime(startTime) {}
         int originTypeIndex = -1;
-        qint64 startTime = -1;
+        std::chrono::nanoseconds startTime{-1};
     };
 
     enum EventContinuation {

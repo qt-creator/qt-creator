@@ -5,6 +5,8 @@
 
 #include <utils/aspects.h>
 
+#include <chrono>
+
 namespace Profiler::Internal {
 
 // A frame slower than half the target frame rate is a perceptible stutter.
@@ -15,9 +17,9 @@ constexpr int kStutterFrameBudgets = 2;
 constexpr int kMaxTargetFrameRate = 1000;
 
 // The time a frame has at the target frame rate.
-inline qint64 frameBudgetNs(int targetFrameRate)
+inline std::chrono::nanoseconds frameBudget(int targetFrameRate)
 {
-    return 1000000000ll / targetFrameRate;
+    return std::chrono::nanoseconds(std::chrono::seconds(1)) / targetFrameRate;
 }
 
 class QmlProfilerSettings : public Utils::AspectContainer

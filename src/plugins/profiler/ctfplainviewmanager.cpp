@@ -40,8 +40,8 @@ using json = nlohmann::json;
 // A stretch of the timeline, as the zoom control states one.
 struct TimelineRange
 {
-    qint64 start = -1;
-    qint64 end = -1;
+    nanoseconds start{-1};
+    nanoseconds end{-1};
 };
 
 class CtfPlainViewManagerPrivate
@@ -156,8 +156,8 @@ static void finishLoad(CtfPlainViewManager *q, CtfPlainViewManagerPrivate *d, Do
             emit q->error(traceManager.errorString());
         } else {
             traceManager.finalize();
-            const qint64 begin = traceManager.traceBegin();
-            const qint64 end = traceManager.traceEnd() + traceManager.traceDuration() / 20;
+            const nanoseconds begin = traceManager.traceBegin();
+            const nanoseconds end = traceManager.traceEnd() + traceManager.traceDuration() / 20;
             d->zoomControl.setTrace(begin, end);
             // A kept range is held to the trace that was read, which showing
             // other providers can have made a shorter one. A range with none
@@ -327,7 +327,7 @@ void CtfPlainViewManager::clear()
 
 milliseconds CtfPlainViewManager::traceDuration() const
 {
-    return duration_cast<milliseconds>(nanoseconds{d->traceManager.traceDuration()});
+    return duration_cast<milliseconds>(d->traceManager.traceDuration());
 }
 
 } // namespace Profiler

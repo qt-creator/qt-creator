@@ -82,7 +82,7 @@ QWidgetList QmlProfilerPlainViewManager::views(QWidget *parent)
         connect(view, &QmlProfilerEventsView::gotoSourceLocation,
                 this, &QmlProfilerPlainViewManager::gotoSourceLocation);
         connect(view, &QmlProfilerEventsView::showFullRange,
-                this, [this](){ d->modelManager.restrictToRange(-1, -1); });
+                this, [this](){ d->modelManager.restrictToRange(-1ns, -1ns); });
     };
     auto flameGraphView = new Internal::FlameGraphView(&d->modelManager, parent);
     prepareEventsView(flameGraphView);
@@ -104,7 +104,7 @@ QWidgetList QmlProfilerPlainViewManager::views(QWidget *parent)
             [this, flameGraphView] { d->timelineDetails->clear(flameGraphView); });
 
     connect(dashboardView, &Internal::QmlProfilerDashboardView::timelineRangeRequested,
-            this, [this, dashboardView, traceView](qint64 start, qint64 end) {
+            this, [this, dashboardView, traceView](nanoseconds start, nanoseconds end) {
         traceView->showRange(start, end);
         emit viewSwitchRequested(traceView, dashboardView);
     });
@@ -139,7 +139,7 @@ void QmlProfilerPlainViewManager::clear()
 
 milliseconds QmlProfilerPlainViewManager::traceDuration() const
 {
-    return duration_cast<milliseconds>(nanoseconds{d->modelManager.traceDuration()});
+    return duration_cast<milliseconds>(d->modelManager.traceDuration());
 }
 
 } // namespace Profiler

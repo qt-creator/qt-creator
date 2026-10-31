@@ -9,6 +9,7 @@
 #include <QTest>
 
 using namespace QmlDebug;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -19,7 +20,8 @@ static QmlProfilerNotesModel *notesModel(QmlProfilerModelManager *manager)
     return static_cast<QmlProfilerNotesModel *>(manager->notesModel());
 }
 
-static void appendRange(QmlProfilerModelManager *manager, int typeIndex, qint64 start, qint64 end)
+static void appendRange(QmlProfilerModelManager *manager, int typeIndex,
+                        nanoseconds start, nanoseconds end)
 {
     QmlEvent event;
     event.setTypeIndex(typeIndex);
@@ -43,8 +45,8 @@ void QmlProfilerNotesModelTest::initTestCase()
     const int typeIndex = m_manager.appendEventType(
         QmlEventType(UndefinedMessage, Javascript, -1, QmlEventLocation("somefile.js", 1, 1),
                      QString("funcfunc")));
-    appendRange(&m_manager, typeIndex, 1, 10);
-    appendRange(&m_manager, typeIndex, 1, 9);
+    appendRange(&m_manager, typeIndex, 1ns, 10ns);
+    appendRange(&m_manager, typeIndex, 1ns, 9ns);
     m_manager.finalize();
 
     QCOMPARE(m_rangeModel->count(), 2);
@@ -53,7 +55,7 @@ void QmlProfilerNotesModelTest::initTestCase()
             m_innerIndex = i;
     }
     QVERIFY(m_innerIndex != -1);
-    QCOMPARE(m_rangeModel->duration(m_innerIndex), 8);
+    QCOMPARE(m_rangeModel->duration(m_innerIndex), 8ns);
 }
 
 void QmlProfilerNotesModelTest::testStashSavesRowsFromOne()
@@ -73,7 +75,7 @@ void QmlProfilerNotesModelTest::testRestoreReadsRowsFromOne()
     QmlProfilerNotesModel *model = notesModel(&m_manager);
     model->clear();
     // Saved row 2 is collapsed row 1, although start time and duration are those of row 0.
-    model->setNotes({QmlNote(0, 2, 1, 9, "inner")});
+    model->setNotes({QmlNote(0, 2, 1ns, 9ns, "inner")});
 
     model->restore();
 
@@ -87,13 +89,13 @@ void QmlProfilerNotesModelTest::testRestoreWithoutRow()
 {
     QmlProfilerNotesModel *model = notesModel(&m_manager);
     model->clear();
-    model->setNotes({QmlNote(0, -1, 1, 9, "any row")});
+    model->setNotes({QmlNote(0, -1, 1ns, 9ns, "any row")});
 
     model->restore();
 
     QCOMPARE(model->count(), 1);
     QCOMPARE(model->timelineModel(0), m_rangeModel->modelId());
-    QCOMPARE(m_rangeModel->duration(model->timelineIndex(0)), 9);
+    QCOMPARE(m_rangeModel->duration(model->timelineIndex(0)), 9ns);
 }
 
 } // namespace Profiler::Internal

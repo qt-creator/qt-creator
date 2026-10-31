@@ -17,13 +17,14 @@ using namespace Layouting;
 using namespace Utils;
 using namespace Utils::StyleHelper;
 using namespace Qt::StringLiterals;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
-static QString elapsedTimeFormatted(const qint64 ms)
+static QString elapsedTimeFormatted(milliseconds time)
 {
-    const QTime t = QTime::fromMSecsSinceStartOfDay(int(ms % (24 * 60 * 60 * 1000)));
-    const QString format = ms >= 60 * 60 * 1000 ? "HH:mm:ss"_L1 : "mm:ss.zzz"_L1;
+    const QTime t = QTime::fromMSecsSinceStartOfDay(int((time % 24h).count()));
+    const QString format = time >= 1h ? "HH:mm:ss"_L1 : "mm:ss.zzz"_L1;
     return t.toString(format);
 }
 
@@ -31,7 +32,7 @@ RecordingPage::RecordingPage(QWidget *parent)
     : QWidget(parent)
 {
     m_tick = new QTimer(this);
-    m_tick->setInterval(100);
+    m_tick->setInterval(100ms);
     connect(m_tick, &QTimer::timeout, this, &RecordingPage::updateElapsed);
 
     m_progressBar = new QtcProgressBar;
@@ -64,7 +65,7 @@ RecordingPage::RecordingPage(QWidget *parent)
                         QtDesignWidgets::Label {
                             bindTo(&m_timerLabel),
                             role(QtcLabel::Secondary),
-                            text(elapsedTimeFormatted(0)),
+                            text(elapsedTimeFormatted(0ms)),
                         },
                         spacing(bigSpacing),
                         m_progressBar,
@@ -122,7 +123,7 @@ void RecordingPage::showWaiting(const QString &processName)
     m_processName = processName;
     m_capturing = false;
     m_paused = false;
-    m_recordedMs = 0;
+    m_recorded = 0ms;
     m_pauseButton->setEnabled(true);
     m_pauseButton->setText(Tr::tr("Pause"));
     m_pauseButton->setToolTip(Tr::tr("Pause recording without ending it."));
@@ -140,7 +141,7 @@ void RecordingPage::showWaiting(const QString &processName)
 void RecordingPage::captureRunning(std::chrono::milliseconds recorded)
 {
     captureStarted();
-    m_recordedMs = recorded.count();
+    m_recorded = recorded;
     updateElapsed();
 }
 
@@ -169,7 +170,7 @@ void RecordingPage::setPaused(bool paused)
                                      : Tr::tr("Pause recording without ending it."));
     if (paused) {
         if (m_tick->isActive()) {
-            m_recordedMs += m_elapsed.elapsed();
+            m_recorded += milliseconds(m_elapsed.elapsed());
             m_tick->stop();
         }
     } else if (m_capturing) {
@@ -229,8 +230,8 @@ void RecordingPage::stop()
 
 void RecordingPage::updateElapsed()
 {
-    const qint64 current = m_tick->isActive() ? m_elapsed.elapsed() : 0;
-    m_timerLabel->setText(elapsedTimeFormatted(m_recordedMs + current));
+    const milliseconds current = m_tick->isActive() ? milliseconds(m_elapsed.elapsed()) : 0ms;
+    m_timerLabel->setText(elapsedTimeFormatted(m_recorded + current));
 }
 
 } // namespace Profiler::Internal

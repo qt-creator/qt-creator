@@ -12,6 +12,7 @@
 #include <QTest>
 
 using namespace QmlDebug;
+using namespace std::chrono;
 namespace Profiler::Internal {
 
 QmlProfilerAnimationsModelTest::QmlProfilerAnimationsModelTest()
@@ -32,7 +33,7 @@ void QmlProfilerAnimationsModelTest::initTestCase()
                            QmlEventType(Event, UndefinedRangeType, AnimationFrame)));
 
     for (int i = 0; i < 10; ++i) {
-        event.setTimestamp(i);
+        event.setTimestamp(nanoseconds(i));
         event.setNumbers<int>({frameRate(i), 9 - i, (i % 2) ? RenderThread : GuiThread});
         manager.appendEvent(QmlEvent(event));
     }
@@ -140,7 +141,7 @@ void QmlProfilerAnimationsModelTest::testDetails()
     for (int i = 0; i < 10; ++i) {
         Timeline::ItemDetails details = model.details(i);
         QCOMPARE(details["displayName"], model.displayName());
-        QCOMPARE(details[Tr::tr("Duration")], Timeline::formatTime(1));
+        QCOMPARE(details[Tr::tr("Duration")], Timeline::formatTime(1ns));
         QCOMPARE(details[Tr::tr("Framerate")],
                 QString::fromLatin1("%1 FPS").arg(frameRate(i)));
         QCOMPARE(details[Tr::tr("Animations")], QString::number(9 - i));

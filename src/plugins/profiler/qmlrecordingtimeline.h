@@ -5,6 +5,7 @@
 
 #include <QtGlobal>
 
+#include <chrono>
 #include <optional>
 #include <utility>
 
@@ -20,7 +21,7 @@ public:
     void reset() { m_offset.reset(); }
 
     // The server started a trace at `time`. Returns that time on the timeline.
-    qint64 traceStarted(qint64 time)
+    std::chrono::nanoseconds traceStarted(std::chrono::nanoseconds time)
     {
         if (!m_offset)
             m_offset = time;
@@ -28,10 +29,13 @@ public:
     }
 
     // Anything reported before the first trace is at its start.
-    qint64 map(qint64 time) const { return qMax<qint64>(0, time - m_offset.value_or(time)); }
+    std::chrono::nanoseconds map(std::chrono::nanoseconds time) const
+    {
+        return std::max(std::chrono::nanoseconds(0), time - m_offset.value_or(time));
+    }
 
 private:
-    std::optional<qint64> m_offset;
+    std::optional<std::chrono::nanoseconds> m_offset;
 };
 
 // Tells apart the two things the QML debug server means by ending a trace: that
@@ -44,14 +48,14 @@ class QmlPauseTracker
 {
 public:
     enum class TraceEnd { Pause, Recording };
-    using Range = std::pair<qint64, qint64>;
+    using Range = std::pair<std::chrono::nanoseconds, std::chrono::nanoseconds>;
 
     // The server was asked to start a trace, and will answer with one.
     void startRequested() { ++m_unansweredStarts; }
     void stopRequested() { m_stopping = true; }
 
     // The server started a trace at `time`. Returns the pause that ended there.
-    std::optional<Range> traceStarted(qint64 time)
+    std::optional<Range> traceStarted(std::chrono::nanoseconds time)
     {
         if (m_unansweredStarts > 0)
             --m_unansweredStarts;
@@ -65,7 +69,7 @@ public:
     // The server ended a trace at `time`, while the recording is `paused`. A
     // trace ends the recording when nothing is still to be answered and either
     // a stop was asked for or the application ended the trace itself.
-    TraceEnd traceFinished(qint64 time, bool paused)
+    TraceEnd traceFinished(std::chrono::nanoseconds time, bool paused)
     {
         if (m_unansweredStarts == 0 && (m_stopping || !paused))
             return TraceEnd::Recording;
@@ -83,7 +87,7 @@ public:
 private:
     int m_unansweredStarts = 0;
     bool m_stopping = false;
-    std::optional<qint64> m_pauseStart;
+    std::optional<std::chrono::nanoseconds> m_pauseStart;
 };
 
 } // namespace Profiler::Internal

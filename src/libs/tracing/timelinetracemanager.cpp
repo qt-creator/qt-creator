@@ -17,6 +17,8 @@
 #include <memory>
 #include <optional>
 
+using namespace std::chrono;
+
 namespace Timeline {
 
 TraceEventTypeStorage::~TraceEventTypeStorage()
@@ -48,8 +50,8 @@ public:
     QList<Preparer> preparers;
     QList<Clearer> clearers;
 
-    qint64 traceStart = -1;
-    qint64 traceEnd = -1;
+    nanoseconds traceStart{-1};
+    nanoseconds traceEnd{-1};
     bool prepared = false;
 
     // A load() worker thread keeps calling loadEvent() on the timeline models
@@ -85,7 +87,7 @@ public:
     void finishReplaying();
     void dispatch(const TraceEvent &event, const TraceEventType &type);
     void reset();
-    void updateTraceTime(qint64 time);
+    void updateTraceTime(nanoseconds time);
 };
 
 TimelineTraceManager::TimelineTraceManager(std::unique_ptr<TraceEventStorage> &&eventStorage,
@@ -407,9 +409,9 @@ void TimelineTraceManager::startLoad(const QString &filename, QFutureInterface<v
             // Only now the worker thread has stopped calling loadEvent().
             clearAll();
         } else {
-            if (reader->traceStart() >= 0)
+            if (reader->traceStart() >= 0ns)
                 decreaseTraceStart(reader->traceStart());
-            if (reader->traceEnd() >= 0)
+            if (reader->traceEnd() >= 0ns)
                 increaseTraceEnd(reader->traceEnd());
             finalize();
 
@@ -431,51 +433,51 @@ void TimelineTraceManager::startLoad(const QString &filename, QFutureInterface<v
     watcher->setFuture(fi.future());
 }
 
-qint64 TimelineTraceManager::traceStart() const
+nanoseconds TimelineTraceManager::traceStart() const
 {
     return d->traceStart;
 }
 
-qint64 TimelineTraceManager::traceEnd() const
+nanoseconds TimelineTraceManager::traceEnd() const
 {
     return d->traceEnd;
 }
 
-qint64 TimelineTraceManager::traceDuration() const
+nanoseconds TimelineTraceManager::traceDuration() const
 {
     return traceEnd() - traceStart();
 }
 
-void TimelineTraceManager::decreaseTraceStart(qint64 start)
+void TimelineTraceManager::decreaseTraceStart(nanoseconds start)
 {
-    QTC_ASSERT(start >= 0, return);
-    if (d->traceStart > start || d->traceStart == -1) {
+    QTC_ASSERT(start >= 0ns, return);
+    if (d->traceStart > start || d->traceStart == -1ns) {
         d->traceStart = start;
-        if (d->traceEnd == -1)
+        if (d->traceEnd == -1ns)
             d->traceEnd = d->traceStart;
         else
             QTC_ASSERT(d->traceEnd >= d->traceStart, d->traceEnd = d->traceStart);
     }
 }
 
-void TimelineTraceManager::increaseTraceEnd(qint64 end)
+void TimelineTraceManager::increaseTraceEnd(nanoseconds end)
 {
-    QTC_ASSERT(end >= 0, return);
-    if (d->traceEnd < end || d->traceEnd == -1) {
+    QTC_ASSERT(end >= 0ns, return);
+    if (d->traceEnd < end || d->traceEnd == -1ns) {
         d->traceEnd = end;
-        if (d->traceStart == -1)
+        if (d->traceStart == -1ns)
             d->traceStart = d->traceEnd;
         else
             QTC_ASSERT(d->traceEnd >= d->traceStart, d->traceStart = d->traceEnd);
     }
 }
 
-void TimelineTraceManager::TimelineTraceManagerPrivate::updateTraceTime(qint64 time)
+void TimelineTraceManager::TimelineTraceManagerPrivate::updateTraceTime(nanoseconds time)
 {
-    QTC_ASSERT(time >= 0, return);
-    if (traceStart > time || traceStart == -1)
+    QTC_ASSERT(time >= 0ns, return);
+    if (traceStart > time || traceStart == -1ns)
         traceStart = time;
-    if (traceEnd < time || traceEnd == -1)
+    if (traceEnd < time || traceEnd == -1ns)
         traceEnd = time;
     QTC_ASSERT(traceEnd >= traceStart, traceStart = traceEnd);
 }
@@ -667,7 +669,7 @@ void TimelineTraceManager::TimelineTraceManagerPrivate::dispatch(const TraceEven
                                                                  const TraceEventType &type)
 {
     q->loadEvent(event, type);
-    if (event.timestamp() >= 0)
+    if (event.timestamp() >= 0ns)
         updateTraceTime(event.timestamp());
     ++numEvents;
 }
@@ -686,8 +688,8 @@ void TimelineTraceManager::TimelineTraceManagerPrivate::cancelQueuedLoad()
 void TimelineTraceManager::TimelineTraceManagerPrivate::reset()
 {
     prepared = false;
-    traceStart = -1;
-    traceEnd = -1;
+    traceStart = -1ns;
+    traceEnd = -1ns;
 
     for (const Clearer &clearer : std::as_const(clearers))
         clearer();

@@ -13,6 +13,8 @@
 #include <QMetaEnum>
 
 using namespace QmlDebug;
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 InputEventsModel::InputEventsModel(QmlProfilerModelManager *manager,
@@ -121,7 +123,7 @@ void InputEventsModel::loadEvent(const QmlEvent &event, const QmlEventType &type
 {
     if (type.detailType() >= MaximumInputEventType)
         return;
-    m_data.insert(insert(event.timestamp(), 0, type.detailType()),
+    m_data.insert(insert(event.timestamp(), 0ns, type.detailType()),
                   Item(static_cast<InputEventType>(event.number<qint32>(0)),
                              event.number<qint32>(1), event.number<qint32>(2)));
 

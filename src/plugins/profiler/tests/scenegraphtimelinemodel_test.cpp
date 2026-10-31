@@ -6,6 +6,7 @@
 #include <QTest>
 
 using namespace QmlDebug;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -28,17 +29,17 @@ void SceneGraphTimelineModelTest::initTestCase()
 
     QmlEvent event;
     event.setTypeIndex(polishType);
-    event.setTimestamp(20);
+    event.setTimestamp(20ns);
     event.setNumbers({10});
     manager.appendEvent(QmlEvent(event));
 
     event.setTypeIndex(renderLoopType);
-    event.setTimestamp(30);
+    event.setTimestamp(30ns);
     event.setNumbers({0, 15, 0});
     manager.appendEvent(QmlEvent(event));
 
     event.setTypeIndex(rendererType);
-    event.setTimestamp(25);
+    event.setTimestamp(25ns);
     event.setNumbers({10, 0, 0, 0});
     manager.appendEvent(QmlEvent(event));
 

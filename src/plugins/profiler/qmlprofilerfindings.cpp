@@ -6,6 +6,8 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 static QString severityString(Finding::Severity severity)
@@ -31,7 +33,8 @@ static void insertPosition(QJsonObject &object, const QmlDebug::QmlEventLocation
     }
 }
 
-QJsonObject findingsToJson(const QList<Finding> &findings, qint64 traceStartNs, qint64 traceEndNs)
+QJsonObject findingsToJson(const QList<Finding> &findings, nanoseconds traceStart,
+                           nanoseconds traceEnd)
 {
     QJsonArray array;
     for (const Finding &finding : findings) {
@@ -42,7 +45,7 @@ QJsonObject findingsToJson(const QList<Finding> &findings, qint64 traceStartNs, 
             {"what", finding.what},
             {"why", finding.why},
             {"suggestion", finding.suggestion},
-            {"costNs", finding.costNs},
+            {"costNs", qint64(finding.cost.count())},
             {"occurrences", finding.occurrences},
         };
         insertPosition(object, finding.location);
@@ -53,7 +56,7 @@ QJsonObject findingsToJson(const QList<Finding> &findings, qint64 traceStartNs, 
                 QJsonObject detailObject{
                     {"text", detail.text},
                     {"file", detail.location.filename()},
-                    {"costNs", detail.costNs},
+                    {"costNs", qint64(detail.cost.count())},
                     {"occurrences", detail.occurrences},
                 };
                 insertPosition(detailObject, detail.location);
@@ -68,8 +71,8 @@ QJsonObject findingsToJson(const QList<Finding> &findings, qint64 traceStartNs, 
         // Consumers outside Qt Creator read this: keep the version explicit from the
         // start, so a later change to the shape is something they can detect.
         {"version", 1},
-        {"traceStartNs", traceStartNs},
-        {"traceEndNs", traceEndNs},
+        {"traceStartNs", qint64(traceStart.count())},
+        {"traceEndNs", qint64(traceEnd.count())},
         {"findings", array},
     };
 }

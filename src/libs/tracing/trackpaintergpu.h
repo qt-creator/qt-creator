@@ -96,8 +96,8 @@ private:
 
     QList<TrackGeometry> m_geometry;  // parallel to tracks(); valid for the cache key below
     bool m_geometryValid = false;
-    qint64 m_geomRangeStart = 0;
-    qint64 m_geomRangeEnd = 0;
+    std::chrono::nanoseconds m_geomRangeStart{0};
+    std::chrono::nanoseconds m_geomRangeEnd{0};
     int m_geomWidth = -1;
 
     QCanvasImage m_noteIcon;

@@ -41,6 +41,8 @@
 
 #include <cmath>
 
+using namespace std::chrono;
+
 namespace Timeline {
 
 // Off by default (QtWarningMsg); enable the overlay with
@@ -137,7 +139,7 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
         m_frameTimeLabel->adjustSize();
         m_frameTimeLabel->raise();
         auto frameTimeTimer = new QTimer(this);
-        frameTimeTimer->setInterval(500);
+        frameTimeTimer->setInterval(500ms);
         connect(frameTimeTimer, &QTimer::timeout, this, &TimelineContentWidget::updateFrameTime);
         frameTimeTimer->start();
     }
@@ -167,9 +169,9 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
     });
 
     connect(zoom, &TimelineZoomControl::selectionChanged, this,
-            [this](qint64 start, qint64 end) {
+            [this](nanoseconds start, nanoseconds end) {
         if (!m_overlay->isActive()) {
-            m_details->setSelectionRange(-1, -1, 0);
+            m_details->setSelectionRange(-1ns, -1ns, 0ns);
             return;
         }
         m_details->setSelectionRange(start, end, m_zoom->rangeDuration());
@@ -178,7 +180,7 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
             this, [this] { setSelectionRangeMode(false); });
     connect(m_overlay, &SelectionRangeOverlay::passthruClick, this,
             [this](const QPoint &viewportPos) {
-        m_details->setSelectionRange(-1, -1, 0);
+        m_details->setSelectionRange(-1ns, -1ns, 0ns);
         // viewportPos is in viewport coordinates, which match the render widget.
         int track = -1, item = -1;
         m_tracksView->itemAt(viewportPos, &track, &item);
@@ -254,7 +256,7 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
             if (rowIndex < 0 || rowIndex >= labels.size())
                 return;
             const int selId = labels.at(rowIndex).id;
-            const qint64 time = m_zoom->rangeStart();
+            const nanoseconds time = m_zoom->rangeStart();
             const int curItem = (trackIndex == m_selectedModelIndex) ? m_selectedItemIndex : -1;
             const int item = reverse
                 ? model->prevItemBySelectionId(selId, time, curItem)
@@ -299,7 +301,7 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
             this, &TimelineContentWidget::rebuildTracks);
     connect(aggregator, &TimelineModelAggregator::notesChanged,
             this, &TimelineContentWidget::updateNotes);
-    connect(m_ruler, &TimeRuler::markersChanged, this, [this](const QList<qint64> &markers) {
+    connect(m_ruler, &TimeRuler::markersChanged, this, [this](const QList<nanoseconds> &markers) {
         m_markers = markers;
         m_tracksView->setMarkers(markers);
     });
@@ -334,7 +336,7 @@ void TimelineContentWidget::setSelectionRangeMode(bool active)
     m_overlay->reset();
     m_overlay->setActive(active);
     if (!active)
-        m_details->setSelectionRange(-1, -1, 0);
+        m_details->setSelectionRange(-1ns, -1ns, 0ns);
     emit selectionRangeModeChanged(active);
 }
 
@@ -420,7 +422,7 @@ bool TimelineContentWidget::handleNativeGesture(QNativeGestureEvent *event)
     return true;
 }
 
-void TimelineContentWidget::onFramePainted(std::chrono::nanoseconds renderTime)
+void TimelineContentWidget::onFramePainted(nanoseconds renderTime)
 {
     // A single widget renders all tracks, so its paint duration is the full-frame
     // render time. (The accumulate + queued flush mirrors the per-track build so
@@ -690,7 +692,7 @@ bool TimelineContentWidget::canShowTrack(const TimelineModel *model) const
 {
     if (model->hidden())
         return false;
-    return m_zoom->traceDuration() <= 0 || !model->isEmpty();
+    return m_zoom->traceDuration() <= 0ns || !model->isEmpty();
 }
 
 int TimelineContentWidget::hiddenTrackCount() const
@@ -835,12 +837,12 @@ void TimelineContentWidget::applyHorizontalPan(int dx)
     const int viewW = m_tracksWidget->width();
     if (viewW <= 0)
         return;
-    const qint64 rangeDuration = m_zoom->rangeEnd() - m_zoom->rangeStart();
-    const qint64 dt = qRound64(double(dx) * double(rangeDuration) / double(viewW));
-    const qint64 traceStart = m_zoom->traceStart();
-    const qint64 traceEnd = m_zoom->traceEnd();
-    qint64 newStart = m_zoom->rangeStart() - dt;
-    qint64 newEnd = m_zoom->rangeEnd() - dt;
+    const nanoseconds rangeDuration = m_zoom->rangeEnd() - m_zoom->rangeStart();
+    const nanoseconds dt(qRound64(double(dx) * double(rangeDuration.count()) / double(viewW)));
+    const nanoseconds traceStart = m_zoom->traceStart();
+    const nanoseconds traceEnd = m_zoom->traceEnd();
+    nanoseconds newStart = m_zoom->rangeStart() - dt;
+    nanoseconds newEnd = m_zoom->rangeEnd() - dt;
     if (newStart < traceStart) {
         newEnd += traceStart - newStart;
         newStart = traceStart;
@@ -864,13 +866,13 @@ void TimelineContentWidget::recenterOnItem(int modelIndex, int itemIndex)
     if (modelIndex < 0 || modelIndex >= m_trackModels.size() || itemIndex < 0)
         return;
     const TimelineModel *model = m_trackModels[modelIndex];
-    const qint64 startTime = model->startTime(itemIndex);
-    const qint64 endTime = model->endTime(itemIndex);
+    const nanoseconds startTime = model->startTime(itemIndex);
+    const nanoseconds endTime = model->endTime(itemIndex);
 
     // Horizontal: bring the item into the visible time range if needed
     if (endTime < m_zoom->rangeStart() || startTime > m_zoom->rangeEnd()) {
-        const qint64 dur = m_zoom->rangeEnd() - m_zoom->rangeStart();
-        qint64 newStart = (startTime + endTime - dur) / 2;
+        const nanoseconds dur = m_zoom->rangeEnd() - m_zoom->rangeStart();
+        nanoseconds newStart = (startTime + endTime - dur) / 2;
         newStart = qBound(m_zoom->traceStart(), newStart, m_zoom->traceEnd() - dur);
         m_zoom->setRange(newStart, newStart + dur);
     }
@@ -896,20 +898,23 @@ void TimelineContentWidget::applyZoom(double cursorX, double factor)
     if (viewW <= 0)
         return;
 
-    const qint64 rangeDuration = m_zoom->rangeEnd() - m_zoom->rangeStart();
-    const qint64 newDuration = qBound(m_zoom->minimumRangeLength(),
-                                      qRound64(double(rangeDuration) * factor),
-                                      m_zoom->traceDuration());
+    const nanoseconds rangeDuration = m_zoom->rangeEnd() - m_zoom->rangeStart();
+    const nanoseconds newDuration
+        = qBound(m_zoom->minimumRangeLength(),
+                 nanoseconds(qRound64(double(rangeDuration.count()) * factor)),
+                 m_zoom->traceDuration());
 
     // Keep the time under the cursor fixed
     const double cursorFraction = qBound(0.0, cursorX / double(viewW), 1.0);
-    const qint64 cursorTime = m_zoom->rangeStart()
-                              + qRound64(cursorFraction * double(rangeDuration));
-    qint64 newStart = cursorTime - qRound64(cursorFraction * double(newDuration));
-    qint64 newEnd = newStart + newDuration;
+    const nanoseconds cursorTime
+        = m_zoom->rangeStart()
+          + nanoseconds(qRound64(cursorFraction * double(rangeDuration.count())));
+    nanoseconds newStart
+        = cursorTime - nanoseconds(qRound64(cursorFraction * double(newDuration.count())));
+    nanoseconds newEnd = newStart + newDuration;
 
-    const qint64 traceStart = m_zoom->traceStart();
-    const qint64 traceEnd = m_zoom->traceEnd();
+    const nanoseconds traceStart = m_zoom->traceStart();
+    const nanoseconds traceEnd = m_zoom->traceEnd();
     if (newStart < traceStart) {
         newEnd += traceStart - newStart;
         newStart = traceStart;

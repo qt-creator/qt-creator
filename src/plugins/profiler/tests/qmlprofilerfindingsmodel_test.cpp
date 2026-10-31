@@ -18,12 +18,13 @@
 #include <iterator>
 
 using namespace QmlDebug;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
 // 60 ms is above the rule's 50 ms threshold, 10 ms is below it.
-static const qint64 slowCompileNs = 60000000;
-static const qint64 fastCompileNs = 10000000;
+static const nanoseconds slowCompile = 60ms;
+static const nanoseconds fastCompile = 10ms;
 
 QmlProfilerFindingsModelTest::QmlProfilerFindingsModelTest()
     : model(&manager)
@@ -32,7 +33,7 @@ QmlProfilerFindingsModelTest::QmlProfilerFindingsModelTest()
 void QmlProfilerFindingsModelTest::initTestCase()
 {
     manager.initialize();
-    qint64 timestamp = 0;
+    nanoseconds timestamp{0};
 
     slowCompileTypeId = manager.numEventTypes();
     manager.appendEventType(QmlEventType(UndefinedMessage, Compiling, -1,
@@ -137,22 +138,22 @@ void QmlProfilerFindingsModelTest::initTestCase()
     blockAfterBindingTypeId = addType(Binding, "Block.qml", 66, 15);
     blockAfterJsTypeId = addType(Javascript, "Block.qml", 66, 15, "expression for when");
 
-    const auto addCompileRange = [&](int typeId, qint64 durationNs) {
+    const auto addCompileRange = [&](int typeId, nanoseconds duration) {
         QmlEvent event;
         event.setTypeIndex(typeId);
         event.setRangeStage(RangeStart);
         event.setTimestamp(timestamp);
         manager.appendEvent(QmlEvent(event));
 
-        timestamp += durationNs;
+        timestamp += duration;
         event.setRangeStage(RangeEnd);
         event.setTimestamp(timestamp);
         manager.appendEvent(std::move(event));
         ++timestamp;
     };
 
-    addCompileRange(slowCompileTypeId, slowCompileNs);
-    addCompileRange(fastCompileTypeId, fastCompileNs);
+    addCompileRange(slowCompileTypeId, slowCompile);
+    addCompileRange(fastCompileTypeId, fastCompile);
 
     // The same image fails three times: the engine retries rather than caching the failure.
     // Each attempt starts a load, so the retries look exactly like reloads until the error
@@ -183,7 +184,7 @@ void QmlProfilerFindingsModelTest::initTestCase()
         creating.setTimestamp(++timestamp);
         manager.appendEvent(QmlEvent(creating));
 
-        timestamp += 30000000; // 30 ms of building, above the 20 ms threshold
+        timestamp += 30ms; // 30 ms of building, above the 20 ms threshold
         creating.setRangeStage(RangeEnd);
         creating.setTimestamp(timestamp);
         manager.appendEvent(std::move(creating));
@@ -198,7 +199,7 @@ void QmlProfilerFindingsModelTest::initTestCase()
         QmlEvent event;
         event.setTypeIndex(timerHandlerTypeId);
         event.setRangeStage(RangeStart);
-        event.setTimestamp(timestamp += 200000000);
+        event.setTimestamp(timestamp += 200ms);
         manager.appendEvent(QmlEvent(event));
 
         event.setRangeStage(RangeEnd);
@@ -237,7 +238,7 @@ void QmlProfilerFindingsModelTest::initTestCase()
         binding.setTimestamp(++timestamp);
         manager.appendEvent(QmlEvent(binding));
 
-        timestamp += 1000000; // 1 ms
+        timestamp += 1ms;
         binding.setRangeStage(RangeEnd);
         binding.setTimestamp(timestamp);
         manager.appendEvent(std::move(binding));
@@ -252,14 +253,14 @@ void QmlProfilerFindingsModelTest::initTestCase()
         handler.setTimestamp(++timestamp);
         manager.appendEvent(QmlEvent(handler));
 
-        timestamp += 40000000;
+        timestamp += 40ms;
         handler.setRangeStage(RangeEnd);
         handler.setTimestamp(timestamp);
         manager.appendEvent(std::move(handler));
 
         QmlEvent frame;
         frame.setTypeIndex(animationTypeId);
-        frame.setTimestamp(timestamp += 10000000);
+        frame.setTimestamp(timestamp += 10ms);
         frame.setNumbers({20, 1, 0});
         manager.appendEvent(std::move(frame));
     }
@@ -274,7 +275,7 @@ void QmlProfilerFindingsModelTest::initTestCase()
         event.setTimestamp(++timestamp);
         manager.appendEvent(QmlEvent(event));
 
-        timestamp += 200000000;
+        timestamp += 200ms;
         event.setRangeStage(RangeEnd);
         event.setTimestamp(timestamp);
         manager.appendEvent(std::move(event));
@@ -289,11 +290,11 @@ void QmlProfilerFindingsModelTest::initTestCase()
         event.setTimestamp(timestamp);
         manager.appendEvent(std::move(event));
     };
-    const auto end = [&](int typeId, qint64 durationNs) {
+    const auto end = [&](int typeId, nanoseconds duration) {
         QmlEvent event;
         event.setTypeIndex(typeId);
         event.setRangeStage(RangeEnd);
-        event.setTimestamp(timestamp += durationNs);
+        event.setTimestamp(timestamp += duration);
         manager.appendEvent(std::move(event));
     };
 
@@ -306,36 +307,36 @@ void QmlProfilerFindingsModelTest::initTestCase()
     const auto addViewDelegate = [&] {
         begin(viewDelegateTypeId);
         begin(viewTextTypeId);
-        end(viewTextTypeId, 2000);
-        end(viewDelegateTypeId, 3000);
+        end(viewTextTypeId, 2000ns);
+        end(viewDelegateTypeId, 3000ns);
 
         begin(viewTextBindingTypeId);
         begin(viewTextJsTypeId);
-        end(viewTextJsTypeId, 50000);
-        end(viewTextBindingTypeId, 10000);
+        end(viewTextJsTypeId, 50000ns);
+        end(viewTextBindingTypeId, 10000ns);
         begin(viewVisibleBindingTypeId);
         begin(viewVisibleJsTypeId);
-        end(viewVisibleJsTypeId, 1000);
-        end(viewVisibleBindingTypeId, 0);
+        end(viewVisibleJsTypeId, 1000ns);
+        end(viewVisibleBindingTypeId, 0ns);
 
         begin(viewTextTypeId);
-        end(viewTextTypeId, 4000);
+        end(viewTextTypeId, 4000ns);
         begin(viewDelegateTypeId);
         begin(outsideBindingTypeId);
-        end(outsideBindingTypeId, 7000);
-        end(viewDelegateTypeId, 1000);
+        end(outsideBindingTypeId, 7000ns);
+        end(viewDelegateTypeId, 1000ns);
     };
 
     // The view creates its delegate component, fills itself while it is completed, and
     // builds the rest of its delegates later, when nothing in the trace says who asked.
     begin(viewTypeId);
     begin(viewComponentTypeId);
-    end(viewComponentTypeId, 1000);
-    end(viewTypeId, 5000);
+    end(viewComponentTypeId, 1000ns);
+    end(viewTypeId, 5000ns);
     begin(viewTypeId);
     for (int i = 0; i < 10; ++i)
         addViewDelegate();
-    end(viewTypeId, 1000);
+    end(viewTypeId, 1000ns);
     for (int i = 0; i < 240; ++i)
         addViewDelegate();
 
@@ -343,20 +344,20 @@ void QmlProfilerFindingsModelTest::initTestCase()
     // only that root is completed.
     begin(repeaterTypeId);
     begin(repeaterComponentTypeId);
-    end(repeaterComponentTypeId, 1000);
-    end(repeaterTypeId, 2000);
+    end(repeaterComponentTypeId, 1000ns);
+    end(repeaterTypeId, 2000ns);
     begin(repeaterTypeId);
     for (int i = 0; i < 220; ++i) {
         begin(wrapperTypeId);
         begin(fileRootTypeId);
-        end(fileRootTypeId, 3000);
-        end(wrapperTypeId, 1000);
+        end(fileRootTypeId, 3000ns);
+        end(wrapperTypeId, 1000ns);
         begin(fileBindingTypeId);
-        end(fileBindingTypeId, 2000);
+        end(fileBindingTypeId, 2000ns);
         begin(fileRootTypeId);
-        end(fileRootTypeId, 1000);
+        end(fileRootTypeId, 1000ns);
     }
-    end(repeaterTypeId, 1000);
+    end(repeaterTypeId, 1000ns);
 
     // Three games of 70 blocks, 100.7 us each, created by a JavaScript function called from
     // a timer's handler. The State is not completed. Component.onCompleted runs after the
@@ -371,53 +372,53 @@ void QmlProfilerFindingsModelTest::initTestCase()
 
             begin(blockTypeId);
             begin(blockStateTypeId);
-            end(blockStateTypeId, 500);
+            end(blockStateTypeId, 500ns);
             begin(blockImageTypeId);
-            end(blockImageTypeId, 1500);
-            end(blockTypeId, 2000);
+            end(blockImageTypeId, 1500ns);
+            end(blockTypeId, 2000ns);
 
             begin(blockSourceBindingTypeId);
             begin(blockSourceJsTypeId);
-            end(blockSourceJsTypeId, 30000);
-            end(blockSourceBindingTypeId, 5000);
+            end(blockSourceJsTypeId, 30000ns);
+            end(blockSourceBindingTypeId, 5000ns);
 
             begin(blockImageTypeId);
-            end(blockImageTypeId, 50000);
+            end(blockImageTypeId, 50000ns);
             begin(blockTypeId);
-            end(blockTypeId, 1000);
+            end(blockTypeId, 1000ns);
 
             // A Behavior's animation, created and completed once the block is.
             begin(blockAnimationTypeId);
-            end(blockAnimationTypeId, 400);
+            end(blockAnimationTypeId, 400ns);
             begin(blockAnimationTypeId);
-            end(blockAnimationTypeId, 100);
+            end(blockAnimationTypeId, 100ns);
 
             begin(blockCompletedTypeId);
             begin(blockCompletedJsTypeId);
-            end(blockCompletedJsTypeId, 8000);
-            end(blockCompletedTypeId, 2000);
+            end(blockCompletedJsTypeId, 8000ns);
+            end(blockCompletedTypeId, 2000ns);
 
             // The binding applies a State, which creates its changes only now.
             begin(blockAfterBindingTypeId);
             begin(blockAfterJsTypeId);
-            end(blockAfterJsTypeId, 3000);
+            end(blockAfterJsTypeId, 3000ns);
             begin(blockChangesTypeId);
-            end(blockChangesTypeId, 200);
-            end(blockAfterBindingTypeId, 0);
+            end(blockChangesTypeId, 200ns);
+            end(blockAfterBindingTypeId, 0ns);
 
-            end(createBlockTypeId, 1000);
+            end(createBlockTypeId, 1000ns);
         }
-        end(gameHandlerJsTypeId, 0);
-        end(gameHandlerTypeId, 0);
+        end(gameHandlerJsTypeId, 0ns);
+        end(gameHandlerTypeId, 0ns);
     }
 
     // A delegate built once per item of a long list, 100 us each, by C++: nothing else is
     // running when it is.
     for (int i = 0; i < 300; ++i) {
         begin(delegateTypeId);
-        end(delegateTypeId, 60000);
+        end(delegateTypeId, 60000ns);
         begin(delegateTypeId);
-        end(delegateTypeId, 40000);
+        end(delegateTypeId, 40000ns);
     }
     ++timestamp;
 
@@ -464,7 +465,7 @@ void QmlProfilerFindingsModelTest::initTestCase()
 
         QmlEvent finished;
         finished.setTypeIndex(reloadFinishTypeId);
-        finished.setTimestamp(timestamp += 2000000);
+        finished.setTimestamp(timestamp += 2ms);
         manager.appendEvent(std::move(finished));
     }
 
@@ -479,7 +480,7 @@ void QmlProfilerFindingsModelTest::testSlowCompileReported()
     });
     QVERIFY(it != findings.end());
     QCOMPARE(it->location.filename(), QString("Main.qml"));
-    QCOMPARE(it->costNs, slowCompileNs);
+    QCOMPARE(it->cost, slowCompile);
     QCOMPARE(it->occurrences, 1);
     QCOMPARE(it->typeIndex, slowCompileTypeId);
     QVERIFY(!it->why.isEmpty());
@@ -541,7 +542,7 @@ void QmlProfilerFindingsModelTest::testSyncViewLoadAttributedToHandler()
     // Reported where the fix belongs: the handler that waited, not the item it built.
     QCOMPARE(finding->location.filename(), QString("Panel.qml"));
     QCOMPARE(finding->location.line(), 42);
-    QCOMPARE(finding->costNs, 30000000);
+    QCOMPARE(finding->cost, nanoseconds(30000000));
     QCOMPARE(finding->occurrences, 1);
 }
 
@@ -568,7 +569,7 @@ void QmlProfilerFindingsModelTest::testPerFrameCostReported()
     QCOMPARE(finding->location.filename(), QString("Gauge.qml"));
     // The frames of one thread, although both of them reported every one of the first 100.
     QCOMPARE(finding->occurrences, 105); // frames the cost was spread over
-    QCOMPARE(finding->costNs, 100000000);
+    QCOMPARE(finding->cost, nanoseconds(100000000));
 }
 
 void QmlProfilerFindingsModelTest::testBlockingCallReported()
@@ -576,7 +577,7 @@ void QmlProfilerFindingsModelTest::testBlockingCallReported()
     const Finding *finding = findingAt(model.findings(), "blocking-call", "Import.qml");
     QVERIFY(finding);
     QCOMPARE(finding->location.filename(), QString("Import.qml"));
-    QCOMPARE(finding->costNs, 200000000);
+    QCOMPARE(finding->cost, nanoseconds(200000000));
     QCOMPARE(finding->occurrences, 1);
 }
 
@@ -587,7 +588,7 @@ void QmlProfilerFindingsModelTest::testFrameJankAttributedToHandler()
     // The handler that ran in the late frames, not the binding that runs in every frame.
     QCOMPARE(finding->location.filename(), QString("Chart.qml"));
     QCOMPARE(finding->occurrences, 5);
-    QCOMPARE(finding->costNs, 200000000);
+    QCOMPARE(finding->cost, nanoseconds(200000000));
 }
 
 void QmlProfilerFindingsModelTest::testMemoryChurnAttributedToCaller()
@@ -613,7 +614,7 @@ void QmlProfilerFindingsModelTest::testRepeatedCreationByView()
     QCOMPARE(finding->typeIndex, viewDelegateTypeId);
     // Each delegate is created and completed: two ranges, one instance.
     QCOMPARE(finding->occurrences, 250);
-    QCOMPARE(finding->costNs, 250 * 78000);
+    QCOMPARE(finding->cost, nanoseconds(250 * 78000));
 
     // The view is named, both for the delegates it built while it was completed and for
     // those built later, when only the component tells whose they are.
@@ -629,10 +630,10 @@ void QmlProfilerFindingsModelTest::testRepeatedCreationByView()
              qPrintable(finding->suggestion));
     QCOMPARE(finding->details.at(1).typeIndex, viewTextBindingTypeId);
     QCOMPARE(finding->details.at(1).location.line(), 17);
-    QCOMPARE(finding->details.at(1).costNs, 250 * 60000);
+    QCOMPARE(finding->details.at(1).cost, nanoseconds(250 * 60000));
     QCOMPARE(finding->details.at(1).occurrences, 250);
     QCOMPARE(finding->details.at(2).typeIndex, viewTextTypeId);
-    QCOMPARE(finding->details.at(2).costNs, 250 * (2000 + 4000));
+    QCOMPARE(finding->details.at(2).cost, nanoseconds(250 * (2000 + 4000)));
 
     // A binding elsewhere that ran while the delegate was built is not one of its parts.
     for (const FindingDetail &detail : finding->details)
@@ -654,7 +655,7 @@ void QmlProfilerFindingsModelTest::testRepeatedCreationByRepeaterOfFileDelegate(
     QCOMPARE(finding->typeIndex, wrapperTypeId);
     // The wrapper of a file's root is never completed, so a new wrapper is a new instance.
     QCOMPARE(finding->occurrences, 220);
-    QCOMPARE(finding->costNs, 220 * 7000);
+    QCOMPARE(finding->cost, nanoseconds(220 * 7000));
     QVERIFY2(finding->what.contains("Repeater at List.qml:20"), qPrintable(finding->what));
     // A Repeater has no pool to reuse delegates from.
     QVERIFY2(!finding->suggestion.contains("reuseItems: true"), qPrintable(finding->suggestion));
@@ -674,7 +675,7 @@ void QmlProfilerFindingsModelTest::testRepeatedCreationFromScript()
     // Building a block includes its bindings, its onCompleted handler and the objects
     // created for it later, but not the binding that runs once createBlock() moves the
     // finished block.
-    QCOMPARE(finding->costNs, 210 * (100000 + 500 + 200));
+    QCOMPARE(finding->cost, nanoseconds(210 * (100000 + 500 + 200)));
 
     QVERIFY2(finding->what.contains("createBlock() at game.js:321"), qPrintable(finding->what));
     // No view is involved, so there is no view to ask for reuse.
@@ -700,7 +701,7 @@ void QmlProfilerFindingsModelTest::testRepeatedCreationFromScript()
         return detail.typeIndex == blockSourceBindingTypeId;
     });
     QVERIFY(source != finding->details.end());
-    QCOMPARE(source->costNs, 210 * 35000);
+    QCOMPARE(source->cost, nanoseconds(210 * 35000));
     QCOMPARE(source->occurrences, 210);
 }
 
@@ -709,7 +710,7 @@ void QmlProfilerFindingsModelTest::testRepeatedCreationWithoutContext()
     const Finding *finding = findingAt(model.findings(), "repeated-creation", "Row.qml");
     QVERIFY(finding);
     QCOMPARE(finding->occurrences, 300);
-    QCOMPARE(finding->costNs, 30000000);
+    QCOMPARE(finding->cost, nanoseconds(30000000));
     // Nothing in the trace says what built these, so nothing is claimed about it.
     QVERIFY2(finding->why.contains("C++"), qPrintable(finding->why));
     QVERIFY(!finding->suggestion.contains("reuseItems"));
@@ -726,7 +727,7 @@ void QmlProfilerFindingsModelTest::testSyncViewLoadNamesWhatItBuilds()
     // the calls of it rather than the ranges inside them.
     QCOMPARE(finding->typeIndex, gameHandlerTypeId);
     QCOMPARE(finding->occurrences, 3);
-    QCOMPARE(finding->costNs, 210 * (100000 + 500 + 200));
+    QCOMPARE(finding->cost, nanoseconds(210 * (100000 + 500 + 200)));
     QVERIFY2(finding->suggestion.contains("incubateObject()"), qPrintable(finding->suggestion));
 
     QCOMPARE(finding->details.size(), 2);
@@ -782,7 +783,7 @@ void QmlProfilerFindingsModelTest::testPixmapReloadReported()
     QVERIFY(finding);
     QCOMPARE(finding->location.filename(), QString("qrc:/tile.png"));
     QCOMPARE(finding->occurrences, 4);
-    QCOMPARE(finding->costNs, 8000000);
+    QCOMPARE(finding->cost, nanoseconds(8000000));
 
     // The image that never loads started as many loads as the threshold asks for, but it
     // is reported as an error, not as a reload.
@@ -804,7 +805,7 @@ void QmlProfilerFindingsModelTest::testSeverityOrdering()
 
 void QmlProfilerFindingsModelTest::testJsonExport()
 {
-    const QJsonObject json = findingsToJson(model.findings(), 100, 900);
+    const QJsonObject json = findingsToJson(model.findings(), 100ns, 900ns);
     QCOMPARE(json.value("version").toInt(), 1);
     QCOMPARE(json.value("traceStartNs").toInteger(), 100);
     QCOMPARE(json.value("traceEndNs").toInteger(), 900);
@@ -949,9 +950,9 @@ private:
 class FixedBudgetPerFrameCostRule final : public FindingRule
 {
 public:
-    FixedBudgetPerFrameCostRule(quint64 features, qint64 budgetNs)
+    FixedBudgetPerFrameCostRule(quint64 features, nanoseconds budget)
         : m_features(features)
-        , m_budgetNs(budgetNs)
+        , m_budget(budget)
     {}
 
     quint64 features() const override { return m_features; }
@@ -965,7 +966,7 @@ public:
         }
         if (type.rangeType() != Binding && type.rangeType() != Javascript)
             return;
-        QList<qint64> &starts = m_starts[event.typeIndex()];
+        QList<nanoseconds> &starts = m_starts[event.typeIndex()];
         if (event.rangeStage() == RangeStart) {
             starts.append(event.timestamp());
         } else if (event.rangeStage() == RangeEnd && !starts.isEmpty()) {
@@ -979,19 +980,19 @@ public:
         if (m_frames == 0)
             return findings;
         for (auto it = m_totals.constBegin(), end = m_totals.constEnd(); it != end; ++it) {
-            const qint64 perFrame = it.value() / m_frames;
-            if (perFrame < m_budgetNs)
+            const nanoseconds perFrame = it.value() / m_frames;
+            if (perFrame < m_budget)
                 continue;
             Finding finding;
             finding.ruleId = "per-frame-cost";
             finding.location = manager->eventType(it.key()).location();
             finding.typeIndex = it.key();
-            finding.costNs = it.value();
+            finding.cost = it.value();
             finding.occurrences = m_frames;
             finding.what = Tr::tr("Costs %1 ms per rendered frame (%2 ms over %n frame(s)).",
                                   nullptr, m_frames)
-                               .arg(perFrame / 1000000.0, 0, 'f', 2)
-                               .arg(it.value() / 1000000);
+                               .arg(duration<double, std::milli>(perFrame).count(), 0, 'f', 2)
+                               .arg(duration_cast<milliseconds>(it.value()).count());
             finding.why = Tr::tr("Work of this size, repeated for every frame, leaves less of the "
                                  "frame for everything else that has to happen in it.");
             finding.suggestion = Tr::tr("Look for a value that is recomputed although it did not "
@@ -1006,19 +1007,19 @@ public:
 
 private:
     const quint64 m_features;
-    const qint64 m_budgetNs;
+    const nanoseconds m_budget;
     FixedFrameThread m_frameThread;
     int m_frames = 0;
-    QMap<int, QList<qint64>> m_starts;
-    QMap<int, qint64> m_totals; // by type index, as the rule reports them
+    QMap<int, QList<nanoseconds>> m_starts;
+    QMap<int, nanoseconds> m_totals; // by type index, as the rule reports them
 };
 
 class FixedBudgetFrameJankRule final : public FindingRule
 {
 public:
-    FixedBudgetFrameJankRule(quint64 features, qint64 budgetNs)
+    FixedBudgetFrameJankRule(quint64 features, nanoseconds budget)
         : m_features(features)
-        , m_budgetNs(budgetNs)
+        , m_budget(budget)
     {}
 
     quint64 features() const override { return m_features; }
@@ -1028,7 +1029,7 @@ public:
         if (type.message() == Event && type.detailType() == AnimationFrame) {
             if (!m_frameThread.accepts(event))
                 return;
-            if (m_lastFrameEnd >= 0 && event.timestamp() - m_lastFrameEnd > m_budgetNs) {
+            if (m_lastFrameEnd >= 0ns && event.timestamp() - m_lastFrameEnd > m_budget) {
                 ++m_jankyFrames;
                 for (auto it = m_pending.constBegin(), end = m_pending.constEnd(); it != end;
                      ++it) {
@@ -1051,7 +1052,7 @@ public:
             for (int i = m_open.size() - 1; i >= 0; --i) {
                 if (m_open.at(i).first != event.typeIndex())
                     continue;
-                const qint64 start = m_open.at(i).second;
+                const nanoseconds start = m_open.at(i).second;
                 m_open.resize(i);
                 if (m_open.isEmpty())
                     m_pending[event.typeIndex()] += event.timestamp() - start;
@@ -1064,18 +1065,19 @@ public:
     {
         QList<Finding> findings;
         for (auto it = m_cost.constBegin(), end = m_cost.constEnd(); it != end; ++it) {
-            if (it.value() < m_budgetNs)
+            if (it.value() < m_budget)
                 continue;
             Finding finding;
             finding.ruleId = "frame-jank";
             finding.location = manager->eventType(it.key()).location();
             finding.typeIndex = it.key();
-            finding.costNs = it.value();
+            finding.cost = it.value();
             finding.occurrences = m_frames.value(it.key());
             finding.what = Tr::tr("Runs for %1 ms inside %2 of the %n frame(s) that took longer "
                                   "than %3 ms.", nullptr, m_jankyFrames)
-                               .arg(it.value() / 1000000).arg(m_frames.value(it.key()))
-                               .arg(m_budgetNs / 1000000);
+                               .arg(duration_cast<milliseconds>(it.value()).count())
+                               .arg(m_frames.value(it.key()))
+                               .arg(duration_cast<milliseconds>(m_budget).count());
             finding.why = Tr::tr("The frame could not be finished while this was running, so it "
                                  "stayed on screen for as long as the work took. Work that lands "
                                  "in a few frames is seen as a jump, not as a slowdown.");
@@ -1092,13 +1094,13 @@ public:
 
 private:
     const quint64 m_features;
-    const qint64 m_budgetNs;
+    const nanoseconds m_budget;
     FixedFrameThread m_frameThread;
-    QList<std::pair<int, qint64>> m_open;
-    QMap<int, qint64> m_pending;
-    QMap<int, qint64> m_cost; // by type index, as the rule reports them
+    QList<std::pair<int, nanoseconds>> m_open;
+    QMap<int, nanoseconds> m_pending;
+    QMap<int, nanoseconds> m_cost; // by type index, as the rule reports them
     QMap<int, int> m_frames;
-    qint64 m_lastFrameEnd = -1;
+    nanoseconds m_lastFrameEnd{-1};
     int m_jankyFrames = 0;
 };
 
@@ -1106,7 +1108,7 @@ private:
 // above. They are the only ones that ask for animation frames.
 static FindingRules fixedBudgetRules(int targetFrameRate)
 {
-    const qint64 budgetNs = 1000000000ll / targetFrameRate;
+    const nanoseconds budget = nanoseconds(1s) / targetFrameRate;
     FindingRules rules = defaultFindingRules();
     int replaced = 0;
     for (std::unique_ptr<FindingRule> &rule : rules) {
@@ -1116,10 +1118,10 @@ static FindingRules fixedBudgetRules(int targetFrameRate)
         ++replaced;
         if (features & (1ULL << ProfileHandlingSignal)) {
             rule = std::make_unique<FixedBudgetFrameJankRule>(features,
-                                                              budgetNs * kStutterFrameBudgets);
+                                                              budget * kStutterFrameBudgets);
         } else {
             rule = std::make_unique<FixedBudgetPerFrameCostRule>(
-                features, budgetNs * globalSettings().findingsPerFrameCostPercent() / 100);
+                features, budget * globalSettings().findingsPerFrameCostPercent() / 100);
         }
     }
     QTC_CHECK(replaced == 2);
@@ -1129,7 +1131,7 @@ static FindingRules fixedBudgetRules(int targetFrameRate)
 // Everything a finding says, in order, for comparing two lists of them.
 static QString describe(const QList<Finding> &findings)
 {
-    QJsonObject json = findingsToJson(findings, 0, 0);
+    QJsonObject json = findingsToJson(findings, 0ns, 0ns);
     QJsonArray typeIndices;
     for (const Finding &finding : findings)
         typeIndices.append(finding.typeIndex);
@@ -1174,7 +1176,7 @@ static void loadMixedFrames(QmlProfilerModelManager &manager)
         seed = seed * 1664525u + 1013904223u;
         return (seed >> 8) % bound;
     };
-    const auto range = [&](int typeIndex, qint64 start, qint64 end) {
+    const auto range = [&](int typeIndex, nanoseconds start, nanoseconds end) {
         QmlEvent event;
         event.setTypeIndex(typeIndex);
         event.setRangeStage(RangeStart);
@@ -1184,7 +1186,7 @@ static void loadMixedFrames(QmlProfilerModelManager &manager)
         event.setTimestamp(end);
         manager.appendEvent(std::move(event));
     };
-    const auto frame = [&](qint64 timestamp, int thread) {
+    const auto frame = [&](nanoseconds timestamp, int thread) {
         QmlEvent event;
         event.setTypeIndex(frameType);
         event.setTimestamp(timestamp);
@@ -1192,32 +1194,35 @@ static void loadMixedFrames(QmlProfilerModelManager &manager)
         manager.appendEvent(std::move(event));
     };
 
-    qint64 time = 1000000;
+    nanoseconds time = 1ms;
     frame(time, GuiThread);
     for (int i = 0; i < 3000; ++i) {
-        const qint64 gap = i == 1500 ? 2500000000ll : 1000000 + qint64(random(120)) * 1000000
-                                                          + random(1000000);
-        qint64 cursor = time + 1000;
+        const nanoseconds gap = i == 1500
+                                    ? nanoseconds(2500ms)
+                                    : 1ms + milliseconds(random(120))
+                                          + nanoseconds(random(1000000));
+        nanoseconds cursor = time + 1us;
         const int ranges = int(random(6));
-        for (int r = 0; r < ranges && cursor < time + gap - 200000; ++r) {
+        for (int r = 0; r < ranges && cursor < time + gap - 200us; ++r) {
             const int typeIndex = rangeTypes.at(int(random(quint32(rangeTypes.size()))));
-            const qint64 room = time + gap - 100000 - cursor;
-            const qint64 duration = 1000 + qint64(random(quint32(qMin<qint64>(room, 40000000))));
+            const nanoseconds room = time + gap - 100us - cursor;
+            const nanoseconds duration
+                = 1us + nanoseconds(random(quint32(qMin(room, nanoseconds(40ms)).count())));
             // Sometimes a binding runs inside the outer range.
-            if (random(3) == 0 && duration > 10000) {
+            if (random(3) == 0 && duration > 10us) {
                 QmlEvent outer;
                 outer.setTypeIndex(typeIndex);
                 outer.setRangeStage(RangeStart);
                 outer.setTimestamp(cursor);
                 manager.appendEvent(QmlEvent(outer));
-                range(rangeTypes.at(12 + int(random(24))), cursor + 1000, cursor + duration / 2);
+                range(rangeTypes.at(12 + int(random(24))), cursor + 1us, cursor + duration / 2);
                 outer.setRangeStage(RangeEnd);
                 outer.setTimestamp(cursor + duration);
                 manager.appendEvent(std::move(outer));
             } else {
                 range(typeIndex, cursor, cursor + duration);
             }
-            cursor += duration + 1000;
+            cursor += duration + 1us;
         }
         time += gap;
         // Now and then a handler runs across the end of the frame, and is charged to the
@@ -1226,23 +1231,23 @@ static void loadMixedFrames(QmlProfilerModelManager &manager)
             QmlEvent across;
             across.setTypeIndex(rangeTypes.at(int(random(12))));
             across.setRangeStage(RangeStart);
-            across.setTimestamp(time - 50000);
+            across.setTimestamp(time - 50us);
             manager.appendEvent(QmlEvent(across));
             frame(time, GuiThread);
-            frame(time + 1, RenderThread);
+            frame(time + 1ns, RenderThread);
             across.setRangeStage(RangeEnd);
-            across.setTimestamp(time + 3000000);
+            across.setTimestamp(time + 3ms);
             manager.appendEvent(std::move(across));
-            time += 3000000;
+            time += 3ms;
         } else {
             frame(time, GuiThread);
-            frame(time + 1, RenderThread);
+            frame(time + 1ns, RenderThread);
         }
     }
     for (const int target : {30, 60, 75, 240}) {
-        for (const qint64 offset : {-1, 0, 1}) {
-            const qint64 gap = frameBudgetNs(target) * kStutterFrameBudgets + offset;
-            range(rangeTypes.at(int(random(12))), time + 1000, time + gap - 1000);
+        for (const nanoseconds offset : {-1ns, 0ns, 1ns}) {
+            const nanoseconds gap = frameBudget(target) * kStutterFrameBudgets + offset;
+            range(rangeTypes.at(int(random(12))), time + 1us, time + gap - 1us);
             time += gap;
             frame(time, GuiThread);
         }

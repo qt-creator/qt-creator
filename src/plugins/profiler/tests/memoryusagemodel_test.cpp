@@ -10,6 +10,7 @@
 #include <QTest>
 
 using namespace QmlDebug;
+using namespace std::chrono;
 namespace Profiler::Internal {
 
 MemoryUsageModelTest::MemoryUsageModelTest()
@@ -19,7 +20,7 @@ MemoryUsageModelTest::MemoryUsageModelTest()
 void MemoryUsageModelTest::initTestCase()
 {
     manager.initialize();
-    qint64 timestamp = 0;
+    nanoseconds timestamp{0};
 
 
     heapPageTypeId = manager.numEventTypes();

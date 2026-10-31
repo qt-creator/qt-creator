@@ -10,6 +10,7 @@
 
 #include <tracing/timelinetracemanager.h>
 
+#include <chrono>
 #include <functional>
 
 namespace ProjectExplorer { class BuildConfiguration; }
@@ -60,16 +61,17 @@ public:
     void dispatchEvent(const QmlDebug::QmlEvent &event);
     void appendSerializedEvents(QByteArrayView events, int count);
 
-    void restrictToRange(qint64 start, qint64 end);
+    void restrictToRange(std::chrono::nanoseconds start, std::chrono::nanoseconds end);
     bool isRestrictedToRange() const;
 
-    QmlEventFilter rangeFilter(qint64 start, qint64 end) const;
+    QmlEventFilter rangeFilter(std::chrono::nanoseconds start, std::chrono::nanoseconds end) const;
 
     // Stretches of the trace, in trace time, during which the recording was
     // paused. Dropped with the events, since they describe the same trace.
-    const QList<std::pair<qint64, qint64>> &pausedRanges() const { return m_pausedRanges; }
-    void addPausedRange(qint64 start, qint64 end);
-    void setPausedRanges(const QList<std::pair<qint64, qint64>> &ranges);
+    using PausedRanges = QList<std::pair<std::chrono::nanoseconds, std::chrono::nanoseconds>>;
+    const PausedRanges &pausedRanges() const { return m_pausedRanges; }
+    void addPausedRange(std::chrono::nanoseconds start, std::chrono::nanoseconds end);
+    void setPausedRanges(const PausedRanges &ranges);
 
 signals:
     void initialized();
@@ -98,7 +100,7 @@ private:
     QmlProfilerDetailsRewriter *m_detailsRewriter = nullptr;
     QmlProfilerEventStorage *m_eventStorage = nullptr; // Owned by the base class.
     bool m_isRestrictedToRange = false;
-    QList<std::pair<qint64, qint64>> m_pausedRanges;
+    PausedRanges m_pausedRanges;
 };
 
 } // namespace Profiler::Internal

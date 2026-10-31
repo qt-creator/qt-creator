@@ -13,6 +13,8 @@
 #include <QPaintEvent>
 #include <QPainter>
 
+using namespace std::chrono;
+
 namespace Timeline {
 
 TimeRuler::TimeRuler(QWidget *parent)
@@ -22,7 +24,7 @@ TimeRuler::TimeRuler(QWidget *parent)
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 }
 
-void TimeRuler::setRange(qint64 rangeStart, qint64 rangeEnd)
+void TimeRuler::setRange(nanoseconds rangeStart, nanoseconds rangeEnd)
 {
     if (m_rangeStart == rangeStart && m_rangeEnd == rangeEnd)
         return;
@@ -45,8 +47,8 @@ void TimeRuler::paintEvent(QPaintEvent *)
                                : palette().window().color();
     p.fillRect(rect(), bgColor);
 
-    const qint64 rangeDuration = m_rangeEnd - m_rangeStart;
-    if (rangeDuration <= 0 || width() == 0)
+    const nanoseconds rangeDuration = m_rangeEnd - m_rangeStart;
+    if (rangeDuration <= 0ns || width() == 0)
         return;
 
     const double rulerWidth = width() - contentsMargins().right();
@@ -68,7 +70,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
     forEachRulerTick(
         m_rangeStart, m_rangeEnd, rulerWidth,
         // Label for time t, left-aligned in [x, x+pixelsPerBlock].
-        [&](qint64 t, double x, double pixelsPerBlock) {
+        [&](nanoseconds t, double x, double pixelsPerBlock) {
             const QString label = formatTime(t, rangeDuration);
             const QRectF labelRect(x + textMargin, 0, pixelsPerBlock - textMargin, ticksTop);
             p.setPen(textColor);
@@ -95,7 +97,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
         const double hw = double(height()) * 0.707;
         const double dh = double(height()) * 0.707;
         const double btnSize = qMax(4.0, double(height()) / 4.0);
-        for (qint64 ts : std::as_const(m_markers)) {
+        for (nanoseconds ts : std::as_const(m_markers)) {
             const double mx = markerPixel(ts);
             if (mx < -hw || mx > width() + hw)
                 continue;
@@ -156,8 +158,8 @@ void TimeRuler::mousePressEvent(QMouseEvent *event)
         // Add a new marker at the clicked time
         if (m_rangeEnd > m_rangeStart) {
             const double rulerWidth = width() - contentsMargins().right();
-            const qint64 ts = pixelToTime(event->pos().x(), rulerWidth,
-                                          m_rangeStart, m_rangeEnd);
+            const nanoseconds ts = pixelToTime(event->pos().x(), rulerWidth,
+                                               m_rangeStart, m_rangeEnd);
             m_markers.append(ts);
             emit markersChanged(m_markers);
             update();
@@ -205,7 +207,7 @@ int TimeRuler::markerAt(int x) const
     return -1;
 }
 
-double TimeRuler::markerPixel(qint64 timestamp) const
+double TimeRuler::markerPixel(nanoseconds timestamp) const
 {
     if (m_rangeEnd <= m_rangeStart)
         return 0.0;

@@ -56,8 +56,8 @@ static QString captionText(const QModelIndex &index)
     const QVariant durationV = index.data(DurationRole);
     if (durationV.isValid()) {
         const nanoseconds ns = duration_cast<nanoseconds>(milliseconds(durationV.toLongLong()));
-        if (ns.count() > 0)
-            parts << Timeline::formatTime(ns.count());
+        if (ns > 0ns)
+            parts << Timeline::formatTime(ns);
     }
     return parts.join(QStringLiteral(", "));
 }

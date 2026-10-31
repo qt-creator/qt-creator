@@ -149,7 +149,7 @@ int QmlPreviewClient::appendEventType(QmlDebug::QmlEventType &&type)
 void QmlPreviewClient::appendEvent(QmlDebug::QmlEvent &&event)
 {
     // Compress the time stamps so that the events are processed in quick succession.
-    event.setTimestamp(m_events.size());
+    event.setTimestamp(std::chrono::nanoseconds(m_events.size()));
     m_events.append(std::move(event));
 }
 
@@ -161,7 +161,7 @@ void QmlPreviewClient::configureEventReplay()
         std::bind(&QmlPreviewClient::appendEvent, this, std::placeholders::_1),
         1ull << ProfileInputEvents));
 
-    m_recordClient->setFlushInterval(1);
+    m_recordClient->setFlushInterval(std::chrono::milliseconds(1));
     m_recordClient->setRecording(true);
 
     m_replayClient.reset(new QuickEventReplayClient(connection()));

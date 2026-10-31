@@ -5,6 +5,8 @@
 
 #include "profilertracebackend.h"
 
+#include <chrono>
+
 QT_BEGIN_NAMESPACE
 class QAction;
 QT_END_NAMESPACE
@@ -50,7 +52,7 @@ public:
 
     // Called when a run starts recording into this trace.
     void prepareRun(const ProjectExplorer::BuildConfiguration *bc, bool aggregateTraces,
-                    int flushInterval);
+                    std::chrono::milliseconds flushInterval);
     // The run is over: stop the connection and settle the state machine.
     void handleStop();
     bool aggregatesTraces() const;

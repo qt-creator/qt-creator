@@ -21,6 +21,8 @@
 
 using namespace QmlDebug;
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 // Speaks just enough of the QML profiler protocol: it answers the hello, a
@@ -91,20 +93,20 @@ private:
         if (recording) {
             queue(event(Event, StartTrace));
             QPacket frame(m_version);
-            frame << nextTime() << qint32(Event) << qint32(AnimationFrame) << qint32(60)
-                  << qint32(1) << qint32(0);
+            frame << qint64(nextTime().count()) << qint32(Event) << qint32(AnimationFrame)
+                  << qint32(60) << qint32(1) << qint32(0);
             queue(frame.data());
         } else {
-            const qint64 time = nextTime();
+            const nanoseconds time = nextTime();
             queue(event(Event, EndTrace, time));
             queue(event(Complete, -1, time));
         }
     }
 
-    QByteArray event(Message message, int subtype, std::optional<qint64> time = {})
+    QByteArray event(Message message, int subtype, std::optional<nanoseconds> time = {})
     {
         QPacket packet(m_version);
-        packet << (time ? *time : nextTime()) << qint32(message);
+        packet << qint64((time ? *time : nextTime()).count()) << qint32(message);
         if (subtype >= 0)
             packet << qint32(subtype);
         return packet.data();
@@ -125,7 +127,7 @@ private:
         m_protocol->send(packet.data());
     }
 
-    qint64 nextTime() { return m_time += 1000; }
+    nanoseconds nextTime() { return m_time += 1000ns; }
 
     const int m_version = QDataStream::Qt_DefaultCompiledVersion;
     QTcpServer m_server;
@@ -135,7 +137,7 @@ private:
     bool m_recording = false;
     bool m_held = false;
     QList<QByteArray> m_heldAnswers;
-    qint64 m_time = 4'999'000;
+    nanoseconds m_time = 4'999'000ns;
 };
 
 // One capture of the QML profiler backend against the fake server.
@@ -166,7 +168,7 @@ static void loadTrace(const Utils::FilePath &path, QmlProfilerModelManager &load
     QTRY_COMPARE(loadSpy.count(), 1);
 }
 
-using Ranges = QList<std::pair<qint64, qint64>>;
+using Ranges = QmlProfilerModelManager::PausedRanges;
 
 void QmlProfilerSamplerTest::testPauseResumeStop()
 {
@@ -188,10 +190,10 @@ void QmlProfilerSamplerTest::testPauseResumeStop()
     if (QTest::currentTestFailed())
         return;
     // Server times 5000000 to 5005000, on a timeline starting at the first trace.
-    QCOMPARE(loaded.traceStart(), 0);
-    QCOMPARE(loaded.traceEnd(), 5000);
+    QCOMPARE(loaded.traceStart(), 0ns);
+    QCOMPARE(loaded.traceEnd(), 5000ns);
     QCOMPARE(loaded.numEvents(), 2);
-    QCOMPARE(loaded.pausedRanges(), (Ranges{{2000, 3000}}));
+    QCOMPARE(loaded.pausedRanges(), (Ranges{{2000ns, 3000ns}}));
 }
 
 void QmlProfilerSamplerTest::testStartPausedThenStop()
@@ -232,7 +234,7 @@ void QmlProfilerSamplerTest::testPauseResumeStopBeforeTheServerAnswers()
     if (QTest::currentTestFailed())
         return;
     QCOMPARE(loaded.numEvents(), 2);
-    QCOMPARE(loaded.pausedRanges(), (Ranges{{2000, 3000}}));
+    QCOMPARE(loaded.pausedRanges(), (Ranges{{2000ns, 3000ns}}));
 }
 
 } // namespace Profiler::Internal

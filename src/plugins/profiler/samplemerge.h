@@ -9,22 +9,24 @@
 #include <QList>
 #include <QString>
 
+#include <chrono>
+
 namespace Profiler::Internal {
 
 // One QML/JS activation taken from a QML profiler trace recorded concurrently
 // with the native sampler. Timestamps are on the same clock as
-// SampleTraceData::ThreadSample::tsUs (microseconds since recording start); the
-// caller is responsible for converting the QML profiler's clock into that base
-// before building these (see design-docs/native-mixed-profiler-design.md,
+// SampleTraceData::ThreadSample::timestamp (since recording start); the caller
+// is responsible for converting the QML profiler's clock into that base before
+// building these (see design-docs/native-mixed-profiler-design.md,
 // Section 7).
 //
 // Ranges are perfectly nested per the QML profiler, so `parent` indexes the
 // enclosing range in the same list (or -1 at the top level). A range covers the
-// half-open interval [startUs, endUs).
+// half-open interval [start, end).
 struct QmlRange
 {
-    quint64 startUs = 0;
-    quint64 endUs = 0;
+    std::chrono::microseconds start{0};
+    std::chrono::microseconds end{0};
     QString name; // JS function / binding / signal handler name
     QString file; // source .qml/.js path (may be empty)
     int line = 0;
@@ -42,7 +44,7 @@ struct MergeOptions
     // the clock-correlation anchor in design-docs/native-mixed-profiler-design.md).
     // May be
     // negative; the adjusted time is clamped at 0.
-    qint64 sampleTimeOffsetUs = 0;
+    std::chrono::microseconds sampleTimeOffset{0};
 };
 
 // Splice QML/JS frames into a native sampler trace, using a concurrently

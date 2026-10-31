@@ -11,6 +11,8 @@
 #include <QGuiApplication>
 #include <QtEndian>
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 Q_STATIC_ASSERT(sizeof(Constants::PerfStreamMagic) == sizeof(Constants::PerfZqfileMagic));
@@ -150,9 +152,8 @@ void PerfProfilerTraceFile::readMessages(const QByteArray &buffer)
     PerfEvent event;
     dataStream >> event;
 
-    const qint64 timestamp = event.timestamp();
-    if (timestamp > 0)
-        event.setTimestamp(adjustTimestamp(timestamp));
+    if (event.timestamp() > 0ns)
+        event.setTimestamp(adjustTimestamp(event.timestamp()));
 
     qint32 id = -1;
     switch (event.feature()) {
@@ -512,7 +513,7 @@ void PerfProfilerTraceFile::writeToDevice()
     }
 }
 
-qint64 PerfProfilerTraceFile::adjustTimestamp(qint64 timestamp)
+nanoseconds PerfProfilerTraceFile::adjustTimestamp(nanoseconds timestamp)
 {
     return timestamp;
 }

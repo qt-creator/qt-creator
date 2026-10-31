@@ -27,15 +27,15 @@ public:
     Timeline::TimelineDetailsWidget *timelineDetailsWidget() const;
 
     bool hasValidSelection() const;
-    qint64 selectionStart() const;
-    qint64 selectionEnd() const;
+    std::chrono::nanoseconds selectionStart() const;
+    std::chrono::nanoseconds selectionEnd() const;
     void showContextMenu(QPoint position);
     bool isSuspended() const;
 
     void clear();
     void selectByTypeId(int typeId);
     void selectByEventIndex(int modelId, int eventIndex);
-    void showRange(qint64 start, qint64 end);
+    void showRange(std::chrono::nanoseconds start, std::chrono::nanoseconds end);
     void updateCursorPosition();
 
 protected:

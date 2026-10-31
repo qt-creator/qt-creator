@@ -7,6 +7,8 @@
 
 #include <QWidget>
 
+#include <chrono>
+
 namespace Timeline {
 
 class TimelineDetailsWidget;
@@ -32,8 +34,8 @@ public:
     TimelineDetailsWidget *timelineDetailsWidget() const;
 
     bool hasValidSelection() const;
-    qint64 selectionStart() const;
-    qint64 selectionEnd() const;
+    std::chrono::nanoseconds selectionStart() const;
+    std::chrono::nanoseconds selectionEnd() const;
 
     QString currentFile() const;
     int currentLine() const;

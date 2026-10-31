@@ -12,6 +12,7 @@
 #include <QTest>
 
 using namespace Timeline;
+using namespace std::chrono;
 
 // The track painter renders all tracks in one widget; for these single-track tests
 // the item index under a point is the item of track 0.
@@ -38,8 +39,8 @@ class UnfinalizedRowModel : public TimelineModel
 public:
     UnfinalizedRowModel(TimelineModelAggregator *parent) : TimelineModel(parent)
     {
-        insert(0, 10, 1);
-        insert(20, 10, 1);
+        insert(0ns, 10ns, 1);
+        insert(20ns, 10ns, 1);
     }
 
     int expandedRow(int) const override { return 2; }
@@ -96,9 +97,9 @@ void tst_TrackPainterProperties::range()
 {
     withTrackPainter([]<typename TrackPainter>() {
         TrackPainter painter;
-        painter.setRange(10, 200);
-        QCOMPARE(painter.rangeStart(), 10);
-        QCOMPARE(painter.rangeEnd(), 200);
+        painter.setRange(10ns, 200ns);
+        QCOMPARE(painter.rangeStart(), 10ns);
+        QCOMPARE(painter.rangeEnd(), 200ns);
     });
 }
 
@@ -132,7 +133,7 @@ void tst_TrackPainterProperties::indexAt()
         TimelineModelAggregator aggregator;
         DummyModel model(&aggregator);
         painter.setTracks({&model});
-        painter.setRange(0, 0);
+        painter.setRange(0ns, 0ns);
         QCOMPARE(itemIndexAt(painter, QPoint(0, 0)), -1);
     });
 }
@@ -155,7 +156,7 @@ void tst_TrackPainterProperties::rowsBeyondRowCount()
     TrackPainterRaster painter;
     painter.resize(200, 100);
     painter.setTracks({&model});
-    painter.setRange(0, 30);
+    painter.setRange(0ns, 30ns);
 
     QPixmap target(painter.size());
     painter.render(&target);

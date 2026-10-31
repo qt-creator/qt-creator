@@ -85,8 +85,8 @@ A JS frame is a location id whose `Location.file`/`line`/`column` point at the
 location *id*, not a real instruction address, so JIT/dynamic code needs no ELF
 address (`address` can be the JIT address or `0`).
 
-*Sampler `SampleTraceData` (Strategy A).* Per tick, a `ThreadSample { quint64
-tsUs; tid; bool running; QList<int> frames; }` where `frames` are root-first
+*Sampler `SampleTraceData` (Strategy A).* Per tick, a `ThreadSample { microseconds
+timestamp; tid; bool running; QList<int> frames; }` where `frames` are root-first
 indices into a `labels` table, and a `Label { name, file, line, module, offset }`
 already carries a source file and line. A JS frame is just a `Label` with a
 `.qml`/`.js` `file` and no `module`.
@@ -187,8 +187,8 @@ Purely how the splicer composes the output `frames` list; no consumer change.
   directory holding the sampler CTF2 trace, the QML `.qtd`, and a `manifest.json`
   with the clock offset (Section 7). `isCombinedTrace()` recognises it on load.
 - **`mergeQmlIntoSamples()`** (`samplemerge.{h,cpp}`) is a pure function over
-  `SampleTraceData` + a flat list of `QmlRange { startUs, endUs, name, file, line,
-  parent }` + `MergeOptions { revealEngineFrames, sampleTimeOffsetUs }`. It
+  `SampleTraceData` + a flat list of `QmlRange { start, end, name, file, line,
+  parent }` + `MergeOptions { revealEngineFrames, sampleTimeOffset }`. It
   rewrites each sample's `frames` per Sections 5.1/5.2, interning one JS `Label`
   per distinct (name, file, line). Keeping it a pure function makes it unit-testable
   with synthetic inputs and makes the merged result a plain `SampleTraceData` that

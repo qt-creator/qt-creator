@@ -214,7 +214,8 @@ void PerfProfilerTool::onRunControlFinished()
     updateRunActions();
 }
 
-void PerfProfilerTool::updateTime(qint64 duration, qint64 delay)
+void PerfProfilerTool::updateTime(std::chrono::nanoseconds duration,
+                                  std::chrono::nanoseconds delay)
 {
     if (PerfProfilerTraceBackend *backend = liveBackend())
         backend->updateTime(duration, delay);

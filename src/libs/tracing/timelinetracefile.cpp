@@ -9,6 +9,8 @@
 
 #include <QIODevice>
 
+using namespace std::chrono;
+
 namespace Timeline {
 
 TimelineTraceFile::TimelineTraceFile(QObject *parent) : QObject(parent)
@@ -57,9 +59,9 @@ void TimelineTraceFile::prepareTrace()
 {
     if (!m_traceManager || isCanceled())
         return;
-    if (m_traceStart >= 0)
+    if (m_traceStart >= 0ns)
         m_traceManager->decreaseTraceStart(m_traceStart);
-    if (m_traceEnd >= 0)
+    if (m_traceEnd >= 0ns)
         m_traceManager->increaseTraceEnd(m_traceEnd);
     m_traceManager->prepare(&m_future);
 }
@@ -75,7 +77,8 @@ bool TimelineTraceFile::isCanceled() const
     return m_future.isCanceled();
 }
 
-void TimelineTraceFile::setTraceTime(qint64 traceStart, qint64 traceEnd, qint64 measuredTime)
+void TimelineTraceFile::setTraceTime(nanoseconds traceStart, nanoseconds traceEnd,
+                                     nanoseconds measuredTime)
 {
     m_traceStart = traceStart;
     m_traceEnd = traceEnd;

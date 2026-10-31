@@ -23,6 +23,7 @@
 #include <vector>
 
 using namespace QmlDebug;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -36,10 +37,10 @@ public:
     {
         int typeIndex = -1;
         RangeType rangeType = UndefinedRangeType;
-        qint64 startTime = 0;
+        nanoseconds startTime{0};
     };
 
-    void push(int typeIndex, RangeType rangeType, qint64 startTime)
+    void push(int typeIndex, RangeType rangeType, nanoseconds startTime)
     {
         m_frames.push({typeIndex, rangeType, startTime});
     }
@@ -71,7 +72,7 @@ class RangeTotals
 public:
     struct Total
     {
-        qint64 totalNs = 0;
+        nanoseconds totalTime{0};
         int count = 0;
     };
 
@@ -88,7 +89,7 @@ public:
                 break;
 
             Total &total = m_totals[typeIndex];
-            total.totalNs += event.timestamp() - frame->startTime;
+            total.totalTime += event.timestamp() - frame->startTime;
             ++total.count;
             break;
         }
@@ -138,7 +139,7 @@ private:
 class FirstUseCompileRule final : public FindingRule
 {
 public:
-    explicit FirstUseCompileRule(qint64 thresholdNs) : m_thresholdNs(thresholdNs) {}
+    explicit FirstUseCompileRule(nanoseconds threshold) : m_threshold(threshold) {}
 
     quint64 features() const override { return 1ULL << ProfileCompiling; }
 
@@ -152,7 +153,7 @@ public:
     {
         QList<Finding> findings;
         for (auto it = m_totals.begin(), end = m_totals.end(); it != end; ++it) {
-            if (it->totalNs < m_thresholdNs)
+            if (it->totalTime < m_threshold)
                 continue;
 
             const int typeIndex = it.key();
@@ -161,13 +162,13 @@ public:
 
             Finding finding;
             finding.ruleId = "first-use-compile";
-            finding.severity = it->totalNs >= 4 * m_thresholdNs ? Finding::Warning : Finding::Info;
+            finding.severity = it->totalTime >= 4 * m_threshold ? Finding::Warning : Finding::Info;
             finding.location = type.location();
             finding.typeIndex = typeIndex;
-            finding.costNs = it->totalNs;
+            finding.cost = it->totalTime;
             finding.occurrences = it->count;
             finding.what = Tr::tr("Compiling this file costs %1 ms on first use.")
-                               .arg(it->totalNs / 1000000);
+                               .arg(it->totalTime / 1ms);
             finding.why = Tr::tr("Even with ahead-of-time QML caching, first use still loads the "
                                  "compilation unit and resolves the file's types and imports. The "
                                  "cost grows with file size and with the number of imports pulled "
@@ -184,7 +185,7 @@ public:
 
 private:
     RangeTotals m_totals;
-    const qint64 m_thresholdNs;
+    const nanoseconds m_threshold;
 };
 
 // Reports images the engine failed to load. Each failure is a defect in the application,
@@ -275,7 +276,7 @@ public:
     // components that were built inside this one.
     struct Part
     {
-        qint64 costNs = 0;
+        nanoseconds cost{0};
         int count = 0;
         bool nestedInstance = false;
         bool createdLater = false;
@@ -284,7 +285,7 @@ public:
     struct Instance
     {
         int rootType = -1;
-        qint64 costNs = 0;
+        nanoseconds cost{0};
         Context context;
         // The outermost handler or function that was running when the instance was built,
         // and which call of it, if the instance was built by JavaScript.
@@ -365,8 +366,8 @@ private:
         int typeIndex = -1;
         RangeType rangeType = UndefinedRangeType;
         Kind kind = Other;
-        qint64 startTime = 0;
-        qint64 childrenNs = 0;
+        nanoseconds startTime{0};
+        nanoseconds childrenTime{0};
         int instance = -1;     // The instance this frame's time belongs to.
         int openInstance = -1; // The instance being built directly inside this frame.
         int call = -1;
@@ -560,9 +561,9 @@ private:
             return;
 
         const Frame &frame = *found;
-        const qint64 durationNs = event.timestamp() - frame.startTime;
+        const nanoseconds duration = event.timestamp() - frame.startTime;
         Frame &parent = top();
-        parent.childrenNs += durationNs;
+        parent.childrenTime += duration;
 
         auto it = m_instances.find(frame.instance);
         if (it == m_instances.end())
@@ -573,7 +574,7 @@ private:
         case Frame::Creation:
         case Frame::Completion: {
             Part &part = instance.parts[frame.typeIndex];
-            part.costNs += durationNs - frame.childrenNs;
+            part.cost += duration - frame.childrenTime;
             if (frame.kind == Frame::Creation)
                 ++part.count;
             else if (instance.pendingCompletions.isEmpty())
@@ -586,7 +587,7 @@ private:
             if ((parent.kind != Frame::Work || parent.instance != frame.instance)
                 && belongsTo(instance, frame)) {
                 Part &part = instance.parts[frame.typeIndex];
-                part.costNs += durationNs;
+                part.cost += duration;
                 ++part.count;
             }
             break;
@@ -595,7 +596,7 @@ private:
         }
 
         if (parent.openInstance == frame.instance)
-            instance.costNs += durationNs;
+            instance.cost += duration;
     }
 
     // While an instance is built, the engine may evaluate bindings elsewhere that react to
@@ -686,7 +687,7 @@ private:
         auto outer = m_instances.find(frame.instance);
         if (outer != m_instances.end()) {
             Part &part = outer->parts[instance.rootType];
-            part.costNs += instance.costNs;
+            part.cost += instance.cost;
             ++part.count;
             part.nestedInstance = true;
         }
@@ -837,11 +838,11 @@ static QmlEventLocation locationOf(const QmlProfilerModelManager *manager, int t
 class SyncViewLoadRule final : public FindingRule
 {
 public:
-    explicit SyncViewLoadRule(qint64 thresholdNs,
+    explicit SyncViewLoadRule(nanoseconds threshold,
                               const std::shared_ptr<SharedInstanceTracker> &tracker
                               = std::make_shared<SharedInstanceTracker>())
         : m_tracker(tracker)
-        , m_thresholdNs(thresholdNs)
+        , m_threshold(threshold)
     {
         m_tracker->subscribe(this, [this](const InstanceTracker::Instance &instance) {
             add(instance);
@@ -861,7 +862,7 @@ public:
 
         QList<Finding> findings;
         for (auto it = m_data.constBegin(), end = m_data.constEnd(); it != end; ++it) {
-            if (it->totalNs < m_thresholdNs)
+            if (it->totalTime < m_threshold)
                 continue;
 
             const int typeIndex = it.key();
@@ -872,11 +873,11 @@ public:
             finding.severity = Finding::Warning;
             finding.location = manager->eventType(typeIndex).location();
             finding.typeIndex = typeIndex;
-            finding.costNs = it->totalNs;
+            finding.cost = it->totalTime;
             finding.occurrences = it->calls;
             finding.what = Tr::tr("Building items inside this handler costs %1 over %n call(s).",
                                   nullptr, it->calls)
-                               .arg(Timeline::formatTime(it->totalNs));
+                               .arg(Timeline::formatTime(it->totalTime));
             finding.why = Tr::tr("The items are created while the handler runs, so the interface "
                                  "cannot repaint until the whole component is built. The longer "
                                  "the component, the longer the interface stands still.");
@@ -885,7 +886,7 @@ public:
             for (auto b = it->built.constBegin(), bEnd = it->built.constEnd(); b != bEnd; ++b)
                 built.append({b.key(), b.value()});
             std::sort(built.begin(), built.end(), [](const auto &a, const auto &b) {
-                return a.second.costNs > b.second.costNs;
+                return a.second.cost > b.second.cost;
             });
 
             const InstanceTracker::Context context
@@ -899,7 +900,7 @@ public:
                                   .arg(objectTypeName(manager->eventType(rootType)));
                 detail.location = locationOf(manager, rootType);
                 detail.typeIndex = rootType;
-                detail.costNs = data.costNs;
+                detail.cost = data.cost;
                 detail.occurrences = data.count;
                 finding.details.append(detail);
             }
@@ -927,14 +928,14 @@ public:
 private:
     struct Built
     {
-        qint64 costNs = 0;
+        nanoseconds cost{0};
         int count = 0;
         QHash<InstanceTracker::Context, int> contexts;
     };
 
     struct Data
     {
-        qint64 totalNs = 0;
+        nanoseconds totalTime{0};
         int calls = 0;
         int lastCall = -1;
         QHash<int, Built> built;
@@ -948,7 +949,7 @@ private:
         // Attribute the creation to the handler that waited for it: that is where the
         // load has to be made asynchronous.
         Data &data = m_data[instance.callType];
-        data.totalNs += instance.costNs;
+        data.totalTime += instance.cost;
         if (instance.callId != data.lastCall) {
             data.lastCall = instance.callId;
             ++data.calls;
@@ -957,11 +958,11 @@ private:
             // Part of something built earlier, like the changes of a State the handler
             // applies: it costs the handler time, but it is not an item it builds.
             if (auto part = data.built.find(instance.partOf); part != data.built.end())
-                part->costNs += instance.costNs;
+                part->cost += instance.cost;
             return;
         }
         Built &built = data.built[instance.rootType];
-        built.costNs += instance.costNs;
+        built.cost += instance.cost;
         ++built.count;
         ++built.contexts[instance.context];
     }
@@ -994,7 +995,7 @@ private:
 
     QHash<int, Data> m_data;
     const std::shared_ptr<SharedInstanceTracker> m_tracker;
-    const qint64 m_thresholdNs;
+    const nanoseconds m_threshold;
 };
 
 // Reports handlers that run at a steady interval. Whether that is wasted work depends on
@@ -1019,9 +1020,9 @@ public:
         if (data.count > 0) {
             // Keep running sums instead of every timestamp: a handler can fire thousands
             // of times in a trace.
-            const qint64 interval = event.timestamp() - data.lastStart;
+            const nanoseconds interval = event.timestamp() - data.lastStart;
             data.intervalSum += interval;
-            data.intervalSquareSum += double(interval) * double(interval);
+            data.intervalSquareSum += double(interval.count()) * double(interval.count());
             ++data.intervals;
         }
         data.lastStart = event.timestamp();
@@ -1035,12 +1036,13 @@ public:
             if (it->count < m_minCount || it->intervals < 2)
                 continue;
 
-            const double mean = double(it->intervalSum) / it->intervals;
-            if (mean <= 0)
+            const duration<double, std::nano> mean = it->intervalSum / double(it->intervals);
+            if (mean <= 0ns)
                 continue;
-            const double variance = it->intervalSquareSum / it->intervals - mean * mean;
+            const double variance = it->intervalSquareSum / it->intervals
+                                    - mean.count() * mean.count();
             const double deviation = variance > 0 ? std::sqrt(variance) : 0;
-            if (deviation / mean > m_maxRelativeDeviation)
+            if (deviation / mean.count() > m_maxRelativeDeviation)
                 continue;
 
             const int typeIndex = it.key();
@@ -1053,7 +1055,7 @@ public:
             finding.typeIndex = typeIndex;
             finding.occurrences = it->count;
             finding.what = Tr::tr("Runs %n time(s), about every %1 ms.", nullptr, it->count)
-                               .arg(qRound(mean / 1000000.0));
+                               .arg(qRound(duration<double, std::milli>(mean).count()));
             finding.why = Tr::tr("A handler driven by a timer keeps running at that interval for "
                                  "as long as the timer does, whether or not anything comes of it.");
             finding.suggestion = Tr::tr("Check what this does when its target is not visible or "
@@ -1068,8 +1070,8 @@ public:
 
 private:
     struct Data {
-        qint64 lastStart = 0;
-        qint64 intervalSum = 0;
+        nanoseconds lastStart{0};
+        nanoseconds intervalSum{0};
         double intervalSquareSum = 0;
         int intervals = 0;
         int count = 0;
@@ -1192,7 +1194,7 @@ public:
             Data &data = m_data[typeIndex];
             if (data.starts.isEmpty())
                 break;
-            data.totalNs += event.timestamp() - data.starts.pop();
+            data.totalTime += event.timestamp() - data.starts.pop();
             data.ended = true;
             break;
         }
@@ -1207,13 +1209,13 @@ public:
         if (m_frames == 0)
             return findings;
 
-        const qint64 thresholdNs = frameBudgetNs(m_targetFrameRate) * m_costPercent / 100;
+        const nanoseconds threshold = frameBudget(m_targetFrameRate) * m_costPercent / 100;
         for (int typeIndex = 0; typeIndex < m_data.size(); ++typeIndex) {
             const Data &data = m_data.at(typeIndex);
             if (!data.ended)
                 continue;
-            const qint64 perFrame = data.totalNs / m_frames;
-            if (perFrame < thresholdNs)
+            const nanoseconds perFrame = data.totalTime / m_frames;
+            if (perFrame < threshold)
                 continue;
 
             QTC_ASSERT(typeIndex >= 0 && typeIndex < manager->numEventTypes(), continue);
@@ -1223,12 +1225,12 @@ public:
             finding.severity = Finding::Warning;
             finding.location = manager->eventType(typeIndex).location();
             finding.typeIndex = typeIndex;
-            finding.costNs = data.totalNs;
+            finding.cost = data.totalTime;
             finding.occurrences = m_frames;
             finding.what = Tr::tr("Costs %1 ms per rendered frame (%2 ms over %n frame(s)).",
                                   nullptr, m_frames)
-                               .arg(perFrame / 1000000.0, 0, 'f', 2)
-                               .arg(data.totalNs / 1000000);
+                               .arg(duration<double, std::milli>(perFrame).count(), 0, 'f', 2)
+                               .arg(data.totalTime / 1ms);
             finding.why = Tr::tr("Work of this size, repeated for every frame, leaves less of the "
                                  "frame for everything else that has to happen in it.");
             finding.suggestion = Tr::tr("Look for a value that is recomputed although it did not "
@@ -1250,8 +1252,8 @@ private:
     // By type index: this rule sees every binding and function call.
     struct Data
     {
-        QStack<qint64> starts;
-        qint64 totalNs = 0;
+        QStack<nanoseconds> starts;
+        nanoseconds totalTime{0};
         bool ended = false;
     };
     QList<Data> m_data;
@@ -1267,7 +1269,7 @@ private:
 class BlockingCallRule final : public FindingRule
 {
 public:
-    explicit BlockingCallRule(qint64 thresholdNs) : m_thresholdNs(thresholdNs) {}
+    explicit BlockingCallRule(nanoseconds threshold) : m_threshold(threshold) {}
 
     quint64 features() const override
     {
@@ -1293,12 +1295,12 @@ public:
             if (!frame || !m_stack.isEmpty())
                 break;
 
-            const qint64 durationNs = event.timestamp() - frame->startTime;
-            if (durationNs < m_thresholdNs)
+            const nanoseconds duration = event.timestamp() - frame->startTime;
+            if (duration < m_threshold)
                 break;
 
             Data &data = m_data[typeIndex];
-            data.longestNs = qMax(data.longestNs, durationNs);
+            data.longest = qMax(data.longest, duration);
             ++data.count;
             break;
         }
@@ -1319,13 +1321,13 @@ public:
             finding.severity = Finding::Warning;
             finding.location = manager->eventType(typeIndex).location();
             finding.typeIndex = typeIndex;
-            finding.costNs = it->longestNs;
+            finding.cost = it->longest;
             finding.occurrences = it->count;
             finding.what = it->count == 1
                                ? Tr::tr("Blocks for %1 ms in one call.")
-                                     .arg(it->longestNs / 1000000)
+                                     .arg(it->longest / 1ms)
                                : Tr::tr("Blocks for up to %1 ms in %n call(s).", nullptr, it->count)
-                                     .arg(it->longestNs / 1000000);
+                                     .arg(it->longest / 1ms);
             finding.why = Tr::tr("Nothing else runs on this thread while the call does, so no "
                                  "input is answered and no frame is drawn until it returns.");
             finding.suggestion = Tr::tr("Split the work so that each part fits in a frame, move "
@@ -1344,13 +1346,13 @@ public:
 
 private:
     struct Data {
-        qint64 longestNs = 0;
+        nanoseconds longest{0};
         int count = 0;
     };
 
     QHash<int, Data> m_data;
     RangeStack m_stack;
-    const qint64 m_thresholdNs;
+    const nanoseconds m_threshold;
 };
 
 // Reports what ran during the frames that took too long. An average spread over every
@@ -1415,7 +1417,7 @@ public:
 
     QList<Finding> finalize(const QmlProfilerModelManager *manager) override
     {
-        const qint64 budgetNs = stutterThresholdNs(m_targetFrameRate);
+        const nanoseconds budget = stutterThreshold(m_targetFrameRate);
         int jankyFrames = 0;
         for (int level = 1; level <= m_targetFrameRate; ++level)
             jankyFrames += m_framesByLevel.at(level);
@@ -1427,7 +1429,7 @@ public:
             if (levelOf(it.key()) > m_targetFrameRate)
                 continue;
             Data &total = totals[typeOf(it.key())];
-            total.costNs += it->costNs;
+            total.cost += it->cost;
             total.frames += it->frames;
         }
 
@@ -1435,7 +1437,7 @@ public:
         for (const auto &[typeIndex, total] : totals) {
             // A location has to account for a frame's worth of work before it is worth
             // naming: in a long trace almost everything appears in some slow frame.
-            if (total.costNs < budgetNs)
+            if (total.cost < budget)
                 continue;
 
             QTC_ASSERT(typeIndex >= 0 && typeIndex < manager->numEventTypes(), continue);
@@ -1445,12 +1447,12 @@ public:
             finding.severity = Finding::Warning;
             finding.location = manager->eventType(typeIndex).location();
             finding.typeIndex = typeIndex;
-            finding.costNs = total.costNs;
+            finding.cost = total.cost;
             finding.occurrences = total.frames;
             finding.what = Tr::tr("Runs for %1 ms inside %2 of the %n frame(s) that took longer "
                                   "than %3 ms.", nullptr, jankyFrames)
-                               .arg(total.costNs / 1000000).arg(total.frames)
-                               .arg(budgetNs / 1000000);
+                               .arg(total.cost / 1ms).arg(total.frames)
+                               .arg(budget / 1ms);
             finding.why = Tr::tr("The frame could not be finished while this was running, so it "
                                  "stayed on screen for as long as the work took. Work that lands "
                                  "in a few frames is seen as a jump, not as a slowdown.");
@@ -1469,27 +1471,27 @@ public:
         m_pending.clear();
         m_stack.clear();
         m_frameThread.clear();
-        m_lastFrameEnd = -1;
+        m_lastFrameEnd = -1ns;
         std::fill(m_framesByLevel.begin(), m_framesByLevel.end(), 0);
     }
 
 private:
-    static qint64 stutterThresholdNs(int targetFrameRate)
+    static nanoseconds stutterThreshold(int targetFrameRate)
     {
-        return frameBudgetNs(targetFrameRate) * kStutterFrameBudgets;
+        return frameBudget(targetFrameRate) * kStutterFrameBudgets;
     }
 
     // The lowest target frame rate at which a frame of this duration stutters, or
     // kMaxTargetFrameRate + 1 if it does at none. The threshold falls as the target rises.
-    static int jankLevel(qint64 frameNs)
+    static int jankLevel(nanoseconds frameTime)
     {
-        if (frameNs <= stutterThresholdNs(kMaxTargetFrameRate))
+        if (frameTime <= stutterThreshold(kMaxTargetFrameRate))
             return kMaxTargetFrameRate + 1;
         int low = 1;
         int high = kMaxTargetFrameRate;
         while (low < high) {
             const int middle = (low + high) / 2;
-            if (frameNs > stutterThresholdNs(middle))
+            if (frameTime > stutterThreshold(middle))
                 high = middle;
             else
                 low = middle + 1;
@@ -1513,14 +1515,14 @@ private:
         // The profiler timestamps a frame when it ends, so what was collected since the
         // previous frame is what this one waited for. A range that started even earlier is
         // charged to the frame it ended in, which is the frame it finally released.
-        if (m_lastFrameEnd >= 0) {
+        if (m_lastFrameEnd >= 0ns) {
             const int level = jankLevel(event.timestamp() - m_lastFrameEnd);
             if (level <= kMaxTargetFrameRate) {
                 ++m_framesByLevel[level];
                 for (auto it = m_pending.constBegin(), end = m_pending.constEnd(); it != end;
                      ++it) {
                     Data &data = m_data[keyOf(it.key(), level)];
-                    data.costNs += it.value();
+                    data.cost += it.value();
                     ++data.frames;
                 }
             }
@@ -1530,16 +1532,16 @@ private:
     }
 
     struct Data {
-        qint64 costNs = 0;
+        nanoseconds cost{0};
         int frames = 0;
     };
 
     // By type index and the level of the frames, see jankLevel().
     QHash<quint64, Data> m_data;
-    QHash<int, qint64> m_pending;
+    QHash<int, nanoseconds> m_pending;
     RangeStack m_stack;
     FrameThread m_frameThread;
-    qint64 m_lastFrameEnd = -1;
+    nanoseconds m_lastFrameEnd{-1};
     int m_targetFrameRate;
     // Frames by their level.
     std::vector<int> m_framesByLevel;
@@ -1694,7 +1696,7 @@ private:
     struct Component
     {
         int instances = 0;
-        qint64 costNs = 0;
+        nanoseconds cost{0};
         QHash<InstanceTracker::Context, int> contexts;
         QHash<int, InstanceTracker::Part> parts;
     };
@@ -1704,9 +1706,9 @@ private:
         if (instance.partOf >= 0) {
             // Built for an instance of another component, so it is a part of that one.
             Component &component = m_components[instance.partOf];
-            component.costNs += instance.costNs;
+            component.cost += instance.cost;
             InstanceTracker::Part &part = component.parts[instance.rootType];
-            part.costNs += instance.costNs;
+            part.cost += instance.cost;
             ++part.count;
             part.createdLater = true;
             return;
@@ -1714,12 +1716,12 @@ private:
 
         Component &component = m_components[instance.rootType];
         ++component.instances;
-        component.costNs += instance.costNs;
+        component.cost += instance.cost;
         ++component.contexts[instance.context];
         for (auto it = instance.parts.constBegin(), end = instance.parts.constEnd(); it != end;
              ++it) {
             InstanceTracker::Part &part = component.parts[it.key()];
-            part.costNs += it->costNs;
+            part.cost += it->cost;
             part.count += it->count;
             part.nestedInstance = part.nestedInstance || it->nestedInstance;
             part.createdLater = part.createdLater || it->createdLater;
@@ -1741,15 +1743,15 @@ private:
                     const Component &component) const
     {
         const QmlEventType &type = manager->eventType(typeIndex);
-        const QString total = Timeline::formatTime(component.costNs);
-        const QString each = Timeline::formatTime(component.costNs / component.instances);
+        const QString total = Timeline::formatTime(component.cost);
+        const QString each = Timeline::formatTime(component.cost / component.instances);
 
         Finding finding;
         finding.ruleId = "repeated-creation";
         finding.severity = Finding::Info;
         finding.location = type.location();
         finding.typeIndex = typeIndex;
-        finding.costNs = component.costNs;
+        finding.cost = component.cost;
         finding.occurrences = component.instances;
 
         QStringList suggestion;
@@ -1852,11 +1854,11 @@ private:
         QList<std::pair<int, InstanceTracker::Part>> parts;
         for (auto it = component.parts.constBegin(), end = component.parts.constEnd(); it != end;
              ++it) {
-            if (it->costNs > 0)
+            if (it->cost > 0ns)
                 parts.append({it.key(), it.value()});
         }
         std::sort(parts.begin(), parts.end(), [](const auto &a, const auto &b) {
-            return a.second.costNs > b.second.costNs;
+            return a.second.cost > b.second.cost;
         });
 
         QStringList costliest;
@@ -1864,13 +1866,13 @@ private:
             const QString name = partName(manager, partType, part);
             costliest << Tr::tr("%1 at %2 (%3 each)")
                              .arg(name, manager->eventType(partType).displayName(),
-                                  Timeline::formatTime(part.costNs / component.instances));
+                                  Timeline::formatTime(part.cost / component.instances));
 
             FindingDetail detail;
             detail.text = name;
             detail.location = locationOf(manager, partType);
             detail.typeIndex = partType;
-            detail.costNs = part.costNs;
+            detail.cost = part.cost;
             detail.occurrences = part.count;
             finding.details.append(detail);
         }
@@ -1953,10 +1955,10 @@ public:
             finding.severity = Finding::Info;
             finding.location = manager->eventType(typeIndex).location();
             finding.typeIndex = typeIndex;
-            finding.costNs = it->totalNs;
+            finding.cost = it->totalTime;
             finding.occurrences = it->count;
             finding.what = Tr::tr("Re-evaluated %n time(s), %1 ms in total.", nullptr, it->count)
-                               .arg(it->totalNs / 1000000);
+                               .arg(it->totalTime / 1ms);
             finding.why = Tr::tr("A binding runs again whenever anything it reads changes. At "
                                  "this rate it is reading something that changes continuously, "
                                  "and each run can invalidate the bindings that read its result.");
@@ -2003,10 +2005,10 @@ public:
         }
         case PixmapLoadingFinished: {
             auto it = m_data.find(source);
-            if (it == m_data.end() || it->lastStart < 0)
+            if (it == m_data.end() || it->lastStart < 0ns)
                 break;
-            it->totalNs += event.timestamp() - it->lastStart;
-            it->lastStart = -1;
+            it->totalTime += event.timestamp() - it->lastStart;
+            it->lastStart = -1ns;
             break;
         }
         case PixmapLoadingError:
@@ -2034,7 +2036,7 @@ public:
             finding.severity = Finding::Info;
             finding.location = manager->eventType(typeIndex).location();
             finding.typeIndex = typeIndex;
-            finding.costNs = it->totalNs;
+            finding.cost = it->totalTime;
             finding.occurrences = it->count;
             finding.what = Tr::tr("Image is loaded %n time(s).", nullptr, it->count);
             finding.why = Tr::tr("The decoded image is kept only while something refers to it. "
@@ -2057,8 +2059,8 @@ public:
 
 private:
     struct Data {
-        qint64 totalNs = 0;
-        qint64 lastStart = -1;
+        nanoseconds totalTime{0};
+        nanoseconds lastStart{-1};
         int typeIndex = -1;
         int count = 0;
     };
@@ -2076,11 +2078,11 @@ FindingRules defaultFindingRules()
 
     FindingRules rules;
     rules.push_back(std::make_unique<FirstUseCompileRule>(
-        settings.findingsCompileThresholdMs() * 1000000ll));
+        milliseconds(settings.findingsCompileThresholdMs())));
     rules.push_back(std::make_unique<PixmapLoadErrorRule>());
     const auto instanceTracker = std::make_shared<SharedInstanceTracker>();
     rules.push_back(std::make_unique<SyncViewLoadRule>(
-        settings.findingsSyncLoadThresholdMs() * 1000000ll, instanceTracker));
+        milliseconds(settings.findingsSyncLoadThresholdMs()), instanceTracker));
     rules.push_back(std::make_unique<PeriodicHandlerRule>(
         settings.findingsPeriodicMinCount(),
         settings.findingsPeriodicDeviationPercent() / 100.0));
@@ -2089,7 +2091,7 @@ FindingRules defaultFindingRules()
     rules.push_back(std::make_unique<PerFrameCostRule>(
         settings.targetFrameRate(), settings.findingsPerFrameCostPercent()));
     rules.push_back(std::make_unique<BlockingCallRule>(
-        settings.findingsBlockingCallThresholdMs() * 1000000ll));
+        milliseconds(settings.findingsBlockingCallThresholdMs())));
     rules.push_back(std::make_unique<FrameJankRule>(settings.targetFrameRate()));
     rules.push_back(std::make_unique<MemoryChurnRule>(
         settings.findingsMemoryChurnKb() * 1024ll));
@@ -2205,7 +2207,7 @@ void QmlProfilerFindingsModel::mergeFindings()
                      [](const Finding &a, const Finding &b) {
         if (a.severity != b.severity)
             return a.severity > b.severity;
-        return a.costNs > b.costNs;
+        return a.cost > b.cost;
     });
 }
 
@@ -2327,7 +2329,7 @@ static QVariant detailData(const Finding &finding, const FindingDetail &detail, 
         case QmlProfilerFindingsModel::ColumnLocation:
             return locationText(detail.location);
         case QmlProfilerFindingsModel::ColumnCost:
-            return detail.costNs > 0 ? Timeline::formatTime(detail.costNs) : QString();
+            return detail.cost > 0ns ? Timeline::formatTime(detail.cost) : QString();
         case QmlProfilerFindingsModel::ColumnOccurrences:
             return detail.occurrences > 0 ? QVariant(detail.occurrences) : QVariant();
         default:
@@ -2336,7 +2338,7 @@ static QVariant detailData(const Finding &finding, const FindingDetail &detail, 
     case QmlProfilerFindingsModel::SortRole:
         switch (column) {
         case QmlProfilerFindingsModel::ColumnCost:
-            return detail.costNs;
+            return qint64(detail.cost.count());
         case QmlProfilerFindingsModel::ColumnOccurrences:
             return detail.occurrences;
         default:
@@ -2387,7 +2389,8 @@ QVariant QmlProfilerFindingsModel::data(const QModelIndex &index, int role) cons
         case ColumnLocation:
             return locationText(finding.location);
         case ColumnCost:
-            return finding.costNs > 0 ? QString::fromLatin1("%1 ms").arg(finding.costNs / 1000000)
+            return finding.cost > 0ns ? QString::fromLatin1("%1 ms").arg(
+                                            duration_cast<milliseconds>(finding.cost).count())
                                       : QString();
         case ColumnOccurrences:
             return finding.occurrences;
@@ -2401,7 +2404,7 @@ QVariant QmlProfilerFindingsModel::data(const QModelIndex &index, int role) cons
         case ColumnSeverity:
             return finding.severity;
         case ColumnCost:
-            return finding.costNs;
+            return qint64(finding.cost.count());
         case ColumnOccurrences:
             return finding.occurrences;
         default:

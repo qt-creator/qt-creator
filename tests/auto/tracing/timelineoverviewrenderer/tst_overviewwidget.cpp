@@ -15,6 +15,7 @@
 #include <QTest>
 
 using namespace Timeline;
+using namespace std::chrono;
 
 // Gives the paused bands colours to be told from the background by.
 class BandTheme : public Utils::Theme
@@ -37,7 +38,7 @@ public:
         setCollapsedRowCount(3);
         setExpandedRowCount(3);
         for (int i = 0; i < 10; ++i)
-            insert(i, i, i);
+            insert(nanoseconds(i), nanoseconds(i), i);
         emit contentChanged();
     }
 };
@@ -50,8 +51,8 @@ class UnfinalizedRowModel : public TimelineModel
 public:
     UnfinalizedRowModel(TimelineModelAggregator *parent) : TimelineModel(parent)
     {
-        insert(0, 10, 1);
-        insert(20, 10, 1);
+        insert(0ns, 10ns, 1);
+        insert(20ns, 10ns, 1);
     }
 
     int expandedRow(int) const override { return 2; }
@@ -132,7 +133,7 @@ void tst_OverviewWidget::noCrashWithData()
     auto model = new DummyModel(&aggregator);
     aggregator.addModel(model);
     model->loadData();
-    zoom.setTrace(0, 10);
+    zoom.setTrace(0ns, 10ns);
     TimelineOverviewWidget widget(&aggregator, &zoom);
     widget.resize(400, 50);
     widget.update();
@@ -150,7 +151,7 @@ void tst_OverviewWidget::rowsBeyondRowCount()
     QCOMPARE(model.row(0), 2);
 
     TimelineZoomControl zoom;
-    zoom.setTrace(0, 30);
+    zoom.setTrace(0ns, 30ns);
     aggregator.setModels({&model});
     TimelineOverviewWidget widget(&aggregator, &zoom);
     widget.resize(200, 50);
@@ -168,17 +169,17 @@ void tst_OverviewWidget::pausedRangesAreDrawnWhereTheyLie()
 
     TimelineModelAggregator aggregator;
     TimelineZoomControl zoom;
-    zoom.setTrace(100, 1100);
-    zoom.setRange(100, 1100);
+    zoom.setTrace(100ns, 1100ns);
+    zoom.setRange(100ns, 1100ns);
     TimelineOverviewWidget widget(&aggregator, &zoom);
     widget.resize(200, 50);
     const QImage before = rendered(widget);
 
     aggregator.setPausedRanges({
-        {0, 300},     // Straddles the start: pixels 0 to 40.
-        {600, 700},   // Pixels 100 to 120.
-        {900, 901},   // Shorter than a pixel, and still one wide at 160.
-        {2000, 3000}, // Past the end.
+        {0ns, 300ns},     // Straddles the start: pixels 0 to 40.
+        {600ns, 700ns},   // Pixels 100 to 120.
+        {900ns, 901ns},   // Shorter than a pixel, and still one wide at 160.
+        {2000ns, 3000ns}, // Past the end.
     });
     const QList<int> columns = differingColumns(before, rendered(widget));
 
@@ -207,7 +208,7 @@ public:
     ManyItemsModel(TimelineModelAggregator *parent) : TimelineModel(parent)
     {
         for (int i = 0; i < itemCount; ++i)
-            insert(i * 10, 4, 0);
+            insert(10ns * i, 4ns, 0);
         computeSummaries();
     }
 
@@ -226,7 +227,7 @@ void tst_OverviewWidget::summaryDrawsByPixel()
     ManyItemsModel model(&aggregator);
     QVERIFY(model.overviewSummary());
     TimelineZoomControl zoom;
-    zoom.setTrace(0, 2 * ManyItemsModel::itemCount * 10);
+    zoom.setTrace(0ns, 2 * ManyItemsModel::itemCount * 10ns);
     aggregator.setModels({&model});
     TimelineOverviewWidget widget(&aggregator, &zoom);
     widget.resize(200, 50);

@@ -41,15 +41,19 @@ class Quick3DFrameModel final : public QAbstractItemModel
 {
 public:
     struct Item {
-        Item(int index = -1, int parent = -1, qint64 begin = 0, qint64 end = 0, int additionalType = 0, quint64 data = 0) :
-            index(index), parent(parent), additionalType(additionalType), begin(begin), end(end), data(data) {}
+        Item(int index = -1, int parent = -1,
+             std::chrono::nanoseconds begin = std::chrono::nanoseconds(0),
+             std::chrono::nanoseconds end = std::chrono::nanoseconds(0),
+             int additionalType = 0, quint64 data = 0) :
+            index(index), parent(parent), additionalType(additionalType), begin(begin), end(end),
+            data(data) {}
         int index;
         int parent;
         int additionalType;
-        qint64 begin;
-        qint64 end;
+        std::chrono::nanoseconds begin;
+        std::chrono::nanoseconds end;
         quint64 data;
-        quint64 frameDelta = 0;
+        std::chrono::nanoseconds frameDelta{0};
         int eventData = -1;
         QList<int> children;
         bool hasChildren() const
@@ -59,8 +63,8 @@ public:
     };
     struct FrameTime
     {
-        qint64 begin = 0;
-        qint64 end  = 0;
+        std::chrono::nanoseconds begin{0};
+        std::chrono::nanoseconds end{0};
         int frameCount = 0;
         bool inFrame = false;
         bool prepareReceived = false;

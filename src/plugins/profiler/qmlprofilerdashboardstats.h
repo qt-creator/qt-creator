@@ -7,6 +7,8 @@
 #include <QMap>
 #include <QObject>
 
+#include <chrono>
+
 namespace QmlDebug {
 class QmlEvent;
 class QmlEventType;
@@ -83,9 +85,11 @@ public:
     // Changing it re-rates the frames already loaded.
     void setTargetFrameRate(int framesPerSecond);
     int targetFrameRate() const;
-    double onTargetFrameTimeMs() const;
-    double nearTargetFrameTimeMs() const;
-    double stutterFrameTimeMs() const;
+    using FrameTime = std::chrono::duration<double, std::milli>;
+
+    FrameTime onTargetFrameTime() const;
+    FrameTime nearTargetFrameTime() const;
+    FrameTime stutterFrameTime() const;
 
     int framesOnTarget() const;
     int framesNearTarget() const;
@@ -113,8 +117,8 @@ public:
 
     // The GUI thread frame with the lowest frame rate, or a negative
     // timestamp if there is none.
-    qint64 slowestFrameTimestamp() const;
-    double slowestFrameTimeMs() const;
+    std::chrono::nanoseconds slowestFrameTimestamp() const;
+    FrameTime slowestFrameTime() const;
 
 signals:
     void changed();
@@ -132,8 +136,8 @@ private:
     int m_framesNearTarget = 0;
     int m_framesFailed = 0;
     int m_framesStuttering = 0;
-    qint64 m_slowestFrameTimestamp = -1;
-    double m_slowestFrameTimeMs = 0;
+    std::chrono::nanoseconds m_slowestFrameTimestamp{-1};
+    FrameTime m_slowestFrameTime{0};
 };
 
 } // namespace Profiler::Internal

@@ -48,15 +48,18 @@ public:
     typedef std::function<PerfEventLoader(PerfEventLoader)> PerfEventFilter;
 
     struct Thread {
-        Thread(qint64 start = -1, qint64 firstEvent = -1, qint64 lastEvent = -1, quint32 pid = 0,
-               quint32 tid = 0, quint32 cpu = 0, qint32 name = -1, bool enabled = false) :
+        Thread(std::chrono::nanoseconds start = std::chrono::nanoseconds(-1),
+               std::chrono::nanoseconds firstEvent = std::chrono::nanoseconds(-1),
+               std::chrono::nanoseconds lastEvent = std::chrono::nanoseconds(-1),
+               quint32 pid = 0, quint32 tid = 0, quint32 cpu = 0, qint32 name = -1,
+               bool enabled = false) :
             start(start), firstEvent(firstEvent), lastEvent(lastEvent), pid(pid), tid(tid),
             cpu(cpu), name(name), enabled(enabled)
         {}
 
-        qint64 start;
-        qint64 firstEvent;
-        qint64 lastEvent;
+        std::chrono::nanoseconds start;
+        std::chrono::nanoseconds firstEvent;
+        std::chrono::nanoseconds lastEvent;
         quint32 pid;
         quint32 tid;
         quint32 cpu;
@@ -154,7 +157,8 @@ public:
 
     qint64 samplingFrequency() const;
 
-    PerfEventFilter rangeAndThreadFilter(qint64 rangeStart, qint64 rangeEnd) const;
+    PerfEventFilter rangeAndThreadFilter(std::chrono::nanoseconds rangeStart,
+                                         std::chrono::nanoseconds rangeEnd) const;
 
     void restrictByFilter(PerfEventFilter filter);
 
@@ -202,7 +206,7 @@ private:
     void resetAttributes();
     void processSample(PerfEvent &event) const;
     void checkThread(const PerfEvent &event);
-    void handleTimeOrderViolations(qint64 nextEvent);
+    void handleTimeOrderViolations(std::chrono::nanoseconds nextEvent);
 };
 
 inline QDataStream &operator>>(QDataStream &stream, PerfProfilerTraceManager::Symbol &symbol)
@@ -231,14 +235,17 @@ inline QDataStream &operator<<(QDataStream &stream,
 
 inline QDataStream &operator>>(QDataStream &stream, PerfProfilerTraceManager::Thread &thread)
 {
-    stream >> thread.pid >> thread.tid >> thread.start >> thread.cpu >> thread.name;
+    qint64 start;
+    stream >> thread.pid >> thread.tid >> start >> thread.cpu >> thread.name;
+    thread.start = std::chrono::nanoseconds(start);
     thread.enabled = (thread.pid != 0);
     return stream;
 }
 
 inline QDataStream &operator<<(QDataStream &stream, const PerfProfilerTraceManager::Thread &thread)
 {
-    return stream << thread.pid << thread.tid << thread.start << thread.cpu << thread.name;
+    return stream << thread.pid << thread.tid << qint64(thread.start.count()) << thread.cpu
+                  << thread.name;
 }
 
 } // namespace Profiler::Internal

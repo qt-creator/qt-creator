@@ -11,6 +11,8 @@
 #include <QMouseEvent>
 #include <QPainter>
 
+using namespace std::chrono;
+
 namespace Timeline {
 
 SelectionRangeOverlay::SelectionRangeOverlay(TimelineZoomControl *zoom, QWidget *parent)
@@ -37,7 +39,7 @@ void SelectionRangeOverlay::setActive(bool active)
     update();
 }
 
-void SelectionRangeOverlay::setRange(qint64 rangeStart, qint64 rangeEnd)
+void SelectionRangeOverlay::setRange(nanoseconds rangeStart, nanoseconds rangeEnd)
 {
     m_rangeStart = rangeStart;
     m_rangeEnd = rangeEnd;
@@ -188,8 +190,8 @@ void SelectionRangeOverlay::mouseDoubleClickEvent(QMouseEvent *event)
     }
 
     if (m_state == State::Finished) {
-        const qint64 diff = m_zoom->minimumRangeLength() - m_zoom->selectionDuration();
-        if (diff > 0) {
+        const nanoseconds diff = m_zoom->minimumRangeLength() - m_zoom->selectionDuration();
+        if (diff > 0ns) {
             m_zoom->setRange(m_zoom->selectionStart() - diff / 2,
                              m_zoom->selectionEnd() + diff / 2);
         } else {

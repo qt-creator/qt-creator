@@ -9,6 +9,8 @@
 #include <tracing/timelineformatdata.h>
 
 using namespace QmlDebug;
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 PixmapCacheModel::PixmapCacheModel(QmlProfilerModelManager *manager,
@@ -143,7 +145,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
     Item newEvent;
     const auto pixmapType = static_cast<PixmapEventType>(type.detailType());
     newEvent.pixmapEventType = pixmapType;
-    qint64 pixmapStartTime = event.timestamp();
+    nanoseconds pixmapStartTime = event.timestamp();
 
     newEvent.urlIndex = -1;
     for (auto i = m_pixmaps.cend(), begin = m_pixmaps.cbegin(); i != begin;) {
@@ -307,7 +309,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
         if (state.loadState == Initial) {
             newEvent.pixmapEventType = PixmapLoadingStarted;
             newEvent.typeId = event.typeIndex();
-            const qint64 traceStart = modelManager()->traceStart();
+            const nanoseconds traceStart = modelManager()->traceStart();
             state.started = insert(traceStart, pixmapStartTime - traceStart,
                                    newEvent.urlIndex + 1);
             m_data.insert(state.started, newEvent);
@@ -432,7 +434,7 @@ void PixmapCacheModel::flattenLoads()
     int collapsedRowCount = Timeline::kCollapsedStartRow;
 
     // computes "compressed row"
-    QList <qint64> eventEndTimes;
+    QList<nanoseconds> eventEndTimes;
     for (int i = 0; i < count(); i++) {
         PixmapCacheModel::Item &event = m_data[i];
         if (event.pixmapEventType == PixmapCacheModel::PixmapLoadingStarted) {
@@ -442,7 +444,7 @@ void PixmapCacheModel::flattenLoads()
                 event.rowNumberCollapsed++;
 
             if (eventEndTimes.count() == event.rowNumberCollapsed)
-                eventEndTimes << 0; // increase stack length, proper value added below
+                eventEndTimes << 0ns; // increase stack length, proper value added below
             eventEndTimes[event.rowNumberCollapsed] = endTime(i);
 
             // readjust to account for the start row and bargraph
@@ -458,7 +460,7 @@ void PixmapCacheModel::flattenLoads()
 }
 
 int PixmapCacheModel::updateCacheCount(int lastCacheSizeEvent,
-        qint64 pixmapStartTime, qint64 pixSize, Item &newEvent, int typeId)
+        nanoseconds pixmapStartTime, qint64 pixSize, Item &newEvent, int typeId)
 {
     newEvent.pixmapEventType = PixmapCacheCountChanged;
     newEvent.rowNumberCollapsed = Timeline::kCollapsedStartRow;
@@ -467,8 +469,8 @@ int PixmapCacheModel::updateCacheCount(int lastCacheSizeEvent,
     int index = lastCacheSizeEvent;
     if (lastCacheSizeEvent != -1) {
         newEvent.cacheSize = m_data[lastCacheSizeEvent].cacheSize + pixSize;
-        qint64 duration = pixmapStartTime - startTime(lastCacheSizeEvent);
-        if (duration > 0) {
+        nanoseconds duration = pixmapStartTime - startTime(lastCacheSizeEvent);
+        if (duration > 0ns) {
             insertEnd(lastCacheSizeEvent, duration);
             index = insertStart(pixmapStartTime, 0);
             m_data.insert(index, newEvent);

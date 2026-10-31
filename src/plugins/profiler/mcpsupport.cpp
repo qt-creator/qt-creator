@@ -128,7 +128,7 @@ void registerMcpTools()
                 {"recording", stateManager->serverRecording()},
                 {"running", runningRunControl(Constants::QML_PROFILER_RUN_MODE) != nullptr},
                 {"num_events", modelManager->numEvents()},
-                {"trace_duration_ns", qint64(modelManager->traceDuration())},
+                {"trace_duration_ns", qint64(modelManager->traceDuration().count())},
             };
         }));
 
@@ -224,7 +224,7 @@ void registerMcpTools()
                 {"recording", tool->isRecording()},
                 {"running", runningRunControl(Constants::PERFPROFILER_RUN_MODE) != nullptr},
                 {"num_events", traceManager->numEvents()},
-                {"trace_duration_ns", qint64(traceManager->traceDuration())},
+                {"trace_duration_ns", qint64(traceManager->traceDuration().count())},
             };
         }));
 

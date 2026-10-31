@@ -15,6 +15,8 @@
 using namespace Profiler::Internal;
 using namespace Utils;
 using namespace Qt::StringLiterals;
+using namespace std::chrono;
+using namespace std::chrono_literals;
 
 static SampleTraceData makeTestData()
 {
@@ -26,11 +28,11 @@ static SampleTraceData makeTestData()
                    "idle()"};
     data.threadNames = {{10, "main"}, {11, "worker"}};
     data.samples = {
-        {0, 10, true, {0, 1, 2}},
-        {0, 11, false, {0, 3}},
-        {200, 10, true, {0, 1, 2}},
-        {200, 11, true, {0, 1}},
-        {400, 10, false, {0}},
+        {0us, 10, true, {0, 1, 2}},
+        {0us, 11, false, {0, 3}},
+        {200us, 10, true, {0, 1, 2}},
+        {200us, 11, true, {0, 1}},
+        {400us, 10, false, {0}},
     };
     return data;
 }
@@ -62,7 +64,7 @@ private slots:
     void pausedRangesRoundTrip()
     {
         SampleTraceData data = makeTestData();
-        data.pausedRangesUs = {{100, 150}, {300, 350}};
+        data.pausedRanges = {{100us, 150us}, {300us, 350us}};
 
         QTemporaryDir dir;
         QVERIFY(dir.isValid());
@@ -71,7 +73,7 @@ private slots:
         QVERIFY_RESULT(writeSampleTrace(data, dirPath));
         const Result<SampleTraceData> read = readSampleTrace(dirPath);
         QVERIFY_RESULT(read);
-        QCOMPARE(read->pausedRangesUs, data.pausedRangesUs);
+        QCOMPARE(read->pausedRanges, data.pausedRanges);
         QCOMPARE(read->samples, data.samples);
     }
 
@@ -82,8 +84,8 @@ private slots:
     {
         SampleTraceData data = makeTestData();
         // Between the samples at 200 and 400, a throttle comes before a loss.
-        data.lostSamples = {{0, 3}, {300, 7}, {900, 1}};
-        data.throttledTsUs = {100, 200, 250, 1000};
+        data.lostSamples = {{0us, 3}, {300us, 7}, {900us, 1}};
+        data.throttledTimestamps = {100us, 200us, 250us, 1000us};
 
         QTemporaryDir dir;
         QVERIFY(dir.isValid());
@@ -94,7 +96,7 @@ private slots:
         QVERIFY_RESULT(read);
         QCOMPARE(read->samples, data.samples);
     QCOMPARE(read->lostSamples, data.lostSamples);
-    QCOMPARE(read->throttledTsUs, data.throttledTsUs);
+    QCOMPARE(read->throttledTimestamps, data.throttledTimestamps);
     }
 
     void noPausedRangesWritesNoFile()
@@ -107,7 +109,7 @@ private slots:
         QVERIFY(!dirPath.pathAppended("paused-ranges").exists());
         const Result<SampleTraceData> read = readSampleTrace(dirPath);
         QVERIFY_RESULT(read);
-        QVERIFY(read->pausedRangesUs.isEmpty());
+        QVERIFY(read->pausedRanges.isEmpty());
     }
 
     void malformedPausedRangesAreSkipped()
@@ -130,30 +132,32 @@ private slots:
 
         const Result<SampleTraceData> read = readSampleTrace(dirPath);
         QVERIFY_RESULT(read);
-        const QList<std::pair<quint64, quint64>> expected{{100, 150}, {500, 600}};
-        QCOMPARE(read->pausedRangesUs, expected);
+        const QList<std::pair<microseconds, microseconds>> expected{{100us, 150us},
+                                                                     {500us, 600us}};
+        QCOMPARE(read->pausedRanges, expected);
     }
 
     void pausedRangesAreOnTheTraceTimeline()
     {
         // First sample at 1 s on the steady clock, last one 5 ms into the trace.
-        const qint64 first = 1'000'000'000;
-        const std::vector<std::pair<qint64, qint64>> intervals{
-            {first - 500'000, first + 100'000},   // Began before the first sample.
-            {first + 1'000'000, first + 2'000'000},
-            {first + 3'000'000, first + 9'000'000}, // Past the last sample.
-            {first + 4'500'000, -1},                // Still going on.
+        const nanoseconds first = 1s;
+        const std::vector<std::pair<nanoseconds, nanoseconds>> intervals{
+            {first - 500us, first + 100us}, // Began before the first sample.
+            {first + 1ms, first + 2ms},
+            {first + 3ms, first + 9ms}, // Past the last sample.
+            {first + 4500us, -1ns},     // Still going on.
         };
-        const QList<std::pair<quint64, quint64>> expected{{1000, 2000}, {3000, 5000}};
-        QCOMPARE(pausedRangesUs(intervals, first, 5000), expected);
+        const QList<std::pair<microseconds, microseconds>> expected{{1000us, 2000us},
+                                                                     {3000us, 5000us}};
+        QCOMPARE(pausedRanges(intervals, first, 5000us), expected);
     }
 
     void pausesAfterTheLastSampleLeaveNoRange()
     {
-        const qint64 first = 1'000'000;
-        const std::vector<std::pair<qint64, qint64>> intervals{{first + 6'000'000,
-                                                                 first + 7'000'000}};
-        QVERIFY(pausedRangesUs(intervals, first, 5000).isEmpty());
+        const nanoseconds first = 1ms;
+        const std::vector<std::pair<nanoseconds, nanoseconds>> intervals{
+            {first + 6ms, first + 7ms}};
+        QVERIFY(pausedRanges(intervals, first, 5000us).isEmpty());
     }
 
     void incompleteTraceIsReported()
@@ -161,13 +165,13 @@ private slots:
         SampleTraceData data = makeTestData();
         QVERIFY(incompleteTraceWarning(data).isEmpty());
 
-        data.lostSamples = {{0, 3}, {300, 7}};
+        data.lostSamples = {{0us, 3}, {300us, 7}};
         const QString lost = incompleteTraceWarning(data);
         QVERIFY2(lost.contains("10 sample"_L1), qPrintable(lost));
         QVERIFY2(!lost.contains("throttled"_L1), qPrintable(lost));
 
         data.lostSamples.clear();
-        data.throttledTsUs = {100, 200};
+        data.throttledTimestamps = {100us, 200us};
         const QString throttled = incompleteTraceWarning(data);
         QVERIFY2(throttled.contains("throttled"_L1), qPrintable(throttled));
         QVERIFY2(throttled.contains("2 time"_L1), qPrintable(throttled));

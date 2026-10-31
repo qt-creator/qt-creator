@@ -20,6 +20,8 @@
 
 #include <functional>
 
+using namespace std::chrono_literals;
+
 namespace Profiler::Internal {
 
 // This test proves the "native mixed" claim on the consumer side only: a single
@@ -154,7 +156,7 @@ QByteArray buildSyntheticTrace()
         PerfProfilerTraceManager::Thread thread;
         thread.pid = 100;
         thread.tid = 200;
-        thread.start = 1000;
+        thread.start = 1000ns;
         thread.cpu = 0;
         thread.name = StrThread;
         s << quint8(PerfEventType::Command) << thread;
@@ -163,19 +165,19 @@ QByteArray buildSyntheticTrace()
     // Samples. Frames are leaf-first; the stack is
     //   main -> QV4::Function::call -> onClicked -> compute
     // i.e. JS nested below C++.
-    const auto addSample = [&](quint64 timestamp, const QList<qint32> &frames) {
+    const auto addSample = [&](std::chrono::nanoseconds timestamp, const QList<qint32> &frames) {
         appendFramed(trace, makeMessage(version, [&](QDataStream &s) {
             s << quint8(PerfEventType::Sample)
-              << quint32(100) << quint32(200) << timestamp << quint32(0)
+              << quint32(100) << quint32(200) << quint64(timestamp.count()) << quint32(0)
               << frames << quint8(0)
               << QList<QPair<qint32, quint64>>{{qint32(0), quint64(1)}};
         }));
     };
-    addSample(1000, {LocCompute, LocOnClicked, LocEngine, LocMain});
-    addSample(1100, {LocCompute, LocOnClicked, LocEngine, LocMain});
-    addSample(1200, {LocOnClicked, LocEngine, LocMain});
-    addSample(1300, {LocEngine, LocMain});
-    addSample(1400, {LocMain});
+    addSample(1000ns, {LocCompute, LocOnClicked, LocEngine, LocMain});
+    addSample(1100ns, {LocCompute, LocOnClicked, LocEngine, LocMain});
+    addSample(1200ns, {LocOnClicked, LocEngine, LocMain});
+    addSample(1300ns, {LocEngine, LocMain});
+    addSample(1400ns, {LocMain});
 
     return trace;
 }
@@ -268,7 +270,7 @@ void PerfNativeMixedTest::testFormatRowValue()
 {
     PerfProfilerTraceManager manager;
     PerfTimelineModelManager modelManager(&manager);
-    PerfTimelineModel model(1, 1, 0, 100, &modelManager);
+    PerfTimelineModel model(1, 1, 0ns, 100ns, &modelManager);
 
     QCOMPARE(model.formatRowValue(PerfTimelineModel::SamplesRow, 4096),
              Timeline::formatDataSize(4096));

@@ -35,6 +35,8 @@
 using namespace Utils;
 using namespace Utils::StyleHelper;
 
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 enum Size {
@@ -257,16 +259,16 @@ static QString factorDescription(ScoreFactor::Id id, const QmlProfilerDashboardS
     case ScoreFactor::FrameConsistency:
         return Tr::tr("Share of frames on the %1 FPS target (<= %2 ms)")
             .arg(stats.targetFrameRate())
-            .arg(stats.onTargetFrameTimeMs(), 0, 'f', 1);
+            .arg(stats.onTargetFrameTime().count(), 0, 'f', 1);
     case ScoreFactor::StutterPrevention:
         return Tr::tr("Share of frames faster than half the target, %1 FPS (%2 ms). Slower "
                       "frames cause noticeable UI freezes")
-            .arg(qRound(1000.0 / stats.stutterFrameTimeMs()))
-            .arg(stats.stutterFrameTimeMs(), 0, 'f', 1);
+            .arg(qRound(1s / stats.stutterFrameTime()))
+            .arg(stats.stutterFrameTime().count(), 0, 'f', 1);
     case ScoreFactor::P99Quality:
         return Tr::tr("Stands in for the 99th percentile frame time: failed frames "
                       "(> %1 ms) count %2 times")
-            .arg(stats.nearTargetFrameTimeMs(), 0, 'f', 1)
+            .arg(stats.nearTargetFrameTime().count(), 0, 'f', 1)
             .arg(kP99FailedFrameWeight);
     case ScoreFactor::StartupSpeed:
         return Tr::tr("Stands in for the time to steady state: share of frames on target "
@@ -942,13 +944,13 @@ void QmlProfilerDashboardViewPrivate::updateTargetFrameRate()
     gaugeText->setText(Tr::tr("FPS measured (median)\nTarget: %1 FPS").arg(target));
     framesOnTargetLabel->setText(Tr::tr("On Target (>= %1 FPS, <= %2 ms)")
                                      .arg(target)
-                                     .arg(stats->onTargetFrameTimeMs(), 0, 'f', 1));
+                                     .arg(stats->onTargetFrameTime().count(), 0, 'f', 1));
     framesNearTargetLabel->setText(Tr::tr("Near Target (%1-%2 ms)")
-                                       .arg(stats->onTargetFrameTimeMs(), 0, 'f', 1)
-                                       .arg(stats->nearTargetFrameTimeMs(), 0, 'f', 1));
+                                       .arg(stats->onTargetFrameTime().count(), 0, 'f', 1)
+                                       .arg(stats->nearTargetFrameTime().count(), 0, 'f', 1));
     framesFailedLabel->setText(Tr::tr("Failed (< %1 FPS, > %2 ms)")
-                                   .arg(qRound(1000.0 / stats->nearTargetFrameTimeMs()))
-                                   .arg(stats->nearTargetFrameTimeMs(), 0, 'f', 1));
+                                   .arg(qRound(1s / stats->nearTargetFrameTime()))
+                                   .arg(stats->nearTargetFrameTime().count(), 0, 'f', 1));
     framesText->setText(Tr::tr("Measured frames, rated against the %1 FPS target").arg(target));
     breakdownTitle->setText(Tr::tr("Score Breakdown (Target: %1 FPS)").arg(target));
     for (int id = 0; id < factors.size(); ++id)
@@ -1016,8 +1018,8 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     d->slowestFrameButton = new QtcButton(Tr::tr("Show in Timeline"), QtcButton::SmallLink);
     d->slowestFrameButton->setObjectName("showSlowestFrame");
     connect(d->slowestFrameButton, &QAbstractButton::clicked, this, [this] {
-        const qint64 end = d->stats->slowestFrameTimestamp();
-        const qint64 duration = qRound64(d->stats->slowestFrameTimeMs() * 1e6);
+        const nanoseconds end = d->stats->slowestFrameTimestamp();
+        const nanoseconds duration = round<nanoseconds>(d->stats->slowestFrameTime());
         emit timelineRangeRequested(end - duration, end);
     });
 
@@ -1317,12 +1319,12 @@ void QmlProfilerDashboardView::updateValues()
     d->overallRating->setScore(d->stats->overallScore());
     d->breakdown->setStats(*d->stats);
 
-    const bool hasSlowFrame = d->stats->slowestFrameTimestamp() >= 0
-                              && d->stats->slowestFrameTimeMs() > d->stats->onTargetFrameTimeMs();
+    const bool hasSlowFrame = d->stats->slowestFrameTimestamp() >= 0ns
+                              && d->stats->slowestFrameTime() > d->stats->onTargetFrameTime();
     if (hasSlowFrame) {
         d->slowestFrameLabel->setText(
             Tr::tr("Slowest frame: %1 ms at %2")
-                .arg(d->stats->slowestFrameTimeMs(), 0, 'f', 1)
+                .arg(d->stats->slowestFrameTime().count(), 0, 'f', 1)
                 .arg(Timeline::formatTime(d->stats->slowestFrameTimestamp()
                                           - d->manager->traceStart())));
     }

@@ -11,6 +11,7 @@
 #include <QImage>
 #include <QTest>
 
+using namespace std::chrono_literals;
 using namespace Timeline;
 
 class DummyTheme : public Utils::Theme
@@ -28,8 +29,8 @@ public:
     explicit CountingModel(TimelineModelAggregator *aggregator)
         : TimelineModel(aggregator)
     {
-        insert(0, 100, 0);
-        insert(500, 100, 0);
+        insert(0ns, 100ns, 0);
+        insert(500ns, 100ns, 0);
         setCollapsedRowCount(1);
         setExpandedRowCount(1);
     }
@@ -87,8 +88,8 @@ void tst_TimelineOverviewWidget::repaintingReusesTheContent()
 {
     TimelineModelAggregator aggregator;
     TimelineZoomControl zoom;
-    zoom.setTrace(0, 1000);
-    zoom.setRange(0, 1000);
+    zoom.setTrace(0ns, 1000ns);
+    zoom.setRange(0ns, 1000ns);
     auto model = new CountingModel(&aggregator);
     aggregator.addModel(model);
 
@@ -111,8 +112,8 @@ void tst_TimelineOverviewWidget::hidingAModelRedrawsTheContent()
 {
     TimelineModelAggregator aggregator;
     TimelineZoomControl zoom;
-    zoom.setTrace(0, 1000);
-    zoom.setRange(0, 1000);
+    zoom.setTrace(0ns, 1000ns);
+    zoom.setRange(0ns, 1000ns);
     auto model = new CountingModel(&aggregator);
     aggregator.addModel(model);
 

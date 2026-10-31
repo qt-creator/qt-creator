@@ -9,6 +9,7 @@
 #include <utils/qtcassert.h>
 
 using namespace QmlDebug;
+using namespace std::chrono;
 
 namespace Profiler::Internal {
 
@@ -26,9 +27,10 @@ QmlProfilerDashboardStats::QmlProfilerDashboardStats(QmlProfilerModelManager *ma
                               [this] { reset(); emit changed(); });
 }
 
-static double frameTimeMs(int framesPerSecond)
+static QmlProfilerDashboardStats::FrameTime frameDuration(int framesPerSecond)
 {
-    return framesPerSecond > 0 ? 1000.0 / framesPerSecond : 0.0;
+    using FrameTime = QmlProfilerDashboardStats::FrameTime;
+    return framesPerSecond > 0 ? FrameTime(1s) / framesPerSecond : FrameTime(0);
 }
 
 void QmlProfilerDashboardStats::loadEvent(const QmlEvent &event, const QmlEventType &type)
@@ -41,9 +43,9 @@ void QmlProfilerDashboardStats::loadEvent(const QmlEvent &event, const QmlEventT
 
     ++m_frameRates[event.number<qint32>(0)]; // frames per second
 
-    const double frameTime = frameTimeMs(event.number<qint32>(0));
-    if (frameTime > m_slowestFrameTimeMs) {
-        m_slowestFrameTimeMs = frameTime;
+    const FrameTime frameTime = frameDuration(event.number<qint32>(0));
+    if (frameTime > m_slowestFrameTime) {
+        m_slowestFrameTime = frameTime;
         m_slowestFrameTimestamp = event.timestamp();
     }
 }
@@ -56,15 +58,15 @@ void QmlProfilerDashboardStats::rate()
     m_framesStuttering = 0;
 
     for (auto it = m_frameRates.constBegin(), end = m_frameRates.constEnd(); it != end; ++it) {
-        const double frameTime = frameTimeMs(it.key());
-        if (frameTime <= onTargetFrameTimeMs())
+        const FrameTime frameTime = frameDuration(it.key());
+        if (frameTime <= onTargetFrameTime())
             m_framesOnTarget += it.value();
-        else if (frameTime <= nearTargetFrameTimeMs())
+        else if (frameTime <= nearTargetFrameTime())
             m_framesNearTarget += it.value();
         else
             m_framesFailed += it.value();
 
-        if (frameTime > stutterFrameTimeMs())
+        if (frameTime > stutterFrameTime())
             m_framesStuttering += it.value();
     }
 }
@@ -84,27 +86,27 @@ int QmlProfilerDashboardStats::targetFrameRate() const
     return m_targetFrameRate;
 }
 
-double QmlProfilerDashboardStats::onTargetFrameTimeMs() const
+QmlProfilerDashboardStats::FrameTime QmlProfilerDashboardStats::onTargetFrameTime() const
 {
-    return frameTimeMs(m_targetFrameRate);
+    return frameDuration(m_targetFrameRate);
 }
 
-double QmlProfilerDashboardStats::nearTargetFrameTimeMs() const
+QmlProfilerDashboardStats::FrameTime QmlProfilerDashboardStats::nearTargetFrameTime() const
 {
-    return onTargetFrameTimeMs() * kNearTargetFrameBudgets;
+    return onTargetFrameTime() * kNearTargetFrameBudgets;
 }
 
-double QmlProfilerDashboardStats::stutterFrameTimeMs() const
+QmlProfilerDashboardStats::FrameTime QmlProfilerDashboardStats::stutterFrameTime() const
 {
-    return onTargetFrameTimeMs() * kStutterFrameBudgets;
+    return onTargetFrameTime() * kStutterFrameBudgets;
 }
 
 void QmlProfilerDashboardStats::reset()
 {
     m_frameRates.clear();
     rate();
-    m_slowestFrameTimestamp = -1;
-    m_slowestFrameTimeMs = 0;
+    m_slowestFrameTimestamp = -1ns;
+    m_slowestFrameTime = FrameTime(0);
 }
 
 int QmlProfilerDashboardStats::framesOnTarget() const
@@ -216,14 +218,14 @@ int QmlProfilerDashboardStats::overallScore() const
     return score;
 }
 
-qint64 QmlProfilerDashboardStats::slowestFrameTimestamp() const
+nanoseconds QmlProfilerDashboardStats::slowestFrameTimestamp() const
 {
     return m_slowestFrameTimestamp;
 }
 
-double QmlProfilerDashboardStats::slowestFrameTimeMs() const
+QmlProfilerDashboardStats::FrameTime QmlProfilerDashboardStats::slowestFrameTime() const
 {
-    return m_slowestFrameTimeMs;
+    return m_slowestFrameTime;
 }
 
 ScoreRating scoreRating(int score)

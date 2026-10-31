@@ -8,6 +8,8 @@
 #include <tracing/timelineformatdata.h>
 
 using namespace QmlDebug;
+using namespace std::chrono;
+
 namespace Profiler::Internal {
 
 DebugMessagesModel::DebugMessagesModel(QmlProfilerModelManager *manager,
@@ -76,7 +78,7 @@ int DebugMessagesModel::collapsedRow(int index) const
 
 void DebugMessagesModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    m_data.insert(insert(event.timestamp(), 0, type.detailType()),
+    m_data.insert(insert(event.timestamp(), 0ns, type.detailType()),
                   Item(event.string(), event.typeIndex()));
     if (type.detailType() > m_maximumMsgType)
         m_maximumMsgType = type.detailType();
