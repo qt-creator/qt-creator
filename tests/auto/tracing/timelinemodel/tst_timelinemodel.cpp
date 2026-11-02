@@ -66,6 +66,7 @@ private slots:
     void defaultValues();
     void numberFormat();
     void unitFormat();
+    void timeFormat();
     void row();
     void colorByHue();
     void colorBySelectionId();
@@ -389,6 +390,23 @@ void tst_TimelineModel::unitFormat()
         QSKIP("The system locale formats numbers like QString::number().");
     QCOMPARE(formatPercentage(12800), formatNumber(12800) + '%');
     QCOMPARE(formatPixels(12800), formatNumber(12800) + " px");
+}
+
+void tst_TimelineModel::timeFormat()
+{
+    QCOMPARE(formatTime(0ns), QString("0 ns"));
+    QCOMPARE(formatTime(999ns), QString("999 ns"));
+    QCOMPARE(formatTime(1'500ns), QString::fromLatin1("1.5 \xb5s"));
+    QCOMPARE(formatTime(999'000ns), QString::fromLatin1("999 \xb5s"));
+    QCOMPARE(formatTime(999'600ns), QString::fromLatin1("999.6 \xb5s"));
+    QCOMPARE(formatTime(12'500'000ns), QString("12.5 ms"));
+    QCOMPARE(formatTime(999'000'000ns), QString("999 ms"));
+    QCOMPARE(formatTime(1'000'000'000ns), QString("1 s"));
+    QCOMPARE(formatTime(12'500'000'000ns), QString("12.5 s"));
+    QCOMPARE(formatTime(59'000'000'000ns), QString("59 s"));
+    QCOMPARE(formatTime(1'234'500'000'000ns), QString("20m 34.5s"));
+    QCOMPARE(formatTime(3'899'000'000'000ns), QString("1h 5m"));
+    QCOMPARE(formatTime(3'899'000'000'000ns, 1'000'000'000ns), QString("1h 4m 59s"));
 }
 
 void tst_TimelineModel::row()

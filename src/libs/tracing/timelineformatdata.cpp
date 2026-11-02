@@ -12,59 +12,42 @@ QString formatTime(std::chrono::nanoseconds time, std::chrono::nanoseconds refer
     const qint64 timestamp = time.count();
     const qint64 reference = referenceTime.count();
     static const char *decimalUnits[] = {" ns", " \xb5s", " ms", " s"};
-    static const double second = 1e9;
-    static const double minute = 60;
-    static const double hour = 60;
+    constexpr qint64 second = 1'000'000'000;
+    constexpr qint64 minute = 60 * second;
+    constexpr qint64 hour = 60 * minute;
 
-    int round = 1;
-    qint64 barrier = 1;
+    // Resolve a hundredth of the reference, and at least a tenth of the unit.
+    qint64 resolution = 1;
+    while (resolution * 10 <= reference / 100)
+        resolution *= 10;
 
-    for (uint i = 0, end = sizeof(decimalUnits) / sizeof(char *); i < end; ++i) {
-        const double dividend = barrier;
-        if (reference < barrier) {
-            round += 3;
-            barrier *= 1000;
-        } else {
-            barrier *= 10;
-            if (reference < barrier) {
-                round += 2;
-                barrier *= 100;
-            } else {
-                barrier *= 10;
-                if (reference < barrier)
-                    round += 1;
-                barrier *= 10;
-            }
-        }
-        if (timestamp < barrier) {
-            return QString::number(timestamp / dividend, 'g', qMax(round, 3))
-                    + QString::fromLatin1(decimalUnits[i]);
-        }
+    const auto rounded = [timestamp](qint64 step) {
+        return (timestamp + step / 2) / step * step;
+    };
+    const auto number = [](qint64 value, qint64 unit) {
+        return QString::number(double(value) / unit, 'f', QLocale::FloatingPointShortest);
+    };
+
+    qint64 unit = 1;
+    for (const char *unitName : decimalUnits) {
+        const qint64 value = rounded(qMax(qint64(1), qMin(resolution, unit / 10)));
+        if (value < 1000 * unit)
+            return number(value, unit) + QLatin1String(unitName);
+        unit *= 1000;
     }
 
-    double seconds = timestamp / second;
-    if (seconds < minute) {
-        return QString::number(seconds, 'g', qMax(round, 3)) + " s";
-    } else {
-        int minutes = seconds / minute;
-        seconds -= minutes * minute;
-        if (minutes < hour) {
-            return QString::fromLatin1("%1m %2s").arg(QString::number(minutes),
-                                                      QString::number(seconds, 'g', round));
-        } else {
-            int hours = minutes / hour;
-            minutes -= hours * hour;
-            if (reference < barrier * minute) {
-                return QString::fromLatin1("%1h %2m %3s").arg(QString::number(hours),
-                                                              QString::number(minutes),
-                                                              QString::number(seconds, 'g', round));
-            } else {
-                return QString::fromLatin1("%1h %2m").arg(QString::number(hours),
-                                                          QString::number(minutes));
-            }
+    const qint64 value = rounded(qMin(resolution, second / 10));
+    const QString minutes = QString::number(value / minute % 60) + 'm';
+    const QString seconds = number(value % minute, second) + 's';
+    if (value < hour)
+        return minutes + ' ' + seconds;
 
-        }
+    if (resolution >= minute) {
+        const qint64 wholeMinutes = rounded(minute);
+        return QString::number(wholeMinutes / hour) + "h "
+               + QString::number(wholeMinutes / minute % 60) + 'm';
     }
+    return QString::number(value / hour) + "h " + minutes + ' ' + seconds;
 }
 
 QString formatDataSize(qint64 bytes)
