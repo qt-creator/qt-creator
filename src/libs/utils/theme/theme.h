@@ -210,6 +210,7 @@ public:
 
         Token_Basic_Black,
         Token_Basic_White,
+        Token_Basic_Inverted,
         Token_Accent_Default,
         Token_Accent_Muted,
         Token_Accent_Subtle,

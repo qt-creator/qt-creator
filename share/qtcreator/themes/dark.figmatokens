@@ -6,6 +6,7 @@ Includes=primitive-colors.inc
 
 Token_Basic_Black=Primitive-Neutral-900
 Token_Basic_White=Primitive-Neutral-100
+Token_Basic_Inverted=Primitive-Neutral-100
 
 Token_Accent_Default=Primitive-Neon-600
 Token_Accent_Muted=Primitive-Neon-700

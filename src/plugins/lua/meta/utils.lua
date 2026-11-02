@@ -214,6 +214,7 @@ utils.IconStyleOption = {
 utils.ThemeColor = {
     Token_Basic_Black = 0,
     Token_Basic_White = 0,
+    Token_Basic_Inverted = 0,
     Token_Accent_Default = 0,
     Token_Accent_Muted = 0,
     Token_Accent_Subtle = 0,
