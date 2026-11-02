@@ -447,8 +447,7 @@ void TimelineContentWidget::positionFrameTimeLabel()
 void TimelineContentWidget::updateFrameTime()
 {
     // Worst full-frame render time observed in the last sample window.
-    const double ms = std::chrono::duration<double, std::milli>(m_maxRender).count();
-    m_frameTimeLabel->setText(QString::number(ms, 'f', 1) + " ms");
+    m_frameTimeLabel->setText(formatTime(m_maxRender));
     m_maxRender = {};
     m_frameTimeLabel->adjustSize();
     positionFrameTimeLabel();

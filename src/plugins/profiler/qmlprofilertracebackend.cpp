@@ -391,9 +391,7 @@ void QmlProfilerTraceBackend::updateTimeDisplay()
             elapsed = modelManager()->traceDuration();
         break;
     }
-    const double seconds = std::chrono::duration<double>(elapsed).count();
-    const QString timeString = QString::number(seconds, 'f', 1);
-    d->timeLabel.setText(Tr::tr("Elapsed: %1").arg(Tr::tr("%1 s").arg(timeString, 6)));
+    setTimeLabelText(d->timeLabel, Tr::tr("Elapsed: %1"), elapsed);
 }
 
 void QmlProfilerTraceBackend::showTimelineSearch()

@@ -13,6 +13,10 @@
 
 #include <chrono>
 
+QT_BEGIN_NAMESPACE
+class QLabel;
+QT_END_NAMESPACE
+
 namespace Profiler::Internal {
 
 // One trace's worth of models and views. A ProfilerTraceDocument owns its
@@ -63,6 +67,10 @@ signals:
     void gotoSourceLocation(const Utils::Link &link);
     // Show view `to`, but only if view `from` is the current one.
     void viewSwitchRequested(QWidget *to, QWidget *from);
+
+protected:
+    static void setTimeLabelText(QLabel &label, const QString &format,
+                                 std::chrono::nanoseconds time);
 };
 
 } // namespace Profiler::Internal

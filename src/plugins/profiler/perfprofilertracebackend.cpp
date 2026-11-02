@@ -427,22 +427,17 @@ void PerfProfilerTraceBackend::finalize()
 
 void PerfProfilerTraceBackend::updateTime(nanoseconds duration, nanoseconds delay)
 {
-    const auto wholeSeconds = [](nanoseconds time) { return duration_cast<seconds>(time).count(); };
-    const auto tenths = [](nanoseconds time) {
-        return qAbs(duration_cast<milliseconds>(time).count() / 100) % 10;
-    };
-
     if (duration > 0ns) {
-        d->recordedLabel.setText(
-            Tr::tr("Recorded: %1.%2s").arg(wholeSeconds(duration)).arg(tenths(duration)));
+        setTimeLabelText(d->recordedLabel, Tr::tr("Recorded: %1"), duration);
     } else if (duration == 0ns) {
+        d->recordedLabel.setMinimumWidth(0);
         d->recordedLabel.clear();
     }
 
     if (delay > 0ns) {
-        d->delayLabel.setText(
-            Tr::tr("Processing delay: %1.%2s").arg(wholeSeconds(delay)).arg(tenths(delay)));
+        setTimeLabelText(d->delayLabel, Tr::tr("Processing delay: %1"), delay);
     } else if (delay == 0ns) {
+        d->delayLabel.setMinimumWidth(0);
         d->delayLabel.clear();
     }
 }
