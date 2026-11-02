@@ -127,7 +127,8 @@ static bool documentContainsMemberFunctionDeclaration(const Document::Ptr &docum
 class GoToSlotTestCase : public CppEditor::Tests::TestCase
 {
 public:
-    GoToSlotTestCase(const FilePaths &files, bool pointerToMember, const QString &expectedConnect)
+    GoToSlotTestCase(const FilePaths &files, const FilePaths &otherIncluders, bool pointerToMember,
+                     const QString &expectedConnect)
     {
         QVERIFY(succeededSoFar());
         QCOMPARE(files.size(), 3);
@@ -146,12 +147,17 @@ public:
             closeEditorAtEndOfTestCase(editor);
             editors << e;
         }
+        for (const FilePath &file : otherIncluders) {
+            IEditor *editor = EditorManager::openEditor(file);
+            QVERIFY(editor);
+            closeEditorAtEndOfTestCase(editor);
+        }
 
         const FilePath cppFile = files.at(0);
         const FilePath hFile = files.at(1);
 
-        QCOMPARE(DocumentModel::openedDocuments().size(), files.size());
-        waitForFilesInGlobalSnapshot({cppFile, hFile});
+        QCOMPARE(DocumentModel::openedDocuments().size(), files.size() + otherIncluders.size());
+        waitForFilesInGlobalSnapshot(FilePaths{cppFile, hFile} + otherIncluders);
 
         // Execute "Go To Slot"
         QDesignerIntegrationInterface *integration = designerEditor()->integration();
@@ -252,14 +258,16 @@ void GoToSlotTest::test_gotoslot()
     } systemSettingsMgr;
 
     QFETCH(FilePaths, files);
+    QFETCH(FilePaths, otherIncluders);
     QFETCH(bool, pointerToMember);
     QFETCH(QString, expectedConnect);
-    (GoToSlotTestCase(files, pointerToMember, expectedConnect));
+    (GoToSlotTestCase(files, otherIncluders, pointerToMember, expectedConnect));
 }
 
 void GoToSlotTest::test_gotoslot_data()
 {
     QTest::addColumn<FilePaths>("files");
+    QTest::addColumn<FilePaths>("otherIncluders");
     QTest::addColumn<bool>("pointerToMember");
     QTest::addColumn<QString>("expectedConnect");
 
@@ -278,15 +286,17 @@ void GoToSlotTest::test_gotoslot_data()
     const FilePaths withoutProjectFiles({testDataDirWithoutProject / "form.cpp",
                                          testDataDirWithoutProject / "form.h",
                                          testDataDirWithoutProject / "form.ui"});
-    QTest::newRow("withoutProject") << withoutProjectFiles << true << connectVia("ui->");
-    QTest::newRow("withoutProject_legacy") << withoutProjectFiles << false << QString();
+    QTest::newRow("withoutProject") << withoutProjectFiles << FilePaths() << true
+                                    << connectVia("ui->");
+    QTest::newRow("withoutProject_legacy") << withoutProjectFiles << FilePaths() << false
+                                           << QString();
 
     const FilePath testDataDirMemberUi = dataDir("gotoslot_m_ui");
     QVERIFY(testDataDirMemberUi.exists());
     QTest::newRow("memberPrefixedUi")
         << FilePaths({testDataDirMemberUi / "form.cpp", testDataDirMemberUi / "form.h",
                       testDataDirWithoutProject / "form.ui"}) // reuse
-        << true << connectVia("m_ui->");
+        << FilePaths() << true << connectVia("m_ui->");
 
     // Finding the right class for inserting definitions/declarations is based on
     // finding a class with a member whose type is the class from the "ui_xxx.h" header.
@@ -300,20 +310,31 @@ void GoToSlotTest::test_gotoslot_data()
     QTest::newRow("insertIntoCorrectClass_pointer")
         << FilePaths({testDataDir / "form.cpp", testDataDir / "form.h",
                       testDataDirWithoutProject / "form.ui"}) // reuse
-        << true << connectVia("ui->");
+        << FilePaths() << true << connectVia("ui->");
 
     testDataDir = dataDir("gotoslot_insertIntoCorrectClass_non-pointer");
     QVERIFY(testDataDir.exists());
     QTest::newRow("insertIntoCorrectClass_non-pointer")
         << FilePaths({testDataDir / "form.cpp", testDataDir / "form.h",
                         testDataDirWithoutProject / "form.ui"}) // reuse
-        << true << connectVia("ui.");
+        << FilePaths() << true << connectVia("ui.");
 
     testDataDir = dataDir("gotoslot_insertIntoCorrectClass_pointer_ns_using");
     QVERIFY(testDataDir.exists());
     QTest::newRow("insertIntoCorrectClass_pointer_ns_using")
         << FilePaths({testDataDir / "form.cpp", testDataDir / "form.h",
-                      testDataDir / "form.ui"}) << true << connectVia("ui->");
+                      testDataDir / "form.ui"}) << FilePaths() << true << connectVia("ui->");
+
+    // Files in the same directory are the same distance from the form. None of the
+    // other includers knows the form's class, so dropping the right one breaks the lookup.
+    testDataDir = dataDir("gotoslot_sameDistance");
+    QVERIFY(testDataDir.exists());
+    QTest::newRow("sameDistance")
+        << FilePaths({testDataDir / "form.cpp", testDataDir / "form.h",
+                      testDataDirWithoutProject / "form.ui"}) // reuse
+        << FilePaths({testDataDir / "decoy1.cpp", testDataDir / "decoy2.cpp",
+                      testDataDir / "decoy3.cpp", testDataDir / "decoy4.cpp"})
+        << true << connectVia("ui->");
 }
 
 QObject *createGoToSlotTest()

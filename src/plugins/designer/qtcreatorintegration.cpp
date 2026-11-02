@@ -606,7 +606,8 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
                                           const QStringList &parameterNames,
                                           QString *errorMessage)
 {
-    using DocumentMap = QMap<int, Document::Ptr>;
+    // A multi map: two files can be the same distance from the form.
+    using DocumentMap = QMultiMap<int, Document::Ptr>;
 
     const FilePath currentUiFile = activeEditor()->document()->filePath();
 #if 0
