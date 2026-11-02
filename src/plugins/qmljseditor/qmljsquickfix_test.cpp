@@ -223,6 +223,8 @@ void QmlJSQuickFixTest::testMoveComponentIntoSeparateFile()
             edit->setText("MyComponent");
             QWidget *ok = GuiTest::findWidget(GuiTest::byButtonText("OK"), dialog);
             QVERIFY(ok);
+            // The path is validated asynchronously, OK is enabled once it is.
+            QTRY_VERIFY(ok->isEnabled());
             GuiTest::click(ok);
         });
     });
