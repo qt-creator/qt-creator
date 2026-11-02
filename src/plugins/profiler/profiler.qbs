@@ -359,6 +359,7 @@ QtcPlugin {
             "qmlprofilertool_test.cpp", "qmlprofilertool_test.h",
             "qmlprofilertracefile_test.cpp", "qmlprofilertracefile_test.h",
             "qmlprofilertraceview_test.cpp", "qmlprofilertraceview_test.h",
+            "quick3dframemodel_test.cpp", "quick3dframemodel_test.h",
             "quick3dmodel_test.cpp", "quick3dmodel_test.h",
             "qttracesampler_test.cpp", "qttracesampler_test.h",
             "samplerviewmanager_test.cpp", "samplerviewmanager_test.h",

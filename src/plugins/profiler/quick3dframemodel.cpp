@@ -176,7 +176,7 @@ QVariant Quick3DFrameModel::data(const QModelIndex &index, int role) const
             result = QVariant::fromValue(data);
         } break;
         case FrameDelta: {
-            if (item.frameDelta > 0ns) {
+            if (item.frameDelta != 0ns) {
                 QString data = Timeline::formatTime(item.frameDelta);
                 result = QVariant::fromValue(data);
             }
@@ -204,7 +204,7 @@ QVariant Quick3DFrameModel::data(const QModelIndex &index, int role) const
             result = QVariant::fromValue(qint64((item.end - item.begin).count()));
             break;
         case FrameDelta:
-            if (item.frameDelta > 0ns)
+            if (item.frameDelta != 0ns)
                 result = QVariant::fromValue(qint64(item.frameDelta.count()));
             break;
         default:

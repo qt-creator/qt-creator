@@ -55,6 +55,7 @@
 #include "tests/qmlprofilertool_test.h"
 #include "tests/qmlprofilertracefile_test.h"
 #include "tests/qmlprofilertraceview_test.h"
+#include "tests/quick3dframemodel_test.h"
 #include "tests/quick3dmodel_test.h"
 #include "tests/qttracesampler_test.h"
 #include "tests/samplerviewmanager_test.h"
@@ -124,6 +125,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<QmlProfilerToolTest>();
         addTest<QmlProfilerTraceFileTest>();
         addTest<QmlProfilerTraceViewTest>();
+        addTest<Quick3DFrameModelTest>();
         addTest<Quick3DModelTest>();
         addTest<QtTraceSamplerTest>();
         addTest<SamplerViewManagerTest>();
