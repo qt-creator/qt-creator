@@ -60,7 +60,7 @@ void DependencyTable::build(const std::optional<QFuture<void>> &future, const Sn
             const FilePaths documentIncludes = doc->includedFiles();
 
             for (const FilePath &includedFile : documentIncludes) {
-                int index = fileIndex.value(includedFile);
+                int index = fileIndex.value(includedFile, -1);
 
                 if (index == -1)
                     continue;

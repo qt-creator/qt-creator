@@ -28,6 +28,8 @@ private slots:
     void typeMatcher();
 
     void doNotCrashForInvalidRawString();
+
+    void dependencyTableIgnoresIncludesOutsideTheSnapshot();
 };
 
 void tst_Misc::diagnosticClient_error()
@@ -255,6 +257,28 @@ void tst_Misc::doNotCrashForInvalidRawString()
     Document::Ptr doc = Document::create("crash");
     doc->setUtf8Source(src);
     doc->check();
+}
+
+void tst_Misc::dependencyTableIgnoresIncludesOutsideTheSnapshot()
+{
+    const auto addDocument = [](Snapshot &snapshot, const QString &fileName,
+                                const QList<Document::Include> &includes) {
+        const Document::Ptr doc = Document::create(Utils::FilePath::fromString(fileName));
+        for (const Document::Include &include : includes)
+            doc->addIncludeFile(include);
+        snapshot.insert(doc);
+    };
+
+    // Whichever file comes first in the snapshot, nothing includes it.
+    Snapshot snapshot;
+    addDocument(snapshot, "/project/source.cpp",
+                {Document::Include("outside.h", Utils::FilePath::fromString("/outside/outside.h"),
+                                   1, Client::IncludeLocal)});
+    addDocument(snapshot, "/project/a.h", {});
+    addDocument(snapshot, "/project/b.h", {});
+
+    for (auto it = snapshot.begin(); it != snapshot.end(); ++it)
+        QVERIFY2(snapshot.filesDependingOn(it.key()).isEmpty(), qPrintable(it.key().path()));
 }
 
 QTEST_GUILESS_MAIN(tst_Misc)
