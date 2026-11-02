@@ -36,6 +36,11 @@ CPPEDITOR_EXPORT QSet<Utils::FilePath> includeClosureOf(const CPlusPlus::Snapsho
 CPPEDITOR_EXPORT Utils::FilePaths filesDependingOn(const CPlusPlus::Snapshot &snapshot,
                                                    const Utils::FilePath &filePath);
 
+// Matches by file name, resolved or not, for headers like ui_<form>.h whose
+// location is unknown.
+CPPEDITOR_EXPORT Utils::FilePaths includersOfFileNamed(const CPlusPlus::Snapshot &snapshot,
+                                                       const QString &fileName);
+
 #ifdef WITH_TESTS
 namespace Internal { QObject *createIndexQueriesTest(); }
 #endif

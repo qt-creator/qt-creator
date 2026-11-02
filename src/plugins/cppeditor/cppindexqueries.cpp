@@ -51,6 +51,21 @@ FilePaths filesDependingOn(const Snapshot &snapshot, const FilePath &filePath)
     return snapshot.filesDependingOn(filePath);
 }
 
+FilePaths includersOfFileNamed(const Snapshot &snapshot, const QString &fileName)
+{
+    const auto isNamed = [&fileName](const Document::Include &include) {
+        return FilePath::fromString(include.unresolvedFileName()).fileName() == fileName;
+    };
+    FilePaths includers;
+    for (const Document::Ptr &doc : snapshot) {
+        if (Utils::anyOf(doc->resolvedIncludes(), isNamed)
+            || Utils::anyOf(doc->unresolvedIncludes(), isNamed)) {
+            includers.append(doc->filePath());
+        }
+    }
+    return includers;
+}
+
 } // namespace CppEditor
 
 #ifdef WITH_TESTS
@@ -80,6 +95,7 @@ private slots:
     void testIncludedFilesOf();
     void testIncludeClosureOf();
     void testFilesDependingOn();
+    void testIncludersOfFileNamed();
 };
 
 void IndexQueriesTest::testIncludersOf()
@@ -199,6 +215,37 @@ void IndexQueriesTest::testFilesDependingOn()
 
     QVERIFY(filesDependingOn(snapshot, directIncluder).isEmpty());
     QVERIFY(filesDependingOn(snapshot, unknown).isEmpty());
+}
+
+void IndexQueriesTest::testIncludersOfFileNamed()
+{
+    const FilePath generated = FilePath::fromString("/build/forms/ui_form.h");
+    const FilePath resolvedIncluder = FilePath::fromString("/project/resolved.cpp");
+    const FilePath unresolvedIncluder = FilePath::fromString("/project/unresolved.cpp");
+    const FilePath repeatedIncluder = FilePath::fromString("/project/repeated.cpp");
+    const FilePath otherIncluder = FilePath::fromString("/project/other.cpp");
+    const FilePath prefixIncluder = FilePath::fromString("/project/prefix.cpp");
+
+    const auto named = [](const QString &name, int line) {
+        return Document::Include(name, {}, line, Client::IncludeLocal);
+    };
+
+    Snapshot snapshot;
+    addDocument(snapshot, generated, {});
+    addDocument(snapshot, resolvedIncluder,
+                {Document::Include("forms/ui_form.h", generated, 1, Client::IncludeLocal)});
+    addDocument(snapshot, unresolvedIncluder, {named("ui_form.h", 1)});
+    addDocument(snapshot, repeatedIncluder, {named("ui_form.h", 1), named("ui_form.h", 2)});
+    addDocument(snapshot, otherIncluder, {named("ui_other.h", 1)});
+    addDocument(snapshot, prefixIncluder, {named("my_ui_form.h", 1)});
+
+    FilePaths actual = includersOfFileNamed(snapshot, "ui_form.h");
+    Utils::sort(actual);
+    FilePaths expected{resolvedIncluder, unresolvedIncluder, repeatedIncluder};
+    Utils::sort(expected);
+    QCOMPARE(actual, expected);
+
+    QVERIFY(includersOfFileNamed(snapshot, "nothing_includes_this.h").isEmpty());
 }
 
 QObject *createIndexQueriesTest()

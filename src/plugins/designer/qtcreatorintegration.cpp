@@ -13,6 +13,7 @@
 #include <designer/cpp/formclasswizardpage.h>
 
 #include <cppeditor/cppeditorwidget.h>
+#include <cppeditor/cppindexqueries.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/cppworkingcopy.h>
@@ -187,28 +188,6 @@ QWidget *QtCreatorIntegration::containerWindow(QWidget * /*widget*/) const
     if (SharedTools::WidgetHost *host = activeWidgetHost())
         return host->integrationContainer();
     return nullptr;
-}
-
-static QList<Document::Ptr> findDocumentsIncluding(const Snapshot &docTable,
-                                                   const QString &fileName, bool checkFileNameOnly)
-{
-    QList<Document::Ptr> docList;
-    for (const Document::Ptr &doc : docTable) { // we go through all documents
-        const QList<Document::Include> includes = doc->resolvedIncludes()
-            + doc->unresolvedIncludes();
-        for (const Document::Include &include : includes) {
-            if (checkFileNameOnly) {
-                const QFileInfo fi(include.unresolvedFileName());
-                if (fi.fileName() == fileName) { // we are only interested in docs which includes fileName only
-                    docList.append(doc);
-                }
-            } else {
-                if (include.resolvedFileName().path() == fileName)
-                    docList.append(doc);
-            }
-        }
-    }
-    return docList;
 }
 
 // Does klass inherit baseClass?
@@ -634,8 +613,8 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     return Designer::Internal::navigateToSlot(currentUiFile.toString(), objectName,
                                               signalSignature, parameterNames, errorMessage);
 #endif
-    // TODO: we should pass to findDocumentsIncluding an absolute path to generated .h file from ui.
-    // Currently we are guessing the name of ui_<>.h file and pass the file name only to the findDocumentsIncluding().
+    // TODO: we should look for an absolute path to generated .h file from ui.
+    // Currently we are guessing the name of ui_<>.h file and look for the file name only.
     // The idea is that the .pro file knows if the .ui files is inside, and the .pro file knows it will
     // be generating the ui_<>.h file for it, and the .pro file knows what the generated file's name and its absolute path will be.
     // So we should somehow get that info from project manager (?)
@@ -668,7 +647,9 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     // take all docs, find the ones that include the ui_xx.h.
     // Sort into a map, putting the ones whose path closely matches the ui-folder path
     // first in case there are project subdirectories that contain identical file names.
-    const QList<Document::Ptr> docList = findDocumentsIncluding(docTable, uicedName, true); // change to false when we know the absolute path to generated ui_<>.h file
+    QList<Document::Ptr> docList;
+    for (const FilePath &includer : CppEditor::includersOfFileNamed(docTable, uicedName))
+        docList.append(docTable.document(includer));
     DocumentMap docMap;
     for (const Document::Ptr &d : docList) {
         docMap.insert(qAbs(d->filePath().absolutePath().toUrlishString()
