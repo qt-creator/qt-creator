@@ -40,6 +40,9 @@ private slots:
     void testSettingsChanges();
     void testOptionalIndexing_data();
     void testOptionalIndexing();
+    void testTheHeaderPathsOfSeveralProjectsComeInOneOrder();
+    void testTheMacrosOfSeveralProjectsComeInOneOrder();
+    void testAFileSeveralProjectsListIsReadWithOneOfThem();
 };
 
 } // namespace CppEditor::Internal

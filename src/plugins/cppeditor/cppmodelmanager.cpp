@@ -224,6 +224,7 @@ public:
     QList<Document::DiagnosticMessage> m_diagnosticMessages;
 
     static void recalculateProjectPartMappings(SyncedProjectData &ld);
+    static const QList<const ProjectData *> projectDataInStableOrder(const SyncedProjectData &ld);
     static void ensureUpdated(SyncedProjectData &ld);
     static Utils::FilePaths internalProjectFiles(SyncedProjectData &ld);
     static ProjectExplorer::HeaderPaths internalHeaderPaths(SyncedProjectData &ld);
@@ -1063,11 +1064,27 @@ FilePaths CppModelManagerPrivate::internalProjectFiles(SyncedProjectData &ld)
     return files;
 }
 
+// The order of the hash can differ between runs. Where several projects contribute,
+// the order decides which header an include resolves to, which definition of a macro
+// takes effect and which project part comes first for a file listed by several projects.
+const QList<const ProjectData *>
+CppModelManagerPrivate::projectDataInStableOrder(const SyncedProjectData &ld)
+{
+    QList<const ProjectData *> ordered;
+    ordered.reserve(ld.m_projectData.size());
+    for (const ProjectData &projectData : ld.m_projectData)
+        ordered.append(&projectData);
+    Utils::sort(ordered, [](const ProjectData *a, const ProjectData *b) {
+        return a->projectInfo->projectFilePath() < b->projectInfo->projectFilePath();
+    });
+    return ordered;
+}
+
 HeaderPaths CppModelManagerPrivate::internalHeaderPaths(SyncedProjectData &ld)
 {
     HeaderPaths headerPaths;
-    for (const ProjectData &projectData : std::as_const(ld.m_projectData)) {
-        for (const ProjectPart::ConstPtr &part : projectData.projectInfo->projectParts()) {
+    for (const ProjectData *projectData : projectDataInStableOrder(ld)) {
+        for (const ProjectPart::ConstPtr &part : projectData->projectInfo->projectParts()) {
             for (const HeaderPath &path : part->headerPaths) {
                 HeaderPath hp(path.path, path.type);
                 if (!headerPaths.contains(hp))
@@ -1091,8 +1108,8 @@ Macros CppModelManagerPrivate::internalDefinedMacros(SyncedProjectData &ld)
 {
     Macros macros;
     QSet<ProjectExplorer::Macro> alreadyIn;
-    for (const ProjectData &projectData : std::as_const(ld.m_projectData)) {
-        for (const ProjectPart::ConstPtr &part : projectData.projectInfo->projectParts()) {
+    for (const ProjectData *projectData : projectDataInStableOrder(ld)) {
+        for (const ProjectPart::ConstPtr &part : projectData->projectInfo->projectParts()) {
             addUnique(part->toolchainMacros, macros, alreadyIn);
             addUnique(part->projectMacros, macros, alreadyIn);
         }
@@ -1449,8 +1466,8 @@ void CppModelManagerPrivate::recalculateProjectPartMappings(SyncedProjectData &l
 {
     ld.m_projectPartIdToProjectProjectPart.clear();
     ld.m_fileToProjectParts.clear();
-    for (const ProjectData &projectData : std::as_const(ld.m_projectData)) {
-        for (const ProjectPart::ConstPtr &projectPart : projectData.projectInfo->projectParts()) {
+    for (const ProjectData *projectData : projectDataInStableOrder(ld)) {
+        for (const ProjectPart::ConstPtr &projectPart : projectData->projectInfo->projectParts()) {
             ld.m_projectPartIdToProjectProjectPart[projectPart->id()] = projectPart;
             for (const ProjectFile &cxxFile : projectPart->files) {
                 ld.m_fileToProjectParts[cxxFile.path].append(projectPart);

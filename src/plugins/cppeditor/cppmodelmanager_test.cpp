@@ -1670,4 +1670,103 @@ void ModelManagerTest::testOptionalIndexing()
     QCOMPARE(hasEntry("foo2"), foo2Present);
 }
 
+// The order must not depend on the hash order, which differs between processes.
+// Enough projects that the two orders cannot agree by chance.
+void ModelManagerTest::testTheHeaderPathsOfSeveralProjectsComeInOneOrder()
+{
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+
+    const int projectCount = 8;
+    FilePaths expected;
+    for (int i = 0; i < projectCount; ++i)
+        expected << projectDir / QString("include%1").arg(i);
+    for (int i = projectCount - 1; i >= 0; --i) {
+        const FilePath source = projectDir / QString("p%1.cpp").arg(i);
+        QVERIFY(source.writeFileContents("int x;\n"));
+        const auto project = helper.createProject(QString("p%1").arg(i),
+                                                  projectDir / QString("p%1.pro").arg(i));
+        RawProjectPart rpp;
+        rpp.setQtVersion(Utils::QtMajorVersion::None);
+        rpp.setHeaderPaths({HeaderPath::makeUser(expected.at(i))});
+        const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                              {{source, ProjectFile::CXXSource}});
+        helper.updateProjectInfo(
+            ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part}));
+    }
+
+    FilePaths actual;
+    for (const HeaderPaths &all = CppModelManager::headerPaths();
+         const HeaderPath &headerPath : all) {
+        if (expected.contains(headerPath.path))
+            actual << headerPath.path;
+    }
+    QCOMPARE(actual, expected);
+}
+
+// The order must not depend on the hash order, which differs between processes.
+// Enough projects that the two orders cannot agree by chance.
+void ModelManagerTest::testTheMacrosOfSeveralProjectsComeInOneOrder()
+{
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+
+    const int projectCount = 8;
+    for (int i = projectCount - 1; i >= 0; --i) {
+        const FilePath source = projectDir / QString("p%1.cpp").arg(i);
+        QVERIFY(source.writeFileContents("int x;\n"));
+        const auto project = helper.createProject(QString("p%1").arg(i),
+                                                  projectDir / QString("p%1.pro").arg(i));
+        RawProjectPart rpp;
+        rpp.setQtVersion(Utils::QtMajorVersion::None);
+        rpp.setMacros({{"ORDERED_BY_PROJECT", QByteArray::number(i)}});
+        const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                              {{source, ProjectFile::CXXSource}});
+        helper.updateProjectInfo(
+            ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part}));
+    }
+
+    QByteArrayList values;
+    for (const Macros &all = CppModelManager::definedMacros(); const Macro &macro : all) {
+        if (macro.key == "ORDERED_BY_PROJECT")
+            values.append(macro.value);
+    }
+    QCOMPARE(values, QByteArrayList({"0", "1", "2", "3", "4", "5", "6", "7"}));
+}
+
+// The part a shared file is read with must not depend on the hash order of the
+// projects. Enough projects that the two orders cannot agree by chance.
+void ModelManagerTest::testAFileSeveralProjectsListIsReadWithOneOfThem()
+{
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath shared = projectDir / "shared.cpp";
+    QVERIFY(shared.writeFileContents("int x;\n"));
+
+    const int projectCount = 8;
+    for (int i = projectCount - 1; i >= 0; --i) {
+        const auto project = helper.createProject(QString("p%1").arg(i),
+                                                  projectDir / QString("p%1.pro").arg(i));
+        RawProjectPart rpp;
+        rpp.setQtVersion(Utils::QtMajorVersion::None);
+        const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                              {{shared, ProjectFile::CXXSource}});
+        helper.updateProjectInfo(
+            ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part}));
+    }
+
+    const QList<ProjectPart::ConstPtr> parts = CppModelManager::projectPart(shared);
+    QCOMPARE(parts.size(), projectCount);
+    QCOMPARE(parts.first()->topLevelProject, projectDir / "p0.pro");
+}
+
 } // CppEditor::Internal
