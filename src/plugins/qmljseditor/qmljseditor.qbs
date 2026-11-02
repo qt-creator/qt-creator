@@ -22,6 +22,8 @@ QtcPlugin {
         "qmllsclient.h",
         "qmllsclientsettings.cpp",
         "qmllsclientsettings.h",
+        "qmllsmovecomponent.cpp",
+        "qmllsmovecomponent.h",
         "qmljsautocompleter.cpp",
         "qmljsautocompleter.h",
         "qmljscompletionassist.cpp",

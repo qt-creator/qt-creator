@@ -6,9 +6,15 @@
 #include "qmljseditor_global.h"
 #include "qmljsquickfix.h"
 
+namespace Utils { class FilePath; }
+
 namespace QmlJSEditor {
 
 class QmlJSEditorWidget;
+
+namespace Internal {
+void addComponentFile(const Utils::FilePath &currentFile, const Utils::FilePath &newFile);
+} // namespace Internal
 
 QMLJSEDITOR_EXPORT void matchComponentFromObjectDefQuickFix(
     const Internal::QmlJSQuickFixAssistInterface *interface, QuickFixOperations &result);

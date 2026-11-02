@@ -8,6 +8,7 @@
 #include "qmljseditordocument.h"
 #include "qmljsquickfix.h"
 #include "qmllsclientsettings.h"
+#include "qmllsmovecomponent.h"
 
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
@@ -15,6 +16,7 @@
 
 #include <projectexplorer/buildmanager.h>
 
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/iassistprovider.h>
 #include <texteditor/textdocument.h>
@@ -91,7 +93,22 @@ private:
     TextEditor::GenericProposal *handleCodeActionResult(
         const LanguageServerProtocol::CodeActionRequestResult &result) override
     {
-        QuickFixOperations operations = resultToOperations(result);
+        using namespace LanguageServerProtocol;
+        QList<CommandOrCodeAction> items;
+        QuickFixOperations moveComponentOperations;
+        if (const auto list = std::get_if<QList<CommandOrCodeAction>>(&result)) {
+            for (const CommandOrCodeAction &item : *list) {
+                const auto action = std::get_if<CodeAction>(&item);
+                if (action && Internal::isMoveComponentAction(*action)) {
+                    moveComponentOperations << Internal::createMoveComponentOperation(
+                        *action, client(), interface()->filePath());
+                } else {
+                    items << item;
+                }
+            }
+        }
+        QuickFixOperations operations = resultToOperations(items);
+        operations << moveComponentOperations;
 
         for (const QuickFixOperation::Ptr &builtInOp : std::as_const(m_builtinOps)) {
             if (std::none_of(

@@ -5,6 +5,7 @@ add_qtc_plugin(QmlJSEditor
     qmlexpressionundercursor.cpp qmlexpressionundercursor.h
     qmllsclient.h qmllsclient.cpp
     qmllsclientsettings.h qmllsclientsettings.cpp
+    qmllsmovecomponent.h qmllsmovecomponent.cpp
     qmljsautocompleter.cpp qmljsautocompleter.h
     qmljscompletionassist.cpp qmljscompletionassist.h
     qmljscomponentfromobjectdef.cpp qmljscomponentfromobjectdef.h

@@ -36,6 +36,49 @@ namespace QmlJSEditor {
 
 using namespace Internal;
 
+/*!
+    Adds \a newFile, a component moved out of \a currentFile, to the project of
+    \a currentFile if it is next to it, and offers to add it to version control.
+*/
+void Internal::addComponentFile(const FilePath &currentFile, const FilePath &newFile)
+{
+    if (newFile.parentDir() == currentFile.parentDir()) {
+        // hack for the common case, next version should use the wizard
+        using namespace ProjectExplorer;
+        bool fileAdded = false;
+        if (Project *const project = ProjectManager::projectForFile(currentFile)) {
+            if (ProjectNode *const product = project->productNodeForFilePath(currentFile)) {
+                if (product->addFiles({newFile}))
+                    fileAdded = true;
+            }
+        }
+        if (!fileAdded) {
+            if (ProjectExplorer::Node *oldFileNode = ProjectTree::nodeForFile(currentFile)) {
+                if (FolderNode *containingFolder = oldFileNode->parentFolderNode())
+                    containingFolder->addFiles({newFile});
+            }
+        }
+    }
+
+    Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(
+        newFile.parentDir());
+    if (versionControl
+            && versionControl->supportsOperation(Core::IVersionControl::AddOperation)) {
+        const QMessageBox::StandardButton button = QMessageBox::question(
+            Core::ICore::dialogParent(),
+            Core::VcsManager::msgAddToVcsTitle(),
+            Core::VcsManager::msgPromptToAddToVcs(QStringList(newFile.toUrlishString()),
+                                                  versionControl),
+            QMessageBox::Yes | QMessageBox::No);
+        if (button == QMessageBox::Yes && !versionControl->vcsAdd(newFile)) {
+            QMessageBox::warning(Core::ICore::dialogParent(),
+                                 Core::VcsManager::msgAddToVcsFailedTitle(),
+                                 Core::VcsManager::msgAddToVcsFailed(
+                                     QStringList(newFile.toUrlishString()), versionControl));
+        }
+    }
+}
+
 namespace {
 
 class Operation: public QmlJSQuickFixOperation
@@ -167,27 +210,6 @@ public:
         if (!refactoring.file(newFileName)->create(newComponentSource, reindent, openEditor))
             return {};
 
-        if (path.toUrlishString() == currentFileName.toFileInfo().path()) {
-            // hack for the common case, next version should use the wizard
-            using namespace ProjectExplorer;
-            bool fileAdded = false;
-            if (Project *const project = ProjectManager::projectForFile(currentFileName)) {
-                if (ProjectNode *const product = project->productNodeForFilePath(currentFileName)) {
-                    if (product->addFiles({newFileName}))
-                        fileAdded = true;
-                }
-            }
-            if (!fileAdded) {
-                ProjectExplorer::Node *oldFileNode = ProjectExplorer::ProjectTree::nodeForFile(
-                    currentFileName);
-                if (oldFileNode) {
-                    ProjectExplorer::FolderNode *containingFolder = oldFileNode->parentFolderNode();
-                    if (containingFolder)
-                        containingFolder->addFiles({newFileName});
-                }
-            }
-        }
-
         QString replacement = componentName + QLatin1String(" {\n");
         if (!m_idName.isEmpty())
             replacement += QLatin1String("id: ") + m_idName + QLatin1Char('\n');
@@ -197,23 +219,7 @@ public:
 
         currentFile->apply(ChangeSet::makeReplace(start, end, replacement));
 
-        Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(
-            path);
-        if (versionControl
-                && versionControl->supportsOperation(Core::IVersionControl::AddOperation)) {
-            const QMessageBox::StandardButton button = QMessageBox::question(
-                Core::ICore::dialogParent(),
-                Core::VcsManager::msgAddToVcsTitle(),
-                Core::VcsManager::msgPromptToAddToVcs(QStringList(newFileName.toUrlishString()),
-                                                      versionControl),
-                QMessageBox::Yes | QMessageBox::No);
-            if (button == QMessageBox::Yes && !versionControl->vcsAdd(newFileName)) {
-                QMessageBox::warning(Core::ICore::dialogParent(),
-                                     Core::VcsManager::msgAddToVcsFailedTitle(),
-                                     Core::VcsManager::msgAddToVcsFailed(
-                                         QStringList(newFileName.toUrlishString()), versionControl));
-            }
-        }
+        addComponentFile(currentFileName, newFileName);
 
         return newFilePath.toFSPathString();
     }
