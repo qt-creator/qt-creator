@@ -71,6 +71,7 @@ public:
     QSize sizeHint() const override;
 
 private:
+    EffectShadersCodeEditor *codeEditor();
     void setupCodeEditor();
     void reloadQmlSource();
     void handleImportScanTimer();

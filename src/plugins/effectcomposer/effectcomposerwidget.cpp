@@ -78,13 +78,9 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
     : m_effectComposerModel{new EffectComposerModel(this)}
     , m_effectComposerView(view)
     , m_quickWidget{new StudioQuickWidget(this)}
-    , m_editor(Utils::makeUniqueObjectLatePtr<EffectShadersCodeEditor>(
-          Tr::tr("Shaders Code Editor"), Core::ICore::dialogParent()))
 {
     setWindowTitle(Tr::tr("Effect Composer", "Title of effect composer widget"));
     setMinimumWidth(400);
-
-    setupCodeEditor();
 
     // create the inner widget
     m_quickWidget->quickWidget()->setObjectName(QmlDesigner::Constants::OBJECT_NAME_EFFECT_COMPOSER);
@@ -274,7 +270,7 @@ void EffectComposerWidget::openCodeEditor(int idx)
 {
     ShaderEditorData *editorData = [&]() -> ShaderEditorData * {
         auto creatorFunction
-            = std::bind_front(&EffectShadersCodeEditor::createEditorData, m_editor.get());
+            = std::bind_front(&EffectShadersCodeEditor::createEditorData, codeEditor());
 
         if (idx == MAIN_CODE_EDITOR_INDEX)
             return effectComposerModel()->editorData(creatorFunction);
@@ -313,6 +309,16 @@ void EffectComposerWidget::openNearestAvailableCodeEditor(int idx)
 QSize EffectComposerWidget::sizeHint() const
 {
     return {420, 420};
+}
+
+EffectShadersCodeEditor *EffectComposerWidget::codeEditor()
+{
+    if (!m_editor) {
+        m_editor = Utils::makeUniqueObjectLatePtr<EffectShadersCodeEditor>(
+            Tr::tr("Shaders Code Editor"), Core::ICore::dialogParent());
+        setupCodeEditor();
+    }
+    return m_editor.get();
 }
 
 void EffectComposerWidget::setupCodeEditor()
