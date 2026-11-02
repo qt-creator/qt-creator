@@ -16,6 +16,7 @@ class QObject;
 #include <QUrl>
 
 #include <functional>
+#include <optional>
 
 namespace Utils {
 class Environment;
@@ -150,6 +151,14 @@ struct QtPackage
 
 // The packages of an "Updates.xml" that hold a Qt for HarmonyOS, newest first.
 QList<QtPackage> harmonyOsQtPackages(const QByteArray &updatesXml);
+
+// The repository that the documentation of a Qt from qtRepository is published in, or an
+// empty URL if qtRepository is not laid out like the Qt online repository.
+QUrl documentationRepository(const QUrl &qtRepository, const QtPackage &qt);
+// The documentation package of qt, reduced to the archives of the modules that QML code
+// uses, from the "Updates.xml" of its documentationRepository().
+std::optional<QtPackage> qmlDocumentationPackage(const QByteArray &updatesXml,
+                                                 const QtPackage &qt);
 
 QUrl updatesXmlUrl(const QUrl &repository);
 QUrl archiveUrl(const QUrl &repository, const QtPackage &package, const QString &archive);

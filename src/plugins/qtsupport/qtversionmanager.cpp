@@ -923,6 +923,11 @@ void QtVersionManager::setDocumentationSetting(const QtVersionManager::Documenta
     qtVersionManagerImpl().updateDocumentation(vs, vs, vs);
 }
 
+void QtVersionManager::updateDocumentation(const QtVersions &versions)
+{
+    qtVersionManagerImpl().updateDocumentation(versions, {}, QtVersionManager::versions());
+}
+
 QtVersionManager::DocumentationSetting QtVersionManager::documentationSetting()
 {
     return DocumentationSetting(

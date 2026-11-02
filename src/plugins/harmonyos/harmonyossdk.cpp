@@ -629,7 +629,7 @@ QString QtPackage::target() const
     return name.mid(name.lastIndexOf('.') + 1);
 }
 
-QList<QtPackage> harmonyOsQtPackages(const QByteArray &updatesXml)
+static QList<QtPackage> repositoryPackages(const QByteArray &updatesXml)
 {
     QList<QtPackage> packages;
     QXmlStreamReader reader(updatesXml);
@@ -653,12 +653,20 @@ QList<QtPackage> harmonyOsQtPackages(const QByteArray &updatesXml)
                 package.archives = Utils::transform(text.split(',', Qt::SkipEmptyParts),
                                                     [](const QString &a) { return a.trimmed(); });
         }
-        // A Qt is named "qt.qt6.<version>.<target>". The group package carries no
-        // archives, and the addons and the debug information have names of more parts.
-        if (package.name.count('.') == 3 && package.target().startsWith("harmonyos")
-            && !package.archives.isEmpty())
-            packages.append(package);
+        packages.append(package);
     }
+    return packages;
+}
+
+QList<QtPackage> harmonyOsQtPackages(const QByteArray &updatesXml)
+{
+    // A Qt is named "qt.qt6.<version>.<target>". The group package carries no archives,
+    // and the addons and the debug information have names of more parts.
+    QList<QtPackage> packages = Utils::filtered(repositoryPackages(updatesXml),
+                                                [](const QtPackage &package) {
+        return package.name.count('.') == 3 && package.target().startsWith("harmonyos")
+               && !package.archives.isEmpty();
+    });
 
     Utils::sort(packages, [](const QtPackage &lhs, const QtPackage &rhs) {
         const QVersionNumber left = QVersionNumber::fromString(lhs.qtVersion());
@@ -668,6 +676,41 @@ QList<QtPackage> harmonyOsQtPackages(const QByteArray &updatesXml)
         return rhs.version < lhs.version;
     });
     return packages;
+}
+
+QUrl documentationRepository(const QUrl &qtRepository, const QtPackage &qt)
+{
+    // The documentation does not depend on the target, so it is published once for all
+    // of them, beside the sources: ".../all_os/qt/qt6_6120_unix_line_endings_src".
+    const QString path = qtRepository.path();
+    const int allOs = path.indexOf("/all_os/");
+    if (allOs < 0)
+        return {};
+    QUrl repository = qtRepository;
+    repository.setPath(path.left(allOs) + "/all_os/qt/qt6_" + qt.name.section('.', 2, 2)
+                       + "_unix_line_endings_src");
+    return repository;
+}
+
+std::optional<QtPackage> qmlDocumentationPackage(const QByteArray &updatesXml,
+                                                 const QtPackage &qt)
+{
+    // Hovering QML shows the documentation of the QML types, which these modules hold.
+    static const QStringList modules = {"qtqml", "qtqmlcore", "qtqmlmodels",
+                                        "qtqmlworkerscript", "qtquick", "qtquickcontrols",
+                                        "qtquickdialogs"};
+    const QString name = qt.name.section('.', 0, 2) + ".doc";
+    for (QtPackage package : repositoryPackages(updatesXml)) {
+        if (package.name != name)
+            continue;
+        package.archives = Utils::filtered(package.archives, [](const QString &archive) {
+            return modules.contains(archive.section("-documentation.", 0, 0));
+        });
+        if (package.archives.isEmpty())
+            return {};
+        return package;
+    }
+    return {};
 }
 
 static QUrl urlInRepository(const QUrl &repository, const QString &path)
@@ -720,6 +763,42 @@ private slots:
         QCOMPARE(archiveUrl(repository, package, package.archives.first()).toString(),
                  QString("https://example.com/qt6_6120/qt.qt6.6120.harmonyos_arm64_v8a/"
                          "6.12.0-0-202607072102qtbase-HarmonyOS-ARM64.7z"));
+    }
+
+    void testQmlDocumentation()
+    {
+        const QtPackage qt = harmonyOsQtPackages(updatesXml()).at(1);
+        QCOMPARE(documentationRepository(
+                     QUrl("https://download.qt.io/online/qtsdkrepository/all_os/harmonyos/"
+                          "qt6_6120/qt6_6120_arm64_v8a"), qt).toString(),
+                 QString("https://download.qt.io/online/qtsdkrepository/all_os/qt/"
+                         "qt6_6120_unix_line_endings_src"));
+        QVERIFY(documentationRepository(QUrl("https://example.com/qt6_6120"), qt).isEmpty());
+
+        const QByteArray docsXml = R"(<?xml version="1.0"?>
+<Updates>
+ <PackageUpdate>
+  <Name>qt.qt6.6120.doc.qtcharts</Name>
+  <Version>6.12.0-0-202609280346</Version>
+  <DownloadableArchives>qtcharts-documentation.tar.xz</DownloadableArchives>
+ </PackageUpdate>
+ <PackageUpdate>
+  <Name>qt.qt6.6120.doc</Name>
+  <Version>6.12.0-0-202609280346</Version>
+  <DownloadableArchives>qtcore-documentation.tar.xz, qtqml-documentation.tar.xz,
+   qtqmlmodels-documentation.tar.xz, qtquick-documentation.tar.xz,
+   qtquickcontrols-documentation.tar.xz, qtquick3d-documentation.tar.xz</DownloadableArchives>
+ </PackageUpdate>
+</Updates>
+)";
+        const std::optional<QtPackage> docs = qmlDocumentationPackage(docsXml, qt);
+        QVERIFY(docs);
+        QCOMPARE(docs->name, QString("qt.qt6.6120.doc"));
+        QCOMPARE(docs->archives,
+                 QStringList({"qtqml-documentation.tar.xz", "qtqmlmodels-documentation.tar.xz",
+                              "qtquick-documentation.tar.xz",
+                              "qtquickcontrols-documentation.tar.xz"}));
+        QVERIFY(!qmlDocumentationPackage(docsXml, harmonyOsQtPackages(updatesXml()).at(0)));
     }
 
 private:

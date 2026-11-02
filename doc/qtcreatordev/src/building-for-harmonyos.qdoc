@@ -207,7 +207,8 @@
 
     The kit has no Qt at first. To download one and add it to the kit, go to
     \uicontrol Preferences > \uicontrol SDKs > \uicontrol HarmonyOS and select
-    \uicontrol {Install Qt for HarmonyOS}.
+    \uicontrol {Install Qt for HarmonyOS}. Along with the Qt, \QC downloads the
+    documentation of the QML types for context help.
 
     That Qt lacks the tools that building needs on the device, such as \c moc
     and \c uic. The \c tools stage builds them into an archive. To add them to

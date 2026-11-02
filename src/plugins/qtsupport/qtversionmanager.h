@@ -36,6 +36,9 @@ public:
     static void addVersion(QtVersion *version);
     static void removeVersion(QtVersion *version);
 
+    // Registers documentation that arrived in the docs path of versions after they were added.
+    static void updateDocumentation(const QtVersions &versions);
+
     // Restores the Qt versions that were skipped while loading because no factory claimed their
     // type. Call this after registering a QtVersionFactory from a soft-loaded plugin.
     static void restoreVersionsWithUnknownType();

@@ -93,7 +93,8 @@ static void verifyArchive(QPromise<Result<>> &promise, const FilePath &archive,
 static constexpr qint64 megaByte = 1024 * 1024;
 
 static void setupDownload(QtTaskTree::QNetworkReplyWrapper &query, const QUrl &url,
-                          QProgressDialog *progressDialog, QFile *file, const QString &title)
+                          QProgressDialog *progressDialog, QFile *file,
+                          const std::function<void(const QString &)> &report)
 {
     using namespace QtTaskTree;
 
@@ -114,9 +115,8 @@ static void setupDownload(QtTaskTree::QNetworkReplyWrapper &query, const QUrl &u
     });
 #if QT_CONFIG(ssl)
     QObject::connect(&query, &QNetworkReplyWrapper::sslErrors, &query,
-                     [title, queryPtr = &query](const QList<QSslError> &errors) {
-        reportDownloadError(Tr::tr("The download was canceled: %1")
-                                .arg(errors.constFirst().errorString()), title);
+                     [report, queryPtr = &query](const QList<QSslError> &errors) {
+        report(Tr::tr("The download was canceled: %1").arg(errors.constFirst().errorString()));
         queryPtr->reply()->abort();
     });
 #endif
@@ -202,7 +202,7 @@ static QtTaskTree::GroupItem downloadSdkRecipe(const FilePath &sdkPath)
 
     const auto onDownloadSetup = [storage, sdk](QNetworkReplyWrapper &query) {
         setupDownload(query, sdk.url, storage->progressDialog.get(), storage->file.get(),
-                      downloadTitle());
+                      [](const QString &error) { reportDownloadError(error); });
     };
     const auto onDownloadDone = [storage, onReplyDone](const QNetworkReplyWrapper &query,
                                                        DoneWith result) {
@@ -444,10 +444,43 @@ static Result<> makeSelfHosted(const FilePath &prefix)
     return ResultOk;
 }
 
+// What a download put into a prefix, as one "<package> <version>" line per package, so
+// that asking for a package that is there already costs nothing.
+static FilePath packagesRecord(const FilePath &prefix)
+{
+    return prefix / "qtcreator-packages.txt";
+}
+
+static bool isInstalled(const FilePath &prefix, const Sdk::QtPackage &package)
+{
+    const QByteArray contents = packagesRecord(prefix).fileContents().value_or(QByteArray());
+    return contents.split('\n').contains((package.name + ' ' + package.version).toUtf8());
+}
+
+static Result<> recordInstalled(const FilePath &prefix, const Sdk::QtPackage &package)
+{
+    const FilePath record = packagesRecord(prefix);
+    const QByteArray name = package.name.toUtf8() + ' ';
+    QByteArrayList lines = Utils::filtered(
+        record.fileContents().value_or(QByteArray()).split('\n'),
+        [name](const QByteArray &line) { return !line.isEmpty() && !line.startsWith(name); });
+    lines.append(name + package.version.toUtf8());
+    if (const Result<qint64> written = record.writeFileContents(lines.join('\n') + '\n');
+        !written) {
+        return ResultError(written.error());
+    }
+    return ResultOk;
+}
+
 // Installs the newest Qt for HarmonyOS a repository offers into "<root>/<version>/<target>",
-// which is the layout the Qt installer produces as well. A repository is plain files over
-// HTTP, so this way needs no installer.
-static QtTaskTree::GroupItem downloadQtRecipe(const QUrl &repository, const FilePath &root)
+// which is the layout the Qt installer produces as well, and then the documentation of its
+// QML types. A repository is plain files over HTTP, so this way needs no installer.
+// Whatever goes wrong with the documentation is passed to reportDocumentationError rather
+// than stopping the installation.
+static QtTaskTree::GroupItem downloadQtRecipe(
+    const QUrl &repository,
+    const FilePath &root,
+    const std::function<void(const QString &)> &reportDocumentationError)
 {
     using namespace QtTaskTree;
 
@@ -460,13 +493,27 @@ static QtTaskTree::GroupItem downloadQtRecipe(const QUrl &repository, const File
         }
         std::unique_ptr<QProgressDialog> progressDialog;
         std::unique_ptr<QFile> file;
+        Sdk::QtPackage qt;
+        FilePath prefix;
+        // The Qt, and then its documentation, with where they come from and go to.
+        QUrl repository;
         Sdk::QtPackage package;
+        FilePath destination;
+        Unarchiver::Filter filter;
+        bool documentation = false;
         FilePath archive;
         QByteArray sha1;
     };
 
     const Storage<QtDownloadStorage> storage;
     const FilePath workPath = root / "download";
+
+    const auto report = [storage, reportDocumentationError](const QString &error) {
+        if (storage->documentation)
+            reportDocumentationError(error);
+        else
+            reportDownloadError(error, qtDownloadTitle());
+    };
 
     const auto onSetup = [workPath] {
         if (const Result<> writable = workPath.ensureWritableDir(); !writable) {
@@ -476,15 +523,14 @@ static QtTaskTree::GroupItem downloadQtRecipe(const QUrl &repository, const File
         return SetupResult::Continue;
     };
 
-    const auto onReplyDone = [](const QNetworkReplyWrapper &query, DoneWith result) {
+    const auto onReplyDone = [report](const QNetworkReplyWrapper &query, DoneWith result) {
         QNetworkReply *reply = query.reply();
         QTC_ASSERT(reply, return false);
         if (result == DoneWith::Success)
             return true;
         if (result == DoneWith::Error) {
-            reportDownloadError(Tr::tr("Downloading \"%1\" failed: %2.")
-                                    .arg(reply->url().toString(), reply->errorString()),
-                                qtDownloadTitle());
+            report(Tr::tr("Downloading \"%1\" failed: %2.")
+                       .arg(reply->url().toString(), reply->errorString()));
         }
         return false;
     };
@@ -493,8 +539,8 @@ static QtTaskTree::GroupItem downloadQtRecipe(const QUrl &repository, const File
         query.setRequest(QNetworkRequest(Sdk::updatesXmlUrl(repository)));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
     };
-    const auto onUpdatesDone = [storage, onReplyDone](const QNetworkReplyWrapper &query,
-                                                      DoneWith result) {
+    const auto onUpdatesDone = [storage, onReplyDone, repository, root](
+                                   const QNetworkReplyWrapper &query, DoneWith result) {
         if (!onReplyDone(query, result))
             return DoneResult::Error;
         const QList<Sdk::QtPackage> packages = Sdk::harmonyOsQtPackages(query.reply()->readAll());
@@ -503,7 +549,44 @@ static QtTaskTree::GroupItem downloadQtRecipe(const QUrl &repository, const File
                                 qtDownloadTitle());
             return DoneResult::Error;
         }
-        storage->package = packages.constFirst();
+        storage->qt = packages.constFirst();
+        // The archives of a Qt package carry the contents of the installation itself, so
+        // they unpack into the prefix rather than into the root.
+        storage->prefix = root / storage->qt.qtVersion() / storage->qt.target();
+        storage->repository = repository;
+        if (!isInstalled(storage->prefix, storage->qt))
+            storage->package = storage->qt;
+        storage->destination = storage->prefix;
+        return DoneResult::Success;
+    };
+
+    // Without the documentation the Qt works, but hovering QML shows nothing.
+    const auto onDocsUpdatesSetup = [storage, repository](QNetworkReplyWrapper &query) {
+        storage->documentation = true;
+        storage->package = {};
+        storage->repository = Sdk::documentationRepository(repository, storage->qt);
+        if (storage->repository.isEmpty())
+            return SetupResult::StopWithSuccess;
+        storage->progressDialog->setLabelText(Tr::tr("Reading the documentation repository..."));
+        query.setRequest(QNetworkRequest(Sdk::updatesXmlUrl(storage->repository)));
+        query.setNetworkAccessManager(NetworkAccessManager::instance());
+        return SetupResult::Continue;
+    };
+    const auto onDocsUpdatesDone = [storage, onReplyDone](const QNetworkReplyWrapper &query,
+                                                          DoneWith result) {
+        if (!onReplyDone(query, result))
+            return DoneResult::Error;
+        const std::optional<Sdk::QtPackage> docs
+            = Sdk::qmlDocumentationPackage(query.reply()->readAll(), storage->qt);
+        if (!docs || isInstalled(storage->prefix, *docs))
+            return DoneResult::Success;
+        storage->package = *docs;
+        storage->destination = storage->prefix / "doc";
+        // The archives hold the documentation as HTML as well, which Qt Creator does
+        // not read.
+        storage->filter = [](const QString &entry) {
+            return !entry.contains('/') && entry.endsWith(".qch");
+        };
         return DoneResult::Success;
     };
 
@@ -515,58 +598,53 @@ static QtTaskTree::GroupItem downloadQtRecipe(const QUrl &repository, const File
         return storage->package.archives.at(archiveIterator.iteration());
     };
 
-    const auto onArchiveSetup = [storage, workPath, currentArchive] {
+    const auto onArchiveSetup = [storage, workPath, currentArchive, report] {
         storage->archive = workPath / currentArchive();
         storage->file.reset(new QFile(storage->archive.toFSPathString()));
         if (!storage->file->open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-            reportDownloadError(Tr::tr("Cannot write \"%1\": %2.")
-                                    .arg(storage->archive.toUserOutput(),
-                                         storage->file->errorString()),
-                                qtDownloadTitle());
+            report(Tr::tr("Cannot write \"%1\": %2.")
+                       .arg(storage->archive.toUserOutput(), storage->file->errorString()));
             return SetupResult::StopWithError;
         }
         return SetupResult::Continue;
     };
 
-    const auto onChecksumSetup = [storage, repository, currentArchive]
-                                 (QNetworkReplyWrapper &query) {
+    const auto onChecksumSetup = [storage, currentArchive](QNetworkReplyWrapper &query) {
         storage->progressDialog->setRange(0, 0);
         storage->progressDialog->setLabelText(Tr::tr("Downloading %1...").arg(currentArchive()));
-        const QUrl archive = Sdk::archiveUrl(repository, storage->package, currentArchive());
+        const QUrl archive = Sdk::archiveUrl(storage->repository, storage->package,
+                                             currentArchive());
         query.setRequest(QNetworkRequest(QUrl(archive.toString() + ".sha1")));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
     };
-    const auto onChecksumDone = [storage, onReplyDone](const QNetworkReplyWrapper &query,
-                                                       DoneWith result) {
+    const auto onChecksumDone = [storage, onReplyDone, report](const QNetworkReplyWrapper &query,
+                                                               DoneWith result) {
         if (!onReplyDone(query, result))
             return DoneResult::Error;
         const QByteArray published = query.reply()->readAll().simplified();
         storage->sha1 = QByteArray::fromHex(published.split(' ').constFirst());
         if (storage->sha1.size() != QCryptographicHash::hashLength(QCryptographicHash::Sha1)) {
-            reportDownloadError(Tr::tr("Cannot read the published checksum: \"%1\".")
-                                    .arg(storage->archive.fileName()),
-                                qtDownloadTitle());
+            report(Tr::tr("Cannot read the published checksum: \"%1\".")
+                       .arg(storage->archive.fileName()));
             return DoneResult::Error;
         }
         return DoneResult::Success;
     };
 
-    const auto onDownloadSetup = [storage, repository, currentArchive]
-                                 (QNetworkReplyWrapper &query) {
-        setupDownload(query, Sdk::archiveUrl(repository, storage->package, currentArchive()),
-                      storage->progressDialog.get(), storage->file.get(), qtDownloadTitle());
+    const auto onDownloadSetup = [storage, currentArchive, report](QNetworkReplyWrapper &query) {
+        setupDownload(query,
+                      Sdk::archiveUrl(storage->repository, storage->package, currentArchive()),
+                      storage->progressDialog.get(), storage->file.get(), report);
     };
-    const auto onDownloadDone = [storage, onReplyDone](const QNetworkReplyWrapper &query,
-                                                       DoneWith result) {
+    const auto onDownloadDone = [storage, onReplyDone, report](const QNetworkReplyWrapper &query,
+                                                               DoneWith result) {
         const bool written = storage->file->flush();
         storage->file->close();
         if (!onReplyDone(query, result))
             return DoneResult::Error;
         if (!written) {
-            reportDownloadError(Tr::tr("Cannot write \"%1\": %2.")
-                                    .arg(storage->archive.toUserOutput(),
-                                         storage->file->errorString()),
-                                qtDownloadTitle());
+            report(Tr::tr("Cannot write \"%1\": %2.")
+                       .arg(storage->archive.toUserOutput(), storage->file->errorString()));
             return DoneResult::Error;
         }
         return DoneResult::Success;
@@ -579,36 +657,34 @@ static QtTaskTree::GroupItem downloadQtRecipe(const QUrl &repository, const File
         async.setConcurrentCallData(verifyArchive, storage->archive, storage->sha1,
                                     QCryptographicHash::Sha1);
     };
-    const auto onVerifyDone = [](const Async<Result<>> &async, DoneWith result) {
+    const auto onVerifyDone = [report](const Async<Result<>> &async, DoneWith result) {
         if (result == DoneWith::Cancel)
             return DoneResult::Error;
         if (!async.isResultAvailable()) {
-            reportDownloadError(Tr::tr("Verifying the downloaded archive failed."),
-                                qtDownloadTitle());
+            report(Tr::tr("Verifying the downloaded archive failed."));
             return DoneResult::Error;
         }
         if (const Result<> verified = async.result(); !verified) {
-            reportDownloadError(verified.error(), qtDownloadTitle());
+            report(verified.error());
             return DoneResult::Error;
         }
         return DoneResult::Success;
     };
 
-    const auto onUnpackSetup = [storage, root](Unarchiver &task) {
+    const auto onUnpackSetup = [storage](Unarchiver &task) {
         storage->progressDialog->setLabelText(
             Tr::tr("Unpacking %1...").arg(storage->archive.fileName()));
         task.setArchive(storage->archive);
-        // The archives of a Qt package carry the contents of the installation itself, so
-        // they unpack into the prefix rather than into the root.
-        task.setDestination(root / storage->package.qtVersion() / storage->package.target());
+        task.setDestination(storage->destination);
+        if (storage->filter)
+            task.setFilter(storage->filter);
     };
-    const auto onUnpackDone = [storage](const Unarchiver &task, DoneWith result) {
+    const auto onUnpackDone = [storage, report](const Unarchiver &task, DoneWith result) {
         if (result == DoneWith::Cancel)
             return DoneResult::Error;
         if (const Result<> unpacked = task.result(); !unpacked) {
-            reportDownloadError(Tr::tr("Unpacking \"%1\" failed: %2.")
-                                    .arg(storage->archive.fileName(), unpacked.error()),
-                                qtDownloadTitle());
+            report(Tr::tr("Unpacking \"%1\" failed: %2.")
+                       .arg(storage->archive.fileName(), unpacked.error()));
             return DoneResult::Error;
         }
         // A Qt is gigabytes in a dozen archives, so an unpacked one goes away at once
@@ -617,17 +693,52 @@ static QtTaskTree::GroupItem downloadQtRecipe(const QUrl &repository, const File
         return DoneResult::Success;
     };
 
-    const auto onConfigure = [storage, root] {
-        const FilePath prefix = root / storage->package.qtVersion() / storage->package.target();
-        if (const Result<> configured = makeSelfHosted(prefix); !configured) {
+    // Run once all archives of the package are unpacked.
+    const auto onRecord = [storage, report] {
+        if (storage->package.archives.isEmpty())
+            return DoneResult::Success;
+        if (const Result<> recorded = recordInstalled(storage->prefix, storage->package);
+            !recorded) {
+            report(recorded.error());
+            return DoneResult::Error;
+        }
+        return DoneResult::Success;
+    };
+
+    const auto onConfigure = [storage] {
+        if (const Result<> configured = makeSelfHosted(storage->prefix); !configured) {
             reportDownloadError(configured.error(), qtDownloadTitle());
             return DoneResult::Error;
         }
         return DoneResult::Success;
     };
 
+    // A Qt version registers its documentation when it is added, so one that is registered
+    // already does not notice documentation that arrives later.
+    const auto onRegisterDocumentation = [storage] {
+        if (storage->package.archives.isEmpty())
+            return;
+        const FilePath prefix = storage->prefix;
+        QtSupport::QtVersionManager::updateDocumentation(QtSupport::QtVersionManager::versions(
+            [prefix](const QtSupport::QtVersion *version) {
+                return version->prefix() == prefix;
+            }));
+    };
+
     const auto onCancel = [storage] {
         return makeObjectSignal(storage->progressDialog.get(), &QProgressDialog::canceled);
+    };
+
+    const auto archives = [=] {
+        return For (archiveIterator) >> Do {
+            Group {
+                onGroupSetup(onArchiveSetup),
+                QNetworkReplyWrapperTask(onChecksumSetup, onChecksumDone),
+                QNetworkReplyWrapperTask(onDownloadSetup, onDownloadDone),
+                AsyncTask<Result<>>(onVerifySetup, onVerifyDone),
+                UnarchiverTask(onUnpackSetup, onUnpackDone),
+            },
+        };
     };
 
     return Group {
@@ -635,17 +746,21 @@ static QtTaskTree::GroupItem downloadQtRecipe(const QUrl &repository, const File
         Group {
             onGroupSetup(onSetup),
             QNetworkReplyWrapperTask(onUpdatesSetup, onUpdatesDone),
-            For (archiveIterator) >> Do {
-                Group {
-                    onGroupSetup(onArchiveSetup),
-                    QNetworkReplyWrapperTask(onChecksumSetup, onChecksumDone),
-                    QNetworkReplyWrapperTask(onDownloadSetup, onDownloadDone),
-                    AsyncTask<Result<>>(onVerifySetup, onVerifyDone),
-                    UnarchiverTask(onUnpackSetup, onUnpackDone),
-                },
-            },
+            archives(),
             QSyncTask(onConfigure),
+            QSyncTask(onRecord),
         }.withCancel(onCancel),
+        // A Qt without its documentation is still worth having, also when the
+        // documentation is what was canceled.
+        Group {
+            finishAllAndSuccess,
+            Group {
+                QNetworkReplyWrapperTask(onDocsUpdatesSetup, onDocsUpdatesDone),
+                archives(),
+                QSyncTask(onRecord),
+                QSyncTask(onRegisterDocumentation),
+            }.withCancel(onCancel),
+        },
         onGroupDone([workPath] { workPath.removeRecursively(); }),
     };
 }
@@ -1049,7 +1164,8 @@ HarmonyOsSettings::HarmonyOsSettings()
                                   .arg(root.toUserOutput()));
         };
 
-        connect(installQtButton, &QPushButton::clicked, this, [this, qtStatus, reportScan] {
+        connect(installQtButton, &QPushButton::clicked, this,
+                [this, qtStatus, reportScan, updateQtStatus] {
             UpdateInfo::Service *service = installerService();
             const FilePath root = service ? service->installationRoot() : downloadedQtRoot();
             // A Qt that is installed but unknown here needs registering rather than
@@ -1074,10 +1190,30 @@ HarmonyOsSettings::HarmonyOsSettings()
                                          "published in first."));
                 return;
             }
-            m_qtDownloader.start({downloadQtRecipe(repository, root)}, {},
-                                 [root, reportScan](QtTaskTree::DoneWith result) {
-                if (result == QtTaskTree::DoneWith::Success)
-                    reportScan(registerQtVersions(root), root);
+            const auto documentationError = std::make_shared<QString>();
+            const auto reportDocumentationError = [documentationError](const QString &error) {
+                *documentationError = error;
+            };
+            m_qtDownloader.start({downloadQtRecipe(repository, root, reportDocumentationError)},
+                                 {},
+                                 [root, reportScan, updateQtStatus, qtStatus, documentationError](
+                                     QtTaskTree::DoneWith result) {
+                if (result != QtTaskTree::DoneWith::Success)
+                    return;
+                const ScanResult scan = registerQtVersions(root);
+                // A Qt that is registered already may only have got its documentation.
+                if (scan.added.isEmpty() && scan.mistyped.isEmpty()
+                    && !harmonyOsQtVersions().isEmpty()) {
+                    updateQtStatus();
+                } else {
+                    reportScan(scan, root);
+                }
+                if (!documentationError->isEmpty()) {
+                    qtStatus->setType(InfoLabelType::Warning);
+                    qtStatus->setText(qtStatus->text() + ' '
+                                      + Tr::tr("No documentation was downloaded: %1")
+                                            .arg(*documentationError));
+                }
             });
         });
 
@@ -1153,6 +1289,36 @@ private slots:
                             "HostBinaries=bin\n"
                             "HostData=.\n"
                             "TargetSpec=ohos-clang"));
+    }
+
+    void testPackagesRecord()
+    {
+        const TemporaryDirectory prefix("harmonyos-qt");
+        const auto package = [](const QString &name, const QString &version) {
+            Sdk::QtPackage package;
+            package.name = name;
+            package.version = version;
+            return package;
+        };
+        const Sdk::QtPackage qt = package("qt.qt6.6120.harmonyos_arm64_v8a", "6.12.0-0-1");
+        const Sdk::QtPackage newerQt = package(qt.name, "6.12.0-0-2");
+        const Sdk::QtPackage docs = package("qt.qt6.6120.doc", "6.12.0-0-1");
+        const Sdk::QtPackage charts = package("qt.qt6.6120.doc.qtcharts", "6.12.0-0-1");
+
+        QVERIFY(!isInstalled(prefix.path(), qt));
+        QVERIFY(recordInstalled(prefix.path(), qt));
+        QVERIFY(recordInstalled(prefix.path(), charts));
+        QVERIFY(recordInstalled(prefix.path(), docs));
+        QVERIFY(isInstalled(prefix.path(), qt));
+        QVERIFY(!isInstalled(prefix.path(), newerQt));
+
+        QVERIFY(recordInstalled(prefix.path(), newerQt));
+        QVERIFY(isInstalled(prefix.path(), newerQt));
+        QVERIFY(!isInstalled(prefix.path(), qt));
+        QVERIFY(isInstalled(prefix.path(), docs));
+        QVERIFY(isInstalled(prefix.path(), charts));
+        QCOMPARE(packagesRecord(prefix.path()).fileContents().value_or(QByteArray()).count('\n'),
+                 3);
     }
 };
 
