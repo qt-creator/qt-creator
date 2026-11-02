@@ -12,6 +12,10 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
 
+    pluginTestDepends: [
+        "QmakeProjectManager",
+    ]
+
     files: [
         "classviewconstants.h",
         "classviewmanager.cpp",

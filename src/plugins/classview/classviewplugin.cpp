@@ -3,6 +3,7 @@
 
 #include "classviewmanager.h"
 #include "classviewnavigationwidgetfactory.h"
+#include "classviewparser.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -27,6 +28,10 @@ class ClassViewPlugin final : public ExtensionSystem::IPlugin
     {
         setupClassViewNavigationWidgetFactory();
         setupClassViewManager();
+
+#ifdef WITH_TESTS
+        addTestCreator(createClassViewParserTest);
+#endif
     }
 };
 

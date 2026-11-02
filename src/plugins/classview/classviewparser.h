@@ -48,4 +48,8 @@ private:
     ParserPrivate *d;
 };
 
+#ifdef WITH_TESTS
+QObject *createClassViewParserTest();
+#endif
+
 } // namespace ClassView::Internal

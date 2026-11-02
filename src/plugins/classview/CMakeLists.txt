@@ -1,5 +1,6 @@
 add_qtc_plugin(ClassView
   PLUGIN_DEPENDS Core CppEditor ProjectExplorer TextEditor
+  PLUGIN_TEST_DEPENDS QmakeProjectManager
   SOURCES
     classviewconstants.h
     classviewmanager.cpp classviewmanager.h

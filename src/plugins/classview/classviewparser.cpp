@@ -10,6 +10,22 @@
 #include <QHash>
 #include <QSet>
 
+#ifdef WITH_TESTS
+#include "classviewutils.h"
+
+#include <cppeditor/cpptoolstestcase.h>
+
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/project.h>
+
+#include <utils/algorithm.h>
+
+#include <QSignalSpy>
+#include <QStandardItem>
+#include <QTest>
+#endif
+
 enum { debug = false };
 
 using namespace ProjectExplorer;
@@ -348,3 +364,118 @@ void Parser::requestCurrentState()
 }
 
 } // namespace ClassView::Internal
+
+#ifdef WITH_TESTS
+
+namespace ClassView::Internal {
+
+static QStringList rowsUnder(const ParserTreeItem::ConstPtr &item)
+{
+    if (!item)
+        return {};
+
+    QStandardItem root;
+    item->fetchMore(&root);
+
+    QStringList names;
+    for (int row = 0; row < root.rowCount(); ++row)
+        names << symbolInformationFromItem(root.child(row)).name();
+    return names;
+}
+
+static ParserTreeItem::ConstPtr rowNamed(const ParserTreeItem::ConstPtr &item, const QString &name)
+{
+    QStandardItem root;
+    item->fetchMore(&root);
+
+    for (int row = 0; row < root.rowCount(); ++row) {
+        const SymbolInformation information = symbolInformationFromItem(root.child(row));
+        if (information.name() == name)
+            return item->child(information);
+    }
+    return {};
+}
+
+// The parser on the test's thread, so that a request and its tree are one step.
+class DrivenParser
+{
+public:
+    DrivenParser()
+    {
+        QObject::connect(&parser, &Parser::treeRegenerated,
+                         [this](const ParserTreeItem::ConstPtr &root) { tree = root; });
+    }
+
+    Parser parser;
+    ParserTreeItem::ConstPtr tree;
+};
+
+class ClassViewParserTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testASecondSessionShowsTheSameClasses();
+};
+
+void ClassViewParserTest::testASecondSessionShowsTheSameClasses()
+{
+    Kit * const kit = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
+        return k->isValid() && !k->hasWarning() && k->value("QtSupport.QtInformation").isValid();
+    });
+    if (!kit)
+        QSKIP("The test requires at least one valid kit with a valid Qt");
+
+    CppEditor::Tests::TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath header = projectDir / "declared.h";
+    const FilePath source = projectDir / "written.cpp";
+    QVERIFY(header.writeFileContents("class Declared {};\n"));
+    QVERIFY(source.writeFileContents("class Written {};\n"));
+    QVERIFY((projectDir / "p.pro").writeFileContents(
+        "TEMPLATE = app\nTARGET = p\nHEADERS = declared.h\nSOURCES = written.cpp\n"));
+
+    const FilePath projectFile = projectDir / "p.pro";
+
+    // One parser for both sessions, as in the plugin.
+    DrivenParser driven;
+    {
+        QSignalSpy refreshed(CppEditor::CppModelManager::instance(),
+                             &CppEditor::CppModelManager::sourceFilesRefreshed);
+        CppEditor::Tests::ProjectOpenerAndCloser projectMgr;
+        QVERIFY(projectMgr.open(projectFile, kit));
+        QVERIFY(!refreshed.isEmpty() || refreshed.wait(30000));
+        driven.tree = {};
+        driven.parser.addProject(projectFile, "Test",
+                                 projectMgr.projects().first()->files(Project::SourceFiles));
+        QVERIFY(driven.tree);
+        QCOMPARE(rowsUnder(rowNamed(driven.tree, "Test")), (QStringList{"Declared", "Written"}));
+        driven.parser.removeProject(projectFile);
+    }
+
+    // A new session does not have the documents the closed project left behind.
+    CppEditor::CppModelManager::GC();
+
+    QSignalSpy refreshed(CppEditor::CppModelManager::instance(),
+                         &CppEditor::CppModelManager::sourceFilesRefreshed);
+    CppEditor::Tests::ProjectOpenerAndCloser projectMgr;
+    QVERIFY(projectMgr.open(projectFile, kit));
+    QVERIFY(!refreshed.isEmpty() || refreshed.wait(30000));
+    driven.tree = {};
+    driven.parser.addProject(projectFile, "Test",
+                             projectMgr.projects().first()->files(Project::SourceFiles));
+    QVERIFY(driven.tree);
+    QCOMPARE(rowsUnder(rowNamed(driven.tree, "Test")), (QStringList{"Declared", "Written"}));
+}
+
+QObject *createClassViewParserTest()
+{
+    return new ClassViewParserTest;
+}
+
+} // namespace ClassView::Internal
+
+#include "classviewparser.moc"
+
+#endif // WITH_TESTS
