@@ -317,6 +317,7 @@ public:
     quint64 toolDetectionToken = 0;
     int toolDetectionTaskCount = 0;
     std::function<void()> toolDetectionDone;
+    ToolDetectionLogger toolDetectionLogger;
 
     bool isTesting = false;
 
@@ -481,6 +482,20 @@ IDeviceConstPtr IDevice::runDeviceForKits() const
     return d->runDeviceForKits.runDevice();
 }
 
+static void createKitsForBuildDevice(const IDevicePtr &device, const ToolDetectionLogger &logger)
+{
+    const QList<Kit *> before = KitManager::kits();
+    KitManager::createKitsForBuildDevice(device);
+    if (!logger)
+        return;
+    const QList<Kit *> added = Utils::filtered(KitManager::kits(),
+        [&before](Kit *kit) { return !before.contains(kit); });
+    if (added.isEmpty())
+        logger.logTopLevel(Tr::tr("No new kits created."));
+    for (const Kit *kit : added)
+        logger.logTopLevel(Tr::tr("Created kit \"%1\".").arg(kit->displayName()));
+}
+
 void IDevice::registerToolDetectionTask(quint64 token)
 {
     if (token && token == d->toolDetectionToken)
@@ -494,7 +509,7 @@ void IDevice::deregisterToolDetectionTask(quint64 token)
     if (--d->toolDetectionTaskCount > 0)
         return;
     if (kitCreationEnabled())
-        KitManager::createKitsForBuildDevice(shared_from_this());
+        createKitsForBuildDevice(shared_from_this(), d->toolDetectionLogger);
     if (d->toolDetectionDone)
         std::exchange(d->toolDetectionDone, {})();
 }
@@ -520,6 +535,7 @@ quint64 IDevice::startToolDetection(const FilePaths &searchPaths, const ToolDete
         std::exchange(d->toolDetectionDone, {})();
     const quint64 token = ++d->toolDetectionToken;
     d->toolDetectionTaskCount = 0;
+    d->toolDetectionLogger = logger;
     // The request itself is a task, so that a handler finishing before the next
     // one is asked does not already end the detection. The caller closes it.
     registerToolDetectionTask(token);
@@ -1541,16 +1557,10 @@ std::function<void(Layouting::Layout *)> IDevice::deviceToolsGui()
 
             QObject::connect(kitButton, &QPushButton::clicked, kitButton,
                 [device, lv = QPointer<QPlainTextEdit>(logView)] {
-                    const QList<Kit *> before = KitManager::kits();
-                    KitManager::createKitsForBuildDevice(device);
-                    const QList<Kit *> added = Utils::filtered(KitManager::kits(),
-                        [&before](Kit *kit) { return !before.contains(kit); });
-                    if (!lv)
-                        return;
-                    if (added.isEmpty())
-                        lv->appendPlainText(Tr::tr("No new kits created."));
-                    for (const Kit *kit : added)
-                        lv->appendPlainText(Tr::tr("Created kit \"%1\".").arg(kit->displayName()));
+                    createKitsForBuildDevice(device, ToolDetectionLogger([lv](const QString &msg) {
+                        if (lv)
+                            lv->appendPlainText(msg);
+                    }));
                 });
 
             layout->addItems({
