@@ -38,6 +38,7 @@
 #include <QPainterPath>
 #include <QPixmapCache>
 #include <QRadioButton>
+#include <QRandomGenerator>
 #include <QVariantAnimation>
 #include <QXmlStreamReader>
 
@@ -424,6 +425,8 @@ public:
                 });
 
         updateItems();
+        if (!m_items.isEmpty())
+            setCurrentIndex(QRandomGenerator::global()->bounded(int(m_items.count())));
     }
 
     ~BlogWidget()
@@ -437,8 +440,6 @@ private:
         clearItems();
         m_items = OverviewItem::items({OverviewItem::Blogpost});
         m_pageIndicator->setPagesCount(m_items.count());
-
-        setCurrentIndex(0);
     }
 
     void setCurrentIndex(int current)
