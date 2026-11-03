@@ -5,6 +5,8 @@
 
 #include "qmlprofilertimelinemodel.h"
 
+#include <QSet>
+
 #include <optional>
 
 namespace Profiler::Internal {

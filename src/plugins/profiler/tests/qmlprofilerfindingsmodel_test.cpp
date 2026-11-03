@@ -1295,7 +1295,7 @@ void QmlProfilerFindingsModelTest::testRerateMatchesReplay()
         for (const auto &[low, high] : {std::pair(30, 240), std::pair(60, 75)}) {
             QVERIFY2(describe(findingsOf(byTarget.value(low), ruleId))
                          != describe(findingsOf(byTarget.value(high), ruleId)),
-                     qPrintable(QString("%1 at %2 and %3").arg(ruleId).arg(low).arg(high)));
+                     qPrintable(QString("%1 at %2 and %3").arg(QLatin1StringView(ruleId)).arg(low).arg(high)));
         }
     }
 }

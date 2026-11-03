@@ -8,6 +8,8 @@
 
 #include <utils/filepath.h>
 
+#include <QJsonDocument>
+
 #include <iostream>
 
 using namespace QtProfiler::Api::Schema;
