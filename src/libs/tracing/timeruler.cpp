@@ -18,6 +18,7 @@ namespace Timeline {
 TimeRuler::TimeRuler(QWidget *parent)
     : QWidget(parent)
 {
+    setAttribute(Qt::WA_OpaquePaintEvent);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 }
 

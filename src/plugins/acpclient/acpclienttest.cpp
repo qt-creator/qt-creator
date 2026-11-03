@@ -535,7 +535,7 @@ private slots:
     void testE2eInvalidResponseLine();
 
     // Tier 3: chat workflows against acptestserver (AcpChatController)
-    void testHybridInitializeParams();
+    void testInitializeParams();
     void testInitializeDowngradeToV1();
     void testInitializeUnsupportedVersion();
     void testInitializeMissingVersion();
@@ -1746,27 +1746,22 @@ void AcpClientTest::testE2eInvalidResponseLine()
 
 // --- Tier 3 ------------------------------------------------------------------
 
-// The initialize request negotiates protocol version 2 but stays parseable for
-// v1 agents: the v2 fields (info, capabilities) and the v1 fields (clientInfo,
-// clientCapabilities) are both present.
-void AcpClientTest::testHybridInitializeParams()
+// The initialize request negotiates protocol version 1 and carries only the v1
+// fields (clientInfo, clientCapabilities).
+void AcpClientTest::testInitializeParams()
 {
     const QJsonObject params = AcpChatController::buildInitializeParams();
-    QCOMPARE(params.value("protocolVersion").toInt(), 2);
-
-    const QJsonObject info = params.value("info").toObject();
-    QCOMPARE(info.value("name").toString(), "QtCreator");
-    QVERIFY(!info.value("version").toString().isEmpty());
-    QVERIFY(params.contains("capabilities"));
+    QCOMPARE(params.value("protocolVersion").toInt(), 1);
 
     const QJsonObject clientInfo = params.value("clientInfo").toObject();
     QCOMPARE(clientInfo.value("name").toString(), "QtCreator");
+    QVERIFY(!clientInfo.value("version").toString().isEmpty());
     const QJsonObject clientCaps = params.value("clientCapabilities").toObject();
     QVERIFY(clientCaps.value("terminal").toBool());
     QVERIFY(clientCaps.value("fs").toObject().value("readTextFile").toBool());
 }
 
-// A v1-only agent answers the version-2 request with protocolVersion 1; the
+// A v1 agent answers the version-1 request with protocolVersion 1; the
 // controller continues on the v1 surface.
 void AcpClientTest::testInitializeDowngradeToV1()
 {

@@ -1547,7 +1547,7 @@ QRectF WidgetTextControlPrivate::rectForPosition(int position) const
         qreal x = line.cursorToX(relativePos);
         qreal w = 0;
         if (overwriteMode) {
-            if (relativePos < line.textLength() - line.textStart())
+            if (relativePos < line.textStart() + line.textLength())
                 w = line.cursorToX(relativePos + 1) - x;
             else
                 w = QFontMetrics(blockLayout(block)->font()).horizontalAdvance(u' '); // in sync with QTextLine::draw()

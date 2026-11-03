@@ -168,7 +168,7 @@ void PerfDataParserTest::testReadsTaskAndSwitchTimes()
 // it, and the records after it have to be found past it.
 void PerfDataParserTest::testReadsTracingDataFollowingItsRecord()
 {
-    const QByteArray tracing("\x17\x08\x44tracing0.6\0________", 24);
+    const QByteArray tracing("\x17\x08\x44tracing0.6\0__________", 24);
     QByteArray tracingRecord;
     appendLe(tracingRecord, quint64(tracing.size()), 4);
 

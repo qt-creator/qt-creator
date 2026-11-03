@@ -21,6 +21,7 @@ namespace Timeline {
 TrackPainterRaster::TrackPainterRaster(QWidget *parent)
     : QWidget(parent)
 {
+    setAttribute(Qt::WA_OpaquePaintEvent);
     setMouseTracking(true);
 }
 

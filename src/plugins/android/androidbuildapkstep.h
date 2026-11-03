@@ -51,6 +51,8 @@ public:
 
     QVariant data(Utils::Id id) const override;
 
+    Utils::FilePath packagePath() const;
+
 private:
     void showInGraphicalShell();
 

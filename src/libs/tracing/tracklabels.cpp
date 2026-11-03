@@ -50,6 +50,7 @@ static int trackTotalHeight(const TrackInfo &track)
 TrackLabels::TrackLabels(QWidget *parent)
     : QWidget(parent)
 {
+    setAttribute(Qt::WA_OpaquePaintEvent);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setMouseTracking(true);
 }

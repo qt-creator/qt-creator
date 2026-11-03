@@ -46,6 +46,12 @@ void QmlProfilerAnimationsModelTest::testRowMaxValue()
     QCOMPARE(model.rowMaxValue(2), 8);
 }
 
+void QmlProfilerAnimationsModelTest::testFormatRowValue()
+{
+    QCOMPARE(model.formatRowValue(1, 42), QString("42 animation(s)"));
+    QCOMPARE(model.formatRowValue(2, 42), QString("42 animation(s)"));
+}
+
 void QmlProfilerAnimationsModelTest::testRowNumbers()
 {
     QCOMPARE(model.collapsedRowCount(), 2);

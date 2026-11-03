@@ -4601,7 +4601,7 @@ void TextEditorWidgetPrivate::openTypeUnderCursor(bool openInNextSplit)
 
 qreal TextEditorWidgetPrivate::charWidth() const
 {
-    return QFontMetricsF(q->font()).horizontalAdvance(QLatin1Char('x'));
+    return QFontMetricsF(q->font()).horizontalAdvance("x");
 }
 
 qreal TextEditorWidgetPrivate::tabStopDistance() const
@@ -6509,7 +6509,7 @@ QRectF TextEditorWidgetPrivate::cursorBlockRect(const QTextDocument *doc,
     QTC_ASSERT(line.isValid(), return {});
     qreal x = line.cursorToX(relativePos);
     qreal w = 0;
-    if (relativePos < line.textLength() - line.textStart()) {
+    if (relativePos < line.textStart() + line.textLength()) {
         w = line.cursorToX(relativePos + 1) - x;
         if (doc->characterAt(cursorPosition) == QLatin1Char('\t')) {
             if (doSelection)

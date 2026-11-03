@@ -110,6 +110,8 @@ QString Quick3DModel::formatRowValue(int rowNumber, qint64 value) const
     const int type = m_sortedTypes.value(rowNumber - 1, -1);
     if (type == TextureMemoryConsumption || type == MeshMemoryConsumption)
         return Timeline::formatDataSize(value);
+    if (type == RenderPass)
+        return Tr::tr("%n render pass(es)", nullptr, int(value));
     return QmlProfilerTimelineModel::formatRowValue(rowNumber, value);
 }
 

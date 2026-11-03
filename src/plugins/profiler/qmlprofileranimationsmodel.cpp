@@ -112,6 +112,12 @@ qint64 QmlProfilerAnimationsModel::rowMaxValue(int rowNumber) const
     }
 }
 
+QString QmlProfilerAnimationsModel::formatRowValue(int rowNumber, qint64 value) const
+{
+    Q_UNUSED(rowNumber)
+    return Tr::tr("%n animation(s)", nullptr, int(value));
+}
+
 int QmlProfilerAnimationsModel::typeId(int index) const
 {
     return m_data[index].typeId;

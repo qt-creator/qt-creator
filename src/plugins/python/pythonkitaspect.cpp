@@ -179,14 +179,6 @@ public:
     {
         return PythonSettings::autoDetect(kit, searchPaths, detectionSource, logCallback);
     }
-
-    std::optional<ExecutableItem> removeAutoDetected(
-        const QString &detectionSource, const LogCallback &logCallback) const override
-    {
-        return QSyncTask([detectionSource, logCallback] {
-            PythonSettings::removeDetectedPython(detectionSource, logCallback);
-        });
-    }
 };
 
 } // Internal

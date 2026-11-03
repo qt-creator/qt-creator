@@ -24566,10 +24566,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <translation>Titel</translation>
     </message>
     <message>
-        <source>Count</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Total Time</source>
         <translation>Total tid</translation>
     </message>
@@ -38295,10 +38291,6 @@ You might find further explanations in the Application Output view.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Failed to reset temporary trace file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Failed to flush temporary trace file.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -38439,10 +38431,6 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>context switch</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Duration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -48110,14 +48098,6 @@ Vill du försöka igen och vänta %2 s?</translation>
         <translation>QML-spårningar (*%1 *%2)</translation>
     </message>
     <message>
-        <source>Saving Trace Data</source>
-        <translation>Sparar spårdata</translation>
-    </message>
-    <message>
-        <source>Loading Trace Data</source>
-        <translation>Läser in spårdata</translation>
-    </message>
-    <message>
         <source>You are about to discard the profiling data, including unsaved notes. Do you want to continue?</source>
         <translation>Du är på väg att förkasta profileringsdata, inklusive osparade noteringar. Vill du fortsätta?</translation>
     </message>
@@ -48455,10 +48435,6 @@ Saving failed.</source>
     <message>
         <source>Message</source>
         <translation>Meddelande</translation>
-    </message>
-    <message>
-        <source>Show Full Range</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mouse Events</source>

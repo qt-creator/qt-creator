@@ -13026,10 +13026,6 @@ Collecting backtrace aborted by user.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Total Time</source>
-        <translation type="unfinished">总时间</translation>
-    </message>
-    <message>
         <source>Percentage</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13137,14 +13133,6 @@ Do you want to display them anyway?</source>
     <message>
         <source>Restrict to Threads</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Timeline</source>
-        <translation type="unfinished">时间轴</translation>
-    </message>
-    <message>
-        <source>Reset Zoom</source>
-        <translation type="unfinished">重置缩放</translation>
     </message>
     <message>
         <source>Statistics</source>
@@ -25571,14 +25559,6 @@ Error:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Caller</source>
-        <translation type="unfinished">调用者</translation>
-    </message>
-    <message>
-        <source>Callee</source>
-        <translation type="unfinished">被调用者</translation>
-    </message>
-    <message>
         <source>Occurrences</source>
         <translation type="unfinished">出现位置</translation>
     </message>
@@ -25653,14 +25633,6 @@ Error:
     <message>
         <source>Limit to Selected Range</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy Table</source>
-        <translation type="unfinished">复制表格</translation>
-    </message>
-    <message>
-        <source>Copy Row</source>
-        <translation type="unfinished">复制行</translation>
     </message>
     <message>
         <source>Reset Flame Graph</source>
@@ -25822,10 +25794,6 @@ You might find further explanations in the Application Output view.</source>
     <message>
         <source>sample collected</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation type="unfinished">详情</translation>
     </message>
     <message>
         <source>Timestamp</source>

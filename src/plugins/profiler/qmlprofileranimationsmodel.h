@@ -22,6 +22,7 @@ public:
                                Timeline::TimelineModelAggregator *parent);
 
     qint64 rowMaxValue(int rowNumber) const final;
+    QString formatRowValue(int rowNumber, qint64 value) const final;
 
     int typeId(int index) const final;
     int expandedRow(int index) const final;

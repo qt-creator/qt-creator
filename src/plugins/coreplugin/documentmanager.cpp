@@ -240,11 +240,40 @@ DocumentManager::DocumentManager(QObject *parent)
     QObject::connect(
         &d->m_fileWatcher, &FileWatchers::fileChanged, this, &DocumentManager::changedFile);
 
+    // A file that was removed while its document stayed open stops being watched, so a later
+    // re-creation (e.g. by a finishing rebase) is not reported. Take another look at the files
+    // that were missing when we last looked. An invalid cached time stamp marks them, and one
+    // that is back on disk then takes the normal reload path. Remote files are skipped, as
+    // asking a device on the GUI thread on every activation is too expensive. A file that comes
+    // back while Creator stays active (e.g. a rebase in its own terminal) is only noticed on the
+    // next activation.
+    const auto recheckMissingFiles = [this] {
+        for (auto it = d->m_states.cbegin(), end = d->m_states.cend(); it != end; ++it) {
+            const bool wasMissing = Utils::anyOf(it.value().lastUpdatedState,
+                                                 [](const FileStateItem &state) {
+                return !state.modified.isValid();
+            });
+            if (wasMissing && it.key().isLocal() && it.key().exists())
+                d->m_changedFiles.insert(it.key());
+        }
+        if (!d->m_changedFiles.isEmpty())
+            QTimer::singleShot(500, this, &DocumentManager::checkForReload);
+    };
+
     connect(Utils::GlobalFileChangeBlocker::instance(), &Utils::GlobalFileChangeBlocker::stateChanged,
-            this, [](bool blocked) {
+            this, [recheckMissingFiles](bool blocked) {
         d->m_postponeAutoReload = blocked;
         if (!blocked)
-            QTimer::singleShot(500, m_instance, &DocumentManager::checkForReload);
+            recheckMissingFiles();
+    });
+
+    connect(qApp, &QGuiApplication::applicationStateChanged,
+            this, [recheckMissingFiles](Qt::ApplicationState state) {
+        // With blocking while inactive, the blocker's own state change does this.
+        if (state == Qt::ApplicationActive && !d->m_postponeAutoReload
+            && !Utils::GlobalFileChangeBlocker::instance()->isBlockingWhileAppIsInactive()) {
+            recheckMissingFiles();
+        }
     });
 
     readSettings();
@@ -1156,6 +1185,7 @@ void DocumentManager::checkForReload()
         IDocument::ChangeTrigger trigger = IDocument::TriggerInternal;
         std::optional<IDocument::ChangeType> type;
         bool changed = false;
+        bool wasMissing = false;
         // find out the type & behavior from the two possible files
         // behavior is internal if all changes are expected (and none removed)
         // type is "max" of both types (remove > contents > permissions)
@@ -1167,7 +1197,10 @@ void DocumentManager::checkForReload()
 
             FileStateItem currentState = currentStates.value(fileKey);
             FileStateItem expectedState = d->m_states.value(fileKey).expected;
-            FileStateItem lastState = d->m_states.value(fileKey).lastUpdatedState.value(document);
+            const auto lastUpdatedState = d->m_states.value(fileKey).lastUpdatedState;
+            FileStateItem lastState = lastUpdatedState.value(document);
+            if (lastUpdatedState.contains(document) && !lastState.modified.isValid())
+                wasMissing = true;
 
             // did the file actually change?
             if (lastState.modified == currentState.modified && lastState.permissions == currentState.permissions)
@@ -1204,8 +1237,22 @@ void DocumentManager::checkForReload()
         // loose any pending change events. Loosing change events *before* the file is reloaded
         // doesn't matter, because in that case we then reload the new version of the file already
         // anyhow.
+        // A watcher of a file that went missing is stale, and it stays registered while another
+        // document still uses the path, so it has to go for the path to be watched again.
+        if (wasMissing) {
+            for (const FilePath &fileKey : files) {
+                const FilePath watchedFilePath = d->m_states.value(fileKey).watchedFilePath;
+                if (d->m_fileWatcher.contains(watchedFilePath))
+                    d->m_fileWatcher.removePath(watchedFilePath);
+            }
+        }
         removeFileInfo(document);
         addFileInfos({document});
+
+        // The "removed from disk" notice for a file that is back uses the same id
+        // as the reload prompt, and would keep it from being shown.
+        if (wasMissing)
+            document->infoBar()->removeInfo(Constants::RELOAD_INFOBAR);
 
         // we've got some modification
         document->checkPermissions();

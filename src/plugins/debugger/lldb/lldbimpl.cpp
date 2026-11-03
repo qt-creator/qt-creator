@@ -686,7 +686,7 @@ void LldbImpl::execute(const ExecutionRequest &request)
             emit interruptTerminalRequested();
             break;
         }
-        if (!m_inferiorRunning) {
+        if (!m_inferiorRunning || m_resumeAfterAttachPending) {
             m_interruptOnceRunning = true;
             break;
         }
@@ -1488,6 +1488,10 @@ void LldbImpl::handleStateReport(const GdbMi &item)
         // Attaching leaves the inferior running here; what the run asked for is
         // that the stop which follows does not hold it.
         m_continueAtNextSpontaneousStop = m_startData.continueAfterAttach;
+        // A launch returns before the process runs, and lldb refuses an
+        // interrupt until it does.
+        if (std::holds_alternative<Utils::ProcessRunData>(m_startData.inferiorStartData))
+            m_resumeAfterAttachPending = true;
         emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
     } else if (state == "enginerunandinferiorstopok") {
         m_inferiorRunning = false;
@@ -1664,7 +1668,7 @@ void LldbImpl::runCommand(const DebuggerCommand &command)
         if (!std::exchange(m_temporaryStopRequested, true)) {
             // With a resume in flight lldb refuses the interrupt. Ask once the
             // inferior really runs, the way execute() does for the user's own.
-            if (m_inferiorRunning)
+            if (m_inferiorRunning && !m_resumeAfterAttachPending)
                 interruptInferior();
             else
                 m_interruptOnceRunning = true;
