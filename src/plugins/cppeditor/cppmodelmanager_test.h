@@ -43,6 +43,9 @@ private slots:
     void testTheHeaderPathsOfSeveralProjectsComeInOneOrder();
     void testTheMacrosOfSeveralProjectsComeInOneOrder();
     void testAFileSeveralProjectsListIsReadWithOneOfThem();
+    void testAHeaderAppearingBetweenSessionsIsNoticed_data();
+    void testAHeaderAppearingBetweenSessionsIsNoticed();
+    void testAHeaderShadowingAnotherBetweenSessionsIsNoticed();
 };
 
 } // namespace CppEditor::Internal

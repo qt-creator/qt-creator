@@ -5,6 +5,8 @@
 
 #include "baseeditordocumentprocessor.h"
 #include "builtineditordocumentparser.h"
+#include "cppindexqueries.h"
+#include "cpplocatordata.h"
 #include "cpptoolstestcase.h"
 #include "editordocumenthandle.h"
 #include "modelmanagertesthelper.h"
@@ -1767,6 +1769,107 @@ void ModelManagerTest::testAFileSeveralProjectsListIsReadWithOneOfThem()
     const QList<ProjectPart::ConstPtr> parts = CppModelManager::projectPart(shared);
     QCOMPARE(parts.size(), projectCount);
     QCOMPARE(parts.first()->topLevelProject, projectDir / "p0.pro");
+}
+
+static Kit *kitWithQt()
+{
+    return Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
+        return k->isValid() && k->value("QtSupport.QtInformation").isValid();
+    });
+}
+
+void ModelManagerTest::testAHeaderAppearingBetweenSessionsIsNoticed_data()
+{
+    QTest::addColumn<bool>("listedInProject");
+
+    QTest::newRow("listed header") << true;
+    // Not listed in the project, like a generated header, so only the include brings it in.
+    QTest::newRow("unlisted header") << false;
+}
+
+void ModelManagerTest::testAHeaderAppearingBetweenSessionsIsNoticed()
+{
+    QFETCH(bool, listedInProject);
+
+    Kit * const kit = kitWithQt();
+    if (!kit)
+        QSKIP("The test requires at least one valid kit with a valid Qt");
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath source = projectDir / "uses_generated.cpp";
+    const FilePath generated = projectDir / "generated.h";
+    QVERIFY(source.writeFileContents("#include \"generated.h\"\nint main() { return 0; }\n"));
+    const QByteArray proFile = "TEMPLATE = app\nTARGET = p\nSOURCES = uses_generated.cpp\n";
+    QVERIFY((projectDir / "p.pro").writeFileContents(proFile));
+
+    {
+        SourceFilesRefreshGuard refreshGuard;
+        ProjectOpenerAndCloser projectMgr;
+        QVERIFY(projectMgr.open(projectDir / "p.pro", kit));
+        QVERIFY(refreshGuard.wait());
+    }
+
+    // The second session starts without the documents of the first.
+    QVERIFY(!CppModelManager::snapshot().contains(source));
+
+    QVERIFY(generated.writeFileContents("class Generated {};\n"));
+    if (listedInProject)
+        QVERIFY((projectDir / "p.pro").writeFileContents(proFile + "HEADERS = generated.h\n"));
+
+    SourceFilesRefreshGuard refreshGuard;
+    ProjectOpenerAndCloser projectMgr;
+    QVERIFY(projectMgr.open(projectDir / "p.pro", kit));
+    QVERIFY(refreshGuard.wait());
+
+    QCOMPARE(includedFilesOf(CppModelManager::snapshot(), source), FilePaths{generated});
+    QTRY_VERIFY(
+        !CppModelManager::locatorData()->findSymbols(IndexItem::Class, "Generated").isEmpty());
+}
+
+// Between the sessions, a header of the same name appears in an include directory
+// that is searched first, so the include must now resolve to the new header.
+void ModelManagerTest::testAHeaderShadowingAnotherBetweenSessionsIsNoticed()
+{
+    Kit * const kit = kitWithQt();
+    if (!kit)
+        QSKIP("The test requires at least one valid kit with a valid Qt");
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath source = projectDir / "uses_shadow.cpp";
+    QVERIFY(source.writeFileContents("#include \"shadow.h\"\nint main() { return 0; }\n"));
+    for (const QString &dir : QStringList{"first", "second"})
+        QVERIFY((projectDir / dir).ensureWritableDir());
+    const FilePath behind = projectDir / "second/shadow.h";
+    const FilePath inFront = projectDir / "first/shadow.h";
+    QVERIFY(behind.writeFileContents("class Behind {};\n"));
+    const QByteArray proFile = "TEMPLATE = app\nTARGET = p\nINCLUDEPATH = first second\n"
+                               "SOURCES = uses_shadow.cpp\nHEADERS = second/shadow.h\n";
+    QVERIFY((projectDir / "p.pro").writeFileContents(proFile));
+
+    {
+        SourceFilesRefreshGuard refreshGuard;
+        ProjectOpenerAndCloser projectMgr;
+        QVERIFY(projectMgr.open(projectDir / "p.pro", kit));
+        QVERIFY(refreshGuard.wait());
+        QCOMPARE(includedFilesOf(CppModelManager::snapshot(), source), FilePaths{behind});
+    }
+
+    // The second session starts without the documents of the first.
+    QVERIFY(!CppModelManager::snapshot().contains(source));
+
+    QVERIFY(inFront.writeFileContents("class InFront {};\n"));
+    QVERIFY((projectDir / "p.pro").writeFileContents(proFile + "HEADERS += first/shadow.h\n"));
+
+    SourceFilesRefreshGuard refreshGuard;
+    ProjectOpenerAndCloser projectMgr;
+    QVERIFY(projectMgr.open(projectDir / "p.pro", kit));
+    QVERIFY(refreshGuard.wait());
+
+    QCOMPARE(includedFilesOf(CppModelManager::snapshot(), source), FilePaths{inFront});
 }
 
 } // CppEditor::Internal
