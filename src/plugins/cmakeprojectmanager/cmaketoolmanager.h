@@ -45,7 +45,9 @@ public:
     static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools(
         const Utils::FilePaths &searchPaths,
         const Utils::FilePath &rootPath,
-        const QString &sourceId);
+        const QString &sourceId,
+        ProjectExplorer::DetectionSource::DetectionType remoteType
+            = ProjectExplorer::DetectionSource::Manual);
 
     static CMakeKeywords defaultProjectOrDefaultCMakeKeyWords();
 

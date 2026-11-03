@@ -14,6 +14,7 @@ class PythonSettingsTest final : public QObject
 private slots:
     void testDropsADefaultThatIsGone();
     void testDetectionReachesKitsAndSettings();
+    void testDeviceKitGetsDeviceInterpreter();
 };
 
 QObject *createPythonSettingsTest();

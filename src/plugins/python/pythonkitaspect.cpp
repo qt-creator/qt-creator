@@ -170,15 +170,6 @@ public:
                                        return {};
                                    });
     }
-
-    std::optional<ExecutableItem> autoDetect(
-        Kit *kit,
-        const Utils::FilePaths &searchPaths,
-        const DetectionSource &detectionSource,
-        const LogCallback &logCallback) const override
-    {
-        return PythonSettings::autoDetect(kit, searchPaths, detectionSource, logCallback);
-    }
 };
 
 } // Internal

@@ -8,6 +8,7 @@
 #include "../pythonkitaspect.h"
 #include "../pythonsettings.h"
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kit.h>
@@ -348,6 +349,43 @@ void PythonSettingsTest::testDetectionReachesKitsAndSettings()
             || Utils::contains(PythonSettings::interpreters(),
                                Utils::equal(&Interpreter::id, defaultId)));
     QVERIFY(!KitManager::kit(Id::fromString(kitPython->id)));
+}
+
+void PythonSettingsTest::testDeviceKitGetsDeviceInterpreter()
+{
+    const QList<Interpreter> before = PythonSettings::interpreters();
+    const QString defaultIdBefore = PythonSettings::defaultInterpreterId();
+    const QScopeGuard restore([&] { PythonSettings::setInterpreter(before, defaultIdBefore); });
+
+    const auto device = std::make_shared<PythonTestDevice>(Id("PythonSettingsTest.KitDevice"));
+    DeviceManager::addDevice(device);
+    const QScopeGuard removeDevice([&device] { DeviceManager::removeDevice(device->id()); });
+
+    const FilePath root = device->rootPath();
+    const Interpreter elsewhere("python-settings-test-elsewhere", "Test elsewhere",
+                                root / "opt/bin/python3",
+                                {DetectionSource::Manual, "python-settings-test-elsewhere"});
+    const Interpreter detected("python-settings-test-detected", "Test detected",
+                               root / "usr/bin/python3",
+                               {DetectionSource::Temporary, device->id().toString()});
+    PythonSettings::setInterpreter(before + QList<Interpreter>{elsewhere, detected},
+                                   defaultIdBefore);
+
+    Kit *kit = KitManager::registerKit(
+        [&device](Kit *k) { BuildDeviceKitAspect::setDevice(k, device); });
+    QVERIFY(kit);
+    const QScopeGuard removeKit([kit] { KitManager::deregisterKit(kit); });
+    const std::optional<Interpreter> python = PythonKitAspect::python(kit);
+    QVERIFY(python);
+    QCOMPARE(python->id, detected.id);
+
+    Kit *noneKit = KitManager::registerKit([&device](Kit *k) {
+        BuildDeviceKitAspect::setDevice(k, device);
+        PythonKitAspect::setPython(k, {});
+    });
+    QVERIFY(noneKit);
+    const QScopeGuard removeNoneKit([noneKit] { KitManager::deregisterKit(noneKit); });
+    QVERIFY(!PythonKitAspect::python(noneKit));
 }
 
 QObject *createPythonSettingsTest()

@@ -465,15 +465,6 @@ public:
         return {{Tr::tr("Debugger"), DebuggerKitAspect::displayString(k)}};
     }
 
-    std::optional<QtTaskTree::ExecutableItem> autoDetect(
-        Kit *kit,
-        const Utils::FilePaths &searchPaths,
-        const DetectionSource &detectionSource,
-        const LogCallback &logCallback) const override
-    {
-        return Internal::autoDetectDebuggerRecipe(kit, searchPaths, detectionSource, logCallback);
-    }
-
     std::optional<QtTaskTree::ExecutableItem> removeAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override
     {

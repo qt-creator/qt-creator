@@ -78,6 +78,8 @@ public:
     void toMap(Utils::Store &) const;
 
     static std::optional<DetectionSource> createFromMap(const Utils::Store &);
+    static DetectionType typeForDevice(
+        const IDeviceConstPtr &device, DetectionType fallback = Manual);
 
     DetectionType type = Uninitialized;
     QString id;
@@ -85,16 +87,6 @@ public:
 private:
     PROJECTEXPLORER_EXPORT friend QDebug operator<<(QDebug dbg, const DetectionSource &source);
 };
-
-// Kits a device declares in its own configuration, as opposed to kits found
-// by kit detection. Detection leaves them alone instead of updating them.
-PROJECTEXPLORER_EXPORT void markKitAsDeclaredByDevice(Kit *kit);
-PROJECTEXPLORER_EXPORT bool isKitDeclaredByDevice(const Kit *kit);
-
-PROJECTEXPLORER_EXPORT QtTaskTree::Group kitDetectionRecipe(
-    const IDeviceConstPtr &device,
-    DetectionSource::DetectionType detectionType,
-    const LogCallback &logCallback);
 
 PROJECTEXPLORER_EXPORT QtTaskTree::Group removeDetectedKitItemsRecipe(
     const IDeviceConstPtr &device, const LogCallback &logCallback);
@@ -167,12 +159,6 @@ public:
 
     static void handleKitsLoaded();
     static const QList<KitAspectFactory *> kitAspectFactories();
-
-    virtual std::optional<QtTaskTree::ExecutableItem> autoDetect(
-        Kit *kit,
-        const Utils::FilePaths &searchPaths,
-        const DetectionSource &detectionSource,
-        const LogCallback &logCallback) const;
 
     virtual std::optional<QtTaskTree::ExecutableItem> removeAutoDetected(
         const QString &detectionSourceId, const LogCallback &logCallback) const;

@@ -158,12 +158,6 @@ private:
                            const QList<int> &changedIds);
     void onKitsLoaded() override;
 
-    std::optional<ExecutableItem> autoDetect(
-        Kit *kit,
-        const Utils::FilePaths &searchPaths,
-        const DetectionSource &detectionSource,
-        const LogCallback &logCallback) const override;
-
     std::optional<ExecutableItem> removeAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
 
@@ -476,58 +470,6 @@ void QtKitAspectFactory::onKitsLoaded()
 
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
             this, &QtKitAspectFactory::qtVersionsChanged);
-}
-
-std::optional<ExecutableItem> QtKitAspectFactory::autoDetect(
-    Kit *kit,
-    const FilePaths &searchPaths,
-    const DetectionSource &detectionSource,
-    const LogCallback &logCallback) const
-{
-    const auto searchQtse = [searchPaths, detectionSource](Async<QtVersion *> &async) {
-        async.setConcurrentCallData(
-            [detectionSource](QPromise<QtVersion *> &promise, const FilePaths &searchPaths) {
-                QList<QtVersion *> foundQtVersions;
-                for (const FilePath &qmake : Internal::findQtsInPaths(searchPaths)) {
-                    if (Internal::isQtChooser(qmake))
-                        continue;
-                    QString error;
-                    // Owns the version until it is handed to the promise (and from there
-                    // to the QtVersionManager); duplicates and invalid ones are freed here.
-                    std::unique_ptr<QtVersion> qtVersion(
-                        QtVersionFactory::createQtVersionFromQMakePath(
-                            qmake, detectionSource, &error));
-                    if (!qtVersion || !qtVersion->isValid())
-                        continue;
-
-                    // Trigger loading the version data
-                    const FilePath binPath = qtVersion->binPath();
-
-                    const bool alreadyFound = Utils::anyOf(foundQtVersions, [&](QtVersion *other) {
-                        return qtVersion->mkspecPath() == other->mkspecPath();
-                    });
-                    if (alreadyFound)
-                        continue;
-
-                    foundQtVersions.append(qtVersion.get());
-                    promise.addResult(qtVersion.release());
-                }
-            },
-            searchPaths);
-    };
-
-    const auto qtDetectionDone = [kit, logCallback](const Async<QtVersion *> &async) {
-        const auto versions = async.results();
-
-        for (QtVersion *version : versions) {
-            logCallback(Tr::tr("Found Qt version: %1.").arg(version->displayName()));
-            QtVersionManager::addVersion(version);
-            if (kit)
-                QtKitAspect::setQtVersion(kit, version);
-        }
-    };
-
-    return AsyncTask<QtVersion *>(searchQtse, qtDetectionDone);
 }
 
 std::optional<ExecutableItem> QtKitAspectFactory::removeAutoDetected(

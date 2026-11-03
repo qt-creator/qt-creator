@@ -199,6 +199,7 @@ public:
     bool isAutoDetected() const;
     bool isFromSdk() const;
     bool isPersistent() const;
+    bool hasTemporaryTools() const;
     Utils::Id id() const;
 
     virtual QList<Task> validate() const;
@@ -390,6 +391,7 @@ protected:
     void setDisplayType(const QString &type);
     void setOsType(Utils::OsType osType);
     void setPersistent(bool persistent);
+    void setHasTemporaryTools(bool temporary);
     void setFileAccess(Utils::DeviceFileAccessPtr fileAccess, bool announce = true);
     void setFileAccessFactory(std::function<Utils::DeviceFileAccessPtr()> fileAccessFactory);
 

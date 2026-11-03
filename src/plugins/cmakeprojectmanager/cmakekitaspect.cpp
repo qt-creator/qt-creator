@@ -169,12 +169,6 @@ public:
 
     QSet<Utils::Id> availableFeatures(const Kit *k) const final;
 
-    std::optional<QtTaskTree::ExecutableItem> autoDetect(
-        Kit *kit,
-        const Utils::FilePaths &searchPaths,
-        const DetectionSource &detectionSource,
-        const LogCallback &logCallback) const override;
-
     std::optional<QtTaskTree::ExecutableItem> removeAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
 
@@ -408,58 +402,6 @@ QSet<Id> CMakeKitAspectFactory::availableFeatures(const Kit *k) const
         features.insert("MCU");
 
     return features;
-}
-
-std::optional<QtTaskTree::ExecutableItem> CMakeKitAspectFactory::autoDetect(
-    Kit *kit,
-    const Utils::FilePaths &searchPaths,
-    const DetectionSource &detectionSource,
-    const LogCallback &logCallback) const
-{
-    using namespace QtTaskTree;
-
-    using ResultType = std::vector<std::unique_ptr<CMakeTool>>;
-
-    const auto setup = [searchPaths, detectionSource](Async<ResultType> &async) {
-        async.setConcurrentCallData(
-            [](QPromise<ResultType> &promise,
-               const FilePaths &searchPaths,
-               const DetectionSource &detectionSource) {
-                const FilePath cmake = "cmake";
-                const FilePaths candidates
-                    = cmake.searchAllInDirectories(searchPaths).uniqueExecutables();
-
-                ResultType result;
-
-                for (const auto &candidate : candidates) {
-                    Id id = Id::fromString(candidate.toUserOutput());
-
-                    auto newTool = std::make_unique<CMakeTool>(detectionSource, id);
-                    newTool->setFilePath(candidate);
-                    newTool->setDisplayName(candidate.toUserOutput());
-                    id = newTool->id();
-
-                    if (newTool->isValid())
-                        result.push_back(std::move(newTool));
-                }
-                promise.addResult(std::move(result));
-            },
-            searchPaths,
-            detectionSource);
-    };
-
-    const auto onDone = [kit, logCallback](const Async<ResultType> &async) {
-        ResultType tools = async.takeResult();
-
-        for (auto &tool : tools) {
-            const FilePath cmake = tool->cmakeExecutable();
-            CMakeToolManager::registerCMakeTool(std::move(tool));
-            logCallback(Tr::tr("Found CMake tool: \"%1\".").arg(cmake.toUserOutput()));
-            CMakeKitAspect::setCMakeExecutable(kit, cmake);
-        }
-    };
-
-    return AsyncTask<ResultType>(setup, onDone);
 }
 
 std::optional<QtTaskTree::ExecutableItem> CMakeKitAspectFactory::removeAutoDetected(

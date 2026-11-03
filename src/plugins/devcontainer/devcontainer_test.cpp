@@ -9,6 +9,8 @@
 
 #include <devcontainer/devcontainer.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
@@ -146,6 +148,15 @@ private slots:
         QVERIFY(expectedRootPath.ensureReachable(expectedMainCpp));
         QCOMPARE(expectedMainCpp.localSource(), testData / "simpleproject" / "main.cpp");
 
+        // The image has no compiler, but the device still gets a kit.
+        const auto deviceKits = Utils::filtered(
+            ProjectExplorer::KitManager::instance()->kits(),
+            [&expectedRootPath](ProjectExplorer::Kit *k) {
+                const auto device = ProjectExplorer::BuildDeviceKitAspect::device(k);
+                return device && device->rootPath() == expectedRootPath;
+            });
+        QCOMPARE(deviceKits.size(), 1);
+
         ProjectExplorer::ProjectManager::removeProject(opr.project());
         QVERIFY(!expectedRootPath.exists());
     }
@@ -262,11 +273,19 @@ private slots:
 
         // Detection must not adopt one of the declared kits, so the device ends
         // up with the two it declared plus the detected one.
-        const QString deviceId = kit1->detectionSource().id;
+        const Utils::Id deviceId = ProjectExplorer::BuildDeviceKitAspect::deviceId(kit1);
         const auto deviceKits = Utils::filtered(
-            ProjectExplorer::KitManager::instance()->kits(),
-            [&deviceId](ProjectExplorer::Kit *k) { return k->detectionSource().id == deviceId; });
+            ProjectExplorer::KitManager::instance()->kits(), [&deviceId](ProjectExplorer::Kit *k) {
+                return ProjectExplorer::BuildDeviceKitAspect::deviceId(k) == deviceId;
+            });
         QCOMPARE(deviceKits.size(), 3);
+        for (ProjectExplorer::Kit *kit : deviceKits)
+            QCOMPARE(kit->detectionSource().type, ProjectExplorer::DetectionSource::Temporary);
+        const auto detectedKits = Utils::filtered(deviceKits, [&deviceId](ProjectExplorer::Kit *k) {
+            return k->detectionSource().id.startsWith(deviceId.toString() + '/');
+        });
+        QCOMPARE(detectedKits.size(), 1);
+        QVERIFY(ProjectExplorer::ToolchainKitAspect::cxxToolchain(detectedKits.first()));
     }
 };
 

@@ -30,7 +30,6 @@ using namespace Utils;
 
 static const char DETECTIONSOURCETYPE[] = "DetectionSource.type";
 static const char DETECTIONSOURCEID[] = "DetectionSource.id";
-static const char DECLAREDBYDEVICE[] = "PE.Kit.DeclaredByDevice";
 
 namespace ProjectExplorer {
 
@@ -54,6 +53,19 @@ std::optional<DetectionSource> DetectionSource::createFromMap(const Store &store
         return ds;
     }
     return {};
+}
+
+/*!
+    Returns the detection type for the tools that auto-detection finds on
+    \a device: \c Temporary if the device has temporary tools, \a fallback
+    otherwise.
+
+    \sa IDevice::hasTemporaryTools()
+*/
+DetectionSource::DetectionType DetectionSource::typeForDevice(
+    const IDeviceConstPtr &device, DetectionType fallback)
+{
+    return device && device->hasTemporaryTools() ? Temporary : fallback;
 }
 
 namespace {
@@ -475,20 +487,6 @@ const QList<KitAspectFactory *> KitAspectFactory::kitAspectFactories()
     return kitAspectFactoriesStorage().kitAspectFactories();
 }
 
-std::optional<QtTaskTree::ExecutableItem> KitAspectFactory::autoDetect(
-    Kit *kit,
-    const FilePaths &searchPaths,
-    const DetectionSource &detectionSource,
-    const LogCallback &logCallback) const
-{
-    Q_UNUSED(kit);
-    Q_UNUSED(searchPaths);
-    Q_UNUSED(detectionSource);
-    Q_UNUSED(logCallback);
-
-    return std::nullopt;
-}
-
 std::optional<QtTaskTree::ExecutableItem> KitAspectFactory::removeAutoDetected(
     const QString &detectionSourceId, const LogCallback &logCallback) const
 {
@@ -514,96 +512,7 @@ Result<QtTaskTree::ExecutableItem> KitAspectFactory::createAspectFromJson(
             .arg(id().toString()));
 }
 
-void markKitAsDeclaredByDevice(Kit *kit)
-{
-    kit->setValueSilently(DECLAREDBYDEVICE, true);
-}
-
-bool isKitDeclaredByDevice(const Kit *kit)
-{
-    return kit->value(DECLAREDBYDEVICE).toBool();
-}
-
 using Group = QtTaskTree::Group; // trick lupdate, QTBUG-140636
-Group kitDetectionRecipe(
-    const IDeviceConstPtr &device,
-    DetectionSource::DetectionType detectionType,
-    const LogCallback &logCallback)
-{
-    using namespace QtTaskTree;
-
-    Storage<GroupItems> detectorItems;
-    Storage<Kit *> kit;
-    Storage<bool> isNewKit;
-
-    const DetectionSource detectionSource{detectionType, device->id().toString()};
-
-    const auto setup = [kit, isNewKit, detectorItems, device, detectionSource, logCallback] {
-        const auto root = device->rootPath();
-
-        const FilePaths searchPaths
-            = Utils::transform(device->toolSearchPaths(), [&root](const FilePath &path) {
-                  return root.withNewPath(path.path());
-              });
-
-        logCallback(Tr::tr("Auto detecting kits for device: %1").arg(device->displayName()));
-
-        *kit = Utils::findOrDefault(KitManager::kits(), [&detectionSource](const Kit *k) {
-            return k->detectionSource() == detectionSource && !isKitDeclaredByDevice(k);
-        });
-        *isNewKit = *kit == nullptr;
-
-        if (*isNewKit) {
-            *kit = KitManager::registerKit([device, detectionSource](Kit *k) {
-                k->setDetectionSource(detectionSource);
-                k->setUnexpandedDisplayName("%{Device:Name}");
-
-                RunDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
-                RunDeviceKitAspect::setDevice(k, device);
-                BuildDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
-                BuildDeviceKitAspect::setDevice(k, device);
-
-                k->setSticky(BuildDeviceKitAspect::id(), true);
-                k->setSticky(BuildDeviceTypeKitAspect::id(), true);
-            });
-        }
-
-        for (const auto &factory : KitAspectFactory::kitAspectFactories()) {
-            const auto detector
-                = factory->autoDetect(*kit, searchPaths, detectionSource, logCallback);
-            if (detector)
-                detectorItems->append({*detector});
-        }
-    };
-
-    const auto setupDetectorTree = [detectorItems](QTaskTree &tree) {
-        tree.setRecipe(Group(*detectorItems));
-    };
-
-    // clang-format off
-    return Group {
-        kit, isNewKit, detectorItems,
-        QSyncTask(setup),
-        QTaskTreeTask(setupDetectorTree),
-        QSyncTask([kit, isNewKit, logCallback] {
-            if (*isNewKit && !(*kit)->isValid()) {
-                KitManager::deregisterKit(*kit);
-                return;
-            }
-
-            // The kit registered in "setup" needs to update the kit aspects
-            // found by "setupDetectorTree"
-            (*kit)->fix();
-
-            if ((*kit)->isValid())
-                logCallback(Tr::tr("Found kit: %1.").arg((*kit)->displayName()));
-            else
-                logCallback(Tr::tr("Kept incomplete kit: %1.").arg((*kit)->displayName()));
-        }),
-    };
-    // clang-format on
-}
-
 Group removeDetectedKitItemsRecipe(const IDeviceConstPtr &device, const LogCallback &logCallback)
 {
     using namespace QtTaskTree;

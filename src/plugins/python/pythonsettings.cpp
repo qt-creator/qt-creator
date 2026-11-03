@@ -15,6 +15,7 @@
 
 #include <debugger/debuggerkitaspect.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/environmentkitaspect.h>
@@ -873,6 +874,28 @@ static void pruneStalePylspInstallations(const QList<Interpreter> &interpreters)
         prunePylspInstallations(localPylspRoot(), *versions);
 }
 
+static void setDevicePython(Kit *k)
+{
+    QTC_ASSERT(k, return);
+    if (k->hasValue(PythonKitAspect::id()))
+        return;
+    const IDeviceConstPtr device = BuildDeviceKitAspect::device(k);
+    if (!device || device->rootPath().isLocal())
+        return;
+    const QList<Interpreter> onDevice = Utils::filtered(
+        PythonSettings::interpreters(), [root = device->rootPath()](const Interpreter &i) {
+            return i.command.isSameDevice(root);
+        });
+    if (onDevice.isEmpty())
+        return;
+    const QString sourceId = device->id().toString();
+    const Interpreter interpreter
+        = Utils::findOr(onDevice, onDevice.first(), [&sourceId](const Interpreter &i) {
+              return i.detectionSource.id == sourceId;
+          });
+    PythonKitAspect::setPython(k, interpreter.id);
+}
+
 PythonSettings::PythonSettings()
 {
     QTC_ASSERT(!settingsInstance, return);
@@ -931,7 +954,8 @@ PythonSettings::PythonSettings()
 
         const bool isDesktopDevice = devId == ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
         const DetectionSource detectionSource(
-            DetectionSource::FromSystem, isDesktopDevice ? QString() : devId.toString());
+            DetectionSource::typeForDevice(device, DetectionSource::FromSystem),
+            isDesktopDevice ? QString() : devId.toString());
         const LogCallback logCallback = [logger](const QString &message) {
             if (logger)
                 logger.logItem(message);
@@ -946,6 +970,8 @@ PythonSettings::PythonSettings()
                 device->deregisterToolDetectionTask(token);
         });
     });
+
+    connect(KitManager::instance(), &KitManager::kitAdded, this, &setDevicePython);
 
     // Not in removeAutoDetected() of the kit aspect: that also runs when the device is only re-detected, and
     // the interpreters and their kits must keep their ids then.
@@ -1481,9 +1507,8 @@ ExecutableItem PythonSettings::autoDetect(
             if (detectionSource.id.isEmpty() && !kit) {
                 PythonSettings::addInterpreter(interpreter);
             } else {
-                // No kit of its own: the kit the search runs for gets it, and on a device it
-                // would have the device kit's detection source, so that kitDetectionRecipe()
-                // would take it for the device kit.
+                // No kit of its own: the kit the search runs for gets it, and on a device
+                // setDevicePython() gives it to the device's kits.
                 settingsInstance->m_interpreters.append(interpreter);
                 saveSettings();
             }

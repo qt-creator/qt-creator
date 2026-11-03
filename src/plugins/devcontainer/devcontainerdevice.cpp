@@ -32,10 +32,12 @@
 #include <utils/infobar.h>
 #include <utils/utility.h>
 
+#include <QtTaskTree/QBarrier>
 #include <QtTaskTree/QConditional>
 
 #include <QLoggingCategory>
 #include <QMessageBox>
+#include <QPointer>
 #include <QProgressDialog>
 
 static Q_LOGGING_CATEGORY(devContainerDeviceLog, "qtc.devcontainer.device", QtWarningMsg)
@@ -54,6 +56,8 @@ Device::Device()
     setType(Constants::DEVCONTAINER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
     setPersistent(false);
+    setHasTemporaryTools(true);
+    offerKitCreation();
     setFileAccessFactory([this] { return m_fileAccess; });
 }
 
@@ -484,7 +488,31 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
         return DoneResult::Success;
     };
 
-    const auto setupManualKits = [this, runningInstance, instanceConfig](QTaskTree &tree) {
+    const auto registerDeviceKit = [this] {
+        return KitManager::registerKit([this](Kit *kit) {
+            kit->setDetectionSource({DetectionSource::Temporary, id().toString()});
+            kit->setUnexpandedDisplayName("%{Device:Name}");
+
+            RunDeviceTypeKitAspect::setDeviceTypeId(kit, type());
+            RunDeviceKitAspect::setDevice(kit, shared_from_this());
+            BuildDeviceTypeKitAspect::setDeviceTypeId(kit, type());
+            BuildDeviceKitAspect::setDevice(kit, shared_from_this());
+
+            kit->setSticky(BuildDeviceKitAspect::id(), true);
+            kit->setSticky(BuildDeviceTypeKitAspect::id(), true);
+        });
+    };
+
+    const auto isDeviceKit = [this](Kit *k) { return BuildDeviceKitAspect::deviceId(k) == id(); };
+
+    // The kits created from the toolchains auto-detection finds on the device. The ones
+    // registerDeviceKit() creates carry the plain device id as their source.
+    const auto isDetectedKit = [this, isDeviceKit](Kit *k) {
+        return isDeviceKit(k) && k->detectionSource().id != id().toString();
+    };
+
+    const auto setupManualKits = [this, runningInstance, instanceConfig, registerDeviceKit](
+                                     QTaskTree &tree) {
         const QJsonArray kits
             = customization(runningInstance->customizations, "qt-creator/kits").toArray();
 
@@ -496,19 +524,7 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
 
             const QJsonObject kitObject = kitValue.toObject();
 
-            Kit *kit = KitManager::registerKit([this](Kit *kit) {
-                kit->setDetectionSource({DetectionSource::Temporary, id().toString()});
-                markKitAsDeclaredByDevice(kit);
-                kit->setUnexpandedDisplayName("%{Device:Name}");
-
-                RunDeviceTypeKitAspect::setDeviceTypeId(kit, type());
-                RunDeviceKitAspect::setDevice(kit, shared_from_this());
-                BuildDeviceTypeKitAspect::setDeviceTypeId(kit, type());
-                BuildDeviceKitAspect::setDevice(kit, shared_from_this());
-
-                kit->setSticky(BuildDeviceKitAspect::id(), true);
-                kit->setSticky(BuildDeviceTypeKitAspect::id(), true);
-            });
+            Kit *kit = registerDeviceKit();
 
             for (auto it = kitObject.constBegin(); it != kitObject.constEnd(); ++it) {
                 if (it.key() == "name") {
@@ -554,7 +570,22 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
 
     const auto autoDetectKitsEnabled = [options] { return options->autoDetectKits; };
 
-    const auto restoreVanishedTargets = [this]() {
+    const auto runToolDetection = [this, instanceConfig, registerDeviceKit, isDeviceKit](
+                                      QBarrier &barrier) {
+        const QPointer<QBarrier> guard(&barrier);
+        runAutoDetect(
+            ToolDetectionLogger(instanceConfig.logFunction),
+            [guard, registerDeviceKit, isDeviceKit] {
+                if (!guard)
+                    return;
+                // Without a compiler and declared kits nothing else gives the device a kit.
+                if (!Utils::anyOf(KitManager::kits(), isDeviceKit))
+                    registerDeviceKit();
+                guard->advance();
+            });
+    };
+
+    const auto restoreVanishedTargets = [this, isDetectedKit]() {
         for (QMap<Utils::Key, QVariant> target : m_project->vanishedTargets()) {
             const QString name = target.value(Target::displayNameKey()).toString();
             auto kit = Utils::findOrDefault(KitManager::kits(), [this, &name](Kit *k) {
@@ -562,6 +593,13 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
                     return false;
                 return k->displayName() == name;
             });
+
+            // Projects set up with older versions know the detected kit by the device name.
+            if (!kit && name == displayName()) {
+                const QList<Kit *> detected = Utils::filtered(KitManager::kits(), isDetectedKit);
+                if (detected.size() == 1)
+                    kit = detected.first();
+            }
 
             if (kit) {
                 if (m_project->copySteps(target, kit))
@@ -579,9 +617,10 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
         QSyncTask(setupProcessInterfaceCreator),
         QSyncTask(setupCmdBridge),
         QTaskTreeTask(setupManualKits),
-        autoDetectDeviceToolsRecipe(),
         If (autoDetectKitsEnabled) >> Then {
-            kitDetectionRecipe(shared_from_this(), DetectionSource::Temporary, instanceConfig.logFunction)
+            QBarrierTask(runToolDetection)
+        } >> Else {
+            autoDetectDeviceToolsRecipe()
         },
         QSyncTask(restoreVanishedTargets)
     };

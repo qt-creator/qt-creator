@@ -179,12 +179,6 @@ private:
     void toolChainUpdated(Toolchain *tc);
     void toolChainsDeregistered();
 
-    std::optional<QtTaskTree::ExecutableItem> autoDetect(
-        Kit *kit,
-        const Utils::FilePaths &searchPaths,
-        const DetectionSource &detectionSource,
-        const LogCallback &logCallback) const override;
-
     std::optional<QtTaskTree::ExecutableItem> removeAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
 
@@ -510,56 +504,6 @@ static void setBestBundles(Kit *kit, const QList<ToolchainBundle> &bundles)
     }
     for (const ToolchainBundle &bundle : std::as_const(best))
         ToolchainKitAspect::setBundle(kit, bundle);
-}
-
-std::optional<QtTaskTree::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
-    Kit *kit,
-    const FilePaths &searchPaths,
-    const DetectionSource &detectionSource,
-    const LogCallback &logCallback) const
-{
-    const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
-    if (!device || searchPaths.isEmpty())
-        return {};
-
-    const auto searchToolchains = [device, searchPaths](Async<Toolchain *> &async) {
-        async.setConcurrentCallData(
-            [](QPromise<Toolchain *> &promise,
-               IDevice::ConstPtr device,
-               const FilePaths &searchPaths) {
-                ToolchainDetector detector({}, device, searchPaths);
-
-                for (ToolchainFactory *factory : ToolchainFactory::allToolchainFactories()) {
-                    const Toolchains detectedToolchains = factory->autoDetect(detector);
-
-                    for (Toolchain *toolchain : detectedToolchains) {
-                        if (toolchain->isValid())
-                            promise.addResult(toolchain);
-                    }
-                }
-            },
-            device,
-            searchPaths);
-    };
-
-    const auto toolchainsDone =
-        [kit, detectionSource, logCallback](const Async<Toolchain *> &async) {
-            const Toolchains toolchains = async.results();
-
-            for (Toolchain *toolchain : toolchains) {
-                toolchain->setDetectionSource(detectionSource);
-                logCallback(Tr::tr("Found toolchain: %1.").arg(toolchain->displayName()));
-            }
-
-            ToolchainManager::registerToolchains(toolchains);
-
-            const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
-                toolchains, ToolchainBundle::HandleMissing::CreateAndRegister);
-
-            setBestBundles(kit, bundles);
-        };
-
-    return AsyncTask<Toolchain *>(searchToolchains, toolchainsDone);
 }
 
 std::optional<QtTaskTree::ExecutableItem> ToolchainKitAspectFactory::removeAutoDetected(

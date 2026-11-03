@@ -172,7 +172,10 @@ void CMakeToolManager::deregisterCMakeTool(const Id &id)
 }
 
 std::vector<std::unique_ptr<CMakeTool>> CMakeToolManager::autoDetectCMakeTools(
-    const FilePaths &searchPaths, const FilePath &rootPath, const QString &sourceId)
+    const FilePaths &searchPaths,
+    const FilePath &rootPath,
+    const QString &sourceId,
+    DetectionSource::DetectionType remoteType)
 {
     QStringList extraDirs;
 
@@ -198,10 +201,9 @@ std::vector<std::unique_ptr<CMakeTool>> CMakeToolManager::autoDetectCMakeTools(
 
     std::vector<std::unique_ptr<CMakeTool>> found;
     for (const FilePath &command : std::as_const(suspects)) {
-        // Consider remote tools as manual, like we want for the "Auto-detect" button in the settings
         const DetectionSource detectionSource
             = command.isLocal() ? DetectionSource(DetectionSource::FromSystem)
-                                : DetectionSource(DetectionSource::Manual, sourceId);
+                                : DetectionSource(remoteType, sourceId);
         auto item = std::make_unique<CMakeTool>(detectionSource, CMakeTool::createId());
         item->setFilePath(command);
         item->setDisplayName(Tr::tr("System CMake at %1").arg(command.toUserOutput()));
@@ -600,8 +602,12 @@ void CMakeToolManager::handleDeviceToolDetectionRequest(
     dev->registerToolDetectionTask(token);
     if (logger)
         logger.logTopLevel(Tr::tr("Searching for CMake..."));
-    const auto future
-        = Utils::asyncRun(autoDetectCMakeTools, searchPaths, dev->rootPath(), devId.toString());
+    const auto future = Utils::asyncRun(
+        autoDetectCMakeTools,
+        searchPaths,
+        dev->rootPath(),
+        devId.toString(),
+        DetectionSource::typeForDevice(dev));
     const auto cont = [devId, token, logger](auto &&future) {
         const IDevicePtr dev = DeviceManager::find(devId);
         if (!dev)

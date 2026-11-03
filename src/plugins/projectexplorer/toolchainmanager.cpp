@@ -129,12 +129,13 @@ void ToolchainManager::restoreToolchains()
         if (logger)
             logger.logTopLevel(Tr::tr("Searching for toolchains..."));
         ToolchainDetector detector(m_instance->toolchains(), device, searchPaths);
+        const DetectionSource source(DetectionSource::typeForDevice(device), devId.toString());
         Toolchains toRegister;
         for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
             for (Toolchain * const tc : f->autoDetect(detector)) {
                 if (!m_instance->toolchains().contains(tc)) {
                     toRegister << tc;
-                    tc->setDetectionSource({DetectionSource::Manual, devId.toString()});
+                    tc->setDetectionSource(source);
                 }
             }
         }

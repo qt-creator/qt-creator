@@ -612,7 +612,8 @@ void DebuggerModel::detectDebuggers(
     const bool isDesktopDevice = device->id() == ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
     const DetectionSource detectionSource
         = isDesktopDevice ? DetectionSource(DetectionSource::FromSystem)
-                          : DetectionSource(DetectionSource::Manual, device->id().toString());
+                          : DetectionSource(
+                                DetectionSource::typeForDevice(device), device->id().toString());
     autoDetectGdbOrLldbDebuggers(searchPaths, detectionSource, logger);
     autoDetectCdbDebuggers(device, detectionSource, logger);
     if (isDesktopDevice)
@@ -646,55 +647,6 @@ void DebuggerModel::saveDebuggers()
 }
 
 using ExecutableItem = QtTaskTree::ExecutableItem; // trick lupdate, QTBUG-140636
-
-ExecutableItem autoDetectDebuggerRecipe(
-    ProjectExplorer::Kit *kit,
-    const Utils::FilePaths &searchPaths,
-    const DetectionSource &detectionSource,
-    const LogCallback &logCallback)
-{
-    const QStringList searchFilters = debuggerSearchFilters();
-
-    static const auto searchDebuggers = [](QPromise<DebuggerItem> &promise,
-                                           const FilePaths &searchPaths,
-                                           const DetectionSource &detectionSource,
-                                           const QStringList &searchFilters) {
-        FilePaths suspects;
-
-        for (const FilePath &path : searchPaths)
-            suspects.append(path.dirEntries(Utils::FileFilter{searchFilters, Utils::DirFilterFlag::Files | Utils::DirFilterFlag::Executable}));
-
-        suspects = suspects.uniqueExecutables();
-
-        for (const FilePath &command : std::as_const(suspects)) {
-            const Result<DebuggerItem> item = makeAutoDetectedDebuggerItem(command, detectionSource);
-
-            if (item)
-                promise.addResult(*item);
-            else
-                qWarning() << "Failed to auto-detect debugger from" << command.toUserOutput() << ":"
-                           << item.error();
-        }
-    };
-
-    auto setupSearch = [searchPaths, detectionSource, searchFilters](Async<DebuggerItem> &async) {
-        async.setConcurrentCallData(searchDebuggers, searchPaths, detectionSource, searchFilters);
-    };
-
-    auto searchDone = [kit, logCallback](const Async<DebuggerItem> &async) {
-        const QList<DebuggerItem> items = async.results();
-        for (const DebuggerItem &item : items) {
-            if (item.isValid() && item.engineType() != NoEngineType) {
-                logCallback(Tr::tr("Found debugger: \"%1\".").arg(item.command().toUserOutput()));
-                DebuggerItemManager::registerDebugger(item);
-                DebuggerKitAspect::setDebugger(kit, item.id());
-            } else
-                qWarning() << "Invalid debugger item detected?!";
-        }
-    };
-
-    return AsyncTask<DebuggerItem>(setupSearch, searchDone);
-}
 
 ExecutableItem removeAutoDetected(const QString &detectionSourceId, const LogCallback &logCallback)
 {

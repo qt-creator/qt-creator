@@ -33,12 +33,6 @@ DEBUGGER_EXPORT DebuggerItem findByEngineType(DebuggerEngineType engineType);
 
 namespace Internal {
 
-QtTaskTree::ExecutableItem autoDetectDebuggerRecipe(
-    ProjectExplorer::Kit *kit,
-    const Utils::FilePaths &searchPaths,
-    const ProjectExplorer::DetectionSource &detectionSource,
-    const ProjectExplorer::LogCallback &logCallback);
-
 QtTaskTree::ExecutableItem removeAutoDetected(
     const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);
 

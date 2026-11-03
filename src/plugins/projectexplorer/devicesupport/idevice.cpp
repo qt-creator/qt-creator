@@ -289,6 +289,7 @@ public:
     Id type;
     IDevice::Origin origin = IDevice::AutoDetected;
     bool persistent = true;
+    bool hasTemporaryTools = false;
     Id id;
     IDevice::MachineType machineType = IDevice::Hardware;
     SynchronizedValue<OsType> osType = OsTypeOther;
@@ -1102,6 +1103,29 @@ bool IDevice::isPersistent() const
 void IDevice::setPersistent(bool persistent)
 {
     d->persistent = persistent;
+}
+
+/*!
+    Returns whether the tools and kits that auto-detection finds on the device
+    exist only for as long as the device does, and are not written to the
+    settings.
+
+    \sa setHasTemporaryTools()
+*/
+bool IDevice::hasTemporaryTools() const
+{
+    return d->hasTemporaryTools;
+}
+
+/*!
+    Makes the tools and kits that auto-detection finds on the device temporary
+    if \a temporary is \c true.
+
+    \sa hasTemporaryTools()
+*/
+void IDevice::setHasTemporaryTools(bool temporary)
+{
+    d->hasTemporaryTools = temporary;
 }
 
 /*!

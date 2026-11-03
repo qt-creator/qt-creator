@@ -13,6 +13,7 @@
 #include "kitaspect.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "toolchainconfigwidget.h"
 #include "toolchainkitaspect.h"
 #include "toolchainmanager.h"
 
@@ -501,7 +502,7 @@ void KitManager::createKitsFromToolchains(
                 // instead of creating a duplicate, and the kit can automatically be removed if the
                 // device is removed.
                 kit->setDetectionSource(
-                    {DetectionSource::Manual,
+                    {DetectionSource::typeForDevice(buildDevice),
                      deviceKitDetectionSourceId(buildDevice->id(), abiString)});
             } else {
                 kit->setDetectionSource(DetectionSource::Manual);
@@ -876,8 +877,39 @@ public:
         fromMap(map);
     }
 
+    void makeToolsTemporary() { setHasTemporaryTools(true); }
+
 private:
     IDeviceWidget *createWidget() final { return nullptr; }
+};
+
+class BuildDeviceTestToolchainFactory final : public ToolchainFactory
+{
+public:
+    explicit BuildDeviceTestToolchainFactory(const IDeviceConstPtr &device)
+        : m_device(device)
+    {
+        setSupportedToolchainType("KitManagerTest.ToolchainType");
+    }
+
+    Toolchains autoDetect(const ToolchainDetector &detector) const final
+    {
+        if (detector.device != m_device)
+            return {};
+        Toolchain * const toolchain = createToolchain(Constants::GCC_TOOLCHAIN_TYPEID);
+        toolchain->setLanguage(Constants::CXX_LANGUAGE_ID);
+        toolchain->setCompilerCommand(m_device->rootPath().withNewPath("/usr/bin/g++"));
+        return {toolchain};
+    }
+
+    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget(
+        const ToolchainBundle &) const final
+    {
+        return {};
+    }
+
+private:
+    const IDeviceConstPtr m_device;
 };
 
 class KitManagerTest final : public QObject
@@ -972,6 +1004,47 @@ private slots:
         kit = KitManager::kits().last();
         QCOMPARE(RunDeviceTypeKitAspect::deviceTypeId(kit), device->type());
         QCOMPARE(RunDeviceKitAspect::deviceId(kit), device->id());
+        QCOMPARE(kit->detectionSource().type, DetectionSource::Manual);
+
+        KitManager::deregisterKit(kit);
+        device->makeToolsTemporary();
+        KitManager::createKitsForBuildDevice(device);
+        QCOMPARE(KitManager::kits().size(), kitCount + 1);
+        kit = KitManager::kits().last();
+        QCOMPARE(kit->detectionSource().type, DetectionSource::Temporary);
+    }
+
+    void testToolchainsForBuildDevice()
+    {
+        const auto device = std::make_shared<BuildDeviceTestDevice>(
+            Id("KitManagerTest.BuildDevice"), Id("KitManagerTest.BuildDeviceType"), OsTypeLinux);
+        DeviceManager::addDevice(device);
+        const QScopeGuard removeDevice([&device] { DeviceManager::removeDevice(device->id()); });
+        const BuildDeviceTestToolchainFactory factory(device);
+        const auto deviceToolchains = [&device] {
+            return Utils::filtered(ToolchainManager::toolchains(), [&device](Toolchain *tc) {
+                return tc->isSameDevice(device->rootPath());
+            });
+        };
+        const QScopeGuard removeKitsAndToolchains([&device, &deviceToolchains] {
+            KitManager::deregisterKits(Utils::filtered(KitManager::kits(), [&device](Kit *k) {
+                return BuildDeviceKitAspect::deviceId(k) == device->id();
+            }));
+            ToolchainManager::deregisterToolchains(deviceToolchains());
+        });
+
+        const FilePaths searchPaths{device->rootPath().withNewPath("/usr/bin")};
+        device->requestToolDetection(searchPaths);
+        Toolchains toolchains = deviceToolchains();
+        QCOMPARE(toolchains.size(), 1);
+        QCOMPARE(toolchains.first()->detectionSource().type, DetectionSource::Manual);
+
+        ToolchainManager::deregisterToolchains(toolchains);
+        device->makeToolsTemporary();
+        device->requestToolDetection(searchPaths);
+        toolchains = deviceToolchains();
+        QCOMPARE(toolchains.size(), 1);
+        QCOMPARE(toolchains.first()->detectionSource().type, DetectionSource::Temporary);
     }
 };
 
