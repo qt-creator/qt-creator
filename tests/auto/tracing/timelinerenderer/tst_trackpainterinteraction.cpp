@@ -1,9 +1,10 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "../trackpainterbackends.h"
+
 #include <tracing/timelinemodel.h>
 #include <tracing/timelinemodelaggregator.h>
-#include <tracing/trackpaintergpu.h>
 
 #include <QCoreApplication>
 #include <QFontMetricsF>
@@ -15,11 +16,11 @@
 
 using namespace Timeline;
 
-// TrackPainterGpu renders all tracks in one widget, stacked below the top margin.
+// The track painter renders all tracks in one widget, stacked below the top margin.
 // For these single-track tests the point is given in track-0-local coordinates
 // (the same space the renderer builds its geometry in) and the item index under
 // it is the item of track 0.
-static int itemIndexAt(const TrackPainterGpu &painter, QPoint pos)
+static int itemIndexAt(const TrackPainterBase &painter, QPoint pos)
 {
     int track = -1, item = -1;
     painter.itemAt(pos + QPoint(0, painter.trackYOffset(0)), &track, &item);
@@ -127,17 +128,24 @@ public:
 
 // Exposes the renderer's own fill geometry so a test can assert that whatever
 // is drawn is also hit-testable.
-class ProbePainter : public TrackPainterGpu
+template<typename Painter>
+class ProbePainter : public Painter
 {
+    using Track = TrackPainterBase::Track;
+    using ColorRects = TrackPainterBase::ColorRects;
+    using NeutralTrackGeometry = TrackPainterBase::NeutralTrackGeometry;
+    using OverlayScale = TrackPainterBase::OverlayScale;
+    using OverlayStroke = TrackPainterBase::OverlayStroke;
+
 public:
-    using TrackPainterGpu::TextLabel;
+    using TextLabel = TrackPainterBase::TextLabel;
 
     QList<QRectF> fillRects(int trackIndex)
     {
         NeutralTrackGeometry geom;
-        Track &t = const_cast<Track &>(tracks()[trackIndex]);
-        ensureAttrCache(t);
-        buildNeutralGeometry(t, geom);
+        Track &t = const_cast<Track &>(this->tracks()[trackIndex]);
+        this->ensureAttrCache(t);
+        this->buildNeutralGeometry(t, geom);
         QList<QRectF> out;
         for (const ColorRects &cr : geom.fills)
             out += cr.rects;
@@ -147,31 +155,36 @@ public:
     QList<TextLabel> itemLabels(int trackIndex)
     {
         NeutralTrackGeometry geom;
-        Track &t = const_cast<Track &>(tracks()[trackIndex]);
-        ensureAttrCache(t);
-        buildNeutralGeometry(t, geom);
+        Track &t = const_cast<Track &>(this->tracks()[trackIndex]);
+        this->ensureAttrCache(t);
+        this->buildNeutralGeometry(t, geom);
         return geom.labels;
     }
 
     QList<TextLabel> scaleLabels(int trackIndex)
     {
         OverlayScale scale;
-        buildScaleOverlay(tracks()[trackIndex], scale);
+        this->buildScaleOverlay(this->tracks()[trackIndex], scale);
         return scale.labels;
     }
 
-    static QFontMetricsF labelMetrics() { return QFontMetricsF(itemLabelFormat.font()); }
+    static QFontMetricsF labelMetrics()
+    {
+        return QFontMetricsF(TrackPainterBase::itemLabelFormat.font());
+    }
 
     QList<QRectF> selectionOutlines(qreal lineWidth)
     {
         QList<QRectF> out;
-        for (const OverlayStroke &s : buildSelectionOverlay()) {
+        for (const OverlayStroke &s : this->buildSelectionOverlay()) {
             if (s.lineWidth == lineWidth)
                 out.append(s.rect);
         }
         return out;
     }
 };
+
+using TextLabel = ProbePainter<TrackPainterRaster>::TextLabel;
 
 // Events of different widths in one row, each with a label.
 class LabelModel : public TimelineModel
@@ -276,7 +289,8 @@ public:
 
 // For every drawn fill rect, sample the pixels a user could click inside it and
 // count those where the hit test finds nothing.
-static int unhittableDrawnPixels(ProbePainter &painter, QString *report)
+template<typename Painter>
+static int unhittableDrawnPixels(ProbePainter<Painter> &painter, QString *report)
 {
     const QList<QRectF> rects = painter.fillRects(0);
     int misses = 0;
@@ -306,6 +320,7 @@ class tst_TrackPainterInteraction : public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase_data();
     void initialState();
     void selectionLockedHover();
     void indexAtWithData();
@@ -334,6 +349,11 @@ private slots:
     void summarySelectionOutlines();
 };
 
+void tst_TrackPainterInteraction::initTestCase_data()
+{
+    addTrackPainterBackends();
+}
+
 // Alternating selection ids with gaps between the events, followed by a
 // contiguous stretch of one id.
 class AlternatingModel : public TimelineModel
@@ -353,50 +373,52 @@ public:
 
 void tst_TrackPainterInteraction::selectionOutlinesSameSelectionId()
 {
-    ProbePainter painter;
-    TimelineModelAggregator aggregator;
-    AlternatingModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 100);
-    painter.resize(100, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        ProbePainter<TrackPainter> painter;
+        TimelineModelAggregator aggregator;
+        AlternatingModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 100);
+        painter.resize(100, painter.totalHeight());
 
-    painter.setSelectedItem(0, 2);
+        painter.setSelectedItem(0, 2);
 
-    // Items 0, 2 and 4 separately and the contiguous stretch as one thin
-    // outline, the selected item 2 in a thick one on top of its thin one.
-    const auto spans = [](const QList<QRectF> &rects, double x0, double x1) {
-        return std::any_of(rects.begin(), rects.end(), [x0, x1](const QRectF &r) {
-            return r.left() <= x0 && r.right() >= x1;
-        });
-    };
-    const QList<QRectF> outlines = painter.selectionOutlines(1);
-    QCOMPARE(outlines.size(), 4);
-    QVERIFY(spans(outlines, 0, 5));
-    QVERIFY(spans(outlines, 20, 25));
-    QVERIFY(spans(outlines, 40, 45));
-    QVERIFY(spans(outlines, 60, 100));
-    const QList<QRectF> selected = painter.selectionOutlines(4);
-    QCOMPARE(selected.size(), 1);
-    QVERIFY(spans(selected, 20, 25));
-    QVERIFY(selected.first().right() < 30);
+        // Items 0, 2 and 4 separately and the contiguous stretch as one thin
+        // outline, the selected item 2 in a thick one on top of its thin one.
+        const auto spans = [](const QList<QRectF> &rects, double x0, double x1) {
+            return std::any_of(rects.begin(), rects.end(), [x0, x1](const QRectF &r) {
+                return r.left() <= x0 && r.right() >= x1;
+            });
+        };
+        const QList<QRectF> outlines = painter.selectionOutlines(1);
+        QCOMPARE(outlines.size(), 4);
+        QVERIFY(spans(outlines, 0, 5));
+        QVERIFY(spans(outlines, 20, 25));
+        QVERIFY(spans(outlines, 40, 45));
+        QVERIFY(spans(outlines, 60, 100));
+        const QList<QRectF> selected = painter.selectionOutlines(4);
+        QCOMPARE(selected.size(), 1);
+        QVERIFY(spans(selected, 20, 25));
+        QVERIFY(selected.first().right() < 30);
 
-    // Every item of one selection id yields the same outlines, so moving the
-    // selection within the id, as hovering does, reuses them.
-    painter.setSelectedItem(0, 4);
-    QCOMPARE(painter.selectionOutlines(1), outlines);
+        // Every item of one selection id yields the same outlines, so moving the
+        // selection within the id, as hovering does, reuses them.
+        painter.setSelectedItem(0, 4);
+        QCOMPARE(painter.selectionOutlines(1), outlines);
 
-    // The contiguous stretch is out of range now.
-    painter.setRange(0, 50);
-    QCOMPARE(painter.selectionOutlines(1).size(), 3);
-    painter.setRange(0, 100);
+        // The contiguous stretch is out of range now.
+        painter.setRange(0, 50);
+        QCOMPARE(painter.selectionOutlines(1).size(), 3);
+        painter.setRange(0, 100);
 
-    painter.setSelectedItem(0, 1);
-    QCOMPARE(painter.selectionOutlines(1).size(), 3);
+        painter.setSelectedItem(0, 1);
+        QCOMPARE(painter.selectionOutlines(1).size(), 3);
 
-    painter.setSelectedItem(-1, -1);
-    QVERIFY(painter.selectionOutlines(1).isEmpty());
-    QVERIFY(painter.selectionOutlines(4).isEmpty());
+        painter.setSelectedItem(-1, -1);
+        QVERIFY(painter.selectionOutlines(1).isEmpty());
+        QVERIFY(painter.selectionOutlines(4).isEmpty());
+    });
 }
 
 // One event of its own selection id, followed by a contiguous stretch of
@@ -419,25 +441,27 @@ public:
 
 void tst_TrackPainterInteraction::selectionOutlinesKeepVaryingHeightsApart()
 {
-    ProbePainter painter;
-    TimelineModelAggregator aggregator;
-    SteppedModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 100);
-    painter.resize(100, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        ProbePainter<TrackPainter> painter;
+        TimelineModelAggregator aggregator;
+        SteppedModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 100);
+        painter.resize(100, painter.totalHeight());
 
-    painter.setSelectedItem(0, 1);
-    const QList<QRectF> outlines = painter.selectionOutlines(1);
+        painter.setSelectedItem(0, 1);
+        const QList<QRectF> outlines = painter.selectionOutlines(1);
 
-    // The five events of the stretch outlined one by one: merging them would
-    // enclose the empty space above the shorter ones. Each keeps its own
-    // height, inset by half the 1px line width.
-    QCOMPARE(outlines.size(), 5);
-    QVERIFY(outlines.first().left() <= 10 && outlines.last().right() >= 60);
-    const double rowH = model.rowHeight(model.row(1));
-    for (int i = 0; i < outlines.size(); ++i)
-        QCOMPARE(outlines[i].height(), rowH * (i % 2 ? 1.0 : 0.5) - 1.0);
+        // The five events of the stretch outlined one by one: merging them would
+        // enclose the empty space above the shorter ones. Each keeps its own
+        // height, inset by half the 1px line width.
+        QCOMPARE(outlines.size(), 5);
+        QVERIFY(outlines.first().left() <= 10 && outlines.last().right() >= 60);
+        const double rowH = model.rowHeight(model.row(1));
+        for (int i = 0; i < outlines.size(); ++i)
+            QCOMPARE(outlines[i].height(), rowH * (i % 2 ? 1.0 : 0.5) - 1.0);
+    });
 }
 
 // Two rows, one mixing selection ids and one where they are all the same, as
@@ -466,45 +490,49 @@ public:
 
 void tst_TrackPainterInteraction::selectionOutlinesSkipUniformRow()
 {
-    ProbePainter painter;
-    TimelineModelAggregator aggregator;
-    MemoryLikeModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 100);
-    painter.resize(100, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        ProbePainter<TrackPainter> painter;
+        TimelineModelAggregator aggregator;
+        MemoryLikeModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 100);
+        painter.resize(100, painter.totalHeight());
 
-    // In the mixed row the selection id picks the item out: item 2 shares it.
-    painter.setSelectedItem(0, 0);
-    QCOMPARE(painter.selectionOutlines(1).size(), 2);
+        // In the mixed row the selection id picks the item out: item 2 shares it.
+        painter.setSelectedItem(0, 0);
+        QCOMPARE(painter.selectionOutlines(1).size(), 2);
 
-    // In the uniform row it sets nothing apart, so only the selected item is
-    // outlined, and outlining the whole row is skipped.
-    painter.setSelectedItem(0, 4);
-    QVERIFY(painter.selectionOutlines(1).isEmpty());
-    QCOMPARE(painter.selectionOutlines(4).size(), 1);
+        // In the uniform row it sets nothing apart, so only the selected item is
+        // outlined, and outlining the whole row is skipped.
+        painter.setSelectedItem(0, 4);
+        QVERIFY(painter.selectionOutlines(1).isEmpty());
+        QCOMPARE(painter.selectionOutlines(4).size(), 1);
+    });
 }
 
 void tst_TrackPainterInteraction::selectionOutlinesSkipUniformRowsWithoutMixedRow()
 {
-    // A trace missing one of the ids the first row can hold leaves every row
-    // uniform, which does not turn the model into one whose rows are its
-    // selection ids: it does not say so.
-    ProbePainter painter;
-    TimelineModelAggregator aggregator;
-    MemoryLikeModel model(&aggregator);
-    model.loadData(false);
-    painter.setTracks({&model});
-    painter.setRange(0, 100);
-    painter.resize(100, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        // A trace missing one of the ids the first row can hold leaves every row
+        // uniform, which does not turn the model into one whose rows are its
+        // selection ids: it does not say so.
+        ProbePainter<TrackPainter> painter;
+        TimelineModelAggregator aggregator;
+        MemoryLikeModel model(&aggregator);
+        model.loadData(false);
+        painter.setTracks({&model});
+        painter.setRange(0, 100);
+        painter.resize(100, painter.totalHeight());
 
-    painter.setSelectedItem(0, 0);
-    QVERIFY(painter.selectionOutlines(1).isEmpty());
-    QCOMPARE(painter.selectionOutlines(4).size(), 1);
+        painter.setSelectedItem(0, 0);
+        QVERIFY(painter.selectionOutlines(1).isEmpty());
+        QCOMPARE(painter.selectionOutlines(4).size(), 1);
 
-    painter.setSelectedItem(0, 4);
-    QVERIFY(painter.selectionOutlines(1).isEmpty());
-    QCOMPARE(painter.selectionOutlines(4).size(), 1);
+        painter.setSelectedItem(0, 4);
+        QVERIFY(painter.selectionOutlines(1).isEmpty());
+        QCOMPARE(painter.selectionOutlines(4).size(), 1);
+    });
 }
 
 // A row per selection id, as most models lay their expanded rows out.
@@ -531,21 +559,23 @@ public:
 
 void tst_TrackPainterInteraction::selectionOutlinesRowsSplitBySelectionId()
 {
-    ProbePainter painter;
-    TimelineModelAggregator aggregator;
-    SplitModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 100);
-    painter.resize(100, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        ProbePainter<TrackPainter> painter;
+        TimelineModelAggregator aggregator;
+        SplitModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 100);
+        painter.resize(100, painter.totalHeight());
 
-    // Every row holds one selection id, so the row tells the id apart as much
-    // as the outlines do. The model says the rows are its selection ids, where
-    // the outlines are the only thing marking one, so all three items of the
-    // selected item's row are outlined.
-    painter.setSelectedItem(0, 0);
-    QCOMPARE(painter.selectionOutlines(1).size(), 3);
-    QCOMPARE(painter.selectionOutlines(4).size(), 1);
+        // Every row holds one selection id, so the row tells the id apart as much
+        // as the outlines do. The model says the rows are its selection ids, where
+        // the outlines are the only thing marking one, so all three items of the
+        // selected item's row are outlined.
+        painter.setSelectedItem(0, 0);
+        QCOMPARE(painter.selectionOutlines(1).size(), 3);
+        QCOMPARE(painter.selectionOutlines(4).size(), 1);
+    });
 }
 
 // A single event far narrower than one pixel. It is drawn as one pixel column,
@@ -564,23 +594,25 @@ public:
 
 void tst_TrackPainterInteraction::narrowEventTolerance()
 {
-    TrackPainterGpu painter;
-    TimelineModelAggregator aggregator;
-    NarrowModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 10000);
-    painter.resize(1000, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        TimelineModelAggregator aggregator;
+        NarrowModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 10000);
+        painter.resize(1000, painter.totalHeight());
 
-    // Drawn as the pixel column x=500.5..501.5, i.e. only x=501 is pixel-exact.
-    QCOMPARE(itemIndexAt(painter, QPoint(501, 15)), 0);
-    // One pixel of slack to either side keeps it reachable by mouse.
-    QCOMPARE(itemIndexAt(painter, QPoint(500, 15)), 0);
-    QCOMPARE(itemIndexAt(painter, QPoint(502, 15)), 0);
-    // Beyond the tolerance nothing is selected, so clicking the background
-    // still misses.
-    QCOMPARE(itemIndexAt(painter, QPoint(498, 15)), -1);
-    QCOMPARE(itemIndexAt(painter, QPoint(504, 15)), -1);
+        // Drawn as the pixel column x=500.5..501.5, i.e. only x=501 is pixel-exact.
+        QCOMPARE(itemIndexAt(painter, QPoint(501, 15)), 0);
+        // One pixel of slack to either side keeps it reachable by mouse.
+        QCOMPARE(itemIndexAt(painter, QPoint(500, 15)), 0);
+        QCOMPARE(itemIndexAt(painter, QPoint(502, 15)), 0);
+        // Beyond the tolerance nothing is selected, so clicking the background
+        // still misses.
+        QCOMPARE(itemIndexAt(painter, QPoint(498, 15)), -1);
+        QCOMPARE(itemIndexAt(painter, QPoint(504, 15)), -1);
+    });
 }
 
 // Two narrow events in adjacent pixel columns. Each must select itself: the
@@ -600,70 +632,78 @@ public:
 
 void tst_TrackPainterInteraction::narrowEventUnderCursorWins()
 {
-    TrackPainterGpu painter;
-    TimelineModelAggregator aggregator;
-    TwoNarrowModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 10000);
-    painter.resize(1000, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        TimelineModelAggregator aggregator;
+        TwoNarrowModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 10000);
+        painter.resize(1000, painter.totalHeight());
 
-    QCOMPARE(itemIndexAt(painter, QPoint(500, 15)), 0);
-    QCOMPARE(itemIndexAt(painter, QPoint(501, 15)), 1);
+        QCOMPARE(itemIndexAt(painter, QPoint(500, 15)), 0);
+        QCOMPARE(itemIndexAt(painter, QPoint(501, 15)), 1);
+    });
 }
 
 void tst_TrackPainterInteraction::shortBarHitOverFullRow()
 {
-    TrackPainterGpu painter;
-    TimelineModelAggregator aggregator;
-    ShortBarModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 10000);
-    painter.resize(1000, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        TimelineModelAggregator aggregator;
+        ShortBarModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 10000);
+        painter.resize(1000, painter.totalHeight());
 
-    const int rowH = model.rowHeight(0);
-    QCOMPARE(model.relativeHeight(0), 0.2f);
+        const int rowH = model.rowHeight(0);
+        QCOMPARE(model.relativeHeight(0), 0.2f);
 
-    // The bar is drawn in the bottom fifth of the row, but the whole row column
-    // selects it: aiming at a few pixels of bar height is not workable.
-    QCOMPARE(itemIndexAt(painter, QPoint(500, rowH - 1)), 0); // on the bar
-    QCOMPARE(itemIndexAt(painter, QPoint(500, 0)), 0);        // above it, same row
-    QCOMPARE(itemIndexAt(painter, QPoint(500, rowH / 2)), 0);
-    // Outside the event's time span nothing is hit, tolerance aside.
-    QCOMPARE(itemIndexAt(painter, QPoint(300, rowH / 2)), -1);
+        // The bar is drawn in the bottom fifth of the row, but the whole row column
+        // selects it: aiming at a few pixels of bar height is not workable.
+        QCOMPARE(itemIndexAt(painter, QPoint(500, rowH - 1)), 0); // on the bar
+        QCOMPARE(itemIndexAt(painter, QPoint(500, 0)), 0);        // above it, same row
+        QCOMPARE(itemIndexAt(painter, QPoint(500, rowH / 2)), 0);
+        // Outside the event's time span nothing is hit, tolerance aside.
+        QCOMPARE(itemIndexAt(painter, QPoint(300, rowH / 2)), -1);
+    });
 }
 
 void tst_TrackPainterInteraction::indexAtLongRangeBehindShortParent()
 {
-    TrackPainterGpu painter;
-    TimelineModelAggregator aggregator;
-    PartialOverlapModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 10000);
-    painter.resize(1000, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        TimelineModelAggregator aggregator;
+        PartialOverlapModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 10000);
+        painter.resize(1000, painter.totalHeight());
 
-    // The long range (index 1) is the only item at x=500. Its closest neighbours
-    // in the index space are inside it but have the short range as parent.
-    QCOMPARE(model.parentIndex(2), 0);
-    QCOMPARE(itemIndexAt(painter, QPoint(500, 10)), 1);
+        // The long range (index 1) is the only item at x=500. Its closest neighbours
+        // in the index space are inside it but have the short range as parent.
+        QCOMPARE(model.parentIndex(2), 0);
+        QCOMPARE(itemIndexAt(painter, QPoint(500, 10)), 1);
+    });
 }
 
 void tst_TrackPainterInteraction::indexAtVisitsOnlyItemsNearCursor()
 {
-    TrackPainterGpu painter;
-    TimelineModelAggregator aggregator;
-    PartialOverlapModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 100000);
-    painter.resize(1000, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        TimelineModelAggregator aggregator;
+        PartialOverlapModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 100000);
+        painter.resize(1000, painter.totalHeight());
 
-    // One event per pixel from x = 100 on.
-    model.rowLookups = 0;
-    QCOMPARE(itemIndexAt(painter, QPoint(900, 10)), 23 + 800);
-    QCOMPARE_LT(model.rowLookups, 10);
+        // One event per pixel from x = 100 on.
+        model.rowLookups = 0;
+        QCOMPARE(itemIndexAt(painter, QPoint(900, 10)), 23 + 800);
+        QCOMPARE_LT(model.rowLookups, 10);
+    });
 }
 
 void tst_TrackPainterInteraction::drawnPixelsAreHittable_data()
@@ -677,214 +717,238 @@ void tst_TrackPainterInteraction::drawnPixelsAreHittable()
 {
     QFETCH(bool, expanded);
 
-    ProbePainter painter;
-    TimelineModelAggregator aggregator;
-    VaryingHeightModel model(&aggregator);
-    model.loadData();
-    model.setExpanded(expanded);
-    painter.setTracks({&model});
-    painter.setRange(0, 10000);
-    painter.resize(1000, painter.totalHeight());
+    withTrackPainter([expanded]<typename TrackPainter>() {
+        ProbePainter<TrackPainter> painter;
+        TimelineModelAggregator aggregator;
+        VaryingHeightModel model(&aggregator);
+        model.loadData();
+        model.setExpanded(expanded);
+        painter.setTracks({&model});
+        painter.setRange(0, 10000);
+        painter.resize(1000, painter.totalHeight());
 
-    QString report;
-    const int misses = unhittableDrawnPixels(painter, &report);
-    if (misses != 0)
-        qDebug().noquote() << misses << "unhittable drawn pixels:" << report;
-    QCOMPARE(misses, 0);
+        QString report;
+        const int misses = unhittableDrawnPixels(painter, &report);
+        if (misses != 0)
+            qDebug().noquote() << misses << "unhittable drawn pixels:" << report;
+        QCOMPARE(misses, 0);
+    });
 }
 
 void tst_TrackPainterInteraction::itemLabels()
 {
-    ProbePainter painter;
-    TimelineModelAggregator aggregator;
-    LabelModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 10000);
-    painter.resize(1000, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        ProbePainter<TrackPainter> painter;
+        TimelineModelAggregator aggregator;
+        LabelModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 10000);
+        painter.resize(1000, painter.totalHeight());
 
-    const QList<ProbePainter::TextLabel> labels = painter.itemLabels(0);
-    QCOMPARE(labels.size(), 2); // "Narrow" does not fit into 5px
+        const QList<TextLabel> labels = painter.itemLabels(0);
+        QCOMPARE(labels.size(), 2); // "Narrow" does not fit into 5px
 
-    QCOMPARE(labels[0].text, "Wide");
-    QVERIFY(labels[0].x > 0 && labels[0].x < 400);
+        QCOMPARE(labels[0].text, "Wide");
+        QVERIFY(labels[0].x > 0 && labels[0].x < 400);
 
-    const QFontMetricsF fm = ProbePainter::labelMetrics();
-    QVERIFY(labels[1].text != model.itemLabel(2));
-    QVERIFY(labels[1].text.size() > 1);
-    QVERIFY(labels[1].x > 600);
-    QVERIFY(labels[1].x + fm.horizontalAdvance(labels[1].text) <= 660);
+        const QFontMetricsF fm = ProbePainter<TrackPainter>::labelMetrics();
+        QVERIFY(labels[1].text != model.itemLabel(2));
+        QVERIFY(labels[1].text.size() > 1);
+        QVERIFY(labels[1].x > 600);
+        QVERIFY(labels[1].x + fm.horizontalAdvance(labels[1].text) <= 660);
+    });
 }
 
 void tst_TrackPainterInteraction::itemLabelsOnWholePixels()
 {
-    ProbePainter painter;
-    TimelineModelAggregator aggregator;
-    LabelModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(3, 10003); // the last event starts at x = 599.7
-    painter.resize(1000, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        ProbePainter<TrackPainter> painter;
+        TimelineModelAggregator aggregator;
+        LabelModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(3, 10003); // the last event starts at x = 599.7
+        painter.resize(1000, painter.totalHeight());
 
-    const QList<ProbePainter::TextLabel> labels = painter.itemLabels(0);
-    QCOMPARE(labels.size(), 2);
-    for (const ProbePainter::TextLabel &label : labels) {
-        QCOMPARE(label.x, std::round(label.x));
-        QCOMPARE(label.baselineY, std::round(label.baselineY));
-    }
+        const QList<TextLabel> labels = painter.itemLabels(0);
+        QCOMPARE(labels.size(), 2);
+        for (const TextLabel &label : labels) {
+            QCOMPARE(label.x, std::round(label.x));
+            QCOMPARE(label.baselineY, std::round(label.baselineY));
+        }
+    });
 }
 
 void tst_TrackPainterInteraction::itemLabelsEndAtNextEvent()
 {
-    ProbePainter painter;
-    TimelineModelAggregator aggregator;
-    NestedLabelModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 10000);
-    painter.resize(1000, painter.totalHeight());
-    QVERIFY(!model.expanded());
+    withTrackPainter([]<typename TrackPainter>() {
+        ProbePainter<TrackPainter> painter;
+        TimelineModelAggregator aggregator;
+        NestedLabelModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 10000);
+        painter.resize(1000, painter.totalHeight());
+        QVERIFY(!model.expanded());
 
-    const QList<ProbePainter::TextLabel> labels = painter.itemLabels(0);
-    QCOMPARE(labels.size(), 2);
-    const QFontMetricsF fm = ProbePainter::labelMetrics();
-    QVERIFY(fm.horizontalAdvance(model.itemLabel(0)) > 200);
-    QVERIFY(labels[0].text != model.itemLabel(0));
-    QVERIFY(labels[0].x + fm.horizontalAdvance(labels[0].text) <= 200);
-    QCOMPARE(labels[1].text, "Child");
-    QVERIFY(labels[1].x > 200);
+        const QList<TextLabel> labels = painter.itemLabels(0);
+        QCOMPARE(labels.size(), 2);
+        const QFontMetricsF fm = ProbePainter<TrackPainter>::labelMetrics();
+        QVERIFY(fm.horizontalAdvance(model.itemLabel(0)) > 200);
+        QVERIFY(labels[0].text != model.itemLabel(0));
+        QVERIFY(labels[0].x + fm.horizontalAdvance(labels[0].text) <= 200);
+        QCOMPARE(labels[1].text, "Child");
+        QVERIFY(labels[1].x > 200);
+    });
 }
 
 void tst_TrackPainterInteraction::noItemLabelsByDefault()
 {
-    ProbePainter painter;
-    TimelineModelAggregator aggregator;
-    DummyModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 100);
-    painter.resize(1000, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        ProbePainter<TrackPainter> painter;
+        TimelineModelAggregator aggregator;
+        DummyModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 100);
+        painter.resize(1000, painter.totalHeight());
 
-    QVERIFY(painter.itemLabels(0).isEmpty());
+        QVERIFY(painter.itemLabels(0).isEmpty());
+    });
 }
 
 void tst_TrackPainterInteraction::densityItemLabels()
 {
-    ProbePainter painter;
-    TimelineModelAggregator aggregator;
-    DensityLabelModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 10000);
-    painter.resize(1000, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        ProbePainter<TrackPainter> painter;
+        TimelineModelAggregator aggregator;
+        DensityLabelModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 10000);
+        painter.resize(1000, painter.totalHeight());
 
-    const QFontMetricsF fm = ProbePainter::labelMetrics();
-    QVERIFY(fm.horizontalAdvance(u'\x2026') > 5);
+        const QFontMetricsF fm = ProbePainter<TrackPainter>::labelMetrics();
+        QVERIFY(fm.horizontalAdvance(u'\x2026') > 5);
 
-    const QList<ProbePainter::TextLabel> labels = painter.itemLabels(0);
-    QCOMPARE(labels.size(), 2); // "Other" does not fit into 5px
-    QCOMPARE(labels[0].text, "Loop");
-    QVERIFY(labels[0].x > 0);
-    QVERIFY(labels[0].x + fm.horizontalAdvance(labels[0].text) <= 100);
-    QCOMPARE(labels[1].text, "Loop");
-    QVERIFY(labels[1].x > 200);
-    QVERIFY(labels[1].x + fm.horizontalAdvance(labels[1].text) <= 300);
+        const QList<TextLabel> labels = painter.itemLabels(0);
+        QCOMPARE(labels.size(), 2); // "Other" does not fit into 5px
+        QCOMPARE(labels[0].text, "Loop");
+        QVERIFY(labels[0].x > 0);
+        QVERIFY(labels[0].x + fm.horizontalAdvance(labels[0].text) <= 100);
+        QCOMPARE(labels[1].text, "Loop");
+        QVERIFY(labels[1].x > 200);
+        QVERIFY(labels[1].x + fm.horizontalAdvance(labels[1].text) <= 300);
+    });
 }
 
 void tst_TrackPainterInteraction::scaleLabelsUseModelFormat()
 {
-    ProbePainter painter;
-    TimelineModelAggregator aggregator;
-    ScaleModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 100);
-    painter.resize(100, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        ProbePainter<TrackPainter> painter;
+        TimelineModelAggregator aggregator;
+        ScaleModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 100);
+        painter.resize(100, painter.totalHeight());
 
-    const QList<ProbePainter::TextLabel> labels = painter.scaleLabels(0);
-    QVERIFY(labels.size() > 1);
-    QVERIFY(std::all_of(labels.begin(), labels.end(), [](const ProbePainter::TextLabel &label) {
-        return label.text.startsWith(u'v');
-    }));
-    QCOMPARE(labels.first().text, "v100");
+        const QList<TextLabel> labels = painter.scaleLabels(0);
+        QVERIFY(labels.size() > 1);
+        QVERIFY(std::all_of(labels.begin(), labels.end(), [](const TextLabel &label) {
+            return label.text.startsWith(u'v');
+        }));
+        QCOMPARE(labels.first().text, "v100");
+    });
 }
 
 void tst_TrackPainterInteraction::initialState()
 {
-    TrackPainterGpu painter;
-    QCOMPARE(painter.findChildren<QObject *>().size(), 0);
-    painter.setSelectedItem(-1, -1);
-    QCOMPARE(itemIndexAt(painter, QPoint(0, 0)), -1);
-    painter.setSelectionLocked(true);
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        QCOMPARE(painter.template findChildren<QObject *>().size(), 0);
+        painter.setSelectedItem(-1, -1);
+        QCOMPARE(itemIndexAt(painter, QPoint(0, 0)), -1);
+        painter.setSelectionLocked(true);
+    });
 }
 
 void tst_TrackPainterInteraction::selectionLockedHover()
 {
-    TrackPainterGpu painter;
-    TimelineModelAggregator aggregator;
-    DummyModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 100);
-    painter.resize(100, painter.totalHeight());
-    painter.setSelectionLocked(true);
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        TimelineModelAggregator aggregator;
+        DummyModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 100);
+        painter.resize(100, painter.totalHeight());
+        painter.setSelectionLocked(true);
 
-    QMouseEvent ev(QEvent::MouseMove, QPointF(5, 15), QPointF(5, 15),
-                   Qt::NoButton, Qt::NoButton, Qt::NoModifier);
-    QCoreApplication::sendEvent(&painter, &ev);
+        QMouseEvent ev(QEvent::MouseMove, QPointF(5, 15), QPointF(5, 15),
+                       Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+        QCoreApplication::sendEvent(&painter, &ev);
+    });
 }
 
 void tst_TrackPainterInteraction::indexAtWithData()
 {
-    TrackPainterGpu painter;
-    TimelineModelAggregator aggregator;
-    DummyModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 100);
-    painter.resize(100, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        TimelineModelAggregator aggregator;
+        DummyModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 100);
+        painter.resize(100, painter.totalHeight());
 
-    int idx = itemIndexAt(painter, QPoint(5, 15));
-    QVERIFY(idx >= 0);
-    QCOMPARE(idx, 0);
+        int idx = itemIndexAt(painter, QPoint(5, 15));
+        QVERIFY(idx >= 0);
+        QCOMPARE(idx, 0);
+    });
 }
 
 void tst_TrackPainterInteraction::indexAtFarParent()
 {
-    TrackPainterGpu painter;
-    TimelineModelAggregator aggregator;
-    NestedModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 1000);
-    painter.resize(1000, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        TimelineModelAggregator aggregator;
+        NestedModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 1000);
+        painter.resize(1000, painter.totalHeight());
 
-    // x=610 falls in a gap between the children at 600..605 and 640..645, so
-    // only the long parent (index 0) is drawn there. bestIndex() lands near the
-    // children, far from index 0 in the index space.
-    QCOMPARE(itemIndexAt(painter, QPoint(610, 15)), 0);
+        // x=610 falls in a gap between the children at 600..605 and 640..645, so
+        // only the long parent (index 0) is drawn there. bestIndex() lands near the
+        // children, far from index 0 in the index space.
+        QCOMPARE(itemIndexAt(painter, QPoint(610, 15)), 0);
 
-    // x=602 is covered by both the child at 600..605 and the parent; the
-    // narrower child must win.
-    QCOMPARE(itemIndexAt(painter, QPoint(602, 15)), 15);
+        // x=602 is covered by both the child at 600..605 and the parent; the
+        // narrower child must win.
+        QCOMPARE(itemIndexAt(painter, QPoint(602, 15)), 15);
+    });
 }
 
 void tst_TrackPainterInteraction::unlockedHover()
 {
-    TrackPainterGpu painter;
-    TimelineModelAggregator aggregator;
-    DummyModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 100);
-    painter.resize(100, painter.totalHeight());
-    painter.setSelectionLocked(false);
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        TimelineModelAggregator aggregator;
+        DummyModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 100);
+        painter.resize(100, painter.totalHeight());
+        painter.setSelectionLocked(false);
 
-    QSignalSpy spy(&painter, &TrackPainterGpu::itemHovered);
+        QSignalSpy spy(&painter, &TrackPainter::itemHovered);
 
-    QMouseEvent ev(QEvent::MouseMove, QPointF(5, 15), QPointF(5, 15),
-                   Qt::NoButton, Qt::NoButton, Qt::NoModifier);
-    QCoreApplication::sendEvent(&painter, &ev);
+        QMouseEvent ev(QEvent::MouseMove, QPointF(5, 15), QPointF(5, 15),
+                       Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+        QCoreApplication::sendEvent(&painter, &ev);
+    });
 }
 
 // More short items than a summary needs, 10 time units apart: selection id 0 in the first half
@@ -922,79 +986,85 @@ public:
 
 void tst_TrackPainterInteraction::summaryDrawsZoomedOutRangeByPixel()
 {
-    ProbePainter painter;
-    TimelineModelAggregator aggregator;
-    ManyItemsModel model(&aggregator);
-    model.loadData(true);
-    QVERIFY(model.summary(false));
-    painter.setTracks({&model});
-    painter.setRange(0, ManyItemsModel::itemCount * 10);
-    painter.resize(500, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        ProbePainter<TrackPainter> painter;
+        TimelineModelAggregator aggregator;
+        ManyItemsModel model(&aggregator);
+        model.loadData(true);
+        QVERIFY(model.summary(false));
+        painter.setTracks({&model});
+        painter.setRange(0, ManyItemsModel::itemCount * 10);
+        painter.resize(500, painter.totalHeight());
 
-    model.lookups = 0;
-    const QList<QRectF> rects = painter.fillRects(0);
-    // One item per pixel column, not every item.
-    QVERIFY2(model.lookups <= 2 * 500, qPrintable(QString::number(model.lookups)));
+        model.lookups = 0;
+        const QList<QRectF> rects = painter.fillRects(0);
+        // One item per pixel column, not every item.
+        QVERIFY2(model.lookups <= 2 * 500, qPrintable(QString::number(model.lookups)));
 
-    // Every column holds items, red ones in the first half and blue ones in the second.
-    QCOMPARE(rects.size(), 2);
-    QCOMPARE(rects.at(0).left() + rects.at(1).left(), 250.0);
-    QCOMPARE(rects.at(0).width() + rects.at(1).width(), 500.0);
+        // Every column holds items, red ones in the first half and blue ones in the second.
+        QCOMPARE(rects.size(), 2);
+        QCOMPARE(rects.at(0).left() + rects.at(1).left(), 250.0);
+        QCOMPARE(rects.at(0).width() + rects.at(1).width(), 500.0);
 
-    QString report;
-    const int misses = unhittableDrawnPixels(painter, &report);
-    if (misses != 0)
-        qDebug().noquote() << misses << "unhittable drawn pixels:" << report;
-    QCOMPARE(misses, 0);
+        QString report;
+        const int misses = unhittableDrawnPixels(painter, &report);
+        if (misses != 0)
+            qDebug().noquote() << misses << "unhittable drawn pixels:" << report;
+        QCOMPARE(misses, 0);
+    });
 }
 
 // Closer in than two of the summary's buckets per pixel, the items are drawn one by one,
 // exactly as without a summary.
 void tst_TrackPainterInteraction::summaryNotUsedZoomedIn()
 {
-    TimelineModelAggregator aggregator;
-    ManyItemsModel summarized(&aggregator);
-    summarized.loadData(true);
-    ManyItemsModel plain(&aggregator);
-    plain.loadData(false);
-    const TimelineModel::Summary *summary = summarized.summary(false);
-    QVERIFY(summary);
+    withTrackPainter([]<typename TrackPainter>() {
+        TimelineModelAggregator aggregator;
+        ManyItemsModel summarized(&aggregator);
+        summarized.loadData(true);
+        ManyItemsModel plain(&aggregator);
+        plain.loadData(false);
+        const TimelineModel::Summary *summary = summarized.summary(false);
+        QVERIFY(summary);
 
-    // A pixel covers about one bucket, which holds an item in only some of the pixels.
-    const int width = 400;
-    const qint64 start = 123457;
-    const qint64 end = start + summary->bucketDuration * width;
-    QList<QList<QRectF>> rects;
-    for (ManyItemsModel *model : {&summarized, &plain}) {
-        ProbePainter painter;
-        painter.setTracks({model});
-        painter.setRange(start, end);
-        painter.resize(width, painter.totalHeight());
-        rects.append(painter.fillRects(0));
-    }
-    QVERIFY(!rects.at(1).isEmpty());
-    QCOMPARE(rects.at(0), rects.at(1));
+        // A pixel covers about one bucket, which holds an item in only some of the pixels.
+        const int width = 400;
+        const qint64 start = 123457;
+        const qint64 end = start + summary->bucketDuration * width;
+        QList<QList<QRectF>> rects;
+        for (ManyItemsModel *model : {&summarized, &plain}) {
+            ProbePainter<TrackPainter> painter;
+            painter.setTracks({model});
+            painter.setRange(start, end);
+            painter.resize(width, painter.totalHeight());
+            rects.append(painter.fillRects(0));
+        }
+        QVERIFY(!rects.at(1).isEmpty());
+        QCOMPARE(rects.at(0), rects.at(1));
+    });
 }
 
 void tst_TrackPainterInteraction::summarySelectionOutlines()
 {
-    ProbePainter painter;
-    TimelineModelAggregator aggregator;
-    ManyItemsModel model(&aggregator);
-    model.loadData(true);
-    painter.setTracks({&model});
-    painter.setRange(0, ManyItemsModel::itemCount * 10);
-    painter.resize(500, painter.totalHeight());
+    withTrackPainter([]<typename TrackPainter>() {
+        ProbePainter<TrackPainter> painter;
+        TimelineModelAggregator aggregator;
+        ManyItemsModel model(&aggregator);
+        model.loadData(true);
+        painter.setTracks({&model});
+        painter.setRange(0, ManyItemsModel::itemCount * 10);
+        painter.resize(500, painter.totalHeight());
 
-    // The row holds both selection ids, so the selected one is outlined where it lies.
-    painter.setSelectedItem(0, ManyItemsModel::itemCount - 1);
-    model.lookups = 0;
-    const QList<QRectF> outlines = painter.selectionOutlines(1);
-    QVERIFY2(model.lookups <= 2 * 500, qPrintable(QString::number(model.lookups)));
-    // The strokes run along the outside of the pixels, half a line width out.
-    QCOMPARE(outlines.size(), 1);
-    QVERIFY(qAbs(outlines.first().left() - 250.0) <= 1.0);
-    QVERIFY(qAbs(outlines.first().right() - 500.0) <= 1.0);
+        // The row holds both selection ids, so the selected one is outlined where it lies.
+        painter.setSelectedItem(0, ManyItemsModel::itemCount - 1);
+        model.lookups = 0;
+        const QList<QRectF> outlines = painter.selectionOutlines(1);
+        QVERIFY2(model.lookups <= 2 * 500, qPrintable(QString::number(model.lookups)));
+        // The strokes run along the outside of the pixels, half a line width out.
+        QCOMPARE(outlines.size(), 1);
+        QVERIFY(qAbs(outlines.first().left() - 250.0) <= 1.0);
+        QVERIFY(qAbs(outlines.first().right() - 500.0) <= 1.0);
+    });
 }
 
 QTEST_MAIN(tst_TrackPainterInteraction)

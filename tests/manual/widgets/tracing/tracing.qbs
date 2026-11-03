@@ -6,8 +6,10 @@ CppApplication {
     Depends { name: "Tracing"; required: false }
     Depends { name: "Utils" }
     Depends { name: "Core" }
+    Depends { name: "Qt.canvaspainter"; required: false }
 
-    condition: Tracing.present
+    condition: Tracing.present && Qt.canvaspainter.present
+               && !qbs.toolchain.contains("emscripten")
 
     files: "tst_manual_widgets_tracing.cpp"
 

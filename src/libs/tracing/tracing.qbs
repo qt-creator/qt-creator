@@ -1,9 +1,10 @@
 QtcLibrary {
     name: "Tracing"
 
-    // The GPU track backend needs CanvasPainter; only the software one is built
-    // where that backend can never be chosen (see the CMakeLists.txt).
-    condition: Qt.canvaspainter.present || qbs.toolchain.contains("emscripten")
+    // The GPU track backend needs CanvasPainter; without it, and on WebAssembly,
+    // only the software one is built (see the CMakeLists.txt).
+    property bool withGpuBackend: Qt.canvaspainter.present
+                                  && !qbs.toolchain.contains("emscripten")
 
     Depends { name: "Qt"; submodules: ["widgets"] }
     Depends { name: "Qt.canvaspainter"; required: false }
@@ -38,7 +39,7 @@ QtcLibrary {
 
     Group {
         name: "GPU track backend"
-        condition: !qbs.toolchain.contains("emscripten")
+        condition: product.withGpuBackend
         files: ["trackpaintergpu.cpp", "trackpaintergpu.h"]
     }
 
@@ -55,12 +56,19 @@ QtcLibrary {
         ]
     }
 
-    cpp.defines: base.concat("TRACING_LIBRARY")
+    cpp.defines: {
+        var defines = base.concat("TRACING_LIBRARY");
+        if (withGpuBackend)
+            defines.push("TRACING_WITH_GPU_BACKEND");
+        return defines;
+    }
 
     Export {
         Depends {
             name: "Qt.canvaspainter"
-            condition: !qbs.toolchain.contains("emscripten")
+            condition: exportingProduct.withGpuBackend
         }
+        Depends { name: "cpp" }
+        cpp.defines: exportingProduct.withGpuBackend ? ["TRACING_WITH_GPU_BACKEND"] : []
     }
 }

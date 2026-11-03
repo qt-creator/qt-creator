@@ -1,10 +1,11 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "../trackpainterbackends.h"
+
 #include <tracing/timelinemodel.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinenotesmodel.h>
-#include <tracing/trackpaintergpu.h>
 #include <tracing/trackpainterraster.h>
 
 #include <QPixmap>
@@ -12,9 +13,9 @@
 
 using namespace Timeline;
 
-// TrackPainterGpu renders all tracks in one widget; for these single-track tests
+// The track painter renders all tracks in one widget; for these single-track tests
 // the item index under a point is the item of track 0.
-static int itemIndexAt(const TrackPainterGpu &painter, QPoint pos)
+static int itemIndexAt(const TrackPainterBase &painter, QPoint pos)
 {
     int track = -1, item = -1;
     painter.itemAt(pos, &track, &item);
@@ -50,6 +51,7 @@ class tst_TrackPainterProperties : public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase_data();
     void model();
     void notes();
     void range();
@@ -59,63 +61,80 @@ private slots:
     void rowsBeyondRowCount();
 };
 
+void tst_TrackPainterProperties::initTestCase_data()
+{
+    addTrackPainterBackends();
+}
+
 void tst_TrackPainterProperties::model()
 {
-    TrackPainterGpu painter;
-    TimelineModelAggregator aggregator;
-    DummyModel model(&aggregator);
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        TimelineModelAggregator aggregator;
+        DummyModel model(&aggregator);
 
-    QCOMPARE(painter.trackModel(0), nullptr);
-    painter.setTracks({&model});
-    QCOMPARE(painter.trackModel(0), &model);
-    painter.setTracks({});
-    QCOMPARE(painter.trackModel(0), nullptr);
+        QCOMPARE(painter.trackModel(0), nullptr);
+        painter.setTracks({&model});
+        QCOMPARE(painter.trackModel(0), &model);
+        painter.setTracks({});
+        QCOMPARE(painter.trackModel(0), nullptr);
+    });
 }
 
 void tst_TrackPainterProperties::notes()
 {
-    TrackPainterGpu painter;
-    TimelineNotesModel notes;
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        TimelineNotesModel notes;
 
-    painter.setNotes(&notes);
-    painter.setNotes(nullptr);
+        painter.setNotes(&notes);
+        painter.setNotes(nullptr);
+    });
 }
 
 void tst_TrackPainterProperties::range()
 {
-    TrackPainterGpu painter;
-    painter.setRange(10, 200);
-    QCOMPARE(painter.rangeStart(), 10);
-    QCOMPARE(painter.rangeEnd(), 200);
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        painter.setRange(10, 200);
+        QCOMPARE(painter.rangeStart(), 10);
+        QCOMPARE(painter.rangeEnd(), 200);
+    });
 }
 
 void tst_TrackPainterProperties::selectionLocked()
 {
-    TrackPainterGpu painter;
-    QVERIFY(painter.findChild<QObject *>() == nullptr || true);
-    painter.setSelectionLocked(false);
-    painter.setSelectionLocked(true);
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        QVERIFY(painter.template findChild<QObject *>() == nullptr || true);
+        painter.setSelectionLocked(false);
+        painter.setSelectionLocked(true);
+    });
 }
 
 void tst_TrackPainterProperties::selectedItem()
 {
-    TrackPainterGpu painter;
-    painter.setSelectedItem(-1, -1);
-    painter.setSelectedItem(0, 0);
-    painter.setSelectedItem(0, 5);
-    painter.setSelectedItem(-1, -1);
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        painter.setSelectedItem(-1, -1);
+        painter.setSelectedItem(0, 0);
+        painter.setSelectedItem(0, 5);
+        painter.setSelectedItem(-1, -1);
+    });
 }
 
 void tst_TrackPainterProperties::indexAt()
 {
-    TrackPainterGpu painter;
-    QCOMPARE(itemIndexAt(painter, QPoint(0, 0)), -1);
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        QCOMPARE(itemIndexAt(painter, QPoint(0, 0)), -1);
 
-    TimelineModelAggregator aggregator;
-    DummyModel model(&aggregator);
-    painter.setTracks({&model});
-    painter.setRange(0, 0);
-    QCOMPARE(itemIndexAt(painter, QPoint(0, 0)), -1);
+        TimelineModelAggregator aggregator;
+        DummyModel model(&aggregator);
+        painter.setTracks({&model});
+        painter.setRange(0, 0);
+        QCOMPARE(itemIndexAt(painter, QPoint(0, 0)), -1);
+    });
 }
 
 // Painting a model whose rows are ahead of its row count must not index the
@@ -124,6 +143,10 @@ void tst_TrackPainterProperties::indexAt()
 // TimelineOverviewWidget has its own test for the same state.
 void tst_TrackPainterProperties::rowsBeyondRowCount()
 {
+    QFETCH_GLOBAL(TrackBackend, backend);
+    if (backend != TrackBackend::Software)
+        QSKIP("Renders with the software backend only.");
+
     TimelineModelAggregator aggregator;
     UnfinalizedRowModel model(&aggregator);
     QCOMPARE(model.rowCount(), 1);

@@ -39,12 +39,13 @@ TrackBackend trackBackendOverride()
 
 bool hasGpuTrackBackend()
 {
-#ifdef Q_OS_WASM
-    // WebAssembly resolves to software below whatever is asked for, so the GPU
-    // backend is not built there (see the Tracing library's CMakeLists.txt).
-    return false;
-#else
+#ifdef TRACING_WITH_GPU_BACKEND
     return true;
+#else
+    // Without CanvasPainter, and on WebAssembly, the GPU backend is not built
+    // (see the Tracing library's CMakeLists.txt), so everything resolves to
+    // software below whatever is asked for.
+    return false;
 #endif
 }
 

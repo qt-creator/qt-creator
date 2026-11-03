@@ -1,17 +1,18 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "../trackpainterbackends.h"
+
 #include <tracing/timelinemodel.h>
 #include <tracing/timelinemodelaggregator.h>
-#include <tracing/trackpaintergpu.h>
 
 #include <QTest>
 
 using namespace Timeline;
 
-// TrackPainterGpu renders all tracks in one widget; for these single-track tests
+// The track painter renders all tracks in one widget; for these single-track tests
 // the item index under a point is the item of track 0.
-static int itemIndexAt(const TrackPainterGpu &painter, QPoint pos)
+static int itemIndexAt(const TrackPainterBase &painter, QPoint pos)
 {
     int track = -1, item = -1;
     painter.itemAt(pos, &track, &item);
@@ -35,42 +36,56 @@ class tst_SelectionStatePaint : public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase_data();
     void initialState();
     void selectedItemGetter();
     void paintWithSelection();
     void selectionLockedDefaults();
 };
 
+void tst_SelectionStatePaint::initTestCase_data()
+{
+    addTrackPainterBackends();
+}
+
 void tst_SelectionStatePaint::initialState()
 {
-    TrackPainterGpu painter;
-    QCOMPARE(itemIndexAt(painter, QPoint(-1, -1)), -1);
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        QCOMPARE(itemIndexAt(painter, QPoint(-1, -1)), -1);
+    });
 }
 
 void tst_SelectionStatePaint::selectedItemGetter()
 {
-    TrackPainterGpu painter;
-    painter.setSelectedItem(0, 5);
-    painter.setSelectedItem(-1, -1);
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        painter.setSelectedItem(0, 5);
+        painter.setSelectedItem(-1, -1);
+    });
 }
 
 void tst_SelectionStatePaint::paintWithSelection()
 {
-    TrackPainterGpu painter;
-    TimelineModelAggregator aggregator;
-    DummyModel model(&aggregator);
-    model.loadData();
-    painter.setTracks({&model});
-    painter.setRange(0, 100);
-    painter.setSelectedItem(0, 0);
-    painter.repaint();
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        TimelineModelAggregator aggregator;
+        DummyModel model(&aggregator);
+        model.loadData();
+        painter.setTracks({&model});
+        painter.setRange(0, 100);
+        painter.setSelectedItem(0, 0);
+        painter.repaint();
+    });
 }
 
 void tst_SelectionStatePaint::selectionLockedDefaults()
 {
-    TrackPainterGpu painter;
-    painter.setSelectionLocked(true);
-    painter.setSelectionLocked(false);
+    withTrackPainter([]<typename TrackPainter>() {
+        TrackPainter painter;
+        painter.setSelectionLocked(true);
+        painter.setSelectionLocked(false);
+    });
 }
 
 QTEST_MAIN(tst_SelectionStatePaint)

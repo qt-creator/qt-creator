@@ -1,6 +1,8 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "../trackpainterbackends.h"
+
 #include <QScrollBar>
 #include <QTest>
 
@@ -8,7 +10,6 @@
 #include <tracing/timelinezoomcontrol.h>
 #include <tracing/timeruler.h>
 #include <tracing/tracklabels.h>
-#include <tracing/trackpaintergpu.h>
 
 using namespace Timeline;
 
@@ -18,7 +19,9 @@ class tst_TimelineScrollSync : public QObject
 private slots:
     void rulerSyncedOnRegister();
     void rulerGetsRangeChange();
+    void painterSyncedOnRegister_data();
     void painterSyncedOnRegister();
+    void painterGetsRangeChange_data();
     void painterGetsRangeChange();
     void labelsScrollBarPropagates();
     void labelsRegisteredAfterScrollBar();
@@ -54,34 +57,52 @@ void tst_TimelineScrollSync::rulerGetsRangeChange()
     QCOMPARE(ruler.rangeEnd(), qint64(8000));
 }
 
+void tst_TimelineScrollSync::painterSyncedOnRegister_data()
+{
+    addTrackPainterBackends();
+}
+
 void tst_TimelineScrollSync::painterSyncedOnRegister()
 {
-    TimelineZoomControl zoom;
-    zoom.setTrace(0, 100000);
-    zoom.setRange(3000, 7000);
+    QFETCH(TrackBackend, backend);
 
-    TimelineScrollSync sync(&zoom);
-    TrackPainterGpu painter;
-    sync.registerContent(&painter);
+    withTrackPainter(backend, []<typename TrackPainter>() {
+        TimelineZoomControl zoom;
+        zoom.setTrace(0, 100000);
+        zoom.setRange(3000, 7000);
 
-    QCOMPARE(painter.rangeStart(), qint64(3000));
-    QCOMPARE(painter.rangeEnd(), qint64(7000));
+        TimelineScrollSync sync(&zoom);
+        TrackPainter painter;
+        sync.registerContent(&painter);
+
+        QCOMPARE(painter.rangeStart(), qint64(3000));
+        QCOMPARE(painter.rangeEnd(), qint64(7000));
+    });
+}
+
+void tst_TimelineScrollSync::painterGetsRangeChange_data()
+{
+    addTrackPainterBackends();
 }
 
 void tst_TimelineScrollSync::painterGetsRangeChange()
 {
-    TimelineZoomControl zoom;
-    zoom.setTrace(0, 100000);
-    zoom.setRange(3000, 7000);
+    QFETCH(TrackBackend, backend);
 
-    TimelineScrollSync sync(&zoom);
-    TrackPainterGpu painter;
-    sync.registerContent(&painter);
+    withTrackPainter(backend, []<typename TrackPainter>() {
+        TimelineZoomControl zoom;
+        zoom.setTrace(0, 100000);
+        zoom.setRange(3000, 7000);
 
-    zoom.setRange(0, 100000);
+        TimelineScrollSync sync(&zoom);
+        TrackPainter painter;
+        sync.registerContent(&painter);
 
-    QCOMPARE(painter.rangeStart(), qint64(0));
-    QCOMPARE(painter.rangeEnd(), qint64(100000));
+        zoom.setRange(0, 100000);
+
+        QCOMPARE(painter.rangeStart(), qint64(0));
+        QCOMPARE(painter.rangeEnd(), qint64(100000));
+    });
 }
 
 void tst_TimelineScrollSync::labelsScrollBarPropagates()

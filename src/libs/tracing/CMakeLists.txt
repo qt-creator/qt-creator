@@ -1,19 +1,6 @@
-# The GPU track backend draws through CanvasPainter, and is only ever chosen on
-# macOS and Windows (see resolvedTrackBackend()). On WebAssembly it would be
-# dead code that still pulls CanvasPainter, and Qt Quick behind it, into the
-# binary, so leave it out and build only the software backend there.
-if (EMSCRIPTEN)
-  set(tracing_condition ON)
-  set(tracing_canvaspainter "")
-else()
-  set(tracing_condition TARGET Qt::CanvasPainter)
-  set(tracing_canvaspainter Qt::CanvasPainter)
-endif()
-
 add_qtc_library(Tracing
   DEPENDS Utils
-  CONDITION ${tracing_condition}
-  PUBLIC_DEPENDS Qt::Widgets ${tracing_canvaspainter}
+  PUBLIC_DEPENDS Qt::Widgets
   SOURCES
     flamegraphwidget.cpp flamegraphwidget.h
     safecastable.h
@@ -43,8 +30,15 @@ add_qtc_library(Tracing
     tracingtr.h
 )
 
+# The GPU track backend draws through CanvasPainter, and is only ever chosen on
+# macOS and Windows (see resolvedTrackBackend()). Without CanvasPainter only the
+# software backend is built. On WebAssembly the GPU backend would be dead code
+# that still pulls CanvasPainter, and Qt Quick behind it, into the binary, so
+# leave it out there as well.
 extend_qtc_library(Tracing
-  CONDITION NOT EMSCRIPTEN
+  CONDITION TARGET Qt::CanvasPainter AND NOT EMSCRIPTEN
+  PUBLIC_DEPENDS Qt::CanvasPainter
+  PUBLIC_DEFINES TRACING_WITH_GPU_BACKEND
   SOURCES trackpaintergpu.cpp trackpaintergpu.h
 )
 
