@@ -1193,6 +1193,7 @@ public:
     void restoreCursors(const UndoMultiCursor &cursors);
     void undoRedo(bool undo);
 
+    mutable QPair<QFont, qreal> m_charWidthCache;
     QList<int> m_visualIndentCache;
     // By block number, the number of the block conditionalStartBlock() returned, or -1.
     QHash<int, int> m_conditionalStartCache;
@@ -4628,7 +4629,9 @@ void TextEditorWidgetPrivate::openTypeUnderCursor(bool openInNextSplit)
 
 qreal TextEditorWidgetPrivate::charWidth() const
 {
-    return QFontMetricsF(q->font()).horizontalAdvance("x");
+    if (m_charWidthCache.first != q->font())
+        m_charWidthCache = {q->font(), QFontMetricsF(q->font()).horizontalAdvance("x")};
+    return m_charWidthCache.second;
 }
 
 qreal TextEditorWidgetPrivate::tabStopDistance() const
