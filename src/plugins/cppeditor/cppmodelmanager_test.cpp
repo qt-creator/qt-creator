@@ -1872,4 +1872,78 @@ void ModelManagerTest::testAHeaderShadowingAnotherBetweenSessionsIsNoticed()
     QCOMPARE(includedFilesOf(CppModelManager::snapshot(), source), FilePaths{inFront});
 }
 
+// A header that did not exist when its includer was read.
+void ModelManagerTest::testAHeaderAppearingReachesWhoeverIncludesIt()
+{
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath source = projectDir / "includes_generated.cpp";
+    const FilePath generated = projectDir / "generated.h";
+    QVERIFY(source.writeFileContents("#include \"generated.h\"\nint main() { return 0; }\n"));
+
+    const auto project = helper.createProject("test_modelmanager_generated_header",
+                                              projectDir / "p.pro");
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
+    const auto firstPart = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                               {{source, ProjectFile::CXXSource}});
+    QSet<FilePath> refreshed
+        = helper.updateProjectInfo(ProjectInfo::create({project, KitInfo(nullptr), {}, {}},
+                                                       {firstPart}));
+    QCOMPARE(refreshed, QSet<FilePath>{source});
+    QVERIFY(!CppModelManager::snapshot().document(generated));
+
+    QVERIFY(generated.writeFileContents("class Generated {};\n"));
+    const auto secondPart = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                                {{source, ProjectFile::CXXSource},
+                                                 {generated, ProjectFile::CXXHeader}});
+    refreshed = helper.updateProjectInfo(ProjectInfo::create({project, KitInfo(nullptr), {}, {}},
+                                                             {secondPart}));
+
+    QVERIFY(refreshed.contains(generated));
+    QVERIFY2(refreshed.contains(source),
+             "the file whose include the header answers was not read again");
+    QCOMPARE(includedFilesOf(CppModelManager::snapshot(), source), FilePaths{generated});
+}
+
+void ModelManagerTest::testAHeaderAppearingDoesNotReviveUnreachableFiles()
+{
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath source = projectDir / "includes_helper.cpp";
+    const FilePath helperHeader = projectDir / "helper.h";
+    const FilePath generated = projectDir / "generated" / "generated.h";
+    QVERIFY(source.writeFileContents("#include \"helper.h\"\nint main() { return 0; }\n"));
+    QVERIFY(helperHeader.writeFileContents("#include \"generated.h\"\n"));
+
+    const auto project = helper.createProject("test_modelmanager_unreachable_header",
+                                              projectDir / "p.pro");
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
+    const auto firstPart = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                               {{source, ProjectFile::CXXSource}});
+    QSet<FilePath> refreshed
+        = helper.updateProjectInfo(ProjectInfo::create({project, KitInfo(nullptr), {}, {}},
+                                                       {firstPart}));
+    QCOMPARE(refreshed, QSet<FilePath>{source});
+    QVERIFY(CppModelManager::snapshot().document(helperHeader));
+
+    // The only file that reaches the helper header leaves the project in the same update.
+    QVERIFY(generated.parentDir().createDir());
+    QVERIFY(generated.writeFileContents("class Generated {};\n"));
+    const auto secondPart = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                                {{generated, ProjectFile::CXXHeader}});
+    refreshed = helper.updateProjectInfo(ProjectInfo::create({project, KitInfo(nullptr), {}, {}},
+                                                             {secondPart}));
+
+    QCOMPARE(refreshed, QSet<FilePath>{generated});
+    QVERIFY(!CppModelManager::snapshot().document(helperHeader));
+}
+
 } // CppEditor::Internal

@@ -7,6 +7,8 @@
 
 #include <utils/algorithm.h>
 
+#include <QDir>
+
 #ifdef WITH_TESTS
 #include <QTest>
 #endif
@@ -66,6 +68,79 @@ FilePaths includersOfFileNamed(const Snapshot &snapshot, const QString &fileName
     return includers;
 }
 
+QSet<FilePath> filesAffectedByNewFiles(const Snapshot &snapshot, const QSet<FilePath> &newFiles)
+{
+    if (newFiles.isEmpty())
+        return {};
+
+    // Case-insensitive throughout: that is right where the file system is, and merely
+    // conservative where it is not.
+    QHash<QString, FilePaths> newFilesByName;
+    QSet<qsizetype> nameLengths;
+    for (const FilePath &file : newFiles) {
+        const QString name = file.fileName();
+        newFilesByName[name.toCaseFolded()].append(file);
+        nameLengths.insert(name.size());
+    }
+
+    // The directories an include names restrict what it can find. A leading "../" can
+    // lead anywhere, so only the part after it counts.
+    const auto mayFindNewFile = [&](const Document::Include &include) {
+        // Almost no include names a new file, so reject without allocating first.
+        const QString &spelled = include.unresolvedFileName();
+        if (!nameLengths.contains(spelled.size() - spelled.lastIndexOf('/') - 1))
+            return false;
+        QString spelling = QDir::cleanPath(spelled);
+        const FilePaths candidates
+            = newFilesByName.value(spelling.section('/', -1).toCaseFolded());
+        if (candidates.isEmpty())
+            return false;
+        if (FilePath::fromString(spelling).isAbsolutePath()) {
+            return Utils::anyOf(candidates, [&](const FilePath &file) {
+                return file.path().compare(spelling, Qt::CaseInsensitive) == 0;
+            });
+        }
+        while (spelling.startsWith("../"))
+            spelling.remove(0, 3);
+        const int slash = spelling.indexOf('/');
+        const QString inFramework = slash == -1 ? QString()
+            : '/' + spelling.left(slash) + ".framework/Headers" + spelling.mid(slash);
+        return Utils::anyOf(candidates, [&](const FilePath &file) {
+            return file.endsWith('/' + spelling, Qt::CaseInsensitive)
+                   || (!inFramework.isEmpty() && file.endsWith(inFramework, Qt::CaseInsensitive));
+        });
+    };
+
+    // An include that found nothing may find a new file now, and one that found another
+    // file of the same name may find the new one instead.
+    const auto foundAnotherFile = [&](const Document::Include &include) {
+        return mayFindNewFile(include) && !newFiles.contains(include.resolvedFileName());
+    };
+    FilePaths pending;
+    for (const Document::Ptr &doc : snapshot) {
+        if (Utils::anyOf(doc->resolvedIncludes(), foundAnotherFile)
+            || Utils::anyOf(doc->unresolvedIncludes(), mayFindNewFile)) {
+            pending.append(doc->filePath());
+        }
+    }
+    if (pending.isEmpty())
+        return {};
+
+    // Their includers see different declarations, although their own contents are unchanged.
+    QHash<FilePath, FilePaths> includers;
+    for (const Document::Ptr &doc : snapshot) {
+        for (const Document::Include &include : doc->resolvedIncludes())
+            includers[include.resolvedFileName()].append(doc->filePath());
+    }
+    QSet<FilePath> affected;
+    while (!pending.isEmpty()) {
+        const FilePath current = pending.takeLast();
+        if (Utils::insert(affected, current))
+            pending += includers.value(current);
+    }
+    return affected;
+}
+
 } // namespace CppEditor
 
 #ifdef WITH_TESTS
@@ -96,6 +171,7 @@ private slots:
     void testIncludeClosureOf();
     void testFilesDependingOn();
     void testIncludersOfFileNamed();
+    void testFilesAffectedByNewFiles();
 };
 
 void IndexQueriesTest::testIncludersOf()
@@ -246,6 +322,59 @@ void IndexQueriesTest::testIncludersOfFileNamed()
     QCOMPARE(actual, expected);
 
     QVERIFY(includersOfFileNamed(snapshot, "nothing_includes_this.h").isEmpty());
+}
+
+void IndexQueriesTest::testFilesAffectedByNewFiles()
+{
+    const FilePath newHeader = FilePath::fromString("/project/new/header.h");
+    const FilePath oldHeader = FilePath::fromString("/project/old/header.h");
+    const FilePath findsNothing = FilePath::fromString("/project/findsnothing.h");
+    const FilePath includesFindsNothing = FilePath::fromString("/project/indirect.cpp");
+    const FilePath findsOldHeader = FilePath::fromString("/project/findsold.cpp");
+    const FilePath findsNewHeader = FilePath::fromString("/project/findsnew.cpp");
+    const FilePath unrelated = FilePath::fromString("/project/unrelated.cpp");
+    const FilePath otherDirHeader = FilePath::fromString("/project/old/other/header.h");
+    const FilePath findsOtherDir = FilePath::fromString("/project/findsotherdir.cpp");
+    const FilePath spellsDir = FilePath::fromString("/project/spellsdir.cpp");
+    const FilePath spellsParent = FilePath::fromString("/project/sub/spellsparent.cpp");
+    const FilePath spellsOtherCase = FilePath::fromString("/project/spellsothercase.cpp");
+    const FilePath spellsPath = FilePath::fromString("/project/spellspath.cpp");
+    const FilePath spellsOtherPath = FilePath::fromString("/project/spellsotherpath.cpp");
+    const FilePath spellsFramework = FilePath::fromString("/project/spellsframework.cpp");
+
+    const auto unresolved = [](const QString &spelling) {
+        return Document::Include(spelling, {}, 1, Client::IncludeLocal);
+    };
+
+    Snapshot snapshot;
+    addDocument(snapshot, oldHeader, {});
+    addDocument(snapshot, findsNothing, {unresolved("header.h")});
+    addDocument(snapshot, includesFindsNothing, {include(findsNothing, 1)});
+    addDocument(snapshot, findsOldHeader, {include(oldHeader, 1)});
+    addDocument(snapshot, findsNewHeader, {include(newHeader, 1)});
+    addDocument(snapshot, unrelated, {unresolved("other.h")});
+    addDocument(snapshot, otherDirHeader, {});
+    addDocument(snapshot, findsOtherDir,
+                {Document::Include("other/header.h", otherDirHeader, 1, Client::IncludeLocal)});
+    addDocument(snapshot, spellsDir, {unresolved("new/header.h")});
+    addDocument(snapshot, spellsParent, {unresolved("../header.h")});
+    addDocument(snapshot, spellsOtherCase, {unresolved("Header.h")});
+    addDocument(snapshot, spellsPath, {unresolved(newHeader.path())});
+    addDocument(snapshot, spellsOtherPath, {unresolved("/project/elsewhere/header.h")});
+    addDocument(snapshot, spellsFramework, {unresolved("Fw/fw.h")});
+
+    const QSet<FilePath> expected{findsNothing, includesFindsNothing, findsOldHeader, spellsDir,
+                                  spellsParent, spellsOtherCase, spellsPath};
+    QCOMPARE(filesAffectedByNewFiles(snapshot, {newHeader}), expected);
+
+    const FilePath frameworkHeader
+        = FilePath::fromString("/frameworks/Fw.framework/Headers/fw.h");
+    QCOMPARE(filesAffectedByNewFiles(snapshot, {frameworkHeader}),
+             QSet<FilePath>{spellsFramework});
+
+    QVERIFY(filesAffectedByNewFiles(snapshot, {FilePath::fromString("/project/none.h")})
+                .isEmpty());
+    QVERIFY(filesAffectedByNewFiles(snapshot, {}).isEmpty());
 }
 
 QObject *createIndexQueriesTest()

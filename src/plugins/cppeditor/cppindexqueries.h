@@ -41,6 +41,12 @@ CPPEDITOR_EXPORT Utils::FilePaths filesDependingOn(const CPlusPlus::Snapshot &sn
 CPPEDITOR_EXPORT Utils::FilePaths includersOfFileNamed(const CPlusPlus::Snapshot &snapshot,
                                                        const QString &fileName);
 
+// The files with an #include directive that may resolve differently now that newFiles
+// exist, plus all files that include them. Includes that already resolve to one of
+// newFiles do not count.
+CPPEDITOR_EXPORT QSet<Utils::FilePath> filesAffectedByNewFiles(
+    const CPlusPlus::Snapshot &snapshot, const QSet<Utils::FilePath> &newFiles);
+
 #ifdef WITH_TESTS
 namespace Internal { QObject *createIndexQueriesTest(); }
 #endif

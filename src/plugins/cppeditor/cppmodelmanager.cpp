@@ -1540,6 +1540,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
         return {};
 
     QSet<FilePath> filesToReindex;
+    QSet<FilePath> addedFiles;
     QStringList removedProjectParts;
     bool filesRemoved = false;
 
@@ -1552,6 +1553,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
     d->m_lockedProjectData.write([&newProjectInfo,
                                   project,
                                   &filesToReindex,
+                                  &addedFiles,
                                   &removedProjectParts,
                                   &filesRemoved,
                                   &projectData](auto &ld) {
@@ -1578,7 +1580,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
 
                 // Otherwise check for added and modified files
                 } else {
-                    const QSet<FilePath> addedFiles = comparer.addedFiles();
+                    addedFiles = comparer.addedFiles();
                     qCDebug(log) << "added files:" << addedFiles;
                     filesToReindex.unite(addedFiles);
 
@@ -1626,6 +1628,13 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
     // Remove files from snapshot that are not reachable any more
     if (filesRemoved)
         GC();
+
+    // A new file can change how the includes of files that did not change resolve.
+    if (!addedFiles.isEmpty()) {
+        const QSet<FilePath> affected = filesAffectedByNewFiles(snapshot(), addedFiles);
+        qCDebug(log) << "files that may now resolve an include to one of them:" << affected;
+        filesToReindex.unite(affected);
+    }
 
     // Announce removed project parts
     if (!removedProjectParts.isEmpty())
