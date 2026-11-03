@@ -1,6 +1,5 @@
 add_qtc_library(Tracing
-  DEPENDS Utils
-  PUBLIC_DEPENDS Qt::Widgets
+  PUBLIC_DEPENDS Utils Qt::Widgets
   SOURCES
     flamegraphwidget.cpp flamegraphwidget.h
     safecastable.h

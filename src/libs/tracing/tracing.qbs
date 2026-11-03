@@ -64,6 +64,7 @@ QtcLibrary {
     }
 
     Export {
+        Depends { name: "Utils" }
         Depends {
             name: "Qt.canvaspainter"
             condition: exportingProduct.withGpuBackend
