@@ -6725,12 +6725,12 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
     cursorColor.setAlpha(cursorColor.alpha() / 2);
 
     const QString text = data.block.text().mid(m_visualIndentOffset);
+    const qreal columnWidth = charWidth();
+    const qreal lineStartX = data.mainLayoutOffset.x() + textLine.x()
+                             + qMax(0, q->cursorWidth() - 1);
     while (paintColumn < depth) {
-        int columnOffset = 0;
-        const int paintPosition = data.tabSettings.positionAtColumn(text, paintColumn, &columnOffset);
-        const qreal guideX = data.mainLayoutOffset.x()
-                             + textLine.cursorToX(paintPosition + m_visualIndentOffset)
-                             + columnOffset * charWidth() + qMax(0, q->cursorWidth() - 1);
+        const int paintPosition = data.tabSettings.positionAtColumn(text, paintColumn);
+        const qreal guideX = lineStartX + (m_visualIndentOffset + paintColumn) * columnWidth;
         if (guideX >= 0) {
             if (q->lineWrapMode() == PlainTextEdit::WidgetWidth
                 && blockData.layout->lineForTextPosition(paintPosition).lineNumber() != 0) {
