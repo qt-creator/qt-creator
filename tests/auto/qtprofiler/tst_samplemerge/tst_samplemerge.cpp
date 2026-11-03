@@ -20,6 +20,12 @@ static QStringList names(const SampleTraceData &data, int sampleIndex)
     return result;
 }
 
+static Label fn(Label label, quint64 functionAddress)
+{
+    label.functionAddress = functionAddress;
+    return label;
+}
+
 class tst_SampleMerge : public QObject
 {
     Q_OBJECT
@@ -218,6 +224,54 @@ private slots:
         const SampleTraceData merged = mergeQmlIntoSamples(native, ranges);
         QCOMPARE(names(merged, 0), (QStringList{"onClicked"}));
         QCOMPARE(names(merged, 1), (QStringList{"onClicked", "compute"}));
+    }
+
+    void labelsOfOneFunctionAreMerged()
+    {
+        // Two return addresses in cursorToX, each labeled on its own.
+        SampleTraceData data;
+        data.labels = {
+            fn(Label("paintIndentDepth", "/texteditor.cpp", 6698, "TextEditor.dll", 0x10), 0x1000),
+            fn(Label("cursorToX", "/qtextlayout.cpp", 2510, "Qt6Gui.dll", 0x200), 0x2000),
+            fn(Label("cursorToX", "/qtextlayout.cpp", 2580, "Qt6Gui.dll", 0x2f0), 0x2000),
+            fn(Label("shapeLine", "/qtextengine.cpp", 1500, "Qt6Gui.dll", 0x900), 0x3000),
+        };
+        data.samples = {
+            {100, 1, true, {0, 1, 3}},
+            {200, 1, true, {0, 2, 3}},
+            {300, 1, true, {0, 2}},
+        };
+
+        mergeLabelsOfSameFunction(data);
+
+        QCOMPARE(data.labels.size(), 3);
+        QCOMPARE(data.labels[1],
+                 fn(Label("cursorToX", "/qtextlayout.cpp", 2510, "Qt6Gui.dll", 0x200), 0x2000));
+        QCOMPARE(data.labels[2].name, "shapeLine");
+        QCOMPARE(data.samples[0].frames, (QList<int>{0, 1, 2}));
+        QCOMPARE(data.samples[1].frames, (QList<int>{0, 1, 2}));
+        QCOMPARE(data.samples[2].frames, (QList<int>{0, 1}));
+    }
+
+    void labelsOfDifferentFunctionsAreKept()
+    {
+        // Names without a parameter list collide: two overloads, and the same
+        // symbol exported by two plugins. Unresolved labels have no function.
+        SampleTraceData data;
+        data.labels = {
+            fn(Label("Model::data", "/model.cpp", 10, "app.exe", 0x100), 0x1000),
+            fn(Label("Model::data", "/model.cpp", 40, "app.exe", 0x400), 0x4000),
+            fn(Label("qt_plugin_instance", "", 0, "qjpeg.dll", 0x10), 0x7000),
+            fn(Label("qt_plugin_instance", "", 0, "qgif.dll", 0x10), 0x8000),
+            Label("0x5000"),
+            Label("0x5000"),
+        };
+        data.samples = {{100, 1, true, {0, 1, 2, 3, 4, 5}}};
+        const SampleTraceData before = data;
+
+        mergeLabelsOfSameFunction(data);
+
+        QCOMPARE(data, before);
     }
 };
 

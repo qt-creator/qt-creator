@@ -234,4 +234,31 @@ SampleTraceData mergeQmlIntoSamples(
     return merged;
 }
 
+void mergeLabelsOfSameFunction(SampleTraceData &data)
+{
+    QHash<quint64, int> idByFunction;
+    QList<int> newIdFor(data.labels.size());
+    QList<SampleTraceData::Label> labels;
+    for (int i = 0; i < data.labels.size(); ++i) {
+        const quint64 function = data.labels[i].functionAddress;
+        if (function != 0) {
+            if (const auto it = idByFunction.constFind(function); it != idByFunction.constEnd()) {
+                newIdFor[i] = it.value();
+                continue;
+            }
+            idByFunction.insert(function, int(labels.size()));
+        }
+        newIdFor[i] = int(labels.size());
+        labels.append(data.labels[i]);
+    }
+    if (labels.size() == data.labels.size())
+        return;
+
+    data.labels = std::move(labels);
+    for (SampleTraceData::ThreadSample &sample : data.samples) {
+        for (int &frame : sample.frames)
+            frame = newIdFor[frame];
+    }
+}
+
 } // namespace Profiler::Internal

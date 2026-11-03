@@ -308,6 +308,7 @@ void Symbolicator::resolveLabels(SampleTraceData &data, const std::function<void
                 demangle(QString::fromWCharArray(symbol->Name).toUtf8().constData());
             if (!name.isEmpty())
                 label.name = name;
+            label.functionAddress = symbol->Address;
         }
 
         IMAGEHLP_LINEW64 lineInfo = {};

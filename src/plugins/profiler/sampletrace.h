@@ -46,6 +46,9 @@ public:
         // meaningful in-process, before the trace is written: writeSampleTrace()
         // does not persist it, so labels read back from disk carry 0 here.
         quint64 address = 0;
+        // Start address of the function `address` lies in, once a backend has
+        // resolved it; 0 if unknown. In-process only, like `address`.
+        quint64 functionAddress = 0;
 
         Label() = default;
         Label(const char *n) : name(QString::fromUtf8(n)) {}

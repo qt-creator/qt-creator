@@ -12,6 +12,7 @@
 #endif
 #include <qt_windows.h>
 
+#include "samplemerge.h"
 #include "sampletrace.h"
 #include "winsymbolicator.h"
 
@@ -807,6 +808,8 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts,
     // disk or a symbol server, which is far too slow for the event callback.
     ctx.symbolicator.resolveLabels(ctx.data,
                                    [&postProgress](int p) { postProgress(p / 2); });
+    // Labels are per address until now; key them by function, as on macOS.
+    mergeLabelsOfSameFunction(ctx.data);
 
     qCDebug(etwLog, "Capture finished. eventsReceived=%zu, stackWalkEvents=%zu, samples=%lld, "
                     "sampleBytes=%zu, duration=%llu ms.",

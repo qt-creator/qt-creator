@@ -68,6 +68,19 @@ PROFILER_EXPORT SampleTraceData mergeQmlIntoSamples(
     const QList<QmlRange> &qmlRanges,
     const MergeOptions &options = {});
 
+// Folds labels that share a SampleTraceData::Label::functionAddress into the
+// first of them and renumbers the rest, rewriting every sample's frames to
+// match. A backend that labels each sampled address on its own and resolves
+// them afterwards ends up with one label per call site or return address in a
+// function; without this, each would be a separate node wherever the trace is
+// shown as a tree. The surviving label keeps its source location, which stands
+// for the whole function. Labels without a function address are left alone.
+//
+// The name is no substitute for the address: it need not be unique to one
+// function, as with overloads whose names carry no parameter list, or the same
+// symbol in several modules.
+PROFILER_EXPORT void mergeLabelsOfSameFunction(SampleTraceData &data);
+
 // Whether `label` names a QML engine frame -- the machinery frame run that the
 // merge treats as the JS boundary. Exposed for testing.
 PROFILER_EXPORT bool isEngineFrame(const SampleTraceData::Label &label);
