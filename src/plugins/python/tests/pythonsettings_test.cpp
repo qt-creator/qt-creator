@@ -131,8 +131,7 @@ void PythonSettingsTest::testDetectionReachesKitsAndSettings()
              }),
              2);
 
-    // The device re-detection removes them first. They keep their ids.
-    PythonSettings::removeDetectedPython(source.id, ignore);
+    // A device re-detection keeps their ids.
     QCOMPARE(QTaskTree::runBlocking(
                  Group{PythonSettings::autoDetect(&kit, searchPaths, source, ignore)}),
              DoneWith::Success);
@@ -160,11 +159,14 @@ void PythonSettingsTest::testDetectionReachesKitsAndSettings()
 
     // Not finding an interpreter does not make it gone: the device may not answer.
     for (const FilePaths &paths : {FilePaths{}, FilePaths{root / "nothing"}}) {
-        PythonSettings::removeDetectedPython(source.id, ignore);
         QCOMPARE(QTaskTree::runBlocking(
                      Group{PythonSettings::autoDetect(nullptr, paths, source, ignore)}),
                  DoneWith::Success);
-        QCOMPARE(interpreterModel().interpreterFrom(source.id), QList<Interpreter>{*kitPython});
+        QCOMPARE(Utils::filtered(interpreterModel().interpreters(),
+                                 [&source](const Interpreter &i) {
+                                     return i.detectionSource == source;
+                                 }),
+                 QList<Interpreter>{*kitPython});
         QCOMPARE(Utils::filtered(PythonSettings::interpreters(), [&source](const Interpreter &i) {
                      return i.detectionSource == source;
                  }),
@@ -329,14 +331,22 @@ void PythonSettingsTest::testDetectionReachesKitsAndSettings()
                         }),
         PythonSettings::defaultInterpreterId());
 
-    // Removing the device takes its interpreters along.
+    // Removing the device takes its interpreters along, and the default with them.
+    PythonSettings::setInterpreter(PythonSettings::interpreters(), kitPython->id);
+    QCOMPARE(PythonSettings::defaultInterpreterId(), kitPython->id);
     const Id deviceId = Id::fromString(source.id);
     DeviceManager::addDevice(std::make_shared<PythonTestDevice>(deviceId));
     DeviceManager::removeDevice(deviceId);
     QVERIFY(!Utils::anyOf(PythonSettings::interpreters(), [&source](const Interpreter &i) {
         return i.detectionSource == source;
     }));
-    QVERIFY(interpreterModel().interpreterFrom(source.id).isEmpty());
+    QVERIFY(!Utils::anyOf(interpreterModel().interpreters(), [&source](const Interpreter &i) {
+        return i.detectionSource == source;
+    }));
+    const QString defaultId = PythonSettings::defaultInterpreterId();
+    QVERIFY(defaultId.isEmpty()
+            || Utils::contains(PythonSettings::interpreters(),
+                               Utils::equal(&Interpreter::id, defaultId)));
     QVERIFY(!KitManager::kit(Id::fromString(kitPython->id)));
 }
 

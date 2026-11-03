@@ -65,7 +65,7 @@ public:
     int hoveredItemIndex() const { return m_hoveredItemIndex; }
 
     void setLeftHeaderWidget(QWidget *widget);
-    void addLeftPanelWidget(QWidget *widget);
+    void setLeftFooterWidget(QWidget *widget);
 
     bool selectionRangeReady() const;
     void selectItem(int modelIndex, int itemIndex);

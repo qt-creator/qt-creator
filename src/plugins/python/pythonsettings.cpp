@@ -62,6 +62,13 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#ifdef WITH_TESTS
+#include <QFont>
+#include <QScopeGuard>
+#include <QTemporaryDir>
+#include <QTest>
+#endif // WITH_TESTS
+
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
@@ -70,6 +77,8 @@ namespace Python::Internal {
 
 // This is defacto the unapplied state of PythonSettings::defaultInterpreter().id()
 static QString s_defaultId;
+// The default the settings had when s_defaultId last followed them.
+static QString s_defaultIdFromSettings;
 
 static Q_LOGGING_CATEGORY(pylspLog, "qtc.python.pylsp", QtWarningMsg)
 
@@ -115,13 +124,43 @@ InterpreterModel::InterpreterModel(const std::function<bool(QString)> &isDefault
         }
         return {};
     });
-    setAllData(PythonSettings::interpreters());
+    m_lastFromSettings = PythonSettings::interpreters();
+    setAllData(m_lastFromSettings);
 }
 
-// This is defacto the unapplied state of PythonSettings::interpreters()
+// This is defacto the unapplied state of PythonSettings::interpreters(), and has to follow
+// whatever changes the settings behind the options page's back.
 InterpreterModel &interpreterModel()
 {
     static InterpreterModel theInterpreterModel([](const QString &id) { return id == s_defaultId; });
+    [[maybe_unused]] static const bool defaultSynced = [] {
+        s_defaultId = s_defaultIdFromSettings = PythonSettings::defaultInterpreterId();
+        return true;
+    }();
+    [[maybe_unused]] static const QMetaObject::Connection connection = QObject::connect(
+        PythonSettings::instance(),
+        &PythonSettings::interpretersChanged,
+        &theInterpreterModel,
+        [](const QList<Interpreter> &interpreters, const QString &defaultId) {
+            theInterpreterModel.mergeInterpreters(interpreters);
+            // An unapplied "Make Default" outlives a write that leaves its interpreter alone.
+            const bool madeDefault = s_defaultId != s_defaultIdFromSettings
+                                     && Utils::contains(theInterpreterModel.interpreters(),
+                                                        Utils::equal(&Interpreter::id, s_defaultId));
+            const QString previousDefaultId = s_defaultId;
+            if (!madeDefault)
+                s_defaultId = defaultId;
+            s_defaultIdFromSettings = defaultId;
+            if (s_defaultId == previousDefaultId)
+                return;
+            // The bold font of the default row is not part of the row data merged above.
+            for (const QString &id : {previousDefaultId, s_defaultId}) {
+                const QModelIndex index = theInterpreterModel.findIndex(
+                    Utils::equal(&Interpreter::id, id));
+                if (index.isValid())
+                    emit theInterpreterModel.dataChanged(index, index, {Qt::FontRole});
+            }
+        });
     return theInterpreterModel;
 }
 
@@ -205,7 +244,7 @@ public:
     void cancel() override
     {
         interpreterModel().setInterpreters(PythonSettings::interpreters());
-        s_defaultId = PythonSettings::defaultInterpreterId();
+        s_defaultId = s_defaultIdFromSettings = PythonSettings::defaultInterpreterId();
     }
 
 private:
@@ -277,27 +316,57 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
             this, &InterpreterOptionsWidget::detailsChanged);
     connect(m_view.selectionModel(), &QItemSelectionModel::currentChanged,
             this, &InterpreterOptionsWidget::currentChanged);
+    // A row the settings changed from outside must not be written back by currentChanged().
+    connect(&interpreterModel(), &QAbstractItemModel::dataChanged, this,
+            [this](const QModelIndex &topLeft, const QModelIndex &bottomRight) {
+        const QModelIndex current = m_view.currentIndex();
+        if (!current.isValid() || current.row() < topLeft.row() || current.row() > bottomRight.row())
+            return;
+        const Interpreter interpreter = interpreterModel().itemAt(current.row())->itemData;
+        if (interpreter != m_detailsWidget.toInterpreter())
+            m_detailsWidget.updateInterpreter(interpreter);
+    });
 
     installMarkSettingsDirtyTriggerRecursively(this);
 }
 
-void InterpreterModel::addInterpreter(const Interpreter &interpreter)
-{
-    appendItem(interpreter);
-}
-
-void InterpreterModel::removeInterpreterFrom(const QString &detectionSource)
-{
-    destroyItems([&detectionSource](const Interpreter &interpreter) {
-        return interpreter.detectionSource.id == detectionSource;
-    });
-}
-
 void InterpreterModel::setInterpreters(const QList<Interpreter> &interpreters)
 {
+    m_lastFromSettings = interpreters;
     clear();
     for (const Interpreter &interpreter : interpreters)
         appendItem(interpreter);
+}
+
+// Only what actually changed in the settings is carried over, so that edits the options page
+// has not applied yet survive a write from elsewhere: a row the settings lost goes, a row they
+// gained comes, a row they changed follows unless the user edited it too, and everything else
+// stays as the user left it.
+void InterpreterModel::mergeInterpreters(const QList<Interpreter> &interpreters)
+{
+    const QList<Interpreter> before = m_lastFromSettings;
+    m_lastFromSettings = interpreters;
+
+    const auto hasId = [](const QList<Interpreter> &list, const QString &id) {
+        return Utils::contains(list, Utils::equal(&Interpreter::id, id));
+    };
+
+    destroyItems([&](const Interpreter &interpreter) {
+        return hasId(before, interpreter.id) && !hasId(interpreters, interpreter.id);
+    });
+
+    for (const Interpreter &interpreter : interpreters) {
+        const auto sameId = Utils::equal(&Interpreter::id, interpreter.id);
+        if (ChildType *item = findItemByData(sameId)) {
+            if (item->itemData != interpreter
+                && item->itemData == Utils::findOrDefault(before, sameId)) {
+                item->itemData = interpreter;
+                item->update();
+            }
+        } else if (!hasId(before, interpreter.id)) {
+            appendItem(interpreter);
+        }
+    }
 }
 
 QList<Interpreter> InterpreterModel::interpreters() const
@@ -306,13 +375,6 @@ QList<Interpreter> InterpreterModel::interpreters() const
     for (const TreeItem *treeItem : *this)
         interpreters << static_cast<const ListItem<Interpreter> *>(treeItem)->itemData;
     return interpreters;
-}
-
-QList<Interpreter> InterpreterModel::interpreterFrom(const QString &detectionSource) const
-{
-    return allData([&detectionSource](const Interpreter &interpreter) {
-        return interpreter.detectionSource.id == detectionSource;
-    });
 }
 
 void InterpreterOptionsWidget::currentChanged(const QModelIndex &index, const QModelIndex &previous)
@@ -854,7 +916,7 @@ PythonSettings::PythonSettings()
     if (m_defaultInterpreterId.isEmpty())
         m_defaultInterpreterId = idForPythonFromPath(m_interpreters);
 
-    s_defaultId = m_defaultInterpreterId;
+    s_defaultId = s_defaultIdFromSettings = m_defaultInterpreterId;
 
     writeToSettings(Core::ICore::settings());
 
@@ -885,7 +947,7 @@ PythonSettings::PythonSettings()
         });
     });
 
-    // Not in removeDetectedPython(): that also runs when the device is only re-detected, and
+    // Not in removeAutoDetected() of the kit aspect: that also runs when the device is only re-detected, and
     // the interpreters and their kits must keep their ids then.
     connect(DeviceManager::instance(), &DeviceManager::deviceRemoved, this, [](Id devId) {
         const QList<Interpreter> kept = Utils::filtered(
@@ -1391,24 +1453,11 @@ ExecutableItem PythonSettings::autoDetect(
             const auto isGone = [&gone](const Interpreter &interpreter) {
                 return Utils::contains(gone, Utils::equal(&Interpreter::id, interpreter.id));
             };
-            interpreterModel().destroyItems(isGone);
             setInterpreter(
                 Utils::filtered(
                     PythonSettings::interpreters(),
                     [&isGone](const Interpreter &interpreter) { return !isGone(interpreter); }),
                 defaultInterpreterId());
-        }
-
-        // A re-detection removed them from the model, but not from the settings.
-        if (!detectionSource.id.isEmpty()) {
-            for (const Interpreter &interpreter : PythonSettings::interpreters()) {
-                if (interpreter.detectionSource.id == detectionSource.id
-                    && !Utils::contains(
-                        interpreterModel().interpreters(),
-                        Utils::equal(&Interpreter::id, interpreter.id))) {
-                    interpreterModel().addInterpreter(interpreter);
-                }
-            }
         }
 
         if (interpreters.isEmpty())
@@ -1427,19 +1476,14 @@ ExecutableItem PythonSettings::autoDetect(
             if (kitPythonId.isEmpty())
                 kitPythonId = interpreter.id;
 
-            // A re-detection removed it from the model, but not from the settings.
-            if (!Utils::contains(
-                    interpreterModel().interpreters(),
-                    Utils::equal(&Interpreter::id, interpreter.id))) {
-                interpreterModel().addInterpreter(interpreter);
-            }
             if (isKnown)
                 continue;
-            if (detectionSource.id.isEmpty()) {
+            if (detectionSource.id.isEmpty() && !kit) {
                 PythonSettings::addInterpreter(interpreter);
             } else {
-                // No kit of its own: it would have the device kit's detection source, and
-                // kitDetectionRecipe() would take it for the device kit.
+                // No kit of its own: the kit the search runs for gets it, and on a device it
+                // would have the device kit's detection source, so that kitDetectionRecipe()
+                // would take it for the device kit.
                 settingsInstance->m_interpreters.append(interpreter);
                 saveSettings();
             }
@@ -1452,15 +1496,6 @@ ExecutableItem PythonSettings::autoDetect(
     };
 
     return AsyncTask<PythonSearch>(setupSearch, searchDone);
-}
-
-void PythonSettings::removeDetectedPython(
-    const QString &detectionSource, const LogCallback &logCallback)
-{
-    for (Interpreter &interpreter : interpreterModel().interpreterFrom(detectionSource))
-        logCallback(Tr::tr("Removing Python: %1.").arg(interpreter.name));
-
-    interpreterModel().removeInterpreterFrom(detectionSource);
 }
 
 void PythonSettings::fixupPythonKits()
@@ -1533,6 +1568,105 @@ public:
 };
 
 static InterpreterOptionsPage page;
+
+#ifdef WITH_TESTS
+
+class InterpreterOptionsTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testKeepsAnUnappliedMakeDefault();
+    void testShowsARowChangedElsewhere();
+};
+
+static QModelIndex indexOf(const QString &id)
+{
+    return interpreterModel().findIndex(Utils::equal(&Interpreter::id, id));
+}
+
+static bool isShownAsDefault(const QString &id)
+{
+    return interpreterModel().data(indexOf(id), Qt::FontRole).value<QFont>().bold();
+}
+
+void InterpreterOptionsTest::testKeepsAnUnappliedMakeDefault()
+{
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath dir = FilePath::fromUserInput(tmp.path());
+
+    const QList<Interpreter> before = PythonSettings::interpreters();
+    const QString defaultId = PythonSettings::defaultInterpreterId();
+    const QScopeGuard restoreInterpreters(
+        [before, defaultId] { PythonSettings::setInterpreter(before, defaultId); });
+
+    const Interpreter first = PythonSettings::createInterpreter(dir / "python3", "First");
+    PythonSettings::addInterpreter(first);
+    const Interpreter second = PythonSettings::createInterpreter(dir / "python3.14", "Second");
+    PythonSettings::addInterpreter(second, true);
+
+    InterpreterOptionsWidget widget;
+    auto view = widget.findChild<QTreeView *>();
+    QVERIFY(view);
+    QPushButton *makeDefault = Utils::findOrDefault(
+        widget.findChildren<QPushButton *>(),
+        [](QPushButton *button) { return button->text() == Tr::tr("&Make Default"); });
+    QVERIFY(makeDefault);
+
+    view->setCurrentIndex(indexOf(first.id));
+    makeDefault->click();
+    QVERIFY(isShownAsDefault(first.id));
+
+    // A write that leaves the interpreter alone must not take the choice away.
+    PythonSettings::addInterpreter(PythonSettings::createInterpreter(dir / "other", "Other"));
+    QVERIFY(isShownAsDefault(first.id));
+    QVERIFY(!isShownAsDefault(second.id));
+}
+
+void InterpreterOptionsTest::testShowsARowChangedElsewhere()
+{
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+
+    const QList<Interpreter> before = PythonSettings::interpreters();
+    const QString defaultId = PythonSettings::defaultInterpreterId();
+    const QScopeGuard restoreInterpreters(
+        [before, defaultId] { PythonSettings::setInterpreter(before, defaultId); });
+
+    const Interpreter shown = PythonSettings::createInterpreter(
+        FilePath::fromUserInput(tmp.path()) / "python3", "Shown");
+    PythonSettings::addInterpreter(shown);
+
+    InterpreterOptionsWidget widget;
+    auto view = widget.findChild<QTreeView *>();
+    QVERIFY(view);
+    auto details = widget.findChild<InterpreterDetailsWidget *>();
+    QVERIFY(details);
+
+    view->setCurrentIndex(indexOf(shown.id));
+    QCOMPARE(details->m_name.text(), shown.name);
+
+    QList<Interpreter> renamed = PythonSettings::interpreters();
+    const auto it = std::find_if(
+        renamed.begin(), renamed.end(), Utils::equal(&Interpreter::id, shown.id));
+    QVERIFY(it != renamed.end());
+    it->name = "Renamed";
+    PythonSettings::setInterpreter(renamed, PythonSettings::defaultInterpreterId());
+    QCOMPARE(details->m_name.text(), QString("Renamed"));
+
+    // Leaving the row writes the details back into it.
+    view->setCurrentIndex({});
+    const int row = indexOf(shown.id).row();
+    QCOMPARE(interpreterModel().itemAt(row)->itemData.name, QString("Renamed"));
+}
+
+QObject *createInterpreterOptionsTest()
+{
+    return new InterpreterOptionsTest;
+}
+
+#endif // WITH_TESTS
 
 } // Python::Internal
 

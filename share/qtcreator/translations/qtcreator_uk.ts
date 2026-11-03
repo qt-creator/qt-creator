@@ -39074,9 +39074,6 @@ The files in the Android package source directory are copied to the build direct
     </message>
 </context>
 <context>
-    <name>QtC::Profiler</name>
-</context>
-<context>
     <name>QtC::ResourceEditor</name>
 </context>
 <context>

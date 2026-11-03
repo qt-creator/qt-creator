@@ -1334,8 +1334,9 @@ void QtcSeparatedItemsWidget::paintEvent(QPaintEvent *event)
         if (previous) {
             // A mirrored layout places the items in the opposite order
             const Span gap(qMin(previous->second, span.second), qMax(previous->first, span.first));
-            // Centered in the gap, which is the leading edge itself for adjacent items
-            const int position = (gap.first - separatorLineWidth() + gap.second) / 2;
+            // Centered in the gap, which is the leading edge itself for adjacent items.
+            // The leading edge is the leading item's last pixel row or column, hence the + 1
+            const int position = (gap.first + 1 - separatorLineWidth() + gap.second) / 2;
             const QRect separatorR =
                 verticalSeparators ? QRect(position, m_separatorInset, separatorLineWidth(),
                                            height() - 2 * m_separatorInset)
@@ -1645,7 +1646,7 @@ void QtcIconDisplay::paintEvent(QPaintEvent *event)
 
     qreal dpr = devicePixelRatio();
     QSize actualSize = size();
-    auto px = d->m_icon.pixmap(actualSize, dpr);
+    auto px = d->m_icon.pixmap(actualSize, dpr, isEnabled() ? QIcon::Normal : QIcon::Disabled);
     px.setDevicePixelRatio(dpr);
 
     QRect r(QPoint(0, 0), actualSize);
