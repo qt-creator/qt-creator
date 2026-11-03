@@ -136,6 +136,42 @@ private slots:
         QVERIFY(model.location(nullptr).file.isEmpty()); // null-safe
     }
 
+    void rolesDescribeNodesAndRoot()
+    {
+        SampleTraceData data;
+        data.pid = 1;
+        data.labels = {{"root", "/r.cpp", 5, "app", 0x40}, {"leaf", QString(), 0, "QtCore", 0x99}};
+        data.samples = {{0us, 10, true, {0, 1}}, {100us, 10, true, {0}}};
+        CallTreeModel model;
+        model.setTraceData(&data);
+        using namespace CpuFlameGraph;
+
+        // The invalid index is the invisible root, which spans all samples.
+        QCOMPARE(model.data({}, SamplesRole).toULongLong(), quint64(2));
+        QCOMPARE(model.data({}, TypeIdRole).toInt(), -1);
+        QVERIFY(model.data({}, FunctionRole).toString().isEmpty());
+
+        // Roles answer the same in every column.
+        for (int column = 0; column < CallTreeModel::ColumnCount; ++column) {
+            const QModelIndex root = model.index(0, column);
+            QCOMPARE(model.data(root, TypeIdRole).toInt(), 0);
+            QCOMPARE(model.data(root, SamplesRole).toULongLong(), quint64(2));
+            QCOMPARE(model.data(root, SelfRole).toULongLong(), quint64(1));
+            QCOMPARE(model.data(root, FunctionRole).toString(), QString("root"));
+            QCOMPARE(model.data(root, DisplayNameRole).toString(), QString("root"));
+            QCOMPARE(model.data(root, SourceFileRole).toString(), QString("/r.cpp"));
+            QCOMPARE(model.data(root, SourceLineRole).toInt(), 5);
+            QCOMPARE(model.data(root, BinaryRole).toString(), QString("app"));
+        }
+
+        const QModelIndex leaf = model.index(0, 0, model.index(0, 0));
+        QCOMPARE(model.data(leaf, TypeIdRole).toInt(), 1);
+        QCOMPARE(model.data(leaf, SamplesRole).toULongLong(), quint64(1));
+        QCOMPARE(model.data(leaf, FunctionRole).toString(), QString("leaf"));
+        QVERIFY(model.data(leaf, SourceFileRole).toString().isEmpty());
+        QCOMPARE(model.data(leaf, BinaryRole).toString(), QString("QtCore"));
+    }
+
     void clearedModelIsEmpty()
     {
         SampleTraceData data = makeTestData();

@@ -184,8 +184,25 @@ int CallTreeModel::columnCount(const QModelIndex &) const
 
 QVariant CallTreeModel::data(const QModelIndex &index, int role) const
 {
-    const Node *n = node(index);
-    if (!n)
+    const Node *n = index.isValid() ? node(index) : m_root.get();
+    switch (role) {
+    case CpuFlameGraph::TypeIdRole:
+        return n->labelId;
+    case CpuFlameGraph::SamplesRole:
+        return n->weight;
+    case CpuFlameGraph::SelfRole:
+        return n->self;
+    case CpuFlameGraph::DisplayNameRole:
+    case CpuFlameGraph::FunctionRole:
+        return symbol(n);
+    case CpuFlameGraph::SourceFileRole:
+        return location(n).file;
+    case CpuFlameGraph::SourceLineRole:
+        return location(n).line;
+    case CpuFlameGraph::BinaryRole:
+        return location(n).module;
+    }
+    if (!index.isValid())
         return {};
     if (role == Qt::TextAlignmentRole && index.column() != SymbolColumn)
         return int(Qt::AlignRight | Qt::AlignVCenter);

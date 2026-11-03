@@ -176,6 +176,7 @@ private:
             update();
         }
         d->showDetails(d->detailsNodeIndex());
+        emit d->q->nodeClicked(node.modelIndex);
 
         if (d->sourceFileRole >= 0) {
             QString file = node.modelIndex.data(d->sourceFileRole).toString();

@@ -26,6 +26,7 @@ set(_profiler_with_libdw ${elfutils_FOUND})
 if(WITH_TESTS)
   set(TEST_SOURCES
     tests/calltreeview_test.cpp tests/calltreeview_test.h
+    tests/cpuflamegraphview_test.cpp tests/cpuflamegraphview_test.h
     tests/ctfloader_test.cpp tests/ctfloader_test.h
     tests/ctftimelinemodel_test.cpp tests/ctftimelinemodel_test.h
     tests/debugmessagesmodel_test.cpp tests/debugmessagesmodel_test.h
@@ -54,6 +55,7 @@ if(WITH_TESTS)
     tests/qmlprofilertraceview_test.cpp tests/qmlprofilertraceview_test.h
     tests/quick3dmodel_test.cpp tests/quick3dmodel_test.h
     tests/qttracesampler_test.cpp tests/qttracesampler_test.h
+    tests/samplerviewmanager_test.cpp tests/samplerviewmanager_test.h
     tests/scenegraphtimelinemodel_test.cpp tests/scenegraphtimelinemodel_test.h
     tests/perfprofilertracefile_test.cpp tests/perfprofilertracefile_test.h
     tests/perfresourcecounter_test.cpp tests/perfresourcecounter_test.h
@@ -75,6 +77,8 @@ set(QMLPROFILER_CPP_SOURCES
   combinedsampler.cpp combinedsampler.h
   combinedtraceloader.cpp combinedtraceloader.h
   calltreeview.cpp calltreeview.h
+  cpuflamegraphroles.h
+  cpuflamegraphview.cpp cpuflamegraphview.h
   cpuusagemodel.cpp cpuusagemodel.h
   macsampler.cpp macsampler.h
   processpickerdialog.cpp processpickerdialog.h
@@ -154,7 +158,6 @@ set(PERFPROFILER_CPP_SOURCES
   perfprofilerconstants.h
   perfprofilerflamegraphmodel.cpp perfprofilerflamegraphmodel.h
   perfprofilertracebackend.cpp perfprofilertracebackend.h
-  perfprofilerflamegraphview.cpp perfprofilerflamegraphview.h
   perfprofilerstatisticsmodel.cpp perfprofilerstatisticsmodel.h
   perfprofilerstatisticsview.cpp perfprofilerstatisticsview.h
   perfprofilertracefile.cpp perfprofilertracefile.h

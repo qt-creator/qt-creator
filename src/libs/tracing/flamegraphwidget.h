@@ -52,6 +52,7 @@ public:
 
 signals:
     void typeSelected(int typeId);
+    void nodeClicked(const QModelIndex &index);
     void gotoSourceLocation(const QString &file, int line, int column);
     void detailsChanged(const QString &title, const QList<QPair<QString, QString>> &content);
     void detailsCleared();

@@ -236,7 +236,7 @@
     To zoom into an event range, double-click it.
 
     To narrow down the current range in the \uicontrol Timeline,
-    \uicontrol Statistics, and \uicontrol {Flame Graph} views, right-click
+    \uicontrol Statistics, and \uicontrol {QML Flame Graph} views, right-click
     the range and select \uicontrol {Analyze Current Range}. To return to
     the full range, select \uicontrol {Analyze Full Range} in the context menu.
 
@@ -596,22 +596,22 @@
     Select an event to move to it in the source code in the code editor.
 
     When you select an event in the \uicontrol Timeline view, information about
-    it is displayed in the \uicontrol Statistics and \uicontrol {Flame Graph}
-    views.
+    it is displayed in the \uicontrol Statistics and
+    \uicontrol {QML Flame Graph} views.
 
     To copy the contents of one view or row to the clipboard, select
     \uicontrol {Copy Table} or \uicontrol {Copy Row} in the context menu.
 
     \section2 Visualizing statistics as flame graphs
 
-    The \uicontrol {Flame Graph} view shows a more concise statistical overview
-    of QML and JavaScript execution. In the \uicontrol {Total Time} view, the
-    horizontal bars show the amount of
+    The \uicontrol {QML Flame Graph} view shows a more concise statistical
+    overview of QML and JavaScript execution. In the \uicontrol {Total Time}
+    view, the horizontal bars show the amount of
     time all invocations of a certain function took together, relative to the
     total runtime of all JavaScript and QML events. The nesting shows which
     functions were called by which other ones.
 
-    \image {qml-profiler-flamegraph.png} {Flame Graph view}
+    \image {qml-profiler-flamegraph.png} {QML Flame Graph view}
 
     To view the total amount of memory allocated by the functions, select
     \uicontrol Memory in the drop-down menu.
@@ -623,10 +623,11 @@
     area in the view to zoom out again.
 
     Unlike the
-    \uicontrol Timeline view, the \uicontrol {Flame Graph} view does not show the
-    time spans when no QML or JavaScript is running at all. Thus, it is not
-    suitable for analyzing per frame execution times. However, it is very easy
-    to see the total impact of the various QML and JavaScript events there.
+    \uicontrol Timeline view, the \uicontrol {QML Flame Graph} view does not
+    show the time spans when no QML or JavaScript is running at all. Thus, it
+    is not suitable for analyzing per frame execution times. However, it is
+    very easy to see the total impact of the various QML and JavaScript events
+    there.
 
     \if defined(qtcreator)
     \sa {Profile}{How to: Profile}, {Profilers}, {Profiling applications}

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "cpuflamegraphroles.h"
 #include "sampletrace.h"
 
 #include <QAbstractItemModel>
@@ -15,7 +16,8 @@ namespace Profiler::Internal {
 // Aggregates the on-CPU samples of a recording into one merged call tree:
 // every sample's root-first frame path is merged so identical prefixes share
 // nodes, and the roots are the distinct first calls across all threads.
-// Children are sorted heaviest-first.
+// Children are sorted heaviest-first. Besides its columns, it answers the
+// roles of CpuFlameGraph::Role in every column, for the flame graph.
 class CallTreeModel : public QAbstractItemModel
 {
     Q_OBJECT

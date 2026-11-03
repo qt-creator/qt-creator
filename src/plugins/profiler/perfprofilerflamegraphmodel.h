@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "cpuflamegraphroles.h"
 #include "perfprofilertracemanager.h"
 
 #include <QAbstractItemModel>
@@ -16,21 +17,12 @@ class PerfProfilerFlameGraphModel : public QAbstractItemModel
     Q_DISABLE_COPY_MOVE(PerfProfilerFlameGraphModel);
 
 public:
+    // On top of the roles in CpuFlameGraph::Role.
     enum Role {
-        TypeIdRole = Qt::UserRole + 1, // Sort by data, not by displayed string
-        DisplayNameRole,
-        SamplesRole,
-        FunctionRole,
-        SourceFileRole,
-        LineRole,
-        ElfFileRole,
-        ObservedResourceAllocationsRole,
+        ObservedResourceAllocationsRole = CpuFlameGraph::FirstModelSpecificRole,
         LostResourceRequestsRole,
-        ResourceAllocationsRole,
         ObservedResourceReleasesRole,
         GuessedResourceReleasesRole,
-        ResourceReleasesRole,
-        ResourcePeakRole,
         MaxRole
     };
     Q_ENUM(Role)

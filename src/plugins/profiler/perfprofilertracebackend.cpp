@@ -3,9 +3,9 @@
 
 #include "perfprofilertracebackend.h"
 
+#include "cpuflamegraphview.h"
 #include "perfprofilerconstants.h"
 #include "perfprofilerflamegraphmodel.h"
-#include "perfprofilerflamegraphview.h"
 #include "perfprofilerstatisticsview.h"
 #include "perfprofilertool.h"
 #include "perfprofilertracemanager.h"
@@ -64,7 +64,7 @@ public:
                                                          // the document's other views.
     QPointer<Timeline::TimelineWidget> traceView;
     QPointer<PerfProfilerStatisticsView> statisticsView;
-    QPointer<PerfProfilerFlameGraphView> flameGraphView;
+    QPointer<CpuFlameGraphView> flameGraphView;
 
     QToolButton aggregateButton;
     QToolButton tracePointsButton;
@@ -172,9 +172,9 @@ QWidgetList PerfProfilerTraceBackend::views(QWidget *parent)
     d->traceView->setObjectName("PerfProfilerTraceView");
     d->traceView->setWindowTitle(Tr::tr("Timeline"));
 
-    d->flameGraphView = new PerfProfilerFlameGraphView(&d->flameGraphModel);
-    d->flameGraphView->setParent(parent);
-    d->flameGraphView->setWindowTitle(Tr::tr("Flame Graph"));
+    d->flameGraphView = new CpuFlameGraphView(&d->flameGraphModel,
+                                              CpuFlameGraphView::Measures::SamplesAndResources,
+                                              parent);
 
     d->statisticsView = new PerfProfilerStatisticsView(&d->traceManager);
     d->statisticsView->setParent(parent);
@@ -197,20 +197,20 @@ QWidgetList PerfProfilerTraceBackend::views(QWidget *parent)
     };
     connect(d->traceView, &Timeline::TimelineWidget::gotoSourceLocation, this, goTo);
     connect(d->statisticsView, &PerfProfilerStatisticsView::gotoSourceLocation, this, goTo);
-    connect(d->flameGraphView, &PerfProfilerFlameGraphView::gotoSourceLocation, this, goTo);
+    connect(d->flameGraphView, &CpuFlameGraphView::gotoSourceLocation, this, goTo);
 
     connect(d->statisticsView, &PerfProfilerStatisticsView::typeSelected,
             d->traceView, &Timeline::TimelineWidget::selectByTypeId);
-    connect(d->flameGraphView, &PerfProfilerFlameGraphView::typeSelected,
+    connect(d->flameGraphView, &CpuFlameGraphView::typeSelected,
             d->traceView, &Timeline::TimelineWidget::selectByTypeId);
     connect(d->traceView, &Timeline::TimelineWidget::typeSelected,
             d->statisticsView, &PerfProfilerStatisticsView::selectByTypeId);
-    connect(d->flameGraphView, &PerfProfilerFlameGraphView::typeSelected,
+    connect(d->flameGraphView, &CpuFlameGraphView::typeSelected,
             d->statisticsView, &PerfProfilerStatisticsView::selectByTypeId);
     connect(d->traceView, &Timeline::TimelineWidget::typeSelected,
-            d->flameGraphView, &PerfProfilerFlameGraphView::selectByTypeId);
+            d->flameGraphView, &CpuFlameGraphView::selectByTypeId);
     connect(d->statisticsView, &PerfProfilerStatisticsView::typeSelected,
-            d->flameGraphView, &PerfProfilerFlameGraphView::selectByTypeId);
+            d->flameGraphView, &CpuFlameGraphView::selectByTypeId);
 
     // Route the flame graph's details into the shared range details view.
     connect(d->flameGraphView, &Timeline::FlameGraphWidget::detailsChanged, d->timelineDetails,

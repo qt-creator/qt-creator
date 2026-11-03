@@ -27,6 +27,7 @@
 #include "tests/perfsamplersettings_test.h"
 
 #include "tests/calltreeview_test.h"
+#include "tests/cpuflamegraphview_test.h"
 #include "tests/ctfloader_test.h"
 #include "tests/ctftimelinemodel_test.h"
 #include "tests/debugmessagesmodel_test.h"
@@ -54,6 +55,7 @@
 #include "tests/qmlprofilertraceview_test.h"
 #include "tests/quick3dmodel_test.h"
 #include "tests/qttracesampler_test.h"
+#include "tests/samplerviewmanager_test.h"
 #include "tests/scenegraphtimelinemodel_test.h"
 
 #endif // WITH_TESTS
@@ -94,6 +96,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<FlameGraphModelTest>();
         addTest<FlameGraphViewTest>();
         addTest<CallTreeViewTest>();
+        addTest<CpuFlameGraphViewTest>();
         addTest<InputEventsModelTest>();
         addTest<LocalQmlProfilerRunnerTest>();
         addTest<MemoryUsageModelTest>();
@@ -116,6 +119,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<QmlProfilerTraceViewTest>();
         addTest<Quick3DModelTest>();
         addTest<QtTraceSamplerTest>();
+        addTest<SamplerViewManagerTest>();
         addTest<SceneGraphTimelineModelTest>();
 
         addTestCreator(createPerfNativeMixedTest);

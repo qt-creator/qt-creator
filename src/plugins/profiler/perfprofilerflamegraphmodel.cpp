@@ -157,23 +157,23 @@ QVariant PerfProfilerFlameGraphModel::data(const QModelIndex &index, int role) c
         data = m_stackBottom.get();
 
     switch (role) {
-    case TypeIdRole:
+    case CpuFlameGraph::TypeIdRole:
         return data->typeId;
-    case SamplesRole:
+    case CpuFlameGraph::SamplesRole:
         return data->samples;
     case ObservedResourceAllocationsRole:
         return data->observedResourceAllocations;
     case LostResourceRequestsRole:
         return data->lostResourceRequests;
-    case ResourceAllocationsRole:
+    case CpuFlameGraph::ResourceAllocationsRole:
         return data->observedResourceAllocations + data->lostResourceRequests;
     case ObservedResourceReleasesRole:
         return data->observedResourceReleases;
     case GuessedResourceReleasesRole:
         return data->guessedResourceReleases;
-    case ResourceReleasesRole:
+    case CpuFlameGraph::ResourceReleasesRole:
         return data->observedResourceReleases + data->guessedResourceReleases;
-    case ResourcePeakRole:
+    case CpuFlameGraph::ResourcePeakRole:
         return data->resourcePeak;
     default: break;
     }
@@ -193,16 +193,16 @@ QVariant PerfProfilerFlameGraphModel::data(const QModelIndex &index, int role) c
     const int hexBase = 16;
     const int addressWidth = 16;
     switch (role) {
-    case DisplayNameRole:
+    case CpuFlameGraph::DisplayNameRole:
         return QString::fromLatin1("0x%1").arg(location.address, addressWidth, hexBase,
                                                QLatin1Char('0'));
-    case FunctionRole:
+    case CpuFlameGraph::FunctionRole:
         return orUnknown(manager->string(symbol.name));
-    case ElfFileRole:
+    case CpuFlameGraph::BinaryRole:
         return orUnknown(manager->string(symbol.binary));
-    case SourceFileRole:
+    case CpuFlameGraph::SourceFileRole:
         return orUnknown(manager->string(location.file));
-    case LineRole:
+    case CpuFlameGraph::SourceLineRole:
         return location.line;
     default:
         return QVariant();

@@ -5,6 +5,7 @@
 
 #include "calltreemodel.h"
 #include "calltreeview.h"
+#include "cpuflamegraphview.h"
 #include "cpuusagemodel.h"
 #include "sampletrace.h"
 
@@ -45,6 +46,7 @@ public:
                                                          // other backends' views.
     QPointer<Timeline::TimelineWidget> timelineView;
     QPointer<CallTreeView> callTreeView;
+    QPointer<CpuFlameGraphView> flameGraphView;
 };
 
 SamplerViewManager::SamplerViewManager(Timeline::TimelineDetailsWidget *details, QObject *parent)
@@ -76,6 +78,7 @@ SamplerViewManager::~SamplerViewManager()
 {
     delete d->timelineView;
     delete d->callTreeView;
+    delete d->flameGraphView;
     delete d;
 }
 
@@ -95,12 +98,37 @@ QWidgetList SamplerViewManager::views(QWidget *parent)
     d->callTreeView->setObjectName("SamplerCallTreeView");
     d->callTreeView->setWindowTitle(Tr::tr("Call Stacks"));
 
+    // The flame graph draws the same merged tree as the call stacks, so it
+    // follows the selected time range along with them.
+    auto flameGraph = new CpuFlameGraphView(&d->callTreeModel,
+                                            CpuFlameGraphView::Measures::Samples, parent);
+    d->flameGraphView = flameGraph;
+
     connect(d->callTreeView, &CallTreeView::gotoSourceLocation,
             this, &SamplerViewManager::gotoSourceLocation);
     connect(&d->cpuModel, &Timeline::TimelineModel::gotoSourceLocation,
             this, &SamplerViewManager::gotoSourceLocation);
+    // Like the call stacks, report module and offset along with the source,
+    // so that frames without debug info can be located as well.
+    connect(flameGraph, &Timeline::FlameGraphWidget::nodeClicked,
+            this, [this](const QModelIndex &index) {
+        const CallTreeModel::Node *node = d->callTreeModel.node(index);
+        if (!node)
+            return;
+        const CallTreeModel::SourceLocation loc = d->callTreeModel.location(node);
+        if (loc.file.isEmpty() && loc.module.isEmpty() && loc.offset == 0)
+            return;
+        emit gotoSourceLocation(loc.file, loc.line, 0, loc.module, loc.offset);
+    });
+    connect(flameGraph, &Timeline::FlameGraphWidget::detailsChanged, d->timelineDetails,
+            [this, flameGraph](const QString &title,
+                               const QList<QPair<QString, QString>> &content) {
+        d->timelineDetails->setData(flameGraph, title, content);
+    });
+    connect(flameGraph, &Timeline::FlameGraphWidget::detailsCleared, d->timelineDetails,
+            [this, flameGraph] { d->timelineDetails->clear(flameGraph); });
 
-    return {d->timelineView, d->callTreeView};
+    return {d->timelineView, d->callTreeView, flameGraph};
 }
 
 void SamplerViewManager::load(const FilePath &dir)
@@ -118,6 +146,7 @@ void SamplerViewManager::load(const FilePath &dir)
                                            ? async.result()
                                            : ResultError(Tr::tr("Cannot read the sampler trace."));
         if (read) {
+            clearFlameGraphSelection();
             d->data = std::move(*read);
             d->cpuModel.setTraceData(&d->data);
             d->callTreeModel.setTraceData(&d->data);
@@ -144,6 +173,7 @@ void SamplerViewManager::load(const FilePath &dir)
 
 void SamplerViewManager::clear()
 {
+    clearFlameGraphSelection();
     d->cpuModel.setTraceData(nullptr);
     d->callTreeModel.setTraceData(nullptr);
     d->modelAggregator.setModels({});
@@ -153,6 +183,14 @@ void SamplerViewManager::clear()
     // The zoom control's clear() emits selectionChanged, which re-arms the
     // debounce; stop it so no stale range is applied to the cleared model.
     d->rangeDebounce.stop();
+}
+
+// The flame graph selects by label id, which only means something within one
+// trace.
+void SamplerViewManager::clearFlameGraphSelection()
+{
+    if (d->flameGraphView)
+        d->flameGraphView->selectByTypeId(-1);
 }
 
 milliseconds SamplerViewManager::traceDuration() const

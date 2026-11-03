@@ -78,8 +78,9 @@ using Format = TraceFormat;
 constexpr int pkexecDismissed = 126;
 
 // One set of dock widgets. The views are tabbed onto the first by default; when
-// stackVertically is set they are split below it instead (the sampler stacks
-// Call Stacks below CPU Usage). The range details dock is not part of a group:
+// stackVertically is set the second is split below it and the rest are tabbed
+// onto the second instead (the sampler stacks Call Stacks and the CPU Flame
+// Graph below CPU Usage). The range details dock is not part of a group:
 // every backend fills the same one (see WindowPrivate::timelineDetails).
 struct ViewGroup
 {
@@ -524,7 +525,8 @@ void WindowPrivate::ensureGroupBuilt(Format format)
         break;
     case Format::Sampler:
         buildGroup(samplerManager->views(traceArea), samplerGroup);
-        // Stack Call Stacks below CPU Usage instead of tabbing them together.
+        // Stack Call Stacks and the flame graph below CPU Usage instead of
+        // tabbing them all together.
         samplerGroup.stackVertically = true;
         break;
     case Format::Combined:
@@ -592,17 +594,26 @@ void WindowPrivate::resetLayout(Format format)
     detailsDock->setFloating(false);
     traceArea->splitDockWidget(firstDockWidget, detailsDock, Qt::Horizontal);
 
+    // Each splitDockWidget() call divides the first dock's space again, so only
+    // the second view is split off; the others are tabbed onto it.
+    QDockWidget *stackedDockWidget = nullptr;
     for (ViewGroup *group : std::as_const(active)) {
         for (QDockWidget *dw : std::as_const(group->docks)) {
             if (dw == firstDockWidget)
                 continue;
-            if (stackVertically)
-                traceArea->splitDockWidget(firstDockWidget, dw, Qt::Vertical);
-            else
+            if (!stackVertically) {
                 traceArea->tabifyDockWidget(firstDockWidget, dw);
+            } else if (!stackedDockWidget) {
+                traceArea->splitDockWidget(firstDockWidget, dw, Qt::Vertical);
+                stackedDockWidget = dw;
+            } else {
+                traceArea->tabifyDockWidget(stackedDockWidget, dw);
+            }
         }
     }
     firstDockWidget->raise();
+    if (stackedDockWidget)
+        stackedDockWidget->raise();
 }
 
 void WindowPrivate::setActiveFormat(Format format)

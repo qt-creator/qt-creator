@@ -256,7 +256,7 @@
     Since version 5.6.0, Qt can generate \c perf.map files with information about
     JavaScript functions. Performance Analyzer will read them and show the
     function names in the \uicontrol Timeline, \uicontrol Statistics, and
-    \uicontrol {Flame Graph} views. This only works if the process being
+    \uicontrol {CPU Flame Graph} views. This only works if the process being
     profiled is running on the host computer, not on the target device. To
     switch on the generation of \c perf.map files, add the environment variable
     \c QV4_PROFILE_WRITE_PERF_MAP to \uicontrol {Run Environment} and set
@@ -385,15 +385,16 @@
 
     \section2 Visualizing statistics as flame graphs
 
-    \image {qtcreator-performance-analyzer-flamegraph.png} {Performance Analyzer Flame Graph view}
+    \image {qtcreator-performance-analyzer-flamegraph.png} {Performance Analyzer CPU Flame Graph view}
 
-    The \uicontrol {Flame Graph} view shows a more concise statistical overview
-    of the execution. The horizontal bars show an aspect of the samples
-    taken for a certain function, relative to the same aspect of all samples
-    together. The nesting shows which functions were called by which other ones.
+    The \uicontrol {CPU Flame Graph} view shows a more concise statistical
+    overview of the execution. The horizontal bars show an aspect of the
+    samples taken for a certain function, relative to the same aspect of all
+    samples together. The nesting shows which functions were called by which
+    other ones.
 
     The \uicontrol {Visualize} button lets you select what aspect to show in the
-    \uicontrol {Flame Graph}.
+    \uicontrol {CPU Flame Graph}.
 
     \list
 
@@ -422,9 +423,9 @@
     \section2 Interaction between the views
 
     When you select a stack frame in either of the \uicontrol {Timeline},
-    \uicontrol {Flame Graph}, or \uicontrol {Statistics} views, information
+    \uicontrol {CPU Flame Graph}, or \uicontrol {Statistics} views, information
     about it is displayed in the other two views. To view a time range in the
-    \uicontrol {Statistics} and \uicontrol {Flame Graph} views, select
+    \uicontrol {Statistics} and \uicontrol {CPU Flame Graph} views, select
     \uicontrol Analyze > \uicontrol {Performance Analyzer Options} >
     \uicontrol {Limit to the Range Selected in Timeline}. To show the full
     stack frame, select \uicontrol {Show Full Range}.

@@ -168,6 +168,8 @@ QtcPlugin {
             "combinedsampler.cpp", "combinedsampler.h",
             "combinedtraceloader.cpp", "combinedtraceloader.h",
             "calltreeview.cpp", "calltreeview.h",
+            "cpuflamegraphroles.h",
+            "cpuflamegraphview.cpp", "cpuflamegraphview.h",
             "cpuusagemodel.cpp", "cpuusagemodel.h",
             "macsampler.cpp", "macsampler.h",
             "processpickerdialog.cpp", "processpickerdialog.h",
@@ -249,7 +251,6 @@ QtcPlugin {
             "perfprofilerconstants.h",
             "perfprofilerflamegraphmodel.cpp", "perfprofilerflamegraphmodel.h",
             "perfprofilertracebackend.cpp", "perfprofilertracebackend.h",
-            "perfprofilerflamegraphview.cpp", "perfprofilerflamegraphview.h",
             "perfprofilerstatisticsmodel.cpp", "perfprofilerstatisticsmodel.h",
             "perfprofilerstatisticsview.cpp", "perfprofilerstatisticsview.h",
             "perfprofilertracefile.cpp", "perfprofilertracefile.h",
@@ -328,6 +329,7 @@ QtcPlugin {
             "perfresourcecounter_test.cpp", "perfresourcecounter_test.h",
 
             "calltreeview_test.cpp", "calltreeview_test.h",
+            "cpuflamegraphview_test.cpp", "cpuflamegraphview_test.h",
             "ctfloader_test.cpp", "ctfloader_test.h",
             "ctftimelinemodel_test.cpp", "ctftimelinemodel_test.h",
             "debugmessagesmodel_test.cpp", "debugmessagesmodel_test.h",
@@ -356,6 +358,7 @@ QtcPlugin {
             "qmlprofilertraceview_test.cpp", "qmlprofilertraceview_test.h",
             "quick3dmodel_test.cpp", "quick3dmodel_test.h",
             "qttracesampler_test.cpp", "qttracesampler_test.h",
+            "samplerviewmanager_test.cpp", "samplerviewmanager_test.h",
             "scenegraphtimelinemodel_test.cpp", "scenegraphtimelinemodel_test.h",
         ]
     }

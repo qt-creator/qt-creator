@@ -19,7 +19,7 @@ FlameGraphView::FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent
     , m_model(new FlameGraphModel(manager, this))
 {
     setObjectName("QmlProfiler.FlameGraph.Dock");
-    setWindowTitle(Tr::tr("Flame Graph"));
+    setWindowTitle(Tr::tr("QML Flame Graph"));
 
     m_content = new Timeline::FlameGraphWidget(m_model, this);
 
