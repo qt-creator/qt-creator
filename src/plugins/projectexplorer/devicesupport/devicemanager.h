@@ -5,12 +5,27 @@
 
 #include "idevice.h"
 
+#include "../kitaspect.h"
+
 #include <projectexplorer/projectexplorer_export.h>
 
 namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
 class ProjectExplorerPlugin;
+
+class ToolDetectionRequest
+{
+public:
+    IDevicePtr device;
+    quint64 token = 0;
+    Utils::FilePaths searchPaths;
+    DetectionSource source;
+    ToolDetectionLogger logger;
+};
+
+using ToolDetector = std::function<void(const ToolDetectionRequest &request,
+                                        const std::function<void()> &done)>;
 
 namespace Internal {
 class DeviceManagerPrivate;
@@ -51,6 +66,9 @@ public:
 
     static IDevice::ConstPtr deviceForPath(const Utils::FilePath &path);
     static IDevice::ConstPtr defaultDesktopDevice();
+
+    static void addToolDetector(QObject *guard, const QString &searchMessage,
+                                const ToolDetector &detector);
 
 signals:
     void deviceAdded(Utils::Id id);

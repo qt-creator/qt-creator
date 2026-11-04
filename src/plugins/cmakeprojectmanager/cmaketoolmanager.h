@@ -23,6 +23,7 @@
 
 namespace ProjectExplorer {
 class Project;
+class ToolDetectionRequest;
 }
 
 namespace CMakeProjectManager {
@@ -45,9 +46,7 @@ public:
     static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools(
         const Utils::FilePaths &searchPaths,
         const Utils::FilePath &rootPath,
-        const QString &sourceId,
-        ProjectExplorer::DetectionSource::DetectionType remoteType
-            = ProjectExplorer::DetectionSource::Manual);
+        const ProjectExplorer::DetectionSource &source);
 
     static CMakeKeywords defaultProjectOrDefaultCMakeKeyWords();
 
@@ -99,9 +98,8 @@ signals:
 private:
     static void saveCMakeTools();
     static void ensureDefaultCMakeToolIsValid();
-    void handleDeviceToolDetectionRequest(
-        Utils::Id devId, const Utils::FilePaths &searchPaths, quint64 token,
-        const ProjectExplorer::ToolDetectionLogger &logger);
+    void handleDeviceToolDetectionRequest(const ProjectExplorer::ToolDetectionRequest &request,
+                                          const std::function<void()> &done);
 };
 
 namespace Internal { void setupCMakeToolManager(QObject *guard); }

@@ -125,8 +125,7 @@ public:
     void findSystemQt(const IDeviceConstPtr &device);
     void addQtVersionsFromFilePaths(const FilePaths &filePaths, const DetectionSource &source);
     void handleDeviceToolDetectionRequest(
-        Id deviceId, const FilePaths &searchPaths, quint64 token,
-        const ToolDetectionLogger &logger);
+        const ToolDetectionRequest &request, const std::function<void()> &done);
     void handleDeviceUpdated(Id deviceId);
     void saveQtVersions();
 
@@ -198,8 +197,11 @@ void QtVersionManagerImpl::triggerQtVersionRestore()
     const QtVersions vs = QtVersionManager::versions();
     updateDocumentation(vs, {}, vs, /*updateBlockedDocumentation=*/true);
 
-    connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested,
-            this, &QtVersionManagerImpl::handleDeviceToolDetectionRequest);
+    DeviceManager::addToolDetector(this, Tr::tr("Searching for Qt versions..."),
+                                   [this](const ToolDetectionRequest &request,
+                                          const std::function<void()> &done) {
+        handleDeviceToolDetectionRequest(request, done);
+    });
     connect(DeviceManager::instance(), &DeviceManager::deviceUpdated,
             this, &QtVersionManagerImpl::handleDeviceUpdated);
 }
@@ -558,21 +560,16 @@ void QtVersionManagerImpl::addQtVersionsFromFilePaths(
 }
 
 void QtVersionManagerImpl::handleDeviceToolDetectionRequest(
-    Id deviceId, const FilePaths &searchPaths, quint64 token, const ToolDetectionLogger &logger)
+    const ToolDetectionRequest &request, const std::function<void()> &done)
 {
-    const IDevicePtr dev = DeviceManager::find(deviceId);
-    QTC_ASSERT(dev, return);
-
-    dev->registerToolDetectionTask(token);
-    if (logger)
-        logger.logTopLevel(Tr::tr("Searching for Qt versions..."));
-    const DetectionSource source(
-        DetectionSource::typeForDevice(dev),
-        dev->rootPath().isLocal() ? QString("PATH") : deviceId.toString());
-    const QFuture<FilePaths> future = Utils::asyncRun(findQtsInPaths, searchPaths);
-    const auto cont = [this, deviceId, source, token, logger](const QFuture<FilePaths> &f) {
-        const IDevicePtr dev = DeviceManager::find(deviceId);
-        if (!dev)
+    // Like findSystemQt().
+    const DetectionSource source = request.device->rootPath().isLocal()
+                                       ? DetectionSource(DetectionSource::Manual, "PATH")
+                                       : request.source;
+    const QFuture<FilePaths> future = Utils::asyncRun(findQtsInPaths, request.searchPaths);
+    const auto cont = [this, deviceId = request.device->id(), source, logger = request.logger,
+                       done](const QFuture<FilePaths> &f) {
+        if (!DeviceManager::find(deviceId))
             return;
         const VersionMap qtVersions = m_versions;
         addQtVersionsFromFilePaths(f.result(), source);
@@ -588,7 +585,7 @@ void QtVersionManagerImpl::handleDeviceToolDetectionRequest(
         } else if (logger) {
             logger.logItem(Tr::tr("No new Qt versions found."));
         }
-        dev->deregisterToolDetectionTask(token);
+        done();
     };
     Utils::onFinished(future, this, cont);
 }

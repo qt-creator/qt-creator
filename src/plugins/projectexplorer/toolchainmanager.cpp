@@ -120,22 +120,17 @@ void ToolchainManager::restoreToolchains()
     d->m_loaded = true;
     emit m_instance->toolchainsLoaded();
 
-    connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested,
-            m_instance, [](Id devId, const FilePaths &searchPaths, quint64 token,
-                           const ToolDetectionLogger &logger) {
-        const IDevice::Ptr device = DeviceManager::find(devId);
-        QTC_ASSERT(device, return);
-        device->registerToolDetectionTask(token);
-        if (logger)
-            logger.logTopLevel(Tr::tr("Searching for toolchains..."));
-        ToolchainDetector detector(m_instance->toolchains(), device, searchPaths);
-        const DetectionSource source(DetectionSource::typeForDevice(device), devId.toString());
+    DeviceManager::addToolDetector(m_instance, Tr::tr("Searching for toolchains..."),
+                                   [](const ToolDetectionRequest &request,
+                                      const std::function<void()> &done) {
+        const ToolDetectionLogger &logger = request.logger;
+        ToolchainDetector detector(m_instance->toolchains(), request.device, request.searchPaths);
         Toolchains toRegister;
         for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
             for (Toolchain * const tc : f->autoDetect(detector)) {
                 if (!m_instance->toolchains().contains(tc)) {
                     toRegister << tc;
-                    tc->setDetectionSource(source);
+                    tc->setDetectionSource(request.source);
                 }
             }
         }
@@ -151,9 +146,9 @@ void ToolchainManager::restoreToolchains()
         // vcvars environment capture has run - keeps this detection open, so the kits, created
         // when the last detection task is deregistered, wait for it.
         for (Toolchain * const tc : std::as_const(toRegister))
-            tc->holdToolDetection(device, token);
+            tc->holdToolDetection(request.device, request.token);
 
-        device->deregisterToolDetectionTask(token);
+        done();
     });
 
     connect(DeviceManager::instance(), &DeviceManager::deviceUpdated, m_instance, [](Id deviceId) {

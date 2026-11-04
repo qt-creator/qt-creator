@@ -153,14 +153,10 @@ DebuggerModel::DebuggerModel()
 
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &DebuggerModel::saveDebuggers);
-    connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested, this,
-            [this](Id devId, const FilePaths &searchPaths, quint64 token,
-                   const ToolDetectionLogger &logger) {
-        const IDevicePtr dev = DeviceManager::find(devId);
-        QTC_ASSERT(dev, return);
-        dev->registerToolDetectionTask(token);
-        detectDebuggers(dev, searchPaths, logger);
-        dev->deregisterToolDetectionTask(token);
+    DeviceManager::addToolDetector(this, {}, [this](const ToolDetectionRequest &request,
+                                                    const std::function<void()> &done) {
+        detectDebuggers(request.device, request.searchPaths, request.logger);
+        done();
     });
 }
 
@@ -610,10 +606,7 @@ void DebuggerModel::detectDebuggers(
 {
     QTC_ASSERT(device, return);
     const bool isDesktopDevice = device->id() == ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
-    const DetectionSource detectionSource
-        = isDesktopDevice ? DetectionSource(DetectionSource::FromSystem)
-                          : DetectionSource(
-                                DetectionSource::typeForDevice(device), device->id().toString());
+    const DetectionSource detectionSource = DetectionSource::forDevice(device);
     autoDetectGdbOrLldbDebuggers(searchPaths, detectionSource, logger);
     autoDetectCdbDebuggers(device, detectionSource, logger);
     if (isDesktopDevice)

@@ -112,8 +112,11 @@ CMakeToolManager::CMakeToolManager()
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &CMakeToolManager::saveCMakeTools);
 
-    connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested,
-            this, &CMakeToolManager::handleDeviceToolDetectionRequest);
+    DeviceManager::addToolDetector(this, Tr::tr("Searching for CMake..."),
+                                   [this](const ToolDetectionRequest &request,
+                                          const std::function<void()> &done) {
+        handleDeviceToolDetectionRequest(request, done);
+    });
 
     setObjectName("CMakeToolManager");
     ExtensionSystem::PluginManager::addObject(this);
@@ -174,8 +177,7 @@ void CMakeToolManager::deregisterCMakeTool(const Id &id)
 std::vector<std::unique_ptr<CMakeTool>> CMakeToolManager::autoDetectCMakeTools(
     const FilePaths &searchPaths,
     const FilePath &rootPath,
-    const QString &sourceId,
-    DetectionSource::DetectionType remoteType)
+    const DetectionSource &source)
 {
     QStringList extraDirs;
 
@@ -201,10 +203,7 @@ std::vector<std::unique_ptr<CMakeTool>> CMakeToolManager::autoDetectCMakeTools(
 
     std::vector<std::unique_ptr<CMakeTool>> found;
     for (const FilePath &command : std::as_const(suspects)) {
-        const DetectionSource detectionSource
-            = command.isLocal() ? DetectionSource(DetectionSource::FromSystem)
-                                : DetectionSource(remoteType, sourceId);
-        auto item = std::make_unique<CMakeTool>(detectionSource, CMakeTool::createId());
+        auto item = std::make_unique<CMakeTool>(source, CMakeTool::createId());
         item->setFilePath(command);
         item->setDisplayName(Tr::tr("System CMake at %1").arg(command.toUserOutput()));
 
@@ -594,23 +593,13 @@ void CMakeToolManager::ensureDefaultCMakeToolIsValid()
 }
 
 void CMakeToolManager::handleDeviceToolDetectionRequest(
-    Utils::Id devId, const FilePaths &searchPaths, quint64 token,
-    const ProjectExplorer::ToolDetectionLogger &logger)
+    const ToolDetectionRequest &request, const std::function<void()> &done)
 {
-    const IDevicePtr dev = DeviceManager::find(devId);
-    QTC_ASSERT(dev, return);
-    dev->registerToolDetectionTask(token);
-    if (logger)
-        logger.logTopLevel(Tr::tr("Searching for CMake..."));
     const auto future = Utils::asyncRun(
-        autoDetectCMakeTools,
-        searchPaths,
-        dev->rootPath(),
-        devId.toString(),
-        DetectionSource::typeForDevice(dev));
-    const auto cont = [devId, token, logger](auto &&future) {
-        const IDevicePtr dev = DeviceManager::find(devId);
-        if (!dev)
+        autoDetectCMakeTools, request.searchPaths, request.device->rootPath(), request.source);
+    const auto cont = [devId = request.device->id(), logger = request.logger, done](
+                          auto &&future) {
+        if (!DeviceManager::find(devId))
             return;
         auto detected = future.takeResult();
         bool foundNew = false;
@@ -625,7 +614,7 @@ void CMakeToolManager::handleDeviceToolDetectionRequest(
         }
         if (logger && !foundNew)
             logger.logItem(Tr::tr("No new CMake found."));
-        dev->deregisterToolDetectionTask(token);
+        done();
     };
     Utils::onFinished(future, this, cont);
 }

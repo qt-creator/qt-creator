@@ -80,6 +80,7 @@ public:
     static std::optional<DetectionSource> createFromMap(const Utils::Store &);
     static DetectionType typeForDevice(
         const IDeviceConstPtr &device, DetectionType fallback = Manual);
+    static DetectionSource forDevice(const IDeviceConstPtr &device);
 
     DetectionType type = Uninitialized;
     QString id;

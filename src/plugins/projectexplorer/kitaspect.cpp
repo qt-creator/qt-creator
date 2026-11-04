@@ -68,6 +68,14 @@ DetectionSource::DetectionType DetectionSource::typeForDevice(
     return device && device->hasTemporaryTools() ? Temporary : fallback;
 }
 
+DetectionSource DetectionSource::forDevice(const IDeviceConstPtr &device)
+{
+    QTC_ASSERT(device, return {});
+    if (device->rootPath().isLocal())
+        return FromSystem;
+    return {typeForDevice(device), device->id().toString()};
+}
+
 namespace {
 
 class KitAspectComboBox final : public QComboBox

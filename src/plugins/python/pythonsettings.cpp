@@ -943,31 +943,21 @@ PythonSettings::PythonSettings()
 
     writeToSettings(Core::ICore::settings());
 
-    connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested,
-            this, [](Id devId, const FilePaths &searchPaths, quint64 token,
-                     const ToolDetectionLogger &logger) {
-        const IDevicePtr device = DeviceManager::find(devId);
-        QTC_ASSERT(device, return);
-        device->registerToolDetectionTask(token);
-        if (logger)
-            logger.logTopLevel(Tr::tr("Searching for Python interpreters..."));
-
-        const bool isDesktopDevice = devId == ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
-        const DetectionSource detectionSource(
-            DetectionSource::typeForDevice(device, DetectionSource::FromSystem),
-            isDesktopDevice ? QString() : devId.toString());
+    DeviceManager::addToolDetector(this, Tr::tr("Searching for Python interpreters..."),
+                                   [](const ToolDetectionRequest &request,
+                                      const std::function<void()> &done) {
+        const ToolDetectionLogger logger = request.logger;
         const LogCallback logCallback = [logger](const QString &message) {
             if (logger)
                 logger.logItem(message);
         };
         const QList<Interpreter> known = PythonSettings::interpreters();
-        const ExecutableItem detector
-            = PythonSettings::autoDetect(nullptr, searchPaths, detectionSource, logCallback);
-        GlobalTaskTree::start(Group{detector}, {}, [devId, token, known, logger] {
+        const ExecutableItem detector = PythonSettings::autoDetect(
+            nullptr, request.searchPaths, request.source, logCallback);
+        GlobalTaskTree::start(Group{detector}, {}, [known, logger, done] {
             if (logger && PythonSettings::interpreters() == known)
                 logger.logItem(Tr::tr("No new Python interpreters found."));
-            if (const IDevicePtr device = DeviceManager::find(devId))
-                device->deregisterToolDetectionTask(token);
+            done();
         });
     });
 

@@ -368,7 +368,8 @@ void setupQnxToolchain()
 // Register the QNX debuggers (nto*-gdb) shipped in the SDP referenced by a
 // device's QnxSdpEnvFileToolAspect, so device-driven kit creation can pick a
 // matching debugger for the QNX kits.
-static void detectQnxDebuggers(const IDevice::ConstPtr &device, const ToolDetectionLogger &logger)
+static void detectQnxDebuggers(const IDevice::ConstPtr &device, const DetectionSource &source,
+                               const ToolDetectionLogger &logger)
 {
     const FilePath envFile = qnxSdpEnvFile(device);
     if (envFile.isEmpty() || !envFile.exists())
@@ -414,7 +415,7 @@ static void detectQnxDebuggers(const IDevice::ConstPtr &device, const ToolDetect
         item.setCommand(gdb);
         item.reinitializeFromFile(nullptr, &sysEnv);
         item.setUnexpandedDisplayName(Tr::tr("QNX Debugger (%1)").arg(gdb.fileName()));
-        item.setDetectionSource({DetectionSource::Manual, gdb.toUrlishString()});
+        item.setDetectionSource(source);
         Debugger::DebuggerItemManager::registerDebugger(item);
         foundNew = true;
         if (logger)
@@ -426,14 +427,10 @@ static void detectQnxDebuggers(const IDevice::ConstPtr &device, const ToolDetect
 
 void setupQnxDebuggerDetection(QObject *guard)
 {
-    QObject::connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested, guard,
-                     [](Id devId, const FilePaths &, quint64 token,
-                        const ToolDetectionLogger &logger) {
-        const IDevice::Ptr device = DeviceManager::find(devId);
-        QTC_ASSERT(device, return);
-        device->registerToolDetectionTask(token);
-        detectQnxDebuggers(device, logger);
-        device->deregisterToolDetectionTask(token);
+    DeviceManager::addToolDetector(guard, {}, [](const ToolDetectionRequest &request,
+                                                 const std::function<void()> &done) {
+        detectQnxDebuggers(request.device, request.source, request.logger);
+        done();
     });
 }
 

@@ -619,6 +619,25 @@ IDevice::Ptr DeviceManager::defaultDevice(Id deviceType)
     return id.isValid() ? find(id) : IDevice::Ptr();
 }
 
+void DeviceManager::addToolDetector(
+    QObject *guard, const QString &searchMessage, const ToolDetector &detector)
+{
+    connect(instance(), &DeviceManager::toolDetectionRequested, guard,
+            [searchMessage, detector](Id devId, const FilePaths &searchPaths, quint64 token,
+                                      const ToolDetectionLogger &logger) {
+        const IDevicePtr device = find(devId);
+        QTC_ASSERT(device, return);
+        device->registerToolDetectionTask(token);
+        if (logger && !searchMessage.isEmpty())
+            logger.logTopLevel(searchMessage);
+        const auto done = [weakDevice = std::weak_ptr<IDevice>(device), token] {
+            if (const IDevicePtr device = weakDevice.lock())
+                device->deregisterToolDetectionTask(token);
+        };
+        detector({device, token, searchPaths, DetectionSource::forDevice(device), logger}, done);
+    });
+}
+
 #ifdef WITH_TESTS
 namespace Internal {
 

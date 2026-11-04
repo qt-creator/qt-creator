@@ -127,7 +127,7 @@ CMakeToolSettingsAccessor::CMakeTools CMakeToolSettingsAccessor::restoreCMakeToo
         autoDetectedTools = CMakeToolManager::autoDetectCMakeTools(
             desktopDevice->systemEnvironment().mappedPath(root),
             root,
-            desktopDevice->id().toString());
+            DetectionSource::forDevice(desktopDevice));
     }
 
     //filter out the tools that were stored in SDK
