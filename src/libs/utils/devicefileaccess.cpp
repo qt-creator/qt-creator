@@ -266,6 +266,7 @@ static Result<> copyRecursively_fallback(const FilePath &src,
     return result;
 }
 
+#ifndef UTILS_STATIC_LIBRARY
 // Returns false if canceled. Without a cancel hook this keeps Process's default time limit,
 // with one there is no limit and the caller stops it instead.
 static bool waitUnlessCanceled(Process &process, const std::function<bool()> &isCanceled)
@@ -281,6 +282,7 @@ static bool waitUnlessCanceled(Process &process, const std::function<bool()> &is
     }
     return true;
 }
+#endif
 
 Result<> DeviceFileAccess::copyRecursively(const FilePath &src,
                                            const FilePath &target,
