@@ -39,10 +39,10 @@ static SampleTraceData sampleTrace(const QString &third = "work")
                    {"main", {}, 0, "libmain", 0x20},
                    third};
     data.samples = {
-        {0us, 1, true, {0, 1, 2}},
-        {100us, 1, true, {0, 1, 2}},
-        {200us, 1, true, {0, 1, 2}},
-        {300us, 1, true, {0, 1}},
+        {0, 1, true, {0, 1, 2}},
+        {100, 1, true, {0, 1, 2}},
+        {200, 1, true, {0, 1, 2}},
+        {300, 1, true, {0, 1}},
     };
     return data;
 }

@@ -141,7 +141,7 @@ private slots:
         SampleTraceData data;
         data.pid = 1;
         data.labels = {{"root", "/r.cpp", 5, "app", 0x40}, {"leaf", QString(), 0, "QtCore", 0x99}};
-        data.samples = {{0us, 10, true, {0, 1}}, {100us, 10, true, {0}}};
+        data.samples = {{0, 10, true, {0, 1}}, {100, 10, true, {0}}};
         CallTreeModel model;
         model.setTraceData(&data);
         using namespace CpuFlameGraph;
