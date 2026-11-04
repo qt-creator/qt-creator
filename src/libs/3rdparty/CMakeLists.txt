@@ -79,6 +79,19 @@ if(NOT EMSCRIPTEN AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/CMakeLists.
             # for the CPU of the build machine.
             set(GGML_OPENMP OFF)
             set(GGML_NATIVE OFF)
+            # MSVC cannot target ARM features by flag, so ggml only accepts it
+            # with GGML_NATIVE, which runs probes on the build machine and
+            # defines __ARM_FEATURE_* from their results. Answer the probes
+            # here instead, with what every ARM64 Windows device has.
+            if(CMAKE_C_COMPILER_ID STREQUAL "MSVC"
+               AND CMAKE_C_COMPILER_ARCHITECTURE_ID STREQUAL "ARM64")
+                set(GGML_NATIVE ON)
+                set(GGML_MACHINE_SUPPORTS_fma ON)
+                foreach(feature dotprod i8mm sve sme)
+                    set(GGML_MACHINE_SUPPORTS_${feature} OFF)
+                    set(GGML_MACHINE_SUPPORTS_no${feature} OFF)
+                endforeach()
+            endif()
             # x86 needs Haswell or newer. Set explicitly, because ggml's defaults
             # differ between builds with and without SOURCE_DATE_EPOCH.
             foreach(feature SSE42 AVX AVX2 FMA F16C BMI2)
