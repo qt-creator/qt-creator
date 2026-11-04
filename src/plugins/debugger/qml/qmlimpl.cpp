@@ -161,8 +161,15 @@ QmlImpl::QmlImpl(const QmlImplStartData &startData)
     });
 
     connect(&m_connection, &QmlDebug::QmlDebugConnection::connectionFailed, this, [this] {
-        if (m_connectRetriesLeft > 0) {
-            --m_connectRetriesLeft;
+        // A runtime started here waits for this end ("block") however long it
+        // takes to come up, so it gets a generous deadline instead of a count.
+        // One that never listens on the port (taken, or no QML debugging) still
+        // runs, and must not keep the setup waiting forever.
+        const bool retry = m_port != 0
+            ? m_inferiorProcess.state() != ProcessState::NotRunning
+                  && !m_connectDeadline.hasExpired()
+            : m_connectRetriesLeft-- > 0;
+        if (retry) {
             QTimer::singleShot(100, this, [this] { beginConnection(); });
             return;
         }
@@ -217,6 +224,7 @@ void QmlImpl::launchInferior()
                                .arg(m_port));
     m_inferiorProcess.setRunData(runData);
     m_inferiorProcess.setRunAsUser(m_startData.runAsUser);
+    m_connectDeadline.setRemainingTime(std::chrono::minutes(1));
     m_inferiorProcess.start();
 
     beginConnection();

@@ -11,6 +11,7 @@
 #include <qmldebug/qmldebugconnection.h>
 #include <qmldebug/qmlenginedebugclient.h>
 
+#include <QDeadlineTimer>
 #include <QHash>
 #include <QList>
 #include <QSet>
@@ -175,6 +176,7 @@ private:
     V8Client *m_v8Client = nullptr;
     QmlDebug::QmlEngineDebugClient *m_engineClient = nullptr;
     int m_connectRetriesLeft = 50;
+    QDeadlineTimer m_connectDeadline;
     QString m_lastConnectionError;
 
     int m_sequence = 0;
