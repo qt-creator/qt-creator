@@ -30,6 +30,7 @@
 #include <windows.h>
 #endif
 #include <optional>
+#include <utility>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -18299,7 +18300,7 @@ void tst_backends::readsTheLocalsThroughACdbServer()
 
     // Sending the dumpers through the session takes about ten seconds.
     engine->start();
-    QTest::qWaitFor([&debuggerBackend] {
+    std::ignore = QTest::qWaitFor([&debuggerBackend] {
         return debuggerBackend->contains(InferiorEvent::SpontaneousStop)
                || debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
                || debuggerBackend->contains(InferiorEvent::EngineRunFailed);

@@ -2351,7 +2351,7 @@ Result<QStringList> CdbImpl::pipeDumperModules(DumperPipe mode)
                                      "__import__('binascii').a2b_base64('%1')[4:])"
                                      ".decode('utf-8'), module.__dict__)")
                                  .arg(QString::fromLatin1(packed)),
-                             ScriptCommand | DebuggerCommand::Silent);
+                             int(ScriptCommand) | DebuggerCommand::Silent);
         exec.callback = [this, name = module.name](const DebuggerResponse &response) {
             if (response.resultClass != ResultDone) {
                 emit message("CdbImpl: the cdb server could not load " + name + ": "
