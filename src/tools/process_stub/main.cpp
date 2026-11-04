@@ -59,6 +59,8 @@ std::optional<QStringList> environmentVariables;
 
 QProcess inferiorProcess;
 int inferiorId{0};
+// Whether the inferior's process group was given our terminal
+bool inferiorOwnsTerminal = false;
 
 #ifdef STUB_SIGSTOP_SUSPEND
 // A memory mapped helper to retrieve the pid of the inferior process in debugMode
@@ -192,10 +194,22 @@ static void sendErrChDir()
     sendMsg(QString("err:chdir %1\n").arg(errno).toUtf8());
 }
 
+static void hangUpInferiorGroup()
+{
+#ifdef Q_OS_UNIX
+    // Our exit hangs up only the foreground group, which is ours again. The id of the
+    // inferior's group goes to another group only after the pids wrapped.
+    if (inferiorOwnsTerminal && inferiorId > 0)
+        kill(-inferiorId, SIGHUP);
+#endif
+}
+
 static void doExit(int exitCode)
 {
-    if (waitingForExitKeyPress)
+    if (waitingForExitKeyPress) {
+        hangUpInferiorGroup();
         exit(exitCode);
+    }
 
     if (controlSocket.state() == QLocalSocket::ConnectedState && controlSocket.bytesToWrite())
         controlSocket.waitForBytesWritten(1000);
@@ -208,6 +222,7 @@ static void doExit(int exitCode)
         waitingForExitKeyPress = true;
         onKeyPress([] { doExit(0); });
     } else {
+        hangUpInferiorGroup();
         exit(exitCode);
     }
 }
@@ -215,6 +230,12 @@ static void doExit(int exitCode)
 static void onInferiorFinished(int exitCode, QProcess::ExitStatus status)
 {
     qCInfo(log) << "Inferior finished";
+
+#ifdef Q_OS_UNIX
+    // Take the terminal back to read the key press in doExit().
+    if (inferiorOwnsTerminal)
+        tcsetpgrp(STDIN_FILENO, getpgrp());
+#endif
 
     if (status == QProcess::CrashExit) {
         sendCrash(exitCode);
@@ -297,27 +318,42 @@ static void onInferiorStarted()
 static void setupUnixInferior()
 {
 #ifdef Q_OS_UNIX
-    if (debugMode) {
+    // The inferior leads its own process group, so that killInferior() also reaches
+    // the processes it starts. That group then needs the terminal for the input
+    // and Ctrl+C. Our SIGTTOU is ignored, which lets the child take it.
+    inferiorOwnsTerminal = inferiorProcess.inputChannelMode() == QProcess::ForwardedInputChannel
+                           && isatty(STDIN_FILENO) && tcgetpgrp(STDIN_FILENO) == getpgrp();
+
+    if (debugMode)
         qCInfo(log) << "Debug mode enabled";
+
+    inferiorProcess.setChildProcessModifier([] {
+        setpgid(0, 0);
+        if (inferiorOwnsTerminal)
+            tcsetpgrp(STDIN_FILENO, getpid());
+        // The kernel used to discard these for our orphaned group, now nobody would
+        // continue the stopped inferior.
+        signal(SIGTSTP, SIG_IGN);
+        signal(SIGTTIN, SIG_IGN);
+        signal(SIGTTOU, SIG_IGN);
+
+        if (!debugMode)
+            return;
 #if defined(STUB_SIGSTOP_SUSPEND)
         // Stop the child via raise(SIGSTOP) so the debugger can attach. macOS
         // does not support the ptrace() path used on Linux; FreeBSD has no
         // dedicated path either, so both use this. QTCREATORBUG-14894.
-        inferiorProcess.setChildProcessModifier([] {
-            // Let the parent know our pid ...
-            *shared_child_pid = getpid();
-            // Suspend ourselves ...
-            raise(SIGSTOP);
-        });
+        // Let the parent know our pid ...
+        *shared_child_pid = getpid();
+        // Suspend ourselves ...
+        raise(SIGSTOP);
 #elif defined(Q_OS_LINUX)
         // PTRACE_TRACEME will stop execution of the child process as soon as execve is called.
-        inferiorProcess.setChildProcessModifier([] {
-            ptrace(PTRACE_TRACEME, 0, 0, 0);
-            // Disable attachment restrictions so we are not bound by yama/ptrace_scope mode 1
-            prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY);
-        });
+        ptrace(PTRACE_TRACEME, 0, 0, 0);
+        // Disable attachment restrictions so we are not bound by yama/ptrace_scope mode 1
+        prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY);
 #endif
-    }
+    });
 #endif
 }
 
@@ -431,6 +467,13 @@ static void forwardSignal(int signum)
     qCDebug(log) << "SIGTERM received, terminating inferior...";
     kill(inferiorId, signum);
 }
+
+static void onHangUp(int)
+{
+    hangUpInferiorGroup();
+    signal(SIGHUP, SIG_DFL);
+    raise(SIGHUP);
+}
 #else
 static BOOL WINAPI ctrlHandler(DWORD dwCtrlType)
 {
@@ -465,6 +508,12 @@ void setupSignalHandlers()
 
     if (sigaction(SIGINT, &act, NULL)) {
         qCWarning(log) << "sigaction SIGINT: " << strerror(errno);
+        doExit(3);
+    }
+
+    act.sa_handler = onHangUp;
+    if (sigaction(SIGHUP, &act, NULL)) {
+        qCWarning(log) << "sigaction SIGHUP: " << strerror(errno);
         doExit(3);
     }
 
@@ -561,7 +610,12 @@ void killInferior()
 #ifdef Q_OS_WIN
     inferiorProcess.kill();
 #else
-    kill(inferiorId, SIGKILL);
+    // kill(0) would hit our own process group.
+    if (inferiorId <= 0)
+        return;
+    // Once the inferior is reaped, its pid may belong to another process.
+    if (kill(-inferiorId, SIGKILL) != 0 && inferiorProcess.state() != QProcess::NotRunning)
+        kill(inferiorId, SIGKILL);
 #endif
 }
 
