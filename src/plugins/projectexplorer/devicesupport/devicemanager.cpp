@@ -859,6 +859,23 @@ private:
     IDeviceWidget *createWidget() override { return nullptr; }
 };
 
+class TemporaryToolsDevice final : public IDevice
+{
+public:
+    explicit TemporaryToolsDevice(Id id)
+    {
+        setupId(AutoDetected, id);
+        setType(TestDevice::testTypeId());
+        setOsType(HostOsInfo::hostOs());
+        setHasTemporaryTools(true);
+    }
+
+    void initToolAspects() { initDeviceToolAspects(); }
+
+private:
+    IDeviceWidget *createWidget() final { return nullptr; }
+};
+
 class TestToolFactory final : public DeviceToolAspectFactory
 {
 public:
@@ -1241,6 +1258,29 @@ private slots:
         DeviceManager::removeDevice(dev->id());
         QCOMPARE(expanded, dev->filePath(DeviceOnlyToolFileAccess::toolPath()));
         QCOMPARE(stored, written);
+    }
+
+    void testToolDetectorSource()
+    {
+        QCOMPARE(DetectionSource::forDevice(DeviceManager::defaultDesktopDevice()),
+                 DetectionSource(DetectionSource::FromSystem));
+
+        const Id deviceId("DeviceManagerTest.TemporaryDevice");
+        const auto device = std::make_shared<TemporaryToolsDevice>(deviceId);
+        device->initToolAspects();
+        DeviceManager::addDevice(device);
+        const auto cleanup = qScopeGuard([deviceId] { DeviceManager::removeDevice(deviceId); });
+        QObject guard;
+        DetectionSource source;
+        DeviceManager::addToolDetector(&guard, {}, [&source](const ToolDetectionRequest &request,
+                                                             const std::function<void()> &done) {
+            source = request.source;
+            done();
+        });
+        const auto done = std::make_shared<bool>(false);
+        device->runAutoDetect({}, [done] { *done = true; });
+        QTRY_VERIFY(*done);
+        QCOMPARE(source, DetectionSource(DetectionSource::Temporary, deviceId.toString()));
     }
 };
 
