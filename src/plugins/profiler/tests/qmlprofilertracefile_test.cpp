@@ -591,7 +591,7 @@ static std::optional<qint64> heapInUse()
     malloc_statistics_t statistics;
     malloc_zone_statistics(nullptr, &statistics);
     return qint64(statistics.size_in_use);
-#elif defined(__GLIBC__) && __GLIBC_PREREQ(2, 33)
+#elif defined(__GLIBC__) && (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 33))
     const struct mallinfo2 info = mallinfo2();
     return qint64(info.uordblks + info.hblkhd);
 #else
