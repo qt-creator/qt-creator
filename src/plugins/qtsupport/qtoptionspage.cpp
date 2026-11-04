@@ -789,7 +789,7 @@ void QtSettingsPageWidget::redetect()
                 continue;
 
             if (QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(
-                    qmakePath, {DetectionSource::Manual, "PATH"})) {
+                    qmakePath, qtDetectionSource(dev, qmakePath))) {
                 QtVersionItem item(version);
                 item.setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
                 m_model.appendVolatileItem(item);

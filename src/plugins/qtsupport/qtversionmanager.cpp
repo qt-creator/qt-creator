@@ -22,6 +22,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/filesystemwatcher.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
@@ -31,12 +32,18 @@
 
 #include <QDir>
 #include <QFile>
+#include <QLibraryInfo>
 #include <QLoggingCategory>
 #include <QStandardPaths>
 #include <QStringList>
 #include <QTextStream>
 #include <QTimer>
 #include <QtConcurrentMap>
+
+#ifdef WITH_TESTS
+#include <QScopeGuard>
+#include <QTest>
+#endif
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -122,7 +129,14 @@ public:
 
     bool restoreQtVersions();
     void restoreVersionsWithUnknownType();
-    void findSystemQt(const IDeviceConstPtr &device);
+    static FilePaths findSystemQMakes(const Environment &env, const FilePath &rootPath);
+    struct SystemQtUpdate
+    {
+        QList<int> added;
+        QList<int> changed;
+        bool isEmpty() const { return added.isEmpty() && changed.isEmpty(); }
+    };
+    SystemQtUpdate updateSystemQts(const FilePaths &systemQMakes, bool emitSignal = true);
     void addQtVersionsFromFilePaths(const FilePaths &filePaths, const DetectionSource &source);
     void handleDeviceToolDetectionRequest(
         const ToolDetectionRequest &request, const std::function<void()> &done);
@@ -135,10 +149,10 @@ public:
                              bool updateBlockedDocumentation = false);
 
     void setNewQtVersions(const QtVersions &newVersions);
-    QString qmakePath(const QString &qtchooser, const QString &version);
+    static QString qmakePath(const QString &qtchooser, const QString &version);
 
-    QList<QByteArray> runQtChooser(const QString &qtchooser, const QStringList &arguments);
-    FilePaths gatherQmakePathsFromQtChooser();
+    static QList<QByteArray> runQtChooser(const QString &qtchooser, const QStringList &arguments);
+    static FilePaths gatherQmakePathsFromQtChooser();
 
     int m_idcount = 1;
     QList<Store> m_versionsWithUnknownType;
@@ -170,15 +184,36 @@ void QtVersionManagerImpl::triggerQtVersionRestore()
                this,
                &QtVersionManagerImpl::triggerQtVersionRestore);
 
-    bool success = restoreQtVersions();
+    const bool restored = restoreQtVersions();
     updateFromInstaller(false);
-    if (!success) {
-        // We did neither restore our settings or upgraded
-        // in that case figure out if there's a qt in path
-        // and add it to the Qt versions
-        findSystemQt(DeviceManager::defaultDesktopDevice());
+    const IDeviceConstPtr desktop = DeviceManager::defaultDesktopDevice();
+    if (!restored) {
+        // On the first start the kits are set up from what is found here.
+        updateSystemQts(findSystemQMakes(desktop->systemEnvironment(), desktop->rootPath()),
+                        /*emitSignal=*/false);
         if (!m_versions.isEmpty())
             saveQtVersions();
+    } else {
+        const QFuture<FilePaths> future
+            = Utils::asyncRun(findSystemQMakes, desktop->systemEnvironment(), desktop->rootPath());
+        Utils::futureSynchronizer()->addFuture(future);
+        Utils::onFinished(
+            future,
+            this,
+            [this](const QFuture<FilePaths> &future) {
+                if (!m_writer || future.isCanceled())
+                    return;
+                const SystemQtUpdate update = updateSystemQts(future.result());
+                if (update.isEmpty())
+                    return;
+                if (!update.added.isEmpty()) {
+                    const QtVersions added = Utils::transform(update.added, [this](int id) {
+                        return m_versions.value(id);
+                    });
+                    updateDocumentation(added, {}, QtVersionManager::versions());
+                }
+                saveQtVersions();
+            });
     }
 
     {
@@ -556,13 +591,39 @@ FilePaths QtVersionManagerImpl::gatherQmakePathsFromQtChooser()
     return Utils::toList(foundQMakes);
 }
 
-void QtVersionManagerImpl::findSystemQt(const IDeviceConstPtr &device)
+FilePaths QtVersionManagerImpl::findSystemQMakes(const Environment &env, const FilePath &rootPath)
 {
-    QTC_ASSERT(device, return);
+    return findQtsInEnvironment(env, rootPath) + gatherQmakePathsFromQtChooser();
+}
 
-    FilePaths systemQMakes = findQtsInEnvironment(device->systemEnvironment(), device->rootPath());
-    systemQMakes.append(gatherQmakePathsFromQtChooser());
-    addQtVersionsFromFilePaths(systemQMakes, {DetectionSource::Manual, "PATH"});
+QtVersionManagerImpl::SystemQtUpdate QtVersionManagerImpl::updateSystemQts(
+    const FilePaths &systemQMakes, bool emitSignal)
+{
+    const DetectionSource source(DetectionSource::FromSystem, "PATH");
+    QList<int> changed;
+    for (QtVersion *version : std::as_const(m_versions)) {
+        if (version->detectionSource().id != source.id)
+            continue;
+        const bool found = Utils::anyOf(systemQMakes, [version](const FilePath &qmake) {
+            return qmake.isSameExecutable(version->qtFilePath());
+        });
+        const DetectionSource newSource = found ? source
+                                                : DetectionSource(DetectionSource::Manual, source.id);
+        if (version->detectionSource() != newSource) {
+            version->setDetectionSource(newSource);
+            changed << version->uniqueId();
+        }
+    }
+
+    const VersionMap oldVersions = m_versions;
+    addQtVersionsFromFilePaths(systemQMakes, source);
+    const QList<int> added = Utils::filtered(m_versions.keys(), [&oldVersions](int id) {
+        return !oldVersions.contains(id);
+    });
+    const SystemQtUpdate update{added, changed};
+    if (emitSignal && !update.isEmpty())
+        emit QtVersionManager::instance()->qtVersionsChanged(added, {}, changed);
+    return update;
 }
 
 void QtVersionManagerImpl::addQtVersionsFromFilePaths(
@@ -585,17 +646,15 @@ void QtVersionManagerImpl::addQtVersionsFromFilePaths(
 void QtVersionManagerImpl::handleDeviceToolDetectionRequest(
     const ToolDetectionRequest &request, const std::function<void()> &done)
 {
-    // Like findSystemQt().
-    const DetectionSource source = request.device->rootPath().isLocal()
-                                       ? DetectionSource(DetectionSource::Manual, "PATH")
-                                       : request.source;
     const QFuture<FilePaths> future = Utils::asyncRun(findQtsInPaths, request.searchPaths);
-    const auto cont = [this, deviceId = request.device->id(), source, logger = request.logger,
+    const auto cont = [this, deviceId = request.device->id(), logger = request.logger,
                        done](const QFuture<FilePaths> &f) {
-        if (!DeviceManager::find(deviceId))
+        const IDeviceConstPtr device = DeviceManager::find(deviceId);
+        if (!device)
             return;
         const VersionMap qtVersions = m_versions;
-        addQtVersionsFromFilePaths(f.result(), source);
+        for (const FilePath &qmake : f.result())
+            addQtVersionsFromFilePaths({qmake}, qtDetectionSource(device, qmake));
         if (qtVersions != m_versions) {
             if (logger) {
                 for (auto it = m_versions.cbegin(); it != m_versions.cend(); ++it) {
@@ -955,4 +1014,83 @@ QtVersionManager::DocumentationSetting QtVersionManager::documentationSetting()
         Core::ICore::settings()->value(DOCUMENTATION_SETTING_KEY, 0).toInt());
 }
 
-} // namespace QtVersion
+#ifdef WITH_TESTS
+
+namespace Internal {
+
+class QtVersionManagerTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testSystemQtRedetection();
+};
+
+void QtVersionManagerTest::testSystemQtRedetection()
+{
+    const FilePath qmake = FilePath::fromString(QLibraryInfo::path(QLibraryInfo::BinariesPath))
+                               .pathAppended("qmake")
+                               .withExecutableSuffix();
+    if (!qmake.isExecutableFile())
+        QSKIP("The Qt that Qt Creator runs on has no qmake");
+
+    const auto isOurs = [qmake](const QtVersion *v) {
+        return qmake.isSameExecutable(v->qtFilePath());
+    };
+    const DetectionSource inPath(DetectionSource::FromSystem, "PATH");
+    const DetectionSource wasInPath(DetectionSource::Manual, "PATH");
+    FilePaths otherSystemQMakes;
+    for (const QtVersion *v : QtVersionManager::versions()) {
+        if (!isOurs(v) && v->detectionSource() == inPath)
+            otherSystemQMakes << v->qtFilePath();
+    }
+
+    QtVersionManagerImpl &manager = qtVersionManagerImpl();
+    QtVersion *const existing = QtVersionManager::version(isOurs);
+    const std::optional<DetectionSource> originalSource
+        = existing ? std::make_optional(existing->detectionSource()) : std::nullopt;
+    manager.updateSystemQts(otherSystemQMakes + FilePaths{qmake});
+    QtVersion *const version = QtVersionManager::version(isOurs);
+    QVERIFY(version);
+    const auto cleanup = qScopeGuard([version, originalSource] {
+        if (originalSource)
+            version->setDetectionSource(*originalSource);
+        else
+            QtVersionManager::removeVersion(version);
+    });
+    if (version->detectionSource().id != "PATH")
+        QSKIP("The Qt that Qt Creator runs on is registered from elsewhere");
+    QCOMPARE(version->detectionSource(), inPath);
+
+    // As stored before host Qts were re-detected.
+    version->setDetectionSource(wasInPath);
+    QVERIFY(!manager.updateSystemQts(otherSystemQMakes + FilePaths{qmake}).isEmpty());
+    QCOMPARE(version->detectionSource(), inPath);
+
+    QVERIFY(!manager.updateSystemQts(otherSystemQMakes).isEmpty());
+    QCOMPARE(version->detectionSource(), wasInPath);
+
+    // Detection searches more than PATH, but only the search above keeps a Qt auto-detected.
+    const IDeviceConstPtr desktop = DeviceManager::defaultDesktopDevice();
+    const FilePaths path = desktop->systemEnvironment().path();
+    QVERIFY(!path.isEmpty());
+    QCOMPARE(qtDetectionSource(desktop, path.first().pathAppended("qmake")), inPath);
+    const FilePath elsewhere = FilePath::fromString(QDir::tempPath());
+    if (!path.contains(elsewhere))
+        QCOMPARE(qtDetectionSource(desktop, elsewhere.pathAppended("qmake")), wasInPath);
+}
+
+QObject *createQtVersionManagerTest()
+{
+    return new QtVersionManagerTest;
+}
+
+} // namespace Internal
+
+#endif // WITH_TESTS
+
+} // namespace QtSupport
+
+#ifdef WITH_TESTS
+#include "qtversionmanager.moc"
+#endif

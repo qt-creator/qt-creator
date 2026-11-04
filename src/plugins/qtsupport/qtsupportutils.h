@@ -4,6 +4,8 @@
 
 #include "qtsupport_global.h"
 
+#include <projectexplorer/devicesupport/idevicefwd.h>
+
 #include <utils/osspecificaspects.h>
 
 namespace Utils {
@@ -12,6 +14,8 @@ class FilePath;
 class FilePaths;
 class Process;
 }
+
+namespace ProjectExplorer { class DetectionSource; }
 
 QT_FORWARD_DECLARE_CLASS(QByteArray)
 
@@ -22,6 +26,8 @@ Utils::FilePaths findQtsInEnvironment(
 Utils::FilePaths findQtsInPaths(const Utils::FilePaths &paths);
 bool isQtChooser(const Utils::FilePath &filePath);
 Utils::FilePath qtChooserToQmakePath(const Utils::FilePath &qtChooser);
+ProjectExplorer::DetectionSource qtDetectionSource(
+    const ProjectExplorer::IDeviceConstPtr &device, const Utils::FilePath &qmake);
 } // namespace Internal
 
 QTSUPPORT_EXPORT QString filterForQmakeFileDialog(Utils::OsType osType);

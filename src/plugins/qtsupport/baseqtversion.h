@@ -57,6 +57,7 @@ public:
 
     // Note: the earlier returned QString is the same as DetectionSource::id now
     ProjectExplorer::DetectionSource detectionSource() const;
+    void setDetectionSource(const ProjectExplorer::DetectionSource &source);
     [[deprecated("Use detectionSource().isAutoDetected() instead")]] bool isAutodetected() const;
 
     QString displayName() const;

@@ -1048,6 +1048,11 @@ DetectionSource QtVersion::detectionSource() const
     return d->m_detectionSource;
 }
 
+void QtVersion::setDetectionSource(const DetectionSource &source)
+{
+    d->m_detectionSource = source;
+}
+
 bool QtVersion::isAutodetected() const
 {
     return detectionSource().isAutoDetected();

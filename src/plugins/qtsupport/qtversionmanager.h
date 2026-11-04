@@ -8,7 +8,11 @@
 
 namespace QtSupport {
 
-namespace Internal { class QtSupportPlugin; }
+namespace Internal {
+class QtSupportPlugin;
+
+QObject *createQtVersionManagerTest();
+} // namespace Internal
 
 class QTSUPPORT_EXPORT QtVersionManager final : public QObject
 {

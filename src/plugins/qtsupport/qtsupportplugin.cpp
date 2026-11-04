@@ -97,6 +97,7 @@ void QtSupportPlugin::initialize()
     addTestCreator(createQtTestParserTest);
     addTestCreator(createQtProjectImporterTest);
     addTestCreator(createQtVersionFromFilesTest);
+    addTestCreator(createQtVersionManagerTest);
 #endif
 
     setupQtVersionManager(this);

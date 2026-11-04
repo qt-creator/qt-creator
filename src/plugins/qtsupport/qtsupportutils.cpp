@@ -3,6 +3,9 @@
 
 #include "qtsupportutils.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitaspect.h>
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
@@ -11,6 +14,7 @@
 
 #include <QRegularExpression>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 using namespace std::chrono_literals;
 
@@ -166,6 +170,20 @@ FilePath qtChooserToQmakePath(const Utils::FilePath &qtChooser)
         return {};
 
     return resolvedQtChooser.withNewPath(output.mid(pos, end - pos) + "/qmake");
+}
+
+DetectionSource qtDetectionSource(const IDeviceConstPtr &device, const FilePath &qmake)
+{
+    QTC_ASSERT(device, return {});
+    if (!device->rootPath().isLocal())
+        return DetectionSource::forDevice(device);
+    // The "PATH" id marks the Qt that kits prefer. Only a Qt that the search at
+    // startup finds again can stay auto-detected.
+    const FilePath dir = qmake.parentDir().canonicalPath();
+    const bool inPath = Utils::anyOf(device->systemEnvironment().path(), [&dir](const FilePath &p) {
+        return p.canonicalPath() == dir;
+    });
+    return {inPath ? DetectionSource::FromSystem : DetectionSource::Manual, "PATH"};
 }
 
 } // namespace Internal
