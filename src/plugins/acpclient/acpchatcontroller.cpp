@@ -135,16 +135,26 @@ void AcpChatController::connectToServer(const AcpSettings::ServerInfo &serverInf
     m_transport->start();
 }
 
-// Only ACP protocol version 1 is offered. An agent that answers with
-// version 2 anyway does not follow version negotiation. It is still
-// handled by the v2 adapter in onInitializeResult() as a lenient fallback,
-// but it sees no v2 client capabilities, so it must not be relied on to
-// use elicitation, fs or terminal support.
+// The initialize request must parse for both v1 and v2 agents: the v2 shape
+// (protocolVersion 2, info, capabilities) is merged with the v1 fields
+// (clientInfo, clientCapabilities), which v1 requires and v2 ignores.
 QJsonObject AcpChatController::buildInitializeParams()
 {
-    Implementation info;
-    info.name(QStringLiteral("QtCreator"));
-    info.version(QStringLiteral("1.0"));
+    V2::InitializeRequest v2Request;
+    v2Request.protocolVersion(2);
+    v2Request.info(V2::Implementation()
+                       .name(QStringLiteral("QtCreator"))
+                       .version(QStringLiteral("1.0")));
+    V2::ElicitationCapabilities v2ElicitationCaps;
+    v2ElicitationCaps.form(V2::ElicitationFormCapabilities());
+    v2ElicitationCaps.url(V2::ElicitationUrlCapabilities());
+    v2Request.capabilities(V2::ClientCapabilities().elicitation(v2ElicitationCaps));
+    QJsonObject params = V2::toJson(v2Request);
+
+    Implementation clientInfoImpl;
+    clientInfoImpl.name(QStringLiteral("QtCreator"));
+    clientInfoImpl.version(QStringLiteral("1.0"));
+    params.insert(QStringLiteral("clientInfo"), toJson(clientInfoImpl));
 
     ClientCapabilities caps;
     caps.terminal(true);
@@ -163,8 +173,9 @@ QJsonObject AcpChatController::buildInitializeParams()
     elicitationCaps.form(ElicitationFormCapabilities());
     elicitationCaps.url(ElicitationUrlCapabilities());
     caps.elicitation(elicitationCaps);
+    params.insert(QStringLiteral("clientCapabilities"), toJson(caps));
 
-    return toJson(InitializeRequest().protocolVersion(1).clientCapabilities(caps).clientInfo(info));
+    return params;
 }
 
 void AcpChatController::writeServerConsoleInput(const QByteArray &data)
