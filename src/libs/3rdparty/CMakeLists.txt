@@ -79,6 +79,9 @@ if(NOT EMSCRIPTEN AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/CMakeLists.
             # for the CPU of the build machine.
             set(GGML_OPENMP OFF)
             set(GGML_NATIVE OFF)
+            # ggml would set a global RULE_LAUNCH_COMPILE to any ccache or sccache
+            # it finds, for all of Qt Creator, which breaks /Zi builds with MSVC.
+            set(GGML_CCACHE OFF)
             # MSVC cannot target ARM features by flag, so ggml only accepts it
             # with GGML_NATIVE, which runs probes on the build machine and
             # defines __ARM_FEATURE_* from their results. Answer the probes
