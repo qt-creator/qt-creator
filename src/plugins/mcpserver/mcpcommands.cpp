@@ -4377,7 +4377,7 @@ void McpCommands::registerCommands()
             .description(
                 "Returns the plain text of an output pane (such as \"Application Output\", "
                 "\"General Messages\", \"Compile Output\"), identified by its display name. "
-                "This is the text the user sees in the pane, distinct from get_application_output "
+                "This is the text the user sees in the pane, distinct from log_read "
                 "which returns Qt Creator's own log stream. Call without a name (or with an "
                 "unknown one) to get the list of available panes. Panes that are not plain-text "
                 "(such as Issues) report 'pane_has_no_text_output'. Read-only.")

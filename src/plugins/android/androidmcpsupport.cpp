@@ -95,7 +95,7 @@ void registerAndroidMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("setup_android")
+            .name("android_setup")
             .title("Set up Android toolchains and kits")
             .description(
                 "Runs Android auto-configuration - the same action as applying the Android SDK "
@@ -195,7 +195,7 @@ void AndroidMcpSupportTest::testSetupRejectsUnusableSdk()
     const Utils::FilePath original = AndroidConfig::sdkLocation();
     AndroidConfig::setSdkLocation(Utils::FilePath::fromUserInput("/no/such/android/sdk"));
     const Utils::Result<Mcp::Schema::CallToolResult> result
-        = Mcp::ToolRegistry::callToolForTests("setup_android", {});
+        = Mcp::ToolRegistry::callToolForTests("android_setup", {});
     AndroidConfig::setSdkLocation(original); // Before asserting, so a failure leaves no trace.
 
     QVERIFY(!result);

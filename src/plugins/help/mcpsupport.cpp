@@ -57,7 +57,7 @@ static QHelpFilterEngine *setupFilterEngine()
     return LocalHelpManager::filterEngine();
 }
 
-// The name of the filter set_help_version_filter created, so that walking
+// The name of the filter help_set_version_filter created, so that walking
 // several versions leaves at most one "Version x.y.z" entry behind rather than
 // one per version visited.
 static QString &createdVersionFilter()
@@ -96,7 +96,7 @@ void registerMcpTools()
 {
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_registered_documentation")
+            .name("help_list_documentation")
             .title("List registered help documentation")
             .description("Returns the namespaces of all documentation registered in the Help "
                          "system. Several registered Qt versions produce several namespaces that "
@@ -116,7 +116,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("register_documentation")
+            .name("help_register_documentation")
             .title("Register help documentation")
             .description("Registers the given .qch documentation files with the Help system and "
                          "waits for the registration to finish. Returns the resulting namespaces. "
@@ -173,7 +173,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_help_filters")
+            .name("help_list_filters")
             .title("List help documentation filters")
             .description("Returns the documentation filters known to the Help system, the "
                          "available component versions, and the currently active filter. "
@@ -200,7 +200,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("set_help_filter")
+            .name("help_set_filter")
             .title("Set the active help filter")
             .description("Sets the active documentation filter by name. Pass an empty name to "
                          "clear the filter (show all documentation).")
@@ -225,7 +225,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("set_help_version_filter")
+            .name("help_set_version_filter")
             .title("Filter help documentation by version")
             .description("Creates (if needed) and activates a documentation filter that shows only "
                          "the given component version, for example \"6.12.0\". Pass an empty "
@@ -272,7 +272,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_help_contents")
+            .name("help_get_contents")
             .title("Get the help Contents tree")
             .description("Returns the top-level nodes of the Help Contents tree (as shown in the "
                          "Help mode sidebar), built for the active filter. Reports "

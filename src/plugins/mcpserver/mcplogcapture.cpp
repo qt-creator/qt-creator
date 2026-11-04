@@ -128,7 +128,7 @@ void registerLogTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_application_output")
+            .name("log_read")
             .title("Read application log output")
             .description(
                 "Returns recent log output captured from Qt Creator's qDebug()/qCInfo()/"
@@ -195,13 +195,13 @@ void registerLogTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("set_logging_rules")
+            .name("log_set_rules")
             .title("Set runtime logging rules")
             .description(
                 "Applies QLoggingCategory filter rules at runtime, equivalent to QT_LOGGING_RULES, "
                 "such as 'qtc.remotewindows.*=true'. Separate multiple rules with newlines. Use "
                 "this to enable a logging category before reading it back with "
-                "get_application_output.")
+                "log_read.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}

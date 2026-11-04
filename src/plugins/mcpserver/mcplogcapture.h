@@ -66,7 +66,7 @@ private:
 };
 
 // Registers the MCP tools that expose the captured log output and runtime logging
-// rules (get_application_output, set_logging_rules). Call once during plugin startup.
+// rules (log_read, log_set_rules). Call once during plugin startup.
 void registerLogTools();
 
 } // namespace Mcp::Internal

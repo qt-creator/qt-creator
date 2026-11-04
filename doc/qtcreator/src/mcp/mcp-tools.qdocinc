@@ -11,6 +11,10 @@
     \li Tool
     \li Description
 \row
+    \li \c {android_setup}
+        \target mcp-android_setup
+    \li Runs Android auto-configuration - the same action as applying the Android SDK preferences page - which registers the NDK toolchains and (re)creates the automatic Android kits from the configured SDK/NDK and the installed Qt-for-Android versions. Use after the Android SDK location and a Qt-for-Android version are configured to obtain a usable Android kit without driving the preferences GUI. Returns all kits present afterwards, each with the ID of its run device type, so that the Android ones can be told apart, plus the Android Qt versions and Android toolchains that the kit creation had to work with. Fails if the configured Android SDK is not usable, which is otherwise indistinguishable from having no NDK and no Qt-for-Android version.
+\row
     \li \c {app_quit}
         \target mcp-app_quit
     \li Quits Qt Creator.
@@ -724,27 +728,6 @@
             \li \c {plain_text} (string, required) - Text to write into the file.
         \endlist
 \row
-    \li \c {get_application_output}
-        \target mcp-get_application_output
-    \li Returns recent log output captured from Qt Creator's \c {qDebug}()/\c {qCInfo}()/\c {qCWarning}()/... stream, including Q_LOGGING_CATEGORY output, as well as messages written to the General Messages pane (under the \c {general} category). Read incrementally by passing the \c {cursor} returned by the previous call as \c {sinceCursor}. Optionally filter by a logging-category prefix, such as \c {qtc.remotewindows} or \c {general}.
-        \list
-            \li \c {category} (string) - Only return lines whose logging category starts with this prefix (optional).
-            \li \c {maxLines} (integer) - Maximum number of lines to return (most recent within the range). Defaults to 200.
-            \li \c {sinceCursor} (integer) - Return only lines newer than this cursor. Use the \c {cursor} from a previous response. Omit or 0 to read from the start of the buffer.
-        \endlist
-\row
-    \li \c {get_help_contents}
-        \target mcp-get_help_contents
-    \li Returns the top-level nodes of the Help Contents tree (as shown in the Help mode sidebar), built for the active filter. Reports \c {duplicate_titles} - titles that appear on more than one top-level node, which happens when several versions of a component are registered without a narrowing filter. "truncated" says nodes were left out because \c {max_nodes} ran out, \c {timed_out} that the wait for the tree to be built was given up on.
-        \list
-            \li \c {max_depth} (integer) - Tree depth to return (default 1, top level only, at most 10).
-            \li \c {max_nodes} (integer) - Maximum number of nodes to return (default 2000, at most 20000).
-        \endlist
-\row
-    \li \c {get_registered_documentation}
-        \target mcp-get_registered_documentation
-    \li Returns the namespaces of all documentation registered in the Help system. Several registered Qt versions produce several namespaces that differ only by their version suffix (for example "org.qt-project.qtcore.680").
-\row
     \li \c {git_blame}
         \target mcp-git_blame
     \li Returns line-by-line authorship (git blame) for a file: for each line, the commit hash, author and commit subject. Give the "file" and optionally a \c {start_line}/\c {end_line} range (1-based) to limit the output. \c {start_line} alone blames from there to the end, \c {end_line} alone from the beginning. An \c {end_line} past the end of the file makes git fail, so omit it to blame to the end. At most "limit" lines are returned. \c {total_lines} and "truncated" report what was left out.
@@ -779,6 +762,43 @@
     \li Returns the Git working-tree status of the repository that contains a path: the current branch and the list of changed files, each with its two-character porcelain status code. Renames and copies also report the \c {original_path}. On a detached HEAD "branch" is empty and "detached" is true. Give any file or directory inside the repository as "path".
         \list
             \li \c {path} (string, required) - Absolute path to a file or directory inside the repository.
+        \endlist
+\row
+    \li \c {help_get_contents}
+        \target mcp-help_get_contents
+    \li Returns the top-level nodes of the Help Contents tree (as shown in the Help mode sidebar), built for the active filter. Reports \c {duplicate_titles} - titles that appear on more than one top-level node, which happens when several versions of a component are registered without a narrowing filter. "truncated" says nodes were left out because \c {max_nodes} ran out, \c {timed_out} that the wait for the tree to be built was given up on.
+        \list
+            \li \c {max_depth} (integer) - Tree depth to return (default 1, top level only, at most 10).
+            \li \c {max_nodes} (integer) - Maximum number of nodes to return (default 2000, at most 20000).
+        \endlist
+\row
+    \li \c {help_list_documentation}
+        \target mcp-help_list_documentation
+    \li Returns the namespaces of all documentation registered in the Help system. Several registered Qt versions produce several namespaces that differ only by their version suffix (for example "org.qt-project.qtcore.680").
+\row
+    \li \c {help_list_filters}
+        \target mcp-help_list_filters
+    \li Returns the documentation filters known to the Help system, the available component versions, and the currently active filter. Selecting a filter narrows the Contents tree to matching documentation.
+\row
+    \li \c {help_register_documentation}
+        \target mcp-help_register_documentation
+    \li Registers the given .qch documentation files with the Help system and waits for the registration to finish. Returns the resulting namespaces. Registering several versions of the same component is how duplicate top-level nodes appear in the Contents tree. \c {timed_out} tells a caller that the wait was given up on, so the namespaces are whatever was registered at that point rather than the finished result.
+        \list
+            \li \c {paths} (array, required) - Absolute paths to .qch documentation files.
+        \endlist
+\row
+    \li \c {help_set_filter}
+        \target mcp-help_set_filter
+    \li Sets the active documentation filter by name. Pass an empty name to clear the filter (show all documentation).
+        \list
+            \li \c {filter} (string) - Filter name, or empty for no filter.
+        \endlist
+\row
+    \li \c {help_set_version_filter}
+        \target mcp-help_set_version_filter
+    \li Creates (if needed) and activates a documentation filter that shows only the given component version, for example "6.12.0". Pass an empty version to clear the filter. Use this to collapse duplicate top-level nodes that come from several registered versions. The filter this tool created is removed again when the filter is cleared or another version replaces it, so the user's Help configuration is left as it was.
+        \list
+            \li \c {version} (string) - Version like "6.12.0", or empty to clear.
         \endlist
 \row
     \li \c {kit_add_to_project}
@@ -850,9 +870,21 @@
             \li \c {value} (required) - Value to set.
         \endlist
 \row
-    \li \c {list_help_filters}
-        \target mcp-list_help_filters
-    \li Returns the documentation filters known to the Help system, the available component versions, and the currently active filter. Selecting a filter narrows the Contents tree to matching documentation.
+    \li \c {log_read}
+        \target mcp-log_read
+    \li Returns recent log output captured from Qt Creator's \c {qDebug}()/\c {qCInfo}()/\c {qCWarning}()/... stream, including Q_LOGGING_CATEGORY output, as well as messages written to the General Messages pane (under the \c {general} category). Read incrementally by passing the \c {cursor} returned by the previous call as \c {sinceCursor}. Optionally filter by a logging-category prefix, such as \c {qtc.remotewindows} or \c {general}.
+        \list
+            \li \c {category} (string) - Only return lines whose logging category starts with this prefix (optional).
+            \li \c {maxLines} (integer) - Maximum number of lines to return (most recent within the range). Defaults to 200.
+            \li \c {sinceCursor} (integer) - Return only lines newer than this cursor. Use the \c {cursor} from a previous response. Omit or 0 to read from the start of the buffer.
+        \endlist
+\row
+    \li \c {log_set_rules}
+        \target mcp-log_set_rules
+    \li Applies \c {QLoggingCategory} filter rules at runtime, equivalent to QT_LOGGING_RULES, such as \c {qtc.remotewindows.*=true}. Separate multiple rules with newlines. Use this to enable a logging category before reading it back with \l {mcp-log_read}{log_read}.
+        \list
+            \li \c {rules} (string, required) - Logging rules, one per line, such as \c {qtc.*.debug=true}.
+        \endlist
 \row
     \li \c {lsp_call_hierarchy}
         \target mcp-lsp_call_hierarchy
@@ -1061,13 +1093,6 @@
             \li \c {qmake_path} (string) - Path to the qmake executable of the version.
         \endlist
 \row
-    \li \c {register_documentation}
-        \target mcp-register_documentation
-    \li Registers the given .qch documentation files with the Help system and waits for the registration to finish. Returns the resulting namespaces. Registering several versions of the same component is how duplicate top-level nodes appear in the Contents tree. \c {timed_out} tells a caller that the wait was given up on, so the namespaces are whatever was registered at that point rather than the finished result.
-        \list
-            \li \c {paths} (array, required) - Absolute paths to .qch documentation files.
-        \endlist
-\row
     \li \c {run_configure}
         \target mcp-run_configure
     \li Selects an existing run configuration (by display name or type ID, see \l {mcp-run_list_configs}{run_list_configs}) as the active one and/or sets its executable, the arguments the application is started with, and its working directory. Setting the executable only works for run configurations that have one, such as the bare-metal "Custom Executable" configuration. Then \l {mcp-debugger_start}{debugger_start} (with no arguments) debugs it with its run configuration's own launch path. Several run configurations share one type ID, so an ID matching more than one fails with reason "ambiguous" and the matching display names in "candidates", rather than picking one of them.
@@ -1145,27 +1170,6 @@
         \target mcp-session_save
     \li Saves the current session.
 \row
-    \li \c {set_help_filter}
-        \target mcp-set_help_filter
-    \li Sets the active documentation filter by name. Pass an empty name to clear the filter (show all documentation).
-        \list
-            \li \c {filter} (string) - Filter name, or empty for no filter.
-        \endlist
-\row
-    \li \c {set_help_version_filter}
-        \target mcp-set_help_version_filter
-    \li Creates (if needed) and activates a documentation filter that shows only the given component version, for example "6.12.0". Pass an empty version to clear the filter. Use this to collapse duplicate top-level nodes that come from several registered versions. The filter this tool created is removed again when the filter is cleared or another version replaces it, so the user's Help configuration is left as it was.
-        \list
-            \li \c {version} (string) - Version like "6.12.0", or empty to clear.
-        \endlist
-\row
-    \li \c {set_logging_rules}
-        \target mcp-set_logging_rules
-    \li Applies \c {QLoggingCategory} filter rules at runtime, equivalent to QT_LOGGING_RULES, such as \c {qtc.remotewindows.*=true}. Separate multiple rules with newlines. Use this to enable a logging category before reading it back with \l {mcp-get_application_output}{get_application_output}.
-        \list
-            \li \c {rules} (string, required) - Logging rules, one per line, such as \c {qtc.*.debug=true}.
-        \endlist
-\row
     \li \c {settings_get}
         \target mcp-settings_get
     \li Returns the individual settings (aspects) of a preference page: key, label, current value and default value. Use the page ID from \l {mcp-settings_list_pages}{settings_list_pages}. Read-only.
@@ -1192,10 +1196,6 @@
         \list
             \li \c {page_id} (string) - Page ID, such as "Alien.Settings" (optional).
         \endlist
-\row
-    \li \c {setup_android}
-        \target mcp-setup_android
-    \li Runs Android auto-configuration - the same action as applying the Android SDK preferences page - which registers the NDK toolchains and (re)creates the automatic Android kits from the configured SDK/NDK and the installed Qt-for-Android versions. Use after the Android SDK location and a Qt-for-Android version are configured to obtain a usable Android kit without driving the preferences GUI. Returns all kits present afterwards, each with the ID of its run device type, so that the Android ones can be told apart, plus the Android Qt versions and Android toolchains that the kit creation had to work with. Fails if the configured Android SDK is not usable, which is otherwise indistinguishable from having no NDK and no Qt-for-Android version.
 \row
     \li \c {test_get_details}
         \target mcp-test_get_details
@@ -1388,7 +1388,7 @@
 \row
     \li \c {ui_read_output_pane}
         \target mcp-ui_read_output_pane
-    \li Returns the plain text of an output pane (such as "Application Output", "General Messages", "Compile Output"), identified by its display name. This is the text the user sees in the pane, distinct from \l {mcp-get_application_output}{get_application_output} which returns Qt Creator's own log stream. Call without a name (or with an unknown one) to get the list of available panes. Panes that are not plain-text (such as Issues) report \c {pane_has_no_text_output}. Read-only.
+    \li Returns the plain text of an output pane (such as "Application Output", "General Messages", "Compile Output"), identified by its display name. This is the text the user sees in the pane, distinct from \l {mcp-log_read}{log_read} which returns Qt Creator's own log stream. Call without a name (or with an unknown one) to get the list of available panes. Panes that are not plain-text (such as Issues) report \c {pane_has_no_text_output}. Read-only.
         \list
             \li \c {max_lines} (integer) - Return only the last N lines (optional).
             \li \c {name} (string) - Display name of the pane (see \c {available_panes}).
