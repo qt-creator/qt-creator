@@ -1870,8 +1870,10 @@ void AcpMessageView::setAgentIconUrl(const QString &iconUrl)
 void AcpMessageView::setPrompting(bool prompting)
 {
     m_prompting = prompting;
-    if (!prompting)
+    if (!prompting) {
         m_sentUserMessage = nullptr;
+        placeUnreferencedTerminals();
+    }
     if (prompting) {
         m_elapsedTimer->restart();
         updateElapsedTimeLabel();
@@ -1951,6 +1953,8 @@ void AcpMessageView::clear()
     m_pendingElicitationRequests.clear();
     m_toolCallGroups.clear();
     m_terminalWidgets.clear();
+    qDeleteAll(m_unplacedTerminals);
+    m_unplacedTerminals.clear();
     m_userMessages.clear();
     m_sentUserMessage = nullptr;
     m_sentMessageIds.clear();
@@ -1996,6 +2000,8 @@ void AcpMessageView::setUserMessageText(const QString &messageId,
 
 UserMessageWidget *AcpMessageView::createUserMessage(const QString &text)
 {
+    if (!m_prompting)
+        placeUnreferencedTerminals();
     finishAgentMessage();
     finishToolCallGroup();
     auto *msg = new UserMessageWidget(m_container);
@@ -2091,9 +2097,11 @@ void AcpMessageView::updateToolCall(const ToolCallUpdate &update)
         detail->setContentMaxWidth(contentMaxWidth());
         group->addChildWidget(detail);
         m_toolCallDetailWidgets[update.toolCallId()] = detail;
+        embedTerminals(detail, update);
         return;
     }
     detail->updateContent(update);
+    embedTerminals(detail, update);
     if (auto *group = m_toolCallGroups.value(update.toolCallId())) {
         if (update.status().has_value())
             group->trackStatus(update.toolCallId(), *update.status());
@@ -2102,15 +2110,48 @@ void AcpMessageView::updateToolCall(const ToolCallUpdate &update)
     }
 }
 
+// A terminal is shown inside the first tool call that references it. Its
+// state may arrive before that reference does.
+void AcpMessageView::embedTerminals(ToolCallDetailWidget *detail, const ToolCallUpdate &update)
+{
+    if (!update.content().has_value())
+        return;
+    for (const ToolCallContent &content : *update.content()) {
+        const auto *reference = std::get_if<Terminal>(&content);
+        if (!reference)
+            continue;
+        TerminalDisplayWidget *terminal = ensureTerminalWidget(reference->terminalId());
+        if (m_unplacedTerminals.removeOne(terminal)) {
+            detail->addContentWidget(terminal);
+            terminal->show();
+        }
+    }
+}
+
+// Terminals no tool call referenced are shown on their own: at the end of a
+// turn or of a replayed history, or before a user message outside a turn.
+void AcpMessageView::placeUnreferencedTerminals()
+{
+    if (m_unplacedTerminals.isEmpty())
+        return;
+    finishAgentMessage();
+    finishToolCallGroup();
+    for (TerminalDisplayWidget *terminal : std::as_const(m_unplacedTerminals)) {
+        addWidget(terminal);
+        terminal->show();
+    }
+    m_unplacedTerminals.clear();
+}
+
 TerminalDisplayWidget *AcpMessageView::ensureTerminalWidget(const QString &terminalId)
 {
     TerminalDisplayWidget *terminal = m_terminalWidgets.value(terminalId);
     if (!terminal) {
-        finishAgentMessage();
-        finishToolCallGroup();
         terminal = new TerminalDisplayWidget(terminalId, m_container);
+        terminal->setObjectName("terminal");
+        terminal->hide();
         m_terminalWidgets[terminalId] = terminal;
-        addWidget(terminal);
+        m_unplacedTerminals.append(terminal);
     }
     return terminal;
 }

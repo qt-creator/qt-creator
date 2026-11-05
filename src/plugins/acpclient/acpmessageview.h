@@ -67,6 +67,7 @@ public:
     void appendAgentThought(const QString &text);
     void updateToolCall(const Acp::V2::ToolCallUpdate &update);
     void updateTerminal(const Acp::V2::TerminalUpdate &update);
+    void placeUnreferencedTerminals();
     void appendTerminalOutput(const Acp::V2::TerminalOutputChunk &chunk);
     void addPlan(const Acp::V2::PlanUpdate &plan);
     void addStatusMessage(const QString &text);
@@ -106,6 +107,7 @@ private:
     ToolCallGroupWidget *ensureToolCallGroup();
     void finishToolCallGroup();
     TerminalDisplayWidget *ensureTerminalWidget(const QString &terminalId);
+    void embedTerminals(ToolCallDetailWidget *detail, const Acp::V2::ToolCallUpdate &update);
     void addWidget(QWidget *widget);
     int contentMaxWidth() const;
     UserMessageWidget *createUserMessage(const QString &text);
@@ -132,6 +134,7 @@ private:
     QList<QPair<QJsonValue, ElicitationWidget *>> m_pendingElicitationRequests;
     QHash<QString, ToolCallGroupWidget *> m_toolCallGroups; // toolCallId -> owning group
     QHash<QString, TerminalDisplayWidget *> m_terminalWidgets;
+    QList<TerminalDisplayWidget *> m_unplacedTerminals;
     QHash<QString, UserMessageWidget *> m_userMessages;
     UserMessageWidget *m_sentUserMessage = nullptr;
     QSet<QString> m_sentMessageIds;

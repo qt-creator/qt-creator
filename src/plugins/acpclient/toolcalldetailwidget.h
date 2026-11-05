@@ -36,6 +36,7 @@ public:
     void applyStatus(Acp::V2::ToolCallStatus status);
     void updateContent(const Acp::V2::ToolCallUpdate &update);
     void setContentMaxWidth(int width);
+    void addContentWidget(QWidget *widget);
 
     void addPermissionControls(const QList<Acp::V2::PermissionOption> &options,
                                bool addDenyFallback);
@@ -51,7 +52,6 @@ protected:
 private:
     void addDiffContent(const Acp::V2::Diff &diff);
     void addMarkdownContent(const QString &markdown);
-    void addTerminalContent(const Acp::V2::Terminal &terminal);
     void addTextContent(const Acp::V2::Content &content);
     void addLocations(const QList<Acp::V2::ToolCallLocation> &locations);
     void addRawInputContent(const QJsonValue &rawInput);

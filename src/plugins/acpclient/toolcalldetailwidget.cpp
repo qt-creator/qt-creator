@@ -176,8 +176,6 @@ void ToolCallDetailWidget::updateContent(const ToolCallUpdate &update)
         for (const ToolCallContent &content : *update.content()) {
             if (const auto *diff = std::get_if<Diff>(&content))
                 addDiffContent(*diff);
-            else if (const auto *terminal = std::get_if<Terminal>(&content))
-                addTerminalContent(*terminal);
             else if (const auto *textContent = std::get_if<Content>(&content))
                 addTextContent(*textContent);
         }
@@ -262,15 +260,6 @@ void ToolCallDetailWidget::addMarkdownContent(const QString &markdown)
 
     addBodyWidget(browser);
     browser->setMarkdown(markdown);
-}
-
-void ToolCallDetailWidget::addTerminalContent(const Terminal &terminal)
-{
-    auto *label = new QLabel(this);
-    label->setTextFormat(Qt::RichText);
-    label->setText(QStringLiteral("<code>Terminal: %1</code>")
-                       .arg(terminal.terminalId().toHtmlEscaped()));
-    addBodyWidget(label);
 }
 
 void ToolCallDetailWidget::addTextContent(const Content &content)
@@ -393,6 +382,13 @@ void ToolCallDetailWidget::addRawInputContent(const QJsonValue &rawInput)
         m_rawInputContent = browser;
     }
     m_rawInputContent->setMarkdown(markdown);
+}
+
+// Adds content the tool call shows, but does not own the state of, such as
+// a terminal.
+void ToolCallDetailWidget::addContentWidget(QWidget *widget)
+{
+    addBodyWidget(widget);
 }
 
 void ToolCallDetailWidget::addBodyWidget(QWidget *widget)

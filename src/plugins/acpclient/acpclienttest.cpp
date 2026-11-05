@@ -21,6 +21,7 @@
 #include "chatpanel.h"
 #include "collapsibleframe.h"
 #include "configselectpopup.h"
+#include "toolcalldetailwidget.h"
 
 #include <acp/acp.h>
 #include <acp/acpv2.h>
@@ -600,6 +601,7 @@ private slots:
     void testChatPanelSelectPopupFollowsOptions();
     void testChatPanelSelectButtonElide();
     void testMessageViewRunningToolTitleClamp();
+    void testMessageViewTerminalInToolCall();
 
     // Tier 5: terms and conditions, chat widget
     void testTermsWidget();
@@ -3935,6 +3937,58 @@ void AcpClientTest::testMessageViewRunningToolTitleClamp()
     group->setCollapsed(false);
     QTRY_COMPARE(label->size(), collapsedSize);
     QCOMPARE(label->grab().toImage(), collapsedImage);
+}
+
+// A terminal is shown inside the tool call that references it, whether its
+// state arrives before or after the reference. A terminal no tool call
+// references is shown on its own once the turn ends.
+void AcpClientTest::testMessageViewTerminalInToolCall()
+{
+    AcpMessageView view;
+    view.setPrompting(true);
+
+    view.updateTerminal(V2::TerminalUpdate().terminalId("term-1").command("ls"));
+    view.updateToolCall(V2::ToolCallUpdate()
+                            .toolCallId("tool-1")
+                            .title("Run ls")
+                            .content(QList<V2::ToolCallContent>{
+                                V2::Terminal().terminalId("term-1")}));
+    view.updateToolCall(V2::ToolCallUpdate().toolCallId("tool-2").title("Run pwd"));
+    view.updateToolCall(V2::ToolCallUpdate()
+                            .toolCallId("tool-2")
+                            .content(QList<V2::ToolCallContent>{
+                                V2::Terminal().terminalId("term-2")}));
+    view.updateTerminal(V2::TerminalUpdate().terminalId("term-2").command("pwd"));
+    view.updateTerminal(V2::TerminalUpdate().terminalId("term-3").command("true"));
+
+    const QList<ToolCallDetailWidget *> details = view.findChildren<ToolCallDetailWidget *>();
+    QCOMPARE(details.size(), 2);
+    const QList<QWidget *> terminals = view.findChildren<QWidget *>("terminal");
+    QCOMPARE(terminals.size(), 3);
+    QVERIFY(details.at(0)->isAncestorOf(terminals.at(0)));
+    QVERIFY(details.at(1)->isAncestorOf(terminals.at(1)));
+    QVERIFY(!terminals.at(2)->isVisibleTo(&view));
+
+    view.setPrompting(false);
+    QVERIFY(terminals.at(2)->isVisibleTo(&view));
+    QVERIFY(!Utils::anyOf(details, [&](const ToolCallDetailWidget *detail) {
+        return detail->isAncestorOf(terminals.at(2));
+    }));
+
+    // Outside a turn, as in replayed history or after a turn ended, a
+    // terminal no tool call references is shown at the end of the replay or
+    // before the next user message.
+    view.updateTerminal(V2::TerminalUpdate().terminalId("term-4").command("make"));
+    QWidget *replayed = view.findChildren<QWidget *>("terminal").last();
+    QVERIFY(!replayed->isVisibleTo(&view));
+    view.placeUnreferencedTerminals();
+    QVERIFY(replayed->isVisibleTo(&view));
+
+    view.updateTerminal(V2::TerminalUpdate().terminalId("term-5").command("late"));
+    QWidget *late = view.findChildren<QWidget *>("terminal").last();
+    QVERIFY(!late->isVisibleTo(&view));
+    view.addUserMessage("next");
+    QVERIFY(late->isVisibleTo(&view));
 }
 
 // --- Tier 5 ------------------------------------------------------------------

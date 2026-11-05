@@ -4,6 +4,7 @@
 #include "acpchattab.h"
 #include "acpchatcontroller.h"
 #include "acpclienttr.h"
+#include "acpmessageview.h"
 #include "acppermissionhandler.h"
 #include "acpserverconsole.h"
 #include "acpsettings.h"
@@ -615,6 +616,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_stack->setCurrentIndex(2);
         m_chatPanel->setSendEnabled(true);
         m_chatPanel->setCanCloseSession(m_controller->supportsSessionClose());
+        m_chatPanel->messageView()->placeUnreferencedTerminals();
         if (!m_pendingPrompt.isEmpty()) {
             const QString text = m_pendingPrompt;
             m_pendingPrompt.clear();
