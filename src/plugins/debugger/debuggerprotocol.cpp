@@ -438,6 +438,15 @@ qulonglong GdbMi::toAddress() const
     return ba.toULongLong(nullptr, 0);
 }
 
+void GdbMi::addConst(const QString &name, const QString &data)
+{
+    GdbMi child;
+    child.m_type = GdbMi::Const;
+    child.m_name = name;
+    child.m_data = data;
+    addChild(child);
+}
+
 Utils::ProcessHandle GdbMi::toProcessHandle() const
 {
     return Utils::ProcessHandle(m_data.toULongLong());

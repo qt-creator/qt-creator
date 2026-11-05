@@ -115,15 +115,6 @@ static DebuggerEngineSetupData lldbImplSetupData()
     return data;
 }
 
-static void addConst(GdbMi &parent, const QString &name, const QString &data)
-{
-    GdbMi child;
-    child.m_type = GdbMi::Const;
-    child.m_name = name;
-    child.m_data = data;
-    parent.addChild(child);
-}
-
 // lldb reports a location's address as a plain number, and as -1 for one that
 // is not resolved yet.
 static QString locationAddress(const GdbMi &lldbLocation)
@@ -139,44 +130,44 @@ static GdbMi translateLldbBreakpoint(const GdbMi &lldbBkpt)
 {
     GdbMi bkpt;
     bkpt.m_type = GdbMi::Tuple;
-    addConst(bkpt, "number", lldbBkpt["lldbid"].data());
+    bkpt.addConst("number", lldbBkpt["lldbid"].data());
     if (lldbBkpt["enabled"].toInt())
-        addConst(bkpt, "enabled", "y");
+        bkpt.addConst("enabled", "y");
     else
-        addConst(bkpt, "enabled", "n");
-    addConst(bkpt, "file", lldbBkpt["file"].data());
-    addConst(bkpt, "line", lldbBkpt["line"].data());
+        bkpt.addConst("enabled", "n");
+    bkpt.addConst("file", lldbBkpt["file"].data());
+    bkpt.addConst("line", lldbBkpt["line"].data());
     const QString expression = lldbBkpt["expression"].data();
     const QString catchType = lldbBkpt["catchtype"].data();
     if (!expression.isEmpty()) {
         // A watchpoint sits at no line, so what it watches is the only thing
         // telling it apart from a breakpoint that is forever pending.
-        addConst(bkpt, "type", "hw watchpoint");
-        addConst(bkpt, "what", expression);
+        bkpt.addConst("type", "hw watchpoint");
+        bkpt.addConst("what", expression);
     } else if (catchType.isEmpty()) {
-        addConst(bkpt, "type", "breakpoint");
+        bkpt.addConst("type", "breakpoint");
     } else {
-        addConst(bkpt, "type", "catchpoint");
-        addConst(bkpt, "catch-type", catchType);
+        bkpt.addConst("type", "catchpoint");
+        bkpt.addConst("catch-type", catchType);
     }
     if (lldbBkpt["oneshot"].toInt())
-        addConst(bkpt, "disp", "del");
+        bkpt.addConst("disp", "del");
     else
-        addConst(bkpt, "disp", "keep");
+        bkpt.addConst("disp", "keep");
     const QString condition = fromHex(lldbBkpt["condition"].data());
     if (!condition.isEmpty())
-        addConst(bkpt, "cond", condition);
-    addConst(bkpt, "times", lldbBkpt["hitcount"].data());
+        bkpt.addConst("cond", condition);
+    bkpt.addConst("times", lldbBkpt["hitcount"].data());
     if (const GdbMi thread = lldbBkpt["thread"]; thread.isValid())
-        addConst(bkpt, "thread", thread.data());
+        bkpt.addConst("thread", thread.data());
 
     const GdbMi lldbLocations = lldbBkpt["locations"];
     if (lldbLocations.childCount() > 0) {
         // The view names a breakpoint after its first location.
         const GdbMi first = lldbLocations.childAt(0);
-        addConst(bkpt, "func", first["function"].data());
+        bkpt.addConst("func", first["function"].data());
         if (const QString address = locationAddress(first); !address.isEmpty())
-            addConst(bkpt, "addr", address);
+            bkpt.addConst("addr", address);
     }
     if (lldbLocations.childCount() > 1) {
         GdbMi locations;
@@ -185,18 +176,18 @@ static GdbMi translateLldbBreakpoint(const GdbMi &lldbBkpt)
         for (const GdbMi &lldbLocation : lldbLocations) {
             GdbMi location;
             location.m_type = GdbMi::Tuple;
-            addConst(location, "number",
+            location.addConst("number",
                      lldbBkpt["lldbid"].data() + '.' + lldbLocation["locid"].data());
-            addConst(location, "func", lldbLocation["function"].data());
+            location.addConst("func", lldbLocation["function"].data());
             if (const QString address = locationAddress(lldbLocation); !address.isEmpty())
-                addConst(location, "addr", address);
-            addConst(location, "file", lldbLocation["file"].data());
-            addConst(location, "line", lldbLocation["line"].data());
-            addConst(location, "type", "breakpoint");
+                location.addConst("addr", address);
+            location.addConst("file", lldbLocation["file"].data());
+            location.addConst("line", lldbLocation["line"].data());
+            location.addConst("type", "breakpoint");
             if (lldbLocation["enabled"].toInt())
-                addConst(location, "enabled", "y");
+                location.addConst("enabled", "y");
             else
-                addConst(location, "enabled", "n");
+                location.addConst("enabled", "n");
             locations.addChild(location);
         }
         bkpt.addChild(locations);
@@ -220,11 +211,11 @@ static GdbMi translateLldbRegistersReply(const GdbMi &lldbRegisters)
     for (const GdbMi &lldbRegister : lldbRegisters) {
         GdbMi reg;
         reg.m_type = GdbMi::Tuple;
-        addConst(reg, "name", lldbRegister["name"].data());
-        addConst(reg, "value", lldbRegister["value"].data());
-        addConst(reg, "size", lldbRegister["size"].data());
-        addConst(reg, "groups", lldbRegister["groups"].data());
-        addConst(reg, "type", gdbRegisterTypeName(lldbRegister["type"].data()));
+        reg.addConst("name", lldbRegister["name"].data());
+        reg.addConst("value", lldbRegister["value"].data());
+        reg.addConst("size", lldbRegister["size"].data());
+        reg.addConst("groups", lldbRegister["groups"].data());
+        reg.addConst("type", gdbRegisterTypeName(lldbRegister["type"].data()));
         result.addChild(reg);
     }
     return result;
@@ -237,17 +228,10 @@ static GdbMi translateLldbModulesReply(const GdbMi &lldbModules)
     for (const GdbMi &lldbModule : lldbModules) {
         GdbMi module;
         module.m_type = GdbMi::Tuple;
-        const auto addConst = [&module](const QString &name, const QString &data) {
-            GdbMi child;
-            child.m_type = GdbMi::Const;
-            child.m_name = name;
-            child.m_data = data;
-            module.addChild(child);
-        };
-        addConst("modulepath", lldbModule["file"].data());
-        addConst("modulename", lldbModule["name"].data());
-        addConst("startaddress", lldbModule["loadstart"].data());
-        addConst("endaddress", lldbModule["loadend"].data());
+        module.addConst("modulepath", lldbModule["file"].data());
+        module.addConst("modulename", lldbModule["name"].data());
+        module.addConst("startaddress", lldbModule["loadstart"].data());
+        module.addConst("endaddress", lldbModule["loadend"].data());
         result.addChild(module);
     }
     return result;
@@ -269,18 +253,11 @@ static GdbMi translateLldbSymbolsReply(const FilePath &modulePath, const GdbMi &
     for (const GdbMi &lldbSymbol : lldbSymbols["symbols"]) {
         GdbMi symbol;
         symbol.m_type = GdbMi::Tuple;
-        const auto addConst = [&symbol](const QString &name, const QString &data) {
-            GdbMi child;
-            child.m_type = GdbMi::Const;
-            child.m_name = name;
-            child.m_data = data;
-            symbol.addChild(child);
-        };
-        addConst("address", lldbSymbol["address"].data());
-        addConst("name", lldbSymbol["name"].data());
-        addConst("demangled", lldbSymbol["demangled"].data());
-        addConst("state", lldbSymbol["state"].data());
-        addConst("section", lldbSymbol["section"].data());
+        symbol.addConst("address", lldbSymbol["address"].data());
+        symbol.addConst("name", lldbSymbol["name"].data());
+        symbol.addConst("demangled", lldbSymbol["demangled"].data());
+        symbol.addConst("state", lldbSymbol["state"].data());
+        symbol.addConst("section", lldbSymbol["section"].data());
         symbols.addChild(symbol);
     }
     result.addChild(symbols);
@@ -303,18 +280,11 @@ static GdbMi translateLldbSectionsReply(const FilePath &modulePath, const GdbMi 
     for (const GdbMi &lldbSection : lldbSections) {
         GdbMi section;
         section.m_type = GdbMi::Tuple;
-        const auto addConst = [&section](const QString &name, const QString &data) {
-            GdbMi child;
-            child.m_type = GdbMi::Const;
-            child.m_name = name;
-            child.m_data = data;
-            section.addChild(child);
-        };
-        addConst("from", lldbSection["from"].data());
-        addConst("to", lldbSection["to"].data());
-        addConst("address", lldbSection["address"].data());
-        addConst("name", lldbSection["name"].data());
-        addConst("flags", lldbSection["flags"].data());
+        section.addConst("from", lldbSection["from"].data());
+        section.addConst("to", lldbSection["to"].data());
+        section.addConst("address", lldbSection["address"].data());
+        section.addConst("name", lldbSection["name"].data());
+        section.addConst("flags", lldbSection["flags"].data());
         sections.addChild(section);
     }
     result.addChild(sections);
@@ -1126,15 +1096,8 @@ void LldbImpl::refresh(const RefreshRequest &request)
                     value |= quint32(uchar(contents.at(i))) << (8 * i);
                 GdbMi result;
                 result.m_type = GdbMi::Tuple;
-                const auto addConst = [&result](const QString &name, const QString &data) {
-                    GdbMi child;
-                    child.m_type = GdbMi::Const;
-                    child.m_name = name;
-                    child.m_data = data;
-                    result.addChild(child);
-                };
-                addConst("address", QString::number(requestedAddress));
-                addConst("value", QString::number(value));
+                result.addConst("address", QString::number(requestedAddress));
+                result.addConst("value", QString::number(value));
                 emit refreshDataReceived(requestId, RefreshKind::PeripheralRegisters, result);
             };
             runCommand(cmd);
@@ -1186,7 +1149,7 @@ void LldbImpl::fetchLocationAfterStop(InferiorEvent event)
         // lldb stops the whole process, so every thread it knows is stopped.
         GdbMi stoppedThread;
         stoppedThread.m_type = GdbMi::Tuple;
-        addConst(stoppedThread, "id", "all");
+        stoppedThread.addConst("id", "all");
         emit threadEvent(ThreadEvent::Stopped, stoppedThread);
         emit inferiorEvent(event);
     };
@@ -1464,7 +1427,7 @@ void LldbImpl::handleStateReport(const GdbMi &item)
         // lldb resumes the whole process, so every thread it knows runs again.
         GdbMi runningThread;
         runningThread.m_type = GdbMi::Tuple;
-        addConst(runningThread, "thread-id", "all");
+        runningThread.addConst("thread-id", "all");
         emit threadEvent(ThreadEvent::Running, runningThread);
         if (std::exchange(m_resumingFromTemporaryStop, false))
             return;
@@ -1629,7 +1592,7 @@ void LldbImpl::handleLldbOutput(const QString &output)
         } else if (name == "breakpointremoved") {
             GdbMi removed;
             removed.m_type = GdbMi::Tuple;
-            addConst(removed, "number", item["lldbid"].data());
+            removed.addConst( "number", item["lldbid"].data());
             emit breakpointEvent(0, BreakpointOp::Remove, true, removed);
         } else if (name == "interpreterresult") {
             const int token = all["token"].toInt();
