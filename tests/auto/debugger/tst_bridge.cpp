@@ -120,6 +120,8 @@ void tst_Bridge::protocol_data()
         << "symbols-are-loaded-for-a-module";
     QTest::newRow("startup commands reach gdb") << "startup-commands-reach-gdb";
     QTest::newRow("data requests use the dumpers") << "data-requests-use-the-dumpers";
+    QTest::newRow("qml names translate watch expressions")
+        << "qml-names-translate-watch-expressions";
 }
 
 void tst_Bridge::protocol()

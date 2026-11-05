@@ -2682,8 +2682,8 @@ typename))
     def extractByte(self, value):
         return self.value_extract_something(value, 1)
 
-    # Parses a..b and  a.(s).b
-    def parseRange(self, exp):
+    # Splits a..b and a.(s).b into template, s, a, b without evaluating them.
+    def splitRange(self, exp):
 
         # Search for the first unbalanced delimiter in s
         def searchUnbalanced(s, upwards):
@@ -2717,9 +2717,14 @@ typename))
             right_e = right_s + searchUnbalanced(exp[right_s:], True)
             template = exp[:left_s] + '%s' + exp[right_e:]
 
-            a = exp[left_s:left_e]
-            b = exp[right_s:right_e]
+            return template, s, exp[left_s:left_e], exp[right_s:right_e]
+        return None
 
+    # Parses a..b and  a.(s).b
+    def parseRange(self, exp):
+        split = self.splitRange(exp)
+        if split:
+            template, s, a, b = split
             try:
                 # Allow integral expressions.
                 ss = self.value_as_integer(self.parseAndEvaluate(s[1:len(s) - 1])) if s else 1
@@ -2771,22 +2776,26 @@ typename))
 
     def handleWatch(self, origexp, exp, iname):
         exp = str(exp).strip()
+        origexp = str(origexp).strip()
         escapedExp = self.hexencode(exp)
         #self.warn('HANDLING WATCH %s -> %s, INAME: "%s"' % (origexp, exp, iname))
 
         # Grouped items separated by semicolon.
         if exp.find(';') >= 0:
             exps = exp.split(';')
+            origexps = origexp.split(';')
+            if len(origexps) != len(exps):
+                origexp, origexps = exp, exps
             n = len(exps)
             with TopLevelItem(self, iname):
                 self.putField('iname', iname)
                 #self.putField('wname', escapedExp)
-                self.putField('name', exp)
+                self.putField('name', origexp)
                 self.putField('exp', exp)
                 self.putItemCount(n)
                 self.putNoType()
             for i in range(n):
-                self.handleWatch(exps[i], exps[i], '%s.%d' % (iname, i))
+                self.handleWatch(origexps[i], exps[i], '%s.%d' % (iname, i))
             return
 
         # Special array index: e.g a[1..199] or a[1.(3).199] for stride 3.
@@ -2795,17 +2804,24 @@ typename))
             #self.warn('RANGE: %s %s %s in %s' % (begin, step, end, template))
             r = range(begin, end, step)
             n = len(r)
+            origTemplate = template
+            if origexp != exp:
+                origSplit = self.splitRange(origexp)
+                if origSplit:
+                    origTemplate = origSplit[0]
+                else:
+                    origexp = exp
             with TopLevelItem(self, iname):
                 self.putField('iname', iname)
                 #self.putField('wname', escapedExp)
-                self.putField('name', exp)
+                self.putField('name', origexp)
                 self.putField('exp', exp)
                 self.putItemCount(n)
                 self.putNoType()
                 with Children(self, n):
                     for i in r:
-                        e = template % i
-                        self.handleWatch(e, e, '%s.%s' % (iname, i))
+                        self.handleWatch(origTemplate % i, template % i,
+                                         '%s.%s' % (iname, i))
             return
 
             # Fall back to less special syntax
@@ -2813,7 +2829,7 @@ typename))
 
         with TopLevelItem(self, iname):
             self.putField('iname', iname)
-            self.putField('wname', escapedExp)
+            self.putField('wname', self.hexencode(origexp))
             try:
                 value = self.parseAndEvaluate(exp)
                 self.putItem(value)

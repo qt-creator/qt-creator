@@ -7,6 +7,7 @@ except ImportError:
     import builtins
 
 import gdb
+import itertools
 import os
 import os.path
 import re
@@ -751,6 +752,176 @@ class Dumper(DumperBase):
 
         return items
 
+    # qmltocpp names C++ variables after bytecode registers. With debug line
+    # directives, the generated source has comment lines before the code of
+    # each such function, one per label in it:
+    #     // qml-names @<label> <jsname>=<cppname> ...
+    # They name the variable that holds the value from that label on, an
+    # empty one if the JavaScript variable is still undefined there.
+    qmlRegisterPattern = re.compile(r'^r\d+(_\w*)?$')
+    # A string or character literal, or an identifier that is not a member.
+    qmlIdentifierPattern = re.compile(
+        r'("(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\')'
+        r'|(?<![\w$])(?<!->)(?:(?<=\.\.)|(?<!\.))([A-Za-z_$][\w$]*)')
+    qmlNamesPrefix = '// qml-names @'
+
+    def qmlNamesTable(self, function):
+        symtab = function.symtab
+        if symtab is None or not function.line:
+            return None
+        path = symtab.fullname()
+        try:
+            mtime = os.path.getmtime(path)
+            if mtime > os.path.getmtime(symtab.objfile.filename):
+                return None
+        except Exception:
+            return None
+        cache = self.__dict__.setdefault('qmlNamesCache', {})
+        key = (path, function.line)
+        cached = cache.get(key)
+        if cached is not None and cached[0] == mtime:
+            return cached[1]
+        table = None
+        try:
+            with open(path, encoding='utf-8', errors='replace') as source:
+                for line in itertools.islice(source, function.line, None):
+                    line = line.strip()
+                    if line.startswith(self.qmlNamesPrefix):
+                        fields = line[len(self.qmlNamesPrefix):].split()
+                        if fields:
+                            if table is None:
+                                table = {}
+                            table[fields[0]] = dict(field.split('=', 1)
+                                                    for field in fields[1:] if '=' in field)
+                    elif line.startswith('#') or line.startswith('/') or line == '}':
+                        break
+        except Exception:
+            table = None
+        cache[key] = (mtime, table)
+        return table
+
+    def qmlNamesLabels(self, block, table, symtab):
+        cache = self.__dict__.setdefault('qmlNamesLabelCache', {})
+        key = (block.function.symtab.fullname(), block.start)
+        labels = cache.get(key)
+        if labels is not None:
+            return labels
+        # Python cannot list the nested blocks of a block, so find them by pc,
+        # in the generated file and in the QML file its line directives name.
+        found = {}
+        seen = set()
+        symtabs = [block.function.symtab]
+        if symtab is not None and symtab.fullname() != symtabs[0].fullname():
+            symtabs.append(symtab)
+        for entry in (entry for symtab in symtabs for entry in symtab.linetable()):
+            if not block.start <= entry.pc < block.end:
+                continue
+            inner = gdb.block_for_pc(entry.pc)
+            while inner is not None and (inner.start, inner.end) not in seen:
+                seen.add((inner.start, inner.end))
+                for symbol in inner:
+                    if symbol.addr_class == gdb.SYMBOL_LOC_LABEL and symbol.name in table:
+                        found[symbol.name] = int(symbol.value())
+                if inner.function is not None:
+                    break
+                inner = inner.superblock
+        order = {name: index for index, name in enumerate(table)}
+        labels = sorted(((address, name) for name, address in found.items()),
+                        key=lambda label: (label[0], order[label[1]]))
+        cache[key] = labels
+        return labels
+
+    def qmlNamesAtFrame(self, frame):
+        try:
+            block = frame.block()
+        except Exception:
+            return None
+        while block is not None and block.function is None:
+            block = block.superblock
+        if block is None:
+            return None
+        table = self.qmlNamesTable(block.function)
+        if table is None:
+            return None
+
+        pc = frame.pc()
+        newer = frame.newer()
+        if newer is not None and newer.type() == gdb.NORMAL_FRAME:
+            pc -= 1  # The return address can be the start of the next statement.
+        labels = self.qmlNamesLabels(block, table, frame.find_sal().symtab)
+        if not labels:
+            return None  # The labels are optimized out, keep the C++ names.
+        current = None
+        for address, name in labels:
+            if address > pc:
+                break
+            current = name
+        if current is None and table:
+            current = next(iter(table))  # The prologue, nothing is defined yet.
+        return dict(table.get(current, {}))
+
+    def applyQmlNames(self, variables, qmlNames, partialName):
+        if not qmlNames:
+            return variables
+        jsNameOf = {cppName: jsName for jsName, cppName in qmlNames.items() if cppName}
+        result = []
+        for value in variables:
+            if value.name in jsNameOf:
+                value.name = jsNameOf[value.name]
+                result.append(value)
+            elif not self.qmlRegisterPattern.match(value.name):
+                result.append(value)
+        return result
+
+    def handleUndefinedQmlNames(self, qmlNames, partialName):
+        for jsName, cppName in qmlNames.items():
+            if cppName or (partialName and partialName != jsName):
+                continue
+            iname = 'local.' + jsName
+            with TopLevelItem(self, iname):
+                self.putField('iname', iname)
+                self.putField('name', jsName)
+                self.putType('var')
+                self.putSpecialValue('undefined')
+                self.putNumChild(0)
+
+    def putUndefinedQmlWatch(self, exp, iname, isName):
+        with TopLevelItem(self, iname):
+            self.putField('iname', iname)
+            self.putField('wname', self.hexencode(exp.strip()))
+            self.putType(' ')
+            self.putSpecialValue('undefined' if isName else 'notaccessible')
+            self.putNumChild(0)
+
+    # The bounds of a range a..b or a.(s).b are expressions of their own.
+    def qmlExpressionParts(self, exp):
+        split = self.splitRange(exp)
+        if split is None:
+            return [exp]
+        template, s, a, b = split
+        head = len(os.path.commonprefix([exp, template]))
+        return [exp[:head], a, '.', s or '', '.', b, template[head + 2:]]
+
+    def translatedQmlExpression(self, exp, qmlNames):
+        return ''.join(self.qmlIdentifierPattern.sub(
+            lambda m: m.group(1) or qmlNames.get(m.group(2)) or m.group(2), part)
+            for part in self.qmlExpressionParts(exp))
+
+    def handleWatches(self, args):
+        qmlNames = getattr(self, 'currentQmlNames', None)
+        for watcher in args.get('watchers', []):
+            iname = watcher['iname']
+            exp = self.hexdecode(watcher['exp'])
+            if qmlNames:
+                names = [name for part in self.qmlExpressionParts(exp)
+                         for _, name in self.qmlIdentifierPattern.findall(part) if name]
+                if any(qmlNames.get(name) == '' for name in names):
+                    self.putUndefinedQmlWatch(exp, iname, exp.strip() in qmlNames)
+                    continue
+                self.handleWatch(exp, self.translatedQmlExpression(exp, qmlNames), iname)
+            else:
+                self.handleWatch(exp, exp, iname)
+
     # gdb only reports variables of the lexical blocks enclosing the current
     # program counter. When the user opts in, also collect variables from the
     # other blocks of the current function (e.g. an 'if' or 'for' body not yet
@@ -841,7 +1012,15 @@ class Dumper(DumperBase):
             except Exception:
                 pass
 
-        variables = self.listLocals(partialName)
+        qmlNames = self.qmlNamesAtFrame(gdb.selected_frame())
+        self.currentQmlNames = qmlNames
+        if qmlNames and partialName in qmlNames:
+            cppName = qmlNames[partialName]
+            variables = self.listLocals(cppName) if cppName else []
+        else:
+            variables = self.listLocals(partialName)
+        if qmlNames is not None:
+            variables = self.applyQmlNames(variables, qmlNames, partialName)
         #self.warn('VARIABLES: %s' % variables)
 
         # A name the request reports as not initialized at this line is out of
@@ -862,7 +1041,10 @@ class Dumper(DumperBase):
                 pass
 
         self.handleLocals(variables)
+        if qmlNames is not None:
+            self.handleUndefinedQmlNames(qmlNames, partialName)
         self.handleWatches(args)
+        self.currentQmlNames = None
 
         self.put('],typeinfo=[')
         for name in self.typesToReport.keys():
@@ -1274,6 +1456,9 @@ class Dumper(DumperBase):
     def assignValue(self, args):
         type_name = self.hexdecode(args['type'])
         expr = self.hexdecode(args['expr'])
+        qmlNames = self.qmlNamesAtFrame(gdb.selected_frame())
+        if qmlNames:
+            expr = self.translatedQmlExpression(expr, qmlNames)
         value = self.hexdecode(args['value'])
         simpleType = int(args['simpleType'])
         ns = self.qtNamespace()

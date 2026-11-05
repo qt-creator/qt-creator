@@ -17,6 +17,7 @@ import json
 import os
 import select
 import sys
+import tempfile
 import types
 
 check = sys.argv[1] if len(sys.argv) > 1 else ""
@@ -1156,6 +1157,103 @@ def check_a_newline_cannot_smuggle_a_gdb_command(bridge):
         "environment value with a newline was applied: %s" % gdb.commands
 
 
+def loadGdbbridge():
+    # What gdbbridge.py needs of gdb to import: it defines commands and
+    # breakpoint classes and connects event handlers at module level.
+    class FakeCommand():
+        def __init__(self, *args, **kwargs):
+            pass
+
+    gdb.Command = FakeCommand
+    gdb.COMMAND_OBSCURE = gdb.COMMAND_DATA = gdb.COMMAND_USER = 0
+    spec = importlib.util.spec_from_file_location("gdbbridge_under_test",
+                                                  os.path.join(dumperDir, "gdbbridge.py"))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def check_qml_names_translate_watch_expressions(bridge):
+    # A watch on a compiled QML function names the JavaScript variables, gdb
+    # needs the C++ variables they are kept in. Members, the contents of
+    # literals and the names in a range's bounds decide which name is which.
+    dumper = loadGdbbridge().theDumper
+    names = {"arr": "r9", "n": "r10_1", "x": "r11"}
+    for exp, expected in (("arr[0..n]", "r9[0..r10_1]"),
+                          ("arr[1.(n).5]", "r9[1.(r10_1).5]"),
+                          ("arr[0.(2).n]", "r9[0.(2).r10_1]"),
+                          ("obj.arr[n.(2).x].n", "obj.arr[r10_1.(2).r11].n"),
+                          ("obj.n + p->x", "obj.n + p->x"),
+                          ("obj->property(\"x\") + 'n'", "obj->property(\"x\") + 'n'"),
+                          ("x + \"a\\\"x\" + n", "r11 + \"a\\\"x\" + r10_1")):
+        actual = dumper.translatedQmlExpression(exp, names)
+        assert actual == expected, "%r became %r, expected %r" % (exp, actual, expected)
+
+    # gdb only evaluates the C++ bounds, the JavaScript ones name the items.
+    values = {"0": 0, "1": 1, "5": 5, "r10_1": 2}
+    dumper.parseAndEvaluate = lambda exp: values[exp]
+    dumper.value_as_integer = lambda value: value
+    fields = {}
+    dumper.putField = lambda name, value: fields.setdefault(name, value)
+    dumper.put = dumper.putItemCount = dumper.putNoType = lambda *args: None
+    dumper.enterSubItem = lambda item: None
+    dumper.exitSubItem = lambda item, exType, exValue, exTraceBack: False
+    children = []
+    dumper.handleWatch = lambda origexp, exp, iname: children.append((origexp, exp))
+    for origexp, exp, indices in (("arr[0..n]", "r9[0..r10_1]", (0, 1, 2)),
+                                  ("arr[1.(n).5]", "r9[1.(r10_1).5]", (1, 3, 5))):
+        fields.clear()
+        children.clear()
+        type(dumper).handleWatch(dumper, origexp, exp, "watch.0")
+        expected = [("arr[%d]" % i, "r9[%d]" % i) for i in indices]
+        assert fields.get("name") == origexp, "%r is named %r" % (origexp, fields.get("name"))
+        assert children == expected, "%r has children %r" % (origexp, children)
+
+    # A function with many labels has a long block of them.
+    with tempfile.TemporaryDirectory() as tmp:
+        source = os.path.join(tmp, "qml.cpp")
+        with open(source, "w") as f:
+            f.write("void f()\n{\n")
+            f.writelines("    // qml-names @label_%d x=r%d\n" % (i, i) for i in range(60))
+            f.write("}\n")
+        objfile = types.SimpleNamespace(filename=source)
+        symtab = types.SimpleNamespace(fullname=lambda: source, objfile=objfile)
+        function = types.SimpleNamespace(symtab=symtab, line=1)
+        table = dumper.qmlNamesTable(function)
+        assert table and table.get("label_59") == {"x": "r59"}, \
+            "the last label is missing: %r" % (table and len(table))
+
+    # Labels with no code between them share an address, the later one holds.
+    class FakeBlock(list):
+        pass
+
+    with tempfile.TemporaryDirectory() as tmp:
+        source = os.path.join(tmp, "qml.cpp")
+        with open(source, "w") as f:
+            f.write("void f()\n{\n")
+            f.write("    // qml-names @label_9 x=r9\n    // qml-names @label_10 x=r10\n}\n")
+        objfile = types.SimpleNamespace(filename=source)
+        symtab = types.SimpleNamespace(fullname=lambda: source, objfile=objfile,
+                                       linetable=lambda: [types.SimpleNamespace(pc=0x20)])
+        function = types.SimpleNamespace(symtab=symtab, line=1)
+        labelClass = getattr(gdb, "SYMBOL_LOC_LABEL", 1000)
+        block = FakeBlock(types.SimpleNamespace(name=name, addr_class=labelClass,
+                                                value=lambda: 0x20)
+                          for name in ("label_9", "label_10"))
+        block.start, block.end, block.function, block.superblock = 0x10, 0x40, function, None
+        frame = types.SimpleNamespace(block=lambda: block, pc=lambda: 0x30, newer=lambda: None,
+                                      find_sal=lambda: types.SimpleNamespace(symtab=None))
+        saved = {name: getattr(gdb, name, None) for name in ("SYMBOL_LOC_LABEL", "block_for_pc")}
+        gdb.SYMBOL_LOC_LABEL = labelClass
+        gdb.block_for_pc = lambda pc: block
+        try:
+            names = dumper.qmlNamesAtFrame(frame)
+        finally:
+            for name, value in saved.items():
+                setattr(gdb, name, value)
+        assert names == {"x": "r10"}, "a shared address picked %r" % names
+
+
 checks = {
     "framing": check_framing,
     "initialize-reports-dumpers": check_initialize_reports_dumpers,
@@ -1200,6 +1298,7 @@ checks = {
     "symbols-are-loaded-for-a-module": check_symbols_are_loaded_for_a_module,
     "startup-commands-reach-gdb": check_startup_commands_reach_gdb,
     "data-requests-use-the-dumpers": check_data_requests_use_the_dumpers,
+    "qml-names-translate-watch-expressions": check_qml_names_translate_watch_expressions,
 }
 
 if check not in checks:
