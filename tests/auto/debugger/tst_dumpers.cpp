@@ -8224,6 +8224,31 @@ void tst_Dumpers::dumper_data()
                + Check("p.d.x", "1", "int")
                + Check("p.d.y", FloatValue("2.5"), "double")
                + Check("pp.d.x", "1", "int");
+
+    // Each side has its own copy of the anonymous unions, as with glm::vec3.
+    const QString crossLibraryUnionDecl =
+            "struct Vec { union { int x, r; }; union { int y, g; }; };\n"
+            "struct Holder { Vec pos; };\n"
+            "extern Holder libHolder;\n";
+
+    QTest::newRow("CrossLibraryAnonymousUnion")
+            << Data(crossLibraryUnionDecl,
+
+                    "Vec v;\n"
+                    "v.x = 1;\n"
+                    "v.y = 2;",
+
+                    "&v, &libHolder")
+
+               + SharedLibrary(crossLibraryUnionDecl +
+                    "Holder libHolder = { { { 3 }, { 4 } } };\n")
+
+               + Watcher("watch.1", "'lib.cpp'::libHolder")
+
+               + Check("v.#1.x", "1", "int")
+               + Check("v.#2.g", "2", "int")
+               + Check("watch.1.pos.#1.r", "3", "int") % GdbEngine
+               + Check("watch.1.pos.#2.y", "4", "int") % GdbEngine;
 #endif
 
 

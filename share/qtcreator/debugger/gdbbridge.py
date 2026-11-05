@@ -503,6 +503,25 @@ class Dumper(DumperBase):
         #self.warn("NATIVE TYPE KEY: %s" % id_str)
         return id_str
 
+    def nativeMember(self, nativeValue, nativeField):
+        try:
+            return nativeValue[nativeField]
+        except Exception:
+            # The cached type can be another compilation unit's copy of the
+            # value's type. GDB finds an unnamed member only by bit position and
+            # an equal type, and two copies of an anonymous union never compare
+            # equal, so the member is taken from the value's own type.
+            if nativeField.name or not hasattr(nativeField, 'bitpos'):
+                raise
+            ownType = nativeValue.type.strip_typedefs()
+            if ownType.code == gdb.TYPE_CODE_REF:
+                ownType = ownType.target().strip_typedefs()
+            for ownField in ownType.fields():
+                if (not ownField.name and not ownField.is_base_class
+                        and getattr(ownField, 'bitpos', None) == nativeField.bitpos):
+                    return nativeValue[ownField]
+            raise
+
     def nativeListMembers(self, value, nativeType, include_base):
         nativeValue = value.nativeValue
         value_size = self.type_size(value.typeid)
@@ -535,7 +554,7 @@ class Dumper(DumperBase):
 
             if nativeValue is not None:
                 try:
-                    native_member = nativeValue[nativeField]
+                    native_member = self.nativeMember(nativeValue, nativeField)
                 except Exception:
                     self.warn('  COULD NOT ACCESS FIELD: %s' % nativeFieldType)
                     continue
