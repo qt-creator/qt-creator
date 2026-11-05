@@ -35,7 +35,6 @@ FilePath wslExecutable()
 }
 
 // The mark is not whitespace, so it survives the trimming every caller does.
-// It goes here, where every answer passes, rather than in each of them.
 static QString withoutByteOrderMark(const QString &decoded)
 {
     return decoded.startsWith(QChar(0xFEFF)) ? decoded.mid(1) : decoded;
@@ -43,9 +42,10 @@ static QString withoutByteOrderMark(const QString &decoded)
 
 QString decodeWslOutput(const QByteArray &output)
 {
-    // Either mark is enough on its own: a zero byte cannot occur in UTF-8,
-    // and the byte order mark carries none, which an answer consisting of
-    // nothing but the mark is made up of entirely.
+    // wsl.exe answers in UTF-16LE unless WSL_UTF8 says otherwise, and builds
+    // that predate that variable answer in UTF-16LE regardless. A UTF-16LE
+    // answer opens with a byte order mark, and UTF-8 never contains a zero
+    // byte.
     if (!output.startsWith("\xFF\xFE") && !output.contains('\0'))
         return withoutByteOrderMark(QString::fromUtf8(output));
 
@@ -72,15 +72,12 @@ QStringList parseDistributionList(const QString &output)
     return result;
 }
 
-// The WSL service itself answers right away. A command sent into a
-// distribution has to wait for it to be there: a stopped one is started
-// first, and a cold start is a virtual machine boot.
+// A stopped distribution is started first, and a cold start is a virtual
+// machine boot.
 static constexpr std::chrono::seconds serviceTimeout{10};
 static constexpr std::chrono::seconds distributionTimeout{120};
 
-// What wsl.exe wrote about a failure, decoded the way its answers are:
-// which channel it uses depends on the version and on what went wrong, so
-// both are taken, and neither is UTF-8 on the builds that ignore WSL_UTF8.
+// Which channel wsl.exe uses depends on the version and on what went wrong.
 static QString decodedWslFailureOutput(const Process &process)
 {
     const auto decoded = [](const QByteArray &raw) {
@@ -128,6 +125,7 @@ static Result<QString> runWsl(const QStringList &arguments,
 
 Result<QStringList> installedDistributions()
 {
+    // The quiet form carries no header and is not translated.
     const Result<QString> output = runWsl({"--list", "--quiet"});
     if (!output)
         return ResultError(output.error());
@@ -145,15 +143,11 @@ Result<QStringList> runningDistributions()
 QString normalizeMountRoot(const QString &mountRoot)
 {
     QString normalized = mountRoot;
-    // A root of "/" is a separator and nothing else, so the strip stops
-    // short of eating it.
     while (normalized.size() > 1 && normalized.endsWith('/'))
         normalized.chop(1);
     return normalized;
 }
 
-// The automount root with exactly one separator after it, which a root of "/"
-// already ends in.
 static QString mountRootPrefix(const QString &mountRoot)
 {
     const QString normalized = normalizeMountRoot(mountRoot);
@@ -231,9 +225,8 @@ Environment parseEnvironment(const QString &envOutput)
     return environment;
 }
 
-// Runs one command in the distribution through wsl.exe. Deliberately not
-// through the device: this is what setting the device up needs, and a command
-// run on the device asks it for the file access that is being set up.
+// Not through the device: a command run on the device asks it for the file
+// access that is being set up.
 static Result<QString> runInDistribution(
     const QString &distribution, const QString &userName, const QStringList &command)
 {
@@ -256,9 +249,7 @@ static Result<QString> runShellInDistribution(
 
 Result<QString> detectMountRoot(const QString &distribution)
 {
-    // "cat" exits nonzero for a file that is not there, so the fallback is
-    // what makes a distribution without /etc/wsl.conf the default rather than
-    // an error, and what is left really is one.
+    // A distribution without /etc/wsl.conf is not an error.
     const Result<QString> output
         = runShellInDistribution(distribution, {}, "cat /etc/wsl.conf 2>/dev/null || true");
     if (!output)
@@ -291,10 +282,8 @@ static bool isWslShare(const FilePath &path)
            || host == QString::fromUtf16(wslDollarHost);
 }
 
-// The path inside the distribution a decomposed share path names: the share
-// is "//wsl.localhost/<distribution>/<path>", and decomposing it leaves the
-// distribution as the first component of the path. Empty when the path names
-// another distribution.
+// Decomposing "//wsl.localhost/<distribution>/<path>" leaves the
+// distribution as the first component of the path.
 static QString pathInDistributionShare(const QString &distribution, const QString &path)
 {
     const QString prefix = '/' + distribution;
@@ -307,11 +296,8 @@ static QString pathInDistributionShare(const QString &distribution, const QStrin
     return {};
 }
 
-// The part of an automounted path that follows the drive letter, and nothing
-// when the path names no automounted drive. Exactly one letter names a drive:
-// "/mnt/c" and "/mnt/c/src", but not "/mnt/cdrom", which is an ordinary
-// directory that happens to live under the automount root. A root of "/" puts
-// every path under itself, so the drive is what tells them apart there.
+// Exactly one letter names a drive: "/mnt/c" and "/mnt/c/src", but not
+// "/mnt/cdrom".
 static std::optional<QString> automountedTail(const QString &mountRoot, const QString &path)
 {
     const QString prefix = mountRootPrefix(mountRoot);
@@ -352,10 +338,11 @@ QString mappedHostPathToWslPath(const QString &mountRoot,
                                 const QString &distribution,
                                 const QString &hostPath)
 {
+    // FilePath::withNewMappedPath() drops the UNC host before the mapping
+    // sees it, so a path on the distribution's own share arrives decomposed.
     // A path in the distribution that opens with a directory named after the
-    // distribution is indistinguishable from its own share, and loses: that
-    // share is what localSource() hands out for every path outside the
-    // automount root, so it is the one that turns up here.
+    // distribution is indistinguishable from it, and loses: that share is
+    // what localSource() hands out for every path outside the automount root.
     const QString inShare = pathInDistributionShare(distribution, hostPath);
     if (!inShare.isEmpty())
         return inShare;
@@ -368,8 +355,6 @@ QString hostPathToWslPath(const QString &mountRoot,
                           const FilePath &hostPath)
 {
     if (isWslShare(hostPath)) {
-        // The server is in the host part, so what is left of the share is the
-        // distribution and the path in it.
         return pathInDistributionShare(distribution, hostPath.path());
     }
 
@@ -429,9 +414,7 @@ CommandLine wslCommandLine(
 
     // Around the shell, not around the command inside it: the test below runs
     // in the shell, and has to look the executable up in the PATH the command
-    // is then run with. By name, not by path, so that wsl.exe finds it
-    // wherever the distribution keeps it. These are arguments of wsl.exe, so
-    // the host quotes them, unlike everything that goes into the script.
+    // is then run with.
     if (environment) {
         wslCmd.addArg("env");
         environment->forEachEntry(
@@ -451,6 +434,9 @@ CommandLine wslCommandLine(
         return wslCmd;
     }
 
+    // wsl.exe reports nothing about the command it starts, so the command
+    // reports itself, but only after its executable is found, so that a failed
+    // start is told apart from a command that failed. exec keeps the pid.
     CommandLine testType({"type", {}});
     testType.addArg(command.executable().path(), OsTypeLinux);
     testType.addArgs(">/dev/null", CommandLine::Raw);

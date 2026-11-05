@@ -11,6 +11,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <client/bridgedfileaccess.h>
@@ -31,6 +32,8 @@
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/shutdownguard.h>
+#include <utils/synchronizedvalue.h>
 #include <utils/terminalhooks.h>
 #include <utils/url.h>
 
@@ -67,9 +70,6 @@ const char WslDeviceUserNameKey[] = "WslDeviceUserName";
 const char WslDeviceMountRootKey[] = "WslDeviceMountRoot";
 const char WslDeviceAppendWindowsPathKey[] = "WslDeviceAppendWindowsPath";
 
-// The distributions that were offered a device already. WSL keeps no
-// identifier for a distribution beyond its name, so the name is what is
-// remembered.
 const char WslKnownDistributionsKey[] = "Wsl/KnownDistributions";
 
 class WslDeviceFileAccess final : public CmdBridge::FileAccess
@@ -85,8 +85,6 @@ public:
     WslDevicePrivate *m_dev = nullptr;
 };
 
-// What the device falls back to when the bridge cannot be brought up: every
-// operation as a wsl.exe of its own, which is correct but slow.
 class WslFallbackFileAccess final : public UnixDeviceFileAccess
 {
 public:
@@ -95,10 +93,8 @@ public:
         , m_rootPath(rootPath)
     {}
 
-    // Not the "env" UnixDeviceFileAccess would run: what the device reports
-    // is the environment the bridge would have been started with, so that
-    // leaving the Windows PATH out means the same with the bridge and
-    // without it.
+    // Not the "env" UnixDeviceFileAccess would run, so that leaving the
+    // Windows PATH out means the same with the bridge and without it.
     Result<Environment> deviceEnvironment() const final;
 
     Result<RunResult> runInShellImpl(
@@ -106,8 +102,7 @@ public:
     {
         // Split for the distribution, not for the host: UnixDeviceFileAccess
         // quoted these arguments the way a shell in the distribution parses
-        // them, and a path with a space in it is what the host's rules would
-        // tear apart.
+        // them.
         Process proc;
         proc.setWriteData(stdInData);
         proc.setCommand(
@@ -151,8 +146,6 @@ public:
     Result<FilePath> cmdBridgePathInDistribution() const;
     Result<Environment> fetchEnvironment() const;
 
-    // The access in hand, unless it is a fallback that is worth another
-    // attempt at the bridge.
     DeviceFileAccessPtr cachedFileAccess() const
     {
         auto fileAccess = m_fileAccess.readLocked();
@@ -176,73 +169,41 @@ private:
         const Utils::Result<Utils::FilePath> &inPlace,
         const Utils::Environment &bridgeEnvironment);
 
-    // The attempt itself. It asks the distribution twice, and each question
-    // starts it, so whoever calls this has to be able to wait out a boot.
-    // The generation is the one the device was on when the attempt started.
     DeviceFileAccessPtr bringUpFileAccess(int generation);
 
-    // Leaves the device on one wsl.exe per file operation, and counts the
-    // attempt that got it there.
     DeviceFileAccessPtr fallBackToDirectAccess(
         SynchronizedValue<DeviceFileAccessPtr>::unique_lock &fileAccess, const QString &reason);
 
     bool shouldRetryBridge() const { return m_retryBridge && m_bridgeRetryTimer.hasExpired(); }
 
-    // What a bridge that exits on its own runs. The distribution it was
-    // talking to is gone with it, so the access it backs is dropped rather
-    // than kept and asked again.
     std::function<void()> bridgeExitHandler();
 
     void detectMountRootAsync() const;
 
-    // What was translated while an automount root was on its way went through
-    // the default, and a distribution that answered another one does not use
-    // it. Runs where the device lives, not on whatever thread asked.
     void dropStaleTranslations() const;
 
-    // How often a distribution that could not be asked for its automount
-    // root is asked again before the device settles for the default.
     struct MountRootDetection
     {
         QString root;
         int attemptsLeft = 3;
-        // Set while the answer is being fetched, so that only one fetch is
-        // on its way at a time.
         bool detecting = false;
 
         void reset() { *this = {}; }
     };
 
-    // A failure is not an answer, so it is not kept as one, but it is counted:
-    // a distribution that was only slow to start deserves another attempt,
-    // while one that cannot be reached at all would otherwise hold up every
-    // single path translation for as long as wsl.exe takes to give up.
-    //
-    // Answers whether the root the device translates with has changed, which
-    // is what leaves earlier translations to be dropped.
     bool takeMountRootAnswer(MountRootDetection *detection, const Result<QString> &root) const;
 
     mutable SynchronizedValue<DeviceFileAccessPtr> m_fileAccess;
 
-    // Guarded by m_fileAccess. A distribution that was merely still starting
-    // is a failure the next attempt would not see, so a fallback is not what
-    // the device answers with for the rest of the session. The attempts are
-    // counted and spaced out, or a burst of file operations would spend them
-    // all on the same cold start.
+    // Guarded by m_fileAccess.
     static constexpr int MaxBridgeAttempts = 3;
     static constexpr std::chrono::seconds BridgeRetryDelay{5};
     bool m_retryBridge = false;
     int m_bridgeAttempts = 0;
     QDeadlineTimer m_bridgeRetryTimer;
 
-    // Set while an attempt is on its way in the background, so that the
-    // fallback standing in for it is told apart from one that settled.
     bool m_creatingFileAccess = false;
 
-    // Bumped whenever what the device reaches its distribution with changes.
-    // An attempt carries the value it started on, so one that was overtaken
-    // by such a change is told from one that still answers for the device the
-    // way it is now.
     mutable int m_fileAccessGeneration = 0;
 
     mutable SynchronizedValue<std::optional<OsArch>> m_osArch;
@@ -286,8 +247,6 @@ QString WslDevicePrivate::mountRoot() const
     if (const QString configured = q->mountRoot(); !configured.isEmpty())
         return normalizeMountRoot(configured);
 
-    // Empty means "whatever the distribution uses". Asking starts it, so the
-    // answer is kept: this runs on the way to every path translation.
     auto detected = m_detectedMountRoot.writeLocked();
     if (!detected->root.isEmpty())
         return detected->root;
@@ -296,10 +255,7 @@ QString WslDevicePrivate::mountRoot() const
         return defaultMountRoot;
 
     // Starting a distribution is a virtual machine boot, and on the main
-    // thread waiting for one is that many seconds of frozen window. So there
-    // the question goes out in the background and the default stands in until
-    // it is answered, which is what a distribution that does not say uses
-    // anyway.
+    // thread waiting for one is that many seconds of frozen window.
     if (QThread::isMainThread()) {
         if (!detected->detecting) {
             detected->detecting = true;
@@ -309,15 +265,13 @@ QString WslDevicePrivate::mountRoot() const
         return defaultMountRoot;
     }
 
-    // Not a second fetch while one is on its way: both would wait for the
-    // same boot, and a timeout costs an attempt each, so a handful of file
-    // operations at once would spend them all on the first cold start.
+    // A timeout costs an attempt each, so a handful of file operations at
+    // once would spend them all on the first cold start.
     if (detected->detecting)
         return defaultMountRoot;
 
-    // Here the answer is worth waiting for, but not with the lock held: the
-    // main thread takes the same one on the way to every path translation,
-    // and would sit out the whole boot on it.
+    // Not with the lock held: the main thread takes the same one on the way
+    // to every path translation, and would sit out the whole boot on it.
     detected->detecting = true;
     detected.unlock();
     const Result<QString> root = detectMountRoot(q->distribution());
@@ -419,8 +373,6 @@ Result<OsArch> WslDevicePrivate::osArch() const
     return arch;
 }
 
-// The bridge answers deviceEnvironment() with the environment it was started
-// with, and that is the one the device reports and detects its tools in.
 Result<Environment> WslDevicePrivate::fetchEnvironment() const
 {
     const Result<Environment> env = detectEnvironment(q->distribution(), q->userName());
@@ -433,16 +385,11 @@ Result<Environment> WslDevicePrivate::fetchEnvironment() const
     return withoutWindowsPath(*env, mountRoot());
 }
 
-// WSL automounts the host's fixed drives and nothing else, so a mapped network
-// drive or a removable medium carries a letter that translates cleanly and is
-// then not there. Asking the distribution would start it, so the host is asked
-// instead.
+// WSL automounts the host's fixed drives and nothing else. Asking the
+// distribution would start it, so the host is asked instead.
 static bool isAutomountedDrive(QChar driveLetter)
 {
 #ifdef Q_OS_WIN
-    // A backslash, and not the portable separator the rest of the plugin
-    // passes around: this is the Win32 call itself, which documents the
-    // root of a drive as "C:\".
     const QString root = QString(driveLetter) + ":\\";
     return GetDriveTypeW(root.toStdWString().c_str()) == DRIVE_FIXED;
 #else
@@ -451,9 +398,6 @@ static bool isAutomountedDrive(QChar driveLetter)
 #endif
 }
 
-// hostPathToWslPath() with the drives the distribution does not automount left
-// out, so that a path it cannot see is reported as unreachable rather than
-// translated into one that is not there.
 static QString reachableWslPath(
     const QString &mountRoot, const QString &distribution, const FilePath &hostPath)
 {
@@ -491,9 +435,6 @@ Result<DeviceFileAccessPtr> WslDevicePrivate::createBridgeFileAccess(
     const Result<FilePath> &inPlace,
     const Environment &bridgeEnvironment)
 {
-    // The distribution sees the drive Qt Creator is installed on, so it runs
-    // the bridge where it already is. Deploying a copy is the fallback for an
-    // installation it cannot reach, one on a network share say.
     if (inPlace) {
         auto fAccess = std::make_unique<WslDeviceFileAccess>(this, bridgeExitHandler());
         fAccess->setPidMarker(Utils::pidMarkerTemplate());
@@ -539,9 +480,6 @@ DeviceFileAccessPtr WslDevicePrivate::fallBackToDirectAccess(
     return *fileAccess;
 }
 
-// The one attempt at a time, waited for by whoever makes it. The fallback is
-// in place behind it, so everything that asks meanwhile is answered with that
-// rather than made to wait for the distribution.
 DeviceFileAccessPtr WslDevicePrivate::bringUpFileAccess(int generation)
 {
     // Asked before the lock is taken. Both start the distribution, and this
@@ -553,9 +491,8 @@ DeviceFileAccessPtr WslDevicePrivate::bringUpFileAccess(int generation)
     SynchronizedValue<DeviceFileAccessPtr>::unique_lock fileAccess = m_fileAccess.writeLocked();
     m_creatingFileAccess = false;
 
-    // Without the environment there is nothing to start the bridge with: it
-    // answers deviceEnvironment() with the one it was started with, so an
-    // empty one would leave the device with no PATH to detect anything in.
+    // The bridge answers deviceEnvironment() with the one it was started
+    // with, so an empty one would leave the device with no PATH.
     if (!bridgeEnvironment)
         return fallBackToDirectAccess(fileAccess, bridgeEnvironment.error());
 
@@ -564,14 +501,8 @@ DeviceFileAccessPtr WslDevicePrivate::bringUpFileAccess(int generation)
     if (!fAccess)
         return fallBackToDirectAccess(fileAccess, fAccess.error());
 
-    // The bridge runs from a path under the automount root of the time, and
-    // answers deviceEnvironment() with one filtered against that same root.
-    // A device that moved on since - because the distribution answered
-    // another root, or because its settings were applied - is not the one
-    // this bridge speaks for, so it goes rather than becoming the answer
-    // nothing drops afterwards. Not a failed attempt, so it is not counted as
-    // one, and the next caller starts over. The drop that moved the device
-    // on took the access with it, so the fallback stands in until then.
+    // The bridge was set up for an automount root or settings the device
+    // has moved on from since. Not a failed attempt, so it is not counted.
     if (generation != m_fileAccessGeneration) {
         m_retryBridge = true;
         m_bridgeRetryTimer = QDeadlineTimer(std::chrono::seconds::zero());
@@ -594,10 +525,6 @@ DeviceFileAccessPtr WslDevicePrivate::createFileAccess()
     if (*fileAccess && !shouldRetryBridge())
         return *fileAccess;
 
-    // What the device answers with for as long as the attempt takes: every
-    // operation as a wsl.exe of its own, which is correct and only slow. With
-    // it in place the attempt is nobody else's wait, and the calls the
-    // deploying one makes take it instead of starting a second attempt.
     if (!*fileAccess)
         *fileAccess = std::make_shared<WslFallbackFileAccess>(this, q->rootPath());
 
@@ -608,11 +535,7 @@ DeviceFileAccessPtr WslDevicePrivate::createFileAccess()
     m_retryBridge = false;
     const int generation = m_fileAccessGeneration;
 
-    // Starting a distribution is a virtual machine boot, and a question it
-    // never answers costs a timeout - two of them, since there are two to ask.
-    // On the main thread that would be a frozen window for as long as it
-    // takes, so there the attempt goes out in the background, the way
-    // mountRoot() sends its own question out.
+    // Starting a distribution is a virtual machine boot, see mountRoot().
     if (QThread::isMainThread()) {
         QFuture<void> future = Utils::asyncRun(
             [this, generation] { bringUpFileAccess(generation); });
@@ -624,11 +547,6 @@ DeviceFileAccessPtr WslDevicePrivate::createFileAccess()
     return bringUpFileAccess(generation);
 }
 
-// The bridge answers deviceEnvironment() with the environment it was started
-// with, and that one was filtered against the automount root in use at the
-// time. A root that arrives afterwards leaves it answering for one the
-// distribution does not have, so it goes, and the next access is built
-// against the root that was answered.
 void WslDevicePrivate::dropStaleFileAccess() const
 {
     {
@@ -647,7 +565,6 @@ void WslDevicePrivate::dropFileAccess()
     m_detectedMountRoot.writeLocked()->reset();
 
     {
-        // A device that starts over starts over with its attempts as well.
         auto fileAccess = m_fileAccess.writeLocked();
         m_retryBridge = false;
         m_bridgeAttempts = 0;
@@ -748,10 +665,8 @@ WslDevice::WslDevice()
                "compilers and Qt installations through the automount root and offer them as "
                "the distribution's."));
 
-    // A port a process binds inside the distribution is reachable on the
-    // Windows loopback under the same number, so the range only has to be
-    // free, not forwarded. Without one the debugger gets no QML channel and
-    // gives up before it starts.
+    // Without one the debugger gets no QML channel and gives up before it
+    // starts.
     freePortsAspect.setDefaultValue("10000-10100");
 
     allowEmptyCommand.setValue(true);
@@ -804,8 +719,6 @@ void WslDevice::shutdown()
     d->dropFileAccess();
 }
 
-// The volatile values, not the applied ones: this answers a widget that
-// shows what the settings as they are being edited would run.
 CommandLine WslDevice::createCommandLineForDisplay() const
 {
     return d->launcherCommandLine(distribution.volatileValue(), userName.volatileValue());
@@ -888,8 +801,7 @@ QUrl WslDevice::toolControlChannel(const ControlChannelHint &) const
 {
     QUrl url;
     url.setScheme(Utils::urlTcpScheme());
-    // WSL forwards a port a Linux process listens on to the Windows loopback,
-    // so a tool on either side reaches the other one there.
+    // WSL forwards a port a Linux process listens on to the Windows loopback.
     url.setHost("localhost");
     return url;
 }
@@ -975,9 +887,6 @@ ExecutableItem WslDevice::signalOperationRecipeImpl(
 
 namespace Internal {
 
-// A distribution named after a directory at the root of a Linux file system
-// cannot be told from its own share once a path is decomposed, and loses: see
-// mappedHostPathToWslPath().
 static bool namedAfterARootDirectory(const QString &distribution)
 {
     static const QStringList rootDirectories{
@@ -1007,8 +916,6 @@ void configureWslDevice(const WslDevice::Ptr &device, const QString &distributio
     device->distribution.setValue(distribution);
     device->setDefaultDisplayName(Tr::tr("WSL (%1)").arg(distribution));
 
-    // Nothing can be done about it here, but it explains what goes wrong
-    // afterwards.
     if (namedAfterARootDirectory(distribution)) {
         qCWarning(wslDeviceLog).noquote()
             << "The WSL distribution" << distribution
@@ -1017,8 +924,7 @@ void configureWslDevice(const WslDevice::Ptr &device, const QString &distributio
     }
 }
 
-// Docker Desktop runs its engine in distributions of its own. WSL lists them
-// like any other, and neither is anything to build in.
+// Docker Desktop runs its engine in distributions of its own.
 static bool isInternalDistribution(const QString &distribution)
 {
     static const QStringList internal{"docker-desktop", "docker-desktop-data"};
@@ -1038,9 +944,6 @@ static bool hasDeviceFor(const QString &distribution)
     return found;
 }
 
-// The distributions a device can still be added for. The internal ones are
-// nothing to build in, and a distribution that has a device already would
-// only get a second one for itself.
 static QStringList addableDistributions(const QStringList &installed)
 {
     return Utils::filtered(installed, [](const QString &distribution) {
@@ -1048,8 +951,6 @@ static QStringList addableDistributions(const QStringList &installed)
     });
 }
 
-// Asks which of the installed distributions to add, for the "Add..." button
-// next to the list of devices.
 static QString chooseDistribution()
 {
     QDialog dialog(ICore::dialogParent());
@@ -1066,15 +967,13 @@ static QString chooseDistribution()
     QObject::connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
-    // Asked off the main thread, with the dialog already up: the round trip
-    // goes to the WSL service, and a wedged one would otherwise freeze the
-    // settings page for as long as it takes to time out.
+    // A wedged WSL service would otherwise freeze the settings page for as
+    // long as it takes to time out.
     QFuture<Result<QStringList>> future = Utils::asyncRun(&installedDistributions);
     future.then(&dialog, [combo, info, buttons](const Result<QStringList> &installed) {
         if (!installed) {
             // "wsl.exe --list" fails outright on a host that has no
-            // distribution installed, and says so only in its own words, so
-            // the hint that this is what happened goes with the error.
+            // distribution installed.
             info->setType(InfoLabelType::Error);
             info->setText(
                 Tr::tr("Could not list the WSL distributions of this host. If none is "
@@ -1118,35 +1017,47 @@ static QString chooseDistribution()
     return combo->currentText();
 }
 
-WslDeviceFactory::WslDeviceFactory()
-    : IDeviceFactory(Constants::WSL_DEVICE_TYPE)
+class WslDeviceFactory final : public IDeviceFactory
 {
-    setDisplayName(Tr::tr("WSL Device"));
-    setCreator([this]() -> IDevice::Ptr {
-        const QString distribution = chooseDistribution();
-        if (distribution.isEmpty())
-            return {};
-        const WslDevice::Ptr device = WslDevice::create();
-        configureWslDevice(device, distribution);
-        m_existingDevices.writeLocked()->push_back(device);
-        return device;
-    });
-    setConstructionFunction([this] {
-        const WslDevice::Ptr device = WslDevice::create();
-        m_existingDevices.writeLocked()->push_back(device);
-        return device;
-    });
-    setExecutionTypeId(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
-}
+public:
+    WslDeviceFactory()
+        : IDeviceFactory(Constants::WSL_DEVICE_TYPE)
+    {
+        setDisplayName(Tr::tr("WSL Device"));
+        setCreator([this]() -> IDevice::Ptr {
+            const QString distribution = chooseDistribution();
+            if (distribution.isEmpty())
+                return {};
+            const WslDevice::Ptr device = WslDevice::create();
+            configureWslDevice(device, distribution);
+            m_existingDevices.writeLocked()->push_back(device);
+            return device;
+        });
+        setConstructionFunction([this] {
+            const WslDevice::Ptr device = WslDevice::create();
+            m_existingDevices.writeLocked()->push_back(device);
+            return device;
+        });
+        setExecutionTypeId(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
+    }
 
-void WslDeviceFactory::shutdownExistingDevices()
+    ~WslDeviceFactory() final
+    {
+        m_existingDevices.read([](const std::vector<std::weak_ptr<WslDevice>> &devices) {
+            for (const std::weak_ptr<WslDevice> &weakDevice : devices) {
+                if (const WslDevice::Ptr device = weakDevice.lock())
+                    device->shutdown();
+            }
+        });
+    }
+
+private:
+    SynchronizedValue<std::vector<std::weak_ptr<WslDevice>>> m_existingDevices;
+};
+
+void setupWslDevice()
 {
-    m_existingDevices.read([](const std::vector<std::weak_ptr<WslDevice>> &devices) {
-        for (const std::weak_ptr<WslDevice> &weakDevice : devices) {
-            if (const WslDevice::Ptr device = weakDevice.lock())
-                device->shutdown();
-        }
-    });
+    static GuardedObject<WslDeviceFactory> theWslDeviceFactory;
 }
 
 QStringList detectWslDistributions()
@@ -1188,11 +1099,9 @@ void addMissingWslDevices(const QStringList &distributions)
         const auto device = std::dynamic_pointer_cast<WslDevice>(factory->construct());
         QTC_ASSERT(device, continue);
         configureWslDevice(device, distribution);
-        // Manually added, and not auto-detected: the Remove button is enabled
-        // for an auto-detected device only while it is disconnected, so the
-        // user could not get rid of one that Qt Creator offered. The id is
-        // still the distribution's, so that a device and its kits survive a
-        // restart.
+        // Manually added: the Remove button is enabled for an auto-detected
+        // device only while it is disconnected. The id is still the
+        // distribution's, so that a device and its kits survive a restart.
         device->setupId(
             IDevice::ManuallyAdded, Id::fromString(QString("wsl.%1").arg(distribution)));
         DeviceManager::addDevice(device);

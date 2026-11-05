@@ -4,10 +4,8 @@
 #pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/devicesupport/idevicefactory.h>
 
 #include <utils/aspects.h>
-#include <utils/synchronizedvalue.h>
 
 namespace Wsl {
 
@@ -26,13 +24,8 @@ public:
 
     static Ptr create() { return Ptr(new WslDevice); }
 
-    // Drops the command bridge, so that the next access starts a fresh one.
-    // A distribution that was terminated from the outside leaves one behind
-    // that answers nothing.
     void shutdown();
 
-    // What a command sent to this distribution turns into, for the widget to
-    // show. The marker and the command itself are left off.
     Utils::CommandLine createCommandLineForDisplay() const;
 
     ProjectExplorer::IDeviceWidget *createWidget() final;
@@ -78,29 +71,12 @@ private:
 
 namespace Internal {
 
-class WslDeviceFactory final : public ProjectExplorer::IDeviceFactory
-{
-public:
-    WslDeviceFactory();
+void setupWslDevice();
 
-    void shutdownExistingDevices();
-
-private:
-    Utils::SynchronizedValue<std::vector<std::weak_ptr<WslDevice>>> m_existingDevices;
-};
-
-// Points a freshly constructed device at a distribution. Asks the
-// distribution nothing, so that adding a device does not start it.
 void configureWslDevice(const WslDevice::Ptr &device, const QString &distribution);
 
-// The installed distributions, for addMissingWslDevices() to work from. Talks
-// to the WSL service, so it belongs off the main thread.
 QStringList detectWslDistributions();
 
-// Adds a device for every distribution that has none yet. WSL keeps no stable
-// identifier for a distribution beyond its name, so the name is what an
-// existing device is recognized by. Touches the device manager, so main
-// thread only.
 void addMissingWslDevices(const QStringList &distributions);
 
 } // namespace Internal

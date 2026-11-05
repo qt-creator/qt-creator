@@ -21,17 +21,9 @@ public:
     WslPlugin() { Utils::FSEngine::registerDeviceScheme(Constants::WSL_DEVICE_SCHEME); }
 
 private:
-    ~WslPlugin() final
-    {
-        Utils::FSEngine::unregisterDeviceScheme(Constants::WSL_DEVICE_SCHEME);
-        if (m_deviceFactory)
-            m_deviceFactory->shutdownExistingDevices();
-    }
+    ~WslPlugin() final { Utils::FSEngine::unregisterDeviceScheme(Constants::WSL_DEVICE_SCHEME); }
 
-    void initialize() final
-    {
-        m_deviceFactory = std::make_unique<WslDeviceFactory>();
-    }
+    void initialize() final { setupWslDevice(); }
 
     void extensionsInitialized() final
     {
@@ -42,8 +34,6 @@ private:
         future.then(this, &addMissingWslDevices);
         Utils::futureSynchronizer()->addFuture(future);
     }
-
-    std::unique_ptr<WslDeviceFactory> m_deviceFactory;
 };
 
 } // namespace Wsl::Internal
