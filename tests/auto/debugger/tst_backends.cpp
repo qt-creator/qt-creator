@@ -826,7 +826,7 @@ static QStringList configuredOptionMarkers(Backend backend, const Utils::FilePat
     if (backend == Backend::Dap)
         return {"QTCSTARTUPMARKER"};
     QStringList markers{"QTCSTARTUPMARKER", "QTCEXTRADUMPERCOMMAND"};
-    if (backend == Backend::Gdb)
+    if (backend == Backend::Gdb || backend == Backend::Lldb)
         markers << "QTCPOSTATTACHMARKER";
     // What cdb says about its symbol path while starting up. Asking it later
     // would need the running inferior interrupted, which takes the ctrl-c stub.
@@ -2494,6 +2494,8 @@ private slots:
     void attachesToTerminalRunProcess();
     void attachesToRunningRemoteServer_data() { addBackendRows(); }
     void attachesToRunningRemoteServer();
+    void launchesThroughTheRemoteLinuxPlatform_data() { addBackendRows(); }
+    void launchesThroughTheRemoteLinuxPlatform();
     void explainsWhyLldbDidNotStart_data() { addBackendRows(); }
     void explainsWhyLldbDidNotStart();
     void staysAttachedWhenLldbCannotDetach_data() { addBackendRows(); }
@@ -2955,6 +2957,7 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
             .intelDisassembly = true,
             .sysroot = FilePath::fromUserInput("/qtc-test-sysroot"),
             .startupCommands = {"script print('QTCSTARTUPMARKER')"},
+            .postAttachCommands = {"script print('QTCPOST' + 'ATTACHMARKER')"},
             .sourcePathMap = {{"/qtc-test-from", existingDir.path()}},
             .solibSearchPath = {FilePath::fromUserInput("/qtc-test-solib")},
             .debugInfoLocation = existingDir,
@@ -4131,6 +4134,8 @@ void tst_backends::initTestCase()
         "    recurse(40); // recursion call line",
         "    if (const char *marker = getenv(\"QTC_BACKEND_ENV_MARKER\"))",
         "        printf(\"env=%s\\n\", marker);",
+        "    for (int i = 1; i < argc; ++i)",
+        "        printf(\"arg=%s\\n\", argv[i]);",
         "    if (const char *queried = getenv(\"QTC_BACKEND_ENV_QUERY\")) {",
         "        const char *value = getenv(queried);",
         "        printf(\"query=%s=%s\\n\", queried, value ? value : \"unset\");",
@@ -18230,6 +18235,62 @@ quint16 tst_backends::startQmlServer(Process &inferiorProcess, const FilePath &e
     if (!inferiorProcess.waitForStarted())
         return 0;
     return port;
+}
+
+void tst_backends::launchesThroughTheRemoteLinuxPlatform()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Lldb)
+        QSKIP("Only lldb launches the inferior through a platform of its own.");
+    if (!HostOsInfo::isLinuxHost())
+        QSKIP("The remote-linux platform serves Linux only.");
+    const FilePath lldbServer = m_backendData[backend].path.parentDir() / "lldb-server";
+    if (!lldbServer.isExecutableFile())
+        QSKIP("No lldb-server next to lldb.");
+
+    TemporaryDirectory scratch("lldb-platform-XXXXXX");
+    const FilePath portFile = scratch.filePath("port");
+    Process platform;
+    platform.setCommand({lldbServer, {"platform", "--server", "--socket-file",
+                                      portFile.path(), "--listen", "127.0.0.1:0"}});
+    platform.start();
+    QTRY_VERIFY_WITH_TIMEOUT(portFile.fileSize() > 0, s_timeout);
+    const QString port = QString::fromUtf8(portFile.fileContents().value_or(QByteArray()))
+                             .trimmed();
+
+    const FilePath &executable = inferiorTestData(backend).executable;
+    const QString markerValue = "environment-of-the-remote-launch";
+    Environment inferiorEnvironment;
+    inferiorEnvironment.set("QTC_BACKEND_ENV_MARKER", markerValue);
+    AttachToRemoteServerData remote{"127.0.0.1:" + port, executable, {}, executable};
+    remote.remoteEnvironment = inferiorEnvironment;
+    remote.remoteArguments = "first-remote-argument second-remote-argument";
+    auto debuggerBackend = std::make_unique<DebuggerBackend>(
+        std::make_unique<LldbImpl>(LldbImplStartData{
+            .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                              Environment::systemEnvironment()},
+            .inferiorStartData = remote,
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .platform = "remote-linux"}));
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    engine->start();
+    const QString expected = inferiorTestData(backend).environmentReportPrefix + markerValue;
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->appOutput().join('\n').contains(expected),
+                              qPrintable("the inferior never reported \"" + expected + '"'),
+                              s_timeout);
+    for (const QString &argument : QStringList{"first-remote-argument", "second-remote-argument"}) {
+        QTRY_VERIFY_WITH_TIMEOUT(
+            debuggerBackend->appOutput().join('\n').contains("arg=" + argument), s_timeout);
+    }
+
+    debuggerBackend->clearEvents();
+    engine->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
 }
 
 void tst_backends::explainsWhyLldbDidNotStart()

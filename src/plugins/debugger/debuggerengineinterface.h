@@ -183,6 +183,8 @@ public:
     Utils::FilePath symbolFile;
     Utils::ProcessHandle attachPid = {};
     Utils::FilePath remoteExecutable = {};
+    QString remoteArguments = {};
+    Utils::Environment remoteEnvironment = {};
 };
 
 class DEBUGGER_EXPORT AttachToCoreData

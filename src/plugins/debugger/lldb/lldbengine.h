@@ -5,6 +5,7 @@
 #define DEBUGGER_LLDBENGINE
 
 #include <debugger/debuggerengine.h>
+#include <debugger/debuggerengineinterface.h>
 #include <debugger/disassembleragent.h>
 #include <debugger/memoryagent.h>
 #include <debugger/watchhandler.h>
@@ -126,6 +127,7 @@ private:
     DebuggerCommandSequence m_onStop;
 };
 
+InferiorStartData lldbInferiorStartData(const DebuggerRunParameters &rp);
 DebuggerEngine *createLldbEngine(const DebuggerRunParameters &rp);
 
 } // Debugger::Internal

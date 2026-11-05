@@ -488,27 +488,14 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
             cmd.arg("executable", executable.path());
             cmd.arg("startmode", int(StartInternal));
             cmd.arg("workingdirectory", inferiorRunData->workingDirectory.path());
-            Environment inferiorEnvironment = inferiorRunData->environment;
-            // Left alone, lldb sets OS_ACTIVITY_DT_MODE to mirror NSLog to
-            // stderr, which takes os_log along with it and turns Qt's own
-            // stderr logger off.
-            inferiorEnvironment.set("IDE_DISABLED_OS_ACTIVITY_DT_MODE", "1");
-            if (m_startData.enableHeapDebugging != TriState::Default
-                && !inferiorEnvironment.hasKey(Constants::NO_DEBUG_HEAP)) {
-                inferiorEnvironment.set(
-                    Constants::NO_DEBUG_HEAP,
-                    m_startData.enableHeapDebugging == TriState::Enabled ? "0" : "1");
-            }
-            cmd.arg("environment", inferiorEnvironment.toStringList());
-            cmd.arg("processargs",
-                    toHex(ProcessArgs::splitArgs(inferiorRunData->command.arguments(),
-                                                 HostOsInfo::hostOs())
-                         .join(QChar(0))));
+            addLaunchArguments(cmd, inferiorRunData->command.arguments(),
+                               inferiorRunData->environment, HostOsInfo::hostOs());
             cmd.arg("symbolfile", executable.path());
         } else if (const auto *attachData
                        = std::get_if<AttachToProcessData>(&m_startData.inferiorStartData)) {
             cmd.arg("executable", QString());
-            cmd.arg("startmode", int(AttachToLocalProcess));
+            cmd.arg("startmode", int(m_startData.deviceUuid.isEmpty() ? AttachToLocalProcess
+                                                                     : AttachToIosDevice));
             cmd.arg("workingdirectory", QString());
             cmd.arg("environment", QStringList());
             cmd.arg("processargs", QString());
@@ -525,11 +512,17 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
             cmd.arg("attachpid", termData->pid.pid());
         } else if (const auto *remoteData
                        = std::get_if<AttachToRemoteServerData>(&m_startData.inferiorStartData)) {
-            cmd.arg("executable", QString());
+            cmd.arg("executable", remoteData->remoteExecutable.path());
             cmd.arg("startmode", int(AttachToRemoteServer));
             cmd.arg("workingdirectory", QString());
-            cmd.arg("environment", QStringList());
-            cmd.arg("processargs", QString());
+            if (remoteData->remoteExecutable.isEmpty()) {
+                cmd.arg("environment", QStringList());
+                cmd.arg("processargs", QString());
+            } else {
+                addLaunchArguments(cmd, remoteData->remoteArguments,
+                                   remoteData->remoteEnvironment,
+                                   remoteData->remoteExecutable.osType());
+            }
             cmd.arg("symbolfile", remoteData->symbolFile.path());
             cmd.arg("remotechannel", remoteData->channel);
             // A platform that attaches, rather than speaking the raw remote
@@ -555,19 +548,23 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
                 return;
             }
             reportEngineSetupOk();
-            if (!std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
-                for (const QString &command : m_startData.postAttachCommands) {
-                    const QString trimmed = command.trimmed();
-                    if (!trimmed.isEmpty() && !trimmed.startsWith('#'))
-                        runCommand({trimmed, DebuggerCommand::NativeCommand});
-                }
-                // Through the reporting path, so what they print is not lost.
+            // Through the reporting path, so what they print is not lost.
+            for (const QString &command : m_startData.postAttachCommands) {
+                const QString trimmed = command.trimmed();
+                if (!trimmed.isEmpty() && !trimmed.startsWith('#'))
+                    executeDebuggerCommand(trimmed, {});
+            }
+            // A platform that attaches in runEngine has no target before that,
+            // so the bridge runs them there.
+            if (m_startData.platform != "remote-ohos") {
                 for (const QString &command : m_startData.afterConnectCommands)
                     executeDebuggerCommand(command, {});
             }
             DebuggerCommand runCmd("runEngine", DebuggerCommand::RunRequest);
             if (!coreFile.isEmpty())
                 runCmd.arg("coreFile", coreFile.path());
+            if (m_startData.platform == "remote-ohos")
+                runCmd.arg("commandsafterconnect", m_startData.afterConnectCommands);
             runCommand(runCmd);
         };
         runCommand(cmd);
@@ -623,6 +620,24 @@ LldbImpl::~LldbImpl()
     if (m_lldbProc.isRunning())
         m_lldbProc.write("script theDumper.shutdownInferior({})\n\n");
     killPidHard(m_inferiorPid);
+}
+
+void LldbImpl::addLaunchArguments(DebuggerCommand &command, const QString &arguments,
+                                  const Environment &environment, OsType osType) const
+{
+    Environment inferiorEnvironment = environment;
+    // Left alone, lldb sets OS_ACTIVITY_DT_MODE to mirror NSLog to
+    // stderr, which takes os_log along with it and turns Qt's own
+    // stderr logger off.
+    inferiorEnvironment.set("IDE_DISABLED_OS_ACTIVITY_DT_MODE", "1");
+    if (m_startData.enableHeapDebugging != TriState::Default
+        && !inferiorEnvironment.hasKey(Constants::NO_DEBUG_HEAP)) {
+        inferiorEnvironment.set(Constants::NO_DEBUG_HEAP,
+                                m_startData.enableHeapDebugging == TriState::Enabled ? "0" : "1");
+    }
+    command.arg("environment", inferiorEnvironment.toStringList());
+    command.arg("processargs",
+                toHex(ProcessArgs::splitArgs(arguments, osType).join(QChar(0))));
 }
 
 void LldbImpl::start()

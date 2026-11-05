@@ -129,6 +129,8 @@ private:
     void fetchLocationAfterStop(InferiorEvent event);
 
     void runCommand(const DebuggerCommand &command);
+    void addLaunchArguments(DebuggerCommand &command, const QString &arguments,
+                            const Utils::Environment &environment, Utils::OsType osType) const;
     bool serveTemporaryStop();
     void failTemporaryStopQueue();
     void reportResponseTime(const DebuggerCommand &command);

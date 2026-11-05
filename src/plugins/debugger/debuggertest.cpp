@@ -29,6 +29,7 @@
 #include "qml/qmlengine.h"
 #include "qml/qmlinspectoragent.h"
 #include "gdb/gdbengine.h"
+#include "lldb/lldbengine.h"
 #include "genericdebuggerengine.h"
 #include "registerhandler.h"
 #include "shared/hostutils.h"
@@ -143,6 +144,7 @@ private slots:
     void testDebuggerLanguages();
 
     void testInferiorStartData();
+    void testLldbInferiorStartData();
     void testCdbImplStartData();
     void testCdbImplCommandLine();
     void testCdbImplArtificialThreadStop();
@@ -779,6 +781,52 @@ void DebuggerUnitTests::testInferiorStartData()
         QVERIFY(remoteData);
         QCOMPARE(remoteData->attachPid.pid(), 4711);
         QVERIFY(remoteData->remoteExecutable.isEmpty());
+    }
+}
+
+void DebuggerUnitTests::testLldbInferiorStartData()
+{
+    ProcessRunData inferior;
+    inferior.command = CommandLine("/data/tst_inferior", {"abort", "x y"});
+    inferior.environment.set("TST_MARKER", "1");
+
+    // On remote-linux lldb launches the inferior itself.
+    {
+        DebuggerRunParameters rp;
+        rp.setStartMode(StartRemoteProcess);
+        rp.setLldbPlatform("remote-linux");
+        rp.setInferior(inferior);
+
+        const InferiorStartData data = lldbInferiorStartData(rp);
+        const auto *remoteData = std::get_if<AttachToRemoteServerData>(&data);
+        QVERIFY(remoteData);
+        QCOMPARE(remoteData->remoteExecutable, FilePath("/data/tst_inferior"));
+        QCOMPARE(remoteData->remoteArguments, inferior.command.arguments());
+        QCOMPARE(remoteData->remoteEnvironment.value("TST_MARKER"), QString("1"));
+    }
+    // Elsewhere the inferior is not lldb's to launch.
+    {
+        DebuggerRunParameters rp;
+        rp.setStartMode(StartRemoteProcess);
+        rp.setLldbPlatform("remote-ohos");
+        rp.setInferior(inferior);
+
+        const InferiorStartData data = lldbInferiorStartData(rp);
+        const auto *remoteData = std::get_if<AttachToRemoteServerData>(&data);
+        QVERIFY(remoteData);
+        QVERIFY(remoteData->remoteExecutable.isEmpty());
+        QVERIFY(remoteData->remoteArguments.isEmpty());
+    }
+    {
+        DebuggerRunParameters rp;
+        rp.setStartMode(AttachToIosDevice);
+        rp.setInferior(inferior);
+        rp.setAttachPid(ProcessHandle(4711));
+
+        const InferiorStartData data = lldbInferiorStartData(rp);
+        const auto *attachData = std::get_if<AttachToProcessData>(&data);
+        QVERIFY(attachData);
+        QCOMPARE(attachData->pid.pid(), 4711);
     }
 }
 

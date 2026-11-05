@@ -1290,18 +1290,27 @@ bool LldbEngine::hasCapability(unsigned cap) const
 
 // The Impl handles every start mode it claims; without this the run data
 // always looked like a plain launch, so attaching silently launched instead.
-static InferiorStartData lldbInferiorStartData(const DebuggerRunParameters &rp)
+InferiorStartData lldbInferiorStartData(const DebuggerRunParameters &rp)
 {
     switch (rp.startMode()) {
     case AttachToCore:
         return AttachToCoreData{rp.coreFile(), rp.inferior().command.executable()};
     case AttachToLocalProcess:
     case AttachToCrashedProcess:
+    case AttachToIosDevice: // The device uuid tells the Impl which one it is.
         return AttachToProcessData{rp.attachPid()};
     case AttachToRemoteServer:
     case AttachToRemoteProcess:
-    case StartRemoteProcess:
-        return AttachToRemoteServerData{rp.remoteChannel(), rp.symbolFile(), rp.attachPid()};
+    case StartRemoteProcess: {
+        AttachToRemoteServerData data{rp.remoteChannel(), rp.symbolFile(), rp.attachPid()};
+        // The one platform lldb launches the inferior on itself.
+        if (rp.lldbPlatform() == "remote-linux") {
+            data.remoteExecutable = rp.inferior().command.executable();
+            data.remoteArguments = rp.inferior().command.arguments();
+            data.remoteEnvironment = rp.inferior().environment;
+        }
+        return data;
+    }
     default:
         break;
     }
