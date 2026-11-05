@@ -14,7 +14,10 @@
 #include <QTimer>
 
 #include <chrono>
+#include <memory>
 #include <optional>
+
+namespace Utils { class TemporaryFilePath; }
 
 namespace Debugger::Internal {
 
@@ -24,12 +27,13 @@ public:
     Utils::ProcessRunData debuggerRunData;
     InferiorStartData inferiorStartData;
     Utils::FilePath dumperScriptsDir;
+    bool pipeDumperScripts = false;
+    // Why the scripts could not be copied to the debugger's device.
+    QString dumperScriptsCopyError;
+    // A copy of the scripts on the debugger's device, alive while the session is.
+    std::shared_ptr<Utils::TemporaryFilePath> dumperScriptsCopy;
     // Whether the debugger reads the init file in the user's home directory.
     bool loadInitFile = false;
-    // Whether the debugger picks up the code a runtime registers through gdb's
-    // JIT interface. The Android runtime registers enough of it to slow the
-    // session down and leave it stopped in disassembly.
-    bool loadJitCode = true;
     bool nativeMixedDebugging = false;
     bool breakOnMain = false;
     // Which symbol main() is: a Windows Qt application without a terminal
@@ -54,8 +58,9 @@ public:
     QString deviceSymbolsRoot;
     QString deviceUuid;
     QString platform;
-    // Whether the debugger looks for code the inferior generates while it
-    // runs. An Android inferior has none to find.
+    // Whether the debugger picks up the code a runtime registers through gdb's
+    // JIT interface. The Android runtime registers enough of it to slow the
+    // session down and leave it stopped in disassembly.
     bool useJitLoader = true;
     // Where the target's own libraries are, for an inferior built for another
     // system. A device's symbols take precedence where there are any.
@@ -138,6 +143,8 @@ private:
     void reportInferiorExitIfComplete();
     void reportEngineSetupOk();
     void reportEngineSetupFailed();
+    enum class DumperPipe { Initial, Reload };
+    Utils::Result<QStringList> pipeDumperScripts(DumperPipe mode);
 
     LldbImplStartData m_startData;
     bool m_continueAtNextSpontaneousStop = false;

@@ -2390,6 +2390,8 @@ private slots:
     void offersTheStringFormatsForABasicString();
     void reloadsAnExtraDumperFile_data() { addBackendRows(); }
     void reloadsAnExtraDumperFile();
+    void pipesTheDumpersToADebuggerThatCannotReadThem_data() { addBackendRows(); }
+    void pipesTheDumpersToADebuggerThatCannotReadThem();
     void addsThePythonPathOfAnUninstalledDebugger_data() { addBackendRows(); }
     void addsThePythonPathOfAnUninstalledDebugger();
     void acceptsBreakpointFollowsRules_data() { addBackendRows(); }
@@ -14791,6 +14793,67 @@ void tst_backends::reloadsAnExtraDumperFile()
     engine->refresh(request);
     QTRY_VERIFY2_WITH_TIMEOUT(moduleTrace.exists(),
                               "reloading the helpers left the extra dumper file out", s_timeout);
+}
+
+void tst_backends::pipesTheDumpersToADebuggerThatCannotReadThem()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Lldb)
+        QSKIP("Only lldb takes the dumpers as source.");
+
+    auto debuggerBackend = std::make_unique<DebuggerBackend>(
+        std::make_unique<LldbImpl>(LldbImplStartData{
+            .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                              Environment::systemEnvironment()},
+            .inferiorStartData = ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
+                                                Environment::systemEnvironment()},
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .pipeDumperScripts = true}));
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList sent;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&sent](const QString &text, int channel, int) {
+        if (channel == Debugger::LogInput)
+            sent.append(text);
+    });
+    GdbMi dumpers;
+    bool dumpersReported = false;
+    quint64 reportedRequest = 0;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&](quint64 requestId, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::DebuggingHelpers) {
+            dumpers = data["dumpers"];
+            dumpersReported = true;
+            reportedRequest = requestId;
+        }
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk)
+                                 || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY2(debuggerBackend->contains(InferiorEvent::EngineSetupOk),
+             "the bridge did not come up from piped source");
+    QVERIFY2(std::none_of(sent.cbegin(), sent.cend(), [](const QString &text) {
+                 return text.contains("sys.path.insert");
+             }),
+             "the dumpers were read from their directory, not piped");
+    QTRY_VERIFY_WITH_TIMEOUT(dumpersReported, s_timeout);
+    const QString types = dumpers.toString();
+    QVERIFY2(types.contains("\"QString\""),
+             qPrintable("the piped Qt dumpers were not loaded: " + types.left(200)));
+
+    RefreshRequest request;
+    request.kind = RefreshKind::DebuggingHelpers;
+    request.requestId = 122;
+    engine->refresh(request);
+    QTRY_VERIFY2_WITH_TIMEOUT(reportedRequest == 122,
+                              "reloading the piped dumpers got no answer", s_timeout);
+    const QString reloaded = dumpers.toString();
+    QVERIFY2(reloaded.contains("\"QString\""),
+             qPrintable("the piped Qt dumpers were not reloaded: " + reloaded.left(200)));
 }
 
 void tst_backends::addsThePythonPathOfAnUninstalledDebugger()

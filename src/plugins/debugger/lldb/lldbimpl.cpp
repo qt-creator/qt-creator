@@ -353,9 +353,29 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
         m_lldbProc.setWorkingDirectory(m_startData.debuggerRunData.workingDirectory);
 
     connect(&m_lldbProc, &Process::started, this, [this] {
-        runCommand({"script sys.path.insert(1, '" + m_startData.dumperScriptsDir.path() + "')",
-                   DebuggerCommand::NativeCommand});
-        runCommand({"script from lldbbridge import *", DebuggerCommand::NativeCommand});
+        if (m_startData.pipeDumperScripts) {
+            if (!m_startData.dumperScriptsCopyError.isEmpty()) {
+                emit message(Tr::tr("Failed to setup remote debugger helper files: %1")
+                                 .arg(m_startData.dumperScriptsCopyError),
+                             LogWarning);
+            }
+            const Result<QStringList> typeModules = pipeDumperScripts(DumperPipe::Initial);
+            if (!typeModules) {
+                emit startFailed(Tr::tr("Cannot Set Up Debugger Helper Scripts"),
+                                 typeModules.error(), Key("LldbDumperScripts"));
+                reportEngineSetupFailed();
+                return;
+            }
+            runCommand({"script from lldbbridge import *", DebuggerCommand::NativeCommand});
+            // The bridge looks for them beside itself, and there is no file there.
+            runCommand({"script theDumper.dumpermodules = [" + typeModules->join(',') + "]",
+                        DebuggerCommand::NativeCommand});
+        } else {
+            runCommand({"script sys.path.insert(1, '" + m_startData.dumperScriptsDir.path()
+                            + "')",
+                        DebuggerCommand::NativeCommand});
+            runCommand({"script from lldbbridge import *", DebuggerCommand::NativeCommand});
+        }
 
         // lldb's own counterpart to gdb's "set print elements": without it a value
         // printed by a console command stops after 1024 characters.
@@ -418,12 +438,7 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
                         DebuggerCommand::NativeCommand});
         }
 
-        if (!m_startData.loadJitCode) {
-            runCommand({"settings set plugin.jit-loader.gdb.enable off",
-                        DebuggerCommand::NativeCommand});
-        }
-
-        if (m_startData.extraDumperFile.isReadableFile()) {
+        if (!m_startData.pipeDumperScripts && m_startData.extraDumperFile.isReadableFile()) {
             DebuggerCommand dumperModule("addDumperModule");
             dumperModule.arg("path", m_startData.extraDumperFile.path());
             runCommand(dumperModule);
@@ -1104,11 +1119,24 @@ void LldbImpl::refresh(const RefreshRequest &request)
         }
         return;
     }
-    case RefreshKind::DebuggingHelpers:
-        runCommand({"reloadDumpers", [this, requestId](const DebuggerResponse &response) {
+    case RefreshKind::DebuggingHelpers: {
+        QString function = "reloadDumpers";
+        if (m_startData.pipeDumperScripts) {
+            const Result<QStringList> typeModules = pipeDumperScripts(DumperPipe::Reload);
+            if (typeModules) {
+                runCommand({"script theDumper.dumpermodules = [" + typeModules->join(',') + "]",
+                            DebuggerCommand::NativeCommand});
+            } else {
+                emit message("Cannot send the dumpers to lldb: " + typeModules.error(),
+                             LogError);
+            }
+            function = "loadDumpers";
+        }
+        runCommand({function, [this, requestId](const DebuggerResponse &response) {
             emit refreshDataReceived(requestId, RefreshKind::DebuggingHelpers, response.data);
         }});
         return;
+    }
     case RefreshKind::AllSymbols:
     case RefreshKind::StackSymbols:
         return;
@@ -1305,6 +1333,55 @@ void LldbImpl::createSnapshot(quint64 requestId)
         emit snapshotCreated(requestId, response.data["ok"].data() == "1", filePath);
     };
     runCommand(cmd);
+}
+
+// A reload runs the type modules again into the module objects the bridge
+// already holds, as importlib finds no files for them.
+Result<QStringList> LldbImpl::pipeDumperScripts(DumperPipe mode)
+{
+    const bool reload = mode == DumperPipe::Reload;
+    Result<QList<PipedDumperModule>> modules
+        = pipedDumperModules(m_startData.dumperScriptsDir, "lldbbridge");
+    if (!modules)
+        return ResultError(modules.error());
+    const FilePath &extraDumperFile = m_startData.extraDumperFile;
+    QString extraName;
+    FilePath extraSource;
+    if (extraDumperFile.isReadableFile()) {
+        if (const Result<QByteArray> source = extraDumperFile.fileContents()) {
+            extraName = extraDumperFile.completeBaseName();
+            extraSource = extraDumperFile;
+            modules->append({extraName, *source});
+        } else {
+            emit message(source.error(), LogWarning);
+        }
+    }
+    runCommand({"script import sys, types", DebuggerCommand::NativeCommand});
+    QStringList typeModules;
+    for (const PipedDumperModule &module : std::as_const(*modules)) {
+        const bool isTypes = module.name.endsWith("types") || module.name == extraName;
+        if (reload && !isTypes)
+            continue;
+        const FilePath source = module.name == extraName
+                                    ? extraSource
+                                    : m_startData.dumperScriptsDir / (module.name + ".py");
+        emit message("Reading " + source.toUserOutput(), LogInput);
+        const QStringList commands{
+            QLatin1String(reload ? "module = sys.modules.get('%1') or types.ModuleType('%1')"
+                                 : "module = types.ModuleType('%1')").arg(module.name),
+            QString("module.__file__ = '%1'").arg(source.path()),
+            QString("code = bytes.fromhex('%1').decode('utf-8')")
+                .arg(QString::fromLatin1(module.source.toHex())),
+            QString("exec(code, module.__dict__)"),
+            QString("sys.modules['%1'] = module").arg(module.name)};
+        for (const QString &command : commands)
+            runCommand({"script " + command, DebuggerCommand::NativeCommand});
+        if (isTypes)
+            typeModules.append('\'' + module.name + '\'');
+        else if (module.name != "lldbbridge")
+            runCommand({"script import " + module.name, DebuggerCommand::NativeCommand});
+    }
+    return typeModules;
 }
 
 void LldbImpl::executeDebuggerCommand(const QString &command,

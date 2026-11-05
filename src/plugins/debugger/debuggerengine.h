@@ -47,6 +47,7 @@ class RunControl;
 namespace Utils {
 class MacroExpander;
 class ProcessResultData;
+class TemporaryFilePath;
 } // Utils
 
 namespace Debugger {
@@ -873,6 +874,9 @@ private:
 
 // apply editor font size to \a widget
 void adaptDebuggerFontSize(QWidget *widget);
+
+Utils::Result<std::unique_ptr<Utils::TemporaryFilePath>> copyDumperScripts(
+    const Utils::FilePath &debugger);
 
 } // namespace Internal
 } // namespace Debugger

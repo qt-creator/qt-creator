@@ -34,6 +34,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
+#include <utils/temporaryfile.h>
 #include <utils/widgets.h>
 
 #include <QApplication>
@@ -213,24 +214,13 @@ static QString adapterStartFailed()
     return Tr::tr("Adapter start failed.");
 }
 
-void LldbEngine::setupEngine()
+// Work around https://bugs.launchpad.net/ubuntu/+source/llvm-defaults/+bug/1972855:
+// the LLDB 14 installation on Ubuntu 22.04 does not find its own Python module.
+static void setupLldbPythonEnvironment(const FilePath &lldbCmd, Environment &environment)
 {
-    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-
-    const FilePath lldbCmd = runParameters().debugger().command.executable();
-
-    showMessage("STARTING LLDB: " + lldbCmd.toUserOutput());
-    Environment environment = runParameters().debugger().environment;
-    environment.set("QT_CREATOR_LLDB_PROCESS", "1");
-    environment.set("PYTHONUNBUFFERED", "1"); // avoid flushing problem on macOS
-    // Unreachable debuginfod server hangs CreateTarget() indefinitely.
-    environment.unset("DEBUGINFOD_URLS");
     const bool ndkPythonEnvTweaked = DebuggerItem::addAndroidLldbPythonEnv(lldbCmd, environment);
 
     if (!ndkPythonEnvTweaked && lldbCmd.osType() == OsTypeLinux) {
-        // LLDB 14 installation on Ubuntu 22.04 is broken:
-        // https://bugs.launchpad.net/ubuntu/+source/llvm-defaults/+bug/1972855
-        // Brush over it:
         Process lldbPythonPathFinder;
         lldbPythonPathFinder.setCommand({lldbCmd, {"-P"}});
         lldbPythonPathFinder.start();
@@ -243,6 +233,21 @@ void LldbEngine::setupEngine()
     }
 
     DebuggerItem::fixupAndroidLlldbPythonDylib(lldbCmd);
+}
+
+void LldbEngine::setupEngine()
+{
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+
+    const FilePath lldbCmd = runParameters().debugger().command.executable();
+
+    showMessage("STARTING LLDB: " + lldbCmd.toUserOutput());
+    Environment environment = runParameters().debugger().environment;
+    environment.set("QT_CREATOR_LLDB_PROCESS", "1");
+    environment.set("PYTHONUNBUFFERED", "1"); // avoid flushing problem on macOS
+    // Unreachable debuginfod server hangs CreateTarget() indefinitely.
+    environment.unset("DEBUGINFOD_URLS");
+    setupLldbPythonEnvironment(lldbCmd, environment);
 
     if (!runParameters().runAsUser().isEmpty()) {
         ProjectExplorer::RunControl::provideAskPassEntry(environment);
@@ -1346,7 +1351,7 @@ static TriState lldbHeapDebugging(const DebuggerRunParameters &rp)
 static ProcessRunData lldbImplDebuggerRunData(const DebuggerRunParameters &rp)
 {
     ProcessRunData debugger = rp.debugger();
-    DebuggerItem::addAndroidLldbPythonEnv(debugger.command.executable(), debugger.environment);
+    setupLldbPythonEnvironment(debugger.command.executable(), debugger.environment);
     return debugger;
 }
 
@@ -1355,12 +1360,29 @@ static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
     ProcessRunData debuggerRunData = lldbImplDebuggerRunData(rp);
     if (!rp.runAsUser().isEmpty())
         ProjectExplorer::RunControl::provideAskPassEntry(debuggerRunData.environment);
+    FilePath dumperScriptsDir = ICore::resourcePath("debugger");
+    std::shared_ptr<TemporaryFilePath> dumperScriptsCopy;
+    bool pipeDumperScripts = false;
+    QString dumperScriptsCopyError;
+    if (!debuggerRunData.command.executable().isLocal()) {
+        Result<std::unique_ptr<TemporaryFilePath>> copy
+            = copyDumperScripts(debuggerRunData.command.executable());
+        if (copy) {
+            dumperScriptsCopy = std::move(*copy);
+            dumperScriptsDir = dumperScriptsCopy->filePath();
+        } else {
+            dumperScriptsCopyError = copy.error();
+            pipeDumperScripts = true;
+        }
+    }
     return {
         .debuggerRunData = debuggerRunData,
         .inferiorStartData = lldbInferiorStartData(rp),
-        .dumperScriptsDir = ICore::resourcePath("debugger"),
+        .dumperScriptsDir = dumperScriptsDir,
+        .pipeDumperScripts = pipeDumperScripts,
+        .dumperScriptsCopyError = dumperScriptsCopyError,
+        .dumperScriptsCopy = dumperScriptsCopy,
         .loadInitFile = settings().loadGdbInit(),
-        .loadJitCode = rp.toolChainAbi().osFlavor() != ProjectExplorer::Abi::AndroidLinuxFlavor,
         .nativeMixedDebugging = rp.isNativeMixedDebugging(),
         .breakOnMain = rp.breakOnMain(),
         .mainFunctionName = QLatin1String(

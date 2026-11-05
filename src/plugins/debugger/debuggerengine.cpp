@@ -3709,21 +3709,30 @@ Result<> DebuggerEngine::initDebugHelper(
     return ResultOk;
 }
 
+// Copies the dumper scripts to the device of the debugger.
+Result<std::unique_ptr<TemporaryFilePath>> copyDumperScripts(const FilePath &debugger)
+{
+    const Result<FilePath> tmpDir = debugger.tmpDir();
+    if (!tmpDir)
+        return ResultError(tmpDir.error());
+    Result<std::unique_ptr<TemporaryFilePath>> copy
+        = TemporaryFilePath::create(tmpDir->pathAppended("dbghelper-XXXXXXXX"), true);
+    if (!copy)
+        return ResultError(copy.error());
+    if (const Result<> copied
+        = ICore::resourcePath("debugger").copyRecursively((*copy)->filePath());
+        !copied) {
+        return ResultError(copied.error());
+    }
+    return copy;
+}
+
 Result<FilePath> DebuggerEngine::copyDebuggerHelpers()
 {
-    const FilePath debuggerExecutable = runParameters().debugger().command.executable();
-
-    Result<std::unique_ptr<TemporaryFilePath>> remoteDir = TemporaryFilePath::create(
-        debuggerExecutable.tmpDir()->pathAppended("dbghelper-XXXXXXXX"), true);
-
+    Result<std::unique_ptr<TemporaryFilePath>> remoteDir
+        = copyDumperScripts(runParameters().debugger().command.executable());
     if (!remoteDir)
         return ResultError(remoteDir.error());
-
-    const Result<> copyResult
-        = ICore::resourcePath("debugger").copyRecursively((*remoteDir)->filePath());
-
-    if (!copyResult)
-        return ResultError(copyResult.error());
 
     d->m_remoteDebuggerHelperDir = std::move(*remoteDir);
 
