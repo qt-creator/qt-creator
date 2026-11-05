@@ -1333,8 +1333,10 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
 
     //qDebug() << "BP " << rid << data.toString();
-    // Quickly set the location marker.
+    // Quickly set the location marker. Not for the stop a remote target
+    // reports on connecting, which is usually somewhere in the loader.
     if (lineNumber
+            && state() != EngineSetupRequested
             && !operatesByInstruction()
             && fileName.exists()
             && function != "qt_v4TriggeredBreakpointHook"
@@ -1500,7 +1502,9 @@ void GdbEngine::handleStop2(const GdbMi &data)
                 showMessage(name + " CONSIDERED HARMLESS. CONTINUING.");
                 if (!name.isEmpty() && !meaning.isEmpty())
                     reasontr = msgStoppedBySignal(meaning, name);
-            } else if (m_isQnxGdb && name == "0" && meaning == "Signal 0") {
+            } else if (name == "0") {
+                // No signal was delivered. QNX gdb and a remote non-stop
+                // target report the initial stop like this.
                 showMessage("SIGNAL 0 CONSIDERED BOGUS.");
             } else {
                 if (usesTerminal() && name == "SIGCONT" && m_expectTerminalTrap) {
