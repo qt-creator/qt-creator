@@ -2316,7 +2316,7 @@ Result<QString> GitClient::synchronousLog(const FilePath &workingDirectory,
                                           const QStringList &arguments,
                                           RunFlags flags)
 {
-    QStringList allArguments = {"log", noColorOption};
+    QStringList allArguments = {"log", "--no-show-signature", noColorOption};
 
     allArguments.append(arguments);
 
@@ -2681,8 +2681,8 @@ bool GitClient::isRemoteCommit(const FilePath &workingDirectory, const QString &
 QString GitClient::synchronousShortDescription(const FilePath &workingDirectory, const QString &revision,
                                             const QString &format) const
 {
-    const QStringList arguments = {"log", noColorOption, ("--pretty=format:" + format),
-                                   "--max-count=1", revision};
+    const QStringList arguments = {"log", "--no-show-signature", noColorOption,
+                                   ("--pretty=format:" + format), "--max-count=1", revision};
     const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, RunFlag::NoOutput);
     if (result.result() != ProcessResult::FinishedWithSuccess) {
         VcsOutputWindow::appendSilently(workingDirectory,

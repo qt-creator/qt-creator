@@ -225,6 +225,7 @@ void registerMcpTools()
 
             // Separate fields with the unit separator so subjects can contain anything.
             QStringList arguments{"log",
+                                  "--no-show-signature",
                                   "--max-count=" + QString::number(maxCount),
                                   "--date=short",
                                   "--pretty=format:%H%x1f%an%x1f%ad%x1f%s"};

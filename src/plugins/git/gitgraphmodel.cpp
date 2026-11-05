@@ -34,7 +34,8 @@ const char logFormat[] = "--format=%x1e%H%x1f%P%x1f%D%x1f%an%x1f%aI%x1f%B%x1e";
 // established by sortTopologically().
 static QStringList logArguments(int maxCount)
 {
-    return {"log", "--date-order", "-n", QString::number(maxCount), "--decorate=full", logFormat};
+    return {"log", "--no-show-signature", "--date-order", "-n", QString::number(maxCount),
+            "--decorate=full", logFormat};
 }
 
 // --raw lists the files with their status, --numstat repeats them in the same
@@ -42,7 +43,7 @@ static QStringList logArguments(int maxCount)
 // of the whole window, which is why they are asked for one commit at a time.
 static QStringList fileArguments(const QString &hash)
 {
-    return {"log", "-n", "1", "--raw", "--numstat", logFormat, hash};
+    return {"log", "--no-show-signature", "-n", "1", "--raw", "--numstat", logFormat, hash};
 }
 
 // Commit indexes carry internal id 0, file indexes their commit's row + 1.
