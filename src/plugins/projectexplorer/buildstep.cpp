@@ -10,6 +10,7 @@
 #include "devicesupport/devicekitaspects.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
+#include "projectmanager.h"
 #include "sanitizerparser.h"
 #include "target.h"
 
@@ -106,7 +107,13 @@ QWidget *BuildStep::doCreateConfigWidget()
     if (buildConfiguration()) {
         connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
                 widget, recreateSummary);
+        connect(buildConfiguration(), &BuildConfiguration::buildTypeChanged,
+                widget, recreateSummary);
     }
+
+    // %{ActiveProject:...} follows the startup project and its active build configuration.
+    connect(ProjectManager::instance(), &ProjectManager::activeBuildConfigurationChanged,
+            widget, recreateSummary);
 
     recreateSummary();
 
