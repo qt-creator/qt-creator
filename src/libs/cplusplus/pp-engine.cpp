@@ -1367,6 +1367,10 @@ QList<PPToken> Preprocessor::expandTokenList(const QList<PPToken> &tokens)
         result.append(tk);
     }
 
+    // A look-ahead for a function-like macro's '(' may have pushed the EOF token
+    // back into a new buffer, which is still on the chain.
+    while (m_state.m_tokenBuffer)
+        m_state.popTokenBuffer();
     m_state.m_lexer = nullptr; // detach the stack lexer before the state is restored
     return result;
 }
