@@ -230,7 +230,13 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             const GdbMi frames = data["stack"]["frames"];
             // Only a stack fetched with a limit can be truncated, and only a
             // truncated one offers the user the rest of it.
-            const bool isFull = requestId == m_fullStackRequestId || !frames.isValid();
+            const GdbMi hasMore = data["stack"]["hasmore"];
+            const int depthLimit = m_stackDepthLimits.take(requestId);
+            m_shownStackDepthLimit = depthLimit;
+            const bool isFull = !frames.isValid()
+                                || (hasMore.isValid() ? !hasMore.toInt()
+                                                      : depthLimit <= 0
+                                                            || frames.childCount() < depthLimit);
             stackHandler()->setFramesAndCurrentIndex(frames, isFull);
             const int index = stackHandler()->currentIndex();
             if (index >= 0)
@@ -256,7 +262,7 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             handler->beginUpdateAll();
             for (const GdbMi &item : data) {
                 Module module;
-                module.modulePath = FilePath::fromUserInput(item["modulepath"].data());
+                module.modulePath = modulePathOnDebuggerDevice(item["modulepath"].data());
                 const GdbMi moduleName = item["modulename"];
                 module.moduleName = moduleName.isValid() ? moduleName.data()
                                                          : module.modulePath.baseName();
@@ -286,7 +292,7 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             break;
         }
         case RefreshKind::ModuleSymbols: {
-            const FilePath modulePath = FilePath::fromUserInput(data["modulepath"].data());
+            const FilePath modulePath = modulePathOnDebuggerDevice(data["modulepath"].data());
             Symbols symbols;
             for (const GdbMi &item : data["symbols"]) {
                 Symbol symbol;
@@ -301,7 +307,7 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             break;
         }
         case RefreshKind::ModuleSections: {
-            const FilePath modulePath = FilePath::fromUserInput(data["modulepath"].data());
+            const FilePath modulePath = modulePathOnDebuggerDevice(data["modulepath"].data());
             Sections sections;
             for (const GdbMi &item : data["sections"]) {
                 Section section;
@@ -436,10 +442,15 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         }
     });
 
-    connect(&settings().useDebuggingHelpers, &BaseAspect::changed, this, [this] {
+    const auto updateLocalsIfStopped = [this] {
         if ((state() == InferiorStopOk && !m_attachStopUnread) || state() == InferiorUnrunnable)
             updateLocals();
-    });
+    };
+    DebuggerSettings &s = settings();
+    for (BoolAspect *aspect : {&s.useDebuggingHelpers, &s.autoDerefPointers, &s.useDynamicType,
+                               &s.allowInferiorCalls}) {
+        connect(aspect, &BaseAspect::changed, this, updateLocalsIfStopped);
+    }
 }
 
 // m_backend is the first member, so it is destroyed last - after every member a
@@ -569,6 +580,13 @@ void GenericDebuggerEngine::enableSubBreakpoint(const SubBreakpoint &sbp, bool e
     request.subResponseId = sbp->responseId;
     request.enabled = enabled;
     m_pendingBreakpoints[request.requestId] = bp;
+    // The state the backend has, as far as the answers so far tell.
+    bool confirmed = !enabled;
+    for (const PendingSubToggle &pending : std::as_const(m_pendingSubBreakpoints)) {
+        if (pending.sbp == sbp)
+            confirmed = pending.confirmed;
+    }
+    m_pendingSubBreakpoints[request.requestId] = {sbp, enabled, confirmed};
     m_backend->changeBreakpoint(request);
 }
 
@@ -591,6 +609,7 @@ void GenericDebuggerEngine::handleBreakpointEvent(quint64 requestId, BreakpointO
     }
 
     const Breakpoint bp = m_pendingBreakpoints.take(requestId);
+    const PendingSubToggle toggle = m_pendingSubBreakpoints.take(requestId);
     if (!bp) {
         showMessage(QString("GenericDebuggerEngine: breakpoint event for unknown request %1")
                         .arg(requestId));
@@ -642,8 +661,26 @@ void GenericDebuggerEngine::handleBreakpointEvent(quint64 requestId, BreakpointO
             notifyBreakpointChangeFailed(bp);
         }
         break;
-    case BreakpointOp::EnableSub:
+    case BreakpointOp::EnableSub: {
+        // Another toggle of the same place, pending or answered since, decides
+        // its state.
+        const SubBreakpoint sbp = toggle.sbp;
+        const bool confirmed = ok ? toggle.enabled : toggle.confirmed;
+        bool later = false;
+        for (auto it = m_pendingSubBreakpoints.begin(); it != m_pendingSubBreakpoints.end(); ++it) {
+            if (it->sbp != sbp)
+                continue;
+            it->confirmed = confirmed;
+            if (it.key() > requestId)
+                later = true;
+        }
+        if (!later && sbp && sbp->params.enabled != confirmed) {
+            sbp->params.enabled = confirmed;
+            bp->update();
+            bp->adjustMarker();
+        }
         break;
+    }
     }
 }
 
@@ -861,7 +898,9 @@ void GenericDebuggerEngine::activateFrame(int index)
 
     StackHandler *handler = stackHandler();
     if (handler->isSpecialFrame(index)) {
-        reloadFullStack();
+        // A step at a time: a runaway recursion has more frames than one
+        // answer should carry.
+        reloadStack(qMax(m_shownStackDepthLimit, handler->stackSize()) * 10 + 3);
         return;
     }
 
@@ -893,7 +932,7 @@ void GenericDebuggerEngine::updateAll()
 
 void GenericDebuggerEngine::reloadModules()
 {
-    if (state() != InferiorRunOk && state() != InferiorStopOk)
+    if (state() != InferiorRunOk && state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
 
     RefreshRequest request;
@@ -920,14 +959,21 @@ void GenericDebuggerEngine::requestModuleSections(const FilePath &moduleName)
     m_backend->refresh(request);
 }
 
+FilePath GenericDebuggerEngine::modulePathOnDebuggerDevice(const QString &reported) const
+{
+    const FilePath path = FilePath::fromUserInput(reported);
+    if (path.isEmpty() || !path.isLocal())
+        return path;
+    return runParameters().debugger().command.executable().withNewPath(path.path());
+}
+
 void GenericDebuggerEngine::reloadStack(int depthLimit)
 {
     RefreshRequest request;
     request.kind = RefreshKind::FullStack;
     request.requestId = m_nextRefreshRequestId++;
     request.stackDepthLimit = depthLimit;
-    if (depthLimit <= 0)
-        m_fullStackRequestId = request.requestId;
+    m_stackDepthLimits.insert(request.requestId, depthLimit);
     m_backend->refresh(request);
 }
 
@@ -1020,7 +1066,7 @@ void GenericDebuggerEngine::reloadPeripheralRegisters()
 
 void GenericDebuggerEngine::reloadSourceFiles()
 {
-    if (state() != InferiorRunOk && state() != InferiorStopOk)
+    if (state() != InferiorRunOk && state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
 
     RefreshRequest request;

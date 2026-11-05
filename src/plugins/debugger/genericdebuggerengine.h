@@ -94,19 +94,30 @@ private:
     void reloadStack(int depthLimit);
     void reloadThreads();
     Utils::FilePath cleanupFullName(const QString &fileName);
+    Utils::FilePath modulePathOnDebuggerDevice(const QString &reported) const;
 
     const std::unique_ptr<DebuggerEngineInterface> m_backend;
     QHash<QString, QString> m_qtVersionOfModule;
     QMultiMap<QString, Utils::FilePath> m_baseNameToFullName;
     quint64 m_nextBreakpointRequestId = 1;
     quint64 m_nextRefreshRequestId = 1;
-    quint64 m_fullStackRequestId = 0;
+    // The frame limit of each stack fetch not answered yet, -1 for none.
+    QHash<quint64, int> m_stackDepthLimits;
+    // The frame limit of the stack shown. Rows are fewer with collapsed machinery.
+    int m_shownStackDepthLimit = -1;
     quint64 m_nextMemoryRequestId = 1;
     quint64 m_nextDisassemblyRequestId = 1;
     quint64 m_nextSnapshotRequestId = 1;
     quint64 m_nextFullBacktraceRequestId = 1;
     quint64 m_nextWatchPointRequestId = 1;
     QHash<quint64, Breakpoint> m_pendingBreakpoints;
+    struct PendingSubToggle
+    {
+        SubBreakpoint sbp;
+        bool enabled = false;
+        bool confirmed = false;
+    };
+    QHash<quint64, PendingSubToggle> m_pendingSubBreakpoints;
     QHash<quint64, MemoryReadCallback> m_pendingMemoryReads;
     QHash<quint64, QPointer<DisassemblerAgent>> m_pendingDisassemblyRequests;
     bool m_notRespondingPending = false;

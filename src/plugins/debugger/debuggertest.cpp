@@ -26,6 +26,7 @@
 #include "mcpsessionstate.h"
 #include "mcpsupport.h"
 #include "mcpsupport_p.h"
+#include "moduleshandler.h"
 #include "qml/qmlengine.h"
 #include "qml/qmlinspectoragent.h"
 #include "gdb/gdbengine.h"
@@ -263,6 +264,10 @@ private slots:
     void testAFailedRunRestoresOnlyAPendingReset();
     void testAResumedAttachStopLeavesTheViewsAlone();
     void testTogglingDebuggingHelpersRereadsTheLocals();
+    void testACoreSessionReadsModulesAndSources();
+    void testModulesPointToTheDebuggersDevice();
+    void testMoreFetchesTheStackAStepAtATime();
+    void testAFailedSubBreakpointToggleRestoresItsState();
     void testARefusedResumeReadsTheAttachStopAfterAll();
     void testASuccessfulRunDropsTheUnreadAttachStop();
     void testTheDisassemblyMessageIsSaidOncePerStop();
@@ -2979,7 +2984,13 @@ public:
     void shutdownInferior(ShutdownMode) override {}
     void shutdownEngine() override {}
     void execute(const ExecutionRequest &) override {}
-    void refresh(const RefreshRequest &request) override { refreshes.append(request.kind); }
+    void refresh(const RefreshRequest &request) override
+    {
+        refreshes.append(request.kind);
+        if (request.kind == RefreshKind::FullStack)
+            lastStackRequest = request;
+    }
+    RefreshRequest lastStackRequest;
     void accessMemory(MemoryOp, quint64, quint64, quint64, const QByteArray &) override {}
     void executeDebuggerCommand(const QString &, const WatchItemData &) override {}
     void selectThread(const QString &) override {}
@@ -5607,11 +5618,14 @@ void DebuggerUnitTests::testTogglingDebuggingHelpersRereadsTheLocals()
 {
     auto backend = new RecordingBackend;
     auto engine = new GenericDebuggerEngine("test", backend);
-    BoolAspect &helpers = settings().useDebuggingHelpers;
-    const bool wasOn = helpers();
-    const QScopeGuard cleanup([engine, &helpers, wasOn] {
+    DebuggerSettings &s = settings();
+    const QList<BoolAspect *> aspects = {&s.useDebuggingHelpers, &s.autoDerefPointers,
+                                         &s.useDynamicType, &s.allowInferiorCalls};
+    const QList<bool> wereOn = Utils::transform(aspects, [](BoolAspect *a) { return (*a)(); });
+    const QScopeGuard cleanup([engine, aspects, wereOn] {
         delete engine;
-        helpers.setValue(wasOn);
+        for (int i = 0; i < aspects.size(); ++i)
+            aspects.at(i)->setValue(wereOn.at(i));
     });
     engine->setRunParameters({});
     engine->setDevice({});
@@ -5622,17 +5636,203 @@ void DebuggerUnitTests::testTogglingDebuggingHelpersRereadsTheLocals()
     emit backend->inferiorEvent(InferiorEvent::RunOk);
 
     // A running inferior has no locals to show.
-    backend->refreshes.clear();
-    helpers.setValue(!helpers());
-    QVERIFY2(!backend->refreshes.contains(RefreshKind::Locals),
-             "the locals were read from a running inferior");
+    for (BoolAspect *aspect : aspects) {
+        backend->refreshes.clear();
+        aspect->setValue(!(*aspect)());
+        QVERIFY2(!backend->refreshes.contains(RefreshKind::Locals),
+                 qPrintable("the locals were read from a running inferior after toggling "
+                            + Utils::stringFromKey(aspect->settingsKey())));
+    }
 
     emit backend->inferiorEvent(InferiorEvent::SpontaneousStop);
     QCOMPARE(engine->state(), InferiorStopOk);
+    for (BoolAspect *aspect : aspects) {
+        backend->refreshes.clear();
+        aspect->setValue(!(*aspect)());
+        QVERIFY2(backend->refreshes.contains(RefreshKind::Locals),
+                 qPrintable("the locals ignored the toggle of "
+                            + Utils::stringFromKey(aspect->settingsKey())));
+    }
+}
+
+// A core file is never stopped, its state is InferiorUnrunnable.
+void DebuggerUnitTests::testACoreSessionReadsModulesAndSources()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    engine->start();
+    emit backend->inferiorEvent(InferiorEvent::EngineSetupOk);
+    emit backend->inferiorEvent(InferiorEvent::RunOkAndInferiorUnrunnable);
+    QCOMPARE(engine->state(), InferiorUnrunnable);
+    QVERIFY2(backend->refreshes.contains(RefreshKind::Modules), "the core's modules stayed unread");
+
     backend->refreshes.clear();
-    helpers.setValue(!helpers());
-    QVERIFY2(backend->refreshes.contains(RefreshKind::Locals),
-             "the locals kept the dumpers they were read with");
+    engine->reloadSourceFiles();
+    QVERIFY2(backend->refreshes.contains(RefreshKind::SourceFiles),
+             "the core's source files stayed unread");
+}
+
+void DebuggerUnitTests::testModulesPointToTheDebuggersDevice()
+{
+    const FilePath remoteApp = FilePath::fromParts(u"ssh", u"somehost", u"/opt/app/bin/app");
+    const FilePath remoteGdb = FilePath::fromParts(u"ssh", u"somehost", u"/usr/bin/gdb");
+    const FilePath localGdb = FilePath::fromParts({}, {}, u"/usr/bin/gdb");
+    for (const FilePath &debugger : {remoteGdb, localGdb}) {
+        auto backend = new RecordingBackend;
+        auto engine = new GenericDebuggerEngine("test", backend);
+        const QScopeGuard deleteEngine([engine] { delete engine; });
+        DebuggerRunParameters rp;
+        rp.setInferiorExecutable(remoteApp);
+        rp.setDebugger({CommandLine(debugger)});
+        engine->setRunParameters(rp);
+
+        engine->start();
+        emit backend->inferiorEvent(InferiorEvent::EngineSetupOk);
+        emit backend->inferiorEvent(InferiorEvent::RunOkAndInferiorUnrunnable);
+
+        GdbMi data;
+        QStringDecoder decoder(QStringDecoder::Utf8);
+        data.fromString(R"([{modulepath="/usr/lib/libfoo.so"},)"
+                        R"({modulepath="docker://other/usr/lib/libbar.so"}])",
+                        decoder);
+        emit backend->refreshDataReceived(0, RefreshKind::Modules, data);
+
+        const Modules modules = engine->modulesHandler()->modules();
+        QCOMPARE(modules.size(), 2);
+        QCOMPARE(modules.at(0).modulePath, debugger.withNewPath("/usr/lib/libfoo.so"));
+        QCOMPARE(modules.at(1).modulePath,
+                 FilePath::fromParts(u"docker", u"other", u"/usr/lib/libbar.so"));
+    }
+}
+
+static GdbMi stackRefreshData(int frameCount, const QString &hasMore = {}, bool machinery = false)
+{
+    QStringList frames;
+    for (int i = 0; i < frameCount; ++i) {
+        frames.append(QString(R"({level="%1",function="f%1",file="/src/main.cpp",usable="0",)"
+                              R"(machinery="%2"})")
+                          .arg(i)
+                          .arg(int(machinery)));
+    }
+    QString text = "{stack={frames=[" + frames.join(',') + ']';
+    if (!hasMore.isEmpty())
+        text += ",hasmore=\"" + hasMore + '"';
+    text += "}}";
+    QStringDecoder decoder(QStringDecoder::Utf8);
+    GdbMi data;
+    data.fromString(text, decoder);
+    return data;
+}
+
+void DebuggerUnitTests::testMoreFetchesTheStackAStepAtATime()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    IntegerAspect &depth = settings().maximalStackDepth;
+    const int oldDepth = depth();
+    const QScopeGuard cleanup([engine, &depth, oldDepth] {
+        delete engine;
+        depth.setValue(oldDepth);
+    });
+    depth.setValue(2);
+    engine->setRunParameters({});
+    engine->setDevice({});
+
+    engine->start();
+    reportAnAttachStopThatIsResumed(backend);
+    emit backend->inferiorEvent(InferiorEvent::RunRequested);
+    emit backend->inferiorEvent(InferiorEvent::RunOk);
+    emit backend->inferiorEvent(InferiorEvent::SpontaneousStop);
+    QCOMPARE(engine->state(), InferiorStopOk);
+    QCOMPARE(backend->lastStackRequest.stackDepthLimit, 2);
+
+    StackHandler *stack = engine->stackHandler();
+    emit backend->refreshDataReceived(backend->lastStackRequest.requestId,
+                                      RefreshKind::FullStack, stackRefreshData(2));
+    QVERIFY2(stack->canExpand(), "a stack cut at the limit offers no <More>");
+
+    engine->activateFrame(stack->stackSize());
+    QCOMPARE(backend->lastStackRequest.stackDepthLimit, 2 * 10 + 3);
+    emit backend->refreshDataReceived(backend->lastStackRequest.requestId,
+                                      RefreshKind::FullStack, stackRefreshData(5));
+    QVERIFY2(!stack->canExpand(), "a stack shorter than its limit still offers <More>");
+
+    emit backend->inferiorEvent(InferiorEvent::RunRequested);
+    emit backend->inferiorEvent(InferiorEvent::RunOk);
+    emit backend->inferiorEvent(InferiorEvent::SpontaneousStop);
+    emit backend->refreshDataReceived(backend->lastStackRequest.requestId,
+                                      RefreshKind::FullStack, stackRefreshData(2, "0"));
+    QVERIFY2(!stack->canExpand(), "a stack the backend reports complete still offers <More>");
+
+    BoolAspect &collapse = settings().collapseMachineryFrames;
+    const bool wasCollapsing = collapse();
+    const QScopeGuard restoreCollapse([&collapse, wasCollapsing] {
+        collapse.setValue(wasCollapsing);
+    });
+    collapse.setValue(true);
+    emit backend->inferiorEvent(InferiorEvent::RunRequested);
+    emit backend->inferiorEvent(InferiorEvent::RunOk);
+    emit backend->inferiorEvent(InferiorEvent::SpontaneousStop);
+    emit backend->refreshDataReceived(backend->lastStackRequest.requestId,
+                                      RefreshKind::FullStack, stackRefreshData(2, {}, true));
+    engine->activateFrame(stack->stackSize());
+    const int firstLimit = backend->lastStackRequest.stackDepthLimit;
+    emit backend->refreshDataReceived(backend->lastStackRequest.requestId,
+                                      RefreshKind::FullStack,
+                                      stackRefreshData(firstLimit, {}, true));
+    QVERIFY2(stack->canExpand(), "a collapsed stack cut at the limit offers no <More>");
+    engine->activateFrame(stack->stackSize());
+    QVERIFY2(backend->lastStackRequest.stackDepthLimit > firstLimit,
+             "<More> on a collapsed stack does not fetch more frames");
+}
+
+// The model shows a toggle before the backend answers it, and a failure restores
+// the state from before that toggle, unless a later one has changed it since.
+void DebuggerUnitTests::testAFailedSubBreakpointToggleRestoresItsState()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    BreakpointItem bp({});
+    auto sub = new SubBreakpointItem;
+    sub->responseId = "3.1";
+    sub->params.enabled = false;
+    bp.appendChild(sub);
+    const SubBreakpoint sbp(sub);
+
+    const auto toggle = [&](bool enabled) {
+        sbp->params.enabled = enabled;
+        engine->enableSubBreakpoint(sbp, enabled);
+        return backend->requests.last().requestId;
+    };
+    const auto answer = [&](quint64 requestId, bool ok) {
+        emit backend->breakpointEvent(requestId, BreakpointOp::EnableSub, ok, {});
+    };
+
+    answer(toggle(true), false);
+    QVERIFY2(!sbp->params.enabled, "a failed toggle kept showing the state asked for");
+
+    const quint64 enable = toggle(true);
+    const quint64 disable = toggle(false);
+    answer(enable, false);
+    QVERIFY2(!sbp->params.enabled, "a failed toggle undid the later one");
+    answer(disable, true);
+    QVERIFY(!sbp->params.enabled);
+
+    const quint64 enableAgain = toggle(true);
+    const quint64 disableAgain = toggle(false);
+    answer(enableAgain, false);
+    answer(disableAgain, false);
+    QVERIFY2(!sbp->params.enabled, "two failed toggles left the state the backend refused");
+
+    toggle(true);
+    answer(toggle(true), false);
+    QVERIFY2(!sbp->params.enabled, "a toggle that never got its answer blocked the restore");
 }
 
 // That stop is the only one an attach has, so a resume the debugger refuses
