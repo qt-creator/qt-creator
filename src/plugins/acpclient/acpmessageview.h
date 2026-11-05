@@ -86,9 +86,14 @@ public:
     void showAuthenticationError(const QString &error);
     void resolveAuthentication();
 
+    // Whether a permission, elicitation or authentication request waits for
+    // the user.
+    bool hasPendingRequests() const;
+
     SessionPickerWidget *addSessionPicker();
 
 signals:
+    void pendingRequestsChanged();
     void permissionOptionSelected(const QJsonValue &id, const QString &optionId);
     void permissionCancelled(const QJsonValue &id);
     void elicitationAccepted(const QJsonValue &id, const QJsonObject &content);

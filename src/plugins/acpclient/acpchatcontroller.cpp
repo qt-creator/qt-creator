@@ -232,6 +232,7 @@ void AcpChatController::disconnectFromServer()
     m_agentName.clear();
     m_agentVersion.clear();
     m_serverName.clear();
+    m_iconUrl.clear();
     m_initialized = false;
 
     if (wasConnected)

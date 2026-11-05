@@ -1926,6 +1926,8 @@ void AcpMessageView::addTurnStats(int contextDelta, const std::optional<double> 
 
 void AcpMessageView::clear()
 {
+    const bool hadPendingRequests = hasPendingRequests();
+
     // The agent blocks on requests it has not been answered. Their widgets are
     // about to go away, so answer them here - clear() also runs on session
     // switch, where the handlers stay alive and would keep the ids pending.
@@ -1960,6 +1962,9 @@ void AcpMessageView::clear()
     m_sentMessageIds.clear();
     m_sessionPicker = nullptr;
     m_autoScroll = true;
+
+    if (hadPendingRequests)
+        emit pendingRequestsChanged();
 }
 
 // Shows a prompt the user just sent. The first user message the agent
@@ -2229,6 +2234,7 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
     detail->addPermissionControls(options, /*addDenyFallback=*/!hasRejectOption);
 
     m_pendingPermissionRequests.append({id, detail});
+    emit pendingRequestsChanged();
 
     connect(detail, &ToolCallDetailWidget::permissionOptionSelected, this,
             [this, id, detail, options](const QString &optionId) {
@@ -2243,6 +2249,7 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
                 detail->resolvePermission(name, accepted);
                 m_pendingPermissionRequests.removeIf(
                     [&id](const auto &entry) { return entry.first == id; });
+                emit pendingRequestsChanged();
                 emit permissionOptionSelected(id, optionId);
             });
     connect(detail, &ToolCallDetailWidget::permissionCancelled, this,
@@ -2250,6 +2257,7 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
                 detail->resolvePermission(Tr::tr("Denied"), false);
                 m_pendingPermissionRequests.removeIf(
                     [&id](const auto &entry) { return entry.first == id; });
+                emit pendingRequestsChanged();
                 emit permissionCancelled(id);
             });
 }
@@ -2263,6 +2271,7 @@ void AcpMessageView::cancelPermissionRequest(const QJsonValue &id)
 
     it->second->resolvePermission(Tr::tr("Cancelled"), false);
     m_pendingPermissionRequests.erase(it);
+    emit pendingRequestsChanged();
 }
 
 void AcpMessageView::addElicitationRequest(const QJsonValue &id, const ElicitationRequest &request)
@@ -2273,10 +2282,12 @@ void AcpMessageView::addElicitationRequest(const QJsonValue &id, const Elicitati
     auto *widget = new ElicitationWidget(request, m_container);
     addWidget(widget);
     m_pendingElicitationRequests.append({id, widget});
+    emit pendingRequestsChanged();
 
     const auto drop = [this, id] {
         m_pendingElicitationRequests.removeIf(
             [&id](const auto &entry) { return entry.first == id; });
+        emit pendingRequestsChanged();
     };
     connect(widget, &ElicitationWidget::accepted, this,
             [this, id, drop](const QJsonObject &content) {
@@ -2298,6 +2309,7 @@ void AcpMessageView::cancelElicitationRequest(const QJsonValue &id)
         return;
     it->second->resolve(Tr::tr("Cancelled"));
     m_pendingElicitationRequests.erase(it);
+    emit pendingRequestsChanged();
 }
 
 void AcpMessageView::completeElicitationRequest(const QJsonValue &id)
@@ -2309,6 +2321,7 @@ void AcpMessageView::completeElicitationRequest(const QJsonValue &id)
         return;
     it->second->resolve(Tr::tr("Completed"));
     m_pendingElicitationRequests.erase(it);
+    emit pendingRequestsChanged();
 }
 
 void AcpMessageView::addAuthenticationRequest(const QList<Acp::V2::AuthMethod> &methods)
@@ -2320,6 +2333,7 @@ void AcpMessageView::addAuthenticationRequest(const QList<Acp::V2::AuthMethod> &
     connect(m_currentAuthWidget, &AuthenticationWidget::authenticateRequested,
             this, &AcpMessageView::authenticateRequested);
     addWidget(m_currentAuthWidget);
+    emit pendingRequestsChanged();
 }
 
 void AcpMessageView::showAuthenticationError(const QString &error)
@@ -2333,7 +2347,14 @@ void AcpMessageView::resolveAuthentication()
     if (m_currentAuthWidget) {
         m_currentAuthWidget->setResolved();
         m_currentAuthWidget = nullptr;
+        emit pendingRequestsChanged();
     }
+}
+
+bool AcpMessageView::hasPendingRequests() const
+{
+    return m_currentAuthWidget || !m_pendingPermissionRequests.isEmpty()
+           || !m_pendingElicitationRequests.isEmpty();
 }
 
 SessionPickerWidget *AcpMessageView::addSessionPicker()

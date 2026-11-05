@@ -447,6 +447,10 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_chatPanel->clearConfigOptions();
             m_chatPanel->setCanCloseSession(false);
             m_chatPanel->setImagePasteSupported(false);
+            if (!m_serverIcon.isNull()) {
+                m_serverIcon = {};
+                emit serverIconChanged();
+            }
             emit titleChanged();
         }
     });
@@ -466,6 +470,18 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             [this](const QString &, const QString &, const QString &iconUrl) {
         m_chatPanel->setAgentIcon(iconUrl);
         m_chatPanel->setImagePasteSupported(m_controller->supportsImagePrompt());
+        if (!m_serverIcon.isNull()) {
+            m_serverIcon = {};
+            emit serverIconChanged();
+        }
+        Utils::onResultReady(AcpSettings::iconForUrl(iconUrl), this,
+                             [this, iconUrl](const QIcon &icon) {
+            // A later connection may have asked for another one meanwhile.
+            if (m_controller->iconUrl() != iconUrl)
+                return;
+            m_serverIcon = icon;
+            emit serverIconChanged();
+        });
         emit titleChanged();
     });
     connect(m_controller, &AcpChatController::authenticationRequired,
@@ -633,6 +649,15 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->setPrompting(false);
         m_chatPanel->finishAgentMessage();
     });
+
+    connect(m_chatPanel, &ChatPanel::activityChanged, this, &AcpChatTab::updateActivity);
+    connect(m_controller, &AcpChatController::connectionStateChanged,
+            this, &AcpChatTab::updateActivity);
+    connect(m_controller, &AcpChatController::sessionCreated, this, &AcpChatTab::updateActivity);
+    connect(m_controller, &AcpChatController::sessionLoaded, this, &AcpChatTab::updateActivity);
+    connect(m_controller, &AcpChatController::sessionClosed, this, &AcpChatTab::updateActivity);
+    connect(m_controller, &AcpChatController::sessionSelectionRequired,
+            this, &AcpChatTab::updateActivity);
     // A failed startup keeps the connecting page up. Some errors do not end
     // the connection, though, and once the tab has left that page the startup
     // is over either way.
@@ -665,6 +690,7 @@ AcpChatTab::~AcpChatTab()
     // (waitForFinished), which can deliver signals back to this
     // half-destroyed widget and its already-destroyed siblings.
     m_controller->disconnect(this);
+    m_chatPanel->disconnect(this);
     m_controller->disconnectFromServer();
 }
 
@@ -705,6 +731,12 @@ QString AcpChatTab::title() const
     return m_controller->displayName();
 }
 
+QString AcpChatTab::agentName() const
+{
+    const QString name = m_controller->serverName();
+    return name.isEmpty() ? Tr::tr("New Chat") : name;
+}
+
 QString AcpChatTab::toolTip() const
 {
     return m_controller->workingDirectory().toUserOutput();
@@ -713,6 +745,21 @@ QString AcpChatTab::toolTip() const
 QWidget *AcpChatTab::toolBarWidget() const
 {
     return m_chatPanel->toolBarWidget();
+}
+
+void AcpChatTab::updateActivity()
+{
+    SessionActivity activity = SessionActivity::None;
+    if (m_chatPanel->hasPendingRequests())
+        activity = SessionActivity::InputRequired;
+    else if (m_chatPanel->isPrompting())
+        activity = SessionActivity::Running;
+    else if (!m_controller->sessionId().isEmpty())
+        activity = SessionActivity::Idle;
+    if (activity == m_activity)
+        return;
+    m_activity = activity;
+    emit activityChanged();
 }
 
 static IDocument *currentNonTemporaryDocument()

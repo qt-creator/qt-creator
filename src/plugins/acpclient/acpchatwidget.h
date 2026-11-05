@@ -5,14 +5,15 @@
 
 #include <QWidget>
 
-class QComboBox;
 class QStackedWidget;
-class QTabBar;
 class QToolButton;
 class QVBoxLayout;
 
 namespace AcpClient::Internal {
 
+class AgentOverview;
+class RunningIndicator;
+class SessionSwitcherButton;
 class AcpChatTab;
 class AcpInspector;
 class AcpTermsWidget;
@@ -32,29 +33,40 @@ public:
 signals:
     void navigateStateUpdate();
 
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
 private:
-    void setUseTabs(bool useTabs);
     AcpChatTab *addNewTab();
     void closeTab(int index);
     void setCurrentIndex(int index);
+    void addNewTabFromUser();
+
+    void setOverviewShown(bool shown);
+    void updateContentVisibility();
+    void updateOverview();
+    void updateSwitcherButton();
 
     void updateTermsState();
     void createTermsWidget();
 
     QVBoxLayout *m_layout = nullptr;
+    SessionSwitcherButton *m_switcherButton = nullptr;
     QToolButton *m_addButton = nullptr;
-    QToolButton *m_closeChatButton = nullptr;
 
-    // Both selectors always exist and stay in sync with m_stack; visibility follows
-    // the "Use tabbed editors" setting (m_tabBar when on, m_switcher when off).
-    QTabBar *m_tabBar = nullptr;
-    QComboBox *m_switcher = nullptr;
     QStackedWidget *m_stack = nullptr;
     QStackedWidget *m_toolBarWidgetStack = nullptr; // kept in sync with m_stack
 
-    // Sibling of m_stack in m_layout, never a page of m_stack: the selectors and
+    // Sibling of m_chatArea in m_layout, never a page of m_stack: the overview and
     // m_toolBarWidgetStack are index-parallel with m_stack.
     AcpTermsWidget *m_termsWidget = nullptr;
+
+    // m_overview above m_stack.
+    QWidget *m_chatArea = nullptr;
+    AgentOverview *m_overview = nullptr;
+    // Shared by all running chats, so that their indicators turn in step.
+    RunningIndicator *m_runningIndicator = nullptr;
+    bool m_overviewShown = false;
 
     AcpInspector *m_inspector = nullptr;
     bool m_blockIndexChanges = false;

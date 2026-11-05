@@ -16,6 +16,7 @@
 #include "acpstdiotransport.h"
 #include "acptermswidget.h"
 #include "acptransport.h"
+#include "agentoverview.h"
 #include "chatfontscale.h"
 #include "chatinputedit.h"
 #include "chatpanel.h"
@@ -45,6 +46,8 @@
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/markdownbrowser.h>
+#include <utils/temporarydirectory.h>
+#include <utils/theme/theme.h>
 
 #include <QApplication>
 #include <QComboBox>
@@ -67,12 +70,16 @@
 #include <QAbstractItemView>
 #include <QCheckBox>
 #include <QScopeGuard>
+#include <QScrollArea>
+#include <QScrollBar>
 #include <QStackedWidget>
 #include <QTest>
 #include <QTextBrowser>
+#include <QToolButton>
 #include <QVBoxLayout>
 #include <QWheelEvent>
 
+#include <limits>
 #include <memory>
 
 using namespace Acp;
@@ -582,6 +589,16 @@ private slots:
     void testChatPanelElicitationUnsupportedRequired();
     void testChatPanelElicitationNumberPrecision();
     void testChatPanelClearAnswersPendingRequests();
+    void testChatPanelActivity();
+    void testAgentOverviewEntries();
+    void testAgentOverviewServerIcon();
+    void testAgentOverviewRunningIcon();
+    void testAgentOverviewPath();
+    void testAgentOverviewRowWidth();
+    void testAgentOverviewSeparator();
+    void testAgentOverviewRowFill();
+    void testAgentOverviewCloseOnHover();
+    void testRunningIndicator();
     void testChatPanelFontScale();
     void testChatPanelStatsScale();
     void testChatPanelSpacingScale();
@@ -607,6 +624,10 @@ private slots:
     void testTermsWidget();
     void testChatWidgetTermsGate();
     void testChatWidgetTermsAccepted();
+    void testSessionSwitcherButton();
+    void testChatWidgetOverview();
+    void testChatWidgetServerIconClearedOnDisconnect();
+    void testChatWidgetOverviewHeight();
 
     // Tier 6: agent registry
     void testRegistryRememberedDenial();
@@ -3221,6 +3242,445 @@ void AcpClientTest::testChatPanelClearAnswersPendingRequests()
     QCOMPARE(cancelledElicitations.size(), 1);
 }
 
+// The chat panel reports every change of what its session is doing: whether a
+// prompt runs, and whether a request waits for the user.
+void AcpClientTest::testChatPanelActivity()
+{
+    ChatPanel panel;
+    QSignalSpy changed(&panel, &ChatPanel::activityChanged);
+    QVERIFY(!panel.isPrompting());
+    QVERIFY(!panel.hasPendingRequests());
+
+    panel.setPrompting(true);
+    QVERIFY(panel.isPrompting());
+    QCOMPARE(changed.size(), 1);
+    panel.setPrompting(true);
+    QCOMPARE(changed.size(), 1);
+
+    const auto permissionRequest = V2::RequestPermissionRequest()
+                                       .sessionId("session-1")
+                                       .title("Test tool")
+                                       .addOption(V2::PermissionOption()
+                                                      .optionId("allow")
+                                                      .name("Allow")
+                                                      .kind(V2::PermissionOptionKind::allow_once));
+    panel.addPermissionRequest(QJsonValue(31), permissionRequest);
+    QVERIFY(panel.hasPendingRequests());
+    QCOMPARE(changed.size(), 2);
+    panel.cancelPermissionRequest(QJsonValue(31));
+    QVERIFY(!panel.hasPendingRequests());
+    QCOMPARE(changed.size(), 3);
+
+    ElicitationRequest elicitation;
+    elicitation.mode = ElicitationRequest::Mode::Form;
+    elicitation.requestedSchema = V2::ElicitationSchema().addProperty(
+        "name", V2::StringPropertySchema());
+    panel.addElicitationRequest(QJsonValue(32), elicitation);
+    QVERIFY(panel.hasPendingRequests());
+    QCOMPARE(changed.size(), 4);
+    panel.completeElicitationRequest(QJsonValue(32));
+    QVERIFY(!panel.hasPendingRequests());
+    QCOMPARE(changed.size(), 5);
+
+    panel.addAuthenticationRequest(
+        {V2::AuthMethod(V2::AuthMethodAgent().methodId("agent").name("Agent"))});
+    QVERIFY(panel.hasPendingRequests());
+    QCOMPARE(changed.size(), 6);
+    panel.resolveAuthentication();
+    QVERIFY(!panel.hasPendingRequests());
+    QCOMPARE(changed.size(), 7);
+
+    panel.addPermissionRequest(QJsonValue(33), permissionRequest);
+    QCOMPARE(changed.size(), 8);
+    panel.clear();
+    QVERIFY(!panel.hasPendingRequests());
+    QCOMPARE(changed.size(), 9);
+    panel.clear();
+    QCOMPARE(changed.size(), 9);
+
+    panel.setPrompting(false);
+    QVERIFY(!panel.isPrompting());
+    QCOMPARE(changed.size(), 10);
+}
+
+void AcpClientTest::testAgentOverviewEntries()
+{
+    AgentOverview overview;
+    QVERIFY(!overview.emptyLabel()->isHidden());
+    QVERIFY(overview.entryButtons().isEmpty());
+
+    overview.setEntries({{"Busy", "/busy", SessionActivity::Running},
+                     {"Waiting", "/waiting", SessionActivity::InputRequired},
+                     {"Done", "/done", SessionActivity::Idle},
+                     {"New Chat", {}, SessionActivity::None}});
+    QVERIFY(overview.emptyLabel()->isHidden());
+    QList<QAbstractButton *> buttons = overview.entryButtons();
+    QCOMPARE(buttons.size(), 4);
+    for (QAbstractButton *button : std::as_const(buttons)) {
+        QVERIFY(button->isCheckable());
+        QVERIFY(!button->isChecked());
+        QVERIFY(!button->isHidden());
+    }
+    QCOMPARE(buttons.at(0)->accessibleName(),
+             QString("Busy (%1) - /busy").arg(sessionActivityText(SessionActivity::Running)));
+    QCOMPARE(buttons.at(1)->accessibleName(),
+             QString("Waiting (%1) - /waiting")
+                 .arg(sessionActivityText(SessionActivity::InputRequired)));
+    QCOMPARE(buttons.at(2)->accessibleName(),
+             QString("Done (%1) - /done").arg(sessionActivityText(SessionActivity::Idle)));
+    QCOMPARE(buttons.at(3)->accessibleName(),
+             QString("New Chat (%1)").arg(sessionActivityText(SessionActivity::None)));
+    QVERIFY(buttons.at(0)->toolTip().contains("/busy"));
+    QVERIFY(buttons.at(0)->toolTip().contains(sessionActivityText(SessionActivity::Running)));
+    QVERIFY(buttons.at(1)->toolTip().contains(
+        sessionActivityText(SessionActivity::InputRequired)));
+    QCOMPARE(buttons.at(2)->toolTip(), QString("/done"));
+    QCOMPARE(buttons.at(3)->toolTip(), sessionActivityText(SessionActivity::None));
+
+    overview.setCurrentEntry(2);
+    QVERIFY(buttons.at(2)->isChecked());
+
+    QSignalSpy activated(&overview, &AgentOverview::entryActivated);
+    buttons.at(1)->click();
+    QCOMPARE(activated.size(), 1);
+    QCOMPARE(activated.first().first().toInt(), 1);
+    QVERIFY(buttons.at(1)->isChecked());
+    QVERIFY(!buttons.at(2)->isChecked());
+
+    // Return activates an entry as a click does.
+    QTest::keyClick(buttons.at(0), Qt::Key_Return);
+    QCOMPARE(activated.size(), 2);
+    QCOMPARE(activated.last().first().toInt(), 0);
+
+    // Each entry carries a close button at its right end.
+    QSignalSpy closeRequested(&overview, &AgentOverview::entryCloseRequested);
+    overview.resize(400, 300);
+    overview.show();
+    QVERIFY(QTest::qWaitForWindowExposed(&overview));
+    for (QAbstractButton *button : std::as_const(buttons)) {
+        auto *closeButton = button->findChild<QAbstractButton *>("closeChatButton");
+        QVERIFY(closeButton);
+        QVERIFY(closeButton->geometry().right() < button->width());
+        QVERIFY(closeButton->geometry().left() > button->width() / 2);
+    }
+    buttons.at(2)->findChild<QAbstractButton *>("closeChatButton")->click();
+    QCOMPARE(closeRequested.size(), 1);
+    QCOMPARE(closeRequested.first().first().toInt(), 2);
+    QCOMPARE(activated.size(), 2);
+
+    // Escape asks to dismiss the list.
+    QSignalSpy dismissed(&overview, &AgentOverview::dismissRequested);
+    QTest::keyClick(buttons.at(0), Qt::Key_Escape);
+    QCOMPARE(dismissed.size(), 1);
+
+    // Updating keeps the buttons of the remaining entries.
+    overview.setEntries({{"Busy", "/busy", SessionActivity::Idle}});
+    QCOMPARE(overview.entryButtons().size(), 1);
+    QCOMPARE(overview.entryButtons().first(), buttons.first());
+    QCOMPARE(buttons.first()->toolTip(), QString("/busy"));
+    QVERIFY(buttons.first()->accessibleName().contains(
+        sessionActivityText(SessionActivity::Idle)));
+
+    overview.setEntries({});
+    QVERIFY(overview.entryButtons().isEmpty());
+    QVERIFY(!overview.emptyLabel()->isHidden());
+}
+
+// An idle session, or a chat without one, shows the icon of its server. A
+// running session and one that waits for the user show their state instead.
+void AcpClientTest::testAgentOverviewServerIcon()
+{
+    QPixmap serverPixmap(16, 16);
+    serverPixmap.fill(Qt::red);
+    const QIcon serverIcon(serverPixmap);
+
+    for (SessionActivity activity : {SessionActivity::None, SessionActivity::Idle})
+        QCOMPARE(sessionActivityIcon(activity, serverIcon).cacheKey(), serverIcon.cacheKey());
+    for (SessionActivity activity : {SessionActivity::Running, SessionActivity::InputRequired}) {
+        QVERIFY(sessionActivityIcon(activity, serverIcon).cacheKey() != serverIcon.cacheKey());
+        QVERIFY(!sessionActivityIcon(activity, serverIcon).isNull());
+    }
+    QVERIFY(sessionActivityIcon(SessionActivity::None).isNull());
+    QVERIFY(sessionActivityIcon(SessionActivity::Idle).isNull());
+
+    const auto render = [](SessionActivity activity, const QIcon &icon) {
+        AgentOverview overview;
+        overview.setEntries({{"Chat", "/chat", activity, icon}});
+        QAbstractButton *button = overview.entryButtons().first();
+        button->resize(300, button->sizeHint().height());
+        return button->grab().toImage();
+    };
+    // The list shows the server icon in every state, next to the state.
+    for (SessionActivity activity : {SessionActivity::None, SessionActivity::Idle,
+                                     SessionActivity::Running, SessionActivity::InputRequired}) {
+        QVERIFY(render(activity, serverIcon) != render(activity, {}));
+    }
+    // The idle state is not shown.
+    QCOMPARE(render(SessionActivity::Idle, serverIcon), render(SessionActivity::None, serverIcon));
+}
+
+// A running session shows the running icon it is given, and follows it when
+// it changes. The other states do not.
+void AcpClientTest::testAgentOverviewRunningIcon()
+{
+    QPixmap runningPixmap(16, 16);
+    runningPixmap.fill(Qt::blue);
+    const QIcon runningIcon(runningPixmap);
+
+    QCOMPARE(sessionActivityIcon(SessionActivity::Running, {}, runningIcon).cacheKey(),
+             runningIcon.cacheKey());
+    for (SessionActivity activity :
+         {SessionActivity::None, SessionActivity::Idle, SessionActivity::InputRequired}) {
+        QVERIFY(sessionActivityIcon(activity, {}, runningIcon).cacheKey()
+                != runningIcon.cacheKey());
+    }
+
+    const auto render = [](QAbstractButton *button) { return button->grab().toImage(); };
+    const auto showOverview = [](AgentOverview &overview) {
+        overview.resize(400, 200);
+        overview.show();
+        return QTest::qWaitForWindowExposed(&overview);
+    };
+
+    AgentOverview overview;
+    overview.setEntries({{"Busy", "/busy", SessionActivity::Running},
+                     {"Done", "/done", SessionActivity::Idle}});
+    QVERIFY(showOverview(overview));
+    const QImage busyBefore = render(overview.entryButtons().at(0));
+    const QImage doneBefore = render(overview.entryButtons().at(1));
+
+    // A new frame reaches the button without new entries.
+    overview.setRunningIcon(runningIcon);
+    QVERIFY(render(overview.entryButtons().at(0)) != busyBefore);
+    QCOMPARE(render(overview.entryButtons().at(1)), doneBefore);
+
+    // Entries set later pick up the current frame.
+    AgentOverview other;
+    other.setRunningIcon(runningIcon);
+    other.setEntries({{"Busy", "/busy", SessionActivity::Running}});
+    QVERIFY(showOverview(other));
+    QCOMPARE(render(other.entryButtons().at(0)), render(overview.entryButtons().at(0)));
+}
+
+// The path follows the label, in a color of its own.
+void AcpClientTest::testAgentOverviewPath()
+{
+    const auto render = [](const QString &path) {
+        AgentOverview overview;
+        overview.resize(400, 200);
+        overview.setEntries({{"Agent", path, SessionActivity::Idle}});
+        overview.show();
+        if (!QTest::qWaitForWindowExposed(&overview))
+            return QImage();
+        return overview.entryButtons().first()->grab().toImage();
+    };
+    const QImage withoutPath = render({});
+    QVERIFY(!withoutPath.isNull());
+    const QImage withPath = render("/some/where/project");
+    QCOMPARE(withPath.size(), withoutPath.size());
+    QVERIFY(withPath != withoutPath);
+
+    // Nothing but the path differs, and it is painted in neither the color of
+    // the label nor the background.
+    const QColor labelColor = creatorColor(Theme::Token_Text_Default);
+    const QColor mutedColor = creatorColor(Theme::Token_Text_Muted);
+    QVERIFY(labelColor != mutedColor);
+    int closestToMuted = std::numeric_limits<int>::max();
+    int closestToLabel = std::numeric_limits<int>::max();
+    for (int y = 0; y < withPath.height(); ++y) {
+        for (int x = 0; x < withPath.width(); ++x) {
+            const QColor c = withPath.pixelColor(x, y);
+            if (c == withoutPath.pixelColor(x, y))
+                continue;
+            const auto distance = [&c](const QColor &other) {
+                return qAbs(c.red() - other.red()) + qAbs(c.green() - other.green())
+                       + qAbs(c.blue() - other.blue());
+            };
+            closestToMuted = qMin(closestToMuted, distance(mutedColor));
+            closestToLabel = qMin(closestToLabel, distance(labelColor));
+        }
+    }
+    QVERIFY2(closestToMuted < closestToLabel,
+             qPrintable(QString("muted %1, label %2").arg(closestToMuted).arg(closestToLabel)));
+
+}
+
+// The entries span the width of the list, also when they changed while it was
+// hidden, and the list grows to show all of them.
+void AcpClientTest::testAgentOverviewRowWidth()
+{
+    // Like in the chat widget, the overview gets the height it asks for.
+    QWidget host;
+    auto *layout = new QVBoxLayout(&host);
+    auto *overview = new AgentOverview;
+    layout->addWidget(overview);
+    layout->addStretch(1);
+    host.resize(400, 600);
+    overview->setEntries({{"Agent", "/path", SessionActivity::Idle},
+                          {"Other", "/other", SessionActivity::Idle}});
+    host.show();
+    QVERIFY(QTest::qWaitForWindowExposed(&host));
+    auto *scrollArea = overview->findChild<QScrollArea *>();
+    QVERIFY(scrollArea);
+    QWidget *container = scrollArea->widget();
+    QTRY_COMPARE(container->width(), scrollArea->viewport()->width());
+
+    // A state change keeps the number of entries, so no relayout of the
+    // entries follows that would stretch them again.
+    overview->hide();
+    overview->setEntries({{"Agent", "/path", SessionActivity::Running},
+                          {"Other", "/other", SessionActivity::InputRequired}});
+    overview->show();
+    // Any relayout asked for is posted; deliver it before checking.
+    QCoreApplication::sendPostedEvents();
+    QCOMPARE(container->width(), scrollArea->viewport()->width());
+    for (QAbstractButton *button : overview->entryButtons())
+        QCOMPARE(button->width(), container->width());
+
+    overview->setEntries({{"Agent", "/path", SessionActivity::Idle},
+                          {"Other", "/other", SessionActivity::Idle},
+                          {"Third", "/third", SessionActivity::Idle}});
+    QTRY_COMPARE(container->width(), scrollArea->viewport()->width());
+    QTRY_VERIFY(container->height() <= scrollArea->viewport()->height());
+}
+
+// The list keeps a padding around and inside its frame, and a separator line
+// to the chat below.
+void AcpClientTest::testAgentOverviewSeparator()
+{
+    AgentOverview overview;
+    overview.resize(400, 200);
+    overview.setEntries({{"Agent", "/path", SessionActivity::Idle}});
+    overview.show();
+    QVERIFY(QTest::qWaitForWindowExposed(&overview));
+
+    auto *scrollArea = overview.findChild<QScrollArea *>();
+    QVERIFY(scrollArea);
+    QWidget *frame = scrollArea->parentWidget();
+    QVERIFY(frame);
+    // The same padding as around and inside the chat input.
+    using namespace StyleHelper::SpacingTokens;
+    QTRY_COMPARE(frame->x(), PaddingHM);
+    QCOMPARE(overview.width() - frame->geometry().right() - 1, PaddingHM);
+    QCOMPARE(frame->y(), PaddingVM);
+    QVERIFY(overview.height() - frame->geometry().bottom() - 1 > PaddingVM);
+    QCOMPARE(scrollArea->pos(), QPoint(PaddingHM, PaddingVM));
+    QCOMPARE(frame->width() - scrollArea->geometry().right() - 1, PaddingHM);
+    QCOMPARE(frame->height() - scrollArea->geometry().bottom() - 1, PaddingVM);
+    // The frame is drawn like the chat input.
+    auto *rect = static_cast<QtcRectangleWidget *>(frame);
+    QCOMPARE(rect->radius(), RadiusM);
+    QCOMPARE(rect->fillBrush().color(), creatorColor(Theme::Token_Background_Muted));
+    QCOMPARE(rect->strokePen().color(), creatorColor(Theme::Token_Foreground_Muted));
+
+    const QImage image = overview.grab().toImage();
+    const QColor separator = creatorColor(Theme::Token_Stroke_Subtle);
+    for (int x : {0, image.width() / 2, image.width() - 1})
+        QCOMPARE(image.pixelColor(x, image.height() - 1), separator);
+    const int dpr = qRound(image.devicePixelRatio());
+    QVERIFY(image.pixelColor(0, image.height() - 1 - dpr) != separator);
+}
+
+// Entries have the color of the list, except the current one.
+void AcpClientTest::testAgentOverviewRowFill()
+{
+    AgentOverview overview;
+    overview.resize(400, 200);
+    overview.setEntries({{"Agent", "/path", SessionActivity::Idle},
+                         {"Other", "/other", SessionActivity::Idle}});
+    overview.setCurrentEntry(1);
+    overview.show();
+    QVERIFY(QTest::qWaitForWindowExposed(&overview));
+
+    // Left of the icon, away from the rounded corners.
+    const auto fillOf = [](QAbstractButton *button) {
+        const QImage image = button->grab().toImage();
+        const qreal dpr = image.devicePixelRatio();
+        return image.pixelColor(qRound(StyleHelper::SpacingTokens::PaddingHXxs * dpr),
+                                image.height() / 2);
+    };
+    const QList<QAbstractButton *> buttons = overview.entryButtons();
+    QCOMPARE(fillOf(buttons.at(0)), creatorColor(Theme::Token_Background_Muted));
+    QCOMPARE(fillOf(buttons.at(1)), creatorColor(Theme::Token_Foreground_Default));
+
+    overview.setCurrentEntry(0);
+    QCOMPARE(fillOf(buttons.at(0)), creatorColor(Theme::Token_Foreground_Default));
+    QCOMPARE(fillOf(buttons.at(1)), creatorColor(Theme::Token_Background_Muted));
+
+    // Between the entries, the frame shows through the scroll area.
+    QWidget *frame = overview.findChild<QScrollArea *>()->parentWidget();
+    const QPoint gap = buttons.at(1)->mapTo(frame, QPoint(buttons.at(1)->width() / 2, -1));
+    QVERIFY(gap.y() > buttons.at(0)->mapTo(frame, QPoint(0, buttons.at(0)->height() - 1)).y());
+    const QImage frameImage = frame->grab().toImage();
+    const qreal dpr = frameImage.devicePixelRatio();
+    QCOMPARE(frameImage.pixelColor(qRound(gap.x() * dpr), qRound(gap.y() * dpr)),
+             creatorColor(Theme::Token_Background_Muted));
+}
+
+// The close button of an entry shows while the entry is hovered, and keeps its
+// room otherwise.
+void AcpClientTest::testAgentOverviewCloseOnHover()
+{
+    AgentOverview overview;
+    overview.resize(400, 200);
+    overview.setEntries({{"Agent", "/path", SessionActivity::Idle}});
+    overview.show();
+    QVERIFY(QTest::qWaitForWindowExposed(&overview));
+    QAbstractButton *row = overview.entryButtons().first();
+    auto *closeButton = row->findChild<QAbstractButton *>("closeChatButton");
+    QVERIFY(closeButton);
+
+    // Whether anything but the fill of the row is painted where the button is.
+    const auto paintsCloseButton = [&] {
+        const QImage image = row->grab().toImage();
+        const qreal dpr = image.devicePixelRatio();
+        const QRect r = closeButton->geometry();
+        const QImage area = image.copy(QRect(QPoint(qRound(r.left() * dpr), qRound(r.top() * dpr)),
+                                             r.size() * dpr));
+        const QColor fill = area.pixelColor(0, 0);
+        for (int y = 0; y < area.height(); ++y) {
+            for (int x = 0; x < area.width(); ++x) {
+                if (area.pixelColor(x, y) != fill)
+                    return true;
+            }
+        }
+        return false;
+    };
+
+    QVERIFY(!row->underMouse());
+    QVERIFY(!paintsCloseButton());
+    QVERIFY(closeButton->geometry().right() < row->width());
+
+    // Hovering the entry, not the button itself.
+    row->setAttribute(Qt::WA_UnderMouse);
+    QVERIFY(!closeButton->underMouse());
+    QVERIFY(paintsCloseButton());
+
+    row->setAttribute(Qt::WA_UnderMouse, false);
+    QVERIFY(!paintsCloseButton());
+}
+
+void AcpClientTest::testRunningIndicator()
+{
+    RunningIndicator indicator;
+    QVERIFY(!indicator.isActive());
+    QVERIFY(indicator.icon().isNull());
+
+    QSignalSpy frames(&indicator, &RunningIndicator::iconChanged);
+    indicator.setActive(true);
+    QVERIFY(indicator.isActive());
+    QCOMPARE(frames.size(), 1);
+    QVERIFY(!indicator.icon().isNull());
+    const QImage first = indicator.icon().pixmap(16, 16).toImage();
+
+    // The indicator turns.
+    QTRY_VERIFY(frames.size() >= 2);
+    QVERIFY(indicator.icon().pixmap(16, 16).toImage() != first);
+
+    indicator.setActive(false);
+    QVERIFY(!indicator.isActive());
+}
+
 // The scale applies to the conversation only. The input area - its editor and
 // its controls - stays at the application font.
 void AcpClientTest::testChatPanelFontScale()
@@ -4079,7 +4539,7 @@ void AcpClientTest::testChatWidgetTermsGate()
     AcpTermsWidget *termsWidget = termsWidgets.first();
     QVERIFY(termsWidget->isVisibleTo(&widget));
 
-    QAbstractButton *addButton = buttonWithText(&widget, Tr::tr("Add Chat"));
+    QAbstractButton *addButton = widget.findChild<QAbstractButton *>("newChatButton");
     QVERIFY(addButton);
     QVERIFY(!addButton->isEnabled());
 
@@ -4095,6 +4555,256 @@ void AcpClientTest::testChatWidgetTermsGate()
     QCOMPARE(widget.findChildren<AcpChatTab *>().size(), 1);
     QVERIFY(!termsWidget->isVisibleTo(&widget));
     QVERIFY(addButton->isEnabled());
+}
+
+// The switcher in the tool bar shows the state of a session that runs or waits
+// for the user, and the icon of the server otherwise. It does not spell out the
+// state, but shows the workspace after the name and an arrow after that.
+void AcpClientTest::testSessionSwitcherButton()
+{
+    QPixmap serverPixmap(16, 16);
+    serverPixmap.fill(Qt::red);
+    const QIcon serverIcon(serverPixmap);
+    QPixmap runningPixmap(16, 16);
+    runningPixmap.fill(Qt::blue);
+    const QIcon runningIcon(runningPixmap);
+
+    SessionSwitcherButton button;
+    QVERIFY(button.isCheckable());
+    for (SessionActivity activity : {SessionActivity::None, SessionActivity::Idle}) {
+        button.setEntry({"Agent", "/path", activity, serverIcon}, runningIcon);
+        QCOMPARE(button.icon().cacheKey(), serverIcon.cacheKey());
+    }
+    button.setEntry({"Agent", "/path", SessionActivity::Running, serverIcon}, runningIcon);
+    QCOMPARE(button.icon().cacheKey(), runningIcon.cacheKey());
+    button.setEntry({"Agent", "/path", SessionActivity::InputRequired, serverIcon}, runningIcon);
+    QVERIFY(!button.icon().isNull());
+    QVERIFY(button.icon().cacheKey() != serverIcon.cacheKey());
+    QVERIFY(button.accessibleName().contains(
+        sessionActivityText(SessionActivity::InputRequired)));
+    QVERIFY(button.toolTip().contains("/path"));
+
+    const auto render = [&](const SessionEntry &entry, bool checked = false) {
+        button.setEntry(entry, runningIcon);
+        button.setChecked(checked);
+        button.resize(button.sizeHint());
+        return button.grab().toImage();
+    };
+
+    // Without the state in text, two states with the same icon look the same.
+    QCOMPARE(render({"Agent", "/path", SessionActivity::None, serverIcon}),
+             render({"Agent", "/path", SessionActivity::Idle, serverIcon}));
+
+    // The workspace makes the button wider.
+    render({"Agent", {}, SessionActivity::Idle, serverIcon});
+    const int withoutPath = button.width();
+    render({"Agent", "/some/where", SessionActivity::Idle, serverIcon});
+    QVERIFY(button.width() > withoutPath);
+
+    // The arrow follows the text: in a wider button, the rest stays empty.
+    button.resize(button.sizeHint().width() + 100, button.sizeHint().height());
+    const QImage wide = button.grab().toImage();
+    const qreal dpr = wide.devicePixelRatio();
+    const QImage rest = wide.copy(QRect(QPoint(qRound((button.sizeHint().width() + 10) * dpr), 0),
+                                        QPoint(wide.width() - 1, wide.height() - 1)));
+    QImage empty(rest.size(), rest.format());
+    empty.fill(rest.pixelColor(rest.width() - 1, rest.height() - 1));
+    QCOMPARE(rest, empty);
+}
+
+// The button in the tool bar shows the current chat and opens the list of all
+// chats below it. The list follows state changes, and picking a chat from it
+// switches to that chat and closes the list.
+void AcpClientTest::testChatWidgetOverview()
+{
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(true);
+
+    AcpChatWidget widget;
+    auto *overview = widget.findChild<AgentOverview *>();
+    QVERIFY(overview);
+    auto *switcher = widget.findChild<SessionSwitcherButton *>();
+    QVERIFY(switcher);
+    QAbstractButton *addButton = widget.findChild<QAbstractButton *>("newChatButton");
+    QVERIFY(addButton);
+    QVERIFY(!addButton->toolTip().isEmpty());
+
+    addButton->click();
+    const QList<AcpChatTab *> tabs = widget.findChildren<AcpChatTab *>();
+    QCOMPARE(tabs.size(), 2);
+    auto *stack = qobject_cast<QStackedWidget *>(tabs.at(0)->parentWidget());
+    QVERIFY(stack);
+    QCOMPARE(stack->currentWidget(), tabs.at(1));
+    QCOMPARE(switcher->entry().agentName, tabs.at(1)->agentName());
+    QCOMPARE(switcher->entry().activity, SessionActivity::None);
+
+    // The list sits above the chat, in the same column.
+    QCOMPARE(overview->parentWidget(), stack->parentWidget());
+
+    QVERIFY(overview->isHidden());
+    switcher->click();
+    QVERIFY(switcher->isChecked());
+    QVERIFY(!overview->isHidden());
+    QVERIFY(!stack->isHidden());
+    QCOMPARE(overview->entryButtons().size(), 2);
+    QVERIFY(overview->entryButtons().at(1)->isChecked());
+    QVERIFY(overview->entryButtons().at(0)->toolTip().contains(
+        sessionActivityText(SessionActivity::None)));
+
+    auto *panel = tabs.at(0)->findChild<ChatPanel *>();
+    QVERIFY(panel);
+    auto *indicator = widget.findChild<RunningIndicator *>();
+    QVERIFY(indicator);
+    QVERIFY(!indicator->isActive());
+    panel->setPrompting(true);
+    QCOMPARE(tabs.at(0)->activity(), SessionActivity::Running);
+    QVERIFY(indicator->isActive());
+    QVERIFY(overview->entryButtons().at(0)->toolTip().contains(
+        sessionActivityText(SessionActivity::Running)));
+    // The switcher shows the current chat, which is not the running one.
+    QVERIFY(switcher->toolTip().contains(sessionActivityText(SessionActivity::None)));
+    QVERIFY(switcher->icon().cacheKey() != indicator->icon().cacheKey());
+
+    panel->addPermissionRequest(
+        QJsonValue(41),
+        V2::RequestPermissionRequest().sessionId("session-1").title("Test tool").addOption(
+            V2::PermissionOption()
+                .optionId("allow")
+                .name("Allow")
+                .kind(V2::PermissionOptionKind::allow_once)));
+    QCOMPARE(tabs.at(0)->activity(), SessionActivity::InputRequired);
+    QVERIFY(!indicator->isActive());
+    QVERIFY(overview->entryButtons().at(0)->toolTip().contains(
+        sessionActivityText(SessionActivity::InputRequired)));
+    QVERIFY(overview->entryButtons().at(0)->accessibleName().contains(
+        sessionActivityText(SessionActivity::InputRequired)));
+
+    // Picking a chat switches to it and keeps the list open.
+    overview->entryButtons().at(0)->click();
+    QCOMPARE(stack->currentWidget(), tabs.at(0));
+    QVERIFY(switcher->toolTip().contains(sessionActivityText(SessionActivity::InputRequired)));
+    QCOMPARE(switcher->entry().activity, SessionActivity::InputRequired);
+    QVERIFY(switcher->accessibleName().contains(
+        sessionActivityText(SessionActivity::InputRequired)));
+    QVERIFY(switcher->isChecked());
+    QVERIFY(!overview->isHidden());
+
+    // A new chat closes the list.
+    addButton->click();
+    QVERIFY(overview->isHidden());
+    QVERIFY(!switcher->isChecked());
+    QCOMPARE(overview->entryButtons().size(), 3);
+    QVERIFY(overview->entryButtons().at(2)->isChecked());
+
+    // Closing an entry closes its chat and keeps the list open.
+    switcher->click();
+    QPointer<AcpChatTab> closedTab = tabs.at(1);
+    overview->entryButtons().at(1)->findChild<QAbstractButton *>("closeChatButton")->click();
+    QVERIFY(!closedTab);
+    QCOMPARE(stack->count(), 2);
+    QCOMPARE(overview->entryButtons().size(), 2);
+    QCOMPARE(stack->widget(0), tabs.at(0));
+    QVERIFY(!overview->isHidden());
+
+    // Escape closes the list.
+    QTest::keyClick(overview->entryButtons().at(0), Qt::Key_Escape);
+    QVERIFY(overview->isHidden());
+    QVERIFY(!switcher->isChecked());
+
+    switcher->click();
+    QVERIFY(!overview->isHidden());
+    switcher->click();
+    QVERIFY(overview->isHidden());
+    QVERIFY(!stack->isHidden());
+}
+
+// A chat without a server shows no server icon, neither in the switcher nor
+// in the list.
+void AcpClientTest::testChatWidgetServerIconClearedOnDisconnect()
+{
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(true);
+
+    AcpSettings::ServerInfo info = ControllerFixture::serverInfo({});
+    if (QTest::currentTestFailed())
+        return;
+    const Utils::TemporaryDirectory iconDir("acpclient-icon");
+    const Utils::FilePath iconFile = iconDir.filePath("icon.svg");
+    QVERIFY(iconFile.writeFileContents(
+        "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\">"
+        "<rect width=\"16\" height=\"16\" fill=\"currentColor\"/></svg>"));
+    info.iconUrl = iconFile.toUrlishString();
+
+    AcpChatWidget widget;
+    const QList<AcpChatTab *> tabs = widget.findChildren<AcpChatTab *>();
+    QCOMPARE(tabs.size(), 1);
+    AcpChatTab *tab = tabs.first();
+    auto *controller = tab->findChild<AcpChatController *>();
+    QVERIFY(controller);
+    auto *switcher = widget.findChild<SessionSwitcherButton *>();
+    QVERIFY(switcher);
+
+    controller->connectToServer(info);
+    QTRY_VERIFY_WITH_TIMEOUT(!tab->serverIcon().isNull(), 15000);
+    QTRY_VERIFY(!switcher->entry().serverIcon.isNull());
+
+    controller->disconnectFromServer();
+    QVERIFY(tab->serverIcon().isNull());
+    QVERIFY(switcher->entry().serverIcon.isNull());
+    QVERIFY(switcher->icon().isNull());
+}
+
+// The list of chats is as tall as its entries, but never takes more than a
+// third of the chat widget. Beyond that, it scrolls.
+void AcpClientTest::testChatWidgetOverviewHeight()
+{
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(true);
+
+    AcpChatWidget widget;
+    widget.resize(400, 900);
+    widget.show();
+    QVERIFY(QTest::qWaitForWindowExposed(&widget));
+    auto *overview = widget.findChild<AgentOverview *>();
+    QVERIFY(overview);
+    auto *scrollArea = overview->findChild<QScrollArea *>();
+    QVERIFY(scrollArea);
+    QWidget *container = scrollArea->widget();
+    auto *switcher = widget.findChild<SessionSwitcherButton *>();
+    QVERIFY(switcher);
+    QAbstractButton *addButton = widget.findChild<QAbstractButton *>("newChatButton");
+    QVERIFY(addButton);
+
+    // Exactly as tall as the entries, without room for another one.
+    const auto fitsAll = [&] {
+        return scrollArea->viewport()->height() == container->sizeHint().height();
+    };
+
+    switcher->click();
+    QVERIFY(!overview->isHidden());
+    QCOMPARE(overview->entryButtons().size(), 1);
+    QTRY_VERIFY(fitsAll());
+
+    // It grows with more chats while it is open.
+    for (int i = 0; i < 4; ++i) {
+        addButton->click();
+        switcher->click();
+    }
+    QCOMPARE(overview->entryButtons().size(), 5);
+    QTRY_VERIFY(fitsAll());
+    QVERIFY(overview->height() <= widget.height() / 3);
+
+    // Up to a third of the chat widget.
+    for (int i = 0; i < 10; ++i)
+        addButton->click();
+    switcher->click();
+    QCOMPARE(overview->entryButtons().size(), 15);
+    QTRY_VERIFY(scrollArea->verticalScrollBar()->isVisible());
+    QVERIFY(overview->height() <= widget.height() / 3);
+    QVERIFY(overview->height() > widget.height() / 3 - overview->entryButtons().first()->height());
 }
 
 // The console on the connecting page is part of that page, not something that
@@ -4286,7 +4996,7 @@ void AcpClientTest::testChatWidgetTermsAccepted()
     QCOMPARE(widget.findChildren<AcpChatTab *>().size(), 1);
     QCOMPARE(widget.findChildren<AcpTermsWidget *>().size(), 0);
 
-    QAbstractButton *addButton = buttonWithText(&widget, Tr::tr("Add Chat"));
+    QAbstractButton *addButton = widget.findChild<QAbstractButton *>("newChatButton");
     QVERIFY(addButton);
     QVERIFY(addButton->isEnabled());
 }

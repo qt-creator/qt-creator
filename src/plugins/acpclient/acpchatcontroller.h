@@ -71,6 +71,8 @@ public:
     const Utils::FilePath &workingDirectory() const { return m_workingDirectory; }
     const QString &agentName() const { return m_agentName; }
     const QString &agentVersion() const { return m_agentVersion; }
+    const QString &iconUrl() const { return m_iconUrl; }
+    const QString &serverName() const { return m_serverName; }
 
 signals:
     void connectionStateChanged(AcpClientObject::State state);

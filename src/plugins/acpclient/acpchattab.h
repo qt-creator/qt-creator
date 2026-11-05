@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "agentoverview.h"
+
 #include <QWidget>
 
 class QAbstractButton;
@@ -42,11 +44,16 @@ public:
     void setFocus();
 
     QString title() const;
+    QString agentName() const;
     QString toolTip() const;
     QWidget *toolBarWidget() const;
+    SessionActivity activity() const { return m_activity; }
+    QIcon serverIcon() const { return m_serverIcon; }
 
 signals:
     void titleChanged();
+    void activityChanged();
+    void serverIconChanged();
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
@@ -62,6 +69,7 @@ private:
     void populateRegistryButtons();
     void registryFetchFailed(RegistryFailure failure);
     void showSessionPicker();
+    void updateActivity();
 
     // Config page
     QStackedWidget *m_stack;
@@ -94,6 +102,8 @@ private:
     bool m_sessionPending = false;
     bool m_startupFailed = false;
     QString m_pendingPrompt;
+    SessionActivity m_activity = SessionActivity::None;
+    QIcon m_serverIcon;
 };
 
 } // namespace AcpClient::Internal

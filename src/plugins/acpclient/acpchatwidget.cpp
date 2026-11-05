@@ -6,17 +6,16 @@
 #include "acpclienttr.h"
 #include "acpsettings.h"
 #include "acptermswidget.h"
+#include "agentoverview.h"
 
-#include <coreplugin/generalsettings.h>
 #include <coreplugin/rightpane.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 #include <utils/widgets.h>
 
-#include <QComboBox>
 #include <QHBoxLayout>
+#include <QResizeEvent>
 #include <QStackedWidget>
-#include <QTabBar>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -35,33 +34,21 @@ AcpChatWidget::AcpChatWidget(QWidget *parent)
     toolBarLayout->setSpacing(0);
     m_layout->addWidget(toolBar);
 
+    // Shows the current chat and opens the list of all chats below the tool bar.
+    m_switcherButton = new SessionSwitcherButton(toolBar);
+    connect(m_switcherButton, &QAbstractButton::clicked, this, [this](bool checked) {
+        setOverviewShown(checked);
+        if (checked)
+            m_overview->focusCurrentEntry();
+    });
+    toolBarLayout->addWidget(m_switcherButton);
+
     m_addButton = new QToolButton(toolBar);
     m_addButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
-    m_addButton->setText(Tr::tr("Add Chat"));
-    m_addButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    m_addButton->setToolTip(m_addButton->text());
-    connect(m_addButton, &QToolButton::clicked, this, [this] {
-        AcpChatTab *tab = addNewTab();
-        tab->setFocus();
-    });
+    m_addButton->setObjectName("newChatButton");
+    m_addButton->setToolTip(Tr::tr("Add Chat"));
+    connect(m_addButton, &QToolButton::clicked, this, &AcpChatWidget::addNewTabFromUser);
     toolBarLayout->addWidget(m_addButton);
-
-    // Combobox selector (shown when "Use tabbed editors" is disabled).
-    m_switcher = new QComboBox(toolBar);
-    m_switcher->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    connect(m_switcher, &QComboBox::currentIndexChanged,
-            this, &AcpChatWidget::setCurrentIndex);
-    toolBarLayout->addWidget(m_switcher);
-
-    // Close-chat button (shown only in combobox mode; tabs carry their own close button).
-    m_closeChatButton = new QToolButton(toolBar);
-    m_closeChatButton->setIcon(Utils::Icons::CLOSE_TOOLBAR.icon());
-    m_closeChatButton->setToolTip(Tr::tr("Close Chat"));
-    m_closeChatButton->setProperty(Utils::StyleHelper::C_SHOW_BORDER, true);
-    connect(m_closeChatButton, &QToolButton::clicked, this, [this] {
-        closeTab(m_stack->currentIndex());
-    });
-    toolBarLayout->addWidget(m_closeChatButton);
 
     m_toolBarWidgetStack = new QStackedWidget(toolBar);
     toolBarLayout->addWidget(m_toolBarWidgetStack);
@@ -76,37 +63,41 @@ AcpChatWidget::AcpChatWidget(QWidget *parent)
     });
     toolBarLayout->addWidget(closeButton);
 
-    // Tab-bar selector (shown when "Use tabbed editors" is enabled), between toolbar and stack.
-    m_tabBar = new Utils::DocumentTabBar(this);
-    m_tabBar->setDocumentMode(true);
-    m_tabBar->setTabsClosable(true);
-    m_tabBar->setShape(QTabBar::RoundedNorth);
-    m_tabBar->setExpanding(false);
-    connect(m_tabBar, &QTabBar::currentChanged, this, &AcpChatWidget::setCurrentIndex);
-    connect(m_tabBar, &QTabBar::tabCloseRequested, this, &AcpChatWidget::closeTab);
-    m_layout->addWidget(m_tabBar);
-
-    m_stack = new QStackedWidget(this);
-    m_layout->addWidget(m_stack);
+    m_stack = new QStackedWidget;
     connect(m_stack, &QStackedWidget::currentChanged, this, &AcpChatWidget::setCurrentIndex);
 
-    Core::generalSettings().useTabsInEditorViews.addOnChanged(this, [this] {
-        setUseTabs(Core::generalSettings().useTabsInEditorViews());
+    m_runningIndicator = new RunningIndicator(this);
+    connect(m_runningIndicator, &RunningIndicator::iconChanged, this, [this] {
+        m_overview->setRunningIcon(m_runningIndicator->icon());
+        if (m_switcherButton->entry().activity == SessionActivity::Running)
+            m_switcherButton->setIcon(m_runningIndicator->icon());
     });
+
+    m_overview = new AgentOverview;
+    m_overview->hide();
+    connect(m_overview, &AgentOverview::entryActivated, this, [this](int index) {
+        setCurrentIndex(index);
+        setFocus();
+    });
+    connect(m_overview, &AgentOverview::entryCloseRequested,
+            this, &AcpChatWidget::closeTab);
+    connect(m_overview, &AgentOverview::dismissRequested, this, [this] {
+        setOverviewShown(false);
+        m_switcherButton->setFocus();
+    });
+
+    m_chatArea = new QWidget;
+    auto *chatAreaLayout = new QVBoxLayout(m_chatArea);
+    chatAreaLayout->setContentsMargins(0, 0, 0, 0);
+    chatAreaLayout->setSpacing(0);
+    chatAreaLayout->addWidget(m_overview);
+    chatAreaLayout->addWidget(m_stack, 1);
+    m_layout->addWidget(m_chatArea);
 
     updateTermsState();
 }
 
 AcpChatWidget::~AcpChatWidget() = default;
-
-void AcpChatWidget::setUseTabs(bool useTabs)
-{
-    const bool gated = acpTermsPending();
-    m_tabBar->setVisible(useTabs && !gated);
-    m_addButton->setProperty(Utils::StyleHelper::C_SHOW_BORDER, !useTabs);
-    m_switcher->setVisible(!useTabs && !gated);
-    m_closeChatButton->setVisible(!useTabs && !gated);
-}
 
 void AcpChatWidget::updateTermsState()
 {
@@ -115,9 +106,8 @@ void AcpChatWidget::updateTermsState()
         createTermsWidget();
     if (m_termsWidget)
         m_termsWidget->setVisible(gated);
-    m_stack->setVisible(!gated);
+    updateContentVisibility();
     m_addButton->setEnabled(!gated);
-    setUseTabs(Core::generalSettings().useTabsInEditorViews());
     if (!gated && m_stack->count() == 0)
         addNewTab();
 }
@@ -132,20 +122,72 @@ void AcpChatWidget::createTermsWidget()
     m_layout->addWidget(m_termsWidget);
 }
 
+void AcpChatWidget::addNewTabFromUser()
+{
+    AcpChatTab *tab = addNewTab();
+    setOverviewShown(false);
+    tab->setFocus();
+}
+
+void AcpChatWidget::setOverviewShown(bool shown)
+{
+    m_overviewShown = shown;
+    updateContentVisibility();
+}
+
+void AcpChatWidget::updateContentVisibility()
+{
+    const bool gated = acpTermsPending();
+    m_chatArea->setVisible(!gated);
+    m_overview->setVisible(m_overviewShown);
+    m_switcherButton->setEnabled(!gated);
+    m_switcherButton->setChecked(m_overviewShown);
+}
+
+void AcpChatWidget::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    // The list of chats takes at most a third of the room.
+    m_overview->setMaximumHeight(event->size().height() / 3);
+}
+
+void AcpChatWidget::updateOverview()
+{
+    QList<AgentOverview::Entry> entries;
+    bool anyRunning = false;
+    for (int i = 0; i < m_stack->count(); ++i) {
+        if (auto *tab = qobject_cast<AcpChatTab *>(m_stack->widget(i))) {
+            entries.append({tab->agentName(), tab->toolTip(), tab->activity(),
+                            tab->serverIcon()});
+            anyRunning |= tab->activity() == SessionActivity::Running;
+        }
+    }
+    m_runningIndicator->setActive(anyRunning);
+    m_overview->setRunningIcon(m_runningIndicator->icon());
+    m_overview->setEntries(entries);
+    m_overview->setCurrentEntry(m_stack->currentIndex());
+    updateSwitcherButton();
+}
+
+void AcpChatWidget::updateSwitcherButton()
+{
+    auto *tab = qobject_cast<AcpChatTab *>(m_stack->currentWidget());
+    if (!tab)
+        return;
+    m_switcherButton->setEntry({tab->agentName(), tab->toolTip(), tab->activity(),
+                                tab->serverIcon()},
+                               m_runningIndicator->icon());
+}
+
 void AcpChatWidget::setCurrentIndex(int index)
 {
     if (m_blockIndexChanges || index < 0)
         return;
     if (index != m_stack->currentIndex())
         m_stack->setCurrentIndex(index);
-    if (index != m_tabBar->currentIndex())
-        m_tabBar->setCurrentIndex(index);
-    if (index != m_switcher->currentIndex())
-        m_switcher->setCurrentIndex(index);
     if (index != m_toolBarWidgetStack->currentIndex())
         m_toolBarWidgetStack->setCurrentIndex(index);
-    if (auto *tab = qobject_cast<AcpChatTab *>(m_stack->widget(index)))
-        m_switcher->setToolTip(tab->toolTip());
+    updateOverview();
 }
 
 void AcpChatWidget::setInspector(AcpInspector *inspector)
@@ -165,13 +207,12 @@ void AcpChatWidget::closeTab(int index)
     QWidget *w = m_stack->widget(index);
     m_blockIndexChanges = true;
     m_stack->removeWidget(w);
-    m_tabBar->removeTab(index);
-    m_switcher->removeItem(index);
     // Only detaches it from display; the owning ChatPanel deletes it.
     m_toolBarWidgetStack->removeWidget(m_toolBarWidgetStack->widget(index));
     m_blockIndexChanges = false;
     setCurrentIndex(m_stack->currentIndex());
     delete w;
+    updateOverview();
 
     emit navigateStateUpdate();
 
@@ -195,23 +236,14 @@ AcpChatTab *AcpChatWidget::addNewTab()
 
     m_blockIndexChanges = true;
     const int index = m_stack->addWidget(tab);
-    m_tabBar->insertTab(index, tab->title());
-    m_tabBar->setTabToolTip(index, tab->toolTip());
-    m_switcher->insertItem(index, tab->title());
     m_toolBarWidgetStack->insertWidget(index, tab->toolBarWidget());
     m_blockIndexChanges = false;
     setCurrentIndex(index);
 
-    connect(tab, &AcpChatTab::titleChanged, this, [this, tab] {
-        const int i = m_stack->indexOf(tab);
-        if (i < 0)
-            return;
-        m_tabBar->setTabText(i, tab->title());
-        m_tabBar->setTabToolTip(i, tab->toolTip());
-        m_switcher->setItemText(i, tab->title());
-        if (i == m_stack->currentIndex())
-            m_switcher->setToolTip(tab->toolTip());
-    });
+    connect(tab, &AcpChatTab::titleChanged, this, &AcpChatWidget::updateOverview);
+    connect(tab, &AcpChatTab::activityChanged, this, &AcpChatWidget::updateOverview);
+    connect(tab, &AcpChatTab::serverIconChanged, this, &AcpChatWidget::updateOverview);
+    updateOverview();
 
     emit navigateStateUpdate();
     return tab;

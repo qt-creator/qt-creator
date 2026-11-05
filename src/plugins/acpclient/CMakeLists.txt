@@ -34,6 +34,7 @@ add_qtc_plugin(AcpClient
     acptermswidget.cpp acptermswidget.h
     acpterminalhandler.cpp acpterminalhandler.h
     acptransport.cpp acptransport.h
+    agentoverview.cpp agentoverview.h
     chatfontscale.cpp chatfontscale.h
     chatinputcompletion.cpp chatinputcompletion.h
     chatinputedit.cpp chatinputedit.h

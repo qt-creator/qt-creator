@@ -76,6 +76,8 @@ public:
     void setAgentId(const QString &agentId);
     void setSessionId(const QString &sessionId);
     void setPrompting(bool prompting);
+    bool isPrompting() const { return m_prompting; }
+    bool hasPendingRequests() const;
     void setSendEnabled(bool enabled);
     void setCanCloseSession(bool canClose);
     void setImagePasteSupported(bool supported) { m_imagePasteSupported = supported; }
@@ -131,6 +133,7 @@ signals:
     void authenticateRequested(const QString &methodId);
     void inspectRequested();
     void closeSessionRequested();
+    void activityChanged();
 
 protected:
     void resizeEvent(QResizeEvent *event) override;

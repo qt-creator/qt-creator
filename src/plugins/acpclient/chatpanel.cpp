@@ -577,6 +577,8 @@ ChatPanel::ChatPanel(QWidget *parent)
 
     // --- Message view ---
     m_messageView = new AcpMessageView;
+    connect(m_messageView, &AcpMessageView::pendingRequestsChanged,
+            this, &ChatPanel::activityChanged);
     m_messageView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_messageView, &QWidget::customContextMenuRequested, this, [this](const QPoint &pos) {
         QMenu menu(m_messageView);
@@ -864,6 +866,13 @@ void ChatPanel::setPrompting(bool prompting)
         m_messageView->addTurnStats(m_usage->used() - usedBefore, costDelta, currency);
     }
     updateUsageDisplay();
+    if (prompting != wasPrompting)
+        emit activityChanged();
+}
+
+bool ChatPanel::hasPendingRequests() const
+{
+    return m_messageView->hasPendingRequests();
 }
 
 void ChatPanel::setSendEnabled(bool enabled)
