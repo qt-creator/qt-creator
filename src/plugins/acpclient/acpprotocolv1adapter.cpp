@@ -460,8 +460,21 @@ void AcpProtocolV1Adapter::handleNotification(const QString &method, const QJson
     } else if (kind == QLatin1String("user_message_chunk")
                || kind == QLatin1String("agent_message_chunk")
                || kind == QLatin1String("agent_thought_chunk")) {
+        // v1 has no message ids: a new turn, a change of the chunk kind or any
+        // other update in between starts a new message, so replayed history
+        // keeps its messages apart.
+        if (kind != m_lastChunkKind || m_turnCounter != m_lastChunkTurn) {
+            ++m_messageCounter;
+            m_lastChunkKind = kind;
+            m_lastChunkTurn = m_turnCounter;
+        }
         if (!update.contains("messageId"))
-            update["messageId"] = QStringLiteral("v1-%1-%2").arg(kind).arg(m_turnCounter);
+            update["messageId"] = QStringLiteral("v1-%1-%2").arg(kind).arg(m_messageCounter);
+    }
+    if (kind != QLatin1String("user_message_chunk")
+        && kind != QLatin1String("agent_message_chunk")
+        && kind != QLatin1String("agent_thought_chunk")) {
+        m_lastChunkKind.clear();
     }
 
     const auto converted = V2::fromJson<V2::SessionUpdate>(update);

@@ -13,6 +13,7 @@
 #include <QPair>
 #include <QPointer>
 #include <QScrollArea>
+#include <QSet>
 
 #include <optional>
 
@@ -35,6 +36,7 @@ class TerminalDisplayWidget;
 class ThoughtWidget;
 class ToolCallDetailWidget;
 class ToolCallGroupWidget;
+class UserMessageWidget;
 
 QString formatTokenCount(int tokens);
 void applyStatsFormat(QLabel *label);
@@ -59,6 +61,8 @@ public:
 
     void clear();
     void addUserMessage(const QString &text);
+    void appendUserMessageText(const QString &messageId, const QString &text);
+    void setUserMessageText(const QString &messageId, const std::optional<QString> &text);
     void appendAgentText(const QString &text);
     void appendAgentThought(const QString &text);
     void updateToolCall(const Acp::V2::ToolCallUpdate &update);
@@ -104,6 +108,8 @@ private:
     TerminalDisplayWidget *ensureTerminalWidget(const QString &terminalId);
     void addWidget(QWidget *widget);
     int contentMaxWidth() const;
+    UserMessageWidget *createUserMessage(const QString &text);
+    UserMessageWidget *userMessage(const QString &messageId, bool *isNew);
     bool sessionPickerActive() const;
 
     QWidget *m_container = nullptr;
@@ -126,6 +132,9 @@ private:
     QList<QPair<QJsonValue, ElicitationWidget *>> m_pendingElicitationRequests;
     QHash<QString, ToolCallGroupWidget *> m_toolCallGroups; // toolCallId -> owning group
     QHash<QString, TerminalDisplayWidget *> m_terminalWidgets;
+    QHash<QString, UserMessageWidget *> m_userMessages;
+    UserMessageWidget *m_sentUserMessage = nullptr;
+    QSet<QString> m_sentMessageIds;
     AuthenticationWidget *m_currentAuthWidget = nullptr;
     QString m_agentIconUrl;
     bool m_autoScroll = true;

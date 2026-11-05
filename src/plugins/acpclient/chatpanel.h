@@ -96,6 +96,8 @@ public:
 
     // Delegate to message view
     void addUserMessage(const QString &text);
+    void appendUserMessageText(const QString &messageId, const QString &text);
+    void setUserMessageText(const QString &messageId, const std::optional<QString> &text);
     void appendAgentText(const QString &text);
     void appendAgentThought(const QString &text);
     void updateToolCall(const Acp::V2::ToolCallUpdate &update);

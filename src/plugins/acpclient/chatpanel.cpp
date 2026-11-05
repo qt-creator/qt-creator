@@ -1268,6 +1268,16 @@ void ChatPanel::addUserMessage(const QString &text)
     m_messageView->addUserMessage(text);
 }
 
+void ChatPanel::appendUserMessageText(const QString &messageId, const QString &text)
+{
+    m_messageView->appendUserMessageText(messageId, text);
+}
+
+void ChatPanel::setUserMessageText(const QString &messageId, const std::optional<QString> &text)
+{
+    m_messageView->setUserMessageText(messageId, text);
+}
+
 void ChatPanel::appendAgentText(const QString &text)
 {
     m_messageView->appendAgentText(text);

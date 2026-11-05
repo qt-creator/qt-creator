@@ -75,6 +75,7 @@ private:
     void sendError(const QJsonValue &id, int code, const QString &message);
     void sendNotification(const QString &method, const QJsonObject &params);
     void sendAgentMessageChunk(const QString &sessionId, const QString &text);
+    void sendUserMessageChunk(const QString &sessionId, const QString &text);
     void sendSessionUpdateV2(const QString &sessionId, const QJsonObject &update);
     void sendAgentMessageChunkV2(const QString &sessionId, const QString &messageId,
                                  const QString &text);

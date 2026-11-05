@@ -56,6 +56,9 @@ private:
     QList<QJsonObject> m_modes;
     QString m_currentModeId;
     int m_turnCounter = 0;
+    int m_messageCounter = 0;
+    int m_lastChunkTurn = -1;
+    QString m_lastChunkKind;
 };
 
 } // namespace AcpClient::Internal

@@ -564,6 +564,7 @@ private slots:
 
     // Tier 4: chat panel presentation
     void testChatPanelTurnStats();
+    void testChatPanelPromptEcho();
     void testChatPanelFirstTurnStats();
     void testChatPanelUnchangedUsageElapsedOnly();
     void testChatPanelLiveUsageDelta();
@@ -1633,7 +1634,7 @@ void AcpClientTest::testE2eSessionManagement()
             QVERIFY(!error);
         });
     QTRY_VERIFY(loadDone);
-    QCOMPARE(fixture.updates.size(), 1);
+    QCOMPARE(fixture.updates.size(), 6);
     QCOMPARE(fixture.updates.first().first, "session-3");
     QCOMPARE(fixture.updates.first().second.kind(), "agent_message_chunk");
 
@@ -1943,6 +1944,15 @@ void AcpClientTest::testControllerSessionManagement()
     QCOMPARE(fixture.controller.sessionId(), "session-1");
     QTRY_VERIFY(!fixture.updates.isEmpty());
     QCOMPARE(fixture.updates.first().kind(), "agent_message_chunk");
+
+    // The replayed user messages are told apart although v1 has no ids.
+    QStringList userMessageIds;
+    for (const V2::SessionUpdate &update : std::as_const(fixture.updates)) {
+        if (update.kind() == QLatin1String("user_message_chunk"))
+            userMessageIds.append(update.get<V2::ContentChunk>()->messageId());
+    }
+    QCOMPARE(userMessageIds.size(), 3);
+    QCOMPARE(QStringList(userMessageIds).removeDuplicates(), 0);
 
     // Deleting.
     fixture.controller.deleteSession("session-2");
@@ -2364,6 +2374,43 @@ static QStringList turnStatsTexts(const ChatPanel &panel)
     for (const QLabel *label : labels)
         result.append(label->text());
     return result;
+}
+
+static QStringList userMessageTexts(const ChatPanel &panel)
+{
+    return Utils::transform(panel.findChildren<QLabel *>("userMessageText"), &QLabel::text);
+}
+
+// The agent's copy of a sent prompt is not shown again, and the message shown
+// on sending keeps the typed text although the copy holds the context added
+// to the prompt. User messages that arrive outside a turn, as in replayed
+// history, are messages of their own.
+void AcpClientTest::testChatPanelPromptEcho()
+{
+    ChatPanel panel;
+
+    panel.addUserMessage("hello");
+    panel.setPrompting(true);
+    panel.appendUserMessageText("user-1", "hello");
+    panel.appendUserMessageText("user-1", "The current editor is temporary.");
+    QCOMPARE(userMessageTexts(panel), QStringList("hello"));
+
+    panel.setUserMessageText("user-1", std::nullopt);
+    panel.setUserMessageText("user-1", "helloThe current editor is temporary.");
+    QCOMPARE(userMessageTexts(panel), QStringList("hello"));
+    panel.setPrompting(false);
+
+    panel.addUserMessage("unanswered");
+    panel.setPrompting(true);
+    panel.setPrompting(false);
+    panel.setUserMessageText("user-2", "replayed");
+    panel.appendUserMessageText("user-2", " again");
+    QCOMPARE(userMessageTexts(panel), QStringList({"hello", "unanswered", "replayed again"}));
+    panel.setUserMessageText("user-2", "rewritten");
+    QCOMPARE(userMessageTexts(panel), QStringList({"hello", "unanswered", "rewritten"}));
+
+    panel.setUserMessageText("user-3", std::nullopt);
+    QCOMPARE(userMessageTexts(panel), QStringList({"hello", "unanswered", "rewritten"}));
 }
 
 // A finished turn is annotated with the context and cost it consumed, which is

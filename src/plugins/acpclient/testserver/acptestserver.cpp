@@ -274,6 +274,19 @@ void Server::handleLoadSession(const QJsonValue &id, const QJsonObject &params)
     }
 
     sendAgentMessageChunk(request->sessionId(), "replayed history");
+    sendUserMessageChunk(request->sessionId(), "first prompt");
+    sendAgentMessageChunk(request->sessionId(), "first answer");
+    sendUserMessageChunk(request->sessionId(), "second prompt");
+    SessionUpdate toolCall;
+    toolCall._value = ToolCall()
+                          .toolCallId("tool-replayed")
+                          .title("Running the tests")
+                          .kind(ToolKind::execute)
+                          .status(ToolCallStatus::completed);
+    toolCall._kind = "tool_call";
+    sendNotification("session/update",
+                     toJson(SessionNotification().sessionId(request->sessionId()).update(toolCall)));
+    sendUserMessageChunk(request->sessionId(), "third prompt");
 
     LoadSessionResponse response;
     if (m_scenario.configOptions)
@@ -690,7 +703,20 @@ void Server::handlePromptV2(const QJsonValue &id, const QJsonObject &params)
     }
 
     // The response only acknowledges acceptance; the turn runs on afterwards.
+    // The accepted prompt is echoed as a chunk followed by an upsert of the
+    // same message.
     sendResult(id, QJsonObject());
+    const QString userMessageId = QString("user-%1").arg(++m_messageCounter);
+    sendSessionUpdateV2(sessionId,
+                        QJsonObject{{"sessionUpdate", "user_message_chunk"},
+                                    {"messageId", userMessageId},
+                                    {"content", QJsonObject{{"type", "text"},
+                                                            {"text", promptText}}}});
+    sendSessionUpdateV2(sessionId,
+                        QJsonObject{{"sessionUpdate", "user_message"},
+                                    {"messageId", userMessageId},
+                                    {"content", QJsonArray{QJsonObject{{"type", "text"},
+                                                                       {"text", promptText}}}}});
     sendStateUpdate(sessionId, "running");
 
     const QString messageId = QString("msg-%1").arg(++m_messageCounter);
@@ -923,6 +949,15 @@ void Server::sendAgentMessageChunk(const QString &sessionId, const QString &text
     SessionUpdate update;
     update._value = ContentChunk().content(TextContent().text(text));
     update._kind = "agent_message_chunk";
+    sendNotification("session/update",
+                     toJson(SessionNotification().sessionId(sessionId).update(update)));
+}
+
+void Server::sendUserMessageChunk(const QString &sessionId, const QString &text)
+{
+    SessionUpdate update;
+    update._value = ContentChunk().content(TextContent().text(text));
+    update._kind = "user_message_chunk";
     sendNotification("session/update",
                      toJson(SessionNotification().sessionId(sessionId).update(update)));
 }

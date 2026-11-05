@@ -520,7 +520,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         } else if (kind == QLatin1String("user_message_chunk")) {
             if (const auto *chunk = update.get<ContentChunk>()) {
                 if (const auto *textBlock = std::get_if<TextContent>(&chunk->content()))
-                    m_chatPanel->addUserMessage(textBlock->text());
+                    m_chatPanel->appendUserMessageText(chunk->messageId(), textBlock->text());
             }
         } else if (kind == QLatin1String("agent_message")) {
             // Whole-message upsert; approximated by starting a fresh message
@@ -539,9 +539,11 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             }
         } else if (kind == QLatin1String("user_message")) {
             if (const auto *message = update.get<UserMessage>()) {
+                // Content without text keeps what is shown, such as the sent prompt.
                 const QString text = joinedTextContent(message->content());
-                if (!text.isEmpty())
-                    m_chatPanel->addUserMessage(text);
+                m_chatPanel->setUserMessageText(message->messageId(),
+                                                text.isEmpty() ? std::nullopt
+                                                               : std::make_optional(text));
             }
         } else if (kind == QLatin1String("tool_call_update")) {
             if (const auto *tcu = update.get<ToolCallUpdate>())

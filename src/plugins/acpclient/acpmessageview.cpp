@@ -119,6 +119,7 @@ public:
         layout->setSpacing(0);
 
         m_label = new QLabel(this);
+        m_label->setObjectName("userMessageText");
         m_label->setTextFormat(Qt::PlainText);
         m_label->setWordWrap(true);
         m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -131,7 +132,13 @@ public:
         layout->addWidget(m_label);
     }
 
-    void setText(const QString &text) { m_label->setText(text); }
+    void setText(const QString &text)
+    {
+        m_label->setText(text);
+        updateGeometry();
+    }
+
+    void appendText(const QString &text) { setText(m_label->text() + text); }
 
     QSize sizeHint() const override
     {
@@ -1863,6 +1870,8 @@ void AcpMessageView::setAgentIconUrl(const QString &iconUrl)
 void AcpMessageView::setPrompting(bool prompting)
 {
     m_prompting = prompting;
+    if (!prompting)
+        m_sentUserMessage = nullptr;
     if (prompting) {
         m_elapsedTimer->restart();
         updateElapsedTimeLabel();
@@ -1942,19 +1951,80 @@ void AcpMessageView::clear()
     m_pendingElicitationRequests.clear();
     m_toolCallGroups.clear();
     m_terminalWidgets.clear();
+    m_userMessages.clear();
+    m_sentUserMessage = nullptr;
+    m_sentMessageIds.clear();
     m_sessionPicker = nullptr;
     m_autoScroll = true;
 }
 
+// Shows a prompt the user just sent. The first user message the agent
+// reports while that prompt's turn runs is taken to be the agent's copy of it
+// and is not shown again. This message keeps the text the user typed, as the
+// copy also holds the context that was added to the prompt.
 void AcpMessageView::addUserMessage(const QString &text)
+{
+    m_sentUserMessage = createUserMessage(text);
+    m_autoScroll = true; // reset auto-scroll when user sends a message to ensure they see the response
+    scrollToBottom();
+}
+
+void AcpMessageView::appendUserMessageText(const QString &messageId, const QString &text)
+{
+    bool isNew = false;
+    if (UserMessageWidget *message = userMessage(messageId, &isNew)) {
+        if (isNew)
+            message->setText(text);
+        else
+            message->appendText(text);
+    }
+    scrollToBottom();
+}
+
+// Without text, only claims the sent prompt or a message that exists already.
+void AcpMessageView::setUserMessageText(const QString &messageId,
+                                        const std::optional<QString> &text)
+{
+    if (!text && !m_sentUserMessage && !m_userMessages.contains(messageId))
+        return;
+    bool isNew = false;
+    UserMessageWidget *message = userMessage(messageId, &isNew);
+    if (message && text)
+        message->setText(*text);
+    scrollToBottom();
+}
+
+UserMessageWidget *AcpMessageView::createUserMessage(const QString &text)
 {
     finishAgentMessage();
     finishToolCallGroup();
     auto *msg = new UserMessageWidget(m_container);
     msg->setText(text);
     addWidget(wrapWithSpacer(msg, Qt::AlignRight));
-    m_autoScroll = true; // reset auto-scroll when user sends a message to ensure they see the response
-    scrollToBottom();
+    return msg;
+}
+
+// Returns nullptr for the agent's copy of the sent prompt, whose text is not
+// shown. Sets *isNew when the message was created for this call.
+UserMessageWidget *AcpMessageView::userMessage(const QString &messageId, bool *isNew)
+{
+    if (m_sentMessageIds.contains(messageId))
+        return nullptr;
+    if (UserMessageWidget *message = m_userMessages.value(messageId)) {
+        *isNew = false;
+        return message;
+    }
+    if (m_sentUserMessage) {
+        m_sentUserMessage = nullptr;
+        if (!messageId.isEmpty())
+            m_sentMessageIds.insert(messageId);
+        return nullptr;
+    }
+    *isNew = true;
+    UserMessageWidget *message = createUserMessage({});
+    if (!messageId.isEmpty())
+        m_userMessages.insert(messageId, message);
+    return message;
 }
 
 void AcpMessageView::appendAgentText(const QString &text)
