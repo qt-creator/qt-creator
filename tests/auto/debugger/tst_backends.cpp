@@ -2500,8 +2500,8 @@ private slots:
     void launchesThroughTheRemoteLinuxPlatform();
     void explainsWhyLldbDidNotStart_data() { addBackendRows(); }
     void explainsWhyLldbDidNotStart();
-    void staysAttachedWhenLldbCannotDetach_data() { addBackendRows(); }
-    void staysAttachedWhenLldbCannotDetach();
+    void reportsAFailedLldbDetach_data() { addBackendRows(); }
+    void reportsAFailedLldbDetach();
     void readsTheLocalsThroughACdbServer_data() { addBackendRows(); }
     void readsTheLocalsThroughACdbServer();
     void reportsARemoteServerThatGoesAway_data() { addBackendRows(); }
@@ -18384,7 +18384,7 @@ void tst_backends::explainsWhyLldbDidNotStart()
              qPrintable(explanations.constFirst()));
 }
 
-void tst_backends::staysAttachedWhenLldbCannotDetach()
+void tst_backends::reportsAFailedLldbDetach()
 {
     QFETCH(Backend, backend);
 
