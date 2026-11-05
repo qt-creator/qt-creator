@@ -3,6 +3,7 @@
 
 #include "clangcodemodeltr.h"
 #include "clangconstants.h"
+#include "clangdsettings.h"
 #include "clangmodelmanagersupport.h"
 #include "clangutils.h"
 
@@ -10,6 +11,8 @@
 #  include "test/activationsequenceprocessortest.h"
 #  include "test/clangdtests.h"
 #  include "test/clangfixittest.h"
+
+#  include <cppeditor/cpptoolstestcase.h>
 #endif
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -72,6 +75,8 @@ void ClangCodeModelPlugin::initialize()
                           Tr::tr("Clang Code Model"),
                           Tr::tr("C++ code issues that Clangd found in the current document.")});
     CppModelManager::activateClangCodeModel(std::make_unique<ClangModelManagerSupport>());
+    setupClangdProjectSettingsPanel();
+    setupClangdSettingsPage();
     createCompilationDBAction();
 
     ActionBuilder updateStaleIndexEntries(this, "ClangCodeModel.UpdateStaleIndexEntries");
@@ -81,6 +86,16 @@ void ClangCodeModelPlugin::initialize()
     updateStaleIndexEntries.addToContainer(CppEditor::Constants::M_CONTEXT_CODE_MODEL);
 
 #ifdef WITH_TESTS
+    CppEditor::Tests::setClangdFilePathHook() = [](const FilePath &clangd) {
+        ClangdSettings::setClangdFilePath(clangd);
+        const FilePath path = ClangdSettings::instance().data().clangdFilePath(nullptr);
+        return !path.isEmpty() && path.exists();
+    };
+    CppEditor::Tests::setUseClangdHook() = [](bool use) {
+        const bool wasUsed = ClangdSettings::instance().data().useGoodClangd(nullptr);
+        ClangdSettings::setUseClangd(use);
+        return wasUsed;
+    };
     addTestCreator(createActivationSequenceProcessorTest);
     addTestCreator(createClangdTestCompletion);
     addTestCreator(createClangdTestExternalChanges);

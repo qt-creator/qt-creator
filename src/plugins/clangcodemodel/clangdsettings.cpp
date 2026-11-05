@@ -3,17 +3,19 @@
 
 #include "clangdsettings.h"
 
-#include "clangdiagnosticconfigidaspect.h"
-#include "clangdiagnosticconfigsmodel.h"
-#include "clangdiagnosticconfigswidget.h"
-#include "cppeditorconstants.h"
-#include "cppeditortr.h"
-#include "cpptoolsreuse.h"
+#include "clangcodemodeltr.h"
+#include "clangconstants.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/session.h>
+
+#include <cppeditor/clangdiagnosticconfigidaspect.h>
+#include <cppeditor/clangdiagnosticconfigsmodel.h>
+#include <cppeditor/clangdiagnosticconfigswidget.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cpptoolsreuse.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
@@ -44,10 +46,11 @@
 
 #include <limits>
 
+using namespace CppEditor;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace CppEditor {
+namespace ClangCodeModel::Internal {
 
 static FilePath g_defaultClangdFilePath;
 static FilePath fallbackClangdFilePath()
@@ -57,7 +60,10 @@ static FilePath fallbackClangdFilePath()
     return Environment::systemEnvironment().searchInPath("clangd");
 }
 
-static Id initialClangDiagnosticConfigId() { return Constants::CPP_CLANG_DIAG_CONFIG_BUILDSYSTEM; }
+static Id initialClangDiagnosticConfigId()
+{
+    return CppEditor::Constants::CPP_CLANG_DIAG_CONFIG_BUILDSYSTEM;
+}
 
 static Key clangdSettingsKey() { return "ClangdSettings"; }
 static Key useClangdKey() { return "UseClangdV7"; }
@@ -670,7 +676,7 @@ void ClangdSettings::loadSettings()
     m_data.haveCheckedHardwareReqirements =
         store.value(checkedHardwareKey(), false).toBool();
 
-    settings->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
+    settings->beginGroup(CppEditor::Constants::CPPEDITOR_SETTINGSGROUP);
     m_data.customDiagnosticConfigs = diagnosticConfigsFromSettings(settings);
 
     // Pre-8.0 compat
@@ -697,7 +703,7 @@ void ClangdSettings::saveSettings()
     settings->setValue(checkedHardwareKey(), m_data.haveCheckedHardwareReqirements);
     settings->endGroup();
 
-    settings->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
+    settings->beginGroup(CppEditor::Constants::CPPEDITOR_SETTINGSGROUP);
     diagnosticConfigsToSettings(settings, m_data.customDiagnosticConfigs);
     settings->endGroup();
 }
@@ -865,7 +871,7 @@ public:
 
     static Key extraDataKey() { return "ClangdProjectSettings"; }
 
-    UseGlobalAspect useGlobalSettings{Constants::CPP_CLANGD_SETTINGS_ID};
+    UseGlobalAspect useGlobalSettings{Constants::CLANGD_SETTINGS_ID};
 
 private:
     Project * const m_project;
@@ -936,8 +942,6 @@ void clangdSetDiagnosticConfigId(Project *project, Id id)
     ps->save();
     emit ClangdSettings::instance().changed();
 }
-
-namespace Internal {
 
 class ClangdSettingsPageWidget final : public Core::IOptionsPageWidget
 {
@@ -1058,9 +1062,9 @@ class ClangdSettingsPage final : public Core::IOptionsPage
 public:
     ClangdSettingsPage()
     {
-        setId(Constants::CPP_CLANGD_SETTINGS_ID);
+        setId(Constants::CLANGD_SETTINGS_ID);
         setDisplayName(Tr::tr("Clangd"));
-        setCategory(Constants::CPP_SETTINGS_CATEGORY);
+        setCategory(CppEditor::Constants::CPP_SETTINGS_CATEGORY);
         setWidgetCreator([] { return new ClangdSettingsPageWidget; });
     }
 };
@@ -1115,5 +1119,4 @@ void setupClangdProjectSettingsPanel()
     static ClangdProjectSettingsPanelFactory theClangdProjectSettingsPanelFactory;
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace ClangCodeModel::Internal

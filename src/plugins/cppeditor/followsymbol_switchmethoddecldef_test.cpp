@@ -3,7 +3,6 @@
 
 #include "followsymbol_switchmethoddecldef_test.h"
 
-#include "clangdsettings.h"
 #include "cppcodemodelsettings.h"
 #include "cppeditorwidget.h"
 #include "cppfollowsymbolundercursor.h"
@@ -193,7 +192,8 @@ public:
 
     ~F2TestCase()
     {
-        ClangdSettings::setUseClangd(m_prevUseClangd);
+        if (m_testKit)
+            CppEditor::Tests::setUseClangdHook()(m_prevUseClangd);
     }
 
     static ProjectExplorer::Kit *m_testKit;
@@ -201,7 +201,7 @@ private:
     static TestDocumentPtr testFileWithInitialCursorMarker(const QList<TestDocumentPtr> &testFiles);
     static TestDocumentPtr testFileWithTargetCursorMarker(const QList<TestDocumentPtr> &testFiles);
 
-    const bool m_prevUseClangd;
+    bool m_prevUseClangd = false;
 };
 
 ProjectExplorer::Kit *F2TestCase::m_testKit = nullptr;
@@ -213,12 +213,11 @@ ProjectExplorer::Kit *F2TestCase::m_testKit = nullptr;
 F2TestCase::F2TestCase(CppEditorAction action,
                        const QList<TestDocumentPtr> &testFiles,
                        OverrideItemList expectedVirtualFunctionProposal)
-    : m_prevUseClangd(ClangdSettings::instance().data().useGoodClangd(nullptr))
 {
     QVERIFY(succeededSoFar());
 
     if (m_testKit)
-        ClangdSettings::setUseClangd(true);
+        m_prevUseClangd = CppEditor::Tests::setUseClangdHook()(true);
 
     // Check if there are initial and target position markers
     TestDocumentPtr initialTestFile = testFileWithInitialCursorMarker(testFiles);
@@ -501,11 +500,10 @@ namespace CppEditor::Internal::Tests {
 void FollowSymbolTest::initTestCase()
 {
     const QString clangdFromEnv = Utils::qtcEnvironmentVariable("QTC_CLANGD");
-    if (clangdFromEnv.isEmpty())
+    const auto &setClangd = CppEditor::Tests::setClangdFilePathHook();
+    if (clangdFromEnv.isEmpty() || !setClangd)
         return;
-    ClangdSettings::setClangdFilePath(Utils::FilePath::fromUserInput(clangdFromEnv));
-    const auto clangd = ClangdSettings::instance().data().clangdFilePath(nullptr);
-    if (clangd.isEmpty() || !clangd.exists())
+    if (!setClangd(Utils::FilePath::fromUserInput(clangdFromEnv)))
         return;
 
     // Find suitable kit.

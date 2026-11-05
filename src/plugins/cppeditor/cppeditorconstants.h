@@ -94,7 +94,6 @@ inline constexpr char CPP_CODE_STYLE_SETTINGS_ID[] = "A.Cpp.Code Style";
 inline constexpr char CPP_FILE_SETTINGS_ID[] = "B.Cpp.File Naming";
 inline constexpr char CPP_CODE_MODEL_SETTINGS_ID[] = "C.Cpp.Code Model";
 inline constexpr char CPP_DIAGNOSTIC_CONFIG_SETTINGS_ID[] = "C.Cpp.Diagnostic Config";
-inline constexpr char CPP_CLANGD_SETTINGS_ID[] = "K.Cpp.Clangd";
 inline constexpr char CPP_SETTINGS_CATEGORY[] = "I.C++";
 
 inline constexpr char CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID[] = "ClangFixItAvailableMarker";

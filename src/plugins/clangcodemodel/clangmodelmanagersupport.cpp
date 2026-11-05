@@ -9,6 +9,7 @@
 #include "clangdquickfixes.h"
 #include "clangeditordocumentprocessor.h"
 #include "clangdlocatorfilters.h"
+#include "clangdsettings.h"
 #include "clangutils.h"
 
 #include <coreplugin/documentmanager.h>
@@ -19,7 +20,6 @@
 #include <coreplugin/session.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <cppeditor/clangdsettings.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppindexqueries.h>
@@ -185,7 +185,7 @@ static void checkSystemForClangdSuitability()
             "You can enable/disable and fine-tune clangd <a href=\"dummy\">here</a>."));
         label->setWordWrap(true);
         QObject::connect(label, &QLabel::linkActivated, [] {
-            ICore::showSettings(CppEditor::Constants::CPP_CLANGD_SETTINGS_ID);
+            ICore::showSettings(Constants::CLANGD_SETTINGS_ID);
         });
         return label;
     });

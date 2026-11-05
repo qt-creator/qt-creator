@@ -4,14 +4,15 @@
 #include "clangtextmark.h"
 
 #include "clangcodemodeltr.h"
+#include "clangconstants.h"
 #include "clangdclient.h"
 #include "clangdiagnostictooltipwidget.h"
+#include "clangdsettings.h"
 #include "clangutils.h"
 
 #include <coreplugin/icore.h>
 
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
-#include <cppeditor/clangdsettings.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cpptoolsreuse.h>
 
@@ -214,7 +215,7 @@ ClangdTextMark::ClangdTextMark(TextEditor::TextDocument *doc,
     , m_diagnostic(convertDiagnostic(ClangdDiagnostic(diagnostic), doc->filePath(), client))
     , m_client(client)
 {
-    setSettingsPage(CppEditor::Constants::CPP_CLANGD_SETTINGS_ID);
+    setSettingsPage(Constants::CLANGD_SETTINGS_ID);
 
     const bool isError = diagnostic.severity()
             && *diagnostic.severity() == DiagnosticSeverity::Error;

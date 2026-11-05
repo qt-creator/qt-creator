@@ -3,7 +3,6 @@
 
 #include "cpptoolsreuse.h"
 
-#include "clangdsettings.h"
 #include "cppautocompleter.h"
 #include "cppcanonicalsymbol.h"
 #include "cppcodemodelsettings.h"

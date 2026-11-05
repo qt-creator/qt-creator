@@ -510,6 +510,22 @@ int clangdIndexingTimeout()
     return intervalAsInt;
 }
 
+// The clangd settings live in ClangCodeModel, which sets these hooks.
+
+// Points clangd to \a clangd and returns whether that clangd exists.
+std::function<bool(const FilePath &clangd)> &setClangdFilePathHook()
+{
+    static std::function<bool(const FilePath &)> hook;
+    return hook;
+}
+
+// Switches clangd on or off and returns whether it was on before.
+std::function<bool(bool use)> &setUseClangdHook()
+{
+    static std::function<bool(bool)> hook;
+    return hook;
+}
+
 SourceFilesRefreshGuard::SourceFilesRefreshGuard()
 {
     connect(CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed, this, [this] {

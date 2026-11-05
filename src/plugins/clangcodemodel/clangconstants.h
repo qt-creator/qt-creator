@@ -11,4 +11,6 @@ inline constexpr char CLANG_WARNING[] = "Clang.Warning";
 
 inline constexpr char TASK_CATEGORY_DIAGNOSTICS[] = "ClangCodeModel";
 
+inline constexpr char CLANGD_SETTINGS_ID[] = "K.Cpp.Clangd";
+
 } // namespace ClangCodeModel::Constants

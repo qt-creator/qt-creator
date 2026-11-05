@@ -3,9 +3,8 @@
 
 #pragma once
 
-#include "clangdiagnosticconfig.h"
-#include "clangdiagnosticconfigidaspect.h"
-#include "cppeditor_global.h"
+#include <cppeditor/clangdiagnosticconfig.h>
+#include <cppeditor/clangdiagnosticconfigidaspect.h>
 
 #include <utils/aspects.h>
 #include <utils/filepath.h>
@@ -19,10 +18,11 @@ class Project;
 
 namespace Utils { class MacroExpander; }
 
-namespace CppEditor {
+namespace CppEditor { class ClangDiagnosticConfigsModel; }
 
-// TODO: Can we move this to ClangCodeModel?
-class CPPEDITOR_EXPORT ClangdSettings : public Utils::AspectContainer
+namespace ClangCodeModel::Internal {
+
+class ClangdSettings : public Utils::AspectContainer
 {
 public:
     enum class IndexingPriority { Off, Background, Normal, Low, };
@@ -40,7 +40,7 @@ public:
     static QString defaultProjectIndexPathTemplate();
     static QString defaultSessionIndexPathTemplate();
 
-    class CPPEDITOR_EXPORT Data
+    class Data
     {
     public:
         Utils::Store toMap() const;
@@ -50,7 +50,7 @@ public:
         bool useGoodClangd(const ProjectExplorer::Kit *kit) const;
         Utils::FilePath clangdIncludePath(const ProjectExplorer::Kit *kit) const;
         bool sizeIsOkay(const Utils::FilePath &fp) const;
-        ClangDiagnosticConfig diagnosticConfig() const;
+        CppEditor::ClangDiagnosticConfig diagnosticConfig() const;
         Utils::Id diagnosticConfigIdOrDefault() const;
 
         Utils::FilePath projectIndexPath(const Utils::MacroExpander &expander) const;
@@ -64,7 +64,7 @@ public:
 
         Utils::FilePath executableFilePath;
         QStringList sessionsWithOneClangd;
-        ClangDiagnosticConfigs customDiagnosticConfigs;
+        CppEditor::ClangDiagnosticConfigs customDiagnosticConfigs;
         Utils::Id diagnosticConfigId;
 
         int workerThreadLimit = 0;
@@ -105,7 +105,7 @@ public:
     Utils::TypedSelectionAspect<HeaderSourceSwitchMode> headerSourceSwitchMode{this};
     Utils::TypedSelectionAspect<CompletionRankingModel> completionRankingModel{this};
     Utils::TypedSelectionAspect<CompletionStyle> completionStyle{this};
-    ClangDiagnosticConfigIdAspect diagnosticConfigId{this};
+    CppEditor::ClangDiagnosticConfigIdAspect diagnosticConfigId{this};
 
     static ClangdSettings &instance();
     static void setUseClangd(bool use);
@@ -115,8 +115,8 @@ public:
     static bool haveCheckedHardwareRequirements();
 
     static void setDefaultClangdPath(const Utils::FilePath &filePath);
-    static void setCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs);
-    static ClangDiagnosticConfigsModel diagnosticConfigsModel();
+    static void setCustomDiagnosticConfigs(const CppEditor::ClangDiagnosticConfigs &configs);
+    static CppEditor::ClangDiagnosticConfigsModel diagnosticConfigsModel();
 
     void setData(const Data &data);
     Data data() const;
@@ -136,18 +136,16 @@ protected:
     void loadSettings();
 };
 
-CPPEDITOR_EXPORT ClangdSettings::Data clangdSettingsForProject(ProjectExplorer::BuildConfiguration *bc);
-CPPEDITOR_EXPORT ClangdSettings::Data clangdSettingsForProject(ProjectExplorer::Project *project);
+ClangdSettings::Data clangdSettingsForProject(ProjectExplorer::BuildConfiguration *bc);
+ClangdSettings::Data clangdSettingsForProject(ProjectExplorer::Project *project);
 
-CPPEDITOR_EXPORT void clangdBlockIndexingForProject(ProjectExplorer::Project *project);
-CPPEDITOR_EXPORT void clangdUnblockIndexingForProject(ProjectExplorer::Project *project);
-CPPEDITOR_EXPORT void clangdSetDefaultExecutable(ProjectExplorer::BuildConfiguration *bc,
-                                                 const Utils::FilePath &clangd);
-CPPEDITOR_EXPORT void clangdSetDiagnosticConfigId(ProjectExplorer::Project *project, Utils::Id id);
+void clangdBlockIndexingForProject(ProjectExplorer::Project *project);
+void clangdUnblockIndexingForProject(ProjectExplorer::Project *project);
+void clangdSetDefaultExecutable(ProjectExplorer::BuildConfiguration *bc,
+                                const Utils::FilePath &clangd);
+void clangdSetDiagnosticConfigId(ProjectExplorer::Project *project, Utils::Id id);
 
-namespace Internal {
 void setupClangdProjectSettingsPanel();
 void setupClangdSettingsPage();
-}
 
-} // namespace CppEditor
+} // namespace ClangCodeModel::Internal

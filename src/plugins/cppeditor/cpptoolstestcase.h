@@ -8,11 +8,14 @@
 #include "projectinfo.h"
 
 #include <cplusplus/CppDocument.h>
+#include <utils/filepath.h>
 #include <utils/temporarydirectory.h>
 
 #include <QEventLoop>
 #include <QStringList>
 #include <QTimer>
+
+#include <functional>
 
 namespace CPlusPlus {
 class Document;
@@ -99,6 +102,8 @@ public:
 namespace Tests {
 
 int CPPEDITOR_EXPORT clangdIndexingTimeout();
+CPPEDITOR_EXPORT std::function<bool(const Utils::FilePath &clangd)> &setClangdFilePathHook();
+CPPEDITOR_EXPORT std::function<bool(bool use)> &setUseClangdHook();
 
 template <typename Signal> inline bool waitForSignalOrTimeout(
         const typename QtPrivate::FunctionPointer<Signal>::Object *sender, Signal signal,

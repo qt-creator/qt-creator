@@ -72,7 +72,7 @@ void ClangEditorDocumentProcessor::forceUpdate(TextEditor::TextDocument *doc)
 {
     if (const auto client = qobject_cast<ClangdClient *>(
             LanguageClient::LanguageClientManager::clientForDocument(doc))) {
-        const CppEditor::ClangdSettings::Data settings = CppEditor::clangdSettingsForProject(
+        const ClangdSettings::Data settings = clangdSettingsForProject(
                 ProjectExplorer::ProjectManager::projectForFile(doc->filePath()));
         if (settings.updateDependentSources)
             client->documentContentsChanged(doc, 0, 0, 0);

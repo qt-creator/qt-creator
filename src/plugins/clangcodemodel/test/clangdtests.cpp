@@ -188,14 +188,14 @@ void ClangdTest::initTestCase()
 {
     const QString clangdFromEnv = Utils::qtcEnvironmentVariable("QTC_CLANGD");
     if (!clangdFromEnv.isEmpty())
-        CppEditor::ClangdSettings::setClangdFilePath(FilePath::fromString(clangdFromEnv));
-    CppEditor::ClangdSettings::Data settingsData = CppEditor::ClangdSettings::instance().data();
+        ClangdSettings::setClangdFilePath(FilePath::fromString(clangdFromEnv));
+    ClangdSettings::Data settingsData = ClangdSettings::instance().data();
     const auto clangd = settingsData.clangdFilePath(nullptr);
     if (clangd.isEmpty() || !clangd.exists())
         QSKIP("clangd binary not found");
-    CppEditor::ClangdSettings::setUseClangd(true);
-    settingsData.completionStyle = CppEditor::ClangdSettings::CompletionStyle::Bundled;
-    CppEditor::ClangdSettings::instance().setData(settingsData);
+    ClangdSettings::setUseClangd(true);
+    settingsData.completionStyle = ClangdSettings::CompletionStyle::Bundled;
+    ClangdSettings::instance().setData(settingsData);
 
     // Find suitable kit.
     m_kit = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
@@ -2317,8 +2317,8 @@ ClangdTestIndirectChanges::ClangdTestIndirectChanges()
 
 void ClangdTestIndirectChanges::initTestCase()
 {
-    CppEditor::ClangdSettings &settings = CppEditor::ClangdSettings::instance();
-    CppEditor::ClangdSettings::Data settingsData = settings.data();
+    ClangdSettings &settings = ClangdSettings::instance();
+    ClangdSettings::Data settingsData = settings.data();
     settingsData.updateDependentSources = true;
     settings.setData(settingsData);
     ClangdTest::initTestCase();
@@ -2326,7 +2326,7 @@ void ClangdTestIndirectChanges::initTestCase()
 
 void ClangdTestIndirectChanges::cleanupTestCase()
 {
-    CppEditor::ClangdSettings::instance().setData({});
+    ClangdSettings::instance().setData({});
 }
 
 void ClangdTestIndirectChanges::test()

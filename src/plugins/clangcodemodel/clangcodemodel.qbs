@@ -52,6 +52,8 @@ QtcPlugin {
         "clangdquickfixes.h",
         "clangdsemantichighlighting.cpp",
         "clangdsemantichighlighting.h",
+        "clangdsettings.cpp",
+        "clangdsettings.h",
         "clangdswitchdecldef.cpp",
         "clangdswitchdecldef.h",
         "clangeditordocumentprocessor.cpp",

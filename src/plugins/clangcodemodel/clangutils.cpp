@@ -4,13 +4,13 @@
 #include "clangutils.h"
 
 #include "clangcodemodeltr.h"
+#include "clangdsettings.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <cppeditor/baseeditordocumentparser.h>
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
-#include <cppeditor/clangdsettings.h>
 #include <cppeditor/compilationdb.h>
 #include <cppeditor/compileroptionsbuilder.h>
 #include <cppeditor/cppmodelmanager.h>

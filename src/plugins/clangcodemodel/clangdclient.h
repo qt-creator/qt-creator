@@ -3,8 +3,9 @@
 
 #pragma once
 
+#include "clangdsettings.h"
+
 #include <cppeditor/baseeditordocumentparser.h>
-#include <cppeditor/clangdsettings.h>
 #include <cppeditor/cursorineditor.h>
 #include <languageclient/client.h>
 #include <texteditor/semantichighlighter.h>
@@ -56,7 +57,7 @@ public:
 
     bool isFullyIndexed() const;
     QVersionNumber versionNumber() const;
-    CppEditor::ClangdSettings::Data settingsData() const;
+    ClangdSettings::Data settingsData() const;
 
     void openExtraFile(const Utils::FilePath &filePath, const QString &content = {});
     void closeExtraFile(const Utils::FilePath &filePath);
