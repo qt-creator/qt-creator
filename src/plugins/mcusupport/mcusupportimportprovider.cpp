@@ -26,6 +26,27 @@ static const char uriPattern[]{R"(uri\s*:\s*[\'\"](\w+)[\'\"])"};
 namespace McuSupport::Internal {
 using namespace ProjectExplorer;
 
+// The .qmlproject files of the modules the main project uses. A build with Qt for
+// MCUs 3.0 overwrites input.json with an empty "modulesDependencies", but its
+// "ModuleFiles" still names the modules.
+Utils::FilePaths moduleProjectFiles(const QJsonObject &mainProject)
+{
+    Utils::FilePaths result;
+    for (const QJsonValue &module : mainProject["modulesDependencies"].toArray()) {
+        const QString file = module.toObject()["qmlProjectFile"].toString();
+        if (!file.isEmpty())
+            result.append(Utils::FilePath::fromUserInput(file));
+    }
+    if (result.isEmpty()) {
+        for (const QJsonValue &module : mainProject["ModuleFiles"].toArray()) {
+            const QString file = module.toString();
+            if (!file.isEmpty())
+                result.append(Utils::FilePath::fromUserInput(file));
+        }
+    }
+    return result;
+}
+
 // Get the MCU target build folder for a file
 static std::optional<FilePath> getTargetBuildFolder(const FilePath &path)
 {
@@ -105,11 +126,7 @@ QList<Import> McuSupportImportProvider::imports(ValueOwner *valueOwner,
     if (!doc.isObject())
         return {};
     const QJsonObject mainProjectObj = doc.object();
-    for (const QJsonValue &moduleValue : mainProjectObj["modulesDependencies"].toArray()) {
-        if (!moduleValue.isObject())
-            continue;
-        const FilePath modulePath = FilePath::fromUserInput(
-            moduleValue.toObject()["qmlProjectFile"].toString());
+    for (const FilePath &modulePath : moduleProjectFiles(mainProjectObj)) {
         const QString fileContent = QString::fromLatin1(modulePath.fileContents().value_or(""));
         QRegularExpressionMatch uriMatch = QRegularExpression(uriPattern).match(fileContent);
         if (!uriMatch.hasMatch())
@@ -221,7 +238,8 @@ std::optional<FilePath> McuSupportImportProvider::getFileModule(const FilePath &
                     }))
         return std::nullopt;
 
-    for (const QJsonValue &module : mainProjectObject["modulesDependencies"].toArray()) {
+    const QJsonArray modules = mainProjectObject["modulesDependencies"].toArray();
+    for (const QJsonValue &module : modules) {
         const QJsonObject moduleObject = module.toObject();
         const QJsonArray moduleQmlFiles = moduleObject["QmlFiles"].toArray();
         if (std::any_of(moduleQmlFiles.constBegin(),
@@ -230,6 +248,13 @@ std::optional<FilePath> McuSupportImportProvider::getFileModule(const FilePath &
                             return FilePath::fromUserInput(value.toString()) == file;
                         }))
             return FilePath::fromUserInput(moduleObject["qmlProjectFile"].toString());
+    }
+    if (modules.isEmpty()) {
+        // Without the file lists, go by the directory of the module's .qmlproject.
+        for (const FilePath &moduleFile : moduleProjectFiles(mainProjectObject)) {
+            if (file.isChildOf(moduleFile.parentDir()))
+                return moduleFile;
+        }
     }
     return std::nullopt;
 }

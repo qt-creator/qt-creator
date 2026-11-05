@@ -20,6 +20,7 @@
 
 #include "mcuhelpers.h"
 #include "mcukitmanager.h"
+#include "mcusupportimportprovider.h"
 #include "mculegacyconstants.h"
 #include "mcupackage.h"
 #include "mcusupportconstants.h"
@@ -1853,6 +1854,29 @@ void McuSupportTest::test_expectedValueType()
     QCOMPARE(targetDescription.freeRTOS.package.type, Utils::PathChooserKind::ExistingDirectory);
     QCOMPARE(targetDescription.platform.entries[0].type,
              Utils::PathChooserKind::ExistingDirectory);
+}
+
+void McuSupportTest::test_moduleProjectFiles()
+{
+    const auto parse = [](const char *json) {
+        return moduleProjectFiles(QJsonDocument::fromJson(json).object());
+    };
+    const FilePath module = FilePath::fromUserInput("/p/imports/CustomModule/CustomModule.qmlproject");
+    const FilePath other = FilePath::fromUserInput("/p/imports/Other/Other.qmlproject");
+
+    // As written at CMake configure time.
+    QCOMPARE(parse(R"({"ModuleFiles": ["/p/imports/CustomModule/CustomModule.qmlproject"],
+                       "modulesDependencies": [
+                           {"qmlProjectFile": "/p/imports/CustomModule/CustomModule.qmlproject"},
+                           {"qmlProjectFile": "/p/imports/Other/Other.qmlproject"}]})"),
+             FilePaths({module, other}));
+
+    // As rewritten by a build with Qt for MCUs 3.0.
+    QCOMPARE(parse(R"({"ModuleFiles": ["/p/imports/CustomModule/CustomModule.qmlproject"],
+                       "modulesDependencies": []})"),
+             FilePaths({module}));
+
+    QCOMPARE(parse(R"({"modulesDependencies": []})"), FilePaths());
 }
 
 } // namespace McuSupport::Internal::Test

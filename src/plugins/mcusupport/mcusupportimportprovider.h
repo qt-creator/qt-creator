@@ -10,12 +10,16 @@
 #include <qmljs/qmljsinterpreter.h>
 
 #include <QHash>
+#include <QJsonObject>
 
 #include <optional>
 
 namespace McuSupport::Internal {
 using namespace QmlJS;
 using namespace Utils;
+
+Utils::FilePaths moduleProjectFiles(const QJsonObject &mainProject);
+
 class McuSupportImportProvider : public CustomImportsProvider
 {
 public:

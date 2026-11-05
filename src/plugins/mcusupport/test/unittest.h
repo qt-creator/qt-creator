@@ -111,6 +111,7 @@ private slots:
     void test_emptyVersionDetectorFromJson();
 
     void test_expectedValueType();
+    void test_moduleProjectFiles();
 
 private:
     QVersionNumber currentQulVersion{2, 0};
