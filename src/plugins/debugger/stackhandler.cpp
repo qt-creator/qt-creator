@@ -13,6 +13,7 @@
 #include "memoryagent.h"
 #include "simplifytype.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
 #include <utils/basetreeview.h>
@@ -549,6 +550,12 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
     }
 
     addAction(this, menu, Tr::tr("Save as Task File..."), true, [this] { saveTaskFile(); });
+
+    if (!frame.generatedFile.isEmpty()) {
+        addAction(this, menu, Tr::tr("Open Generated Source"), true, [frame] {
+            Core::EditorManager::openEditorAt({frame.generatedFile, frame.generatedLine});
+        });
+    }
 
     if (m_engine->hasCapability(CreateFullBacktraceCapability))
         menu->addAction(settings().createFullBacktrace.action());

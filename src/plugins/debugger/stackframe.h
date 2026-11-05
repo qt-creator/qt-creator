@@ -42,6 +42,8 @@ public:
     bool machineryPlaceholder = false; // Stands in for a collapsed run of machinery frames.
     quint64 machineryRunId = 0; // Identifies the collapsed run (address of its first frame).
     QString context;  // Opaque value produced and consumed by the native backends.
+    Utils::FilePath generatedFile; // C++ that QML compiled to native code was generated as.
+    qint32 generatedLine = 0;
     uint debuggerId = 0;
 };
 

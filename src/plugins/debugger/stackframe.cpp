@@ -99,6 +99,11 @@ StackFrame StackFrame::parseFrame(const GdbMi &frameMi, const DebuggerRunParamet
     else
         frame.usable = frame.file.isReadableFile();
     frame.machinery = frameMi["machinery"].toInt();
+    const GdbMi generated = frameMi["generated"];
+    if (generated.isValid()) {
+        frame.generatedFile = rp.mapToProjectPath(generated["file"].data()).cleanPath();
+        frame.generatedLine = generated["line"].toInt();
+    }
     return frame;
 }
 

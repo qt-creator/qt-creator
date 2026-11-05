@@ -7,7 +7,6 @@ except ImportError:
     import builtins
 
 import gdb
-import itertools
 import os
 import os.path
 import re
@@ -782,23 +781,32 @@ class Dumper(DumperBase):
         if cached is not None and cached[0] == mtime:
             return cached[1]
         table = None
-        try:
-            with open(path, encoding='utf-8', errors='replace') as source:
-                for line in itertools.islice(source, function.line, None):
-                    line = line.strip()
-                    if line.startswith(self.qmlNamesPrefix):
-                        fields = line[len(self.qmlNamesPrefix):].split()
-                        if fields:
-                            if table is None:
-                                table = {}
-                            table[fields[0]] = dict(field.split('=', 1)
-                                                    for field in fields[1:] if '=' in field)
-                    elif line.startswith('#') or line.startswith('/') or line == '}':
-                        break
-        except Exception:
-            table = None
+        for line in self.qmlGeneratedSource(path, mtime)[function.line:]:
+            line = line.strip()
+            if line.startswith(self.qmlNamesPrefix):
+                fields = line[len(self.qmlNamesPrefix):].split()
+                if fields:
+                    if table is None:
+                        table = {}
+                    table[fields[0]] = dict(field.split('=', 1)
+                                            for field in fields[1:] if '=' in field)
+            elif line.startswith('#') or line.startswith('/') or line == '}':
+                break
         cache[key] = (mtime, table)
         return table
+
+    def qmlGeneratedSource(self, path, mtime):
+        cache = self.__dict__.setdefault('qmlGeneratedSourceCache', {})
+        cached = cache.get(path)
+        if cached is not None and cached[0] == mtime:
+            return cached[1]
+        try:
+            with open(path, encoding='utf-8', errors='replace') as source:
+                lines = source.read().split('\n')
+        except Exception:
+            lines = []
+        cache[path] = (mtime, lines)
+        return lines
 
     def qmlNamesLabels(self, block, table, symtab):
         cache = self.__dict__.setdefault('qmlNamesLabelCache', {})
@@ -831,34 +839,66 @@ class Dumper(DumperBase):
         cache[key] = labels
         return labels
 
-    def qmlNamesAtFrame(self, frame):
+    def qmlFunctionBlock(self, frame):
         try:
             block = frame.block()
         except Exception:
             return None
         while block is not None and block.function is None:
             block = block.superblock
+        return block
+
+    def qmlLabelAtFrame(self, frame, block, table):
+        pc = frame.pc()
+        newer = frame.newer()
+        if newer is not None and newer.type() == gdb.NORMAL_FRAME:
+            pc -= 1  # The return address can be the start of the next statement.
+        current = None
+        for address, name in self.qmlNamesLabels(block, table, frame.find_sal().symtab):
+            if address > pc:
+                break
+            current = name
+        return current
+
+    def qmlNamesAtFrame(self, frame):
+        block = self.qmlFunctionBlock(frame)
         if block is None:
             return None
         table = self.qmlNamesTable(block.function)
         if table is None:
             return None
-
-        pc = frame.pc()
-        newer = frame.newer()
-        if newer is not None and newer.type() == gdb.NORMAL_FRAME:
-            pc -= 1  # The return address can be the start of the next statement.
-        labels = self.qmlNamesLabels(block, table, frame.find_sal().symtab)
-        if not labels:
+        if not self.qmlNamesLabels(block, table, frame.find_sal().symtab):
             return None  # The labels are optimized out, keep the C++ names.
-        current = None
-        for address, name in labels:
-            if address > pc:
-                break
-            current = name
+        current = self.qmlLabelAtFrame(frame, block, table)
         if current is None and table:
             current = next(iter(table))  # The prologue, nothing is defined yet.
         return dict(table.get(current, {}))
+
+    def qmlGeneratedLocation(self, frame, sal):
+        # The generated code of the QML statement a qmltocpp function is at,
+        # found by the label that starts it.
+        if sal is None or sal.symtab is None:
+            return None
+        block = self.qmlFunctionBlock(frame)
+        if block is None or block.function.symtab is None:
+            return None
+        function = block.function
+        path = function.symtab.fullname()
+        if path is None or path == sal.symtab.fullname():
+            return None
+        table = self.qmlNamesTable(function)
+        if table is None:
+            return None
+        line = function.line
+        label = self.qmlLabelAtFrame(frame, block, table)
+        if label is not None:
+            anchor = label + ': QUL_DECL_UNUSED;'
+            lines = self.qmlGeneratedSource(path, os.path.getmtime(path))
+            for index in range(function.line, len(lines)):
+                if lines[index].strip() == anchor:
+                    line = index + 1
+                    break
+        return path.replace('\\', '/'), line
 
     def applyQmlNames(self, variables, qmlNames, partialName):
         if not qmlNames:
@@ -1777,6 +1817,13 @@ class Dumper(DumperBase):
                     extra = 'usable="0",machinery="1",'
                 else:
                     inMachineryBlock = False
+
+            try:
+                generated = self.qmlGeneratedLocation(frame, sal)
+            except Exception:
+                generated = None
+            if generated is not None:
+                extra += 'generated={file="%s",line="%s"},' % generated
 
             self.put(('frame={level="%s",address="0x%x",function="%s",'
                       'file="%s",line="%s",module="%s",%slanguage="c"}') %
