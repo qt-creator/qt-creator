@@ -106,8 +106,8 @@ static SigningConfig signingConfigFromSettings(const Environment &env)
     config.insert(Constants::SIGNING_PROFILE_ENV_VAR, profile.nativePath());
     config.insert(Constants::SIGNING_STORE_FILE_ENV_VAR, keystore.nativePath());
     config.insert(Constants::SIGNING_KEY_ALIAS_ENV_VAR, alias);
-    for (const char *var : {Constants::SIGNING_KEY_PASSWORD_ENV_VAR,
-                            Constants::SIGNING_STORE_PASSWORD_ENV_VAR}) {
+    for (const char *var : {Constants::SIGNING_PLAIN_KEY_PASSWORD_ENV_VAR,
+                            Constants::SIGNING_PLAIN_STORE_PASSWORD_ENV_VAR}) {
         if (const QString fromEnv = env.value(QLatin1String(var)); !fromEnv.isEmpty())
             config.insert(QLatin1String(var), fromEnv);
     }
@@ -899,6 +899,8 @@ private:
                                 Constants::SIGNING_KEY_ALIAS_ENV_VAR,
                                 Constants::SIGNING_KEY_PASSWORD_ENV_VAR,
                                 Constants::SIGNING_STORE_PASSWORD_ENV_VAR,
+                                Constants::SIGNING_PLAIN_KEY_PASSWORD_ENV_VAR,
+                                Constants::SIGNING_PLAIN_STORE_PASSWORD_ENV_VAR,
                                 Constants::SIGNING_ALG_ENV_VAR}) {
             env.unset(QLatin1String(var));
         }
@@ -1745,15 +1747,17 @@ private:
         const Storage<SigningPasswords> passwords;
         const auto onPasswordsDone = [this, passwords] {
             const QString keyPassword = signingPassword(
-                passwords->key, m_config, Constants::SIGNING_KEY_PASSWORD_ENV_VAR);
+                passwords->key, m_config, Constants::SIGNING_PLAIN_KEY_PASSWORD_ENV_VAR);
             const QString storePassword = signingPassword(
-                passwords->store, m_config, Constants::SIGNING_STORE_PASSWORD_ENV_VAR);
+                passwords->store, m_config, Constants::SIGNING_PLAIN_STORE_PASSWORD_ENV_VAR);
             if (keyPassword.isEmpty() || storePassword.isEmpty()) {
                 emit addOutput(Tr::tr("The HarmonyOS signing passwords are not available. Enter "
                                       "them in Preferences > SDKs > HarmonyOS, or pass them in "
                                       "the environment as %1 and %2.")
-                                   .arg(QLatin1String(Constants::SIGNING_KEY_PASSWORD_ENV_VAR),
-                                        QLatin1String(Constants::SIGNING_STORE_PASSWORD_ENV_VAR)),
+                                   .arg(QLatin1String(
+                                            Constants::SIGNING_PLAIN_KEY_PASSWORD_ENV_VAR),
+                                        QLatin1String(
+                                            Constants::SIGNING_PLAIN_STORE_PASSWORD_ENV_VAR)),
                                OutputFormat::ErrorMessage);
                 for (const QString &error : std::as_const(passwords->errors)) {
                     emit addOutput(Tr::tr("Reading the keychain failed: %1").arg(error),
@@ -2277,7 +2281,7 @@ private slots:
 
     void testSigningPassword()
     {
-        const char *var = Constants::SIGNING_KEY_PASSWORD_ENV_VAR;
+        const char *var = Constants::SIGNING_PLAIN_KEY_PASSWORD_ENV_VAR;
         const SigningConfig fromEnvironment{{QLatin1String(var), "environment"}};
 
         QCOMPARE(signingPassword("stored", fromEnvironment, var), "stored");
@@ -2285,7 +2289,7 @@ private slots:
         QCOMPARE(signingPassword("stored", {}, var), "stored");
         QVERIFY(signingPassword({}, {}, var).isEmpty());
         QVERIFY(signingPassword({}, fromEnvironment,
-                                Constants::SIGNING_STORE_PASSWORD_ENV_VAR).isEmpty());
+                                Constants::SIGNING_PLAIN_STORE_PASSWORD_ENV_VAR).isEmpty());
     }
 
     void testSigningPasswordsKnownUpFront()

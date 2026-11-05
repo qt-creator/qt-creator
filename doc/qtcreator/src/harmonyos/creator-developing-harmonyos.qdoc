@@ -148,8 +148,8 @@
         \li Enter \uicontrol {Key password} and
             \uicontrol {Keystore password}. \QC keeps them in the system
             keychain. They can also be passed in the environment as
-            \c QT_HARMONYOS_SIGNING_KEY_PASSWORD and
-            \c QT_HARMONYOS_SIGNING_STORE_PASSWORD, which is what a build
+            \c QT_HARMONYOS_SIGNING_PLAIN_KEY_PASSWORD and
+            \c QT_HARMONYOS_SIGNING_PLAIN_STORE_PASSWORD, which is what a build
             machine would do. Only the passwords fall back to the environment,
             so the other four have to be set here.
     \endlist
