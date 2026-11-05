@@ -257,7 +257,9 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             for (const GdbMi &item : data) {
                 Module module;
                 module.modulePath = FilePath::fromUserInput(item["modulepath"].data());
-                module.moduleName = module.modulePath.baseName();
+                const GdbMi moduleName = item["modulename"];
+                module.moduleName = moduleName.isValid() ? moduleName.data()
+                                                         : module.modulePath.baseName();
                 module.startAddress = item["startaddress"].data().toULongLong();
                 module.endAddress = item["endaddress"].data().toULongLong();
                 if (const GdbMi symbolsRead = item["symbolsread"]; symbolsRead.isValid()) {

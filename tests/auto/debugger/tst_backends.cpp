@@ -2356,6 +2356,8 @@ private slots:
     void reportsAnUnresponsiveDebugger();
     void killsTheDebuggerTheUserGaveUpOn_data() { addBackendRows(); }
     void killsTheDebuggerTheUserGaveUpOn();
+    void reportsAKilledInferiorOnce_data() { addBackendRows(); }
+    void reportsAKilledInferiorOnce();
     void saysWhenItCannotRunToAFunction_data() { addBackendRows(); }
     void saysWhenItCannotRunToAFunction();
     void tellsADebuginfodFetchFromAHang_data() { addBackendRows(); }
@@ -2492,6 +2494,10 @@ private slots:
     void attachesToTerminalRunProcess();
     void attachesToRunningRemoteServer_data() { addBackendRows(); }
     void attachesToRunningRemoteServer();
+    void explainsWhyLldbDidNotStart_data() { addBackendRows(); }
+    void explainsWhyLldbDidNotStart();
+    void staysAttachedWhenLldbCannotDetach_data() { addBackendRows(); }
+    void staysAttachedWhenLldbCannotDetach();
     void readsTheLocalsThroughACdbServer_data() { addBackendRows(); }
     void readsTheLocalsThroughACdbServer();
     void reportsARemoteServerThatGoesAway_data() { addBackendRows(); }
@@ -7426,6 +7432,11 @@ void tst_backends::runsOnAfterATracepoint()
     QVERIFY2(results.value(75), "tracepoint insert failed");
     QTRY_VERIFY2_WITH_TIMEOUT(tracepointMessages.join('\n').contains("globalValue is 41"),
                               "the tracepoint never reported", s_timeout);
+    if (backend == Backend::Lldb) {
+        QTRY_VERIFY2_WITH_TIMEOUT(applicationOutput.join('\n').contains("globalValue is 41"),
+                                  "the tracepoint never reached the application output",
+                                  s_timeout);
+    }
 
     // The marker is printed and flushed well after the traced line, so it is
     // only there if the tracepoint did not hold the inferior.
@@ -11472,6 +11483,11 @@ void tst_backends::reportsWhereAModuleIsLoaded()
         const quint64 end = module["endaddress"].data().toULongLong();
         QVERIFY2(start != 0, qPrintable("no load address in " + report));
         QVERIFY2(end > start, qPrintable("no end address in " + report));
+        if (backend == Backend::Lldb) {
+            QCOMPARE(module["modulename"].data(),
+                     FilePath::fromUserInput(module["modulepath"].data()).fileName());
+            QVERIFY2(!module["symbolsread"].isValid(), qPrintable(report));
+        }
         break;
     }
     QVERIFY2(found, qPrintable("no module matching " + marker + " was reported"));
@@ -13885,6 +13901,28 @@ void tst_backends::killsTheDebuggerTheUserGaveUpOn()
     debuggerBackend->execute({ExecutionCommand::Abort});
     QTRY_VERIFY2_WITH_TIMEOUT(processFinished,
                               "the debugger process never finished after an abort", s_timeout);
+}
+
+void tst_backends::reportsAKilledInferiorOnce()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    debuggerBackend->clearEvents();
+    engine->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+    // Whatever a backend reports about the kill, it reports before it gets to
+    // a command sent after it.
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+    QCOMPARE(debuggerBackend->count(InferiorEvent::ShutdownFinished), 1);
 }
 
 // The action running to a function is offered whatever the backend is, so one
@@ -18192,6 +18230,83 @@ quint16 tst_backends::startQmlServer(Process &inferiorProcess, const FilePath &e
     if (!inferiorProcess.waitForStarted())
         return 0;
     return port;
+}
+
+void tst_backends::explainsWhyLldbDidNotStart()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Lldb)
+        QSKIP("Only the lldb backend is constructed directly here.");
+
+    TemporaryDirectory scratch("lldb-missing-XXXXXX");
+    const FilePath missingLldb = scratch.filePath("lldb");
+    auto debuggerBackend = std::make_unique<DebuggerBackend>(
+        std::make_unique<LldbImpl>(LldbImplStartData{
+            .debuggerRunData = ProcessRunData{{missingLldb, {}}, {},
+                                              Environment::systemEnvironment()},
+            .inferiorStartData = ProcessRunData{{inferiorTestData(backend).executable, {}}},
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR)}));
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    QStringList explanations;
+    connect(engine, &DebuggerEngineInterface::startFailed, this,
+            [&explanations](const QString &, const QString &message, const Key &) {
+        explanations.append(message);
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QCOMPARE(explanations.size(), 1);
+    QVERIFY2(explanations.constFirst().contains(missingLldb.toUserOutput()),
+             qPrintable(explanations.constFirst()));
+}
+
+void tst_backends::staysAttachedWhenLldbCannotDetach()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Lldb)
+        QSKIP("Only the lldb backend is constructed directly here.");
+
+    // Nothing that lldb can make a target of, so there is no process to let go of.
+    TemporaryDirectory scratch("lldb-detach-XXXXXX");
+    const FilePath notAnExecutable = scratch.filePath("inferior");
+    QVERIFY(notAnExecutable.writeFileContents("not an executable"));
+    auto debuggerBackend = std::make_unique<DebuggerBackend>(
+        std::make_unique<LldbImpl>(LldbImplStartData{
+            .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                              Environment::systemEnvironment()},
+            .inferiorStartData = ProcessRunData{{notAnExecutable, {}}},
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR)}));
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    QStringList statusMessages;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&statusMessages](const QString &text, int channel, int) {
+        if (channel == Debugger::StatusBar)
+            statusMessages.append(text);
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
+                             || debuggerBackend->contains(InferiorEvent::EngineRunFailed),
+                             s_timeout);
+
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Detach});
+    const auto saidSo = [&statusMessages] {
+        return std::any_of(statusMessages.cbegin(), statusMessages.cend(),
+                           [](const QString &text) { return text.contains("Detaching failed"); });
+    };
+    QTRY_VERIFY2_WITH_TIMEOUT(saidSo(), "a failed detach was not reported", s_timeout);
+    QVERIFY2(statusMessages.contains("No process to detach from."),
+             qPrintable(statusMessages.join('\n')));
+    // Reported in the same answer, so a detach reported anyway is there by now.
+    QVERIFY(debuggerBackend->inferiorResults().isEmpty());
+
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
 }
 
 void tst_backends::attachesToRunningRemoteServer()

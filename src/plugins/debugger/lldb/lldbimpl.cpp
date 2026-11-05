@@ -6,6 +6,7 @@
 #include "../breakpoint.h"
 #include "../debuggerconstants.h"
 #include "../debuggerinternalconstants.h"
+#include "../debuggertr.h"
 #include "../watchutils.h"
 
 #include <utils/commandline.h>
@@ -244,9 +245,9 @@ static GdbMi translateLldbModulesReply(const GdbMi &lldbModules)
             module.addChild(child);
         };
         addConst("modulepath", lldbModule["file"].data());
+        addConst("modulename", lldbModule["name"].data());
         addConst("startaddress", lldbModule["loadstart"].data());
         addConst("endaddress", lldbModule["loadend"].data());
-        addConst("symbolsread", "Yes");
         result.addChild(module);
     }
     return result;
@@ -598,6 +599,13 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
     });
     connect(&m_lldbProc, &Process::done, this, [this] {
         m_watchdog.stop();
+        if (m_lldbProc.result() == ProcessResult::StartFailed) {
+            emit startFailed(Tr::tr("Adapter start failed."),
+                             Tr::tr("Unable to start LLDB \"%1\": %2")
+                                 .arg(m_lldbProc.commandLine().executable().toUserOutput(),
+                                      m_lldbProc.errorString()),
+                             Key("LldbStartFailed"));
+        }
         if (!m_engineSetupReported)
             reportEngineSetupFailed();
         // Before the process result: that one is what a caller deriving the
@@ -628,12 +636,12 @@ void LldbImpl::shutdownInferior(ShutdownMode mode)
                                                           : QLatin1String("shutdownInferior");
     m_detached = mode == ShutdownMode::Detach;
     runCommand({function, [this, mode](const DebuggerResponse &response) {
-        // ShutdownFinished is the only outcome the interface has, so a kill that did
-        // not work is logged here or nowhere.
-        if (mode != ShutdownMode::Detach && !response.data["success"].toInt())
-            emit message("Killing the inferior failed: "
-                         + response.data["error"]["status"].data()
-                         + response.data["status"].data(), LogError);
+        if (!response.data["success"].toInt()) {
+            emit message((mode == ShutdownMode::Detach ? QString("Detaching the inferior failed: ")
+                                                       : QString("Killing the inferior failed: "))
+                             + response.data["error"]["status"].data()
+                             + response.data["status"].data(), LogError);
+        }
         emit inferiorEvent(InferiorEvent::ShutdownFinished);
     }});
 }
@@ -708,7 +716,15 @@ void LldbImpl::execute(const ExecutionRequest &request)
         break;
     case ExecutionCommand::Detach:
         m_detached = true;
-        runCommand({"detachInferior", [this](const DebuggerResponse &) {
+        runCommand({"detachInferior", [this](const DebuggerResponse &response) {
+            if (!response.data["success"].toInt()) {
+                m_detached = false;
+                const QString error = response.data["error"]["status"].data()
+                                      + response.data["status"].data();
+                emit message(error, LogError);
+                emit message(Tr::tr("Detaching failed: %1").arg(error), StatusBar);
+                return;
+            }
             emit inferiorDone({0, InferiorExitStatus::Detached});
         }});
         break;
@@ -1357,6 +1373,7 @@ void LldbImpl::handleTracepointHit(const GdbMi &item)
     formatted += templ.mid(pos);
 
     emit message(formatted, LogMisc);
+    emit message(formatted + '\n', AppOutput);
 }
 
 void LldbImpl::interruptInferior()
@@ -1520,8 +1537,8 @@ void LldbImpl::handleStateReport(const GdbMi &item)
     }
     else if (state == "enginerunokandinferiorunrunnable")
         emit inferiorEvent(InferiorEvent::RunOkAndInferiorUnrunnable);
-    else if (state == "inferiorshutdownfinished")
-        emit inferiorEvent(InferiorEvent::ShutdownFinished);
+    // "inferiorshutdownfinished" is left to the answer to shutdownInferior,
+    // which follows it and also says whether the kill worked.
     else if (state == "engineshutdownfinished")
         emit inferiorEvent(InferiorEvent::EngineShutdownFinished);
     else if (state == "inferiorexited") {
@@ -1551,6 +1568,10 @@ void LldbImpl::handleLldbOutput(const QString &output)
     for (const GdbMi &item : all) {
         const QString name = item.name();
         if (name == "result") {
+            if (QString status = item["status"].data(); !status.isEmpty()) {
+                status[0] = status.at(0).toUpper();
+                emit message(status, StatusBar);
+            }
             const int token = item["token"].toInt();
             if (const auto it = m_commandForToken.find(token); it != m_commandForToken.end()) {
                 DebuggerCommand cmd = it.value();
