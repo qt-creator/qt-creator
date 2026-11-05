@@ -1367,7 +1367,6 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
             .continueAfterAttach = rp.continueAfterAttach(),
             .continueInsteadOfRun = rp.useContinueInsteadOfRun(),
             .exitMonitorAtClose = rp.closeMode() == KillAndExitMonitorAtClose,
-            .intelDisassembly = settings().intelFlavor(),
             .loadSystemDumpers = settings().loadGdbDumpers(),
             .useIndexCache = settings().useIndexCache(),
             .multiInferior = settings().multiInferior() || rp.multiProcess(),

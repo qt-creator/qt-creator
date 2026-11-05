@@ -249,7 +249,8 @@ private:
     std::optional<bool> registersFollowSelectedFrame() const override { return false; }
     void accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64 lengthOrSize,
                       const QByteArray &data) final;
-    void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName) final;
+    void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
+                          DisassemblyFlavor flavor) final;
     void disassembleFunction(quint64 requestId, quint64 address, const QString &functionName,
                              const QList<quint64> &functionAddresses);
     void disassemble(quint64 requestId, const DisassemblyRange &range);

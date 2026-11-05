@@ -159,6 +159,8 @@ public:
 
 enum class MemoryOp { Fetch, Change };
 
+enum class DisassemblyFlavor { Att, Intel };
+
 enum class ShutdownMode { Kill, Detach };
 
 class DEBUGGER_EXPORT AttachToProcessData
@@ -407,7 +409,8 @@ private:
 
     virtual void activateFrame(int index) = 0;
 
-    virtual void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName) = 0;
+    virtual void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
+                                  DisassemblyFlavor flavor) = 0;
 
     virtual void executeDebuggerCommand(const QString &command,
                                         const WatchItemData &inspectorItem) = 0;

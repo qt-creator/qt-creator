@@ -121,7 +121,8 @@ private:
     void setRegisterValue(const QString &name, const QString &value) final;
     void accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64 lengthOrSize,
                       const QByteArray &data) final;
-    void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName) final;
+    void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
+                          DisassemblyFlavor flavor) final;
     void setPeripheralRegisterValue(quint64 address, quint64 value) final;
     void watchPoint(quint64 requestId, const QPoint &pnt) final;
     void createSnapshot(quint64 requestId) final;

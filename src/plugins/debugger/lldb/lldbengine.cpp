@@ -1372,7 +1372,6 @@ static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
         .breakOnWarning = settings().breakOnWarning(),
         .breakOnFatal = settings().breakOnFatal(),
         .enableHeapDebugging = lldbHeapDebugging(rp),
-        .intelDisassembly = settings().intelFlavor(),
         .skipKnownFrames = settings().skipKnownFrames(),
         .logTimeStamps = settings().logTimeStamps(),
         .deviceSymbolsRoot = rp.deviceSymbolsRoot(),

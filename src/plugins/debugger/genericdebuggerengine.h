@@ -77,6 +77,7 @@ private:
     void executeDebuggerCommand(const QString &command) final;
     void doUpdateLocals(const UpdateParameters &params) final;
     void updateAll() final;
+    bool showsStoppedState() const;
     void expandItem(const QString &iname) final;
     void refreshInspectorTree();
 
@@ -104,7 +105,7 @@ private:
     // The frame limit of each stack fetch not answered yet, -1 for none.
     QHash<quint64, int> m_stackDepthLimits;
     // The frame limit of the stack shown. Rows are fewer with collapsed machinery.
-    int m_shownStackDepthLimit = -1;
+    int m_shownStackDepthLimit = 0;
     quint64 m_nextMemoryRequestId = 1;
     quint64 m_nextDisassemblyRequestId = 1;
     quint64 m_nextSnapshotRequestId = 1;

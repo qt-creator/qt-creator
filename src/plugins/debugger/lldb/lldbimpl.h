@@ -46,7 +46,6 @@ public:
     // Whether the inferior keeps the Windows debug heap. Unset where there is
     // no such heap to keep, which is anywhere but Windows.
     Utils::TriState enableHeapDebugging;
-    bool intelDisassembly = false;
     // Whether a step ending in a frame the user did not ask to see is continued.
     bool skipKnownFrames = false;
     // Whether every command's turnaround goes into the log.
@@ -113,7 +112,8 @@ private:
     std::optional<bool> registersFollowSelectedFrame() const override { return true; }
     void accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64 lengthOrSize,
                       const QByteArray &data) final;
-    void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName) final;
+    void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
+                          DisassemblyFlavor flavor) final;
     void assignValueInDebugger(const WatchItemData &item, const QString &expr,
                                const QString &value) final;
     void setPeripheralRegisterValue(quint64 address, quint64 value) final;

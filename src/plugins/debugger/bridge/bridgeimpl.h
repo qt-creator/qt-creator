@@ -45,7 +45,8 @@ private:
     void setRegisterValue(const QString &name, const QString &value) final;
     void accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64 lengthOrSize,
                       const QByteArray &data) final;
-    void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName) final;
+    void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
+                          DisassemblyFlavor flavor) final;
     void setPeripheralRegisterValue(quint64 address, quint64 value) final;
     void watchPoint(quint64 requestId, const QPoint &pnt) final;
     void createSnapshot(quint64 requestId) final;
@@ -83,7 +84,15 @@ private:
                          const BreakpointChangeRequest &request);
     void failDeferredRequests();
     QJsonObject stepArguments(bool byInstruction) const;
-    void fetchDisassemblyForTarget(quint64 requestId, quint64 address, const QString &target);
+    class DisassemblyRequest
+    {
+    public:
+        quint64 requestId = 0;
+        quint64 address = 0;
+        QString target;
+        DisassemblyFlavor flavor = DisassemblyFlavor::Att;
+    };
+    void fetchDisassemblyForTarget(const DisassemblyRequest &request);
     void postLaunchOrAttach();
     void postDumperStack(const RefreshRequest &request, bool extraQml);
     void postBreakpointRequest(const QString &request, const BreakpointChangeRequest &change);
@@ -104,13 +113,6 @@ private:
     };
     QHash<int, PendingRequest> m_pendingRequests;
 
-    class DisassemblyRequest
-    {
-    public:
-        quint64 requestId = 0;
-        quint64 address = 0;
-        QString target;
-    };
     QHash<quint64, DisassemblyRequest> m_disassemblyRequests;
     quint64 m_nextDisassemblyToken = 0;
 

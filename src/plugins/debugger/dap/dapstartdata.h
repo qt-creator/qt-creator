@@ -133,7 +133,6 @@ public:
     bool continueInsteadOfRun = false;
     // Shutting a debug monitor (gdbserver --multi) down with the session.
     bool exitMonitorAtClose = false;
-    bool intelDisassembly = false;
     // Whether the debugger's own dumpers are used beside the Qt ones, whether
     // its symbol index cache is, and whether a fork is followed rather than
     // detached from.

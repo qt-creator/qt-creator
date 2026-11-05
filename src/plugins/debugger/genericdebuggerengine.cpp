@@ -442,14 +442,13 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         }
     });
 
-    const auto updateLocalsIfStopped = [this] {
-        if ((state() == InferiorStopOk && !m_attachStopUnread) || state() == InferiorUnrunnable)
-            updateLocals();
-    };
     DebuggerSettings &s = settings();
     for (BoolAspect *aspect : {&s.useDebuggingHelpers, &s.autoDerefPointers, &s.useDynamicType,
                                &s.allowInferiorCalls}) {
-        connect(aspect, &BaseAspect::changed, this, updateLocalsIfStopped);
+        connect(aspect, &BaseAspect::changed, this, [this] {
+            if (showsStoppedState())
+                updateLocals();
+        });
     }
 }
 
@@ -1122,12 +1121,26 @@ FilePath GenericDebuggerEngine::cleanupFullName(const QString &fileName)
     return {};
 }
 
+bool GenericDebuggerEngine::showsStoppedState() const
+{
+    return (state() == InferiorStopOk && !m_attachStopUnread) || state() == InferiorUnrunnable;
+}
+
+// A backend answers its requests in order, so what is asked for after the
+// load reads what the load brought.
 void GenericDebuggerEngine::loadAllSymbols()
 {
     RefreshRequest request;
     request.kind = RefreshKind::AllSymbols;
     request.requestId = m_nextRefreshRequestId++;
     m_backend->refresh(request);
+    reloadModules();
+    if (showsStoppedState()) {
+        if (state() == InferiorUnrunnable || m_shownStackDepthLimit < 0)
+            reloadFullStack();
+        else
+            reloadStack(qMax(m_shownStackDepthLimit, settings().maximalStackDepth()));
+    }
 }
 
 void GenericDebuggerEngine::reloadDebuggingHelpers()
@@ -1136,6 +1149,8 @@ void GenericDebuggerEngine::reloadDebuggingHelpers()
     request.kind = RefreshKind::DebuggingHelpers;
     request.requestId = m_nextRefreshRequestId++;
     m_backend->refresh(request);
+    if (showsStoppedState())
+        updateLocals();
 }
 
 void GenericDebuggerEngine::setRegisterValue(const QString &name, const QString &value)
@@ -1193,7 +1208,9 @@ void GenericDebuggerEngine::fetchDisassembler(DisassemblerAgent *agent)
 {
     const quint64 requestId = m_nextDisassemblyRequestId++;
     m_pendingDisassemblyRequests[requestId] = agent;
-    m_backend->fetchDisassembly(requestId, agent->address(), agent->location().functionName());
+    m_backend->fetchDisassembly(requestId, agent->address(), agent->location().functionName(),
+                                settings().intelFlavor() ? DisassemblyFlavor::Intel
+                                                         : DisassemblyFlavor::Att);
 }
 
 void GenericDebuggerEngine::watchPoint(const QPoint &pnt)

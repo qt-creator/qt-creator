@@ -5242,7 +5242,6 @@ static GdbImplFlags gdbImplFlags(const DebuggerRunParameters &rp)
                   rp.closeMode() == KillAndExitMonitorAtClose);
     flags.setFlag(GdbImplFlag::ContinueInsteadOfRun, rp.useContinueInsteadOfRun());
     flags.setFlag(GdbImplFlag::QmlCompiledToNative, rp.isQmlCompiledToNative());
-    flags.setFlag(GdbImplFlag::IntelDisassembly, settings().intelFlavor());
     return flags;
 }
 

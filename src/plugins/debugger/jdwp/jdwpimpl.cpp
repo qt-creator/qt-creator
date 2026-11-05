@@ -5502,7 +5502,7 @@ void JdwpImpl::accessMemory(MemoryOp, quint64, quint64, quint64, const QByteArra
     reportUnsupported(Tr::tr("memory access"));
 }
 
-void JdwpImpl::fetchDisassembly(quint64 requestId, quint64, const QString &)
+void JdwpImpl::fetchDisassembly(quint64 requestId, quint64, const QString &, DisassemblyFlavor)
 {
     reportUnsupported(Tr::tr("disassembly"));
     emit disassemblyReceived(requestId, {});

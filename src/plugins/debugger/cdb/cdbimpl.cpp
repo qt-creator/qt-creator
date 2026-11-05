@@ -3107,12 +3107,10 @@ void CdbImpl::refresh(const RefreshRequest &request)
             emit refreshDataReceived(requestId, RefreshKind::DebuggingHelpers,
                                      response.data["result"]);
         }});
-        refresh({requestId, RefreshKind::Locals});
         return;
     }
     if (request.kind == RefreshKind::AllSymbols) {
         runCommand({".reload /f", NoFlags});
-        refresh({request.requestId, RefreshKind::FullStack});
         return;
     }
     if (request.kind != RefreshKind::Locals) {
@@ -3243,7 +3241,8 @@ DisassemblyRange disassemblyRange(quint64 address, const QList<quint64> &functio
             address + Window / 2};
 }
 
-void CdbImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName)
+void CdbImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
+                               DisassemblyFlavor)
 {
     if (functionName.isEmpty()) {
         if (!address) {

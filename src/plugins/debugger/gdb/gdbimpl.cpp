@@ -1045,9 +1045,6 @@ void GdbImpl::refresh(const RefreshRequest &request)
     }
     case RefreshKind::AllSymbols:
         runCommand({"sharedlibrary .*"});
-        refresh({requestId, RefreshKind::Modules});
-        refresh({requestId, RefreshKind::FullStack});
-        refresh({requestId, RefreshKind::Locals});
         return;
     case RefreshKind::StackSymbols:
         runCommand({"sharedlibrary " + dotEscape(request.path.path())});
@@ -1056,7 +1053,6 @@ void GdbImpl::refresh(const RefreshRequest &request)
         runCommand({"reloadDumpers", [this, requestId](const DebuggerResponse &response) {
             emit refreshDataReceived(requestId, RefreshKind::DebuggingHelpers, response.data);
         }});
-        refresh({requestId, RefreshKind::Locals});
         return;
     case RefreshKind::ModuleSymbols: {
         if (request.path.isEmpty()) {
@@ -1744,14 +1740,15 @@ bool GdbImpl::reportDisassemblyIfUsable(quint64 requestId, quint64 address,
     return usable;
 }
 
-void GdbImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName)
+void GdbImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
+                               DisassemblyFlavor flavor)
 {
     if (address == 0 && functionName.isEmpty()) {
         emit message("GdbImpl::fetchDisassembly() needs an address or a function name",
                      LogWarning);
         return;
     }
-    runCommand({m_startData.isSet(GdbImplFlag::IntelDisassembly)
+    runCommand({flavor == DisassemblyFlavor::Intel
                     ? QLatin1String("set disassembly-flavor intel")
                     : QLatin1String("set disassembly-flavor att")});
     fetchDisassemblyPointMixed(requestId, address, functionName);

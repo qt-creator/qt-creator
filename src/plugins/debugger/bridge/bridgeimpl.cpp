@@ -952,9 +952,6 @@ void BridgeImpl::refresh(const RefreshRequest &request)
         return;
     case RefreshKind::AllSymbols:
         postRequest("qtc/loadSymbols", QJsonObject{{"all", true}});
-        refresh({request.requestId, RefreshKind::Modules});
-        refresh({request.requestId, RefreshKind::FullStack});
-        refresh({request.requestId, RefreshKind::Locals});
         return;
     case RefreshKind::StackSymbols:
         postRequest("qtc/loadSymbols",
@@ -963,7 +960,6 @@ void BridgeImpl::refresh(const RefreshRequest &request)
     case RefreshKind::DebuggingHelpers:
         m_pendingDumpersRequestId = request.requestId;
         postRequest("qtc/reloadDumpers", {});
-        refresh({request.requestId, RefreshKind::Locals});
         return;
     default:
         emit refreshDataReceived(request.requestId, request.kind, {});
@@ -1238,9 +1234,10 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
         } else if (request.address && !request.target.contains(',')) {
             // Disassembling the function the address is in did not cover it,
             // so ask for a window around it instead.
-            fetchDisassemblyForTarget(request.requestId, request.address,
-                                      "0x" + QString::number(request.address - 20, 16) + ",0x"
-                                          + QString::number(request.address + 100, 16));
+            fetchDisassemblyForTarget({request.requestId, request.address,
+                                       "0x" + QString::number(request.address - 20, 16) + ",0x"
+                                           + QString::number(request.address + 100, 16),
+                                       request.flavor});
         } else {
             emit message("BridgeImpl: no usable disassembly for " + request.target, LogWarning);
         }
@@ -1890,7 +1887,8 @@ void BridgeImpl::accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quin
     }
 }
 
-void BridgeImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName)
+void BridgeImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
+                                  DisassemblyFlavor flavor)
 {
     QTC_ASSERT(m_client, return);
     if (address == 0 && functionName.isEmpty()) {
@@ -1898,18 +1896,19 @@ void BridgeImpl::fetchDisassembly(quint64 requestId, quint64 address, const QStr
                      LogWarning);
         return;
     }
-    fetchDisassemblyForTarget(requestId, address,
-                              address ? "0x" + QString::number(address, 16) : functionName);
+    fetchDisassemblyForTarget({requestId, address,
+                               address ? "0x" + QString::number(address, 16) : functionName,
+                               flavor});
 }
 
-void BridgeImpl::fetchDisassemblyForTarget(quint64 requestId, quint64 address,
-                                           const QString &target)
+void BridgeImpl::fetchDisassemblyForTarget(const DisassemblyRequest &request)
 {
     const quint64 token = ++m_nextDisassemblyToken;
-    m_disassemblyRequests.insert(token, {requestId, address, target});
+    m_disassemblyRequests.insert(token, request);
+    const bool intel = request.flavor == DisassemblyFlavor::Intel;
     postRequest("qtc/disassemble",
-                QJsonObject{{"target", target}, {"token", qint64(token)},
-                            {"flavor", m_startData.intelDisassembly ? "intel" : "att"}});
+                QJsonObject{{"target", request.target}, {"token", qint64(token)},
+                            {"flavor", intel ? "intel" : "att"}});
 }
 
 void BridgeImpl::executeDebuggerCommand(const QString &command, const WatchItemData &)

@@ -1536,17 +1536,9 @@ void QmlImpl::refresh(const RefreshRequest &request)
         refreshSourceFiles(request);
         return;
     }
-    // Nothing behind the debug service has dumpers or symbols to load, so what
-    // the caller is after is the values, and the frames they belong to, again.
-    if (request.kind == RefreshKind::DebuggingHelpers) {
-        refreshLocals({request.requestId, RefreshKind::Locals});
+    // Nothing behind the debug service has dumpers or symbols to load.
+    if (request.kind == RefreshKind::DebuggingHelpers || request.kind == RefreshKind::AllSymbols)
         return;
-    }
-    if (request.kind == RefreshKind::AllSymbols) {
-        refresh({request.requestId, RefreshKind::FullStack});
-        refresh({request.requestId, RefreshKind::Locals});
-        return;
-    }
     if (request.kind != RefreshKind::FullStack && request.kind != RefreshKind::FullBacktrace)
         return;
 
@@ -1652,7 +1644,7 @@ void QmlImpl::executeDebuggerCommand(const QString &command, const WatchItemData
 
 void QmlImpl::setRegisterValue(const QString &, const QString &) {}
 void QmlImpl::accessMemory(MemoryOp, quint64, quint64, quint64, const QByteArray &) {}
-void QmlImpl::fetchDisassembly(quint64, quint64, const QString &) {}
+void QmlImpl::fetchDisassembly(quint64, quint64, const QString &, DisassemblyFlavor) {}
 void QmlImpl::setPeripheralRegisterValue(quint64, quint64) {}
 void QmlImpl::watchPoint(quint64, const QPoint &) {}
 void QmlImpl::createSnapshot(quint64) {}

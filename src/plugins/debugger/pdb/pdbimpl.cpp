@@ -757,12 +757,8 @@ void PdbImpl::refresh(const RefreshRequest &request)
     }
     case RefreshKind::DebuggingHelpers:
         runCommand({"reloadDumpers"});
-        refresh({requestId, RefreshKind::Locals});
         return;
     case RefreshKind::AllSymbols:
-        refresh({requestId, RefreshKind::Modules});
-        refresh({requestId, RefreshKind::FullStack});
-        refresh({requestId, RefreshKind::Locals});
         return;
     case RefreshKind::Threads:
         m_pendingThreadsRequestId = requestId;
@@ -802,7 +798,7 @@ void PdbImpl::accessMemory(MemoryOp, quint64, quint64, quint64, const QByteArray
 {
 }
 
-void PdbImpl::fetchDisassembly(quint64, quint64, const QString &)
+void PdbImpl::fetchDisassembly(quint64, quint64, const QString &, DisassemblyFlavor)
 {
 }
 

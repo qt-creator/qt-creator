@@ -264,6 +264,8 @@ private slots:
     void testAFailedRunRestoresOnlyAPendingReset();
     void testAResumedAttachStopLeavesTheViewsAlone();
     void testTogglingDebuggingHelpersRereadsTheLocals();
+    void testReloadsAreFollowedByWhatTheStopShows();
+    void testDisassemblyFollowsTheFlavorSetting();
     void testACoreSessionReadsModulesAndSources();
     void testModulesPointToTheDebuggersDevice();
     void testMoreFetchesTheStackAStepAtATime();
@@ -2995,7 +2997,11 @@ public:
     void executeDebuggerCommand(const QString &, const WatchItemData &) override {}
     void selectThread(const QString &) override {}
     void activateFrame(int) override {}
-    void fetchDisassembly(quint64, quint64, const QString &) override {}
+    void fetchDisassembly(quint64, quint64, const QString &, DisassemblyFlavor flavor) override
+    {
+        disassemblyFlavors.append(flavor);
+    }
+    QList<DisassemblyFlavor> disassemblyFlavors;
     void assignValueInDebugger(const WatchItemData &, const QString &, const QString &) override {}
     void setRegisterValue(const QString &, const QString &) override {}
     void setPeripheralRegisterValue(quint64, quint64) override {}
@@ -5655,6 +5661,80 @@ void DebuggerUnitTests::testTogglingDebuggingHelpersRereadsTheLocals()
     }
 }
 
+static QList<int> refreshKinds(const QList<RefreshKind> &kinds)
+{
+    return Utils::transform(kinds, [](RefreshKind kind) { return int(kind); });
+}
+
+static QList<int> takeRefreshes(RecordingBackend *backend)
+{
+    return refreshKinds(std::exchange(backend->refreshes, {}));
+}
+
+// The backends leave the refreshes after a reload to the engine, which asks
+// for them after the reload and only for the views a stop shows.
+void DebuggerUnitTests::testReloadsAreFollowedByWhatTheStopShows()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+    engine->setDevice({});
+
+    engine->start();
+    reportAnAttachStopThatIsResumed(backend);
+    takeRefreshes(backend);
+
+    engine->loadAllSymbols();
+    QCOMPARE(takeRefreshes(backend), refreshKinds({RefreshKind::AllSymbols, RefreshKind::Modules}));
+    engine->reloadDebuggingHelpers();
+    QCOMPARE(takeRefreshes(backend), refreshKinds({RefreshKind::DebuggingHelpers}));
+
+    emit backend->inferiorEvent(InferiorEvent::RunRequested);
+    emit backend->inferiorEvent(InferiorEvent::RunOk);
+    takeRefreshes(backend);
+
+    engine->loadAllSymbols();
+    QCOMPARE(takeRefreshes(backend), refreshKinds({RefreshKind::AllSymbols, RefreshKind::Modules}));
+    engine->reloadDebuggingHelpers();
+    QCOMPARE(takeRefreshes(backend), refreshKinds({RefreshKind::DebuggingHelpers}));
+
+    emit backend->inferiorEvent(InferiorEvent::SpontaneousStop);
+    QCOMPARE(engine->state(), InferiorStopOk);
+    takeRefreshes(backend);
+
+    engine->loadAllSymbols();
+    QCOMPARE(takeRefreshes(backend),
+             refreshKinds({RefreshKind::AllSymbols, RefreshKind::Modules, RefreshKind::FullStack}));
+    engine->reloadDebuggingHelpers();
+    QCOMPARE(takeRefreshes(backend),
+             refreshKinds({RefreshKind::DebuggingHelpers, RefreshKind::Locals}));
+}
+
+// The flavor goes with each request, so a changed setting reaches the session
+// that is running.
+void DebuggerUnitTests::testDisassemblyFollowsTheFlavorSetting()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    BoolAspect &intel = settings().intelFlavor;
+    const bool wasIntel = intel();
+    const QScopeGuard cleanup([engine, &intel, wasIntel] {
+        delete engine;
+        intel.setValue(wasIntel);
+    });
+    engine->setRunParameters({});
+
+    DisassemblerAgent agent(engine);
+    for (const bool on : {true, false, true}) {
+        intel.setValue(on);
+        engine->fetchDisassembler(&agent);
+        QVERIFY(!backend->disassemblyFlavors.isEmpty());
+        QVERIFY(backend->disassemblyFlavors.last()
+                == (on ? DisassemblyFlavor::Intel : DisassemblyFlavor::Att));
+    }
+}
+
 // A core file is never stopped, its state is InferiorUnrunnable.
 void DebuggerUnitTests::testACoreSessionReadsModulesAndSources()
 {
@@ -5759,6 +5839,13 @@ void DebuggerUnitTests::testMoreFetchesTheStackAStepAtATime()
     emit backend->refreshDataReceived(backend->lastStackRequest.requestId,
                                       RefreshKind::FullStack, stackRefreshData(5));
     QVERIFY2(!stack->canExpand(), "a stack shorter than its limit still offers <More>");
+    engine->loadAllSymbols();
+    QCOMPARE(backend->lastStackRequest.stackDepthLimit, 2 * 10 + 3);
+    engine->reloadFullStack();
+    emit backend->refreshDataReceived(backend->lastStackRequest.requestId,
+                                      RefreshKind::FullStack, stackRefreshData(5));
+    engine->loadAllSymbols();
+    QCOMPARE(backend->lastStackRequest.stackDepthLimit, -1);
 
     emit backend->inferiorEvent(InferiorEvent::RunRequested);
     emit backend->inferiorEvent(InferiorEvent::RunOk);
@@ -5766,6 +5853,10 @@ void DebuggerUnitTests::testMoreFetchesTheStackAStepAtATime()
     emit backend->refreshDataReceived(backend->lastStackRequest.requestId,
                                       RefreshKind::FullStack, stackRefreshData(2, "0"));
     QVERIFY2(!stack->canExpand(), "a stack the backend reports complete still offers <More>");
+    engine->loadAdditionalQmlStack();
+    emit backend->refreshDataReceived(99999, RefreshKind::FullStack, stackRefreshData(1));
+    engine->loadAllSymbols();
+    QCOMPARE(backend->lastStackRequest.stackDepthLimit, 2);
 
     BoolAspect &collapse = settings().collapseMachineryFrames;
     const bool wasCollapsing = collapse();

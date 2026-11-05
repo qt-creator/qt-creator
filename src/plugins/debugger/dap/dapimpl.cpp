@@ -2534,12 +2534,8 @@ void DapImpl::refresh(const RefreshRequest &request)
         return;
     case RefreshKind::AllSymbols:
         // Nothing loads symbols over the protocol, while the debugger behind
-        // the adapter does it over its console. What the caller is after is
-        // what reads them, so the answers they feed come next.
+        // the adapter does it over its console.
         loadSymbols(".*", {});
-        refresh({request.requestId, RefreshKind::Modules});
-        refresh({request.requestId, RefreshKind::FullStack});
-        refresh({request.requestId, RefreshKind::Locals});
         return;
     case RefreshKind::StackSymbols:
         if (request.path.isEmpty()) {
@@ -2551,9 +2547,7 @@ void DapImpl::refresh(const RefreshRequest &request)
         loadSymbols(dotEscape(request.path.path()), request.path.toUserOutput());
         return;
     case RefreshKind::DebuggingHelpers:
-        // There are no dumpers behind a stock adapter, so reloading them is
-        // asking it for the values again.
-        refresh({request.requestId, RefreshKind::Locals});
+        // There are no dumpers behind a stock adapter.
         return;
     case RefreshKind::PeripheralRegisters:
         // A peripheral register is not a register of the machine but a word at
@@ -4162,18 +4156,19 @@ static quint64 addressOfEvaluated(const QJsonObject &body)
 // it answers with, so the debugger behind the adapter is told in words of its
 // own, ahead of every request, the way gdb's own backend does it. Both
 // spellings go out because neither debugger knows the other's.
-void DapImpl::setTheDisassemblyFlavor()
+void DapImpl::setTheDisassemblyFlavor(DisassemblyFlavor flavor)
 {
-    const QString flavor = m_startData.intelDisassembly ? QString("intel") : QString("att");
-    const QString gdbCommand = "set disassembly-flavor " + flavor;
-    const QString lldbCommand = "settings set target.x86-disassembly-flavor " + flavor;
+    const QString name = flavor == DisassemblyFlavor::Intel ? QString("intel") : QString("att");
+    const QString gdbCommand = "set disassembly-flavor " + name;
+    const QString lldbCommand = "settings set target.x86-disassembly-flavor " + name;
     for (const QString &command : {gdbCommand, lldbCommand}) {
         sendCustomRequest("evaluate", QJsonObject{{"expression", command}, {"context", "repl"}},
                           [](const Utils::Result<QJsonObject> &) {});
     }
 }
 
-void DapImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName)
+void DapImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
+                               DisassemblyFlavor flavor)
 {
     QTC_ASSERT(m_client, return);
     if (!m_client->capabilities().supportsDisassembleRequest) {
@@ -4193,7 +4188,7 @@ void DapImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString
         QJsonObject arguments{{"expression", expression}, {"context", "watch"}};
         if (m_currentFrameId >= 0)
             arguments.insert("frameId", m_currentFrameId);
-        sendCustomRequest("evaluate", arguments, [this, requestId, functionName]
+        sendCustomRequest("evaluate", arguments, [this, requestId, functionName, flavor]
                           (const Utils::Result<QJsonObject> &answer) {
             const quint64 found = answer ? addressOfEvaluated(*answer) : 0;
             if (found == 0) {
@@ -4201,11 +4196,11 @@ void DapImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString
                                     "address.").arg(functionName), LogWarning);
                 return;
             }
-            fetchDisassembly(requestId, found, functionName);
+            fetchDisassembly(requestId, found, functionName, flavor);
         });
         return;
     }
-    setTheDisassemblyFlavor();
+    setTheDisassemblyFlavor(flavor);
     const QString reference = "0x" + QString::number(address, 16);
     const int seq = m_client->postRequest(
         "disassemble", QJsonObject{{"memoryReference", reference},

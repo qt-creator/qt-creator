@@ -2809,7 +2809,6 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .userCommands
                 = {.forReset = {userCommandProbe(backend, UserCommandHook::Reset).command}},
             .breakOnMain = gdbFlags.testFlag(GdbImplFlag::BreakOnMain),
-            .intelDisassembly = gdbFlags.testFlag(GdbImplFlag::IntelDisassembly),
             .logTimeStamps = gdbFlags.testFlag(GdbImplFlag::LogTimeStamps),
             .nativeMixedDebugging = nativeMixed,
             .pseudoTracepoints = gdbFlags.testFlag(GdbImplFlag::PseudoTracepoints),
@@ -2839,7 +2838,6 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
             .nativeMixedDebugging = nativeMixed,
             .breakOnMain = gdbFlags.testFlag(GdbImplFlag::BreakOnMain),
-            .intelDisassembly = gdbFlags.testFlag(GdbImplFlag::IntelDisassembly),
             .skipKnownFrames = gdbFlags.testFlag(GdbImplFlag::SkipKnownFrames),
             .logTimeStamps = gdbFlags.testFlag(GdbImplFlag::LogTimeStamps),
             .forResetCommands = {userCommandProbe(backend, UserCommandHook::Reset).command},
@@ -2903,8 +2901,7 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
             .flags = GdbImplFlag::LoadGdbInit | GdbImplFlag::LoadSystemDumpers
                      | GdbImplFlag::UseIndexCache | GdbImplFlag::MultiInferior
                      | GdbImplFlag::ForceTargetAsync | GdbImplFlag::BreakOnAbort
-                     | GdbImplFlag::BreakOnWarning | GdbImplFlag::BreakOnFatal
-                     | GdbImplFlag::IntelDisassembly,
+                     | GdbImplFlag::BreakOnWarning | GdbImplFlag::BreakOnFatal,
             .useDebugInfoD = TriState(TriState::EnabledValue),
             .extraDumperFile = existingDir / "qtc_extra_dumper.py",
             .extraDumperCommands = "echo QTCEXTRADUMPERCOMMAND\\n",
@@ -2940,7 +2937,6 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
             .breakOnAbort = true,
             .breakOnWarning = true,
             .breakOnFatal = true,
-            .intelDisassembly = true,
             .loadSystemDumpers = true,
             .useIndexCache = true,
             .multiInferior = true}));
@@ -2956,7 +2952,6 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
             .breakOnAbort = true,
             .breakOnWarning = true,
             .breakOnFatal = true,
-            .intelDisassembly = true,
             .sysroot = FilePath::fromUserInput("/qtc-test-sysroot"),
             .startupCommands = {"script print('QTCSTARTUPMARKER')"},
             .postAttachCommands = {"script print('QTCPOST' + 'ATTACHMARKER')"},
@@ -2994,7 +2989,6 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
         startData.breakOnAbort = true;
         startData.breakOnWarning = true;
         startData.breakOnFatal = true;
-        startData.intelDisassembly = true;
         startData.useDebugInfoD = true;
         startData.sysroot = FilePath::fromUserInput("/qtc-test-sysroot");
         startData.sourceDirectories = {existingDir};
@@ -5834,7 +5828,7 @@ void tst_backends::testDisassemblerCapability()
         disassembly = lines;
         disassemblyReceived = true;
     });
-    engine->fetchDisassembly(40, bumpAddress, "bump");
+    engine->fetchDisassembly(40, bumpAddress, "bump", DisassemblyFlavor::Att);
     QTRY_VERIFY_WITH_TIMEOUT(disassemblyReceived, s_timeout);
     QVERIFY(disassembly.coversAddress(bumpAddress));
 
@@ -5842,7 +5836,7 @@ void tst_backends::testDisassemblerCapability()
         return;
     disassembly = {};
     disassemblyReceived = false;
-    engine->fetchDisassembly(41, 0, testData.functionMarker);
+    engine->fetchDisassembly(41, 0, testData.functionMarker, DisassemblyFlavor::Att);
     QTRY_VERIFY2_WITH_TIMEOUT(disassemblyReceived,
                               "disassembly by function name alone was never reported", s_timeout);
     QVERIFY2(!disassembly.data().isEmpty(), "disassembly by function name came back empty");
@@ -5875,7 +5869,7 @@ void tst_backends::reportsSourceLinesInTheDisassembly()
         disassembly = lines;
         disassemblyReceived = true;
     });
-    engine->fetchDisassembly(42, bumpAddress, "bump");
+    engine->fetchDisassembly(42, bumpAddress, "bump", DisassemblyFlavor::Att);
     QTRY_VERIFY_WITH_TIMEOUT(disassemblyReceived, s_timeout);
 
     int sourceLines = 0;
@@ -6244,13 +6238,16 @@ void tst_backends::testReloadModuleSymbolsCapability()
     stackSymbolsRequest.path = inferiorTestData(backend).moduleSymbolsPath;
     engine->refresh(stackSymbolsRequest);
 
-    // Loading symbols has no answer of its own. Asking for all of them next
-    // brings the module list with it, and that answer can only arrive once the
-    // loads before it have been processed.
+    // Loading symbols has no answer of its own. The module list asked for
+    // next can only arrive once the loads before it have been processed.
     RefreshRequest allSymbolsRequest;
     allSymbolsRequest.kind = RefreshKind::AllSymbols;
     allSymbolsRequest.requestId = 83;
     engine->refresh(allSymbolsRequest);
+    RefreshRequest modulesRequest;
+    modulesRequest.kind = RefreshKind::Modules;
+    modulesRequest.requestId = 84;
+    engine->refresh(modulesRequest);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Modules)), s_timeout);
     QVERIFY2(errors.isEmpty(), qPrintable("loading symbols was refused: " + errors.join(' ')));
 }
@@ -11121,7 +11118,7 @@ void tst_backends::fillsInTheColumnsOfTheDisassemblerView()
         disassembly = lines;
         disassemblyReceived = true;
     });
-    engine->fetchDisassembly(347, bumpAddress, "bump");
+    engine->fetchDisassembly(347, bumpAddress, "bump", DisassemblyFlavor::Att);
     QTRY_VERIFY_WITH_TIMEOUT(disassemblyReceived, s_timeout);
 
     // The disassembler view writes each instruction as address, offset into the
@@ -14099,7 +14096,7 @@ void tst_backends::disassemblesInTheConfiguredFlavor()
                                          InferiorEvent::RunAndInferiorStopOk), s_timeout);
     }
 
-    // The flavor travels with the disassembly request, not with the startup.
+    // The flavor travels with each disassembly request, not with the startup.
     bool disassembled = false;
     DisassemblerLines lines;
     connect(engine, &DebuggerEngineInterface::disassemblyReceived, this,
@@ -14107,7 +14104,8 @@ void tst_backends::disassemblesInTheConfiguredFlavor()
         lines = received;
         disassembled = true;
     });
-    engine->fetchDisassembly(400, 0, inferiorTestData(backend).functionMarker);
+    engine->fetchDisassembly(400, 0, inferiorTestData(backend).functionMarker,
+                             DisassemblyFlavor::Intel);
     QTRY_VERIFY_WITH_TIMEOUT(disassembled, s_timeout);
 
     QVERIFY2(std::any_of(sent.cbegin(), sent.cend(), [&wireMarker](const QString &text) {
@@ -14134,6 +14132,16 @@ void tst_backends::disassemblesInTheConfiguredFlavor()
     QVERIFY2(att.isEmpty(), qPrintable("the disassembly came out in att syntax:\n  "
                                        + att.mid(0, 4).join("\n  ")));
 
+    disassembled = false;
+    engine->fetchDisassembly(401, 0, inferiorTestData(backend).functionMarker,
+                             DisassemblyFlavor::Att);
+    QTRY_VERIFY_WITH_TIMEOUT(disassembled, s_timeout);
+    const QList<DisassemblerLine> attLines = lines.data();
+    QVERIFY2(std::any_of(attLines.cbegin(), attLines.cend(), [](const DisassemblerLine &line) {
+                 return line.data.contains(attRegister);
+             }),
+             "switching back to att left the disassembly in intel syntax");
+
     // Only a backend that keeps the flavor in a setting can be asked about it.
     if (query.isEmpty())
         return;
@@ -14150,8 +14158,8 @@ void tst_backends::disassemblesInTheConfiguredFlavor()
     }(), s_timeout);
     if (answer.contains("Undefined"))
         QSKIP("This architecture has no disassembly flavor.");
-    QVERIFY2(answer.contains("\"intel\""),
-             qPrintable("the configured disassembly flavor did not arrive: " + answer));
+    QVERIFY2(answer.contains("\"att\""),
+             qPrintable("the last requested disassembly flavor did not arrive: " + answer));
 }
 
 void tst_backends::configuresTheDebugInfoDaemon()
@@ -14661,6 +14669,10 @@ void tst_backends::reloadsDebuggingHelpersAndSymbols()
     debuggingHelpersRequest.kind = RefreshKind::DebuggingHelpers;
     debuggingHelpersRequest.requestId = 105;
     engine->refresh(debuggingHelpersRequest);
+    RefreshRequest localsRequest;
+    localsRequest.kind = RefreshKind::Locals;
+    localsRequest.requestId = 109;
+    engine->refresh(localsRequest);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
     QVERIFY(responses.value(int(RefreshKind::Locals)).toString().contains(testData.localMarker));
     if (reportsDumperTypes(backend)) {
@@ -14678,6 +14690,10 @@ void tst_backends::reloadsDebuggingHelpersAndSymbols()
     allSymbolsRequest.kind = RefreshKind::AllSymbols;
     allSymbolsRequest.requestId = 106;
     engine->refresh(allSymbolsRequest);
+    RefreshRequest stackRequest;
+    stackRequest.kind = RefreshKind::FullStack;
+    stackRequest.requestId = 110;
+    engine->refresh(stackRequest);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
     QVERIFY(responses.value(int(RefreshKind::FullStack)).toString().contains(testData.functionMarker));
 
@@ -21304,7 +21320,7 @@ void tst_backends::refusesWhatADapAdapterAnnouncesNothingAbout()
     engine->refresh({.requestId = 806, .kind = RefreshKind::SourceFiles});
     engine->accessMemory(MemoryOp::Fetch, 807, 0x3000, 16);
     engine->accessMemory(MemoryOp::Change, 808, 0x3000, 4, QByteArray(4, char(0)));
-    engine->fetchDisassembly(809, 0x4000, "main");
+    engine->fetchDisassembly(809, 0x4000, "main", DisassemblyFlavor::Att);
     engine->setRegisterValue("rax", "1");
     // The adapter is not one this session started, so there is no debuggee of
     // its own to put back.

@@ -40,7 +40,6 @@ enum class GdbImplFlag {
     BreakOnAbort         = 1 << 7,
     BreakOnWarning       = 1 << 8,
     BreakOnFatal         = 1 << 9,
-    IntelDisassembly     = 1 << 10,
     SkipKnownFrames      = 1 << 11,
     LogTimeStamps        = 1 << 12,
     BreakOnMain          = 1 << 13,
@@ -108,7 +107,8 @@ private:
     std::optional<bool> registersFollowSelectedFrame() const override { return true; }
     void accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64 lengthOrSize,
                       const QByteArray &data) final;
-    void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName) final;
+    void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
+                          DisassemblyFlavor flavor) final;
     void fetchDisassemblyPointMixed(quint64 requestId, quint64 address,
                                     const QString &functionName);
     void fetchDisassemblyRangeMixed(quint64 requestId, quint64 address);

@@ -1145,13 +1145,8 @@ void LldbImpl::refresh(const RefreshRequest &request)
         runCommand({"reloadDumpers", [this, requestId](const DebuggerResponse &response) {
             emit refreshDataReceived(requestId, RefreshKind::DebuggingHelpers, response.data);
         }});
-        refresh({requestId, RefreshKind::Locals});
         return;
     case RefreshKind::AllSymbols:
-        refresh({requestId, RefreshKind::Modules});
-        refresh({requestId, RefreshKind::FullStack});
-        refresh({requestId, RefreshKind::Locals});
-        return;
     case RefreshKind::StackSymbols:
         return;
     default:
@@ -1254,12 +1249,13 @@ void LldbImpl::accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint6
     runCommand(cmd);
 }
 
-void LldbImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName)
+void LldbImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
+                                DisassemblyFlavor flavor)
 {
     DebuggerCommand cmd("fetchDisassembler");
     cmd.arg("address", address);
     cmd.arg("function", functionName);
-    cmd.arg("flavor", m_startData.intelDisassembly ? "intel" : "att");
+    cmd.arg("flavor", flavor == DisassemblyFlavor::Intel ? "intel" : "att");
     cmd.callback = [this, requestId](const DebuggerResponse &response) {
         DisassemblerLines result;
         int bytesLength = 0;
