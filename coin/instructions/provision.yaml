@@ -228,7 +228,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
       - type: ExecuteCommand
-        command: "{{.Env.PYTHON_EXECUTABLE}} -m venv {{.AgentWorkingDir}}\\build\\creator_venv"
+        command: "{{.Env.SBOM_PYTHON_INTERP_PATH}} -m venv {{.AgentWorkingDir}}\\build\\creator_venv"
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to create Python virtual environment, check logs."
