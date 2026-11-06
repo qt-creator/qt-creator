@@ -20,15 +20,6 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
-static GdbMi constMi(const QString &name, const QString &data)
-{
-    GdbMi mi;
-    mi.m_type = GdbMi::Const;
-    mi.m_name = name;
-    mi.m_data = data;
-    return mi;
-}
-
 static GdbMi wrapped(const GdbMi &node, bool partial = false)
 {
     GdbMi wrapper;
@@ -36,7 +27,7 @@ static GdbMi wrapped(const GdbMi &node, bool partial = false)
     wrapper.addChild(node);
     // The view keeps the part of the tree the reply does not talk about, and
     // only a reply saying so is read that way.
-    wrapper.addChild(constMi("partial", partial ? "1" : "0"));
+    wrapper.addConst("partial", partial ? "1" : "0");
     return wrapper;
 }
 
@@ -96,13 +87,13 @@ static GdbMi breakpointTuple(const QString &number, const QString &fileName,
 {
     GdbMi bkpt;
     bkpt.m_type = GdbMi::Tuple;
-    bkpt.addChild(constMi("number", number));
-    bkpt.addChild(constMi("file", fileName));
-    bkpt.addChild(constMi("fullname", fileName));
-    bkpt.addChild(constMi("line", lineNumber));
-    bkpt.addChild(constMi("enabled", "y"));
+    bkpt.addConst("number", number);
+    bkpt.addConst("file", fileName);
+    bkpt.addConst("fullname", fileName);
+    bkpt.addConst("line", lineNumber);
+    bkpt.addConst("enabled", "y");
     if (!function.isEmpty())
-        bkpt.addChild(constMi("func", function));
+        bkpt.addConst("func", function);
     return bkpt;
 }
 
@@ -423,7 +414,7 @@ GdbMi PdbImpl::localizedStack(const GdbMi &stack) const
         frame.m_name = frameMi.m_name;
         for (const GdbMi &child : frameMi) {
             if (child.m_name == "file")
-                frame.addChild(constMi("file", localSourcePath(child.data())));
+                frame.addConst("file", localSourcePath(child.data()));
             else
                 frame.addChild(child);
         }
@@ -489,7 +480,7 @@ void PdbImpl::shutdownInferior(ShutdownMode mode)
         for (const QString &id : std::as_const(m_knownThreadIds)) {
             GdbMi data;
             data.m_type = GdbMi::Tuple;
-            data.addChild(constMi("id", id));
+            data.addConst("id", id);
             emit threadEvent(ThreadEvent::Exited, data);
         }
         m_knownThreadIds.clear();
@@ -1045,7 +1036,7 @@ void PdbImpl::handleOutputLine(const QString &line)
     } else if (line.startsWith("symbols={")) {
         GdbMi moduleSymbols;
         moduleSymbols.m_type = GdbMi::Tuple;
-        moduleSymbols.addChild(constMi("modulepath", item["module"].data()));
+        moduleSymbols.addConst("modulepath", item["module"].data());
         GdbMi symbols = item["symbols"];
         symbols.m_name = "symbols";
         moduleSymbols.addChild(symbols);
@@ -1113,8 +1104,8 @@ void PdbImpl::handleOutputLine(const QString &line)
         handleBreakpointFence(item["token"].data().toULongLong());
     } else if (line.startsWith("fullbacktrace={")) {
         emit refreshDataReceived(m_pendingBacktraceRequestId, RefreshKind::FullBacktrace,
-                                 constMi({}, QString::fromUtf8(QByteArray::fromHex(
-                                                 item["output"].data().toLatin1()))));
+                                 GdbMi::makeConst({}, QString::fromUtf8(QByteArray::fromHex(
+                                                        item["output"].data().toLatin1()))));
     } else if (line.startsWith("commanderror={")) {
         emit message(QString::fromUtf8(QByteArray::fromHex(item["msg"].data().toLatin1())),
                      LogError);
@@ -1144,16 +1135,16 @@ void PdbImpl::handleOutputLine(const QString &line)
 
         GdbMi bkpt;
         bkpt.m_type = GdbMi::Tuple;
-        bkpt.addChild(constMi("number", responseId));
-        bkpt.addChild(constMi("file", it->request.params.fileName.path()));
-        bkpt.addChild(constMi("fullname", it->request.params.fileName.path()));
-        bkpt.addChild(constMi("line", QString::number(it->request.params.textPosition.line)));
-        bkpt.addChild(constMi("enabled", "y"));
-        bkpt.addChild(constMi("times", item["times"].data()));
+        bkpt.addConst("number", responseId);
+        bkpt.addConst("file", it->request.params.fileName.path());
+        bkpt.addConst("fullname", it->request.params.fileName.path());
+        bkpt.addConst("line", QString::number(it->request.params.textPosition.line));
+        bkpt.addConst("enabled", "y");
+        bkpt.addConst("times", item["times"].data());
         // The model reads an update as the whole state of the breakpoint, so a
         // condition left out of it counts as none rather than as unchanged.
         if (!it->request.params.condition.isEmpty())
-            bkpt.addChild(constMi("cond", it->request.params.condition));
+            bkpt.addConst("cond", it->request.params.condition);
         GdbMi list;
         list.m_type = GdbMi::List;
         list.addChild(bkpt);
@@ -1284,7 +1275,7 @@ void PdbImpl::handleBreakpointDeleted(const QString &line)
         }
         GdbMi deleted;
         deleted.m_type = GdbMi::Tuple;
-        deleted.addChild(constMi("number", active.request.responseId));
+        deleted.addConst("number", active.request.responseId);
         m_activeBreakpoints.removeAt(i);
         emit breakpointEvent(0, BreakpointOp::Remove, true, deleted);
     }
@@ -1352,7 +1343,7 @@ void PdbImpl::handleThreadEvent(const GdbMi &item)
     }
     m_knownThreadIds.append(id);
     GdbMi created = item;
-    created.addChild(constMi("group-id", m_threadGroupId));
+    created.addConst("group-id", m_threadGroupId);
     emit threadEvent(ThreadEvent::Created, created);
 }
 
@@ -1364,8 +1355,8 @@ void PdbImpl::reportThreadGroupCreated()
     m_threadGroupId = QString::number(m_pdbProc.processId());
     GdbMi group;
     group.m_type = GdbMi::Tuple;
-    group.addChild(constMi("id", m_threadGroupId));
-    group.addChild(constMi("pid", m_threadGroupId));
+    group.addConst("id", m_threadGroupId);
+    group.addConst("pid", m_threadGroupId);
     emit threadEvent(ThreadEvent::GroupCreated, group);
 }
 
@@ -1375,7 +1366,7 @@ void PdbImpl::reportThreadGroupGone()
         return;
     GdbMi group;
     group.m_type = GdbMi::Tuple;
-    group.addChild(constMi("id", m_threadGroupId));
+    group.addConst("id", m_threadGroupId);
     m_threadGroupId.clear();
     emit threadEvent(ThreadEvent::GroupExited, group);
 }
@@ -1386,7 +1377,7 @@ void PdbImpl::reportThreadsStopped()
 {
     GdbMi data;
     data.m_type = GdbMi::Tuple;
-    data.addChild(constMi("id", "all"));
+    data.addConst("id", "all");
     emit threadEvent(ThreadEvent::Stopped, data);
 }
 
@@ -1394,7 +1385,7 @@ void PdbImpl::reportThreadsRunning()
 {
     GdbMi data;
     data.m_type = GdbMi::Tuple;
-    data.addChild(constMi("thread-id", "all"));
+    data.addConst("thread-id", "all");
     emit threadEvent(ThreadEvent::Running, data);
 }
 

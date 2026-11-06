@@ -28,15 +28,6 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
-static GdbMi constMi(const QString &name, const QString &data)
-{
-    GdbMi mi;
-    mi.m_type = GdbMi::Const;
-    mi.m_name = name;
-    mi.m_data = data;
-    return mi;
-}
-
 // The debug service knows one exception break, which covers the caught ones as
 // well, so all three spellings of the request end up as the same one.
 static bool isExceptionBreakpoint(BreakpointType type)
@@ -440,16 +431,16 @@ void QmlImpl::reportBreakpointHit(const QString &responseId, int hits)
         = m_activeBreakpointsByResponseId.value(responseId).params;
     GdbMi bkpt;
     bkpt.m_type = GdbMi::Tuple;
-    bkpt.addChild(constMi(QStringLiteral("number"), responseId));
-    bkpt.addChild(constMi(QStringLiteral("file"), params.fileName.path()));
-    bkpt.addChild(constMi(QStringLiteral("fullname"), params.fileName.path()));
-    bkpt.addChild(constMi(QStringLiteral("line"), QString::number(params.textPosition.line)));
-    bkpt.addChild(constMi(QStringLiteral("enabled"), params.enabled ? "y" : "n"));
-    bkpt.addChild(constMi(QStringLiteral("times"), QString::number(hits)));
+    bkpt.addConst(QStringLiteral("number"), responseId);
+    bkpt.addConst(QStringLiteral("file"), params.fileName.path());
+    bkpt.addConst(QStringLiteral("fullname"), params.fileName.path());
+    bkpt.addConst(QStringLiteral("line"), QString::number(params.textPosition.line));
+    bkpt.addConst(QStringLiteral("enabled"), params.enabled ? "y" : "n");
+    bkpt.addConst(QStringLiteral("times"), QString::number(hits));
     // The model reads a modification as the whole state of the breakpoint, so a
     // condition left out of it counts as none rather than as unchanged.
     if (!params.condition.isEmpty())
-        bkpt.addChild(constMi(QStringLiteral("cond"), params.condition));
+        bkpt.addConst(QStringLiteral("cond"), params.condition);
     GdbMi list;
     list.m_type = GdbMi::List;
     list.addChild(bkpt);
@@ -474,13 +465,12 @@ void QmlImpl::reportTracepointHit(const QString &responseId,
     for (const TracepointCapture &capture : std::as_const(hit->captures)) {
         if (capture.type != TracepointCaptureType::Expression) {
             // Nothing the service can be asked for, so the capture stays as written.
-            hit->values.addChild(constMi(QStringLiteral("value"),
-                                         hit->pattern.mid(capture.start,
-                                                          capture.end - capture.start)));
+            hit->values.addConst(QStringLiteral("value"),
+                                 hit->pattern.mid(capture.start, capture.end - capture.start));
             continue;
         }
         const QString expression = capture.expression;
-        hit->values.addChild(constMi(QStringLiteral("value"), expression));
+        hit->values.addConst(QStringLiteral("value"), expression);
         ++hit->outstanding;
         DebuggerCommand cmd(EVALUATE);
         cmd.arg(EXPRESSION, expression);
@@ -493,7 +483,7 @@ void QmlImpl::reportTracepointHit(const QString &responseId,
             GdbMi entry;
             entry.m_type = GdbMi::Tuple;
             entry.m_name = expression;
-            entry.addChild(constMi(QStringLiteral("value"), value));
+            entry.addConst(QStringLiteral("value"), value);
             hit->expressions.addChild(entry);
             finishTracepointHit(hit);
         });
@@ -590,7 +580,7 @@ void QmlImpl::handleBreakEvent(const QVariantMap &response)
     for (const QString &responseId : takenBack) {
         GdbMi deleted;
         deleted.m_type = GdbMi::Tuple;
-        deleted.addChild(constMi(QStringLiteral("number"), responseId));
+        deleted.addConst(QStringLiteral("number"), responseId);
         emit breakpointEvent(0, BreakpointOp::Remove, true, deleted);
     }
 
@@ -666,11 +656,11 @@ void QmlImpl::setScriptBreakpoint(quint64 requestId, const BreakpointChangeReque
 
         GdbMi bkpt;
         bkpt.m_type = GdbMi::Tuple;
-        bkpt.addChild(constMi(QLatin1String(NUMBER), responseId));
-        bkpt.addChild(constMi(QLatin1String("file"), params.fileName.toUserOutput()));
-        bkpt.addChild(constMi(QLatin1String("line"), QString::number(line)));
-        bkpt.addChild(constMi(QLatin1String(ENABLED), params.enabled ? QStringLiteral("y")
-                                                                     : QStringLiteral("n")));
+        bkpt.addConst(QLatin1String(NUMBER), responseId);
+        bkpt.addConst(QLatin1String("file"), params.fileName.toUserOutput());
+        bkpt.addConst(QLatin1String("line"), QString::number(line));
+        bkpt.addConst(QLatin1String(ENABLED),
+                      params.enabled ? QStringLiteral("y") : QStringLiteral("n"));
         GdbMi data;
         data.m_type = GdbMi::List;
         data.addChild(bkpt);
@@ -979,7 +969,7 @@ std::function<void()> QmlImpl::legFinisher(const std::shared_ptr<RefreshCollecto
             all.addChild(pending->items);
         } else {
             all.addChild(keptForPartialRefresh(pending->items, pending->partialVariable));
-            all.addChild(constMi(QStringLiteral("partial"), QStringLiteral("1")));
+            all.addConst(QStringLiteral("partial"), QStringLiteral("1"));
         }
         emit refreshDataReceived(pending->requestId, pending->kind, all);
     };
@@ -1031,19 +1021,19 @@ void QmlImpl::refreshLocals(const RefreshRequest &request)
             const QVariantMap body = resp.value(QLatin1String(BODY)).toMap();
             GdbMi item;
             item.m_type = GdbMi::Tuple;
-            item.addChild(constMi(QStringLiteral("iname"), iname));
-            item.addChild(constMi(QStringLiteral("wname"), hexExp));
+            item.addConst(QStringLiteral("iname"), iname);
+            item.addConst(QStringLiteral("wname"), hexExp);
             int numchild = 0;
             if (resp.value(QLatin1String(SUCCESS)).toBool()) {
                 const auto [type, value] = v8TypeAndValue(body, m_stringLimit);
                 numchild = v8ChildCount(body);
-                item.addChild(constMi(QStringLiteral("type"), type));
-                item.addChild(constMi(QStringLiteral("value"), value));
+                item.addConst(QStringLiteral("type"), type);
+                item.addConst(QStringLiteral("value"), value);
             } else {
-                item.addChild(constMi(QStringLiteral("value"),
-                                      body.value(QLatin1String("text")).toString()));
+                item.addConst(QStringLiteral("value"),
+                              body.value(QLatin1String("text")).toString());
             }
-            item.addChild(constMi(QStringLiteral("numchild"), QString::number(numchild)));
+            item.addConst(QStringLiteral("numchild"), QString::number(numchild));
             pending->items.addChild(item);
             if (numchild > 0 && pending->expandedINames.contains(iname)) {
                 const int handle = body.value(QLatin1String(REF),
@@ -1068,11 +1058,11 @@ void QmlImpl::refreshLocals(const RefreshRequest &request)
         const auto [thisType, thisValue] = v8TypeAndValue(receiver, m_stringLimit);
         GdbMi thisItem;
         thisItem.m_type = GdbMi::Tuple;
-        thisItem.addChild(constMi(QStringLiteral("iname"), QStringLiteral("local.this")));
-        thisItem.addChild(constMi(QStringLiteral("name"), QStringLiteral("this")));
-        thisItem.addChild(constMi(QStringLiteral("type"), thisType));
-        thisItem.addChild(constMi(QStringLiteral("value"), thisValue));
-        thisItem.addChild(constMi(QStringLiteral("numchild"), QStringLiteral("0")));
+        thisItem.addConst(QStringLiteral("iname"), QStringLiteral("local.this"));
+        thisItem.addConst(QStringLiteral("name"), QStringLiteral("this"));
+        thisItem.addConst(QStringLiteral("type"), thisType);
+        thisItem.addConst(QStringLiteral("value"), thisValue);
+        thisItem.addConst(QStringLiteral("numchild"), QStringLiteral("0"));
         pending->items.addChild(thisItem);
 
         const QVariantList scopes = body.value(QLatin1String("scopes")).toList();
@@ -1099,16 +1089,16 @@ static GdbMi watchItem(const QString &iname, const QString &name, const QString 
 {
     GdbMi item;
     item.m_type = GdbMi::Tuple;
-    item.addChild(constMi(QStringLiteral("iname"), iname));
-    item.addChild(constMi(QStringLiteral("name"), name));
+    item.addConst(QStringLiteral("iname"), iname);
+    item.addConst(QStringLiteral("name"), name);
     if (debugId != -1)
-        item.addChild(constMi(QStringLiteral("id"), QString::number(debugId)));
+        item.addConst(QStringLiteral("id"), QString::number(debugId));
     if (!exp.isEmpty())
-        item.addChild(constMi(QStringLiteral("exp"), exp));
+        item.addConst(QStringLiteral("exp"), exp);
     if (!type.isEmpty())
-        item.addChild(constMi(QStringLiteral("type"), type));
-    item.addChild(constMi(QStringLiteral("value"), value));
-    item.addChild(constMi(QStringLiteral("numchild"), QString::number(numchild)));
+        item.addConst(QStringLiteral("type"), type);
+    item.addConst(QStringLiteral("value"), value);
+    item.addConst(QStringLiteral("numchild"), QString::number(numchild));
     return item;
 }
 
@@ -1249,9 +1239,9 @@ void QmlImpl::refreshSourceFiles(const RefreshRequest &request)
             const QUrl url(name);
             GdbMi entry;
             entry.m_type = GdbMi::Tuple;
-            entry.addChild(constMi(QStringLiteral("file"), name));
-            entry.addChild(constMi(QStringLiteral("fullname"),
-                                   url.isLocalFile() ? url.toLocalFile() : name));
+            entry.addConst(QStringLiteral("file"), name);
+            entry.addConst(QStringLiteral("fullname"),
+                           url.isLocalFile() ? url.toLocalFile() : name);
             files.addChild(entry);
         }
         emit refreshDataReceived(requestId, RefreshKind::SourceFiles, files);
@@ -1276,7 +1266,7 @@ static void appendValueChildren(const QString &parentIname, const QVariant &valu
         const QString iname = parentIname + '.' + name;
         GdbMi child = watchItem(iname, name, {}, QLatin1String(childValue.typeName()),
                                 childValue.toString(), valueChildCount(childValue), debugId);
-        child.addChild(constMi(QStringLiteral("valueeditable"), QStringLiteral("false")));
+        child.addConst(QStringLiteral("valueeditable"), QStringLiteral("false"));
         items->addChild(child);
         appendValueChildren(iname, childValue, debugId, items);
     };
@@ -1567,20 +1557,20 @@ void QmlImpl::refresh(const RefreshRequest &request)
 
             GdbMi frame;
             frame.m_type = GdbMi::Tuple;
-            frame.addChild(constMi(QLatin1String("level"),
-                                   QString::number(v8Frame.value(QLatin1String("index")).toInt())));
-            frame.addChild(constMi(QLatin1String(FUNCTION), function));
+            frame.addConst(QLatin1String("level"),
+                           QString::number(v8Frame.value(QLatin1String("index")).toInt()));
+            frame.addConst(QLatin1String(FUNCTION), function);
             // A frame names its script as a URL, which is what a stop reports too,
             // and what the editor has to be handed to open the source.
             const QVariant script = v8Frame.value(QLatin1String("script"));
             const QString scriptName = script.typeId() == QMetaType::QVariantMap
                                            ? script.toMap().value(QLatin1String(NAME)).toString()
                                            : script.toString();
-            frame.addChild(constMi(QLatin1String("file"),
-                                   FilePath::fromUrl(QUrl(scriptName)).toUrlishString()));
-            frame.addChild(constMi(QLatin1String(LINE),
-                                   QString::number(v8Frame.value(QLatin1String(LINE)).toInt() + 1)));
-            frame.addChild(constMi(QLatin1String("language"), QStringLiteral("js")));
+            frame.addConst(QLatin1String("file"),
+                           FilePath::fromUrl(QUrl(scriptName)).toUrlishString());
+            frame.addConst(QLatin1String(LINE),
+                           QString::number(v8Frame.value(QLatin1String(LINE)).toInt() + 1));
+            frame.addConst(QLatin1String("language"), QStringLiteral("js"));
             frames.addChild(frame);
         }
 
@@ -1591,7 +1581,8 @@ void QmlImpl::refresh(const RefreshRequest &request)
                             .arg(frame["level"].data(), frame[FUNCTION].data(),
                                  frame["file"].data(), frame[LINE].data());
             }
-            emit refreshDataReceived(requestId, RefreshKind::FullBacktrace, constMi({}, text));
+            emit refreshDataReceived(requestId, RefreshKind::FullBacktrace,
+                                     GdbMi::makeConst({}, text));
             return;
         }
 

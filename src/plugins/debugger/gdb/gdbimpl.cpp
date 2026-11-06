@@ -29,15 +29,6 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
-static GdbMi constMi(const QString &name, const QString &data)
-{
-    GdbMi mi;
-    mi.m_type = GdbMi::Const;
-    mi.m_name = name;
-    mi.m_data = data;
-    return mi;
-}
-
 static QString breakLocation(const ContextData &context)
 {
     if (context.address)
@@ -889,8 +880,9 @@ void GdbImpl::refresh(const RefreshRequest &request)
             if (response.resultClass != ResultDone)
                 return;
             emit refreshDataReceived(requestId, RefreshKind::FullBacktrace,
-                                     constMi({}, reverseBacktrace(response.consoleStreamOutput)
-                                                     + response.logStreamOutput));
+                                     GdbMi::makeConst({},
+                                                      reverseBacktrace(response.consoleStreamOutput)
+                                                          + response.logStreamOutput));
         };
         runCommand(cmd);
         return;
@@ -1011,8 +1003,8 @@ void GdbImpl::refresh(const RefreshRequest &request)
                     return;
                 GdbMi result;
                 result.m_type = GdbMi::Tuple;
-                result.addChild(constMi("address", QString::number(address)));
-                result.addChild(constMi("value", QString::number(value)));
+                result.addConst("address", QString::number(address));
+                result.addConst("value", QString::number(value));
                 emit refreshDataReceived(requestId, RefreshKind::PeripheralRegisters, result);
             };
             runCommand(cmd);
@@ -1034,9 +1026,9 @@ void GdbImpl::refresh(const RefreshRequest &request)
                 const GdbMi fullName = item["fullname"];
                 GdbMi entry;
                 entry.m_type = GdbMi::Tuple;
-                entry.addChild(constMi("file", file));
+                entry.addConst("file", file);
                 if (fullName.isValid())
-                    entry.addChild(constMi("fullname", fullName.data()));
+                    entry.addConst("fullname", fullName.data());
                 result.addChild(entry);
             }
             emit refreshDataReceived(requestId, RefreshKind::SourceFiles, result);
@@ -1111,12 +1103,12 @@ void GdbImpl::fetchRegisterValues(quint64 requestId)
                     continue;
                 GdbMi reg;
                 reg.m_type = GdbMi::Tuple;
-                reg.addChild(constMi("name", it->name));
-                reg.addChild(constMi("size", QString::number(it->size)));
-                reg.addChild(constMi("type", it->reportedType));
-                reg.addChild(constMi("groups", it->groups.join(',')));
+                reg.addConst("name", it->name);
+                reg.addConst("size", QString::number(it->size));
+                reg.addConst("type", it->reportedType);
+                reg.addConst("groups", it->groups.join(','));
 
-                reg.addChild(constMi("value", gdbRegisterValueAsHex(item["value"].data())));
+                reg.addConst("value", gdbRegisterValueAsHex(item["value"].data()));
                 result.addChild(reg);
             }
         }
@@ -1152,10 +1144,10 @@ void GdbImpl::handleModulesList(quint64 requestId, const DebuggerResponse &respo
         }
         GdbMi module;
         module.m_type = GdbMi::Tuple;
-        module.addChild(constMi("modulepath", modulePath.toUrlishString()));
-        module.addChild(constMi("startaddress", QString::number(startAddress)));
-        module.addChild(constMi("endaddress", QString::number(endAddress)));
-        module.addChild(constMi("symbolsread", symbolsRead));
+        module.addConst("modulepath", modulePath.toUrlishString());
+        module.addConst("startaddress", QString::number(startAddress));
+        module.addConst("endaddress", QString::number(endAddress));
+        module.addConst("symbolsread", symbolsRead);
         result.addChild(module);
     }
     emit refreshDataReceived(requestId, RefreshKind::Modules, result);
@@ -1531,9 +1523,9 @@ void GdbImpl::handleWatchInsert(quint64 requestId, const DebuggerResponse &respo
 
     GdbMi bkpt;
     bkpt.m_type = GdbMi::Tuple;
-    bkpt.addChild(constMi("number", numberStr));
+    bkpt.addConst("number", numberStr);
     if (address)
-        bkpt.addChild(constMi("addr", "0x" + QString::number(address, 16)));
+        bkpt.addConst("addr", "0x" + QString::number(address, 16));
     GdbMi data;
     data.m_type = GdbMi::List;
     data.addChild(bkpt);
@@ -2282,9 +2274,10 @@ void GdbImpl::handleOutputLine(const QString &line)
             m_inferiorRunning = false;
             GdbMi stoppedThread;
             stoppedThread.m_type = GdbMi::Tuple;
-            stoppedThread.addChild(constMi("id", result["stopped-threads"].data() == u"all"
-                                                     ? QString("all")
-                                                     : result["thread-id"].data()));
+            stoppedThread.addConst("id",
+                                   result["stopped-threads"].data() == u"all"
+                                       ? QString("all")
+                                       : result["thread-id"].data());
             emit threadEvent(ThreadEvent::Stopped, stoppedThread);
             // gdb stops a recording that meets an instruction it cannot record
             // by a "signal 0", which is not one the user wants to hear about.
@@ -2555,7 +2548,7 @@ void GdbImpl::handleOutputLine(const QString &line)
             if (!m_internalBreakpointNumbers.contains(number)) {
                 GdbMi deleted;
                 deleted.m_type = GdbMi::Tuple;
-                deleted.addChild(constMi("number", number));
+                deleted.addConst("number", number);
                 emit breakpointEvent(0, BreakpointOp::Remove, true, deleted);
             }
         }

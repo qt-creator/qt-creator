@@ -46,15 +46,6 @@ private:
 
 } // namespace
 
-static GdbMi constMi(const QString &name, const QString &data)
-{
-    GdbMi mi;
-    mi.m_name = name;
-    mi.m_data = data;
-    mi.m_type = GdbMi::Const;
-    return mi;
-}
-
 static QString quotedPath(const QString &path)
 {
     QString quoted = path;
@@ -1742,10 +1733,10 @@ void DapImpl::changeCatchpoint(const BreakpointChangeRequest &request)
                 insertCatchpointCompanion(std::make_shared<QString>(number), params.enabled);
             GdbMi bkpt;
             bkpt.m_type = GdbMi::Tuple;
-            bkpt.addChild(constMi("number", number));
-            bkpt.addChild(constMi("type", "catchpoint"));
-            bkpt.addChild(constMi("catch-type", kind));
-            bkpt.addChild(constMi("enabled", params.enabled ? "y" : "n"));
+            bkpt.addConst("number", number);
+            bkpt.addConst("type", "catchpoint");
+            bkpt.addConst("catch-type", kind);
+            bkpt.addConst("enabled", params.enabled ? "y" : "n");
             GdbMi all;
             all.m_type = GdbMi::List;
             all.addChild(bkpt);
@@ -1839,10 +1830,10 @@ void DapImpl::insertWatchpointOverConsole(const Breakpoint &breakpoint)
             postReplCommand("disable " + number);
         GdbMi bkpt;
         bkpt.m_type = GdbMi::Tuple;
-        bkpt.addChild(constMi("number", number));
+        bkpt.addConst("number", number);
         if (what.startsWith('*'))
-            bkpt.addChild(constMi("addr", what.mid(1)));
-        bkpt.addChild(constMi("enabled", it->enabled ? "y" : "n"));
+            bkpt.addConst("addr", what.mid(1));
+        bkpt.addConst("enabled", it->enabled ? "y" : "n");
         GdbMi all;
         all.m_type = GdbMi::List;
         all.addChild(bkpt);
@@ -2149,34 +2140,33 @@ void DapImpl::reportBreakpointsSet(const QJsonObject &response, BreakpointArray 
         const bool verified = item.value("verified").toBool();
         GdbMi bkpt;
         bkpt.m_type = GdbMi::Tuple;
-        bkpt.addChild(constMi("number", sent.at(i).responseId));
+        bkpt.addConst("number", sent.at(i).responseId);
         if (kind == BreakpointArray::Data) {
             // A watchpoint has no source location, and what it watches is what
             // it was asked for: the answer says no more than that it was taken.
             if (sent.at(i).params.type == WatchpointAtAddress) {
-                bkpt.addChild(constMi("addr",
-                                      QString("0x%1").arg(sent.at(i).params.address, 0, 16)));
+                bkpt.addConst("addr", QString("0x%1").arg(sent.at(i).params.address, 0, 16));
             }
         } else {
-            bkpt.addChild(constMi("line", QString::number(item.value("line").toInt())));
+            bkpt.addConst("line", QString::number(item.value("line").toInt()));
             const QString path = localSourcePath(item.value("source").toObject()
                                                      .value("path").toString());
-            bkpt.addChild(constMi("file", path));
-            bkpt.addChild(constMi("fullname", path));
+            bkpt.addConst("file", path);
+            bkpt.addConst("fullname", path);
             if (const QString address = item.value("instructionReference").toString();
                 !address.isEmpty()) {
-                bkpt.addChild(constMi("addr", address));
+                bkpt.addConst("addr", address);
             }
             // Read the way gdb writes it, the field is there only for a
             // breakpoint that is still pending, and it names the location that
             // was asked for.
             if (!verified) {
                 const BreakpointParameters &params = sent.at(i).params;
-                bkpt.addChild(constMi("pending",
-                                      params.fileName.isEmpty()
-                                          ? params.functionName
-                                          : params.fileName.path() + ':'
-                                                + QString::number(params.textPosition.line)));
+                bkpt.addConst("pending",
+                              params.fileName.isEmpty()
+                                  ? params.functionName
+                                  : params.fileName.path() + ':'
+                                        + QString::number(params.textPosition.line));
             }
         }
         GdbMi data;
@@ -2215,15 +2205,15 @@ static GdbMi parseBreakpointLocations(const QString &listing, const QString &num
             continue;
         GdbMi location;
         location.m_type = GdbMi::Tuple;
-        location.addChild(constMi("number", match.captured(1)));
-        location.addChild(constMi("enabled", match.captured(2)));
-        location.addChild(constMi("addr", match.captured(3)));
+        location.addConst("number", match.captured(1));
+        location.addConst("enabled", match.captured(2));
+        location.addConst("addr", match.captured(3));
         if (!match.captured(4).isEmpty())
-            location.addChild(constMi("func", match.captured(4)));
+            location.addConst("func", match.captured(4));
         if (!match.captured(5).isEmpty()) {
-            location.addChild(constMi("file", match.captured(5)));
-            location.addChild(constMi("fullname", match.captured(5)));
-            location.addChild(constMi("line", match.captured(6)));
+            location.addConst("file", match.captured(5));
+            location.addConst("fullname", match.captured(5));
+            location.addConst("line", match.captured(6));
         }
         locations.addChild(location);
     }
@@ -2295,11 +2285,11 @@ void DapImpl::reportBreakpointWithLocations(quint64 requestId, BreakpointOp op, 
                 bkpt.addChild(child);
         }
         if (multiple) {
-            bkpt.addChild(constMi("addr", "<MULTIPLE>"));
+            bkpt.addConst("addr", "<MULTIPLE>");
             bkpt.addChild(locations);
         }
         if (namesTheThread)
-            bkpt.addChild(constMi("thread", thread.isEmpty() ? QString("-1") : thread));
+            bkpt.addConst("thread", thread.isEmpty() ? QString("-1") : thread);
         GdbMi all;
         all.m_type = GdbMi::List;
         all.addChild(bkpt);
@@ -2334,19 +2324,18 @@ GdbMi DapImpl::breakpointMi(const QJsonObject &item, const QString &number) cons
 {
     GdbMi bkpt;
     bkpt.m_type = GdbMi::Tuple;
-    bkpt.addChild(constMi("number", number.isEmpty()
-                                        ? QString::number(item.value("id").toInt()) : number));
+    bkpt.addConst("number", number.isEmpty() ? QString::number(item.value("id").toInt()) : number);
     if (item.contains("line"))
-        bkpt.addChild(constMi("line", QString::number(item.value("line").toInt())));
+        bkpt.addConst("line", QString::number(item.value("line").toInt()));
     const QString path = localSourcePath(item.value("source").toObject()
                                              .value("path").toString());
     if (!path.isEmpty()) {
-        bkpt.addChild(constMi("file", path));
-        bkpt.addChild(constMi("fullname", path));
+        bkpt.addConst("file", path);
+        bkpt.addConst("fullname", path);
     }
     const QString address = item.value("instructionReference").toString();
     if (address.startsWith("0x"))
-        bkpt.addChild(constMi("addr", address));
+        bkpt.addConst("addr", address);
     return bkpt;
 }
 
@@ -2377,14 +2366,14 @@ void DapImpl::askWhatAnAlienBreakpointIs(const QJsonObject &item)
         const QStringList fields = answer ? breakpointFields(answer->value("result").toString(), id)
                                           : QStringList();
         if (fields.value(1) == "catchpoint") {
-            bkpt.addChild(constMi("type", "catchpoint"));
-            bkpt.addChild(constMi("catch-type", fields.last()));
+            bkpt.addConst("type", "catchpoint");
+            bkpt.addConst("catch-type", fields.last());
         } else if (fields.contains("watchpoint")) {
             // What it watches is the debugger's to know: a stop on it carries
             // the number and nothing else.
             m_alienWatchpoints.insert(id, fields.last());
-            bkpt.addChild(constMi("type", fields.at(1) + " watchpoint"));
-            bkpt.addChild(constMi("what", fields.last()));
+            bkpt.addConst("type", fields.at(1) + " watchpoint");
+            bkpt.addConst("what", fields.last());
         }
         emit breakpointEvent(0, BreakpointOp::Insert, true, bkpt);
     });
@@ -2429,7 +2418,7 @@ void DapImpl::handleBreakpointChanged(const QJsonObject &event)
             return;
         GdbMi bkpt;
         bkpt.m_type = GdbMi::Tuple;
-        bkpt.addChild(constMi("number", responseId));
+        bkpt.addConst("number", responseId);
         emit breakpointEvent(0, BreakpointOp::Remove, true, bkpt);
         return;
     }
@@ -2446,9 +2435,9 @@ void DapImpl::handleBreakpointChanged(const QJsonObject &event)
     // A field the update does not carry counts as the default rather than as
     // unchanged, so what the event leaves out is filled in from the request.
     if (known) {
-        bkpt.addChild(constMi("enabled", known->enabled ? "y" : "n"));
+        bkpt.addConst("enabled", known->enabled ? "y" : "n");
         if (!known->params.condition.isEmpty())
-            bkpt.addChild(constMi("cond", known->params.condition));
+            bkpt.addConst("cond", known->params.condition);
     }
 
     GdbMi data;
@@ -2763,10 +2752,10 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
             const int threadId = item.value("id").toInt();
             GdbMi thread;
             thread.m_type = GdbMi::Tuple;
-            thread.addChild(constMi("id", QString::number(threadId)));
-            thread.addChild(constMi("target-id", item.value("name").toString()));
-            thread.addChild(constMi("name", item.value("name").toString()));
-            thread.addChild(constMi("state", m_inferiorRunning ? "running" : "stopped"));
+            thread.addConst("id", QString::number(threadId));
+            thread.addConst("target-id", item.value("name").toString());
+            thread.addConst("name", item.value("name").toString());
+            thread.addConst("state", m_inferiorRunning ? "running" : "stopped");
             // Where the thread stands is a stack of its own, and only a stopped
             // thread has one to ask for.
             if (!m_inferiorRunning) {
@@ -2803,8 +2792,8 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
             const QJsonObject item = value.toObject();
             GdbMi module;
             module.m_type = GdbMi::Tuple;
-            module.addChild(constMi("modulepath",
-                                    item.value("path").toString(item.value("name").toString())));
+            module.addConst("modulepath",
+                            item.value("path").toString(item.value("name").toString()));
             // The protocol leaves the spelling of the range open, so take an address
             // on its own as well as a start-end pair, in whatever base it is written.
             const QStringList range = item.value("addressRange").toString()
@@ -2813,18 +2802,18 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
             const quint64 start = range.isEmpty()
                                       ? 0 : range.first().trimmed().toULongLong(&ok, 0);
             if (ok) {
-                module.addChild(constMi("startaddress", QString::number(start)));
+                module.addConst("startaddress", QString::number(start));
                 if (range.size() > 1) {
                     const quint64 end = range.at(1).trimmed().toULongLong(&ok, 0);
                     if (ok)
-                        module.addChild(constMi("endaddress", QString::number(end)));
+                        module.addConst("endaddress", QString::number(end));
                 }
             }
             // The protocol says nothing about whether a module's symbols were
             // read, only where they came from, so a symbol file the adapter
             // names is the one thing that answers it.
             if (!item.value("symbolFilePath").toString().isEmpty())
-                module.addChild(constMi("symbolsread", "Yes"));
+                module.addConst("symbolsread", "Yes");
             modules.addChild(module);
         }
         reportModules(requestId, modules);
@@ -2841,9 +2830,9 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
             const QString path = localSourcePath(item.value("path").toString());
             GdbMi file;
             file.m_type = GdbMi::Tuple;
-            file.addChild(constMi("file", item.value("name").toString()));
+            file.addConst("file", item.value("name").toString());
             if (!path.isEmpty())
-                file.addChild(constMi("fullname", path));
+                file.addConst("fullname", path);
             files.addChild(file);
         }
         emit refreshDataReceived(requestId, RefreshKind::SourceFiles, files);
@@ -2872,7 +2861,7 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
                     breakpoint.responseId = breakpoint.adapterId;
                 GdbMi bkpt;
                 bkpt.m_type = GdbMi::Tuple;
-                bkpt.addChild(constMi("number", breakpoint.responseId));
+                bkpt.addConst("number", breakpoint.responseId);
                 data.m_type = GdbMi::List;
                 data.addChild(bkpt);
             }
@@ -3024,8 +3013,8 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         const QJsonObject body = event.value("body").toObject();
         GdbMi data;
         data.m_type = GdbMi::Tuple;
-        data.addChild(constMi("id", QString::number(body.value("threadId").toInt())));
-        data.addChild(constMi("group-id", m_threadGroupId));
+        data.addConst("id", QString::number(body.value("threadId").toInt()));
+        data.addConst("group-id", m_threadGroupId);
         const bool exited = body.value("reason").toString() == "exited";
         emit threadEvent(exited ? ThreadEvent::Exited : ThreadEvent::Created, data);
         // Attaching to the threads is one of the slow parts of a start, and
@@ -3076,10 +3065,10 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         const QJsonObject body = event.value("body").toObject();
         GdbMi runningThread;
         runningThread.m_type = GdbMi::Tuple;
-        runningThread.addChild(constMi("thread-id",
-                                       body.value("allThreadsContinued").toBool()
-                                           ? QString("all")
-                                           : QString::number(body.value("threadId").toInt())));
+        runningThread.addConst("thread-id",
+                               body.value("allThreadsContinued").toBool()
+                                   ? QString("all")
+                                   : QString::number(body.value("threadId").toInt()));
         emit threadEvent(ThreadEvent::Running, runningThread);
         // The adapter resumed on its own - cortex-debug does once it has the
         // target reset, and a launch that runs to an entry point does too -
@@ -3110,8 +3099,8 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
             m_threadGroupId = QString::number(pid);
             GdbMi group;
             group.m_type = GdbMi::Tuple;
-            group.addChild(constMi("id", m_threadGroupId));
-            group.addChild(constMi("pid", m_threadGroupId));
+            group.addConst("id", m_threadGroupId);
+            group.addConst("pid", m_threadGroupId);
             emit threadEvent(ThreadEvent::GroupCreated, group);
         }
     } else if (name == "module") {
@@ -3122,9 +3111,9 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         const QString path = module.value("path").toString(module.value("name").toString());
         GdbMi data;
         data.m_type = GdbMi::Tuple;
-        data.addChild(constMi("id", module.value("id").toVariant().toString()));
-        data.addChild(constMi("target-name", path));
-        data.addChild(constMi("host-name", path));
+        data.addConst("id", module.value("id").toVariant().toString());
+        data.addConst("target-name", path);
+        data.addConst("host-name", path);
         const bool removed = body.value("reason").toString() == "removed";
         emit libraryEvent(removed ? LibraryEvent::Unloaded : LibraryEvent::Loaded, data);
         // Reading the symbols of a module is the other one, and a module is
@@ -3269,13 +3258,13 @@ void DapImpl::reportBreakpointHits(const QJsonArray &adapterIds)
             }
             GdbMi bkpt;
             bkpt.m_type = GdbMi::Tuple;
-            bkpt.addChild(constMi("number", breakpoint.responseId));
-            bkpt.addChild(constMi("times", QString::number(breakpoint.hitCount)));
+            bkpt.addConst("number", breakpoint.responseId);
+            bkpt.addConst("times", QString::number(breakpoint.hitCount));
             // A field a modification leaves out counts as the default rather
             // than as unchanged, so the rest of the state goes along.
-            bkpt.addChild(constMi("enabled", breakpoint.enabled ? "y" : "n"));
+            bkpt.addConst("enabled", breakpoint.enabled ? "y" : "n");
             if (!breakpoint.params.condition.isEmpty())
-                bkpt.addChild(constMi("cond", breakpoint.params.condition));
+                bkpt.addConst("cond", breakpoint.params.condition);
             data.addChild(bkpt);
         }
     };
@@ -3321,9 +3310,10 @@ void DapImpl::handleStopped(const QJsonObject &event)
 
     GdbMi stoppedThread;
     stoppedThread.m_type = GdbMi::Tuple;
-    stoppedThread.addChild(constMi("id", body.value("allThreadsStopped").toBool()
-                                             ? QString("all")
-                                             : QString::number(m_currentThreadId)));
+    stoppedThread.addConst("id",
+                           body.value("allThreadsStopped").toBool()
+                               ? QString("all")
+                               : QString::number(m_currentThreadId));
     emit threadEvent(ThreadEvent::Stopped, stoppedThread);
 
     const QString reason = body.value("reason").toString();
@@ -3379,7 +3369,7 @@ void DapImpl::handleStopped(const QJsonObject &event)
                 continue;
             GdbMi deleted;
             deleted.m_type = GdbMi::Tuple;
-            deleted.addChild(constMi("number", breakpoint.responseId));
+            deleted.addConst("number", breakpoint.responseId);
             emit breakpointEvent(0, BreakpointOp::Remove, true, deleted);
         }
     };
@@ -3422,7 +3412,7 @@ void DapImpl::reportThreadGroupGone()
         return;
     GdbMi group;
     group.m_type = GdbMi::Tuple;
-    group.addChild(constMi("id", m_threadGroupId));
+    group.addConst("id", m_threadGroupId);
     m_threadGroupId.clear();
     emit threadEvent(ThreadEvent::GroupExited, group);
 }
@@ -3572,7 +3562,7 @@ void DapImpl::reportThreadList()
     GdbMi all;
     all.m_type = GdbMi::Tuple;
     all.addChild(threads);
-    all.addChild(constMi("current-thread-id", QString::number(m_currentThreadId)));
+    all.addConst("current-thread-id", QString::number(m_currentThreadId));
     const quint64 requestId = m_threadList->requestId;
     m_threadList.reset();
     emit refreshDataReceived(requestId, RefreshKind::Threads, all);
@@ -3593,15 +3583,14 @@ void DapImpl::handleStackTrace(const QJsonObject &response)
             GdbMi frame;
             frame.m_type = GdbMi::Tuple;
             frame.m_name = "frame";
-            frame.addChild(constMi("level", "0"));
-            frame.addChild(constMi("func", top.value("name").toString()));
-            frame.addChild(constMi("addr",
-                                   top.value("instructionPointerReference").toString()));
+            frame.addConst("level", "0");
+            frame.addConst("func", top.value("name").toString());
+            frame.addConst("addr", top.value("instructionPointerReference").toString());
             const QString path = localSourcePath(top.value("source").toObject()
                                                      .value("path").toString());
-            frame.addChild(constMi("file", path));
-            frame.addChild(constMi("fullname", path));
-            frame.addChild(constMi("line", QString::number(top.value("line").toInt())));
+            frame.addConst("file", path);
+            frame.addConst("fullname", path);
+            frame.addConst("line", QString::number(top.value("line").toInt()));
             m_threadList->threads[index].addChild(frame);
         }
         if (m_threadList->frameRequests.isEmpty())
@@ -3664,16 +3653,15 @@ void DapImpl::handleStackTrace(const QJsonObject &response)
         const QJsonObject item = value.toObject();
         GdbMi frame;
         frame.m_type = GdbMi::Tuple;
-        frame.addChild(constMi("level", QString::number(level++)));
-        frame.addChild(constMi("function", item.value("name").toString()));
+        frame.addConst("level", QString::number(level++));
+        frame.addConst("function", item.value("name").toString());
         const QString path = localSourcePath(item.value("source").toObject()
                                                  .value("path").toString());
-        frame.addChild(constMi("file", path));
-        frame.addChild(constMi("fullname", path));
-        frame.addChild(constMi("line", QString::number(item.value("line").toInt())));
-        frame.addChild(constMi("address",
-                               item.value("instructionPointerReference").toString()));
-        frame.addChild(constMi("module", dapModuleName(item.value("moduleId"))));
+        frame.addConst("file", path);
+        frame.addConst("fullname", path);
+        frame.addConst("line", QString::number(item.value("line").toInt()));
+        frame.addConst("address", item.value("instructionPointerReference").toString());
+        frame.addConst("module", dapModuleName(item.value("moduleId")));
         frameList.addChild(frame);
     }
     GdbMi stack;
@@ -3699,7 +3687,7 @@ void DapImpl::continueBacktrace()
         }
     }
     emit refreshDataReceived(m_backtraceRequestId, RefreshKind::FullBacktrace,
-                             constMi({}, m_backtrace));
+                             GdbMi::makeConst({}, m_backtrace));
 }
 
 void DapImpl::handleBacktraceFrames(const QJsonObject &response)
@@ -3884,7 +3872,7 @@ static GdbMi registersWithGroups(const GdbMi &registers, const QHash<QString, QS
     for (const GdbMi &reg : registers) {
         GdbMi filled = reg;
         if (const auto it = groups.constFind(reg["name"].data()); it != groups.constEnd())
-            filled.addChild(constMi("groups", *it));
+            filled.addConst("groups", *it);
         result.addChild(filled);
     }
     return result;
@@ -3925,13 +3913,13 @@ void DapImpl::handleVariables(const QJsonObject &response)
             GdbMi reg;
             reg.m_type = GdbMi::Tuple;
             const QString type = item.value("type").toString();
-            reg.addChild(constMi("name", item.value("name").toString()));
-            reg.addChild(constMi("value", registerValue(item.value("value").toString())));
-            reg.addChild(constMi("type", gdbRegisterTypeName(type)));
+            reg.addConst("name", item.value("name").toString());
+            reg.addConst("value", registerValue(item.value("value").toString()));
+            reg.addConst("type", gdbRegisterTypeName(type));
             // The protocol has no field for a register's width, so the only
             // source for it is a type name that spells it out.
             if (const int size = registerWidth(type))
-                reg.addChild(constMi("size", QString::number(size)));
+                reg.addConst("size", QString::number(size));
             registers.addChild(reg);
         }
         reportRegisters(m_registersRequestId, registers);
@@ -4047,15 +4035,15 @@ GdbMi DapImpl::localsItem(const QString &iname) const
     const Local local = m_locals.value(iname);
     GdbMi item;
     item.m_type = GdbMi::Tuple;
-    item.addChild(constMi("iname", local.iname));
-    item.addChild(constMi("name", local.name));
-    item.addChild(constMi("type", local.type));
-    item.addChild(constMi("value", local.value));
-    item.addChild(constMi("numchild", local.hasChildren ? "1" : "0"));
+    item.addConst("iname", local.iname);
+    item.addConst("name", local.name);
+    item.addConst("type", local.type);
+    item.addConst("value", local.value);
+    item.addConst("numchild", local.hasChildren ? "1" : "0");
     if (local.derefed)
-        item.addChild(constMi("autoderefcount", "1"));
+        item.addConst("autoderefcount", "1");
     if (local.address != 0)
-        item.addChild(constMi("address", QString::number(local.address)));
+        item.addConst("address", QString::number(local.address));
 
     if (!local.childINames.isEmpty()) {
         GdbMi children;
@@ -4088,7 +4076,7 @@ void DapImpl::reportLocals()
     all.m_type = GdbMi::Tuple;
     all.addChild(data);
     // The view keeps what a partial answer does not talk about.
-    all.addChild(constMi("partial", m_partialVariable.isEmpty() ? "0" : "1"));
+    all.addConst("partial", m_partialVariable.isEmpty() ? "0" : "1");
     emit refreshDataReceived(m_localsRequestId, RefreshKind::Locals, all);
 }
 
@@ -4131,8 +4119,8 @@ void DapImpl::handleReadMemory(const QJsonObject &response)
         memcpy(&value, data.constData(), qMin(data.size(), qsizetype(sizeof(value))));
         GdbMi result;
         result.m_type = GdbMi::Tuple;
-        result.addChild(constMi("address", QString::number(peripheral.address)));
-        result.addChild(constMi("value", QString::number(value)));
+        result.addConst("address", QString::number(peripheral.address));
+        result.addConst("value", QString::number(value));
         emit refreshDataReceived(peripheral.requestId, RefreshKind::PeripheralRegisters, result);
         return;
     }
@@ -4362,7 +4350,7 @@ void DapImpl::askWhereTheDebuggerSelectionIs(bool report)
             return;
         GdbMi data;
         data.m_type = GdbMi::Tuple;
-        data.addChild(constMi("id", selection.section(' ', 0, 0)));
+        data.addConst("id", selection.section(' ', 0, 0));
         emit threadEvent(ThreadEvent::Selected, data);
     });
 }

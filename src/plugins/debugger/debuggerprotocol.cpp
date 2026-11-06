@@ -440,11 +440,16 @@ qulonglong GdbMi::toAddress() const
 
 void GdbMi::addConst(const QString &name, const QString &data)
 {
-    GdbMi child;
-    child.m_type = GdbMi::Const;
-    child.m_name = name;
-    child.m_data = data;
-    addChild(child);
+    addChild(makeConst(name, data));
+}
+
+GdbMi GdbMi::makeConst(const QString &name, const QString &data)
+{
+    GdbMi mi;
+    mi.m_type = GdbMi::Const;
+    mi.m_name = name;
+    mi.m_data = data;
+    return mi;
 }
 
 Utils::ProcessHandle GdbMi::toProcessHandle() const
@@ -560,15 +565,6 @@ void extractGdbVersion(const QString &msg,
         *gdbBuildVersion = build.section(dot, 1, 1).toInt();
 }
 
-static GdbMi constMi(const QString &name, const QString &data)
-{
-    GdbMi mi;
-    mi.m_name = name;
-    mi.m_data = data;
-    mi.m_type = GdbMi::Const;
-    return mi;
-}
-
 // A "maint info sections" listing names a module, then lists the sections it is
 // made of. What follows the name can sit on a line of its own.
 static QString moduleOfASectionHeader(const QStringList &lines, int *index)
@@ -622,11 +618,11 @@ GdbMi parseGdbModuleSections(const QString &listing, const Utils::FilePath &modu
             continue;
         GdbMi section;
         section.m_type = GdbMi::Tuple;
-        section.addChild(constMi("from", sectionMatch.captured(1)));
-        section.addChild(constMi("to", sectionMatch.captured(2)));
-        section.addChild(constMi("address", sectionMatch.captured(3)));
-        section.addChild(constMi("name", sectionMatch.captured(4)));
-        section.addChild(constMi("flags", sectionMatch.captured(5).trimmed()));
+        section.addConst("from", sectionMatch.captured(1));
+        section.addConst("to", sectionMatch.captured(2));
+        section.addConst("address", sectionMatch.captured(3));
+        section.addConst("name", sectionMatch.captured(4));
+        section.addConst("flags", sectionMatch.captured(5).trimmed());
         sectionList.addChild(section);
     }
     if (moduleFound)
@@ -634,7 +630,7 @@ GdbMi parseGdbModuleSections(const QString &listing, const Utils::FilePath &modu
 
     GdbMi result;
     result.m_type = GdbMi::Tuple;
-    result.addChild(constMi("modulepath", modulePath.toUrlishString()));
+    result.addConst("modulepath", modulePath.toUrlishString());
     result.addChild(sectionList);
     return result;
 }
@@ -675,9 +671,9 @@ GdbMi parseGdbModuleRanges(const QString &listing)
             continue;
         GdbMi module;
         module.m_type = GdbMi::Tuple;
-        module.addChild(constMi("modulepath", span.modulePath));
-        module.addChild(constMi("startaddress", QString::number(span.lowest)));
-        module.addChild(constMi("endaddress", QString::number(span.highest)));
+        module.addConst("modulepath", span.modulePath);
+        module.addConst("startaddress", QString::number(span.lowest));
+        module.addConst("endaddress", QString::number(span.highest));
         result.addChild(module);
     }
     return result;
@@ -717,17 +713,17 @@ GdbMi parseGdbModuleSymbols(const QString &listing, const Utils::FilePath &modul
         const QString demangled = name.startsWith("_Z") ? rest.section("  ", 1, 1) : QString();
         GdbMi symbol;
         symbol.m_type = GdbMi::Tuple;
-        symbol.addChild(constMi("state", line.mid(posCode, 1)));
-        symbol.addChild(constMi("address", line.mid(posAddress, posName - 1 - posAddress)));
-        symbol.addChild(constMi("name", name));
-        symbol.addChild(constMi("section", section));
-        symbol.addChild(constMi("demangled", demangled));
+        symbol.addConst("state", line.mid(posCode, 1));
+        symbol.addConst("address", line.mid(posAddress, posName - 1 - posAddress));
+        symbol.addConst("name", name);
+        symbol.addConst("section", section);
+        symbol.addConst("demangled", demangled);
         symbolList.addChild(symbol);
     }
 
     GdbMi result;
     result.m_type = GdbMi::Tuple;
-    result.addChild(constMi("modulepath", modulePath.toUrlishString()));
+    result.addConst("modulepath", modulePath.toUrlishString());
     result.addChild(symbolList);
     return result;
 }

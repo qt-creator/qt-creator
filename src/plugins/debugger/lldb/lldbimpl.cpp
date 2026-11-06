@@ -242,11 +242,7 @@ static GdbMi translateLldbSymbolsReply(const FilePath &modulePath, const GdbMi &
 {
     GdbMi result;
     result.m_type = GdbMi::Tuple;
-    GdbMi modulePathItem;
-    modulePathItem.m_type = GdbMi::Const;
-    modulePathItem.m_name = "modulepath";
-    modulePathItem.m_data = modulePath.path();
-    result.addChild(modulePathItem);
+    result.addConst("modulepath", modulePath.path());
 
     GdbMi symbols;
     symbols.m_type = GdbMi::List;
@@ -269,11 +265,7 @@ static GdbMi translateLldbSectionsReply(const FilePath &modulePath, const GdbMi 
 {
     GdbMi result;
     result.m_type = GdbMi::Tuple;
-    GdbMi modulePathItem;
-    modulePathItem.m_type = GdbMi::Const;
-    modulePathItem.m_name = "modulepath";
-    modulePathItem.m_data = modulePath.path();
-    result.addChild(modulePathItem);
+    result.addConst("modulepath", modulePath.path());
 
     GdbMi sections;
     sections.m_type = GdbMi::List;
@@ -960,10 +952,9 @@ void LldbImpl::refresh(const RefreshRequest &request)
     case RefreshKind::FullBacktrace: {
         DebuggerCommand cmd("fetchFullBacktrace");
         cmd.callback = [this, requestId](const DebuggerResponse &response) {
-            GdbMi trace;
-            trace.m_type = GdbMi::Const;
-            trace.m_data = fromHex(response.data["fulltrace"].data());
-            emit refreshDataReceived(requestId, RefreshKind::FullBacktrace, trace);
+            const QString trace = fromHex(response.data["fulltrace"].data());
+            emit refreshDataReceived(requestId, RefreshKind::FullBacktrace,
+                                     GdbMi::makeConst({}, trace));
         };
         runCommand(cmd);
         return;

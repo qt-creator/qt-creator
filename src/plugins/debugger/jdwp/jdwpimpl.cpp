@@ -57,15 +57,6 @@ static constexpr qint32 s_classPreparedStatus = 2;
 // "static" is a keyword, so no local of that frame can be standing there.
 static const char s_staticIName[] = "local.@static";
 
-static GdbMi constMi(const QString &name, const QString &data)
-{
-    GdbMi mi;
-    mi.m_type = GdbMi::Const;
-    mi.m_name = name;
-    mi.m_data = data;
-    return mi;
-}
-
 // "Lpkg/Outer$Inner;" is pkg.Outer$Inner, "[I" is int[].
 static QString typeName(const QString &signature)
 {
@@ -785,7 +776,7 @@ void JdwpImpl::handleEventSet(const JdwpEventSet &set)
         case Jdwp::ThreadDeathEvent: {
             GdbMi data;
             data.m_type = GdbMi::Tuple;
-            data.addChild(constMi("id", QString::number(event.thread)));
+            data.addConst("id", QString::number(event.thread));
             emit threadEvent(event.kind == Jdwp::ThreadStartEvent ? ThreadEvent::Created
                                                                   : ThreadEvent::Exited, data);
             break;
@@ -1869,15 +1860,15 @@ GdbMi JdwpImpl::locationData(const Breakpoint &bp, const Breakpoint::Location &l
 {
     GdbMi item;
     item.m_type = GdbMi::Tuple;
-    item.addChild(constMi("number", location.number));
-    item.addChild(constMi("func", location.function));
+    item.addConst("number", location.number);
+    item.addConst("func", location.function);
     const Utils::FilePath file = location.file.isEmpty() ? bp.file : location.file;
     if (!file.isEmpty() && location.line > 0) {
-        item.addChild(constMi("file", file.path()));
-        item.addChild(constMi("fullname", file.path()));
-        item.addChild(constMi("line", QString::number(location.line)));
+        item.addConst("file", file.path());
+        item.addConst("fullname", file.path());
+        item.addConst("line", QString::number(location.line));
     }
-    item.addChild(constMi("enabled", location.enabled ? "y" : "n"));
+    item.addConst("enabled", location.enabled ? "y" : "n");
     return item;
 }
 
@@ -1885,22 +1876,22 @@ GdbMi JdwpImpl::breakpointData(const Breakpoint &bp) const
 {
     GdbMi bkpt;
     bkpt.m_type = GdbMi::Tuple;
-    bkpt.addChild(constMi("number", bp.number));
+    bkpt.addConst("number", bp.number);
     // An exception breakpoint stands at no line of any file, so it says
     // nothing about one: what the model reads there it also marks with.
     if (bp.type == BreakpointByFileAndLine || bp.type == BreakpointByFunction) {
         if (!bp.file.isEmpty()) {
-            bkpt.addChild(constMi("file", bp.file.path()));
-            bkpt.addChild(constMi("fullname", bp.file.path()));
+            bkpt.addConst("file", bp.file.path());
+            bkpt.addConst("fullname", bp.file.path());
         }
         if (const int line = bp.actualLine ? bp.actualLine : bp.line; line > 0)
-            bkpt.addChild(constMi("line", QString::number(line)));
+            bkpt.addConst("line", QString::number(line));
     }
     if (bp.type == BreakpointByFunction)
-        bkpt.addChild(constMi("func", bp.className + '.' + bp.memberName));
-    bkpt.addChild(constMi("enabled", bp.enabled ? "y" : "n"));
+        bkpt.addConst("func", bp.className + '.' + bp.memberName);
+    bkpt.addConst("enabled", bp.enabled ? "y" : "n");
     // Also -1, as the model keeps a field that is not reported.
-    bkpt.addChild(constMi("thread", QString::number(bp.threadSpec)));
+    bkpt.addConst("thread", QString::number(bp.threadSpec));
     // An exception breakpoint waits for no class to load: it is in as soon as
     // its request is, and a disabled one asks for no request at all. The field
     // is written only where it holds, since the model reads the presence of it
@@ -1910,8 +1901,8 @@ GdbMi JdwpImpl::breakpointData(const Breakpoint &bp) const
     const bool pending = bp.type == BreakpointAtThrow ? bp.enabled && bp.requests.isEmpty()
                                                       : bp.locations.isEmpty();
     if (pending)
-        bkpt.addChild(constMi("pending", {}));
-    bkpt.addChild(constMi("times", QString::number(bp.hits)));
+        bkpt.addConst("pending", {});
+    bkpt.addConst("times", QString::number(bp.hits));
     if (bp.locations.size() > 1) {
         GdbMi locations;
         locations.m_type = GdbMi::List;
@@ -2783,11 +2774,11 @@ void JdwpImpl::reportStack(quint64 requestId, int depthLimit)
                 const ResolvedLocation &location = resolved->at(level);
                 GdbMi frame;
                 frame.m_type = GdbMi::Tuple;
-                frame.addChild(constMi("level", QString::number(level)));
-                frame.addChild(constMi("function", location.function));
-                frame.addChild(constMi("file", location.file.path()));
-                frame.addChild(constMi("fullname", location.file.path()));
-                frame.addChild(constMi("line", QString::number(location.line)));
+                frame.addConst("level", QString::number(level));
+                frame.addConst("function", location.function);
+                frame.addConst("file", location.file.path());
+                frame.addConst("fullname", location.file.path());
+                frame.addConst("line", QString::number(location.line));
                 frameList.addChild(frame);
             }
             emitStack(frameList);
@@ -2831,7 +2822,7 @@ void JdwpImpl::reportModules(quint64 requestId)
                         path = FilePath::fromUserInput(base).resolvePath(entry);
                     GdbMi item;
                     item.m_type = GdbMi::Tuple;
-                    item.addChild(constMi("modulepath", path.toUserOutput()));
+                    item.addConst("modulepath", path.toUserOutput());
                     list.addChild(item);
                 }
             }
@@ -2871,10 +2862,10 @@ void JdwpImpl::reportSourceFiles(quint64 requestId)
                 seen.insert(relative);
                 GdbMi item;
                 item.m_type = GdbMi::Tuple;
-                item.addChild(constMi("file", relative));
+                item.addConst("file", relative);
                 const FilePath local = localFile(info.signature, info.sourceFile);
                 if (!local.isEmpty())
-                    item.addChild(constMi("fullname", local.path()));
+                    item.addConst("fullname", local.path());
                 list.addChild(item);
             }
             emit refreshDataReceived(requestId, RefreshKind::SourceFiles, list);
@@ -2908,17 +2899,17 @@ void JdwpImpl::reportThreads(quint64 requestId)
             for (const quint64 thread : threads) {
                 GdbMi item;
                 item.m_type = GdbMi::Tuple;
-                item.addChild(constMi("id", QString::number(thread)));
-                item.addChild(constMi("target-id", names->value(thread)));
-                item.addChild(constMi("name", names->value(thread)));
-                item.addChild(constMi("details", threadStatusText(states->value(thread, -1))));
-                item.addChild(constMi("state", m_running ? "running" : "stopped"));
+                item.addConst("id", QString::number(thread));
+                item.addConst("target-id", names->value(thread));
+                item.addConst("name", names->value(thread));
+                item.addConst("details", threadStatusText(states->value(thread, -1)));
+                item.addConst("state", m_running ? "running" : "stopped");
                 list.addChild(item);
             }
             GdbMi all;
             all.m_type = GdbMi::Tuple;
             all.addChild(list);
-            all.addChild(constMi("current-thread-id", QString::number(m_currentThread)));
+            all.addConst("current-thread-id", QString::number(m_currentThread));
             emit refreshDataReceived(requestId, RefreshKind::Threads, all);
         });
         join->add();
@@ -5424,15 +5415,15 @@ GdbMi JdwpImpl::localsItem(const QString &iname) const
     const Local local = m_locals.value(iname);
     GdbMi item;
     item.m_type = GdbMi::Tuple;
-    item.addChild(constMi("iname", iname));
-    item.addChild(constMi("name", local.name));
+    item.addConst("iname", iname);
+    item.addConst("name", local.name);
     if (!local.watcherName.isEmpty())
-        item.addChild(constMi("wname", local.watcherName));
+        item.addConst("wname", local.watcherName);
     if (!local.exp.isEmpty())
-        item.addChild(constMi("exp", local.exp));
-    item.addChild(constMi("type", local.type));
-    item.addChild(constMi("value", local.value));
-    item.addChild(constMi("numchild", local.hasChildren ? "1" : "0"));
+        item.addConst("exp", local.exp);
+    item.addConst("type", local.type);
+    item.addConst("value", local.value);
+    item.addConst("numchild", local.hasChildren ? "1" : "0");
     if (!local.children.isEmpty()) {
         GdbMi children;
         children.m_type = GdbMi::List;

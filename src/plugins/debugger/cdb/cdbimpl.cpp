@@ -71,15 +71,6 @@ QString normalizedSourceFileName(const QString &file, QHash<QString, QString> *c
     return normalized;
 }
 
-static GdbMi constMi(const QString &name, const QString &data)
-{
-    GdbMi mi;
-    mi.m_type = GdbMi::Const;
-    mi.m_name = name;
-    mi.m_data = data;
-    return mi;
-}
-
 enum { CdbPromptLength = 7 };
 
 // The frames the extension serializes into every stop event. The QML boundary
@@ -123,11 +114,11 @@ GdbMi registersTree(const GdbMi &reply)
         reg.m_type = GdbMi::Tuple;
         for (const GdbMi &child : reported) {
             if (child.m_name == "type")
-                reg.addChild(constMi("type", registerTypeName(child.data())));
+                reg.addConst("type", registerTypeName(child.data()));
             else
                 reg.addChild(child);
         }
-        reg.addChild(constMi("groups", registerGroupName(reported["type"].data())));
+        reg.addConst("groups", registerGroupName(reported["type"].data()));
         registers.addChild(reg);
     }
     return registers;
@@ -150,11 +141,11 @@ GdbMi modulesTree(const GdbMi &reply)
     for (const GdbMi &reported : reply) {
         GdbMi module;
         module.m_type = GdbMi::Tuple;
-        module.addChild(constMi("modulepath", reported["image"].data()));
-        module.addChild(constMi("startaddress", decimalNumber(reported["start"])));
-        module.addChild(constMi("endaddress", decimalNumber(reported["end"])));
-        module.addChild(constMi("symbolsread", reported["deferred"].isValid()
-                                                  ? QString("No") : QString("Yes")));
+        module.addConst("modulepath", reported["image"].data());
+        module.addConst("startaddress", decimalNumber(reported["start"]));
+        module.addConst("endaddress", decimalNumber(reported["end"]));
+        module.addConst("symbolsread",
+                        reported["deferred"].isValid() ? QString("No") : QString("Yes"));
         modules.addChild(module);
     }
     return modules;
@@ -220,9 +211,9 @@ static GdbMi libraryEventData(const QString &module)
 {
     GdbMi data;
     data.m_type = GdbMi::Tuple;
-    data.addChild(constMi("id", FilePath::fromUserInput(module).fileName()));
-    data.addChild(constMi("target-name", module));
-    data.addChild(constMi("host-name", module));
+    data.addConst("id", FilePath::fromUserInput(module).fileName());
+    data.addConst("target-name", module);
+    data.addConst("host-name", module);
     return data;
 }
 
@@ -1252,13 +1243,13 @@ void CdbImpl::insertBreakpoint(quint64 requestId, const QString &id, int modelId
                     runCommand({"bd" + subResponseId, NoFlags});
                 GdbMi location;
                 location.m_type = GdbMi::Tuple;
-                location.addChild(constMi("number", subResponseId));
-                location.addChild(constMi("func", matchedFunction));
-                location.addChild(constMi("addr", target));
-                location.addChild(constMi("enabled", QLatin1String(enabled ? "y" : "n")));
+                location.addConst("number", subResponseId);
+                location.addConst("func", matchedFunction);
+                location.addConst("addr", target);
+                location.addConst("enabled", QLatin1String(enabled ? "y" : "n"));
                 if (!file.isEmpty()) {
-                    location.addChild(constMi("file", file));
-                    location.addChild(constMi("line", QString::number(line)));
+                    location.addConst("file", file);
+                    location.addConst("line", QString::number(line));
                 }
                 locations.addChild(location);
             }
@@ -1504,12 +1495,12 @@ void CdbImpl::setResolvedFunctionBreakpoints(quint64 requestId, const QString &i
             runCommand({"bd" + subResponseId, NoFlags});
         GdbMi location;
         location.m_type = GdbMi::Tuple;
-        location.addChild(constMi("number", subResponseId));
-        location.addChild(constMi("func", function.name));
-        location.addChild(constMi("addr", hexAddress(function.address)));
-        location.addChild(constMi("enabled", QLatin1String(enabled ? "y" : "n")));
-        location.addChild(constMi("file", function.file));
-        location.addChild(constMi("line", QString::number(function.line)));
+        location.addConst("number", subResponseId);
+        location.addConst("func", function.name);
+        location.addConst("addr", hexAddress(function.address));
+        location.addConst("enabled", QLatin1String(enabled ? "y" : "n"));
+        location.addConst("file", function.file);
+        location.addConst("line", QString::number(function.line));
         locations.addChild(location);
     }
     const ResolvedFunction &first = resolved.constFirst();
@@ -1547,24 +1538,24 @@ void CdbImpl::reportBreakpointInserted(quint64 requestId, const QString &id, boo
                                locations](const GdbMi &resolved, const QString &resolvedFunction) {
         GdbMi bkpt;
         bkpt.m_type = GdbMi::Tuple;
-        bkpt.addChild(constMi("number", id));
-        bkpt.addChild(constMi("enabled", QLatin1String(enabled ? "y" : "n")));
+        bkpt.addConst("number", id);
+        bkpt.addConst("enabled", QLatin1String(enabled ? "y" : "n"));
         if (!file.isEmpty()) {
-            bkpt.addChild(constMi("file", file));
-            bkpt.addChild(constMi("line", QString::number(line)));
+            bkpt.addConst("file", file);
+            bkpt.addConst("line", QString::number(line));
         }
         const QString func = function.isEmpty() ? resolvedFunction : function;
         if (!func.isEmpty())
-            bkpt.addChild(constMi("func", func));
+            bkpt.addConst("func", func);
         // cdb has no catchpoint of its own; it stands in for one with a breakpoint on
         // the function behind the event, so the view is told what it really catches.
         if (m_insertedBreakpoints.value(id).type == BreakpointAtExec)
-            bkpt.addChild(constMi("catch-type", "exec"));
+            bkpt.addConst("catch-type", "exec");
         // cdb does not echo the thread a breakpoint is restricted to; the one the
         // insert was asked for stands in for it, so a thread specific breakpoint is
         // reported the same way gdb reports one.
         if (const int threadSpec = m_insertedBreakpoints.value(id).threadSpec; threadSpec >= 0)
-            bkpt.addChild(constMi("thread", QString::number(threadSpec)));
+            bkpt.addConst("thread", QString::number(threadSpec));
         if (resolved["addr"].isValid())
             bkpt.addChild(resolved["addr"]);
         if (resolved["module"].isValid())
@@ -1640,23 +1631,22 @@ GdbMi resolvedBreakpointUpdates(const GdbMi &reported, QSet<QString> *wanted,
         wanted->remove(id);
         GdbMi bkpt;
         bkpt.m_type = GdbMi::Tuple;
-        bkpt.addChild(constMi("number", id));
-        bkpt.addChild(constMi("enabled",
-                              QLatin1String(one["enabled"].data() == "true" ? "y" : "n")));
-        bkpt.addChild(constMi("addr", address));
+        bkpt.addConst("number", id);
+        bkpt.addConst("enabled", QLatin1String(one["enabled"].data() == "true" ? "y" : "n"));
+        bkpt.addConst("addr", address);
         const QString module = one["module"].data();
         if (!module.isEmpty())
-            bkpt.addChild(constMi("module", module));
+            bkpt.addConst("module", module);
         const QString file = one["srcfile"].data();
         if (!file.isEmpty()) {
-            bkpt.addChild(constMi("file", mappedFromDebugger(file, sourcePathMap)));
-            bkpt.addChild(constMi("line", one["srcline"].data()));
+            bkpt.addConst("file", mappedFromDebugger(file, sourcePathMap));
+            bkpt.addConst("line", one["srcline"].data());
         }
         // An update stands for the whole state of the breakpoint, so a condition
         // left out of it counts as none rather than as unchanged.
         const QString condition = conditions.value(id);
         if (!condition.isEmpty())
-            bkpt.addChild(constMi("cond", condition));
+            bkpt.addConst("cond", condition);
         list.addChild(bkpt);
     }
     return list;
@@ -2704,11 +2694,11 @@ static GdbMi interpreterStackFrames(const GdbMi &msg)
             GdbMi item;
             item.m_type = GdbMi::Tuple;
             item.m_name = "frame";
-            item.addChild(constMi("function", frame.value("function").toString()));
-            item.addChild(constMi("file", frame.value("file").toString()));
-            item.addChild(constMi("line", QString::number(frame.value("line").toInt())));
-            item.addChild(constMi("language", frame.value("language").toString()));
-            item.addChild(constMi("context", frame.value("context").toString()));
+            item.addConst("function", frame.value("function").toString());
+            item.addConst("file", frame.value("file").toString());
+            item.addConst("line", QString::number(frame.value("line").toInt()));
+            item.addConst("language", frame.value("language").toString());
+            item.addConst("context", frame.value("context").toString());
             frames.addChild(item);
         }
         break;
@@ -2752,8 +2742,8 @@ static GdbMi normalizedFrame(const GdbMi &frameMi,
         frame.addChild(child);
     }
     if (!fullName.isEmpty()) {
-        frame.addChild(constMi("fullname", fullName));
-        frame.addChild(constMi("file", normalizedSourceFileName(fullName, nameCache)));
+        frame.addConst("fullname", fullName);
+        frame.addConst("file", normalizedSourceFileName(fullName, nameCache));
     }
     if (!module.isEmpty()) {
         // cdb names a module after its base name, but the stack view's module column
@@ -2762,7 +2752,7 @@ static GdbMi normalizedFrame(const GdbMi &frameMi,
         const bool isInferior = !binaryName.isEmpty()
             && module.compare(FilePath::fromString(binaryName).completeBaseName(),
                               Qt::CaseInsensitive) == 0;
-        frame.addChild(constMi("module", isInferior ? binaryName : module));
+        frame.addConst("module", isInferior ? binaryName : module);
     }
     return frame;
 }
@@ -2790,14 +2780,13 @@ static GdbMi threadsTree(const GdbMi &reply,
                 frame.m_name = "frame";
                 for (const GdbMi &frameChild : child) {
                     if (frameChild.m_name == "function")
-                        frame.addChild(constMi("func", frameChild.data()));
+                        frame.addConst("func", frameChild.data());
                     else if (frameChild.m_name == "address")
-                        frame.addChild(constMi("addr", frameChild.data()));
+                        frame.addConst("addr", frameChild.data());
                     else if (frameChild.m_name == "fullname")
-                        frame.addChild(constMi("fullname", fullName));
+                        frame.addConst("fullname", fullName);
                     else if (frameChild.m_name == "file" && !fullName.isEmpty())
-                        frame.addChild(constMi("file",
-                                               normalizedSourceFileName(fullName, nameCache)));
+                        frame.addConst("file", normalizedSourceFileName(fullName, nameCache));
                     else
                         frame.addChild(frameChild);
                 }
@@ -2806,14 +2795,14 @@ static GdbMi threadsTree(const GdbMi &reply,
                 thread.addChild(child);
             }
         }
-        thread.addChild(constMi("state", "stopped"));
+        thread.addConst("state", "stopped");
         threads.addChild(thread);
     }
     GdbMi wrapper;
     wrapper.m_type = GdbMi::Tuple;
     wrapper.addChild(threads);
     if (const GdbMi current = reply["current-thread-id"]; current.isValid())
-        wrapper.addChild(constMi("current-thread-id", current.data()));
+        wrapper.addConst("current-thread-id", current.data());
     return wrapper;
 }
 
@@ -2896,8 +2885,8 @@ static bool isQmlCallMachineryFrame(const GdbMi &frame)
 static GdbMi markedAsMachinery(const GdbMi &frame)
 {
     GdbMi marked = frame;
-    marked.addChild(constMi("usable", "0"));
-    marked.addChild(constMi("machinery", "1"));
+    marked.addConst("usable", "0");
+    marked.addConst("machinery", "1");
     return marked;
 }
 
@@ -2964,7 +2953,7 @@ void CdbImpl::refresh(const RefreshRequest &request)
         runCommand({"~*kp", BuiltinCommand,
                    [this, requestId](const DebuggerResponse &response) {
             emit refreshDataReceived(requestId, RefreshKind::FullBacktrace,
-                                     constMi({}, response.data.data()));
+                                     GdbMi::makeConst({}, response.data.data()));
         }});
         return;
     }
@@ -3071,9 +3060,9 @@ void CdbImpl::refresh(const RefreshRequest &request)
                    [this, requestId, module](const DebuggerResponse &response) {
             GdbMi state;
             state.m_type = GdbMi::Tuple;
-            state.addChild(constMi("module", module));
+            state.addConst("module", module);
             const bool priv = response.data.data().contains("private pdb symbols");
-            state.addChild(constMi("private", priv ? "1" : "0"));
+            state.addConst("private", priv ? "1" : "0");
             emit refreshDataReceived(requestId, RefreshKind::ModuleSymbolState, state);
         }});
         return;
@@ -3476,7 +3465,7 @@ void CdbImpl::handleCdbOutputLine(const QString &rawLine)
             m_unresolvedBreakpointIds.remove(reportedNumber);
             GdbMi removed;
             removed.m_type = GdbMi::Tuple;
-            removed.addChild(constMi("number", reportedNumber));
+            removed.addConst("number", reportedNumber);
             emit breakpointEvent(0, BreakpointOp::Remove, true, removed);
             emit message(line, LogMisc);
             return;
@@ -3484,14 +3473,14 @@ void CdbImpl::handleCdbOutputLine(const QString &rawLine)
         const int times = ++m_breakpointHitCounts[reportedNumber];
         GdbMi bkpt;
         bkpt.m_type = GdbMi::Tuple;
-        bkpt.addChild(constMi("number", reportedNumber));
-        bkpt.addChild(constMi("enabled", "y"));
-        bkpt.addChild(constMi("times", QString::number(times)));
+        bkpt.addConst("number", reportedNumber);
+        bkpt.addConst("enabled", "y");
+        bkpt.addConst("times", QString::number(times));
         // The model reads an update as the whole state of the breakpoint, so a
         // condition left out of it counts as none rather than as unchanged.
         const QString condition = m_conditionForBreakpointId.value(reportedNumber);
         if (!condition.isEmpty())
-            bkpt.addChild(constMi("cond", condition));
+            bkpt.addConst("cond", condition);
         GdbMi list;
         list.m_type = GdbMi::List;
         list.addChild(bkpt);

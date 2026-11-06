@@ -350,15 +350,6 @@ void BridgeImpl::reportEngineSetup(bool success)
                               : InferiorEvent::EngineSetupFailed);
 }
 
-static GdbMi constMi(const QString &name, const QString &data)
-{
-    GdbMi mi;
-    mi.m_name = name;
-    mi.m_data = data;
-    mi.m_type = GdbMi::Const;
-    return mi;
-}
-
 // The dumpers answer in their own GdbMi shape, carried as a string.
 static GdbMi dumperResultOf(const QJsonObject &response)
 {
@@ -1148,14 +1139,14 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
             const QJsonObject module = value.toObject();
             GdbMi item;
             item.m_type = GdbMi::Tuple;
-            item.addChild(constMi("modulepath", module.value("path").toString()));
-            item.addChild(constMi("symbolsread",
-                                  QLatin1String(module.value("symbolsRead").toBool() ? "Yes"
-                                                                                     : "No")));
-            item.addChild(constMi("startaddress",
-                                  QString::number(module.value("startAddress").toDouble(), 'f', 0)));
-            item.addChild(constMi("endaddress",
-                                  QString::number(module.value("endAddress").toDouble(), 'f', 0)));
+            item.addConst("modulepath", module.value("path").toString());
+            item.addConst("symbolsread",
+                          QLatin1String(module.value("symbolsRead").toBool() ? "Yes"
+                                                                             : "No"));
+            item.addConst("startaddress",
+                          QString::number(module.value("startAddress").toDouble(), 'f', 0));
+            item.addConst("endaddress",
+                          QString::number(module.value("endAddress").toDouble(), 'f', 0));
             modules.addChild(item);
         }
         emit refreshDataReceived(m_pendingModulesRequestId, RefreshKind::Modules, modules);
@@ -1168,11 +1159,11 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
             const QJsonObject reg = value.toObject();
             GdbMi item;
             item.m_type = GdbMi::Tuple;
-            item.addChild(constMi("name", reg.value("name").toString()));
-            item.addChild(constMi("value", reg.value("value").toString()));
-            item.addChild(constMi("size", QString::number(reg.value("size").toInt())));
-            item.addChild(constMi("groups", reg.value("groups").toString()));
-            item.addChild(constMi("type", gdbRegisterTypeName(reg.value("type").toString())));
+            item.addConst("name", reg.value("name").toString());
+            item.addConst("value", reg.value("value").toString());
+            item.addConst("size", QString::number(reg.value("size").toInt()));
+            item.addConst("groups", reg.value("groups").toString());
+            item.addConst("type", gdbRegisterTypeName(reg.value("type").toString()));
             registers.addChild(item);
         }
         emit refreshDataReceived(m_pendingRegistersRequestId, RefreshKind::Registers, registers);
@@ -1213,8 +1204,8 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
             memcpy(&value, data.constData(), qMin(data.size(), qsizetype(sizeof(value))));
             GdbMi result;
             result.m_type = GdbMi::Tuple;
-            result.addChild(constMi("address", QString::number(peripheral.address)));
-            result.addChild(constMi("value", QString::number(value)));
+            result.addConst("address", QString::number(peripheral.address));
+            result.addConst("value", QString::number(value));
             emit refreshDataReceived(peripheral.requestId, RefreshKind::PeripheralRegisters,
                                      result);
         } else {
@@ -1257,16 +1248,16 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
             const QJsonObject item = value.toObject();
             GdbMi symbol;
             symbol.m_type = GdbMi::Tuple;
-            symbol.addChild(constMi("state", item.value("state").toString()));
-            symbol.addChild(constMi("address", item.value("address").toString()));
-            symbol.addChild(constMi("name", item.value("name").toString()));
-            symbol.addChild(constMi("section", item.value("section").toString()));
-            symbol.addChild(constMi("demangled", item.value("demangled").toString()));
+            symbol.addConst("state", item.value("state").toString());
+            symbol.addConst("address", item.value("address").toString());
+            symbol.addConst("name", item.value("name").toString());
+            symbol.addConst("section", item.value("section").toString());
+            symbol.addConst("demangled", item.value("demangled").toString());
             symbolList.addChild(symbol);
         }
         GdbMi result;
         result.m_type = GdbMi::Tuple;
-        result.addChild(constMi("modulepath", body.value("module").toString()));
+        result.addConst("modulepath", body.value("module").toString());
         result.addChild(symbolList);
         emit refreshDataReceived(m_pendingSymbolsRequestId, RefreshKind::ModuleSymbols, result);
     } else if (command == "qtc/fetchSections") {
@@ -1280,16 +1271,16 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
             const QJsonObject item = value.toObject();
             GdbMi section;
             section.m_type = GdbMi::Tuple;
-            section.addChild(constMi("from", item.value("from").toString()));
-            section.addChild(constMi("to", item.value("to").toString()));
-            section.addChild(constMi("address", item.value("address").toString()));
-            section.addChild(constMi("name", item.value("name").toString()));
-            section.addChild(constMi("flags", item.value("flags").toString()));
+            section.addConst("from", item.value("from").toString());
+            section.addConst("to", item.value("to").toString());
+            section.addConst("address", item.value("address").toString());
+            section.addConst("name", item.value("name").toString());
+            section.addConst("flags", item.value("flags").toString());
             sectionList.addChild(section);
         }
         GdbMi result;
         result.m_type = GdbMi::Tuple;
-        result.addChild(constMi("modulepath", body.value("module").toString()));
+        result.addConst("modulepath", body.value("module").toString());
         result.addChild(sectionList);
         emit refreshDataReceived(m_pendingSectionsRequestId, RefreshKind::ModuleSections, result);
     } else if (command == "qtc/loadSymbols") {
@@ -1323,9 +1314,9 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
                 continue;
             GdbMi entry;
             entry.m_type = GdbMi::Tuple;
-            entry.addChild(constMi("file", file));
+            entry.addConst("file", file);
             if (const GdbMi fullName = item["fullname"]; fullName.isValid())
-                entry.addChild(constMi("fullname", fullName.data()));
+                entry.addConst("fullname", fullName.data());
             files.addChild(entry);
         }
         emit refreshDataReceived(m_pendingSourceFilesRequestId, RefreshKind::SourceFiles, files);
@@ -1337,8 +1328,8 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
                                  dumperResultOf(response));
     } else if (command == "qtc/fetchFullBacktrace") {
         emit refreshDataReceived(m_pendingBacktraceRequestId, RefreshKind::FullBacktrace,
-                                 constMi({}, response.value("body").toObject()
-                                                 .value("output").toString()));
+                                 GdbMi::makeConst({}, response.value("body").toObject()
+                                                        .value("output").toString()));
     } else if (command == "qtc/executeCommand") {
         const QJsonObject body = response.value("body").toObject();
         if (const QString output = body.value("output").toString(); !output.isEmpty())
@@ -1458,21 +1449,15 @@ void BridgeImpl::handleStackTrace(const QJsonObject &response)
         const QJsonObject item = value.toObject();
         GdbMi frame;
         frame.m_type = GdbMi::Tuple;
-        const auto add = [&frame](const QString &name, const QString &data) {
-            GdbMi child;
-            child.m_type = GdbMi::Const;
-            child.m_name = name;
-            child.m_data = data;
-            frame.addChild(child);
-        };
-        add("level", QString::number(level++));
-        add("function", item.value("name").toString());
+        frame.addConst("level", QString::number(level++));
+        frame.addConst("function", item.value("name").toString());
         const QString path = item.value("source").toObject().value("path").toString();
-        add("file", path);
-        add("fullname", path);
-        add("line", QString::number(item.value("line").toInt()));
-        add("address", QString::number(item.value("instructionPointerReference").toInteger()));
-        add("module", dapModuleName(item.value("moduleId")));
+        frame.addConst("file", path);
+        frame.addConst("fullname", path);
+        frame.addConst("line", QString::number(item.value("line").toInt()));
+        frame.addConst("address",
+                       QString::number(item.value("instructionPointerReference").toInteger()));
+        frame.addConst("module", dapModuleName(item.value("moduleId")));
         frameList.addChild(frame);
     }
     GdbMi stack;
@@ -1515,7 +1500,7 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
         const bool started = body.value("reason").toString() == "started";
         GdbMi data;
         data.m_type = GdbMi::Tuple;
-        data.addChild(constMi("id", id));
+        data.addConst("id", id);
         emit threadEvent(started ? ThreadEvent::Created : ThreadEvent::Exited, data);
         return;
     }
@@ -1552,11 +1537,10 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
             const QJsonObject body = event.value("body").toObject();
             GdbMi runningThread;
             runningThread.m_type = GdbMi::Tuple;
-            runningThread.addChild(
-                constMi("thread-id",
-                        body.value("allThreadsContinued").toBool()
-                            ? QString("all")
-                            : QString::number(body.value("threadId").toInteger())));
+            runningThread.addConst("thread-id",
+                                   body.value("allThreadsContinued").toBool()
+                                       ? QString("all")
+                                       : QString::number(body.value("threadId").toInteger()));
             emit threadEvent(ThreadEvent::Running, runningThread);
             // A console command can resume the inferior behind the engine's
             // back, and the stop that follows can only be reported from a
@@ -1607,7 +1591,7 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
             const QString number = event.value("body").toObject().value("number").toString();
             GdbMi deleted;
             deleted.m_type = GdbMi::Tuple;
-            deleted.addChild(constMi("number", number));
+            deleted.addConst("number", number);
             emit breakpointEvent(0, BreakpointOp::Remove, true, deleted);
             return;
         }
@@ -1620,9 +1604,9 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
             const QString path = body.value("path").toString();
             GdbMi library;
             library.m_type = GdbMi::Tuple;
-            library.addChild(constMi("id", path));
-            library.addChild(constMi("target-name", path));
-            library.addChild(constMi("host-name", path));
+            library.addConst("id", path);
+            library.addConst("target-name", path);
+            library.addConst("host-name", path);
             emit libraryEvent(body.value("reason").toString() == "unloaded"
                                   ? LibraryEvent::Unloaded : LibraryEvent::Loaded,
                               library);
@@ -1631,8 +1615,7 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
         if (name == "qtc/threadSelected") {
             GdbMi selected;
             selected.m_type = GdbMi::Tuple;
-            selected.addChild(constMi("id", event.value("body").toObject()
-                                                .value("id").toString()));
+            selected.addConst("id", event.value("body").toObject() .value("id").toString());
             emit threadEvent(ThreadEvent::Selected, selected);
             return;
         }
@@ -1640,8 +1623,8 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
             const QJsonObject body = event.value("body").toObject();
             GdbMi group;
             group.m_type = GdbMi::Tuple;
-            group.addChild(constMi("id", body.value("id").toString()));
-            group.addChild(constMi("pid", body.value("pid").toString()));
+            group.addConst("id", body.value("id").toString());
+            group.addConst("pid", body.value("pid").toString());
             emit threadEvent(body.value("reason").toString() == "exited"
                                  ? ThreadEvent::GroupExited : ThreadEvent::GroupCreated,
                              group);
@@ -1735,9 +1718,10 @@ void BridgeImpl::handleStopped(const QJsonObject &event)
     m_sawTerminateMessage = false;
     GdbMi stoppedThread;
     stoppedThread.m_type = GdbMi::Tuple;
-    stoppedThread.addChild(constMi("id", body.value("allThreadsStopped").toBool()
-                                             ? QString("all")
-                                             : QString::number(m_currentThreadId)));
+    stoppedThread.addConst("id",
+                           body.value("allThreadsStopped").toBool()
+                               ? QString("all")
+                               : QString::number(m_currentThreadId));
     emit threadEvent(ThreadEvent::Stopped, stoppedThread);
     m_inferiorResumed = false;
     m_interruptOnceResumed = false;

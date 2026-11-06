@@ -2939,20 +2939,13 @@ public:
     {
         GdbMi bkpt;
         bkpt.m_type = GdbMi::Tuple;
-        const auto add = [&bkpt](const QString &name, const QString &data) {
-            GdbMi child;
-            child.m_type = GdbMi::Const;
-            child.m_name = name;
-            child.m_data = data;
-            bkpt.addChild(child);
-        };
-        add("number", number);
-        add("enabled", "1");
-        add("condition", QString());
-        add("ignorecount", "0");
-        add("line", "10");
-        add("modelid", QString::number(modelId));
-        add("pending", "0");
+        bkpt.addConst("number", number);
+        bkpt.addConst("enabled", "1");
+        bkpt.addConst("condition", QString());
+        bkpt.addConst("ignorecount", "0");
+        bkpt.addConst("line", "10");
+        bkpt.addConst("modelid", QString::number(modelId));
+        bkpt.addConst("pending", "0");
         GdbMi list;
         list.m_type = GdbMi::List;
         list.addChild(bkpt);
@@ -5106,25 +5099,18 @@ void DebuggerUnitTests::testABreakpointDropsThePlacesItNoLongerStandsIn()
     const QScopeGuard cleanup([engine] { delete engine; });
     engine->setRunParameters({});
 
-    const auto constMi = [](const QString &name, const QString &data) {
-        GdbMi child;
-        child.m_type = GdbMi::Const;
-        child.m_name = name;
-        child.m_data = data;
-        return child;
-    };
     GdbMi locations;
     locations.m_type = GdbMi::List;
     locations.m_name = "locations";
     for (const QString &responseId : QStringList{"3.1", "3.2", "3.3"}) {
         GdbMi location;
         location.m_type = GdbMi::Tuple;
-        location.addChild(constMi("number", responseId));
+        location.addConst("number", responseId);
         locations.addChild(location);
     }
     GdbMi several;
     several.m_type = GdbMi::Tuple;
-    several.addChild(constMi("number", "3"));
+    several.addConst("number", "3");
     several.addChild(locations);
 
     BreakpointItem reported({});
@@ -5133,7 +5119,7 @@ void DebuggerUnitTests::testABreakpointDropsThePlacesItNoLongerStandsIn()
 
     GdbMi single;
     single.m_type = GdbMi::Tuple;
-    single.addChild(constMi("number", "4"));
+    single.addConst("number", "4");
     engine->applyBkptData(single, Breakpoint(&reported));
     QVERIFY2(reported.childCount() == 0,
              "the rows of the places the breakpoint stood in before are still there, and each "

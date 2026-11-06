@@ -175,6 +175,7 @@ public:
 
     void addChild(const GdbMi &child) { m_children.push_back(child); }
     void addConst(const QString &name, const QString &data);
+    static GdbMi makeConst(const QString &name, const QString &data);
 
     Type type() const { return m_type; }
     const QString &name() const { return m_name; }
