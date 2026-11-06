@@ -389,6 +389,9 @@ public class Inferior
             org.qtproject.jdwptest.other.Helper.describe();
             return;
         }
+        // Loaded before any stop, so that no class is prepared inside a call
+        // a watcher makes.
+        tag();
         int number = 7; // main-start
         String text = "hello";
         int[] values = {1, 2, 3};
