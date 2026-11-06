@@ -28,7 +28,6 @@ public:
     QString textColumn1;
     QString textColumn2;
     QString highlight;
-    LocatorFilterEntry::HighlightInfo::DataType dataType;
 };
 
 using ResultDataList = ResultData::ResultDataList;
