@@ -23,6 +23,7 @@
 #include <cppeditor/clangdiagnosticconfig.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpptoolsreuse.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -84,6 +85,8 @@ void ClangCodeModelPlugin::initialize()
     updateStaleIndexEntries.addOnTriggered(this, &ClangModelManagerSupport::updateStaleIndexEntries);
     updateStaleIndexEntries.addToContainer(CppEditor::Constants::M_TOOLS_CPP);
     updateStaleIndexEntries.addToContainer(CppEditor::Constants::M_CONTEXT_CODE_MODEL);
+
+    CppEditor::setClangdDefaultExecutableHook(&clangdSetDefaultExecutable);
 
 #ifdef WITH_TESTS
     CppEditor::Tests::setClangdFilePathHook() = [](const FilePath &clangd) {

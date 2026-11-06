@@ -342,6 +342,23 @@ bool preferLowerCaseFileNames(ProjectExplorer::Project *project)
     return Internal::cppFileSettingsForProject(project).lowerCaseFiles;
 }
 
+static std::function<void(ProjectExplorer::BuildConfiguration *, const FilePath &)>
+    s_clangdSetDefaultExecutableHook;
+
+void setClangdDefaultExecutableHook(
+    const std::function<void(ProjectExplorer::BuildConfiguration *, const FilePath &)> &hook)
+{
+    s_clangdSetDefaultExecutableHook = hook;
+}
+
+// The clangd to use for a build where the settings do not name one. Does
+// nothing without ClangCodeModel.
+void clangdSetDefaultExecutable(ProjectExplorer::BuildConfiguration *bc, const FilePath &clangd)
+{
+    if (s_clangdSetDefaultExecutableHook)
+        s_clangdSetDefaultExecutableHook(bc, clangd);
+}
+
 QString preferredCxxHeaderSuffix(ProjectExplorer::Project *project)
 {
     return Internal::cppFileSettingsForProject(project).headerSuffix;

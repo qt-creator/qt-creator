@@ -10,12 +10,17 @@
 #include <utils/id.h>
 #include <utils/searchresultitem.h>
 
+#include <functional>
+
 namespace CPlusPlus {
 class Macro;
 class Symbol;
 class LookupContext;
 } // namespace CPlusPlus
-namespace ProjectExplorer { class Project; }
+namespace ProjectExplorer {
+class BuildConfiguration;
+class Project;
+} // namespace ProjectExplorer
 namespace TextEditor {
 class AssistInterface;
 class TextEditorWidget;
@@ -72,6 +77,12 @@ void CPPEDITOR_EXPORT openEditor(const Utils::FilePath &filePath, bool inNextSpl
 QString CPPEDITOR_EXPORT preferredCxxHeaderSuffix(ProjectExplorer::Project *project);
 QString CPPEDITOR_EXPORT preferredCxxSourceSuffix(ProjectExplorer::Project *project);
 bool CPPEDITOR_EXPORT preferLowerCaseFileNames(ProjectExplorer::Project *project);
+
+CPPEDITOR_EXPORT void clangdSetDefaultExecutable(ProjectExplorer::BuildConfiguration *bc,
+                                                 const Utils::FilePath &clangd);
+CPPEDITOR_EXPORT void setClangdDefaultExecutableHook(
+    const std::function<void(ProjectExplorer::BuildConfiguration *bc,
+                             const Utils::FilePath &clangd)> &hook);
 
 QList<Utils::Text::Range> CPPEDITOR_EXPORT symbolOccurrencesInText(
     const QTextDocument &doc, QStringView text, int offset, const QString &symbolName);
