@@ -1769,14 +1769,21 @@ void LldbImpl::runCommand(const DebuggerCommand &command)
     cmd.postTime = QTime::currentTime().msecsSinceStartOfDay();
 
     QString line;
+    QString logged;
     if (cmd.flags & DebuggerCommand::NativeCommand) {
         line = cmd.function;
+        logged = line;
     } else {
         cmd.arg("token", token);
         line = "script theDumper." + cmd.function + "(" + cmd.argsToPython() + ")";
         m_commandForToken[token] = cmd;
+        // The entries are hex-encoded, so the first ']' closes the array.
+        static const QRegularExpression environment("\"environment\":.[^]]*.");
+        logged = line.contains("\"environment\"")
+                     ? QString(line).replace(environment, "<environment suppressed>")
+                     : line;
     }
-    emit message(line, LogInput);
+    emit message(logged, LogInput);
     m_lldbProc.write(line + "\n\n");
     restartWatchdog();
 }
