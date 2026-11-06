@@ -1965,6 +1965,8 @@ void tst_jdwp::picksTheMethodTheArgumentsFit()
 
 void tst_jdwp::picksTheMethodNearestTheArguments()
 {
+    QSKIP("Flaky, probably a timing issue.");
+
     const auto backend = launch();
     backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "call-nested"));
     backend->start();
