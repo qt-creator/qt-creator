@@ -356,7 +356,9 @@ static void addFileInfos(const QList<IDocument *> &documents)
 void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool addWatcher)
 {
     auto connectDocument = [](IDocument *document) {
-        connect(document, &QObject::destroyed, m_instance, &DocumentManager::documentDestroyed);
+        connect(document, &QObject::destroyed, m_instance, [document] {
+            m_instance->documentDestroyed(document);
+        });
         connect(document, &IDocument::changed, m_instance, &DocumentManager::updateSaveAll);
         connect(document, &IDocument::filePathChanged,
                 m_instance, [document](const FilePath &oldName, const FilePath &newName) {
@@ -501,9 +503,8 @@ void DocumentManager::addDocument(IDocument *document, bool addWatcher)
     addDocuments({document}, addWatcher);
 }
 
-void DocumentManager::documentDestroyed(QObject *obj)
+void DocumentManager::documentDestroyed(IDocument *document)
 {
-    auto document = static_cast<IDocument*>(obj);
     // Check the special unwatched first:
     if (!d->m_documentsWithoutWatch.removeOne(document))
         removeFileInfo(document);

@@ -589,7 +589,7 @@ ActionContainer *ActionManager::createMenu(Id id)
     auto mc = new MenuActionContainer(id, d);
 
     d->m_idContainerMap.insert(id, mc);
-    connect(mc, &QObject::destroyed, d, &ActionManagerPrivate::containerDestroyed);
+    connect(mc, &QObject::destroyed, d, [mc] { d->containerDestroyed(mc); });
 
     return mc;
 }
@@ -615,7 +615,7 @@ ActionContainer *ActionManager::createMenuBar(Id id)
     mbc->setMenuBar(mb);
 
     d->m_idContainerMap.insert(id, mbc);
-    connect(mbc, &QObject::destroyed, d, &ActionManagerPrivate::containerDestroyed);
+    connect(mbc, &QObject::destroyed, d, [mbc] { d->containerDestroyed(mbc); });
 
     return mbc;
 }
@@ -641,7 +641,7 @@ ActionContainer *ActionManager::createTouchBar(Id id, const QIcon &icon, const Q
         return c;
     auto ac = new TouchBarActionContainer(id, d, icon, text);
     d->m_idContainerMap.insert(id, ac);
-    connect(ac, &QObject::destroyed, d, &ActionManagerPrivate::containerDestroyed);
+    connect(ac, &QObject::destroyed, d, [ac] { d->containerDestroyed(ac); });
     return ac;
 }
 
@@ -851,7 +851,7 @@ ActionManagerPrivate::~ActionManagerPrivate()
 {
     // first delete containers to avoid them reacting to command deletion
     for (const ActionContainerPrivate *container : std::as_const(m_idContainerMap))
-        disconnect(container, &QObject::destroyed, this, &ActionManagerPrivate::containerDestroyed);
+        disconnect(container, &QObject::destroyed, this, nullptr);
     qDeleteAll(m_idContainerMap);
     qDeleteAll(m_idCmdMap);
 }
@@ -876,9 +876,8 @@ bool ActionManagerPrivate::hasContext(const Context &context) const
     return false;
 }
 
-void ActionManagerPrivate::containerDestroyed(QObject *sender)
+void ActionManagerPrivate::containerDestroyed(ActionContainerPrivate *container)
 {
-    auto container = static_cast<ActionContainerPrivate *>(sender);
     m_idContainerMap.remove(m_idContainerMap.key(container));
     m_scheduledContainerUpdates.remove(container);
 }

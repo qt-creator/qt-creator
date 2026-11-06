@@ -151,7 +151,7 @@ private:
     explicit DocumentManager(QObject *parent);
     ~DocumentManager() override;
 
-    void documentDestroyed(QObject *obj);
+    void documentDestroyed(IDocument *document);
     void checkForNewFileName(IDocument *document);
     void checkForReload();
     void changedFile(const Utils::FilePath &file);

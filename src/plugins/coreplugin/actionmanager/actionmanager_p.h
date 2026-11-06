@@ -49,7 +49,7 @@ public:
 
     void scheduleContainerUpdate(ActionContainerPrivate *actionContainer);
     void updateContainer();
-    void containerDestroyed(QObject *sender);
+    void containerDestroyed(ActionContainerPrivate *container);
 
     IdCmdMap m_idCmdMap;
 
