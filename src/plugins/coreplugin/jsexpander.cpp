@@ -11,7 +11,6 @@
 
 #include <QDebug>
 #include <QJSEngine>
-#include <QRecursiveMutex>
 #include <QThread>
 #include <QTimer>
 
@@ -105,10 +104,6 @@ private:
 class JsExpanderPrivate {
 public:
     QJSEngine m_engine;
-    // QJSEngine is not thread-safe, but the global expander's JS prefix is
-    // evaluated from many threads (e.g. async project/code model updates).
-    // Serialize all engine access; recursive to allow nested %{JS:...}.
-    QRecursiveMutex m_mutex;
     JsEngineWatchdog m_watchdog;
 };
 
@@ -123,14 +118,18 @@ void JsExpander::registerGlobalObject(const QString &name, const ObjectFactory &
 
 void JsExpander::registerObject(const QString &name, QObject *obj)
 {
-    QMutexLocker locker(&d->m_mutex);
+    QTC_ASSERT(QThread::currentThread() == d->m_engine.thread(), return);
     QJSValue jsObj = d->m_engine.newQObject(obj);
     d->m_engine.globalObject().setProperty(name, jsObj);
 }
 
 QString JsExpander::evaluate(const QString &expression, QString *errorMessage)
 {
-    QMutexLocker locker(&d->m_mutex);
+    QTC_ASSERT(QThread::currentThread() == d->m_engine.thread(), {
+        if (errorMessage)
+            *errorMessage = Tr::tr("JavaScript cannot be evaluated outside the thread of its engine.");
+        return {};
+    });
     d->m_watchdog.watch(&d->m_engine);
     QJSValue value = d->m_engine.evaluate(expression);
     d->m_watchdog.unwatch();
