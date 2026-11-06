@@ -3524,6 +3524,8 @@ public:
     {
         if (isUseGenericDebuggerOverride() && useGenericDebuggerEnabled() != generic)
             m_reason = "QTC_USE_GENERIC_DEBUGGER decides which backends run.";
+        else if (!generic && !isUseGenericDebuggerOverride() && kitDebuggerIsLldb())
+            m_reason = "LLDB runs LldbImpl unless QTC_USE_GENERIC_DEBUGGER is 0.";
         commonSettings().useGenericDebugger.setValue(generic);
     }
     ~BackendUnderTest() { commonSettings().useGenericDebugger.setValue(m_wasOn); }
@@ -3531,6 +3533,13 @@ public:
     QString reasonItIsNotUnderTest() const { return m_reason; }
 
 private:
+    static bool kitDebuggerIsLldb()
+    {
+        Kit *kit = nullptr;
+        return preCheckStepTests(&kit).isEmpty()
+               && DebuggerKitAspect::engineType(kit) == LldbEngineType;
+    }
+
     bool m_wasOn = false;
     QString m_reason;
 };

@@ -5,6 +5,7 @@
 #include "lldbimpl.h"
 
 #include <debugger/breakhandler.h>
+#include <debugger/commonoptionspage.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerinternalconstants.h>
@@ -1426,9 +1427,11 @@ static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
 
 DebuggerEngine *createLldbEngine(const DebuggerRunParameters &rp)
 {
-    if (DebuggerEngine::isUsingGenericDebugger())
-        return new GenericDebuggerEngine("LLDB (LldbImpl)", new LldbImpl(lldbImplStartData(rp)));
-    return new LldbEngine;
+    // Unlike the other engines, LLDB runs through its new backend unless the
+    // environment turns the new backends off, whatever the setting says.
+    if (isUseGenericDebuggerOverride() && !useGenericDebuggerEnabled())
+        return new LldbEngine;
+    return new GenericDebuggerEngine("LLDB (LldbImpl)", new LldbImpl(lldbImplStartData(rp)));
 }
 
 } // namespace Debugger::Internal
