@@ -819,7 +819,7 @@ protected:
     bool match0(AST *, ASTMatcher *) override;
 };
 
-class QtPropertyDeclarationItemAST: public AST
+class CPLUSPLUS_EXPORT QtPropertyDeclarationItemAST: public AST
 {
 public:
     int item_name_token = 0;
@@ -3760,7 +3760,7 @@ protected:
 };
 
 
-class LambdaExpressionAST: public ExpressionAST
+class CPLUSPLUS_EXPORT LambdaExpressionAST: public ExpressionAST
 {
 public:
     LambdaIntroducerAST *lambda_introducer = nullptr;
@@ -3782,7 +3782,7 @@ protected:
     bool match0(AST *, ASTMatcher *) override;
 };
 
-class LambdaIntroducerAST: public AST
+class CPLUSPLUS_EXPORT LambdaIntroducerAST: public AST
 {
 public:
     int lbracket_token = 0;
@@ -3801,7 +3801,7 @@ protected:
     bool match0(AST *, ASTMatcher *) override;
 };
 
-class LambdaCaptureAST: public AST
+class CPLUSPLUS_EXPORT LambdaCaptureAST: public AST
 {
 public:
     int default_capture_token = 0;
@@ -3819,7 +3819,7 @@ protected:
     bool match0(AST *, ASTMatcher *) override;
 };
 
-class CaptureAST: public AST
+class CPLUSPLUS_EXPORT CaptureAST: public AST
 {
 public:
     int amper_token = 0;
@@ -3837,7 +3837,7 @@ protected:
     bool match0(AST *, ASTMatcher *) override;
 };
 
-class LambdaDeclaratorAST: public AST
+class CPLUSPLUS_EXPORT LambdaDeclaratorAST: public AST
 {
 public:
     int lparen_token = 0;
@@ -3864,7 +3864,7 @@ protected:
     bool match0(AST *, ASTMatcher *) override;
 };
 
-class TrailingReturnTypeAST: public AST
+class CPLUSPLUS_EXPORT TrailingReturnTypeAST: public AST
 {
 public:
     int arrow_token = 0;
@@ -3884,7 +3884,7 @@ protected:
     bool match0(AST *, ASTMatcher *) override;
 };
 
-class BracedInitializerAST: public ExpressionAST
+class CPLUSPLUS_EXPORT BracedInitializerAST: public ExpressionAST
 {
 public:
     int lbrace_token = 0;
@@ -3904,14 +3904,14 @@ protected:
     bool match0(AST *, ASTMatcher *) override;
 };
 
-class DesignatorAST: public AST
+class CPLUSPLUS_EXPORT DesignatorAST: public AST
 {
 public:
     DesignatorAST *asDesignator() override { return this; }
     DesignatorAST *clone(MemoryPool *pool) const override = 0;
 };
 
-class DotDesignatorAST: public DesignatorAST
+class CPLUSPLUS_EXPORT DotDesignatorAST: public DesignatorAST
 {
 public:
     int dot_token = 0;
@@ -3929,7 +3929,7 @@ protected:
     bool match0(AST *, ASTMatcher *) override;
 };
 
-class BracketDesignatorAST: public DesignatorAST
+class CPLUSPLUS_EXPORT BracketDesignatorAST: public DesignatorAST
 {
 public:
     int lbracket_token = 0;
@@ -3948,7 +3948,7 @@ protected:
     bool match0(AST *, ASTMatcher *) override;
 };
 
-class DesignatedInitializerAST: public ExpressionAST
+class CPLUSPLUS_EXPORT DesignatedInitializerAST: public ExpressionAST
 {
 public:
     DesignatorListAST *designator_list = nullptr;
