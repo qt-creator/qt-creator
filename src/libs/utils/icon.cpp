@@ -43,12 +43,13 @@ static QPixmap maskToColorAndAlpha(const QPixmap &mask, const QColor &color)
 
 using MaskAndColor = QPair<QPixmap, QColor>;
 using MasksAndColors = QList<MaskAndColor>;
-static MasksAndColors masksAndColors(const QList<IconMaskAndColor> &icon, int dpr)
+static MasksAndColors masksAndColors(const QList<Icon::MaskAndOptionalColor> &icon, int dpr)
 {
     MasksAndColors result;
-    for (const IconMaskAndColor &i: icon) {
+    for (const Icon::MaskAndOptionalColor &i: icon) {
         const QString &fileName = i.first.toFSPathString();
-        const QColor color = creatorColor(i.second);
+        QTC_CHECK(i.second);
+        const QColor color = i.second ? creatorColor(*i.second) : QColor();
         const QString dprFileName = StyleHelper::availableImageResolutions(i.first.toFSPathString())
                                             .contains(dpr)
                                         ? StyleHelper::imageFileWithResolution(fileName, dpr)
@@ -142,27 +143,30 @@ static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedM
 Icon::Icon() = default;
 
 Icon::Icon(const QList<IconMaskAndColor> &args, Icon::IconStyleOptions style)
-    : m_iconSourceList(args)
+    : m_iconSourceList(Utils::transform(args, [](const IconMaskAndColor &mask) {
+          return MaskAndOptionalColor(mask.first, mask.second);
+      }))
     , m_style(style)
 {
 }
 
 Icon::Icon(const FilePath &imageFileName)
-    : m_iconSourceList({{imageFileName, Theme::Color(-1)}})
+    : m_iconSourceList({{imageFileName, std::nullopt}})
 {
 }
 
 using OptMasksAndColors = std::optional<MasksAndColors>;
 static OptMasksAndColors highlightMasksAndColors(const MasksAndColors &defaultState,
-                                                 const QList<IconMaskAndColor> &masks)
+                                                 const QList<Icon::MaskAndOptionalColor> &masks)
 {
     MasksAndColors highlighted = defaultState;
     bool colorsReplaced = false;
     int index = 0;
-    for (const IconMaskAndColor &mask : masks) {
-        const Theme::Color highlight = Theme::highlightFor(mask.second);
+    for (const Icon::MaskAndOptionalColor &mask : masks) {
+        const std::optional<Theme::Color> highlight =
+            mask.second ? std::make_optional(Theme::highlightFor(*mask.second)) : std::nullopt;
         if (highlight != mask.second) {
-            highlighted[index].second = creatorColor(highlight);
+            highlighted[index].second = creatorColor(*highlight);
             colorsReplaced = true;
             continue;
         }
@@ -171,7 +175,7 @@ static OptMasksAndColors highlightMasksAndColors(const MasksAndColors &defaultSt
     return colorsReplaced ? std::make_optional(highlighted) : std::nullopt;
 }
 
-static QIcon renderIcon(const QList<IconMaskAndColor> &iconSourceList,
+static QIcon renderIcon(const QList<Icon::MaskAndOptionalColor> &iconSourceList,
                         Icon::IconStyleOptions style,
                         int maxDpr)
 {
@@ -262,12 +266,13 @@ private:
     mutable int m_devicePixelRatio = -1;
 };
 
-static QString sourceListKey(const QList<IconMaskAndColor> &iconSourceList,
+static QString sourceListKey(const QList<Icon::MaskAndOptionalColor> &iconSourceList,
                              Icon::IconStyleOptions style)
 {
     QString result = QString::number(int(style));
-    for (const IconMaskAndColor &source : iconSourceList)
-        result += '|' + source.first.toFSPathString() + '|' + QString::number(int(source.second));
+    for (const Icon::MaskAndOptionalColor &source : iconSourceList)
+        result += '|' + source.first.toFSPathString() + '|'
+                  + QString::number(source.second ? int(*source.second) : -1);
     return result;
 }
 
@@ -283,7 +288,7 @@ QIcon Icon::icon() const
     // its cacheKey() is a key for QPixmapCache entries in
     // StyleHelper::drawIconWithShadow.
     if (m_icon.isNull()) {
-        const QList<IconMaskAndColor> sources = m_iconSourceList;
+        const QList<MaskAndOptionalColor> sources = m_iconSourceList;
         const IconStyleOptions style = m_style;
         m_icon = QIcon(new ThemedIconEngine([sources, style] {
             return renderIcon(sources, style, qRound(qApp->devicePixelRatio()));

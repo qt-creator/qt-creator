@@ -12,6 +12,8 @@
 #include <QList>
 #include <QPair>
 
+#include <optional>
+
 QT_BEGIN_NAMESPACE
 class QColor;
 class QLabel;
@@ -28,6 +30,9 @@ using IconMaskAndColor = QPair<FilePath, Theme::Color>;
 class QTCREATOR_UTILS_EXPORT Icon
 {
 public:
+    // The stored form of a mask. The one of an unthemed icon has no color.
+    using MaskAndOptionalColor = QPair<FilePath, std::optional<Theme::Color>>;
+
     enum IconStyleOption {
         None = 0,
         Tint = 1,
@@ -63,7 +68,7 @@ public:
     static QIcon fromTheme(const QString &name);
 
 private:
-    QList<IconMaskAndColor> m_iconSourceList;
+    QList<MaskAndOptionalColor> m_iconSourceList;
     IconStyleOptions m_style = None;
     mutable QIcon m_icon;
 };
