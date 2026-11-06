@@ -126,7 +126,7 @@ private:
         ICore::showSettings(m_targetPage);
     }
 
-    QAction *createAction() const
+    static QAction *createAction()
     {
         auto action = new QAction(ICore::msgShowSettings());
         action->setToolTip(ICore::msgShowSettingsToolTip());
@@ -166,7 +166,7 @@ private:
             TaskHub::removeTask(task);
     }
 
-    QAction *createAction() const
+    static QAction *createAction()
     {
         QAction *removeAction = new QAction(
             Tr::tr("Remove", "Name of the action triggering the removetaskhandler"));
@@ -197,7 +197,7 @@ private:
             {task.file(), task.line(), column}, {}, EditorManager::SwitchSplitIfAlreadyVisible);
     }
 
-    QAction *createAction() const
+    static QAction *createAction()
     {
         QAction *showAction = new QAction(Tr::tr("Show in Editor"));
         showAction->setToolTip(Tr::tr("Show task location in an editor."));
@@ -231,7 +231,7 @@ private:
         vc->vcsAnnotate(task.file().absoluteFilePath(), task.line());
     }
 
-    QAction *createAction() const
+    static QAction *createAction()
     {
         QAction *vcsannotateAction = new QAction(Tr::tr("&Annotate"));
         vcsannotateAction->setToolTip(Tr::tr("Annotate using version control system."));
@@ -297,7 +297,7 @@ private:
         process->start();
     }
 
-    QAction *createAction(const QString &model) const
+    static QAction *createAction(const QString &model)
     {
         const auto action = new QAction(Tr::tr("Get help from %1").arg(model));
         action->setToolTip(Tr::tr("Ask the %1 LLM to help with this issue.").arg(model));
