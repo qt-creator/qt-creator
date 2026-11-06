@@ -32265,15 +32265,15 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Use non-stop mode for remote Linux targets</source>
-        <translation type="unfinished"></translation>
+        <translation>Non-Stop-Modus für entfernte Linux-Ziele verwenden</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lets the other threads keep running while GDB steps over a breakpoint. Without it, stepping can hang when the stepped thread waits for a lock held by another thread.&lt;/p&gt;&lt;p&gt;GDB still stops all threads when the debugged program stops, but one by one, which can make each stop noticeably slower with many threads on a slow connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lässt die anderen Threads weiterlaufen, während GDB über einen Haltepunkt hinweg schreitet. Ohne diese Einstellung kann der Schritt hängen bleiben, wenn der ausgeführte Thread auf einen Lock wartet, die ein anderer Thread hält.&lt;/p&gt;&lt;p&gt;GDB hält weiterhin alle Threads an, wenn das debuggte Programm anhält, aber einen nach dem anderen, was jeden Halt bei vielen Threads und einer langsamen Verbindung spürbar verlangsamen kann.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;To execute simple Python commands, prefix them with &quot;python&quot;.&lt;/p&gt;&lt;p&gt;To execute sequences of Python commands spanning multiple lines prepend the block with &quot;python&quot; on a separate line, and append &quot;end&quot; on a separate line.&lt;/p&gt;&lt;p&gt;To execute arbitrary Python scripts, use &lt;i&gt;source /path/to/script.py&lt;/i&gt;.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Um einfache Python-Kommandos auszuführen, stellen Sie ihnen &quot;python&quot; voran.&lt;/p&gt;&lt;p&gt;Um Folgen von Python-Kommandos auszuführen, die sich über mehrere Zeilen erstrecken, stellen Sie dem Block &quot;python&quot; in einer eigenen Zeile voran und fügen Sie &quot;end&quot; in einer eigenen Zeile an.&lt;/p&gt;&lt;p&gt;Um beliebige Python-Skripte auszuführen, benutzen Sie &lt;i&gt;source /pfad/zu/skript.py&lt;/i&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>GDB commands entered here will be executed after GDB has been started, but before the debugged program is started or attached, and before the debugging helpers are initialized.</source>
@@ -32391,22 +32391,24 @@ Sie haben die Wahl zu warten oder das Debuggen abzubrechen.</numerusform>
     </message>
     <message>
         <source>GDB Without XML Support</source>
-        <translation type="unfinished"></translation>
+        <translation>GDB ohne XML-Unterstützung</translation>
     </message>
     <message>
         <source>The GDB used for debugging was built without XML support, so it cannot read the target description (register and memory layout) sent by the remote. Debugging will not work correctly. Use a GDB build that has XML support enabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der zum Debuggen benutzte GDB wurde ohne XML-Unterstützung erstellt und kann daher die von der Gegenstelle gesendete Zielbeschreibung (Register- und Speicheraufbau) nicht lesen. Das Debuggen wird nicht korrekt funktionieren. Benutzen Sie einen GDB, der mit XML-Unterstützung erstellt wurde.</translation>
     </message>
     <message>
         <source>Downloading Debug Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade Debug-Informationen herunter</translation>
     </message>
     <message numerus="yes">
         <source>GDB is downloading debug information (via debuginfod), which can take a long time on a slow connection, and none has arrived for the last %n seconds. This may also mean the debuginfod server is unreachable.
 You can keep waiting or stop debugging.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>GDB lädt Debug-Informationen (über debuginfod) herunter, was bei einer langsamen Verbindung lange dauern kann, und seit %n Sekunde sind keine eingetroffen. Dies kann auch bedeuten, dass der debuginfod-Server nicht erreichbar ist.
+Sie können weiter warten oder das Debuggen beenden.</numerusform>
+            <numerusform>GDB lädt Debug-Informationen (über debuginfod) herunter, was bei einer langsamen Verbindung lange dauern kann, und seit %n Sekunden sind keine eingetroffen. Dies kann auch bedeuten, dass der debuginfod-Server nicht erreichbar ist.
+Sie können weiter warten oder das Debuggen beenden.</numerusform>
         </translation>
     </message>
     <message>
@@ -32459,13 +32461,15 @@ You can keep waiting or stop debugging.</source>
     </message>
     <message>
         <source>Terminated by the C++ Runtime</source>
-        <translation type="unfinished"></translation>
+        <translation>Von der C++-Laufzeitumgebung beendet</translation>
     </message>
     <message>
         <source>The application was terminated by the C++ runtime, in most cases because of an uncaught exception. The runtime reported the reason in the application output.
 
 There is no location to show, as the termination did not produce a signal or exception the debugger stops on. Add a breakpoint at &quot;throw&quot; to stop where an exception is thrown.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Anwendung wurde von der C++-Laufzeitumgebung beendet, in den meisten Fällen wegen einer nicht abgefangenen Ausnahme. Die Laufzeitumgebung hat den Grund in der Ausgabe der Anwendung gemeldet.
+
+Es kann keine Position angezeigt werden, da das Beenden kein Signal und keine Ausnahme erzeugt hat, bei der der Debugger anhält. Setzen Sie einen Haltepunkt bei &quot;throw&quot;, um dort anzuhalten, wo eine Ausnahme ausgelöst wird.</translation>
     </message>
     <message>
         <source>Retrieving data for stack view thread %1...</source>
@@ -32521,7 +32525,7 @@ There is no location to show, as the termination did not produce a signal or exc
     </message>
     <message>
         <source>gdb aborted the resume.</source>
-        <translation type="unfinished"></translation>
+        <translation>gdb hat das Fortsetzen abgebrochen.</translation>
     </message>
     <message>
         <source>Symbols found.</source>
@@ -32545,7 +32549,7 @@ There is no location to show, as the termination did not produce a signal or exc
     </message>
     <message>
         <source>The server does not support non-stop mode and did not accept a second connection without it. Turn off &quot;%1&quot; in the GDB settings to connect in all-stop mode right away.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Server unterstützt den Non-Stop-Modus nicht und hat keine zweite Verbindung ohne ihn angenommen. Deaktivieren Sie &quot;%1&quot; in den GDB-Einstellungen, um sich direkt im All-Stop-Modus zu verbinden.</translation>
     </message>
     <message>
         <source>No Remote Executable or Process ID Specified</source>
@@ -32727,47 +32731,47 @@ There is no location to show, as the termination did not produce a signal or exc
     </message>
     <message>
         <source>Cannot Start Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwendung kann nicht gestartet werden</translation>
     </message>
     <message>
         <source>The arguments &quot;%1&quot; cannot be split: the quoting is unbalanced.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Argumente &quot;%1&quot; können nicht geteilt werden: Die Anführungszeichen sind unausgeglichen.</translation>
     </message>
     <message>
         <source>The debugger console needs the program to be stopped.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Debugger-Konsole erfordert, dass das Programm angehalten ist.</translation>
     </message>
     <message>
         <source>The debugger process failed to start. Either the invoked program &quot;%1&quot; is missing, or you may have insufficient permissions to invoke the program.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Debugger-Prozess konnte nicht gestartet werden. Entweder fehlt das aufgerufene Programm &quot;%1&quot;, oder Sie haben nicht die erforderlichen Berechtigungen, um es aufzurufen.</translation>
     </message>
     <message>
         <source>The debugger process crashed some time after starting successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Debugger-Prozess ist einige Zeit nach dem erfolgreichen Start abgestürzt.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the debugger process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Schreiben zum Debugger-Prozess trat ein Fehler auf. Möglicherweise läuft der Prozess nicht oder hat seinen Eingabekanal geschlossen.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to read from the debugger process. For example, the process may not be running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Lesen vom Debugger-Prozess trat ein Fehler auf. Möglicherweise läuft der Prozess nicht.</translation>
     </message>
     <message>
         <source>An unknown error in the debugger process occurred.</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Debugger-Prozess trat ein unbekannter Fehler auf.</translation>
     </message>
     <message>
         <source>Bridge I/O Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein-/Ausgabefehler der Bridge</translation>
     </message>
     <message>
         <source>Failed to Attach to Process</source>
-        <translation type="unfinished"></translation>
+        <translation>Anhängen an Prozess fehlgeschlagen</translation>
     </message>
     <message>
         <source>Attaching to process %1 failed. Error message: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Anhängen an Prozess %1 ist fehlgeschlagen. Fehlermeldung: %2</translation>
     </message>
     <message>
         <source>Adapter Start Failed</source>
@@ -32908,11 +32912,11 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>The options below give access to advanced or experimental functions of GDB.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die folgenden Einstellungen ermöglichen den Zugriff auf erweiterte oder experimentelle Funktionen von GDB.</translation>
     </message>
     <message>
         <source>Enabling them may negatively affect debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ihre Aktivierung kann das Debuggen beeinträchtigen.</translation>
     </message>
     <message>
         <source>Additional Startup Commands</source>
@@ -33044,14 +33048,14 @@ markers in the source code editor.</source>
     </message>
     <message numerus="yes">
         <source>&lt;%n frames of debugger machinery&gt;</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>&lt;%n Frame der Debugger-Maschinerie&gt;</numerusform>
+            <numerusform>&lt;%n Frames der Debugger-Maschinerie&gt;</numerusform>
         </translation>
     </message>
     <message>
         <source>Showing the nearest caller with sources instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige stattdessen den nächsten Aufrufer mit Quellen.</translation>
     </message>
     <message>
         <source>Disassemble Function</source>
@@ -33067,15 +33071,15 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Expand Debugger Machinery Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Frames der Debugger-Maschinerie aufklappen</translation>
     </message>
     <message>
         <source>Collapse Debugger Machinery Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Frames der Debugger-Maschinerie zuklappen</translation>
     </message>
     <message>
         <source>Show All Debugger Machinery Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Frames der Debugger-Maschinerie anzeigen</translation>
     </message>
     <message>
         <source>Copy Contents to Clipboard</source>
@@ -33155,23 +33159,23 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Sources for this frame are available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für diesen Frame sind Quellen verfügbar.</translation>
     </message>
     <message>
         <source>Double-click on the file name to open an editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Doppelklicken Sie auf den Dateinamen, um einen Editor zu öffnen.</translation>
     </message>
     <message>
         <source>Source file &quot;%1&quot; was not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Quelldatei &quot;%1&quot; wurde nicht gefunden.</translation>
     </message>
     <message>
         <source>No source file is known for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für &quot;%1&quot; ist keine Quelldatei bekannt.</translation>
     </message>
     <message>
         <source>No source file is known for this location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für diese Position ist keine Quelldatei bekannt.</translation>
     </message>
     <message>
         <source>Module:</source>
@@ -33582,25 +33586,25 @@ markers in the source code editor.</source>
     <message>
         <source>%1 %2 at #%3</source>
         <extracomment>HTML tooltip of a variable in the memory editor, %1 - type, %2 - name, %3 - offset</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 bei #%3</translation>
     </message>
     <message>
         <source>%1 %2</source>
         <extracomment>HTML tooltip of a variable in the memory editor, %1 - type, %2 - name</extracomment>
-        <translation type="unfinished">%1 %2</translation>
+        <translation>%1 %2</translation>
     </message>
     <message>
         <source>Register %1</source>
         <extracomment>%1 - name of the CPU register</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Register %1</translation>
     </message>
     <message>
         <source>Add Fixed-Address Expression Evaluator</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswertung eines Ausdrucks mit fester Adresse hinzufügen</translation>
     </message>
     <message>
         <source>Add Fixed-Address Expression Evaluator for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswertung eines Ausdrucks mit fester Adresse für &quot;%1&quot; hinzufügen</translation>
     </message>
     <message>
         <source>Show Unprintable Characters as Escape Sequences</source>
@@ -33831,7 +33835,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Cannot write the debugger startup script &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Startskript des Debuggers &quot;%1&quot; kann nicht geschrieben werden: %2</translation>
     </message>
     <message>
         <source>Attaching to %1...</source>
@@ -33847,11 +33851,11 @@ Wenn Sie %2 aus dem Quelltext erstellen und eine ausführbare CDB-Datei mit eine
     </message>
     <message>
         <source>No CDB extension directory is configured for the device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für das Gerät ist kein Verzeichnis für die CDB-Erweiterung konfiguriert.</translation>
     </message>
     <message>
         <source>The CDB extension &quot;%1&quot; cannot be found on the device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die CDB-Erweiterung &quot;%1&quot; kann auf dem Gerät nicht gefunden werden.</translation>
     </message>
     <message>
         <source>Trace point %1 in thread %2 triggered.</source>
@@ -33863,7 +33867,7 @@ Wenn Sie %2 aus dem Quelltext erstellen und eine ausführbare CDB-Datei mit eine
     </message>
     <message>
         <source>Native QML debug connector opened.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nativer QML-Debug-Connector geöffnet.</translation>
     </message>
     <message>
         <source>Switching to main thread...</source>
@@ -34216,7 +34220,7 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>GDB server</source>
-        <translation type="unfinished"></translation>
+        <translation>GDB-Server</translation>
     </message>
     <message>
         <source>Attach to Running Application...</source>
@@ -34487,24 +34491,24 @@ Soll es erneut versucht werden?</translation>
     </message>
     <message>
         <source>&lt;p&gt;Mappings of source file folders to be used in the debugger can be entered here.&lt;/p&gt;&lt;p&gt;This is useful when using a copy of the source tree at a location different from the one at which the modules were built, for example, while doing remote debugging.&lt;/p&gt;&lt;p&gt;If source is specified as a regular expression by starting it with an open parenthesis, the paths in the ELF are matched with the regular expression to automatically determine the source path.&lt;/p&gt;&lt;p&gt;Example: &lt;b&gt;(/home/.*/Project)/KnownSubDir -&gt; D:\Project&lt;/b&gt; will substitute ELF built by any user to your local project directory.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Hier können Zuordnungen von Quellverzeichnissen eingegeben werden, die im Debugger verwendet werden sollen.&lt;/p&gt;&lt;p&gt;Das ist nützlich, wenn eine Kopie des Quellbaums an einem anderen Ort verwendet wird als dem, an dem die Module erstellt wurden, zum Beispiel beim entfernten Debuggen.&lt;/p&gt;&lt;p&gt;Wenn die Quelle als regulärer Ausdruck angegeben wird, indem sie mit einer öffnenden Klammer beginnt, werden die Pfade in der ELF-Datei mit dem regulären Ausdruck verglichen, um den Quellpfad automatisch zu bestimmen.&lt;/p&gt;&lt;p&gt;Beispiel: &lt;b&gt;(/home/.*/Project)/KnownSubDir -&gt; D:\Project&lt;/b&gt; ersetzt den Pfad von ELF-Dateien, die von einem beliebigen Benutzer erstellt wurden, durch Ihr lokales Projektverzeichnis.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Add a mapping for Qt&apos;s source folders when using an unpatched version of Qt.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fügt eine Zuordnung für die Quellverzeichnisse von Qt hinzu, wenn eine ungepatchte Version von Qt verwendet wird.</translation>
     </message>
     <message>
         <source>The path must not be empty.</source>
-        <translation type="unfinished">Der Pfad darf nicht leer sein.</translation>
+        <translation>Der Pfad darf nicht leer sein.</translation>
     </message>
     <message>
         <source>The source path contained in the debug information of the executable as reported by the debugger.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Quellpfad in den Debug-Informationen der ausführbaren Datei, wie er vom Debugger gemeldet wird.</translation>
     </message>
     <message>
         <source>The location of the source tree as seen by the debugger. This is either a path on the local machine, or, if the debugger runs on a device, a path on that device, given either the way the debugger sees it or with the device scheme in front, such as %1.</source>
         <extracomment>%1 is an example path</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Der Ort des Quellbaums aus Sicht des Debuggers. Dies ist entweder ein Pfad auf dem lokalen Rechner oder, wenn der Debugger auf einem Gerät läuft, ein Pfad auf diesem Gerät, entweder so angegeben, wie der Debugger ihn sieht, oder mit vorangestelltem Geräteschema, wie zum Beispiel %1.</translation>
     </message>
     <message>
         <source>&amp;Source path:</source>
@@ -34582,7 +34586,8 @@ Soll es erneut versucht werden?</translation>
     <message>
         <source>It is unknown whether this module contains debug information.
 Use &quot;Examine All Modules&quot; from the context menu to initiate a check.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es ist unbekannt, ob dieses Modul Debug-Informationen enthält.
+Benutzen Sie &quot;Alle Module untersuchen&quot; aus dem Kontextmenü, um eine Prüfung zu starten.</translation>
     </message>
     <message>
         <source>This module neither contains nor references debug information.
@@ -34696,7 +34701,7 @@ Einzelschritte in das Modul und das Setzen von Haltepunkten nach Datei und Zeile
     </message>
     <message>
         <source>The QML debug service places breakpoints by file and line only, so it cannot be asked to run to a function.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der QML-Debug-Dienst setzt Haltepunkte nur nach Datei und Zeile und kann daher nicht bis zu einer Funktion ausführen.</translation>
     </message>
     <message>
         <source>&lt;anonymous&gt;</source>
@@ -34708,11 +34713,11 @@ Einzelschritte in das Modul und das Setzen von Haltepunkten nach Datei und Zeile
     </message>
     <message>
         <source>Engine %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Engine %1</translation>
     </message>
     <message>
         <source>The application has to be stopped in a breakpoint in order to evaluate expressions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Anwendung muss an einem Haltepunkt angehalten sein, um Ausdrücke auszuwerten.</translation>
     </message>
     <message>
         <source>Locals and Expressions</source>
@@ -34847,55 +34852,55 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Determine the debuggers to use automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die zu verwendenden Debugger automatisch bestimmen.</translation>
     </message>
     <message>
         <source>Debug %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 debuggen.</translation>
     </message>
     <message>
         <source>Debug:</source>
-        <translation type="unfinished"></translation>
+        <translation>Debuggen:</translation>
     </message>
     <message>
         <source>Derive the debuggers to use from the project contents.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die zu verwendenden Debugger aus dem Projektinhalt ableiten.</translation>
     </message>
     <message>
         <source>C++ only</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur C++</translation>
     </message>
     <message>
         <source>QML only</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur QML</translation>
     </message>
     <message>
         <source>C++ and QML (separate engines)</source>
-        <translation type="unfinished"></translation>
+        <translation>C++ und QML (separate Engines)</translation>
     </message>
     <message>
         <source>C++ and QML (combined engine, experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>C++ und QML (kombinierte Engine, experimentell)</translation>
     </message>
     <message>
         <source>Use a single engine for both languages. Only some debuggers support this. The QTC_DEBUGGER_NATIVE_MIXED environment variable overrides this setting.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine einzige Engine für beide Sprachen verwenden. Nur einige Debugger unterstützen dies. Die Umgebungsvariable QTC_DEBUGGER_NATIVE_MIXED hat Vorrang vor dieser Einstellung.</translation>
     </message>
     <message>
         <source>Python only</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur Python</translation>
     </message>
     <message>
         <source>C++ and Python</source>
-        <translation type="unfinished"></translation>
+        <translation>C++ und Python</translation>
     </message>
     <message>
         <source>QML and Python</source>
-        <translation type="unfinished"></translation>
+        <translation>QML und Python</translation>
     </message>
     <message>
         <source>C++, QML, and Python</source>
-        <translation type="unfinished"></translation>
+        <translation>C++, QML und Python</translation>
     </message>
     <message>
         <source>No additional startup commands.</source>
@@ -34955,15 +34960,15 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>The debugger is not configured to use the public Microsoft Symbol Server. This is recommended for retrieving the symbols of the operating system libraries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Debugger ist nicht für die Verwendung des öffentlichen Microsoft Symbol Servers konfiguriert. Dies wird empfohlen, um die Symbole der Bibliotheken des Betriebssystems zu erhalten.</translation>
     </message>
     <message>
         <source>Note: If you use the Microsoft Symbol Server, using a local symbol cache is also recommended. A fast internet connection is required for this to work smoothly, and a delay might occur when connecting for the first time and caching the symbols.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinweis: Wenn Sie den Microsoft Symbol Server verwenden, wird zusätzlich ein lokaler Symbol-Cache empfohlen. Für einen reibungslosen Ablauf ist eine schnelle Internetverbindung erforderlich, und beim ersten Verbinden und Zwischenspeichern der Symbole kann es zu Verzögerungen kommen.</translation>
     </message>
     <message>
         <source>Select what to set up:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie aus, was eingerichtet werden soll:</translation>
     </message>
     <message>
         <source>Use Local Symbol Cache</source>
@@ -35128,39 +35133,39 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Resolves symbolic links in the file path when setting breakpoints, so the path matches the one recorded in the debug information. This helps LLDB bind breakpoints in files opened through a symbolic link. Leave this off if the project is built through a symbolic link, as the debug information then records the unresolved path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Löst beim Setzen von Haltepunkten symbolische Links im Dateipfad auf, sodass der Pfad mit dem in den Debug-Informationen gespeicherten übereinstimmt. Dies hilft LLDB, Haltepunkte in Dateien zu setzen, die über einen symbolischen Link geöffnet wurden. Lassen Sie dies deaktiviert, wenn das Projekt über einen symbolischen Link erstellt wurde, da die Debug-Informationen dann den nicht aufgelösten Pfad enthalten.</translation>
     </message>
     <message>
         <source>Resolve symbolic links in breakpoint paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbolische Links in Pfaden für Haltepunkt auflösen</translation>
     </message>
     <message>
         <source>Looks for a source file the debugger reports on the device the debugger itself runs on, once it is not readable on the host. This finds sources that exist only inside a container or on a remote device, at the price of one lookup on that device for every name the debugger reports for the first time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sucht eine vom Debugger gemeldete Quelldatei auf dem Gerät, auf dem der Debugger selbst läuft, wenn sie auf dem Host nicht lesbar ist. Dies findet Quellen, die nur in einem Container oder auf einem entfernten Gerät existieren, auf Kosten einer Suche auf diesem Gerät für jeden Namen, den der Debugger zum ersten Mal meldet.</translation>
     </message>
     <message>
         <source>Look for sources on the debugger&apos;s device</source>
-        <translation type="unfinished"></translation>
+        <translation>Quellen auf dem Gerät des Debuggers suchen</translation>
     </message>
     <message>
         <source>Collapse debugger machinery stack frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Stack-Frames der Debugger-Maschinerie zuklappen</translation>
     </message>
     <message>
         <source>When debugging C++ and QML with a combined engine, replaces the frames between a QML frame and the application code, which only execute debugger machinery, with a single placeholder frame in the stack view.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ersetzt beim Debuggen von C++ und QML mit einer kombinierten Engine die Frames zwischen einem QML-Frame und dem Anwendungscode, die nur Debugger-Maschinerie ausführen, in der Stack-Ansicht durch einen einzelnen Platzhalter-Frame.</translation>
     </message>
     <message>
         <source>Use the new debugger backends (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Die neuen Debugger-Backends verwenden (experimentell)</translation>
     </message>
     <message>
         <source>Runs the debugger through the new engine-independent front end instead of the engine&apos;s own implementation. The new backends are incomplete, so expect missing views and unhandled situations. The QTC_USE_GENERIC_DEBUGGER environment variable overrides this setting.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt den Debugger über das neue Engine-unabhängige Frontend statt über die eigene Implementierung der Engine aus. Die neuen Backends sind unvollständig, rechnen Sie also mit fehlenden Ansichten und nicht behandelten Situationen. Die Umgebungsvariable QTC_USE_GENERIC_DEBUGGER hat Vorrang vor dieser Einstellung.</translation>
     </message>
     <message>
         <source>Unset QTC_USE_GENERIC_DEBUGGER to enable this setting.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen Sie QTC_USE_GENERIC_DEBUGGER, um diese Einstellung zu aktivieren.</translation>
     </message>
     <message>
         <source>Enables tooltips for variable values during debugging. This can slow down debugging and does not provide reliable information as it does not use scope information.</source>
@@ -35168,47 +35173,47 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Memory that MCP clients may read:</source>
-        <translation type="unfinished"></translation>
+        <translation>Speicher, den MCP-Clients lesen dürfen:</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Keiner</translation>
     </message>
     <message>
         <source>Process memory</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozessspeicher</translation>
     </message>
     <message>
         <source>The memory of applications that run on an operating system. On bare metal targets and targets of unknown kind, only the address ranges listed below.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Speicher von Anwendungen, die auf einem Betriebssystem laufen. Bei Bare-Metal-Zielen und Zielen unbekannter Art nur die unten aufgeführten Adressbereiche.</translation>
     </message>
     <message>
         <source>Any memory</source>
-        <translation type="unfinished"></translation>
+        <translation>Beliebiger Speicher</translation>
     </message>
     <message>
         <source>Any address, including memory-mapped I/O, where reading a register can change the state of the device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beliebige Adressen, einschließlich Memory-Mapped I/O, wo das Lesen eines Registers den Zustand des Geräts ändern kann.</translation>
     </message>
     <message>
         <source>Which target memory the debugger_read_memory tool of the MCP server may read.</source>
-        <translation type="unfinished"></translation>
+        <translation>Welchen Speicher des Ziels das Werkzeug debugger_read_memory des MCP-Servers lesen darf.</translation>
     </message>
     <message>
         <source>Readable ranges on other targets:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lesbare Bereiche auf anderen Zielen:</translation>
     </message>
     <message>
         <source>Address ranges that MCP clients may read on bare metal targets and targets of unknown kind, as first-last, separated by commas.</source>
-        <translation type="unfinished"></translation>
+        <translation>Adressbereiche, die MCP-Clients auf Bare-Metal-Zielen und Zielen unbekannter Art lesen dürfen, als Anfang-Ende, durch Kommas getrennt.</translation>
     </message>
     <message>
         <source> bytes</source>
-        <translation type="unfinished"></translation>
+        <translation> Bytes</translation>
     </message>
     <message>
         <source>Maximum bytes per read:</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximale Bytes pro Lesevorgang:</translation>
     </message>
     <message>
         <source>Behavior</source>
@@ -35224,11 +35229,11 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>MCP Server</source>
-        <translation type="unfinished"></translation>
+        <translation>MCP-Server</translation>
     </message>
     <message>
         <source>Always adds a breakpoint on the %1 function.</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzt immer einen Haltepunkt auf die Funktion %1.</translation>
     </message>
     <message>
         <source>Allow inferior calls in debugging helper</source>
@@ -35240,15 +35245,15 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Show Variables From All Scopes</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen aus allen Gültigkeitsbereichen anzeigen</translation>
     </message>
     <message>
         <source>Show variables from all scopes</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen aus allen Gültigkeitsbereichen anzeigen</translation>
     </message>
     <message>
         <source>Also lists local variables from lexical scopes that execution has not entered yet, such as the body of an &quot;if&quot; or &quot;for&quot; statement below the current line. The value of such a variable is undefined until its declaration is reached. Currently only supported by GDB.</source>
-        <translation type="unfinished"></translation>
+        <translation>Listet auch lokale Variablen aus lexikalischen Gültigkeitsbereichen auf, die die Ausführung noch nicht betreten hat, wie den Rumpf einer &quot;if&quot;- oder &quot;for&quot;-Anweisung unterhalb der aktuellen Zeile. Der Wert einer solchen Variable ist undefiniert, bis ihre Deklaration erreicht ist. Wird derzeit nur von GDB unterstützt.</translation>
     </message>
     <message>
         <source>Extra Debugging Helpers</source>
@@ -35478,19 +35483,19 @@ Bitte wählen Sie einen 64-bit-Debugger in den Kit-Einstellungen für dieses Kit
     </message>
     <message>
         <source>Showing disassembly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige Disassembly.</translation>
     </message>
     <message>
         <source>Shutting down debugger. Abort again to forcefully terminate it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fahre Debugger herunter. Brechen Sie erneut ab, um ihn zwangsweise zu beenden.</translation>
     </message>
     <message>
         <source>Abort Debugging (Force Kill)</source>
-        <translation type="unfinished"></translation>
+        <translation>Debuggen abbrechen (zwangsweise beenden)</translation>
     </message>
     <message>
         <source>Forcefully terminates the debugger, which is still shutting down.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beendet den Debugger, der noch herunterfährt, zwangsweise.</translation>
     </message>
     <message>
         <source>Loading finished.</source>
@@ -35538,7 +35543,7 @@ Bitte wählen Sie einen 64-bit-Debugger in den Kit-Einstellungen für dieses Kit
     </message>
     <message>
         <source>Cannot find a widget at this position.</source>
-        <translation type="unfinished"></translation>
+        <translation>An dieser Position kann kein Widget gefunden werden.</translation>
     </message>
     <message>
         <source>%1 for &quot;%2&quot;</source>
@@ -35783,15 +35788,15 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Searching for CDB...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche CDB...</translation>
     </message>
     <message>
         <source>Searching for GDB and LLDB...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche GDB und LLDB...</translation>
     </message>
     <message>
         <source>Searching for uVision...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche uVision...</translation>
     </message>
     <message>
         <source>New Debugger</source>
@@ -35880,7 +35885,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>The terminal process failed to start.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Terminal-Prozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>No executable specified.</source>
@@ -35896,7 +35901,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>%1 does not support debugging C++ and QML with a combined engine. In Projects &gt; Run &gt; Debugger Settings, set &quot;Debug&quot; to &quot;C++ and QML (separate engines)&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 unterstützt das Debuggen von C++ und QML mit einer kombinierten Engine nicht. Setzen Sie unter Projekte &gt; Ausführen &gt; Debuggereinstellungen &quot;Debuggen&quot; auf &quot;C++ und QML (separate Engines)&quot;.</translation>
     </message>
     <message>
         <source>%1 - Snapshot %2</source>
@@ -35916,11 +35921,11 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>No debug adapter is configured for the session.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für die Sitzung ist kein Debug-Adapter konfiguriert.</translation>
     </message>
     <message>
         <source>Specify debugger settings in Projects &gt; Run &gt; Debugger Settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie Debugger-Einstellungen unter Projekte &gt; Ausführen &gt; Debuggereinstellungen an.</translation>
     </message>
     <message>
         <source>Debugging of %1 has finished with exit code %2.</source>
@@ -36501,338 +36506,338 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>The debugger command line cannot be run by cmd.exe on the device: it is too long or spans several lines.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Kommandozeile des Debuggers kann von cmd.exe auf dem Gerät nicht ausgeführt werden: Sie ist zu lang oder erstreckt sich über mehrere Zeilen.</translation>
     </message>
     <message>
         <source>The debugger startup script &quot;%1&quot; cannot be run from a path with special characters of the shell.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Startskript des Debuggers &quot;%1&quot; kann nicht von einem Pfad mit Sonderzeichen der Shell ausgeführt werden.</translation>
     </message>
     <message>
         <source>Step into: Reached frame without source, stepping out...</source>
-        <translation type="unfinished"></translation>
+        <translation>Einzelschritt herein: Frame ohne Quelle erreicht, mache Schritt heraus...</translation>
     </message>
     <message>
         <source>The debug adapter is not running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Debug-Adapter läuft nicht.</translation>
     </message>
     <message>
         <source>The debug adapter does not support this feature: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Debug-Adapter unterstützt diese Funktion nicht: %1.</translation>
     </message>
     <message>
         <source>Loading core files</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Laden von Core-Dateien</translation>
     </message>
     <message>
         <source>The core file could not be loaded: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Core-Datei konnte nicht geladen werden: %1</translation>
     </message>
     <message>
         <source>Stepping by instruction</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Einzelschritte auf Anweisungsebene</translation>
     </message>
     <message>
         <source>Running backwards</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Rückwärtsausführung</translation>
     </message>
     <message>
         <source>Stepping into a function backwards</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Rückwärts in eine Funktion hineinspringen</translation>
     </message>
     <message>
         <source>Stepping over backwards</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Rückwärts überspringen</translation>
     </message>
     <message>
         <source>Stepping out of a function backwards</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Rückwärts aus einer Funktion herausspringen</translation>
     </message>
     <message>
         <source>Restarting the program</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Neustarten des Programms</translation>
     </message>
     <message>
         <source>Recording the execution for running backwards</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aufzeichnen der Ausführung für Rückwärtsausführung</translation>
     </message>
     <message>
         <source>Terminating the program on disconnect</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Beenden des Programms beim Trennen der Verbindung</translation>
     </message>
     <message>
         <source>Keeping the program running on detach</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Weiterlaufen des Programms beim Abhängen</translation>
     </message>
     <message>
         <source>Breakpoint conditions</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Bedingungen für Haltepunkte</translation>
     </message>
     <message>
         <source>Breakpoint hit counts</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Trefferzähler für Haltepunkte</translation>
     </message>
     <message>
         <source>Breakpoint commands</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kommandos für Haltepunkte</translation>
     </message>
     <message>
         <source>Breakpoints on one function restricted to different modules</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Haltepunkte auf einer Funktion, beschränkt auf verschiedene Module</translation>
     </message>
     <message>
         <source>Breakpoints restricted to a module</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Auf ein Modul beschränkte Haltepunkte</translation>
     </message>
     <message>
         <source>Logging a message instead of stopping</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Protokollieren einer Nachricht statt Anhalten</translation>
     </message>
     <message>
         <source>Breaking on thrown exceptions</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Anhalten bei ausgelösten Ausnahmen</translation>
     </message>
     <message>
         <source>Breaking on caught exceptions</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Anhalten bei abgefangenen Ausnahmen</translation>
     </message>
     <message>
         <source>Exception breakpoint conditions</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Bedingungen für Ausnahme-Haltepunkte</translation>
     </message>
     <message>
         <source>Loading the symbols of all modules was refused: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Laden der Symbole aller Module wurde abgelehnt: %1</translation>
     </message>
     <message>
         <source>Loading the symbols of &quot;%1&quot; was refused: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Laden der Symbole von &quot;%1&quot; wurde abgelehnt: %2</translation>
     </message>
     <message>
         <source>Cannot fetch the sections of %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Sektionen von %1 können nicht abgerufen werden.</translation>
     </message>
     <message>
         <source>Cannot create a temporary file for the symbols of %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für die Symbole von %1 kann keine temporäre Datei erstellt werden.</translation>
     </message>
     <message>
         <source>Cannot fetch the symbols of %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Symbole von %1 können nicht abgerufen werden.</translation>
     </message>
     <message>
         <source>Jumping to a line</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Springen zu einer Zeile</translation>
     </message>
     <message>
         <source>Cannot jump to %1: the line maps to several addresses.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann nicht zu %1 springen: Die Zeile entspricht mehreren Adressen.</translation>
     </message>
     <message>
         <source>Returning from a function without finishing it</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Rückkehr aus einer Funktion, ohne sie zu beenden</translation>
     </message>
     <message>
         <source>The adapter did not update the stack after the return. The stack is invalid until the program continues: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Adapter hat den Stack nach der Rückkehr nicht aktualisiert. Der Stack ist ungültig, bis das Programm fortgesetzt wird: %1</translation>
     </message>
     <message>
         <source>Breakpoints by function name</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Haltepunkte nach Funktionsname</translation>
     </message>
     <message>
         <source>Breakpoints by address</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Haltepunkte nach Adresse</translation>
     </message>
     <message>
         <source>Breakpoints on data access</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Haltepunkte bei Datenzugriff</translation>
     </message>
     <message>
         <source>The adapter did not accept the breakpoint while the program was running and refused to stop it: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Adapter hat den Haltepunkt nicht angenommen, während das Programm lief, und hat abgelehnt, es anzuhalten: %1</translation>
     </message>
     <message>
         <source>The program was stopped to set a breakpoint and could not be resumed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Programm wurde angehalten, um einen Haltepunkt zu setzen, und konnte nicht fortgesetzt werden: %1</translation>
     </message>
     <message>
         <source>Listing modules</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Auflisten von Modulen</translation>
     </message>
     <message>
         <source>Cannot fetch sections: no module specified.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sektionen können nicht abgerufen werden: Kein Modul angegeben.</translation>
     </message>
     <message>
         <source>Cannot fetch symbols: no module specified.</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbole können nicht abgerufen werden: Kein Modul angegeben.</translation>
     </message>
     <message>
         <source>Listing source files</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Auflisten von Quelldateien</translation>
     </message>
     <message>
         <source>Cannot load symbols: no module specified.</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbole können nicht geladen werden: Kein Modul angegeben.</translation>
     </message>
     <message>
         <source>Reading memory</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lesen von Speicher</translation>
     </message>
     <message>
         <source>The %1 request needs the program to be stopped.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Anfrage %1 erfordert, dass das Programm angehalten ist.</translation>
     </message>
     <message>
         <source>The adapter reports no jump target in line %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Adapter meldet kein Sprungziel in Zeile %1.</translation>
     </message>
     <message>
         <source>New thread %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuer Thread %1</translation>
     </message>
     <message>
         <source>Symbols of &quot;%1&quot; loaded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbole von &quot;%1&quot; geladen.</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: %2</translation>
     </message>
     <message>
         <source>%1 (%2%)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%2%)</translation>
     </message>
     <message>
         <source>Writing memory</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Schreiben von Speicher</translation>
     </message>
     <message>
         <source>Disassembling</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Disassemblieren</translation>
     </message>
     <message>
         <source>Disassembling needs an address or a function name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Disassemblieren erfordert eine Adresse oder einen Funktionsnamen.</translation>
     </message>
     <message>
         <source>Cannot disassemble &quot;%1&quot;: the adapter did not provide its address.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht disassembliert werden: Der Adapter hat seine Adresse nicht geliefert.</translation>
     </message>
     <message>
         <source>The disassembly the adapter sent names no source line.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das vom Adapter gesendete Disassembly nennt keine Quellzeile.</translation>
     </message>
     <message>
         <source>Cannot find line %1 of &quot;%2&quot; that the disassembly refers to.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Zeile %1 von &quot;%2&quot;, auf die sich das Disassembly bezieht, kann nicht gefunden werden.</translation>
     </message>
     <message>
         <source>Cannot read line %1 of &quot;%2&quot; that the disassembly refers to.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Zeile %1 von &quot;%2&quot;, auf die sich das Disassembly bezieht, kann nicht gelesen werden.</translation>
     </message>
     <message>
         <source>Assigning values</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zuweisen von Werten</translation>
     </message>
     <message>
         <source>Setting registers</source>
         <extracomment>Name of a feature the debug adapter does not support</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Setzen von Registern</translation>
     </message>
     <message numerus="yes">
         <source>&lt;%n preceding line(s) not shown, disassembly truncated&gt;</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>&lt;Eine vorhergehende Zeile nicht angezeigt, Disassembly gekürzt&gt;</numerusform>
+            <numerusform>&lt;%n vorhergehende Zeilen nicht angezeigt, Disassembly gekürzt&gt;</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>&lt;%n following line(s) not shown, disassembly truncated&gt;</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>&lt;Eine folgende Zeile nicht angezeigt, Disassembly gekürzt&gt;</numerusform>
+            <numerusform>&lt;%n folgende Zeilen nicht angezeigt, Disassembly gekürzt&gt;</numerusform>
         </translation>
     </message>
     <message>
         <source>No disassembly for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Disassembly für &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Application exited after receiving a signal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Anwendung wurde nach Erhalt eines Signals beendet.</translation>
     </message>
     <message>
         <source>Thread %1 exited.</source>
-        <translation type="unfinished"></translation>
+        <translation>Thread %1 wurde beendet.</translation>
     </message>
     <message>
         <source>Cannot create snapshot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es kann kein Snapshot erstellt werden.</translation>
     </message>
     <message>
         <source>Debugger Not Responding</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugger antwortet nicht</translation>
     </message>
     <message numerus="yes">
         <source>The debugger is downloading debug information, which can take a long time on a slow connection, and none has arrived for the last %n seconds. The server may also be unreachable.&lt;br/&gt;You can keep waiting or stop debugging.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Der Debugger lädt Debug-Informationen herunter, was bei einer langsamen Verbindung lange dauern kann, und seit %n Sekunde sind keine eingetroffen. Möglicherweise ist der Server auch nicht erreichbar.&lt;br/&gt;Sie können weiter warten oder das Debuggen beenden.</numerusform>
+            <numerusform>Der Debugger lädt Debug-Informationen herunter, was bei einer langsamen Verbindung lange dauern kann, und seit %n Sekunden sind keine eingetroffen. Möglicherweise ist der Server auch nicht erreichbar.&lt;br/&gt;Sie können weiter warten oder das Debuggen beenden.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>The debugger process has not responded to a command within %n seconds. This could mean it is stuck in an endless loop or taking longer than expected to perform the operation.&lt;br/&gt;You can choose between waiting longer or aborting debugging.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Der Debugger-Prozess hat innerhalb von %n Sekunde nicht auf ein Kommando geantwortet. Möglicherweise befindet er sich in einer Endlosschleife oder benötigt für die Operation länger als erwartet.&lt;br/&gt;Sie können weiter warten oder das Debuggen abbrechen.</numerusform>
+            <numerusform>Der Debugger-Prozess hat innerhalb von %n Sekunden nicht auf ein Kommando geantwortet. Möglicherweise befindet er sich in einer Endlosschleife oder benötigt für die Operation länger als erwartet.&lt;br/&gt;Sie können weiter warten oder das Debuggen abbrechen.</numerusform>
         </translation>
     </message>
     <message>
         <source>Give the Debugger More Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Dem Debugger mehr Zeit geben</translation>
     </message>
     <message>
         <source>Cannot create pseudo terminal: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Pseudo-Terminal kann nicht erstellt werden: %1</translation>
     </message>
     <message>
         <source>Cannot determine the name of the pseudo terminal: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name des Pseudo-Terminals kann nicht bestimmt werden: %1</translation>
     </message>
     <message>
         <source>Cannot open pseudo terminal %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Pseudo-Terminal %1 kann nicht geöffnet werden: %2</translation>
     </message>
 </context>
 <context>
@@ -37095,164 +37100,164 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Generate pointer-to-member connections in &quot;Go to Slot&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Connections mit Member-Zeigern in &quot;Gehe zu Slot&quot; erzeugen</translation>
     </message>
     <message>
         <source>Inserts an explicit connect() statement using the function pointer syntax instead of relying on QMetaObject::connectSlotsByName() and an on_...() slot name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fügt eine explizite connect()-Anweisung mit der Funktionszeiger-Syntax ein, statt sich auf QMetaObject::connectSlotsByName() und einen on_...()-Slot-Namen zu verlassen.</translation>
     </message>
     <message>
         <source>Qt Widgets Designer</source>
-        <translation type="unfinished">Qt Widgets Designer</translation>
+        <translation>Qt Widgets Designer</translation>
     </message>
 </context>
 <context>
     <name>QtC::DesignerCore</name>
     <message>
         <source>Failed to create item of type %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Element vom Typ %1 konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>Invalid meta info.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Metainformation.</translation>
     </message>
     <message>
         <source>Illegal state while parsing.</source>
-        <translation type="unfinished">Ungültiger Zustand bei der Auswertung.</translation>
+        <translation>Ungültiger Zustand bei der Auswertung.</translation>
     </message>
     <message>
         <source>No property definition allowed.</source>
-        <translation type="unfinished">Eigenschaftsdefinition nicht zulässig.</translation>
+        <translation>Eigenschaftsdefinition nicht zulässig.</translation>
     </message>
     <message>
         <source>Unknown property for Type &quot;%1.&quot;.</source>
         <extracomment>do not translate &quot;Type&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannte Eigenschaft für Type &quot;%1.&quot;.</translation>
     </message>
     <message>
         <source>Unknown property for ItemLibraryEntry &quot;%1.&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannte Eigenschaft für ItemLibraryEntry &quot;%1.&quot;.</translation>
     </message>
     <message>
         <source>Unknown property for Property &quot;%1.&quot;.</source>
         <extracomment>do not translate &quot;Property&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannte Eigenschaft für Property &quot;%1.&quot;.</translation>
     </message>
     <message>
         <source>Unknown property for QmlSource &quot;%1.&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannte Eigenschaft für QmlSource &quot;%1.&quot;.</translation>
     </message>
     <message>
         <source>Unknown property for ExtraFile &quot;%1.&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannte Eigenschaft für ExtraFile &quot;%1.&quot;.</translation>
     </message>
     <message>
         <source>Invalid or duplicate library entry &quot;%1.&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger oder doppelter Bibliothekseintrag &quot;%1.&quot;.</translation>
     </message>
     <message>
         <source>Invalid type &quot;%1.&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Typ &quot;%1.&quot;.</translation>
     </message>
     <message>
         <source>Invalid type %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Typ %1.</translation>
     </message>
     <message>
         <source>Unknown property for Type %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannte Eigenschaft für Type %1.</translation>
     </message>
     <message>
         <source>Unknown property for ItemLibraryEntry %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannte Eigenschaft für ItemLibraryEntry %1.</translation>
     </message>
     <message>
         <source>Unknown property for Property %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannte Eigenschaft für Property %1.</translation>
     </message>
     <message>
         <source>Unknown property for QmlSource %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannte Eigenschaft für QmlSource %1.</translation>
     </message>
     <message>
         <source>Unknown property for ExtraFile %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannte Eigenschaft für ExtraFile %1.</translation>
     </message>
     <message>
         <source>My 3D Components</source>
-        <translation type="unfinished"></translation>
+        <translation>Meine 3D-Komponenten</translation>
     </message>
     <message>
         <source>Error parsing</source>
-        <translation type="unfinished">Fehler beim Parsen</translation>
+        <translation>Fehler beim Parsen</translation>
     </message>
     <message>
         <source>Internal error</source>
-        <translation type="unfinished">Interner Fehler</translation>
+        <translation>Interner Fehler</translation>
     </message>
     <message>
         <source>line %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeile %1</translation>
     </message>
     <message>
         <source>column %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Spalte %1</translation>
     </message>
     <message>
         <source>ID cannot start with an uppercase character (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine ID kann nicht mit einem Großbuchstaben beginnen (%1).</translation>
     </message>
     <message>
         <source>ID cannot start with a number (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine ID kann nicht mit einer Ziffer beginnen (%1).</translation>
     </message>
     <message>
         <source>ID cannot include whitespace (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine ID kann keine Leerzeichen enthalten (%1).</translation>
     </message>
     <message>
         <source>%1 is a reserved QML keyword.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ist ein reserviertes QML-Schlüsselwort.</translation>
     </message>
     <message>
         <source>%1 is a reserved Qml type.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ist ein reservierter QML-Typ.</translation>
     </message>
     <message>
         <source>%1 is a reserved property keyword.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ist ein reserviertes Eigenschafts-Schlüsselwort.</translation>
     </message>
     <message>
         <source>ID includes invalid characters (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ID enthält ungültige Zeichen (%1).</translation>
     </message>
     <message>
         <source>Failed to create instance of file &quot;%1&quot;: %2</source>
-        <translation type="unfinished">Es konnte keine Instanz der Datei &quot;%1&quot; erzeugt werden: %2</translation>
+        <translation>Es konnte keine Instanz der Datei &quot;%1&quot; erzeugt werden: %2</translation>
     </message>
     <message>
         <source>Failed to create instance of file &quot;%1&quot;.</source>
-        <translation type="unfinished">Es konnte keine Instanz der Datei &quot;%1&quot; erzeugt werden.</translation>
+        <translation>Es konnte keine Instanz der Datei &quot;%1&quot; erzeugt werden.</translation>
     </message>
     <message>
         <source>Empty document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Leeres Dokument.</translation>
     </message>
     <message>
         <source>No import statements found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Import-Anweisungen gefunden.</translation>
     </message>
     <message>
         <source>Qt Quick 6 is not supported with a Qt 5 kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Quick 6 wird mit einem Qt 5-Kit nicht unterstützt.</translation>
     </message>
     <message>
         <source>The Design Mode requires a valid Qt kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Design-Modus erfordert ein gültiges Qt-Kit.</translation>
     </message>
     <message>
         <source>No import for Qt Quick found.</source>
-        <translation type="unfinished">Es konnte kein Import für Qt Quick gefunden werden.</translation>
+        <translation>Es konnte kein Import für Qt Quick gefunden werden.</translation>
     </message>
 </context>
 <context>
@@ -37395,7 +37400,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Run a Command Outside the Container?</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando außerhalb des Containers ausführen?</translation>
     </message>
     <message>
         <source>The development container of the project %1 runs this command on your machine, not in the container:
@@ -37403,11 +37408,15 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
 %2
 
 Run it only if you trust the project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Development Container des Projekts %1 führt dieses Kommando auf Ihrem Rechner aus, nicht im Container:
+
+%2
+
+Führen Sie es nur aus, wenn Sie dem Projekt vertrauen.</translation>
     </message>
     <message>
         <source>The command was not allowed to run outside the container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kommando durfte nicht außerhalb des Containers ausgeführt werden.</translation>
     </message>
     <message>
         <source>The configuration does not contain a &quot;build&quot;, &quot;image&quot; or &quot;dockerComposeFile&quot; entry.</source>
@@ -37495,15 +37504,15 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>Found a development container in the project &quot;%1&quot;. Starting it builds the container and runs the commands its configuration defines. Start it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Projekt &quot;%1&quot; wurde ein Development Container gefunden. Beim Starten wird der Container erstellt, und die in seiner Konfiguration definierten Kommandos werden ausgeführt. Starten?</translation>
     </message>
     <message>
         <source>Found development containers in the project &quot;%1&quot;. Starting one builds the container and runs the commands its configuration defines. Start any of them?</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Projekt &quot;%1&quot; wurden Development Container gefunden. Beim Starten eines Containers wird dieser erstellt, und die in seiner Konfiguration definierten Kommandos werden ausgeführt. Einen davon starten?</translation>
     </message>
     <message>
         <source>Failed to watch the configuration files for the development container for project &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Konfigurationsdateien des Development Containers für Projekt &quot;%1&quot; können nicht überwacht werden: %2</translation>
     </message>
     <message>
         <source>Development Containers</source>
@@ -37570,11 +37579,11 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>Cannot read &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht gelesen werden.</translation>
     </message>
     <message>
         <source>%1 (Modified vs. Saved)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (Geändert vs. Gespeichert)</translation>
     </message>
     <message>
         <source>Diff &quot;%1&quot;</source>
@@ -37602,39 +37611,39 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>Ctrl+Meta+I</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+I</translation>
     </message>
     <message>
         <source>Ctrl+Alt+I</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+I</translation>
     </message>
     <message>
         <source>Patience</source>
-        <translation type="unfinished">Patience</translation>
+        <translation>Patience</translation>
     </message>
     <message>
         <source>Ctrl+Meta+P</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+P</translation>
     </message>
     <message>
         <source>Ctrl+Alt+P</source>
-        <translation type="unfinished">Ctrl+Alt+P</translation>
+        <translation>Ctrl+Alt+P</translation>
     </message>
     <message>
         <source>Ctrl+Meta+U</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+U</translation>
     </message>
     <message>
         <source>Ctrl+Alt+U</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+U</translation>
     </message>
     <message>
         <source>Ctrl+Meta+D</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+D</translation>
     </message>
     <message>
         <source>Ctrl+Alt+D</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+D</translation>
     </message>
     <message>
         <source>Reload Diff</source>
@@ -37642,27 +37651,27 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>Ctrl+Meta+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+R</translation>
     </message>
     <message>
         <source>Ctrl+Alt+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+R</translation>
     </message>
     <message>
         <source>Ctrl+Meta+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+S</translation>
     </message>
     <message>
         <source>Ctrl+Alt+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+S</translation>
     </message>
     <message>
         <source>Ctrl+Meta+V</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+V</translation>
     </message>
     <message>
         <source>Ctrl+Alt+V</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+V</translation>
     </message>
     <message>
         <source>[%1] vs. [%2] %3</source>
@@ -37793,121 +37802,121 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>Stage Change</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderung für Commit vorsehen</translation>
     </message>
     <message>
         <source>Revert Change</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderung rückgängig machen</translation>
     </message>
     <message>
         <source>Shows the hidden unchanged lines.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeigt die verborgenen unveränderten Zeilen an.</translation>
     </message>
     <message numerus="yes">
         <source>Show %n hidden lines</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Eine verborgene Zeile anzeigen</numerusform>
+            <numerusform>%n verborgene Zeilen anzeigen</numerusform>
         </translation>
     </message>
     <message>
         <source>Diff %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff %1</translation>
     </message>
     <message>
         <source>Failed to save &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; konnte nicht gespeichert werden.</translation>
     </message>
     <message>
         <source>Go to Previous Change</source>
-        <translation type="unfinished"></translation>
+        <translation>Gehe zu vorheriger Änderung</translation>
     </message>
     <message>
         <source>Goes to the closest change above the cursor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geht zur nächstgelegenen Änderung oberhalb der Einfügemarke.</translation>
     </message>
     <message>
         <source>Go to Next Change</source>
-        <translation type="unfinished"></translation>
+        <translation>Gehe zu nächster Änderung</translation>
     </message>
     <message>
         <source>Goes to the closest change below the cursor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geht zur nächstgelegenen Änderung unterhalb der Einfügemarke.</translation>
     </message>
     <message>
         <source>Hide Unchanged Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Unveränderte Zeilen verbergen</translation>
     </message>
     <message>
         <source>Hides unchanged lines, keeping some context around each change.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbirgt unveränderte Zeilen und behält etwas Kontext um jede Änderung bei.</translation>
     </message>
     <message>
         <source>The number of unchanged lines shown around each change.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Anzahl der unveränderten Zeilen, die um jede Änderung herum angezeigt werden.</translation>
     </message>
     <message>
         <source>Hides differences that consist of whitespace changes only.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbirgt Unterschiede, die nur aus Änderungen an Leerzeichen bestehen.</translation>
     </message>
     <message>
         <source>Aligns lines that occur only once on each side first, so that unrelated lines, such as a lone brace, are not paired.</source>
-        <translation type="unfinished"></translation>
+        <translation>Richtet zuerst Zeilen aneinander aus, die auf jeder Seite nur einmal vorkommen, sodass nicht zusammengehörige Zeilen, wie eine einzelne Klammer, nicht gepaart werden.</translation>
     </message>
     <message>
         <source>+/- Signs</source>
-        <translation type="unfinished"></translation>
+        <translation>+/- Zeichen</translation>
     </message>
     <message>
         <source>Mark added and removed lines with &quot;+&quot; and &quot;-&quot; signs, so the changes can be told apart without relying on color.</source>
-        <translation type="unfinished"></translation>
+        <translation>Markiert hinzugefügte und entfernte Zeilen mit &quot;+&quot;- und &quot;-&quot;-Zeichen, sodass die Änderungen ohne Farben unterschieden werden können.</translation>
     </message>
     <message>
         <source>Reloads the baseline and recomputes the diff.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lädt die Vergleichsbasis neu und berechnet den Diff neu.</translation>
     </message>
     <message>
         <source>Switch to Side by Side Diff View</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterschiede nebeneinander anzeigen</translation>
     </message>
     <message>
         <source>Switch to Inline Diff View</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterschiede eingebettet anzeigen</translation>
     </message>
     <message>
         <source>Go to Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Gehe zu Quelle</translation>
     </message>
     <message>
         <source>Opens the source file at this location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnet die Quelldatei an dieser Position.</translation>
     </message>
     <message>
         <source>Stage Chunk</source>
-        <translation type="unfinished">Chunk für Commit vorsehen</translation>
+        <translation>Chunk für Commit vorsehen</translation>
     </message>
     <message>
         <source>Revert Chunk</source>
-        <translation type="unfinished">Änderung rückgängig machen</translation>
+        <translation>Änderung rückgängig machen</translation>
     </message>
     <message>
         <source>Copy as Patch</source>
-        <translation type="unfinished"></translation>
+        <translation>Als Patch kopieren</translation>
     </message>
     <message>
         <source>Copies the selected changes, or all of them, as a unified diff.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiert die ausgewählten Änderungen, oder alle, als Unified Diff.</translation>
     </message>
     <message>
         <source>The diff baseline is not available: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Vergleichsbasis des Diffs ist nicht verfügbar: %1</translation>
     </message>
 </context>
 <context>
     <name>QtC::Docker</name>
     <message>
         <source>%1 CLI</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-CLI</translation>
     </message>
     <message>
         <source>Docker</source>
@@ -37915,7 +37924,7 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>Podman</source>
-        <translation type="unfinished"></translation>
+        <translation>Podman</translation>
     </message>
     <message>
         <source>Failed creating Docker container: %1</source>
@@ -37923,7 +37932,7 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>Failed inspecting Docker container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Untersuchen des Docker-Containers: %1</translation>
     </message>
     <message>
         <source>Failed starting Docker event listener. Exit code: %1, output: %2</source>
@@ -37935,11 +37944,11 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>Failed starting Docker container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Starten des Docker-Containers: %1</translation>
     </message>
     <message>
         <source>Timed out waiting for Docker container &quot;%1&quot; to start.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitüberschreitung beim Warten auf den Start des Docker-Containers &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Run as outside user:</source>
@@ -37955,44 +37964,44 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>The path &quot;%1&quot; is not local.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; ist nicht lokal.</translation>
     </message>
     <message>
         <source>Both paths are empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beide Pfade sind leer.</translation>
     </message>
     <message>
         <source>The local path is empty, the container path is &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der lokale Pfad ist leer, der Container-Pfad ist &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>The container path is empty, the local path is &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Container-Pfad ist leer, der lokale Pfad ist &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>The path &quot;%1&quot; or &quot;%2&quot; is not absolute.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; oder &quot;%2&quot; ist nicht absolut.</translation>
     </message>
     <message>
         <source>The path &quot;%1&quot; is the root directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; ist das Wurzelverzeichnis.</translation>
     </message>
     <message>
         <source>The path &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished">Der Pfad &quot;%1&quot; existiert nicht.</translation>
+        <translation>Der Pfad &quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
         <source>The %1 system is not reachable.</source>
         <extracomment>%1 = Docker / Podman</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Das %1-System ist nicht erreichbar.</translation>
     </message>
     <message>
         <source>%1 image &quot;%2&quot; not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-Image &quot;%2&quot; nicht gefunden.</translation>
     </message>
     <message>
         <source>%1 Image Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-Image-Auswahl</translation>
     </message>
     <message>
         <source>Container environment:</source>
@@ -38032,15 +38041,15 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>Device &quot;%1&quot; already uses this image. Adding another device for it detects the same tools again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät &quot;%1&quot; benutzt dieses Image bereits. Wenn Sie ein weiteres Gerät dafür hinzufügen, werden dieselben Werkzeuge erneut erkannt.</translation>
     </message>
     <message>
         <source>%1 Image &quot;%2&quot; (%3)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-Image &quot;%2&quot; (%3)</translation>
     </message>
     <message>
         <source>%1 Device</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-Gerät</translation>
     </message>
     <message>
         <source>Cannot reach &quot;%1&quot; from &quot;%2&quot;.</source>
@@ -38100,7 +38109,7 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>Host directories to mount into the container, one per line. A plain path is mounted at the same place inside the container. To mount it elsewhere, append the path in the container, as in &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Host-Verzeichnisse, die in den Container eingehängt werden sollen, eines pro Zeile. Ein einfacher Pfad wird an derselben Stelle im Container eingehängt. Um ihn an einer anderen Stelle einzuhängen, hängen Sie den Pfad im Container an, wie in &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Enable X11 forwarding:</source>
@@ -38112,11 +38121,11 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>X11 display:</source>
-        <translation type="unfinished"></translation>
+        <translation>X11-Display:</translation>
     </message>
     <message>
         <source>The DISPLAY value to set inside the container. Leave empty to derive it from the host&apos;s DISPLAY environment variable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der DISPLAY-Wert, der im Container gesetzt werden soll. Leer lassen, um ihn von der Umgebungsvariable DISPLAY des Hosts abzuleiten.</translation>
     </message>
     <message>
         <source>Path is empty.</source>
@@ -38204,20 +38213,20 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>&quot;%1&quot; is not mounted: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; ist nicht eingehängt: %2</translation>
     </message>
     <message>
         <source>Refresh %1 Networks</source>
         <extracomment>%1 = Docker / Podman</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1-Netzwerke aktualisieren</translation>
     </message>
     <message>
         <source>%1 daemon running.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-Daemon läuft.</translation>
     </message>
     <message>
         <source>%1 daemon not running.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-Daemon läuft nicht.</translation>
     </message>
     <message>
         <source>Paths to mount:</source>
@@ -38258,15 +38267,15 @@ Run it only if you trust the project.</source>
     <message>
         <source>Checking %1 Daemon</source>
         <extracomment>%1 = Docker / Podman</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Prüfe %1-Daemon</translation>
     </message>
     <message>
         <source>Failed to list networks: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Netzwerke konnten nicht aufgelistet werden: %1</translation>
     </message>
     <message>
         <source>Failed to parse network info: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Netzwerkinformationen konnten nicht ausgewertet werden: %1</translation>
     </message>
 </context>
 <context>
@@ -38316,184 +38325,186 @@ Run it only if you trust the project.</source>
     <name>QtC::EffectComposer</name>
     <message>
         <source>Trigger Completion</source>
-        <translation type="unfinished">Code-Vervollständigung auslösen</translation>
+        <translation>Code-Vervollständigung auslösen</translation>
     </message>
     <message>
         <source>Meta+Space</source>
-        <translation type="unfinished">Meta+Space</translation>
+        <translation>Meta+Space</translation>
     </message>
     <message>
         <source>Ctrl+Space</source>
-        <translation type="unfinished">Ctrl+Space</translation>
+        <translation>Ctrl+Space</translation>
     </message>
     <message>
         <source>Effect Code Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Effekt-Code-Editor</translation>
     </message>
     <message>
         <source>Main</source>
-        <translation type="unfinished"></translation>
+        <translation>Main</translation>
     </message>
     <message>
         <source>New Property</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Eigenschaft</translation>
     </message>
     <message>
         <source>Select Custom Effect Background Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefiniertes Hintergrundbild für Effekt auswählen</translation>
     </message>
     <message>
         <source>Image Files (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilddateien (%1)</translation>
     </message>
     <message>
         <source>Common error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Allgemeiner Fehler: %1</translation>
     </message>
     <message>
         <source>QML parsing error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Parserfehler: %1</translation>
     </message>
     <message>
         <source>Shader error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Shader-Fehler: %1</translation>
     </message>
     <message>
         <source>Preprocessor error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Präprozessorfehler: %1</translation>
     </message>
     <message>
         <source>Animation</source>
-        <translation type="unfinished">Animation</translation>
+        <translation>Animation</translation>
     </message>
     <message>
         <source>Running</source>
-        <translation type="unfinished">Läuft</translation>
+        <translation>Läuft</translation>
     </message>
     <message>
         <source>Set this property to animate the effect.</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzen Sie diese Eigenschaft, um den Effekt zu animieren.</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished">Zeit</translation>
+        <translation>Zeit</translation>
     </message>
     <message>
         <source>This property allows explicit control of current animation time when Running property is false.</source>
         <extracomment>do not translate &quot;Running&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Diese Eigenschaft ermöglicht die explizite Steuerung der aktuellen Animationszeit, wenn die Eigenschaft Running false ist.</translation>
     </message>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Frame</translation>
+        <translation>Frame</translation>
     </message>
     <message>
         <source>This property allows explicit control of current animation frame when Running property is false.</source>
         <extracomment>do not translate &quot;Running&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Diese Eigenschaft ermöglicht die explizite Steuerung des aktuellen Animations-Frames, wenn die Eigenschaft Running false ist.</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Allgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <source>Extra Margin</source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzlicher Rand</translation>
     </message>
     <message>
         <source>This property specifies how much of extra space is reserved for the effect outside the parent geometry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Eigenschaft bestimmt, wie viel zusätzlicher Platz für den Effekt außerhalb der Geometrie des Elternelements reserviert wird.</translation>
     </message>
     <message>
         <source>Failed to write QEN file for effect:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>QEN-Datei für Effekt konnte nicht geschrieben werden:
+%1</translation>
     </message>
     <message>
         <source>Failed to copy effect resource:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Effekt-Ressource konnte nicht kopiert werden:
+%1</translation>
     </message>
     <message>
         <source>Effect was updated in effect library.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Effekt wurde in der Effekt-Bibliothek aktualisiert.</translation>
     </message>
     <message>
         <source>Effect was added to effect library.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Effekt wurde zur Effekt-Bibliothek hinzugefügt.</translation>
     </message>
     <message>
         <source>Uniform Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Uniform-Name</translation>
     </message>
     <message>
         <source>Property Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigenschaftsname</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Min</source>
-        <translation type="unfinished">Min</translation>
+        <translation>Min</translation>
     </message>
     <message>
         <source>Max</source>
-        <translation type="unfinished">Max</translation>
+        <translation>Max</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Beschreibung</translation>
+        <translation>Beschreibung</translation>
     </message>
     <message>
         <source>Unsupported type</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht unterstützter Typ</translation>
     </message>
     <message>
         <source>Effect Composer</source>
         <comment>Title of effect composer widget</comment>
-        <translation type="unfinished"></translation>
+        <translation>Effect Composer</translation>
     </message>
     <message>
         <source>Shaders Code Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Shader-Code-Editor</translation>
     </message>
     <message>
         <source>X</source>
         <extracomment>X-coordinate</extracomment>
-        <translation type="unfinished">X</translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Y</source>
         <extracomment>Y-coordinate</extracomment>
-        <translation type="unfinished">Y</translation>
+        <translation>Y</translation>
     </message>
     <message>
         <source>Z</source>
         <extracomment>Z-coordinate</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Z</translation>
     </message>
     <message>
         <source>W</source>
         <extracomment>W-coordinate</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>W</translation>
     </message>
     <message>
         <source>%1 Item</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-Element</translation>
     </message>
     <message>
         <source>Set this to use an item in the scene as %1 instead of the above image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzen Sie dies, um ein Element der Szene als %1 statt des obigen Bildes zu verwenden.</translation>
     </message>
     <message>
         <source>Effect Composer</source>
-        <translation type="unfinished"></translation>
+        <translation>Effect Composer</translation>
     </message>
     <message>
         <source>Untitled Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbenannter Editor</translation>
     </message>
 </context>
 <context>
@@ -38587,7 +38598,7 @@ Run it only if you trust the project.</source>
     <name>QtC::ExtensionManager</name>
     <message>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>Durchsuchen</translation>
     </message>
     <message>
         <source>Extensions</source>
@@ -38631,51 +38642,51 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished">Version</translation>
+        <translation>Version</translation>
     </message>
     <message>
         <source>Compatibility Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompatibel zu Version</translation>
     </message>
     <message>
         <source>ID</source>
-        <translation type="unfinished">ID</translation>
+        <translation>ID</translation>
     </message>
     <message>
         <source>Vendor ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Anbieter-ID</translation>
     </message>
     <message>
         <source>Group</source>
-        <translation type="unfinished"></translation>
+        <translation>Gruppe</translation>
     </message>
     <message>
         <source>Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Ort</translation>
     </message>
     <message>
         <source>Loadable Without Restart</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann ohne Neustart geladen werden</translation>
     </message>
     <message>
         <source>Extensions in Pack</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterungen im Paket</translation>
     </message>
     <message>
         <source>Copyright</source>
-        <translation type="unfinished"></translation>
+        <translation>Copyright</translation>
     </message>
     <message>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>Lizenz</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished">Ja</translation>
+        <translation>Ja</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished">Nein</translation>
+        <translation>Nein</translation>
     </message>
     <message>
         <source>No details to show</source>
@@ -38731,7 +38742,7 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>Experimental</source>
-        <translation type="unfinished"></translation>
+        <translation>Experimentell</translation>
     </message>
     <message>
         <source>Last updated</source>
@@ -38756,7 +38767,7 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>No extensions found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Erweiterungen gefunden.</translation>
     </message>
     <message>
         <source>Search</source>
@@ -38804,7 +38815,7 @@ Run it only if you trust the project.</source>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Allgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <source>If you choose to link or connect an external repository, you are acting at your own discretion and risk. The Qt Company does not control, endorse, or maintain any external repositories that you connect. Any changes, unavailability or security issues in external repositories are beyond The Qt Company&apos;s control and responsibility. By linking or connecting external repositories, you acknowledge these conditions and accept responsibility for managing associated risks appropriately.</source>
@@ -39163,11 +39174,11 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Plugin initialization threw an exception: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Initialisierung des Plugins hat eine Ausnahme ausgelöst: %1</translation>
     </message>
     <message>
         <source>Plugin initialization threw an unknown exception.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Initialisierung des Plugins hat eine unbekannte Ausnahme ausgelöst.</translation>
     </message>
     <message>
         <source>Cannot perform extensionsInitialized because state != Initialized</source>
@@ -39380,7 +39391,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Use &quot;,&quot; to pass shortcuts (instead of repeating f/t/F/T backwards)</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;,&quot; für Tastenkombinationen weitergeben (statt f/t/F/T rückwärts zu wiederholen)</translation>
     </message>
     <message>
         <source>Start of line</source>
@@ -39416,11 +39427,11 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Use the editor&apos;s tabulator and indentation settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabulator- und Einrückungseinstellungen des Editors verwenden</translation>
     </message>
     <message>
         <source>Match brackets like Vim</source>
-        <translation type="unfinished"></translation>
+        <translation>Klammern wie Vim zuordnen</translation>
     </message>
     <message>
         <source>Incremental search</source>
@@ -39460,11 +39471,11 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>E521: Number required after =: %1=%2</source>
-        <translation type="unfinished"></translation>
+        <translation>E521: Zahl nach = erforderlich: %1=%2</translation>
     </message>
     <message>
         <source>E487: Argument must be positive: %1=%2</source>
-        <translation type="unfinished"></translation>
+        <translation>E487: Argument muss positiv sein: %1=%2</translation>
     </message>
     <message>
         <source>Scroll offset:</source>
@@ -39472,15 +39483,15 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Text width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Textbreite:</translation>
     </message>
     <message>
         <source>Use timeout for mappings</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitlimit für Zuordnungen verwenden</translation>
     </message>
     <message>
         <source>Mapping timeout:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitlimit für Zuordnungen:</translation>
     </message>
     <message>
         <source>Backspace:</source>
@@ -39492,11 +39503,11 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Tab jumps over:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabulator überspringt:</translation>
     </message>
     <message>
         <source>Characters that Tab moves the cursor past in insert mode instead of indenting, for example )]}&quot;&gt;&apos;. Leave empty to disable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeichen, über die die Tabulatortaste die Einfügemarke im Einfügemodus bewegt, statt einzurücken, zum Beispiel )]}&quot;&gt;&apos;. Leer lassen, um dies zu deaktivieren.</translation>
     </message>
     <message>
         <source>Use Vim-Style Editing</source>
@@ -39520,11 +39531,11 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Time in milliseconds to wait for the rest of a mapped key sequence (Vim timeoutlen option).</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeit in Millisekunden, die auf den Rest einer zugeordneten Tastensequenz gewartet wird (Vim-Einstellung timeoutlen).</translation>
     </message>
     <message>
         <source>Blink period of the text cursor in milliseconds. A value of 0 uses the system default. Only used while the cursor is blinking.</source>
-        <translation type="unfinished"></translation>
+        <translation>Blinkperiode der Einfügemarke in Millisekunden. Ein Wert von 0 verwendet die Systemvorgabe. Wird nur verwendet, während die Einfügemarke blinkt.</translation>
     </message>
     <message>
         <source>Unknown option: %1</source>
@@ -39553,379 +39564,379 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>E67: \z1 - \z9 not allowed here</source>
-        <translation type="unfinished"></translation>
+        <translation>E67: \z1 - \z9 sind hier nicht erlaubt</translation>
     </message>
     <message>
         <source>E554: Syntax error in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E554: Syntaxfehler in %1</translation>
     </message>
     <message>
         <source>E55: Unmatched %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E55: Nicht zugeordnetes %1</translation>
     </message>
     <message>
         <source>E65: Illegal back reference</source>
-        <translation type="unfinished"></translation>
+        <translation>E65: Unzulässige Rückreferenz</translation>
     </message>
     <message>
         <source>E69: Missing ] after %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E69: Fehlende ] nach %1</translation>
     </message>
     <message>
         <source>E53: Unmatched %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E53: Nicht zugeordnetes %1</translation>
     </message>
     <message>
         <source>E54: Unmatched %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E54: Nicht zugeordnetes %1</translation>
     </message>
     <message>
         <source>E55: Unmatched \)</source>
-        <translation type="unfinished"></translation>
+        <translation>E55: Nicht zugeordnetes \)</translation>
     </message>
     <message>
         <source>E53: Unmatched \%(</source>
-        <translation type="unfinished"></translation>
+        <translation>E53: Nicht zugeordnetes \%(</translation>
     </message>
     <message>
         <source>E54: Unmatched \(</source>
-        <translation type="unfinished"></translation>
+        <translation>E54: Nicht zugeordnetes \(</translation>
     </message>
     <message>
         <source>E1214: Digraph must be just two characters: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E1214: Digraph muss aus genau zwei Zeichen bestehen: %1</translation>
     </message>
     <message>
         <source>E1215: Digraph must be one character: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E1215: Digraph muss ein Zeichen sein: %1</translation>
     </message>
     <message>
         <source>E1400: Expected ? or / after &apos;;&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>E1400: ? oder / nach &apos;;&apos; erwartet</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Top</source>
-        <translation type="unfinished">Oben</translation>
+        <translation>Oben</translation>
     </message>
     <message>
         <source>Bot</source>
-        <translation type="unfinished"></translation>
+        <translation>Ende</translation>
     </message>
     <message>
         <source>1 line less</source>
-        <translation type="unfinished"></translation>
+        <translation>1 Zeile weniger</translation>
     </message>
     <message numerus="yes">
         <source>%n fewer lines</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Eine Zeile weniger</numerusform>
+            <numerusform>%n Zeilen weniger</numerusform>
         </translation>
     </message>
     <message>
         <source>1 line yanked</source>
-        <translation type="unfinished"></translation>
+        <translation>1 Zeile kopiert</translation>
     </message>
     <message numerus="yes">
         <source>%n lines yanked</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Eine Zeile kopiert</numerusform>
+            <numerusform>%n Zeilen kopiert</numerusform>
         </translation>
     </message>
     <message>
         <source>1 more line</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Zeile mehr</translation>
     </message>
     <message numerus="yes">
         <source>%n more lines</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Eine Zeile mehr</numerusform>
+            <numerusform>%n Zeilen mehr</numerusform>
         </translation>
     </message>
     <message>
         <source>1 line moved</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Zeile verschoben</translation>
     </message>
     <message numerus="yes">
         <source>%n lines moved</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Eine Zeile verschoben</numerusform>
+            <numerusform>%n Zeilen verschoben</numerusform>
         </translation>
     </message>
     <message>
         <source>1 line filtered</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Zeile gefiltert</translation>
     </message>
     <message numerus="yes">
         <source>%n lines filtered</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Eine Zeile gefiltert</numerusform>
+            <numerusform>%n Zeilen gefiltert</numerusform>
         </translation>
     </message>
     <message>
         <source>1 time</source>
-        <translation type="unfinished"></translation>
+        <translation>Einmal</translation>
     </message>
     <message numerus="yes">
         <source>%n times</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Einmal</numerusform>
+            <numerusform>%n-mal</numerusform>
         </translation>
     </message>
     <message>
         <source>1 line &gt;ed %1</source>
         <extracomment>Vim&apos;s report of a &quot;&gt;&quot; shift. %1 is &quot;1 time&quot; or &quot;%n times&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Eine Zeile %1 nach rechts verschoben</translation>
     </message>
     <message numerus="yes">
         <source>%n lines &gt;ed %1</source>
         <extracomment>Vim&apos;s report of a &quot;&gt;&quot; shift. %1 is &quot;1 time&quot; or &quot;%n times&quot;.</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Eine Zeile %1 nach rechts verschoben</numerusform>
+            <numerusform>%n Zeilen %1 nach rechts verschoben</numerusform>
         </translation>
     </message>
     <message>
         <source>1 line &lt;ed %1</source>
         <extracomment>Vim&apos;s report of a &quot;&lt;&quot; shift. %1 is &quot;1 time&quot; or &quot;%n times&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Eine Zeile %1 nach links verschoben</translation>
     </message>
     <message numerus="yes">
         <source>%n lines &lt;ed %1</source>
         <extracomment>Vim&apos;s report of a &quot;&lt;&quot; shift. %1 is &quot;1 time&quot; or &quot;%n times&quot;.</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Eine Zeile %1 nach links verschoben</numerusform>
+            <numerusform>%n Zeilen %1 nach links verschoben</numerusform>
         </translation>
     </message>
     <message>
         <source>[Modified]</source>
-        <translation type="unfinished"></translation>
+        <translation>[Geändert]</translation>
     </message>
     <message>
         <source>[Not edited]</source>
-        <translation type="unfinished"></translation>
+        <translation>[Nicht bearbeitet]</translation>
     </message>
     <message>
         <source>1 line</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Zeile</translation>
     </message>
     <message numerus="yes">
         <source>%n lines</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Eine Zeile</numerusform>
+            <numerusform>%n Zeilen</numerusform>
         </translation>
     </message>
     <message>
         <source>col %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Spalte %1</translation>
     </message>
     <message>
         <source>col %1-%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Spalte %1-%2</translation>
     </message>
     <message>
         <source>line %1 of %2 --%3%-- %4</source>
         <extracomment>%4 is &quot;col %1&quot; or &quot;col %1-%2&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zeile %1 von %2 --%3%-- %4</translation>
     </message>
     <message>
         <source>E349: No identifier under cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>E349: Kein Bezeichner unter der Einfügemarke</translation>
     </message>
     <message>
         <source>E664: Changelist is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>E664: Änderungsliste ist leer</translation>
     </message>
     <message>
         <source>E662: At start of changelist</source>
-        <translation type="unfinished"></translation>
+        <translation>E662: Am Anfang der Änderungsliste</translation>
     </message>
     <message>
         <source>E663: At end of changelist</source>
-        <translation type="unfinished"></translation>
+        <translation>E663: Am Ende der Änderungsliste</translation>
     </message>
     <message>
         <source>E29: No inserted text yet</source>
-        <translation type="unfinished"></translation>
+        <translation>E29: Bisher kein Text eingefügt</translation>
     </message>
     <message>
         <source>E16: Invalid range</source>
-        <translation type="unfinished"></translation>
+        <translation>E16: Ungültiger Bereich</translation>
     </message>
     <message>
         <source>E33: No previous substitute regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>E33: Kein vorheriger regulärer Ausdruck zum Ersetzen</translation>
     </message>
     <message>
         <source>E939: Positive count required</source>
-        <translation type="unfinished"></translation>
+        <translation>E939: Positive Anzahl erforderlich</translation>
     </message>
     <message>
         <source>E488: Trailing characters: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E488: Überschüssige Zeichen: %1</translation>
     </message>
     <message>
         <source>E35: No previous regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>E35: Kein vorheriger regulärer Ausdruck</translation>
     </message>
     <message>
         <source>E486: Pattern not found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E486: Muster nicht gefunden: %1</translation>
     </message>
     <message>
         <source>1 match</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Treffer</translation>
     </message>
     <message>
         <source>1 substitution</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Ersetzung</translation>
     </message>
     <message numerus="yes">
         <source>%n matches</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Ein Treffer</numerusform>
+            <numerusform>%n Treffer</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n substitutions</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Eine Ersetzung</numerusform>
+            <numerusform>%n Ersetzungen</numerusform>
         </translation>
     </message>
     <message>
         <source>%1 on 1 line</source>
         <extracomment>%1 is &quot;1 match&quot;, &quot;%n matches&quot;, &quot;1 substitution&quot; or &quot;%n substitutions&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 in einer Zeile</translation>
     </message>
     <message numerus="yes">
         <source>%1 on %n lines</source>
         <extracomment>%1 is &quot;1 match&quot;, &quot;%n matches&quot;, &quot;1 substitution&quot; or &quot;%n substitutions&quot;.</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1 in einer Zeile</numerusform>
+            <numerusform>%1 in %n Zeilen</numerusform>
         </translation>
     </message>
     <message>
         <source>replace with %1 (y/n/a/q/l/^E/^Y)?</source>
         <extracomment>Vim&apos;s confirmation prompt of &quot;:s///c&quot;. The keys in parentheses are the ones to press and must not be translated.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>durch %1 ersetzen (y/n/a/q/l/^E/^Y)?</translation>
     </message>
     <message>
         <source>E73: Tag stack empty</source>
-        <translation type="unfinished"></translation>
+        <translation>E73: Tag-Stack ist leer</translation>
     </message>
     <message>
         <source>E555: At bottom of tag stack</source>
-        <translation type="unfinished"></translation>
+        <translation>E555: Am Ende des Tag-Stacks</translation>
     </message>
     <message>
         <source>E556: At top of tag stack</source>
-        <translation type="unfinished"></translation>
+        <translation>E556: Am Anfang des Tag-Stacks</translation>
     </message>
     <message>
         <source>E427: There is only one matching tag</source>
-        <translation type="unfinished"></translation>
+        <translation>E427: Es gibt nur ein passendes Tag</translation>
     </message>
     <message>
         <source>E425: Cannot go before first matching tag</source>
-        <translation type="unfinished"></translation>
+        <translation>E425: Kann nicht vor das erste passende Tag gehen</translation>
     </message>
     <message>
         <source>E481: No range allowed</source>
-        <translation type="unfinished"></translation>
+        <translation>E481: Kein Bereich erlaubt</translation>
     </message>
     <message>
         <source>No mapping found</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Zuordnung gefunden</translation>
     </message>
     <message>
         <source>E474: Invalid argument</source>
-        <translation type="unfinished"></translation>
+        <translation>E474: Ungültiges Argument</translation>
     </message>
     <message>
         <source>E31: No such mapping</source>
-        <translation type="unfinished"></translation>
+        <translation>E31: Keine solche Zuordnung</translation>
     </message>
     <message>
         <source>No abbreviation found</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Abkürzung gefunden</translation>
     </message>
     <message>
         <source>E24: No such abbreviation</source>
-        <translation type="unfinished"></translation>
+        <translation>E24: Keine solche Abkürzung</translation>
     </message>
     <message>
         <source>E471: Argument required</source>
-        <translation type="unfinished"></translation>
+        <translation>E471: Argument erforderlich</translation>
     </message>
     <message>
         <source>E474: Invalid argument: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E474: Ungültiges Argument: %1</translation>
     </message>
     <message>
         <source>E518: Unknown option: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E518: Unbekannte Option: %1</translation>
     </message>
     <message>
         <source>E521: Number required after =: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E521: Zahl nach = erforderlich: %1</translation>
     </message>
     <message>
         <source>E49: Invalid scroll size: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E49: Ungültige Scroll-Größe: %1</translation>
     </message>
     <message>
         <source>E477: No ! allowed</source>
-        <translation type="unfinished"></translation>
+        <translation>E477: Kein ! erlaubt</translation>
     </message>
     <message>
         <source>E748: No previously used register</source>
-        <translation type="unfinished"></translation>
+        <translation>E748: Kein zuvor verwendetes Register</translation>
     </message>
     <message>
         <source>E354: Invalid register name: &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>E354: Ungültiger Registername: &apos;%1&apos;</translation>
     </message>
     <message>
         <source>E134: Cannot move a range of lines into itself</source>
-        <translation type="unfinished"></translation>
+        <translation>E134: Ein Zeilenbereich kann nicht in sich selbst verschoben werden</translation>
     </message>
     <message>
         <source>E144: non-numeric argument to :z</source>
-        <translation type="unfinished"></translation>
+        <translation>E144: Nicht-numerisches Argument für :z</translation>
     </message>
     <message>
         <source>E353: Nothing in register %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E353: Register %1 ist leer</translation>
     </message>
     <message>
         <source>E21: Cannot make changes, editor is read-only</source>
-        <translation type="unfinished"></translation>
+        <translation>E21: Änderungen nicht möglich, Editor ist schreibgeschützt</translation>
     </message>
     <message>
         <source>E21: Cannot make changes, &apos;modifiable&apos; is off</source>
-        <translation type="unfinished"></translation>
+        <translation>E21: Änderungen nicht möglich, &apos;modifiable&apos; ist deaktiviert</translation>
     </message>
     <message>
         <source>E45: &apos;readonly&apos; option is set (add ! to override)</source>
-        <translation type="unfinished"></translation>
+        <translation>E45: Option &apos;readonly&apos; ist gesetzt (mit ! erzwingen)</translation>
     </message>
     <message>
         <source>E212: Can&apos;t open file for writing (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>E212: Datei kann nicht zum Schreiben geöffnet werden (%1)</translation>
     </message>
     <message>
         <source>File &quot;%1&quot; exists (add ! to override)</source>
@@ -39949,11 +39960,11 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>E32: No file name</source>
-        <translation type="unfinished"></translation>
+        <translation>E32: Kein Dateiname</translation>
     </message>
     <message>
         <source>E484: Can&apos;t open file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E484: Datei %1 kann nicht geöffnet werden</translation>
     </message>
     <message>
         <source>&quot;%1&quot; %2L, %3C</source>
@@ -39961,1064 +39972,1064 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>E191: Argument must be a letter or forward/backward quote</source>
-        <translation type="unfinished"></translation>
+        <translation>E191: Argument muss ein Buchstabe oder ein einfaches oder umgekehrtes Anführungszeichen sein</translation>
     </message>
     <message>
         <source>E165: Cannot go beyond last file</source>
-        <translation type="unfinished"></translation>
+        <translation>E165: Kann nicht über die letzte Datei hinausgehen</translation>
     </message>
     <message>
         <source>E164: Cannot go before first file</source>
-        <translation type="unfinished"></translation>
+        <translation>E164: Kann nicht vor die erste Datei gehen</translation>
     </message>
     <message>
         <source>E350: Cannot create fold with current &apos;foldmethod&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>E350: Mit der aktuellen &apos;foldmethod&apos; kann keine Faltung erstellt werden</translation>
     </message>
     <message>
         <source>E480: No match: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E480: Kein Treffer: %1</translation>
     </message>
     <message>
         <source>E163: There is only one file to edit</source>
-        <translation type="unfinished"></translation>
+        <translation>E163: Es gibt nur eine zu bearbeitende Datei</translation>
     </message>
     <message>
         <source>E939: Positive count required: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E939: Positive Anzahl erforderlich: %1</translation>
     </message>
     <message>
         <source>No swap file</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Auslagerungsdatei</translation>
     </message>
     <message>
         <source>E167: :scriptencoding used outside of a sourced file</source>
-        <translation type="unfinished"></translation>
+        <translation>E167: :scriptencoding außerhalb einer eingelesenen Datei verwendet</translation>
     </message>
     <message>
         <source>E313: Cannot preserve, there is no swap file</source>
-        <translation type="unfinished"></translation>
+        <translation>E313: Kann nicht sichern, es gibt keine Auslagerungsdatei</translation>
     </message>
     <message>
         <source>E475: Invalid argument: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E475: Ungültiges Argument: %1</translation>
     </message>
     <message>
         <source>E359: Screen mode setting not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>E359: Screen Mode Einstellung wird nicht unterstützt</translation>
     </message>
     <message>
         <source>E488: Trailing characters: %1: fixdel %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E488: Überschüssige Zeichen: %1: fixdel %1</translation>
     </message>
     <message>
         <source>E919: Directory not found in &apos;packpath&apos;: &quot;pack/*/opt/%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>E919: Verzeichnis nicht in &apos;packpath&apos; gefunden: &quot;pack/*/opt/%1&quot;</translation>
     </message>
     <message>
         <source>E476: Invalid command</source>
-        <translation type="unfinished"></translation>
+        <translation>E476: Ungültiges Kommando</translation>
     </message>
     <message>
         <source>E28: No such highlight group name: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E28: Keine solche Hervorhebungsgruppe: %1</translation>
     </message>
     <message>
         <source>E16: Invalid range: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E16: Ungültiger Bereich: %1</translation>
     </message>
     <message>
         <source>E94: No matching buffer for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E94: Kein passender Puffer für %1</translation>
     </message>
     <message>
         <source>E515: No buffers were unloaded: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E515: Es wurden keine Puffer entladen: %1</translation>
     </message>
     <message>
         <source>E516: No buffers were deleted: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E516: Es wurden keine Puffer gelöscht: %1</translation>
     </message>
     <message>
         <source>E517: No buffers were wiped out: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E517: Es wurden keine Puffer entfernt: %1</translation>
     </message>
     <message>
         <source>E92: Buffer %1 not found</source>
-        <translation type="unfinished"></translation>
+        <translation>E92: Puffer %1 nicht gefunden</translation>
     </message>
     <message>
         <source>E714: List required</source>
-        <translation type="unfinished"></translation>
+        <translation>E714: Liste erforderlich</translation>
     </message>
     <message>
         <source>E927: Invalid action: &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>E927: Ungültige Aktion: &apos;%1&apos;</translation>
     </message>
     <message>
         <source>E715: Dictionary required</source>
-        <translation type="unfinished"></translation>
+        <translation>E715: Dictionary erforderlich</translation>
     </message>
     <message>
         <source>E475: Invalid argument: cannot have both a list and a &quot;what&quot; argument</source>
-        <translation type="unfinished"></translation>
+        <translation>E475: Ungültiges Argument: Eine Liste und ein &quot;what&quot;-Argument können nicht gleichzeitig angegeben werden</translation>
     </message>
     <message>
         <source>E488: Trailing characters: %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>E488: Überschüssige Zeichen: %1: %2</translation>
     </message>
     <message>
         <source>E776: No location list</source>
-        <translation type="unfinished"></translation>
+        <translation>E776: Keine Positionsliste</translation>
     </message>
     <message>
         <source>E42: No Errors: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E42: Keine Fehler: %1</translation>
     </message>
     <message>
         <source>E42: No Errors</source>
-        <translation type="unfinished"></translation>
+        <translation>E42: Keine Fehler</translation>
     </message>
     <message>
         <source>E553: No more items</source>
-        <translation type="unfinished"></translation>
+        <translation>E553: Keine weiteren Einträge</translation>
     </message>
     <message>
         <source>E477: No ! allowed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E477: Kein ! erlaubt: %1</translation>
     </message>
     <message>
         <source>E481: No range allowed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E481: Kein Bereich erlaubt: %1</translation>
     </message>
     <message>
         <source>E471: Argument required: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E471: Argument erforderlich: %1</translation>
     </message>
     <message>
         <source>No entries</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Einträge</translation>
     </message>
     <message>
         <source>E380: At bottom of quickfix stack</source>
-        <translation type="unfinished"></translation>
+        <translation>E380: Am Ende des Quickfix-Stacks</translation>
     </message>
     <message>
         <source>E381: At top of quickfix stack</source>
-        <translation type="unfinished"></translation>
+        <translation>E381: Am Anfang des Quickfix-Stacks</translation>
     </message>
     <message>
         <source>E682: Invalid search pattern or delimiter</source>
-        <translation type="unfinished"></translation>
+        <translation>E682: Ungültiges Suchmuster oder Trennzeichen</translation>
     </message>
     <message>
         <source>E683: File name missing or invalid pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>E683: Dateiname fehlt oder ungültiges Muster</translation>
     </message>
     <message>
         <source>E499: Empty file name for &apos;%&apos; or &apos;#&apos;, only works with &quot;:p:h&quot;: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E499: Leerer Dateiname für &apos;%&apos; oder &apos;#&apos;, funktioniert nur mit &quot;:p:h&quot;: %1</translation>
     </message>
     <message>
         <source>Cannot open file &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; kann nicht geöffnet werden</translation>
     </message>
     <message>
         <source>E681: Buffer is not loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>E681: Puffer ist nicht geladen</translation>
     </message>
     <message>
         <source>E378: &apos;errorformat&apos; contains no pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>E378: &apos;errorformat&apos; enthält kein Muster</translation>
     </message>
     <message>
         <source>E40: Can&apos;t open errorfile %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E40: Fehlerdatei %1 kann nicht geöffnet werden</translation>
     </message>
     <message>
         <source>E777: String or List expected</source>
-        <translation type="unfinished"></translation>
+        <translation>E777: String oder Liste erwartet</translation>
     </message>
     <message>
         <source>E189: &quot;%1&quot; exists (add ! to override)</source>
-        <translation type="unfinished"></translation>
+        <translation>E189: &quot;%1&quot; existiert bereits (mit ! erzwingen)</translation>
     </message>
     <message>
         <source>E190: Cannot open &quot;%1&quot; for writing</source>
-        <translation type="unfinished"></translation>
+        <translation>E190: &quot;%1&quot; kann nicht zum Schreiben geöffnet werden</translation>
     </message>
     <message>
         <source>E388: Couldn&apos;t find definition</source>
-        <translation type="unfinished"></translation>
+        <translation>E388: Definition nicht gefunden</translation>
     </message>
     <message>
         <source>E389: Couldn&apos;t find pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>E389: Muster nicht gefunden</translation>
     </message>
     <message>
         <source>E387: Match is on current line</source>
-        <translation type="unfinished"></translation>
+        <translation>E387: Treffer ist in der aktuellen Zeile</translation>
     </message>
     <message>
         <source>1 second ago</source>
-        <translation type="unfinished"></translation>
+        <translation>vor einer Sekunde</translation>
     </message>
     <message numerus="yes">
         <source>%n seconds ago</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>vor einer Sekunde</numerusform>
+            <numerusform>vor %n Sekunden</numerusform>
         </translation>
     </message>
     <message>
         <source>Nothing to undo</source>
-        <translation type="unfinished"></translation>
+        <translation>Nichts rückgängig zu machen</translation>
     </message>
     <message>
         <source>E39: Number expected</source>
-        <translation type="unfinished"></translation>
+        <translation>E39: Zahl erwartet</translation>
     </message>
     <message>
         <source>Current language: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelle Sprache: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>E984: :scriptversion used outside of a sourced file</source>
-        <translation type="unfinished"></translation>
+        <translation>E984: :scriptversion außerhalb einer eingelesenen Datei verwendet</translation>
     </message>
     <message>
         <source>E822: Cannot open undo file for reading: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E822: Undo-Datei kann nicht zum Lesen geöffnet werden: %1</translation>
     </message>
     <message>
         <source>E828: Cannot open undo file for writing: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E828: Undo-Datei kann nicht zum Schreiben geöffnet werden: %1</translation>
     </message>
     <message>
         <source>E319: Sorry, the command is not available in this version: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E319: Das Kommando ist in dieser Version leider nicht verfügbar: %1</translation>
     </message>
     <message>
         <source>E666: Compiler not supported: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E666: Compiler wird nicht unterstützt: %1</translation>
     </message>
     <message>
         <source>All included files were found</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle eingebundenen Dateien wurden gefunden</translation>
     </message>
     <message>
         <source>E161: Breakpoint not found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E161: Haltepunkt nicht gefunden: %1</translation>
     </message>
     <message>
         <source>E105: Using :loadkeymap not in a sourced file</source>
-        <translation type="unfinished"></translation>
+        <translation>E105: :loadkeymap außerhalb einer eingelesenen Datei verwendet</translation>
     </message>
     <message>
         <source>E1042: Export can only be used in vim9script</source>
-        <translation type="unfinished"></translation>
+        <translation>E1042: Export kann nur in vim9script verwendet werden</translation>
     </message>
     <message>
         <source>E1039: &quot;vim9script&quot; must be the first command in a script</source>
-        <translation type="unfinished"></translation>
+        <translation>E1039: &quot;vim9script&quot; muss das erste Kommando in einem Skript sein</translation>
     </message>
     <message>
         <source>E305: No swap file found for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E305: Keine Auslagerungsdatei für %1 gefunden</translation>
     </message>
     <message>
         <source>Window position: X %1, Y %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Fensterposition: X %1, Y %2</translation>
     </message>
     <message>
         <source>E466: :winpos requires two number arguments</source>
-        <translation type="unfinished"></translation>
+        <translation>E466: :winpos erfordert zwei Zahlen als Argumente</translation>
     </message>
     <message>
         <source>E465: :winsize requires two number arguments</source>
-        <translation type="unfinished"></translation>
+        <translation>E465: :winsize erfordert zwei Zahlen als Argumente</translation>
     </message>
     <message>
         <source>E148: Regular expression missing from :global</source>
-        <translation type="unfinished"></translation>
+        <translation>E148: Regulärer Ausdruck fehlt bei :global</translation>
     </message>
     <message>
         <source>E654: Missing delimiter after search pattern: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E654: Fehlendes Trennzeichen nach Suchmuster: %1</translation>
     </message>
     <message>
         <source>Already at oldest change</source>
-        <translation type="unfinished"></translation>
+        <translation>Bereits bei der ältesten Änderung</translation>
     </message>
     <message>
         <source>Already at newest change</source>
-        <translation type="unfinished"></translation>
+        <translation>Bereits bei der neuesten Änderung</translation>
     </message>
     <message>
         <source>E186: No previous directory</source>
-        <translation type="unfinished"></translation>
+        <translation>E186: Kein vorheriges Verzeichnis</translation>
     </message>
     <message>
         <source>E344: Can&apos;t find directory &quot;%1&quot; in cdpath</source>
-        <translation type="unfinished"></translation>
+        <translation>E344: Verzeichnis &quot;%1&quot; nicht in cdpath gefunden</translation>
     </message>
     <message>
         <source>E830: Undo number %1 not found</source>
-        <translation type="unfinished"></translation>
+        <translation>E830: Undo-Nummer %1 nicht gefunden</translation>
     </message>
     <message>
         <source>Undo number %1 is on a branch that is not kept</source>
-        <translation type="unfinished"></translation>
+        <translation>Undo-Nummer %1 liegt auf einem Branch, der nicht beibehalten wird</translation>
     </message>
     <message>
         <source>Recursive :source of &quot;%1&quot;</source>
         <extracomment>do not translate &quot;:source&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Rekursives :source von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Missing file name in :import</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlender Dateiname in :import</translation>
     </message>
     <message>
         <source>Missing closing quote in :import</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlendes schließendes Anführungszeichen in :import</translation>
     </message>
     <message>
         <source>E1053: Could not import &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>E1053: &quot;%1&quot; konnte nicht importiert werden</translation>
     </message>
     <message>
         <source>E974: Using a Blob as a Number</source>
-        <translation type="unfinished"></translation>
+        <translation>E974: Blob als Zahl verwendet</translation>
     </message>
     <message>
         <source>E976: Using a Blob as a String</source>
-        <translation type="unfinished"></translation>
+        <translation>E976: Blob als String verwendet</translation>
     </message>
     <message>
         <source>E1520: Using a Tuple as a Number</source>
-        <translation type="unfinished"></translation>
+        <translation>E1520: Tupel als Zahl verwendet</translation>
     </message>
     <message>
         <source>E745: Using a List as a Number</source>
-        <translation type="unfinished"></translation>
+        <translation>E745: Liste als Zahl verwendet</translation>
     </message>
     <message>
         <source>E728: Using a Dictionary as a Number</source>
-        <translation type="unfinished"></translation>
+        <translation>E728: Dictionary als Zahl verwendet</translation>
     </message>
     <message>
         <source>E703: Using a Funcref as a Number</source>
-        <translation type="unfinished"></translation>
+        <translation>E703: Funcref als Zahl verwendet</translation>
     </message>
     <message>
         <source>E1522: Using a Tuple as a String</source>
-        <translation type="unfinished"></translation>
+        <translation>E1522: Tupel als String verwendet</translation>
     </message>
     <message>
         <source>E730: Using a List as a String</source>
-        <translation type="unfinished"></translation>
+        <translation>E730: Liste als String verwendet</translation>
     </message>
     <message>
         <source>E731: Using a Dictionary as a String</source>
-        <translation type="unfinished"></translation>
+        <translation>E731: Dictionary als String verwendet</translation>
     </message>
     <message>
         <source>E729: Using a Funcref as a String</source>
-        <translation type="unfinished"></translation>
+        <translation>E729: Funcref als String verwendet</translation>
     </message>
     <message>
         <source>Trailing characters: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Überschüssige Zeichen: %1</translation>
     </message>
     <message>
         <source>E109: Missing &apos;:&apos; after &apos;?&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>E109: Fehlendes &apos;:&apos; nach &apos;?&apos;</translation>
     </message>
     <message>
         <source>E977: Can only compare Blob with Blob</source>
-        <translation type="unfinished"></translation>
+        <translation>E977: Blob kann nur mit Blob verglichen werden</translation>
     </message>
     <message>
         <source>E978: Invalid operation for Blob</source>
-        <translation type="unfinished"></translation>
+        <translation>E978: Ungültige Operation für Blob</translation>
     </message>
     <message>
         <source>E691: Can only compare List with List</source>
-        <translation type="unfinished"></translation>
+        <translation>E691: Liste kann nur mit Liste verglichen werden</translation>
     </message>
     <message>
         <source>E1518: Invalid operation for Tuple</source>
-        <translation type="unfinished"></translation>
+        <translation>E1518: Ungültige Operation für Tupel</translation>
     </message>
     <message>
         <source>E735: Can only compare Dictionary with Dictionary</source>
-        <translation type="unfinished"></translation>
+        <translation>E735: Dictionary kann nur mit Dictionary verglichen werden</translation>
     </message>
     <message>
         <source>E692: Invalid operation for List</source>
-        <translation type="unfinished"></translation>
+        <translation>E692: Ungültige Operation für Liste</translation>
     </message>
     <message>
         <source>E736: Invalid operation for Dictionary</source>
-        <translation type="unfinished"></translation>
+        <translation>E736: Ungültige Operation für Dictionary</translation>
     </message>
     <message>
         <source>E804: Cannot use &apos;%&apos; with Float</source>
-        <translation type="unfinished"></translation>
+        <translation>E804: &apos;%&apos; kann nicht mit Float verwendet werden</translation>
     </message>
     <message>
         <source>E111: Missing &apos;]&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>E111: Fehlende &apos;]&apos;</translation>
     </message>
     <message>
         <source>E116: Invalid arguments for function %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E116: Ungültige Argumente für Funktion %1</translation>
     </message>
     <message>
         <source>E260: Missing name after -&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>E260: Fehlender Name nach -&gt;</translation>
     </message>
     <message>
         <source>E107: Missing parentheses: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E107: Fehlende Klammern: %1</translation>
     </message>
     <message>
         <source>E740: Too many arguments for function %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E740: Zu viele Argumente für Funktion %1</translation>
     </message>
     <message>
         <source>E719: Cannot slice a Dictionary</source>
-        <translation type="unfinished"></translation>
+        <translation>E719: Slicing eines Dictionary ist nicht möglich</translation>
     </message>
     <message>
         <source>E695: Cannot index a Funcref</source>
-        <translation type="unfinished"></translation>
+        <translation>E695: Funcref kann nicht indiziert werden</translation>
     </message>
     <message>
         <source>E806: Using a Float as a String</source>
-        <translation type="unfinished"></translation>
+        <translation>E806: Float als String verwendet</translation>
     </message>
     <message>
         <source>E909: Cannot index a special variable</source>
-        <translation type="unfinished"></translation>
+        <translation>E909: Spezielle Variable kann nicht indiziert werden</translation>
     </message>
     <message>
         <source>E684: List index out of range: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E684: Listenindex außerhalb des Bereichs: %1</translation>
     </message>
     <message>
         <source>E1519: Tuple index out of range: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E1519: Tupelindex außerhalb des Bereichs: %1</translation>
     </message>
     <message>
         <source>E979: Blob index out of range: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E979: Blob-Index außerhalb des Bereichs: %1</translation>
     </message>
     <message>
         <source>E716: Key not present in Dictionary: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>E716: Key nicht im Dictionary vorhanden: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Can only index a List, Dictionary or String</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur Liste, Dictionary oder String können indiziert werden</translation>
     </message>
     <message>
         <source>E1526: Missing end of Tuple &apos;)&apos;: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E1526: Fehlendes Tupelende &apos;)&apos;: %1</translation>
     </message>
     <message>
         <source>E1527: Missing comma in Tuple: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E1527: Fehlendes Komma im Tupel: %1</translation>
     </message>
     <message>
         <source>E110: Missing &apos;)&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>E110: Fehlende &apos;)&apos;</translation>
     </message>
     <message>
         <source>E15: Invalid expression: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>E15: Ungültiger Ausdruck: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>E121: Undefined variable: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E121: Undefinierte Variable: %1</translation>
     </message>
     <message>
         <source>E973: Blob literal should have an even number of hex characters</source>
-        <translation type="unfinished"></translation>
+        <translation>E973: Blob-Literal sollte eine gerade Anzahl von Hex-Zeichen haben</translation>
     </message>
     <message>
         <source>E114: Missing double quote: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E114: Fehlendes doppeltes Anführungszeichen: %1</translation>
     </message>
     <message>
         <source>E115: Missing single quote: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E115: Fehlendes einfaches Anführungszeichen: %1</translation>
     </message>
     <message>
         <source>Missing &apos;}&apos; in interpolation</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende &apos;}&apos; in Interpolation</translation>
     </message>
     <message>
         <source>Missing quote in interpolated string</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlendes Anführungszeichen in interpoliertem String</translation>
     </message>
     <message>
         <source>E697: Missing end of List &apos;]&apos;: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E697: Fehlendes Listenende &apos;]&apos;: %1</translation>
     </message>
     <message>
         <source>E696: Missing comma in List: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E696: Fehlendes Komma in Liste: %1</translation>
     </message>
     <message>
         <source>Missing &apos;=&gt;&apos; in lambda</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlendes &apos;=&gt;&apos; in Lambda</translation>
     </message>
     <message>
         <source>Missing &apos;-&gt;&apos; in lambda</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlendes &apos;-&gt;&apos; in Lambda</translation>
     </message>
     <message>
         <source>Missing &apos;}&apos; in lambda</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende &apos;}&apos; in Lambda</translation>
     </message>
     <message>
         <source>Missing key in dictionary</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlender Key im Dictionary</translation>
     </message>
     <message>
         <source>Missing &apos;]&apos; in dictionary key</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende &apos;]&apos; im Dictionary-Schlüssel</translation>
     </message>
     <message>
         <source>E723: Missing end of Dictionary &apos;}&apos;: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E723: Fehlendes Dictionary-Ende &apos;}&apos;: %1</translation>
     </message>
     <message>
         <source>E720: Missing colon in Dictionary: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E720: Fehlender Doppelpunkt im Dictionary: %1</translation>
     </message>
     <message>
         <source>E722: Missing comma in Dictionary: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E722: Fehlendes Komma im Dictionary: %1</translation>
     </message>
     <message>
         <source>E113: Unknown option: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E113: Unbekannte Option: %1</translation>
     </message>
     <message>
         <source>Missing register name</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlender Registername</translation>
     </message>
     <message>
         <source>E15: Invalid expression: &quot;&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>E15: Ungültiger Ausdruck: &quot;&quot;</translation>
     </message>
     <message>
         <source>E46: Cannot change read-only variable &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>E46: Schreibgeschützte Variable &quot;%1&quot; kann nicht geändert werden</translation>
     </message>
     <message>
         <source>E741: Value is locked: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E741: Wert ist gesperrt: %1</translation>
     </message>
     <message>
         <source>E795: Cannot delete variable %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E795: Variable %1 kann nicht gelöscht werden</translation>
     </message>
     <message>
         <source>E18: Unexpected characters in :let</source>
-        <translation type="unfinished"></translation>
+        <translation>E18: Unerwartete Zeichen in :let</translation>
     </message>
     <message>
         <source>Invalid :let expression: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger :let-Ausdruck: %1</translation>
     </message>
     <message>
         <source>E1535: List or Tuple required</source>
-        <translation type="unfinished"></translation>
+        <translation>E1535: Liste oder Tupel erforderlich</translation>
     </message>
     <message>
         <source>E688: More targets than List items</source>
-        <translation type="unfinished"></translation>
+        <translation>E688: Mehr Ziele als Listeneinträge</translation>
     </message>
     <message>
         <source>E687: Less targets than List items</source>
-        <translation type="unfinished"></translation>
+        <translation>E687: Weniger Ziele als Listeneinträge</translation>
     </message>
     <message>
         <source>E461: Illegal variable name: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E461: Unzulässiger Variablenname: %1</translation>
     </message>
     <message>
         <source>E734: Wrong variable type for .=</source>
-        <translation type="unfinished"></translation>
+        <translation>E734: Falscher Variablentyp für .=</translation>
     </message>
     <message>
         <source>E355: Unknown option: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E355: Unbekannte Option: %1</translation>
     </message>
     <message>
         <source>E1532: Cannot modify a tuple</source>
-        <translation type="unfinished"></translation>
+        <translation>E1532: Ein Tupel kann nicht geändert werden</translation>
     </message>
     <message>
         <source>E1239: Invalid value for blob: 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>E1239: Ungültiger Wert für Blob: 0x%1</translation>
     </message>
     <message>
         <source>E689: Index not allowed after a %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>E689: Index nach %1 nicht erlaubt: %2</translation>
     </message>
     <message>
         <source>E474: Invalid argument: %1=%2</source>
-        <translation type="unfinished"></translation>
+        <translation>E474: Ungültiges Argument: %1=%2</translation>
     </message>
     <message>
         <source>E129: Function name required</source>
-        <translation type="unfinished"></translation>
+        <translation>E129: Funktionsname erforderlich</translation>
     </message>
     <message>
         <source>E807: Expected Float argument for printf()</source>
-        <translation type="unfinished"></translation>
+        <translation>E807: Float-Argument für printf() erwartet</translation>
     </message>
     <message>
         <source>E805: Using a Float as a Number</source>
-        <translation type="unfinished"></translation>
+        <translation>E805: Float als Zahl verwendet</translation>
     </message>
     <message>
         <source>E1505: Invalid format specifier: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E1505: Ungültiger Formatbezeichner: %1</translation>
     </message>
     <message>
         <source>E1500: Cannot mix positional and non-positional arguments: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E1500: Positionsgebundene und nicht positionsgebundene Argumente können nicht gemischt werden: %1</translation>
     </message>
     <message>
         <source>E1504: Positional argument %1 type used inconsistently: %2/%3</source>
-        <translation type="unfinished"></translation>
+        <translation>E1504: Typ des positionsgebundenen Arguments %1 uneinheitlich verwendet: %2/%3</translation>
     </message>
     <message>
         <source>E1501: format argument %1 unused in $-style format: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>E1501: Formatargument %1 im $-Format nicht verwendet: %2</translation>
     </message>
     <message>
         <source>E1503: Positional argument %1 out of bounds: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>E1503: Positionsgebundenes Argument %1 außerhalb des Bereichs: %2</translation>
     </message>
     <message>
         <source>E767: Too many arguments for printf()</source>
-        <translation type="unfinished"></translation>
+        <translation>E767: Zu viele Argumente für printf()</translation>
     </message>
     <message>
         <source>E766: Insufficient arguments for printf()</source>
-        <translation type="unfinished"></translation>
+        <translation>E766: Zu wenige Argumente für printf()</translation>
     </message>
     <message>
         <source>E119: Not enough arguments for function: searchpair</source>
-        <translation type="unfinished"></translation>
+        <translation>E119: Zu wenige Argumente für Funktion: searchpair</translation>
     </message>
     <message>
         <source>Invalid pattern: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Muster: %1</translation>
     </message>
     <message>
         <source>E119: Not enough arguments for function: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E119: Zu wenige Argumente für Funktion: %1</translation>
     </message>
     <message>
         <source>E118: Too many arguments for function: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E118: Zu viele Argumente für Funktion: %1</translation>
     </message>
     <message>
         <source>E897: List or Blob required</source>
-        <translation type="unfinished"></translation>
+        <translation>E897: Liste oder Blob erforderlich</translation>
     </message>
     <message>
         <source>E1211: List required</source>
-        <translation type="unfinished"></translation>
+        <translation>E1211: Liste erforderlich</translation>
     </message>
     <message>
         <source>E896: Argument of remove() must be a List, Dictionary or Blob</source>
-        <translation type="unfinished"></translation>
+        <translation>E896: Argument von remove() muss eine Liste, ein Dictionary oder ein Blob sein</translation>
     </message>
     <message>
         <source>E1238: Blob required for argument 1</source>
-        <translation type="unfinished"></translation>
+        <translation>E1238: Blob für Argument 1 erforderlich</translation>
     </message>
     <message>
         <source>E1211: List required for argument 1</source>
-        <translation type="unfinished"></translation>
+        <translation>E1211: Liste für Argument 1 erforderlich</translation>
     </message>
     <message>
         <source>E1211: List required for argument %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E1211: Liste für Argument %1 erforderlich</translation>
     </message>
     <message>
         <source>E1206: Dictionary required for argument 3</source>
-        <translation type="unfinished"></translation>
+        <translation>E1206: Dictionary für Argument 3 erforderlich</translation>
     </message>
     <message>
         <source>E106: Unsupported diff output format: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E106: Nicht unterstütztes Diff-Ausgabeformat: %1</translation>
     </message>
     <message>
         <source>E491: json decode error at &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>E491: JSON-Dekodierungsfehler bei &apos;%1&apos;</translation>
     </message>
     <message>
         <source>E1206: Dictionary required for argument 1</source>
-        <translation type="unfinished"></translation>
+        <translation>E1206: Dictionary für Argument 1 erforderlich</translation>
     </message>
     <message>
         <source>E966: Invalid line number: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E966: Ungültige Zeilennummer: %1</translation>
     </message>
     <message>
         <source>E1233: exists_compiled() can only be used in a :def function</source>
-        <translation type="unfinished"></translation>
+        <translation>E1233: exists_compiled() kann nur in einer :def-Funktion verwendet werden</translation>
     </message>
     <message>
         <source>E1524: Cannot use a tuple with function %1()</source>
-        <translation type="unfinished"></translation>
+        <translation>E1524: Ein Tupel kann nicht mit der Funktion %1() verwendet werden</translation>
     </message>
     <message>
         <source>E706: Argument of count() must be a List, String or Dictionary</source>
-        <translation type="unfinished"></translation>
+        <translation>E706: Argument von count() muss eine Liste, ein String oder ein Dictionary sein</translation>
     </message>
     <message>
         <source>E460: Entries missing in mapset() dict argument</source>
-        <translation type="unfinished"></translation>
+        <translation>E460: Fehlende Einträge im Dictionary-Argument von mapset()</translation>
     </message>
     <message>
         <source>E503: Coffee is currently not available</source>
         <extracomment>Easter egg error message of Vim&apos;s err_teapot() function.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>E503: Kaffee ist derzeit nicht verfügbar</translation>
     </message>
     <message>
         <source>E418: I&apos;m a teapot</source>
         <extracomment>Easter egg error message of Vim&apos;s err_teapot() function.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>E418: Ich bin eine Teekanne</translation>
     </message>
     <message>
         <source>E808: Number or Float required</source>
-        <translation type="unfinished"></translation>
+        <translation>E808: Zahl oder Float erforderlich</translation>
     </message>
     <message>
         <source>E1253: String, List, Tuple or Blob required for argument 1</source>
-        <translation type="unfinished"></translation>
+        <translation>E1253: String, Liste, Tupel oder Blob für Argument 1 erforderlich</translation>
     </message>
     <message>
         <source>E998: Reduce of an empty List with no initial value</source>
-        <translation type="unfinished"></translation>
+        <translation>E998: Reduce einer leeren Liste ohne Anfangswert</translation>
     </message>
     <message>
         <source>E367: No such group: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>E367: Keine solche Gruppe: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>E216: No such event: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E216: Kein solches Ereignis: %1</translation>
     </message>
     <message>
         <source>%1() expects a list of at least three numbers</source>
-        <translation type="unfinished"></translation>
+        <translation>%1() erwartet eine Liste von mindestens drei Zahlen</translation>
     </message>
     <message>
         <source>Invalid position: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Position: %1</translation>
     </message>
     <message>
         <source>E798: ID is reserved for &quot;:match&quot;: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E798: ID ist für &quot;:match&quot; reserviert: %1</translation>
     </message>
     <message>
         <source>E801: ID already taken: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E801: ID ist bereits vergeben: %1</translation>
     </message>
     <message>
         <source>E803: ID not found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E803: ID nicht gefunden: %1</translation>
     </message>
     <message>
         <source>E928: String required</source>
-        <translation type="unfinished"></translation>
+        <translation>E928: String erforderlich</translation>
     </message>
     <message>
         <source>E491: json decode error</source>
-        <translation type="unfinished"></translation>
+        <translation>E491: JSON-Dekodierungsfehler</translation>
     </message>
     <message>
         <source>E482: Can&apos;t create file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E482: Datei %1 kann nicht erstellt werden</translation>
     </message>
     <message>
         <source>E475: Invalid argument: writefile() first argument must be a List or a Blob</source>
-        <translation type="unfinished"></translation>
+        <translation>E475: Ungültiges Argument: Das erste Argument von writefile() muss eine Liste oder ein Blob sein</translation>
     </message>
     <message>
         <source>E957: Invalid window number</source>
-        <translation type="unfinished"></translation>
+        <translation>E957: Ungültige Fensternummer</translation>
     </message>
     <message>
         <source>E616: Object required for argument 1</source>
-        <translation type="unfinished"></translation>
+        <translation>E616: Objekt für Argument 1 erforderlich</translation>
     </message>
     <message>
         <source>E1565: Socket server is not online, call remote_startserver() first</source>
-        <translation type="unfinished"></translation>
+        <translation>E1565: Socket-Server ist nicht online, rufen Sie zuerst remote_startserver() auf</translation>
     </message>
     <message>
         <source>E964: Invalid column number: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E964: Ungültige Spaltennummer: %1</translation>
     </message>
     <message>
         <source>E158: Invalid buffer name: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E158: Ungültiger Puffername: %1</translation>
     </message>
     <message>
         <source>E1212: Bool required for argument 1</source>
-        <translation type="unfinished"></translation>
+        <translation>E1212: Bool für Argument 1 erforderlich</translation>
     </message>
     <message>
         <source>E1216: digraph_setlist() argument must be a list of lists with two items</source>
-        <translation type="unfinished"></translation>
+        <translation>E1216: Argument von digraph_setlist() muss eine Liste von Listen mit zwei Einträgen sein</translation>
     </message>
     <message>
         <source>E700: Unknown function: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E700: Unbekannte Funktion: %1</translation>
     </message>
     <message>
         <source>E1211: List required for argument 2</source>
-        <translation type="unfinished"></translation>
+        <translation>E1211: Liste für Argument 2 erforderlich</translation>
     </message>
     <message>
         <source>E699: Too many arguments</source>
-        <translation type="unfinished"></translation>
+        <translation>E699: Zu viele Argumente</translation>
     </message>
     <message>
         <source>E117: Unknown function: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E117: Unbekannte Funktion: %1</translation>
     </message>
     <message>
         <source>E1085: Not a callable type: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E1085: Kein aufrufbarer Typ: %1</translation>
     </message>
     <message>
         <source>Not a function</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Funktion</translation>
     </message>
     <message>
         <source>E1203: Dot not allowed after a %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>E1203: Punkt nach %1 nicht erlaubt: %2</translation>
     </message>
     <message>
         <source>E108: No such variable: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>E108: Keine solche Variable: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>E476: Invalid command: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E476: Ungültiges Kommando: %1</translation>
     </message>
     <message>
         <source>E216: No such group or event: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E216: Keine solche Gruppe oder kein solches Ereignis: %1</translation>
     </message>
     <message>
         <source>No matching autocommands: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine passenden Autokommandos: %1</translation>
     </message>
     <message>
         <source>E184: No such user-defined command: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E184: Kein solches benutzerdefiniertes Kommando: %1</translation>
     </message>
     <message>
         <source>E176: Invalid number of arguments</source>
-        <translation type="unfinished"></translation>
+        <translation>E176: Ungültige Anzahl von Argumenten</translation>
     </message>
     <message>
         <source>E180: Invalid address type value: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E180: Ungültiger Wert für Adresstyp: %1</translation>
     </message>
     <message>
         <source>E467: Custom completion requires a function argument</source>
-        <translation type="unfinished"></translation>
+        <translation>E467: Benutzerdefinierte Vervollständigung erfordert ein Funktionsargument</translation>
     </message>
     <message>
         <source>E180: Invalid complete value: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E180: Ungültiger Wert für Vervollständigung: %1</translation>
     </message>
     <message>
         <source>E178: Invalid default value for count</source>
-        <translation type="unfinished"></translation>
+        <translation>E178: Ungültiger Vorgabewert für die Anzahl</translation>
     </message>
     <message>
         <source>E181: Invalid attribute: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E181: Ungültiges Attribut: %1</translation>
     </message>
     <message>
         <source>E182: Invalid command name</source>
-        <translation type="unfinished"></translation>
+        <translation>E182: Ungültiger Kommandoname</translation>
     </message>
     <message>
         <source>E183: User defined commands must start with an uppercase letter</source>
-        <translation type="unfinished"></translation>
+        <translation>E183: Benutzerdefinierte Kommandos müssen mit einem Großbuchstaben beginnen</translation>
     </message>
     <message>
         <source>E174: Command already exists: add ! to replace it: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E174: Kommando existiert bereits: Mit ! ersetzen: %1</translation>
     </message>
     <message>
         <source>No user-defined commands found</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine benutzerdefinierten Kommandos gefunden</translation>
     </message>
     <message>
         <source>E218: Autocommand nesting too deep</source>
-        <translation type="unfinished"></translation>
+        <translation>E218: Autokommandos zu tief verschachtelt</translation>
     </message>
     <message>
         <source>E582: :elseif without :if</source>
-        <translation type="unfinished"></translation>
+        <translation>E582: :elseif ohne :if</translation>
     </message>
     <message>
         <source>E581: :else without :if</source>
-        <translation type="unfinished"></translation>
+        <translation>E581: :else ohne :if</translation>
     </message>
     <message>
         <source>E588: :endwhile without :while</source>
-        <translation type="unfinished"></translation>
+        <translation>E588: :endwhile ohne :while</translation>
     </message>
     <message>
         <source>E588: :endfor without :for</source>
-        <translation type="unfinished"></translation>
+        <translation>E588: :endfor ohne :for</translation>
     </message>
     <message>
         <source>E603: :catch without :try</source>
-        <translation type="unfinished"></translation>
+        <translation>E603: :catch ohne :try</translation>
     </message>
     <message>
         <source>E606: :finally without :try</source>
-        <translation type="unfinished"></translation>
+        <translation>E606: :finally ohne :try</translation>
     </message>
     <message>
         <source>E602: :endtry without :try</source>
-        <translation type="unfinished"></translation>
+        <translation>E602: :endtry ohne :try</translation>
     </message>
     <message>
         <source>E193: :endfunction not inside a function</source>
-        <translation type="unfinished"></translation>
+        <translation>E193: :endfunction nicht innerhalb einer Funktion</translation>
     </message>
     <message>
         <source>E580: :endif without :if</source>
-        <translation type="unfinished"></translation>
+        <translation>E580: :endif ohne :if</translation>
     </message>
     <message>
         <source>E608: Cannot :throw exceptions with &apos;Vim&apos; prefix</source>
-        <translation type="unfinished"></translation>
+        <translation>E608: Ausnahmen mit dem Präfix &apos;Vim&apos; können nicht mit :throw ausgelöst werden</translation>
     </message>
     <message>
         <source>E492: Not an editor command: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E492: Kein Editor-Kommando: %1</translation>
     </message>
     <message>
         <source>Loop iteration limit exceeded</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximale Anzahl an Schleifendurchläufen überschritten</translation>
     </message>
     <message>
         <source>Invalid :for: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges :for: %1</translation>
     </message>
     <message>
         <source>E690: Missing &quot;in&quot; after :for</source>
-        <translation type="unfinished"></translation>
+        <translation>E690: Fehlendes &quot;in&quot; nach :for</translation>
     </message>
     <message>
         <source>E1523: String, List, Tuple or Blob required</source>
-        <translation type="unfinished"></translation>
+        <translation>E1523: String, Liste, Tupel oder Blob erforderlich</translation>
     </message>
     <message>
         <source>E605: Exception not caught: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E605: Ausnahme nicht abgefangen: %1</translation>
     </message>
     <message>
         <source>E587: :break without :while or :for</source>
-        <translation type="unfinished"></translation>
+        <translation>E587: :break ohne :while oder :for</translation>
     </message>
     <message>
         <source>E586: :continue without :while or :for</source>
-        <translation type="unfinished"></translation>
+        <translation>E586: :continue ohne :while oder :for</translation>
     </message>
     <message>
         <source>E133: :return not inside a function</source>
-        <translation type="unfinished"></translation>
+        <translation>E133: :return nicht innerhalb einer Funktion</translation>
     </message>
     <message>
         <source>E884: Function name cannot contain a colon: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E884: Funktionsname darf keinen Doppelpunkt enthalten: %1</translation>
     </message>
     <message>
         <source>E193: %1 not inside a function</source>
-        <translation type="unfinished"></translation>
+        <translation>E193: %1 nicht innerhalb einer Funktion</translation>
     </message>
     <message>
         <source>E132: Function call depth is higher than &apos;maxfuncdepth&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>E132: Funktionsaufruftiefe ist größer als &apos;maxfuncdepth&apos;</translation>
     </message>
     <message>
         <source>E493: Backwards range given</source>
-        <translation type="unfinished"></translation>
+        <translation>E493: Rückwärts gerichteter Bereich angegeben</translation>
     </message>
     <message>
         <source>search hit BOTTOM, continuing at TOP</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche erreichte das ENDE, wird am ANFANG fortgesetzt</translation>
     </message>
     <message>
         <source>search hit TOP, continuing at BOTTOM</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche erreichte den ANFANG, wird am ENDE fortgesetzt</translation>
     </message>
     <message>
         <source>E385: Search hit BOTTOM without match for: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E385: Suche erreichte das ENDE ohne Treffer für: %1</translation>
     </message>
     <message>
         <source>E384: Search hit TOP without match for: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E384: Suche erreichte den ANFANG ohne Treffer für: %1</translation>
     </message>
     <message numerus="yes">
         <source>%n lines indented</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Eine Zeile eingerückt</numerusform>
+            <numerusform>%n Zeilen eingerückt</numerusform>
         </translation>
     </message>
     <message>
         <source>E446: No file name under cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>E446: Kein Dateiname unter der Einfügemarke</translation>
     </message>
     <message>
         <source>E447: Can&apos;t find file &quot;%1&quot; in path</source>
-        <translation type="unfinished"></translation>
+        <translation>E447: Datei &quot;%1&quot; nicht im Pfad gefunden</translation>
     </message>
     <message>
         <source>E774: &apos;operatorfunc&apos; is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>E774: &apos;operatorfunc&apos; ist leer</translation>
     </message>
     <message>
         <source>W10: Warning: Changing a readonly file</source>
-        <translation type="unfinished"></translation>
+        <translation>W10: Warnung: Ändere eine schreibgeschützte Datei</translation>
     </message>
     <message>
         <source>E90: Cannot unload last buffer</source>
-        <translation type="unfinished"></translation>
+        <translation>E90: Der letzte Puffer kann nicht entladen werden</translation>
     </message>
     <message>
         <source>E89: No write since last change for buffer %1 (add ! to override)</source>
-        <translation type="unfinished"></translation>
+        <translation>E89: Puffer %1 seit der letzten Änderung nicht geschrieben (mit ! erzwingen)</translation>
     </message>
     <message>
         <source>E426: Tag not found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>E426: Tag nicht gefunden: %1</translation>
     </message>
     <message>
         <source>Invalid regular expression: %1</source>
@@ -41082,11 +41093,11 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Cursor blink rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Blinkrate der Einfügemarke:</translation>
     </message>
     <message>
         <source>Command line in the editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommandozeile im Editor</translation>
     </message>
     <message>
         <source>Plugin Emulation</source>
@@ -41127,19 +41138,19 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>E37: No write since last change (add ! to override)</source>
-        <translation type="unfinished"></translation>
+        <translation>E37: Seit der letzten Änderung nicht geschrieben (mit ! erzwingen)</translation>
     </message>
     <message>
         <source>E13: File exists (add ! to override)</source>
-        <translation type="unfinished"></translation>
+        <translation>E13: Datei existiert bereits (mit ! erzwingen)</translation>
     </message>
     <message>
         <source>E345: Can&apos;t find file &quot;%1&quot; in path</source>
-        <translation type="unfinished"></translation>
+        <translation>E345: Datei &quot;%1&quot; nicht im Pfad gefunden</translation>
     </message>
     <message>
         <source>No write since last change (add ! to override)</source>
-        <translation type="unfinished"></translation>
+        <translation>Seit der letzten Änderung nicht geschrieben (mit ! erzwingen)</translation>
     </message>
     <message>
         <source>Execute User Action #%1</source>
