@@ -58,7 +58,8 @@ QmlProfilerSamplerSettings::QmlProfilerSamplerSettings()
 
     // One toggle per profiler feature, defaulting to enabled (record everything).
     for (int feature = 0; feature < QmlDebug::MaximumProfileFeature; ++feature) {
-        auto *aspect = new BoolAspect(this);
+        auto *aspect = new BoolAspect;
+        registerAspect(aspect, true);
         const QByteArray key = QByteArray("Feature") + QByteArray::number(feature);
         aspect->setSettingsKey(key);
         aspect->setLabel(QString::fromLatin1(QmlProfilerModelManager::featureName(
