@@ -711,6 +711,7 @@ SectionedGridView::SectionedGridView(QWidget *parent)
     });
 
     m_allItemsModel.reset(new ListModel);
+    m_allItemsModel->setOwnsItems(false);
     m_allItemsModel->setPixmapFunction(m_pixmapFunction);
 
     auto area = new QScrollArea(this);
@@ -808,10 +809,11 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
     auto model = new ListModel(this);
     model->setPixmapFunction(m_pixmapFunction);
     // the sections only keep a weak reference to the items,
-    // they are owned by the allProducts model, since multiple sections can contain duplicates
+    // they are owned by the view, since multiple sections can contain duplicates
     // of the same item
     model->setOwnsItems(false);
     model->appendItems(items);
+    m_items.unite(QSet<ListItem *>(items.constBegin(), items.constEnd()));
 
     auto gridView = new SectionGridView(this);
     gridView->setItemDelegate(m_itemDelegate);
@@ -888,6 +890,8 @@ void SectionedGridView::clear()
     m_sectionLabels.clear();
     m_gridViews.clear();
     m_allItemsView.reset();
+    qDeleteAll(m_items);
+    m_items.clear();
 }
 
 void SectionedGridView::zoomOut()

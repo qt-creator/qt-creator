@@ -19,6 +19,7 @@
 #include <QPen>
 #include <QPointer>
 #include <QPushButton>
+#include <QSet>
 #include <QSortFilterProxyModel>
 #include <QStackedWidget>
 #include <QStyledItemDelegate>
@@ -210,6 +211,7 @@ private:
     QMap<Section, Core::ListModel *> m_sectionModels;
     QList<QWidget *> m_sectionLabels;
     QMap<Section, Core::GridView *> m_gridViews;
+    QSet<Core::ListItem *> m_items;
     std::unique_ptr<Core::ListModel> m_allItemsModel;
     std::unique_ptr<Core::GridView> m_allItemsView;
     QPointer<QWidget> m_zoomedInWidget;
