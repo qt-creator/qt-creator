@@ -24,11 +24,20 @@ using namespace Utils;
 namespace ProjectExplorer::Internal {
 
 // Locations are either source files with line and sometimes column, or binaries with
-// a hex offset.
+// a hex offset. Files compiled with a relative path appear with that path.
 static const QString &locationPattern()
 {
     static const QString pattern = [] {
-        const QString filePathPattern = R"((?<file>(?:[A-Za-z]:)?[\/\\][^:]+))";
+        const QString driveSpec = "[A-Za-z]:";
+        const QString separators = R"(\/\\)";
+        // In the surrounding text, a relative path is delimited by these characters.
+        const QString delimiters = "\\s'\"()";
+        const QString absolutePathPattern
+            = QString("(?:%1)?[%2][^:]+").arg(driveSpec, separators);
+        const QString relativePathPattern
+            = QString("(?<=^|[%1])[^%1:%2][^%1:]*").arg(delimiters, separators);
+        const QString filePathPattern
+            = QString("(?<file>%1|%2)").arg(absolutePathPattern, relativePathPattern);
         const QString numberSuffixPatternTemplate = R"(:(?<%1>\d+))";
         const QString lineSuffixPattern = numberSuffixPatternTemplate.arg("line");
         const QString columnSuffixPattern = numberSuffixPatternTemplate.arg("column");
@@ -118,7 +127,7 @@ OutputLineParser::Result SanitizerParser::handleAsanContinuation(const QString &
             m_task.setSummary(summaryMatch.captured("desc"));
             const FilePath file = absoluteFilePath(FilePath::fromUserInput(
                                                        summaryMatch.captured("file")));
-            if (fileExists(file)) {
+            if (file.isAbsolutePath() && fileExists(file)) {
                 m_task.setFile(file);
                 m_task.setLine(summaryMatch.captured("line").toInt());
                 m_task.setColumn(summaryMatch.captured("column").toInt());
@@ -177,9 +186,8 @@ OutputLineParser::Result SanitizerParser::handleUbsanLine(const QString &line)
     m_type = SanitizerType::UB;
 
     LinkSpecs linkSpecs;
-    const FilePath filePath = FilePath::fromUserInput(match.captured("file"));
-    const FilePath file = filePath.isAbsolutePath() ? absoluteFilePath(filePath) : FilePath();
-    if (fileExists(file)) {
+    const FilePath file = absoluteFilePath(FilePath::fromUserInput(match.captured("file")));
+    if (file.isAbsolutePath() && fileExists(file)) {
         m_task.setFile(file);
         m_task.setLine(match.captured("line").toInt());
         m_task.setColumn(match.captured("column").toInt());
@@ -197,7 +205,7 @@ OutputLineParser::LinkSpecs SanitizerParser::linkSpecsForLocation(const QString 
     const QRegularExpressionMatch fileMatch = filePattern.match(line);
     if (fileMatch.hasMatch()) {
         const FilePath file = absoluteFilePath(FilePath::fromUserInput(fileMatch.captured("file")));
-        if (fileExists(file)) {
+        if (file.isAbsolutePath() && fileExists(file)) {
             addLinkSpecForAbsoluteFilePath(linkSpecs, file, fileMatch.captured("line").toInt(),
                                            fileMatch.captured("column").toInt(), fileMatch, "file");
             addLinkSpecs(linkSpecs);
@@ -344,6 +352,51 @@ SUMMARY: AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).)";
                 {}, -1, Constants::TASK_CATEGORY_OTHER);
         QTest::newRow("leak") << leakInput << QList<Task>{leakTask} << leakNonMatchedLines;
 
+        // Real output of GCC 16 for globals compiled with a relative path.
+        const QStringList relativeOdrLines{
+            "==3761886==ERROR: AddressSanitizer: odr-violation (0x556000ee0060):",
+            "  [1] size=16 'shared' odr1.cpp:1:5 in /tmp/asan-real/odr-gcc",
+            "  [2] size=16 'shared' odrlib.cpp:1:5 in ./libodr-gcc.so",
+            "These globals were registered at these points:",
+            "  [1]:",
+            "    #0 0x7f3a09a54362 in __asan_register_globals (/usr/lib/libasan.so.8+0x54362) "
+            "(BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)",
+            "    #1 0x556000edd1b4 in _sub_I_00099_1 (/tmp/asan-real/odr-gcc+0x11b4) "
+            "(BuildId: a021c8a62d78819dba6f7bbaeff16ca8df62d0dc)",
+            "    #2 0x7f3a09227933 in __libc_start_main (/usr/lib/libc.so.6+0x27933) "
+            "(BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)",
+            "    #3 0x556000edd0a4 in _start (/tmp/asan-real/odr-gcc+0x10a4) "
+            "(BuildId: a021c8a62d78819dba6f7bbaeff16ca8df62d0dc)",
+            "",
+            "  [2]:",
+            "    #0 0x7f3a09a54362 in __asan_register_globals (/usr/lib/libasan.so.8+0x54362) "
+            "(BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)",
+            "    #1 0x7f3a0a2b9174 in _sub_I_00099_1 (libodr-gcc.so+0x1174) "
+            "(BuildId: 420b878b0202875063de29dacca65bd89c2d5c4f)",
+            "    #2 0x7f3a0a30e1ee  (/lib64/ld-linux-x86-64.so.2+0x61ee) "
+            "(BuildId: c609e8ec75de304410d3c69f79d96c7bd4d4fdf8)",
+            "    #3 0x7f3a0a30e2cc  (/lib64/ld-linux-x86-64.so.2+0x62cc) "
+            "(BuildId: c609e8ec75de304410d3c69f79d96c7bd4d4fdf8)",
+            "    #4 0x7f3a0a32983f  (/lib64/ld-linux-x86-64.so.2+0x2183f) "
+            "(BuildId: c609e8ec75de304410d3c69f79d96c7bd4d4fdf8)",
+            "",
+            "==3761886==HINT: if you don't care about these errors you may set "
+            "ASAN_OPTIONS=detect_odr_violation=0",
+            "SUMMARY: AddressSanitizer: odr-violation: global 'shared' at odr1.cpp:1:5 in "
+            "/tmp/asan-real/odr-gcc"};
+        const QString relativeOdrFrame = "=================================================================";
+        const QString relativeOdrAbort = "==3761886==ABORTING";
+        Task relativeOdrTask(Task::Error,
+                             "AddressSanitizer: odr-violation: global 'shared'\n"
+                                 + relativeOdrLines.join('\n'),
+                             FilePath::fromUserInput("/build/odr1.cpp"), 1,
+                             Constants::TASK_CATEGORY_OTHER);
+        relativeOdrTask.setColumn(5);
+        QTest::newRow("odr violation, relative paths")
+            << (QStringList{relativeOdrFrame} + relativeOdrLines + QStringList{relativeOdrAbort})
+                   .join('\n')
+            << QList<Task>{relativeOdrTask} << QStringList{relativeOdrFrame, relativeOdrAbort};
+
         const QString vptrInput = R"(/qtcreator/src/plugins/projectexplorer/taskhandlers.cpp:111:36: runtime error: member call on address 0x7bddec0d4680 which does not point to an object of type 'ConfigTaskHandler'
 0x7bddec0d4680: note: object has invalid vptr
  00 00 00 00  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  00 00 00 00
@@ -368,9 +421,13 @@ SUMMARY: AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).)";
                                         "cannot be represented in type 'int'";
         const QString boolSummary = "runtime error: load of value 2, which is not a valid value "
                                     "for type 'bool'";
-        const auto ubTask = [](const QString &summary, const QStringList &lines) {
-            return Task(Task::Error, summary + '\n' + lines.join('\n'), {}, -1,
-                        Constants::TASK_CATEGORY_OTHER);
+        const FilePath ubFile = FilePath::fromUserInput("/build/ub.cpp");
+        const auto ubTask = [&](const QString &summary, const QStringList &lines, int line,
+                                int column) {
+            Task task(Task::Error, summary + '\n' + lines.join('\n'), ubFile, line,
+                      Constants::TASK_CATEGORY_OTHER);
+            task.setColumn(column);
+            return task;
         };
 
         // GCC prints no summary. With stack traces, an empty line ends a report.
@@ -398,8 +455,8 @@ SUMMARY: AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).)";
         QTest::newRow("ubsan, gcc, stack traces")
             << (overflowGccStack + QStringList{QString()} + boolGccStack
                 + QStringList{QString(), unrelatedLine}).join('\n')
-            << QList<Task>{ubTask(overflowSummary, overflowGccStack),
-                           ubTask(boolSummary, boolGccStack)}
+            << QList<Task>{ubTask(overflowSummary, overflowGccStack, 6, 16),
+                           ubTask(boolSummary, boolGccStack, 13, 12)}
             << QStringList{unrelatedLine};
 
         // Clang ends each report with a summary, after the empty line if there is a stack trace.
@@ -435,8 +492,8 @@ SUMMARY: AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).)";
             boolClangSummary};
         QTest::newRow("ubsan, clang, stack traces")
             << (overflowClangStack + boolClangStack).join('\n')
-            << QList<Task>{ubTask(overflowSummary, overflowClangStack),
-                           ubTask(boolSummary, boolClangStack)}
+            << QList<Task>{ubTask(overflowSummary, overflowClangStack, 6, 14),
+                           ubTask(boolSummary, boolClangStack, 13, 12)}
             << QStringList();
 
         // Real output of Clang 23 for a source path with a space and notes that refer to it.
@@ -486,10 +543,12 @@ SUMMARY: AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).)";
             "    #3 0x5637f9a900d4 in _start (/tmp/ubsan-real/vptr2-gcc+0x10d4) "
             "(BuildId: f507bd4fd3c96a856f34b2d1cffa5cd55cb272fc)"};
         const QString indentedOutput = "    indented program output";
-        const Task vptrGccTask(Task::Error,
-                               "runtime error: member call on address 0x7ffc24810af0 which does "
-                               "not point to an object of type 'Base'\n" + vptrGccLines.join('\n'),
-                               {}, -1, Constants::TASK_CATEGORY_OTHER);
+        Task vptrGccTask(Task::Error,
+                         "runtime error: member call on address 0x7ffc24810af0 which does not "
+                         "point to an object of type 'Base'\n" + vptrGccLines.join('\n'),
+                         FilePath::fromUserInput("/build/vptr2.cpp"), 12,
+                         Constants::TASK_CATEGORY_OTHER);
+        vptrGccTask.setColumn(36);
         QTest::newRow("ubsan, gcc, stack trace, then indented output")
             << (vptrGccLines + QStringList{QString(), indentedOutput}).join('\n')
             << QList<Task>{vptrGccTask} << QStringList{indentedOutput};
@@ -498,8 +557,8 @@ SUMMARY: AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).)";
         const QStringList boolClangPlain{boolLine, boolClangSummary};
         QTest::newRow("ubsan, clang, no stack traces")
             << (overflowClangPlain + boolClangPlain).join('\n')
-            << QList<Task>{ubTask(overflowSummary, overflowClangPlain),
-                           ubTask(boolSummary, boolClangPlain)}
+            << QList<Task>{ubTask(overflowSummary, overflowClangPlain, 6, 14),
+                           ubTask(boolSummary, boolClangPlain, 13, 12)}
             << QStringList();
     }
 
@@ -525,6 +584,7 @@ SUMMARY: AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).)";
     {
         OutputParserTester testbench;
         testbench.setLineParsers({new SanitizerParser});
+        testbench.addSearchDir(FilePath::fromUserInput("/build"));
         QFETCH(QString, input);
         QFETCH(Tasks, tasks);
         QFETCH(QStringList, childStdErrLines);
