@@ -115,7 +115,8 @@ QDocSettings::QDocSettings()
     suppressedByConfig.setDefaultValue(0);
 
     for (const Rule &rule : ruleTable()) {
-        auto level = new SelectionAspect(this);
+        auto level = new SelectionAspect;
+        registerAspect(level, true);
         level->setSettingsKey(keyFromString("Rule." + rule.id));
         level->setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
         level->setLabelText(rule.id);
