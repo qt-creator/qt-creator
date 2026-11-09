@@ -363,8 +363,10 @@ bool hasNativeFileDialog()
 {
     // Checking QFileDialog::itemDelegate() seems to be the only way to determine
     // whether the dialog is native or not.
-    static bool hasNative = QFileDialog().itemDelegate() == nullptr;
-    return hasNative;
+    static std::optional<bool> hasNative;
+    if (!hasNative.has_value())
+        hasNative = QFileDialog().itemDelegate() == nullptr;
+    return *hasNative;
 }
 
 FilePath getOpenFilePath(const QString &caption,
