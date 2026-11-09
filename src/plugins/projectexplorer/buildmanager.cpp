@@ -92,12 +92,17 @@ public:
                         spacing(GapHM),
                     } >> Else {
                         // Part of ProgressIndicator
-                        Column {
-                            m_errorLabel,
-                            m_warningLabel,
-                            spacing(0),
-                            customMargins(0, 0, 0, PaddingVM),
-                        },
+                        // Created only when used, an unused Column would leak its layout.
+                        // TODO: Let If/Then/Else take care of this, so that the items of
+                        // the branch that is not taken are not created or do not leak.
+                        LayoutModifier([this](Layout *layout) {
+                            layout->addItem(Column {
+                                m_errorLabel,
+                                m_warningLabel,
+                                spacing(0),
+                                customMargins(0, 0, 0, PaddingVM),
+                            });
+                        }),
                     },
                     st,
                     noMargin,
