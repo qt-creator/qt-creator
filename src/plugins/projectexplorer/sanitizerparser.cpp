@@ -16,30 +16,70 @@
 #ifdef WITH_TESTS
 #include <QTest>
 #include "outputparser_test.h"
+#include "taskhub.h"
 #endif
 
 using namespace Utils;
 
 namespace ProjectExplorer::Internal {
 
+// Locations are either source files with line and sometimes column, or binaries with
+// a hex offset.
+static const QString &locationPattern()
+{
+    static const QString pattern = [] {
+        const QString filePathPattern = R"((?<file>(?:[A-Za-z]:)?[\/\\][^:]+))";
+        const QString numberSuffixPatternTemplate = R"(:(?<%1>\d+))";
+        const QString lineSuffixPattern = numberSuffixPatternTemplate.arg("line");
+        const QString columnSuffixPattern = numberSuffixPatternTemplate.arg("column");
+        const QString offsetSuffixPattern = R"(\+0x[[:xdigit:]]+)";
+        return QString(R"(%1(?:(?:%2(%3)?)|%4))")
+            .arg(filePathPattern, lineSuffixPattern, columnSuffixPattern, offsetSuffixPattern);
+    }();
+    return pattern;
+}
+
+enum class SanitizerType { None, Address, UB };
+
 class SanitizerParser final : public OutputTaskParser
 {
     Result handleLine(const QString &line, OutputFormat format) final;
     void flush() final;
 
-    Result handleContinuation(const QString &line);
+    Result handleAsanLine(const QString &line);
+    Result handleAsanContinuation(const QString &line);
+    Result handleUbsanLine(const QString &line);
+    LinkSpecs linkSpecsForLocation(const QString &line);
     void addLinkSpecs(const LinkSpecs &linkSpecs);
+    void finishTask(int skippedLines);
 
     Task m_task;
     LinkSpecs m_linkSpecs;
     quint64 m_id = 0;
+    SanitizerType m_type = SanitizerType::None;
 };
 
 OutputLineParser::Result SanitizerParser::handleLine(const QString &line, OutputFormat format)
 {
-    if (format != OutputFormat::StdErrFormat)
+    if (format != OutputFormat::StdErrFormat) {
+        // A UBSan report has no end marker, and the program keeps running.
+        if (m_type == SanitizerType::UB)
+            finishTask(1);
         return Status::NotHandled;
+    }
 
+    if (m_type != SanitizerType::Address) {
+        const Result result = handleUbsanLine(line);
+        if (result.status != Status::NotHandled)
+            return result;
+    }
+    return handleAsanLine(line);
+}
+
+// AddressSanitizer reports are framed by "==<id>==ERROR: " and either a summary or
+// "==<id>==ABORTING".
+OutputLineParser::Result SanitizerParser::handleAsanLine(const QString &line)
+{
     // Non-regex shortcut for the common case.
     if (m_id == 0 && !line.startsWith('='))
         return Status::NotHandled;
@@ -47,18 +87,19 @@ OutputLineParser::Result SanitizerParser::handleLine(const QString &line, Output
     static const QRegularExpression idPattern(R"(^==(?<id>\d+)==ERROR: (?<desc>.*)$)");
     const QRegularExpressionMatch match = idPattern.match(line);
     if (!match.hasMatch())
-        return m_id == 0 ? Status::NotHandled : handleContinuation(line);
+        return m_id == 0 ? Status::NotHandled : handleAsanContinuation(line);
 
     QTC_ASSERT(m_id == 0, flush());
     m_id = match.captured("id").toULongLong();
     QTC_ASSERT(m_id != 0, return Status::NotHandled);
+    m_type = SanitizerType::Address;
     const QString description = match.captured("desc");
     m_task = Task(Task::Error, description, {}, 0, Constants::TASK_CATEGORY_OTHER);
     m_task.addToDetails(line);
     return Status::InProgress;
 }
 
-OutputLineParser::Result SanitizerParser::handleContinuation(const QString &line)
+OutputLineParser::Result SanitizerParser::handleAsanContinuation(const QString &line)
 {
     m_task.addToDetails(line);
 
@@ -67,22 +108,11 @@ OutputLineParser::Result SanitizerParser::handleContinuation(const QString &line
         return Status::Done;
     }
 
-    // Locations are either source files with line and sometimes column, or binaries with
-    // a hex offset.
-    static const QString filePathPattern = R"((?<file>(?:[A-Za-z]:)?[\/\\][^:]+))";
-    static const QString numberSuffixPatternTemplate = R"(:(?<%1>\d+))";
-    static const QString lineSuffixPattern = numberSuffixPatternTemplate.arg("line");
-    static const QString columnSuffixPattern = numberSuffixPatternTemplate.arg("column");
-    static const QString offsetSuffixPattern = R"(\+0x[[:xdigit:]]+)";
-    static const QString locationPatternString = QString(R"(%1(?:(?:%2(%3)?)|%4))")
-            .arg(filePathPattern, lineSuffixPattern, columnSuffixPattern, offsetSuffixPattern);
-    static const QRegularExpression filePattern(locationPatternString);
-
     LinkSpecs linkSpecs;
     const QString summaryPrefix = "SUMMARY: ";
     if (line.startsWith(summaryPrefix)) {
         static const QRegularExpression summaryPatternWithFile(QString(
-                R"(^%1(?<desc>.*?) at %2.*$)").arg(summaryPrefix, locationPatternString));
+                R"(^%1(?<desc>.*?) at %2.*$)").arg(summaryPrefix, locationPattern()));
         const QRegularExpressionMatch summaryMatch = summaryPatternWithFile.match(line);
         if (summaryMatch.hasMatch()) {
             m_task.setSummary(summaryMatch.captured("desc"));
@@ -102,6 +132,68 @@ OutputLineParser::Result SanitizerParser::handleContinuation(const QString &line
         flush();
         return {Status::Done, linkSpecs};
     }
+    return {Status::InProgress, linkSpecsForLocation(line)};
+}
+
+// UndefinedBehaviorSanitizer reports have no frame: They start with a "runtime error" line,
+// which can be followed by notes, indented lines (memory dumps, stack frames) and a summary.
+OutputLineParser::Result SanitizerParser::handleUbsanLine(const QString &line)
+{
+    if (m_type == SanitizerType::UB) {
+        if (line.startsWith("SUMMARY: UndefinedBehaviorSanitizer: ")) {
+            m_task.addToDetails(line);
+            const LinkSpecs linkSpecs = linkSpecsForLocation(line);
+            finishTask(0);
+            return {Status::Done, linkSpecs};
+        }
+        // Notes refer to an address or to a source location.
+        static const QRegularExpression notePattern(
+            R"(^(?:0x[[:xdigit:]]+|(?:[A-Za-z]:)?[^:]+:\d+(?::\d+)?): note: )");
+        // An empty line ends the stack frames. Only a summary can follow it.
+        const bool afterEmptyLine = m_task.details().last().isEmpty();
+        if (!afterEmptyLine
+            && (line.isEmpty() || line.startsWith(' ') || notePattern.match(line).hasMatch())) {
+            m_task.addToDetails(line);
+            return {Status::InProgress, linkSpecsForLocation(line)};
+        }
+        finishTask(1);
+    }
+
+    // Non-regex shortcut for the common case.
+    static const QString marker = ": runtime error: ";
+    const int markerPos = line.indexOf(marker);
+    if (markerPos == -1)
+        return Status::NotHandled;
+
+    // The file is given as it was passed to the compiler, so it can be relative.
+    static const QRegularExpression startPattern(
+        R"(^(?<file>(?:[A-Za-z]:)?[^:]+):(?<line>\d+)(?::(?<column>\d+))?$)");
+    const QRegularExpressionMatch match = startPattern.match(line.left(markerPos));
+    if (!match.hasMatch())
+        return Status::NotHandled;
+
+    m_task = Task(Task::Error, line.mid(markerPos + 2), {}, 0, Constants::TASK_CATEGORY_OTHER);
+    m_task.addToDetails(line);
+    m_type = SanitizerType::UB;
+
+    LinkSpecs linkSpecs;
+    const FilePath filePath = FilePath::fromUserInput(match.captured("file"));
+    const FilePath file = filePath.isAbsolutePath() ? absoluteFilePath(filePath) : FilePath();
+    if (fileExists(file)) {
+        m_task.setFile(file);
+        m_task.setLine(match.captured("line").toInt());
+        m_task.setColumn(match.captured("column").toInt());
+        addLinkSpecForAbsoluteFilePath(
+            linkSpecs, file, m_task.line(), m_task.column(), match, "file");
+        addLinkSpecs(linkSpecs);
+    }
+    return {Status::InProgress, linkSpecs};
+}
+
+OutputLineParser::LinkSpecs SanitizerParser::linkSpecsForLocation(const QString &line)
+{
+    static const QRegularExpression filePattern(locationPattern());
+    LinkSpecs linkSpecs;
     const QRegularExpressionMatch fileMatch = filePattern.match(line);
     if (fileMatch.hasMatch()) {
         const FilePath file = absoluteFilePath(FilePath::fromUserInput(fileMatch.captured("file")));
@@ -111,7 +203,7 @@ OutputLineParser::Result SanitizerParser::handleContinuation(const QString &line
             addLinkSpecs(linkSpecs);
         }
     }
-    return {Status::InProgress, linkSpecs};
+    return linkSpecs;
 }
 
 void SanitizerParser::addLinkSpecs(const LinkSpecs &linkSpecs)
@@ -126,8 +218,22 @@ void SanitizerParser::addLinkSpecs(const LinkSpecs &linkSpecs)
 
 void SanitizerParser::flush()
 {
+    finishTask(0);
+}
+
+void SanitizerParser::finishTask(int skippedLines)
+{
     if (m_task.isNull())
         return;
+
+    const int outputLines = m_task.details().count();
+    if (m_type == SanitizerType::UB) {
+        // A report without a summary line ends with the empty line after its stack frames.
+        QStringList details = m_task.details();
+        while (!details.isEmpty() && details.last().isEmpty())
+            details.removeLast();
+        m_task.setDetails(details);
+    }
 
     setDetailsFormat(m_task, m_linkSpecs);
     static const int maxLen = 50;
@@ -138,10 +244,11 @@ void SanitizerParser::flush()
         details.erase(std::next(cutOffIt), std::prev(details.end()));
         m_task.setDetails(details);
     }
-    scheduleTask(m_task, m_task.details().count());
+    scheduleTask(m_task, outputLines, skippedLines);
     m_task.clear();
     m_linkSpecs.clear();
     m_id = 0;
+    m_type = SanitizerType::None;
 }
 
 OutputLineParser *createSanitizerOutputParser()
@@ -236,6 +343,182 @@ SUMMARY: AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).)";
                 QString("AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).") + leakInput,
                 {}, -1, Constants::TASK_CATEGORY_OTHER);
         QTest::newRow("leak") << leakInput << QList<Task>{leakTask} << leakNonMatchedLines;
+
+        const QString vptrInput = R"(/qtcreator/src/plugins/projectexplorer/taskhandlers.cpp:111:36: runtime error: member call on address 0x7bddec0d4680 which does not point to an object of type 'ConfigTaskHandler'
+0x7bddec0d4680: note: object has invalid vptr
+ 00 00 00 00  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  00 00 00 00
+              ^~~~~~~~~~~~~~~~~~~~~~~
+              invalid vptr)";
+        Task vptrTask(Task::Error,
+                      "runtime error: member call on address 0x7bddec0d4680 which does not point "
+                      "to an object of type 'ConfigTaskHandler'\n" + vptrInput,
+                      FilePath::fromUserInput(
+                          "/qtcreator/src/plugins/projectexplorer/taskhandlers.cpp"),
+                      111, Constants::TASK_CATEGORY_OTHER);
+        vptrTask.setColumn(36);
+        QTest::newRow("ubsan") << vptrInput << QList<Task>{vptrTask} << QStringList();
+
+        // Real output of a program with two errors, built with GCC 16 and Clang 23
+        // with -fsanitize=undefined.
+        const QString overflowGcc = "ub.cpp:6:16: runtime error: signed integer overflow: "
+                                    "2147483647 + 1 cannot be represented in type 'int'";
+        const QString boolLine = "ub.cpp:13:12: runtime error: load of value 2, which is not a "
+                                 "valid value for type 'bool'";
+        const QString overflowSummary = "runtime error: signed integer overflow: 2147483647 + 1 "
+                                        "cannot be represented in type 'int'";
+        const QString boolSummary = "runtime error: load of value 2, which is not a valid value "
+                                    "for type 'bool'";
+        const auto ubTask = [](const QString &summary, const QStringList &lines) {
+            return Task(Task::Error, summary + '\n' + lines.join('\n'), {}, -1,
+                        Constants::TASK_CATEGORY_OTHER);
+        };
+
+        // GCC prints no summary. With stack traces, an empty line ends a report.
+        const QStringList overflowGccStack{
+            overflowGcc,
+            "    #0 0x55aed330f1aa in addOne /tmp/ubsan-real/ub.cpp:6",
+            "    #1 0x55aed330f287 in main /tmp/ubsan-real/ub.cpp:19",
+            "    #2 0x7f7be4027780  (/usr/lib/libc.so.6+0x27780) "
+            "(BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)",
+            "    #3 0x7f7be40278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) "
+            "(BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)",
+            "    #4 0x55aed330f0a4 in _start (/tmp/ubsan-real/ub-gcc+0x10a4) "
+            "(BuildId: 28000ea10d15997777849375263e0225b023c44f)"};
+        const QStringList boolGccStack{
+            boolLine,
+            "    #0 0x55aed330f214 in readBool /tmp/ubsan-real/ub.cpp:13",
+            "    #1 0x55aed330f296 in main /tmp/ubsan-real/ub.cpp:20",
+            "    #2 0x7f7be4027780  (/usr/lib/libc.so.6+0x27780) "
+            "(BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)",
+            "    #3 0x7f7be40278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) "
+            "(BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)",
+            "    #4 0x55aed330f0a4 in _start (/tmp/ubsan-real/ub-gcc+0x10a4) "
+            "(BuildId: 28000ea10d15997777849375263e0225b023c44f)"};
+        const QString unrelatedLine = "app: runtime error: not from a sanitizer";
+        QTest::newRow("ubsan, gcc, stack traces")
+            << (overflowGccStack + QStringList{QString()} + boolGccStack
+                + QStringList{QString(), unrelatedLine}).join('\n')
+            << QList<Task>{ubTask(overflowSummary, overflowGccStack),
+                           ubTask(boolSummary, boolGccStack)}
+            << QStringList{unrelatedLine};
+
+        // Clang ends each report with a summary, after the empty line if there is a stack trace.
+        const QString overflowClang = "ub.cpp:6:14: runtime error: signed integer overflow: "
+                                      "2147483647 + 1 cannot be represented in type 'int'";
+        const QString overflowClangSummary
+            = "SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ub.cpp:6:14 ";
+        const QString boolClangSummary
+            = "SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ub.cpp:13:12 ";
+        const QStringList overflowClangStack{
+            overflowClang,
+            "    #0 0x55d1309c25ae in addOne(int) /tmp/ubsan-real/ub.cpp:6:14",
+            "    #1 0x55d1309c24f5 in main /tmp/ubsan-real/ub.cpp:19:18",
+            "    #2 0x7f4fa4c27780 in __libc_start_call_main "
+            "/usr/src/debug/glibc/glibc/csu/../sysdeps/nptl/libc_start_call_main.h:59:16",
+            "    #3 0x7f4fa4c278b8 in __libc_start_main "
+            "/usr/src/debug/glibc/glibc/csu/../csu/libc-start.c:372:3",
+            "    #4 0x55d130994114 in _start (/tmp/ubsan-real/ub-clang+0x5114) "
+            "(BuildId: be6b7ac75436bce998c4a135c55819dd5162933f)",
+            "",
+            overflowClangSummary};
+        const QStringList boolClangStack{
+            boolLine,
+            "    #0 0x55d1309c263b in readBool(unsigned char const*) /tmp/ubsan-real/ub.cpp:13:12",
+            "    #1 0x55d1309c2501 in main /tmp/ubsan-real/ub.cpp:20:9",
+            "    #2 0x7f4fa4c27780 in __libc_start_call_main "
+            "/usr/src/debug/glibc/glibc/csu/../sysdeps/nptl/libc_start_call_main.h:59:16",
+            "    #3 0x7f4fa4c278b8 in __libc_start_main "
+            "/usr/src/debug/glibc/glibc/csu/../csu/libc-start.c:372:3",
+            "    #4 0x55d130994114 in _start (/tmp/ubsan-real/ub-clang+0x5114) "
+            "(BuildId: be6b7ac75436bce998c4a135c55819dd5162933f)",
+            "",
+            boolClangSummary};
+        QTest::newRow("ubsan, clang, stack traces")
+            << (overflowClangStack + boolClangStack).join('\n')
+            << QList<Task>{ubTask(overflowSummary, overflowClangStack),
+                           ubTask(boolSummary, boolClangStack)}
+            << QStringList();
+
+        // Real output of Clang 23 for a source path with a space and notes that refer to it.
+        const QString nonnullDir = "/tmp/ubsan-real/My Project/";
+        const QStringList nonnullArgLines{
+            nonnullDir + "nonnull.cpp:16:31: runtime error: null pointer passed as argument 1, "
+                         "which is declared to never be null",
+            nonnullDir + "nonnull.cpp:3:16: note: nonnull attribute specified here",
+            "SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior " + nonnullDir
+                + "nonnull.cpp:16:31 "};
+        const QStringList nonnullReturnLines{
+            nonnullDir + "nonnull.cpp:10:5: runtime error: null pointer returned from function "
+                         "declared to never return null",
+            nonnullDir + "nonnull.cpp:8:16: note: returns_nonnull attribute specified here",
+            "SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior " + nonnullDir
+                + "nonnull.cpp:10:5 "};
+        const FilePath nonnullFile = FilePath::fromUserInput(nonnullDir + "nonnull.cpp");
+        Task nonnullArgTask(Task::Error,
+                            "runtime error: null pointer passed as argument 1, which is declared "
+                            "to never be null\n" + nonnullArgLines.join('\n'),
+                            nonnullFile, 16, Constants::TASK_CATEGORY_OTHER);
+        nonnullArgTask.setColumn(31);
+        Task nonnullReturnTask(Task::Error,
+                               "runtime error: null pointer returned from function declared to "
+                               "never return null\n" + nonnullReturnLines.join('\n'),
+                               nonnullFile, 10, Constants::TASK_CATEGORY_OTHER);
+        nonnullReturnTask.setColumn(5);
+        QTest::newRow("ubsan, clang, notes with a space in the path")
+            << (nonnullArgLines + nonnullReturnLines).join('\n')
+            << QList<Task>{nonnullArgTask, nonnullReturnTask} << QStringList();
+
+        // Real output of GCC 16 for a report with a note and a memory dump, followed by
+        // indented output of the program.
+        const QStringList vptrGccLines{
+            "vptr2.cpp:12:36: runtime error: member call on address 0x7ffc24810af0 which does "
+            "not point to an object of type 'Base'",
+            "0x7ffc24810af0: note: object is of type 'Other'",
+            " fc 7f 00 00  68 2d a9 f9 37 56 00 00  00 00 00 00 00 00 00 00  01 00 00 00 00 00 00 "
+            "00  00 c1 e3 cf",
+            "              ^~~~~~~~~~~~~~~~~~~~~~~",
+            "              vptr for 'Other'",
+            "    #0 0x5637f9a902ed in main /tmp/ubsan-real/vptr2.cpp:12",
+            "    #1 0x7f99c0027780  (/usr/lib/libc.so.6+0x27780) "
+            "(BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)",
+            "    #2 0x7f99c00278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) "
+            "(BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)",
+            "    #3 0x5637f9a900d4 in _start (/tmp/ubsan-real/vptr2-gcc+0x10d4) "
+            "(BuildId: f507bd4fd3c96a856f34b2d1cffa5cd55cb272fc)"};
+        const QString indentedOutput = "    indented program output";
+        const Task vptrGccTask(Task::Error,
+                               "runtime error: member call on address 0x7ffc24810af0 which does "
+                               "not point to an object of type 'Base'\n" + vptrGccLines.join('\n'),
+                               {}, -1, Constants::TASK_CATEGORY_OTHER);
+        QTest::newRow("ubsan, gcc, stack trace, then indented output")
+            << (vptrGccLines + QStringList{QString(), indentedOutput}).join('\n')
+            << QList<Task>{vptrGccTask} << QStringList{indentedOutput};
+
+        const QStringList overflowClangPlain{overflowClang, overflowClangSummary};
+        const QStringList boolClangPlain{boolLine, boolClangSummary};
+        QTest::newRow("ubsan, clang, no stack traces")
+            << (overflowClangPlain + boolClangPlain).join('\n')
+            << QList<Task>{ubTask(overflowSummary, overflowClangPlain),
+                           ubTask(boolSummary, boolClangPlain)}
+            << QStringList();
+    }
+
+    void testUbsanReportFollowedByStdOut()
+    {
+        Tasks tasks;
+        connect(&taskHub(), &TaskHub::taskAdded, this, [&tasks](const Task &t) { tasks << t; });
+        OutputParserTester formatter;
+        formatter.setLineParsers({new SanitizerParser});
+        formatter.appendMessage("ub.cpp:6:16: runtime error: signed integer overflow: "
+                                "2147483647 + 1 cannot be represented in type 'int'\n",
+                                StdErrFormat);
+        formatter.appendMessage("unrelated output -2147483648\n", StdOutFormat);
+        formatter.flush();
+        taskHub().disconnect(this);
+        QCOMPARE(tasks.size(), 1);
+        QCOMPARE(tasks.first().summary(),
+                 "runtime error: signed integer overflow: 2147483647 + 1 cannot be represented "
+                 "in type 'int'");
     }
 
     void testParser()
