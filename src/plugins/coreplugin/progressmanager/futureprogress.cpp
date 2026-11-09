@@ -11,6 +11,7 @@
 
 #include <QCoreApplication>
 #include <QFutureWatcher>
+#include <QPointer>
 #include <QPropertyAnimation>
 #include <QProgressBar>
 #include <QTimer>
@@ -40,7 +41,7 @@ public:
     Internal::ProgressBar *m_progress;
     QWidget *m_widget;
     QHBoxLayout *m_widgetLayout;
-    QWidget *m_statusBarWidget;
+    QPointer<QWidget> m_statusBarWidget;
     Id m_type;
     FutureProgress::KeepOnFinishType m_keep;
     bool m_waitingForUserInteraction;
@@ -52,7 +53,6 @@ public:
 
 FutureProgressPrivate::FutureProgressPrivate(FutureProgress *q) :
     m_progress(new Internal::ProgressBar), m_widget(nullptr), m_widgetLayout(new QHBoxLayout),
-    m_statusBarWidget(nullptr),
     m_keep(FutureProgress::HideOnFinish), m_waitingForUserInteraction(false),
     m_q(q), m_fadeStarting(false), m_isFading(false)
 {
@@ -141,6 +141,7 @@ FutureProgress::~FutureProgress()
     qApp->removeEventFilter(this);
 
     delete d->m_widget;
+    delete d->m_statusBarWidget;
     delete d;
 }
 
