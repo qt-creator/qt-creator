@@ -3,6 +3,7 @@ import qbs
 Project {
     name: "QtProfiler autotests"
     references: [
+        "tst_callstacklanemodel/tst_callstacklanemodel.qbs",
         "tst_calltreemodel/tst_calltreemodel.qbs",
         "tst_cpuusagemodel/tst_cpuusagemodel.qbs",
         "tst_dwarfunwinder/tst_dwarfunwinder.qbs",

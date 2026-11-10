@@ -163,6 +163,7 @@ QtcPlugin {
         name: "General"
         files: [
             "ctfloader.cpp", "ctfloader.h",
+            "callstacklanemodel.cpp", "callstacklanemodel.h",
             "callstacksampler.cpp", "callstacksampler.h",
             "calltreemodel.cpp", "calltreemodel.h",
             "combinedsampler.cpp", "combinedsampler.h",

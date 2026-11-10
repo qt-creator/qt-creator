@@ -15,6 +15,7 @@ private slots:
     void testFlameGraphShowsTheCallTree();
     void testFlameGraphClickReportsTheFrameLocation();
     void testLoadingAnotherTraceClearsTheFlameGraphSelection();
+    void testThreadsWithAStackGetALane();
 };
 
 } // namespace Profiler::Internal

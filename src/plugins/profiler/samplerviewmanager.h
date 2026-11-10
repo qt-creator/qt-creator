@@ -12,7 +12,10 @@
 
 #include <chrono>
 
-namespace Timeline { class TimelineDetailsWidget; }
+namespace Timeline {
+class TimelineDetailsWidget;
+class TimelineModel;
+} // namespace Timeline
 
 namespace Profiler::Internal {
 
@@ -40,6 +43,11 @@ public:
     void clear();
     std::chrono::milliseconds traceDuration() const;
 
+#ifdef WITH_TESTS
+    // The models of the timeline: CPU usage, then a lane per thread's stacks.
+    QList<Timeline::TimelineModel *> timelineModels() const;
+#endif
+
 signals:
     void error(const QString &error);
     // A loaded trace is usable, but less complete than it looks.
@@ -50,6 +58,7 @@ signals:
 
 private:
     void clearFlameGraphSelection();
+    void setLaneModels();
 
     class SamplerViewManagerPrivate *d;
 };

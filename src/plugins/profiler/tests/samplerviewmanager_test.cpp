@@ -8,6 +8,7 @@
 #include <profiler/samplerviewmanager.h>
 
 #include <tracing/timelinedetailswidget.h>
+#include <tracing/timelinemodel.h>
 
 #include <utils/temporarydirectory.h>
 
@@ -198,6 +199,57 @@ void SamplerViewManagerTest::testLoadingAnotherTraceClearsTheFlameGraphSelection
     QTest::mouseClick(fixture.canvas(), Qt::LeftButton, Qt::NoModifier, workPos);
     QCOMPARE(shown.last().at(0).toString(), QString("other"));
     QCOMPARE(selected.count(), 1);
+}
+
+// A thread that was never seen with a stack has nothing to show in a lane of
+// its own.
+void SamplerViewManagerTest::testThreadsWithAStackGetALane()
+{
+    Timeline::TimelineDetailsWidget details;
+    SamplerViewManager manager(&details);
+    SampleTraceData data;
+    data.pid = 1;
+    data.labels = {"main", "work"};
+    data.threadNames = {{1, "first"}, {2, "idle"}, {3, "third"}, {4, "late"}};
+    data.samples = {
+        {0us, 1, true, {0, 1}},
+        {0us, 2, false, {}},
+        {0us, 4, false, {}},
+        {0us, 3, true, {0}},
+        {100us, 1, true, {0}},
+        {100us, 2, false, {}},
+        {100us, 4, true, {1}},
+        {100us, 3, true, {0}},
+    };
+    Utils::TemporaryDirectory dir("sampler-lanes");
+    QVERIFY(writeSampleTrace(data, dir.path()));
+    QSignalSpy loaded(&manager, &SamplerViewManager::loadFinished);
+    manager.load(dir.path());
+    QVERIFY(loaded.wait());
+
+    QStringList names;
+    for (const Timeline::TimelineModel *model : manager.timelineModels())
+        names.append(model->displayName());
+    QCOMPARE(names, QStringList({"CPU Usage", "Stacks of first (1)", "Stacks of third (3)",
+                                 "Stacks of late (4)"}));
+
+    // Each lane has the items of its own thread's samples, and only those.
+    QStringList items;
+    for (const Timeline::TimelineModel *model : manager.timelineModels().mid(1)) {
+        for (int i = 0; i < model->count(); ++i) {
+            items.append(QString("%1 %2 %3-%4")
+                             .arg(model->displayName(), model->details(i).value("displayName"))
+                             .arg(model->startTime(i).count())
+                             .arg(model->endTime(i).count()));
+        }
+    }
+    QCOMPARE(items, QStringList({"Stacks of first (1) main 0-200000",
+                                 "Stacks of first (1) work 0-100000",
+                                 "Stacks of third (3) main 0-200000",
+                                 "Stacks of late (4) work 100000-200000"}));
+
+    manager.clear();
+    QVERIFY(manager.timelineModels().isEmpty());
 }
 
 } // namespace Profiler::Internal

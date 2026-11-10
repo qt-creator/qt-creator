@@ -3,6 +3,7 @@
 
 #include "samplerviewmanager.h"
 
+#include "callstacklanemodel.h"
 #include "calltreemodel.h"
 #include "calltreeview.h"
 #include "cpuflamegraphview.h"
@@ -19,8 +20,11 @@
 #include <utils/async.h>
 #include <utils/qtcassert.h>
 
+#include <QHash>
 #include <QPointer>
 #include <QTimer>
+
+#include <utility>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
@@ -38,6 +42,7 @@ public:
     Timeline::TimelineZoomControl zoomControl;
     CpuUsageModel cpuModel{&modelAggregator};
     CallTreeModel callTreeModel;
+    QList<CallStackLaneModel *> laneModels; // Owned by modelAggregator.
     SampleTraceData data;
     QSingleTaskTreeRunner taskTreeRunner;
     QTimer rangeDebounce;
@@ -151,7 +156,7 @@ void SamplerViewManager::load(const FilePath &dir)
             d->data = std::move(*read);
             d->cpuModel.setTraceData(&d->data);
             d->callTreeModel.setTraceData(&d->data);
-            d->modelAggregator.setModels({&d->cpuModel});
+            setLaneModels();
             Timeline::TimelineModelAggregator::PausedRanges paused;
             for (const auto &[start, end] : std::as_const(d->data.pausedRanges))
                 paused.append({start, end});
@@ -172,12 +177,48 @@ void SamplerViewManager::load(const FilePath &dir)
     d->taskTreeRunner.start({AsyncTask<Result<SampleTraceData>>(onSetup, onTaskDone)});
 }
 
+// Next to the CPU usage, a lane for each thread that has a call stack, with a
+// sub lane for each stack level.
+void SamplerViewManager::setLaneModels()
+{
+    d->modelAggregator.setModels({});
+    qDeleteAll(std::exchange(d->laneModels, {}));
+
+    // Sort the samples by thread in one pass: a lane that walked all of them
+    // would make loading quadratic in the number of threads.
+    QList<quint64> threads; // In the order of their first stack.
+    QHash<quint64, QList<qsizetype>> samplesOfThread;
+    for (qsizetype i = 0; i < d->data.samples.size(); ++i) {
+        const SampleTraceData::ThreadSample &sample = d->data.samples.at(i);
+        auto it = samplesOfThread.find(sample.tid);
+        if (it == samplesOfThread.end()) {
+            if (sample.frames.isEmpty())
+                continue;
+            threads.append(sample.tid);
+            it = samplesOfThread.insert(sample.tid, {});
+        }
+        it->append(i);
+    }
+
+    QList<Timeline::TimelineModel *> models{&d->cpuModel};
+    for (const quint64 tid : std::as_const(threads)) {
+        auto lane = new CallStackLaneModel(&d->modelAggregator, tid);
+        d->laneModels.append(lane);
+        models.append(lane);
+        connect(lane, &Timeline::TimelineModel::gotoSourceLocation,
+                this, &SamplerViewManager::gotoSourceLocation);
+        lane->setTraceData(&d->data, samplesOfThread.value(tid));
+    }
+    d->modelAggregator.setModels(models);
+}
+
 void SamplerViewManager::clear()
 {
     clearFlameGraphSelection();
     d->cpuModel.setTraceData(nullptr);
     d->callTreeModel.setTraceData(nullptr);
     d->modelAggregator.setModels({});
+    qDeleteAll(std::exchange(d->laneModels, {}));
     d->modelAggregator.setPausedRanges({});
     d->zoomControl.clear();
     d->data = {};
@@ -193,6 +234,13 @@ void SamplerViewManager::clearFlameGraphSelection()
     if (d->flameGraphView)
         d->flameGraphView->selectByTypeId(-1);
 }
+
+#ifdef WITH_TESTS
+QList<Timeline::TimelineModel *> SamplerViewManager::timelineModels() const
+{
+    return d->modelAggregator.models();
+}
+#endif
 
 milliseconds SamplerViewManager::traceDuration() const
 {

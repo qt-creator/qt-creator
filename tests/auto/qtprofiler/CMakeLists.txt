@@ -1,5 +1,6 @@
 cmake_path(SET PluginsDir NORMALIZE "${CMAKE_CURRENT_SOURCE_DIR}/../../../src/plugins")
 
+add_subdirectory(tst_callstacklanemodel)
 add_subdirectory(tst_calltreemodel)
 add_subdirectory(tst_cpuusagemodel)
 add_subdirectory(tst_dwarfunwinder)
