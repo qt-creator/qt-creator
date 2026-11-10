@@ -43,8 +43,8 @@ static constexpr int s_timeoutMs = 60000;
 // gets. A call that is answered at all is answered well within it.
 static constexpr std::chrono::seconds s_shortInvokeTimeout{1};
 
-// The log of a backend whose engine could not be set up, or nothing. Nothing
-// a test waits for comes after that, so the wait ends there.
+// Why an engine could not be set up, or nothing. Nothing a test waits for
+// comes after that, so the wait ends there.
 static QString setupFailure();
 
 // Looks again after every event rather than in the steps of QTRY_*, which
@@ -142,6 +142,10 @@ public:
     {
         liveBackends().removeOne(this);
         m_engine->disconnect();
+        // What went over the wire is what a failure seen only in CI can be
+        // understood from.
+        if (QTest::currentTestFailed())
+            qWarning().noquote() << "The last lines the engine logged:\n" + log(200);
     }
 
     static QList<const DebuggerBackend *> &liveBackends()
@@ -332,7 +336,10 @@ public:
             return line.contains(text);
         });
     }
-    QString log() const { return m_log.mid(qMax(0, m_log.size() - 60)).join('\n'); }
+    QString log(int lines = 60) const
+    {
+        return m_log.mid(qMax(0, m_log.size() - lines)).join('\n');
+    }
     int threadsCreated() const { return m_threadsCreated; }
 
 private:
@@ -355,7 +362,7 @@ static QString setupFailure()
 {
     for (const DebuggerBackend *backend : std::as_const(DebuggerBackend::liveBackends())) {
         if (backend->contains(InferiorEvent::EngineSetupFailed))
-            return "The engine could not be set up:\n" + backend->log();
+            return "The engine could not be set up.";
     }
     return {};
 }
