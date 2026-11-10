@@ -30,14 +30,18 @@
 #include "mcptools.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/messagemanager.h>
 
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
 #include <texteditor/snippets/snippetprovider.h>
@@ -86,10 +90,82 @@ public:
     }
 };
 
+static bool activatePreset(Project *project, const QString &presetName)
+{
+    if (!qobject_cast<CMakeProject *>(project))
+        return false;
+
+    // Opening the project created a kit for each of its presets
+    Kit *kit = KitManager::kit(CMakeConfigurationKitAspect::cmakePresetKitId(
+        project->projectFilePath().toSettings().toString(), presetName));
+    if (!kit)
+        return false;
+
+    Target *target = project->target(kit);
+    if (!target)
+        target = project->addTargetForKit(kit);
+    if (!target)
+        return false;
+    project->setActiveTarget(target, SetActive::Cascade);
+    return true;
+}
+
+static void activatePresetFromCommandLine(
+    const QString &presetName, QList<Project *> projects, bool hasProjectArguments)
+{
+    if (!hasProjectArguments) {
+        if (Project *project = ProjectManager::startupProject())
+            projects.append(project);
+    }
+
+    bool activated = false;
+    for (Project *project : std::as_const(projects))
+        activated |= activatePreset(project, presetName);
+    if (!activated) {
+        MessageManager::writeFlashing(
+            Tr::tr("The CMake preset \"%1\" from the command line was not activated.")
+                .arg(presetName));
+    }
+}
+
+static QString presetFromOptions(const QStringList &options)
+{
+    const int index = options.indexOf("-preset");
+    if (index >= 0 && index + 1 < options.size())
+        return options.at(index + 1);
+    return {};
+}
+
 class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CMakeProjectManager.json")
+
+    // ProjectExplorer handles -project after this, both at startup and in
+    // PluginManager::remoteArguments(), which goes by plugin id
+    void activatePresetWhenProjectsOpen(const QStringList &options)
+    {
+        const QString presetName = presetFromOptions(options);
+        if (presetName.isEmpty())
+            return;
+        connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::commandLineProjectsOpened,
+                this, [presetName](const QList<Project *> &projects, bool hasProjectArguments) {
+                    activatePresetFromCommandLine(presetName, projects, hasProjectArguments);
+                }, Qt::SingleShotConnection);
+    }
+
+    Result<> initialize(const QStringList &arguments) final
+    {
+        activatePresetWhenProjectsOpen(arguments);
+        initialize();
+        return ResultOk;
+    }
+
+    QObject *remoteCommand(const QStringList &options, const QString &, const QStringList &) final
+    {
+        activatePresetWhenProjectsOpen(options);
+        return nullptr;
+    }
 
     void initialize() final
     {

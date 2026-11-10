@@ -3497,6 +3497,16 @@ bool ProjectExplorerPlugin::coreAboutToClose()
     return appOutputPane().aboutToClose();
 }
 
+/*!
+    \fn void ProjectExplorerPlugin::commandLineProjectsOpened(const QList<ProjectExplorer::Project *> &projects, bool hasProjectArguments)
+
+    Is emitted once the \c -project options of a command line were handled,
+    at startup or from a \c -client call. \a projects are the projects that
+    they opened, including the ones that were open already.
+    \a hasProjectArguments tells whether the command line had any \c -project
+    option at all.
+*/
+
 static void openProjectsFromArguments(
     const QStringList &arguments, const FilePath &workingDir, bool isInitializing)
 {
@@ -3514,6 +3524,8 @@ static void openProjectsFromArguments(
     }
     const auto loadProjects = [projectFiles] {
         const OpenProjectResult result = ProjectExplorerPlugin::openProjects(projectFiles);
+        emit ProjectExplorerPlugin::instance()->commandLineProjectsOpened(
+            result.projects() + result.alreadyOpen(), !projectFiles.isEmpty());
         if (!result)
             ProjectExplorerPlugin::showOpenProjectError(result);
     };

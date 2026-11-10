@@ -179,6 +179,9 @@ signals:
 
     void filesRenamed(const Utils::FilePairs &oldAndNewPaths);
 
+    void commandLineProjectsOpened(const QList<ProjectExplorer::Project *> &projects,
+                                   bool hasProjectArguments);
+
 private:
     static bool coreAboutToClose();
     void handleStartupArguments(const QStringList &arguments);

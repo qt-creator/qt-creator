@@ -20,6 +20,13 @@
     "LongDescription" : ${LONG_DESCRIPTION},
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-project-cmake.html",
+    "Arguments" : [
+        {
+            "Name" : "-preset",
+            "Parameter" : "<name>",
+            "Description" : "Activates the CMake preset <name> for the projects of -project, or else for the active project"
+        }
+    ],
     ${IDE_PLUGIN_DEPENDENCIES},
     "languageclient": {
         "WorkspaceConfig": {

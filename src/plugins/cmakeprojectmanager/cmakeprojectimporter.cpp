@@ -2230,6 +2230,9 @@ void CMakeProjectImporter::deleteDirectoryData(void *directoryData) const
 
 #ifdef WITH_TESTS
 
+#include <extensionsystem/pluginmanager.h>
+
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/targetsetuppage.h>
 
 #include <utils/detailswidget.h>
@@ -2250,6 +2253,8 @@ private slots:
 
     void testCMakeProjectImporterToolchain_data();
     void testCMakeProjectImporterToolchain();
+
+    void testPresetOptionActivatesTheKitOfTheOpenedProject();
 
     void testPresetKitsOfOtherProjectsAreFiltered();
     void testPresetProbeIsReusedUntilThePresetChanges();
@@ -2453,6 +2458,72 @@ public:
 private:
     const QtVersions m_versions;
 };
+
+void CMakeProjectImporterTest::testPresetOptionActivatesTheKitOfTheOpenedProject()
+{
+    if (Environment::systemEnvironment().searchInPath("ninja").isEmpty())
+        QSKIP("A preset needs a generator that is installed for its probes to run.");
+
+    const FilePath projectDir = presetProjectDirectory("preset-option");
+    QVERIFY(!projectDir.isEmpty());
+
+    const QtVersionRestorer qtVersionRestorer;
+
+    QVERIFY(writePresets(projectDir, R"({
+        "version": 3,
+        "configurePresets": [
+            {
+                "name": "first",
+                "generator": "Ninja",
+                "binaryDir": "${sourceDir}/build-first",
+                "cacheVariables": {
+                    "CMAKE_C_COMPILER": "cc",
+                    "CMAKE_CXX_COMPILER": "c++"
+                }
+            },
+            {
+                "name": "second",
+                "generator": "Ninja",
+                "binaryDir": "${sourceDir}/build-second",
+                "cacheVariables": {
+                    "CMAKE_C_COMPILER": "cc",
+                    "CMAKE_CXX_COMPILER": "c++"
+                }
+            }
+        ]
+    })"));
+
+    // Opening the project creates its preset kits in a nested event loop, which must not
+    // handle -preset before the project is open.
+    const QList<Project *> projectsBefore = ProjectManager::projects();
+    ExtensionSystem::PluginManager::remoteArguments(
+        QStringList{":projectexplorer", "-project",
+                    (projectDir / Constants::CMAKE_LISTS_TXT).path(),
+                    ":cmakeprojectmanager", "-preset", "second",
+                    ":pwd", projectDir.path()}
+            .join('|'),
+        nullptr);
+
+    const QList<Project *> openedProjects
+        = Utils::filtered(ProjectManager::projects(), [&projectsBefore](Project *p) {
+              return !projectsBefore.contains(p);
+          });
+    QCOMPARE(openedProjects.size(), 1);
+    auto project = qobject_cast<CMakeProject *>(openedProjects.first());
+    QVERIFY(project);
+    const QList<Id> presetKitIds = project->presetKitIds();
+    const auto closeProject = qScopeGuard([project, presetKitIds] {
+        ProjectManager::removeProject(project);
+        KitManager::deregisterKits(Utils::filtered(KitManager::kits(), [&presetKitIds](Kit *k) {
+            return presetKitIds.contains(k->id());
+        }));
+    });
+
+    QVERIFY(project->activeKit());
+    QCOMPARE(project->activeKit()->id(),
+             CMakeConfigurationKitAspect::cmakePresetKitId(
+                 project->projectFilePath().toSettings().toString(), "second"));
+}
 
 // QTCREATORBUG-34838
 void CMakeProjectImporterTest::testPresetProbeIsReusedUntilThePresetChanges()
