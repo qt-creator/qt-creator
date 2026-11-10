@@ -24,7 +24,7 @@ signals:
 private:
     bool canHandle(const ProjectExplorer::Task &task) const override;
     void handle(const ProjectExplorer::Task &task) override;
-    QAction *createAction() const;
+    static QAction *createAction();
 };
 
 } // namespace Help::Internal

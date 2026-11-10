@@ -23,7 +23,7 @@ void SearchTaskHandler::handle(const ProjectExplorer::Task &task)
     emit search(QUrl("https://www.google.com/search?q=" + task.summary()));
 }
 
-QAction *SearchTaskHandler::createAction() const
+QAction *SearchTaskHandler::createAction()
 {
     return new QAction(Tr::tr("Get Help Online"));
 }

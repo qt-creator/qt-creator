@@ -232,7 +232,7 @@ void StopMonitoringHandler::handle(const ProjectExplorer::Task &task)
     TaskFile::stopMonitoring();
 }
 
-QAction *StopMonitoringHandler::createAction() const
+QAction *StopMonitoringHandler::createAction()
 {
     const QString text = Tr::tr("Stop Monitoring");
     const QString toolTip = Tr::tr("Stop monitoring task files.");

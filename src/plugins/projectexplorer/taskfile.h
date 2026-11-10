@@ -26,7 +26,7 @@ public:
 private:
     bool canHandle(const ProjectExplorer::Task &) const override;
     void handle(const ProjectExplorer::Task &) override;
-    QAction *createAction() const;
+    static QAction *createAction();
 };
 
 class TaskFile : public Core::IDocument
