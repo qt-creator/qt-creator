@@ -109,6 +109,7 @@ ProfilerRecorderPrivate::ProfilerRecorderPrivate(ProfilerRecorder *recorder)
     backends.push_back(std::make_unique<CombinedSampler>());
     backends.push_back(std::make_unique<QtTraceSampler>());
 
+    LaunchTargetSettings::instance().readSettings();
     for (const std::unique_ptr<Sampler> &backend : backends) {
         if (SamplerSettings *settings = backend->settings())
             settings->readSettings();
@@ -353,6 +354,7 @@ QWidget *ProfilerRecorder::createConfigWidget() const
     SamplerSettings *settings = backend ? backend->settings() : nullptr;
     if (!settings)
         return nullptr;
+    settings->refreshTargetEnabled();
     auto widget = new QWidget;
     settings->layouter()().attachTo(widget);
     return widget;
@@ -371,16 +373,10 @@ void ProfilerRecorder::seedLaunchTarget(const CommandLine &command,
         lastSeeded.setValue(value);
     };
 
-    // Every backend launches through the same three settings, so seeding all of
-    // them keeps the target when the user switches backend.
-    for (const std::unique_ptr<Sampler> &backend : d->backends) {
-        SamplerSettings *settings = backend->settings();
-        if (!settings)
-            continue;
-        seed(settings->executable, settings->seededExecutable, command.executable());
-        seed(settings->arguments, settings->seededArguments, command.arguments());
-        seed(settings->workingDirectory, settings->seededWorkingDirectory, workingDirectory);
-    }
+    LaunchTargetSettings &target = LaunchTargetSettings::instance();
+    seed(target.executable, target.seededExecutable, command.executable());
+    seed(target.arguments, target.seededArguments, command.arguments());
+    seed(target.workingDirectory, target.seededWorkingDirectory, workingDirectory);
     d->seededEnvironment = environment;
 }
 
@@ -573,6 +569,7 @@ void ProfilerRecorder::writeSettings() const
 {
     if (Sampler *backend = d->backend())
         Utils::userSettings().setValue(selectedBackendKey, backend->id().toSetting());
+    LaunchTargetSettings::instance().writeSettings();
     for (const std::unique_ptr<Sampler> &backend : d->backends) {
         if (SamplerSettings *settings = backend->settings())
             settings->writeSettings();

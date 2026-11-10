@@ -37,6 +37,7 @@
 #include "tests/localqmlprofilerrunner_test.h"
 #include "tests/memoryusagemodel_test.h"
 #include "tests/pixmapcachemodel_test.h"
+#include "tests/profilerrecorder_test.h"
 #include "tests/profilertracedocument_test.h"
 #include "tests/qmlnote_test.h"
 #include "tests/qmlprofileranimationsmodel_test.h"
@@ -101,6 +102,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<LocalQmlProfilerRunnerTest>();
         addTest<MemoryUsageModelTest>();
         addTest<PixmapCacheModelTest>();
+        addTest<ProfilerRecorderTest>();
         addTest<ProfilerTraceDocumentTest>();
         addTest<QmlNoteTest>();
         addTest<QmlProfilerAnimationsModelTest>();

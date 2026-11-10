@@ -406,6 +406,28 @@ PROFILER_EXPORT QString stoppedBeforeResumeMessage();
 // Why one whose target went away before its first resume has none.
 PROFILER_EXPORT QString exitedBeforeResumeMessage();
 
+// The target every backend launches. One set for all of them, so that
+// switching backend keeps the executable, arguments and working directory.
+class PROFILER_EXPORT LaunchTargetSettings : public Utils::AspectContainer
+{
+public:
+    static LaunchTargetSettings &instance();
+
+    Utils::FilePathAspect executable{this};
+    Utils::StringAspect arguments{this};
+    Utils::FilePathAspect workingDirectory{this};
+
+    // What the frontend last put into the three fields above (see
+    // ProfilerRecorder::seedLaunchTarget). Persisted, so a value the user typed
+    // over a seeded one still reads as theirs after a restart. Never shown.
+    Utils::FilePathAspect seededExecutable{this};
+    Utils::StringAspect seededArguments{this};
+    Utils::FilePathAspect seededWorkingDirectory{this};
+
+private:
+    LaunchTargetSettings();
+};
+
 // Backend-specific recording settings. Besides holding the options, it renders its
 // own configuration controls via AspectContainer::setLayouter(), keeping them next
 // to the settings they use. All backends can launch an executable, so the launch
@@ -420,17 +442,11 @@ public:
     SamplerSettings();
 
     // The executable to launch and profile, used unless a subclass selects a
-    // different start mode (attach/connect).
-    Utils::FilePathAspect executable{this};
-    Utils::StringAspect arguments{this};
-    Utils::FilePathAspect workingDirectory{this};
-
-    // What the frontend last put into the three fields above (see
-    // ProfilerRecorder::seedLaunchTarget). Persisted, so a value the user typed
-    // over a seeded one still reads as theirs after a restart. Never shown.
-    Utils::FilePathAspect seededExecutable{this};
-    Utils::StringAspect seededArguments{this};
-    Utils::FilePathAspect seededWorkingDirectory{this};
+    // different start mode (attach/connect). Shared by all backends; see
+    // LaunchTargetSettings.
+    Utils::FilePathAspect &executable;
+    Utils::StringAspect &arguments;
+    Utils::FilePathAspect &workingDirectory;
 
     // Builds a RecordingSession from the current settings, or an error explaining
     // what is missing/misconfigured (e.g. no executable, or attach with no process).
@@ -447,6 +463,10 @@ public:
     // rather than away, so the backend's remaining options stay usable.
     void setTargetChosenElsewhere(bool chosen);
     bool targetChosenElsewhere() const { return m_targetChosenElsewhere; }
+
+    // The launch fields are shared with the other backends, which may have
+    // enabled or disabled them for their own start modes since.
+    void refreshTargetEnabled() { updateTargetEnabled(); }
 
     // Set while the backend's own options come from elsewhere too -- a live
     // profiler that records a target on a device with settings of its own.

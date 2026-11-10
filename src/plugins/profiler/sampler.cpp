@@ -55,8 +55,15 @@ ExecutableItem Sampler::recordRecipe(const std::shared_ptr<RecordingSession> &se
     };
 }
 
-SamplerSettings::SamplerSettings()
+LaunchTargetSettings &LaunchTargetSettings::instance()
 {
+    static LaunchTargetSettings settings;
+    return settings;
+}
+
+LaunchTargetSettings::LaunchTargetSettings()
+{
+    setSettingsGroup("LaunchTarget");
     setAutoApply(true);
 
     executable.setSettingsKey("Executable");
@@ -74,6 +81,14 @@ SamplerSettings::SamplerSettings()
     seededExecutable.setSettingsKey("SeededExecutable");
     seededArguments.setSettingsKey("SeededArguments");
     seededWorkingDirectory.setSettingsKey("SeededWorkingDirectory");
+}
+
+SamplerSettings::SamplerSettings()
+    : executable(LaunchTargetSettings::instance().executable)
+    , arguments(LaunchTargetSettings::instance().arguments)
+    , workingDirectory(LaunchTargetSettings::instance().workingDirectory)
+{
+    setAutoApply(true);
 }
 
 std::shared_ptr<RecordingSession> SamplerSettings::createRunControlSession() const
