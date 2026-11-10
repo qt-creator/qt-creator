@@ -1227,6 +1227,8 @@ void LldbImpl::accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint6
             QString reason = response.data["error"]["status"].data();
             if (reason.isEmpty())
                 reason = response.data["error"]["desc"].data();
+            if (reason.isEmpty() && response.resultClass != ResultDone)
+                reason = Tr::tr("The debugger did not answer the memory request.");
             result.setUnreadable(read, lengthOrSize - read, reason);
         }
         emit memoryRead(requestId, result);
