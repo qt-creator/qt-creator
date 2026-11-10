@@ -301,6 +301,7 @@ public:
         layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(m_splitter);
         setWidget(widget);
+        m_widget->installEventFilter(this);
         using namespace Aggregation;
         Aggregate *aggregate = Aggregate::parentAggregate(m_textEditorWidget);
         if (!aggregate) {
@@ -517,6 +518,21 @@ public:
         if (!m_toggleEditorVisible->isChecked())
             m_toggleEditorVisible->toggle();
         m_textEditorWidget->gotoLine(line, column, centerLine);
+    }
+
+    bool eventFilter(QObject *obj, QEvent *ev) override
+    {
+        if (obj == m_widget && ev->type() == QEvent::FocusIn) {
+            QWidget *fw = m_splitter->focusWidget();
+            if (fw && fw->isVisibleTo(m_splitter))
+                fw->setFocus();
+            else if (m_textEditorWidget->isVisibleTo(m_splitter))
+                m_textEditorWidget->setFocus();
+            else
+                m_previewWidget->setFocus();
+            return true;
+        }
+        return BaseTextEditor::eventFilter(obj, ev);
     }
 
     QByteArray saveState() const override
