@@ -545,6 +545,7 @@ class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
     bool delayedInitialize() final
     {
         setupQmllsClient();
+        setupQmllsDownloadInfoBar();
         return true;
     }
 };

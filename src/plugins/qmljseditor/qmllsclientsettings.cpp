@@ -6,6 +6,8 @@
 #include "qmljseditortr.h"
 #include "qmllsclient.h"
 
+#include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
@@ -24,6 +26,9 @@
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 
+#include <texteditor/textdocument.h>
+
+#include <utils/infobar.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeconstants.h>
 #include <utils/networkaccessmanager.h>
@@ -38,6 +43,7 @@
 #include <QCheckBox>
 #include <QJsonDocument>
 #include <QLayout>
+#include <QLoggingCategory>
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QPushButton>
@@ -54,6 +60,8 @@ using namespace QtTaskTree;
 
 namespace QmlJSEditor {
 
+Q_LOGGING_CATEGORY(qmllsDownloadLog, "qtc.qmlls.download", QtWarningMsg)
+
 constexpr char useLatestQmllsKey[] = "useLatestQmlls";
 constexpr char executableSelectionKey[] = "executableSelection";
 constexpr char disableBuiltinCodemodelKey[] = "disableBuiltinCodemodel";
@@ -65,6 +73,7 @@ constexpr char executableKey[] = "executable";
 constexpr char extraArgumentsKey[] = "extraArguments";
 constexpr char extraArgumentsSelectionKey[] = "extraArgumentsSelection";
 constexpr char qmllsProjectSettingsKey[] = "QmllsProjectSettings";
+constexpr char downloadQmllsInfoBarId[] = "QmlJSEditor::DownloadQmlls";
 
 QmllsClientSettings *qmllsSettings()
 {
@@ -914,6 +923,107 @@ public:
 private:
     QSingleTaskTreeRunner m_qmllsDownloader;
 };
+
+static void useDownloadedQmlls(const FilePath &qmllsPath)
+{
+    LanguageClientManager::updateClientSettingsOfType(
+        Constants::QMLLS_CLIENT_SETTINGS_ID, [&qmllsPath](BaseSettings *settings) {
+            auto qmllsClientSettings = static_cast<QmllsClientSettings *>(settings);
+            qmllsClientSettings->executable.setValue(qmllsPath);
+            qmllsClientSettings->executableSelection.setValue(QmllsClientSettings::FromUser);
+        });
+}
+
+class QmllsDownloadInfoBar : public QObject
+{
+public:
+    explicit QmllsDownloadInfoBar(QObject *parent)
+        : QObject(parent)
+    {
+        connect(
+            Core::EditorManager::instance(),
+            &Core::EditorManager::documentOpened,
+            this,
+            [this](Core::IDocument *document) { offerDownload(document); });
+    }
+
+private:
+    static bool isQmlDocument(const Core::IDocument *document)
+    {
+        return document->mimeType() == Utils::Constants::QML_MIMETYPE
+               || document->mimeType() == Utils::Constants::QMLUI_MIMETYPE;
+    }
+
+    void offerDownload(Core::IDocument *document)
+    {
+        auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
+        if (!textDocument || textDocument->isTemporary() || !isQmlDocument(textDocument))
+            return;
+        if (!QtVersionManager::isLoaded()) {
+            qCDebug(qmllsDownloadLog).noquote() << "Cannot offer the qmlls download for "
+                                                       + textDocument->filePath().toUserOutput()
+                                                       + ": the Qt versions are not loaded yet.";
+            return;
+        }
+        if (!qmllsSettings()) {
+            qCDebug(qmllsDownloadLog).noquote()
+                << "Cannot offer the qmlls download for " + textDocument->filePath().toUserOutput()
+                       + ": the qmlls client settings are not registered.";
+            return;
+        }
+        if (!qmllsSettings()->enabled()) {
+            qCDebug(qmllsDownloadLog).noquote() << "Not offering the qmlls download for "
+                                                       + textDocument->filePath().toUserOutput()
+                                                       + ": the qmlls client is disabled.";
+            return;
+        }
+        if (const FilePath downloaded = evaluateGithubQmlls().first; !downloaded.isEmpty()) {
+            qCDebug(qmllsDownloadLog).noquote()
+                << "Not offering the qmlls download for " + textDocument->filePath().toUserOutput()
+                       + ": a downloaded qmlls exists at " + downloaded.toUserOutput();
+            return;
+        }
+
+        InfoBar *infoBar = textDocument->infoBar();
+        if (!infoBar->canInfoBeAdded(downloadQmllsInfoBarId)) {
+            qCDebug(qmllsDownloadLog).noquote()
+                << "Not offering the qmlls download for " + textDocument->filePath().toUserOutput()
+                       + ": the info bar entry is suppressed or already shown.";
+            return;
+        }
+
+        InfoBarEntry info(
+            downloadQmllsInfoBarId,
+            Tr::tr(
+                "Download the standalone QML Language Server (qmlls) for QML code completion, "
+                "navigation and diagnostics?"),
+            InfoBarEntry::GlobalSuppression::Enabled);
+        info.addCustomButton(
+            Tr::tr("Download"), [this] { startDownload(); }, {}, InfoBarEntry::ButtonAction::Hide);
+        infoBar->addInfo(info);
+    }
+
+    void startDownload()
+    {
+        m_downloader.start({downloadGithubQmlls()}, {}, [] {
+            const FilePath path = evaluateGithubQmlls().first;
+            if (path.isEmpty())
+                return;
+            useDownloadedQmlls(path);
+            for (Core::IDocument *document : Core::DocumentModel::openedDocuments()) {
+                if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document))
+                    textDocument->infoBar()->removeInfo(downloadQmllsInfoBarId);
+            }
+        });
+    }
+
+    QSingleTaskTreeRunner m_downloader;
+};
+
+void setupQmllsDownloadInfoBar()
+{
+    new QmllsDownloadInfoBar(LanguageClientManager::instance());
+}
 
 QWidget *QmllsClientSettings::createSettingsWidget(QWidget *parent)
 {

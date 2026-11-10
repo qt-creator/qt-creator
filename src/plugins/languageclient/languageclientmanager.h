@@ -58,6 +58,8 @@ public:
     static void applySettings(const QString &settingsId);
     static void applySettings(BaseSettings *settings);
     static void writeSettings();
+    static void updateClientSettingsOfType(
+        Utils::Id settingsTypeId, const std::function<void(BaseSettings *)> &modify);
     static QList<BaseSettings *> currentSettings();
     static void registerClientSettings(BaseSettings *settings);
     static void enableClientSettings(const QString &settingsId, bool enable = true);

@@ -6,10 +6,12 @@
 #ifdef WITH_TESTS
 
 #include "client.h"
+#include "languageclient_global.h"
 #include "languageclientinterface.h"
 #include "languageclientmanager.h"
 #include "languageclientsettings.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -29,9 +31,11 @@
 
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMimeData>
 #include <QRegularExpression>
 #include <QTest>
 #include <QTimer>
+#include <QTreeView>
 
 #include <atomic>
 
@@ -40,13 +44,18 @@ using namespace LanguageServerProtocol;
 
 namespace LanguageClient {
 
+static const char fakeSettingsTypeId[] = "LanguageClientManagerTest.ServerType";
 static const char fakeProjectType[] = "LanguageClientManagerTest.Project";
 static const char fakeBuildConfigurationType[] = "LanguageClientManagerTest.BuildConfiguration";
 
 class FakeServerInterface final : public BaseClientInterface
 {
 public:
-    FakeServerInterface() { instances << this; }
+    FakeServerInterface()
+    {
+        instances << this;
+        ++createdCount;
+    }
 
     ~FakeServerInterface() override { instances.removeOne(this); }
 
@@ -59,6 +68,7 @@ public:
     }
 
     static inline QList<FakeServerInterface *> instances;
+    static inline int createdCount = 0;
     static inline std::atomic_bool holdShutdown = false;
 
 protected:
@@ -107,9 +117,7 @@ private:
     void reply(const QJsonValue &id, const QJsonValue &result)
     {
         const QJsonObject response{{"jsonrpc", "2.0"}, {"id", id}, {"result", result}};
-        QTimer::singleShot(0, this, [this, response] {
-            emit messageReceived(response);
-        });
+        QTimer::singleShot(0, this, [this, response] { emit messageReceived(response); });
     }
 
     QByteArray m_received;
@@ -122,6 +130,7 @@ public:
     FakeServerSettings()
     {
         id.setValue("LanguageClientManagerTest.Server");
+        settingsTypeId.setValue(Utils::Id(fakeSettingsTypeId));
         name.setValue("LanguageClientManagerTest server");
         mimeTypes.setValue({"text/plain"});
         startBehavior.setValue(RequiresProject);
@@ -208,6 +217,9 @@ private slots:
     void testDocumentOpenedWhileClientIsRestartedInPlace();
     void testFileListChangeDoesNotStartClientForInactiveBuildConfiguration();
     void testSwitchingTargetMovesClient();
+    void testUpdateClientSettingsOfTypeRestartsClientOnce();
+    void testMovingSettingsRowKeepsClient();
+    void testCopyKeepsId();
 
 private:
     QList<Client *> clients() const
@@ -490,6 +502,86 @@ void LanguageClientManagerTest::testSwitchingTargetMovesClient()
     QCOMPARE(liveClientsFor(m_firstBc).size(), 0);
     QCOMPARE(liveClientsFor(m_secondBc).size(), 0);
     QCOMPARE(clients().size(), 1);
+}
+
+void LanguageClientManagerTest::testUpdateClientSettingsOfTypeRestartsClientOnce()
+{
+    QTRY_COMPARE(liveClientsFor(m_firstBc).size(), 1);
+    QPointer<Client> oldClient = liveClientsFor(m_firstBc).first();
+    QTRY_COMPARE(oldClient->state(), Client::Initialized);
+    const int createdBefore = FakeServerInterface::createdCount;
+    const QString originalName
+        = LanguageClientSettings::settingById(LanguageClientSettings::pageSettings(), m_settingId)
+              ->name();
+    const QString newName = "renamed by updateClientSettingsOfType";
+
+    LanguageClientManager::updateClientSettingsOfType(
+        Utils::Id(fakeSettingsTypeId),
+        [&newName](BaseSettings *settings) { settings->name.setValue(newName); });
+    QTRY_COMPARE(FakeServerInterface::createdCount, createdBefore + 1);
+
+    QTRY_VERIFY(oldClient.isNull());
+    QCOMPARE(clients().size(), 1);
+    QTRY_COMPARE(clients().first()->state(), Client::Initialized);
+    QCOMPARE(FakeServerInterface::createdCount, createdBefore + 1);
+
+    const BaseSettings *current
+        = LanguageClientSettings::settingById(LanguageClientManager::currentSettings(), m_settingId);
+    QVERIFY(current);
+    QCOMPARE(current->name(), newName);
+    QCOMPARE(current->id(), m_settingId);
+
+    LanguageClientManager::updateClientSettingsOfType(
+        Utils::Id(fakeSettingsTypeId),
+        [&originalName](BaseSettings *settings) { settings->name.setValue(originalName); });
+}
+
+void LanguageClientManagerTest::testCopyKeepsId()
+{
+    FakeServerSettings original;
+    original.id.setValue(original.id.defaultValue());
+    const std::unique_ptr<BaseSettings> copy(original.copy());
+    QCOMPARE(copy->id(), original.id());
+}
+
+void LanguageClientManagerTest::testMovingSettingsRowKeepsClient()
+{
+    QTRY_COMPARE(liveClientsFor(m_firstBc).size(), 1);
+    QPointer<Client> client = liveClientsFor(m_firstBc).first();
+    QTRY_COMPARE(client->state(), Client::Initialized);
+
+    Core::IOptionsPage *page = Utils::findOrDefault(
+        Core::IOptionsPage::allOptionsPages(),
+        Utils::equal(&Core::IOptionsPage::id, Utils::Id(Constants::LANGUAGECLIENT_SETTINGS_PAGE)));
+    QVERIFY(page);
+    const std::unique_ptr<Core::IOptionsPageWidget> widget(page->createWidget());
+    QVERIFY(widget);
+    widget->cancel();
+    auto view = widget->findChild<QTreeView *>();
+    QVERIFY(view);
+    QAbstractItemModel *model = view->model();
+
+    int row = -1;
+    for (int i = 0; i < model->rowCount(); ++i) {
+        if (model->index(i, 0).data(Qt::UserRole + 1).toString() == m_settingId)
+            row = i;
+    }
+    QVERIFY(row >= 0);
+
+    const QModelIndex index = model->index(row, 0);
+    std::unique_ptr<QMimeData> mimeData(model->mimeData({index}));
+    QVERIFY(mimeData);
+    const int targetRow = row == 0 ? model->rowCount() : 0;
+    QVERIFY(model->dropMimeData(mimeData.get(), Qt::MoveAction, targetRow, 0, QModelIndex()));
+    const int sourceRow = row >= targetRow ? row + 1 : row;
+    QVERIFY(model->removeRows(sourceRow, 1));
+
+    widget->apply();
+
+    QCOMPARE(clients().size(), 1);
+    QCOMPARE(clients().first(), client.data());
+    QVERIFY(isLive(client));
+    QTRY_COMPARE(client->state(), Client::Initialized);
 }
 
 QObject *createLanguageClientManagerTest()

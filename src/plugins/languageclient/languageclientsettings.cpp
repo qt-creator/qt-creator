@@ -170,6 +170,9 @@ public:
         LanguageClientManager::applySettings();
 
         for (BaseSettings *setting : m_settings.removed()) {
+            if (LanguageClientSettings::settingById(
+                    LanguageClientManager::currentSettings(), setting->id()))
+                continue;
             for (Client *client : LanguageClientManager::clientsForSetting(setting))
                 LanguageClientManager::shutdownClient(client);
         }
@@ -672,6 +675,7 @@ BaseSettings *BaseSettings::copy() const
     other->fromMap(store);
     // some members are not stored in the map, copy them manually, reeavluate whether those settings
     // need to be an aspect at all after full aspectification of the lsp settings
+    other->id.setValue(id());
     other->showInSettings.setValue(showInSettings());
     other->activatable.setValue(activatable());
     return other;

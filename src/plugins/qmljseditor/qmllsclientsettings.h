@@ -53,5 +53,6 @@ protected:
 QmllsClientSettings *qmllsSettings();
 void registerQmllsSettings();
 void setupQmllsClient();
+void setupQmllsDownloadInfoBar();
 
 } // namespace QmlJSEditor

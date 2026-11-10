@@ -351,6 +351,27 @@ void LanguageClientManager::applySettings()
         applySettings(settings);
 }
 
+void LanguageClientManager::updateClientSettingsOfType(
+    Utils::Id settingsTypeId, const std::function<void(BaseSettings *)> &modify)
+{
+    QTC_ASSERT(managerInstance, return);
+    const QList<BaseSettings *> settings = Utils::filtered(
+        LanguageClientSettings::pageSettings(), [settingsTypeId](const BaseSettings *setting) {
+            return setting->settingsTypeId() == settingsTypeId;
+        });
+    QTC_ASSERT(!settings.isEmpty(), return);
+    for (BaseSettings *setting : settings)
+        modify(setting);
+    qDeleteAll(managerInstance->m_currentSettings);
+    managerInstance->m_currentSettings
+        = Utils::transform(LanguageClientSettings::pageSettings(), &BaseSettings::copy);
+    writeSettings();
+    for (BaseSettings *setting : std::as_const(managerInstance->m_currentSettings)) {
+        if (setting->settingsTypeId() == settingsTypeId)
+            applySettings(setting);
+    }
+}
+
 void LanguageClientManager::applySettings(const QString &settingsId)
 {
     if (BaseSettings *settings
