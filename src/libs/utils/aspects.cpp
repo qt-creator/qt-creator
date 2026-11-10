@@ -1044,6 +1044,7 @@ public:
     bool m_acceptRichText = false;
     bool m_showToolTipOnLabel = false;
     bool m_useResetButton = false;
+    bool m_macroExpansionEnabled = true;
     bool m_autoApplyOnEditingFinished = false;
     bool m_validatePlaceHolder = false;
 
@@ -1279,6 +1280,18 @@ void StringAspect::setAcceptRichText(bool acceptRichText)
     emit acceptRichTextChanged(acceptRichText);
 }
 
+/*!
+    Sets whether the value may contain Qt Creator's variables to \a enabled.
+
+    If it does, which is the default, an edit offers the variables and
+    operator()() expands them. Turn this off for values that are used by
+    something that knows nothing of them.
+*/
+void StringAspect::setMacroExpansionEnabled(bool enabled)
+{
+    d->m_macroExpansionEnabled = enabled;
+}
+
 void StringAspect::setUseResetButton()
 {
     d->m_useResetButton = true;
@@ -1315,7 +1328,8 @@ void StringAspect::addToLayoutImpl(Layout &parent)
         // Named after the setting, like a path chooser, so a page with several of
         // them can be told apart.
         lineEditDisplay->setObjectName(stringFromKey(settingsKey()));
-        addMacroExpansion(lineEditDisplay);
+        if (d->m_macroExpansionEnabled)
+            addMacroExpansion(lineEditDisplay);
         lineEditDisplay->setPlaceholderText(d->m_placeHolderText);
         lineEditDisplay->setMinimumHeight(d->m_minimumHeight);
 
@@ -1434,7 +1448,8 @@ void StringAspect::addToLayoutImpl(Layout &parent)
     }
     case TextEditDisplay: {
         auto textEditDisplay = createSubWidget<QTextEdit>();
-        addMacroExpansion(textEditDisplay);
+        if (d->m_macroExpansionEnabled)
+            addMacroExpansion(textEditDisplay);
         textEditDisplay->setPlaceholderText(d->m_placeHolderText);
         textEditDisplay->setUndoRedoEnabled(false);
         textEditDisplay->setAcceptRichText(d->m_acceptRichText);
@@ -1516,7 +1531,7 @@ QString StringAspect::expandedValue() const
 
 QString StringAspect::operator()() const
 {
-    if (!m_value.isEmpty()) {
+    if (d->m_macroExpansionEnabled && !m_value.isEmpty()) {
         if (auto expander = macroExpander())
             return expander->expand(m_value);
     }

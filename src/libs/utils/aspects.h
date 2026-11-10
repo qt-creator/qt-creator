@@ -751,6 +751,7 @@ public:
     void setPlaceHolderText(const QString &placeHolderText);
     void setHistoryCompleter(const Key &historyCompleterKey);
     void setAcceptRichText(bool acceptRichText);
+    void setMacroExpansionEnabled(bool enabled);
     void setUseResetButton();
     void setValidationFunction(const FancyLineEdit::ValidationFunction &validator);
     void setValidatorFactory(const std::function<QValidator *(QObject *parent)> &validatorFactory);
