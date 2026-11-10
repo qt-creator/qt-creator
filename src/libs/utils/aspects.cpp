@@ -2524,10 +2524,14 @@ std::function<void(Layouting::Layout *)> BoolAspect::adoptButton(QAbstractButton
 */
 void BoolAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
+    QAbstractButton *button = nullptr;
     if (d->m_displayStyle == DisplayStyle::CheckBox)
-        addToLayoutHelper(parent, createSubWidget<QCheckBox>());
+        button = createSubWidget<QCheckBox>();
     else
-        addToLayoutHelper(parent, createSubWidget<QRadioButton>());
+        button = createSubWidget<QRadioButton>();
+
+    button->setObjectName(stringFromKey(settingsKey()));
+    addToLayoutHelper(parent, button);
     volatileValueToGui();
 }
 
