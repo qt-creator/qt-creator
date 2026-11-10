@@ -977,6 +977,8 @@ bool Lexer::scanOptionalIntegerSuffix(bool allowU)
         if (allowU) {
             yyinp();
             scanOptionalIntegerSuffix(false);
+            if (std::isalnum(_yychar) || _yychar == '_')
+                return false; // user-defined literal, e.g. 10us
         }
         return true;
     case 'i':

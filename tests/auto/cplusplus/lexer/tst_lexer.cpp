@@ -891,6 +891,12 @@ void tst_SimpleLexer::user_defined_literals_data()
         << _("11.1_udl") << createToken(T_NUMERIC_LITERAL, 8, 8, true);
     QTest::newRow("numeric user-defined reserved literal")
         << _("11ms") << createToken(T_NUMERIC_LITERAL, 4, 4, true);
+    QTest::newRow("numeric user-defined reserved literal after unsigned suffix")
+        << _("11us") << createToken(T_NUMERIC_LITERAL, 4, 4, true);
+    QTest::newRow("numeric non user-defined literal with unsigned suffix")
+        << _("11u") << createToken(T_NUMERIC_LITERAL, 3, 3, false);
+    QTest::newRow("numeric non user-defined literal with unsigned long long suffix")
+        << _("11ull") << createToken(T_NUMERIC_LITERAL, 5, 5, false);
 }
 
 static Token createToken(unsigned kind, unsigned byteOffset, unsigned bytes,
