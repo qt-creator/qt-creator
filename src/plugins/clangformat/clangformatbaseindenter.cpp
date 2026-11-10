@@ -616,7 +616,7 @@ static void printDebugInfo(
 
     QString str = QString::fromStdString(buffer.data());
 
-    if (replacements.empty()) {
+    if (!replacements.empty()) {
         std::string code = buffer.data();
         llvm::Expected<std::string> code_new
             = clang::tooling::applyAllReplacements(code, replacements);
