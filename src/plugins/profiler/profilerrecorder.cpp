@@ -372,6 +372,9 @@ bool ProfilerRecorder::selectBackend(const QString &name)
 
 QWidget *ProfilerRecorder::createConfigWidget() const
 {
+#ifdef UTILS_NOWIDGETS
+    return nullptr;
+#else
     Sampler *backend = d->backend();
     SamplerSettings *settings = backend ? backend->settings() : nullptr;
     if (!settings)
@@ -380,6 +383,7 @@ QWidget *ProfilerRecorder::createConfigWidget() const
     auto widget = new QWidget;
     settings->layouter()().attachTo(widget);
     return widget;
+#endif
 }
 
 void ProfilerRecorder::seedLaunchTarget(const CommandLine &command,

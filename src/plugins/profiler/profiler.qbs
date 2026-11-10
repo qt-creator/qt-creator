@@ -8,7 +8,7 @@ QtcPlugin {
 
     Properties {
         condition: project.qtprofilerWasm
-        cpp.defines: base.concat("QTPROFILER_WASM")
+        cpp.defines: base.concat(["QTPROFILER_WASM", "QTPROFILER_STANDALONE"])
     }
 
     Depends { name: "Qt"; submodules: ["widgets", "network"] }

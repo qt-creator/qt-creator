@@ -269,6 +269,8 @@ QtcLibrary {
         "projectintropage.h",
         "proxyaction.cpp",
         "proxyaction.h",
+        "qmldebugcommandlinearguments.cpp",
+        "qmldebugcommandlinearguments.h",
         "qrcparser.cpp",
         "qrcparser.h",
         "qtcassert.cpp",

@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.20)
 
 option(BUILD_DESIGNSTUDIO "Build and install design studio plugins, examples and settings." OFF)
 option(QTPROFILER_WASM "Build the standalone qtprofiler WebAssembly viewer" OFF)
+option(QTPROFILER_STANDALONE
+       "Build only the standalone Qt Profiler tools, without the Qt Creator integration" OFF)
+option(QTPROFILER_HEADLESS
+       "Build only the headless qtprofiler-cli: settings without the widgets that edit them" OFF)
 if (BUILD_DESIGNSTUDIO)
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/dist/branding/qtdesignstudio")
 endif()
@@ -35,6 +39,14 @@ if (QTPROFILER_WASM)
     message(FATAL_ERROR "QTPROFILER_WASM requires the Emscripten toolchain.")
   endif()
   add_compile_definitions(QTPROFILER_WASM)
+  set(QTPROFILER_STANDALONE ON)
+endif()
+if (QTPROFILER_HEADLESS)
+  add_compile_definitions(UTILS_NOWIDGETS)
+  set(QTPROFILER_STANDALONE ON)
+endif()
+if (QTPROFILER_STANDALONE)
+  add_compile_definitions(QTPROFILER_STANDALONE)
 endif()
 
 # Force C++ standard, do not fall back, do not use compiler extensions
@@ -86,11 +98,11 @@ if (MSVC)
   endif()
 endif()
 
-# The standalone WebAssembly viewer links neither Qt Qml nor Qt Sql (Core leaves
+# The standalone profiler builds link neither Qt Qml nor Qt Sql (Core leaves
 # the JavaScript engine out there, and Utils keeps its settings in memory), so a
-# Qt for WebAssembly built without them has to do.
+# Qt built without them has to do.
 set(IDE_QT_REQUIRED_COMPONENTS Concurrent Core Gui Network PrintSupport Widgets Xml)
-if (NOT QTPROFILER_WASM)
+if (NOT QTPROFILER_STANDALONE)
   list(APPEND IDE_QT_REQUIRED_COMPONENTS Qml Sql)
 endif()
 find_package(Qt6
@@ -98,7 +110,7 @@ find_package(Qt6
   COMPONENTS ${IDE_QT_REQUIRED_COMPONENTS}
   REQUIRED
 )
-if (QTPROFILER_WASM)
+if (QTPROFILER_STANDALONE)
   find_package(Qt6 OPTIONAL_COMPONENTS Qml Sql QUIET)
 endif()
 

@@ -18,7 +18,7 @@
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
-#ifndef QTPROFILER_WASM // QtSupport is excluded from the standalone viewer
+#ifndef QTPROFILER_STANDALONE // QtSupport is excluded from the standalone viewer
 #include <qtsupport/qtkitaspect.h>
 #endif
 
@@ -234,7 +234,7 @@ PerfConversionOptions PerfDataReader::collectOptions(const QString &exe, const K
     if (!exe.isEmpty())
         options.searchPaths.append(FilePath::fromUserInput(exe));
 
-#ifndef QTPROFILER_WASM
+#ifndef QTPROFILER_STANDALONE
     if (QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit)) {
         options.searchPaths << qt->libraryPath() << qt->pluginPath() << qt->hostBinPath()
                             << qt->qmlPath();

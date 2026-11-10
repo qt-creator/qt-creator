@@ -126,7 +126,7 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, Target *target)
     }.attachTo(this);
 
     IDevice::ConstPtr device;
-#ifndef Q_OS_WASM
+#ifndef QTPROFILER_STANDALONE
     if (target)
         device = RunDeviceKitAspect::device(target->kit());
 #endif
@@ -433,12 +433,14 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
     // Loading settings changes the mode quietly.
     connect(this, &AspectContainer::fromMapFinished, this, updateStackSizeEnabled);
 
+#ifndef UTILS_NOWIDGETS
     setLayouter([this, target, updateStackSizeEnabled] {
         using namespace Layouting;
         updateStackSizeEnabled();
         auto widget = new PerfConfigWidget(this, target);
         return Column { widget };
     });
+#endif
 
     readGlobalSettings();
     readSettings();
@@ -506,7 +508,11 @@ QString PerfSettings::perfRecordArguments() const
 
 QWidget *PerfSettings::createPerfConfigWidget(Target *target)
 {
+#ifdef UTILS_NOWIDGETS
+    return nullptr;
+#else
     return new PerfConfigWidget(this, target);
+#endif
 }
 
 // PerfSettingsPage
@@ -523,6 +529,9 @@ public:
     }
 };
 
+// The standalone profiler tools have no options dialog to show it in.
+#ifndef QTPROFILER_STANDALONE
 const PerfSettingsPage settingsPage;
+#endif
 
 } // namespace Profiler

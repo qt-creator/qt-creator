@@ -1,8 +1,8 @@
-# The settings database is the only thing here that uses Qt::Sql, and on
-# the standalone WebAssembly viewer it is replaced by an in-memory implementation: nothing survives a
-# reload there, so there is nothing for SQLite to keep. That drops the SQLite
+# The settings database is the only thing here that uses Qt::Sql, and in the
+# standalone profiler builds it is replaced by an in-memory implementation: they
+# keep nothing between runs, so there is nothing for SQLite to keep. That drops the SQLite
 # driver plugin, which is otherwise the largest single dependency of that build.
-if (QTPROFILER_WASM)
+if (QTPROFILER_STANDALONE)
   set(UTILS_SQL_DEPENDENCY "")
 else()
   set(UTILS_SQL_DEPENDENCY Qt::Sql)
@@ -138,6 +138,7 @@ add_qtc_library(Utils
     progressindicator.cpp progressindicator.h
     projectintropage.cpp projectintropage.h
     proxyaction.cpp proxyaction.h
+    qmldebugcommandlinearguments.cpp qmldebugcommandlinearguments.h
     qrcparser.cpp qrcparser.h
     qtcassert.cpp qtcassert.h
     qtcolorbutton.cpp qtcolorbutton.h
@@ -236,10 +237,10 @@ extend_qtc_library(Utils
     mimeutils.cpp
 )
 
-# The MIME database MimeDatabase starts from. The WebAssembly build is qtprofiler
-# alone, which looks up no MIME type of its own; it gets a few basic types rather
+# The MIME database MimeDatabase starts from. The standalone profiler builds look
+# up no MIME type of their own; it gets a few basic types rather
 # than all of Apache Tika's.
-if (QTPROFILER_WASM)
+if (QTPROFILER_STANDALONE)
   set(utils_mime_database "${CMAKE_CURRENT_SOURCE_DIR}/mimetypes2/basic-mimetypes.xml")
 else()
   set(utils_mime_database "${PROJECT_SOURCE_DIR}/src/libs/3rdparty/tika/tika-mimetypes.xml")
@@ -327,12 +328,12 @@ extend_qtc_library(Utils CONDITION UNIX AND NOT APPLE
 )
 
 extend_qtc_library(Utils
-  CONDITION QTPROFILER_WASM
+  CONDITION QTPROFILER_STANDALONE
   SOURCES settingsdatabase_wasm.cpp
 )
 
 extend_qtc_library(Utils
-  CONDITION NOT QTPROFILER_WASM
+  CONDITION NOT QTPROFILER_STANDALONE
   SOURCES settingsdatabase.cpp
 )
 

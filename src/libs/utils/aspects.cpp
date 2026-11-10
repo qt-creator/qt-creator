@@ -53,6 +53,24 @@ using namespace Layouting;
 
 namespace Utils {
 
+// Without widgets, no aspect ever creates one: the pointers that would hold them
+// stay null, which lets the compiler drop the code that would use them.
+#ifdef UTILS_NOWIDGETS
+template<typename T>
+class WidgetPointer
+{
+public:
+    WidgetPointer &operator=(T *) { return *this; }
+    T *data() const { return nullptr; }
+    T *operator->() const { return nullptr; }
+    operator T *() const { return nullptr; }
+    void clear() {}
+};
+#else
+template<typename T>
+using WidgetPointer = QPointer<T>;
+#endif
+
 static const char ASPECT_PROPERTY[] = "aspect";
 
 
@@ -275,6 +293,9 @@ void BaseAspect::setVisible(bool visible)
 
 QLabel *BaseAspect::createLabel()
 {
+#ifdef UTILS_NOWIDGETS
+    return nullptr;
+#else
     if (d->m_labelText.isEmpty() && d->m_labelPixmap.isNull())
         return nullptr;
 
@@ -295,10 +316,14 @@ QLabel *BaseAspect::createLabel()
     });
 
     return label;
+#endif
 }
 
 QLabel *BaseAspect::addLabeledItem(Layout &parent, QWidget *widget)
 {
+#ifdef UTILS_NOWIDGETS
+    return nullptr;
+#else
     if (QLabel *l = createLabel()) {
         l->setBuddy(widget);
         parent.addItem(l);
@@ -307,14 +332,19 @@ QLabel *BaseAspect::addLabeledItem(Layout &parent, QWidget *widget)
     }
     parent.addItem(widget);
     return {};
+#endif
 }
 
 void BaseAspect::addLabeledItems(Layouting::Layout &parent, const QList<QWidget *> &widgets)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     if (QLabel *l = createLabel())
         parent.addItem(l);
     for (auto widget : widgets)
         parent.addItem(widget);
+#endif
 }
 
 /*!
@@ -558,11 +588,15 @@ QString BaseAspect::displayName() const
 */
 QWidget *BaseAspect::createConfigWidget() const
 {
+#ifdef UTILS_NOWIDGETS
+    return nullptr;
+#else
     auto configWidget = d->m_configWidgetCreator ? d->m_configWidgetCreator() : nullptr;
     if (configWidget)
         registerSubWidget(configWidget);
 
     return configWidget;
+#endif
 }
 
 QAction *BaseAspect::action()
@@ -585,6 +619,10 @@ AspectContainer *BaseAspect::container() const
 */
 void BaseAspect::addToLayoutImpl(Layout &)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
+#endif
 }
 
 void addToLayout(Layouting::Layout *layout, const BaseAspect &aspect)
@@ -838,6 +876,9 @@ void BaseAspect::addOnLabelPixmapChanged(QObject *guard, const Callback &callbac
 
 void BaseAspect::addMacroExpansion(QWidget *w)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     const auto varChooser = new VariableChooser(w);
     varChooser->addMacroExpanderProvider({this, [this] { return d->macroExpander(); }});
     if (auto pathChooser = qobject_cast<PathChooser *>(w)) {
@@ -846,6 +887,7 @@ void BaseAspect::addMacroExpansion(QWidget *w)
     } else {
         varChooser->addSupportedWidget(w);
     }
+#endif
 }
 
 namespace Internal {
@@ -1316,6 +1358,9 @@ void StringAspect::setAutoApplyOnEditingFinished(bool applyOnEditingFinished)
 
 void StringAspect::addToLayoutImpl(Layout &parent)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     d->m_checkerImpl.addToLayoutFirst(parent);
 
     const QString displayedString = d->m_displayFilter ? d->m_displayFilter(volatileValue())
@@ -1522,6 +1567,7 @@ void StringAspect::addToLayoutImpl(Layout &parent)
     }
 
     d->m_checkerImpl.addToLayoutLast(parent);
+#endif
 }
 
 QString StringAspect::expandedValue() const
@@ -1540,7 +1586,11 @@ QString StringAspect::operator()() const
 
 bool StringAspect::guiToVolatileValue()
 {
+#ifdef UTILS_NOWIDGETS
+    return false;
+#else
     return updateStorage(m_volatileValue, d->undoable.get());
+#endif
 }
 
 bool StringAspect::volatileValueToValue()
@@ -1561,7 +1611,11 @@ bool StringAspect::valueToVolatileValue()
 
 void StringAspect::volatileValueToGui()
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     d->undoable.setWithoutUndo(m_volatileValue);
+#endif
 }
 
 /*!
@@ -1815,7 +1869,11 @@ bool FilePathAspect::isCheckable() const
 
 bool FilePathAspect::guiToVolatileValue()
 {
+#ifdef UTILS_NOWIDGETS
+    return false;
+#else
     return updateStorage(m_volatileValue, d->m_undoable.get());
+#endif
 }
 
 bool FilePathAspect::volatileValueToValue()
@@ -1836,12 +1894,19 @@ bool FilePathAspect::valueToVolatileValue()
 
 void FilePathAspect::volatileValueToGui()
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     d->m_undoable.setWithoutUndo(m_volatileValue);
     validateInput();
+#endif
 }
 
 void FilePathAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     d->m_checkerImpl.addToLayoutFirst(parent);
 
     const QString displayedString = d->m_displayFilter ? d->m_displayFilter(value()) : value();
@@ -1965,6 +2030,7 @@ void FilePathAspect::addToLayoutImpl(Layouting::Layout &parent)
     });
 
     d->m_checkerImpl.addToLayoutLast(parent);
+#endif
 }
 
 /*!
@@ -2188,6 +2254,9 @@ ColorAspect::~ColorAspect() = default;
 
 void ColorAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     auto button = createSubWidget<QtColorButton>();
     button->setColor(volatileValue());
     button->setAlphaAllowed(d->m_alphaAllowed);
@@ -2221,6 +2290,7 @@ void ColorAspect::addToLayoutImpl(Layouting::Layout &parent)
             QStringList{toolTip(), Tr::tr("Press and hold to reset to default.")}.join('\n'));
         addLabeledItem(parent, button);
     }
+#endif
 }
 
 void ColorAspect::setAlphaAllowed(bool allowed)
@@ -2259,6 +2329,9 @@ FontFamilyAspect::~FontFamilyAspect() = default;
 
 void FontFamilyAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     if (QLabel *l = createLabel())
         parent.addItem(l);
 
@@ -2275,6 +2348,7 @@ void FontFamilyAspect::addToLayoutImpl(Layouting::Layout &parent)
         updateStorage(m_volatileValue, text);
         emit volatileValueChanged();
     });
+#endif
 }
 
 void FontFamilyAspect::setFontFilters(QFontComboBox::FontFilters fontFilters)
@@ -2284,12 +2358,20 @@ void FontFamilyAspect::setFontFilters(QFontComboBox::FontFilters fontFilters)
 
 void FontFamilyAspect::volatileValueToGui()
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     d->m_undoable.setWithoutUndo(m_volatileValue);
+#endif
 }
 
 bool FontFamilyAspect::guiToVolatileValue()
 {
+#ifdef UTILS_NOWIDGETS
+    return false;
+#else
     return updateStorage(m_volatileValue, d->m_undoable.get());
+#endif
 }
 
 bool FontFamilyAspect::valueToVolatileValue()
@@ -2524,6 +2606,9 @@ std::function<void(Layouting::Layout *)> BoolAspect::adoptButton(QAbstractButton
 */
 void BoolAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     QAbstractButton *button = nullptr;
     if (d->m_displayStyle == DisplayStyle::CheckBox)
         button = createSubWidget<QCheckBox>();
@@ -2533,6 +2618,7 @@ void BoolAspect::addToLayoutImpl(Layouting::Layout &parent)
     button->setObjectName(stringFromKey(settingsKey()));
     addToLayoutHelper(parent, button);
     volatileValueToGui();
+#endif
 }
 
 std::function<void (QObject *)> BoolAspect::groupChecker()
@@ -2574,12 +2660,20 @@ QAction *BoolAspect::action()
 
 bool BoolAspect::guiToVolatileValue()
 {
+#ifdef UTILS_NOWIDGETS
+    return false;
+#else
     return updateStorage(m_volatileValue, d->m_undoable.get());
+#endif
 }
 
 void BoolAspect::volatileValueToGui()
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     d->m_undoable.setWithoutUndo(m_volatileValue);
+#endif
 }
 
 void BoolAspect::setLabel(const QString &labelText, LabelPlacement labelPlacement)
@@ -2660,6 +2754,9 @@ SelectionAspect::~SelectionAspect() = default;
 */
 void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons: {
         auto buttonGroup = new QButtonGroup(parent.product());
@@ -2711,16 +2808,25 @@ void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 
         break;
     }
+#endif
 }
 
 bool SelectionAspect::guiToVolatileValue()
 {
+#ifdef UTILS_NOWIDGETS
+    return false;
+#else
     return updateStorage(m_volatileValue, d->m_undoable.get());
+#endif
 }
 
 void SelectionAspect::volatileValueToGui()
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     return d->m_undoable.setWithoutUndo(m_volatileValue);
+#endif
 }
 
 void SelectionAspect::setDisplayStyle(SelectionAspect::DisplayStyle style)
@@ -2866,6 +2972,9 @@ MultiSelectionAspect::~MultiSelectionAspect() = default;
 */
 void MultiSelectionAspect::addToLayoutImpl(Layout &builder)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     if (d->m_allValues.isEmpty())
         return;
 
@@ -2906,6 +3015,7 @@ void MultiSelectionAspect::addToLayoutImpl(Layout &builder)
         });
     }
     }
+#endif
 }
 
 bool Internal::MultiSelectionAspectPrivate::setValueSelectedHelper(const QString &val, bool on)
@@ -2941,12 +3051,20 @@ void MultiSelectionAspect::setDisplayStyle(MultiSelectionAspect::DisplayStyle st
 
 void MultiSelectionAspect::volatileValueToGui()
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     d->m_undoable.setWithoutUndo(m_volatileValue);
+#endif
 }
 
 bool MultiSelectionAspect::guiToVolatileValue()
 {
+#ifdef UTILS_NOWIDGETS
+    return false;
+#else
     return updateStorage(m_volatileValue, d->m_undoable.get());
+#endif
 }
 
 
@@ -2982,6 +3100,9 @@ IntegerAspect::~IntegerAspect() = default;
 */
 void IntegerAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     auto spinBox = createSubWidget<QSpinBox>();
     spinBox->setDisplayIntegerBase(d->m_displayIntegerBase);
     spinBox->setPrefix(d->m_prefix);
@@ -3004,16 +3125,25 @@ void IntegerAspect::addToLayoutImpl(Layouting::Layout &parent)
         spinBox->setValue(d->m_undoable.get() / d->m_displayScaleFactor);
         handleGuiChanged();
     });
+#endif
 }
 
 bool IntegerAspect::guiToVolatileValue()
 {
+#ifdef UTILS_NOWIDGETS
+    return false;
+#else
     return updateStorage(m_volatileValue, d->m_undoable.get());
+#endif
 }
 
 void IntegerAspect::volatileValueToGui()
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     d->m_undoable.setWithoutUndo(m_volatileValue);
+#endif
 }
 
 QVariant IntegerAspect::fromSettingsValue(const QVariant &savedValue) const
@@ -3099,6 +3229,9 @@ DoubleAspect::~DoubleAspect() = default;
 */
 void DoubleAspect::addToLayoutImpl(Layout &builder)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     auto spinBox = createSubWidget<QDoubleSpinBox>();
     spinBox->setPrefix(d->m_prefix);
     spinBox->setSuffix(d->m_suffix);
@@ -3119,16 +3252,25 @@ void DoubleAspect::addToLayoutImpl(Layout &builder)
         spinBox->setValue(d->m_undoable.get());
         handleGuiChanged();
     });
+#endif
 }
 
 bool DoubleAspect::guiToVolatileValue()
 {
+#ifdef UTILS_NOWIDGETS
+    return false;
+#else
     return updateStorage(m_volatileValue, d->m_undoable.get());
+#endif
 }
 
 void DoubleAspect::volatileValueToGui()
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     d->m_undoable.setWithoutUndo(m_volatileValue);
+#endif
 }
 
 void DoubleAspect::setRange(double min, double max)
@@ -3258,17 +3400,25 @@ StringListAspect::~StringListAspect() = default;
 
 bool StringListAspect::guiToVolatileValue()
 {
+#ifdef UTILS_NOWIDGETS
+    return false;
+#else
     const QStringList newValue = d->m_undoable.get();
     if (newValue != m_volatileValue) {
         m_volatileValue = newValue;
         return true;
     }
     return false;
+#endif
 }
 
 void StringListAspect::volatileValueToGui()
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     d->m_undoable.setWithoutUndo(m_volatileValue);
+#endif
 }
 
 void StringListAspect::setDisplayStyle(DisplayStyle displayStyle)
@@ -3278,6 +3428,9 @@ void StringListAspect::setDisplayStyle(DisplayStyle displayStyle)
 
 void StringListAspect::addToLayoutImpl(Layout &parent)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     if (d->m_displayStyle == DisplayStyle::CommaSeparatedLineEdit) {
         auto lineEdit = createSubWidget<FancyLineEdit>();
 
@@ -3403,6 +3556,7 @@ void StringListAspect::addToLayoutImpl(Layout &parent)
 
     parent.addItem(createLabel());
     parent.addItem(mainWdgt);
+#endif
 }
 
 void StringListAspect::appendValue(const QString &s, bool allowDuplicates)
@@ -3492,21 +3646,32 @@ FilePaths FilePathListAspect::operator()() const
 
 bool FilePathListAspect::guiToVolatileValue()
 {
+#ifdef UTILS_NOWIDGETS
+    return false;
+#else
     const QStringList newValue = d->undoable.get();
     if (newValue != m_volatileValue) {
         m_volatileValue = newValue;
         return true;
     }
     return false;
+#endif
 }
 
 void FilePathListAspect::volatileValueToGui()
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     d->undoable.setWithoutUndo(m_volatileValue);
+#endif
 }
 
 void FilePathListAspect::addToLayoutImpl(Layout &parent)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     PathListEditor *editor = createSubWidget<PathListEditor>();
     editor->setPathList(value());
     connect(editor, &PathListEditor::changed, this, [this, editor] {
@@ -3531,6 +3696,7 @@ void FilePathListAspect::addToLayoutImpl(Layout &parent)
             editor, &PathListEditor::setPlaceholderText);
 
     parent.addItem(editor);
+#endif
 }
 
 void FilePathListAspect::setPlaceHolderText(const QString &placeHolderText)
@@ -3601,8 +3767,12 @@ IntegersAspect::~IntegersAspect() = default;
 */
 void IntegersAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     Q_UNUSED(parent)
     // TODO - when needed.
+#endif
 }
 
 
@@ -3637,6 +3807,9 @@ TextDisplay::~TextDisplay() = default;
 */
 void TextDisplay::addToLayoutImpl(Layout &parent)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     auto label = createSubWidget<InfoLabel>(d->m_message, d->m_type);
     label->setTextInteractionFlags(Qt::LinksAccessibleByMouse | Qt::TextSelectableByMouse);
     label->setToolTip(toolTip());
@@ -3654,6 +3827,7 @@ void TextDisplay::addToLayoutImpl(Layout &parent)
         label->setWordWrap(d->m_wordWrap);
     });
     parent.addItem(label);
+#endif
 }
 
 /*!
@@ -3741,7 +3915,11 @@ AspectContainer::~AspectContainer()
 
 void AspectContainer::addToLayoutImpl(Layouting::Layout &parent)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     parent.addItem(layouter()());
+#endif
 }
 
 /*!
@@ -3844,18 +4022,26 @@ void AspectContainer::writeSettings() const
 
 void AspectContainer::volatileValueToGui()
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->volatileValueToGui();
+#endif
 }
 
 bool AspectContainer::guiToVolatileValue()
 {
+#ifdef UTILS_NOWIDGETS
+    return false;
+#else
     bool result = true;
     for (BaseAspect *aspect : std::as_const(d->m_items)) {
         if (!aspect->guiToVolatileValue())
             result = false;
     }
     return result;
+#endif
 }
 
 void AspectContainer::setSettingsGroup(const QString &groupKey)
@@ -3985,6 +4171,10 @@ BaseAspect::Data::Ptr BaseAspect::extractData() const
 */
 void BaseAspect::volatileValueToGui()
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
+#endif
 }
 
 /*
@@ -3997,7 +4187,11 @@ void BaseAspect::volatileValueToGui()
 */
 bool BaseAspect::guiToVolatileValue()
 {
+#ifdef UTILS_NOWIDGETS
     return false;
+#else
+    return false;
+#endif
 }
 
 /*
@@ -4107,6 +4301,9 @@ QStandardItem *StringSelectionAspect::itemById(const QString &id)
 
 void StringSelectionAspect::volatileValueToGui()
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     if (!m_model) {
         m_undoable.setSilently(m_volatileValue);
         return;
@@ -4130,10 +4327,14 @@ void StringSelectionAspect::volatileValueToGui()
     }
 
     handleGuiChanged();
+#endif
 }
 
 bool StringSelectionAspect::guiToVolatileValue()
 {
+#ifdef UTILS_NOWIDGETS
+    return false;
+#else
     if (!m_model)
         return false;
 
@@ -4142,10 +4343,14 @@ bool StringSelectionAspect::guiToVolatileValue()
     m_volatileValue = m_undoable.get();
 
     return oldBuffer != m_volatileValue;
+#endif
 }
 
 void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     QTC_ASSERT(m_fillCallback, return);
 
     QComboBox *comboBox = createSubWidget<QComboBox>();
@@ -4236,6 +4441,7 @@ void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
         comboBox->setCurrentIndex(m_selectionModel->currentIndex().row());
 
     addLabeledItem(parent, comboBox);
+#endif
 }
 
 
@@ -4282,6 +4488,9 @@ void FontAspect::setVolatileValue(const QFont &font)
 
 void FontAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
+#ifdef UTILS_NOWIDGETS
+    return;
+#else
     parent.addItem(fontFamily);
 
     QComboBox *sizeComboBox = createSubWidget<QComboBox>();
@@ -4346,6 +4555,7 @@ void FontAspect::addToLayoutImpl(Layouting::Layout &parent)
     });
 
     fontFamily.addOnVolatileValueChanged(sizeComboBox, updateFontSizeSelector);
+#endif
 }
 
 ByteArrayAspect::ByteArrayAspect(AspectContainer *container)

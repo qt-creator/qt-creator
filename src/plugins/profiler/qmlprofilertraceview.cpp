@@ -229,7 +229,7 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
     QMenu *menu = new QMenu(this);
     menu->setAttribute(Qt::WA_DeleteOnClose);
 
-#ifndef Q_OS_WASM
+#ifndef QTPROFILER_STANDALONE
     menu->addActions(QmlProfilerTool::profilerContextMenuActions());
     menu->addSeparator();
 #endif

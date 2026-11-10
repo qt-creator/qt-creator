@@ -5,7 +5,7 @@
 
 #include <qmldebug/qmleventlocation.h>
 #include <projectexplorer/runconfiguration.h>
-#ifndef QTPROFILER_WASM
+#ifndef QTPROFILER_STANDALONE
 #include <qmljs/qmljsdocument.h>
 #endif
 #include <utils/fileinprojectfinder.h>
@@ -40,7 +40,7 @@ private:
     QMultiHash<Utils::FilePath, PendingEvent> m_pendingEvents;
     Utils::FileInProjectFinder m_projectFinder;
 
-#ifndef QTPROFILER_WASM
+#ifndef QTPROFILER_STANDALONE
     // Resolving an event to its place in the source needs the QML parser, which
     // the standalone viewer leaves out; see qmlprofilerdetailsrewriter_wasm.cpp.
     void rewriteDetailsForLocation(const QString &source, QmlJS::Document::Ptr doc, int typeId,

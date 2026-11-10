@@ -58,6 +58,7 @@ QtTraceSamplerSettings::QtTraceSamplerSettings()
                                      "is written over. Leave empty to use the temporary "
                                      "location."));
 
+#ifndef UTILS_NOWIDGETS
     setLayouter([this] {
         using namespace Layouting;
         return Column {
@@ -69,6 +70,7 @@ QtTraceSamplerSettings::QtTraceSamplerSettings()
             noMargin,
         };
     });
+#endif
 }
 
 QStringList QtTraceSamplerSettings::providerList() const

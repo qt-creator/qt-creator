@@ -465,8 +465,10 @@ void ScoreBreakdownView::setStats(const QmlProfilerDashboardStats &stats)
         const InfoLabelType iconType = row.highlight.value_or(InfoLabelType::Ok);
         row.icon->setPixmap(infoTypeIconLarge(iconType).icon().pixmap(
             QSize(breakdownIconSize, breakdownIconSize), devicePixelRatioF()));
+#if QT_CONFIG(accessibility)
         row.icon->setAccessibleName(row.highlight ? Tr::tr("Lowers the score")
                                                   : Tr::tr("Excellent"));
+#endif
 
         row.title->setToolTip(factorDescription(factor.id, stats));
         row.measurement->setText(factorMeasurement(factor.id, stats));

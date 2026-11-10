@@ -39,3 +39,9 @@ if (APPLE AND TARGET qtprofiler-cli)
   qtc_sign_with_entitlements(qtprofiler-cli
     "${QtCreator_SOURCE_DIR}/dist/installer/mac/Qt Profiler.entitlements")
 endif()
+
+# A console tool: against a static Qt, link none of the platform, style and
+# image format plugins Qt would add for a target using Qt Gui.
+if (QTC_STATIC_BUILD AND TARGET qtprofiler-cli)
+  qt_import_plugins(qtprofiler-cli NO_DEFAULT)
+endif()

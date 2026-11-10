@@ -58,6 +58,7 @@ CallStackSamplerSettings::CallStackSamplerSettings()
     updateTargetEnabled();
     connect(&attach, &BoolAspect::changed, this, [this] { updateTargetEnabled(); });
 
+#ifndef UTILS_NOWIDGETS
     setLayouter([this] {
         using namespace Layouting;
         auto pick = new QtcButton(Tr::tr("Select Process..."), QtcButton::SmallSecondary);
@@ -89,6 +90,7 @@ CallStackSamplerSettings::CallStackSamplerSettings()
             noMargin,
         };
     });
+#endif
 }
 
 void CallStackSamplerSettings::fillOptions(RecordingSession &session) const

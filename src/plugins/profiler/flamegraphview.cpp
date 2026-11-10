@@ -80,7 +80,7 @@ void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)
 
     QPoint position = ev->globalPos();
 
-#ifndef Q_OS_WASM
+#ifndef QTPROFILER_STANDALONE
     menu->addActions(QmlProfilerTool::profilerContextMenuActions());
     menu->addSeparator();
 #endif

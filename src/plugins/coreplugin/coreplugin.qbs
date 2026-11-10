@@ -20,6 +20,10 @@ QtcPlugin {
         name: "Qt.qml"
         condition: !project.qtprofilerWasm
     }
+    Properties {
+        condition: project.qtprofilerWasm
+        cpp.defines: base.concat("QTPROFILER_STANDALONE")
+    }
 
     Depends { name: "Utils" }
     Depends { name: "Spinner" }

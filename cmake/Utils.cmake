@@ -10,6 +10,8 @@ function(setup_dependencies_component)
   find_package(Python3 COMPONENTS Interpreter)
   if (NOT Python3_Interpreter_FOUND)
     message("No python interpreter found, skipping \"Dependencies\" install component.")
+  elseif (NOT TARGET Qt::qmake)
+    message("No qmake found, skipping \"Dependencies\" install component.")
   else()
     get_target_property(_qmake_binary Qt::qmake IMPORTED_LOCATION)
     set(_llvm_arg)
@@ -434,7 +436,7 @@ function(configure_qml_designer Qt6_VERSION)
     endif()
 
     # to enable define QML_DOM_MSVC2019_COMPAT if necessary, see QTBUG-127761
-    if(NOT DEFINED QT_BUILT_WITH_MSVC2019)
+    if(NOT DEFINED QT_BUILT_WITH_MSVC2019 AND TARGET Qt6::qmake)
         get_target_property(QT_QMAKE_EXECUTABLE Qt6::qmake IMPORTED_LOCATION)
 
         execute_process(

@@ -188,18 +188,18 @@ if(_profiler_with_libdw)
 endif()
 
 # QtSupport is only used for the live-profiling launch integration (selecting a Qt
-# kit/version to run and profile an app), which is unavailable on WebAssembly. Drop it
-# there so the offline trace viewer does not drag in QtSupport -> ProParser -> qmake.
+# kit/version to run and profile an app), which the standalone tools do not have. Drop
+# it there so they do not drag in QtSupport -> ProParser -> qmake.
 set(_profiler_qtsupport_dep QtSupport)
 set(_profiler_projectexplorer_dep ProjectExplorer)
-# Only the details rewriter parses QML, and it cannot resolve a source file on
-# WebAssembly (see qmlprofilerdetailsrewriter_wasm.cpp), so the parser - and
-# the C++ one behind it - are left out there.
+# Only the details rewriter parses QML, and the standalone tools have no project
+# to resolve a source file in (see qmlprofilerdetailsrewriter_wasm.cpp), so the
+# parser - and the C++ one behind it - are left out there.
 set(_profiler_qmljs_dep QmlJS)
 # TextEditor is only used to put text marks in Qt Creator's editors, which the
 # standalone viewer does not have.
 set(_profiler_texteditor_dep TextEditor)
-if (QTPROFILER_WASM)
+if (QTPROFILER_STANDALONE)
   set(_profiler_qtsupport_dep "")
   set(_profiler_projectexplorer_dep "")
   set(_profiler_qmljs_dep "")
@@ -208,10 +208,9 @@ endif()
 
 # Everything that integrates the profiler into Qt Creator: the mode, the plugin
 # entry point, the run controls and run-configuration aspects, and the tool
-# classes owning a Qt Creator perspective. The WebAssembly build is the
-# standalone viewer, which loads no plugins and cannot run a target, so none of
-# it is reachable there - and leaving it out is what lets that build do without
-# ProjectExplorer.
+# classes owning a Qt Creator perspective. The standalone tools load no plugins
+# and have no run configurations, so none of it is reachable there - and leaving
+# it out is what lets them do without ProjectExplorer.
 set(PROFILER_CREATOR_SOURCES
   perfloaddialog.cpp perfloaddialog.h
   perfprofilerruncontrol.cpp perfprofilerruncontrol.h
@@ -250,17 +249,17 @@ add_qtc_plugin(Profiler
 )
 
 extend_qtc_plugin(Profiler
-  CONDITION NOT QTPROFILER_WASM
+  CONDITION NOT QTPROFILER_STANDALONE
   SOURCES ${PROFILER_CREATOR_SOURCES}
 )
 
 extend_qtc_plugin(Profiler
-  CONDITION QTPROFILER_WASM
+  CONDITION QTPROFILER_STANDALONE
   SOURCES qmlprofilerdetailsrewriter_wasm.cpp
 )
 
 extend_qtc_plugin(Profiler
-  CONDITION NOT QTPROFILER_WASM
+  CONDITION NOT QTPROFILER_STANDALONE
   SOURCES qmlprofilerdetailsrewriter.cpp
 )
 
@@ -270,7 +269,7 @@ extend_qtc_plugin(Profiler
 )
 
 extend_qtc_plugin(Profiler
-  CONDITION NOT QTPROFILER_WASM
+  CONDITION NOT QTPROFILER_STANDALONE
   SOURCES mcpsupport.cpp mcpsupport.h
   DEPENDS McpServerLib
 )

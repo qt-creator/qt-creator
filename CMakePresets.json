@@ -48,6 +48,26 @@
         "BUILD_EXECUTABLE_CMDBRIDGE": "OFF",
         "QTPROFILER_WASM": "ON"
       }
+    },
+    {
+      "name": "qtprofiler-cli-static",
+      "displayName": "qtprofiler-cli (static)",
+      "description": "Build the headless recorder qtprofiler-cli as one statically linked executable, without widgets in its settings. Builds only the Profiler plugin dependency closure, without the Qt Creator integration, plus qtprofiler-cli. Expects QT_STATIC_ROOT pointing at a static qtbase configured with the options in src/tools/qtprofiler-cli/qt-configure-options.txt",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/builds/qtprofiler-cli-static",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel",
+        "CMAKE_PREFIX_PATH": "$env{QT_STATIC_ROOT}",
+        "QTC_STATIC_BUILD": "ON",
+        "BUILD_SHARED_LIBS": "OFF",
+        "BUILD_PLUGINS": "Core;Profiler",
+        "BUILD_EXECUTABLES": "qtprofiler-cli",
+        "WITH_QMLDESIGNER": "OFF",
+        "WITH_TESTS": "OFF",
+        "BUILD_WITH_PCH": "OFF",
+        "BUILD_EXECUTABLE_CMDBRIDGE": "OFF",
+        "QTPROFILER_HEADLESS": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -61,6 +81,12 @@
       "displayName": "qtprofiler (WebAssembly)",
       "configurePreset": "qtprofiler-wasm",
       "targets": [ "qtprofiler" ]
+    },
+    {
+      "name": "qtprofiler-cli-static",
+      "displayName": "qtprofiler-cli (static)",
+      "configurePreset": "qtprofiler-cli-static",
+      "targets": [ "qtprofiler-cli" ]
     }
   ]
 }

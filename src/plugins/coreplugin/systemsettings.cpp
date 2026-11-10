@@ -378,6 +378,9 @@ void SystemSettings::delayedInitialize()
     appendVcsPathsToPatchCommandPath();
 }
 
+// The standalone profiler tools have no options dialog to show it in.
+#ifndef QTPROFILER_STANDALONE
 const SystemSettingsPage settingsPage;
+#endif
 
 } // namespace Core::Internal

@@ -5,41 +5,20 @@
 
 #include "projectexplorer_export.h"
 
-#include <utils/id.h>
+#include <utils/qmldebugcommandlinearguments.h>
 
-#include <QString>
-#include <QUrl>
+#include <utils/id.h>
 
 namespace ProjectExplorer {
 
-enum QmlDebugServicesPreset {
-    NoQmlDebugServices,
-    QmlDebuggerServices,
-    QmlProfilerServices,
-    QmlNativeDebuggerServices,
-    QmlPreviewServices
-};
-
-PROJECTEXPLORER_EXPORT QString qmlDebugServices(QmlDebugServicesPreset preset);
-
-PROJECTEXPLORER_EXPORT QString qmlDebugCommandLineArguments(QmlDebugServicesPreset services,
-                                                            const QString &connectionMode,
-                                                            bool block);
-
-PROJECTEXPLORER_EXPORT QString qmlDebugTcpArguments(QmlDebugServicesPreset services,
-                                                    const QUrl &server,
-                                                    bool block = true);
-
-PROJECTEXPLORER_EXPORT QString qmlDebugDesktopTcpArguments(QmlDebugServicesPreset services,
-                                                           const QUrl &server,
-                                                           bool block = true);
-
-PROJECTEXPLORER_EXPORT QString qmlDebugNativeArguments(QmlDebugServicesPreset services,
-                                                       bool block = true);
-
-PROJECTEXPLORER_EXPORT QString qmlDebugLocalArguments(QmlDebugServicesPreset services,
-                                                      const QString &socket,
-                                                      bool block = true);
+using enum Utils::QmlDebugServicesPreset;
+using Utils::QmlDebugServicesPreset;
+using Utils::qmlDebugCommandLineArguments;
+using Utils::qmlDebugDesktopTcpArguments;
+using Utils::qmlDebugLocalArguments;
+using Utils::qmlDebugNativeArguments;
+using Utils::qmlDebugServices;
+using Utils::qmlDebugTcpArguments;
 
 PROJECTEXPLORER_EXPORT Utils::Id runnerIdForRunMode(Utils::Id runMode);
 

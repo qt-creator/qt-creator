@@ -1,0 +1,47 @@
+# Copyright (C) 2026 The Qt Company Ltd.
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+#
+# What the static qtbase for the headless qtprofiler-cli is configured with,
+# besides -prefix (see the qtprofiler-cli-static preset). Lines starting with #
+# are left out. It needs the qtbase patches in ../qtprofiler/qt-patches that
+# the Qt it is built from does not have yet.
+#
+# The options of ../qtprofiler/qt-configure-options.txt apply, except the
+# WebAssembly ones and -no-feature-rubberband, plus the ones further down.
+
+-static
+-release -optimize-size
+-nomake examples -nomake tests
+-no-feature-jpeg -no-feature-gif -no-feature-ico
+-no-feature-imageformat_jpeg
+-no-feature-sql -no-feature-testlib
+-no-feature-mdiarea -no-feature-calendarwidget -no-feature-fontdialog
+-no-feature-whatsthis -no-feature-sessionmanager
+-no-feature-printpreviewwidget
+-no-feature-hijricalendar -no-feature-jalalicalendar
+-no-feature-islamiccivilcalendar
+-no-feature-scroller -no-feature-lcdnumber -no-feature-errormessage
+-no-feature-undogroup -no-feature-socks5
+-no-feature-style-stylesheet
+-no-feature-raster-fp -no-feature-sha3-fast
+-no-feature-mimetype-database
+-no-feature-imageformat_bmp -no-feature-imageformat_ppm
+-no-feature-imageformat_xbm
+-no-feature-cborstreamwriter -no-feature-datetimeparser
+-no-feature-sizegrip -no-feature-tabletevent
+-no-feature-dial -no-feature-toolbox
+-no-feature-graphicsview -no-feature-timezone
+
+# The macOS style needs the rubberband and mdiarea features; nothing headless
+# draws with it.
+-no-feature-style-mac
+
+# Not used by the code qtprofiler-cli links. imageformat_xpm stays: drag and
+# drop, which Qt Creator's code and the macOS platform plugin need, depends on
+# it.
+-no-feature-ssl -no-feature-topleveldomain -no-feature-networkdiskcache
+-no-feature-brotli -no-feature-gssapi -no-feature-sctp -no-feature-dnslookup
+-no-feature-cssparser -no-feature-textodfwriter
+-no-feature-systemtrayicon -no-feature-accessibility -no-feature-cups
+-no-feature-vulkan -no-feature-sharedmemory -no-feature-systemsemaphore
+-no-feature-imageio-text-loading

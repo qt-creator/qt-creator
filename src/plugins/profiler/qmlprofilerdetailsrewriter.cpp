@@ -12,7 +12,7 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljsmodelmanager.h>
-#ifndef QTPROFILER_WASM // QtSupport is excluded from the standalone viewer
+#ifndef QTPROFILER_STANDALONE // QtSupport is excluded from the standalone viewer
 #include <qtsupport/baseqtversion.h>
 #endif
 
@@ -186,7 +186,7 @@ void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
 
 void QmlProfilerDetailsRewriter::populateFileFinder(const ProjectExplorer::BuildConfiguration *bc)
 {
-#ifndef QTPROFILER_WASM
+#ifndef QTPROFILER_STANDALONE
     QtSupport::QtVersion::populateQmlFileFinder(&m_projectFinder, bc);
 #else
     // QtSupport is not part of the standalone viewer; the file finder is left unpopulated.

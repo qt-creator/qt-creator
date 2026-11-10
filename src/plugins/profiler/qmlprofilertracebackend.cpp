@@ -150,7 +150,7 @@ QmlProfilerTraceBackend::QmlProfilerTraceBackend(Timeline::TimelineDetailsWidget
         [setButtonsEnabled] { setButtonsEnabled(false); },
         [this, setButtonsEnabled] {
             updateTimeDisplay();
-#ifndef QTPROFILER_WASM
+#ifndef QTPROFILER_STANDALONE
             createTextMarks();
 #endif
             setButtonsEnabled(true);
@@ -194,7 +194,7 @@ QWidgetList QmlProfilerTraceBackend::views(QWidget *parent)
     // (after the dashboard), see QmlProfilerPlainViewManager::views().
     d->traceView = views.value(1);
 
-#ifndef QTPROFILER_WASM
+#ifndef QTPROFILER_STANDALONE
     // Annotate the source with this trace's timings, in the editors that are
     // open now and in any opened later.
     createTextMarks();
@@ -207,7 +207,7 @@ QWidgetList QmlProfilerTraceBackend::views(QWidget *parent)
     return views;
 }
 
-#ifndef QTPROFILER_WASM
+#ifndef QTPROFILER_STANDALONE
 void QmlProfilerTraceBackend::createTextMarks()
 {
     if (!d->statisticsView)
@@ -220,7 +220,7 @@ void QmlProfilerTraceBackend::createTextMarks()
 
 QList<QWidget *> QmlProfilerTraceBackend::toolBarWidgets()
 {
-#ifdef QTPROFILER_WASM
+#ifdef QTPROFILER_STANDALONE
     return {&d->recordButton, &d->stopButton, &d->clearButton, &d->searchButton,
             &d->displayFeaturesButton, &d->timeLabel};
 #else

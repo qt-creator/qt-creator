@@ -8,7 +8,7 @@
 
 #include <qmldebug/qmleventlocation.h>
 
-#ifndef Q_OS_WASM
+#ifndef QTPROFILER_STANDALONE
 #include <texteditor/textmark.h>
 #endif
 
@@ -32,9 +32,9 @@ using namespace Utils;
 
 namespace Profiler::Internal {
 
-#ifndef Q_OS_WASM
+#ifndef QTPROFILER_STANDALONE
 // Text marks annotate the source in Qt Creator's editors. The standalone
-// WebAssembly viewer has none, so the whole mechanism is left out there.
+// Qt Profiler tools have none, so the whole mechanism is left out there.
 class QmlProfilerTextMark : public TextEditor::TextMark
 {
 public:
@@ -106,7 +106,7 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *pr
     setObjectName(QLatin1String("QmlProfiler.Statistics.Dock"));
     setWindowTitle(Tr::tr("Statistics"));
 
-#ifndef Q_OS_WASM
+#ifndef QTPROFILER_STANDALONE
     m_textMarkModel = new QmlProfilerTextMarkModel(this, this);
     connect(profilerModelManager, &QmlProfilerModelManager::initialized,
             m_textMarkModel, &QmlProfilerTextMarkModel::hideTextMarks);
@@ -185,7 +185,7 @@ void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
 
     QPoint position = ev->globalPos();
 
-#ifndef Q_OS_WASM
+#ifndef QTPROFILER_STANDALONE
     const QList <QAction *> commonActions = QmlProfilerTool::profilerContextMenuActions();
     for (QAction *act : commonActions)
         menu->addAction(act);
@@ -250,7 +250,7 @@ void QmlProfilerStatisticsView::onVisibleFeaturesChanged(quint64 features)
     m_mainView->restrictToFeatures(features);
 }
 
-#ifndef Q_OS_WASM
+#ifndef QTPROFILER_STANDALONE
 void QmlProfilerStatisticsView::createMarks(const QString &fileName)
 {
     m_textMarkModel->createMarks(fileName);
@@ -468,7 +468,7 @@ void QmlProfilerStatisticsRelativesView::jumpToItem(int typeIndex)
     emit typeClicked(typeIndex);
 }
 
-#ifndef Q_OS_WASM
+#ifndef QTPROFILER_STANDALONE
 QmlProfilerTextMark::QmlProfilerTextMark(QmlProfilerStatisticsView *statisticsView,
                                          int typeId,
                                          const FilePath &fileName, int lineNumber)

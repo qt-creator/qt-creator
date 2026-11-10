@@ -289,6 +289,7 @@ PerfSamplerSettings::PerfSamplerSettings()
     updateTargetEnabled();
     connect(&attach, &BoolAspect::changed, this, [this] { updateTargetEnabled(); });
 
+#ifndef UTILS_NOWIDGETS
     setLayouter([this] {
         using namespace Layouting;
         auto pick = new QtcButton(Tr::tr("Select Process..."), QtcButton::SmallSecondary);
@@ -320,10 +321,14 @@ PerfSamplerSettings::PerfSamplerSettings()
             noMargin,
         };
     });
+#endif
 }
 
 QWidget *PerfSamplerSettings::createOptionsWidget()
 {
+#ifdef UTILS_NOWIDGETS
+    return nullptr;
+#else
     using namespace Layouting;
     QWidget *perfConfig = perfSettings.createPerfConfigWidget(nullptr);
     const auto updatePerfConfig = [this, perfConfig] {
@@ -334,6 +339,7 @@ QWidget *PerfSamplerSettings::createOptionsWidget()
     auto widget = new QWidget;
     Column { downloadDebugInfo, perfConfig, noMargin }.attachTo(widget);
     return widget;
+#endif
 }
 
 // The launch settings are irrelevant while attaching, and both are while the

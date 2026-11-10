@@ -2,9 +2,9 @@ find_package(Qt6 COMPONENTS DBus QUIET)
 
 # The JavaScript macro expander and the Locator's JavaScript filter are the only
 # things here that need a JavaScript engine. Neither has a role in the
-# standalone WebAssembly viewer, and leaving them out there drops Qt Qml and the
+# standalone profiler builds, and leaving them out there drops Qt Qml and the
 # engine behind it - together the largest remaining dependency of that build.
-if (QTPROFILER_WASM)
+if (QTPROFILER_STANDALONE)
   set(CORE_QML_DEPENDENCY "")
 else()
   set(CORE_QML_DEPENDENCY Qt::Qml)
@@ -308,7 +308,7 @@ add_qtc_plugin(Core
 )
 
 extend_qtc_plugin(Core
-  CONDITION NOT QTPROFILER_WASM
+  CONDITION NOT QTPROFILER_STANDALONE
   SOURCES
     jsexpander.cpp jsexpander.h
     locator/javascriptfilter.cpp locator/javascriptfilter.h

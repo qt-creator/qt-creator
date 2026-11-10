@@ -146,7 +146,7 @@ void QmlProfilerClientManager::logState(const QString &message)
     const QString prefixed = QLatin1String("QML Profiler: ") + message;
     if (m_logger)
         m_logger(prefixed);
-#ifndef Q_OS_WASM
+#ifndef QTPROFILER_STANDALONE
     else
         QmlProfilerTool::logState(prefixed);
 #endif

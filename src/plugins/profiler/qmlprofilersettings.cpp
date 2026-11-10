@@ -124,6 +124,7 @@ QmlProfilerSettings::QmlProfilerSettings()
     findingsPixmapReloadMinCount.setDefaultValue(3);
     findingsPixmapReloadMinCount.setLabelText(Tr::tr("Report images loaded at least (times):"));
 
+#ifndef UTILS_NOWIDGETS
     setLayouter([this] {
         using namespace Layouting;
         // The findings thresholds sit in the same form as the rest: an aspect placed in a
@@ -146,6 +147,7 @@ QmlProfilerSettings::QmlProfilerSettings()
             findingsPixmapReloadMinCount, br,
         };
     });
+#endif
 
     readSettings();
 
@@ -171,6 +173,9 @@ public:
     }
 };
 
+// The standalone profiler tools have no options dialog to show it in.
+#ifndef QTPROFILER_STANDALONE
 const QmlProfilerSettingsPage settingsPage;
+#endif
 
 } // namespace Profiler::Internal

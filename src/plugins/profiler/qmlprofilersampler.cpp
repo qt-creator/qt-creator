@@ -11,11 +11,10 @@
 
 #include "profilertr.h"
 
-#include <projectexplorer/qmldebugcommandlinearguments.h>
-
 #include <qmldebug/qmlprofilereventtypes.h>
 
 #include <utils/layoutbuilder.h>
+#include <utils/qmldebugcommandlinearguments.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtdesignwidgets.h>
 #include <utils/url.h>
@@ -25,7 +24,6 @@
 #include <QDebug>
 #include <QGroupBox>
 
-using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
@@ -71,6 +69,7 @@ QmlProfilerSamplerSettings::QmlProfilerSamplerSettings()
         featureAspects.append(aspect);
     }
 
+#ifndef UTILS_NOWIDGETS
     setLayouter([this] {
         using namespace Layouting;
         Flow features;
@@ -92,6 +91,7 @@ QmlProfilerSamplerSettings::QmlProfilerSamplerSettings()
         connect(this, &SamplerSettings::optionsSelectionChanged, record, updateRecord);
         return column;
     });
+#endif
 }
 
 void QmlProfilerSamplerSettings::fillOptions(RecordingSession &session) const

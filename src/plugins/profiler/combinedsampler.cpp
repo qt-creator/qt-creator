@@ -50,6 +50,7 @@ CombinedSamplerSettings::CombinedSamplerSettings()
         featureAspects.append(aspect);
     }
 
+#ifndef UTILS_NOWIDGETS
     setLayouter([this] {
         using namespace Layouting;
         Flow features;
@@ -71,6 +72,7 @@ CombinedSamplerSettings::CombinedSamplerSettings()
             noMargin,
         };
     });
+#endif
 }
 
 void CombinedSamplerSettings::setPerfSamplerSettings(PerfSamplerSettings *settings)

@@ -406,6 +406,9 @@ public:
     }
 };
 
+// The standalone profiler tools have no options dialog to show it in.
+#ifndef QTPROFILER_STANDALONE
 const GeneralSettingsPage settingsPage;
+#endif
 
 } // namespace Core::Internal

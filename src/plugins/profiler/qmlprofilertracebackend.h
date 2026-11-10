@@ -75,7 +75,7 @@ private:
     // Whether the trace may be discarded: nothing is unsaved, or the user
     // confirmed losing it.
     bool checkForUnsavedNotes();
-#ifndef QTPROFILER_WASM
+#ifndef QTPROFILER_STANDALONE
     void createTextMarks();
 #endif
     void clearEvents();
