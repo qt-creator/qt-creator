@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "profiler_global.h"
 #include <utils/filepath.h>
 #include <utils/link.h>
 #include <utils/result.h>
@@ -20,7 +21,7 @@ namespace Profiler::Internal {
 //
 // A document usually has one backend; a combined recording has two, and shows
 // both their view sets (see design-docs/native-mixed-profiler-design.md).
-class ProfilerTraceBackend : public QObject
+class PROFILER_EXPORT ProfilerTraceBackend : public QObject
 {
     Q_OBJECT
 

@@ -55,12 +55,13 @@ int main(int argc, char *argv[])
 
     QCommandLineParser parser;
     parser.setApplicationDescription(
-        "A tool for analyzing QML profiler, Chrome Trace Format and Common Trace Format traces.");
+        "A tool for analyzing QML profiler, Performance Analyzer, Chrome Trace Format and Common Trace Format traces.");
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addPositionalArgument(
         "tracefile(s)",
         "QML trace (*.qtd, *.qzt), "
+        "Performance Analyzer trace (*.ptq), "
         "Chrome Trace Format file (*.json), "
         "Common Trace Format trace directory (or its metadata file).");
     QCommandLineOption exitOnError(QStringList({"e", "exit-on-error"}),

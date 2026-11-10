@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "profiler_global.h"
 #include "profilertracebackend.h"
 
 QT_BEGIN_NAMESPACE
@@ -24,7 +25,7 @@ class PerfTimelineModelManager;
 
 // The Performance Analyzer's models and views for one trace, and the state a
 // live recording needs.
-class PerfProfilerTraceBackend : public ProfilerTraceBackend
+class PROFILER_EXPORT PerfProfilerTraceBackend : public ProfilerTraceBackend
 {
     Q_OBJECT
 

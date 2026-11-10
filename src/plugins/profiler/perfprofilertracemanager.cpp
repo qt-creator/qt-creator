@@ -582,14 +582,21 @@ qint32 PerfProfilerTraceManager::symbolLocation(qint32 locationId) const
 
 void PerfProfilerTraceManager::loadFromTraceFile(const FilePath &filePath)
 {
-    Core::ProgressManager::addTask(load(filePath.toFSPathString()), Tr::tr("Loading Trace Data"),
-                                   Constants::PerfProfilerTaskLoadTrace);
+    const QFuture<void> future = load(filePath.toFSPathString());
+    // The standalone viewer has no progress manager; it shows its own indicator.
+    if (Core::ProgressManager::instance()) {
+        Core::ProgressManager::addTask(future, Tr::tr("Loading Trace Data"),
+                                       Constants::PerfProfilerTaskLoadTrace);
+    }
 }
 
 void PerfProfilerTraceManager::saveToTraceFile(const FilePath &filePath)
 {
-    Core::ProgressManager::addTask(save(filePath.toFSPathString()), Tr::tr("Saving Trace Data"),
-                                   Constants::PerfProfilerTaskSaveTrace);
+    const QFuture<void> future = save(filePath.toFSPathString());
+    if (Core::ProgressManager::instance()) {
+        Core::ProgressManager::addTask(future, Tr::tr("Saving Trace Data"),
+                                       Constants::PerfProfilerTaskSaveTrace);
+    }
 }
 
 void PerfProfilerTraceManager::loadFromPerfData(const FilePath &filePath,

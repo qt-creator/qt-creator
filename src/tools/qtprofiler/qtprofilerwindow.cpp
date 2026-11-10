@@ -10,6 +10,7 @@
 #include <profiler/combinedsampler.h>
 #include <profiler/combinedtraceloader.h>
 #include <profiler/ctfplainviewmanager.h>
+#include <profiler/perfprofilertracebackend.h>
 #include <profiler/profilerrecorder.h>
 #include <profiler/profilertr.h>
 #include <profiler/qmlprofilerconstants.h>
@@ -150,6 +151,7 @@ public:
     QmlProfilerPlainViewManager *qmlManager;
     CtfPlainViewManager *ctfManager;
     SamplerViewManager *samplerManager;
+    PerfProfilerTraceBackend *perfBackend;
     CombinedTraceLoader *combinedLoader; // Merges a combined bundle into one sampler trace.
     Format activeFormat = Format::Qml;
     QHash<const QObject *, QMetaObject::Connection> loadConnections; // Pending loads.
@@ -160,6 +162,7 @@ public:
     ViewGroup qmlGroup;
     ViewGroup ctfGroup;
     ViewGroup samplerGroup;
+    ViewGroup perfGroup;
 };
 
 WindowPrivate::WindowPrivate(Window *window)
@@ -236,6 +239,7 @@ WindowPrivate::WindowPrivate(Window *window)
     qmlManager = new QmlProfilerPlainViewManager(timelineDetails, traceArea);
     ctfManager = new CtfPlainViewManager(timelineDetails, traceArea);
     samplerManager = new SamplerViewManager(timelineDetails, traceArea);
+    perfBackend = new PerfProfilerTraceBackend(timelineDetails, this);
 
     progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Large);
     progressIndicator->hide();
@@ -270,6 +274,17 @@ WindowPrivate::WindowPrivate(Window *window)
     connect(samplerManager, &SamplerViewManager::gotoSourceLocation,
             this, &WindowPrivate::onGotoSourceLocation);
 
+    connect(perfBackend, &PerfProfilerTraceBackend::error, this, &WindowPrivate::onError);
+    connect(perfBackend, &PerfProfilerTraceBackend::warning, this, [](const QString &warning) {
+        AsynchronousMessageBox::warning(Tr::tr("Incomplete Trace"), warning);
+    });
+    connect(perfBackend, &PerfProfilerTraceBackend::gotoSourceLocation,
+            this, [this](const Utils::Link &link) {
+        // The backend counts columns from 0, the RPC schema from 1.
+        onGotoSourceLocation(link.targetFilePath.toUrlishString(), link.target.line,
+                             link.target.column + 1);
+    });
+
     // A combined bundle is turned into one native-mixed sampler trace off the GUI
     // thread; when it is ready, show it through the sampler views.
     combinedLoader = new CombinedTraceLoader(this);
@@ -286,8 +301,9 @@ void WindowPrivate::showOpenFileDialog()
 {
     // "metadata" matches a Common Trace Format metadata file, which selects the
     // containing directory as the CTF2 trace (see loadTraceFile).
-    const QString filter = Tr::tr("Traces (*.qtd *.qzt *.json metadata)") + ";;"_L1
+    const QString filter = Tr::tr("Traces (*.qtd *.qzt *.ptq *.json metadata)") + ";;"_L1
                            + Tr::tr("QML Trace Files (*.qtd *.qzt)") + ";;"_L1
+                           + Tr::tr("Perf Trace Files (*.ptq)") + ";;"_L1
                            + Tr::tr("Chrome Trace Format Files (*.json)") + ";;"_L1
                            + Tr::tr("Common Trace Format Metadata Files (metadata)") + ";;"_L1
                            + Tr::tr("All Files (*)");
@@ -456,7 +472,7 @@ milliseconds WindowPrivate::traceDuration(Format format) const
     case Format::Sampler: return samplerManager->traceDuration();
     case Format::Combined:
         return qMax(qmlManager->traceDuration(), samplerManager->traceDuration());
-    case Format::Perf: break; // No perf views here; doLoad() rejects the format.
+    case Format::Perf: return perfBackend->traceDuration();
     }
     Q_UNREACHABLE_RETURN(milliseconds{0});
 }
@@ -467,7 +483,7 @@ ViewGroup &WindowPrivate::groupFor(Format format)
     case Format::Qml: return qmlGroup;
     case Format::Ctf: return ctfGroup;
     case Format::Sampler: return samplerGroup;
-    case Format::Perf:      // No perf views here; doLoad() rejects the format.
+    case Format::Perf: return perfGroup;
     case Format::Combined:  // Combined spans several groups; use groupsFor().
         break;
     }
@@ -483,7 +499,7 @@ QList<ViewGroup *> WindowPrivate::groupsFor(Format format)
     case Format::Ctf: return {&ctfGroup};
     case Format::Sampler: return {&samplerGroup};
     case Format::Combined: return {&qmlGroup, &samplerGroup};
-    case Format::Perf: return {}; // No perf views here; doLoad() rejects the format.
+    case Format::Perf: return {&perfGroup};
     }
     Q_UNREACHABLE_RETURN({});
 }
@@ -532,7 +548,8 @@ void WindowPrivate::ensureGroupBuilt(Format format)
     case Format::Combined:
         break; // Handled above by building the QML and sampler groups.
     case Format::Perf:
-        break; // No perf views here; doLoad() rejects the format.
+        buildGroup(perfBackend->views(traceArea), perfGroup);
+        break;
     }
 }
 
@@ -557,7 +574,7 @@ void WindowPrivate::resetLayout(Format format)
 
     // Hide the docks of every group that is not active, and keep only the active
     // groups' docks in the tab context menu.
-    for (ViewGroup *group : {&qmlGroup, &ctfGroup, &samplerGroup}) {
+    for (ViewGroup *group : {&qmlGroup, &ctfGroup, &samplerGroup, &perfGroup}) {
         const bool isActive = active.contains(group);
         if (!isActive) {
             for (QDockWidget *dw : std::as_const(group->docks))
@@ -649,9 +666,11 @@ void WindowPrivate::closeCurrentTrace()
         return;
 
     combinedLoader->cancel();
+    perfBackend->cancelBackgroundWork();
     qmlManager->clear();
     ctfManager->clear();
     samplerManager->clear();
+    perfBackend->clear();
     progressIndicator->hide();
     // Whichever view last filled the shared panel, its trace is gone now.
     timelineDetails->reset();
@@ -677,12 +696,6 @@ void WindowPrivate::doLoad(const FilePath &filePath)
     RPC::notifyTraceFileLoadingStarted(filePath);
 
     const TraceFile trace = identifyTrace(filePath);
-    if (trace.format == Format::Perf) {
-        // Perf traces need the Performance Analyzer's views, which only Qt
-        // Creator's Profile mode has.
-        onError(Tr::tr("Perf traces can only be opened in Qt Creator."));
-        return;
-    }
     setActiveFormat(trace.format);
     switch (trace.format) {
     case Format::Combined:
@@ -712,7 +725,9 @@ void WindowPrivate::doLoad(const FilePath &filePath)
         qmlManager->loadTraceFile(trace.path);
         break;
     case Format::Perf:
-        break; // Rejected above.
+        awaitLoad(perfBackend, filePath, Format::Perf);
+        perfBackend->load(trace.path);
+        break;
     }
     sidebar->setTraceFormat(filePath, activeFormat);
 }

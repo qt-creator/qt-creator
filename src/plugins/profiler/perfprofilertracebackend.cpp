@@ -104,6 +104,9 @@ static FilePaths collectQtIncludePaths(const ProjectExplorer::Kit *kit)
 static FilePaths sourceFiles(const ProjectExplorer::Project *currentProject = nullptr)
 {
     FilePaths sourceFiles;
+    // The standalone viewer has no project manager.
+    if (!ProjectExplorer::ProjectManager::instance())
+        return sourceFiles;
     if (currentProject)
         sourceFiles.append(currentProject->files(ProjectExplorer::Project::SourceFiles));
 
@@ -140,12 +143,18 @@ PerfProfilerTraceBackend::PerfProfilerTraceBackend(Timeline::TimelineDetailsWidg
     });
     connect(&d->traceManager, &PerfProfilerTraceManager::finishedEmpty, this, [this] {
         d->readerRunning = false;
-        Core::MessageManager::writeDisrupting(
-            Tr::tr("The profiler did not produce any samples. "
-                   "Make sure that you are running a recent Linux kernel and that "
-                   "the \"perf\" utility is available and generates useful call "
-                   "graphs.\nYou might find further explanations in the "
-                   "Application Output view."));
+        // The standalone viewer has no Messages pane, and a file that holds no
+        // samples is an error there.
+        if (ProjectExplorer::ProjectManager::instance()) {
+            Core::MessageManager::writeDisrupting(
+                Tr::tr("The profiler did not produce any samples. "
+                       "Make sure that you are running a recent Linux kernel and that "
+                       "the \"perf\" utility is available and generates useful call "
+                       "graphs.\nYou might find further explanations in the "
+                       "Application Output view."));
+        } else {
+            emit error(Tr::tr("The trace does not contain any samples."));
+        }
         clear();
     });
     connect(this, &PerfProfilerTraceBackend::aggregatedChanged,
@@ -156,6 +165,8 @@ PerfProfilerTraceBackend::PerfProfilerTraceBackend(Timeline::TimelineDetailsWidg
 
 PerfProfilerTraceBackend::~PerfProfilerTraceBackend()
 {
+    // A load still running writes into the trace manager and the models.
+    cancelBackgroundWork();
     // Before the trace manager below goes with d: a run still feeding it holds
     // it by plain pointer, and QObject::destroyed would come too late to say so.
     emit aboutToBeDestroyed();
@@ -271,7 +282,9 @@ void PerfProfilerTraceBackend::load(const FilePath &path)
     emit busyChanged(true);
     // A trace names the paths it recorded; the finder is what maps them onto
     // this machine, as the run and perf-data paths already do.
-    const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::instance()
+                                                  ? ProjectExplorer::ProjectManager::startupProject()
+                                                  : nullptr;
     populateFileFinder(project, project ? project->activeKit() : nullptr);
     d->traceManager.loadFromTraceFile(path);
 }
