@@ -538,7 +538,7 @@ private slots:
         setText("<<<<<<< HEAD\noldValue\n=======\nnewValue\n>>>>>>> branch");
         QTRY_COMPARE(comparisons().size(), 1);
         QTRY_COMPARE(wordHighlights(4), QStringList{"new"});
-        QCOMPARE(wordHighlights(2), QStringList{"old"});
+        QTRY_COMPARE(wordHighlights(2), QStringList{"old"});
         QCOMPARE(comparisons().first()->currentText(), QString("Current to Incoming"));
     }
 
