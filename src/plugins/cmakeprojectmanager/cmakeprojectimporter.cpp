@@ -191,6 +191,7 @@ struct DirectoryData
 
     QString cmakePresetDisplayname;
     QString cmakePreset;
+    QString cmakePresetBuildName;
 
     // Kit Stuff
     FilePath cmakeBinary;
@@ -1038,6 +1039,12 @@ static SetupResult setupCompilerProcess(Process &process, InternalStorage &stora
 
     data.cmakePresetDisplayname = configurePreset.displayName.value_or(configurePreset.name);
     data.cmakePreset = configurePreset.name;
+    if (configurePreset.vendor) {
+        data.cmakePresetBuildName
+            = configurePreset.vendor->value("buildConfigurationName").toString();
+        CMakePresets::Macros::expand(
+            configurePreset, env, projectDirectory, data.cmakePresetBuildName);
+    }
 
     if (!configurePreset.cmakeExecutable) {
         const CMakeTool *cmakeTool = CMakeToolManager::defaultCMakeTool();
@@ -1672,6 +1679,9 @@ void CMakeProjectImporter::createKitsFromPresets()
         for (const auto &buildType : std::as_const(buildConfigurationTypes)) {
             DirectoryData newData(data);
             newData.cmakeBuildType = buildType;
+            // One name cannot tell several build types apart
+            if (buildConfigurationTypes.size() > 1)
+                newData.cmakePresetBuildName.clear();
 
             // Handle QML Debugging
             auto type = CMakeBuildConfigurationFactory::buildTypeFromByteArray(
@@ -2199,6 +2209,8 @@ BuildInfo CMakeProjectImporter::buildInfo(void *directoryData) const
     // For CMake Presets use the provided build type if is not mapped to a known type
     if (!data->cmakePreset.isEmpty() && info.buildType == BuildConfiguration::Unknown)
         info.typeName = info.displayName = QString::fromUtf8(data->cmakeBuildType);
+    if (!data->cmakePresetBuildName.isEmpty())
+        info.displayName = data->cmakePresetBuildName;
 
     info.buildDirectory = data->buildDirectory;
     info.buildSystemName = CMakeBuildSystem::name();

@@ -415,6 +415,13 @@
             \uicontrol {Configure Project}. If no preset sets it, the first
             usable kit of a preset is selected.
         \li \l{CMake presets}
+    \row
+        \li \c {buildConfigurationName}
+        \li Names the build configuration created from the preset, instead of
+            its build type. Supports the CMake preset macros, such as
+            \c {${presetName}}. Applies only to a preset that sets a single
+            \c CMAKE_BUILD_TYPE.
+        \li \l{CMake presets}
     \endtable
 
     An example of CMake configuration presets:
