@@ -2,15 +2,24 @@ type: Group
 instructions:
   - type: Group
     instructions:
+      - type: EnvironmentVariable
+        variableName: QTC_QT_BASE_PREFIX
+        variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/"
+      - type: EnvironmentVariable
+        variableName: QTC_QT_BASE_POSTFIX
+        variableValue: "/release_content/"
       # Currently used Qt version for packaging ...
       - type: Group
         instructions:
           - type: EnvironmentVariable
-            variableName: QTC_QT_BASE_URL
-            variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/qt/6.11.0/release_content/"
+            variableName: QTC_QT_VERSION
+            variableValue: "6.12.0"
+          - type: EnvironmentVariable
+            variableName: QTC_QTWEBENGINE_DIR
+            variableValue: "qtwebengine"
           - type: EnvironmentVariable
             variableName: MACOSX_DEPLOYMENT_TARGET
-            variableValue: 13.0
+            variableValue: 14.4
           - !include "{{qt-creator/qt-creator}}/qtmodules.yaml"
           # Add qtwebengine for test coverage even though it is not part of packaging
           - type: AppendToEnvironmentVariable
@@ -24,8 +33,11 @@ instructions:
       - type: Group
         instructions:
           - type: EnvironmentVariable
-            variableName: QTC_QT_BASE_URL
-            variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/qt/6.8.4/release_content/"
+            variableName: QTC_QT_VERSION
+            variableValue: "6.8.4"
+          - type: EnvironmentVariable
+            variableName: QTC_QTWEBENGINE_DIR
+            variableValue: "qt"
           - type: EnvironmentVariable
             variableName: MACOSX_DEPLOYMENT_TARGET
             variableValue: 11.0
@@ -213,7 +225,7 @@ instructions:
         instructions:
           - type: EnvironmentVariable
             variableName: QTC_QT_POSTFIX
-            variableValue: "-MacOS-MacOS_15-Clang-MacOS-MacOS_15-X86_64-ARM64.7z"
+            variableValue: "-MacOS-MacOS_26-Clang-MacOS-MacOS_26-X86_64-ARM64.7z"
             enable_if:
               condition: property
               property: features

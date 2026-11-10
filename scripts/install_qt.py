@@ -29,6 +29,11 @@ def get_arguments() -> argparse.Namespace:
         help='Postfix to add to URLs constructed from --base-url and given module_name(s)',
         default=''
     )
+    parser.add_argument(
+        '--module-base-url',
+        help='Base URL to use instead of --base-url for a specific module_name, as MODULE=URL',
+        action='append', dest='module_base_urls', default=[], metavar='MODULE=URL'
+    )
 
     # Linux
     parser.add_argument('--icu7z', help='a file or url where to get ICU libs as 7z')
@@ -88,9 +93,16 @@ def main() -> None:
         raise SystemExit("'qt-module(s)' and/or 'base-url' with 'module_name(s)' required")
     # Create the list of modules from qt_modules + module_names with base_url and postfix
     qt_modules: list[str] = args.qt_modules
+    module_base_urls: dict[str, str] = {}
+    for module_base_url in args.module_base_urls:
+        module, _, url = module_base_url.partition('=')
+        if not module or not url:
+            raise SystemExit(f"Invalid --module-base-url '{module_base_url}', expected MODULE=URL")
+        module_base_urls[module] = url
     if args.base_url and args.module_name:
         for module in args.module_name:
-            qt_modules += [args.base_url + "/" + module + "/" + module + args.base_url_postfix]
+            base_url = module_base_urls.get(module, args.base_url)
+            qt_modules += [base_url + "/" + module + "/" + module + args.base_url_postfix]
 
     install_qt(
         qt_path=args.qt_path,

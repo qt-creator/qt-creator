@@ -373,7 +373,8 @@ private:
             const QString name = tool.name();
             if (m_toolAspects.contains(name))
                 continue;
-            auto *aspect = new BoolAspect(this);
+            auto *aspect = new BoolAspect;
+            registerAspect(aspect, true);
             aspect->setSettingsKey(keyFromString(name));
             aspect->setLabelPlacement(BoolAspect::LabelPlacement::Compact);
             aspect->setDefaultValue(toolEnabledByDefault(name));

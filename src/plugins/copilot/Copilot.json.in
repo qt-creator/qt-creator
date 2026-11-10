@@ -5,6 +5,7 @@
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Experimental" : true,
+    "Deprecated" : true,
     "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
     "Copyright" : "${IDE_COPYRIGHT}",

@@ -803,6 +803,159 @@ void tst_Differ::cleanupLineDiffSemantics_data()
                 << Diff(Diff::Insert, "void added()\n{\n    return;\n}\n")
                 << Diff(Diff::Equal, "int y;\n")
                 << Diff(Diff::Delete, "int z;\n"));
+
+    QTest::newRow("Deletion ending inside the next line")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "int m_red;\nint m_blue")
+                << Diff(Diff::Delete, ";\nint m_alpha")
+                << Diff(Diff::Equal, ";\n};\n"))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "int m_red;\nint m_blue;\n")
+                << Diff(Diff::Delete, "int m_alpha;\n")
+                << Diff(Diff::Equal, "};\n"));
+
+    QTest::newRow("Insertion ending inside the next line")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "int m_red;\nint m_blue")
+                << Diff(Diff::Insert, ";\nint m_alpha")
+                << Diff(Diff::Equal, ";\n};\n"))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "int m_red;\nint m_blue;\n")
+                << Diff(Diff::Insert, "int m_alpha;\n")
+                << Diff(Diff::Equal, "};\n"));
+
+    QTest::newRow("Deletion of the first line")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "a")
+                << Diff(Diff::Delete, "b\na")
+                << Diff(Diff::Equal, "c\n"))
+            << (QList<Diff>()
+                << Diff(Diff::Delete, "ab\n")
+                << Diff(Diff::Equal, "ac\n"));
+
+    QTest::newRow("Deletion of the last line")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "a\nb")
+                << Diff(Diff::Delete, "\nc")
+                << Diff(Diff::Equal, "\n"))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "a\nb\n")
+                << Diff(Diff::Delete, "c\n"));
+
+    QTest::newRow("Two deletions ending inside the next lines")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "int a")
+                << Diff(Diff::Delete, ";\nint b")
+                << Diff(Diff::Equal, ";\nint c")
+                << Diff(Diff::Delete, ";\nint d")
+                << Diff(Diff::Equal, ";\n"))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "int a;\n")
+                << Diff(Diff::Delete, "int b;\n")
+                << Diff(Diff::Equal, "int c;\n")
+                << Diff(Diff::Delete, "int d;\n"));
+
+    QTest::newRow("Deletion after a deleted line")
+            << (QList<Diff>()
+                << Diff(Diff::Delete, "x\n")
+                << Diff(Diff::Equal, "#include <")
+                << Diff(Diff::Delete, "b>\n#include <")
+                << Diff(Diff::Equal, "c>\n"))
+            << (QList<Diff>()
+                << Diff(Diff::Delete, "x\n#include <b>\n")
+                << Diff(Diff::Equal, "#include <c>\n"));
+
+    QTest::newRow("Two deletions after indentation")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "{\n  ")
+                << Diff(Diff::Delete, "x;\n  ")
+                << Diff(Diff::Equal, "int ")
+                << Diff(Diff::Delete, "b;\n  int ")
+                << Diff(Diff::Equal, "c;\n}"))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "{\n")
+                << Diff(Diff::Delete, "  x;\n  int b;\n")
+                << Diff(Diff::Equal, "  int c;\n}"));
+
+    QTest::newRow("Insertion after an inserted line")
+            << (QList<Diff>()
+                << Diff(Diff::Insert, "x\n")
+                << Diff(Diff::Equal, "#include <")
+                << Diff(Diff::Insert, "b>\n#include <")
+                << Diff(Diff::Equal, "c>\n"))
+            << (QList<Diff>()
+                << Diff(Diff::Insert, "x\n#include <b>\n")
+                << Diff(Diff::Equal, "#include <c>\n"));
+
+    QTest::newRow("Deletion where only the old text starts a line")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "a")
+                << Diff(Diff::Delete, "x\n")
+                << Diff(Diff::Equal, "#include <")
+                << Diff(Diff::Delete, "b>\n#include <")
+                << Diff(Diff::Equal, "c>\n"))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "a")
+                << Diff(Diff::Delete, "x\n")
+                << Diff(Diff::Equal, "#include <")
+                << Diff(Diff::Delete, "b>\n#include <")
+                << Diff(Diff::Equal, "c>\n"));
+
+    QTest::newRow("Insertion where only the new text starts a line")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "a")
+                << Diff(Diff::Insert, "x\n")
+                << Diff(Diff::Equal, "#include <")
+                << Diff(Diff::Insert, "b>\n#include <")
+                << Diff(Diff::Equal, "c>\n"))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "a")
+                << Diff(Diff::Insert, "x\n")
+                << Diff(Diff::Equal, "#include <")
+                << Diff(Diff::Insert, "b>\n#include <")
+                << Diff(Diff::Equal, "c>\n"));
+
+    QTest::newRow("Deletion completing a deleted partial line")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "a\n")
+                << Diff(Diff::Delete, "x")
+                << Diff(Diff::Equal, "#include <")
+                << Diff(Diff::Delete, "b>\n#include <")
+                << Diff(Diff::Equal, "c>\n"))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "a\n")
+                << Diff(Diff::Delete, "x#include <b>\n")
+                << Diff(Diff::Equal, "#include <c>\n"));
+
+    QTest::newRow("Deletion of blank lines")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "a")
+                << Diff(Diff::Delete, "\n\n")
+                << Diff(Diff::Equal, "\nb\n"))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "a\n")
+                << Diff(Diff::Delete, "\n\n")
+                << Diff(Diff::Equal, "b\n"));
+
+    QTest::newRow("Deletion with CRLF line endings")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "int m_blue")
+                << Diff(Diff::Delete, ";\r\nint m_alpha")
+                << Diff(Diff::Equal, ";\r\n};\r\n"))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "int m_blue;\r\n")
+                << Diff(Diff::Delete, "int m_alpha;\r\n")
+                << Diff(Diff::Equal, "};\r\n"));
+
+    QTest::newRow("Deletion inside a line")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "foo(a")
+                << Diff(Diff::Delete, ",\n    b")
+                << Diff(Diff::Equal, ");\n"))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "foo(a")
+                << Diff(Diff::Delete, ",\n    b")
+                << Diff(Diff::Equal, ");\n"));
 }
 
 void tst_Differ::cleanupLineDiffSemantics()
@@ -841,6 +994,18 @@ void tst_Differ::cleanupLineDiffSemanticsWithDiffer()
     for (const Diff &diff : blockDiff)
         foundBlock |= diff.command == Diff::Equal && diff.text.contains(unchangedBlock);
     QVERIFY(foundBlock);
+
+    const QString colorBaseline = "struct Color\n{\n    Color(int red, int blue, int alpha);\n\n"
+                                  "    int m_red;\n    int m_blue;\n    int m_alpha;\n};\n";
+    const QString colorEditor = "struct Color\n{\n    Color(int red, int blue);\n\n"
+                                "    int m_red;\n    int m_blue;\n};\n";
+    for (const bool patience : {false, true}) {
+        differ.setPatience(patience);
+        const QList<Diff> colorDiff
+            = Differ::cleanupLineDiffSemantics(differ.diff(colorBaseline, colorEditor));
+        QVERIFY(colorDiff.contains(Diff(Diff::Delete, "    int m_alpha;\n")));
+    }
+    differ.setPatience(false);
 }
 
 void tst_Differ::cleanupSemanticsLossless_data()

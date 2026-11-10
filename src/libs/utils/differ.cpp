@@ -1523,20 +1523,73 @@ static bool containsDeleteAndInsert(const QList<Diff> &diffList)
     return false;
 }
 
-static void movePartialLinePrefix(QString &source, QString &target)
+// An edit between two equalities can slide along the text as long as the character it
+// gives up on one side is the one it takes up on the other. Unless it already consists
+// of whole lines, slide it to the nearest position at which it does, if there is one.
+static void slideToLineBoundaries(QString &before, QString &edit, QString &after,
+                                  bool beforeStartsLine)
 {
-    const int lineStart = source.lastIndexOf('\n') + 1;
-    if (lineStart == source.size())
-        return;
+    const int start = before.size();
+    const int length = edit.size();
+    const int size = start + length + after.size();
+    const auto at = [&](int position) {
+        if (position < start)
+            return before.at(position);
+        if (position < start + length)
+            return edit.at(position - start);
+        return after.at(position - start - length);
+    };
+    const auto slice = [&](int from, int to) {
+        QString result;
+        result.reserve(to - from);
+        for (int position = from; position < to; ++position)
+            result.append(at(position));
+        return result;
+    };
+    const auto isAligned = [&](int position) {
+        const bool startsLine = position == 0 ? beforeStartsLine : at(position - 1) == '\n';
+        return startsLine && at(position + length - 1) == '\n';
+    };
 
-    target.prepend(source.mid(lineStart));
-    source.truncate(lineStart);
+    if (isAligned(start))
+        return;
+    int left = start;
+    int right = start;
+    bool canSlideLeft = true;
+    bool canSlideRight = true;
+    while (canSlideLeft || canSlideRight) {
+        canSlideLeft = canSlideLeft && left > 0 && at(left - 1) == at(left + length - 1);
+        if (canSlideLeft && isAligned(--left)) {
+            after.prepend(slice(left + length, start + length));
+            edit = slice(left, left + length);
+            before.truncate(left);
+            return;
+        }
+        canSlideRight = canSlideRight && right + length < size
+                        && at(right) == at(right + length);
+        if (canSlideRight && isAligned(++right)) {
+            before.append(slice(start, right));
+            edit = slice(right, right + length);
+            after.remove(0, right - start);
+            return;
+        }
+    }
 }
 
 static QList<Diff> cleanupLineBoundaries(const QList<Diff> &diffList)
 {
+    // All edits are of one kind. An edit that slides to the start of the equality in front
+    // of it joins the edits before that, so it starts a line if the equalities so far end
+    // with one.
     QList<Diff> result = diffList;
+    bool equalitiesEndLine = true;
     for (int i = 1; i + 1 < result.size(); ++i) {
+        if (i >= 2) {
+            const Diff &previous = result.at(i - 2);
+            if (previous.command == Diff::Equal && !previous.text.isEmpty())
+                equalitiesEndLine = previous.text.endsWith('\n');
+        }
+
         Diff &edit = result[i];
         if (edit.command == Diff::Equal || !edit.text.contains('\n'))
             continue;
@@ -1546,15 +1599,19 @@ static QList<Diff> cleanupLineBoundaries(const QList<Diff> &diffList)
         if (before.command != Diff::Equal || after.command != Diff::Equal)
             continue;
 
-        const int beforeLineStart = before.text.lastIndexOf('\n') + 1;
-        const int editLineStart = edit.text.lastIndexOf('\n') + 1;
-        if (before.text.mid(beforeLineStart) != edit.text.mid(editLineStart))
-            continue;
-
-        movePartialLinePrefix(before.text, edit.text);
-        movePartialLinePrefix(edit.text, after.text);
+        slideToLineBoundaries(before.text, edit.text, after.text, equalitiesEndLine);
     }
-    return result;
+
+    QList<Diff> joined;
+    for (const Diff &diff : std::as_const(result)) {
+        if (diff.text.isEmpty())
+            continue;
+        if (!joined.isEmpty() && joined.last().command == diff.command)
+            joined.last().text += diff.text;
+        else
+            joined.append(diff);
+    }
+    return joined;
 }
 
 // Semantic cleanup turns every equality that is not longer than the edits around it into

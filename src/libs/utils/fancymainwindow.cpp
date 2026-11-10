@@ -19,7 +19,6 @@
 #include <QLabel>
 #include <QMenu>
 #include <QPainter>
-#include <QPointer>
 #include <QStyle>
 #include <QStyleOption>
 #include <QTimer>
@@ -147,7 +146,6 @@ private:
     void setInnerWidgetShown(bool visible);
     DocksAndSizes verticallyArrangedDocks();
 
-    QPointer<QWidget> m_innerWidget;
     QWidget *m_hiddenInnerWidget = nullptr;
     int m_hiddenInnerWidgetHeight = 0;
     TitleBarWidget *m_titleBar;
@@ -335,7 +333,6 @@ public:
 DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable)
     : QDockWidget(parent)
     , q(parent)
-    , m_innerWidget(inner)
 {
     setWidget(inner);
     setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable);
@@ -383,10 +380,6 @@ DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable)
 
 DockWidget::~DockWidget()
 {
-    // The Perspective owns the widget's lifetime via ~PerspectivePrivate.
-    // Unparent it here so Qt's parent-child mechanism does not also delete it.
-    if (m_innerWidget)
-        m_innerWidget->setParent(nullptr);
     // Workaround for QTBUG-136485.
     disconnect(this, &QDockWidget::visibilityChanged, nullptr, nullptr);
 }
