@@ -58,6 +58,7 @@ add_qtc_plugin(TextEditor
     completionsettings.cpp completionsettings.h
     displaysettings.cpp displaysettings.h
     editorconfig.cpp editorconfig.h
+    editorwithpreview.cpp editorwithpreview.h
     extraencodingsettings.cpp extraencodingsettings.h
     findincurrentfile.cpp findincurrentfile.h
     findinfiles.cpp findinfiles.h
@@ -126,6 +127,8 @@ extend_qtc_plugin(TextEditor
     colorscheme_test.h
     editorconfig_test.cpp
     editorconfig_test.h
+    editorwithpreview_test.cpp
+    editorwithpreview_test.h
     highlighter_test.cpp
     highlighter_test.h
     mergeconflict_test.cpp

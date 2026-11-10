@@ -40,6 +40,7 @@
 #include "codestyleaspect_test.h"
 #include "colorscheme_test.h"
 #include "editorconfig_test.h"
+#include "editorwithpreview_test.h"
 #include "formattexteditor.h"
 #include "highlighter_test.h"
 #include "mergeconflict_test.h"
@@ -122,6 +123,7 @@ void TextEditorPlugin::initialize()
     addTestCreator(createCodeStyleAspectTest);
     addTestCreator(createColorSchemeTest);
     addTestCreator(createEditorConfigTest);
+    addTestCreator(createEditorWithPreviewTest);
     addTestCreator(createMergeConflictTest);
     addTestCreator(createSpellCheckTest);
     addTestCreator(createDoubleClickSelectsInParenthesesTest);

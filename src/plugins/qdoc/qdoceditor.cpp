@@ -7,13 +7,9 @@
 #include "qdocrenderer.h"
 #include "qdoctr.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/find/basetextfind.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/minisplitter.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -25,31 +21,24 @@
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 
+#include <texteditor/editorwithpreview.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
-#include <utils/action.h>
 #include <utils/appinfo.h>
-#include <utils/aggregate.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/mimeutils.h>
 #include <utils/mimeconstants.h>
 #include <utils/plaintextedit/plaintextedit.h>
-#include <utils/qtcsettings.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
-#include <QElapsedTimer>
 #include <QGuiApplication>
 #include <QMouseEvent>
-#include <QScrollBar>
 #include <QTextBlock>
 #include <QTextBrowser>
-#include <QTimer>
-#include <QToolButton>
-#include <QVBoxLayout>
 
 using namespace Core;
 using namespace TextEditor;
@@ -57,21 +46,11 @@ using namespace Utils;
 
 namespace QDoc::Internal {
 
-const char QDOC_EDITOR_ID[] = "Editors.QDocEditor";
+const char QDOC_EDITOR_ID_PREFIX[] = "QDoc";
 // The same files as text/x-qdoc, which the C++ editor claims, but more specific: this
 // editor takes them while the plugin is loaded, and the C++ editor keeps them when it
 // is not, as it did before this plugin existed.
 const char QDOC_EDITOR_MIMETYPE[] = "text/vnd.qtcreator.qdoc";
-const char QDOC_PREVIEW_CONTEXT[] = "Editors.QDocEditor.Preview";
-const char QDOC_TEXT_CONTEXT[] = "Editors.QDocEditor.Text";
-const char TOGGLEEDITOR_ACTION[] = "QDoc.ToggleEditor";
-const char TOGGLEPREVIEW_ACTION[] = "QDoc.TogglePreview";
-const char SHOW_EDITOR_KEY[] = "QDoc/ShowEditor";
-const char SHOW_PREVIEW_KEY[] = "QDoc/ShowPreview";
-const bool kShowEditorDefault = true;
-const bool kShowPreviewDefault = true;
-const int minimumUpdateInterval = 120;
-const int stateVersion = 1;
 
 // QTextBrowser understands a subset of CSS, which is what the preview is styled
 // with. The chrome follows the theme and the code follows the editor's own colors, so
@@ -247,123 +226,38 @@ protected:
     }
 };
 
-class QDocEditor : public BaseTextEditor
+class QDocEditor : public EditorWithPreview
 {
     Q_OBJECT
 
 public:
     QDocEditor()
-        : QDocEditor(TextDocumentPtr(new TextDocument(QDOC_EDITOR_ID)))
+        : QDocEditor(TextDocumentPtr(
+            new TextDocument(EditorWithPreview::editorId(QDOC_EDITOR_ID_PREFIX))))
     {
-        m_document->setMimeType(QDOC_EDITOR_MIMETYPE);
+        textDocument()->setMimeType(QDOC_EDITOR_MIMETYPE);
     }
 
     explicit QDocEditor(const TextDocumentPtr &doc)
-        : m_document(doc)
+        : EditorWithPreview(doc, new TextEditorWidget, new QDocPreviewWidget, QDOC_EDITOR_ID_PREFIX)
+        , m_previewWidget(static_cast<QDocPreviewWidget *>(previewWidget()))
     {
-        setDuplicateSupported(true);
-
-        QtcSettings *settings = ICore::settings();
-        const bool showPreview = settings->value(SHOW_PREVIEW_KEY, kShowPreviewDefault).toBool();
-        const bool showEditor = settings->value(SHOW_EDITOR_KEY, kShowEditorDefault).toBool()
-                                || !showPreview;
-
-        m_splitter = new MiniSplitter;
-
-        m_previewWidget = new QDocPreviewWidget;
         m_previewWidget->setFrameShape(QFrame::NoFrame);
         m_previewWidget->setOpenLinks(false);
         applyStyleSheet();
-        Aggregation::aggregate({m_previewWidget, new BaseTextFind<QTextBrowser>(m_previewWidget)});
-        IContext::attach(m_previewWidget, Context(QDOC_PREVIEW_CONTEXT));
         connect(m_previewWidget, &QTextBrowser::anchorClicked,
                 m_previewWidget, [this](const QUrl &link) {
             if (!link.fragment().isEmpty())
                 m_previewWidget->scrollToAnchor(link.fragment());
         });
 
-        m_textEditorWidget = new TextEditorWidget;
-        m_textEditorWidget->setTextDocument(m_document);
-        m_document->resetSyntaxHighlighter([] { return new QDocHighlighter; });
-        m_textEditorWidget->setMarksVisible(true);
-        IContext::attach(m_textEditorWidget, Context(QDOC_TEXT_CONTEXT));
-
-        m_splitter->addWidget(m_textEditorWidget);
-        m_splitter->addWidget(m_previewWidget);
-        m_previewWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-        m_textEditorWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-        m_splitter->setSizes({1, 1});
-
-        setContext(Context(QDOC_EDITOR_ID));
-
-        auto widget = new QWidget;
-        auto layout = new QVBoxLayout(widget);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(m_splitter);
-        setWidget(widget);
-        using namespace Aggregation;
-        Aggregate *aggregate = Aggregate::parentAggregate(m_textEditorWidget);
-        if (!aggregate) {
-            aggregate = new Aggregate;
-            aggregate->add(m_textEditorWidget);
-        }
-        aggregate->add(m_widget.get());
-
-        m_togglePreviewVisible = Command::createToolButtonWithShortcutToolTip(TOGGLEPREVIEW_ACTION);
-        m_togglePreviewVisible->defaultAction()->setCheckable(true);
-        m_togglePreviewVisible->setChecked(showPreview);
-        m_previewWidget->setVisible(showPreview);
-
-        m_toggleEditorVisible = Command::createToolButtonWithShortcutToolTip(TOGGLEEDITOR_ACTION);
-        m_toggleEditorVisible->defaultAction()->setCheckable(true);
-        m_toggleEditorVisible->setChecked(showEditor);
-        m_textEditorWidget->setVisible(showEditor);
-
-        m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right,
-                                                     m_toggleEditorVisible);
-        m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right,
-                                                     m_togglePreviewVisible);
-
-        const auto viewToggled = [](QWidget *view, bool visible, QWidget *otherView,
-                                    QToolButton *otherButton) {
-            if (view->isVisible() == visible)
-                return;
-            view->setVisible(visible);
-            if (visible) {
-                view->setFocus();
-            } else if (otherView->isVisible()) {
-                otherView->setFocus();
-            } else {
-                otherButton->toggle();
-            }
-        };
-        const auto saveViewSettings = [this] {
-            QtcSettings *settings = ICore::settings();
-            settings->setValueWithDefault(SHOW_PREVIEW_KEY,
-                                          m_togglePreviewVisible->isChecked(),
-                                          kShowPreviewDefault);
-            settings->setValueWithDefault(SHOW_EDITOR_KEY,
-                                          m_toggleEditorVisible->isChecked(),
-                                          kShowEditorDefault);
-        };
-
-        connect(m_toggleEditorVisible, &QToolButton::toggled,
-                this, [this, viewToggled, saveViewSettings](bool visible) {
-            viewToggled(m_textEditorWidget, visible, m_previewWidget, m_togglePreviewVisible);
-            saveViewSettings();
-        });
-        connect(m_togglePreviewVisible, &QToolButton::toggled,
-                this, [this, viewToggled, saveViewSettings](bool visible) {
-            viewToggled(m_previewWidget, visible, m_textEditorWidget, m_toggleEditorVisible);
-            if (visible && m_updatePending)
-                updatePreviewNow();
-            saveViewSettings();
-        });
+        doc->resetSyntaxHighlighter([] { return new QDocHighlighter; });
+        textEditorWidget()->setMarksVisible(true);
 
         m_previewWidget->onDoubleClick = [this](const QPoint &pos) {
             jumpToSourceOfPreviewPosition(pos);
         };
-        connect(m_textEditorWidget, &PlainTextEdit::cursorPositionChanged,
+        connect(textEditorWidget(), &PlainTextEdit::cursorPositionChanged,
                 this, &QDocEditor::syncPreviewToCursor);
 
         // Editing the .qdocconf changes what \image and \snippet resolve to, and
@@ -373,20 +267,7 @@ public:
             updatePreviewNow();
         });
 
-        m_previewTimer.setInterval(minimumUpdateInterval);
-        m_previewTimer.setSingleShot(true);
-        connect(&m_previewTimer, &QTimer::timeout, this, &QDocEditor::updatePreview);
-        // Started, not restarted: the preview follows along while typing continues,
-        // instead of waiting for a pause in it.
-        connect(m_document->document(), &QTextDocument::contentsChanged,
-                &m_previewTimer, [this] {
-            if (!m_previewTimer.isActive())
-                m_previewTimer.start();
-        });
-
-        // Connected last: setTextDocument() emits this while the editor is still
-        // being built, and a render needs the whole of it.
-        connect(m_document.data(), &TextDocument::fontSettingsChanged, this, [this] {
+        connect(doc.data(), &TextDocument::fontSettingsChanged, this, [this] {
             applyStyleSheet();
             updatePreviewNow();
         });
@@ -394,52 +275,36 @@ public:
         updatePreviewNow();
     }
 
+    ~QDocEditor() override { clearDiagnostics(textDocument()->filePath()); }
+
     void applyStyleSheet()
     {
         m_previewWidget->document()->setDefaultStyleSheet(
-            previewStyleSheet(m_document->fontSettings()));
+            previewStyleSheet(textDocument()->fontSettings()));
     }
 
     BaseTextEditor *duplicate() override
     {
-        auto other = new QDocEditor(m_document);
+        auto other = new QDocEditor(textDocumentPtr());
         other->restoreState(saveState());
         emit editorDuplicated(other);
         return other;
     }
 
-    void updatePreview()
+protected:
+    void renderPreview() override
     {
-        if (m_togglePreviewVisible->isChecked())
-            updatePreviewNow();
-        else
-            m_updatePending = true;
-    }
-
-    ~QDocEditor() override { clearDiagnostics(m_document->filePath()); }
-
-    void updatePreviewNow()
-    {
-        m_updatePending = false;
-        QElapsedTimer duration;
-        duration.start();
-        const int scrollPosition = m_previewWidget->verticalScrollBar()->value();
-        const FilePath file = m_document->filePath();
+        const FilePath file = textDocument()->filePath();
         const RenderContext context = renderContextFor(file);
-        const PreviewPage page = renderPreviewPage(m_document->plainText(), file, context);
+        const PreviewPage page = renderPreviewPage(textDocument()->plainText(), file, context);
         m_previewWidget->setHtml(page.body);
         updateDiagnostics(file, page.problems, context.doc);
-        m_previewWidget->verticalScrollBar()->setValue(scrollPosition);
         m_blocks = page.blocks;
         m_blockPositions = blockAnchorPositions();
         watchConfiguration(context.doc.confFiles);
-
-        // A page that is expensive to render throttles itself, so typing in it stays
-        // as responsive as the page allows.
-        m_previewTimer.setInterval(
-            qBound(minimumUpdateInterval, int(duration.elapsed()) * 3, 1000));
     }
 
+private:
     void watchConfiguration(const FilePaths &files)
     {
         if (m_configWatcher.files() == files)
@@ -487,7 +352,7 @@ public:
     {
         if (!m_previewWidget->isVisible() || m_blocks.isEmpty())
             return;
-        const int index = blockForLine(m_textEditorWidget->textCursor().blockNumber());
+        const int index = blockForLine(textEditorWidget()->textCursor().blockNumber());
         if (index < 0 || index == m_syncedBlock)
             return;
         m_syncedBlock = index;
@@ -509,74 +374,8 @@ public:
         gotoLine(m_blocks.at(index).line + 1, 0, true);
     }
 
-    void toggleEditor() { m_toggleEditorVisible->toggle(); }
-    void togglePreview() { m_togglePreviewVisible->toggle(); }
-
-    void gotoLine(int line, int column, bool centerLine) override
-    {
-        if (!m_toggleEditorVisible->isChecked())
-            m_toggleEditorVisible->toggle();
-        m_textEditorWidget->gotoLine(line, column, centerLine);
-    }
-
-    QByteArray saveState() const override
-    {
-        QByteArray state;
-        QDataStream stream(&state, QIODevice::WriteOnly);
-        stream << stateVersion;
-        stream << m_textEditorWidget->saveState();
-        stream << m_previewWidget->verticalScrollBar()->value();
-        stream << m_togglePreviewVisible->isChecked();
-        stream << m_toggleEditorVisible->isChecked();
-        stream << m_splitter->saveState();
-        return state;
-    }
-
-    void restoreState(const QByteArray &state) override
-    {
-        if (state.isEmpty())
-            return;
-        int version = 0;
-        QByteArray editorState;
-        int previewScrollPosition = 0;
-        bool previewShown = true;
-        bool textEditorShown = true;
-        QByteArray splitterState;
-        QDataStream stream(state);
-        stream >> version;
-        if (version != stateVersion) {
-            // Saved by a different editor for this document, which happens when this
-            // plugin is loaded while the file is open: it is the text editor's own
-            // state, so the source pane takes it and the preview keeps its settings.
-            m_textEditorWidget->restoreState(state);
-            return;
-        }
-        stream >> editorState;
-        stream >> previewScrollPosition;
-        stream >> previewShown;
-        stream >> textEditorShown;
-        stream >> splitterState;
-        if (stream.status() != QDataStream::Ok)
-            return;
-        m_textEditorWidget->restoreState(editorState);
-        m_splitter->restoreState(splitterState);
-        m_togglePreviewVisible->setChecked(previewShown);
-        m_previewWidget->setVisible(previewShown);
-        m_toggleEditorVisible->setChecked(textEditorShown || !previewShown);
-        m_textEditorWidget->setVisible(m_toggleEditorVisible->isChecked());
-        m_previewWidget->verticalScrollBar()->setValue(previewScrollPosition);
-    }
-
-private:
-    QTimer m_previewTimer;
     FileSystemWatcher m_configWatcher;
-    bool m_updatePending = false;
-    MiniSplitter *m_splitter = nullptr;
     QDocPreviewWidget *m_previewWidget = nullptr;
-    TextEditorWidget *m_textEditorWidget = nullptr;
-    TextDocumentPtr m_document;
-    QToolButton *m_toggleEditorVisible = nullptr;
-    QToolButton *m_togglePreviewVisible = nullptr;
     QList<PreviewBlock> m_blocks;
     QList<int> m_blockPositions;
     int m_syncedBlock = -1;
@@ -587,37 +386,14 @@ class QDocEditorFactory final : public IEditorFactory
 public:
     QDocEditorFactory()
     {
-        setId(QDOC_EDITOR_ID);
+        setId(EditorWithPreview::editorId(QDOC_EDITOR_ID_PREFIX));
         setDisplayName(Tr::tr("QDoc Editor"));
         addMimeType(QDOC_EDITOR_MIMETYPE);
         setEditorCreator([] { return new QDocEditor; });
-
-        const auto currentEditor = [] {
-            return qobject_cast<QDocEditor *>(EditorManager::currentEditor());
-        };
-
-        ActionBuilder(nullptr, TOGGLEEDITOR_ACTION)
-            .adopt(&m_toggleEditorAction)
-            .setText(Tr::tr("Show Editor"))
-            .setContext(Context(QDOC_EDITOR_ID))
-            .addOnTriggered(EditorManager::instance(), [currentEditor] {
-                if (QDocEditor *editor = currentEditor())
-                    editor->toggleEditor();
-            });
-
-        ActionBuilder(nullptr, TOGGLEPREVIEW_ACTION)
-            .adopt(&m_togglePreviewAction)
-            .setText(Tr::tr("Show Preview"))
-            .setContext(Context(QDOC_EDITOR_ID))
-            .addOnTriggered(EditorManager::instance(), [currentEditor] {
-                if (QDocEditor *editor = currentEditor())
-                    editor->togglePreview();
-            });
     }
 
 private:
-    Action m_toggleEditorAction;
-    Action m_togglePreviewAction;
+    EditorWithPreviewActions m_previewActions{QDOC_EDITOR_ID_PREFIX};
 };
 
 // A .qdoc file open in another editor when this plugin is loaded at runtime: its
@@ -641,8 +417,10 @@ static void reopenAlreadyOpenDocuments()
         if (!mimeTypeForFile(document->filePath()).inherits(Utils::Constants::QDOC_MIMETYPE))
             continue;
         const QList<IEditor *> editors = DocumentModel::editorsForDocument(document);
-        if (editors.isEmpty() || document->id() == QDOC_EDITOR_ID)
+        if (editors.isEmpty()
+            || document->id() == EditorWithPreview::editorId(QDOC_EDITOR_ID_PREFIX)) {
             continue;
+        }
         reopen.append({document->filePath(), editors.first()->currentLine(),
                        editors.first()->currentColumn()});
         close.append(document);
@@ -652,7 +430,8 @@ static void reopenAlreadyOpenDocuments()
 
     EditorManager::closeDocuments(close);
     for (const Reopen &entry : reopen)
-        EditorManager::openEditorAt({entry.file, entry.line, entry.column}, QDOC_EDITOR_ID);
+        EditorManager::openEditorAt({entry.file, entry.line, entry.column},
+                                    EditorWithPreview::editorId(QDOC_EDITOR_ID_PREFIX));
 }
 
 void setupQDocEditor()

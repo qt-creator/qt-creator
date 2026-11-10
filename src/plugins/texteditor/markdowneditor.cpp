@@ -4,57 +4,34 @@
 
 #include "markdowneditor.h"
 
+#include "editorwithpreview.h"
 #include "textdocument.h"
 #include "texteditor.h"
 #include "texteditortr.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/find/basetextfind.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/minisplitter.h>
 
 #include <utils/action.h>
-#include <utils/aggregate.h>
 #include <utils/link.h>
 #include <utils/markdownbrowser.h>
-#include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
-#include <QHBoxLayout>
 #include <QRegularExpression>
-#include <QScrollBar>
-#include <QTextBrowser>
-#include <QTimer>
-#include <QToolBar>
 #include <QToolButton>
-
-#include <optional>
 
 using namespace Core;
 using namespace Utils;
 
 namespace TextEditor::Internal {
 
-const char MARKDOWNVIEWER_ID[] = "Editors.MarkdownViewer";
-const char MARKDOWNVIEWER_TEXT_CONTEXT[] = "Editors.MarkdownViewer.Text";
-const char MARKDOWNVIEWER_PREVIEW_CONTEXT[] = "Editors.MarkdownViewer.Preview";
+const char MARKDOWNVIEWER_ID_PREFIX[] = "Markdown";
 const char MARKDOWNVIEWER_MIME_TYPE[] = "text/markdown";
-const char MARKDOWNVIEWER_TEXTEDITOR_RIGHT[] = "Markdown.TextEditorRight";
-const char MARKDOWNVIEWER_SHOW_EDITOR[] = "Markdown.ShowEditor";
-const char MARKDOWNVIEWER_SHOW_PREVIEW[] = "Markdown.ShowPreview";
-const bool kTextEditorRightDefault = false;
-const bool kShowEditorDefault = true;
-const bool kShowPreviewDefault = true;
 const char EMPHASIS_ACTION[] = "Markdown.Emphasis";
 const char STRONG_ACTION[] = "Markdown.Strong";
 const char INLINECODE_ACTION[] = "Markdown.InlineCode";
 const char LINK_ACTION[] = "Markdown.Link";
-const char TOGGLEEDITOR_ACTION[] = "Markdown.ToggleEditor";
-const char TOGGLEPREVIEW_ACTION[] = "Markdown.TogglePreview";
-const char SWAPVIEWS_ACTION[] = "Markdown.SwapViews";
 
 class MarkdownEditorWidget : public TextEditorWidget
 {
@@ -68,43 +45,30 @@ public:
                     bool inNextSplit = false) override;
 };
 
-class MarkdownEditor : public BaseTextEditor
+class MarkdownEditor : public EditorWithPreview
 {
     Q_OBJECT
 public:
     MarkdownEditor()
-        : MarkdownEditor(TextDocumentPtr(new TextDocument(MARKDOWNVIEWER_ID)))
+        : MarkdownEditor(TextDocumentPtr(
+            new TextDocument(EditorWithPreview::editorId(MARKDOWNVIEWER_ID_PREFIX))))
     {
-        m_document->setMimeType(MARKDOWNVIEWER_MIME_TYPE);
-        connect(
-            m_document.data(),
-            &TextDocument::mimeTypeChanged,
-            m_document.data(),
-            &TextDocument::changed);
+        TextDocument *document = textDocument();
+        document->setMimeType(MARKDOWNVIEWER_MIME_TYPE);
+        connect(document, &TextDocument::mimeTypeChanged, document, &TextDocument::changed);
     }
 
     explicit MarkdownEditor(const TextDocumentPtr &doc)
-        : m_document(doc)
+        : EditorWithPreview(doc,
+                            new MarkdownEditorWidget,
+                            new MarkdownBrowser,
+                            MARKDOWNVIEWER_ID_PREFIX)
+        , m_previewWidget(static_cast<MarkdownBrowser *>(previewWidget()))
     {
-        setDuplicateSupported(true);
-
-        QtcSettings *s = ICore::settings();
-        const bool textEditorRight
-            = s->value(MARKDOWNVIEWER_TEXTEDITOR_RIGHT, kTextEditorRightDefault).toBool();
-        const bool showPreview = s->value(MARKDOWNVIEWER_SHOW_PREVIEW, kShowPreviewDefault).toBool();
-        const bool showEditor = s->value(MARKDOWNVIEWER_SHOW_EDITOR, kShowEditorDefault).toBool()
-                                || !showPreview; // ensure at least one is visible
-
-        m_splitter = new MiniSplitter;
-
         // preview
-        m_previewWidget = new Utils::MarkdownBrowser();
         m_previewWidget->setWheelZoomEnabled(true);
         m_previewWidget->setFrameShape(QFrame::NoFrame);
         m_previewWidget->setShowRulersForHeadings(true);
-        auto previewFind = new BaseTextFind<QTextBrowser>(m_previewWidget);
-        Aggregation::aggregate({m_previewWidget, previewFind});
-        IContext::attach(m_previewWidget, Context(MARKDOWNVIEWER_PREVIEW_CONTEXT));
         connect(m_previewWidget,
                 &MarkdownBrowser::openFileRequested,
                 this,
@@ -116,84 +80,10 @@ public:
                 });
 
         // editor
-        m_textEditorWidget = new MarkdownEditorWidget;
-        m_textEditorWidget->setOptionalActions(OptionalActions::FollowSymbolUnderCursor);
-        m_textEditorWidget->setTextDocument(m_document);
-        m_textEditorWidget->setupGenericHighlighter();
-        m_textEditorWidget->setMarksVisible(false);
-        QObject::connect(
-            m_textEditorWidget,
-            &TextEditorWidget::saveCurrentStateForNavigationHistory,
-            this,
-            &MarkdownEditor::saveCurrentStateForNavigationHistory);
-        QObject::connect(
-            m_textEditorWidget,
-            &TextEditorWidget::addSavedStateToNavigationHistory,
-            this,
-            &MarkdownEditor::addSavedStateToNavigationHistory);
-        QObject::connect(
-            m_textEditorWidget,
-            &TextEditorWidget::addCurrentStateToNavigationHistory,
-            this,
-            &MarkdownEditor::addCurrentStateToNavigationHistory);
-
-        IContext::attach(m_textEditorWidget, Context(MARKDOWNVIEWER_TEXT_CONTEXT));
-
-        // synchronize highlighting of search results between the two views
-        auto textFind = Aggregation::query<BaseTextFindBase>(m_textEditorWidget);
-        if (QTC_GUARD(textFind)) {
-            m_editorHighlight.find = textFind;
-            m_editorHighlight.view = m_textEditorWidget;
-            m_previewHighlight.find = previewFind;
-            m_previewHighlight.view = m_previewWidget;
-            connect(textFind,
-                    &BaseTextFindBase::highlightAllRequested,
-                    this,
-                    [this](const QString &txt, FindFlags findFlags) {
-                        mirrorHighlights(m_previewHighlight, txt, findFlags);
-                    });
-            connect(previewFind,
-                    &BaseTextFindBase::highlightAllRequested,
-                    this,
-                    [this](const QString &txt, FindFlags findFlags) {
-                        mirrorHighlights(m_editorHighlight, txt, findFlags);
-                    });
-        }
-
-        m_splitter->addWidget(m_textEditorWidget); // sets splitter->focusWidget() on non-Windows
-        m_splitter->addWidget(m_previewWidget);
-
-        // Ignore size hints and just distribute equally 50%/50%
-        m_previewWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-        m_textEditorWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-        m_splitter->setSizes({1, 1});
-
-        setContext(Context(MARKDOWNVIEWER_ID));
-
-        auto widget = new QWidget;
-        auto layout = new QVBoxLayout;
-        layout->setContentsMargins(0, 0, 0, 0);
-        widget->setLayout(layout);
-        layout->addWidget(m_splitter);
-        setWidget(widget);
-        m_widget->installEventFilter(this);
-        using namespace Aggregation;
-        Aggregate *agg = Aggregate::parentAggregate(m_textEditorWidget);
-        if (!agg) {
-            agg = new Aggregate;
-            agg->add(m_textEditorWidget);
-        }
-        agg->add(m_widget.get());
-
-        m_togglePreviewVisible = Command::createToolButtonWithShortcutToolTip(TOGGLEPREVIEW_ACTION);
-        m_togglePreviewVisible->defaultAction()->setCheckable(true);
-        m_togglePreviewVisible->setChecked(showPreview);
-        m_previewWidget->setVisible(showPreview);
-
-        m_toggleEditorVisible = Command::createToolButtonWithShortcutToolTip(TOGGLEEDITOR_ACTION);
-        m_toggleEditorVisible->defaultAction()->setCheckable(true);
-        m_toggleEditorVisible->setChecked(showEditor);
-        m_textEditorWidget->setVisible(showEditor);
+        TextEditorWidget *textEditor = textEditorWidget();
+        textEditor->setOptionalActions(OptionalActions::FollowSymbolUnderCursor);
+        textEditor->setupGenericHighlighter();
+        textEditor->setMarksVisible(false);
 
         QList<QToolButton *> markDownButtons;
         auto button = Command::createToolButtonWithShortcutToolTip(EMPHASIS_ACTION);
@@ -214,126 +104,16 @@ public:
         button->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerLink);
         markDownButtons.append(button);
-        for (auto it = markDownButtons.rbegin(); it != markDownButtons.rend(); ++it) {
-            QAction *action = m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Left,
-                                                                          *it);
-            action->setVisible(showEditor);
-            m_markDownButtonActions.append(action);
-        }
-
-        m_swapViews = Command::createToolButtonWithShortcutToolTip(SWAPVIEWS_ACTION);
-        m_swapViews->setEnabled(showEditor && showPreview);
-
-        m_swapViewsAction = m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right, m_swapViews);
-        m_toggleEditorVisibleAction = m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right, m_toggleEditorVisible);
-        m_togglePreviewVisibleAction = m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right, m_togglePreviewVisible);
-        setWidgetOrder(textEditorRight);
-
-        const auto viewToggled =
-            [this](QWidget *view, bool visible, QWidget *otherView, QToolButton *otherButton) {
-                if (view->isVisible() == visible)
-                    return;
-                view->setVisible(visible);
-                if (visible) {
-                    view->setFocus();
-                } else if (otherView->isVisible()) {
-                    otherView->setFocus();
-                } else {
-                    // make sure at least one view is visible
-                    otherButton->toggle();
-                }
-                m_swapViews->setEnabled(view->isVisible() && otherView->isVisible());
-            };
-        const auto saveViewSettings = [this] {
-            Utils::QtcSettings *s = ICore::settings();
-            s->setValueWithDefault(MARKDOWNVIEWER_SHOW_PREVIEW,
-                                   m_togglePreviewVisible->isChecked(),
-                                   kShowPreviewDefault);
-            s->setValueWithDefault(MARKDOWNVIEWER_SHOW_EDITOR,
-                                   m_toggleEditorVisible->isChecked(),
-                                   kShowEditorDefault);
-        };
-
-        connect(m_toggleEditorVisible,
-                &QToolButton::toggled,
-                this,
-                [this, viewToggled, saveViewSettings](bool visible) {
-                    viewToggled(m_textEditorWidget,
-                                visible,
-                                m_previewWidget,
-                                m_togglePreviewVisible);
-                    for (QAction *action : std::as_const(m_markDownButtonActions))
-                        action->setVisible(visible);
-                    if (visible)
-                        flushHighlights(m_editorHighlight);
-                    saveViewSettings();
-                });
-        connect(
-            m_togglePreviewVisible,
-            &QToolButton::toggled,
-            this,
-            [this, viewToggled, saveViewSettings](bool visible) {
-                viewToggled(m_previewWidget, visible, m_textEditorWidget, m_toggleEditorVisible);
-                if (visible && m_performDelayedUpdate) {
-                    m_performDelayedUpdate = false;
-                    updatePreviewNow();
-                }
-                if (visible)
-                    flushHighlights(m_previewHighlight);
-                saveViewSettings();
-            });
-
-        connect(m_swapViews, &QToolButton::clicked, m_textEditorWidget, [this] {
-            const bool textEditorRight = isTextEditorRight();
-            setWidgetOrder(!textEditorRight);
-            // save settings
-            Utils::QtcSettings *s = ICore::settings();
-            s->setValueWithDefault(MARKDOWNVIEWER_TEXTEDITOR_RIGHT,
-                                   !textEditorRight,
-                                   kTextEditorRightDefault);
-        });
-
-        // TODO directly update when we build with Qt 6.5.2
-        m_previewTimer.setInterval(500);
-        m_previewTimer.setSingleShot(true);
-        connect(&m_previewTimer, &QTimer::timeout, this, &MarkdownEditor::updatePreview);
-
-        connect(m_document->document(), &QTextDocument::contentsChanged, &m_previewTimer, [this] {
-            m_previewTimer.start();
-        });
+        for (auto it = markDownButtons.rbegin(); it != markDownButtons.rend(); ++it)
+            insertEditorToolBarWidget(TextEditorWidget::Left, *it);
     }
 
     BaseTextEditor *duplicate() override
     {
-        auto other = new MarkdownEditor(m_document);
+        auto other = new MarkdownEditor(textDocumentPtr());
         other->restoreState(saveState());
-        other->updatePreview();
         emit editorDuplicated(other);
         return other;
-    }
-
-    void updatePreview()
-    {
-        if (m_togglePreviewVisible->isChecked())
-            updatePreviewNow();
-        else
-            m_performDelayedUpdate = true;
-    }
-
-    void updatePreviewNow()
-    {
-        // save scroll positions
-        const QPoint positions = m_previewRestoreScrollPosition
-                                     ? *m_previewRestoreScrollPosition
-                                     : QPoint(
-                                           m_previewWidget->horizontalScrollBar()->value(),
-                                           m_previewWidget->verticalScrollBar()->value());
-        m_previewRestoreScrollPosition.reset();
-
-        m_previewWidget->setMarkdown(m_document->plainText());
-
-        m_previewWidget->horizontalScrollBar()->setValue(positions.x());
-        m_previewWidget->verticalScrollBar()->setValue(positions.y());
     }
 
     void triggerEmphasis()
@@ -383,111 +163,24 @@ public:
         });
     }
 
-    void toggleEditor() { m_toggleEditorVisible->toggle(); }
-    void togglePreview() { m_togglePreviewVisible->toggle(); }
-    void swapViews() { m_swapViews->click(); }
+    void increasePreviewZoom() override { m_previewWidget->increaseZoom(); }
+    void decreasePreviewZoom() override { m_previewWidget->decreaseZoom(); }
+    void resetPreviewZoom() override { m_previewWidget->resetZoom(); }
 
-    void increasePreviewZoom() { m_previewWidget->increaseZoom(); }
-    void decreasePreviewZoom() { m_previewWidget->decreaseZoom(); }
-    void resetPreviewZoom() { m_previewWidget->resetZoom(); }
-
-    bool isTextEditorRight() const { return m_splitter->widget(0) == m_previewWidget; }
-
-    void setWidgetOrder(bool textEditorRight)
-    {
-        QTC_ASSERT(m_splitter->count() > 1, return);
-        QWidget *left = textEditorRight ? static_cast<QWidget *>(m_previewWidget)
-                                        : m_textEditorWidget;
-        QWidget *right = textEditorRight ? static_cast<QWidget *>(m_textEditorWidget)
-                                         : m_previewWidget;
-        m_splitter->insertWidget(0, left);
-        m_splitter->insertWidget(1, right);
-        // buttons
-        const auto leftAction = textEditorRight ? m_togglePreviewVisibleAction : m_toggleEditorVisibleAction;
-        const auto rightAction = textEditorRight ? m_toggleEditorVisibleAction : m_togglePreviewVisibleAction;
-        m_textEditorWidget->toolBar()->insertAction(m_swapViewsAction, leftAction);
-        m_textEditorWidget->toolBar()->insertAction(m_swapViewsAction, rightAction);
-    }
-
-    void gotoLine(int line, int column, bool centerLine) override
-    {
-        if (!m_toggleEditorVisible->isChecked())
-            m_toggleEditorVisible->toggle();
-        m_textEditorWidget->gotoLine(line, column, centerLine);
-    }
-
-    bool eventFilter(QObject *obj, QEvent *ev) override
-    {
-        if (obj == m_widget && ev->type() == QEvent::FocusIn) {
-            if (m_splitter->focusWidget())
-                m_splitter->focusWidget()->setFocus();
-            else if (m_textEditorWidget->isVisible())
-                m_textEditorWidget->setFocus();
-            else
-                m_splitter->widget(0)->setFocus();
-            return true;
-        }
-        return IEditor::eventFilter(obj, ev);
-    }
-
-    QByteArray saveState() const override
-    {
-        QByteArray state;
-        QDataStream stream(&state, QIODevice::WriteOnly);
-        stream << 1; // version number
-        stream << m_textEditorWidget->saveState();
-        stream << m_previewWidget->horizontalScrollBar()->value();
-        stream << m_previewWidget->verticalScrollBar()->value();
-        stream << isTextEditorRight();
-        stream << m_togglePreviewVisible->isChecked();
-        stream << m_toggleEditorVisible->isChecked();
-        stream << m_splitter->saveState();
-        return state;
-    }
-
-    void restoreState(const QByteArray &state) override
-    {
-        if (state.isEmpty())
-            return;
-        int version;
-        QByteArray editorState;
-        int previewHV;
-        int previewVV;
-        bool textEditorRight;
-        bool previewShown;
-        bool textEditorShown;
-        QByteArray splitterState;
-        QDataStream stream(state);
-        stream >> version;
-        stream >> editorState;
-        stream >> previewHV;
-        stream >> previewVV;
-        stream >> textEditorRight;
-        stream >> previewShown;
-        stream >> textEditorShown;
-        stream >> splitterState;
-        m_textEditorWidget->restoreState(editorState);
-        m_previewRestoreScrollPosition.emplace(previewHV, previewVV);
-        setWidgetOrder(textEditorRight);
-        m_splitter->restoreState(splitterState);
-        m_togglePreviewVisible->setChecked(previewShown);
-        m_previewWidget->setVisible(m_togglePreviewVisible->isChecked());
-        // ensure at least one is shown
-        m_toggleEditorVisible->setChecked(textEditorShown || !previewShown);
-        m_textEditorWidget->setVisible(m_toggleEditorVisible->isChecked());
-    }
+protected:
+    void renderPreview() override { m_previewWidget->setMarkdown(textDocument()->plainText()); }
 
 private:
     void triggerFormatingAction(std::function<void(QString *selectedText, int *cursorOffset)> action)
     {
-        auto formattedText = m_textEditorWidget->selectedText();
+        auto formattedText = textEditorWidget()->selectedText();
         int cursorOffset = 0;
         action(&formattedText, &cursorOffset);
         format(formattedText, cursorOffset);
     }
     void triggerFormatingAction(std::function<void(QString *selectedText, int *cursorOffset, int *selectionLength)> action)
     {
-        auto formattedText = m_textEditorWidget->selectedText();
+        auto formattedText = textEditorWidget()->selectedText();
         int cursorOffset = 0;
         int selectionLength = 0;
         action(&formattedText, &cursorOffset, &selectionLength);
@@ -495,7 +188,8 @@ private:
     }
     void format(const QString &formattedText, int cursorOffset = 0, int selectionLength = 0)
     {
-        auto cursor = m_textEditorWidget->textCursor();
+        TextEditorWidget *textEditor = textEditorWidget();
+        auto cursor = textEditor->textCursor();
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd();
         cursor.setPosition(start, QTextCursor::MoveAnchor);
@@ -505,75 +199,17 @@ private:
         if (cursorOffset != 0) {
             auto pos = cursor.position();
             cursor.setPosition(pos + cursorOffset);
-            m_textEditorWidget->setTextCursor(cursor);
+            textEditor->setTextCursor(cursor);
         }
 
         if (selectionLength != 0) {
             cursor.setPosition(cursor.position(), QTextCursor::MoveAnchor);
             cursor.setPosition(cursor.position() + selectionLength, QTextCursor::KeepAnchor);
-            m_textEditorWidget->setTextCursor(cursor);
+            textEditor->setTextCursor(cursor);
         }
     }
 
-    struct MirroredHighlight
-    {
-        BaseTextFindBase *find = nullptr;
-        QWidget *view = nullptr;
-        std::optional<QString> pendingText;
-        FindFlags pendingFlags;
-    };
-
-    void mirrorHighlights(MirroredHighlight &target, const QString &txt, FindFlags findFlags)
-    {
-        if (m_blockMirrorHighlights)
-            return;
-        target.pendingText = txt;
-        target.pendingFlags = findFlags;
-        if (target.view->isVisible())
-            flushHighlights(target);
-    }
-
-    void flushHighlights(MirroredHighlight &target)
-    {
-        if (!target.pendingText)
-            return;
-        const QString txt = *std::exchange(target.pendingText, std::nullopt);
-        m_blockMirrorHighlights = true;
-        target.find->highlightAll(txt, target.pendingFlags);
-        m_blockMirrorHighlights = false;
-    }
-
-    void saveCurrentStateForNavigationHistory() { m_savedNavigationState = saveState(); }
-
-    void addSavedStateToNavigationHistory()
-    {
-        EditorManager::addCurrentPositionToNavigationHistory(m_savedNavigationState);
-    }
-
-    void addCurrentStateToNavigationHistory()
-    {
-        EditorManager::addCurrentPositionToNavigationHistory();
-    }
-
-private:
-    QTimer m_previewTimer;
-    bool m_performDelayedUpdate = false;
-    MiniSplitter *m_splitter;
     Utils::MarkdownBrowser *m_previewWidget;
-    TextEditorWidget *m_textEditorWidget;
-    TextDocumentPtr m_document;
-    QList<QAction *> m_markDownButtonActions;
-    QToolButton *m_toggleEditorVisible;
-    QToolButton *m_togglePreviewVisible;
-    QToolButton *m_swapViews;
-    QAction *m_toggleEditorVisibleAction;
-    QAction *m_togglePreviewVisibleAction;
-    QAction *m_swapViewsAction;
-    std::optional<QPoint> m_previewRestoreScrollPosition;
-    QByteArray m_savedNavigationState;
-    MirroredHighlight m_editorHighlight;
-    MirroredHighlight m_previewHighlight;
-    bool m_blockMirrorHighlights = false;
 };
 
 class MarkdownEditorFactory final : public IEditorFactory
@@ -586,24 +222,17 @@ private:
     Action m_strongAction;
     Action m_inlineCodeAction;
     Action m_linkAction;
-    Action m_toggleEditorAction;
-    Action m_togglePreviewAction;
-    Action m_swapAction;
-    Action m_previewZoomInAction;
-    Action m_previewZoomOutAction;
-    Action m_previewZoomResetAction;
+    EditorWithPreviewActions m_previewActions{MARKDOWNVIEWER_ID_PREFIX};
 };
 
 MarkdownEditorFactory::MarkdownEditorFactory()
 {
-    setId(MARKDOWNVIEWER_ID);
+    setId(EditorWithPreview::editorId(MARKDOWNVIEWER_ID_PREFIX));
     setDisplayName(Tr::tr("Markdown Editor"));
     addMimeType(MARKDOWNVIEWER_MIME_TYPE);
     setEditorCreator([] { return new MarkdownEditor; });
 
-    const auto textContext = Context(MARKDOWNVIEWER_TEXT_CONTEXT);
-    const auto previewContext = Context(MARKDOWNVIEWER_PREVIEW_CONTEXT);
-    const auto context = Context(MARKDOWNVIEWER_ID);
+    const auto textContext = Context(EditorWithPreview::textContextId(MARKDOWNVIEWER_ID_PREFIX));
 
     ActionBuilder(nullptr, EMPHASIS_ACTION)
         .adopt(&m_emphasisAction)
@@ -643,63 +272,6 @@ MarkdownEditorFactory::MarkdownEditorFactory()
             auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
             if (editor)
                 editor->triggerLink();
-        });
-
-    ActionBuilder(nullptr, TOGGLEEDITOR_ACTION)
-        .adopt(&m_toggleEditorAction)
-        .setText(Tr::tr("Show Editor"))
-        .setContext(context)
-        .addOnTriggered(EditorManager::instance(), [] {
-            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-            if (editor)
-                editor->toggleEditor();
-        });
-
-    ActionBuilder(nullptr, TOGGLEPREVIEW_ACTION)
-        .adopt(&m_togglePreviewAction)
-        .setText(Tr::tr("Show Preview"))
-        .setContext(context)
-        .addOnTriggered(EditorManager::instance(), [] {
-            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-            if (editor)
-                editor->togglePreview();
-        });
-
-    ActionBuilder(nullptr, SWAPVIEWS_ACTION)
-        .adopt(&m_swapAction)
-        .setText(Tr::tr("Swap Views"))
-        .setContext(context)
-        .addOnTriggered(EditorManager::instance(), [] {
-            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-            if (editor)
-                editor->swapViews();
-        });
-
-    ActionBuilder(nullptr, Core::Constants::ZOOM_IN)
-        .adopt(&m_previewZoomInAction)
-        .setContext(previewContext)
-        .addOnTriggered(EditorManager::instance(), [] {
-            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-            if (editor)
-                editor->increasePreviewZoom();
-        });
-
-    ActionBuilder(nullptr, Core::Constants::ZOOM_OUT)
-        .adopt(&m_previewZoomOutAction)
-        .setContext(previewContext)
-        .addOnTriggered(EditorManager::instance(), [] {
-            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-            if (editor)
-                editor->decreasePreviewZoom();
-        });
-
-    ActionBuilder(nullptr, Core::Constants::ZOOM_RESET)
-        .adopt(&m_previewZoomResetAction)
-        .setContext(previewContext)
-        .addOnTriggered(EditorManager::instance(), [] {
-            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-            if (editor)
-                editor->resetPreviewZoom();
         });
 }
 
