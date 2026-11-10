@@ -74,6 +74,7 @@ constexpr char extraArgumentsKey[] = "extraArguments";
 constexpr char extraArgumentsSelectionKey[] = "extraArgumentsSelection";
 constexpr char qmllsProjectSettingsKey[] = "QmllsProjectSettings";
 constexpr char downloadQmllsInfoBarId[] = "QmlJSEditor::DownloadQmlls";
+constexpr char updateQmllsInfoBarId[] = "QmlJSEditor::UpdateQmlls";
 
 QmllsClientSettings *qmllsSettings()
 {
@@ -934,6 +935,44 @@ static void useDownloadedQmlls(const FilePath &qmllsPath)
         });
 }
 
+static bool usesDownloadedQmlls()
+{
+    const QmllsClientSettings *settings = qmllsSettings();
+    QTC_ASSERT(settings, return false);
+    return settings->executableSelection() == QmllsClientSettings::FromUser
+           && settings->executable().isChildOf(downloadedQmllsPath());
+}
+
+static void followUpdatedQmlls(const FilePath &qmllsPath)
+{
+    if (usesDownloadedQmlls())
+        useDownloadedQmlls(qmllsPath);
+}
+
+static GroupItem queryLatestQmllsVersion(const std::function<void(const QVersionNumber &)> &onVersion)
+{
+    const auto onSetup = [](QNetworkReplyWrapper &query) {
+        query.setRequest(QNetworkRequest(githubQmllsMetadataUrl()));
+        query.setNetworkAccessManager(NetworkAccessManager::instance());
+    };
+    const auto onDone = [onVersion](const QNetworkReplyWrapper &query, DoneWith result) {
+        QNetworkReply *reply = query.reply();
+        if (result != DoneWith::Success || !reply) {
+            Core::MessageManager::writeSilently(
+                Tr::tr("Could not query the latest standalone qmlls version: %1")
+                    .arg(reply ? reply->errorString() : QString()));
+            return DoneResult::Error;
+        }
+        const QJsonDocument metadata = QJsonDocument::fromJson(reply->readAll());
+        const QVersionNumber version = QVersionNumber::fromString(metadata["tag_name"].toString());
+        if (version.isNull())
+            return DoneResult::Error;
+        onVersion(version);
+        return DoneResult::Success;
+    };
+    return QNetworkReplyWrapperTask(onSetup, onDone);
+}
+
 class QmllsDownloadInfoBar : public QObject
 {
 public:
@@ -944,53 +983,70 @@ public:
             Core::EditorManager::instance(),
             &Core::EditorManager::documentOpened,
             this,
-            [this](Core::IDocument *document) { offerDownload(document); });
+            [this](Core::IDocument *document) { offerQmlls(document); });
     }
 
 private:
+    enum DownloadPurpose { Install, Update };
+
     static bool isQmlDocument(const Core::IDocument *document)
     {
         return document->mimeType() == Utils::Constants::QML_MIMETYPE
                || document->mimeType() == Utils::Constants::QMLUI_MIMETYPE;
     }
 
-    void offerDownload(Core::IDocument *document)
+    static bool canOfferQmlls(const TextEditor::TextDocument *textDocument)
     {
-        auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
-        if (!textDocument || textDocument->isTemporary() || !isQmlDocument(textDocument))
-            return;
         if (!QtVersionManager::isLoaded()) {
             qCDebug(qmllsDownloadLog).noquote() << "Cannot offer the qmlls download for "
                                                        + textDocument->filePath().toUserOutput()
                                                        + ": the Qt versions are not loaded yet.";
-            return;
+            return false;
         }
         if (!qmllsSettings()) {
             qCDebug(qmllsDownloadLog).noquote()
                 << "Cannot offer the qmlls download for " + textDocument->filePath().toUserOutput()
                        + ": the qmlls client settings are not registered.";
-            return;
+            return false;
         }
         if (!qmllsSettings()->enabled()) {
             qCDebug(qmllsDownloadLog).noquote() << "Not offering the qmlls download for "
                                                        + textDocument->filePath().toUserOutput()
                                                        + ": the qmlls client is disabled.";
-            return;
+            return false;
         }
-        if (const FilePath downloaded = evaluateGithubQmlls().first; !downloaded.isEmpty()) {
-            qCDebug(qmllsDownloadLog).noquote()
-                << "Not offering the qmlls download for " + textDocument->filePath().toUserOutput()
-                       + ": a downloaded qmlls exists at " + downloaded.toUserOutput();
+        return true;
+    }
+
+    void offerQmlls(Core::IDocument *document)
+    {
+        auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
+        if (!textDocument || textDocument->isTemporary() || !isQmlDocument(textDocument)
+            || !canOfferQmlls(textDocument)) {
             return;
         }
 
-        InfoBar *infoBar = textDocument->infoBar();
-        if (!infoBar->canInfoBeAdded(downloadQmllsInfoBarId)) {
-            qCDebug(qmllsDownloadLog).noquote()
-                << "Not offering the qmlls download for " + textDocument->filePath().toUserOutput()
-                       + ": the info bar entry is suppressed or already shown.";
+        const auto [downloaded, downloadedVersion] = evaluateGithubQmlls();
+        if (downloaded.isEmpty())
+            offerDownload(textDocument);
+        else if (usesDownloadedQmlls())
+            offerUpdate(textDocument, downloadedVersion);
+    }
+
+    static bool canAddInfo(TextEditor::TextDocument *textDocument, const Id &infoBarId)
+    {
+        if (textDocument->infoBar()->canInfoBeAdded(infoBarId))
+            return true;
+        qCDebug(qmllsDownloadLog).noquote()
+            << "Not offering the qmlls download for " + textDocument->filePath().toUserOutput()
+                   + ": the info bar entry is suppressed or already shown.";
+        return false;
+    }
+
+    void offerDownload(TextEditor::TextDocument *textDocument)
+    {
+        if (!canAddInfo(textDocument, downloadQmllsInfoBarId))
             return;
-        }
 
         InfoBarEntry info(
             downloadQmllsInfoBarId,
@@ -999,25 +1055,89 @@ private:
                 "navigation and diagnostics?"),
             InfoBarEntry::GlobalSuppression::Enabled);
         info.addCustomButton(
-            Tr::tr("Download"), [this] { startDownload(); }, {}, InfoBarEntry::ButtonAction::Hide);
-        infoBar->addInfo(info);
+            Tr::tr("Download"),
+            [this] { startDownload(Install); },
+            {},
+            InfoBarEntry::ButtonAction::Hide);
+        textDocument->infoBar()->addInfo(info);
     }
 
-    void startDownload()
+    void offerUpdate(TextEditor::TextDocument *textDocument, const QVersionNumber &downloadedVersion)
     {
-        m_downloader.start({downloadGithubQmlls()}, {}, [] {
-            const FilePath path = evaluateGithubQmlls().first;
-            if (path.isEmpty())
-                return;
-            useDownloadedQmlls(path);
-            for (Core::IDocument *document : Core::DocumentModel::openedDocuments()) {
-                if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document))
-                    textDocument->infoBar()->removeInfo(downloadQmllsInfoBarId);
+        if (!m_latestVersion) {
+            startUpdateCheck();
+            return;
+        }
+        if (*m_latestVersion <= downloadedVersion) {
+            qCDebug(qmllsDownloadLog).noquote() << "Not offering a qmlls update for "
+                                                       + textDocument->filePath().toUserOutput()
+                                                       + ": the downloaded qmlls is up to date.";
+            return;
+        }
+        if (!canAddInfo(textDocument, updateQmllsInfoBarId))
+            return;
+
+        InfoBarEntry info(
+            updateQmllsInfoBarId,
+            Tr::tr(
+                "A newer standalone QML Language Server (qmlls) %1 is available. "
+                "The downloaded version is %2. Update?")
+                .arg(m_latestVersion->toString(), downloadedVersion.toString()),
+            InfoBarEntry::GlobalSuppression::Enabled);
+        info.addCustomButton(
+            Tr::tr("Update"),
+            [this] { startDownload(Update); },
+            {},
+            InfoBarEntry::ButtonAction::Hide);
+        textDocument->infoBar()->addInfo(info);
+    }
+
+    void startUpdateCheck()
+    {
+        if (m_updateCheckStarted)
+            return;
+        m_updateCheckStarted = true;
+        const auto onVersion = [this](const QVersionNumber &version) {
+            m_latestVersion = version;
+            const QList<Core::IDocument *> documents = Core::DocumentModel::openedDocuments();
+            for (Core::IDocument *document : documents)
+                offerQmlls(document);
+        };
+        m_updateChecker.start({queryLatestQmllsVersion(onVersion)});
+    }
+
+    static void removeQmllsInfoBars()
+    {
+        const QList<Core::IDocument *> documents = Core::DocumentModel::openedDocuments();
+        for (Core::IDocument *document : documents) {
+            if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
+                textDocument->infoBar()->removeInfo(downloadQmllsInfoBarId);
+                textDocument->infoBar()->removeInfo(updateQmllsInfoBarId);
             }
+        }
+    }
+
+    void startDownload(DownloadPurpose purpose)
+    {
+        const QVersionNumber versionBefore = evaluateGithubQmlls().second;
+        m_downloader.start({downloadGithubQmlls()}, {}, [purpose, versionBefore](DoneWith result) {
+            const auto [path, versionAfter] = evaluateGithubQmlls();
+            if (result != DoneWith::Success || path.isEmpty())
+                return;
+            if (purpose == Update && versionAfter <= versionBefore)
+                return;
+            removeQmllsInfoBars();
+            if (purpose == Install)
+                useDownloadedQmlls(path);
+            else
+                followUpdatedQmlls(path);
         });
     }
 
     QSingleTaskTreeRunner m_downloader;
+    QSingleTaskTreeRunner m_updateChecker;
+    std::optional<QVersionNumber> m_latestVersion;
+    bool m_updateCheckStarted = false;
 };
 
 void setupQmllsDownloadInfoBar()
