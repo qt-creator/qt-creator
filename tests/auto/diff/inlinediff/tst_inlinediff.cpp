@@ -31,6 +31,8 @@ private slots:
     void patienceAnchorsUniqueLines();
     void patienceIsOff();
     void patienceAvoidsSpuriousModification();
+    void onlyDeletionsOrAdditions_data();
+    void onlyDeletionsOrAdditions();
 
 private:
     static InlineDiffRenderModel compute(const QString &baseline, const QString &editor,
@@ -113,6 +115,102 @@ void tst_InlineDiff::patienceAvoidsSpuriousModification()
     QVERIFY(withPatience.contains("     send();\n     send();\n+    flush();\n     flush();\n"));
     QVERIFY(withoutPatience.contains("     prepare();\n+    send();\n     send();\n"
                                      "-    send();\n+    flush();\n     flush();\n"));
+}
+
+static QString colorText(const QStringList &members, bool withAlpha)
+{
+    QString text = "struct Color\n{\n";
+    text += withAlpha ? "    Color(int red, int green, int blue, int alpha);\n"
+                      : "    Color(int red, int green, int blue);\n";
+    text += "\n";
+    for (const QString &member : members)
+        text += "    int " + member + ";\n";
+    return text + "};\n";
+}
+
+void tst_InlineDiff::onlyDeletionsOrAdditions_data()
+{
+    QTest::addColumn<QString>("baseline");
+    QTest::addColumn<QString>("editor");
+    QTest::addColumn<QString>("expected");
+
+    const QStringList rgb{"m_red", "m_green", "m_blue"};
+    const QStringList rgba = rgb + QStringList{"m_alpha"};
+    const QString deletion = " struct Color\n {\n"
+                             "-    Color(int red, int green, int blue, int alpha);\n"
+                             "+    Color(int red, int green, int blue);\n"
+                             " \n     int m_red;\n     int m_green;\n     int m_blue;\n"
+                             "-    int m_alpha;\n };\n";
+    QTest::newRow("deletions") << colorText(rgba, true) << colorText(rgb, false) << deletion;
+
+    const QString addition = " struct Color\n {\n"
+                             "-    Color(int red, int green, int blue);\n"
+                             "+    Color(int red, int green, int blue, int alpha);\n"
+                             " \n     int m_red;\n     int m_green;\n     int m_blue;\n"
+                             "+    int m_alpha;\n };\n";
+    QTest::newRow("additions") << colorText(rgb, false) << colorText(rgba, true) << addition;
+
+    QTest::newRow("several deleted lines")
+        << colorText({"m_red", "m_green", "m_blue", "m_alpha", "m_beta"}, false)
+        << colorText({"m_red", "m_green", "m_blue"}, false)
+        << QString("     int m_green;\n     int m_blue;\n"
+                   "-    int m_alpha;\n-    int m_beta;\n };\n");
+
+    QTest::newRow("deleted lines sharing their indentation")
+        << QString("{\n    int x;\n    int b;\n    int c;\n}\n")
+        << QString("{\n    int c;\n}\n")
+        << QString(" {\n-    int x;\n-    int b;\n     int c;\n }\n");
+
+    QTest::newRow("added lines sharing their indentation")
+        << QString("{\n    int c;\n}\n")
+        << QString("{\n    int x;\n    int b;\n    int c;\n}\n")
+        << QString(" {\n+    int x;\n+    int b;\n     int c;\n }\n");
+
+    QTest::newRow("deleted lines sharing a prefix")
+        << QString("#pragma once\n#include <a>\n#include <b>\n#include <c>\n")
+        << QString("#pragma once\n#include <c>\n")
+        << QString(" #pragma once\n-#include <a>\n-#include <b>\n #include <c>\n");
+
+    QTest::newRow("added lines sharing a prefix")
+        << QString("#pragma once\n#include <c>\n")
+        << QString("#pragma once\n#include <a>\n#include <b>\n#include <c>\n")
+        << QString(" #pragma once\n+#include <a>\n+#include <b>\n #include <c>\n");
+
+    QTest::newRow("deleted line after a changed line")
+        << QString("a\nx#include <b>\n#include <c>\n")
+        << QString("a\n#include <c>\n")
+        << QString(" a\n-x#include <b>\n #include <c>\n");
+
+    QTest::newRow("deleted blank lines")
+        << QString("a\n\n\n\nb\n")
+        << QString("a\n\nb\n")
+        << QString(" a\n \n-\n-\n b\n");
+
+    QString crlfBaseline = colorText(rgba, true);
+    QString crlfEditor = colorText(rgb, false);
+    QString crlfDeletion = deletion;
+    crlfBaseline.replace("\n", "\r\n");
+    crlfEditor.replace("\n", "\r\n");
+    crlfDeletion.replace("\n", "\r\n");
+    QTest::newRow("deletions with CRLF line endings") << crlfBaseline << crlfEditor << crlfDeletion;
+
+    QTest::newRow("separate deletions")
+        << colorText({"m_red", "m_hue", "m_green", "m_blue", "m_alpha"}, false)
+        << colorText({"m_red", "m_green", "m_blue"}, false)
+        << QString("     int m_red;\n-    int m_hue;\n     int m_green;\n"
+                   "     int m_blue;\n-    int m_alpha;\n };\n");
+}
+
+void tst_InlineDiff::onlyDeletionsOrAdditions()
+{
+    QFETCH(QString, baseline);
+    QFETCH(QString, editor);
+    QFETCH(QString, expected);
+
+    for (const bool patience : {false, true}) {
+        const QString patch = patchFor(baseline, editor, patience);
+        QVERIFY2(patch.endsWith(expected), qPrintable(patch));
+    }
 }
 
 void tst_InlineDiff::patienceAnchorsUniqueLines()

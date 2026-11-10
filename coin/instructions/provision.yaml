@@ -8,8 +8,9 @@ instructions:
         command: >-
             {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/install_qt.py
                 --qt-path {{.BuildDir}}/qt_install_dir
-                --base-url {{.Env.QTC_QT_BASE_URL}}
+                --base-url {{.Env.QTC_QT_BASE_PREFIX}}qt/{{.Env.QTC_QT_VERSION}}{{.Env.QTC_QT_BASE_POSTFIX}}
                 --base-url-postfix={{.Env.QTC_QT_POSTFIX}}
+                --module-base-url qtwebengine={{.Env.QTC_QT_BASE_PREFIX}}{{.Env.QTC_QTWEBENGINE_DIR}}/{{.Env.QTC_QT_VERSION}}{{.Env.QTC_QT_BASE_POSTFIX}}
                 --icu7z {{.Env.QTC_ICU_URL}}
                 {{.Env.QTC_QT_MODULES}}
         executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
@@ -71,8 +72,9 @@ instructions:
         command: >-
             {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/install_qt.py
                 --qt-path {{.BuildDir}}/qt_install_dir
-                --base-url {{.Env.QTC_QT_BASE_URL}}
+                --base-url {{.Env.QTC_QT_BASE_PREFIX}}qt/{{.Env.QTC_QT_VERSION}}{{.Env.QTC_QT_BASE_POSTFIX}}
                 --base-url-postfix={{.Env.QTC_QT_POSTFIX}}
+                --module-base-url qtwebengine={{.Env.QTC_QT_BASE_PREFIX}}{{.Env.QTC_QTWEBENGINE_DIR}}/{{.Env.QTC_QT_VERSION}}{{.Env.QTC_QT_BASE_POSTFIX}}
                 {{.Env.QTC_QT_MODULES}}"
         executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
         maxTimeInSeconds: 3600
@@ -118,8 +120,9 @@ instructions:
         command: >-
             {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}\qt-creator\qt-creator\scripts\install_qt.py
                 --qt-path {{.BuildDir}}/qt_install_dir
-                --base-url {{.Env.QTC_QT_BASE_URL}}
+                --base-url {{.Env.QTC_QT_BASE_PREFIX}}qt/{{.Env.QTC_QT_VERSION}}{{.Env.QTC_QT_BASE_POSTFIX}}
                 --base-url-postfix={{.Env.QTC_QT_POSTFIX}}
+                --module-base-url qtwebengine={{.Env.QTC_QT_BASE_PREFIX}}{{.Env.QTC_QTWEBENGINE_DIR}}/{{.Env.QTC_QT_VERSION}}{{.Env.QTC_QT_BASE_POSTFIX}}
                 {{.Env.QTC_QT_MODULES}}
         executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
         maxTimeInSeconds: 3600
@@ -228,7 +231,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
       - type: ExecuteCommand
-        command: "{{.Env.PYTHON_EXECUTABLE}} -m venv {{.AgentWorkingDir}}\\build\\creator_venv"
+        command: "{{.Env.SBOM_PYTHON_INTERP_PATH}} -m venv {{.AgentWorkingDir}}\\build\\creator_venv"
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to create Python virtual environment, check logs."

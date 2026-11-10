@@ -372,14 +372,18 @@ PerspectivesView::~PerspectivesView()
     savePersistentSettings();
 
     // Delete inner toolbars before the main window so that tracked toolbar
-    // widgets (which may be value members in plugin-owned objects) are
-    // unparented before Qt's parent-child deletion runs.
+    // widgets and dock widgets (which may be value members in plugin-owned
+    // objects) are unparented before Qt's parent-child deletion runs.
     for (const QPointer<Perspective> &p : std::as_const(d->m_perspectives)) {
         if (!p)
             continue;
         for (const QPointer<QWidget> &w : std::as_const(p->d->m_toolBarWidgets)) {
             if (w)
                 w->setParent(nullptr);
+        }
+        for (const DockOperation &op : std::as_const(p->d->m_dockOperations)) {
+            if (op.widget)
+                op.widget->setParent(nullptr);
         }
         delete p->d->m_innerToolBar;
         p->d->m_innerToolBar = nullptr;

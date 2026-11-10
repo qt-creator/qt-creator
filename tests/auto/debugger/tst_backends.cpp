@@ -65,6 +65,9 @@ static Q_LOGGING_CATEGORY(engineLog, "qtc.dbg.tst_backends", QtWarningMsg)
 static constexpr std::chrono::seconds s_timeout{5};
 static constexpr std::chrono::seconds s_warmUpTimeout{30};
 static constexpr std::chrono::seconds s_qmlStartupTimeout{15};
+// Running a full Qt Quick process under a native debugger to its first C++
+// breakpoint includes loading the debug info of the whole Qt Quick stack.
+static constexpr std::chrono::seconds s_nativeQmlStartupTimeout{60};
 // Splicing the interpreter's frames into the native ones on a full Qt Quick
 // process is the slowest single answer the suite waits for, and slower again
 // while the rest of it runs beside this row.
@@ -17266,7 +17269,8 @@ void tst_backends::continuesPastNativeMixedCppBreakpoint()
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
                              || debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
-                             || debuggerBackend->contains(InferiorEvent::EngineRunFailed), s_qmlStartupTimeout);
+                             || debuggerBackend->contains(InferiorEvent::EngineRunFailed),
+                             s_nativeQmlStartupTimeout);
     QVERIFY(debuggerBackend->contains(InferiorEvent::SpontaneousStop));
 
     debuggerBackend->clearEvents();
@@ -17319,7 +17323,8 @@ void tst_backends::staysStoppedWithoutExplicitContinue()
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
                              || debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
-                             || debuggerBackend->contains(InferiorEvent::EngineRunFailed), s_qmlStartupTimeout);
+                             || debuggerBackend->contains(InferiorEvent::EngineRunFailed),
+                             s_nativeQmlStartupTimeout);
     QVERIFY(debuggerBackend->contains(InferiorEvent::SpontaneousStop));
 
     debuggerBackend->clearEvents();

@@ -276,6 +276,7 @@ class BinEditorWidget final : public QAbstractScrollArea
 
 public:
     explicit BinEditorWidget(const std::shared_ptr<BinEditorDocument> &doc);
+    ~BinEditorWidget() final { delete m_toolBar; }
     void init();
 
     quint64 baseAddress() const { return m_doc->m_baseAddr; }

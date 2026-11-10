@@ -104,7 +104,7 @@ TerminalPane::TerminalPane(QObject *parent)
     m_variablesButton->setText("%{...}");
     m_variablesButton->setToolTip(Tr::tr("Insert Macro Variable"));
     m_variablesButton->setPopupMode(QToolButton::InstantPopup);
-    QMenu *variableMenu = new QMenu();
+    QMenu *variableMenu = new QMenu(&m_tabWidget);
     variableMenu->setToolTipsVisible(true);
 
     m_variablesButton->setMenu(variableMenu);
