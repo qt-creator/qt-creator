@@ -587,6 +587,15 @@ class Dumper(DumperBase):
 
     def nativeStructAlignment(self, nativeType):
         #DumperBase.warn("NATIVE ALIGN FOR %s" % nativeType.name)
+        # Member pointers have no fields() to recurse into, and gdb's alignof
+        # gives the size of a method pointer, not its ABI alignment.
+        if nativeType.code in (gdb.TYPE_CODE_METHODPTR, gdb.TYPE_CODE_MEMBERPTR):
+            return self.ptrSize()
+        if nativeType.code not in (gdb.TYPE_CODE_STRUCT, gdb.TYPE_CODE_UNION):
+            try:
+                return nativeType.alignof or self.ptrSize()
+            except Exception:
+                return self.ptrSize()
         def handleItem(nativeFieldType, align):
             a = self.type_alignment(self.from_native_type(nativeFieldType))
             return a if a > align else align
