@@ -65,6 +65,8 @@ public:
     // Where the target's own libraries are, for an inferior built for another
     // system. A device's symbols take precedence where there are any.
     Utils::FilePath sysroot;
+    // The binary with the debug information, empty for the launched executable.
+    Utils::FilePath symbolFile;
     // Whom the debugger itself runs as, empty for the current user.
     QString runAsUser;
     // A script to run instead of the startup commands.

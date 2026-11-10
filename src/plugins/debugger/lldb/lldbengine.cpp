@@ -1403,6 +1403,7 @@ static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
         .platform = rp.lldbPlatform(),
         .useJitLoader = rp.toolChainAbi().osFlavor() != ProjectExplorer::Abi::AndroidLinuxFlavor,
         .sysroot = rp.sysRoot(),
+        .symbolFile = rp.symbolFile(),
         .runAsUser = rp.runAsUser(),
         .startScript = rp.overrideStartScript(),
         .startupCommands = Utils::filtered(

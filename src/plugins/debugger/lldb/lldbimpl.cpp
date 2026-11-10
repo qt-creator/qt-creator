@@ -468,7 +468,8 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
             cmd.arg("workingdirectory", inferiorRunData->workingDirectory.path());
             addLaunchArguments(cmd, inferiorRunData->command.arguments(),
                                inferiorRunData->environment, HostOsInfo::hostOs());
-            cmd.arg("symbolfile", executable.path());
+            cmd.arg("symbolfile", m_startData.symbolFile.isEmpty()
+                                      ? executable.path() : m_startData.symbolFile.path());
         } else if (const auto *attachData
                        = std::get_if<AttachToProcessData>(&m_startData.inferiorStartData)) {
             cmd.arg("executable", QString());

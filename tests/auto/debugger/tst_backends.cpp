@@ -2512,6 +2512,8 @@ private slots:
     void explainsWhyLldbDidNotStart();
     void reportsAFailedLldbDetach_data() { addBackendRows(); }
     void reportsAFailedLldbDetach();
+    void launchesWithTheSymbolFile_data() { addBackendRows(); }
+    void launchesWithTheSymbolFile();
     void readsTheLocalsThroughACdbServer_data() { addBackendRows(); }
     void readsTheLocalsThroughACdbServer();
     void reportsARemoteServerThatGoesAway_data() { addBackendRows(); }
@@ -18597,6 +18599,73 @@ void tst_backends::reportsAFailedLldbDetach()
     // Reported in the same answer, so a detach reported anyway is there by now.
     QVERIFY(debuggerBackend->inferiorResults().isEmpty());
 
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+}
+
+// The debug information comes from the symbol file, so a breakpoint on a source
+// line only resolves when lldb gets that one rather than the stripped executable.
+void tst_backends::launchesWithTheSymbolFile()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Lldb)
+        QSKIP("Only the lldb backend is constructed directly here.");
+    if (!HostOsInfo::isLinuxHost())
+        QSKIP("The executable is stripped with objcopy, which needs an ELF binary.");
+    const FilePath objcopy = FilePath("objcopy").searchInPath();
+    if (!objcopy.isExecutableFile())
+        QSKIP("No objcopy to strip the executable with.");
+
+    const InferiorTestData testData = inferiorTestData(backend);
+    TemporaryDirectory scratch("lldb-symbolfile-XXXXXX");
+    const FilePath stripped = scratch.filePath(testData.executable.fileName());
+    Process strip;
+    strip.setCommand({objcopy, {"--strip-debug", testData.executable.nativePath(),
+                                stripped.nativePath()}});
+    strip.runBlocking();
+    QCOMPARE(strip.result(), ProcessResult::FinishedWithSuccess);
+    QVERIFY2(Utils::ElfReader(stripped).readHeaders().indexOf(".debug_info") == -1,
+             "the stripped copy still carries debug information");
+    QVERIFY(stripped.setPermissions(testData.executable.permissions()));
+
+    auto debuggerBackend = std::make_unique<DebuggerBackend>(
+        std::make_unique<LldbImpl>(LldbImplStartData{
+            .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                              Environment::systemEnvironment()},
+            .inferiorStartData = ProcessRunData{{stripped, {}}, {},
+                                                Environment::systemEnvironment()},
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .symbolFile = testData.executable}));
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
+            [engine, testData](InferiorEvent event) {
+        if (event != InferiorEvent::EngineSetupOk)
+            return;
+        BreakpointChangeRequest request;
+        request.op = BreakpointOp::Insert;
+        request.requestId = 1;
+        request.params.type = BreakpointByFileAndLine;
+        request.params.fileName = testData.source;
+        request.params.textPosition.line = testData.breakpointLine;
+        request.params.enabled = true;
+        engine->changeBreakpoint(request);
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                                 || !debuggerBackend->inferiorResults().isEmpty()
+                                 || debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
+                                 || debuggerBackend->contains(InferiorEvent::EngineRunFailed),
+                             startupTimeout(backend));
+    QVERIFY2(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+             "the breakpoint did not resolve without the symbol file's debug information");
+    QTRY_COMPARE_WITH_TIMEOUT(debuggerBackend->stoppedLine(), testData.breakpointLine, s_timeout);
+
+    debuggerBackend->clearEvents();
+    engine->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
     engine->shutdownEngine();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
                              s_timeout);
