@@ -43,6 +43,10 @@ static constexpr int s_timeoutMs = 60000;
 // gets. A call that is answered at all is answered well within it.
 static constexpr std::chrono::seconds s_shortInvokeTimeout{1};
 
+// The log of a backend whose engine could not be set up, or nothing. Nothing
+// a test waits for comes after that, so the wait ends there.
+static QString setupFailure();
+
 // Looks again after every event rather than in the steps of QTRY_*, which
 // sleep 10 ms between rounds of events and look only every 50 ms. Over the
 // hundreds of round trips to the virtual machine, those steps were most of
@@ -53,7 +57,7 @@ static bool waitFor(const std::function<bool()> &condition)
     QTimer wakeUp;
     wakeUp.setSingleShot(true);
     while (!condition()) {
-        if (deadline.hasExpired())
+        if (deadline.hasExpired() || !setupFailure().isEmpty())
             return false;
         // A coarse timer may fire early, so it is re-armed from the deadline.
         if (!wakeUp.isActive())
@@ -66,13 +70,21 @@ static bool waitFor(const std::function<bool()> &condition)
 
 #define WAIT_VERIFY(expr) \
     do { \
-        waitFor([&] { return bool(expr); }); \
+        if (!waitFor([&] { return bool(expr); })) { \
+            const QString failure = setupFailure(); \
+            if (!failure.isEmpty()) \
+                QFAIL(qPrintable(failure)); \
+        } \
         QVERIFY(expr); \
     } while (false)
 
 #define WAIT_COMPARE(actual, expected) \
     do { \
-        waitFor([&] { return (actual) == (expected); }); \
+        if (!waitFor([&] { return (actual) == (expected); })) { \
+            const QString failure = setupFailure(); \
+            if (!failure.isEmpty()) \
+                QFAIL(qPrintable(failure)); \
+        } \
         QCOMPARE(actual, expected); \
     } while (false)
 
@@ -86,6 +98,7 @@ public:
     explicit DebuggerBackend(const JdwpImplStartData &startData)
         : m_engine(new JdwpImpl(startData))
     {
+        liveBackends().append(this);
         connect(m_engine.get(), &DebuggerEngineInterface::message, this,
                 [this](const QString &text, int channel, int) {
             if (channel == Debugger::AppOutput)
@@ -125,7 +138,17 @@ public:
         });
     }
 
-    ~DebuggerBackend() override { m_engine->disconnect(); }
+    ~DebuggerBackend() override
+    {
+        liveBackends().removeOne(this);
+        m_engine->disconnect();
+    }
+
+    static QList<const DebuggerBackend *> &liveBackends()
+    {
+        static QList<const DebuggerBackend *> backends;
+        return backends;
+    }
 
     void addInitial(const BreakpointParameters &params) { m_initialBreakpoints.append(params); }
 
@@ -327,6 +350,15 @@ private:
     int m_threadsCreated = 0;
     quint64 m_nextRequestId = 1;
 };
+
+static QString setupFailure()
+{
+    for (const DebuggerBackend *backend : std::as_const(DebuggerBackend::liveBackends())) {
+        if (backend->contains(InferiorEvent::EngineSetupFailed))
+            return "The engine could not be set up:\n" + backend->log();
+    }
+    return {};
+}
 
 // An agent that answers what a session starts with, hangs up on the command it
 // was told about instead of answering it, and says what else it was asked.
