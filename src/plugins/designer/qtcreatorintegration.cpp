@@ -49,7 +49,6 @@
 #include <QDesignerFormEditorInterface>
 #include <QDebug>
 #include <QDir>
-#include <QFileInfo>
 #include <QLibraryInfo>
 #include <QLoggingCategory>
 #include <QMessageBox>
@@ -619,9 +618,8 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     // The idea is that the .pro file knows if the .ui files is inside, and the .pro file knows it will
     // be generating the ui_<>.h file for it, and the .pro file knows what the generated file's name and its absolute path will be.
     // So we should somehow get that info from project manager (?)
-    const QFileInfo fi = currentUiFile.toFileInfo();
-    const QString uiFolder = fi.absolutePath();
-    const QString uicedName = "ui_" + fi.completeBaseName() + ".h";
+    const QString uiFolder = currentUiFile.absolutePath().toUrlishString();
+    const QString uicedName = "ui_" + currentUiFile.completeBaseName() + ".h";
 
     // Retrieve code model snapshot restricted to project of ui file or the working copy.
     Snapshot docTable = CppEditor::CppModelManager::snapshot();
