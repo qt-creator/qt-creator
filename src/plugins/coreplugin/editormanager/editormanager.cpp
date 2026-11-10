@@ -391,12 +391,12 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent)
 EditorManagerPrivate::~EditorManagerPrivate()
 {
     // close all extra windows
-    for (int i = 0; i < m_editorAreas.size(); ++i) {
-        EditorArea *area = m_editorAreas.at(i);
+    while (!m_editorAreas.isEmpty()) {
+        // An area must not be found anymore while it is being destroyed.
+        EditorArea *area = m_editorAreas.takeFirst();
         disconnect(area, &QObject::destroyed, this, &EditorManagerPrivate::editorAreaDestroyed);
         delete area;
     }
-    m_editorAreas.clear();
 
     DocumentModel::destroy();
     d = nullptr;
