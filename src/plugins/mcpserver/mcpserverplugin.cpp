@@ -1109,6 +1109,7 @@ McpServerPluginSettings::McpServerPluginSettings(McpServerPlugin *plugin)
 
     setSettingsGroup("McpServer");
 
+    enabled.setSettingsKey("Enabled");
     enabled.setLabel(Tr::tr("Enable MCP Server"));
     enabled.setDefaultValue(true);
 
