@@ -18,7 +18,6 @@
 
 #include <cplusplus/LookupContext.h>
 
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
@@ -48,6 +47,7 @@ using CppEditor::Tests::SourceFilesRefreshGuard;
 using CppEditor::Tests::TemporaryCopiedDir;
 using CppEditor::Tests::TemporaryDir;
 using CppEditor::Tests::TestCase;
+using CppEditor::Tests::kitWithQt;
 using CppEditor::Internal::Tests::VerifyCleanCppModelManager;
 
 Q_DECLARE_METATYPE(CppEditor::ProjectFile)
@@ -1140,11 +1140,9 @@ void ModelManagerTest::testRenameIncludes()
     if (!copyResult)
         qDebug() << copyResult.error();
     QVERIFY(copyResult);
-    Kit * const kit  = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
-        return k->isValid() && !k->hasWarning() && k->value("QtSupport.QtInformation").isValid();
-    });
+    Kit * const kit = kitWithQt();
     if (!kit)
-        QSKIP("The test requires at least one valid kit with a valid Qt");
+        QSKIP("The test requires a valid kit with a C++ compiler and a Qt");
     const FilePath projectFile = projectDir.pathAppended(projectDir.fileName() + ".pro");
     SourceFilesRefreshGuard refreshGuard;
     ProjectOpenerAndCloser projectMgr;
@@ -1215,11 +1213,9 @@ void ModelManagerTest::testMoveIncludingSources()
     if (!copyResult)
         qDebug() << copyResult.error();
     QVERIFY(copyResult);
-    Kit * const kit  = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
-        return k->isValid() && !k->hasWarning() && k->value("QtSupport.QtInformation").isValid();
-    });
+    Kit * const kit = kitWithQt();
     if (!kit)
-        QSKIP("The test requires at least one valid kit with a valid Qt");
+        QSKIP("The test requires a valid kit with a C++ compiler and a Qt");
     SourceFilesRefreshGuard refreshGuard;
     const FilePath projectFile = projectDir.pathAppended(projectDir.fileName() + ".pro");
     ProjectOpenerAndCloser projectMgr;
@@ -1605,11 +1601,9 @@ void ModelManagerTest::testOptionalIndexing()
     if (!copyResult)
         qDebug() << copyResult.error();
     QVERIFY(copyResult);
-    Kit * const kit  = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
-        return k->isValid() && !k->hasWarning() && k->value("QtSupport.QtInformation").isValid();
-    });
+    Kit * const kit = kitWithQt();
     if (!kit)
-        QSKIP("The test requires at least one valid kit with a valid Qt");
+        QSKIP("The test requires a valid kit with a C++ compiler and a Qt");
     const FilePath p1ProjectFile = projectDir.pathAppended("lib1.pro");
     auto projectMgr = std::make_unique<ProjectOpenerAndCloser>();
     SourceFilesRefreshGuard refreshGuard;
@@ -1771,13 +1765,6 @@ void ModelManagerTest::testAFileSeveralProjectsListIsReadWithOneOfThem()
     QCOMPARE(parts.first()->topLevelProject, projectDir / "p0.pro");
 }
 
-static Kit *kitWithQt()
-{
-    return Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
-        return k->isValid() && k->value("QtSupport.QtInformation").isValid();
-    });
-}
-
 void ModelManagerTest::testAHeaderAppearingBetweenSessionsIsNoticed_data()
 {
     QTest::addColumn<bool>("listedInProject");
@@ -1793,7 +1780,7 @@ void ModelManagerTest::testAHeaderAppearingBetweenSessionsIsNoticed()
 
     Kit * const kit = kitWithQt();
     if (!kit)
-        QSKIP("The test requires at least one valid kit with a valid Qt");
+        QSKIP("The test requires a valid kit with a C++ compiler and a Qt");
 
     TemporaryDir tmpDir;
     QVERIFY(tmpDir.isValid());
@@ -1834,7 +1821,7 @@ void ModelManagerTest::testAHeaderShadowingAnotherBetweenSessionsIsNoticed()
 {
     Kit * const kit = kitWithQt();
     if (!kit)
-        QSKIP("The test requires at least one valid kit with a valid Qt");
+        QSKIP("The test requires a valid kit with a C++ compiler and a Qt");
 
     TemporaryDir tmpDir;
     QVERIFY(tmpDir.isValid());

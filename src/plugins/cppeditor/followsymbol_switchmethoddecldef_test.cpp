@@ -11,7 +11,6 @@
 #include "cppvirtualfunctionassistprovider.h"
 #include "cppvirtualfunctionproposalitem.h"
 
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <texteditor/codeassist/assistinterface.h>
@@ -510,11 +509,9 @@ void FollowSymbolTest::initTestCase()
     // Qt is not actually required for the tests, but we need it for consistency with
     // configureAsExampleProject().
     // FIXME: Make configureAsExampleProject() work with non-Qt kits.
-    F2TestCase::m_testKit = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
-        return k->isValid() && !k->hasWarning() && k->value("QtSupport.QtInformation").isValid();
-    });
+    F2TestCase::m_testKit = CppEditor::Tests::kitWithQt();
     if (!F2TestCase::m_testKit)
-        QSKIP("This test requires at least one kit to be present");
+        QSKIP("The test requires a valid kit with a C++ compiler and a Qt");
 }
 
 void FollowSymbolTest::testSwitchMethodDeclDef_data()

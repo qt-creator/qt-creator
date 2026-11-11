@@ -27,7 +27,6 @@
 #ifdef WITH_TESTS
 #include "../cpptoolstestcase.h"
 #include <coreplugin/editormanager/editormanager.h>
-#include <projectexplorer/kitmanager.h>
 #include <texteditor/textdocument.h>
 #include <QTest>
 #endif // WITH_TESTS
@@ -625,11 +624,9 @@ private slots:
         using namespace TextEditor;
 
         // Set up project.
-        Kit * const kit  = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
-            return k->isValid() && !k->hasWarning() && k->value("QtSupport.QtInformation").isValid();
-        });
+        Kit * const kit = CppEditor::Tests::kitWithQt();
         if (!kit)
-            QSKIP("The test requires at least one valid kit with a valid Qt");
+            QSKIP("The test requires a valid kit with a C++ compiler and a Qt");
         const auto projectDir = std::make_unique<TemporaryCopiedDir>(
             ":/cppeditor/testcases/move-class/" + projectName);
         SourceFilesRefreshGuard refreshGuard;

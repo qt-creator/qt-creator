@@ -10,7 +10,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <texteditor/textdocument.h>
@@ -91,11 +90,9 @@ private slots:
     void test()
     {
         // Set up project.
-        Kit * const kit  = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
-            return k->isValid() && !k->hasWarning() && k->value("QtSupport.QtInformation").isValid();
-        });
+        Kit * const kit = CppEditor::Tests::kitWithQt();
         if (!kit)
-            QSKIP("The test requires at least one valid kit with a valid Qt");
+            QSKIP("The test requires a valid kit with a C++ compiler and a Qt");
         const auto projectDir = std::make_unique<TemporaryCopiedDir>(
             ":/cppeditor/testcases/add-module-from-include");
         SourceFilesRefreshGuard refreshGuard;

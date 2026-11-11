@@ -16,7 +16,6 @@
 #include <cppeditor/cpptoolstestcase.h>
 
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 
 #include <utils/algorithm.h>
@@ -420,11 +419,9 @@ private slots:
 
 void ClassViewParserTest::testASecondSessionShowsTheSameClasses()
 {
-    Kit * const kit = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
-        return k->isValid() && !k->hasWarning() && k->value("QtSupport.QtInformation").isValid();
-    });
+    Kit * const kit = CppEditor::Tests::kitWithQt();
     if (!kit)
-        QSKIP("The test requires at least one valid kit with a valid Qt");
+        QSKIP("The test requires a valid kit with a C++ compiler and a Qt");
 
     CppEditor::Tests::TemporaryDir tmpDir;
     QVERIFY(tmpDir.isValid());

@@ -18,9 +18,11 @@
 #include <cplusplus/CppDocument.h>
 
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/codeassist/iassistproposalmodel.h>
@@ -31,6 +33,7 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/codestylepool.h>
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -508,6 +511,25 @@ int clangdIndexingTimeout()
     if (!isConversionOk)
         return Utils::HostOsInfo::isWindowsHost() ? 20000 : 10000;
     return intervalAsInt;
+}
+
+static Kit *kitWithCxxCompilerAnd(Id aspectId)
+{
+    return Utils::findOr(KitManager::kits(), nullptr, [aspectId](const Kit *k) {
+        return k->isValid() && ToolchainKitAspect::cxxToolchain(k) && k->value(aspectId).isValid();
+    });
+}
+
+// The first valid kit with a C++ compiler and a Qt, or null.
+Kit *kitWithQt()
+{
+    return kitWithCxxCompilerAnd("QtSupport.QtInformation");
+}
+
+// The first valid kit with a C++ compiler and CMake, or null.
+Kit *kitWithCMake()
+{
+    return kitWithCxxCompilerAnd("CMakeProjectManager.CMakeKitInformation");
 }
 
 // The clangd settings live in ClangCodeModel, which sets these hooks.

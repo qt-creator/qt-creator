@@ -104,6 +104,8 @@ namespace Tests {
 int CPPEDITOR_EXPORT clangdIndexingTimeout();
 CPPEDITOR_EXPORT std::function<bool(const Utils::FilePath &clangd)> &setClangdFilePathHook();
 CPPEDITOR_EXPORT std::function<bool(bool use)> &setUseClangdHook();
+CPPEDITOR_EXPORT ProjectExplorer::Kit *kitWithQt();
+CPPEDITOR_EXPORT ProjectExplorer::Kit *kitWithCMake();
 
 template <typename Signal> inline bool waitForSignalOrTimeout(
         const typename QtPrivate::FunctionPointer<Signal>::Object *sender, Signal signal,

@@ -26,7 +26,6 @@
 #ifdef WITH_TESTS
 #include "../cpptoolstestcase.h"
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitmanager.h>
 #include <utils/mimeutils.h>
 #include <QTemporaryDir>
 #include <QTest>
@@ -537,12 +536,9 @@ private slots:
         // configure it.
         if (!ProjectManager::canOpenProjectForMimeType(Utils::mimeTypeForFile(projectFilePath)))
             QSKIP("The test requires the CMake project manager to be loaded");
-        Kit * const kit = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
-            return k->isValid() && !k->hasWarning()
-                   && k->value("CMakeProjectManager.CMakeKitInformation").isValid();
-        });
+        Kit * const kit = CppEditor::Tests::kitWithCMake();
         if (!kit)
-            QSKIP("The test requires at least one valid kit with a CMake tool");
+            QSKIP("The test requires a valid kit with a C++ compiler and a CMake tool");
 
         SourceFilesRefreshGuard refreshGuard;
         ProjectOpenerAndCloser projectMgr;
