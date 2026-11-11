@@ -48,6 +48,10 @@ private slots:
     void testAHeaderShadowingAnotherBetweenSessionsIsNoticed();
     void testAHeaderAppearingReachesWhoeverIncludesIt();
     void testAHeaderAppearingDoesNotReviveUnreachableFiles();
+    void testASecondSessionsSymbolSearchFindsTheSameSymbols();
+    void testASecondSessionFindsTheSameDefinition();
+    void testAFileChangedInASecondSessionIsIndexedAgain();
+    void testASwitchedConfigurationIsNotAnsweredWithTheOldOne();
 };
 
 } // namespace CppEditor::Internal

@@ -5,12 +5,14 @@
 
 #include "baseeditordocumentprocessor.h"
 #include "builtineditordocumentparser.h"
+#include "cppindexingsupport.h"
 #include "cppindexqueries.h"
 #include "cpplocatordata.h"
 #include "cpptoolstestcase.h"
 #include "editordocumenthandle.h"
 #include "modelmanagertesthelper.h"
 #include "projectinfo.h"
+#include "symbolfinder.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -18,14 +20,20 @@
 
 #include <cplusplus/LookupContext.h>
 
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/target.h>
 
+#include <utils/async.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
+#include <QDateTime>
 #include <QDebug>
+#include <QFile>
 #include <QScopeGuard>
 #include <QTest>
 
@@ -1931,6 +1939,258 @@ void ModelManagerTest::testAHeaderAppearingDoesNotReviveUnreachableFiles()
 
     QCOMPARE(refreshed, QSet<FilePath>{generated});
     QVERIFY(!CppModelManager::snapshot().document(helperHeader));
+}
+
+void ModelManagerTest::testASecondSessionsSymbolSearchFindsTheSameSymbols()
+{
+    Kit * const kit = kitWithQt();
+    if (!kit)
+        QSKIP("The test requires a valid kit with a C++ compiler and a Qt");
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    QVERIFY((projectDir / "outside").ensureWritableDir());
+    const FilePath header = projectDir / "outside/outside.h";
+    const FilePath source = projectDir / "searched.cpp";
+    QVERIFY(header.writeFileContents("class NoProjectListsThis {};\n"));
+    QVERIFY(source.writeFileContents(
+        "#include <outside.h>\n"
+        "class SearchedForClass {};\nint searchedForVariable;\nint main() { return 0; }\n"));
+    QVERIFY((projectDir / "p.pro").writeFileContents(
+        "TEMPLATE = app\nTARGET = p\nINCLUDEPATH += outside\nSOURCES = searched.cpp\n"));
+
+    {
+        SourceFilesRefreshGuard refreshGuard;
+        ProjectOpenerAndCloser projectMgr;
+        QVERIFY(projectMgr.open(projectDir / "p.pro", kit));
+        QVERIFY(refreshGuard.wait());
+    }
+
+    // The second session starts without the documents of the first one.
+    QVERIFY(!CppModelManager::snapshot().contains(source));
+
+    SourceFilesRefreshGuard refreshGuard;
+    ProjectOpenerAndCloser projectMgr;
+    QVERIFY(projectMgr.open(projectDir / "p.pro", kit));
+    QVERIFY(refreshGuard.wait());
+
+    const auto foundIn = [](const FilePath &file, const QString &text, SymbolTypes types) {
+        const SearchParameters parameters{text, {}, types, SearchProjectsOnly};
+        QFuture<SearchResultItem> search = Utils::asyncRun(&searchForSymbols,
+                                                           CppModelManager::snapshot(),
+                                                           parameters,
+                                                           QSet<FilePath>{file});
+        search.waitForFinished();
+        return Utils::anyOf(search.results(), [&text](const SearchResultItem &item) {
+            return item.lineText().contains(text);
+        });
+    };
+    const auto found = [&foundIn, &source](const QString &text, SymbolTypes types) {
+        return foundIn(source, text, types);
+    };
+
+    QVERIFY2(foundIn(header, "NoProjectListsThis",
+                     SymbolTypes(SymbolType::Classes) | SymbolType::Declarations),
+             "a header no project lists was left out of a search for declarations");
+    QVERIFY2(found("SearchedForClass", SymbolType::Classes),
+             "a class in a project file was not found");
+    QVERIFY2(!found("SearchedForClass", SymbolType::Functions),
+             "the search answered with a kind that was not asked for");
+    QVERIFY2(found("searchedForVariable", SymbolType::Declarations),
+             "a declaration in a project file was not found");
+}
+
+void ModelManagerTest::testASecondSessionFindsTheSameDefinition()
+{
+    Kit * const kit = kitWithQt();
+    if (!kit)
+        QSKIP("The test requires a valid kit with a C++ compiler and a Qt");
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath header = projectDir / "defined_elsewhere.h";
+    const FilePath source = projectDir / "defined_elsewhere.cpp";
+    QVERIFY(header.writeFileContents("class DefinedElsewhere { public: void theFunction(); };\n"));
+    QVERIFY(source.writeFileContents("#include \"defined_elsewhere.h\"\n"
+                                     "void DefinedElsewhere::theFunction() {}\n"));
+    QVERIFY((projectDir / "p.pro").writeFileContents(
+        "TEMPLATE = app\nTARGET = p\nHEADERS = defined_elsewhere.h\n"
+        "SOURCES = defined_elsewhere.cpp\n"));
+
+    {
+        SourceFilesRefreshGuard refreshGuard;
+        ProjectOpenerAndCloser projectMgr;
+        QVERIFY(projectMgr.open(projectDir / "p.pro", kit));
+        QVERIFY(refreshGuard.wait());
+    }
+
+    // The second session starts without the documents of the first one.
+    QVERIFY(!CppModelManager::snapshot().contains(source));
+
+    SourceFilesRefreshGuard refreshGuard;
+    ProjectOpenerAndCloser projectMgr;
+    QVERIFY(projectMgr.open(projectDir / "p.pro", kit));
+    QVERIFY(refreshGuard.wait());
+
+    bool indexKnowsTheDefinition = false;
+    for (const IndexItem::Ptr &entry : CppModelManager::locatorData()->findSymbols(
+             IndexItem::Function, "theFunction")) {
+        if (entry->isFunctionDefinition() && entry->filePath() == source)
+            indexKnowsTheDefinition = true;
+    }
+    QVERIFY2(indexKnowsTheDefinition, "the index lost the definition across the two sessions");
+
+    const CPlusPlus::Document::Ptr headerDocument = CppModelManager::snapshot().document(header);
+    QVERIFY(headerDocument);
+    CPlusPlus::Symbol *declaration = nullptr;
+    for (int i = 0; i < headerDocument->globalSymbolCount(); ++i) {
+        CPlusPlus::Class * const klass = headerDocument->globalSymbolAt(i)->asClass();
+        if (!klass)
+            continue;
+        for (int j = 0; j < klass->memberCount(); ++j) {
+            if (klass->memberAt(j)->type()->asFunctionType())
+                declaration = klass->memberAt(j);
+        }
+    }
+    QVERIFY2(declaration, "no declaration to look for a definition of");
+
+    SymbolFinder finder;
+    CPlusPlus::Symbol * const definition
+        = finder.findMatchingDefinition(declaration, CppModelManager::snapshot(), false);
+    QVERIFY2(definition, "the definition was not found");
+    QCOMPARE(definition->filePath(), source);
+}
+
+void ModelManagerTest::testAFileChangedInASecondSessionIsIndexedAgain()
+{
+    Kit * const kit = kitWithQt();
+    if (!kit)
+        QSKIP("The test requires a valid kit with a C++ compiler and a Qt");
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath source = projectDir / "pulled.cpp";
+    QVERIFY(source.writeFileContents("class BeforeThePull {};\nint main() { return 0; }\n"));
+    QVERIFY((projectDir / "p.pro").writeFileContents(
+        "TEMPLATE = app\nTARGET = p\nSOURCES = pulled.cpp\n"));
+
+    // Backdated, or the change below could get the same time stamp on a coarse file system.
+    {
+        QFile file(source.toFSPathString());
+        QVERIFY(file.open(QIODevice::ReadWrite));
+        QVERIFY(file.setFileTime(QDateTime(QDate(2000, 1, 1), QTime(0, 0)),
+                                 QFileDevice::FileModificationTime));
+    }
+
+    CppLocatorData * const locatorData = CppModelManager::locatorData();
+    const auto indexHas = [locatorData](const QString &name) {
+        return !locatorData->findSymbols(IndexItem::Class, name).isEmpty();
+    };
+
+    {
+        SourceFilesRefreshGuard refreshGuard;
+        ProjectOpenerAndCloser projectMgr;
+        QVERIFY(projectMgr.open(projectDir / "p.pro", kit));
+        QVERIFY(refreshGuard.wait());
+    }
+
+    // The second session starts without the documents of the first one.
+    QVERIFY(!CppModelManager::snapshot().contains(source));
+
+    SourceFilesRefreshGuard refreshGuard;
+    ProjectOpenerAndCloser projectMgr;
+    QVERIFY(projectMgr.open(projectDir / "p.pro", kit));
+    QVERIFY(refreshGuard.wait());
+    QVERIFY(indexHas("BeforeThePull"));
+
+    QVERIFY(source.writeFileContents("class AfterThePull {};\nint main() { return 0; }\n"));
+
+    SourceFilesRefreshGuard afterTheChange;
+    CppModelManager::updateModifiedSourceFiles();
+    QVERIFY2(afterTheChange.wait(), "nothing looked at the file that changed");
+
+    QTRY_VERIFY2(indexHas("AfterThePull"), "the index kept describing the file as it was");
+    QVERIFY(!indexHas("BeforeThePull"));
+}
+
+void ModelManagerTest::testASwitchedConfigurationIsNotAnsweredWithTheOldOne()
+{
+    Kit * const kit = kitWithQt();
+    if (!kit)
+        QSKIP("The test requires a valid kit with a C++ compiler and a Qt");
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    QVERIFY((projectDir / "outside").ensureWritableDir());
+    const FilePath header = projectDir / "outside/outside.h";
+    const FilePath source = projectDir / "switched.cpp";
+    QVERIFY(header.writeFileContents("#ifdef READ_IN_DEBUG\nclass ReadInDebug {};\n"
+                                     "#else\nclass ReadInRelease {};\n#endif\n"));
+    QVERIFY(source.writeFileContents("#include <outside.h>\nint main() { return 0; }\n"));
+    QVERIFY((projectDir / "p.pro").writeFileContents(
+        "TEMPLATE = app\nTARGET = p\nCONFIG(debug, debug|release): DEFINES += READ_IN_DEBUG\n"
+        "INCLUDEPATH += outside\nSOURCES = switched.cpp\n"));
+
+    CppLocatorData * const locatorData = CppModelManager::locatorData();
+    const auto indexHas = [locatorData](const QString &name) {
+        return !locatorData->findSymbols(IndexItem::Class, name).isEmpty();
+    };
+    const auto configuration = [](BuildConfiguration::BuildType type) -> BuildConfiguration * {
+        Project * const project = ProjectManager::startupProject();
+        if (!project || !project->activeTarget())
+            return nullptr;
+        return Utils::findOrDefault(project->activeTarget()->buildConfigurations(),
+                                    [type](const BuildConfiguration *bc) {
+                                        return bc->buildType() == type;
+                                    });
+    };
+    const auto switchTo = [](BuildConfiguration *bc) {
+        SourceFilesRefreshGuard refreshGuard;
+        bc->project()->setActiveBuildConfiguration(bc, SetActive::Cascade);
+        return refreshGuard.wait();
+    };
+
+    {
+        SourceFilesRefreshGuard refreshGuard;
+        ProjectOpenerAndCloser projectMgr;
+        QVERIFY(projectMgr.open(projectDir / "p.pro", kit));
+        QVERIFY(refreshGuard.wait());
+        BuildConfiguration * const debug = configuration(BuildConfiguration::Debug);
+        BuildConfiguration * const release = configuration(BuildConfiguration::Release);
+        QVERIFY2(debug && release, "the project has no debug and release configurations");
+        if (debug != ProjectManager::startupProject()->activeBuildConfiguration())
+            QVERIFY(switchTo(debug));
+        QVERIFY(switchTo(release));
+        QVERIFY(indexHas("ReadInRelease"));
+    }
+
+    // The second session starts without the documents of the first one.
+    QVERIFY(!CppModelManager::snapshot().contains(source));
+
+    SourceFilesRefreshGuard refreshGuard;
+    ProjectOpenerAndCloser projectMgr;
+    QVERIFY(projectMgr.open(projectDir / "p.pro", kit));
+    QVERIFY(refreshGuard.wait());
+    BuildConfiguration * const debug = configuration(BuildConfiguration::Debug);
+    BuildConfiguration * const release = configuration(BuildConfiguration::Release);
+    QVERIFY(debug && release);
+    const bool opensInDebug = debug == ProjectManager::startupProject()->activeBuildConfiguration();
+    if (!opensInDebug) {
+        QVERIFY2(release == ProjectManager::startupProject()->activeBuildConfiguration(),
+                 "the project opens in neither configuration");
+    }
+    const QString readFirst = opensInDebug ? QString("ReadInDebug") : QString("ReadInRelease");
+    const QString readNext = opensInDebug ? QString("ReadInRelease") : QString("ReadInDebug");
+
+    QTRY_VERIFY2(indexHas(readFirst), "the header was not read in the configuration opened");
+
+    QVERIFY(switchTo(opensInDebug ? release : debug));
+    QVERIFY2(indexHas(readNext), "the header was not taken under the new configuration");
+    QVERIFY2(!indexHas(readFirst), "the old configuration's reading was kept");
 }
 
 } // CppEditor::Internal
