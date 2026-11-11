@@ -454,8 +454,8 @@ void ClassViewParserTest::testASecondSessionShowsTheSameClasses()
         driven.parser.removeProject(projectFile);
     }
 
-    // A new session does not have the documents the closed project left behind.
-    CppEditor::CppModelManager::GC();
+    // The second session starts without the documents of the first one.
+    QVERIFY(!CppEditor::CppModelManager::snapshot().contains(source));
 
     QSignalSpy refreshed(CppEditor::CppModelManager::instance(),
                          &CppEditor::CppModelManager::sourceFilesRefreshed);

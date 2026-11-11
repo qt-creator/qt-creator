@@ -136,8 +136,9 @@ void AutotestUnitTests::testASecondSessionFindsTheSameTests()
         QCOMPARE(m_model->autoTestsCount(), 1);
     }
 
-    // The documents of a closed project outlive it.
-    CppEditor::CppModelManager::GC();
+    // The second session starts without the documents of the first one.
+    QVERIFY(!CppEditor::CppModelManager::snapshot().contains(
+        m_tmpDir->filePath() / "plain/test_plain/tst_simple.cpp"));
 
     QSignalSpy parserSpy(m_model->parser(), &TestCodeParser::parsingFinished);
     QSignalSpy modelUpdateSpy(m_model, &TestTreeModel::sweepingDone);
