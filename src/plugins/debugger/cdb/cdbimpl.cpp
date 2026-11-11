@@ -796,16 +796,33 @@ void CdbImpl::shutdownEngine()
 // A step that has to pass through the QML interpreter: the bridge asks the debug
 // service what to do at the next JS statement, then the inferior is resumed. Whichever
 // comes first ends the step, the service's notification or the native stop.
-void CdbImpl::runInterpreterCommand(const QString &function, const QString &resumeCommand)
+void CdbImpl::runInterpreterCommand(const QString &function, const QString &resumeCommand,
+                                    bool armNativeCallHook)
 {
     armInterpreterMessageWatch();
     runCommand({"theDumper." + function + "({})", ScriptCommand,
-               [this, resumeCommand](const DebuggerResponse &) {
+               [this, resumeCommand, armNativeCallHook](const DebuggerResponse &) {
+        if (armNativeCallHook)
+            setNativeCallHookArmed(true);
         m_expectSpontaneousStop = true;
         m_inferiorRunning = true;
         m_expectStaleStop = true;
         runCommand({resumeCommand, NoFlags});
     }});
+}
+
+// The interpreter calls the native call hook only while a step from QML into C++
+// is armed. The hook has an empty body, though, and a release Qt folds it with
+// every other empty function, so its breakpoint also fires for calls that have
+// nothing to do with it - among them the ones the service makes for our own
+// inferior calls. Keep it enabled only for the step that needs it.
+void CdbImpl::setNativeCallHookArmed(bool armed)
+{
+    if (m_nativeCallHookArmed == armed)
+        return;
+    m_nativeCallHookArmed = armed;
+    for (const QString &id : std::as_const(m_nativeCallHookIds))
+        runCommand({(armed ? "be" : "bd") + id, NoFlags});
 }
 
 void CdbImpl::execute(const ExecutionRequest &request)
@@ -824,6 +841,7 @@ void CdbImpl::execute(const ExecutionRequest &request)
     m_inInternalStop = false;
     m_stopReported = false;
     m_expectStaleStop = false;
+    setNativeCallHookArmed(false);
     switch (request.command) {
     case ExecutionCommand::Continue:
         if (m_inferiorRunning) {
@@ -860,7 +878,7 @@ void CdbImpl::execute(const ExecutionRequest &request)
             emit inferiorEvent(InferiorEvent::RunOk);
             m_interpreterStepArmed = true;
             if (request.currentFrameIsQml) {
-                runInterpreterCommand("executeStep", "g");
+                runInterpreterCommand("executeStep", "g", true);
             } else {
                 // Crossing from C++ into QML: the interpreter is armed to pause at the
                 // next JS statement while the native step runs, and the step ends
@@ -2117,6 +2135,7 @@ bool CdbImpl::handleNativeCallStop(const GdbMi &stopData, const QString &stopFun
     }
     if (stopFunction.endsWith("qt_v4AboutToCallNativeMethodHook")
             || m_nativeCallHookIds.contains(breakpointId)) {
+        setNativeCallHookArmed(false);
         m_nativeCallStepsTaken = 0;
         stepIntoNativeCallHookBody(stopData);
         return true;
@@ -2252,6 +2271,8 @@ void CdbImpl::armInterpreterHooks()
         m_nativeCallHookIds.insert(hookId);
         runCommand({"bu" + hookId + ' ' + module + "!qt_v4AboutToCallNativeMethodHook",
                     NoFlags});
+        if (!m_nativeCallHookArmed)
+            runCommand({"bd" + hookId, NoFlags});
     }
     // A release Qt inlines qt_qmlDebugConnectorOpen() into its only caller,
     // QQmlNativeDebugConnector::open(), which leaves the exported symbol the
@@ -2470,6 +2491,7 @@ void CdbImpl::restartSession()
     m_interpreterStepArmed = false;
     m_atNativeToQmlBoundary = false;
     m_nativeCallHookIds.clear();
+    m_nativeCallHookArmed = false;
     m_metacallBreakpointId.clear();
     m_nativeCallDescent = NativeCallDescent::None;
     m_pendingBridgeWork.clear();
@@ -4063,6 +4085,7 @@ void CdbImpl::reportStop(const GdbMi &stopData)
     }
     if (continueJustMyCodeStep(stopData))
         return;
+    setNativeCallHookArmed(false);
     if (m_sourceStepInto) {
         const StepIntoLanding landing = stepIntoLanding(stopData, [this](const QString &file) {
             return FilePath::fromUserInput(mappedFromDebugger(file, sourcePathMap()))
@@ -4381,16 +4404,24 @@ void CdbImpl::runCommand(const DebuggerCommand &dbgCmd)
         // writing the global the message watch sits on and calling the hook the
         // message breakpoint sits in. Both would report our own traffic as a stop
         // of the inferior's, so keep them out of it for the round trip.
+        // The same goes for the native call hook while a step has it armed.
         const QStringList messageIds(m_interpreterMessageIds.cbegin(),
                                      m_interpreterMessageIds.cend());
-        for (const QString &id : messageIds)
+        const QStringList hookIds = m_nativeCallHookArmed
+            ? QStringList(m_nativeCallHookIds.cbegin(), m_nativeCallHookIds.cend())
+            : QStringList();
+        for (const QString &id : messageIds + hookIds)
             runCommand({"bd" + id, NoFlags});
         const DebuggerCommand::Callback callback = dbgCmd.callback;
         const int flags = ExtensionCommand | (dbgCmd.flags & DebuggerCommand::Silent);
         DebuggerCommand scriptCmd("script", flags,
-                                  [this, messageIds, callback](const DebuggerResponse &r) {
+                                  [this, messageIds, hookIds, callback](const DebuggerResponse &r) {
             for (const QString &id : messageIds)
                 runCommand({"be" + id, NoFlags});
+            if (m_nativeCallHookArmed) {
+                for (const QString &id : hookIds)
+                    runCommand({"be" + id, NoFlags});
+            }
             if (callback)
                 callback(r);
         });

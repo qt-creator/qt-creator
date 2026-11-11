@@ -298,7 +298,9 @@ private:
     void resolvePendingInterpreterBreakpoints();
     void handleInterpreterMessage(const GdbMi &stopData);
     void reportSplicedStack(quint64 requestId, const GdbMi &nativeFrames);
-    void runInterpreterCommand(const QString &function, const QString &resumeCommand);
+    void runInterpreterCommand(const QString &function, const QString &resumeCommand,
+                               bool armNativeCallHook = false);
+    void setNativeCallHookArmed(bool armed);
     bool handleNativeCallStop(const GdbMi &stopData, const QString &stopFunction);
     void stepIntoNativeCallHookBody(const GdbMi &stopData);
     void descendIntoNativeMethod(const GdbMi &stopData);
@@ -382,6 +384,7 @@ private:
     bool m_interpreterStepArmed = false;
     bool m_atNativeToQmlBoundary = false;
     QSet<QString> m_nativeCallHookIds;
+    bool m_nativeCallHookArmed = false;
     QString m_metacallBreakpointId;
     enum class NativeCallDescent { None, ToHookBody, ToMetacall, SteppingOut, ToMethodBody };
     NativeCallDescent m_nativeCallDescent = NativeCallDescent::None;
