@@ -387,6 +387,19 @@ Result<> TextFileFormat::readFileUtf8(const FilePath &filePath,
         return ResultError(Tr::tr("Out of memory."));
     }
 
+    return decodeFileUtf8(std::move(data), fallbackEncoding, plainText);
+}
+
+/*!
+    Converts \a data, the raw contents of a text file, to UTF-8 in \a plainText,
+    as readFileUtf8() does for a file. This is for callers that need the raw
+    contents as well, so that they read the file only once.
+*/
+
+Result<> TextFileFormat::decodeFileUtf8(QByteArray data,
+                                        const TextEncoding &fallbackEncoding,
+                                        QByteArray *plainText)
+{
     TextFileFormat format;
     format.detectFromData(data);
     if (!format.m_encoding.isValid())

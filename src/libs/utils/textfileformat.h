@@ -75,6 +75,9 @@ public:
     static Result<> readFileUtf8(const FilePath &filePath,
                                  const TextEncoding &fallbackEncoding,
                                  QByteArray *plainText);
+    static Result<> decodeFileUtf8(QByteArray data,
+                                   const TextEncoding &fallbackEncoding,
+                                   QByteArray *plainText);
 
     Result<> writeFile(const FilePath &filePath, QString plainText) const;
 

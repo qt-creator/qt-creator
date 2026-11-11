@@ -208,6 +208,42 @@ private slots:
         QCOMPARE(positions, QList<qsizetype>{7});
     }
 
+    void decodeMatchesRead_data()
+    {
+        QTest::addColumn<QByteArray>("data");
+        QTest::addColumn<QByteArray>("fallbackEncoding");
+        QTest::addColumn<QByteArray>("expected");
+
+        QTest::newRow("utf-8") << QByteArray("int a;\n") << QByteArray("UTF-8")
+                               << QByteArray("int a;\n");
+        QTest::newRow("utf-8 bom") << QByteArray("\xEF\xBB\xBF" "int a;\n") << QByteArray("UTF-8")
+                                   << QByteArray("int a;\n");
+        QTest::newRow("crlf") << QByteArray("int a;\r\nint b;\r\n") << QByteArray("UTF-8")
+                              << QByteArray("int a;\nint b;\n");
+        QTest::newRow("fallback encoding") << QByteArray("caf\xE9\n") << QByteArray("ISO-8859-1")
+                                           << QByteArray("caf\xC3\xA9\n");
+    }
+
+    void decodeMatchesRead()
+    {
+        QFETCH(QByteArray, data);
+        QFETCH(QByteArray, fallbackEncoding);
+        QFETCH(QByteArray, expected);
+        const TextEncoding fallback(fallbackEncoding);
+        QVERIFY(fallback.isValid());
+
+        QByteArray decoded;
+        QVERIFY(TextFileFormat::decodeFileUtf8(data, fallback, &decoded));
+        QCOMPARE(decoded, expected);
+
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath path = FilePath::fromString(dir.path() + "/input.txt");
+        QVERIFY(path.writeFileContents(data));
+        QByteArray read;
+        QVERIFY(TextFileFormat::readFileUtf8(path, fallback, &read));
+        QCOMPARE(read, expected);
+    }
 };
 
 void TextFileFormatTest::testDecodingErrorPosition_data()
