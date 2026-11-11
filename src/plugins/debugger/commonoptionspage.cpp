@@ -208,8 +208,7 @@ CommonSettings::CommonSettings()
                  "incomplete, so expect missing views and unhandled situations. "
                  "LLDB uses its new backend whatever this setting says. "
                  "The QTC_USE_GENERIC_DEBUGGER environment variable overrides "
-                 "this setting, and setting it to 0 also returns LLDB to its "
-                 "own implementation.");
+                 "this setting.");
     if (isUseGenericDebuggerOverride()) {
         useGenericDebuggerTooltip += QLatin1Char(' ');
         useGenericDebuggerTooltip
