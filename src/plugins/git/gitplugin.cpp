@@ -4426,7 +4426,7 @@ void GitTest::testGerritEscape()
     QFETCH(QString, focusWidget);
     using namespace Gerrit::Internal;
 
-    GerritDialog dialog(std::make_shared<GerritServer>(), {});
+    GerritDialog dialog(std::make_shared<GerritServer>(), {}, ICore::dialogParent());
     QAction competingEscape(&dialog);
     competingEscape.setShortcut(QKeySequence(Qt::Key_Escape));
     competingEscape.setShortcutContext(Qt::ApplicationShortcut);
@@ -4437,9 +4437,11 @@ void GitTest::testGerritEscape()
     QWidget *widget = dialog.findChild<QWidget *>(focusWidget);
     QVERIFY(widget);
     dialog.show();
+    QVERIFY(QTest::qWaitForWindowExposed(&dialog));
     dialog.activateWindow();
+    QVERIFY(QTest::qWaitForWindowActive(&dialog));
     widget->setFocus();
-    QTRY_VERIFY(dialog.isActiveWindow());
+    QTRY_VERIFY(widget->hasFocus());
     QTest::keyClick(widget, Qt::Key_Escape);
     QCOMPARE(rejected.count(), 1);
     QCOMPARE(activated.count(), 0);
