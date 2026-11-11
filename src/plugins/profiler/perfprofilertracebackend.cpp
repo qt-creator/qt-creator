@@ -7,7 +7,6 @@
 #include "perfprofilerconstants.h"
 #include "perfprofilerflamegraphmodel.h"
 #include "perfprofilerstatisticsview.h"
-#include "perfprofilertool.h"
 #include "perfprofilertracemanager.h"
 #include "perfsettings.h"
 #include "perftimelinemodelmanager.h"
@@ -16,15 +15,15 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+// ProjectExplorer, QtSupport and the tool are not part of the WebAssembly build.
+#ifndef QTPROFILER_WASM
+#include "perfprofilertool.h"
+
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/sysrootkitaspect.h>
-#include <projectexplorer/target.h>
 
-#ifndef QTPROFILER_WASM
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 #endif
@@ -78,13 +77,9 @@ public:
     bool readerRunning = false;
 };
 
+#ifndef QTPROFILER_WASM
 static FilePaths collectQtIncludePaths(const ProjectExplorer::Kit *kit)
 {
-#ifdef QTPROFILER_WASM
-    // QtSupport is not part of the WebAssembly build.
-    Q_UNUSED(kit)
-    return {};
-#else
     QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit);
     if (!qt)
         return {};
@@ -96,7 +91,6 @@ static FilePaths collectQtIncludePaths(const ProjectExplorer::Kit *kit)
         paths << FilePath::fromString(dit.filePath());
     }
     return paths;
-#endif
 }
 
 // The sources a recorded path might refer to: the profiled project first, then
@@ -104,9 +98,6 @@ static FilePaths collectQtIncludePaths(const ProjectExplorer::Kit *kit)
 static FilePaths sourceFiles(const ProjectExplorer::Project *currentProject = nullptr)
 {
     FilePaths sourceFiles;
-    // The standalone viewer has no project manager.
-    if (!ProjectExplorer::ProjectManager::instance())
-        return sourceFiles;
     if (currentProject)
         sourceFiles.append(currentProject->files(ProjectExplorer::Project::SourceFiles));
 
@@ -117,6 +108,7 @@ static FilePaths sourceFiles(const ProjectExplorer::Project *currentProject = nu
     }
     return sourceFiles;
 }
+#endif // QTPROFILER_WASM
 
 PerfProfilerTraceBackend::PerfProfilerTraceBackend(Timeline::TimelineDetailsWidget *details,
                                                    QObject *parent)
@@ -143,18 +135,18 @@ PerfProfilerTraceBackend::PerfProfilerTraceBackend(Timeline::TimelineDetailsWidg
     });
     connect(&d->traceManager, &PerfProfilerTraceManager::finishedEmpty, this, [this] {
         d->readerRunning = false;
+#ifdef QTPROFILER_WASM
         // The standalone viewer has no Messages pane, and a file that holds no
         // samples is an error there.
-        if (ProjectExplorer::ProjectManager::instance()) {
-            Core::MessageManager::writeDisrupting(
-                Tr::tr("The profiler did not produce any samples. "
-                       "Make sure that you are running a recent Linux kernel and that "
-                       "the \"perf\" utility is available and generates useful call "
-                       "graphs.\nYou might find further explanations in the "
-                       "Application Output view."));
-        } else {
-            emit error(Tr::tr("The trace does not contain any samples."));
-        }
+        emit error(Tr::tr("The trace does not contain any samples."));
+#else
+        Core::MessageManager::writeDisrupting(
+            Tr::tr("The profiler did not produce any samples. "
+                   "Make sure that you are running a recent Linux kernel and that "
+                   "the \"perf\" utility is available and generates useful call "
+                   "graphs.\nYou might find further explanations in the "
+                   "Application Output view."));
+#endif
         clear();
     });
     connect(this, &PerfProfilerTraceBackend::aggregatedChanged,
@@ -280,12 +272,12 @@ void PerfProfilerTraceBackend::cancelBackgroundWork()
 void PerfProfilerTraceBackend::load(const FilePath &path)
 {
     emit busyChanged(true);
+#ifndef QTPROFILER_WASM
     // A trace names the paths it recorded; the finder is what maps them onto
     // this machine, as the run and perf-data paths already do.
-    const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::instance()
-                                                  ? ProjectExplorer::ProjectManager::startupProject()
-                                                  : nullptr;
+    const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     populateFileFinder(project, project ? project->activeKit() : nullptr);
+#endif
     d->traceManager.loadFromTraceFile(path);
 }
 
@@ -293,9 +285,11 @@ void PerfProfilerTraceBackend::loadPerfData(const FilePath &path, const FilePath
                                             ProjectExplorer::Kit *kit)
 {
     emit busyChanged(true);
+#ifndef QTPROFILER_WASM
     d->fileFinder.setAdditionalSearchDirectories(collectQtIncludePaths(kit));
     d->fileFinder.setSysroot(ProjectExplorer::SysRootKitAspect::sysRoot(kit));
     d->fileFinder.setProjectFiles(sourceFiles());
+#endif
     d->traceManager.loadFromPerfData(path, executableDir.toUrlishString(), kit);
 }
 
@@ -381,11 +375,13 @@ void PerfProfilerTraceBackend::setupToolBar()
     // by the tool afterwards: views() builds its menus from them, and an editor
     // opened through the file-open path never hears from the tool at all. The
     // standalone viewer has no tool, and no menus to fill either.
+#ifndef QTPROFILER_WASM
     if (PerfProfilerTool *tool = PerfProfilerTool::instance()) {
         d->loadSaveActions = tool->traceMenuActions();
         d->limitToRange = tool->limitToRangeAction();
         d->showFullRange = tool->showFullRangeAction();
     }
+#endif
 }
 
 void PerfProfilerTraceBackend::setAggregated(bool aggregated)
@@ -454,6 +450,10 @@ void PerfProfilerTraceBackend::updateTime(nanoseconds duration, nanoseconds dela
 void PerfProfilerTraceBackend::populateFileFinder(const ProjectExplorer::Project *project,
                                                   const ProjectExplorer::Kit *kit)
 {
+#ifdef QTPROFILER_WASM
+    Q_UNUSED(project)
+    Q_UNUSED(kit)
+#else
     d->fileFinder.setProjectFiles(sourceFiles(project));
     if (project)
         d->fileFinder.setProjectDirectory(project->projectDirectory());
@@ -461,6 +461,7 @@ void PerfProfilerTraceBackend::populateFileFinder(const ProjectExplorer::Project
         d->fileFinder.setAdditionalSearchDirectories(collectQtIncludePaths(kit));
         d->fileFinder.setSysroot(ProjectExplorer::SysRootKitAspect::sysRoot(kit));
     }
+#endif
 }
 
 void PerfProfilerTraceBackend::prepareRun(const ProjectExplorer::Project *project,
