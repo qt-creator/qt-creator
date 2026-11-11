@@ -4555,7 +4555,12 @@ void GdbEngine::runEngine()
     } else if (isCoreEngine()) {
 
         claimInitialBreakpoints();
-        runCommand({"target core " + runParameters().coreFile().path(), CB(handleTargetCore)});
+        // Before gdb 16, the quotes become part of the file name, and a path
+        // with a space cannot be given at all.
+        QString core = runParameters().coreFile().path();
+        if (m_gdbVersion >= 160000)
+            core = '"' + core.replace('\\', "\\\\").replace('"', "\\\"") + '"';
+        runCommand({"target core " + core, CB(handleTargetCore)});
 
     } else if (isTermEngine()) {
 
