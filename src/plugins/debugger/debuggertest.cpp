@@ -240,6 +240,7 @@ private slots:
     void testCombinedEngineNeedsNoQmlChannel();
     void testQmlInspectorLeavesParentlessObjectsCollapsed();
     void testInspectorFollowsParentlessObjects();
+    void testInspectorDefersManyDelegates();
     void testNamespaceFromQObjectRtti_data();
     void testNamespaceFromQObjectRtti();
 
@@ -4670,6 +4671,20 @@ void DebuggerUnitTests::testCombinedEngineNeedsNoQmlChannel()
     QVERIFY(!usesQmlChannel(true));
 }
 
+// Objects without a parent are fetched only once their item gets expanded.
+static void expandParentlessObjects(DebuggerEngine *engine)
+{
+    WatchHandler *handler = engine->watchHandler();
+    const WatchItem *root = handler->findItem("inspect");
+    if (!root)
+        return;
+    for (const WatchItem *engineItem : *root) {
+        const QString iname = engineItem->iname + ".[parentless]";
+        if (handler->findItem(iname) && !handler->isExpandedIName(iname))
+            handler->fetchMore(iname);
+    }
+}
+
 static const char s_parentlessObjectSource[] = R"(import QtQuick
 
 Item {
@@ -4757,6 +4772,7 @@ void DebuggerUnitTests::testQmlInspectorLeavesParentlessObjectsCollapsed()
         WatchItem *inspect = engine->watchHandler()->findItem("inspect");
         if (!inspect)
             return nullptr;
+        expandParentlessObjects(engine);
         return inspect->findAnyChild([](TreeItem *item) {
             return static_cast<WatchItem *>(item)->name == "orphanObject";
         });
@@ -4847,8 +4863,10 @@ static WatchItem *inspectedItem(DebuggerEngine *engine, const QString &id,
     const WatchItem *object = root->findAnyChild([&id](TreeItem *item) {
         return static_cast<WatchItem *>(item)->name == id;
     });
-    if (!object)
+    if (!object) {
+        expandParentlessObjects(engine);
         return nullptr;
+    }
     if (WatchItem *item = handler->findItem(object->iname + ".[properties]." + property))
         return item;
     handler->fetchMore(object->iname);
@@ -4945,7 +4963,8 @@ void DebuggerUnitTests::testInspectorFollowsParentlessObjects()
     const quint32 nestedWatch = agent.m_objectWatches.value(nestedId);
     QVERIFY(nestedWatch);
 
-    // Parentless objects live below their engine, not at the top level.
+    // Parentless objects live in an item of their own below their engine, not
+    // at the top level.
     const WatchItem *inspectRoot = engine->watchHandler()->findItem("inspect");
     QVERIFY(inspectRoot);
     const auto named = [](const QString &name) {
@@ -4953,8 +4972,8 @@ void DebuggerUnitTests::testInspectorFollowsParentlessObjects()
     };
     const WatchItem *orphan = inspectRoot->findAnyChild(named("tickingOrphan"));
     QVERIFY(orphan);
-    QVERIFY(orphan->parent() != inspectRoot);
-    QVERIFY(orphan->parent()->parent() == inspectRoot);
+    QVERIFY(orphan->parent()->iname.endsWith(".[parentless]"));
+    QVERIFY(orphan->parent()->parent()->parent() == inspectRoot);
 
     // A child of an expanded object is inserted at once, without waiting for
     // the throttled rebuild. The rebuild starts by emptying the inspector tree,
@@ -5048,25 +5067,152 @@ void DebuggerUnitTests::testInspectorFollowsParentlessObjects()
     }
     QCOMPARE(agent.m_objectWatches.value(nestedId), nestedWatch);
 
-    // The churning goes on, and a collapsed engine item must stay collapsed
-    // while the new objects are added below it.
+    // The churning goes on, and the collapsed item of the parentless objects
+    // must stay collapsed and empty while the new objects come.
     const WatchItem *ticking = inspectRoot->findAnyChild(named("tickingOrphan"));
     QVERIFY(ticking);
-    const QString engineIName = ticking->parent()->iname;
+    const QString parentlessIName = ticking->parent()->iname;
     model->setData(model->indexForItem(ticking->parent()), false, LocalsExpandedRole);
-    QVERIFY(!engine->watchHandler()->isExpandedIName(engineIName));
+    QVERIFY(!engine->watchHandler()->isExpandedIName(parentlessIName));
     for (int i = 0; i < 2; ++i) {
         const qint64 rebuilt = agent.m_lastRebuild.msecsSinceReference();
         QVERIFY2(QTest::qWaitFor([&] {
             return agent.m_lastRebuild.msecsSinceReference() != rebuilt;
         }, 30000), "the tree was not rebuilt while the objects kept coming");
     }
-    QVERIFY2(!engine->watchHandler()->isExpandedIName(engineIName),
-             "the collapsed engine item was expanded again");
+    QVERIFY2(!engine->watchHandler()->isExpandedIName(parentlessIName),
+             "the collapsed item was expanded again");
+    const WatchItem *parentless = engine->watchHandler()->findItem(parentlessIName);
+    QVERIFY(parentless);
+    QCOMPARE(parentless->childCount(), 0);
+    engine->watchHandler()->fetchMore(parentlessIName);
     QVERIFY2(QTest::qWaitFor([&] {
-        const WatchItem *engineItem = engine->watchHandler()->findItem(engineIName);
-        return engineItem && engineItem->findAnyChild(named("churnedOrphan"));
-    }, 30000), "no new object showed up below the collapsed engine item");
+        const WatchItem *parentless = engine->watchHandler()->findItem(parentlessIName);
+        return parentless && parentless->findAnyChild(named("churnedOrphan"));
+    }, 30000), "the new objects did not show up on expansion");
+}
+
+static const char s_manyDelegatesQml[] = R"QML(
+import QtQuick
+import QtQuick.Window
+
+Window {
+    id: root
+    property bool ready: false
+    Repeater {
+        id: repeater
+        model: %1
+        Item { objectName: "delegate" }
+    }
+    Component.onCompleted: ready = true
+}
+)QML";
+
+void DebuggerUnitTests::testInspectorDefersManyDelegates()
+{
+    Kit *kit = kitWithAQt();
+    if (!kit)
+        QSKIP("This test needs a kit with a Qt to run qml from.");
+    const FilePath qml = QtSupport::QtKitAspect::qtVersion(kit)->qmlRuntimeFilePath();
+    if (!qml.isExecutableFile())
+        QSKIP("The Qt of the kit has no qml runtime.");
+    if (!settings().showQmlObjectTree())
+        QSKIP("The QML object tree is switched off.");
+
+    const int delegateCount = 2000;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath mainQml = FilePath::fromString(dir.path()) / "Main.qml";
+    QVERIFY(mainQml.writeFileContents(
+        QString::fromLatin1(s_manyDelegatesQml).arg(delegateCount).toUtf8()));
+
+    const bool warnedAboutBreakpoints = settings().showUnsupportedBreakpointWarning();
+    settings().showUnsupportedBreakpointWarning.setValue(false);
+    const QScopeGuard restore([warnedAboutBreakpoints] {
+        settings().showUnsupportedBreakpointWarning.setValue(warnedAboutBreakpoints);
+    });
+
+    const QList<QPointer<DebuggerEngine>> before = EngineManager::engines();
+    QPointer<RunControl> runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl->setKit(kit);
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+    rp.setCppEngineType(NoEngineType);
+    rp.setQmlDebugging(true);
+    rp.setInferior(ProcessRunData{CommandLine{qml, {mainQml.nativePath()}}, mainQml.parentDir()});
+    rp.setInferiorEnvironment(Environment::systemEnvironment());
+    rp.setStartMode(StartExternal);
+    connect(runControl, &RunControl::stopped,
+            &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
+    runControl->setRunRecipe(debuggerRecipe(runControl, rp));
+    runControl->start();
+    const QScopeGuard stop([runControl] {
+        if (runControl && runControl->isRunning()) {
+            runControl->initiateStop();
+            QTestEventLoop::instance().enterLoop(30);
+        }
+    });
+
+    QPointer<DebuggerEngine> engine;
+    QVERIFY2(QTest::qWaitFor([&engine, &before] {
+        for (const QPointer<DebuggerEngine> &candidate : EngineManager::engines()) {
+            if (candidate && !before.contains(candidate)
+                && candidate->objectName() == "QmlEngine") {
+                engine = candidate;
+            }
+        }
+        return engine && engine->state() == InferiorRunOk;
+    }, 60000), "the QML session never came up");
+    const QmlInspectorAgent &agent = static_cast<QmlEngine *>(engine.data())->inspectorAgent();
+
+    // The scene is complete once its root says so, and the inspector has
+    // caught up once it neither rebuilds nor waits for any answers.
+    QVERIFY2(QTest::qWaitFor([&] {
+        const WatchItem *ready = inspectedItem(engine, "root", "ready");
+        return ready && ready->value == "true";
+    }, 120000), "the scene never got ready");
+    const auto settled = [&agent] {
+        return !agent.m_delayQueryTimer.isActive() && !agent.m_rebuildPending
+               && agent.m_rootContextQueryIds.isEmpty() && agent.m_delegateQueryIds.isEmpty()
+               && agent.m_objectTreeQueryIds.isEmpty();
+    };
+    QVERIFY2(QTest::qWaitFor(settled, 120000), "the inspector never settled");
+
+    const WatchItem *inspectRoot = engine->watchHandler()->findItem("inspect");
+    QVERIFY(inspectRoot);
+    int shownDelegates = 0;
+    inspectRoot->forAllChildren([&](WatchItem *item) {
+        if (agent.m_knownDelegateIds.contains(item->id))
+            ++shownDelegates;
+    });
+    QVERIFY2(shownDelegates < delegateCount / 10,
+             qPrintable(QString("%1 delegates were fetched without being asked for")
+                            .arg(shownDelegates)));
+    QVERIFY2(agent.m_objectWatches.size() < delegateCount / 10,
+             qPrintable(QString("%1 objects are watched").arg(agent.m_objectWatches.size())));
+
+    // Collapsing while the answers are still on their way drops them, and the
+    // next expansion has to fetch what is missing.
+    WatchHandler *handler = engine->watchHandler();
+    const QString otherIname = inspectRoot->childAt(0)->iname + ".[parentless]";
+    expandParentlessObjects(engine);
+    QVERIFY(handler->findItem(otherIname));
+    WatchModelBase *model = handler->model();
+    model->setData(model->indexForItem(handler->findItem(otherIname)), false, LocalsExpandedRole);
+    QVERIFY2(QTest::qWaitFor([&agent] { return agent.m_delegateQueryIds.isEmpty(); }, 120000),
+             "the answers never arrived");
+    expandParentlessObjects(engine);
+    int count = 0;
+    const bool expanded = QTest::qWaitFor([&] {
+        count = 0;
+        if (const WatchItem *root = engine->watchHandler()->findItem("inspect")) {
+            root->forAllChildren([&count](WatchItem *item) {
+                if (item->parent()->iname.endsWith(".[parentless]"))
+                    ++count;
+            });
+        }
+        return count == delegateCount;
+    }, 120000);
+    QVERIFY2(expanded, qPrintable(QString("only %1 delegates showed up on expansion").arg(count)));
 }
 
 QObject *createDebuggerTest()

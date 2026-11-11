@@ -48,6 +48,13 @@ private:
     void reloadEngines();
     void fetchObject(int debugId);
     void fetchObjectHeader(int debugId);
+    QString parentlessIName(int engineId) const;
+    bool hasParentlessObjects(int engineId) const;
+    bool insertParentlessItem(int engineId);
+    void fetchParentlessObjects(int engineId);
+    void validateParentlessObjects();
+    void continueObjectStack(const QmlDebug::ObjectReference &object);
+    void insertParentlessObject(const QmlDebug::ObjectReference &object, int engineId);
 
     void updateState();
     void onResult(quint32 queryId, const QVariant &value, const QByteArray &type);
@@ -61,7 +68,7 @@ private:
     void updateObjectTree(const QmlDebug::ContextReference &contexts, int engineId = -1);
     void verifyAndInsertObjectInTree(const QmlDebug::ObjectReference &object, int engineId = -1,
                                      bool calledFromUpdateObjectTree = false);
-    void insertObjectInTree(const QmlDebug::ObjectReference &result, int parentId);
+    void insertObjectInTree(const QmlDebug::ObjectReference &result, const QString &parentIname);
 
     void buildDebugIdHashRecursive(const QmlDebug::ObjectReference &ref);
     void addWatchData(const QmlDebug::ObjectReference &obj,
@@ -110,6 +117,7 @@ private:
     QList<int> m_fetchDataIds;
     QHash<int, int> m_knownDelegateIds; // delegate debug id -> engine id
     QHash<quint32, int> m_delegateQueryIds; // fetch query id -> delegate debug id
+    int m_validatedDelegateId = -1; // validation resumes after this id
     QSet<int> m_seenObjectIds; // watched objects inserted since the last rebuild
     QSet<int> m_previouslySeenObjectIds; // ... and during the rebuild before
     QHash<int, QHash<QString, QVariant>> m_valueChanges; // debug id -> property -> value
