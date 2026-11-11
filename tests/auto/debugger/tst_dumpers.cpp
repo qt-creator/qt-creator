@@ -3158,6 +3158,30 @@ void tst_Dumpers::dumper_data()
               + Check("x", "<3 items>", "@QList<nsA::nsB::SomeType*>");
 
 
+   QTest::newRow("QMapStdFunction")
+           << Data("#include <QMap>\n"
+                   "#include <QString>\n"
+                   "#include <QPair>\n"
+                   "#include <functional>\n"
+                   "void bar() {}\n",
+
+                   "QMap<QString, std::function<void()>> m;\n"
+                   "m[\"bar\"] = bar;\n"
+                   "QMap<QPair<int, QString>, std::function<void()>> m2;\n"
+                   "m2[qMakePair(1, QString(\"bar\"))] = bar;",
+
+                   "&m, &m2")
+
+              + CoreProfile()
+
+              + Check("m", "<1 items>", "@QMap<@QString, std::function<void()>>")
+              + CheckPairish("m.0.key", "\"bar\"", "@QString")
+              + Check("m.0.value", ValuePattern(".* <bar\\(\\)>"), "std::function<void()>")
+                    % GdbEngine % QtVersion(0, 0x5ffff)
+              + Check("m2.0.value", ValuePattern(".* <bar\\(\\)>"), "std::function<void()>")
+                    % GdbEngine % QtVersion(0, 0x5ffff);
+
+
    QTest::newRow("QMultiMap")
            << Data("#include <QMultiMap>\n"
                    "#include <QObject>\n"

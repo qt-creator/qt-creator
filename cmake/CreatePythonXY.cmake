@@ -62,7 +62,7 @@ function(create_python_xy PythonExe PythonZipFilePath)
 
   set(ENV{PYTHONOPTIMIZE} "2")
   execute_process(
-    COMMAND "${PythonExe}" -OO -m compileall "${CMAKE_CURRENT_BINARY_DIR}/python-lib" -b
+    COMMAND "${PythonExe}" -OO -m compileall -q "${CMAKE_CURRENT_BINARY_DIR}/python-lib" -b
     ${QTC_COMMAND_ERROR_IS_FATAL}
   )
 
