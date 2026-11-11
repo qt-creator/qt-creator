@@ -2048,10 +2048,8 @@ void registerMcpTools()
             // The snapshot is a hash, so its includers come back in no particular
             // order; sort them so the same question gets the same answer.
             QList<QPair<QString, int>> includers;
-            const QList<CPlusPlus::Snapshot::IncludeLocation> locations
-                = snapshot.includeLocationsOfDocument(filePath);
-            for (const CPlusPlus::Snapshot::IncludeLocation &location : locations)
-                includers.append({location.first->filePath().toUserOutput(), location.second});
+            for (const Link &includer : includersOf(snapshot, filePath))
+                includers.append({includer.targetFilePath.toUserOutput(), includer.target.line});
             std::sort(includers.begin(), includers.end());
             QJsonArray includedBy;
             for (const QPair<QString, int> &includer : std::as_const(includers))

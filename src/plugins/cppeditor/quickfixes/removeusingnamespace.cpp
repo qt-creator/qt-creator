@@ -4,6 +4,7 @@
 #include "removeusingnamespace.h"
 
 #include "../cppeditortr.h"
+#include "../cppindexqueries.h"
 #include "../cppprojectfile.h"
 #include "../cpprefactoringchanges.h"
 #include "cppquickfix.h"
@@ -503,22 +504,21 @@ private:
 
     void processIncludes(CppRefactoringChanges &refactoring, const FilePath &filePath)
     {
-        QList<Snapshot::IncludeLocation>
-            includeLocationsOfDocument = refactoring.snapshot().includeLocationsOfDocument(filePath);
-        for (Snapshot::IncludeLocation &loc : includeLocationsOfDocument) {
-            if (!Utils::insert(m_processed, loc.first))
+        const Links includers = includersOf(refactoring.snapshot(), filePath);
+        for (const Link &includer : includers) {
+            if (!Utils::insert(m_processed, includer.targetFilePath))
                 continue;
 
-            CppRefactoringFilePtr file = refactoring.cppFile(loc.first->filePath());
+            CppRefactoringFilePtr file = refactoring.cppFile(includer.targetFilePath);
             const bool noGlobalUsing = refactorFile(file,
                                                     refactoring.snapshot(),
-                                                    file->position(loc.second, 1));
+                                                    file->position(includer.target.line, 1));
             if (noGlobalUsing)
-                processIncludes(refactoring, loc.first->filePath());
+                processIncludes(refactoring, includer.targetFilePath);
         }
     }
 
-    QSet<Document::Ptr> m_processed;
+    QSet<FilePath> m_processed;
     QSet<CppRefactoringFilePtr> m_changes;
 
     UsingDirectiveAST *m_usingDirective;

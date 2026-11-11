@@ -1909,10 +1909,20 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
             continue;
 
         // Handle locations where this file is included.
-        const QList<Snapshot::IncludeLocation> locations = theSnapshot.includeLocationsOfDocument(
-            isUiFile ? FilePath::fromString(oldFileName) : oldFilePath);
-        for (const Snapshot::IncludeLocation &loc : locations) {
-            const FilePath includingFileOld = loc.first->filePath();
+        Links includers;
+        if (isUiFile) {
+            // FIXME: Use includersOfFileNamed(), once it reports each directive with its line.
+            //        The matching here differs from it for no good reason: For instance, an
+            //        unresolved include spelled with a directory is not found.
+            const QList<Snapshot::IncludeLocation> locations
+                = theSnapshot.includeLocationsOfDocument(FilePath::fromString(oldFileName));
+            for (const Snapshot::IncludeLocation &loc : locations)
+                includers.append(Link(loc.first->filePath(), loc.second));
+        } else {
+            includers = includersOf(theSnapshot, oldFilePath);
+        }
+        for (const Link &includer : std::as_const(includers)) {
+            const FilePath includingFileOld = includer.targetFilePath;
             FilePath includingFileNew = includingFileOld;
             for (const auto &pathPair : oldAndNewPaths) {
                 if (includingFileNew == pathPair.first) {
@@ -1927,7 +1937,12 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
                 continue;
 
             rewriteCandidates[std::make_pair(includingFileOld, includingFileNew)].append(
-                {oldFilePath, newFilePath, oldFileName, newFileName, loc.second, isUiFile});
+                {oldFilePath,
+                 newFilePath,
+                 oldFileName,
+                 newFileName,
+                 includer.target.line,
+                 isUiFile});
         }
 
         // Handle the includes of this file: If its location changed, its own local includes
