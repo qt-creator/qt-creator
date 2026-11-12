@@ -3124,8 +3124,9 @@ void DiffEditor::Internal::DiffEditorPlugin::testRangeComparisonActions()
     const FilePath renamedSourceFile = directory.filePath("renamed.txt");
     QVERIFY(renamedSourceFile.writeFileContents("one\ntwo\nONE\nTWO\nextra"));
     editor->textDocument()->setFilePath(renamedSourceFile);
-    QTRY_COMPARE(firstDiffDocument->diffFiles().first().fileInfo[LeftSide].fileName,
-                 renamedSourceFile.path());
+    QTRY_VERIFY(firstDiffDocument->diffFiles().size() == 1
+                && firstDiffDocument->diffFiles().first().fileInfo[LeftSide].fileName
+                       == renamedSourceFile.path());
     QCOMPARE(firstDiffDocument->diffFiles().first().fileInfo[RightSide].fileName,
              renamedSourceFile.path());
     QTRY_VERIFY(unified->toPlainText().contains("-two"));
@@ -3175,14 +3176,16 @@ void DiffEditor::Internal::DiffEditorPlugin::testRangeComparisonActions()
     QTextCursor prefix(widget->document());
     prefix.setPosition(0);
     prefix.insertText("prefix\n");
-    QTRY_COMPARE(firstDiffDocument->diffFiles().first().fileInfo[LeftSide].typeInfo,
-                 QString("Lines 3-4"));
+    QTRY_VERIFY(firstDiffDocument->diffFiles().size() == 1
+                && firstDiffDocument->diffFiles().first().fileInfo[LeftSide].typeInfo
+                       == "Lines 3-4");
     QVERIFY(renamedSourceFile.writeFileContents("replacement\ncontents\nfor\nthe\nwhole\nfile"));
     QVERIFY(editor->textDocument()->reload().has_value());
     firstDiffDocument->controller()->requestReload();
     QTRY_COMPARE(firstDiffDocument->state(), DiffEditorDocument::LoadOK);
-    QTRY_COMPARE(firstDiffDocument->diffFiles().first().fileInfo[LeftSide].typeInfo,
-                 QString("Lines 3-4"));
+    QTRY_VERIFY(firstDiffDocument->diffFiles().size() == 1
+                && firstDiffDocument->diffFiles().first().fileInfo[LeftSide].typeInfo
+                       == "Lines 3-4");
     QCOMPARE(firstDiffDocument->diffFiles().first().fileInfo[RightSide].typeInfo,
              QString("Lines 4-5"));
     QVERIFY(!firstDiffDocument->diffFiles().first().fileInfo[LeftSide].jumpToSource);
