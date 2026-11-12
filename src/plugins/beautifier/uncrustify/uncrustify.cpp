@@ -219,8 +219,8 @@ public:
 
         s.read();
 
-        connect(s.command.pathChooser(), &PathChooser::validChanged, options, &QWidget::setEnabled);
-        options->setEnabled(s.command.pathChooser()->isValid());
+        connect(&s.command, &FilePathAspect::validChanged, options, &QWidget::setEnabled);
+        options->setEnabled(s.command.isValid());
 
         setOnApply([&s, configurations] {
             s.customStyle.setValue(configurations->currentConfiguration());

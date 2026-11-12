@@ -27,7 +27,6 @@
 #include <utils/fileutils.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
-#include <utils/pathchooser.h>
 
 #include <QAction>
 #include <QButtonGroup>
@@ -309,8 +308,8 @@ public:
 
         s.read();
 
-        connect(s.command.pathChooser(), &PathChooser::validChanged, options, &QWidget::setEnabled);
-        options->setEnabled(s.command.pathChooser()->isValid());
+        connect(&s.command, &FilePathAspect::validChanged, options, &QWidget::setEnabled);
+        options->setEnabled(s.command.isValid());
 
         installMarkSettingsDirtyTriggerRecursively(this);
         installMarkSettingsDirtyTrigger(predefinedStyleButton);
