@@ -12,6 +12,8 @@ namespace TextEditor {
 
 class CodecChooser;
 
+namespace Internal { QObject *createEncodingSelectionAspectTest(); }
+
 class TEXTEDITOR_EXPORT ExtraEncodingSettingsData
 {
 public:
@@ -40,8 +42,10 @@ public:
 
 private:
     void addToLayoutImpl(Layouting::Layout &parent) override;
+    void volatileValueToGui() override;
+    bool guiToVolatileValue() override;
 
-    CodecChooser *m_codecChooser = nullptr;
+    Utils::UndoableValue<QByteArray> m_undoable;
     bool m_allowNone = false;
 };
 

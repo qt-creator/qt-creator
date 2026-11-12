@@ -13,6 +13,10 @@
 #include <utils/qtcsettings.h>
 #include <utils/textcodec.h>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 using namespace Utils;
 
 namespace TextEditor {
@@ -28,23 +32,43 @@ void EncodingSelectionAspect::setAllowNone(bool allowNone)
 
 void EncodingSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    m_codecChooser = createSubWidget<CodecChooser>();
+    auto codecChooser = createSubWidget<CodecChooser>();
     if (m_allowNone)
-        m_codecChooser->prependNone();
-    m_codecChooser->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
-    m_codecChooser->setAssignedEncoding((*this)());
-    addLabeledItem(parent, m_codecChooser);
+        codecChooser->prependNone();
+    codecChooser->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    const auto encoding = [this] {
+        const QByteArray name = m_undoable.get();
+        return name.isEmpty() ? TextEncoding() : TextEncoding(name);
+    };
+    m_undoable.setSilently(m_volatileValue);
+    codecChooser->setAssignedEncoding(encoding());
+    addLabeledItem(parent, codecChooser);
 
-    connect(m_codecChooser, &CodecChooser::encodingChanged, this, [this] {
-        setVolatileValue(m_codecChooser->currentEncoding().name());
+    connect(codecChooser, &CodecChooser::encodingChanged, this, [this, codecChooser] {
+        m_undoable.set(undoStack(), codecChooser->currentEncoding().name());
     });
+    connect(&m_undoable.m_signal, &UndoSignaller::changed, codecChooser, [codecChooser, encoding] {
+        if (codecChooser->currentEncoding() != encoding())
+            codecChooser->setAssignedEncoding(encoding());
+    });
+    // Once per change however many choosers there are.
+    connect(&m_undoable.m_signal, &UndoSignaller::changed,
+            this, &EncodingSelectionAspect::handleGuiChanged, Qt::UniqueConnection);
+}
+
+void EncodingSelectionAspect::volatileValueToGui()
+{
+    m_undoable.setWithoutUndo(m_volatileValue);
+}
+
+bool EncodingSelectionAspect::guiToVolatileValue()
+{
+    return updateStorage(m_volatileValue, m_undoable.get());
 }
 
 void EncodingSelectionAspect::setValue(const TextEncoding &encoding)
 {
     ByteArrayAspect::setValue(encoding.name());
-    if (m_codecChooser)
-        m_codecChooser->setAssignedEncoding(encoding);
 }
 
 TextEncoding EncodingSelectionAspect::operator()() const
@@ -157,4 +181,47 @@ void setupExtraEncodingSettings()
     globalExtraEncodingSettings().readSettings();
 }
 
+#ifdef WITH_TESTS
+namespace Internal {
+
+class EncodingSelectionAspectTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testUpdatesEveryChooser()
+    {
+        const TextEncoding utf8(TextEncoding::Utf8);
+        const TextEncoding latin1(TextEncoding::Latin1);
+        EncodingSelectionAspect aspect(nullptr);
+        aspect.setValue(utf8);
+        const std::unique_ptr<QWidget> first(Layouting::Column{aspect}.emerge());
+        const std::unique_ptr<QWidget> second(Layouting::Column{aspect}.emerge());
+        CodecChooser *firstChooser = first->findChild<CodecChooser *>();
+        CodecChooser *secondChooser = second->findChild<CodecChooser *>();
+        QVERIFY(firstChooser);
+        QVERIFY(secondChooser);
+
+        aspect.setValue(latin1);
+        QCOMPARE(firstChooser->currentEncoding(), latin1);
+        QCOMPARE(secondChooser->currentEncoding(), latin1);
+
+        firstChooser->setAssignedEncoding(utf8);
+        QCOMPARE(aspect.volatileValue(), utf8.name());
+        QCOMPARE(secondChooser->currentEncoding(), utf8);
+    }
+};
+
+QObject *createEncodingSelectionAspectTest()
+{
+    return new EncodingSelectionAspectTest;
+}
+
+} // namespace Internal
+#endif // WITH_TESTS
+
 } // TextEditor
+
+#ifdef WITH_TESTS
+#include <extraencodingsettings.moc>
+#endif
