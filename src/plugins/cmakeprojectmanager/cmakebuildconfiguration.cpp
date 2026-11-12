@@ -2300,7 +2300,7 @@ static void applyRunSettings(
 
     if (rs.x11Forwarding) {
         if (auto aspect = rc->aspect<X11ForwardingAspect>())
-            aspect->setValue(expanded(*rs.x11Forwarding));
+            aspect->setDisplay(expanded(*rs.x11Forwarding));
     }
 
     if (rs.runAs) {

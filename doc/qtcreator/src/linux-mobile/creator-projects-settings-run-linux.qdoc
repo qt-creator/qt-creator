@@ -36,8 +36,11 @@
 
     \section1 View the application UI
 
-    Select \uicontrol {Use X11 forwarding} to show a remotely
-    running X11 client on a local display.
+    In \uicontrol {X11 forwarding}, select \uicontrol Display to show a
+    remotely running X11 client on a local display. Leave the display
+    empty to use the current one. \uicontrol {Device default} uses the
+    X11 display set in the device settings, and \uicontrol Off turns
+    forwarding off for this run configuration.
 
     Select \uicontrol {Use the Qt VNC platform for display} to render the
     application using the Qt VNC platform plugin. \QC sets the

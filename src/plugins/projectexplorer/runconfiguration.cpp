@@ -22,6 +22,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
@@ -718,11 +719,26 @@ ProcessRunData RunConfiguration::runnable() const
     return r;
 }
 
+static QString x11DisplayForRun(const X11ForwardingAspect &aspect, const IDeviceConstPtr &device)
+{
+    switch (aspect.mode()) {
+    case X11ForwardingAspect::CustomDisplay:
+        return aspect.display();
+    case X11ForwardingAspect::DeviceDefault:
+        return device ? device->sshParameters().x11DisplayName() : QString();
+    case X11ForwardingAspect::Off:
+        break;
+    }
+    return {};
+}
+
 QVariantHash RunConfiguration::extraData() const
 {
     QVariantHash data;
-    if (auto forwardingAspect = aspect<X11ForwardingAspect>())
-        data.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display());
+    if (auto forwardingAspect = aspect<X11ForwardingAspect>()) {
+        data.insert("Ssh.X11ForwardToDisplay",
+                    x11DisplayForRun(*forwardingAspect, RunDeviceKitAspect::device(kit())));
+    }
     return data;
 }
 
@@ -1182,6 +1198,72 @@ private slots:
         emit envAspect.environmentChanged();
 
         QCOMPARE(fetches, fetchesWhileAlive);
+    }
+
+    void testX11ForwardingModeFromSettings()
+    {
+        const auto modeFrom = [](const Store &map) {
+            X11ForwardingAspect aspect;
+            aspect.fromMap(map);
+            return aspect.mode();
+        };
+
+        // Settings from before the mode existed had a checkbox. Unchecked meant no
+        // forwarding, which is what the device default is on devices from then.
+        QCOMPARE(modeFrom({}), X11ForwardingAspect::DeviceDefault);
+        QCOMPARE(modeFrom({{"RunConfiguration.UseX11Forwarding", false}}),
+                 X11ForwardingAspect::DeviceDefault);
+        QCOMPARE(modeFrom({{"RunConfiguration.UseX11Forwarding", true}}),
+                 X11ForwardingAspect::CustomDisplay);
+
+        // Each mode survives a round trip, also the default, which is not written.
+        for (const auto mode : {X11ForwardingAspect::DeviceDefault, X11ForwardingAspect::Off,
+                                X11ForwardingAspect::CustomDisplay}) {
+            X11ForwardingAspect aspect;
+            aspect.setMode(mode);
+            Store map;
+            aspect.toMap(map);
+            QCOMPARE(modeFrom(map), mode);
+        }
+    }
+
+    void testX11DisplayForRun_data()
+    {
+        QTest::addColumn<int>("mode");
+        QTest::addColumn<bool>("hasDevice");
+        QTest::addColumn<QString>("deviceDisplay");
+        QTest::addColumn<QString>("expected");
+
+        QTest::newRow("default, device display")
+            << int(X11ForwardingAspect::DeviceDefault) << true << ":7" << ":7";
+        QTest::newRow("default, no device display")
+            << int(X11ForwardingAspect::DeviceDefault) << true << QString() << QString();
+        QTest::newRow("default, no device")
+            << int(X11ForwardingAspect::DeviceDefault) << false << QString() << QString();
+        QTest::newRow("off, device display")
+            << int(X11ForwardingAspect::Off) << true << ":7" << QString();
+        QTest::newRow("off, no device display")
+            << int(X11ForwardingAspect::Off) << true << QString() << QString();
+    }
+
+    void testX11DisplayForRun()
+    {
+        QFETCH(int, mode);
+        QFETCH(bool, hasDevice);
+        QFETCH(QString, deviceDisplay);
+        QFETCH(QString, expected);
+
+        IDevice::Ptr device;
+        if (hasDevice) {
+            device = IDevice::Ptr(new DummyDevice);
+            SshParameters params;
+            params.setX11DisplayName(deviceDisplay);
+            DeviceRef(device).setSshParameters(params);
+        }
+
+        X11ForwardingAspect aspect;
+        aspect.setMode(X11ForwardingAspect::Mode(mode));
+        QCOMPARE(x11DisplayForRun(aspect, device), expected);
     }
 };
 

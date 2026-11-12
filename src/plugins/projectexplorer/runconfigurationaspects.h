@@ -316,16 +316,29 @@ public:
     MainScriptAspect(Utils::AspectContainer *container = nullptr);
 };
 
-class PROJECTEXPLORER_EXPORT X11ForwardingAspect : public Utils::StringAspect
+class PROJECTEXPLORER_EXPORT X11ForwardingAspect : public Utils::AspectContainer
 {
     Q_OBJECT
 
 public:
     X11ForwardingAspect(Utils::AspectContainer *container = nullptr);
 
-    struct Data : StringAspect::Data { QString display; };
+    enum Mode { DeviceDefault, Off, CustomDisplay };
 
+    Mode mode() const;
+    void setMode(Mode mode);
     QString display() const;
+    void setDisplay(const QString &display);
+
+    void fromMap(const Utils::Store &map) override;
+
+private:
+    void addToLayoutImpl(Layouting::Layout &parent) override;
+
+    void updateDisplayEnabled();
+
+    Utils::SelectionAspect m_mode{this};
+    Utils::StringAspect m_display{this};
 };
 
 } // namespace ProjectExplorer

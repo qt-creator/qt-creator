@@ -1130,29 +1130,79 @@ void LauncherAspect::ensureOfferedCurrentLauncher()
 */
 
 X11ForwardingAspect::X11ForwardingAspect(AspectContainer *container)
-    : StringAspect(container)
+    : AspectContainer(container)
 {
-    setDisplayStyle(LineEditDisplay);
     setId("X11ForwardingAspect");
-    setSettingsKey("RunConfiguration.X11Forwarding");
-    makeCheckable(
-        CheckBoxPlacement::Left, Tr::tr("Use X11 forwarding:"), "RunConfiguration.UseX11Forwarding");
-    setPlaceHolderText(hostX11Display());
-    setLabelText("DISPLAY=");
-    setToolTip(Tr::tr("Overrides the X11 display set in the device settings, "
-                      "also when unchecked."));
+    setLabelText(Tr::tr("X11 forwarding:"));
 
-    addDataExtractor(this, &X11ForwardingAspect::display, &Data::display);
+    m_mode.setId("X11ForwardingMode");
+    m_mode.setSettingsKey("RunConfiguration.X11ForwardingMode");
+    m_mode.addOption(Tr::tr("Device default"),
+                     Tr::tr("Use the X11 display set in the device settings."));
+    m_mode.addOption(Tr::tr("Off"), Tr::tr("Do not forward X11."));
+    m_mode.addOption(Tr::tr("Display"),
+                     Tr::tr("Forward to the display given here. Leave it empty to use "
+                            "the current local display."));
+    m_mode.setDefaultValue(DeviceDefault);
+
+    m_display.setId("X11ForwardingDisplay");
+    m_display.setSettingsKey("RunConfiguration.X11Forwarding");
+    m_display.setDisplayStyle(StringAspect::LineEditDisplay);
+    m_display.setPlaceHolderText(hostX11Display());
+
+    updateDisplayEnabled();
+    connect(&m_mode, &SelectionAspect::changed, this, &X11ForwardingAspect::updateDisplayEnabled);
+    connect(this, &BaseAspect::visibleChanged, this, [this](bool visible) {
+        m_mode.setVisible(visible);
+        m_display.setVisible(visible);
+    });
+}
+
+X11ForwardingAspect::Mode X11ForwardingAspect::mode() const
+{
+    return Mode(m_mode());
+}
+
+void X11ForwardingAspect::setMode(Mode mode)
+{
+    m_mode.setValue(mode);
 }
 
 QString X11ForwardingAspect::display() const
 {
-    if (!isChecked())
+    if (mode() != CustomDisplay)
         return {};
 
     // Follow the current session unless the user pinned a display.
-    const QString display = value().isEmpty() ? hostX11Display() : value();
+    const QString display = m_display().isEmpty() ? hostX11Display() : m_display();
     return macroExpander()->expand(display);
+}
+
+void X11ForwardingAspect::setDisplay(const QString &display)
+{
+    m_mode.setValue(CustomDisplay);
+    m_display.setValue(display);
+}
+
+void X11ForwardingAspect::fromMap(const Store &map)
+{
+    AspectContainer::fromMap(map);
+    if (!map.contains(m_mode.settingsKey())) {
+        // Settings from before the mode existed had a checkbox.
+        const bool checked = map.value("RunConfiguration.UseX11Forwarding").toBool();
+        m_mode.setValue(checked ? CustomDisplay : DeviceDefault, BeQuiet);
+    }
+    updateDisplayEnabled();
+}
+
+void X11ForwardingAspect::addToLayoutImpl(Layouting::Layout &parent)
+{
+    parent.addItems({createLabel(), m_mode, m_display, st});
+}
+
+void X11ForwardingAspect::updateDisplayEnabled()
+{
+    m_display.setEnabled(m_mode() == CustomDisplay);
 }
 
 

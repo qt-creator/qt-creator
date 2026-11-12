@@ -35,8 +35,8 @@
         \li \uicontrol {Main QML file}
         \li File to start \QQV with.
     \row
-        \li \uicontrol {Use X11 forwarding}
-        \li Select \uicontrol {Use X11 forwarding} and configure its \c DISPLAY
+        \li \uicontrol {X11 forwarding}
+        \li Select \uicontrol Display and configure its \c DISPLAY
             to show a remotely running X11 client on a local display.
     \endtable
 
