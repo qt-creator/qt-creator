@@ -7,6 +7,7 @@
 
 #include <QDoubleSpinBox>
 #include <QLabel>
+#include <QListWidget>
 #include <QSpinBox>
 #include <QTest>
 #include <QWidget>
@@ -28,6 +29,10 @@ private slots:
     void doubleAspectKeepsUnroundedValue();
     void textDisplayGivesEveryWidgetALabel();
     void textDisplayUpdatesEveryLabel();
+    void multiSelectionAspectUpdatesEveryList();
+    void multiSelectionAspectTakesEditsFromEveryList();
+    void multiSelectionAspectEditKeepsValueOrder();
+    void multiSelectionAspectKeepsValueOrder();
 };
 
 static std::unique_ptr<QWidget> createWidget(BaseAspect &aspect)
@@ -46,6 +51,21 @@ static InfoLabel *infoLabel(const std::unique_ptr<QWidget> &widget)
 {
     const QList<QLabel *> labels = widget->findChildren<QLabel *>();
     return labels.size() == 1 ? static_cast<InfoLabel *>(labels.first()) : nullptr;
+}
+
+static QListWidget *listWidget(const std::unique_ptr<QWidget> &widget)
+{
+    return widget->findChild<QListWidget *>();
+}
+
+static QStringList checkedItems(QListWidget *list)
+{
+    QStringList checked;
+    for (int i = 0; i < list->count(); ++i) {
+        if (list->item(i)->checkState() == Qt::Checked)
+            checked.append(list->item(i)->text());
+    }
+    return checked;
 }
 
 static QDoubleSpinBox *doubleSpinBox(const std::unique_ptr<QWidget> &widget)
@@ -167,6 +187,64 @@ void tst_Aspects::textDisplayUpdatesEveryLabel()
     QCOMPARE(infoLabel(second)->text(), "Changed");
     QCOMPARE(infoLabel(first)->type(), InfoLabelType::Warning);
     QCOMPARE(infoLabel(second)->type(), InfoLabelType::Warning);
+}
+
+void tst_Aspects::multiSelectionAspectUpdatesEveryList()
+{
+    MultiSelectionAspect aspect;
+    aspect.setAllValues({"a", "b", "c"});
+    const auto first = createWidget(aspect);
+    const auto second = createWidget(aspect);
+    QVERIFY(listWidget(first));
+    QVERIFY(listWidget(second));
+
+    aspect.setValue({"a", "c"});
+
+    QCOMPARE(checkedItems(listWidget(first)), QStringList({"a", "c"}));
+    QCOMPARE(checkedItems(listWidget(second)), QStringList({"a", "c"}));
+}
+
+void tst_Aspects::multiSelectionAspectTakesEditsFromEveryList()
+{
+    MultiSelectionAspect aspect;
+    aspect.setAllValues({"a", "b", "c"});
+    const auto first = createWidget(aspect);
+    const auto second = createWidget(aspect);
+    QVERIFY(listWidget(first));
+    QVERIFY(listWidget(second));
+
+    listWidget(first)->item(1)->setCheckState(Qt::Checked);
+
+    QCOMPARE(aspect.value(), QStringList({"b"}));
+    QCOMPARE(checkedItems(listWidget(second)), QStringList({"b"}));
+}
+
+void tst_Aspects::multiSelectionAspectEditKeepsValueOrder()
+{
+    MultiSelectionAspect aspect;
+    aspect.setAllValues({"a", "b", "c"});
+    aspect.setValue({"c", "a", "x"});
+    const auto widget = createWidget(aspect);
+    QVERIFY(listWidget(widget));
+
+    listWidget(widget)->item(1)->setCheckState(Qt::Checked);
+    QCOMPARE(aspect.value(), QStringList({"c", "a", "x", "b"}));
+
+    listWidget(widget)->item(0)->setCheckState(Qt::Unchecked);
+    QCOMPARE(aspect.value(), QStringList({"c", "x", "b"}));
+}
+
+void tst_Aspects::multiSelectionAspectKeepsValueOrder()
+{
+    MultiSelectionAspect aspect;
+    aspect.setAllValues({"a", "b", "c"});
+    const auto widget = createWidget(aspect);
+    QVERIFY(listWidget(widget));
+
+    aspect.setValue({"c", "a"});
+
+    QCOMPARE(aspect.value(), QStringList({"c", "a"}));
+    QCOMPARE(checkedItems(listWidget(widget)), QStringList({"a", "c"}));
 }
 
 QTEST_MAIN(tst_Aspects)

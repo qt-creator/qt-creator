@@ -904,9 +904,7 @@ public:
     QStringList m_allValues;
     MultiSelectionAspect::DisplayStyle m_displayStyle
         = MultiSelectionAspect::DisplayStyle::ListView;
-
-    // These are all owned by the configuration widget.
-    QPointer<QListWidget> m_listView;
+    UndoableValue<QStringList> m_undoable;
 };
 
 template<class Widget>
@@ -2728,20 +2726,45 @@ MultiSelectionAspect::~MultiSelectionAspect() = default;
 */
 void MultiSelectionAspect::addToLayoutImpl(Layout &builder)
 {
-    QTC_CHECK(d->m_listView == nullptr);
     if (d->m_allValues.isEmpty())
         return;
 
     switch (d->m_displayStyle) {
-    case DisplayStyle::ListView:
-        d->m_listView = createSubWidget<QListWidget>();
+    case DisplayStyle::ListView: {
+        auto listView = createSubWidget<QListWidget>();
         for (const QString &val : std::as_const(d->m_allValues))
-            (void) new QListWidgetItem(val, d->m_listView);
-        addLabeledItem(builder, d->m_listView);
+            (void) new QListWidgetItem(val, listView);
+        addLabeledItem(builder, listView);
+
+        const auto updateCheckStates = [this, listView] {
+            const QSignalBlocker blocker(listView);
+            for (int i = 0, n = listView->count(); i != n; ++i) {
+                QListWidgetItem *item = listView->item(i);
+                item->setCheckState(d->m_undoable.get().contains(item->text()) ? Qt::Checked
+                                                                               : Qt::Unchecked);
+            }
+        };
 
         volatileValueToGui();
-        connect(d->m_listView, &QListWidget::itemChanged,
-                this, &MultiSelectionAspect::handleGuiChanged);
+        updateCheckStates();
+
+        connect(listView, &QListWidget::itemChanged, this, [this](QListWidgetItem *item) {
+            QStringList value = d->m_undoable.get();
+            if (item->checkState() == Qt::Checked) {
+                if (!value.contains(item->text()))
+                    value.append(item->text());
+            } else {
+                value.removeAll(item->text());
+            }
+            d->m_undoable.set(undoStack(), value);
+        });
+
+        connect(&d->m_undoable.m_signal, &UndoSignaller::changed, listView,
+                [this, updateCheckStates] {
+            updateCheckStates();
+            handleGuiChanged();
+        });
+    }
     }
 }
 
@@ -2778,30 +2801,12 @@ void MultiSelectionAspect::setDisplayStyle(MultiSelectionAspect::DisplayStyle st
 
 void MultiSelectionAspect::volatileValueToGui()
 {
-    if (d->m_listView) {
-        const int n = d->m_listView->count();
-        QTC_CHECK(n == d->m_allValues.size());
-        for (int i = 0; i != n; ++i) {
-            auto item = d->m_listView->item(i);
-            item->setCheckState(m_volatileValue.contains(item->text()) ? Qt::Checked : Qt::Unchecked);
-        }
-    }
+    d->m_undoable.setWithoutUndo(m_volatileValue);
 }
 
 bool MultiSelectionAspect::guiToVolatileValue()
 {
-    if (d->m_listView) {
-        QStringList val;
-        const int n = d->m_listView->count();
-        QTC_CHECK(n == d->m_allValues.size());
-        for (int i = 0; i != n; ++i) {
-            auto item = d->m_listView->item(i);
-            if (item->checkState() == Qt::Checked)
-                val.append(item->text());
-        }
-        return updateStorage(m_volatileValue, val);
-    }
-    return false;
+    return updateStorage(m_volatileValue, d->m_undoable.get());
 }
 
 
