@@ -38,6 +38,9 @@ enum CommandFlags {
     ScriptCommand = DebuggerCommand::Silent << 3
 };
 
+// How long cdb gets to end a session it was told to quit.
+constexpr std::chrono::seconds quitTimeout{2};
+
 // What a pdb records is where the sources were when the inferior was built; the
 // mapping says where they are now.
 static QString mappedFromDebugger(const QString &file,
@@ -350,7 +353,7 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
         // A remote session reports no idle, but takes commands from the start.
         m_accessible = true;
         runCommand({".load " + m_startData.extensionFileName, NoFlags});
-        handleInitialSessionIdle();
+        handleInitialSessionIdle({});
     });
     connect(&m_cdbProc, &Process::done, this, [this] {
         m_watchdog.stop();
@@ -370,6 +373,8 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
             QMetaObject::invokeMethod(this, [this] { restartSession(); }, Qt::QueuedConnection);
             return;
         }
+        if (std::exchange(m_engineShutdownPending, false))
+            emit inferiorEvent(InferiorEvent::EngineShutdownFinished);
         removeStagedScripts();
         emit engineProcessFinished(m_cdbProc.resultData());
     });
@@ -724,10 +729,10 @@ Result<> CdbImpl::setupProcess()
     return ResultOk;
 }
 
-void CdbImpl::handleInitialSessionIdle()
+void CdbImpl::handleInitialSessionIdle(const GdbMi &stopData)
 {
     m_initialSessionIdleHandled = true;
-    initializeSession([this] {
+    initializeSession([this, stopData] {
         for (const QString &command : m_startData.startupCommands)
             runCommand({command, NoFlags});
         if (!isCore())
@@ -741,6 +746,9 @@ void CdbImpl::handleInitialSessionIdle()
         } else if (isCore()) {
             emit inferiorEvent(InferiorEvent::EngineSetupOk);
             emit inferiorEvent(InferiorEvent::RunOkAndInferiorUnrunnable);
+            // What the dump was written for, as a live session would have said it.
+            if (const std::optional<QString> exception = stoppedByException(stopData))
+                emit signalReceived({}, *exception);
             return;
         } else if (isAttach()) {
             emit inferiorEvent(InferiorEvent::EngineSetupOk);
@@ -770,26 +778,55 @@ void CdbImpl::start()
 
 void CdbImpl::shutdownInferior(ShutdownMode mode)
 {
-    if (m_cdbProc.isRunning()) {
-        // Quitting takes the debuggee down with it, so let go of it first.
-        if (mode == ShutdownMode::Detach)
-            runCommand({".detach", NoFlags});
-        m_shuttingDown = true;
-        // A remote session needs more force to quit, and the extension has to let go
-        // of its callbacks before the session goes away under them.
-        if (isRemoteServer())
-            m_cdbProc.write(m_extensionCommandPrefix + "shutdownex\nqq\n");
-        else
-            m_cdbProc.write("q\n");
+    if (!m_cdbProc.isRunning()) {
+        emit inferiorEvent(InferiorEvent::ShutdownFinished);
+        return;
     }
+    m_shuttingDown = true;
+    // Ending the session takes the debuggee down with it.
+    if (mode == ShutdownMode::Detach) {
+        // cdb reads no command while the inferior runs, so this breaks in first.
+        m_leavingSession = true;
+        runCommand({".detach", BuiltinCommand, [this](const DebuggerResponse &) {
+            quitSession();
+            emit inferiorEvent(InferiorEvent::ShutdownFinished);
+        }});
+        return;
+    }
+    // A running inferior goes down with cdb, which is killed then.
+    if (!m_inferiorRunning)
+        quitSession();
     emit inferiorEvent(InferiorEvent::ShutdownFinished);
+}
+
+void CdbImpl::quitSession()
+{
+    m_quitWritten = true;
+    // A remote session needs more force to quit, and the extension has to let go
+    // of its callbacks before the session goes away under them.
+    if (isRemoteServer())
+        m_cdbProc.write(m_extensionCommandPrefix + "shutdownex\nqq\n");
+    else
+        m_cdbProc.write("q\n");
 }
 
 void CdbImpl::shutdownEngine()
 {
     m_shuttingDown = true;
-    if (m_cdbProc.isRunning())
-        m_cdbProc.kill();
+    if (!m_cdbProc.isRunning()) {
+        emit inferiorEvent(InferiorEvent::EngineShutdownFinished);
+        return;
+    }
+    // cdb is quitting, and its end finishes the shutdown.
+    if (m_quitWritten) {
+        m_engineShutdownPending = true;
+        QTimer::singleShot(quitTimeout, this, [this] {
+            if (m_cdbProc.isRunning())
+                m_cdbProc.kill();
+        });
+        return;
+    }
+    m_cdbProc.kill();
     emit inferiorEvent(InferiorEvent::EngineShutdownFinished);
 }
 
@@ -841,6 +878,7 @@ void CdbImpl::execute(const ExecutionRequest &request)
     m_inInternalStop = false;
     m_stopReported = false;
     m_expectStaleStop = false;
+    m_runIsContinue = false;
     setNativeCallHookArmed(false);
     switch (request.command) {
     case ExecutionCommand::Continue:
@@ -853,11 +891,13 @@ void CdbImpl::execute(const ExecutionRequest &request)
             emit inferiorEvent(InferiorEvent::RunRequested);
             emit inferiorEvent(InferiorEvent::RunOk);
             m_interpreterStepArmed = false;
+            m_runIsContinue = true;
             runInterpreterCommand("executeContinue", "g");
             break;
         }
         m_expectSpontaneousStop = true;
         m_inferiorRunning = true;
+        m_runIsContinue = true;
         emit inferiorEvent(InferiorEvent::RunRequested);
         emit inferiorEvent(InferiorEvent::RunOk);
         runCommand({"g", NoFlags});
@@ -977,6 +1017,7 @@ void CdbImpl::execute(const ExecutionRequest &request)
             }
             m_expectSpontaneousStop = true;
             m_inferiorRunning = true;
+            m_runIsContinue = true;
             emit inferiorEvent(InferiorEvent::RunRequested);
             emit inferiorEvent(InferiorEvent::RunOk);
             runCommand({"g", NoFlags});
@@ -1025,6 +1066,7 @@ void CdbImpl::execute(const ExecutionRequest &request)
             runCommand(m_lastDebuggableCommand);
         break;
     case ExecutionCommand::Detach:
+        m_leavingSession = true;
         runCommand({".detach", BuiltinCommand, [this](const DebuggerResponse &) {
             m_inferiorRunning = false;
             emit inferiorDone({0, InferiorExitStatus::Detached});
@@ -1170,7 +1212,7 @@ void CdbImpl::insertBreakpoint(quint64 requestId, const QString &id, int modelId
     if (!params.isCppBreakpoint()) {
         if (!m_startData.nativeMixed) {
             if (report)
-                emit breakpointEvent(requestId, BreakpointOp::Insert, false, {});
+                reportBreakpointEvent(requestId, BreakpointOp::Insert, false, {});
             return;
         }
         if (m_pythonVersion == 0) {
@@ -1178,7 +1220,7 @@ void CdbImpl::insertBreakpoint(quint64 requestId, const QString &id, int modelId
                 if (m_pythonVersion != 0)
                     insertInterpreterBreakpoint(requestId, modelId, params, report);
                 else if (report)
-                    emit breakpointEvent(requestId, BreakpointOp::Insert, false, {});
+                    reportBreakpointEvent(requestId, BreakpointOp::Insert, false, {});
             });
             return;
         }
@@ -1210,7 +1252,7 @@ void CdbImpl::insertBreakpoint(quint64 requestId, const QString &id, int modelId
     const QString cmd = breakpointInsertCommand(fixed, id, sourcePathMap());
     if (cmd.isEmpty()) {
         if (report)
-            emit breakpointEvent(requestId, BreakpointOp::Insert, false, {});
+            reportBreakpointEvent(requestId, BreakpointOp::Insert, false, {});
         return;
     }
     const bool enabled = params.enabled;
@@ -1255,16 +1297,18 @@ void CdbImpl::insertBreakpoint(quint64 requestId, const QString &id, int modelId
                 const QString target = hexAddress(address);
                 const QString subResponseId = QString::number(id.toInt() + ++subId);
                 m_parentForSubBreakpointId.insert(subResponseId, id);
+                // The reply can come after the resume that followed a break-in, so
+                // these are deferred like any other breakpoint command.
                 runCommand({breakpointInsertCommand(fixed, subResponseId, sourcePathMap(),
-                                                    target), NoFlags});
+                                                    target), BuiltinCommand});
                 if (!enabled)
-                    runCommand({"bd" + subResponseId, NoFlags});
+                    runCommand({"bd" + subResponseId, BuiltinCommand});
                 GdbMi location;
                 location.m_type = GdbMi::Tuple;
                 location.addConst("number", subResponseId);
                 location.addConst("func", matchedFunction);
                 location.addConst("addr", target);
-                location.addConst("enabled", QLatin1String(enabled ? "y" : "n"));
+                location.addConst("enabled", "y");
                 if (!file.isEmpty()) {
                     location.addConst("file", file);
                     location.addConst("line", QString::number(line));
@@ -1283,6 +1327,15 @@ void CdbImpl::insertBreakpoint(quint64 requestId, const QString &id, int modelId
         runCommand({"bd" + id, BuiltinCommand});
 }
 
+// What cdb takes in its breakpoint command itself, rather than what the engine
+// applies at a stop. A change to any of it needs a breakpoint of its own.
+static bool needsNewCdbBreakpoint(const BreakpointParameters &from,
+                                  const BreakpointParameters &to)
+{
+    const BreakpointParts inPlace = ConditionPart | EnabledPart | MessagePart | TracePointPart;
+    return (from.differencesTo(to) & ~inPlace) || from.size != to.size;
+}
+
 void CdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
 {
     switch (request.op) {
@@ -1292,7 +1345,7 @@ void CdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
         break;
     case BreakpointOp::Remove:
         if (request.responseId.isEmpty()) {
-            emit breakpointEvent(request.requestId, request.op, false, {});
+            reportBreakpointEvent(request.requestId, request.op, false, {});
             break;
         }
         if (!request.params.isCppBreakpoint()) {
@@ -1301,51 +1354,112 @@ void CdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
         }
         if (m_throwBreakpoints.remove(request.responseId)) {
             syncExceptionEvents();
-            emit breakpointEvent(request.requestId, request.op, true, {});
+            reportBreakpointEvent(request.requestId, request.op, true, {});
             break;
         }
-        runCommand({"bc" + request.responseId, NoFlags});
-        m_insertedBreakpoints.remove(request.responseId);
-        m_conditionForBreakpointId.remove(request.responseId);
-        m_breakpointHitCounts.remove(request.responseId);
-        m_unresolvedBreakpointIds.remove(request.responseId);
-        for (const QString &subId : m_parentForSubBreakpointId.keys(request.responseId))
-            m_parentForSubBreakpointId.remove(subId);
-        emit breakpointEvent(request.requestId, request.op, true, {});
+        clearBreakpoint(request.responseId);
+        reportBreakpointEvent(request.requestId, request.op, true, {});
         break;
-    case BreakpointOp::Update:
-        if (request.responseId.isEmpty()) {
-            emit breakpointEvent(request.requestId, request.op, false, {});
+    case BreakpointOp::Update: {
+        const QString id = request.responseId;
+        if (id.isEmpty()) {
+            reportBreakpointEvent(request.requestId, request.op, false, {});
             break;
         }
         if (!request.params.isCppBreakpoint()) {
             changeInterpreterBreakpoint(request);
             break;
         }
-        if (m_throwBreakpoints.contains(request.responseId)) {
-            m_throwBreakpoints.insert(request.responseId, request.params.enabled);
+        if (m_throwBreakpoints.contains(id)) {
+            m_throwBreakpoints.insert(id, request.params.enabled);
             syncExceptionEvents();
-            emit breakpointEvent(request.requestId, request.op, true, {});
+            reportBreakpointEvent(request.requestId, request.op, true, {});
             break;
         }
+        const auto inserted = m_insertedBreakpoints.constFind(id);
+        if (inserted != m_insertedBreakpoints.cend()
+                && needsNewCdbBreakpoint(*inserted, request.params)) {
+            const int hits = m_breakpointHitCounts.value(id);
+            clearBreakpoint(id);
+            const QString newId = nextBreakpointId();
+            if (hits)
+                m_breakpointHitCounts.insert(newId, hits);
+            m_replacingRequests.insert(request.requestId);
+            insertBreakpoint(request.requestId, newId, request.modelId, request.params, true);
+            break;
+        }
+        if (inserted != m_insertedBreakpoints.cend())
+            m_insertedBreakpoints.insert(id, request.params);
         if (request.params.condition.isEmpty())
-            m_conditionForBreakpointId.remove(request.responseId);
+            m_conditionForBreakpointId.remove(id);
         else
-            m_conditionForBreakpointId.insert(request.responseId, request.params.condition);
-        runCommand({QLatin1String(request.params.enabled ? "be" : "bd") + request.responseId,
-                    NoFlags});
-        emit breakpointEvent(request.requestId, request.op, true, {});
-        break;
-    case BreakpointOp::EnableSub:
-        if (request.subResponseId.isEmpty()) {
-            emit breakpointEvent(request.requestId, request.op, false, {});
-            break;
-        }
-        runCommand({QLatin1String(request.enabled ? "be" : "bd") + request.subResponseId,
-                    NoFlags});
-        emit breakpointEvent(request.requestId, request.op, true, {});
+            m_conditionForBreakpointId.insert(id, request.params.condition);
+        applyBreakpointEnabled(id, request.params.enabled);
+        reportBreakpointEvent(request.requestId, request.op, true, {});
         break;
     }
+    case BreakpointOp::EnableSub: {
+        const QString subId = request.subResponseId;
+        if (subId.isEmpty()) {
+            reportBreakpointEvent(request.requestId, request.op, false, {});
+            break;
+        }
+        m_subBreakpointEnabled.insert(subId, request.enabled);
+        const QString parentId = m_parentForSubBreakpointId.value(subId);
+        const auto parent = m_insertedBreakpoints.constFind(parentId);
+        if (parent != m_insertedBreakpoints.cend())
+            applyBreakpointEnabled(parentId, parent->enabled);
+        else
+            applyBreakpointEnabled(subId, request.enabled);
+        reportBreakpointEvent(request.requestId, request.op, true, {});
+        break;
+    }
+    }
+}
+
+// A breakpoint with several locations is a cdb breakpoint per location. As with
+// gdb, a location stops only while both it and its breakpoint are enabled.
+void CdbImpl::applyBreakpointEnabled(const QString &id, bool enabled)
+{
+    const auto apply = [this](const QString &cdbId, bool on) {
+        if (on)
+            m_retiredWhileRunning.remove(cdbId);
+        else if (m_inferiorRunning)
+            m_retiredWhileRunning.insert(cdbId);
+        runCommand({QLatin1String(on ? "be" : "bd") + cdbId, BuiltinCommand});
+    };
+    apply(id, enabled);
+    for (const QString &subId : m_parentForSubBreakpointId.keys(id))
+        apply(subId, enabled && m_subBreakpointEnabled.value(subId, true));
+}
+
+// The block of ids a breakpoint owns covers the ones of its locations.
+void CdbImpl::clearBreakpoint(const QString &id)
+{
+    runCommand({"bc " + id + '-' + QString::number(id.toInt() + cdbBreakPointIdMinorPart - 1),
+                BuiltinCommand});
+    if (m_inferiorRunning)
+        m_retiredWhileRunning.insert(id);
+    m_insertedBreakpoints.remove(id);
+    m_conditionForBreakpointId.remove(id);
+    m_breakpointHitCounts.remove(id);
+    m_unresolvedBreakpointIds.remove(id);
+    for (const QString &subId : m_parentForSubBreakpointId.keys(id)) {
+        if (m_inferiorRunning)
+            m_retiredWhileRunning.insert(subId);
+        m_parentForSubBreakpointId.remove(subId);
+        m_subBreakpointEnabled.remove(subId);
+    }
+}
+
+// A breakpoint that had to be put anew answers its change as the insert it is,
+// and the client takes the new number from there.
+void CdbImpl::reportBreakpointEvent(quint64 requestId, BreakpointOp op, bool ok,
+                                    const GdbMi &data)
+{
+    if (op == BreakpointOp::Insert && m_replacingRequests.remove(requestId))
+        op = BreakpointOp::Update;
+    emit breakpointEvent(requestId, op, ok, data);
 }
 
 void CdbImpl::parseFunctionDisassembly(const QString &reply, ResolvedFunction *function)
@@ -1487,15 +1601,15 @@ void CdbImpl::setResolvedFunctionBreakpoints(quint64 requestId, const QString &i
             resolved.append(function);
     }
     if (resolved.isEmpty()) {
-        emit breakpointEvent(requestId, BreakpointOp::Insert, false, {});
+        reportBreakpointEvent(requestId, BreakpointOp::Insert, false, {});
         return;
     }
     if (resolved.size() == 1) {
         const ResolvedFunction &function = resolved.constFirst();
         runCommand({breakpointInsertCommand(params, id, sourcePathMap(),
-                                            hexAddress(function.address)), NoFlags});
+                                            hexAddress(function.address)), BuiltinCommand});
         if (!enabled)
-            runCommand({"bd" + id, NoFlags});
+            runCommand({"bd" + id, BuiltinCommand});
         reportBreakpointInserted(requestId, id, enabled, function.file, function.line,
                                  function.name, {}, report);
         return;
@@ -1508,15 +1622,15 @@ void CdbImpl::setResolvedFunctionBreakpoints(quint64 requestId, const QString &i
         const QString subResponseId = QString::number(id.toInt() + ++subId);
         m_parentForSubBreakpointId.insert(subResponseId, id);
         runCommand({breakpointInsertCommand(params, subResponseId, sourcePathMap(),
-                                            hexAddress(function.address)), NoFlags});
+                                            hexAddress(function.address)), BuiltinCommand});
         if (!enabled)
-            runCommand({"bd" + subResponseId, NoFlags});
+            runCommand({"bd" + subResponseId, BuiltinCommand});
         GdbMi location;
         location.m_type = GdbMi::Tuple;
         location.addConst("number", subResponseId);
         location.addConst("func", function.name);
         location.addConst("addr", hexAddress(function.address));
-        location.addConst("enabled", QLatin1String(enabled ? "y" : "n"));
+        location.addConst("enabled", "y");
         location.addConst("file", function.file);
         location.addConst("line", QString::number(function.line));
         locations.addChild(location);
@@ -1558,6 +1672,11 @@ void CdbImpl::reportBreakpointInserted(quint64 requestId, const QString &id, boo
         bkpt.m_type = GdbMi::Tuple;
         bkpt.addConst("number", id);
         bkpt.addConst("enabled", QLatin1String(enabled ? "y" : "n"));
+        // Left out, the client takes them for unset.
+        if (const QString cond = m_conditionForBreakpointId.value(id); !cond.isEmpty())
+            bkpt.addConst("cond", cond);
+        if (m_insertedBreakpoints.value(id).oneShot)
+            bkpt.addConst("disp", "del");
         if (!file.isEmpty()) {
             bkpt.addConst("file", file);
             bkpt.addConst("line", QString::number(line));
@@ -1583,7 +1702,7 @@ void CdbImpl::reportBreakpointInserted(quint64 requestId, const QString &id, boo
         GdbMi list;
         list.m_type = GdbMi::List;
         list.addChild(bkpt);
-        emit breakpointEvent(requestId, BreakpointOp::Insert, true, list);
+        reportBreakpointEvent(requestId, BreakpointOp::Insert, true, list);
     };
     if (locations.childCount() > 0 || (file.isEmpty() && function.isEmpty())) {
         emitInserted({}, {});
@@ -1808,11 +1927,11 @@ void CdbImpl::changeInterpreterBreakpoint(const BreakpointChangeRequest &request
         const bool removed = response.resultClass == ResultDone;
         m_interpreterBreakpointNumbers.remove(modelId);
         if (op == BreakpointOp::Remove || !removed) {
-            emit breakpointEvent(requestId, op, removed, {});
+            reportBreakpointEvent(requestId, op, removed, {});
             return;
         }
         insertInterpreterBreakpoint(0, modelId, params, false);
-        emit breakpointEvent(requestId, op, true, {});
+        reportBreakpointEvent(requestId, op, true, {});
     };
     runServiceCommand(cmd);
 }
@@ -1832,7 +1951,7 @@ void CdbImpl::insertInterpreterBreakpoint(quint64 requestId, int modelId,
                    (const DebuggerResponse &response) {
         if (response.resultClass != ResultDone) {
             if (report)
-                emit breakpointEvent(requestId, BreakpointOp::Insert, false, {});
+                reportBreakpointEvent(requestId, BreakpointOp::Insert, false, {});
             return;
         }
         GdbMi result;
@@ -1858,7 +1977,7 @@ void CdbImpl::insertInterpreterBreakpoint(quint64 requestId, int modelId,
         }
         if (result["pending"].data() == "1")
             m_pendingInterpreterBreakpoints.append(pending);
-        emit breakpointEvent(requestId, BreakpointOp::Insert, true, list);
+        reportBreakpointEvent(requestId, BreakpointOp::Insert, true, list);
     };
     runServiceCommand(cmd);
 }
@@ -2470,6 +2589,12 @@ void CdbImpl::restartSession()
     m_expandingTracepoint = false;
     m_lastOperateByInstruction.reset();
     m_parentForSubBreakpointId.clear();
+    m_subBreakpointEnabled.clear();
+    m_retiredWhileRunning.clear();
+    m_replacingRequests.clear();
+    m_leavingSession = false;
+    m_quitWritten = false;
+    m_engineShutdownPending = false;
     m_unresolvedBreakpointIds.clear();
     m_conditionForBreakpointId.clear();
     m_normalizedFileCache.clear();
@@ -2584,7 +2709,7 @@ void CdbImpl::syncExceptionEvents()
     const bool wanted = m_startData.breakEvents.contains("eh")
                         || std::any_of(m_throwBreakpoints.cbegin(), m_throwBreakpoints.cend(),
                                        [](bool enabled) { return enabled; });
-    runCommand({QLatin1String(wanted ? "sxe eh" : "sxn eh"), NoFlags});
+    runCommand({QLatin1String(wanted ? "sxe eh" : "sxn eh"), BuiltinCommand});
 }
 
 // A console event would need the ctrl-c stub, and reaches every process in the
@@ -2691,6 +2816,12 @@ void CdbImpl::initializeSession(const std::function<void()> &whenReady)
         } else if (!isCore()) { // A dump has no process to ask.
             emit message(QString("CdbImpl: failed to determine the inferior pid: %1")
                              .arg(response.data["msg"].data()), LogError);
+            // Without it there is no interrupting the inferior. A restart has
+            // been set up once already, and keeps going as it can.
+            if (!m_isResetRestart) {
+                emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+                return;
+            }
         }
         if (whenReady)
             whenReady();
@@ -3468,6 +3599,12 @@ void CdbImpl::handleCdbOutputLine(const QString &rawLine)
             emit message(line, LogMisc);
             return;
         }
+        if (m_retiredWhileRunning.contains(number)
+                || m_retiredWhileRunning.contains(m_parentForSubBreakpointId.value(number))) {
+            // The user took it away or disabled it. The stop that follows is dropped.
+            emit message(line, LogMisc);
+            return;
+        }
         const QString reportedNumber = m_parentForSubBreakpointId.value(number, number);
         if (m_insertedBreakpoints.value(reportedNumber).oneShot) {
             // cdb takes a one-shot breakpoint back the moment it hits, so the
@@ -3488,7 +3625,7 @@ void CdbImpl::handleCdbOutputLine(const QString &rawLine)
             GdbMi removed;
             removed.m_type = GdbMi::Tuple;
             removed.addConst("number", reportedNumber);
-            emit breakpointEvent(0, BreakpointOp::Remove, true, removed);
+            reportBreakpointEvent(0, BreakpointOp::Remove, true, removed);
             emit message(line, LogMisc);
             return;
         }
@@ -3689,13 +3826,13 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
 
     if (what == "session_idle") {
         m_stopAnnounced = false;
-        if (!m_initialSessionIdleHandled) {
-            handleInitialSessionIdle();
-            return;
-        }
         GdbMi stopData;
         QStringDecoder decoder(QStringEncoder::System);
         stopData.fromString(payload, decoder);
+        if (!m_initialSessionIdleHandled) {
+            handleInitialSessionIdle(stopData);
+            return;
+        }
         // An inferior call of ours makes dbgeng re-announce the stop it was made
         // from, without a reason or a breakpoint id to route by. Recognizing it
         // by location, as CdbEngine does, needs private symbols, which a release
@@ -3738,6 +3875,23 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
         m_deferredCommands.clear();
         for (const DebuggerCommand &cmd : deferred)
             runCommand(cmd);
+        // The session ends here, and the commands that end it are out.
+        if (m_leavingSession)
+            return;
+        // The program can reach a breakpoint the client took away or disabled
+        // before the break-in that carries that change does. The break-in is
+        // still to come, and is swallowed when it does. A step that ends there
+        // is reported as the stop it is.
+        const QSet<QString> retired = std::exchange(m_retiredWhileRunning, {});
+        const QString hitId = stopData["breakpointId"].data();
+        if (!ownBreakIn && m_runIsContinue && stopData["reason"].data() == "breakpoint"
+                && (retired.contains(hitId)
+                    || retired.contains(m_parentForSubBreakpointId.value(hitId)))) {
+            m_expectSpontaneousStop = true;
+            m_inferiorRunning = true;
+            runCommand({"g", NoFlags});
+            return;
+        }
         updateJustMyCodeAtStop(stopData, ownBreakIn);
         if (!m_serviceSafePointId.isEmpty() && !m_interruptRequested
                 && stopData["breakpointId"].data() == m_serviceSafePointId) {
@@ -4147,11 +4301,9 @@ void CdbImpl::reportStop(const GdbMi &stopData)
         const GdbMi &topFrame = stack.childAt(0);
         const QString fullName = mappedFromDebugger(topFrame["fullname"].data(),
                                                     sourcePathMap());
-        // The path comes from the debug information, so a source that has since
-        // moved away is a location the editor cannot go to. Keep it to ourselves.
-        const FilePath file = FilePath::fromUserInput(fullName);
-        if (!fullName.isEmpty() && file.exists())
-            emit locationChanged(file, topFrame["line"].toInt());
+        // The client finds the file on the device and leaves out what is not there.
+        if (!fullName.isEmpty())
+            emit locationChanged(FilePath::fromUserInput(fullName), topFrame["line"].toInt());
     }
     m_inferiorRunning = false;
     m_inInternalStop = false;
@@ -4172,6 +4324,17 @@ void CdbImpl::reportStop(const GdbMi &stopData)
     m_expectSpontaneousStop = false;
     if (const std::optional<QString> exception = stoppedByException(stopData))
         emit signalReceived({}, *exception);
+    if (stopData["reason"].data() == "breakpoint") {
+        const QString hitId = stopData["breakpointId"].data();
+        const QString id = m_parentForSubBreakpointId.value(hitId, hitId);
+        const auto bp = m_insertedBreakpoints.constFind(id);
+        if (bp == m_insertedBreakpoints.cend())
+            return;
+        if (bp->type == WatchpointAtAddress)
+            emit watchpointTriggered(id, '*' + hexAddress(bp->address), {}, {});
+        else
+            emit breakpointTriggered(id, stopData["threadId"].data());
+    }
 }
 
 bool CdbImpl::isJustMyCodeUserFile(const QString &debuggerFile) const

@@ -160,6 +160,18 @@ private slots:
     void testCdbImplJustMyCodeForget();
     void testCdbImplJustMyCodeUnsupported();
     void testCdbImplJustMyCodeOwnBreakIn();
+    void testCdbImplBreakpointRemovedWhileRunning();
+    void testCdbImplBreakpointRemovedDuringStep();
+    void testCdbImplBreakpointRemovedDuringRunToFunction();
+    void testCdbImplBreakpointReenabledWhileRunning();
+    void testCdbImplBreakpointUpdateReplaces();
+    void testCdbImplAmbiguousBreakpointWhileRunning();
+    void testCdbImplSubBreakpointEnabled();
+    void testCdbImplShutdownDetachesAttached();
+    void testCdbImplSessionPidFailure();
+    void testCdbImplStopReports();
+    void testCdbImplCoreStopException();
+    void testCdbImplQuitStoppedSession();
     void testCdbImplScriptMessages();
     void testCdbImplDebuggeeOutput();
     void testCdbImplExtensionCommandLines();
@@ -1638,6 +1650,566 @@ void DebuggerUnitTests::testCdbImplJustMyCodeOwnBreakIn()
     cdb.m_shuttingDown = true;
     cdb.m_cdbProc.kill();
     QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+static const char cdbOwnBreakIn[]
+    = R"(<qtcreatorcdbext>|E|0|0|session_idle|{reason="exception",)"
+      R"(exceptionCode="2147483651",exceptionFunction="ntdll!DbgBreakPoint"})";
+
+static BreakpointChangeRequest cdbAddressBreakpoint(BreakpointOp op, quint64 requestId,
+                                                    quint64 address)
+{
+    BreakpointChangeRequest request;
+    request.op = op;
+    request.requestId = requestId;
+    request.params = BreakpointParameters(BreakpointByAddress);
+    request.params.address = address;
+    return request;
+}
+
+void DebuggerUnitTests::testCdbImplBreakpointRemovedWhileRunning()
+{
+    CdbImpl cdb({});
+    cdb.m_wow64State = CdbImpl::Wow64State::None;
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+    QList<InferiorEvent> events;
+    QObject::connect(&cdb, &CdbImpl::inferiorEvent, &cdb, [&events](InferiorEvent event) {
+        events.append(event);
+    });
+
+    cdb.changeBreakpoint(cdbAddressBreakpoint(BreakpointOp::Insert, 1, 0x10000));
+    answerCdbBuiltin(cdb, cdb.m_nextCommandToken);
+    QCOMPARE(cdb.m_insertedBreakpoints.size(), 1);
+    const QString id = cdb.m_insertedBreakpoints.keys().first();
+
+    // cdb takes the clear only at the next stop, which the engine breaks in for.
+    cdb.m_inferiorRunning = true;
+    cdb.m_runIsContinue = true;
+    cdb.m_callbackStop = true;
+    written.clear();
+    BreakpointChangeRequest remove = cdbAddressBreakpoint(BreakpointOp::Remove, 2, 0x10000);
+    remove.responseId = id;
+    cdb.changeBreakpoint(remove);
+    QVERIFY(!written.join('\n').contains("bc "));
+
+    // The program reaches the breakpoint before the break-in does. The user
+    // took it away, so it is neither a hit nor a stop for them.
+    int modified = 0;
+    QObject::connect(&cdb, &CdbImpl::breakpointModified, &cdb, [&modified] { ++modified; });
+    cdb.handleCdbOutputLine("Breakpoint " + id + " hit");
+    QCOMPARE(modified, 0);
+    QVERIFY(!cdb.m_breakpointHitCounts.contains(id));
+    cdb.handleCdbOutputLine(R"(<qtcreatorcdbext>|E|0|0|session_idle|{reason="breakpoint",)"
+                            R"(breakpointId=")" + id + R"(",threadId="1"})");
+    QVERIFY(written.join('\n').contains("\nbc " + id + '-'));
+    QCOMPARE(written.last(), QString("g"));
+    QVERIFY(events.isEmpty());
+
+    // The break-in still comes, and is the engine's own.
+    written.clear();
+    cdb.handleCdbOutputLine(cdbOwnBreakIn);
+    QCOMPARE(written.last(), QString("g"));
+    QVERIFY(events.isEmpty());
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplBreakpointRemovedDuringStep()
+{
+    CdbImpl cdb({});
+    cdb.m_wow64State = CdbImpl::Wow64State::None;
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+    QList<InferiorEvent> events;
+    QObject::connect(&cdb, &CdbImpl::inferiorEvent, &cdb, [&events](InferiorEvent event) {
+        events.append(event);
+    });
+
+    cdb.changeBreakpoint(cdbAddressBreakpoint(BreakpointOp::Insert, 1, 0x10000));
+    answerCdbBuiltin(cdb, cdb.m_nextCommandToken);
+    QCOMPARE(cdb.m_insertedBreakpoints.size(), 1);
+    const QString id = cdb.m_insertedBreakpoints.keys().first();
+
+    // A step over is running, which is not a continue.
+    cdb.m_inferiorRunning = true;
+    cdb.m_runIsContinue = false;
+    cdb.m_callbackStop = true;
+    BreakpointChangeRequest remove = cdbAddressBreakpoint(BreakpointOp::Remove, 2, 0x10000);
+    remove.responseId = id;
+    cdb.changeBreakpoint(remove);
+
+    // cdb ends the step at the breakpoint, and the user gets that stop.
+    written.clear();
+    cdb.handleCdbOutputLine(R"(<qtcreatorcdbext>|E|0|0|session_idle|{reason="breakpoint",)"
+                            R"(breakpointId=")" + id + R"(",threadId="1"})");
+    QVERIFY(!written.join('\n').contains("\ng"));
+    QVERIFY(!events.isEmpty());
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplBreakpointRemovedDuringRunToFunction()
+{
+    CdbImpl cdb({});
+    cdb.m_wow64State = CdbImpl::Wow64State::None;
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+    QList<InferiorEvent> events;
+    QObject::connect(&cdb, &CdbImpl::inferiorEvent, &cdb, [&events](InferiorEvent event) {
+        events.append(event);
+    });
+
+    cdb.changeBreakpoint(cdbAddressBreakpoint(BreakpointOp::Insert, 1, 0x10000));
+    answerCdbBuiltin(cdb, cdb.m_nextCommandToken);
+    QCOMPARE(cdb.m_insertedBreakpoints.size(), 1);
+    const QString id = cdb.m_insertedBreakpoints.keys().first();
+
+    ExecutionRequest run;
+    run.command = ExecutionCommand::RunToFunction;
+    run.functionName = "main";
+    cdb.execute(run);
+    answerCdbBuiltin(cdb, cdb.m_nextCommandToken);
+    QVERIFY(cdb.m_inferiorRunning);
+
+    cdb.m_callbackStop = true;
+    BreakpointChangeRequest remove = cdbAddressBreakpoint(BreakpointOp::Remove, 2, 0x10000);
+    remove.responseId = id;
+    cdb.changeBreakpoint(remove);
+
+    // The run-to breakpoint stays armed, so the swallowed stop resumes with g.
+    events.clear();
+    written.clear();
+    cdb.handleCdbOutputLine(R"(<qtcreatorcdbext>|E|0|0|session_idle|{reason="breakpoint",)"
+                            R"(breakpointId=")" + id + R"(",threadId="1"})");
+    QCOMPARE(written.last(), QString("g"));
+    QVERIFY(events.isEmpty());
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplBreakpointReenabledWhileRunning()
+{
+    CdbImpl cdb({});
+    cdb.m_wow64State = CdbImpl::Wow64State::None;
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+    QList<InferiorEvent> events;
+    QObject::connect(&cdb, &CdbImpl::inferiorEvent, &cdb, [&events](InferiorEvent event) {
+        events.append(event);
+    });
+
+    cdb.changeBreakpoint(cdbAddressBreakpoint(BreakpointOp::Insert, 1, 0x10000));
+    answerCdbBuiltin(cdb, cdb.m_nextCommandToken);
+    QCOMPARE(cdb.m_insertedBreakpoints.size(), 1);
+    const QString id = cdb.m_insertedBreakpoints.keys().first();
+
+    cdb.m_inferiorRunning = true;
+    cdb.m_callbackStop = true;
+    BreakpointChangeRequest update = cdbAddressBreakpoint(BreakpointOp::Update, 2, 0x10000);
+    update.responseId = id;
+    update.params.enabled = false;
+    cdb.changeBreakpoint(update);
+    QVERIFY(cdb.m_retiredWhileRunning.contains(id));
+
+    // Enabled again before the break-in, so a hit is the user's.
+    update.requestId = 3;
+    update.params.enabled = true;
+    cdb.changeBreakpoint(update);
+    QVERIFY(!cdb.m_retiredWhileRunning.contains(id));
+
+    written.clear();
+    cdb.handleCdbOutputLine(R"(<qtcreatorcdbext>|E|0|0|session_idle|{reason="breakpoint",)"
+                            R"(breakpointId=")" + id + R"(",threadId="1"})");
+    QVERIFY(!written.join('\n').contains("\ng"));
+    QVERIFY(!events.isEmpty());
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplBreakpointUpdateReplaces()
+{
+    CdbImpl cdb({});
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+    QList<std::pair<BreakpointOp, GdbMi>> events;
+    QObject::connect(&cdb, &CdbImpl::breakpointEvent, &cdb,
+                     [&events](quint64, BreakpointOp op, bool ok, const GdbMi &data) {
+        if (ok)
+            events.append({op, data});
+    });
+
+    cdb.changeBreakpoint(cdbAddressBreakpoint(BreakpointOp::Insert, 1, 0x10000));
+    answerCdbBuiltin(cdb, cdb.m_nextCommandToken);
+    QCOMPARE(events.size(), 1);
+    const QString id = events.first().second.childAt(0)["number"].data();
+    QVERIFY(!id.isEmpty());
+
+    // cdb cannot move a breakpoint, so it is put anew, and the change is
+    // answered by the new one.
+    events.clear();
+    written.clear();
+    BreakpointChangeRequest update = cdbAddressBreakpoint(BreakpointOp::Update, 2, 0x20000);
+    update.responseId = id;
+    update.params.condition = "i == 5";
+    cdb.changeBreakpoint(update);
+    QVERIFY(written.join('\n').contains("\nbc " + id + '-'));
+    QVERIFY(written.join('\n').contains(" 0x20000"));
+    answerCdbBuiltin(cdb, cdb.m_nextCommandToken);
+    QCOMPARE(events.size(), 1);
+    QCOMPARE(events.first().first, BreakpointOp::Update);
+    const GdbMi bkpt = events.first().second.childAt(0);
+    const QString newId = bkpt["number"].data();
+    QVERIFY(!newId.isEmpty());
+    QVERIFY(newId != id);
+    QCOMPARE(bkpt["cond"].data(), QString("i == 5"));
+    QVERIFY(!cdb.m_insertedBreakpoints.contains(id));
+
+    // Disabling it changes it in place.
+    events.clear();
+    written.clear();
+    update.requestId = 3;
+    update.responseId = newId;
+    update.params.enabled = false;
+    cdb.changeBreakpoint(update);
+    QVERIFY(written.join('\n').contains("\nbd" + newId + '\n'));
+    QVERIFY(!written.join('\n').contains("bc "));
+    QCOMPARE(events.size(), 1);
+    QCOMPARE(events.first().first, BreakpointOp::Update);
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplAmbiguousBreakpointWhileRunning()
+{
+    CdbImpl cdb({});
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+    QList<GdbMi> inserted;
+    QObject::connect(&cdb, &CdbImpl::breakpointEvent, &cdb,
+                     [&inserted](quint64, BreakpointOp op, bool ok, const GdbMi &data) {
+        if (op == BreakpointOp::Insert && ok)
+            inserted.append(data);
+    });
+
+    cdb.m_inferiorRunning = true;
+    cdb.m_callbackStop = true;
+    BreakpointChangeRequest insert;
+    insert.requestId = 1;
+    insert.params = BreakpointParameters(BreakpointByFileAndLine);
+    insert.params.fileName = FilePath::fromUserInput("C:/src/main.cpp");
+    insert.params.textPosition.line = 42;
+    cdb.changeBreakpoint(insert);
+
+    // The insert goes in at the break-in, and the program is let go at once.
+    cdb.handleCdbOutputLine(cdbOwnBreakIn);
+    QCOMPARE(written.last(), QString("g"));
+    QVERIFY(cdb.m_inferiorRunning);
+
+    // So cdb's answer comes while the program runs. The locations it names
+    // have to wait for the next stop, as cdb would not read them before.
+    cdb.m_callbackStop = true;
+    written.clear();
+    const QString marker = cdb.m_tokenPrefix + QString::number(cdb.m_nextCommandToken);
+    cdb.handleCdbOutputLine(marker + '<');
+    cdb.handleCdbOutputLine("Matched: app!foo (00000000`00401000)");
+    cdb.handleCdbOutputLine("Matched: app!foo+0x10 (00000000`00402000)");
+    cdb.handleCdbOutputLine("Ambiguous symbol error at '`C:\\src\\main.cpp:42`'");
+    cdb.handleCdbOutputLine(marker + '>');
+    QCOMPARE(inserted.size(), 1);
+    QCOMPARE(inserted.first().childAt(0)["locations"].childCount(), 2);
+    QVERIFY(!written.join('\n').contains("bu"));
+    QCOMPARE(cdb.m_deferredCommands.size(), 2);
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplSubBreakpointEnabled()
+{
+    CdbImpl cdb({});
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+
+    BreakpointParameters params(BreakpointByFileAndLine);
+    params.enabled = false;
+    cdb.m_insertedBreakpoints.insert("7", params);
+    cdb.m_parentForSubBreakpointId.insert("8", "7");
+    cdb.m_parentForSubBreakpointId.insert("9", "7");
+
+    const auto enableSub = [&cdb](const QString &subId, bool enabled) {
+        BreakpointChangeRequest request;
+        request.op = BreakpointOp::EnableSub;
+        request.subResponseId = subId;
+        request.enabled = enabled;
+        cdb.changeBreakpoint(request);
+    };
+    const auto commands = [&written] {
+        const QString all = written.join('\n');
+        written.clear();
+        return all;
+    };
+
+    // A location the user enables under a disabled breakpoint stays off.
+    enableSub("9", false);
+    commands();
+    enableSub("8", true);
+    const QString underDisabled = commands();
+    QVERIFY(underDisabled.contains("bd8"));
+    QVERIFY(!underDisabled.contains("be8"));
+
+    // Enabling the breakpoint brings back the locations that are on, not the
+    // one the user turned off.
+    cdb.m_insertedBreakpoints["7"].enabled = true;
+    enableSub("8", true);
+    const QString underEnabled = commands();
+    QVERIFY(underEnabled.contains("be8"));
+    QVERIFY(underEnabled.contains("bd9"));
+    QVERIFY(!underEnabled.contains("be9"));
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplShutdownDetachesAttached()
+{
+    CdbImplStartData startData;
+    startData.inferiorStartData = AttachToProcessData{};
+    CdbImpl cdb(startData);
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+    QList<InferiorEvent> events;
+    QObject::connect(&cdb, &CdbImpl::inferiorEvent, &cdb, [&events](InferiorEvent event) {
+        events.append(event);
+    });
+
+    // The process was there before the debugger came, and outlives it. The
+    // detach waits for the break-in that cdb needs to read it.
+    cdb.m_inferiorRunning = true;
+    cdb.m_callbackStop = true;
+    cdb.shutdownInferior(ShutdownMode::Detach);
+    QVERIFY(written.isEmpty());
+    QVERIFY(events.isEmpty());
+
+    cdb.handleCdbOutputLine(cdbOwnBreakIn);
+    QVERIFY(written.join('\n').contains("\n.detach\n"));
+    QVERIFY(!written.contains("g"));
+    QVERIFY(!cdb.m_quitWritten);
+
+    answerCdbBuiltin(cdb, cdb.m_nextCommandToken);
+    QVERIFY(cdb.m_quitWritten);
+    QCOMPARE(events, QList<InferiorEvent>{InferiorEvent::ShutdownFinished});
+
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+
+    // Asked to, the debugger takes an attached process down with it.
+    CdbImpl killing(startData);
+    QVERIFY(startCdbStandIn(killing, &written));
+    killing.shutdownInferior(ShutdownMode::Kill);
+    QVERIFY(!killing.m_leavingSession);
+    QVERIFY(killing.m_quitWritten);
+
+    killing.m_cdbProc.kill();
+    QVERIFY(killing.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplSessionPidFailure()
+{
+    // A session that cannot say what process it debugs cannot be interrupted,
+    // so it does not come up. A restart has been set up once already, and goes
+    // on.
+    for (const bool resetRestart : {false, true}) {
+        CdbImpl cdb({});
+        QStringList written;
+        QVERIFY(startCdbStandIn(cdb, &written));
+        QList<InferiorEvent> events;
+        QObject::connect(&cdb, &CdbImpl::inferiorEvent, &cdb, [&events](InferiorEvent event) {
+            events.append(event);
+        });
+
+        cdb.m_isResetRestart = resetRestart;
+        bool ready = false;
+        cdb.initializeSession([&ready] { ready = true; });
+        // The pid is the last thing the setup asks for.
+        cdb.handleCdbOutputLine("<qtcreatorcdbext>|N|" + QString::number(cdb.m_nextCommandToken)
+                                + "|0|pid|no such process");
+        QCOMPARE(ready, resetRestart);
+        QCOMPARE(events,
+                 resetRestart ? QList<InferiorEvent>{}
+                              : QList<InferiorEvent>{InferiorEvent::EngineSetupFailed});
+
+        cdb.m_shuttingDown = true;
+        cdb.m_cdbProc.kill();
+        QVERIFY(cdb.m_cdbProc.waitForFinished());
+    }
+}
+
+void DebuggerUnitTests::testCdbImplStopReports()
+{
+    CdbImpl cdb({});
+    cdb.m_wow64State = CdbImpl::Wow64State::None;
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+    QStringList breakpointHits;
+    QStringList watchpointHits;
+    QStringList signalsReceived;
+    QObject::connect(&cdb, &CdbImpl::breakpointTriggered, &cdb,
+                     [&breakpointHits](const QString &id, const QString &thread) {
+        breakpointHits.append(id + '/' + thread);
+    });
+    QObject::connect(&cdb, &CdbImpl::watchpointTriggered, &cdb,
+                     [&watchpointHits](const QString &id, const QString &expression,
+                                       const QString &, const QString &) {
+        watchpointHits.append(id + '/' + expression);
+    });
+    QObject::connect(&cdb, &CdbImpl::signalReceived, &cdb,
+                     [&signalsReceived](const QString &, const QString &meaning) {
+        signalsReceived.append(meaning);
+    });
+
+    BreakpointParameters watchpoint(WatchpointAtAddress);
+    watchpoint.address = 0x5000;
+    cdb.m_insertedBreakpoints.insert("7", BreakpointParameters(BreakpointByFileAndLine));
+    cdb.m_parentForSubBreakpointId.insert("8", "7");
+    cdb.m_insertedBreakpoints.insert("9", watchpoint);
+    const auto stopWith = [&cdb](const QString &stopData) {
+        cdb.m_inferiorRunning = true;
+        cdb.handleCdbOutputLine("<qtcreatorcdbext>|E|0|0|session_idle|" + stopData);
+    };
+
+    // A location is reported under the breakpoint it belongs to.
+    stopWith(R"({reason="breakpoint",breakpointId="8",threadId="3"})");
+    QCOMPARE(breakpointHits, QStringList{"7/3"});
+    stopWith(R"({reason="breakpoint",breakpointId="7",threadId="4"})");
+    QCOMPARE(breakpointHits, QStringList({"7/3", "7/4"}));
+    QVERIFY(watchpointHits.isEmpty());
+
+    // A data breakpoint is a watchpoint trigger, not a breakpoint hit.
+    stopWith(R"({reason="breakpoint",breakpointId="9",threadId="3"})");
+    QCOMPARE(watchpointHits, QStringList{"9/*0x5000"});
+    QCOMPARE(breakpointHits.size(), 2);
+
+    // A breakpoint the engine does not know of, and a stop of another kind,
+    // report neither.
+    stopWith(R"({reason="breakpoint",breakpointId="12",threadId="3"})");
+    stopWith(R"({reason="exception",threadId="3",exceptionCode="3221225477"})");
+    QCOMPARE(breakpointHits.size(), 2);
+    QCOMPARE(watchpointHits.size(), 1);
+    QCOMPARE(signalsReceived.size(), 1);
+    QVERIFY2(signalsReceived.first().startsWith("Stopped in thread 3 by: "),
+             qPrintable(signalsReceived.first()));
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplCoreStopException()
+{
+    CdbImplStartData startData;
+    startData.inferiorStartData = AttachToCoreData{};
+    CdbImpl cdb(startData);
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+    cdb.m_initialSessionIdleHandled = false;
+    QList<InferiorEvent> events;
+    QStringList signalsReceived;
+    QObject::connect(&cdb, &CdbImpl::inferiorEvent, &cdb, [&events](InferiorEvent event) {
+        events.append(event);
+    });
+    QObject::connect(&cdb, &CdbImpl::signalReceived, &cdb,
+                     [&signalsReceived](const QString &, const QString &meaning) {
+        signalsReceived.append(meaning);
+    });
+
+    // What the dump was written for comes with the first idle, and is told once
+    // the session is set up. A dump has no process to answer the pid query.
+    cdb.handleCdbOutputLine(R"(<qtcreatorcdbext>|E|0|0|session_idle|{reason="exception",)"
+                            R"(threadId="4",exceptionCode="3221225477"})");
+    QVERIFY(signalsReceived.isEmpty());
+    cdb.handleCdbOutputLine("<qtcreatorcdbext>|N|" + QString::number(cdb.m_nextCommandToken)
+                            + "|0|pid|no process");
+    QCOMPARE(events, QList<InferiorEvent>({InferiorEvent::EngineSetupOk,
+                                           InferiorEvent::RunOkAndInferiorUnrunnable}));
+    QCOMPARE(signalsReceived.size(), 1);
+    QVERIFY2(signalsReceived.first().startsWith("Stopped in thread 4 by: "),
+             qPrintable(signalsReceived.first()));
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplQuitStoppedSession()
+{
+    const auto engineShutdownFinished = [](const QList<InferiorEvent> &events) {
+        return events.contains(InferiorEvent::EngineShutdownFinished);
+    };
+
+    // Not running: both shutdowns are over at once.
+    {
+        CdbImpl cdb({});
+        QList<InferiorEvent> events;
+        QObject::connect(&cdb, &CdbImpl::inferiorEvent, &cdb, [&events](InferiorEvent event) {
+            events.append(event);
+        });
+        cdb.shutdownInferior(ShutdownMode::Kill);
+        QCOMPARE(events, QList<InferiorEvent>{InferiorEvent::ShutdownFinished});
+        cdb.shutdownEngine();
+        QVERIFY(engineShutdownFinished(events));
+    }
+
+    // A stopped session is asked to quit, and its end finishes the shutdown.
+    // One that does not go is killed after a while.
+    {
+        CdbImpl cdb({});
+        QStringList written;
+        QVERIFY(startCdbStandIn(cdb, &written));
+        QList<InferiorEvent> events;
+        QObject::connect(&cdb, &CdbImpl::inferiorEvent, &cdb, [&events](InferiorEvent event) {
+            events.append(event);
+        });
+        cdb.m_inferiorRunning = false;
+        cdb.shutdownInferior(ShutdownMode::Kill);
+        QVERIFY(cdb.m_quitWritten);
+        QCOMPARE(events, QList<InferiorEvent>{InferiorEvent::ShutdownFinished});
+
+        cdb.shutdownEngine();
+        QVERIFY(!engineShutdownFinished(events));
+        QVERIFY(cdb.m_cdbProc.isRunning());
+        QTRY_VERIFY(engineShutdownFinished(events));
+        QVERIFY(!cdb.m_cdbProc.isRunning());
+    }
+
+    // A running inferior goes down with cdb, which is killed at once.
+    {
+        CdbImpl cdb({});
+        QStringList written;
+        QVERIFY(startCdbStandIn(cdb, &written));
+        QList<InferiorEvent> events;
+        QObject::connect(&cdb, &CdbImpl::inferiorEvent, &cdb, [&events](InferiorEvent event) {
+            events.append(event);
+        });
+        cdb.m_inferiorRunning = true;
+        cdb.shutdownInferior(ShutdownMode::Kill);
+        QVERIFY(!cdb.m_quitWritten);
+        cdb.shutdownEngine();
+        QVERIFY(engineShutdownFinished(events));
+        QVERIFY(cdb.m_cdbProc.waitForFinished());
+    }
 }
 
 void DebuggerUnitTests::testCdbImplScriptMessages()

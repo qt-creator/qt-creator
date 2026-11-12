@@ -12073,6 +12073,10 @@ void tst_backends::updatesEnablesAndRemovesBreakpoint()
     updateRequest.op = BreakpointOp::Update;
     updateRequest.requestId = 20;
     updateRequest.responseId = responseId;
+    updateRequest.params.type = BreakpointByFileAndLine;
+    updateRequest.params.fileName = inferiorTestData(backend).source;
+    updateRequest.params.textPosition.line = inferiorTestData(backend).breakpointLine;
+    updateRequest.params.textPosition.column = 0;
     updateRequest.params.enabled = true;
     engine->changeBreakpoint(updateRequest);
     QTRY_VERIFY_WITH_TIMEOUT(results.contains(20), s_timeout);

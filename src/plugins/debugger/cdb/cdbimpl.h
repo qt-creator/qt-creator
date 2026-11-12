@@ -261,7 +261,7 @@ private:
     void executeDebuggerCommand(const QString &command,
                                 const WatchItemData &inspectorItem) final;
 
-    void handleInitialSessionIdle();
+    void handleInitialSessionIdle(const GdbMi &stopData);
     void handleCdbOutputLine(const QString &rawLine);
     void handleExtensionMessage(char type, int token, const QString &what,
                                 const QString &payload);
@@ -275,6 +275,7 @@ private:
     void runCommand(const DebuggerCommand &command);
     void initializeSession(const std::function<void()> &whenReady);
     void restartSession();
+    void quitSession();
     bool isAttach() const;
     bool isCore() const;
     bool isRemoteServer() const;
@@ -351,6 +352,9 @@ private:
     void reportBreakpointInserted(quint64 requestId, const QString &id, bool enabled,
                                   const QString &file, int line, const QString &function,
                                   const GdbMi &locations, bool report);
+    void reportBreakpointEvent(quint64 requestId, BreakpointOp op, bool ok, const GdbMi &data);
+    void clearBreakpoint(const QString &id);
+    void applyBreakpointEnabled(const QString &id, bool enabled);
     void listBreakpoints();
 
     CdbImplStartData m_startData;
@@ -401,10 +405,14 @@ private:
     int m_lastJustMyCodeQuery = 0;
     int m_pendingJustMyCodeQuery = 0;
     bool m_inferiorRunning = false;
+    bool m_runIsContinue = false;
     bool m_stopAnnounced = false;
     bool m_interruptRequested = false;
     bool m_inferiorExited = false;
     bool m_shuttingDown = false;
+    bool m_leavingSession = false;
+    bool m_quitWritten = false;
+    bool m_engineShutdownPending = false;
 
     std::optional<bool> m_lastOperateByInstruction;
 
@@ -417,6 +425,9 @@ private:
     QStringList m_runToBreakpointIds;
 
     QHash<QString, QString> m_parentForSubBreakpointId;
+    QHash<QString, bool> m_subBreakpointEnabled;
+    QSet<QString> m_retiredWhileRunning;
+    QSet<quint64> m_replacingRequests;
 
     QHash<QString, QList<quint64>> m_symbolAddressCache;
     QHash<QString, QString> m_normalizedFileCache;
