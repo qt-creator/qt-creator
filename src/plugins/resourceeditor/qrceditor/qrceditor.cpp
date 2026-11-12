@@ -43,9 +43,11 @@
 #include <QUndoCommand>
 
 #ifdef WITH_TESTS
+#include <QApplication>
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTest>
+#include <QTimer>
 #endif
 
 #include <algorithm>
@@ -1150,8 +1152,10 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
         // Path fine -> skip file
         QString const &file = *it;
         QString const relativePath = dir.relativeFilePath(file);
-        if (!relativePath.startsWith(dotdotSlash))
+        if (!relativePath.startsWith(dotdotSlash)) {
+            ++it;
             continue;
+        }
         // Path troublesome and aborted -> remove file
         bool ok = false;
         if (!abort) {
@@ -1441,6 +1445,7 @@ private slots:
     void testPrefixChangeUpdatesCombo();
     void testUndoAddPrefixInIconModeRebuildsCombo();
     void testAddDirectoryFiles();
+    void testResolveLocationKeepsFilesInside();
 
 private:
     QModelIndex prefix(int row) const { return m_model->index(row, 0, {}); }
@@ -1716,6 +1721,20 @@ void QrcEditorTest::testAddDirectoryFiles()
 
     m_editor->onUndo();
     QCOMPARE(m_model->rowCount(prefix(1)), 1);
+}
+
+void QrcEditorTest::testResolveLocationKeepsFilesInside()
+{
+    QStringList files = {"/qrcedit/inside.png", "/elsewhere/outside.png"};
+    QTimer::singleShot(0, this, [] {
+        auto box = qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
+        QVERIFY(box);
+        box->escapeButton()->click();
+    });
+
+    m_editor->resolveLocationIssues(files);
+
+    QCOMPARE(files, QStringList{"/qrcedit/inside.png"});
 }
 
 QObject *createQrcEditorTest()
