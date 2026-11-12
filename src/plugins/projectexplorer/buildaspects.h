@@ -28,6 +28,9 @@ public:
 
     static Utils::FilePath fixupDir(const Utils::FilePath &dir);
 
+signals:
+    void problemLabelsChanged(QPrivateSignal);
+
 private:
     void toMap(Utils::Store &map) const override;
     void fromMap(const Utils::Store &map) override;

@@ -56,6 +56,8 @@
 #include <QHash>
 
 #ifdef WITH_TESTS
+#include "buildaspects.h"
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/icodestylepreferences.h>
@@ -63,11 +65,13 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcsettings.h>
 #include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
 #include <QEventLoop>
+#include <QLabel>
 #include <QPointer>
 #include <QScopeGuard>
 #include <QSignalSpy>
@@ -2679,6 +2683,28 @@ private slots:
             QMetaObject::invokeMethod(&loop, &QEventLoop::quit, Qt::QueuedConnection);
             loop.exec();
         });
+    }
+
+    void testBuildDirectoryAspectUpdatesEveryProblemLabel()
+    {
+        TestProject project;
+        QVERIFY(project.target);
+        BuildConfiguration *bc = project.target->activeBuildConfiguration();
+        QVERIFY(bc);
+        BuildDirectoryAspect *aspect = bc->aspect<BuildDirectoryAspect>();
+        QVERIFY(aspect);
+        const std::unique_ptr<QWidget> first(Layouting::Column{*aspect}.emerge());
+        const std::unique_ptr<QWidget> second(Layouting::Column{*aspect}.emerge());
+
+        aspect->setProblem("Special problem");
+
+        const auto showsProblem = [](const std::unique_ptr<QWidget> &widget) {
+            return Utils::anyOf(widget->findChildren<QLabel *>(), [](const QLabel *label) {
+                return label->text() == "Special problem";
+            });
+        };
+        QVERIFY(showsProblem(first));
+        QVERIFY(showsProblem(second));
     }
 
     void testNestedPanelUpdateForSameTargetItem()

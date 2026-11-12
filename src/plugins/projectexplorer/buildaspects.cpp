@@ -33,10 +33,7 @@ public:
     FilePath sourceDir;
     FilePath savedShadowBuildDir;
     QString specialProblem;
-    QLabel *genericProblemSpacer = nullptr;
-    QLabel *specialProblemSpacer = nullptr;
-    QPointer<InfoLabel> genericProblemLabel;
-    QPointer<InfoLabel> specialProblemLabel;
+    QString genericProblemLabelText;
 };
 
 BuildDirectoryAspect::BuildDirectoryAspect(BuildConfiguration *bc)
@@ -129,17 +126,30 @@ FilePath BuildDirectoryAspect::absoluteBuildDir(const FilePath &rawPath) const
 void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     FilePathAspect::addToLayoutImpl(parent);
-    d->genericProblemSpacer = new QLabel;
-    d->specialProblemSpacer = new QLabel;
-    d->genericProblemLabel = new InfoLabel({}, InfoLabelType::Warning);
-    d->genericProblemLabel->setElideMode(Qt::ElideNone);
-    connect(d->genericProblemLabel, &QLabel::linkActivated, this, [] {
+    auto genericProblemSpacer = new QLabel;
+    auto specialProblemSpacer = new QLabel;
+    auto genericProblemLabel = new InfoLabel({}, InfoLabelType::Warning);
+    genericProblemLabel->setElideMode(Qt::ElideNone);
+    connect(genericProblemLabel, &QLabel::linkActivated, this, [] {
         Core::ICore::showSettings(Constants::BUILD_AND_RUN_SETTINGS_PAGE_ID);
     });
-    d->specialProblemLabel = new InfoLabel({}, InfoLabelType::Warning);
-    d->specialProblemLabel->setElideMode(Qt::ElideNone);
-    parent.addItems({Layouting::br, d->genericProblemSpacer, d->genericProblemLabel.data()});
-    parent.addItems({Layouting::br, d->specialProblemSpacer, d->specialProblemLabel.data()});
+    auto specialProblemLabel = new InfoLabel({}, InfoLabelType::Warning);
+    specialProblemLabel->setElideMode(Qt::ElideNone);
+    parent.addItems({Layouting::br, genericProblemSpacer, genericProblemLabel});
+    parent.addItems({Layouting::br, specialProblemSpacer, specialProblemLabel});
+
+    const auto updateRow = [](const QString &text, InfoLabel *label, QLabel *spacer) {
+        label->setText(text);
+        label->setVisible(!text.isEmpty());
+        spacer->setVisible(!text.isEmpty());
+    };
+    const auto updateRows = [this, updateRow, genericProblemLabel, genericProblemSpacer,
+                             specialProblemLabel, specialProblemSpacer] {
+        updateRow(d->genericProblemLabelText, genericProblemLabel, genericProblemSpacer);
+        updateRow(d->specialProblem, specialProblemLabel, specialProblemSpacer);
+    };
+    connect(this, &BuildDirectoryAspect::problemLabelsChanged, genericProblemLabel, updateRows);
+    updateRows();
     updateProblemLabels();
     if (!d->sourceDir.isEmpty()) {
         connect(this, &StringAspect::checkedChanged, this, [this] {
@@ -194,10 +204,6 @@ void BuildDirectoryAspect::updateProblemLabels()
 
 QString BuildDirectoryAspect::updateProblemLabelsHelper(const QString &value)
 {
-    if (!d->genericProblemLabel)
-        return {};
-    QTC_ASSERT(d->specialProblemLabel, return {});
-
     QString genericProblem;
     QString genericProblemLabelString;
     if (ProjectExplorerSettings::get(this).warnAgainstNonAsciiBuildDir()) {
@@ -212,14 +218,8 @@ QString BuildDirectoryAspect::updateProblemLabelsHelper(const QString &value)
         }
     }
 
-    auto updateRow = [](const QString &text, InfoLabel *label, QLabel *spacer) {
-        label->setText(text);
-        label->setVisible(!text.isEmpty());
-        spacer->setVisible(!text.isEmpty());
-    };
-
-    updateRow(genericProblemLabelString, d->genericProblemLabel, d->genericProblemSpacer);
-    updateRow(d->specialProblem, d->specialProblemLabel, d->specialProblemSpacer);
+    d->genericProblemLabelText = genericProblemLabelString;
+    emit problemLabelsChanged(QPrivateSignal());
 
     if (genericProblem.isEmpty() && d->specialProblem.isEmpty())
         return {};
