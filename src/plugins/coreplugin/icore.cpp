@@ -2226,9 +2226,7 @@ IDocument *ICore::openFiles(
 
         IDocumentFactory *documentFactory
             = findDocumentFactory(documentFactories, absoluteFilePath);
-        if (documentFactory
-            && (openProjects || !documentFactory->isProjectFactory()
-                || absoluteFilePath.isDir())) {
+        if (documentFactory && (openProjects || documentFactory->isUsedForOpenFile())) {
             IDocument *document = documentFactory->open(absoluteFilePath);
             if (!document) {
                 if (flags & ICore::StopOnLoadFail)

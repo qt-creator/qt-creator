@@ -757,6 +757,7 @@ public:
     DefaultDeployConfigurationFactory m_defaultDeployConfigFactory;
 
     IDocumentFactory m_documentFactory;
+    IDocumentFactory m_directoryFactory;
     IDocumentFactory m_taskFileFactory;
     StopMonitoringHandler closeTaskFile;
 
@@ -2272,20 +2273,23 @@ void ProjectExplorerPlugin::extensionsInitialized()
 
     // Register factories for all project managers
 
-    dd->m_documentFactory.setOpener([](FilePath filePath) {
-        if (filePath.isDir()) {
-            const FilePaths files = projectFilesInDirectory(filePath.absoluteFilePath());
-            if (!files.isEmpty())
-                filePath = files.front();
-        }
-
+    const auto openProject = [](const FilePath &filePath) -> IDocument * {
         OpenProjectResult result = ProjectExplorerPlugin::openProject(filePath);
         if (!result)
             showOpenProjectError(result);
         return nullptr;
-    });
+    };
+    dd->m_documentFactory.setOpener(openProject);
     dd->m_documentFactory.setIsProjectFactory(true);
     dd->updateDocumentOpenerMimeTypes();
+
+    dd->m_directoryFactory.addMimeType("inode/directory");
+    dd->m_directoryFactory.setOpener([openProject](const FilePath &filePath) {
+        const FilePaths files = projectFilesInDirectory(filePath.absoluteFilePath());
+        return openProject(files.isEmpty() ? filePath : files.front());
+    });
+    dd->m_directoryFactory.setIsProjectFactory(true);
+    dd->m_directoryFactory.setUsedForOpenFile(true);
 
     dd->m_taskFileFactory.addMimeType("text/x-tasklist");
     dd->m_taskFileFactory.setOpener([](const FilePath &filePath) {
@@ -3241,7 +3245,8 @@ void ProjectExplorerPluginPrivate::extendFolderNavigationWidgetFactory()
 static QList<IDocumentFactory *> otherProjectFactories()
 {
     return Utils::filtered(IDocumentFactory::allDocumentFactories(), [](IDocumentFactory *f) {
-        return f->isProjectFactory() && f != &dd->m_documentFactory;
+        return f->isProjectFactory() && f != &dd->m_documentFactory
+               && f != &dd->m_directoryFactory;
     });
 }
 
@@ -3287,7 +3292,7 @@ QString ProjectExplorerPluginPrivate::projectFilterString()
 void ProjectExplorerPluginPrivate::updateDocumentOpenerMimeTypes()
 {
     QStringList mimeTypes = projectMimeTypes();
-    mimeTypes.append("inode/directory");
+    mimeTypes.removeAll("inode/directory");
     m_documentFactory.setMimeTypes(mimeTypes);
 }
 
@@ -4920,6 +4925,34 @@ private slots:
         const FilePath filePath = FilePath::fromUserInput(QDir::tempPath()).pathAppended("x.patch");
         dd->openProjectFile(filePath);
         QCOMPARE(opened, FilePaths{filePath});
+    }
+
+    void testProjectFactoryUsedForOpenFileIsOpenedPlainly()
+    {
+        IDocumentFactory factory;
+        factory.setIsProjectFactory(true);
+        factory.setUsedForOpenFile(true);
+        factory.addMimeType("text/plain");
+        FilePaths opened;
+        factory.setOpener([&opened](const FilePath &filePath) {
+            opened.append(filePath);
+            return nullptr;
+        });
+
+        const FilePath filePath = FilePath::fromUserInput(QDir::tempPath()).pathAppended("x.txt");
+        ICore::openFiles({filePath}, {}, {}, /*openProjects=*/false);
+        QCOMPARE(opened, FilePaths{filePath});
+    }
+
+    void testDirectoriesAreOpenedAsProjectsFromOpenFile()
+    {
+        const QList<IDocumentFactory *> factories
+            = Utils::filtered(IDocumentFactory::allDocumentFactories(), [](IDocumentFactory *f) {
+                  return f->mimeTypes().contains("inode/directory");
+              });
+        QCOMPARE(factories.size(), 1);
+        QVERIFY(factories.first()->isProjectFactory());
+        QVERIFY(factories.first()->isUsedForOpenFile());
     }
 };
 

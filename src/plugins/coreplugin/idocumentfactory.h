@@ -10,6 +10,7 @@
 #include <QStringList>
 
 #include <functional>
+#include <optional>
 
 namespace Utils { class FilePath; }
 
@@ -36,12 +37,15 @@ public:
     void addMimeType(const QString &mimeType) { m_mimeTypes.append(mimeType); }
     void setIsProjectFactory(bool isProjectFactory) { m_isProjectFactory = isProjectFactory; }
     bool isProjectFactory() const { return m_isProjectFactory; }
+    void setUsedForOpenFile(bool usedForOpenFile) { m_usedForOpenFile = usedForOpenFile; }
+    bool isUsedForOpenFile() const { return m_usedForOpenFile.value_or(!m_isProjectFactory); }
 
 private:
     Opener m_opener;
     QStringList m_mimeTypes;
     QString m_displayName;
     bool m_isProjectFactory = false;
+    std::optional<bool> m_usedForOpenFile;
 };
 
 } // namespace Core

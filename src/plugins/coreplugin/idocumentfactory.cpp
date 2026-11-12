@@ -19,11 +19,13 @@ static QList<IDocumentFactory *> g_documentFactories;
     When users open a document, the document factory responsible for the corresponding MIME type is determined by checking the \l mimeTypes() of the factories.
 
     Document factories that are \l {isProjectFactory()} {project factories} are not
-    considered if the user specifically requests to open a file.
+    considered if the user specifically requests to open a file, unless they are
+    \l {isUsedForOpenFile()} {used for opening files}.
 
     \sa setMimeTypes()
     \sa addMimeType()
     \sa setIsProjectFactory()
+    \sa setUsedForOpenFile()
     \sa setOpener()
 */
 
@@ -44,6 +46,28 @@ static QList<IDocumentFactory *> g_documentFactories;
     Defaults to \c false.
 
     \sa setIsProjectFactory()
+*/
+
+/*!
+    \fn IDocumentFactory::setUsedForOpenFile(bool usedForOpenFile)
+    \brief Sets whether this factory is considered when the user requests to
+    open a file to \a usedForOpenFile.
+
+    This is for project factories that open something that cannot be opened
+    in an editor, such as a directory.
+
+    \sa isUsedForOpenFile()
+*/
+
+/*!
+    \fn IDocumentFactory::isUsedForOpenFile() const
+    \brief Returns whether this factory is considered when the user requests to
+    open a file.
+
+    Defaults to \c true for factories that are not \l {isProjectFactory()}
+    {project factories}, and to \c false for those that are.
+
+    \sa setUsedForOpenFile()
 */
 
 /*!
