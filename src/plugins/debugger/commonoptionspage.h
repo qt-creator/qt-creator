@@ -7,6 +7,8 @@
 
 namespace Debugger::Internal {
 
+QObject *createSourcePathMapAspectTest();
+
 class SourcePathMapAspectPrivate;
 
 // Entries starting with '(' are considered regular expressions in the ElfReader.
@@ -29,8 +31,6 @@ public:
 
     void readSettings() override;
     void writeSettings() const override;
-
-    bool isDirty() const override;
 
 private:
     bool guiToVolatileValue() override;

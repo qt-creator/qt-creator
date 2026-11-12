@@ -3,6 +3,7 @@
 
 #include "breakhandler.h"
 #include "cdb/cdbengine.h"
+#include "commonoptionspage.h"
 #include "console/console.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
@@ -2154,6 +2155,7 @@ Result<> DebuggerPlugin::initialize(const QStringList &arguments)
 #ifdef WITH_TESTS
     addTestCreator(createDebuggerTest);
     addTestCreator(createPeripheralRegisterTest);
+    addTestCreator(createSourcePathMapAspectTest);
 #endif
 
     return ResultOk;

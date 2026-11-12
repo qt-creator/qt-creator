@@ -33,6 +33,10 @@
 #include <QTreeView>
 #include <QtEndian>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 #include <algorithm>
 #include <optional>
 
@@ -49,11 +53,16 @@ using Mapping = QPair<QString, QString>;
 
 class DebuggerSourcePathMappingWidget : public QGroupBox
 {
+    Q_OBJECT
+
 public:
     DebuggerSourcePathMappingWidget();
 
     SourcePathMap sourcePathMap() const;
     void setSourcePathMap(const SourcePathMap &);
+
+signals:
+    void sourcePathMapChanged();
 
 private:
     void slotAdd();
@@ -255,6 +264,14 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget() :
     m_treeView->setModel(m_model);
     connect(m_treeView->selectionModel(), &QItemSelectionModel::currentRowChanged,
             this, &DebuggerSourcePathMappingWidget::slotCurrentRowChanged);
+    connect(m_model, &QAbstractItemModel::dataChanged,
+            this, &DebuggerSourcePathMappingWidget::sourcePathMapChanged);
+    connect(m_model, &QAbstractItemModel::rowsInserted,
+            this, &DebuggerSourcePathMappingWidget::sourcePathMapChanged);
+    connect(m_model, &QAbstractItemModel::rowsRemoved,
+            this, &DebuggerSourcePathMappingWidget::sourcePathMapChanged);
+    connect(m_model, &QAbstractItemModel::modelReset,
+            this, &DebuggerSourcePathMappingWidget::sourcePathMapChanged);
 
     // Top list/Right part: Buttons.
     auto buttonLayout = new QVBoxLayout;
@@ -927,7 +944,7 @@ SourcePathMap mergePlatformQtPath(const DebuggerRunParameters &sp, const SourceP
 class SourcePathMapAspectPrivate
 {
 public:
-    QPointer<DebuggerSourcePathMappingWidget> m_widget;
+    UndoableValue<SourcePathMap> m_undoable;
 };
 
 
@@ -951,32 +968,39 @@ void SourcePathMapAspect::toMap(Store &) const
     QTC_CHECK(false);
 }
 
-bool SourcePathMapAspect::isDirty() const
-{
-    const_cast<SourcePathMapAspect *>(this)->guiToVolatileValue();
-    return m_value != m_volatileValue;
-}
-
 void SourcePathMapAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    QTC_CHECK(!d->m_widget);
-    d->m_widget = createSubWidget<DebuggerSourcePathMappingWidget>();
-    d->m_widget->setSourcePathMap(value());
-    parent.addItem(d->m_widget.data());
+    auto widget = createSubWidget<DebuggerSourcePathMappingWidget>();
+    d->m_undoable.setSilently(m_volatileValue);
+    widget->setSourcePathMap(d->m_undoable.get());
+
+    connect(widget, &DebuggerSourcePathMappingWidget::sourcePathMapChanged, this, [this, widget] {
+        const SourcePathMap map = widget->sourcePathMap();
+        if (map != d->m_undoable.get())
+            d->m_undoable.set(undoStack(), map);
+    });
+    connect(&d->m_undoable.m_signal, &UndoSignaller::changed, widget, [this, widget] {
+        if (widget->sourcePathMap() == d->m_undoable.get())
+            return;
+        // Refilling passes through incomplete maps, which are not edits.
+        const QSignalBlocker blocker(widget);
+        widget->setSourcePathMap(d->m_undoable.get());
+    });
+    // Once per change however many widgets there are.
+    connect(&d->m_undoable.m_signal, &UndoSignaller::changed,
+            this, &SourcePathMapAspect::handleGuiChanged, Qt::UniqueConnection);
+
+    parent.addItem(widget);
 }
 
 bool SourcePathMapAspect::guiToVolatileValue()
 {
-    const SourcePathMap old = m_volatileValue;
-    if (d->m_widget)
-        m_volatileValue = d->m_widget->sourcePathMap();
-    return m_volatileValue != old;
+    return updateStorage(m_volatileValue, d->m_undoable.get());
 }
 
 void SourcePathMapAspect::volatileValueToGui()
 {
-    if (d->m_widget)
-        d->m_widget->setSourcePathMap(m_volatileValue);
+    d->m_undoable.setWithoutUndo(m_volatileValue);
 }
 
 const char sourcePathMappingArrayNameC[] = "SourcePathMappings";
@@ -1021,4 +1045,40 @@ void SourcePathMapAspect::readSettings()
     setValue(sourcePathMap);
 }
 
+#ifdef WITH_TESTS
+class SourcePathMapAspectTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testUpdatesEveryWidget()
+    {
+        SourcePathMapAspect aspect(nullptr);
+        const std::unique_ptr<QWidget> first(Layouting::Column{aspect}.emerge());
+        const std::unique_ptr<QWidget> second(Layouting::Column{aspect}.emerge());
+        auto firstWidget = first->findChild<DebuggerSourcePathMappingWidget *>();
+        auto secondWidget = second->findChild<DebuggerSourcePathMappingWidget *>();
+        QVERIFY(firstWidget);
+        QVERIFY(secondWidget);
+
+        const SourcePathMap set{{"/set/source", "/set/target"}};
+        aspect.setValue(set);
+        QCOMPARE(firstWidget->sourcePathMap(), set);
+        QCOMPARE(secondWidget->sourcePathMap(), set);
+
+        const SourcePathMap edited{{"/edited/source", "/edited/target"}};
+        firstWidget->setSourcePathMap(edited);
+        QCOMPARE(aspect.volatileValue(), edited);
+        QCOMPARE(secondWidget->sourcePathMap(), edited);
+    }
+};
+
+QObject *createSourcePathMapAspectTest()
+{
+    return new SourcePathMapAspectTest;
+}
+#endif // WITH_TESTS
+
 } // Debugger::Internal
+
+#include "debuggersourcepathmappingwidget.moc"
