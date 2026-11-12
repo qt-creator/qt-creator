@@ -293,12 +293,14 @@ public:
 
     struct Data : Utils::BaseAspect::Data { Launcher launcher; };
 
+signals:
+    void launchersChanged(QPrivateSignal);
+    void currentLauncherChanged(QPrivateSignal);
+
 private:
     void setCurrentLauncherId(const QString &id);
-    void updateCurrentLauncher();
-    void updateComboBox();
+    void ensureOfferedCurrentLauncher();
     QList<Launcher> m_launchers;
-    QPointer<QComboBox> m_comboBox;
     QString m_defaultId;
     QString m_currentId;
     Utils::Id m_settingsDialogId;

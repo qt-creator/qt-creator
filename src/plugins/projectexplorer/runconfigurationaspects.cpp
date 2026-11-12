@@ -1044,8 +1044,8 @@ void LauncherAspect::updateLaunchers(const QList<Launcher> &launchers)
     if (m_launchers == launchers)
         return;
     m_launchers = launchers;
-    if (m_comboBox)
-        updateComboBox();
+    ensureOfferedCurrentLauncher();
+    emit launchersChanged(QPrivateSignal());
 }
 
 void LauncherAspect::setDefaultLauncher(const Launcher &launcher)
@@ -1059,19 +1059,15 @@ void LauncherAspect::setDefaultLauncher(const Launcher &launcher)
 
 void LauncherAspect::setCurrentLauncher(const Launcher &launcher)
 {
-    if (m_comboBox) {
-        const int index = m_launchers.indexOf(launcher);
-        if (index < 0 || index >= m_comboBox->count())
-            return;
-        m_comboBox->setCurrentIndex(index);
-    } else {
-        setCurrentLauncherId(launcher.id);
-    }
+    if (!m_launchers.isEmpty() && !m_launchers.contains(launcher))
+        return;
+    setCurrentLauncherId(launcher.id);
 }
 
 void LauncherAspect::fromMap(const Store &map)
 {
     setCurrentLauncherId(map.value(settingsKey(), m_defaultId).toString());
+    ensureOfferedCurrentLauncher();
 }
 
 void LauncherAspect::toMap(Store &map) const
@@ -1082,14 +1078,39 @@ void LauncherAspect::toMap(Store &map) const
 
 void LauncherAspect::addToLayoutImpl(Layout &builder)
 {
-    if (QTC_GUARD(m_comboBox.isNull()))
-        m_comboBox = new QComboBox;
+    auto comboBox = new QComboBox;
 
-    updateComboBox();
-    connect(m_comboBox, &QComboBox::currentIndexChanged,
-            this, &LauncherAspect::updateCurrentLauncher);
+    const auto showCurrentLauncher = [this, comboBox] {
+        const int index = Utils::indexOf(m_launchers, Utils::equal(&Launcher::id, m_currentId));
+        const QSignalBlocker blocker(comboBox);
+        comboBox->setCurrentIndex(index);
+        comboBox->setToolTip(index < 0 ? QString() : m_launchers[index].command.toUserOutput());
+    };
+    const auto showLaunchers = [this, comboBox, showCurrentLauncher] {
+        {
+            const QSignalBlocker blocker(comboBox);
+            comboBox->clear();
+            for (const Launcher &launcher : std::as_const(m_launchers)) {
+                comboBox->addItem(launcher.displayName);
+                comboBox->setItemData(comboBox->count() - 1,
+                                      launcher.command.toUserOutput(),
+                                      Qt::ToolTipRole);
+            }
+        }
+        showCurrentLauncher();
+    };
+    showLaunchers();
 
-    builder.addItems({Tr::tr("Launcher:"), m_comboBox.data()});
+    connect(comboBox, &QComboBox::currentIndexChanged, this, [this](int index) {
+        if (index < 0)
+            return;
+        QTC_ASSERT(index < m_launchers.size(), return);
+        setCurrentLauncherId(m_launchers[index].id);
+    });
+    connect(this, &LauncherAspect::launchersChanged, comboBox, showLaunchers);
+    connect(this, &LauncherAspect::currentLauncherChanged, comboBox, showCurrentLauncher);
+
+    builder.addItems({Tr::tr("Launcher:"), comboBox});
 }
 
 void LauncherAspect::setCurrentLauncherId(const QString &id)
@@ -1097,38 +1118,24 @@ void LauncherAspect::setCurrentLauncherId(const QString &id)
     if (id == m_currentId)
         return;
     m_currentId = id;
+    emit currentLauncherChanged(QPrivateSignal());
     emit changed();
 }
 
-void LauncherAspect::updateCurrentLauncher()
+/*
+    Makes an offered launcher the current one if the current one is not
+    offered: the default launcher, or else the first one.
+*/
+void LauncherAspect::ensureOfferedCurrentLauncher()
 {
-    const int index = m_comboBox->currentIndex();
-    if (index < 0)
+    if (m_launchers.isEmpty())
         return;
-    QTC_ASSERT(index < m_launchers.size(), return);
-    m_comboBox->setToolTip(m_launchers[index].command.toUserOutput());
-    setCurrentLauncherId(m_launchers[index].id);
-}
-
-void LauncherAspect::updateComboBox()
-{
-    int currentIndex = -1;
-    int defaultIndex = -1;
-    m_comboBox->clear();
-    for (const Launcher &launcher : std::as_const(m_launchers)) {
-        int index = m_comboBox->count();
-        m_comboBox->addItem(launcher.displayName);
-        m_comboBox->setItemData(index, launcher.command.toUserOutput(), Qt::ToolTipRole);
-        if (launcher.id == m_currentId)
-            currentIndex = index;
-        if (launcher.id == m_defaultId)
-            defaultIndex = index;
-    }
-    if (currentIndex >= 0)
-        m_comboBox->setCurrentIndex(currentIndex);
-    else if (defaultIndex >= 0)
-        m_comboBox->setCurrentIndex(defaultIndex);
-    updateCurrentLauncher();
+    const auto isOffered = [this](const QString &id) {
+        return Utils::anyOf(m_launchers, Utils::equal(&Launcher::id, id));
+    };
+    if (isOffered(m_currentId))
+        return;
+    setCurrentLauncherId(isOffered(m_defaultId) ? m_defaultId : m_launchers.first().id);
 }
 
 /*!
@@ -1192,6 +1199,8 @@ class RunConfigurationAspectsTest final : public QObject
 
 private slots:
     void testTerminalAspectUpdatesEveryCheckBox();
+    void testLauncherAspectUpdatesEveryComboBox();
+    void testLauncherAspectPicksOfferedLauncherWithoutWidget();
 };
 
 static std::unique_ptr<QWidget> createWidget(BaseAspect &aspect)
@@ -1216,6 +1225,54 @@ void RunConfigurationAspectsTest::testTerminalAspectUpdatesEveryCheckBox()
     firstBox->click();
     QVERIFY(!aspect.useTerminal());
     QVERIFY(!secondBox->isChecked());
+}
+
+static Launcher testLauncher(const QString &id)
+{
+    Launcher launcher;
+    launcher.id = id;
+    launcher.displayName = id;
+    launcher.command = FilePath::fromString("/launchers/" + id);
+    return launcher;
+}
+
+void RunConfigurationAspectsTest::testLauncherAspectUpdatesEveryComboBox()
+{
+    LauncherAspect aspect;
+    aspect.updateLaunchers({testLauncher("a"), testLauncher("b"), testLauncher("c")});
+    const auto first = createWidget(aspect);
+    const auto second = createWidget(aspect);
+    QComboBox *firstBox = first->findChild<QComboBox *>();
+    QComboBox *secondBox = second->findChild<QComboBox *>();
+    QVERIFY(firstBox);
+    QVERIFY(secondBox);
+    QCOMPARE(firstBox->count(), 3);
+    QCOMPARE(secondBox->count(), 3);
+
+    aspect.setCurrentLauncher(testLauncher("b"));
+    QCOMPARE(firstBox->currentIndex(), 1);
+    QCOMPARE(secondBox->currentIndex(), 1);
+
+    firstBox->setCurrentIndex(2);
+    QCOMPARE(aspect.currentLauncher().id, "c");
+    QCOMPARE(secondBox->currentIndex(), 2);
+
+    aspect.updateLaunchers({testLauncher("c"), testLauncher("d")});
+    QCOMPARE(firstBox->count(), 2);
+    QCOMPARE(secondBox->count(), 2);
+    QCOMPARE(firstBox->currentIndex(), 0);
+    QCOMPARE(secondBox->currentIndex(), 0);
+}
+
+void RunConfigurationAspectsTest::testLauncherAspectPicksOfferedLauncherWithoutWidget()
+{
+    LauncherAspect aspect;
+    aspect.setDefaultLauncher(testLauncher("b"));
+    aspect.updateLaunchers({testLauncher("a"), testLauncher("b"), testLauncher("c")});
+    QCOMPARE(aspect.currentLauncher().id, "b");
+
+    aspect.updateLaunchers({testLauncher("a"), testLauncher("c")});
+    QCOMPARE(aspect.currentLauncher().id, "a");
 }
 
 QObject *createRunConfigurationAspectsTest()
