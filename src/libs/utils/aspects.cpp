@@ -1076,7 +1076,7 @@ public:
     QString m_suffix;
     QString m_specialValueText;
     double m_singleStep = 1;
-    QPointer<QDoubleSpinBox> m_spinBox; // Owned by configuration widget
+    UndoableValue<double> m_undoable;
 };
 
 class StringListAspectPrivate
@@ -2954,31 +2954,36 @@ DoubleAspect::~DoubleAspect() = default;
 */
 void DoubleAspect::addToLayoutImpl(Layout &builder)
 {
-    QTC_CHECK(!d->m_spinBox);
-    d->m_spinBox = createSubWidget<QDoubleSpinBox>();
-    d->m_spinBox->setPrefix(d->m_prefix);
-    d->m_spinBox->setSuffix(d->m_suffix);
-    d->m_spinBox->setSingleStep(d->m_singleStep);
-    d->m_spinBox->setSpecialValueText(d->m_specialValueText);
+    auto spinBox = createSubWidget<QDoubleSpinBox>();
+    spinBox->setPrefix(d->m_prefix);
+    spinBox->setSuffix(d->m_suffix);
+    spinBox->setSingleStep(d->m_singleStep);
+    spinBox->setSpecialValueText(d->m_specialValueText);
     if (d->m_minimumValue && d->m_maximumValue)
-        d->m_spinBox->setRange(*d->m_minimumValue, *d->m_maximumValue);
-    volatileValueToGui(); // Must happen after setRange()!
-    addLabeledItem(builder, d->m_spinBox);
-    connect(d->m_spinBox.data(), &QDoubleSpinBox::valueChanged,
-            this, &DoubleAspect::handleGuiChanged);
+        spinBox->setRange(*d->m_minimumValue, *d->m_maximumValue);
+    volatileValueToGui();
+    spinBox->setValue(d->m_undoable.get()); // Must happen after setRange()!
+    addLabeledItem(builder, spinBox);
+
+    connect(spinBox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
+        d->m_undoable.set(undoStack(), value);
+    });
+
+    connect(&d->m_undoable.m_signal, &UndoSignaller::changed, spinBox, [spinBox, this] {
+        const QSignalBlocker blocker(spinBox);
+        spinBox->setValue(d->m_undoable.get());
+        handleGuiChanged();
+    });
 }
 
 bool DoubleAspect::guiToVolatileValue()
 {
-    if (d->m_spinBox)
-        return updateStorage(m_volatileValue, d->m_spinBox->value());
-    return false;
+    return updateStorage(m_volatileValue, d->m_undoable.get());
 }
 
 void DoubleAspect::volatileValueToGui()
 {
-    if (d->m_spinBox)
-        d->m_spinBox->setValue(m_volatileValue);
+    d->m_undoable.setWithoutUndo(m_volatileValue);
 }
 
 void DoubleAspect::setRange(double min, double max)
