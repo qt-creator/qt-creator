@@ -1064,7 +1064,7 @@ public:
     QString m_suffix;
     QString m_specialValueText;
     int m_singleStep = 1;
-    QPointer<QSpinBox> m_spinBox; // Owned by configuration widget
+    UndoableValue<qint64> m_undoable;
 };
 
 class DoubleAspectPrivate
@@ -2837,33 +2837,38 @@ IntegerAspect::~IntegerAspect() = default;
 */
 void IntegerAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    QTC_CHECK(!d->m_spinBox);
-    d->m_spinBox = createSubWidget<QSpinBox>();
-    d->m_spinBox->setDisplayIntegerBase(d->m_displayIntegerBase);
-    d->m_spinBox->setPrefix(d->m_prefix);
-    d->m_spinBox->setSuffix(d->m_suffix);
-    d->m_spinBox->setSingleStep(d->m_singleStep);
-    d->m_spinBox->setSpecialValueText(d->m_specialValueText);
+    auto spinBox = createSubWidget<QSpinBox>();
+    spinBox->setDisplayIntegerBase(d->m_displayIntegerBase);
+    spinBox->setPrefix(d->m_prefix);
+    spinBox->setSuffix(d->m_suffix);
+    spinBox->setSingleStep(d->m_singleStep);
+    spinBox->setSpecialValueText(d->m_specialValueText);
     if (d->m_minimumValue && d->m_maximumValue)
-        d->m_spinBox->setRange(int(*d->m_minimumValue / d->m_displayScaleFactor),
-                               int(*d->m_maximumValue / d->m_displayScaleFactor));
+        spinBox->setRange(int(*d->m_minimumValue / d->m_displayScaleFactor),
+                          int(*d->m_maximumValue / d->m_displayScaleFactor));
     volatileValueToGui();
-    addLabeledItem(parent, d->m_spinBox);
-    connect(d->m_spinBox.data(), &QSpinBox::valueChanged,
-            this, &IntegerAspect::handleGuiChanged);
+    spinBox->setValue(d->m_undoable.get() / d->m_displayScaleFactor);
+    addLabeledItem(parent, spinBox);
+
+    connect(spinBox, &QSpinBox::valueChanged, this, [this](int value) {
+        if (value != d->m_undoable.get() / d->m_displayScaleFactor)
+            d->m_undoable.set(undoStack(), value * d->m_displayScaleFactor);
+    });
+
+    connect(&d->m_undoable.m_signal, &UndoSignaller::changed, spinBox, [spinBox, this] {
+        spinBox->setValue(d->m_undoable.get() / d->m_displayScaleFactor);
+        handleGuiChanged();
+    });
 }
 
 bool IntegerAspect::guiToVolatileValue()
 {
-    if (d->m_spinBox)
-        return updateStorage(m_volatileValue, d->m_spinBox->value() * d->m_displayScaleFactor);
-    return false;
+    return updateStorage(m_volatileValue, d->m_undoable.get());
 }
 
 void IntegerAspect::volatileValueToGui()
 {
-    if (d->m_spinBox)
-        d->m_spinBox->setValue(m_volatileValue / d->m_displayScaleFactor);
+    d->m_undoable.setWithoutUndo(m_volatileValue);
 }
 
 QVariant IntegerAspect::fromSettingsValue(const QVariant &savedValue) const

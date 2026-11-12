@@ -4,6 +4,7 @@ Project {
     name: "Utils autotests"
     references: [
         "ansiescapecodehandler/ansiescapecodehandler.qbs",
+        "aspects/aspects.qbs",
         "async/async.qbs",
         "commandline/commandline.qbs",
         "covariantcallback/covariantcallback.qbs",
