@@ -8,6 +8,7 @@ this file manually, you might introduce QML code that is not supported by Qt Des
 Check out https://doc.qt.io/qtcreator/creator-quick-ui-forms.html for details on .ui.qml files.
 */
 
+pragma Translator: "QtC::QmlProjectManager"
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import LandingPageApi
@@ -35,19 +36,19 @@ Rectangle {
             width: parent.width
             topPadding: 0
             padding: Theme.Values.spacing
-            text: qsTranslate("QtC::QmlProjectManager", "No Qt Design Studio installation found")
+            text: qsTr("No Qt Design Studio installation found")
         }
 
         PageText {
             id: suggestionText
             width: parent.width
             padding: Theme.Values.spacing
-            text: qsTranslate("QtC::QmlProjectManager", "Would you like to install it now?")
+            text: qsTr("Would you like to install it now?")
         }
 
         PushButton {
             id: installButton
-            text: qsTranslate("QtC::QmlProjectManager", "Install")
+            text: qsTr("Install")
             anchors.horizontalCenter: parent.horizontalCenter
         }
     }

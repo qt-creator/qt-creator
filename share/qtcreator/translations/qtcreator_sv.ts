@@ -2,77 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="sv_SE">
 <context>
-    <name>AbstractButtonSection</name>
-    <message>
-        <source>Button Content</source>
-        <translation>Knappinnehåll</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
-    <message>
-        <source>Text displayed on the button.</source>
-        <translation>Text som visas på knappen.</translation>
-    </message>
-    <message>
-        <source>Display</source>
-        <translation>Visning</translation>
-    </message>
-    <message>
-        <source>Determines how the icon and text are displayed within the button.</source>
-        <translation>Bestämmer hur ikonen och texten visas inom knappen.</translation>
-    </message>
-    <message>
-        <source>Checkable</source>
-        <translation>Markerbar</translation>
-    </message>
-    <message>
-        <source>Toggles if the button is checkable.</source>
-        <translation>Växlar om knappen är markerbar.</translation>
-    </message>
-    <message>
-        <source>Toggles if the button is checked.</source>
-        <translation>Växlar om knappen är markerad.</translation>
-    </message>
-    <message>
-        <source>Toggles if the button is exclusive. Non-exclusive checkable buttons that belong to the same parent behave as if they are part of the same button group; only one button can be checked at any time.</source>
-        <translation>Växlar om knappen är exklusiv. Icke-exklusiva markerbara knappar som tillhör samma förälder beter sig som de är en del av samma knappgrupp; endast en knapp kan markeras samtidigt.</translation>
-    </message>
-    <message>
-        <source>Toggles if pressed, released, and clicked actions are repeated while the button is pressed and held down.</source>
-        <translation>Växlar om tryckt, släppt och klickade åtgärder repeteras när knappen trycks ner och hålls nere.</translation>
-    </message>
-    <message>
-        <source>Sets the initial delay of auto-repetition in milliseconds.</source>
-        <translation>Ställer in initial fördröjning för automatisk repetition i millisekunder.</translation>
-    </message>
-    <message>
-        <source>Sets the interval between auto-repetitions in milliseconds.</source>
-        <translation>Ställer in intervall mellan automatisk repetition i millisekunder.</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>Markerad</translation>
-    </message>
-    <message>
-        <source>Exclusive</source>
-        <translation>Exklusiv</translation>
-    </message>
-    <message>
-        <source>Auto-repeat</source>
-        <translation>Repetera automatiskt</translation>
-    </message>
-    <message>
-        <source>Repeat delay</source>
-        <translation>Repeteringsfördröjning</translation>
-    </message>
-    <message>
-        <source>Repeat interval</source>
-        <translation>Repeteringsintervall</translation>
-    </message>
-</context>
-<context>
     <name>AddImageToResources</name>
     <message>
         <source>File Name</source>
@@ -93,13 +22,6 @@
     <message>
         <source>Target Directory</source>
         <translation>Målkatalog</translation>
-    </message>
-</context>
-<context>
-    <name>AddModuleView</name>
-    <message>
-        <source>Select a Module to Add</source>
-        <translation>Välj en modul att lägga till</translation>
     </message>
 </context>
 <context>
@@ -134,180 +56,10 @@
     </message>
 </context>
 <context>
-    <name>AdvancedSection</name>
-    <message>
-        <source>Advanced</source>
-        <translation>Avancerat</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Aktiverad</translation>
-    </message>
-    <message>
-        <source>Toggles if the component is enabled to receive mouse and keyboard input.</source>
-        <translation>Växlar om komponenten är aktiverad för att ta emot mus- och tangentbordsinmatning.</translation>
-    </message>
-    <message>
-        <source>Smooth</source>
-        <translation>Mjuk</translation>
-    </message>
-    <message>
-        <source>Toggles if the smoothing is performed using linear interpolation method. Keeping it unchecked would follow non-smooth method using nearest neighbor. It is mostly applicable on image based items.</source>
-        <translation>Växlar om mjukheten genomförs med linjär interpolationsmetod. Hålla den avmarkerad skulle följa metoden för icke-mjuk med närmsta granne. Det är oftast aktuellt på bildbaserade poster.</translation>
-    </message>
-    <message>
-        <source>Antialiasing</source>
-        <translation>Antialiasing</translation>
-    </message>
-    <message>
-        <source>Refines the edges of the image.</source>
-        <translation>Förfinar kanterna på bilden.</translation>
-    </message>
-    <message>
-        <source>Focus</source>
-        <translation>Fokus</translation>
-    </message>
-    <message>
-        <source>Sets focus on the component within the enclosing focus scope.</source>
-        <translation>Ställer in fokus på komponenten inom det omslutande fokusintervallet.</translation>
-    </message>
-    <message>
-        <source>Focus on tab</source>
-        <translation>Fokus på flik</translation>
-    </message>
-    <message>
-        <source>Adds the component to the tab focus chain.</source>
-        <translation>Lägger till komponenten till flikfokuskedjan.</translation>
-    </message>
-    <message>
-        <source>Baseline offset</source>
-        <translation>Standardpositionsjustering</translation>
-    </message>
-    <message>
-        <source>Sets the position of the component&apos;s baseline in local coordinates.</source>
-        <translation>Ställer in positionen för komponentens standardvärde i lokala koordinater.</translation>
-    </message>
-</context>
-<context>
     <name>AlignCamerasToViewAction</name>
     <message>
         <source>Align Cameras to View</source>
         <translation>Justera kameror till vy</translation>
-    </message>
-</context>
-<context>
-    <name>AlignDistributeSection</name>
-    <message>
-        <source>Alignment</source>
-        <translation>Justering</translation>
-    </message>
-    <message>
-        <source>Align left edges.</source>
-        <translation>Justera vänstra kanter.</translation>
-    </message>
-    <message>
-        <source>Align horizontal centers.</source>
-        <translation>Justera horisontella centrum.</translation>
-    </message>
-    <message>
-        <source>Align right edges.</source>
-        <translation>Justera högra kanter.</translation>
-    </message>
-    <message>
-        <source>Align top edges.</source>
-        <translation>Justera övre kanter.</translation>
-    </message>
-    <message>
-        <source>Align vertical centers.</source>
-        <translation>Justera vertikala centrum.</translation>
-    </message>
-    <message>
-        <source>Align bottom edges.</source>
-        <translation>Justera nedre kanter.</translation>
-    </message>
-    <message>
-        <source>Distribute objects</source>
-        <translation>Distribuera objekt</translation>
-    </message>
-    <message>
-        <source>Distribute left edges.</source>
-        <translation>Distribuera vänstra kanter.</translation>
-    </message>
-    <message>
-        <source>Distribute horizontal centers.</source>
-        <translation>Distribuera horisontella centrum.</translation>
-    </message>
-    <message>
-        <source>Distribute right edges.</source>
-        <translation>Distribuera högra kanter.</translation>
-    </message>
-    <message>
-        <source>Distribute top edges.</source>
-        <translation>Distribuera övre kanter.</translation>
-    </message>
-    <message>
-        <source>Distribute vertical centers.</source>
-        <translation>Distribuera vertikala centrum.</translation>
-    </message>
-    <message>
-        <source>Distribute bottom edges.</source>
-        <translation>Distribuera nedre kanter.</translation>
-    </message>
-    <message>
-        <source>Distribute spacing</source>
-        <translation>Distribuera mellanrum</translation>
-    </message>
-    <message>
-        <source>Distribute spacing horizontally.</source>
-        <translation>Distribuera mellanrum horisontellt.</translation>
-    </message>
-    <message>
-        <source>Distribute spacing vertically.</source>
-        <translation>Distribuera mellanrum vertikalt.</translation>
-    </message>
-    <message>
-        <source>Disables the distribution of spacing in pixels.</source>
-        <translation>Inaktiverar distributionen av mellanrum i bildpunkter.</translation>
-    </message>
-    <message>
-        <source>Sets the left or top border of the target area or item as the starting point, depending on the distribution orientation.</source>
-        <translation>Ställer in vänster eller övre ram för målytan eller post som startpunkt, beroende på distributionsorienteringen.</translation>
-    </message>
-    <message>
-        <source>Sets the horizontal or vertical center of the target area or item as the starting point, depending on the distribution orientation.</source>
-        <translation>Ställer in horisontellt eller vertikalt centrum för målytan eller post som startpunkt, beroende på distributionsorienteringen.</translation>
-    </message>
-    <message>
-        <source>Sets the bottom or right border of the target area or item as the starting point, depending on the distribution orientation.</source>
-        <translation>Ställer in nedre eller höger ram för målytan eller post som startpunkt, beroende på distributionsorienteringen.</translation>
-    </message>
-    <message>
-        <source>Pixel spacing</source>
-        <translation>Bildpunktsmellanrum</translation>
-    </message>
-    <message>
-        <source>Align to</source>
-        <translation>Justera till</translation>
-    </message>
-    <message>
-        <source>Key object</source>
-        <translation>Nyckelobjekt</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Varning</translation>
-    </message>
-    <message>
-        <source>- The selection contains the root component.</source>
-        <translation>- Markeringen innehåller rotkomponenten.</translation>
-    </message>
-    <message>
-        <source>- The selection contains a non-visual component.</source>
-        <translation>- Markeringen innehåller en icke-visuell komponent.</translation>
-    </message>
-    <message>
-        <source>- A component in the selection uses anchors.</source>
-        <translation>- En komponent i markeringen använder ankare.</translation>
     </message>
 </context>
 <context>
@@ -318,161 +70,9 @@
     </message>
 </context>
 <context>
-    <name>AmbientSoundSection</name>
-    <message>
-        <source>Ambient Sound</source>
-        <translation>Bakgrundsljud</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>Källa</translation>
-    </message>
-    <message>
-        <source>The source file for the sound to be played.</source>
-        <translation>Källfilen för ljudet som ska spelas upp.</translation>
-    </message>
-    <message>
-        <source>Volume</source>
-        <translation>Volym</translation>
-    </message>
-    <message>
-        <source>Set the overall volume for this sound source.
-Values between 0 and 1 will attenuate the sound, while values above 1 provide an additional gain boost.</source>
-        <translation>Ställer in övergripande volym för denna ljudkälla.
-Värden mellan 0 och 1 kommer att dämpa ljudet medans värden över 1 ger en ytterligare förstärkning.</translation>
-    </message>
-    <message>
-        <source>Loops</source>
-        <translation>Slingor</translation>
-    </message>
-    <message>
-        <source>Sets how often the sound is played before the player stops.
-Bind to AmbientSound.Infinite to loop the current sound forever.</source>
-        <translation>Ställer in hur ofta ljudet spelas upp innan uppspelaren stoppar.
-Bind till AmbientSound.Infinite för att spela upp ljudet utan stopp.</translation>
-    </message>
-    <message>
-        <source>Auto Play</source>
-        <translation>Spela upp automatiskt</translation>
-    </message>
-    <message>
-        <source>Sets whether the sound should automatically start playing when a source gets specified.</source>
-        <translation>Ställer in huruvida ljudet ska börja spelas upp automatiskt när en källa blir angiven.</translation>
-    </message>
-</context>
-<context>
-    <name>AnchorButtons</name>
-    <message>
-        <source>Anchors can only be applied to child items.</source>
-        <translation>Ankare kan endast tillämpas på barnposter.</translation>
-    </message>
-    <message>
-        <source>Anchors can only be applied to the base state.</source>
-        <translation>Ankare kan endast tillämpas till grundtillståndet.</translation>
-    </message>
-    <message>
-        <source>Anchor component to the top.</source>
-        <translation>Förankra komponent överst.</translation>
-    </message>
-    <message>
-        <source>Anchor component to the bottom.</source>
-        <translation>Förankra komponent nederst.</translation>
-    </message>
-    <message>
-        <source>Anchor component to the left.</source>
-        <translation>Förankra komponent till vänster.</translation>
-    </message>
-    <message>
-        <source>Anchor component to the right.</source>
-        <translation>Förankra komponent till höger.</translation>
-    </message>
-    <message>
-        <source>Fill parent component.</source>
-        <translation>Fyll föräldrakomponent.</translation>
-    </message>
-    <message>
-        <source>Anchor component vertically.</source>
-        <translation>Förankra komponent vertikalt.</translation>
-    </message>
-    <message>
-        <source>Anchor component horizontally.</source>
-        <translation>Förankra komponent horisontellt.</translation>
-    </message>
-</context>
-<context>
-    <name>AnchorRow</name>
-    <message>
-        <source>Target</source>
-        <translation>Mål</translation>
-    </message>
-    <message>
-        <source>Margin</source>
-        <translation>Marginal</translation>
-    </message>
-    <message>
-        <source>Anchor to the top of the target.</source>
-        <translation>Förankra överst av målet.</translation>
-    </message>
-    <message>
-        <source>Anchor to the left of the target.</source>
-        <translation>Förankra till vänster av målet.</translation>
-    </message>
-    <message>
-        <source>Anchor to the vertical center of the target.</source>
-        <translation>Förankra till vertikalt centrum av målet.</translation>
-    </message>
-    <message>
-        <source>Anchor to the horizontal center of the target.</source>
-        <translation>Förankra till horisontellt centrum av målet.</translation>
-    </message>
-    <message>
-        <source>Anchor to the bottom of the target.</source>
-        <translation>Förankra nederst av målet.</translation>
-    </message>
-    <message>
-        <source>Anchor to the right of the target.</source>
-        <translation>Förankra till höger av målet.</translation>
-    </message>
-</context>
-<context>
-    <name>AnimatedImageSpecifics</name>
-    <message>
-        <source>Image</source>
-        <translation>Bild</translation>
-    </message>
-    <message>
-        <source>Animated image</source>
-        <translation>Animerad bild</translation>
-    </message>
-    <message>
-        <source>Speed</source>
-        <translation>Hastighet</translation>
-    </message>
-    <message>
-        <source>Sets the speed of the animation.</source>
-        <translation>Anger hastigheten för animeringen.</translation>
-    </message>
-    <message>
-        <source>Playing</source>
-        <translation>Spelar upp</translation>
-    </message>
-    <message>
-        <source>Toggles if the animation is playing.</source>
-        <translation>Växlar om animeringen spelas upp.</translation>
-    </message>
-</context>
-<context>
     <name>AnimatedSpriteSpecifics</name>
     <message>
         <source>Animated Sprite</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>Källa</translation>
-    </message>
-    <message>
-        <source>Adds an image from the local file system.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -484,26 +84,6 @@ Bind till AmbientSound.Infinite för att spela upp ljudet utan stopp.</translati
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>W</source>
-        <comment>width</comment>
-        <extracomment>The width of the animated sprite frame</extracomment>
-        <translation>W</translation>
-    </message>
-    <message>
-        <source>Width.</source>
-        <translation>Bredd.</translation>
-    </message>
-    <message>
-        <source>H</source>
-        <comment>height</comment>
-        <extracomment>The height of the animated sprite frame</extracomment>
-        <translation>H</translation>
-    </message>
-    <message>
-        <source>Height.</source>
-        <translation>Height.</translation>
-    </message>
-    <message>
         <source>Frame coordinates</source>
         <translation type="unfinished"></translation>
     </message>
@@ -512,20 +92,8 @@ Bind till AmbientSound.Infinite för att spela upp ljudet utan stopp.</translati
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>X</source>
-        <comment>Frame X</comment>
-        <extracomment>The width of the animated sprite frame</extracomment>
-        <translation>X</translation>
-    </message>
-    <message>
         <source>Frame X coordinate.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Y</source>
-        <comment>Frame Y</comment>
-        <extracomment>The height of the animated sprite frame</extracomment>
-        <translation>Y</translation>
     </message>
     <message>
         <source>Frame Y coordinate.</source>
@@ -564,10 +132,6 @@ Bind till AmbientSound.Infinite för att spela upp ljudet utan stopp.</translati
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Loops</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>After playing the animation this many times, the animation will automatically stop.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -588,16 +152,8 @@ Bind till AmbientSound.Infinite för att spela upp ljudet utan stopp.</translati
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reverse</source>
-        <translation>Omvänd</translation>
-    </message>
-    <message>
         <source>If true, the animation will be played in reverse.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Running</source>
-        <translation>Kör</translation>
     </message>
     <message>
         <source>Whether the sprite is animating or not.</source>
@@ -621,217 +177,29 @@ Bind till AmbientSound.Infinite för att spela upp ljudet utan stopp.</translati
     </message>
 </context>
 <context>
-    <name>AnimationSection</name>
-    <message>
-        <source>Animation</source>
-        <translation>Animering</translation>
-    </message>
-    <message>
-        <source>Running</source>
-        <translation>Kör</translation>
-    </message>
-    <message>
-        <source>Whether the animation is running and/or paused.</source>
-        <translation>Huruvida animeringen körs och/eller pausad.</translation>
-    </message>
-    <message>
-        <source>Loops</source>
-        <translation>Slingor</translation>
-    </message>
-    <message>
-        <source>Number of times the animation should play.</source>
-        <translation>Antal gånger som animeringen ska spelas upp.</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>Längd</translation>
-    </message>
-    <message>
-        <source>Duration of the animation in milliseconds.</source>
-        <translation>Längd för animeringen i millisekunder.</translation>
-    </message>
-    <message>
-        <source>Run to end</source>
-        <translation>Kör till slutet</translation>
-    </message>
-    <message>
-        <source>Runs the animation to completion when it is stopped.</source>
-        <translation>Kör animeringen till slutet när den är stoppad.</translation>
-    </message>
-    <message>
-        <source>Easing curve</source>
-        <translation>Bezierkurva</translation>
-    </message>
-    <message>
-        <source>Defines a custom easing curve.</source>
-        <translation>Definierar en anpassad bezierkurva.</translation>
-    </message>
-</context>
-<context>
     <name>AnimationTargetSection</name>
-    <message>
-        <source>Animation Targets</source>
-        <translation>Animeringsmål</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation>Mål</translation>
-    </message>
-    <message>
-        <source>Target to animate the properties of.</source>
-        <translation>Mål att animera egenskapen för.</translation>
-    </message>
     <message>
         <source>Property</source>
         <translation>Egenskap</translation>
-    </message>
-    <message>
-        <source>Property to animate.</source>
-        <translation>Egenskap att animera.</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Egenskaper</translation>
-    </message>
-    <message>
-        <source>Properties to animate.</source>
-        <translation>Egenskaper att animera.</translation>
-    </message>
-</context>
-<context>
-    <name>ApplicationWindowSpecifics</name>
-    <message>
-        <source>Window</source>
-        <translation>Fönster</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Titel</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Storlek</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Färg</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation>Synlig</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Opacitet</translation>
-    </message>
-</context>
-<context>
-    <name>AssetDelegate</name>
-    <message>
-        <source> (empty)</source>
-        <translation> (tom)</translation>
-    </message>
-</context>
-<context>
-    <name>Assets</name>
-    <message>
-        <source>Add a new asset to the project.</source>
-        <translation>Lägg till en ny tillgång till projektet.</translation>
-    </message>
-    <message>
-        <source>No match found.</source>
-        <translation>Ingen matchning hittades.</translation>
-    </message>
-    <message>
-        <source>Looks like you don&apos;t have any assets yet.</source>
-        <translation>Ser ut som om du inte har några tillgångar ännu.</translation>
-    </message>
-    <message>
-        <source>Drag-and-drop your assets here or click the &apos;+&apos; button to browse assets from the file system.</source>
-        <translation>Dra och släpp dina tillgångar här eller klicka på &quot;+&quot;-knappen för att bläddra efter tillgångar från filsystemet.</translation>
     </message>
 </context>
 <context>
     <name>AssetsContextMenu</name>
     <message>
-        <source>Delete Files</source>
-        <translation>Ta bort filer</translation>
-    </message>
-    <message>
-        <source>Add Textures</source>
-        <translation>Lägg till texturer</translation>
-    </message>
-    <message>
-        <source>Delete File</source>
-        <translation>Ta bort fil</translation>
-    </message>
-    <message>
-        <source>Add Texture</source>
-        <translation>Lägg till textur</translation>
-    </message>
-    <message>
-        <source>Expand All</source>
-        <translation>Expandera alla</translation>
-    </message>
-    <message>
-        <source>Collapse All</source>
-        <translation>Fäll in alla</translation>
-    </message>
-    <message>
-        <source>Edit in Effect Composer</source>
-        <translation>Redigera i Effektkompositör</translation>
-    </message>
-    <message>
         <source>Add Light Probe</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Byt namn på mapp</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>Ny mapp</translation>
-    </message>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Ta bort mapp</translation>
-    </message>
-    <message>
-        <source>New Effect</source>
-        <translation>Ny effekt</translation>
-    </message>
-    <message>
-        <source>Add to Content Library</source>
-        <translation>Lägg till i innehållsbibliotek</translation>
     </message>
 </context>
 <context>
     <name>AudioEngineSection</name>
-    <message>
-        <source>Audio Engine</source>
-        <translation>Ljudmotor</translation>
-    </message>
-    <message>
-        <source>Master Volume</source>
-        <translation>Huvudvolym</translation>
-    </message>
     <message>
         <source>Sets or returns overall volume being used to render the sound field.
 Values between 0 and 1 will attenuate the sound, while values above 1 provide an additional gain boost.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Output Mode</source>
-        <translation>Utdataläge</translation>
-    </message>
-    <message>
         <source>Sets the current output mode of the engine.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Output Device</source>
-        <translation>Utdataenhet</translation>
     </message>
     <message>
         <source>Sets the device that is being used for outputting the sound field.</source>
@@ -840,18 +208,6 @@ Values between 0 and 1 will attenuate the sound, while values above 1 provide an
 </context>
 <context>
     <name>AudioRoomSection</name>
-    <message>
-        <source>Audio Room</source>
-        <translation>Ljudrum</translation>
-    </message>
-    <message>
-        <source>Dimensions</source>
-        <translation>Dimensioner</translation>
-    </message>
-    <message>
-        <source>Sets the dimensions of the room in 3D space.</source>
-        <translation>Ställer in dimensionerna för rummet i 3D-rymd.</translation>
-    </message>
     <message>
         <source>Reflection Gain</source>
         <translation type="unfinished"></translation>
@@ -905,16 +261,8 @@ A positive value will increase reverb for higher frequencies and dampen lower fr
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Floor Material</source>
-        <translation>Golvmaterial</translation>
-    </message>
-    <message>
         <source>Sets the material to use for the floor (negative y) side of the room.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ceiling Material</source>
-        <translation>Takmaterial</translation>
     </message>
     <message>
         <source>Sets the material to use for the ceiling (positive y) side of the room.</source>
@@ -938,21 +286,6 @@ A positive value will increase reverb for higher frequencies and dampen lower fr
     </message>
 </context>
 <context>
-    <name>AudioSection</name>
-    <message>
-        <source>Audio</source>
-        <translation>Ljud</translation>
-    </message>
-    <message>
-        <source>Volume</source>
-        <translation>Volym</translation>
-    </message>
-    <message>
-        <source>Muted</source>
-        <translation>Tyst</translation>
-    </message>
-</context>
-<context>
     <name>BackgroundColorMenuActions</name>
     <message>
         <source>Background Color Actions</source>
@@ -973,20 +306,12 @@ A positive value will increase reverb for higher frequencies and dampen lower fr
 <context>
     <name>BakeLightsProgressDialog</name>
     <message>
-        <source>Close</source>
-        <translation>Stäng</translation>
-    </message>
-    <message>
         <source>Baking lights for 3D view: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bake Again</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
@@ -1016,25 +341,13 @@ A positive value will increase reverb for higher frequencies and dampen lower fr
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>In Use</source>
-        <translation>Används</translation>
-    </message>
-    <message>
         <source>If checked, this model contributes to baked lighting,
 for example in form of casting shadows or indirect light.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>Aktiverad</translation>
-    </message>
-    <message>
         <source>If checked, baked lightmap texture is generated and rendered for this model.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resolution:</source>
-        <translation>Upplösning:</translation>
     </message>
     <message>
         <source>Generated lightmap resolution for this model.</source>
@@ -1050,14 +363,6 @@ Instead, user is expected to set baking properties manually.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
-    </message>
-    <message>
-        <source>Apply &amp; Close</source>
-        <translation>Tillämpa och stäng</translation>
-    </message>
-    <message>
         <source>Bake</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1069,17 +374,9 @@ Instead, user is expected to set baking properties manually.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>Aktiverad</translation>
-    </message>
-    <message>
         <source>When false, the lightmap generated for the model is not stored during lightmap baking,
 even if the key is set to a non-empty value.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Key</source>
-        <translation>Nyckel</translation>
     </message>
     <message>
         <source>Sets the filename base for baked lightmap files for the model.
@@ -1094,158 +391,6 @@ No other Model in the scene can use the same key.</source>
         <source>Sets the folder where baked lightmap files are generated.
 It should be a relative path.</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>BindingsDialog</name>
-    <message>
-        <source>Owner</source>
-        <translation>Ägare</translation>
-    </message>
-    <message>
-        <source>The owner of the property</source>
-        <translation>Ägare till egenskapen</translation>
-    </message>
-</context>
-<context>
-    <name>BindingsDialogForm</name>
-    <message>
-        <source>From</source>
-        <translation>Från</translation>
-    </message>
-    <message>
-        <source>Sets the component and its property from which the value is copied.</source>
-        <translation>Ställer in komponenten och dess egenskap från vilken värdet kopieras.</translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation>Till</translation>
-    </message>
-    <message>
-        <source>Sets the property of the selected component to which the copied value is assigned.</source>
-        <translation>Ställer in egenskapen för markerad komponent till vilken det kopierade värdet tilldelas.</translation>
-    </message>
-</context>
-<context>
-    <name>BindingsListView</name>
-    <message>
-        <source>Removes the binding.</source>
-        <translation>Tar bort bindningen.</translation>
-    </message>
-</context>
-<context>
-    <name>BorderImageSpecifics</name>
-    <message>
-        <source>Source</source>
-        <translation>Källa</translation>
-    </message>
-    <message>
-        <source>Sets the source image for the border.</source>
-        <translation>Ställer in källbilden för ramen.</translation>
-    </message>
-    <message>
-        <source>Sets the dimension of the border image.</source>
-        <translation>Ställer in dimensionen för rambilden.</translation>
-    </message>
-    <message>
-        <source>W</source>
-        <comment>width</comment>
-        <extracomment>The width of the object</extracomment>
-        <translation>W</translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation>Bredd</translation>
-    </message>
-    <message>
-        <source>H</source>
-        <comment>height</comment>
-        <extracomment>The height of the object</extracomment>
-        <translation>H</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Höjd</translation>
-    </message>
-    <message>
-        <source>Tile mode H</source>
-        <translation>Brickläge H</translation>
-    </message>
-    <message>
-        <source>Sets the horizontal tiling mode.</source>
-        <translation>Ställer in horisontellt brickläge.</translation>
-    </message>
-    <message>
-        <source>Tile mode V</source>
-        <translation>Brickläge V</translation>
-    </message>
-    <message>
-        <source>Sets the vertical tiling mode.</source>
-        <translation>Ställer in vertikalt brickläge.</translation>
-    </message>
-    <message>
-        <source>Border left</source>
-        <translation>Ram vänster</translation>
-    </message>
-    <message>
-        <source>Sets the left border.</source>
-        <translation>Ställer in vänster ram.</translation>
-    </message>
-    <message>
-        <source>Border right</source>
-        <translation>Ram höger</translation>
-    </message>
-    <message>
-        <source>Sets the right border.</source>
-        <translation>Ställer in höger ram.</translation>
-    </message>
-    <message>
-        <source>Border top</source>
-        <translation>Ram övre</translation>
-    </message>
-    <message>
-        <source>Sets the top border.</source>
-        <translation>Ställer in övre ram.</translation>
-    </message>
-    <message>
-        <source>Border bottom</source>
-        <translation>Ram nedre</translation>
-    </message>
-    <message>
-        <source>Sets the bottom border.</source>
-        <translation>Ställer in nedre ram.</translation>
-    </message>
-    <message>
-        <source>Mirror</source>
-        <translation>Spegla</translation>
-    </message>
-    <message>
-        <source>Toggles if the image should be inverted horizontally.</source>
-        <translation>Växlar om bilden ska inverteras horisontellt.</translation>
-    </message>
-    <message>
-        <source>Toggles if the image is saved to the cache memory.</source>
-        <translation>Växlar om bilden är sparad till cacheminnet.</translation>
-    </message>
-    <message>
-        <source>Toggles if the image is loaded after all the components in the design.</source>
-        <translation>Växlar om bilden läses in efter alla komponenterna i designen.</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>Cache</translation>
-    </message>
-    <message>
-        <source>Asynchronous</source>
-        <translation>Asynkron</translation>
-    </message>
-    <message>
-        <source>Border Image</source>
-        <translation>Rambild</translation>
-    </message>
-    <message>
-        <source>Source size</source>
-        <translation>Källstorlek</translation>
     </message>
 </context>
 <context>
@@ -1269,119 +414,6 @@ It should be a relative path.</source>
     <message>
         <source>Professional Edition</source>
         <translation>Professional Edition</translation>
-    </message>
-</context>
-<context>
-    <name>BusyIndicatorSpecifics</name>
-    <message>
-        <source>Busy Indicator</source>
-        <translation>Upptagenindikator</translation>
-    </message>
-    <message>
-        <source>Running</source>
-        <translation>Kör</translation>
-    </message>
-    <message>
-        <source>Toggles if the busy indicator indicates activity.</source>
-        <translation>Växlar om upptagenindikatorn indikerar aktivitet.</translation>
-    </message>
-    <message>
-        <source>Live</source>
-        <translation>Live</translation>
-    </message>
-</context>
-<context>
-    <name>ButtonSection</name>
-    <message>
-        <source>Button</source>
-        <translation>Knapp</translation>
-    </message>
-    <message>
-        <source>Appearance</source>
-        <translation>Utseende</translation>
-    </message>
-    <message>
-        <source>Toggles if the button is flat or highlighted.</source>
-        <translation>Växlar om knappen är platt eller framhävd.</translation>
-    </message>
-    <message>
-        <source>Flat</source>
-        <translation>Platt</translation>
-    </message>
-    <message>
-        <source>Highlight</source>
-        <translation>Framhäv</translation>
-    </message>
-</context>
-<context>
-    <name>ButtonSpecifics</name>
-    <message>
-        <source>Button</source>
-        <translation>Knapp</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>Markerad</translation>
-    </message>
-    <message>
-        <source>Text displayed on the button.</source>
-        <translation>Text som visas på knappen.</translation>
-    </message>
-    <message>
-        <source>State of the button.</source>
-        <translation>Tillstånd för knappen.</translation>
-    </message>
-    <message>
-        <source>Checkable</source>
-        <translation>Markerbar</translation>
-    </message>
-    <message>
-        <source>Determines whether the button is checkable or not.</source>
-        <translation>Bestämmer huruvida knappen är markerbar eller inte.</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Aktiverad</translation>
-    </message>
-    <message>
-        <source>Determines whether the button is enabled or not.</source>
-        <translation>Bestämmer huruvida knappen är aktiverad eller inte.</translation>
-    </message>
-    <message>
-        <source>Default button</source>
-        <translation>Standardknapp</translation>
-    </message>
-    <message>
-        <source>Sets the button as the default button in a dialog.</source>
-        <translation>Ställer in knappen som standardknappen i en dialog.</translation>
-    </message>
-    <message>
-        <source>Tool tip</source>
-        <translation>Verktygstips</translation>
-    </message>
-    <message>
-        <source>The tool tip shown for the button.</source>
-        <translation>Verktygstips som visas för knappen.</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Fokus vid tryck</translation>
-    </message>
-    <message>
-        <source>Determines whether the button gets focus if pressed.</source>
-        <translation>Bestämmer huruvida knappen får fokus om tryckt.</translation>
-    </message>
-    <message>
-        <source>Icon source</source>
-        <translation>Ikonkälla</translation>
-    </message>
-    <message>
-        <source>The URL of an icon resource.</source>
-        <translation>URLen för en ikonresurs.</translation>
     </message>
 </context>
 <context>
@@ -1425,24 +457,12 @@ It should be a relative path.</source>
 <context>
     <name>CameraSpeedConfigurationDialog</name>
     <message>
-        <source>Camera Speed Configuration</source>
-        <translation>Konfigurera kamerahastighet</translation>
-    </message>
-    <message>
-        <source>The speed camera moves when controlled by keyboard.</source>
-        <translation>Hastigheten som kameran rörs sig vid styrning med tangentbord.</translation>
-    </message>
-    <message>
         <source>Multiplier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The value multiplier for the speed slider.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Nollställ</translation>
     </message>
     <message>
         <source>&lt;p&gt;You only have partial control in fly mode. For full control, please
@@ -1469,412 +489,6 @@ It should be a relative path.</source>
     </message>
 </context>
 <context>
-    <name>CharacterSection</name>
-    <message>
-        <source>Character</source>
-        <translation>Tecken</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
-    <message>
-        <source>Sets the text to display.</source>
-        <translation>Ställer in texten att visa.</translation>
-    </message>
-    <message>
-        <source>Font</source>
-        <translation>Typsnitt</translation>
-    </message>
-    <message>
-        <source>Sets the font of the text.</source>
-        <translation>Ställer in typsnittet för texten.</translation>
-    </message>
-    <message>
-        <source>Style name</source>
-        <translation>Stilnamn</translation>
-    </message>
-    <message>
-        <source>Sets the style of the selected font. This is prioritized over &lt;b&gt;Weight&lt;/b&gt; and &lt;b&gt;Emphasis&lt;/b&gt;.</source>
-        <translation>Ställer in stilen för markerat typsnitt. Detta är prioriterat över &lt;b&gt;Vikt&lt;/b&gt; och &lt;b&gt;Förtydliga&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>Sets the overall thickness of the font.</source>
-        <translation>Ställer in övergripande tjocklek för typsnittet.</translation>
-    </message>
-    <message>
-        <source>Sets the letter spacing for the text.</source>
-        <translation>Ställer in bokstavsavstånd för texten.</translation>
-    </message>
-    <message>
-        <source>Sets the word spacing for the text.</source>
-        <translation>Ställer in ordavstånd för texten.</translation>
-    </message>
-    <message>
-        <source>Sets the line height for the text.</source>
-        <translation>Ställer in radhöjden för texten.</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Storlek</translation>
-    </message>
-    <message>
-        <source>Sets the font size in pixels or points.</source>
-        <translation>Ställer in typsnittsstorleken i pixlar eller punkter.</translation>
-    </message>
-    <message>
-        <source>Text color</source>
-        <translation>Textfärg</translation>
-    </message>
-    <message>
-        <source>Sets the text color.</source>
-        <translation>Ställer in textfärgen.</translation>
-    </message>
-    <message>
-        <source>Weight</source>
-        <translation>Vikt</translation>
-    </message>
-    <message>
-        <source>Emphasis</source>
-        <translation>Förtydliga</translation>
-    </message>
-    <message>
-        <source>Sets the text to bold, italic, underlined, or strikethrough.</source>
-        <translation>Ställer in texten till fet, kursiv, understruken eller genomstruken.</translation>
-    </message>
-    <message>
-        <source>Alignment H</source>
-        <translation>Justering H</translation>
-    </message>
-    <message>
-        <source>Sets the horizontal alignment position.</source>
-        <translation>Ställer in horisontell justeringsposition.</translation>
-    </message>
-    <message>
-        <source>Alignment V</source>
-        <translation>Justering V</translation>
-    </message>
-    <message>
-        <source>Sets the vertical alignment position.</source>
-        <translation>Ställer in vertikal justeringsposition.</translation>
-    </message>
-    <message>
-        <source>Letter spacing</source>
-        <translation>Bokstavsavstånd</translation>
-    </message>
-    <message>
-        <source>Word spacing</source>
-        <translation>Ordavstånd</translation>
-    </message>
-    <message>
-        <source>Line height</source>
-        <translation>Radhöjd</translation>
-    </message>
-</context>
-<context>
-    <name>CheckBoxSpecifics</name>
-    <message>
-        <source>Check Box</source>
-        <translation>Kryssruta</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
-    <message>
-        <source>Text shown on the check box.</source>
-        <translation>Text som visas på kryssrutan.</translation>
-    </message>
-    <message>
-        <source>State of the check box.</source>
-        <translation>Tillstånd för kryssrutan.</translation>
-    </message>
-    <message>
-        <source>Determines whether the check box gets focus if pressed.</source>
-        <translation>Bestämmer huruvida kryssrutan får fokus om tryckt.</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>Markerad</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Fokus vid tryck</translation>
-    </message>
-</context>
-<context>
-    <name>CheckSection</name>
-    <message>
-        <source>Check Box</source>
-        <translation>Markeringsruta</translation>
-    </message>
-    <message>
-        <source>Check state</source>
-        <translation>Markeringstillstånd</translation>
-    </message>
-    <message>
-        <source>Sets the state of the check box.</source>
-        <translation>Ställer in tillståndet för markeringsrutan.</translation>
-    </message>
-    <message>
-        <source>Toggles if the check box can have an intermediate state.</source>
-        <translation>Växlar om markeringsrutan kan ha ett mellanliggande tillstånd.</translation>
-    </message>
-    <message>
-        <source>Tri-state</source>
-        <translation>Trippeltillstånd</translation>
-    </message>
-</context>
-<context>
-    <name>ChooseMaterialProperty</name>
-    <message>
-        <source>Select material:</source>
-        <translation>Välj material:</translation>
-    </message>
-    <message>
-        <source>Select property:</source>
-        <translation>Välj egenskap:</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation>Tillämpa</translation>
-    </message>
-</context>
-<context>
-    <name>ColorAnimationSpecifics</name>
-    <message>
-        <source>Color Animation</source>
-        <translation>Färganimering</translation>
-    </message>
-    <message>
-        <source>From color</source>
-        <translation>Från färg</translation>
-    </message>
-    <message>
-        <source>To color</source>
-        <translation>Till färg</translation>
-    </message>
-</context>
-<context>
-    <name>ColorEditorPopup</name>
-    <message>
-        <source>Solid</source>
-        <translation>Solid</translation>
-    </message>
-    <message>
-        <source>Linear</source>
-        <translation>Linjär</translation>
-    </message>
-    <message>
-        <source>Radial</source>
-        <translation>Radiell</translation>
-    </message>
-    <message>
-        <source>Conical</source>
-        <translation>Konisk</translation>
-    </message>
-    <message>
-        <source>Open Color Dialog</source>
-        <translation>Öppna färgdialog</translation>
-    </message>
-    <message>
-        <source>Fill type can only be changed in base state.</source>
-        <translation>Fyllnadstypen kan endast ändras i grundtillstånd.</translation>
-    </message>
-    <message>
-        <source>Transparent</source>
-        <translation>Genomskinlig</translation>
-    </message>
-    <message>
-        <source>Gradient Picker</source>
-        <translation>Gradientväljare</translation>
-    </message>
-    <message>
-        <source>Eye Dropper</source>
-        <translation>Pipett</translation>
-    </message>
-    <message>
-        <source>Original</source>
-        <translation>Original</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Ny</translation>
-    </message>
-    <message>
-        <source>Add to Favorites</source>
-        <translation>Lägg till i favoriter</translation>
-    </message>
-    <message>
-        <source>Color Details</source>
-        <translation>Färgdetaljer</translation>
-    </message>
-    <message>
-        <source>Palette</source>
-        <translation>Palett</translation>
-    </message>
-    <message>
-        <source>Gradient Controls</source>
-        <translation>Gradientkontroller</translation>
-    </message>
-    <message>
-        <source>Vertical</source>
-        <translation>Vertikal</translation>
-    </message>
-    <message>
-        <source>Horizontal</source>
-        <translation>Horisontell</translation>
-    </message>
-    <message>
-        <source>Defines the direction of the gradient.</source>
-        <translation>Definierar riktningen för gradienten.</translation>
-    </message>
-    <message>
-        <source>Defines the start point for color interpolation.</source>
-        <translation>Definierar startpunkten för färginterpolation.</translation>
-    </message>
-    <message>
-        <source>Defines the end point for color interpolation.</source>
-        <translation>Definierar slutpunkten för färginterpolation.</translation>
-    </message>
-    <message>
-        <source>Defines the center point.</source>
-        <translation>Definierar centrumpunkten.</translation>
-    </message>
-    <message>
-        <source>Defines the focal point.</source>
-        <translation>Definierar fokalpunkten.</translation>
-    </message>
-    <message>
-        <source>Defines the center radius.</source>
-        <translation>Definierar centrumradie.</translation>
-    </message>
-    <message>
-        <source>Defines the focal radius. Set to 0 for simple radial gradients.</source>
-        <translation>Definierar fokalradie. Ställ in till 0 för enkla radiala gradienter.</translation>
-    </message>
-    <message>
-        <source>Defines the start angle for the conical gradient. The value is in degrees (0-360).</source>
-        <translation>Definierar startvinkeln för den koniska gradienten. Värdet är i grader (0-360).</translation>
-    </message>
-</context>
-<context>
-    <name>ColorPalette</name>
-    <message>
-        <source>Remove from Favorites</source>
-        <translation>Ta bort från favoriter</translation>
-    </message>
-    <message>
-        <source>Add to Favorites</source>
-        <translation>Lägg till i favoriter</translation>
-    </message>
-</context>
-<context>
-    <name>ColumnLayoutSpecifics</name>
-    <message>
-        <source>Column Layout</source>
-        <translation>Kolumnlayout</translation>
-    </message>
-    <message>
-        <source>Column spacing</source>
-        <translation>Kolumnavstånd</translation>
-    </message>
-    <message>
-        <source>Sets the space between the items in pixels in the &lt;b&gt;Column Layout&lt;/b&gt;.</source>
-        <translation>Ställer in avståndet mellan poster i bildpunkter i &lt;b&gt;Kolumnlayout&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>Layout direction</source>
-        <translation>Layoutriktning</translation>
-    </message>
-    <message>
-        <source>Sets the direction of the item flow in the &lt;b&gt;Column Layout&lt;/b&gt;.</source>
-        <translation>Ställer in riktningen för postflödet i &lt;b&gt;Kolumnlayout&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>Uniform cell sizes</source>
-        <translation>Enhetliga cellstorlekar</translation>
-    </message>
-    <message>
-        <source>Toggles all cells to have a uniform size.</source>
-        <translation>Växlar alla celler till att ha en enhetlig storlek.</translation>
-    </message>
-</context>
-<context>
-    <name>ColumnSpecifics</name>
-    <message>
-        <source>Column</source>
-        <translation>Kolumn</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Avstånd</translation>
-    </message>
-    <message>
-        <source>Sets the spacing between column items.</source>
-        <translation>Ställer in avståndet mellan kolumnposter.</translation>
-    </message>
-</context>
-<context>
-    <name>ComboBoxSpecifics</name>
-    <message>
-        <source>Combo Box</source>
-        <translation>Kombinationsruta</translation>
-    </message>
-    <message>
-        <source>Text role</source>
-        <translation>Textroll</translation>
-    </message>
-    <message>
-        <source>Sets the model role for populating the combo box.</source>
-        <translation>Ställer in modellrollen för populering av kombinationsrutan.</translation>
-    </message>
-    <message>
-        <source>Sets the initial display text for the combo box.</source>
-        <translation>Ställer in initial visningstext för kombinationsrutan.</translation>
-    </message>
-    <message>
-        <source>Sets the current item.</source>
-        <translation>Ställer in aktuell post.</translation>
-    </message>
-    <message>
-        <source>Toggles if the combo box button is flat.</source>
-        <translation>Växlar om kombinationsrutans knapp är platt.</translation>
-    </message>
-    <message>
-        <source>Toggles if the combo box is editable.</source>
-        <translation>Växlar om kombinationsrutan är redigeringsbar.</translation>
-    </message>
-    <message>
-        <source>Display text</source>
-        <translation>Visa text</translation>
-    </message>
-    <message>
-        <source>Current index</source>
-        <translation>Aktuellt index</translation>
-    </message>
-    <message>
-        <source>Flat</source>
-        <translation>Platt</translation>
-    </message>
-    <message>
-        <source>Editable</source>
-        <translation>Redigerbar</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Fokus vid tryck</translation>
-    </message>
-    <message>
-        <source>Determines whether the combobox gets focus if pressed.</source>
-        <translation>Bestämmer huruvida kombinationsrutan får fokus om tryckt.</translation>
-    </message>
-</context>
-<context>
     <name>Component</name>
     <message>
         <source>Error exporting node %1. Cannot parse type %2.</source>
@@ -1882,661 +496,56 @@ It should be a relative path.</source>
     </message>
 </context>
 <context>
-    <name>ComponentButton</name>
-    <message>
-        <source>This is an instance of a component</source>
-        <translation>Detta är en instans av en komponent</translation>
-    </message>
-    <message>
-        <source>Edit Component</source>
-        <translation>Redigera komponent</translation>
-    </message>
-</context>
-<context>
-    <name>ComponentSection</name>
-    <message>
-        <source>Component</source>
-        <translation>Komponent</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Typ</translation>
-    </message>
-    <message>
-        <source>Sets the QML type of the component.</source>
-        <translation>Ställer in QML-typen för komponenten.</translation>
-    </message>
-    <message>
-        <source>ID</source>
-        <translation>ID</translation>
-    </message>
-    <message>
-        <source>Sets a unique identification or name.</source>
-        <translation>Ställer in en unik identifierare eller namn.</translation>
-    </message>
-    <message>
-        <source>id</source>
-        <translation>id</translation>
-    </message>
-    <message>
-        <source>Exports this component as an alias property of the root component.</source>
-        <translation>Exporterar denna komponent som en aliasegenskap för rotkomponenten.</translation>
-    </message>
-    <message>
-        <source>Annotation</source>
-        <translation>Anteckning</translation>
-    </message>
-    <message>
-        <source>Adds a note with a title to explain the component.</source>
-        <translation>Lägger till en anteckning med en titel för att förklara komponenten.</translation>
-    </message>
-    <message>
-        <source>Descriptive text</source>
-        <translation>Beskrivande text</translation>
-    </message>
-    <message>
-        <source>Edit Annotation</source>
-        <translation>Redigera anteckning</translation>
-    </message>
-    <message>
-        <source>Remove Annotation</source>
-        <translation>Ta bort anteckning</translation>
-    </message>
-    <message>
-        <source>Add Annotation</source>
-        <translation>Lägg till anteckning</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation>Tillstånd</translation>
-    </message>
-    <message>
-        <source>Sets the state of the component.</source>
-        <translation>Stället in tillståndet för komponenten.</translation>
-    </message>
-</context>
-<context>
-    <name>ConfirmClearAllDialog</name>
-    <message>
-        <source>Confirm clear list</source>
-        <translation>Bekräfta tömning av lista</translation>
-    </message>
-    <message>
-        <source>You are about to clear the list of effect nodes.
-
-This can not be undone.</source>
-        <translation>Du är på väg att tömma listan över effektnoder.
-
-Detta går inte att ångra.</translation>
-    </message>
-    <message>
-        <source>Clear</source>
-        <translation>Töm</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
-    </message>
-</context>
-<context>
-    <name>ConfirmDeleteFilesDialog</name>
-    <message>
-        <source>Confirm Delete Files</source>
-        <translation>Bekräfta borttagning av filer</translation>
-    </message>
-    <message>
-        <source>Some files might be in use. Delete anyway?</source>
-        <translation>Några filer kanske används. Ta bort ändå?</translation>
-    </message>
-    <message>
-        <source>Do not ask this again</source>
-        <translation>Fråga inte igen</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Ta bort</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
-    </message>
-</context>
-<context>
-    <name>ConfirmDeleteFolderDialog</name>
-    <message>
-        <source>Folder Not Empty</source>
-        <translation>Mappen är inte tom</translation>
-    </message>
-    <message>
-        <source>Folder &quot;%1&quot; is not empty. Delete it anyway?</source>
-        <translation>Mappen &quot;%1 är inte tom. Ta bort den ändå?</translation>
-    </message>
-    <message>
-        <source>If the folder has assets in use, deleting it might cause the project to not work correctly.</source>
-        <translation>Om mappen har tillgångar som används kan borttagning av den orsaka att projektet inte fungerar korrekt.</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Ta bort</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
-    </message>
-</context>
-<context>
-    <name>ConnectionsDialog</name>
-    <message>
-        <source>Target</source>
-        <translation>Mål</translation>
-    </message>
-    <message>
-        <source>Sets the Component that is connected to a &lt;b&gt;Signal&lt;/b&gt;.</source>
-        <translation>Ställer in komponenten som är ansluten till en &lt;b&gt;Signal&lt;/b&gt;.</translation>
-    </message>
-</context>
-<context>
     <name>ConnectionsDialogForm</name>
-    <message>
-        <source>Signal</source>
-        <translation>Signal</translation>
-    </message>
-    <message>
-        <source>Sets an interaction method that connects to the &lt;b&gt;Target&lt;/b&gt; component.</source>
-        <translation>Ställer in en interaktionsmetod som ansluter till &lt;b&gt;Mål&lt;/b&gt;-komponenten.</translation>
-    </message>
-    <message>
-        <source>Action</source>
-        <translation>Åtgärd</translation>
-    </message>
-    <message>
-        <source>Sets an action that is associated with the selected &lt;b&gt;Target&lt;/b&gt; component&apos;s &lt;b&gt;Signal&lt;/b&gt;.</source>
-        <translation>Ställer in en åtgärd som associeras med vald &lt;b&gt;Mål&lt;/b&gt;-komponents &lt;b&gt;Signal&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>Call Function</source>
-        <translation>Anropa funktion</translation>
-    </message>
-    <message>
-        <source>Assign</source>
-        <translation>Tilldela</translation>
-    </message>
-    <message>
-        <source>Change State</source>
-        <translation>Ändra tillstånd</translation>
-    </message>
-    <message>
-        <source>Set Property</source>
-        <translation>Ange egenskap</translation>
-    </message>
-    <message>
-        <source>Print Message</source>
-        <translation>Skriv ut meddelande</translation>
-    </message>
-    <message>
-        <source>Custom</source>
-        <translation>Anpassad</translation>
-    </message>
-    <message>
-        <source>Add Condition</source>
-        <translation>Lägg till villkor</translation>
-    </message>
-    <message>
-        <source>Sets a logical condition for the selected &lt;b&gt;Signal&lt;/b&gt;. It works with the properties of the &lt;b&gt;Target&lt;/b&gt; component.</source>
-        <translation>Ställer in ett logiskt villkor för vald &lt;b&gt;Signal&lt;/b&gt;. Den arbetar med egenskaperna för &lt;b&gt;Mål&lt;/b&gt;-komponenten.</translation>
-    </message>
-    <message>
-        <source>Remove Condition</source>
-        <translation>Ta bort villkor</translation>
-    </message>
-    <message>
-        <source>Removes the logical condition for the &lt;b&gt;Target&lt;/b&gt; component.</source>
-        <translation>Tar bort logiska villkoret för &lt;b&gt;Mål&lt;/b&gt;-komponenten.</translation>
-    </message>
-    <message>
-        <source>Add Else Statement</source>
-        <translation>Lägg till Else-villkor</translation>
-    </message>
-    <message>
-        <source>Sets an alternate condition for the previously defined logical condition.</source>
-        <translation>Ställer in ett alternativt villkor för tidigare definierat logiskt villkor.</translation>
-    </message>
-    <message>
-        <source>Remove Else Statement</source>
-        <translation>Ta bort Else-villkor</translation>
-    </message>
-    <message>
-        <source>Removes the alternate logical condition for the previously defined logical condition.</source>
-        <translation>Tar bort alternativa logiska villkoret för tidigare definierat logiskt villkor.</translation>
-    </message>
     <message>
         <source>Write the conditions for the components and the signals manually.</source>
         <translation>Skriv villkoren för komponenterna och signalerna manuellt.</translation>
-    </message>
-    <message>
-        <source>Jump to the code.</source>
-        <translation>Hoppa till koden.</translation>
-    </message>
-</context>
-<context>
-    <name>ConnectionsListView</name>
-    <message>
-        <source>Removes the connection.</source>
-        <translation>Tar bort anslutningen.</translation>
-    </message>
-</context>
-<context>
-    <name>ConnectionsSpecifics</name>
-    <message>
-        <source>Connections</source>
-        <translation>Anslutningar</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Aktiverad</translation>
-    </message>
-    <message>
-        <source>Sets whether the component accepts change events.</source>
-        <translation>Ställer in huruvida komponenter accepterar ändringshändelser.</translation>
-    </message>
-    <message>
-        <source>Ignore unknown signals</source>
-        <translation>Ignorera okända signaler</translation>
-    </message>
-    <message>
-        <source>Ignores runtime errors produced by connections to non-existent signals.</source>
-        <translation>Ignorerar körtidsfel producerade av anslutningar till icke-existerande signaler.</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation>Mål</translation>
-    </message>
-    <message>
-        <source>Sets the component that sends the signal.</source>
-        <translation>Ställer in komponenten som skickar signalen.</translation>
-    </message>
-</context>
-<context>
-    <name>ContainerSection</name>
-    <message>
-        <source>Container</source>
-        <translation>Container</translation>
-    </message>
-    <message>
-        <source>Current index</source>
-        <translation>Aktuellt index</translation>
-    </message>
-    <message>
-        <source>Sets the index of the current item.</source>
-        <translation>Ange indexet för aktuell post.</translation>
     </message>
 </context>
 <context>
     <name>ContentLibrary</name>
     <message>
-        <source>Materials</source>
-        <translation>Material</translation>
-    </message>
-    <message>
-        <source>Textures</source>
-        <translation>Texturer</translation>
-    </message>
-    <message>
         <source>Environments</source>
         <translation>Miljöer</translation>
-    </message>
-    <message>
-        <source>Effects</source>
-        <translation>Effekter</translation>
-    </message>
-    <message>
-        <source>User Assets</source>
-        <translation>Användartillgångar</translation>
-    </message>
-    <message>
-        <source>material</source>
-        <translation>material</translation>
-    </message>
-    <message>
-        <source>item</source>
-        <translation>post</translation>
-    </message>
-</context>
-<context>
-    <name>ContentLibraryEffectContextMenu</name>
-    <message>
-        <source>Add an instance</source>
-        <translation>Lägg till en instans</translation>
-    </message>
-    <message>
-        <source>Remove from project</source>
-        <translation>Ta bort från projekt</translation>
     </message>
 </context>
 <context>
     <name>ContentLibraryEffectsView</name>
     <message>
-        <source>No effects available.</source>
-        <translation>Inga effekter tillgängliga.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Content Library&lt;/b&gt; effects are not supported in Qt5 projects.</source>
-        <translation>&lt;b&gt;Innehållsbibliotek&lt;/b&gt;-effekter stöds inte i Qt5-projekt.</translation>
-    </message>
-    <message>
         <source>To use &lt;b&gt;Content Library&lt;/b&gt;, first add the QtQuick3D module in the &lt;b&gt;Components&lt;/b&gt; view.</source>
         <translation>För att använda &lt;b&gt;Innehållsbibliotek&lt;/b&gt;, lägg först till QtQuick3D-modulen i &lt;b&gt;Komponenter&lt;/b&gt;-vyn.</translation>
-    </message>
-    <message>
-        <source>To use &lt;b&gt;Content Library&lt;/b&gt;, version 6.4 or later of the QtQuick3D module is required.</source>
-        <translation>För att använda &lt;b&gt;Innehållsbibliotek&lt;/b&gt; krävs version 6.4 eller senare av QtQuick3D-modulen.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Content Library&lt;/b&gt; is disabled inside a non-visual component.</source>
-        <translation>&lt;b&gt;Innehållsbibliotek&lt;/b&gt; är inaktiverad för en icke-visuell komponent.</translation>
-    </message>
-    <message>
-        <source>No match found.</source>
-        <translation>Ingen matchning hittades.</translation>
-    </message>
-</context>
-<context>
-    <name>ContentLibraryItem</name>
-    <message>
-        <source>Item is imported to the project</source>
-        <translation>Posten är importerad till projektet</translation>
-    </message>
-    <message>
-        <source>Add an instance to project</source>
-        <translation>Lägg till en instans till projektet</translation>
     </message>
 </context>
 <context>
     <name>ContentLibraryItemContextMenu</name>
-    <message>
-        <source>Apply to selected (replace)</source>
-        <translation>Tillämpa på markerade (ersätt)</translation>
-    </message>
-    <message>
-        <source>Apply to selected (add)</source>
-        <translation>Tillämpa på markerade (lägg till)</translation>
-    </message>
-    <message>
-        <source>Add an instance to project</source>
-        <translation>Lägg till en instans till projektet</translation>
-    </message>
-    <message>
-        <source>Remove from project</source>
-        <translation>Ta bort från projektet</translation>
-    </message>
-    <message>
-        <source>Remove from Content Library</source>
-        <translation>Ta bort från innehållsbiblioteket</translation>
-    </message>
     <message>
         <source>Import bundle</source>
         <translation>Importera bundle</translation>
     </message>
 </context>
 <context>
-    <name>ContentLibraryMaterial</name>
-    <message>
-        <source>Material is imported to project</source>
-        <translation>Material är importerade till projekt</translation>
-    </message>
-    <message>
-        <source>Add an instance to project</source>
-        <translation>Lägg till en instans till projektet</translation>
-    </message>
-    <message>
-        <source>Click to download material</source>
-        <translation>Klicka för att hämta material</translation>
-    </message>
-</context>
-<context>
     <name>ContentLibraryMaterialsView</name>
-    <message>
-        <source>&lt;b&gt;Content Library&lt;/b&gt; materials are not supported in Qt5 projects.</source>
-        <translation>&lt;b&gt;Innehållsbibliotek&lt;/b&gt;-material stöds inte i Qt5-projekt.</translation>
-    </message>
     <message>
         <source>To use &lt;b&gt;Content Library&lt;/b&gt;, first add the QtQuick3D module in the &lt;b&gt;Components&lt;/b&gt; view.</source>
         <translation>För att använda &lt;b&gt;Innehållsbibliotek&lt;/b&gt;, lägg först till QtQuick3D-modulen i &lt;b&gt;Komponenter&lt;/b&gt;-vyn.</translation>
-    </message>
-    <message>
-        <source>To use &lt;b&gt;Content Library&lt;/b&gt;, version 6.3 or later of the QtQuick3D module is required.</source>
-        <translation>För att använda &lt;b&gt;Innehållsbibliotek&lt;/b&gt; krävs version 6.3 eller senare av QtQuick3D-modulen.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Content Library&lt;/b&gt; is disabled inside a non-visual component.</source>
-        <translation>&lt;b&gt;Innehållsbibliotek&lt;/b&gt; är inaktiverad för en icke-visuell komponent.</translation>
-    </message>
-    <message>
-        <source>No materials available. Make sure you have an internet connection.</source>
-        <translation>Inga material tillgängliga. Försäkra dig om att du har en internetanslutning.</translation>
-    </message>
-    <message>
-        <source>No match found.</source>
-        <translation>Ingen matchning hittades.</translation>
-    </message>
-</context>
-<context>
-    <name>ContentLibraryTabButton</name>
-    <message>
-        <source>Materials</source>
-        <translation>Material</translation>
-    </message>
-</context>
-<context>
-    <name>ContentLibraryTexture</name>
-    <message>
-        <source>Texture was already downloaded.</source>
-        <translation>Texturen har redan hämtad.</translation>
-    </message>
-    <message>
-        <source>Network/Texture unavailable or broken Link.</source>
-        <translation>Nätverk/Textur inte tillgänglig eller trasig länk.</translation>
-    </message>
-    <message>
-        <source>Could not download texture.</source>
-        <translation>Kunde inte hämta textur.</translation>
-    </message>
-    <message>
-        <source>Click to download the texture.</source>
-        <translation>Klicka för att hämta texturen.</translation>
-    </message>
-    <message>
-        <source>Updating...</source>
-        <translation>Uppdaterar...</translation>
-    </message>
-    <message>
-        <source>Progress:</source>
-        <translation>Förlopp:</translation>
-    </message>
-    <message>
-        <source>%</source>
-        <translation>%</translation>
-    </message>
-    <message>
-        <source>Downloading...</source>
-        <translation>Hämtar...</translation>
-    </message>
-    <message>
-        <source>Update texture</source>
-        <translation>Uppdatera textur</translation>
-    </message>
-    <message>
-        <source>Extracting...</source>
-        <translation>Extraherar...</translation>
     </message>
 </context>
 <context>
     <name>ContentLibraryTextureContextMenu</name>
     <message>
-        <source>Add image</source>
-        <translation>Lägg till bild</translation>
-    </message>
-    <message>
-        <source>Add texture</source>
-        <translation>Lägg till textur</translation>
-    </message>
-    <message>
         <source>Add light probe</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove from Content Library</source>
-        <translation>Ta bort från innehållsbibliotek</translation>
-    </message>
-</context>
-<context>
-    <name>ContentLibraryTexturesView</name>
-    <message>
-        <source>No textures available. Make sure you have an internet connection.</source>
-        <translation>Inga texturer tillgängliga. Försäkra dig om att du har en internetanslutning.</translation>
-    </message>
-    <message>
-        <source>No match found.</source>
-        <translation>Ingen matchning hittades.</translation>
     </message>
 </context>
 <context>
     <name>ContentLibraryUserView</name>
     <message>
-        <source>No match found.</source>
-        <translation>Ingen matchning hittades.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Content Library&lt;/b&gt; is not supported in Qt5 projects.</source>
-        <translation>&lt;b&gt;Innehållsbibliotek&lt;/b&gt; stöds inte i Qt5-projekt.</translation>
-    </message>
-    <message>
         <source>To use &lt;b&gt;Content Library&lt;/b&gt;, first add the QtQuick3D module in the &lt;b&gt;Components&lt;/b&gt; view.</source>
         <translation>För att använda &lt;b&gt;Innehållsbibliotek&lt;/b&gt;, lägg först till QtQuick3D-modulen i &lt;b&gt;Komponenter&lt;/b&gt;-vyn.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Content Library&lt;/b&gt; is disabled inside a non-visual component.</source>
-        <translation>&lt;b&gt;Innehållsbibliotek&lt;/b&gt; är inaktiverad för en icke-visuell komponent.</translation>
-    </message>
-    <message>
         <source>There are no user assets in the &lt;b&gt;Content Library&lt;/b&gt;.</source>
         <translation>Det finns inga användartillgångar i &lt;b&gt;Innehållsbibliotek&lt;/b&gt;.</translation>
-    </message>
-</context>
-<context>
-    <name>ContextMenu</name>
-    <message>
-        <source>Undo</source>
-        <translation>Ångra</translation>
-    </message>
-    <message>
-        <source>Redo</source>
-        <translation>Gör om</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Kopiera</translation>
-    </message>
-    <message>
-        <source>Cut</source>
-        <translation>Klipp ut</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <translation>Klistra in</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Ta bort</translation>
-    </message>
-    <message>
-        <source>Clear</source>
-        <translation>Töm</translation>
-    </message>
-    <message>
-        <source>Select All</source>
-        <translation>Markera allt</translation>
-    </message>
-</context>
-<context>
-    <name>ControlSection</name>
-    <message>
-        <source>Control</source>
-        <translation>Kontroll</translation>
-    </message>
-    <message>
-        <source>Enable</source>
-        <translation>Aktivera</translation>
-    </message>
-    <message>
-        <source>Toggles if the component can receive hover events.</source>
-        <translation>Växlar om komponenten kan ta emot hovringshändelser.</translation>
-    </message>
-    <message>
-        <source>Sets focus method.</source>
-        <translation>Anger fokusmetoden.</translation>
-    </message>
-    <message>
-        <source>Sets the spacing between internal elements of the component.</source>
-        <translation>Ställer in avståndet mellan interna element för komponenten.</translation>
-    </message>
-    <message>
-        <source>Toggles if the component supports mouse wheel events.</source>
-        <translation>Växlar om komponenten har stöd för mushjulshändelser.</translation>
-    </message>
-    <message>
-        <source>Hover</source>
-        <translation>Hovra</translation>
-    </message>
-    <message>
-        <source>Focus policy</source>
-        <translation>Fokuspolicy</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Avstånd</translation>
-    </message>
-    <message>
-        <source>Wheel</source>
-        <translation>Hjul</translation>
-    </message>
-</context>
-<context>
-    <name>DelayButtonSpecifics</name>
-    <message>
-        <source>Delay Button</source>
-        <translation>Fördröjningsknapp</translation>
-    </message>
-    <message>
-        <source>Delay</source>
-        <translation>Fördröj</translation>
-    </message>
-    <message>
-        <source>Sets the delay before the button activates.</source>
-        <translation>Anger fördröjningen innan knappen aktiveras.</translation>
-    </message>
-    <message>
-        <source>Milliseconds.</source>
-        <translation>Millisekunder.</translation>
-    </message>
-</context>
-<context>
-    <name>DeleteBundleItemDialog</name>
-    <message>
-        <source>Remove bundle %1</source>
-        <translation>Ta bort bundle %1</translation>
-    </message>
-    <message>
-        <source>Are you sure? The action cannot be undone.</source>
-        <translation>Är du säker? Åtgärden kan inte ångras.</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ta bort</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
@@ -2612,10 +621,6 @@ Detta går inte att ångra.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Value</source>
-        <translation>Värde</translation>
-    </message>
-    <message>
         <source>Sets the value of the dial.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2632,16 +637,8 @@ Detta går inte att ångra.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Start angle</source>
-        <translation>Startvinkel</translation>
-    </message>
-    <message>
         <source>Sets the starting angle of the dial in degrees.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>End angle</source>
-        <translation>Slutvinkel</translation>
     </message>
     <message>
         <source>Sets the ending angle of the dial in degrees.</source>
@@ -2661,43 +658,8 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Live</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>From</source>
-        <translation>Från</translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation>Till</translation>
-    </message>
-    <message>
-        <source>Step size</source>
-        <translation>Stegstorlek</translation>
-    </message>
-    <message>
         <source>Snap mode</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Input mode</source>
-        <translation>Inmatningsläge</translation>
-    </message>
-    <message>
-        <source>Wrap</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>DialogSpecifics</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialogruta</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Titel</translation>
     </message>
 </context>
 <context>
@@ -2717,21 +679,6 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     <message>
         <source>Download the example.</source>
         <translation>Hämta ner exemplet.</translation>
-    </message>
-</context>
-<context>
-    <name>DownloadPane</name>
-    <message>
-        <source>Downloading...</source>
-        <translation>Hämtar...</translation>
-    </message>
-    <message>
-        <source>Progress:</source>
-        <translation>Förlopp:</translation>
-    </message>
-    <message>
-        <source>%</source>
-        <translation>%</translation>
     </message>
 </context>
 <context>
@@ -2756,16 +703,8 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Edge</source>
-        <translation>Kant</translation>
-    </message>
-    <message>
         <source>Defines the edge of the window the drawer will open from.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drag margin</source>
-        <translation>Dragmarginal</translation>
     </message>
     <message>
         <source>Defines the distance from the screen edge within which drag actions will open the drawer.</source>
@@ -2773,56 +712,10 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
 </context>
 <context>
-    <name>DynamicPropertiesSection</name>
-    <message>
-        <source>Local Custom Properties</source>
-        <translation>Lokalt anpassade egenskaper</translation>
-    </message>
-    <message>
-        <source>No editor for type: </source>
-        <translation>Ingen redigerare för typen: </translation>
-    </message>
-    <message>
-        <source>Add New Property</source>
-        <translation>Lägg till ny egenskap</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Namn</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Typ</translation>
-    </message>
-    <message>
-        <source>Add Property</source>
-        <translation>Lägg till egenskap</translation>
-    </message>
-</context>
-<context>
     <name>EditLightToggleAction</name>
     <message>
         <source>Toggle Edit Light On/Off</source>
         <translation>Växla redigera ljus på/av</translation>
-    </message>
-</context>
-<context>
-    <name>EffectComposer</name>
-    <message>
-        <source>Remove all effect nodes.</source>
-        <translation>Ta bort alla effektnoder.</translation>
-    </message>
-    <message>
-        <source>Open Shader in Code Editor.</source>
-        <translation>Öppna shader i Kodredigerare.</translation>
-    </message>
-    <message>
-        <source>Add an effect node to start</source>
-        <translation>Lägg till en effektnod för att börja</translation>
-    </message>
-    <message>
-        <source>Effect Composer is disabled on MCU projects</source>
-        <translation>Effektkompositör är inaktivera för MCU-projekt</translation>
     </message>
 </context>
 <context>
@@ -2903,84 +796,6 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
 </context>
 <context>
-    <name>EffectComposerPreview</name>
-    <message>
-        <source>Zoom In</source>
-        <translation>Zooma in</translation>
-    </message>
-    <message>
-        <source>Zoom out</source>
-        <translation>Zooma ut</translation>
-    </message>
-    <message>
-        <source>Reset View</source>
-        <translation>Nollställ vy</translation>
-    </message>
-    <message>
-        <source>Restart Animation</source>
-        <translation>Starta om animering</translation>
-    </message>
-    <message>
-        <source>Play Animation</source>
-        <translation>Spela upp animering</translation>
-    </message>
-</context>
-<context>
-    <name>EffectComposerTopBar</name>
-    <message>
-        <source>Add new composition</source>
-        <translation>Lägg till ny komposition</translation>
-    </message>
-    <message>
-        <source>Save current composition</source>
-        <translation>Spara aktuell komposition</translation>
-    </message>
-    <message>
-        <source>Save current composition with a new name</source>
-        <translation>Spara aktuell komposition med ett nytt namn</translation>
-    </message>
-    <message>
-        <source>Assign current composition to selected item</source>
-        <translation>Tilldela aktuell komposition till markerad post</translation>
-    </message>
-    <message>
-        <source>Untitled</source>
-        <translation>Namnlös</translation>
-    </message>
-    <message>
-        <source>How to use Effect Composer:
-1. Click &quot;+ Add Effect&quot; to add effect node
-2. Adjust the effect nodes properties
-3. Change the order of the effects, if you like
-4. See the preview
-5. Save in the assets library, if you wish to reuse the effect later</source>
-        <translation>Hur man använder Effektkompositör:
-1. Klicka på &quot;+ Lägg till effekt&quot; för att lägga till effektnod
-2. Justera egenskaper för effektnoderna
-3. Ändra ordningen på effekterna, om du vill
-4. Titta på förhandsvisningen
-5. Spara i tillgångsbiblioteket om du vill återanvända effekten senare</translation>
-    </message>
-</context>
-<context>
-    <name>EffectCompositionNode</name>
-    <message>
-        <source>Remove</source>
-        <translation>Ta bort</translation>
-    </message>
-    <message>
-        <source>Enable/Disable Node</source>
-        <translation>Aktivera/inaktivera nod</translation>
-    </message>
-</context>
-<context>
-    <name>EffectCompositionNodeUniform</name>
-    <message>
-        <source>Reset value</source>
-        <translation>Nollställ värde</translation>
-    </message>
-</context>
-<context>
     <name>EffectNode</name>
     <message>
         <source>Existing effect has conflicting properties, this effect cannot be added.</source>
@@ -2988,143 +803,10 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
 </context>
 <context>
-    <name>EffectNodesComboBox</name>
-    <message>
-        <source>+ Add Effect</source>
-        <translation>+ Lägg till effekt</translation>
-    </message>
-</context>
-<context>
     <name>EffectsSection</name>
-    <message>
-        <source>Effects &lt;a style=&quot;color:%1;&quot;&gt;[beta]&lt;/a&gt;</source>
-        <translation>Effekter &lt;a style=&quot;color:%1;&quot;&gt;[beta]&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Remove Effects</source>
-        <translation>Ta bort effekter</translation>
-    </message>
-    <message>
-        <source>Add Effects</source>
-        <translation>Lägg till effekter</translation>
-    </message>
     <message>
         <source>Adds visual effects on the component.</source>
         <translation>Lägger till visuella effekter på komponenten.</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation>Synlig</translation>
-    </message>
-    <message>
-        <source>Toggles the visibility of visual effects on the component.</source>
-        <translation>Växlar synligheten för visuella effekter på komponenten.</translation>
-    </message>
-    <message>
-        <source>Layer Blur</source>
-        <translation>Lageroskärpa</translation>
-    </message>
-    <message>
-        <source>Toggles the visibility of the &lt;b&gt;Layer Blur&lt;/b&gt; on the component.</source>
-        <translation>Växlar synligheten för &lt;b&gt;Lageroskärpa&lt;/b&gt; på komponenten.</translation>
-    </message>
-    <message>
-        <source>Blur</source>
-        <translation>Oskarp</translation>
-    </message>
-    <message>
-        <source>Sets the intensity of the &lt;b&gt;Layer Blur&lt;/b&gt; on the component.</source>
-        <translation>Ställer in intensiteten för &lt;b&gt;Lageroskärpa&lt;/b&gt; på komponenten.</translation>
-    </message>
-    <message>
-        <source>Background Blur</source>
-        <translation>Oskarp bakgrund</translation>
-    </message>
-    <message>
-        <source>Toggles the visibility of blur on the selected background component.</source>
-        <translation>Växlar synligheten för oskärpan på vald bakgrundskomponent.</translation>
-    </message>
-    <message>
-        <source>Sets the intensity of blur on the selected background component.
-The foreground component should be transparent, and the background component should be opaque.</source>
-        <translation>Ställer in intensitet av oskärpa på vald bakgrundskomponent.
-Förgrundskomponenten bör vara transparent och bakgrundskomponenten bör vara opak.</translation>
-    </message>
-    <message>
-        <source>Background</source>
-        <translation>Bakgrund</translation>
-    </message>
-    <message>
-        <source>Sets a component as the background of a transparent component.The &lt;b&gt;Background Blur&lt;/b&gt; works only on this component. The component should be solid.</source>
-        <translation>Ställer in en komponent som bakgrunden för en transparent komponent. &lt;b&gt;Oskarp bakgrund&lt;/b&gt; fungerar endast på denna komponent. Komponenten bör vara solid.</translation>
-    </message>
-    <message>
-        <source>Drop Shadow</source>
-        <translation>Skuggkastning</translation>
-    </message>
-    <message>
-        <source>Inner Shadow</source>
-        <translation>Innerskugga</translation>
-    </message>
-    <message>
-        <source>Toggles the visibility of the component shadow.</source>
-        <translation>Växlar synligheten för komponentens skugga.</translation>
-    </message>
-    <message>
-        <source>Sets the softness of the component shadow. A larger value causes the edges of the shadow to appear more blurry.</source>
-        <translation>Ställer in mjukheten för komponentskuggan. Ett större värde orsakar att kanterna för skuggan kan verkar mer oskarpa.</translation>
-    </message>
-    <message>
-        <source>Spread</source>
-        <translation>Spridning</translation>
-    </message>
-    <message>
-        <source>Resizes the base shadow of the component by pixels.</source>
-        <translation>Storleksändrar basskuggan för komponenten med bildpunkter.</translation>
-    </message>
-    <message>
-        <source>Only supported for Rectangles.</source>
-        <translation>Stöds endast för rektanglar.</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Färg</translation>
-    </message>
-    <message>
-        <source>Sets the color of the shadow.</source>
-        <translation>Ange färgen på skuggan.</translation>
-    </message>
-    <message>
-        <source>Offset</source>
-        <translation>Offset</translation>
-    </message>
-    <message>
-        <source>Moves the shadow with respect to the component in X and Y coordinates by pixels.</source>
-        <translation>Flyttar skuggan med tanke på komponenten i X och Y-koordinater med bildpunkter.</translation>
-    </message>
-    <message>
-        <source>X-coordinate</source>
-        <translation>X-koordinat</translation>
-    </message>
-    <message>
-        <source>Y-coordinate</source>
-        <translation>Y-koordinat</translation>
-    </message>
-    <message>
-        <source>Show behind</source>
-        <translation>Visa bakom</translation>
-    </message>
-    <message>
-        <source>Toggles the visibility of the shadow behind a transparent component.</source>
-        <translation>Växlar synligheten för skuggan bakom en transparent komponent.</translation>
-    </message>
-    <message>
-        <source>Add Shadow Effect</source>
-        <translation>Lägg till skuggeffekt</translation>
-    </message>
-    <message>
-        <source>Adds &lt;b&gt;Drop Shadow&lt;/b&gt; or &lt;b&gt;Inner Shadow&lt;/b&gt; effects to a component.</source>
-        <translation>Lägger till effekterna &lt;b&gt;Skuggkastning&lt;/b&gt; eller &lt;b&gt;Innerskugga&lt;/b&gt; till en komponent.</translation>
     </message>
 </context>
 <context>
@@ -3166,71 +848,6 @@ Förgrundskomponenten bör vara transparent och bakgrundskomponenten bör vara o
     </message>
 </context>
 <context>
-    <name>ErrorDialog</name>
-    <message>
-        <source>Close</source>
-        <translation>Stäng</translation>
-    </message>
-</context>
-<context>
-    <name>ExpressionBuilder</name>
-    <message>
-        <source>This is AND (&amp;&amp;)</source>
-        <translation>Detta är AND (&amp;&amp;)</translation>
-    </message>
-    <message>
-        <source>This is OR (||)</source>
-        <translation>Detta är OR (||)</translation>
-    </message>
-    <message>
-        <source>This is EQUAL (===)</source>
-        <translation>Detta är EQUAL (===)</translation>
-    </message>
-    <message>
-        <source>This is NOT EQUAL (!==)</source>
-        <translation>Detta är NOT EQUAL (!==)</translation>
-    </message>
-    <message>
-        <source>This is GREATER (&gt;)</source>
-        <translation>Detta är GREATER (&gt;)</translation>
-    </message>
-    <message>
-        <source>This is LESS (&lt;)</source>
-        <translation>Detta är LESS (&lt;)</translation>
-    </message>
-    <message>
-        <source>This is GREATER OR EQUAL (&gt;=)</source>
-        <translation>Detta är GREATER OR EQUAL (&gt;=)</translation>
-    </message>
-    <message>
-        <source>This is LESS OR EQUAL (&lt;=)</source>
-        <translation>Detta är LESS OR EQUAL (&lt;=)</translation>
-    </message>
-    <message>
-        <source>Condition</source>
-        <translation>Villkor</translation>
-    </message>
-</context>
-<context>
-    <name>ExtendedFunctionLogic</name>
-    <message>
-        <source>Reset</source>
-        <translation>Nollställ</translation>
-    </message>
-    <message>
-        <source>Set Binding</source>
-        <translation>Ställ in bindning</translation>
-    </message>
-    <message>
-        <source>Export Property as Alias</source>
-        <translation>Exportera egenskap som alias</translation>
-    </message>
-    <message>
-        <source>Insert Keyframe</source>
-        <translation>Infoga nyckelbild</translation>
-    </message>
-</context>
-<context>
     <name>FileResourcesModel</name>
     <message>
         <source>Open File</source>
@@ -3247,20 +864,8 @@ Förgrundskomponenten bör vara transparent och bakgrundskomponenten bör vara o
 <context>
     <name>FlagsComboBox</name>
     <message>
-        <source>empty</source>
-        <translation>tom</translation>
-    </message>
-    <message>
         <source>%1 items selected</source>
         <translation>%1 poster markerade</translation>
-    </message>
-    <message>
-        <source>Select All</source>
-        <translation>Markera allt</translation>
-    </message>
-    <message>
-        <source>Select None</source>
-        <translation>Välj ingen</translation>
     </message>
 </context>
 <context>
@@ -3270,84 +875,20 @@ Förgrundskomponenten bör vara transparent och bakgrundskomponenten bör vara o
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Content size</source>
-        <translation>Innehållsstorlek</translation>
-    </message>
-    <message>
         <source>Sets the size of the content (the surface controlled by the flickable).</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>W</source>
-        <comment>width</comment>
-        <extracomment>The width of the object</extracomment>
-        <translation>W</translation>
-    </message>
-    <message>
-        <source>Content width used for calculating the total implicit width.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>H</source>
-        <comment>height</comment>
-        <extracomment>The height of the object</extracomment>
-        <translation>H</translation>
-    </message>
-    <message>
-        <source>Content height used for calculating the total implicit height.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Content</source>
-        <translation>Innehåll</translation>
-    </message>
-    <message>
-        <source>Sets the current position of the component.</source>
-        <translation>Ställer in aktuella positionen för komponenten.</translation>
-    </message>
-    <message>
-        <source>Horizontal position.</source>
-        <translation>Horisontell position.</translation>
-    </message>
-    <message>
-        <source>Vertical position.</source>
-        <translation>Vertikal position.</translation>
-    </message>
-    <message>
-        <source>Origin</source>
-        <translation>Ursprung</translation>
-    </message>
-    <message>
-        <source>Sets the origin point of the content.</source>
-        <translation>Ställer in ursprungspunkten för innehållet.</translation>
-    </message>
-    <message>
-        <source>Left margin</source>
-        <translation>Vänstermarginal</translation>
     </message>
     <message>
         <source>Sets an additional left margin in the flickable area.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Right margin</source>
-        <translation>Högermarginal</translation>
-    </message>
-    <message>
         <source>Sets an additional right margin in the flickable area.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Top margin</source>
-        <translation>Övre marginal</translation>
-    </message>
-    <message>
         <source>Sets an additional top margin in the flickable area.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bottom margin</source>
-        <translation>Nedre marginal</translation>
     </message>
     <message>
         <source>Sets an additional bottom margin in the flickable area.</source>
@@ -3373,10 +914,6 @@ Förgrundskomponenten bör vara transparent och bakgrundskomponenten bör vara o
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation>Beteende</translation>
-    </message>
-    <message>
         <source>Sets how the flickable behaves when it is dragged beyond its boundaries.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3397,20 +934,8 @@ Förgrundskomponenten bör vara transparent och bakgrundskomponenten bör vara o
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Toggles if the component is being moved by complete pixel length.</source>
-        <translation>Växlar om komponenten flyttas med hela bildpunktslängden.</translation>
-    </message>
-    <message>
         <source>Toggles if the content should move instantly or not when the mouse or touchpoint is dragged to a new position.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Interactive</source>
-        <translation>Interaktiv</translation>
-    </message>
-    <message>
-        <source>Movement</source>
-        <translation>Rörelse</translation>
     </message>
     <message>
         <source>Max. velocity</source>
@@ -3434,84 +959,14 @@ Förgrundskomponenten bör vara transparent och bakgrundskomponenten bör vara o
     </message>
 </context>
 <context>
-    <name>FlipableSpecifics</name>
-    <message>
-        <source>Flipable</source>
-        <translation>Vändbar</translation>
-    </message>
-</context>
-<context>
-    <name>FlowSpecifics</name>
-    <message>
-        <source>Flow</source>
-        <translation>Flöde</translation>
-    </message>
-    <message>
-        <source>Sets the spacing between flow items.</source>
-        <translation>Ställer in avståndet mellan flödesposter.</translation>
-    </message>
-    <message>
-        <source>Sets the direction of flow items.</source>
-        <translation>Ställer in riktningen för flödesposter.</translation>
-    </message>
-    <message>
-        <source>Layout direction</source>
-        <translation>Layoutriktning</translation>
-    </message>
-    <message>
-        <source>Sets in which direction items in the flow are placed.</source>
-        <translation>Ställer in vilken riktning som poster i flödet placeras.</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Avstånd</translation>
-    </message>
-</context>
-<context>
     <name>FontExtrasSection</name>
     <message>
         <source>Font Extras</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Capitalization</source>
-        <translation>Versalisering</translation>
-    </message>
-    <message>
-        <source>Sets capitalization rules for the text.</source>
-        <translation>Ställer in versaliseringsregler för texten.</translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation>Stil</translation>
-    </message>
-    <message>
-        <source>Sets the font style.</source>
-        <translation>Ställer in typsnittsstilen.</translation>
-    </message>
-    <message>
-        <source>Style color</source>
-        <translation>Stilfärg</translation>
-    </message>
-    <message>
-        <source>Sets the color for the font style.</source>
-        <translation>Ställer in färgen för typsnittsstilen.</translation>
-    </message>
-    <message>
         <source>Hinting</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sets how to interpolate the text to render it more clearly when scaled.</source>
-        <translation>Ställer in hur interpolering av texten för att rendera den mer rent när skalad.</translation>
-    </message>
-    <message>
-        <source>Resolves the gap between texts if turned true.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Toggles the font-specific special features.</source>
-        <translation>Växlar typsnittsspecifika specialfunktioner.</translation>
     </message>
     <message>
         <source>Auto kerning</source>
@@ -3525,96 +980,8 @@ Förgrundskomponenten bör vara transparent och bakgrundskomponenten bör vara o
 <context>
     <name>FontSection</name>
     <message>
-        <source>Font</source>
-        <translation>Typsnitt</translation>
-    </message>
-    <message>
-        <source>Sets the font of the text.</source>
-        <translation>Ställer in typsnittet för texten.</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Storlek</translation>
-    </message>
-    <message>
-        <source>Sets the font size in pixels or points.</source>
-        <translation>Ställer in typsnittsstorleken i bildpunkter eller punkter.</translation>
-    </message>
-    <message>
-        <source>Emphasis</source>
-        <translation>Förtydliga</translation>
-    </message>
-    <message>
-        <source>Sets the text to bold, italic, underlined, or strikethrough.</source>
-        <translation>Ställer in texten till fet, kursiv, understruken eller genomstruken.</translation>
-    </message>
-    <message>
-        <source>Capitalization</source>
-        <translation>Versalisering</translation>
-    </message>
-    <message>
-        <source>Sets capitalization rules for the text.</source>
-        <translation>Ställer in versaliseringsregler för texten.</translation>
-    </message>
-    <message>
-        <source>Sets the overall thickness of the font.</source>
-        <translation>Ställer in övergripande tjocklek för typsnittet.</translation>
-    </message>
-    <message>
-        <source>Sets the style of the selected font. This is prioritized over &lt;b&gt;Weight&lt;/b&gt; and &lt;b&gt;Emphasis&lt;/b&gt;.</source>
-        <translation>Ställer in stilen för markerat typsnitt. Detta är prioriterat över &lt;b&gt;Vikt&lt;/b&gt; och &lt;b&gt;Förtydliga&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>Sets the font style.</source>
-        <translation>Ställer in typsnittsstilen.</translation>
-    </message>
-    <message>
-        <source>Sets how to interpolate the text to render it more clearly when scaled.</source>
-        <translation>Ställer in hur interpolering av texten för att rendera den mer rent när skalad.</translation>
-    </message>
-    <message>
-        <source>Sets the letter spacing for the text.</source>
-        <translation>Ställer in bokstavsavstånd för texten.</translation>
-    </message>
-    <message>
-        <source>Sets the word spacing for the text.</source>
-        <translation>Ställer in ordavstånd för texten.</translation>
-    </message>
-    <message>
-        <source>Resolves the gap between texts if turned true.</source>
-        <translation>Löser avståndet mellan texter om växlad till sant.</translation>
-    </message>
-    <message>
-        <source>Toggles the disables font-specific special features.</source>
-        <translation>Växlar inaktivering av typsnittsspecifika specialfunktioner.</translation>
-    </message>
-    <message>
-        <source>Weight</source>
-        <translation>Vikt</translation>
-    </message>
-    <message>
-        <source>Style name</source>
-        <translation>Stilnamn</translation>
-    </message>
-    <message>
-        <source>Style color</source>
-        <translation>Stilfärg</translation>
-    </message>
-    <message>
-        <source>Sets the color for the font style.</source>
-        <translation>Ställer in färgen för typsnittsstilen.</translation>
-    </message>
-    <message>
         <source>Hinting</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Letter spacing</source>
-        <translation>Bokstavsavstånd</translation>
-    </message>
-    <message>
-        <source>Word spacing</source>
-        <translation>Ordavstånd</translation>
     </message>
     <message>
         <source>Auto kerning</source>
@@ -3624,319 +991,12 @@ Förgrundskomponenten bör vara transparent och bakgrundskomponenten bör vara o
         <source>Prefer shaping</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Style</source>
-        <translation>Stil</translation>
-    </message>
-</context>
-<context>
-    <name>FrameSpecifics</name>
-    <message>
-        <source>Frame</source>
-        <translation>Ram</translation>
-    </message>
-    <message>
-        <source>Font</source>
-        <translation>Typsnitt</translation>
-    </message>
-</context>
-<context>
-    <name>GeometrySection</name>
-    <message>
-        <source>Geometry - 2D</source>
-        <translation>Geometri - 2D</translation>
-    </message>
-    <message>
-        <source>This property is defined by an anchor or a layout.</source>
-        <translation>Denna egenskap definieras av ett ankare eller en layout.</translation>
-    </message>
-    <message>
-        <source>Position</source>
-        <translation>Position</translation>
-    </message>
-    <message>
-        <source>Sets the position of the component relative to its parent.</source>
-        <translation>Ställer in positionen för komponenten relativ till sin förälder.</translation>
-    </message>
-    <message>
-        <source>X-coordinate</source>
-        <translation>X-koordinat</translation>
-    </message>
-    <message>
-        <source>Y-coordinate</source>
-        <translation>Y-koordinat</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Storlek</translation>
-    </message>
-    <message>
-        <source>Sets the width and height of the component.</source>
-        <translation>Ställer in bredd och höjd för komponenten.</translation>
-    </message>
-    <message>
-        <source>W</source>
-        <comment>width</comment>
-        <extracomment>The width of the object</extracomment>
-        <translation>W</translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation>Bredd</translation>
-    </message>
-    <message>
-        <source>H</source>
-        <comment>height</comment>
-        <extracomment>The height of the object</extracomment>
-        <translation>H</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Höjd</translation>
-    </message>
-    <message>
-        <source>Rotation</source>
-        <translation>Rotering</translation>
-    </message>
-    <message>
-        <source>Rotate the component at an angle.</source>
-        <translation>Rotera komponenten med en vinkel.</translation>
-    </message>
-    <message>
-        <source>Angle (in degree)</source>
-        <translation>Vinkel (i grader)</translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>Skala</translation>
-    </message>
-    <message>
-        <source>Sets the scale of the component by percentage.</source>
-        <translation>Ställer in skalan för komponenten med procenttal.</translation>
-    </message>
-    <message>
-        <source>Percentage</source>
-        <translation>Procentdel</translation>
-    </message>
-    <message>
-        <source>Z stack</source>
-        <translation>Z-stack</translation>
-    </message>
-    <message>
-        <source>Sets the stacking order of the component.</source>
-        <translation>Ställer in stackningsordning för komponenten.</translation>
-    </message>
-    <message>
-        <source>Origin</source>
-        <translation>Ursprung</translation>
-    </message>
-    <message>
-        <source>Sets the modification point of the component.</source>
-        <translation>Ställer in ändringspunkten för komponenten.</translation>
-    </message>
-</context>
-<context>
-    <name>GradientPresetList</name>
-    <message>
-        <source>Gradient Picker</source>
-        <translation>Gradientväljare</translation>
-    </message>
-    <message>
-        <source>System Presets</source>
-        <translation>Systemförval</translation>
-    </message>
-    <message>
-        <source>User Presets</source>
-        <translation>Användarförval</translation>
-    </message>
-    <message>
-        <source>Delete preset?</source>
-        <translation>Ta bort förval?</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to delete this preset?</source>
-        <translation>Är du säker på att du vill ta bort detta förval?</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Stäng</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Spara</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation>Tillämpa</translation>
-    </message>
-</context>
-<context>
-    <name>GridLayoutSpecifics</name>
-    <message>
-        <source>Grid Layout</source>
-        <translation>Rutnätslayout</translation>
-    </message>
-    <message>
-        <source>Columns &amp; Rows</source>
-        <translation>Kolumner och rader</translation>
-    </message>
-    <message>
-        <source>Sets the number of columns and rows in the &lt;b&gt;Grid Layout&lt;/b&gt;.</source>
-        <translation>Ställer in antalet kolumner och rader i &lt;b&gt;Rutnätslayout&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Avstånd</translation>
-    </message>
-    <message>
-        <source>Sets the space between the items in pixels in the rows and columns in the &lt;b&gt;Grid Layout&lt;/b&gt;.</source>
-        <translation>Ställer in avståndet mellan poster i bildpunkter för kolumner och rader i &lt;b&gt;Rutnätslayout&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>Flöde</translation>
-    </message>
-    <message>
-        <source>Set the direction of dynamic items to flow in rows or columns in the &lt;b&gt;Grid Layout&lt;/b&gt;.</source>
-        <translation>Ställer in riktningen för dynamiska poster i rader eller kolumner i &lt;b&gt;Rutnätslayout&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>Layout direction</source>
-        <translation>Layoutriktning</translation>
-    </message>
-    <message>
-        <source>Sets the direction of the dynamic items left to right or right to left in the &lt;b&gt;Grid Layout&lt;/b&gt;.</source>
-        <translation>Ställer in riktningen för dynamiska poster vänster till höger eller höger till vänster i &lt;b&gt;Rutnätslayout&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>Uniform cell sizes</source>
-        <translation>Enhetliga cellstorlekar</translation>
-    </message>
-    <message>
-        <source>Toggles all cells to have a uniform height or width.</source>
-        <translation>Växlar alla celler till att ha en enhetlig storlek.</translation>
-    </message>
-    <message>
-        <source>Heights</source>
-        <translation>Höjder</translation>
-    </message>
-    <message>
-        <source>Widths</source>
-        <translation>Bredder</translation>
-    </message>
-</context>
-<context>
-    <name>GridSpecifics</name>
-    <message>
-        <source>Grid</source>
-        <translation>Rutnät</translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation>Kolumner</translation>
-    </message>
-    <message>
-        <source>Sets the number of columns in the grid.</source>
-        <translation>Ställer in antalet kolumner i rutnätet.</translation>
-    </message>
-    <message>
-        <source>Rows</source>
-        <translation>Rader</translation>
-    </message>
-    <message>
-        <source>Sets the number of rows in the grid.</source>
-        <translation>Ställer in antalet rader i rutnätet.</translation>
-    </message>
-    <message>
-        <source>Sets the space between grid items. The same space is applied for both rows and columns.</source>
-        <translation>Ställer in utrymmet mellan rutnätsposter. Samma utrymme tillämpas för både rader och kolumner.</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>Flöde</translation>
-    </message>
-    <message>
-        <source>Sets in which direction items in the grid are placed.</source>
-        <translation>Ställer in vilken riktning som poster i rutnätet placeras.</translation>
-    </message>
-    <message>
-        <source>Layout direction</source>
-        <translation>Layoutriktning</translation>
-    </message>
-    <message>
-        <source>Alignment H</source>
-        <translation>Justering H</translation>
-    </message>
-    <message>
-        <source>Sets the horizontal alignment of items in the grid.</source>
-        <translation>Ställer in horisontell justering av poster i rutnätet.</translation>
-    </message>
-    <message>
-        <source>Alignment V</source>
-        <translation>Justering V</translation>
-    </message>
-    <message>
-        <source>Sets the vertical alignment of items in the grid.</source>
-        <translation>Ställer in vertikal justering av poster i rutnätet.</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Avstånd</translation>
-    </message>
 </context>
 <context>
     <name>GridViewSpecifics</name>
     <message>
-        <source>Grid View</source>
-        <translation>Rutnätsvy</translation>
-    </message>
-    <message>
-        <source>Cell size</source>
-        <translation>Cellstorlek</translation>
-    </message>
-    <message>
-        <source>Sets the dimensions of cells in the grid.</source>
-        <translation>Ställer in dimensionerna för celler i rutnätet.</translation>
-    </message>
-    <message>
-        <source>W</source>
-        <comment>width</comment>
-        <extracomment>The width of the object</extracomment>
-        <translation>W</translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation>Bredd</translation>
-    </message>
-    <message>
-        <source>H</source>
-        <comment>height</comment>
-        <extracomment>The height of the object</extracomment>
-        <translation>H</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Höjd</translation>
-    </message>
-    <message>
-        <source>Sets the directions of the cells.</source>
-        <translation>Ställer in riktningen för cellerna.</translation>
-    </message>
-    <message>
-        <source>Layout direction</source>
-        <translation>Layoutriktning</translation>
-    </message>
-    <message>
-        <source>Sets in which direction items in the grid view are placed.</source>
-        <translation>Ställer in vilken riktning som poster i rutnätsvyn placeras.</translation>
-    </message>
-    <message>
         <source>Sets how the view scrolling will settle following a drag or flick.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>Cache</translation>
     </message>
     <message>
         <source>Sets the highlight range mode.</source>
@@ -3957,18 +1017,6 @@ highlight component.</source>
 the &lt;b&gt;Preferred begin&lt;/b&gt;. Note that the user has to add
 a highlight component.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Toggles if the view manages the highlight.</source>
-        <translation>Växlar om vyn hanterar framhävningen.</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>Flöde</translation>
-    </message>
-    <message>
-        <source>Sets in pixels how far the components are kept loaded outside the view&apos;s visible area.</source>
-        <translation>Ställer in i bildpunkter hur långt bort komponenterna hålls inlästa utanför vyns synliga område.</translation>
     </message>
     <message>
         <source>Navigation wraps</source>
@@ -3994,199 +1042,6 @@ a highlight component.</source>
         <source>Move duration</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Preferred begin</source>
-        <translation>Föredragen början</translation>
-    </message>
-    <message>
-        <source>Preferred end</source>
-        <translation>Föredraget slut</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>Följer aktuell</translation>
-    </message>
-</context>
-<context>
-    <name>GroupBoxSpecifics</name>
-    <message>
-        <source>Group Box</source>
-        <translation>Gruppruta</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Titel</translation>
-    </message>
-    <message>
-        <source>Sets the title for the group box.</source>
-        <translation>Anger titeln för grupprutan.</translation>
-    </message>
-</context>
-<context>
-    <name>IconSection</name>
-    <message>
-        <source>Icon</source>
-        <translation>Ikon</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>Källa</translation>
-    </message>
-    <message>
-        <source>Sets a background image for the icon.</source>
-        <translation>Ställer in en bakgrundsbild för ikonen.</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Färg</translation>
-    </message>
-    <message>
-        <source>Sets the color for the icon.</source>
-        <translation>Ställer in färgen för ikonen.</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Storlek</translation>
-    </message>
-    <message>
-        <source>Sets the height and width of the icon.</source>
-        <translation>Ställer in höjd och bredd för ikonen.</translation>
-    </message>
-    <message>
-        <source>W</source>
-        <comment>width</comment>
-        <extracomment>The width of the object</extracomment>
-        <translation>W</translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation>Bredd</translation>
-    </message>
-    <message>
-        <source>H</source>
-        <comment>height</comment>
-        <extracomment>The height of the object</extracomment>
-        <translation>H</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Höjd</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>Cache</translation>
-    </message>
-    <message>
-        <source>Toggles if the icon is saved to the cache memory.</source>
-        <translation>Växlar om ikonen är sparad till cacheminnet.</translation>
-    </message>
-</context>
-<context>
-    <name>ImageSection</name>
-    <message>
-        <source>Image</source>
-        <translation>Bild</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>Källa</translation>
-    </message>
-    <message>
-        <source>Adds an image from the local file system.</source>
-        <translation>Lägger till en bild från lokala filsystemet.</translation>
-    </message>
-    <message>
-        <source>Fill mode</source>
-        <translation>Fyllnadsläge</translation>
-    </message>
-    <message>
-        <source>Sets how the image fits in the content box.</source>
-        <translation>Anger hur bilder passar i innehållsrutan.</translation>
-    </message>
-    <message>
-        <source>Source size</source>
-        <translation>Källstorlek</translation>
-    </message>
-    <message>
-        <source>Sets the width and height of the image.</source>
-        <translation>Anger bredd och höjd för bilden.</translation>
-    </message>
-    <message>
-        <source>W</source>
-        <comment>width</comment>
-        <extracomment>The width of the object</extracomment>
-        <translation>W</translation>
-    </message>
-    <message>
-        <source>Width.</source>
-        <translation>Bredd.</translation>
-    </message>
-    <message>
-        <source>H</source>
-        <comment>height</comment>
-        <extracomment>The height of the object</extracomment>
-        <translation>H</translation>
-    </message>
-    <message>
-        <source>Height.</source>
-        <translation>Height.</translation>
-    </message>
-    <message>
-        <source>Alignment H</source>
-        <translation>Justering H</translation>
-    </message>
-    <message>
-        <source>Sets the horizontal alignment of the image.</source>
-        <translation>Ställer in horisontell justering för bilden.</translation>
-    </message>
-    <message>
-        <source>Alignment V</source>
-        <translation>Justering V</translation>
-    </message>
-    <message>
-        <source>Sets the vertical alignment of the image.</source>
-        <translation>Ställer in vertikal justering för bilden.</translation>
-    </message>
-    <message>
-        <source>Asynchronous</source>
-        <translation>Asynkron</translation>
-    </message>
-    <message>
-        <source>Loads images on the local filesystem asynchronously in a separate thread.</source>
-        <translation>Läser in bilder på lokala filsystemet asynkront i en separat tråd.</translation>
-    </message>
-    <message>
-        <source>Auto transform</source>
-        <translation>Transformera automatiskt</translation>
-    </message>
-    <message>
-        <source>Automatically applies image transformation metadata such as EXIF orientation.</source>
-        <translation>Tillämpar automatiskt metadata för bildtransformation såsom EXIF-orientering.</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>Cache</translation>
-    </message>
-    <message>
-        <source>Caches the image.</source>
-        <translation>Mellanlagrar bilden.</translation>
-    </message>
-    <message>
-        <source>Mipmap</source>
-        <translation>Mipmap</translation>
-    </message>
-    <message>
-        <source>Uses mipmap filtering when the image is scaled or transformed.</source>
-        <translation>Använder mipmap-filtrering när bilden skalas eller transformeras.</translation>
-    </message>
-    <message>
-        <source>Mirror</source>
-        <translation>Spegla</translation>
-    </message>
-    <message>
-        <source>Inverts the image horizontally.</source>
-        <translation>Inverterar bilden horisontellt.</translation>
-    </message>
 </context>
 <context>
     <name>InsetSection</name>
@@ -4195,28 +1050,12 @@ a highlight component.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Vertical</source>
-        <translation>Vertikal</translation>
-    </message>
-    <message>
-        <source>Sets the space from the top and bottom of the area to the background top and bottom.</source>
-        <translation>Stället in ytan från topp och botten för området till bakgrundens topp och botten.</translation>
-    </message>
-    <message>
         <source>Top inset for the background.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bottom inset for the background.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Horizontal</source>
-        <translation>Horisontell</translation>
-    </message>
-    <message>
-        <source>Sets the space from the left and right of the area to the background left and right.</source>
-        <translation>Ställer in ytan från vänster och höger av området till bakgrundens vänster och höger.</translation>
     </message>
     <message>
         <source>Left inset for the background.</source>
@@ -4232,18 +1071,6 @@ a highlight component.</source>
     <message>
         <source>Insight</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>[None]</source>
-        <translation>[Ingen]</translation>
-    </message>
-    <message>
-        <source>Object name</source>
-        <translation>Objektnamn</translation>
-    </message>
-    <message>
-        <source>Sets the object name of the component.</source>
-        <translation>Ställer in objektnamnet för komponenten.</translation>
     </message>
 </context>
 <context>
@@ -4281,98 +1108,10 @@ Idn måste börja med en gemen bokstav.</translation>
     </message>
 </context>
 <context>
-    <name>ItemDelegateSection</name>
-    <message>
-        <source>Item Delegate</source>
-        <translation>Postdelegat</translation>
-    </message>
-    <message>
-        <source>Highlight</source>
-        <translation>Framhäv</translation>
-    </message>
-    <message>
-        <source>Toggles if the delegate is highlighted.</source>
-        <translation>Växlar om delegaten är framhävd.</translation>
-    </message>
-</context>
-<context>
-    <name>ItemFilterComboBox</name>
-    <message>
-        <source>[None]</source>
-        <translation>[Ingen]</translation>
-    </message>
-</context>
-<context>
     <name>ItemPane</name>
-    <message>
-        <source>Visibility</source>
-        <translation>Synlighet</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation>Synlig</translation>
-    </message>
     <message>
         <source>Clip</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Opacitet</translation>
-    </message>
-    <message>
-        <source>Sets the transparency of the component.</source>
-        <translation>Ställer in transparensen för komponenten.</translation>
-    </message>
-    <message>
-        <source>Layout</source>
-        <translation>Layout</translation>
-    </message>
-</context>
-<context>
-    <name>ItemsView</name>
-    <message>
-        <source>Remove Module</source>
-        <translation>Ta bort modul</translation>
-    </message>
-    <message>
-        <source>Expand All</source>
-        <translation>Expandera alla</translation>
-    </message>
-    <message>
-        <source>Collapse All</source>
-        <translation>Fäll in alla</translation>
-    </message>
-    <message>
-        <source>Hide Category</source>
-        <translation>Dölj kategori</translation>
-    </message>
-    <message>
-        <source>Show Module Hidden Categories</source>
-        <translation>Visa dolda modulkategorier</translation>
-    </message>
-    <message>
-        <source>Show All Hidden Categories</source>
-        <translation>Visa alla dolda kategorier</translation>
-    </message>
-    <message>
-        <source>Add Module: </source>
-        <translation>Lägg till modul: </translation>
-    </message>
-    <message>
-        <source>Edit Component</source>
-        <translation>Redigera komponent</translation>
-    </message>
-    <message>
-        <source>Add a module.</source>
-        <translation>Lägg till en modul.</translation>
-    </message>
-</context>
-<context>
-    <name>Label</name>
-    <message>
-        <source>This property is not available in this configuration.</source>
-        <translation>Denna egenskap är inte tillgänglig i denna konfiguration.</translation>
     </message>
 </context>
 <context>
@@ -4385,14 +1124,6 @@ Idn måste börja med en gemen bokstav.</translation>
 <context>
     <name>LayerSection</name>
     <message>
-        <source>Layer</source>
-        <translation>Lager</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Aktiverad</translation>
-    </message>
-    <message>
         <source>Sampler name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4401,68 +1132,8 @@ Idn måste börja med en gemen bokstav.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Effect</source>
-        <translation>Effekt</translation>
-    </message>
-    <message>
-        <source>Format</source>
-        <translation>Format</translation>
-    </message>
-    <message>
-        <source>Texture size</source>
-        <translation>Texturstorlek</translation>
-    </message>
-    <message>
-        <source>Toggles if the component is layered.</source>
-        <translation>Växlar om komponenten är i lager.</translation>
-    </message>
-    <message>
-        <source>Sets the name of the effect&apos;s source texture property.</source>
-        <translation>Ställer in namnet för effektens källtexturegenskap.</translation>
-    </message>
-    <message>
         <source>Sets the number of multisample renderings in the layer.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sets which effect is applied.</source>
-        <translation>Ställer in vilken effekt som tillämpas.</translation>
-    </message>
-    <message>
-        <source>Sets the internal OpenGL format for the texture.</source>
-        <translation>Ställer in internt OpenGL-format för texturen.</translation>
-    </message>
-    <message>
-        <source>Sets the requested pixel size of the layer&apos;s texture.</source>
-        <translation>Ställer in begärd bildpunktsstorlek för lagrets textur.</translation>
-    </message>
-    <message>
-        <source>W</source>
-        <comment>width</comment>
-        <extracomment>The width of the object</extracomment>
-        <translation>W</translation>
-    </message>
-    <message>
-        <source>Width.</source>
-        <translation>Bredd.</translation>
-    </message>
-    <message>
-        <source>H</source>
-        <comment>height</comment>
-        <extracomment>The height of the object</extracomment>
-        <translation>H</translation>
-    </message>
-    <message>
-        <source>Height.</source>
-        <translation>Height.</translation>
-    </message>
-    <message>
-        <source>Texture mirroring</source>
-        <translation>Texturspegling</translation>
-    </message>
-    <message>
-        <source>Sets how the generated OpenGL texture should be mirrored.</source>
-        <translation>Ställer in hur genererad OpenGL-textur ska speglas.</translation>
     </message>
     <message>
         <source>Wrap mode</source>
@@ -4472,43 +1143,9 @@ Idn måste börja med en gemen bokstav.</translation>
         <source>Sets the OpenGL wrap modes associated with the texture.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Toggles if mipmaps are generated for the texture.</source>
-        <translation>Växlar om mipmaps genereras för texturen.</translation>
-    </message>
-    <message>
-        <source>Toggles if the layer transforms smoothly.</source>
-        <translation>Växlar om lagret transformerar mjukt.</translation>
-    </message>
-    <message>
-        <source>Sets the rectangular area of the component that should
-be rendered into the texture.</source>
-        <translation>Ställer in den rektangulära ytan av komponenten
-som ska renderas till texturen.</translation>
-    </message>
-    <message>
-        <source>Mipmap</source>
-        <translation>Mipmap</translation>
-    </message>
-    <message>
-        <source>Smooth</source>
-        <translation>Mjuk</translation>
-    </message>
-    <message>
-        <source>Source rectangle</source>
-        <translation>Källrektangel</translation>
-    </message>
 </context>
 <context>
     <name>LayoutProperties</name>
-    <message>
-        <source>Alignment</source>
-        <translation>Justering</translation>
-    </message>
-    <message>
-        <source>Alignment of a component within the cells it occupies.</source>
-        <translation>Justering för en komponent inom cellerna den ockuperar.</translation>
-    </message>
     <message>
         <source>Fill layout</source>
         <translation type="unfinished"></translation>
@@ -4518,48 +1155,8 @@ som ska renderas till texturen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Width</source>
-        <translation>Bredd</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Höjd</translation>
-    </message>
-    <message>
-        <source>Preferred size</source>
-        <translation>Föredragen storlek</translation>
-    </message>
-    <message>
         <source>Preferred size of a component in a layout. If the preferred height or width is -1, it is ignored.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>W</source>
-        <comment>width</comment>
-        <extracomment>The width of the object</extracomment>
-        <translation>W</translation>
-    </message>
-    <message>
-        <source>H</source>
-        <comment>height</comment>
-        <extracomment>The height of the object</extracomment>
-        <translation>H</translation>
-    </message>
-    <message>
-        <source>Minimum size</source>
-        <translation>Minimal storlek</translation>
-    </message>
-    <message>
-        <source>Minimum size of a component in a layout.</source>
-        <translation>Minsta storlek för en komponent i en layout.</translation>
-    </message>
-    <message>
-        <source>Maximum size</source>
-        <translation>Maximal storlek</translation>
-    </message>
-    <message>
-        <source>Maximum size of a component in a layout.</source>
-        <translation>Maximal storlek för en komponent i en layout.</translation>
     </message>
     <message>
         <source>Row span</source>
@@ -4579,73 +1176,18 @@ som ska renderas till texturen.</translation>
     </message>
 </context>
 <context>
-    <name>LayoutSection</name>
-    <message>
-        <source>Layout</source>
-        <translation>Layout</translation>
-    </message>
-    <message>
-        <source>Anchors</source>
-        <translation>Ankare</translation>
-    </message>
-</context>
-<context>
     <name>ListViewSpecifics</name>
-    <message>
-        <source>List View</source>
-        <translation>Listvy</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>Cache</translation>
-    </message>
     <message>
         <source>Navigation wraps</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Orientering</translation>
-    </message>
-    <message>
-        <source>Layout direction</source>
-        <translation>Layoutriktning</translation>
     </message>
     <message>
         <source>Snap mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Spacing</source>
-        <translation>Avstånd</translation>
-    </message>
-    <message>
-        <source>Move velocity</source>
-        <translation>Flyttningshastighet</translation>
-    </message>
-    <message>
-        <source>Resize velocity</source>
-        <translation>Hastighet för storleksändring</translation>
-    </message>
-    <message>
-        <source>Sets the orientation of the list.</source>
-        <translation>Ställer in orienteringen för listan.</translation>
-    </message>
-    <message>
-        <source>Sets the direction that the cells flow inside a list.</source>
-        <translation>Ställer in riktningen som celler flödar inne i en lista.</translation>
-    </message>
-    <message>
         <source>Sets how the view scrolling settles following a drag or flick.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sets the spacing between components.</source>
-        <translation>Ställer in avståndet mellan komponenter.</translation>
-    </message>
-    <message>
-        <source>Sets in pixels how far the components are kept loaded outside the view&apos;s visible area.</source>
-        <translation>Ställer in i bildpunkter hur långt bort komponenterna hålls inlästa utanför vyns synliga område.</translation>
     </message>
     <message>
         <source>Toggles if the grid wraps key navigation.</source>
@@ -4700,102 +1242,15 @@ a highlight component.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Toggles if the view manages the highlight.</source>
-        <translation>Växlar om vyn hanterar framhävningen.</translation>
-    </message>
-    <message>
         <source>Resize duration</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Preferred begin</source>
-        <translation>Föredragen början</translation>
-    </message>
-    <message>
-        <source>Preferred end</source>
-        <translation>Föredraget slut</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>Följer aktuell</translation>
-    </message>
-</context>
-<context>
-    <name>LoaderSpecifics</name>
-    <message>
-        <source>Loader</source>
-        <translation>Inläsare</translation>
-    </message>
-    <message>
-        <source>Active</source>
-        <translation>Aktiv</translation>
-    </message>
-    <message>
-        <source>Whether the loader is currently active.</source>
-        <translation>Huruvida inläsaren är aktiv för närvarande.</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>Källa</translation>
-    </message>
-    <message>
-        <source>URL of the component to instantiate.</source>
-        <translation>URLen för komponenten att instansiera.</translation>
-    </message>
-    <message>
-        <source>Source component</source>
-        <translation>Källkomponent</translation>
-    </message>
-    <message>
-        <source>Component to instantiate.</source>
-        <translation>Komponent att instansiera.</translation>
-    </message>
-    <message>
-        <source>Asynchronous</source>
-        <translation>Asynkron</translation>
-    </message>
-    <message>
-        <source>Whether the component will be instantiated asynchronously.</source>
-        <translation>Huruvida komponenten kommer att instansieras asynkront.</translation>
     </message>
 </context>
 <context>
     <name>Main</name>
     <message>
-        <source>Rename state group</source>
-        <translation>Byt namn på tillståndsgrupp</translation>
-    </message>
-    <message>
-        <source>State Group</source>
-        <translation>Tillståndsgrupp</translation>
-    </message>
-    <message>
         <source>State Groups are not supported with Qt for MCUs</source>
         <translation>Tillståndsgrupper stöds inte med Qt for MCUer</translation>
-    </message>
-    <message>
-        <source>Switch State Group</source>
-        <translation>Växla tillståndsgrupp</translation>
-    </message>
-    <message>
-        <source>Create State Group</source>
-        <translation>Skapa tillståndsgrupp</translation>
-    </message>
-    <message>
-        <source>Remove State Group</source>
-        <translation>Ta bort tillståndsgrupp</translation>
-    </message>
-    <message>
-        <source>Rename State Group</source>
-        <translation>Byt namn på tillståndsgrupp</translation>
-    </message>
-    <message>
-        <source>Show thumbnails</source>
-        <translation>Visa miniatyrbilder</translation>
-    </message>
-    <message>
-        <source>Show property changes</source>
-        <translation>Visa egenskapsändringar</translation>
     </message>
     <message>
         <source>Can&apos;t rename category, name already exists.</source>
@@ -4808,14 +1263,6 @@ a highlight component.</source>
     <message>
         <source>With tracking turned on, the application tracks user interactions for all component types in the selected predefined categories.</source>
         <translation>Med spårning aktiverat kommer programmet att spåra användarinteraktioner för alla komponenttyper i valda fördefinierade kategorier.</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Aktiverad</translation>
-    </message>
-    <message>
-        <source>Disabled</source>
-        <translation>Inaktiverad</translation>
     </message>
     <message>
         <source>Token</source>
@@ -4848,10 +1295,6 @@ a highlight component.</source>
     <message>
         <source>Choose a predefined kit for the runtime configuration of the project.</source>
         <translation>Välj ett fördefinierat kit för körtidskonfigurationen för projektet.</translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation>Stil</translation>
     </message>
     <message>
         <source>Choose a style for the Qt Quick Controls of the project.</source>
@@ -4894,10 +1337,6 @@ a highlight component.</source>
         <translation>Gå framåt</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation>Stäng</translation>
-    </message>
-    <message>
         <source>Sets the visible &lt;b&gt;Views&lt;/b&gt; to immovable across the Workspaces.</source>
         <translation>Ställer in synliga &lt;b&gt;Vyer&lt;/b&gt; till oflyttbara runt alla arbetsytor.</translation>
     </message>
@@ -4924,34 +1363,6 @@ a highlight component.</source>
     <message>
         <source>More Items</source>
         <translation>Fler poster</translation>
-    </message>
-    <message>
-        <source>Connections</source>
-        <translation>Anslutningar</translation>
-    </message>
-    <message>
-        <source>Sets logical connection between the components and the signals.</source>
-        <translation>Ställer in logisk anslutning mellan komponenter och signaler.</translation>
-    </message>
-    <message>
-        <source>Bindings</source>
-        <translation>Bindningar</translation>
-    </message>
-    <message>
-        <source>Sets the relation between the properties of two components to bind them together.</source>
-        <translation>Ställer in relationen mellan egenskaperna för två komponenter för att binda dem samman.</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Egenskaper</translation>
-    </message>
-    <message>
-        <source>Sets an additional property for the component.</source>
-        <translation>Ställer in ytterligare egenskap för komponenten.</translation>
-    </message>
-    <message>
-        <source>Adds a Connection, Binding, or Custom Property to the components.</source>
-        <translation>Lägger till en anslutning, bindning eller anpassad egenskap till komponenterna.</translation>
     </message>
 </context>
 <context>
@@ -5025,125 +1436,14 @@ a highlight component.</source>
     </message>
 </context>
 <context>
-    <name>MarginSection</name>
-    <message>
-        <source>Margin</source>
-        <translation>Marginal</translation>
-    </message>
-    <message>
-        <source>Vertical</source>
-        <translation>Vertikal</translation>
-    </message>
-    <message>
-        <source>The margin above the item.</source>
-        <translation>Marginalen ovanför posten.</translation>
-    </message>
-    <message>
-        <source>The margin below the item.</source>
-        <translation>Marginalen nedanför posten.</translation>
-    </message>
-    <message>
-        <source>Horizontal</source>
-        <translation>Horisontell</translation>
-    </message>
-    <message>
-        <source>The margin left of the item.</source>
-        <translation>Marginalen till vänster om posten.</translation>
-    </message>
-    <message>
-        <source>The margin right of the item.</source>
-        <translation>Marginalen till höger om posten.</translation>
-    </message>
-    <message>
-        <source>Margins</source>
-        <translation>Marginaler</translation>
-    </message>
-    <message>
-        <source>The margins around the item.</source>
-        <translation>Marginalen runt posten.</translation>
-    </message>
-</context>
-<context>
     <name>MaterialBrowser</name>
-    <message>
-        <source>Add a Material.</source>
-        <translation>Lägg till ett material.</translation>
-    </message>
-    <message>
-        <source>Add a Texture.</source>
-        <translation>Lägg till en textur.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Material Browser&lt;/b&gt; is not supported in Qt5 projects.</source>
-        <translation>&lt;b&gt;Materialbläddrare&lt;/b&gt; stöds inte i Qt5-projekt.</translation>
-    </message>
     <message>
         <source>To use &lt;b&gt;Material Browser&lt;/b&gt;, first add the QtQuick3D module in the &lt;b&gt;Components&lt;/b&gt; view.</source>
         <translation>För att använda &lt;b&gt;Materialbläddrare&lt;/b&gt;, lägg först till QtQuick3D-modulen i &lt;b&gt;Komponenter&lt;/b&gt;-vyn.</translation>
     </message>
-    <message>
-        <source>&lt;b&gt;Material Browser&lt;/b&gt; is disabled inside a non-visual component.</source>
-        <translation>&lt;b&gt;Materialbläddrare&lt;/b&gt; är inaktiverad inuti en icke-visuell komponent.</translation>
-    </message>
-    <message>
-        <source>Materials</source>
-        <translation>Material</translation>
-    </message>
-    <message>
-        <source>No match found.</source>
-        <translation>Ingen matchning hittades.</translation>
-    </message>
-    <message>
-        <source>There are no materials in this project.&lt;br&gt;Select &apos;&lt;b&gt;+&lt;/b&gt;&apos; to create one.</source>
-        <translation>Det finns inga material i detta projekt.&lt;br&gt;Välj &lt;b&gt;+&lt;/b&gt;&apos; för att skapa ett.</translation>
-    </message>
-    <message>
-        <source>Textures</source>
-        <translation>Texturer</translation>
-    </message>
-    <message>
-        <source>There are no textures in this project.</source>
-        <translation>Det finns inga texturer i detta projekt.</translation>
-    </message>
 </context>
 <context>
     <name>MaterialBrowserContextMenu</name>
-    <message>
-        <source>Apply to selected (replace)</source>
-        <translation>Tillämpa på markerade (ersätt)</translation>
-    </message>
-    <message>
-        <source>Apply to selected (add)</source>
-        <translation>Tillämpa på markerade (lägg till)</translation>
-    </message>
-    <message>
-        <source>Copy properties</source>
-        <translation>Kopiera egenskaper</translation>
-    </message>
-    <message>
-        <source>Paste properties</source>
-        <translation>Klistra in egenskaper</translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
-        <translation>Duplicera</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation>Byt namn</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Ta bort</translation>
-    </message>
-    <message>
-        <source>Create New Material</source>
-        <translation>Skapa nytt material</translation>
-    </message>
-    <message>
-        <source>Add to Content Library</source>
-        <translation>Lägg till i innehållsbibliotek</translation>
-    </message>
     <message>
         <source>Import Material</source>
         <translation>Importera material</translation>
@@ -5231,41 +1531,6 @@ a highlight component.</source>
     </message>
 </context>
 <context>
-    <name>MediaPlayerSection</name>
-    <message>
-        <source>Media Player</source>
-        <translation>Mediaspelare</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>Källa</translation>
-    </message>
-    <message>
-        <source>Adds an image from the local file system.</source>
-        <translation>Lägger till en bild från lokala filsystemet.</translation>
-    </message>
-    <message>
-        <source>Playback rate</source>
-        <translation>Uppspelningsfrekvens</translation>
-    </message>
-    <message>
-        <source>Audio output</source>
-        <translation>Ljudutgång</translation>
-    </message>
-    <message>
-        <source>Target audio output.</source>
-        <translation>Mål för ljudutdata.</translation>
-    </message>
-    <message>
-        <source>Video output</source>
-        <translation>Videoutgång</translation>
-    </message>
-    <message>
-        <source>Target video output.</source>
-        <translation>Mål för videoutgång.</translation>
-    </message>
-</context>
-<context>
     <name>ModelNodeOperations</name>
     <message>
         <source>Go to Implementation</source>
@@ -5327,125 +1592,6 @@ Fel:
     </message>
 </context>
 <context>
-    <name>MouseAreaSpecifics</name>
-    <message>
-        <source>Enable</source>
-        <translation>Aktivera</translation>
-    </message>
-    <message>
-        <source>Sets how the mouse can interact with the area.</source>
-        <translation>Ställer in hur musen kan interagera med området.</translation>
-    </message>
-    <message>
-        <source>Area</source>
-        <translation>Område</translation>
-    </message>
-    <message>
-        <source>Hover</source>
-        <translation>Hovra</translation>
-    </message>
-    <message>
-        <source>Accepted buttons</source>
-        <translation>Accepterade knappar</translation>
-    </message>
-    <message>
-        <source>Sets which mouse buttons the area reacts to.</source>
-        <translation>Ställer in vilka musknappar som ytan reagerar på.</translation>
-    </message>
-    <message>
-        <source>Sets which mouse cursor to display on this area.</source>
-        <translation>Ställer in vilken muspekare att visa på denna yta.</translation>
-    </message>
-    <message>
-        <source>Sets the time before the pressAndHold signal is registered when you press the area.</source>
-        <translation>Ställer in tiden innan pressAndHold-signalen registreras när du trycker i området.</translation>
-    </message>
-    <message>
-        <source>Toggles if scroll gestures from non-mouse devices are supported.</source>
-        <translation>Växlar om rullningsgester från icke-musenheter stöds.</translation>
-    </message>
-    <message>
-        <source>Toggles if mouse events can be stolen from this area.</source>
-        <translation>Växlar om mushändelser kan stjälas från detta område.</translation>
-    </message>
-    <message>
-        <source>Toggles if composed mouse events should be propagated to other mouse areas overlapping this area.</source>
-        <translation>Växlar om komponerade mushändelser ska propageras till andra musområdet som överlappar detta område.</translation>
-    </message>
-    <message>
-        <source>Sets the component to have drag functionalities.</source>
-        <translation>Ställer in komponenten till att ha dragfunktionaliteter.</translation>
-    </message>
-    <message>
-        <source>Sets in which directions the dragging work.</source>
-        <translation>Ställer in vilka riktningar som drag fungerar.</translation>
-    </message>
-    <message>
-        <source>Sets a threshold after which the drag starts to work.</source>
-        <translation>Ställer in ett tröskelvärde efter vilket draget börjar fungera.</translation>
-    </message>
-    <message>
-        <source>Toggles if the dragging overrides descendant mouse areas.</source>
-        <translation>Växlar om draget åsidosätter underliggande musområden.</translation>
-    </message>
-    <message>
-        <source>Toggles if the move is smoothly animated.</source>
-        <translation>Växlar om flytten är mjukt animerad.</translation>
-    </message>
-    <message>
-        <source>Cursor shape</source>
-        <translation>Markörform</translation>
-    </message>
-    <message>
-        <source>Hold interval</source>
-        <translation>Hållintervall</translation>
-    </message>
-    <message>
-        <source>Scroll gesture</source>
-        <translation>Rullningsgest</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Aktiverad</translation>
-    </message>
-    <message>
-        <source>Prevent stealing</source>
-        <translation>Förhindra stöld</translation>
-    </message>
-    <message>
-        <source>Propagate events</source>
-        <translation>Propagera händelser</translation>
-    </message>
-    <message>
-        <source>Drag</source>
-        <translation>Dra</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation>Mål</translation>
-    </message>
-    <message>
-        <source>Axis</source>
-        <translation>Axel</translation>
-    </message>
-    <message>
-        <source>Threshold</source>
-        <translation>Tröskelvärde</translation>
-    </message>
-    <message>
-        <source>Filter children</source>
-        <translation>Filtrera barn</translation>
-    </message>
-    <message>
-        <source>Smoothed</source>
-        <translation>Mjuk</translation>
-    </message>
-    <message>
-        <source>Mouse Area</source>
-        <translation>Musområde</translation>
-    </message>
-</context>
-<context>
     <name>MoveToolAction</name>
     <message>
         <source>Activate Move Tool</source>
@@ -5461,84 +1607,6 @@ Fel:
     <message>
         <source>Reparenting the component %1 here will cause the component %2 to be deleted. Do you want to proceed?</source>
         <translation>Tilldela ny förälder för komponenten %1 här kommer att orsaka att komponenten %2 tas bort. Vill du fortsätta?</translation>
-    </message>
-</context>
-<context>
-    <name>NewEffectDialog</name>
-    <message>
-        <source>Create New Effect</source>
-        <translation>Skapa ny effekt</translation>
-    </message>
-    <message>
-        <source>Could not create effect</source>
-        <translation>Kunde inte skapa effekt</translation>
-    </message>
-    <message>
-        <source>An error occurred while trying to create the effect.</source>
-        <translation>Ett fel inträffade vid försök att skapa effekten.</translation>
-    </message>
-    <message>
-        <source>Effect name: </source>
-        <translation>Effektnamn: </translation>
-    </message>
-    <message>
-        <source>Effect name cannot be empty.</source>
-        <translation>Effektnamnet får inte vara tomt.</translation>
-    </message>
-    <message>
-        <source>Effect path is too long.</source>
-        <translation>Effektsökvägen är för lång.</translation>
-    </message>
-    <message>
-        <source>The name must start with a capital letter, contain at least three characters, and cannot have any special characters.</source>
-        <translation>Namnet måste börja med en versal bokstav, innehålla minst tre tecken och får inte innehålla några specialtecken.</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation>Skapa</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
-    </message>
-</context>
-<context>
-    <name>NewFolderDialog</name>
-    <message>
-        <source>Create New Folder</source>
-        <translation>Skapa ny mapp</translation>
-    </message>
-    <message>
-        <source>Could not create folder</source>
-        <translation>Kunde inte skapa mapp</translation>
-    </message>
-    <message>
-        <source>An error occurred while trying to create the folder.</source>
-        <translation>Ett fel inträffade vid försök att skapa mappen.</translation>
-    </message>
-    <message>
-        <source>Folder name: </source>
-        <translation>Mappnamn: </translation>
-    </message>
-    <message>
-        <source>Folder name cannot be empty.</source>
-        <translation>Mappnamnet får inte vara tomt.</translation>
-    </message>
-    <message>
-        <source>Folder path is too long.</source>
-        <translation>Mappsökvägen är för lång.</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation>Skapa</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
-    </message>
-    <message>
-        <source>New folder</source>
-        <translation>Ny mapp</translation>
     </message>
 </context>
 <context>
@@ -5571,83 +1639,12 @@ Fel:
 <context>
     <name>NodeSection</name>
     <message>
-        <source>Visibility</source>
-        <translation>Synlighet</translation>
-    </message>
-    <message>
-        <source>Sets the local visibility of the node.</source>
-        <translation>Ställer in lokal synlighet för noden.</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation>Synlig</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Opacitet</translation>
-    </message>
-    <message>
-        <source>Sets the local opacity value of the node.</source>
-        <translation>Ställer in lokalt opacitetsvärde för noden.</translation>
-    </message>
-    <message>
-        <source>Transform</source>
-        <translation>Transformera</translation>
-    </message>
-    <message>
-        <source>Translation</source>
-        <translation>Översättning</translation>
-    </message>
-    <message>
-        <source>Sets the translation of the node.</source>
-        <translation>Ställer in översättningen för noden.</translation>
-    </message>
-    <message>
-        <source>Rotation</source>
-        <translation>Rotering</translation>
-    </message>
-    <message>
-        <source>Sets the rotation of the node in degrees.</source>
-        <translation>Ställer in rotering av noden i grader.</translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>Skala</translation>
-    </message>
-    <message>
-        <source>Sets the scale of the node.</source>
-        <translation>Ställer in skalan för noden.</translation>
-    </message>
-    <message>
         <source>Pivot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sets the pivot of the node.</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>NumberAnimationSpecifics</name>
-    <message>
-        <source>Number Animation</source>
-        <translation>Talanimering</translation>
-    </message>
-    <message>
-        <source>From</source>
-        <translation>Från</translation>
-    </message>
-    <message>
-        <source>Start value for the animation.</source>
-        <translation>Startvärde för animeringen.</translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation>Till</translation>
-    </message>
-    <message>
-        <source>End value for the animation.</source>
-        <translation>Slutvärde för animeringen.</translation>
     </message>
 </context>
 <context>
@@ -5664,10 +1661,6 @@ Fel:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Vertical</source>
-        <translation>Vertikal</translation>
-    </message>
-    <message>
         <source>Sets the padding on top and bottom of the item.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5678,10 +1671,6 @@ Fel:
     <message>
         <source>Padding between the content and the bottom edge of the item.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Horizontal</source>
-        <translation>Horisontell</translation>
     </message>
     <message>
         <source>Sets the padding on the left and right sides of the item.</source>
@@ -5705,123 +1694,15 @@ Fel:
     </message>
 </context>
 <context>
-    <name>PageIndicatorSpecifics</name>
-    <message>
-        <source>Page Indicator</source>
-        <translation>Sidindikator</translation>
-    </message>
-    <message>
-        <source>Count</source>
-        <translation>Antal</translation>
-    </message>
-    <message>
-        <source>Sets the number of pages.</source>
-        <translation>Anger antalet sidor.</translation>
-    </message>
-    <message>
-        <source>Sets the current page.</source>
-        <translation>Anger aktuell sida.</translation>
-    </message>
-    <message>
-        <source>Toggles if the user can interact with the page indicator.</source>
-        <translation>Växlar om användaren kan interagera med sidindikatorn.</translation>
-    </message>
-    <message>
-        <source>Current</source>
-        <translation>Aktuell</translation>
-    </message>
-    <message>
-        <source>Interactive</source>
-        <translation>Interaktiv</translation>
-    </message>
-</context>
-<context>
-    <name>PageSpecifics</name>
-    <message>
-        <source>Page</source>
-        <translation>Sida</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Titel</translation>
-    </message>
-    <message>
-        <source>Content size</source>
-        <translation>Innehållsstorlek</translation>
-    </message>
-    <message>
-        <source>Sets the title of the page.</source>
-        <translation>Ställer in titeln för sidan.</translation>
-    </message>
-    <message>
-        <source>Sets the size of the page. This is used to
-calculate the total implicit size.</source>
-        <translation>Ställer in storleken för sidan. Detta
-används för att beräkna totala
-implicita storleken.</translation>
-    </message>
-    <message>
-        <source>W</source>
-        <comment>width</comment>
-        <extracomment>The width of the object</extracomment>
-        <translation>W</translation>
-    </message>
-    <message>
-        <source>Content width used for calculating the total implicit width.</source>
-        <translation>Innehållsbredd som används för att beräkna totala implicita bredden.</translation>
-    </message>
-    <message>
-        <source>H</source>
-        <comment>height</comment>
-        <extracomment>The height of the object</extracomment>
-        <translation>H</translation>
-    </message>
-    <message>
-        <source>Content height used for calculating the total implicit height.</source>
-        <translation>Innehållshöjd som används för att beräkna totala implicita höjden.</translation>
-    </message>
-</context>
-<context>
     <name>PaneSection</name>
     <message>
         <source>Pane</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Content size</source>
-        <translation>Innehållsstorlek</translation>
-    </message>
-    <message>
         <source>Sets the size of the %1. This is used to calculate
 the total implicit size.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>W</source>
-        <comment>width</comment>
-        <extracomment>The width of the object</extracomment>
-        <translation>W</translation>
-    </message>
-    <message>
-        <source>Content width used for calculating the total implicit width.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>H</source>
-        <comment>height</comment>
-        <extracomment>The height of the object</extracomment>
-        <translation>H</translation>
-    </message>
-    <message>
-        <source>Content height used for calculating the total implicit height.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>PaneSpecifics</name>
-    <message>
-        <source>Font</source>
-        <translation>Typsnitt</translation>
     </message>
 </context>
 <context>
@@ -5862,16 +1743,8 @@ the total implicit size.</source>
 <context>
     <name>PathViewSpecifics</name>
     <message>
-        <source>Path View</source>
-        <translation>Sökvägsvy</translation>
-    </message>
-    <message>
         <source>Toggles if the path view allows drag or flick.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drag margin</source>
-        <translation>Dragmarginal</translation>
     </message>
     <message>
         <source>Sets a margin within which the drag function also works even without clicking the item itself.</source>
@@ -5883,10 +1756,6 @@ the total implicit size.</source>
     </message>
     <message>
         <source>Sets the rate by which a flick action slows down after performing.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Offset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5915,32 +1784,12 @@ a highlight component.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Item count</source>
-        <translation>Postantal</translation>
-    </message>
-    <message>
-        <source>Sets the number of items visible at once along the path.</source>
-        <translation>Ställer in antalet poster synliga samtidigt längs sökvägen.</translation>
-    </message>
-    <message>
         <source>Path View Highlight</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move duration</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Preferred begin</source>
-        <translation>Föredragen början</translation>
-    </message>
-    <message>
-        <source>Preferred end</source>
-        <translation>Föredraget slut</translation>
-    </message>
-    <message>
-        <source>Interactive</source>
-        <translation>Interaktiv</translation>
     </message>
     <message>
         <source>Range</source>
@@ -5981,49 +1830,14 @@ a highlight component.</source>
     </message>
 </context>
 <context>
-    <name>PopupLabel</name>
-    <message>
-        <source>missing</source>
-        <translation>saknas</translation>
-    </message>
-</context>
-<context>
     <name>PopupSection</name>
     <message>
         <source>Popup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Size</source>
-        <translation>Storlek</translation>
-    </message>
-    <message>
-        <source>W</source>
-        <comment>width</comment>
-        <extracomment>The width of the object</extracomment>
-        <translation>W</translation>
-    </message>
-    <message>
-        <source>H</source>
-        <comment>height</comment>
-        <extracomment>The height of the object</extracomment>
-        <translation>H</translation>
-    </message>
-    <message>
-        <source>Visibility</source>
-        <translation>Synlighet</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation>Synlig</translation>
-    </message>
-    <message>
         <source>Clip</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>Beteende</translation>
     </message>
     <message>
         <source>Modal</source>
@@ -6041,22 +1855,6 @@ a highlight component.</source>
         <source>Defines whether the popup dims the background.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Opacitet</translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>Skala</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Avstånd</translation>
-    </message>
-    <message>
-        <source>Spacing between internal elements of the control.</source>
-        <translation>Avstånd mellan interna element för kontrollen.</translation>
-    </message>
 </context>
 <context>
     <name>PresetView</name>
@@ -6067,18 +1865,6 @@ a highlight component.</source>
 </context>
 <context>
     <name>ProgressBarSpecifics</name>
-    <message>
-        <source>Progress Bar</source>
-        <translation>Förloppsmätare</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Värde</translation>
-    </message>
-    <message>
-        <source>Sets the value of the progress bar.</source>
-        <translation>Ställer in värdet för förloppsmätaren.</translation>
-    </message>
     <message>
         <source>Sets the minimum value of the progress bar.</source>
         <translation type="unfinished"></translation>
@@ -6094,83 +1880,8 @@ operation is in progress.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>From</source>
-        <translation>Från</translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation>Till</translation>
-    </message>
-    <message>
         <source>Indeterminate</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>PropertiesDialog</name>
-    <message>
-        <source>Owner</source>
-        <translation>Ägare</translation>
-    </message>
-    <message>
-        <source>The owner of the property</source>
-        <translation>Ägare till egenskapen</translation>
-    </message>
-</context>
-<context>
-    <name>PropertiesDialogForm</name>
-    <message>
-        <source>Type</source>
-        <translation>Typ</translation>
-    </message>
-    <message>
-        <source>Sets the category of the &lt;b&gt;Local Custom Property&lt;/b&gt;.</source>
-        <translation>Ställer in kategorin för &lt;b&gt;Lokalt anpassad egenskap&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Namn</translation>
-    </message>
-    <message>
-        <source>Sets a name for the &lt;b&gt;Local Custom Property&lt;/b&gt;.</source>
-        <translation>Ställer in ett namn för &lt;b&gt;Lokalt anpassad egenskap&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Värde</translation>
-    </message>
-    <message>
-        <source>Sets a valid &lt;b&gt;Local Custom Property&lt;/b&gt; value.</source>
-        <translation>Ställer in ett giltigt värde för &lt;b&gt;Lokalt anpassad egenskap&lt;/b&gt;.</translation>
-    </message>
-</context>
-<context>
-    <name>PropertiesListView</name>
-    <message>
-        <source>Removes the property.</source>
-        <translation>Tar bort egenskapen.</translation>
-    </message>
-</context>
-<context>
-    <name>PropertyActionSpecifics</name>
-    <message>
-        <source>Property Action</source>
-        <translation>Egenskapsåtgärd</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Värde</translation>
-    </message>
-    <message>
-        <source>Value of the property.</source>
-        <translation>Värdet för egenskapen.</translation>
-    </message>
-</context>
-<context>
-    <name>PropertyLabel</name>
-    <message>
-        <source>This property is not available in this configuration.</source>
-        <translation>Denna egenskap är inte tillgänglig i denna konfiguration.</translation>
     </message>
 </context>
 <context>
@@ -24557,6 +20268,175 @@ These prefixes are used in addition to current file name on Switch Header/Source
     <message>
         <source>Cppcheck finished.</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QtC::EffectComposer</name>
+    <message>
+        <source>Confirm clear list</source>
+        <translation>Bekräfta tömning av lista</translation>
+    </message>
+    <message>
+        <source>You are about to clear the list of effect nodes.
+
+This can not be undone.</source>
+        <translation>Du är på väg att tömma listan över effektnoder.
+
+Detta går inte att ångra.</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Töm</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
+    </message>
+    <message>
+        <source>Remove all effect nodes.</source>
+        <translation>Ta bort alla effektnoder.</translation>
+    </message>
+    <message>
+        <source>Open Shader in Code Editor.</source>
+        <translation>Öppna shader i Kodredigerare.</translation>
+    </message>
+    <message>
+        <source>Add an effect node to start</source>
+        <translation>Lägg till en effektnod för att börja</translation>
+    </message>
+    <message>
+        <source>Effect Composer is disabled on MCU projects</source>
+        <translation>Effektkompositör är inaktivera för MCU-projekt</translation>
+    </message>
+    <message>
+        <source>Zoom In</source>
+        <translation>Zooma in</translation>
+    </message>
+    <message>
+        <source>Zoom out</source>
+        <translation>Zooma ut</translation>
+    </message>
+    <message>
+        <source>Reset View</source>
+        <translation>Nollställ vy</translation>
+    </message>
+    <message>
+        <source>Restart Animation</source>
+        <translation>Starta om animering</translation>
+    </message>
+    <message>
+        <source>Play Animation</source>
+        <translation>Spela upp animering</translation>
+    </message>
+    <message>
+        <source>Add new composition</source>
+        <translation>Lägg till ny komposition</translation>
+    </message>
+    <message>
+        <source>Save current composition</source>
+        <translation>Spara aktuell komposition</translation>
+    </message>
+    <message>
+        <source>Save current composition with a new name</source>
+        <translation>Spara aktuell komposition med ett nytt namn</translation>
+    </message>
+    <message>
+        <source>Assign current composition to selected item</source>
+        <translation>Tilldela aktuell komposition till markerad post</translation>
+    </message>
+    <message>
+        <source>Untitled</source>
+        <translation>Namnlös</translation>
+    </message>
+    <message>
+        <source>How to use Effect Composer:
+1. Click &quot;+ Add Effect&quot; to add effect node
+2. Adjust the effect nodes properties
+3. Change the order of the effects, if you like
+4. See the preview
+5. Save in the assets library, if you wish to reuse the effect later</source>
+        <translation>Hur man använder Effektkompositör:
+1. Klicka på &quot;+ Lägg till effekt&quot; för att lägga till effektnod
+2. Justera egenskaper för effektnoderna
+3. Ändra ordningen på effekterna, om du vill
+4. Titta på förhandsvisningen
+5. Spara i tillgångsbiblioteket om du vill återanvända effekten senare</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Ta bort</translation>
+    </message>
+    <message>
+        <source>Enable/Disable Node</source>
+        <translation>Aktivera/inaktivera nod</translation>
+    </message>
+    <message>
+        <source>Reset value</source>
+        <translation>Nollställ värde</translation>
+    </message>
+    <message>
+        <source>+ Add Effect</source>
+        <translation>+ Lägg till effekt</translation>
+    </message>
+    <message>
+        <source>Save Effect</source>
+        <translation>Spara effekt</translation>
+    </message>
+    <message>
+        <source>Effect name: </source>
+        <translation>Effektnamn: </translation>
+    </message>
+    <message>
+        <source>Name contains invalid characters.</source>
+        <translation>Namnet innehåller ogiltiga tecken.</translation>
+    </message>
+    <message>
+        <source>Name must start with a capital letter.</source>
+        <translation>Namnet måste börja med en versal bokstav.</translation>
+    </message>
+    <message>
+        <source>Name must have at least 3 characters.</source>
+        <translation>Namnet måste ha minst tre tecken.</translation>
+    </message>
+    <message>
+        <source>Name cannot contain white space.</source>
+        <translation>Namnet får inte innehåll blanksteg.</translation>
+    </message>
+    <message>
+        <source>Name is already taken.</source>
+        <translation>Namnet är upptaget.</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Spara</translation>
+    </message>
+    <message>
+        <source>Save Changes</source>
+        <translation>Spara ändringar</translation>
+    </message>
+    <message>
+        <source>Current composition has unsaved changes.</source>
+        <translation>Aktuell komposition har osparade ändringar.</translation>
+    </message>
+    <message>
+        <source>Discard Changes</source>
+        <translation>Förkasta ändringar</translation>
+    </message>
+    <message>
+        <source>X</source>
+        <translation>X</translation>
+    </message>
+    <message>
+        <source>Y</source>
+        <translation>Y</translation>
+    </message>
+    <message>
+        <source>Z</source>
+        <translation>Z</translation>
+    </message>
+    <message>
+        <source>W</source>
+        <translation>W</translation>
     </message>
 </context>
 <context>
@@ -46821,6 +42701,3605 @@ Adds the library and include paths to the .pro file.</source>
         <source>Property Value</source>
         <translation>Egenskapsvärde</translation>
     </message>
+    <message>
+        <source>Button Content</source>
+        <translation>Knappinnehåll</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Text</translation>
+    </message>
+    <message>
+        <source>Text displayed on the button.</source>
+        <translation>Text som visas på knappen.</translation>
+    </message>
+    <message>
+        <source>Display</source>
+        <translation>Visning</translation>
+    </message>
+    <message>
+        <source>Determines how the icon and text are displayed within the button.</source>
+        <translation>Bestämmer hur ikonen och texten visas inom knappen.</translation>
+    </message>
+    <message>
+        <source>Checkable</source>
+        <translation>Markerbar</translation>
+    </message>
+    <message>
+        <source>Toggles if the button is checkable.</source>
+        <translation>Växlar om knappen är markerbar.</translation>
+    </message>
+    <message>
+        <source>Toggles if the button is checked.</source>
+        <translation>Växlar om knappen är markerad.</translation>
+    </message>
+    <message>
+        <source>Toggles if the button is exclusive. Non-exclusive checkable buttons that belong to the same parent behave as if they are part of the same button group; only one button can be checked at any time.</source>
+        <translation>Växlar om knappen är exklusiv. Icke-exklusiva markerbara knappar som tillhör samma förälder beter sig som de är en del av samma knappgrupp; endast en knapp kan markeras samtidigt.</translation>
+    </message>
+    <message>
+        <source>Toggles if pressed, released, and clicked actions are repeated while the button is pressed and held down.</source>
+        <translation>Växlar om tryckt, släppt och klickade åtgärder repeteras när knappen trycks ner och hålls nere.</translation>
+    </message>
+    <message>
+        <source>Sets the initial delay of auto-repetition in milliseconds.</source>
+        <translation>Ställer in initial fördröjning för automatisk repetition i millisekunder.</translation>
+    </message>
+    <message>
+        <source>Sets the interval between auto-repetitions in milliseconds.</source>
+        <translation>Ställer in intervall mellan automatisk repetition i millisekunder.</translation>
+    </message>
+    <message>
+        <source>Checked</source>
+        <translation>Markerad</translation>
+    </message>
+    <message>
+        <source>Exclusive</source>
+        <translation>Exklusiv</translation>
+    </message>
+    <message>
+        <source>Auto-repeat</source>
+        <translation>Repetera automatiskt</translation>
+    </message>
+    <message>
+        <source>Repeat delay</source>
+        <translation>Repeteringsfördröjning</translation>
+    </message>
+    <message>
+        <source>Repeat interval</source>
+        <translation>Repeteringsintervall</translation>
+    </message>
+    <message>
+        <source>Select a Module to Add</source>
+        <translation>Välj en modul att lägga till</translation>
+    </message>
+    <message>
+        <source>Advanced</source>
+        <translation>Avancerat</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Aktiverad</translation>
+    </message>
+    <message>
+        <source>Toggles if the component is enabled to receive mouse and keyboard input.</source>
+        <translation>Växlar om komponenten är aktiverad för att ta emot mus- och tangentbordsinmatning.</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Mjuk</translation>
+    </message>
+    <message>
+        <source>Toggles if the smoothing is performed using linear interpolation method. Keeping it unchecked would follow non-smooth method using nearest neighbor. It is mostly applicable on image based items.</source>
+        <translation>Växlar om mjukheten genomförs med linjär interpolationsmetod. Hålla den avmarkerad skulle följa metoden för icke-mjuk med närmsta granne. Det är oftast aktuellt på bildbaserade poster.</translation>
+    </message>
+    <message>
+        <source>Antialiasing</source>
+        <translation>Antialiasing</translation>
+    </message>
+    <message>
+        <source>Refines the edges of the image.</source>
+        <translation>Förfinar kanterna på bilden.</translation>
+    </message>
+    <message>
+        <source>Focus</source>
+        <translation>Fokus</translation>
+    </message>
+    <message>
+        <source>Sets focus on the component within the enclosing focus scope.</source>
+        <translation>Ställer in fokus på komponenten inom det omslutande fokusintervallet.</translation>
+    </message>
+    <message>
+        <source>Focus on tab</source>
+        <translation>Fokus på flik</translation>
+    </message>
+    <message>
+        <source>Adds the component to the tab focus chain.</source>
+        <translation>Lägger till komponenten till flikfokuskedjan.</translation>
+    </message>
+    <message>
+        <source>Baseline offset</source>
+        <translation>Standardpositionsjustering</translation>
+    </message>
+    <message>
+        <source>Sets the position of the component&apos;s baseline in local coordinates.</source>
+        <translation>Ställer in positionen för komponentens standardvärde i lokala koordinater.</translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation>Justering</translation>
+    </message>
+    <message>
+        <source>Align left edges.</source>
+        <translation>Justera vänstra kanter.</translation>
+    </message>
+    <message>
+        <source>Align horizontal centers.</source>
+        <translation>Justera horisontella centrum.</translation>
+    </message>
+    <message>
+        <source>Align right edges.</source>
+        <translation>Justera högra kanter.</translation>
+    </message>
+    <message>
+        <source>Align top edges.</source>
+        <translation>Justera övre kanter.</translation>
+    </message>
+    <message>
+        <source>Align vertical centers.</source>
+        <translation>Justera vertikala centrum.</translation>
+    </message>
+    <message>
+        <source>Align bottom edges.</source>
+        <translation>Justera nedre kanter.</translation>
+    </message>
+    <message>
+        <source>Distribute objects</source>
+        <translation>Distribuera objekt</translation>
+    </message>
+    <message>
+        <source>Distribute left edges.</source>
+        <translation>Distribuera vänstra kanter.</translation>
+    </message>
+    <message>
+        <source>Distribute horizontal centers.</source>
+        <translation>Distribuera horisontella centrum.</translation>
+    </message>
+    <message>
+        <source>Distribute right edges.</source>
+        <translation>Distribuera högra kanter.</translation>
+    </message>
+    <message>
+        <source>Distribute top edges.</source>
+        <translation>Distribuera övre kanter.</translation>
+    </message>
+    <message>
+        <source>Distribute vertical centers.</source>
+        <translation>Distribuera vertikala centrum.</translation>
+    </message>
+    <message>
+        <source>Distribute bottom edges.</source>
+        <translation>Distribuera nedre kanter.</translation>
+    </message>
+    <message>
+        <source>Distribute spacing</source>
+        <translation>Distribuera mellanrum</translation>
+    </message>
+    <message>
+        <source>Distribute spacing horizontally.</source>
+        <translation>Distribuera mellanrum horisontellt.</translation>
+    </message>
+    <message>
+        <source>Distribute spacing vertically.</source>
+        <translation>Distribuera mellanrum vertikalt.</translation>
+    </message>
+    <message>
+        <source>Disables the distribution of spacing in pixels.</source>
+        <translation>Inaktiverar distributionen av mellanrum i bildpunkter.</translation>
+    </message>
+    <message>
+        <source>Sets the left or top border of the target area or item as the starting point, depending on the distribution orientation.</source>
+        <translation>Ställer in vänster eller övre ram för målytan eller post som startpunkt, beroende på distributionsorienteringen.</translation>
+    </message>
+    <message>
+        <source>Sets the horizontal or vertical center of the target area or item as the starting point, depending on the distribution orientation.</source>
+        <translation>Ställer in horisontellt eller vertikalt centrum för målytan eller post som startpunkt, beroende på distributionsorienteringen.</translation>
+    </message>
+    <message>
+        <source>Sets the bottom or right border of the target area or item as the starting point, depending on the distribution orientation.</source>
+        <translation>Ställer in nedre eller höger ram för målytan eller post som startpunkt, beroende på distributionsorienteringen.</translation>
+    </message>
+    <message>
+        <source>Pixel spacing</source>
+        <translation>Bildpunktsmellanrum</translation>
+    </message>
+    <message>
+        <source>Align to</source>
+        <translation>Justera till</translation>
+    </message>
+    <message>
+        <source>Key object</source>
+        <translation>Nyckelobjekt</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Varning</translation>
+    </message>
+    <message>
+        <source>- The selection contains the root component.</source>
+        <translation>- Markeringen innehåller rotkomponenten.</translation>
+    </message>
+    <message>
+        <source>- The selection contains a non-visual component.</source>
+        <translation>- Markeringen innehåller en icke-visuell komponent.</translation>
+    </message>
+    <message>
+        <source>- A component in the selection uses anchors.</source>
+        <translation>- En komponent i markeringen använder ankare.</translation>
+    </message>
+    <message>
+        <source>Ambient Sound</source>
+        <translation>Bakgrundsljud</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Källa</translation>
+    </message>
+    <message>
+        <source>The source file for the sound to be played.</source>
+        <translation>Källfilen för ljudet som ska spelas upp.</translation>
+    </message>
+    <message>
+        <source>Volume</source>
+        <translation>Volym</translation>
+    </message>
+    <message>
+        <source>Set the overall volume for this sound source.
+Values between 0 and 1 will attenuate the sound, while values above 1 provide an additional gain boost.</source>
+        <translation>Ställer in övergripande volym för denna ljudkälla.
+Värden mellan 0 och 1 kommer att dämpa ljudet medans värden över 1 ger en ytterligare förstärkning.</translation>
+    </message>
+    <message>
+        <source>Loops</source>
+        <translation>Slingor</translation>
+    </message>
+    <message>
+        <source>Sets how often the sound is played before the player stops.
+Bind to AmbientSound.Infinite to loop the current sound forever.</source>
+        <translation>Ställer in hur ofta ljudet spelas upp innan uppspelaren stoppar.
+Bind till AmbientSound.Infinite för att spela upp ljudet utan stopp.</translation>
+    </message>
+    <message>
+        <source>Auto Play</source>
+        <translation>Spela upp automatiskt</translation>
+    </message>
+    <message>
+        <source>Sets whether the sound should automatically start playing when a source gets specified.</source>
+        <translation>Ställer in huruvida ljudet ska börja spelas upp automatiskt när en källa blir angiven.</translation>
+    </message>
+    <message>
+        <source>Anchors can only be applied to child items.</source>
+        <translation>Ankare kan endast tillämpas på barnposter.</translation>
+    </message>
+    <message>
+        <source>Anchors can only be applied to the base state.</source>
+        <translation>Ankare kan endast tillämpas till grundtillståndet.</translation>
+    </message>
+    <message>
+        <source>Anchor component to the top.</source>
+        <translation>Förankra komponent överst.</translation>
+    </message>
+    <message>
+        <source>Anchor component to the bottom.</source>
+        <translation>Förankra komponent nederst.</translation>
+    </message>
+    <message>
+        <source>Anchor component to the left.</source>
+        <translation>Förankra komponent till vänster.</translation>
+    </message>
+    <message>
+        <source>Anchor component to the right.</source>
+        <translation>Förankra komponent till höger.</translation>
+    </message>
+    <message>
+        <source>Fill parent component.</source>
+        <translation>Fyll föräldrakomponent.</translation>
+    </message>
+    <message>
+        <source>Anchor component vertically.</source>
+        <translation>Förankra komponent vertikalt.</translation>
+    </message>
+    <message>
+        <source>Anchor component horizontally.</source>
+        <translation>Förankra komponent horisontellt.</translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation>Mål</translation>
+    </message>
+    <message>
+        <source>Margin</source>
+        <translation>Marginal</translation>
+    </message>
+    <message>
+        <source>Anchor to the top of the target.</source>
+        <translation>Förankra överst av målet.</translation>
+    </message>
+    <message>
+        <source>Anchor to the left of the target.</source>
+        <translation>Förankra till vänster av målet.</translation>
+    </message>
+    <message>
+        <source>Anchor to the vertical center of the target.</source>
+        <translation>Förankra till vertikalt centrum av målet.</translation>
+    </message>
+    <message>
+        <source>Anchor to the horizontal center of the target.</source>
+        <translation>Förankra till horisontellt centrum av målet.</translation>
+    </message>
+    <message>
+        <source>Anchor to the bottom of the target.</source>
+        <translation>Förankra nederst av målet.</translation>
+    </message>
+    <message>
+        <source>Anchor to the right of the target.</source>
+        <translation>Förankra till höger av målet.</translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation>Bild</translation>
+    </message>
+    <message>
+        <source>Animated image</source>
+        <translation>Animerad bild</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Hastighet</translation>
+    </message>
+    <message>
+        <source>Sets the speed of the animation.</source>
+        <translation>Anger hastigheten för animeringen.</translation>
+    </message>
+    <message>
+        <source>Playing</source>
+        <translation>Spelar upp</translation>
+    </message>
+    <message>
+        <source>Toggles if the animation is playing.</source>
+        <translation>Växlar om animeringen spelas upp.</translation>
+    </message>
+    <message>
+        <source>W</source>
+        <comment>width</comment>
+        <extracomment>The width of the object</extracomment>
+        <translation>W</translation>
+    </message>
+    <message>
+        <source>Width.</source>
+        <translation>Bredd.</translation>
+    </message>
+    <message>
+        <source>H</source>
+        <comment>height</comment>
+        <extracomment>The height of the object</extracomment>
+        <translation>H</translation>
+    </message>
+    <message>
+        <source>Height.</source>
+        <translation>Height.</translation>
+    </message>
+    <message>
+        <source>X</source>
+        <comment>Frame X</comment>
+        <extracomment>The width of the animated sprite frame</extracomment>
+        <translation>X</translation>
+    </message>
+    <message>
+        <source>Y</source>
+        <comment>Frame Y</comment>
+        <extracomment>The height of the animated sprite frame</extracomment>
+        <translation>Y</translation>
+    </message>
+    <message>
+        <source>Reverse</source>
+        <translation>Omvänd</translation>
+    </message>
+    <message>
+        <source>Running</source>
+        <translation>Kör</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animering</translation>
+    </message>
+    <message>
+        <source>Whether the animation is running and/or paused.</source>
+        <translation>Huruvida animeringen körs och/eller pausad.</translation>
+    </message>
+    <message>
+        <source>Number of times the animation should play.</source>
+        <translation>Antal gånger som animeringen ska spelas upp.</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation>Längd</translation>
+    </message>
+    <message>
+        <source>Duration of the animation in milliseconds.</source>
+        <translation>Längd för animeringen i millisekunder.</translation>
+    </message>
+    <message>
+        <source>Run to end</source>
+        <translation>Kör till slutet</translation>
+    </message>
+    <message>
+        <source>Runs the animation to completion when it is stopped.</source>
+        <translation>Kör animeringen till slutet när den är stoppad.</translation>
+    </message>
+    <message>
+        <source>Easing curve</source>
+        <translation>Bezierkurva</translation>
+    </message>
+    <message>
+        <source>Defines a custom easing curve.</source>
+        <translation>Definierar en anpassad bezierkurva.</translation>
+    </message>
+    <message>
+        <source>Animation Targets</source>
+        <translation>Animeringsmål</translation>
+    </message>
+    <message>
+        <source>Target to animate the properties of.</source>
+        <translation>Mål att animera egenskapen för.</translation>
+    </message>
+    <message>
+        <source>Property to animate.</source>
+        <translation>Egenskap att animera.</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <translation>Egenskaper</translation>
+    </message>
+    <message>
+        <source>Properties to animate.</source>
+        <translation>Egenskaper att animera.</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation>Fönster</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Titel</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Storlek</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Färg</translation>
+    </message>
+    <message>
+        <source>Visible</source>
+        <translation>Synlig</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>Opacitet</translation>
+    </message>
+    <message>
+        <source> (empty)</source>
+        <translation> (tom)</translation>
+    </message>
+    <message>
+        <source>Add a new asset to the project.</source>
+        <translation>Lägg till en ny tillgång till projektet.</translation>
+    </message>
+    <message>
+        <source>No match found.</source>
+        <translation>Ingen matchning hittades.</translation>
+    </message>
+    <message>
+        <source>Looks like you don&apos;t have any assets yet.</source>
+        <translation>Ser ut som om du inte har några tillgångar ännu.</translation>
+    </message>
+    <message>
+        <source>Drag-and-drop your assets here or click the &apos;+&apos; button to browse assets from the file system.</source>
+        <translation>Dra och släpp dina tillgångar här eller klicka på &quot;+&quot;-knappen för att bläddra efter tillgångar från filsystemet.</translation>
+    </message>
+    <message>
+        <source>Delete Files</source>
+        <translation>Ta bort filer</translation>
+    </message>
+    <message>
+        <source>Add Textures</source>
+        <translation>Lägg till texturer</translation>
+    </message>
+    <message>
+        <source>Delete File</source>
+        <translation>Ta bort fil</translation>
+    </message>
+    <message>
+        <source>Add Texture</source>
+        <translation>Lägg till textur</translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation>Expandera alla</translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation>Fäll in alla</translation>
+    </message>
+    <message>
+        <source>Edit in Effect Composer</source>
+        <translation>Redigera i Effektkompositör</translation>
+    </message>
+    <message>
+        <source>Rename Folder</source>
+        <translation>Byt namn på mapp</translation>
+    </message>
+    <message>
+        <source>New Folder</source>
+        <translation>Ny mapp</translation>
+    </message>
+    <message>
+        <source>Delete Folder</source>
+        <translation>Ta bort mapp</translation>
+    </message>
+    <message>
+        <source>New Effect</source>
+        <translation>Ny effekt</translation>
+    </message>
+    <message>
+        <source>Add to Content Library</source>
+        <translation>Lägg till i innehållsbibliotek</translation>
+    </message>
+    <message>
+        <source>Audio Engine</source>
+        <translation>Ljudmotor</translation>
+    </message>
+    <message>
+        <source>Master Volume</source>
+        <translation>Huvudvolym</translation>
+    </message>
+    <message>
+        <source>Output Mode</source>
+        <translation>Utdataläge</translation>
+    </message>
+    <message>
+        <source>Output Device</source>
+        <translation>Utdataenhet</translation>
+    </message>
+    <message>
+        <source>Audio Room</source>
+        <translation>Ljudrum</translation>
+    </message>
+    <message>
+        <source>Dimensions</source>
+        <translation>Dimensioner</translation>
+    </message>
+    <message>
+        <source>Sets the dimensions of the room in 3D space.</source>
+        <translation>Ställer in dimensionerna för rummet i 3D-rymd.</translation>
+    </message>
+    <message>
+        <source>Floor Material</source>
+        <translation>Golvmaterial</translation>
+    </message>
+    <message>
+        <source>Ceiling Material</source>
+        <translation>Takmaterial</translation>
+    </message>
+    <message>
+        <source>Audio</source>
+        <translation>Ljud</translation>
+    </message>
+    <message>
+        <source>Muted</source>
+        <translation>Tyst</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Stäng</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
+    </message>
+    <message>
+        <source>In Use</source>
+        <translation>Används</translation>
+    </message>
+    <message>
+        <source>Resolution:</source>
+        <translation>Upplösning:</translation>
+    </message>
+    <message>
+        <source>Apply &amp; Close</source>
+        <translation>Tillämpa och stäng</translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation>Nyckel</translation>
+    </message>
+    <message>
+        <source>Owner</source>
+        <translation>Ägare</translation>
+    </message>
+    <message>
+        <source>The owner of the property</source>
+        <translation>Ägare till egenskapen</translation>
+    </message>
+    <message>
+        <source>From</source>
+        <translation>Från</translation>
+    </message>
+    <message>
+        <source>Sets the component and its property from which the value is copied.</source>
+        <translation>Ställer in komponenten och dess egenskap från vilken värdet kopieras.</translation>
+    </message>
+    <message>
+        <source>To</source>
+        <translation>Till</translation>
+    </message>
+    <message>
+        <source>Sets the property of the selected component to which the copied value is assigned.</source>
+        <translation>Ställer in egenskapen för markerad komponent till vilken det kopierade värdet tilldelas.</translation>
+    </message>
+    <message>
+        <source>Removes the binding.</source>
+        <translation>Tar bort bindningen.</translation>
+    </message>
+    <message>
+        <source>Sets the source image for the border.</source>
+        <translation>Ställer in källbilden för ramen.</translation>
+    </message>
+    <message>
+        <source>Sets the dimension of the border image.</source>
+        <translation>Ställer in dimensionen för rambilden.</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Bredd</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>Höjd</translation>
+    </message>
+    <message>
+        <source>Tile mode H</source>
+        <translation>Brickläge H</translation>
+    </message>
+    <message>
+        <source>Sets the horizontal tiling mode.</source>
+        <translation>Ställer in horisontellt brickläge.</translation>
+    </message>
+    <message>
+        <source>Tile mode V</source>
+        <translation>Brickläge V</translation>
+    </message>
+    <message>
+        <source>Sets the vertical tiling mode.</source>
+        <translation>Ställer in vertikalt brickläge.</translation>
+    </message>
+    <message>
+        <source>Border left</source>
+        <translation>Ram vänster</translation>
+    </message>
+    <message>
+        <source>Sets the left border.</source>
+        <translation>Ställer in vänster ram.</translation>
+    </message>
+    <message>
+        <source>Border right</source>
+        <translation>Ram höger</translation>
+    </message>
+    <message>
+        <source>Sets the right border.</source>
+        <translation>Ställer in höger ram.</translation>
+    </message>
+    <message>
+        <source>Border top</source>
+        <translation>Ram övre</translation>
+    </message>
+    <message>
+        <source>Sets the top border.</source>
+        <translation>Ställer in övre ram.</translation>
+    </message>
+    <message>
+        <source>Border bottom</source>
+        <translation>Ram nedre</translation>
+    </message>
+    <message>
+        <source>Sets the bottom border.</source>
+        <translation>Ställer in nedre ram.</translation>
+    </message>
+    <message>
+        <source>Mirror</source>
+        <translation>Spegla</translation>
+    </message>
+    <message>
+        <source>Toggles if the image should be inverted horizontally.</source>
+        <translation>Växlar om bilden ska inverteras horisontellt.</translation>
+    </message>
+    <message>
+        <source>Toggles if the image is saved to the cache memory.</source>
+        <translation>Växlar om bilden är sparad till cacheminnet.</translation>
+    </message>
+    <message>
+        <source>Toggles if the image is loaded after all the components in the design.</source>
+        <translation>Växlar om bilden läses in efter alla komponenterna i designen.</translation>
+    </message>
+    <message>
+        <source>Cache</source>
+        <translation>Cache</translation>
+    </message>
+    <message>
+        <source>Asynchronous</source>
+        <translation>Asynkron</translation>
+    </message>
+    <message>
+        <source>Border Image</source>
+        <translation>Rambild</translation>
+    </message>
+    <message>
+        <source>Source size</source>
+        <translation>Källstorlek</translation>
+    </message>
+    <message>
+        <source>Busy Indicator</source>
+        <translation>Upptagenindikator</translation>
+    </message>
+    <message>
+        <source>Toggles if the busy indicator indicates activity.</source>
+        <translation>Växlar om upptagenindikatorn indikerar aktivitet.</translation>
+    </message>
+    <message>
+        <source>Live</source>
+        <translation>Live</translation>
+    </message>
+    <message>
+        <source>Button</source>
+        <translation>Knapp</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Utseende</translation>
+    </message>
+    <message>
+        <source>Toggles if the button is flat or highlighted.</source>
+        <translation>Växlar om knappen är platt eller framhävd.</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation>Platt</translation>
+    </message>
+    <message>
+        <source>Highlight</source>
+        <translation>Framhäv</translation>
+    </message>
+    <message>
+        <source>State of the button.</source>
+        <translation>Tillstånd för knappen.</translation>
+    </message>
+    <message>
+        <source>Determines whether the button is checkable or not.</source>
+        <translation>Bestämmer huruvida knappen är markerbar eller inte.</translation>
+    </message>
+    <message>
+        <source>Determines whether the button is enabled or not.</source>
+        <translation>Bestämmer huruvida knappen är aktiverad eller inte.</translation>
+    </message>
+    <message>
+        <source>Default button</source>
+        <translation>Standardknapp</translation>
+    </message>
+    <message>
+        <source>Sets the button as the default button in a dialog.</source>
+        <translation>Ställer in knappen som standardknappen i en dialog.</translation>
+    </message>
+    <message>
+        <source>Tool tip</source>
+        <translation>Verktygstips</translation>
+    </message>
+    <message>
+        <source>The tool tip shown for the button.</source>
+        <translation>Verktygstips som visas för knappen.</translation>
+    </message>
+    <message>
+        <source>Focus on press</source>
+        <translation>Fokus vid tryck</translation>
+    </message>
+    <message>
+        <source>Determines whether the button gets focus if pressed.</source>
+        <translation>Bestämmer huruvida knappen får fokus om tryckt.</translation>
+    </message>
+    <message>
+        <source>Icon source</source>
+        <translation>Ikonkälla</translation>
+    </message>
+    <message>
+        <source>The URL of an icon resource.</source>
+        <translation>URLen för en ikonresurs.</translation>
+    </message>
+    <message>
+        <source>Camera Speed Configuration</source>
+        <translation>Konfigurera kamerahastighet</translation>
+    </message>
+    <message>
+        <source>The speed camera moves when controlled by keyboard.</source>
+        <translation>Hastigheten som kameran rörs sig vid styrning med tangentbord.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Nollställ</translation>
+    </message>
+    <message>
+        <source>Character</source>
+        <translation>Tecken</translation>
+    </message>
+    <message>
+        <source>Sets the text to display.</source>
+        <translation>Ställer in texten att visa.</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation>Typsnitt</translation>
+    </message>
+    <message>
+        <source>Sets the font of the text.</source>
+        <translation>Ställer in typsnittet för texten.</translation>
+    </message>
+    <message>
+        <source>Style name</source>
+        <translation>Stilnamn</translation>
+    </message>
+    <message>
+        <source>Sets the style of the selected font. This is prioritized over &lt;b&gt;Weight&lt;/b&gt; and &lt;b&gt;Emphasis&lt;/b&gt;.</source>
+        <translation>Ställer in stilen för markerat typsnitt. Detta är prioriterat över &lt;b&gt;Vikt&lt;/b&gt; och &lt;b&gt;Förtydliga&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Sets the overall thickness of the font.</source>
+        <translation>Ställer in övergripande tjocklek för typsnittet.</translation>
+    </message>
+    <message>
+        <source>Sets the letter spacing for the text.</source>
+        <translation>Ställer in bokstavsavstånd för texten.</translation>
+    </message>
+    <message>
+        <source>Sets the word spacing for the text.</source>
+        <translation>Ställer in ordavstånd för texten.</translation>
+    </message>
+    <message>
+        <source>Sets the line height for the text.</source>
+        <translation>Ställer in radhöjden för texten.</translation>
+    </message>
+    <message>
+        <source>Sets the font size in pixels or points.</source>
+        <translation>Ställer in typsnittsstorleken i pixlar eller punkter.</translation>
+    </message>
+    <message>
+        <source>Text color</source>
+        <translation>Textfärg</translation>
+    </message>
+    <message>
+        <source>Sets the text color.</source>
+        <translation>Ställer in textfärgen.</translation>
+    </message>
+    <message>
+        <source>Weight</source>
+        <translation>Vikt</translation>
+    </message>
+    <message>
+        <source>Emphasis</source>
+        <translation>Förtydliga</translation>
+    </message>
+    <message>
+        <source>Sets the text to bold, italic, underlined, or strikethrough.</source>
+        <translation>Ställer in texten till fet, kursiv, understruken eller genomstruken.</translation>
+    </message>
+    <message>
+        <source>Alignment H</source>
+        <translation>Justering H</translation>
+    </message>
+    <message>
+        <source>Sets the horizontal alignment position.</source>
+        <translation>Ställer in horisontell justeringsposition.</translation>
+    </message>
+    <message>
+        <source>Alignment V</source>
+        <translation>Justering V</translation>
+    </message>
+    <message>
+        <source>Sets the vertical alignment position.</source>
+        <translation>Ställer in vertikal justeringsposition.</translation>
+    </message>
+    <message>
+        <source>Letter spacing</source>
+        <translation>Bokstavsavstånd</translation>
+    </message>
+    <message>
+        <source>Word spacing</source>
+        <translation>Ordavstånd</translation>
+    </message>
+    <message>
+        <source>Line height</source>
+        <translation>Radhöjd</translation>
+    </message>
+    <message>
+        <source>Check Box</source>
+        <translation>Kryssruta</translation>
+    </message>
+    <message>
+        <source>Text shown on the check box.</source>
+        <translation>Text som visas på kryssrutan.</translation>
+    </message>
+    <message>
+        <source>State of the check box.</source>
+        <translation>Tillstånd för kryssrutan.</translation>
+    </message>
+    <message>
+        <source>Determines whether the check box gets focus if pressed.</source>
+        <translation>Bestämmer huruvida kryssrutan får fokus om tryckt.</translation>
+    </message>
+    <message>
+        <source>Check state</source>
+        <translation>Markeringstillstånd</translation>
+    </message>
+    <message>
+        <source>Sets the state of the check box.</source>
+        <translation>Ställer in tillståndet för markeringsrutan.</translation>
+    </message>
+    <message>
+        <source>Toggles if the check box can have an intermediate state.</source>
+        <translation>Växlar om markeringsrutan kan ha ett mellanliggande tillstånd.</translation>
+    </message>
+    <message>
+        <source>Tri-state</source>
+        <translation>Trippeltillstånd</translation>
+    </message>
+    <message>
+        <source>Select material:</source>
+        <translation>Välj material:</translation>
+    </message>
+    <message>
+        <source>Select property:</source>
+        <translation>Välj egenskap:</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Tillämpa</translation>
+    </message>
+    <message>
+        <source>Color Animation</source>
+        <translation>Färganimering</translation>
+    </message>
+    <message>
+        <source>From color</source>
+        <translation>Från färg</translation>
+    </message>
+    <message>
+        <source>To color</source>
+        <translation>Till färg</translation>
+    </message>
+    <message>
+        <source>Solid</source>
+        <translation>Solid</translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation>Linjär</translation>
+    </message>
+    <message>
+        <source>Radial</source>
+        <translation>Radiell</translation>
+    </message>
+    <message>
+        <source>Conical</source>
+        <translation>Konisk</translation>
+    </message>
+    <message>
+        <source>Open Color Dialog</source>
+        <translation>Öppna färgdialog</translation>
+    </message>
+    <message>
+        <source>Fill type can only be changed in base state.</source>
+        <translation>Fyllnadstypen kan endast ändras i grundtillstånd.</translation>
+    </message>
+    <message>
+        <source>Transparent</source>
+        <translation>Genomskinlig</translation>
+    </message>
+    <message>
+        <source>Gradient Picker</source>
+        <translation>Gradientväljare</translation>
+    </message>
+    <message>
+        <source>Eye Dropper</source>
+        <translation>Pipett</translation>
+    </message>
+    <message>
+        <source>Original</source>
+        <translation>Original</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Ny</translation>
+    </message>
+    <message>
+        <source>Add to Favorites</source>
+        <translation>Lägg till i favoriter</translation>
+    </message>
+    <message>
+        <source>Color Details</source>
+        <translation>Färgdetaljer</translation>
+    </message>
+    <message>
+        <source>Palette</source>
+        <translation>Palett</translation>
+    </message>
+    <message>
+        <source>Gradient Controls</source>
+        <translation>Gradientkontroller</translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation>Vertikal</translation>
+    </message>
+    <message>
+        <source>Horizontal</source>
+        <translation>Horisontell</translation>
+    </message>
+    <message>
+        <source>Defines the direction of the gradient.</source>
+        <translation>Definierar riktningen för gradienten.</translation>
+    </message>
+    <message>
+        <source>Defines the start point for color interpolation.</source>
+        <translation>Definierar startpunkten för färginterpolation.</translation>
+    </message>
+    <message>
+        <source>Defines the end point for color interpolation.</source>
+        <translation>Definierar slutpunkten för färginterpolation.</translation>
+    </message>
+    <message>
+        <source>Defines the center point.</source>
+        <translation>Definierar centrumpunkten.</translation>
+    </message>
+    <message>
+        <source>Defines the focal point.</source>
+        <translation>Definierar fokalpunkten.</translation>
+    </message>
+    <message>
+        <source>Defines the center radius.</source>
+        <translation>Definierar centrumradie.</translation>
+    </message>
+    <message>
+        <source>Defines the focal radius. Set to 0 for simple radial gradients.</source>
+        <translation>Definierar fokalradie. Ställ in till 0 för enkla radiala gradienter.</translation>
+    </message>
+    <message>
+        <source>Defines the start angle for the conical gradient. The value is in degrees (0-360).</source>
+        <translation>Definierar startvinkeln för den koniska gradienten. Värdet är i grader (0-360).</translation>
+    </message>
+    <message>
+        <source>Remove from Favorites</source>
+        <translation>Ta bort från favoriter</translation>
+    </message>
+    <message>
+        <source>Column Layout</source>
+        <translation>Kolumnlayout</translation>
+    </message>
+    <message>
+        <source>Column spacing</source>
+        <translation>Kolumnavstånd</translation>
+    </message>
+    <message>
+        <source>Sets the space between the items in pixels in the &lt;b&gt;Column Layout&lt;/b&gt;.</source>
+        <translation>Ställer in avståndet mellan poster i bildpunkter i &lt;b&gt;Kolumnlayout&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Layout direction</source>
+        <translation>Layoutriktning</translation>
+    </message>
+    <message>
+        <source>Sets the direction of the item flow in the &lt;b&gt;Column Layout&lt;/b&gt;.</source>
+        <translation>Ställer in riktningen för postflödet i &lt;b&gt;Kolumnlayout&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Uniform cell sizes</source>
+        <translation>Enhetliga cellstorlekar</translation>
+    </message>
+    <message>
+        <source>Toggles all cells to have a uniform size.</source>
+        <translation>Växlar alla celler till att ha en enhetlig storlek.</translation>
+    </message>
+    <message>
+        <source>Column</source>
+        <translation>Kolumn</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>Avstånd</translation>
+    </message>
+    <message>
+        <source>Sets the spacing between column items.</source>
+        <translation>Ställer in avståndet mellan kolumnposter.</translation>
+    </message>
+    <message>
+        <source>Combo Box</source>
+        <translation>Kombinationsruta</translation>
+    </message>
+    <message>
+        <source>Text role</source>
+        <translation>Textroll</translation>
+    </message>
+    <message>
+        <source>Sets the model role for populating the combo box.</source>
+        <translation>Ställer in modellrollen för populering av kombinationsrutan.</translation>
+    </message>
+    <message>
+        <source>Sets the initial display text for the combo box.</source>
+        <translation>Ställer in initial visningstext för kombinationsrutan.</translation>
+    </message>
+    <message>
+        <source>Sets the current item.</source>
+        <translation>Ställer in aktuell post.</translation>
+    </message>
+    <message>
+        <source>Toggles if the combo box button is flat.</source>
+        <translation>Växlar om kombinationsrutans knapp är platt.</translation>
+    </message>
+    <message>
+        <source>Toggles if the combo box is editable.</source>
+        <translation>Växlar om kombinationsrutan är redigeringsbar.</translation>
+    </message>
+    <message>
+        <source>Display text</source>
+        <translation>Visa text</translation>
+    </message>
+    <message>
+        <source>Current index</source>
+        <translation>Aktuellt index</translation>
+    </message>
+    <message>
+        <source>Editable</source>
+        <translation>Redigerbar</translation>
+    </message>
+    <message>
+        <source>Determines whether the combobox gets focus if pressed.</source>
+        <translation>Bestämmer huruvida kombinationsrutan får fokus om tryckt.</translation>
+    </message>
+    <message>
+        <source>This is an instance of a component</source>
+        <translation>Detta är en instans av en komponent</translation>
+    </message>
+    <message>
+        <source>Edit Component</source>
+        <translation>Redigera komponent</translation>
+    </message>
+    <message>
+        <source>Component</source>
+        <translation>Komponent</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Typ</translation>
+    </message>
+    <message>
+        <source>Sets the QML type of the component.</source>
+        <translation>Ställer in QML-typen för komponenten.</translation>
+    </message>
+    <message>
+        <source>ID</source>
+        <translation>ID</translation>
+    </message>
+    <message>
+        <source>Sets a unique identification or name.</source>
+        <translation>Ställer in en unik identifierare eller namn.</translation>
+    </message>
+    <message>
+        <source>id</source>
+        <translation>id</translation>
+    </message>
+    <message>
+        <source>Exports this component as an alias property of the root component.</source>
+        <translation>Exporterar denna komponent som en aliasegenskap för rotkomponenten.</translation>
+    </message>
+    <message>
+        <source>Annotation</source>
+        <translation>Anteckning</translation>
+    </message>
+    <message>
+        <source>Adds a note with a title to explain the component.</source>
+        <translation>Lägger till en anteckning med en titel för att förklara komponenten.</translation>
+    </message>
+    <message>
+        <source>Descriptive text</source>
+        <translation>Beskrivande text</translation>
+    </message>
+    <message>
+        <source>Edit Annotation</source>
+        <translation>Redigera anteckning</translation>
+    </message>
+    <message>
+        <source>Remove Annotation</source>
+        <translation>Ta bort anteckning</translation>
+    </message>
+    <message>
+        <source>Add Annotation</source>
+        <translation>Lägg till anteckning</translation>
+    </message>
+    <message>
+        <source>State</source>
+        <translation>Tillstånd</translation>
+    </message>
+    <message>
+        <source>Sets the state of the component.</source>
+        <translation>Stället in tillståndet för komponenten.</translation>
+    </message>
+    <message>
+        <source>Confirm Delete Files</source>
+        <translation>Bekräfta borttagning av filer</translation>
+    </message>
+    <message>
+        <source>Some files might be in use. Delete anyway?</source>
+        <translation>Några filer kanske används. Ta bort ändå?</translation>
+    </message>
+    <message>
+        <source>Do not ask this again</source>
+        <translation>Fråga inte igen</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Ta bort</translation>
+    </message>
+    <message>
+        <source>Folder Not Empty</source>
+        <translation>Mappen är inte tom</translation>
+    </message>
+    <message>
+        <source>Folder &quot;%1&quot; is not empty. Delete it anyway?</source>
+        <translation>Mappen &quot;%1 är inte tom. Ta bort den ändå?</translation>
+    </message>
+    <message>
+        <source>If the folder has assets in use, deleting it might cause the project to not work correctly.</source>
+        <translation>Om mappen har tillgångar som används kan borttagning av den orsaka att projektet inte fungerar korrekt.</translation>
+    </message>
+    <message>
+        <source>Sets the Component that is connected to a &lt;b&gt;Signal&lt;/b&gt;.</source>
+        <translation>Ställer in komponenten som är ansluten till en &lt;b&gt;Signal&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Signal</source>
+        <translation>Signal</translation>
+    </message>
+    <message>
+        <source>Sets an interaction method that connects to the &lt;b&gt;Target&lt;/b&gt; component.</source>
+        <translation>Ställer in en interaktionsmetod som ansluter till &lt;b&gt;Mål&lt;/b&gt;-komponenten.</translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation>Åtgärd</translation>
+    </message>
+    <message>
+        <source>Sets an action that is associated with the selected &lt;b&gt;Target&lt;/b&gt; component&apos;s &lt;b&gt;Signal&lt;/b&gt;.</source>
+        <translation>Ställer in en åtgärd som associeras med vald &lt;b&gt;Mål&lt;/b&gt;-komponents &lt;b&gt;Signal&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Call Function</source>
+        <translation>Anropa funktion</translation>
+    </message>
+    <message>
+        <source>Assign</source>
+        <translation>Tilldela</translation>
+    </message>
+    <message>
+        <source>Change State</source>
+        <translation>Ändra tillstånd</translation>
+    </message>
+    <message>
+        <source>Set Property</source>
+        <translation>Ange egenskap</translation>
+    </message>
+    <message>
+        <source>Print Message</source>
+        <translation>Skriv ut meddelande</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Anpassad</translation>
+    </message>
+    <message>
+        <source>Add Condition</source>
+        <translation>Lägg till villkor</translation>
+    </message>
+    <message>
+        <source>Sets a logical condition for the selected &lt;b&gt;Signal&lt;/b&gt;. It works with the properties of the &lt;b&gt;Target&lt;/b&gt; component.</source>
+        <translation>Ställer in ett logiskt villkor för vald &lt;b&gt;Signal&lt;/b&gt;. Den arbetar med egenskaperna för &lt;b&gt;Mål&lt;/b&gt;-komponenten.</translation>
+    </message>
+    <message>
+        <source>Remove Condition</source>
+        <translation>Ta bort villkor</translation>
+    </message>
+    <message>
+        <source>Removes the logical condition for the &lt;b&gt;Target&lt;/b&gt; component.</source>
+        <translation>Tar bort logiska villkoret för &lt;b&gt;Mål&lt;/b&gt;-komponenten.</translation>
+    </message>
+    <message>
+        <source>Add Else Statement</source>
+        <translation>Lägg till Else-villkor</translation>
+    </message>
+    <message>
+        <source>Sets an alternate condition for the previously defined logical condition.</source>
+        <translation>Ställer in ett alternativt villkor för tidigare definierat logiskt villkor.</translation>
+    </message>
+    <message>
+        <source>Remove Else Statement</source>
+        <translation>Ta bort Else-villkor</translation>
+    </message>
+    <message>
+        <source>Removes the alternate logical condition for the previously defined logical condition.</source>
+        <translation>Tar bort alternativa logiska villkoret för tidigare definierat logiskt villkor.</translation>
+    </message>
+    <message>
+        <source>Jump to the code.</source>
+        <translation>Hoppa till koden.</translation>
+    </message>
+    <message>
+        <source>Removes the connection.</source>
+        <translation>Tar bort anslutningen.</translation>
+    </message>
+    <message>
+        <source>Connections</source>
+        <translation>Anslutningar</translation>
+    </message>
+    <message>
+        <source>Sets whether the component accepts change events.</source>
+        <translation>Ställer in huruvida komponenter accepterar ändringshändelser.</translation>
+    </message>
+    <message>
+        <source>Ignore unknown signals</source>
+        <translation>Ignorera okända signaler</translation>
+    </message>
+    <message>
+        <source>Ignores runtime errors produced by connections to non-existent signals.</source>
+        <translation>Ignorerar körtidsfel producerade av anslutningar till icke-existerande signaler.</translation>
+    </message>
+    <message>
+        <source>Sets the component that sends the signal.</source>
+        <translation>Ställer in komponenten som skickar signalen.</translation>
+    </message>
+    <message>
+        <source>Container</source>
+        <translation>Container</translation>
+    </message>
+    <message>
+        <source>Sets the index of the current item.</source>
+        <translation>Ange indexet för aktuell post.</translation>
+    </message>
+    <message>
+        <source>Materials</source>
+        <translation>Material</translation>
+    </message>
+    <message>
+        <source>Textures</source>
+        <translation>Texturer</translation>
+    </message>
+    <message>
+        <source>Effects</source>
+        <translation>Effekter</translation>
+    </message>
+    <message>
+        <source>User Assets</source>
+        <translation>Användartillgångar</translation>
+    </message>
+    <message>
+        <source>material</source>
+        <translation>material</translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation>post</translation>
+    </message>
+    <message>
+        <source>Add an instance</source>
+        <translation>Lägg till en instans</translation>
+    </message>
+    <message>
+        <source>Remove from project</source>
+        <translation>Ta bort från projekt</translation>
+    </message>
+    <message>
+        <source>No effects available.</source>
+        <translation>Inga effekter tillgängliga.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Content Library&lt;/b&gt; effects are not supported in Qt5 projects.</source>
+        <translation>&lt;b&gt;Innehållsbibliotek&lt;/b&gt;-effekter stöds inte i Qt5-projekt.</translation>
+    </message>
+    <message>
+        <source>To use &lt;b&gt;Content Library&lt;/b&gt;, version 6.4 or later of the QtQuick3D module is required.</source>
+        <translation>För att använda &lt;b&gt;Innehållsbibliotek&lt;/b&gt; krävs version 6.4 eller senare av QtQuick3D-modulen.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Content Library&lt;/b&gt; is disabled inside a non-visual component.</source>
+        <translation>&lt;b&gt;Innehållsbibliotek&lt;/b&gt; är inaktiverad för en icke-visuell komponent.</translation>
+    </message>
+    <message>
+        <source>Item is imported to the project</source>
+        <translation>Posten är importerad till projektet</translation>
+    </message>
+    <message>
+        <source>Add an instance to project</source>
+        <translation>Lägg till en instans till projektet</translation>
+    </message>
+    <message>
+        <source>Apply to selected (replace)</source>
+        <translation>Tillämpa på markerade (ersätt)</translation>
+    </message>
+    <message>
+        <source>Apply to selected (add)</source>
+        <translation>Tillämpa på markerade (lägg till)</translation>
+    </message>
+    <message>
+        <source>Remove from Content Library</source>
+        <translation>Ta bort från innehållsbiblioteket</translation>
+    </message>
+    <message>
+        <source>Material is imported to project</source>
+        <translation>Material är importerade till projekt</translation>
+    </message>
+    <message>
+        <source>Click to download material</source>
+        <translation>Klicka för att hämta material</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Content Library&lt;/b&gt; materials are not supported in Qt5 projects.</source>
+        <translation>&lt;b&gt;Innehållsbibliotek&lt;/b&gt;-material stöds inte i Qt5-projekt.</translation>
+    </message>
+    <message>
+        <source>To use &lt;b&gt;Content Library&lt;/b&gt;, version 6.3 or later of the QtQuick3D module is required.</source>
+        <translation>För att använda &lt;b&gt;Innehållsbibliotek&lt;/b&gt; krävs version 6.3 eller senare av QtQuick3D-modulen.</translation>
+    </message>
+    <message>
+        <source>No materials available. Make sure you have an internet connection.</source>
+        <translation>Inga material tillgängliga. Försäkra dig om att du har en internetanslutning.</translation>
+    </message>
+    <message>
+        <source>Texture was already downloaded.</source>
+        <translation>Texturen har redan hämtad.</translation>
+    </message>
+    <message>
+        <source>Network/Texture unavailable or broken Link.</source>
+        <translation>Nätverk/Textur inte tillgänglig eller trasig länk.</translation>
+    </message>
+    <message>
+        <source>Could not download texture.</source>
+        <translation>Kunde inte hämta textur.</translation>
+    </message>
+    <message>
+        <source>Click to download the texture.</source>
+        <translation>Klicka för att hämta texturen.</translation>
+    </message>
+    <message>
+        <source>Updating...</source>
+        <translation>Uppdaterar...</translation>
+    </message>
+    <message>
+        <source>Progress:</source>
+        <translation>Förlopp:</translation>
+    </message>
+    <message>
+        <source>%</source>
+        <translation>%</translation>
+    </message>
+    <message>
+        <source>Downloading...</source>
+        <translation>Hämtar...</translation>
+    </message>
+    <message>
+        <source>Update texture</source>
+        <translation>Uppdatera textur</translation>
+    </message>
+    <message>
+        <source>Extracting...</source>
+        <translation>Extraherar...</translation>
+    </message>
+    <message>
+        <source>Add image</source>
+        <translation>Lägg till bild</translation>
+    </message>
+    <message>
+        <source>Add texture</source>
+        <translation>Lägg till textur</translation>
+    </message>
+    <message>
+        <source>No textures available. Make sure you have an internet connection.</source>
+        <translation>Inga texturer tillgängliga. Försäkra dig om att du har en internetanslutning.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Content Library&lt;/b&gt; is not supported in Qt5 projects.</source>
+        <translation>&lt;b&gt;Innehållsbibliotek&lt;/b&gt; stöds inte i Qt5-projekt.</translation>
+    </message>
+    <message>
+        <source>Undo</source>
+        <translation>Ångra</translation>
+    </message>
+    <message>
+        <source>Redo</source>
+        <translation>Gör om</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Kopiera</translation>
+    </message>
+    <message>
+        <source>Cut</source>
+        <translation>Klipp ut</translation>
+    </message>
+    <message>
+        <source>Paste</source>
+        <translation>Klistra in</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Töm</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation>Markera allt</translation>
+    </message>
+    <message>
+        <source>Control</source>
+        <translation>Kontroll</translation>
+    </message>
+    <message>
+        <source>Enable</source>
+        <translation>Aktivera</translation>
+    </message>
+    <message>
+        <source>Toggles if the component can receive hover events.</source>
+        <translation>Växlar om komponenten kan ta emot hovringshändelser.</translation>
+    </message>
+    <message>
+        <source>Sets focus method.</source>
+        <translation>Anger fokusmetoden.</translation>
+    </message>
+    <message>
+        <source>Sets the spacing between internal elements of the component.</source>
+        <translation>Ställer in avståndet mellan interna element för komponenten.</translation>
+    </message>
+    <message>
+        <source>Toggles if the component supports mouse wheel events.</source>
+        <translation>Växlar om komponenten har stöd för mushjulshändelser.</translation>
+    </message>
+    <message>
+        <source>Hover</source>
+        <translation>Hovra</translation>
+    </message>
+    <message>
+        <source>Focus policy</source>
+        <translation>Fokuspolicy</translation>
+    </message>
+    <message>
+        <source>Wheel</source>
+        <translation>Hjul</translation>
+    </message>
+    <message>
+        <source>Delay Button</source>
+        <translation>Fördröjningsknapp</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation>Fördröj</translation>
+    </message>
+    <message>
+        <source>Sets the delay before the button activates.</source>
+        <translation>Anger fördröjningen innan knappen aktiveras.</translation>
+    </message>
+    <message>
+        <source>Milliseconds.</source>
+        <translation>Millisekunder.</translation>
+    </message>
+    <message>
+        <source>Remove bundle %1</source>
+        <translation>Ta bort bundle %1</translation>
+    </message>
+    <message>
+        <source>Are you sure? The action cannot be undone.</source>
+        <translation>Är du säker? Åtgärden kan inte ångras.</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Ta bort</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Värde</translation>
+    </message>
+    <message>
+        <source>Start angle</source>
+        <translation>Startvinkel</translation>
+    </message>
+    <message>
+        <source>End angle</source>
+        <translation>Slutvinkel</translation>
+    </message>
+    <message>
+        <source>Step size</source>
+        <translation>Stegstorlek</translation>
+    </message>
+    <message>
+        <source>Input mode</source>
+        <translation>Inmatningsläge</translation>
+    </message>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialogruta</translation>
+    </message>
+    <message>
+        <source>Edge</source>
+        <translation>Kant</translation>
+    </message>
+    <message>
+        <source>Drag margin</source>
+        <translation>Dragmarginal</translation>
+    </message>
+    <message>
+        <source>Local Custom Properties</source>
+        <translation>Lokalt anpassade egenskaper</translation>
+    </message>
+    <message>
+        <source>No editor for type: </source>
+        <translation>Ingen redigerare för typen: </translation>
+    </message>
+    <message>
+        <source>Add New Property</source>
+        <translation>Lägg till ny egenskap</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Namn</translation>
+    </message>
+    <message>
+        <source>Add Property</source>
+        <translation>Lägg till egenskap</translation>
+    </message>
+    <message>
+        <source>Effects &lt;a style=&quot;color:%1;&quot;&gt;[beta]&lt;/a&gt;</source>
+        <translation>Effekter &lt;a style=&quot;color:%1;&quot;&gt;[beta]&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>Remove Effects</source>
+        <translation>Ta bort effekter</translation>
+    </message>
+    <message>
+        <source>Add Effects</source>
+        <translation>Lägg till effekter</translation>
+    </message>
+    <message>
+        <source>Toggles the visibility of visual effects on the component.</source>
+        <translation>Växlar synligheten för visuella effekter på komponenten.</translation>
+    </message>
+    <message>
+        <source>Layer Blur</source>
+        <translation>Lageroskärpa</translation>
+    </message>
+    <message>
+        <source>Toggles the visibility of the &lt;b&gt;Layer Blur&lt;/b&gt; on the component.</source>
+        <translation>Växlar synligheten för &lt;b&gt;Lageroskärpa&lt;/b&gt; på komponenten.</translation>
+    </message>
+    <message>
+        <source>Blur</source>
+        <translation>Oskarp</translation>
+    </message>
+    <message>
+        <source>Sets the intensity of the &lt;b&gt;Layer Blur&lt;/b&gt; on the component.</source>
+        <translation>Ställer in intensiteten för &lt;b&gt;Lageroskärpa&lt;/b&gt; på komponenten.</translation>
+    </message>
+    <message>
+        <source>Background Blur</source>
+        <translation>Oskarp bakgrund</translation>
+    </message>
+    <message>
+        <source>Toggles the visibility of blur on the selected background component.</source>
+        <translation>Växlar synligheten för oskärpan på vald bakgrundskomponent.</translation>
+    </message>
+    <message>
+        <source>Sets the intensity of blur on the selected background component.
+The foreground component should be transparent, and the background component should be opaque.</source>
+        <translation>Ställer in intensitet av oskärpa på vald bakgrundskomponent.
+Förgrundskomponenten bör vara transparent och bakgrundskomponenten bör vara opak.</translation>
+    </message>
+    <message>
+        <source>Background</source>
+        <translation>Bakgrund</translation>
+    </message>
+    <message>
+        <source>Sets a component as the background of a transparent component.The &lt;b&gt;Background Blur&lt;/b&gt; works only on this component. The component should be solid.</source>
+        <translation>Ställer in en komponent som bakgrunden för en transparent komponent. &lt;b&gt;Oskarp bakgrund&lt;/b&gt; fungerar endast på denna komponent. Komponenten bör vara solid.</translation>
+    </message>
+    <message>
+        <source>Drop Shadow</source>
+        <translation>Skuggkastning</translation>
+    </message>
+    <message>
+        <source>Inner Shadow</source>
+        <translation>Innerskugga</translation>
+    </message>
+    <message>
+        <source>Toggles the visibility of the component shadow.</source>
+        <translation>Växlar synligheten för komponentens skugga.</translation>
+    </message>
+    <message>
+        <source>Sets the softness of the component shadow. A larger value causes the edges of the shadow to appear more blurry.</source>
+        <translation>Ställer in mjukheten för komponentskuggan. Ett större värde orsakar att kanterna för skuggan kan verkar mer oskarpa.</translation>
+    </message>
+    <message>
+        <source>Spread</source>
+        <translation>Spridning</translation>
+    </message>
+    <message>
+        <source>Resizes the base shadow of the component by pixels.</source>
+        <translation>Storleksändrar basskuggan för komponenten med bildpunkter.</translation>
+    </message>
+    <message>
+        <source>Only supported for Rectangles.</source>
+        <translation>Stöds endast för rektanglar.</translation>
+    </message>
+    <message>
+        <source>Sets the color of the shadow.</source>
+        <translation>Ange färgen på skuggan.</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Offset</translation>
+    </message>
+    <message>
+        <source>Moves the shadow with respect to the component in X and Y coordinates by pixels.</source>
+        <translation>Flyttar skuggan med tanke på komponenten i X och Y-koordinater med bildpunkter.</translation>
+    </message>
+    <message>
+        <source>X-coordinate</source>
+        <translation>X-koordinat</translation>
+    </message>
+    <message>
+        <source>Y-coordinate</source>
+        <translation>Y-koordinat</translation>
+    </message>
+    <message>
+        <source>Show behind</source>
+        <translation>Visa bakom</translation>
+    </message>
+    <message>
+        <source>Toggles the visibility of the shadow behind a transparent component.</source>
+        <translation>Växlar synligheten för skuggan bakom en transparent komponent.</translation>
+    </message>
+    <message>
+        <source>Add Shadow Effect</source>
+        <translation>Lägg till skuggeffekt</translation>
+    </message>
+    <message>
+        <source>Adds &lt;b&gt;Drop Shadow&lt;/b&gt; or &lt;b&gt;Inner Shadow&lt;/b&gt; effects to a component.</source>
+        <translation>Lägger till effekterna &lt;b&gt;Skuggkastning&lt;/b&gt; eller &lt;b&gt;Innerskugga&lt;/b&gt; till en komponent.</translation>
+    </message>
+    <message>
+        <source>This is AND (&amp;&amp;)</source>
+        <translation>Detta är AND (&amp;&amp;)</translation>
+    </message>
+    <message>
+        <source>This is OR (||)</source>
+        <translation>Detta är OR (||)</translation>
+    </message>
+    <message>
+        <source>This is EQUAL (===)</source>
+        <translation>Detta är EQUAL (===)</translation>
+    </message>
+    <message>
+        <source>This is NOT EQUAL (!==)</source>
+        <translation>Detta är NOT EQUAL (!==)</translation>
+    </message>
+    <message>
+        <source>This is GREATER (&gt;)</source>
+        <translation>Detta är GREATER (&gt;)</translation>
+    </message>
+    <message>
+        <source>This is LESS (&lt;)</source>
+        <translation>Detta är LESS (&lt;)</translation>
+    </message>
+    <message>
+        <source>This is GREATER OR EQUAL (&gt;=)</source>
+        <translation>Detta är GREATER OR EQUAL (&gt;=)</translation>
+    </message>
+    <message>
+        <source>This is LESS OR EQUAL (&lt;=)</source>
+        <translation>Detta är LESS OR EQUAL (&lt;=)</translation>
+    </message>
+    <message>
+        <source>Condition</source>
+        <translation>Villkor</translation>
+    </message>
+    <message>
+        <source>Set Binding</source>
+        <translation>Ställ in bindning</translation>
+    </message>
+    <message>
+        <source>Export Property as Alias</source>
+        <translation>Exportera egenskap som alias</translation>
+    </message>
+    <message>
+        <source>Insert Keyframe</source>
+        <translation>Infoga nyckelbild</translation>
+    </message>
+    <message>
+        <source>empty</source>
+        <translation>tom</translation>
+    </message>
+    <message>
+        <source>Select None</source>
+        <translation>Välj ingen</translation>
+    </message>
+    <message>
+        <source>Content size</source>
+        <translation>Innehållsstorlek</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>Innehåll</translation>
+    </message>
+    <message>
+        <source>Sets the current position of the component.</source>
+        <translation>Ställer in aktuella positionen för komponenten.</translation>
+    </message>
+    <message>
+        <source>Horizontal position.</source>
+        <translation>Horisontell position.</translation>
+    </message>
+    <message>
+        <source>Vertical position.</source>
+        <translation>Vertikal position.</translation>
+    </message>
+    <message>
+        <source>Origin</source>
+        <translation>Ursprung</translation>
+    </message>
+    <message>
+        <source>Sets the origin point of the content.</source>
+        <translation>Ställer in ursprungspunkten för innehållet.</translation>
+    </message>
+    <message>
+        <source>Left margin</source>
+        <translation>Vänstermarginal</translation>
+    </message>
+    <message>
+        <source>Right margin</source>
+        <translation>Högermarginal</translation>
+    </message>
+    <message>
+        <source>Top margin</source>
+        <translation>Övre marginal</translation>
+    </message>
+    <message>
+        <source>Bottom margin</source>
+        <translation>Nedre marginal</translation>
+    </message>
+    <message>
+        <source>Behavior</source>
+        <translation>Beteende</translation>
+    </message>
+    <message>
+        <source>Toggles if the component is being moved by complete pixel length.</source>
+        <translation>Växlar om komponenten flyttas med hela bildpunktslängden.</translation>
+    </message>
+    <message>
+        <source>Interactive</source>
+        <translation>Interaktiv</translation>
+    </message>
+    <message>
+        <source>Movement</source>
+        <translation>Rörelse</translation>
+    </message>
+    <message>
+        <source>Flipable</source>
+        <translation>Vändbar</translation>
+    </message>
+    <message>
+        <source>Flow</source>
+        <translation>Flöde</translation>
+    </message>
+    <message>
+        <source>Sets the spacing between flow items.</source>
+        <translation>Ställer in avståndet mellan flödesposter.</translation>
+    </message>
+    <message>
+        <source>Sets the direction of flow items.</source>
+        <translation>Ställer in riktningen för flödesposter.</translation>
+    </message>
+    <message>
+        <source>Sets in which direction items in the flow are placed.</source>
+        <translation>Ställer in vilken riktning som poster i flödet placeras.</translation>
+    </message>
+    <message>
+        <source>Capitalization</source>
+        <translation>Versalisering</translation>
+    </message>
+    <message>
+        <source>Sets capitalization rules for the text.</source>
+        <translation>Ställer in versaliseringsregler för texten.</translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation>Stil</translation>
+    </message>
+    <message>
+        <source>Sets the font style.</source>
+        <translation>Ställer in typsnittsstilen.</translation>
+    </message>
+    <message>
+        <source>Style color</source>
+        <translation>Stilfärg</translation>
+    </message>
+    <message>
+        <source>Sets the color for the font style.</source>
+        <translation>Ställer in färgen för typsnittsstilen.</translation>
+    </message>
+    <message>
+        <source>Sets how to interpolate the text to render it more clearly when scaled.</source>
+        <translation>Ställer in hur interpolering av texten för att rendera den mer rent när skalad.</translation>
+    </message>
+    <message>
+        <source>Toggles the font-specific special features.</source>
+        <translation>Växlar typsnittsspecifika specialfunktioner.</translation>
+    </message>
+    <message>
+        <source>Resolves the gap between texts if turned true.</source>
+        <translation>Löser avståndet mellan texter om växlad till sant.</translation>
+    </message>
+    <message>
+        <source>Toggles the disables font-specific special features.</source>
+        <translation>Växlar inaktivering av typsnittsspecifika specialfunktioner.</translation>
+    </message>
+    <message>
+        <source>Frame</source>
+        <translation>Ram</translation>
+    </message>
+    <message>
+        <source>Geometry - 2D</source>
+        <translation>Geometri - 2D</translation>
+    </message>
+    <message>
+        <source>This property is defined by an anchor or a layout.</source>
+        <translation>Denna egenskap definieras av ett ankare eller en layout.</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>Position</translation>
+    </message>
+    <message>
+        <source>Sets the position of the component relative to its parent.</source>
+        <translation>Ställer in positionen för komponenten relativ till sin förälder.</translation>
+    </message>
+    <message>
+        <source>Sets the width and height of the component.</source>
+        <translation>Ställer in bredd och höjd för komponenten.</translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation>Rotering</translation>
+    </message>
+    <message>
+        <source>Rotate the component at an angle.</source>
+        <translation>Rotera komponenten med en vinkel.</translation>
+    </message>
+    <message>
+        <source>Angle (in degree)</source>
+        <translation>Vinkel (i grader)</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Skala</translation>
+    </message>
+    <message>
+        <source>Sets the scale of the component by percentage.</source>
+        <translation>Ställer in skalan för komponenten med procenttal.</translation>
+    </message>
+    <message>
+        <source>Percentage</source>
+        <translation>Procentdel</translation>
+    </message>
+    <message>
+        <source>Z stack</source>
+        <translation>Z-stack</translation>
+    </message>
+    <message>
+        <source>Sets the stacking order of the component.</source>
+        <translation>Ställer in stackningsordning för komponenten.</translation>
+    </message>
+    <message>
+        <source>Sets the modification point of the component.</source>
+        <translation>Ställer in ändringspunkten för komponenten.</translation>
+    </message>
+    <message>
+        <source>System Presets</source>
+        <translation>Systemförval</translation>
+    </message>
+    <message>
+        <source>User Presets</source>
+        <translation>Användarförval</translation>
+    </message>
+    <message>
+        <source>Delete preset?</source>
+        <translation>Ta bort förval?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete this preset?</source>
+        <translation>Är du säker på att du vill ta bort detta förval?</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Spara</translation>
+    </message>
+    <message>
+        <source>Grid Layout</source>
+        <translation>Rutnätslayout</translation>
+    </message>
+    <message>
+        <source>Columns &amp; Rows</source>
+        <translation>Kolumner och rader</translation>
+    </message>
+    <message>
+        <source>Sets the number of columns and rows in the &lt;b&gt;Grid Layout&lt;/b&gt;.</source>
+        <translation>Ställer in antalet kolumner och rader i &lt;b&gt;Rutnätslayout&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Sets the space between the items in pixels in the rows and columns in the &lt;b&gt;Grid Layout&lt;/b&gt;.</source>
+        <translation>Ställer in avståndet mellan poster i bildpunkter för kolumner och rader i &lt;b&gt;Rutnätslayout&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Set the direction of dynamic items to flow in rows or columns in the &lt;b&gt;Grid Layout&lt;/b&gt;.</source>
+        <translation>Ställer in riktningen för dynamiska poster i rader eller kolumner i &lt;b&gt;Rutnätslayout&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Sets the direction of the dynamic items left to right or right to left in the &lt;b&gt;Grid Layout&lt;/b&gt;.</source>
+        <translation>Ställer in riktningen för dynamiska poster vänster till höger eller höger till vänster i &lt;b&gt;Rutnätslayout&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Toggles all cells to have a uniform height or width.</source>
+        <translation>Växlar alla celler till att ha en enhetlig storlek.</translation>
+    </message>
+    <message>
+        <source>Heights</source>
+        <translation>Höjder</translation>
+    </message>
+    <message>
+        <source>Widths</source>
+        <translation>Bredder</translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation>Rutnät</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>Kolumner</translation>
+    </message>
+    <message>
+        <source>Sets the number of columns in the grid.</source>
+        <translation>Ställer in antalet kolumner i rutnätet.</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>Rader</translation>
+    </message>
+    <message>
+        <source>Sets the number of rows in the grid.</source>
+        <translation>Ställer in antalet rader i rutnätet.</translation>
+    </message>
+    <message>
+        <source>Sets the space between grid items. The same space is applied for both rows and columns.</source>
+        <translation>Ställer in utrymmet mellan rutnätsposter. Samma utrymme tillämpas för både rader och kolumner.</translation>
+    </message>
+    <message>
+        <source>Sets in which direction items in the grid are placed.</source>
+        <translation>Ställer in vilken riktning som poster i rutnätet placeras.</translation>
+    </message>
+    <message>
+        <source>Sets the horizontal alignment of items in the grid.</source>
+        <translation>Ställer in horisontell justering av poster i rutnätet.</translation>
+    </message>
+    <message>
+        <source>Sets the vertical alignment of items in the grid.</source>
+        <translation>Ställer in vertikal justering av poster i rutnätet.</translation>
+    </message>
+    <message>
+        <source>Grid View</source>
+        <translation>Rutnätsvy</translation>
+    </message>
+    <message>
+        <source>Cell size</source>
+        <translation>Cellstorlek</translation>
+    </message>
+    <message>
+        <source>Sets the dimensions of cells in the grid.</source>
+        <translation>Ställer in dimensionerna för celler i rutnätet.</translation>
+    </message>
+    <message>
+        <source>Sets the directions of the cells.</source>
+        <translation>Ställer in riktningen för cellerna.</translation>
+    </message>
+    <message>
+        <source>Sets in which direction items in the grid view are placed.</source>
+        <translation>Ställer in vilken riktning som poster i rutnätsvyn placeras.</translation>
+    </message>
+    <message>
+        <source>Toggles if the view manages the highlight.</source>
+        <translation>Växlar om vyn hanterar framhävningen.</translation>
+    </message>
+    <message>
+        <source>Sets in pixels how far the components are kept loaded outside the view&apos;s visible area.</source>
+        <translation>Ställer in i bildpunkter hur långt bort komponenterna hålls inlästa utanför vyns synliga område.</translation>
+    </message>
+    <message>
+        <source>Preferred begin</source>
+        <translation>Föredragen början</translation>
+    </message>
+    <message>
+        <source>Preferred end</source>
+        <translation>Föredraget slut</translation>
+    </message>
+    <message>
+        <source>Follows current</source>
+        <translation>Följer aktuell</translation>
+    </message>
+    <message>
+        <source>Group Box</source>
+        <translation>Gruppruta</translation>
+    </message>
+    <message>
+        <source>Sets the title for the group box.</source>
+        <translation>Anger titeln för grupprutan.</translation>
+    </message>
+    <message>
+        <source>Icon</source>
+        <translation>Ikon</translation>
+    </message>
+    <message>
+        <source>Sets a background image for the icon.</source>
+        <translation>Ställer in en bakgrundsbild för ikonen.</translation>
+    </message>
+    <message>
+        <source>Sets the color for the icon.</source>
+        <translation>Ställer in färgen för ikonen.</translation>
+    </message>
+    <message>
+        <source>Sets the height and width of the icon.</source>
+        <translation>Ställer in höjd och bredd för ikonen.</translation>
+    </message>
+    <message>
+        <source>Toggles if the icon is saved to the cache memory.</source>
+        <translation>Växlar om ikonen är sparad till cacheminnet.</translation>
+    </message>
+    <message>
+        <source>Adds an image from the local file system.</source>
+        <translation>Lägger till en bild från lokala filsystemet.</translation>
+    </message>
+    <message>
+        <source>Fill mode</source>
+        <translation>Fyllnadsläge</translation>
+    </message>
+    <message>
+        <source>Sets how the image fits in the content box.</source>
+        <translation>Anger hur bilder passar i innehållsrutan.</translation>
+    </message>
+    <message>
+        <source>Sets the width and height of the image.</source>
+        <translation>Anger bredd och höjd för bilden.</translation>
+    </message>
+    <message>
+        <source>Sets the horizontal alignment of the image.</source>
+        <translation>Ställer in horisontell justering för bilden.</translation>
+    </message>
+    <message>
+        <source>Sets the vertical alignment of the image.</source>
+        <translation>Ställer in vertikal justering för bilden.</translation>
+    </message>
+    <message>
+        <source>Loads images on the local filesystem asynchronously in a separate thread.</source>
+        <translation>Läser in bilder på lokala filsystemet asynkront i en separat tråd.</translation>
+    </message>
+    <message>
+        <source>Auto transform</source>
+        <translation>Transformera automatiskt</translation>
+    </message>
+    <message>
+        <source>Automatically applies image transformation metadata such as EXIF orientation.</source>
+        <translation>Tillämpar automatiskt metadata för bildtransformation såsom EXIF-orientering.</translation>
+    </message>
+    <message>
+        <source>Caches the image.</source>
+        <translation>Mellanlagrar bilden.</translation>
+    </message>
+    <message>
+        <source>Mipmap</source>
+        <translation>Mipmap</translation>
+    </message>
+    <message>
+        <source>Uses mipmap filtering when the image is scaled or transformed.</source>
+        <translation>Använder mipmap-filtrering när bilden skalas eller transformeras.</translation>
+    </message>
+    <message>
+        <source>Inverts the image horizontally.</source>
+        <translation>Inverterar bilden horisontellt.</translation>
+    </message>
+    <message>
+        <source>Sets the space from the top and bottom of the area to the background top and bottom.</source>
+        <translation>Stället in ytan från topp och botten för området till bakgrundens topp och botten.</translation>
+    </message>
+    <message>
+        <source>Sets the space from the left and right of the area to the background left and right.</source>
+        <translation>Ställer in ytan från vänster och höger av området till bakgrundens vänster och höger.</translation>
+    </message>
+    <message>
+        <source>[None]</source>
+        <translation>[Ingen]</translation>
+    </message>
+    <message>
+        <source>Object name</source>
+        <translation>Objektnamn</translation>
+    </message>
+    <message>
+        <source>Sets the object name of the component.</source>
+        <translation>Ställer in objektnamnet för komponenten.</translation>
+    </message>
+    <message>
+        <source>Item Delegate</source>
+        <translation>Postdelegat</translation>
+    </message>
+    <message>
+        <source>Toggles if the delegate is highlighted.</source>
+        <translation>Växlar om delegaten är framhävd.</translation>
+    </message>
+    <message>
+        <source>Visibility</source>
+        <translation>Synlighet</translation>
+    </message>
+    <message>
+        <source>Sets the transparency of the component.</source>
+        <translation>Ställer in transparensen för komponenten.</translation>
+    </message>
+    <message>
+        <source>Layout</source>
+        <translation>Layout</translation>
+    </message>
+    <message>
+        <source>Remove Module</source>
+        <translation>Ta bort modul</translation>
+    </message>
+    <message>
+        <source>Hide Category</source>
+        <translation>Dölj kategori</translation>
+    </message>
+    <message>
+        <source>Show Module Hidden Categories</source>
+        <translation>Visa dolda modulkategorier</translation>
+    </message>
+    <message>
+        <source>Show All Hidden Categories</source>
+        <translation>Visa alla dolda kategorier</translation>
+    </message>
+    <message>
+        <source>Add Module: </source>
+        <translation>Lägg till modul: </translation>
+    </message>
+    <message>
+        <source>Add a module.</source>
+        <translation>Lägg till en modul.</translation>
+    </message>
+    <message>
+        <source>This property is not available in this configuration.</source>
+        <translation>Denna egenskap är inte tillgänglig i denna konfiguration.</translation>
+    </message>
+    <message>
+        <source>Layer</source>
+        <translation>Lager</translation>
+    </message>
+    <message>
+        <source>Effect</source>
+        <translation>Effekt</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Format</translation>
+    </message>
+    <message>
+        <source>Texture size</source>
+        <translation>Texturstorlek</translation>
+    </message>
+    <message>
+        <source>Toggles if the component is layered.</source>
+        <translation>Växlar om komponenten är i lager.</translation>
+    </message>
+    <message>
+        <source>Sets the name of the effect&apos;s source texture property.</source>
+        <translation>Ställer in namnet för effektens källtexturegenskap.</translation>
+    </message>
+    <message>
+        <source>Sets which effect is applied.</source>
+        <translation>Ställer in vilken effekt som tillämpas.</translation>
+    </message>
+    <message>
+        <source>Sets the internal OpenGL format for the texture.</source>
+        <translation>Ställer in internt OpenGL-format för texturen.</translation>
+    </message>
+    <message>
+        <source>Sets the requested pixel size of the layer&apos;s texture.</source>
+        <translation>Ställer in begärd bildpunktsstorlek för lagrets textur.</translation>
+    </message>
+    <message>
+        <source>Texture mirroring</source>
+        <translation>Texturspegling</translation>
+    </message>
+    <message>
+        <source>Sets how the generated OpenGL texture should be mirrored.</source>
+        <translation>Ställer in hur genererad OpenGL-textur ska speglas.</translation>
+    </message>
+    <message>
+        <source>Toggles if mipmaps are generated for the texture.</source>
+        <translation>Växlar om mipmaps genereras för texturen.</translation>
+    </message>
+    <message>
+        <source>Toggles if the layer transforms smoothly.</source>
+        <translation>Växlar om lagret transformerar mjukt.</translation>
+    </message>
+    <message>
+        <source>Sets the rectangular area of the component that should
+be rendered into the texture.</source>
+        <translation>Ställer in den rektangulära ytan av komponenten
+som ska renderas till texturen.</translation>
+    </message>
+    <message>
+        <source>Source rectangle</source>
+        <translation>Källrektangel</translation>
+    </message>
+    <message>
+        <source>Alignment of a component within the cells it occupies.</source>
+        <translation>Justering för en komponent inom cellerna den ockuperar.</translation>
+    </message>
+    <message>
+        <source>Preferred size</source>
+        <translation>Föredragen storlek</translation>
+    </message>
+    <message>
+        <source>Minimum size</source>
+        <translation>Minimal storlek</translation>
+    </message>
+    <message>
+        <source>Minimum size of a component in a layout.</source>
+        <translation>Minsta storlek för en komponent i en layout.</translation>
+    </message>
+    <message>
+        <source>Maximum size</source>
+        <translation>Maximal storlek</translation>
+    </message>
+    <message>
+        <source>Maximum size of a component in a layout.</source>
+        <translation>Maximal storlek för en komponent i en layout.</translation>
+    </message>
+    <message>
+        <source>Anchors</source>
+        <translation>Ankare</translation>
+    </message>
+    <message>
+        <source>List View</source>
+        <translation>Listvy</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation>Orientering</translation>
+    </message>
+    <message>
+        <source>Move velocity</source>
+        <translation>Flyttningshastighet</translation>
+    </message>
+    <message>
+        <source>Resize velocity</source>
+        <translation>Hastighet för storleksändring</translation>
+    </message>
+    <message>
+        <source>Sets the orientation of the list.</source>
+        <translation>Ställer in orienteringen för listan.</translation>
+    </message>
+    <message>
+        <source>Sets the direction that the cells flow inside a list.</source>
+        <translation>Ställer in riktningen som celler flödar inne i en lista.</translation>
+    </message>
+    <message>
+        <source>Sets the spacing between components.</source>
+        <translation>Ställer in avståndet mellan komponenter.</translation>
+    </message>
+    <message>
+        <source>Loader</source>
+        <translation>Inläsare</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktiv</translation>
+    </message>
+    <message>
+        <source>Whether the loader is currently active.</source>
+        <translation>Huruvida inläsaren är aktiv för närvarande.</translation>
+    </message>
+    <message>
+        <source>URL of the component to instantiate.</source>
+        <translation>URLen för komponenten att instansiera.</translation>
+    </message>
+    <message>
+        <source>Source component</source>
+        <translation>Källkomponent</translation>
+    </message>
+    <message>
+        <source>Component to instantiate.</source>
+        <translation>Komponent att instansiera.</translation>
+    </message>
+    <message>
+        <source>Whether the component will be instantiated asynchronously.</source>
+        <translation>Huruvida komponenten kommer att instansieras asynkront.</translation>
+    </message>
+    <message>
+        <source>Rename state group</source>
+        <translation>Byt namn på tillståndsgrupp</translation>
+    </message>
+    <message>
+        <source>State Group</source>
+        <translation>Tillståndsgrupp</translation>
+    </message>
+    <message>
+        <source>Switch State Group</source>
+        <translation>Växla tillståndsgrupp</translation>
+    </message>
+    <message>
+        <source>Create State Group</source>
+        <translation>Skapa tillståndsgrupp</translation>
+    </message>
+    <message>
+        <source>Remove State Group</source>
+        <translation>Ta bort tillståndsgrupp</translation>
+    </message>
+    <message>
+        <source>Rename State Group</source>
+        <translation>Byt namn på tillståndsgrupp</translation>
+    </message>
+    <message>
+        <source>Show thumbnails</source>
+        <translation>Visa miniatyrbilder</translation>
+    </message>
+    <message>
+        <source>Show property changes</source>
+        <translation>Visa egenskapsändringar</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Inaktiverad</translation>
+    </message>
+    <message>
+        <source>Sets logical connection between the components and the signals.</source>
+        <translation>Ställer in logisk anslutning mellan komponenter och signaler.</translation>
+    </message>
+    <message>
+        <source>Bindings</source>
+        <translation>Bindningar</translation>
+    </message>
+    <message>
+        <source>Sets the relation between the properties of two components to bind them together.</source>
+        <translation>Ställer in relationen mellan egenskaperna för två komponenter för att binda dem samman.</translation>
+    </message>
+    <message>
+        <source>Sets an additional property for the component.</source>
+        <translation>Ställer in ytterligare egenskap för komponenten.</translation>
+    </message>
+    <message>
+        <source>Adds a Connection, Binding, or Custom Property to the components.</source>
+        <translation>Lägger till en anslutning, bindning eller anpassad egenskap till komponenterna.</translation>
+    </message>
+    <message>
+        <source>The margin above the item.</source>
+        <translation>Marginalen ovanför posten.</translation>
+    </message>
+    <message>
+        <source>The margin below the item.</source>
+        <translation>Marginalen nedanför posten.</translation>
+    </message>
+    <message>
+        <source>The margin left of the item.</source>
+        <translation>Marginalen till vänster om posten.</translation>
+    </message>
+    <message>
+        <source>The margin right of the item.</source>
+        <translation>Marginalen till höger om posten.</translation>
+    </message>
+    <message>
+        <source>Margins</source>
+        <translation>Marginaler</translation>
+    </message>
+    <message>
+        <source>The margins around the item.</source>
+        <translation>Marginalen runt posten.</translation>
+    </message>
+    <message>
+        <source>Add a Material.</source>
+        <translation>Lägg till ett material.</translation>
+    </message>
+    <message>
+        <source>Add a Texture.</source>
+        <translation>Lägg till en textur.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Material Browser&lt;/b&gt; is not supported in Qt5 projects.</source>
+        <translation>&lt;b&gt;Materialbläddrare&lt;/b&gt; stöds inte i Qt5-projekt.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Material Browser&lt;/b&gt; is disabled inside a non-visual component.</source>
+        <translation>&lt;b&gt;Materialbläddrare&lt;/b&gt; är inaktiverad inuti en icke-visuell komponent.</translation>
+    </message>
+    <message>
+        <source>There are no materials in this project.&lt;br&gt;Select &apos;&lt;b&gt;+&lt;/b&gt;&apos; to create one.</source>
+        <translation>Det finns inga material i detta projekt.&lt;br&gt;Välj &lt;b&gt;+&lt;/b&gt;&apos; för att skapa ett.</translation>
+    </message>
+    <message>
+        <source>There are no textures in this project.</source>
+        <translation>Det finns inga texturer i detta projekt.</translation>
+    </message>
+    <message>
+        <source>Copy properties</source>
+        <translation>Kopiera egenskaper</translation>
+    </message>
+    <message>
+        <source>Paste properties</source>
+        <translation>Klistra in egenskaper</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Duplicera</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>Byt namn</translation>
+    </message>
+    <message>
+        <source>Create New Material</source>
+        <translation>Skapa nytt material</translation>
+    </message>
+    <message>
+        <source>Media Player</source>
+        <translation>Mediaspelare</translation>
+    </message>
+    <message>
+        <source>Playback rate</source>
+        <translation>Uppspelningsfrekvens</translation>
+    </message>
+    <message>
+        <source>Audio output</source>
+        <translation>Ljudutgång</translation>
+    </message>
+    <message>
+        <source>Target audio output.</source>
+        <translation>Mål för ljudutdata.</translation>
+    </message>
+    <message>
+        <source>Video output</source>
+        <translation>Videoutgång</translation>
+    </message>
+    <message>
+        <source>Target video output.</source>
+        <translation>Mål för videoutgång.</translation>
+    </message>
+    <message>
+        <source>Sets how the mouse can interact with the area.</source>
+        <translation>Ställer in hur musen kan interagera med området.</translation>
+    </message>
+    <message>
+        <source>Area</source>
+        <translation>Område</translation>
+    </message>
+    <message>
+        <source>Accepted buttons</source>
+        <translation>Accepterade knappar</translation>
+    </message>
+    <message>
+        <source>Sets which mouse buttons the area reacts to.</source>
+        <translation>Ställer in vilka musknappar som ytan reagerar på.</translation>
+    </message>
+    <message>
+        <source>Sets which mouse cursor to display on this area.</source>
+        <translation>Ställer in vilken muspekare att visa på denna yta.</translation>
+    </message>
+    <message>
+        <source>Sets the time before the pressAndHold signal is registered when you press the area.</source>
+        <translation>Ställer in tiden innan pressAndHold-signalen registreras när du trycker i området.</translation>
+    </message>
+    <message>
+        <source>Toggles if scroll gestures from non-mouse devices are supported.</source>
+        <translation>Växlar om rullningsgester från icke-musenheter stöds.</translation>
+    </message>
+    <message>
+        <source>Toggles if mouse events can be stolen from this area.</source>
+        <translation>Växlar om mushändelser kan stjälas från detta område.</translation>
+    </message>
+    <message>
+        <source>Toggles if composed mouse events should be propagated to other mouse areas overlapping this area.</source>
+        <translation>Växlar om komponerade mushändelser ska propageras till andra musområdet som överlappar detta område.</translation>
+    </message>
+    <message>
+        <source>Sets the component to have drag functionalities.</source>
+        <translation>Ställer in komponenten till att ha dragfunktionaliteter.</translation>
+    </message>
+    <message>
+        <source>Sets in which directions the dragging work.</source>
+        <translation>Ställer in vilka riktningar som drag fungerar.</translation>
+    </message>
+    <message>
+        <source>Sets a threshold after which the drag starts to work.</source>
+        <translation>Ställer in ett tröskelvärde efter vilket draget börjar fungera.</translation>
+    </message>
+    <message>
+        <source>Toggles if the dragging overrides descendant mouse areas.</source>
+        <translation>Växlar om draget åsidosätter underliggande musområden.</translation>
+    </message>
+    <message>
+        <source>Toggles if the move is smoothly animated.</source>
+        <translation>Växlar om flytten är mjukt animerad.</translation>
+    </message>
+    <message>
+        <source>Cursor shape</source>
+        <translation>Markörform</translation>
+    </message>
+    <message>
+        <source>Hold interval</source>
+        <translation>Hållintervall</translation>
+    </message>
+    <message>
+        <source>Scroll gesture</source>
+        <translation>Rullningsgest</translation>
+    </message>
+    <message>
+        <source>Prevent stealing</source>
+        <translation>Förhindra stöld</translation>
+    </message>
+    <message>
+        <source>Propagate events</source>
+        <translation>Propagera händelser</translation>
+    </message>
+    <message>
+        <source>Drag</source>
+        <translation>Dra</translation>
+    </message>
+    <message>
+        <source>Axis</source>
+        <translation>Axel</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>Tröskelvärde</translation>
+    </message>
+    <message>
+        <source>Filter children</source>
+        <translation>Filtrera barn</translation>
+    </message>
+    <message>
+        <source>Smoothed</source>
+        <translation>Mjuk</translation>
+    </message>
+    <message>
+        <source>Mouse Area</source>
+        <translation>Musområde</translation>
+    </message>
+    <message>
+        <source>Create New Effect</source>
+        <translation>Skapa ny effekt</translation>
+    </message>
+    <message>
+        <source>Could not create effect</source>
+        <translation>Kunde inte skapa effekt</translation>
+    </message>
+    <message>
+        <source>An error occurred while trying to create the effect.</source>
+        <translation>Ett fel inträffade vid försök att skapa effekten.</translation>
+    </message>
+    <message>
+        <source>Effect name: </source>
+        <translation>Effektnamn: </translation>
+    </message>
+    <message>
+        <source>Effect name cannot be empty.</source>
+        <translation>Effektnamnet får inte vara tomt.</translation>
+    </message>
+    <message>
+        <source>Effect path is too long.</source>
+        <translation>Effektsökvägen är för lång.</translation>
+    </message>
+    <message>
+        <source>The name must start with a capital letter, contain at least three characters, and cannot have any special characters.</source>
+        <translation>Namnet måste börja med en versal bokstav, innehålla minst tre tecken och får inte innehålla några specialtecken.</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Skapa</translation>
+    </message>
+    <message>
+        <source>Create New Folder</source>
+        <translation>Skapa ny mapp</translation>
+    </message>
+    <message>
+        <source>Could not create folder</source>
+        <translation>Kunde inte skapa mapp</translation>
+    </message>
+    <message>
+        <source>An error occurred while trying to create the folder.</source>
+        <translation>Ett fel inträffade vid försök att skapa mappen.</translation>
+    </message>
+    <message>
+        <source>Folder name: </source>
+        <translation>Mappnamn: </translation>
+    </message>
+    <message>
+        <source>Folder name cannot be empty.</source>
+        <translation>Mappnamnet får inte vara tomt.</translation>
+    </message>
+    <message>
+        <source>Folder path is too long.</source>
+        <translation>Mappsökvägen är för lång.</translation>
+    </message>
+    <message>
+        <source>New folder</source>
+        <translation>Ny mapp</translation>
+    </message>
+    <message>
+        <source>Sets the local visibility of the node.</source>
+        <translation>Ställer in lokal synlighet för noden.</translation>
+    </message>
+    <message>
+        <source>Sets the local opacity value of the node.</source>
+        <translation>Ställer in lokalt opacitetsvärde för noden.</translation>
+    </message>
+    <message>
+        <source>Transform</source>
+        <translation>Transformera</translation>
+    </message>
+    <message>
+        <source>Translation</source>
+        <translation>Översättning</translation>
+    </message>
+    <message>
+        <source>Sets the translation of the node.</source>
+        <translation>Ställer in översättningen för noden.</translation>
+    </message>
+    <message>
+        <source>Sets the rotation of the node in degrees.</source>
+        <translation>Ställer in rotering av noden i grader.</translation>
+    </message>
+    <message>
+        <source>Sets the scale of the node.</source>
+        <translation>Ställer in skalan för noden.</translation>
+    </message>
+    <message>
+        <source>Number Animation</source>
+        <translation>Talanimering</translation>
+    </message>
+    <message>
+        <source>Start value for the animation.</source>
+        <translation>Startvärde för animeringen.</translation>
+    </message>
+    <message>
+        <source>End value for the animation.</source>
+        <translation>Slutvärde för animeringen.</translation>
+    </message>
+    <message>
+        <source>Page Indicator</source>
+        <translation>Sidindikator</translation>
+    </message>
+    <message>
+        <source>Count</source>
+        <translation>Antal</translation>
+    </message>
+    <message>
+        <source>Sets the number of pages.</source>
+        <translation>Anger antalet sidor.</translation>
+    </message>
+    <message>
+        <source>Sets the current page.</source>
+        <translation>Anger aktuell sida.</translation>
+    </message>
+    <message>
+        <source>Toggles if the user can interact with the page indicator.</source>
+        <translation>Växlar om användaren kan interagera med sidindikatorn.</translation>
+    </message>
+    <message>
+        <source>Current</source>
+        <translation>Aktuell</translation>
+    </message>
+    <message>
+        <source>Page</source>
+        <translation>Sida</translation>
+    </message>
+    <message>
+        <source>Sets the title of the page.</source>
+        <translation>Ställer in titeln för sidan.</translation>
+    </message>
+    <message>
+        <source>Sets the size of the page. This is used to
+calculate the total implicit size.</source>
+        <translation>Ställer in storleken för sidan. Detta
+används för att beräkna totala
+implicita storleken.</translation>
+    </message>
+    <message>
+        <source>Content width used for calculating the total implicit width.</source>
+        <translation>Innehållsbredd som används för att beräkna totala implicita bredden.</translation>
+    </message>
+    <message>
+        <source>Content height used for calculating the total implicit height.</source>
+        <translation>Innehållshöjd som används för att beräkna totala implicita höjden.</translation>
+    </message>
+    <message>
+        <source>Path View</source>
+        <translation>Sökvägsvy</translation>
+    </message>
+    <message>
+        <source>Item count</source>
+        <translation>Postantal</translation>
+    </message>
+    <message>
+        <source>Sets the number of items visible at once along the path.</source>
+        <translation>Ställer in antalet poster synliga samtidigt längs sökvägen.</translation>
+    </message>
+    <message>
+        <source>missing</source>
+        <translation>saknas</translation>
+    </message>
+    <message>
+        <source>Spacing between internal elements of the control.</source>
+        <translation>Avstånd mellan interna element för kontrollen.</translation>
+    </message>
+    <message>
+        <source>Progress Bar</source>
+        <translation>Förloppsmätare</translation>
+    </message>
+    <message>
+        <source>Sets the value of the progress bar.</source>
+        <translation>Ställer in värdet för förloppsmätaren.</translation>
+    </message>
+    <message>
+        <source>Sets the category of the &lt;b&gt;Local Custom Property&lt;/b&gt;.</source>
+        <translation>Ställer in kategorin för &lt;b&gt;Lokalt anpassad egenskap&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Sets a name for the &lt;b&gt;Local Custom Property&lt;/b&gt;.</source>
+        <translation>Ställer in ett namn för &lt;b&gt;Lokalt anpassad egenskap&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Sets a valid &lt;b&gt;Local Custom Property&lt;/b&gt; value.</source>
+        <translation>Ställer in ett giltigt värde för &lt;b&gt;Lokalt anpassad egenskap&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Removes the property.</source>
+        <translation>Tar bort egenskapen.</translation>
+    </message>
+    <message>
+        <source>Property Action</source>
+        <translation>Egenskapsåtgärd</translation>
+    </message>
+    <message>
+        <source>Value of the property.</source>
+        <translation>Värdet för egenskapen.</translation>
+    </message>
+    <message>
+        <source>Radio Button</source>
+        <translation>Radioknapp</translation>
+    </message>
+    <message>
+        <source>Text label for the radio button.</source>
+        <translation>Textetikett för radioknappen.</translation>
+    </message>
+    <message>
+        <source>Determines whether the radio button is checked or not.</source>
+        <translation>Bestämmer huruvida radioknappen är markerad eller inte.</translation>
+    </message>
+    <message>
+        <source>Determines whether the radio button gets focus if pressed.</source>
+        <translation>Bestämmer huruvida radioknappen får fokus om tryckt.</translation>
+    </message>
+    <message>
+        <source>Value 1</source>
+        <translation>Värde 1</translation>
+    </message>
+    <message>
+        <source>Value 2</source>
+        <translation>Värde 2</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>Rektangel</translation>
+    </message>
+    <message>
+        <source>Fill color</source>
+        <translation>Fyllnadsfärg</translation>
+    </message>
+    <message>
+        <source>Sets the color for the background.</source>
+        <translation>Anger färgen för bakgrunden.</translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation>Radie</translation>
+    </message>
+    <message>
+        <source>Could not rename folder. Make sure no folder with the same name exists.</source>
+        <translation>Kunde inte byta namn på mappen. Försäkra dig om att ingen mapp med samma namn finns.</translation>
+    </message>
+    <message>
+        <source>If the folder has assets in use, renaming it might cause the project to not work correctly.</source>
+        <translation>Om mappen har tillgångar i användning så kan namnbyte på den orsaka att projektet inte fungerar korrekt.</translation>
+    </message>
+    <message>
+        <source>Model</source>
+        <translation>Modell</translation>
+    </message>
+    <message>
+        <source>Delegate</source>
+        <translation>Delegat</translation>
+    </message>
+    <message>
+        <source>Round Button</source>
+        <translation>Rund knapp</translation>
+    </message>
+    <message>
+        <source>Sets the radius of the button.</source>
+        <translation>Ställer in radien för knappen.</translation>
+    </message>
+    <message>
+        <source>Row Layout</source>
+        <translation>Radlayout</translation>
+    </message>
+    <message>
+        <source>Row spacing</source>
+        <translation>Radavstånd</translation>
+    </message>
+    <message>
+        <source>Sets the space between the items in pixels in the &lt;b&gt;Row Layout&lt;/b&gt;.</source>
+        <translation>Ställer in avståndet mellan poster i bildpunkter i &lt;b&gt;Radlayout&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Sets the direction of the item flow in the &lt;b&gt;Row Layout&lt;/b&gt;.</source>
+        <translation>Ställer in riktningen för postflödet i &lt;b&gt;Radlayout&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Row</source>
+        <translation>Rad</translation>
+    </message>
+    <message>
+        <source>Sets the spacing between items in the row.</source>
+        <translation>Ställer in avståndet mellan poster i raden.</translation>
+    </message>
+    <message>
+        <source>Sets in which direction items in the row are placed.</source>
+        <translation>Ställer in vilken riktning som poster i raden placeras.</translation>
+    </message>
+    <message>
+        <source>Scroll View</source>
+        <translation>Rullningsvy</translation>
+    </message>
+    <message>
+        <source>Sets the width and height of the view.
+This is used for calculating the total implicit size.</source>
+        <translation>Ställer in bredd och höjd för vyn.
+Detta används för att beräkna total implicit storlek.</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Sök</translation>
+    </message>
+    <message>
+        <source>Slider</source>
+        <translation>Draglist</translation>
+    </message>
+    <message>
+        <source>The current value of the slider.</source>
+        <translation>Aktuellt värde för draglisten.</translation>
+    </message>
+    <message>
+        <source>The starting value of the slider range.</source>
+        <translation>Startvärde för draglistens intervall.</translation>
+    </message>
+    <message>
+        <source>The step size of the slider.</source>
+        <translation>Stegstorleken för draglisten.</translation>
+    </message>
+    <message>
+        <source>The orientation of the slider.</source>
+        <translation>Orientering för draglisten.</translation>
+    </message>
+    <message>
+        <source>Current value of the Slider. The default value is 0.0.</source>
+        <translation>Aktuellt värde för draglisten. Standardvärdet är 0.0.</translation>
+    </message>
+    <message>
+        <source>Maximum value</source>
+        <translation>Maximalt värde</translation>
+    </message>
+    <message>
+        <source>Maximum value of the slider. The default value is 1.0.</source>
+        <translation>Maximalt värde för draglisten. Standardvärdet är 1.0.</translation>
+    </message>
+    <message>
+        <source>Minimum value</source>
+        <translation>Minimalt värde</translation>
+    </message>
+    <message>
+        <source>Minimum value of the slider. The default value is 0.0.</source>
+        <translation>Minimalt värde för draglisten. Standardvärdet är 1.0.</translation>
+    </message>
+    <message>
+        <source>Indicates the slider step size.</source>
+        <translation>Indikerar draglistens stegstorlek.</translation>
+    </message>
+    <message>
+        <source>Active focus on press</source>
+        <translation>Aktivera fokus vid tryck</translation>
+    </message>
+    <message>
+        <source>Indicates whether the slider should receive active focus when pressed.</source>
+        <translation>Indikerar huruvida draglisten ska ta emot aktivt fokus när tryckt.</translation>
+    </message>
+    <message>
+        <source>Update value while dragging</source>
+        <translation>Uppdatera värdet under dragning</translation>
+    </message>
+    <message>
+        <source>Interval</source>
+        <translation>Intervall</translation>
+    </message>
+    <message>
+        <source>deg</source>
+        <translation>grader</translation>
+    </message>
+    <message>
+        <source>Spatial Sound</source>
+        <translation>Spatialt ljud</translation>
+    </message>
+    <message>
+        <source>Spin Box</source>
+        <translation>Snurruta</translation>
+    </message>
+    <message>
+        <source>Sets the current value of the spin box.</source>
+        <translation>Ställer in aktuellt värde för snurrutan.</translation>
+    </message>
+    <message>
+        <source>Sets the lowest value of the spin box range.</source>
+        <translation>Ställer in lägsta värdet för snurrutans intervall.</translation>
+    </message>
+    <message>
+        <source>Sets the highest value of the spin box range.</source>
+        <translation>Ställer in högsta värdet för snurrutans intervall.</translation>
+    </message>
+    <message>
+        <source>Sets the number by which the spin box value changes.</source>
+        <translation>Ställer in antalet med vilket snurrutans värde ändras.</translation>
+    </message>
+    <message>
+        <source>Toggles if the spin box is editable.</source>
+        <translation>Växlar om snurrutan är redigerbar.</translation>
+    </message>
+    <message>
+        <source>Split View</source>
+        <translation>Delad vy</translation>
+    </message>
+    <message>
+        <source>Orientation of the split view.</source>
+        <translation>Orientering för delad vy.</translation>
+    </message>
+    <message>
+        <source>Max line count</source>
+        <translation>Max radantal</translation>
+    </message>
+    <message>
+        <source>Sets the max number of lines that the text component shows.</source>
+        <translation>Anger max antal rader som textkomponenten visar.</translation>
+    </message>
+    <message>
+        <source>Sets how the font size is determined.</source>
+        <translation>Anger hur typsnittsstorleken bestäms.</translation>
+    </message>
+    <message>
+        <source>Sets the formatting method of the text.</source>
+        <translation>Anger formateringsmetoden för texten.</translation>
+    </message>
+    <message>
+        <source>Render type</source>
+        <translation>Renderingstyp</translation>
+    </message>
+    <message>
+        <source>Size mode</source>
+        <translation>Storleksläge</translation>
+    </message>
+    <message>
+        <source>Line height for the text.</source>
+        <translation>Radhöjd för texten.</translation>
+    </message>
+    <message>
+        <source>Line height mode</source>
+        <translation>Radhöjdsläge</translation>
+    </message>
+    <message>
+        <source>Clone</source>
+        <translation>Klona</translation>
+    </message>
+    <message>
+        <source>Show Thumbnail</source>
+        <translation>Visa miniatyrbild</translation>
+    </message>
+    <message>
+        <source>Show Changes</source>
+        <translation>Visa ändringar</translation>
+    </message>
+    <message>
+        <source>Extend</source>
+        <translation>Utöka</translation>
+    </message>
+    <message>
+        <source>Jump to the code</source>
+        <translation>Hoppa till koden</translation>
+    </message>
+    <message>
+        <source>Reset when Condition</source>
+        <translation>Nollställ när villkor</translation>
+    </message>
+    <message>
+        <source>When</source>
+        <translation>När</translation>
+    </message>
+    <message>
+        <source>Sets when the state should be applied.</source>
+        <translation>Ställer in när tillståndet ska tillämpas.</translation>
+    </message>
+    <message>
+        <source>The name of the state.</source>
+        <translation>Namnet på tillståndet.</translation>
+    </message>
+    <message>
+        <source>The state that this state extends.</source>
+        <translation>Tillståndet som detta tillstånd utökar.</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Standard</translation>
+    </message>
+    <message>
+        <source>Set State as default</source>
+        <translation>Ställ in tillstånd som standard</translation>
+    </message>
+    <message>
+        <source>State Name</source>
+        <translation>Tillståndsnamn</translation>
+    </message>
+    <message>
+        <source>Base State</source>
+        <translation>Grundtillstånd</translation>
+    </message>
+    <message>
+        <source>No Property Changes Available</source>
+        <translation>Inga egenskapsändringar tillgängliga</translation>
+    </message>
+    <message>
+        <source>Explicit</source>
+        <translation>Uttryckligen</translation>
+    </message>
+    <message>
+        <source>Restore values</source>
+        <translation>Återställ värden</translation>
+    </message>
+    <message>
+        <source>When Condition</source>
+        <translation>När villkor</translation>
+    </message>
+    <message>
+        <source>Method</source>
+        <translation>Metod</translation>
+    </message>
+    <message>
+        <source>Message</source>
+        <translation>Meddelande</translation>
+    </message>
+    <message>
+        <source>Custom Connections can only be edited with the binding editor</source>
+        <translation>Anpassade anslutningar kan endast redigeras med bindningsredigeraren</translation>
+    </message>
+    <message>
+        <source>Toggles if the user can interact with the view.</source>
+        <translation>Växlar om användaren kan interagera med vyn.</translation>
+    </message>
+    <message>
+        <source>Sets the orientation of the view.</source>
+        <translation>Ställer in orienteringen för vyn.</translation>
+    </message>
+    <message>
+        <source>Tab Bar</source>
+        <translation>Flikrad</translation>
+    </message>
+    <message>
+        <source>Tab View</source>
+        <translation>Flikvy</translation>
+    </message>
+    <message>
+        <source>Tab position</source>
+        <translation>Flikposition</translation>
+    </message>
+    <message>
+        <source>Read only</source>
+        <translation>Skrivskyddad</translation>
+    </message>
+    <message>
+        <source>Determines whether the text area is read only.</source>
+        <translation>Bestämmer huruvida textytan är skrivskyddad.</translation>
+    </message>
+    <message>
+        <source>Document margins</source>
+        <translation>Dokumentmarginaler</translation>
+    </message>
+    <message>
+        <source>Text Area</source>
+        <translation>Textyta</translation>
+    </message>
+    <message>
+        <source>Frame width</source>
+        <translation>Rambredd</translation>
+    </message>
+    <message>
+        <source>Text shown on the text area.</source>
+        <translation>Text som visas på textytan.</translation>
+    </message>
+    <message>
+        <source>Margins of the text area.</source>
+        <translation>Marginaler för textytan.</translation>
+    </message>
+    <message>
+        <source>Width of the frame.</source>
+        <translation>Bredd på ramen.</translation>
+    </message>
+    <message>
+        <source>Contents frame</source>
+        <translation>Innehållsram</translation>
+    </message>
+    <message>
+        <source>Focus Handling</source>
+        <translation>Fokushantering</translation>
+    </message>
+    <message>
+        <source>Highlight on focus</source>
+        <translation>Framhäv vid fokus</translation>
+    </message>
+    <message>
+        <source>Sets how overflowing text is handled.</source>
+        <translation>Ställer in hur överflödande text hanteras.</translation>
+    </message>
+    <message>
+        <source>Sets how to indicate that more text is available.</source>
+        <translation>Ställer in hur det indikeras att mer text är tillgängligt.</translation>
+    </message>
+    <message>
+        <source>Sets the rendering type for this component.</source>
+        <translation>Ställer in renderingstypen för denna komponent.</translation>
+    </message>
+    <message>
+        <source>Sets the quality of the render. This only has an effect when &lt;b&gt;Render type&lt;/b&gt; is set to QtRendering.</source>
+        <translation>Ställer in kvaliteten för renderingen. Detta har endast effekt när &lt;b&gt;Renderingstyp&lt;/b&gt; är inställd till QtRendering.</translation>
+    </message>
+    <message>
+        <source>Sets how to calculate the line height based on the &lt;b&gt;Line height&lt;/b&gt; value.</source>
+        <translation>Ställer in hur beräkningen av radhöjd baserat på &lt;b&gt;Radhöjd&lt;/b&gt;-värdet.</translation>
+    </message>
+    <message>
+        <source>Render type quality</source>
+        <translation>Kvalitet för renderingstyp</translation>
+    </message>
+    <message>
+        <source>Sets the minimum font size to use. This has no effect when &lt;b&gt;Size&lt;/b&gt; mode is set to Fixed.</source>
+        <translation>Ställer in minsta typsnittsstorlek att använda. Detta har inget effekt när &lt;b&gt;Storlek&lt;/b&gt;-läget är inställt till Fast.</translation>
+    </message>
+    <message>
+        <source>Text Field</source>
+        <translation>Textfält</translation>
+    </message>
+    <message>
+        <source>Placeholder text</source>
+        <translation>Platshållartext</translation>
+    </message>
+    <message>
+        <source>Determines whether the text field is read only.</source>
+        <translation>Bestämmer huruvida textfältet är skrivskyddat.</translation>
+    </message>
+    <message>
+        <source>Text shown on the text field.</source>
+        <translation>Text som visas på textfältet.</translation>
+    </message>
+    <message>
+        <source>Placeholder text.</source>
+        <translation>Platshållartext.</translation>
+    </message>
+    <message>
+        <source>Input mask</source>
+        <translation>Inmatningsmask</translation>
+    </message>
+    <message>
+        <source>Restricts the valid text in the text field.</source>
+        <translation>Begränsar giltiga texten i textfältet.</translation>
+    </message>
+    <message>
+        <source>Echo mode</source>
+        <translation>Ekoläge</translation>
+    </message>
+    <message>
+        <source>Specifies how the text is displayed in the text field.</source>
+        <translation>Anger hur texten visas i textfältet.</translation>
+    </message>
+    <message>
+        <source>Text Input</source>
+        <translation>Textinmatning</translation>
+    </message>
+    <message>
+        <source>Selection color</source>
+        <translation>Markeringsfärg</translation>
+    </message>
+    <message>
+        <source>Sets the background color of selected text.</source>
+        <translation>Ställer in bakgrundsfärgen för markerad text.</translation>
+    </message>
+    <message>
+        <source>Selected text color</source>
+        <translation>Färg för markerad text</translation>
+    </message>
+    <message>
+        <source>Sets the color of selected text.</source>
+        <translation>Ställer in färgen för markerad text.</translation>
+    </message>
+    <message>
+        <source>Selection mode</source>
+        <translation>Markeringsläge</translation>
+    </message>
+    <message>
+        <source>Sets the way text is selected with the mouse.</source>
+        <translation>Ställer in sättet som text markeras med musen.</translation>
+    </message>
+    <message>
+        <source>Sets the allowed characters.</source>
+        <translation>Ställer in tillåtna tecken.</translation>
+    </message>
+    <message>
+        <source>Sets the visibility mode.</source>
+        <translation>Ställer in synlighetsläget.</translation>
+    </message>
+    <message>
+        <source>Password character</source>
+        <translation>Lösenordstecken</translation>
+    </message>
+    <message>
+        <source>Sets which character to display when passwords are entered.</source>
+        <translation>Ställer in vilket tecken att visa när lösenord matas in.</translation>
+    </message>
+    <message>
+        <source>Tab stop distance</source>
+        <translation>Tabulatorstoppavstånd</translation>
+    </message>
+    <message>
+        <source>Default distance between tab stops in device units.</source>
+        <translation>Standardavstånd mellan tabulatorstopp i enheter.</translation>
+    </message>
+    <message>
+        <source>Text margin</source>
+        <translation>Textmarginal</translation>
+    </message>
+    <message>
+        <source>Margin around the text in the Text Edit in pixels.</source>
+        <translation>Marginal runt texten i Textredigering i pixlar.</translation>
+    </message>
+    <message>
+        <source>Maximum length</source>
+        <translation>Maximal längd</translation>
+    </message>
+    <message>
+        <source>Sets the maximum length of the text.</source>
+        <translation>Ställer in maximal längd för texten.</translation>
+    </message>
+    <message>
+        <source>Toggles if the text is focused on mouse click.</source>
+        <translation>Växlar om texten är fokuserad vid musklick.</translation>
+    </message>
+    <message>
+        <source>Toggles if the text scrolls when it exceeds its boundary.</source>
+        <translation>Växlar om texten rullar när den överstiger sin gräns.</translation>
+    </message>
+    <message>
+        <source>Overwrite mode</source>
+        <translation>Överskrivningsläge</translation>
+    </message>
+    <message>
+        <source>Toggles if overwriting text is allowed.</source>
+        <translation>Växlar om överskrivning av text tillåts.</translation>
+    </message>
+    <message>
+        <source>Persistent selection</source>
+        <translation>Bestående markering</translation>
+    </message>
+    <message>
+        <source>Toggles if the text should remain selected after moving the focus elsewhere.</source>
+        <translation>Växlar om texten ska kvarstå som markerad efter fokus har flyttats någon annanstans.</translation>
+    </message>
+    <message>
+        <source>Select by mouse</source>
+        <translation>Markera med mus</translation>
+    </message>
+    <message>
+        <source>Toggles if the text can be selected with the mouse.</source>
+        <translation>Växlar om texten kan markeras med musen.</translation>
+    </message>
+    <message>
+        <source>Select by keyboard</source>
+        <translation>Markera med tangentbord</translation>
+    </message>
+    <message>
+        <source>Toggles if the text allows edits.</source>
+        <translation>Växlar om texten tillåter redigeringar.</translation>
+    </message>
+    <message>
+        <source>Cursor visible</source>
+        <translation>Synlig markör</translation>
+    </message>
+    <message>
+        <source>Toggles if the cursor is visible.</source>
+        <translation>Växlar om markören är synlig.</translation>
+    </message>
+    <message>
+        <source>Auto scroll</source>
+        <translation>Automatisk rullning</translation>
+    </message>
+    <message>
+        <source>Placeholder text displayed when the editor is empty.</source>
+        <translation>Platshållartext som visas när redigeraren är tom.</translation>
+    </message>
+    <message>
+        <source>Placeholder color</source>
+        <translation>Färg för platshållare</translation>
+    </message>
+    <message>
+        <source>Placeholder text color.</source>
+        <translation>Textfärg för platshållare.</translation>
+    </message>
+    <message>
+        <source>Whether text area accepts hover events.</source>
+        <translation>Huruvida textytan accepterar hovringshändelser.</translation>
+    </message>
+    <message>
+        <source>Apply to selected model</source>
+        <translation>Tillämpa på markerad modell</translation>
+    </message>
+    <message>
+        <source>Create New Texture</source>
+        <translation>Skapa ny textur</translation>
+    </message>
+    <message>
+        <source>Timer</source>
+        <translation>Timer</translation>
+    </message>
+    <message>
+        <source>Sets the interval between triggers, in milliseconds.</source>
+        <translation>Ställer in intervallet mellan utlösare, i millisekunder.</translation>
+    </message>
+    <message>
+        <source>Repeat</source>
+        <translation>Upprepa</translation>
+    </message>
+    <message>
+        <source>Sets whether the timer is triggered repeatedly at the specified interval or just once.</source>
+        <translation>Ställer in huruvida timern utlöses igen och igen vid angivet intervall eller bara en gång.</translation>
+    </message>
+    <message>
+        <source>Sets whether the timer is running or not.</source>
+        <translation>Ställer in huruvida timern kör eller inte.</translation>
+    </message>
+    <message>
+        <source>Triggered on start</source>
+        <translation>Utlöst vid start</translation>
+    </message>
+    <message>
+        <source>Sets the timer to trigger when started.</source>
+        <translation>Ställer in timern att utlösa när startad.</translation>
+    </message>
+    <message>
+        <source>Tool Bar</source>
+        <translation>Verktygsrad</translation>
+    </message>
+    <message>
+        <source>Position of the toolbar.</source>
+        <translation>Position för verktygsraden.</translation>
+    </message>
+    <message>
+        <source>Tool Separator</source>
+        <translation>Verktygsavgränsare</translation>
+    </message>
+    <message>
+        <source>Sets the orientation of the separator.</source>
+        <translation>Anger orienteringen för avgränsaren.</translation>
+    </message>
+    <message>
+        <source>Tumbler</source>
+        <translation>Tumlare</translation>
+    </message>
+    <message>
+        <source>Visible count</source>
+        <translation>Synligt antal</translation>
+    </message>
+    <message>
+        <source>Sets the number of items in the model.</source>
+        <translation>Ställer in antalet poster i modellen.</translation>
+    </message>
+    <message>
+        <source>Toggles if the tumbler wraps around when it reaches the
+top or bottom.</source>
+        <translation>Växlar om tumlaren börjar om när den når
+toppen eller botten.</translation>
+    </message>
+    <message>
+        <source>Wrap</source>
+        <translation>Börja om</translation>
+    </message>
+    <message>
+        <source>Bundle %1 might be in use</source>
+        <translation>Bundlen %1 kanske används</translation>
+    </message>
+    <message>
+        <source>If the %1 you are removing is in use, it might cause the project to malfunction.
+
+Are you sure you want to remove it?</source>
+        <translation>Om den %1 som du tar bort används kan detta orsaka att projektet får problem.
+
+Är du säker på att du vill ta bort den?</translation>
+    </message>
+    <message>
+        <source>Built-in primitive</source>
+        <translation>Inbyggd primitiv</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <source>Minimum size of the window.</source>
+        <translation>Minimum storlek för fönstret.</translation>
+    </message>
+    <message>
+        <source>Maximum size of the window.</source>
+        <translation>Maximal storlek för fönstret.</translation>
+    </message>
+    <message>
+        <source>Content orientation</source>
+        <translation>Innehållsorientering</translation>
+    </message>
+    <message>
+        <source>Flags</source>
+        <translation>Flaggor</translation>
+    </message>
+    <message>
+        <source>Modality</source>
+        <translation>Modalitet</translation>
+    </message>
+    <message>
+        <source>Select a component to see its properties.</source>
+        <translation>Välj en komponent för att se dess egenskaper.</translation>
+    </message>
 </context>
 <context>
     <name>QtC::QmlEditorWidgets</name>
@@ -60315,45 +59794,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>RadioButtonSpecifics</name>
-    <message>
-        <source>Radio Button</source>
-        <translation>Radioknapp</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
-    <message>
-        <source>Text label for the radio button.</source>
-        <translation>Textetikett för radioknappen.</translation>
-    </message>
-    <message>
-        <source>Determines whether the radio button is checked or not.</source>
-        <translation>Bestämmer huruvida radioknappen är markerad eller inte.</translation>
-    </message>
-    <message>
-        <source>Determines whether the radio button gets focus if pressed.</source>
-        <translation>Bestämmer huruvida radioknappen får fokus om tryckt.</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>Markerad</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Fokus vid tryck</translation>
-    </message>
-</context>
-<context>
     <name>RangeSliderSpecifics</name>
     <message>
         <source>Range Slider</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Value 1</source>
-        <translation>Värde 1</translation>
     </message>
     <message>
         <source>Sets the value of the first range slider handle.</source>
@@ -60394,26 +59838,6 @@ defined in step size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Live</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Value 2</source>
-        <translation>Värde 2</translation>
-    </message>
-    <message>
-        <source>From</source>
-        <translation>Från</translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation>Till</translation>
-    </message>
-    <message>
-        <source>Step size</source>
-        <translation>Stegstorlek</translation>
-    </message>
-    <message>
         <source>Drag threshold</source>
         <translation type="unfinished"></translation>
     </message>
@@ -60421,25 +59845,9 @@ defined in step size.</source>
         <source>Snap mode</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Orientering</translation>
-    </message>
 </context>
 <context>
     <name>RectangleSpecifics</name>
-    <message>
-        <source>Rectangle</source>
-        <translation>Rektangel</translation>
-    </message>
-    <message>
-        <source>Fill color</source>
-        <translation>Fyllnadsfärg</translation>
-    </message>
-    <message>
-        <source>Sets the color for the background.</source>
-        <translation>Anger färgen för bakgrunden.</translation>
-    </message>
     <message>
         <source>Border color</source>
         <translation type="unfinished"></translation>
@@ -60457,39 +59865,8 @@ defined in step size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Radius</source>
-        <translation>Radie</translation>
-    </message>
-    <message>
         <source>Sets the radius by which the corners get rounded.</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>RenameFolderDialog</name>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Byt namn på mapp</translation>
-    </message>
-    <message>
-        <source>Folder name cannot be empty.</source>
-        <translation>Mappnamnet får inte vara tomt.</translation>
-    </message>
-    <message>
-        <source>Could not rename folder. Make sure no folder with the same name exists.</source>
-        <translation>Kunde inte byta namn på mappen. Försäkra dig om att ingen mapp med samma namn finns.</translation>
-    </message>
-    <message>
-        <source>If the folder has assets in use, renaming it might cause the project to not work correctly.</source>
-        <translation>Om mappen har tillgångar i användning så kan namnbyte på den orsaka att projektet inte fungerar korrekt.</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation>Byt namn</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
@@ -60499,16 +59876,8 @@ defined in step size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Model</source>
-        <translation>Modell</translation>
-    </message>
-    <message>
         <source>The model providing data for the repeater. This can simply specify the number of delegate instances to create or it can be bound to an actual model.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delegate</source>
-        <translation>Delegat</translation>
     </message>
     <message>
         <source>The delegate provides a template defining each object instantiated by the repeater.</source>
@@ -60541,216 +59910,10 @@ defined in step size.</source>
     </message>
 </context>
 <context>
-    <name>RoundButtonSpecifics</name>
-    <message>
-        <source>Round Button</source>
-        <translation>Rund knapp</translation>
-    </message>
-    <message>
-        <source>Appearance</source>
-        <translation>Utseende</translation>
-    </message>
-    <message>
-        <source>Toggles if the button is flat or highlighted.</source>
-        <translation>Växlar om knappen är platt eller framhävd.</translation>
-    </message>
-    <message>
-        <source>Flat</source>
-        <translation>Platt</translation>
-    </message>
-    <message>
-        <source>Highlight</source>
-        <translation>Framhävd</translation>
-    </message>
-    <message>
-        <source>Radius</source>
-        <translation>Radie</translation>
-    </message>
-    <message>
-        <source>Sets the radius of the button.</source>
-        <translation>Ställer in radien för knappen.</translation>
-    </message>
-</context>
-<context>
-    <name>RowLayoutSpecifics</name>
-    <message>
-        <source>Row Layout</source>
-        <translation>Radlayout</translation>
-    </message>
-    <message>
-        <source>Row spacing</source>
-        <translation>Radavstånd</translation>
-    </message>
-    <message>
-        <source>Sets the space between the items in pixels in the &lt;b&gt;Row Layout&lt;/b&gt;.</source>
-        <translation>Ställer in avståndet mellan poster i bildpunkter i &lt;b&gt;Radlayout&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>Layout direction</source>
-        <translation>Layoutriktning</translation>
-    </message>
-    <message>
-        <source>Sets the direction of the item flow in the &lt;b&gt;Row Layout&lt;/b&gt;.</source>
-        <translation>Ställer in riktningen för postflödet i &lt;b&gt;Radlayout&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>Uniform cell sizes</source>
-        <translation>Enhetliga cellstorlekar</translation>
-    </message>
-    <message>
-        <source>Toggles all cells to have a uniform size.</source>
-        <translation>Växlar alla celler till att ha en enhetlig storlek.</translation>
-    </message>
-</context>
-<context>
-    <name>RowSpecifics</name>
-    <message>
-        <source>Row</source>
-        <translation>Rad</translation>
-    </message>
-    <message>
-        <source>Sets the spacing between items in the row.</source>
-        <translation>Ställer in avståndet mellan poster i raden.</translation>
-    </message>
-    <message>
-        <source>Layout direction</source>
-        <translation>Layoutriktning</translation>
-    </message>
-    <message>
-        <source>Sets in which direction items in the row are placed.</source>
-        <translation>Ställer in vilken riktning som poster i raden placeras.</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Avstånd</translation>
-    </message>
-</context>
-<context>
-    <name>SaveAsDialog</name>
-    <message>
-        <source>Save Effect</source>
-        <translation>Spara effekt</translation>
-    </message>
-    <message>
-        <source>Effect name: </source>
-        <translation>Effektnamn: </translation>
-    </message>
-    <message>
-        <source>Name contains invalid characters.</source>
-        <translation>Namnet innehåller ogiltiga tecken.</translation>
-    </message>
-    <message>
-        <source>Name must start with a capital letter.</source>
-        <translation>Namnet måste börja med en versal bokstav.</translation>
-    </message>
-    <message>
-        <source>Name must have at least 3 characters.</source>
-        <translation>Namnet måste ha minst tre tecken.</translation>
-    </message>
-    <message>
-        <source>Name cannot contain white space.</source>
-        <translation>Namnet får inte innehåll blanksteg.</translation>
-    </message>
-    <message>
-        <source>Name is already taken.</source>
-        <translation>Namnet är upptaget.</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Spara</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
-    </message>
-</context>
-<context>
-    <name>SaveChangesDialog</name>
-    <message>
-        <source>Save Changes</source>
-        <translation>Spara ändringar</translation>
-    </message>
-    <message>
-        <source>Current composition has unsaved changes.</source>
-        <translation>Aktuell komposition har osparade ändringar.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Spara</translation>
-    </message>
-    <message>
-        <source>Discard Changes</source>
-        <translation>Förkasta ändringar</translation>
-    </message>
-</context>
-<context>
     <name>ScaleToolAction</name>
     <message>
         <source>Activate Scale Tool</source>
         <translation>Aktivera skalningsverktyg</translation>
-    </message>
-</context>
-<context>
-    <name>ScrollViewSpecifics</name>
-    <message>
-        <source>Scroll View</source>
-        <translation>Rullningsvy</translation>
-    </message>
-    <message>
-        <source>Content size</source>
-        <translation>Innehållsstorlek</translation>
-    </message>
-    <message>
-        <source>Sets the width and height of the view.
-This is used for calculating the total implicit size.</source>
-        <translation>Ställer in bredd och höjd för vyn.
-Detta används för att beräkna total implicit storlek.</translation>
-    </message>
-    <message>
-        <source>W</source>
-        <comment>width</comment>
-        <extracomment>The width of the object</extracomment>
-        <translation>W</translation>
-    </message>
-    <message>
-        <source>Content width used for calculating the total implicit width.</source>
-        <translation>Innehållsbredd som används för beräkning av total implicit bredd.</translation>
-    </message>
-    <message>
-        <source>H</source>
-        <comment>height</comment>
-        <extracomment>The height of the object</extracomment>
-        <translation>H</translation>
-    </message>
-    <message>
-        <source>Content height used for calculating the total implicit height.</source>
-        <translation>Innehållshöjd som används för beräkning av total implicit höjd.</translation>
-    </message>
-    <message>
-        <source>Font</source>
-        <translation>Typsnitt</translation>
-    </message>
-</context>
-<context>
-    <name>SearchBox</name>
-    <message>
-        <source>Search</source>
-        <translation>Sök</translation>
-    </message>
-</context>
-<context>
-    <name>Section</name>
-    <message>
-        <source>Expand All</source>
-        <translation>Expandera alla</translation>
-    </message>
-    <message>
-        <source>Collapse All</source>
-        <translation>Fäll in alla</translation>
     </message>
 </context>
 <context>
@@ -60851,48 +60014,12 @@ Detta används för att beräkna total implicit storlek.</translation>
 <context>
     <name>SliderSpecifics</name>
     <message>
-        <source>Slider</source>
-        <translation>Draglist</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Värde</translation>
-    </message>
-    <message>
-        <source>The current value of the slider.</source>
-        <translation>Aktuellt värde för draglisten.</translation>
-    </message>
-    <message>
-        <source>Live</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Whether the slider provides live value updates.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>From</source>
-        <translation>Från</translation>
-    </message>
-    <message>
-        <source>The starting value of the slider range.</source>
-        <translation>Startvärde för draglistens intervall.</translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation>Till</translation>
-    </message>
-    <message>
         <source>The ending value of the slider range.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Step size</source>
-        <translation>Stegstorlek</translation>
-    </message>
-    <message>
-        <source>The step size of the slider.</source>
-        <translation>Stegstorleken för draglisten.</translation>
     </message>
     <message>
         <source>Drag threshold</source>
@@ -60911,48 +60038,8 @@ Detta används för att beräkna total implicit storlek.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Orientation</source>
-        <translation>Orientering</translation>
-    </message>
-    <message>
-        <source>The orientation of the slider.</source>
-        <translation>Orientering för draglisten.</translation>
-    </message>
-    <message>
-        <source>Current value of the Slider. The default value is 0.0.</source>
-        <translation>Aktuellt värde för draglisten. Standardvärdet är 0.0.</translation>
-    </message>
-    <message>
-        <source>Maximum value</source>
-        <translation>Maximalt värde</translation>
-    </message>
-    <message>
-        <source>Maximum value of the slider. The default value is 1.0.</source>
-        <translation>Maximalt värde för draglisten. Standardvärdet är 1.0.</translation>
-    </message>
-    <message>
-        <source>Minimum value</source>
-        <translation>Minimalt värde</translation>
-    </message>
-    <message>
-        <source>Minimum value of the slider. The default value is 0.0.</source>
-        <translation>Minimalt värde för draglisten. Standardvärdet är 1.0.</translation>
-    </message>
-    <message>
         <source>Layout orientation of the slider.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Indicates the slider step size.</source>
-        <translation>Indikerar draglistens stegstorlek.</translation>
-    </message>
-    <message>
-        <source>Active focus on press</source>
-        <translation>Aktivera fokus vid tryck</translation>
-    </message>
-    <message>
-        <source>Indicates whether the slider should receive active focus when pressed.</source>
-        <translation>Indikerar huruvida draglisten ska ta emot aktivt fokus när tryckt.</translation>
     </message>
     <message>
         <source>Tick marks enabled</source>
@@ -60961,10 +60048,6 @@ Detta används för att beräkna total implicit storlek.</translation>
     <message>
         <source>Indicates whether the slider should display tick marks at step intervals.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Update value while dragging</source>
-        <translation>Uppdatera värdet under dragning</translation>
     </message>
     <message>
         <source>Determines whether the current value should be updated while the user is moving the slider handle, or only when the button has been released.</source>
@@ -60985,14 +60068,6 @@ Detta används för att beräkna total implicit storlek.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Interval</source>
-        <translation>Intervall</translation>
-    </message>
-    <message>
-        <source>Position</source>
-        <translation>Position</translation>
-    </message>
-    <message>
         <source>Snap position.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -61001,20 +60076,12 @@ Detta används för att beräkna total implicit storlek.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Rotation</source>
-        <translation>Rotering</translation>
-    </message>
-    <message>
         <source>Snap rotation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Snap interval in degrees for rotation gizmo.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>Skala</translation>
     </message>
     <message>
         <source>Snap scale.</source>
@@ -61031,14 +60098,6 @@ Detta används för att beräkna total implicit storlek.</translation>
     <message>
         <source>Toggles if the position snaps to absolute values or relative to object position.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>deg</source>
-        <translation>grader</translation>
-    </message>
-    <message>
-        <source>%</source>
-        <translation>%</translation>
     </message>
     <message>
         <source>Reset All</source>
@@ -61062,41 +60121,8 @@ Detta används för att beräkna total implicit storlek.</translation>
 <context>
     <name>SpatialSoundSection</name>
     <message>
-        <source>Spatial Sound</source>
-        <translation>Spatialt ljud</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>Källa</translation>
-    </message>
-    <message>
-        <source>The source file for the sound to be played.</source>
-        <translation>Källfilen för ljudet som ska spelas upp.</translation>
-    </message>
-    <message>
-        <source>Volume</source>
-        <translation>Volym</translation>
-    </message>
-    <message>
-        <source>Set the overall volume for this sound source.
-Values between 0 and 1 will attenuate the sound, while values above 1 provide an additional gain boost.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Loops</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Sets how often the sound is played before the player stops.
 Bind to SpatialSound.Infinite to loop the current sound forever.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Auto Play</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sets whether the sound should automatically start playing when a source gets specified.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -61106,10 +60132,6 @@ Bind to SpatialSound.Infinite to loop the current sound forever.</source>
     <message>
         <source>Sets thow the volume of the sound scales with distance to the listener.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Storlek</translation>
     </message>
     <message>
         <source>Set the size of the sound source.
@@ -61172,72 +60194,9 @@ A near field gain of 1 will raise the volume of the sound signal by approx 20 dB
 <context>
     <name>SpinBoxSpecifics</name>
     <message>
-        <source>Spin Box</source>
-        <translation>Snurruta</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Värde</translation>
-    </message>
-    <message>
-        <source>Sets the current value of the spin box.</source>
-        <translation>Ställer in aktuellt värde för snurrutan.</translation>
-    </message>
-    <message>
-        <source>Sets the lowest value of the spin box range.</source>
-        <translation>Ställer in lägsta värdet för snurrutans intervall.</translation>
-    </message>
-    <message>
-        <source>Sets the highest value of the spin box range.</source>
-        <translation>Ställer in högsta värdet för snurrutans intervall.</translation>
-    </message>
-    <message>
-        <source>Sets the number by which the spin box value changes.</source>
-        <translation>Ställer in antalet med vilket snurrutans värde ändras.</translation>
-    </message>
-    <message>
-        <source>Toggles if the spin box is editable.</source>
-        <translation>Växlar om snurrutan är redigerbar.</translation>
-    </message>
-    <message>
         <source>Toggles if the spin box wraps around when 
 it reaches the start or end.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>From</source>
-        <translation>Från</translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation>Till</translation>
-    </message>
-    <message>
-        <source>Step size</source>
-        <translation>Stegstorlek</translation>
-    </message>
-    <message>
-        <source>Editable</source>
-        <translation>Redigerbar</translation>
-    </message>
-    <message>
-        <source>Wrap</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SplitViewSpecifics</name>
-    <message>
-        <source>Split View</source>
-        <translation>Delad vy</translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Orientering</translation>
-    </message>
-    <message>
-        <source>Orientation of the split view.</source>
-        <translation>Orientering för delad vy.</translation>
     </message>
 </context>
 <context>
@@ -61254,19 +60213,8 @@ it reaches the start or end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Current index</source>
-        <translation>Aktuellt index</translation>
-    </message>
-    <message>
         <source>Sets the index of the child item currently visible in the &lt;b&gt;Stack Layout&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>StackViewSpecifics</name>
-    <message>
-        <source>Font</source>
-        <translation>Typsnitt</translation>
     </message>
 </context>
 <context>
@@ -61279,19 +60227,7 @@ it reaches the start or end.</source>
 <context>
     <name>StandardTextSection</name>
     <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
-    <message>
-        <source>Text color</source>
-        <translation>Textfärg</translation>
-    </message>
-    <message>
         <source>Wrap mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sets how overflowing text is handled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -61299,59 +60235,7 @@ it reaches the start or end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Sets how to indicate that more text is available.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Max line count</source>
-        <translation>Max radantal</translation>
-    </message>
-    <message>
-        <source>Sets the max number of lines that the text component shows.</source>
-        <translation>Anger max antal rader som textkomponenten visar.</translation>
-    </message>
-    <message>
-        <source>Sets the rendering type for this component.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sets how the font size is determined.</source>
-        <translation>Anger hur typsnittsstorleken bestäms.</translation>
-    </message>
-    <message>
-        <source>Sets how to calculate the line height based on the &lt;b&gt;Line height&lt;/b&gt; value.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Alignment H</source>
-        <translation>Justering H</translation>
-    </message>
-    <message>
-        <source>Alignment V</source>
-        <translation>Justering V</translation>
-    </message>
-    <message>
-        <source>Format</source>
-        <translation>Format</translation>
-    </message>
-    <message>
-        <source>Sets the formatting method of the text.</source>
-        <translation>Anger formateringsmetoden för texten.</translation>
-    </message>
-    <message>
-        <source>Render type</source>
-        <translation>Renderingstyp</translation>
-    </message>
-    <message>
-        <source>Size mode</source>
-        <translation>Storleksläge</translation>
-    </message>
-    <message>
         <source>Min size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sets the minimum font size to use. This has no effect when &lt;b&gt;Size&lt;/b&gt; mode is set to Fixed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -61361,131 +60245,6 @@ it reaches the start or end.</source>
     <message>
         <source>Minimum font point size of scaled text.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Line height</source>
-        <translation>Radhöjd</translation>
-    </message>
-    <message>
-        <source>Line height for the text.</source>
-        <translation>Radhöjd för texten.</translation>
-    </message>
-    <message>
-        <source>Line height mode</source>
-        <translation>Radhöjdsläge</translation>
-    </message>
-</context>
-<context>
-    <name>StateMenu</name>
-    <message>
-        <source>Clone</source>
-        <translation>Klona</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Ta bort</translation>
-    </message>
-    <message>
-        <source>Show Thumbnail</source>
-        <translation>Visa miniatyrbild</translation>
-    </message>
-    <message>
-        <source>Show Changes</source>
-        <translation>Visa ändringar</translation>
-    </message>
-    <message>
-        <source>Extend</source>
-        <translation>Utöka</translation>
-    </message>
-    <message>
-        <source>Jump to the code</source>
-        <translation>Hoppa till koden</translation>
-    </message>
-    <message>
-        <source>Reset when Condition</source>
-        <translation>Nollställ när villkor</translation>
-    </message>
-    <message>
-        <source>Edit Annotation</source>
-        <translation>Redigera anteckning</translation>
-    </message>
-    <message>
-        <source>Add Annotation</source>
-        <translation>Lägg till anteckning</translation>
-    </message>
-    <message>
-        <source>Remove Annotation</source>
-        <translation>Ta bort anteckning</translation>
-    </message>
-</context>
-<context>
-    <name>StateSpecifics</name>
-    <message>
-        <source>State</source>
-        <translation>Tillstånd</translation>
-    </message>
-    <message>
-        <source>When</source>
-        <translation>När</translation>
-    </message>
-    <message>
-        <source>Sets when the state should be applied.</source>
-        <translation>Ställer in när tillståndet ska tillämpas.</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Namn</translation>
-    </message>
-    <message>
-        <source>The name of the state.</source>
-        <translation>Namnet på tillståndet.</translation>
-    </message>
-    <message>
-        <source>Extend</source>
-        <translation>Utöka</translation>
-    </message>
-    <message>
-        <source>The state that this state extends.</source>
-        <translation>Tillståndet som detta tillstånd utökar.</translation>
-    </message>
-</context>
-<context>
-    <name>StateThumbnail</name>
-    <message>
-        <source>Default</source>
-        <translation>Standard</translation>
-    </message>
-    <message>
-        <source>Set State as default</source>
-        <translation>Ställ in tillstånd som standard</translation>
-    </message>
-    <message>
-        <source>State Name</source>
-        <translation>Tillståndsnamn</translation>
-    </message>
-    <message>
-        <source>Base State</source>
-        <translation>Grundtillstånd</translation>
-    </message>
-    <message>
-        <source>No Property Changes Available</source>
-        <translation>Inga egenskapsändringar tillgängliga</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation>Mål</translation>
-    </message>
-    <message>
-        <source>Explicit</source>
-        <translation>Uttryckligen</translation>
-    </message>
-    <message>
-        <source>Restore values</source>
-        <translation>Återställ värden</translation>
-    </message>
-    <message>
-        <source>When Condition</source>
-        <translation>När villkor</translation>
     </message>
 </context>
 <context>
@@ -61499,40 +60258,20 @@ it reaches the start or end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Method</source>
-        <translation>Metod</translation>
-    </message>
-    <message>
         <source>Sets the item component&apos;s method that is affected by the &lt;b&gt;Target&lt;/b&gt; component&apos;s &lt;b&gt;Signal&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>From</source>
-        <translation>Från</translation>
     </message>
     <message>
         <source>Sets the component and its property from which the value is copied when the &lt;b&gt;Target&lt;/b&gt; component initiates the &lt;b&gt;Signal&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>To</source>
-        <translation>Till</translation>
-    </message>
-    <message>
         <source>Sets the component and its property to which the copied value is assigned when the &lt;b&gt;Target&lt;/b&gt; component initiates the &lt;b&gt;Signal&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>State Group</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sets a &lt;b&gt;State Group&lt;/b&gt; that is accessed when the &lt;b&gt;Target&lt;/b&gt; component initiates the &lt;b&gt;Signal&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation>Tillstånd</translation>
     </message>
     <message>
         <source>Sets a &lt;b&gt;State&lt;/b&gt; within the assigned &lt;b&gt;State Group&lt;/b&gt; that is accessed when the &lt;b&gt;Target&lt;/b&gt; component initiates the &lt;b&gt;Signal&lt;/b&gt;.</source>
@@ -61547,24 +60286,12 @@ it reaches the start or end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Value</source>
-        <translation>Värde</translation>
-    </message>
-    <message>
         <source>Sets the value of the property of the component that is affected by the action of the &lt;b&gt;Target&lt;/b&gt; component&apos;s &lt;b&gt;Signal&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Message</source>
-        <translation>Meddelande</translation>
-    </message>
-    <message>
         <source>Sets a text that is printed when the &lt;b&gt;Signal&lt;/b&gt; of the &lt;b&gt;Target&lt;/b&gt; component initiates.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Custom Connections can only be edited with the binding editor</source>
-        <translation>Anpassade anslutningar kan endast redigeras med bindningsredigeraren</translation>
     </message>
 </context>
 <context>
@@ -61666,26 +60393,6 @@ it reaches the start or end.</source>
         <source>Swipe View</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Interactive</source>
-        <translation>Interaktiv</translation>
-    </message>
-    <message>
-        <source>Toggles if the user can interact with the view.</source>
-        <translation>Växlar om användaren kan interagera med vyn.</translation>
-    </message>
-    <message>
-        <source>Sets the orientation of the view.</source>
-        <translation>Ställer in orienteringen för vyn.</translation>
-    </message>
-    <message>
-        <source>Font</source>
-        <translation>Typsnitt</translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Orientering</translation>
-    </message>
 </context>
 <context>
     <name>SyncEnvBackgroundAction</name>
@@ -61701,18 +60408,6 @@ it reaches the start or end.</source>
 <context>
     <name>TabBarSpecifics</name>
     <message>
-        <source>Tab Bar</source>
-        <translation>Flikrad</translation>
-    </message>
-    <message>
-        <source>Position</source>
-        <translation>Position</translation>
-    </message>
-    <message>
-        <source>Content size</source>
-        <translation>Innehållsstorlek</translation>
-    </message>
-    <message>
         <source>Sets the position of the tab bar.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -61721,37 +60416,9 @@ it reaches the start or end.</source>
 This is used for calculating the total implicit size.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>W</source>
-        <comment>width</comment>
-        <extracomment>The width of the object</extracomment>
-        <translation>W</translation>
-    </message>
-    <message>
-        <source>Content width used for calculating the total implicit width.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>H</source>
-        <comment>height</comment>
-        <extracomment>The height of the object</extracomment>
-        <translation>H</translation>
-    </message>
-    <message>
-        <source>Content height used for calculating the total implicit height.</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>TabViewSpecifics</name>
-    <message>
-        <source>Tab View</source>
-        <translation>Flikvy</translation>
-    </message>
-    <message>
-        <source>Current index</source>
-        <translation>Aktuellt index</translation>
-    </message>
     <message>
         <source>Frame visible</source>
         <translation type="unfinished"></translation>
@@ -61767,10 +60434,6 @@ This is used for calculating the total implicit size.</source>
     <message>
         <source>Determines the visibility of the tab bar.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tab position</source>
-        <translation>Flikposition</translation>
     </message>
     <message>
         <source>Determines the position of the tabs.</source>
@@ -61841,60 +60504,8 @@ This is used for calculating the total implicit size.</source>
 <context>
     <name>TextAreaSpecifics</name>
     <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Skrivskyddad</translation>
-    </message>
-    <message>
-        <source>Determines whether the text area is read only.</source>
-        <translation>Bestämmer huruvida textytan är skrivskyddad.</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Färg</translation>
-    </message>
-    <message>
-        <source>Document margins</source>
-        <translation>Dokumentmarginaler</translation>
-    </message>
-    <message>
-        <source>Text Area</source>
-        <translation>Textyta</translation>
-    </message>
-    <message>
-        <source>Frame width</source>
-        <translation>Rambredd</translation>
-    </message>
-    <message>
-        <source>Text shown on the text area.</source>
-        <translation>Text som visas på textytan.</translation>
-    </message>
-    <message>
-        <source>Margins of the text area.</source>
-        <translation>Marginaler för textytan.</translation>
-    </message>
-    <message>
-        <source>Width of the frame.</source>
-        <translation>Bredd på ramen.</translation>
-    </message>
-    <message>
-        <source>Contents frame</source>
-        <translation>Innehållsram</translation>
-    </message>
-    <message>
         <source>Determines whether the frame around contents is shown.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Focus Handling</source>
-        <translation>Fokushantering</translation>
-    </message>
-    <message>
-        <source>Highlight on focus</source>
-        <translation>Framhäv vid fokus</translation>
     </message>
     <message>
         <source>Determines whether the text area is highlighted on focus.</source>
@@ -61907,10 +60518,6 @@ This is used for calculating the total implicit size.</source>
     <message>
         <source>Determines whether tab changes the focus of the text area.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Fokus vid tryck</translation>
     </message>
     <message>
         <source>Determines whether the text area gets focus if pressed.</source>
@@ -61936,68 +60543,12 @@ This is used for calculating the total implicit size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Sets how overflowing text is handled.</source>
-        <translation>Ställer in hur överflödande text hanteras.</translation>
-    </message>
-    <message>
         <source>Elide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Sets how to indicate that more text is available.</source>
-        <translation>Ställer in hur det indikeras att mer text är tillgängligt.</translation>
-    </message>
-    <message>
-        <source>Format</source>
-        <translation>Format</translation>
-    </message>
-    <message>
-        <source>Sets the formatting method of the text.</source>
-        <translation>Ställer in formateringsmetoden för texten.</translation>
-    </message>
-    <message>
-        <source>Render type</source>
-        <translation>Renderingstyp</translation>
-    </message>
-    <message>
-        <source>Sets the rendering type for this component.</source>
-        <translation>Ställer in renderingstypen för denna komponent.</translation>
-    </message>
-    <message>
-        <source>Sets the quality of the render. This only has an effect when &lt;b&gt;Render type&lt;/b&gt; is set to QtRendering.</source>
-        <translation>Ställer in kvaliteten för renderingen. Detta har endast effekt när &lt;b&gt;Renderingstyp&lt;/b&gt; är inställd till QtRendering.</translation>
-    </message>
-    <message>
-        <source>Sets how to calculate the line height based on the &lt;b&gt;Line height&lt;/b&gt; value.</source>
-        <translation>Ställer in hur beräkningen av radhöjd baserat på &lt;b&gt;Radhöjd&lt;/b&gt;-värdet.</translation>
-    </message>
-    <message>
-        <source>Sets how the font size is determined.</source>
-        <translation>Ställer in hur typsnittsstorleken bestäms.</translation>
-    </message>
-    <message>
-        <source>Sets the max number of lines that the text component shows.</source>
-        <translation>Ställer in max antal rader som textkomponenten visar.</translation>
-    </message>
-    <message>
-        <source>Render type quality</source>
-        <translation>Kvalitet för renderingstyp</translation>
-    </message>
-    <message>
-        <source>Line height mode</source>
-        <translation>Radhöjdsläge</translation>
-    </message>
-    <message>
-        <source>Size mode</source>
-        <translation>Storleksläge</translation>
-    </message>
-    <message>
         <source>Min size</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sets the minimum font size to use. This has no effect when &lt;b&gt;Size&lt;/b&gt; mode is set to Fixed.</source>
-        <translation>Ställer in minsta typsnittsstorlek att använda. Detta har inget effekt när &lt;b&gt;Storlek&lt;/b&gt;-läget är inställt till Fast.</translation>
     </message>
     <message>
         <source>Minimum font pixel size of scaled text.</source>
@@ -62006,227 +60557,6 @@ This is used for calculating the total implicit size.</source>
     <message>
         <source>Minimum font point size of scaled text.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Max line count</source>
-        <translation>Max radantal</translation>
-    </message>
-</context>
-<context>
-    <name>TextFieldSpecifics</name>
-    <message>
-        <source>Text Field</source>
-        <translation>Textfält</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
-    <message>
-        <source>Placeholder text</source>
-        <translation>Platshållartext</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Skrivskyddad</translation>
-    </message>
-    <message>
-        <source>Determines whether the text field is read only.</source>
-        <translation>Bestämmer huruvida textfältet är skrivskyddat.</translation>
-    </message>
-    <message>
-        <source>Text shown on the text field.</source>
-        <translation>Text som visas på textfältet.</translation>
-    </message>
-    <message>
-        <source>Placeholder text.</source>
-        <translation>Platshållartext.</translation>
-    </message>
-    <message>
-        <source>Input mask</source>
-        <translation>Inmatningsmask</translation>
-    </message>
-    <message>
-        <source>Restricts the valid text in the text field.</source>
-        <translation>Begränsar giltiga texten i textfältet.</translation>
-    </message>
-    <message>
-        <source>Echo mode</source>
-        <translation>Ekoläge</translation>
-    </message>
-    <message>
-        <source>Specifies how the text is displayed in the text field.</source>
-        <translation>Anger hur texten visas i textfältet.</translation>
-    </message>
-</context>
-<context>
-    <name>TextInputSection</name>
-    <message>
-        <source>Text Input</source>
-        <translation>Textinmatning</translation>
-    </message>
-    <message>
-        <source>Selection color</source>
-        <translation>Markeringsfärg</translation>
-    </message>
-    <message>
-        <source>Sets the background color of selected text.</source>
-        <translation>Ställer in bakgrundsfärgen för markerad text.</translation>
-    </message>
-    <message>
-        <source>Selected text color</source>
-        <translation>Färg för markerad text</translation>
-    </message>
-    <message>
-        <source>Sets the color of selected text.</source>
-        <translation>Ställer in färgen för markerad text.</translation>
-    </message>
-    <message>
-        <source>Selection mode</source>
-        <translation>Markeringsläge</translation>
-    </message>
-    <message>
-        <source>Sets the way text is selected with the mouse.</source>
-        <translation>Ställer in sättet som text markeras med musen.</translation>
-    </message>
-    <message>
-        <source>Input mask</source>
-        <translation>Inmatningsmask</translation>
-    </message>
-    <message>
-        <source>Sets the allowed characters.</source>
-        <translation>Ställer in tillåtna tecken.</translation>
-    </message>
-    <message>
-        <source>Echo mode</source>
-        <translation>Ekoläge</translation>
-    </message>
-    <message>
-        <source>Sets the visibility mode.</source>
-        <translation>Ställer in synlighetsläget.</translation>
-    </message>
-    <message>
-        <source>Password character</source>
-        <translation>Lösenordstecken</translation>
-    </message>
-    <message>
-        <source>Sets which character to display when passwords are entered.</source>
-        <translation>Ställer in vilket tecken att visa när lösenord matas in.</translation>
-    </message>
-    <message>
-        <source>Tab stop distance</source>
-        <translation>Tabulatorstoppavstånd</translation>
-    </message>
-    <message>
-        <source>Default distance between tab stops in device units.</source>
-        <translation>Standardavstånd mellan tabulatorstopp i enheter.</translation>
-    </message>
-    <message>
-        <source>Text margin</source>
-        <translation>Textmarginal</translation>
-    </message>
-    <message>
-        <source>Margin around the text in the Text Edit in pixels.</source>
-        <translation>Marginal runt texten i Textredigering i pixlar.</translation>
-    </message>
-    <message>
-        <source>Maximum length</source>
-        <translation>Maximal längd</translation>
-    </message>
-    <message>
-        <source>Sets the maximum length of the text.</source>
-        <translation>Ställer in maximal längd för texten.</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Fokus vid tryck</translation>
-    </message>
-    <message>
-        <source>Toggles if the text is focused on mouse click.</source>
-        <translation>Växlar om texten är fokuserad vid musklick.</translation>
-    </message>
-    <message>
-        <source>Toggles if the text scrolls when it exceeds its boundary.</source>
-        <translation>Växlar om texten rullar när den överstiger sin gräns.</translation>
-    </message>
-    <message>
-        <source>Overwrite mode</source>
-        <translation>Överskrivningsläge</translation>
-    </message>
-    <message>
-        <source>Toggles if overwriting text is allowed.</source>
-        <translation>Växlar om överskrivning av text tillåts.</translation>
-    </message>
-    <message>
-        <source>Persistent selection</source>
-        <translation>Bestående markering</translation>
-    </message>
-    <message>
-        <source>Toggles if the text should remain selected after moving the focus elsewhere.</source>
-        <translation>Växlar om texten ska kvarstå som markerad efter fokus har flyttats någon annanstans.</translation>
-    </message>
-    <message>
-        <source>Select by mouse</source>
-        <translation>Markera med mus</translation>
-    </message>
-    <message>
-        <source>Toggles if the text can be selected with the mouse.</source>
-        <translation>Växlar om texten kan markeras med musen.</translation>
-    </message>
-    <message>
-        <source>Select by keyboard</source>
-        <translation>Markera med tangentbord</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Skrivskyddad</translation>
-    </message>
-    <message>
-        <source>Toggles if the text allows edits.</source>
-        <translation>Växlar om texten tillåter redigeringar.</translation>
-    </message>
-    <message>
-        <source>Cursor visible</source>
-        <translation>Synlig markör</translation>
-    </message>
-    <message>
-        <source>Toggles if the cursor is visible.</source>
-        <translation>Växlar om markören är synlig.</translation>
-    </message>
-    <message>
-        <source>Auto scroll</source>
-        <translation>Automatisk rullning</translation>
-    </message>
-</context>
-<context>
-    <name>TextSection</name>
-    <message>
-        <source>Text Area</source>
-        <translation>Textyta</translation>
-    </message>
-    <message>
-        <source>Placeholder text</source>
-        <translation>Text för platshållare</translation>
-    </message>
-    <message>
-        <source>Placeholder text displayed when the editor is empty.</source>
-        <translation>Platshållartext som visas när redigeraren är tom.</translation>
-    </message>
-    <message>
-        <source>Placeholder color</source>
-        <translation>Färg för platshållare</translation>
-    </message>
-    <message>
-        <source>Placeholder text color.</source>
-        <translation>Textfärg för platshållare.</translation>
-    </message>
-    <message>
-        <source>Hover</source>
-        <translation>Hovra</translation>
-    </message>
-    <message>
-        <source>Whether text area accepts hover events.</source>
-        <translation>Huruvida textytan accepterar hovringshändelser.</translation>
     </message>
 </context>
 <context>
@@ -62239,28 +60569,12 @@ This is used for calculating the total implicit size.</source>
 <context>
     <name>TextureBrowserContextMenu</name>
     <message>
-        <source>Apply to selected model</source>
-        <translation>Tillämpa på markerad modell</translation>
-    </message>
-    <message>
         <source>Apply to selected material</source>
         <translation>Tillämpa på markerat material</translation>
     </message>
     <message>
         <source>Apply as light probe</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
-        <translation>Duplicera</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Ta bort</translation>
-    </message>
-    <message>
-        <source>Create New Texture</source>
-        <translation>Skapa ny textur</translation>
     </message>
 </context>
 <context>
@@ -62333,79 +60647,6 @@ This is used for calculating the total implicit size.</source>
     <message>
         <source>Edit Keyframe...</source>
         <translation>Redigera nyckelbild...</translation>
-    </message>
-</context>
-<context>
-    <name>TimerSpecifics</name>
-    <message>
-        <source>Timer</source>
-        <translation>Timer</translation>
-    </message>
-    <message>
-        <source>Interval</source>
-        <translation>Intervall</translation>
-    </message>
-    <message>
-        <source>Sets the interval between triggers, in milliseconds.</source>
-        <translation>Ställer in intervallet mellan utlösare, i millisekunder.</translation>
-    </message>
-    <message>
-        <source>Repeat</source>
-        <translation>Upprepa</translation>
-    </message>
-    <message>
-        <source>Sets whether the timer is triggered repeatedly at the specified interval or just once.</source>
-        <translation>Ställer in huruvida timern utlöses igen och igen vid angivet intervall eller bara en gång.</translation>
-    </message>
-    <message>
-        <source>Running</source>
-        <translation>Kör</translation>
-    </message>
-    <message>
-        <source>Sets whether the timer is running or not.</source>
-        <translation>Ställer in huruvida timern kör eller inte.</translation>
-    </message>
-    <message>
-        <source>Triggered on start</source>
-        <translation>Utlöst vid start</translation>
-    </message>
-    <message>
-        <source>Sets the timer to trigger when started.</source>
-        <translation>Ställer in timern att utlösa när startad.</translation>
-    </message>
-</context>
-<context>
-    <name>ToolBarSpecifics</name>
-    <message>
-        <source>Tool Bar</source>
-        <translation>Verktygsrad</translation>
-    </message>
-    <message>
-        <source>Position</source>
-        <translation>Position</translation>
-    </message>
-    <message>
-        <source>Position of the toolbar.</source>
-        <translation>Position för verktygsraden.</translation>
-    </message>
-    <message>
-        <source>Font</source>
-        <translation>Typsnitt</translation>
-    </message>
-</context>
-<context>
-    <name>ToolSeparatorSpecifics</name>
-    <message>
-        <source>Tool Separator</source>
-        <translation>Verktygsavgränsare</translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Orientering</translation>
-    </message>
-    <message>
-        <source>Sets the orientation of the separator.</source>
-        <translation>Anger orienteringen för avgränsaren.</translation>
     </message>
 </context>
 <context>
@@ -62507,133 +60748,6 @@ This is used for calculating the total implicit size.</source>
     </message>
 </context>
 <context>
-    <name>TumblerSpecifics</name>
-    <message>
-        <source>Tumbler</source>
-        <translation>Tumlare</translation>
-    </message>
-    <message>
-        <source>Visible count</source>
-        <translation>Synligt antal</translation>
-    </message>
-    <message>
-        <source>Sets the number of items in the model.</source>
-        <translation>Ställer in antalet poster i modellen.</translation>
-    </message>
-    <message>
-        <source>Sets the index of the current item.</source>
-        <translation>Ställer in indexet för aktuell post.</translation>
-    </message>
-    <message>
-        <source>Toggles if the tumbler wraps around when it reaches the
-top or bottom.</source>
-        <translation>Växlar om tumlaren börjar om när den når
-toppen eller botten.</translation>
-    </message>
-    <message>
-        <source>Current index</source>
-        <translation>Aktuellt index</translation>
-    </message>
-    <message>
-        <source>Wrap</source>
-        <translation>Börja om</translation>
-    </message>
-</context>
-<context>
-    <name>UnimportBundleItemDialog</name>
-    <message>
-        <source>Bundle %1 might be in use</source>
-        <translation>Bundlen %1 kanske används</translation>
-    </message>
-    <message>
-        <source>If the %1 you are removing is in use, it might cause the project to malfunction.
-
-Are you sure you want to remove it?</source>
-        <translation>Om den %1 som du tar bort används kan detta orsaka att projektet får problem.
-
-Är du säker på att du vill ta bort den?</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ta bort</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
-    </message>
-</context>
-<context>
-    <name>UrlChooser</name>
-    <message>
-        <source>Built-in primitive</source>
-        <translation>Inbyggd primitiv</translation>
-    </message>
-</context>
-<context>
-    <name>ValueVec2</name>
-    <message>
-        <source>X</source>
-        <translation>X</translation>
-    </message>
-    <message>
-        <source>Y</source>
-        <translation>Y</translation>
-    </message>
-</context>
-<context>
-    <name>ValueVec3</name>
-    <message>
-        <source>X</source>
-        <translation>X</translation>
-    </message>
-    <message>
-        <source>Y</source>
-        <translation>Y</translation>
-    </message>
-    <message>
-        <source>Z</source>
-        <translation>Z</translation>
-    </message>
-</context>
-<context>
-    <name>ValueVec4</name>
-    <message>
-        <source>X</source>
-        <translation>X</translation>
-    </message>
-    <message>
-        <source>Y</source>
-        <translation>Y</translation>
-    </message>
-    <message>
-        <source>Z</source>
-        <translation>Z</translation>
-    </message>
-    <message>
-        <source>W</source>
-        <translation>W</translation>
-    </message>
-</context>
-<context>
-    <name>VideoSection</name>
-    <message>
-        <source>Video</source>
-        <translation>Video</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>Källa</translation>
-    </message>
-    <message>
-        <source>Fill mode</source>
-        <translation>Fyllnadsläge</translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Orientering</translation>
-    </message>
-</context>
-<context>
     <name>VisibilityTogglesAction</name>
     <message>
         <source>Visibility Toggles</source>
@@ -62688,88 +60802,6 @@ Are you sure you want to remove it?</source>
     <message>
         <source>File &quot;%1&quot; is not a Qt Quick Designer plugin.</source>
         <translation>Filen &quot;%1&quot; är inte en Qt Quick Designer-insticksmodul.</translation>
-    </message>
-</context>
-<context>
-    <name>WindowSpecifics</name>
-    <message>
-        <source>Window</source>
-        <translation>Fönster</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Titel</translation>
-    </message>
-    <message>
-        <source>Position</source>
-        <translation>Position</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Storlek</translation>
-    </message>
-    <message>
-        <source>W</source>
-        <comment>width</comment>
-        <extracomment>The width of the object</extracomment>
-        <translation>W</translation>
-    </message>
-    <message>
-        <source>H</source>
-        <comment>height</comment>
-        <extracomment>The height of the object</extracomment>
-        <translation>H</translation>
-    </message>
-    <message>
-        <source>Minimum size</source>
-        <translation>Minimal storlek</translation>
-    </message>
-    <message>
-        <source>Minimum size of the window.</source>
-        <translation>Minimum storlek för fönstret.</translation>
-    </message>
-    <message>
-        <source>Maximum size</source>
-        <translation>Maximal storlek</translation>
-    </message>
-    <message>
-        <source>Maximum size of the window.</source>
-        <translation>Maximal storlek för fönstret.</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Färg</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation>Synlig</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Opacitet</translation>
-    </message>
-    <message>
-        <source>Content orientation</source>
-        <translation>Innehållsorientering</translation>
-    </message>
-    <message>
-        <source>Flags</source>
-        <translation>Flaggor</translation>
-    </message>
-    <message>
-        <source>Modality</source>
-        <translation>Modalitet</translation>
-    </message>
-    <message>
-        <source>Visibility</source>
-        <translation>Synlighet</translation>
-    </message>
-</context>
-<context>
-    <name>emptyPane</name>
-    <message>
-        <source>Select a component to see its properties.</source>
-        <translation>Välj en komponent för att se dess egenskaper.</translation>
     </message>
 </context>
 <context>

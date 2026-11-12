@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+pragma Translator: "QtC::QmlDesigner"
 import QtQuick
 import QtQuick.Layouts
 import HelperWidgets 2.0

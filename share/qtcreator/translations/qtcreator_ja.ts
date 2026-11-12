@@ -4919,280 +4919,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>ButtonSpecifics</name>
-    <message>
-        <source>Button</source>
-        <translation>ボタン</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>テキスト</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>チェック済</translation>
-    </message>
-    <message>
-        <source>Text displayed on the button.</source>
-        <translation>ボタンに表示されるテキストです。</translation>
-    </message>
-    <message>
-        <source>State of the button.</source>
-        <translation>ボタンの状態です。</translation>
-    </message>
-    <message>
-        <source>Checkable</source>
-        <translation>チェック可能</translation>
-    </message>
-    <message>
-        <source>Determines whether the button is checkable or not.</source>
-        <translation>ボタンがチェック可能かどうかを指定します。</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>有効</translation>
-    </message>
-    <message>
-        <source>Determines whether the button is enabled or not.</source>
-        <translation>ボタンが有効かどうかを指定します。</translation>
-    </message>
-    <message>
-        <source>Default button</source>
-        <translation>既定のボタン</translation>
-    </message>
-    <message>
-        <source>Sets the button as the default button in a dialog.</source>
-        <translation>このボタンがダイアログの既定のボタンかどうかを指定します。</translation>
-    </message>
-    <message>
-        <source>Tool tip</source>
-        <translation>ツールチップ</translation>
-    </message>
-    <message>
-        <source>The tool tip shown for the button.</source>
-        <translation>ボタンに表示されるツールチップです。</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>押下時にフォーカスを得る</translation>
-    </message>
-    <message>
-        <source>Determines whether the button gets focus if pressed.</source>
-        <translation>押下時にボタンがフォーカスを取得するかどうかを指定します。</translation>
-    </message>
-    <message>
-        <source>Icon source</source>
-        <translation>アイコンソース</translation>
-    </message>
-    <message>
-        <source>The URL of an icon resource.</source>
-        <translation>アイコンリソースの URL です。</translation>
-    </message>
-</context>
-<context>
-    <name>CheckBoxSpecifics</name>
-    <message>
-        <source>Check Box</source>
-        <translation>チェックボックス</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>テキスト</translation>
-    </message>
-    <message>
-        <source>Text shown on the check box.</source>
-        <translation>チェックボックスに表示されるテキストです。</translation>
-    </message>
-    <message>
-        <source>State of the check box.</source>
-        <translation>チェックボックスの状態です。</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>チェック済</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>押下時にフォーカスを得る</translation>
-    </message>
-    <message>
-        <source>Determines whether the check box gets focus if pressed.</source>
-        <translation>押下時にチェックボックスがフォーカスを取得するかどうかを指定します。</translation>
-    </message>
-</context>
-<context>
-    <name>ComboBoxSpecifics</name>
-    <message>
-        <source>Combo Box</source>
-        <translation>コンボボックス</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>押下時にフォーカスを得る</translation>
-    </message>
-    <message>
-        <source>Determines whether the combobox gets focus if pressed.</source>
-        <translation>押下時にコンボボックスがフォーカスを取得するかどうかを指定します。</translation>
-    </message>
-</context>
-<context>
-    <name>RadioButtonSpecifics</name>
-    <message>
-        <source>Radio Button</source>
-        <translation>ラジオボタン</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>テキスト</translation>
-    </message>
-    <message>
-        <source>Text label for the radio button.</source>
-        <translation>ラジオボタンに表示されるテキストです。</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>チェック済</translation>
-    </message>
-    <message>
-        <source>Determines whether the radio button is checked or not.</source>
-        <translation>ラジオボタンがチェックされているかどうかを指定します。</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>押下時にフォーカスを得る</translation>
-    </message>
-    <message>
-        <source>Determines whether the radio button gets focus if pressed.</source>
-        <translation>押下時にラジオボタンがフォーカスを取得するかどうかを指定します。</translation>
-    </message>
-</context>
-<context>
-    <name>TextAreaSpecifics</name>
-    <message>
-        <source>Color</source>
-        <translation>色</translation>
-    </message>
-    <message>
-        <source>Text Area</source>
-        <translation>テキストエリア</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>テキスト</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>読取専用</translation>
-    </message>
-    <message>
-        <source>Determines whether the text area is read only.</source>
-        <translation>テキストエリアが読取専用かどうかを指定します。</translation>
-    </message>
-    <message>
-        <source>Document margins</source>
-        <translation>ドキュメントのマージン</translation>
-    </message>
-    <message>
-        <source>Frame width</source>
-        <translation>フレーム幅</translation>
-    </message>
-    <message>
-        <source>Text shown on the text area.</source>
-        <translation>テキストエリアに表示されるテキストです。</translation>
-    </message>
-    <message>
-        <source>Margins of the text area.</source>
-        <translation>テキストエリアのマージンです。</translation>
-    </message>
-    <message>
-        <source>Width of the frame.</source>
-        <translation>フレームの幅です。</translation>
-    </message>
-    <message>
-        <source>Contents frame</source>
-        <translation>コンテンツフレーム</translation>
-    </message>
-    <message>
-        <source>Determines whether the frame around contents is shown.</source>
-        <translation>コンテンツの周囲にフレームを表示するかどうかを指定します。</translation>
-    </message>
-    <message>
-        <source>Focus Handling</source>
-        <translation>フォーカスハンドリング</translation>
-    </message>
-    <message>
-        <source>Highlight on focus</source>
-        <translation>フォーカス時にハイライト</translation>
-    </message>
-    <message>
-        <source>Determines whether the text area is highlighted on focus.</source>
-        <translation>テキストエリアがフォーカスを得た場合にハイライトするかどうかを指定します。</translation>
-    </message>
-    <message>
-        <source>Tab changes focus</source>
-        <translation>タブでフォーカス変更</translation>
-    </message>
-    <message>
-        <source>Determines whether tab changes the focus of the text area.</source>
-        <translation>タブキーでテキストエリアのフォーカスを変更するかどうかを指定します。</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>押下時にフォーカスを得る</translation>
-    </message>
-    <message>
-        <source>Determines whether the text area gets focus if pressed.</source>
-        <translation>押下時にテキストエリアがフォーカスを取得するかどうかを指定します。</translation>
-    </message>
-</context>
-<context>
-    <name>TextFieldSpecifics</name>
-    <message>
-        <source>Text Field</source>
-        <translation>テキストフィールド</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>テキスト</translation>
-    </message>
-    <message>
-        <source>Placeholder text</source>
-        <translation>プレースホルダーテキスト</translation>
-    </message>
-    <message>
-        <source>Text shown on the text field.</source>
-        <translation>テキストフィールドに表示されるテキストです。</translation>
-    </message>
-    <message>
-        <source>Placeholder text.</source>
-        <translation>プレースホルダーとして表示されるテキストです。</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>読取専用</translation>
-    </message>
-    <message>
-        <source>Determines whether the text field is read only.</source>
-        <translation>テキストフィールドが読取専用かどうかを指定します。</translation>
-    </message>
-    <message>
-        <source>Input mask</source>
-        <translation>入力マスク</translation>
-    </message>
-    <message>
-        <source>Restricts the valid text in the text field.</source>
-        <translation>テキストフィールドで有効な文字列を制限します。</translation>
-    </message>
-    <message>
-        <source>Echo mode</source>
-        <translation>エコーモード</translation>
-    </message>
-    <message>
-        <source>Specifies how the text is displayed in the text field.</source>
-        <translation>テキストフィールドの文字列の表示方法を指定します。</translation>
-    </message>
-</context>
-<context>
     <name>text</name>
     <message>
         <source>Text</source>
@@ -7217,26 +6943,6 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
 <context>
     <name>BorderImageSpecifics</name>
     <message>
-        <source>Source</source>
-        <translation>ソース</translation>
-    </message>
-    <message>
-        <source>Border left</source>
-        <translation>左の枠幅</translation>
-    </message>
-    <message>
-        <source>Border right</source>
-        <translation>右の枠幅</translation>
-    </message>
-    <message>
-        <source>Border top</source>
-        <translation>上の枠幅</translation>
-    </message>
-    <message>
-        <source>Border bottom</source>
-        <translation>下の枠幅</translation>
-    </message>
-    <message>
         <source>Horizontal tile mode</source>
         <translation>水平方向のタイルモード</translation>
     </message>
@@ -7245,40 +6951,20 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
         <translation>垂直方向のタイルモード</translation>
     </message>
     <message>
-        <source>Mirror</source>
-        <translation>ミラー</translation>
-    </message>
-    <message>
         <source>Specifies whether the image should be horizontally inverted.</source>
         <translation>画像を水平方向に反転させるかどうかを指定する。</translation>
-    </message>
-    <message>
-        <source>Smooth</source>
-        <translation>スムーズ</translation>
     </message>
     <message>
         <source>Specifies whether the image is smoothly filtered when scaled or transformed.</source>
         <translation>画像を拡大・縮小・変換する際に、スムーズにフィルタリングするかどうかを指定する。</translation>
     </message>
     <message>
-        <source>Cache</source>
-        <translation>キャッシュ</translation>
-    </message>
-    <message>
         <source>Specifies whether the image should be cached.</source>
         <translation>画像をキャッシュするかどうかを指定します。</translation>
     </message>
     <message>
-        <source>Asynchronous</source>
-        <translation>非同期</translation>
-    </message>
-    <message>
         <source>Specifies that images on the local filesystem should be loaded asynchronously in a separate thread.</source>
         <translation>ローカルファイルシステム上の画像を、別のスレッドで非同期に読み込むことを指定します。</translation>
-    </message>
-    <message>
-        <source>Border Image</source>
-        <translation>枠画像</translation>
     </message>
     <message>
         <source>Border Left</source>
@@ -7304,10 +6990,6 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
         <source>Vertical Fill mode</source>
         <translation>垂直方向の描画モード</translation>
     </message>
-    <message>
-        <source>Source size</source>
-        <translation>ソースサイズ</translation>
-    </message>
 </context>
 <context>
     <name>emptyPane</name>
@@ -7324,44 +7006,12 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
 <context>
     <name>FlowSpecifics</name>
     <message>
-        <source>Flow</source>
-        <translation>フローレイアウト</translation>
-    </message>
-    <message>
-        <source>Layout direction</source>
-        <translation>レイアウト方向</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>間隔</translation>
-    </message>
-    <message>
         <source>Layout Direction</source>
         <translation>レイアウト方向</translation>
     </message>
 </context>
 <context>
     <name>GridSpecifics</name>
-    <message>
-        <source>Grid</source>
-        <translation>グリッド</translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation>列</translation>
-    </message>
-    <message>
-        <source>Rows</source>
-        <translation>行</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>優先レイアウト軸</translation>
-    </message>
-    <message>
-        <source>Layout direction</source>
-        <translation>レイアウト方向</translation>
-    </message>
     <message>
         <source>Horizontal component alignment</source>
         <translation>水平方向のコンポーネント配置</translation>
@@ -7379,10 +7029,6 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
         <translation type="vanished">垂直方向のアイテム配置</translation>
     </message>
     <message>
-        <source>Spacing</source>
-        <translation>間隔</translation>
-    </message>
-    <message>
         <source>Layout Direction</source>
         <translation>レイアウト方向</translation>
     </message>
@@ -7390,56 +7036,16 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
 <context>
     <name>GridViewSpecifics</name>
     <message>
-        <source>Grid View</source>
-        <translation>グリッドビュー</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>キャッシュ</translation>
-    </message>
-    <message>
         <source>Cache buffer</source>
         <translation>キャッシュバッファ</translation>
-    </message>
-    <message>
-        <source>Cell size</source>
-        <translation>セルサイズ</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>優先レイアウト軸</translation>
-    </message>
-    <message>
-        <source>Navigation wraps</source>
-        <translation>移動の折り返し</translation>
-    </message>
-    <message>
-        <source>Layout direction</source>
-        <translation>レイアウト方向</translation>
-    </message>
-    <message>
-        <source>Snap mode</source>
-        <translation>接着モード</translation>
     </message>
     <message>
         <source>Determines how the view scrolling will settle following a drag or flick.</source>
         <translation>ドラッグやフリックでのビューのスクロール時の停止位置を指定します。</translation>
     </message>
     <message>
-        <source>Grid View Highlight</source>
-        <translation>Grid View のハイライト</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>範囲</translation>
-    </message>
-    <message>
         <source>Highlight range</source>
         <translation>ハイライトする範囲</translation>
-    </message>
-    <message>
-        <source>Move duration</source>
-        <translation>移動時間</translation>
     </message>
     <message>
         <source>Move animation duration of the highlight delegate.</source>
@@ -7458,24 +7064,12 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
         <translation>ハイライトデリゲートが移動する時のアニメーションの速度です。</translation>
     </message>
     <message>
-        <source>Preferred begin</source>
-        <translation>推奨開始位置</translation>
-    </message>
-    <message>
         <source>Preferred highlight begin - must be smaller than Preferred end.</source>
         <translation>ハイライトの推奨開始位置 - 推奨終了位置よりも小さくなくてはいけません。</translation>
     </message>
     <message>
-        <source>Preferred end</source>
-        <translation>推奨終了位置</translation>
-    </message>
-    <message>
         <source>Preferred highlight end - must be larger than Preferred begin.</source>
         <translation>ハイライトの推奨終了位置 - 推奨開始位置よりも大きくなくてはいけません。</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>カレントアイテムに追従</translation>
     </message>
     <message>
         <source>Determines whether the highlight is managed by the view.</source>
@@ -7568,80 +7162,32 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
 <context>
     <name>ListViewSpecifics</name>
     <message>
-        <source>List View</source>
-        <translation>リストビュー</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>キャッシュ</translation>
-    </message>
-    <message>
         <source>Cache buffer</source>
         <translation>キャッシュバッファ</translation>
-    </message>
-    <message>
-        <source>Navigation wraps</source>
-        <translation>移動の折り返し</translation>
     </message>
     <message>
         <source>Determines whether the grid wraps key navigation.</source>
         <translation>キーボードでの移動時に折り返すかどうかを指定します。</translation>
     </message>
     <message>
-        <source>Whether the grid wraps key navigation.</source>
-        <translation>グリッドがキーナビゲーションをラップするかどうか。</translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>方向</translation>
-    </message>
-    <message>
         <source>Orientation of the list.</source>
         <translation>リストの方向です。</translation>
-    </message>
-    <message>
-        <source>Layout direction</source>
-        <translation>レイアウト方向</translation>
-    </message>
-    <message>
-        <source>Snap mode</source>
-        <translation>接着モード</translation>
     </message>
     <message>
         <source>Determines how the view scrolling will settle following a drag or flick.</source>
         <translation>ドラッグやフリックでのビューのスクロール時の停止位置を指定します。</translation>
     </message>
     <message>
-        <source>Spacing</source>
-        <translation>間隔</translation>
-    </message>
-    <message>
         <source>Spacing between items.</source>
         <translation>アイテム同士の間隔です。</translation>
-    </message>
-    <message>
-        <source>List View Highlight</source>
-        <translation>リストビューのハイライト</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>範囲</translation>
     </message>
     <message>
         <source>Highlight range</source>
         <translation>ハイライトする範囲</translation>
     </message>
     <message>
-        <source>Move duration</source>
-        <translation>移動時間</translation>
-    </message>
-    <message>
         <source>Move animation duration of the highlight delegate.</source>
         <translation>ハイライトデリゲートが移動する時のアニメーションの持続時間です。</translation>
-    </message>
-    <message>
-        <source>Move velocity</source>
-        <translation>移動速度</translation>
     </message>
     <message>
         <source>Move animation velocity of the highlight delegate.</source>
@@ -7664,40 +7210,20 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
         <translation>コンポーネント同士の間隔です。</translation>
     </message>
     <message>
-        <source>Resize duration</source>
-        <translation>リサイズ時間</translation>
-    </message>
-    <message>
         <source>Resize animation duration of the highlight delegate.</source>
         <translation>ハイライトデリゲートがリサイズする時のアニメーションの持続時間です。</translation>
-    </message>
-    <message>
-        <source>Resize velocity</source>
-        <translation>リサイズ速度</translation>
     </message>
     <message>
         <source>Resize animation velocity of the highlight delegate.</source>
         <translation>ハイライトデリゲートがリサイズする時のアニメーションの速度です。</translation>
     </message>
     <message>
-        <source>Preferred begin</source>
-        <translation>推奨開始位置</translation>
-    </message>
-    <message>
         <source>Preferred highlight begin - must be smaller than Preferred end.</source>
         <translation>ハイライトの推奨開始位置 - 推奨終了位置よりも小さくなくてはいけません。</translation>
     </message>
     <message>
-        <source>Preferred end</source>
-        <translation>推奨終了位置</translation>
-    </message>
-    <message>
         <source>Preferred highlight end - must be larger than Preferred begin.</source>
         <translation>ハイライトの推奨終了位置 - 推奨開始位置よりも大きくなくてはいけません。</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>カレントアイテムに追従</translation>
     </message>
     <message>
         <source>Determines whether the highlight is managed by the view.</source>
@@ -7711,10 +7237,6 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
 <context>
     <name>MouseAreaSpecifics</name>
     <message>
-        <source>Enabled</source>
-        <translation>有効化</translation>
-    </message>
-    <message>
         <source>Accepts mouse events.</source>
         <translation>マウスイベントを受信する。</translation>
     </message>
@@ -7725,10 +7247,6 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
     <message>
         <source>Handles hover events.</source>
         <translation>ホバーイベントを処理する。</translation>
-    </message>
-    <message>
-        <source>Accepted buttons</source>
-        <translation>受け入れるボタン</translation>
     </message>
     <message>
         <source>Mouse buttons that the mouse area reacts to.</source>
@@ -7751,16 +7269,8 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
         <translation>非マウスデバイスからのスクロールジェスチャーに対応する。</translation>
     </message>
     <message>
-        <source>Cursor shape</source>
-        <translation>カーソル形状</translation>
-    </message>
-    <message>
         <source>Cursor shape for this mouse area.</source>
         <translation>このマウスエリアのカーソル形状。</translation>
-    </message>
-    <message>
-        <source>Prevent stealing</source>
-        <translation>盗難を防止する</translation>
     </message>
     <message>
         <source>Stops mouse events from being stolen from this mouse area.</source>
@@ -7775,14 +7285,6 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
         <translation>合成されたマウスイベントを他のマウスエリアに自動的に伝搬する。</translation>
     </message>
     <message>
-        <source>Drag</source>
-        <translation>ドラッグ</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation>ターゲット</translation>
-    </message>
-    <message>
         <source>ID of the component to drag.</source>
         <translation>ドラッグするコンポーネントの ID。</translation>
     </message>
@@ -7791,32 +7293,16 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
         <translation type="vanished">ドラッグするアイテムのID。</translation>
     </message>
     <message>
-        <source>Axis</source>
-        <translation>軸</translation>
-    </message>
-    <message>
         <source>Whether dragging can be done horizontally, vertically, or both.</source>
         <translation>ドラッグが水平方向、垂直方向、またはその両方でできるかどうか。</translation>
-    </message>
-    <message>
-        <source>Filter children</source>
-        <translation>子供たちをフィルタリングする</translation>
     </message>
     <message>
         <source>Whether dragging overrides descendant mouse areas.</source>
         <translation>ドラッグがマウスの子孫領域をオーバーライドするかどうか。</translation>
     </message>
     <message>
-        <source>Threshold</source>
-        <translation>しきい値</translation>
-    </message>
-    <message>
         <source>Threshold in pixels of when the drag operation should start.</source>
         <translation>ドラッグ操作を開始するタイミングのピクセル単位のしきい値。</translation>
-    </message>
-    <message>
-        <source>Smoothed</source>
-        <translation>平滑化した</translation>
     </message>
     <message>
         <source>Moves targets only after the drag operation has started.
@@ -7836,64 +7322,28 @@ When disabled, moves targets straight to the current mouse position.</source>
         <source>This property holds whether hover events are handled.</source>
         <translation>ホバーイベントに対応するかどうかを指定します。</translation>
     </message>
-    <message>
-        <source>Mouse Area</source>
-        <translation>マウスエリア</translation>
-    </message>
 </context>
 <context>
     <name>PathViewSpecifics</name>
     <message>
-        <source>Path View</source>
-        <translation>パスビュー</translation>
-    </message>
-    <message>
-        <source>Drag margin</source>
-        <translation>ドラッグのマージン</translation>
-    </message>
-    <message>
-        <source>Flick deceleration</source>
-        <translation>フリック減速度</translation>
-    </message>
-    <message>
         <source>A user cannot drag or flick a PathView that is not interactive.</source>
         <translation>インタラクティブでないパスビューをユーザーがドラッグしたりフリックしたりする事はできません。</translation>
-    </message>
-    <message>
-        <source>Offset</source>
-        <translation>オフセット</translation>
     </message>
     <message>
         <source>Specifies how far along the path the items are from their initial positions. This is a real number that ranges from 0.0 to the count of items in the model.</source>
         <translation>パス上のアイテムとその初期位置からの距離を指定します。0.0 からモデルのアイテム数までを範囲とする実数です。</translation>
     </message>
     <message>
-        <source>Item count</source>
-        <translation>アイテム数</translation>
-    </message>
-    <message>
         <source>pathItemCount: number of items visible on the path at any one time.</source>
         <translation>pathItemCount: 一度にパス上に表示されるアイテムの数です。</translation>
-    </message>
-    <message>
-        <source>Path View Highlight</source>
-        <translation>パスビューのハイライト</translation>
     </message>
     <message>
         <source>Highlight range</source>
         <translation>ハイライトする範囲</translation>
     </message>
     <message>
-        <source>Move duration</source>
-        <translation>移動時間</translation>
-    </message>
-    <message>
         <source>Move animation duration of the highlight delegate.</source>
         <translation>ハイライトデリゲートが移動する時のアニメーションの持続時間です。</translation>
-    </message>
-    <message>
-        <source>Preferred begin</source>
-        <translation>推奨開始位置</translation>
     </message>
     <message>
         <source>Preferred highlight begin - must be smaller than Preferred end. Note that the user has to add a highlight component.</source>
@@ -7904,14 +7354,6 @@ When disabled, moves targets straight to the current mouse position.</source>
         <translation>ハイライトの推奨終了位置 - 推奨開始位置よりも大きくなくてはいけません。highlight コンポーネントが必要なことに注意してください。</translation>
     </message>
     <message>
-        <source>Preferred end</source>
-        <translation>推奨終了位置</translation>
-    </message>
-    <message>
-        <source>Interactive</source>
-        <translation>インタラクティブ</translation>
-    </message>
-    <message>
         <source>Allows users to drag or flick a path view.</source>
         <translation>ユーザーによる PathView のドラッグやフリックを可能にする。</translation>
     </message>
@@ -7919,28 +7361,12 @@ When disabled, moves targets straight to the current mouse position.</source>
         <source>Number of items visible on the path at any one time.</source>
         <translation>一度にパス上に表示されるアイテム数。</translation>
     </message>
-    <message>
-        <source>Range</source>
-        <translation>範囲</translation>
-    </message>
 </context>
 <context>
     <name>RectangleSpecifics</name>
     <message>
-        <source>Rectangle</source>
-        <translation>矩形</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>枠線</translation>
-    </message>
-    <message>
-        <source>Radius</source>
-        <translation>半径</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>色</translation>
     </message>
     <message>
         <source>Border Color</source>
@@ -7949,18 +7375,6 @@ When disabled, moves targets straight to the current mouse position.</source>
 </context>
 <context>
     <name>RowSpecifics</name>
-    <message>
-        <source>Row</source>
-        <translation>行</translation>
-    </message>
-    <message>
-        <source>Layout direction</source>
-        <translation>レイアウト方向</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>間隔</translation>
-    </message>
     <message>
         <source>Layout Direction</source>
         <translation>レイアウト方向</translation>
@@ -7984,16 +7398,8 @@ When disabled, moves targets straight to the current mouse position.</source>
 <context>
     <name>FlickableSection</name>
     <message>
-        <source>Flickable</source>
-        <translation>Flickable</translation>
-    </message>
-    <message>
         <source>Whether the surface may be dragged beyond the Flickable&apos;s boundaries, or overshoot the Flickable&apos;s boundaries when flicked.</source>
         <translation>フリックしたときに、サーフェスが Flickable の境界を超えてドラッグされるかどうか、または Flickable の境界をオーバーシュートするかどうか。</translation>
-    </message>
-    <message>
-        <source>Movement</source>
-        <translation>移動</translation>
     </message>
     <message>
         <source>Whether the Flickable will give a feeling that the edges of the view are soft, rather than a hard physical boundary.</source>
@@ -8012,24 +7418,12 @@ When disabled, moves targets straight to the current mouse position.</source>
         <translation>フリック終了時の加速度。</translation>
     </message>
     <message>
-        <source>Press delay</source>
-        <translation>遅延時間</translation>
-    </message>
-    <message>
         <source>Time to delay delivering a press to children of the Flickable in milliseconds.</source>
         <translation>Flickable の子エレメントたちにプレスを届けるのを遅らせる時間(単位：ミリ秒)。</translation>
     </message>
     <message>
-        <source>Pixel aligned</source>
-        <translation>ピクセルの揃え方</translation>
-    </message>
-    <message>
         <source>Sets the alignment of contentX and contentY to pixels (true) or subpixels (false).</source>
         <translation>contentX と contentY のアライメントをピクセル(true)またはサブピクセル(false)に設定します。</translation>
-    </message>
-    <message>
-        <source>Synchronous drag</source>
-        <translation>ドラッグの同期</translation>
     </message>
     <message>
         <source>If set to true, then when the mouse or touchpoint moves far enough to begin dragging
@@ -8038,68 +7432,20 @@ cursor or touchpoint when pressed remains under that point.</source>
         <translation>trueに設定すると、マウスやタッチポイントがコンテンツをドラッグするのに十分な距離を移動したときに、コンテンツがジャンプし、押したときにカーソルやタッチポイントの下にあったコンテンツのピクセルが、そのポイントの下に残るようになります。</translation>
     </message>
     <message>
-        <source>Content size</source>
-        <translation>コンテンツサイズ</translation>
-    </message>
-    <message>
-        <source>Content</source>
-        <translation>コンテンツ</translation>
-    </message>
-    <message>
-        <source>Origin</source>
-        <translation>基点</translation>
-    </message>
-    <message>
-        <source>Margins</source>
-        <translation>マージン</translation>
-    </message>
-    <message>
-        <source>Flick direction</source>
-        <translation>フリック方向</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>動作</translation>
-    </message>
-    <message>
         <source>Bounds behavior</source>
         <translation>バウンド動作</translation>
-    </message>
-    <message>
-        <source>Interactive</source>
-        <translation>インタラクティブ</translation>
     </message>
     <message>
         <source>Allows users to drag or flick a flickable component.</source>
         <translation>ユーザーがフリック可能なコンポーネントをドラッグまたはフリックできるようにします。</translation>
     </message>
     <message>
-        <source>Max. velocity</source>
-        <translation>最高速度</translation>
-    </message>
-    <message>
         <source>Maximum flick velocity</source>
         <translation>最大フリック速度</translation>
-    </message>
-    <message>
-        <source>Deceleration</source>
-        <translation>減速度</translation>
-    </message>
-    <message>
-        <source>Flick deceleration</source>
-        <translation>フリック減速度</translation>
     </message>
 </context>
 <context>
     <name>FontSection</name>
-    <message>
-        <source>Font</source>
-        <translation>フォント</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>サイズ</translation>
-    </message>
     <message>
         <source>Font style</source>
         <translation>フォントスタイル</translation>
@@ -8121,20 +7467,8 @@ cursor or touchpoint when pressed remains under that point.</source>
         <translation>フォントの太さ。</translation>
     </message>
     <message>
-        <source>Style name</source>
-        <translation>スタイル名</translation>
-    </message>
-    <message>
         <source>Font&apos;s style.</source>
         <translation>フォントのスタイル。</translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation>スタイル</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>間隔</translation>
     </message>
     <message>
         <source>Word</source>
@@ -8165,10 +7499,6 @@ cursor or touchpoint when pressed remains under that point.</source>
         <translation>テキストを整形する際に、OpenType のカーニング機能を有効または無効にします。この機能を無効にすると、テキストの作成や変更時のパフォーマンスが向上しますが、一部の外観上の機能が犠牲になります。</translation>
     </message>
     <message>
-        <source>Prefer shaping</source>
-        <translation>シェイピングを好む</translation>
-    </message>
-    <message>
         <source>Sometimes, a font will apply complex rules to a set of characters in order to display them correctly.
 In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, whereas in Latin script,
  it is merely a cosmetic feature. Setting the preferShaping property to false will disable all such features
@@ -8189,36 +7519,12 @@ preferShaping プロパティを false に設定すると、このような機�
 <context>
     <name>StandardTextSection</name>
     <message>
-        <source>Text</source>
-        <translation>テキスト</translation>
-    </message>
-    <message>
-        <source>Wrap mode</source>
-        <translation>折り返し</translation>
-    </message>
-    <message>
-        <source>Elide</source>
-        <translation>省略</translation>
-    </message>
-    <message>
         <source>Maximum line count</source>
         <translation>最大行数</translation>
     </message>
     <message>
         <source>Limits the number of lines that the text item will show.</source>
         <translation type="vanished">テキストアイテムが表示する行数を制限します。</translation>
-    </message>
-    <message>
-        <source>Alignment</source>
-        <translation>整列</translation>
-    </message>
-    <message>
-        <source>Format</source>
-        <translation>フォーマット</translation>
-    </message>
-    <message>
-        <source>Render type</source>
-        <translation>レンダリングタイプ</translation>
     </message>
     <message>
         <source>Overrides the default rendering type for this item.</source>
@@ -8241,36 +7547,12 @@ preferShaping プロパティを false に設定すると、このような機�
         <translation>表示されるテキストのフォントサイズをどのように決定するかを指定します。</translation>
     </message>
     <message>
-        <source>Minimum size</source>
-        <translation>最小サイズ</translation>
-    </message>
-    <message>
         <source>Pixel</source>
         <translation>ピクセル</translation>
     </message>
     <message>
-        <source>Minimum font pixel size of scaled text.</source>
-        <translation>スケーリングされたテキストの最小フォントピクセルサイズ。</translation>
-    </message>
-    <message>
         <source>Point</source>
         <translation>ポイント</translation>
-    </message>
-    <message>
-        <source>Minimum font point size of scaled text.</source>
-        <translation>スケーリングされたテキストの最小フォントポイントサイズ。</translation>
-    </message>
-    <message>
-        <source>Line height</source>
-        <translation>行の高さ</translation>
-    </message>
-    <message>
-        <source>Line height for the text.</source>
-        <translation>テキスト行の高さ。</translation>
-    </message>
-    <message>
-        <source>Line height mode</source>
-        <translation>行の高さモード</translation>
     </message>
     <message>
         <source>Determines how the line height is specified.</source>
@@ -8280,60 +7562,16 @@ preferShaping プロパティを false に設定すると、このような機�
 <context>
     <name>AdvancedSection</name>
     <message>
-        <source>Advanced</source>
-        <translation>拡張</translation>
-    </message>
-    <message>
-        <source>Origin</source>
-        <translation>基点</translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>倍率</translation>
-    </message>
-    <message>
-        <source>Rotation</source>
-        <translation>回転</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation>状態</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>有効</translation>
-    </message>
-    <message>
         <source>Accept mouse and keyboard events</source>
         <translation>マウスとキーボードイベントを受け入れる</translation>
-    </message>
-    <message>
-        <source>Smooth</source>
-        <translation>スムーズ</translation>
     </message>
     <message>
         <source>Smooth sampling active</source>
         <translation>スムーズサンプリングの有効化</translation>
     </message>
     <message>
-        <source>Antialiasing</source>
-        <translation>アンチエイリアス</translation>
-    </message>
-    <message>
         <source>Anti-aliasing active</source>
         <translation>アンチエイリアスの有効化</translation>
-    </message>
-    <message>
-        <source>Focus</source>
-        <translation>フォーカス</translation>
-    </message>
-    <message>
-        <source>Sets focus on the component within the enclosing focus scope.</source>
-        <translation>フォーカススコープ内のコンポーネントにフォーカスを設定する。</translation>
-    </message>
-    <message>
-        <source>Adds the component to the tab focus chain.</source>
-        <translation>タブのフォーカスチェーンにコンポーネントを追加する。</translation>
     </message>
     <message>
         <source>Position of the component&apos;s baseline in local coordinates.</source>
@@ -8352,80 +7590,23 @@ preferShaping プロパティを false に設定すると、このような機�
         <translation type="vanished">タブのフォーカスチェーンにアイテムを追加する。</translation>
     </message>
     <message>
-        <source>Baseline offset</source>
-        <translation>ベースラインオフセット</translation>
-    </message>
-    <message>
         <source>Position of the item&apos;s baseline in local coordinates.</source>
         <translation type="vanished">ローカル座標におけるアイテムのベースラインの位置。</translation>
     </message>
 </context>
 <context>
-    <name>ColumnSpecifics</name>
-    <message>
-        <source>Column</source>
-        <translation>列</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>間隔</translation>
-    </message>
-</context>
-<context>
-    <name>FlipableSpecifics</name>
-    <message>
-        <source>Flipable</source>
-        <translation>Flipable</translation>
-    </message>
-</context>
-<context>
-    <name>GeometrySection</name>
-    <message>
-        <source>Geometry</source>
-        <translation>ジオメトリ</translation>
-    </message>
-    <message>
-        <source>Position</source>
-        <translation>位置</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>サイズ</translation>
-    </message>
-</context>
-<context>
     <name>ItemPane</name>
-    <message>
-        <source>Type</source>
-        <translation>型</translation>
-    </message>
     <message>
         <source>Changes the type of this item.</source>
         <translation type="vanished">このアイテムのタイプを変更する。</translation>
-    </message>
-    <message>
-        <source>id</source>
-        <translation>ID</translation>
     </message>
     <message>
         <source>Changes the type of this component.</source>
         <translation>このアイテムの型を変更する。</translation>
     </message>
     <message>
-        <source>Exports this component as an alias property of the root component.</source>
-        <translation>このコンポーネントを、ルートコンポーネントのエイリアスプロパティとしてエクスポートします。</translation>
-    </message>
-    <message>
         <source>customId</source>
         <translation>customId</translation>
-    </message>
-    <message>
-        <source>Add Annotation</source>
-        <translation>アノテーションを追加する</translation>
-    </message>
-    <message>
-        <source>Visibility</source>
-        <translation>可視性</translation>
     </message>
     <message>
         <source>Is visible</source>
@@ -8434,33 +7615,6 @@ preferShaping プロパティを false に設定すると、このような機�
     <message>
         <source>Is Visible</source>
         <translation type="vanished">表示</translation>
-    </message>
-    <message>
-        <source>Clip</source>
-        <translation>クリッピング</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>不透明度</translation>
-    </message>
-    <message>
-        <source>Layout</source>
-        <translation>レイアウト</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation>拡張</translation>
-    </message>
-</context>
-<context>
-    <name>LayoutSection</name>
-    <message>
-        <source>Layout</source>
-        <translation>レイアウト</translation>
-    </message>
-    <message>
-        <source>Anchors</source>
-        <translation>アンカー</translation>
     </message>
 </context>
 <context>
@@ -8497,20 +7651,8 @@ preferShaping プロパティを false に設定すると、このような機�
 <context>
     <name>TextInputSection</name>
     <message>
-        <source>Text Input</source>
-        <translation>テキスト入力</translation>
-    </message>
-    <message>
         <source>Mouse selection mode</source>
         <translation>マウス選択モード</translation>
-    </message>
-    <message>
-        <source>Input mask</source>
-        <translation>入力マスク</translation>
-    </message>
-    <message>
-        <source>Echo mode</source>
-        <translation>エコーモード</translation>
     </message>
     <message>
         <source>Pass. char</source>
@@ -8521,72 +7663,12 @@ preferShaping プロパティを false に設定すると、このような機�
         <translation>ユーザーがパスワードを入力した時に表示される文字です。</translation>
     </message>
     <message>
-        <source>Tab stop distance</source>
-        <translation>タブ停止距離</translation>
-    </message>
-    <message>
-        <source>Default distance between tab stops in device units.</source>
-        <translation>タブストップ間のデフォルトの距離(デバイス単位)。</translation>
-    </message>
-    <message>
-        <source>Text margin</source>
-        <translation>テキストのマージン</translation>
-    </message>
-    <message>
-        <source>Margin around the text in the Text Edit in pixels.</source>
-        <translation>テキストエディットのテキストの周りのマージンをピクセル単位で表示します。</translation>
-    </message>
-    <message>
-        <source>Maximum length</source>
-        <translation>最大の長さ</translation>
-    </message>
-    <message>
         <source>Maximum permitted length of the text in the TextInput.</source>
         <translation type="vanished">TextInputに表示されるテキストの最大許容長。</translation>
     </message>
     <message>
-        <source>Password character</source>
-        <translation>パスワード文字列</translation>
-    </message>
-    <message>
         <source>Maximum permitted length of the text in the Text Input.</source>
         <translation>TextInput に表示されるテキストの最大許容長。</translation>
-    </message>
-    <message>
-        <source>Flags</source>
-        <translation>フラグ</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>読取専用</translation>
-    </message>
-    <message>
-        <source>Cursor visible</source>
-        <translation>カーソル可視化</translation>
-    </message>
-    <message>
-        <source>Active focus on press</source>
-        <translation>押下時にフォーカスを得る</translation>
-    </message>
-    <message>
-        <source>Auto scroll</source>
-        <translation>自動スクロール</translation>
-    </message>
-    <message>
-        <source>Overwrite mode</source>
-        <translation>オーバーライトモード</translation>
-    </message>
-    <message>
-        <source>Persistent selection</source>
-        <translation>持続的な選択</translation>
-    </message>
-    <message>
-        <source>Select by mouse</source>
-        <translation>マウスで選択</translation>
-    </message>
-    <message>
-        <source>Select by keyboard</source>
-        <translation>キーボードで選択</translation>
     </message>
 </context>
 <context>
@@ -8613,33 +7695,6 @@ preferShaping プロパティを false に設定すると、このような機�
     <message>
         <source>Style Color</source>
         <translation>スタイルの色</translation>
-    </message>
-</context>
-<context>
-    <name>WindowSpecifics</name>
-    <message>
-        <source>Window</source>
-        <translation>ウィンドウ</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>タイトル</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>サイズ</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>色</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation>可視性</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>不透明度</translation>
     </message>
 </context>
 <context>
@@ -31926,6 +30981,998 @@ kill しますか？</translation>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
+    <message>
+        <source>Advanced</source>
+        <translation>拡張</translation>
+    </message>
+    <message>
+        <source>Origin</source>
+        <translation>基点</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>倍率</translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation>回転</translation>
+    </message>
+    <message>
+        <source>State</source>
+        <translation>状態</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>有効</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>スムーズ</translation>
+    </message>
+    <message>
+        <source>Antialiasing</source>
+        <translation>アンチエイリアス</translation>
+    </message>
+    <message>
+        <source>Focus</source>
+        <translation>フォーカス</translation>
+    </message>
+    <message>
+        <source>Sets focus on the component within the enclosing focus scope.</source>
+        <translation>フォーカススコープ内のコンポーネントにフォーカスを設定する。</translation>
+    </message>
+    <message>
+        <source>Adds the component to the tab focus chain.</source>
+        <translation>タブのフォーカスチェーンにコンポーネントを追加する。</translation>
+    </message>
+    <message>
+        <source>Baseline offset</source>
+        <translation>ベースラインオフセット</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>警告</translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation>ターゲット</translation>
+    </message>
+    <message>
+        <source>Margin</source>
+        <translation>マージン</translation>
+    </message>
+    <message>
+        <source>Anchor to the top of the target.</source>
+        <translation>ターゲットの上端にアンカーします。</translation>
+    </message>
+    <message>
+        <source>Anchor to the left of the target.</source>
+        <translation>ターゲットの左端にアンカーします。</translation>
+    </message>
+    <message>
+        <source>Anchor to the vertical center of the target.</source>
+        <translation>ターゲットの垂直方向の中央にアンカーします。</translation>
+    </message>
+    <message>
+        <source>Anchor to the horizontal center of the target.</source>
+        <translation>ターゲットの水平方向の中央にアンカーします。</translation>
+    </message>
+    <message>
+        <source>Anchor to the bottom of the target.</source>
+        <translation>ターゲットの下端にアンカーします。</translation>
+    </message>
+    <message>
+        <source>Anchor to the right of the target.</source>
+        <translation>ターゲットの右端にアンカーします。</translation>
+    </message>
+    <message>
+        <source>Running</source>
+        <translation>実行中</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation>持続時間</translation>
+    </message>
+    <message>
+        <source>Property</source>
+        <translation>プロパティ</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <translation>プロパティ</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation>ウィンドウ</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>タイトル</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>サイズ</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>色</translation>
+    </message>
+    <message>
+        <source>Visible</source>
+        <translation>可視性</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>不透明度</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>ソース</translation>
+    </message>
+    <message>
+        <source>Border left</source>
+        <translation>左の枠幅</translation>
+    </message>
+    <message>
+        <source>Border right</source>
+        <translation>右の枠幅</translation>
+    </message>
+    <message>
+        <source>Border top</source>
+        <translation>上の枠幅</translation>
+    </message>
+    <message>
+        <source>Border bottom</source>
+        <translation>下の枠幅</translation>
+    </message>
+    <message>
+        <source>Mirror</source>
+        <translation>ミラー</translation>
+    </message>
+    <message>
+        <source>Cache</source>
+        <translation>キャッシュ</translation>
+    </message>
+    <message>
+        <source>Asynchronous</source>
+        <translation>非同期</translation>
+    </message>
+    <message>
+        <source>Border Image</source>
+        <translation>枠画像</translation>
+    </message>
+    <message>
+        <source>Source size</source>
+        <translation>ソースサイズ</translation>
+    </message>
+    <message>
+        <source>Button</source>
+        <translation>ボタン</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>テキスト</translation>
+    </message>
+    <message>
+        <source>Checked</source>
+        <translation>チェック済</translation>
+    </message>
+    <message>
+        <source>Text displayed on the button.</source>
+        <translation>ボタンに表示されるテキストです。</translation>
+    </message>
+    <message>
+        <source>State of the button.</source>
+        <translation>ボタンの状態です。</translation>
+    </message>
+    <message>
+        <source>Checkable</source>
+        <translation>チェック可能</translation>
+    </message>
+    <message>
+        <source>Determines whether the button is checkable or not.</source>
+        <translation>ボタンがチェック可能かどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Determines whether the button is enabled or not.</source>
+        <translation>ボタンが有効かどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Default button</source>
+        <translation>既定のボタン</translation>
+    </message>
+    <message>
+        <source>Sets the button as the default button in a dialog.</source>
+        <translation>このボタンがダイアログの既定のボタンかどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Tool tip</source>
+        <translation>ツールチップ</translation>
+    </message>
+    <message>
+        <source>The tool tip shown for the button.</source>
+        <translation>ボタンに表示されるツールチップです。</translation>
+    </message>
+    <message>
+        <source>Focus on press</source>
+        <translation>押下時にフォーカスを得る</translation>
+    </message>
+    <message>
+        <source>Determines whether the button gets focus if pressed.</source>
+        <translation>押下時にボタンがフォーカスを取得するかどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Icon source</source>
+        <translation>アイコンソース</translation>
+    </message>
+    <message>
+        <source>The URL of an icon resource.</source>
+        <translation>アイコンリソースの URL です。</translation>
+    </message>
+    <message>
+        <source>Check Box</source>
+        <translation>チェックボックス</translation>
+    </message>
+    <message>
+        <source>Text shown on the check box.</source>
+        <translation>チェックボックスに表示されるテキストです。</translation>
+    </message>
+    <message>
+        <source>State of the check box.</source>
+        <translation>チェックボックスの状態です。</translation>
+    </message>
+    <message>
+        <source>Determines whether the check box gets focus if pressed.</source>
+        <translation>押下時にチェックボックスがフォーカスを取得するかどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Column</source>
+        <translation>列</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>間隔</translation>
+    </message>
+    <message>
+        <source>Combo Box</source>
+        <translation>コンボボックス</translation>
+    </message>
+    <message>
+        <source>Determines whether the combobox gets focus if pressed.</source>
+        <translation>押下時にコンボボックスがフォーカスを取得するかどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Connections</source>
+        <translation>コネクション</translation>
+    </message>
+    <message>
+        <source>Dialog</source>
+        <translation>ダイアログ</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>リセット</translation>
+    </message>
+    <message>
+        <source>Set Binding</source>
+        <translation>バインディングの設定</translation>
+    </message>
+    <message>
+        <source>Export Property as Alias</source>
+        <translation>プロパティを別名でエクスポートする</translation>
+    </message>
+    <message>
+        <source>Insert Keyframe</source>
+        <translation>キーフレームを挿入する</translation>
+    </message>
+    <message>
+        <source>Flickable</source>
+        <translation>Flickable</translation>
+    </message>
+    <message>
+        <source>Movement</source>
+        <translation>移動</translation>
+    </message>
+    <message>
+        <source>Press delay</source>
+        <translation>遅延時間</translation>
+    </message>
+    <message>
+        <source>Pixel aligned</source>
+        <translation>ピクセルの揃え方</translation>
+    </message>
+    <message>
+        <source>Synchronous drag</source>
+        <translation>ドラッグの同期</translation>
+    </message>
+    <message>
+        <source>Content size</source>
+        <translation>コンテンツサイズ</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>コンテンツ</translation>
+    </message>
+    <message>
+        <source>Margins</source>
+        <translation>マージン</translation>
+    </message>
+    <message>
+        <source>Flick direction</source>
+        <translation>フリック方向</translation>
+    </message>
+    <message>
+        <source>Behavior</source>
+        <translation>動作</translation>
+    </message>
+    <message>
+        <source>Interactive</source>
+        <translation>インタラクティブ</translation>
+    </message>
+    <message>
+        <source>Max. velocity</source>
+        <translation>最高速度</translation>
+    </message>
+    <message>
+        <source>Deceleration</source>
+        <translation>減速度</translation>
+    </message>
+    <message>
+        <source>Flick deceleration</source>
+        <translation>フリック減速度</translation>
+    </message>
+    <message>
+        <source>Flipable</source>
+        <translation>Flipable</translation>
+    </message>
+    <message>
+        <source>Flow</source>
+        <translation>フローレイアウト</translation>
+    </message>
+    <message>
+        <source>Layout direction</source>
+        <translation>レイアウト方向</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation>フォント</translation>
+    </message>
+    <message>
+        <source>Style name</source>
+        <translation>スタイル名</translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation>スタイル</translation>
+    </message>
+    <message>
+        <source>Prefer shaping</source>
+        <translation>シェイピングを好む</translation>
+    </message>
+    <message>
+        <source>Geometry</source>
+        <translation>ジオメトリ</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>位置</translation>
+    </message>
+    <message>
+        <source>Gradient Picker</source>
+        <translation>グラデーションピッカー</translation>
+    </message>
+    <message>
+        <source>System Presets</source>
+        <translation>システムプリセット</translation>
+    </message>
+    <message>
+        <source>User Presets</source>
+        <translation>ユーザープリセット</translation>
+    </message>
+    <message>
+        <source>Delete preset?</source>
+        <translation>プリセットを削除しますか？</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete this preset?</source>
+        <translation>このコードスタイルを完全に削除しますか？</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>閉じる</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>保存</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>適用</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>列</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>行</translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation>グリッド</translation>
+    </message>
+    <message>
+        <source>Grid View</source>
+        <translation>グリッドビュー</translation>
+    </message>
+    <message>
+        <source>Cell size</source>
+        <translation>セルサイズ</translation>
+    </message>
+    <message>
+        <source>Navigation wraps</source>
+        <translation>移動の折り返し</translation>
+    </message>
+    <message>
+        <source>Snap mode</source>
+        <translation>接着モード</translation>
+    </message>
+    <message>
+        <source>Grid View Highlight</source>
+        <translation>Grid View のハイライト</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>範囲</translation>
+    </message>
+    <message>
+        <source>Move duration</source>
+        <translation>移動時間</translation>
+    </message>
+    <message>
+        <source>Preferred begin</source>
+        <translation>推奨開始位置</translation>
+    </message>
+    <message>
+        <source>Preferred end</source>
+        <translation>推奨終了位置</translation>
+    </message>
+    <message>
+        <source>Follows current</source>
+        <translation>カレントアイテムに追従</translation>
+    </message>
+    <message>
+        <source>[None]</source>
+        <translation>[なし]</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>型</translation>
+    </message>
+    <message>
+        <source>id</source>
+        <translation>ID</translation>
+    </message>
+    <message>
+        <source>Exports this component as an alias property of the root component.</source>
+        <translation>このコンポーネントを、ルートコンポーネントのエイリアスプロパティとしてエクスポートします。</translation>
+    </message>
+    <message>
+        <source>Add Annotation</source>
+        <translation>アノテーションを追加する</translation>
+    </message>
+    <message>
+        <source>Visibility</source>
+        <translation>可視性</translation>
+    </message>
+    <message>
+        <source>Clip</source>
+        <translation>クリッピング</translation>
+    </message>
+    <message>
+        <source>Layout</source>
+        <translation>レイアウト</translation>
+    </message>
+    <message>
+        <source>Remove Module</source>
+        <translation>モジュールを削除する</translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation>すべて展開</translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation>すべて折りたたむ</translation>
+    </message>
+    <message>
+        <source>This property is not available in this configuration.</source>
+        <translation>このプロパティは本設定では使用できません。</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>フォーマット</translation>
+    </message>
+    <message>
+        <source>Mipmap</source>
+        <translation type="unfinished">ミップマップ</translation>
+    </message>
+    <message>
+        <source>Wrap mode</source>
+        <translation>折り返し</translation>
+    </message>
+    <message>
+        <source>Anchors</source>
+        <translation>アンカー</translation>
+    </message>
+    <message>
+        <source>List View</source>
+        <translation>リストビュー</translation>
+    </message>
+    <message>
+        <source>Whether the grid wraps key navigation.</source>
+        <translation>グリッドがキーナビゲーションをラップするかどうか。</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation>方向</translation>
+    </message>
+    <message>
+        <source>List View Highlight</source>
+        <translation>リストビューのハイライト</translation>
+    </message>
+    <message>
+        <source>Move velocity</source>
+        <translation>移動速度</translation>
+    </message>
+    <message>
+        <source>Resize duration</source>
+        <translation>リサイズ時間</translation>
+    </message>
+    <message>
+        <source>Resize velocity</source>
+        <translation>リサイズ速度</translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation>垂直方向</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>最上部</translation>
+    </message>
+    <message>
+        <source>The margin above the item.</source>
+        <translation>アイテムの上のマージンです。</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>下</translation>
+    </message>
+    <message>
+        <source>The margin below the item.</source>
+        <translation>アイテムの下のマージンです。</translation>
+    </message>
+    <message>
+        <source>Horizontal</source>
+        <translation>水平方向</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>左</translation>
+    </message>
+    <message>
+        <source>The margin left of the item.</source>
+        <translation>アイテムの左のマージンです。</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>右</translation>
+    </message>
+    <message>
+        <source>The margin right of the item.</source>
+        <translation>アイテムの右のマージンです。</translation>
+    </message>
+    <message>
+        <source>The margins around the item.</source>
+        <translation>アイテムの周りのマージンです。</translation>
+    </message>
+    <message>
+        <source>Accepted buttons</source>
+        <translation>受け入れるボタン</translation>
+    </message>
+    <message>
+        <source>Cursor shape</source>
+        <translation>カーソル形状</translation>
+    </message>
+    <message>
+        <source>Prevent stealing</source>
+        <translation>盗難を防止する</translation>
+    </message>
+    <message>
+        <source>Drag</source>
+        <translation>ドラッグ</translation>
+    </message>
+    <message>
+        <source>Axis</source>
+        <translation>軸</translation>
+    </message>
+    <message>
+        <source>Filter children</source>
+        <translation>子供たちをフィルタリングする</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>しきい値</translation>
+    </message>
+    <message>
+        <source>Smoothed</source>
+        <translation>平滑化した</translation>
+    </message>
+    <message>
+        <source>Mouse Area</source>
+        <translation>マウスエリア</translation>
+    </message>
+    <message>
+        <source>From</source>
+        <translation>From</translation>
+    </message>
+    <message>
+        <source>To</source>
+        <translation>To</translation>
+    </message>
+    <message>
+        <source>Path View</source>
+        <translation>パスビュー</translation>
+    </message>
+    <message>
+        <source>Drag margin</source>
+        <translation>ドラッグのマージン</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>オフセット</translation>
+    </message>
+    <message>
+        <source>Item count</source>
+        <translation>アイテム数</translation>
+    </message>
+    <message>
+        <source>Path View Highlight</source>
+        <translation>パスビューのハイライト</translation>
+    </message>
+    <message>
+        <source>Popup</source>
+        <translation>ポップアップ</translation>
+    </message>
+    <message>
+        <source>Modal</source>
+        <translation>モデル</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>値</translation>
+    </message>
+    <message>
+        <source>Radio Button</source>
+        <translation>ラジオボタン</translation>
+    </message>
+    <message>
+        <source>Text label for the radio button.</source>
+        <translation>ラジオボタンに表示されるテキストです。</translation>
+    </message>
+    <message>
+        <source>Determines whether the radio button is checked or not.</source>
+        <translation>ラジオボタンがチェックされているかどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Determines whether the radio button gets focus if pressed.</source>
+        <translation>押下時にラジオボタンがフォーカスを取得するかどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>矩形</translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation>半径</translation>
+    </message>
+    <message>
+        <source>Row</source>
+        <translation>行</translation>
+    </message>
+    <message>
+        <source>Current value of the Slider. The default value is 0.0.</source>
+        <translation>スライダの現在値です。既定値は 0.0 です。</translation>
+    </message>
+    <message>
+        <source>Maximum value</source>
+        <translation>最大値</translation>
+    </message>
+    <message>
+        <source>Maximum value of the slider. The default value is 1.0.</source>
+        <translation>スライダの最大値です。既定値は 1.0 です。</translation>
+    </message>
+    <message>
+        <source>Minimum value</source>
+        <translation>最小値</translation>
+    </message>
+    <message>
+        <source>Minimum value of the slider. The default value is 0.0.</source>
+        <translation>スライダの最小値です。既定値は 0.0 です。</translation>
+    </message>
+    <message>
+        <source>Layout orientation of the slider.</source>
+        <translation>スライダのレイアウト方向です。</translation>
+    </message>
+    <message>
+        <source>Step size</source>
+        <translation>ステップサイズ</translation>
+    </message>
+    <message>
+        <source>Indicates the slider step size.</source>
+        <translation>スライダーのステップサイズを指定します。</translation>
+    </message>
+    <message>
+        <source>Active focus on press</source>
+        <translation>押下時にフォーカスを得る</translation>
+    </message>
+    <message>
+        <source>Indicates whether the slider should receive active focus when pressed.</source>
+        <translation>押下時にスライダがフォーカスを取得するかどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Tick marks enabled</source>
+        <translation>ティックマークを有効にする</translation>
+    </message>
+    <message>
+        <source>Indicates whether the slider should display tick marks at step intervals.</source>
+        <translation>ステップ間隔でティックマークを表示するかどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Update value while dragging</source>
+        <translation>ドラッグ時に値を更新する</translation>
+    </message>
+    <message>
+        <source>Determines whether the current value should be updated while the user is moving the slider handle, or only when the button has been released.</source>
+        <translation>ユーザがスライダーハンドルを動かした際に現在値を更新するか、ボタンを放した際にのみ更新するかを指定します。</translation>
+    </message>
+    <message>
+        <source>Split View</source>
+        <translation>分割ビュー</translation>
+    </message>
+    <message>
+        <source>Orientation of the split view.</source>
+        <translation>分割ビューの方向です。</translation>
+    </message>
+    <message>
+        <source>Elide</source>
+        <translation>省略</translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation>整列</translation>
+    </message>
+    <message>
+        <source>Render type</source>
+        <translation>レンダリングタイプ</translation>
+    </message>
+    <message>
+        <source>Minimum size</source>
+        <translation>最小サイズ</translation>
+    </message>
+    <message>
+        <source>Minimum font pixel size of scaled text.</source>
+        <translation>スケーリングされたテキストの最小フォントピクセルサイズ。</translation>
+    </message>
+    <message>
+        <source>Minimum font point size of scaled text.</source>
+        <translation>スケーリングされたテキストの最小フォントポイントサイズ。</translation>
+    </message>
+    <message>
+        <source>Line height</source>
+        <translation>行の高さ</translation>
+    </message>
+    <message>
+        <source>Line height for the text.</source>
+        <translation>テキスト行の高さ。</translation>
+    </message>
+    <message>
+        <source>Line height mode</source>
+        <translation>行の高さモード</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>名前</translation>
+    </message>
+    <message>
+        <source>Tab View</source>
+        <translation>タブビュー</translation>
+    </message>
+    <message>
+        <source>Current index</source>
+        <translation>現在のインデックス</translation>
+    </message>
+    <message>
+        <source>Frame visible</source>
+        <translation>フレーム可視化</translation>
+    </message>
+    <message>
+        <source>Determines the visibility of the tab frame around contents.</source>
+        <translation>コンテンツの周囲にタブのフレームを表示するかどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Tabs visible</source>
+        <translation>タブ可視化</translation>
+    </message>
+    <message>
+        <source>Determines the visibility of the tab bar.</source>
+        <translation>タブバーを表示するかどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Tab position</source>
+        <translation>タブの位置</translation>
+    </message>
+    <message>
+        <source>Determines the position of the tabs.</source>
+        <translation>タブの位置を指定します。</translation>
+    </message>
+    <message>
+        <source>Text Area</source>
+        <translation>テキストエリア</translation>
+    </message>
+    <message>
+        <source>Read only</source>
+        <translation>読取専用</translation>
+    </message>
+    <message>
+        <source>Determines whether the text area is read only.</source>
+        <translation>テキストエリアが読取専用かどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Document margins</source>
+        <translation>ドキュメントのマージン</translation>
+    </message>
+    <message>
+        <source>Frame width</source>
+        <translation>フレーム幅</translation>
+    </message>
+    <message>
+        <source>Text shown on the text area.</source>
+        <translation>テキストエリアに表示されるテキストです。</translation>
+    </message>
+    <message>
+        <source>Margins of the text area.</source>
+        <translation>テキストエリアのマージンです。</translation>
+    </message>
+    <message>
+        <source>Width of the frame.</source>
+        <translation>フレームの幅です。</translation>
+    </message>
+    <message>
+        <source>Contents frame</source>
+        <translation>コンテンツフレーム</translation>
+    </message>
+    <message>
+        <source>Determines whether the frame around contents is shown.</source>
+        <translation>コンテンツの周囲にフレームを表示するかどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Focus Handling</source>
+        <translation>フォーカスハンドリング</translation>
+    </message>
+    <message>
+        <source>Highlight on focus</source>
+        <translation>フォーカス時にハイライト</translation>
+    </message>
+    <message>
+        <source>Determines whether the text area is highlighted on focus.</source>
+        <translation>テキストエリアがフォーカスを得た場合にハイライトするかどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Tab changes focus</source>
+        <translation>タブでフォーカス変更</translation>
+    </message>
+    <message>
+        <source>Determines whether tab changes the focus of the text area.</source>
+        <translation>タブキーでテキストエリアのフォーカスを変更するかどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Determines whether the text area gets focus if pressed.</source>
+        <translation>押下時にテキストエリアがフォーカスを取得するかどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Text Field</source>
+        <translation>テキストフィールド</translation>
+    </message>
+    <message>
+        <source>Placeholder text</source>
+        <translation>プレースホルダーテキスト</translation>
+    </message>
+    <message>
+        <source>Text shown on the text field.</source>
+        <translation>テキストフィールドに表示されるテキストです。</translation>
+    </message>
+    <message>
+        <source>Placeholder text.</source>
+        <translation>プレースホルダーとして表示されるテキストです。</translation>
+    </message>
+    <message>
+        <source>Determines whether the text field is read only.</source>
+        <translation>テキストフィールドが読取専用かどうかを指定します。</translation>
+    </message>
+    <message>
+        <source>Input mask</source>
+        <translation>入力マスク</translation>
+    </message>
+    <message>
+        <source>Restricts the valid text in the text field.</source>
+        <translation>テキストフィールドで有効な文字列を制限します。</translation>
+    </message>
+    <message>
+        <source>Echo mode</source>
+        <translation>エコーモード</translation>
+    </message>
+    <message>
+        <source>Specifies how the text is displayed in the text field.</source>
+        <translation>テキストフィールドの文字列の表示方法を指定します。</translation>
+    </message>
+    <message>
+        <source>Text Input</source>
+        <translation>テキスト入力</translation>
+    </message>
+    <message>
+        <source>Tab stop distance</source>
+        <translation>タブ停止距離</translation>
+    </message>
+    <message>
+        <source>Default distance between tab stops in device units.</source>
+        <translation>タブストップ間のデフォルトの距離(デバイス単位)。</translation>
+    </message>
+    <message>
+        <source>Text margin</source>
+        <translation>テキストのマージン</translation>
+    </message>
+    <message>
+        <source>Margin around the text in the Text Edit in pixels.</source>
+        <translation>テキストエディットのテキストの周りのマージンをピクセル単位で表示します。</translation>
+    </message>
+    <message>
+        <source>Maximum length</source>
+        <translation>最大の長さ</translation>
+    </message>
+    <message>
+        <source>Password character</source>
+        <translation>パスワード文字列</translation>
+    </message>
+    <message>
+        <source>Flags</source>
+        <translation>フラグ</translation>
+    </message>
+    <message>
+        <source>Cursor visible</source>
+        <translation>カーソル可視化</translation>
+    </message>
+    <message>
+        <source>Auto scroll</source>
+        <translation>自動スクロール</translation>
+    </message>
+    <message>
+        <source>Overwrite mode</source>
+        <translation>オーバーライトモード</translation>
+    </message>
+    <message>
+        <source>Persistent selection</source>
+        <translation>持続的な選択</translation>
+    </message>
+    <message>
+        <source>Select by mouse</source>
+        <translation>マウスで選択</translation>
+    </message>
+    <message>
+        <source>Select by keyboard</source>
+        <translation>キーボードで選択</translation>
+    </message>
 </context>
 <context>
     <name>QtC::Profiler</name>
@@ -32134,41 +32181,6 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>AnchorRow</name>
-    <message>
-        <source>Target</source>
-        <translation>ターゲット</translation>
-    </message>
-    <message>
-        <source>Margin</source>
-        <translation>マージン</translation>
-    </message>
-    <message>
-        <source>Anchor to the top of the target.</source>
-        <translation>ターゲットの上端にアンカーします。</translation>
-    </message>
-    <message>
-        <source>Anchor to the left of the target.</source>
-        <translation>ターゲットの左端にアンカーします。</translation>
-    </message>
-    <message>
-        <source>Anchor to the vertical center of the target.</source>
-        <translation>ターゲットの垂直方向の中央にアンカーします。</translation>
-    </message>
-    <message>
-        <source>Anchor to the horizontal center of the target.</source>
-        <translation>ターゲットの水平方向の中央にアンカーします。</translation>
-    </message>
-    <message>
-        <source>Anchor to the bottom of the target.</source>
-        <translation>ターゲットの下端にアンカーします。</translation>
-    </message>
-    <message>
-        <source>Anchor to the right of the target.</source>
-        <translation>ターゲットの右端にアンカーします。</translation>
-    </message>
-</context>
-<context>
     <name>QtC::Qnx</name>
     <message>
         <source>Attach to remote QNX application...</source>
@@ -32222,41 +32234,6 @@ kill しますか？</translation>
     <message>
         <source>Files to deploy:</source>
         <translation>デプロイするファイル:</translation>
-    </message>
-</context>
-<context>
-    <name>TabViewSpecifics</name>
-    <message>
-        <source>Tab View</source>
-        <translation>タブビュー</translation>
-    </message>
-    <message>
-        <source>Current index</source>
-        <translation>現在のインデックス</translation>
-    </message>
-    <message>
-        <source>Frame visible</source>
-        <translation>フレーム可視化</translation>
-    </message>
-    <message>
-        <source>Determines the visibility of the tab frame around contents.</source>
-        <translation>コンテンツの周囲にタブのフレームを表示するかどうかを指定します。</translation>
-    </message>
-    <message>
-        <source>Tabs visible</source>
-        <translation>タブ可視化</translation>
-    </message>
-    <message>
-        <source>Determines the visibility of the tab bar.</source>
-        <translation>タブバーを表示するかどうかを指定します。</translation>
-    </message>
-    <message>
-        <source>Tab position</source>
-        <translation>タブの位置</translation>
-    </message>
-    <message>
-        <source>Determines the position of the tabs.</source>
-        <translation>タブの位置を指定します。</translation>
     </message>
 </context>
 <context>
@@ -33736,115 +33713,6 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     </message>
 </context>
 <context>
-    <name>ApplicationWindowSpecifics</name>
-    <message>
-        <source>Window</source>
-        <translation>ウィンドウ</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>タイトル</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>サイズ</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>色</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation>可視性</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>不透明度</translation>
-    </message>
-</context>
-<context>
-    <name>SliderSpecifics</name>
-    <message>
-        <source>Value</source>
-        <translation>値</translation>
-    </message>
-    <message>
-        <source>Current value of the Slider. The default value is 0.0.</source>
-        <translation>スライダの現在値です。既定値は 0.0 です。</translation>
-    </message>
-    <message>
-        <source>Maximum value</source>
-        <translation>最大値</translation>
-    </message>
-    <message>
-        <source>Maximum value of the slider. The default value is 1.0.</source>
-        <translation>スライダの最大値です。既定値は 1.0 です。</translation>
-    </message>
-    <message>
-        <source>Minimum value</source>
-        <translation>最小値</translation>
-    </message>
-    <message>
-        <source>Minimum value of the slider. The default value is 0.0.</source>
-        <translation>スライダの最小値です。既定値は 0.0 です。</translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>方向</translation>
-    </message>
-    <message>
-        <source>Layout orientation of the slider.</source>
-        <translation>スライダのレイアウト方向です。</translation>
-    </message>
-    <message>
-        <source>Step size</source>
-        <translation>ステップサイズ</translation>
-    </message>
-    <message>
-        <source>Indicates the slider step size.</source>
-        <translation>スライダーのステップサイズを指定します。</translation>
-    </message>
-    <message>
-        <source>Active focus on press</source>
-        <translation>押下時にフォーカスを得る</translation>
-    </message>
-    <message>
-        <source>Indicates whether the slider should receive active focus when pressed.</source>
-        <translation>押下時にスライダがフォーカスを取得するかどうかを指定します。</translation>
-    </message>
-    <message>
-        <source>Tick marks enabled</source>
-        <translation>ティックマークを有効にする</translation>
-    </message>
-    <message>
-        <source>Indicates whether the slider should display tick marks at step intervals.</source>
-        <translation>ステップ間隔でティックマークを表示するかどうかを指定します。</translation>
-    </message>
-    <message>
-        <source>Update value while dragging</source>
-        <translation>ドラッグ時に値を更新する</translation>
-    </message>
-    <message>
-        <source>Determines whether the current value should be updated while the user is moving the slider handle, or only when the button has been released.</source>
-        <translation>ユーザがスライダーハンドルを動かした際に現在値を更新するか、ボタンを放した際にのみ更新するかを指定します。</translation>
-    </message>
-</context>
-<context>
-    <name>SplitViewSpecifics</name>
-    <message>
-        <source>Split View</source>
-        <translation>分割ビュー</translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>方向</translation>
-    </message>
-    <message>
-        <source>Orientation of the split view.</source>
-        <translation>分割ビューの方向です。</translation>
-    </message>
-</context>
-<context>
     <name>QmlDesigner::PuppetBuildProgressDialog</name>
     <message>
         <source>Build Progress</source>
@@ -34095,18 +33963,6 @@ the program.</source>
     <message>
         <source>GridLayout</source>
         <translation>GridLayout</translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation>列</translation>
-    </message>
-    <message>
-        <source>Rows</source>
-        <translation>行</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>フローレイアウト</translation>
     </message>
     <message>
         <source>Layout Direction</source>
@@ -41449,18 +41305,6 @@ Output:
 <context>
     <name>ItemsView</name>
     <message>
-        <source>Remove Module</source>
-        <translation>モジュールを削除する</translation>
-    </message>
-    <message>
-        <source>Expand All</source>
-        <translation>すべて展開</translation>
-    </message>
-    <message>
-        <source>Collapse All</source>
-        <translation>すべて折りたたむ</translation>
-    </message>
-    <message>
         <source>Import Module: </source>
         <translation type="vanished">モジュールをインポートする: </translation>
     </message>
@@ -41507,25 +41351,6 @@ Output:
     </message>
 </context>
 <context>
-    <name>ExtendedFunctionLogic</name>
-    <message>
-        <source>Reset</source>
-        <translation>リセット</translation>
-    </message>
-    <message>
-        <source>Set Binding</source>
-        <translation>バインディングの設定</translation>
-    </message>
-    <message>
-        <source>Export Property as Alias</source>
-        <translation>プロパティを別名でエクスポートする</translation>
-    </message>
-    <message>
-        <source>Insert Keyframe</source>
-        <translation>キーフレームを挿入する</translation>
-    </message>
-</context>
-<context>
     <name>GradientDialogPopup</name>
     <message>
         <source>Gradient Properties</source>
@@ -41540,166 +41365,10 @@ Output:
     </message>
 </context>
 <context>
-    <name>GradientPresetList</name>
-    <message>
-        <source>Gradient Picker</source>
-        <translation>グラデーションピッカー</translation>
-    </message>
-    <message>
-        <source>System Presets</source>
-        <translation>システムプリセット</translation>
-    </message>
-    <message>
-        <source>User Presets</source>
-        <translation>ユーザープリセット</translation>
-    </message>
-    <message>
-        <source>Delete preset?</source>
-        <translation>プリセットを削除しますか？</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to delete this preset?</source>
-        <translation>このコードスタイルを完全に削除しますか？</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>閉じる</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>保存</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation>適用</translation>
-    </message>
-</context>
-<context>
-    <name>ItemFilterComboBox</name>
-    <message>
-        <source>[None]</source>
-        <translation>[なし]</translation>
-    </message>
-</context>
-<context>
-    <name>Label</name>
-    <message>
-        <source>This property is not available in this configuration.</source>
-        <translation>このプロパティは本設定では使用できません。</translation>
-    </message>
-</context>
-<context>
-    <name>MarginSection</name>
-    <message>
-        <source>Margin</source>
-        <translation>マージン</translation>
-    </message>
-    <message>
-        <source>Vertical</source>
-        <translation>垂直方向</translation>
-    </message>
-    <message>
-        <source>Top</source>
-        <translation>最上部</translation>
-    </message>
-    <message>
-        <source>The margin above the item.</source>
-        <translation>アイテムの上のマージンです。</translation>
-    </message>
-    <message>
-        <source>Bottom</source>
-        <translation>下</translation>
-    </message>
-    <message>
-        <source>The margin below the item.</source>
-        <translation>アイテムの下のマージンです。</translation>
-    </message>
-    <message>
-        <source>Horizontal</source>
-        <translation>水平方向</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation>左</translation>
-    </message>
-    <message>
-        <source>The margin left of the item.</source>
-        <translation>アイテムの左のマージンです。</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation>右</translation>
-    </message>
-    <message>
-        <source>The margin right of the item.</source>
-        <translation>アイテムの右のマージンです。</translation>
-    </message>
-    <message>
-        <source>Margins</source>
-        <translation>マージン</translation>
-    </message>
-    <message>
-        <source>The margins around the item.</source>
-        <translation>アイテムの周りのマージンです。</translation>
-    </message>
-</context>
-<context>
     <name>AlignDistributeSection</name>
     <message>
         <source>Align</source>
         <translation>整列</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>警告</translation>
-    </message>
-</context>
-<context>
-    <name>AnimationSection</name>
-    <message>
-        <source>Running</source>
-        <translation>実行中</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>持続時間</translation>
-    </message>
-</context>
-<context>
-    <name>AnimationTargetSection</name>
-    <message>
-        <source>Target</source>
-        <translation>ターゲット</translation>
-    </message>
-    <message>
-        <source>Property</source>
-        <translation>プロパティ</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>プロパティ</translation>
-    </message>
-</context>
-<context>
-    <name>ConnectionsSpecifics</name>
-    <message>
-        <source>Connections</source>
-        <translation>コネクション</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation>ターゲット</translation>
-    </message>
-</context>
-<context>
-    <name>DialogSpecifics</name>
-    <message>
-        <source>Dialog</source>
-        <translation>ダイアログ</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>タイトル</translation>
     </message>
 </context>
 <context>
@@ -41712,92 +41381,8 @@ Output:
 <context>
     <name>PopupSection</name>
     <message>
-        <source>Popup</source>
-        <translation>ポップアップ</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>サイズ</translation>
-    </message>
-    <message>
-        <source>Visibility</source>
-        <translation>可視性</translation>
-    </message>
-    <message>
         <source>Is visible</source>
         <translation>表示</translation>
-    </message>
-    <message>
-        <source>Clip</source>
-        <translation>クリッピング</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>動作</translation>
-    </message>
-    <message>
-        <source>Modal</source>
-        <translation>モデル</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>不透明度</translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>倍率</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>間隔</translation>
-    </message>
-</context>
-<context>
-    <name>LayerSection</name>
-    <message>
-        <source>Format</source>
-        <translation>フォーマット</translation>
-    </message>
-    <message>
-        <source>Mipmap</source>
-        <translation type="unfinished">ミップマップ</translation>
-    </message>
-    <message>
-        <source>Smooth</source>
-        <translation>スムーズ</translation>
-    </message>
-    <message>
-        <source>Wrap mode</source>
-        <translation>折り返し</translation>
-    </message>
-</context>
-<context>
-    <name>NumberAnimationSpecifics</name>
-    <message>
-        <source>From</source>
-        <translation>From</translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation>To</translation>
-    </message>
-</context>
-<context>
-    <name>PropertyActionSpecifics</name>
-    <message>
-        <source>Value</source>
-        <translation>値</translation>
-    </message>
-</context>
-<context>
-    <name>StateSpecifics</name>
-    <message>
-        <source>State</source>
-        <translation>状態</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
     </message>
 </context>
 <context>

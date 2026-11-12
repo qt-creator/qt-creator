@@ -42,40 +42,12 @@
 <context>
     <name>AdvancedSection</name>
     <message>
-        <source>Advanced</source>
-        <translation>Avanceret</translation>
-    </message>
-    <message>
-        <source>Origin</source>
-        <translation>Oprindelse</translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>Skalering</translation>
-    </message>
-    <message>
-        <source>Rotation</source>
-        <translation>Rotation</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Aktiveret</translation>
-    </message>
-    <message>
         <source>Accept mouse and keyboard events</source>
         <translation>Acceptér muse- og tastatur-events</translation>
     </message>
     <message>
-        <source>Smooth</source>
-        <translation>Jævn</translation>
-    </message>
-    <message>
         <source>Smooth sampling active</source>
         <translation>Jævn prøvetagning aktiv</translation>
-    </message>
-    <message>
-        <source>Antialiasing</source>
-        <translation>Udjævning</translation>
     </message>
     <message>
         <source>Anti-aliasing active</source>
@@ -118,37 +90,6 @@
     <message>
         <source>Anchor item horizontally.</source>
         <translation>Anker post vandret.</translation>
-    </message>
-</context>
-<context>
-    <name>AnchorRow</name>
-    <message>
-        <source>Target</source>
-        <translation>Mål</translation>
-    </message>
-    <message>
-        <source>Anchor to the top of the target.</source>
-        <translation>Anker over målet.</translation>
-    </message>
-    <message>
-        <source>Anchor to the left of the target.</source>
-        <translation>Anker til venstre for målet.</translation>
-    </message>
-    <message>
-        <source>Anchor to the vertical center of the target.</source>
-        <translation>Anker centreret lodret ved målet.</translation>
-    </message>
-    <message>
-        <source>Anchor to the horizontal center of the target.</source>
-        <translation>Anker centreret vandret ved målet.</translation>
-    </message>
-    <message>
-        <source>Anchor to the bottom of the target.</source>
-        <translation>Anker under målet.</translation>
-    </message>
-    <message>
-        <source>Anchor to the right of the target.</source>
-        <translation>Anker til højre for målet.</translation>
     </message>
 </context>
 <context>
@@ -1392,33 +1333,6 @@ Installer en SDK af mindst API version %1.</translation>
     <message>
         <source>Core plugin is disabled.</source>
         <translation>Kerne-plugin er deaktiveret.</translation>
-    </message>
-</context>
-<context>
-    <name>ApplicationWindowSpecifics</name>
-    <message>
-        <source>Window</source>
-        <translation>Vindue</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Titel</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Størrelse</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Farve</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation>Synlig</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Opacitet</translation>
     </message>
 </context>
 <context>
@@ -3599,14 +3513,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
 <context>
     <name>BorderImageSpecifics</name>
     <message>
-        <source>Border Image</source>
-        <translation>Kantbillede</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>Kilde</translation>
-    </message>
-    <message>
         <source>Border Left</source>
         <translation>Venstre kant</translation>
     </message>
@@ -3630,10 +3536,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Vertical Fill mode</source>
         <translation>Lodret udfyldningstilstand</translation>
     </message>
-    <message>
-        <source>Source size</source>
-        <translation>Kildestørrelse</translation>
-    </message>
 </context>
 <context>
     <name>QtC::Debugger</name>
@@ -3647,77 +3549,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     <message>
         <source>Build Settings</source>
         <translation>Bygindstillinger</translation>
-    </message>
-</context>
-<context>
-    <name>ButtonSpecifics</name>
-    <message>
-        <source>Button</source>
-        <translation>Knap</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Tekst</translation>
-    </message>
-    <message>
-        <source>Text displayed on the button.</source>
-        <translation>Tekst vist på knappen.</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>Tilvalgt</translation>
-    </message>
-    <message>
-        <source>State of the button.</source>
-        <translation>Knappens tilstand.</translation>
-    </message>
-    <message>
-        <source>Checkable</source>
-        <translation>Valgbar</translation>
-    </message>
-    <message>
-        <source>Determines whether the button is checkable or not.</source>
-        <translation>Beslutter om knappen er valgbar eller ej.</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Aktiveret</translation>
-    </message>
-    <message>
-        <source>Determines whether the button is enabled or not.</source>
-        <translation>Beslutter om knappen er aktiveret eller ej.</translation>
-    </message>
-    <message>
-        <source>Default button</source>
-        <translation>Standard knap</translation>
-    </message>
-    <message>
-        <source>Sets the button as the default button in a dialog.</source>
-        <translation>Sætter knappen som standard knap i en dialog.</translation>
-    </message>
-    <message>
-        <source>Tool tip</source>
-        <translation>Værktøjstip</translation>
-    </message>
-    <message>
-        <source>The tool tip shown for the button.</source>
-        <translation>Værktøjstippet som vises på knappen.</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Giv fokus ved tryk</translation>
-    </message>
-    <message>
-        <source>Determines whether the button gets focus if pressed.</source>
-        <translation>Beslutter om knappen får fokus når der trykkes.</translation>
-    </message>
-    <message>
-        <source>Icon source</source>
-        <translation>Ikonkilde</translation>
-    </message>
-    <message>
-        <source>The URL of an icon resource.</source>
-        <translation>URL&apos;en af en ikonressource.</translation>
     </message>
 </context>
 <context>
@@ -4491,37 +4322,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     <message>
         <source>Change style for Qt Quick Controls 2. Configuration file qtquickcontrols2.conf not found.</source>
         <translation>Skift stil for Qt Quick Controls 2. Konfigurationsfilen qtquickcontrols2.conf ikke fundet.</translation>
-    </message>
-</context>
-<context>
-    <name>CheckBoxSpecifics</name>
-    <message>
-        <source>Check Box</source>
-        <translation>Afkrydsningsboks</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Tekst</translation>
-    </message>
-    <message>
-        <source>Text shown on the check box.</source>
-        <translation>Tekst som vises på afkrydsningsboksen.</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>Tilvalgt</translation>
-    </message>
-    <message>
-        <source>State of the check box.</source>
-        <translation>Afkrydsningsboksens tilstand.</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Giv fokus ved tryk</translation>
-    </message>
-    <message>
-        <source>Determines whether the check box gets focus if pressed.</source>
-        <translation>Beslutter om afkrydsningsboksen får fokus når der trykkes.</translation>
     </message>
 </context>
 <context>
@@ -5397,32 +5197,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Edit Color</source>
         <translation>Rediger farve</translation>
-    </message>
-</context>
-<context>
-    <name>ColumnSpecifics</name>
-    <message>
-        <source>Column</source>
-        <translation>Kolonne</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Mellemrum</translation>
-    </message>
-</context>
-<context>
-    <name>ComboBoxSpecifics</name>
-    <message>
-        <source>Combo Box</source>
-        <translation>Komboboks</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Giv fokus ved tryk</translation>
-    </message>
-    <message>
-        <source>Determines whether the combobox gets focus if pressed.</source>
-        <translation>Beslutter om komboboksen får fokus når der trykkes.</translation>
     </message>
 </context>
 <context>
@@ -13627,17 +13401,6 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>DialogSpecifics</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Titel</translation>
-    </message>
-</context>
-<context>
     <name>QtC::Utils</name>
     <message>
         <source>Delete</source>
@@ -13841,24 +13604,8 @@ Det hjælper måske at genbygge projektet.</translation>
 <context>
     <name>DrawerSpecifics</name>
     <message>
-        <source>Drawer</source>
-        <translation>Skuffe</translation>
-    </message>
-    <message>
-        <source>Edge</source>
-        <translation>Kant</translation>
-    </message>
-    <message>
-        <source>Defines the edge of the window the drawer will open from.</source>
-        <translation>Definerer kanten af vinduet hvorfra skuffen vil åbne.</translation>
-    </message>
-    <message>
         <source>Drag Margin</source>
         <translation>Træk margen</translation>
-    </message>
-    <message>
-        <source>Defines the distance from the screen edge within which drag actions will open the drawer.</source>
-        <translation>Definerer afstanden fra skærmkanten hvori træk-handlinger vil åbne skuffen.</translation>
     </message>
 </context>
 <context>
@@ -14753,78 +14500,23 @@ vil også deaktiverer følgende plugins:
 <context>
     <name>FlickableSection</name>
     <message>
-        <source>Flickable</source>
-        <translation>Vendbar</translation>
-    </message>
-    <message>
-        <source>Content size</source>
-        <translation>Indholdsstørrelse</translation>
-    </message>
-    <message>
-        <source>Flick direction</source>
-        <translation>Vendretning</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>Adfærd</translation>
-    </message>
-    <message>
         <source>Bounds behavior</source>
         <translation>Afgrænsningsadfærd</translation>
-    </message>
-    <message>
-        <source>Interactive</source>
-        <translation>Interaktiv</translation>
-    </message>
-    <message>
-        <source>Max. velocity</source>
-        <translation>Maks. hastighed</translation>
     </message>
     <message>
         <source>Maximum flick velocity</source>
         <translation>Maksimum vend-hastighed</translation>
     </message>
-    <message>
-        <source>Deceleration</source>
-        <translation>Deceleration</translation>
-    </message>
-    <message>
-        <source>Flick deceleration</source>
-        <translation>Vend-deceleration</translation>
-    </message>
-</context>
-<context>
-    <name>FlipableSpecifics</name>
-    <message>
-        <source>Flipable</source>
-        <translation>Vendbar</translation>
-    </message>
 </context>
 <context>
     <name>FlowSpecifics</name>
     <message>
-        <source>Flow</source>
-        <translation>Flow</translation>
-    </message>
-    <message>
         <source>Layout Direction</source>
         <translation>Layoutretning</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Mellemrum</translation>
     </message>
 </context>
 <context>
     <name>FontSection</name>
-    <message>
-        <source>Font</source>
-        <translation>Skrifttype</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Størrelse</translation>
-    </message>
     <message>
         <source>Font style</source>
         <translation>Skriftstil</translation>
@@ -14844,14 +14536,6 @@ vil også deaktiverer følgende plugins:
     <message>
         <source>Sets the font&apos;s weight.</source>
         <translation>Sæt skrifttypens vægt.</translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation>Stil</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Mellemrum</translation>
     </message>
     <message>
         <source>Word</source>
@@ -14880,10 +14564,6 @@ vil også deaktiverer følgende plugins:
     <message>
         <source>Enables or disables the kerning OpenType feature when shaping the text. Disabling this may improve performance when creating or changing the text, at the expense of some cosmetic features. The default value is true.</source>
         <translation>Aktiverer eller deaktiverer OpenType-faciliteten knibning, når teksten formes. Deaktivering kan forbedre ydelsen når teksten oprettes eller ændres, på bekostning af nogle kosmetiske faciliteter. Standardværdien er sand.</translation>
-    </message>
-    <message>
-        <source>Prefer shaping</source>
-        <translation>Foretræk formning</translation>
     </message>
     <message>
         <source>Sometimes, a font will apply complex rules to a set of characters in order to display them correctly.
@@ -15146,21 +14826,6 @@ Se også Google-test-indstillinger.</translation>
     <message>
         <source>File Selection</source>
         <translation>Valg af fil</translation>
-    </message>
-</context>
-<context>
-    <name>GeometrySection</name>
-    <message>
-        <source>Geometry</source>
-        <translation>Geometri</translation>
-    </message>
-    <message>
-        <source>Position</source>
-        <translation>Placering</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Størrelse</translation>
     </message>
 </context>
 <context>
@@ -17151,18 +16816,6 @@ Lad være tom for at gennemsøge filsystemet.</translation>
         <translation>Gitterlayout</translation>
     </message>
     <message>
-        <source>Columns</source>
-        <translation>Kolonner</translation>
-    </message>
-    <message>
-        <source>Rows</source>
-        <translation>Rækker</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>Flow</translation>
-    </message>
-    <message>
         <source>Layout Direction</source>
         <translation>Layoutretning</translation>
     </message>
@@ -17178,40 +16831,12 @@ Lad være tom for at gennemsøge filsystemet.</translation>
 <context>
     <name>GridSpecifics</name>
     <message>
-        <source>Grid</source>
-        <translation>Gitter</translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation>Kolonner</translation>
-    </message>
-    <message>
-        <source>Rows</source>
-        <translation>Rækker</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>Flow</translation>
-    </message>
-    <message>
         <source>Layout Direction</source>
         <translation>Layoutretning</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Mellemrum</translation>
     </message>
 </context>
 <context>
     <name>GridViewSpecifics</name>
-    <message>
-        <source>Grid View</source>
-        <translation>Gitter-visning</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>Mellemlager</translation>
-    </message>
     <message>
         <source>Cache buffer</source>
         <translation>Mellemlager-buffer</translation>
@@ -17219,14 +16844,6 @@ Lad være tom for at gennemsøge filsystemet.</translation>
     <message>
         <source>Cell Size</source>
         <translation>Cellestørrelse</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>Flow</translation>
-    </message>
-    <message>
-        <source>Navigation wraps</source>
-        <translation>Navigation ombryder</translation>
     </message>
     <message>
         <source>Determines whether the grid wraps key navigation.</source>
@@ -17237,28 +16854,12 @@ Lad være tom for at gennemsøge filsystemet.</translation>
         <translation>Layoutretning</translation>
     </message>
     <message>
-        <source>Snap mode</source>
-        <translation>Fastgør-tilstand</translation>
-    </message>
-    <message>
         <source>Determines how the view scrolling will settle following a drag or flick.</source>
         <translation>Beslutter hvordan visningens rulning sætter sig efter et træk eller vend.</translation>
     </message>
     <message>
-        <source>Grid View Highlight</source>
-        <translation>Gitter-visning fremhævning</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>Område</translation>
-    </message>
-    <message>
         <source>Highlight range</source>
         <translation>Fremhævningsområde</translation>
-    </message>
-    <message>
-        <source>Move duration</source>
-        <translation>Flytningsvarighed</translation>
     </message>
     <message>
         <source>Move animation duration of the highlight delegate.</source>
@@ -17273,24 +16874,12 @@ Lad være tom for at gennemsøge filsystemet.</translation>
         <translation>Flytningens animationshastighed af fremhævningsdelegatet.</translation>
     </message>
     <message>
-        <source>Preferred begin</source>
-        <translation>Foretrukket begyndelse</translation>
-    </message>
-    <message>
         <source>Preferred highlight begin - must be smaller than Preferred end.</source>
         <translation>Foretrukket begyndelse for fremhævning - skal være mindre med foretrukket slutning.</translation>
     </message>
     <message>
-        <source>Preferred end</source>
-        <translation>Foretrukket slutning</translation>
-    </message>
-    <message>
         <source>Preferred highlight end - must be larger than Preferred begin.</source>
         <translation>Foretrukket slutning for fremhævning - skal være større med foretrukket begyndelse.</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>Følger aktuelle</translation>
     </message>
     <message>
         <source>Determines whether the highlight is managed by the view.</source>
@@ -18524,44 +18113,16 @@ Fejl: %5</translation>
 <context>
     <name>ItemPane</name>
     <message>
-        <source>Type</source>
-        <translation>Type</translation>
-    </message>
-    <message>
         <source>Change the type of this item.</source>
         <translation>Skift typen af denne post.</translation>
-    </message>
-    <message>
-        <source>id</source>
-        <translation>id</translation>
     </message>
     <message>
         <source>Toggles whether this item is exported as an alias property of the root item.</source>
         <translation>Skifter om denne post eksponeres som en alias-egenskab af rodposten.</translation>
     </message>
     <message>
-        <source>Visibility</source>
-        <translation>Synlighed</translation>
-    </message>
-    <message>
         <source>Is Visible</source>
         <translation>Er synlig</translation>
-    </message>
-    <message>
-        <source>Clip</source>
-        <translation>Klip</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Opacitet</translation>
-    </message>
-    <message>
-        <source>Layout</source>
-        <translation>Layout</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation>Avanceret</translation>
     </message>
 </context>
 <context>
@@ -18632,41 +18193,14 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>LayoutSection</name>
-    <message>
-        <source>Layout</source>
-        <translation>Layout</translation>
-    </message>
-    <message>
-        <source>Anchors</source>
-        <translation>Ankre</translation>
-    </message>
-</context>
-<context>
     <name>ListViewSpecifics</name>
-    <message>
-        <source>List View</source>
-        <translation>Liste-visning</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>Mellemlager</translation>
-    </message>
     <message>
         <source>Cache buffer</source>
         <translation>Mellemlager-buffer</translation>
     </message>
     <message>
-        <source>Navigation wraps</source>
-        <translation>Navigation ombryder</translation>
-    </message>
-    <message>
         <source>Determines whether the grid wraps key navigation.</source>
         <translation>Beslutter om gitteret ombryder tastenavigation.</translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Orientering</translation>
     </message>
     <message>
         <source>Orientation of the list.</source>
@@ -18677,36 +18211,16 @@ Fejl: %5</translation>
         <translation>Layoutretning</translation>
     </message>
     <message>
-        <source>Snap mode</source>
-        <translation>Fastgør-tilstand</translation>
-    </message>
-    <message>
         <source>Determines how the view scrolling will settle following a drag or flick.</source>
         <translation>Beslutter hvordan visningens rulning sætter sig efter et træk eller vend.</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Mellemrum</translation>
     </message>
     <message>
         <source>Spacing between items.</source>
         <translation>Mellemrum mellem poster.</translation>
     </message>
     <message>
-        <source>List View Highlight</source>
-        <translation>Liste-visningens fremhævning</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>Område</translation>
-    </message>
-    <message>
         <source>Highlight range</source>
         <translation>Fremhævningsområde</translation>
-    </message>
-    <message>
-        <source>Move duration</source>
-        <translation>Flytningsvarighed</translation>
     </message>
     <message>
         <source>Move animation duration of the highlight delegate.</source>
@@ -18721,32 +18235,16 @@ Fejl: %5</translation>
         <translation>Flytningens animationshastighed af fremhævningsdelegatet.</translation>
     </message>
     <message>
-        <source>Resize duration</source>
-        <translation>Størrelsestilpasningensvarighed</translation>
-    </message>
-    <message>
         <source>Resize animation duration of the highlight delegate.</source>
         <translation>Størrelsestilpasningens anitmationsvarighed af fremhævningsdelegetet.</translation>
-    </message>
-    <message>
-        <source>Preferred begin</source>
-        <translation>Foretrukket begyndelse</translation>
     </message>
     <message>
         <source>Preferred highlight begin - must be smaller than Preferred end.</source>
         <translation>Foretrukket begyndelse for fremhævning - skal være mindre med foretrukket slutning.</translation>
     </message>
     <message>
-        <source>Preferred end</source>
-        <translation>Foretrukket slutning</translation>
-    </message>
-    <message>
         <source>Preferred highlight end - must be larger than Preferred begin.</source>
         <translation>Foretrukket slutning for fremhævning - skal være større med foretrukket begyndelse.</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>Følger aktuelle</translation>
     </message>
     <message>
         <source>Determines whether the highlight is managed by the view.</source>
@@ -19086,61 +18584,6 @@ Fejl: %5</translation>
     <message>
         <source>MainWindow</source>
         <translation>MainWindow</translation>
-    </message>
-</context>
-<context>
-    <name>MarginSection</name>
-    <message>
-        <source>Margin</source>
-        <translation>Margen</translation>
-    </message>
-    <message>
-        <source>Vertical</source>
-        <translation>Lodret</translation>
-    </message>
-    <message>
-        <source>Top</source>
-        <translation>Øverst</translation>
-    </message>
-    <message>
-        <source>The margin above the item.</source>
-        <translation>Margenen over posten.</translation>
-    </message>
-    <message>
-        <source>Bottom</source>
-        <translation>Nederst</translation>
-    </message>
-    <message>
-        <source>The margin below the item.</source>
-        <translation>Margenen under posten.</translation>
-    </message>
-    <message>
-        <source>Horizontal</source>
-        <translation>Vandret</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation>Venstre</translation>
-    </message>
-    <message>
-        <source>The margin left of the item.</source>
-        <translation>Margenen til venstre for posten.</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation>Højre</translation>
-    </message>
-    <message>
-        <source>The margin right of the item.</source>
-        <translation>Margenen til højre for posten.</translation>
-    </message>
-    <message>
-        <source>Margins</source>
-        <translation>Margener</translation>
-    </message>
-    <message>
-        <source>The margins around the item.</source>
-        <translation>Margenerne omkring posten.</translation>
     </message>
 </context>
 <context>
@@ -19780,14 +19223,6 @@ Fejl: %5</translation>
 <context>
     <name>MouseAreaSpecifics</name>
     <message>
-        <source>Mouse Area</source>
-        <translation>Museområde</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Aktiveret</translation>
-    </message>
-    <message>
         <source>This property holds whether the item accepts mouse events.</source>
         <translation>Denne egenskab indeholder om posten accepterer muse-begivenheder.</translation>
     </message>
@@ -20001,50 +19436,6 @@ Fejl: %5</translation>
 <context>
     <name>PaddingSection</name>
     <message>
-        <source>Padding</source>
-        <translation>Padding</translation>
-    </message>
-    <message>
-        <source>Vertical</source>
-        <translation>Lodret</translation>
-    </message>
-    <message>
-        <source>Top</source>
-        <translation>Øverst</translation>
-    </message>
-    <message>
-        <source>Padding between the content and the top edge of the item.</source>
-        <translation>Padding mellem indholdet og den øverste kant af posten.</translation>
-    </message>
-    <message>
-        <source>Bottom</source>
-        <translation>Nederst</translation>
-    </message>
-    <message>
-        <source>Padding between the content and the bottom edge of the item.</source>
-        <translation>Padding mellem indholdet og den nederste kant af posten.</translation>
-    </message>
-    <message>
-        <source>Horizontal</source>
-        <translation>Vandret</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation>Venstre</translation>
-    </message>
-    <message>
-        <source>Padding between the content and the left edge of the item.</source>
-        <translation>Padding mellem indholdet og den venstre kant af posten.</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation>Højre</translation>
-    </message>
-    <message>
-        <source>Padding between the content and the right edge of the item.</source>
-        <translation>Padding mellem indholdet og den højre kant af posten.</translation>
-    </message>
-    <message>
         <source>Padding between the content and the edges of the items.</source>
         <translation>Padding mellem indholdet og kanterne af posterne.</translation>
     </message>
@@ -20066,72 +19457,28 @@ Fejl: %5</translation>
 <context>
     <name>PathViewSpecifics</name>
     <message>
-        <source>Path View</source>
-        <translation>Sti-visning</translation>
-    </message>
-    <message>
-        <source>Drag margin</source>
-        <translation>Træk-margen</translation>
-    </message>
-    <message>
-        <source>Flick deceleration</source>
-        <translation>Vend-deceleration</translation>
-    </message>
-    <message>
-        <source>Interactive</source>
-        <translation>Interaktiv</translation>
-    </message>
-    <message>
         <source>A user cannot drag or flick a PathView that is not interactive.</source>
         <translation>En bruger kan ikke trække eller vende en PathView som ikke er interaktiv.</translation>
-    </message>
-    <message>
-        <source>Offset</source>
-        <translation>Forskydning</translation>
     </message>
     <message>
         <source>Specifies how far along the path the items are from their initial positions. This is a real number that ranges from 0.0 to the count of items in the model.</source>
         <translation>Angiv hvor langt henaf stien posterne er fra deres indledende placeringer. Dette er et reelt tal med en område fra 0.0 til antallet af poster i modellen.</translation>
     </message>
     <message>
-        <source>Item count</source>
-        <translation>Antal poster</translation>
-    </message>
-    <message>
         <source>pathItemCount: number of items visible on the path at any one time.</source>
         <translation>pathItemCount: antal af synlige poster på stien på samme tid.</translation>
-    </message>
-    <message>
-        <source>Path View Highlight</source>
-        <translation>Sti-visning fremhævning</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>Område</translation>
     </message>
     <message>
         <source>Highlight range</source>
         <translation>Fremhævningsområde</translation>
     </message>
     <message>
-        <source>Move duration</source>
-        <translation>Flytningsvarighed</translation>
-    </message>
-    <message>
         <source>Move animation duration of the highlight delegate.</source>
         <translation>Flytningens anitmationsvarighed af fremhævningsdelegetet.</translation>
     </message>
     <message>
-        <source>Preferred begin</source>
-        <translation>Foretrukket begyndelse</translation>
-    </message>
-    <message>
         <source>Preferred highlight begin - must be smaller than Preferred end. Note that the user has to add a highlight component.</source>
         <translation>Foretrukket begyndelse for fremhævning - skal være mindre med foretrukket slutning. Bemærk at brugeren skal tilføje en fremhævningskomponent.</translation>
-    </message>
-    <message>
-        <source>Preferred end</source>
-        <translation>Foretrukket slutning</translation>
     </message>
     <message>
         <source>Preferred highlight end - must be larger than Preferred begin. Note that the user has to add a highlight component.</source>
@@ -20750,60 +20097,8 @@ Fejl: %5</translation>
 <context>
     <name>PopupSection</name>
     <message>
-        <source>Popup</source>
-        <translation>Pop op</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Størrelse</translation>
-    </message>
-    <message>
-        <source>Visibility</source>
-        <translation>Synlighed</translation>
-    </message>
-    <message>
         <source>Is visible</source>
         <translation>Er synlig</translation>
-    </message>
-    <message>
-        <source>Clip</source>
-        <translation>Klip</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>Adfærd</translation>
-    </message>
-    <message>
-        <source>Modal</source>
-        <translation>Modal</translation>
-    </message>
-    <message>
-        <source>Defines the modality of the popup.</source>
-        <translation>Definerer modaliteten af pop op&apos;en.</translation>
-    </message>
-    <message>
-        <source>Dim</source>
-        <translation>Nedtonet</translation>
-    </message>
-    <message>
-        <source>Defines whether the popup dims the background.</source>
-        <translation>Definerer om pop op&apos;en nedtoner baggrunden.</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Opacitet</translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>Skalering</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Mellemrum</translation>
-    </message>
-    <message>
-        <source>Spacing between internal elements of the control.</source>
-        <translation>Mellemrum mellem interne elementer af kontrollen.</translation>
     </message>
 </context>
 <context>
@@ -27008,6 +26303,754 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Error</source>
         <translation>Fejl</translation>
     </message>
+    <message>
+        <source>Advanced</source>
+        <translation>Avanceret</translation>
+    </message>
+    <message>
+        <source>Origin</source>
+        <translation>Oprindelse</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Skalering</translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation>Rotation</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Aktiveret</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Jævn</translation>
+    </message>
+    <message>
+        <source>Antialiasing</source>
+        <translation>Udjævning</translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation>Mål</translation>
+    </message>
+    <message>
+        <source>Anchor to the top of the target.</source>
+        <translation>Anker over målet.</translation>
+    </message>
+    <message>
+        <source>Anchor to the left of the target.</source>
+        <translation>Anker til venstre for målet.</translation>
+    </message>
+    <message>
+        <source>Anchor to the vertical center of the target.</source>
+        <translation>Anker centreret lodret ved målet.</translation>
+    </message>
+    <message>
+        <source>Anchor to the horizontal center of the target.</source>
+        <translation>Anker centreret vandret ved målet.</translation>
+    </message>
+    <message>
+        <source>Anchor to the bottom of the target.</source>
+        <translation>Anker under målet.</translation>
+    </message>
+    <message>
+        <source>Anchor to the right of the target.</source>
+        <translation>Anker til højre for målet.</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation>Vindue</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Titel</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Størrelse</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Farve</translation>
+    </message>
+    <message>
+        <source>Visible</source>
+        <translation>Synlig</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>Opacitet</translation>
+    </message>
+    <message>
+        <source>Border Image</source>
+        <translation>Kantbillede</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Kilde</translation>
+    </message>
+    <message>
+        <source>Source size</source>
+        <translation>Kildestørrelse</translation>
+    </message>
+    <message>
+        <source>Button</source>
+        <translation>Knap</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Tekst</translation>
+    </message>
+    <message>
+        <source>Text displayed on the button.</source>
+        <translation>Tekst vist på knappen.</translation>
+    </message>
+    <message>
+        <source>Checked</source>
+        <translation>Tilvalgt</translation>
+    </message>
+    <message>
+        <source>State of the button.</source>
+        <translation>Knappens tilstand.</translation>
+    </message>
+    <message>
+        <source>Checkable</source>
+        <translation>Valgbar</translation>
+    </message>
+    <message>
+        <source>Determines whether the button is checkable or not.</source>
+        <translation>Beslutter om knappen er valgbar eller ej.</translation>
+    </message>
+    <message>
+        <source>Determines whether the button is enabled or not.</source>
+        <translation>Beslutter om knappen er aktiveret eller ej.</translation>
+    </message>
+    <message>
+        <source>Default button</source>
+        <translation>Standard knap</translation>
+    </message>
+    <message>
+        <source>Sets the button as the default button in a dialog.</source>
+        <translation>Sætter knappen som standard knap i en dialog.</translation>
+    </message>
+    <message>
+        <source>Tool tip</source>
+        <translation>Værktøjstip</translation>
+    </message>
+    <message>
+        <source>The tool tip shown for the button.</source>
+        <translation>Værktøjstippet som vises på knappen.</translation>
+    </message>
+    <message>
+        <source>Focus on press</source>
+        <translation>Giv fokus ved tryk</translation>
+    </message>
+    <message>
+        <source>Determines whether the button gets focus if pressed.</source>
+        <translation>Beslutter om knappen får fokus når der trykkes.</translation>
+    </message>
+    <message>
+        <source>Icon source</source>
+        <translation>Ikonkilde</translation>
+    </message>
+    <message>
+        <source>The URL of an icon resource.</source>
+        <translation>URL&apos;en af en ikonressource.</translation>
+    </message>
+    <message>
+        <source>Check Box</source>
+        <translation>Afkrydsningsboks</translation>
+    </message>
+    <message>
+        <source>Text shown on the check box.</source>
+        <translation>Tekst som vises på afkrydsningsboksen.</translation>
+    </message>
+    <message>
+        <source>State of the check box.</source>
+        <translation>Afkrydsningsboksens tilstand.</translation>
+    </message>
+    <message>
+        <source>Determines whether the check box gets focus if pressed.</source>
+        <translation>Beslutter om afkrydsningsboksen får fokus når der trykkes.</translation>
+    </message>
+    <message>
+        <source>Column</source>
+        <translation>Kolonne</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>Mellemrum</translation>
+    </message>
+    <message>
+        <source>Combo Box</source>
+        <translation>Komboboks</translation>
+    </message>
+    <message>
+        <source>Determines whether the combobox gets focus if pressed.</source>
+        <translation>Beslutter om komboboksen får fokus når der trykkes.</translation>
+    </message>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialog</translation>
+    </message>
+    <message>
+        <source>Drawer</source>
+        <translation>Skuffe</translation>
+    </message>
+    <message>
+        <source>Edge</source>
+        <translation>Kant</translation>
+    </message>
+    <message>
+        <source>Defines the edge of the window the drawer will open from.</source>
+        <translation>Definerer kanten af vinduet hvorfra skuffen vil åbne.</translation>
+    </message>
+    <message>
+        <source>Defines the distance from the screen edge within which drag actions will open the drawer.</source>
+        <translation>Definerer afstanden fra skærmkanten hvori træk-handlinger vil åbne skuffen.</translation>
+    </message>
+    <message>
+        <source>Flickable</source>
+        <translation>Vendbar</translation>
+    </message>
+    <message>
+        <source>Content size</source>
+        <translation>Indholdsstørrelse</translation>
+    </message>
+    <message>
+        <source>Flick direction</source>
+        <translation>Vendretning</translation>
+    </message>
+    <message>
+        <source>Behavior</source>
+        <translation>Adfærd</translation>
+    </message>
+    <message>
+        <source>Interactive</source>
+        <translation>Interaktiv</translation>
+    </message>
+    <message>
+        <source>Max. velocity</source>
+        <translation>Maks. hastighed</translation>
+    </message>
+    <message>
+        <source>Deceleration</source>
+        <translation>Deceleration</translation>
+    </message>
+    <message>
+        <source>Flick deceleration</source>
+        <translation>Vend-deceleration</translation>
+    </message>
+    <message>
+        <source>Flipable</source>
+        <translation>Vendbar</translation>
+    </message>
+    <message>
+        <source>Flow</source>
+        <translation>Flow</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation>Skrifttype</translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation>Stil</translation>
+    </message>
+    <message>
+        <source>Prefer shaping</source>
+        <translation>Foretræk formning</translation>
+    </message>
+    <message>
+        <source>Geometry</source>
+        <translation>Geometri</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>Placering</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>Kolonner</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>Rækker</translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation>Gitter</translation>
+    </message>
+    <message>
+        <source>Grid View</source>
+        <translation>Gitter-visning</translation>
+    </message>
+    <message>
+        <source>Cache</source>
+        <translation>Mellemlager</translation>
+    </message>
+    <message>
+        <source>Navigation wraps</source>
+        <translation>Navigation ombryder</translation>
+    </message>
+    <message>
+        <source>Snap mode</source>
+        <translation>Fastgør-tilstand</translation>
+    </message>
+    <message>
+        <source>Grid View Highlight</source>
+        <translation>Gitter-visning fremhævning</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Område</translation>
+    </message>
+    <message>
+        <source>Move duration</source>
+        <translation>Flytningsvarighed</translation>
+    </message>
+    <message>
+        <source>Preferred begin</source>
+        <translation>Foretrukket begyndelse</translation>
+    </message>
+    <message>
+        <source>Preferred end</source>
+        <translation>Foretrukket slutning</translation>
+    </message>
+    <message>
+        <source>Follows current</source>
+        <translation>Følger aktuelle</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <source>id</source>
+        <translation>id</translation>
+    </message>
+    <message>
+        <source>Visibility</source>
+        <translation>Synlighed</translation>
+    </message>
+    <message>
+        <source>Clip</source>
+        <translation>Klip</translation>
+    </message>
+    <message>
+        <source>Layout</source>
+        <translation>Layout</translation>
+    </message>
+    <message>
+        <source>Anchors</source>
+        <translation>Ankre</translation>
+    </message>
+    <message>
+        <source>List View</source>
+        <translation>Liste-visning</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation>Orientering</translation>
+    </message>
+    <message>
+        <source>List View Highlight</source>
+        <translation>Liste-visningens fremhævning</translation>
+    </message>
+    <message>
+        <source>Resize duration</source>
+        <translation>Størrelsestilpasningensvarighed</translation>
+    </message>
+    <message>
+        <source>Margin</source>
+        <translation>Margen</translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation>Lodret</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>Øverst</translation>
+    </message>
+    <message>
+        <source>The margin above the item.</source>
+        <translation>Margenen over posten.</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Nederst</translation>
+    </message>
+    <message>
+        <source>The margin below the item.</source>
+        <translation>Margenen under posten.</translation>
+    </message>
+    <message>
+        <source>Horizontal</source>
+        <translation>Vandret</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Venstre</translation>
+    </message>
+    <message>
+        <source>The margin left of the item.</source>
+        <translation>Margenen til venstre for posten.</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Højre</translation>
+    </message>
+    <message>
+        <source>The margin right of the item.</source>
+        <translation>Margenen til højre for posten.</translation>
+    </message>
+    <message>
+        <source>Margins</source>
+        <translation>Margener</translation>
+    </message>
+    <message>
+        <source>The margins around the item.</source>
+        <translation>Margenerne omkring posten.</translation>
+    </message>
+    <message>
+        <source>Mouse Area</source>
+        <translation>Museområde</translation>
+    </message>
+    <message>
+        <source>Padding</source>
+        <translation>Padding</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the top edge of the item.</source>
+        <translation>Padding mellem indholdet og den øverste kant af posten.</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the bottom edge of the item.</source>
+        <translation>Padding mellem indholdet og den nederste kant af posten.</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the left edge of the item.</source>
+        <translation>Padding mellem indholdet og den venstre kant af posten.</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the right edge of the item.</source>
+        <translation>Padding mellem indholdet og den højre kant af posten.</translation>
+    </message>
+    <message>
+        <source>Path View</source>
+        <translation>Sti-visning</translation>
+    </message>
+    <message>
+        <source>Drag margin</source>
+        <translation>Træk-margen</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Forskydning</translation>
+    </message>
+    <message>
+        <source>Item count</source>
+        <translation>Antal poster</translation>
+    </message>
+    <message>
+        <source>Path View Highlight</source>
+        <translation>Sti-visning fremhævning</translation>
+    </message>
+    <message>
+        <source>Popup</source>
+        <translation>Pop op</translation>
+    </message>
+    <message>
+        <source>Modal</source>
+        <translation>Modal</translation>
+    </message>
+    <message>
+        <source>Defines the modality of the popup.</source>
+        <translation>Definerer modaliteten af pop op&apos;en.</translation>
+    </message>
+    <message>
+        <source>Dim</source>
+        <translation>Nedtonet</translation>
+    </message>
+    <message>
+        <source>Defines whether the popup dims the background.</source>
+        <translation>Definerer om pop op&apos;en nedtoner baggrunden.</translation>
+    </message>
+    <message>
+        <source>Spacing between internal elements of the control.</source>
+        <translation>Mellemrum mellem interne elementer af kontrollen.</translation>
+    </message>
+    <message>
+        <source>Radio Button</source>
+        <translation>Radioknap</translation>
+    </message>
+    <message>
+        <source>Text label for the radio button.</source>
+        <translation>Tekstetiket for radioknappen.</translation>
+    </message>
+    <message>
+        <source>Determines whether the radio button is checked or not.</source>
+        <translation>Beslutter om radioknappen er tilvalgt eller ej.</translation>
+    </message>
+    <message>
+        <source>Determines whether the radio button gets focus if pressed.</source>
+        <translation>Beslutter om radioknappen får fokus når der trykkes.</translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation>Radius</translation>
+    </message>
+    <message>
+        <source>Row</source>
+        <translation>Række</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Værdi</translation>
+    </message>
+    <message>
+        <source>Current value of the Slider. The default value is 0.0.</source>
+        <translation>Skyderens aktuelle værdi. Standardværdien er 0.0.</translation>
+    </message>
+    <message>
+        <source>Maximum value</source>
+        <translation>Maksimum værdi</translation>
+    </message>
+    <message>
+        <source>Maximum value of the slider. The default value is 1.0.</source>
+        <translation>Skyderens maksimum værdi. Standardværdien er 1.0.</translation>
+    </message>
+    <message>
+        <source>Minimum value</source>
+        <translation>Minimum værdi</translation>
+    </message>
+    <message>
+        <source>Minimum value of the slider. The default value is 0.0.</source>
+        <translation>Skyderens minimum værdi. Standardværdien er 0.0.</translation>
+    </message>
+    <message>
+        <source>Layout orientation of the slider.</source>
+        <translation>Skyderens layout retning.</translation>
+    </message>
+    <message>
+        <source>Step size</source>
+        <translation>Trin størrelse</translation>
+    </message>
+    <message>
+        <source>Indicates the slider step size.</source>
+        <translation>Indikerer skyderens trin størrelse.</translation>
+    </message>
+    <message>
+        <source>Active focus on press</source>
+        <translation>Aktiv fokus ved tryk</translation>
+    </message>
+    <message>
+        <source>Indicates whether the slider should receive active focus when pressed.</source>
+        <translation>Indikerer om skyderen skal modtage aktiv fokus når der trykkes på den.</translation>
+    </message>
+    <message>
+        <source>Tick marks enabled</source>
+        <translation>Stregmærker aktiveret</translation>
+    </message>
+    <message>
+        <source>Indicates whether the slider should display tick marks at step intervals.</source>
+        <translation>Indikerer om skyderen skal vise stregmærker ved trin-intervaller.</translation>
+    </message>
+    <message>
+        <source>Update value while dragging</source>
+        <translation>Opdater værdi mens der trækkes</translation>
+    </message>
+    <message>
+        <source>Determines whether the current value should be updated while the user is moving the slider handle, or only when the button has been released.</source>
+        <translation>Beslutter om den aktuelle værdi skal opdateres mens brugeren flytter skyderens håndtag eller kun når knappen slippes.</translation>
+    </message>
+    <message>
+        <source>Split View</source>
+        <translation>Opdel visning</translation>
+    </message>
+    <message>
+        <source>Orientation of the split view.</source>
+        <translation>Orientering af opdel visningen.</translation>
+    </message>
+    <message>
+        <source>Wrap mode</source>
+        <translation>Ombrydningstilstand</translation>
+    </message>
+    <message>
+        <source>Elide</source>
+        <translation>Elide</translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation>Justering</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Format</translation>
+    </message>
+    <message>
+        <source>Render type</source>
+        <translation>Renderingstype</translation>
+    </message>
+    <message>
+        <source>Line height</source>
+        <translation>Linjehøjde</translation>
+    </message>
+    <message>
+        <source>Sets the line height for the text.</source>
+        <translation>Sætter linjehøjden for teksten.</translation>
+    </message>
+    <message>
+        <source>Tab View</source>
+        <translation>Faneblad-visning</translation>
+    </message>
+    <message>
+        <source>Current index</source>
+        <translation>Aktuelt indeks</translation>
+    </message>
+    <message>
+        <source>Frame visible</source>
+        <translation>Synlig ramme</translation>
+    </message>
+    <message>
+        <source>Determines the visibility of the tab frame around contents.</source>
+        <translation>Beslutter synligheden af fanebladets ramme omkring indholdet.</translation>
+    </message>
+    <message>
+        <source>Tabs visible</source>
+        <translation>Tabulatorer synlige</translation>
+    </message>
+    <message>
+        <source>Determines the visibility of the tab bar.</source>
+        <translation>Beslutter synligheden af fanebladslinjen.</translation>
+    </message>
+    <message>
+        <source>Tab position</source>
+        <translation>Faneblad placering</translation>
+    </message>
+    <message>
+        <source>Determines the position of the tabs.</source>
+        <translation>Beslutter placeringen af fanebladene.</translation>
+    </message>
+    <message>
+        <source>Text Area</source>
+        <translation>Tekstområde</translation>
+    </message>
+    <message>
+        <source>Text shown on the text area.</source>
+        <translation>Tekst som vises på tekstområdet.</translation>
+    </message>
+    <message>
+        <source>Read only</source>
+        <translation>Skrivebeskyttet</translation>
+    </message>
+    <message>
+        <source>Determines whether the text area is read only.</source>
+        <translation>Beslutter om tekstområdet er skrivebeskyttet.</translation>
+    </message>
+    <message>
+        <source>Document margins</source>
+        <translation>Dokument margener</translation>
+    </message>
+    <message>
+        <source>Margins of the text area.</source>
+        <translation>Margener på tekstområdet.</translation>
+    </message>
+    <message>
+        <source>Frame width</source>
+        <translation>Rammebredde</translation>
+    </message>
+    <message>
+        <source>Width of the frame.</source>
+        <translation>Bredde på rammen.</translation>
+    </message>
+    <message>
+        <source>Contents frame</source>
+        <translation>Indholdets ramme</translation>
+    </message>
+    <message>
+        <source>Determines whether the frame around contents is shown.</source>
+        <translation>Beslutter om rammen omkring indholdet vises.</translation>
+    </message>
+    <message>
+        <source>Focus Handling</source>
+        <translation>Håndtering af fokus</translation>
+    </message>
+    <message>
+        <source>Highlight on focus</source>
+        <translation>Fremhæv ved fokus</translation>
+    </message>
+    <message>
+        <source>Determines whether the text area is highlighted on focus.</source>
+        <translation>Beslutter om tekstområdet fremhæves ved fokus.</translation>
+    </message>
+    <message>
+        <source>Tab changes focus</source>
+        <translation>Tabulator skifter fokus</translation>
+    </message>
+    <message>
+        <source>Determines whether tab changes the focus of the text area.</source>
+        <translation>Beslutter om tabulator skifter fokussen af tekstområdet.</translation>
+    </message>
+    <message>
+        <source>Determines whether the text area gets focus if pressed.</source>
+        <translation>Beslutter om tekstområdet får fokus når der trykkes.</translation>
+    </message>
+    <message>
+        <source>Text Field</source>
+        <translation>Tekstfelt</translation>
+    </message>
+    <message>
+        <source>Text shown on the text field.</source>
+        <translation>Tekst som vises på tekstfeltet.</translation>
+    </message>
+    <message>
+        <source>Placeholder text</source>
+        <translation>Pladsholder tekst</translation>
+    </message>
+    <message>
+        <source>Placeholder text.</source>
+        <translation>Pladsholder tekst.</translation>
+    </message>
+    <message>
+        <source>Determines whether the text field is read only.</source>
+        <translation>Beslutter om tekstfeltet er skrivebeskyttet.</translation>
+    </message>
+    <message>
+        <source>Input mask</source>
+        <translation>Input-maske</translation>
+    </message>
+    <message>
+        <source>Restricts the valid text in the text field.</source>
+        <translation>Begrænser den gyldige tekst i tekstfeltet.</translation>
+    </message>
+    <message>
+        <source>Echo mode</source>
+        <translation>Ekko-tilstand</translation>
+    </message>
+    <message>
+        <source>Specifies how the text is displayed in the text field.</source>
+        <translation>Angiver hvordan teksten vises i tekstfeltet.</translation>
+    </message>
+    <message>
+        <source>Text Input</source>
+        <translation>Tekst-input</translation>
+    </message>
+    <message>
+        <source>Flags</source>
+        <translation>Flag</translation>
+    </message>
+    <message>
+        <source>Cursor visible</source>
+        <translation>Markør synlig</translation>
+    </message>
+    <message>
+        <source>Auto scroll</source>
+        <translation>Automatisk rul</translation>
+    </message>
 </context>
 <context>
     <name>QmlDesigner::AddNewBackendDialog</name>
@@ -30924,42 +30967,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RadioButtonSpecifics</name>
-    <message>
-        <source>Radio Button</source>
-        <translation>Radioknap</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Tekst</translation>
-    </message>
-    <message>
-        <source>Text label for the radio button.</source>
-        <translation>Tekstetiket for radioknappen.</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>Tilvalgt</translation>
-    </message>
-    <message>
-        <source>Determines whether the radio button is checked or not.</source>
-        <translation>Beslutter om radioknappen er tilvalgt eller ej.</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Giv fokus ved tryk</translation>
-    </message>
-    <message>
-        <source>Determines whether the radio button gets focus if pressed.</source>
-        <translation>Beslutter om radioknappen får fokus når der trykkes.</translation>
-    </message>
-</context>
-<context>
     <name>RectangleSpecifics</name>
-    <message>
-        <source>Color</source>
-        <translation>Farve</translation>
-    </message>
     <message>
         <source>Border Color</source>
         <translation>Kantfarve</translation>
@@ -30967,10 +30975,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>Border</source>
         <translation>Kant</translation>
-    </message>
-    <message>
-        <source>Radius</source>
-        <translation>Radius</translation>
     </message>
 </context>
 <context>
@@ -31747,16 +31751,8 @@ Derudover testes enhedens forbindelse.</translation>
 <context>
     <name>RowSpecifics</name>
     <message>
-        <source>Row</source>
-        <translation>Række</translation>
-    </message>
-    <message>
         <source>Layout Direction</source>
         <translation>Layoutretning</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Mellemrum</translation>
     </message>
 </context>
 <context>
@@ -32493,92 +32489,10 @@ Række: %4, Kolonne: %5
     </message>
 </context>
 <context>
-    <name>SliderSpecifics</name>
-    <message>
-        <source>Value</source>
-        <translation>Værdi</translation>
-    </message>
-    <message>
-        <source>Current value of the Slider. The default value is 0.0.</source>
-        <translation>Skyderens aktuelle værdi. Standardværdien er 0.0.</translation>
-    </message>
-    <message>
-        <source>Maximum value</source>
-        <translation>Maksimum værdi</translation>
-    </message>
-    <message>
-        <source>Maximum value of the slider. The default value is 1.0.</source>
-        <translation>Skyderens maksimum værdi. Standardværdien er 1.0.</translation>
-    </message>
-    <message>
-        <source>Minimum value</source>
-        <translation>Minimum værdi</translation>
-    </message>
-    <message>
-        <source>Minimum value of the slider. The default value is 0.0.</source>
-        <translation>Skyderens minimum værdi. Standardværdien er 0.0.</translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Orientering</translation>
-    </message>
-    <message>
-        <source>Layout orientation of the slider.</source>
-        <translation>Skyderens layout retning.</translation>
-    </message>
-    <message>
-        <source>Step size</source>
-        <translation>Trin størrelse</translation>
-    </message>
-    <message>
-        <source>Indicates the slider step size.</source>
-        <translation>Indikerer skyderens trin størrelse.</translation>
-    </message>
-    <message>
-        <source>Active focus on press</source>
-        <translation>Aktiv fokus ved tryk</translation>
-    </message>
-    <message>
-        <source>Indicates whether the slider should receive active focus when pressed.</source>
-        <translation>Indikerer om skyderen skal modtage aktiv fokus når der trykkes på den.</translation>
-    </message>
-    <message>
-        <source>Tick marks enabled</source>
-        <translation>Stregmærker aktiveret</translation>
-    </message>
-    <message>
-        <source>Indicates whether the slider should display tick marks at step intervals.</source>
-        <translation>Indikerer om skyderen skal vise stregmærker ved trin-intervaller.</translation>
-    </message>
-    <message>
-        <source>Update value while dragging</source>
-        <translation>Opdater værdi mens der trækkes</translation>
-    </message>
-    <message>
-        <source>Determines whether the current value should be updated while the user is moving the slider handle, or only when the button has been released.</source>
-        <translation>Beslutter om den aktuelle værdi skal opdateres mens brugeren flytter skyderens håndtag eller kun når knappen slippes.</translation>
-    </message>
-</context>
-<context>
     <name>SourceToolAction</name>
     <message>
         <source>Change Source URL...</source>
         <translation>Skift kilde-URL...</translation>
-    </message>
-</context>
-<context>
-    <name>SplitViewSpecifics</name>
-    <message>
-        <source>Split View</source>
-        <translation>Opdel visning</translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Orientering</translation>
-    </message>
-    <message>
-        <source>Orientation of the split view.</source>
-        <translation>Orientering af opdel visningen.</translation>
     </message>
 </context>
 <context>
@@ -32618,30 +32532,6 @@ med en adgangskode, som du kan indtaste herunder.</translation>
 <context>
     <name>StandardTextSection</name>
     <message>
-        <source>Text</source>
-        <translation>Tekst</translation>
-    </message>
-    <message>
-        <source>Wrap mode</source>
-        <translation>Ombrydningstilstand</translation>
-    </message>
-    <message>
-        <source>Elide</source>
-        <translation>Elide</translation>
-    </message>
-    <message>
-        <source>Alignment</source>
-        <translation>Justering</translation>
-    </message>
-    <message>
-        <source>Format</source>
-        <translation>Format</translation>
-    </message>
-    <message>
-        <source>Render type</source>
-        <translation>Renderingstype</translation>
-    </message>
-    <message>
         <source>Override the default rendering type for this item.</source>
         <translation>Tilsidesætter standardrenderingstypen for denne post.</translation>
     </message>
@@ -32652,14 +32542,6 @@ med en adgangskode, som du kan indtaste herunder.</translation>
     <message>
         <source>Specifies how the font size of the displayed text is determined.</source>
         <translation>Angiver hvordan skiftstørrelsen af den viste tekst besluttes.</translation>
-    </message>
-    <message>
-        <source>Line height</source>
-        <translation>Linjehøjde</translation>
-    </message>
-    <message>
-        <source>Sets the line height for the text.</source>
-        <translation>Sætter linjehøjden for teksten.</translation>
     </message>
 </context>
 <context>
@@ -32983,41 +32865,6 @@ med en adgangskode, som du kan indtaste herunder.</translation>
     </message>
 </context>
 <context>
-    <name>TabViewSpecifics</name>
-    <message>
-        <source>Tab View</source>
-        <translation>Faneblad-visning</translation>
-    </message>
-    <message>
-        <source>Current index</source>
-        <translation>Aktuelt indeks</translation>
-    </message>
-    <message>
-        <source>Frame visible</source>
-        <translation>Synlig ramme</translation>
-    </message>
-    <message>
-        <source>Determines the visibility of the tab frame around contents.</source>
-        <translation>Beslutter synligheden af fanebladets ramme omkring indholdet.</translation>
-    </message>
-    <message>
-        <source>Tabs visible</source>
-        <translation>Tabulatorer synlige</translation>
-    </message>
-    <message>
-        <source>Determines the visibility of the tab bar.</source>
-        <translation>Beslutter synligheden af fanebladslinjen.</translation>
-    </message>
-    <message>
-        <source>Tab position</source>
-        <translation>Faneblad placering</translation>
-    </message>
-    <message>
-        <source>Determines the position of the tabs.</source>
-        <translation>Beslutter placeringen af fanebladene.</translation>
-    </message>
-</context>
-<context>
     <name>TabViewToolAction</name>
     <message>
         <source>Add Tab...</source>
@@ -33117,85 +32964,6 @@ med en adgangskode, som du kan indtaste herunder.</translation>
     <message>
         <source>%1 (none)</source>
         <translation>%1 (ingen)</translation>
-    </message>
-</context>
-<context>
-    <name>TextAreaSpecifics</name>
-    <message>
-        <source>Color</source>
-        <translation>Farve</translation>
-    </message>
-    <message>
-        <source>Text Area</source>
-        <translation>Tekstområde</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Tekst</translation>
-    </message>
-    <message>
-        <source>Text shown on the text area.</source>
-        <translation>Tekst som vises på tekstområdet.</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Skrivebeskyttet</translation>
-    </message>
-    <message>
-        <source>Determines whether the text area is read only.</source>
-        <translation>Beslutter om tekstområdet er skrivebeskyttet.</translation>
-    </message>
-    <message>
-        <source>Document margins</source>
-        <translation>Dokument margener</translation>
-    </message>
-    <message>
-        <source>Margins of the text area.</source>
-        <translation>Margener på tekstområdet.</translation>
-    </message>
-    <message>
-        <source>Frame width</source>
-        <translation>Rammebredde</translation>
-    </message>
-    <message>
-        <source>Width of the frame.</source>
-        <translation>Bredde på rammen.</translation>
-    </message>
-    <message>
-        <source>Contents frame</source>
-        <translation>Indholdets ramme</translation>
-    </message>
-    <message>
-        <source>Determines whether the frame around contents is shown.</source>
-        <translation>Beslutter om rammen omkring indholdet vises.</translation>
-    </message>
-    <message>
-        <source>Focus Handling</source>
-        <translation>Håndtering af fokus</translation>
-    </message>
-    <message>
-        <source>Highlight on focus</source>
-        <translation>Fremhæv ved fokus</translation>
-    </message>
-    <message>
-        <source>Determines whether the text area is highlighted on focus.</source>
-        <translation>Beslutter om tekstområdet fremhæves ved fokus.</translation>
-    </message>
-    <message>
-        <source>Tab changes focus</source>
-        <translation>Tabulator skifter fokus</translation>
-    </message>
-    <message>
-        <source>Determines whether tab changes the focus of the text area.</source>
-        <translation>Beslutter om tabulator skifter fokussen af tekstområdet.</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Giv fokus ved tryk</translation>
-    </message>
-    <message>
-        <source>Determines whether the text area gets focus if pressed.</source>
-        <translation>Beslutter om tekstområdet får fokus når der trykkes.</translation>
     </message>
 </context>
 <context>
@@ -35424,66 +35192,7 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
     </message>
 </context>
 <context>
-    <name>TextFieldSpecifics</name>
-    <message>
-        <source>Text Field</source>
-        <translation>Tekstfelt</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Tekst</translation>
-    </message>
-    <message>
-        <source>Text shown on the text field.</source>
-        <translation>Tekst som vises på tekstfeltet.</translation>
-    </message>
-    <message>
-        <source>Placeholder text</source>
-        <translation>Pladsholder tekst</translation>
-    </message>
-    <message>
-        <source>Placeholder text.</source>
-        <translation>Pladsholder tekst.</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Skrivebeskyttet</translation>
-    </message>
-    <message>
-        <source>Determines whether the text field is read only.</source>
-        <translation>Beslutter om tekstfeltet er skrivebeskyttet.</translation>
-    </message>
-    <message>
-        <source>Input mask</source>
-        <translation>Input-maske</translation>
-    </message>
-    <message>
-        <source>Restricts the valid text in the text field.</source>
-        <translation>Begrænser den gyldige tekst i tekstfeltet.</translation>
-    </message>
-    <message>
-        <source>Echo mode</source>
-        <translation>Ekko-tilstand</translation>
-    </message>
-    <message>
-        <source>Specifies how the text is displayed in the text field.</source>
-        <translation>Angiver hvordan teksten vises i tekstfeltet.</translation>
-    </message>
-</context>
-<context>
     <name>TextInputSection</name>
-    <message>
-        <source>Text Input</source>
-        <translation>Tekst-input</translation>
-    </message>
-    <message>
-        <source>Input mask</source>
-        <translation>Input-maske</translation>
-    </message>
-    <message>
-        <source>Echo mode</source>
-        <translation>Ekko-tilstand</translation>
-    </message>
     <message>
         <source>Pass. char</source>
         <translation>Adgangskodetegn</translation>
@@ -35491,26 +35200,6 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
     <message>
         <source>Character displayed when users enter passwords.</source>
         <translation>Tegn som vises når brugeren indtaster adgangskoder.</translation>
-    </message>
-    <message>
-        <source>Flags</source>
-        <translation>Flag</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Skrivebeskyttet</translation>
-    </message>
-    <message>
-        <source>Cursor visible</source>
-        <translation>Markør synlig</translation>
-    </message>
-    <message>
-        <source>Active focus on press</source>
-        <translation>Aktiv fokus ved tryk</translation>
-    </message>
-    <message>
-        <source>Auto scroll</source>
-        <translation>Automatisk rul</translation>
     </message>
 </context>
 <context>
@@ -38215,33 +37904,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
 </source>
         <translation>Fejl ved eksekvering af WinRT Runner-værktøjet: %1
 </translation>
-    </message>
-</context>
-<context>
-    <name>WindowSpecifics</name>
-    <message>
-        <source>Window</source>
-        <translation>Vindue</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Titel</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Størrelse</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Farve</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation>Synlig</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Opacitet</translation>
     </message>
 </context>
 <context>

@@ -20019,36 +20019,12 @@ a předpokladem je, že vzdálený spustitelný soubor bude v adresáři zmiňov
         <translation type="obsolete">Obrázek</translation>
     </message>
     <message>
-        <source>Source</source>
-        <translation>Zdroj</translation>
-    </message>
-    <message>
         <source>Source Size</source>
         <translation type="obsolete">Velikost zdroje</translation>
     </message>
     <message>
         <source>BorderImage</source>
         <translation>OkrajObrázek</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation>Vlevo</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation>Vpravo</translation>
-    </message>
-    <message>
-        <source>Top</source>
-        <translation>Nahoře</translation>
-    </message>
-    <message>
-        <source>Bottom</source>
-        <translation>Dole</translation>
-    </message>
-    <message>
-        <source>Border Image</source>
-        <translation>Obrázek ohraničení</translation>
     </message>
     <message>
         <source>Border Left</source>
@@ -20073,10 +20049,6 @@ a předpokladem je, že vzdálený spustitelný soubor bude v adresáři zmiňov
     <message>
         <source>Vertical Fill mode</source>
         <translation>Režim svislé výplně</translation>
-    </message>
-    <message>
-        <source>Source size</source>
-        <translation>Velikost zdroje</translation>
     </message>
 </context>
 <context>
@@ -20292,28 +20264,12 @@ a předpokladem je, že vzdálený spustitelný soubor bude v adresáři zmiňov
 <context>
     <name>RectangleSpecifics</name>
     <message>
-        <source>Rectangle</source>
-        <translation>Obdélník</translation>
-    </message>
-    <message>
-        <source>Border width</source>
-        <translation>Šířka okraje</translation>
-    </message>
-    <message>
         <source>Border has to be solid to change width</source>
         <translation>Změna šířky je možná jen u pevného okraje</translation>
     </message>
     <message>
         <source>Border</source>
         <translation>Rám</translation>
-    </message>
-    <message>
-        <source>Radius</source>
-        <translation>Poloměr</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Barva</translation>
     </message>
     <message>
         <source>Border Color</source>
@@ -27663,18 +27619,6 @@ With cache simulation, further event counters are enabled:
 <context>
     <name>FlowSpecifics</name>
     <message>
-        <source>Flow</source>
-        <translation>Tok</translation>
-    </message>
-    <message>
-        <source>Layout direction</source>
-        <translation>Směr rozvržení</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Odstup</translation>
-    </message>
-    <message>
         <source>Layout Direction</source>
         <translation>Směr rozvržení</translation>
     </message>
@@ -27682,44 +27626,12 @@ With cache simulation, further event counters are enabled:
 <context>
     <name>GridSpecifics</name>
     <message>
-        <source>Grid</source>
-        <translation>Mřížka</translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation>Sloupce</translation>
-    </message>
-    <message>
-        <source>Rows</source>
-        <translation>Řádky</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>Tok</translation>
-    </message>
-    <message>
-        <source>Layout direction</source>
-        <translation>Směr rozvržení</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Odstup</translation>
-    </message>
-    <message>
         <source>Layout Direction</source>
         <translation>Směr rozvržení</translation>
     </message>
 </context>
 <context>
     <name>GridViewSpecifics</name>
-    <message>
-        <source>Grid View</source>
-        <translation>Pohled s mřížkou</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>Vyrovnávací paměť</translation>
-    </message>
     <message>
         <source>Cache buffer</source>
         <translation>Vyrovnávací paměť</translation>
@@ -27733,44 +27645,20 @@ With cache simulation, further event counters are enabled:
         <translation>Šířka buňky</translation>
     </message>
     <message>
-        <source>Flow</source>
-        <translation>Tok</translation>
-    </message>
-    <message>
         <source>Resize wraps</source>
         <translation type="obsolete">Zalomení při změně velikosti</translation>
-    </message>
-    <message>
-        <source>Navigation wraps</source>
-        <translation>Navigace kláves zalamuje</translation>
     </message>
     <message>
         <source>Determines whether the grid wraps key navigation.</source>
         <translation>Určuje, zda se mřížka při navádění klávesami zalomí.</translation>
     </message>
     <message>
-        <source>Snap mode</source>
-        <translation>Režim zapadnutí</translation>
-    </message>
-    <message>
         <source>Determines how the view scrolling will settle following a drag or flick.</source>
         <translation>Určuje, jak přijde zobrazení po operaci tažení nebo udělání rychlého pohybu.</translation>
     </message>
     <message>
-        <source>Grid View Highlight</source>
-        <translation>Zvýraznění v pohledu s mřížkou</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>Rozsah</translation>
-    </message>
-    <message>
         <source>Highlight range</source>
         <translation>Zvýraznit oblast</translation>
-    </message>
-    <message>
-        <source>Move duration</source>
-        <translation>Doba trvání pohybu</translation>
     </message>
     <message>
         <source>Move animation duration of the highlight delegate.</source>
@@ -27785,24 +27673,12 @@ With cache simulation, further event counters are enabled:
         <translation>Rychlost pohybové animace zvýrazněného zástupce.</translation>
     </message>
     <message>
-        <source>Preferred begin</source>
-        <translation>Upřednostňovaný začátek</translation>
-    </message>
-    <message>
         <source>Preferred highlight begin - must be smaller than Preferred end.</source>
         <translation>Upřednostňovaný začátek zvýrazňování - musí být menší než upřednostňovaná koncová hodnota.</translation>
     </message>
     <message>
-        <source>Preferred end</source>
-        <translation>Upřednostňovaný konec</translation>
-    </message>
-    <message>
         <source>Preferred highlight end - must be larger than Preferred begin.</source>
         <translation>Upřednostňovaný konec zvýrazňování - musí být větší než upřednostňovaný začátek.</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>Následuje nynější prvek</translation>
     </message>
     <message>
         <source>Determines whether the highlight is managed by the view.</source>
@@ -27827,64 +27703,28 @@ With cache simulation, further event counters are enabled:
 <context>
     <name>ListViewSpecifics</name>
     <message>
-        <source>List View</source>
-        <translation>Pohled se seznamem</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>Vyrovnávací paměť</translation>
-    </message>
-    <message>
         <source>Cache buffer</source>
         <translation>Vyrovnávací paměť</translation>
-    </message>
-    <message>
-        <source>Navigation wraps</source>
-        <translation>Navigace kláves zalamuje</translation>
     </message>
     <message>
         <source>Determines whether the grid wraps key navigation.</source>
         <translation>Určuje, zda se mřížka při navádění klávesami zalomí.</translation>
     </message>
     <message>
-        <source>Orientation</source>
-        <translation>Orientace</translation>
-    </message>
-    <message>
         <source>Orientation of the list.</source>
         <translation>Orientace seznamu.</translation>
-    </message>
-    <message>
-        <source>Snap mode</source>
-        <translation>Režim zapadnutí</translation>
     </message>
     <message>
         <source>Determines how the view scrolling will settle following a drag or flick.</source>
         <translation>Určuje, jak přijde zobrazení po operaci tažení nebo udělání rychlého pohybu.</translation>
     </message>
     <message>
-        <source>Spacing</source>
-        <translation>Odstup</translation>
-    </message>
-    <message>
         <source>Spacing between items.</source>
         <translation>Odstup mezi prvky.</translation>
     </message>
     <message>
-        <source>List View Highlight</source>
-        <translation>Zvýraznění v pohledu se seznamem</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>Rozsah</translation>
-    </message>
-    <message>
         <source>Highlight range</source>
         <translation>Zvýraznit oblast</translation>
-    </message>
-    <message>
-        <source>Move duration</source>
-        <translation>Doba trvání pohybu</translation>
     </message>
     <message>
         <source>Move animation duration of the highlight delegate.</source>
@@ -27899,10 +27739,6 @@ With cache simulation, further event counters are enabled:
         <translation>Rychlost pohybové animace zvýrazněného zástupce.</translation>
     </message>
     <message>
-        <source>Resize duration</source>
-        <translation>Doba trvání změny velikosti</translation>
-    </message>
-    <message>
         <source>Resize animation duration of the highlight delegate.</source>
         <translation>Doba trvání animace změny velikosti zvýrazněného zástupce.</translation>
     </message>
@@ -27915,24 +27751,12 @@ With cache simulation, further event counters are enabled:
         <translation>Rychlost animace změny velikosti zvýrazněného zástupce.</translation>
     </message>
     <message>
-        <source>Preferred begin</source>
-        <translation>Upřednostňovaný začátek</translation>
-    </message>
-    <message>
         <source>Preferred highlight begin - must be smaller than Preferred end.</source>
         <translation>Upřednostňovaný začátek zvýrazňování - musí být menší než upřednostňovaná koncová hodnota.</translation>
     </message>
     <message>
-        <source>Preferred end</source>
-        <translation>Upřednostňovaný konec</translation>
-    </message>
-    <message>
         <source>Preferred highlight end - must be larger than Preferred begin.</source>
         <translation>Upřednostňovaný konec zvýrazňování - musí být větší než upřednostňovaný začátek.</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>Následuje nynější prvek</translation>
     </message>
     <message>
         <source>Determines whether the highlight is managed by the view.</source>
@@ -27950,10 +27774,6 @@ With cache simulation, further event counters are enabled:
         <translation>Oblast myši</translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>Povoleno</translation>
-    </message>
-    <message>
         <source>This property holds whether the item accepts mouse events.</source>
         <translation>Tato vlastnost stanovuje, zda prvek přijímá událost myši.</translation>
     </message>
@@ -27965,76 +27785,32 @@ With cache simulation, further event counters are enabled:
         <source>This property holds whether hover events are handled.</source>
         <translation>Tato vlastnost stanovuje, zda prvek přijímá událost přejezdu.</translation>
     </message>
-    <message>
-        <source>Mouse Area</source>
-        <translation>Oblast myši</translation>
-    </message>
 </context>
 <context>
     <name>PathViewSpecifics</name>
     <message>
-        <source>Path View</source>
-        <translation>Pohled s cestou</translation>
-    </message>
-    <message>
-        <source>Drag margin</source>
-        <translation>Okraj při operaci táhnutí</translation>
-    </message>
-    <message>
-        <source>Flick deceleration</source>
-        <translation>Zpomalení při trhnutí</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>Následuje nynější prvek</translation>
-    </message>
-    <message>
         <source>A user cannot drag or flick a PathView that is not interactive.</source>
         <translation>Při neinteraktivním PathView uživatel nemůže provést žádnou operaci tažení nebo trhnutí.</translation>
-    </message>
-    <message>
-        <source>Offset</source>
-        <translation>Posun</translation>
     </message>
     <message>
         <source>Specifies how far along the path the items are from their initial positions. This is a real number that ranges from 0.0 to the count of items in the model.</source>
         <translation>Udává, jak daleko jsou prvky podél cesty od jejich počátečních poloh. Je to skutečné číslo od 0.0 až po počet prvků v modelu.</translation>
     </message>
     <message>
-        <source>Item count</source>
-        <translation>Počet prvků</translation>
-    </message>
-    <message>
         <source>pathItemCount: number of items visible on the path at any one time.</source>
         <translation>pathItemCount: Počet najednou viditelných prvků podél cesty.</translation>
-    </message>
-    <message>
-        <source>Path View Highlight</source>
-        <translation>Zvýraznění v pohledu s cestou</translation>
     </message>
     <message>
         <source>Highlight range</source>
         <translation>Zvýraznit oblast</translation>
     </message>
     <message>
-        <source>Move duration</source>
-        <translation>Doba trvání pohybu</translation>
-    </message>
-    <message>
         <source>Move animation duration of the highlight delegate.</source>
         <translation>Doba trvání pohybové animace zvýrazněného zástupce.</translation>
     </message>
     <message>
-        <source>Preferred begin</source>
-        <translation>Upřednostňovaný začátek</translation>
-    </message>
-    <message>
         <source>Preferred highlight begin - must be smaller than Preferred end.</source>
         <translation>Upřednostňovaný začátek zvýrazňování - musí být menší než upřednostňovaná koncová hodnota.</translation>
-    </message>
-    <message>
-        <source>Preferred end</source>
-        <translation>Upřednostňovaný konec</translation>
     </message>
     <message>
         <source>Preferred highlight end - must be larger than Preferred begin.</source>
@@ -28044,29 +27820,9 @@ With cache simulation, further event counters are enabled:
         <source>Determines whether the highlight is managed by the view.</source>
         <translation>Určuje, zda je zvýrazňování spravováno pohledem.</translation>
     </message>
-    <message>
-        <source>Interactive</source>
-        <translation>Interaktivní</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>Rozsah</translation>
-    </message>
 </context>
 <context>
     <name>RowSpecifics</name>
-    <message>
-        <source>Row</source>
-        <translation>Řádek</translation>
-    </message>
-    <message>
-        <source>Layout direction</source>
-        <translation>Směr rozvržení</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Odstup</translation>
-    </message>
     <message>
         <source>Layout Direction</source>
         <translation>Směr rozvržení</translation>
@@ -47132,84 +46888,20 @@ nelze najít v cestě.</translation>
 <context>
     <name>ButtonSpecifics</name>
     <message>
-        <source>Button</source>
-        <translation>Tlačítko</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
-    <message>
         <source>The text shown on the button</source>
         <translation>Text zobrazený na tlačítku</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>Zaškrtnuto</translation>
     </message>
     <message>
         <source>The state of the button</source>
         <translation>Stav tlačítka</translation>
     </message>
     <message>
-        <source>Checkable</source>
-        <translation>Zaškrtnutelné</translation>
-    </message>
-    <message>
-        <source>Determines whether the button is checkable or not.</source>
-        <translation>Určuje, zda je tlačítko zaškrtnutelné či ne.</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Povoleno</translation>
-    </message>
-    <message>
-        <source>Determines whether the button is enabled or not.</source>
-        <translation>Určuje, zda je tlačítko zapnuto či ne.</translation>
-    </message>
-    <message>
-        <source>Default button</source>
-        <translation>Výchozí tlačítko</translation>
-    </message>
-    <message>
-        <source>Sets the button as the default button in a dialog.</source>
-        <translation>Nastaví tlačítko v dialogu jako výchozí tlačítko.</translation>
-    </message>
-    <message>
-        <source>Tool tip</source>
-        <translation>Nástrojová rada</translation>
-    </message>
-    <message>
-        <source>The tool tip shown for the button.</source>
-        <translation>Nástrojová rada, která se zobrazuje pro tlačítko.</translation>
-    </message>
-    <message>
         <source>Text color</source>
         <translation type="obsolete">Barva textu</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Zaměření při stisknutí</translation>
-    </message>
-    <message>
-        <source>Icon source</source>
-        <translation>Zdroj ikony</translation>
-    </message>
-    <message>
-        <source>The URL of an icon resource.</source>
-        <translation>Adresa (URL) prostředku ikony.</translation>
     </message>
 </context>
 <context>
     <name>CheckBoxSpecifics</name>
-    <message>
-        <source>Check Box</source>
-        <translation>Zaškrtávací okénko</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
     <message>
         <source>The text shown on the check box</source>
         <translation>Text zobrazený v zaškrtávacím okénku</translation>
@@ -47219,204 +46911,72 @@ nelze najít v cestě.</translation>
         <translation>Stav tlačítka zaškrtávacího okénka</translation>
     </message>
     <message>
-        <source>Determines whether the check box gets focus if pressed.</source>
-        <translation>Určuje, zda je zaškrtávací okénko při stisknutí zaměřeno.</translation>
-    </message>
-    <message>
         <source>The text label for the check box</source>
         <translation>Textový štítek pro zaškrtnutelné políčko</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>Zaškrtnuto</translation>
     </message>
     <message>
         <source>Determines whether the check box is checkable or not.</source>
         <translation>Určuje, zda je zaškrtnutelné políčko zaškrtnutelné či ne.</translation>
     </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Zaměření při stisknutí</translation>
-    </message>
 </context>
 <context>
     <name>ComboBoxSpecifics</name>
-    <message>
-        <source>Text</source>
-        <translation type="obsolete">Text</translation>
-    </message>
     <message>
         <source>The text shown on the combobox</source>
         <translation type="obsolete">Text zobrazený na rozbalovacím seznamu</translation>
     </message>
     <message>
-        <source>Combo Box</source>
-        <translation>Rrozbalovací seznam</translation>
-    </message>
-    <message>
-        <source>Tool tip</source>
-        <translation>Nástrojová rada</translation>
-    </message>
-    <message>
         <source>The tool tip shown for the combobox.</source>
         <translation>Nástrojová rada, která se zobrazuje pro rozbalovací seznam.</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Zaměření při stisknutí</translation>
     </message>
 </context>
 <context>
     <name>RadioButtonSpecifics</name>
     <message>
-        <source>Radio Button</source>
-        <translation>Radiové tlačítko</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
-    <message>
         <source>The text label for the radio button</source>
         <translation>Textový štítek pro radiové tlačítko</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>Zaškrtnuto</translation>
     </message>
     <message>
         <source>Determines whether the radio button is checkable or not.</source>
         <translation>Určuje, zda je radiové tlačítko zaškrtnutelné či ne.</translation>
     </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Zaměření při stisknutí</translation>
-    </message>
 </context>
 <context>
     <name>TextAreaSpecifics</name>
     <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
-    <message>
         <source>The text of the text area</source>
         <translation>Text v textové oblasti</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Pouze pro čtení</translation>
-    </message>
-    <message>
-        <source>Determines whether the text area is read only.</source>
-        <translation>Určuje, zda je textová oblast pouze pro čtení.</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Barva</translation>
     </message>
     <message>
         <source>The color of the text</source>
         <translation>Barva textu</translation>
     </message>
     <message>
-        <source>Document margins</source>
-        <translation>Okraje dokumentu</translation>
-    </message>
-    <message>
         <source>The margins of the text area</source>
         <translation>Okraje textové oblasti</translation>
-    </message>
-    <message>
-        <source>Frame</source>
-        <translation>Rámeček</translation>
     </message>
     <message>
         <source>Determines whether the text area has a frame.</source>
         <translation>Určuje, zda má textová oblast rámeček.</translation>
     </message>
     <message>
-        <source>Text Area</source>
-        <translation>Oblast textu</translation>
-    </message>
-    <message>
         <source>The text shown on the text area</source>
         <translation>Text zobrazený v textovém poli</translation>
-    </message>
-    <message>
-        <source>Frame width</source>
-        <translation>Šířka rámečku</translation>
     </message>
     <message>
         <source>The width of the frame</source>
         <translation>Šířka rámečku</translation>
     </message>
-    <message>
-        <source>Contents frame</source>
-        <translation>Obsah rámečku</translation>
-    </message>
-    <message>
-        <source>Determines whether the frame around contents is shown.</source>
-        <translation>Určuje, zda se okolo obsahu zobrazuje rámeček.</translation>
-    </message>
-    <message>
-        <source>Focus Handling</source>
-        <translation>Zacházení se zaměřením</translation>
-    </message>
-    <message>
-        <source>Highlight on focus</source>
-        <translation>Zvýraznit při zaměření</translation>
-    </message>
-    <message>
-        <source>Determines whether the text area is highlighted on focus.</source>
-        <translation>Určuje, zda je textová oblast při zaměření zvýrazněna.</translation>
-    </message>
-    <message>
-        <source>Tab changes focus</source>
-        <translation>Karta mění zaměření</translation>
-    </message>
-    <message>
-        <source>Determines whether tab changes the focus of the text area.</source>
-        <translation>Určuje, zda karta mění zaměření textové oblasti.</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Zaměření při stisknutí</translation>
-    </message>
-    <message>
-        <source>Determines whether the text area gets focus if pressed.</source>
-        <translation>Určuje, zda je textová oblast při stisknutí zaměřena.</translation>
-    </message>
 </context>
 <context>
     <name>TextFieldSpecifics</name>
-    <message>
-        <source>Text Field</source>
-        <translation>Textové pole</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
     <message>
         <source>The text shown on the text field</source>
         <translation>Text zobrazený v textovém poli</translation>
     </message>
     <message>
-        <source>Placeholder text</source>
-        <translation>Text zástupného symbolu</translation>
-    </message>
-    <message>
         <source>The placeholder text</source>
         <translation>Text zástupného symbolu</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Pouze pro čtení</translation>
-    </message>
-    <message>
-        <source>Determines whether the text field is read only.</source>
-        <translation>Určuje, zda je textové pole pouze pro čtení.</translation>
     </message>
     <message>
         <source>Password mode</source>
@@ -47425,22 +46985,6 @@ nelze najít v cestě.</translation>
     <message>
         <source>Determines whether the text field is in password mode.</source>
         <translation>Určuje, zda je textové pole v režimu hesla.</translation>
-    </message>
-    <message>
-        <source>Input mask</source>
-        <translation>Zadávací maska</translation>
-    </message>
-    <message>
-        <source>Restricts the valid text in the text field.</source>
-        <translation>Omezuje platný text v textovém poli.</translation>
-    </message>
-    <message>
-        <source>Echo mode</source>
-        <translation>Režim ozvěny</translation>
-    </message>
-    <message>
-        <source>Specifies how the text is displayed in the text field.</source>
-        <translation>Určuje, jak je textzobrazován v textovém poli.</translation>
     </message>
 </context>
 <context>
@@ -52087,180 +51631,26 @@ monitor reset</source>
 <context>
     <name>FlickableSection</name>
     <message>
-        <source>Flickable</source>
-        <translation>Udělání rychlého pohybu</translation>
-    </message>
-    <message>
-        <source>Content size</source>
-        <translation>Velikost obsahu</translation>
-    </message>
-    <message>
-        <source>Flick direction</source>
-        <translation>Směr udělání rychlého pohybu</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>Chování</translation>
-    </message>
-    <message>
         <source>Bounds behavior</source>
         <translation>Chování ohraničení</translation>
-    </message>
-    <message>
-        <source>Interactive</source>
-        <translation>Interaktivní</translation>
-    </message>
-    <message>
-        <source>Max. velocity</source>
-        <translation>Největší rychlost</translation>
     </message>
     <message>
         <source>Maximum flick velocity</source>
         <translation>Největší rychlost udělání rychlého pohybu</translation>
     </message>
-    <message>
-        <source>Deceleration</source>
-        <translation>Zpomalení</translation>
-    </message>
-    <message>
-        <source>Flick deceleration</source>
-        <translation>Zpomalení při trhnutí</translation>
-    </message>
 </context>
 <context>
     <name>FontSection</name>
     <message>
-        <source>Font</source>
-        <translation>Písmo</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Velikost</translation>
-    </message>
-    <message>
         <source>Font style</source>
         <translation>Styl písma</translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation>Styl</translation>
-    </message>
-</context>
-<context>
-    <name>StandardTextSection</name>
-    <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
-    <message>
-        <source>Wrap mode</source>
-        <translation>Režim zalamování</translation>
-    </message>
-    <message>
-        <source>Alignment</source>
-        <translation>Zarovnání</translation>
-    </message>
-</context>
-<context>
-    <name>AdvancedSection</name>
-    <message>
-        <source>Advanced</source>
-        <translation>Pokročilé</translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>Změna velikosti</translation>
-    </message>
-    <message>
-        <source>Rotation</source>
-        <translation>Otáčení</translation>
-    </message>
-</context>
-<context>
-    <name>ColumnSpecifics</name>
-    <message>
-        <source>Column</source>
-        <translation>Sloupec</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Odstup</translation>
-    </message>
-</context>
-<context>
-    <name>FlipableSpecifics</name>
-    <message>
-        <source>Flipable</source>
-        <translation>Prolistovatelné</translation>
-    </message>
-</context>
-<context>
-    <name>GeometrySection</name>
-    <message>
-        <source>Geometry</source>
-        <translation>Uspořádání</translation>
-    </message>
-    <message>
-        <source>Position</source>
-        <translation>Poloha</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Velikost</translation>
     </message>
 </context>
 <context>
     <name>ItemPane</name>
     <message>
-        <source>Type</source>
-        <translation>Typ</translation>
-    </message>
-    <message>
-        <source>id</source>
-        <translation>ID</translation>
-    </message>
-    <message>
-        <source>Visibility</source>
-        <translation>Viditelnost</translation>
-    </message>
-    <message>
         <source>Is Visible</source>
         <translation>Je viditelný</translation>
-    </message>
-    <message>
-        <source>Clip</source>
-        <translation>Oříznout</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Neprůhlednost</translation>
-    </message>
-    <message>
-        <source>Layout</source>
-        <translation>Rozvržení</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation>Pokročilé</translation>
-    </message>
-</context>
-<context>
-    <name>LayoutSection</name>
-    <message>
-        <source>Layout</source>
-        <translation>Rozvržení</translation>
-    </message>
-    <message>
-        <source>Anchors</source>
-        <translation>Kotvy</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation>Cíl</translation>
-    </message>
-    <message>
-        <source>Margin</source>
-        <translation>Okraj</translation>
     </message>
 </context>
 <context>
@@ -52277,44 +51667,12 @@ monitor reset</source>
 <context>
     <name>TextInputSection</name>
     <message>
-        <source>Text Input</source>
-        <translation>Zadávání textu</translation>
-    </message>
-    <message>
-        <source>Input mask</source>
-        <translation>Zadávací maska</translation>
-    </message>
-    <message>
-        <source>Echo mode</source>
-        <translation>Režim ozvěny</translation>
-    </message>
-    <message>
         <source>Pass. char</source>
         <translation>Znak hesla</translation>
     </message>
     <message>
         <source>Character displayed when users enter passwords.</source>
         <translation>Znak, který je ukázán, když uživatel zadává heslo.</translation>
-    </message>
-    <message>
-        <source>Flags</source>
-        <translation>Příznaky</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Pouze pro čtení</translation>
-    </message>
-    <message>
-        <source>Cursor visible</source>
-        <translation>Ukazatel je viditelný</translation>
-    </message>
-    <message>
-        <source>Active focus on press</source>
-        <translation>Zaměření při stisknutí</translation>
-    </message>
-    <message>
-        <source>Auto scroll</source>
-        <translation>Automaticky projíždět</translation>
     </message>
 </context>
 <context>
@@ -52337,21 +51695,6 @@ monitor reset</source>
     <message>
         <source>Style Color</source>
         <translation>Barva stylu</translation>
-    </message>
-</context>
-<context>
-    <name>WindowSpecifics</name>
-    <message>
-        <source>Window</source>
-        <translation>Okno</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Název</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Velikost</translation>
     </message>
 </context>
 <context>
@@ -54433,6 +53776,458 @@ Tyto soubory jsou zachovány.</numerusform>
     <message>
         <source>Error</source>
         <translation>Chyba</translation>
+    </message>
+    <message>
+        <source>Advanced</source>
+        <translation>Pokročilé</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Změna velikosti</translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation>Otáčení</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Zdroj</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Vlevo</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Vpravo</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>Nahoře</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Dole</translation>
+    </message>
+    <message>
+        <source>Border Image</source>
+        <translation>Obrázek ohraničení</translation>
+    </message>
+    <message>
+        <source>Source size</source>
+        <translation>Velikost zdroje</translation>
+    </message>
+    <message>
+        <source>Button</source>
+        <translation>Tlačítko</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Text</translation>
+    </message>
+    <message>
+        <source>Checked</source>
+        <translation>Zaškrtnuto</translation>
+    </message>
+    <message>
+        <source>Checkable</source>
+        <translation>Zaškrtnutelné</translation>
+    </message>
+    <message>
+        <source>Determines whether the button is checkable or not.</source>
+        <translation>Určuje, zda je tlačítko zaškrtnutelné či ne.</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Povoleno</translation>
+    </message>
+    <message>
+        <source>Determines whether the button is enabled or not.</source>
+        <translation>Určuje, zda je tlačítko zapnuto či ne.</translation>
+    </message>
+    <message>
+        <source>Default button</source>
+        <translation>Výchozí tlačítko</translation>
+    </message>
+    <message>
+        <source>Sets the button as the default button in a dialog.</source>
+        <translation>Nastaví tlačítko v dialogu jako výchozí tlačítko.</translation>
+    </message>
+    <message>
+        <source>Tool tip</source>
+        <translation>Nástrojová rada</translation>
+    </message>
+    <message>
+        <source>The tool tip shown for the button.</source>
+        <translation>Nástrojová rada, která se zobrazuje pro tlačítko.</translation>
+    </message>
+    <message>
+        <source>Focus on press</source>
+        <translation>Zaměření při stisknutí</translation>
+    </message>
+    <message>
+        <source>Icon source</source>
+        <translation>Zdroj ikony</translation>
+    </message>
+    <message>
+        <source>The URL of an icon resource.</source>
+        <translation>Adresa (URL) prostředku ikony.</translation>
+    </message>
+    <message>
+        <source>Check Box</source>
+        <translation>Zaškrtávací okénko</translation>
+    </message>
+    <message>
+        <source>Determines whether the check box gets focus if pressed.</source>
+        <translation>Určuje, zda je zaškrtávací okénko při stisknutí zaměřeno.</translation>
+    </message>
+    <message>
+        <source>Column</source>
+        <translation>Sloupec</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>Odstup</translation>
+    </message>
+    <message>
+        <source>Combo Box</source>
+        <translation>Rrozbalovací seznam</translation>
+    </message>
+    <message>
+        <source>Flickable</source>
+        <translation>Udělání rychlého pohybu</translation>
+    </message>
+    <message>
+        <source>Content size</source>
+        <translation>Velikost obsahu</translation>
+    </message>
+    <message>
+        <source>Flick direction</source>
+        <translation>Směr udělání rychlého pohybu</translation>
+    </message>
+    <message>
+        <source>Behavior</source>
+        <translation>Chování</translation>
+    </message>
+    <message>
+        <source>Interactive</source>
+        <translation>Interaktivní</translation>
+    </message>
+    <message>
+        <source>Max. velocity</source>
+        <translation>Největší rychlost</translation>
+    </message>
+    <message>
+        <source>Deceleration</source>
+        <translation>Zpomalení</translation>
+    </message>
+    <message>
+        <source>Flick deceleration</source>
+        <translation>Zpomalení při trhnutí</translation>
+    </message>
+    <message>
+        <source>Flipable</source>
+        <translation>Prolistovatelné</translation>
+    </message>
+    <message>
+        <source>Flow</source>
+        <translation>Tok</translation>
+    </message>
+    <message>
+        <source>Layout direction</source>
+        <translation>Směr rozvržení</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation>Písmo</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Velikost</translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation>Styl</translation>
+    </message>
+    <message>
+        <source>Geometry</source>
+        <translation>Uspořádání</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>Poloha</translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation>Mřížka</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>Sloupce</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>Řádky</translation>
+    </message>
+    <message>
+        <source>Grid View</source>
+        <translation>Pohled s mřížkou</translation>
+    </message>
+    <message>
+        <source>Cache</source>
+        <translation>Vyrovnávací paměť</translation>
+    </message>
+    <message>
+        <source>Navigation wraps</source>
+        <translation>Navigace kláves zalamuje</translation>
+    </message>
+    <message>
+        <source>Snap mode</source>
+        <translation>Režim zapadnutí</translation>
+    </message>
+    <message>
+        <source>Grid View Highlight</source>
+        <translation>Zvýraznění v pohledu s mřížkou</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Rozsah</translation>
+    </message>
+    <message>
+        <source>Move duration</source>
+        <translation>Doba trvání pohybu</translation>
+    </message>
+    <message>
+        <source>Preferred begin</source>
+        <translation>Upřednostňovaný začátek</translation>
+    </message>
+    <message>
+        <source>Preferred end</source>
+        <translation>Upřednostňovaný konec</translation>
+    </message>
+    <message>
+        <source>Follows current</source>
+        <translation>Následuje nynější prvek</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Typ</translation>
+    </message>
+    <message>
+        <source>id</source>
+        <translation>ID</translation>
+    </message>
+    <message>
+        <source>Visibility</source>
+        <translation>Viditelnost</translation>
+    </message>
+    <message>
+        <source>Clip</source>
+        <translation>Oříznout</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>Neprůhlednost</translation>
+    </message>
+    <message>
+        <source>Layout</source>
+        <translation>Rozvržení</translation>
+    </message>
+    <message>
+        <source>Anchors</source>
+        <translation>Kotvy</translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation>Cíl</translation>
+    </message>
+    <message>
+        <source>Margin</source>
+        <translation>Okraj</translation>
+    </message>
+    <message>
+        <source>List View</source>
+        <translation>Pohled se seznamem</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation>Orientace</translation>
+    </message>
+    <message>
+        <source>List View Highlight</source>
+        <translation>Zvýraznění v pohledu se seznamem</translation>
+    </message>
+    <message>
+        <source>Resize duration</source>
+        <translation>Doba trvání změny velikosti</translation>
+    </message>
+    <message>
+        <source>Mouse Area</source>
+        <translation>Oblast myši</translation>
+    </message>
+    <message>
+        <source>Path View</source>
+        <translation>Pohled s cestou</translation>
+    </message>
+    <message>
+        <source>Drag margin</source>
+        <translation>Okraj při operaci táhnutí</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Posun</translation>
+    </message>
+    <message>
+        <source>Item count</source>
+        <translation>Počet prvků</translation>
+    </message>
+    <message>
+        <source>Path View Highlight</source>
+        <translation>Zvýraznění v pohledu s cestou</translation>
+    </message>
+    <message>
+        <source>Radio Button</source>
+        <translation>Radiové tlačítko</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>Obdélník</translation>
+    </message>
+    <message>
+        <source>Border width</source>
+        <translation>Šířka okraje</translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation>Poloměr</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Barva</translation>
+    </message>
+    <message>
+        <source>Row</source>
+        <translation>Řádek</translation>
+    </message>
+    <message>
+        <source>Wrap mode</source>
+        <translation>Režim zalamování</translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation>Zarovnání</translation>
+    </message>
+    <message>
+        <source>Read only</source>
+        <translation>Pouze pro čtení</translation>
+    </message>
+    <message>
+        <source>Determines whether the text area is read only.</source>
+        <translation>Určuje, zda je textová oblast pouze pro čtení.</translation>
+    </message>
+    <message>
+        <source>Document margins</source>
+        <translation>Okraje dokumentu</translation>
+    </message>
+    <message>
+        <source>Frame</source>
+        <translation>Rámeček</translation>
+    </message>
+    <message>
+        <source>Text Area</source>
+        <translation>Oblast textu</translation>
+    </message>
+    <message>
+        <source>Frame width</source>
+        <translation>Šířka rámečku</translation>
+    </message>
+    <message>
+        <source>Contents frame</source>
+        <translation>Obsah rámečku</translation>
+    </message>
+    <message>
+        <source>Determines whether the frame around contents is shown.</source>
+        <translation>Určuje, zda se okolo obsahu zobrazuje rámeček.</translation>
+    </message>
+    <message>
+        <source>Focus Handling</source>
+        <translation>Zacházení se zaměřením</translation>
+    </message>
+    <message>
+        <source>Highlight on focus</source>
+        <translation>Zvýraznit při zaměření</translation>
+    </message>
+    <message>
+        <source>Determines whether the text area is highlighted on focus.</source>
+        <translation>Určuje, zda je textová oblast při zaměření zvýrazněna.</translation>
+    </message>
+    <message>
+        <source>Tab changes focus</source>
+        <translation>Karta mění zaměření</translation>
+    </message>
+    <message>
+        <source>Determines whether tab changes the focus of the text area.</source>
+        <translation>Určuje, zda karta mění zaměření textové oblasti.</translation>
+    </message>
+    <message>
+        <source>Determines whether the text area gets focus if pressed.</source>
+        <translation>Určuje, zda je textová oblast při stisknutí zaměřena.</translation>
+    </message>
+    <message>
+        <source>Text Field</source>
+        <translation>Textové pole</translation>
+    </message>
+    <message>
+        <source>Placeholder text</source>
+        <translation>Text zástupného symbolu</translation>
+    </message>
+    <message>
+        <source>Determines whether the text field is read only.</source>
+        <translation>Určuje, zda je textové pole pouze pro čtení.</translation>
+    </message>
+    <message>
+        <source>Input mask</source>
+        <translation>Zadávací maska</translation>
+    </message>
+    <message>
+        <source>Restricts the valid text in the text field.</source>
+        <translation>Omezuje platný text v textovém poli.</translation>
+    </message>
+    <message>
+        <source>Echo mode</source>
+        <translation>Režim ozvěny</translation>
+    </message>
+    <message>
+        <source>Specifies how the text is displayed in the text field.</source>
+        <translation>Určuje, jak je textzobrazován v textovém poli.</translation>
+    </message>
+    <message>
+        <source>Text Input</source>
+        <translation>Zadávání textu</translation>
+    </message>
+    <message>
+        <source>Flags</source>
+        <translation>Příznaky</translation>
+    </message>
+    <message>
+        <source>Cursor visible</source>
+        <translation>Ukazatel je viditelný</translation>
+    </message>
+    <message>
+        <source>Active focus on press</source>
+        <translation>Zaměření při stisknutí</translation>
+    </message>
+    <message>
+        <source>Auto scroll</source>
+        <translation>Automaticky projíždět</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation>Okno</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Název</translation>
     </message>
 </context>
 <context>

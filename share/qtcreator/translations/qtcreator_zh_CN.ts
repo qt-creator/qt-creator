@@ -2226,33 +2226,6 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
     </message>
 </context>
 <context>
-    <name>ApplicationWindowSpecifics</name>
-    <message>
-        <source>Window</source>
-        <translation>窗口</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>标题</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>大小</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>颜色</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation>可见</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>不透明度</translation>
-    </message>
-</context>
-<context>
     <name>QtC::Autotest</name>
     <message>
         <source>Testing</source>
@@ -5336,10 +5309,6 @@ Local pulls are not applied to the master branch.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Text</source>
-        <translation type="unfinished">文本</translation>
-    </message>
-    <message>
         <source>Text displayed on the button.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5358,10 +5327,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Determines whether the button is checkable or not.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation type="unfinished">启用</translation>
     </message>
     <message>
         <source>Determines whether the button is enabled or not.</source>
@@ -6737,10 +6702,6 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
     <message>
         <source>Check Box</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation type="unfinished">文本</translation>
     </message>
     <message>
         <source>Text shown on the check box.</source>
@@ -32189,6 +32150,62 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>Error</source>
         <translation type="unfinished">错误</translation>
     </message>
+    <message>
+        <source>Window</source>
+        <translation>窗口</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>标题</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>大小</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>颜色</translation>
+    </message>
+    <message>
+        <source>Visible</source>
+        <translation>可见</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>不透明度</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation type="unfinished">文本</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation type="unfinished">启用</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation type="unfinished">值</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation type="unfinished">方向</translation>
+    </message>
+    <message>
+        <source>Active focus on press</source>
+        <translation type="unfinished">点击后设置焦点</translation>
+    </message>
+    <message>
+        <source>Read only</source>
+        <translation type="unfinished">只读</translation>
+    </message>
+    <message>
+        <source>Input mask</source>
+        <translation type="unfinished">输入掩码</translation>
+    </message>
+    <message>
+        <source>Echo mode</source>
+        <translation type="unfinished">回显模式</translation>
+    </message>
 </context>
 <context>
     <name>QmlDesigner::AbstractEditorDialog</name>
@@ -38575,10 +38592,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Text</source>
-        <translation type="unfinished">文本</translation>
-    </message>
-    <message>
         <source>Text label for the radio button.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -40445,10 +40458,6 @@ Row: %4, Column: %5
 <context>
     <name>SliderSpecifics</name>
     <message>
-        <source>Value</source>
-        <translation type="unfinished">值</translation>
-    </message>
-    <message>
         <source>Current value of the Slider. The default value is 0.0.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -40469,10 +40478,6 @@ Row: %4, Column: %5
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Orientation</source>
-        <translation type="unfinished">方向</translation>
-    </message>
-    <message>
         <source>Layout orientation of the slider.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -40483,10 +40488,6 @@ Row: %4, Column: %5
     <message>
         <source>Indicates the slider step size.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Active focus on press</source>
-        <translation type="unfinished">点击后设置焦点</translation>
     </message>
     <message>
         <source>Indicates whether the slider should receive active focus when pressed.</source>
@@ -40536,10 +40537,6 @@ Row: %4, Column: %5
     <message>
         <source>Split View</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation type="unfinished">方向</translation>
     </message>
     <message>
         <source>Orientation of the split view.</source>
@@ -41930,24 +41927,12 @@ Failed to open file &quot;%1&quot;.</source>
 <context>
     <name>TextAreaSpecifics</name>
     <message>
-        <source>Color</source>
-        <translation type="unfinished">颜色</translation>
-    </message>
-    <message>
         <source>Text Area</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Text</source>
-        <translation type="unfinished">文本</translation>
-    </message>
-    <message>
         <source>Text shown on the text area.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation type="unfinished">只读</translation>
     </message>
     <message>
         <source>Determines whether the text area is read only.</source>
@@ -44530,10 +44515,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Text</source>
-        <translation type="unfinished">文本</translation>
-    </message>
-    <message>
         <source>Text shown on the text field.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -44546,24 +44527,12 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Read only</source>
-        <translation type="unfinished">只读</translation>
-    </message>
-    <message>
         <source>Determines whether the text field is read only.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Input mask</source>
-        <translation type="unfinished">输入掩码</translation>
-    </message>
-    <message>
         <source>Restricts the valid text in the text field.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Echo mode</source>
-        <translation type="unfinished">回显模式</translation>
     </message>
     <message>
         <source>Specifies how the text is displayed in the text field.</source>

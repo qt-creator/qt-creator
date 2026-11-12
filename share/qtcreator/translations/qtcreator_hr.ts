@@ -6140,291 +6140,14 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>ApplicationWindowSpecifics</name>
-    <message>
-        <source>Window</source>
-        <translation>Prozor</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Naslov</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Veličina</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Boja</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation>Vidljivo</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Neprozirnost</translation>
-    </message>
-</context>
-<context>
-    <name>ButtonSpecifics</name>
-    <message>
-        <source>Button</source>
-        <translation>Gumb</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Tekst</translation>
-    </message>
-    <message>
-        <source>Text displayed on the button.</source>
-        <translation>Tekst prikazan na gumbu.</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>Označeno</translation>
-    </message>
-    <message>
-        <source>State of the button.</source>
-        <translation>Stanje gumba.</translation>
-    </message>
-    <message>
-        <source>Checkable</source>
-        <translation>Označivo</translation>
-    </message>
-    <message>
-        <source>Determines whether the button is checkable or not.</source>
-        <translation>Određuje o tome, je li gumb označiv ili ne.</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Aktivirano</translation>
-    </message>
-    <message>
-        <source>Determines whether the button is enabled or not.</source>
-        <translation>Određuje o tome, je li gumb označen ili ne.</translation>
-    </message>
-    <message>
-        <source>Default button</source>
-        <translation>Zadani gumb</translation>
-    </message>
-    <message>
-        <source>Sets the button as the default button in a dialog.</source>
-        <translation>Postavlja gumb kao zadani u dijalogu.</translation>
-    </message>
-    <message>
-        <source>Tool tip</source>
-        <translation>Oblačić</translation>
-    </message>
-    <message>
-        <source>The tool tip shown for the button.</source>
-        <translation>Oblačić za gumb.</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Fokusiraj prilikom pritiskanja</translation>
-    </message>
-    <message>
-        <source>Determines whether the button gets focus if pressed.</source>
-        <translation>Određuje o tome, hoće li gumb biti fokusiran kad se pritisne.</translation>
-    </message>
-    <message>
-        <source>Icon source</source>
-        <translation>Izvor ikone</translation>
-    </message>
-    <message>
-        <source>The URL of an icon resource.</source>
-        <translation>URL resursa ikone.</translation>
-    </message>
-</context>
-<context>
-    <name>CheckBoxSpecifics</name>
-    <message>
-        <source>Check Box</source>
-        <translation>Potvrdni kvadratić</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Tekst</translation>
-    </message>
-    <message>
-        <source>Text shown on the check box.</source>
-        <translation>Prikazani tekst za potvrdni kvadratić.</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>Označeno</translation>
-    </message>
-    <message>
-        <source>State of the check box.</source>
-        <translation>Stanje potvrdnog kvadratića.</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Fokusiraj prilikom pritiskanja</translation>
-    </message>
-    <message>
-        <source>Determines whether the check box gets focus if pressed.</source>
-        <translation>Određuje o tome, hoće li potvrdni okvirić biti fokusiran kad se pritisne.</translation>
-    </message>
-</context>
-<context>
-    <name>ComboBoxSpecifics</name>
-    <message>
-        <source>Combo Box</source>
-        <translation>Kombinirani okvir</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Fokusiraj prilikom pritiskanja</translation>
-    </message>
-    <message>
-        <source>Determines whether the combobox gets focus if pressed.</source>
-        <translation>Određuje o tome, hoće li potvrdni okvirić biti fokusiran kad se pritisne.</translation>
-    </message>
-</context>
-<context>
-    <name>RadioButtonSpecifics</name>
-    <message>
-        <source>Radio Button</source>
-        <translation>Isključni gumb</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Tekst</translation>
-    </message>
-    <message>
-        <source>Text label for the radio button.</source>
-        <translation>Tekstna oznaka za isključni gumb.</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>Označeno</translation>
-    </message>
-    <message>
-        <source>Determines whether the radio button is checked or not.</source>
-        <translation>Određuje o tome, je li gumb označen ili ne.</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Fokusiraj prilikom pritiskanja</translation>
-    </message>
-    <message>
-        <source>Determines whether the radio button gets focus if pressed.</source>
-        <translation>Određuje o tome, hoće li gumb biti fokusiran kad se pritisne.</translation>
-    </message>
-</context>
-<context>
-    <name>SliderSpecifics</name>
-    <message>
-        <source>Value</source>
-        <translation>Vrijednost</translation>
-    </message>
-    <message>
-        <source>Current value of the Slider. The default value is 0.0.</source>
-        <translation>Trenutačna vrijednost klizača. Zadan vrijednost je 0,0.</translation>
-    </message>
-    <message>
-        <source>Maximum value</source>
-        <translation>Maksimalna vrijednost</translation>
-    </message>
-    <message>
-        <source>Maximum value of the slider. The default value is 1.0.</source>
-        <translation>Maksimalna vrijednost klizača. Zadan vrijednost je 1,0.</translation>
-    </message>
-    <message>
-        <source>Minimum value</source>
-        <translation>Minimalna vrijednost</translation>
-    </message>
-    <message>
-        <source>Minimum value of the slider. The default value is 0.0.</source>
-        <translation>Minimalna vrijednost klizača. Zadan vrijednost je 0,0.</translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Usmjerenost</translation>
-    </message>
-    <message>
-        <source>Layout orientation of the slider.</source>
-        <translation>Usmjerenost klizača.</translation>
-    </message>
-    <message>
-        <source>Step size</source>
-        <translation>Veličina koraka</translation>
-    </message>
-    <message>
-        <source>Indicates the slider step size.</source>
-        <translation>Određuje veličiknu koraka klizača.</translation>
-    </message>
-    <message>
-        <source>Active focus on press</source>
-        <translation>Fokusirano prilikom pritiskanja</translation>
-    </message>
-    <message>
-        <source>Indicates whether the slider should receive active focus when pressed.</source>
-        <translation>Određuje o tome, hoće li gumb biti fokusiran kad se pritisne.</translation>
-    </message>
-    <message>
-        <source>Tick marks enabled</source>
-        <translation>Aktiviraj oznake</translation>
-    </message>
-    <message>
-        <source>Indicates whether the slider should display tick marks at step intervals.</source>
-        <translation>Određuje o tome, hoće li se prikazati oznake za intervale koraka.</translation>
-    </message>
-    <message>
-        <source>Update value while dragging</source>
-        <translation>Aktiviraj vrijednosti tijekom povlačenja</translation>
-    </message>
-    <message>
-        <source>Determines whether the current value should be updated while the user is moving the slider handle, or only when the button has been released.</source>
-        <translation>Određuje treba li aktualizirati trenutačnu vrijednost dok korisnik pomiče klizača ili samo kad se gumb otpusti.</translation>
-    </message>
-</context>
-<context>
-    <name>SplitViewSpecifics</name>
-    <message>
-        <source>Split View</source>
-        <translation>Podijeljeni prikaz</translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Usmjerenost</translation>
-    </message>
-    <message>
-        <source>Orientation of the split view.</source>
-        <translation>Usmjerenost podijeljenog prikaza.</translation>
-    </message>
-</context>
-<context>
     <name>TabViewSpecifics</name>
-    <message>
-        <source>Tab View</source>
-        <translation>Prikaz kartica</translation>
-    </message>
-    <message>
-        <source>Current index</source>
-        <translation>Trenutačni indeks</translation>
-    </message>
-    <message>
-        <source>Frame visible</source>
-        <translation>Okvir vidljiv</translation>
-    </message>
     <message>
         <source>Determines the visibility of the tab frame around contents.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Tabs visible</source>
-        <translation>Kartice vidljive</translation>
-    </message>
-    <message>
         <source>Determines the visibility of the tab bar.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tab position</source>
-        <translation>Položaj kartice</translation>
     </message>
     <message>
         <source>Determines the position of the tabs.</source>
@@ -6434,127 +6157,32 @@ Greška: %5</translation>
 <context>
     <name>TextAreaSpecifics</name>
     <message>
-        <source>Color</source>
-        <translation>Boja</translation>
-    </message>
-    <message>
-        <source>Text Area</source>
-        <translation>Tekstno područje</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Tekst</translation>
-    </message>
-    <message>
-        <source>Text shown on the text area.</source>
-        <translation>Tekst prikazan u tekstnom području.</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Samo za čitanje</translation>
-    </message>
-    <message>
         <source>Determines whether the text area is read only.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Document margins</source>
-        <translation>Margine dokumenta</translation>
     </message>
     <message>
         <source>Margins of the text area.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Frame width</source>
-        <translation>Širina okvira</translation>
-    </message>
-    <message>
         <source>Width of the frame.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Contents frame</source>
-        <translation>Sadržaj okvira</translation>
     </message>
     <message>
         <source>Determines whether the frame around contents is shown.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Focus Handling</source>
-        <translation>Rukovanje fokusom</translation>
-    </message>
-    <message>
-        <source>Highlight on focus</source>
-        <translation>Istakni pri fokusiranju</translation>
-    </message>
-    <message>
         <source>Determines whether the text area is highlighted on focus.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tab changes focus</source>
-        <translation>Tabulator mijenja fokus</translation>
     </message>
     <message>
         <source>Determines whether tab changes the focus of the text area.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Focus on press</source>
-        <translation>Fokusiraj prilikom pritiskanja</translation>
-    </message>
-    <message>
         <source>Determines whether the text area gets focus if pressed.</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>TextFieldSpecifics</name>
-    <message>
-        <source>Text Field</source>
-        <translation>Tekstno polje</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Tekst</translation>
-    </message>
-    <message>
-        <source>Text shown on the text field.</source>
-        <translation>Tekst prikazan u tekstnom polju.</translation>
-    </message>
-    <message>
-        <source>Placeholder text</source>
-        <translation>Tekst u rezerviranom polju</translation>
-    </message>
-    <message>
-        <source>Placeholder text.</source>
-        <translation>Tekst u rezerviranom polju.</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Samo za čitanje</translation>
-    </message>
-    <message>
-        <source>Determines whether the text field is read only.</source>
-        <translation>Određuje, je li tekstno polje samo za čitanje.</translation>
-    </message>
-    <message>
-        <source>Input mask</source>
-        <translation>Maska za unos</translation>
-    </message>
-    <message>
-        <source>Restricts the valid text in the text field.</source>
-        <translation>Ograničava ispravni tekst u tekstnom polju.</translation>
-    </message>
-    <message>
-        <source>Echo mode</source>
-        <translation>Način prikaza</translation>
-    </message>
-    <message>
-        <source>Specifies how the text is displayed in the text field.</source>
-        <translation>Specifiira kako će tekst biti prikazan u tekstnom polju.</translation>
     </message>
 </context>
 <context>
@@ -8963,56 +8591,16 @@ should a repository require SSH-authentication (see documentation on SSH and the
 <context>
     <name>FlickableSection</name>
     <message>
-        <source>Flickable</source>
-        <translation>Moguće listanje</translation>
-    </message>
-    <message>
-        <source>Content size</source>
-        <translation>Veličina sadržaja</translation>
-    </message>
-    <message>
-        <source>Flick direction</source>
-        <translation>Smjer listanja</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>Način ponašanja</translation>
-    </message>
-    <message>
         <source>Bounds behavior</source>
         <translation>Način ponašanja granica</translation>
-    </message>
-    <message>
-        <source>Interactive</source>
-        <translation>Interaktivno</translation>
-    </message>
-    <message>
-        <source>Max. velocity</source>
-        <translation>Maks. brzina</translation>
     </message>
     <message>
         <source>Maximum flick velocity</source>
         <translation></translation>
     </message>
-    <message>
-        <source>Deceleration</source>
-        <translation>Usporavanje</translation>
-    </message>
-    <message>
-        <source>Flick deceleration</source>
-        <translation>Usporavanje listanja</translation>
-    </message>
 </context>
 <context>
     <name>FontSection</name>
-    <message>
-        <source>Font</source>
-        <translation>Font</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Veličina</translation>
-    </message>
     <message>
         <source>Font style</source>
         <translation>Stil fonta</translation>
@@ -9032,14 +8620,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Sets the font&apos;s weight.</source>
         <translation>Postavlja debljinu fonta.</translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation>Stil</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Razmaci</translation>
     </message>
     <message>
         <source>Word</source>
@@ -9070,10 +8650,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Aktivira ili deaktivira OpenType funkciju za podrezivanje prilikom oblikovanja teksta. Deativiranjem se može poboljšati brzina prikaza prilikom stvaranja ili izmjene teksta, na štetu nekih kozmetičkih funkcija. Zadana vrijednost je točno (aktivirano).</translation>
     </message>
     <message>
-        <source>Prefer shaping</source>
-        <translation>Koristi funkcije za oblikovanje teksta</translation>
-    </message>
-    <message>
         <source>Sometimes, a font will apply complex rules to a set of characters in order to display them correctly.
 In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, whereas in Latin script,
  it is merely a cosmetic feature. Setting the preferShaping property to false will disable all such features
@@ -9099,106 +8675,7 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
     </message>
 </context>
 <context>
-    <name>MarginSection</name>
-    <message>
-        <source>Margin</source>
-        <translation>Margina</translation>
-    </message>
-    <message>
-        <source>Vertical</source>
-        <translation>Uspravno</translation>
-    </message>
-    <message>
-        <source>Top</source>
-        <translation>Gore</translation>
-    </message>
-    <message>
-        <source>The margin above the item.</source>
-        <translation>Margina iznad elementa.</translation>
-    </message>
-    <message>
-        <source>Bottom</source>
-        <translation>Dolje</translation>
-    </message>
-    <message>
-        <source>The margin below the item.</source>
-        <translation>Margina ispod elementa.</translation>
-    </message>
-    <message>
-        <source>Horizontal</source>
-        <translation>Vodoravno</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation>Lijevo</translation>
-    </message>
-    <message>
-        <source>The margin left of the item.</source>
-        <translation>Margina lijevo od elementa.</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation>Desno</translation>
-    </message>
-    <message>
-        <source>The margin right of the item.</source>
-        <translation>Margina desno od  elementa.</translation>
-    </message>
-    <message>
-        <source>Margins</source>
-        <translation>Margine</translation>
-    </message>
-    <message>
-        <source>The margins around the item.</source>
-        <translation>Margina okolo elementa.</translation>
-    </message>
-</context>
-<context>
     <name>PaddingSection</name>
-    <message>
-        <source>Padding</source>
-        <translation>Odmak</translation>
-    </message>
-    <message>
-        <source>Vertical</source>
-        <translation>Uspravno</translation>
-    </message>
-    <message>
-        <source>Top</source>
-        <translation>Gore</translation>
-    </message>
-    <message>
-        <source>Padding between the content and the top edge of the item.</source>
-        <translation>Odmak između sadržaja i gornjeg ruba elementa.</translation>
-    </message>
-    <message>
-        <source>Bottom</source>
-        <translation>Dolje</translation>
-    </message>
-    <message>
-        <source>Padding between the content and the bottom edge of the item.</source>
-        <translation>Odmak između sadržaja i donjeg ruba elementa.</translation>
-    </message>
-    <message>
-        <source>Horizontal</source>
-        <translation>Vodoravno</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation>Lijevo</translation>
-    </message>
-    <message>
-        <source>Padding between the content and the left edge of the item.</source>
-        <translation>Odmak između sadržaja i lijevog ruba elementa.</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation>Desno</translation>
-    </message>
-    <message>
-        <source>Padding between the content and the right edge of the item.</source>
-        <translation>Odmak između sadržaja i desnog ruba elementa.</translation>
-    </message>
     <message>
         <source>Padding between the content and the edges of the items.</source>
         <translation>Odmak između sadržaja i rubova elementa.</translation>
@@ -9206,30 +8683,6 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
 </context>
 <context>
     <name>StandardTextSection</name>
-    <message>
-        <source>Text</source>
-        <translation>Tekst</translation>
-    </message>
-    <message>
-        <source>Wrap mode</source>
-        <translation>Prelamanje</translation>
-    </message>
-    <message>
-        <source>Elide</source>
-        <translation>Izostavljanje</translation>
-    </message>
-    <message>
-        <source>Alignment</source>
-        <translation>Poravnanje</translation>
-    </message>
-    <message>
-        <source>Format</source>
-        <translation>Format</translation>
-    </message>
-    <message>
-        <source>Render type</source>
-        <translation>Vrsta iscrtavanja</translation>
-    </message>
     <message>
         <source>Override the default rendering type for this item.</source>
         <translation>Zanemari zadanu vrstu iscrtavanja za ovaj element.</translation>
@@ -9242,52 +8695,16 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
         <source>Specifies how the font size of the displayed text is determined.</source>
         <translation>Specificira način određivanja veličine fonta za prikazani tekst.</translation>
     </message>
-    <message>
-        <source>Line height</source>
-        <translation>Visina retka</translation>
-    </message>
-    <message>
-        <source>Sets the line height for the text.</source>
-        <translation>Postavlja visinu retka za tekst.</translation>
-    </message>
 </context>
 <context>
     <name>AdvancedSection</name>
-    <message>
-        <source>Advanced</source>
-        <translation>Napredno</translation>
-    </message>
-    <message>
-        <source>Origin</source>
-        <translation>Izvorište</translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>Skaliraj</translation>
-    </message>
-    <message>
-        <source>Rotation</source>
-        <translation>Rotacija</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Aktivirano</translation>
-    </message>
     <message>
         <source>Accept mouse and keyboard events</source>
         <translation>Prihvati događaje mišem i tipkovnicom</translation>
     </message>
     <message>
-        <source>Smooth</source>
-        <translation>Glatko</translation>
-    </message>
-    <message>
         <source>Smooth sampling active</source>
         <translation>Glatko sempliranje aktivirano</translation>
-    </message>
-    <message>
-        <source>Antialiasing</source>
-        <translation>Zaglađivanje rubova</translation>
     </message>
     <message>
         <source>Anti-aliasing active</source>
@@ -9295,46 +8712,7 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
     </message>
 </context>
 <context>
-    <name>AnchorRow</name>
-    <message>
-        <source>Target</source>
-        <translation>Odredište</translation>
-    </message>
-    <message>
-        <source>Anchor to the top of the target.</source>
-        <translation>Element sidra na vrh odredišta.</translation>
-    </message>
-    <message>
-        <source>Anchor to the left of the target.</source>
-        <translation>Element sidra lijevo od odredišta.</translation>
-    </message>
-    <message>
-        <source>Anchor to the vertical center of the target.</source>
-        <translation>Element sidra u okomitu sredinu od odredišta.</translation>
-    </message>
-    <message>
-        <source>Anchor to the horizontal center of the target.</source>
-        <translation>Element sidra u vodoravnu sredinu od odredišta.</translation>
-    </message>
-    <message>
-        <source>Anchor to the bottom of the target.</source>
-        <translation>Element sidra na dno odredišta.</translation>
-    </message>
-    <message>
-        <source>Anchor to the right of the target.</source>
-        <translation>Element sidra desno od odredišta.</translation>
-    </message>
-</context>
-<context>
     <name>BorderImageSpecifics</name>
-    <message>
-        <source>Border Image</source>
-        <translation>Rub slike</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>Izvor</translation>
-    </message>
     <message>
         <source>Border Left</source>
         <translation>Rub lijevo</translation>
@@ -9359,113 +8737,19 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
         <source>Vertical Fill mode</source>
         <translation>Okomita ispuna</translation>
     </message>
-    <message>
-        <source>Source size</source>
-        <translation>Veličina izvora</translation>
-    </message>
-</context>
-<context>
-    <name>ColumnSpecifics</name>
-    <message>
-        <source>Column</source>
-        <translation>Stupac</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Razmaci</translation>
-    </message>
-</context>
-<context>
-    <name>DialogSpecifics</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dijalog</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Naslov</translation>
-    </message>
 </context>
 <context>
     <name>DrawerSpecifics</name>
     <message>
-        <source>Drawer</source>
-        <translation>Ladica</translation>
-    </message>
-    <message>
-        <source>Edge</source>
-        <translation>Rub</translation>
-    </message>
-    <message>
-        <source>Defines the edge of the window the drawer will open from.</source>
-        <translation>Definira rub prozora iz kojeg će se otvoriti ladica.</translation>
-    </message>
-    <message>
         <source>Drag Margin</source>
         <translation>Povuci marginu</translation>
-    </message>
-    <message>
-        <source>Defines the distance from the screen edge within which drag actions will open the drawer.</source>
-        <translation>Definira udaljenost od ruba ekrana, unutar koje će radnje povlačenja otvoriti ladicu.</translation>
     </message>
 </context>
 <context>
     <name>PopupSection</name>
     <message>
-        <source>Popup</source>
-        <translation>Skočni prozor</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Veličina</translation>
-    </message>
-    <message>
-        <source>Visibility</source>
-        <translation>Vidljivost</translation>
-    </message>
-    <message>
         <source>Is visible</source>
         <translation>Vidljivo je</translation>
-    </message>
-    <message>
-        <source>Clip</source>
-        <translation>Isječak</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>Način ponašanja</translation>
-    </message>
-    <message>
-        <source>Modal</source>
-        <translation>Modal</translation>
-    </message>
-    <message>
-        <source>Defines the modality of the popup.</source>
-        <translation>Definira način rada skočnog prozora.</translation>
-    </message>
-    <message>
-        <source>Dim</source>
-        <translation>Zatamni</translation>
-    </message>
-    <message>
-        <source>Defines whether the popup dims the background.</source>
-        <translation>Definira hoće li skočni prozor zatamniti pozadinu.</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Neprozirnost</translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>Skaliranje</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Razmaci</translation>
-    </message>
-    <message>
-        <source>Spacing between internal elements of the control.</source>
-        <translation>Razmaci između unutarnjih elemenata kontrole.</translation>
     </message>
 </context>
 <context>
@@ -9476,79 +8760,21 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
     </message>
 </context>
 <context>
-    <name>FlipableSpecifics</name>
-    <message>
-        <source>Flipable</source>
-        <translation>Moguće listanje</translation>
-    </message>
-</context>
-<context>
     <name>FlowSpecifics</name>
-    <message>
-        <source>Flow</source>
-        <translation>Prelamanje</translation>
-    </message>
     <message>
         <source>Layout Direction</source>
         <translation>Smjer rasporeda</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Razmaci</translation>
-    </message>
-</context>
-<context>
-    <name>GeometrySection</name>
-    <message>
-        <source>Geometry</source>
-        <translation>Geometrija</translation>
-    </message>
-    <message>
-        <source>Position</source>
-        <translation>Položaj</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Veličina</translation>
     </message>
 </context>
 <context>
     <name>GridSpecifics</name>
     <message>
-        <source>Grid</source>
-        <translation>Mreža</translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation>Broj stupaca</translation>
-    </message>
-    <message>
-        <source>Rows</source>
-        <translation>Broj redaka</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>Prelamanje</translation>
-    </message>
-    <message>
         <source>Layout Direction</source>
         <translation>Smjer rasporeda</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Razmaci</translation>
     </message>
 </context>
 <context>
     <name>GridViewSpecifics</name>
-    <message>
-        <source>Grid View</source>
-        <translation>Prikaz mreže</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>Privremena memorija</translation>
-    </message>
     <message>
         <source>Cache buffer</source>
         <translation>Međuspremnik privremene memorije</translation>
@@ -9556,14 +8782,6 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
     <message>
         <source>Cell Size</source>
         <translation>Veličina ćelija</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>Prelamanje</translation>
-    </message>
-    <message>
-        <source>Navigation wraps</source>
-        <translation>Navigacija se prelama</translation>
     </message>
     <message>
         <source>Determines whether the grid wraps key navigation.</source>
@@ -9574,20 +8792,12 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
         <translation>Smjer rasporeda</translation>
     </message>
     <message>
-        <source>Snap mode</source>
-        <translation>Privljačenje</translation>
-    </message>
-    <message>
         <source>Determines how the view scrolling will settle following a drag or flick.</source>
         <translation type="unfinished">Određuje prikaz nakon povlačenja ili listanja.</translation>
     </message>
     <message>
         <source>Grid View Highlight</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>Raspon</translation>
     </message>
     <message>
         <source>Highlight range</source>
@@ -9656,44 +8866,16 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
 <context>
     <name>ItemPane</name>
     <message>
-        <source>Type</source>
-        <translation>Vrsta</translation>
-    </message>
-    <message>
         <source>Change the type of this item.</source>
         <translation>Promijeni vrstu ove stavke.</translation>
-    </message>
-    <message>
-        <source>id</source>
-        <translation>id</translation>
     </message>
     <message>
         <source>Toggles whether this item is exported as an alias property of the root item.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Visibility</source>
-        <translation>Vidljivost</translation>
-    </message>
-    <message>
         <source>Is Visible</source>
         <translation>Vidljivo je</translation>
-    </message>
-    <message>
-        <source>Clip</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Neprozirnost</translation>
-    </message>
-    <message>
-        <source>Layout</source>
-        <translation>Prijelom</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation>Napredno</translation>
     </message>
 </context>
 <context>
@@ -9774,18 +8956,6 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
         <translation>Mrežni raspored</translation>
     </message>
     <message>
-        <source>Columns</source>
-        <translation>Broj stupaca</translation>
-    </message>
-    <message>
-        <source>Rows</source>
-        <translation>Broj redaka</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>Prelamanje</translation>
-    </message>
-    <message>
         <source>Layout Direction</source>
         <translation>Smjer rasporeda</translation>
     </message>
@@ -9799,41 +8969,14 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
     </message>
 </context>
 <context>
-    <name>LayoutSection</name>
-    <message>
-        <source>Layout</source>
-        <translation>Prijelom</translation>
-    </message>
-    <message>
-        <source>Anchors</source>
-        <translation>Sidro</translation>
-    </message>
-</context>
-<context>
     <name>ListViewSpecifics</name>
-    <message>
-        <source>List View</source>
-        <translation>Prikaz popisa</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation type="unfinished">Privremena memorija</translation>
-    </message>
     <message>
         <source>Cache buffer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Navigation wraps</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Determines whether the grid wraps key navigation.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Orijentacija</translation>
     </message>
     <message>
         <source>Orientation of the list.</source>
@@ -9844,16 +8987,8 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Snap mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Determines how the view scrolling will settle following a drag or flick.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Razmicanje</translation>
     </message>
     <message>
         <source>Spacing between items.</source>
@@ -9862,10 +8997,6 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
     <message>
         <source>List View Highlight</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>Raspon</translation>
     </message>
     <message>
         <source>Highlight range</source>
@@ -9927,10 +9058,6 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>Aktivirano</translation>
-    </message>
-    <message>
         <source>This property holds whether the item accepts mouse events.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9954,20 +9081,8 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Flick deceleration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Interactive</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>A user cannot drag or flick a PathView that is not interactive.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Offset</source>
-        <translation>Odmak</translation>
     </message>
     <message>
         <source>Specifies how far along the path the items are from their initial positions. This is a real number that ranges from 0.0 to the count of items in the model.</source>
@@ -9984,10 +9099,6 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
     <message>
         <source>Path View Highlight</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>Raspon</translation>
     </message>
     <message>
         <source>Highlight range</source>
@@ -10032,20 +9143,12 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
 <context>
     <name>RectangleSpecifics</name>
     <message>
-        <source>Color</source>
-        <translation>Boja</translation>
-    </message>
-    <message>
         <source>Border Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Border</source>
         <translation>Rub</translation>
-    </message>
-    <message>
-        <source>Radius</source>
-        <translation type="unfinished">Polumjer</translation>
     </message>
 </context>
 <context>
@@ -10057,10 +9160,6 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
     <message>
         <source>Layout Direction</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Razmicanje</translation>
     </message>
 </context>
 <context>
@@ -10081,14 +9180,6 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Input mask</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Echo mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Pass. char</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10101,15 +9192,7 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Read only</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Cursor visible</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Active focus on press</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10136,33 +9219,6 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
     </message>
     <message>
         <source>Style Color</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>WindowSpecifics</name>
-    <message>
-        <source>Window</source>
-        <translation type="unfinished">Prozor</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Veličina</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Boja</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation>Vidljivo</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -30002,6 +29058,646 @@ This is independent of the visibility property in QML.</source>
     <message>
         <source>Error</source>
         <translation>Greška</translation>
+    </message>
+    <message>
+        <source>Advanced</source>
+        <translation>Napredno</translation>
+    </message>
+    <message>
+        <source>Origin</source>
+        <translation>Izvorište</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Skaliraj</translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation>Rotacija</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Aktivirano</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Glatko</translation>
+    </message>
+    <message>
+        <source>Antialiasing</source>
+        <translation>Zaglađivanje rubova</translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation>Odredište</translation>
+    </message>
+    <message>
+        <source>Anchor to the top of the target.</source>
+        <translation>Element sidra na vrh odredišta.</translation>
+    </message>
+    <message>
+        <source>Anchor to the left of the target.</source>
+        <translation>Element sidra lijevo od odredišta.</translation>
+    </message>
+    <message>
+        <source>Anchor to the vertical center of the target.</source>
+        <translation>Element sidra u okomitu sredinu od odredišta.</translation>
+    </message>
+    <message>
+        <source>Anchor to the horizontal center of the target.</source>
+        <translation>Element sidra u vodoravnu sredinu od odredišta.</translation>
+    </message>
+    <message>
+        <source>Anchor to the bottom of the target.</source>
+        <translation>Element sidra na dno odredišta.</translation>
+    </message>
+    <message>
+        <source>Anchor to the right of the target.</source>
+        <translation>Element sidra desno od odredišta.</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation>Prozor</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Naslov</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Veličina</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Boja</translation>
+    </message>
+    <message>
+        <source>Visible</source>
+        <translation>Vidljivo</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>Neprozirnost</translation>
+    </message>
+    <message>
+        <source>Border Image</source>
+        <translation>Rub slike</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Izvor</translation>
+    </message>
+    <message>
+        <source>Source size</source>
+        <translation>Veličina izvora</translation>
+    </message>
+    <message>
+        <source>Button</source>
+        <translation>Gumb</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Tekst</translation>
+    </message>
+    <message>
+        <source>Text displayed on the button.</source>
+        <translation>Tekst prikazan na gumbu.</translation>
+    </message>
+    <message>
+        <source>Checked</source>
+        <translation>Označeno</translation>
+    </message>
+    <message>
+        <source>State of the button.</source>
+        <translation>Stanje gumba.</translation>
+    </message>
+    <message>
+        <source>Checkable</source>
+        <translation>Označivo</translation>
+    </message>
+    <message>
+        <source>Determines whether the button is checkable or not.</source>
+        <translation>Određuje o tome, je li gumb označiv ili ne.</translation>
+    </message>
+    <message>
+        <source>Determines whether the button is enabled or not.</source>
+        <translation>Određuje o tome, je li gumb označen ili ne.</translation>
+    </message>
+    <message>
+        <source>Default button</source>
+        <translation>Zadani gumb</translation>
+    </message>
+    <message>
+        <source>Sets the button as the default button in a dialog.</source>
+        <translation>Postavlja gumb kao zadani u dijalogu.</translation>
+    </message>
+    <message>
+        <source>Tool tip</source>
+        <translation>Oblačić</translation>
+    </message>
+    <message>
+        <source>The tool tip shown for the button.</source>
+        <translation>Oblačić za gumb.</translation>
+    </message>
+    <message>
+        <source>Focus on press</source>
+        <translation>Fokusiraj prilikom pritiskanja</translation>
+    </message>
+    <message>
+        <source>Determines whether the button gets focus if pressed.</source>
+        <translation>Određuje o tome, hoće li gumb biti fokusiran kad se pritisne.</translation>
+    </message>
+    <message>
+        <source>Icon source</source>
+        <translation>Izvor ikone</translation>
+    </message>
+    <message>
+        <source>The URL of an icon resource.</source>
+        <translation>URL resursa ikone.</translation>
+    </message>
+    <message>
+        <source>Check Box</source>
+        <translation>Potvrdni kvadratić</translation>
+    </message>
+    <message>
+        <source>Text shown on the check box.</source>
+        <translation>Prikazani tekst za potvrdni kvadratić.</translation>
+    </message>
+    <message>
+        <source>State of the check box.</source>
+        <translation>Stanje potvrdnog kvadratića.</translation>
+    </message>
+    <message>
+        <source>Determines whether the check box gets focus if pressed.</source>
+        <translation>Određuje o tome, hoće li potvrdni okvirić biti fokusiran kad se pritisne.</translation>
+    </message>
+    <message>
+        <source>Column</source>
+        <translation>Stupac</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>Razmaci</translation>
+    </message>
+    <message>
+        <source>Combo Box</source>
+        <translation>Kombinirani okvir</translation>
+    </message>
+    <message>
+        <source>Determines whether the combobox gets focus if pressed.</source>
+        <translation>Određuje o tome, hoće li potvrdni okvirić biti fokusiran kad se pritisne.</translation>
+    </message>
+    <message>
+        <source>Dialog</source>
+        <translation>Dijalog</translation>
+    </message>
+    <message>
+        <source>Drawer</source>
+        <translation>Ladica</translation>
+    </message>
+    <message>
+        <source>Edge</source>
+        <translation>Rub</translation>
+    </message>
+    <message>
+        <source>Defines the edge of the window the drawer will open from.</source>
+        <translation>Definira rub prozora iz kojeg će se otvoriti ladica.</translation>
+    </message>
+    <message>
+        <source>Defines the distance from the screen edge within which drag actions will open the drawer.</source>
+        <translation>Definira udaljenost od ruba ekrana, unutar koje će radnje povlačenja otvoriti ladicu.</translation>
+    </message>
+    <message>
+        <source>Flickable</source>
+        <translation>Moguće listanje</translation>
+    </message>
+    <message>
+        <source>Content size</source>
+        <translation>Veličina sadržaja</translation>
+    </message>
+    <message>
+        <source>Flick direction</source>
+        <translation>Smjer listanja</translation>
+    </message>
+    <message>
+        <source>Behavior</source>
+        <translation>Način ponašanja</translation>
+    </message>
+    <message>
+        <source>Interactive</source>
+        <translation>Interaktivno</translation>
+    </message>
+    <message>
+        <source>Max. velocity</source>
+        <translation>Maks. brzina</translation>
+    </message>
+    <message>
+        <source>Deceleration</source>
+        <translation>Usporavanje</translation>
+    </message>
+    <message>
+        <source>Flick deceleration</source>
+        <translation>Usporavanje listanja</translation>
+    </message>
+    <message>
+        <source>Flipable</source>
+        <translation>Moguće listanje</translation>
+    </message>
+    <message>
+        <source>Flow</source>
+        <translation>Prelamanje</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation>Font</translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation>Stil</translation>
+    </message>
+    <message>
+        <source>Prefer shaping</source>
+        <translation>Koristi funkcije za oblikovanje teksta</translation>
+    </message>
+    <message>
+        <source>Geometry</source>
+        <translation>Geometrija</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>Položaj</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>Broj stupaca</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>Broj redaka</translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation>Mreža</translation>
+    </message>
+    <message>
+        <source>Grid View</source>
+        <translation>Prikaz mreže</translation>
+    </message>
+    <message>
+        <source>Cache</source>
+        <translation>Privremena memorija</translation>
+    </message>
+    <message>
+        <source>Navigation wraps</source>
+        <translation>Navigacija se prelama</translation>
+    </message>
+    <message>
+        <source>Snap mode</source>
+        <translation>Privljačenje</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Raspon</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Vrsta</translation>
+    </message>
+    <message>
+        <source>id</source>
+        <translation>id</translation>
+    </message>
+    <message>
+        <source>Visibility</source>
+        <translation>Vidljivost</translation>
+    </message>
+    <message>
+        <source>Layout</source>
+        <translation>Prijelom</translation>
+    </message>
+    <message>
+        <source>Anchors</source>
+        <translation>Sidro</translation>
+    </message>
+    <message>
+        <source>List View</source>
+        <translation>Prikaz popisa</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation>Usmjerenost</translation>
+    </message>
+    <message>
+        <source>Margin</source>
+        <translation>Margina</translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation>Uspravno</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>Gore</translation>
+    </message>
+    <message>
+        <source>The margin above the item.</source>
+        <translation>Margina iznad elementa.</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Dolje</translation>
+    </message>
+    <message>
+        <source>The margin below the item.</source>
+        <translation>Margina ispod elementa.</translation>
+    </message>
+    <message>
+        <source>Horizontal</source>
+        <translation>Vodoravno</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Lijevo</translation>
+    </message>
+    <message>
+        <source>The margin left of the item.</source>
+        <translation>Margina lijevo od elementa.</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Desno</translation>
+    </message>
+    <message>
+        <source>The margin right of the item.</source>
+        <translation>Margina desno od  elementa.</translation>
+    </message>
+    <message>
+        <source>Margins</source>
+        <translation>Margine</translation>
+    </message>
+    <message>
+        <source>The margins around the item.</source>
+        <translation>Margina okolo elementa.</translation>
+    </message>
+    <message>
+        <source>Padding</source>
+        <translation>Odmak</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the top edge of the item.</source>
+        <translation>Odmak između sadržaja i gornjeg ruba elementa.</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the bottom edge of the item.</source>
+        <translation>Odmak između sadržaja i donjeg ruba elementa.</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the left edge of the item.</source>
+        <translation>Odmak između sadržaja i lijevog ruba elementa.</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the right edge of the item.</source>
+        <translation>Odmak između sadržaja i desnog ruba elementa.</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Odmak</translation>
+    </message>
+    <message>
+        <source>Popup</source>
+        <translation>Skočni prozor</translation>
+    </message>
+    <message>
+        <source>Clip</source>
+        <translation>Isječak</translation>
+    </message>
+    <message>
+        <source>Modal</source>
+        <translation>Modal</translation>
+    </message>
+    <message>
+        <source>Defines the modality of the popup.</source>
+        <translation>Definira način rada skočnog prozora.</translation>
+    </message>
+    <message>
+        <source>Dim</source>
+        <translation>Zatamni</translation>
+    </message>
+    <message>
+        <source>Defines whether the popup dims the background.</source>
+        <translation>Definira hoće li skočni prozor zatamniti pozadinu.</translation>
+    </message>
+    <message>
+        <source>Spacing between internal elements of the control.</source>
+        <translation>Razmaci između unutarnjih elemenata kontrole.</translation>
+    </message>
+    <message>
+        <source>Radio Button</source>
+        <translation>Isključni gumb</translation>
+    </message>
+    <message>
+        <source>Text label for the radio button.</source>
+        <translation>Tekstna oznaka za isključni gumb.</translation>
+    </message>
+    <message>
+        <source>Determines whether the radio button is checked or not.</source>
+        <translation>Određuje o tome, je li gumb označen ili ne.</translation>
+    </message>
+    <message>
+        <source>Determines whether the radio button gets focus if pressed.</source>
+        <translation>Određuje o tome, hoće li gumb biti fokusiran kad se pritisne.</translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Polumjer</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Vrijednost</translation>
+    </message>
+    <message>
+        <source>Current value of the Slider. The default value is 0.0.</source>
+        <translation>Trenutačna vrijednost klizača. Zadan vrijednost je 0,0.</translation>
+    </message>
+    <message>
+        <source>Maximum value</source>
+        <translation>Maksimalna vrijednost</translation>
+    </message>
+    <message>
+        <source>Maximum value of the slider. The default value is 1.0.</source>
+        <translation>Maksimalna vrijednost klizača. Zadan vrijednost je 1,0.</translation>
+    </message>
+    <message>
+        <source>Minimum value</source>
+        <translation>Minimalna vrijednost</translation>
+    </message>
+    <message>
+        <source>Minimum value of the slider. The default value is 0.0.</source>
+        <translation>Minimalna vrijednost klizača. Zadan vrijednost je 0,0.</translation>
+    </message>
+    <message>
+        <source>Layout orientation of the slider.</source>
+        <translation>Usmjerenost klizača.</translation>
+    </message>
+    <message>
+        <source>Step size</source>
+        <translation>Veličina koraka</translation>
+    </message>
+    <message>
+        <source>Indicates the slider step size.</source>
+        <translation>Određuje veličiknu koraka klizača.</translation>
+    </message>
+    <message>
+        <source>Active focus on press</source>
+        <translation>Fokusirano prilikom pritiskanja</translation>
+    </message>
+    <message>
+        <source>Indicates whether the slider should receive active focus when pressed.</source>
+        <translation>Određuje o tome, hoće li gumb biti fokusiran kad se pritisne.</translation>
+    </message>
+    <message>
+        <source>Tick marks enabled</source>
+        <translation>Aktiviraj oznake</translation>
+    </message>
+    <message>
+        <source>Indicates whether the slider should display tick marks at step intervals.</source>
+        <translation>Određuje o tome, hoće li se prikazati oznake za intervale koraka.</translation>
+    </message>
+    <message>
+        <source>Update value while dragging</source>
+        <translation>Aktiviraj vrijednosti tijekom povlačenja</translation>
+    </message>
+    <message>
+        <source>Determines whether the current value should be updated while the user is moving the slider handle, or only when the button has been released.</source>
+        <translation>Određuje treba li aktualizirati trenutačnu vrijednost dok korisnik pomiče klizača ili samo kad se gumb otpusti.</translation>
+    </message>
+    <message>
+        <source>Split View</source>
+        <translation>Podijeljeni prikaz</translation>
+    </message>
+    <message>
+        <source>Orientation of the split view.</source>
+        <translation>Usmjerenost podijeljenog prikaza.</translation>
+    </message>
+    <message>
+        <source>Wrap mode</source>
+        <translation>Prelamanje</translation>
+    </message>
+    <message>
+        <source>Elide</source>
+        <translation>Izostavljanje</translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation>Poravnanje</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Format</translation>
+    </message>
+    <message>
+        <source>Render type</source>
+        <translation>Vrsta iscrtavanja</translation>
+    </message>
+    <message>
+        <source>Line height</source>
+        <translation>Visina retka</translation>
+    </message>
+    <message>
+        <source>Sets the line height for the text.</source>
+        <translation>Postavlja visinu retka za tekst.</translation>
+    </message>
+    <message>
+        <source>Tab View</source>
+        <translation>Prikaz kartica</translation>
+    </message>
+    <message>
+        <source>Current index</source>
+        <translation>Trenutačni indeks</translation>
+    </message>
+    <message>
+        <source>Frame visible</source>
+        <translation>Okvir vidljiv</translation>
+    </message>
+    <message>
+        <source>Tabs visible</source>
+        <translation>Kartice vidljive</translation>
+    </message>
+    <message>
+        <source>Tab position</source>
+        <translation>Položaj kartice</translation>
+    </message>
+    <message>
+        <source>Text Area</source>
+        <translation>Tekstno područje</translation>
+    </message>
+    <message>
+        <source>Text shown on the text area.</source>
+        <translation>Tekst prikazan u tekstnom području.</translation>
+    </message>
+    <message>
+        <source>Read only</source>
+        <translation>Samo za čitanje</translation>
+    </message>
+    <message>
+        <source>Document margins</source>
+        <translation>Margine dokumenta</translation>
+    </message>
+    <message>
+        <source>Frame width</source>
+        <translation>Širina okvira</translation>
+    </message>
+    <message>
+        <source>Contents frame</source>
+        <translation>Sadržaj okvira</translation>
+    </message>
+    <message>
+        <source>Focus Handling</source>
+        <translation>Rukovanje fokusom</translation>
+    </message>
+    <message>
+        <source>Highlight on focus</source>
+        <translation>Istakni pri fokusiranju</translation>
+    </message>
+    <message>
+        <source>Tab changes focus</source>
+        <translation>Tabulator mijenja fokus</translation>
+    </message>
+    <message>
+        <source>Text Field</source>
+        <translation>Tekstno polje</translation>
+    </message>
+    <message>
+        <source>Text shown on the text field.</source>
+        <translation>Tekst prikazan u tekstnom polju.</translation>
+    </message>
+    <message>
+        <source>Placeholder text</source>
+        <translation>Tekst u rezerviranom polju</translation>
+    </message>
+    <message>
+        <source>Placeholder text.</source>
+        <translation>Tekst u rezerviranom polju.</translation>
+    </message>
+    <message>
+        <source>Determines whether the text field is read only.</source>
+        <translation>Određuje, je li tekstno polje samo za čitanje.</translation>
+    </message>
+    <message>
+        <source>Input mask</source>
+        <translation>Maska za unos</translation>
+    </message>
+    <message>
+        <source>Restricts the valid text in the text field.</source>
+        <translation>Ograničava ispravni tekst u tekstnom polju.</translation>
+    </message>
+    <message>
+        <source>Echo mode</source>
+        <translation>Način prikaza</translation>
+    </message>
+    <message>
+        <source>Specifies how the text is displayed in the text field.</source>
+        <translation>Specifiira kako će tekst biti prikazan u tekstnom polju.</translation>
     </message>
 </context>
 <context>

@@ -102,6 +102,137 @@
     </message>
 </context>
 <context>
+    <name>QtC::QmlDesigner</name>
+    <message>
+        <source>Image</source>
+        <translation>Slika</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Vir</translation>
+    </message>
+    <message>
+        <source>Source size</source>
+        <translation>Izvorna velikost</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Levo</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Desno</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>Vrh</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Dno</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>Razmik</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>Stolpci</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>Vrstice</translation>
+    </message>
+    <message>
+        <source>Cache</source>
+        <translation>Predpomnilnik</translation>
+    </message>
+    <message>
+        <source>Flow</source>
+        <translation>Potek</translation>
+    </message>
+    <message>
+        <source>Snap mode</source>
+        <translation>Način pripenjanja</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Obseg</translation>
+    </message>
+    <message>
+        <source>Move duration</source>
+        <translation>Trajanje premikanja</translation>
+    </message>
+    <message>
+        <source>Preferred begin</source>
+        <translation>Želeni začetek</translation>
+    </message>
+    <message>
+        <source>Preferred end</source>
+        <translation>Želeni konec</translation>
+    </message>
+    <message>
+        <source>Follows current</source>
+        <translation>Sledi trenutnemu</translation>
+    </message>
+    <message>
+        <source>List View</source>
+        <translation>Prikaz seznama</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation>Usmeritev</translation>
+    </message>
+    <message>
+        <source>List View Highlight</source>
+        <translation>Poudarek prikaza seznama</translation>
+    </message>
+    <message>
+        <source>Resize duration</source>
+        <translation>Trajanje spr. velikosti</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Omogočeno</translation>
+    </message>
+    <message>
+        <source>Path View</source>
+        <translation>Prikaz poti</translation>
+    </message>
+    <message>
+        <source>Drag margin</source>
+        <translation>Rob za vleko</translation>
+    </message>
+    <message>
+        <source>Flick deceleration</source>
+        <translation>Pojemek drsenja</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Odmik</translation>
+    </message>
+    <message>
+        <source>Item count</source>
+        <translation>Število predmetov</translation>
+    </message>
+    <message>
+        <source>Path View Highlight</source>
+        <translation>Poudarek prikaza poti</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>Pravokotnik</translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation>Polmer</translation>
+    </message>
+    <message>
+        <source>Row</source>
+        <translation>Vrstica</translation>
+    </message>
+</context>
+<context>
     <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
@@ -12787,34 +12918,6 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
 <context>
     <name>BorderImageSpecifics</name>
     <message>
-        <source>Image</source>
-        <translation>Slika</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>Vir</translation>
-    </message>
-    <message>
-        <source>Source size</source>
-        <translation>Izvorna velikost</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation>Levo</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation>Desno</translation>
-    </message>
-    <message>
-        <source>Top</source>
-        <translation>Vrh</translation>
-    </message>
-    <message>
-        <source>Bottom</source>
-        <translation>Dno</translation>
-    </message>
-    <message>
         <source>Source Size</source>
         <translation type="obsolete">Izvorna velikost</translation>
     </message>
@@ -13028,16 +13131,8 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
 <context>
     <name>RectangleSpecifics</name>
     <message>
-        <source>Rectangle</source>
-        <translation>Pravokotnik</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>Rob</translation>
-    </message>
-    <message>
-        <source>Radius</source>
-        <translation>Polmer</translation>
     </message>
 </context>
 <context>
@@ -18838,37 +18933,10 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>FlowSpecifics</name>
-    <message>
-        <source>Flow</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Razmik</translation>
-    </message>
-</context>
-<context>
     <name>GridSpecifics</name>
     <message>
         <source>Grid</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation>Stolpci</translation>
-    </message>
-    <message>
-        <source>Rows</source>
-        <translation>Vrstice</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Razmik</translation>
     </message>
 </context>
 <context>
@@ -18876,10 +18944,6 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     <message>
         <source>Grid View</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>Predpomnilnik</translation>
     </message>
     <message>
         <source>Cache buffer</source>
@@ -18894,20 +18958,12 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
         <translation>Širina celice</translation>
     </message>
     <message>
-        <source>Flow</source>
-        <translation>Potek</translation>
-    </message>
-    <message>
         <source>Resize wraps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Determines whether the grid wraps key navigation.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Snap mode</source>
-        <translation>Način pripenjanja</translation>
     </message>
     <message>
         <source>Determines how the view scrolling will settle following a drag or flick.</source>
@@ -18918,16 +18974,8 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Range</source>
-        <translation>Obseg</translation>
-    </message>
-    <message>
         <source>Highlight range</source>
         <translation>Obseg poudarka</translation>
-    </message>
-    <message>
-        <source>Move duration</source>
-        <translation>Trajanje premikanja</translation>
     </message>
     <message>
         <source>Move animation duration of the highlight delegate.</source>
@@ -18942,24 +18990,12 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
         <translation>Hitrost animacije premikanja za delegata poudarka.</translation>
     </message>
     <message>
-        <source>Preferred begin</source>
-        <translation>Želeni začetek</translation>
-    </message>
-    <message>
         <source>Preferred highlight begin - must be smaller than Preferred end.</source>
         <translation>Želeni začetek poudarka - biti mora manjši kot »Želeni konec«.</translation>
     </message>
     <message>
-        <source>Preferred end</source>
-        <translation>Želeni konec</translation>
-    </message>
-    <message>
         <source>Preferred highlight end - must be larger than Preferred begin.</source>
         <translation>Želeni konec poudarka - biti mora večji kot »Želeni začetek«.</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>Sledi trenutnemu</translation>
     </message>
     <message>
         <source>Determines whether the highlight is managed by the view.</source>
@@ -18976,14 +19012,6 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
 <context>
     <name>ListViewSpecifics</name>
     <message>
-        <source>List View</source>
-        <translation>Prikaz seznama</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>Predpomnilnik</translation>
-    </message>
-    <message>
         <source>Cache buffer</source>
         <translation>Predpomnilnik</translation>
     </message>
@@ -18996,10 +19024,6 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
         <translation>Širina celice</translation>
     </message>
     <message>
-        <source>Flow</source>
-        <translation>Potek</translation>
-    </message>
-    <message>
         <source>Navigation wraps</source>
         <translation type="unfinished"></translation>
     </message>
@@ -19008,44 +19032,20 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Orientation</source>
-        <translation>Usmeritev</translation>
-    </message>
-    <message>
         <source>Orientation of the list.</source>
         <translation>Usmeritev seznama.</translation>
-    </message>
-    <message>
-        <source>Snap mode</source>
-        <translation>Način pripenjanja</translation>
     </message>
     <message>
         <source>Determines how the view scrolling will settle following a drag or flick.</source>
         <translation>Določa kako se po vlečenju ali frcanju ustali drsenje prikaza.</translation>
     </message>
     <message>
-        <source>Spacing</source>
-        <translation>Razmik</translation>
-    </message>
-    <message>
         <source>Spacing between items.</source>
         <translation>Razmik med postavkami.</translation>
     </message>
     <message>
-        <source>List View Highlight</source>
-        <translation>Poudarek prikaza seznama</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>Obseg</translation>
-    </message>
-    <message>
         <source>Highlight range</source>
         <translation>Obseg poudarka</translation>
-    </message>
-    <message>
-        <source>Move duration</source>
-        <translation>Trajanje premikanja</translation>
     </message>
     <message>
         <source>Move animation duration of the highlight delegate.</source>
@@ -19060,10 +19060,6 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
         <translation>Hitrost animacije premikanja za delegata poudarka.</translation>
     </message>
     <message>
-        <source>Resize duration</source>
-        <translation>Trajanje spr. velikosti</translation>
-    </message>
-    <message>
         <source>Resize animation duration of the highlight delegate.</source>
         <translation>Trajanje animacije spreminja velikosti za delegata poudarka.</translation>
     </message>
@@ -19076,24 +19072,12 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
         <translation>Hitrost animacije spreminjanja velikosti za delegata poudarka.</translation>
     </message>
     <message>
-        <source>Preferred begin</source>
-        <translation>Želeni začetek</translation>
-    </message>
-    <message>
         <source>Preferred highlight begin - must be smaller than Preferred end.</source>
         <translation>Želeni začetek poudarka - biti mora manjši kot »Želeni konec«.</translation>
     </message>
     <message>
-        <source>Preferred end</source>
-        <translation>Želeni konec</translation>
-    </message>
-    <message>
         <source>Preferred highlight end - must be larger than Preferred begin.</source>
         <translation>Želeni konec poudarka - biti mora večji kot »Želeni začetek«.</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>Sledi trenutnemu</translation>
     </message>
     <message>
         <source>Determines whether the highlight is managed by the view.</source>
@@ -19105,10 +19089,6 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     <message>
         <source>MouseArea</source>
         <translation>Področje miške</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Omogočeno</translation>
     </message>
     <message>
         <source>This property holds whether the item accepts mouse events.</source>
@@ -19126,68 +19106,28 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
 <context>
     <name>PathViewSpecifics</name>
     <message>
-        <source>Path View</source>
-        <translation>Prikaz poti</translation>
-    </message>
-    <message>
-        <source>Drag margin</source>
-        <translation>Rob za vleko</translation>
-    </message>
-    <message>
-        <source>Flick deceleration</source>
-        <translation>Pojemek drsenja</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>Sledi trenutnemu</translation>
-    </message>
-    <message>
         <source>A user cannot drag or flick a PathView that is not interactive.</source>
         <translation>Uporabnik ne-interaktivnega prikaza poti ne more povleči ali frcniti.</translation>
-    </message>
-    <message>
-        <source>Offset</source>
-        <translation>Odmik</translation>
     </message>
     <message>
         <source>Specifies how far along the path the items are from their initial positions. This is a real number that ranges from 0.0 to the count of items in the model.</source>
         <translation>Določa oddaljenost predmetov (vzdolž poti) od njihovih začetnih položajev. Vrednost je decimalno število, ki sega od 0,0 do števila predmetov v modelu.</translation>
     </message>
     <message>
-        <source>Item count</source>
-        <translation>Število predmetov</translation>
-    </message>
-    <message>
         <source>pathItemCount: number of items visible on the path at any one time.</source>
         <translation>Število predmetov, ki so na poti vidni katerikoli čas.</translation>
-    </message>
-    <message>
-        <source>Path View Highlight</source>
-        <translation>Poudarek prikaza poti</translation>
     </message>
     <message>
         <source>Highlight range</source>
         <translation>Obseg poudarka</translation>
     </message>
     <message>
-        <source>Move duration</source>
-        <translation>Trajanje premikanja</translation>
-    </message>
-    <message>
         <source>Move animation duration of the highlight delegate.</source>
         <translation>Trajanje animacije premikanja za delegata poudarka.</translation>
     </message>
     <message>
-        <source>Preferred begin</source>
-        <translation>Želeni začetek</translation>
-    </message>
-    <message>
         <source>Preferred highlight begin - must be smaller than Preferred end.</source>
         <translation>Želeni začetek poudarka - biti mora manjši kot »Želeni konec«.</translation>
-    </message>
-    <message>
-        <source>Preferred end</source>
-        <translation>Želeni konec</translation>
     </message>
     <message>
         <source>Preferred highlight end - must be larger than Preferred begin.</source>
@@ -19196,17 +19136,6 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     <message>
         <source>Determines whether the highlight is managed by the view.</source>
         <translation>Določa, ali naj s poudarkom upravlja prikaz.</translation>
-    </message>
-</context>
-<context>
-    <name>RowSpecifics</name>
-    <message>
-        <source>Row</source>
-        <translation>Vrstica</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Razmik</translation>
     </message>
 </context>
 <context>

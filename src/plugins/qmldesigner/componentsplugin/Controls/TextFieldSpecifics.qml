@@ -1,6 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+pragma Translator: "QtC::QmlDesigner"
 import QtQuick 2.1
 import HelperWidgets 2.0
 import QtQuick.Layouts 1.0

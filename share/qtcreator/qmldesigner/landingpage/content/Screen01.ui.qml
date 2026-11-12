@@ -8,6 +8,7 @@ this file manually, you might introduce QML code that is not supported by Qt Des
 Check out https://doc.qt.io/qtcreator/creator-quick-ui-forms.html for details on .ui.qml files.
 */
 
+pragma Translator: "QtC::QmlProjectManager"
 import QtQuick 2.15
 import QtQuick.Controls 6.2
 import QtQuick.Layouts 1.15
@@ -101,7 +102,7 @@ Rectangle {
                     Text {
                         id: qdsText
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text: qsTranslate("QtC::QmlProjectManager", "Qt Design Studio")
+                        text: qsTr("Qt Design Studio")
                         font.pixelSize: Theme.Values.fontSizeTitle
                         font.family: Theme.Values.baseFont
                         color: Theme.Colors.text
@@ -150,13 +151,13 @@ Rectangle {
                         id: openQdsText
                         width: buttonBoxGrid.tmpWidth
                         padding: Theme.Values.spacing
-                        text: qsTranslate("QtC::QmlProjectManager", "Open with Qt Design Studio")
+                        text: qsTr("Open with Qt Design Studio")
                         wrapMode: Text.NoWrap
                     }
 
                     PushButton {
                         id: openQds
-                        text: qsTranslate("QtC::QmlProjectManager", "Open")
+                        text: qsTr("Open")
                         enabled: LandingPageApi.qdsInstalled
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
@@ -170,20 +171,20 @@ Rectangle {
                         id: openQtcText
                         width: buttonBoxGrid.tmpWidth
                         padding: Theme.Values.spacing
-                        text: qsTranslate("QtC::QmlProjectManager", "Open with Qt Creator - Text Mode")
+                        text: qsTr("Open with Qt Creator - Text Mode")
                         wrapMode: Text.NoWrap
                     }
 
                     PushButton {
                         id: openQtc
-                        text: qsTranslate("QtC::QmlProjectManager", "Open")
+                        text: qsTr("Open")
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
                 }
 
                 CustomCheckBox {
                     id: rememberCheckbox
-                    text: qsTranslate("QtC::QmlProjectManager", "Remember my choice")
+                    text: qsTr("Remember my choice")
                     font.family: Theme.Values.baseFont
                     Layout.columnSpan: buttonBoxGrid.columns
                     Layout.alignment: Qt.AlignHCenter

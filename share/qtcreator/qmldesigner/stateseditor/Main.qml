@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+pragma Translator: "QtC::QmlDesigner"
 import QtQuick
 import QtQuick.Controls.Basic as Basic
 import QtQuick.Templates as T

@@ -948,10 +948,6 @@ Local pulls are not applied to the master branch.</source>
 <context>
     <name>BorderImageSpecifics</name>
     <message>
-        <source>Source</source>
-        <translation>Джерело</translation>
-    </message>
-    <message>
         <source>Border Image</source>
         <translation type="unfinished"></translation>
     </message>
@@ -978,10 +974,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Vertical Fill mode</source>
         <translation>Режим вертикального заповнення</translation>
-    </message>
-    <message>
-        <source>Source size</source>
-        <translation>Розмір джерела</translation>
     </message>
 </context>
 <context>
@@ -9347,18 +9339,6 @@ You can choose between stashing the changes or discarding them.</source>
 <context>
     <name>GridSpecifics</name>
     <message>
-        <source>Grid</source>
-        <translation>Сітка</translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation>Стовпці</translation>
-    </message>
-    <message>
-        <source>Rows</source>
-        <translation>Рядки</translation>
-    </message>
-    <message>
         <source>Flow</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9376,10 +9356,6 @@ You can choose between stashing the changes or discarding them.</source>
     <message>
         <source>Grid View</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>Кеш</translation>
     </message>
     <message>
         <source>Cache buffer</source>
@@ -9408,10 +9384,6 @@ You can choose between stashing the changes or discarding them.</source>
     <message>
         <source>Grid View Highlight</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>Діапазон</translation>
     </message>
     <message>
         <source>Highlight range</source>
@@ -10034,14 +10006,6 @@ Ids must begin with a lowercase letter.</source>
 <context>
     <name>ListViewSpecifics</name>
     <message>
-        <source>List View</source>
-        <translation>Список</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>Кеш</translation>
-    </message>
-    <message>
         <source>Cache buffer</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10052,10 +10016,6 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <source>Determines whether the grid wraps key navigation.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Орієнтація</translation>
     </message>
     <message>
         <source>Orientation of the list.</source>
@@ -10080,10 +10040,6 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <source>List View Highlight</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>Діапазон</translation>
     </message>
     <message>
         <source>Highlight range</source>
@@ -11092,10 +11048,6 @@ Ids must begin with a lowercase letter.</source>
 <context>
     <name>MouseAreaSpecifics</name>
     <message>
-        <source>Enabled</source>
-        <translation>Увімкнено</translation>
-    </message>
-    <message>
         <source>This property holds whether the item accepts mouse events.</source>
         <translation>Ця властивість вказує, чи елемент приймає події миші.</translation>
     </message>
@@ -11106,10 +11058,6 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <source>This property holds whether hover events are handled.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mouse Area</source>
-        <translation>Область миші</translation>
     </message>
 </context>
 <context>
@@ -11205,10 +11153,6 @@ Ids must begin with a lowercase letter.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Item count</source>
-        <translation>Кількість елементів</translation>
-    </message>
-    <message>
         <source>pathItemCount: number of items visible on the path at any one time.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11239,10 +11183,6 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <source>Interactive</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>Діапазон</translation>
     </message>
 </context>
 <context>
@@ -17108,14 +17048,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>Border</source>
         <translation>Границя</translation>
-    </message>
-    <message>
-        <source>Radius</source>
-        <translation>Радіус</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Колір</translation>
     </message>
     <message>
         <source>Border Color</source>
@@ -28150,14 +28082,6 @@ cannot be found in the path.</source>
 <context>
     <name>ButtonSpecifics</name>
     <message>
-        <source>Button</source>
-        <translation>Кнопка</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Текст</translation>
-    </message>
-    <message>
         <source>The text shown on the button</source>
         <translation type="vanished">Текст, що відображається на кнопці</translation>
     </message>
@@ -28186,10 +28110,6 @@ cannot be found in the path.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>Увімкнено</translation>
-    </message>
-    <message>
         <source>Determines whether the button is enabled or not.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -28200,22 +28120,6 @@ cannot be found in the path.</source>
     <message>
         <source>Sets the button as the default button in a dialog.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tool tip</source>
-        <translation>Підказка</translation>
-    </message>
-    <message>
-        <source>The tool tip shown for the button.</source>
-        <translation>Підказка, що відображається для кнопки.</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Фокус при натисканні</translation>
-    </message>
-    <message>
-        <source>Determines whether the button gets focus if pressed.</source>
-        <translation>Визначає, чи кнопка отримає фокус при натисканні.</translation>
     </message>
     <message>
         <source>Icon source</source>
@@ -28229,51 +28133,12 @@ cannot be found in the path.</source>
 <context>
     <name>CheckBoxSpecifics</name>
     <message>
-        <source>Check Box</source>
-        <translation>Прапорець</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Текст</translation>
-    </message>
-    <message>
-        <source>Determines whether the check box gets focus if pressed.</source>
-        <translation>Визначає, чи прапорець отримає фокус при натисканні.</translation>
-    </message>
-    <message>
         <source>Checked</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Text shown on the check box.</source>
-        <translation>Текст, що відображається на прапорці.</translation>
-    </message>
-    <message>
         <source>State of the check box.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Фокус при натисканні</translation>
-    </message>
-</context>
-<context>
-    <name>ComboBoxSpecifics</name>
-    <message>
-        <source>Combo Box</source>
-        <translation>Випадаючий список</translation>
-    </message>
-    <message>
-        <source>Determines whether the combobox gets focus if pressed.</source>
-        <translation>Визначає, чи випадаючий список отримає фокус при натисканні.</translation>
-    </message>
-    <message>
-        <source>Tool tip</source>
-        <translation type="vanished">Підказка</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Фокус при натисканні</translation>
     </message>
 </context>
 <context>
@@ -28281,10 +28146,6 @@ cannot be found in the path.</source>
     <message>
         <source>Radio Button</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Текст</translation>
     </message>
     <message>
         <source>Text label for the radio button.</source>
@@ -28299,10 +28160,6 @@ cannot be found in the path.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Focus on press</source>
-        <translation>Фокус при натисканні</translation>
-    </message>
-    <message>
         <source>Determines whether the radio button gets focus if pressed.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -28310,24 +28167,12 @@ cannot be found in the path.</source>
 <context>
     <name>TextAreaSpecifics</name>
     <message>
-        <source>Text</source>
-        <translation>Текст</translation>
-    </message>
-    <message>
         <source>Text shown on the text area.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Read only</source>
-        <translation>Лише для читання</translation>
-    </message>
-    <message>
         <source>Determines whether the text area is read only.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Колір</translation>
     </message>
     <message>
         <source>Document margins</source>
@@ -28377,25 +28222,9 @@ cannot be found in the path.</source>
         <source>Determines whether tab changes the focus of the text area.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Фокус при натисканні</translation>
-    </message>
-    <message>
-        <source>Determines whether the text area gets focus if pressed.</source>
-        <translation>Визначає, чи прапорець отримає фокус при натисканні.</translation>
-    </message>
 </context>
 <context>
     <name>TextFieldSpecifics</name>
-    <message>
-        <source>Text Field</source>
-        <translation>Текстове поле</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Текст</translation>
-    </message>
     <message>
         <source>Placeholder text</source>
         <translation type="unfinished"></translation>
@@ -28407,10 +28236,6 @@ cannot be found in the path.</source>
     <message>
         <source>Placeholder text.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Лише для читання</translation>
     </message>
     <message>
         <source>Determines whether the text field is read only.</source>
@@ -32189,10 +32014,6 @@ monitor reset</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation>Поведінка</translation>
-    </message>
-    <message>
         <source>Bounds behavior</source>
         <translation type="unfinished"></translation>
     </message>
@@ -32220,62 +32041,15 @@ monitor reset</translation>
 <context>
     <name>FontSection</name>
     <message>
-        <source>Font</source>
-        <translation>Шрифт</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Розмір</translation>
-    </message>
-    <message>
         <source>Font style</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation>Стиль</translation>
-    </message>
-</context>
-<context>
-    <name>StandardTextSection</name>
-    <message>
-        <source>Text</source>
-        <translation>Текст</translation>
-    </message>
-    <message>
-        <source>Wrap mode</source>
-        <translation>Режим переносу</translation>
-    </message>
-    <message>
-        <source>Alignment</source>
-        <translation>Вирівнювання</translation>
-    </message>
-    <message>
-        <source>Format</source>
-        <translation>Формат</translation>
     </message>
 </context>
 <context>
     <name>AdvancedSection</name>
     <message>
-        <source>Advanced</source>
-        <translation>Додатково</translation>
-    </message>
-    <message>
         <source>Origin</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>Масштаб</translation>
-    </message>
-    <message>
-        <source>Rotation</source>
-        <translation>Обертання</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Увімкнено</translation>
     </message>
     <message>
         <source>Accept mouse and keyboard events</source>
@@ -32301,10 +32075,6 @@ monitor reset</translation>
 <context>
     <name>ColumnSpecifics</name>
     <message>
-        <source>Column</source>
-        <translation>Стовпець</translation>
-    </message>
-    <message>
         <source>Spacing</source>
         <translation type="unfinished"></translation>
     </message>
@@ -32317,30 +32087,7 @@ monitor reset</translation>
     </message>
 </context>
 <context>
-    <name>GeometrySection</name>
-    <message>
-        <source>Geometry</source>
-        <translation>Геометрів</translation>
-    </message>
-    <message>
-        <source>Position</source>
-        <translation>Положення</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Розмір</translation>
-    </message>
-</context>
-<context>
     <name>ItemPane</name>
-    <message>
-        <source>Type</source>
-        <translation>Тип</translation>
-    </message>
-    <message>
-        <source>id</source>
-        <translation>id</translation>
-    </message>
     <message>
         <source>Visibility</source>
         <translation type="unfinished"></translation>
@@ -32360,10 +32107,6 @@ monitor reset</translation>
     <message>
         <source>Layout</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation>Додатково</translation>
     </message>
 </context>
 <context>
@@ -32389,17 +32132,6 @@ monitor reset</translation>
     </message>
 </context>
 <context>
-    <name>TextInputSection</name>
-    <message>
-        <source>Flags</source>
-        <translation>Прапорці</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Лише для читання</translation>
-    </message>
-</context>
-<context>
     <name>TextInputSpecifics</name>
     <message>
         <source>Text Color</source>
@@ -32419,25 +32151,6 @@ monitor reset</translation>
     <message>
         <source>Style Color</source>
         <translation></translation>
-    </message>
-</context>
-<context>
-    <name>WindowSpecifics</name>
-    <message>
-        <source>Window</source>
-        <translation>Вікно</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Заголовок</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Розмір</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Колір</translation>
     </message>
 </context>
 <context>
@@ -34018,13 +33731,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>AnchorRow</name>
-    <message>
-        <source>Target</source>
-        <translation>Ціль</translation>
-    </message>
-</context>
-<context>
     <name>QtC::QmlJS</name>
     <message>
         <source>Indexing</source>
@@ -34775,6 +34481,198 @@ Do you want to kill it?</source>
     <message>
         <source>Error</source>
         <translation>Помилка</translation>
+    </message>
+    <message>
+        <source>Advanced</source>
+        <translation>Додатково</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Масштаб</translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation>Обертання</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Увімкнено</translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation>Ціль</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation>Вікно</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Заголовок</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Розмір</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Колір</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Джерело</translation>
+    </message>
+    <message>
+        <source>Source size</source>
+        <translation>Розмір джерела</translation>
+    </message>
+    <message>
+        <source>Button</source>
+        <translation>Кнопка</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Текст</translation>
+    </message>
+    <message>
+        <source>Tool tip</source>
+        <translation>Підказка</translation>
+    </message>
+    <message>
+        <source>The tool tip shown for the button.</source>
+        <translation>Підказка, що відображається для кнопки.</translation>
+    </message>
+    <message>
+        <source>Focus on press</source>
+        <translation>Фокус при натисканні</translation>
+    </message>
+    <message>
+        <source>Determines whether the button gets focus if pressed.</source>
+        <translation>Визначає, чи кнопка отримає фокус при натисканні.</translation>
+    </message>
+    <message>
+        <source>Check Box</source>
+        <translation>Прапорець</translation>
+    </message>
+    <message>
+        <source>Determines whether the check box gets focus if pressed.</source>
+        <translation>Визначає, чи прапорець отримає фокус при натисканні.</translation>
+    </message>
+    <message>
+        <source>Text shown on the check box.</source>
+        <translation>Текст, що відображається на прапорці.</translation>
+    </message>
+    <message>
+        <source>Column</source>
+        <translation>Стовпець</translation>
+    </message>
+    <message>
+        <source>Combo Box</source>
+        <translation>Випадаючий список</translation>
+    </message>
+    <message>
+        <source>Determines whether the combobox gets focus if pressed.</source>
+        <translation>Визначає, чи випадаючий список отримає фокус при натисканні.</translation>
+    </message>
+    <message>
+        <source>Behavior</source>
+        <translation>Поведінка</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation>Шрифт</translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation>Стиль</translation>
+    </message>
+    <message>
+        <source>Geometry</source>
+        <translation>Геометрів</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>Положення</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>Стовпці</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>Рядки</translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation>Сітка</translation>
+    </message>
+    <message>
+        <source>Cache</source>
+        <translation>Кеш</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Діапазон</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Тип</translation>
+    </message>
+    <message>
+        <source>id</source>
+        <translation>id</translation>
+    </message>
+    <message>
+        <source>List View</source>
+        <translation>Список</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation>Орієнтація</translation>
+    </message>
+    <message>
+        <source>Mouse Area</source>
+        <translation>Область миші</translation>
+    </message>
+    <message>
+        <source>Item count</source>
+        <translation>Кількість елементів</translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation>Радіус</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Значення</translation>
+    </message>
+    <message>
+        <source>Wrap mode</source>
+        <translation>Режим переносу</translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation>Вирівнювання</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Формат</translation>
+    </message>
+    <message>
+        <source>Read only</source>
+        <translation>Лише для читання</translation>
+    </message>
+    <message>
+        <source>Determines whether the text area gets focus if pressed.</source>
+        <translation>Визначає, чи прапорець отримає фокус при натисканні.</translation>
+    </message>
+    <message>
+        <source>Text Field</source>
+        <translation>Текстове поле</translation>
+    </message>
+    <message>
+        <source>Flags</source>
+        <translation>Прапорці</translation>
     </message>
 </context>
 <context>
@@ -36483,10 +36381,6 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
 <context>
     <name>SliderSpecifics</name>
     <message>
-        <source>Value</source>
-        <translation>Значення</translation>
-    </message>
-    <message>
         <source>Current value of the Slider. The default value is 0.0.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -36505,10 +36399,6 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
     <message>
         <source>Minimum value of the slider. The default value is 0.0.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Орієнтація</translation>
     </message>
     <message>
         <source>Layout orientation of the slider.</source>
@@ -36552,10 +36442,6 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
     <message>
         <source>Split View</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Орієнтація</translation>
     </message>
     <message>
         <source>Orientation of the split view.</source>
@@ -41439,22 +41325,6 @@ Output:
 <context>
     <name>ApplicationWindowSpecifics</name>
     <message>
-        <source>Window</source>
-        <translation>Вікно</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Заголовок</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Розмір</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Колір</translation>
-    </message>
-    <message>
         <source>Visible</source>
         <translation type="unfinished"></translation>
     </message>
@@ -41548,14 +41418,6 @@ the program.</source>
     <message>
         <source>GridLayout</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation>Стовпці</translation>
-    </message>
-    <message>
-        <source>Rows</source>
-        <translation>Рядки</translation>
     </message>
     <message>
         <source>Flow</source>

@@ -8,6 +8,7 @@ this file manually, you might introduce QML code that is not supported by Qt Des
 Check out https://doc.qt.io/qtcreator/creator-quick-ui-forms.html for details on .ui.qml files.
 */
 
+pragma Translator: "QtC::QmlProjectManager"
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
@@ -19,8 +20,8 @@ Rectangle {
 
     property bool qdsInstalled: qdsVersionText.text.length > 0
     property bool projectFileExists: false
-    property string qtVersion: qsTranslate("QtC::QmlProjectManager", "Unknown")
-    property string qdsVersion: qsTranslate("QtC::QmlProjectManager", "Unknown")
+    property string qtVersion: qsTr("Unknown")
+    property string qdsVersion: qsTr("Unknown")
     property alias generateProjectFileButton: generateProjectFileButton
 
     color: Theme.Colors.backgroundSecondary
@@ -41,7 +42,7 @@ Rectangle {
         PageText {
             id: projectFileInfoTitle
             width: parent.width
-            text: qsTranslate("QtC::QmlProjectManager", "QML PROJECT FILE INFO")
+            text: qsTr("QML PROJECT FILE INFO")
         }
 
         Column {
@@ -53,14 +54,14 @@ Rectangle {
                 id: qtVersionText
                 width: parent.width
                 padding: Theme.Values.spacing
-                text: qsTranslate("QtC::QmlProjectManager", "Qt Version - %1").arg(root.qtVersion)
+                text: qsTr("Qt Version - %1").arg(root.qtVersion)
             }
 
             PageText {
                 id: qdsVersionText
                 width: parent.width
                 padding: Theme.Values.spacing
-                text: qsTranslate("QtC::QmlProjectManager", "Qt Design Studio Version - %1").arg(root.qdsVersion)
+                text: qsTr("Qt Design Studio Version - %1").arg(root.qdsVersion)
             }
         }
 
@@ -73,12 +74,12 @@ Rectangle {
                 id: projectFileInfoMissingText
                 width: parent.width
                 padding: Theme.Values.spacing
-                text: qsTranslate("QtC::QmlProjectManager", "No QML project file found - Would you like to create one?")
+                text: qsTr("No QML project file found - Would you like to create one?")
             }
 
             PushButton {
                 id: generateProjectFileButton
-                text: qsTranslate("QtC::QmlProjectManager", "Generate")
+                text: qsTr("Generate")
                 anchors.horizontalCenter: parent.horizontalCenter
             }
         }

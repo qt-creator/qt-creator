@@ -32,6 +32,149 @@
     </message>
 </context>
 <context>
+    <name>QtC::QmlDesigner</name>
+    <message>
+        <source>Source</source>
+        <translation>來源</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>左端</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>右端</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>頂部</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>底部</translation>
+    </message>
+    <message>
+        <source>Flow</source>
+        <translation>流程</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>間距</translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation>格</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>欄</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>列</translation>
+    </message>
+    <message>
+        <source>Grid View</source>
+        <translation>格狀檢視</translation>
+    </message>
+    <message>
+        <source>Cache</source>
+        <translation>快取</translation>
+    </message>
+    <message>
+        <source>Navigation wraps</source>
+        <translation type="unfinished">導航躍遷</translation>
+    </message>
+    <message>
+        <source>Snap mode</source>
+        <translation type="unfinished">頁面模式</translation>
+    </message>
+    <message>
+        <source>Grid View Highlight</source>
+        <translation>網格檢視突顯</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>範圍</translation>
+    </message>
+    <message>
+        <source>Move duration</source>
+        <translation>移動持續時間</translation>
+    </message>
+    <message>
+        <source>Preferred begin</source>
+        <translation>預設起始</translation>
+    </message>
+    <message>
+        <source>Preferred end</source>
+        <translation>預設結束</translation>
+    </message>
+    <message>
+        <source>Follows current</source>
+        <translation>跟隨目前</translation>
+    </message>
+    <message>
+        <source>List View</source>
+        <translation>列表檢視</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation>方向</translation>
+    </message>
+    <message>
+        <source>List View Highlight</source>
+        <translation>列表檢視突顯</translation>
+    </message>
+    <message>
+        <source>Resize duration</source>
+        <translation>調整大小持續時間</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>已啟用</translation>
+    </message>
+    <message>
+        <source>Path View</source>
+        <translation>路徑檢視</translation>
+    </message>
+    <message>
+        <source>Drag margin</source>
+        <translation>拖曳邊界</translation>
+    </message>
+    <message>
+        <source>Flick deceleration</source>
+        <translation>搖動減速</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>位移</translation>
+    </message>
+    <message>
+        <source>Item count</source>
+        <translation>項目計數</translation>
+    </message>
+    <message>
+        <source>Path View Highlight</source>
+        <translation>路徑檢視突顯</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>矩形</translation>
+    </message>
+    <message>
+        <source>Border width</source>
+        <translation>邊框寬度</translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation>半徑</translation>
+    </message>
+    <message>
+        <source>Row</source>
+        <translation>列</translation>
+    </message>
+</context>
+<context>
     <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
@@ -13984,28 +14127,8 @@ Ids must begin with a lowercase letter.</source>
 <context>
     <name>BorderImageSpecifics</name>
     <message>
-        <source>Source</source>
-        <translation>來源</translation>
-    </message>
-    <message>
         <source>BorderImage</source>
         <translation>邊界圖片</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation>左端</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation>右端</translation>
-    </message>
-    <message>
-        <source>Top</source>
-        <translation>頂部</translation>
-    </message>
-    <message>
-        <source>Bottom</source>
-        <translation>底部</translation>
     </message>
 </context>
 <context>
@@ -14189,24 +14312,12 @@ Ids must begin with a lowercase letter.</source>
 <context>
     <name>RectangleSpecifics</name>
     <message>
-        <source>Rectangle</source>
-        <translation>矩形</translation>
-    </message>
-    <message>
-        <source>Border width</source>
-        <translation>邊框寬度</translation>
-    </message>
-    <message>
         <source>Border has to be solid to change width</source>
         <translation>邊框必須是實線才能改變寬度</translation>
     </message>
     <message>
         <source>Border</source>
         <translation>邊框</translation>
-    </message>
-    <message>
-        <source>Radius</source>
-        <translation>半徑</translation>
     </message>
 </context>
 <context>
@@ -22529,49 +22640,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>FlowSpecifics</name>
-    <message>
-        <source>Flow</source>
-        <translation>流程</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>間距</translation>
-    </message>
-</context>
-<context>
-    <name>GridSpecifics</name>
-    <message>
-        <source>Grid</source>
-        <translation>格</translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation>欄</translation>
-    </message>
-    <message>
-        <source>Rows</source>
-        <translation>列</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>流程</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>間距</translation>
-    </message>
-</context>
-<context>
     <name>GridViewSpecifics</name>
-    <message>
-        <source>Grid View</source>
-        <translation>格狀檢視</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>快取</translation>
-    </message>
     <message>
         <source>Cache buffer</source>
         <translation>快取暫存區</translation>
@@ -22585,40 +22654,16 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <translation>儲存格寬度</translation>
     </message>
     <message>
-        <source>Flow</source>
-        <translation>流程</translation>
-    </message>
-    <message>
-        <source>Navigation wraps</source>
-        <translation type="unfinished">導航躍遷</translation>
-    </message>
-    <message>
         <source>Determines whether the grid wraps key navigation.</source>
         <translation type="unfinished">決定框架的按鍵導航.</translation>
-    </message>
-    <message>
-        <source>Snap mode</source>
-        <translation type="unfinished">頁面模式</translation>
     </message>
     <message>
         <source>Determines how the view scrolling will settle following a drag or flick.</source>
         <translation type="unfinished">決定視圖如何滾動,拖拽或是輕擊.</translation>
     </message>
     <message>
-        <source>Grid View Highlight</source>
-        <translation>網格檢視突顯</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>範圍</translation>
-    </message>
-    <message>
         <source>Highlight range</source>
         <translation>突顯範圍</translation>
-    </message>
-    <message>
-        <source>Move duration</source>
-        <translation>移動持續時間</translation>
     </message>
     <message>
         <source>Move animation duration of the highlight delegate.</source>
@@ -22633,24 +22678,12 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <translation type="unfinished">高亮代表移動動畫的速度.</translation>
     </message>
     <message>
-        <source>Preferred begin</source>
-        <translation>預設起始</translation>
-    </message>
-    <message>
         <source>Preferred highlight begin - must be smaller than Preferred end.</source>
         <translation type="unfinished">首選高亮起始-必須比首選結束數值要小.</translation>
     </message>
     <message>
-        <source>Preferred end</source>
-        <translation>預設結束</translation>
-    </message>
-    <message>
         <source>Preferred highlight end - must be larger than Preferred begin.</source>
         <translation type="unfinished">首選高亮結束-必須比首選起始數值要大.</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>跟隨目前</translation>
     </message>
     <message>
         <source>Determines whether the highlight is managed by the view.</source>
@@ -22667,64 +22700,28 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
 <context>
     <name>ListViewSpecifics</name>
     <message>
-        <source>List View</source>
-        <translation>列表檢視</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>快取</translation>
-    </message>
-    <message>
         <source>Cache buffer</source>
         <translation>快取暫存區</translation>
-    </message>
-    <message>
-        <source>Navigation wraps</source>
-        <translation type="unfinished">導航躍遷</translation>
     </message>
     <message>
         <source>Determines whether the grid wraps key navigation.</source>
         <translation type="unfinished">決定框架的按鍵導航.</translation>
     </message>
     <message>
-        <source>Orientation</source>
-        <translation>方向</translation>
-    </message>
-    <message>
         <source>Orientation of the list.</source>
         <translation>列表方向。</translation>
-    </message>
-    <message>
-        <source>Snap mode</source>
-        <translation type="unfinished">頁面模式</translation>
     </message>
     <message>
         <source>Determines how the view scrolling will settle following a drag or flick.</source>
         <translation type="unfinished">決定視圖如何滾動,拖拽還是輕點.</translation>
     </message>
     <message>
-        <source>Spacing</source>
-        <translation>間距</translation>
-    </message>
-    <message>
         <source>Spacing between items.</source>
         <translation>項目之間的間距。</translation>
     </message>
     <message>
-        <source>List View Highlight</source>
-        <translation>列表檢視突顯</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>範圍</translation>
-    </message>
-    <message>
         <source>Highlight range</source>
         <translation>突顯範圍</translation>
-    </message>
-    <message>
-        <source>Move duration</source>
-        <translation>移動持續時間</translation>
     </message>
     <message>
         <source>Move animation duration of the highlight delegate.</source>
@@ -22739,10 +22736,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <translation type="unfinished">高亮代表移動動畫的速度.</translation>
     </message>
     <message>
-        <source>Resize duration</source>
-        <translation>調整大小持續時間</translation>
-    </message>
-    <message>
         <source>Resize animation duration of the highlight delegate.</source>
         <translation type="unfinished">調整高亮代表的動畫移動.</translation>
     </message>
@@ -22755,24 +22748,12 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <translation type="unfinished">調整高亮代表的動畫速度.</translation>
     </message>
     <message>
-        <source>Preferred begin</source>
-        <translation>預設起始</translation>
-    </message>
-    <message>
         <source>Preferred highlight begin - must be smaller than Preferred end.</source>
         <translation type="unfinished">首選高亮起始-必須比首選結束數值要小.</translation>
     </message>
     <message>
-        <source>Preferred end</source>
-        <translation>預設結束</translation>
-    </message>
-    <message>
         <source>Preferred highlight end - must be larger than Preferred begin.</source>
         <translation type="unfinished">首選高亮結束-必須比首選起始數值要大.</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>跟隨目前</translation>
     </message>
     <message>
         <source>Determines whether the highlight is managed by the view.</source>
@@ -22784,10 +22765,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     <message>
         <source>MouseArea</source>
         <translation>滑鼠區域</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>已啟用</translation>
     </message>
     <message>
         <source>This property holds whether the item accepts mouse events.</source>
@@ -22805,68 +22782,28 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
 <context>
     <name>PathViewSpecifics</name>
     <message>
-        <source>Path View</source>
-        <translation>路徑檢視</translation>
-    </message>
-    <message>
-        <source>Drag margin</source>
-        <translation>拖曳邊界</translation>
-    </message>
-    <message>
-        <source>Flick deceleration</source>
-        <translation>搖動減速</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>跟隨目前</translation>
-    </message>
-    <message>
         <source>A user cannot drag or flick a PathView that is not interactive.</source>
         <translation type="unfinished">使用者不可以拖拽或點擊一個不是交互式類型的路徑視圖.</translation>
-    </message>
-    <message>
-        <source>Offset</source>
-        <translation>位移</translation>
     </message>
     <message>
         <source>Specifies how far along the path the items are from their initial positions. This is a real number that ranges from 0.0 to the count of items in the model.</source>
         <translation type="unfinished">指定項最遠離初始位置的路徑.這是一個浮點數,範圍從0.0到模型中項的數量.</translation>
     </message>
     <message>
-        <source>Item count</source>
-        <translation>項目計數</translation>
-    </message>
-    <message>
         <source>pathItemCount: number of items visible on the path at any one time.</source>
         <translation type="unfinished">pathItemCount: 任何時間內可見項的數量.</translation>
-    </message>
-    <message>
-        <source>Path View Highlight</source>
-        <translation>路徑檢視突顯</translation>
     </message>
     <message>
         <source>Highlight range</source>
         <translation>突顯範圍</translation>
     </message>
     <message>
-        <source>Move duration</source>
-        <translation>移動持續時間</translation>
-    </message>
-    <message>
         <source>Move animation duration of the highlight delegate.</source>
         <translation type="unfinished">高亮代表移動動畫的持續時間.</translation>
     </message>
     <message>
-        <source>Preferred begin</source>
-        <translation>預設起始</translation>
-    </message>
-    <message>
         <source>Preferred highlight begin - must be smaller than Preferred end.</source>
         <translation type="unfinished">首選高亮起始-必須比首選結束數值要小.</translation>
-    </message>
-    <message>
-        <source>Preferred end</source>
-        <translation>預設結束</translation>
     </message>
     <message>
         <source>Preferred highlight end - must be larger than Preferred begin.</source>
@@ -22875,17 +22812,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     <message>
         <source>Determines whether the highlight is managed by the view.</source>
         <translation type="unfinished">決定高亮是否需要由視圖來管理.</translation>
-    </message>
-</context>
-<context>
-    <name>RowSpecifics</name>
-    <message>
-        <source>Row</source>
-        <translation>列</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>間距</translation>
     </message>
 </context>
 <context>

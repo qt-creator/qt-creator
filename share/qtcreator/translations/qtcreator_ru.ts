@@ -234,52 +234,16 @@
 <context>
     <name>AdvancedSection</name>
     <message>
-        <source>Advanced</source>
-        <translation>Дополнительно</translation>
-    </message>
-    <message>
-        <source>Origin</source>
-        <translation>Происхождение</translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>Масштаб</translation>
-    </message>
-    <message>
-        <source>Rotation</source>
-        <translation>Вращение</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation>Состояние</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Включено</translation>
-    </message>
-    <message>
         <source>Accept mouse and keyboard events</source>
         <translation>Принимать события мыши и клавиатуры</translation>
-    </message>
-    <message>
-        <source>Smooth</source>
-        <translation>Сглаживание</translation>
     </message>
     <message>
         <source>Smooth sampling active</source>
         <translation>Включение сглаживания</translation>
     </message>
     <message>
-        <source>Antialiasing</source>
-        <translation>Антиалиасинг</translation>
-    </message>
-    <message>
         <source>Anti-aliasing active</source>
         <translation>Включение антиалиасинга</translation>
-    </message>
-    <message>
-        <source>Focus</source>
-        <translation>Фокус</translation>
     </message>
     <message>
         <source>Holds whether the item has focus within the enclosing FocusScope.</source>
@@ -292,10 +256,6 @@
     <message>
         <source>Holds whether the item wants to be in the tab focus chain.</source>
         <translation>Устанавливает, стремится ли элемент быть в цепочке фокуса вкладки.</translation>
-    </message>
-    <message>
-        <source>Baseline offset</source>
-        <translation>Смещение базовой линии</translation>
     </message>
     <message>
         <source>Specifies the position of the item&apos;s baseline in local coordinates.</source>
@@ -311,82 +271,6 @@
     <message>
         <source>Align objects</source>
         <translation>Выравнивание объектов</translation>
-    </message>
-    <message>
-        <source>Align left edges.</source>
-        <translation>Выравнивание по левому краю.</translation>
-    </message>
-    <message>
-        <source>Align horizontal centers.</source>
-        <translation>Выравнивание по горизонтальному центру.</translation>
-    </message>
-    <message>
-        <source>Align right edges.</source>
-        <translation>Выравнивание по правому краю.</translation>
-    </message>
-    <message>
-        <source>Align top edges.</source>
-        <translation>Выравнивание по верхнему краю.</translation>
-    </message>
-    <message>
-        <source>Align vertical centers.</source>
-        <translation>Выравнивание по вертикальному центру.</translation>
-    </message>
-    <message>
-        <source>Align bottom edges.</source>
-        <translation>Выравнивание по нижнему краю.</translation>
-    </message>
-    <message>
-        <source>Distribute objects</source>
-        <translation>Растягивание объектов</translation>
-    </message>
-    <message>
-        <source>Distribute left edges.</source>
-        <translation>Растягивание по левому краю.</translation>
-    </message>
-    <message>
-        <source>Distribute horizontal centers.</source>
-        <translation>Растягивание по горизонтальному центру.</translation>
-    </message>
-    <message>
-        <source>Distribute right edges.</source>
-        <translation>Растягивание по правому краю.</translation>
-    </message>
-    <message>
-        <source>Distribute top edges.</source>
-        <translation>Растягивание по верхнему краю.</translation>
-    </message>
-    <message>
-        <source>Distribute vertical centers.</source>
-        <translation>Растягивание по вертикальному центру.</translation>
-    </message>
-    <message>
-        <source>Distribute bottom edges.</source>
-        <translation>Растягивание по нижнему краю.</translation>
-    </message>
-    <message>
-        <source>Distribute spacing</source>
-        <translation>Растягивание интервалов</translation>
-    </message>
-    <message>
-        <source>Distribute spacing horizontally.</source>
-        <translation>Растягивать интервалы горизонтально.</translation>
-    </message>
-    <message>
-        <source>Distribute spacing vertically.</source>
-        <translation>Растягивать интервалы вертикально.</translation>
-    </message>
-    <message>
-        <source>Align to</source>
-        <translation>Выровнять по</translation>
-    </message>
-    <message>
-        <source>Key object</source>
-        <translation>Ключевой объект</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Предупреждение</translation>
     </message>
     <message>
         <source>- The selection contains the root item.</source>
@@ -437,41 +321,6 @@
     <message>
         <source>Anchor item horizontally.</source>
         <translation>Горизонтальная привязка элемента.</translation>
-    </message>
-</context>
-<context>
-    <name>AnchorRow</name>
-    <message>
-        <source>Target</source>
-        <translation>Цель</translation>
-    </message>
-    <message>
-        <source>Margin</source>
-        <translation>Внешний отступ</translation>
-    </message>
-    <message>
-        <source>Anchor to the top of the target.</source>
-        <translation>Привязка к верхнему краю цели.</translation>
-    </message>
-    <message>
-        <source>Anchor to the left of the target.</source>
-        <translation>Привязка к левому краю цели.</translation>
-    </message>
-    <message>
-        <source>Anchor to the vertical center of the target.</source>
-        <translation>Привязка к вертикальному центру цели.</translation>
-    </message>
-    <message>
-        <source>Anchor to the horizontal center of the target.</source>
-        <translation>Привязка к горизонтальному центру цели.</translation>
-    </message>
-    <message>
-        <source>Anchor to the bottom of the target.</source>
-        <translation>Привязка к нижнему краю цели.</translation>
-    </message>
-    <message>
-        <source>Anchor to the right of the target.</source>
-        <translation>Привязка к правому краю цели.</translation>
     </message>
 </context>
 <context>
@@ -2188,20 +2037,8 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <translation>Анимированное изображение</translation>
     </message>
     <message>
-        <source>Speed</source>
-        <translation>Скорость</translation>
-    </message>
-    <message>
-        <source>Paused</source>
-        <translation>Приостановлено</translation>
-    </message>
-    <message>
         <source>Holds whether the animated image is paused.</source>
         <translation>Определяет, приостановлено ли анимированное изображение.</translation>
-    </message>
-    <message>
-        <source>Playing</source>
-        <translation>Воспроизводится</translation>
     </message>
     <message>
         <source>Holds whether the animated image is playing.</source>
@@ -2211,20 +2048,8 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
 <context>
     <name>AnimationSection</name>
     <message>
-        <source>Animation</source>
-        <translation>Анимация</translation>
-    </message>
-    <message>
-        <source>Running</source>
-        <translation>Запущена</translation>
-    </message>
-    <message>
         <source>Sets whether the animation should run to completion when it is stopped.</source>
         <translation>Определяет, должна ли анимация доигрываться до конца при остановке.</translation>
-    </message>
-    <message>
-        <source>Paused</source>
-        <translation>Приостановлена</translation>
     </message>
     <message>
         <source>Sets whether the animation is currently running.</source>
@@ -2235,16 +2060,8 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <translation>Определяет, приостановлена ли анимация.</translation>
     </message>
     <message>
-        <source>Loops</source>
-        <translation>Повторы</translation>
-    </message>
-    <message>
         <source>Sets the number of times the animation should play.</source>
         <translation>Задаёт количество проигрываний анимации.</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>Длительность</translation>
     </message>
     <message>
         <source>Sets the duration of the animation, in milliseconds.</source>
@@ -2266,28 +2083,12 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
 <context>
     <name>AnimationTargetSection</name>
     <message>
-        <source>Animation Targets</source>
-        <translation>Цели анимации</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation>Цель</translation>
-    </message>
-    <message>
         <source>Sets the target to animate the properties of.</source>
         <translation>Цель, свойства которой будут анимированы.</translation>
     </message>
     <message>
-        <source>Property</source>
-        <translation>Свойство</translation>
-    </message>
-    <message>
         <source>Sets the property to animate.</source>
         <translation>Анимируемое свойство.</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Свойства</translation>
     </message>
     <message>
         <source>Sets the properties to animate.</source>
@@ -2315,33 +2116,6 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
     <message>
         <source>Core plugin is disabled.</source>
         <translation>Базовый модуль отключён.</translation>
-    </message>
-</context>
-<context>
-    <name>ApplicationWindowSpecifics</name>
-    <message>
-        <source>Window</source>
-        <translation>Окно</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Заголовок</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Размер</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Цвет</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation>Видимость</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Непрозрачность</translation>
     </message>
 </context>
 <context>
@@ -5100,14 +4874,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
 <context>
     <name>BorderImageSpecifics</name>
     <message>
-        <source>Border Image</source>
-        <translation>Изображение рамки</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>Источник</translation>
-    </message>
-    <message>
         <source>Border Left</source>
         <translation>Левая рамка</translation>
     </message>
@@ -5132,40 +4898,20 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <translation>Режим вертикальной плитки</translation>
     </message>
     <message>
-        <source>Mirror</source>
-        <translation>Отражать</translation>
-    </message>
-    <message>
         <source>Specifies whether the image should be horizontally inverted.</source>
         <translation>Указывает, должно ли изображение быть отражено по горизонтали.</translation>
-    </message>
-    <message>
-        <source>Smooth</source>
-        <translation>Сглаживание</translation>
     </message>
     <message>
         <source>Specifies whether the image is smoothly filtered when scaled or transformed.</source>
         <translation>Указывает, должно ли изображение гладко масштабироваться или преобразовываться.</translation>
     </message>
     <message>
-        <source>Cache</source>
-        <translation>Кэш</translation>
-    </message>
-    <message>
         <source>Specifies whether the image should be cached.</source>
         <translation>Указывает, должно ли изображение кэшироваться.</translation>
     </message>
     <message>
-        <source>Asynchronous</source>
-        <translation>Асинхронно</translation>
-    </message>
-    <message>
         <source>Specifies that images on the local filesystem should be loaded asynchronously in a separate thread.</source>
         <translation>Указывает, что изображения с локальной файловой системы должны загружаться асинхронно в отдельном потоке.</translation>
-    </message>
-    <message>
-        <source>Source size</source>
-        <translation>Размер источника</translation>
     </message>
 </context>
 <context>
@@ -5180,77 +4926,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     <message>
         <source>Build Settings</source>
         <translation>Настройки сборки</translation>
-    </message>
-</context>
-<context>
-    <name>ButtonSpecifics</name>
-    <message>
-        <source>Button</source>
-        <translation>Кнопка</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Текст</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>Взведена</translation>
-    </message>
-    <message>
-        <source>Text displayed on the button.</source>
-        <translation>Текст, отображаемый на кнопке.</translation>
-    </message>
-    <message>
-        <source>State of the button.</source>
-        <translation>Состояние кнопки.</translation>
-    </message>
-    <message>
-        <source>Checkable</source>
-        <translation>Взводима</translation>
-    </message>
-    <message>
-        <source>Determines whether the button is checkable or not.</source>
-        <translation>Определяет, является ли кнопка взводимой или нет.</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Включена</translation>
-    </message>
-    <message>
-        <source>Determines whether the button is enabled or not.</source>
-        <translation>Определяет, включена ли кнопка или нет.</translation>
-    </message>
-    <message>
-        <source>Default button</source>
-        <translation>Кнопка по умолчанию</translation>
-    </message>
-    <message>
-        <source>Sets the button as the default button in a dialog.</source>
-        <translation>Делает кнопку в диалоге выбранной по умолчанию.</translation>
-    </message>
-    <message>
-        <source>Tool tip</source>
-        <translation>Подсказка</translation>
-    </message>
-    <message>
-        <source>The tool tip shown for the button.</source>
-        <translation>Подсказка, отображаемая для кнопки.</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Фокус при нажатии</translation>
-    </message>
-    <message>
-        <source>Determines whether the button gets focus if pressed.</source>
-        <translation>Определяет, получает ли кнопка фокус при нажатии или нет.</translation>
-    </message>
-    <message>
-        <source>Icon source</source>
-        <translation>Источник значка</translation>
-    </message>
-    <message>
-        <source>The URL of an icon resource.</source>
-        <translation>URL ресурса значка.</translation>
     </message>
 </context>
 <context>
@@ -6156,37 +5831,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     <message>
         <source>Change style for Qt Quick Controls 2. Configuration file qtquickcontrols2.conf not found.</source>
         <translation>Смена стиля Qt Quick Controls 2. Файл настройки qtquickcontrols2.conf не найден.</translation>
-    </message>
-</context>
-<context>
-    <name>CheckBoxSpecifics</name>
-    <message>
-        <source>Check Box</source>
-        <translation>Флажок</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Текст</translation>
-    </message>
-    <message>
-        <source>Text shown on the check box.</source>
-        <translation>Текст, отображаемый у флажка.</translation>
-    </message>
-    <message>
-        <source>State of the check box.</source>
-        <translation>Состояние флажка.</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>Взведён</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Фокус при нажатии</translation>
-    </message>
-    <message>
-        <source>Determines whether the check box gets focus if pressed.</source>
-        <translation>Определяет, получает ли флажок фокус при нажатии или нет.</translation>
     </message>
 </context>
 <context>
@@ -7803,32 +7447,6 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ColumnSpecifics</name>
-    <message>
-        <source>Column</source>
-        <translation>Столбец</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Интервал</translation>
-    </message>
-</context>
-<context>
-    <name>ComboBoxSpecifics</name>
-    <message>
-        <source>Combo Box</source>
-        <translation>Поле с выпадающим списком</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Фокус при нажатии</translation>
-    </message>
-    <message>
-        <source>Determines whether the combobox gets focus if pressed.</source>
-        <translation>Определяет, получает ли выпадающий список фокус при нажатии или нет.</translation>
-    </message>
-</context>
-<context>
     <name>CommandBuilder</name>
     <message>
         <source>CMake</source>
@@ -7860,28 +7478,12 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ConnectionsSpecifics</name>
     <message>
-        <source>Connections</source>
-        <translation>Соединения</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Включено</translation>
-    </message>
-    <message>
         <source>Sets whether the item accepts change events.</source>
         <translation>Определяет, принимает ли элемент события изменений.</translation>
     </message>
     <message>
-        <source>Ignore unknown signals</source>
-        <translation>Игнорировать неизвестные сигналы</translation>
-    </message>
-    <message>
         <source>A connection to a non-existent signal produces runtime errors. If this property is set to true, such errors are ignored</source>
         <translation>Подключение к несуществующему сигналу вызывает ошибки исполнения. При включении этого свойства такие ошибки будут игнорироваться</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation>Цель</translation>
     </message>
     <message>
         <source>Sets the object that sends the signal.</source>
@@ -17090,17 +16692,6 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>DialogSpecifics</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Диалог</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Заголовок</translation>
-    </message>
-</context>
-<context>
     <name>QtC::Utils</name>
     <message>
         <source>Delete</source>
@@ -17313,24 +16904,8 @@ Rebuilding the project might help.</source>
 <context>
     <name>DrawerSpecifics</name>
     <message>
-        <source>Drawer</source>
-        <translation>Рисовальщик</translation>
-    </message>
-    <message>
-        <source>Edge</source>
-        <translation>Край</translation>
-    </message>
-    <message>
-        <source>Defines the edge of the window the drawer will open from.</source>
-        <translation>Определяет край окна, от которого открывается рисовальщик.</translation>
-    </message>
-    <message>
         <source>Drag Margin</source>
         <translation>Зона перетаскивания</translation>
-    </message>
-    <message>
-        <source>Defines the distance from the screen edge within which drag actions will open the drawer.</source>
-        <translation>Определяет расстояние от края экрана, в пределах которого перетаскивание открывает рисовальщика.</translation>
     </message>
 </context>
 <context>
@@ -17529,25 +17104,6 @@ Rebuilding the project might help.</source>
     <message>
         <source>Choose Directory</source>
         <translation>Выбор каталога</translation>
-    </message>
-</context>
-<context>
-    <name>ExtendedFunctionLogic</name>
-    <message>
-        <source>Reset</source>
-        <translation>Сбросить</translation>
-    </message>
-    <message>
-        <source>Set Binding</source>
-        <translation>Создать привязку</translation>
-    </message>
-    <message>
-        <source>Export Property as Alias</source>
-        <translation>Экспортировать свойства как алиас</translation>
-    </message>
-    <message>
-        <source>Insert Keyframe</source>
-        <translation>Вставить ключевой кадр</translation>
     </message>
 </context>
 <context>
@@ -18377,17 +17933,9 @@ will also disable the following plugins:
 <context>
     <name>FlickableSection</name>
     <message>
-        <source>Flickable</source>
-        <translation>Flickable</translation>
-    </message>
-    <message>
         <source>Determines whether the surface may be dragged beyond the Flickable&apos;s boundaries, or overshoot the Flickable&apos;s boundaries when flicked.</source>
         <translatorcomment>Брр. Тут надо разбираться. Возможно, я дал неверный перевод для Flickable.</translatorcomment>
         <translation>Определяет, может ли поверхность перетаскиваться за пределы границ Flickable или перескакивать её при сдвиге.</translation>
-    </message>
-    <message>
-        <source>Movement</source>
-        <translation>Перемещение</translation>
     </message>
     <message>
         <source>Determines whether the Flickable will give a feeling that the edges of the view are soft, rather than a hard physical boundary.</source>
@@ -18398,24 +17946,12 @@ will also disable the following plugins:
         <translation>Определяет, может ли пользователь влиять на Flickable. Пользователь не может перетягивать или сдвигать Flickable, если он не интерактивен.</translation>
     </message>
     <message>
-        <source>Press delay</source>
-        <translation>Задержка нажатия</translation>
-    </message>
-    <message>
         <source>Holds the time to delay (ms) delivering a press to children of the Flickable.</source>
         <translation>Содержит задержку (мс) передачи нажатия дочерним элементам сдвигаемого.</translation>
     </message>
     <message>
-        <source>Pixel aligned</source>
-        <translation>Пиксельное выравнивание</translation>
-    </message>
-    <message>
         <source>Sets the alignment of contentX and contentY to pixels (true) or subpixels (false).</source>
         <translation>Определяет точность выравнивания contentX и contentY: пиксельную (true) или субпиксельную (false).</translation>
-    </message>
-    <message>
-        <source>Synchronous drag</source>
-        <translation>Синхронное перетаскивание</translation>
     </message>
     <message>
         <source>If set to true, then when the mouse or touchpoint moves far enough to begin dragging
@@ -18426,82 +17962,19 @@ cursor or touchpoint when pressed remains under that point.</source>
 относительно курсора.</translation>
     </message>
     <message>
-        <source>Content size</source>
-        <translation>Размер содержимого</translation>
-    </message>
-    <message>
-        <source>Content</source>
-        <translation>Содержимое</translation>
-    </message>
-    <message>
-        <source>Origin</source>
-        <translation>Происхождение</translation>
-    </message>
-    <message>
-        <source>Margins</source>
-        <translation>Внешние отступы</translation>
-    </message>
-    <message>
-        <source>Flick direction</source>
-        <translation>Направление сдвига</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>Поведение</translation>
-    </message>
-    <message>
-        <source>Interactive</source>
-        <translation>Интерактивность</translation>
-    </message>
-    <message>
-        <source>Max. velocity</source>
-        <translation>Макс. скорость</translation>
-    </message>
-    <message>
         <source>Maximum flick velocity</source>
         <translation>Максимальная скорость сдвига</translation>
-    </message>
-    <message>
-        <source>Deceleration</source>
-        <translation>Замедление</translation>
-    </message>
-    <message>
-        <source>Flick deceleration</source>
-        <translation>Замедление сдвига</translation>
-    </message>
-</context>
-<context>
-    <name>FlipableSpecifics</name>
-    <message>
-        <source>Flipable</source>
-        <translation>Зеркально отображаемо</translation>
     </message>
 </context>
 <context>
     <name>FlowSpecifics</name>
     <message>
-        <source>Flow</source>
-        <translation>Перетекание</translation>
-    </message>
-    <message>
         <source>Layout Direction</source>
         <translation>Направление компоновки</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Интервал</translation>
     </message>
 </context>
 <context>
     <name>FontSection</name>
-    <message>
-        <source>Font</source>
-        <translation>Шрифт</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Размер</translation>
-    </message>
     <message>
         <source>Font style</source>
         <translation>Начертание</translation>
@@ -18523,20 +17996,8 @@ cursor or touchpoint when pressed remains under that point.</source>
         <translation>Задание толщины шрифта.</translation>
     </message>
     <message>
-        <source>Style name</source>
-        <translation>Название стиля</translation>
-    </message>
-    <message>
         <source>Sets the font&apos;s style.</source>
         <translation>Задание стиля шрифта.</translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation>Стиль</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Интервал</translation>
     </message>
     <message>
         <source>Word</source>
@@ -18565,10 +18026,6 @@ cursor or touchpoint when pressed remains under that point.</source>
     <message>
         <source>Enables or disables the kerning OpenType feature when shaping the text. Disabling this may improve performance when creating or changing the text, at the expense of some cosmetic features. The default value is true.</source>
         <translation>Включает/выключает OpenType функцию кернинг при оформлении текста. Выключение её может повысить быстродействие при создании или изменении текста за счёт некоторых косметических деталей. По умолчанию включено.</translation>
-    </message>
-    <message>
-        <source>Prefer shaping</source>
-        <translation>Предпочитать оформление</translation>
     </message>
     <message>
         <source>Sometimes, a font will apply complex rules to a set of characters in order to display them correctly.
@@ -18777,21 +18234,6 @@ See also Google Test settings.</source>
     <message>
         <source>File Selection</source>
         <translation>Выбор файла</translation>
-    </message>
-</context>
-<context>
-    <name>GeometrySection</name>
-    <message>
-        <source>Geometry</source>
-        <translation>Геометрия</translation>
-    </message>
-    <message>
-        <source>Position</source>
-        <translation>Положение</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Размер</translation>
     </message>
 </context>
 <context>
@@ -21113,57 +20555,10 @@ Leave empty to search through the file system.</source>
     </message>
 </context>
 <context>
-    <name>GradientPresetList</name>
-    <message>
-        <source>Gradient Picker</source>
-        <translation>Пипетка градиента</translation>
-    </message>
-    <message>
-        <source>System Presets</source>
-        <translation>Системные заготовки</translation>
-    </message>
-    <message>
-        <source>User Presets</source>
-        <translation>Пользовательские заготовки</translation>
-    </message>
-    <message>
-        <source>Delete preset?</source>
-        <translation>Удаление заготовки</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to delete this preset?</source>
-        <translation>Удалить эту заготовку?</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Закрыть</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Сохранить</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation>Применить</translation>
-    </message>
-</context>
-<context>
     <name>GridLayoutSpecifics</name>
     <message>
         <source>GridLayout</source>
         <translation>GridLayout</translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation>Столбцы</translation>
-    </message>
-    <message>
-        <source>Rows</source>
-        <translation>Строки</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>Перетекание</translation>
     </message>
     <message>
         <source>Layout Direction</source>
@@ -21181,22 +20576,6 @@ Leave empty to search through the file system.</source>
 <context>
     <name>GridSpecifics</name>
     <message>
-        <source>Grid</source>
-        <translation>Сетка</translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation>Столбцы</translation>
-    </message>
-    <message>
-        <source>Rows</source>
-        <translation>Строки</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>Перетекание</translation>
-    </message>
-    <message>
         <source>Layout Direction</source>
         <translation>Направление компоновки</translation>
     </message>
@@ -21208,21 +20587,9 @@ Leave empty to search through the file system.</source>
         <source>Vertical item alignment</source>
         <translation>Вертикальное выравнивание элемента</translation>
     </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Интервал</translation>
-    </message>
 </context>
 <context>
     <name>GridViewSpecifics</name>
-    <message>
-        <source>Grid View</source>
-        <translation>Табличный вид</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>Кэш</translation>
-    </message>
     <message>
         <source>Cache buffer</source>
         <translation>Буфер кэша</translation>
@@ -21230,14 +20597,6 @@ Leave empty to search through the file system.</source>
     <message>
         <source>Cell Size</source>
         <translation>Размер ячейки</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>Перетекание</translation>
-    </message>
-    <message>
-        <source>Navigation wraps</source>
-        <translation>Перенос при перемещениях</translation>
     </message>
     <message>
         <source>Determines whether the grid wraps key navigation.</source>
@@ -21248,28 +20607,12 @@ Leave empty to search through the file system.</source>
         <translation>Направление компоновки</translation>
     </message>
     <message>
-        <source>Snap mode</source>
-        <translation>Режим притягивания</translation>
-    </message>
-    <message>
         <source>Determines how the view scrolling will settle following a drag or flick.</source>
         <translation>Определяет метод выполнения прокрутки ― перетаскиванием или толканием.</translation>
     </message>
     <message>
-        <source>Grid View Highlight</source>
-        <translation>Подсветка табличного вида</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>Диапазон</translation>
-    </message>
-    <message>
         <source>Highlight range</source>
         <translation>Диапазон подсветки</translation>
-    </message>
-    <message>
-        <source>Move duration</source>
-        <translation>Продолжительность перемещения</translation>
     </message>
     <message>
         <source>Move animation duration of the highlight delegate.</source>
@@ -21284,24 +20627,12 @@ Leave empty to search through the file system.</source>
         <translation>Скорость анимации перемещения делегата подсветки.</translation>
     </message>
     <message>
-        <source>Preferred begin</source>
-        <translation>Предпочтительное начало</translation>
-    </message>
-    <message>
         <source>Preferred highlight begin - must be smaller than Preferred end.</source>
         <translation>Предпочтительное начало должно быть меньше предпочтительного окончания.</translation>
     </message>
     <message>
-        <source>Preferred end</source>
-        <translation>Предпочтительное окончание</translation>
-    </message>
-    <message>
         <source>Preferred highlight end - must be larger than Preferred begin.</source>
         <translation>Предпочтительное окончание должно быть больше предпочтительного начала.</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>Управляется видом</translation>
     </message>
     <message>
         <source>Determines whether the highlight is managed by the view.</source>
@@ -23167,25 +22498,10 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>ItemFilterComboBox</name>
-    <message>
-        <source>[None]</source>
-        <translation>[нет]</translation>
-    </message>
-</context>
-<context>
     <name>ItemPane</name>
-    <message>
-        <source>Type</source>
-        <translation>Тип</translation>
-    </message>
     <message>
         <source>Change the type of this item.</source>
         <translation>Меняет тип этого элемента.</translation>
-    </message>
-    <message>
-        <source>id</source>
-        <translation>идентификатор</translation>
     </message>
     <message>
         <source>Toggles whether this item is exported as an alias property of the root item.</source>
@@ -23200,32 +22516,8 @@ Error: %5</translation>
         <translation>customId</translation>
     </message>
     <message>
-        <source>Add Annotation</source>
-        <translation>Добавить аннотацию</translation>
-    </message>
-    <message>
-        <source>Visibility</source>
-        <translation>Видимость</translation>
-    </message>
-    <message>
         <source>Is Visible</source>
         <translation>Виден</translation>
-    </message>
-    <message>
-        <source>Clip</source>
-        <translation>Обрезка</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Непрозрачность</translation>
-    </message>
-    <message>
-        <source>Layout</source>
-        <translation>Компоновка</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation>Дополнительно</translation>
     </message>
 </context>
 <context>
@@ -23287,13 +22579,6 @@ Error: %5</translation>
     <message>
         <source>KEIL</source>
         <translation>KEIL</translation>
-    </message>
-</context>
-<context>
-    <name>Label</name>
-    <message>
-        <source>This property is not available in this configuration.</source>
-        <translation>Это свойство недоступно в этой конфигурации.</translation>
     </message>
 </context>
 <context>
@@ -23488,84 +22773,36 @@ Error: %5</translation>
 <context>
     <name>LayerSection</name>
     <message>
-        <source>Layer</source>
-        <translation>Слой</translation>
-    </message>
-    <message>
-        <source>Effect</source>
-        <translation>Эффект</translation>
-    </message>
-    <message>
         <source>Sets the effect that is applied to this layer.</source>
         <translation>Эффект применяемый к этому слою.</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Включено</translation>
     </message>
     <message>
         <source>Sets whether the item is layered or not.</source>
         <translation>Определяет, разбит элемент на слои или нет.</translation>
     </message>
     <message>
-        <source>Format</source>
-        <translation>Формат</translation>
-    </message>
-    <message>
         <source>Defines the internal OpenGL format of the texture.</source>
         <translation>Внутренний формат текстуры OpenGL.</translation>
-    </message>
-    <message>
-        <source>Mipmap</source>
-        <translation>Mipmap</translation>
     </message>
     <message>
         <source>Enables the generation of mipmaps for the texture.</source>
         <translation>Создание MIP-пирамиды для текстуры.</translation>
     </message>
     <message>
-        <source>Sampler name</source>
-        <translation>Имя семплера</translation>
-    </message>
-    <message>
-        <source>Sets the name of the effect&apos;s source texture property.</source>
-        <translation>Имя свойства исходной текстуры эффекта.</translation>
-    </message>
-    <message>
-        <source>Samples</source>
-        <translation>Семплы</translation>
-    </message>
-    <message>
         <source>Allows requesting multisampled rendering in the layer.</source>
         <translation>Позволяет запрашивать мультисэмплированную отрисовку в слое.</translation>
-    </message>
-    <message>
-        <source>Smooth</source>
-        <translation>Сглаживание</translation>
     </message>
     <message>
         <source>Sets whether the layer is smoothly transformed.</source>
         <translation>Плавное изменение слоя.</translation>
     </message>
     <message>
-        <source>Texture mirroring</source>
-        <translation>Отражение текстуры</translation>
-    </message>
-    <message>
         <source>Defines how the generated OpenGL texture should be mirrored.</source>
         <translation>Способ отражения созданной OpenGL текстуры.</translation>
     </message>
     <message>
-        <source>Texture size</source>
-        <translation>Размер текстуры</translation>
-    </message>
-    <message>
         <source>Sets the requested pixel size of the layers texture.</source>
         <translation>Требуемый пиксельный размер текстуры слоя.</translation>
-    </message>
-    <message>
-        <source>Wrap mode</source>
-        <translation>Режим переноса</translation>
     </message>
     <message>
         <source>Defines the OpenGL wrap modes associated with the texture.</source>
@@ -23640,41 +22877,14 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>LayoutSection</name>
-    <message>
-        <source>Layout</source>
-        <translation>Компоновка</translation>
-    </message>
-    <message>
-        <source>Anchors</source>
-        <translation>Привязки</translation>
-    </message>
-</context>
-<context>
     <name>ListViewSpecifics</name>
-    <message>
-        <source>List View</source>
-        <translation>Список</translation>
-    </message>
-    <message>
-        <source>Cache</source>
-        <translation>Кэш</translation>
-    </message>
     <message>
         <source>Cache buffer</source>
         <translation>Буфер кэша</translation>
     </message>
     <message>
-        <source>Navigation wraps</source>
-        <translation>Перенос при перемещениях</translation>
-    </message>
-    <message>
         <source>Determines whether the grid wraps key navigation.</source>
         <translation>Определяет, меняет ли сетка навигацию клавишами.</translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Ориентация</translation>
     </message>
     <message>
         <source>Orientation of the list.</source>
@@ -23685,36 +22895,16 @@ Error: %5</translation>
         <translation>Направление компоновки</translation>
     </message>
     <message>
-        <source>Snap mode</source>
-        <translation>Режим притягивания</translation>
-    </message>
-    <message>
         <source>Determines how the view scrolling will settle following a drag or flick.</source>
         <translation>Определяет метод выполнения прокрутки ― перетаскиванием или толканием.</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Интервал</translation>
     </message>
     <message>
         <source>Spacing between items.</source>
         <translation>Интервал между элементами.</translation>
     </message>
     <message>
-        <source>List View Highlight</source>
-        <translation>Подсветка списка</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>Диапазон</translation>
-    </message>
-    <message>
         <source>Highlight range</source>
         <translation>Диапазон подсветки</translation>
-    </message>
-    <message>
-        <source>Move duration</source>
-        <translation>Продолжительность перемещения</translation>
     </message>
     <message>
         <source>Move animation duration of the highlight delegate.</source>
@@ -23729,32 +22919,16 @@ Error: %5</translation>
         <translation>Скорость анимации перемещения делегата подсветки.</translation>
     </message>
     <message>
-        <source>Resize duration</source>
-        <translation>Продолжительность изменения размера</translation>
-    </message>
-    <message>
         <source>Resize animation duration of the highlight delegate.</source>
         <translation>Продолжительность анимации изменения размера делегата подсветки.</translation>
-    </message>
-    <message>
-        <source>Preferred begin</source>
-        <translation>Предпочтительное начало</translation>
     </message>
     <message>
         <source>Preferred highlight begin - must be smaller than Preferred end.</source>
         <translation>Предпочтительное начало должно быть меньше предпочтительного окончания.</translation>
     </message>
     <message>
-        <source>Preferred end</source>
-        <translation>Предпочтительное окончание</translation>
-    </message>
-    <message>
         <source>Preferred highlight end - must be larger than Preferred begin.</source>
         <translation>Предпочтительное окончание должно быть больше предпочтительного начала.</translation>
-    </message>
-    <message>
-        <source>Follows current</source>
-        <translation>Управляется видом</translation>
     </message>
     <message>
         <source>Determines whether the highlight is managed by the view.</source>
@@ -24136,61 +23310,6 @@ Error: %5</translation>
     <message>
         <source>Make</source>
         <translation>Make</translation>
-    </message>
-</context>
-<context>
-    <name>MarginSection</name>
-    <message>
-        <source>Margin</source>
-        <translation>Внешний отступ</translation>
-    </message>
-    <message>
-        <source>Vertical</source>
-        <translation>Вертикальные</translation>
-    </message>
-    <message>
-        <source>Top</source>
-        <translation>Сверху</translation>
-    </message>
-    <message>
-        <source>The margin above the item.</source>
-        <translation>Отступ сверху от элемента.</translation>
-    </message>
-    <message>
-        <source>Bottom</source>
-        <translation>Снизу</translation>
-    </message>
-    <message>
-        <source>The margin below the item.</source>
-        <translation>Отступ снизу от элемента.</translation>
-    </message>
-    <message>
-        <source>Horizontal</source>
-        <translation>Горизонтальные</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation>Слева</translation>
-    </message>
-    <message>
-        <source>The margin left of the item.</source>
-        <translation>Отступ слева от элемента.</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation>Справа</translation>
-    </message>
-    <message>
-        <source>The margin right of the item.</source>
-        <translation>Отступ справа от элемента.</translation>
-    </message>
-    <message>
-        <source>Margins</source>
-        <translation>Внешние отступы</translation>
-    </message>
-    <message>
-        <source>The margins around the item.</source>
-        <translation>Отступы вокруг элемента.</translation>
     </message>
 </context>
 <context>
@@ -25156,24 +24275,12 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
 <context>
     <name>MouseAreaSpecifics</name>
     <message>
-        <source>Mouse Area</source>
-        <translation>Область мыши</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Включено</translation>
-    </message>
-    <message>
         <source>This property holds whether the item accepts mouse events.</source>
         <translation>Включает/выключает приём элементом событий мыши.</translation>
     </message>
     <message>
         <source>Hover enabled</source>
         <translation>Наведение включено</translation>
-    </message>
-    <message>
-        <source>Accepted buttons</source>
-        <translation>Принимаемые кнопки</translation>
     </message>
     <message>
         <source>This property holds the mouse buttons that the mouse area reacts to.</source>
@@ -25196,16 +24303,8 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <translation>Свойство определяет, реагирует ли эта область на жесты прокрутки с не оборудованных мышью устройств.</translation>
     </message>
     <message>
-        <source>Cursor shape</source>
-        <translation>Форма курсора</translation>
-    </message>
-    <message>
         <source>This property holds the cursor shape for this mouse area.</source>
         <translation>Свойство определяет форму курсора мыши в этой области.</translation>
-    </message>
-    <message>
-        <source>Prevent stealing</source>
-        <translation>Предотвращать перехват</translation>
     </message>
     <message>
         <source>This property controls whether the mouse events may be stolen from this MouseArea.</source>
@@ -25220,44 +24319,20 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <translation>Свойство разрешает передачу составных событий мыши в другие области MouseArea.</translation>
     </message>
     <message>
-        <source>Drag</source>
-        <translation>Перетаскивание</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation>Цель</translation>
-    </message>
-    <message>
         <source>Sets the id of the item to drag.</source>
         <translation>Задаёт идентификатор перетаскиваемого элемента.</translation>
-    </message>
-    <message>
-        <source>Axis</source>
-        <translation>Ось</translation>
     </message>
     <message>
         <source>Specifies whether dragging can be done horizontally, vertically, or both.</source>
         <translation>Определяет, возможно ли перетаскивание в горизонтальном, вертикальном или в обоих направлениях.</translation>
     </message>
     <message>
-        <source>Filter children</source>
-        <translation>Фильтровать потомков</translation>
-    </message>
-    <message>
         <source>Specifies whether a drag overrides descendant MouseAreas.</source>
         <translation>Определяет, будет ли перетаскивание переопределять потомственные MouseArea.</translation>
     </message>
     <message>
-        <source>Threshold</source>
-        <translation>Порог</translation>
-    </message>
-    <message>
         <source>Determines the threshold in pixels of when the drag operation should start.</source>
         <translation>Задаёт область в пикселях, в пределах которой начинается перетаскивание.</translation>
-    </message>
-    <message>
-        <source>Smoothed</source>
-        <translation>Плавность</translation>
     </message>
     <message>
         <source>If set to true, the target will be moved only after the drag operation has started.
@@ -25462,20 +24537,8 @@ If set to false, the target will be moved straight to the current mouse position
 <context>
     <name>NumberAnimationSpecifics</name>
     <message>
-        <source>Number Animation</source>
-        <translation>Анимация числа</translation>
-    </message>
-    <message>
-        <source>From</source>
-        <translation>От</translation>
-    </message>
-    <message>
         <source>Sets the starting value for the animation.</source>
         <translation>Начальное значение анимации.</translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation>До</translation>
     </message>
     <message>
         <source>Sets the end value for the animation.</source>
@@ -25594,50 +24657,6 @@ If set to false, the target will be moved straight to the current mouse position
 <context>
     <name>PaddingSection</name>
     <message>
-        <source>Padding</source>
-        <translation>Отступы</translation>
-    </message>
-    <message>
-        <source>Vertical</source>
-        <translation>Вертикальные</translation>
-    </message>
-    <message>
-        <source>Top</source>
-        <translation>Сверху</translation>
-    </message>
-    <message>
-        <source>Padding between the content and the top edge of the item.</source>
-        <translation>Отступ содержимого от верхней границы элемента.</translation>
-    </message>
-    <message>
-        <source>Bottom</source>
-        <translation>Снизу</translation>
-    </message>
-    <message>
-        <source>Padding between the content and the bottom edge of the item.</source>
-        <translation>Отступ содержимого от нижней границы элемента.</translation>
-    </message>
-    <message>
-        <source>Horizontal</source>
-        <translation>Горизонтальная</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation>Слева</translation>
-    </message>
-    <message>
-        <source>Padding between the content and the left edge of the item.</source>
-        <translation>Отступ содержимого от левой границы элемента.</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation>Справа</translation>
-    </message>
-    <message>
-        <source>Padding between the content and the right edge of the item.</source>
-        <translation>Отступ содержимого от правой границы элемента.</translation>
-    </message>
-    <message>
         <source>Padding between the content and the edges of the items.</source>
         <translation>Отступ содержимого от границ элемента.</translation>
     </message>
@@ -25659,64 +24678,24 @@ If set to false, the target will be moved straight to the current mouse position
 <context>
     <name>PathViewSpecifics</name>
     <message>
-        <source>Path View</source>
-        <translation>Обзор кривой</translation>
-    </message>
-    <message>
-        <source>Drag margin</source>
-        <translation>Зона перетаскивания</translation>
-    </message>
-    <message>
-        <source>Flick deceleration</source>
-        <translation>Замедление толкания</translation>
-    </message>
-    <message>
-        <source>Interactive</source>
-        <translation>Интерактивность</translation>
-    </message>
-    <message>
         <source>A user cannot drag or flick a PathView that is not interactive.</source>
         <translation>Пользователь не может перетягивать или толкать PathView, так как он не интерактивный.</translation>
-    </message>
-    <message>
-        <source>Offset</source>
-        <translation>Смещение</translation>
     </message>
     <message>
         <source>Specifies how far along the path the items are from their initial positions. This is a real number that ranges from 0.0 to the count of items in the model.</source>
         <translation>Указывает, как далеко элементы могут отклоняться от начальных точек. Это действительное число в диапазоне от 0.0 до количества элементов в модели.</translation>
     </message>
     <message>
-        <source>Item count</source>
-        <translation>Количество элементов</translation>
-    </message>
-    <message>
         <source>pathItemCount: number of items visible on the path at any one time.</source>
         <translation>pathItemCount: количество элементов отображаемых на кривой в любой момент времени.</translation>
-    </message>
-    <message>
-        <source>Path View Highlight</source>
-        <translation>Подсветка вида кривой</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation>Диапазон</translation>
     </message>
     <message>
         <source>Highlight range</source>
         <translation>Диапазон подсветки</translation>
     </message>
     <message>
-        <source>Move duration</source>
-        <translation>Продолжительность перемещения</translation>
-    </message>
-    <message>
         <source>Move animation duration of the highlight delegate.</source>
         <translation>Продолжительность анимации перемещения делегата подсветки.</translation>
-    </message>
-    <message>
-        <source>Preferred begin</source>
-        <translation>Предпочтительное начало</translation>
     </message>
     <message>
         <source>Preferred highlight begin - must be smaller than Preferred end. Note that the user has to add a highlight component.</source>
@@ -25725,10 +24704,6 @@ If set to false, the target will be moved straight to the current mouse position
     <message>
         <source>Preferred highlight end - must be larger than Preferred begin. Note that the user has to add a highlight component.</source>
         <translation>Предпочтительное окончание должно быть больше предпочтительного начала. Имейте в виду, пользователь должен добавить выделенный компонент.</translation>
-    </message>
-    <message>
-        <source>Preferred end</source>
-        <translation>Предпочтительное окончание</translation>
     </message>
 </context>
 <context>
@@ -26880,60 +25855,8 @@ You might find further explanations in the Application Output view.</source>
 <context>
     <name>PopupSection</name>
     <message>
-        <source>Popup</source>
-        <translation>Всплывание</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Размер</translation>
-    </message>
-    <message>
-        <source>Visibility</source>
-        <translation>Видимость</translation>
-    </message>
-    <message>
         <source>Is visible</source>
         <translation>Видимо</translation>
-    </message>
-    <message>
-        <source>Clip</source>
-        <translation>Обрезка</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>Поведение</translation>
-    </message>
-    <message>
-        <source>Modal</source>
-        <translation>Модальность</translation>
-    </message>
-    <message>
-        <source>Defines the modality of the popup.</source>
-        <translation>Определяет модальность всплываемого.</translation>
-    </message>
-    <message>
-        <source>Dim</source>
-        <translation>Затемнение</translation>
-    </message>
-    <message>
-        <source>Defines whether the popup dims the background.</source>
-        <translation>Определяет, будет ли всплываемое затемнять фон.</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Непрозрачность</translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>Масштаб</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Интервал</translation>
-    </message>
-    <message>
-        <source>Spacing between internal elements of the control.</source>
-        <translation>Интервал между внутренними элементами элемента управления.</translation>
     </message>
 </context>
 <context>
@@ -32370,14 +31293,6 @@ These files are preserved.</source>
 <context>
     <name>PropertyActionSpecifics</name>
     <message>
-        <source>Property Action</source>
-        <translation>Действие над свойством</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Значение</translation>
-    </message>
-    <message>
         <source>Sets the value of the property.</source>
         <translation>Значение свойства.</translation>
     </message>
@@ -34256,6 +33171,1115 @@ Neither the path to the library nor the path to its includes is added to the .pr
     <message>
         <source>Error</source>
         <translation>Ошибка</translation>
+    </message>
+    <message>
+        <source>Advanced</source>
+        <translation>Дополнительно</translation>
+    </message>
+    <message>
+        <source>Origin</source>
+        <translation>Происхождение</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Масштаб</translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation>Вращение</translation>
+    </message>
+    <message>
+        <source>State</source>
+        <translation>Состояние</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Включено</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Сглаживание</translation>
+    </message>
+    <message>
+        <source>Antialiasing</source>
+        <translation>Антиалиасинг</translation>
+    </message>
+    <message>
+        <source>Focus</source>
+        <translation>Фокус</translation>
+    </message>
+    <message>
+        <source>Baseline offset</source>
+        <translation>Смещение базовой линии</translation>
+    </message>
+    <message>
+        <source>Align left edges.</source>
+        <translation>Выравнивание по левому краю.</translation>
+    </message>
+    <message>
+        <source>Align horizontal centers.</source>
+        <translation>Выравнивание по горизонтальному центру.</translation>
+    </message>
+    <message>
+        <source>Align right edges.</source>
+        <translation>Выравнивание по правому краю.</translation>
+    </message>
+    <message>
+        <source>Align top edges.</source>
+        <translation>Выравнивание по верхнему краю.</translation>
+    </message>
+    <message>
+        <source>Align vertical centers.</source>
+        <translation>Выравнивание по вертикальному центру.</translation>
+    </message>
+    <message>
+        <source>Align bottom edges.</source>
+        <translation>Выравнивание по нижнему краю.</translation>
+    </message>
+    <message>
+        <source>Distribute objects</source>
+        <translation>Растягивание объектов</translation>
+    </message>
+    <message>
+        <source>Distribute left edges.</source>
+        <translation>Растягивание по левому краю.</translation>
+    </message>
+    <message>
+        <source>Distribute horizontal centers.</source>
+        <translation>Растягивание по горизонтальному центру.</translation>
+    </message>
+    <message>
+        <source>Distribute right edges.</source>
+        <translation>Растягивание по правому краю.</translation>
+    </message>
+    <message>
+        <source>Distribute top edges.</source>
+        <translation>Растягивание по верхнему краю.</translation>
+    </message>
+    <message>
+        <source>Distribute vertical centers.</source>
+        <translation>Растягивание по вертикальному центру.</translation>
+    </message>
+    <message>
+        <source>Distribute bottom edges.</source>
+        <translation>Растягивание по нижнему краю.</translation>
+    </message>
+    <message>
+        <source>Distribute spacing</source>
+        <translation>Растягивание интервалов</translation>
+    </message>
+    <message>
+        <source>Distribute spacing horizontally.</source>
+        <translation>Растягивать интервалы горизонтально.</translation>
+    </message>
+    <message>
+        <source>Distribute spacing vertically.</source>
+        <translation>Растягивать интервалы вертикально.</translation>
+    </message>
+    <message>
+        <source>Align to</source>
+        <translation>Выровнять по</translation>
+    </message>
+    <message>
+        <source>Key object</source>
+        <translation>Ключевой объект</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Предупреждение</translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation>Цель</translation>
+    </message>
+    <message>
+        <source>Margin</source>
+        <translation>Внешний отступ</translation>
+    </message>
+    <message>
+        <source>Anchor to the top of the target.</source>
+        <translation>Привязка к верхнему краю цели.</translation>
+    </message>
+    <message>
+        <source>Anchor to the left of the target.</source>
+        <translation>Привязка к левому краю цели.</translation>
+    </message>
+    <message>
+        <source>Anchor to the vertical center of the target.</source>
+        <translation>Привязка к вертикальному центру цели.</translation>
+    </message>
+    <message>
+        <source>Anchor to the horizontal center of the target.</source>
+        <translation>Привязка к горизонтальному центру цели.</translation>
+    </message>
+    <message>
+        <source>Anchor to the bottom of the target.</source>
+        <translation>Привязка к нижнему краю цели.</translation>
+    </message>
+    <message>
+        <source>Anchor to the right of the target.</source>
+        <translation>Привязка к правому краю цели.</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Скорость</translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation>Приостановлено</translation>
+    </message>
+    <message>
+        <source>Playing</source>
+        <translation>Воспроизводится</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Анимация</translation>
+    </message>
+    <message>
+        <source>Running</source>
+        <translation>Запущена</translation>
+    </message>
+    <message>
+        <source>Loops</source>
+        <translation>Повторы</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation>Длительность</translation>
+    </message>
+    <message>
+        <source>Animation Targets</source>
+        <translation>Цели анимации</translation>
+    </message>
+    <message>
+        <source>Property</source>
+        <translation>Свойство</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <translation>Свойства</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation>Окно</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Заголовок</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Размер</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Цвет</translation>
+    </message>
+    <message>
+        <source>Visible</source>
+        <translation>Видимость</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>Непрозрачность</translation>
+    </message>
+    <message>
+        <source>Border Image</source>
+        <translation>Изображение рамки</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Источник</translation>
+    </message>
+    <message>
+        <source>Mirror</source>
+        <translation>Отражать</translation>
+    </message>
+    <message>
+        <source>Cache</source>
+        <translation>Кэш</translation>
+    </message>
+    <message>
+        <source>Asynchronous</source>
+        <translation>Асинхронно</translation>
+    </message>
+    <message>
+        <source>Source size</source>
+        <translation>Размер источника</translation>
+    </message>
+    <message>
+        <source>Button</source>
+        <translation>Кнопка</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Текст</translation>
+    </message>
+    <message>
+        <source>Checked</source>
+        <translation>Взведена</translation>
+    </message>
+    <message>
+        <source>Text displayed on the button.</source>
+        <translation>Текст, отображаемый на кнопке.</translation>
+    </message>
+    <message>
+        <source>State of the button.</source>
+        <translation>Состояние кнопки.</translation>
+    </message>
+    <message>
+        <source>Checkable</source>
+        <translation>Взводима</translation>
+    </message>
+    <message>
+        <source>Determines whether the button is checkable or not.</source>
+        <translation>Определяет, является ли кнопка взводимой или нет.</translation>
+    </message>
+    <message>
+        <source>Determines whether the button is enabled or not.</source>
+        <translation>Определяет, включена ли кнопка или нет.</translation>
+    </message>
+    <message>
+        <source>Default button</source>
+        <translation>Кнопка по умолчанию</translation>
+    </message>
+    <message>
+        <source>Sets the button as the default button in a dialog.</source>
+        <translation>Делает кнопку в диалоге выбранной по умолчанию.</translation>
+    </message>
+    <message>
+        <source>Tool tip</source>
+        <translation>Подсказка</translation>
+    </message>
+    <message>
+        <source>The tool tip shown for the button.</source>
+        <translation>Подсказка, отображаемая для кнопки.</translation>
+    </message>
+    <message>
+        <source>Focus on press</source>
+        <translation>Фокус при нажатии</translation>
+    </message>
+    <message>
+        <source>Determines whether the button gets focus if pressed.</source>
+        <translation>Определяет, получает ли кнопка фокус при нажатии или нет.</translation>
+    </message>
+    <message>
+        <source>Icon source</source>
+        <translation>Источник значка</translation>
+    </message>
+    <message>
+        <source>The URL of an icon resource.</source>
+        <translation>URL ресурса значка.</translation>
+    </message>
+    <message>
+        <source>Check Box</source>
+        <translation>Флажок</translation>
+    </message>
+    <message>
+        <source>Text shown on the check box.</source>
+        <translation>Текст, отображаемый у флажка.</translation>
+    </message>
+    <message>
+        <source>State of the check box.</source>
+        <translation>Состояние флажка.</translation>
+    </message>
+    <message>
+        <source>Determines whether the check box gets focus if pressed.</source>
+        <translation>Определяет, получает ли флажок фокус при нажатии или нет.</translation>
+    </message>
+    <message>
+        <source>Column</source>
+        <translation>Столбец</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>Интервал</translation>
+    </message>
+    <message>
+        <source>Combo Box</source>
+        <translation>Поле с выпадающим списком</translation>
+    </message>
+    <message>
+        <source>Determines whether the combobox gets focus if pressed.</source>
+        <translation>Определяет, получает ли выпадающий список фокус при нажатии или нет.</translation>
+    </message>
+    <message>
+        <source>Connections</source>
+        <translation>Соединения</translation>
+    </message>
+    <message>
+        <source>Ignore unknown signals</source>
+        <translation>Игнорировать неизвестные сигналы</translation>
+    </message>
+    <message>
+        <source>Dialog</source>
+        <translation>Диалог</translation>
+    </message>
+    <message>
+        <source>Drawer</source>
+        <translation>Рисовальщик</translation>
+    </message>
+    <message>
+        <source>Edge</source>
+        <translation>Край</translation>
+    </message>
+    <message>
+        <source>Defines the edge of the window the drawer will open from.</source>
+        <translation>Определяет край окна, от которого открывается рисовальщик.</translation>
+    </message>
+    <message>
+        <source>Defines the distance from the screen edge within which drag actions will open the drawer.</source>
+        <translation>Определяет расстояние от края экрана, в пределах которого перетаскивание открывает рисовальщика.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Сбросить</translation>
+    </message>
+    <message>
+        <source>Set Binding</source>
+        <translation>Создать привязку</translation>
+    </message>
+    <message>
+        <source>Export Property as Alias</source>
+        <translation>Экспортировать свойства как алиас</translation>
+    </message>
+    <message>
+        <source>Insert Keyframe</source>
+        <translation>Вставить ключевой кадр</translation>
+    </message>
+    <message>
+        <source>Flickable</source>
+        <translation>Flickable</translation>
+    </message>
+    <message>
+        <source>Movement</source>
+        <translation>Перемещение</translation>
+    </message>
+    <message>
+        <source>Press delay</source>
+        <translation>Задержка нажатия</translation>
+    </message>
+    <message>
+        <source>Pixel aligned</source>
+        <translation>Пиксельное выравнивание</translation>
+    </message>
+    <message>
+        <source>Synchronous drag</source>
+        <translation>Синхронное перетаскивание</translation>
+    </message>
+    <message>
+        <source>Content size</source>
+        <translation>Размер содержимого</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>Содержимое</translation>
+    </message>
+    <message>
+        <source>Margins</source>
+        <translation>Внешние отступы</translation>
+    </message>
+    <message>
+        <source>Flick direction</source>
+        <translation>Направление сдвига</translation>
+    </message>
+    <message>
+        <source>Behavior</source>
+        <translation>Поведение</translation>
+    </message>
+    <message>
+        <source>Interactive</source>
+        <translation>Интерактивность</translation>
+    </message>
+    <message>
+        <source>Max. velocity</source>
+        <translation>Макс. скорость</translation>
+    </message>
+    <message>
+        <source>Deceleration</source>
+        <translation>Замедление</translation>
+    </message>
+    <message>
+        <source>Flick deceleration</source>
+        <translation>Замедление сдвига</translation>
+    </message>
+    <message>
+        <source>Flipable</source>
+        <translation>Зеркально отображаемо</translation>
+    </message>
+    <message>
+        <source>Flow</source>
+        <translation>Перетекание</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation>Шрифт</translation>
+    </message>
+    <message>
+        <source>Style name</source>
+        <translation>Название стиля</translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation>Стиль</translation>
+    </message>
+    <message>
+        <source>Prefer shaping</source>
+        <translation>Предпочитать оформление</translation>
+    </message>
+    <message>
+        <source>Geometry</source>
+        <translation>Геометрия</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>Положение</translation>
+    </message>
+    <message>
+        <source>Gradient Picker</source>
+        <translation>Пипетка градиента</translation>
+    </message>
+    <message>
+        <source>System Presets</source>
+        <translation>Системные заготовки</translation>
+    </message>
+    <message>
+        <source>User Presets</source>
+        <translation>Пользовательские заготовки</translation>
+    </message>
+    <message>
+        <source>Delete preset?</source>
+        <translation>Удаление заготовки</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete this preset?</source>
+        <translation>Удалить эту заготовку?</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Сохранить</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Применить</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>Столбцы</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>Строки</translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation>Сетка</translation>
+    </message>
+    <message>
+        <source>Grid View</source>
+        <translation>Табличный вид</translation>
+    </message>
+    <message>
+        <source>Navigation wraps</source>
+        <translation>Перенос при перемещениях</translation>
+    </message>
+    <message>
+        <source>Snap mode</source>
+        <translation>Режим притягивания</translation>
+    </message>
+    <message>
+        <source>Grid View Highlight</source>
+        <translation>Подсветка табличного вида</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Диапазон</translation>
+    </message>
+    <message>
+        <source>Move duration</source>
+        <translation>Продолжительность перемещения</translation>
+    </message>
+    <message>
+        <source>Preferred begin</source>
+        <translation>Предпочтительное начало</translation>
+    </message>
+    <message>
+        <source>Preferred end</source>
+        <translation>Предпочтительное окончание</translation>
+    </message>
+    <message>
+        <source>Follows current</source>
+        <translation>Управляется видом</translation>
+    </message>
+    <message>
+        <source>[None]</source>
+        <translation>[нет]</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Тип</translation>
+    </message>
+    <message>
+        <source>id</source>
+        <translation>идентификатор</translation>
+    </message>
+    <message>
+        <source>Add Annotation</source>
+        <translation>Добавить аннотацию</translation>
+    </message>
+    <message>
+        <source>Visibility</source>
+        <translation>Видимость</translation>
+    </message>
+    <message>
+        <source>Clip</source>
+        <translation>Обрезка</translation>
+    </message>
+    <message>
+        <source>Layout</source>
+        <translation>Компоновка</translation>
+    </message>
+    <message>
+        <source>This property is not available in this configuration.</source>
+        <translation>Это свойство недоступно в этой конфигурации.</translation>
+    </message>
+    <message>
+        <source>Layer</source>
+        <translation>Слой</translation>
+    </message>
+    <message>
+        <source>Effect</source>
+        <translation>Эффект</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Формат</translation>
+    </message>
+    <message>
+        <source>Mipmap</source>
+        <translation>Mipmap</translation>
+    </message>
+    <message>
+        <source>Sampler name</source>
+        <translation>Имя семплера</translation>
+    </message>
+    <message>
+        <source>Sets the name of the effect&apos;s source texture property.</source>
+        <translation>Имя свойства исходной текстуры эффекта.</translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <translation>Семплы</translation>
+    </message>
+    <message>
+        <source>Texture mirroring</source>
+        <translation>Отражение текстуры</translation>
+    </message>
+    <message>
+        <source>Texture size</source>
+        <translation>Размер текстуры</translation>
+    </message>
+    <message>
+        <source>Wrap mode</source>
+        <translation>Режим переноса</translation>
+    </message>
+    <message>
+        <source>Anchors</source>
+        <translation>Привязки</translation>
+    </message>
+    <message>
+        <source>List View</source>
+        <translation>Список</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation>Ориентация</translation>
+    </message>
+    <message>
+        <source>List View Highlight</source>
+        <translation>Подсветка списка</translation>
+    </message>
+    <message>
+        <source>Resize duration</source>
+        <translation>Продолжительность изменения размера</translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation>Вертикальные</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>Сверху</translation>
+    </message>
+    <message>
+        <source>The margin above the item.</source>
+        <translation>Отступ сверху от элемента.</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Снизу</translation>
+    </message>
+    <message>
+        <source>The margin below the item.</source>
+        <translation>Отступ снизу от элемента.</translation>
+    </message>
+    <message>
+        <source>Horizontal</source>
+        <translation>Горизонтальные</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Слева</translation>
+    </message>
+    <message>
+        <source>The margin left of the item.</source>
+        <translation>Отступ слева от элемента.</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Справа</translation>
+    </message>
+    <message>
+        <source>The margin right of the item.</source>
+        <translation>Отступ справа от элемента.</translation>
+    </message>
+    <message>
+        <source>The margins around the item.</source>
+        <translation>Отступы вокруг элемента.</translation>
+    </message>
+    <message>
+        <source>Mouse Area</source>
+        <translation>Область мыши</translation>
+    </message>
+    <message>
+        <source>Accepted buttons</source>
+        <translation>Принимаемые кнопки</translation>
+    </message>
+    <message>
+        <source>Cursor shape</source>
+        <translation>Форма курсора</translation>
+    </message>
+    <message>
+        <source>Prevent stealing</source>
+        <translation>Предотвращать перехват</translation>
+    </message>
+    <message>
+        <source>Drag</source>
+        <translation>Перетаскивание</translation>
+    </message>
+    <message>
+        <source>Axis</source>
+        <translation>Ось</translation>
+    </message>
+    <message>
+        <source>Filter children</source>
+        <translation>Фильтровать потомков</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>Порог</translation>
+    </message>
+    <message>
+        <source>Smoothed</source>
+        <translation>Плавность</translation>
+    </message>
+    <message>
+        <source>Number Animation</source>
+        <translation>Анимация числа</translation>
+    </message>
+    <message>
+        <source>From</source>
+        <translation>От</translation>
+    </message>
+    <message>
+        <source>To</source>
+        <translation>До</translation>
+    </message>
+    <message>
+        <source>Padding</source>
+        <translation>Отступы</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the top edge of the item.</source>
+        <translation>Отступ содержимого от верхней границы элемента.</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the bottom edge of the item.</source>
+        <translation>Отступ содержимого от нижней границы элемента.</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the left edge of the item.</source>
+        <translation>Отступ содержимого от левой границы элемента.</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the right edge of the item.</source>
+        <translation>Отступ содержимого от правой границы элемента.</translation>
+    </message>
+    <message>
+        <source>Path View</source>
+        <translation>Обзор кривой</translation>
+    </message>
+    <message>
+        <source>Drag margin</source>
+        <translation>Зона перетаскивания</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Смещение</translation>
+    </message>
+    <message>
+        <source>Item count</source>
+        <translation>Количество элементов</translation>
+    </message>
+    <message>
+        <source>Path View Highlight</source>
+        <translation>Подсветка вида кривой</translation>
+    </message>
+    <message>
+        <source>Popup</source>
+        <translation>Всплывание</translation>
+    </message>
+    <message>
+        <source>Modal</source>
+        <translation>Модальность</translation>
+    </message>
+    <message>
+        <source>Defines the modality of the popup.</source>
+        <translation>Определяет модальность всплываемого.</translation>
+    </message>
+    <message>
+        <source>Dim</source>
+        <translation>Затемнение</translation>
+    </message>
+    <message>
+        <source>Defines whether the popup dims the background.</source>
+        <translation>Определяет, будет ли всплываемое затемнять фон.</translation>
+    </message>
+    <message>
+        <source>Spacing between internal elements of the control.</source>
+        <translation>Интервал между внутренними элементами элемента управления.</translation>
+    </message>
+    <message>
+        <source>Property Action</source>
+        <translation>Действие над свойством</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Значение</translation>
+    </message>
+    <message>
+        <source>Radio Button</source>
+        <translation>Переключатель</translation>
+    </message>
+    <message>
+        <source>Text label for the radio button.</source>
+        <translation>Текстовая метка для переключателя.</translation>
+    </message>
+    <message>
+        <source>Determines whether the radio button is checked or not.</source>
+        <translation>Определяет, выбрана ли кнопка или нет.</translation>
+    </message>
+    <message>
+        <source>Determines whether the radio button gets focus if pressed.</source>
+        <translation>Определяет, получает ли переключатель фокус при нажатии или нет.</translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation>Радиус</translation>
+    </message>
+    <message>
+        <source>Row</source>
+        <translation>Строка</translation>
+    </message>
+    <message>
+        <source>Current value of the Slider. The default value is 0.0.</source>
+        <translation>Текущее значение ползунка. По умолчанию: 0.0.</translation>
+    </message>
+    <message>
+        <source>Maximum value</source>
+        <translation>Максимальное значение</translation>
+    </message>
+    <message>
+        <source>Maximum value of the slider. The default value is 1.0.</source>
+        <translation>Максимальное значение ползунка. По умолчанию: 1.0.</translation>
+    </message>
+    <message>
+        <source>Minimum value</source>
+        <translation>Минимальное значение</translation>
+    </message>
+    <message>
+        <source>Minimum value of the slider. The default value is 0.0.</source>
+        <translation>Минимальное значение ползунка. По умолчанию: 0.0.</translation>
+    </message>
+    <message>
+        <source>Layout orientation of the slider.</source>
+        <translation>Ориентация размещения ползунка.</translation>
+    </message>
+    <message>
+        <source>Step size</source>
+        <translation>Размер шага</translation>
+    </message>
+    <message>
+        <source>Indicates the slider step size.</source>
+        <translation>Задаёт размер шага ползунка.</translation>
+    </message>
+    <message>
+        <source>Active focus on press</source>
+        <translation>Фокус активации при нажатии</translation>
+    </message>
+    <message>
+        <source>Indicates whether the slider should receive active focus when pressed.</source>
+        <translation>Показывает, принимает ли ползунок фокус при нажатии.</translation>
+    </message>
+    <message>
+        <source>Tick marks enabled</source>
+        <translation>Отображать шкалу</translation>
+    </message>
+    <message>
+        <source>Indicates whether the slider should display tick marks at step intervals.</source>
+        <translation>Показывает, отображается ли шкала шагов на ползунке.</translation>
+    </message>
+    <message>
+        <source>Update value while dragging</source>
+        <translation>Обновлять значение при перетаскивании</translation>
+    </message>
+    <message>
+        <source>Determines whether the current value should be updated while the user is moving the slider handle, or only when the button has been released.</source>
+        <translation>Определяет, обновляется ли текущее значение ползунка во время перемещения пользователем, или только при отпускании кнопки.</translation>
+    </message>
+    <message>
+        <source>Split View</source>
+        <translation>Разделяемый обзор</translation>
+    </message>
+    <message>
+        <source>Orientation of the split view.</source>
+        <translation>Ориентация обзора.</translation>
+    </message>
+    <message>
+        <source>Elide</source>
+        <translatorcomment>Х.з. что такое (может отсутствовать, быть слева, справа и посередине).</translatorcomment>
+        <translation>Вычеркивание</translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation>Выравнивание</translation>
+    </message>
+    <message>
+        <source>Render type</source>
+        <translation>Тип отрисовки</translation>
+    </message>
+    <message>
+        <source>Minimum size</source>
+        <translation>Минимальный размер</translation>
+    </message>
+    <message>
+        <source>Line height</source>
+        <translation>Высота строки</translation>
+    </message>
+    <message>
+        <source>Sets the line height for the text.</source>
+        <translation>Задаёт высоту строки текста.</translation>
+    </message>
+    <message>
+        <source>Line height mode</source>
+        <translation>Режим высоты строки</translation>
+    </message>
+    <message>
+        <source>When</source>
+        <translation>Когда</translation>
+    </message>
+    <message>
+        <source>Sets when the state should be applied.</source>
+        <translation>Задаёт когда состояние должно примениться.</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Имя</translation>
+    </message>
+    <message>
+        <source>Extend</source>
+        <translation>Расширение</translation>
+    </message>
+    <message>
+        <source>Tab View</source>
+        <translation>Закладочный вид</translation>
+    </message>
+    <message>
+        <source>Current index</source>
+        <translation>Текущий индекс</translation>
+    </message>
+    <message>
+        <source>Frame visible</source>
+        <translation>Рамка видна</translation>
+    </message>
+    <message>
+        <source>Determines the visibility of the tab frame around contents.</source>
+        <translation>Определяет, видна ли рамка вкладки вокруг содержимого.</translation>
+    </message>
+    <message>
+        <source>Tabs visible</source>
+        <translation>Вкладки видны</translation>
+    </message>
+    <message>
+        <source>Determines the visibility of the tab bar.</source>
+        <translation>Определяет, видна ли панель вкладок.</translation>
+    </message>
+    <message>
+        <source>Tab position</source>
+        <translation>Положение вкладки</translation>
+    </message>
+    <message>
+        <source>Determines the position of the tabs.</source>
+        <translation>Определяет положение вкладок.</translation>
+    </message>
+    <message>
+        <source>Text Area</source>
+        <translation>Область текста</translation>
+    </message>
+    <message>
+        <source>Read only</source>
+        <translation>Только для чтения</translation>
+    </message>
+    <message>
+        <source>Determines whether the text area is read only.</source>
+        <translation>Определяет, является ли текстовая область изменяемой или нет.</translation>
+    </message>
+    <message>
+        <source>Document margins</source>
+        <translation>Отступы документа</translation>
+    </message>
+    <message>
+        <source>Frame width</source>
+        <translation>Ширина рамки</translation>
+    </message>
+    <message>
+        <source>Text shown on the text area.</source>
+        <translation>Текст, отображаемый в текстовой области.</translation>
+    </message>
+    <message>
+        <source>Margins of the text area.</source>
+        <translation>Поля текстовой области.</translation>
+    </message>
+    <message>
+        <source>Width of the frame.</source>
+        <translation>Ширина рамки.</translation>
+    </message>
+    <message>
+        <source>Contents frame</source>
+        <translation>Граница содержимого</translation>
+    </message>
+    <message>
+        <source>Determines whether the frame around contents is shown.</source>
+        <translation>Определяет, необходимо ли показывать границу содержимого или нет.</translation>
+    </message>
+    <message>
+        <source>Focus Handling</source>
+        <translation>Обработка фокуса</translation>
+    </message>
+    <message>
+        <source>Highlight on focus</source>
+        <translation>Подсвечивать</translation>
+    </message>
+    <message>
+        <source>Determines whether the text area is highlighted on focus.</source>
+        <translation>Определяет, подсвечивать ли область текста при получении фокуса или нет.</translation>
+    </message>
+    <message>
+        <source>Tab changes focus</source>
+        <translation>Табуляция меняет фокус</translation>
+    </message>
+    <message>
+        <source>Determines whether tab changes the focus of the text area.</source>
+        <translation>Определяет, меняет ли табуляция фокус текстовой области.</translation>
+    </message>
+    <message>
+        <source>Determines whether the text area gets focus if pressed.</source>
+        <translation>Определяет, получает ли текстовая область фокус при нажатии или нет.</translation>
+    </message>
+    <message>
+        <source>Text Field</source>
+        <translation>Текстовое поле</translation>
+    </message>
+    <message>
+        <source>Placeholder text</source>
+        <translation>Текст заполнителя</translation>
+    </message>
+    <message>
+        <source>Text shown on the text field.</source>
+        <translation>Текст, отображаемый в текстовом поле.</translation>
+    </message>
+    <message>
+        <source>Placeholder text.</source>
+        <translation>Текст заполнителя.</translation>
+    </message>
+    <message>
+        <source>Determines whether the text field is read only.</source>
+        <translation>Определяет, является ли текстовое поле изменяемым или нет.</translation>
+    </message>
+    <message>
+        <source>Input mask</source>
+        <translation>Маска ввода</translation>
+    </message>
+    <message>
+        <source>Restricts the valid text in the text field.</source>
+        <translation>Вводит ограничения на текст в поле.</translation>
+    </message>
+    <message>
+        <source>Echo mode</source>
+        <translation>Режим эха</translation>
+    </message>
+    <message>
+        <source>Specifies how the text is displayed in the text field.</source>
+        <translation>Определяет, как текст отображается в поле.</translation>
+    </message>
+    <message>
+        <source>Text Input</source>
+        <translation>Текстовый ввод</translation>
+    </message>
+    <message>
+        <source>Tab stop distance</source>
+        <translation>Шаг табуляции</translation>
+    </message>
+    <message>
+        <source>Text margin</source>
+        <translation>Отступ текста</translation>
+    </message>
+    <message>
+        <source>Maximum length</source>
+        <translation>Максимальная длина</translation>
+    </message>
+    <message>
+        <source>Flags</source>
+        <translation>Флаги</translation>
+    </message>
+    <message>
+        <source>Cursor visible</source>
+        <translation>Курсор виден</translation>
+    </message>
+    <message>
+        <source>Auto scroll</source>
+        <translation>Прокручивать автоматически</translation>
+    </message>
+    <message>
+        <source>Overwrite mode</source>
+        <translation>Режим перезаписи</translation>
+    </message>
+    <message>
+        <source>Persistent selection</source>
+        <translation>Постоянное выделение</translation>
+    </message>
+    <message>
+        <source>Select by mouse</source>
+        <translation>Выделение мышью</translation>
+    </message>
+    <message>
+        <source>Select by keyboard</source>
+        <translation>Выделение клавиатурой</translation>
     </message>
 </context>
 <context>
@@ -39685,37 +39709,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RadioButtonSpecifics</name>
-    <message>
-        <source>Radio Button</source>
-        <translation>Переключатель</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Текст</translation>
-    </message>
-    <message>
-        <source>Text label for the radio button.</source>
-        <translation>Текстовая метка для переключателя.</translation>
-    </message>
-    <message>
-        <source>Checked</source>
-        <translation>Выбран</translation>
-    </message>
-    <message>
-        <source>Determines whether the radio button is checked or not.</source>
-        <translation>Определяет, выбрана ли кнопка или нет.</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Фокус при нажатии</translation>
-    </message>
-    <message>
-        <source>Determines whether the radio button gets focus if pressed.</source>
-        <translation>Определяет, получает ли переключатель фокус при нажатии или нет.</translation>
-    </message>
-</context>
-<context>
     <name>QtC::Tracing</name>
     <message>
         <source>Edit note</source>
@@ -39729,20 +39722,12 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
 <context>
     <name>RectangleSpecifics</name>
     <message>
-        <source>Color</source>
-        <translation>Цвет</translation>
-    </message>
-    <message>
         <source>Border Color</source>
         <translation>Цвет рамки</translation>
     </message>
     <message>
         <source>Border</source>
         <translation>Рамка</translation>
-    </message>
-    <message>
-        <source>Radius</source>
-        <translation>Радиус</translation>
     </message>
 </context>
 <context>
@@ -40669,16 +40654,8 @@ If you do not have a private key yet, you can also create one here.</source>
 <context>
     <name>RowSpecifics</name>
     <message>
-        <source>Row</source>
-        <translation>Строка</translation>
-    </message>
-    <message>
         <source>Layout Direction</source>
         <translation>Направление компоновки</translation>
-    </message>
-    <message>
-        <source>Spacing</source>
-        <translation>Интервал</translation>
     </message>
 </context>
 <context>
@@ -41540,92 +41517,10 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>SliderSpecifics</name>
-    <message>
-        <source>Value</source>
-        <translation>Значение</translation>
-    </message>
-    <message>
-        <source>Current value of the Slider. The default value is 0.0.</source>
-        <translation>Текущее значение ползунка. По умолчанию: 0.0.</translation>
-    </message>
-    <message>
-        <source>Maximum value</source>
-        <translation>Максимальное значение</translation>
-    </message>
-    <message>
-        <source>Maximum value of the slider. The default value is 1.0.</source>
-        <translation>Максимальное значение ползунка. По умолчанию: 1.0.</translation>
-    </message>
-    <message>
-        <source>Minimum value</source>
-        <translation>Минимальное значение</translation>
-    </message>
-    <message>
-        <source>Minimum value of the slider. The default value is 0.0.</source>
-        <translation>Минимальное значение ползунка. По умолчанию: 0.0.</translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Ориентация</translation>
-    </message>
-    <message>
-        <source>Layout orientation of the slider.</source>
-        <translation>Ориентация размещения ползунка.</translation>
-    </message>
-    <message>
-        <source>Step size</source>
-        <translation>Размер шага</translation>
-    </message>
-    <message>
-        <source>Indicates the slider step size.</source>
-        <translation>Задаёт размер шага ползунка.</translation>
-    </message>
-    <message>
-        <source>Active focus on press</source>
-        <translation>Фокус активации при нажатии</translation>
-    </message>
-    <message>
-        <source>Indicates whether the slider should receive active focus when pressed.</source>
-        <translation>Показывает, принимает ли ползунок фокус при нажатии.</translation>
-    </message>
-    <message>
-        <source>Tick marks enabled</source>
-        <translation>Отображать шкалу</translation>
-    </message>
-    <message>
-        <source>Indicates whether the slider should display tick marks at step intervals.</source>
-        <translation>Показывает, отображается ли шкала шагов на ползунке.</translation>
-    </message>
-    <message>
-        <source>Update value while dragging</source>
-        <translation>Обновлять значение при перетаскивании</translation>
-    </message>
-    <message>
-        <source>Determines whether the current value should be updated while the user is moving the slider handle, or only when the button has been released.</source>
-        <translation>Определяет, обновляется ли текущее значение ползунка во время перемещения пользователем, или только при отпускании кнопки.</translation>
-    </message>
-</context>
-<context>
     <name>SourceToolAction</name>
     <message>
         <source>Change Source URL...</source>
         <translation>Изменить исходный URL...</translation>
-    </message>
-</context>
-<context>
-    <name>SplitViewSpecifics</name>
-    <message>
-        <source>Split View</source>
-        <translation>Разделяемый обзор</translation>
-    </message>
-    <message>
-        <source>Orientation</source>
-        <translation>Ориентация</translation>
-    </message>
-    <message>
-        <source>Orientation of the split view.</source>
-        <translation>Ориентация обзора.</translation>
     </message>
 </context>
 <context>
@@ -41638,37 +41533,12 @@ Row: %4, Column: %5
 <context>
     <name>StandardTextSection</name>
     <message>
-        <source>Text</source>
-        <translation>Текст</translation>
-    </message>
-    <message>
-        <source>Wrap mode</source>
-        <translation>Режим переноса</translation>
-    </message>
-    <message>
-        <source>Elide</source>
-        <translatorcomment>Х.з. что такое (может отсутствовать, быть слева, справа и посередине).</translatorcomment>
-        <translation>Вычеркивание</translation>
-    </message>
-    <message>
         <source>Maximum line count</source>
         <translation>Максимальное число строк</translation>
     </message>
     <message>
         <source>Limits the number of lines that the text item will show.</source>
         <translation>Ограничивает максимальное число отображаемых строк текстовым элементом.</translation>
-    </message>
-    <message>
-        <source>Alignment</source>
-        <translation>Выравнивание</translation>
-    </message>
-    <message>
-        <source>Format</source>
-        <translation>Формат</translation>
-    </message>
-    <message>
-        <source>Render type</source>
-        <translation>Тип отрисовки</translation>
     </message>
     <message>
         <source>Override the default rendering type for this item.</source>
@@ -41681,10 +41551,6 @@ Row: %4, Column: %5
     <message>
         <source>Specifies how the font size of the displayed text is determined.</source>
         <translation>Задаёт режим определения размера шрифта отображаемого текста.</translation>
-    </message>
-    <message>
-        <source>Minimum size</source>
-        <translation>Минимальный размер</translation>
     </message>
     <message>
         <source>Pixel</source>
@@ -41703,18 +41569,6 @@ Row: %4, Column: %5
         <translation>Задаёт минимальный размер шрифта масштабируемого теста в пунктах.</translation>
     </message>
     <message>
-        <source>Line height</source>
-        <translation>Высота строки</translation>
-    </message>
-    <message>
-        <source>Sets the line height for the text.</source>
-        <translation>Задаёт высоту строки текста.</translation>
-    </message>
-    <message>
-        <source>Line height mode</source>
-        <translation>Режим высоты строки</translation>
-    </message>
-    <message>
         <source>Determines how the line height is specified.</source>
         <translation>Определяет единицы измерения высоты строки.</translation>
     </message>
@@ -41722,28 +41576,8 @@ Row: %4, Column: %5
 <context>
     <name>StateSpecifics</name>
     <message>
-        <source>State</source>
-        <translation>Состояние</translation>
-    </message>
-    <message>
-        <source>When</source>
-        <translation>Когда</translation>
-    </message>
-    <message>
-        <source>Sets when the state should be applied.</source>
-        <translation>Задаёт когда состояние должно примениться.</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Имя</translation>
-    </message>
-    <message>
         <source>Holds the name of the state.</source>
         <translation>Содержит имя состояния.</translation>
-    </message>
-    <message>
-        <source>Extend</source>
-        <translation>Расширение</translation>
     </message>
     <message>
         <source>Holds the state that this state extends.</source>
@@ -42157,41 +41991,6 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>TabViewSpecifics</name>
-    <message>
-        <source>Tab View</source>
-        <translation>Закладочный вид</translation>
-    </message>
-    <message>
-        <source>Current index</source>
-        <translation>Текущий индекс</translation>
-    </message>
-    <message>
-        <source>Frame visible</source>
-        <translation>Рамка видна</translation>
-    </message>
-    <message>
-        <source>Determines the visibility of the tab frame around contents.</source>
-        <translation>Определяет, видна ли рамка вкладки вокруг содержимого.</translation>
-    </message>
-    <message>
-        <source>Tabs visible</source>
-        <translation>Вкладки видны</translation>
-    </message>
-    <message>
-        <source>Determines the visibility of the tab bar.</source>
-        <translation>Определяет, видна ли панель вкладок.</translation>
-    </message>
-    <message>
-        <source>Tab position</source>
-        <translation>Положение вкладки</translation>
-    </message>
-    <message>
-        <source>Determines the position of the tabs.</source>
-        <translation>Определяет положение вкладок.</translation>
-    </message>
-</context>
-<context>
     <name>TabViewToolAction</name>
     <message>
         <source>Add Tab...</source>
@@ -42310,85 +42109,6 @@ Row: %4, Column: %5
     <message>
         <source>%1 (none)</source>
         <translation>%1 (нет)</translation>
-    </message>
-</context>
-<context>
-    <name>TextAreaSpecifics</name>
-    <message>
-        <source>Color</source>
-        <translation>Цвет</translation>
-    </message>
-    <message>
-        <source>Text Area</source>
-        <translation>Область текста</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Текст</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Только для чтения</translation>
-    </message>
-    <message>
-        <source>Determines whether the text area is read only.</source>
-        <translation>Определяет, является ли текстовая область изменяемой или нет.</translation>
-    </message>
-    <message>
-        <source>Document margins</source>
-        <translation>Отступы документа</translation>
-    </message>
-    <message>
-        <source>Frame width</source>
-        <translation>Ширина рамки</translation>
-    </message>
-    <message>
-        <source>Text shown on the text area.</source>
-        <translation>Текст, отображаемый в текстовой области.</translation>
-    </message>
-    <message>
-        <source>Margins of the text area.</source>
-        <translation>Поля текстовой области.</translation>
-    </message>
-    <message>
-        <source>Width of the frame.</source>
-        <translation>Ширина рамки.</translation>
-    </message>
-    <message>
-        <source>Contents frame</source>
-        <translation>Граница содержимого</translation>
-    </message>
-    <message>
-        <source>Determines whether the frame around contents is shown.</source>
-        <translation>Определяет, необходимо ли показывать границу содержимого или нет.</translation>
-    </message>
-    <message>
-        <source>Focus Handling</source>
-        <translation>Обработка фокуса</translation>
-    </message>
-    <message>
-        <source>Highlight on focus</source>
-        <translation>Подсвечивать</translation>
-    </message>
-    <message>
-        <source>Determines whether the text area is highlighted on focus.</source>
-        <translation>Определяет, подсвечивать ли область текста при получении фокуса или нет.</translation>
-    </message>
-    <message>
-        <source>Tab changes focus</source>
-        <translation>Табуляция меняет фокус</translation>
-    </message>
-    <message>
-        <source>Determines whether tab changes the focus of the text area.</source>
-        <translation>Определяет, меняет ли табуляция фокус текстовой области.</translation>
-    </message>
-    <message>
-        <source>Focus on press</source>
-        <translation>Фокус при нажатии</translation>
-    </message>
-    <message>
-        <source>Determines whether the text area gets focus if pressed.</source>
-        <translation>Определяет, получает ли текстовая область фокус при нажатии или нет.</translation>
     </message>
 </context>
 <context>
@@ -44787,69 +44507,10 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>TextFieldSpecifics</name>
-    <message>
-        <source>Text Field</source>
-        <translation>Текстовое поле</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Текст</translation>
-    </message>
-    <message>
-        <source>Placeholder text</source>
-        <translation>Текст заполнителя</translation>
-    </message>
-    <message>
-        <source>Text shown on the text field.</source>
-        <translation>Текст, отображаемый в текстовом поле.</translation>
-    </message>
-    <message>
-        <source>Placeholder text.</source>
-        <translation>Текст заполнителя.</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Только для чтения</translation>
-    </message>
-    <message>
-        <source>Determines whether the text field is read only.</source>
-        <translation>Определяет, является ли текстовое поле изменяемым или нет.</translation>
-    </message>
-    <message>
-        <source>Input mask</source>
-        <translation>Маска ввода</translation>
-    </message>
-    <message>
-        <source>Restricts the valid text in the text field.</source>
-        <translation>Вводит ограничения на текст в поле.</translation>
-    </message>
-    <message>
-        <source>Echo mode</source>
-        <translation>Режим эха</translation>
-    </message>
-    <message>
-        <source>Specifies how the text is displayed in the text field.</source>
-        <translation>Определяет, как текст отображается в поле.</translation>
-    </message>
-</context>
-<context>
     <name>TextInputSection</name>
-    <message>
-        <source>Text Input</source>
-        <translation>Текстовый ввод</translation>
-    </message>
     <message>
         <source>Mouse selection mode</source>
         <translation>Режим выделения мышью</translation>
-    </message>
-    <message>
-        <source>Input mask</source>
-        <translation>Маска ввода</translation>
-    </message>
-    <message>
-        <source>Echo mode</source>
-        <translation>Режим эха</translation>
     </message>
     <message>
         <source>Pass. char</source>
@@ -44860,64 +44521,16 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>Символ отображаемый при вводе пользователем паролей.</translation>
     </message>
     <message>
-        <source>Tab stop distance</source>
-        <translation>Шаг табуляции</translation>
-    </message>
-    <message>
         <source>Sets the default distance, in device units, between tab stops.</source>
         <translation>Задаёт умолчальное расстояние между позициями табуляции в единицах устройства.</translation>
-    </message>
-    <message>
-        <source>Text margin</source>
-        <translation>Отступ текста</translation>
     </message>
     <message>
         <source>Sets the margin, in pixels, around the text in the Text Edit.</source>
         <translation>Задаёт отступ в пикселях вокруг текста в текстовом редакторе.</translation>
     </message>
     <message>
-        <source>Maximum length</source>
-        <translation>Максимальная длина</translation>
-    </message>
-    <message>
         <source>Sets the maximum permitted length of the text in the TextInput.</source>
         <translation>Задаёт максимальную допустимую длину текста в TextInput.</translation>
-    </message>
-    <message>
-        <source>Flags</source>
-        <translation>Флаги</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Только для чтения</translation>
-    </message>
-    <message>
-        <source>Cursor visible</source>
-        <translation>Курсор виден</translation>
-    </message>
-    <message>
-        <source>Active focus on press</source>
-        <translation>Активировать фокус при нажатии</translation>
-    </message>
-    <message>
-        <source>Auto scroll</source>
-        <translation>Прокручивать автоматически</translation>
-    </message>
-    <message>
-        <source>Overwrite mode</source>
-        <translation>Режим перезаписи</translation>
-    </message>
-    <message>
-        <source>Persistent selection</source>
-        <translation>Постоянное выделение</translation>
-    </message>
-    <message>
-        <source>Select by mouse</source>
-        <translation>Выделение мышью</translation>
-    </message>
-    <message>
-        <source>Select by keyboard</source>
-        <translation>Выделение клавиатурой</translation>
     </message>
 </context>
 <context>
@@ -47970,33 +47583,6 @@ What do you want to do?</source>
 </source>
         <translation>Ошибка запуска WinRT Runner Tool: %1
 </translation>
-    </message>
-</context>
-<context>
-    <name>WindowSpecifics</name>
-    <message>
-        <source>Window</source>
-        <translation>Окно</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Заголовок</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Размер</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Цвет</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation>Видимость</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Непрозрачность</translation>
     </message>
 </context>
 <context>

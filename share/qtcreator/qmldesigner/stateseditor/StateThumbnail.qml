@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+pragma Translator: "QtC::QmlDesigner"
 import QtQuick
 import QtQuick.Controls
 import HelperWidgets 2.0 as HelperWidgets
