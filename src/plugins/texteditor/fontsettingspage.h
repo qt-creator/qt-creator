@@ -92,6 +92,9 @@ private:
 
 using FormatDescriptions = std::vector<FormatDescription>;
 
-namespace Internal { void setupFontSettingsPage(); }
+namespace Internal {
+void setupFontSettingsPage();
+QObject *createFontSettingsAspectTest();
+} // namespace Internal
 
 } // namespace TextEditor

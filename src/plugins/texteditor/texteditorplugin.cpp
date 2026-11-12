@@ -105,6 +105,7 @@ void TextEditorPlugin::initialize()
 {
 #ifdef WITH_TESTS
     addTestCreator(createEncodingSelectionAspectTest);
+    addTestCreator(createFontSettingsAspectTest);
     addTestCreator(createFormatTextTest);
     addTestCreator(createSnippetsSettingsAspectTest);
     addTestCreator(createTextDocumentTest);
