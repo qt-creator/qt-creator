@@ -31,6 +31,8 @@ Utils::Result<Icon> fromJson<Icon>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("url"))
         return Utils::ResultError("Missing required field: url");
+    if (!obj["url"].isString())
+        return Utils::ResultError("Invalid type for field: url");
     Icon result;
     result._url = obj.value("url").toString();
     if (obj.contains("data"))
@@ -82,10 +84,16 @@ Utils::Result<Argument> fromJson<Argument>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("type"))
         return Utils::ResultError("Missing required field: type");
+    if (!obj["type"].isString())
+        return Utils::ResultError("Invalid type for field: type");
     if (!obj.contains("required"))
         return Utils::ResultError("Missing required field: required");
+    if (!obj["required"].isBool())
+        return Utils::ResultError("Invalid type for field: required");
     if (!obj.contains("repeated"))
         return Utils::ResultError("Missing required field: repeated");
+    if (!obj["repeated"].isBool())
+        return Utils::ResultError("Invalid type for field: repeated");
     Argument result;
     const auto res0 = fromJson<Argument::Type>("type", obj["type"]);
     if (!res0)
@@ -114,10 +122,16 @@ Utils::Result<KeyValueInput> fromJson<KeyValueInput>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("required"))
         return Utils::ResultError("Missing required field: required");
+    if (!obj["required"].isBool())
+        return Utils::ResultError("Invalid type for field: required");
     if (!obj.contains("secret"))
         return Utils::ResultError("Missing required field: secret");
+    if (!obj["secret"].isBool())
+        return Utils::ResultError("Invalid type for field: secret");
     KeyValueInput result;
     result._name = obj.value("name").toString();
     if (obj.contains("description"))
@@ -185,10 +199,16 @@ Utils::Result<Package> fromJson<Package>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("registry_type"))
         return Utils::ResultError("Missing required field: registry_type");
+    if (!obj["registry_type"].isString())
+        return Utils::ResultError("Invalid type for field: registry_type");
     if (!obj.contains("identifier"))
         return Utils::ResultError("Missing required field: identifier");
+    if (!obj["identifier"].isString())
+        return Utils::ResultError("Invalid type for field: identifier");
     if (!obj.contains("transport_type"))
         return Utils::ResultError("Missing required field: transport_type");
+    if (!obj["transport_type"].isString())
+        return Utils::ResultError("Invalid type for field: transport_type");
     Package result;
     const auto res0 = fromJson<Package::Registry_type>("registry_type", obj["registry_type"]);
     if (!res0)
@@ -278,8 +298,12 @@ Utils::Result<Remote> fromJson<Remote>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("type"))
         return Utils::ResultError("Missing required field: type");
+    if (!obj["type"].isString())
+        return Utils::ResultError("Invalid type for field: type");
     if (!obj.contains("url"))
         return Utils::ResultError("Missing required field: url");
+    if (!obj["url"].isString())
+        return Utils::ResultError("Invalid type for field: url");
     Remote result;
     const auto res0 = fromJson<Remote::Type>("type", obj["type"]);
     if (!res0)
@@ -330,12 +354,20 @@ Utils::Result<Server> fromJson<Server>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("description"))
         return Utils::ResultError("Missing required field: description");
+    if (!obj["description"].isString())
+        return Utils::ResultError("Invalid type for field: description");
     if (!obj.contains("version"))
         return Utils::ResultError("Missing required field: version");
+    if (!obj["version"].isString())
+        return Utils::ResultError("Invalid type for field: version");
     if (!obj.contains("status"))
         return Utils::ResultError("Missing required field: status");
+    if (!obj["status"].isString())
+        return Utils::ResultError("Invalid type for field: status");
     Server result;
     result._name = obj.value("name").toString();
     if (obj.contains("title"))
@@ -394,14 +426,20 @@ Utils::Result<McpRegistry> fromJson<McpRegistry>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("generated_at"))
         return Utils::ResultError("Missing required field: generated_at");
+    if (!obj["generated_at"].isString())
+        return Utils::ResultError("Invalid type for field: generated_at");
     if (!obj.contains("count"))
         return Utils::ResultError("Missing required field: count");
+    if (!obj["count"].isDouble())
+        return Utils::ResultError("Invalid type for field: count");
     if (!obj.contains("servers"))
         return Utils::ResultError("Missing required field: servers");
+    if (!obj["servers"].isArray())
+        return Utils::ResultError("Invalid type for field: servers");
     McpRegistry result;
     result._generated_at = obj.value("generated_at").toString();
     result._count = obj.value("count").toInt();
-    if (obj.contains("servers") && obj["servers"].isArray()) {
+    {
         const QJsonArray arr = obj["servers"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<Server>("servers", v);

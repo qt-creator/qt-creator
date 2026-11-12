@@ -105,8 +105,12 @@ inline Utils::Result<Error> fromJson<Error>(const QJsonValue &val) {
     const QJsonObject obj = val.toObject();
     if (!obj.contains("code"))
         return Utils::ResultError("Missing required field: code");
+    if (!obj["code"].isDouble())
+        return Utils::ResultError("Invalid type for field: code");
     if (!obj.contains("message"))
         return Utils::ResultError("Missing required field: message");
+    if (!obj["message"].isString())
+        return Utils::ResultError("Invalid type for field: message");
     Error result;
     result._code = obj.value("code").toInt();
     if (obj.contains("data"))
@@ -146,23 +150,23 @@ inline Utils::Result<ErrorResponse> fromJson<ErrorResponse>(const QJsonValue &va
     const QJsonObject obj = val.toObject();
     if (!obj.contains("error"))
         return Utils::ResultError("Missing required field: error");
+    if (!obj["error"].isObject())
+        return Utils::ResultError("Invalid type for field: error");
     if (!obj.contains("jsonrpc"))
         return Utils::ResultError("Missing required field: jsonrpc");
+    if (!obj["jsonrpc"].isString())
+        return Utils::ResultError("Invalid type for field: jsonrpc");
     if (!obj.contains("id"))
         return Utils::ResultError("Missing required field: id");
     ErrorResponse result;
-    if (obj.contains("error") && obj["error"].isObject()) {
-        const auto res0 = fromJson<Error>("error", obj["error"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._error = *res0;
-    }
-    if (obj.contains("id")) {
-        const auto res1 = fromJson<RequestId>("id", obj["id"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._id = *res1;
-    }
+    const auto res0 = fromJson<Error>("error", obj["error"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._error = *res0;
+    const auto res1 = fromJson<RequestId>("id", obj["id"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._id = *res1;
     if (obj.value("jsonrpc").toString() != "2.0")
         return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
     return result;
@@ -200,16 +204,18 @@ inline Utils::Result<OpenTraceFileResult> fromJson<OpenTraceFileResult>(const QJ
         return Utils::ResultError("Missing required field: id");
     if (!obj.contains("jsonrpc"))
         return Utils::ResultError("Missing required field: jsonrpc");
+    if (!obj["jsonrpc"].isString())
+        return Utils::ResultError("Invalid type for field: jsonrpc");
     if (!obj.contains("result"))
         return Utils::ResultError("Missing required field: result");
+    if (!obj["result"].isBool())
+        return Utils::ResultError("Invalid type for field: result");
     OpenTraceFileResult result;
     result._result = obj.value("result").toBool();
-    if (obj.contains("id")) {
-        const auto res0 = fromJson<RequestId>("id", obj["id"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._id = *res0;
-    }
+    const auto res0 = fromJson<RequestId>("id", obj["id"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._id = *res0;
     if (obj.value("jsonrpc").toString() != "2.0")
         return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
     return result;
@@ -278,8 +284,12 @@ inline Utils::Result<TraceDiscardedNotification> fromJson<TraceDiscardedNotifica
     const QJsonObject obj = val.toObject();
     if (!obj.contains("jsonrpc"))
         return Utils::ResultError("Missing required field: jsonrpc");
+    if (!obj["jsonrpc"].isString())
+        return Utils::ResultError("Invalid type for field: jsonrpc");
     if (!obj.contains("method"))
         return Utils::ResultError("Missing required field: method");
+    if (!obj["method"].isString())
+        return Utils::ResultError("Invalid type for field: method");
     TraceDiscardedNotification result;
     if (obj.value("jsonrpc").toString() != "2.0")
         return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
@@ -336,10 +346,16 @@ inline Utils::Result<TraceEventSelectedNotification::Params> fromJson<TraceEvent
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sourceFilePath"))
         return Utils::ResultError("Missing required field: sourceFilePath");
+    if (!obj["sourceFilePath"].isString())
+        return Utils::ResultError("Invalid type for field: sourceFilePath");
     if (!obj.contains("lineNumber"))
         return Utils::ResultError("Missing required field: lineNumber");
+    if (!obj["lineNumber"].isDouble())
+        return Utils::ResultError("Invalid type for field: lineNumber");
     if (!obj.contains("columnNumber"))
         return Utils::ResultError("Missing required field: columnNumber");
+    if (!obj["columnNumber"].isDouble())
+        return Utils::ResultError("Invalid type for field: columnNumber");
     TraceEventSelectedNotification::Params result;
     result._sourceFilePath = obj.value("sourceFilePath").toString();
     result._lineNumber = obj.value("lineNumber").toInt();
@@ -371,21 +387,25 @@ inline Utils::Result<TraceEventSelectedNotification> fromJson<TraceEventSelected
     const QJsonObject obj = val.toObject();
     if (!obj.contains("jsonrpc"))
         return Utils::ResultError("Missing required field: jsonrpc");
+    if (!obj["jsonrpc"].isString())
+        return Utils::ResultError("Invalid type for field: jsonrpc");
     if (!obj.contains("method"))
         return Utils::ResultError("Missing required field: method");
+    if (!obj["method"].isString())
+        return Utils::ResultError("Invalid type for field: method");
     if (!obj.contains("params"))
         return Utils::ResultError("Missing required field: params");
+    if (!obj["params"].isObject())
+        return Utils::ResultError("Invalid type for field: params");
     TraceEventSelectedNotification result;
     if (obj.value("jsonrpc").toString() != "2.0")
         return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
     if (obj.value("method").toString() != "traceEventSelected")
         return Utils::ResultError("Field 'method' must be 'traceEventSelected', got: " + obj.value("method").toString());
-    if (obj.contains("params") && obj["params"].isObject()) {
-        const auto res0 = fromJson<TraceEventSelectedNotification::Params>("params", obj["params"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._params = *res0;
-    }
+    const auto res0 = fromJson<TraceEventSelectedNotification::Params>("params", obj["params"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._params = *res0;
     return result;
 }
 
@@ -431,8 +451,12 @@ inline Utils::Result<TraceFileLoadingFinishedNotification::Params> fromJson<Trac
     const QJsonObject obj = val.toObject();
     if (!obj.contains("traceFilePath"))
         return Utils::ResultError("Missing required field: traceFilePath");
+    if (!obj["traceFilePath"].isString())
+        return Utils::ResultError("Invalid type for field: traceFilePath");
     if (!obj.contains("successful"))
         return Utils::ResultError("Missing required field: successful");
+    if (!obj["successful"].isBool())
+        return Utils::ResultError("Invalid type for field: successful");
     TraceFileLoadingFinishedNotification::Params result;
     result._traceFilePath = obj.value("traceFilePath").toString();
     result._successful = obj.value("successful").toBool();
@@ -458,21 +482,25 @@ inline Utils::Result<TraceFileLoadingFinishedNotification> fromJson<TraceFileLoa
     const QJsonObject obj = val.toObject();
     if (!obj.contains("jsonrpc"))
         return Utils::ResultError("Missing required field: jsonrpc");
+    if (!obj["jsonrpc"].isString())
+        return Utils::ResultError("Invalid type for field: jsonrpc");
     if (!obj.contains("method"))
         return Utils::ResultError("Missing required field: method");
+    if (!obj["method"].isString())
+        return Utils::ResultError("Invalid type for field: method");
     if (!obj.contains("params"))
         return Utils::ResultError("Missing required field: params");
+    if (!obj["params"].isObject())
+        return Utils::ResultError("Invalid type for field: params");
     TraceFileLoadingFinishedNotification result;
     if (obj.value("jsonrpc").toString() != "2.0")
         return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
     if (obj.value("method").toString() != "traceFileLoadingFinished")
         return Utils::ResultError("Field 'method' must be 'traceFileLoadingFinished', got: " + obj.value("method").toString());
-    if (obj.contains("params") && obj["params"].isObject()) {
-        const auto res0 = fromJson<TraceFileLoadingFinishedNotification::Params>("params", obj["params"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._params = *res0;
-    }
+    const auto res0 = fromJson<TraceFileLoadingFinishedNotification::Params>("params", obj["params"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._params = *res0;
     return result;
 }
 
@@ -512,6 +540,8 @@ inline Utils::Result<TraceFileLoadingStartedNotification::Params> fromJson<Trace
     const QJsonObject obj = val.toObject();
     if (!obj.contains("traceFilePath"))
         return Utils::ResultError("Missing required field: traceFilePath");
+    if (!obj["traceFilePath"].isString())
+        return Utils::ResultError("Invalid type for field: traceFilePath");
     TraceFileLoadingStartedNotification::Params result;
     result._traceFilePath = obj.value("traceFilePath").toString();
     return result;
@@ -529,21 +559,25 @@ inline Utils::Result<TraceFileLoadingStartedNotification> fromJson<TraceFileLoad
     const QJsonObject obj = val.toObject();
     if (!obj.contains("jsonrpc"))
         return Utils::ResultError("Missing required field: jsonrpc");
+    if (!obj["jsonrpc"].isString())
+        return Utils::ResultError("Invalid type for field: jsonrpc");
     if (!obj.contains("method"))
         return Utils::ResultError("Missing required field: method");
+    if (!obj["method"].isString())
+        return Utils::ResultError("Invalid type for field: method");
     if (!obj.contains("params"))
         return Utils::ResultError("Missing required field: params");
+    if (!obj["params"].isObject())
+        return Utils::ResultError("Invalid type for field: params");
     TraceFileLoadingStartedNotification result;
     if (obj.value("jsonrpc").toString() != "2.0")
         return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
     if (obj.value("method").toString() != "traceFileLoadingStarted")
         return Utils::ResultError("Field 'method' must be 'traceFileLoadingStarted', got: " + obj.value("method").toString());
-    if (obj.contains("params") && obj["params"].isObject()) {
-        const auto res0 = fromJson<TraceFileLoadingStartedNotification::Params>("params", obj["params"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._params = *res0;
-    }
+    const auto res0 = fromJson<TraceFileLoadingStartedNotification::Params>("params", obj["params"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._params = *res0;
     return result;
 }
 
@@ -637,15 +671,17 @@ inline Utils::Result<ExitRequest> fromJson<ExitRequest>(const QJsonValue &val) {
         return Utils::ResultError("Missing required field: id");
     if (!obj.contains("jsonrpc"))
         return Utils::ResultError("Missing required field: jsonrpc");
+    if (!obj["jsonrpc"].isString())
+        return Utils::ResultError("Invalid type for field: jsonrpc");
     if (!obj.contains("method"))
         return Utils::ResultError("Missing required field: method");
+    if (!obj["method"].isString())
+        return Utils::ResultError("Invalid type for field: method");
     ExitRequest result;
-    if (obj.contains("id")) {
-        const auto res0 = fromJson<RequestId>("id", obj["id"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._id = *res0;
-    }
+    const auto res0 = fromJson<RequestId>("id", obj["id"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._id = *res0;
     if (obj.value("jsonrpc").toString() != "2.0")
         return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
     if (obj.value("method").toString() != "exit")
@@ -695,6 +731,8 @@ inline Utils::Result<OpenTraceFileRequest::Params> fromJson<OpenTraceFileRequest
         return Utils::ResultError("Missing required field: method");
     if (!obj.contains("traceFilePath"))
         return Utils::ResultError("Missing required field: traceFilePath");
+    if (!obj["traceFilePath"].isString())
+        return Utils::ResultError("Invalid type for field: traceFilePath");
     OpenTraceFileRequest::Params result;
     result._traceFilePath = obj.value("traceFilePath").toString();
     return result;

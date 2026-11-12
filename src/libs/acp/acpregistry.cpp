@@ -11,8 +11,12 @@ Utils::Result<binaryTarget> fromJson<binaryTarget>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("archive"))
         return Utils::ResultError("Missing required field: archive");
+    if (!obj["archive"].isString())
+        return Utils::ResultError("Invalid type for field: archive");
     if (!obj.contains("cmd"))
         return Utils::ResultError("Missing required field: cmd");
+    if (!obj["cmd"].isString())
+        return Utils::ResultError("Invalid type for field: cmd");
     binaryTarget result;
     result._archive = obj.value("archive").toString();
     result._cmd = obj.value("cmd").toString();
@@ -126,6 +130,8 @@ Utils::Result<packageDistribution> fromJson<packageDistribution>(const QJsonValu
     const QJsonObject obj = val.toObject();
     if (!obj.contains("package"))
         return Utils::ResultError("Missing required field: package");
+    if (!obj["package"].isString())
+        return Utils::ResultError("Invalid type for field: package");
     packageDistribution result;
     result._package = obj.value("package").toString();
     if (obj.contains("args") && obj["args"].isArray()) {
@@ -211,14 +217,24 @@ Utils::Result<ACPAgent> fromJson<ACPAgent>(const QJsonValue &val)
     const QJsonObject obj = val.toObject();
     if (!obj.contains("id"))
         return Utils::ResultError("Missing required field: id");
+    if (!obj["id"].isString())
+        return Utils::ResultError("Invalid type for field: id");
     if (!obj.contains("name"))
         return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
     if (!obj.contains("version"))
         return Utils::ResultError("Missing required field: version");
+    if (!obj["version"].isString())
+        return Utils::ResultError("Invalid type for field: version");
     if (!obj.contains("description"))
         return Utils::ResultError("Missing required field: description");
+    if (!obj["description"].isString())
+        return Utils::ResultError("Invalid type for field: description");
     if (!obj.contains("distribution"))
         return Utils::ResultError("Missing required field: distribution");
+    if (!obj["distribution"].isObject())
+        return Utils::ResultError("Invalid type for field: distribution");
     ACPAgent result;
     result._id = obj.value("id").toString();
     result._name = obj.value("name").toString();
@@ -238,12 +254,10 @@ Utils::Result<ACPAgent> fromJson<ACPAgent>(const QJsonValue &val)
         result._license = obj.value("license").toString();
     if (obj.contains("icon"))
         result._icon = obj.value("icon").toString();
-    if (obj.contains("distribution") && obj["distribution"].isObject()) {
-        const auto res0 = fromJson<ACPAgent::Distribution>("distribution", obj["distribution"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._distribution = *res0;
-    }
+    const auto res0 = fromJson<ACPAgent::Distribution>("distribution", obj["distribution"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._distribution = *res0;
     return result;
 }
 
@@ -278,11 +292,15 @@ Utils::Result<ACPAgentRegistry> fromJson<ACPAgentRegistry>(const QJsonValue &val
     const QJsonObject obj = val.toObject();
     if (!obj.contains("version"))
         return Utils::ResultError("Missing required field: version");
+    if (!obj["version"].isString())
+        return Utils::ResultError("Invalid type for field: version");
     if (!obj.contains("agents"))
         return Utils::ResultError("Missing required field: agents");
+    if (!obj["agents"].isArray())
+        return Utils::ResultError("Invalid type for field: agents");
     ACPAgentRegistry result;
     result._version = obj.value("version").toString();
-    if (obj.contains("agents") && obj["agents"].isArray()) {
+    {
         const QJsonArray arr = obj["agents"].toArray();
         for (const QJsonValue &v : arr) {
             const auto res0 = fromJson<ACPAgent>("agents", v);
