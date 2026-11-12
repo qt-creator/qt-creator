@@ -19,6 +19,20 @@
 
 #include <QComboBox>
 
+#ifdef WITH_TESTS
+#include "qmlproject.h"
+
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/target.h>
+
+#include <utils/temporarydirectory.h>
+
+#include <QTest>
+#endif
+
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -110,14 +124,14 @@ void QmlMainFileAspect::updateFileComboBox()
     // make paths relative to project directory
     FilePaths relativeFiles;
     for (const FilePath &fn : std::as_const(sortedFiles))
-        relativeFiles += projectDir.relativeChildPath(fn);
+        relativeFiles += fn.relativeChildPath(projectDir);
     sortedFiles = relativeFiles;
 
     std::stable_sort(sortedFiles.begin(), sortedFiles.end(), caseInsensitiveLessThan);
 
     FilePath mainScriptPath;
     if (mainScriptSource() != FileInEditor)
-        mainScriptPath = projectDir.relativeChildPath(mainScript());
+        mainScriptPath = mainScript().relativeChildPath(projectDir);
 
     for (const FilePath &fn : std::as_const(sortedFiles)) {
         if (fn.suffixView() != u"qml")
@@ -253,4 +267,77 @@ QmlBuildSystem *QmlMainFileAspect::qmlBuildSystem() const
     return qobject_cast<QmlBuildSystem *>(runConfig->buildSystem());
 }
 
+#ifdef WITH_TESTS
+namespace Internal {
+
+class QmlMainFileAspectTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void init()
+    {
+        m_tempDir = std::make_unique<TemporaryDirectory>("qmlmainfileaspect");
+        // The project lists its files canonically, so /var and /private/var on macOS differ.
+        m_dir = m_tempDir->path().canonicalPath();
+        const FilePath projectFile = m_dir / "test.qmlproject";
+        QVERIFY(projectFile.writeFileContents(
+            "import QmlProject 1.1\nProject {\n    QmlFiles { directory: \".\" }\n}\n"));
+        QVERIFY((m_dir / "first.qml").writeFileContents("import QtQuick\nItem {}\n"));
+        QVERIFY((m_dir / "second.qml").writeFileContents("import QtQuick\nItem {}\n"));
+
+        m_kit = KitManager::registerKit([](Kit *k) {
+            k->setUnexpandedDisplayName("QmlMainFileAspectTest Kit");
+            RunDeviceTypeKitAspect::setDeviceTypeId(k, ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+        });
+        QVERIFY(m_kit);
+        m_project = std::make_unique<QmlProject>(projectFile);
+        Target * const target = m_project->addTargetForKit(m_kit);
+        QVERIFY(target);
+        QTRY_VERIFY(target->activeRunConfiguration());
+        m_aspect = target->activeRunConfiguration()->aspect<QmlMainFileAspect>();
+        QVERIFY(m_aspect);
+        QTRY_VERIFY(m_aspect->qmlBuildSystem()->hasParsingData());
+    }
+
+    void cleanup()
+    {
+        m_aspect = nullptr;
+        m_project.reset();
+        if (m_kit)
+            KitManager::deregisterKit(m_kit);
+        m_kit = nullptr;
+        m_tempDir.reset();
+    }
+
+    void testOffersTheQmlFilesOfTheProject()
+    {
+        const std::unique_ptr<QWidget> widget(Layouting::Column{*m_aspect}.emerge());
+        QComboBox *comboBox = widget->findChild<QComboBox *>();
+        QVERIFY(comboBox);
+        QCOMPARE(comboBox->count(), 3);
+        QCOMPARE(comboBox->itemText(1), "first.qml");
+        QCOMPARE(comboBox->itemText(2), "second.qml");
+    }
+
+private:
+    std::unique_ptr<TemporaryDirectory> m_tempDir;
+    FilePath m_dir;
+    Kit *m_kit = nullptr;
+    std::unique_ptr<QmlProject> m_project;
+    QmlMainFileAspect *m_aspect = nullptr;
+};
+
+QObject *createQmlMainFileAspectTest()
+{
+    return new QmlMainFileAspectTest;
+}
+
+} // namespace Internal
+#endif // WITH_TESTS
+
 } // QmlProjectManager
+
+#ifdef WITH_TESTS
+#include <qmlmainfileaspect.moc>
+#endif

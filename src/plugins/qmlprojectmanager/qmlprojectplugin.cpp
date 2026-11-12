@@ -5,6 +5,7 @@
 
 #include "buildsystem/qmlbuildsystem.h"
 #include "qdslandingpage.h"
+#include "qmlmainfileaspect.h"
 #include "qmlproject.h"
 #include "qmlprojectconstants.h"
 #include "qmlprojectmanagertr.h"
@@ -328,6 +329,10 @@ void QmlProjectPlugin::setupEditorToolButton()
 
 void QmlProjectPlugin::initialize()
 {
+#ifdef WITH_TESTS
+    addTestCreator(createQmlMainFileAspectTest);
+#endif
+
     setupQmlProjectRunConfiguration();
     setupExternalDesignStudio();
 

@@ -19,6 +19,8 @@ QT_END_NAMESPACE
 
 namespace QmlProjectManager {
 
+namespace Internal { QObject *createQmlMainFileAspectTest(); }
+
 class QmlProject;
 class QmlBuildSystem;
 
