@@ -1118,7 +1118,7 @@ private slots:
         toolAspect->macroExpander()->registerVariable(
             "QtcTestToolDir", "Test tool directory", [] { return QString("/qtc-device-only/bin"); });
         toolAspect->setValue(QString("%{QtcTestToolDir}/qtc-test-tool"));
-        PathChooser *const chooser = toolAspect->pathChooser();
+        PathChooser *const chooser = widget->findChild<PathChooser *>();
         QVERIFY(chooser);
         const QString expected
             = "checked " + dev->filePath(DeviceOnlyToolFileAccess::toolPath()).toUrlishString();

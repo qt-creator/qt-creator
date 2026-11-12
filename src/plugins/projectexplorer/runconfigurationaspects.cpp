@@ -695,10 +695,8 @@ FilePath ExecutableAspect::executable() const
 void ExecutableAspect::addToLayoutImpl(Layout &builder)
 {
     builder.addItem(m_executable);
-    if (m_executable.pathChooser()) {
-        connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
-                m_executable.pathChooser(), &PathChooser::triggerChanged);
-    }
+    connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
+            &m_executable, &FilePathAspect::validateInput, Qt::UniqueConnection);
     if (m_alternativeExecutable) {
         builder.flush();
         builder.addItem(m_alternativeExecutable);

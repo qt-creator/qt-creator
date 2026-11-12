@@ -63,7 +63,7 @@ BuildDirectoryAspect::BuildDirectoryAspect(BuildConfiguration *bc)
                 Tr::tr("The build directory is not reachable from the build device.")))));
         }
 
-        return pathChooser()->defaultValidationFunction()(text);
+        return defaultValidationFunction()(text);
     });
 
     setOpenTerminalHandler(
@@ -125,6 +125,10 @@ FilePath BuildDirectoryAspect::absoluteBuildDir(const FilePath &rawPath) const
 
 void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
+    const auto buildDevice = BuildDeviceKitAspect::device(buildConfiguration()->kit());
+    setAllowPathFromDevice(buildDevice
+                           && buildDevice->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+
     FilePathAspect::addToLayoutImpl(parent);
     auto genericProblemSpacer = new QLabel;
     auto specialProblemSpacer = new QLabel;
@@ -162,12 +166,6 @@ void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
             }
         });
     }
-
-    const auto buildDevice = BuildDeviceKitAspect::device(buildConfiguration()->kit());
-    if (buildDevice && buildDevice->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-        pathChooser()->setAllowPathFromDevice(true);
-    else
-        pathChooser()->setAllowPathFromDevice(false);
 }
 
 void BuildDirectoryAspect::announceChanges(Changes changes, Announcement howToAnnounce)
