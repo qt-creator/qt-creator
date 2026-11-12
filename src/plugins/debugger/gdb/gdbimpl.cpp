@@ -1736,7 +1736,7 @@ bool GdbImpl::reportDisassemblyIfUsable(quint64 requestId, quint64 address,
 }
 
 void GdbImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
-                               DisassemblyFlavor flavor)
+                               const QString &, DisassemblyFlavor flavor)
 {
     if (address == 0 && functionName.isEmpty()) {
         emit message("GdbImpl::fetchDisassembly() needs an address or a function name",

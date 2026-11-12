@@ -1237,7 +1237,7 @@ void LldbImpl::accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint6
 }
 
 void LldbImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
-                                DisassemblyFlavor flavor)
+                                const QString &, DisassemblyFlavor flavor)
 {
     DebuggerCommand cmd("fetchDisassembler");
     cmd.arg("address", address);

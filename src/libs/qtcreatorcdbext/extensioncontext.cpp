@@ -503,6 +503,7 @@ bool ExtensionContext::call(const std::string &functionCall,
     // Wait until finished
     startRecordingOutput();
     StateNotificationBlocker blocker(this);
+    ExceptionReportBlocker exceptionBlocker(this);
     m_control->WaitForEvent(0, INFINITE);
     *output =  stopRecordingOutput();
     // Crude attempt at recovering from a crash: Issue 'gN' (go with exception not handled).

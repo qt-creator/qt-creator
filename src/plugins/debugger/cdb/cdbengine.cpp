@@ -3686,6 +3686,7 @@ CdbImplStartData cdbImplStartData(const DebuggerRunParameters &rp)
         .extraDumperFile = s.extraDumperFile(),
         .extraDumperCommands = s.extraDumperCommands(),
         .breakOnMain = rp.breakOnMain(),
+        .continueAfterAttach = rp.continueAfterAttach(),
         .enableHeapDebugging = s.enableHeapDebugging(),
         .ignoreFirstChanceAccessViolation = s.ignoreFirstChanceAccessViolation(),
         .useTerminal = rp.useTerminal(),

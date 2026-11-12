@@ -789,7 +789,8 @@ void PdbImpl::accessMemory(MemoryOp, quint64, quint64, quint64, const QByteArray
 {
 }
 
-void PdbImpl::fetchDisassembly(quint64, quint64, const QString &, DisassemblyFlavor)
+void PdbImpl::fetchDisassembly(quint64, quint64, const QString &, const QString &,
+                               DisassemblyFlavor)
 {
 }
 

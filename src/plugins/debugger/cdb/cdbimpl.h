@@ -21,6 +21,8 @@ namespace Debugger::Internal {
 DEBUGGER_EXPORT bool stoppedInArtificialThread(const GdbMi &stopData);
 
 DEBUGGER_EXPORT std::optional<QString> stoppedByException(const GdbMi &stopData);
+DEBUGGER_EXPORT bool stoppedByBreakIn(const GdbMi &stopData);
+DEBUGGER_EXPORT QString cdbSymbolName(const QString &module, const QString &functionName);
 
 DEBUGGER_EXPORT QStringList scriptMessages(const GdbMi &data);
 
@@ -164,6 +166,8 @@ public:
     QString extraDumperCommands;
     // Stop where the program starts, before anything of it has run.
     bool breakOnMain = false;
+    // Hand a process attached to back running instead of stopped.
+    bool continueAfterAttach = false;
     bool enableHeapDebugging = false;
     bool ignoreFirstChanceAccessViolation = false;
     // The program gets a console of its own, so its output goes there.
@@ -252,7 +256,7 @@ private:
     void accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64 lengthOrSize,
                       const QByteArray &data) final;
     void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
-                          DisassemblyFlavor flavor) final;
+                          const QString &module, DisassemblyFlavor flavor) final;
     void disassembleFunction(quint64 requestId, quint64 address, const QString &functionName,
                              const QList<quint64> &functionAddresses);
     void disassemble(quint64 requestId, const DisassemblyRange &range);
@@ -446,6 +450,7 @@ private:
     QSet<QString> m_interpreterResolverIds;
     QSet<QString> m_interpreterMessageIds;
     QList<std::function<void()>> m_pendingBridgeWork;
+    bool m_bridgeProbeDone = false;
     QList<InterpreterBreakpoint> m_pendingInterpreterBreakpoints;
     QHash<int, int> m_interpreterBreakpointNumbers;
     QString m_qtCoreModule;

@@ -1012,6 +1012,16 @@ void GenericDebuggerEngine::reloadThreads()
 
 void GenericDebuggerEngine::loadAdditionalQmlStack()
 {
+    // Creating a QML stack while the QmlEngine is stopped results in a frozen inferior.
+    for (DebuggerEngine *companion : companionEngines()) {
+        if (companion && companion->objectName() == "QmlEngine"
+                && companion->state() == InferiorStopOk) {
+            showMessage(Tr::tr("Cannot create a QML stack trace while the QML debugger "
+                               "is stopped."),
+                        StatusBar);
+            return;
+        }
+    }
     RefreshRequest request;
     request.kind = RefreshKind::QmlStack;
     request.requestId = m_nextRefreshRequestId++;
@@ -1232,6 +1242,7 @@ void GenericDebuggerEngine::fetchDisassembler(DisassemblerAgent *agent)
     const quint64 requestId = m_nextDisassemblyRequestId++;
     m_pendingDisassemblyRequests[requestId] = agent;
     m_backend->fetchDisassembly(requestId, agent->address(), agent->location().functionName(),
+                                agent->location().from(),
                                 settings().intelFlavor() ? DisassemblyFlavor::Intel
                                                          : DisassemblyFlavor::Att);
 }

@@ -170,6 +170,10 @@ private slots:
     void testCdbImplAssignValue();
     void testCdbImplExtensionLocals();
     void testCdbImplStatusReports();
+    void testCdbImplInterpreterBreakpointWithoutPython();
+    void testCdbImplExceptionAfterInternalStop();
+    void testCdbImplAttach_data();
+    void testCdbImplAttach();
     void testCdbImplShutdownDetachesAttached();
     void testCdbImplSessionPidFailure();
     void testCdbImplStopReports();
@@ -184,6 +188,7 @@ private slots:
     void testCdbImplDisassemblyRange();
     void testCdbImplNormalizedSourceFileName();
     void testCdbImplModulesTree();
+    void testCdbImplSymbolName();
     void testCdbImplRegistersTree();
     void testCdbImplSetParameterArguments();
     void testMapsAnEmptyFileNameToNothing();
@@ -286,6 +291,7 @@ private slots:
     void testACoreSessionReadsModulesAndSources();
     void testModulesPointToTheDebuggersDevice();
     void testMoreFetchesTheStackAStepAtATime();
+    void testAQmlStackWaitsOnlyForTheQmlEngineOfItsOwnSession();
     void testAFailedSubBreakpointToggleRestoresItsState();
     void testARefusedResumeReadsTheAttachStopAfterAll();
     void testASuccessfulRunDropsTheUnreadAttachStop();
@@ -1155,6 +1161,19 @@ void DebuggerUnitTests::testCdbImplStoppedByException()
         R"(reason="exception",threadId="1",exceptionCode="1073741855")")));
 
     QVERIFY(!stoppedByException(stopData(R"(reason="breakpoint",threadId="1")")));
+
+    // The breaks the debugger caused are an interruption.
+    QVERIFY(stoppedByBreakIn(stopData(
+        R"(reason="exception",threadId="1",exceptionCode="2147483651")")));
+    QVERIFY(stoppedByBreakIn(stopData(
+        R"(reason="exception",threadId="1",exceptionCode="2147483652")")));
+    QVERIFY(stoppedByBreakIn(stopData(
+        R"(reason="exception",threadId="1",exceptionCode="1073807365")")));
+    QVERIFY(!stoppedByBreakIn(stopData(
+        R"(reason="exception",threadId="4",exceptionCode="3221225477")")));
+    QVERIFY(!stoppedByBreakIn(stopData(
+        R"(reason="exception",threadId="1",exceptionCode="1080890248")")));
+    QVERIFY(!stoppedByBreakIn(stopData(R"(reason="breakpoint",threadId="1")")));
 }
 
 void DebuggerUnitTests::testCdbImplResolvedBreakpointUpdates()
@@ -2123,6 +2142,163 @@ void DebuggerUnitTests::testCdbImplStatusReports()
     QVERIFY(cdb.m_cdbProc.waitForFinished());
 }
 
+void DebuggerUnitTests::testCdbImplInterpreterBreakpointWithoutPython()
+{
+    CdbImplStartData startData;
+    startData.nativeMixed = true;
+    CdbImpl cdb(startData);
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+    QList<bool> inserted;
+    QObject::connect(&cdb, &CdbImpl::breakpointEvent, &cdb,
+                     [&inserted](quint64, BreakpointOp op, bool ok, const GdbMi &) {
+        if (op == BreakpointOp::Insert)
+            inserted.append(ok);
+    });
+
+    BreakpointChangeRequest request;
+    request.requestId = 1;
+    request.params = BreakpointParameters(BreakpointByFileAndLine);
+    request.params.fileName = FilePath::fromString("/src/main.qml");
+    request.params.textPosition.line = 3;
+
+    // One that comes before the probe for Python waits for its answer.
+    cdb.changeBreakpoint(request);
+    QVERIFY(inserted.isEmpty());
+    cdb.flushPendingBridgeWork();
+    QCOMPARE(inserted, QList<bool>{false});
+
+    // One that comes after it does not.
+    request.requestId = 2;
+    cdb.changeBreakpoint(request);
+    QCOMPARE(inserted, QList<bool>({false, false}));
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplExceptionAfterInternalStop()
+{
+    CdbImpl cdb({});
+    cdb.m_wow64State = CdbImpl::Wow64State::None;
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+    QList<InferiorEvent> events;
+    QObject::connect(&cdb, &CdbImpl::inferiorEvent, &cdb, [&events](InferiorEvent event) {
+        events.append(event);
+    });
+    QStringList received;
+    QObject::connect(&cdb, &CdbImpl::signalReceived, &cdb,
+                     [&received](const QString &, const QString &meaning) {
+        received.append(meaning);
+    });
+
+    // The engine broke in for a command of its own, and hands the program back.
+    cdb.m_inferiorRunning = true;
+    cdb.m_callbackStop = true;
+    cdb.handleCdbOutputLine(cdbOwnBreakIn);
+    QCOMPARE(written.last(), QString("g"));
+
+    // The stop the break-in was is announced once more, and is nothing new.
+    cdb.handleCdbOutputLine(R"(<qtcreatorcdbext>|E|0|0|session_idle|{reason="unknown"})");
+    QVERIFY(events.isEmpty());
+
+    // A crash right after the resume is the program's.
+    cdb.m_callbackStop = true;
+    cdb.handleCdbOutputLine(cdbOwnBreakIn);
+    QCOMPARE(written.last(), QString("g"));
+    cdb.handleCdbOutputLine(R"(<qtcreatorcdbext>|E|0|0|session_idle|{reason="exception",)"
+                            R"(exceptionCode="3221225477",threadId="1"})");
+    QCOMPARE(events, QList<InferiorEvent>{InferiorEvent::SpontaneousStop});
+    QCOMPARE(received.size(), 1);
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplAttach_data()
+{
+    QTest::addColumn<bool>("continueAfterAttach");
+    QTest::addColumn<QString>("crashParameter");
+    QTest::addColumn<bool>("resumes");
+    QTest::addColumn<bool>("reported");
+
+    QTest::newRow("stay") << false << QString() << false << false;
+    QTest::newRow("continue") << true << QString() << true << false;
+    QTest::newRow("crash") << false << QString("42") << false << true;
+    QTest::newRow("crash, continue") << true << QString("42") << false << true;
+}
+
+void DebuggerUnitTests::testCdbImplAttach()
+{
+    QFETCH(bool, continueAfterAttach);
+    QFETCH(QString, crashParameter);
+    QFETCH(bool, resumes);
+    QFETCH(bool, reported);
+
+    CdbImplStartData startData;
+    startData.inferiorStartData = AttachToProcessData{{}, crashParameter};
+    startData.continueAfterAttach = continueAfterAttach;
+    CdbImpl cdb(startData);
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+    QList<InferiorEvent> events;
+    QObject::connect(&cdb, &CdbImpl::inferiorEvent, &cdb, [&events](InferiorEvent event) {
+        events.append(event);
+    });
+
+    QStringList received;
+    QObject::connect(&cdb, &CdbImpl::signalReceived, &cdb,
+                     [&received](const QString &, const QString &meaning) {
+        received.append(meaning);
+    });
+
+    GdbMi stopData;
+    if (reported) {
+        QStringDecoder decoder(QStringDecoder::Utf8);
+        stopData.fromString(R"({reason="exception",exceptionCode="3221225477",threadId="1"})",
+                            decoder);
+        QVERIFY(stopData.isValid());
+    }
+    cdb.handleInitialSessionIdle(stopData);
+    const QRegularExpressionMatch pidCommand
+        = QRegularExpression(R"(\.pid -t (\d+)\.0$)").match(written.last());
+    QVERIFY(pidCommand.hasMatch());
+    const QString pidToken = pidCommand.captured(1);
+    QVERIFY(events.isEmpty());
+
+    cdb.handleCdbOutputLine("<qtcreatorcdbext>|R|" + pidToken + "|0|pid|1234");
+    const QList<InferiorEvent> expected = resumes
+        ? QList<InferiorEvent>({InferiorEvent::EngineSetupOk,
+                                InferiorEvent::RunAndInferiorStopOkAndResuming,
+                                InferiorEvent::RunRequested, InferiorEvent::RunOk})
+        : QList<InferiorEvent>({InferiorEvent::EngineSetupOk,
+                                InferiorEvent::RunAndInferiorStopOk});
+    QCOMPARE(events, expected);
+    QCOMPARE(received.size(), reported ? 1 : 0);
+    // The setup replies still outstanding hold the resume back.
+    QVERIFY(!written.contains("g"));
+
+    const int builtinFlag = DebuggerCommand::Silent << 1;
+    while (!cdb.m_commandForToken.isEmpty()) {
+        const auto it = cdb.m_commandForToken.cbegin();
+        const int token = it.key();
+        if (it.value().flags & builtinFlag) {
+            answerCdbBuiltin(cdb, token);
+        } else {
+            cdb.handleCdbOutputLine("<qtcreatorcdbext>|R|" + QString::number(token)
+                                    + "|0|reply|{}");
+        }
+    }
+    QCOMPARE(written.contains("g"), resumes);
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
 void DebuggerUnitTests::testCdbImplShutdownDetachesAttached()
 {
     CdbImplStartData startData;
@@ -2705,6 +2881,7 @@ void DebuggerUnitTests::testCdbImplModulesTree()
               R"({name="KERNEL32",image="C:\\Windows\\system32\\KERNEL32.DLL",)"
               R"(start="0x7ffb842b0000",end="0x7ffb843edfff",deferred="true"})"));
     QCOMPARE(modules.childCount(), 2);
+    QCOMPARE(modules.childAt(0)["modulename"].data(), QString("tst_inferior"));
     QCOMPARE(modules.childAt(0)["modulepath"].data(),
              QString("C:\\build\\tst_inferior.exe"));
     QCOMPARE(modules.childAt(0)["startaddress"].data().toULongLong(),
@@ -2718,6 +2895,21 @@ void DebuggerUnitTests::testCdbImplModulesTree()
 
     // A reply that is not a list of modules is no modules.
     QCOMPARE(modulesTree(reply({})).childCount(), 0);
+    QStringDecoder decoder(QStringDecoder::Utf8);
+    GdbMi error;
+    error.fromString(R"({msg="Unable to list modules"})", decoder);
+    QCOMPARE(modulesTree(error).childCount(), 0);
+}
+
+void DebuggerUnitTests::testCdbImplSymbolName()
+{
+    // A function is looked up in the module of the frame it was asked for from,
+    // which cdb names without the extension.
+    QCOMPARE(cdbSymbolName("tst_inferior.exe", "main"), QString("tst_inferior!main"));
+    QCOMPARE(cdbSymbolName("C:\\build\\Qt6Core.DLL", "qt_assert"),
+             QString("Qt6Core!qt_assert"));
+    QCOMPARE(cdbSymbolName("KERNEL32", "Sleep"), QString("KERNEL32!Sleep"));
+    QCOMPARE(cdbSymbolName({}, "main"), QString("*!main"));
 }
 
 void DebuggerUnitTests::testCdbImplRegistersTree()
@@ -3709,7 +3901,8 @@ public:
     QStringList selectedThreads;
     void activateFrame(int level) override { activatedFrames.append(level); }
     QList<int> activatedFrames;
-    void fetchDisassembly(quint64, quint64, const QString &, DisassemblyFlavor flavor) override
+    void fetchDisassembly(quint64, quint64, const QString &, const QString &,
+                          DisassemblyFlavor flavor) override
     {
         disassemblyFlavors.append(flavor);
     }
@@ -6642,6 +6835,48 @@ void DebuggerUnitTests::testMoreFetchesTheStackAStepAtATime()
     engine->activateFrame(stack->stackSize());
     QVERIFY2(backend->lastStackRequest.stackDepthLimit > firstLimit,
              "<More> on a collapsed stack does not fetch more frames");
+}
+
+// Creating a QML stack while the QML engine of the same session is stopped
+// freezes the inferior. A stopped QML engine of another session does not.
+void DebuggerUnitTests::testAQmlStackWaitsOnlyForTheQmlEngineOfItsOwnSession()
+{
+    const auto stopped = [](RecordingBackend *backend, GenericDebuggerEngine *engine) {
+        engine->setRunParameters({});
+        engine->setDevice({});
+        engine->start();
+        reportAnAttachStopThatIsResumed(backend);
+        emit backend->inferiorEvent(InferiorEvent::RunRequested);
+        emit backend->inferiorEvent(InferiorEvent::RunOk);
+        emit backend->inferiorEvent(InferiorEvent::SpontaneousStop);
+        return engine->state() == InferiorStopOk;
+    };
+
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    auto otherBackend = new RecordingBackend;
+    auto other = new GenericDebuggerEngine("test", otherBackend);
+    const QScopeGuard deleteOther([other] { delete other; });
+    other->setObjectName("QmlEngine");
+    auto companionBackend = new RecordingBackend;
+    auto companion = new GenericDebuggerEngine("test", companionBackend);
+    const QScopeGuard deleteCompanion([companion] { delete companion; });
+    companion->setObjectName("QmlEngine");
+
+    QVERIFY(stopped(backend, engine));
+    QVERIFY(stopped(otherBackend, other));
+    QVERIFY(stopped(companionBackend, companion));
+
+    engine->loadAdditionalQmlStack();
+    QVERIFY2(backend->refreshes.contains(RefreshKind::QmlStack),
+             "a QML engine of another session blocked the QML stack");
+
+    backend->refreshes.clear();
+    engine->addCompanionEngine(companion);
+    engine->loadAdditionalQmlStack();
+    QVERIFY2(!backend->refreshes.contains(RefreshKind::QmlStack),
+             "a QML stack was requested while the QML engine of the session is stopped");
 }
 
 // The model shows a toggle before the backend answers it, and a failure restores

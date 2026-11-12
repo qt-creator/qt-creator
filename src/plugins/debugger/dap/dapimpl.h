@@ -54,7 +54,7 @@ protected:
     void accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64 lengthOrSize,
                       const QByteArray &data) override;
     void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
-                          DisassemblyFlavor flavor) override;
+                          const QString &module, DisassemblyFlavor flavor) override;
     void setPeripheralRegisterValue(quint64 address, quint64 value) override;
     void watchPoint(quint64 requestId, const QPoint &pnt) override;
     void createSnapshot(quint64 requestId) override;

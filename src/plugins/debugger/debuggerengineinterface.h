@@ -417,7 +417,7 @@ private:
     virtual void activateFrame(int index) = 0;
 
     virtual void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
-                                  DisassemblyFlavor flavor) = 0;
+                                  const QString &module, DisassemblyFlavor flavor) = 0;
 
     virtual void executeDebuggerCommand(const QString &command,
                                         const WatchItemData &inspectorItem) = 0;

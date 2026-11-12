@@ -1671,7 +1671,8 @@ void QmlImpl::executeDebuggerCommand(const QString &command, const WatchItemData
 
 void QmlImpl::setRegisterValue(const QString &, const QString &) {}
 void QmlImpl::accessMemory(MemoryOp, quint64, quint64, quint64, const QByteArray &) {}
-void QmlImpl::fetchDisassembly(quint64, quint64, const QString &, DisassemblyFlavor) {}
+void QmlImpl::fetchDisassembly(quint64, quint64, const QString &, const QString &,
+                               DisassemblyFlavor) {}
 void QmlImpl::setPeripheralRegisterValue(quint64, quint64) {}
 void QmlImpl::watchPoint(quint64, const QPoint &) {}
 void QmlImpl::createSnapshot(quint64) {}

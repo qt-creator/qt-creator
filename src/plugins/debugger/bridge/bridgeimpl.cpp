@@ -1888,7 +1888,7 @@ void BridgeImpl::accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quin
 }
 
 void BridgeImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
-                                  DisassemblyFlavor flavor)
+                                  const QString &, DisassemblyFlavor flavor)
 {
     QTC_ASSERT(m_client, return);
     if (address == 0 && functionName.isEmpty()) {

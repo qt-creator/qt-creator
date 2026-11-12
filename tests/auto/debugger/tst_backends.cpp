@@ -5864,7 +5864,7 @@ void tst_backends::testDisassemblerCapability()
         disassembly = lines;
         disassemblyReceived = true;
     });
-    engine->fetchDisassembly(40, bumpAddress, "bump", DisassemblyFlavor::Att);
+    engine->fetchDisassembly(40, bumpAddress, "bump", {}, DisassemblyFlavor::Att);
     QTRY_VERIFY_WITH_TIMEOUT(disassemblyReceived, s_timeout);
     QVERIFY(disassembly.coversAddress(bumpAddress));
 
@@ -5872,7 +5872,7 @@ void tst_backends::testDisassemblerCapability()
         return;
     disassembly = {};
     disassemblyReceived = false;
-    engine->fetchDisassembly(41, 0, testData.functionMarker, DisassemblyFlavor::Att);
+    engine->fetchDisassembly(41, 0, testData.functionMarker, {}, DisassemblyFlavor::Att);
     QTRY_VERIFY2_WITH_TIMEOUT(disassemblyReceived,
                               "disassembly by function name alone was never reported", s_timeout);
     QVERIFY2(!disassembly.data().isEmpty(), "disassembly by function name came back empty");
@@ -5905,7 +5905,7 @@ void tst_backends::reportsSourceLinesInTheDisassembly()
         disassembly = lines;
         disassemblyReceived = true;
     });
-    engine->fetchDisassembly(42, bumpAddress, "bump", DisassemblyFlavor::Att);
+    engine->fetchDisassembly(42, bumpAddress, "bump", {}, DisassemblyFlavor::Att);
     QTRY_VERIFY_WITH_TIMEOUT(disassemblyReceived, s_timeout);
 
     int sourceLines = 0;
@@ -11273,7 +11273,7 @@ void tst_backends::fillsInTheColumnsOfTheDisassemblerView()
         disassembly = lines;
         disassemblyReceived = true;
     });
-    engine->fetchDisassembly(347, bumpAddress, "bump", DisassemblyFlavor::Att);
+    engine->fetchDisassembly(347, bumpAddress, "bump", {}, DisassemblyFlavor::Att);
     QTRY_VERIFY_WITH_TIMEOUT(disassemblyReceived, s_timeout);
 
     // The disassembler view writes each instruction as address, offset into the
@@ -14264,7 +14264,7 @@ void tst_backends::disassemblesInTheConfiguredFlavor()
         disassembled = true;
     });
     engine->fetchDisassembly(400, 0, inferiorTestData(backend).functionMarker,
-                             DisassemblyFlavor::Intel);
+                             {}, DisassemblyFlavor::Intel);
     QTRY_VERIFY_WITH_TIMEOUT(disassembled, s_timeout);
 
     QVERIFY2(std::any_of(sent.cbegin(), sent.cend(), [&wireMarker](const QString &text) {
@@ -14293,7 +14293,7 @@ void tst_backends::disassemblesInTheConfiguredFlavor()
 
     disassembled = false;
     engine->fetchDisassembly(401, 0, inferiorTestData(backend).functionMarker,
-                             DisassemblyFlavor::Att);
+                             {}, DisassemblyFlavor::Att);
     QTRY_VERIFY_WITH_TIMEOUT(disassembled, s_timeout);
     const QList<DisassemblerLine> attLines = lines.data();
     QVERIFY2(std::any_of(attLines.cbegin(), attLines.cend(), [](const DisassemblerLine &line) {
@@ -21781,7 +21781,7 @@ void tst_backends::refusesWhatADapAdapterAnnouncesNothingAbout()
     engine->refresh({.requestId = 806, .kind = RefreshKind::SourceFiles});
     engine->accessMemory(MemoryOp::Fetch, 807, 0x3000, 16);
     engine->accessMemory(MemoryOp::Change, 808, 0x3000, 4, QByteArray(4, char(0)));
-    engine->fetchDisassembly(809, 0x4000, "main", DisassemblyFlavor::Att);
+    engine->fetchDisassembly(809, 0x4000, "main", {}, DisassemblyFlavor::Att);
     engine->setRegisterValue("rax", "1");
     // The adapter is not one this session started, so there is no debuggee of
     // its own to put back.

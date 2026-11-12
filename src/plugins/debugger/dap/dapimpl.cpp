@@ -4260,7 +4260,7 @@ void DapImpl::setTheDisassemblyFlavor(DisassemblyFlavor flavor)
 }
 
 void DapImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
-                               DisassemblyFlavor flavor)
+                               const QString &, DisassemblyFlavor flavor)
 {
     QTC_ASSERT(m_client, return);
     if (!m_client->capabilities().supportsDisassembleRequest) {
@@ -4288,7 +4288,7 @@ void DapImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString
                                     "address.").arg(functionName), LogWarning);
                 return;
             }
-            fetchDisassembly(requestId, found, functionName, flavor);
+            fetchDisassembly(requestId, found, functionName, {}, flavor);
         });
         return;
     }

@@ -108,7 +108,7 @@ private:
     void accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64 lengthOrSize,
                       const QByteArray &data) final;
     void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName,
-                          DisassemblyFlavor flavor) final;
+                          const QString &module, DisassemblyFlavor flavor) final;
     void fetchDisassemblyPointMixed(quint64 requestId, quint64 address,
                                     const QString &functionName);
     void fetchDisassemblyRangeMixed(quint64 requestId, quint64 address);
