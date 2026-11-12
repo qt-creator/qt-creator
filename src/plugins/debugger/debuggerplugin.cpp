@@ -908,9 +908,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 
     m_modeSelectorDebugAction.setObjectName("Debug"); // used for UI introduction
 
-    if (!hideDebugMenu())
-        ModeManager::addAction(&m_modeSelectorDebugAction, /*priority*/ 90);
-
     m_undisturbableAction.setIcon(interruptIcon());
     m_undisturbableAction.setEnabled(false);
 
@@ -918,6 +915,9 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
         "Debugger.DebugWithoutDeploy");
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
+
+    if (!hideDebugMenu())
+        ModeManager::addAction(&m_modeSelectorDebugAction, /*priority*/ 90, {cmd->action()});
 
     cmd = ActionManager::registerAction(&m_attachToRunningApplication,
          "Debugger.AttachToRemoteProcess");
@@ -1167,9 +1167,12 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
             }
         });
 
-    globalProjectExplorerSettings().deployBeforeRun.addOnChanged(this, [this] {
+    const auto updateDebugWithoutDeployAction = [this] {
         m_debugWithoutDeployAction.setVisible(globalProjectExplorerSettings().deployBeforeRun());
-    });
+    };
+    updateDebugWithoutDeployAction();
+    globalProjectExplorerSettings().deployBeforeRun.addOnChanged(this,
+                                                                 updateDebugWithoutDeployAction);
 
     // Debug mode setup
     m_mode = new DebugMode;

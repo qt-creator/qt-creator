@@ -1584,13 +1584,15 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+R")));
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
-    cmd->action()->setObjectName("Run"); // used for UI introduction
-    ModeManager::addAction(cmd->action(), Constants::P_ACTION_RUN);
+    QAction *modeBarRunAction = cmd->action();
+    modeBarRunAction->setObjectName("Run"); // used for UI introduction
 
     // Run without deployment action
     dd->m_runWithoutDeployAction = new QAction(Tr::tr("Run Without Deployment"), this);
     cmd = ActionManager::registerAction(dd->m_runWithoutDeployAction, Constants::RUNWITHOUTDEPLOY);
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
+
+    ModeManager::addAction(modeBarRunAction, Constants::P_ACTION_RUN, {cmd->action()});
 
     // build action with dependencies (context menu)
     dd->m_buildDependenciesActionContextMenu = new QAction(Tr::tr("Build"), this);

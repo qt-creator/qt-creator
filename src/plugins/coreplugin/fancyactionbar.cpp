@@ -12,8 +12,10 @@
 #include <utils/tooltip/tooltip.h>
 
 #include <QAction>
+#include <QContextMenuEvent>
 #include <QDebug>
 #include <QEvent>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPixmapCache>
@@ -61,6 +63,20 @@ bool FancyToolButton::event(QEvent *e)
         break;
     }
     return QToolButton::event(e);
+}
+
+void FancyToolButton::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu menu;
+    for (QAction *action : actions()) {
+        if (action != defaultAction() && action->isVisible())
+            menu.addAction(action);
+    }
+    if (menu.isEmpty()) {
+        event->ignore();
+        return;
+    }
+    menu.exec(event->globalPos());
 }
 
 static int findSplitPos(const QString &text, const QFontMetrics &fontMetrics, qreal availableWidth)
@@ -364,9 +380,11 @@ void FancyActionBar::addProjectSelector(QAction *action)
     insertAction(0, action);
 }
 
-void FancyActionBar::insertAction(int index, QAction *action)
+void FancyActionBar::insertAction(int index, QAction *action,
+                                  const QList<QAction *> &contextMenuActions)
 {
     auto *button = new FancyToolButton(action, this);
+    button->addActions(contextMenuActions);
     if (!action->objectName().isEmpty())
         button->setObjectName(action->objectName() + ".Button"); // used for UI introduction
     button->setIconsOnly(m_iconsOnly);

@@ -243,7 +243,10 @@
     \uicontrol {Always deploy before running} in \preferences >
     \uicontrol {Build & Run} > \uicontrol General. To debug the application
     without deploying it, go to \uicontrol Debug > \uicontrol {Start Debugging}
-    > \uicontrol {Start Debugging Without Deployment}.
+    > \uicontrol {Start Debugging Without Deployment}, or right-click
+    \inlineimage {icons/qtcreator-debug-button.png} {Start Debugging}
+    (\uicontrol {Start Debugging})
+    and select \uicontrol {Start Debugging Without Deployment}.
 
     The debugger then takes over and starts the application with suitable
     parameters.

@@ -39,7 +39,8 @@ public:
     static IMode *currentMode();
     static Utils::Id currentModeId();
 
-    static void addAction(QAction *action, int priority);
+    static void addAction(QAction *action, int priority,
+                          const QList<QAction *> &contextMenuActions = {});
     static void addProjectSelector(QAction *action);
 
     static void activateMode(Utils::Id id);

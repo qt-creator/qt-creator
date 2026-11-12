@@ -22,6 +22,7 @@ public:
 
     void paintEvent(QPaintEvent *event) override;
     bool event(QEvent *e) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
@@ -51,7 +52,8 @@ public:
     FancyActionBar(QWidget *parent = nullptr);
 
     void paintEvent(QPaintEvent *event) override;
-    void insertAction(int index, QAction *action);
+    void insertAction(int index, QAction *action,
+                      const QList<QAction *> &contextMenuActions = {});
     void addProjectSelector(QAction *action);
     QLayout *actionsLayout() const;
     QSize minimumSizeHint() const override;

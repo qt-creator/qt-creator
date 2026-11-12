@@ -497,9 +497,12 @@ void ModeManagerPrivate::visibleChanged(IMode *mode)
 /*!
     Adds the \a action to the mode selector's tool bar.
     Actions are sorted by \a priority in descending order.
+    The visible actions in \a contextMenuActions are offered in the
+    context menu of the action's button.
     Use this functionality very sparingly.
 */
-void ModeManager::addAction(QAction *action, int priority)
+void ModeManager::addAction(QAction *action, int priority,
+                            const QList<QAction *> &contextMenuActions)
 {
     d->m_actions.insert(action, priority);
 
@@ -510,7 +513,7 @@ void ModeManager::addAction(QAction *action, int priority)
             ++index;
     }
 
-    d->m_actionBar->insertAction(index, action);
+    d->m_actionBar->insertAction(index, action, contextMenuActions);
 }
 
 /*!
