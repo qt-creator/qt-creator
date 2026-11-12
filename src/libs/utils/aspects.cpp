@@ -1102,7 +1102,7 @@ public:
     QString m_message;
     InfoLabelType m_type = InfoLabelType::None;
     bool m_wordWrap = true;
-    QPointer<InfoLabel> m_label;
+    UndoSignaller m_labelUpdater;
 };
 
 } // Internal
@@ -3492,23 +3492,23 @@ TextDisplay::~TextDisplay() = default;
 */
 void TextDisplay::addToLayoutImpl(Layout &parent)
 {
-    if (!d->m_label) {
-        d->m_label = createSubWidget<InfoLabel>(d->m_message, d->m_type);
-        d->m_label->setTextInteractionFlags(Qt::LinksAccessibleByMouse | Qt::TextSelectableByMouse);
-        d->m_label->setToolTip(toolTip());
-        connect(d->m_label, &QLabel::linkActivated, this, &TextDisplay::linkActivated);
-        d->m_label->setElideMode(Qt::ElideNone);
-        d->m_label->setWordWrap(d->m_wordWrap);
-        // Do not use m_label->setVisible(isVisible()) unconditionally, it does not
-        // have a QWidget parent yet when used in a LayoutBuilder.
-        if (!isVisible())
-            d->m_label->setVisible(false);
+    auto label = createSubWidget<InfoLabel>(d->m_message, d->m_type);
+    label->setTextInteractionFlags(Qt::LinksAccessibleByMouse | Qt::TextSelectableByMouse);
+    label->setToolTip(toolTip());
+    connect(label, &QLabel::linkActivated, this, &TextDisplay::linkActivated);
+    label->setElideMode(Qt::ElideNone);
+    label->setWordWrap(d->m_wordWrap);
+    // Do not use label->setVisible(isVisible()) unconditionally, it does not
+    // have a QWidget parent yet when used in a LayoutBuilder.
+    if (!isVisible())
+        label->setVisible(false);
 
-        connect(this, &TextDisplay::changed, d->m_label, [this] {
-            d->m_label->setText(d->m_message);
-        });
-    }
-    parent.addItem(d->m_label.data());
+    connect(&d->m_labelUpdater, &UndoSignaller::changed, label, [this, label] {
+        label->setText(d->m_message);
+        label->setType(d->m_type);
+        label->setWordWrap(d->m_wordWrap);
+    });
+    parent.addItem(label);
 }
 
 /*!
@@ -3518,21 +3518,20 @@ void TextDisplay::addToLayoutImpl(Layout &parent)
 void TextDisplay::setIconType(const InfoLabelType &t)
 {
     d->m_type = t;
-    if (d->m_label)
-        d->m_label->setType(t);
+    d->m_labelUpdater.emitChanged();
 }
 
 void TextDisplay::setText(const QString &message)
 {
     d->m_message = message;
+    d->m_labelUpdater.emitChanged();
     emit changed();
 }
 
 void TextDisplay::setWordWrap(bool on)
 {
     d->m_wordWrap = on;
-    if (d->m_label)
-        d->m_label->setWordWrap(on);
+    d->m_labelUpdater.emitChanged();
 }
 
 QString TextDisplay::text() const

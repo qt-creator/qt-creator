@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <utils/aspects.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 
 #include <QDoubleSpinBox>
+#include <QLabel>
 #include <QSpinBox>
 #include <QTest>
 #include <QWidget>
@@ -24,6 +26,8 @@ private slots:
     void doubleAspectUpdatesEverySpinBox();
     void doubleAspectTakesEditsFromEverySpinBox();
     void doubleAspectKeepsUnroundedValue();
+    void textDisplayGivesEveryWidgetALabel();
+    void textDisplayUpdatesEveryLabel();
 };
 
 static std::unique_ptr<QWidget> createWidget(BaseAspect &aspect)
@@ -35,6 +39,13 @@ static std::unique_ptr<QWidget> createWidget(BaseAspect &aspect)
 static QSpinBox *spinBox(const std::unique_ptr<QWidget> &widget)
 {
     return widget->findChild<QSpinBox *>();
+}
+
+// InfoLabel has no Q_OBJECT; the widget holds nothing but the display's label.
+static InfoLabel *infoLabel(const std::unique_ptr<QWidget> &widget)
+{
+    const QList<QLabel *> labels = widget->findChildren<QLabel *>();
+    return labels.size() == 1 ? static_cast<InfoLabel *>(labels.first()) : nullptr;
 }
 
 static QDoubleSpinBox *doubleSpinBox(const std::unique_ptr<QWidget> &widget)
@@ -127,6 +138,35 @@ void tst_Aspects::doubleAspectKeepsUnroundedValue()
     aspect.setValue(0.125);
 
     QCOMPARE(aspect.value(), 0.125);
+}
+
+void tst_Aspects::textDisplayGivesEveryWidgetALabel()
+{
+    TextDisplay display(nullptr, "Hello");
+    const auto first = createWidget(display);
+    const auto second = createWidget(display);
+
+    QVERIFY(infoLabel(first));
+    QVERIFY(infoLabel(second));
+    QVERIFY(infoLabel(first) != infoLabel(second));
+}
+
+void tst_Aspects::textDisplayUpdatesEveryLabel()
+{
+    TextDisplay display(nullptr, "Hello");
+    display.setIconType(InfoLabelType::None);
+    const auto first = createWidget(display);
+    const auto second = createWidget(display);
+    QVERIFY(infoLabel(first));
+    QVERIFY(infoLabel(second));
+
+    display.setText("Changed");
+    display.setIconType(InfoLabelType::Warning);
+
+    QCOMPARE(infoLabel(first)->text(), "Changed");
+    QCOMPARE(infoLabel(second)->text(), "Changed");
+    QCOMPARE(infoLabel(first)->type(), InfoLabelType::Warning);
+    QCOMPARE(infoLabel(second)->type(), InfoLabelType::Warning);
 }
 
 QTEST_MAIN(tst_Aspects)
