@@ -1254,6 +1254,83 @@ def check_qml_names_translate_watch_expressions(bridge):
         assert names == {"x": "r10"}, "a shared address picked %r" % names
 
 
+def check_qml_self_replaces_the_functor(bridge):
+    # The 'this' of a compiled QML function is a functor, the QML object is
+    # 'self', its member or a parameter.
+    dumper = loadGdbbridge().theDumper
+
+    class FakeValue():
+        def __init__(self, name, members=None):
+            self.name = name
+            self.members = members or {}
+
+        def __getitem__(self, name):
+            return self.members[name]
+
+    def names(variables):
+        return [value.name for value in variables]
+
+    obj = FakeValue("unnamed")
+    lifted = dumper.liftQmlSelf([FakeValue("this", {"self": obj}), FakeValue("step")], {})
+    assert names(lifted) == ["self", "step"] and lifted[0] is obj, \
+        "the member was not lifted: %r" % names(lifted)
+
+    parameter = FakeValue("self")
+    lifted = dumper.liftQmlSelf([FakeValue("this"), parameter, FakeValue("step")], {})
+    assert names(lifted) == ["self", "step"] and lifted[0] is parameter, \
+        "the parameter did not replace the functor: %r" % names(lifted)
+
+    lifted = dumper.liftQmlSelf([FakeValue("this"), FakeValue("step")], {})
+    assert names(lifted) == ["this", "step"], \
+        "a 'this' without a 'self' was dropped: %r" % names(lifted)
+
+    lifted = dumper.liftQmlSelf([FakeValue("this", {"self": obj}), FakeValue("self_1")],
+                                {"self": "self_1"})
+    assert names(lifted) == ["this", "self_1"], \
+        "a JavaScript self lost the root object: %r" % names(lifted)
+
+    qmlNames = {"self": "self_1"}
+    variables = [FakeValue("this"), FakeValue("self"), FakeValue("self_1")]
+    lifted = dumper.applyQmlNames(dumper.liftQmlSelf(variables, qmlNames), qmlNames, "")
+    assert sorted(names(lifted)) == ["rootObject", "self", "this"], \
+        "a self parameter collides with the JavaScript self: %r" % names(lifted)
+
+    lifted = dumper.liftQmlSelf([FakeValue("self")], qmlNames, "rootObject")
+    assert names(lifted) == ["rootObject"], \
+        "expanding the root object lost its name: %r" % names(lifted)
+
+    # Expanding either of them asks for the locals of 'self', and 'self' also
+    # lists the functor.
+    dumper.resetStats = dumper.prepare = lambda *args: None
+    dumper.tryFetchInterpreterVariables = lambda args: (False, None)
+    dumper.handleStatics = dumper.handleWatches = lambda *args: None
+    dumper.handleUndefinedQmlNames = lambda *args: None
+    dumper.handleLocals = lambda variables: None
+    dumper.reportResult = lambda *args: None
+    dumper.put = lambda *args: None
+    dumper.uninitialized = []
+    dumper.resultVarName = None
+    dumper.typesToReport = {}
+    dumper.forceQtNamespace = False
+    dumper.qtNamespaceToReport = None
+    dumper.output = []
+    dumper.counts = {}
+    listed = []
+    dumper.listLocals = lambda name: listed.append(name) or []
+    gdb.selected_frame = lambda: None
+    gdb.execute = lambda *args, **kwargs: "little endian"
+    dumper.qmlNamesAtFrame = lambda frame: {"self": "self_1"}
+    for partialvar, expected in (("local.rootObject", ["self"]),
+                                 ("local.self", ["self_1"])):
+        listed.clear()
+        dumper.fetchVariables({"partialvar": partialvar})
+        assert listed == expected, "%s listed %r, expected %r" % (partialvar, listed, expected)
+    dumper.qmlNamesAtFrame = lambda frame: {}
+    listed.clear()
+    dumper.fetchVariables({"partialvar": "local.self"})
+    assert listed == ["self", "this"], "local.self listed %r" % listed
+
+
 checks = {
     "framing": check_framing,
     "initialize-reports-dumpers": check_initialize_reports_dumpers,
@@ -1299,6 +1376,7 @@ checks = {
     "startup-commands-reach-gdb": check_startup_commands_reach_gdb,
     "data-requests-use-the-dumpers": check_data_requests_use_the_dumpers,
     "qml-names-translate-watch-expressions": check_qml_names_translate_watch_expressions,
+    "qml-self-replaces-the-functor": check_qml_self_replaces_the_functor,
 }
 
 if check not in checks:

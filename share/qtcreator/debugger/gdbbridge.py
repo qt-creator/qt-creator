@@ -922,6 +922,31 @@ class Dumper(DumperBase):
                 result.append(value)
         return result
 
+    # The 'this' of the generated function is a functor. The QML object whose
+    # properties the JavaScript sees is 'self', a parameter of the function or
+    # the only member of the functor, so show that one instead. Works on the
+    # C++ names. When the JavaScript declares 'self', 'this' stays and a
+    # 'self' parameter gets another name so that the two do not collide.
+    def liftQmlSelf(self, variables, qmlNames, partialName=''):
+        if 'self' in qmlNames:
+            if not partialName or partialName == 'rootObject':
+                for value in variables:
+                    if value.name == 'self':
+                        value.name = 'rootObject'
+            return variables
+        if any(value.name == 'self' for value in variables):
+            return [value for value in variables if value.name != 'this']
+        result = []
+        for value in variables:
+            if value.name == 'this':
+                try:
+                    value = value['self']
+                except Exception:
+                    return variables
+                value.name = 'self'
+            result.append(value)
+        return result
+
     def handleUndefinedQmlNames(self, qmlNames, partialName):
         for jsName, cppName in qmlNames.items():
             if cppName or (partialName and partialName != jsName):
@@ -1066,9 +1091,14 @@ class Dumper(DumperBase):
         if qmlNames and partialName in qmlNames:
             cppName = qmlNames[partialName]
             variables = self.listLocals(cppName) if cppName else []
+        elif qmlNames and 'self' in qmlNames and partialName == 'rootObject':
+            variables = self.listLocals('self')
+        elif qmlNames is not None and partialName == 'self':
+            variables = self.listLocals('self') + self.listLocals('this')
         else:
             variables = self.listLocals(partialName)
         if qmlNames is not None:
+            variables = self.liftQmlSelf(variables, qmlNames, partialName)
             variables = self.applyQmlNames(variables, qmlNames, partialName)
         #self.warn('VARIABLES: %s' % variables)
 

@@ -122,6 +122,7 @@ void tst_Bridge::protocol_data()
     QTest::newRow("data requests use the dumpers") << "data-requests-use-the-dumpers";
     QTest::newRow("qml names translate watch expressions")
         << "qml-names-translate-watch-expressions";
+    QTest::newRow("qml self replaces the functor") << "qml-self-replaces-the-functor";
 }
 
 void tst_Bridge::protocol()
