@@ -2224,8 +2224,11 @@ IDocument *ICore::openFiles(
         const FilePath absoluteFilePath = workingDirBase.resolvePath(filePath);
         const bool isShowingTabs = generalSettings().useTabsInEditorViews();
 
-        IDocumentFactory *documentFactory = findDocumentFactory(documentFactories, filePath);
-        if (documentFactory && (openProjects || !documentFactory->isProjectFactory())) {
+        IDocumentFactory *documentFactory
+            = findDocumentFactory(documentFactories, absoluteFilePath);
+        if (documentFactory
+            && (openProjects || !documentFactory->isProjectFactory()
+                || absoluteFilePath.isDir())) {
             IDocument *document = documentFactory->open(absoluteFilePath);
             if (!document) {
                 if (flags & ICore::StopOnLoadFail)
