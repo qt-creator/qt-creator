@@ -16,12 +16,9 @@ namespace TextEditor { class TextEditorWidget; }
 
 namespace DiffEditor {
 
-// The declaration a collapsed region belongs to, shown on its placeholder the
-// way git puts the function name on a hunk header. With searchForward false,
-// find the closest qualifying line at or above lastLine (1-based). With
-// searchForward true, find the closest qualifying line below lastLine.
-QString inlineDiffContextLine(const QTextDocument *document, int lastLine,
-                              bool searchForward = false);
+// The closest line at or above lastLine (1-based) that starts a declaration, the
+// way git picks the function name for a hunk header; 0 when there is none.
+int inlineDiffDeclarationLine(const QTextDocument *document, int lastLine);
 
 enum class InlineDiffViewMode { Inline, SideBySide };
 

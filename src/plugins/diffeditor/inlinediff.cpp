@@ -653,10 +653,13 @@ using ChangeIntervals = QList<QPair<int, int>>;
 
 // The 1-based line runs (inclusive) that can be collapsed on one side: the
 // unchanged lines outside the context around any change, with the last line
-// always kept visible so every run has a visible anchor line below it.
+// always kept visible so every run has a visible anchor line below it. The
+// declaration each change is in stays visible as well, so a change never loses
+// the name of its function to a placeholder.
 static QList<QPair<int, int>> collapsibleRuns(const ChangeIntervals &changes,
-                                              int blockCount, int context)
+                                              const QTextDocument *document, int context)
 {
+    const int blockCount = document->blockCount();
     if (blockCount <= 0)
         return {};
     QList<bool> keep(blockCount + 2, false); // 1-based, guarded ends
@@ -671,6 +674,13 @@ static QList<QPair<int, int>> collapsibleRuns(const ChangeIntervals &changes,
             keepRange(change.first, change.first + change.second - 1);
         else // a pure insertion/removal sits between startLine - 1 and startLine
             keepRange(change.first - 1, change.first);
+        // a change that starts with a declaration, like an added function, is in
+        // that one, not in the one above
+        const int searchFrom = change.second > 0 ? change.first : change.first - 1;
+        if (const int declaration = inlineDiffDeclarationLine(document, searchFrom);
+            declaration > 0) {
+            keep[declaration] = true;
+        }
     }
 
     QList<QPair<int, int>> runs;
@@ -753,58 +763,38 @@ static int baselineLineToEditorPosition(const InlineDiffRenderModel &model, int 
 
 } // anonymous namespace
 
-QString inlineDiffContextLine(const QTextDocument *document, int lastLine, bool searchForward)
+int inlineDiffDeclarationLine(const QTextDocument *document, int lastLine)
 {
-    QTC_ASSERT(document, return {});
-    const auto contextLine = [&](int line) {
+    QTC_ASSERT(document, return 0);
+    for (int line = qMin(lastLine, document->blockCount()); line >= 1; --line) {
         const QString text = document->findBlockByNumber(line - 1).text();
         if (text.isEmpty())
-            return QString();
+            continue;
         // git's default hunk header pattern: a declaration starts in column 0
         // with a letter, an underscore or a dollar sign, which skips comments,
         // preprocessor lines, closing braces and anything indented
         const QChar first = text.at(0);
         if (first.isLetter() || first == '_' || first == '$')
-            return text.trimmed();
-        return QString();
-    };
-
-    if (searchForward) {
-        for (int line = qMax(1, lastLine + 1); line <= document->blockCount(); ++line) {
-            if (const QString context = contextLine(line); !context.isEmpty())
-                return context;
-        }
-    } else {
-        for (int line = qMin(lastLine, document->blockCount()); line >= 1; --line) {
-            if (const QString context = contextLine(line); !context.isEmpty())
-                return context;
-        }
+            return line;
     }
-    return {};
+    return 0;
 }
 
 namespace {
 
 // A clickable, full width placeholder row shown in place of a collapsed run of
-// unchanged lines. Clicking it reveals the hidden lines. The declaration the
-// hidden lines end in is shown on the left, like the function name on a git
-// hunk header.
+// unchanged lines. Clicking it reveals the hidden lines.
 class CollapsedRow final : public QWidget
 {
 public:
-    CollapsedRow(QWidget *parent, int hiddenCount, const QString &context,
-                 const std::function<void()> &onClick)
+    CollapsedRow(QWidget *parent, int hiddenCount, const std::function<void()> &onClick)
         : QWidget(parent)
         , m_hiddenCount(hiddenCount)
-        , m_context(context)
         , m_onClick(onClick)
     {
         setObjectName("InlineDiffCollapsedRow"); // found by the autotest
         setCursor(Qt::PointingHandCursor);
         setToolTip(Tr::tr("Shows the hidden unchanged lines."));
-        // the context is painted, so make it available to screen readers and
-        // to the autotest
-        setAccessibleDescription(context);
     }
 
 protected:
@@ -819,18 +809,6 @@ protected:
         const QString countText = Tr::tr("Show %n hidden lines", nullptr, m_hiddenCount);
         painter.drawText(rect().adjusted(padding, 0, 0, 0), Qt::AlignLeft | Qt::AlignVCenter,
                          countText);
-        if (m_context.isEmpty())
-            return;
-        // the declaration follows the count, the way a git hunk header names it
-        // after the line ranges
-        const QFontMetrics metrics(painter.font());
-        const int contextLeft = padding + metrics.horizontalAdvance(countText) + padding;
-        const int available = width() - contextLeft - padding;
-        if (available <= 0)
-            return;
-        painter.drawText(rect().adjusted(contextLeft, 0, -padding, 0),
-                         Qt::AlignLeft | Qt::AlignVCenter,
-                         metrics.elidedText(m_context, Qt::ElideRight, available));
     }
 
     void enterEvent(QEnterEvent *) override { m_hovered = true; update(); }
@@ -843,7 +821,6 @@ protected:
 
 private:
     const int m_hiddenCount;
-    const QString m_context;
     const std::function<void()> m_onClick;
     bool m_hovered = false;
 };
@@ -997,16 +974,12 @@ private:
         if (!m_model.computed)
             return;
         const QList<QPair<int, int>> editorRuns = collapsibleRuns(
-            editorChanges(m_model), m_editor->document()->blockCount(), m_contextLines);
+            editorChanges(m_model), m_editor->document(), m_contextLines);
 
         const bool collapseBaseline = m_baselineActive && m_baseline;
         const int baselineBlockCount = collapseBaseline ? m_baseline->document()->blockCount() : 0;
 
-        const ChangeIntervals changes = editorChanges(m_model);
         for (const QPair<int, int> &run : editorRuns) {
-            const bool searchForward = Utils::anyOf(changes, [run](const auto &change) {
-                return change.first > run.second;
-            });
             Unit unit;
             unit.id = ++m_nextUnitId;
             if (collapseBaseline) {
@@ -1019,12 +992,12 @@ private:
                 // must end before the baseline's last line
                 if (first < 1 || last < first || last >= baselineBlockCount)
                     continue; // out of range: leave this run expanded on both sides
-                unit.baseline = makePlaceholder(m_baseline, {first, last}, unit.id, searchForward);
+                unit.baseline = makePlaceholder(m_baseline, {first, last}, unit.id);
                 // collapsing only the editor side would break the row alignment
                 if (!unit.baseline.view)
                     continue; // failed before hiding anything: leave both sides expanded
             }
-            unit.editor = makePlaceholder(m_editor, run, unit.id, searchForward);
+            unit.editor = makePlaceholder(m_editor, run, unit.id);
             m_units.append(unit);
         }
         reposition();
@@ -1078,8 +1051,7 @@ private:
         }
     }
 
-    Placeholder makePlaceholder(TextEditorWidget *view, const QPair<int, int> &range, int unitId,
-                                bool searchForward)
+    Placeholder makePlaceholder(TextEditorWidget *view, const QPair<int, int> &range, int unitId)
     {
         Placeholder placeholder;
         TextEditorLayout *layout = view->editorLayout();
@@ -1104,7 +1076,6 @@ private:
         placeholder.anchor = QTextCursor(anchor);
         placeholder.anchorFragment = anchor.fragmentIndex();
         placeholder.row = new CollapsedRow(view->viewport(), placeholder.hiddenCount,
-                                           inlineDiffContextLine(doc, range.second, searchForward),
                                            [this, unitId] { expandUnit(unitId); });
         return placeholder;
     }

@@ -377,8 +377,9 @@ private slots:
     void testInlineDiffCollapseAddedLines();
     void testInlineDiffCollapseUnchangedFile();
     void testInlineDiffIgnoreWhitespace();
-    void testInlineDiffContextLine();
-    void testInlineDiffCollapseContextDirection();
+    void testInlineDiffDeclarationLine();
+    void testInlineDiffCollapseKeepsDeclaration_data();
+    void testInlineDiffCollapseKeepsDeclaration();
     void testInlineDiffFoldedRows();
     void testInlineDiffPatience();
     void testInlineDiffCopyAsPatch();
@@ -2116,17 +2117,6 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapse()
     // a clickable placeholder row is floated over each collapsed run
     QTRY_COMPARE(diffWidget->viewport()
                      ->findChildren<QWidget *>("InlineDiffCollapsedRow").size(), 2);
-    // each row names the declaration its hidden lines end in, like the function
-    // name on a git hunk header; every line of this file qualifies as one
-    // findChildren() returns creation order, which is not promised to match the
-    // order on screen, so sort by position before naming "the first" one.
-    QList<QWidget *> placeholders
-        = diffWidget->viewport()->findChildren<QWidget *>("InlineDiffCollapsedRow");
-    Utils::sort(placeholders, [](const QWidget *a, const QWidget *b) {
-        return a->y() < b->y();
-    });
-    QCOMPARE(placeholders.first()->accessibleDescription(), QString("line 17"));
-
     const QString grabPath = Utils::qtcEnvironmentVariable("QTC_INLINE_DIFF_COLLAPSE_GRAB");
     if (!grabPath.isEmpty()) {
         QCoreApplication::processEvents();
@@ -2510,9 +2500,9 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffIgnoreWhitespace()
     QTRY_VERIFY(diffWidgetGuard.isNull());
 }
 
-// The declaration a collapsed region ends in, shown on its placeholder row the
+// The declaration a change is in stays visible when its run is collapsed, the
 // way git puts the function name on a hunk header. See QTCREATORBUG-34836.
-void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffContextLine()
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffDeclarationLine()
 {
     QTextDocument document;
     document.setPlainText("#include <foo.h>\n"        // 1
@@ -2530,34 +2520,162 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffContextLine()
 
     // the closest line that starts a declaration, skipping indented lines,
     // comments, braces, blank and preprocessor lines
-    QCOMPARE(inlineDiffContextLine(&document, 6), QString("static void helper()"));
-    QCOMPARE(inlineDiffContextLine(&document, 11), QString("void Class::method(int a)"));
+    QCOMPARE(inlineDiffDeclarationLine(&document, 6), 3);
+    QCOMPARE(inlineDiffDeclarationLine(&document, 11), 9);
     // the declaration line itself qualifies
-    QCOMPARE(inlineDiffContextLine(&document, 9), QString("void Class::method(int a)"));
+    QCOMPARE(inlineDiffDeclarationLine(&document, 9), 9);
     // nothing above: the include is not a declaration
-    QCOMPARE(inlineDiffContextLine(&document, 2), QString());
-    QCOMPARE(inlineDiffContextLine(&document, 0), QString());
+    QCOMPARE(inlineDiffDeclarationLine(&document, 2), 0);
+    QCOMPARE(inlineDiffDeclarationLine(&document, 0), 0);
     // a line past the end looks from the last line
-    QCOMPARE(inlineDiffContextLine(&document, 1000), QString("void Class::method(int a)"));
-    QCOMPARE(inlineDiffContextLine(&document, 2, true), QString("static void helper()"));
-    QCOMPARE(inlineDiffContextLine(&document, 8, true), QString("void Class::method(int a)"));
+    QCOMPARE(inlineDiffDeclarationLine(&document, 1000), 9);
+
+    // a declaration over several lines is named by the line with the function
+    // name, not by the template header above it or the indented arguments
+    QTextDocument templated;
+    templated.setPlainText("template <typename T>\n"           // 1
+                           "static void Foo<T>::method(int a,\n" // 2
+                           "                           int b)\n" // 3
+                           "{\n"                                // 4
+                           "    int y = 2;\n"                   // 5
+                           "}\n");                              // 6
+    QCOMPARE(inlineDiffDeclarationLine(&templated, 5), 2);
+    QCOMPARE(inlineDiffDeclarationLine(&templated, 3), 2);
+    QCOMPARE(inlineDiffDeclarationLine(&templated, 1), 1);
 }
 
-void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseContextDirection()
+static QList<int> inlineDiffLineRange(int first, int last)
+{
+    QList<int> lines;
+    for (int line = first; line <= last; ++line)
+        lines.append(line);
+    return lines;
+}
+
+// A change far below its declaration keeps that declaration out of the
+// collapsed run, so the hidden lines never take the function name with them.
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseKeepsDeclaration_data()
+{
+    QTest::addColumn<QStringList>("baselineLines");
+    QTest::addColumn<QStringList>("editorLines");
+    QTest::addColumn<QList<int>>("hiddenLines");
+    QTest::addColumn<int>("declarationLine");
+
+    const QStringList baselineLines{
+        "void A()", "{", "    a();", "    a();", "    a();", "    a();", "    a();",
+        "    a();", "    a();", "    a();", "}", "", "void B()", "{", "    b1();", "    b2();",
+        "    b3();", "    b4();", "    b5();", "    b6();", "    b7();", "    b8();", "    b9();",
+        "    b10();", "}", "    tail();", "    tail();", "    tail();", "    tail();",
+        "    tail();", "    tail();"};
+    {
+        QStringList editorLines = baselineLines;
+        editorLines[19] = "    changedB();";
+        QTest::newRow("replaced line")
+            << baselineLines << editorLines
+            << (inlineDiffLineRange(1, 12) + inlineDiffLineRange(14, 16)
+                + inlineDiffLineRange(24, 30))
+            << 13;
+    }
+    {
+        QStringList editorLines = baselineLines;
+        editorLines.insert(20, "    addedB();");
+        editorLines.insert(20, "    addedB();");
+        QTest::newRow("added lines")
+            << baselineLines << editorLines
+            << (inlineDiffLineRange(1, 12) + inlineDiffLineRange(14, 17)
+                + inlineDiffLineRange(26, 32))
+            << 13;
+    }
+    {
+        QStringList editorLines = baselineLines;
+        editorLines.removeAt(19);
+        QTest::newRow("removed line")
+            << baselineLines << editorLines
+            << (inlineDiffLineRange(1, 12) + inlineDiffLineRange(14, 15)
+                + inlineDiffLineRange(24, 29))
+            << 13;
+    }
+    {
+        // an added function names itself, not the long one above it
+        QStringList editorLines = baselineLines;
+        editorLines.insert(25, "}");
+        editorLines.insert(25, "    c();");
+        editorLines.insert(25, "{");
+        editorLines.insert(25, "void C()");
+        QTest::newRow("added function")
+            << baselineLines << editorLines
+            << (inlineDiffLineRange(1, 22) + inlineDiffLineRange(33, 34))
+            << 26;
+    }
+
+    // A declaration over several lines: the line with the function name is the
+    // one that stays visible, wherever the template header, return type or
+    // arguments are, the way git picks it for a hunk header.
+    const auto functionFile = [](const QStringList &declaration) {
+        QStringList lines{"void A()", "{"};
+        for (int i = 1; i <= 8; ++i)
+            lines.append(QString("    a%1();").arg(i));
+        lines << "}" << "" << declaration << "{";
+        for (int i = 1; i <= 10; ++i)
+            lines.append(QString("    b%1();").arg(i));
+        lines << "}";
+        for (int i = 0; i < 6; ++i)
+            lines.append("    tail();");
+        return lines;
+    };
+    const auto changedFile = [](QStringList lines, int line) {
+        lines[line - 1] = "    changed();";
+        return lines;
+    };
+    {
+        const QStringList lines = functionFile(
+            {"template <typename T>", "void Foo<T>::method(int first)"});
+        QTest::newRow("template function")
+            << lines << changedFile(lines, 21)
+            << (inlineDiffLineRange(1, 13) + inlineDiffLineRange(15, 17)
+                + inlineDiffLineRange(25, 31))
+            << 14;
+    }
+    {
+        const QStringList lines = functionFile(
+            {"template <typename T, typename U>",
+             "static void Foo<T>::method(int first,",
+             "                           QList<U> second,",
+             "                           int third)"});
+        QTest::newRow("arguments over several lines")
+            << lines << changedFile(lines, 23)
+            << (inlineDiffLineRange(1, 13) + inlineDiffLineRange(15, 19)
+                + inlineDiffLineRange(27, 33))
+            << 14;
+    }
+    {
+        const QStringList lines = functionFile(
+            {"template <typename T>",
+             "QList<T>",
+             "Foo<T>::method(",
+             "    int first,",
+             "    int second)"});
+        QTest::newRow("return type on its own line")
+            << lines << changedFile(lines, 24)
+            << (inlineDiffLineRange(1, 14) + inlineDiffLineRange(16, 20)
+                + inlineDiffLineRange(28, 34))
+            << 15;
+    }
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseKeepsDeclaration()
 {
     using namespace TextEditor;
 
+    QFETCH(QStringList, baselineLines);
+    QFETCH(QStringList, editorLines);
+    QFETCH(QList<int>, hiddenLines);
+    QFETCH(int, declarationLine);
+
     const InlineDiffViewGuard inlineDiffViewGuard;
-    const QStringList baselineLines{
-        "void A()", "{", "    a();", "    a();", "    a();", "    a();", "    a();",
-        "    a();", "    a();", "    a();", "    a();", "}", "", "void B()", "{",
-        "    b();", "    b();", "    b();", "    b();", "    b();", "    b();", "}",
-        "    tail();", "    tail();", "    tail();", "    tail();", "    tail();", "    tail();"};
-    QStringList editorLines = baselineLines;
-    editorLines[2] = "    changedA();";
-    editorLines[15] = "    changedB();";
-    const QString baselineText = baselineLines.join('\n') + '\n';
-    const QString editorText = editorLines.join('\n') + '\n';
+    // no trailing newline: the last line is the one every placeholder anchors on
+    const QString baselineText = baselineLines.join('\n');
+    const QString editorText = editorLines.join('\n');
 
     QTemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
@@ -2589,15 +2707,47 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseContextDirect
     diffEditor->widget()->resize(800, 600);
     diffEditor->widget()->show();
 
-    QTRY_COMPARE(diffWidget->viewport()
-                     ->findChildren<QWidget *>("InlineDiffCollapsedRow").size(), 2);
-    QList<QWidget *> placeholders
-        = diffWidget->viewport()->findChildren<QWidget *>("InlineDiffCollapsedRow");
-    Utils::sort(placeholders, [](const QWidget *a, const QWidget *b) {
-        return a->y() < b->y();
-    });
-    QCOMPARE(placeholders.at(0)->accessibleDescription(), QString("void B()"));
-    QCOMPARE(placeholders.at(1)->accessibleDescription(), QString("void B()"));
+    const auto visibleLines = [](TextEditorWidget *widget) {
+        QList<int> lines;
+        const QTextDocument *document = widget->document();
+        for (int line = 1; line <= document->blockCount(); ++line) {
+            if (widget->editorLayout()->isBlockVisibleInEditor(
+                    document->findBlockByNumber(line - 1))) {
+                lines.append(line);
+            }
+        }
+        return lines;
+    };
+    const auto placeholderCount = [](TextEditorWidget *widget) {
+        return widget->viewport()->findChildren<QWidget *>("InlineDiffCollapsedRow").size();
+    };
+    // the hidden lines are listed as runs; every run has a placeholder
+    int runCount = 0;
+    for (int i = 0; i < hiddenLines.size(); ++i) {
+        if (i == 0 || hiddenLines.at(i) != hiddenLines.at(i - 1) + 1)
+            ++runCount;
+    }
+    QList<int> expectedVisible;
+    for (int line = 1; line <= editorLines.size(); ++line) {
+        if (!hiddenLines.contains(line))
+            expectedVisible.append(line);
+    }
+    QVERIFY(expectedVisible.contains(declarationLine));
+
+    QTRY_COMPARE(placeholderCount(diffWidget), runCount);
+    QCOMPARE(visibleLines(diffWidget), expectedVisible);
+
+    // the baseline side of the side by side view hides the matching lines, so
+    // the declaration stays visible there too
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::SideBySide);
+    const QList<TextEditorWidget *> sideWidgets
+        = diffEditor->widget()->findChildren<TextEditorWidget *>();
+    QCOMPARE(sideWidgets.size(), 2);
+    TextEditorWidget *baselineWidget = sideWidgets.first() == diffWidget ? sideWidgets.last()
+                                                                         : sideWidgets.first();
+    QTRY_COMPARE(placeholderCount(baselineWidget), runCount);
+    QVERIFY(visibleLines(baselineWidget).contains(declarationLine));
+    QTRY_COMPARE(visibleLines(diffWidget), expectedVisible);
 
     const QPointer<QWidget> diffWidgetGuard = diffWidget;
     QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
