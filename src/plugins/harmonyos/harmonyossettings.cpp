@@ -1073,9 +1073,8 @@ HarmonyOsSettings::HarmonyOsSettings()
             st,
         };
 
-        // The path chooser widget only exists after the layout above was built.
         const auto updateStatus = [this, status] {
-            const FilePath sdkRoot = sdkLocation.pathChooser()->filePath();
+            const FilePath sdkRoot = sdkLocation.expandedVolatilePath();
             if (sdkRoot.isEmpty()) {
                 status->setType(InfoLabelType::None);
                 status->setText({});
@@ -1093,7 +1092,7 @@ HarmonyOsSettings::HarmonyOsSettings()
             }
         };
 
-        connect(sdkLocation.pathChooser(), &PathChooser::textChanged, this, updateStatus);
+        connect(&sdkLocation, &FilePathAspect::volatileValueChanged, status, updateStatus);
         connect(autodetectButton, &QPushButton::clicked, this, [this, status, updateStatus] {
             const FilePath detected = Sdk::detectDevEcoSdk();
             if (detected.isEmpty()) {
@@ -1101,12 +1100,12 @@ HarmonyOsSettings::HarmonyOsSettings()
                 status->setText(Tr::tr("Could not find an installed DevEco Studio SDK."));
                 return;
             }
-            sdkLocation.pathChooser()->setFilePath(detected);
+            sdkLocation.setVolatileValue(detected.toUserOutput());
             updateStatus();
         });
 
         connect(downloadButton, &QPushButton::clicked, this, [this, status, updateStatus] {
-            const FilePath sdkPath = sdkLocation.pathChooser()->filePath();
+            const FilePath sdkPath = sdkLocation.expandedVolatilePath();
             if (sdkPath.isEmpty()) {
                 status->setType(InfoLabelType::Warning);
                 status->setText(Tr::tr("Enter the directory to install the SDK into first."));
