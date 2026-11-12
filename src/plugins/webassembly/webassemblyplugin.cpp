@@ -34,6 +34,7 @@ public:
 
 #ifdef WITH_TESTS
         addTest<WebAssemblyTest>();
+        addTestCreator(createWebBrowserSelectionAspectTest);
 #endif // WITH_TESTS
     }
 };

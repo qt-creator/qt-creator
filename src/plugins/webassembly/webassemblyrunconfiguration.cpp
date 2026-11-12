@@ -23,6 +23,10 @@
 #include <QComboBox>
 #include <QTextStream>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -113,11 +117,7 @@ public:
 
     void setBuildConfiguration(BuildConfiguration *bc)
     {
-        m_availableBrowsers = emrunBrowsers(bc);
-        if (!m_availableBrowsers.isEmpty()) {
-            const int defaultIndex = qBound(0, m_availableBrowsers.count() - 1, 1);
-            m_currentBrowser = m_availableBrowsers.at(defaultIndex).first;
-        }
+        setAvailableBrowsers(emrunBrowsers(bc));
         setDisplayName(Tr::tr("Web Browser"));
         setId("WebBrowserAspect");
         setSettingsKey("RunConfiguration.WebBrowser");
@@ -125,24 +125,44 @@ public:
         addDataExtractor(this, &WebBrowserSelectionAspect::currentBrowser, &Data::currentBrowser);
     }
 
+    void setAvailableBrowsers(const WebBrowserEntries &browsers)
+    {
+        m_availableBrowsers = browsers;
+        if (!m_availableBrowsers.isEmpty()) {
+            const int defaultIndex = qBound(0, m_availableBrowsers.count() - 1, 1);
+            m_currentBrowser = m_availableBrowsers.at(defaultIndex).first;
+        }
+    }
+
     void addToLayoutImpl(Layouting::Layout &parent) override
     {
-        QTC_CHECK(!m_webBrowserComboBox);
-        m_webBrowserComboBox = new QComboBox;
+        auto webBrowserComboBox = new QComboBox;
         for (const WebBrowserEntry &be : std::as_const(m_availableBrowsers))
-            m_webBrowserComboBox->addItem(be.second, be.first);
-        m_webBrowserComboBox->setCurrentIndex(m_webBrowserComboBox->findData(m_currentBrowser));
-        connect(m_webBrowserComboBox, &QComboBox::currentIndexChanged, this, [this] {
-            m_currentBrowser = m_webBrowserComboBox->currentData().toString();
+            webBrowserComboBox->addItem(be.second, be.first);
+        webBrowserComboBox->setCurrentIndex(webBrowserComboBox->findData(m_currentBrowser));
+        connect(webBrowserComboBox, &QComboBox::currentIndexChanged,
+                this, [this, webBrowserComboBox](int index) {
+            if (index < 0)
+                return;
+            const QString browser = webBrowserComboBox->currentData().toString();
+            if (browser == m_currentBrowser)
+                return;
+            m_currentBrowser = browser;
+            emit currentBrowserChanged(QPrivateSignal());
             emit changed();
         });
-        parent.addItems({Tr::tr("Web browser:"), m_webBrowserComboBox});
+        connect(this, &WebBrowserSelectionAspect::currentBrowserChanged, webBrowserComboBox,
+                [this, webBrowserComboBox] {
+            webBrowserComboBox->setCurrentIndex(webBrowserComboBox->findData(m_currentBrowser));
+        });
+        parent.addItems({Tr::tr("Web browser:"), webBrowserComboBox});
     }
 
     void fromMap(const Store &map) override
     {
         if (!m_availableBrowsers.isEmpty())
             m_currentBrowser = map.value(BROWSER_KEY, m_availableBrowsers.first().first).toString();
+        emit currentBrowserChanged(QPrivateSignal());
     }
 
     void toMap(Store &map) const override
@@ -157,8 +177,10 @@ public:
         QString currentBrowser;
     };
 
+signals:
+    void currentBrowserChanged(QPrivateSignal);
+
 private:
-    QComboBox *m_webBrowserComboBox = nullptr;
     QString m_currentBrowser;
     WebBrowserEntries m_availableBrowsers;
 };
@@ -231,6 +253,45 @@ void setupEmrunRunSupport()
     static EmrunRunConfigurationFactory theEmrunRunConfigurationFactory;
     static EmrunRunWorkerFactory theEmrunRunWorkerFactory;
 }
+
+#ifdef WITH_TESTS
+class WebBrowserSelectionAspectTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testUpdatesEveryComboBox()
+    {
+        WebBrowserSelectionAspect aspect(nullptr);
+        aspect.setAvailableBrowsers({{"first", "First"}, {"second", "Second"}, {"third", "Third"}});
+        const std::unique_ptr<QWidget> first(Layouting::Column{aspect}.emerge());
+        const std::unique_ptr<QWidget> second(Layouting::Column{aspect}.emerge());
+        QComboBox *firstBox = first->findChild<QComboBox *>();
+        QComboBox *secondBox = second->findChild<QComboBox *>();
+        QVERIFY(firstBox);
+        QVERIFY(secondBox);
+
+        firstBox->setCurrentIndex(2);
+        QCOMPARE(aspect.currentBrowser(), "third");
+        QCOMPARE(secondBox->currentIndex(), 2);
+
+        Store map;
+        map.insert(BROWSER_KEY, "first");
+        aspect.fromMap(map);
+        QCOMPARE(firstBox->currentIndex(), 0);
+        QCOMPARE(secondBox->currentIndex(), 0);
+
+        map.insert(BROWSER_KEY, "unknown");
+        aspect.fromMap(map);
+        QCOMPARE(aspect.currentBrowser(), "unknown");
+    }
+};
+
+QObject *createWebBrowserSelectionAspectTest()
+{
+    return new WebBrowserSelectionAspectTest;
+}
+#endif // WITH_TESTS
 
 } // Webassembly::Internal
 

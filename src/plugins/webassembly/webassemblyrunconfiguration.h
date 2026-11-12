@@ -6,6 +6,10 @@
 #include <QList>
 #include <QString>
 
+QT_BEGIN_NAMESPACE
+class QObject;
+QT_END_NAMESPACE
+
 namespace WebAssembly::Internal {
 
 using WebBrowserEntry = QPair<QString, QString>; // first: id, second: display name
@@ -14,5 +18,7 @@ using WebBrowserEntries = QList<WebBrowserEntry>;
 WebBrowserEntries parseEmrunOutput(const QByteArray &output);
 
 void setupEmrunRunSupport();
+
+QObject *createWebBrowserSelectionAspectTest();
 
 } // Webassembly::Internal
