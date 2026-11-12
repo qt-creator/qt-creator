@@ -1152,10 +1152,6 @@ X11ForwardingAspect::X11ForwardingAspect(AspectContainer *container)
 
     updateDisplayEnabled();
     connect(&m_mode, &SelectionAspect::changed, this, &X11ForwardingAspect::updateDisplayEnabled);
-    connect(this, &BaseAspect::visibleChanged, this, [this](bool visible) {
-        m_mode.setVisible(visible);
-        m_display.setVisible(visible);
-    });
 }
 
 X11ForwardingAspect::Mode X11ForwardingAspect::mode() const

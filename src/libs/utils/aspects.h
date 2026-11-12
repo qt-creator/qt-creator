@@ -97,7 +97,7 @@ public:
     void setToolTip(const QString &tooltip);
 
     bool isVisible() const;
-    void setVisible(bool visible);
+    virtual void setVisible(bool visible);
 
     // Returns a controller that makes a target widget follow this aspect's
     // visibility (for Layouting's visibleOn()). See also groupChecker().
@@ -1186,6 +1186,7 @@ public:
     bool isDirty() const override;
     void setUndoStack(QUndoStack *undoStack) override;
     void setEnabled(bool enabled) override;
+    void setVisible(bool visible) override;
 
     template <typename T> T *aspect() const
     {

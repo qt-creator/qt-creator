@@ -50,6 +50,7 @@ private slots:
     void filePathAspectTakesEditsFromEveryChooser();
     void filePathAspectAppliesOncePerEdit();
     void filePathAspectConfiguresEveryChooser();
+    void containerPassesVisibilityToItems();
 };
 
 void tst_Aspects::initTestCase()
@@ -440,6 +441,27 @@ void tst_Aspects::filePathAspectConfiguresEveryChooser()
 
     QCOMPARE(pathChooser(first)->lineEdit()->placeholderText(), "Placeholder");
     QCOMPARE(pathChooser(second)->lineEdit()->placeholderText(), "Placeholder");
+}
+
+void tst_Aspects::containerPassesVisibilityToItems()
+{
+    class Container : public AspectContainer
+    {
+    public:
+        IntegerAspect number{this};
+    };
+
+    Container container;
+    const auto widget = createWidget(container.number);
+    QVERIFY(spinBox(widget));
+
+    container.setVisible(false);
+    QVERIFY(!container.number.isVisible());
+    QVERIFY(spinBox(widget)->isHidden());
+
+    container.setVisible(true);
+    QVERIFY(container.number.isVisible());
+    QVERIFY(!spinBox(widget)->isHidden());
 }
 
 QTEST_MAIN(tst_Aspects)

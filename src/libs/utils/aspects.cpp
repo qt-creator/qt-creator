@@ -3927,6 +3927,14 @@ void AspectContainer::setEnabled(bool enabled)
         aspect->setEnabled(enabled);
 }
 
+void AspectContainer::setVisible(bool visible)
+{
+    BaseAspect::setVisible(visible);
+
+    for (BaseAspect *aspect : std::as_const(d->m_items))
+        aspect->setVisible(visible);
+}
+
 bool AspectContainer::equals(const AspectContainer &other) const
 {
     // FIXME: Expensive, but should not really be needed in a fully aspectified world.
