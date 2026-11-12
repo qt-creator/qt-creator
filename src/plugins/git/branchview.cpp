@@ -80,7 +80,7 @@ struct SetInContext
 
 static BranchModel *globalModel = nullptr;
 
-BranchModel *branchModel()
+static BranchModel *branchModel()
 {
     if (!globalModel)
         globalModel = new BranchModel;
