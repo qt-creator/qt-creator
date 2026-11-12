@@ -123,8 +123,8 @@ WebAssemblySettings::WebAssemblySettings()
         };
         // _clang-format on
 
-        connect(emSdk.pathChooser(), &Utils::PathChooser::textChanged,
-                this, &WebAssemblySettings::updateStatus);
+        connect(&emSdk, &Utils::FilePathAspect::volatileValueChanged,
+                m_emSdkEnvDisplay, [this] { updateStatus(); });
 
         updateStatus();
 
@@ -159,7 +159,7 @@ void WebAssemblySettings::updateStatus()
 {
     WebAssemblyEmSdk::clearCaches();
 
-    const Utils::FilePath newEmSdk = emSdk.pathChooser()->filePath();
+    const Utils::FilePath newEmSdk = emSdk.expandedVolatilePath();
     const auto version = WebAssemblyEmSdk::version(newEmSdk);
     const bool sdkValid = newEmSdk.exists() && version;
 
