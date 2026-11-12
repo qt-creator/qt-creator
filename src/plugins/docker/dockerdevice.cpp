@@ -949,7 +949,7 @@ Result<QString> DockerDevicePrivate::updateContainerAccess()
 
     CreateCommandLineParams params = appliedParams();
 
-    // The tools reach the container through "localhost", which only works for
+    // The tools reach the container through 127.0.0.1, which only works for
     // ports that are published. Offer just the ports that are usable on both sides.
     const QSet<int> usedPorts = q->portMappings.usedPorts();
     const bool isPublishable = params.network != "host" && params.network != "none";
@@ -1827,7 +1827,7 @@ QUrl DockerDevice::toolControlChannel(const ControlChannelHint &) const
 {
     QUrl url;
     url.setScheme(Utils::urlTcpScheme());
-    url.setHost("localhost");
+    url.setHost("127.0.0.1");
     return url;
 }
 
