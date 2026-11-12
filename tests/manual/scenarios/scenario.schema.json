@@ -292,6 +292,54 @@
                 },
                 {
                     "type": "object",
+                    "required": ["describe", "expand_item"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "expand_item": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["item"],
+                            "description": "Expands one row of the tree view the query selects.",
+                            "properties": {
+                                "item": { "type": "string", "description": "Full path of the row, as ui_find_items reports it (the labels leading to it, joined by \" / \")." },
+                                "expanded": { "type": "boolean", "description": "Collapse it instead when false." },
+                                "object_name": { "$ref": "#/definitions/widgetQueryFields/object_name" },
+                                "text": { "$ref": "#/definitions/widgetQueryFields/text" },
+                                "class_name": { "$ref": "#/definitions/widgetQueryFields/class_name" },
+                                "window_title": { "$ref": "#/definitions/widgetQueryFields/window_title" },
+                                "include_invisible": { "$ref": "#/definitions/widgetQueryFields/include_invisible" }
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "resize_dock"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "resize_dock": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "anyOf": [{ "required": ["width"] }, { "required": ["height"] }],
+                            "description": "Resizes the dock that is or contains the widget the query selects, as dragging its separator would.",
+                            "properties": {
+                                "width": { "type": "integer" },
+                                "height": { "type": "integer" },
+                                "object_name": { "$ref": "#/definitions/widgetQueryFields/object_name" },
+                                "text": { "$ref": "#/definitions/widgetQueryFields/text" },
+                                "class_name": { "$ref": "#/definitions/widgetQueryFields/class_name" },
+                                "window_title": { "$ref": "#/definitions/widgetQueryFields/window_title" },
+                                "include_invisible": { "$ref": "#/definitions/widgetQueryFields/include_invisible" }
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
                     "required": ["describe", "open"],
                     "additionalProperties": false,
                     "properties": {
@@ -568,7 +616,7 @@
                         "locals": {
                             "type": "array",
                             "items": { "type": "string" },
-                            "description": "Names that must show up in the Locals view of the current frame. The tutorial lists all locals with their values."
+                            "description": "Names that must show up in the Locals view of the current frame, a member as a dotted path such as \"self.counter\". The tutorial lists all locals with their values."
                         },
                         "timeout": {
                             "type": "number",

@@ -172,6 +172,8 @@ Action keys mirror the MCP tool names. Each step has exactly one:
 | `read_pane`         | Value is a pane display name; text saved as an artefact. |
 | `screenshot`        | Optional query selects the window; PNG saved under `shots/`. |
 | `click_item`        | A query for a tree, list or table plus `item:`, the row's full path as `find_items` reports it. `double_click:`/`context_menu:` where a view wants those. |
+| `expand_item`       | A query for a tree plus `item:` as for `click_item`; expands the row, or collapses it with `expanded: false`. |
+| `resize_dock`       | A widget query plus `width:` and/or `height:`. Resizes the dock the widget is in, as dragging its separator would. |
 | `open`              | A file path to open in the editor (`setup.open` covers the first one). |
 | `select_text`       | `start_line`/`end_line` plus optional columns in the current editor; `expect:` asserts the selected text. |
 | `activate_mode`     | A mode id, e.g. `Welcome`. |
@@ -186,7 +188,7 @@ Action keys mirror the MCP tool names. Each step has exactly one:
 | `debug`             | Starts debugging the startup project, `{}` or `debugger_start` arguments. Dispatched, a `wait_for_stop` follows. |
 | `wait_for_stop`     | Waits until the debugger is paused, optionally at `line:` and in a `file:` whose path ends with the given one; `timeout:` seconds (default 60). On a timeout the report includes the end of the Application Output. |
 | `debug_step`        | `over`, `in` or `out`, or `{kind:, line:, timeout:}`; steps and waits for the stop that follows, optionally at `line:`. |
-| `locals`            | A list of names that must show up in the Locals view; the tutorial lists all locals with their values. `timeout:` seconds (default 15). |
+| `locals`            | A list of names that must show up in the Locals view, a member as a dotted path such as `self.counter`; the tutorial lists all locals with their values. `timeout:` seconds (default 15). |
 | `debug_stop`        | `true`. Ends the debug session and waits until it is gone, `timeout:` seconds (default 30). |
 
 `{scratch}` in any string expands to a fresh per-run temporary directory, so a

@@ -5,18 +5,20 @@ intent: >
   from the QmlProject wizard, a few lines of QML with some logic in a Timer
   handler, debug line directives switched on in the project file, a build, a
   breakpoint in the .qml file, and a debug session that stops there, steps
-  one line and shows the handler's locals. qmltocpp compiles the QML
-  to C++, and the #line directives it writes then are what map the generated
-  code back to the .qml lines, so gdb stops in the QML source.
+  one line and shows the handler's locals and the property it changes.
+  qmltocpp compiles the QML to C++, and the #line directives it writes then
+  are what map the generated code back to the .qml lines, so gdb stops in the
+  QML source.
   It needs a Qt for MCUs installation whose qmltocpp writes absolute #line
-  paths, given as qul_sdk, and loads the McuSupport plugin, which is off by
-  default. The kit comes from McuSupport's automatic kit creation.
+  paths and names the JavaScript variables its registers hold, given as
+  qul_sdk, and loads the McuSupport plugin, which is off by default. The kit
+  comes from McuSupport's automatic kit creation.
 
 vars:
-  qul_sdk: /data/dev/qul-install-2025-base
+  qul_sdk: /data/dev/qul-install
   workspace: "{scratch}"
   project: blinky
-  kit: Qt for MCUs 2.11 - Desktop 32bpp (GCC)
+  kit: Qt for MCUs 3.0 - Desktop 32bpp (GCC)
 
 load:
   - McuSupport
@@ -286,10 +288,29 @@ steps:
 
   - describe: Show the handler's locals
     # qmltocpp compiles the handler to register style C++, and the Locals
-    # view shows those registers: r2 holds step here.
-    caption: The Locals view, r2 holds step
+    # view shows the registers under the JavaScript names they hold.
+    caption: The Locals view, with the JavaScript names
     locals:
-      - r2
+      - step
+
+  - describe: Make room for the values
+    # The dock keeps its width, and the names push the values out of it.
+    caption: Widen the Locals view
+    resize_dock:
+      object_name: Debugger.Dock.Locals.GDB
+      width: 700
+
+  - describe: Open the root object
+    # The handler's functor is hidden, self is the root object. The star
+    # marks the pointer as dereferenced, as with *this in C++ code.
+    caption: The root object, as self
+    expand_item:
+      object_name: Debugger.Dock.Locals.GDB
+      item: "*self"
+
+  - describe: Show the property before the assignment
+    locals:
+      - self.counter
 
   - describe: Capture the stop in the QML source
     screenshot:
@@ -301,9 +322,10 @@ steps:
       line: 31
 
   - describe: Show the locals after the step
-    caption: The registers after the step
+    caption: The locals after the step
     locals:
-      - r2
+      - step
+      - self.counter
 
   - describe: Capture the next line
     screenshot:

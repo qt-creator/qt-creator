@@ -517,6 +517,23 @@ class Runner:
                     note="Clicked row: " + item_desc(r),
                     tool="click_item", check=item_identity(r))
 
+    def do_expand_item(self, step):
+        args = self.subst(step["expand_item"])
+        self.point_at({k: v for k, v in args.items() if k not in ("item", "expanded")})
+        r = self.call_or_fail("ui_set_item_expanded", args, step["describe"])
+        verb = "Expanded" if args.get("expanded", True) else "Collapsed"
+        self.record(step["describe"], "expand_item " + json.dumps(args),
+                    note="{} row: {}".format(verb, item_desc(r)),
+                    tool="expand_item", check=item_identity(r))
+
+    def do_resize_dock(self, step):
+        args = self.subst(step["resize_dock"])
+        self.point_at({k: v for k, v in args.items() if k not in ("width", "height")})
+        r = self.call_or_fail("ui_resize_dock", args, step["describe"]) or {}
+        self.record(step["describe"], "resize_dock " + json.dumps(args),
+                    note="The dock is now {}x{}".format(r.get("width"), r.get("height")),
+                    tool="resize_dock")
+
     def do_select_text(self, step):
         args = self.subst(step["select_text"])
         expected = args.pop("expect", None)
@@ -716,6 +733,19 @@ class Runner:
         pos = self.wait_until_stopped(spec, step["describe"], moved_from=before)
         self.record_stop(step, "debug_step " + json.dumps(spec), "debug_step", pos)
 
+    def member_variable(self, variable, path, timeout_ms, describe):
+        for name in path:
+            children = variable.get("children")
+            if children is None and variable.get("has_children"):
+                r = self.call_or_fail("debugger_get_variable",
+                                      {"iname": variable.get("iname"), "timeout_ms": timeout_ms},
+                                      describe) or {}
+                children = (r.get("variable") or {}).get("children")
+            variable = next((c for c in children or [] if c.get("name") == name), None)
+            if variable is None:
+                return None
+        return variable
+
     def do_locals(self, step):
         wanted = step["locals"] or []
         timeout = float(step.get("timeout", 15))
@@ -727,7 +757,15 @@ class Runner:
             remaining_ms = max(int((deadline - time.monotonic()) * 1000), 0)
             r = self.call_or_fail("debugger_get_variables", {"timeout_ms": remaining_ms},
                                   step["describe"]) or {}
-            found = {v.get("name"): v.get("value") for v in r.get("variables", [])}
+            top = {v.get("name"): v for v in r.get("variables", [])}
+            found = {name: v.get("value") for name, v in top.items()}
+            for name in wanted:
+                head, *path = name.split(".")
+                if path and head in top:
+                    member = self.member_variable(top[head], path, remaining_ms,
+                                                  step["describe"])
+                    if member is not None:
+                        found[name] = member.get("value")
             if all(name in found for name in wanted) or time.monotonic() >= deadline:
                 break
             time.sleep(0.1)
@@ -965,6 +1003,10 @@ class Runner:
                 self.do_click(step)
             elif "click_item" in step:
                 self.do_click_item(step)
+            elif "expand_item" in step:
+                self.do_expand_item(step)
+            elif "resize_dock" in step:
+                self.do_resize_dock(step)
             elif "type_text" in step:
                 self.do_type(step)
             elif "press_keys" in step:
