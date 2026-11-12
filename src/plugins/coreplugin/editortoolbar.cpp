@@ -7,6 +7,7 @@
 #include "actionmanager/command.h"
 #include "coreplugintr.h"
 #include "editormanager/documentmodel.h"
+#include "editormanager/documentmodel_p.h"
 #include "editormanager/editormanager.h"
 #include "editormanager/editormanager_p.h"
 #include "editormanager/ieditor.h"
@@ -85,6 +86,7 @@ struct EditorToolBarPrivate
 
     QPoint m_dragStartPosition;
     QPointer<QWidget> m_focusBeforeListContextMenu;
+    QPointer<IDocument> m_currentDocument;
 
     bool m_isStandalone;
 };
@@ -152,7 +154,6 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_editorList->setMaxVisibleItems(40);
     d->m_editorList->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    d->m_closeEditorButton->setIcon(Utils::Icons::CLOSE_TOOLBAR.icon());
     d->m_closeEditorButton->setEnabled(false);
     d->m_closeEditorButton->setProperty(Utils::StyleHelper::C_SHOW_BORDER, true);
 
@@ -213,7 +214,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     }, Qt::QueuedConnection);
     connect(d->m_lockButton, &QAbstractButton::clicked, this, &EditorToolBar::makeEditorWritable);
     connect(d->m_closeEditorButton, &QAbstractButton::clicked,
-            this, &EditorToolBar::closeEditor, Qt::QueuedConnection);
+            this, &EditorToolBar::closeEditorButtonClicked, Qt::QueuedConnection);
     connect(d->m_horizontalSplitAction, &QAction::triggered,
             this, &EditorToolBar::horizontalSplitClicked, Qt::QueuedConnection);
     connect(d->m_verticalSplitAction, &QAction::triggered,
@@ -223,6 +224,17 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     connect(d->m_closeSplitButton, &QAbstractButton::clicked,
             this, &EditorToolBar::closeSplitClicked, Qt::QueuedConnection);
 
+
+    // Pinning and unpinning via the Open Documents view or the tab bar must be
+    // reflected by the close button.
+    connect(DocumentModel::model(), &QAbstractItemModel::dataChanged, this,
+            [this](const QModelIndex &topLeft, const QModelIndex &bottomRight) {
+                if (!d->m_currentDocument)
+                    return;
+                const std::optional<int> row = DocumentModel::rowOfDocument(d->m_currentDocument);
+                if (row && *row >= topLeft.row() && *row <= bottomRight.row())
+                    updateCloseButton();
+            });
 
     connect(ActionManager::command(Constants::CLOSE), &Command::keySequenceChanged,
             this, &EditorToolBar::updateActionShortcuts);
@@ -271,6 +283,32 @@ void EditorToolBar::closeEditor()
     if (d->m_isStandalone)
         EditorManager::slotCloseCurrentEditorOrDocument();
     emit closeClicked();
+}
+
+void EditorToolBar::closeEditorButtonClicked()
+{
+    DocumentModel::Entry *entry = d->m_currentDocument
+        ? DocumentModel::entryForDocument(d->m_currentDocument)
+        : nullptr;
+    if (entry && entry->pinned) {
+        Internal::DocumentModelPrivate::setPinned(entry, false);
+        return;
+    }
+    closeEditor();
+}
+
+void EditorToolBar::updateCloseButton()
+{
+    const DocumentModel::Entry *entry = d->m_currentDocument
+        ? DocumentModel::entryForDocument(d->m_currentDocument)
+        : nullptr;
+    const bool pinned = entry && entry->pinned;
+    d->m_closeEditorButton->setIcon(pinned ? Utils::Icons::PINNED.icon()
+                                           : Utils::Icons::CLOSE_TOOLBAR.icon());
+    d->m_closeEditorButton->setToolTip(
+        pinned ? Tr::tr("Unpin Document")
+               : ActionManager::command(Constants::CLOSE)
+                     ->stringWithAppendedShortcut(Tr::tr("Close Document")));
 }
 
 void EditorToolBar::addEditor(IEditor *editor)
@@ -402,7 +440,7 @@ void EditorToolBar::setDocumentDropdownVisible(bool visible)
 
 void EditorToolBar::updateActionShortcuts()
 {
-    d->m_closeEditorButton->setToolTip(ActionManager::command(Constants::CLOSE)->stringWithAppendedShortcut(Tr::tr("Close Document")));
+    updateCloseButton();
     d->m_goBackAction->setToolTip(ActionManager::command(Constants::GO_BACK)->stringWithAppendedShortcut(Tr::tr("Go Back")));
     d->m_goForwardAction->setToolTip(ActionManager::command(Constants::GO_FORWARD)->stringWithAppendedShortcut(Tr::tr("Go Forward")));
     d->m_closeSplitButton->setToolTip(ActionManager::command(Constants::REMOVE_CURRENT_SPLIT)->stringWithAppendedShortcut(Tr::tr("Remove Split")));
@@ -419,7 +457,9 @@ void EditorToolBar::checkDocumentStatus(IDocument *document)
 
 void EditorToolBar::updateDocumentStatus(IDocument *document)
 {
+    d->m_currentDocument = document;
     d->m_closeEditorButton->setEnabled(document != nullptr);
+    updateCloseButton();
 
     if (!document) {
         d->m_lockButton->setIcon(QIcon());

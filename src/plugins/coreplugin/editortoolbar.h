@@ -88,7 +88,9 @@ private:
 
     void checkDocumentStatus(IDocument *document);
     void closeEditor();
+    void closeEditorButtonClicked();
     void updateActionShortcuts();
+    void updateCloseButton();
 
     void updateDocumentStatus(IDocument *document);
     void fillListContextMenu(QMenu *menu);
