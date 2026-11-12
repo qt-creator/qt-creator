@@ -7,10 +7,9 @@
 
 #include <utils/aspects.h>
 
-#include <QLabel>
-#include <QPointer>
-
 namespace IncrediBuild::Internal {
+
+QObject *createCommandBuilderAspectTest();
 
 class CommandBuilderAspect final : public Utils::BaseAspect
 {
@@ -30,6 +29,9 @@ private:
     void updateGui();
 
     class CommandBuilderAspectPrivate *d = nullptr;
+
+signals:
+    void guiUpdateRequested(QPrivateSignal);
 };
 
 } // IncrediBuild::Internal

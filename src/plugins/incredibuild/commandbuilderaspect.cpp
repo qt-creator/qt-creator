@@ -11,6 +11,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/project.h>
 
+#include <utils/algorithm.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -18,6 +19,10 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>
+
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -52,11 +57,6 @@ public:
     CommandBuilder *m_activeCommandBuilder = m_commandBuilders[0];
 
     bool m_loadedFromMap = false;
-
-    QPointer<QLabel> label;
-    QPointer<QComboBox> commandBuilder;
-    QPointer<PathChooser> makePathChooser;
-    QPointer<QLineEdit> makeArgumentsLineEdit;
 };
 
 CommandBuilderAspect::CommandBuilderAspect(BuildStep *step)
@@ -112,50 +112,63 @@ void CommandBuilderAspectPrivate::tryToMigrate()
 
 void CommandBuilderAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    if (!d->commandBuilder) {
-        d->commandBuilder = new QComboBox;
-        for (CommandBuilder *p : d->m_commandBuilders)
-            d->commandBuilder->addItem(p->displayName());
-        connect(d->commandBuilder, &QComboBox::currentIndexChanged, this, [this](int idx) {
-            if (idx >= 0 && idx < int(sizeof(d->m_commandBuilders) / sizeof(d->m_commandBuilders[0])))
-                d->m_activeCommandBuilder = d->m_commandBuilders[idx];
-            updateGui();
-        });
-        setWheelScrollingWithoutFocusBlocked(d->commandBuilder);
-    }
+    auto commandBuilder = new QComboBox;
+    for (CommandBuilder *p : d->m_commandBuilders)
+        commandBuilder->addItem(p->displayName());
+    connect(commandBuilder, &QComboBox::currentIndexChanged, this, [this](int idx) {
+        if (idx >= 0 && idx < int(sizeof(d->m_commandBuilders) / sizeof(d->m_commandBuilders[0])))
+            d->m_activeCommandBuilder = d->m_commandBuilders[idx];
+        updateGui();
+    });
+    setWheelScrollingWithoutFocusBlocked(commandBuilder);
 
-    if (!d->makePathChooser) {
-        d->makePathChooser = new PathChooser;
-        d->makePathChooser->setExpectedKind(PathChooserKind::ExistingCommand);
-        d->makePathChooser->setBaseDirectory(PathChooser::homePath());
-        d->makePathChooser->setHistoryCompleter("IncrediBuild.BuildConsole.MakeCommand.History");
-        connect(d->makePathChooser, &PathChooser::rawPathChanged, this, [this] {
-            d->m_activeCommandBuilder->setCommand(d->makePathChooser->unexpandedFilePath());
-            updateGui();
-        });
-    }
+    auto makePathChooser = new PathChooser;
+    makePathChooser->setExpectedKind(PathChooserKind::ExistingCommand);
+    makePathChooser->setBaseDirectory(PathChooser::homePath());
+    makePathChooser->setHistoryCompleter("IncrediBuild.BuildConsole.MakeCommand.History");
+    connect(makePathChooser, &PathChooser::rawPathChanged, this, [this, makePathChooser] {
+        d->m_activeCommandBuilder->setCommand(makePathChooser->unexpandedFilePath());
+        updateGui();
+    });
 
-   if (!d->makeArgumentsLineEdit) {
-        d->makeArgumentsLineEdit = new QLineEdit;
-        connect(d->makeArgumentsLineEdit, &QLineEdit::textEdited, this, [this](const QString &arg) {
-            d->m_activeCommandBuilder->setArguments(arg);
-            updateGui();
-        });
-    }
+    auto makeArgumentsLineEdit = new QLineEdit;
+    connect(makeArgumentsLineEdit, &QLineEdit::textEdited, this, [this](const QString &arg) {
+        d->m_activeCommandBuilder->setArguments(arg);
+        updateGui();
+    });
 
-    if (!d->label) {
-        d->label = new QLabel(Tr::tr("Command Helper:"));
-        d->label->setToolTip(Tr::tr("Select a helper to establish the build command."));
-    }
+    auto label = new QLabel(Tr::tr("Command Helper:"));
+    label->setToolTip(Tr::tr("Select a helper to establish the build command."));
+
+    const auto showActiveCommandBuilder = [this, commandBuilder, makePathChooser,
+                                           makeArgumentsLineEdit] {
+        CommandBuilder *active = d->m_activeCommandBuilder;
+        {
+            const QSignalBlocker blocker(commandBuilder);
+            commandBuilder->setCurrentText(active->displayName());
+        }
+        {
+            const QSignalBlocker blocker(makePathChooser);
+            if (makePathChooser->unexpandedFilePath() != active->command())
+                makePathChooser->setFilePath(active->command());
+            makePathChooser->setDefaultValue(active->defaultCommand());
+        }
+        makeArgumentsLineEdit->setPlaceholderText(active->defaultArguments());
+        if (makeArgumentsLineEdit->text() != active->arguments())
+            makeArgumentsLineEdit->setText(active->arguments());
+    };
+    connect(this, &CommandBuilderAspect::guiUpdateRequested, commandBuilder,
+            showActiveCommandBuilder);
 
     // On first creation of the step, attempt to detect and migrate from preceding steps
     if (!d->m_loadedFromMap)
         d->tryToMigrate();
 
-    parent.addRow({d->label.data(), d->commandBuilder.data()});
-    parent.addRow({Tr::tr("Make command:"), d->makePathChooser.data()});
-    parent.addRow({Tr::tr("Make arguments:"), d->makeArgumentsLineEdit.data()});
+    parent.addRow({label, commandBuilder});
+    parent.addRow({Tr::tr("Make command:"), makePathChooser});
+    parent.addRow({Tr::tr("Make arguments:"), makeArgumentsLineEdit});
 
+    // The migration above may have changed the helper for the other widgets, too.
     updateGui();
 }
 
@@ -184,18 +197,49 @@ void CommandBuilderAspect::toMap(Store &map) const
 
 void CommandBuilderAspect::updateGui()
 {
-    if (!d->commandBuilder)
-        return;
-
-    d->commandBuilder->setCurrentText(d->m_activeCommandBuilder->displayName());
-
-    const FilePath defaultCommand = d->m_activeCommandBuilder->defaultCommand();
-    d->makePathChooser->setFilePath(d->m_activeCommandBuilder->command());
-    d->makePathChooser->setDefaultValue(defaultCommand);
-
-    const QString defaultArgs = d->m_activeCommandBuilder->defaultArguments();
-    d->makeArgumentsLineEdit->setPlaceholderText(defaultArgs);
-    d->makeArgumentsLineEdit->setText(d->m_activeCommandBuilder->arguments());
+    emit guiUpdateRequested(QPrivateSignal());
 }
 
+#ifdef WITH_TESTS
+class CommandBuilderAspectTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testUpdatesEveryWidget()
+    {
+        // Only the make and CMake helpers need a build step, the custom command does not.
+        CommandBuilderAspect commandBuilder(nullptr);
+        BaseAspect &aspect = commandBuilder;
+        aspect.fromMap({}); // Loaded, so nothing is migrated from other build steps.
+        const std::unique_ptr<QWidget> first(Layouting::Form{aspect}.emerge());
+        const std::unique_ptr<QWidget> second(Layouting::Form{aspect}.emerge());
+        const auto argumentsEdit = [](const std::unique_ptr<QWidget> &widget) {
+            return Utils::findOrDefault(widget->findChildren<QLineEdit *>(), [](QLineEdit *edit) {
+                return edit->metaObject() == &QLineEdit::staticMetaObject;
+            });
+        };
+        QLineEdit *firstEdit = argumentsEdit(first);
+        QLineEdit *secondEdit = argumentsEdit(second);
+        QVERIFY(firstEdit);
+        QVERIFY(secondEdit);
+
+        firstEdit->setText("--typed");
+        emit firstEdit->textEdited("--typed");
+
+        QCOMPARE(secondEdit->text(), "--typed");
+        QVERIFY(commandBuilder.fullCommandFlag(true).endsWith("--typed"));
+    }
+};
+
+QObject *createCommandBuilderAspectTest()
+{
+    return new CommandBuilderAspectTest;
+}
+#endif // WITH_TESTS
+
 } // IncrediBuild::Internal
+
+#ifdef WITH_TESTS
+#include <commandbuilderaspect.moc>
+#endif

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "buildconsolebuildstep.h"
+#include "commandbuilderaspect.h"
 #include "ibconsolebuildstep.h"
 
 #include <extensionsystem/iplugin.h>
@@ -18,6 +19,10 @@ public:
     {
         setupBuildConsoleStep();
         setupIBConsoleStep();
+
+#ifdef WITH_TESTS
+        addTestCreator(createCommandBuilderAspectTest);
+#endif
     }
 };
 
