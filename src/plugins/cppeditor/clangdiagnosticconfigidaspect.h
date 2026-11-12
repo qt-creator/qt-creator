@@ -10,11 +10,10 @@
 #include <utils/aspects.h>
 #include <utils/id.h>
 
-#include <QPointer>
-
 namespace CppEditor {
 
-class ClangDiagnosticConfigsSelectionWidget;
+namespace Internal { QObject *createClangDiagnosticConfigIdAspectTest(); }
+
 class ClangDiagnosticConfigsWidget;
 
 // Aspect holding a ClangDiagnosticConfig identifier.
@@ -22,6 +21,8 @@ class ClangDiagnosticConfigsWidget;
 class CPPEDITOR_EXPORT ClangDiagnosticConfigIdAspect final
     : public Utils::TypedAspect<Utils::Id>
 {
+    Q_OBJECT
+
 public:
     explicit ClangDiagnosticConfigIdAspect(Utils::AspectContainer *container = nullptr);
 
@@ -47,6 +48,9 @@ public:
     void refresh();
     bool hasWidget() const;
 
+signals:
+    void configsChanged(QPrivateSignal);
+
 private:
     bool guiToVolatileValue() final;
     void volatileValueToGui() final;
@@ -58,7 +62,12 @@ private:
     ClangDiagnosticConfigs m_customConfigs;
     ClangDiagnosticConfigs m_committedCustomConfigs;
     bool m_persistCustomConfigs = false;
-    QPointer<ClangDiagnosticConfigsSelectionWidget> m_widget;
+
+    // What the widgets show. They edit it through their dialog.
+    ClangDiagnosticConfigsModel m_model;
+    Utils::Id m_guiId;
+    ClangDiagnosticConfigs m_guiCustomConfigs;
+    int m_widgetCount = 0;
 };
 
 } // namespace CppEditor

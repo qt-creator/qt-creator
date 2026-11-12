@@ -19,6 +19,10 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 using namespace Utils;
 
 namespace CppEditor {
@@ -66,6 +70,11 @@ public:
     ClangDiagnosticConfigs customConfigs() const
     {
         return m_diagnosticConfigsModel.customConfigs();
+    }
+
+    ClangDiagnosticConfigsModel model() const
+    {
+        return m_diagnosticConfigsModel;
     }
 
     void onButtonClicked()
@@ -129,29 +138,39 @@ void ClangDiagnosticConfigIdAspect::setEditWidgetFactory(EditWidgetFactory facto
 
 void ClangDiagnosticConfigIdAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    m_widget = createSubWidget<ClangDiagnosticConfigsSelectionWidget>();
-    if (m_modelFactory && m_editFactory) {
-        const ClangDiagnosticConfigsModel model = m_modelFactory();
-        const Id id = model.hasConfigWithId(volatileValue()) ? volatileValue() : defaultValue();
-        m_widget->refresh(model, id, m_editFactory);
-        m_committedCustomConfigs = m_customConfigs = m_widget->customConfigs();
-    }
-    connect(m_widget, &ClangDiagnosticConfigsSelectionWidget::changed, this, [this] {
-        if (m_widget)
-            handleGuiChanged();
+    auto widget = createSubWidget<ClangDiagnosticConfigsSelectionWidget>();
+    ++m_widgetCount;
+    connect(widget, &QObject::destroyed, this, [this] { --m_widgetCount; });
+
+    connect(this, &ClangDiagnosticConfigIdAspect::configsChanged, widget, [this, widget] {
+        const Id id = m_model.hasConfigWithId(m_guiId) ? m_guiId : defaultValue();
+        widget->refresh(m_model, id, m_editFactory);
     });
-    parent.addItem(m_widget.data());
+    connect(widget, &ClangDiagnosticConfigsSelectionWidget::changed, this, [this, widget] {
+        m_model = widget->model();
+        m_guiId = widget->currentConfigId();
+        m_guiCustomConfigs = widget->customConfigs();
+        emit configsChanged(QPrivateSignal());
+        handleGuiChanged();
+    });
+
+    if (m_modelFactory && m_editFactory) {
+        m_model = m_modelFactory();
+        m_committedCustomConfigs = m_customConfigs = m_model.customConfigs();
+        m_guiId = m_volatileValue;
+        m_guiCustomConfigs = m_customConfigs;
+        emit configsChanged(QPrivateSignal());
+    }
+    parent.addItem(widget);
 }
 
 bool ClangDiagnosticConfigIdAspect::guiToVolatileValue()
 {
-    if (!m_widget)
+    if (m_widgetCount == 0)
         return false;
-    const Id newId = m_widget->currentConfigId();
-    const ClangDiagnosticConfigs newConfigs = m_widget->customConfigs();
-    const bool changed = (newId != m_volatileValue) || (newConfigs != m_customConfigs);
-    m_volatileValue = newId;
-    m_customConfigs = newConfigs;
+    const bool changed = (m_guiId != m_volatileValue) || (m_guiCustomConfigs != m_customConfigs);
+    m_volatileValue = m_guiId;
+    m_customConfigs = m_guiCustomConfigs;
     return changed;
 }
 
@@ -173,17 +192,18 @@ void ClangDiagnosticConfigIdAspect::refresh()
 
 bool ClangDiagnosticConfigIdAspect::hasWidget() const
 {
-    return m_widget != nullptr;
+    return m_widgetCount > 0;
 }
 
 void ClangDiagnosticConfigIdAspect::volatileValueToGui()
 {
-    if (!m_widget || !m_modelFactory || !m_editFactory)
+    if (m_widgetCount == 0 || !m_modelFactory || !m_editFactory)
         return;
-    const ClangDiagnosticConfigsModel model = m_modelFactory();
-    const Id id = model.hasConfigWithId(m_volatileValue) ? m_volatileValue : defaultValue();
-    m_widget->refresh(model, id, m_editFactory);
-    m_customConfigs = m_widget->customConfigs();
+    m_model = m_modelFactory();
+    m_customConfigs = m_model.customConfigs();
+    m_guiId = m_volatileValue;
+    m_guiCustomConfigs = m_customConfigs;
+    emit configsChanged(QPrivateSignal());
 }
 
 void ClangDiagnosticConfigIdAspect::fromMap(const Store &map)
@@ -214,6 +234,62 @@ void ClangDiagnosticConfigIdAspect::writeSettings() const
     if (m_persistCustomConfigs)
         diagnosticConfigsToSettings(&Utils::userSettings(), m_customConfigs);
 }
+
+#ifdef WITH_TESTS
+namespace Internal {
+
+class ClangDiagnosticConfigIdAspectTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testUpdatesEveryWidget()
+    {
+        const auto model = [] {
+            ClangDiagnosticConfigsModel model;
+            model.addBuiltinConfigs();
+            return model;
+        };
+        QVERIFY(model().size() >= 2);
+        const ClangDiagnosticConfig firstConfig = model().at(0);
+        const ClangDiagnosticConfig secondConfig = model().at(1);
+
+        ClangDiagnosticConfigIdAspect aspect;
+        aspect.setDefaultValue(firstConfig.id());
+        aspect.setModelFactory(model);
+        aspect.setEditWidgetFactory([](const ClangDiagnosticConfigs &configs, const Id &id) {
+            return new ClangDiagnosticConfigsWidget(configs, id);
+        });
+        QVERIFY(!aspect.hasWidget());
+
+        auto first = std::make_unique<QWidget>();
+        auto second = std::make_unique<QWidget>();
+        Layouting::Column{aspect}.attachTo(first.get());
+        Layouting::Column{aspect}.attachTo(second.get());
+        QVERIFY(aspect.hasWidget());
+        QPushButton *firstButton = first->findChild<QPushButton *>();
+        QPushButton *secondButton = second->findChild<QPushButton *>();
+        QVERIFY(firstButton);
+        QVERIFY(secondButton);
+
+        aspect.setValue(secondConfig.id());
+        QCOMPARE(firstButton->text(), secondConfig.displayName());
+        QCOMPARE(secondButton->text(), secondConfig.displayName());
+
+        first.reset();
+        QVERIFY(aspect.hasWidget());
+        second.reset();
+        QVERIFY(!aspect.hasWidget());
+    }
+};
+
+QObject *createClangDiagnosticConfigIdAspectTest()
+{
+    return new ClangDiagnosticConfigIdAspectTest;
+}
+
+} // namespace Internal
+#endif // WITH_TESTS
 
 } // namespace CppEditor
 

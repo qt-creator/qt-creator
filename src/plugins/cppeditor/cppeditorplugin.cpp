@@ -1,6 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "clangdiagnosticconfigidaspect.h"
 #include "cppautocompleter.h"
 #include "cppcodemodelinspectordialog.h"
 #include "cppcodemodelsettings.h"
@@ -649,6 +650,7 @@ void CppEditorPlugin::registerTests()
 {
     registerHighlighterTests(*this);
 #ifdef WITH_TESTS
+    addTestCreator(createClangDiagnosticConfigIdAspectTest);
     addTest<CodegenTest>();
     addTest<CompilerOptionsBuilderTest>();
     addTest<CompletionTest>();
