@@ -113,6 +113,18 @@ def qdump__gsl__byte(d, value):
 
 #######################################################################
 #
+# Qt for MCUs
+#
+#######################################################################
+
+
+# The stored value, which is not re-evaluated if a binding is dirty.
+def qdump__Qul__Property(d, value):
+    d.putItem(value['m_value'])
+    d.putBetterType(value.type)
+
+#######################################################################
+#
 # Eigen
 #
 #######################################################################

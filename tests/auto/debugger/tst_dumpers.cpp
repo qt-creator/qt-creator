@@ -9217,6 +9217,34 @@ void tst_Dumpers::dumper_data()
     // clang-format on
 
     // clang-format off
+    QTest::newRow("QulProperty") << Data{
+        R"(
+            namespace Qul {
+            namespace Private {
+            struct PropertyBase { void *firstDependency = nullptr; void *propertyData = nullptr; };
+            template<typename T> struct PaddedPropertyData { T m_value; };
+            } // namespace Private
+
+            template<typename T>
+            struct Property : Private::PropertyBase, Private::PaddedPropertyData<T>
+            {
+                explicit Property(const T &value) { this->m_value = value; }
+            };
+            } // namespace Qul
+        )",
+
+        R"(
+            Qul::Property<int> counter(2);
+            Qul::Property<double> ratio(0.5);
+        )",
+
+        "&counter, &ratio"
+    }
+        + Check{"counter", "2", "Qul::Property<int>"}
+        + Check{"ratio", "0.5", "Qul::Property<double>"};
+    // clang-format on
+
+    // clang-format off
     QTest::newRow("QTCREATORBUG-30224-StdLibPmrContainers") << Data{
         R"(
             #include <array>
