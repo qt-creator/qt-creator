@@ -47,7 +47,7 @@ SquishSettings::SquishSettings()
     squishPath.setPlaceHolderText(Tr::tr("Path to Squish installation"));
     squishPath.setValidationFunction(
         [this](const QString &text) -> FancyLineEdit::AsyncValidationFuture {
-            return squishPath.pathChooser()->defaultValidationFunction()(text).then(
+            return squishPath.defaultValidationFunction()(text).then(
                 [](const FancyLineEdit::AsyncValidationResult &result)
                     -> FancyLineEdit::AsyncValidationResult {
                     if (!result)
