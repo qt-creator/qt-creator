@@ -200,52 +200,58 @@ void WorkingDirectoryAspect::setEnvironment(EnvironmentAspect *envAspect)
 */
 void WorkingDirectoryAspect::addToLayoutImpl(Layout &builder)
 {
-    QTC_CHECK(!m_chooser);
-    m_chooser = new PathChooser;
+    auto chooser = new PathChooser;
     if (QTC_GUARD(macroExpander()))
-        m_chooser->setMacroExpander(macroExpander());
-    m_chooser->setHistoryCompleter(settingsKey());
-    m_chooser->setExpectedKind(Utils::PathChooserKind::ExistingDirectory);
-    m_chooser->setPromptDialogTitle(Tr::tr("Select Working Directory"));
-    m_chooser->setBaseDirectory(m_defaultWorkingDirectory);
-    m_chooser->setFilePath(m_workingDirectory.isEmpty() ? m_defaultWorkingDirectory : m_workingDirectory);
-    connect(m_chooser.data(), &PathChooser::textChanged, this, [this] {
-        m_workingDirectory = m_chooser->unexpandedFilePath();
-        m_resetButton->setEnabled(m_workingDirectory != m_defaultWorkingDirectory);
-    });
+        chooser->setMacroExpander(macroExpander());
+    chooser->setHistoryCompleter(settingsKey());
+    chooser->setExpectedKind(Utils::PathChooserKind::ExistingDirectory);
+    chooser->setPromptDialogTitle(Tr::tr("Select Working Directory"));
+    chooser->setBaseDirectory(m_defaultWorkingDirectory);
+    chooser->setFilePath(m_workingDirectory.isEmpty() ? m_defaultWorkingDirectory : m_workingDirectory);
 
-    m_resetButton = new QToolButton;
-    m_resetButton->setToolTip(Tr::tr("Reset to Default"));
-    m_resetButton->setIcon(Utils::Icons::RESET.icon());
-    connect(m_resetButton.data(), &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
-    m_resetButton->setEnabled(m_workingDirectory != m_defaultWorkingDirectory);
+    auto resetButton = new QToolButton;
+    resetButton->setToolTip(Tr::tr("Reset to Default"));
+    resetButton->setIcon(Utils::Icons::RESET.icon());
+    connect(resetButton, &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
+
+    connect(chooser, &PathChooser::textChanged, this, [this, chooser, resetButton] {
+        m_workingDirectory = chooser->unexpandedFilePath();
+        resetButton->setEnabled(m_workingDirectory != m_defaultWorkingDirectory);
+        emit workingDirectoryChanged(QPrivateSignal());
+    });
+    connect(this, &WorkingDirectoryAspect::workingDirectoryChanged, chooser, [this, chooser] {
+        if (chooser->unexpandedFilePath() != m_workingDirectory)
+            chooser->setFilePath(m_workingDirectory);
+    });
+    connect(this, &WorkingDirectoryAspect::defaultWorkingDirectoryChanged, chooser, [this, chooser] {
+        chooser->setBaseDirectory(m_defaultWorkingDirectory);
+    });
 
     if (m_envAspect) {
         // The chooser is the context, so a torn-down panel stops asking instead
         // of outliving its widgets. Evaluating the environment still reaches into
         // device and kit machinery that can tear the tree down while it runs,
         // hence the check after it and not before.
-        connect(m_envAspect, &EnvironmentAspect::environmentChanged, m_chooser,
-                [envAspect = m_envAspect, chooser = QPointer(m_chooser.data())] {
+        connect(m_envAspect, &EnvironmentAspect::environmentChanged, chooser,
+                [envAspect = m_envAspect, chooser = QPointer(chooser)] {
             const Environment env = envAspect->environment();
             if (chooser)
                 chooser->setEnvironment(env);
         });
-        m_chooser->setEnvironment(m_envAspect->environment());
+        chooser->setEnvironment(m_envAspect->environment());
     }
 
-    m_chooser->setReadOnly(isReadOnly());
-    m_resetButton->setEnabled(!isReadOnly());
-
-    registerSubWidget(m_chooser);
-    registerSubWidget(m_resetButton);
-
-    addLabeledItems(builder, {m_chooser.data(), m_resetButton.data()});
+    chooser->setReadOnly(isReadOnly());
+    resetButton->setEnabled(!isReadOnly());
+    registerSubWidget(chooser);
+    registerSubWidget(resetButton);
+    addLabeledItems(builder, {chooser, resetButton});
 }
 
 void WorkingDirectoryAspect::resetPath()
 {
-    m_chooser->setFilePath(m_defaultWorkingDirectory);
+    m_workingDirectory = m_defaultWorkingDirectory;
+    emit workingDirectoryChanged(QPrivateSignal());
 }
 
 /*!
@@ -259,8 +265,8 @@ void WorkingDirectoryAspect::fromMap(const Store &map)
     if (m_workingDirectory.isEmpty())
         m_workingDirectory = m_defaultWorkingDirectory;
 
-    if (m_chooser)
-        m_chooser->setFilePath(m_workingDirectory.isEmpty() ? m_defaultWorkingDirectory : m_workingDirectory);
+    emit defaultWorkingDirectoryChanged(QPrivateSignal());
+    emit workingDirectoryChanged(QPrivateSignal());
 }
 
 /*!
@@ -314,8 +320,7 @@ void WorkingDirectoryAspect::setWorkingDirectory(const FilePath &workingDirector
         m_workingDirectory = workingDirectory;
         emit changed();
     }
-    if (m_chooser && m_chooser->unexpandedFilePath() != workingDirectory)
-        m_chooser->setFilePath(workingDirectory);
+    emit workingDirectoryChanged(QPrivateSignal());
 }
 
 /*!
@@ -325,27 +330,14 @@ void WorkingDirectoryAspect::setDefaultWorkingDirectory(const FilePath &defaultW
 {
     if (defaultWorkingDir == m_defaultWorkingDirectory)
         return;
-
     Utils::FilePath oldDefaultDir = m_defaultWorkingDirectory;
     m_defaultWorkingDirectory = defaultWorkingDir;
-    if (m_chooser)
-        m_chooser->setBaseDirectory(m_defaultWorkingDirectory);
-
+    emit defaultWorkingDirectoryChanged(QPrivateSignal());
     if (m_workingDirectory.isEmpty() || m_workingDirectory == oldDefaultDir) {
-        if (m_chooser)
-            m_chooser->setFilePath(m_defaultWorkingDirectory);
         m_workingDirectory = defaultWorkingDir;
+        emit workingDirectoryChanged(QPrivateSignal());
     }
 }
-
-/*!
-    \internal
-*/
-PathChooser *WorkingDirectoryAspect::pathChooser() const
-{
-    return m_chooser;
-}
-
 
 /*!
     \class ProjectExplorer::ArgumentsAspect
@@ -1201,6 +1193,8 @@ private slots:
     void testTerminalAspectUpdatesEveryCheckBox();
     void testLauncherAspectUpdatesEveryComboBox();
     void testLauncherAspectPicksOfferedLauncherWithoutWidget();
+    void testWorkingDirectoryAspectUpdatesEveryChooser();
+    void testWorkingDirectoryAspectKeepsAClearedChooserEmpty();
 };
 
 static std::unique_ptr<QWidget> createWidget(BaseAspect &aspect)
@@ -1273,6 +1267,49 @@ void RunConfigurationAspectsTest::testLauncherAspectPicksOfferedLauncherWithoutW
 
     aspect.updateLaunchers({testLauncher("a"), testLauncher("c")});
     QCOMPARE(aspect.currentLauncher().id, "a");
+}
+
+void RunConfigurationAspectsTest::testWorkingDirectoryAspectUpdatesEveryChooser()
+{
+    WorkingDirectoryAspect aspect;
+    const auto first = createWidget(aspect);
+    const auto second = createWidget(aspect);
+    PathChooser *firstChooser = first->findChild<PathChooser *>();
+    PathChooser *secondChooser = second->findChild<PathChooser *>();
+    QVERIFY(firstChooser);
+    QVERIFY(secondChooser);
+
+    aspect.setWorkingDirectory(FilePath::fromString("/set/directory"));
+    QCOMPARE(firstChooser->unexpandedFilePath(), FilePath::fromString("/set/directory"));
+    QCOMPARE(secondChooser->unexpandedFilePath(), FilePath::fromString("/set/directory"));
+
+    firstChooser->setFilePath(FilePath::fromString("/typed/directory"));
+    QCOMPARE(aspect.unexpandedWorkingDirectory(), FilePath::fromString("/typed/directory"));
+    QCOMPARE(secondChooser->unexpandedFilePath(), FilePath::fromString("/typed/directory"));
+
+    Store map;
+    map.insert(aspect.settingsKey(), "/stored/directory");
+    static_cast<BaseAspect &>(aspect).fromMap(map);
+    QCOMPARE(firstChooser->unexpandedFilePath(), FilePath::fromString("/stored/directory"));
+    QCOMPARE(secondChooser->unexpandedFilePath(), FilePath::fromString("/stored/directory"));
+}
+
+void RunConfigurationAspectsTest::testWorkingDirectoryAspectKeepsAClearedChooserEmpty()
+{
+    WorkingDirectoryAspect aspect;
+    aspect.setDefaultWorkingDirectory(FilePath::fromString("/default/directory"));
+    const auto first = createWidget(aspect);
+    const auto second = createWidget(aspect);
+    PathChooser *firstChooser = first->findChild<PathChooser *>();
+    PathChooser *secondChooser = second->findChild<PathChooser *>();
+    QVERIFY(firstChooser);
+    QVERIFY(secondChooser);
+    QCOMPARE(firstChooser->unexpandedFilePath(), FilePath::fromString("/default/directory"));
+
+    firstChooser->setFilePath({});
+
+    QVERIFY(firstChooser->unexpandedFilePath().isEmpty());
+    QVERIFY(secondChooser->unexpandedFilePath().isEmpty());
 }
 
 QObject *createRunConfigurationAspectsTest()

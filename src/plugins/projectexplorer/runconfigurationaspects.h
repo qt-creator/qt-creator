@@ -78,8 +78,11 @@ public:
     Utils::FilePath unexpandedWorkingDirectory() const;
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
     void setDefaultWorkingDirectory(const Utils::FilePath &defaultWorkingDirectory);
-    Utils::PathChooser *pathChooser() const;
     void setEnvironment(EnvironmentAspect *envAspect);
+
+signals:
+    void workingDirectoryChanged(QPrivateSignal);
+    void defaultWorkingDirectoryChanged(QPrivateSignal);
 
 private:
     void fromMap(const Utils::Store &map) override;
@@ -90,8 +93,6 @@ private:
     EnvironmentAspect *m_envAspect = nullptr;
     Utils::FilePath m_workingDirectory;
     Utils::FilePath m_defaultWorkingDirectory;
-    QPointer<Utils::PathChooser> m_chooser;
-    QPointer<QToolButton> m_resetButton;
 };
 
 class PROJECTEXPLORER_EXPORT ArgumentsAspect : public Utils::BaseAspect
