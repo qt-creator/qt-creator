@@ -232,6 +232,10 @@ class Dumper(DumperBase):
 
         val = self.Value(self)
         val.nativeValue = nativeValue
+        if nativeValue.is_optimized_out:
+            val.typeid = self.from_native_type(nativeType)
+            val.lIsInScope = False
+            return val
 
         if code == gdb.TYPE_CODE_REF:
             target_typeid = self.from_native_type(nativeType.target().unqualified())
@@ -261,7 +265,6 @@ class Dumper(DumperBase):
                 val.ldata = self.nativeDataFromValueFallback(nativeValue, nativeValue.type.sizeof)
 
         val.typeid = self.from_native_type(nativeType)
-        val.lIsInScope = not nativeValue.is_optimized_out
         code = nativeType.code
         if code == gdb.TYPE_CODE_ENUM:
             val.ldisplay = str(nativeValue)
