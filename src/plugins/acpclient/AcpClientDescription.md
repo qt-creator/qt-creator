@@ -13,7 +13,7 @@ Go to **Preferences > AI > ACP Servers** and select **Add**.
 - To use a preconfigured agent, pick a template from the **Template** drop-down
   and select **Apply**.
 - To set up a custom agent, select **Custom**, fill in a **Name**, the
-  **Launch command**, and any **Launch arguments**, and then select **Apply**.
+  **Executable**, and any **Arguments**, and then select **Apply**.
 
 ### 2. Open the chat window
 
@@ -23,9 +23,9 @@ the chat icon in the editor toolbar.
 
 ### 3. Connect to a server
 
-In the chat window, select your configured agent from the **Server** drop-down,
-verify the **Working directory**, and select **Connect**. Qt Creator starts the
-agent process and establishes the connection.
+In the chat window, select your configured agent in **Choose AI Agent**. Qt
+Creator starts the agent process and establishes the connection. To add an
+agent from the ACP registry, select **Add Agent**.
 
 ### 4. Start chatting
 
