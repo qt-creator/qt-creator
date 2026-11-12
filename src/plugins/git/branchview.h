@@ -108,6 +108,7 @@ private:
 
     QList<QPointer<BranchView>> m_views;
     Utils::FilePath m_repository;
+    bool m_repositoryInitialized = false;
     bool m_needsRefresh = true;
 };
 

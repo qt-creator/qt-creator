@@ -1173,6 +1173,7 @@ void BranchViewFactory::refresh(const FilePath &repository)
         ? BranchModel::ShowError::No
         : BranchModel::ShowError::Yes;
     m_repository = repository;
+    m_repositoryInitialized = true;
     m_needsRefresh = true;
     if (hasVisibleView())
         branchModel()->refresh(repository, showError, BranchModel::RefreshMode::IfChanged);
@@ -1195,8 +1196,10 @@ void BranchViewFactory::refreshCurrentBranch()
 
 void BranchViewFactory::viewShown(BranchView *view)
 {
-    if (m_repository.isEmpty())
+    if (!m_repositoryInitialized) {
         m_repository = currentState().topLevel();
+        m_repositoryInitialized = true;
+    }
     const bool otherViewVisible = std::any_of(m_views.cbegin(), m_views.cend(),
                                              [view](const QPointer<BranchView> &other) {
         return other && other != view && other->isVisible();

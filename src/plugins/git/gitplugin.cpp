@@ -4733,10 +4733,17 @@ void GitTest::testBranchViewVisibility()
 
     firstView->hide();
     secondView->hide();
+    IEditor *editor = EditorManager::openEditor(repository / "file.txt");
+    QVERIFY(editor);
+    const QScopeGuard closeEditor([editor] {
+        EditorManager::closeEditors({editor}, false);
+    });
+    QTRY_COMPARE(currentState().topLevel(), repository);
+
     factory->refresh({});
     QCOMPARE(model->repository(), repository); // The last hidden view keeps its cached model.
     firstView->show();
-    QTRY_VERIFY(model->repository().isEmpty());
+    QVERIFY(model->repository().isEmpty());
 }
 
 void GitTest::testBranchRefreshError()
