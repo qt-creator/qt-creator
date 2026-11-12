@@ -2,8 +2,7 @@ import qbs.FileInfo
 
 QtApplication {
     name: "qmlserver_inferior"
-    condition: Qt.quick.present
-    Depends { name: "Qt.quick" }
+    condition: Qt.qml.present
     Depends { name: "Qt.qml" }
 
     cpp.defines: ["QT_QML_DEBUG"]

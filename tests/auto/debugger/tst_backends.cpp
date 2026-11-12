@@ -8192,10 +8192,12 @@ std::unique_ptr<DebuggerBackend> tst_backends::launchAndStopAtBreakpoint(Backend
     engine->start();
 
     [backendPtr = debuggerBackend.get(), backend] {
-        QTRY_VERIFY_WITH_TIMEOUT(backendPtr->contains(InferiorEvent::SpontaneousStop)
-                                 || backendPtr->contains(InferiorEvent::EngineSetupFailed)
-                                 || backendPtr->contains(InferiorEvent::EngineRunFailed),
-                                 startupTimeout(backend));
+        QTRY_VERIFY2_WITH_TIMEOUT(backendPtr->contains(InferiorEvent::SpontaneousStop)
+                                      || backendPtr->contains(InferiorEvent::EngineSetupFailed)
+                                      || backendPtr->contains(InferiorEvent::EngineRunFailed),
+                                  qPrintable(backendPtr->lastMessages()), startupTimeout(backend));
+        QVERIFY2(backendPtr->contains(InferiorEvent::SpontaneousStop),
+                 qPrintable(backendPtr->lastMessages()));
     }();
 
     if (QTest::currentTestFailed() || !debuggerBackend->contains(InferiorEvent::SpontaneousStop))

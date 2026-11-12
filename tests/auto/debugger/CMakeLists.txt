@@ -144,7 +144,7 @@ if (TARGET Qt::Quick)
   qt_add_executable(qmlserver_inferior
     qmlserver_inferior.cpp qmlserver_inferior.qrc
   )
-  target_link_libraries(qmlserver_inferior PRIVATE Qt::Quick Qt::Qml)
+  target_link_libraries(qmlserver_inferior PRIVATE Qt::Qml)
   target_compile_definitions(qmlserver_inferior PRIVATE QT_QML_DEBUG)
   list(APPEND BACKENDS_TEST_DEFINES
     "QMLSERVER_INFERIOR_EXECUTABLE=\"$<TARGET_FILE_DIR:qmlserver_inferior>\"")
