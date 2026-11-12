@@ -1417,6 +1417,7 @@ void GenericDebuggerEngine::doUpdateLocals(const UpdateParameters &params)
                              .useDynamicType = s.useDynamicType(),
                              .showQObjectNames = s.showQObjectNames(),
                              .logTimeStamps = s.logTimeStamps(),
+                             .sortStructMembers = s.sortStructMembers(),
                              .maximalStringLength = int(s.maximalStringLength()),
                              .displayStringLimit = int(s.displayStringLimit())};
     if (s.useCodeModel()) {

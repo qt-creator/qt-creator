@@ -74,6 +74,7 @@ public:
     bool useDynamicType = true;
     bool showQObjectNames = true;
     bool logTimeStamps = false;
+    bool sortStructMembers = false;
     int maximalStringLength = 10000;
     int displayStringLimit = 100;
 };

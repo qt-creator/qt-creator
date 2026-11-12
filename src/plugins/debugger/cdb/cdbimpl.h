@@ -135,6 +135,8 @@ DEBUGGER_EXPORT QString breakpointInsertCommand(
     const QList<QPair<QString, QString>> &sourcePathMap,
     const QString &location = {});
 
+DEBUGGER_EXPORT QString extensionLocalsArguments(const RefreshRequest &request, int frameIndex);
+
 class DEBUGGER_EXPORT CdbImplSearchPaths
 {
 public:
@@ -440,6 +442,7 @@ private:
     bool m_evaluatingCondition = false;
     bool m_expandingTracepoint = false;
     unsigned m_pythonVersion = 0;
+    int m_currentFrameIndex = 0;
     QSet<QString> m_interpreterResolverIds;
     QSet<QString> m_interpreterMessageIds;
     QList<std::function<void()>> m_pendingBridgeWork;

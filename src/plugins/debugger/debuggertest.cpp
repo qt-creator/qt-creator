@@ -167,6 +167,9 @@ private slots:
     void testCdbImplBreakpointUpdateReplaces();
     void testCdbImplAmbiguousBreakpointWhileRunning();
     void testCdbImplSubBreakpointEnabled();
+    void testCdbImplAssignValue();
+    void testCdbImplExtensionLocals();
+    void testCdbImplStatusReports();
     void testCdbImplShutdownDetachesAttached();
     void testCdbImplSessionPidFailure();
     void testCdbImplStopReports();
@@ -1977,6 +1980,142 @@ void DebuggerUnitTests::testCdbImplSubBreakpointEnabled()
     QVERIFY(underEnabled.contains("be8"));
     QVERIFY(underEnabled.contains("bd9"));
     QVERIFY(!underEnabled.contains("be9"));
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplAssignValue()
+{
+    CdbImpl cdb({});
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+    QStringList errors;
+    QObject::connect(&cdb, &CdbImpl::message, &cdb, [&errors](const QString &text, int channel) {
+        if (channel == LogError)
+            errors.append(text);
+    });
+
+    // Without Python a local is found by its iname, whatever expression the
+    // view sends along.
+    WatchItemData item;
+    item.iname = "local.x";
+    cdb.assignValueInDebugger(item, "x", "35");
+    QVERIFY(written.last().endsWith(".0 -h local.x=3335"));
+    cdb.assignValueInDebugger(item, {}, "35");
+    QVERIFY(written.last().endsWith(".0 -h local.x=3335"));
+
+    // A watcher is evaluated by its expression, in the frame that is current.
+    item.isWatcher = true;
+    cdb.assignValueInDebugger(item, "x", "35");
+    QVERIFY(written.last().endsWith(".0 -h -e 78=3335"));
+
+    // With Python the expression is what can be evaluated.
+    cdb.m_pythonVersion = 3;
+    item.isWatcher = false;
+    cdb.assignValueInDebugger(item, "x", "35");
+    QVERIFY(written.last().endsWith(".0 -h -e 78=3335"));
+    cdb.m_pythonVersion = 0;
+
+    // A refusal is the user's to see.
+    cdb.handleCdbOutputLine("<qtcreatorcdbext>|N|" + QString::number(cdb.m_nextCommandToken)
+                            + "|0|assign|Cannot assign to a register variable.");
+    QCOMPARE(errors.size(), 1);
+    QVERIFY(errors.first().contains("register variable"));
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplExtensionLocals()
+{
+    RefreshRequest request;
+    request.kind = RefreshKind::Locals;
+    request.expandedINames = {"local.b", "local.a"};
+    request.typeFormats = QJsonObject{{"QString", Utf8StringFormat},
+                                      {"int", HexadecimalIntegerFormat}};
+    request.individualFormats = QJsonObject{{"local.s", Latin1StringFormat}};
+    request.uninitializedVariables = {"u", "v"};
+    request.watchers = QJsonArray{QJsonObject{{"iname", "watch.0"}, {"exp", toHex("a+b")}},
+                                  QJsonObject{{"iname", "tooltip.7b"}, {"exp", toHex("c")}}};
+    QCOMPARE(extensionLocalsArguments(request, 2),
+             "-D -e local.a,local.b -v -c -T " + toHex("QString")
+                 + "=utf8 -I local.s=latin -u \"local.u,local.v\" -W -w watch.0 \"a+b\" 2");
+
+    // Sorting the members is the extension's job.
+    request.dumperOptions.sortStructMembers = true;
+    QVERIFY(extensionLocalsArguments(request, 2).contains(" -v -c -a -T "));
+    request.dumperOptions.sortStructMembers = false;
+
+    // A partial update leaves the others alone and only evaluates the watchers
+    // when it is about one of them.
+    request.dumperOptions.useDebuggingHelpers = false;
+    request.partialVariable = "local.a";
+    QCOMPARE(extensionLocalsArguments(request, 0),
+             "-v -T " + toHex("QString")
+                 + "=utf8 -I local.s=latin -u \"local.u,local.v\" 0 local.a");
+    request.partialVariable = "watch.0";
+    QVERIFY(extensionLocalsArguments(request, 0).endsWith("-w watch.0 \"a+b\" 0 watch.0"));
+
+    // Without Python the extension fills the view.
+    CdbImpl cdb({});
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+    cdb.m_wow64State = CdbImpl::Wow64State::None;
+    QList<GdbMi> received;
+    QObject::connect(&cdb, &CdbImpl::refreshDataReceived, &cdb,
+                     [&received](quint64, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::Locals)
+            received.append(data);
+    });
+    RefreshRequest locals;
+    locals.kind = RefreshKind::Locals;
+    locals.requestId = 7;
+    cdb.refresh(locals);
+    QVERIFY(written.last().contains(".locals -t "));
+    QVERIFY(written.last().endsWith(".0 -D -v -c -W 0"));
+    cdb.handleCdbOutputLine("<qtcreatorcdbext>|R|" + QString::number(cdb.m_nextCommandToken)
+                            + "|0|locals|[{iname=\"local.i\",name=\"i\",value=\"1\"}]");
+    QCOMPARE(received.size(), 1);
+    QCOMPARE(received.first()["partial"].data(), "0");
+    QCOMPARE(received.first()["data"].childCount(), 1);
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplStatusReports()
+{
+    CdbImpl cdb({});
+    cdb.m_wow64State = CdbImpl::Wow64State::None;
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+    QStringList reasons;
+    QObject::connect(&cdb, &CdbImpl::stopReasonReported, &cdb, [&reasons](const QString &r) {
+        reasons.append(r);
+    });
+    QStringList progress;
+    QObject::connect(&cdb, &CdbImpl::progressMessage, &cdb, [&progress](const QString &text) {
+        progress.append(text);
+    });
+
+    // The extension has no name for where a step ends.
+    cdb.m_inferiorRunning = true;
+    cdb.handleCdbOutputLine(R"(<qtcreatorcdbext>|E|0|0|session_idle|{reason="unknown",)"
+                            R"(threadId="1"})");
+    QCOMPARE(reasons, QStringList(QString()));
+
+    // A breakpoint and an exception are reported on their own.
+    cdb.m_inferiorRunning = true;
+    cdb.handleCdbOutputLine(R"(<qtcreatorcdbext>|E|0|0|session_idle|{reason="breakpoint",)"
+                            R"(breakpointId="9",threadId="1"})");
+    QCOMPARE(reasons.size(), 1);
+
+    cdb.handleCdbOutputLine("<qtcreatorcdbext>|E|0|0|event|Thread 2 created");
+    QCOMPARE(progress, QStringList("Thread 2 created"));
 
     cdb.m_shuttingDown = true;
     cdb.m_cdbProc.kill();

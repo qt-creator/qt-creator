@@ -1206,6 +1206,74 @@ QString breakpointInsertCommand(const BreakpointParameters &paramsIn, const QStr
     return cmd;
 }
 
+// The extension's own dumpers only know the string encodings.
+static QString extensionFormats(const QJsonObject &formats, bool hexKeys)
+{
+    QStringList result;
+    for (auto it = formats.constBegin(); it != formats.constEnd(); ++it) {
+        QString format;
+        switch (it.value().toInt()) {
+        case Latin1StringFormat: format = "latin"; break;
+        case SeparateLatin1StringFormat: format = "latin:separate"; break;
+        case Utf8StringFormat: format = "utf8"; break;
+        case SeparateUtf8StringFormat: format = "utf8:separate"; break;
+        case Utf16StringFormat: format = "utf16"; break;
+        default: continue;
+        }
+        result.append((hexKeys ? toHex(it.key()) : it.key()) + '=' + format);
+    }
+    return result.join(',');
+}
+
+// The arguments of the extension's "locals" command, which fills the view
+// when cdb has no Python.
+QString extensionLocalsArguments(const RefreshRequest &request, int frameIndex)
+{
+    const bool partial = !request.partialVariable.isEmpty();
+    QStringList args;
+    if (!partial) {
+        args.append("-D");
+        if (!request.expandedINames.isEmpty()) {
+            QStringList expanded = Utils::toList(request.expandedINames);
+            expanded.sort();
+            args.append("-e " + expanded.join(','));
+        }
+    }
+    args.append("-v");
+    if (request.dumperOptions.useDebuggingHelpers)
+        args.append("-c");
+    if (request.dumperOptions.sortStructMembers)
+        args.append("-a");
+    const QString typeFormats = extensionFormats(request.typeFormats, true);
+    if (!typeFormats.isEmpty())
+        args.append("-T " + typeFormats);
+    const QString individualFormats = extensionFormats(request.individualFormats, false);
+    if (!individualFormats.isEmpty())
+        args.append("-I " + individualFormats);
+    if (!request.uninitializedVariables.isEmpty()) {
+        const QStringList inames
+            = Utils::transform(request.uninitializedVariables,
+                               [](const QString &v) -> QString { return "local." + v; });
+        args.append("-u \"" + inames.join(',') + '"');
+    }
+    if (!partial)
+        args.append("-W");
+    if (!partial || request.partialVariable.startsWith("watch.")) {
+        for (const QJsonValue &watcher : request.watchers) {
+            const QJsonObject w = watcher.toObject();
+            const QString iname = w["iname"].toString();
+            // Tooltips are the dumper's, the extension's watch group only knows watchers.
+            if (!iname.startsWith("watch."))
+                continue;
+            args.append("-w " + iname + " \"" + fromHex(w["exp"].toString()) + '"');
+        }
+    }
+    args.append(QString::number(frameIndex));
+    if (partial)
+        args.append(request.partialVariable);
+    return args.join(' ');
+}
+
 void CdbImpl::insertBreakpoint(quint64 requestId, const QString &id, int modelId,
                                const BreakpointParameters &params, bool report)
 {
@@ -2610,6 +2678,7 @@ void CdbImpl::restartSession()
     m_justMyCodeUnsupported = false;
     m_pendingJustMyCodeQuery = 0;
     m_pythonVersion = 0;
+    m_currentFrameIndex = 0;
     m_interpreterResolverIds.clear();
     m_interpreterMessageIds.clear();
     m_interpreterMessageWatchArmed = false;
@@ -3258,6 +3327,26 @@ void CdbImpl::refresh(const RefreshRequest &request)
         return;
     }
     const quint64 requestId = request.requestId;
+    // Without Python the extension's own symbol group and dumpers fill the view.
+    if (m_pythonVersion == 0) {
+        const bool partial = !request.partialVariable.isEmpty();
+        DebuggerCommand cmd("locals", ExtensionCommand);
+        cmd.args = extensionLocalsArguments(request, m_currentFrameIndex);
+        cmd.callback = [this, requestId, partial](const DebuggerResponse &response) {
+            GdbMi all;
+            if (response.resultClass == ResultDone) {
+                all.m_type = GdbMi::Tuple;
+                all.addChild(response.data);
+                all.addConst("partial", QLatin1String(partial ? "1" : "0"));
+            } else {
+                emit message(QString("CdbImpl: could not update the locals: %1")
+                                 .arg(response.data["msg"].data()), LogWarning);
+            }
+            emit refreshDataReceived(requestId, RefreshKind::Locals, all);
+        };
+        runCommand(cmd);
+        return;
+    }
     const DumperOptions &options = request.dumperOptions;
     DebuggerCommand cmd("theDumper.fetchVariables", ScriptCommand);
     cmd.arg("fancy", options.useDebuggingHelpers);
@@ -3296,11 +3385,13 @@ void CdbImpl::activateFrame(int index)
 {
     if (index < 0)
         return;
+    m_currentFrameIndex = index;
     runCommand({".frame " + hexAddress(quint64(index)), NoFlags});
 }
 
 void CdbImpl::selectThread(const QString &threadId)
 {
+    m_currentFrameIndex = 0;
     runCommand({'~' + threadId + " s", NoFlags});
 }
 
@@ -3475,10 +3566,16 @@ void CdbImpl::createSnapshot(quint64 requestId)
 void CdbImpl::assignValueInDebugger(const WatchItemData &item, const QString &expr,
                                     const QString &value)
 {
-    Q_UNUSED(item)
     const auto hex = [](const QString &s) { return QString::fromUtf8(s.toUtf8().toHex()); };
-    const QString assignment = "-h -e " + hex(expr) + '=' + hex(value);
-    DebuggerCommand cmd("assign", ExtensionCommand);
+    // Without Python the locals are the extension's own symbol group, which
+    // knows them by their iname. Watchers live in its watch group.
+    const bool byIName = expr.isEmpty() || (m_pythonVersion == 0 && !item.isWatcher);
+    const QString target = byIName ? item.iname : QString("-e " + hex(expr));
+    const QString assignment = "-h " + target + '=' + hex(value);
+    DebuggerCommand cmd("assign", ExtensionCommand, [this](const DebuggerResponse &response) {
+        if (response.resultClass != ResultDone)
+            emit message("Assignment failed: " + response.data["msg"].data(), LogError);
+    });
     cmd.args = assignment;
     runCommand(cmd);
 }
@@ -3790,6 +3887,11 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
             emit inferiorDone({match.hasMatch() ? match.captured(1).toInt() : 0,
                                InferiorExitStatus::Normal});
         }
+        return;
+    }
+
+    if (what == "event") {
+        emit progressMessage(payload);
         return;
     }
 
@@ -4324,7 +4426,10 @@ void CdbImpl::reportStop(const GdbMi &stopData)
     m_expectSpontaneousStop = false;
     if (const std::optional<QString> exception = stoppedByException(stopData))
         emit signalReceived({}, *exception);
-    if (stopData["reason"].data() == "breakpoint") {
+    const QString reason = stopData["reason"].data();
+    if (reason != "breakpoint" && reason != "exception")
+        emit stopReasonReported(reason == "unknown" ? QString() : reason);
+    if (reason == "breakpoint") {
         const QString hitId = stopData["breakpointId"].data();
         const QString id = m_parentForSubBreakpointId.value(hitId, hitId);
         const auto bp = m_insertedBreakpoints.constFind(id);
