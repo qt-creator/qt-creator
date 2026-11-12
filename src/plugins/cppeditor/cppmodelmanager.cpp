@@ -172,6 +172,9 @@ public:
     mutable QMutex m_snapshotMutex;
     Snapshot m_snapshot;
 
+    mutable QMutex m_unannouncedMutex;
+    QSet<FilePath> m_unannounced;
+
     // Project integration
     struct SyncedProjectData
     {
@@ -1018,9 +1021,107 @@ Snapshot CppModelManager::snapshot()
     return d->m_snapshot;
 }
 
-Document::Ptr CppModelManager::document(const FilePath &filePath)
+static WorkingCopy configurationWorkingCopy()
 {
+    WorkingCopy workingCopy;
+    QByteArray conf = CppModelManager::codeModelConfiguration();
+    conf += ProjectExplorer::Macro::toByteArray(CppModelManager::definedMacros());
+    workingCopy.insert(CppModelManager::configurationFileName(), conf);
+    return workingCopy;
+}
+
+static QList<QRegularExpression> ignorePatterns(const CppCodeModelSettingsData &settings)
+{
+    QList<QRegularExpression> regexes;
+    const QStringList wildcards = settings.ignorePattern.split('\n');
+    for (const QString &wildcard : wildcards)
+        regexes.append(QRegularExpression::fromWildcard(wildcard, Qt::CaseInsensitive,
+                                                        QRegularExpression::UnanchoredWildcardConversion));
+    return regexes;
+}
+
+static bool matchesAny(const FilePath &filePath, const QList<QRegularExpression> &regexes)
+{
+    return Utils::anyOf(regexes, [path = filePath.absoluteFilePath().path()](
+                                     const QRegularExpression &rx) {
+        return rx.match(path).hasMatch();
+    });
+}
+
+/*!
+    Returns the document for \a filePath from the snapshot.
+
+    With DocumentLookup::ReadIfNeeded, a file that is not in the snapshot is read from disk
+    if the indexer will not deliver it, that is if its project is fully indexed. The file is
+    read with its first project part and under the indexer's rules, and stays in the
+    snapshot with its include closure, but is not announced via documentUpdated().
+
+    Can be called from any thread.
+*/
+Document::Ptr CppModelManager::document(const FilePath &filePath, DocumentLookup lookup)
+{
+    {
+        QMutexLocker locker(&d->m_snapshotMutex);
+        if (const Document::Ptr doc = d->m_snapshot.document(filePath))
+            return doc;
+    }
+    if (lookup == DocumentLookup::SnapshotOnly)
+        return {};
+
+    // Without a project part there are no header paths or macros to read it with.
+    const QList<ProjectPart::ConstPtr> parts = projectPart(filePath);
+    if (parts.isEmpty())
+        return {};
+    const ProjectPart::ConstPtr part = parts.first();
+
+    // The settings come from the project info, as the project must not be asked from a
+    // worker thread.
+    const std::optional<CppCodeModelSettingsData> settings = d->m_lockedProjectData.get(
+        [&part](const CppModelManagerPrivate::SyncedProjectData &ld)
+            -> std::optional<CppCodeModelSettingsData> {
+            for (const ProjectData &projectData : ld.m_projectData) {
+                // A project that is not fully indexed yet still gets the file from the indexer.
+                if (projectData.fullyIndexed && projectData.projectInfo
+                    && projectData.projectInfo->projectFilePath() == part->topLevelProject) {
+                    return projectData.projectInfo->settings();
+                }
+            }
+            return std::nullopt;
+        });
+    if (!settings || !settings->enableIndexing)
+        return {};
+    if (settings->ignoreFiles && matchesAny(filePath, ignorePatterns(*settings)))
+        return {};
+    if (fileSizeExceedsLimit(filePath, settings->effectiveIndexerFileSizeLimitInMb()))
+        return {};
+
+    // Not createSourceProcessor(), which announces what it reads.
+    QList<Document::Ptr> read;
+    CppSourceProcessor processor(snapshot(), [&read](const Document::Ptr &doc) {
+        // Like a first reading, so that every later one replaces it.
+        doc->setRevision(1U);
+        read.append(doc);
+        doc->releaseSourceAndAST();
+    });
+    processor.setGlobalSnapshot(snapshot());
+    processor.setHeaderPaths(part->headerPaths);
+    processor.setLanguageFeatures(part->languageFeatures);
+    // Only the configuration file, not the editors' unsaved contents.
+    processor.setWorkingCopy(configurationWorkingCopy());
+    processor.run(configurationFileName());
+    processor.run(filePath);
+
+    // Keep the whole include closure, so lookups in the snapshot resolve and later calls do
+    // not read the headers again. Never replace an existing document, which may be an
+    // editor's unsaved reading.
     QMutexLocker locker(&d->m_snapshotMutex);
+    QMutexLocker unannounced(&d->m_unannouncedMutex);
+    for (const Document::Ptr &document : std::as_const(read)) {
+        if (!d->m_snapshot.contains(document->filePath())) {
+            d->m_snapshot.insert(document);
+            d->m_unannounced.insert(document->filePath());
+        }
+    }
     return d->m_snapshot.document(filePath);
 }
 
@@ -1237,7 +1338,7 @@ void CppModelManager::replaceSnapshot(const Snapshot &newSnapshot)
 
 WorkingCopy CppModelManager::buildWorkingCopyList()
 {
-    WorkingCopy workingCopy;
+    WorkingCopy workingCopy = configurationWorkingCopy();
 
     const QList<CppEditorDocumentHandle *> cppEditorDocumentList = cppEditorDocuments();
     for (const CppEditorDocumentHandle *cppEditorDocument : cppEditorDocumentList) {
@@ -1248,11 +1349,6 @@ WorkingCopy CppModelManager::buildWorkingCopyList()
 
     for (GeneratedFileSupport *es : std::as_const(d->m_generatedFileSupports))
         workingCopy.insert(es->filePath(), es->contents(), es->revision());
-
-    // Add the project configuration file
-    QByteArray conf = codeModelConfiguration();
-    conf += ProjectExplorer::Macro::toByteArray(definedMacros());
-    workingCopy.insert(configurationFileName(), conf);
 
     return workingCopy;
 }
@@ -1283,31 +1379,17 @@ static QSet<FilePath> filteredFilesRemoved(const QSet<FilePath> &files,
         return files;
 
     QSet<FilePath> result;
-    QList<QRegularExpression> regexes;
-    const QStringList wildcards = settings.ignorePattern.split('\n');
-
-    for (const QString &wildcard : wildcards)
-        regexes.append(QRegularExpression::fromWildcard(wildcard, Qt::CaseInsensitive,
-                                                        QRegularExpression::UnanchoredWildcardConversion));
+    const QList<QRegularExpression> regexes = ignorePatterns(settings);
 
     for (const FilePath &filePath : files) {
         if (fileSizeLimitInMb > 0 && fileSizeExceedsLimit(filePath, fileSizeLimitInMb))
             continue;
-        bool skip = false;
-        if (settings.ignoreFiles) {
-            for (const QRegularExpression &rx: std::as_const(regexes)) {
-                QRegularExpressionMatch match = rx.match(filePath.absoluteFilePath().path());
-                if (match.hasMatch()) {
-                    MessageManager::writeSilently(Tr::tr("C++ Indexer: Skipping file \"%1\" "
-                        "because its path matches the ignore pattern.").arg(filePath.displayName()));
-                    skip = true;
-                    break;
-                }
-            }
+        if (settings.ignoreFiles && matchesAny(filePath, regexes)) {
+            MessageManager::writeSilently(Tr::tr("C++ Indexer: Skipping file \"%1\" "
+                "because its path matches the ignore pattern.").arg(filePath.displayName()));
+            continue;
         }
-
-        if (!skip)
-            result << filePath;
+        result << filePath;
     }
 
     return result;
@@ -1375,6 +1457,12 @@ void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const Projec
         }
     }
 
+    {
+        QMutexLocker locker(&d->m_unannouncedMutex);
+        for (const FilePath &file : std::as_const(removedFiles))
+            d->m_unannounced.remove(file);
+    }
+
     emit m_instance->aboutToRemoveFiles(removedFiles);
 }
 
@@ -1387,6 +1475,11 @@ const QList<CppEditorDocumentHandle *> CppModelManager::cppEditorDocuments()
 /// \brief Remove all given files from the snapshot.
 void CppModelManager::removeFilesFromSnapshot(const QSet<FilePath> &filesToRemove)
 {
+    {
+        QMutexLocker locker(&d->m_unannouncedMutex);
+        for (const FilePath &file : filesToRemove)
+            d->m_unannounced.remove(file);
+    }
     QMutexLocker snapshotLocker(&d->m_snapshotMutex);
     for (const FilePath &file : filesToRemove)
         d->m_snapshot.remove(file);
@@ -1746,8 +1839,20 @@ bool CppModelManager::isClangCodeModelActive()
 
 void CppModelManager::emitDocumentUpdated(Document::Ptr doc)
 {
-    if (replaceDocument(doc))
-        emit m_instance->documentUpdated(doc);
+    if (!replaceDocument(doc))
+        return;
+    {
+        QMutexLocker locker(&d->m_unannouncedMutex);
+        d->m_unannounced.remove(doc->filePath());
+    }
+    emit m_instance->documentUpdated(doc);
+}
+
+// The documents that document() read and that were never announced, so are not indexed.
+QSet<FilePath> CppModelManager::unannouncedDocuments()
+{
+    QMutexLocker locker(&d->m_unannouncedMutex);
+    return d->m_unannounced;
 }
 
 void CppModelManager::emitGeneratedFileContentsUpdated(
@@ -2183,6 +2288,12 @@ void CppModelManager::GC()
     // Announce removing files and replace the snapshot
     emit m_instance->aboutToRemoveFiles(notReachableFiles);
     replaceSnapshot(newSnapshot);
+
+    {
+        QMutexLocker locker(&d->m_unannouncedMutex);
+        for (const FilePath &filePath : std::as_const(notReachableFiles))
+            d->m_unannounced.remove(filePath);
+    }
     emit m_instance->gcFinished();
 }
 

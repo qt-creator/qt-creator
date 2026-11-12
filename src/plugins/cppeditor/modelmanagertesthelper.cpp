@@ -105,6 +105,11 @@ void ModelManagerTestHelper::waitForFinishedGc()
         QCoreApplication::processEvents();
 }
 
+void ModelManagerTestHelper::removeFromSnapshot(const QSet<FilePath> &files)
+{
+    CppModelManager::removeFilesFromSnapshot(files);
+}
+
 void ModelManagerTestHelper::sourceFilesRefreshed(const QSet<FilePath> &files)
 {
     m_lastRefreshedSourceFiles = files;

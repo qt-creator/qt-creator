@@ -55,6 +55,11 @@ private slots:
     void testASwitchedConfigurationIsNotAnsweredWithTheOldOne();
     void testAnUpdateThatChangesNothingKeepsTheNextOneIncremental();
     void testAFileJustOverTheSizeLimitIsNotIndexed();
+    void testAFileTheIndexerDoesNotDeliverIsReadOnRequest();
+    void testAFileIsNotReadOnRequestWhileItsProjectIsBeingIndexed();
+    void testReadingOnRequestKeepsTheDocumentsThatAreThere();
+    void testReadingOnRequestFollowsTheIndexersRules_data();
+    void testReadingOnRequestFollowsTheIndexersRules();
 };
 
 } // namespace CppEditor::Internal

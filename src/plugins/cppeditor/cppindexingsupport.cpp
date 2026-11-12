@@ -166,6 +166,12 @@ static void index(QPromise<void> &promise, const ParseParams params)
     for (const FilePath &file : std::as_const(params.sourceFiles))
         sourceProcessor->removeFromCache(file);
 
+    // Documents that document() read were never announced, so read them again to get them
+    // into the index.
+    const QSet<FilePath> unannounced = CppModelManager::unannouncedDocuments();
+    for (const FilePath &file : unannounced)
+        sourceProcessor->removeFromCache(file);
+
     const int sourceCount = sources.size();
     ProjectFiles files = sources + headers;
 

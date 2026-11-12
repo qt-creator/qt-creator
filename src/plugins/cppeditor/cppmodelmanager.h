@@ -69,6 +69,8 @@ enum class SignalSlotType {
     None
 };
 
+enum class DocumentLookup { SnapshotOnly, ReadIfNeeded };
+
 class CPPEDITOR_EXPORT CppModelManager final : public QObject
 {
     Q_OBJECT
@@ -125,7 +127,9 @@ public:
     static ProjectPart::ConstPtr fallbackProjectPart();
 
     static CPlusPlus::Snapshot snapshot();
-    static Document::Ptr document(const Utils::FilePath &filePath);
+    static Document::Ptr document(const Utils::FilePath &filePath,
+                                  DocumentLookup lookup = DocumentLookup::SnapshotOnly);
+    static QSet<Utils::FilePath> unannouncedDocuments();
     static bool replaceDocument(Document::Ptr newDoc);
 
     static void emitDocumentUpdated(Document::Ptr doc);

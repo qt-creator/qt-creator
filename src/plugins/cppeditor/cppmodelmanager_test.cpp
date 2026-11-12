@@ -36,6 +36,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QScopeGuard>
+#include <QSignalSpy>
 #include <QTest>
 
 #include <memory>
@@ -2295,6 +2296,198 @@ void ModelManagerTest::testAFileJustOverTheSizeLimitIsNotIndexed()
     QCOMPARE(helper.updateProjectInfo(
                  ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part})),
              QSet<FilePath>{small});
+}
+
+void ModelManagerTest::testAFileTheIndexerDoesNotDeliverIsReadOnRequest()
+{
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath source = projectDir / "read_on_request.cpp";
+    const FilePath header = projectDir / "read_on_request.h";
+    QVERIFY(header.writeFileContents("class InTheHeader {};\n"));
+    QVERIFY(source.writeFileContents("#include \"read_on_request.h\"\nclass InTheSource {};\n"));
+
+    const auto project = helper.createProject("test_modelmanager_read_on_request",
+                                              projectDir / "p.pro");
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
+    const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                          {{source, ProjectFile::CXXSource}});
+    const auto projectInfo = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});
+    QCOMPARE(helper.updateProjectInfo(projectInfo), QSet<FilePath>{source});
+
+    // Like a reparse of the project that finds nothing changed.
+    CppModelManager::updateProjectInfo(projectInfo).waitForFinished();
+    QCoreApplication::processEvents();
+
+    helper.removeFromSnapshot({source, header});
+    QVERIFY(!CppModelManager::document(source, DocumentLookup::SnapshotOnly));
+
+    QSignalSpy announced(CppModelManager::instance(), &CppModelManager::documentUpdated);
+    const Document::Ptr doc = CppModelManager::document(source, DocumentLookup::ReadIfNeeded);
+    QVERIFY2(doc, "the file of a fully indexed project was not read");
+    QCOMPARE(doc->globalSymbolCount(), 1);
+    QCOMPARE(doc->globalSymbolAt(0)->name()->identifier()->chars(), "InTheSource");
+    QVERIFY2(CppModelManager::document(header, DocumentLookup::SnapshotOnly),
+             "the include closure was not kept");
+    QCOMPARE(CppModelManager::unannouncedDocuments(), (QSet<FilePath>{source, header}));
+    QVERIFY(announced.isEmpty());
+
+    // The next pass over the file reads the documents again and announces them.
+    CppModelManager::updateSourceFiles({source}).waitForFinished();
+    QTRY_VERIFY(CppModelManager::unannouncedDocuments().isEmpty());
+    QVERIFY(Utils::contains(announced, [&source](const QList<QVariant> &arguments) {
+        return arguments.first().value<Document::Ptr>()->filePath() == source;
+    }));
+}
+
+void ModelManagerTest::testAFileIsNotReadOnRequestWhileItsProjectIsBeingIndexed()
+{
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath source = projectDir / "indexed_already.cpp";
+    const FilePath added = projectDir / "added_later.cpp";
+    QVERIFY(source.writeFileContents("class IndexedAlready {};\n"));
+    QVERIFY(added.writeFileContents("class AddedLater {};\n"));
+
+    const auto project = helper.createProject("test_modelmanager_not_read_while_indexing",
+                                              projectDir / "p.pro");
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
+    const auto projectInfo = [&](const ProjectFiles &files) {
+        return ProjectInfo::create({project, KitInfo(nullptr), {}, {}},
+                                   {ProjectPart::create(project->projectFilePath(), rpp, {},
+                                                        files)});
+    };
+    const ProjectFile sourceFile(source, ProjectFile::CXXSource);
+    QCOMPARE(helper.updateProjectInfo(projectInfo({sourceFile})), QSet<FilePath>{source});
+    helper.removeFromSnapshot({source});
+
+    // The pass for the added file leaves the source alone.
+    QFuture<void> pass = CppModelManager::updateProjectInfo(
+        projectInfo({sourceFile, {added, ProjectFile::CXXSource}}));
+    QVERIFY2(!CppModelManager::document(source, DocumentLookup::ReadIfNeeded),
+             "a file was read while its project was being indexed");
+
+    pass.waitForFinished();
+    QCoreApplication::processEvents();
+    QVERIFY(CppModelManager::document(source, DocumentLookup::ReadIfNeeded));
+}
+
+void ModelManagerTest::testReadingOnRequestKeepsTheDocumentsThatAreThere()
+{
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath header = projectDir / "forks.h";
+    const FilePath definesFirst = projectDir / "defines_first.cpp";
+    const FilePath definesNothing = projectDir / "defines_nothing.cpp";
+    QVERIFY(header.writeFileContents(
+        "#ifdef FIRST\nclass WithFirst {};\n#else\nclass WithoutFirst {};\n#endif\n"));
+    QVERIFY(definesFirst.writeFileContents("#define FIRST\n#include \"forks.h\"\n"));
+    QVERIFY(definesNothing.writeFileContents("#include \"forks.h\"\n"));
+
+    const auto project = helper.createProject("test_modelmanager_keeps_documents",
+                                              projectDir / "p.pro");
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
+    const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                          {{definesFirst, ProjectFile::CXXSource},
+                                           {definesNothing, ProjectFile::CXXSource}});
+    helper.updateProjectInfo(ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part}));
+
+    // Which source the header was read for depends on the indexing order. Reading the other
+    // one on request reads the header again, as it forks on a macro that source sets
+    // differently.
+    const Document::Ptr headerBefore = CppModelManager::document(header,
+                                                                 DocumentLookup::SnapshotOnly);
+    QVERIFY(headerBefore);
+    QCOMPARE(headerBefore->globalSymbolCount(), 1);
+    const QByteArray readWith = headerBefore->globalSymbolAt(0)->name()->identifier()->chars();
+    const FilePath other = readWith == "WithFirst" ? definesNothing : definesFirst;
+    helper.removeFromSnapshot({other});
+
+    QVERIFY(CppModelManager::document(other, DocumentLookup::ReadIfNeeded));
+    QCOMPARE(CppModelManager::document(header, DocumentLookup::SnapshotOnly).data(),
+             headerBefore.data());
+    QCOMPARE(CppModelManager::unannouncedDocuments(), QSet<FilePath>{other});
+}
+
+void ModelManagerTest::testReadingOnRequestFollowsTheIndexersRules_data()
+{
+    QTest::addColumn<bool>("enableIndexing");
+    QTest::addColumn<bool>("ignoreExcluded");
+    QTest::addColumn<bool>("excludedIsBig");
+
+    QTest::newRow("ignore pattern") << true << true << false;
+    QTest::newRow("size limit") << true << false << true;
+    QTest::newRow("indexing disabled") << false << false << false;
+}
+
+void ModelManagerTest::testReadingOnRequestFollowsTheIndexersRules()
+{
+    QFETCH(bool, enableIndexing);
+    QFETCH(bool, ignoreExcluded);
+    QFETCH(bool, excludedIsBig);
+
+    // The indexer takes the settings from there, the read path from the project info.
+    const CppCodeModelSettingsData globalSettingsBackup
+        = CppCodeModelSettings::settingsForProject(nullptr);
+    const QScopeGuard restoreGlobalSettings(
+        [&] { CppCodeModelSettings::setGlobal(globalSettingsBackup); });
+    CppCodeModelSettingsData settings = globalSettingsBackup;
+    settings.enableIndexing = enableIndexing;
+    settings.ignoreFiles = ignoreExcluded;
+    settings.ignorePattern = "*excluded*";
+    settings.skipIndexingBigFiles = excludedIsBig;
+    settings.indexerFileSizeLimitInMb = 1;
+    CppCodeModelSettings::setGlobal(settings);
+
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath control = projectDir / "control.cpp";
+    const FilePath included = projectDir / "included.h";
+    const FilePath excluded = projectDir / "excluded.cpp";
+    QVERIFY(control.writeFileContents("#include \"included.h\"\nclass Control {};\n"));
+    // The size limit applies to the files to index, not to what they include.
+    QByteArray padding;
+    if (excludedIsBig)
+        padding = "//" + QByteArray(1500 * 1000, 'x') + '\n';
+    QVERIFY(included.writeFileContents("class Included {};\n" + padding));
+    QVERIFY(excluded.writeFileContents("class Excluded {};\n" + padding));
+
+    const auto project = helper.createProject("test_modelmanager_read_rules",
+                                              projectDir / "p.pro");
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
+    const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                          {{control, ProjectFile::CXXSource},
+                                           {excluded, ProjectFile::CXXSource}});
+    helper.updateProjectInfo(ProjectInfo::cloneWithNewSettings(
+        ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part}), settings));
+    QVERIFY2(!CppModelManager::document(excluded, DocumentLookup::SnapshotOnly),
+             "the indexer read the file the rule excludes");
+    QCOMPARE(bool(CppModelManager::document(included, DocumentLookup::SnapshotOnly)),
+             enableIndexing);
+
+    // Read with what it includes, unless the rule excludes the whole project.
+    helper.removeFromSnapshot({control, included});
+    QCOMPARE(bool(CppModelManager::document(control, DocumentLookup::ReadIfNeeded)),
+             enableIndexing);
+    QCOMPARE(bool(CppModelManager::document(included, DocumentLookup::SnapshotOnly)),
+             enableIndexing);
+    QVERIFY(!CppModelManager::document(excluded, DocumentLookup::ReadIfNeeded));
 }
 
 } // CppEditor::Internal

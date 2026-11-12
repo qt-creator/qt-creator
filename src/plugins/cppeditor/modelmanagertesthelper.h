@@ -45,6 +45,9 @@ public:
     QSet<Utils::FilePath> waitForRefreshedSourceFiles();
     void waitForFinishedGc();
 
+    // Leaves the files out of the snapshot as if the indexer had never delivered them.
+    void removeFromSnapshot(const QSet<Utils::FilePath> &files);
+
 signals:
     void aboutToRemoveProject(Project *project);
     void projectAdded(Project*);
