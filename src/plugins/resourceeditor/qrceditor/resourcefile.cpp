@@ -10,6 +10,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/theme/theme.h>
 
@@ -19,6 +20,7 @@
 #include <QIcon>
 #include <QImageReader>
 #include <QMimeData>
+#include <QSet>
 #include <QTextStream>
 
 using namespace Utils;
@@ -917,8 +919,12 @@ QStringList ResourceModel::existingFilesSubtracted(int prefixIndex, const QStrin
     QStringList uniqueList;
 
     if (prefixModelIdx.isValid()) {
+        const auto prefix = static_cast<const Prefix *>(m_resource_file.prefixPointer(prefixIndex));
+        QSet<FilePath> seen;
+        for (const File *file : prefix->file_list)
+            seen.insert(file->name);
         for (const QString &file : fileNames) {
-            if (!m_resource_file.contains(prefixIndex, file) && !uniqueList.contains(file))
+            if (Utils::insert(seen, m_resource_file.absolutePath(file)))
                 uniqueList.append(file);
         }
     }

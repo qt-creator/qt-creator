@@ -67,6 +67,10 @@ private:
     void onRemove();
     void onRemoveNonExisting();
     void onAddFiles();
+    void onAddDirectory();
+    void addDirectoryFiles(const Utils::FilePaths &files);
+    int currentPrefixIndex() const;
+    void addFilesToCurrentPrefix(QStringList fileNames);
     void onAddPrefix();
 
     void connectFileSignals(QAbstractItemView *view);
@@ -84,6 +88,7 @@ private:
     QString m_currentLanguage;
 
     QPushButton *m_addFilesButton;
+    QPushButton *m_addDirectoryButton;
     QPushButton *m_removeButton;
     QPushButton *m_removeNonExistingButton;
     QLabel *m_aliasLabel;

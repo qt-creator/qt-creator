@@ -10,6 +10,8 @@
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/selectablefilesmodel.h>
+
 #include <utils/aggregate.h>
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
@@ -42,6 +44,7 @@
 
 #ifdef WITH_TESTS
 #include <QSignalSpy>
+#include <QTemporaryDir>
 #include <QTest>
 #endif
 
@@ -809,6 +812,9 @@ QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
 
     auto addPrefixButton = new QPushButton(Tr::tr("Add Prefix"));
     m_addFilesButton = new QPushButton(Tr::tr("Add Files"));
+    m_addDirectoryButton = new QPushButton(Tr::tr("Add Directory"));
+    m_addDirectoryButton->setToolTip(
+        Tr::tr("Adds all files in a directory and its subdirectories."));
     m_removeButton = new QPushButton(Tr::tr("Remove"));
     m_removeNonExistingButton = new QPushButton(Tr::tr("Remove Missing Files"));
 
@@ -824,6 +830,7 @@ QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
         Row {
             addPrefixButton,
             m_addFilesButton,
+            m_addDirectoryButton,
             m_removeButton,
             m_removeNonExistingButton,
             st,
@@ -841,6 +848,7 @@ QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
 
     connect(addPrefixButton, &QAbstractButton::clicked, this, &QrcEditor::onAddPrefix);
     connect(m_addFilesButton, &QAbstractButton::clicked, this, &QrcEditor::onAddFiles);
+    connect(m_addDirectoryButton, &QAbstractButton::clicked, this, &QrcEditor::onAddDirectory);
     connect(m_removeButton, &QAbstractButton::clicked, this, &QrcEditor::onRemove);
     connect(m_removeNonExistingButton, &QPushButton::clicked,
             this, &QrcEditor::onRemoveNonExisting);
@@ -1015,6 +1023,7 @@ void QrcEditor::updateCurrent()
     m_languageText->setText(m_currentLanguage);
 
     m_addFilesButton->setEnabled(current.isValid());
+    m_addDirectoryButton->setEnabled(current.isValid());
     m_removeButton->setEnabled(!selected.isEmpty());
 }
 
@@ -1301,13 +1310,11 @@ void QrcEditor::onRemoveNonExisting()
 // Slot for 'Add File' button
 void QrcEditor::onAddFiles()
 {
-    QModelIndex const current = m_treeview->currentIndex();
-    int const currentIsPrefixNode = m_treeview->isPrefix(current);
-    int const prefixArrayIndex = currentIsPrefixNode ? current.row()
-            : m_treeview->model()->parent(current).row();
-    int const cursorFileArrayIndex = currentIsPrefixNode ? 0 : current.row();
     const QStringList fileNames = m_treeview->fileNamesToAdd();
-    QStringList uniqueFileNames = m_treeview->existingFilesSubtracted(prefixArrayIndex, fileNames);
+    if (fileNames.isEmpty())
+        return;
+    const QStringList uniqueFileNames
+        = m_treeview->existingFilesSubtracted(currentPrefixIndex(), fileNames);
 
     // Files already present in the prefix are dropped silently otherwise.
     QStringList alreadyPresent;
@@ -1323,11 +1330,57 @@ void QrcEditor::onAddFiles()
                 + "\n\n" + alreadyPresent.join('\n'));
     }
 
-    resolveLocationIssues(uniqueFileNames);
-    if (uniqueFileNames.isEmpty())
+    addFilesToCurrentPrefix(uniqueFileNames);
+}
+
+void QrcEditor::onAddDirectory()
+{
+    ProjectExplorer::SelectableFilesDialogAddDirectory dialog(
+        m_treeview->filePath().parentDir(), {}, this);
+    dialog.setAddFileFilter({});
+    if (dialog.exec() == QDialog::Accepted)
+        addDirectoryFiles(dialog.selectedFiles());
+}
+
+void QrcEditor::addDirectoryFiles(const FilePaths &files)
+{
+    const FilePath resourceDir = m_treeview->filePath().parentDir();
+    const FilePath outside = Utils::findOrDefault(files, [&resourceDir](const FilePath &file) {
+        return !file.isChildOf(resourceDir);
+    });
+    if (!outside.isEmpty()) {
+        QMessageBox::warning(
+            this,
+            Tr::tr("Invalid File Location"),
+            Tr::tr("The file %1 is not in the directory of the resource file or one of its "
+                   "subdirectories.")
+                .arg(outside.toUserOutput()));
+        return;
+    }
+
+    QStringList fileNames = Utils::transform<QStringList>(files, &FilePath::path);
+    fileNames.removeAll(m_treeview->filePath().path());
+    fileNames.sort();
+
+    // Re-adding a directory to pick up new files is expected, so stay quiet about the rest.
+    addFilesToCurrentPrefix(m_treeview->existingFilesSubtracted(currentPrefixIndex(), fileNames));
+}
+
+int QrcEditor::currentPrefixIndex() const
+{
+    const QModelIndex current = m_treeview->currentIndex();
+    return m_treeview->isPrefix(current) ? current.row() : current.parent().row();
+}
+
+void QrcEditor::addFilesToCurrentPrefix(QStringList fileNames)
+{
+    const QModelIndex current = m_treeview->currentIndex();
+    const int cursorFileArrayIndex = m_treeview->isPrefix(current) ? 0 : current.row();
+    resolveLocationIssues(fileNames);
+    if (fileNames.isEmpty())
         return;
     QUndoCommand * const addFilesCommand = new AddFilesCommand(
-            m_treeview, prefixArrayIndex, cursorFileArrayIndex, uniqueFileNames);
+            m_treeview, currentPrefixIndex(), cursorFileArrayIndex, fileNames);
     m_history.push(addFilesCommand);
     updateHistoryControls();
 }
@@ -1387,6 +1440,7 @@ private slots:
     void testIconViewDragFollowsSetting();
     void testPrefixChangeUpdatesCombo();
     void testUndoAddPrefixInIconModeRebuildsCombo();
+    void testAddDirectoryFiles();
 
 private:
     QModelIndex prefix(int row) const { return m_model->index(row, 0, {}); }
@@ -1634,6 +1688,34 @@ void QrcEditorTest::testUndoAddPrefixInIconModeRebuildsCombo()
     QCOMPARE(combo()->count(), 2);
     QVERIFY(combo()->currentIndex() >= 0);
     QCOMPARE(iconView()->rootIndex(), prefix(combo()->currentIndex()));
+}
+
+void QrcEditorTest::testAddDirectoryFiles()
+{
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath root = FilePath::fromString(tmp.path());
+    const FilePath top = root / "top.png";
+    const FilePath deep = root / "sub/deep/x.png";
+    QVERIFY(deep.parentDir().ensureWritableDir());
+    const FilePath qrc = root / "test.qrc";
+    for (const FilePath &file : {qrc, top, deep})
+        QVERIFY(file.writeFileContents("x"));
+    m_model->setFilePath(qrc);
+    selection()->setCurrentIndex(prefix(1), QItemSelectionModel::ClearAndSelect);
+    const FilePaths selected{top, qrc, deep};
+
+    m_editor->addDirectoryFiles(selected);
+
+    QCOMPARE(m_model->rowCount(prefix(1)), 3);
+    QCOMPARE(m_model->file(file(1, 1)), deep);
+    QCOMPARE(m_model->file(file(1, 2)), top);
+
+    m_editor->addDirectoryFiles(selected);
+    QCOMPARE(m_model->rowCount(prefix(1)), 3);
+
+    m_editor->onUndo();
+    QCOMPARE(m_model->rowCount(prefix(1)), 1);
 }
 
 QObject *createQrcEditorTest()

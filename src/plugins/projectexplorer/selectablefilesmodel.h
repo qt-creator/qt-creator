@@ -235,7 +235,8 @@ protected:
     SelectableFilesWidget *m_filesWidget;
 };
 
-class SelectableFilesDialogAddDirectory : public SelectableFilesDialogEditFiles
+class PROJECTEXPLORER_EXPORT SelectableFilesDialogAddDirectory
+    : public SelectableFilesDialogEditFiles
 {
     Q_OBJECT
 
