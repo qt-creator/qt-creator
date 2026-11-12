@@ -17,6 +17,8 @@ QT_END_NAMESPACE
 
 namespace Ios::Internal {
 
+QObject *createIosDeviceTypeAspectTest();
+
 class IosRunConfiguration;
 
 class IosDeviceTypeAspect : public Utils::BaseAspect
@@ -56,9 +58,9 @@ private:
     IosDeviceType m_deviceType;
     IosRunConfiguration *m_runConfiguration = nullptr;
     QStandardItemModel m_deviceTypeModel;
-    QLabel *m_deviceTypeLabel = nullptr;
-    QComboBox *m_deviceTypeComboBox = nullptr;
-    QPushButton *m_updateButton = nullptr;
+
+signals:
+    void deviceSelectionChanged(QPrivateSignal);
 };
 
 class IosRunConfiguration : public ProjectExplorer::RunConfiguration

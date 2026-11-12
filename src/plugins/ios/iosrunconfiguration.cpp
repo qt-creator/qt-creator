@@ -36,6 +36,10 @@
 #include <QVariant>
 #include <QWidget>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -285,6 +289,7 @@ IosDeviceType IosDeviceTypeAspect::deviceType() const
 void IosDeviceTypeAspect::setDeviceType(const IosDeviceType &deviceType)
 {
     m_deviceType = deviceType;
+    emit deviceSelectionChanged(QPrivateSignal());
 }
 
 IosDeviceTypeAspect::IosDeviceTypeAspect(AspectContainer *container, IosRunConfiguration *rc)
@@ -303,25 +308,57 @@ IosDeviceTypeAspect::IosDeviceTypeAspect(AspectContainer *container, IosRunConfi
 
 void IosDeviceTypeAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    m_deviceTypeComboBox = new QComboBox;
-    m_deviceTypeComboBox->setModel(&m_deviceTypeModel);
+    auto deviceTypeComboBox = new QComboBox;
+    deviceTypeComboBox->setModel(&m_deviceTypeModel);
 
-    m_deviceTypeLabel = new QLabel(Tr::tr("Device type:"));
+    auto deviceTypeLabel = new QLabel(Tr::tr("Device type:"));
 
-    m_updateButton = new QPushButton(Tr::tr("Update"));
+    auto updateButton = new QPushButton(Tr::tr("Update"));
 
-    parent.addItems({m_deviceTypeLabel, m_deviceTypeComboBox, m_updateButton, Layouting::st});
+    parent.addItems({deviceTypeLabel, deviceTypeComboBox, updateButton, Layouting::st});
+
+    const auto showDeviceSelection = [this, deviceTypeLabel, deviceTypeComboBox, updateButton] {
+        const IosDeviceType currentDType = deviceType();
+        const bool showDeviceSelector = currentDType.type != IosDeviceType::IosDevice;
+        deviceTypeLabel->setVisible(showDeviceSelector);
+        deviceTypeComboBox->setVisible(showDeviceSelector);
+        updateButton->setVisible(showDeviceSelector);
+
+        const QVariant currentData = deviceTypeComboBox->currentData();
+        if (currentDType.type == IosDeviceType::SimulatedDevice
+            && !currentDType.identifier.isEmpty()
+            && (!currentData.isValid()
+                || currentDType != toIosDeviceType(currentData.value<SimulatorInfo>()))) {
+            bool didSet = false;
+            for (int i = 0; m_deviceTypeModel.hasIndex(i, 0); ++i) {
+                const QVariant vData
+                    = m_deviceTypeModel.data(m_deviceTypeModel.index(i, 0), Qt::UserRole + 1);
+                if (vData.value<SimulatorInfo>().identifier == currentDType.identifier) {
+                    const QSignalBlocker blocker(deviceTypeComboBox);
+                    deviceTypeComboBox->setCurrentIndex(i);
+                    didSet = true;
+                    break;
+                }
+            }
+            if (!didSet)
+                qCWarning(iosLog) << "could not set " << currentDType << " as it is not in model";
+        }
+    };
+    connect(this, &IosDeviceTypeAspect::deviceSelectionChanged, deviceTypeComboBox,
+            showDeviceSelection);
 
     updateValues();
+    showDeviceSelection();
 
-    connect(m_deviceTypeComboBox, &QComboBox::currentIndexChanged,
+    connect(deviceTypeComboBox, &QComboBox::currentIndexChanged,
             this, &IosDeviceTypeAspect::setDeviceTypeIndex);
-    connect(m_updateButton, &QPushButton::clicked, this, [this] {
-        m_updateButton->setEnabled(false);
-        const auto doneHander = [thisPtr = QPointer(this)] {
+    connect(updateButton, &QPushButton::clicked, this, [this, updateButton] {
+        updateButton->setEnabled(false);
+        const auto doneHander = [thisPtr = QPointer(this), button = QPointer(updateButton)] {
+            if (button)
+                button->setEnabled(true);
             if (!thisPtr)
                 return;
-            thisPtr->m_updateButton->setEnabled(true);
             thisPtr->m_deviceTypeModel.clear();
             thisPtr->updateValues();
         };
@@ -336,13 +373,9 @@ void IosDeviceTypeAspect::setDeviceTypeIndex(int devIndex)
         setDeviceType(toIosDeviceType(selectedDev.value<SimulatorInfo>()));
 }
 
-
 void IosDeviceTypeAspect::updateValues()
 {
-    bool showDeviceSelector = deviceType().type != IosDeviceType::IosDevice;
-    m_deviceTypeLabel->setVisible(showDeviceSelector);
-    m_deviceTypeComboBox->setVisible(showDeviceSelector);
-    m_updateButton->setVisible(showDeviceSelector);
+    const bool showDeviceSelector = deviceType().type != IosDeviceType::IosDevice;
     if (showDeviceSelector && m_deviceTypeModel.rowCount() == 0) {
         const QList<SimulatorInfo> devices = SimulatorControl::availableSimulators();
         for (const SimulatorInfo &device : devices) {
@@ -353,27 +386,7 @@ void IosDeviceTypeAspect::updateValues()
             m_deviceTypeModel.appendRow(item);
         }
     }
-
-    IosDeviceType currentDType = deviceType();
-    QVariant currentData = m_deviceTypeComboBox->currentData();
-    if (currentDType.type == IosDeviceType::SimulatedDevice && !currentDType.identifier.isEmpty()
-            && (!currentData.isValid()
-                || currentDType != toIosDeviceType(currentData.value<SimulatorInfo>())))
-    {
-        bool didSet = false;
-        for (int i = 0; m_deviceTypeModel.hasIndex(i, 0); ++i) {
-            QVariant vData = m_deviceTypeModel.data(m_deviceTypeModel.index(i, 0), Qt::UserRole + 1);
-            SimulatorInfo dType = vData.value<SimulatorInfo>();
-            if (dType.identifier == currentDType.identifier) {
-                m_deviceTypeComboBox->setCurrentIndex(i);
-                didSet = true;
-                break;
-            }
-        }
-        if (!didSet) {
-            qCWarning(iosLog) << "could not set " << currentDType << " as it is not in model";
-        }
-    }
+    emit deviceSelectionChanged(QPrivateSignal());
 }
 
 FilePath IosDeviceTypeAspect::bundleDirectory() const
@@ -410,4 +423,43 @@ void setupIosRunConfiguration()
     static IosRunConfigurationFactory theIosRunConfigurationFactory;
 }
 
+#ifdef WITH_TESTS
+class IosDeviceTypeAspectTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testHidesTheSimulatorSelectionInEveryWidget()
+    {
+        IosDeviceTypeAspect aspect(nullptr, nullptr);
+        aspect.setDeviceType(IosDeviceType(IosDeviceType::SimulatedDevice));
+        auto first = std::make_unique<QWidget>();
+        auto second = std::make_unique<QWidget>();
+        Layouting::Row{aspect}.attachTo(first.get());
+        Layouting::Row{aspect}.attachTo(second.get());
+        QComboBox *firstBox = first->findChild<QComboBox *>();
+        QComboBox *secondBox = second->findChild<QComboBox *>();
+        QVERIFY(firstBox);
+        QVERIFY(secondBox);
+        QVERIFY(!firstBox->isHidden());
+        QVERIFY(!secondBox->isHidden());
+
+        aspect.setDeviceType(IosDeviceType(IosDeviceType::IosDevice));
+        aspect.updateValues();
+
+        QVERIFY(firstBox->isHidden());
+        QVERIFY(secondBox->isHidden());
+    }
+};
+
+QObject *createIosDeviceTypeAspectTest()
+{
+    return new IosDeviceTypeAspectTest;
+}
+#endif // WITH_TESTS
+
 } // Ios::Internal
+
+#ifdef WITH_TESTS
+#include <iosrunconfiguration.moc>
+#endif

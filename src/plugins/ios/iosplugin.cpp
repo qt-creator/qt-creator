@@ -71,6 +71,9 @@ class IosPlugin final : public ExtensionSystem::IPlugin
         IosConfigurations::initialize();
 
         setupIosRunConfiguration();
+#ifdef WITH_TESTS
+        addTestCreator(createIosDeviceTypeAspectTest);
+#endif
         setupIosSettingsPage();
 
         d = new IosPluginPrivate;
