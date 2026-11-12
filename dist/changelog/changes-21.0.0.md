@@ -770,6 +770,8 @@ Added
 * The experimental option to use a combined engine for debugging C++ and QML
   that enables combined stack traces (GDB and LLDB), in the `Debug` setting of
   run configurations
+  ([QTCREATORBUG-2171](https://bugreports.qt.io/browse/QTCREATORBUG-2171),
+   [QTCREATORBUG-7433](https://bugreports.qt.io/browse/QTCREATORBUG-7433))
 * The option `Resolve symbolic links in breakpoint paths`
   ([QTCREATORBUG-17554](https://bugreports.qt.io/browse/QTCREATORBUG-17554))
 * Support for passing arguments to the debuggee with the `-debug` command line
@@ -808,6 +810,11 @@ Fixed
   ([QTCREATORBUG-35051](https://bugreports.qt.io/browse/QTCREATORBUG-35051))
 * That breakpoint markers vanished from the editor when the debugger ended
   unexpectedly
+* That starting the debugger hung when the terminal failed to start
+  ([QTCREATORBUG-13208](https://bugreports.qt.io/browse/QTCREATORBUG-13208))
+* That the `Debug` mode kept showing another tool when debugging was started
+  while that tool was shown
+  ([QTCREATORBUG-35095](https://bugreports.qt.io/browse/QTCREATORBUG-35095))
 
 ### C++
 
@@ -820,12 +827,19 @@ Added
   ([QTCREATORBUG-34499](https://bugreports.qt.io/browse/QTCREATORBUG-34499))
 * The `Show variables from all scopes` option (GDB)
   ([QTCREATORBUG-18058](https://bugreports.qt.io/browse/QTCREATORBUG-18058))
+* `Add Fixed-Address Expression Evaluator` to the context menu of the
+  `Locals` and `Expressions` views, for watching an object from other stack
+  frames
+  ([QTCREATORBUG-19172](https://bugreports.qt.io/browse/QTCREATORBUG-19172))
+* Support for remote Windows devices (CDB)
 
 Changed
 
 * Made the display of classes with a single member more compact in the `Locals`
   view
   ([QTCREATORBUG-22565](https://bugreports.qt.io/browse/QTCREATORBUG-22565))
+* The status bar now shows the name of signals that are expected (GDB)
+  ([QTCREATORBUG-9827](https://bugreports.qt.io/browse/QTCREATORBUG-9827))
 
 Fixed
 
@@ -852,6 +866,9 @@ Fixed
   ([QTCREATORBUG-18165](https://bugreports.qt.io/browse/QTCREATORBUG-18165))
 * That a run that ends in an uncaught exception was not explained
   ([QTCREATORBUG-21234](https://bugreports.qt.io/browse/QTCREATORBUG-21234))
+* The memory usage of the disassembly view for frames without debug
+  information
+  ([QTCREATORBUG-9786](https://bugreports.qt.io/browse/QTCREATORBUG-9786))
 * GDB
     * That static class members were missing from the `Locals` view
       ([QTCREATORBUG-14133](https://bugreports.qt.io/browse/QTCREATORBUG-14133))
@@ -863,6 +880,15 @@ Fixed
     * That stepping could hang in remote Linux sessions, for example on
       Boot to Qt devices
       ([QTCREATORBUG-33753](https://bugreports.qt.io/browse/QTCREATORBUG-33753))
+    * That stopping a remote session could fail with an error message or
+      send the shutdown commands twice
+      ([QTCREATORBUG-33481](https://bugreports.qt.io/browse/QTCREATORBUG-33481),
+       [QTCREATORBUG-34694](https://bugreports.qt.io/browse/QTCREATORBUG-34694))
+    * That output of the debuggee that arrived on the standard output of GDB
+      was not shown
+      ([QTCREATORBUG-34588](https://bugreports.qt.io/browse/QTCREATORBUG-34588))
+    * That the `Locals` and `Expressions` views could stay grayed out
+      ([QTCREATORBUG-33035](https://bugreports.qt.io/browse/QTCREATORBUG-33035))
 * LLDB
     * Issues with `Additional startup commands`
       ([QTCREATORBUG-15584](https://bugreports.qt.io/browse/QTCREATORBUG-15584))
@@ -876,6 +902,8 @@ Fixed
     * That classes that are only declared in the module of the current frame
       showed no members
       ([QTCREATORBUG-35068](https://bugreports.qt.io/browse/QTCREATORBUG-35068))
+    * That stops on signals and exceptions were not reported
+      ([QTCREATORBUG-11049](https://bugreports.qt.io/browse/QTCREATORBUG-11049))
 * CDB
     * That the output of the debuggee was not shown in `Application Output`
       ([QTCREATORBUG-10626](https://bugreports.qt.io/browse/QTCREATORBUG-10626))
@@ -887,6 +915,9 @@ Fixed
     * That Qt Creator did not tell the user when the system blocks
       `qtcreatorcdbext.dll`
     * Performance issues when expanding values in the `Locals` view
+    * That the `Locals` view stayed empty when the path to Qt Creator contains
+      non-ASCII characters
+      ([QTCREATORBUG-35040](https://bugreports.qt.io/browse/QTCREATORBUG-35040))
 
 ### QML
 
@@ -899,6 +930,10 @@ Fixed
   ([QTCREATORBUG-35032](https://bugreports.qt.io/browse/QTCREATORBUG-35032))
 * That debugging hung without explanation when the QML debug server of the
   application did not start
+* A crash with deeply nested object trees
+  ([QTCREATORBUG-33434](https://bugreports.qt.io/browse/QTCREATORBUG-33434))
+* Performance issues with many objects without a parent, such as delegates
+  ([QTCREATORBUG-35173](https://bugreports.qt.io/browse/QTCREATORBUG-35173))
 
 ### Python
 
