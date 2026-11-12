@@ -13,8 +13,7 @@ actually ran, it cannot drift from the behaviour it describes.
 
 The runner attaches to an already-running Creator given its --port, or, with
 --qtcreator, launches one itself (with a throwaway settings directory). It
-never manages the X display; run it under whatever DISPLAY you set up (e.g.
-Xvfb for headless use).
+runs on $DISPLAY, or with --xvfb on a private Xvfb display it starts itself.
 
 See README.md for the scenario format and examples.
 """
@@ -26,6 +25,7 @@ import json
 import os
 import re
 import secrets
+import select
 import shlex
 import subprocess
 import sys
@@ -1075,6 +1075,38 @@ class Runner:
         return report_path
 
 
+def start_xvfb(size, timeout):
+    """Start a private Xvfb on a display it picks itself, return (proc, display)."""
+    read_fd, write_fd = os.pipe()
+    try:
+        proc = subprocess.Popen(["Xvfb", "-displayfd", str(write_fd), "-nolisten", "tcp",
+                                 "-screen", "0", size + "x24"],
+                                pass_fds=(write_fd,), stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL)
+    except OSError as e:
+        os.close(read_fd)
+        os.close(write_fd)
+        raise ScenarioError("cannot start Xvfb: {}".format(e))
+    os.close(write_fd)
+    # Xvfb writes the display number once it accepts connections, and closes
+    # the pipe unwritten when it dies.
+    number = b""
+    deadline = time.monotonic() + timeout
+    with os.fdopen(read_fd, "rb") as pipe:
+        while not number.endswith(b"\n") and time.monotonic() < deadline:
+            if not select.select([pipe], [], [], 0.5)[0]:
+                continue
+            chunk = os.read(pipe.fileno(), 16)
+            if not chunk:
+                break
+            number += chunk
+    if not number.strip().isdigit():
+        proc.kill()
+        proc.wait()
+        raise ScenarioError("Xvfb did not come up")
+    return proc, ":" + number.decode().strip()
+
+
 def wait_for_port(host, port, timeout, child=None):
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
@@ -1132,6 +1164,11 @@ def main():
                          "window frames (e.g. 'twm'); terminated at the end. Use a dedicated "
                          "display, not your desktop. Implies full-display capture, since a "
                          "frame sits outside the app's client area.")
+    ap.add_argument("--xvfb", nargs="?", const="1920x1080", metavar="WxH",
+                    help="Run on a private Xvfb display of this size (default 1920x1080) "
+                         "that is started on a free display number and stopped at the end, "
+                         "instead of on $DISPLAY. Creator's window fills it. Needs "
+                         "--qtcreator.")
     ap.add_argument("--no-preseed", action="store_true",
                     help="Do not pre-seed the launched Creator's settings (only "
                          "relevant with --qtcreator)")
@@ -1141,7 +1178,14 @@ def main():
                          "with --load)")
     ap.add_argument("--load", action="append", default=[], metavar="PLUGIN",
                     help="Pass -load PLUGIN to a launched Creator (repeatable)")
+    ap.add_argument("--keep-running", action="store_true",
+                    help="Leave the launched Creator running at the end, in the state the "
+                         "last step left it, for example to continue by hand in a demo")
     args = ap.parse_args()
+    if args.xvfb and not args.qtcreator:
+        raise SystemExit("--xvfb needs --qtcreator: an attached Creator runs on its own display")
+    if args.keep_running and (args.xvfb or not args.qtcreator):
+        raise SystemExit("--keep-running needs --qtcreator and no --xvfb")
 
     scenario_path = Path(args.scenario).resolve()
     scenario = yaml.safe_load(scenario_path.read_text(encoding="utf-8"))
@@ -1166,7 +1210,16 @@ def main():
     recorder = None
     wm = None
     child = None
+    xvfb = None
     settings = None
+    if args.xvfb:
+        try:
+            xvfb, display = start_xvfb(args.xvfb, args.timeout)
+        except ScenarioError as e:
+            raise SystemExit(str(e))
+        # Creator, the window manager and the recorder all inherit it.
+        os.environ["DISPLAY"] = display
+        print("Xvfb on {}".format(display))
     if args.qtcreator:
         settings = scratch / "settings"
         settings.mkdir()
@@ -1189,14 +1242,21 @@ def main():
             launch += ["-noload", plugin]
         for plugin in (scenario.get("load") or []) + args.load:
             launch += ["-load", plugin]
+        if args.xvfb:
+            # Fill the screen, which is ours, but leave room for a window
+            # manager's frame.
+            width, height = (int(n) for n in args.xvfb.split("x"))
+            launch += ["-qwindowgeometry", "{}x{}+0+0".format(width - 8, height - 40)]
         # McpServer is loaded last so it survives a user "-noload all".
         args.token = secrets.token_hex(16)
         launch += ["-load", "McpServer", "-mcp-port", str(args.port), "-mcp-token", args.token,
                    "-mcp-enable-tools", "ui"]
-        child = subprocess.Popen(launch)
 
     exit_code = 0
     try:
+        if args.qtcreator:
+            child = subprocess.Popen(launch)
+
         if args.window_manager:
             if not os.environ.get("DISPLAY"):
                 raise ScenarioError("--window-manager needs a DISPLAY")
@@ -1281,7 +1341,9 @@ def main():
             recorder.stop(force=True)
         # Only the Creator we launched ourselves is ours to stop; an attached
         # instance is left running for the caller.
-        if child and child.poll() is None:
+        if child and child.poll() is None and args.keep_running:
+            print("Qt Creator keeps running, PID {}".format(child.pid))
+        elif child and child.poll() is None:
             child.terminate()
             try:
                 child.wait(timeout=10)
@@ -1293,6 +1355,12 @@ def main():
                 wm.wait(timeout=5)
             except subprocess.TimeoutExpired:
                 wm.kill()
+        if xvfb:
+            xvfb.terminate()
+            try:
+                xvfb.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                xvfb.kill()
 
     sys.exit(exit_code)
 

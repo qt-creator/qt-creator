@@ -17,8 +17,8 @@ visible `text`, or `class_name` plus `window_title`.
 
 - A built Qt Creator with the `McpServer` plugin.
 - Python 3 with PyYAML.
-- A display. For headless use, run under Xvfb; the runner does not manage the
-  X display itself.
+- A display. For headless use, pass `--xvfb`, or run under an Xvfb of your
+  own.
 
 ## Running
 
@@ -118,6 +118,15 @@ recording shows title bars and borders; it is terminated at the end. A tiny
 Point it at a dedicated display, not your desktop. This implies full-display
 capture (a frame sits outside the app's client area), so size the display
 close to the window - or pass an explicit `--video-size`.
+
+`--xvfb` gives a launched Creator such a dedicated display: the runner starts
+Xvfb on a display number that is free (Xvfb picks it, so parallel runs do not
+collide), runs Creator, the window manager and the recording on it, and stops
+it at the end. Creator's window fills the display, with room left for a
+window frame. The size defaults to 1920x1080, `--xvfb 1280x800` sets another:
+
+    ./run_scenario.py demo.yaml --qtcreator ../../../bin/qtcreator --port 8765 \
+        --xvfb --video --window-manager "twm -f twmrc"
 
 ## Scenario format
 
