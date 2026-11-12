@@ -1161,12 +1161,25 @@ void QmlEngine::connectionFailed()
 
 void QmlEngine::checkConnectionState()
 {
-    if (!isConnected()) {
-        d->connectionTimer.stop();
-        if (QmlDebugConnection *connection = d->connection())
-            connection->close();
-        connectionStartupFailed();
+    if (isConnected())
+        return;
+
+    QmlDebugConnection *connection = d->connection();
+    // The socket gives up on its own, and trying again would start over with the
+    // first address of the host, which can be one that is slow to refuse.
+    if (connection) {
+        const QAbstractSocket::SocketState state = connection->socketState();
+        if (state == QAbstractSocket::HostLookupState
+            || state == QAbstractSocket::ConnectingState) {
+            d->connectionTimer.start();
+            return;
+        }
     }
+
+    d->connectionTimer.stop();
+    if (connection)
+        connection->close();
+    connectionStartupFailed();
 }
 
 bool QmlEngine::isConnected() const
