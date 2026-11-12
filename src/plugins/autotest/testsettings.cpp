@@ -23,6 +23,11 @@
 
 #include <QHeaderView>
 
+#ifdef WITH_TESTS
+#include <QLabel>
+#include <QTest>
+#endif
+
 using namespace Utils;
 
 namespace Autotest::Internal  {
@@ -89,9 +94,24 @@ bool FrameworksAspect::tool(Id id) const
     return m_data.tools.value(id, false);
 }
 
+static bool isSameData(const FrameworksAspect::Data &left, const FrameworksAspect::Data &right)
+{
+    for (const Id id : left.frameworksGrouping.keys()) {
+        if (left.frameworksGrouping[id] != right.frameworksGrouping[id])
+            return false;
+        if (left.frameworks[id] != right.frameworks[id])
+            return false;
+    }
+    for (const Id id : left.tools.keys()) {
+        if (left.tools[id] != right.tools[id])
+            return false;
+    }
+    return true;
+}
+
 void FrameworksAspect::apply()
 {
-    const Data tmp = Internal::extractData(m_frameworkTreeWidget->model());
+    const Data tmp = m_volatileData;
 
     const QList<Utils::Id> changedIds = Utils::filtered(tmp.frameworksGrouping.keys(),
        [this, &tmp](Id id) {
@@ -118,25 +138,18 @@ void FrameworksAspect::apply()
 
 void FrameworksAspect::cancel()
 {
-    populateTreeWidget();
+    setVolatileData(m_data);
 }
 
 bool FrameworksAspect::isDirty() const
 {
-    const Data tmp = Internal::extractData(m_frameworkTreeWidget->model());
+    return !isSameData(m_volatileData, m_data);
+}
 
-    for (const Id id : tmp.frameworksGrouping.keys()) {
-        if (tmp.frameworksGrouping[id] != m_data.frameworksGrouping[id])
-            return true;
-        if (tmp.frameworks[id] != m_data.frameworks[id])
-            return true;
-    }
-    for (const Id id : tmp.tools.keys()) {
-        if (tmp.tools[id] != m_data.tools[id])
-            return true;
-    }
-
-    return false;
+void FrameworksAspect::setVolatileData(const Data &data)
+{
+    m_volatileData = data;
+    emit volatileDataChanged(QPrivateSignal());
 }
 
 void FrameworksAspect::writeSettings() const
@@ -181,52 +194,25 @@ void FrameworksAspect::readSettings()
         m_data.tools.insert(id, s.value(id.toKey(), testTool->active()).toBool());
     }
     s.endGroup();
+    setVolatileData(m_data);
 }
 
-void FrameworksAspect::addToLayoutImpl(Layouting::Layout &parent)
-{
-    m_frameworkTreeWidget = createSubWidget<QTreeWidget>();
-    m_frameworkTreeWidget->setRootIsDecorated(false);
-    m_frameworkTreeWidget->setHeaderHidden(false);
-    m_frameworkTreeWidget->setColumnCount(2);
-    m_frameworkTreeWidget->header()->setDefaultSectionSize(150);
-    m_frameworkTreeWidget->setToolTip(Tr::tr("Selects the test frameworks to be handled by the AutoTest plugin."));
-
-    QTreeWidgetItem *item = m_frameworkTreeWidget->headerItem();
-    item->setText(0, Tr::tr("Framework"));
-    item->setToolTip(0, Tr::tr("Selects the test frameworks to be handled by the AutoTest plugin."));
-    item->setText(1, Tr::tr("Group"));
-    item->setToolTip(1, Tr::tr("Enables grouping of test cases."));
-
-    populateTreeWidget();
-
-    m_frameworksWarn = new InfoLabel;
-    m_frameworksWarn->setElideMode(Qt::ElideNone);
-    m_frameworksWarn->setType(InfoLabelType::Warning);
-    if (!showWarning())
-        m_frameworksWarn->setVisible(false);
-
-    connect(m_frameworkTreeWidget, &QTreeWidget::itemChanged,
-            this, &FrameworksAspect::onFrameworkItemChanged);
-
-    parent.addItem(m_frameworkTreeWidget);
-    parent.addItem(m_frameworksWarn);
-}
-
-void FrameworksAspect::populateTreeWidget()
+static void populateTreeWidget(QTreeWidget *tree, const FrameworksAspect::Data &data)
 {
     DirtySettingsGuard guard; // Prevent triggering dirty checks while populating
+    const QSignalBlocker blocker(tree);
 
     const TestFrameworks &registered = TestFrameworkManager::registeredFrameworks();
-    m_frameworkTreeWidget->clear();
+    tree->clear();
     for (const ITestFramework *framework : registered) {
         const Id id = framework->id();
-        auto item = new QTreeWidgetItem(m_frameworkTreeWidget, {framework->displayName()});
+        auto item = new QTreeWidgetItem(tree, {framework->displayName()});
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
-        item->setCheckState(0, m_data.frameworks.value(id) ? Qt::Checked : Qt::Unchecked);
+        item->setCheckState(0, data.frameworks.value(id) ? Qt::Checked : Qt::Unchecked);
         item->setData(0, BaseId, id.toSetting());
         item->setData(0, BaseType, ITestBase::Framework);
-        item->setData(1, Qt::CheckStateRole, framework->grouping() ? Qt::Checked : Qt::Unchecked);
+        item->setData(1, Qt::CheckStateRole,
+                      data.frameworksGrouping.value(id) ? Qt::Checked : Qt::Unchecked);
         item->setToolTip(0, Tr::tr("Enable or disable test frameworks to be handled by the "
                                    "AutoTest plugin."));
         QString toolTip = framework->groupingToolTip();
@@ -238,47 +224,71 @@ void FrameworksAspect::populateTreeWidget()
     const TestTools &registeredTools = TestFrameworkManager::registeredTestTools();
     for (const ITestTool *testTool : registeredTools) {
         const Id id = testTool->id();
-        auto item = new QTreeWidgetItem(m_frameworkTreeWidget, {testTool->displayName()});
+        auto item = new QTreeWidgetItem(tree, {testTool->displayName()});
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
-        item->setCheckState(0, m_data.tools.value(id) ? Qt::Checked : Qt::Unchecked);
+        item->setCheckState(0, data.tools.value(id) ? Qt::Checked : Qt::Unchecked);
         item->setData(0, BaseId, id.toSetting());
         item->setData(0, BaseType, ITestBase::Tool);
     }
 }
 
-void FrameworksAspect::onFrameworkItemChanged()
+// Returns whether there is something to warn about.
+static bool updateWarning(InfoLabel *label, const FrameworksAspect::Data &data)
 {
-    checkSettingsDirty();
-    m_frameworksWarn->setVisible(showWarning());
+    const bool frameworkEnabled = Utils::anyOf(data.frameworks, [](bool on) { return on; });
+    const bool toolEnabled = Utils::anyOf(data.tools, [](bool on) { return on; });
+    if (!frameworkEnabled && !toolEnabled) {
+        label->setText(Tr::tr("No active test frameworks or tools."));
+        label->setToolTip(Tr::tr("You will not be able to use the AutoTest plugin "
+                                 "without having at least one active test framework."));
+        return true;
+    }
+    if (frameworkEnabled && toolEnabled) {
+        label->setText(Tr::tr("Mixing test frameworks and test tools."));
+        label->setToolTip(Tr::tr("Mixing test frameworks and test tools can lead "
+                                 "to duplicating run information when using "
+                                 "\"Run All Tests\", for example."));
+        return true;
+    }
+    return false;
 }
 
-bool FrameworksAspect::showWarning()
+void FrameworksAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    bool atLeastOneEnabled = false;
-    int mixed = ITestBase::None;
-    if (QAbstractItemModel *model = m_frameworkTreeWidget->model()) {
-        for (int row = 0, count = model->rowCount(); row < count; ++row) {
-            const QModelIndex idx = model->index(row, 0);
-            if (idx.data(Qt::CheckStateRole) == Qt::Checked) {
-                atLeastOneEnabled = true;
-                mixed |= idx.data(BaseType).toInt();
-            }
-        }
-    }
+    auto tree = createSubWidget<QTreeWidget>();
+    tree->setRootIsDecorated(false);
+    tree->setHeaderHidden(false);
+    tree->setColumnCount(2);
+    tree->header()->setDefaultSectionSize(150);
+    tree->setToolTip(Tr::tr("Selects the test frameworks to be handled by the AutoTest plugin."));
 
-    if (!atLeastOneEnabled || (mixed == (ITestBase::Framework | ITestBase::Tool))) {
-        if (!atLeastOneEnabled) {
-            m_frameworksWarn->setText(Tr::tr("No active test frameworks or tools."));
-            m_frameworksWarn->setToolTip(Tr::tr("You will not be able to use the AutoTest plugin "
-                                                "without having at least one active test framework."));
-        } else {
-            m_frameworksWarn->setText(Tr::tr("Mixing test frameworks and test tools."));
-            m_frameworksWarn->setToolTip(Tr::tr("Mixing test frameworks and test tools can lead "
-                                                "to duplicating run information when using "
-                                                "\"Run All Tests\", for example."));
-        }
-    }
-    return !atLeastOneEnabled || (mixed == (ITestBase::Framework | ITestBase::Tool));
+    QTreeWidgetItem *item = tree->headerItem();
+    item->setText(0, Tr::tr("Framework"));
+    item->setToolTip(0, Tr::tr("Selects the test frameworks to be handled by the AutoTest plugin."));
+    item->setText(1, Tr::tr("Group"));
+    item->setToolTip(1, Tr::tr("Enables grouping of test cases."));
+
+    populateTreeWidget(tree, m_volatileData);
+
+    auto warning = new InfoLabel;
+    warning->setElideMode(Qt::ElideNone);
+    warning->setType(InfoLabelType::Warning);
+    if (!updateWarning(warning, m_volatileData))
+        warning->setVisible(false);
+
+    connect(tree, &QTreeWidget::itemChanged, this, [this, tree] {
+        setVolatileData(Internal::extractData(tree->model()));
+        checkSettingsDirty();
+    });
+    connect(this, &FrameworksAspect::volatileDataChanged, tree, [this, tree, warning] {
+        // The tree that was edited already shows the change; do not reset it under the edit.
+        if (!isSameData(Internal::extractData(tree->model()), m_volatileData))
+            populateTreeWidget(tree, m_volatileData);
+        warning->setVisible(updateWarning(warning, m_volatileData));
+    });
+
+    parent.addItem(tree);
+    parent.addItem(warning);
 }
 
 TestSettings::TestSettings()
@@ -454,4 +464,65 @@ void setupTestSettings()
     static TestSettingsPage theTestSettingsPage;
 }
 
+#ifdef WITH_TESTS
+class FrameworksAspectTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testUpdatesEveryTree()
+    {
+        FrameworksAspect frameworks(nullptr);
+        BaseAspect &aspect = frameworks;
+        aspect.readSettings();
+        const std::unique_ptr<QWidget> first(Layouting::Column{aspect}.emerge());
+        const std::unique_ptr<QWidget> second(Layouting::Column{aspect}.emerge());
+        QTreeWidget *firstTree = first->findChild<QTreeWidget *>();
+        QTreeWidget *secondTree = second->findChild<QTreeWidget *>();
+        QVERIFY(firstTree);
+        QVERIFY(secondTree);
+        QVERIFY(firstTree->topLevelItemCount() > 0);
+        const Qt::CheckState before = firstTree->topLevelItem(0)->checkState(0);
+        const Qt::CheckState toggled = before == Qt::Checked ? Qt::Unchecked : Qt::Checked;
+
+        firstTree->topLevelItem(0)->setCheckState(0, toggled);
+        QCOMPARE(secondTree->topLevelItem(0)->checkState(0), toggled);
+        QVERIFY(aspect.isDirty());
+
+        aspect.cancel();
+        QVERIFY(!aspect.isDirty());
+        QCOMPARE(firstTree->topLevelItem(0)->checkState(0), before);
+        QCOMPARE(secondTree->topLevelItem(0)->checkState(0), before);
+
+        const Qt::CheckState groupBefore = firstTree->topLevelItem(0)->checkState(1);
+        const Qt::CheckState groupToggled = groupBefore == Qt::Checked ? Qt::Unchecked
+                                                                       : Qt::Checked;
+        firstTree->topLevelItem(0)->setCheckState(1, groupToggled);
+        QCOMPARE(secondTree->topLevelItem(0)->checkState(1), groupToggled);
+
+        for (int i = 0; i < firstTree->topLevelItemCount(); ++i)
+            firstTree->topLevelItem(i)->setCheckState(0, Qt::Unchecked);
+        // InfoLabel has no Q_OBJECT.
+        const QLabel *secondWarning = Utils::findOrDefault(
+            second->findChildren<QLabel *>(), [](const QLabel *label) {
+                return label->text() == Tr::tr("No active test frameworks or tools.");
+            });
+        QVERIFY(secondWarning);
+        QVERIFY(secondWarning->isVisibleTo(second.get()));
+
+        aspect.cancel();
+        QCOMPARE(secondTree->topLevelItem(0)->checkState(1), groupBefore);
+    }
+};
+
+QObject *createFrameworksAspectTest()
+{
+    return new FrameworksAspectTest;
+}
+#endif // WITH_TESTS
+
 } // Autotest::Internal
+
+#ifdef WITH_TESTS
+#include <testsettings.moc>
+#endif

@@ -15,6 +15,7 @@
 #include "testprojectsettings.h"
 #include "testresultspane.h"
 #include "testrunner.h"
+#include "testsettings.h"
 #include "testtreeitem.h"
 #include "testtreemodel.h"
 
@@ -568,6 +569,7 @@ public:
 #ifdef WITH_TESTS
         addTestCreator(createAutotestUnitTests);
         addTestCreator(createExternalTestRunTest);
+        addTestCreator(createFrameworksAspectTest);
         addTestCreator(createQtTestUtilsTest);
         addTestCreator(createTestOutputReaderTest);
         addTestCreator(createTestArgumentsTest);

@@ -11,6 +11,8 @@ namespace Utils { class InfoLabel; }
 
 namespace Autotest::Internal {
 
+QObject *createFrameworksAspectTest();
+
 enum class RunAfterBuildMode
 {
     None,
@@ -20,6 +22,8 @@ enum class RunAfterBuildMode
 
 class FrameworksAspect : public Utils::BaseAspect
 {
+    Q_OBJECT
+
 public:
     explicit FrameworksAspect(Utils::AspectContainer *container);
 
@@ -44,14 +48,13 @@ private:
 
     void addToLayoutImpl(Layouting::Layout &parent) final;
 
-    void populateTreeWidget();
-    void onFrameworkItemChanged();
-    void updateWarning(bool init);
-    bool showWarning();
+    void setVolatileData(const Data &data);
 
-    QTreeWidget *m_frameworkTreeWidget = nullptr;
-    Utils::InfoLabel *m_frameworksWarn = nullptr;
     Data m_data;
+    Data m_volatileData;
+
+signals:
+    void volatileDataChanged(QPrivateSignal);
 };
 
 class TestSettings : public Utils::AspectContainer
