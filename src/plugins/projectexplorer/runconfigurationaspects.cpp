@@ -395,10 +395,7 @@ void ArgumentsAspect::setArguments(const QString &arguments)
         m_arguments = arguments;
         emit changed();
     }
-    if (m_chooser && m_chooser->text() != arguments)
-        m_chooser->setText(arguments);
-    if (m_multiLineChooser && m_multiLineChooser->toPlainText() != arguments)
-        m_multiLineChooser->setPlainText(arguments);
+    emit argumentsChanged(QPrivateSignal());
 }
 
 /*!
@@ -434,13 +431,8 @@ void ArgumentsAspect::fromMap(const Store &map)
         m_arguments = args.toString();
 
     m_multiLine = map.value(settingsKey() + ".multi", false).toBool();
-
-    if (m_multiLineButton)
-        m_multiLineButton->setChecked(m_multiLine);
-    if (!m_multiLine && m_chooser)
-        m_chooser->setText(m_arguments);
-    if (m_multiLine && m_multiLineChooser)
-        m_multiLineChooser->setPlainText(m_arguments);
+    emit multiLineChanged(QPrivateSignal());
+    emit argumentsChanged(QPrivateSignal());
 }
 
 /*!
@@ -455,27 +447,33 @@ void ArgumentsAspect::toMap(Store &map) const
 /*!
     \internal
 */
-QWidget *ArgumentsAspect::setupChooser()
+QWidget *ArgumentsAspect::createEditor()
 {
     if (m_multiLine) {
-        if (!m_multiLineChooser) {
-            m_multiLineChooser = new QPlainTextEdit;
-            connect(m_multiLineChooser.data(), &QPlainTextEdit::textChanged,
-                    this, [this] { setArguments(m_multiLineChooser->toPlainText()); });
-        }
-        m_multiLineChooser->setPlainText(m_arguments);
-        m_multiLineChooser->setReadOnly(isReadOnly());
-        return m_multiLineChooser.data();
+        auto editor = new QPlainTextEdit;
+        editor->setPlainText(m_arguments);
+        editor->setReadOnly(isReadOnly());
+        connect(editor, &QPlainTextEdit::textChanged, this, [this, editor] {
+            setArguments(editor->toPlainText());
+        });
+        connect(this, &ArgumentsAspect::argumentsChanged, editor, [this, editor] {
+            if (editor->toPlainText() != m_arguments)
+                editor->setPlainText(m_arguments);
+        });
+        connect(this, &ArgumentsAspect::focusRequested, editor, [editor] { editor->setFocus(); });
+        return editor;
     }
-    if (!m_chooser) {
-        m_chooser = new FancyLineEdit;
-        m_chooser->setHistoryCompleter(settingsKey());
-        connect(m_chooser.data(), &QLineEdit::textChanged, this, &ArgumentsAspect::setArguments);
-    }
-    m_chooser->setText(m_arguments);
-    m_chooser->setReadOnly(isReadOnly());
-
-    return m_chooser.data();
+    auto editor = new FancyLineEdit;
+    editor->setHistoryCompleter(settingsKey());
+    editor->setText(m_arguments);
+    editor->setReadOnly(isReadOnly());
+    connect(editor, &QLineEdit::textChanged, this, &ArgumentsAspect::setArguments);
+    connect(this, &ArgumentsAspect::argumentsChanged, editor, [this, editor] {
+        if (editor->text() != m_arguments)
+            editor->setText(m_arguments);
+    });
+    connect(this, &ArgumentsAspect::focusRequested, editor, [editor] { editor->setFocus(); });
+    return editor;
 }
 
 /*!
@@ -483,59 +481,52 @@ QWidget *ArgumentsAspect::setupChooser()
 */
 void ArgumentsAspect::addToLayoutImpl(Layout &builder)
 {
-    QTC_CHECK(!m_chooser && !m_multiLineChooser && !m_multiLineButton);
-
     const auto container = new QWidget;
     const auto containerLayout = new QHBoxLayout(container);
     containerLayout->setContentsMargins(0, 0, 0, 0);
-    containerLayout->addWidget(setupChooser());
-    m_multiLineButton = new ExpandButton;
-    m_multiLineButton->setToolTip(Tr::tr("Toggle multi-line mode."));
-    m_multiLineButton->setChecked(m_multiLine);
-    connect(m_multiLineButton, &QCheckBox::clicked, this, [this](bool checked) {
+    containerLayout->addWidget(createEditor());
+
+    // The editor is always the first item of the container.
+    connect(this, &ArgumentsAspect::multiLineChanged, container, [this, containerLayout] {
+        QWidget *oldEditor = containerLayout->itemAt(0)->widget();
+        QTC_ASSERT(oldEditor, return);
+        if (bool(qobject_cast<QPlainTextEdit *>(oldEditor)) == m_multiLine)
+            return;
+        delete containerLayout->replaceWidget(oldEditor, createEditor());
+        delete oldEditor;
+    });
+
+    auto multiLineButton = new ExpandButton;
+    multiLineButton->setToolTip(Tr::tr("Toggle multi-line mode."));
+    multiLineButton->setChecked(m_multiLine);
+    connect(multiLineButton, &QCheckBox::clicked, this, [this](bool checked) {
         if (m_multiLine == checked)
             return;
         m_multiLine = checked;
-        setupChooser();
-        QWidget *oldWidget = nullptr;
-        QWidget *newWidget = nullptr;
-        if (m_multiLine) {
-            oldWidget = m_chooser.data();
-            newWidget = m_multiLineChooser.data();
-        } else {
-            oldWidget = m_multiLineChooser.data();
-            newWidget = m_chooser.data();
-        }
-        QTC_ASSERT(!oldWidget == !newWidget, return);
-        if (oldWidget) {
-            QTC_ASSERT(oldWidget->parentWidget()->layout(), return);
-            oldWidget->parentWidget()->layout()->replaceWidget(oldWidget, newWidget);
-            delete oldWidget;
-        }
+        emit multiLineChanged(QPrivateSignal());
     });
-    containerLayout->addWidget(m_multiLineButton);
-    containerLayout->setAlignment(m_multiLineButton, Qt::AlignTop);
+    connect(this, &ArgumentsAspect::multiLineChanged, multiLineButton, [this, multiLineButton] {
+        multiLineButton->setChecked(m_multiLine);
+    });
+    containerLayout->addWidget(multiLineButton);
+    containerLayout->setAlignment(multiLineButton, Qt::AlignTop);
 
     if (m_resetter) {
-        m_resetButton = new QToolButton;
-        m_resetButton->setToolTip(Tr::tr("Reset to Default"));
-        m_resetButton->setIcon(Icons::RESET.icon());
-        connect(m_resetButton.data(), &QAbstractButton::clicked,
-                this, &ArgumentsAspect::resetArguments);
-        containerLayout->addWidget(m_resetButton);
-        containerLayout->setAlignment(m_resetButton, Qt::AlignTop);
+        auto resetButton = new QToolButton;
+        resetButton->setToolTip(Tr::tr("Reset to Default"));
+        resetButton->setIcon(Icons::RESET.icon());
+        connect(resetButton, &QAbstractButton::clicked, this, &ArgumentsAspect::resetArguments);
+        containerLayout->addWidget(resetButton);
+        containerLayout->setAlignment(resetButton, Qt::AlignTop);
     }
-    registerSubWidget(container);
 
+    registerSubWidget(container);
     addLabeledItem(builder, container);
 }
 
 void ArgumentsAspect::setFocusToInputField()
 {
-    if (m_chooser)
-        m_chooser->setFocus();
-    else if (m_multiLineChooser)
-        m_multiLineChooser->setFocus();
+    emit focusRequested(QPrivateSignal());
 }
 
 /*!
@@ -1195,6 +1186,8 @@ private slots:
     void testLauncherAspectPicksOfferedLauncherWithoutWidget();
     void testWorkingDirectoryAspectUpdatesEveryChooser();
     void testWorkingDirectoryAspectKeepsAClearedChooserEmpty();
+    void testArgumentsAspectUpdatesEveryEditor();
+    void testArgumentsAspectSwitchesEveryWidgetToMultiLine();
 };
 
 static std::unique_ptr<QWidget> createWidget(BaseAspect &aspect)
@@ -1310,6 +1303,55 @@ void RunConfigurationAspectsTest::testWorkingDirectoryAspectKeepsAClearedChooser
 
     QVERIFY(firstChooser->unexpandedFilePath().isEmpty());
     QVERIFY(secondChooser->unexpandedFilePath().isEmpty());
+}
+
+void RunConfigurationAspectsTest::testArgumentsAspectUpdatesEveryEditor()
+{
+    ArgumentsAspect aspect;
+    const auto first = createWidget(aspect);
+    const auto second = createWidget(aspect);
+    FancyLineEdit *firstEdit = first->findChild<FancyLineEdit *>();
+    FancyLineEdit *secondEdit = second->findChild<FancyLineEdit *>();
+    QVERIFY(firstEdit);
+    QVERIFY(secondEdit);
+
+    aspect.setArguments("--set");
+    QCOMPARE(firstEdit->text(), "--set");
+    QCOMPARE(secondEdit->text(), "--set");
+
+    firstEdit->setText("--typed");
+    QCOMPARE(aspect.unexpandedArguments(), "--typed");
+    QCOMPARE(secondEdit->text(), "--typed");
+}
+
+// ExpandButton has no Q_OBJECT.
+static QToolButton *multiLineButton(const std::unique_ptr<QWidget> &widget)
+{
+    return Utils::findOrDefault(widget->findChildren<QToolButton *>(), [](QToolButton *button) {
+        return button->toolTip() == Tr::tr("Toggle multi-line mode.");
+    });
+}
+
+void RunConfigurationAspectsTest::testArgumentsAspectSwitchesEveryWidgetToMultiLine()
+{
+    ArgumentsAspect aspect;
+    aspect.setArguments("--kept");
+    const auto first = createWidget(aspect);
+    const auto second = createWidget(aspect);
+    QToolButton *firstButton = multiLineButton(first);
+    QVERIFY(firstButton);
+    QVERIFY(second->findChild<FancyLineEdit *>());
+
+    firstButton->click();
+
+    for (const std::unique_ptr<QWidget> *widget : {&first, &second}) {
+        QVERIFY(!(*widget)->findChild<FancyLineEdit *>());
+        QPlainTextEdit *editor = (*widget)->findChild<QPlainTextEdit *>();
+        QVERIFY(editor);
+        QCOMPARE(editor->toPlainText(), "--kept");
+        QVERIFY(multiLineButton(*widget));
+        QVERIFY(multiLineButton(*widget)->isChecked());
+    }
 }
 
 QObject *createRunConfigurationAspectsTest()

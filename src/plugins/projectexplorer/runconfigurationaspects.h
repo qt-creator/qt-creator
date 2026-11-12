@@ -118,17 +118,18 @@ public:
         QString arguments;
     };
 
+signals:
+    void argumentsChanged(QPrivateSignal);
+    void multiLineChanged(QPrivateSignal);
+    void focusRequested(QPrivateSignal);
+
 private:
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
 
-    QWidget *setupChooser();
+    QWidget *createEditor();
 
     QString m_arguments;
-    QPointer<Utils::FancyLineEdit> m_chooser;
-    QPointer<QPlainTextEdit> m_multiLineChooser;
-    QPointer<Utils::ExpandButton> m_multiLineButton;
-    QPointer<QToolButton> m_resetButton;
     bool m_multiLine = false;
     mutable bool m_currentlyExpanding = false;
     std::function<QString()> m_resetter;
