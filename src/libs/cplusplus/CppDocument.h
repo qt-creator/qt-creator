@@ -395,7 +395,6 @@ public:
 
     typedef Base::const_iterator iterator;
     typedef Base::const_iterator const_iterator;
-    typedef QPair<Document::Ptr, int> IncludeLocation;
 
     int size() const; // ### remove
     bool isEmpty() const;
@@ -423,8 +422,6 @@ public:
                                      const Utils::FilePath &filePath) const;
 
     QSet<Utils::FilePath> allIncludesForDocument(const Utils::FilePath &filePath) const;
-
-    QList<IncludeLocation> includeLocationsOfDocument(const Utils::FilePath &fileNameOrPath) const;
 
     Utils::FilePaths filesDependingOn(const Utils::FilePath &filePath) const;
 

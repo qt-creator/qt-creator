@@ -1252,6 +1252,42 @@ void ModelManagerTest::testMoveIncludingSources()
     QCOMPARE(CppModelManager::snapshot().allIncludesForDocument(newSource), includedHeaders);
 }
 
+void ModelManagerTest::testRenamingAFormRewritesTheIncludesOfItsHeader()
+{
+    Kit * const kit = kitWithQt();
+    if (!kit)
+        QSKIP("The test requires a valid kit with a C++ compiler and a Qt");
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath plainSpelling = projectDir / "main.cpp";
+    const FilePath withDirectory = projectDir / "other.cpp";
+    QVERIFY((projectDir / "form.ui").writeFileContents(
+        "<ui version=\"4.0\"><class>Form</class>"
+        "<widget class=\"QWidget\" name=\"Form\"/></ui>\n"));
+    QVERIFY(plainSpelling.writeFileContents("#include \"ui_form.h\"\nint main() { return 0; }\n"));
+    QVERIFY(withDirectory.writeFileContents("#include \"forms/ui_form.h\"\n"));
+    QVERIFY((projectDir / "p.pro").writeFileContents(
+        "QT += widgets\nTEMPLATE = app\nTARGET = p\nFORMS = form.ui\n"
+        "SOURCES = main.cpp other.cpp\n"));
+
+    ProjectOpenerAndCloser projectMgr;
+    QVERIFY(projectMgr.open(projectDir / "p.pro", kit));
+    // Not the first refresh: that can be the one for the generated header alone.
+    QCOMPARE(TestCase::waitForFilesInGlobalSnapshot({plainSpelling, withDirectory}).size(), 2);
+
+    QVERIFY(ProjectExplorerPlugin::renameFile(projectDir / "form.ui", projectDir / "renamed.ui"));
+
+    const Result<QByteArray> plainSpellingContents = plainSpelling.fileContents();
+    QVERIFY(plainSpellingContents);
+    QCOMPARE(*plainSpellingContents,
+             QByteArray("#include \"ui_renamed.h\"\nint main() { return 0; }\n"));
+    const Result<QByteArray> withDirectoryContents = withDirectory.fileContents();
+    QVERIFY(withDirectoryContents);
+    QCOMPARE(*withDirectoryContents, QByteArray("#include \"forms/ui_renamed.h\"\n"));
+}
+
 void ModelManagerTest::testRenameIncludesInEditor()
 {
     struct ModelManagerGCHelper {

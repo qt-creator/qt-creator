@@ -647,7 +647,10 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     // Sort into a map, putting the ones whose path closely matches the ui-folder path
     // first in case there are project subdirectories that contain identical file names.
     QList<Document::Ptr> docList;
-    for (const FilePath &includer : CppEditor::includersOfFileNamed(docTable, uicedName))
+    const FilePaths includers = Utils::filteredUnique(
+        Utils::transform(CppEditor::includersOfFileNamed(docTable, uicedName),
+                         &Link::targetFilePath));
+    for (const FilePath &includer : includers)
         docList.append(docTable.document(includer));
     DocumentMap docMap;
     for (const Document::Ptr &d : docList) {

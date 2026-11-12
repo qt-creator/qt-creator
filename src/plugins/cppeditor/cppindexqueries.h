@@ -36,10 +36,10 @@ CPPEDITOR_EXPORT QSet<Utils::FilePath> includeClosureOf(const CPlusPlus::Snapsho
 CPPEDITOR_EXPORT Utils::FilePaths filesDependingOn(const CPlusPlus::Snapshot &snapshot,
                                                    const Utils::FilePath &filePath);
 
-// Matches by file name, resolved or not, for headers like ui_<form>.h whose
-// location is unknown.
-CPPEDITOR_EXPORT Utils::FilePaths includersOfFileNamed(const CPlusPlus::Snapshot &snapshot,
-                                                       const QString &fileName);
+// The location of every #include directive naming a file called fileName, resolved or not,
+// for headers like ui_<form>.h whose location is unknown.
+CPPEDITOR_EXPORT Utils::Links includersOfFileNamed(const CPlusPlus::Snapshot &snapshot,
+                                                   const QString &fileName);
 
 // The files with an #include directive that may resolve differently now that newFiles
 // exist, plus all files that include them. Includes that already resolve to one of

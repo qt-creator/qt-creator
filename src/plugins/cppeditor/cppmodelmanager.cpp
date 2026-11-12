@@ -1909,19 +1909,9 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
             continue;
 
         // Handle locations where this file is included.
-        Links includers;
-        if (isUiFile) {
-            // FIXME: Use includersOfFileNamed(), once it reports each directive with its line.
-            //        The matching here differs from it for no good reason: For instance, an
-            //        unresolved include spelled with a directory is not found.
-            const QList<Snapshot::IncludeLocation> locations
-                = theSnapshot.includeLocationsOfDocument(FilePath::fromString(oldFileName));
-            for (const Snapshot::IncludeLocation &loc : locations)
-                includers.append(Link(loc.first->filePath(), loc.second));
-        } else {
-            includers = includersOf(theSnapshot, oldFilePath);
-        }
-        for (const Link &includer : std::as_const(includers)) {
+        const Links includers = isUiFile ? includersOfFileNamed(theSnapshot, oldFileName)
+                                         : includersOf(theSnapshot, oldFilePath);
+        for (const Link &includer : includers) {
             const FilePath includingFileOld = includer.targetFilePath;
             FilePath includingFileNew = includingFileOld;
             for (const auto &pathPair : oldAndNewPaths) {

@@ -35,6 +35,7 @@ private slots:
     void testRenameIncludes();
     void testMoveIncludingSources_data();
     void testMoveIncludingSources();
+    void testRenamingAFormRewritesTheIncludesOfItsHeader();
     void testRenameIncludesInEditor();
     void testDocumentsAndRevisions();
     void testSettingsChanges();

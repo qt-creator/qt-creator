@@ -53,17 +53,18 @@ FilePaths filesDependingOn(const Snapshot &snapshot, const FilePath &filePath)
     return snapshot.filesDependingOn(filePath);
 }
 
-FilePaths includersOfFileNamed(const Snapshot &snapshot, const QString &fileName)
+Links includersOfFileNamed(const Snapshot &snapshot, const QString &fileName)
 {
-    const auto isNamed = [&fileName](const Document::Include &include) {
-        return FilePath::fromString(include.unresolvedFileName()).fileName() == fileName;
-    };
-    FilePaths includers;
+    Links includers;
     for (const Document::Ptr &doc : snapshot) {
-        if (Utils::anyOf(doc->resolvedIncludes(), isNamed)
-            || Utils::anyOf(doc->unresolvedIncludes(), isNamed)) {
-            includers.append(doc->filePath());
-        }
+        const auto addIfNamed = [&](const QList<Document::Include> &includes) {
+            for (const Document::Include &include : includes) {
+                if (FilePath::fromString(include.unresolvedFileName()).fileName() == fileName)
+                    includers.append(Link(doc->filePath(), int(include.line())));
+            }
+        };
+        addIfNamed(doc->resolvedIncludes());
+        addIfNamed(doc->unresolvedIncludes());
     }
     return includers;
 }
@@ -315,11 +316,13 @@ void IndexQueriesTest::testIncludersOfFileNamed()
     addDocument(snapshot, otherIncluder, {named("ui_other.h", 1)});
     addDocument(snapshot, prefixIncluder, {named("my_ui_form.h", 1)});
 
-    FilePaths actual = includersOfFileNamed(snapshot, "ui_form.h");
-    Utils::sort(actual);
-    FilePaths expected{resolvedIncluder, unresolvedIncluder, repeatedIncluder};
-    Utils::sort(expected);
-    QCOMPARE(actual, expected);
+    const Links actual = includersOfFileNamed(snapshot, "ui_form.h");
+    QCOMPARE(actual.size(), 4);
+    const QSet<Link> expected{Link(resolvedIncluder, 1),
+                              Link(unresolvedIncluder, 1),
+                              Link(repeatedIncluder, 1),
+                              Link(repeatedIncluder, 2)};
+    QCOMPARE(Utils::toSet(actual), expected);
 
     QVERIFY(includersOfFileNamed(snapshot, "nothing_includes_this.h").isEmpty());
 }
