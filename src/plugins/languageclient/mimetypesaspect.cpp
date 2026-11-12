@@ -23,6 +23,10 @@
 #include <QStringListModel>
 #include <QVBoxLayout>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 namespace LanguageClient {
 
 static constexpr char filterSeparator = ';';
@@ -117,7 +121,7 @@ namespace Internal {
 class MimeTypesAspectPrivate
 {
 public:
-    QPointer<QLabel> m_displayLabel;
+    Utils::UndoableValue<QStringList> m_undoable;
 };
 
 } // namespace Internal
@@ -140,11 +144,16 @@ void MimeTypesAspect::addToLayoutImpl(Layouting::Layout &parent)
     auto displayLabel = createSubWidget<QLabel>();
     auto button = createSubWidget<QPushButton>(Tr::tr("Set MIME Types..."));
 
-    d->m_displayLabel = displayLabel;
-
     connect(button, &QPushButton::pressed, this, &MimeTypesAspect::showMimeTypeDialog);
 
-    volatileValueToGui();
+    d->m_undoable.setSilently(m_volatileValue);
+    displayLabel->setText(d->m_undoable.get().join(filterSeparator));
+    connect(&d->m_undoable.m_signal, &Utils::UndoSignaller::changed, displayLabel, [this, displayLabel] {
+        displayLabel->setText(d->m_undoable.get().join(filterSeparator));
+    });
+    // Once per change however many labels there are.
+    connect(&d->m_undoable.m_signal, &Utils::UndoSignaller::changed,
+            this, &MimeTypesAspect::handleGuiChanged, Qt::UniqueConnection);
 
     auto container = new QWidget;
     auto hLayout = new QHBoxLayout(container);
@@ -158,17 +167,12 @@ void MimeTypesAspect::addToLayoutImpl(Layouting::Layout &parent)
 
 bool MimeTypesAspect::guiToVolatileValue()
 {
-    if (!d->m_displayLabel)
-        return false;
-    const QStringList newValue
-        = d->m_displayLabel->text().split(filterSeparator, Qt::SkipEmptyParts);
-    return updateStorage(m_volatileValue, newValue);
+    return updateStorage(m_volatileValue, d->m_undoable.get());
 }
 
 void MimeTypesAspect::volatileValueToGui()
 {
-    if (d->m_displayLabel)
-        d->m_displayLabel->setText(m_volatileValue.join(filterSeparator));
+    d->m_undoable.setWithoutUndo(m_volatileValue);
 }
 
 void MimeTypesAspect::showMimeTypeDialog()
@@ -176,9 +180,44 @@ void MimeTypesAspect::showMimeTypeDialog()
     MimeTypeDialog dialog(m_volatileValue, Core::ICore::dialogParent());
     if (dialog.exec() == QDialog::Rejected)
         return;
-    if (d->m_displayLabel)
-        d->m_displayLabel->setText(dialog.mimeTypes().join(filterSeparator));
-    handleGuiChanged();
+    d->m_undoable.set(undoStack(), dialog.mimeTypes());
 }
 
+#ifdef WITH_TESTS
+namespace Internal {
+
+class MimeTypesAspectTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testUpdatesEveryLabel()
+    {
+        MimeTypesAspect aspect;
+        const std::unique_ptr<QWidget> first(Layouting::Column{aspect}.emerge());
+        const std::unique_ptr<QWidget> second(Layouting::Column{aspect}.emerge());
+        const auto shows = [](const std::unique_ptr<QWidget> &widget, const QString &text) {
+            return Utils::anyOf(widget->findChildren<QLabel *>(),
+                                [text](const QLabel *label) { return label->text() == text; });
+        };
+
+        aspect.setValue({"text/x-first", "text/x-second"});
+
+        QVERIFY(shows(first, "text/x-first;text/x-second"));
+        QVERIFY(shows(second, "text/x-first;text/x-second"));
+    }
+};
+
+QObject *createMimeTypesAspectTest()
+{
+    return new MimeTypesAspectTest;
+}
+
+} // namespace Internal
+#endif // WITH_TESTS
+
 } // namespace LanguageClient
+
+#ifdef WITH_TESTS
+#include <mimetypesaspect.moc>
+#endif

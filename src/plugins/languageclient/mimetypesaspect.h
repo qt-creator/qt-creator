@@ -9,7 +9,10 @@
 
 namespace LanguageClient {
 
-namespace Internal { class MimeTypesAspectPrivate; }
+namespace Internal {
+class MimeTypesAspectPrivate;
+QObject *createMimeTypesAspectTest();
+} // namespace Internal
 
 class LANGUAGECLIENT_EXPORT MimeTypesAspect : public Utils::TypedAspect<QStringList>
 {

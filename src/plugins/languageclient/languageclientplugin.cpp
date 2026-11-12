@@ -9,6 +9,7 @@
 #include "languageclientsymbolsupport.h"
 #include "languageclienttr.h"
 #include "mcptools.h"
+#include "mimetypesaspect.h"
 #include "requiresprojectorfile_test.h"
 #include "snippet.h"
 #include "workspaceeditpreview.h"
@@ -64,6 +65,7 @@ void LanguageClientPlugin::initialize()
     addTestCreator(&Internal::createRequiresProjectOrFileTest);
     addTestCreator(&createWorkspaceEditPreviewTest);
     addTestCreator(&createMcpToolsTest);
+    addTestCreator(&Internal::createMimeTypesAspectTest);
     addTestCreator(&createSymbolSupportTest);
 #endif
 
