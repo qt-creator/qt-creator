@@ -23,6 +23,8 @@ namespace ProjectExplorer {
 
 class ProjectConfiguration;
 
+namespace Internal { QObject *createRunConfigurationAspectsTest(); }
+
 class PROJECTEXPLORER_EXPORT TerminalAspect : public Utils::BaseAspect
 {
     Q_OBJECT
@@ -56,7 +58,9 @@ private:
     bool m_useTerminalHint = false;
     bool m_useTerminal = false;
     bool m_userSet = false;
-    QPointer<QCheckBox> m_checkBox; // Owned by RunConfigWidget
+
+signals:
+    void useTerminalChanged(QPrivateSignal);
 };
 
 class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public Utils::BaseAspect

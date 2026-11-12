@@ -928,6 +928,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTestCreator(createProjectModelTest);
     addTestCreator(createProjectTest);
     addTestCreator(createRunConfigurationTest);
+    addTestCreator(createRunConfigurationAspectsTest);
     addTestCreator(createRunWorkerConflictTest);
     addTestCreator(createRunControlOutputPaneTest);
     addTestCreator(createRunControlStandardInputTest);

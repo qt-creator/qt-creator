@@ -34,6 +34,10 @@
 #include <QToolButton>
 #include <QPushButton>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 using namespace Utils;
 using namespace Layouting;
 
@@ -69,15 +73,18 @@ TerminalAspect::TerminalAspect(AspectContainer *container)
 */
 void TerminalAspect::addToLayoutImpl(Layout &parent)
 {
-    QTC_CHECK(!m_checkBox);
-    m_checkBox = createSubWidget<QCheckBox>(Tr::tr("Run in terminal"));
-    m_checkBox->setChecked(m_useTerminal);
-    m_checkBox->setEnabled(isEnabled());
-    parent.addItems({empty, m_checkBox.data()});
-    connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
+    auto checkBox = createSubWidget<QCheckBox>(Tr::tr("Run in terminal"));
+    checkBox->setChecked(m_useTerminal);
+    checkBox->setEnabled(isEnabled());
+    parent.addItems({empty, checkBox});
+    connect(checkBox, &QAbstractButton::clicked, this, [this, checkBox] {
         m_userSet = true;
-        m_useTerminal = m_checkBox->isChecked();
+        m_useTerminal = checkBox->isChecked();
+        emit useTerminalChanged(QPrivateSignal());
         emit changed();
+    });
+    connect(this, &TerminalAspect::useTerminalChanged, checkBox, [this, checkBox] {
+        checkBox->setChecked(m_useTerminal);
     });
 }
 
@@ -93,8 +100,7 @@ void TerminalAspect::fromMap(const Store &map)
         m_userSet = false;
     }
 
-    if (m_checkBox)
-        m_checkBox->setChecked(m_useTerminal);
+    emit useTerminalChanged(QPrivateSignal());
 }
 
 /*!
@@ -120,8 +126,7 @@ void TerminalAspect::calculateUseTerminal()
         m_useTerminal = useTerminal;
         emit changed();
     }
-    if (m_checkBox)
-        m_checkBox->setChecked(m_useTerminal);
+    emit useTerminalChanged(QPrivateSignal());
 }
 
 /*!
@@ -153,8 +158,7 @@ void TerminalAspect::setVariantValue(const QVariant &value, Announcement howToAn
         return;
     m_userSet = true;
     m_useTerminal = useTerminal;
-    if (m_checkBox)
-        m_checkBox->setChecked(m_useTerminal);
+    emit useTerminalChanged(QPrivateSignal());
     if (howToAnnounce == DoEmit)
         emit changed();
 }
@@ -1179,4 +1183,51 @@ MainScriptAspect::MainScriptAspect(AspectContainer *container)
     : FilePathAspect(container)
 {}
 
+#ifdef WITH_TESTS
+namespace Internal {
+
+class RunConfigurationAspectsTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testTerminalAspectUpdatesEveryCheckBox();
+};
+
+static std::unique_ptr<QWidget> createWidget(BaseAspect &aspect)
+{
+    return std::unique_ptr<QWidget>(Column{aspect}.emerge());
+}
+
+void RunConfigurationAspectsTest::testTerminalAspectUpdatesEveryCheckBox()
+{
+    TerminalAspect aspect;
+    const auto first = createWidget(aspect);
+    const auto second = createWidget(aspect);
+    QCheckBox *firstBox = first->findChild<QCheckBox *>();
+    QCheckBox *secondBox = second->findChild<QCheckBox *>();
+    QVERIFY(firstBox);
+    QVERIFY(secondBox);
+
+    aspect.setVariantValue(true);
+    QVERIFY(firstBox->isChecked());
+    QVERIFY(secondBox->isChecked());
+
+    firstBox->click();
+    QVERIFY(!aspect.useTerminal());
+    QVERIFY(!secondBox->isChecked());
+}
+
+QObject *createRunConfigurationAspectsTest()
+{
+    return new RunConfigurationAspectsTest;
+}
+
+} // namespace Internal
+#endif // WITH_TESTS
+
 } // namespace ProjectExplorer
+
+#ifdef WITH_TESTS
+#include <runconfigurationaspects.moc>
+#endif
