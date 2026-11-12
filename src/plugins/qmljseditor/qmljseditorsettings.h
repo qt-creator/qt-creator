@@ -14,11 +14,15 @@ QT_END_NAMESPACE
 
 namespace QmlJSEditor::Internal {
 
+QObject *createAnalyzerMessagesAspectTest();
+
 // Custom static analyzer message selection, edited through a two-column
 // checkable tree. Persisted under the legacy DISABLED_MESSAGES /
 // DISABLED_MESSAGES_NONQUICKUI keys, which QmlJS::Check reads directly.
 class AnalyzerMessagesAspect final : public Utils::BaseAspect
 {
+    Q_OBJECT
+
 public:
     AnalyzerMessagesAspect(Utils::AspectContainer *container = nullptr);
 
@@ -30,12 +34,16 @@ public:
 
     void addToLayoutImpl(Layouting::Layout &parent) final;
 
+signals:
+    void volatileMessagesChanged(QPrivateSignal);
+
 private:
-    void populateModel();
+    void setVolatileMessages(const QList<int> &disabled, const QList<int> &disabledForNonQuickUi);
 
     QList<int> m_disabled;
     QList<int> m_disabledForNonQuickUi;
-    QPointer<QTreeView> m_view = nullptr;
+    QList<int> m_volatileDisabled;
+    QList<int> m_volatileDisabledForNonQuickUi;
 };
 
 // UI-only aspect (nothing persisted): hosts the "Install Qt Design Studio"

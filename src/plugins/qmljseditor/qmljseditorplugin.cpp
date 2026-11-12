@@ -517,6 +517,7 @@ class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
         setupQmlJsEditingSettings();
 
 #ifdef WITH_TESTS
+        addTestCreator(createAnalyzerMessagesAspectTest);
         addTestCreator(createQmlJSIndenterTest);
         addTestCreator(createQmlJSScopeEndTest);
         addTestCreator(createQmlJSQuickFixTest);

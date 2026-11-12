@@ -36,6 +36,10 @@
 #include <QPushButton>
 #include <QTreeView>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 
 using namespace QmlJSEditor::Internal;
 using namespace QtSupport;
@@ -317,28 +321,20 @@ AnalyzerMessagesAspect::AnalyzerMessagesAspect(AspectContainer *container)
 
 void AnalyzerMessagesAspect::apply()
 {
-    if (!m_view)
-        return;
-    m_disabled.clear();
-    m_disabledForNonQuickUi.clear();
-    extractMessageModel(m_view, m_disabled, m_disabledForNonQuickUi);
+    m_disabled = m_volatileDisabled;
+    m_disabledForNonQuickUi = m_volatileDisabledForNonQuickUi;
 }
 
 void AnalyzerMessagesAspect::cancel()
 {
-    if (m_view)
-        populateModel();
+    setVolatileMessages(m_disabled, m_disabledForNonQuickUi);
 }
 
 bool AnalyzerMessagesAspect::isDirty() const
 {
-    if (!m_view)
-        return false;
-    QList<int> disabled;
-    QList<int> disabledForNonQuickUi;
-    extractMessageModel(m_view, disabled, disabledForNonQuickUi);
-    return Utils::sorted(disabled) != Utils::sorted(m_disabled)
-           || Utils::sorted(disabledForNonQuickUi) != Utils::sorted(m_disabledForNonQuickUi);
+    return Utils::sorted(m_volatileDisabled) != Utils::sorted(m_disabled)
+           || Utils::sorted(m_volatileDisabledForNonQuickUi)
+                  != Utils::sorted(m_disabledForNonQuickUi);
 }
 
 void AnalyzerMessagesAspect::readSettings()
@@ -353,8 +349,7 @@ void AnalyzerMessagesAspect::readSettings()
                 disabledMessagesToStringList(defaultDisabledMessagesNonQuickUi()))
             .toStringList());
     s.endGroup();
-    if (m_view)
-        populateModel();
+    setVolatileMessages(m_disabled, m_disabledForNonQuickUi);
 }
 
 void AnalyzerMessagesAspect::writeSettings() const
@@ -366,40 +361,59 @@ void AnalyzerMessagesAspect::writeSettings() const
     s.endGroup();
 }
 
-void AnalyzerMessagesAspect::populateModel()
+void AnalyzerMessagesAspect::setVolatileMessages(const QList<int> &disabled,
+                                                 const QList<int> &disabledForNonQuickUi)
 {
-    populateMessageModel(m_view, m_disabled, m_disabledForNonQuickUi);
+    m_volatileDisabled = disabled;
+    m_volatileDisabledForNonQuickUi = disabledForNonQuickUi;
+    emit volatileMessagesChanged(QPrivateSignal());
 }
 
 void AnalyzerMessagesAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    m_view = createSubWidget<QTreeView>();
-    auto model = new TreeModel<AnalyzerMessageItem>(m_view);
+    auto view = createSubWidget<QTreeView>();
+    auto model = new TreeModel<AnalyzerMessageItem>(view);
     model->setHeader({Tr::tr("Enabled"), Tr::tr("Only for Qt Quick UI"), Tr::tr("Message")});
-    m_view->setModel(model);
-    m_view->setToolTip(
+    view->setModel(model);
+    view->setToolTip(
         "<html>"
         + Tr::tr("Enabled checks can be disabled for non Qt Quick UI"
                  " files, but disabled checks cannot get explicitly"
                  " enabled for non Qt Quick UI files."));
-    m_view->setContextMenuPolicy(Qt::CustomContextMenu);
+    view->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    populateModel();
+    populateMessageModel(view, m_volatileDisabled, m_volatileDisabledForNonQuickUi);
 
-    connect(model, &QAbstractItemModel::dataChanged, this, &checkSettingsDirty);
+    connect(model, &QAbstractItemModel::dataChanged, this, [this, view] {
+        QList<int> disabled;
+        QList<int> disabledForNonQuickUi;
+        extractMessageModel(view, disabled, disabledForNonQuickUi);
+        setVolatileMessages(disabled, disabledForNonQuickUi);
+        checkSettingsDirty();
+    });
+    connect(this, &AnalyzerMessagesAspect::volatileMessagesChanged, view, [this, view] {
+        QList<int> disabled;
+        QList<int> disabledForNonQuickUi;
+        extractMessageModel(view, disabled, disabledForNonQuickUi);
+        // The view that was edited already shows the change; do not reset it under the edit.
+        if (Utils::sorted(disabled) == Utils::sorted(m_volatileDisabled)
+            && Utils::sorted(disabledForNonQuickUi) == Utils::sorted(m_volatileDisabledForNonQuickUi)) {
+            return;
+        }
+        populateMessageModel(view, m_volatileDisabled, m_volatileDisabledForNonQuickUi);
+    });
 
-    connect(m_view, &QTreeView::customContextMenuRequested, this, [this](const QPoint &pos) {
+    connect(view, &QTreeView::customContextMenuRequested, this, [this, view](const QPoint &pos) {
         QMenu menu;
         QAction *reset = menu.addAction(Tr::tr("Reset to Default"));
         connect(reset, &QAction::triggered, this, [this] {
-            populateMessageModel(m_view, defaultDisabledMessages(),
-                                 defaultDisabledMessagesNonQuickUi());
+            setVolatileMessages(defaultDisabledMessages(), defaultDisabledMessagesNonQuickUi());
             checkSettingsDirty();
         });
-        menu.exec(m_view->mapToGlobal(pos));
+        menu.exec(view->mapToGlobal(pos));
     });
 
-    parent.addItem(m_view);
+    parent.addItem(view);
 }
 
 QdsInstallAspect::QdsInstallAspect(AspectContainer *container)
@@ -452,4 +466,47 @@ void setupQmlJsEditingSettings()
 }
 
 
+#ifdef WITH_TESTS
+class AnalyzerMessagesAspectTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testUpdatesEveryView()
+    {
+        AnalyzerMessagesAspect aspect;
+        const std::unique_ptr<QWidget> first(Layouting::Column{aspect}.emerge());
+        const std::unique_ptr<QWidget> second(Layouting::Column{aspect}.emerge());
+        QTreeView *firstView = first->findChild<QTreeView *>();
+        QTreeView *secondView = second->findChild<QTreeView *>();
+        QVERIFY(firstView);
+        QVERIFY(secondView);
+        QVERIFY(firstView->model()->rowCount() > 0);
+        const auto checkState = [](QTreeView *view) {
+            return view->model()->index(0, 0).data(Qt::CheckStateRole);
+        };
+        const QVariant before = checkState(firstView);
+        const Qt::CheckState toggled = before == Qt::Checked ? Qt::Unchecked : Qt::Checked;
+
+        firstView->model()->setData(firstView->model()->index(0, 0), toggled, Qt::CheckStateRole);
+        QCOMPARE(checkState(secondView), QVariant(toggled));
+        QVERIFY(aspect.isDirty());
+
+        aspect.cancel();
+        QVERIFY(!aspect.isDirty());
+        QCOMPARE(checkState(firstView), before);
+        QCOMPARE(checkState(secondView), before);
+    }
+};
+
+QObject *createAnalyzerMessagesAspectTest()
+{
+    return new AnalyzerMessagesAspectTest;
+}
+#endif // WITH_TESTS
+
 } // QmlJsEditor::Internal
+
+#ifdef WITH_TESTS
+#include <qmljseditorsettings.moc>
+#endif
